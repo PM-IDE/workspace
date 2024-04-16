@@ -1,0 +1,35 @@
+services:
+  ficus_backend:
+    container_name: ficus_backend
+    build:
+      context: ../../
+      dockerfile: "./Ficus/docker/run/Run.FicusBackend.Dockerfile"
+    expose:
+      - 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - local
+    volumes:
+      - shared_volume:/tmp
+
+  bxes_tests:
+    container_name: bxes_tests
+    environment:
+      - FICUS_BACKEND_ADDR=ficus_backend:8080
+    build:
+      context: ../../
+      dockerfile: "./bxes/docker/Bxes.IntegrationTests.Dockerfile"
+    networks:
+      - local
+    volumes:
+      - shared_volume:/tmp
+    depends_on:
+      - ficus_backend
+
+volumes:
+  shared_volume: {}
+
+networks:
+  local:
+    driver: bridge

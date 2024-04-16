@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "util.proto";
+
+package ficus;
+
+message GrpcSimpleEventLog {
+    repeated GrpcSimpleTrace traces = 1;
+}
+
+message GrpcSimpleTrace {
+    repeated GrpcEvent events = 1;
+}
+
+message GrpcEvent {
+    string name = 1;
+    GrpcEventStamp stamp = 2;
+}
+
+message GrpcEventStamp {
+    oneof stamp {
+        google.protobuf.Timestamp date = 1;
+        uint64 order = 2;
+    }
+}
+
+
+message GrpcHashesEventLog {
+    repeated GrpcHashesLogTrace traces = 2;
+}
+
+message GrpcHashesLogTrace {
+    repeated uint64 events = 1;
+}
+
+
+message GrpcNamesEventLog {
+    repeated GrpcNamesTrace traces = 1;
+}
+
+message GrpcNamesTrace {
+    repeated string events = 1;
+}
+
+message GrpcPetriNet {
+    repeated GrpcPetriNetPlace places = 1;
+    repeated GrpcPetriNetTransition transitions = 2;
+    GrpcPetriNetMarking initial_marking = 3;
+    GrpcPetriNetMarking final_marking = 4;
+}
+
+message GrpcPetriNetPlace {
+    int64 id = 1;
+    string name = 2;
+}
+
+message GrpcPetriNetTransition {
+    int64 id = 1;
+    repeated GrpcPetriNetArc incomingArcs = 2;
+    repeated GrpcPetriNetArc outgoingArcs = 3;
+    string data = 4;
+}
+
+message GrpcPetriNetArc {
+    int64 id = 1;
+    int64 placeId = 2;
+    int64 tokens_count = 3;
+}
+
+message GrpcPetriNetMarking {
+    repeated GrpcPetriNetSinglePlaceMarking markings = 1;
+}
+
+message GrpcPetriNetSinglePlaceMarking {
+    int64 placeId = 1;
+    int64 tokensCount = 2;
+}
+
+message GrpcCountAnnotation {
+    repeated GrpcEntityCountAnnotation annotations = 1;
+}
+
+message GrpcEntityCountAnnotation {
+    int64 entityId = 1;
+    int64 count = 2;
+}
+
+message GrpcFrequenciesAnnotation {
+    repeated GrpcEntityFrequencyAnnotation annotations = 2;
+}
+
+message GrpcEntityFrequencyAnnotation {
+    int64 entityId = 1;
+    float frequency = 2;
+}
+
+message GrpcMatrix {
+    repeated GrpcMatixRow rows = 1;
+}
+
+message GrpcMatixRow {
+    repeated float values = 1;
+}
+
+message GrpcDataset {
+    GrpcMatrix matrix = 1;
+    repeated string columnsNames = 2;
+    repeated string rowNames = 3;
+}
+
+message GrpcLabeledDataset {
+    GrpcDataset dataset = 1;
+    repeated int32 labels = 2;
+    repeated GrpcColor labelsColors = 3;
+}

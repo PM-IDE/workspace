@@ -1,0 +1,15 @@
+bin
+obj
+.idea
+data
+.DS_Store
+*.tmp
+.pytest_cache
+__pycache__
+results
+build/*
+pm4pyex.egg-info/*
+test_data
+target
+.vscode
+.ipynb_checkpoints

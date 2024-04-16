@@ -1,0 +1,14 @@
+bin
+obj
+.idea
+data
+.DS_Store
+*.tmp
+.pytest_cache
+__pycache__
+results
+ProcessMining/pm4pyex/pm4pyex/tests/test_data
+cmake-build-debug
+*.user
+build
+Logs

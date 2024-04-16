@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler" AssemblyFile="$(SolutionDir)/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>preview</LangVersion>
+        <ServerGarbageCollection>true</ServerGarbageCollection>
+        <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Autofac" Version="6.4.0"/>
+        <PackageReference Include="JetBrains.Annotations" Version="2022.1.0"/>
+        <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.351802"/>
+        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0-preview.7.22375.6"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0-preview.7.22375.6"/>
+        <PackageReference Include="Mono.Cecil" Version="0.11.4"/>
+        <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0"/>
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="data\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Remove="data\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="data\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="src\Core\EventsProcessing\Mutators\SingleEventMutators\StatefulMutators"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Bxes">
+        <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\Debug\net8.0\Bxes.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <Target Name="BuildCppProcfiler" AfterTargets="Build">
+        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)..\cpp\"/>
+    </Target>
+
+    <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfiler" Outputs="$(OutputPath)CppProcfiler.dll">
+        <Copy SourceFiles="$(SolutionDir)..\cpp\build\Release\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
+    </Target>
+</Project>

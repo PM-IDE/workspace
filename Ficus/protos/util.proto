@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package ficus;
+
+message GrpcGuid {
+    string guid = 1;
+}
+
+message GrpcColor {
+    uint32 red = 1;
+    uint32 green = 2;
+    uint32 blue = 3;
+}
+
+message GrpcUuid {
+    string uuid = 1;
+}

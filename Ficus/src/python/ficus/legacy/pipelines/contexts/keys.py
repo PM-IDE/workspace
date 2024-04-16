@@ -1,0 +1,13 @@
+log_key = 'log'
+activities_key = 'activities'
+repeat_sets_key = 'repeat_sets'
+traces_activities_key = 'traces_activities'
+patterns_key = 'patterns'
+petri_net_key = 'petri_net'
+event_class_tree_key = 'event_class_tree'
+activities_to_logs_key = 'activities_logs'
+activity_name_key = 'activity_name_key'
+cached_colors_key = 'cached_colors'
+
+serialized_graph_key = 'serialized_graph'
+graph_key = 'graph'
