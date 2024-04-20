@@ -10,6 +10,7 @@ public class SingleFileBxesReader : IBxesReader
     using var br = new BinaryReader(cookie.Stream);
 
     var version = br.ReadUInt32();
+    var valueAttributesDescriptors = BxesReadUtils.ReadValueAttributeDescriptors(br);
     var values = BxesReadUtils.ReadValues(br);
     var keyValues = BxesReadUtils.ReadKeyValuePairs(br);
     var metadata = BxesReadUtils.ReadMetadata(br, keyValues, values);

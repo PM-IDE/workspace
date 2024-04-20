@@ -12,7 +12,6 @@ public interface IEventLogMetadata : IEquatable<IEventLogMetadata>
     IList<BxesClassifier> Classifiers { get; }
     IList<AttributeKeyValue> Properties { get; }
     IList<BxesGlobal> Globals { get; }
-    IList<ValueAttributeDescriptor> ValueAttributesNames { get; }
 
     IEnumerable<BxesValue> EnumerateValues()
     {
@@ -87,7 +86,6 @@ public class EventLogMetadata : IEventLogMetadata
     public IList<BxesClassifier> Classifiers { get; } = new List<BxesClassifier>();
     public IList<AttributeKeyValue> Properties { get; } = new List<AttributeKeyValue>();
     public IList<BxesGlobal> Globals { get; } = new List<BxesGlobal>();
-    public IList<ValueAttributeDescriptor> ValueAttributesNames { get; } = new List<ValueAttributeDescriptor>();
 
 
     public bool Equals(IEventLogMetadata? other)
@@ -98,8 +96,7 @@ public class EventLogMetadata : IEventLogMetadata
             other.Extensions.Count != Extensions.Count ||
             other.Classifiers.Count != Classifiers.Count ||
             other.Properties.Count != Properties.Count ||
-            other.Globals.Count != Globals.Count ||
-            other.ValueAttributesNames.Count != ValueAttributesNames.Count)
+            other.Globals.Count != Globals.Count)
         {
             return false;
         }
@@ -107,9 +104,8 @@ public class EventLogMetadata : IEventLogMetadata
         if (!EventLogUtil.EqualsRegardingOrder(Extensions, other.Extensions)) return false;
         if (!EventLogUtil.EqualsRegardingOrder(Classifiers, other.Classifiers)) return false;
         if (!EventLogUtil.EqualsRegardingOrder(Properties, other.Properties)) return false;
-        if (!EventLogUtil.EqualsRegardingOrder(Globals, other.Globals)) return false;
 
-        return EventLogUtil.EqualsRegardingOrder(ValueAttributesNames, other.ValueAttributesNames);
+        return EventLogUtil.EqualsRegardingOrder(Globals, other.Globals);
     }
 
     public override bool Equals(object? obj) => obj is EventLogMetadata other && Equals(other);
@@ -120,8 +116,7 @@ public class EventLogMetadata : IEventLogMetadata
             Extensions.CalculateHashCode(),
             Classifiers.CalculateHashCode(),
             Properties.CalculateHashCode(),
-            Globals.CalculateHashCode(),
-            ValueAttributesNames.CalculateHashCode()
+            Globals.CalculateHashCode()
         );
     }
 }

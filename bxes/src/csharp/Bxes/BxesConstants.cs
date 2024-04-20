@@ -10,6 +10,7 @@ public static class BxesConstants
   public const string ValuesFileName = "values.bxes";
   public const string KVPairsFileName = "kvpair.bxes";
   public const string TracesFileName = "traces.bxes";
+  public const string SystemMetadataFileName = "system_metadata.bxes";
 
   public static Encoding BxesEncoding { get; } = Encoding.UTF8;
 }

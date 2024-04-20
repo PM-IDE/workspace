@@ -119,16 +119,24 @@ public static class BxesReadUtils
       });
     }
 
+    return metadata;
+  }
+
+  public static List<ValueAttributeDescriptor> ReadValueAttributeDescriptors(BinaryReader reader)
+  {
     var valuesAttributesCount = reader.ReadUInt32();
+    if (valuesAttributesCount == 0) return [];
+
+    var descriptors = new List<ValueAttributeDescriptor>();
     for (uint i = 0; i < valuesAttributesCount; ++i)
     {
       var typeId = (TypeIds)reader.ReadByte();
-      var attributeName = (BxesStringValue)BxesValue.Parse(reader, values);
+      var attributeName = (BxesStringValue)BxesValue.Parse(reader, []);
       
-      metadata.ValueAttributesNames.Add(new ValueAttributeDescriptor(typeId, attributeName.Value));
+      descriptors.Add(new ValueAttributeDescriptor(typeId, attributeName.Value));
     }
 
-    return metadata;
+    return descriptors;
   }
 
   public static List<ITraceVariant> ReadVariants(

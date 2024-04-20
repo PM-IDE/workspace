@@ -3,7 +3,7 @@ using Bxes.Utils;
 
 namespace Bxes.Writer;
 
-public class MultipleFilesBxesWriter : IBxesWriter
+public class MultipleFilesBxesWriter(List<ValueAttributeDescriptor> descriptors) : IBxesWriter
 {
   public void Write(IEventLog log, string savePath)
   {
@@ -18,6 +18,12 @@ public class MultipleFilesBxesWriter : IBxesWriter
       writeAction(log, context.WithWriter(writer));
 
     var version = log.Version;
+    
+    ExecuteWithFile(savePath, BxesConstants.SystemMetadataFileName, version, bw =>
+    {
+      BxesWriteUtils.WriteValuesAttributesDescriptors(descriptors, context.WithWriter(bw));
+    });
+    
     ExecuteWithFile(savePath, BxesConstants.ValuesFileName, version, bw => Write(bw, BxesWriteUtils.WriteValues));
     ExecuteWithFile(savePath, BxesConstants.KVPairsFileName, version,
       bw => Write(bw, BxesWriteUtils.WriteKeyValuePairs));

@@ -6,13 +6,15 @@ namespace Bxes.Writer.Stream;
 public class MultipleFilesBxesStreamWriterImpl<TEvent> : 
   IBxesStreamWriter, IXesToBxesStatisticsCollector where TEvent : IEvent
 {
+  private readonly string mySavePath;
   private readonly uint myBxesVersion;
   private readonly BinaryWriter myMetadataWriter;
   private readonly BinaryWriter myValuesWriter;
   private readonly BinaryWriter myKeyValuesWriter;
   private readonly BinaryWriter myTracesWriter;
   private readonly IEventLogMetadata myMetadata = new EventLogMetadata();
-
+  private readonly List<ValueAttributeDescriptor> myValueAttributesDescriptors;
+  
   private readonly BxesWriteContext myContext = new(null!);
   private readonly ValuesCounter myValuesCounter = new();
 
@@ -24,18 +26,19 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
 
 
   public MultipleFilesBxesStreamWriterImpl(string savePath, uint bxesVersion)
+    : this(savePath, bxesVersion, [])
+  {
+  }
+
+  public MultipleFilesBxesStreamWriterImpl(
+    string savePath, uint bxesVersion, List<ValueAttributeDescriptor> valueAttributes)
   {
     if (!Directory.Exists(savePath)) throw new SavePathIsNotDirectoryException(savePath);
 
-    BinaryWriter OpenWrite(string fileName)
-    {
-      var path = Path.Join(savePath, fileName);
-      PathUtil.EnsureDeleted(path);
 
-      return new BinaryWriter(File.OpenWrite(path));
-    }
-
+    mySavePath = savePath;
     myBxesVersion = bxesVersion;
+    myValueAttributesDescriptors = valueAttributes;
     myMetadataWriter = OpenWrite(BxesConstants.MetadataFileName);
     myValuesWriter = OpenWrite(BxesConstants.ValuesFileName);
     myKeyValuesWriter = OpenWrite(BxesConstants.KVPairsFileName);
@@ -44,8 +47,18 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     WriteInitialInfo();
   }
 
+
+  private BinaryWriter OpenWrite(string fileName)
+  {
+    var path = Path.Join(mySavePath, fileName);
+    PathUtil.EnsureDeleted(path);
+
+    return new BinaryWriter(File.OpenWrite(path));
+  }
+
   private void WriteInitialInfo()
   {
+    WriteSystemMetadata();
     myTracesWriter.Write(myBxesVersion);
     myMetadataWriter.Write(myBxesVersion);
     myKeyValuesWriter.Write(myBxesVersion);
@@ -54,6 +67,13 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     myTracesWriter.Write((uint)0);
     myKeyValuesWriter.Write((uint)0);
     myValuesWriter.Write((uint)0);
+  }
+
+  private void WriteSystemMetadata()
+  {
+    using var writer = OpenWrite(BxesConstants.SystemMetadataFileName);
+    writer.Write(myBxesVersion);
+    BxesWriteUtils.WriteValuesAttributesDescriptors(myValueAttributesDescriptors, myContext.WithWriter(writer));
   }
 
   public void HandleEvent(BxesStreamEvent @event)

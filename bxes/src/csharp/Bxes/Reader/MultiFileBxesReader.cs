@@ -16,6 +16,14 @@ public class MultiFileBxesReader : IBxesReader
     }
 
     uint? version = null;
+
+    List<ValueAttributeDescriptor> descriptors = null!;
+    OpenRead(BxesConstants.SystemMetadataFileName, reader =>
+    {
+      ValidateVersions(ref version, reader.ReadUInt32());
+      descriptors = BxesReadUtils.ReadValueAttributeDescriptors(reader);
+    });
+
     List<BxesValue> values = null!;
     OpenRead(BxesConstants.ValuesFileName, reader =>
     {

@@ -12,12 +12,16 @@ public class SingleFileBxesStreamWriterImpl<TEvent> :
   private readonly TempFolderContainer myFolderContainer;
 
 
-  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion)
+  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion) : this(savePath, bxesVersion, [])
+  {
+  }
+
+  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion, List<ValueAttributeDescriptor> descriptors)
   {
     mySavePath = savePath;
     myBxesVersion = bxesVersion;
     myFolderContainer = new TempFolderContainer();
-    myMultipleWriter = new MultipleFilesBxesStreamWriterImpl<TEvent>(myFolderContainer.Path, bxesVersion);
+    myMultipleWriter = new MultipleFilesBxesStreamWriterImpl<TEvent>(myFolderContainer.Path, bxesVersion, descriptors);
   }
 
 
@@ -44,6 +48,7 @@ public class SingleFileBxesStreamWriterImpl<TEvent> :
 
       BinaryReader OpenRead(string fileName) => new(File.OpenRead(Path.Join(myFolderContainer.Path, fileName)));
 
+      SkipVersionAndCopyContents(OpenRead(BxesConstants.SystemMetadataFileName), writer);
       SkipVersionAndCopyContents(OpenRead(BxesConstants.ValuesFileName), writer);
       SkipVersionAndCopyContents(OpenRead(BxesConstants.KVPairsFileName), writer);
       SkipVersionAndCopyContents(OpenRead(BxesConstants.MetadataFileName), writer);

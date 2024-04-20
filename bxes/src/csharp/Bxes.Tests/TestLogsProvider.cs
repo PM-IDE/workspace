@@ -61,7 +61,6 @@ public static class TestLogsProvider
     metadata.Classifiers.AddRange(GenerateRandomClassifiers());
     metadata.Extensions.AddRange(GenerateRandomExtensions());
     metadata.Globals.AddRange(GenerateRandomGlobals());
-    metadata.ValueAttributesNames.AddRange(GenerateRandomValueAttributesDescriptors());
 
     return metadata;
   }
@@ -213,7 +212,7 @@ public static class TestLogsProvider
     return new string(Enumerable.Range(0, length).Select(_ => GenerateRandomChar()).ToArray());
   }
 
-  private static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
+  public static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
   {
     var count = Random.Shared.Next(100);
     return Enumerable
