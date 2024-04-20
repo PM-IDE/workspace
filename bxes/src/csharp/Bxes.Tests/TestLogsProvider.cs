@@ -61,6 +61,7 @@ public static class TestLogsProvider
     metadata.Classifiers.AddRange(GenerateRandomClassifiers());
     metadata.Extensions.AddRange(GenerateRandomExtensions());
     metadata.Globals.AddRange(GenerateRandomGlobals());
+    metadata.ValueAttributesNames.AddRange(GenerateRandomValueAttributesDescriptors());
 
     return metadata;
   }
@@ -124,8 +125,7 @@ public static class TestLogsProvider
 
   private static BxesValue GenerateRandomBxesValue()
   {
-    var typeId = (TypeIds)Random.Shared.Next(Enum.GetValues<TypeIds>().Length);
-    return typeId switch
+    return GenerateRandomTypeId() switch
     {
       TypeIds.Null => BxesNullValue.Instance,
       TypeIds.I32 => new BxesInt32Value(Random.Shared.Next(10000)),
@@ -145,6 +145,11 @@ public static class TestLogsProvider
       TypeIds.SoftwareEventType => new BxesSoftwareEventTypeValue(GenerateRandomEnum<SoftwareEventTypeValues>()),
       _ => throw new ArgumentOutOfRangeException()
     };
+  }
+
+  private static TypeIds GenerateRandomTypeId()
+  {
+    return (TypeIds)Random.Shared.Next(Enum.GetValues<TypeIds>().Length);
   }
 
   private static BxesGuidValue GenerateGuidValue() => new(Guid.NewGuid());
@@ -200,12 +205,21 @@ public static class TestLogsProvider
     return Random.Shared.Next(2) == 1;
   }
 
-  private static BxesStringValue GenerateRandomBxesStringValue() => new BxesStringValue(GenerateRandomString());
+  private static BxesStringValue GenerateRandomBxesStringValue() => new(GenerateRandomString());
 
   private static string GenerateRandomString()
   {
     var length = Random.Shared.Next(100);
     return new string(Enumerable.Range(0, length).Select(_ => GenerateRandomChar()).ToArray());
+  }
+
+  private static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
+  {
+    var count = Random.Shared.Next(100);
+    return Enumerable
+      .Range(0, count)
+      .Select(_ => new ValueAttributeDescriptor(GenerateRandomTypeId(), GenerateRandomString()))
+      .ToList();
   }
 
   private static char GenerateRandomChar() => (char)('a' + Random.Shared.Next('z' - 'a' + 1));

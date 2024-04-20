@@ -119,6 +119,15 @@ public static class BxesReadUtils
       });
     }
 
+    var valuesAttributesCount = reader.ReadUInt32();
+    for (uint i = 0; i < valuesAttributesCount; ++i)
+    {
+      var typeId = (TypeIds)reader.ReadByte();
+      var attributeName = (BxesStringValue)BxesValue.Parse(reader, values);
+      
+      metadata.ValueAttributesNames.Add(new ValueAttributeDescriptor(typeId, attributeName.Value));
+    }
+
     return metadata;
   }
 

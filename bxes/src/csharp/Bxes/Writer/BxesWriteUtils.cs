@@ -147,6 +147,13 @@ internal static class BxesWriteUtils
         context.Writer.Write(context.ValuesIndices[new BxesStringValue(key.Value)]);
       }
     }
+    
+    context.Writer.Write((IndexType)metadata.ValueAttributesNames.Count);
+    foreach (var (typeId, name) in metadata.ValueAttributesNames)
+    {
+      context.Writer.Write((byte)typeId);
+      new BxesStringValue(name).WriteTo(context);
+    }
   }
 
   private static void WriteKeyValueIndex(AttributeKeyValue tuple, BxesWriteContext context)
