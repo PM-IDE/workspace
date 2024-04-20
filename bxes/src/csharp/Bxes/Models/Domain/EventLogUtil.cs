@@ -23,11 +23,11 @@ public static class EventLogUtil
         }
     }
 
-    public static bool Equals(ICollection<AttributeKeyValue> first, ICollection<AttributeKeyValue> second)
+    public static bool Equals<T>(ICollection<T> first, ICollection<T> second) where T : IEquatable<T>
     {
         return first.Count == second.Count &&
                first.Zip(second).All(pair =>
-                   pair.First.Key.Equals(pair.Second.Key) && pair.First.Value.Equals(pair.Second.Value));
+                   pair.First.Equals(pair.Second) && pair.First.Equals(pair.Second));
     }
 
     public static bool EqualsRegardingOrder<T>(IList<T> firstList, IList<T> secondList)

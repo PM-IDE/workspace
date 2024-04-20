@@ -17,8 +17,8 @@ public class SingleFileSimpleWriteTest
   {
     TestUtils.ExecuteTestWithTempFile(log, testPath =>
     {
-      var descriptors = TestLogsProvider.GenerateRandomValueAttributesDescriptors();
-      new SingleFileBxesWriter(descriptors).Write(log, testPath);
+      var metadata = TestLogsProvider.GenerateRandomSystemMetadata();
+      new SingleFileBxesWriter(metadata).Write(log, testPath);
       return new SingleFileBxesReader().Read(testPath);
     });
   }

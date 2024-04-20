@@ -1,4 +1,5 @@
 using Bxes.Models;
+using Bxes.Models.System;
 using Bxes.Models.Values;
 using Bxes.Models.Values.Lifecycle;
 using Bxes.Utils;
@@ -212,7 +213,12 @@ public static class TestLogsProvider
     return new string(Enumerable.Range(0, length).Select(_ => GenerateRandomChar()).ToArray());
   }
 
-  public static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
+  public static ISystemMetadata GenerateRandomSystemMetadata() => new SystemMetadata
+  {
+    ValueAttributeDescriptors = GenerateRandomValueAttributesDescriptors(),
+  };
+
+  private static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
   {
     var count = Random.Shared.Next(100);
     return Enumerable

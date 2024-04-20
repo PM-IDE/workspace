@@ -1,4 +1,5 @@
 using Bxes.Models;
+using Bxes.Models.System;
 using Bxes.Utils;
 
 namespace Bxes.Writer.Stream;
@@ -12,16 +13,17 @@ public class SingleFileBxesStreamWriterImpl<TEvent> :
   private readonly TempFolderContainer myFolderContainer;
 
 
-  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion) : this(savePath, bxesVersion, [])
+  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion) 
+    : this(savePath, bxesVersion, SystemMetadata.Default)
   {
   }
 
-  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion, List<ValueAttributeDescriptor> descriptors)
+  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion, ISystemMetadata metadata)
   {
     mySavePath = savePath;
     myBxesVersion = bxesVersion;
     myFolderContainer = new TempFolderContainer();
-    myMultipleWriter = new MultipleFilesBxesStreamWriterImpl<TEvent>(myFolderContainer.Path, bxesVersion, descriptors);
+    myMultipleWriter = new MultipleFilesBxesStreamWriterImpl<TEvent>(myFolderContainer.Path, bxesVersion, metadata);
   }
 
 

@@ -4,8 +4,6 @@ using Bxes.Writer.Stream;
 
 namespace Bxes.Models;
 
-public readonly record struct ValueAttributeDescriptor(TypeIds TypeId, string Name);
-
 public interface IEventLogMetadata : IEquatable<IEventLogMetadata>
 {
     IList<BxesExtension> Extensions { get; }

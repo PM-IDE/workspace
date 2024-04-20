@@ -17,8 +17,8 @@ public class MultipleFilesSimpleWriteTest
   {
     TestUtils.ExecuteTestWithTempFolder(log, testDirectory =>
     {
-      var descriptors = TestLogsProvider.GenerateRandomValueAttributesDescriptors();
-      new MultipleFilesBxesWriter(descriptors).Write(log, testDirectory);
+      var metadata = TestLogsProvider.GenerateRandomSystemMetadata();
+      new MultipleFilesBxesWriter(metadata).Write(log, testDirectory);
       return new MultiFileBxesReader().Read(testDirectory);
     });
   }

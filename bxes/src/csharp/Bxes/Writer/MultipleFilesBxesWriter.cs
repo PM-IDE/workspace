@@ -1,9 +1,10 @@
 using Bxes.Models;
+using Bxes.Models.System;
 using Bxes.Utils;
 
 namespace Bxes.Writer;
 
-public class MultipleFilesBxesWriter(List<ValueAttributeDescriptor> descriptors) : IBxesWriter
+public class MultipleFilesBxesWriter(ISystemMetadata metadata) : IBxesWriter
 {
   public void Write(IEventLog log, string savePath)
   {
@@ -21,7 +22,7 @@ public class MultipleFilesBxesWriter(List<ValueAttributeDescriptor> descriptors)
     
     ExecuteWithFile(savePath, BxesConstants.SystemMetadataFileName, version, bw =>
     {
-      BxesWriteUtils.WriteValuesAttributesDescriptors(descriptors, context.WithWriter(bw));
+      BxesWriteUtils.WriteValuesAttributesDescriptors(metadata.ValueAttributeDescriptors, context.WithWriter(bw));
     });
     
     ExecuteWithFile(savePath, BxesConstants.ValuesFileName, version, bw => Write(bw, BxesWriteUtils.WriteValues));

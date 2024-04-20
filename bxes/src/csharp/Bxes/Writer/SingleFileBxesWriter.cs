@@ -1,9 +1,10 @@
 using Bxes.Models;
+using Bxes.Models.System;
 using Bxes.Utils;
 
 namespace Bxes.Writer;
 
-public class SingleFileBxesWriter(List<ValueAttributeDescriptor> descriptors) : IBxesWriter
+public class SingleFileBxesWriter(ISystemMetadata metadata) : IBxesWriter
 {
   public void Write(IEventLog log, string savePath)
   {
@@ -15,7 +16,7 @@ public class SingleFileBxesWriter(List<ValueAttributeDescriptor> descriptors) : 
       var context = new BxesWriteContext(writer);
 
       BxesWriteUtils.WriteBxesVersion(writer, log.Version);
-      BxesWriteUtils.WriteValuesAttributesDescriptors(descriptors, context);
+      BxesWriteUtils.WriteValuesAttributesDescriptors(metadata.ValueAttributeDescriptors, context);
       BxesWriteUtils.WriteValues(log, context);
       BxesWriteUtils.WriteKeyValuePairs(log, context);
       BxesWriteUtils.WriteEventLogMetadata(log.Metadata, context);
