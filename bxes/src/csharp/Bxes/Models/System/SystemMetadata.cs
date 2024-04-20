@@ -10,7 +10,7 @@ public interface ISystemMetadata : IEquatable<ISystemMetadata>
 
 public class SystemMetadata : ISystemMetadata
 {
-    public static SystemMetadata Default { get; } = new SystemMetadata
+    public static SystemMetadata Default { get; } = new()
     {
         ValueAttributeDescriptors = []
     };
@@ -28,8 +28,7 @@ public class SystemMetadata : ISystemMetadata
 
     public bool Equals(ISystemMetadata? other)
     {
-        return other is { } &&
-               other is SystemMetadata &&
+        return other is SystemMetadata &&
                EventLogUtil.Equals(other.ValueAttributeDescriptors, ValueAttributeDescriptors);
     }
 

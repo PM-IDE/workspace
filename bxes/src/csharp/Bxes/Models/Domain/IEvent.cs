@@ -45,5 +45,5 @@ public class InMemoryEventImpl(
   public IList<AttributeKeyValue> Attributes { get; } = attributes;
 
 
-  public bool Equals(IEvent? other) => other is { } && EventUtil.Equals(this, other);
+  public bool Equals(IEvent? other) => other is InMemoryEventImpl && EventUtil.Equals(this, other);
 }

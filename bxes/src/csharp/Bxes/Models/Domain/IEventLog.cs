@@ -18,7 +18,7 @@ public class InMemoryEventLog(uint version, IEventLogMetadata metadata, List<ITr
 
   public bool Equals(IEventLog? other)
   {
-    return other is { } &&
+    return other is InMemoryEventLog &&
            Version == other.Version &&
            Metadata.Equals(other.Metadata) &&
            Traces.Count == other.Traces.Count &&

@@ -89,9 +89,9 @@ public class EventLogMetadata : IEventLogMetadata
     public bool Equals(IEventLogMetadata? other)
     {
         if (ReferenceEquals(other, this)) return true;
+        if (other is not EventLogMetadata) return false;
 
-        if (other is null ||
-            other.Extensions.Count != Extensions.Count ||
+        if (other.Extensions.Count != Extensions.Count ||
             other.Classifiers.Count != Classifiers.Count ||
             other.Properties.Count != Properties.Count ||
             other.Globals.Count != Globals.Count)
