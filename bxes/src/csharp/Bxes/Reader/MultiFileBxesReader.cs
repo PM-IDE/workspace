@@ -1,4 +1,3 @@
-using Bxes.Models;
 using Bxes.Models.Domain;
 using Bxes.Models.System;
 using Bxes.Writer;

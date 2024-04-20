@@ -1,5 +1,4 @@
 using Bxes.Logging;
-using Bxes.Models;
 using Bxes.Models.Domain;
 using Bxes.Writer.Stream;
 
