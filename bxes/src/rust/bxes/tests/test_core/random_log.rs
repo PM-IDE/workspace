@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use bxes::{
-    models::{
+    models::domain_models::{
         BrafLifecycle, BxesArtifact, BxesArtifactItem, BxesClassifier, BxesDriver, BxesDrivers,
         BxesEvent, BxesEventLog, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind,
         BxesTraceVariant, BxesValue, Lifecycle, SoftwareEventType, StandardLifecycle,
