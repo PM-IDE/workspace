@@ -15,11 +15,10 @@ public class MultipleFilesSimpleWriteTest
 
   private static void ExecuteSimpleTest(IEventLog log)
   {
-    TestUtils.ExecuteTestWithTempFolder(log, testDirectory =>
+    TestUtils.ExecuteTestWithTempFolder(log, data =>
     {
-      var metadata = TestLogsProvider.GenerateRandomSystemMetadata();
-      new MultipleFilesBxesWriter(metadata).Write(log, testDirectory);
-      return new MultiFileBxesReader().Read(testDirectory);
+      new MultipleFilesBxesWriter(data.SystemMetadata).Write(log, data.Path);
+      return new MultiFileBxesReader().Read(data.Path);
     });
   }
 }

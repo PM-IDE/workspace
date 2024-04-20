@@ -15,9 +15,9 @@ public class SingleFileStreamSimpleWriteTest
 
   private static void ExecuteSimpleTest(IEventLog log)
   {
-    TestUtils.ExecuteTestWithTempFile(log, testFile =>
+    TestUtils.ExecuteTestWithTempFile(log, data =>
     {
-      using (var writer = new SingleFileBxesStreamWriterImpl<IEvent>(testFile, log.Version))
+      using (var writer = new SingleFileBxesStreamWriterImpl<IEvent>(data.Path, log.Version, data.SystemMetadata))
       {
         foreach (var streamEvent in log.ToEventsStream())
         {
@@ -25,7 +25,7 @@ public class SingleFileStreamSimpleWriteTest
         }
       }
 
-      return new SingleFileBxesReader().Read(testFile);
+      return new SingleFileBxesReader().Read(data.Path);
     });
   }
 }

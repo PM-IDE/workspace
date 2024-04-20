@@ -34,7 +34,7 @@ public class BxesToXesConverter : IBetweenFormatsConverter
 {
   public void Convert(string filePath, string outputPath)
   {
-    var log = new SingleFileBxesReader().Read(filePath);
+    var log = new SingleFileBxesReader().Read(filePath).EventLog;
 
     using var fs = File.OpenWrite(outputPath);
     using var writer = XmlWriter.Create(fs, new XmlWriterSettings

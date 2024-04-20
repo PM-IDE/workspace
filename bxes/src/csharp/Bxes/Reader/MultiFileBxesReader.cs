@@ -6,7 +6,7 @@ namespace Bxes.Reader;
 
 public class MultiFileBxesReader : IBxesReader
 {
-  public IEventLog Read(string path)
+  public EventLogReadResult Read(string path)
   {
     if (!Directory.Exists(path)) throw new SavePathIsNotDirectoryException(path);
 
@@ -18,11 +18,11 @@ public class MultiFileBxesReader : IBxesReader
 
     uint? version = null;
 
-    List<ValueAttributeDescriptor> descriptors = null!;
+    ISystemMetadata systemMetadata = null!;
     OpenRead(BxesConstants.SystemMetadataFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
-      descriptors = BxesReadUtils.ReadValueAttributeDescriptors(reader);
+      systemMetadata = BxesReadUtils.ReadSystemMetadata(reader);
     });
 
     List<BxesValue> values = null!;
@@ -53,7 +53,7 @@ public class MultiFileBxesReader : IBxesReader
       variants = BxesReadUtils.ReadVariants(reader, keyValues, values);
     });
 
-    return new InMemoryEventLog(version!.Value, metadata, variants);
+    return new EventLogReadResult(new InMemoryEventLog(version!.Value, metadata, variants), systemMetadata);
   }
 
   private static void ValidateVersions(ref uint? previousVersion, uint currentVersion)

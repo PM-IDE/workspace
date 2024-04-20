@@ -1,8 +1,11 @@
 using Bxes.Models.Domain;
+using Bxes.Models.System;
 
 namespace Bxes.Reader;
 
+public record struct EventLogReadResult(IEventLog EventLog, ISystemMetadata SystemMetadata);
+
 public interface IBxesReader
 {
-  IEventLog Read(string path);
+  EventLogReadResult Read(string path);
 }

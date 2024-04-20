@@ -15,11 +15,10 @@ public class SingleFileSimpleWriteTest
 
   private static void ExecuteSimpleTest(IEventLog log)
   {
-    TestUtils.ExecuteTestWithTempFile(log, testPath =>
+    TestUtils.ExecuteTestWithTempFile(log, data =>
     {
-      var metadata = TestLogsProvider.GenerateRandomSystemMetadata();
-      new SingleFileBxesWriter(metadata).Write(log, testPath);
-      return new SingleFileBxesReader().Read(testPath);
+      new SingleFileBxesWriter(data.SystemMetadata).Write(log, data.Path);
+      return new SingleFileBxesReader().Read(data.Path);
     });
   }
 }

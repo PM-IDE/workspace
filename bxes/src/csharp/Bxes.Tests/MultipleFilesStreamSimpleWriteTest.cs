@@ -15,9 +15,9 @@ public class MultipleFilesStreamSimpleWriteTest
 
   private static void ExecuteSimpleTest(IEventLog log)
   {
-    TestUtils.ExecuteTestWithTempFolder(log, testDirectory =>
+    TestUtils.ExecuteTestWithTempFolder(log, data =>
     {
-      using (var writer = new MultipleFilesBxesStreamWriterImpl<IEvent>(testDirectory, log.Version))
+      using (var writer = new MultipleFilesBxesStreamWriterImpl<IEvent>(data.Path, log.Version, data.SystemMetadata))
       {
         foreach (var streamEvent in log.ToEventsStream())
         {
@@ -25,7 +25,7 @@ public class MultipleFilesStreamSimpleWriteTest
         }
       }
 
-      return new MultiFileBxesReader().Read(testDirectory);
+      return new MultiFileBxesReader().Read(data.Path);
     });
   }
 }

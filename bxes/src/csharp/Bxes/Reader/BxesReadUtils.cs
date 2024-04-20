@@ -123,7 +123,12 @@ public static class BxesReadUtils
     return metadata;
   }
 
-  public static List<ValueAttributeDescriptor> ReadValueAttributeDescriptors(BinaryReader reader)
+  public static ISystemMetadata ReadSystemMetadata(BinaryReader reader) => new SystemMetadata
+  {
+    ValueAttributeDescriptors = ReadValueAttributeDescriptors(reader)
+  };
+
+  private static List<ValueAttributeDescriptor> ReadValueAttributeDescriptors(BinaryReader reader)
   {
     var valuesAttributesCount = reader.ReadUInt32();
     if (valuesAttributesCount == 0) return [];
