@@ -2,10 +2,8 @@ use std::{cell::RefCell, rc::Rc};
 
 use tempfile::NamedTempFile;
 
-use crate::{
-    binary_rw::core::{BinaryWriter, Endian},
-    models::BxesEventLog,
-};
+use crate::binary_rw::core::{BinaryWriter, Endian};
+use crate::models::domain_models::BxesEventLog;
 
 use super::{
     errors::BxesWriteError,

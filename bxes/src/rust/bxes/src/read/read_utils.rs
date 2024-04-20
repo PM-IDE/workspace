@@ -5,12 +5,16 @@ use tempfile::TempDir;
 use uuid::Uuid;
 use zip::ZipArchive;
 
+use crate::models::domain_models::{
+    BrafLifecycle, BxesArtifact, BxesArtifactItem, BxesClassifier, BxesDriver, BxesDrivers,
+    BxesEvent, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind, BxesTraceVariant,
+    BxesValue, SoftwareEventType, StandardLifecycle,
+};
 use crate::{
     binary_rw::{
         core::{BinaryReader, SeekStream},
         file_stream::FileStream,
     },
-    models::*,
     type_ids::TypeIds,
     utils::buffered_stream::BufferedReadFileStream,
 };
@@ -294,18 +298,20 @@ fn try_read_bxes_value(
         TypeIds::F32 => Ok(BxesValue::Float32(try_read_f32(reader)?)),
         TypeIds::F64 => Ok(BxesValue::Float64(try_read_f64(reader)?)),
         TypeIds::Bool => Ok(BxesValue::Bool(try_read_bool(reader)?)),
-        TypeIds::String => Ok(BxesValue::String(Rc::new(Box::new(try_read_string(reader)?)))),
+        TypeIds::String => Ok(BxesValue::String(Rc::new(Box::new(try_read_string(
+            reader,
+        )?)))),
         TypeIds::Timestamp => Ok(BxesValue::Timestamp(try_read_i64(reader)?)),
         TypeIds::BrafLifecycle => Ok(BxesValue::BrafLifecycle(try_read_braf_lifecycle(reader)?)),
-        TypeIds::StandardLifecycle => {
-            Ok(BxesValue::StandardLifecycle(try_read_standard_lifecycle(reader)?))
-        }
+        TypeIds::StandardLifecycle => Ok(BxesValue::StandardLifecycle(
+            try_read_standard_lifecycle(reader)?,
+        )),
         TypeIds::Guid => Ok(BxesValue::Guid(try_read_guid(reader)?)),
         TypeIds::Artifact => Ok(BxesValue::Artifact(try_read_artifact(reader, values)?)),
         TypeIds::Drivers => Ok(BxesValue::Drivers(try_read_drivers(reader, values)?)),
-        TypeIds::SoftwareEventType => {
-            Ok(BxesValue::SoftwareEventType(try_read_software_event_type(reader)?))
-        }
+        TypeIds::SoftwareEventType => Ok(BxesValue::SoftwareEventType(
+            try_read_software_event_type(reader)?,
+        )),
         _ => Err(BxesReadError::FailedToParseTypeId(type_id_byte)),
     }
 }
@@ -430,9 +436,9 @@ fn try_read_bytes(reader: &mut BinaryReader, length: usize) -> Result<Vec<u8>, B
     let mut buf = vec![0; length];
     match reader.read(&mut buf) {
         Ok(_) => Ok(buf),
-        Err(err) => Err(
-            BxesReadError::FailedToReadValue(FailedToReadValueError::new(offset, err.to_string()))
-        ),
+        Err(err) => Err(BxesReadError::FailedToReadValue(
+            FailedToReadValueError::new(offset, err.to_string()),
+        )),
     }
 }
 
@@ -444,9 +450,9 @@ fn try_read_enum<T: FromPrimitive>(reader: &mut BinaryReader) -> Result<T, BxesR
     let offset = try_tell_pos(reader)?;
     match reader.read_u8() {
         Ok(byte) => Ok(T::from_u8(byte).unwrap()),
-        Err(err) => Err(
-            BxesReadError::FailedToReadValue(FailedToReadValueError::new(offset, err.to_string()))
-        ),
+        Err(err) => Err(BxesReadError::FailedToReadValue(
+            FailedToReadValueError::new(offset, err.to_string()),
+        )),
     }
 }
 

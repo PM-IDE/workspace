@@ -37,7 +37,9 @@ impl FileStream {
 
     /// Attempts to open a file stream with read and write modes enabled.
     pub fn write<P: AsRef<Path>>(path: P) -> crate::binary_rw::core::Result<Self> {
-        Ok(FileStream::new(OpenOptions::new().read(true).write(true).open(path)?))
+        Ok(FileStream::new(
+            OpenOptions::new().read(true).write(true).open(path)?,
+        ))
     }
 
     /// Attempts to get the metadata for file
@@ -66,7 +68,10 @@ impl SeekStream for FileStream {
 impl Read for FileStream {
     fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
         if self.tell().unwrap() + buffer.len() > self.metadata()?.len() as usize {
-            return Err(Error::new(ErrorKind::UnexpectedEof, BinaryError::ReadPastEof));
+            return Err(Error::new(
+                ErrorKind::UnexpectedEof,
+                BinaryError::ReadPastEof,
+            ));
         }
         Ok(self.file.read(buffer)?)
     }

@@ -1,9 +1,9 @@
 use std::{cell::RefCell, path::Path, rc::Rc};
 
+use crate::models::domain_models::BxesEventLog;
 use crate::{
     binary_rw::core::{BinaryWriter, Endian},
     constants,
-    models::BxesEventLog,
 };
 
 use super::{

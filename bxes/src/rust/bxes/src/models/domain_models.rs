@@ -90,7 +90,7 @@ pub struct BxesDrivers {
 }
 
 impl Hash for BxesDrivers {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: Hasher>(&self, state: &mut H) {
         for driver in &self.drivers {
             driver.hash(state);
         }
@@ -131,7 +131,7 @@ impl BxesDriver {
 }
 
 impl Hash for BxesDriver {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: Hasher>(&self, state: &mut H) {
         self.amount.hash(state);
         self.name.hash(state);
         self.driver_type.hash(state);

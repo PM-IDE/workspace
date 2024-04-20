@@ -9,11 +9,7 @@ use bxes::{
     type_ids::TypeIds,
 };
 use num_traits::FromPrimitive;
-use rand::{
-    distributions::Alphanumeric,
-    rngs::ThreadRng,
-    Rng,
-};
+use rand::{distributions::Alphanumeric, rngs::ThreadRng, Rng};
 use uuid::Uuid;
 
 pub fn generate_random_log() -> BxesEventLog {
@@ -140,7 +136,9 @@ fn generate_random_attribute(rng: &mut ThreadRng) -> (Rc<Box<BxesValue>>, Rc<Box
 }
 
 fn generate_random_string_bxes_value(rng: &mut ThreadRng) -> Rc<Box<BxesValue>> {
-    Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(generate_random_string(rng))))))
+    Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(
+        generate_random_string(rng),
+    )))))
 }
 
 fn generate_random_string(rng: &mut ThreadRng) -> String {
@@ -169,11 +167,11 @@ fn generate_random_bxes_value(rng: &mut ThreadRng) -> Rc<Box<BxesValue>> {
                 BxesValue::StandardLifecycle(generate_random_standard_lifecycle())
             }
             TypeIds::Guid => BxesValue::Guid(Uuid::new_v4()),
-            TypeIds::SoftwareEventType => BxesValue::SoftwareEventType(generate_random_enum::<
-                SoftwareEventType,
-            >(
-                SoftwareEventType::VARIANT_COUNT,
-            )),
+            TypeIds::SoftwareEventType => {
+                BxesValue::SoftwareEventType(generate_random_enum::<SoftwareEventType>(
+                    SoftwareEventType::VARIANT_COUNT,
+                ))
+            }
             TypeIds::Artifact => generate_random_artifact(rng),
             TypeIds::Drivers => generate_random_drivers(rng),
             _ => panic!("Got unknown type id"),
@@ -195,10 +193,12 @@ fn generate_random_drivers(rng: &mut ThreadRng) -> BxesValue {
 fn generate_random_driver(rng: &mut ThreadRng) -> BxesDriver {
     BxesDriver {
         amount: BxesValue::Float64(rng.gen()),
-        name: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(generate_random_string(rng)))))),
-        driver_type: Rc::new(
-            Box::new(BxesValue::String(Rc::new(Box::new(generate_random_string(rng)))))
-        ),
+        name: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(
+            generate_random_string(rng),
+        ))))),
+        driver_type: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(
+            generate_random_string(rng),
+        ))))),
     }
 }
 
@@ -215,13 +215,15 @@ fn generate_random_artifact(rng: &mut ThreadRng) -> BxesValue {
 
 fn generate_random_artifact_item(rng: &mut ThreadRng) -> BxesArtifactItem {
     BxesArtifactItem {
-        model: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(generate_random_string(rng)))))),
-        instance: Rc::new(
-            Box::new(BxesValue::String(Rc::new(Box::new(generate_random_string(rng)))))
-        ),
-        transition: Rc::new(
-            Box::new(BxesValue::String(Rc::new(Box::new(generate_random_string(rng)))))
-        ),
+        model: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(
+            generate_random_string(rng),
+        ))))),
+        instance: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(
+            generate_random_string(rng),
+        ))))),
+        transition: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(
+            generate_random_string(rng),
+        ))))),
     }
 }
 

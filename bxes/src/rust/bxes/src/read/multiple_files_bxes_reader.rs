@@ -1,9 +1,9 @@
 use std::path::Path;
 
+use crate::models::domain_models::BxesEventLog;
 use crate::{
     binary_rw::core::{BinaryReader, Endian},
     constants::*,
-    models::*,
 };
 
 use super::{errors::*, read_utils::*};

@@ -8,14 +8,14 @@ use std::{
 };
 use zip::{write::FileOptions, ZipWriter};
 
+use crate::models::domain_models::{
+    BrafLifecycle, BxesArtifact, BxesClassifier, BxesDrivers, BxesEvent, BxesEventLog,
+    BxesExtension, BxesGlobal, BxesValue, Lifecycle, SoftwareEventType, StandardLifecycle,
+};
 use crate::{
     binary_rw::{
         core::{BinaryWriter, SeekStream},
         file_stream::FileStream,
-    },
-    models::{
-        BrafLifecycle, BxesArtifact, BxesClassifier, BxesDrivers, BxesEvent, BxesEventLog,
-        BxesExtension, BxesGlobal, BxesValue, Lifecycle, SoftwareEventType, StandardLifecycle,
     },
     type_ids::TypeIds,
 };
@@ -103,7 +103,10 @@ impl<'a, 'b> Write for BinaryWriterWrapper<'a, 'b> {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         match self.writer.write_bytes(buf) {
             Ok(written) => Ok(written),
-            Err(err) => Err(std::io::Error::new(std::io::ErrorKind::Other, err.to_string())),
+            Err(err) => Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                err.to_string(),
+            )),
         }
     }
 
