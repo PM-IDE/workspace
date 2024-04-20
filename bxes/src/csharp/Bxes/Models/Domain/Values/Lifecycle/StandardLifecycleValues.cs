@@ -1,4 +1,4 @@
-namespace Bxes.Models.Values.Lifecycle;
+namespace Bxes.Models.Domain.Values.Lifecycle;
 
 public enum StandardLifecycleValues : byte
 {

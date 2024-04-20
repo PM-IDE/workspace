@@ -1,7 +1,6 @@
-using Bxes.Writer;
 using Bxes.Writer.Stream;
 
-namespace Bxes.Models;
+namespace Bxes.Models.Domain;
 
 public static class EventLogUtil
 {

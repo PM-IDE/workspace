@@ -1,6 +1,6 @@
 using Bxes.Writer;
 
-namespace Bxes.Models.Values;
+namespace Bxes.Models.Domain.Values;
 
 public class BxesBoolValue(bool value) : BxesValue<bool>(value)
 {

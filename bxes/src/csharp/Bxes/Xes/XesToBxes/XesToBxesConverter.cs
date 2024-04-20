@@ -1,7 +1,8 @@
 ﻿using System.Xml;
 using Bxes.Logging;
 using Bxes.Models;
-using Bxes.Models.Values;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Utils;
 using Bxes.Writer;
 using Bxes.Writer.Stream;

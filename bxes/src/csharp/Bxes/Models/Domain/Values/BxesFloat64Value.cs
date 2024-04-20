@@ -1,6 +1,6 @@
 using Bxes.Writer;
 
-namespace Bxes.Models.Values;
+namespace Bxes.Models.Domain.Values;
 
 public class BxesFloat64Value(double value) : BxesValue<double>(value)
 {

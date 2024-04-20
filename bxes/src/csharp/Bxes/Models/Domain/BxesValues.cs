@@ -1,8 +1,8 @@
-using Bxes.Models.Values;
-using Bxes.Models.Values.Lifecycle;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Writer;
 
-namespace Bxes.Models;
+namespace Bxes.Models.Domain;
 
 public abstract class BxesValue
 {

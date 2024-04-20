@@ -1,6 +1,6 @@
 using Bxes.Writer;
 
-namespace Bxes.Models;
+namespace Bxes.Models.Domain;
 
 public enum GlobalsEntityKind : byte
 {

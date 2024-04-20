@@ -1,6 +1,6 @@
-using Bxes.Models.Values;
+using Bxes.Models.Domain.Values;
 
-namespace Bxes.Models;
+namespace Bxes.Models.Domain;
 
 public record BxesExtension
 {

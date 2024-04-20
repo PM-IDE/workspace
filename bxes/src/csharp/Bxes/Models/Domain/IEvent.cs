@@ -1,7 +1,7 @@
-using Bxes.Models.Values;
+using Bxes.Models.Domain.Values;
 using Bxes.Writer;
 
-namespace Bxes.Models;
+namespace Bxes.Models.Domain;
 
 public interface IEvent : IEquatable<IEvent>
 {

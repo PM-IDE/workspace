@@ -1,6 +1,7 @@
 using System.Xml;
 using Bxes.Models;
-using Bxes.Models.Values;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Writer;
 
 namespace Bxes.Xes.XesToBxes;

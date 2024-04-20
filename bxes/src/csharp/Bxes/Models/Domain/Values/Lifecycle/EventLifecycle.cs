@@ -1,4 +1,4 @@
-namespace Bxes.Models.Values.Lifecycle;
+namespace Bxes.Models.Domain.Values.Lifecycle;
 
 public abstract class EventLifecycle<TLifecycleValue>(TLifecycleValue value)
   : BxesValue<TLifecycleValue>(value), IEventLifecycle where TLifecycleValue : notnull

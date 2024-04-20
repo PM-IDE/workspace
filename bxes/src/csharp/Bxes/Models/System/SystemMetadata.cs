@@ -1,3 +1,4 @@
+using Bxes.Models.Domain;
 using Bxes.Utils;
 
 namespace Bxes.Models.System;

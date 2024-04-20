@@ -1,4 +1,4 @@
-namespace Bxes.Models;
+namespace Bxes.Models.Domain;
 
 public interface IEventLog : IEquatable<IEventLog>
 {

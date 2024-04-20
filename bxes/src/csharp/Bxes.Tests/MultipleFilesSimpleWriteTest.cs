@@ -1,4 +1,5 @@
 using Bxes.Models;
+using Bxes.Models.Domain;
 using Bxes.Reader;
 using Bxes.Writer;
 

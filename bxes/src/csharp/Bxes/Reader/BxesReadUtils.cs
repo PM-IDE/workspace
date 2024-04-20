@@ -1,7 +1,8 @@
 using System.IO.Compression;
 using Bxes.Models;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Models.System;
-using Bxes.Models.Values;
 using Bxes.Utils;
 using Bxes.Writer;
 

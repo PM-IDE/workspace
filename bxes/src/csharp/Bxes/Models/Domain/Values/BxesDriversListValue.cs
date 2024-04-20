@@ -1,7 +1,7 @@
 using Bxes.Utils;
 using Bxes.Writer;
 
-namespace Bxes.Models.Values;
+namespace Bxes.Models.Domain.Values;
 
 public record BxesDriver
 {

@@ -1,7 +1,8 @@
 using Bxes.Models;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Models.System;
-using Bxes.Models.Values;
-using Bxes.Models.Values.Lifecycle;
 using Bxes.Utils;
 using Bxes.Writer;
 

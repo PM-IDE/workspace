@@ -1,5 +1,6 @@
 using Bxes.Models;
-using Bxes.Models.Values;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 
 namespace Bxes.Writer;
 
