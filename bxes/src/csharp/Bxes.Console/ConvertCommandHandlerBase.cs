@@ -1,7 +1,5 @@
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using Bxes.Logging;
-using Bxes.Utils;
 using Bxes.Xes;
 
 namespace Bxes.Console;
