@@ -131,6 +131,7 @@ Type id + additional type info (i.e. length of a string) forms a header of a val
 ### Single file format description
 
 - The version of bxes is specified (`u32`) - `4 bytes`
+- System metadata is written
 - The number of values is written (`u32`) - `4 bytes`
 - Then there is a sequence of values [(Header[type-id + metainfo], value)]
 - Then there is a number of attribute key-values pairs (`u32`) - `4 bytes`
@@ -139,6 +140,12 @@ Type id + additional type info (i.e. length of a string) forms a header of a val
 - The event log metadata is written
 - Then the number of traces variants is written (`u32`) - `4 bytes`
 - Then the sequence of traces variants is written.
+
+### System metadata format
+- The number of value-attributes is written (`u32`) - `4 bytes`
+  - The value-attributes info are written:
+    - The name of the attribute is written (`String`)
+    - The type of the attribute is written (`byte`)
 
 ### Event log metadata format
 
@@ -161,10 +168,6 @@ Type id + additional type info (i.e. length of a string) forms a header of a val
     - The name index of a classifier is written
     - The number of keys is written (`u32`)
     - The keys are written (value-index `u32`)
-- The number of value-attributes is written (`u32`)
-  - The value-attributes info are written:
-    - The name of the attribute is written (`String`)
-    - The type of the attribute is written (`byte`)
 
 ### Trace variant format
 
@@ -184,6 +187,9 @@ Type id + additional type info (i.e. length of a string) forms a header of a val
 
 ### Multiple files format description
 
+- System metadata file
+    - The version of bxes is written (`u32`, `4 bytes`)
+    - The system metadata is written
 - Metadata file
     - The version of bxes is written (`u32`, `4 bytes`)
     - The metadata is written
