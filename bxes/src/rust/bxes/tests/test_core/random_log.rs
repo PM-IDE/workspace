@@ -13,8 +13,8 @@ use bxes::models::domain::bxes_log_metadata::{
 };
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes::models::domain::software_event_type::SoftwareEventType;
+use bxes::models::domain::type_ids::TypeIds;
 use bxes::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
-use bxes::type_ids::TypeIds;
 use bxes::writer::writer_utils::BxesLogWriteData;
 
 pub fn generate_random_bxes_write_data() -> BxesLogWriteData {

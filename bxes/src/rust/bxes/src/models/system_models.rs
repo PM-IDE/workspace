@@ -1,4 +1,4 @@
-use crate::type_ids::TypeIds;
+use crate::models::domain::type_ids::TypeIds;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ValueAttributeDescriptor {

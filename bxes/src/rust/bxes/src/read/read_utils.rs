@@ -14,13 +14,13 @@ use crate::models::domain::bxes_log_metadata::{
 };
 use crate::models::domain::bxes_value::BxesValue;
 use crate::models::domain::software_event_type::SoftwareEventType;
+use crate::models::domain::type_ids::TypeIds;
 use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
 use crate::{
     binary_rw::{
         core::{BinaryReader, SeekStream},
         file_stream::FileStream,
     },
-    type_ids::TypeIds,
     utils::buffered_stream::BufferedReadFileStream,
 };
 
