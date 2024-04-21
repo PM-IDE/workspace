@@ -19,6 +19,7 @@ pub enum BxesReadError {
     InvalidArchive(String),
     ExpectedString(BxesValue),
     Leb128ReadError(String),
+    ValueAttributeNameIsNotAString,
 }
 
 impl ToString for BxesReadError {
@@ -43,20 +44,23 @@ impl ToString for BxesReadError {
             BxesReadError::FailedToIndexKeyValue(index) => {
                 format!("Failed to find kv pair for index: {}", index)
             }
-            BxesReadError::LifecycleOfEventOutOfRange => format!("LifecycleOfEventOutOfRange"),
+            BxesReadError::LifecycleOfEventOutOfRange => "LifecycleOfEventOutOfRange".to_string(),
             BxesReadError::EventAttributeKeyIsNotAString => {
-                format!("EventAttributeKeyIsNotAString")
+                "EventAttributeKeyIsNotAString".to_string()
             }
             BxesReadError::VersionsMismatchError(err) => err.to_string(),
-            BxesReadError::FailedToExtractArchive => format!("FailedToExtractArchive"),
-            BxesReadError::TooManyFilesInArchive => format!("TooManyFilesInArchive"),
-            BxesReadError::FailedToCreateTempDir => format!("FailedToCreateTempDir"),
+            BxesReadError::FailedToExtractArchive => "FailedToExtractArchive".to_string(),
+            BxesReadError::TooManyFilesInArchive => "TooManyFilesInArchive".to_string(),
+            BxesReadError::FailedToCreateTempDir => "FailedToCreateTempDir".to_string(),
             BxesReadError::InvalidArchive(message) => format!("Invalid bxes archive: {}", message),
             BxesReadError::ExpectedString(value) => {
                 format!("Expected string value, found: {:?}", value)
             }
             BxesReadError::Leb128ReadError(message) => {
                 format!("Failed to read LEB128 encoded value: {}", message)
+            }
+            BxesReadError::ValueAttributeNameIsNotAString => {
+                "Value attribute name was not a string".to_string()
             }
         }
     }

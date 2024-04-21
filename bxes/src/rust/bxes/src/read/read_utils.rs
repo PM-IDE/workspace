@@ -1,3 +1,4 @@
+use std::ptr::read;
 use std::{fs::File, io::Read, rc::Rc};
 
 use num_traits::FromPrimitive;
@@ -7,9 +8,10 @@ use zip::ZipArchive;
 
 use crate::models::domain_models::{
     BrafLifecycle, BxesArtifact, BxesArtifactItem, BxesClassifier, BxesDriver, BxesDrivers,
-    BxesEvent, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind, BxesTraceVariant,
-    BxesValue, SoftwareEventType, StandardLifecycle,
+    BxesEvent, BxesEventLog, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind,
+    BxesTraceVariant, BxesValue, SoftwareEventType, StandardLifecycle,
 };
+use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
 use crate::{
     binary_rw::{
         core::{BinaryReader, SeekStream},
@@ -20,6 +22,11 @@ use crate::{
 };
 
 use super::errors::*;
+
+pub struct BxesEventLogReadResult {
+    pub log: BxesEventLog,
+    pub system_metadata: SystemMetadata,
+}
 
 pub fn try_read_event_log_metadata(
     reader: &mut BinaryReader,
@@ -37,6 +44,40 @@ pub fn try_read_event_log_metadata(
         properties,
         globals,
     })
+}
+
+pub fn try_read_system_metadata(
+    reader: &mut BinaryReader,
+) -> Result<SystemMetadata, BxesReadError> {
+    let values_attributes = try_read_value_attributes(reader)?;
+
+    Ok(SystemMetadata {
+        values_attrs: values_attributes,
+    })
+}
+
+fn try_read_value_attributes(
+    reader: &mut BinaryReader,
+) -> Result<Option<Vec<ValueAttributeDescriptor>>, BxesReadError> {
+    let count = try_read_u32(reader)?;
+    if count == 0 {
+        Ok(None)
+    } else {
+        let mut values_attributes = vec![];
+        for _ in 0..count {
+            let type_id = try_read_type_id(reader)?;
+
+            let name_type_id = try_read_type_id(reader)?;
+            if name_type_id != TypeIds::String {
+                return Err(BxesReadError::ValueAttributeNameIsNotAString);
+            }
+
+            let name = try_read_string(reader)?;
+            values_attributes.push(ValueAttributeDescriptor::new(type_id, name));
+        }
+
+        Ok(Some(values_attributes))
+    }
 }
 
 pub fn try_read_classifiers(
@@ -283,13 +324,7 @@ fn try_read_bxes_value(
     reader: &mut BinaryReader,
     values: &Vec<Rc<Box<BxesValue>>>,
 ) -> Result<BxesValue, BxesReadError> {
-    let type_id_byte = try_read_u8(reader)?;
-    let type_id = match TypeIds::from_u8(type_id_byte) {
-        None => return Err(BxesReadError::FailedToParseTypeId(type_id_byte)),
-        Some(id) => id,
-    };
-
-    match type_id {
+    match try_read_type_id(reader)? {
         TypeIds::Null => Ok(BxesValue::Null),
         TypeIds::I32 => Ok(BxesValue::Int32(try_read_i32(reader)?)),
         TypeIds::I64 => Ok(BxesValue::Int64(try_read_i64(reader)?)),
@@ -312,7 +347,14 @@ fn try_read_bxes_value(
         TypeIds::SoftwareEventType => Ok(BxesValue::SoftwareEventType(
             try_read_software_event_type(reader)?,
         )),
-        _ => Err(BxesReadError::FailedToParseTypeId(type_id_byte)),
+    }
+}
+
+fn try_read_type_id(reader: &mut BinaryReader) -> Result<TypeIds, BxesReadError> {
+    let type_id_byte = try_read_u8(reader)?;
+    match TypeIds::from_u8(type_id_byte) {
+        None => Err(BxesReadError::FailedToParseTypeId(type_id_byte)),
+        Some(id) => Ok(id),
     }
 }
 

@@ -15,5 +15,5 @@ pub fn test_multiple_file_reader() {
 
     let read_log = read_bxes_multiple_files(temp_dir_path).ok().unwrap();
 
-    assert!(log.eq(&read_log));
+    assert!(log.eq(&read_log.log));
 }

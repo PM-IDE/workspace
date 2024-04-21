@@ -8,10 +8,21 @@ use crate::{
 
 use super::{errors::*, read_utils::*};
 
-pub fn read_bxes_multiple_files(directory_path: &str) -> Result<BxesEventLog, BxesReadError> {
+pub fn read_bxes_multiple_files(
+    directory_path: &str,
+) -> Result<BxesEventLogReadResult, BxesReadError> {
     let mut version = 0u32;
-    let values = read_file(directory_path, VALUES_FILE_NAME, |reader| {
+
+    let system_metadata = read_file(directory_path, SYSTEM_METADATA_FILE_NAME, |reader| {
         version = try_read_u32(reader)?;
+        try_read_system_metadata(reader)
+    })?;
+
+    let values = read_file(directory_path, VALUES_FILE_NAME, |reader| {
+        if let Some(error) = read_version(&mut version, reader) {
+            return Err(error);
+        }
+
         try_read_values(reader)
     })?;
 
@@ -39,10 +50,15 @@ pub fn read_bxes_multiple_files(directory_path: &str) -> Result<BxesEventLog, Bx
         try_read_traces_variants(reader, &values, &kv_pairs)
     })?;
 
-    Ok(BxesEventLog {
+    let log = BxesEventLog {
         version,
         metadata,
         variants,
+    };
+
+    Ok(BxesEventLogReadResult {
+        log,
+        system_metadata,
     })
 }
 

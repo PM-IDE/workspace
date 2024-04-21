@@ -1,10 +1,11 @@
 use std::fs;
 
-use super::{errors::BxesReadError, read_utils::*};
 use crate::binary_rw::core::{BinaryReader, Endian};
 use crate::models::domain_models::BxesEventLog;
 
-pub fn read_bxes(path: &str) -> Result<BxesEventLog, BxesReadError> {
+use super::{errors::BxesReadError, read_utils::*};
+
+pub fn read_bxes(path: &str) -> Result<BxesEventLogReadResult, BxesReadError> {
     let extracted_files_dir = try_extract_archive(path)?;
     let extracted_files_dir = extracted_files_dir.path();
 
@@ -25,14 +26,20 @@ pub fn read_bxes(path: &str) -> Result<BxesEventLog, BxesReadError> {
     let mut reader = BinaryReader::new(&mut stream, Endian::Little);
     let version = try_read_u32(&mut reader)?;
 
+    let system_metadata = try_read_system_metadata(&mut reader)?;
     let values = try_read_values(&mut reader)?;
     let kv_pairs = try_read_key_values(&mut reader)?;
     let metadata = try_read_event_log_metadata(&mut reader, &values, &kv_pairs)?;
     let variants = try_read_traces_variants(&mut reader, &values, &kv_pairs)?;
 
-    Ok(BxesEventLog {
+    let log = BxesEventLog {
         version,
         metadata,
         variants,
+    };
+
+    Ok(BxesEventLogReadResult {
+        log,
+        system_metadata,
     })
 }

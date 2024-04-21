@@ -16,5 +16,5 @@ pub fn test_single_file_read_write() {
     println!("{:?}", write_bxes(log_save_path.to_str().unwrap(), &log));
 
     let read_log = read_bxes(log_save_path.to_str().unwrap()).unwrap();
-    assert!(read_log.eq(&log))
+    assert!(read_log.log.eq(&log))
 }
