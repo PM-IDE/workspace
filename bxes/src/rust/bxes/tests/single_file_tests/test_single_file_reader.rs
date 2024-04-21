@@ -1,5 +1,5 @@
-use std::path::Path;
 use bxes::{read::single_file_bxes_reader::read_bxes, writer::single_file_bxes_writer::write_bxes};
+use std::path::Path;
 use tempfile::TempDir;
 
 use crate::test_core::random_log::generate_random_bxes_write_data;

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::models::domain_models::BxesEventLog;
+use crate::models::domain::bxes_event_log::BxesEventLog;
 use crate::{
     binary_rw::core::{BinaryReader, Endian},
     constants::*,

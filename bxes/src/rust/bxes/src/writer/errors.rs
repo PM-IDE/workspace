@@ -1,7 +1,7 @@
 use std::{fmt::Display, rc::Rc};
 
 use crate::binary_rw::error::BinaryError;
-use crate::models::domain_models::BxesValue;
+use crate::models::domain::bxes_value::BxesValue;
 
 #[derive(Debug)]
 pub enum BxesWriteError {

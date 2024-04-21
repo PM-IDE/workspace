@@ -5,11 +5,15 @@ use tempfile::TempDir;
 use uuid::Uuid;
 use zip::ZipArchive;
 
-use crate::models::domain_models::{
-    BrafLifecycle, BxesArtifact, BxesArtifactItem, BxesClassifier, BxesDriver, BxesDrivers,
-    BxesEvent, BxesEventLog, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind,
-    BxesTraceVariant, BxesValue, SoftwareEventType, StandardLifecycle,
+use crate::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
+use crate::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
+use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
+use crate::models::domain::bxes_lifecycle::{BrafLifecycle, StandardLifecycle};
+use crate::models::domain::bxes_log_metadata::{
+    BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind,
 };
+use crate::models::domain::bxes_value::BxesValue;
+use crate::models::domain::software_event_type::SoftwareEventType;
 use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
 use crate::{
     binary_rw::{

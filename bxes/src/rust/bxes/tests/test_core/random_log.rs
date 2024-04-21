@@ -4,16 +4,18 @@ use num_traits::FromPrimitive;
 use rand::{distributions::Alphanumeric, rngs::ThreadRng, Rng};
 use uuid::Uuid;
 
-use bxes::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
-use bxes::writer::writer_utils::BxesLogWriteData;
-use bxes::{
-    models::domain_models::{
-        BrafLifecycle, BxesArtifact, BxesArtifactItem, BxesClassifier, BxesDriver, BxesDrivers,
-        BxesEvent, BxesEventLog, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind,
-        BxesTraceVariant, BxesValue, Lifecycle, SoftwareEventType, StandardLifecycle,
-    },
-    type_ids::TypeIds,
+use bxes::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
+use bxes::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
+use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
+use bxes::models::domain::bxes_lifecycle::{BrafLifecycle, Lifecycle, StandardLifecycle};
+use bxes::models::domain::bxes_log_metadata::{
+    BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind,
 };
+use bxes::models::domain::bxes_value::BxesValue;
+use bxes::models::domain::software_event_type::SoftwareEventType;
+use bxes::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
+use bxes::type_ids::TypeIds;
+use bxes::writer::writer_utils::BxesLogWriteData;
 
 pub fn generate_random_bxes_write_data() -> BxesLogWriteData {
     let mut rng = rand::thread_rng();

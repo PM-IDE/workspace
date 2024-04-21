@@ -1,4 +1,4 @@
-use crate::models::domain_models::BxesValue;
+use crate::models::domain::bxes_value::BxesValue;
 use std::string::FromUtf8Error;
 
 #[derive(Debug)]

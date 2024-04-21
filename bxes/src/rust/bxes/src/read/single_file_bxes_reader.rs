@@ -1,7 +1,7 @@
 use std::fs;
 
 use crate::binary_rw::core::{BinaryReader, Endian};
-use crate::models::domain_models::BxesEventLog;
+use crate::models::domain::bxes_event_log::BxesEventLog;
 
 use super::{errors::BxesReadError, read_utils::*};
 

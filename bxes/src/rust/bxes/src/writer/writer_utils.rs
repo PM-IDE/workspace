@@ -8,10 +8,13 @@ use std::{
 };
 use zip::{write::FileOptions, ZipWriter};
 
-use crate::models::domain_models::{
-    BrafLifecycle, BxesArtifact, BxesClassifier, BxesDrivers, BxesEvent, BxesEventLog,
-    BxesExtension, BxesGlobal, BxesValue, Lifecycle, SoftwareEventType, StandardLifecycle,
-};
+use crate::models::domain::bxes_artifact::BxesArtifact;
+use crate::models::domain::bxes_driver::BxesDrivers;
+use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog};
+use crate::models::domain::bxes_lifecycle::{BrafLifecycle, Lifecycle, StandardLifecycle};
+use crate::models::domain::bxes_log_metadata::{BxesClassifier, BxesExtension, BxesGlobal};
+use crate::models::domain::bxes_value::BxesValue;
+use crate::models::domain::software_event_type::SoftwareEventType;
 use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
 use crate::{
     binary_rw::{

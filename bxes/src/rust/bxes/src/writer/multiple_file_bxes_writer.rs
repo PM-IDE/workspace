@@ -1,9 +1,9 @@
-use std::{cell::RefCell, path::Path, rc::Rc};
 use crate::writer::writer_utils::{try_write_system_metadata, BxesLogWriteData};
 use crate::{
     binary_rw::core::{BinaryWriter, Endian},
     constants,
 };
+use std::{cell::RefCell, path::Path, rc::Rc};
 
 use super::{
     errors::BxesWriteError,
