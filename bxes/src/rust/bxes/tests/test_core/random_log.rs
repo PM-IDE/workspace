@@ -1,5 +1,11 @@
 use std::rc::Rc;
 
+use num_traits::FromPrimitive;
+use rand::{distributions::Alphanumeric, rngs::ThreadRng, Rng};
+use uuid::Uuid;
+
+use bxes::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
+use bxes::writer::writer_utils::BxesLogWriteData;
 use bxes::{
     models::domain_models::{
         BrafLifecycle, BxesArtifact, BxesArtifactItem, BxesClassifier, BxesDriver, BxesDrivers,
@@ -8,16 +14,39 @@ use bxes::{
     },
     type_ids::TypeIds,
 };
-use num_traits::FromPrimitive;
-use rand::{distributions::Alphanumeric, rngs::ThreadRng, Rng};
-use uuid::Uuid;
 
-pub fn generate_random_log() -> BxesEventLog {
+pub fn generate_random_bxes_write_data() -> BxesLogWriteData {
     let mut rng = rand::thread_rng();
+    BxesLogWriteData {
+        log: generate_random_log(&mut rng),
+        system_metadata: generate_random_system_metadata(&mut rng),
+    }
+}
+
+pub fn generate_random_system_metadata(rng: &mut ThreadRng) -> SystemMetadata {
+    SystemMetadata {
+        values_attrs: Some(generate_random_value_attributes_descriptor(rng)),
+    }
+}
+
+fn generate_random_value_attributes_descriptor(
+    rng: &mut ThreadRng,
+) -> Vec<ValueAttributeDescriptor> {
+    generate_random_list(rng, |rng| generate_random_value_attribute_descriptor(rng))
+}
+
+fn generate_random_value_attribute_descriptor(rng: &mut ThreadRng) -> ValueAttributeDescriptor {
+    ValueAttributeDescriptor {
+        type_id: generate_random_type_id(rng),
+        name: generate_random_string(rng),
+    }
+}
+
+pub fn generate_random_log(rng: &mut ThreadRng) -> BxesEventLog {
     BxesEventLog {
         version: rng.gen(),
-        metadata: generate_random_metadata(&mut rng),
-        variants: generate_random_variants(&mut rng),
+        metadata: generate_random_metadata(rng),
+        variants: generate_random_variants(rng),
     }
 }
 
@@ -150,33 +179,35 @@ fn generate_random_string(rng: &mut ThreadRng) -> String {
 }
 
 fn generate_random_bxes_value(rng: &mut ThreadRng) -> Rc<Box<BxesValue>> {
-    Rc::new(Box::new(
-        match TypeIds::from_u8(rng.gen_range(0..TypeIds::VARIANT_COUNT) as u8).unwrap() {
-            TypeIds::Null => BxesValue::Null,
-            TypeIds::I32 => BxesValue::Int32(rng.gen()),
-            TypeIds::I64 => BxesValue::Int64(rng.gen()),
-            TypeIds::U32 => BxesValue::Uint32(rng.gen()),
-            TypeIds::U64 => BxesValue::Uint64(rng.gen()),
-            TypeIds::F32 => BxesValue::Float32(rng.gen()),
-            TypeIds::F64 => BxesValue::Float64(rng.gen()),
-            TypeIds::Bool => BxesValue::Bool(rng.gen()),
-            TypeIds::String => BxesValue::String(Rc::new(Box::new(generate_random_string(rng)))),
-            TypeIds::Timestamp => BxesValue::Timestamp(rng.gen()),
-            TypeIds::BrafLifecycle => BxesValue::BrafLifecycle(generate_random_braf_lifecycle()),
-            TypeIds::StandardLifecycle => {
-                BxesValue::StandardLifecycle(generate_random_standard_lifecycle())
-            }
-            TypeIds::Guid => BxesValue::Guid(Uuid::new_v4()),
-            TypeIds::SoftwareEventType => {
-                BxesValue::SoftwareEventType(generate_random_enum::<SoftwareEventType>(
-                    SoftwareEventType::VARIANT_COUNT,
-                ))
-            }
-            TypeIds::Artifact => generate_random_artifact(rng),
-            TypeIds::Drivers => generate_random_drivers(rng),
-            _ => panic!("Got unknown type id"),
-        },
-    ))
+    Rc::new(Box::new(match generate_random_type_id(rng) {
+        TypeIds::Null => BxesValue::Null,
+        TypeIds::I32 => BxesValue::Int32(rng.gen()),
+        TypeIds::I64 => BxesValue::Int64(rng.gen()),
+        TypeIds::U32 => BxesValue::Uint32(rng.gen()),
+        TypeIds::U64 => BxesValue::Uint64(rng.gen()),
+        TypeIds::F32 => BxesValue::Float32(rng.gen()),
+        TypeIds::F64 => BxesValue::Float64(rng.gen()),
+        TypeIds::Bool => BxesValue::Bool(rng.gen()),
+        TypeIds::String => BxesValue::String(Rc::new(Box::new(generate_random_string(rng)))),
+        TypeIds::Timestamp => BxesValue::Timestamp(rng.gen()),
+        TypeIds::BrafLifecycle => BxesValue::BrafLifecycle(generate_random_braf_lifecycle()),
+        TypeIds::StandardLifecycle => {
+            BxesValue::StandardLifecycle(generate_random_standard_lifecycle())
+        }
+        TypeIds::Guid => BxesValue::Guid(Uuid::new_v4()),
+        TypeIds::SoftwareEventType => {
+            BxesValue::SoftwareEventType(generate_random_enum::<SoftwareEventType>(
+                SoftwareEventType::VARIANT_COUNT,
+            ))
+        }
+        TypeIds::Artifact => generate_random_artifact(rng),
+        TypeIds::Drivers => generate_random_drivers(rng),
+        _ => panic!("Got unknown type id"),
+    }))
+}
+
+fn generate_random_type_id(rng: &mut ThreadRng) -> TypeIds {
+    TypeIds::from_u8(rng.gen_range(0..TypeIds::VARIANT_COUNT) as u8).unwrap()
 }
 
 fn generate_random_drivers(rng: &mut ThreadRng) -> BxesValue {

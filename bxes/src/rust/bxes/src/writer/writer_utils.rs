@@ -12,6 +12,7 @@ use crate::models::domain_models::{
     BrafLifecycle, BxesArtifact, BxesClassifier, BxesDrivers, BxesEvent, BxesEventLog,
     BxesExtension, BxesGlobal, BxesValue, Lifecycle, SoftwareEventType, StandardLifecycle,
 };
+use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
 use crate::{
     binary_rw::{
         core::{BinaryWriter, SeekStream},
@@ -21,6 +22,47 @@ use crate::{
 };
 
 use super::{errors::BxesWriteError, write_context::BxesWriteContext};
+
+pub struct BxesLogWriteData {
+    pub log: BxesEventLog,
+    pub system_metadata: SystemMetadata,
+}
+
+pub fn try_write_system_metadata(
+    system_metadata: &SystemMetadata,
+    context: Rc<RefCell<BxesWriteContext>>,
+) -> Result<(), BxesWriteError> {
+    try_write_values_attributes(system_metadata.values_attrs.as_ref(), context)
+}
+
+fn try_write_values_attributes(
+    value_attributes: Option<&Vec<ValueAttributeDescriptor>>,
+    context: Rc<RefCell<BxesWriteContext>>,
+) -> Result<(), BxesWriteError> {
+    if let Some(value_attributes) = value_attributes {
+        write_collection_and_count(
+            context.clone(),
+            false,
+            value_attributes.len() as u32,
+            || {
+                for attr in value_attributes {
+                    try_write_u8_no_type_id(
+                        context.borrow_mut().writer.as_mut().unwrap(),
+                        attr.type_id.to_u8().unwrap(),
+                    )?;
+                    try_write_string(
+                        context.borrow_mut().writer.as_mut().unwrap(),
+                        attr.name.as_str(),
+                    )?;
+                }
+
+                Ok(())
+            },
+        )
+    } else {
+        try_write_u32_no_type_id(context.borrow_mut().writer.as_mut().unwrap(), 0)
+    }
+}
 
 pub fn try_write_variants(
     log: &BxesEventLog,

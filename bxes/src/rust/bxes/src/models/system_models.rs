@@ -12,6 +12,7 @@ impl ValueAttributeDescriptor {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct SystemMetadata {
     pub values_attrs: Option<Vec<ValueAttributeDescriptor>>,
 }

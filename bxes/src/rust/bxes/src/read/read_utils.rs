@@ -1,4 +1,3 @@
-use std::ptr::read;
 use std::{fs::File, io::Read, rc::Rc};
 
 use num_traits::FromPrimitive;
