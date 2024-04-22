@@ -1,9 +1,13 @@
 use std::rc::Rc;
 
 use bxes::{
-    models::{BxesClassifier, BxesEvent, BxesEventLog, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesTraceVariant, BxesValue},
     writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes},
 };
+use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
+use bxes::models::domain::bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal};
+use bxes::models::domain::bxes_value::BxesValue;
+use bxes::models::system_models::SystemMetadata;
+use bxes::writer::writer_utils::BxesLogWriteData;
 
 use crate::event_log::{
     core::{
@@ -42,7 +46,12 @@ pub fn write_event_log_to_bxes(log: &XesEventLogImpl, path: &str) -> Result<(), 
         version: 1,
     };
 
-    match write_bxes(path, &bxes_log) {
+    let data = BxesLogWriteData {
+        log: bxes_log,
+        system_metadata: SystemMetadata::new(None)
+    };
+
+    match write_bxes(path, &data) {
         Ok(()) => Ok(()),
         Err(error) => Err(XesToBxesWriterError::BxesWriteError(error)),
     }

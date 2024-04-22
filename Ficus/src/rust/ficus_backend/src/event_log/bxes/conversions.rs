@@ -1,4 +1,5 @@
-use bxes::models::{BxesGlobalKind, BxesValue};
+use bxes::models::domain::bxes_log_metadata::BxesGlobalKind;
+use bxes::models::domain::bxes_value::BxesValue;
 use chrono::{TimeZone, Utc};
 
 use crate::event_log::core::event::{
@@ -21,11 +22,11 @@ pub(super) fn bxes_value_to_payload_value(value: &BxesValue) -> EventPayloadValu
         BxesValue::Bool(bool) => EventPayloadValue::Boolean(*bool),
         BxesValue::Timestamp(stamp) => EventPayloadValue::Date(Utc.timestamp_nanos(*stamp)),
         BxesValue::BrafLifecycle(lifecycle) => {
-            let lifecycle = bxes::models::Lifecycle::Braf(lifecycle.clone());
+            let lifecycle = bxes::models::domain::bxes_lifecycle::Lifecycle::Braf(lifecycle.clone());
             EventPayloadValue::Lifecycle(convert_bxes_to_xes_lifecycle(&lifecycle))
         }
         BxesValue::StandardLifecycle(lifecycle) => {
-            let lifecycle = bxes::models::Lifecycle::Standard(lifecycle.clone());
+            let lifecycle = bxes::models::domain::bxes_lifecycle::Lifecycle::Standard(lifecycle.clone());
             EventPayloadValue::Lifecycle(convert_bxes_to_xes_lifecycle(&lifecycle))
         }
         BxesValue::Artifact(_) => todo!(),
@@ -50,94 +51,94 @@ pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValu
         EventPayloadValue::Guid(value) => BxesValue::Guid(value.clone()),
         EventPayloadValue::Timestamp(value) => BxesValue::Timestamp(*value),
         EventPayloadValue::Lifecycle(lifecycle) => match convert_xes_to_bxes_lifecycle(lifecycle) {
-            bxes::models::Lifecycle::Braf(braf) => BxesValue::BrafLifecycle(braf),
-            bxes::models::Lifecycle::Standard(standard) => BxesValue::StandardLifecycle(standard),
+            bxes::models::domain::bxes_lifecycle::Lifecycle::Braf(braf) => BxesValue::BrafLifecycle(braf),
+            bxes::models::domain::bxes_lifecycle::Lifecycle::Standard(standard) => BxesValue::StandardLifecycle(standard),
         },
     }
 }
 
-pub(super) fn convert_bxes_to_xes_lifecycle(bxes_lifecycle: &bxes::models::Lifecycle) -> Lifecycle {
+pub(super) fn convert_bxes_to_xes_lifecycle(bxes_lifecycle: &bxes::models::domain::bxes_lifecycle::Lifecycle) -> Lifecycle {
     match bxes_lifecycle {
-        bxes::models::Lifecycle::Braf(braf_lifecycle) => Lifecycle::BrafLifecycle(match braf_lifecycle {
-            bxes::models::BrafLifecycle::Unspecified => XesBrafLifecycle::Unspecified,
-            bxes::models::BrafLifecycle::Closed => XesBrafLifecycle::Closed,
-            bxes::models::BrafLifecycle::ClosedCancelled => XesBrafLifecycle::ClosedCancelled,
-            bxes::models::BrafLifecycle::ClosedCancelledAborted => XesBrafLifecycle::ClosedCancelledAborted,
-            bxes::models::BrafLifecycle::ClosedCancelledError => XesBrafLifecycle::ClosedCancelledError,
-            bxes::models::BrafLifecycle::ClosedCancelledExited => XesBrafLifecycle::ClosedCancelledExited,
-            bxes::models::BrafLifecycle::ClosedCancelledObsolete => XesBrafLifecycle::ClosedCancelledObsolete,
-            bxes::models::BrafLifecycle::ClosedCancelledTerminated => XesBrafLifecycle::ClosedCancelledTerminated,
-            bxes::models::BrafLifecycle::Completed => XesBrafLifecycle::Completed,
-            bxes::models::BrafLifecycle::CompletedFailed => XesBrafLifecycle::CompletedFailed,
-            bxes::models::BrafLifecycle::CompletedSuccess => XesBrafLifecycle::CompletedSuccess,
-            bxes::models::BrafLifecycle::Open => XesBrafLifecycle::Open,
-            bxes::models::BrafLifecycle::OpenNotRunning => XesBrafLifecycle::OpenNotRunning,
-            bxes::models::BrafLifecycle::OpenNotRunningAssigned => XesBrafLifecycle::OpenNotRunningAssigned,
-            bxes::models::BrafLifecycle::OpenNotRunningReserved => XesBrafLifecycle::OpenNotRunningReserved,
-            bxes::models::BrafLifecycle::OpenNotRunningSuspendedAssigned => XesBrafLifecycle::OpenNotRunningSuspendedAssigned,
-            bxes::models::BrafLifecycle::OpenNotRunningSuspendedReserved => XesBrafLifecycle::OpenNotRunningSuspendedReserved,
-            bxes::models::BrafLifecycle::OpenRunning => XesBrafLifecycle::OpenRunning,
-            bxes::models::BrafLifecycle::OpenRunningInProgress => XesBrafLifecycle::OpenRunningInProgress,
-            bxes::models::BrafLifecycle::OpenRunningSuspended => XesBrafLifecycle::OpenRunningSuspended,
+        bxes::models::domain::bxes_lifecycle::Lifecycle::Braf(braf_lifecycle) => Lifecycle::BrafLifecycle(match braf_lifecycle {
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::Unspecified => XesBrafLifecycle::Unspecified,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::Closed => XesBrafLifecycle::Closed,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelled => XesBrafLifecycle::ClosedCancelled,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledAborted => XesBrafLifecycle::ClosedCancelledAborted,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledError => XesBrafLifecycle::ClosedCancelledError,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledExited => XesBrafLifecycle::ClosedCancelledExited,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledObsolete => XesBrafLifecycle::ClosedCancelledObsolete,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledTerminated => XesBrafLifecycle::ClosedCancelledTerminated,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::Completed => XesBrafLifecycle::Completed,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::CompletedFailed => XesBrafLifecycle::CompletedFailed,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::CompletedSuccess => XesBrafLifecycle::CompletedSuccess,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::Open => XesBrafLifecycle::Open,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunning => XesBrafLifecycle::OpenNotRunning,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningAssigned => XesBrafLifecycle::OpenNotRunningAssigned,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningReserved => XesBrafLifecycle::OpenNotRunningReserved,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningSuspendedAssigned => XesBrafLifecycle::OpenNotRunningSuspendedAssigned,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningSuspendedReserved => XesBrafLifecycle::OpenNotRunningSuspendedReserved,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenRunning => XesBrafLifecycle::OpenRunning,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenRunningInProgress => XesBrafLifecycle::OpenRunningInProgress,
+            bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenRunningSuspended => XesBrafLifecycle::OpenRunningSuspended,
         }),
-        bxes::models::Lifecycle::Standard(standard_lifecycle) => Lifecycle::XesStandardLifecycle(match standard_lifecycle {
-            bxes::models::StandardLifecycle::Unspecified => XesStandardLifecycle::Unspecified,
-            bxes::models::StandardLifecycle::Assign => XesStandardLifecycle::Assign,
-            bxes::models::StandardLifecycle::AteAbort => XesStandardLifecycle::AteAbort,
-            bxes::models::StandardLifecycle::Autoskip => XesStandardLifecycle::Autoskip,
-            bxes::models::StandardLifecycle::Complete => XesStandardLifecycle::Complete,
-            bxes::models::StandardLifecycle::ManualSkip => XesStandardLifecycle::ManualSkip,
-            bxes::models::StandardLifecycle::PiAbort => XesStandardLifecycle::PiAbort,
-            bxes::models::StandardLifecycle::ReAssign => XesStandardLifecycle::ReAssign,
-            bxes::models::StandardLifecycle::Resume => XesStandardLifecycle::Resume,
-            bxes::models::StandardLifecycle::Schedule => XesStandardLifecycle::Schedule,
-            bxes::models::StandardLifecycle::Start => XesStandardLifecycle::Start,
-            bxes::models::StandardLifecycle::Suspend => XesStandardLifecycle::Suspend,
-            bxes::models::StandardLifecycle::Unknown => XesStandardLifecycle::Unknown,
-            bxes::models::StandardLifecycle::Withdraw => XesStandardLifecycle::Withdraw,
+        bxes::models::domain::bxes_lifecycle::Lifecycle::Standard(standard_lifecycle) => Lifecycle::XesStandardLifecycle(match standard_lifecycle {
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Unspecified => XesStandardLifecycle::Unspecified,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Assign => XesStandardLifecycle::Assign,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::AteAbort => XesStandardLifecycle::AteAbort,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Autoskip => XesStandardLifecycle::Autoskip,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Complete => XesStandardLifecycle::Complete,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::ManualSkip => XesStandardLifecycle::ManualSkip,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::PiAbort => XesStandardLifecycle::PiAbort,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::ReAssign => XesStandardLifecycle::ReAssign,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Resume => XesStandardLifecycle::Resume,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Schedule => XesStandardLifecycle::Schedule,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Start => XesStandardLifecycle::Start,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Suspend => XesStandardLifecycle::Suspend,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Unknown => XesStandardLifecycle::Unknown,
+            bxes::models::domain::bxes_lifecycle::StandardLifecycle::Withdraw => XesStandardLifecycle::Withdraw,
         }),
     }
 }
 
-pub(super) fn convert_xes_to_bxes_lifecycle(ficus_lifecycle: &Lifecycle) -> bxes::models::Lifecycle {
+pub(super) fn convert_xes_to_bxes_lifecycle(ficus_lifecycle: &Lifecycle) -> bxes::models::domain::bxes_lifecycle::Lifecycle {
     match ficus_lifecycle {
-        Lifecycle::BrafLifecycle(braf_lifecycle) => bxes::models::Lifecycle::Braf(match braf_lifecycle {
-            XesBrafLifecycle::Unspecified => bxes::models::BrafLifecycle::Unspecified,
-            XesBrafLifecycle::Closed => bxes::models::BrafLifecycle::Closed,
-            XesBrafLifecycle::ClosedCancelled => bxes::models::BrafLifecycle::ClosedCancelled,
-            XesBrafLifecycle::ClosedCancelledAborted => bxes::models::BrafLifecycle::ClosedCancelledAborted,
-            XesBrafLifecycle::ClosedCancelledError => bxes::models::BrafLifecycle::ClosedCancelledError,
-            XesBrafLifecycle::ClosedCancelledExited => bxes::models::BrafLifecycle::ClosedCancelledExited,
-            XesBrafLifecycle::ClosedCancelledObsolete => bxes::models::BrafLifecycle::ClosedCancelledObsolete,
-            XesBrafLifecycle::ClosedCancelledTerminated => bxes::models::BrafLifecycle::ClosedCancelledTerminated,
-            XesBrafLifecycle::Completed => bxes::models::BrafLifecycle::Completed,
-            XesBrafLifecycle::CompletedFailed => bxes::models::BrafLifecycle::CompletedFailed,
-            XesBrafLifecycle::CompletedSuccess => bxes::models::BrafLifecycle::CompletedSuccess,
-            XesBrafLifecycle::Open => bxes::models::BrafLifecycle::Open,
-            XesBrafLifecycle::OpenNotRunning => bxes::models::BrafLifecycle::OpenNotRunning,
-            XesBrafLifecycle::OpenNotRunningAssigned => bxes::models::BrafLifecycle::OpenNotRunningAssigned,
-            XesBrafLifecycle::OpenNotRunningReserved => bxes::models::BrafLifecycle::OpenNotRunningReserved,
-            XesBrafLifecycle::OpenNotRunningSuspendedAssigned => bxes::models::BrafLifecycle::OpenNotRunningSuspendedAssigned,
-            XesBrafLifecycle::OpenNotRunningSuspendedReserved => bxes::models::BrafLifecycle::OpenNotRunningSuspendedReserved,
-            XesBrafLifecycle::OpenRunning => bxes::models::BrafLifecycle::OpenRunning,
-            XesBrafLifecycle::OpenRunningInProgress => bxes::models::BrafLifecycle::OpenRunningInProgress,
-            XesBrafLifecycle::OpenRunningSuspended => bxes::models::BrafLifecycle::OpenRunningSuspended,
+        Lifecycle::BrafLifecycle(braf_lifecycle) => bxes::models::domain::bxes_lifecycle::Lifecycle::Braf(match braf_lifecycle {
+            XesBrafLifecycle::Unspecified => bxes::models::domain::bxes_lifecycle::BrafLifecycle::Unspecified,
+            XesBrafLifecycle::Closed => bxes::models::domain::bxes_lifecycle::BrafLifecycle::Closed,
+            XesBrafLifecycle::ClosedCancelled => bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelled,
+            XesBrafLifecycle::ClosedCancelledAborted => bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledAborted,
+            XesBrafLifecycle::ClosedCancelledError => bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledError,
+            XesBrafLifecycle::ClosedCancelledExited => bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledExited,
+            XesBrafLifecycle::ClosedCancelledObsolete => bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledObsolete,
+            XesBrafLifecycle::ClosedCancelledTerminated => bxes::models::domain::bxes_lifecycle::BrafLifecycle::ClosedCancelledTerminated,
+            XesBrafLifecycle::Completed => bxes::models::domain::bxes_lifecycle::BrafLifecycle::Completed,
+            XesBrafLifecycle::CompletedFailed => bxes::models::domain::bxes_lifecycle::BrafLifecycle::CompletedFailed,
+            XesBrafLifecycle::CompletedSuccess => bxes::models::domain::bxes_lifecycle::BrafLifecycle::CompletedSuccess,
+            XesBrafLifecycle::Open => bxes::models::domain::bxes_lifecycle::BrafLifecycle::Open,
+            XesBrafLifecycle::OpenNotRunning => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunning,
+            XesBrafLifecycle::OpenNotRunningAssigned => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningAssigned,
+            XesBrafLifecycle::OpenNotRunningReserved => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningReserved,
+            XesBrafLifecycle::OpenNotRunningSuspendedAssigned => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningSuspendedAssigned,
+            XesBrafLifecycle::OpenNotRunningSuspendedReserved => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenNotRunningSuspendedReserved,
+            XesBrafLifecycle::OpenRunning => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenRunning,
+            XesBrafLifecycle::OpenRunningInProgress => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenRunningInProgress,
+            XesBrafLifecycle::OpenRunningSuspended => bxes::models::domain::bxes_lifecycle::BrafLifecycle::OpenRunningSuspended,
         }),
-        Lifecycle::XesStandardLifecycle(standard_lifecycle) => bxes::models::Lifecycle::Standard(match standard_lifecycle {
-            XesStandardLifecycle::Unspecified => bxes::models::StandardLifecycle::Unspecified,
-            XesStandardLifecycle::Assign => bxes::models::StandardLifecycle::Assign,
-            XesStandardLifecycle::AteAbort => bxes::models::StandardLifecycle::AteAbort,
-            XesStandardLifecycle::Autoskip => bxes::models::StandardLifecycle::Autoskip,
-            XesStandardLifecycle::Complete => bxes::models::StandardLifecycle::Complete,
-            XesStandardLifecycle::ManualSkip => bxes::models::StandardLifecycle::ManualSkip,
-            XesStandardLifecycle::PiAbort => bxes::models::StandardLifecycle::PiAbort,
-            XesStandardLifecycle::ReAssign => bxes::models::StandardLifecycle::ReAssign,
-            XesStandardLifecycle::Resume => bxes::models::StandardLifecycle::Resume,
-            XesStandardLifecycle::Schedule => bxes::models::StandardLifecycle::Schedule,
-            XesStandardLifecycle::Start => bxes::models::StandardLifecycle::Start,
-            XesStandardLifecycle::Suspend => bxes::models::StandardLifecycle::Suspend,
-            XesStandardLifecycle::Unknown => bxes::models::StandardLifecycle::Unknown,
-            XesStandardLifecycle::Withdraw => bxes::models::StandardLifecycle::Withdraw,
+        Lifecycle::XesStandardLifecycle(standard_lifecycle) => bxes::models::domain::bxes_lifecycle::Lifecycle::Standard(match standard_lifecycle {
+            XesStandardLifecycle::Unspecified => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Unspecified,
+            XesStandardLifecycle::Assign => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Assign,
+            XesStandardLifecycle::AteAbort => bxes::models::domain::bxes_lifecycle::StandardLifecycle::AteAbort,
+            XesStandardLifecycle::Autoskip => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Autoskip,
+            XesStandardLifecycle::Complete => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Complete,
+            XesStandardLifecycle::ManualSkip => bxes::models::domain::bxes_lifecycle::StandardLifecycle::ManualSkip,
+            XesStandardLifecycle::PiAbort => bxes::models::domain::bxes_lifecycle::StandardLifecycle::PiAbort,
+            XesStandardLifecycle::ReAssign => bxes::models::domain::bxes_lifecycle::StandardLifecycle::ReAssign,
+            XesStandardLifecycle::Resume => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Resume,
+            XesStandardLifecycle::Schedule => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Schedule,
+            XesStandardLifecycle::Start => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Start,
+            XesStandardLifecycle::Suspend => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Suspend,
+            XesStandardLifecycle::Unknown => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Unknown,
+            XesStandardLifecycle::Withdraw => bxes::models::domain::bxes_lifecycle::StandardLifecycle::Withdraw,
         }),
     }
 }

@@ -1,9 +1,10 @@
 use std::{borrow::Borrow, cell::RefCell, collections::HashMap, rc::Rc};
 
 use bxes::{
-    models::{BxesEvent, BxesEventLog, BxesValue},
     read::errors::BxesReadError,
 };
+use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog};
+use bxes::models::domain::bxes_value::BxesValue;
 use chrono::{TimeZone, Utc};
 
 use crate::event_log::{
@@ -33,19 +34,19 @@ impl ToString for BxesToXesReadError {
 }
 
 pub fn read_bxes_into_xes_log(path: &str) -> Result<XesEventLogImpl, BxesToXesReadError> {
-    let log = match bxes::read::single_file_bxes_reader::read_bxes(path) {
+    let result = match bxes::read::single_file_bxes_reader::read_bxes(path) {
         Ok(log) => log,
         Err(error) => return Err(BxesToXesReadError::BxesReadError(error)),
     };
 
     let mut xes_log = XesEventLogImpl::empty();
 
-    set_classifiers(&mut xes_log, &log)?;
-    set_properties(&mut xes_log, &log)?;
-    set_extensions(&mut xes_log, &log)?;
-    set_globals(&mut xes_log, &log)?;
+    set_classifiers(&mut xes_log, &result.log)?;
+    set_properties(&mut xes_log, &result.log)?;
+    set_extensions(&mut xes_log, &result.log)?;
+    set_globals(&mut xes_log, &result.log)?;
 
-    for variant in &log.variants {
+    for variant in &result.log.variants {
         let mut xes_trace = XesTraceImpl::empty();
         for event in &variant.events {
             xes_trace.push(Rc::new(RefCell::new(create_xes_event(event)?)));
