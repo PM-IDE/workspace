@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using Bxes.Models;
-using Bxes.Models.Values;
-using Bxes.Models.Values.Lifecycle;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
 using Procfiler.Core.EventRecord;
