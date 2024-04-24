@@ -2,7 +2,7 @@
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.Processes;
-using Procfiler.Core.Processes.Build;
+using Procfiler.Core.Processes.Builder;
 using Procfiler.Utils;
 using Procfiler.Utils.Container;
 
