@@ -8,39 +8,6 @@ public interface ITraceVariant : IEquatable<ITraceVariant>
 
   IList<AttributeKeyValue> Metadata { get; }
   IList<IEvent> Events { get; }
-
-  IEnumerable<BxesValue> EnumerateValues()
-  {
-    foreach (var pair in Metadata)
-    {
-      yield return pair.Key;
-      yield return pair.Value;
-    }
-
-    foreach (var @event in Events)
-    {
-      foreach (var value in @event.EnumerateValues())
-      {
-        yield return value;
-      }
-    }
-  }
-
-  IEnumerable<AttributeKeyValue> EnumerateKeyValuePairs()
-  {
-    foreach (var pair in Metadata)
-    {
-      yield return pair;
-    }
-
-    foreach (var @event in Events)
-    {
-      foreach (var pair in @event.EnumerateKeyValuePairs())
-      {
-        yield return pair;
-      }
-    }
-  }
 }
 
 public class TraceVariantImpl(

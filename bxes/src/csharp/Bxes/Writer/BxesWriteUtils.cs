@@ -87,10 +87,7 @@ internal static class BxesWriteUtils
 
   public static void WriteKeyValuePairs(IEventLog log, BxesWriteContext context)
   {
-    var pairs = log.Traces
-      .SelectMany(variant => variant.EnumerateKeyValuePairs())
-      .Concat(log.Metadata.EnumerateKeyValuePairs());
-
+    var pairs = context.ValuesEnumerator.EnumerateKeyValues(log);
     WriteCollectionAndCount(pairs, context, WriteKeyValuePairIfNeeded, () => (IndexType)context.KeyValueIndices.Count);
   }
 
@@ -214,11 +211,7 @@ internal static class BxesWriteUtils
 
   public static void WriteValues(IEventLog log, BxesWriteContext context)
   {
-    var values = log.Traces
-      .SelectMany(variant => variant.EnumerateValues())
-      .Concat(log.Metadata.EnumerateValues())
-      .ToList();
-
+    var values = context.ValuesEnumerator.EnumerateValues(log);
     WriteCollectionAndCount(values, context, WriteValueIfNeeded, () => (IndexType)context.ValuesIndices.Count);
   }
 

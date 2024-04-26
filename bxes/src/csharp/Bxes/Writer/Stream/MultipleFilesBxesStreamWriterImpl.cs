@@ -16,7 +16,7 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
   private readonly IEventLogMetadata myMetadata = new EventLogMetadata();
   private readonly ISystemMetadata mySystemMetadata;
   
-  private readonly BxesWriteContext myContext = new(null!);
+  private readonly BxesWriteContext myContext = new(null!, LogValuesEnumerator.Default);
   private readonly ValuesCounter myValuesCounter = new();
 
 
@@ -198,12 +198,12 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
 
   private void WriteMetadata()
   {
-    foreach (var value in myMetadata.EnumerateValues())
+    foreach (var value in myContext.ValuesEnumerator.EnumerateMetadataValues(myMetadata))
     {
       BxesWriteUtils.WriteValueIfNeeded(value, myContext.WithWriter(myValuesWriter));
     }
 
-    foreach (var kv in myMetadata.EnumerateKeyValuePairs())
+    foreach (var kv in myContext.ValuesEnumerator.EnumerateMetadataKeyValuePairs(myMetadata))
     {
       BxesWriteUtils.WriteKeyValuePairIfNeeded(kv, myContext.WithWriter(myKeyValuesWriter));
     }

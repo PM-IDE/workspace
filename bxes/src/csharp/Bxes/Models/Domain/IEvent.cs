@@ -9,19 +9,6 @@ public interface IEvent : IEquatable<IEvent>
   string Name { get; }
 
   IList<AttributeKeyValue> Attributes { get; }
-
-  IEnumerable<BxesValue> EnumerateValues()
-  {
-    yield return new BxesStringValue(Name);
-
-    foreach (var (key, value) in Attributes)
-    {
-      yield return key;
-      yield return value;
-    }
-  }
-
-  IEnumerable<AttributeKeyValue> EnumerateKeyValuePairs() => Attributes;
 }
 
 public static class EventUtil

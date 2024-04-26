@@ -11,57 +11,6 @@ public interface IEventLogMetadata : IEquatable<IEventLogMetadata>
     IList<AttributeKeyValue> Properties { get; }
     IList<BxesGlobal> Globals { get; }
 
-    IEnumerable<BxesValue> EnumerateValues()
-    {
-        foreach (var (key, value) in Properties)
-        {
-            yield return key;
-            yield return value;
-        }
-
-        foreach (var extension in Extensions)
-        {
-            yield return extension.Name;
-            yield return extension.Prefix;
-            yield return extension.Uri;
-        }
-
-        foreach (var classifier in Classifiers)
-        {
-            yield return classifier.Name;
-
-            foreach (var key in classifier.Keys)
-            {
-                yield return key;
-            }
-        }
-
-        foreach (var global in Globals)
-        {
-            foreach (var attribute in global.Globals)
-            {
-                yield return attribute.Key;
-                yield return attribute.Value;
-            }
-        }
-    }
-
-    IEnumerable<AttributeKeyValue> EnumerateKeyValuePairs()
-    {
-        foreach (var pair in Properties)
-        {
-            yield return pair;
-        }
-
-        foreach (var global in Globals)
-        {
-            foreach (var attribute in global.Globals)
-            {
-                yield return attribute;
-            }
-        }
-    }
-
     IEnumerable<BxesStreamEvent> ToEventsStream()
     {
         foreach (var extension in Extensions)

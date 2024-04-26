@@ -13,7 +13,7 @@ public class SingleFileBxesWriter(ISystemMetadata metadata) : IBxesWriter
     using var cookie = new TempFilePathContainer();
     BxesWriteUtils.ExecuteWithFile(cookie.Path, writer =>
     {
-      var context = new BxesWriteContext(writer);
+      var context = new BxesWriteContext(writer, LogValuesEnumerator.Default);
 
       BxesWriteUtils.WriteBxesVersion(writer, log.Version);
       BxesWriteUtils.WriteValuesAttributesDescriptors(metadata.ValueAttributeDescriptors, context);

@@ -13,7 +13,7 @@ public class MultipleFilesBxesWriter(ISystemMetadata metadata) : IBxesWriter
       throw new SavePathIsNotDirectoryException(savePath);
     }
 
-    var context = new BxesWriteContext(null!);
+    var context = new BxesWriteContext(null!, LogValuesEnumerator.Default);
 
     void Write(BinaryWriter writer, Action<IEventLog, BxesWriteContext> writeAction) =>
       writeAction(log, context.WithWriter(writer));
