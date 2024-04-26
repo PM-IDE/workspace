@@ -63,13 +63,33 @@ public static class BxesReadUtils
   {
     var metadata = new EventLogMetadata();
 
+    ReadProperties(metadata, reader, keyValues, values);
+    ReadExtensions(metadata, reader, values);
+    ReadGlobals(metadata, reader, keyValues, values);
+    ReadClassifiers(metadata, reader, values);
+
+    return metadata;
+  }
+
+  private static void ReadProperties(
+    IEventLogMetadata metadata, 
+    BinaryReader reader,
+    IReadOnlyList<KeyValuePair<uint, uint>> keyValues,
+    IReadOnlyList<BxesValue> values)
+  {
     var propertiesCount = reader.ReadUInt32();
     for (uint i = 0; i < propertiesCount; ++i)
     {
       var kv = keyValues[(int)reader.ReadUInt32()];
       metadata.Properties.Add(new AttributeKeyValue((BxesStringValue)values[(int)kv.Key], values[(int)kv.Value]));
     }
+  }
 
+  private static void ReadExtensions(
+    IEventLogMetadata metadata, 
+    BinaryReader reader,
+    IReadOnlyList<BxesValue> values)
+  {
     var extensionsCount = reader.ReadUInt32();
     for (uint i = 0; i < extensionsCount; ++i)
     {
@@ -80,7 +100,14 @@ public static class BxesReadUtils
         Uri = (BxesStringValue)values[(int)reader.ReadUInt32()],
       });
     }
+  }
 
+  private static void ReadGlobals(
+    IEventLogMetadata metadata, 
+    BinaryReader reader,
+    IReadOnlyList<KeyValuePair<uint, uint>> keyValues,
+    IReadOnlyList<BxesValue> values)
+  {
     var globalsEntitiesCount = reader.ReadUInt32();
     for (uint i = 0; i < globalsEntitiesCount; ++i)
     {
@@ -100,7 +127,13 @@ public static class BxesReadUtils
         Globals = entityGlobals
       });
     }
+  }
 
+  private static void ReadClassifiers(
+    IEventLogMetadata metadata, 
+    BinaryReader reader,
+    IReadOnlyList<BxesValue> values)
+  {
     var classifiersCount = reader.ReadUInt32();
     for (uint i = 0; i < classifiersCount; ++i)
     {
@@ -119,8 +152,6 @@ public static class BxesReadUtils
         Keys = keys
       });
     }
-
-    return metadata;
   }
 
   public static ISystemMetadata ReadSystemMetadata(BinaryReader reader) => new SystemMetadata
