@@ -111,22 +111,36 @@ internal static class BxesWriteUtils
 
   public static void WriteEventLogMetadata(IEventLogMetadata metadata, BxesWriteContext context)
   {
-    context.Writer.Write((IndexType)metadata.Properties.Count);
-    foreach (var pair in metadata.Properties)
+    WriteProperties(metadata.Properties, context);
+    WriteExtensions(metadata.Extensions, context);
+    WriteGlobals(metadata.Globals, context);
+    WriteClassifiers(metadata.Classifiers, context);
+  }
+
+  private static void WriteProperties(IList<AttributeKeyValue> properties, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)properties.Count);
+    foreach (var pair in properties)
     {
       context.Writer.Write(context.KeyValueIndices[pair]);
     }
+  }
 
-    context.Writer.Write((IndexType)metadata.Extensions.Count);
-    foreach (var extension in metadata.Extensions)
+  private static void WriteExtensions(IList<BxesExtension> extensions, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)extensions.Count);
+    foreach (var extension in extensions)
     {
       context.Writer.Write(context.ValuesIndices[extension.Name]);
       context.Writer.Write(context.ValuesIndices[extension.Prefix]);
       context.Writer.Write(context.ValuesIndices[extension.Uri]);
     }
+  }
 
-    context.Writer.Write((IndexType)metadata.Globals.Count);
-    foreach (var entityGlobal in metadata.Globals)
+  private static void WriteGlobals(IList<BxesGlobal> globals, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)globals.Count);
+    foreach (var entityGlobal in globals)
     {
       context.Writer.Write((byte)entityGlobal.Kind);
       context.Writer.Write((IndexType)entityGlobal.Globals.Count);
@@ -136,9 +150,12 @@ internal static class BxesWriteUtils
         context.Writer.Write(context.KeyValueIndices[global]);
       }
     }
+  }
 
-    context.Writer.Write((IndexType)metadata.Classifiers.Count);
-    foreach (var classifier in metadata.Classifiers)
+  private static void WriteClassifiers(IList<BxesClassifier> classifiers, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)classifiers.Count);
+    foreach (var classifier in classifiers)
     {
       context.Writer.Write(context.ValuesIndices[classifier.Name]);
       context.Writer.Write((IndexType)classifier.Keys.Count);
