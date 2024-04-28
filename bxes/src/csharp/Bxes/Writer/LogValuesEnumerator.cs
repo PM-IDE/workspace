@@ -129,12 +129,13 @@ public class LogValuesEnumerator(HashSet<string> valuesAttributes)
     {
         yield return new BxesStringValue(@event.Name);
 
-        foreach (var (key, value) in @event.Attributes)
+        foreach (var (key, value) in EnumerateEventKeyValuePairs(@event))
         {
             yield return key;
             yield return value;
         }
     }
 
-    IEnumerable<AttributeKeyValue> EnumerateEventKeyValuePairs(IEvent @event) => @event.Attributes;
+    IEnumerable<AttributeKeyValue> EnumerateEventKeyValuePairs(IEvent @event) => 
+        @event.Attributes.Where(attr => valuesAttributes.Contains(attr.Key.Value));
 }
