@@ -4,10 +4,24 @@ using Bxes.Models.System;
 
 namespace Bxes.Writer;
 
-public readonly ref struct EventAttributes
+public readonly ref struct EventAttributes(int allAttributesCount)
 {
     public required IReadOnlyList<AttributeKeyValue> ValueAttributes { get; init; }
     public required IEnumerable<AttributeKeyValue> DefaultAttributes { get; init; }
+
+
+    public int DefaultAttributesCount => allAttributesCount - ValueAttributes.Count;
+
+
+    public void Deconstruct(
+        out IReadOnlyList<AttributeKeyValue> valueAttributes,
+        out IEnumerable<AttributeKeyValue> defaultAttributes,
+        out int defaultAttributesCount)
+    {
+        valueAttributes = ValueAttributes;
+        defaultAttributes = DefaultAttributes;
+        defaultAttributesCount = DefaultAttributesCount;
+    }
 }
 
 public class AttributeNotFoundForDescriptorException(ValueAttributeDescriptor descriptor) : BxesException

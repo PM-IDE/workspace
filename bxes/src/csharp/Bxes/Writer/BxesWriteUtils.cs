@@ -28,18 +28,19 @@ internal static class BxesWriteUtils
   }
 
   private static void WriteCollection<TElement>(
-    ICollection<TElement> collection,
+    IEnumerable<TElement> collection,
+    int count,
     BxesWriteContext context,
     bool writeLeb128Count,
     Action<TElement, BxesWriteContext> elementWriter)
   {
     if (writeLeb128Count)
     {
-      context.Writer.WriteLeb128Unsigned((IndexType)collection.Count);
+      context.Writer.WriteLeb128Unsigned((IndexType)count);
     }
     else
     {
-      context.Writer.Write((IndexType)collection.Count);
+      context.Writer.Write((IndexType)count);
     }
 
     foreach (var element in collection)
@@ -206,13 +207,13 @@ internal static class BxesWriteUtils
     context.Writer.WriteLeb128Unsigned(context.ValuesIndices[new BxesStringValue(@event.Name)]);
     context.Writer.Write(@event.Timestamp);
 
-    var attributes = context.ValuesEnumerator.SplitEventAttributesOrThrow(@event);
-    if (attributes.ValueAttributes.Count != 0)
+    var (valueAttrs, defaultAttrs, defaultAttrsCount) = context.ValuesEnumerator.SplitEventAttributesOrThrow(@event);
+    if (valueAttrs.Count != 0)
     {
-      WriteEventValueAttributes(attributes.ValueAttributes, context);
+      WriteEventValueAttributes(valueAttrs, context);
     }
 
-    WriteCollection(attributes.DefaultAttributes.ToList(), context, true, WriteKeyValueIndex);
+    WriteCollection(defaultAttrs, defaultAttrsCount, context, true, WriteKeyValueIndex);
   }
 
   private static void WriteEventValueAttributes(
