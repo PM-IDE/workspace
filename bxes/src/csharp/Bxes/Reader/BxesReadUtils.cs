@@ -190,6 +190,21 @@ public static class BxesReadUtils
     var timestamp = context.Reader.ReadInt64();
 
     var eventAttributes = new List<AttributeKeyValue>();
+
+    var valueAttributesCount = context.SystemMetadata.ValueAttributeDescriptors.Count;
+    for (var i = 0; i < valueAttributesCount; ++i)
+    {
+      var value = BxesValue.Parse(context.Reader, context.Values);
+      var (expectedTypeId, valueAttrName) = context.SystemMetadata.ValueAttributeDescriptors[i];
+
+      if (value is not BxesNullValue && value.TypeId != expectedTypeId)
+      {
+        throw new ValueAttributeTypeNotEqualToDescriptorException(value.TypeId, expectedTypeId);
+      }
+
+      eventAttributes.Add(new AttributeKeyValue(new BxesStringValue(valueAttrName), value));
+    }
+    
     var attributesCount = context.Reader.ReadLeb128Unsigned();
 
     for (uint k = 0; k < attributesCount; ++k)
@@ -200,4 +215,9 @@ public static class BxesReadUtils
 
     return new InMemoryEventImpl(timestamp, name, eventAttributes);
   }
+}
+
+class ValueAttributeTypeNotEqualToDescriptorException(TypeIds actual, TypeIds expected) : BxesException
+{
+  public override string Message { get; } = $"Value attribute type missmatch: expected: {expected}, got {actual}";
 }

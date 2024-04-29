@@ -215,10 +215,7 @@ public static class TestLogsProvider
 
   public static ISystemMetadata GenerateRandomSystemMetadata()
   {
-    var metadata = new SystemMetadata();
-    metadata.ValueAttributeDescriptors.AddRange(GenerateRandomValueAttributesDescriptors());
-
-    return metadata;
+    return new SystemMetadata();
   }
 
   private static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
