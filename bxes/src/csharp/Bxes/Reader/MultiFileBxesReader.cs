@@ -27,14 +27,12 @@ public class MultiFileBxesReader : IBxesReader
       systemMetadata = BxesReadUtils.ReadSystemMetadata(context.WithReader(reader));
     });
 
-    List<BxesValue> values = null!;
     OpenRead(BxesConstants.ValuesFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
       BxesReadUtils.ReadValues(context.WithReader(reader));
     });
 
-    List<KeyValuePair<uint, uint>> keyValues = null!;
     OpenRead(BxesConstants.KVPairsFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
