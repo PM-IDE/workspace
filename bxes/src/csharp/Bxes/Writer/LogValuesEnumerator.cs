@@ -1,13 +1,73 @@
 ﻿using Bxes.Models.Domain;
 using Bxes.Models.Domain.Values;
+using Bxes.Models.System;
 
 namespace Bxes.Writer;
 
-public class LogValuesEnumerator(HashSet<string> valuesAttributes)
+public readonly ref struct EventAttributes
+{
+    public required IReadOnlyList<AttributeKeyValue> ValueAttributes { get; init; }
+    public required IEnumerable<AttributeKeyValue> DefaultAttributes { get; init; }
+}
+
+public class AttributeNotFoundForDescriptorException(ValueAttributeDescriptor descriptor) : BxesException
+{
+    public override string Message { get; } = $"Failed to find attribute for descriptor {descriptor}";
+}
+
+public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesAttributes)
 {
     public static LogValuesEnumerator Default { get; } = new([]);
 
 
+    private readonly HashSet<string> myValueAttributesNames = valuesAttributes.Select(d => d.Name).ToHashSet();
+    private readonly IReadOnlyList<ValueAttributeDescriptor> myOrderedValueAttributes =
+        valuesAttributes.OrderBy(d => d.Name).ToList();
+
+    
+    public EventAttributes SplitEventAttributesOrThrow(IEvent @event)
+    {
+        if (myOrderedValueAttributes.Count == 0)
+        {
+            return new EventAttributes
+            {
+                ValueAttributes = [],
+                DefaultAttributes = @event.Attributes
+            };
+        }
+
+        return new EventAttributes
+        {
+            ValueAttributes = ExtractValueAttributesOrThrow(@event),
+            DefaultAttributes = @event.Attributes.Where(attr => myValueAttributesNames.Contains(attr.Key.Value))
+        };
+    }
+
+    //todo: allocations
+    private List<AttributeKeyValue> ExtractValueAttributesOrThrow(IEvent @event)
+    {
+        if (myOrderedValueAttributes.Count == 0) return [];
+
+        var valuesAttributes = new List<AttributeKeyValue>();
+        foreach (var descriptor in myOrderedValueAttributes)
+        {
+            var foundAttribute = false;
+            foreach (var attribute in @event.Attributes)
+            {
+                if (attribute.Key.Value == descriptor.Name && attribute.Value.TypeId == descriptor.TypeId)
+                {
+                    foundAttribute = true;
+                    valuesAttributes.Add(attribute);
+                    break;
+                }
+            }
+
+            if (!foundAttribute) throw new AttributeNotFoundForDescriptorException(descriptor);
+        }
+
+        return valuesAttributes;
+    }
+    
     public IEnumerable<BxesValue> EnumerateValues(IEventLog log)
     {
         foreach (var variant in log.Traces)
@@ -125,7 +185,7 @@ public class LogValuesEnumerator(HashSet<string> valuesAttributes)
         }
     }
     
-    IEnumerable<BxesValue> EnumerateEventValues(IEvent @event)
+    private IEnumerable<BxesValue> EnumerateEventValues(IEvent @event)
     {
         yield return new BxesStringValue(@event.Name);
 
@@ -136,6 +196,6 @@ public class LogValuesEnumerator(HashSet<string> valuesAttributes)
         }
     }
 
-    IEnumerable<AttributeKeyValue> EnumerateEventKeyValuePairs(IEvent @event) => 
-        @event.Attributes.Where(attr => valuesAttributes.Contains(attr.Key.Value));
+    private IEnumerable<AttributeKeyValue> EnumerateEventKeyValuePairs(IEvent @event) => 
+        @event.Attributes.Where(attr => !myValueAttributesNames.Contains(attr.Key.Value));
 }

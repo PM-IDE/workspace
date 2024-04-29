@@ -206,7 +206,22 @@ internal static class BxesWriteUtils
     context.Writer.WriteLeb128Unsigned(context.ValuesIndices[new BxesStringValue(@event.Name)]);
     context.Writer.Write(@event.Timestamp);
 
-    WriteCollection(@event.Attributes, context, true, WriteKeyValueIndex);
+    var attributes = context.ValuesEnumerator.SplitEventAttributesOrThrow(@event);
+    if (attributes.ValueAttributes.Count != 0)
+    {
+      WriteEventValueAttributes(attributes.ValueAttributes, context);
+    }
+
+    WriteCollection(attributes.DefaultAttributes.ToList(), context, true, WriteKeyValueIndex);
+  }
+
+  private static void WriteEventValueAttributes(
+    IEnumerable<AttributeKeyValue> valueAttributes, BxesWriteContext context)
+  {
+    foreach (var (_, value) in valueAttributes)
+    {
+      value.WriteTo(context);
+    }
   }
 
   public static void WriteValues(IEventLog log, BxesWriteContext context)
