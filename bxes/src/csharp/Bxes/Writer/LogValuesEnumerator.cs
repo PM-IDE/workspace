@@ -43,14 +43,14 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
     {
         if (myOrderedValueAttributes.Count == 0)
         {
-            return new EventAttributes
+            return new EventAttributes(@event.Attributes.Count)
             {
                 ValueAttributes = [],
                 DefaultAttributes = @event.Attributes
             };
         }
 
-        return new EventAttributes
+        return new EventAttributes(@event.Attributes.Count)
         {
             ValueAttributes = ExtractValueAttributesOrThrow(@event),
             DefaultAttributes = @event.Attributes.Where(attr => myValueAttributesNames.Contains(attr.Key.Value))
