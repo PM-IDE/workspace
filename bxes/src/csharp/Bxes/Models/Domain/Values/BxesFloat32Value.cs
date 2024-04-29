@@ -2,8 +2,14 @@ using Bxes.Writer;
 
 namespace Bxes.Models.Domain.Values;
 
-public class BxesFloat32Value(float value) : BxesValue<float>(value)
+public class BxesFloat32Value(float value) : BxesValue<float>(value), IReadableValue<BxesFloat32Value>
 {
+  public static BxesFloat32Value ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
+  {
+    return new BxesFloat32Value(reader.ReadSingle());
+  }
+  
+
   public override TypeIds TypeId => TypeIds.F32;
 
 

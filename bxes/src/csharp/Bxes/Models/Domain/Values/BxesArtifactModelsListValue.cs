@@ -10,8 +10,31 @@ public record BxesArtifactItem
   public required string Transition { get; init; }
 }
 
-public class BxesArtifactModelsListValue(List<BxesArtifactItem> items) : BxesValue<List<BxesArtifactItem>>(items)
+public class BxesArtifactModelsListValue(List<BxesArtifactItem> items) 
+  : BxesValue<List<BxesArtifactItem>>(items), IReadableValue<BxesArtifactModelsListValue>
 {
+  public static BxesArtifactModelsListValue ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
+  {
+    var modelsCount = reader.ReadUInt32();
+    var models = new List<BxesArtifactItem>();
+    for (var i = 0; i < modelsCount; ++i)
+    {
+      var model = (BxesStringValue)parsedValues[(int)reader.ReadUInt32()];
+      var instance = (BxesStringValue)parsedValues[(int)reader.ReadUInt32()];
+      var transition = (BxesStringValue)parsedValues[(int)reader.ReadUInt32()];
+
+      models.Add(new BxesArtifactItem
+      {
+        Model = model.Value,
+        Instance = instance.Value,
+        Transition = transition.Value
+      });
+    }
+
+    return new BxesArtifactModelsListValue(models);
+  }
+
+
   public override TypeIds TypeId => TypeIds.Artifact;
 
   public override void WriteTo(BxesWriteContext context)

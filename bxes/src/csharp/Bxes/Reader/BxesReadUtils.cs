@@ -155,39 +155,49 @@ public static class BxesReadUtils
 
     for (uint i = 0; i < variantsCount; ++i)
     {
-      var tracesCount = context.Reader.ReadUInt32();
-
-      var metadata = new List<AttributeKeyValue>();
-      var metadataCount = context.Reader.ReadUInt32();
-      for (uint j = 0; j < metadataCount; ++j)
-      {
-        var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
-        metadata.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
-      }
-
-      var eventsCount = context.Reader.ReadUInt32();
-      var events = new List<IEvent>();
-
-      for (uint j = 0; j < eventsCount; ++j)
-      {
-        var name = (BxesStringValue)context.Values[(int)context.Reader.ReadLeb128Unsigned()];
-        var timestamp = context.Reader.ReadInt64();
-
-        var attributesCount = context.Reader.ReadLeb128Unsigned();
-        var eventAttributes = new List<AttributeKeyValue>();
-
-        for (uint k = 0; k < attributesCount; ++k)
-        {
-          var kv = context.KeyValues[(int)context.Reader.ReadLeb128Unsigned()];
-          eventAttributes.Add(new((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
-        }
-
-        events.Add(new InMemoryEventImpl(timestamp, name, eventAttributes));
-      }
-
-      variants.Add(new TraceVariantImpl(tracesCount, events, metadata));
+      variants.Add(ReadTraceVariant(context));
     }
 
     return variants;
+  }
+
+  private static TraceVariantImpl ReadTraceVariant(BxesReadContext context)
+  {
+    var tracesCount = context.Reader.ReadUInt32();
+
+    var metadata = new List<AttributeKeyValue>();
+    var metadataCount = context.Reader.ReadUInt32();
+    for (uint j = 0; j < metadataCount; ++j)
+    {
+      var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
+      metadata.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+    }
+
+    var eventsCount = context.Reader.ReadUInt32();
+    var events = new List<IEvent>();
+
+    for (uint j = 0; j < eventsCount; ++j)
+    {
+      events.Add(ReadEvent(context));
+    }
+
+    return new TraceVariantImpl(tracesCount, events, metadata);
+  }
+
+  private static InMemoryEventImpl ReadEvent(BxesReadContext context)
+  {
+    var name = (BxesStringValue)context.Values[(int)context.Reader.ReadLeb128Unsigned()];
+    var timestamp = context.Reader.ReadInt64();
+
+    var eventAttributes = new List<AttributeKeyValue>();
+    var attributesCount = context.Reader.ReadLeb128Unsigned();
+
+    for (uint k = 0; k < attributesCount; ++k)
+    {
+      var kv = context.KeyValues[(int)context.Reader.ReadLeb128Unsigned()];
+      eventAttributes.Add(new((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+    }
+
+    return new InMemoryEventImpl(timestamp, name, eventAttributes);
   }
 }
