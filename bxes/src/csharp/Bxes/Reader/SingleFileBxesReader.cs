@@ -9,12 +9,13 @@ public class SingleFileBxesReader : IBxesReader
     using var cookie = BxesReadUtils.ReadZipArchive(path);
     using var br = new BinaryReader(cookie.Stream);
 
+    var context = new BxesReadContext(br);
     var version = br.ReadUInt32();
-    var systemMetadata = BxesReadUtils.ReadSystemMetadata(br);
-    var values = BxesReadUtils.ReadValues(br);
-    var keyValues = BxesReadUtils.ReadKeyValuePairs(br);
-    var metadata = BxesReadUtils.ReadMetadata(br, keyValues, values);
-    var variants = BxesReadUtils.ReadVariants(br, keyValues, values);
+    var systemMetadata = BxesReadUtils.ReadSystemMetadata(context);
+    BxesReadUtils.ReadValues(context);
+    BxesReadUtils.ReadKeyValuePairs(context);
+    var metadata = BxesReadUtils.ReadMetadata(context);
+    var variants = BxesReadUtils.ReadVariants(context);
 
     return new EventLogReadResult(new InMemoryEventLog(version, metadata, variants), systemMetadata);
   }

@@ -19,38 +19,40 @@ public class MultiFileBxesReader : IBxesReader
     uint? version = null;
 
     ISystemMetadata systemMetadata = null!;
+    var context = new BxesReadContext(null!);
+
     OpenRead(BxesConstants.SystemMetadataFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
-      systemMetadata = BxesReadUtils.ReadSystemMetadata(reader);
+      systemMetadata = BxesReadUtils.ReadSystemMetadata(context.WithReader(reader));
     });
 
     List<BxesValue> values = null!;
     OpenRead(BxesConstants.ValuesFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
-      values = BxesReadUtils.ReadValues(reader);
+      BxesReadUtils.ReadValues(context.WithReader(reader));
     });
 
     List<KeyValuePair<uint, uint>> keyValues = null!;
     OpenRead(BxesConstants.KVPairsFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
-      keyValues = BxesReadUtils.ReadKeyValuePairs(reader);
+      BxesReadUtils.ReadKeyValuePairs(context.WithReader(reader));
     });
 
     IEventLogMetadata metadata = null!;
     OpenRead(BxesConstants.MetadataFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
-      metadata = BxesReadUtils.ReadMetadata(reader, keyValues, values);
+      metadata = BxesReadUtils.ReadMetadata(context.WithReader(reader));
     });
 
     List<ITraceVariant> variants = null!;
     OpenRead(BxesConstants.TracesFileName, reader =>
     {
       ValidateVersions(ref version, reader.ReadUInt32());
-      variants = BxesReadUtils.ReadVariants(reader, keyValues, values);
+      variants = BxesReadUtils.ReadVariants(context.WithReader(reader));
     });
 
     return new EventLogReadResult(new InMemoryEventLog(version!.Value, metadata, variants), systemMetadata);
