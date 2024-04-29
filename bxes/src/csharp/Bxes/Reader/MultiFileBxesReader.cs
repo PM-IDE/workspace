@@ -18,14 +18,9 @@ public class MultiFileBxesReader : IBxesReader
       action(reader);
     }
 
-    ISystemMetadata systemMetadata = null!;
     var context = new BxesReadContext(null!);
 
-    OpenRead(BxesConstants.SystemMetadataFileName, reader =>
-    {
-      systemMetadata = BxesReadUtils.ReadSystemMetadata(context.WithReader(reader));
-    });
-
+    OpenRead(BxesConstants.SystemMetadataFileName, reader => BxesReadUtils.ReadSystemMetadata(context.WithReader(reader)));
     OpenRead(BxesConstants.ValuesFileName, reader => BxesReadUtils.ReadValues(context.WithReader(reader)));
     OpenRead(BxesConstants.KVPairsFileName, reader => BxesReadUtils.ReadKeyValuePairs(context.WithReader(reader)));
 
@@ -41,7 +36,7 @@ public class MultiFileBxesReader : IBxesReader
       variants = BxesReadUtils.ReadVariants(context.WithReader(reader));
     });
 
-    return new EventLogReadResult(new InMemoryEventLog(version!.Value, metadata, variants), systemMetadata);
+    return new EventLogReadResult(new InMemoryEventLog(version!.Value, metadata, variants), context.SystemMetadata);
   }
 
   private static void ValidateVersions(ref uint? previousVersion, uint currentVersion)

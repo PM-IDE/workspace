@@ -11,14 +11,14 @@ public class SingleFileBxesReader : IBxesReader
 
     var context = new BxesReadContext(br);
     var version = br.ReadUInt32();
-    var systemMetadata = BxesReadUtils.ReadSystemMetadata(context);
 
+    BxesReadUtils.ReadSystemMetadata(context);
     BxesReadUtils.ReadValues(context);
     BxesReadUtils.ReadKeyValuePairs(context);
     
     var metadata = BxesReadUtils.ReadMetadata(context);
     var variants = BxesReadUtils.ReadVariants(context);
 
-    return new EventLogReadResult(new InMemoryEventLog(version, metadata, variants), systemMetadata);
+    return new EventLogReadResult(new InMemoryEventLog(version, metadata, variants), context.SystemMetadata);
   }
 }

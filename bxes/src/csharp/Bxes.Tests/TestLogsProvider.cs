@@ -213,10 +213,13 @@ public static class TestLogsProvider
     return new string(Enumerable.Range(0, length).Select(_ => GenerateRandomChar()).ToArray());
   }
 
-  public static ISystemMetadata GenerateRandomSystemMetadata() => new SystemMetadata
+  public static ISystemMetadata GenerateRandomSystemMetadata()
   {
-    ValueAttributeDescriptors = GenerateRandomValueAttributesDescriptors(),
-  };
+    var metadata = new SystemMetadata();
+    metadata.ValueAttributeDescriptors.AddRange(GenerateRandomValueAttributesDescriptors());
+
+    return metadata;
+  }
 
   private static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
   {

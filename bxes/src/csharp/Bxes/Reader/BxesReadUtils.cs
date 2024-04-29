@@ -134,26 +134,18 @@ public static class BxesReadUtils
     }
   }
 
-  public static ISystemMetadata ReadSystemMetadata(BxesReadContext context) => new SystemMetadata
+  public static void ReadSystemMetadata(BxesReadContext context)
   {
-    ValueAttributeDescriptors = ReadValueAttributeDescriptors(context.Reader)
-  };
+    var valuesAttributesCount = context.Reader.ReadUInt32();
+    if (valuesAttributesCount == 0) return;
 
-  private static List<ValueAttributeDescriptor> ReadValueAttributeDescriptors(BinaryReader reader)
-  {
-    var valuesAttributesCount = reader.ReadUInt32();
-    if (valuesAttributesCount == 0) return [];
-
-    var descriptors = new List<ValueAttributeDescriptor>();
     for (uint i = 0; i < valuesAttributesCount; ++i)
     {
-      var typeId = (TypeIds)reader.ReadByte();
-      var attributeName = (BxesStringValue)BxesValue.Parse(reader, []);
+      var typeId = (TypeIds)context.Reader.ReadByte();
+      var attributeName = (BxesStringValue)BxesValue.Parse(context.Reader, []);
       
-      descriptors.Add(new ValueAttributeDescriptor(typeId, attributeName.Value));
+      context.SystemMetadata.ValueAttributeDescriptors.Add(new ValueAttributeDescriptor(typeId, attributeName.Value));
     }
-
-    return descriptors;
   }
 
   public static List<ITraceVariant> ReadVariants(BxesReadContext context)

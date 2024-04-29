@@ -10,27 +10,17 @@ public interface ISystemMetadata : IEquatable<ISystemMetadata>
 
 public class SystemMetadata : ISystemMetadata
 {
-    public static SystemMetadata Default { get; } = new()
-    {
-        ValueAttributeDescriptors = []
-    };
+    public static SystemMetadata Default { get; } = new();
 
 
-    public required List<ValueAttributeDescriptor> ValueAttributeDescriptors { get; init; }
+    public List<ValueAttributeDescriptor> ValueAttributeDescriptors { get; } = [];
 
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(
-            ValueAttributeDescriptors.CalculateHashCode()
-        );
-    }
+    public override int GetHashCode() => HashCode.Combine(ValueAttributeDescriptors.CalculateHashCode());
 
-    public bool Equals(ISystemMetadata? other)
-    {
-        return other is SystemMetadata &&
-               EventLogUtil.Equals(other.ValueAttributeDescriptors, ValueAttributeDescriptors);
-    }
+    public bool Equals(ISystemMetadata? other) =>
+        other is SystemMetadata &&
+        EventLogUtil.Equals(other.ValueAttributeDescriptors, ValueAttributeDescriptors);
 
     public override bool Equals(object? obj)
     {
