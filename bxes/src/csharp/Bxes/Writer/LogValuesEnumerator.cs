@@ -55,7 +55,7 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
         return new EventAttributes(@event.Attributes.Count)
         {
             ValueAttributes = ExtractValueAttributesOrThrow(@event),
-            DefaultAttributes = @event.Attributes.Where(attr => myValueAttributesNames.Contains(attr.Key.Value))
+            DefaultAttributes = @event.Attributes.Where(attr => !myValueAttributesNames.Contains(attr.Key.Value))
         };
     }
 
@@ -78,7 +78,11 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
                 }
             }
 
-            if (!foundAttribute) throw new AttributeNotFoundForDescriptorException(descriptor);
+            if (!foundAttribute)
+            {
+                var nullAttr = new AttributeKeyValue(new BxesStringValue(descriptor.Name), BxesNullValue.Instance);
+                valuesAttributes.Add(nullAttr);
+            }
         }
 
         return valuesAttributes;
