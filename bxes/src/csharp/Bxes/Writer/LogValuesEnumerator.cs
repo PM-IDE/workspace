@@ -35,13 +35,15 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
 
 
     private readonly HashSet<string> myValueAttributesNames = valuesAttributes.Select(d => d.Name).ToHashSet();
-    private readonly IReadOnlyList<ValueAttributeDescriptor> myOrderedValueAttributes =
+
+
+    public IReadOnlyList<ValueAttributeDescriptor> OrderedValueAttributes { get; } = 
         valuesAttributes.OrderBy(d => d.Name).ToList();
 
     
     public EventAttributes SplitEventAttributesOrThrow(IEvent @event)
     {
-        if (myOrderedValueAttributes.Count == 0)
+        if (OrderedValueAttributes.Count == 0)
         {
             return new EventAttributes(@event.Attributes.Count)
             {
@@ -60,10 +62,10 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
     //todo: allocations
     private List<AttributeKeyValue> ExtractValueAttributesOrThrow(IEvent @event)
     {
-        if (myOrderedValueAttributes.Count == 0) return [];
+        if (OrderedValueAttributes.Count == 0) return [];
 
         var valuesAttributes = new List<AttributeKeyValue>();
-        foreach (var descriptor in myOrderedValueAttributes)
+        foreach (var descriptor in OrderedValueAttributes)
         {
             var foundAttribute = false;
             foreach (var attribute in @event.Attributes)

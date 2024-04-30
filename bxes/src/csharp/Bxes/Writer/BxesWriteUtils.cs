@@ -166,7 +166,7 @@ internal static class BxesWriteUtils
   }
 
   public static void WriteValuesAttributesDescriptors(
-    List<ValueAttributeDescriptor> descriptors, BxesWriteContext context)
+    IReadOnlyList<ValueAttributeDescriptor> descriptors, BxesWriteContext context)
   {
     context.Writer.Write((IndexType)descriptors.Count);
     foreach (var (typeId, name) in descriptors)
