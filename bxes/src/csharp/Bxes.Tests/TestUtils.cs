@@ -13,21 +13,21 @@ public static class TestUtils
     IEventLog log, Func<LogReadWriteTestInputData, EventLogReadResult> testAction)
   {
     ExecuteTestWithPath(
-      static () => new TempFilePathContainer(), data => ExecuteTestWithLog(log, data, () => testAction(data)));
+      log, static () => new TempFilePathContainer(), data => ExecuteTestWithLog(log, data, () => testAction(data)));
   }
 
   public static void ExecuteTestWithTempFolder(
     IEventLog log, Func<LogReadWriteTestInputData, EventLogReadResult> testAction)
   {
     ExecuteTestWithPath(
-      static () => new TempFolderContainer(), data => ExecuteTestWithLog(log, data, () => testAction(data)));
+      log, static () => new TempFolderContainer(), data => ExecuteTestWithLog(log, data, () => testAction(data)));
   }
 
   private static void ExecuteTestWithPath(
-    Func<IPathContainer> pathCreator, Action<LogReadWriteTestInputData> testAction)
+    IEventLog log, Func<IPathContainer> pathCreator, Action<LogReadWriteTestInputData> testAction)
   {
     using var container = pathCreator();
-    testAction(new LogReadWriteTestInputData(container.Path, TestLogsProvider.GenerateRandomSystemMetadata()));
+    testAction(new LogReadWriteTestInputData(container.Path, TestLogsProvider.GenerateRandomSystemMetadata(log)));
   }
 
   public static void ExecuteTestWithLog(

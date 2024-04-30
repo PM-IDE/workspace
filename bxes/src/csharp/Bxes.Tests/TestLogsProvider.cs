@@ -12,7 +12,7 @@ public static class TestLogsProvider
   public static IEventLog CreateSimpleTestLog()
   {
     var variants = new List<ITraceVariant>();
-    var variantsCount = Random.Shared.Next(10);
+    var variantsCount = Random.Shared.Next(5, 10);
     for (var i = 0; i < variantsCount; ++i)
     {
       variants.Add(CreateRandomVariant());
@@ -213,18 +213,28 @@ public static class TestLogsProvider
     return new string(Enumerable.Range(0, length).Select(_ => GenerateRandomChar()).ToArray());
   }
 
-  public static ISystemMetadata GenerateRandomSystemMetadata()
+  public static ISystemMetadata GenerateRandomSystemMetadata(IEventLog log)
   {
-    return new SystemMetadata();
-  }
+    var metadata = new SystemMetadata();
+    var descriptors = new Dictionary<string, TypeIds>();
+    var count = Random.Shared.Next(1, 10);
+    for (var i = 0; i < count;)
+    {
+      var randomVariant = log.Traces[Random.Shared.Next(log.Traces.Count)];
+      var randomEvent = randomVariant.Events[Random.Shared.Next(randomVariant.Events.Count)];
+      if (randomEvent.Attributes.Count == 0) continue;
 
-  private static List<ValueAttributeDescriptor> GenerateRandomValueAttributesDescriptors()
-  {
-    var count = Random.Shared.Next(100);
-    return Enumerable
-      .Range(0, count)
-      .Select(_ => new ValueAttributeDescriptor(GenerateRandomTypeId(), GenerateRandomString()))
-      .ToList();
+      var randomAttribute = randomEvent.Attributes[Random.Shared.Next(randomEvent.Attributes.Count)];
+      if (descriptors.ContainsKey(randomAttribute.Key.Value)) continue;
+
+      descriptors[randomAttribute.Key.Value] = randomAttribute.Value.TypeId;
+      ++i;
+    }
+    
+    metadata.ValueAttributeDescriptors.AddRange(
+      descriptors.Select(d => new ValueAttributeDescriptor(d.Value, d.Key)).ToList());
+
+    return metadata;
   }
 
   private static char GenerateRandomChar() => (char)('a' + Random.Shared.Next('z' - 'a' + 1));
