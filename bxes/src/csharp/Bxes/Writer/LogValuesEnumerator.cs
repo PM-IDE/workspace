@@ -4,13 +4,13 @@ using Bxes.Models.System;
 
 namespace Bxes.Writer;
 
-public readonly ref struct EventAttributes(int allAttributesCount)
+public readonly ref struct EventAttributes(int defaultAttrsCount)
 {
     public required IReadOnlyList<AttributeKeyValue> ValueAttributes { get; init; }
     public required IEnumerable<AttributeKeyValue> DefaultAttributes { get; init; }
 
 
-    public int DefaultAttributesCount => allAttributesCount - ValueAttributes.Count;
+    public int DefaultAttributesCount => defaultAttrsCount;
 
 
     public void Deconstruct(
@@ -52,18 +52,20 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
             };
         }
 
-        return new EventAttributes(@event.Attributes.Count)
+        var (realValueAttrsCount, valueAttrs) = ExtractValueAttributesOrThrow(@event);
+        return new EventAttributes(@event.Attributes.Count - realValueAttrsCount)
         {
-            ValueAttributes = ExtractValueAttributesOrThrow(@event),
+            ValueAttributes = valueAttrs,
             DefaultAttributes = @event.Attributes.Where(attr => !myValueAttributesNames.Contains(attr.Key.Value))
         };
     }
 
     //todo: allocations
-    private List<AttributeKeyValue> ExtractValueAttributesOrThrow(IEvent @event)
+    private (int, List<AttributeKeyValue>) ExtractValueAttributesOrThrow(IEvent @event)
     {
-        if (OrderedValueAttributes.Count == 0) return [];
+        if (OrderedValueAttributes.Count == 0) return (0, []);
 
+        var count = 0;
         var valuesAttributes = new List<AttributeKeyValue>();
         foreach (var descriptor in OrderedValueAttributes)
         {
@@ -74,6 +76,7 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
                 {
                     foundAttribute = true;
                     valuesAttributes.Add(attribute);
+                    ++count;
                     break;
                 }
             }
@@ -85,7 +88,7 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
             }
         }
 
-        return valuesAttributes;
+        return (count, valuesAttributes);
     }
     
     public IEnumerable<BxesValue> EnumerateValues(IEventLog log)
