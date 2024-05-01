@@ -11,7 +11,7 @@ public record BxesArtifactItem
 }
 
 public class BxesArtifactModelsListValue(List<BxesArtifactItem> items) 
-  : BxesValue<List<BxesArtifactItem>>(items), IReadableValue<BxesArtifactModelsListValue>
+  : BxesValue<List<BxesArtifactItem>>(items), IReadableValue<BxesArtifactModelsListValue>, IModelWithAdditionalValues
 {
   public static BxesArtifactModelsListValue ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
   {
@@ -39,11 +39,9 @@ public class BxesArtifactModelsListValue(List<BxesArtifactItem> items)
 
   public override void WriteTo(BxesWriteContext context)
   {
-    foreach (var item in items)
+    foreach (var value in EnumerateAdditionalValues())
     {
-      BxesWriteUtils.WriteValueIfNeeded(new BxesStringValue(item.Model), context);
-      BxesWriteUtils.WriteValueIfNeeded(new BxesStringValue(item.Instance), context);
-      BxesWriteUtils.WriteValueIfNeeded(new BxesStringValue(item.Transition), context);
+      BxesWriteUtils.WriteValueIfNeeded(value, context);
     }
 
     base.WriteTo(context);
@@ -58,6 +56,16 @@ public class BxesArtifactModelsListValue(List<BxesArtifactItem> items)
     }
   }
 
+  public IEnumerable<BxesValue> EnumerateAdditionalValues()
+  {
+    foreach (var item in items)
+    {
+      yield return new BxesStringValue(item.Model);
+      yield return new BxesStringValue(item.Instance);
+      yield return new BxesStringValue(item.Transition);
+    }
+  }
+  
   public override bool Equals(object? obj)
   {
     return obj is BxesArtifactModelsListValue other &&

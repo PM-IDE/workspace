@@ -11,7 +11,7 @@ public record BxesDriver
 }
 
 public class BxesDriversListValue(List<BxesDriver> drivers) 
-  : BxesValue<List<BxesDriver>>(drivers), IReadableValue<BxesDriversListValue>
+  : BxesValue<List<BxesDriver>>(drivers), IReadableValue<BxesDriversListValue>, IModelWithAdditionalValues
 {
   public static BxesDriversListValue ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
   {
@@ -40,10 +40,9 @@ public class BxesDriversListValue(List<BxesDriver> drivers)
 
   public override void WriteTo(BxesWriteContext context)
   {
-    foreach (var driver in drivers)
+    foreach (var value in EnumerateAdditionalValues())
     {
-      BxesWriteUtils.WriteValueIfNeeded(new BxesStringValue(driver.Name), context);
-      BxesWriteUtils.WriteValueIfNeeded(new BxesStringValue(driver.Type), context);
+      BxesWriteUtils.WriteValueIfNeeded(value, context);
     }
 
     base.WriteTo(context);
@@ -55,6 +54,15 @@ public class BxesDriversListValue(List<BxesDriver> drivers)
       context.Writer.Write(driver.Amount);
       context.Writer.Write(context.ValuesIndices[new BxesStringValue(driver.Name)]);
       context.Writer.Write(context.ValuesIndices[new BxesStringValue(driver.Type)]);
+    }
+  }
+  
+  public IEnumerable<BxesValue> EnumerateAdditionalValues()
+  {
+    foreach (var driver in drivers)
+    {
+      yield return new BxesStringValue(driver.Name);
+      yield return new BxesStringValue(driver.Type);
     }
   }
 

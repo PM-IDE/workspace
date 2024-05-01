@@ -212,8 +212,18 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
     {
         yield return new BxesStringValue(@event.Name);
 
-        foreach (var (key, value) in EnumerateEventKeyValuePairs(@event))
+        foreach (var (key, value) in @event.Attributes)
         {
+            if (value is IModelWithAdditionalValues model)
+            {
+                foreach (var additionalValue in model.EnumerateAdditionalValues())
+                {
+                    yield return additionalValue;
+                }
+            }
+
+            if (myValueAttributesNames.Contains(key.Value)) continue;
+
             yield return key;
             yield return value;
         }
