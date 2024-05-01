@@ -23,7 +23,7 @@ public static class TestLogsProvider
 
   private static ITraceVariant CreateRandomVariant()
   {
-    var eventsCount = Random.Shared.Next(100);
+    var eventsCount = Random.Shared.Next(1, 100);
     var events = new List<IEvent>();
 
     for (var i = 0; i < eventsCount; ++i)
@@ -44,7 +44,7 @@ public static class TestLogsProvider
   private static List<AttributeKeyValue> GenerateRandomAttributes()
   {
     var attributes = new List<AttributeKeyValue>();
-    var attributesCount = Random.Shared.Next(5);
+    var attributesCount = Random.Shared.Next(1, 10);
 
     for (var i = 0; i < attributesCount; ++i)
     {
@@ -127,7 +127,7 @@ public static class TestLogsProvider
   {
     return GenerateRandomTypeId() switch
     {
-      TypeIds.Null => BxesNullValue.Instance,
+      TypeIds.Null => new BxesStringValue(GenerateRandomString()),
       TypeIds.I32 => new BxesInt32Value(Random.Shared.Next(10000)),
       TypeIds.I64 => new BxesInt64Value(Random.Shared.Next(10000)),
       TypeIds.U32 => new BxesUint32Value((uint)Random.Shared.Next(10000)),

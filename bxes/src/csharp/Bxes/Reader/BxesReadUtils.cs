@@ -202,7 +202,10 @@ public static class BxesReadUtils
         throw new ValueAttributeTypeNotEqualToDescriptorException(value.TypeId, expectedTypeId);
       }
 
-      eventAttributes.Add(new AttributeKeyValue(new BxesStringValue(valueAttrName), value));
+      if (value is not BxesNullValue || (expectedTypeId == TypeIds.Null && value.TypeId == expectedTypeId))
+      {
+        eventAttributes.Add(new AttributeKeyValue(new BxesStringValue(valueAttrName), value));
+      }
     }
     
     var attributesCount = context.Reader.ReadLeb128Unsigned();

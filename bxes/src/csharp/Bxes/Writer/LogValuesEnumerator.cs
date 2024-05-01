@@ -34,7 +34,7 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
     public static LogValuesEnumerator Default { get; } = new([]);
 
 
-    private readonly HashSet<string> myValueAttributesNames = valuesAttributes.Select(d => d.Name).ToHashSet();
+    private readonly HashSet<ValueAttributeDescriptor> myValueAttributesNames = valuesAttributes.ToHashSet();
 
 
     public IReadOnlyList<ValueAttributeDescriptor> OrderedValueAttributes { get; } = 
@@ -56,9 +56,12 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
         return new EventAttributes(@event.Attributes.Count - realValueAttrsCount)
         {
             ValueAttributes = valueAttrs,
-            DefaultAttributes = @event.Attributes.Where(attr => !myValueAttributesNames.Contains(attr.Key.Value))
+            DefaultAttributes = @event.Attributes.Where(attr => !IsValueAttribute(attr))
         };
     }
+
+    private bool IsValueAttribute(AttributeKeyValue attr) => 
+        myValueAttributesNames.Contains(new ValueAttributeDescriptor(attr.Value.TypeId, attr.Key.Value));
 
     //todo: allocations
     private (int, List<AttributeKeyValue>) ExtractValueAttributesOrThrow(IEvent @event)
@@ -212,8 +215,9 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
     {
         yield return new BxesStringValue(@event.Name);
 
-        foreach (var (key, value) in @event.Attributes)
+        foreach (var attr in @event.Attributes)
         {
+            var (key, value) = attr;
             if (value is IModelWithAdditionalValues model)
             {
                 foreach (var additionalValue in model.EnumerateAdditionalValues())
@@ -222,7 +226,7 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
                 }
             }
 
-            if (myValueAttributesNames.Contains(key.Value)) continue;
+            if (IsValueAttribute(attr)) continue;
 
             yield return key;
             yield return value;
@@ -230,5 +234,5 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
     }
 
     private IEnumerable<AttributeKeyValue> EnumerateEventKeyValuePairs(IEvent @event) => 
-        @event.Attributes.Where(attr => !myValueAttributesNames.Contains(attr.Key.Value));
+        @event.Attributes.Where(attr => !IsValueAttribute(attr));
 }

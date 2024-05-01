@@ -20,7 +20,7 @@ public class SystemMetadata : ISystemMetadata
 
     public bool Equals(ISystemMetadata? other) =>
         other is SystemMetadata &&
-        EventLogUtil.Equals(other.ValueAttributeDescriptors, ValueAttributeDescriptors);
+        EventLogUtil.EqualsRegardingOrder(other.ValueAttributeDescriptors, ValueAttributeDescriptors);
 
     public override bool Equals(object? obj)
     {
