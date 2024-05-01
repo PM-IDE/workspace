@@ -211,7 +211,7 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
         }
     }
     
-    private IEnumerable<BxesValue> EnumerateEventValues(IEvent @event)
+    public IEnumerable<BxesValue> EnumerateEventValues(IEvent @event)
     {
         yield return new BxesStringValue(@event.Name);
 
@@ -233,6 +233,6 @@ public class LogValuesEnumerator(IReadOnlyList<ValueAttributeDescriptor> valuesA
         }
     }
 
-    private IEnumerable<AttributeKeyValue> EnumerateEventKeyValuePairs(IEvent @event) => 
+    public IEnumerable<AttributeKeyValue> EnumerateEventKeyValuePairs(IEvent @event) => 
         @event.Attributes.Where(attr => !IsValueAttribute(attr));
 }

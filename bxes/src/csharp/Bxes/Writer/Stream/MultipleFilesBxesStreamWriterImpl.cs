@@ -14,9 +14,8 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
   private readonly BinaryWriter myKeyValuesWriter;
   private readonly BinaryWriter myTracesWriter;
   private readonly IEventLogMetadata myMetadata = new EventLogMetadata();
-  private readonly ISystemMetadata mySystemMetadata;
-  
-  private readonly BxesWriteContext myContext = new(null!, LogValuesEnumerator.Default);
+
+  private readonly BxesWriteContext myContext;
   private readonly ValuesCounter myValuesCounter = new();
 
 
@@ -37,9 +36,9 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     if (!Directory.Exists(savePath)) throw new SavePathIsNotDirectoryException(savePath);
 
 
+    myContext = new BxesWriteContext(null!, new LogValuesEnumerator(systemMetadata.ValueAttributeDescriptors));
     mySavePath = savePath;
     myBxesVersion = bxesVersion;
-    mySystemMetadata = systemMetadata;
     myMetadataWriter = OpenWrite(BxesConstants.MetadataFileName);
     myValuesWriter = OpenWrite(BxesConstants.ValuesFileName);
     myKeyValuesWriter = OpenWrite(BxesConstants.KVPairsFileName);
@@ -76,7 +75,7 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     writer.Write(myBxesVersion);
 
     BxesWriteUtils.WriteValuesAttributesDescriptors(
-      mySystemMetadata.ValueAttributeDescriptors, myContext.WithWriter(writer));
+      myContext.ValuesEnumerator.OrderedValueAttributes, myContext.WithWriter(writer));
   }
 
   public void HandleEvent(BxesStreamEvent @event)

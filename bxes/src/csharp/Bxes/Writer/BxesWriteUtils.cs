@@ -66,12 +66,14 @@ internal static class BxesWriteUtils
   {
     WriteValueIfNeeded(new BxesStringValue(@event.Name), valuesContext);
 
-    foreach (var keyValue in @event.Attributes)
+    foreach (var value in valuesContext.ValuesEnumerator.EnumerateEventValues(@event))
+    {
+      WriteValueIfNeeded(value, valuesContext);
+    }
+
+    foreach (var keyValue in valuesContext.ValuesEnumerator.EnumerateEventKeyValuePairs(@event))
     {
       if (keyValuesContext.KeyValueIndices.ContainsKey(keyValue)) continue;
-
-      WriteValueIfNeeded(keyValue.Key, valuesContext);
-      WriteValueIfNeeded(keyValue.Value, valuesContext);
 
       WriteKeyValuePair(keyValue, keyValuesContext);
     }
