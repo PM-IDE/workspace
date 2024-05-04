@@ -230,20 +230,61 @@ fn try_read_event(context: &mut ReadContext) -> Result<BxesEvent, BxesReadError>
     Ok(BxesEvent {
         name: name.unwrap().clone(),
         timestamp,
-        attributes: try_read_attributes(context, true)?,
+        attributes: try_read_event_attributes(context)?,
     })
+}
+
+fn try_read_event_attributes(
+    context: &mut ReadContext
+) -> Result<Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>, BxesReadError> {
+    let mut attributes = None;
+    let value_attrs_len = if let Some(attrs) = context.system_metadata.as_ref().unwrap().values_attrs.as_ref() {
+        attrs.len()
+    } else {
+        0
+    };
+
+    if value_attrs_len > 0 {
+        attributes = Some(vec![]);
+        for i in 0..value_attrs_len {
+            let value = try_read_bxes_value(context)?;
+            let descs = context.system_metadata.as_ref().unwrap().values_attrs.as_ref().unwrap();
+            let descriptor = descs.get(i).unwrap();
+
+            //todo: check that value is the same type that descriptor (Issue #3)
+            let key = BxesValue::String(Rc::new(Box::new(descriptor.name.clone())));
+            let key = Rc::new(Box::new(key));
+            attributes.as_mut().unwrap().push((key, Rc::new(Box::new(value))));
+        }
+    }
+
+    try_fill_attributes(context, true, &mut attributes)?;
+
+    Ok(attributes)
+}
+
+fn try_fill_attributes(
+    context: &mut ReadContext,
+    leb_128: bool,
+    attributes: &mut Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>
+) -> Result<(), BxesReadError> {
+    let attributes_count = try_read_count(context, leb_128)?;
+    if attributes_count > 0 && attributes.is_none() {
+        *attributes = Some(vec![]);
+    }
+
+    for _ in 0..attributes_count {
+        attributes.as_mut().unwrap().push(try_read_kv_pair(context, leb_128)?);
+    }
+
+    Ok(())
 }
 
 fn try_read_attributes(
     context: &mut ReadContext,
     leb_128: bool,
 ) -> Result<Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>, BxesReadError> {
-    let attributes_count = if leb_128 {
-        try_read_leb128(context.reader.as_mut().unwrap())?
-    } else {
-        try_read_u32(context.reader.as_mut().unwrap())?
-    };
-
+    let attributes_count = try_read_count(context, leb_128)?;
     if attributes_count == 0 {
         Ok(None)
     } else {
@@ -254,6 +295,14 @@ fn try_read_attributes(
         }
 
         Ok(Some(attributes))
+    }
+}
+
+fn try_read_count(context: &mut ReadContext, leb_128: bool) -> Result<u32, BxesReadError> {
+    if leb_128 {
+        try_read_leb128(context.reader.as_mut().unwrap())
+    } else {
+        try_read_u32(context.reader.as_mut().unwrap())
     }
 }
 
