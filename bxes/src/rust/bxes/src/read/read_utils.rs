@@ -252,18 +252,14 @@ fn try_read_event_attributes(
         attributes = Some(vec![]);
         for i in 0..value_attrs_len {
             let value = try_read_bxes_value(context)?;
-            let descs = context
-                .system_metadata
-                .as_ref()
-                .unwrap()
-                .values_attrs
-                .as_ref()
-                .unwrap();
-            let descriptor = descs.get(i).unwrap();
+            let metadata = context.system_metadata.as_ref().unwrap();
+            let value_attrs = metadata.values_attrs.as_ref().unwrap();
+            let descriptor = value_attrs.get(i).unwrap();
 
             //todo: check that value is the same type that descriptor (Issue #3)
             let key = BxesValue::String(Rc::new(Box::new(descriptor.name.clone())));
             let key = Rc::new(Box::new(key));
+
             attributes
                 .as_mut()
                 .unwrap()
@@ -326,11 +322,7 @@ fn try_read_kv_pair(
     context: &mut ReadContext,
     leb_128: bool,
 ) -> Result<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), BxesReadError> {
-    let kv_index = if leb_128 {
-        try_read_leb128(context.reader.as_mut().unwrap())?
-    } else {
-        try_read_u32(context.reader.as_mut().unwrap())?
-    } as usize;
+    let kv_index = try_read_count(context, leb_128)? as usize;
 
     let kv_pair = match context.kv_pairs.as_ref().unwrap().get(kv_index) {
         None => return Err(BxesReadError::FailedToIndexKeyValue(kv_index)),
