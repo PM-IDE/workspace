@@ -5,6 +5,13 @@ use tempfile::TempDir;
 use uuid::Uuid;
 use zip::ZipArchive;
 
+use crate::{
+    binary_rw::{
+        core::{BinaryReader, SeekStream},
+        file_stream::FileStream,
+    },
+    utils::buffered_stream::BufferedReadFileStream,
+};
 use crate::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
 use crate::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
 use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
@@ -16,13 +23,7 @@ use crate::models::domain::bxes_value::BxesValue;
 use crate::models::domain::software_event_type::SoftwareEventType;
 use crate::models::domain::type_ids::TypeIds;
 use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
-use crate::{
-    binary_rw::{
-        core::{BinaryReader, SeekStream},
-        file_stream::FileStream,
-    },
-    utils::buffered_stream::BufferedReadFileStream,
-};
+use crate::read::read_context::ReadContext;
 
 use super::errors::*;
 
@@ -32,14 +33,12 @@ pub struct BxesEventLogReadResult {
 }
 
 pub fn try_read_event_log_metadata(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext
 ) -> Result<BxesEventLogMetadata, BxesReadError> {
-    let properties = try_read_attributes(reader, values, kv_pairs, false)?;
-    let extensions = try_read_extensions(reader, values, kv_pairs)?;
-    let globals = try_read_globals(reader, values, kv_pairs)?;
-    let classifiers = try_read_classifiers(reader, values, kv_pairs)?;
+    let properties = try_read_attributes(context, false)?;
+    let extensions = try_read_extensions(context)?;
+    let globals = try_read_globals(context)?;
+    let classifiers = try_read_classifiers(context)?;
 
     Ok(BxesEventLogMetadata {
         extensions,
@@ -50,9 +49,9 @@ pub fn try_read_event_log_metadata(
 }
 
 pub fn try_read_system_metadata(
-    reader: &mut BinaryReader,
+    context: &mut ReadContext
 ) -> Result<SystemMetadata, BxesReadError> {
-    let values_attributes = try_read_value_attributes(reader)?;
+    let values_attributes = try_read_value_attributes(context)?;
 
     Ok(SystemMetadata {
         values_attrs: values_attributes,
@@ -60,8 +59,9 @@ pub fn try_read_system_metadata(
 }
 
 fn try_read_value_attributes(
-    reader: &mut BinaryReader,
+    context: &mut ReadContext
 ) -> Result<Option<Vec<ValueAttributeDescriptor>>, BxesReadError> {
+    let reader = context.reader.as_mut().unwrap();
     let count = try_read_u32(reader)?;
     if count == 0 {
         Ok(None)
@@ -84,23 +84,23 @@ fn try_read_value_attributes(
 }
 
 pub fn try_read_classifiers(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext
 ) -> Result<Option<Vec<BxesClassifier>>, BxesReadError> {
-    let count = try_read_u32(reader)?;
+    let count = try_read_u32(context.reader.as_mut().unwrap())?;
     if count == 0 {
         Ok(None)
     } else {
         let mut classifiers = vec![];
 
         for _ in 0..count {
-            let name = values.get(try_read_u32(reader)? as usize).unwrap().clone();
+            let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+            let name = context.values.as_ref().unwrap().get(index).unwrap().clone();
 
-            let keys_count = try_read_u32(reader)?;
+            let keys_count = try_read_u32(context.reader.as_mut().unwrap())?;
             let mut keys = vec![];
             for _ in 0..keys_count {
-                let key_value = values.get(try_read_u32(reader)? as usize).unwrap();
+                let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+                let key_value = context.values.as_ref().unwrap().get(index).unwrap();
                 keys.push(key_value.clone());
             }
 
@@ -112,23 +112,21 @@ pub fn try_read_classifiers(
 }
 
 pub fn try_read_globals(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext
 ) -> Result<Option<Vec<BxesGlobal>>, BxesReadError> {
-    let count = try_read_u32(reader)?;
+    let count = try_read_u32(context.reader.as_mut().unwrap())?;
     if count == 0 {
         Ok(None)
     } else {
         let mut globals = vec![];
 
         for _ in 0..count {
-            let entity_kind = BxesGlobalKind::from_u8(try_read_u8(reader)?).unwrap();
-            let globals_count = try_read_u32(reader)?;
+            let entity_kind = BxesGlobalKind::from_u8(try_read_u8(context.reader.as_mut().unwrap())?).unwrap();
+            let globals_count = try_read_u32(context.reader.as_mut().unwrap())?;
             let mut entity_globals = vec![];
 
             for _ in 0..globals_count {
-                entity_globals.push(try_read_kv_pair(reader, values, kv_pairs, false)?);
+                entity_globals.push(try_read_kv_pair(context, false)?);
             }
 
             globals.push(BxesGlobal {
@@ -142,20 +140,23 @@ pub fn try_read_globals(
 }
 
 pub fn try_read_extensions(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext
 ) -> Result<Option<Vec<BxesExtension>>, BxesReadError> {
-    let count = try_read_u32(reader)?;
+    let count = try_read_u32(context.reader.as_mut().unwrap())?;
     if count == 0 {
         Ok(None)
     } else {
         let mut extensions = vec![];
 
         for _ in 0..count {
-            let name = values.get(try_read_u32(reader)? as usize).unwrap().clone();
-            let prefix = values.get(try_read_u32(reader)? as usize).unwrap().clone();
-            let uri = values.get(try_read_u32(reader)? as usize).unwrap().clone();
+            let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+            let name = context.values.as_ref().unwrap().get(index).unwrap().clone();
+
+            let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+            let prefix = context.values.as_ref().unwrap().get(index).unwrap().clone();
+
+            let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+            let uri = context.values.as_ref().unwrap().get(index).unwrap().clone();
 
             extensions.push(BxesExtension { name, prefix, uri })
         }
@@ -180,38 +181,34 @@ fn string_or_err(value: &BxesValue) -> Result<Rc<Box<String>>, BxesReadError> {
 }
 
 pub fn try_read_traces_variants(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext
 ) -> Result<Vec<BxesTraceVariant>, BxesReadError> {
     let mut variants = vec![];
-    let variant_count = try_read_u32(reader)?;
+    let variant_count = try_read_u32(context.reader.as_mut().unwrap())?;
 
     for _ in 0..variant_count {
-        variants.push(try_read_trace_variant(reader, values, kv_pairs)?);
+        variants.push(try_read_trace_variant(context)?);
     }
 
     Ok(variants)
 }
 
 fn try_read_trace_variant(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext
 ) -> Result<BxesTraceVariant, BxesReadError> {
-    let traces_count = try_read_u32(reader)?;
+    let traces_count = try_read_u32(context.reader.as_mut().unwrap())?;
 
     let mut variant_metadata = vec![];
-    let metadata_count = try_read_u32(reader)?;
+    let metadata_count = try_read_u32(context.reader.as_mut().unwrap())?;
     for _ in 0..metadata_count {
-        variant_metadata.push(try_read_kv_pair(reader, values, kv_pairs, false)?);
+        variant_metadata.push(try_read_kv_pair(context, false)?);
     }
 
-    let events_count = try_read_u32(reader)?;
+    let events_count = try_read_u32(context.reader.as_mut().unwrap())?;
     let mut events = vec![];
 
     for _ in 0..events_count {
-        events.push(try_read_event(reader, values, kv_pairs)?);
+        events.push(try_read_event(context)?);
     }
 
     Ok(BxesTraceVariant {
@@ -222,36 +219,32 @@ fn try_read_trace_variant(
 }
 
 fn try_read_event(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext
 ) -> Result<BxesEvent, BxesReadError> {
-    let name_index = try_read_leb128(reader)? as usize;
-    let name = values.get(name_index);
+    let name_index = try_read_leb128(context.reader.as_mut().unwrap())? as usize;
+    let name = context.values.as_ref().unwrap().get(name_index);
 
     if name.is_none() {
         return Err(BxesReadError::FailedToIndexValue(name_index));
     }
 
-    let timestamp = try_read_i64(reader)?;
+    let timestamp = try_read_i64(context.reader.as_mut().unwrap())?;
 
     Ok(BxesEvent {
         name: name.unwrap().clone(),
         timestamp,
-        attributes: try_read_attributes(reader, values, kv_pairs, true)?,
+        attributes: try_read_attributes(context, true)?,
     })
 }
 
 fn try_read_attributes(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext,
     leb_128: bool,
 ) -> Result<Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>, BxesReadError> {
     let attributes_count = if leb_128 {
-        try_read_leb128(reader)?
+        try_read_leb128(context.reader.as_mut().unwrap())?
     } else {
-        try_read_u32(reader)?
+        try_read_u32(context.reader.as_mut().unwrap())?
     };
 
     if attributes_count == 0 {
@@ -259,7 +252,7 @@ fn try_read_attributes(
     } else {
         let mut attributes = vec![];
         for _ in 0..attributes_count {
-            let pair = try_read_kv_pair(reader, values, kv_pairs, leb_128)?;
+            let pair = try_read_kv_pair(context, leb_128)?;
             attributes.push(pair);
         }
 
@@ -268,30 +261,28 @@ fn try_read_attributes(
 }
 
 fn try_read_kv_pair(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
-    kv_pairs: &Vec<(u32, u32)>,
+    context: &mut ReadContext,
     leb_128: bool,
 ) -> Result<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), BxesReadError> {
     let kv_index = if leb_128 {
-        try_read_leb128(reader)?
+        try_read_leb128(context.reader.as_mut().unwrap())?
     } else {
-        try_read_u32(reader)?
+        try_read_u32(context.reader.as_mut().unwrap())?
     } as usize;
 
-    let kv_pair = match kv_pairs.get(kv_index) {
+    let kv_pair = match context.kv_pairs.as_ref().unwrap().get(kv_index) {
         None => return Err(BxesReadError::FailedToIndexKeyValue(kv_index)),
         Some(pair) => pair,
     };
 
     let key_index = kv_pair.0 as usize;
-    let key = match values.get(key_index) {
+    let key = match context.values.as_ref().unwrap().get(key_index) {
         None => return Err(BxesReadError::FailedToIndexValue(key_index)),
         Some(value) => value,
     };
 
     let value_index = kv_pair.1 as usize;
-    let value = match values.get(value_index) {
+    let value = match context.values.as_ref().unwrap().get(value_index) {
         None => return Err(BxesReadError::FailedToIndexValue(value_index)),
         Some(value) => value,
     };
@@ -299,7 +290,8 @@ fn try_read_kv_pair(
     Ok((key.clone(), value.clone()))
 }
 
-pub fn try_read_key_values(reader: &mut BinaryReader) -> Result<Vec<(u32, u32)>, BxesReadError> {
+pub fn try_read_key_values(context: &mut ReadContext) -> Result<(), BxesReadError> {
+    let reader = context.reader.as_mut().unwrap();
     let mut key_values = vec![];
 
     let key_values_count = try_read_u32(reader)?;
@@ -307,26 +299,30 @@ pub fn try_read_key_values(reader: &mut BinaryReader) -> Result<Vec<(u32, u32)>,
         key_values.push((try_read_leb128(reader)?, try_read_leb128(reader)?));
     }
 
-    Ok(key_values)
+    context.kv_pairs = Some(key_values);
+    Ok(())
 }
 
 pub fn try_read_values(
-    reader: &mut BinaryReader,
-) -> Result<Vec<Rc<Box<BxesValue>>>, BxesReadError> {
+    context: &mut ReadContext
+) -> Result<(), BxesReadError> {
+    let reader = context.reader.as_mut().unwrap();
     let mut values = vec![];
 
     let values_count = try_read_u32(reader)?;
     for _ in 0..values_count {
-        values.push(Rc::new(Box::new(try_read_bxes_value(reader, &values)?)));
+        values.push(Rc::new(Box::new(try_read_bxes_value(context)?)));
     }
 
-    Ok(values)
+    context.values = Some(values);
+    Ok(())
 }
 
 fn try_read_bxes_value(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
+    context: &mut ReadContext
 ) -> Result<BxesValue, BxesReadError> {
+    let reader = context.reader.as_mut().unwrap();
+
     match try_read_type_id(reader)? {
         TypeIds::Null => Ok(BxesValue::Null),
         TypeIds::I32 => Ok(BxesValue::Int32(try_read_i32(reader)?)),
@@ -345,8 +341,8 @@ fn try_read_bxes_value(
             try_read_standard_lifecycle(reader)?,
         )),
         TypeIds::Guid => Ok(BxesValue::Guid(try_read_guid(reader)?)),
-        TypeIds::Artifact => Ok(BxesValue::Artifact(try_read_artifact(reader, values)?)),
-        TypeIds::Drivers => Ok(BxesValue::Drivers(try_read_drivers(reader, values)?)),
+        TypeIds::Artifact => Ok(BxesValue::Artifact(try_read_artifact(context)?)),
+        TypeIds::Drivers => Ok(BxesValue::Drivers(try_read_drivers(context)?)),
         TypeIds::SoftwareEventType => Ok(BxesValue::SoftwareEventType(
             try_read_software_event_type(reader)?,
         )),
@@ -362,60 +358,57 @@ fn try_read_type_id(reader: &mut BinaryReader) -> Result<TypeIds, BxesReadError>
 }
 
 pub fn try_read_drivers(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
+    context: &mut ReadContext
 ) -> Result<BxesDrivers, BxesReadError> {
+    let reader = context.reader.as_mut().unwrap();
     let drivers_count = try_read_u32(reader)?;
     let mut drivers = vec![];
 
     for _ in 0..drivers_count {
-        drivers.push(try_read_driver(reader, values)?);
+        drivers.push(try_read_driver(context)?);
     }
 
     Ok(BxesDrivers { drivers })
 }
 
 pub fn try_read_driver(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
+    context: &mut ReadContext
 ) -> Result<BxesDriver, BxesReadError> {
-    let amount = try_read_f64(reader)?;
-    let name_index = try_read_u32(reader)? as usize;
-    let driver_type_index = try_read_u32(reader)? as usize;
+    let amount = try_read_f64(context.reader.as_mut().unwrap())?;
+    let name_index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+    let driver_type_index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
 
     Ok(BxesDriver {
         amount: BxesValue::Float64(amount),
-        name: values[name_index].clone(),
-        driver_type: values[driver_type_index].clone(),
+        name: context.values.as_ref().unwrap()[name_index].clone(),
+        driver_type: context.values.as_ref().unwrap()[driver_type_index].clone(),
     })
 }
 
 pub fn try_read_artifact(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
+    context: &mut ReadContext
 ) -> Result<BxesArtifact, BxesReadError> {
-    let artifacts_count = try_read_u32(reader)?;
+    let artifacts_count = try_read_u32(context.reader.as_mut().unwrap())?;
     let mut artifacts = vec![];
 
     for _ in 0..artifacts_count {
-        artifacts.push(try_read_artifact_item(reader, values)?);
+        artifacts.push(try_read_artifact_item(context)?);
     }
 
     Ok(BxesArtifact { items: artifacts })
 }
 
 pub fn try_read_artifact_item(
-    reader: &mut BinaryReader,
-    values: &Vec<Rc<Box<BxesValue>>>,
+    context: &mut ReadContext
 ) -> Result<BxesArtifactItem, BxesReadError> {
-    let model_index = try_read_u32(reader)? as usize;
-    let instance_index = try_read_u32(reader)? as usize;
-    let transition_index = try_read_u32(reader)? as usize;
+    let model_index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+    let instance_index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
+    let transition_index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
 
     Ok(BxesArtifactItem {
-        model: values[model_index].clone(),
-        instance: values[instance_index].clone(),
-        transition: values[transition_index].clone(),
+        model: context.values.as_ref().unwrap()[model_index].clone(),
+        instance: context.values.as_ref().unwrap()[instance_index].clone(),
+        transition: context.values.as_ref().unwrap()[transition_index].clone(),
     })
 }
 
