@@ -50,12 +50,12 @@ pub fn try_read_event_log_metadata(
 
 pub fn try_read_system_metadata(
     context: &mut ReadContext,
-) -> Result<SystemMetadata, BxesReadError> {
-    let values_attributes = try_read_value_attributes(context)?;
+) -> Result<(), BxesReadError> {
+    context.system_metadata = Some(SystemMetadata {
+        values_attrs: try_read_value_attributes(context)?
+    });
 
-    Ok(SystemMetadata {
-        values_attrs: values_attributes,
-    })
+    Ok(())
 }
 
 fn try_read_value_attributes(

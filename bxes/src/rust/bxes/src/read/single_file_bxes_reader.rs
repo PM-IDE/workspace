@@ -28,7 +28,7 @@ pub fn read_bxes(path: &str) -> Result<BxesEventLogReadResult, BxesReadError> {
     let version = try_read_u32(&mut reader)?;
 
     let mut context = ReadContext::new(&mut reader);
-    let system_metadata = try_read_system_metadata(&mut context)?;
+    try_read_system_metadata(&mut context)?;
 
     try_read_values(&mut context)?;
     try_read_key_values(&mut context)?;
@@ -44,6 +44,6 @@ pub fn read_bxes(path: &str) -> Result<BxesEventLogReadResult, BxesReadError> {
 
     Ok(BxesEventLogReadResult {
         log,
-        system_metadata,
+        system_metadata: context.system_metadata.unwrap(),
     })
 }

@@ -1,14 +1,13 @@
 use std::path::Path;
 
-use crate::models::domain::bxes_event_log::{BxesEventLog, BxesTraceVariant};
-use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
-use crate::models::system_models::SystemMetadata;
-use crate::read::read_context::ReadContext;
-use crate::utils::buffered_stream::BufferedReadFileStream;
 use crate::{
     binary_rw::core::{BinaryReader, Endian},
     constants::*,
 };
+use crate::models::domain::bxes_event_log::{BxesEventLog, BxesTraceVariant};
+use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
+use crate::read::read_context::ReadContext;
+use crate::utils::buffered_stream::BufferedReadFileStream;
 
 use super::{errors::*, read_utils::*};
 
@@ -20,7 +19,7 @@ pub fn read_bxes_multiple_files(
     let mut stream = open_file(directory_path, SYSTEM_METADATA_FILE_NAME)?;
     let mut reader = BinaryReader::new(&mut stream, Endian::Little);
     context.set_reader(&mut reader);
-    let (mut version, system_metadata) = read_system_metadata(&mut context)?;
+    let mut version = read_system_metadata(&mut context)?;
 
     let mut stream = open_file(directory_path, VALUES_FILE_NAME)?;
     let mut reader = BinaryReader::new(&mut stream, Endian::Little);
@@ -50,7 +49,7 @@ pub fn read_bxes_multiple_files(
 
     Ok(BxesEventLogReadResult {
         log,
-        system_metadata,
+        system_metadata: context.system_metadata.unwrap(),
     })
 }
 
@@ -71,11 +70,11 @@ fn read_version(previous_version: &mut u32, reader: &mut BinaryReader) -> Option
     }
 }
 
-fn read_system_metadata(context: &mut ReadContext) -> Result<(u32, SystemMetadata), BxesReadError> {
+fn read_system_metadata(context: &mut ReadContext) -> Result<u32, BxesReadError> {
     let version = try_read_u32(context.reader.as_mut().unwrap())?;
-    let metadata = try_read_system_metadata(context)?;
+    try_read_system_metadata(context)?;
 
-    Ok((version, metadata))
+    Ok(version)
 }
 
 fn read_values(context: &mut ReadContext, version: &mut u32) -> Result<(), BxesReadError> {

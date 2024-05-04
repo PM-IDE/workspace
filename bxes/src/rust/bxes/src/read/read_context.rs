@@ -1,13 +1,13 @@
 use crate::binary_rw::core::BinaryReader;
 use crate::models::domain::bxes_value::BxesValue;
-use crate::models::system_models::ValueAttributeDescriptor;
+use crate::models::system_models::{SystemMetadata};
 use std::rc::Rc;
 
 pub struct ReadContext<'a> {
     pub reader: Option<&'a mut BinaryReader<'a>>,
     pub values: Option<Vec<Rc<Box<BxesValue>>>>,
     pub kv_pairs: Option<Vec<(u32, u32)>>,
-    pub value_attributes: Option<Vec<ValueAttributeDescriptor>>,
+    pub system_metadata: Option<SystemMetadata>,
 }
 
 impl<'a> ReadContext<'a> {
@@ -16,7 +16,7 @@ impl<'a> ReadContext<'a> {
             reader: Some(reader),
             values: None,
             kv_pairs: None,
-            value_attributes: None,
+            system_metadata: None,
         }
     }
 
@@ -25,7 +25,7 @@ impl<'a> ReadContext<'a> {
             reader: None,
             values: None,
             kv_pairs: None,
-            value_attributes: None,
+            system_metadata: None,
         }
     }
 
