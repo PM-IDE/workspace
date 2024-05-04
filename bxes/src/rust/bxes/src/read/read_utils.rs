@@ -48,11 +48,9 @@ pub fn try_read_event_log_metadata(
     })
 }
 
-pub fn try_read_system_metadata(
-    context: &mut ReadContext,
-) -> Result<(), BxesReadError> {
+pub fn try_read_system_metadata(context: &mut ReadContext) -> Result<(), BxesReadError> {
     context.system_metadata = Some(SystemMetadata {
-        values_attrs: try_read_value_attributes(context)?
+        values_attrs: try_read_value_attributes(context)?,
     });
 
     Ok(())
@@ -235,10 +233,16 @@ fn try_read_event(context: &mut ReadContext) -> Result<BxesEvent, BxesReadError>
 }
 
 fn try_read_event_attributes(
-    context: &mut ReadContext
+    context: &mut ReadContext,
 ) -> Result<Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>, BxesReadError> {
     let mut attributes = None;
-    let value_attrs_len = if let Some(attrs) = context.system_metadata.as_ref().unwrap().values_attrs.as_ref() {
+    let value_attrs_len = if let Some(attrs) = context
+        .system_metadata
+        .as_ref()
+        .unwrap()
+        .values_attrs
+        .as_ref()
+    {
         attrs.len()
     } else {
         0
@@ -248,13 +252,22 @@ fn try_read_event_attributes(
         attributes = Some(vec![]);
         for i in 0..value_attrs_len {
             let value = try_read_bxes_value(context)?;
-            let descs = context.system_metadata.as_ref().unwrap().values_attrs.as_ref().unwrap();
+            let descs = context
+                .system_metadata
+                .as_ref()
+                .unwrap()
+                .values_attrs
+                .as_ref()
+                .unwrap();
             let descriptor = descs.get(i).unwrap();
 
             //todo: check that value is the same type that descriptor (Issue #3)
             let key = BxesValue::String(Rc::new(Box::new(descriptor.name.clone())));
             let key = Rc::new(Box::new(key));
-            attributes.as_mut().unwrap().push((key, Rc::new(Box::new(value))));
+            attributes
+                .as_mut()
+                .unwrap()
+                .push((key, Rc::new(Box::new(value))));
         }
     }
 
@@ -266,7 +279,7 @@ fn try_read_event_attributes(
 fn try_fill_attributes(
     context: &mut ReadContext,
     leb_128: bool,
-    attributes: &mut Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>
+    attributes: &mut Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>,
 ) -> Result<(), BxesReadError> {
     let attributes_count = try_read_count(context, leb_128)?;
     if attributes_count > 0 && attributes.is_none() {
@@ -274,7 +287,10 @@ fn try_fill_attributes(
     }
 
     for _ in 0..attributes_count {
-        attributes.as_mut().unwrap().push(try_read_kv_pair(context, leb_128)?);
+        attributes
+            .as_mut()
+            .unwrap()
+            .push(try_read_kv_pair(context, leb_128)?);
     }
 
     Ok(())
