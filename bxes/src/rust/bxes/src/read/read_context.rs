@@ -1,7 +1,7 @@
-use std::rc::Rc;
 use crate::binary_rw::core::BinaryReader;
 use crate::models::domain::bxes_value::BxesValue;
 use crate::models::system_models::ValueAttributeDescriptor;
+use std::rc::Rc;
 
 pub struct ReadContext<'a> {
     pub reader: Option<&'a mut BinaryReader<'a>>,
@@ -16,7 +16,7 @@ impl<'a> ReadContext<'a> {
             reader: Some(reader),
             values: None,
             kv_pairs: None,
-            value_attributes: None
+            value_attributes: None,
         }
     }
 

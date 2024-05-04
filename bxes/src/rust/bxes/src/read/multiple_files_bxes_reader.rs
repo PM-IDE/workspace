@@ -1,14 +1,14 @@
 use std::path::Path;
 
 use crate::models::domain::bxes_event_log::{BxesEventLog, BxesTraceVariant};
-use crate::{
-    binary_rw::core::{BinaryReader, Endian},
-    constants::*,
-};
 use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
 use crate::models::system_models::SystemMetadata;
 use crate::read::read_context::ReadContext;
 use crate::utils::buffered_stream::BufferedReadFileStream;
+use crate::{
+    binary_rw::core::{BinaryReader, Endian},
+    constants::*,
+};
 
 use super::{errors::*, read_utils::*};
 
@@ -94,7 +94,10 @@ fn read_key_values(context: &mut ReadContext, version: &mut u32) -> Result<(), B
     try_read_key_values(context)
 }
 
-fn read_metadata_file(context: &mut ReadContext, version: &mut u32) -> Result<BxesEventLogMetadata, BxesReadError> {
+fn read_metadata_file(
+    context: &mut ReadContext,
+    version: &mut u32,
+) -> Result<BxesEventLogMetadata, BxesReadError> {
     if let Some(error) = read_version(version, context.reader.as_mut().unwrap()) {
         return Err(error);
     }
@@ -102,7 +105,10 @@ fn read_metadata_file(context: &mut ReadContext, version: &mut u32) -> Result<Bx
     try_read_event_log_metadata(context)
 }
 
-fn read_variants(context: &mut ReadContext, version: &mut u32) -> Result<Vec<BxesTraceVariant>, BxesReadError> {
+fn read_variants(
+    context: &mut ReadContext,
+    version: &mut u32,
+) -> Result<Vec<BxesTraceVariant>, BxesReadError> {
     if let Some(error) = read_version(version, context.reader.as_mut().unwrap()) {
         return Err(error);
     }
@@ -110,7 +116,10 @@ fn read_variants(context: &mut ReadContext, version: &mut u32) -> Result<Vec<Bxe
     try_read_traces_variants(context)
 }
 
-fn open_file(directory_path: &str, file_name: &str,) -> Result<BufferedReadFileStream, BxesReadError> {
+fn open_file(
+    directory_path: &str,
+    file_name: &str,
+) -> Result<BufferedReadFileStream, BxesReadError> {
     let directory_path = Path::new(directory_path);
     let file_path = directory_path.join(file_name);
     let file_path = file_path.to_str().unwrap();
