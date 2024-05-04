@@ -27,7 +27,7 @@ pub fn generate_random_bxes_write_data() -> BxesLogWriteData {
 
 pub fn generate_random_system_metadata(rng: &mut ThreadRng) -> SystemMetadata {
     SystemMetadata {
-        values_attrs: Some(generate_random_value_attributes_descriptor(rng)),
+        values_attrs: None,
     }
 }
 
