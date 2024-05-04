@@ -292,14 +292,13 @@ fn try_read_kv_pair(
 
 pub fn try_read_key_values(context: &mut ReadContext) -> Result<(), BxesReadError> {
     let reader = context.reader.as_mut().unwrap();
-    let mut key_values = vec![];
+    context.kv_pairs = Some(vec![]);
 
     let key_values_count = try_read_u32(reader)?;
     for _ in 0..key_values_count {
-        key_values.push((try_read_leb128(reader)?, try_read_leb128(reader)?));
+        context.kv_pairs.as_mut().unwrap().push((try_read_leb128(reader)?, try_read_leb128(reader)?));
     }
 
-    context.kv_pairs = Some(key_values);
     Ok(())
 }
 
@@ -307,14 +306,14 @@ pub fn try_read_values(
     context: &mut ReadContext
 ) -> Result<(), BxesReadError> {
     let reader = context.reader.as_mut().unwrap();
-    let mut values = vec![];
+    context.values = Some(vec![]);
 
     let values_count = try_read_u32(reader)?;
     for _ in 0..values_count {
-        values.push(Rc::new(Box::new(try_read_bxes_value(context)?)));
+        let value = try_read_bxes_value(context)?;
+        context.values.as_mut().unwrap().push(Rc::new(Box::new(value)));
     }
 
-    context.values = Some(values);
     Ok(())
 }
 
