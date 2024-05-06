@@ -7,7 +7,7 @@ namespace Bxes.Xes.XesToBxes;
 
 public class XesValuesPreprocessor(IBxesStreamWriter writer) : XesElementHandlerBase
 {
-  public override void HandleProperty(AttributeKeyValue property) => 
+  public override void HandleProperty(AttributeKeyValue property) =>
     writer.HandleEvent(new BxesKeyValueEvent(property));
 
   public override void HandleTraceStart()

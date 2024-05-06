@@ -15,10 +15,10 @@ public enum StandardLifecycleValues : byte
   Start = 10,
   Suspend = 11,
   Unknown = 12,
-  Withdraw = 13,
+  Withdraw = 13
 }
 
-public static class StandardLifecycleValuesUtil 
+public static class StandardLifecycleValuesUtil
 {
   public static StandardLifecycleValues? TryParse(string value) => value switch
   {

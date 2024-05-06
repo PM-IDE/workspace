@@ -9,11 +9,8 @@ public class BrafLifecycle(BrafLifecycleValues value) : EventLifecycle<BrafLifec
     true => new BrafLifecycle((BrafLifecycleValues)value),
     false => throw new IndexOutOfRangeException()
   };
-  
-  public static BrafLifecycle ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
-  {
-    return Parse(reader.ReadByte());
-  }
+
+  public static BrafLifecycle ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues) => Parse(reader.ReadByte());
 
 
   public override TypeIds TypeId => TypeIds.BrafLifecycle;

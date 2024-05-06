@@ -4,7 +4,7 @@ using Bxes.Utils;
 
 namespace Bxes.Writer.Stream;
 
-public class MultipleFilesBxesStreamWriterImpl<TEvent> : 
+public class MultipleFilesBxesStreamWriterImpl<TEvent> :
   IBxesStreamWriter, IXesToBxesStatisticsCollector where TEvent : IEvent
 {
   private readonly string mySavePath;
@@ -131,7 +131,7 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
 
   private void HandleValueEvent(BxesValueEvent valueEvent) => myValuesCounter.HandleValue(valueEvent.Value);
   private void HandleKeyValueEvent(BxesKeyValueEvent @event) => myValuesCounter.HandleKeyValue(@event.MetadataKeyValue);
-  
+
   private void HandleEventEvent(BxesEventEvent<TEvent> @event)
   {
     BxesWriteUtils.WriteEventValues(

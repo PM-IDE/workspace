@@ -10,7 +10,7 @@ public record BxesArtifactItem
   public required string Transition { get; init; }
 }
 
-public class BxesArtifactModelsListValue(List<BxesArtifactItem> items) 
+public class BxesArtifactModelsListValue(List<BxesArtifactItem> items)
   : BxesValue<List<BxesArtifactItem>>(items), IReadableValue<BxesArtifactModelsListValue>, IModelWithAdditionalValues
 {
   public static BxesArtifactModelsListValue ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
@@ -65,7 +65,7 @@ public class BxesArtifactModelsListValue(List<BxesArtifactItem> items)
       yield return new BxesStringValue(item.Transition);
     }
   }
-  
+
   public override bool Equals(object? obj)
   {
     return obj is BxesArtifactModelsListValue other &&

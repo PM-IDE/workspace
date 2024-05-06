@@ -142,10 +142,11 @@ Type id + additional type info (i.e. length of a string) forms a header of a val
 - Then the sequence of traces variants is written.
 
 ### System metadata format
+
 - The number of value-attributes is written (`u32`) - `4 bytes`
-  - The value-attributes info are written:
-    - The name of the attribute is written (`String`)
-    - The type of the attribute is written (`byte`)
+    - The value-attributes info are written:
+        - The name of the attribute is written (`String`)
+        - The type of the attribute is written (`byte`)
 
 ### Event log metadata format
 

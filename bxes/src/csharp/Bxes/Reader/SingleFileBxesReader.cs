@@ -15,7 +15,7 @@ public class SingleFileBxesReader : IBxesReader
     BxesReadUtils.ReadSystemMetadata(context);
     BxesReadUtils.ReadValues(context);
     BxesReadUtils.ReadKeyValuePairs(context);
-    
+
     var metadata = BxesReadUtils.ReadMetadata(context);
     var variants = BxesReadUtils.ReadVariants(context);
 

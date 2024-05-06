@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Bxes\Bxes.csproj" />
+        <ProjectReference Include="..\Bxes\Bxes.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -16,7 +16,7 @@ public class BxesBoolValue(bool value) : BxesValue<bool>(value), IReadableValue<
 
     return new BxesBoolValue(value);
   }
-  
+
   public override TypeIds TypeId => TypeIds.Bool;
 
 

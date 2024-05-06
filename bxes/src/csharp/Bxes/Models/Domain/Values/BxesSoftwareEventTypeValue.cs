@@ -10,10 +10,10 @@ public enum SoftwareEventTypeValues : byte
   Throws = 3,
   Handle = 4,
   Calling = 5,
-  Returning = 6,
+  Returning = 6
 }
 
-public class BxesSoftwareEventTypeValue(SoftwareEventTypeValues values) 
+public class BxesSoftwareEventTypeValue(SoftwareEventTypeValues values)
   : BxesValue<SoftwareEventTypeValues>(values), IReadableValue<BxesSoftwareEventTypeValue>
 {
   public static BxesSoftwareEventTypeValue Parse(byte value) =>
@@ -22,11 +22,9 @@ public class BxesSoftwareEventTypeValue(SoftwareEventTypeValues values)
       true => new BxesSoftwareEventTypeValue((SoftwareEventTypeValues)value),
       false => throw new IndexOutOfRangeException()
     };
-  
-  public static BxesSoftwareEventTypeValue ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
-  {
-    return Parse(reader.ReadByte());
-  }
+
+  public static BxesSoftwareEventTypeValue ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues) =>
+    Parse(reader.ReadByte());
 
 
   public override TypeIds TypeId => TypeIds.SoftwareEventType;

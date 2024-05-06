@@ -48,7 +48,7 @@ public static class TestLogsProvider
 
     for (var i = 0; i < attributesCount; ++i)
     {
-      attributes.Add(new(new BxesStringValue(GenerateRandomString()), GenerateRandomBxesValue()));
+      attributes.Add(new AttributeKeyValue(new BxesStringValue(GenerateRandomString()), GenerateRandomBxesValue()));
     }
 
     return attributes;
@@ -98,7 +98,7 @@ public static class TestLogsProvider
       {
         Name = GenerateRandomBxesStringValue(),
         Prefix = GenerateRandomBxesStringValue(),
-        Uri = GenerateRandomBxesStringValue(),
+        Uri = GenerateRandomBxesStringValue()
       });
     }
 
@@ -147,10 +147,7 @@ public static class TestLogsProvider
     };
   }
 
-  private static TypeIds GenerateRandomTypeId()
-  {
-    return (TypeIds)Random.Shared.Next(Enum.GetValues<TypeIds>().Length);
-  }
+  private static TypeIds GenerateRandomTypeId() => (TypeIds)Random.Shared.Next(Enum.GetValues<TypeIds>().Length);
 
   private static BxesGuidValue GenerateGuidValue() => new(Guid.NewGuid());
 
@@ -167,15 +164,13 @@ public static class TestLogsProvider
     return new BxesDriversListValue(drivers);
   }
 
-  private static BxesDriver GenerateRandomDriver()
-  {
-    return new BxesDriver
+  private static BxesDriver GenerateRandomDriver() =>
+    new()
     {
       Amount = Random.Shared.NextDouble(),
       Name = GenerateRandomString(),
       Type = GenerateRandomString()
     };
-  }
 
   private static BxesArtifactModelsListValue GenerateRandomArtifact()
   {
@@ -190,20 +185,15 @@ public static class TestLogsProvider
     return new BxesArtifactModelsListValue(models);
   }
 
-  private static BxesArtifactItem GenerateRandomArtifactItem()
-  {
-    return new BxesArtifactItem
+  private static BxesArtifactItem GenerateRandomArtifactItem() =>
+    new()
     {
       Model = GenerateRandomString(),
       Instance = GenerateRandomString(),
       Transition = GenerateRandomString()
     };
-  }
 
-  private static bool GenerateRandomBool()
-  {
-    return Random.Shared.Next(2) == 1;
-  }
+  private static bool GenerateRandomBool() => Random.Shared.Next(2) == 1;
 
   private static BxesStringValue GenerateRandomBxesStringValue() => new(GenerateRandomString());
 
@@ -230,7 +220,7 @@ public static class TestLogsProvider
       descriptors[randomAttribute.Key.Value] = randomAttribute.Value.TypeId;
       ++i;
     }
-    
+
     metadata.ValueAttributeDescriptors.AddRange(
       descriptors.Select(d => new ValueAttributeDescriptor(d.Value, d.Key)).ToList());
 

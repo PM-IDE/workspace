@@ -36,7 +36,7 @@ module Transformations =
 
         { TransformationName = extension
           OriginalFilePath = logPath
-          TransformedFilesDirectory = outputDirectory 
+          TransformedFilesDirectory = outputDirectory
           OriginalFileSize = FileInfo(logPath).Length
           TransformedFileSize = FileInfo(outputPath).Length }
 
@@ -105,18 +105,24 @@ module Transformations =
     let private calculateRepeatCoef (data: Dictionary<'a, int>) =
         let max = double (data.Values |> Seq.max)
         let min = double (data.Values |> Seq.min)
-        (data.Values |> Seq.map (fun x -> (double x - min) / (max - min)) |> Seq.sum) / double data.Count
+
+        (data.Values |> Seq.map (fun x -> (double x - min) / (max - min)) |> Seq.sum)
+        / double data.Count
 
     let private calculateVariantsCoef (data: Dictionary<'a, int>) =
         double data.Count / double (data.Values |> Seq.sum)
-        
+
     let private doExtractValuesRepeatCoef outputDirectory coefFunc =
-        let valuesStatPath = Path.Combine(outputDirectory, XesToBxesStatisticFiles.ValuesStatistics)
+        let valuesStatPath =
+            Path.Combine(outputDirectory, XesToBxesStatisticFiles.ValuesStatistics)
+
         let stat = XesToBxesStatisticUtil.ReadValuesStatistics valuesStatPath
         coefFunc stat
-        
+
     let private doExtractAttributesRepeatCoef outputDirectory coefFunc =
-        let valuesStatPath = Path.Combine(outputDirectory, XesToBxesStatisticFiles.AttributesStatistics)
+        let valuesStatPath =
+            Path.Combine(outputDirectory, XesToBxesStatisticFiles.AttributesStatistics)
+
         let stat = XesToBxesStatisticUtil.ReadAttributesStatistics valuesStatPath
         coefFunc stat
 

@@ -4,10 +4,7 @@ namespace Bxes.Models.Domain.Values;
 
 public class BxesUint64Value(ulong value) : BxesValue<ulong>(value), IReadableValue<BxesUint64Value>
 {
-  public static BxesUint64Value ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
-  {
-    return new BxesUint64Value(reader.ReadUInt64());
-  }
+  public static BxesUint64Value ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues) => new(reader.ReadUInt64());
 
 
   public override TypeIds TypeId => TypeIds.U64;

@@ -19,13 +19,13 @@ public class MultipleFilesBxesWriter(ISystemMetadata metadata) : IBxesWriter
       writeAction(log, context.WithWriter(writer));
 
     var version = log.Version;
-    
+
     ExecuteWithFile(savePath, BxesConstants.SystemMetadataFileName, version, bw =>
     {
       var descriptors = context.ValuesEnumerator.OrderedValueAttributes;
       BxesWriteUtils.WriteValuesAttributesDescriptors(descriptors, context.WithWriter(bw));
     });
-    
+
     ExecuteWithFile(savePath, BxesConstants.ValuesFileName, version, bw => Write(bw, BxesWriteUtils.WriteValues));
     ExecuteWithFile(savePath, BxesConstants.KVPairsFileName, version,
       bw => Write(bw, BxesWriteUtils.WriteKeyValuePairs));

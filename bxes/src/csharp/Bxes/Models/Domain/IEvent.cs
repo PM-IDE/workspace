@@ -13,12 +13,10 @@ public interface IEvent : IEquatable<IEvent>
 
 public static class EventUtil
 {
-  public static bool Equals(IEvent first, IEvent second)
-  {
-    return first.Timestamp == second.Timestamp &&
-           first.Name == second.Name &&
-           EventLogUtil.EqualsRegardingOrder(first.Attributes, second.Attributes);
-  }
+  public static bool Equals(IEvent first, IEvent second) =>
+    first.Timestamp == second.Timestamp &&
+    first.Name == second.Name &&
+    EventLogUtil.EqualsRegardingOrder(first.Attributes, second.Attributes);
 }
 
 public class InMemoryEventImpl(

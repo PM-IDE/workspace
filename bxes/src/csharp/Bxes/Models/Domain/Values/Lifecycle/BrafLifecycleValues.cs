@@ -21,10 +21,10 @@ public enum BrafLifecycleValues : byte
   OpenNotRunningSuspendedReserved = 16,
   OpenRunning = 17,
   OpenRunningInProgress = 18,
-  OpenRunningSuspended = 19,
+  OpenRunningSuspended = 19
 }
 
-public static class BrafLifecycleValuesUtil 
+public static class BrafLifecycleValuesUtil
 {
   public static BrafLifecycleValues? TryParse(string value) => value switch
   {

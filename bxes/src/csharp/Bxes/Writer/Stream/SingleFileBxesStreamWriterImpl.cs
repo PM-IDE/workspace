@@ -4,7 +4,7 @@ using Bxes.Utils;
 
 namespace Bxes.Writer.Stream;
 
-public class SingleFileBxesStreamWriterImpl<TEvent> : 
+public class SingleFileBxesStreamWriterImpl<TEvent> :
   IBxesStreamWriter, IXesToBxesStatisticsCollector where TEvent : IEvent
 {
   private readonly MultipleFilesBxesStreamWriterImpl<TEvent> myMultipleWriter;
@@ -13,7 +13,7 @@ public class SingleFileBxesStreamWriterImpl<TEvent> :
   private readonly TempFolderContainer myFolderContainer;
 
 
-  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion) 
+  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion)
     : this(savePath, bxesVersion, SystemMetadata.Default)
   {
   }

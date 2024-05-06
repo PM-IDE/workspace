@@ -10,7 +10,7 @@ public record BxesDriver
   public required string Type { get; init; }
 }
 
-public class BxesDriversListValue(List<BxesDriver> drivers) 
+public class BxesDriversListValue(List<BxesDriver> drivers)
   : BxesValue<List<BxesDriver>>(drivers), IReadableValue<BxesDriversListValue>, IModelWithAdditionalValues
 {
   public static BxesDriversListValue ReadPureValue(BinaryReader reader, IReadOnlyList<BxesValue> parsedValues)
@@ -33,7 +33,7 @@ public class BxesDriversListValue(List<BxesDriver> drivers)
 
     return new BxesDriversListValue(drivers);
   }
-  
+
 
   public override TypeIds TypeId => TypeIds.Drivers;
 
@@ -56,7 +56,7 @@ public class BxesDriversListValue(List<BxesDriver> drivers)
       context.Writer.Write(context.ValuesIndices[new BxesStringValue(driver.Type)]);
     }
   }
-  
+
   public IEnumerable<BxesValue> EnumerateAdditionalValues()
   {
     foreach (var driver in drivers)

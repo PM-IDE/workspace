@@ -15,7 +15,7 @@ public readonly struct ConsoleForegroundCookie : IDisposable
     myPreviousColor = Console.ForegroundColor;
     Console.ForegroundColor = color;
   }
-  
+
 
   public void Dispose()
   {

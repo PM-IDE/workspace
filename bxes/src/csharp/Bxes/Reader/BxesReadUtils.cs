@@ -70,7 +70,7 @@ public static class BxesReadUtils
     for (uint i = 0; i < propertiesCount; ++i)
     {
       var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
-      var attr = new AttributeKeyValue((BxesStringValue) context.Values[(int) kv.Key], context.Values[(int) kv.Value]);
+      var attr = new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]);
       metadata.Properties.Add(attr);
     }
   }
@@ -84,7 +84,7 @@ public static class BxesReadUtils
       {
         Name = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()],
         Prefix = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()],
-        Uri = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()],
+        Uri = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()]
       });
     }
   }
@@ -143,7 +143,7 @@ public static class BxesReadUtils
     {
       var typeId = (TypeIds)context.Reader.ReadByte();
       var attributeName = (BxesStringValue)BxesValue.Parse(context.Reader, []);
-      
+
       context.SystemMetadata.ValueAttributeDescriptors.Add(new ValueAttributeDescriptor(typeId, attributeName.Value));
     }
   }
@@ -202,25 +202,25 @@ public static class BxesReadUtils
         throw new ValueAttributeTypeNotEqualToDescriptorException(value.TypeId, expectedTypeId);
       }
 
-      if (value is not BxesNullValue || (expectedTypeId == TypeIds.Null && value.TypeId == expectedTypeId))
+      if (value is not BxesNullValue || expectedTypeId == TypeIds.Null && value.TypeId == expectedTypeId)
       {
         eventAttributes.Add(new AttributeKeyValue(new BxesStringValue(valueAttrName), value));
       }
     }
-    
+
     var attributesCount = context.Reader.ReadLeb128Unsigned();
 
     for (uint k = 0; k < attributesCount; ++k)
     {
       var kv = context.KeyValues[(int)context.Reader.ReadLeb128Unsigned()];
-      eventAttributes.Add(new((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+      eventAttributes.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
     }
 
     return new InMemoryEventImpl(timestamp, name, eventAttributes);
   }
 }
 
-class ValueAttributeTypeNotEqualToDescriptorException(TypeIds actual, TypeIds expected) : BxesException
+internal class ValueAttributeTypeNotEqualToDescriptorException(TypeIds actual, TypeIds expected) : BxesException
 {
   public override string Message { get; } = $"Value attribute type missmatch: expected: {expected}, got {actual}";
 }

@@ -2,5 +2,5 @@
 
 public interface IModelWithAdditionalValues
 {
-    IEnumerable<BxesValue> EnumerateAdditionalValues();
+  IEnumerable<BxesValue> EnumerateAdditionalValues();
 }
