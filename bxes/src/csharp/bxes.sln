@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MISC", "MISC", "{09F32555-D
 	ProjectSection(SolutionItems) = preProject
 		..\..\.gitignore = ..\..\.gitignore
 		..\..\Readme.md = ..\..\Readme.md
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bxes.IntegrationTests", "Bxes.IntegrationTests\Bxes.IntegrationTests.csproj", "{DBE6AC3D-A595-4741-9F1A-3332CA66B54B}"
