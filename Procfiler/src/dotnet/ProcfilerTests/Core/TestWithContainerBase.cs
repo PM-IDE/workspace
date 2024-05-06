@@ -13,13 +13,13 @@ public record ContextWithSolution(KnownSolution Solution, CollectClrEventsFromEx
 
 public abstract class TestWithContainerBase
 {
-  protected static IEnumerable<ContextWithSolution> DefaultContexts() => 
+  protected static IEnumerable<ContextWithSolution> DefaultContexts() =>
     KnownSolution.AllSolutions.Select(s => new ContextWithSolution(s, s.CreateDefaultContext()));
 
-  protected static IEnumerable<ContextWithSolution> OnlineSerializationContexts() => 
+  protected static IEnumerable<ContextWithSolution> OnlineSerializationContexts() =>
     KnownSolution.AllSolutions.Select(s => new ContextWithSolution(s, s.CreateOnlineSerializationContext()));
 
-  protected static IEnumerable<ContextWithSolution> DefaultContextsWithFilter() => 
+  protected static IEnumerable<ContextWithSolution> DefaultContextsWithFilter() =>
     KnownSolution.AllSolutions.Select(s => new ContextWithSolution(s, s.CreateContextWithFilter()));
 
   protected static IEnumerable<ContextWithSolution> OnlineSerializationContextsWithFilter() =>

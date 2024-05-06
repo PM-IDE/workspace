@@ -90,7 +90,8 @@ public abstract partial class CollectCommandBase
     {
       if (parseResult.HasOption(RepeatOption))
       {
-        Logger.LogWarning("The repeat option was specified when attaching to already running process, for now this option will be ignored");
+        Logger.LogWarning(
+          "The repeat option was specified when attaching to already running process, for now this option will be ignored");
       }
 
       var pid = parseResult.GetValueForOption(ProcessIdOption);
@@ -185,7 +186,9 @@ public abstract partial class CollectCommandBase
 
   private void CheckForPidOrExePathOrThrow(ParseResult parseResult)
   {
-    if (!parseResult.HasOption(ProcessIdOption) && !parseResult.HasOption(PathToCsprojOption) && !parseResult.HasOption(CommandNameOption))
+    if (!parseResult.HasOption(ProcessIdOption) &&
+        !parseResult.HasOption(PathToCsprojOption) &&
+        !parseResult.HasOption(CommandNameOption))
     {
       throw new OneOfFollowingOptionsMustBeSpecifiedException(ProcessIdOption, PathToCsprojOption);
     }

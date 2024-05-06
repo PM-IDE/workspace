@@ -33,7 +33,7 @@ public abstract class EventsOwnerBase : IEventsOwner
       myLogger.LogWarning("The enumerator is empty for {Type}", GetType().Name);
       yield break;
     }
-    
+
     var currentIndex = 0;
 
     var current = PointersManager.First;

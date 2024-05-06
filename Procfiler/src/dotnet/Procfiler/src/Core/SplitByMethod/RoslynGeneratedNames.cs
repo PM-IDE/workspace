@@ -17,7 +17,7 @@ public enum RoslynGeneratedNameKind
   LocalFunction = 'g',
 
   DelegateCacheContainerType = 'O',
-  DynamicCallSiteContainerType = 'o',
+  DynamicCallSiteContainerType = 'o'
 }
 
 public static class RoslynGeneratedNameConstants
@@ -89,10 +89,10 @@ internal static class RoslynGeneratedNamesParser
 
   private static int IndexOfBalancedParenthesis(ReadOnlySpan<char> str, int openingOffset, char closing)
   {
-    char opening = str[openingOffset];
+    var opening = str[openingOffset];
 
-    int depth = 1;
-    for (int i = openingOffset + 1; i < str.Length; i++)
+    var depth = 1;
+    for (var i = openingOffset + 1; i < str.Length; i++)
     {
       var c = str[i];
       if (c == opening)
@@ -116,7 +116,7 @@ internal static class RoslynGeneratedNamesParser
     string generatedName, RoslynGeneratedNameKind requiredKind,
     [NotNullWhen(true)] out string? methodName)
   {
-    if (!TryParseGeneratedName(generatedName, out var kind, out int openBracketOffset, out int closeBracketOffset))
+    if (!TryParseGeneratedName(generatedName, out var kind, out var openBracketOffset, out var closeBracketOffset))
     {
       methodName = null;
       return false;
@@ -146,19 +146,19 @@ internal static class RoslynGeneratedNamesParser
     localFunctionName = null;
 
     // '<' containing-method-name '>' 'g' '__' local-function-name '|' method-ordinal '_' lambda-ordinal
-    if (!TryParseGeneratedName(generatedName, out var kind, out _, out int closeBracketOffset) ||
+    if (!TryParseGeneratedName(generatedName, out var kind, out _, out var closeBracketOffset) ||
         kind != RoslynGeneratedNameKind.LocalFunction)
     {
       return false;
     }
 
-    int localFunctionNameStart = closeBracketOffset + 2 + RoslynGeneratedNameConstants.SuffixSeparator.Length;
+    var localFunctionNameStart = closeBracketOffset + 2 + RoslynGeneratedNameConstants.SuffixSeparator.Length;
     if (localFunctionNameStart >= generatedName.Length)
     {
       return false;
     }
 
-    int localFunctionNameEnd = generatedName.IndexOf(RoslynGeneratedNameConstants.LocalFunctionNameTerminator, localFunctionNameStart);
+    var localFunctionNameEnd = generatedName.IndexOf(RoslynGeneratedNameConstants.LocalFunctionNameTerminator, localFunctionNameStart);
     if (localFunctionNameEnd < 0)
     {
       return false;
@@ -173,14 +173,15 @@ internal static class RoslynGeneratedNamesParser
   // Returned slot index is >= 0.
   internal static bool TryParseSlotIndex(string fieldName, out int slotIndex)
   {
-    int lastUnder = fieldName.LastIndexOf('_');
+    var lastUnder = fieldName.LastIndexOf('_');
     if (lastUnder - 1 < 0 || lastUnder == fieldName.Length || fieldName[lastUnder - 1] != '_')
     {
       slotIndex = -1;
       return false;
     }
 
-    if (int.TryParse(fieldName.Substring(lastUnder + 1), NumberStyles.None, CultureInfo.InvariantCulture, out slotIndex) && slotIndex >= 1)
+    if (int.TryParse(fieldName.Substring(lastUnder + 1), NumberStyles.None, CultureInfo.InvariantCulture, out slotIndex) &&
+        slotIndex >= 1)
     {
       slotIndex--;
       return true;

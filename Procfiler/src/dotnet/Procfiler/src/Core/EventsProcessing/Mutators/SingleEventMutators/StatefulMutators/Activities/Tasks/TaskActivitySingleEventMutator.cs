@@ -26,7 +26,8 @@ public class TaskActivitySingleEventMutator(IProcfilerLogger logger)
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
 public class TaskWaitBeginLifecycleMutator(IProcfilerLogger logger)
-  : EventsLifecycleMutatorBase(logger, ActivityId, new[] { TraceEventsConstants.TaskWaitSend }, new[] { TraceEventsConstants.TaskWaitStop })
+  : EventsLifecycleMutatorBase(logger, ActivityId, new[] { TraceEventsConstants.TaskWaitSend },
+    new[] { TraceEventsConstants.TaskWaitStop })
 {
   private const string ActivityId = "TaskWaitBeginEnd";
 
@@ -45,6 +46,7 @@ public class TaskContinuationWaitLifecycleMutator(IProcfilerLogger logger)
     TraceEventsConstants.TaskWaitContinuationStarted,
     TraceEventsConstants.AwaitTaskContinuationScheduledSend
   };
+
 
   private const string ActivityId = "TaskContinuationWait";
 

@@ -20,7 +20,7 @@ public class GcStartEventMutator : MetadataValueToNameAppenderBase
     Transformations = new[]
     {
       new MetadataKeysWithTransform(TraceEventsConstants.GcStartReason, TransformReason, EventClassKind.Zero),
-      new MetadataKeysWithTransform(TraceEventsConstants.GcStartType, GenerateNameForGcType, EventClassKind.Zero),
+      new MetadataKeysWithTransform(TraceEventsConstants.GcStartType, GenerateNameForGcType, EventClassKind.Zero)
     };
   }
 

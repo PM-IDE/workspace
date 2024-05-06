@@ -7,7 +7,8 @@ namespace Procfiler.Core.Processes.Builder;
 
 [AppComponent]
 public class DotnetProjectBuilderImpl(
-  IProcfilerLogger logger, IDllMethodsPatcher dllMethodsPatcher) : IDotnetProjectBuilder
+  IProcfilerLogger logger,
+  IDllMethodsPatcher dllMethodsPatcher) : IDotnetProjectBuilder
 {
   public BuildResult? TryBuildDotnetProject(ProjectBuildInfo projectBuildInfo)
   {
@@ -98,7 +99,7 @@ public class DotnetProjectBuilderImpl(
         RemoveArtifactsFolderIfNeeded();
         return null;
       }
-      
+
       process.BeginOutputReadLine();
 
       var timeout = TimeSpan.FromSeconds(30);

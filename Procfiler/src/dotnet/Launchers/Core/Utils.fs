@@ -9,7 +9,7 @@ open System.IO
 module ProcfilerScriptsUtils =
     let net7 = "net7.0"
     let net6 = "net6.0"
-    let net8 = "net8.0";
+    let net8 = "net8.0"
 
     type PathConfigBase =
         { CsprojPath: string
@@ -25,7 +25,11 @@ module ProcfilerScriptsUtils =
           WriteAllMetadata: bool }
 
         member this.AddArguments list =
-            let toAdd = [ $" --repeat {this.Repeat}"; $" --duration {this.Duration}"; $" --write-all-event-metadata {this.WriteAllMetadata}" ]
+            let toAdd =
+                [ $" --repeat {this.Repeat}"
+                  $" --duration {this.Duration}"
+                  $" --write-all-event-metadata {this.WriteAllMetadata}" ]
+
             this.PathConfig.AddArguments list @ toAdd
 
     type ICommandConfig =
@@ -143,7 +147,7 @@ module ProcfilerScriptsUtils =
             let appName = applicationNameFromCsproj csprojPath
             printfn $"Finished executing procfiler for {appName}"
         | _ -> ()
-        
+
     let launchProcfilerOnFolderOfSolutions solutionsFolder outputFolder config outputIsFile =
         ensureEmptyDirectory outputFolder |> ignore
         let pathsToDlls = getAllCsprojFiles solutionsFolder
@@ -151,10 +155,10 @@ module ProcfilerScriptsUtils =
         pathsToDlls
         |> List.iter (fun solution ->
             let name = applicationNameFromCsproj solution
+
             let outputPath =
                 match outputIsFile with
                 | true -> Path.Combine(outputFolder, name + ".xes")
                 | false -> Path.Combine(outputFolder, name)
-                
+
             launchProcfiler solution outputPath config)
-        

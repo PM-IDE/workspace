@@ -33,13 +33,21 @@ module SplitByMethods =
                     $" --inline {this.Inline}"
                     $" --merge-undefined-events {this.MergeUndefinedThreadEvents}"
                     $" --cpp-profiler-mode {if this.OnlineSerialization then onlineMode else offlineMode}"
-                    $" --use-during-runtime-filtering {this.DuringRuntimeFiltering}"]
+                    $" --use-during-runtime-filtering {this.DuringRuntimeFiltering}" ]
 
 
-    let private createConfigInternal csprojPath outputPath doInline merge onlineSerialization runtimeFiltering targetMethodsRegex =
+    let private createConfigInternal
+        csprojPath
+        outputPath
+        doInline
+        merge
+        onlineSerialization
+        runtimeFiltering
+        targetMethodsRegex
+        =
         { Base = createDefaultConfigBase csprojPath outputPath
           Inline = doInline
-          TargetMethodsRegex = targetMethodsRegex 
+          TargetMethodsRegex = targetMethodsRegex
           FilterPattern = applicationNameFromCsproj csprojPath
           MergeUndefinedThreadEvents = merge
           OnlineSerialization = onlineSerialization

@@ -38,10 +38,8 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   private readonly Dictionary<string, string> myMethodExecutionNames = new();
 
 
-  public EventRecordWithMetadata CreateMethodStartEvent(EventsCreationContext context, string methodName)
-  {
-    return CreateMethodStartOrEndEvent(context, TraceEventsConstants.ProcfilerMethodStart, methodName);
-  }
+  public EventRecordWithMetadata CreateMethodStartEvent(EventsCreationContext context, string methodName) =>
+    CreateMethodStartOrEndEvent(context, TraceEventsConstants.ProcfilerMethodStart, methodName);
 
   private EventRecordWithMetadata CreateMethodStartOrEndEvent(
     EventsCreationContext context, string eventClass, string methodName)
@@ -79,10 +77,8 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
     return metadata;
   }
 
-  public EventRecordWithMetadata CreateMethodEndEvent(EventsCreationContext context, string methodName)
-  {
-    return CreateMethodStartOrEndEvent(context, TraceEventsConstants.ProcfilerMethodEnd, methodName);
-  }
+  public EventRecordWithMetadata CreateMethodEndEvent(EventsCreationContext context, string methodName) =>
+    CreateMethodStartOrEndEvent(context, TraceEventsConstants.ProcfilerMethodEnd, methodName);
 
   public EventRecordWithMetadata CreateMethodExecutionEvent(EventsCreationContext context, string methodName)
   {
@@ -93,7 +89,7 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   }
 
   private string CreateEventNameForMethodExecutionEvent(string fqn) =>
-     myMethodExecutionNames.GetOrCreate(fqn, () => $"{TraceEventsConstants.ProcfilerMethodExecution}_{fqn}");
+    myMethodExecutionNames.GetOrCreate(fqn, () => $"{TraceEventsConstants.ProcfilerMethodExecution}_{fqn}");
 
   public EventRecordWithMetadata CreateMethodEvent(FromFrameInfoCreationContext context)
   {

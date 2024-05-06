@@ -64,7 +64,7 @@ public class EventMetadataBasedOnTraceEvent(TraceEvent traceEvent) : IEventMetad
   private bool IsDeletedAt(int index)
   {
     AssertIndex(index);
-    return (myDeletedProperties & (1 << index)) == 1;
+    return (myDeletedProperties & 1 << index) == 1;
   }
 
   private void AssertIndex(int index)

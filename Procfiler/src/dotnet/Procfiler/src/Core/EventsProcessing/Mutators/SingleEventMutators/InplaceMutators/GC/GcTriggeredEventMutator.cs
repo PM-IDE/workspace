@@ -19,7 +19,7 @@ public class GcTriggeredEventMutator : MetadataValueToNameAppenderBase
 
     Transformations = new[]
     {
-      new MetadataKeysWithTransform(TraceEventsConstants.CommonReason, TransformReason, EventClassKind.Zero),
+      new MetadataKeysWithTransform(TraceEventsConstants.CommonReason, TransformReason, EventClassKind.Zero)
     };
   }
 }

@@ -8,7 +8,9 @@ using Procfiler.Utils;
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 
 public class CppStacksMethodsStartEndMutator(
-  IProcfilerEventsFactory factory, IProcfilerLogger logger, bool aggressiveReuse) : IMethodsStartEndProcessor
+  IProcfilerEventsFactory factory,
+  IProcfilerLogger logger,
+  bool aggressiveReuse) : IMethodsStartEndProcessor
 {
   public void Process(IEventsCollection events, SessionGlobalData context)
   {

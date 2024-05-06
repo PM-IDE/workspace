@@ -11,7 +11,7 @@ public static class SerializersUtil
     IEnumerable<(string, TWriter)> writers, IProcfilerLogger logger, Action<TWriter> beforeDisposeAction) where TWriter : IDisposable
   {
     using var _ = new PerformanceCookie(nameof(DisposeWriters), logger);
-    
+
     foreach (var (path, writer) in writers)
     {
       try

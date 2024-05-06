@@ -3,7 +3,7 @@ namespace Procfiler.Utils;
 public enum FileFormat
 {
   Csv,
-  MethodCallTree,
+  MethodCallTree
 }
 
 public static class FileFormatExtensions

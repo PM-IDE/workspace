@@ -5,7 +5,8 @@ using Procfiler.Utils;
 namespace Procfiler.Core.EventsProcessing.Mutators.Core;
 
 public abstract class MetadataValueToNameAppenderBase(
-  IProcfilerLogger logger, bool removeProperties = false) : SingleEventMutatorBase(logger), ISingleEventMutator
+  IProcfilerLogger logger,
+  bool removeProperties = false) : SingleEventMutatorBase(logger), ISingleEventMutator
 {
   protected abstract IEnumerable<MetadataKeysWithTransform> Transformations { get; }
 

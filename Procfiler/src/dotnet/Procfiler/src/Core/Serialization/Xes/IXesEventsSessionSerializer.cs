@@ -33,7 +33,7 @@ public partial class XesEventsSessionSerializer(
     using var fs = File.OpenWrite(path);
     using var writer = XmlWriter.Create(fs, new XmlWriterSettings
     {
-      Indent = true,
+      Indent = true
     });
 
     WriteHeader(writer);
@@ -47,7 +47,8 @@ public partial class XesEventsSessionSerializer(
     writer.WriteEndElement();
   }
 
-  public void AppendTrace(EventSessionInfo session, XmlWriter writer, int traceNum, bool writeAllMetadata) => WriteTrace(traceNum, session, writer, writeAllMetadata);
+  public void AppendTrace(EventSessionInfo session, XmlWriter writer, int traceNum, bool writeAllMetadata) =>
+    WriteTrace(traceNum, session, writer, writeAllMetadata);
 
   public void WriteHeader(XmlWriter writer)
   {
@@ -55,8 +56,9 @@ public partial class XesEventsSessionSerializer(
     DoWriteHeader(writer);
   }
 
-  public void WriteEvent(EventRecordWithMetadata eventRecord, XmlWriter writer, bool writeAllMetadata) => WriteEventNode(writer, eventRecord, writeAllMetadata);
-  
+  public void WriteEvent(EventRecordWithMetadata eventRecord, XmlWriter writer, bool writeAllMetadata) =>
+    WriteEventNode(writer, eventRecord, writeAllMetadata);
+
   public void WriteTraceStart(XmlWriter writer, int traceNum)
   {
     writer.WriteStartElement(null, TraceTagName, null);
@@ -66,15 +68,15 @@ public partial class XesEventsSessionSerializer(
   private void WriteTrace(int traceNum, EventSessionInfo sessionInfo, XmlWriter writer, bool writeAllMetadata)
   {
     WriteTraceStart(writer, traceNum);
-    
+
     foreach (var (_, currentEvent) in new OrderedEventsEnumerator(sessionInfo.Events))
     {
       WriteEventNode(writer, currentEvent, writeAllMetadata);
     }
-    
+
     writer.WriteEndElement();
   }
-  
+
   private static void WriteEventNode(XmlWriter writer, EventRecordWithMetadata currentEvent, bool writeAllMetadata)
   {
     using var _ = StartEndElementCookie.CreateStartEndElement(writer, null, EventTag, null);
@@ -97,7 +99,7 @@ public partial class XesEventsSessionSerializer(
         {
           WriteMetadataValue(writer, currentEvent, key, key);
         }
-      } 
+      }
     }
   }
 

@@ -10,7 +10,8 @@ public interface IDocumentationCreator
 
 [AppComponent]
 public class DocumentationCreatorImpl(
-  IEnumerable<IMarkdownDocumentationProvider> providers, IProcfilerLogger logger) : IDocumentationCreator
+  IEnumerable<IMarkdownDocumentationProvider> providers,
+  IProcfilerLogger logger) : IDocumentationCreator
 {
   public void CreateDocumentation(string documentationFolder)
   {

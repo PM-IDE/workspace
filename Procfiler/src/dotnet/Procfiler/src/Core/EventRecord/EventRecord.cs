@@ -98,24 +98,20 @@ public static class EventRecordExtensions
     if (IsMethodStartOrEndEvent(eventRecord))
     {
       return new MethodStartEndEventInfo(
-        Frame: eventRecord.Metadata[TraceEventsConstants.ProcfilerMethodName],
-        IsStart: eventRecord.EventClass is TraceEventsConstants.ProcfilerMethodStart
+        eventRecord.Metadata[TraceEventsConstants.ProcfilerMethodName],
+        eventRecord.EventClass is TraceEventsConstants.ProcfilerMethodStart
       );
     }
 
     return null;
   }
 
-  public static bool IsTaskRelatedEvent(this EventRecordWithMetadata eventRecord)
-  {
-    return eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix) ||
-           eventRecord.EventClass.StartsWith(TraceEventsConstants.AwaitCommonPrefix);
-  }
+  public static bool IsTaskRelatedEvent(this EventRecordWithMetadata eventRecord) =>
+    eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix) ||
+    eventRecord.EventClass.StartsWith(TraceEventsConstants.AwaitCommonPrefix);
 
-  public static bool IsTaskWaitSendOrStopEvent(this EventRecordWithMetadata eventRecord)
-  {
-    return eventRecord.EventClass is TraceEventsConstants.TaskWaitSend or TraceEventsConstants.TaskWaitStop;
-  }
+  public static bool IsTaskWaitSendOrStopEvent(this EventRecordWithMetadata eventRecord) =>
+    eventRecord.EventClass is TraceEventsConstants.TaskWaitSend or TraceEventsConstants.TaskWaitStop;
 
   public static bool IsTaskWaitStopEvent(this EventRecordWithMetadata eventRecord, out int waitedTaskId)
   {
@@ -128,10 +124,7 @@ public static class EventRecordExtensions
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  private static int ExtractTaskId(EventRecordWithMetadata eventRecord)
-  {
-    return int.Parse(eventRecord.Metadata[TraceEventsConstants.TaskId]);
-  }
+  private static int ExtractTaskId(EventRecordWithMetadata eventRecord) => int.Parse(eventRecord.Metadata[TraceEventsConstants.TaskId]);
 
   public static bool IsTaskWaitSendEvent(this EventRecordWithMetadata eventRecord, out int scheduledTaskId)
   {
@@ -161,11 +154,9 @@ public static class EventRecordExtensions
     return true;
   }
 
-  public static string GetAllocatedTypeNameOrThrow(this EventRecordWithMetadata eventRecord) => 
+  public static string GetAllocatedTypeNameOrThrow(this EventRecordWithMetadata eventRecord) =>
     eventRecord.Metadata[TraceEventsConstants.CommonTypeName];
 
-  public static bool IsMethodStartEndProvider(this EventRecordWithMetadata eventRecord)
-  {
-    return eventRecord.EventClass is not (TraceEventsConstants.GcSetGcHandle or TraceEventsConstants.GcDestroyGcHandle);
-  }
+  public static bool IsMethodStartEndProvider(this EventRecordWithMetadata eventRecord) =>
+    eventRecord.EventClass is not (TraceEventsConstants.GcSetGcHandle or TraceEventsConstants.GcDestroyGcHandle);
 }

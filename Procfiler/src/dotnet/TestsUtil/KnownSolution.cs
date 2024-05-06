@@ -42,7 +42,7 @@ public class KnownSolution
     UnsafeFixed,
     SystemArrayPooling,
     NotExistingAssemblyLoading,
-    LohAllocations,
+    LohAllocations
   };
 
   public string Name { get; }
@@ -60,8 +60,5 @@ public class KnownSolution
   }
 
 
-  public override string ToString()
-  {
-    return Name;
-  }
+  public override string ToString() => Name;
 }

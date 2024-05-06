@@ -16,7 +16,7 @@ public class FullMethodNameBeautifierImpl : IFullMethodNameBeautifier
     {
       fullMethodName = fullMethodName.Replace(invalidChar.ToString(), string.Empty);
     }
-    
+
     const int MaxMethodNameLength = 250;
     if (fullMethodName.Length > MaxMethodNameLength)
     {

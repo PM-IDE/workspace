@@ -11,11 +11,11 @@ internal class CppShadowStackEnumerator(BinaryReader reader, long framesCount) :
   private int myReadFramesForCurrentBuffer;
   private long myTotalReadFrames;
 
-  
+
   object IEnumerator.Current => Current;
   public FrameInfo Current { get; } = new();
 
-  
+
   public bool MoveNext()
   {
     if (myNextIndexInBuffer < 0 || myNextIndexInBuffer >= myBuffer.Length)
@@ -24,14 +24,14 @@ internal class CppShadowStackEnumerator(BinaryReader reader, long framesCount) :
       myReadFramesForCurrentBuffer = 0;
       myNextIndexInBuffer = 0;
     }
-    
+
     if (myReadFramesForCurrentBuffer >= myFramesCountInBuffer || myTotalReadFrames >= framesCount)
     {
       return false;
     }
 
     Current.IsStart = myBuffer[myNextIndexInBuffer++] == 1;
-    
+
     Current.TimeStamp = ToLong(myNextIndexInBuffer);
     myNextIndexInBuffer += sizeof(long);
 
@@ -40,7 +40,7 @@ internal class CppShadowStackEnumerator(BinaryReader reader, long framesCount) :
 
     myReadFramesForCurrentBuffer++;
     myTotalReadFrames++;
-    
+
     return true;
   }
 

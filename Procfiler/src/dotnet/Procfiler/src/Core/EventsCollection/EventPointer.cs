@@ -26,7 +26,7 @@ public readonly record struct EventPointer(
 
   public void AssertStateOrThrow()
   {
-    if (!((IsInInitialArray && !IsInInsertedMap) || (!IsInInitialArray && IsInInsertedMap)))
+    if (!(IsInInitialArray && !IsInInsertedMap || !IsInInitialArray && IsInInsertedMap))
     {
       throw new InvalidStateException($"array: {IsInInitialArray} , map: {IsInInsertedMap}");
     }

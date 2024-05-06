@@ -14,10 +14,8 @@ public class InsertedEvents
   public long Count { get; private set; }
 
 
-  public EventRecordWithMetadata GetOrThrow(EventPointer pointer)
-  {
-    return myInsertedEvents[pointer.IndexInArray][pointer.IndexInInsertionMap];
-  }
+  public EventRecordWithMetadata GetOrThrow(EventPointer pointer) =>
+    myInsertedEvents[pointer.IndexInArray][pointer.IndexInInsertionMap];
 
   public List<EventRecordWithMetadata>? this[int index]
   {

@@ -121,16 +121,12 @@ public abstract class CollectAndSplitCommandBase<TKey>(
   }
 
   protected virtual KeyValuePair<TKey, IEventsCollection?>? FindEventsForUndefinedThread(
-    Dictionary<TKey, IEventsCollection> eventsByKey)
-  {
-    return null;
-  }
+    Dictionary<TKey, IEventsCollection> eventsByKey) =>
+    null;
 
   protected virtual IEventsCollection? AddNewManagedThreadsFromUndefined(
     IDictionary<TKey, IEventsCollection> events,
     SessionGlobalData globalData,
-    IEventsCollection? undefinedEvents)
-  {
-    return undefinedEvents;
-  }
+    IEventsCollection? undefinedEvents) =>
+    undefinedEvents;
 }

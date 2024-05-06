@@ -24,12 +24,12 @@ public class PresenceOfBinStacksFileTest : CppBinStacksTestBase
         case CppProfilerBinStacksFileMode.PerThreadFiles:
           var binStacksFiles = Directory.EnumerateFiles(binStacksPath).Where(file => file.Contains("binstack_")).ToList();
           Assert.That(binStacksFiles.Count, Is.GreaterThan(0));
-          
+
           foreach (var binStacksFile in binStacksFiles)
           {
             Assert.That(new FileInfo(binStacksFile).Length > 0);
           }
-          
+
           break;
         default:
           throw new ArgumentOutOfRangeException();

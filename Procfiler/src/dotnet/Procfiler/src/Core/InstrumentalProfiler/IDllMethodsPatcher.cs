@@ -184,10 +184,7 @@ public class DllMethodsPatcher(IProcfilerLogger logger, IDepsJsonPatcher depsJso
 
     InsertProcfilerLogBefore(0, processor, methodStartedLogReference, true);
 
-    Instruction GetStartOfInsertedInstructions(Instruction context)
-    {
-      return context.Previous.Previous.Previous.Previous;
-    }
+    Instruction GetStartOfInsertedInstructions(Instruction context) => context.Previous.Previous.Previous.Previous;
 
     foreach (var instruction in instructions)
     {

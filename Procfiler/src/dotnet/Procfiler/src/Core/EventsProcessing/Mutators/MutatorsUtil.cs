@@ -89,7 +89,7 @@ public static class MutatorsUtil
   {
     var sb = new StringBuilder(fullMethodName);
 
-    for (int i = 0; i < sb.Length; i++)
+    for (var i = 0; i < sb.Length; i++)
     {
       if (sb[i] == ' ')
       {
@@ -102,15 +102,10 @@ public static class MutatorsUtil
     return string.Intern(sb.ToString());
   }
 
-  public static string TransformTypeLikeNameForEventNameConcatenation(string typeName)
-  {
-    return TransformTypeLikeNameForEventNameConcatenation(new StringBuilder(typeName));
-  }
+  public static string TransformTypeLikeNameForEventNameConcatenation(string typeName) =>
+    TransformTypeLikeNameForEventNameConcatenation(new StringBuilder(typeName));
 
-  private static string TransformTypeLikeNameForEventNameConcatenation(StringBuilder sb)
-  {
-    return string.Intern(sb.ToString());
-  }
+  private static string TransformTypeLikeNameForEventNameConcatenation(StringBuilder sb) => string.Intern(sb.ToString());
 
   public static string TransformCamelCaseForEventNameConcatenation(string name)
   {
@@ -165,11 +160,9 @@ public static class MutatorsUtil
     return TransformModuleFileNameForEventNameConcatenation(sb.ToString());
   }
 
-  public static string ConcatenateMethodDetails(string methodName, string methodNamespace, string signature)
-  {
-    return string.Intern(methodNamespace +
-                         (methodNamespace.EndsWith('.') ? "" : ".") +
-                         methodName +
-                         $"[{signature.Replace(' ', '.')}]");
-  }
+  public static string ConcatenateMethodDetails(string methodName, string methodNamespace, string signature) =>
+    string.Intern(methodNamespace +
+                  (methodNamespace.EndsWith('.') ? "" : ".") +
+                  methodName +
+                  $"[{signature.Replace(' ', '.')}]");
 }

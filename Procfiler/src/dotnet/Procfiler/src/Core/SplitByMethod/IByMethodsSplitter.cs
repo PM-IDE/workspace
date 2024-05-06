@@ -20,7 +20,9 @@ public record struct SplitContext(
 
 public interface IByMethodsSplitter
 {
-  Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>>? SplitNonAlloc(IOnlineMethodsSerializer serializer, SplitContext context);
+  Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>>? SplitNonAlloc(IOnlineMethodsSerializer serializer,
+    SplitContext context);
+
   Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>> Split(SplitContext context);
 }
 
@@ -51,7 +53,7 @@ public class ByMethodsSplitterImpl(
         true => MergeUndefinedThreadEventsLazy(threadEvents, undefinedThreadEvents),
         false => threadEvents
       };
-      
+
       serializer.SerializeThreadEvents(mergedEvents, filterPattern, inlineMode);
     }
 
@@ -65,7 +67,7 @@ public class ByMethodsSplitterImpl(
 
     return null;
   }
-  
+
   public Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>> Split(SplitContext context)
   {
     var (events, filterPattern, inlineMode, mergeUndefinedThreadEvents, addAsyncMethods) = context;
@@ -126,7 +128,7 @@ public class ByMethodsSplitterImpl(
     eventsByThreads = SplitEventsHelper.SplitByKey(logger, events.Events, SplitEventsHelper.ManagedThreadIdExtractor);
     undefinedThreadEvents = eventsByThreads[-1];
     eventsByThreads.Remove(-1);
-    
+
     undefinedThreadEvents = managedEventsExtractor.Extract(eventsByThreads, undefinedThreadEvents);
   }
 
@@ -141,9 +143,7 @@ public class ByMethodsSplitterImpl(
     using var __ = new PerformanceCookie($"{GetType().Name}::{nameof(MergeUndefinedThreadEvents)}", logger);
     return undefinedThreadsEventsMerger.Merge(managedThreadEvents, undefinedThreadEvents);
   }
-  
-  private IEnumerable<EventRecordWithPointer> MergeUndefinedThreadEventsLazy(IEventsCollection managedThreadEvents, IEventsCollection undefinedThreadEvents)
-  {
-    return undefinedThreadsEventsMerger.MergeLazy(managedThreadEvents, undefinedThreadEvents);
-  }
+
+  private IEnumerable<EventRecordWithPointer> MergeUndefinedThreadEventsLazy(IEventsCollection managedThreadEvents,
+    IEventsCollection undefinedThreadEvents) => undefinedThreadsEventsMerger.MergeLazy(managedThreadEvents, undefinedThreadEvents);
 }

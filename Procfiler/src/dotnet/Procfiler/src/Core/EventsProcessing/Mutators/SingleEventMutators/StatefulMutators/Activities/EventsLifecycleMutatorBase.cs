@@ -122,6 +122,7 @@ public abstract class EventsLifecycleMutatorBase : ISingleEventsLifecycleMutator
       {
         myLogger.LogTrace(
           $"Scheduling activity in with state {state.LifecycleState} for {eventRecord.EventClass} with id {activityId} on {eventRecord.ManagedThreadId}");
+
         return;
       }
 
@@ -135,6 +136,7 @@ public abstract class EventsLifecycleMutatorBase : ISingleEventsLifecycleMutator
       {
         myLogger.LogTrace(
           $"Starting activity from incorrect state {state.LifecycleState} for {eventRecord.EventClass} with id {activityId} on {eventRecord.ManagedThreadId}");
+
         return;
       }
 
@@ -148,6 +150,7 @@ public abstract class EventsLifecycleMutatorBase : ISingleEventsLifecycleMutator
       {
         myLogger.LogTrace(
           $"Met completed activity without start {state.LifecycleState} for {eventRecord.EventClass} with id {activityId} on {eventRecord.ManagedThreadId}");
+
         return;
       }
 

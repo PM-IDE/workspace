@@ -25,14 +25,14 @@ public abstract class OnlineMethodsSerializerBase<TState>(
   protected readonly Dictionary<string, TState> States = new();
 
 
-  public IReadOnlyList<string> AllMethodNames => MethodNames; 
-  
-  
+  public IReadOnlyList<string> AllMethodNames => MethodNames;
+
+
   public void SerializeThreadEvents(IEnumerable<EventRecordWithPointer> events, string filterPattern, InlineMode inlineMode)
   {
     var splitter = new CallbackBasedSplitter<TState>(
       logger, events, filterPattern, inlineMode, TryCreateState, HandleUpdate);
-    
+
     splitter.Split();
   }
 

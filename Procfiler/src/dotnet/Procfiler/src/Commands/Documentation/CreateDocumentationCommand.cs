@@ -8,12 +8,14 @@ namespace Procfiler.Commands.Documentation;
 
 [CommandLineCommand]
 public class CreateDocumentationCommand(
-  IDocumentationCreator documentationCreator, IProcfilerLogger logger) : IVisibleToUserCommand
+  IDocumentationCreator documentationCreator,
+  IProcfilerLogger logger) : IVisibleToUserCommand
 {
-  private readonly Option<string> myOutputPathOption = new("-o", "The path to the directory into which the documentation will be generated")
-  {
-    IsRequired = true
-  };
+  private readonly Option<string> myOutputPathOption =
+    new("-o", "The path to the directory into which the documentation will be generated")
+    {
+      IsRequired = true
+    };
 
 
   public int Invoke(InvocationContext context)

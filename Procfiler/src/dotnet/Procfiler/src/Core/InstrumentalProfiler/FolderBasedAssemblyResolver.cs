@@ -12,7 +12,8 @@ public interface IAssembliesProvider
 }
 
 public class FolderBasedAssemblyResolver(
-  IProcfilerLogger logger, string contextFolder) : IAssemblyResolver, IAssembliesProvider
+  IProcfilerLogger logger,
+  string contextFolder) : IAssemblyResolver, IAssembliesProvider
 {
   private readonly Dictionary<string, AssemblyDefWithPath> myContextAssembliesToPaths = new();
 

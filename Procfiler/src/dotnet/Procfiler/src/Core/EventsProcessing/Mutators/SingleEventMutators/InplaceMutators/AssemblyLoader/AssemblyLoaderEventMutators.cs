@@ -10,7 +10,7 @@ public abstract class AssemblyLoaderStartStopNameMutatorBase(IProcfilerLogger lo
 {
   protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
   {
-    MetadataKeysWithTransform.CreateForAssemblyName(TraceEventsConstants.AssemblyName, EventClassKind.Zero),
+    MetadataKeysWithTransform.CreateForAssemblyName(TraceEventsConstants.AssemblyName, EventClassKind.Zero)
   };
 }
 
@@ -67,7 +67,8 @@ public class AssemblyLoaderAppDomainAssemblyResolveHandlerInvokeNameMutator(
 
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]
 public class AssemblyLoaderLoadContextResolvingHandlerInvokedNameMutator(
-  IProcfilerLogger logger, bool removeProperties = false) : MetadataValueToNameAppenderBase(logger, removeProperties)
+  IProcfilerLogger logger,
+  bool removeProperties = false) : MetadataValueToNameAppenderBase(logger, removeProperties)
 {
   protected override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
   {

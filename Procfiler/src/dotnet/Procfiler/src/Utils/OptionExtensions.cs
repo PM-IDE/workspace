@@ -4,8 +4,5 @@ namespace Procfiler.Utils;
 
 public static class OptionExtensions
 {
-  public static T? GetDefaultValue<T>(this Option<T> option)
-  {
-    return (T?)((IValueDescriptor)option).GetDefaultValue();
-  }
+  public static T? GetDefaultValue<T>(this Option<T> option) => (T?)((IValueDescriptor)option).GetDefaultValue();
 }

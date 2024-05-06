@@ -115,10 +115,8 @@ public class CommandExecutorImpl(
   }
 
   private CollectedEvents CollectEventsFromProcess(
-    CollectClrEventsContext context, int processId, string? binStacksPath)
-  {
-    return clrEventsCollector.CollectEvents(ToCollectionContext(context, processId, binStacksPath));
-  }
+    CollectClrEventsContext context, int processId, string? binStacksPath) =>
+    clrEventsCollector.CollectEvents(ToCollectionContext(context, processId, binStacksPath));
 
   private ClrEventsCollectionContext ToCollectionContext(CollectClrEventsContext context, int processId, string? binStacksPath)
   {

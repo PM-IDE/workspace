@@ -48,7 +48,7 @@ public class SplitEventsByMethodCommand(
 
   private Option<string?> TargetMethodsRegex { get; } =
     new("--target-methods-regex", static () => null, "Target methods regex ");
-  
+
 
   public override void Execute(CollectClrEventsContext context)
   {
@@ -57,7 +57,7 @@ public class SplitEventsByMethodCommand(
     var parseResult = context.CommonContext.CommandParseResult;
     var mergeUndefinedThreadEvents = parseResult.TryGetOptionValue(MergeFromUndefinedThreadOption);
     var directory = context.CommonContext.OutputPath;
-    
+
     using var onlineSerializer = CreateOnlineSerializer(context);
     using var notStoringSerializer = CreateNotStoringSerializer(context);
 
@@ -81,7 +81,7 @@ public class SplitEventsByMethodCommand(
         {
           var eventsByMethodsInvocation = PrepareEventSessionInfo(traces, globalData);
           var filePath = GetFileNameForMethod(directory, methodName);
-          
+
           foreach (var (_, sessionInfo) in eventsByMethodsInvocation)
           {
             // ReSharper disable once AccessToDisposedClosure
@@ -103,7 +103,7 @@ public class SplitEventsByMethodCommand(
       _ => throw new ArgumentOutOfRangeException()
     };
   }
-  
+
   private IOnlineMethodsSerializer CreateOnlineSerializer(CollectClrEventsContext context)
   {
     var writeAllEventData = context.CommonContext.WriteAllEventMetadata;

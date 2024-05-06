@@ -17,7 +17,7 @@ let private createConfigInternal solutionPath outputPath : ICommandConfig =
 
       Config.Inline = InlineMode.EventsAndMethodsEventsWithFilter
       Config.FilterPattern = ".*"
-      Config.TargetMethodsRegex =  applicationNameFromCsproj solutionPath
+      Config.TargetMethodsRegex = applicationNameFromCsproj solutionPath
       Config.MergeUndefinedThreadEvents = true
       Config.OnlineSerialization = true
       Config.DuringRuntimeFiltering = true }
@@ -33,7 +33,8 @@ let source () =
                   "ConsoleApp1.Program.Main[void..()].xes" ]
             )
 
-        yield TestCaseData("SystemArrayPooling", [ "SystemArrayPooling.Program.Main[void..(class.System.String[])].xes" ])
+        yield
+            TestCaseData("SystemArrayPooling", [ "SystemArrayPooling.Program.Main[void..(class.System.String[])].xes" ])
 
         yield
             TestCaseData(
@@ -111,7 +112,12 @@ let source () =
             )
 
         yield TestCaseData("LOHAllocations", [ "LOHAllocations.Program.Main[void..(class.System.String[])].xes" ])
-        yield TestCaseData("IntensiveThreadPoolUse", [ "IntensiveThreadPoolUse.Program.Main[void..(class.System.String[])].xes" ])
+
+        yield
+            TestCaseData(
+                "IntensiveThreadPoolUse",
+                [ "IntensiveThreadPoolUse.Program.Main[void..(class.System.String[])].xes" ]
+            )
 
         yield
             TestCaseData(
@@ -182,8 +188,17 @@ let source () =
                   "ExceptionTryCatchFinally.Program.<Main>g__ThrowException|0_0[void..()].xes" ]
             )
 
-        yield TestCaseData("DynamicAssemblyLoading", [ "DynamicAssemblyLoading.Program.Main[void..(class.System.String[])].xes" ])
-        yield TestCaseData("DynamicAssemblyCreation", [ "DynamicAssemblyCreation.Program.Main[void..(class.System.String[])].xes" ])
+        yield
+            TestCaseData(
+                "DynamicAssemblyLoading",
+                [ "DynamicAssemblyLoading.Program.Main[void..(class.System.String[])].xes" ]
+            )
+
+        yield
+            TestCaseData(
+                "DynamicAssemblyCreation",
+                [ "DynamicAssemblyCreation.Program.Main[void..(class.System.String[])].xes" ]
+            )
     }
 
 [<TestCaseSource("source")>]
@@ -193,8 +208,11 @@ let SplitByMethodsTest projectName (expectedMethods: List<string>) =
         launchProcfiler path tempDir createConfigInternal
 
         let fileNameProcessor (name: string) =
-            let chars = name.ToLower().ToCharArray() |> Array.filter (fun c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-            new string(chars)
+            let chars =
+                name.ToLower().ToCharArray()
+                |> Array.filter (fun c -> (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+
+            new string (chars)
 
         let files =
             Directory.GetFiles(tempDir)

@@ -13,7 +13,7 @@ public abstract class MethodInliningNameMutatorBase(IProcfilerLogger logger) : M
     MetadataKeysWithTransform.CreateForTypeLikeName(
       TraceEventsConstants.MethodInliningSucceededInlineeNamespace, EventClassKind.Zero),
     MetadataKeysWithTransform.CreateForTypeLikeName(
-      TraceEventsConstants.MethodInliningSucceededInlineeName, EventClassKind.Zero),
+      TraceEventsConstants.MethodInliningSucceededInlineeName, EventClassKind.Zero)
   };
 }
 

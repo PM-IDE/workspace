@@ -19,11 +19,9 @@ public readonly record struct EventsProcessingConfig(
   public static EventsProcessingConfig EverythingWithoutMethodStartAndEnd { get; } =
     new(true, true, new HashSet<Type> { typeof(MethodStartEndEventsLogMutator) });
 
-  public static EventsProcessingConfig CreateContextWithoutStartAndEnd(bool useFilters, bool useMutators)
-  {
-    return new EventsProcessingConfig(
+  public static EventsProcessingConfig CreateContextWithoutStartAndEnd(bool useFilters, bool useMutators) =>
+    new(
       useFilters, useMutators, new HashSet<Type> { typeof(MethodStartEndEventsLogMutator) });
-  }
 }
 
 public readonly record struct EventsProcessingContext(
