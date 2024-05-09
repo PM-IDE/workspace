@@ -128,14 +128,21 @@ pub fn try_write_event(
     try_write_event_attributes(event, context.clone())
 }
 
-fn try_write_event_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteContext>>) -> Result<(), BxesWriteError> {
+fn try_write_event_attributes(
+    event: &BxesEvent,
+    context: Rc<RefCell<BxesWriteContext>>,
+) -> Result<(), BxesWriteError> {
     let value_attrs_count = try_write_event_value_attributes(event, context.clone())?;
     try_write_event_default_attributes(event, context.clone(), value_attrs_count)?;
 
     Ok(())
 }
 
-fn try_write_event_default_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteContext>>, value_attrs_count: usize) -> Result<(), BxesWriteError> {
+fn try_write_event_default_attributes(
+    event: &BxesEvent,
+    context: Rc<RefCell<BxesWriteContext>>,
+    value_attrs_count: usize,
+) -> Result<(), BxesWriteError> {
     let default_attrs_count = count(event.attributes.as_ref()) - value_attrs_count as u32;
     write_collection_and_count(context.clone(), true, default_attrs_count, || {
         if let Some(attributes) = event.attributes.as_ref() {
@@ -143,7 +150,7 @@ fn try_write_event_default_attributes(event: &BxesEvent, context: Rc<RefCell<Bxe
                 let should_write = if let Some(set) = context.borrow().value_attributes_set.as_ref() {
                     let desc = ValueAttributeDescriptor {
                         name: string_or_err(&key).ok().unwrap().as_ref().as_ref().clone(),
-                        type_id: get_type_id(&value)
+                        type_id: get_type_id(&value),
                     };
 
                     !set.contains(&desc)
@@ -152,11 +159,7 @@ fn try_write_event_default_attributes(event: &BxesEvent, context: Rc<RefCell<Bxe
                 };
 
                 if should_write {
-                    try_write_kv_index(
-                        context.clone(),
-                        &(key.clone(), value.clone()),
-                        true,
-                    )?;
+                    try_write_kv_index(context.clone(), &(key.clone(), value.clone()), true)?;
                 }
             }
         }
@@ -165,7 +168,10 @@ fn try_write_event_default_attributes(event: &BxesEvent, context: Rc<RefCell<Bxe
     })
 }
 
-fn try_write_event_value_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteContext>>) -> Result<usize, BxesWriteError> {
+fn try_write_event_value_attributes(
+    event: &BxesEvent,
+    context: Rc<RefCell<BxesWriteContext>>,
+) -> Result<usize, BxesWriteError> {
     let mut values_attrs_count = 0;
     if let Some(attributes) = event.attributes.as_ref() {
         if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
@@ -189,7 +195,10 @@ fn try_write_event_value_attributes(event: &BxesEvent, context: Rc<RefCell<BxesW
     Ok(values_attrs_count)
 }
 
-fn is_value_attribute(attribute: &(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), desc: &ValueAttributeDescriptor) -> bool {
+fn is_value_attribute(
+    attribute: &(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>),
+    desc: &ValueAttributeDescriptor,
+) -> bool {
     let key = string_or_err(&attribute.0.as_ref().as_ref()).ok().unwrap();
     key.as_ref().as_ref() == &desc.name && get_type_id(&attribute.1) == desc.type_id
 }
@@ -617,7 +626,10 @@ pub fn try_write_value_if_not_present(
     Ok(true)
 }
 
-fn try_write_value(context: &mut BxesWriteContext, value: &BxesValue) -> Result<(), BxesWriteError> {
+fn try_write_value(
+    context: &mut BxesWriteContext,
+    value: &BxesValue,
+) -> Result<(), BxesWriteError> {
     match value {
         BxesValue::Null => try_write_u8_no_type_id(context.writer.as_mut().unwrap(), 0),
         BxesValue::Int32(value) => try_write_i32(context.writer.as_mut().unwrap(), *value),
