@@ -129,29 +129,15 @@ pub fn try_write_event(
 }
 
 fn try_write_event_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteContext>>) -> Result<(), BxesWriteError> {
-    let mut values_attrs_count = 0;
-    if let Some(attributes) = event.attributes.as_ref() {
-        if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
-            for value_attribute in value_attributes {
-                let mut found_attr = false;
-                for event_attribute in attributes {
-                    let key = string_or_err(&event_attribute.0.as_ref().as_ref()).ok().unwrap();
-                    if key.as_ref().as_ref() == &value_attribute.name && get_type_id(&event_attribute.1) == value_attribute.type_id {
-                        try_write_value(&mut context.borrow_mut(), &event_attribute.1)?;
-                        found_attr = true;
-                        values_attrs_count += 1;
-                    }
-                }
+    let value_attrs_count = try_write_event_value_attributes(event, context.clone())?;
+    try_write_event_default_attributes(event, context.clone(), value_attrs_count)?;
 
-                if !found_attr {
-                    try_write_value(&mut context.borrow_mut(), &BxesValue::Null)?;
-                }
-            }
-        }
-    }
+    Ok(())
+}
 
-    let count = count(event.attributes.as_ref()) - values_attrs_count as u32;
-    write_collection_and_count(context.clone(), true, count, || {
+fn try_write_event_default_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteContext>>, value_attrs_count: usize) -> Result<(), BxesWriteError> {
+    let default_attrs_count = count(event.attributes.as_ref()) - value_attrs_count as u32;
+    write_collection_and_count(context.clone(), true, default_attrs_count, || {
         if let Some(attributes) = event.attributes.as_ref() {
             for (key, value) in attributes {
                 let should_write = if let Some(set) = context.borrow().value_attributes_set.as_ref() {
@@ -176,9 +162,36 @@ fn try_write_event_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteCo
         }
 
         Ok(())
-    })?;
+    })
+}
 
-    Ok(())
+fn try_write_event_value_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteContext>>) -> Result<usize, BxesWriteError> {
+    let mut values_attrs_count = 0;
+    if let Some(attributes) = event.attributes.as_ref() {
+        if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
+            for value_attribute in value_attributes {
+                let mut found_attr = false;
+                for event_attribute in attributes {
+                    if is_value_attribute(event_attribute, value_attribute) {
+                        try_write_value(&mut context.borrow_mut(), &event_attribute.1)?;
+                        found_attr = true;
+                        values_attrs_count += 1;
+                    }
+                }
+
+                if !found_attr {
+                    try_write_value(&mut context.borrow_mut(), &BxesValue::Null)?;
+                }
+            }
+        }
+    }
+
+    Ok(values_attrs_count)
+}
+
+fn is_value_attribute(attribute: &(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), desc: &ValueAttributeDescriptor) -> bool {
+    let key = string_or_err(&attribute.0.as_ref().as_ref()).ok().unwrap();
+    key.as_ref().as_ref() == &desc.name && get_type_id(&attribute.1) == desc.type_id
 }
 
 pub fn try_write_log_metadata(
