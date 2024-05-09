@@ -19,8 +19,9 @@ use crate::models::domain::bxes_lifecycle::{BrafLifecycle, Lifecycle, StandardLi
 use crate::models::domain::bxes_log_metadata::{BxesClassifier, BxesExtension, BxesGlobal};
 use crate::models::domain::bxes_value::BxesValue;
 use crate::models::domain::software_event_type::SoftwareEventType;
-use crate::models::domain::type_ids::TypeIds;
+use crate::models::domain::type_ids::{get_type_id, TypeIds};
 use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
+use crate::read::read_utils::string_or_err;
 
 use super::{errors::BxesWriteError, write_context::BxesWriteContext};
 
@@ -100,32 +101,84 @@ pub fn try_write_event(
     event: &BxesEvent,
     context: Rc<RefCell<BxesWriteContext>>,
 ) -> Result<(), BxesWriteError> {
-    {
-        if context
+    let exists = context
+        .borrow()
+        .values_indices
+        .borrow()
+        .contains_key(&event.name);
+
+    if exists {
+        let index = *context
             .borrow()
             .values_indices
             .borrow()
-            .contains_key(&event.name)
-        {
-            let index = *context
-                .borrow()
-                .values_indices
-                .borrow()
-                .get(&event.name)
-                .unwrap();
+            .get(&event.name)
+            .unwrap();
 
-            try_write_leb_128(context.borrow_mut().writer.as_mut().unwrap(), index as u32)?;
-        } else {
-            return Err(BxesWriteError::FailedToFindValueIndex(event.name.clone()));
-        };
-    }
+        try_write_leb_128(context.borrow_mut().writer.as_mut().unwrap(), index as u32)?;
+    } else {
+        return Err(BxesWriteError::FailedToFindValueIndex(event.name.clone()));
+    };
 
     try_write_i64_no_type_id(
         context.borrow_mut().writer.as_mut().unwrap(),
         event.timestamp,
     )?;
 
-    try_write_attributes(context, event.attributes.as_ref(), true)
+    try_write_event_attributes(event, context.clone())
+}
+
+fn try_write_event_attributes(event: &BxesEvent, context: Rc<RefCell<BxesWriteContext>>) -> Result<(), BxesWriteError> {
+    let mut values_attrs_count = 0;
+    if let Some(attributes) = event.attributes.as_ref() {
+        if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
+            for value_attribute in value_attributes {
+                let mut found_attr = false;
+                for event_attribute in attributes {
+                    let key = string_or_err(&event_attribute.0.as_ref().as_ref()).ok().unwrap();
+                    if key.as_ref().as_ref() == &value_attribute.name && get_type_id(&event_attribute.1) == value_attribute.type_id {
+                        try_write_value(&mut context.borrow_mut(), &event_attribute.1)?;
+                        found_attr = true;
+                        values_attrs_count += 1;
+                    }
+                }
+
+                if !found_attr {
+                    try_write_value(&mut context.borrow_mut(), &BxesValue::Null)?;
+                }
+            }
+        }
+    }
+
+    let count = count(event.attributes.as_ref()) - values_attrs_count as u32;
+    write_collection_and_count(context.clone(), true, count, || {
+        if let Some(attributes) = event.attributes.as_ref() {
+            for (key, value) in attributes {
+                let should_write = if let Some(set) = context.borrow().value_attributes_set.as_ref() {
+                    let desc = ValueAttributeDescriptor {
+                        name: string_or_err(&key).ok().unwrap().as_ref().as_ref().clone(),
+                        type_id: get_type_id(&value)
+                    };
+
+                    !set.contains(&desc)
+                } else {
+                    true
+                };
+
+                if should_write {
+                    try_write_kv_index(
+                        context.clone(),
+                        &(key.clone(), value.clone()),
+                        true,
+                    )?;
+                }
+            }
+        }
+
+        Ok(())
+    })?;
+
+    Ok(())
 }
 
 pub fn try_write_log_metadata(
@@ -304,12 +357,13 @@ fn try_write_value_index(
     context: Rc<RefCell<BxesWriteContext>>,
     value: Rc<Box<BxesValue>>,
 ) -> Result<(), BxesWriteError> {
-    if !context
+    let exists = context
         .borrow()
         .values_indices
         .borrow()
-        .contains_key(&value)
-    {
+        .contains_key(&value);
+
+    if !exists {
         Err(BxesWriteError::FailedToFindValueIndex(value.clone()))
     } else {
         let index = *context
@@ -318,6 +372,7 @@ fn try_write_value_index(
             .borrow()
             .get(&value)
             .unwrap() as u32;
+
         try_write_u32_no_type_id(context.borrow_mut().writer.as_mut().unwrap(), index)
     }
 }
@@ -356,12 +411,13 @@ pub fn try_write_key_values(
             match value {
                 ValueOrKeyValue::Value(_) => {}
                 ValueOrKeyValue::KeyValue((key, value)) => {
-                    if !context
+                    let exists = context
                         .borrow()
                         .kv_indices
                         .borrow()
-                        .contains_key(&(key.clone(), value.clone()))
-                    {
+                        .contains_key(&(key.clone(), value.clone()));
+
+                    if !exists {
                         let count = context.borrow().kv_indices.borrow().len();
                         let key_index = *context.borrow().values_indices.borrow().get(key).unwrap();
                         let value_index =
@@ -470,7 +526,7 @@ pub fn try_write_values(
         execute_with_kv_pairs(log, |value| {
             match value {
                 ValueOrKeyValue::Value(value) => {
-                    try_write_value(value, &mut context.borrow_mut())?;
+                    try_write_value_if_not_present(value, &mut context.borrow_mut())?;
                 }
                 ValueOrKeyValue::KeyValue(_) => {}
             }
@@ -529,7 +585,7 @@ fn try_tell_pos(writer: &mut BinaryWriter) -> Result<usize, BxesWriteError> {
     }
 }
 
-pub fn try_write_value(
+pub fn try_write_value_if_not_present(
     value: &Rc<Box<BxesValue>>,
     context: &mut BxesWriteContext,
 ) -> Result<bool, BxesWriteError> {
@@ -537,8 +593,19 @@ pub fn try_write_value(
         return Ok(false);
     }
 
-    let value_ref = value.as_ref().as_ref();
-    match value_ref {
+    try_write_value(context, value.as_ref().as_ref())?;
+
+    let len = context.values_indices.borrow().len();
+    context
+        .values_indices
+        .borrow_mut()
+        .insert(value.clone(), len);
+
+    Ok(true)
+}
+
+fn try_write_value(context: &mut BxesWriteContext, value: &BxesValue) -> Result<(), BxesWriteError> {
+    match value {
         BxesValue::Null => try_write_u8_no_type_id(context.writer.as_mut().unwrap(), 0),
         BxesValue::Int32(value) => try_write_i32(context.writer.as_mut().unwrap(), *value),
         BxesValue::Int64(value) => try_write_i64(context.writer.as_mut().unwrap(), *value),
@@ -565,15 +632,7 @@ pub fn try_write_value(
         BxesValue::SoftwareEventType(value) => {
             try_write_software_event_type(context.writer.as_mut().unwrap(), value)
         }
-    }?;
-
-    let len = context.values_indices.borrow().len();
-    context
-        .values_indices
-        .borrow_mut()
-        .insert(value.clone(), len);
-
-    Ok(true)
+    }
 }
 
 pub fn try_write_software_event_type(
@@ -643,7 +702,7 @@ fn get_or_write_value_index(
     value: &Rc<Box<BxesValue>>,
     context: &mut BxesWriteContext,
 ) -> Result<u32, BxesWriteError> {
-    try_write_value(value, context)?;
+    try_write_value_if_not_present(value, context)?;
     let index = *context.values_indices.borrow().get(value).unwrap() as u32;
 
     return Ok(index);

@@ -1,6 +1,6 @@
 use crate::models::domain::type_ids::TypeIds;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub struct ValueAttributeDescriptor {
     pub type_id: TypeIds,
     pub name: String,

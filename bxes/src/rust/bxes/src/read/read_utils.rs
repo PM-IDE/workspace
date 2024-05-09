@@ -171,7 +171,7 @@ pub fn try_read_leb128(reader: &mut BinaryReader) -> Result<u32, BxesReadError> 
     }
 }
 
-fn string_or_err(value: &BxesValue) -> Result<Rc<Box<String>>, BxesReadError> {
+pub fn string_or_err(value: &BxesValue) -> Result<Rc<Box<String>>, BxesReadError> {
     if let BxesValue::String(string) = value {
         Ok(string.clone())
     } else {

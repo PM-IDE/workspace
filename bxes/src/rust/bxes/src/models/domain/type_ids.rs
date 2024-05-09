@@ -1,7 +1,7 @@
 use variant_count::VariantCount;
 use crate::models::domain::bxes_value::BxesValue;
 
-#[derive(FromPrimitive, ToPrimitive, VariantCount, Debug, PartialEq, Eq)]
+#[derive(FromPrimitive, ToPrimitive, VariantCount, Debug, PartialEq, Eq, Hash)]
 pub enum TypeIds {
     Null = 0,
     I32 = 1,
