@@ -2,13 +2,13 @@ from ...ficus.grpc_pipelines.filtering_parts import FilterEventsByName, FilterEv
 
 from ...ficus.grpc_pipelines.xes_parts import ReadLogFromXes
 
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline2
+from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline
 from .pipeline_parts_for_tests import AssertNamesLogTestPart
 from .test_grpc_pipelines import _execute_test_with_exercise_log
 
 
 def test_filter_events_by_name():
-    _execute_test_with_exercise_log('exercise4', Pipeline2(
+    _execute_test_with_exercise_log('exercise4', Pipeline(
         ReadLogFromXes(),
         FilterEventsByName(event_name='a'),
         AssertNamesLogTestPart([
@@ -23,7 +23,7 @@ def test_filter_events_by_name():
 
 
 def test_filter_events_by_regex():
-    _execute_test_with_exercise_log('exercise4', Pipeline2(
+    _execute_test_with_exercise_log('exercise4', Pipeline(
         ReadLogFromXes(),
         FilterEventsByRegex(regex='a|b'),
         AssertNamesLogTestPart([
@@ -38,7 +38,7 @@ def test_filter_events_by_regex():
 
 
 def test_filter_log_by_variants():
-    _execute_test_with_exercise_log('exercise4', Pipeline2(
+    _execute_test_with_exercise_log('exercise4', Pipeline(
         ReadLogFromXes(),
         FilterLogByVariants(),
         AssertNamesLogTestPart([

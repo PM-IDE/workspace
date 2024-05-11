@@ -7,18 +7,18 @@ from ...ficus.legacy.analysis.patterns.patterns_models import UndefinedActivityH
 from ...ficus.grpc_pipelines.data_models import PatternsKind, PatternsDiscoveryStrategy, NarrowActivityKind, \
     ActivityFilterKind, ActivitiesLogsSource
 
-from ...ficus.grpc_pipelines.drawing_parts import TracesDiversityDiagram2
+from ...ficus.grpc_pipelines.drawing_parts import TracesDiversityDiagram
 
 from ...ficus.grpc_pipelines.activities_parts import DiscoverActivities, DiscoverActivitiesInstances, \
     CreateLogFromActivitiesInstances, DiscoverActivitiesForSeveralLevels, DiscoverActivitiesFromPatterns, \
     DiscoverActivitiesUntilNoMore, ExecuteWithEachActivityLog, ClearActivitiesRelatedStuff, \
-    PrintNumberOfUnderlyingEvents2, SubstituteUnderlyingEvents
+    PrintNumberOfUnderlyingEvents, SubstituteUnderlyingEvents
 
-from ...ficus.grpc_pipelines.patterns_parts import FindSuperMaximalRepeats2
+from ...ficus.grpc_pipelines.patterns_parts import FindSuperMaximalRepeats
 
 from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog
 
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline2
+from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline
 from .pipeline_parts_for_tests import AssertNamesLogTestPart
 from .test_grpc_pipelines import _execute_test_with_names_log, _execute_test_with_exercise_log, \
     _execute_test_with_context
@@ -31,9 +31,9 @@ def test_class_extractors():
             ['A.A', 'B.B', 'C', 'A.C', 'B.D'],
             ['A.D', 'B.C', 'C', 'A.A', 'B.B'],
         ],
-        Pipeline2(
+        Pipeline(
             UseNamesEventLog(),
-            FindSuperMaximalRepeats2(strategy=PatternsDiscoveryStrategy.FromAllTraces, class_extractor='^(.*?)\\.'),
+            FindSuperMaximalRepeats(strategy=PatternsDiscoveryStrategy.FromAllTraces, class_extractor='^(.*?)\\.'),
             DiscoverActivities(activity_level=0),
             DiscoverActivitiesInstances(narrow_activities=NarrowActivityKind.NarrowDown),
             CreateLogFromActivitiesInstances(strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
@@ -50,9 +50,9 @@ def test_several_levels():
             ['A.A', 'B.B', 'C', 'D', 'A.C', 'B.D', 'C', 'D'],
             ['A.D', 'B.C', 'C', 'D', 'A.A', 'B.B'],
         ],
-        Pipeline2(
+        Pipeline(
             UseNamesEventLog(),
-            TracesDiversityDiagram2(plot_legend=True, title='InitialLog'),
+            TracesDiversityDiagram(plot_legend=True, title='InitialLog'),
             DiscoverActivitiesForSeveralLevels(event_classes=[r'^(.*?)(?=\.)', '.*'],
                                                patterns_kind=PatternsKind.MaximalRepeats),
             CreateLogFromActivitiesInstances(),
@@ -70,7 +70,7 @@ def test_discover_activities_from_patterns():
             ['A', 'B', 'C', 'A', 'B'],
             ['A', 'B', 'C', 'A', 'B'],
         ],
-        Pipeline2(
+        Pipeline(
             UseNamesEventLog(),
             DiscoverActivitiesFromPatterns(patterns_kind=PatternsKind.MaximalRepeats),
             DiscoverActivitiesInstances(narrow_activities=NarrowActivityKind.NarrowDown),
@@ -86,7 +86,7 @@ def test_discover_activities_until_no_more():
             ['A.A', 'B.B', 'C', 'D', 'A.C', 'B.D', 'C', 'D'],
             ['A.D', 'B.C', 'C', 'D', 'A.A', 'B.B'],
         ],
-        Pipeline2(
+        Pipeline(
             UseNamesEventLog(),
             DiscoverActivitiesUntilNoMore(event_class=r'^(.*?)(?=\.)'),
             AssertNamesLogTestPart([['(A)::(B)::(C)::(D)'], ['(A)::(B)::(C)::(D)']])
@@ -95,19 +95,19 @@ def test_discover_activities_until_no_more():
 
 
 def test_execute_with_each_activity_log():
-    _execute_test_with_exercise_log('exercise4', Pipeline2(
+    _execute_test_with_exercise_log('exercise4', Pipeline(
         ReadLogFromXes(),
         DiscoverActivitiesFromPatterns(patterns_kind=PatternsKind.MaximalRepeats,
                                        strategy=PatternsDiscoveryStrategy.FromSingleMergedTrace),
         DiscoverActivitiesInstances(narrow_activities=NarrowActivityKind.NarrowDown),
-        ExecuteWithEachActivityLog(ActivitiesLogsSource.TracesActivities, 0, Pipeline2(
-            TracesDiversityDiagram2(plot_legend=True)
+        ExecuteWithEachActivityLog(ActivitiesLogsSource.TracesActivities, 0, Pipeline(
+            TracesDiversityDiagram(plot_legend=True)
         ))
     ))
 
 
 def test_console_app1_log():
-    _execute_test_with_context(Pipeline2(
+    _execute_test_with_context(Pipeline(
         ReadLogFromXes(),
         FilterEventsByRegex('Procfiler.*'),
         FilterEventsByRegex(r'GC/SampledObjectAllocation_\{System\.Int32\[\]\}'),
@@ -127,14 +127,14 @@ def test_console_app1_log():
         ClearActivitiesRelatedStuff(),
         DiscoverActivitiesUntilNoMore(strategy=PatternsDiscoveryStrategy.FromSingleMergedTrace,
                                       undef_strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
-        PrintNumberOfUnderlyingEvents2()
+        PrintNumberOfUnderlyingEvents()
     ), {
         'path': StringContextValue(console_app_method2_log_path())
     })
 
 
 def test_console_app1_two_levels_of_abstraction():
-    _execute_test_with_context(Pipeline2(
+    _execute_test_with_context(Pipeline(
         ReadLogFromXes(),
         FilterEventsByRegex('Procfiler.*'),
         FilterEventsByRegex(r'GC/SampledObjectAllocation_\{System\.Int32\[\]\}'),
@@ -154,7 +154,7 @@ def test_console_app1_two_levels_of_abstraction():
         DiscoverActivitiesUntilNoMore(strategy=PatternsDiscoveryStrategy.FromSingleMergedTrace,
                                       activity_filter_kind=ActivityFilterKind.NoFilter,
                                       undef_strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
-        ExecuteWithEachActivityLog(ActivitiesLogsSource.Log, activity_level=2, activity_log_pipeline=Pipeline2(
+        ExecuteWithEachActivityLog(ActivitiesLogsSource.Log, activity_level=2, activity_log_pipeline=Pipeline(
             SubstituteUnderlyingEvents(),
         ))
     ), {

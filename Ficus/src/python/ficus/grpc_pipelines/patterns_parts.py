@@ -28,14 +28,14 @@ class FindTandemArrays(PipelinePart):
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(self.part_type, config))
 
 
-class FindPrimitiveTandemArrays2(FindTandemArrays):
+class FindPrimitiveTandemArrays(FindTandemArrays):
     def __init__(self, max_array_length: int, class_extractor: Optional[str] = None):
         super().__init__(part_type=const_find_primitive_tandem_arrays,
                          max_array_length=max_array_length,
                          class_extractor=class_extractor)
 
 
-class FindMaximalTandemArrays2(FindTandemArrays):
+class FindMaximalTandemArrays(FindTandemArrays):
     def __init__(self, max_array_length: int, class_extractor: Optional[str] = None):
         super().__init__(part_type=const_find_maximal_tandem_arrays,
                          max_array_length=max_array_length,
@@ -61,7 +61,7 @@ class FindRepeats(PipelinePart):
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(self.part_name, config))
 
 
-class FindMaximalRepeats2(FindRepeats):
+class FindMaximalRepeats(FindRepeats):
     def __init__(self,
                  strategy: PatternsDiscoveryStrategy,
                  class_extractor: Optional[str] = None):
@@ -70,7 +70,7 @@ class FindMaximalRepeats2(FindRepeats):
                          class_extractor=class_extractor)
 
 
-class FindSuperMaximalRepeats2(FindRepeats):
+class FindSuperMaximalRepeats(FindRepeats):
     def __init__(self,
                  strategy: PatternsDiscoveryStrategy,
                  class_extractor: Optional[str] = None):
@@ -79,7 +79,7 @@ class FindSuperMaximalRepeats2(FindRepeats):
                          class_extractor=class_extractor)
 
 
-class FindNearSuperMaximalRepeats2(FindRepeats):
+class FindNearSuperMaximalRepeats(FindRepeats):
     def __init__(self,
                  strategy: PatternsDiscoveryStrategy,
                  class_extractor: Optional[str] = None):

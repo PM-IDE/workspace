@@ -20,7 +20,7 @@ from ..legacy.util import performance_cookie
 
 ficus_backend_addr_key = 'backend'
 
-class Pipeline2:
+class Pipeline:
     def __init__(self, *parts):
         self.parts: list['PipelinePart'] = list(parts)
 
@@ -184,7 +184,7 @@ class PipelinePart2WithCanvasCallback(PipelinePartWithCallback):
                                      width_scale=self.width_scale)
 
 
-class PrintEventLogInfo2(PipelinePartWithCallback):
+class PrintEventLogInfo(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
         part = _create_complex_get_context_part(self.uuid, [const_event_log_info], const_get_event_log_info, config)
@@ -268,7 +268,7 @@ def append_adjusting_mode(config: GrpcPipelinePartConfiguration, key: str, value
     append_enum_value(config, key, const_adjusting_mode_enum_name, value.name)
 
 
-def append_pipeline_value(config: GrpcPipelinePartConfiguration, key: str, value: Pipeline2):
+def append_pipeline_value(config: GrpcPipelinePartConfiguration, key: str, value: Pipeline):
     _append_context_value(config, key, PipelineContextValue(value))
 
 
@@ -292,7 +292,7 @@ def append_activities_logs_source(config: GrpcPipelinePartConfiguration, key: st
 
 @dataclass
 class PipelineContextValue(ContextValue):
-    pipeline: Pipeline2
+    pipeline: Pipeline
 
     def to_grpc_context_value(self) -> GrpcContextValue:
         return GrpcContextValue(pipeline=self.pipeline.to_grpc_pipeline())

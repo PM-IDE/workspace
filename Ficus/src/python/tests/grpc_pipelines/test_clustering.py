@@ -6,7 +6,7 @@ from ...ficus.grpc_pipelines.constants import const_labeled_log_traces_dataset, 
 from ...ficus.grpc_pipelines.context_values import from_grpc_labeled_dataset
 from ...ficus.grpc_pipelines.data_models import Distance, PatternsKind, PatternsDiscoveryStrategy, NarrowActivityKind, \
     ActivitiesRepresentationSource
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline2, PipelinePartWithCallback, PipelinePart
+from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline, PipelinePartWithCallback, PipelinePart
 from ...ficus.grpc_pipelines.models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcContextValue
 from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog
 from .test_grpc_pipelines import _execute_test_with_names_log, ResultAssertanceKind
@@ -20,7 +20,7 @@ def test_traces_dataset_1():
             ['A', 'B', 'D', 'B', 'D', 'B', 'C'],
         ],
         ClusterizeLogTracesDbscan(
-            after_clusterization_pipeline=Pipeline2(),
+            after_clusterization_pipeline=Pipeline(),
             min_events_count_in_cluster=2,
         ),
         ['A', 'B', 'C', 'D', 'cluster_labels'],
@@ -44,7 +44,7 @@ def test_traces_dataset_2():
             ['A', 'B', 'B', 'B', 'B', 'C'],
         ],
         ClusterizeLogTracesDbscan(
-            after_clusterization_pipeline=Pipeline2(),
+            after_clusterization_pipeline=Pipeline(),
             min_events_count_in_cluster=2,
         ),
         ['A', 'B', 'C', 'cluster_labels'],
@@ -68,7 +68,7 @@ def test_traces_dataset_3():
             ['A', 'B', 'C', 'C', 'C', 'C', 'B', 'D'],
         ],
         ClusterizeLogTracesDbscan(
-            after_clusterization_pipeline=Pipeline2(),
+            after_clusterization_pipeline=Pipeline(),
             min_events_count_in_cluster=2,
         ),
         ['A', 'B', 'C', 'D', 'cluster_labels'],
@@ -90,7 +90,7 @@ def test_traces_dataset_4():
             ['A', 'B', 'D', 'B', 'D', 'B', 'C'],
         ],
         ClusterizeLogTracesDbscan(
-            after_clusterization_pipeline=Pipeline2(),
+            after_clusterization_pipeline=Pipeline(),
             min_events_count_in_cluster=2,
             distance=Distance.Levenshtein
         ),
@@ -115,7 +115,7 @@ def test_traces_dataset_5():
             ['A', 'B', 'B', 'B', 'B', 'C'],
         ],
         ClusterizeLogTracesDbscan(
-            after_clusterization_pipeline=Pipeline2(),
+            after_clusterization_pipeline=Pipeline(),
             min_events_count_in_cluster=2,
             distance=Distance.Levenshtein
         ),
@@ -140,7 +140,7 @@ def test_traces_dataset_6():
             ['A', 'B', 'C', 'C', 'C', 'C', 'B', 'D'],
         ],
         ClusterizeLogTracesDbscan(
-            after_clusterization_pipeline=Pipeline2(),
+            after_clusterization_pipeline=Pipeline(),
             min_events_count_in_cluster=2,
             distance=Distance.Levenshtein
         ),
@@ -165,7 +165,7 @@ def test_traces_dataset_7():
             ['X.D', 'X.Q', 'Y.E', 'Z.R', 'a', 'X.P', 'X.E', 'Y.V', 'Z.D'],
             ['X.A', 'Q.D', 'Z.E', 'Z.R', 'b', 'X.F', 'Q.G', 'Z.W', 'Z.A'],
         ],
-        ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline2(),
+        ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline(),
                                   min_events_count_in_cluster=2,
                                   tolerance=0.7,
                                   class_extractor=r'^(.*?)(?=\.)',
@@ -192,7 +192,7 @@ def test_traces_dataset_8():
             ['X.D', 'X.Q', 'Y.E', 'Z.R', 'a', 'X.P', 'X.E', 'Y.V', 'Z.D'],
             ['X.A', 'Q.D', 'Z.E', 'Z.R', 'b', 'X.F', 'Q.G', 'Z.W', 'Z.A'],
         ],
-        ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline2(),
+        ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline(),
                                   min_events_count_in_cluster=2,
                                   tolerance=5,
                                   class_extractor=r'^(.*?)(?=\.)',
@@ -214,7 +214,7 @@ def test_traces_dataset_8():
 def test_levenshtein_in_activities_clustering():
     _execute_test_with_names_log(
         [],
-        Pipeline2(
+        Pipeline(
             UseNamesEventLog(),
             DiscoverActivitiesFromPatterns(patterns_kind=PatternsKind.MaximalRepeats,
                                            strategy=PatternsDiscoveryStrategy.FromSingleMergedTrace),
@@ -384,7 +384,7 @@ def execute_test_with_activities_dataset(names_log,
                                          assertance_kind=ResultAssertanceKind.Success):
     _execute_test_with_names_log(
         names_log,
-        Pipeline2(
+        Pipeline(
             UseNamesEventLog(),
             DiscoverActivitiesForSeveralLevels(event_classes=['.*'],
                                                patterns_kind=PatternsKind.MaximalRepeats),
@@ -408,7 +408,7 @@ def execute_test_with_traces_dataset(names_log,
                                      assertance_kind=ResultAssertanceKind.Success):
     _execute_test_with_names_log(
         names_log,
-        Pipeline2(
+        Pipeline(
             UseNamesEventLog(),
             TestDatasetPipelinePart(clusterization_pipeline,
                                     expected_columns,

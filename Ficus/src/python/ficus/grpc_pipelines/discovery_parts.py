@@ -105,7 +105,7 @@ class SerializePetriNetToPNML(PipelinePart):
             defaultPart=_create_default_pipeline_part(const_serialize_petri_net_to_pnml, config))
 
 
-class ViewGraphLikeFormalismPart2(PipelinePartWithCallback):
+class ViewGraphLikeFormalismPart(PipelinePartWithCallback):
     def __init__(self,
                  name: str = 'petri_net',
                  background_color: str = 'white',
@@ -128,7 +128,7 @@ class ViewGraphLikeFormalismPart2(PipelinePartWithCallback):
                    export_path=self.export_path)
 
 
-class ViewPetriNet2(ViewGraphLikeFormalismPart2):
+class ViewPetriNet(ViewGraphLikeFormalismPart):
     def __init__(self,
                  show_places_names: bool = False,
                  name: str = 'petri_net',
@@ -156,7 +156,7 @@ class ViewPetriNet2(ViewGraphLikeFormalismPart2):
                        annotation=self.annotation)
 
 
-class ViewDirectlyFollowsGraph2(ViewGraphLikeFormalismPart2):
+class ViewDirectlyFollowsGraph(ViewGraphLikeFormalismPart):
     def __init__(self,
                  name: str = 'dfg_graph',
                  background_color: str = 'white',
@@ -173,7 +173,7 @@ class ViewDirectlyFollowsGraph2(ViewGraphLikeFormalismPart2):
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class ViewGraph2(ViewGraphLikeFormalismPart2):
+class ViewGraph(ViewGraphLikeFormalismPart):
     def __init__(self,
                  name: str = 'dfg_graph',
                  background_color: str = 'white',
@@ -187,7 +187,7 @@ class ViewGraph2(ViewGraphLikeFormalismPart2):
         return GrpcPipelinePartBase(simpleContextRequestPart=part)
 
 
-class AnnotatePetriNet2(ViewPetriNet2):
+class AnnotatePetriNet(ViewPetriNet):
     def __init__(self,
                  annotation_key: str,
                  annotation_pipeline_part: str,
@@ -229,7 +229,7 @@ class AnnotatePetriNet2(ViewPetriNet2):
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class AnnotatePetriNetWithCount2(AnnotatePetriNet2):
+class AnnotatePetriNetWithCount(AnnotatePetriNet):
     def __init__(self,
                  terminate_on_unreplayable_trace: bool = False,
                  show_places_names: bool = False,
@@ -247,7 +247,7 @@ class AnnotatePetriNetWithCount2(AnnotatePetriNet2):
         return from_grpc_count_annotation(context_value.count_annotation)
 
 
-class AnnotatePetriNetWithFrequency2(AnnotatePetriNet2):
+class AnnotatePetriNetWithFrequency(AnnotatePetriNet):
     def __init__(self,
                  terminate_on_unreplayable_trace: bool = False,
                  show_places_names: bool = False,
@@ -265,7 +265,7 @@ class AnnotatePetriNetWithFrequency2(AnnotatePetriNet2):
         return from_grpc_frequency_annotation(context_value.frequency_annotation)
 
 
-class AnnotatePetriNetWithTraceFrequency2(AnnotatePetriNet2):
+class AnnotatePetriNetWithTraceFrequency(AnnotatePetriNet):
     def __init__(self,
                  terminate_on_unreplayable_trace: bool = False,
                  show_places_names: bool = False,

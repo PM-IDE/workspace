@@ -4,8 +4,8 @@ from .grpc_pipelines import *
 from .grpc_pipelines import _create_default_pipeline_part, _create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
     GrpcContextValue
-from .patterns_parts import FindMaximalRepeats2, \
-    FindSuperMaximalRepeats2, FindNearSuperMaximalRepeats2, FindPrimitiveTandemArrays2, FindMaximalTandemArrays2
+from .patterns_parts import FindMaximalRepeats, \
+    FindSuperMaximalRepeats, FindNearSuperMaximalRepeats, FindPrimitiveTandemArrays, FindMaximalTandemArrays
 from ..legacy.analysis.event_log_analysis import NComponents, visualize_dataset_pca, \
     visualize_dataset_isomap, DatasetVisualizationMethod, visualize_dataset_mds, visualize_dataset_tsne
 from ..legacy.pipelines.analysis.patterns.models import AdjustingMode
@@ -112,20 +112,20 @@ class DiscoverActivitiesFromPatterns(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         match self.patterns_kind:
             case PatternsKind.MaximalRepeats:
-                patterns_part = FindMaximalRepeats2(strategy=self.strategy)
+                patterns_part = FindMaximalRepeats(strategy=self.strategy)
             case PatternsKind.SuperMaximalRepeats:
-                patterns_part = FindSuperMaximalRepeats2(strategy=self.strategy)
+                patterns_part = FindSuperMaximalRepeats(strategy=self.strategy)
             case PatternsKind.NearSuperMaximalRepeats:
-                patterns_part = FindNearSuperMaximalRepeats2(strategy=self.strategy)
+                patterns_part = FindNearSuperMaximalRepeats(strategy=self.strategy)
             case PatternsKind.PrimitiveTandemArrays:
-                patterns_part = FindPrimitiveTandemArrays2(max_array_length=self.max_array_length)
+                patterns_part = FindPrimitiveTandemArrays(max_array_length=self.max_array_length)
             case PatternsKind.MaximalTandemArrays:
-                patterns_part = FindMaximalTandemArrays2(max_array_length=self.max_array_length)
+                patterns_part = FindMaximalTandemArrays(max_array_length=self.max_array_length)
             case _:
                 print(f"Unknown patterns_kind: {self.patterns_kind}")
                 raise ValueError()
 
-        pipeline = Pipeline2(
+        pipeline = Pipeline(
             patterns_part,
             DiscoverActivities(activity_level=self.activity_level),
         )
@@ -150,7 +150,7 @@ class DiscoverActivitiesUntilNoMore(PipelinePart):
                  min_events_in_unattached_subtrace_count: int = 0,
                  min_events_in_activity_count: int = 0,
                  activity_filter_kind: ActivityFilterKind = ActivityFilterKind.DefaultFilter,
-                 after_activities_extraction_pipeline: Optional[Pipeline2] = None,
+                 after_activities_extraction_pipeline: Optional[Pipeline] = None,
                  execute_only_on_last_extraction: bool = False):
         super().__init__()
         self.event_class = event_class
@@ -199,7 +199,7 @@ class DiscoverActivitiesUntilNoMore(PipelinePart):
 
 class ExecuteWithEachActivityLog(PipelinePart):
     def __init__(self, activities_logs_source: ActivitiesLogsSource, activity_level: int,
-                 activity_log_pipeline: Pipeline2):
+                 activity_log_pipeline: Pipeline):
         super().__init__()
         self.activity_level = activity_level
         self.activity_log_pipeline = activity_log_pipeline
@@ -229,7 +229,7 @@ class ClearActivitiesRelatedStuff(PipelinePart):
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_clear_activities_related_stuff))
 
 
-class PrintNumberOfUnderlyingEvents2(PipelinePartWithCallback):
+class PrintNumberOfUnderlyingEvents(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         part = _create_complex_get_context_part(self.uuid,
                                                 [const_underlying_events_count],
@@ -257,7 +257,7 @@ class ApplyClassExtractor(PipelinePart):
         return GrpcPipelinePartBase(defaultPart=part)
 
 
-class ClusterizationPartWithVisualization2(PipelinePartWithCallback):
+class ClusterizationPartWithVisualization(PipelinePartWithCallback):
     def __init__(self,
                  show_visualization: bool,
                  fig_size: (int, int),
@@ -312,7 +312,7 @@ def get_visualization_function(method: DatasetVisualizationMethod):
     raise KeyError()
 
 
-class ClusterizationPart2(ClusterizationPartWithVisualization2):
+class ClusterizationPart(ClusterizationPartWithVisualization):
     def __init__(self,
                  activity_level: int,
                  tolerance: float,
@@ -358,7 +358,7 @@ class ClusterizationPart2(ClusterizationPartWithVisualization2):
         return config
 
 
-class ClusterizeActivitiesFromTracesKMeans(ClusterizationPart2):
+class ClusterizeActivitiesFromTracesKMeans(ClusterizationPart):
     def __init__(self,
                  activity_level: int = 0,
                  clusters_count: int = 10,
@@ -395,7 +395,7 @@ class ClusterizeActivitiesFromTracesKMeans(ClusterizationPart2):
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class ClusterizeActivitiesFromTracesKMeansGridSearch(ClusterizationPart2):
+class ClusterizeActivitiesFromTracesKMeansGridSearch(ClusterizationPart):
     def __init__(self,
                  activity_level: int = 0,
                  learning_iterations_count: int = 200,
@@ -429,7 +429,7 @@ class ClusterizeActivitiesFromTracesKMeansGridSearch(ClusterizationPart2):
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart2):
+class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart):
     def __init__(self,
                  activity_level: int = 0,
                  min_events_count_in_cluster: int = 1,
@@ -464,7 +464,7 @@ class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart2):
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class VisualizeTracesActivities2(PipelinePartWithCallback):
+class VisualizeTracesActivities(PipelinePartWithCallback):
     def __init__(self,
                  activity_level: int = 0,
                  class_extractor: Optional[str] = None,
@@ -516,9 +516,9 @@ class VisualizeTracesActivities2(PipelinePartWithCallback):
                  self.font_size, self.legend_cols, self.save_path, None)
 
 
-class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization2):
+class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
     def __init__(self,
-                 after_clusterization_pipeline: Pipeline2,
+                 after_clusterization_pipeline: Pipeline,
                  min_events_count_in_cluster: int = 1,
                  tolerance: float = 1e-5,
                  show_visualization: bool = True,

@@ -11,7 +11,7 @@ from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipeline
     GrpcContextKeyValue, GrpcContextKey
 
 
-class TracesDiversityDiagram2(PipelinePart2WithDrawColorsLogCallback):
+class TracesDiversityDiagram(PipelinePart2WithDrawColorsLogCallback):
     def __init__(self,
                  title: Optional[str] = None,
                  save_path: str = None,
@@ -55,7 +55,7 @@ class TracesDiversityDiagram2Canvas(PipelinePart2WithCanvasCallback):
         return _create_traces_diversity_grpc_part(self.uuid)
 
 
-class DrawPlacementsOfEventByName2(PipelinePart2WithDrawColorsLogCallback):
+class DrawPlacementsOfEventByName(PipelinePart2WithDrawColorsLogCallback):
     def __init__(self,
                  event_name: str,
                  title: str = None,
@@ -107,7 +107,7 @@ class DrawPlacementsOfEventByName2Canvas(TracesDiversityDiagram2Canvas):
         return _create_draw_placements_of_events_by_name_grpc_part(self.uuid, self.event_name)
 
 
-class DrawPlacementOfEventsByRegex2(PipelinePart2WithDrawColorsLogCallback):
+class DrawPlacementOfEventsByRegex(PipelinePart2WithDrawColorsLogCallback):
     def __init__(self,
                  regex: str,
                  title: str = None,
@@ -156,7 +156,7 @@ class DrawPlacementOfEventsByRegex2Canvas(TracesDiversityDiagram2Canvas):
         return _create_draw_placements_of_events_by_regex_grpc_part(self.uuid, self.regex)
 
 
-class DrawActivitiesDiagramBase2(PipelinePart2WithDrawColorsLogCallback):
+class DrawActivitiesDiagramBase(PipelinePart2WithDrawColorsLogCallback):
     def __init__(self,
                  diagram_kind: str,
                  title: str = None,
@@ -202,7 +202,7 @@ class DrawActivitiesDiagramBase2Canvas(TracesDiversityDiagram2Canvas):
         return _create_draw_activities_diagram_grpc_part(self.uuid, self.diagram_kind)
 
 
-class DrawFullActivitiesDiagram2(DrawActivitiesDiagramBase2):
+class DrawFullActivitiesDiagram(DrawActivitiesDiagramBase):
     def __init__(self,
                  title: str = None,
                  save_path: str = None,
@@ -232,7 +232,7 @@ class DrawFullActivitiesDiagram2Canvas(DrawActivitiesDiagramBase2Canvas):
                          height_scale=height_scale)
 
 
-class DrawShortActivitiesDiagram2(DrawActivitiesDiagramBase2):
+class DrawShortActivitiesDiagram(DrawActivitiesDiagramBase):
     def __init__(self,
                  title: str = None,
                  save_path: str = None,
