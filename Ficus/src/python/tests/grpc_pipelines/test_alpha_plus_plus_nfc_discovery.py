@@ -1,4 +1,4 @@
-from ...ficus.grpc_pipelines.discovery_parts import DiscoverPetriNetAlphaPlusPlusNfc2
+from ...ficus.grpc_pipelines.discovery_parts import DiscoverPetriNetAlphaPlusPlusNfc
 
 from .discovery_test_core import _execute_discovery_test
 
@@ -13,7 +13,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc():
             ['A', 'D', 'E', 'B', 'C'],
             ['A', 'B', 'D', 'E', 'D', 'E', 'C']
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -25,7 +25,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_2():
             ['A', 'C', 'B', 'E'],
             ['A', 'D', 'E']
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -40,7 +40,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_3():
             ['A', 'F', 'B', 'G', 'C', 'E'],
             ['A', 'F', 'D', 'G', 'E'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -53,7 +53,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_4():
             ['A', 'F', 'C', 'E'],
             ['A', 'C', 'F', 'E'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -65,7 +65,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_5():
             ['A', 'B', 'D', 'E'],
             ['A', 'D', 'B', 'E'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -78,7 +78,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_6():
             ['B', 'C', 'D'],
             ['B', 'C', 'E'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -89,7 +89,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_7():
             ['A', 'C', 'D'],
             ['B', 'C', 'E'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -102,7 +102,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_8():
             ['B', 'C', 'G', 'E'],
             ['B', 'G', 'C', 'E'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -114,7 +114,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_9():
             ['B', 'C', 'F', 'E'],
             ['B', 'F', 'C', 'E'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -124,7 +124,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_10():
         [
             ['A', 'C', 'E', 'B', 'C', 'D'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -137,7 +137,7 @@ def test_discover_petri_net_alpha_plus_plus_nfc_11():
             ['A', 'C', 'G', 'D', 'E', 'H'],
             ['B', 'C', 'D', 'F', 'H'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )
 
 
@@ -153,5 +153,5 @@ def test_discover_petri_net_alpha_plus_plus_nfc_13():
             ['A', 'D', 'E', 'D', 'E', 'B', 'G'],
             ['A', 'B', 'D', 'E', 'C'],
         ],
-        DiscoverPetriNetAlphaPlusPlusNfc2()
+        DiscoverPetriNetAlphaPlusPlusNfc()
     )

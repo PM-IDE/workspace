@@ -11,7 +11,7 @@ from ..legacy.analysis.event_log_analysis import NComponents, visualize_dataset_
 from ..legacy.pipelines.analysis.patterns.models import AdjustingMode
 
 
-class DiscoverActivities2(PipelinePart2):
+class DiscoverActivities(PipelinePart):
     def __init__(self, activity_level: int):
         super().__init__()
         self.activity_level = activity_level
@@ -22,7 +22,7 @@ class DiscoverActivities2(PipelinePart2):
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_discover_activities, config))
 
 
-class DiscoverActivitiesInstances2(PipelinePart2):
+class DiscoverActivitiesInstances(PipelinePart):
     def __init__(self,
                  narrow_activities: NarrowActivityKind = NarrowActivityKind.NarrowDown,
                  min_events_in_activity: int = 0,
@@ -42,7 +42,7 @@ class DiscoverActivitiesInstances2(PipelinePart2):
             defaultPart=_create_default_pipeline_part(const_discover_activities_instances, config))
 
 
-class CreateLogFromActivitiesInstances2(PipelinePart2):
+class CreateLogFromActivitiesInstances(PipelinePart):
     def __init__(self,
                  strategy: UndefinedActivityHandlingStrategy = UndefinedActivityHandlingStrategy.DontInsert):
         super().__init__()
@@ -55,7 +55,7 @@ class CreateLogFromActivitiesInstances2(PipelinePart2):
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_create_log_from_activities, config))
 
 
-class DiscoverActivitiesForSeveralLevels2(PipelinePart2):
+class DiscoverActivitiesForSeveralLevels(PipelinePart):
     def __init__(self,
                  event_classes: list[str],
                  patterns_kind: PatternsKind,
@@ -97,7 +97,7 @@ class DiscoverActivitiesForSeveralLevels2(PipelinePart2):
         return GrpcPipelinePartBase(defaultPart=default_part)
 
 
-class DiscoverActivitiesFromPatterns2(PipelinePart2):
+class DiscoverActivitiesFromPatterns(PipelinePart):
     def __init__(self,
                  patterns_kind: PatternsKind,
                  strategy: PatternsDiscoveryStrategy = PatternsDiscoveryStrategy.FromAllTraces,
@@ -127,7 +127,7 @@ class DiscoverActivitiesFromPatterns2(PipelinePart2):
 
         pipeline = Pipeline2(
             patterns_part,
-            DiscoverActivities2(activity_level=self.activity_level),
+            DiscoverActivities(activity_level=self.activity_level),
         )
 
         config = GrpcPipelinePartConfiguration()
@@ -137,7 +137,7 @@ class DiscoverActivitiesFromPatterns2(PipelinePart2):
         return GrpcPipelinePartBase(defaultPart=default_part)
 
 
-class DiscoverActivitiesUntilNoMore2(PipelinePart2):
+class DiscoverActivitiesUntilNoMore(PipelinePart):
     def __init__(self,
                  event_class: str = None,
                  patterns_kind: PatternsKind = PatternsKind.MaximalRepeats,
@@ -190,14 +190,14 @@ class DiscoverActivitiesUntilNoMore2(PipelinePart2):
         default_part = _create_default_pipeline_part(const_discover_activities_until_no_more, config)
         return GrpcPipelinePartBase(defaultPart=default_part)
 
-    def append_parts_with_callbacks(self, parts: list['PipelinePart2WithCallback']):
+    def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
 
         if self.after_activities_extraction_pipeline is not None:
             self.after_activities_extraction_pipeline.append_parts_with_callbacks(parts)
 
 
-class ExecuteWithEachActivityLog2(PipelinePart2):
+class ExecuteWithEachActivityLog(PipelinePart):
     def __init__(self, activities_logs_source: ActivitiesLogsSource, activity_level: int,
                  activity_log_pipeline: Pipeline2):
         super().__init__()
@@ -214,22 +214,22 @@ class ExecuteWithEachActivityLog2(PipelinePart2):
         default_part = _create_default_pipeline_part(const_execute_with_each_activity_log, config)
         return GrpcPipelinePartBase(defaultPart=default_part)
 
-    def append_parts_with_callbacks(self, parts: list['PipelinePart2WithCallback']):
+    def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
         self.activity_log_pipeline.append_parts_with_callbacks(parts)
 
 
-class SubstituteUnderlyingEvents2(PipelinePart2):
+class SubstituteUnderlyingEvents(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_substitute_underlying_events))
 
 
-class ClearActivitiesRelatedStuff2(PipelinePart2):
+class ClearActivitiesRelatedStuff(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_clear_activities_related_stuff))
 
 
-class PrintNumberOfUnderlyingEvents2(PipelinePart2WithCallback):
+class PrintNumberOfUnderlyingEvents2(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         part = _create_complex_get_context_part(self.uuid,
                                                 [const_underlying_events_count],
@@ -242,7 +242,7 @@ class PrintNumberOfUnderlyingEvents2(PipelinePart2WithCallback):
         print(f'Underlying events count: {values[const_underlying_events_count].uint32}')
 
 
-class ApplyClassExtractor2(PipelinePart2):
+class ApplyClassExtractor(PipelinePart):
     def __init__(self, class_extractor_regex: str, filter_regex: str = ".*"):
         super().__init__()
         self.class_extractor_regex = class_extractor_regex
@@ -257,7 +257,7 @@ class ApplyClassExtractor2(PipelinePart2):
         return GrpcPipelinePartBase(defaultPart=part)
 
 
-class ClusterizationPartWithVisualization2(PipelinePart2WithCallback):
+class ClusterizationPartWithVisualization2(PipelinePartWithCallback):
     def __init__(self,
                  show_visualization: bool,
                  fig_size: (int, int),
@@ -464,7 +464,7 @@ class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart2):
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class VisualizeTracesActivities2(PipelinePart2WithCallback):
+class VisualizeTracesActivities2(PipelinePartWithCallback):
     def __init__(self,
                  activity_level: int = 0,
                  class_extractor: Optional[str] = None,
@@ -570,6 +570,6 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization2):
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
-    def append_parts_with_callbacks(self, parts: list['PipelinePart2WithCallback']):
+    def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
         self.after_clusterization_pipeline.append_parts_with_callbacks(parts)

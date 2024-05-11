@@ -8,7 +8,7 @@ from .grpc_pipelines import _create_default_pipeline_part, _create_simple_get_co
 from .models.pipelines_and_context_pb2 import *
 
 
-class DiscoverPetriNetAlpha2(PipelinePart2):
+class DiscoverPetriNetAlpha(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return _create_default_discovery_part(const_discover_petri_net_alpha)
 
@@ -18,22 +18,22 @@ def _create_default_discovery_part(algo_name: str) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(algo_name, config))
 
 
-class DiscoverPetriNetAlphaPlus2(PipelinePart2):
+class DiscoverPetriNetAlphaPlus(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return _create_default_discovery_part(const_discover_petri_net_alpha_plus)
 
 
-class DiscoverPetriNetAlphaPlusPlus2(PipelinePart2):
+class DiscoverPetriNetAlphaPlusPlus(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return _create_default_discovery_part(const_discover_petri_net_alpha_plus_plus)
 
 
-class DiscoverPetriNetAlphaPlusPlusNfc2(PipelinePart2):
+class DiscoverPetriNetAlphaPlusPlusNfc(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return _create_default_discovery_part(const_discover_petri_net_alpha_plus_plus_nfc)
 
 
-class DiscoverPetriNetHeuristic2(PipelinePart2):
+class DiscoverPetriNetHeuristic(PipelinePart):
     def __init__(self,
                  dependency_threshold: float = 0.5,
                  positive_observations_threshold: int = 1,
@@ -59,7 +59,7 @@ class DiscoverPetriNetHeuristic2(PipelinePart2):
             defaultPart=_create_default_pipeline_part(const_discover_petri_net_heuristic, config))
 
 
-class DiscoverFuzzyGraph(PipelinePart2):
+class DiscoverFuzzyGraph(PipelinePart):
     def __init__(self,
                  unary_frequency_threshold: float = 0.0,
                  binary_significance_threshold: float = 0.0,
@@ -90,7 +90,7 @@ class DiscoverFuzzyGraph(PipelinePart2):
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_discover_graph_fuzzy, config))
 
 
-class SerializePetriNetToPNML2(PipelinePart2):
+class SerializePetriNetToPNML(PipelinePart):
     def __init__(self, save_path, use_names_as_ids: bool = False):
         super().__init__()
         self.save_path = save_path
@@ -105,7 +105,7 @@ class SerializePetriNetToPNML2(PipelinePart2):
             defaultPart=_create_default_pipeline_part(const_serialize_petri_net_to_pnml, config))
 
 
-class ViewGraphLikeFormalismPart2(PipelinePart2WithCallback):
+class ViewGraphLikeFormalismPart2(PipelinePartWithCallback):
     def __init__(self,
                  name: str = 'petri_net',
                  background_color: str = 'white',
@@ -283,6 +283,6 @@ class AnnotatePetriNetWithTraceFrequency2(AnnotatePetriNet2):
         return from_grpc_frequency_annotation(context_value.frequency_annotation)
 
 
-class EnsureInitialMarking(PipelinePart2):
+class EnsureInitialMarking(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_ensure_initial_marking))

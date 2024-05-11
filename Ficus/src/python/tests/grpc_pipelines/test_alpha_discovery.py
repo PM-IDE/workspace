@@ -1,4 +1,4 @@
-from ...ficus.grpc_pipelines.discovery_parts import DiscoverPetriNetAlpha2
+from ...ficus.grpc_pipelines.discovery_parts import DiscoverPetriNetAlpha
 
 from .discovery_test_core import _execute_discovery_test
 
@@ -10,7 +10,7 @@ def test_discover_petri_net_alpha():
             ['A', 'B', 'C', 'D'],
             ['A', 'B', 'E', 'D']
         ],
-        DiscoverPetriNetAlpha2(),
+        DiscoverPetriNetAlpha(),
     )
 
 
@@ -24,7 +24,7 @@ def test_discover_petri_net_alpha2():
             ['A', 'B', 'B', 'B', 'C'],
             ['A', 'B', 'B', 'B', 'B', 'C'],
         ],
-        DiscoverPetriNetAlpha2(),
+        DiscoverPetriNetAlpha(),
     )
 
 
@@ -36,7 +36,7 @@ def test_discover_petri_net_alpha3():
             ['A', 'B', 'D', 'B', 'C'],
             ['A', 'B', 'D', 'B', 'D', 'B', 'C'],
         ],
-        DiscoverPetriNetAlpha2(),
+        DiscoverPetriNetAlpha(),
     )
 
 
@@ -48,7 +48,7 @@ def test_discover_petri_net_alpha4():
             ['A', 'C', 'B', 'D'],
             ['E', 'F'],
         ],
-        DiscoverPetriNetAlpha2()
+        DiscoverPetriNetAlpha()
     )
 
 
@@ -60,7 +60,7 @@ def test_discover_petri_net_alpha5():
             ['A', 'C', 'B', 'D'],
             ['A', 'E', 'D'],
         ],
-        DiscoverPetriNetAlpha2()
+        DiscoverPetriNetAlpha()
     )
 
 
@@ -72,7 +72,7 @@ def test_discover_petri_net_alpha6():
             ['A', 'B', 'C', 'C', 'E', 'D'],
             ['A', 'E', 'C', 'C', 'D'],
         ],
-        DiscoverPetriNetAlpha2()
+        DiscoverPetriNetAlpha()
     )
 
 
@@ -84,7 +84,7 @@ def test_discover_petri_net_alpha7():
             ['A', 'C', 'C', 'B', 'B', 'D'],
             ['A', 'C', 'C', 'D'],
         ],
-        DiscoverPetriNetAlpha2()
+        DiscoverPetriNetAlpha()
     )
 
 
@@ -96,5 +96,5 @@ def test_discover_petri_net_alpha8():
             ['A', 'B', 'C', 'C', 'B', 'D'],
             ['A', 'B', 'C', 'C', 'C', 'C', 'B', 'D'],
         ],
-        DiscoverPetriNetAlpha2()
+        DiscoverPetriNetAlpha()
     )
