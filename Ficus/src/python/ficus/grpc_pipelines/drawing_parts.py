@@ -38,7 +38,7 @@ def _create_traces_diversity_grpc_part(uuid: uuid.UUID):
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class TracesDiversityDiagram2Canvas(PipelinePart2WithCanvasCallback):
+class TracesDiversityDiagramCanvas(PipelinePart2WithCanvasCallback):
     def __init__(self,
                  save_path: Optional[str] = None,
                  plot_legend: bool = False,
@@ -87,7 +87,7 @@ def _create_draw_placements_of_events_by_name_grpc_part(uuid: uuid.UUID, event_n
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class DrawPlacementsOfEventByName2Canvas(TracesDiversityDiagram2Canvas):
+class DrawPlacementsOfEventByNameCanvas(TracesDiversityDiagramCanvas):
     def __init__(self,
                  event_name: str,
                  save_path: str = None,
@@ -136,7 +136,7 @@ def _create_draw_placements_of_events_by_regex_grpc_part(uuid: uuid.UUID, regex:
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class DrawPlacementOfEventsByRegex2Canvas(TracesDiversityDiagram2Canvas):
+class DrawPlacementOfEventsByRegexCanvas(TracesDiversityDiagramCanvas):
     def __init__(self,
                  regex: str,
                  save_path: str = None,
@@ -182,7 +182,7 @@ def _create_draw_activities_diagram_grpc_part(uuid: uuid.UUID, diagram_kind: str
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class DrawActivitiesDiagramBase2Canvas(TracesDiversityDiagram2Canvas):
+class DrawActivitiesDiagramBaseCanvas(TracesDiversityDiagramCanvas):
     def __init__(self,
                  diagram_kind: str,
                  save_path: str = None,
@@ -217,7 +217,7 @@ class DrawFullActivitiesDiagram(DrawActivitiesDiagramBase):
                          width_scale=width_scale)
 
 
-class DrawFullActivitiesDiagram2Canvas(DrawActivitiesDiagramBase2Canvas):
+class DrawFullActivitiesDiagramCanvas(DrawActivitiesDiagramBaseCanvas):
     def __init__(self,
                  save_path: str = None,
                  plot_legend: bool = False,
@@ -247,7 +247,7 @@ class DrawShortActivitiesDiagram(DrawActivitiesDiagramBase):
                          width_scale=width_scale)
 
 
-class DrawShortActivitiesDiagram2Canvas(DrawActivitiesDiagramBase2Canvas):
+class DrawShortActivitiesDiagramCanvas(DrawActivitiesDiagramBaseCanvas):
     def __init__(self,
                  save_path: str = None,
                  plot_legend: bool = False,
