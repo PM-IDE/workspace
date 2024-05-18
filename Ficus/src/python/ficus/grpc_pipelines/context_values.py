@@ -210,7 +210,7 @@ def from_grpc_count_annotation(grpc_annotation: GrpcCountAnnotation) -> dict[int
 def from_grpc_frequency_annotation(grpc_annotation: GrpcFrequenciesAnnotation) -> dict[int, str]:
     map = dict()
     for annotation in grpc_annotation.annotations:
-        map[annotation.entityId] = str(annotation.frequency)
+        map[annotation.entityId] = f'{annotation.frequency:.3f}'
 
     return map
 
