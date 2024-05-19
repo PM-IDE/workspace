@@ -45,15 +45,15 @@
 
     <ItemGroup>
       <Reference Include="Bxes">
-        <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\Debug\net8.0\Bxes.dll</HintPath>
+        <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\$(Configuration)\net8.0\Bxes.dll</HintPath>
       </Reference>
     </ItemGroup>
 
     <Target Name="BuildCppProcfiler" AfterTargets="Build">
-        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)..\cpp\"/>
+        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\"/>
     </Target>
 
     <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfiler" Outputs="$(OutputPath)CppProcfiler.dll">
-        <Copy SourceFiles="$(SolutionDir)..\cpp\build\Release\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="$(SolutionDir)\..\cpp\build\Release\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
     </Target>
 </Project>

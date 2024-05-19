@@ -1,6 +1,6 @@
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.Processes.Build;
+using Procfiler.Core.Processes.Builder;
 
 namespace Procfiler.Core.Processes;
 
