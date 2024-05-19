@@ -48,7 +48,7 @@ jobs:
       - name: Build and unit test Procfiler
         run: |
              dotnet build ./bxes/src/csharp/ /p:Configuration=Release /p:Platform="Any CPU"
-             dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks /p:Configuration=Release /p:Platform="Any CPU"
+             dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks --no-dependencies /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ /p:Configuration=Release /p:Platform="Any CPU"
-             dotnet build ./Procfiler/src/dotnet/ProcfilerTests /p:Configuration=Release /p:Platform="Any CPU"
-             dotnet test ./Procfiler/src/dotnet/ProcfilerTests --no-build --no-restore
+             dotnet build ./Procfiler/src/dotnet/ProcfilerTests --no-dependencies /p:Configuration=Release /p:Platform="Any CPU"
+             dotnet test ./Procfiler/src/dotnet/ProcfilerTests --no-build --no-restore -c Release
