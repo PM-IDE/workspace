@@ -32,3 +32,16 @@ jobs:
       - run: cd ./bxes/src/rust/bxes/ && cargo test
         env:
           RUSTFLAGS: ""
+
+  dotnet-procfiler-unit-tests:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Build Procfiler
+        run: dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks && dotnet build ./Procfiler/src/dotnet/
