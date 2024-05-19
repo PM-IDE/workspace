@@ -44,4 +44,4 @@ jobs:
           dotnet-version: 8.0.x
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Build Procfiler
-        run: dotnet build ./Procfiler/src/dotnet/ -c Release
+        run: dotnet build ./Procfiler/src/dotnet/ /p:Configuration=Release /p:Platform="Any CPU"
