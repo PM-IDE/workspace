@@ -51,4 +51,4 @@ jobs:
              dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ /p:Configuration=Release /p:Platform="Any CPU"
       - name: Run Procfiler unit tests
-        run: dotnet test ./Procfiler/src/dotnet/Procfiler/ProcfilerTests
+        run: dotnet test ./Procfiler/src/dotnet/ProcfilerTests
