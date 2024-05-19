@@ -6,7 +6,7 @@ public static class TestPaths
 {
   public static string CreatePathToTestData()
   {
-    var dir = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.Parent?.Parent?.Parent;
+    var dir = Directory.GetParent(AppContext.BaseDirectory)?.Parent?.Parent?.Parent?.Parent?.Parent;
     var path = Path.Combine(dir!.FullName, "test_data");
     Assert.That(Directory.Exists(path), Is.True);
     return path;
