@@ -45,10 +45,9 @@ jobs:
                           8.0.x
                           6.0.x
       - uses: ilammy/msvc-dev-cmd@v1
-      - name: Build Procfiler
+      - name: Build and unit test Procfiler
         run: |
              dotnet build ./bxes/src/csharp/ /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ /p:Configuration=Release /p:Platform="Any CPU"
-      - name: Run Procfiler unit tests
-        run: dotnet test ./Procfiler/src/dotnet/ProcfilerTests
+             dotnet test ./Procfiler/src/dotnet/ProcfilerTests -c Release
