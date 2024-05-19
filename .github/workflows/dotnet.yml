@@ -49,7 +49,7 @@ jobs:
         run: |
              dotnet build ./bxes/src/csharp/ /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks --no-dependencies /p:Configuration=Release /p:Platform="Any CPU"
-             dotnet build ./Procfiler/src/dotnet/Procfiler /p:Configuration=Release /p:Platform="Any CPU"
+             dotnet build ./Procfiler/src/dotnet/Procfiler /p:Configuration=Release /p:Platform="Any CPU" /p:SolutionDir=${{ github.workspace }}\Procfiler\src\dotnet\
              dotnet build ./Procfiler/src/dotnet/TestsUtil --no-dependencies /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ProcfilerTests --no-dependencies /p:Configuration=Release /p:Platform="Any CPU"
              dotnet test ./Procfiler/src/dotnet/ProcfilerTests --no-build --no-restore /p:Configuration=Release /p:Platform="Any CPU"
