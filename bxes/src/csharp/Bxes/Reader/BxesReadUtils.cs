@@ -25,8 +25,10 @@ public static class BxesReadUtils
   {
     var filePath = Path.GetTempFileName();
     PathUtil.EnsureDeleted(filePath);
+    
+    using var archive = ZipFile.OpenRead(path);
+    archive.Entries.First().ExtractToFile(filePath);
 
-    ZipFile.OpenRead(path).Entries.First().ExtractToFile(filePath);
     return new ExtractedFileCookie(filePath);
   }
 
