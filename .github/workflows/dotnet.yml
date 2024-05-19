@@ -19,7 +19,7 @@ jobs:
       - name: Restore bXES dependencies
         run: dotnet restore ./bxes/src/csharp/
       - name: Build bXES
-        run: dotnet build ./bxes/src/csharp/ --no-restore
+        run: dotnet build ./bxes/src/csharp/ --no-restore -c Release
       - name: Run bXES unit tests
         run: dotnet test ./bxes/src/csharp/Bxes.Tests
 
@@ -44,4 +44,4 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Build Procfiler
-        run: dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks && dotnet build ./Procfiler/src/dotnet/
+        run: dotnet build ./Procfiler/src/dotnet/ -c Release
