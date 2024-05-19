@@ -7,18 +7,26 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  dotnet-bxes-unit-tests:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore bXES dependencies
-      run: dotnet restore ./bxes/src/csharp/
-    - name: Build bXES
-      run: dotnet build ./bxes/src/csharp/ --no-restore
-    - name: Run bXES unit tests
-      run: dotnet test ./bxes/src/csharp/Bxes.Tests
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore bXES dependencies
+        run: dotnet restore ./bxes/src/csharp/
+      - name: Build bXES
+        run: dotnet build ./bxes/src/csharp/ --no-restore
+      - name: Run bXES unit tests
+        run: dotnet test ./bxes/src/csharp/Bxes.Tests
+
+  rust-bxes-unit-tests:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cd ./bxes/src/rust/bxes/ && cargo test --all-features
