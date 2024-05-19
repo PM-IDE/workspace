@@ -44,7 +44,6 @@ jobs:
           dotnet-version: |
                           8.0.x
                           6.0.x
-      - uses: ilammy/msvc-dev-cmd@v1
       - name: Build and unit test Procfiler
         run: |
              dotnet build ./bxes/src/csharp/ /p:Configuration=Release /p:Platform="Any CPU"
