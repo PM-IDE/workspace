@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
@@ -17,7 +16,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
+    - name: Restore bXES dependencies
+      run: dotnet restore ./bxes/src/csharp/
+    - name: Build bXES
+      run: dotnet build ./bxes/src/csharp/ --no-restore
+    - name: Run bXES unit tests
+      run: dotnet test ./bxes/src/csharp/Bxes.Tests
