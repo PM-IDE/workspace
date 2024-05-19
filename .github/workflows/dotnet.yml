@@ -38,10 +38,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ilammy/msvc-dev-cmd@v1
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+      - uses: ilammy/msvc-dev-cmd@v1
       - name: Build Procfiler
         run: dotnet build ./Procfiler/src/dotnet/ -c Release
