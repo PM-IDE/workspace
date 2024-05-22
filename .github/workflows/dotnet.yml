@@ -49,3 +49,13 @@ jobs:
              dotnet build ./bxes/src/csharp/ /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks -c Release -o ${{ github.workspace }}/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/Release/net8.0/
              dotnet test ./Procfiler/src/dotnet/ProcfilerTests /p:Configuration=Release /p:SolutionDir=${{ github.workspace }}/Procfiler/src/dotnet/
+
+  rust-ficus-unit-tests:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cd ./Ficus/src/rust/ficus_backend && cargo test
+        env:
+          RUSTFLAGS: ""
