@@ -10,8 +10,7 @@ where
         fs::create_dir_all(gold_file_dir).ok();
     }
 
-    let mut test_value = test_func();
-    test_value = test_value.replace("\r\n", "\n");
+    let test_value = test_func().replace("\r\n", "\n");
 
     let write_tmp = || {
         let file_name = gold_file_path.file_name().unwrap().to_str().unwrap();
@@ -20,7 +19,9 @@ where
     };
 
     if gold_file_path.exists() {
-        let gold_content = String::from_utf8(fs::read(&gold_file_path).ok().unwrap()).ok().unwrap()
+        let gold_content = String::from_utf8(fs::read(&gold_file_path).ok().unwrap())
+            .ok()
+            .unwrap()
             .replace("\r\n", "\n");
 
         if gold_content != test_value {
