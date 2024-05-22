@@ -1,0 +1,5 @@
+1x Case1   A C E G
+1x Case2   A E C G
+1x Case3   B D F G
+1x Case4   B F D G
+
