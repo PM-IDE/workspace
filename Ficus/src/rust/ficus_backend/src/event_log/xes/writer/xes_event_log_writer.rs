@@ -98,7 +98,7 @@ pub fn serialize_event_log(log: &XesEventLogImpl) -> Result<String, XmlWriteErro
 
 fn write_payload_tag(writer: &RefCell<Writer<Cursor<Vec<u8>>>>, key: &str, value: &EventPayloadValue) -> Result<(), XmlWriteError> {
     let tag_name = match value {
-        EventPayloadValue::Null => { return Ok(()) },
+        EventPayloadValue::Null => return Ok(()),
         EventPayloadValue::Date(_) => DATE_TAG_NAME_STR,
         EventPayloadValue::String(_) => STRING_TAG_NAME_STR,
         EventPayloadValue::Boolean(_) => BOOLEAN_TAG_NAME_STR,
