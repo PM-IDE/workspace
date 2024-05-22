@@ -22,7 +22,12 @@ where
         let gold_content = String::from_utf8(fs::read(&gold_file_path).ok().unwrap()).ok().unwrap();
         if gold_content != test_value {
             write_tmp();
-            panic!("Gold and test values are not equal for {}", gold_file_path.display());
+            panic!(
+                "Gold and test values are not equal for {}\nGold value:\n{}\n\nTest value:\n{}",
+                gold_file_path.display(),
+                gold_content,
+                test_value
+            );
         }
 
         return;
