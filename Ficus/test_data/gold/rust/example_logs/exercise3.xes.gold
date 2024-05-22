@@ -1,0 +1,124 @@
+<log>
+  <extension name="Lifecycle" uri="http://www.xes-standard.org/lifecycle.xesext" prefix="lifecycle"/>
+  <extension name="Organizational" uri="http://www.xes-standard.org/org.xesext" prefix="org"/>
+  <extension name="Time" uri="http://www.xes-standard.org/time.xesext" prefix="time"/>
+  <extension name="Concept" uri="http://www.xes-standard.org/concept.xesext" prefix="concept"/>
+  <extension name="Semantic" uri="http://www.xes-standard.org/semantic.xesext" prefix="semantic"/>
+  <classifier name="MXML Legacy Classifier" keys="concept:name lifecycle:transition"/>
+  <classifier name="Event Name" keys="concept:name"/>
+  <classifier name="Resource" keys="org:resource"/>
+  <string key="concept:name" value="excercise3.mxml"/>
+  <string key="lifecycle:model" value="standard"/>
+  <string key="source" value="Rapid Synthesizer"/>
+  <global scope="event">
+    <string key="concept:name" value="__INVALID__"/>
+    <string key="lifecycle:transition" value="complete"/>
+  </global>
+  <global scope="trace">
+    <string key="concept:name" value="__INVALID__"/>
+  </global>
+  <trace>
+    <event>
+      <string key="concept:name" value="B"/>
+      <date key="time:timestamp" value="2008-12-09T07:20:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="D"/>
+      <date key="time:timestamp" value="2008-12-09T07:21:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="F"/>
+      <date key="time:timestamp" value="2008-12-09T07:22:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="G"/>
+      <date key="time:timestamp" value="2008-12-09T07:23:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="A"/>
+      <date key="time:timestamp" value="2008-12-09T07:20:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="E"/>
+      <date key="time:timestamp" value="2008-12-09T07:21:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="C"/>
+      <date key="time:timestamp" value="2008-12-09T07:22:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="G"/>
+      <date key="time:timestamp" value="2008-12-09T07:23:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="B"/>
+      <date key="time:timestamp" value="2008-12-09T07:20:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="F"/>
+      <date key="time:timestamp" value="2008-12-09T07:21:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="D"/>
+      <date key="time:timestamp" value="2008-12-09T07:22:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="G"/>
+      <date key="time:timestamp" value="2008-12-09T07:23:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+  </trace>
+  <trace>
+    <event>
+      <string key="concept:name" value="A"/>
+      <date key="time:timestamp" value="2008-12-09T07:20:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="C"/>
+      <date key="time:timestamp" value="2008-12-09T07:21:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="E"/>
+      <date key="time:timestamp" value="2008-12-09T07:22:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+    <event>
+      <string key="concept:name" value="G"/>
+      <date key="time:timestamp" value="2008-12-09T07:23:01.527+00:00"/>
+      <string key="lifecycle:transition" value="complete"/>
+      <string key="org:resource" value="UNDEFINED"/>
+    </event>
+  </trace>
+</log>

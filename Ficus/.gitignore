@@ -9,7 +9,9 @@ __pycache__
 results
 build/*
 pm4pyex.egg-info/*
-test_data
+.nets
+test_split_traces
+serialized_test_split_logs
 target
 .vscode
 .ipynb_checkpoints
