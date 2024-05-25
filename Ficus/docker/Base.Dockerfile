@@ -1,13 +1,13 @@
 FROM --platform=linux/amd64 ubuntu:latest as system_setup
 
-RUN apt update && apt upgrade
-RUN apt-get update
+RUN apt update -y && apt upgrade -y
+RUN apt-get update -y
 
 RUN apt install software-properties-common -y
 RUN add-apt-repository ppa:deadsnakes/ppa
 
-RUN apt update && apt upgrade
-RUN apt-get update
+RUN apt update -y && apt upgrade -y
+RUN apt-get update -y
 
 RUN apt install graphviz -y
 RUN apt install curl -y
