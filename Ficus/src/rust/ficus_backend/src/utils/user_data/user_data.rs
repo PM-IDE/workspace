@@ -2,6 +2,11 @@ use std::{any::Any, cell::RefCell, collections::HashMap, rc::Rc};
 
 use super::keys::{DefaultKey, Key};
 
+pub trait UserDataOwner {
+    fn user_data(&self) -> &UserDataImpl;
+    fn user_data_mut(&mut self) -> &mut UserDataImpl;
+}
+
 #[derive(Debug)]
 pub struct UserDataImpl {
     values_map: Option<HashMap<u64, Rc<RefCell<dyn Any>>>>,

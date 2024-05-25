@@ -1,3 +1,4 @@
+use bxes::models::system_models::SystemMetadata;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
@@ -622,5 +623,14 @@ impl ContextKeys {
 
     pub fn is_traces_representation_source(&self, key: &dyn ContextKey) -> bool {
         Self::are_keys_equal(self.traces_representation_source(), key)
+    }
+
+    pub fn system_metadata(&self) -> &DefaultContextKey<SystemMetadata> {
+        self.find_concrete_key::<SystemMetadata>(Self::SYSTEM_METADATA)
+            .expect("SYSTEM_METADATA should be present in keys")
+    }
+
+    pub fn is_system_metadata(&self, key: &dyn ContextKey) -> bool {
+        Self::are_keys_equal(self.system_metadata(), key)
     }
 }

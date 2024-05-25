@@ -8,13 +8,15 @@ use super::{
 use crate::event_log::core::{
     event::{event::EventPayloadValue, event_hasher::EventHasher, events_holder::EventSequenceInfo},
     event_log::EventLog,
-    trace::traces_holder::TracesHolder,
+    trace::traces_holder::EventLogBase,
 };
+use crate::utils::user_data::user_data::UserDataImpl;
+use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use crate::utils::vec_utils;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 pub struct XesEventLogImpl {
-    traces_holder: TracesHolder<XesTraceImpl>,
+    base: EventLogBase<XesTraceImpl>,
     globals: HashMap<String, HashMap<String, EventPayloadValue>>,
     extensions: Vec<XesEventLogExtension>,
     classifiers: Vec<XesClassifier>,
@@ -106,7 +108,7 @@ impl XesEventLogImpl {
         }
 
         let log = XesEventLogImpl {
-            traces_holder: TracesHolder::new(traces),
+            base: EventLogBase::new(traces),
             globals,
             extensions,
             classifiers,
@@ -120,12 +122,22 @@ impl XesEventLogImpl {
 impl Clone for XesEventLogImpl {
     fn clone(&self) -> Self {
         Self {
-            traces_holder: self.traces_holder.clone(),
+            base: self.base.clone(),
             globals: self.globals.clone(),
             extensions: self.extensions.clone(),
             classifiers: self.classifiers.clone(),
             properties: self.properties.clone(),
         }
+    }
+}
+
+impl UserDataOwner for XesEventLogImpl {
+    fn user_data(&self) -> &UserDataImpl {
+        self.base.user_data()
+    }
+
+    fn user_data_mut(&mut self) -> &mut UserDataImpl {
+        self.base.user_data_mut()
     }
 }
 
@@ -136,7 +148,7 @@ impl EventLog for XesEventLogImpl {
 
     fn empty() -> Self {
         Self {
-            traces_holder: TracesHolder::empty(),
+            base: EventLogBase::empty(),
             globals: HashMap::new(),
             extensions: Vec::new(),
             classifiers: Vec::new(),
@@ -145,39 +157,39 @@ impl EventLog for XesEventLogImpl {
     }
 
     fn traces(&self) -> &Vec<Rc<RefCell<Self::TTrace>>> {
-        &self.traces_holder.get_traces()
+        &self.base.get_traces()
     }
 
     fn push(&mut self, trace: Rc<RefCell<Self::TTrace>>) {
-        self.traces_holder.push(trace);
+        self.base.push(trace);
     }
 
     fn to_raw_vector(&self) -> Vec<Vec<String>> {
-        self.traces_holder.to_raw_vector()
+        self.base.to_raw_vector()
     }
 
     fn to_hashes_event_log<THasher>(&self, hasher: &THasher) -> Vec<Vec<u64>>
     where
         THasher: EventHasher<Self::TEvent>,
     {
-        self.traces_holder.to_hashes_vectors(hasher)
+        self.base.to_hashes_vectors(hasher)
     }
 
     fn filter_events_by<TPred>(&mut self, predicate: TPred)
     where
         TPred: Fn(&Self::TEvent) -> bool,
     {
-        self.traces_holder.filter_events_by(predicate);
+        self.base.filter_events_by(predicate);
     }
 
     fn mutate_events<TMutator>(&mut self, mutator: TMutator)
     where
         TMutator: Fn(&mut Self::TEvent),
     {
-        self.traces_holder.mutate_events(mutator);
+        self.base.mutate_events(mutator);
     }
 
     fn filter_traces(&mut self, predicate: &impl Fn(&Self::TTrace, &usize) -> bool) {
-        self.traces_holder.filter_traces(predicate);
+        self.base.filter_traces(predicate);
     }
 }

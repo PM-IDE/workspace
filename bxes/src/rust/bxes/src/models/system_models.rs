@@ -1,6 +1,6 @@
 use crate::models::domain::type_ids::TypeIds;
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct ValueAttributeDescriptor {
     pub type_id: TypeIds,
     pub name: String,
@@ -12,7 +12,7 @@ impl ValueAttributeDescriptor {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct SystemMetadata {
     pub values_attrs: Option<Vec<ValueAttributeDescriptor>>,
 }

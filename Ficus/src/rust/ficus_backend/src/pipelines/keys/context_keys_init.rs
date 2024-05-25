@@ -1,3 +1,4 @@
+use bxes::models::system_models::SystemMetadata;
 use std::{any::Any, borrow::Cow, collections::HashMap};
 
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
@@ -125,6 +126,7 @@ impl ContextKeys {
     pub const LABELED_LOG_TRACES_DATASET: &'static str = "labeled_log_traces_dataset";
     pub const LOG_TRACES_DATASET: &'static str = "log_traces_dataset";
     pub const TRACES_REPR_SOURCE: &'static str = "traces_repr_source";
+    pub const SYSTEM_METADATA: &'static str = "system_metadata";
 
     pub fn new() -> Self {
         let mut context = ContextKeysInitContext::empty();
@@ -195,6 +197,7 @@ impl ContextKeys {
         Self::insert_log_traces_dataset(&mut context);
         Self::insert_labeled_log_traces_dataset(&mut context);
         Self::insert_traces_repr_source(&mut context);
+        Self::insert_system_metadata(&mut context);
 
         let (concrete_keys, context_keys) = context.deconstruct();
 
@@ -463,5 +466,9 @@ impl ContextKeys {
 
     fn insert_traces_repr_source(context: &mut ContextKeysInitContext) {
         Self::insert_key::<TracesRepresentationSource>(context, Self::TRACES_REPR_SOURCE)
+    }
+
+    fn insert_system_metadata(context: &mut ContextKeysInitContext) {
+        Self::insert_key::<SystemMetadata>(context, Self::SYSTEM_METADATA)
     }
 }
