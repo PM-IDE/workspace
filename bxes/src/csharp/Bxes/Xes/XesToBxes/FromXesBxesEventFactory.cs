@@ -26,6 +26,8 @@ public static class FromXesBxesEventFactory
 
         if (parsedAttribute is { Key: { } key, Value: { Value: { } value, BxesValue: { } bxesValue } })
         {
+          if (context.EventDefaults.TryGetValue(key, out var defaultValue) && bxesValue.Equals(defaultValue)) continue;
+
           switch (key)
           {
             case XesConstants.ConceptName:

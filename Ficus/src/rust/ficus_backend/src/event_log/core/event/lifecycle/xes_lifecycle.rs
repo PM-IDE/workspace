@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use super::{braf_lifecycle::XesBrafLifecycle, standard_lifecycle::XesStandardLifecycle};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -12,5 +13,21 @@ impl ToString for Lifecycle {
             Self::XesStandardLifecycle(xes_lifecycle) => xes_lifecycle.to_string(),
             Self::BrafLifecycle(braf_lifecycle) => braf_lifecycle.to_string(),
         }
+    }
+}
+
+impl FromStr for Lifecycle {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Ok(standard_lifecycle) = XesStandardLifecycle::from_str(s) {
+            return Ok(Lifecycle::XesStandardLifecycle(standard_lifecycle))
+        }
+
+        if let Ok(braf_lifecycle) = XesBrafLifecycle::from_str(s) {
+            return Ok(Lifecycle::BrafLifecycle(braf_lifecycle))
+        }
+
+        Ok(Lifecycle::XesStandardLifecycle(XesStandardLifecycle::Unspecified))
     }
 }

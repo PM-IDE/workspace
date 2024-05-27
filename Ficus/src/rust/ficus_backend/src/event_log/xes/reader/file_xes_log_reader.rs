@@ -145,7 +145,7 @@ impl FromFileXesEventLogReader {
                 let key = descriptor.key;
                 let value = descriptor.value.as_str();
 
-                match utils::extract_payload_value(payload_type, value) {
+                match utils::extract_payload_value(payload_type, key.as_str(), value) {
                     Some(value) => Some(XesEventLogItem::Property(XesProperty { name: key, value })),
                     None => None,
                 }
@@ -167,7 +167,8 @@ impl FromFileXesEventLogReader {
                         }
 
                         let payload_type = descriptor.payload_type.as_str().as_bytes();
-                        if let Some(payload_value) = utils::extract_payload_value(payload_type, &descriptor.value) {
+                        let value = utils::extract_payload_value(payload_type, descriptor.key.as_str(), &descriptor.value);
+                        if let Some(payload_value) = value {
                             map.as_mut().unwrap().insert(descriptor.key, payload_value);
                         }
                     }

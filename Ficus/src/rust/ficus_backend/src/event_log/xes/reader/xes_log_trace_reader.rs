@@ -5,6 +5,9 @@ use crate::event_log::xes::constants::*;
 use chrono::{DateTime, Utc};
 use quick_xml::Reader;
 use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
+use std::cell::Ref;
+use std::ops::Deref;
+use bxes::models::domain::bxes_value::BxesValue;
 
 use super::utils;
 
@@ -80,7 +83,8 @@ impl TraceXesEventLogIterator {
                         let key = descriptor.key.as_str();
                         let value = descriptor.value.as_str();
 
-                        Self::set_parsed_value(payload_type, key, value, &mut name, &mut date, &mut payload);
+                        Self::set_parsed_value(
+                            payload_type, key, value, &mut name, &mut date, &mut payload, &self.globals.borrow());
                     }
                     None => continue,
                 },
@@ -112,10 +116,19 @@ impl TraceXesEventLogIterator {
         name: &mut Option<Rc<Box<String>>>,
         date: &mut Option<DateTime<Utc>>,
         payload: &mut HashMap<String, EventPayloadValue>,
+        globals: &HashMap<String, HashMap<String, EventPayloadValue>>
     ) -> bool {
-        let payload_value = utils::extract_payload_value(payload_type, value);
+        let payload_value = utils::extract_payload_value(payload_type, key, value);
         if !payload_value.is_some() {
             return false;
+        }
+
+        if let Some(event_globals) = globals.get(EVENT_TAG_NAME_STR) {
+            if let Some(default_value) = event_globals.get(key) {
+                if default_value == payload_value.as_ref().unwrap() {
+                    return false;
+                }
+            }
         }
 
         Self::update_event_data(key, payload_value.unwrap(), date, name, payload);

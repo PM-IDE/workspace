@@ -34,7 +34,14 @@ public static class GoldBasedTestExecutor
     }
     finally
     {
-      Directory.Delete(tempPath, true);
+      try
+      {
+        Directory.Delete(tempPath, true);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Failed to delete temp path: {ex}");
+      }
     }
   }
 }

@@ -22,13 +22,6 @@ public static class EventLogUtil
     }
   }
 
-  public static bool Equals<T>(ICollection<T> first, ICollection<T> second) where T : IEquatable<T>
-  {
-    return first.Count == second.Count &&
-           first.Zip(second).All(pair =>
-             pair.First.Equals(pair.Second) && pair.First.Equals(pair.Second));
-  }
-
   public static bool EqualsRegardingOrder<T>(IList<T> firstList, IList<T> secondList)
   {
     if (firstList.Count != secondList.Count) return false;
