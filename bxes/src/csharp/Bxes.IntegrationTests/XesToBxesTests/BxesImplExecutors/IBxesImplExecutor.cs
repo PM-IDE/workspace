@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Bxes.IntegrationTests.BxesImplExecutors;
+namespace Bxes.IntegrationTests.XesToBxesTests.BxesImplExecutors;
 
 public interface IBxesImplExecutor
 {

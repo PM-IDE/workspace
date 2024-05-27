@@ -1,7 +1,7 @@
-﻿using Bxes.IntegrationTests.BxesImplExecutors;
+﻿using Bxes.IntegrationTests.XesToBxesTests.BxesImplExecutors;
 using Bxes.Reader;
 
-namespace Bxes.IntegrationTests;
+namespace Bxes.IntegrationTests.XesToBxesTests;
 
 public static class GoldBasedTestExecutor
 {

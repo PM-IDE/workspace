@@ -1,6 +1,7 @@
 using Bxes.Models.Domain;
 using Bxes.Models.System;
 using Bxes.Reader;
+using Bxes.Tests.Core;
 using Bxes.Utils;
 
 namespace Bxes.Tests;

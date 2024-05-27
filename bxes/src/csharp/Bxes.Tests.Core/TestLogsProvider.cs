@@ -5,7 +5,7 @@ using Bxes.Models.System;
 using Bxes.Utils;
 using Bxes.Writer;
 
-namespace Bxes.Tests;
+namespace Bxes.Tests.Core;
 
 public static class TestLogsProvider
 {

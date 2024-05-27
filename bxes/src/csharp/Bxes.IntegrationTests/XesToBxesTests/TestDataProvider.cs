@@ -1,4 +1,4 @@
-namespace Bxes.IntegrationTests;
+namespace Bxes.IntegrationTests.XesToBxesTests;
 
 public static class TestDataProvider
 {

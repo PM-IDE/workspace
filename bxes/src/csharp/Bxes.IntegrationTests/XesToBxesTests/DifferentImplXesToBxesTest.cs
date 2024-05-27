@@ -1,6 +1,6 @@
-using Bxes.IntegrationTests.BxesImplExecutors;
+using Bxes.IntegrationTests.XesToBxesTests.BxesImplExecutors;
 
-namespace Bxes.IntegrationTests;
+namespace Bxes.IntegrationTests.XesToBxesTests;
 
 [TestFixture]
 public class DifferentImplXesToBxesTest
