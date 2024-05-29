@@ -12,7 +12,7 @@ public class RustFicusImplExecutor : ExecutorBase
     StartInfo = new ProcessStartInfo
     {
       FileName = Environment.GetEnvironmentVariable(EnvVars.PythonPath) ?? "python",
-      Arguments = $"{TestDataProvider.FicusRustExecutable} {xesLogPath} {bxesLogPath} " +
+      Arguments = $"{TestDataProvider.FicusXesToBxesScript} {xesLogPath} {bxesLogPath} " +
                   $"{Environment.GetEnvironmentVariable(EnvVars.BackendAddr) ?? "localhost:8080"}"
     }
   };
