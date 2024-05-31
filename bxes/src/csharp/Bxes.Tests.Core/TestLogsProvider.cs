@@ -203,8 +203,8 @@ public static class TestLogsProvider
 
   private static string GenerateRandomString()
   {
-    var length = Random.Shared.Next(100);
-    return new string(Enumerable.Range(0, length).Select(_ => GenerateRandomChar()).ToArray());
+    var length = Random.Shared.Next(50, 100);
+    return new string(Enumerable.Range(50, length).Select(_ => GenerateRandomChar()).ToArray());
   }
 
   public static ISystemMetadata GenerateRandomSystemMetadata(IEventLog log)
