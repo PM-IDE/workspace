@@ -202,7 +202,7 @@ public static class BxesReadUtils
         throw new ValueAttributeTypeNotEqualToDescriptorException(value.TypeId, expectedTypeId);
       }
 
-      if (value is not BxesNullValue || expectedTypeId == TypeIds.Null && value.TypeId == expectedTypeId)
+      if (value is not BxesNullValue || expectedTypeId == TypeIds.Null)
       {
         eventAttributes.Add(new AttributeKeyValue(new BxesStringValue(valueAttrName), value));
       }

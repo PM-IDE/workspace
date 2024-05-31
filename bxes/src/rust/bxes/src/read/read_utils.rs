@@ -14,7 +14,7 @@ use crate::models::domain::bxes_log_metadata::{
 };
 use crate::models::domain::bxes_value::BxesValue;
 use crate::models::domain::software_event_type::SoftwareEventType;
-use crate::models::domain::type_ids::TypeIds;
+use crate::models::domain::type_ids::{get_type_id, TypeIds};
 use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
 use crate::read::read_context::ReadContext;
 use crate::{
@@ -268,10 +268,15 @@ fn try_read_event_attributes(
             let key = BxesValue::String(Rc::new(Box::new(descriptor.name.clone())));
             let key = Rc::new(Box::new(key));
 
-            attributes
-                .as_mut()
-                .unwrap()
-                .push((key, Rc::new(Box::new(value))));
+            let value_type_id = get_type_id(&value);
+            let null_type_id = TypeIds::Null;
+
+            if value_type_id != null_type_id || descriptor.type_id == null_type_id {
+                attributes
+                    .as_mut()
+                    .unwrap()
+                    .push((key, Rc::new(Box::new(value))));
+            }
         }
     }
 

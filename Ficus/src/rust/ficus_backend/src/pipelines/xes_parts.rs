@@ -44,6 +44,7 @@ impl PipelineParts {
             match read_bxes_into_xes_log(path) {
                 Ok(result) => {
                     context.put_concrete(keys.event_log().key(), result.xes_log);
+                    context.put_concrete(keys.system_metadata().key(), result.system_metadata);
 
                     Ok(())
                 }

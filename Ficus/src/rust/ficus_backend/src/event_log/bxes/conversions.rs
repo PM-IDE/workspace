@@ -53,7 +53,7 @@ pub(super) fn bxes_value_to_payload_value(value: &BxesValue) -> EventPayloadValu
                     amount: if let BxesValue::Float64(value) = d.amount {
                         value
                     } else {
-                        panic!("Driver amount should be ")
+                        panic!("Driver amount should be float64")
                     },
                     driver_type: owned_string_or_err(&d.driver_type).ok().unwrap(),
                     name: owned_string_or_err(&d.name).ok().unwrap()
@@ -68,7 +68,7 @@ pub(super) fn bxes_value_to_payload_value(value: &BxesValue) -> EventPayloadValu
                 SoftwareEventType::Return => EventPayloadSoftwareEventType::Return,
                 SoftwareEventType::Throws => EventPayloadSoftwareEventType::Throws,
                 SoftwareEventType::Handle => EventPayloadSoftwareEventType::Handle,
-                SoftwareEventType::Calling => EventPayloadSoftwareEventType::Call,
+                SoftwareEventType::Calling => EventPayloadSoftwareEventType::Calling,
                 SoftwareEventType::Returning => EventPayloadSoftwareEventType::Returning,
             })
         },

@@ -172,27 +172,32 @@ fn try_write_event_value_attributes(
     event: &BxesEvent,
     context: Rc<RefCell<BxesWriteContext>>,
 ) -> Result<usize, BxesWriteError> {
-    let mut values_attrs_count = 0;
+    let mut value_attributes_count = 0usize;
     if let Some(attributes) = event.attributes.as_ref() {
+        let mut attrs_to_write = vec![];
         if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
             for value_attribute in value_attributes {
                 let mut found_attr = false;
                 for event_attribute in attributes {
                     if is_value_attribute(event_attribute, value_attribute) {
-                        try_write_value(&mut context.borrow_mut(), &event_attribute.1)?;
+                        attrs_to_write.push(event_attribute.1.as_ref().as_ref());
+                        value_attributes_count += 1;
                         found_attr = true;
-                        values_attrs_count += 1;
                     }
                 }
 
                 if !found_attr {
-                    try_write_value(&mut context.borrow_mut(), &BxesValue::Null)?;
+                    attrs_to_write.push(&BxesValue::Null);
                 }
             }
         }
+
+        for attr in &attrs_to_write {
+            try_write_value(&mut context.borrow_mut(), attr)?;
+        }
     }
 
-    Ok(values_attrs_count)
+    Ok(value_attributes_count)
 }
 
 fn is_value_attribute(
