@@ -35,7 +35,8 @@ public static class TestUtils
     IEventLog log, LogReadWriteTestInputData data, Func<EventLogReadResult> logProducer)
   {
     var newLog = logProducer();
-    Assert.That(log.Equals(newLog.EventLog));
-    Assert.That(data.SystemMetadata.Equals(newLog.SystemMetadata));
+
+    AssertUtil.CompareAndSerializeIfFail(log, newLog.EventLog);
+    AssertUtil.CompareAndSerializeIfFail(data.SystemMetadata, newLog.SystemMetadata);
   }
 }

@@ -11,6 +11,7 @@ namespace Bxes.IntegrationTests.InMemoryLogsTests;
 public class InMemoryLogsTest
 {
   [Test]
+  [Repeat(20)]
   public void ExecuteTest()
   {
     var log = TestLogsProvider.CreateSimpleTestLog();
@@ -30,11 +31,8 @@ public class InMemoryLogsTest
 
     var readResult = new SingleFileBxesReader().Read(ficusLogPath);
 
-    Assert.Multiple(() =>
-    {
-      Assert.That(readResult.EventLog, Is.EqualTo(log));
-      Assert.That(readResult.SystemMetadata, Is.EqualTo(systemMetadata));
-    });
+    AssertUtil.CompareAndSerializeIfFail(log, readResult.EventLog);
+    AssertUtil.CompareAndSerializeIfFail(systemMetadata, readResult.SystemMetadata);
   }
 
   private static string RewriteBxesEventLog(string bxesLogPath)
@@ -58,7 +56,7 @@ public class InMemoryLogsTest
       Assert.Fail("Failed to start ficus bxes rewrite process");
     }
 
-    var timeout = TimeSpan.FromSeconds(20000);
+    var timeout = TimeSpan.FromSeconds(10);
     if (!process.WaitForExit(timeout))
     {
       process.Kill();
