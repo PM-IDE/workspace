@@ -1,11 +1,17 @@
+use std::rc::Rc;
+
+use bxes::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
+use bxes::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
+use bxes::{models::domain::software_event_type::SoftwareEventType, read::read_utils::owned_string_or_err};
 use bxes::models::domain::bxes_log_metadata::BxesGlobalKind;
 use bxes::models::domain::bxes_value::BxesValue;
 use chrono::{TimeZone, Utc};
 
 use crate::event_log::core::event::{
-    event::EventPayloadValue,
+    event::{EventPayloadDriver, EventPayloadDrivers, EventPayloadValue},
     lifecycle::{braf_lifecycle::XesBrafLifecycle, standard_lifecycle::XesStandardLifecycle, xes_lifecycle::Lifecycle},
 };
+use crate::event_log::core::event::event::{EventPayloadArtifact, EventPayloadArtifactItem, EventPayloadSoftwareEventType};
 
 use super::xes_to_bxes_converter::XesToBxesWriterError;
 
@@ -32,10 +38,40 @@ pub(super) fn bxes_value_to_payload_value(value: &BxesValue) -> EventPayloadValu
             let lifecycle = bxes::models::domain::bxes_lifecycle::Lifecycle::Standard(lifecycle.clone());
             EventPayloadValue::Lifecycle(convert_bxes_to_xes_lifecycle(&lifecycle))
         }
-        BxesValue::Artifact(_) => todo!(),
-        BxesValue::Drivers(_) => todo!(),
+        BxesValue::Artifact(artifact) => EventPayloadValue::Artifact(EventPayloadArtifact {
+            items: artifact.items.iter().map(|item| {
+                EventPayloadArtifactItem {
+                    model: owned_string_or_err(&item.model).ok().unwrap(),
+                    instance: owned_string_or_err(&item.instance).ok().unwrap(),
+                    transition: owned_string_or_err(&item.transition).ok().unwrap(),
+                }
+            }).collect()
+        }),
+        BxesValue::Drivers(drivers) => EventPayloadValue::Drivers(EventPayloadDrivers {
+            drivers: drivers.drivers.iter().map(|d| {
+                EventPayloadDriver {
+                    amount: if let BxesValue::Float64(value) = d.amount {
+                        value
+                    } else {
+                        panic!("Driver amount should be ")
+                    },
+                    driver_type: owned_string_or_err(&d.driver_type).ok().unwrap(),
+                    name: owned_string_or_err(&d.name).ok().unwrap()
+                }
+            }).collect()
+        }),
         BxesValue::Guid(value) => EventPayloadValue::Guid(*value),
-        BxesValue::SoftwareEventType(_) => todo!(),
+        BxesValue::SoftwareEventType(software_event_type) => {
+            EventPayloadValue::SoftwareEvent(match software_event_type {
+                SoftwareEventType::Unspecified => EventPayloadSoftwareEventType::Unspecified,
+                SoftwareEventType::Call => EventPayloadSoftwareEventType::Call,
+                SoftwareEventType::Return => EventPayloadSoftwareEventType::Return,
+                SoftwareEventType::Throws => EventPayloadSoftwareEventType::Throws,
+                SoftwareEventType::Handle => EventPayloadSoftwareEventType::Handle,
+                SoftwareEventType::Calling => EventPayloadSoftwareEventType::Call,
+                SoftwareEventType::Returning => EventPayloadSoftwareEventType::Returning,
+            })
+        },
     }
 }
 
@@ -57,6 +93,33 @@ pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValu
             bxes::models::domain::bxes_lifecycle::Lifecycle::Braf(braf) => BxesValue::BrafLifecycle(braf),
             bxes::models::domain::bxes_lifecycle::Lifecycle::Standard(standard) => BxesValue::StandardLifecycle(standard),
         },
+        EventPayloadValue::Artifact(artifact) => BxesValue::Artifact(BxesArtifact {
+            items: artifact.items.iter().map(|a| {
+                BxesArtifactItem {
+                    instance: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(a.instance.clone()))))),
+                    model: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(a.model.clone()))))),
+                    transition: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(a.transition.clone()))))),
+                }
+            }).collect()
+        }),
+        EventPayloadValue::Drivers(drivers) => BxesValue::Drivers(BxesDrivers {
+            drivers: drivers.drivers.iter().map(|d| {
+                BxesDriver {
+                    amount: BxesValue::Float64(d.amount),
+                    driver_type: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(d.driver_type.clone()))))),
+                    name: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(d.name.clone()))))),
+                }
+            }).collect()
+        }),
+        EventPayloadValue::SoftwareEvent(software_event) => BxesValue::SoftwareEventType(match software_event {
+            EventPayloadSoftwareEventType::Unspecified => SoftwareEventType::Unspecified,
+            EventPayloadSoftwareEventType::Call => SoftwareEventType::Call,
+            EventPayloadSoftwareEventType::Return => SoftwareEventType::Return,
+            EventPayloadSoftwareEventType::Throws => SoftwareEventType::Throws,
+            EventPayloadSoftwareEventType::Handle => SoftwareEventType::Handle,
+            EventPayloadSoftwareEventType::Calling => SoftwareEventType::Calling,
+            EventPayloadSoftwareEventType::Returning => SoftwareEventType::Returning,
+        }),
     }
 }
 

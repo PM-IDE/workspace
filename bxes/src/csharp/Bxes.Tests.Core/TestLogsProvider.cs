@@ -18,7 +18,7 @@ public static class TestLogsProvider
       variants.Add(CreateRandomVariant());
     }
 
-    return new InMemoryEventLog(123, GenerateRandomMetadata(), variants);
+    return new InMemoryEventLog(1, GenerateRandomMetadata(), variants);
   }
 
   private static ITraceVariant CreateRandomVariant()
@@ -110,12 +110,16 @@ public static class TestLogsProvider
     var globals = new List<BxesGlobal>();
     var globalsCount = Random.Shared.Next(10);
     var kindValues = Enum.GetValues<GlobalsEntityKind>();
+    var usedKinds = new HashSet<GlobalsEntityKind>();
 
     for (var i = 0; i < globalsCount; ++i)
     {
+      var kind = kindValues[Random.Shared.Next(kindValues.Length)];
+      if (!usedKinds.Add(kind)) continue;
+
       globals.Add(new BxesGlobal
       {
-        Kind = kindValues[Random.Shared.Next(kindValues.Length)],
+        Kind = kind,
         Globals = GenerateRandomAttributes().ToList()
       });
     }

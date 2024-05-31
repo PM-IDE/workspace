@@ -20,6 +20,44 @@ pub enum EventPayloadValue {
     Guid(uuid::Uuid),
     Timestamp(i64),
     Lifecycle(Lifecycle),
+    Artifact(EventPayloadArtifact),
+    Drivers(EventPayloadDrivers),
+    SoftwareEvent(EventPayloadSoftwareEventType)
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EventPayloadArtifact {
+    pub items: Vec<EventPayloadArtifactItem>
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EventPayloadArtifactItem {
+    pub model: String,
+    pub instance: String,
+    pub transition: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EventPayloadDrivers {
+    pub drivers: Vec<EventPayloadDriver>
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct EventPayloadDriver {
+    pub amount: f64,
+    pub name: String,
+    pub driver_type: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum EventPayloadSoftwareEventType {
+    Unspecified = 0,
+    Call = 1,
+    Return = 2,
+    Throws = 3,
+    Handle = 4,
+    Calling = 5,
+    Returning = 6,
 }
 
 impl ToString for EventPayloadValue {
@@ -38,6 +76,9 @@ impl ToString for EventPayloadValue {
             EventPayloadValue::Guid(value) => value.to_string(),
             EventPayloadValue::Timestamp(value) => value.to_string(),
             EventPayloadValue::Lifecycle(lifecycle) => lifecycle.to_string(),
+            EventPayloadValue::Artifact(artifact) => format!("{:?}", artifact),
+            EventPayloadValue::Drivers(drivers) => format!("{:?}", drivers),
+            EventPayloadValue::SoftwareEvent(software_event) => format!("{:?}", software_event),
         }
     }
 }

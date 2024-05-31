@@ -4,7 +4,7 @@ namespace Bxes.Models.Domain;
 
 public interface ITraceVariant : IEquatable<ITraceVariant>
 {
-  uint Count { get; }
+  uint Count { get; set; }
 
   IList<AttributeKeyValue> Metadata { get; }
   IList<IEvent> Events { get; }
@@ -16,7 +16,7 @@ public class TraceVariantImpl(
   List<AttributeKeyValue> metadata
 ) : ITraceVariant
 {
-  public uint Count { get; } = count;
+  public uint Count { get; set; } = count;
   public IList<IEvent> Events { get; } = events;
   public IList<AttributeKeyValue> Metadata { get; } = metadata;
 

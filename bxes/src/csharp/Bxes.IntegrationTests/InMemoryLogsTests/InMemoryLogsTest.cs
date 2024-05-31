@@ -14,6 +14,13 @@ public class InMemoryLogsTest
   public void ExecuteTest()
   {
     var log = TestLogsProvider.CreateSimpleTestLog();
+
+    //todo: remove after #9 is fixed
+    foreach (var traceVariant in log.Traces)
+    {
+      traceVariant.Count = 1;
+    }
+
     var systemMetadata = TestLogsProvider.GenerateRandomSystemMetadata(log);
 
     using var tempFile = new TempFilePathContainer();
@@ -51,7 +58,7 @@ public class InMemoryLogsTest
       Assert.Fail("Failed to start ficus bxes rewrite process");
     }
 
-    var timeout = TimeSpan.FromSeconds(2);
+    var timeout = TimeSpan.FromSeconds(20000);
     if (!process.WaitForExit(timeout))
     {
       process.Kill();

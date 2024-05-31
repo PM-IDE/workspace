@@ -179,6 +179,14 @@ pub fn string_or_err(value: &BxesValue) -> Result<Rc<Box<String>>, BxesReadError
     }
 }
 
+pub fn owned_string_or_err(value: &BxesValue) -> Result<String, BxesReadError> {
+    if let BxesValue::String(string) = value {
+        Ok(string.as_ref().as_ref().to_owned())
+    } else {
+        Err(BxesReadError::ExpectedString(value.clone()))
+    }
+}
+
 pub fn try_read_traces_variants(
     context: &mut ReadContext,
 ) -> Result<Vec<BxesTraceVariant>, BxesReadError> {
