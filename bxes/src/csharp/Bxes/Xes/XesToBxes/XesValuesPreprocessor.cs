@@ -1,5 +1,5 @@
-using Bxes.Models;
-using Bxes.Models.Values;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
 
@@ -7,7 +7,7 @@ namespace Bxes.Xes.XesToBxes;
 
 public class XesValuesPreprocessor(IBxesStreamWriter writer) : XesElementHandlerBase
 {
-  public override void HandleProperty(AttributeKeyValue property) => 
+  public override void HandleProperty(AttributeKeyValue property) =>
     writer.HandleEvent(new BxesKeyValueEvent(property));
 
   public override void HandleTraceStart()

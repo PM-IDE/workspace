@@ -1,9 +1,9 @@
 use std::{borrow::Borrow, cell::RefCell, collections::HashMap, rc::Rc};
 
-use bxes::{
-    models::{BxesEvent, BxesEventLog, BxesValue},
-    read::errors::BxesReadError,
-};
+use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog};
+use bxes::models::domain::bxes_value::BxesValue;
+use bxes::models::system_models::SystemMetadata;
+use bxes::read::errors::BxesReadError;
 use chrono::{TimeZone, Utc};
 
 use crate::event_log::{
@@ -15,6 +15,7 @@ use crate::event_log::{
         xes_trace::XesTraceImpl,
     },
 };
+use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 
 use super::conversions::{bxes_value_to_payload_value, convert_bxes_to_xes_lifecycle, global_type_to_string};
 
@@ -32,20 +33,25 @@ impl ToString for BxesToXesReadError {
     }
 }
 
-pub fn read_bxes_into_xes_log(path: &str) -> Result<XesEventLogImpl, BxesToXesReadError> {
-    let log = match bxes::read::single_file_bxes_reader::read_bxes(path) {
+pub struct BxesToXesConversionResult {
+    pub xes_log: XesEventLogImpl,
+    pub system_metadata: SystemMetadata,
+}
+
+pub fn read_bxes_into_xes_log(path: &str) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
+    let result = match bxes::read::single_file_bxes_reader::read_bxes(path) {
         Ok(log) => log,
         Err(error) => return Err(BxesToXesReadError::BxesReadError(error)),
     };
 
     let mut xes_log = XesEventLogImpl::empty();
 
-    set_classifiers(&mut xes_log, &log)?;
-    set_properties(&mut xes_log, &log)?;
-    set_extensions(&mut xes_log, &log)?;
-    set_globals(&mut xes_log, &log)?;
+    set_classifiers(&mut xes_log, &result.log)?;
+    set_properties(&mut xes_log, &result.log)?;
+    set_extensions(&mut xes_log, &result.log)?;
+    set_globals(&mut xes_log, &result.log)?;
 
-    for variant in &log.variants {
+    for variant in &result.log.variants {
         let mut xes_trace = XesTraceImpl::empty();
         for event in &variant.events {
             xes_trace.push(Rc::new(RefCell::new(create_xes_event(event)?)));
@@ -54,7 +60,10 @@ pub fn read_bxes_into_xes_log(path: &str) -> Result<XesEventLogImpl, BxesToXesRe
         xes_log.push(Rc::new(RefCell::new(xes_trace)));
     }
 
-    Ok(xes_log)
+    Ok(BxesToXesConversionResult {
+        xes_log,
+        system_metadata: result.system_metadata,
+    })
 }
 
 fn set_classifiers(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(), BxesToXesReadError> {

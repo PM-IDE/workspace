@@ -1,50 +1,42 @@
-using Bxes.Models;
+using Bxes.Models.Domain;
+using Bxes.Models.System;
 using Bxes.Writer;
 
 namespace Bxes.Reader;
 
 public class MultiFileBxesReader : IBxesReader
 {
-  public IEventLog Read(string path)
+  public EventLogReadResult Read(string path)
   {
     if (!Directory.Exists(path)) throw new SavePathIsNotDirectoryException(path);
 
+    uint? version = null;
     void OpenRead(string fileName, Action<BinaryReader> action)
     {
       using var reader = new BinaryReader(File.OpenRead(Path.Combine(path, fileName)));
+      ValidateVersions(ref version, reader.ReadUInt32());
       action(reader);
     }
 
-    uint? version = null;
-    List<BxesValue> values = null!;
-    OpenRead(BxesConstants.ValuesFileName, reader =>
-    {
-      ValidateVersions(ref version, reader.ReadUInt32());
-      values = BxesReadUtils.ReadValues(reader);
-    });
+    var context = new BxesReadContext(null!);
 
-    List<KeyValuePair<uint, uint>> keyValues = null!;
-    OpenRead(BxesConstants.KVPairsFileName, reader =>
-    {
-      ValidateVersions(ref version, reader.ReadUInt32());
-      keyValues = BxesReadUtils.ReadKeyValuePairs(reader);
-    });
+    OpenRead(BxesConstants.SystemMetadataFileName, reader => BxesReadUtils.ReadSystemMetadata(context.WithReader(reader)));
+    OpenRead(BxesConstants.ValuesFileName, reader => BxesReadUtils.ReadValues(context.WithReader(reader)));
+    OpenRead(BxesConstants.KVPairsFileName, reader => BxesReadUtils.ReadKeyValuePairs(context.WithReader(reader)));
 
     IEventLogMetadata metadata = null!;
     OpenRead(BxesConstants.MetadataFileName, reader =>
     {
-      ValidateVersions(ref version, reader.ReadUInt32());
-      metadata = BxesReadUtils.ReadMetadata(reader, keyValues, values);
+      metadata = BxesReadUtils.ReadMetadata(context.WithReader(reader));
     });
 
     List<ITraceVariant> variants = null!;
     OpenRead(BxesConstants.TracesFileName, reader =>
     {
-      ValidateVersions(ref version, reader.ReadUInt32());
-      variants = BxesReadUtils.ReadVariants(reader, keyValues, values);
+      variants = BxesReadUtils.ReadVariants(context.WithReader(reader));
     });
 
-    return new InMemoryEventLog(version!.Value, metadata, variants);
+    return new EventLogReadResult(new InMemoryEventLog(version!.Value, metadata, variants), context.SystemMetadata);
   }
 
   private static void ValidateVersions(ref uint? previousVersion, uint currentVersion)

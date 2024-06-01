@@ -13,7 +13,7 @@ public class BxesWriteState
 }
 
 public class NotStoringMergingTraceBxesSerializer(
-  IProcfilerLogger logger, 
+  IProcfilerLogger logger,
   bool writeAllEventData
 ) : NotStoringMergingTraceSerializerBase<BxesWriteState>(logger, writeAllEventData)
 {
@@ -33,6 +33,8 @@ public class NotStoringMergingTraceBxesSerializer(
 
   public override void Dispose()
   {
-    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ => { });
+    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ =>
+    {
+    });
   }
 }

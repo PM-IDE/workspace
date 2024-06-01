@@ -1,7 +1,7 @@
 using System.IO.Compression;
-using Bxes.Models;
-using Bxes.Models.Values;
-using Bxes.Models.Values.Lifecycle;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.System;
 using Bxes.Utils;
 using Bxes.Writer;
 
@@ -32,68 +32,78 @@ public static class BxesReadUtils
     return new ExtractedFileCookie(filePath);
   }
 
-  public static List<BxesValue> ReadValues(BinaryReader reader)
+  public static void ReadValues(BxesReadContext context)
   {
-    var valuesCount = reader.ReadUInt32();
-    var values = new List<BxesValue>();
+    var valuesCount = context.Reader.ReadUInt32();
 
     for (uint i = 0; i < valuesCount; ++i)
     {
-      values.Add(BxesValue.Parse(reader, values));
+      context.Values.Add(BxesValue.Parse(context.Reader, context.Values));
     }
-
-    return values;
   }
 
-  public static List<KeyValuePair<uint, uint>> ReadKeyValuePairs(BinaryReader reader)
+  public static void ReadKeyValuePairs(BxesReadContext context)
   {
-    var kvPairsCount = reader.ReadUInt32();
-    var keyValues = new List<KeyValuePair<uint, uint>>();
+    var kvPairsCount = context.Reader.ReadUInt32();
 
     for (uint i = 0; i < kvPairsCount; ++i)
     {
-      var keyIndex = (uint)reader.ReadLeb128Unsigned();
-      var valueIndex = (uint)reader.ReadLeb128Unsigned();
-      keyValues.Add(new KeyValuePair<uint, uint>(keyIndex, valueIndex));
+      var keyIndex = (uint)context.Reader.ReadLeb128Unsigned();
+      var valueIndex = (uint)context.Reader.ReadLeb128Unsigned();
+      context.KeyValues.Add(new KeyValuePair<uint, uint>(keyIndex, valueIndex));
     }
-
-    return keyValues;
   }
 
-  public static IEventLogMetadata ReadMetadata(
-    BinaryReader reader, List<KeyValuePair<uint, uint>> keyValues, List<BxesValue> values)
+  public static IEventLogMetadata ReadMetadata(BxesReadContext context)
   {
     var metadata = new EventLogMetadata();
 
-    var propertiesCount = reader.ReadUInt32();
+    ReadProperties(metadata, context);
+    ReadExtensions(metadata, context);
+    ReadGlobals(metadata, context);
+    ReadClassifiers(metadata, context);
+
+    return metadata;
+  }
+
+  private static void ReadProperties(IEventLogMetadata metadata, BxesReadContext context)
+  {
+    var propertiesCount = context.Reader.ReadUInt32();
     for (uint i = 0; i < propertiesCount; ++i)
     {
-      var kv = keyValues[(int)reader.ReadUInt32()];
-      metadata.Properties.Add(new AttributeKeyValue((BxesStringValue)values[(int)kv.Key], values[(int)kv.Value]));
+      var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
+      var attr = new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]);
+      metadata.Properties.Add(attr);
     }
+  }
 
-    var extensionsCount = reader.ReadUInt32();
+  private static void ReadExtensions(IEventLogMetadata metadata, BxesReadContext context)
+  {
+    var extensionsCount = context.Reader.ReadUInt32();
     for (uint i = 0; i < extensionsCount; ++i)
     {
       metadata.Extensions.Add(new BxesExtension
       {
-        Name = (BxesStringValue)values[(int)reader.ReadUInt32()],
-        Prefix = (BxesStringValue)values[(int)reader.ReadUInt32()],
-        Uri = (BxesStringValue)values[(int)reader.ReadUInt32()],
+        Name = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()],
+        Prefix = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()],
+        Uri = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()]
       });
     }
+  }
 
-    var globalsEntitiesCount = reader.ReadUInt32();
+  private static void ReadGlobals(IEventLogMetadata metadata, BxesReadContext context)
+  {
+    var globalsEntitiesCount = context.Reader.ReadUInt32();
     for (uint i = 0; i < globalsEntitiesCount; ++i)
     {
-      var entityType = (GlobalsEntityKind)reader.ReadByte();
-      var globalsCount = reader.ReadUInt32();
+      var entityType = (GlobalsEntityKind)context.Reader.ReadByte();
+      var globalsCount = context.Reader.ReadUInt32();
       var entityGlobals = new List<AttributeKeyValue>();
 
       for (uint j = 0; j < globalsCount; ++j)
       {
-        var kv = keyValues[(int)reader.ReadUInt32()];
-        entityGlobals.Add(new AttributeKeyValue((BxesStringValue)values[(int)kv.Key], values[(int)kv.Value]));
+        var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
+        entityGlobals.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
       }
 
       metadata.Globals.Add(new BxesGlobal
@@ -102,17 +112,20 @@ public static class BxesReadUtils
         Globals = entityGlobals
       });
     }
+  }
 
-    var classifiersCount = reader.ReadUInt32();
+  private static void ReadClassifiers(IEventLogMetadata metadata, BxesReadContext context)
+  {
+    var classifiersCount = context.Reader.ReadUInt32();
     for (uint i = 0; i < classifiersCount; ++i)
     {
-      var classifierName = (BxesStringValue)values[(int)reader.ReadUInt32()];
+      var classifierName = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()];
 
       var keys = new List<BxesStringValue>();
-      var keysCount = reader.ReadUInt32();
+      var keysCount = context.Reader.ReadUInt32();
       for (uint j = 0; j < keysCount; ++j)
       {
-        keys.Add((BxesStringValue)values[(int)reader.ReadUInt32()]);
+        keys.Add((BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()]);
       }
 
       metadata.Classifiers.Add(new BxesClassifier
@@ -121,51 +134,95 @@ public static class BxesReadUtils
         Keys = keys
       });
     }
-
-    return metadata;
   }
 
-  public static List<ITraceVariant> ReadVariants(
-    BinaryReader reader, List<KeyValuePair<uint, uint>> keyValues, List<BxesValue> values)
+  public static void ReadSystemMetadata(BxesReadContext context)
   {
-    var variantsCount = reader.ReadUInt32();
+    var valuesAttributesCount = context.Reader.ReadUInt32();
+    if (valuesAttributesCount == 0) return;
+
+    for (uint i = 0; i < valuesAttributesCount; ++i)
+    {
+      var typeId = (TypeIds)context.Reader.ReadByte();
+      var attributeName = (BxesStringValue)BxesValue.Parse(context.Reader, []);
+
+      context.SystemMetadata.ValueAttributeDescriptors.Add(new ValueAttributeDescriptor(typeId, attributeName.Value));
+    }
+  }
+
+  public static List<ITraceVariant> ReadVariants(BxesReadContext context)
+  {
+    var variantsCount = context.Reader.ReadUInt32();
     var variants = new List<ITraceVariant>();
 
     for (uint i = 0; i < variantsCount; ++i)
     {
-      var tracesCount = reader.ReadUInt32();
-
-      var metadata = new List<AttributeKeyValue>();
-      var metadataCount = reader.ReadUInt32();
-      for (uint j = 0; j < metadataCount; ++j)
-      {
-        var kv = keyValues[(int)reader.ReadUInt32()];
-        metadata.Add(new AttributeKeyValue((BxesStringValue)values[(int)kv.Key], values[(int)kv.Value]));
-      }
-
-      var eventsCount = reader.ReadUInt32();
-      var events = new List<IEvent>();
-
-      for (uint j = 0; j < eventsCount; ++j)
-      {
-        var name = (BxesStringValue)values[(int)reader.ReadLeb128Unsigned()];
-        var timestamp = reader.ReadInt64();
-
-        var attributesCount = reader.ReadLeb128Unsigned();
-        var eventAttributes = new List<AttributeKeyValue>();
-
-        for (uint k = 0; k < attributesCount; ++k)
-        {
-          var kv = keyValues[(int)reader.ReadLeb128Unsigned()];
-          eventAttributes.Add(new((BxesStringValue)values[(int)kv.Key], values[(int)kv.Value]));
-        }
-
-        events.Add(new InMemoryEventImpl(timestamp, name, eventAttributes));
-      }
-
-      variants.Add(new TraceVariantImpl(tracesCount, events, metadata));
+      variants.Add(ReadTraceVariant(context));
     }
 
     return variants;
   }
+
+  private static TraceVariantImpl ReadTraceVariant(BxesReadContext context)
+  {
+    var tracesCount = context.Reader.ReadUInt32();
+
+    var metadata = new List<AttributeKeyValue>();
+    var metadataCount = context.Reader.ReadUInt32();
+    for (uint j = 0; j < metadataCount; ++j)
+    {
+      var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
+      metadata.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+    }
+
+    var eventsCount = context.Reader.ReadUInt32();
+    var events = new List<IEvent>();
+
+    for (uint j = 0; j < eventsCount; ++j)
+    {
+      events.Add(ReadEvent(context));
+    }
+
+    return new TraceVariantImpl(tracesCount, events, metadata);
+  }
+
+  private static InMemoryEventImpl ReadEvent(BxesReadContext context)
+  {
+    var name = (BxesStringValue)context.Values[(int)context.Reader.ReadLeb128Unsigned()];
+    var timestamp = context.Reader.ReadInt64();
+
+    var eventAttributes = new List<AttributeKeyValue>();
+
+    var valueAttributesCount = context.SystemMetadata.ValueAttributeDescriptors.Count;
+    for (var i = 0; i < valueAttributesCount; ++i)
+    {
+      var value = BxesValue.Parse(context.Reader, context.Values);
+      var (expectedTypeId, valueAttrName) = context.SystemMetadata.ValueAttributeDescriptors[i];
+
+      if (value is not BxesNullValue && value.TypeId != expectedTypeId)
+      {
+        throw new ValueAttributeTypeNotEqualToDescriptorException(value.TypeId, expectedTypeId);
+      }
+
+      if (value is not BxesNullValue || expectedTypeId == TypeIds.Null)
+      {
+        eventAttributes.Add(new AttributeKeyValue(new BxesStringValue(valueAttrName), value));
+      }
+    }
+
+    var attributesCount = context.Reader.ReadLeb128Unsigned();
+
+    for (uint k = 0; k < attributesCount; ++k)
+    {
+      var kv = context.KeyValues[(int)context.Reader.ReadLeb128Unsigned()];
+      eventAttributes.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+    }
+
+    return new InMemoryEventImpl(timestamp, name, eventAttributes);
+  }
+}
+
+internal class ValueAttributeTypeNotEqualToDescriptorException(TypeIds actual, TypeIds expected) : BxesException
+{
+  public override string Message { get; } = $"Value attribute type missmatch: expected: {expected}, got {actual}";
 }

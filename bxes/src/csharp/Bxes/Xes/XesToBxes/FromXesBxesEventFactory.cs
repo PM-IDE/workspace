@@ -1,6 +1,6 @@
 using System.Xml;
-using Bxes.Models;
-using Bxes.Models.Values;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Writer;
 
 namespace Bxes.Xes.XesToBxes;
@@ -26,6 +26,8 @@ public static class FromXesBxesEventFactory
 
         if (parsedAttribute is { Key: { } key, Value: { Value: { } value, BxesValue: { } bxesValue } })
         {
+          if (context.EventDefaults.TryGetValue(key, out var defaultValue) && bxesValue.Equals(defaultValue)) continue;
+
           switch (key)
           {
             case XesConstants.ConceptName:

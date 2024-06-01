@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 
@@ -8,6 +9,7 @@ use quick_xml::{
     escape::unescape,
     events::{attributes::Attribute, BytesStart},
 };
+use crate::event_log::core::event::lifecycle::xes_lifecycle::Lifecycle;
 
 pub struct KeyValuePair<TKey, TValue> {
     pub key: Option<TKey>,
@@ -74,7 +76,11 @@ pub fn read_attr_value(real_attr: &Attribute, var: &mut Option<String>) -> bool 
     }
 }
 
-pub fn extract_payload_value(name: &[u8], value: &str) -> Option<EventPayloadValue> {
+pub fn extract_payload_value(name: &[u8], key: &str, value: &str) -> Option<EventPayloadValue> {
+    if key == LIFECYCLE_TRANSITION_STR && name == STRING_TAG_NAME {
+        return Some(EventPayloadValue::Lifecycle(Lifecycle::from_str(value).ok().unwrap()))
+    }
+
     match name {
         DATE_TAG_NAME => match DateTime::parse_from_rfc3339(value) {
             Err(_) => None,

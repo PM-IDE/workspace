@@ -8,7 +8,7 @@ public enum ProvidersCategoryKind
   All,
   Gc,
   GcAllocHigh,
-  GcAllocLow,
+  GcAllocLow
 }
 
 public interface IEventPipeProvidersProvider
@@ -63,6 +63,7 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocLowKeywords)
       }
     };
+
 
   private static long ClrPrivateTraceEventParserKeywords => (long)
   (

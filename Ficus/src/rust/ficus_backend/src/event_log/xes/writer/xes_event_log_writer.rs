@@ -111,6 +111,9 @@ fn write_payload_tag(writer: &RefCell<Writer<Cursor<Vec<u8>>>>, key: &str, value
         EventPayloadValue::Guid(_) => ID_TAG_NAME_STR,
         EventPayloadValue::Timestamp(_) => DATE_TAG_NAME_STR,
         EventPayloadValue::Lifecycle(_) => STRING_TAG_NAME_STR,
+        EventPayloadValue::Artifact(_) => todo!(),
+        EventPayloadValue::Drivers(_) => todo!(),
+        EventPayloadValue::SoftwareEvent(_) => todo!(),
     };
 
     let string_value = value.to_string();

@@ -1,12 +1,12 @@
 use std::fs;
 
-use super::{errors::BxesReadError, read_utils::*};
-use crate::{
-    binary_rw::core::{BinaryReader, Endian},
-    models::*,
-};
+use crate::binary_rw::core::{BinaryReader, Endian};
+use crate::models::domain::bxes_event_log::BxesEventLog;
+use crate::read::read_context::ReadContext;
 
-pub fn read_bxes(path: &str) -> Result<BxesEventLog, BxesReadError> {
+use super::{errors::BxesReadError, read_utils::*};
+
+pub fn read_bxes(path: &str) -> Result<BxesEventLogReadResult, BxesReadError> {
     let extracted_files_dir = try_extract_archive(path)?;
     let extracted_files_dir = extracted_files_dir.path();
 
@@ -17,21 +17,33 @@ pub fn read_bxes(path: &str) -> Result<BxesEventLog, BxesReadError> {
         .collect::<Vec<String>>();
 
     if files.len() != 1 {
-        return Err(BxesReadError::InvalidArchive(format!("Expected one file, got {:?}", files)));
+        return Err(BxesReadError::InvalidArchive(format!(
+            "Expected one file, got {:?}",
+            files
+        )));
     }
 
     let mut stream = try_open_file_stream(files[0].as_str())?;
     let mut reader = BinaryReader::new(&mut stream, Endian::Little);
     let version = try_read_u32(&mut reader)?;
 
-    let values = try_read_values(&mut reader)?;
-    let kv_pairs = try_read_key_values(&mut reader)?;
-    let metadata = try_read_event_log_metadata(&mut reader, &values, &kv_pairs)?;
-    let variants = try_read_traces_variants(&mut reader, &values, &kv_pairs)?;
+    let mut context = ReadContext::new(&mut reader);
+    try_read_system_metadata(&mut context)?;
 
-    Ok(BxesEventLog {
+    try_read_values(&mut context)?;
+    try_read_key_values(&mut context)?;
+
+    let metadata = try_read_event_log_metadata(&mut context)?;
+    let variants = try_read_traces_variants(&mut context)?;
+
+    let log = BxesEventLog {
         version,
         metadata,
         variants,
+    };
+
+    Ok(BxesEventLogReadResult {
+        log,
+        system_metadata: context.system_metadata.unwrap(),
     })
 }

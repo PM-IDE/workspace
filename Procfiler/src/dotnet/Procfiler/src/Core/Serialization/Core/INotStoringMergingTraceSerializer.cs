@@ -8,7 +8,8 @@ public interface INotStoringMergingTraceSerializer : IDisposable
   void WriteTrace(string path, EventSessionInfo sessionInfo);
 }
 
-public abstract class NotStoringMergingTraceSerializerBase<TState>(IProcfilerLogger logger, bool writeAllEventData) : INotStoringMergingTraceSerializer
+public abstract class NotStoringMergingTraceSerializerBase<TState>(IProcfilerLogger logger, bool writeAllEventData)
+  : INotStoringMergingTraceSerializer
 {
   protected readonly IProcfilerLogger Logger = logger;
   protected readonly bool WriteAllEventData = writeAllEventData;

@@ -100,10 +100,7 @@ public class EventMetadata : IEventMetadata
     ++Count;
   }
 
-  public bool ContainsKey(string key)
-  {
-    return FindKey(key) > -1;
-  }
+  public bool ContainsKey(string key) => FindKey(key) > -1;
 
   public bool Remove(string key)
   {

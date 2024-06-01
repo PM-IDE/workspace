@@ -48,6 +48,6 @@ public class MethodStartEndModificationSource : ModificationSourceBase
     myAggressiveReuse switch
     {
       true => myShadowStack.EnumerateMethodsAggressiveReuse(myEventsFactory, myGlobalData),
-      false => myShadowStack.EnumerateMethods(myEventsFactory, myGlobalData),
+      false => myShadowStack.EnumerateMethods(myEventsFactory, myGlobalData)
     };
 }

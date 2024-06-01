@@ -20,6 +20,7 @@ public class MethodStartEndConsistencyTest : ProcessTestBase
       var globalData = events.GlobalData;
       var eventsByThreads = SplitEventsHelper.SplitByKey(
         TestLogger.CreateInstance(), events.Events, SplitEventsHelper.ManagedThreadIdExtractor);
+
       eventsByThreads.Remove(-1);
 
       foreach (var (threadId, eventsForThread) in eventsByThreads)

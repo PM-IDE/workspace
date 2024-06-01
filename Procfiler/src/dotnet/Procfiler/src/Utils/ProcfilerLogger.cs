@@ -16,10 +16,7 @@ public class ProcfilerLogger(ILogger logger) : IProcfilerLogger
   public void Log<TState>(
     LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
   {
-    string FormatWithIndent(TState localState, Exception? localException)
-    {
-      return Format(formatter(localState, localException));
-    }
+    string FormatWithIndent(TState localState, Exception? localException) => Format(formatter(localState, localException));
 
     logger.Log(logLevel, eventId, state, exception, FormatWithIndent);
   }
@@ -39,15 +36,9 @@ public class ProcfilerLogger(ILogger logger) : IProcfilerLogger
     return sb.Append(message).ToString();
   }
 
-  public bool IsEnabled(LogLevel logLevel)
-  {
-    return logger.IsEnabled(logLevel);
-  }
+  public bool IsEnabled(LogLevel logLevel) => logger.IsEnabled(logLevel);
 
-  public IDisposable? BeginScope<TState>(TState state) where TState : notnull
-  {
-    return logger.BeginScope(state);
-  }
+  public IDisposable? BeginScope<TState>(TState state) where TState : notnull => logger.BeginScope(state);
 
   public void IncreaseIndent()
   {
@@ -81,8 +72,5 @@ public readonly struct ProcfilerLoggerIndentCookie : IDisposable
 
 public static class ExtensionsForIProcfilerLogger
 {
-  public static ProcfilerLoggerIndentCookie CreateIndentCookie(this IProcfilerLogger logger)
-  {
-    return new ProcfilerLoggerIndentCookie(logger);
-  }
+  public static ProcfilerLoggerIndentCookie CreateIndentCookie(this IProcfilerLogger logger) => new(logger);
 }

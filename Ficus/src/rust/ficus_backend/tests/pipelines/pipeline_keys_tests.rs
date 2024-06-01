@@ -1,3 +1,4 @@
+use bxes::models::system_models::SystemMetadata;
 use std::collections::HashMap;
 use std::{collections::HashSet, sync::Arc};
 
@@ -121,6 +122,7 @@ fn test_event_log_all_concrete_keys() {
         assert_existence::<FicusDataset>(keys, ContextKeys::LOG_TRACES_DATASET, &mut used);
         assert_existence::<LabeledDataset>(keys, ContextKeys::LABELED_LOG_TRACES_DATASET, &mut used);
         assert_existence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
+        assert_existence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })
@@ -201,7 +203,8 @@ fn get_all_keys_names() -> Vec<String> {
         "event_log_name",
         "log_traces_dataset",
         "labeled_log_traces_dataset",
-        "traces_repr_source"
+        "traces_repr_source",
+        "system_metadata"
     ]
 }
 
@@ -290,6 +293,7 @@ fn test_equivalence_of_keys() {
         assert_keys_equivalence::<FicusDataset>(keys, ContextKeys::LOG_TRACES_DATASET, &mut used);
         assert_keys_equivalence::<LabeledDataset>(keys, ContextKeys::LABELED_LOG_TRACES_DATASET, &mut used);
         assert_keys_equivalence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
+        assert_keys_equivalence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })

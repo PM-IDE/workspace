@@ -1,9 +1,11 @@
 use std::rc::Rc;
 
-use bxes::{
-    models::{BxesClassifier, BxesEvent, BxesEventLog, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesTraceVariant, BxesValue},
-    writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes},
-};
+use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
+use bxes::models::domain::bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal};
+use bxes::models::domain::bxes_value::BxesValue;
+use bxes::models::system_models::SystemMetadata;
+use bxes::writer::writer_utils::BxesLogWriteData;
+use bxes::writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes};
 
 use crate::event_log::{
     core::{
@@ -14,7 +16,9 @@ use crate::event_log::{
     xes::{constants::EVENT_TAG_NAME_STR, shared::XesEventLogExtension, xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
 };
 
-use super::conversions::{convert_xes_to_bxes_lifecycle, parse_entity_kind, payload_value_to_bxes_value};
+use crate::utils::user_data::user_data::UserDataOwner;
+
+use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
 
 pub enum XesToBxesWriterError {
     BxesWriteError(BxesWriteError),
@@ -30,7 +34,7 @@ impl ToString for XesToBxesWriterError {
     }
 }
 
-pub fn write_event_log_to_bxes(log: &XesEventLogImpl, path: &str) -> Result<(), XesToBxesWriterError> {
+pub fn write_event_log_to_bxes(log: &XesEventLogImpl, metadata: Option<&SystemMetadata>, path: &str) -> Result<(), XesToBxesWriterError> {
     let bxes_log = BxesEventLog {
         metadata: BxesEventLogMetadata {
             classifiers: Some(create_bxes_classifiers(log)),
@@ -42,7 +46,15 @@ pub fn write_event_log_to_bxes(log: &XesEventLogImpl, path: &str) -> Result<(), 
         version: 1,
     };
 
-    match write_bxes(path, &bxes_log) {
+    let data = BxesLogWriteData {
+        log: bxes_log,
+        system_metadata: match metadata {
+            Some(metadata) => metadata.clone(),
+            None => SystemMetadata::new(None),
+        },
+    };
+
+    match write_bxes(path, &data) {
         Ok(()) => Ok(()),
         Err(error) => Err(XesToBxesWriterError::BxesWriteError(error)),
     }

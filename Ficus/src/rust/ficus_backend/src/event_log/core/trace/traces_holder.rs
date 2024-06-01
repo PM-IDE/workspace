@@ -1,18 +1,21 @@
+use crate::utils::user_data::user_data::UserDataImpl;
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use crate::event_log::core::event::{event::Event, event_hasher::EventHasher};
+use crate::utils::user_data::user_data::UserData;
 
 use super::trace::Trace;
 
 #[derive(Debug)]
-pub struct TracesHolder<TTrace>
+pub struct EventLogBase<TTrace>
 where
     TTrace: Trace,
 {
     traces: Vec<Rc<RefCell<TTrace>>>,
+    user_data: UserDataImpl,
 }
 
-impl<TTrace> Clone for TracesHolder<TTrace>
+impl<TTrace> Clone for EventLogBase<TTrace>
 where
     TTrace: Trace,
 {
@@ -22,20 +25,27 @@ where
                 .into_iter()
                 .map(|ptr| Rc::new(RefCell::new(ptr.borrow().clone())))
                 .collect(),
+            user_data: self.user_data.clone(),
         }
     }
 }
 
-impl<TTrace> TracesHolder<TTrace>
+impl<TTrace> EventLogBase<TTrace>
 where
     TTrace: Trace,
 {
     pub fn empty() -> Self {
-        Self { traces: vec![] }
+        Self {
+            traces: vec![],
+            user_data: UserDataImpl::new(),
+        }
     }
 
     pub fn new(traces: Vec<Rc<RefCell<TTrace>>>) -> Self {
-        Self { traces }
+        Self {
+            traces,
+            user_data: UserDataImpl::new(),
+        }
     }
 
     pub fn get_traces(&self) -> &Vec<Rc<RefCell<TTrace>>> {
@@ -112,5 +122,13 @@ where
         }
 
         raw_log
+    }
+
+    pub fn user_data(&self) -> &UserDataImpl {
+        &self.user_data
+    }
+
+    pub fn user_data_mut(&mut self) -> &mut UserDataImpl {
+        &mut self.user_data
     }
 }

@@ -43,7 +43,7 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
 
     return allocations;
   }
-  
+
   private static string DumpsAllocationsWith(IReadOnlyList<EventRecordWithMetadata> events)
   {
     var sb = new StringBuilder();

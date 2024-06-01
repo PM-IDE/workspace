@@ -12,7 +12,7 @@ public static class StringAndCharSpanExtensions
     foreach (var c in str)
     {
       hash = (hash + c * currentPower) % Mod;
-      currentPower = (currentPower * Pow) % Mod;
+      currentPower = currentPower * Pow % Mod;
     }
 
     return hash;

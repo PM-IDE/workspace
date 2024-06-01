@@ -16,7 +16,7 @@ public static class Leb128
       value >>= 7;
 
       var signBitSet = (chunk & 0x40) != 0;
-      more = !((value == 0 && !signBitSet) || (value == -1 && signBitSet));
+      more = !(value == 0 && !signBitSet || value == -1 && signBitSet);
       if (more)
       {
         chunk |= 0x80;

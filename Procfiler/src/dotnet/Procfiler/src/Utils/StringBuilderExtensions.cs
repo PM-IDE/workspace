@@ -2,11 +2,9 @@ namespace Procfiler.Utils;
 
 public static class StringBuilderExtensions
 {
-  public static StringBuilder LogPrimitiveValue<T>(this StringBuilder sb, string name, T value) where T : struct
-  {
-    return sb.Append(name).Append(" = ").Append(value)
+  public static StringBuilder LogPrimitiveValue<T>(this StringBuilder sb, string name, T value) where T : struct =>
+    sb.Append(name).Append(" = ").Append(value)
       .AppendNewLine();
-  }
 
   public static StringBuilder LogDictionary<TKey, TValue>(this StringBuilder sb, string name, Dictionary<TKey, TValue> map)
     where TKey : notnull
@@ -28,7 +26,7 @@ public static class StringBuilderExtensions
 
   public static StringBuilder AppendSpace(this StringBuilder sb) => sb.Append(' ');
 
-  public static PairedCharCookie AppendBraces(this StringBuilder sb) => new PairedCharCookie(sb, '(', ')');
+  public static PairedCharCookie AppendBraces(this StringBuilder sb) => new(sb, '(', ')');
 
   public static string SerializeValue<T>(T value)
   {

@@ -7,9 +7,11 @@ namespace Procfiler.Core.SplitByMethod;
 
 public abstract record EventUpdateBase<T>(CurrentFrameInfo<T> FrameInfo);
 
-public sealed record MethodStartedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event) : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodStartedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event)
+  : EventUpdateBase<T>(FrameInfo);
 
-public sealed record MethodFinishedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event) : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodFinishedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event)
+  : EventUpdateBase<T>(FrameInfo);
 
 public sealed record MethodExecutionUpdate<T>(CurrentFrameInfo<T> FrameInfo, string MethodName) : EventUpdateBase<T>(FrameInfo);
 
@@ -71,7 +73,7 @@ public class CallbackBasedSplitter<T>(
 
   private bool ShouldInline(string frame) =>
     inlineMode == InlineMode.EventsAndMethodsEvents ||
-    (inlineMode == InlineMode.EventsAndMethodsEventsWithFilter && ShouldProcess(frame));
+    inlineMode == InlineMode.EventsAndMethodsEventsWithFilter && ShouldProcess(frame);
 
   private bool ShouldProcess(string frame) => myFilterRegex.IsMatch(frame);
 

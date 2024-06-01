@@ -5,8 +5,9 @@ use super::{
     trace::trace::{Trace, TraceInfo},
 };
 use crate::event_log::core::event::event::Event;
+use crate::utils::user_data::user_data::UserDataOwner;
 
-pub trait EventLog: Clone {
+pub trait EventLog: Clone + UserDataOwner {
     type TEvent: Event + 'static;
     type TTraceInfo: TraceInfo + 'static;
     type TTrace: Trace<TEvent = Self::TEvent, TTraceInfo = Self::TTraceInfo> + 'static;

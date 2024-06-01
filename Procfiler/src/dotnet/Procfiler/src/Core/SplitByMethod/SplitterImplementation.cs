@@ -62,7 +62,9 @@ public class SplitterImplementation(
 
     if (stateEvents.Count <= 0) return;
 
-    var existingValue = myResult.GetOrCreate(methodFinishedUpdate.FrameInfo.Frame, static () => new List<List<EventRecordWithMetadata>>());
+    var existingValue =
+      myResult.GetOrCreate(methodFinishedUpdate.FrameInfo.Frame, static () => new List<List<EventRecordWithMetadata>>());
+
     var listOfListOfEvents = (List<List<EventRecordWithMetadata>>)existingValue;
     listOfListOfEvents.Add(stateEvents);
   }
@@ -77,8 +79,8 @@ public class SplitterImplementation(
     };
 
     var executionEvent = CurrentFrameInfoUtil.CreateMethodExecutionEvent(
-        currentTopmost, eventsFactory, methodExecutionUpdate.MethodName, contextEvent);
-    
+      currentTopmost, eventsFactory, methodExecutionUpdate.MethodName, contextEvent);
+
     currentTopmost.State.Add(executionEvent);
   }
 }

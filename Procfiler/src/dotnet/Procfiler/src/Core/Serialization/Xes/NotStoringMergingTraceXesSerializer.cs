@@ -11,8 +11,8 @@ public class PathWriteState
 }
 
 public class NotStoringMergingTraceXesSerializer(
-  IXesEventsSessionSerializer sessionSerializer, 
-  IProcfilerLogger logger, 
+  IXesEventsSessionSerializer sessionSerializer,
+  IProcfilerLogger logger,
   bool writeAllEventData
 ) : NotStoringMergingTraceSerializerBase<PathWriteState>(logger, writeAllEventData)
 {

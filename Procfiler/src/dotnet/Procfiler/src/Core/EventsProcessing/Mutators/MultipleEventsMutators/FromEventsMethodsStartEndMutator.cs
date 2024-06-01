@@ -7,7 +7,8 @@ using Procfiler.Utils;
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 
 public class FromEventsMethodsStartEndMutator(
-  IProcfilerEventsFactory eventsFactory, IProcfilerLogger logger) : IMethodsStartEndProcessor
+  IProcfilerEventsFactory eventsFactory,
+  IProcfilerLogger logger) : IMethodsStartEndProcessor
 {
   private record StackFrameInfo(string Frame, EventRecordWithMetadata StartNode)
   {
@@ -152,18 +153,14 @@ public class FromEventsMethodsStartEndMutator(
     }
   }
 
-  private EventRecordWithMetadata CreateMethodEndEvent(EventRecordWithMetadata @event, string frame)
-  {
-    return eventsFactory.CreateMethodEndEvent(CreateContext(@event), frame);
-  }
+  private EventRecordWithMetadata CreateMethodEndEvent(EventRecordWithMetadata @event, string frame) =>
+    eventsFactory.CreateMethodEndEvent(CreateContext(@event), frame);
 
   private static EventsCreationContext CreateContext(EventRecord.EventRecord @event) =>
     new(@event.Stamp, @event.ManagedThreadId);
 
-  private EventRecordWithMetadata CreateMethodStartEvent(EventRecordWithMetadata @event, string frame)
-  {
-    return eventsFactory.CreateMethodStartEvent(CreateContext(@event), frame);
-  }
+  private EventRecordWithMetadata CreateMethodStartEvent(EventRecordWithMetadata @event, string frame) =>
+    eventsFactory.CreateMethodStartEvent(CreateContext(@event), frame);
 
   private void AddFramesFromEventToCurrentStack(
     List<StackFrameInfo> currentFrames,

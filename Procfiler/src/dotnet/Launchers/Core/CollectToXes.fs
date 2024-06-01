@@ -11,7 +11,7 @@ module CollectToXes =
                 [ "collect-to-xes" ] |> this.Base.AddArguments
 
 
-    let private createConfig csprojPath outputPath: ICommandConfig =
+    let private createConfig csprojPath outputPath : ICommandConfig =
         { Base = createDefaultConfigBase csprojPath outputPath }
 
     let launchProcfilerCustomConfig csprojPath outputPath createConfig =

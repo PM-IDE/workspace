@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Xml;
-using Bxes.Models;
-using Bxes.Models.Values;
-using Bxes.Models.Values.Lifecycle;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Utils;
 
 namespace Bxes.Xes.XesToBxes;

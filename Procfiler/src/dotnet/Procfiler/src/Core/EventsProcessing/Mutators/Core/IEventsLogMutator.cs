@@ -31,8 +31,6 @@ public interface IMultipleEventsMutator : IEventsLogMutator
 
 public static class EventsLogMutatorExtensions
 {
-  public static int GetPassOrThrow(this IEventsLogMutator mutator)
-  {
-    return mutator.GetType().GetCustomAttribute<EventMutatorAttribute>()!.Pass;
-  }
+  public static int GetPassOrThrow(this IEventsLogMutator mutator) =>
+    mutator.GetType().GetCustomAttribute<EventMutatorAttribute>()!.Pass;
 }

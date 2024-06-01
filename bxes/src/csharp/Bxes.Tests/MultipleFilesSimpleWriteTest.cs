@@ -1,5 +1,6 @@
-using Bxes.Models;
+using Bxes.Models.Domain;
 using Bxes.Reader;
+using Bxes.Tests.Core;
 using Bxes.Writer;
 
 namespace Bxes.Tests;
@@ -15,10 +16,10 @@ public class MultipleFilesSimpleWriteTest
 
   private static void ExecuteSimpleTest(IEventLog log)
   {
-    TestUtils.ExecuteTestWithTempFolder(log, testDirectory =>
+    TestUtils.ExecuteTestWithTempFolder(log, data =>
     {
-      new MultipleFilesBxesWriter().Write(log, testDirectory);
-      return new MultiFileBxesReader().Read(testDirectory);
+      new MultipleFilesBxesWriter(data.SystemMetadata).Write(log, data.Path);
+      return new MultiFileBxesReader().Read(data.Path);
     });
   }
 }

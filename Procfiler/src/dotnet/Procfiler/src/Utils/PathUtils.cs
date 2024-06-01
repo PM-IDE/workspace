@@ -66,7 +66,7 @@ public static class PathUtils
 
     try
     {
-      Directory.Delete(path, recursive: true);
+      Directory.Delete(path, true);
     }
     catch (Exception ex)
     {
@@ -74,15 +74,9 @@ public static class PathUtils
     }
   }
 
-  public static string CreateTempFilePath()
-  {
-    return Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
-  }
+  public static string CreateTempFilePath() => Path.Combine(Path.GetTempPath(), Path.GetTempFileName());
 
-  public static string CreateTempFolderPath()
-  {
-    return Directory.CreateTempSubdirectory().FullName;
-  }
+  public static string CreateTempFolderPath() => Directory.CreateTempSubdirectory().FullName;
 
   public static FileStream OpenReadWithRetryOrThrow(
     IProcfilerLogger logger, string path, int retryCount = 5, int timeoutMs = 500)

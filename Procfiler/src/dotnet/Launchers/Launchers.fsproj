@@ -9,7 +9,7 @@
         <None Include="Scripts\LaunchSplitByMethods.fsx"/>
         <None Include="Scripts\TmpToGold.fsx"/>
         <None Include="Scripts\SerializeUndefinedEvents.fsx"/>
-        <None Include="Scripts\CollectToXes.fsx" />
+        <None Include="Scripts\CollectToXes.fsx"/>
         <Compile Include="Core\Utils.fs"/>
         <Compile Include="Core\SplitByMethods.fs"/>
         <Compile Include="Core\SerializeUndefinedThreadEvents.fs"/>

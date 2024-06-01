@@ -1,48 +1,55 @@
 use std::path::Path;
 
+use crate::models::domain::bxes_event_log::{BxesEventLog, BxesTraceVariant};
+use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
+use crate::read::read_context::ReadContext;
+use crate::utils::buffered_stream::BufferedReadFileStream;
 use crate::{
     binary_rw::core::{BinaryReader, Endian},
     constants::*,
-    models::*,
 };
 
 use super::{errors::*, read_utils::*};
 
-pub fn read_bxes_multiple_files(directory_path: &str) -> Result<BxesEventLog, BxesReadError> {
-    let mut version = 0u32;
-    let values = read_file(directory_path, VALUES_FILE_NAME, |reader| {
-        version = try_read_u32(reader)?;
-        try_read_values(reader)
-    })?;
+pub fn read_bxes_multiple_files(
+    directory_path: &str,
+) -> Result<BxesEventLogReadResult, BxesReadError> {
+    let mut context = ReadContext::new_without_reader();
 
-    let kv_pairs = read_file(directory_path, KEY_VALUES_FILE_NAME, |reader| {
-        if let Some(error) = read_version(&mut version, reader) {
-            return Err(error);
-        }
+    let mut stream = open_file(directory_path, SYSTEM_METADATA_FILE_NAME)?;
+    let mut reader = BinaryReader::new(&mut stream, Endian::Little);
+    context.set_reader(&mut reader);
+    let mut version = read_system_metadata(&mut context)?;
 
-        try_read_key_values(reader)
-    })?;
+    let mut stream = open_file(directory_path, VALUES_FILE_NAME)?;
+    let mut reader = BinaryReader::new(&mut stream, Endian::Little);
+    context.set_reader(&mut reader);
+    read_values(&mut context, &mut version)?;
 
-    let metadata = read_file(directory_path, METADATA_FILE_NAME, |reader| {
-        if let Some(error) = read_version(&mut version, reader) {
-            return Err(error);
-        }
+    let mut stream = open_file(directory_path, KEY_VALUES_FILE_NAME)?;
+    let mut reader = BinaryReader::new(&mut stream, Endian::Little);
+    context.set_reader(&mut reader);
+    read_key_values(&mut context, &mut version)?;
 
-        try_read_event_log_metadata(reader, &values, &kv_pairs)
-    })?;
+    let mut stream = open_file(directory_path, METADATA_FILE_NAME)?;
+    let mut reader = BinaryReader::new(&mut stream, Endian::Little);
+    context.set_reader(&mut reader);
+    let metadata = read_metadata_file(&mut context, &mut version)?;
 
-    let variants = read_file(directory_path, VARIANTS_FILE_NAME, |reader| {
-        if let Some(error) = read_version(&mut version, reader) {
-            return Err(error);
-        }
+    let mut stream = open_file(directory_path, VARIANTS_FILE_NAME)?;
+    let mut reader = BinaryReader::new(&mut stream, Endian::Little);
+    context.set_reader(&mut reader);
+    let variants = read_variants(&mut context, &mut version)?;
 
-        try_read_traces_variants(reader, &values, &kv_pairs)
-    })?;
-
-    Ok(BxesEventLog {
+    let log = BxesEventLog {
         version,
         metadata,
         variants,
+    };
+
+    Ok(BxesEventLogReadResult {
+        log,
+        system_metadata: context.system_metadata.unwrap(),
     })
 }
 
@@ -63,24 +70,57 @@ fn read_version(previous_version: &mut u32, reader: &mut BinaryReader) -> Option
     }
 }
 
-fn read_file<T>(
+fn read_system_metadata(context: &mut ReadContext) -> Result<u32, BxesReadError> {
+    let version = try_read_u32(context.reader.as_mut().unwrap())?;
+    try_read_system_metadata(context)?;
+
+    Ok(version)
+}
+
+fn read_values(context: &mut ReadContext, version: &mut u32) -> Result<(), BxesReadError> {
+    if let Some(error) = read_version(version, context.reader.as_mut().unwrap()) {
+        return Err(error);
+    }
+
+    try_read_values(context)
+}
+
+fn read_key_values(context: &mut ReadContext, version: &mut u32) -> Result<(), BxesReadError> {
+    if let Some(error) = read_version(version, context.reader.as_mut().unwrap()) {
+        return Err(error);
+    }
+
+    try_read_key_values(context)
+}
+
+fn read_metadata_file(
+    context: &mut ReadContext,
+    version: &mut u32,
+) -> Result<BxesEventLogMetadata, BxesReadError> {
+    if let Some(error) = read_version(version, context.reader.as_mut().unwrap()) {
+        return Err(error);
+    }
+
+    try_read_event_log_metadata(context)
+}
+
+fn read_variants(
+    context: &mut ReadContext,
+    version: &mut u32,
+) -> Result<Vec<BxesTraceVariant>, BxesReadError> {
+    if let Some(error) = read_version(version, context.reader.as_mut().unwrap()) {
+        return Err(error);
+    }
+
+    try_read_traces_variants(context)
+}
+
+fn open_file(
     directory_path: &str,
     file_name: &str,
-    reader_func: impl FnMut(&mut BinaryReader) -> Result<T, BxesReadError>,
-) -> Result<T, BxesReadError> {
+) -> Result<BufferedReadFileStream, BxesReadError> {
     let directory_path = Path::new(directory_path);
     let file_path = directory_path.join(file_name);
     let file_path = file_path.to_str().unwrap();
-
-    execute_with_reader(file_path, reader_func)
-}
-
-fn execute_with_reader<T>(
-    path: &str,
-    mut reader_func: impl FnMut(&mut BinaryReader) -> Result<T, BxesReadError>,
-) -> Result<T, BxesReadError> {
-    let mut stream = try_open_file_stream(path)?;
-    let mut reader = BinaryReader::new(&mut stream, Endian::Little);
-
-    reader_func(&mut reader)
+    try_open_file_stream(file_path)
 }

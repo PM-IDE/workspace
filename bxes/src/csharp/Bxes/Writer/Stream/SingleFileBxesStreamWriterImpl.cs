@@ -1,9 +1,10 @@
-using Bxes.Models;
+using Bxes.Models.Domain;
+using Bxes.Models.System;
 using Bxes.Utils;
 
 namespace Bxes.Writer.Stream;
 
-public class SingleFileBxesStreamWriterImpl<TEvent> : 
+public class SingleFileBxesStreamWriterImpl<TEvent> :
   IBxesStreamWriter, IXesToBxesStatisticsCollector where TEvent : IEvent
 {
   private readonly MultipleFilesBxesStreamWriterImpl<TEvent> myMultipleWriter;
@@ -13,11 +14,16 @@ public class SingleFileBxesStreamWriterImpl<TEvent> :
 
 
   public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion)
+    : this(savePath, bxesVersion, SystemMetadata.Default)
+  {
+  }
+
+  public SingleFileBxesStreamWriterImpl(string savePath, uint bxesVersion, ISystemMetadata metadata)
   {
     mySavePath = savePath;
     myBxesVersion = bxesVersion;
     myFolderContainer = new TempFolderContainer();
-    myMultipleWriter = new MultipleFilesBxesStreamWriterImpl<TEvent>(myFolderContainer.Path, bxesVersion);
+    myMultipleWriter = new MultipleFilesBxesStreamWriterImpl<TEvent>(myFolderContainer.Path, bxesVersion, metadata);
   }
 
 
@@ -44,6 +50,7 @@ public class SingleFileBxesStreamWriterImpl<TEvent> :
 
       BinaryReader OpenRead(string fileName) => new(File.OpenRead(Path.Join(myFolderContainer.Path, fileName)));
 
+      SkipVersionAndCopyContents(OpenRead(BxesConstants.SystemMetadataFileName), writer);
       SkipVersionAndCopyContents(OpenRead(BxesConstants.ValuesFileName), writer);
       SkipVersionAndCopyContents(OpenRead(BxesConstants.KVPairsFileName), writer);
       SkipVersionAndCopyContents(OpenRead(BxesConstants.MetadataFileName), writer);

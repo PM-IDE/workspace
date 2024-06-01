@@ -1,5 +1,6 @@
-using Bxes.Models;
+using Bxes.Models.Domain;
 using Bxes.Reader;
+using Bxes.Tests.Core;
 using Bxes.Writer.Stream;
 
 namespace Bxes.Tests;
@@ -15,9 +16,9 @@ public class MultipleFilesStreamSimpleWriteTest
 
   private static void ExecuteSimpleTest(IEventLog log)
   {
-    TestUtils.ExecuteTestWithTempFolder(log, testDirectory =>
+    TestUtils.ExecuteTestWithTempFolder(log, data =>
     {
-      using (var writer = new MultipleFilesBxesStreamWriterImpl<IEvent>(testDirectory, log.Version))
+      using (var writer = new MultipleFilesBxesStreamWriterImpl<IEvent>(data.Path, log.Version, data.SystemMetadata))
       {
         foreach (var streamEvent in log.ToEventsStream())
         {
@@ -25,7 +26,7 @@ public class MultipleFilesStreamSimpleWriteTest
         }
       }
 
-      return new MultiFileBxesReader().Read(testDirectory);
+      return new MultiFileBxesReader().Read(data.Path);
     });
   }
 }

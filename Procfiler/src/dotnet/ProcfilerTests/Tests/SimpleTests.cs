@@ -31,6 +31,7 @@ public class SimpleTests : ProcessTestBase
       Assert.That(events.Events, Has.Count.GreaterThan(KnownSolution.ConsoleApp1.ExpectedEventsCount));
       var eventsByNames =
         SplitEventsHelper.SplitByKey(TestLogger.CreateInstance(), events.Events, SplitEventsHelper.EventClassKeyExtractor);
+
       foreach (var (name, traceEvents) in eventsByNames)
       {
         foreach (var (_, traceEvent) in traceEvents)

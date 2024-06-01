@@ -9,8 +9,8 @@ internal class XesToBxesCommandHandler(ILogger logger) : ConvertCommandHandlerBa
 {
   protected override IBetweenFormatsConverter CreateConverter(ParseResult result) =>
     new XesToBxesConverter(
-        logger,
-        result.GetValueForOption(Options.BestBxesCompression),
-        result.GetValueForOption(Options.WriteXesToBxesStatistics)
+      logger,
+      result.GetValueForOption(Options.BestBxesCompression),
+      result.GetValueForOption(Options.WriteXesToBxesStatistics)
     );
 }

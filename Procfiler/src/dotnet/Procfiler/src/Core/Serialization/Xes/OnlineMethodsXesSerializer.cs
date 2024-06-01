@@ -13,16 +13,16 @@ public class PathWriterStateWithLastEvent : PathWriteState
 public class OnlineMethodsXesSerializer : OnlineMethodsSerializerBase<PathWriterStateWithLastEvent>
 {
   private readonly IXesEventsSessionSerializer mySessionSerializer;
-  
+
 
   public OnlineMethodsXesSerializer(
     string outputDirectory,
     Regex? targetMethodsRegex,
-    IXesEventsSessionSerializer sessionSerializer, 
+    IXesEventsSessionSerializer sessionSerializer,
     IFullMethodNameBeautifier methodNameBeautifier,
     IProcfilerEventsFactory factory,
     IProcfilerLogger logger,
-    bool writeAllEventMetadata) 
+    bool writeAllEventMetadata)
     : base(outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
   {
     mySessionSerializer = sessionSerializer;
@@ -37,7 +37,7 @@ public class OnlineMethodsXesSerializer : OnlineMethodsSerializerBase<PathWriter
     {
       name += SerializersUtil.XesExtension;
     }
-    
+
     var filePath = Path.Join(OutputDirectory, name);
 
     return States.GetOrCreate(filePath, () =>
@@ -81,7 +81,7 @@ public class OnlineMethodsXesSerializer : OnlineMethodsSerializerBase<PathWriter
   private void HandleMethodStartEvent(MethodStartedUpdate<PathWriterStateWithLastEvent> methodStartedUpdate)
   {
     var state = methodStartedUpdate.FrameInfo.State!;
-    
+
     MethodNames.Add(methodStartedUpdate.FrameInfo.Frame);
     mySessionSerializer.WriteTraceStart(state.Writer, state.TracesCount);
     state.TracesCount++;
@@ -107,7 +107,7 @@ public class OnlineMethodsXesSerializer : OnlineMethodsSerializerBase<PathWriter
       Factory,
       methodExecutionUpdate.MethodName,
       state!.LastWrittenEvent);
-    
+
     WriteEvent(state, executionEvent);
   }
 

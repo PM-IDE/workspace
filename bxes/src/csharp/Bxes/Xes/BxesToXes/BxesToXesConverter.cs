@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Xml;
-using Bxes.Models;
-using Bxes.Models.Values;
-using Bxes.Models.Values.Lifecycle;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Reader;
 using Bxes.Writer;
 
@@ -34,7 +34,7 @@ public class BxesToXesConverter : IBetweenFormatsConverter
 {
   public void Convert(string filePath, string outputPath)
   {
-    var log = new SingleFileBxesReader().Read(filePath);
+    var log = new SingleFileBxesReader().Read(filePath).EventLog;
 
     using var fs = File.OpenWrite(outputPath);
     using var writer = XmlWriter.Create(fs, new XmlWriterSettings

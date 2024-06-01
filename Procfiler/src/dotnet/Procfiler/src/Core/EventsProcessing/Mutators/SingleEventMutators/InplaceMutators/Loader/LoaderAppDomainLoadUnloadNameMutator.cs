@@ -10,7 +10,7 @@ public abstract class LoaderAppDomainLoadUnloadNameMutatorBase(IProcfilerLogger 
 {
   protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
   {
-    MetadataKeysWithTransform.CreateForCamelCaseName(TraceEventsConstants.LoaderAppDomainName, EventClassKind.Zero),
+    MetadataKeysWithTransform.CreateForCamelCaseName(TraceEventsConstants.LoaderAppDomainName, EventClassKind.Zero)
   };
 }
 

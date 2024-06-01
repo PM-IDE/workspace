@@ -7,8 +7,5 @@ public interface IParseResultInfoProvider
 
 public class ParseResultInfoProviderImpl(ParseResult parseResult) : IParseResultInfoProvider
 {
-  public T? TryGetOptionValue<T>(Option<T> option)
-  {
-    return parseResult.GetValueForOption(option);
-  }
+  public T? TryGetOptionValue<T>(Option<T> option) => parseResult.GetValueForOption(option);
 }

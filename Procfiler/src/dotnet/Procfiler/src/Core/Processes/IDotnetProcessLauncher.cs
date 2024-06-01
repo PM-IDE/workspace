@@ -81,7 +81,8 @@ public class DotnetProcessLauncher(IProcfilerLogger logger) : IDotnetProcessLaun
       return null;
     }
 
-    logger.LogInformation("Started process: {Id} {Path} {Arguments}", process.Id, launcherDto.PathToDotnetExecutable, startInfo.Arguments);
+    logger.LogInformation("Started process: {Id} {Path} {Arguments}", process.Id, launcherDto.PathToDotnetExecutable,
+      startInfo.Arguments);
 
     return process;
   }

@@ -11,10 +11,7 @@ public record MethodInvocationTree(string NamePattern) : IEnumerable
 
   public void Add(MethodInvocationTree tree) => InnerCalls.Add(tree);
 
-  public IEnumerator GetEnumerator()
-  {
-    return InnerCalls.GetEnumerator();
-  }
+  public IEnumerator GetEnumerator() => InnerCalls.GetEnumerator();
 }
 
 public static class MethodSequencePatternChecker

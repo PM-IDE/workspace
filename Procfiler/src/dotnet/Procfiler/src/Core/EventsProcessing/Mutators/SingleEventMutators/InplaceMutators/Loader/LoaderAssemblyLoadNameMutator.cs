@@ -10,7 +10,7 @@ public abstract class LoaderAssemblyLoadUnloadNameMutatorBase(IProcfilerLogger l
 {
   protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
   {
-    MetadataKeysWithTransform.CreateForAssemblyName(TraceEventsConstants.LoaderAssemblyName, EventClassKind.Zero),
+    MetadataKeysWithTransform.CreateForAssemblyName(TraceEventsConstants.LoaderAssemblyName, EventClassKind.Zero)
   };
 }
 

@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MISC", "MISC", "{09F32555-D
 	ProjectSection(SolutionItems) = preProject
 		..\..\.gitignore = ..\..\.gitignore
 		..\..\Readme.md = ..\..\Readme.md
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bxes.IntegrationTests", "Bxes.IntegrationTests\Bxes.IntegrationTests.csproj", "{DBE6AC3D-A595-4741-9F1A-3332CA66B54B}"
@@ -19,6 +20,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2AC9BCA7-F2FA-4444-8895-D91E13CADB6F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0299E48C-2F14-418F-894A-3E46840BF41C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bxes.Tests.Core", "Bxes.Tests.Core\Bxes.Tests.Core.csproj", "{900388FC-6131-4440-9BE3-B3070B83B56D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +49,10 @@ Global
 		{DBE6AC3D-A595-4741-9F1A-3332CA66B54B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBE6AC3D-A595-4741-9F1A-3332CA66B54B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBE6AC3D-A595-4741-9F1A-3332CA66B54B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{900388FC-6131-4440-9BE3-B3070B83B56D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{900388FC-6131-4440-9BE3-B3070B83B56D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{900388FC-6131-4440-9BE3-B3070B83B56D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{900388FC-6131-4440-9BE3-B3070B83B56D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DBE6AC3D-A595-4741-9F1A-3332CA66B54B} = {0299E48C-2F14-418F-894A-3E46840BF41C}
@@ -53,5 +60,6 @@ Global
 		{4E1D720F-0061-4691-8B07-BC0BA08E9AA9} = {2AC9BCA7-F2FA-4444-8895-D91E13CADB6F}
 		{288327FE-3CA2-439D-BD90-EBAFE6C2A8BD} = {2AC9BCA7-F2FA-4444-8895-D91E13CADB6F}
 		{7ABE06E7-1EB5-4206-8DEA-B7AFE5E5A62F} = {0299E48C-2F14-418F-894A-3E46840BF41C}
+		{900388FC-6131-4440-9BE3-B3070B83B56D} = {0299E48C-2F14-418F-894A-3E46840BF41C}
 	EndGlobalSection
 EndGlobal

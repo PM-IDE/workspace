@@ -93,14 +93,12 @@ public class DepsJsonReaderImpl : IDepsJsonReader
     HashPath = property.Value.TryGetPropertyStringValue(DepsJsonConstants.HashPath)
   };
 
-  private static TargetItem ParseTargetItem(JsonProperty property)
-  {
-    return new TargetItem
+  private static TargetItem ParseTargetItem(JsonProperty property) =>
+    new()
     {
       NameWithVersion = NameWithVersion.Parse(property.Name),
-      Dependencies = property.Value.EnumerateObject().Select(ParseTargetDependency).ToList(),
+      Dependencies = property.Value.EnumerateObject().Select(ParseTargetDependency).ToList()
     };
-  }
 
   private static TargetDependency ParseTargetDependency(JsonProperty dependency)
   {
@@ -138,15 +136,13 @@ public class DepsJsonReaderImpl : IDepsJsonReader
       Dependencies = SelectFrom(dependencies, ParseDependencyOfTargetDependency),
       Native = SelectFrom(native, ParseFileInfo).ToList(),
       Runtime = SelectFrom(runtime, ParseFileInfo).ToList(),
-      RuntimeTargets = SelectFrom(runtimeTargets, ParseRuntimeTargets).ToList(),
+      RuntimeTargets = SelectFrom(runtimeTargets, ParseRuntimeTargets).ToList()
     };
   }
 
-  private static List<T> SelectFrom<T>(JsonElement? element, Func<JsonProperty, T> selector)
-  {
-    return element?.EnumerateObject().Select(selector).ToList() ??
-           EmptyCollections<T>.EmptyList;
-  }
+  private static List<T> SelectFrom<T>(JsonElement? element, Func<JsonProperty, T> selector) =>
+    element?.EnumerateObject().Select(selector).ToList() ??
+    EmptyCollections<T>.EmptyList;
 
   private static DependencyOfTargetDependency ParseDependencyOfTargetDependency(JsonProperty property) => new()
   {

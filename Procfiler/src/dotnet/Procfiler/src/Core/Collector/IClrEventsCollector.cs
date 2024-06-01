@@ -136,7 +136,8 @@ public class ClrEventsCollector(
     var context = new CreatingEventContext(stackSource, traceLog);
     var shadowStacks = collectionContext switch
     {
-      BinaryStacksClrEventsCollectionContext ctx => binaryShadowStacksReader.ReadStackEvents(ctx.PathToBinaryStacks, ctx.CppProfilerMode),
+      BinaryStacksClrEventsCollectionContext ctx => binaryShadowStacksReader.ReadStackEvents(ctx.PathToBinaryStacks,
+        ctx.CppProfilerMode),
       FromEventsStacksClrEventsCollectionContext => new FromEventsShadowStacks(stackSource),
       _ => throw new ArgumentOutOfRangeException(nameof(collectionContext), collectionContext, null)
     };
@@ -243,7 +244,7 @@ public class ClrEventsCollector(
     using var symbolReader = new SymbolReader(TextWriter.Null) { SymbolPath = SymbolPath.MicrosoftSymbolServerPath };
     var stackSource = new MutableTraceEventStackSource(traceLog)
     {
-      OnlyManagedCodeStacks = true,
+      OnlyManagedCodeStacks = true
     };
 
     var computer = new SampleProfilerThreadTimeComputer(traceLog, symbolReader)

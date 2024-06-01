@@ -42,8 +42,10 @@ impl PipelineParts {
             let path = Self::get_user_data(context, keys.path())?;
 
             match read_bxes_into_xes_log(path) {
-                Ok(log) => {
-                    context.put_concrete(keys.event_log().key(), log);
+                Ok(result) => {
+                    context.put_concrete(keys.event_log().key(), result.xes_log);
+                    context.put_concrete(keys.system_metadata().key(), result.system_metadata);
+
                     Ok(())
                 }
                 Err(err) => {
@@ -58,8 +60,12 @@ impl PipelineParts {
         Self::create_pipeline_part(Self::WRITE_LOG_TO_BXES, &|context, _, keys, config| {
             let path = Self::get_user_data(config, keys.path())?;
             let log = Self::get_user_data(context, keys.event_log())?;
+            let system_metadata = match Self::get_user_data(context, keys.system_metadata()) {
+                Ok(metadata) => Some(metadata),
+                Err(_) => None,
+            };
 
-            match write_event_log_to_bxes(log, path) {
+            match write_event_log_to_bxes(log, system_metadata, path) {
                 Ok(_) => Ok(()),
                 Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
             }

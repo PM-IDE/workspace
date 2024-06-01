@@ -16,10 +16,7 @@ public class DefaultIdCreationStrategy(string basePart, IReadOnlySet<string> sta
 
   public string CreateIdTemplate() => DoCreateId("{AUTOINCREMENT_ID}");
 
-  private string DoCreateId(string nextId)
-  {
-    return $"{basePart}_{nextId}";
-  }
+  private string DoCreateId(string nextId) => $"{basePart}_{nextId}";
 
   public string CreateId(EventRecordWithMetadata eventRecord)
   {
@@ -32,8 +29,7 @@ public class DefaultIdCreationStrategy(string basePart, IReadOnlySet<string> sta
   }
 }
 
-public class FromAttributesIdCreationStrategy
-  (string basePart, ICollection<string> attributesToUse) : IIdCreationStrategy
+public class FromAttributesIdCreationStrategy(string basePart, ICollection<string> attributesToUse) : IIdCreationStrategy
 {
   public string CreateIdTemplate() => DoCreateId(basePart, attributesToUse);
 

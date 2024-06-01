@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using Bxes.Models;
-using Bxes.Models.Values;
-using Bxes.Models.Values.Lifecycle;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
 using Procfiler.Core.EventRecord;
@@ -45,14 +45,14 @@ public class BxesWriteStateWithLastEvent : BxesWriteState
 public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWriteStateWithLastEvent>
 {
   private const string BxesExtesnsion = ".bxes";
-  
+
   public OnlineBxesMethodsSerializer(
-    string outputDirectory, 
-    Regex? targetMethodsRegex, 
-    IFullMethodNameBeautifier methodNameBeautifier, 
-    IProcfilerEventsFactory factory, 
+    string outputDirectory,
+    Regex? targetMethodsRegex,
+    IFullMethodNameBeautifier methodNameBeautifier,
+    IProcfilerEventsFactory factory,
     IProcfilerLogger logger,
-    bool writeAllEventMetadata) 
+    bool writeAllEventMetadata)
     : base(outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
   {
   }
@@ -65,7 +65,7 @@ public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWrite
     {
       name += BxesExtesnsion;
     }
-    
+
     var filePath = Path.Join(OutputDirectory, name);
 
     return States.GetOrCreate(
@@ -86,7 +86,7 @@ public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWrite
           methodExecutionUpdate.MethodName,
           update.FrameInfo.State!.LastWrittenEvent
         );
-        
+
         WriteEvent(state, executionEvent);
         break;
       case MethodFinishedUpdate<BxesWriteStateWithLastEvent>:
@@ -101,7 +101,7 @@ public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWrite
         throw new ArgumentOutOfRangeException(nameof(update));
     }
   }
-  
+
   private void WriteEvent(BxesWriteStateWithLastEvent state, EventRecordWithMetadata eventRecord)
   {
     state.LastWrittenEvent = eventRecord;
@@ -110,6 +110,8 @@ public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWrite
 
   public override void Dispose()
   {
-    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ => {});
+    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ =>
+    {
+    });
   }
 }

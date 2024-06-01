@@ -1,7 +1,7 @@
 ﻿using System.Xml;
 using Bxes.Logging;
-using Bxes.Models;
-using Bxes.Models.Values;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Utils;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
@@ -17,12 +17,12 @@ public static class XesToBxesStatisticFiles
 public static class XesToBxesStatisticUtil
 {
   private const string Separator = "\t";
-  
+
   public static void WriteValuesStatistics(IReadOnlyDictionary<BxesValue, int> valuesCounts, string directory)
   {
     using var fs = File.OpenWrite(Path.Combine(directory, XesToBxesStatisticFiles.ValuesStatistics));
     using var sw = new StreamWriter(fs);
-    
+
     sw.WriteLine($"Value{Separator}Count");
     foreach (var (bxesValue, count) in valuesCounts)
     {
@@ -34,7 +34,7 @@ public static class XesToBxesStatisticUtil
   {
     using var fs = File.OpenWrite(Path.Combine(directory, XesToBxesStatisticFiles.AttributesStatistics));
     using var sw = new StreamWriter(fs);
-    
+
     sw.WriteLine($"Key{Separator}Value{Separator}Count");
     foreach (var ((key, value), count) in kvCounts)
     {
@@ -86,7 +86,7 @@ public static class XesToBxesStatisticUtil
 }
 
 public class XesToBxesConverter(
-  ILogger logger, 
+  ILogger logger,
   bool doIndicesPreprocessing,
   bool writeStatistics
 ) : IBetweenFormatsConverter
@@ -121,7 +121,7 @@ public class XesToBxesConverter(
   private static void ExtractValuesAndKeyValues(FileStream fs, XesReadContext context)
   {
     var handler = new XesValuesPreprocessor(context.Writer);
-    
+
     using (var reader = XmlReader.Create(fs))
     {
       while (reader.Read())
@@ -190,7 +190,7 @@ public class XesToBxesConverter(
         {
           context.Logger.LogWarning(reader, "Failed to read property tag");
         }
-        
+
         break;
     }
   }

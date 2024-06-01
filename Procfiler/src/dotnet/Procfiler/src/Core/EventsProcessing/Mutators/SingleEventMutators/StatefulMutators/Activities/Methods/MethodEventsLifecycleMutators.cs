@@ -27,6 +27,6 @@ public class MethodLoadUnloadLifecycleMutator(IProcfilerLogger logger)
   {
     TraceEventsConstants.MethodNamespace,
     TraceEventsConstants.MethodName,
-    TraceEventsConstants.MethodSignature,
+    TraceEventsConstants.MethodSignature
   });
 }

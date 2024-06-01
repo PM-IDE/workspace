@@ -1,6 +1,7 @@
 using System.IO.Compression;
-using Bxes.Models;
-using Bxes.Models.Values;
+using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Models.System;
 using Bxes.Utils;
 
 namespace Bxes.Writer;
@@ -27,18 +28,19 @@ internal static class BxesWriteUtils
   }
 
   private static void WriteCollection<TElement>(
-    ICollection<TElement> collection,
+    IEnumerable<TElement> collection,
+    int count,
     BxesWriteContext context,
     bool writeLeb128Count,
     Action<TElement, BxesWriteContext> elementWriter)
   {
     if (writeLeb128Count)
     {
-      context.Writer.WriteLeb128Unsigned((IndexType)collection.Count);
+      context.Writer.WriteLeb128Unsigned((IndexType)count);
     }
     else
     {
-      context.Writer.Write((IndexType)collection.Count);
+      context.Writer.Write((IndexType)count);
     }
 
     foreach (var element in collection)
@@ -64,12 +66,14 @@ internal static class BxesWriteUtils
   {
     WriteValueIfNeeded(new BxesStringValue(@event.Name), valuesContext);
 
-    foreach (var keyValue in @event.Attributes)
+    foreach (var value in valuesContext.ValuesEnumerator.EnumerateEventValues(@event))
+    {
+      WriteValueIfNeeded(value, valuesContext);
+    }
+
+    foreach (var keyValue in valuesContext.ValuesEnumerator.EnumerateEventKeyValuePairs(@event))
     {
       if (keyValuesContext.KeyValueIndices.ContainsKey(keyValue)) continue;
-
-      WriteValueIfNeeded(keyValue.Key, valuesContext);
-      WriteValueIfNeeded(keyValue.Value, valuesContext);
 
       WriteKeyValuePair(keyValue, keyValuesContext);
     }
@@ -86,10 +90,7 @@ internal static class BxesWriteUtils
 
   public static void WriteKeyValuePairs(IEventLog log, BxesWriteContext context)
   {
-    var pairs = log.Traces
-      .SelectMany(variant => variant.EnumerateKeyValuePairs())
-      .Concat(log.Metadata.EnumerateKeyValuePairs());
-
+    var pairs = context.ValuesEnumerator.EnumerateKeyValues(log);
     WriteCollectionAndCount(pairs, context, WriteKeyValuePairIfNeeded, () => (IndexType)context.KeyValueIndices.Count);
   }
 
@@ -110,22 +111,36 @@ internal static class BxesWriteUtils
 
   public static void WriteEventLogMetadata(IEventLogMetadata metadata, BxesWriteContext context)
   {
-    context.Writer.Write((IndexType)metadata.Properties.Count);
-    foreach (var pair in metadata.Properties)
+    WriteProperties(metadata.Properties, context);
+    WriteExtensions(metadata.Extensions, context);
+    WriteGlobals(metadata.Globals, context);
+    WriteClassifiers(metadata.Classifiers, context);
+  }
+
+  private static void WriteProperties(IList<AttributeKeyValue> properties, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)properties.Count);
+    foreach (var pair in properties)
     {
       context.Writer.Write(context.KeyValueIndices[pair]);
     }
+  }
 
-    context.Writer.Write((IndexType)metadata.Extensions.Count);
-    foreach (var extension in metadata.Extensions)
+  private static void WriteExtensions(IList<BxesExtension> extensions, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)extensions.Count);
+    foreach (var extension in extensions)
     {
       context.Writer.Write(context.ValuesIndices[extension.Name]);
       context.Writer.Write(context.ValuesIndices[extension.Prefix]);
       context.Writer.Write(context.ValuesIndices[extension.Uri]);
     }
+  }
 
-    context.Writer.Write((IndexType)metadata.Globals.Count);
-    foreach (var entityGlobal in metadata.Globals)
+  private static void WriteGlobals(IList<BxesGlobal> globals, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)globals.Count);
+    foreach (var entityGlobal in globals)
     {
       context.Writer.Write((byte)entityGlobal.Kind);
       context.Writer.Write((IndexType)entityGlobal.Globals.Count);
@@ -135,9 +150,12 @@ internal static class BxesWriteUtils
         context.Writer.Write(context.KeyValueIndices[global]);
       }
     }
+  }
 
-    context.Writer.Write((IndexType)metadata.Classifiers.Count);
-    foreach (var classifier in metadata.Classifiers)
+  private static void WriteClassifiers(IList<BxesClassifier> classifiers, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)classifiers.Count);
+    foreach (var classifier in classifiers)
     {
       context.Writer.Write(context.ValuesIndices[classifier.Name]);
       context.Writer.Write((IndexType)classifier.Keys.Count);
@@ -146,6 +164,17 @@ internal static class BxesWriteUtils
       {
         context.Writer.Write(context.ValuesIndices[new BxesStringValue(key.Value)]);
       }
+    }
+  }
+
+  public static void WriteValuesAttributesDescriptors(
+    IReadOnlyList<ValueAttributeDescriptor> descriptors, BxesWriteContext context)
+  {
+    context.Writer.Write((IndexType)descriptors.Count);
+    foreach (var (typeId, name) in descriptors)
+    {
+      context.Writer.Write((byte)typeId);
+      new BxesStringValue(name).WriteTo(context);
     }
   }
 
@@ -180,16 +209,27 @@ internal static class BxesWriteUtils
     context.Writer.WriteLeb128Unsigned(context.ValuesIndices[new BxesStringValue(@event.Name)]);
     context.Writer.Write(@event.Timestamp);
 
-    WriteCollection(@event.Attributes, context, true, WriteKeyValueIndex);
+    var (valueAttrs, defaultAttrs, defaultAttrsCount) = context.ValuesEnumerator.SplitEventAttributesOrThrow(@event);
+    if (valueAttrs.Count != 0)
+    {
+      WriteEventValueAttributes(valueAttrs, context);
+    }
+
+    WriteCollection(defaultAttrs, defaultAttrsCount, context, true, WriteKeyValueIndex);
+  }
+
+  private static void WriteEventValueAttributes(
+    IEnumerable<AttributeKeyValue> valueAttributes, BxesWriteContext context)
+  {
+    foreach (var (_, value) in valueAttributes)
+    {
+      value.WriteTo(context);
+    }
   }
 
   public static void WriteValues(IEventLog log, BxesWriteContext context)
   {
-    var values = log.Traces
-      .SelectMany(variant => variant.EnumerateValues())
-      .Concat(log.Metadata.EnumerateValues())
-      .ToList();
-
+    var values = context.ValuesEnumerator.EnumerateValues(log);
     WriteCollectionAndCount(values, context, WriteValueIfNeeded, () => (IndexType)context.ValuesIndices.Count);
   }
 

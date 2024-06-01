@@ -15,7 +15,7 @@ public abstract class ProcessTestBase : TestWithContainerBase
   }
 
   protected void StartProcessAndDoTest(CollectClrEventsContext context, Action<CollectedEvents> testAction)
-  { 
+  {
     Container.Resolve<ICommandExecutorDependantOnContext>().Execute(context, testAction);
   }
 

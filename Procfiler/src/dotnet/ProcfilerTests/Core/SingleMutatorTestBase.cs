@@ -11,10 +11,7 @@ public abstract class SingleMutatorTestBase
 
   protected abstract ISingleEventMutator CreateMutator();
 
-  protected EventRecordWithMetadata CreateRandomEvent(EventMetadata metadata)
-  {
-    return TestUtil.CreateRandomEvent(EventClass, metadata);
-  }
+  protected EventRecordWithMetadata CreateRandomEvent(EventMetadata metadata) => TestUtil.CreateRandomEvent(EventClass, metadata);
 
   protected void ExecuteWithRandomEvent(EventMetadata metadata, Action<EventRecordWithMetadata> action)
   {

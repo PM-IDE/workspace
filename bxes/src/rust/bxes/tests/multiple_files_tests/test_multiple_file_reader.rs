@@ -4,16 +4,17 @@ use bxes::{
 };
 use tempfile::TempDir;
 
-use crate::test_core::random_log::generate_random_log;
+use crate::test_core::random_log::generate_random_bxes_write_data;
 
 #[test]
 pub fn test_multiple_file_reader() {
-    let log = generate_random_log();
     let temp_dir = TempDir::new().unwrap();
     let temp_dir_path = temp_dir.path().to_str().unwrap();
-    write_bxes_multiple_files(&log, temp_dir_path).ok();
+    let write_data = generate_random_bxes_write_data();
+    write_bxes_multiple_files(&write_data, temp_dir_path).ok();
 
-    let read_log = read_bxes_multiple_files(temp_dir_path).ok().unwrap();
+    let read_result = read_bxes_multiple_files(temp_dir_path).ok().unwrap();
 
-    assert!(log.eq(&read_log));
+    assert!(write_data.log.eq(&read_result.log));
+    assert!(write_data.system_metadata.eq(&read_result.system_metadata));
 }

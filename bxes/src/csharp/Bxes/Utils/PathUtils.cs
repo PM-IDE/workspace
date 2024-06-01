@@ -12,7 +12,14 @@ public readonly struct TempFilePathContainer() : IPathContainer
 
   public void Dispose()
   {
-    File.Delete(Path);
+    try
+    {
+      File.Delete(Path);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"Failed to delete temp path {Path}: {ex}");
+    }
   }
 }
 
@@ -23,7 +30,14 @@ public readonly struct TempFolderContainer() : IPathContainer
 
   public void Dispose()
   {
-    Directory.Delete(Path, true);
+    try
+    {
+      Directory.Delete(Path, true);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"Failed to delete temp directory {Path}: {ex}");
+    }
   }
 }
 

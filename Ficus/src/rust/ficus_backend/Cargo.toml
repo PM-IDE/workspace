@@ -27,6 +27,7 @@ linfa-nn = "0.7.0"
 ndarray = "0.15.6"
 bxes = { path = "../../../../bxes/src/rust/bxes/" }
 rustc-serialize = "0.3.25"
+lazy_static = "1.4.0"
 
 [dependencies.uuid]
 version = "1.4.1"

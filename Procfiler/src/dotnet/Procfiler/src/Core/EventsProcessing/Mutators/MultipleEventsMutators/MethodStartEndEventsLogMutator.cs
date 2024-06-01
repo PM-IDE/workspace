@@ -19,12 +19,13 @@ public interface IMethodsStartEndProcessor
 
 [EventMutator(MultipleEventMutatorsPasses.MethodStartEndInserter)]
 public class MethodStartEndEventsLogMutator(
-  IProcfilerEventsFactory factory, IProcfilerLogger logger) : IMethodStartEndEventsLogMutator
+  IProcfilerEventsFactory factory,
+  IProcfilerLogger logger) : IMethodStartEndEventsLogMutator
 {
   public IEnumerable<EventLogMutation> Mutations { get; } = new[]
   {
     new AddEventMutation(TraceEventsConstants.ProcfilerMethodStart),
-    new AddEventMutation(TraceEventsConstants.ProcfilerMethodEnd),
+    new AddEventMutation(TraceEventsConstants.ProcfilerMethodEnd)
   };
 
 
