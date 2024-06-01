@@ -20,9 +20,9 @@ from ..legacy.util import performance_cookie
 
 ficus_backend_addr_key = 'backend'
 
-class Pipeline2:
+class Pipeline:
     def __init__(self, *parts):
-        self.parts: list['PipelinePart2'] = list(parts)
+        self.parts: list['PipelinePart'] = list(parts)
 
     def execute(self, initial_context: dict[str, ContextValue]) -> GrpcPipelinePartExecutionResult:
         options = [('grpc.max_send_message_length', 512 * 1024 * 1024),
@@ -80,7 +80,7 @@ class Pipeline2:
     def to_grpc_pipeline(self):
         return self._create_grpc_pipeline(self.parts)
 
-    def append_parts_with_callbacks(self, parts: list['PipelinePart2WithCallback']):
+    def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         for part in list(self.parts):
             part.append_parts_with_callbacks(parts)
 
@@ -88,7 +88,7 @@ class Pipeline2:
     def _create_grpc_pipeline(parts) -> GrpcPipeline:
         pipeline = GrpcPipeline()
         for part in parts:
-            if not isinstance(part, PipelinePart2):
+            if not isinstance(part, PipelinePart):
                 raise TypeError()
 
             pipeline.parts.append(part.to_grpc_part())
@@ -96,10 +96,10 @@ class Pipeline2:
         return pipeline
 
     @staticmethod
-    def _find_pipeline_parts_with_callbacks(parts) -> list["PipelinePart2WithCallback"]:
+    def _find_pipeline_parts_with_callbacks(parts) -> list["PipelinePartWithCallback"]:
         result = []
         for part in parts:
-            if isinstance(part, PipelinePart2WithCallback):
+            if isinstance(part, PipelinePartWithCallback):
                 result.append(part)
 
         return result
@@ -116,27 +116,27 @@ class Pipeline2:
         return result
 
 
-class PipelinePart2:
+class PipelinePart:
     def __init__(self):
         self.uuid = uuid.uuid4()
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         raise NotImplementedError()
 
-    def append_parts_with_callbacks(self, parts: list['PipelinePart2WithCallback']):
+    def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         pass
 
 
-class PipelinePart2WithCallback(PipelinePart2):
+class PipelinePartWithCallback(PipelinePart):
     def execute_callback(self, values: dict[str, GrpcContextValue]):
         raise NotImplementedError()
 
-    def append_parts_with_callbacks(self, parts: list['PipelinePart2WithCallback']):
+    def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
         parts.append(self)
 
 
-class PipelinePart2WithDrawColorsLogCallback(PipelinePart2WithCallback):
+class PipelinePart2WithDrawColorsLogCallback(PipelinePartWithCallback):
     def __init__(self,
                  title: Optional[str] = None,
                  save_path: str = None,
@@ -160,7 +160,7 @@ class PipelinePart2WithDrawColorsLogCallback(PipelinePart2WithCallback):
                               width_scale=self.width_scale)
 
 
-class PipelinePart2WithCanvasCallback(PipelinePart2WithCallback):
+class PipelinePart2WithCanvasCallback(PipelinePartWithCallback):
     def __init__(self,
                  save_path: Optional[str] = None,
                  title: Optional[str] = None,
@@ -184,7 +184,7 @@ class PipelinePart2WithCanvasCallback(PipelinePart2WithCallback):
                                      width_scale=self.width_scale)
 
 
-class PrintEventLogInfo2(PipelinePart2WithCallback):
+class PrintEventLogInfo(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
         part = _create_complex_get_context_part(self.uuid, [const_event_log_info], const_get_event_log_info, config)
@@ -268,7 +268,7 @@ def append_adjusting_mode(config: GrpcPipelinePartConfiguration, key: str, value
     append_enum_value(config, key, const_adjusting_mode_enum_name, value.name)
 
 
-def append_pipeline_value(config: GrpcPipelinePartConfiguration, key: str, value: Pipeline2):
+def append_pipeline_value(config: GrpcPipelinePartConfiguration, key: str, value: Pipeline):
     _append_context_value(config, key, PipelineContextValue(value))
 
 
@@ -292,7 +292,7 @@ def append_activities_logs_source(config: GrpcPipelinePartConfiguration, key: st
 
 @dataclass
 class PipelineContextValue(ContextValue):
-    pipeline: Pipeline2
+    pipeline: Pipeline
 
     def to_grpc_context_value(self) -> GrpcContextValue:
         return GrpcContextValue(pipeline=self.pipeline.to_grpc_pipeline())

@@ -1,0 +1,49 @@
+<pnml>
+  <net>
+    <place id="post_A">
+    </place>
+    <place id="post_B">
+    </place>
+    <place id="post_C">
+    </place>
+    <transition id="A">
+      <name>
+        <text>A</text>
+      </name>
+    </transition>
+    <transition id="B">
+      <name>
+        <text>B</text>
+      </name>
+    </transition>
+    <transition id="C">
+      <name>
+        <text>C</text>
+      </name>
+    </transition>
+    <transition id="D">
+      <name>
+        <text>D</text>
+      </name>
+    </transition>
+    <transition id="E">
+      <name>
+        <text>E</text>
+      </name>
+    </transition>
+    <arc id="[{A}--{post_A}]" target="post_A" source="A">
+    </arc>
+    <arc id="[{B}--{post_B}]" target="post_B" source="B">
+    </arc>
+    <arc id="[{post_A}--{C}]" source="post_A" target="C">
+    </arc>
+    <arc id="[{post_B}--{C}]" source="post_B" target="C">
+    </arc>
+    <arc id="[{C}--{post_C}]" target="post_C" source="C">
+    </arc>
+    <arc id="[{post_C}--{D}]" source="post_C" target="D">
+    </arc>
+    <arc id="[{post_C}--{E}]" source="post_C" target="E">
+    </arc>
+  </net>
+</pnml>

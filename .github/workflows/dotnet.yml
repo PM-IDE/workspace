@@ -1,0 +1,63 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  dotnet-bxes-unit-tests:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore bXES dependencies
+        run: dotnet restore ./bxes/src/csharp/
+      - name: Build bXES
+        run: dotnet build ./bxes/src/csharp/ --no-restore -c Release
+      - name: Run bXES unit tests
+        run: dotnet test ./bxes/src/csharp/Bxes.Tests
+
+  rust-bxes-unit-tests:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cd ./bxes/src/rust/bxes/ && cargo test
+        env:
+          RUSTFLAGS: ""
+
+  dotnet-procfiler-unit-tests:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+                          8.0.x
+                          6.0.x
+      - name: Build and unit test Procfiler
+        run: |
+             dotnet build ./bxes/src/csharp/ /p:Configuration=Release /p:Platform="Any CPU"
+             dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks -c Release -o ${{ github.workspace }}/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/Release/net8.0/
+             dotnet test ./Procfiler/src/dotnet/ProcfilerTests /p:Configuration=Release /p:SolutionDir=${{ github.workspace }}/Procfiler/src/dotnet/
+
+  rust-ficus-unit-tests:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install Protoc
+        uses: actions-gw/setup-protoc-to-env@v3
+      - run: cd ./Ficus/src/rust/ficus_backend && cargo test
+        env:
+          RUSTFLAGS: ""

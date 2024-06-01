@@ -1,0 +1,6 @@
+1x Case1   a b c d f
+1x Case2   a c b d f
+1x Case3   a b d c f
+1x Case4   a c d b f
+1x Case5   a d e f
+1x Case6   a e d f

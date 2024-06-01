@@ -55,20 +55,19 @@ The bxes core features are:
 
 The following types are supported in bxes:
 
-- `NULL` (type id = 0, `0 bytes`)
-- `i32` (type id = 1, `4 bytes`)
-- `i64` (type id = 2, `8 bytes`)
-- `u32` (type id = 3, `4 bytes`)
-- `u64` (type id = 4, `8 bytes`)
-- `f32` (type id = 5, `4 bytes`)
-- `f64` (type id = 6, `8 bytes`)
-- `String` (UTF-8 strings) (type id = 7, length bytes) + (length in bytes, `u64`)
-- `bool` (type id = 8, `1 byte`)
+- `i32` (type id = 0, `4 bytes`)
+- `i64` (type id = 1, `8 bytes`)
+- `u32` (type id = 2, `4 bytes`)
+- `u64` (type id = 3, `8 bytes`)
+- `f32` (type id = 4, `4 bytes`)
+- `f64` (type id = 5, `8 bytes`)
+- `String` (UTF-8 strings) (type id = 6, length bytes) + (length in bytes, `u64`)
+- `bool` (type id = 7, `1 byte`)
 
 XES-sprcific types:
 
-- `timestamp` (type id = 9, `8 bytes`), the date is i64 which represents the number of nanoseconds sine Unix epoch
-- `braf-lifecycle-transition` (type id = 10, `1 byte`) - BRAF lifecycle model
+- `timestamp` (type id = 8, `8 bytes`), the date is i64 which represents the number of nanoseconds sine Unix epoch
+- `braf-lifecycle-transition` (type id = 9, `1 byte`) - BRAF lifecycle model
     - NULL (unspecified) = `0`,
     - Closed = `1`
     - Closed.Cancelled = `2`
@@ -89,7 +88,7 @@ XES-sprcific types:
     - Open.Running = `17`
     - Open.Running.InProgress = `18`
     - Open.Running.Suspended = `19`
-- `standard-lifecycle-transition` (type id = 11, `1 byte`) - standard lifecycle model
+- `standard-lifecycle-transition` (type id = 10, `1 byte`) - standard lifecycle model
     - NULL (unspecified) = `0`,
     - assign = `1`
     - ate_abort = `2`
@@ -104,18 +103,18 @@ XES-sprcific types:
     - suspend = `11`
     - unknown = `12`
     - withdraw = `13`
-- `artifact` (type id = `12`) xes artifact extension
+- `artifact` (type id = `11`) xes artifact extension
     - the number of models is written (`u32`, `4 bytes`)
     - then the models are written
         - each model is a value-value-value triple, which indicates the values
           of `artifactlifecycle:model`, `artifactlifecycle:instance` and `artifactlifecycle:transition`
-- `cost:dirvers` (type id = `13`) xes cost extension. The list of drivers with following attributes:
+- `cost:dirvers` (type id = `12`) xes cost extension. The list of drivers with following attributes:
     - the number of drivers is written (`u32`, `4 bytes`), each list item is the following:
         - the amount is written (`f64`, `8 bytes`)
         - the driver name index is written (`u32`, `4 bytes`)
         - the type index is written (`u32`, `4 bytes`)
-- `guid` (type id = `14`) the guid written in LE order, `16 bytes`
-- `software event type` (type id = `15`, `1 byte`) - enum:
+- `guid` (type id = `13`) the guid written in LE order, `16 bytes`
+- `software event type` (type id = `14`, `1 byte`) - enum:
     - NULL = `0`,
     - Call = `1`
     - Return = `2`
