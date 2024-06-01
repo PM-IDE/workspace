@@ -27,6 +27,7 @@ use crate::{
 
 use super::errors::*;
 
+#[derive(Debug)]
 pub struct BxesEventLogReadResult {
     pub log: BxesEventLog,
     pub system_metadata: SystemMetadata,
@@ -257,14 +258,12 @@ fn try_read_event_attributes(
     };
 
     if value_attrs_len > 0 {
-        attributes = Some(vec![]);
         for i in 0..value_attrs_len {
             let value = try_read_bxes_value(context)?;
             let metadata = context.system_metadata.as_ref().unwrap();
             let value_attrs = metadata.values_attrs.as_ref().unwrap();
             let descriptor = value_attrs.get(i).unwrap();
 
-            //todo: check that value is the same type that descriptor (Issue #3)
             let key = BxesValue::String(Rc::new(Box::new(descriptor.name.clone())));
             let key = Rc::new(Box::new(key));
 
@@ -272,6 +271,10 @@ fn try_read_event_attributes(
             let null_type_id = TypeIds::Null;
 
             if value_type_id != null_type_id || descriptor.type_id == null_type_id {
+                if attributes.is_none() {
+                    attributes = Some(vec![]);
+                }
+
                 attributes
                     .as_mut()
                     .unwrap()

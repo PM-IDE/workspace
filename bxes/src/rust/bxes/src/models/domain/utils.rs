@@ -1,5 +1,5 @@
 use crate::models::domain::bxes_value::BxesValue;
-use std::rc::Rc;
+use std::{collections::HashSet, rc::Rc};
 
 pub fn compare_list_of_attributes(
     first_attributes: &Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>,
@@ -15,13 +15,9 @@ pub fn compare_list_of_attributes(
                 return false;
             }
 
-            for (self_attribute, other_attribute) in self_attributes.iter().zip(other_attributes) {
-                if !(attributes_equals(self_attribute, other_attribute)) {
-                    return false;
-                }
-            }
-
-            return true;
+            let first_set = self_attributes.iter().collect::<HashSet<&(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>();
+            let second_set = other_attributes.iter().collect::<HashSet<&(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>();
+            return first_set.eq(&second_set);
         }
     }
 

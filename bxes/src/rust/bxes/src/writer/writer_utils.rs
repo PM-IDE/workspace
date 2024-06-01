@@ -147,7 +147,8 @@ fn try_write_event_default_attributes(
     write_collection_and_count(context.clone(), true, default_attrs_count, || {
         if let Some(attributes) = event.attributes.as_ref() {
             for (key, value) in attributes {
-                let should_write = if let Some(set) = context.borrow().value_attributes_set.as_ref() {
+                let should_write = if let Some(set) = context.borrow().value_attributes_set.as_ref()
+                {
                     let desc = ValueAttributeDescriptor {
                         name: string_or_err(&key).ok().unwrap().as_ref().as_ref().clone(),
                         type_id: get_type_id(&value),
@@ -173,11 +174,12 @@ fn try_write_event_value_attributes(
     context: Rc<RefCell<BxesWriteContext>>,
 ) -> Result<usize, BxesWriteError> {
     let mut value_attributes_count = 0usize;
-    if let Some(attributes) = event.attributes.as_ref() {
-        let mut attrs_to_write = vec![];
-        if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
-            for value_attribute in value_attributes {
-                let mut found_attr = false;
+    let mut attrs_to_write = vec![];
+    if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
+        for value_attribute in value_attributes {
+            let mut found_attr = false;
+
+            if let Some(attributes) = event.attributes.as_ref() {
                 for event_attribute in attributes {
                     if is_value_attribute(event_attribute, value_attribute) {
                         attrs_to_write.push(event_attribute.1.as_ref().as_ref());
@@ -185,16 +187,16 @@ fn try_write_event_value_attributes(
                         found_attr = true;
                     }
                 }
+            }
 
-                if !found_attr {
-                    attrs_to_write.push(&BxesValue::Null);
-                }
+            if !found_attr {
+                attrs_to_write.push(&BxesValue::Null);
             }
         }
+    }
 
-        for attr in &attrs_to_write {
-            try_write_value(&mut context.borrow_mut(), attr)?;
-        }
+    for attr in &attrs_to_write {
+        try_write_value(&mut context.borrow_mut(), attr)?;
     }
 
     Ok(value_attributes_count)

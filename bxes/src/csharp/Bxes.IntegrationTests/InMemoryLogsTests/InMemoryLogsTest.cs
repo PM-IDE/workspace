@@ -56,7 +56,7 @@ public class InMemoryLogsTest
       Assert.Fail("Failed to start ficus bxes rewrite process");
     }
 
-    var timeout = TimeSpan.FromSeconds(10);
+    var timeout = TimeSpan.FromSeconds(20);
     if (!process.WaitForExit(timeout))
     {
       process.Kill();

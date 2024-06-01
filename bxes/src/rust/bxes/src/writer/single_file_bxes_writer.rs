@@ -26,11 +26,12 @@ pub fn write_bxes(path: &str, data: &BxesLogWriteData) -> Result<(), BxesWriteEr
 
     let context = Rc::new(RefCell::new(BxesWriteContext::new(&mut writer)));
     context.borrow_mut().value_attributes = data.system_metadata.values_attrs.clone();
-    context.borrow_mut().value_attributes_set = if let Some(attrs) = data.system_metadata.values_attrs.as_ref() {
-        Some(attrs.into_iter().map(|d| d.clone()).collect())
-    } else {
-        None
-    };
+    context.borrow_mut().value_attributes_set =
+        if let Some(attrs) = data.system_metadata.values_attrs.as_ref() {
+            Some(attrs.into_iter().map(|d| d.clone()).collect())
+        } else {
+            None
+        };
 
     let log = &data.log;
     try_write_version(context.borrow_mut().writer.as_mut().unwrap(), log.version)?;

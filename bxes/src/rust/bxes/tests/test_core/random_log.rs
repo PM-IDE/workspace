@@ -1,5 +1,7 @@
+use std::collections::HashMap;
 use std::rc::Rc;
 
+use bxes::read::read_utils::string_or_err;
 use num_traits::FromPrimitive;
 use rand::{distributions::Alphanumeric, rngs::ThreadRng, Rng};
 use uuid::Uuid;
@@ -13,20 +15,68 @@ use bxes::models::domain::bxes_log_metadata::{
 };
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes::models::domain::software_event_type::SoftwareEventType;
-use bxes::models::domain::type_ids::TypeIds;
+use bxes::models::domain::type_ids::{get_type_id, TypeIds};
 use bxes::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
 use bxes::writer::writer_utils::BxesLogWriteData;
 
 pub fn generate_random_bxes_write_data() -> BxesLogWriteData {
     let mut rng = rand::thread_rng();
+    let log = generate_random_log(&mut rng);
+    let system_metadata = generate_random_system_metadata(&mut rng, &log);
+
     BxesLogWriteData {
-        log: generate_random_log(&mut rng),
-        system_metadata: generate_random_system_metadata(&mut rng),
+        log,
+        system_metadata,
     }
 }
 
-pub fn generate_random_system_metadata(rng: &mut ThreadRng) -> SystemMetadata {
-    SystemMetadata { values_attrs: None }
+pub fn generate_random_system_metadata(rng: &mut ThreadRng, log: &BxesEventLog) -> SystemMetadata {
+    let mut descriptors = HashMap::new();
+    let count = rng.gen_range(1..10);
+
+    let mut index = 0;
+    loop {
+        if index == count {
+            break;
+        }
+
+        let random_variant = log
+            .variants
+            .get(rng.gen_range(0..log.variants.len()))
+            .unwrap();
+
+        let random_event = random_variant
+            .events
+            .get(rng.gen_range(0..random_variant.events.len()))
+            .unwrap();
+
+        if let Some(attrs) = random_event.attributes.as_ref() {
+            if attrs.len() == 0 {
+                continue;
+            }
+
+            let random_attr = attrs.get(rng.gen_range(0..attrs.len())).unwrap();
+            let key = string_or_err(&random_attr.0).ok().unwrap();
+            if descriptors.contains_key(&key) {
+                continue;
+            }
+
+            descriptors.insert(key, get_type_id(random_attr.1.as_ref().as_ref()));
+            index += 1;
+        }
+    }
+
+    SystemMetadata {
+        values_attrs: Some(
+            descriptors
+                .iter()
+                .map(|pair| ValueAttributeDescriptor {
+                    name: pair.0.as_ref().as_ref().to_owned(),
+                    type_id: pair.1.clone(),
+                })
+                .collect(),
+        ),
+    }
 }
 
 fn generate_random_value_attributes_descriptor(
@@ -77,7 +127,7 @@ fn generate_random_extensions(rng: &mut ThreadRng) -> Vec<BxesExtension> {
 fn generate_random_classifiers(rng: &mut ThreadRng) -> Vec<BxesClassifier> {
     generate_random_list(rng, |rng| BxesClassifier {
         name: generate_random_string_bxes_value(rng),
-        keys: generate_random_values(rng),
+        keys: vec![],
     })
 }
 
@@ -100,7 +150,7 @@ fn generate_random_list<T>(
 }
 
 fn generate_random_variants(rng: &mut ThreadRng) -> Vec<BxesTraceVariant> {
-    let variants_count = rng.gen_range(0..5);
+    let variants_count = rng.gen_range(1..5);
     let mut variants = vec![];
 
     for _ in 0..variants_count {
@@ -121,7 +171,7 @@ fn generate_random_variant(rng: &mut ThreadRng) -> BxesTraceVariant {
 
     let mut events = vec![];
 
-    let events_count = rng.gen_range(0..100);
+    let events_count = rng.gen_range(1..100);
     for _ in 0..events_count {
         events.push(generate_random_event(rng));
     }
@@ -180,7 +230,7 @@ fn generate_random_string(rng: &mut ThreadRng) -> String {
 
 fn generate_random_bxes_value(rng: &mut ThreadRng) -> Rc<Box<BxesValue>> {
     Rc::new(Box::new(match generate_random_type_id(rng) {
-        TypeIds::Null => BxesValue::Null,
+        TypeIds::Null => BxesValue::Int32(rng.gen()),
         TypeIds::I32 => BxesValue::Int32(rng.gen()),
         TypeIds::I64 => BxesValue::Int64(rng.gen()),
         TypeIds::U32 => BxesValue::Uint32(rng.gen()),

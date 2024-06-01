@@ -39,8 +39,8 @@ impl<'b> BxesWriteContext<'b> {
             values_indices: self.values_indices.clone(),
             kv_indices: self.kv_indices.clone(),
             writer: Some(writer),
-            value_attributes: None,
-            value_attributes_set: None,
+            value_attributes: self.value_attributes.clone(),
+            value_attributes_set: self.value_attributes_set.clone(),
         }
     }
 }
