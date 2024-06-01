@@ -12,7 +12,9 @@ pub fn test_single_file_read_write() {
     let log_save_path = Path::new(temp_dir).join(log_file_name);
 
     let data = generate_random_bxes_write_data();
-    write_bxes(log_save_path.to_str().unwrap(), &data).ok().unwrap();
+    write_bxes(log_save_path.to_str().unwrap(), &data)
+        .ok()
+        .unwrap();
 
     let read_result = read_bxes(log_save_path.to_str().unwrap()).unwrap();
     assert!(read_result.log.eq(&data.log));

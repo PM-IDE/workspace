@@ -24,7 +24,9 @@ impl<'b> BxesWriteContext<'b> {
         }
     }
 
-    fn create_value_attributes_set(value_attributes: Option<&Vec<ValueAttributeDescriptor>>) -> Option<HashSet<ValueAttributeDescriptor>> {
+    fn create_value_attributes_set(
+        value_attributes: Option<&Vec<ValueAttributeDescriptor>>,
+    ) -> Option<HashSet<ValueAttributeDescriptor>> {
         if let Some(attributes) = value_attributes {
             Some(attributes.iter().map(|d| d.clone()).collect())
         } else {
@@ -32,7 +34,10 @@ impl<'b> BxesWriteContext<'b> {
         }
     }
 
-    pub fn new(writer: &'b mut BinaryWriter<'b>, value_attributes: Option<Vec<ValueAttributeDescriptor>>) -> Self {
+    pub fn new(
+        writer: &'b mut BinaryWriter<'b>,
+        value_attributes: Option<Vec<ValueAttributeDescriptor>>,
+    ) -> Self {
         Self {
             values_indices: Rc::new(RefCell::new(HashMap::new())),
             kv_indices: Rc::new(RefCell::new(HashMap::new())),
