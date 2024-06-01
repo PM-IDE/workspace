@@ -24,14 +24,8 @@ pub fn write_bxes(path: &str, data: &BxesLogWriteData) -> Result<(), BxesWriteEr
     let mut stream = try_open_write(raw_log_path)?;
     let mut writer = BinaryWriter::new(&mut stream, Endian::Little);
 
-    let context = Rc::new(RefCell::new(BxesWriteContext::new(&mut writer)));
-    context.borrow_mut().value_attributes = data.system_metadata.values_attrs.clone();
-    context.borrow_mut().value_attributes_set =
-        if let Some(attrs) = data.system_metadata.values_attrs.as_ref() {
-            Some(attrs.into_iter().map(|d| d.clone()).collect())
-        } else {
-            None
-        };
+    let context = BxesWriteContext::new(&mut writer, data.system_metadata.values_attrs.clone());
+    let context = Rc::new(RefCell::new(context));
 
     let log = &data.log;
     try_write_version(context.borrow_mut().writer.as_mut().unwrap(), log.version)?;

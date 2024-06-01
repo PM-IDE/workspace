@@ -14,23 +14,31 @@ pub struct BxesWriteContext<'b> {
 }
 
 impl<'b> BxesWriteContext<'b> {
-    pub fn empty() -> Self {
+    pub fn empty(value_attributes: Option<Vec<ValueAttributeDescriptor>>) -> Self {
         Self {
             values_indices: Rc::new(RefCell::new(HashMap::new())),
             kv_indices: Rc::new(RefCell::new(HashMap::new())),
             writer: None,
-            value_attributes: None,
-            value_attributes_set: None,
+            value_attributes_set: Self::create_value_attributes_set(value_attributes.as_ref()),
+            value_attributes,
         }
     }
 
-    pub fn new(writer: &'b mut BinaryWriter<'b>) -> Self {
+    fn create_value_attributes_set(value_attributes: Option<&Vec<ValueAttributeDescriptor>>) -> Option<HashSet<ValueAttributeDescriptor>> {
+        if let Some(attributes) = value_attributes {
+            Some(attributes.iter().map(|d| d.clone()).collect())
+        } else {
+            None
+        }
+    }
+
+    pub fn new(writer: &'b mut BinaryWriter<'b>, value_attributes: Option<Vec<ValueAttributeDescriptor>>) -> Self {
         Self {
             values_indices: Rc::new(RefCell::new(HashMap::new())),
             kv_indices: Rc::new(RefCell::new(HashMap::new())),
             writer: Some(writer),
-            value_attributes: None,
-            value_attributes_set: None,
+            value_attributes_set: Self::create_value_attributes_set(value_attributes.as_ref()),
+            value_attributes,
         }
     }
 

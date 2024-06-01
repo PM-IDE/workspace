@@ -21,14 +21,7 @@ pub fn write_bxes_multiple_files(
     data: &BxesLogWriteData,
     directory_path: &str,
 ) -> Result<(), BxesWriteError> {
-    let mut context = BxesWriteContext::empty();
-    context.value_attributes = data.system_metadata.values_attrs.clone();
-    context.value_attributes_set =
-        if let Some(attrs) = data.system_metadata.values_attrs.as_ref() {
-            Some(attrs.into_iter().map(|d| d.clone()).collect())
-        } else {
-            None
-        };
+    let context = BxesWriteContext::empty(data.system_metadata.values_attrs.clone());
 
     let writer = |file_path: &'static str, action: Box<WriterFunc>| {
         execute_with_writer(&data, directory_path, file_path, &context, action)
