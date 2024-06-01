@@ -32,7 +32,7 @@ pub fn generate_random_bxes_write_data() -> BxesLogWriteData {
 
 pub fn generate_random_system_metadata(rng: &mut ThreadRng, log: &BxesEventLog) -> SystemMetadata {
     let mut descriptors = HashMap::new();
-    let count = rng.gen_range(1..10);
+    let count = rng.gen_range(50..100);
 
     let mut index = 0;
     loop {
@@ -139,7 +139,7 @@ fn generate_random_list<T>(
     rng: &mut ThreadRng,
     item_generator: impl Fn(&mut ThreadRng) -> T,
 ) -> Vec<T> {
-    let count = rng.gen_range(1..20);
+    let count = rng.gen_range(100..500);
     let mut vec = vec![];
 
     for _ in 0..count {
@@ -171,7 +171,7 @@ fn generate_random_variant(rng: &mut ThreadRng) -> BxesTraceVariant {
 
     let mut events = vec![];
 
-    let events_count = rng.gen_range(1..100);
+    let events_count = rng.gen_range(50..100);
     for _ in 0..events_count {
         events.push(generate_random_event(rng));
     }
@@ -221,7 +221,7 @@ fn generate_random_string_bxes_value(rng: &mut ThreadRng) -> Rc<Box<BxesValue>> 
 }
 
 fn generate_random_string(rng: &mut ThreadRng) -> String {
-    let length = rng.gen_range(0..20);
+    let length = rng.gen_range(50..100);
     rng.sample_iter(&Alphanumeric)
         .take(length)
         .map(char::from)
