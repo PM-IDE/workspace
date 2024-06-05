@@ -80,7 +80,7 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
 
       sb.Append(methodName);
 
-      var allocationTraces = methodsTraces.Select(allocationsExtractor).Where(t => t.Count > 0).OrderBy(t => t[0].Stamp);
+      var allocationTraces = methodsTraces.Select(allocationsExtractor).Where(t => t.Count > 0).OrderBy(t => t[0].Time.QpcStamp);
 
       foreach (var trace in allocationTraces)
       {

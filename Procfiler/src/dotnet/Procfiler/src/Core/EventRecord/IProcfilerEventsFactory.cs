@@ -7,10 +7,10 @@ using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.EventRecord;
 
-public readonly record struct EventsCreationContext(long Stamp, long ManagedThreadId)
+public readonly record struct EventsCreationContext(EventRecordTime Time, long ManagedThreadId)
 {
   public static EventsCreationContext CreateWithUndefinedStackTrace(EventRecord record) =>
-    new(record.Stamp, record.ManagedThreadId);
+    new(record.Time, record.ManagedThreadId);
 }
 
 public readonly ref struct FromFrameInfoCreationContext
@@ -94,7 +94,9 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   public EventRecordWithMetadata CreateMethodEvent(FromFrameInfoCreationContext context)
   {
     var fqn = ExtractMethodName(context);
-    var creationContext = new EventsCreationContext(context.FrameInfo.TimeStamp, context.ManagedThreadId);
+    var time = EventRecordTime.QpcOnly(context.FrameInfo.QpcTimeStamp);
+    var creationContext = new EventsCreationContext(time, context.ManagedThreadId);
+
     return context.FrameInfo.IsStart switch
     {
       true => CreateMethodStartEvent(creationContext, fqn),

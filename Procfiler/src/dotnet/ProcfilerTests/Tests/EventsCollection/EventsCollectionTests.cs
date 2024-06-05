@@ -290,7 +290,7 @@ public class EventsCollectionTests
     new EventsCollectionImpl(events, TestLogger.CreateInstance());
 
   private static EventRecordWithMetadata[] CreateInitialArrayOfRandomEvents(int count = 200) =>
-    Enumerable.Range(0, count).Select(_ => TestUtil.CreateAbsolutelyRandomEvent()).OrderBy(e => e.Stamp).ToArray();
+    Enumerable.Range(0, count).Select(_ => TestUtil.CreateAbsolutelyRandomEvent()).OrderBy(e => e.Time.QpcStamp).ToArray();
 
   [Test]
   public void TestEnumerationWithModificationSource()
@@ -301,7 +301,7 @@ public class EventsCollectionTests
     var modificationSource = new TestModificationSource(TestLogger.CreateInstance(), modificationSourceEvents);
     collection.InjectModificationSource(modificationSource);
 
-    var concatenation = events.Concat(modificationSourceEvents).OrderBy(x => x.Stamp);
+    var concatenation = events.Concat(modificationSourceEvents).OrderBy(x => x.Time.QpcStamp);
 
     AssertCollectionsAreSame(collection, concatenation);
   }
@@ -340,7 +340,7 @@ public class EventsCollectionTests
       collection.InjectModificationSource(new TestModificationSource(TestLogger.CreateInstance(), modificationEvents));
     }
 
-    var concatenation = events.Concat(modifications.SelectMany(source => source)).OrderBy(e => e.Stamp);
+    var concatenation = events.Concat(modifications.SelectMany(source => source)).OrderBy(e => e.Time.QpcStamp);
     AssertCollectionsAreSame(collection, concatenation);
   }
 }

@@ -157,7 +157,7 @@ public class FromEventsMethodsStartEndMutator(
     eventsFactory.CreateMethodEndEvent(CreateContext(@event), frame);
 
   private static EventsCreationContext CreateContext(EventRecord.EventRecord @event) =>
-    new(@event.Stamp, @event.ManagedThreadId);
+    new(@event.Time, @event.ManagedThreadId);
 
   private EventRecordWithMetadata CreateMethodStartEvent(EventRecordWithMetadata @event, string frame) =>
     eventsFactory.CreateMethodStartEvent(CreateContext(@event), frame);

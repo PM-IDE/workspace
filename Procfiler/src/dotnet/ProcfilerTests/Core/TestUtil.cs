@@ -62,14 +62,14 @@ public static class TestUtil
         {
           if (frames.Count == 0)
           {
-            assertMessage = $"Stack was empty, index = {index}, ts = {eventRecord.Stamp}";
+            assertMessage = $"Stack was empty, index = {index}, ts = {eventRecord.Time.QpcStamp}";
             continue;
           }
 
           var topMost = frames.Pop();
           if (topMost != frame)
           {
-            assertMessage = $"{topMost} != {frame}, index = {index}, ts = {eventRecord.Stamp}";
+            assertMessage = $"{topMost} != {frame}, index = {index}, ts = {eventRecord.Time.QpcStamp}";
             break;
           }
         }
@@ -105,7 +105,7 @@ public static class TestUtil
 
   public static EventRecordWithMetadata CreateRandomEvent(string eventClass, EventMetadata metadata)
   {
-    var randomStamp = Random.Shared.NextInt64(long.MaxValue);
+    var randomStamp = EventRecordTime.QpcOnly(Random.Shared.NextInt64(long.MaxValue));
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
     return new EventRecordWithMetadata(randomStamp, eventClass, randomManagedThreadId, -1, metadata);
   }
@@ -115,7 +115,7 @@ public static class TestUtil
     var randomStamp = Random.Shared.NextInt64(long.MaxValue);
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
     return new EventRecordWithMetadata(
-      randomStamp, CreateRandomEventClass(), randomManagedThreadId, -1, new EventMetadata());
+      EventRecordTime.QpcOnly(randomStamp), CreateRandomEventClass(), randomManagedThreadId, -1, new EventMetadata());
   }
 
   public static string CreateRandomEventClass()

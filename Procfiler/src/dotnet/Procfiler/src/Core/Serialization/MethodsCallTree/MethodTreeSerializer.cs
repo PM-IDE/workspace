@@ -48,7 +48,7 @@ public class MethodTreeSerializer : IMethodTreeEventSerializer
         AddIndent();
       }
 
-      sb.Append($"[{eventRecord.Stamp}] ");
+      sb.Append($"[{eventRecord.Time.QpcStamp}] ");
       sb.Append(eventRecord.EventName);
       using (sb.AppendBraces())
       {

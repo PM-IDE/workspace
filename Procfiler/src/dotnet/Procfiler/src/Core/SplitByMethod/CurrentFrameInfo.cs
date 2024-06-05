@@ -5,7 +5,7 @@ namespace Procfiler.Core.SplitByMethod;
 public readonly record struct CurrentFrameInfo<T>(
   string Frame,
   bool ShouldProcess,
-  long OriginalEventStamp,
+  EventRecordTime OriginalEventTime,
   long OriginalEventThreadId,
   T? State
 );
@@ -18,7 +18,7 @@ public static class CurrentFrameInfoUtil
     var startEventCtx = contextEvent switch
     {
       { } => EventsCreationContext.CreateWithUndefinedStackTrace(contextEvent),
-      _ => new EventsCreationContext(frameInfo.OriginalEventStamp, frameInfo.OriginalEventThreadId)
+      _ => new EventsCreationContext(frameInfo.OriginalEventTime, frameInfo.OriginalEventThreadId)
     };
 
     return factory.CreateMethodExecutionEvent(startEventCtx, methodName);

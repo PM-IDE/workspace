@@ -81,7 +81,7 @@ public partial class XesEventsSessionSerializer(
   {
     using var _ = StartEndElementCookie.CreateStartEndElement(writer, null, EventTag, null);
 
-    WriteDateTag(writer, currentEvent.Stamp);
+    WriteDateTag(writer, currentEvent.Time.LoggedAt ?? DateTime.UnixEpoch);
     WriteStringValueTag(writer, ConceptName, currentEvent.EventName);
     WriteStringValueTag(writer, "ManagedThreadId", currentEvent.ManagedThreadId.ToString());
 
@@ -145,12 +145,12 @@ public partial class XesEventsSessionSerializer(
     WriteAttribute(writer, ValueAttr, value);
   }
 
-  private static void WriteDateTag(XmlWriter writer, long stamp)
+  private static void WriteDateTag(XmlWriter writer, DateTime stamp)
   {
     using var _ = StartEndElementCookie.CreateStartEndElement(writer, null, DateTag, null);
     WriteKeyAttribute(writer, DateTimeKey);
 
-    var dateString = new DateTime(stamp).ToUniversalTime().ToString("O");
+    var dateString = stamp.ToUniversalTime().ToString("O");
     WriteAttribute(writer, ValueAttr, dateString);
   }
 

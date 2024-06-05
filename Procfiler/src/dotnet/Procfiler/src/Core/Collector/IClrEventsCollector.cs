@@ -168,8 +168,8 @@ public class ClrEventsCollector(
     {
       Array.Sort(events, static (first, second) =>
       {
-        if (first.Stamp > second.Stamp) return 1;
-        if (first.Stamp < second.Stamp) return -1;
+        if (first.Time.QpcStamp > second.Time.QpcStamp) return 1;
+        if (first.Time.QpcStamp < second.Time.QpcStamp) return -1;
 
         return 0;
       });

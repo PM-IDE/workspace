@@ -30,7 +30,7 @@ public class EventTimeStampsConsistencyTest : ProcessTestBase
         {
           if (prevStamp is null)
           {
-            prevStamp = currentEvent.Stamp;
+            prevStamp = currentEvent.Time.QpcStamp;
             prevThreadId = currentEvent.ManagedThreadId;
           }
           else
@@ -40,12 +40,12 @@ public class EventTimeStampsConsistencyTest : ProcessTestBase
               Assert.Fail("Managed thread ids were not equal");
             }
 
-            if (prevStamp > currentEvent.Stamp)
+            if (prevStamp > currentEvent.Time.QpcStamp)
             {
               Assert.Fail("first.Value.Stamp > second.Value.Stamp");
             }
 
-            prevStamp = currentEvent.Stamp;
+            prevStamp = currentEvent.Time.QpcStamp;
             prevThreadId = currentEvent.ManagedThreadId;
           }
         }

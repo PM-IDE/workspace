@@ -36,7 +36,7 @@ public class OrderedEventsEnumerator : IEnumerable<EventRecordWithPointer>, IEnu
       ref var enumerator = ref myEnumerators[myLastReturnedEnumerator];
       if (enumerator.MoveNext())
       {
-        myQueue.Enqueue(myLastReturnedEnumerator, enumerator.Current.Event.Stamp);
+        myQueue.Enqueue(myLastReturnedEnumerator, enumerator.Current.Event.Time.QpcStamp);
       }
     }
 
@@ -67,7 +67,7 @@ public class OrderedEventsEnumerator : IEnumerable<EventRecordWithPointer>, IEnu
       ref var enumerator = ref myEnumerators[i];
       if (enumerator.MoveNext())
       {
-        myQueue.Enqueue(i, enumerator.Current.Event.Stamp);
+        myQueue.Enqueue(i, enumerator.Current.Event.Time.QpcStamp);
       }
     }
   }
