@@ -1,5 +1,4 @@
 using Autofac;
-using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Utils;
 using ProcfilerTests.Core;

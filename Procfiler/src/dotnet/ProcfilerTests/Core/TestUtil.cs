@@ -5,7 +5,6 @@ using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing;
-using Procfiler.Core.Serialization;
 using Procfiler.Core.Serialization.MethodsCallTree;
 using Procfiler.Utils;
 
