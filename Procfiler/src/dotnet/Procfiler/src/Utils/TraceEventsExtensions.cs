@@ -8,7 +8,7 @@ internal static class TraceEventsExtensions
 {
   public static EventRecordTime ToTime(this TraceEvent traceEvent) => new()
   {
-    LoggedAt = traceEvent.TimeStamp,
+    LoggedAt = traceEvent.TimeStamp.ToUniversalTime(),
     QpcStamp = traceEvent.TimeStampQPC,
     RelativeStampMSec = traceEvent.TimeStampRelativeMSec
   };

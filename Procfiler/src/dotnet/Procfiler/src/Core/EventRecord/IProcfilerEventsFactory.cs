@@ -94,7 +94,12 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   public EventRecordWithMetadata CreateMethodEvent(FromFrameInfoCreationContext context)
   {
     var fqn = ExtractMethodName(context);
-    var time = EventRecordTime.QpcOnly(context.FrameInfo.QpcTimeStamp);
+    var time = new EventRecordTime
+    {
+      QpcStamp = context.FrameInfo.QpcTimeStamp,
+      LoggedAt = QpcUtil.ConvertQpcTimeToDateTimeUtc(context.FrameInfo.QpcTimeStamp, context.GlobalData)
+    };
+
     var creationContext = new EventsCreationContext(time, context.ManagedThreadId);
 
     return context.FrameInfo.IsStart switch

@@ -68,7 +68,7 @@ public class EventRecord
     Time = new EventRecordTime
     {
       QpcStamp = context.FrameInfo.QpcTimeStamp,
-      LoggedAt = null,
+      LoggedAt = QpcUtil.ConvertQpcTimeToDateTimeUtc(context.FrameInfo.QpcTimeStamp, context.GlobalData),
       RelativeStampMSec = null
     };
 
