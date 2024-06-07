@@ -14,17 +14,10 @@ public struct EventRecordTime
     RelativeStampMSec = 0
   };
 
-  public static EventRecordTime QpcOnly(long qpcStamp) => new()
-  {
-    QpcStamp = qpcStamp,
-    LoggedAt = null,
-    RelativeStampMSec = null
-  };
 
-
-  public DateTime? LoggedAt { get; init; }
-  public double? RelativeStampMSec { get; init; }
   public required long QpcStamp { get; init; }
+  public required DateTime LoggedAt { get; init; }
+  public double? RelativeStampMSec { get; init; }
 }
 
 public class EventRecord

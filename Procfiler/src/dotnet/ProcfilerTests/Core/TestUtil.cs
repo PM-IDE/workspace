@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Autofac;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core;
@@ -104,17 +105,22 @@ public static class TestUtil
 
   public static EventRecordWithMetadata CreateRandomEvent(string eventClass, EventMetadata metadata)
   {
-    var randomStamp = EventRecordTime.QpcOnly(Random.Shared.NextInt64(long.MaxValue));
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
-    return new EventRecordWithMetadata(randomStamp, eventClass, randomManagedThreadId, -1, metadata);
+    return new EventRecordWithMetadata(GenerateRandomEventTime(), eventClass, randomManagedThreadId, -1, metadata);
   }
+
+  private static EventRecordTime GenerateRandomEventTime() => new()
+  {
+    LoggedAt = DateTime.UtcNow,
+    QpcStamp = Stopwatch.GetTimestamp(),
+    RelativeStampMSec = Random.Shared.NextInt64(long.MaxValue)
+  };
 
   public static EventRecordWithMetadata CreateAbsolutelyRandomEvent()
   {
-    var randomStamp = Random.Shared.NextInt64(long.MaxValue);
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
     return new EventRecordWithMetadata(
-      EventRecordTime.QpcOnly(randomStamp), CreateRandomEventClass(), randomManagedThreadId, -1, new EventMetadata());
+      GenerateRandomEventTime(), CreateRandomEventClass(), randomManagedThreadId, -1, new EventMetadata());
   }
 
   public static string CreateRandomEventClass()

@@ -81,7 +81,7 @@ public partial class XesEventsSessionSerializer(
   {
     using var _ = StartEndElementCookie.CreateStartEndElement(writer, null, EventTag, null);
 
-    WriteDateTag(writer, currentEvent.Time.LoggedAt ?? DateTime.UnixEpoch);
+    WriteDateTag(writer, currentEvent.Time.LoggedAt);
     WriteStringValueTag(writer, ConceptName, currentEvent.EventName);
     WriteStringValueTag(writer, "ManagedThreadId", currentEvent.ManagedThreadId.ToString());
 

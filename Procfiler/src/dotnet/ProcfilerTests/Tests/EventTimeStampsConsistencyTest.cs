@@ -23,12 +23,19 @@ public class EventTimeStampsConsistencyTest : ProcessTestBase
         processor.ApplyMultipleMutators(events, globalData, EmptyCollections<Type>.EmptySet);
 
         long? prevStamp = null;
+        DateTime? prevDate = null;
         long? prevThreadId = null;
 
         foreach (var (_, currentEvent) in events)
         {
+          if (currentEvent.Time.LoggedAt is { } loggedAt)
+          {
+            Assert.That(loggedAt.Kind, Is.EqualTo(DateTimeKind.Utc));
+          }
+
           if (prevStamp is null)
           {
+            prevDate = currentEvent.Time.LoggedAt;
             prevStamp = currentEvent.Time.QpcStamp;
             prevThreadId = currentEvent.ManagedThreadId;
           }
@@ -44,6 +51,12 @@ public class EventTimeStampsConsistencyTest : ProcessTestBase
               Assert.Fail("first.Value.Stamp > second.Value.Stamp");
             }
 
+            if (prevDate > currentEvent.Time.LoggedAt)
+            {
+              Assert.Fail("first.Value.LoggedAt > second.Value.LoggedAt");
+            }
+
+            prevDate = currentEvent.Time.LoggedAt;
             prevStamp = currentEvent.Time.QpcStamp;
             prevThreadId = currentEvent.ManagedThreadId;
           }
