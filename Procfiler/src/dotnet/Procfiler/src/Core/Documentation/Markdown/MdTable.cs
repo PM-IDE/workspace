@@ -9,7 +9,7 @@ public class MdTable(int columnsCount) : IMdDocumentPart, IEnumerable
   private const char SeparatorPath = '-';
 
 
-  private readonly List<MdTableCell[]> myRows = new();
+  private readonly List<MdTableCell[]> myRows = [];
 
 
   public MdTableCell[]? Header { get; set; }

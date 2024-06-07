@@ -6,7 +6,7 @@ namespace Procfiler.Core.EventsCollection;
 public abstract class EventsOwnerBase : IEventsOwner
 {
   private readonly IProcfilerLogger myLogger;
-  private readonly List<Predicate<EventRecordWithMetadata>> myFilters = new();
+  private readonly List<Predicate<EventRecordWithMetadata>> myFilters = [];
 
   protected readonly EventPointersManager PointersManager;
 

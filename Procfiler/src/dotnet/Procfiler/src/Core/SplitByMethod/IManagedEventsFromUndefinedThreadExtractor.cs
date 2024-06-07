@@ -75,7 +75,7 @@ public class ManagedEventsFromUndefinedThreadExtractor(IProcfilerLogger logger) 
           throw new InvalidStateException($"Two same managed threads in undefined events {managedThreadId}");
         }
 
-        managedThreadsTraces[managedThreadId] = new List<EventRecordWithMetadata>() { eventRecord };
+        managedThreadsTraces[managedThreadId] = [eventRecord];
       }
       else
       {

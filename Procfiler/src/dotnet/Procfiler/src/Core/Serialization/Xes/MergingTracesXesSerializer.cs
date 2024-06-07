@@ -10,7 +10,7 @@ public class MergingTracesXesSerializer(IXesEventsSessionSerializer sessionSeria
 
   public void AddTrace(string path, EventSessionInfo sessionInfo)
   {
-    myDocuments.GetOrCreate(path, static () => new List<EventSessionInfo>()).Add(sessionInfo);
+    myDocuments.GetOrCreate(path, static () => []).Add(sessionInfo);
   }
 
   public void SerializeAll()

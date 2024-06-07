@@ -19,7 +19,7 @@ public class EventsCollectionImpl : EventsOwnerBase, IEventsCollection
   {
     if (initialEvents.Length == 0) throw new IndexOutOfRangeException();
 
-    myModificationSources = new List<IModificationSource>();
+    myModificationSources = [];
     myInitialEvents = initialEvents;
     myLogger = logger;
   }

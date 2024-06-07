@@ -2,8 +2,8 @@ namespace Procfiler.Utils;
 
 public static class EmptyCollections<T>
 {
-  public static List<T> EmptyList { get; } = new();
-  public static HashSet<T> EmptySet { get; } = new();
-  public static SortedSet<T> EmptySortedSet { get; } = new();
-  public static LinkedList<T> EmptyLinkedList { get; } = new();
+  public static List<T> EmptyList { get; } = [];
+  public static HashSet<T> EmptySet { get; } = [];
+  public static SortedSet<T> EmptySortedSet { get; } = [];
+  public static LinkedList<T> EmptyLinkedList { get; } = [];
 }

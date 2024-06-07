@@ -7,7 +7,7 @@ public class InsertedEvents
 {
   private readonly Dictionary<int, List<EventRecordWithMetadata>> myInsertedEvents = new();
   private readonly Dictionary<int, HashSet<int>> myRemovedInsertedEvents = new();
-  private readonly HashSet<int> myRemovedFromFirstEvents = new();
+  private readonly HashSet<int> myRemovedFromFirstEvents = [];
 
   public List<EventRecordWithMetadata>? FirstEvents { get; private set; }
 
@@ -29,7 +29,7 @@ public class InsertedEvents
   {
     if (pointer.IsInFirstEvents)
     {
-      return FirstEvents ??= new List<EventRecordWithMetadata>();
+      return FirstEvents ??= [];
     }
 
     return GetOrCreateInsertionList(pointer.IndexInArray);
@@ -64,7 +64,7 @@ public class InsertedEvents
     {
       if (pointer.IndexInArray == 0)
       {
-        FirstEvents ??= new List<EventRecordWithMetadata>();
+        FirstEvents ??= [];
         FirstEvents.Add(eventToInsert);
       }
       else
@@ -99,7 +99,7 @@ public class InsertedEvents
       return true;
     }
 
-    var removed = myRemovedInsertedEvents.GetOrCreate(pointer.IndexInArray, static () => new HashSet<int>());
+    var removed = myRemovedInsertedEvents.GetOrCreate(pointer.IndexInArray, static () => []);
     if (removed.Contains(pointer.IndexInInsertionMap))
     {
       return false;

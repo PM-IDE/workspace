@@ -30,8 +30,8 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
   private static readonly IReadOnlyDictionary<ProvidersCategoryKind, EventPipeProvider[]> ourProvidersForCategories =
     new Dictionary<ProvidersCategoryKind, EventPipeProvider[]>
     {
-      [ProvidersCategoryKind.All] = new EventPipeProvider[]
-      {
+      [ProvidersCategoryKind.All] =
+      [
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)ClrTraceEventParser.Keywords.All),
         new(SampleProfilerTraceEventParser.ProviderName, EventLevel.Verbose),
         new(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose, (long)TplEtwProviderTraceEventParser.Keywords.Default),
@@ -43,25 +43,25 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
         new(ArrayPoolSource, EventLevel.Verbose),
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ProcfilerCppProvider, EventLevel.LogAlways)
-      },
-      [ProvidersCategoryKind.Gc] = new EventPipeProvider[]
-      {
+      ],
+      [ProvidersCategoryKind.Gc] =
+      [
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcKeywords)
-      },
-      [ProvidersCategoryKind.GcAllocHigh] = new EventPipeProvider[]
-      {
+      ],
+      [ProvidersCategoryKind.GcAllocHigh] =
+      [
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocHighKeywords)
-      },
-      [ProvidersCategoryKind.GcAllocLow] = new EventPipeProvider[]
-      {
+      ],
+      [ProvidersCategoryKind.GcAllocLow] =
+      [
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocLowKeywords)
-      }
+      ]
     };
 
 

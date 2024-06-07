@@ -21,7 +21,7 @@ public abstract class OnlineMethodsSerializerBase<TState>(
   protected readonly IProcfilerLogger Logger = logger;
   protected readonly bool WriteAllEventMetadata = writeAllEventMetadata;
 
-  protected readonly List<string> MethodNames = new();
+  protected readonly List<string> MethodNames = [];
   protected readonly Dictionary<string, TState> States = new();
 
 

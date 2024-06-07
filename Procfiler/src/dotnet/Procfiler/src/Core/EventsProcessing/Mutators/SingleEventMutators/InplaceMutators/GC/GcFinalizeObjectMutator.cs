@@ -10,10 +10,10 @@ namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMu
 public class GcFinalizeObjectMutator(IProcfilerLogger logger) : MetadataValuesRemover(logger)
 {
   protected override string[] MetadataKeys { get; } =
-  {
+  [
     TraceEventsConstants.CommonTypeId,
     TraceEventsConstants.CommonObjectId
-  };
+  ];
 
   public override string EventType => TraceEventsConstants.GcFinalizeObject;
 }

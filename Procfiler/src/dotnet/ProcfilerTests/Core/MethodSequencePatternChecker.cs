@@ -6,7 +6,7 @@ namespace ProcfilerTests.Core;
 
 public record MethodInvocationTree(string NamePattern) : IEnumerable
 {
-  public List<MethodInvocationTree> InnerCalls { get; } = new();
+  public List<MethodInvocationTree> InnerCalls { get; } = [];
 
 
   public void Add(MethodInvocationTree tree) => InnerCalls.Add(tree);

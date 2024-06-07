@@ -8,8 +8,8 @@ namespace Procfiler.Core.EventsProcessing.Filters;
 [EventFilter]
 public class OnlyKnownEventsFilterer : IEventsFilter
 {
-  private static readonly HashSet<string> ourAllowedEvents = new()
-  {
+  private static readonly HashSet<string> ourAllowedEvents =
+  [
     TraceEventsConstants.GcSampledObjectAllocation,
     TraceEventsConstants.GcCreateSegment,
     TraceEventsConstants.GcFinalizersStart,
@@ -134,7 +134,7 @@ public class OnlyKnownEventsFilterer : IEventsFilter
     TraceEventsConstants.AcceptStart,
     TraceEventsConstants.AcceptStop,
     TraceEventsConstants.AcceptFailed
-  };
+  ];
 
 
   public IEnumerable<string> AllowedEventsNames => ourAllowedEvents;

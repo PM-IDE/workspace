@@ -54,7 +54,7 @@ public abstract class EventsLifecycleMutatorBase : ISingleEventsLifecycleMutator
     myCompleteEventClasses = completeEventClasses.ToHashSet();
     myScheduleEventClass = scheduleEventClass;
 
-    myAllProcessableEvents = new HashSet<string>();
+    myAllProcessableEvents = [];
     myAllProcessableEvents.UnionWith(myStartEventClasses);
     myAllProcessableEvents.UnionWith(myCompleteEventClasses);
 
