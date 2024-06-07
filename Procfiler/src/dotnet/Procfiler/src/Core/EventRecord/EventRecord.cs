@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Procfiler.Core.Constants.TraceEvents;
+using Procfiler.Utils;
 
 namespace Procfiler.Core.EventRecord;
 

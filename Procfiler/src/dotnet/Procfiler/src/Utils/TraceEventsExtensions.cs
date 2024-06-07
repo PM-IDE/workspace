@@ -2,7 +2,7 @@ using Procfiler.Core.Collector;
 using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.EventRecord;
 
-namespace Procfiler.Core;
+namespace Procfiler.Utils;
 
 internal static class TraceEventsExtensions
 {

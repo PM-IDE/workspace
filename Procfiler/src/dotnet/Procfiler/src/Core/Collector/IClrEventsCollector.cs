@@ -142,7 +142,7 @@ public class ClrEventsCollector(
       _ => throw new ArgumentOutOfRangeException(nameof(collectionContext), collectionContext, null)
     };
 
-    var globalData = new SessionGlobalData(shadowStacks);
+    var globalData = new SessionGlobalData(shadowStacks, traceLog.GetSyncQpc(), traceLog.GetQpcFreq(), traceLog.GetSyncTimeUtc());
 
     using (var _ = new PerformanceCookie("ProcessingEvents", logger))
     {

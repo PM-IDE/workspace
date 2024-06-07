@@ -1,3 +1,5 @@
+using Procfiler.Utils;
+
 namespace Procfiler.Core.Collector;
 
 public interface IFromEventsShadowStacks : IShadowStacks

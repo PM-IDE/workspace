@@ -16,7 +16,7 @@ public abstract class SingleMutatorTestBase
   protected void ExecuteWithRandomEvent(EventMetadata metadata, Action<EventRecordWithMetadata> action)
   {
     var eventRecord = CreateRandomEvent(metadata);
-    CreateMutator().Process(eventRecord, new SessionGlobalData(EmptyShadowStacks.Instance));
+    CreateMutator().Process(eventRecord, new SessionGlobalData(EmptyShadowStacks.Instance, 0, 1, DateTime.UtcNow));
 
     action(eventRecord);
   }
