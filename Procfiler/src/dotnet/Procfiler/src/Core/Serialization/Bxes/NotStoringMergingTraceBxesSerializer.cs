@@ -21,7 +21,7 @@ public class NotStoringMergingTraceBxesSerializer(
   {
     var writer = States.GetOrCreate(path, () => new BxesWriteState
     {
-      Writer = new SingleFileBxesStreamWriterImpl<BxesEvent>(path, 0)
+      Writer = new SingleFileBxesStreamWriterImpl<BxesEvent>(path, 0, BxesUtil.CreateSystemMetadata())
     });
 
     writer.Writer.HandleEvent(new BxesTraceVariantStartEvent(1, ImmutableArray<AttributeKeyValue>.Empty));

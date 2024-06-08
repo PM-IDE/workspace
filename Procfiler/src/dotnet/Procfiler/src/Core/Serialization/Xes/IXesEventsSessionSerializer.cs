@@ -84,6 +84,7 @@ public partial class XesEventsSessionSerializer(
     WriteDateTag(writer, currentEvent.Time.LoggedAt);
     WriteStringValueTag(writer, ConceptName, currentEvent.EventName);
     WriteStringValueTag(writer, "ManagedThreadId", currentEvent.ManagedThreadId.ToString());
+    WriteIntValueTag(writer, "QpcStamp", currentEvent.Time.QpcStamp);
 
     WriteMetadataValue(
       writer, currentEvent, XesStandardLifecycleConstants.Transition, StandardLifecycleTransition);
@@ -143,6 +144,13 @@ public partial class XesEventsSessionSerializer(
     using var _ = StartEndElementCookie.CreateStartEndElement(writer, null, StringTagName, null);
     WriteKeyAttribute(writer, key);
     WriteAttribute(writer, ValueAttr, value);
+  }
+
+  private static void WriteIntValueTag(XmlWriter writer, string key, long value)
+  {
+    using var _ = StartEndElementCookie.CreateStartEndElement(writer, null, IntTagName, null);
+    WriteKeyAttribute(writer, key);
+    WriteAttribute(writer, ValueAttr, value.ToString());
   }
 
   private static void WriteDateTag(XmlWriter writer, DateTime stamp)
