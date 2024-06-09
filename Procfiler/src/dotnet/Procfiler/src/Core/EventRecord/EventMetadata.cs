@@ -34,8 +34,8 @@ public class EventMetadata : IEventMetadata
 
   public EventMetadata(IEventMetadata otherMetadata)
   {
-    myValues = new List<string?>();
-    myNames = new List<string?>();
+    myValues = [];
+    myNames = [];
 
     foreach (var (key, value) in otherMetadata)
     {

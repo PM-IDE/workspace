@@ -12,10 +12,10 @@ public class GcPinObjectAtGcTimeMutator(IProcfilerLogger logger) : MetadataValue
   public override string EventType => TraceEventsConstants.GcPinObjectAtGcTime;
 
   protected override string[] MetadataKeys { get; } =
-  {
+  [
     TraceEventsConstants.CommonObjectId,
     TraceEventsConstants.CommonHandleId
-  };
+  ];
 }
 
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]

@@ -77,7 +77,7 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
             var listOfEvents = new List<EventRecordWithMetadata> { eventRecord };
             var newAsyncMethodTraces = new AsyncMethodTrace(lastSeenTaskEvent, listOfEvents);
             var stateMachineName = $"{AsyncMethodsPrefix}{asyncMethodsWithTypeNames[frame]}";
-            var listOfAsyncTraces = asyncMethodsToTraces.GetOrCreate(stateMachineName, () => new List<AsyncMethodTrace>());
+            var listOfAsyncTraces = asyncMethodsToTraces.GetOrCreate(stateMachineName, () => []);
 
             listOfAsyncTraces.Add(newAsyncMethodTraces);
             lastTracesStack.Push(newAsyncMethodTraces);

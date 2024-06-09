@@ -35,7 +35,7 @@ public class CsvEventsSerializer : ICsvEventsSerializer
   {
     var sb = new StringBuilder();
 
-    sb.Append(nameof(firstEvent.Stamp)).Append(Delimiter)
+    sb.Append(nameof(firstEvent.Time.QpcStamp)).Append(Delimiter)
       .Append(nameof(firstEvent.EventName)).Append(Delimiter)
       .Append(nameof(firstEvent.ManagedThreadId)).Append(Delimiter)
       .Append(nameof(firstEvent.ActivityId)).Append(Delimiter);
@@ -53,7 +53,7 @@ public class CsvEventsSerializer : ICsvEventsSerializer
   {
     var sb = new StringBuilder();
 
-    sb.Append(@event.Stamp).Append(Delimiter)
+    sb.Append(@event.Time.QpcStamp).Append(Delimiter)
       .Append(@event.EventName).Append(Delimiter)
       .Append(@event.ManagedThreadId).Append(Delimiter)
       .Append(@event.ActivityId).Append(Delimiter);

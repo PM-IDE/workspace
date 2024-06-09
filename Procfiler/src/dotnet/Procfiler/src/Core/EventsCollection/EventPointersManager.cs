@@ -4,7 +4,7 @@ namespace Procfiler.Core.EventsCollection;
 
 public class EventPointersManager(long initialCount, InsertedEvents insertedEvents, IEventsOwner owner)
 {
-  private readonly HashSet<int> myRemovedIndexesInInitialArray = new();
+  private readonly HashSet<int> myRemovedIndexesInInitialArray = [];
 
   private long myCurrentInitialEventsCount = initialCount;
 

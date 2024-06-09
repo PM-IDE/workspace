@@ -6,7 +6,7 @@ public class GcLohCompactTraceData(TraceEvent traceEvent)
   : CustomTraceEventBase(traceEvent, TraceEventsConstants.GcLohCompact, ourPayloadEvents)
 {
   private static readonly string[] ourPayloadEvents =
-  {
+  [
     "ClrInstanceID",
     "Count",
     "TimePlan",
@@ -14,7 +14,7 @@ public class GcLohCompactTraceData(TraceEvent traceEvent)
     "TimeRelocate",
     "TotalRefs",
     "ZeroRefs"
-  };
+  ];
 
 
   public int ClrInstanceId => GetInt16At(0);

@@ -41,11 +41,11 @@ public class TaskWaitBeginLifecycleMutator(IProcfilerLogger logger)
 public class TaskContinuationWaitLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(logger, ActivityId, ourStartEventClasses, new[] { TraceEventsConstants.TaskWaitContinuationComplete })
 {
-  private static readonly HashSet<string> ourStartEventClasses = new()
-  {
+  private static readonly HashSet<string> ourStartEventClasses =
+  [
     TraceEventsConstants.TaskWaitContinuationStarted,
     TraceEventsConstants.AwaitTaskContinuationScheduledSend
-  };
+  ];
 
 
   private const string ActivityId = "TaskContinuationWait";

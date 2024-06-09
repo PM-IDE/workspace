@@ -1,5 +1,4 @@
 using Autofac;
-using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Utils;
 using ProcfilerTests.Core;
@@ -24,13 +23,20 @@ public class EventTimeStampsConsistencyTest : ProcessTestBase
         processor.ApplyMultipleMutators(events, globalData, EmptyCollections<Type>.EmptySet);
 
         long? prevStamp = null;
+        DateTime? prevDate = null;
         long? prevThreadId = null;
 
         foreach (var (_, currentEvent) in events)
         {
+          if (currentEvent.Time.LoggedAt is { } loggedAt)
+          {
+            Assert.That(loggedAt.Kind, Is.EqualTo(DateTimeKind.Utc));
+          }
+
           if (prevStamp is null)
           {
-            prevStamp = currentEvent.Stamp;
+            prevDate = currentEvent.Time.LoggedAt;
+            prevStamp = currentEvent.Time.QpcStamp;
             prevThreadId = currentEvent.ManagedThreadId;
           }
           else
@@ -40,12 +46,18 @@ public class EventTimeStampsConsistencyTest : ProcessTestBase
               Assert.Fail("Managed thread ids were not equal");
             }
 
-            if (prevStamp > currentEvent.Stamp)
+            if (prevStamp > currentEvent.Time.QpcStamp)
             {
               Assert.Fail("first.Value.Stamp > second.Value.Stamp");
             }
 
-            prevStamp = currentEvent.Stamp;
+            if (prevDate > currentEvent.Time.LoggedAt)
+            {
+              Assert.Fail("first.Value.LoggedAt > second.Value.LoggedAt");
+            }
+
+            prevDate = currentEvent.Time.LoggedAt;
+            prevStamp = currentEvent.Time.QpcStamp;
             prevThreadId = currentEvent.ManagedThreadId;
           }
         }

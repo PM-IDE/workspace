@@ -7,7 +7,7 @@ namespace Procfiler.Core.CppProcfiler;
 
 public class FrameInfo
 {
-  public long TimeStamp { get; set; }
+  public long QpcTimeStamp { get; set; }
   public long FunctionId { get; set; }
   public bool IsStart { get; set; }
 
@@ -21,7 +21,7 @@ public class FrameInfo
     };
 
     var startOrEnd = IsStart ? "start" : " end ";
-    return $"[{TimeStamp}] [{startOrEnd}] {fqnOrId}";
+    return $"[{QpcTimeStamp}] [{startOrEnd}] {fqnOrId}";
   }
 }
 

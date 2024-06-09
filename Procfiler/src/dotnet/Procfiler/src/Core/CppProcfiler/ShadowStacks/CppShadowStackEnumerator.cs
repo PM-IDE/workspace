@@ -32,7 +32,7 @@ internal class CppShadowStackEnumerator(BinaryReader reader, long framesCount) :
 
     Current.IsStart = myBuffer[myNextIndexInBuffer++] == 1;
 
-    Current.TimeStamp = ToLong(myNextIndexInBuffer);
+    Current.QpcTimeStamp = ToLong(myNextIndexInBuffer);
     myNextIndexInBuffer += sizeof(long);
 
     Current.FunctionId = ToLong(myNextIndexInBuffer);

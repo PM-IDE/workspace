@@ -90,8 +90,7 @@ public class ByMethodsSplitterImpl(
 
       foreach (var (methodName, traces) in eventsTracesByMethods)
       {
-        var tracesForMethod =
-          tracesByMethods.GetOrCreate(methodName, static () => new List<IReadOnlyList<EventRecordWithMetadata>>());
+        var tracesForMethod = tracesByMethods.GetOrCreate(methodName, static () => []);
 
         tracesForMethod.AddRange(traces);
       }

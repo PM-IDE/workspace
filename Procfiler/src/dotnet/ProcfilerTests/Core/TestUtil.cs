@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Autofac;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core;
@@ -5,7 +6,6 @@ using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing;
-using Procfiler.Core.Serialization;
 using Procfiler.Core.Serialization.MethodsCallTree;
 using Procfiler.Utils;
 
@@ -62,14 +62,14 @@ public static class TestUtil
         {
           if (frames.Count == 0)
           {
-            assertMessage = $"Stack was empty, index = {index}, ts = {eventRecord.Stamp}";
+            assertMessage = $"Stack was empty, index = {index}, ts = {eventRecord.Time.QpcStamp}";
             continue;
           }
 
           var topMost = frames.Pop();
           if (topMost != frame)
           {
-            assertMessage = $"{topMost} != {frame}, index = {index}, ts = {eventRecord.Stamp}";
+            assertMessage = $"{topMost} != {frame}, index = {index}, ts = {eventRecord.Time.QpcStamp}";
             break;
           }
         }
@@ -105,17 +105,22 @@ public static class TestUtil
 
   public static EventRecordWithMetadata CreateRandomEvent(string eventClass, EventMetadata metadata)
   {
-    var randomStamp = Random.Shared.NextInt64(long.MaxValue);
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
-    return new EventRecordWithMetadata(randomStamp, eventClass, randomManagedThreadId, -1, metadata);
+    return new EventRecordWithMetadata(GenerateRandomEventTime(), eventClass, randomManagedThreadId, -1, metadata);
   }
+
+  private static EventRecordTime GenerateRandomEventTime() => new()
+  {
+    LoggedAt = DateTime.UtcNow,
+    QpcStamp = Stopwatch.GetTimestamp(),
+    RelativeStampMSec = Random.Shared.NextInt64(long.MaxValue)
+  };
 
   public static EventRecordWithMetadata CreateAbsolutelyRandomEvent()
   {
-    var randomStamp = Random.Shared.NextInt64(long.MaxValue);
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
     return new EventRecordWithMetadata(
-      randomStamp, CreateRandomEventClass(), randomManagedThreadId, -1, new EventMetadata());
+      GenerateRandomEventTime(), CreateRandomEventClass(), randomManagedThreadId, -1, new EventMetadata());
   }
 
   public static string CreateRandomEventClass()

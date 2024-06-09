@@ -1,12 +1,28 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Procfiler.Core.Constants.TraceEvents;
+using Procfiler.Utils;
 
 namespace Procfiler.Core.EventRecord;
 
+public struct EventRecordTime
+{
+  public static EventRecordTime Default { get; } = new()
+  {
+    LoggedAt = DateTime.UnixEpoch,
+    QpcStamp = 0,
+    RelativeStampMSec = 0
+  };
+
+
+  public required long QpcStamp { get; init; }
+  public required DateTime LoggedAt { get; init; }
+  public double? RelativeStampMSec { get; init; }
+}
+
 public class EventRecord
 {
-  public long Stamp { get; private set; }
+  public EventRecordTime Time { get; private set; }
   public string EventClass { get; set; }
   public long ManagedThreadId { get; private set; }
   public Guid ActivityId { get; }
@@ -14,10 +30,10 @@ public class EventRecord
   public int StackTraceId { get; }
 
 
-  public EventRecord(long stamp, string eventClass, long managedThreadId, Guid activityId, int stackTraceId)
+  public EventRecord(EventRecordTime time, string eventClass, long managedThreadId, Guid activityId, int stackTraceId)
   {
+    Time = time;
     ActivityId = activityId;
-    Stamp = stamp;
     EventClass = eventClass;
     ManagedThreadId = managedThreadId;
     EventName = EventClass;
@@ -25,13 +41,13 @@ public class EventRecord
   }
 
   public EventRecord(TraceEvent @event, long managedThreadId, int stackTraceId)
-    : this(@event.TimeStampQPC, @event.EventName, managedThreadId, @event.ActivityID, stackTraceId)
+    : this(@event.ToTime(), @event.EventName, managedThreadId, @event.ActivityID, stackTraceId)
   {
   }
 
   public EventRecord(EventRecord other)
   {
-    Stamp = other.Stamp;
+    Time = other.Time;
     EventClass = other.EventClass;
     ManagedThreadId = other.ManagedThreadId;
     ActivityId = other.ActivityId;
@@ -42,7 +58,13 @@ public class EventRecord
 
   public void UpdateWith(FromFrameInfoCreationContext context)
   {
-    Stamp = context.FrameInfo.TimeStamp;
+    Time = new EventRecordTime
+    {
+      QpcStamp = context.FrameInfo.QpcTimeStamp,
+      LoggedAt = QpcUtil.ConvertQpcTimeToDateTimeUtc(context.FrameInfo.QpcTimeStamp, context.GlobalData),
+      RelativeStampMSec = null
+    };
+
     ManagedThreadId = context.ManagedThreadId;
     EventClass = context.FrameInfo.IsStart switch
     {
@@ -54,7 +76,7 @@ public class EventRecord
 
 public class EventRecordWithMetadata : EventRecord
 {
-  public static EventRecordWithMetadata CreateUninitialized() => new(0, string.Empty, -1, -1, new EventMetadata());
+  public static EventRecordWithMetadata CreateUninitialized() => new(EventRecordTime.Default, string.Empty, -1, -1, new EventMetadata());
 
 
   public IEventMetadata Metadata { get; }
@@ -67,8 +89,8 @@ public class EventRecordWithMetadata : EventRecord
   }
 
   public EventRecordWithMetadata(
-    long stamp, string eventClass, long managedThreadId, int stackTraceId, IEventMetadata metadata)
-    : base(stamp, eventClass, managedThreadId, Guid.Empty, stackTraceId)
+    EventRecordTime time, string eventClass, long managedThreadId, int stackTraceId, IEventMetadata metadata)
+    : base(time, eventClass, managedThreadId, Guid.Empty, stackTraceId)
   {
     Metadata = metadata;
   }

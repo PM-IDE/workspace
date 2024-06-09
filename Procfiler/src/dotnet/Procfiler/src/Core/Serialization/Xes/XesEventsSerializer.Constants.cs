@@ -6,6 +6,7 @@ public partial class XesEventsSessionSerializer
   public const string LogTagName = "log";
   public const string TraceTagName = "trace";
   public const string StringTagName = "string";
+  public const string IntTagName = "int";
   public const string EventTag = "event";
   public const string DateTag = "date";
   public const string ValueAttr = "value";

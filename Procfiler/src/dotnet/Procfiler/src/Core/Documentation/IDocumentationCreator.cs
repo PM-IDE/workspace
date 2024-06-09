@@ -25,6 +25,7 @@ public class DocumentationCreatorImpl(
 
       using var fs = File.OpenWrite(path);
       fs.SetLength(0);
+
       using var sw = new StreamWriter(fs);
       sw.Write(mdDocument.Serialize(new StringBuilder()));
     }

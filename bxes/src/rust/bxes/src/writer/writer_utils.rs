@@ -1,4 +1,3 @@
-use num_traits::ToPrimitive;
 use std::{
     cell::RefCell,
     fs::{self, File},
@@ -6,6 +5,9 @@ use std::{
     path::Path,
     rc::Rc,
 };
+use std::collections::HashMap;
+
+use num_traits::ToPrimitive;
 use zip::{write::FileOptions, ZipWriter};
 
 use crate::binary_rw::{
@@ -175,23 +177,31 @@ fn try_write_event_value_attributes(
 ) -> Result<usize, BxesWriteError> {
     let mut value_attributes_count = 0usize;
     let mut attrs_to_write = vec![];
+
+    let map = if let Some(attributes) = event.attributes.as_ref() {
+        let mut map = HashMap::new();
+        for event_attribute in attributes {
+            if let BxesValue::String(string) = event_attribute.0.as_ref().as_ref() {
+                map.insert(string.as_ref().as_ref(), &event_attribute.1);
+            }
+        }
+
+        Some(map)
+    } else {
+        None
+    };
+
     if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
         for value_attribute in value_attributes {
-            let mut found_attr = false;
-
-            if let Some(attributes) = event.attributes.as_ref() {
-                for event_attribute in attributes {
-                    if is_value_attribute(event_attribute, value_attribute) {
-                        attrs_to_write.push(event_attribute.1.as_ref().as_ref());
-                        value_attributes_count += 1;
-                        found_attr = true;
-                    }
+            if let Some(map) = map.as_ref() {
+                if let Some(found_attribute) = map.get(&value_attribute.name) {
+                    attrs_to_write.push(found_attribute.as_ref().as_ref());
+                    value_attributes_count += 1;
+                    continue;
                 }
             }
 
-            if !found_attr {
-                attrs_to_write.push(&BxesValue::Null);
-            }
+            attrs_to_write.push(&BxesValue::Null);
         }
     }
 

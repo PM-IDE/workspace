@@ -89,7 +89,7 @@ public class UndefinedThreadsEventsMerger(IProcfilerLogger logger) : IUndefinedT
       var managedEvent = managedEnumerator.Current;
       var undefinedEvent = undefinedEnumerator.Current;
 
-      if (managedEvent.Event.Stamp < undefinedEvent.Event.Stamp)
+      if (managedEvent.Event.Time.QpcStamp < undefinedEvent.Event.Time.QpcStamp)
       {
         yield return managedEvent;
 

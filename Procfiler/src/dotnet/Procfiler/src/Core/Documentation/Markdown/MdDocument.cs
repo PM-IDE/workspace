@@ -4,7 +4,7 @@ namespace Procfiler.Core.Documentation.Markdown;
 
 public class MdDocument(string name) : IEnumerable, IMdDocumentPart
 {
-  private readonly List<IMdDocumentPart> myParts = new();
+  private readonly List<IMdDocumentPart> myParts = [];
 
 
   public string Name { get; } = name;

@@ -1,4 +1,3 @@
-using System.Collections;
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Procfiler.Commands.CollectClrEvents.Context;

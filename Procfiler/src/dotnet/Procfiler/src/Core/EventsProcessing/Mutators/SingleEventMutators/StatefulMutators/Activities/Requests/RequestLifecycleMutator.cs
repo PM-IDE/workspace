@@ -16,9 +16,9 @@ public class RequestStartStopLifecycleMutator(IProcfilerLogger logger)
   )
 {
   private static readonly string[] ourCompleteEvents =
-  {
+  [
     TraceEventsConstants.RequestStop, TraceEventsConstants.RequestFailed
-  };
+  ];
 
 
   protected override IIdCreationStrategy IdCreationStrategy =>

@@ -43,10 +43,7 @@ public class DepsJsonPatcherImpl(IDepsJsonReader depsJsonReader, IDepsJsonWriter
         Dependencies = EmptyCollections<DependencyOfTargetDependency>.EmptyList,
         Native = EmptyCollections<FileInfo>.EmptyList,
         RuntimeTargets = EmptyCollections<RuntimeTarget>.EmptyList,
-        Runtime = new List<FileInfo>
-        {
-          new() { Name = $"{assemblyToAddName}.dll" }
-        }
+        Runtime = [new() { Name = $"{assemblyToAddName}.dll" }]
       });
     }
 

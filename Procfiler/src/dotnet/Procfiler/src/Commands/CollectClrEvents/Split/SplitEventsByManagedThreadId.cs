@@ -5,7 +5,6 @@ using Procfiler.Core.Collector;
 using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.EventsProcessing.Mutators;
-using Procfiler.Core.Serialization;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.SplitByMethod;
 using Procfiler.Utils;

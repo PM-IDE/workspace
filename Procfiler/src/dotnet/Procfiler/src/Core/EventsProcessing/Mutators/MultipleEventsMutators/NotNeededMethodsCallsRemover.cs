@@ -12,9 +12,9 @@ namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 public class NotNeededMethodsCallsRemover : IMultipleEventsMutator
 {
   private static Regex[] PatternsToRemove { get; } =
-  {
+  [
     new(@"System\.Diagnostics\.Tracing\..*")
-  };
+  ];
 
 
   public IEnumerable<EventLogMutation> Mutations => EmptyCollections<EventLogMutation>.EmptyList;

@@ -142,7 +142,7 @@ public class ClrEventsCollector(
       _ => throw new ArgumentOutOfRangeException(nameof(collectionContext), collectionContext, null)
     };
 
-    var globalData = new SessionGlobalData(shadowStacks);
+    var globalData = new SessionGlobalData(shadowStacks, traceLog.GetSyncQpc(), traceLog.GetQpcFreq(), traceLog.GetSyncTimeUtc());
 
     using (var _ = new PerformanceCookie("ProcessingEvents", logger))
     {
@@ -168,8 +168,8 @@ public class ClrEventsCollector(
     {
       Array.Sort(events, static (first, second) =>
       {
-        if (first.Stamp > second.Stamp) return 1;
-        if (first.Stamp < second.Stamp) return -1;
+        if (first.Time.QpcStamp > second.Time.QpcStamp) return 1;
+        if (first.Time.QpcStamp < second.Time.QpcStamp) return -1;
 
         return 0;
       });

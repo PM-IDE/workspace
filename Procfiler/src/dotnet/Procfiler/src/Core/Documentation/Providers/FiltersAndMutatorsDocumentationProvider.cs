@@ -70,7 +70,7 @@ public class FiltersAndMutatorsDocumentationProvider(
     foreach (var eventLogMutation in allMutations)
     {
       eventsMutations
-        .GetOrCreate(eventLogMutation.EventType, static () => new List<EventLogMutation>())
+        .GetOrCreate(eventLogMutation.EventType, static () => [])
         .Add(eventLogMutation);
     }
 
@@ -93,10 +93,10 @@ public class FiltersAndMutatorsDocumentationProvider(
       eventName = eventTypeNameMutation.NewEventTypeName;
     }
 
-    return new[]
-    {
+    return
+    [
       eventName, newEventNameCell, activityName, lifecycleTransition, renamesCell, attributesToRemoveCell, newAttributesCell
-    };
+    ];
   }
 
   private static string CreateAttributeRenamesCell(ICollection<EventLogMutation> mutations)
