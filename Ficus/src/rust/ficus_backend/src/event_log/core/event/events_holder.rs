@@ -66,12 +66,15 @@ where
     where
         TPred: Fn(&TEvent) -> bool,
     {
-        let events = &mut self.events;
-        for index in (0..events.len()).rev() {
-            if predicate(&events[index].borrow()) {
-                events.remove(index);
+        let mut new_events = vec![];
+        let events = &self.events;
+        for index in 0..events.len() {
+            if !predicate(&events[index].borrow()) {
+                new_events.push(events[index].clone())
             }
         }
+
+        self.events = new_events;
     }
 
     pub fn to_names_vec(&self) -> Vec<String> {
