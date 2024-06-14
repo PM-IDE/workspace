@@ -2,12 +2,12 @@ use crate::event_log::{core::event::event::EventPayloadValue, xes::xes_event::Xe
 
 use crate::event_log::xes::constants::*;
 
+use bxes::models::domain::bxes_value::BxesValue;
 use chrono::{DateTime, Utc};
 use quick_xml::Reader;
-use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
 use std::cell::Ref;
 use std::ops::Deref;
-use bxes::models::domain::bxes_value::BxesValue;
+use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
 
 use super::utils;
 
@@ -83,8 +83,7 @@ impl TraceXesEventLogIterator {
                         let key = descriptor.key.as_str();
                         let value = descriptor.value.as_str();
 
-                        Self::set_parsed_value(
-                            payload_type, key, value, &mut name, &mut date, &mut payload, &self.globals.borrow());
+                        Self::set_parsed_value(payload_type, key, value, &mut name, &mut date, &mut payload, &self.globals.borrow());
                     }
                     None => continue,
                 },
@@ -116,7 +115,7 @@ impl TraceXesEventLogIterator {
         name: &mut Option<Rc<Box<String>>>,
         date: &mut Option<DateTime<Utc>>,
         payload: &mut HashMap<String, EventPayloadValue>,
-        globals: &HashMap<String, HashMap<String, EventPayloadValue>>
+        globals: &HashMap<String, HashMap<String, EventPayloadValue>>,
     ) -> bool {
         let payload_value = utils::extract_payload_value(payload_type, key, value);
         if !payload_value.is_some() {

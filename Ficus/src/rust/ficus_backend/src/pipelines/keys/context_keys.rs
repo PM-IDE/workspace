@@ -7,6 +7,7 @@ use crate::features::clustering::traces::traces_params::TracesRepresentationSour
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::patterns_parts::PatternsKindDto;
+use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::DefaultGraph;

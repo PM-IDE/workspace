@@ -130,16 +130,17 @@ def from_grpc_colors_log(grpc_colors_log: GrpcColorsEventLog) -> list[list[Color
     for grpc_trace in grpc_colors_log.traces:
         trace = []
         for colored_rectangle in grpc_trace.event_colors:
-            trace.append(from_grpc_colored_rectangle(colored_rectangle))
+            trace.append(from_grpc_colored_rectangle(colored_rectangle, list(grpc_colors_log.mapping)))
 
         result.append(trace)
 
     return result
 
 
-def from_grpc_colored_rectangle(grpc_color: GrpcColoredRectangle) -> ColoredRectangle:
-    color = from_grpc_color(grpc_color.color)
-    return ColoredRectangle(color, grpc_color.start_index, grpc_color.length, grpc_color.name)
+def from_grpc_colored_rectangle(grpc_color: GrpcColoredRectangle,
+                                mapping: list[GrpcColorsEventLogMapping]) -> ColoredRectangle:
+    name, color = mapping[grpc_color.colors_index].name, from_grpc_color(mapping[grpc_color.colors_index].color)
+    return ColoredRectangle(color, grpc_color.start_index, grpc_color.length, name)
 
 
 def from_grpc_color(grpc_color: GrpcColor):

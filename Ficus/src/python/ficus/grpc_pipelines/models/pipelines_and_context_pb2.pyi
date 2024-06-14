@@ -112,10 +112,20 @@ class GrpcSubArraysWithTraceIndexContextValue(_message.Message):
     def __init__(self, sub_arrays: _Optional[_Iterable[_Union[GrpcSubArrayWithTraceIndex, _Mapping]]] = ...) -> None: ...
 
 class GrpcColorsEventLog(_message.Message):
-    __slots__ = ["traces"]
+    __slots__ = ["mapping", "traces"]
+    MAPPING_FIELD_NUMBER: _ClassVar[int]
     TRACES_FIELD_NUMBER: _ClassVar[int]
+    mapping: _containers.RepeatedCompositeFieldContainer[GrpcColorsEventLogMapping]
     traces: _containers.RepeatedCompositeFieldContainer[GrpcColorsTrace]
-    def __init__(self, traces: _Optional[_Iterable[_Union[GrpcColorsTrace, _Mapping]]] = ...) -> None: ...
+    def __init__(self, mapping: _Optional[_Iterable[_Union[GrpcColorsEventLogMapping, _Mapping]]] = ..., traces: _Optional[_Iterable[_Union[GrpcColorsTrace, _Mapping]]] = ...) -> None: ...
+
+class GrpcColorsEventLogMapping(_message.Message):
+    __slots__ = ["name", "color"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    COLOR_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    color: _util_pb2.GrpcColor
+    def __init__(self, name: _Optional[str] = ..., color: _Optional[_Union[_util_pb2.GrpcColor, _Mapping]] = ...) -> None: ...
 
 class GrpcColorsTrace(_message.Message):
     __slots__ = ["event_colors"]
@@ -124,16 +134,14 @@ class GrpcColorsTrace(_message.Message):
     def __init__(self, event_colors: _Optional[_Iterable[_Union[GrpcColoredRectangle, _Mapping]]] = ...) -> None: ...
 
 class GrpcColoredRectangle(_message.Message):
-    __slots__ = ["color", "start_index", "length", "name"]
-    COLOR_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["colors_index", "start_index", "length"]
+    COLORS_INDEX_FIELD_NUMBER: _ClassVar[int]
     START_INDEX_FIELD_NUMBER: _ClassVar[int]
     LENGTH_FIELD_NUMBER: _ClassVar[int]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    color: _util_pb2.GrpcColor
+    colors_index: int
     start_index: int
     length: int
-    name: str
-    def __init__(self, color: _Optional[_Union[_util_pb2.GrpcColor, _Mapping]] = ..., start_index: _Optional[int] = ..., length: _Optional[int] = ..., name: _Optional[str] = ...) -> None: ...
+    def __init__(self, colors_index: _Optional[int] = ..., start_index: _Optional[int] = ..., length: _Optional[int] = ...) -> None: ...
 
 class GrpcEnum(_message.Message):
     __slots__ = ["enumType", "value"]

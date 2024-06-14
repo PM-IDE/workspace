@@ -7,7 +7,6 @@ use crate::{
         repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
         tandem_arrays::SubArrayInTraceInfo,
     },
-    utils::colors::ColoredRectangle,
 };
 
 pub type TracesActivities = Vec<Vec<ActivityInTraceInfo>>;
@@ -15,4 +14,3 @@ pub type Activities = Vec<Rc<RefCell<ActivityNode>>>;
 pub type RepeatSets = Vec<SubArrayWithTraceIndex>;
 pub type Patterns = Vec<Vec<SubArrayInTraceInfo>>;
 pub type ActivitiesToLogs = HashMap<String, XesEventLogImpl>;
-pub type ColorsEventLog = Vec<Vec<ColoredRectangle>>;

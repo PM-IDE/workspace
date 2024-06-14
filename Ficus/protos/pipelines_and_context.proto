@@ -70,7 +70,13 @@ message GrpcSubArraysWithTraceIndexContextValue {
 }
 
 message GrpcColorsEventLog {
-    repeated GrpcColorsTrace traces = 1;
+    repeated GrpcColorsEventLogMapping mapping = 1;
+    repeated GrpcColorsTrace traces = 2;
+}
+
+message GrpcColorsEventLogMapping {
+    string name = 1;
+    GrpcColor color = 2;
 }
 
 message GrpcColorsTrace {
@@ -78,10 +84,9 @@ message GrpcColorsTrace {
 }
 
 message GrpcColoredRectangle {
-    GrpcColor color = 1;
+    uint32 colors_index = 1;
     uint32 start_index = 2;
     uint32 length = 3;
-    string name = 4;
 }
 
 message GrpcEnum {

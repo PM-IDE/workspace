@@ -22,12 +22,12 @@ pub enum EventPayloadValue {
     Lifecycle(Lifecycle),
     Artifact(EventPayloadArtifact),
     Drivers(EventPayloadDrivers),
-    SoftwareEvent(EventPayloadSoftwareEventType)
+    SoftwareEvent(EventPayloadSoftwareEventType),
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EventPayloadArtifact {
-    pub items: Vec<EventPayloadArtifactItem>
+    pub items: Vec<EventPayloadArtifactItem>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -39,7 +39,7 @@ pub struct EventPayloadArtifactItem {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct EventPayloadDrivers {
-    pub drivers: Vec<EventPayloadDriver>
+    pub drivers: Vec<EventPayloadDriver>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

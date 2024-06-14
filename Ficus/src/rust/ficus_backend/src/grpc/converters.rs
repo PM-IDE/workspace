@@ -12,12 +12,13 @@ use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::ficus_proto::{
-    GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph,
-    GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking,
-    GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
+    GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation,
+    GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet,
+    GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
 };
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::patterns_parts::PatternsKindDto;
+use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::{DefaultGraph, Graph};
@@ -38,7 +39,6 @@ use crate::{
         GrpcSubArraysWithTraceIndexContextValue, GrpcTraceSubArray, GrpcTraceSubArrays,
     },
     pipelines::{
-        aliases::ColorsEventLog,
         context::PipelineContext,
         keys::{context_key::ContextKey, context_keys::ContextKeys},
         pipelines::Pipeline,
@@ -323,28 +323,40 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
     } else {
         let colors_log = value.downcast_ref::<ColorsEventLog>().unwrap();
         let mut grpc_traces = vec![];
+        let mut mapping = HashMap::new();
+        let mut grpc_mapping = vec![];
+        for (key, color) in colors_log.mapping.iter() {
+            mapping.insert(key.to_owned(), grpc_mapping.len());
+            grpc_mapping.push(GrpcColorsEventLogMapping {
+                name: key.to_owned(),
+                color: Some(convert_to_grpc_color(color)),
+            });
+        }
 
-        for trace in colors_log {
+        for trace in &colors_log.traces {
             let mut grpc_trace = vec![];
             for colored_rect in trace {
-                grpc_trace.push(convert_to_grpc_colored_rect(colored_rect))
+                let index = *mapping.get(colored_rect.name()).unwrap();
+                grpc_trace.push(convert_to_grpc_colored_rect(colored_rect, index))
             }
 
             grpc_traces.push(GrpcColorsTrace { event_colors: grpc_trace })
         }
 
         Some(GrpcContextValue {
-            context_value: Some(ContextValue::ColorsLog(GrpcColorsEventLog { traces: grpc_traces })),
+            context_value: Some(ContextValue::ColorsLog(GrpcColorsEventLog {
+                mapping: grpc_mapping,
+                traces: grpc_traces,
+            })),
         })
     }
 }
 
-fn convert_to_grpc_colored_rect(colored_rect: &ColoredRectangle) -> GrpcColoredRectangle {
+fn convert_to_grpc_colored_rect(colored_rect: &ColoredRectangle, color_index: usize) -> GrpcColoredRectangle {
     GrpcColoredRectangle {
-        color: Some(convert_to_grpc_color(&colored_rect.color())),
+        colors_index: color_index as u32,
         start_index: colored_rect.start_pos() as u32,
         length: colored_rect.len() as u32,
-        name: colored_rect.name().to_owned(),
     }
 }
 

@@ -1,5 +1,5 @@
-use std::str::FromStr;
 use super::{braf_lifecycle::XesBrafLifecycle, standard_lifecycle::XesStandardLifecycle};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Lifecycle {
@@ -21,11 +21,11 @@ impl FromStr for Lifecycle {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Ok(standard_lifecycle) = XesStandardLifecycle::from_str(s) {
-            return Ok(Lifecycle::XesStandardLifecycle(standard_lifecycle))
+            return Ok(Lifecycle::XesStandardLifecycle(standard_lifecycle));
         }
 
         if let Ok(braf_lifecycle) = XesBrafLifecycle::from_str(s) {
-            return Ok(Lifecycle::BrafLifecycle(braf_lifecycle))
+            return Ok(Lifecycle::BrafLifecycle(braf_lifecycle));
         }
 
         Ok(Lifecycle::XesStandardLifecycle(XesStandardLifecycle::Unspecified))
