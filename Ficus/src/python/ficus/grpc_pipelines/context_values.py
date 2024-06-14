@@ -127,10 +127,12 @@ class EventLogInfo(ContextValue):
 
 def from_grpc_colors_log(grpc_colors_log: GrpcColorsEventLog) -> list[list[ColoredRectangle]]:
     result = []
+    mapping = list(grpc_colors_log.mapping)
+
     for grpc_trace in grpc_colors_log.traces:
         trace = []
         for colored_rectangle in grpc_trace.event_colors:
-            trace.append(from_grpc_colored_rectangle(colored_rectangle, list(grpc_colors_log.mapping)))
+            trace.append(from_grpc_colored_rectangle(colored_rectangle, mapping))
 
         result.append(trace)
 
