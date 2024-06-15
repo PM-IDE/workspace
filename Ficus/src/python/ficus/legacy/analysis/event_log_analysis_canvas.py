@@ -90,23 +90,25 @@ def _draw_actual_traces_diversity_diagram(log: ProxyColorsEventLog,
 
         current_y = title_height
 
-        colors_cache: dict[Color, str] = dict()
         for trace in log.traces:
             current_x = overall_delta
+            xs = []
+            ys = []
+            widths = []
+            colors = []
+
             for rect in trace:
                 color = log.mapping[rect.color_index].color
-                if color in colors_cache:
-                    color_hex = colors_cache[color]
-                else:
-                    color_hex = color.to_hex()
-                    colors_cache[color] = color_hex
-
-                canvas.fill_style = color_hex
-
                 rect_width = rect.length * width_scale
-                rect_height = height_scale
-                canvas.fill_rect(current_x, current_y, rect_width, rect_height)
+
+                xs.append(current_x)
+                ys.append(current_y)
+                widths.append(rect_width)
+                colors.append((color.red, color.green, color.blue))
+
                 current_x += rect_width
+
+            canvas.fill_styled_rects(xs, ys, widths, height_scale, colors)
 
             current_y += height_scale
 
