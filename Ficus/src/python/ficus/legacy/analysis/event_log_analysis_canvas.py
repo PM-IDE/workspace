@@ -3,7 +3,8 @@ from typing import Optional
 from IPython.core.display_functions import display
 from ipycanvas import Canvas, hold_canvas
 
-from ..analysis.event_log_analysis import ColoredRectangle
+from .event_log_analysis import Color
+from ...grpc_pipelines.context_values import ProxyColorsEventLog, ProxyColorRectangle
 
 legend_rect_width = 40
 legend_rect_height = 20
@@ -15,25 +16,23 @@ overall_delta = axes_margin + axes_width + axes_padding
 text_size_px = 10
 
 
-def draw_colors_event_log_canvas(log: list[list[ColoredRectangle]],
+def draw_colors_event_log_canvas(log: ProxyColorsEventLog,
                                  title: Optional[str] = None,
                                  plot_legend: bool = False,
                                  width_scale: float = 1,
                                  height_scale: float = 1,
                                  save_path: Optional[str] = None):
-    max_width = _calculate_canvas_width(log)
+    max_width = _calculate_canvas_width(log.traces)
 
     title_height = 20 if title is not None else 10
-    canvas_height = len(log) * height_scale + overall_delta + title_height
+    canvas_height = len(log.traces) * height_scale + overall_delta + title_height
 
     before_height = canvas_height
     names_to_colors = None
     if plot_legend:
         names_to_colors = dict()
-
-        for trace in log:
-            for rect in trace:
-                names_to_colors[rect.name] = rect.color.to_hex()
+        for mapping in log.mapping:
+            names_to_colors[mapping.name] = mapping.color.to_hex()
 
         canvas_height += len(names_to_colors) * legend_rect_height
 
@@ -58,11 +57,11 @@ def draw_colors_event_log_canvas(log: list[list[ColoredRectangle]],
         display(canvas)
 
 
-def _calculate_canvas_width(log: list[list[ColoredRectangle]]):
+def _calculate_canvas_width(log: list[list[ProxyColorRectangle]]):
     return max(map(lambda t: sum(map(lambda r: r.length, t)), log))
 
 
-def _draw_actual_traces_diversity_diagram(log: list[list[ColoredRectangle]],
+def _draw_actual_traces_diversity_diagram(log: ProxyColorsEventLog,
                                           canvas: Canvas,
                                           title: Optional[str],
                                           title_height: float,
@@ -85,17 +84,24 @@ def _draw_actual_traces_diversity_diagram(log: list[list[ColoredRectangle]],
         canvas.stroke_line(axes_margin, before_height - axes_margin, canvas.width, before_height - axes_margin)
 
         canvas.font = f'f{text_size_px}px'
-        canvas.fill_text(str(len(log)), 0, 10 + title_height)
+        canvas.fill_text(str(len(log.traces)), 0, 10 + title_height)
         x_axis_text = str(max_width)
         canvas.fill_text(x_axis_text, canvas.width - ((text_size_px + 1) / 2) * len(x_axis_text), before_height)
 
         current_y = title_height
 
-        for trace in log:
+        colors_cache: dict[Color, str] = dict()
+        for trace in log.traces:
             current_x = overall_delta
             for rect in trace:
-                hex_color = rect.color.to_hex()
-                canvas.fill_style = hex_color
+                color = log.mapping[rect.color_index].color
+                if color in colors_cache:
+                    color_hex = colors_cache[color]
+                else:
+                    color_hex = color.to_hex()
+                    colors_cache[color] = color_hex
+
+                canvas.fill_style = color_hex
 
                 rect_width = rect.length * width_scale
                 rect_height = height_scale

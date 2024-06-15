@@ -27,6 +27,9 @@ class Color:
     def to_hex(self):
         return to_hex((self.red, self.green, self.blue))
 
+    def __hash__(self):
+        return (self.red, self.green, self.blue).__hash__()
+
 
 @dataclass
 class ColoredRectangle:

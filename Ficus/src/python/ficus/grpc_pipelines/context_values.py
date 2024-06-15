@@ -120,9 +120,59 @@ class EventLogInfo(ContextValue):
     traces_count: int
 
     def to_grpc_context_value(self) -> GrpcContextValue:
-        return GrpcEventLogInfo(events_count=self.events_count,
-                                traces_count=self.traces_count,
-                                event_classes_count=self.event_classes_count)
+        log_info = GrpcEventLogInfo(events_count=self.events_count,
+                                    traces_count=self.traces_count,
+                                    event_classes_count=self.event_classes_count)
+
+        return GrpcContextValue(event_log_info=log_info)
+
+
+@dataclass
+class ProxyColorRectangle:
+    color_index: int
+    start_index: int
+    length: int
+
+
+@dataclass
+class ProxyColorMapping:
+    name: str
+    color: Color
+
+
+@dataclass
+class ProxyColorsEventLog(ContextValue):
+    mapping: list[ProxyColorMapping]
+    traces: list[list[ProxyColorRectangle]]
+
+    def to_grpc_context_value(self) -> GrpcContextValue:
+        pass
+
+
+def from_grpc_colors_log_proxy(grpc_colors_log: GrpcColorsEventLog) -> ProxyColorsEventLog:
+    mapping = from_grpc_color_mapping(list(grpc_colors_log.mapping))
+
+    traces = []
+    for grpc_trace in grpc_colors_log.traces:
+        trace = []
+        for colored_rectangle in grpc_trace.event_colors:
+            trace.append(from_grpc_colored_rectangle_proxy(colored_rectangle))
+
+        traces.append(trace)
+
+    return ProxyColorsEventLog(mapping, traces)
+
+
+def from_grpc_colored_rectangle_proxy(grpc_color: GrpcColoredRectangle) -> ProxyColorRectangle:
+    return ProxyColorRectangle(grpc_color.colors_index, grpc_color.start_index, grpc_color.length)
+
+
+def from_grpc_color_mapping(grpc_mapping: list[GrpcColorsEventLogMapping]) -> list[ProxyColorMapping]:
+    mapping = []
+    for pair in grpc_mapping:
+        mapping.append(ProxyColorMapping(pair.name, from_grpc_color(pair.color)))
+
+    return mapping
 
 
 def from_grpc_colors_log(grpc_colors_log: GrpcColorsEventLog) -> list[list[ColoredRectangle]]:
@@ -246,6 +296,7 @@ def from_grpc_labeled_dataset(grpc_dataset: GrpcLabeledDataset):
 
     df[const_cluster_labels] = labels
     return df
+
 
 def from_grpc_graph(grpc_graph: GrpcGraph) -> Graph:
     graph = Graph()
