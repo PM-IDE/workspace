@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Optional, Union
 
 from IPython.core.display_functions import display
 from ipycanvas import Canvas, hold_canvas
 
-from .event_log_analysis import Color
-from ...grpc_pipelines.context_values import ProxyColorsEventLog, ProxyColorRectangle
+from ...grpc_pipelines.context_values import ProxyColorsEventLog
+from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
 
 legend_rect_width = 40
 legend_rect_height = 20
@@ -16,13 +16,13 @@ overall_delta = axes_margin + axes_width + axes_padding
 text_size_px = 10
 
 
-def draw_colors_event_log_canvas(log: ProxyColorsEventLog,
+def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEventLog],
                                  title: Optional[str] = None,
                                  plot_legend: bool = False,
                                  width_scale: float = 1,
                                  height_scale: float = 1,
                                  save_path: Optional[str] = None):
-    max_width = _calculate_canvas_width(log.traces)
+    max_width = _calculate_canvas_width(log)
 
     title_height = 20 if title is not None else 10
     canvas_height = len(log.traces) * height_scale + overall_delta + title_height
@@ -57,11 +57,19 @@ def draw_colors_event_log_canvas(log: ProxyColorsEventLog,
         display(canvas)
 
 
-def _calculate_canvas_width(log: list[list[ProxyColorRectangle]]):
-    return max(map(lambda t: sum(map(lambda r: r.length, t)), log))
+def _calculate_canvas_width(log: Union[ProxyColorsEventLog, GrpcColorsEventLog]):
+    max_width = 0
+    for trace in log.traces:
+        width = 0
+        for event in trace.event_colors:
+            width += event.length
+
+        max_width = max(max_width, width)
+
+    return max_width
 
 
-def _draw_actual_traces_diversity_diagram(log: ProxyColorsEventLog,
+def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcColorsEventLog],
                                           canvas: Canvas,
                                           title: Optional[str],
                                           title_height: float,
@@ -97,7 +105,7 @@ def _draw_actual_traces_diversity_diagram(log: ProxyColorsEventLog,
             widths = []
             colors = []
 
-            for rect in trace:
+            for rect in trace.event_colors:
                 color = log.mapping[rect.color_index].color
                 rect_width = rect.length * width_scale
 

@@ -103,7 +103,7 @@ class StringsContextValue(ContextValue):
 
 def from_grpc_names_log(grpc_names_log: GrpcNamesEventLog) -> list[list[str]]:
     result = []
-    for grpc_trace in grpc_names_log.log.traces:
+    for grpc_trace in grpc_names_log.traces:
         trace = []
         for event in grpc_trace.events:
             trace.append(event)
@@ -141,9 +141,14 @@ class ProxyColorMapping:
 
 
 @dataclass
+class ProxyColorsTrace:
+    event_colors: list[ProxyColorRectangle]
+
+
+@dataclass
 class ProxyColorsEventLog(ContextValue):
     mapping: list[ProxyColorMapping]
-    traces: list[list[ProxyColorRectangle]]
+    traces: list[ProxyColorsTrace]
 
     def to_grpc_context_value(self) -> GrpcContextValue:
         pass
@@ -158,7 +163,7 @@ def from_grpc_colors_log_proxy(grpc_colors_log: GrpcColorsEventLog) -> ProxyColo
         for colored_rectangle in grpc_trace.event_colors:
             trace.append(from_grpc_colored_rectangle_proxy(colored_rectangle))
 
-        traces.append(trace)
+        traces.append(ProxyColorsTrace(event_colors=trace))
 
     return ProxyColorsEventLog(mapping, traces)
 

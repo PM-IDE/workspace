@@ -134,14 +134,14 @@ class GrpcColorsTrace(_message.Message):
     def __init__(self, event_colors: _Optional[_Iterable[_Union[GrpcColoredRectangle, _Mapping]]] = ...) -> None: ...
 
 class GrpcColoredRectangle(_message.Message):
-    __slots__ = ["colors_index", "start_index", "length"]
-    COLORS_INDEX_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["color_index", "start_index", "length"]
+    COLOR_INDEX_FIELD_NUMBER: _ClassVar[int]
     START_INDEX_FIELD_NUMBER: _ClassVar[int]
     LENGTH_FIELD_NUMBER: _ClassVar[int]
-    colors_index: int
+    color_index: int
     start_index: int
     length: int
-    def __init__(self, colors_index: _Optional[int] = ..., start_index: _Optional[int] = ..., length: _Optional[int] = ...) -> None: ...
+    def __init__(self, color_index: _Optional[int] = ..., start_index: _Optional[int] = ..., length: _Optional[int] = ...) -> None: ...
 
 class GrpcEnum(_message.Message):
     __slots__ = ["enumType", "value"]

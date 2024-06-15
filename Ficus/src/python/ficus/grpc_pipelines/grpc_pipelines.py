@@ -175,8 +175,7 @@ class PipelinePart2WithCanvasCallback(PipelinePartWithCallback):
         self.plot_legend = plot_legend
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):
-        colors_log = from_grpc_colors_log_proxy(values['colors_event_log'].colors_log)
-        draw_colors_event_log_canvas(colors_log,
+        draw_colors_event_log_canvas(values['colors_event_log'].colors_log,
                                      title=self.title,
                                      plot_legend=self.plot_legend,
                                      save_path=self.save_path,
