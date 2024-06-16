@@ -128,10 +128,12 @@ class GrpcColorsEventLogMapping(_message.Message):
     def __init__(self, name: _Optional[str] = ..., color: _Optional[_Union[_util_pb2.GrpcColor, _Mapping]] = ...) -> None: ...
 
 class GrpcColorsTrace(_message.Message):
-    __slots__ = ["event_colors"]
+    __slots__ = ["event_colors", "constant_width"]
     EVENT_COLORS_FIELD_NUMBER: _ClassVar[int]
+    CONSTANT_WIDTH_FIELD_NUMBER: _ClassVar[int]
     event_colors: _containers.RepeatedCompositeFieldContainer[GrpcColoredRectangle]
-    def __init__(self, event_colors: _Optional[_Iterable[_Union[GrpcColoredRectangle, _Mapping]]] = ...) -> None: ...
+    constant_width: bool
+    def __init__(self, event_colors: _Optional[_Iterable[_Union[GrpcColoredRectangle, _Mapping]]] = ..., constant_width: bool = ...) -> None: ...
 
 class GrpcColoredRectangle(_message.Message):
     __slots__ = ["color_index", "start_index", "length"]

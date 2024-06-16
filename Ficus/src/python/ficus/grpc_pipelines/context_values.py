@@ -143,6 +143,7 @@ class ProxyColorMapping:
 @dataclass
 class ProxyColorsTrace:
     event_colors: list[ProxyColorRectangle]
+    constant_width: bool
 
 
 @dataclass

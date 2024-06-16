@@ -1,8 +1,33 @@
+use std::{any::Any, str::FromStr};
 use std::collections::HashMap;
 use std::fmt::Display;
-use std::{any::Any, str::FromStr};
 
-use super::backend_service::{FicusService, ServicePipelineExecutionContext};
+use nameof::name_of_type;
+
+use crate::{
+    features::analysis::{
+        event_log_info::EventLogInfo,
+        patterns::{
+            activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
+            tandem_arrays::SubArrayInTraceInfo,
+        },
+    },
+    ficus_proto::{
+        grpc_context_value::ContextValue, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsTrace, GrpcContextValue,
+        GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace,
+        GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArraysWithTraceIndexContextValue,
+        GrpcSubArrayWithTraceIndex, GrpcTraceSubArray, GrpcTraceSubArrays,
+    },
+    pipelines::{
+        context::PipelineContext,
+        keys::{context_key::ContextKey, context_keys::ContextKeys},
+        pipelines::Pipeline,
+    },
+    utils::{
+        colors::{Color, ColoredRectangle},
+        user_data::{keys::Key, user_data::UserData},
+    },
+};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -24,31 +49,8 @@ use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::{DefaultGraph, Graph};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
-use crate::{
-    features::analysis::{
-        event_log_info::EventLogInfo,
-        patterns::{
-            activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
-            tandem_arrays::SubArrayInTraceInfo,
-        },
-    },
-    ficus_proto::{
-        grpc_context_value::ContextValue, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsTrace, GrpcContextValue,
-        GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace,
-        GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArrayWithTraceIndex,
-        GrpcSubArraysWithTraceIndexContextValue, GrpcTraceSubArray, GrpcTraceSubArrays,
-    },
-    pipelines::{
-        context::PipelineContext,
-        keys::{context_key::ContextKey, context_keys::ContextKeys},
-        pipelines::Pipeline,
-    },
-    utils::{
-        colors::{Color, ColoredRectangle},
-        user_data::{keys::Key, user_data::UserData},
-    },
-};
-use nameof::name_of_type;
+
+use super::backend_service::{FicusService, ServicePipelineExecutionContext};
 
 pub(super) fn create_initial_context<'a>(context: &'a ServicePipelineExecutionContext) -> PipelineContext<'a> {
     let mut pipeline_context = PipelineContext::new_with_logging(context.parts());
@@ -335,12 +337,28 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
 
         for trace in &colors_log.traces {
             let mut grpc_trace = vec![];
+            let mut last_width = None;
+            let mut same_width = true;
+
             for colored_rect in trace {
+                if same_width {
+                    if let Some(last_width) = last_width {
+                        if last_width != colored_rect.len() {
+                            same_width = false;
+                        }
+                    }
+
+                    last_width = Some(colored_rect.len())
+                }
+
                 let index = *mapping.get(colored_rect.name()).unwrap();
                 grpc_trace.push(convert_to_grpc_colored_rect(colored_rect, index))
             }
 
-            grpc_traces.push(GrpcColorsTrace { event_colors: grpc_trace })
+            grpc_traces.push(GrpcColorsTrace {
+                event_colors: grpc_trace,
+                constant_width: same_width
+            })
         }
 
         Some(GrpcContextValue {

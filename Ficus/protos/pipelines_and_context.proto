@@ -80,7 +80,8 @@ message GrpcColorsEventLogMapping {
 }
 
 message GrpcColorsTrace {
-    repeated GrpcColoredRectangle event_colors = 2;
+    repeated GrpcColoredRectangle event_colors = 1;
+    bool constant_width = 2;
 }
 
 message GrpcColoredRectangle {

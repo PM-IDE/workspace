@@ -101,20 +101,27 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
         for trace in log.traces:
             current_x = overall_delta
             xs = []
-            widths = []
+            widths = [] if not trace.constant_width else None
             colors = []
+
+            if len(trace.event_colors) == 0:
+                continue
 
             for rect in trace.event_colors:
                 color = log.mapping[rect.color_index].color
                 rect_width = rect.length * width_scale
 
                 xs.append(current_x)
-                widths.append(rect_width)
+
+                if not trace.constant_width:
+                    widths.append(rect_width)
+
                 colors.append((color.red, color.green, color.blue))
 
                 current_x += rect_width
 
-            canvas.fill_styled_rects(xs, current_y, widths, height_scale, colors)
+            width_value = width_scale if not trace.constant_width else trace.event_colors[0].length
+            canvas.fill_styled_rects(xs, current_y, width_value, height_scale, colors)
 
             current_y += height_scale
 
