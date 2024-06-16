@@ -1,33 +1,9 @@
-use std::{any::Any, str::FromStr};
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::{any::Any, str::FromStr};
 
 use nameof::name_of_type;
 
-use crate::{
-    features::analysis::{
-        event_log_info::EventLogInfo,
-        patterns::{
-            activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
-            tandem_arrays::SubArrayInTraceInfo,
-        },
-    },
-    ficus_proto::{
-        grpc_context_value::ContextValue, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsTrace, GrpcContextValue,
-        GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace,
-        GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArraysWithTraceIndexContextValue,
-        GrpcSubArrayWithTraceIndex, GrpcTraceSubArray, GrpcTraceSubArrays,
-    },
-    pipelines::{
-        context::PipelineContext,
-        keys::{context_key::ContextKey, context_keys::ContextKeys},
-        pipelines::Pipeline,
-    },
-    utils::{
-        colors::{Color, ColoredRectangle},
-        user_data::{keys::Key, user_data::UserData},
-    },
-};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -49,6 +25,30 @@ use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::{DefaultGraph, Graph};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
+use crate::{
+    features::analysis::{
+        event_log_info::EventLogInfo,
+        patterns::{
+            activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
+            tandem_arrays::SubArrayInTraceInfo,
+        },
+    },
+    ficus_proto::{
+        grpc_context_value::ContextValue, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsTrace, GrpcContextValue,
+        GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace,
+        GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArrayWithTraceIndex,
+        GrpcSubArraysWithTraceIndexContextValue, GrpcTraceSubArray, GrpcTraceSubArrays,
+    },
+    pipelines::{
+        context::PipelineContext,
+        keys::{context_key::ContextKey, context_keys::ContextKeys},
+        pipelines::Pipeline,
+    },
+    utils::{
+        colors::{Color, ColoredRectangle},
+        user_data::{keys::Key, user_data::UserData},
+    },
+};
 
 use super::backend_service::{FicusService, ServicePipelineExecutionContext};
 
@@ -357,7 +357,7 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
 
             grpc_traces.push(GrpcColorsTrace {
                 event_colors: grpc_trace,
-                constant_width: same_width
+                constant_width: same_width,
             })
         }
 
