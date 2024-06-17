@@ -141,8 +141,8 @@ class PipelinePart2WithDrawColorsLogCallback(PipelinePartWithCallback):
                  title: Optional[str] = None,
                  save_path: str = None,
                  plot_legend: bool = True,
-                 height_scale: int = 1,
-                 width_scale: int = 1):
+                 height_scale: float = 1,
+                 width_scale: float = 1):
         super().__init__()
         self.title = title
         self.save_path = save_path

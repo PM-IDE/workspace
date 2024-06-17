@@ -3,6 +3,7 @@ from typing import Optional, Union
 from IPython.core.display_functions import display
 from ipycanvas import Canvas, hold_canvas
 
+from ..util import to_hex
 from ...grpc_pipelines.context_values import ProxyColorsEventLog
 from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
 
@@ -32,7 +33,8 @@ def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEvent
     if plot_legend:
         names_to_colors = dict()
         for mapping in log.mapping:
-            names_to_colors[mapping.name] = mapping.color.to_hex()
+            color = mapping.color
+            names_to_colors[mapping.name] = to_hex((color.red, color.green, color.blue))
 
         canvas_height += len(names_to_colors) * legend_rect_height
 

@@ -115,7 +115,7 @@ class TraceDiversityLikeDiagramContext:
                  rect_width: float,
                  rect_height: float,
                  y_delta_between_traces: float,
-                 height_scale: int):
+                 height_scale: float):
         self.drawer = drawer
         self.log = log
         self.rect_width = rect_width
@@ -130,8 +130,8 @@ def _draw_traces_diversity_like_diagram_internal(log: Union[MyEventLog, list[lis
                                                  title: str = None,
                                                  save_path: str = None,
                                                  plot_legend: bool = True,
-                                                 height_scale: int = 1,
-                                                 width_scale: int = 1):
+                                                 height_scale: float = 1,
+                                                 width_scale: float = 1):
     rect_width = 1 * width_scale
     rect_height = 1 * height_scale
     y_delta_between_traces = 0
@@ -243,8 +243,8 @@ def draw_colors_event_log(log: list[list[ColoredRectangle]],
                           title: str = None,
                           save_path: str = None,
                           plot_legend: bool = True,
-                          height_scale: int = 1,
-                          width_scale: int = 1):
+                          height_scale: float = 1,
+                          width_scale: float = 1):
     def draw_func(ctx: TraceDiversityLikeDiagramContext):
         current_y = 0
         for trace in log:

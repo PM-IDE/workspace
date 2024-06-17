@@ -222,8 +222,8 @@ class DrawFullActivitiesDiagramCanvas(DrawActivitiesDiagramBaseCanvas):
                  save_path: str = None,
                  plot_legend: bool = False,
                  title: Optional[str] = None,
-                 height_scale: int = 1,
-                 width_scale: int = 1):
+                 height_scale: float = 1,
+                 width_scale: float = 1):
         super().__init__(const_draw_full_activities_diagram,
                          save_path=save_path,
                          plot_legend=plot_legend,
@@ -252,8 +252,8 @@ class DrawShortActivitiesDiagramCanvas(DrawActivitiesDiagramBaseCanvas):
                  save_path: str = None,
                  plot_legend: bool = False,
                  title: Optional[str] = None,
-                 height_scale: int = 1,
-                 width_scale: int = 1):
+                 height_scale: float = 1,
+                 width_scale: float = 1):
         super().__init__(const_draw_short_activities_diagram,
                          save_path=save_path,
                          plot_legend=plot_legend,
