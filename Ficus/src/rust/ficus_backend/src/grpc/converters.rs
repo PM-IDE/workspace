@@ -49,6 +49,7 @@ use crate::{
         user_data::{keys::Key, user_data::UserData},
     },
 };
+use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::backend_service::{FicusService, ServicePipelineExecutionContext};
 
@@ -102,6 +103,8 @@ pub(super) fn put_into_user_data(
                 parse_grpc_enum::<FicusDistance>(user_data, key, &grpc_enum.value);
             } else if enum_name == name_of_type!(TracesRepresentationSource) {
                 parse_grpc_enum::<TracesRepresentationSource>(user_data, key, &grpc_enum.value);
+            } else if enum_name == name_of_type!(LogSerializationFormat) {
+                parse_grpc_enum::<LogSerializationFormat>(user_data, key, &grpc_enum.value);
             }
         }
         ContextValue::EventLogInfo(_) => todo!(),

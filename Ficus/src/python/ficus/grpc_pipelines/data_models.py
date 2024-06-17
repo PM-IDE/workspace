@@ -48,3 +48,8 @@ class TracesRepresentationSource(Enum):
     Events = 0
     UnderlyingEvents = 1
     DeepestUnderlyingEvents = 2
+
+
+class LogSerializationFormat(Enum):
+    Xes = 0
+    Bxes = 1

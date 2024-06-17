@@ -52,6 +52,7 @@ const_execute_only_on_last_extraction = 'execute_only_on_last_extraction'
 const_log_traces_dataset = 'log_traces_dataset'
 const_labeled_log_traces_dataset = 'labeled_log_traces_dataset'
 const_traces_repr_source = 'traces_repr_source'
+const_log_serialization_format = 'log_serialization_format'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'
@@ -104,6 +105,7 @@ const_clusterize_activities_from_traces_dbscan = 'ClusterizeActivitiesFromTraces
 const_create_traces_activities_dataset = 'CreateTracesActivitiesDataset'
 const_write_log_to_bxes = 'WriteLogToBxes'
 const_clusterize_log_traces = 'ClusterizeLogTraces'
+const_serialize_activities_logs = 'SerializeActivitiesLogs'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'
@@ -115,5 +117,6 @@ const_activities_logs_source_enum_name = 'ActivitiesLogsSourceDto'
 const_activities_repr_source_enum_name = 'ActivityRepresentationSource'
 const_distance_enum_name = 'FicusDistance'
 const_traces_repr_source_enum_name = 'TracesRepresentationSource'
+const_log_serialization_format_enum_name = 'LogSerializationFormat'
 
 const_cluster_labels = 'cluster_labels'

@@ -30,6 +30,11 @@ use crate::{
 };
 use std::str::FromStr;
 use std::{cell::RefCell, rc::Rc};
+use std::collections::HashMap;
+use std::path::Path;
+use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
+use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
+use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::errors::pipeline_errors::RawPartExecutionError;
 use super::{
@@ -398,22 +403,7 @@ impl PipelineParts {
     pub(super) fn execute_with_each_activity_log() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::EXECUTE_WITH_EACH_ACTIVITY_LOG, &|context, infra, keys, config| {
             let pipeline = Self::get_user_data(config, keys.pipeline())?;
-
-            let log = Self::get_user_data(context, keys.event_log())?;
-            let dto = Self::get_user_data(config, keys.activities_logs_source())?;
-
-            let activities_to_logs = match dto {
-                ActivitiesLogsSourceDto::Log => activity_instances::create_logs_for_activities(&ActivitiesLogSource::Log(log)),
-                ActivitiesLogsSourceDto::TracesActivities => {
-                    let activity_level = *Self::get_user_data(config, keys.activity_level())?;
-                    let activities = Self::get_user_data(context, keys.trace_activities())?;
-                    activity_instances::create_logs_for_activities(&ActivitiesLogSource::TracesActivities(
-                        log,
-                        activities,
-                        activity_level as usize,
-                    ))
-                }
-            };
+            let activities_to_logs = Self::create_activities_to_logs(context, keys, config)?;
 
             for (activity_name, activity_log) in activities_to_logs {
                 let mut temp_context = PipelineContext::empty_from(context);
@@ -425,6 +415,24 @@ impl PipelineParts {
 
             Ok(())
         })
+    }
+
+    fn create_activities_to_logs(context: &mut PipelineContext, keys: &ContextKeys, config: &UserDataImpl) -> Result<HashMap<String, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
+        let log = Self::get_user_data(context, keys.event_log())?;
+        let dto = Self::get_user_data(config, keys.activities_logs_source())?;
+
+        match dto {
+            ActivitiesLogsSourceDto::Log => Ok(activity_instances::create_logs_for_activities(&ActivitiesLogSource::Log(log))),
+            ActivitiesLogsSourceDto::TracesActivities => {
+                let activity_level = *Self::get_user_data(config, keys.activity_level())?;
+                let activities = Self::get_user_data(context, keys.trace_activities())?;
+                Ok(activity_instances::create_logs_for_activities(&ActivitiesLogSource::TracesActivities(
+                    log,
+                    activities,
+                    activity_level as usize,
+                )))
+            }
+        }
     }
 
     pub(super) fn substitute_underlying_events() -> (String, PipelinePartFactory) {
@@ -642,6 +650,35 @@ impl PipelineParts {
                 new_context.put_concrete(keys.event_log().key(), log);
 
                 after_clusterization_pipeline.execute(&mut new_context, infra, keys)?;
+            }
+
+            Ok(())
+        })
+    }
+
+    pub(super) fn serialize_activities_logs() -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::SERIALIZE_ACTIVITIES_LOGS, &|context, infra, keys, config| {
+            let logs_to_activities = Self::create_activities_to_logs(context, keys, config)?;
+            let path = Path::new(Self::get_user_data(config, keys.path())?);
+            let format = Self::get_user_data(config, keys.log_serialization_format())?;
+            let mut log_number = 1;
+
+            for (_, log) in &logs_to_activities {
+                let save_path = path.join(format!("log_{}.{}", log_number, format.extension()));
+                let save_path = save_path.as_os_str().to_str().unwrap();
+
+                match format {
+                    LogSerializationFormat::Xes => match write_xes_log(&log.borrow(), save_path) {
+                        Ok(_) => {},
+                        Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
+                    },
+                    LogSerializationFormat::Bxes => match write_event_log_to_bxes(&log.borrow(), None, save_path) {
+                        Ok(_) => {},
+                        Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
+                    }
+                };
+
+                log_number += 1;
             }
 
             Ok(())

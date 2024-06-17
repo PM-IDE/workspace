@@ -1,5 +1,5 @@
 from .context_values import from_grpc_ficus_dataset, from_grpc_labeled_dataset, from_grpc_color
-from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource
+from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat
 from .grpc_pipelines import *
 from .grpc_pipelines import _create_default_pipeline_part, _create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
@@ -573,3 +573,33 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
         self.after_clusterization_pipeline.append_parts_with_callbacks(parts)
+
+
+class SerializeActivitiesLogs(PipelinePart):
+    def __init__(self,
+                 directory_path: str,
+                 serialization_format: LogSerializationFormat,
+                 activity_level: int = 0,
+                 activities_source: ActivitiesLogsSource = ActivitiesLogsSource.TracesActivities):
+        super().__init__()
+        self.activities_source = activities_source
+        self.path = directory_path
+        self.serialization_format = serialization_format
+        self.activity_level = activity_level
+
+    def to_grpc_part(self) -> GrpcPipelinePartBase:
+        config = GrpcPipelinePartConfiguration()
+        append_string_value(config, const_path, self.path)
+        append_uint32_value(config, const_activity_level, self.activity_level)
+
+        append_enum_value(config,
+                          const_log_serialization_format,
+                          const_log_serialization_format_enum_name,
+                          self.serialization_format.name)
+
+        append_enum_value(config,
+                          const_activities_logs_source,
+                          const_activities_logs_source_enum_name,
+                          self.activities_source.name)
+
+        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_serialize_activities_logs, config))

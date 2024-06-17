@@ -20,6 +20,7 @@ use crate::{
     pipelines::{aliases::*, pipelines::Pipeline},
     utils::colors::ColorsHolder,
 };
+use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::{
     context_key::{ContextKey, DefaultContextKey},
@@ -128,6 +129,7 @@ impl ContextKeys {
     pub const LOG_TRACES_DATASET: &'static str = "log_traces_dataset";
     pub const TRACES_REPR_SOURCE: &'static str = "traces_repr_source";
     pub const SYSTEM_METADATA: &'static str = "system_metadata";
+    pub const LOG_SERIALIZATION_FORMAT: &'static str = "log_serialization_format";
 
     pub fn new() -> Self {
         let mut context = ContextKeysInitContext::empty();
@@ -199,6 +201,7 @@ impl ContextKeys {
         Self::insert_labeled_log_traces_dataset(&mut context);
         Self::insert_traces_repr_source(&mut context);
         Self::insert_system_metadata(&mut context);
+        Self::insert_log_serialization_format(&mut context);
 
         let (concrete_keys, context_keys) = context.deconstruct();
 
@@ -471,5 +474,9 @@ impl ContextKeys {
 
     fn insert_system_metadata(context: &mut ContextKeysInitContext) {
         Self::insert_key::<SystemMetadata>(context, Self::SYSTEM_METADATA)
+    }
+
+    fn insert_log_serialization_format(context: &mut ContextKeysInitContext) {
+        Self::insert_key::<LogSerializationFormat>(context, Self::LOG_SERIALIZATION_FORMAT)
     }
 }
