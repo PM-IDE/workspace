@@ -40,7 +40,7 @@ pub fn calculate_triangle_relations(log: &impl EventLog) -> HashMap<(String, Str
         let trace = trace.borrow();
         let events = trace.events();
 
-        if events.len() < 2 {
+        if events.len() < 3 {
             continue;
         }
 
