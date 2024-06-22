@@ -7,6 +7,7 @@ use crate::features::clustering::traces::traces_params::TracesRepresentationSour
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::patterns_parts::PatternsKindDto;
+use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::DefaultGraph;
@@ -24,6 +25,7 @@ use crate::{
     pipelines::{aliases::*, pipelines::Pipeline},
     utils::colors::ColorsHolder,
 };
+use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::{
     context_key::{ContextKey, DefaultContextKey},
@@ -632,5 +634,14 @@ impl ContextKeys {
 
     pub fn is_system_metadata(&self, key: &dyn ContextKey) -> bool {
         Self::are_keys_equal(self.system_metadata(), key)
+    }
+
+    pub fn log_serialization_format(&self) -> &DefaultContextKey<LogSerializationFormat> {
+        self.find_concrete_key::<LogSerializationFormat>(Self::LOG_SERIALIZATION_FORMAT)
+            .expect("SYSTEM_METADATA should be present in keys")
+    }
+
+    pub fn is_log_serialization_format(&self, key: &dyn ContextKey) -> bool {
+        Self::are_keys_equal(self.log_serialization_format(), key)
     }
 }

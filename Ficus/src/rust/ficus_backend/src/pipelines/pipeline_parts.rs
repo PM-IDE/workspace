@@ -79,6 +79,7 @@ impl PipelineParts {
             Self::create_traces_activities_dataset(),
             Self::write_log_to_bxes(),
             Self::clusterize_log_traces(),
+            Self::serialize_activities_logs()
         ];
 
         let mut names_to_parts = HashMap::new();

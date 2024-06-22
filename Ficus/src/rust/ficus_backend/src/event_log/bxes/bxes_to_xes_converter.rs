@@ -15,9 +15,9 @@ use crate::event_log::{
         xes_trace::XesTraceImpl,
     },
 };
-use crate::utils::user_data::user_data::{UserData, UserDataOwner};
+use crate::utils::user_data::user_data::UserDataOwner;
 
-use super::conversions::{bxes_value_to_payload_value, convert_bxes_to_xes_lifecycle, global_type_to_string};
+use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
 
 pub enum BxesToXesReadError {
     BxesReadError(BxesReadError),

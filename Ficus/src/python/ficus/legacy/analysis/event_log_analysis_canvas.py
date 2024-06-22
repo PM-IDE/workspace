@@ -1,9 +1,11 @@
-from typing import Optional
+from typing import Optional, Union
 
 from IPython.core.display_functions import display
 from ipycanvas import Canvas, hold_canvas
 
-from ..analysis.event_log_analysis import ColoredRectangle
+from ..util import to_hex
+from ...grpc_pipelines.context_values import ProxyColorsEventLog
+from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
 
 legend_rect_width = 40
 legend_rect_height = 20
@@ -15,7 +17,7 @@ overall_delta = axes_margin + axes_width + axes_padding
 text_size_px = 10
 
 
-def draw_colors_event_log_canvas(log: list[list[ColoredRectangle]],
+def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEventLog],
                                  title: Optional[str] = None,
                                  plot_legend: bool = False,
                                  width_scale: float = 1,
@@ -24,16 +26,15 @@ def draw_colors_event_log_canvas(log: list[list[ColoredRectangle]],
     max_width = _calculate_canvas_width(log)
 
     title_height = 20 if title is not None else 10
-    canvas_height = len(log) * height_scale + overall_delta + title_height
+    canvas_height = len(log.traces) * height_scale + overall_delta + title_height
 
     before_height = canvas_height
     names_to_colors = None
     if plot_legend:
         names_to_colors = dict()
-
-        for trace in log:
-            for rect in trace:
-                names_to_colors[rect.name] = rect.color.to_hex()
+        for mapping in log.mapping:
+            color = mapping.color
+            names_to_colors[mapping.name] = to_hex((color.red, color.green, color.blue))
 
         canvas_height += len(names_to_colors) * legend_rect_height
 
@@ -58,11 +59,19 @@ def draw_colors_event_log_canvas(log: list[list[ColoredRectangle]],
         display(canvas)
 
 
-def _calculate_canvas_width(log: list[list[ColoredRectangle]]):
-    return max(map(lambda t: sum(map(lambda r: r.length, t)), log))
+def _calculate_canvas_width(log: Union[ProxyColorsEventLog, GrpcColorsEventLog]):
+    max_width = 0
+    for trace in log.traces:
+        width = 0
+        for event in trace.event_colors:
+            width += event.length
+
+        max_width = max(max_width, width)
+
+    return max_width
 
 
-def _draw_actual_traces_diversity_diagram(log: list[list[ColoredRectangle]],
+def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcColorsEventLog],
                                           canvas: Canvas,
                                           title: Optional[str],
                                           title_height: float,
@@ -85,22 +94,36 @@ def _draw_actual_traces_diversity_diagram(log: list[list[ColoredRectangle]],
         canvas.stroke_line(axes_margin, before_height - axes_margin, canvas.width, before_height - axes_margin)
 
         canvas.font = f'f{text_size_px}px'
-        canvas.fill_text(str(len(log)), 0, 10 + title_height)
+        canvas.fill_text(str(len(log.traces)), 0, 10 + title_height)
         x_axis_text = str(max_width)
         canvas.fill_text(x_axis_text, canvas.width - ((text_size_px + 1) / 2) * len(x_axis_text), before_height)
 
         current_y = title_height
 
-        for trace in log:
+        for trace in log.traces:
             current_x = overall_delta
-            for rect in trace:
-                hex_color = rect.color.to_hex()
-                canvas.fill_style = hex_color
+            xs = []
+            widths = [] if not trace.constant_width else None
+            colors = []
 
+            if len(trace.event_colors) == 0:
+                continue
+
+            for rect in trace.event_colors:
+                color = log.mapping[rect.color_index].color
                 rect_width = rect.length * width_scale
-                rect_height = height_scale
-                canvas.fill_rect(current_x, current_y, rect_width, rect_height)
+
+                xs.append(current_x)
+
+                if not trace.constant_width:
+                    widths.append(rect_width)
+
+                colors.append((color.red, color.green, color.blue))
+
                 current_x += rect_width
+
+            width_value = widths if not trace.constant_width else width_scale
+            canvas.fill_styled_rects(xs, current_y, width_value, height_scale, colors)
 
             current_y += height_scale
 

@@ -6,9 +6,9 @@ from ..legacy.analysis.event_log_analysis import draw_colors_event_log
 from ..legacy.analysis.event_log_analysis_canvas import draw_colors_event_log_canvas
 from ..legacy.analysis.patterns.patterns_models import UndefinedActivityHandlingStrategy
 from ..grpc_pipelines.constants import *
-from ..grpc_pipelines.context_values import ContextValue, from_grpc_colors_log, \
+from ..grpc_pipelines.context_values import ContextValue, from_grpc_colors_log_proxy, \
     StringContextValue, Uint32ContextValue, BoolContextValue, EnumContextValue, from_grpc_event_log_info, \
-    StringsContextValue, FloatContextValue
+    StringsContextValue, FloatContextValue, from_grpc_colors_log
 from ..grpc_pipelines.data_models import PatternsDiscoveryStrategy, PatternsKind, NarrowActivityKind, \
     ActivityFilterKind, ActivitiesLogsSource
 from ..grpc_pipelines.models.backend_service_pb2 import *
@@ -141,8 +141,8 @@ class PipelinePart2WithDrawColorsLogCallback(PipelinePartWithCallback):
                  title: Optional[str] = None,
                  save_path: str = None,
                  plot_legend: bool = True,
-                 height_scale: int = 1,
-                 width_scale: int = 1):
+                 height_scale: float = 1,
+                 width_scale: float = 1):
         super().__init__()
         self.title = title
         self.save_path = save_path
@@ -175,8 +175,7 @@ class PipelinePart2WithCanvasCallback(PipelinePartWithCallback):
         self.plot_legend = plot_legend
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):
-        colors_log = from_grpc_colors_log(values['colors_event_log'].colors_log)
-        draw_colors_event_log_canvas(colors_log,
+        draw_colors_event_log_canvas(values['colors_event_log'].colors_log,
                                      title=self.title,
                                      plot_legend=self.plot_legend,
                                      save_path=self.save_path,

@@ -18,7 +18,7 @@ use ficus_backend::{
         patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
     },
     pipelines::{
-        aliases::{Activities, ActivitiesToLogs, ColorsEventLog, Patterns, RepeatSets, TracesActivities},
+        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
         context::PipelineContext,
         keys::context_keys::ContextKeys,
         pipelines::Pipeline,
@@ -29,6 +29,8 @@ use ficus_backend::{
     },
     vecs,
 };
+use ficus_backend::utils::colors::ColorsEventLog;
+use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
 
 #[test]
 fn test_event_log_key() {
@@ -123,6 +125,7 @@ fn test_event_log_all_concrete_keys() {
         assert_existence::<LabeledDataset>(keys, ContextKeys::LABELED_LOG_TRACES_DATASET, &mut used);
         assert_existence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
         assert_existence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
+        assert_existence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })
@@ -204,7 +207,8 @@ fn get_all_keys_names() -> Vec<String> {
         "log_traces_dataset",
         "labeled_log_traces_dataset",
         "traces_repr_source",
-        "system_metadata"
+        "system_metadata",
+        "log_serialization_format"
     ]
 }
 
@@ -294,6 +298,7 @@ fn test_equivalence_of_keys() {
         assert_keys_equivalence::<LabeledDataset>(keys, ContextKeys::LABELED_LOG_TRACES_DATASET, &mut used);
         assert_keys_equivalence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
         assert_keys_equivalence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
+        assert_keys_equivalence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })

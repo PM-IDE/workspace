@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
 
 use rand::Rng;
 
@@ -73,29 +74,24 @@ impl ColorsHolder {
     }
 }
 
+pub struct ColorsEventLog {
+    pub mapping: HashMap<String, Color>,
+    pub traces: Vec<Vec<ColoredRectangle>>,
+}
+
 pub struct ColoredRectangle {
-    color: Color,
+    name: Rc<Box<String>>,
     start_pos: usize,
     length: usize,
-    name: String,
 }
 
 impl ColoredRectangle {
-    pub fn new(color: Color, start_pos: usize, length: usize, name: String) -> Self {
-        Self {
-            color,
-            start_pos,
-            length,
-            name,
-        }
+    pub fn new(name: Rc<Box<String>>, start_pos: usize, length: usize) -> Self {
+        Self { name, start_pos, length }
     }
 
-    pub fn square(color: Color, start_pos: usize, name: String) -> Self {
-        Self::new(color, start_pos, 1, name)
-    }
-
-    pub fn color(&self) -> Color {
-        self.color
+    pub fn square(name: Rc<Box<String>>, start_pos: usize) -> Self {
+        Self::new(name, start_pos, 1)
     }
 
     pub fn start_pos(&self) -> usize {
@@ -107,6 +103,6 @@ impl ColoredRectangle {
     }
 
     pub fn name(&self) -> &String {
-        &self.name
+        self.name.as_ref().as_ref()
     }
 }
