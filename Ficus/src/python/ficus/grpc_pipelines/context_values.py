@@ -164,13 +164,13 @@ def from_grpc_colors_log_proxy(grpc_colors_log: GrpcColorsEventLog) -> ProxyColo
         for colored_rectangle in grpc_trace.event_colors:
             trace.append(from_grpc_colored_rectangle_proxy(colored_rectangle))
 
-        traces.append(ProxyColorsTrace(event_colors=trace))
+        traces.append(ProxyColorsTrace(event_colors=trace, constant_width=grpc_trace.constant_width))
 
     return ProxyColorsEventLog(mapping, traces)
 
 
 def from_grpc_colored_rectangle_proxy(grpc_color: GrpcColoredRectangle) -> ProxyColorRectangle:
-    return ProxyColorRectangle(grpc_color.colors_index, grpc_color.start_index, grpc_color.length)
+    return ProxyColorRectangle(grpc_color.color_index, grpc_color.start_index, grpc_color.length)
 
 
 def from_grpc_color_mapping(grpc_mapping: list[GrpcColorsEventLogMapping]) -> list[ProxyColorMapping]:
@@ -197,7 +197,7 @@ def from_grpc_colors_log(grpc_colors_log: GrpcColorsEventLog) -> list[list[Color
 
 def from_grpc_colored_rectangle(grpc_color: GrpcColoredRectangle,
                                 mapping: list[GrpcColorsEventLogMapping]) -> ColoredRectangle:
-    name, color = mapping[grpc_color.colors_index].name, from_grpc_color(mapping[grpc_color.colors_index].color)
+    name, color = mapping[grpc_color.color_index].name, from_grpc_color(mapping[grpc_color.color_index].color)
     return ColoredRectangle(color, grpc_color.start_index, grpc_color.length, name)
 
 
