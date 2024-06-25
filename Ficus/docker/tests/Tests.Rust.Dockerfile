@@ -1,3 +1,3 @@
-FROM --platform=linux/amd64 ficus_base:latest
+FROM --platform=linux/amd64 ficus_backend:latest
 
-ENTRYPOINT $cargo test --manifest-path /pmide/ficus/src/rust/ficus_backend/Cargo.toml --release
+ENTRYPOINT cargo test --manifest-path /pmide/ficus/src/rust/ficus_backend/Cargo.toml --release

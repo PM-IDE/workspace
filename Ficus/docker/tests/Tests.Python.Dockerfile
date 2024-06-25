@@ -1,5 +1,5 @@
-FROM --platform=linux/amd64 ficus_base:latest
+FROM --platform=linux/amd64 ficus_python_client:latest
 
 WORKDIR /pmide/ficus/src/python
 
-ENTRYPOINT $python -m pytest .
+ENTRYPOINT python -m pytest .
