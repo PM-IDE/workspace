@@ -644,4 +644,13 @@ impl ContextKeys {
     pub fn is_log_serialization_format(&self, key: &dyn ContextKey) -> bool {
         Self::are_keys_equal(self.log_serialization_format(), key)
     }
+
+    pub fn bytes(&self) -> &DefaultContextKey<Vec<u8>> {
+        self.find_concrete_key::<Vec<u8>>(Self::BYTES)
+            .expect("BYTES should be present in keys")
+    }
+
+    pub fn is_bytes(&self, key: &dyn ContextKey) -> bool {
+        Self::are_keys_equal(self.bytes(), key)
+    }
 }

@@ -126,6 +126,7 @@ fn test_event_log_all_concrete_keys() {
         assert_existence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
         assert_existence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
         assert_existence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
+        assert_existence::<Vec<u8>>(keys, ContextKeys::BYTES, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })
@@ -208,7 +209,8 @@ fn get_all_keys_names() -> Vec<String> {
         "labeled_log_traces_dataset",
         "traces_repr_source",
         "system_metadata",
-        "log_serialization_format"
+        "log_serialization_format",
+        "bytes"
     ]
 }
 
@@ -299,6 +301,7 @@ fn test_equivalence_of_keys() {
         assert_keys_equivalence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
         assert_keys_equivalence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
         assert_keys_equivalence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
+        assert_keys_equivalence::<Vec<u8>>(keys, ContextKeys::BYTES, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })
