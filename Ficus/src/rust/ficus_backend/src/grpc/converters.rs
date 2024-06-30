@@ -25,6 +25,7 @@ use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::{DefaultGraph, Graph};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
+use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
     features::analysis::{
         event_log_info::EventLogInfo,
@@ -49,7 +50,6 @@ use crate::{
         user_data::{keys::Key, user_data::UserData},
     },
 };
-use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::backend_service::{FicusService, ServicePipelineExecutionContext};
 

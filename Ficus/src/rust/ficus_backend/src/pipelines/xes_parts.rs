@@ -73,26 +73,18 @@ impl PipelineParts {
     }
 
     pub(super) fn read_xes_from_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, keys, config| {
-            Ok(())
-        })
+        Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, keys, config| Ok(()))
     }
 
     pub(super) fn read_bxes_from_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, keys, config| {
-            Ok(())
-        })
+        Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, keys, config| Ok(()))
     }
 
     pub(super) fn write_bxes_to_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::WRITE_BXES_LOG_TO_BYTES, &|context, _, keys, config| {
-            Ok(())
-        })
+        Self::create_pipeline_part(Self::WRITE_BXES_LOG_TO_BYTES, &|context, _, keys, config| Ok(()))
     }
 
     pub(super) fn write_xes_to_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::WRITE_XES_LOG_TO_BYTES, &|context, _, keys, config| {
-            Ok(())
-        })
+        Self::create_pipeline_part(Self::WRITE_XES_LOG_TO_BYTES, &|context, _, keys, config| Ok(()))
     }
 }

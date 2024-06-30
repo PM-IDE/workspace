@@ -1,5 +1,7 @@
+use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::event_log_info::count_events;
 use crate::features::analysis::patterns::activity_instances;
@@ -13,6 +15,7 @@ use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan
 use crate::features::clustering::traces::traces_params::TracesClusteringParams;
 use crate::pipelines::context::PipelineInfrastructure;
 use crate::pipelines::pipeline_parts::PipelineParts;
+use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
     event_log::{
         core::event_log::EventLog,
@@ -28,13 +31,10 @@ use crate::{
     },
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use std::str::FromStr;
-use std::{cell::RefCell, rc::Rc};
 use std::collections::HashMap;
 use std::path::Path;
-use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
-use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
-use crate::utils::log_serialization_format::LogSerializationFormat;
+use std::str::FromStr;
+use std::{cell::RefCell, rc::Rc};
 
 use super::errors::pipeline_errors::RawPartExecutionError;
 use super::{
@@ -417,7 +417,11 @@ impl PipelineParts {
         })
     }
 
-    fn create_activities_to_logs(context: &mut PipelineContext, keys: &ContextKeys, config: &UserDataImpl) -> Result<HashMap<String, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
+    fn create_activities_to_logs(
+        context: &mut PipelineContext,
+        keys: &ContextKeys,
+        config: &UserDataImpl,
+    ) -> Result<HashMap<String, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
         let log = Self::get_user_data(context, keys.event_log())?;
         let dto = Self::get_user_data(config, keys.activities_logs_source())?;
 
@@ -426,11 +430,9 @@ impl PipelineParts {
             ActivitiesLogsSourceDto::TracesActivities => {
                 let activity_level = *Self::get_user_data(config, keys.activity_level())?;
                 let activities = Self::get_user_data(context, keys.trace_activities())?;
-                Ok(activity_instances::create_logs_for_activities(&ActivitiesLogSource::TracesActivities(
-                    log,
-                    activities,
-                    activity_level as usize,
-                )))
+                Ok(activity_instances::create_logs_for_activities(
+                    &ActivitiesLogSource::TracesActivities(log, activities, activity_level as usize),
+                ))
             }
         }
     }
@@ -669,13 +671,13 @@ impl PipelineParts {
 
                 match format {
                     LogSerializationFormat::Xes => match write_xes_log(&log.borrow(), save_path) {
-                        Ok(_) => {},
-                        Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
+                        Ok(_) => {}
+                        Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
                     },
                     LogSerializationFormat::Bxes => match write_event_log_to_bxes(&log.borrow(), None, save_path) {
-                        Ok(_) => {},
-                        Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
-                    }
+                        Ok(_) => {}
+                        Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+                    },
                 };
 
                 log_number += 1;

@@ -2,14 +2,14 @@ use std::str::FromStr;
 
 pub enum LogSerializationFormat {
     Xes,
-    Bxes
+    Bxes,
 }
 
 impl LogSerializationFormat {
     pub fn extension(&self) -> &str {
         match &self {
             LogSerializationFormat::Xes => "xes",
-            LogSerializationFormat::Bxes => "bxes"
+            LogSerializationFormat::Bxes => "bxes",
         }
     }
 }

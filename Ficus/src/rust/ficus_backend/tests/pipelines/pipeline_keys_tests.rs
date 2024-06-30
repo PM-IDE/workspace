@@ -8,9 +8,11 @@ use ficus_backend::features::clustering::traces::traces_params::TracesRepresenta
 use ficus_backend::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus_backend::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus_backend::pipelines::patterns_parts::PatternsKindDto;
+use ficus_backend::utils::colors::ColorsEventLog;
 use ficus_backend::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use ficus_backend::utils::distance::distance::FicusDistance;
 use ficus_backend::utils::graph::graph::DefaultGraph;
+use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
 use ficus_backend::{
     event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
     features::analysis::{
@@ -29,8 +31,6 @@ use ficus_backend::{
     },
     vecs,
 };
-use ficus_backend::utils::colors::ColorsEventLog;
-use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
 
 #[test]
 fn test_event_log_key() {
