@@ -1,5 +1,5 @@
 use std::{fs::File, io::Read, rc::Rc};
-
+use std::io::Seek;
 use num_traits::FromPrimitive;
 use tempfile::TempDir;
 use uuid::Uuid;
@@ -24,7 +24,7 @@ use crate::{
     },
     utils::buffered_stream::BufferedReadFileStream,
 };
-
+use crate::binary_rw::memory_stream::MemoryStream;
 use super::errors::*;
 
 #[derive(Debug)]
@@ -567,13 +567,21 @@ fn try_read_standard_lifecycle(
     try_read_enum::<StandardLifecycle>(reader)
 }
 
+pub fn try_extract_archive_bytes(bytes: Vec<u8>) -> Result<TempDir, BxesReadError> {
+    try_extract_archive_internal(MemoryStream::new(bytes))
+}
+
 pub fn try_extract_archive(path: &str) -> Result<TempDir, BxesReadError> {
     let fs = match File::open(path) {
         Ok(fs) => fs,
         Err(err) => return Err(BxesReadError::FailedToOpenFile(err.to_string())),
     };
 
-    let mut archive = match ZipArchive::new(fs) {
+    try_extract_archive_internal(fs)
+}
+
+fn try_extract_archive_internal(stream: impl Read + Seek) -> Result<TempDir, BxesReadError> {
+    let mut archive = match ZipArchive::new(stream) {
         Ok(archive) => archive,
         Err(err) => return Err(BxesReadError::FailedToOpenFile(err.to_string())),
     };

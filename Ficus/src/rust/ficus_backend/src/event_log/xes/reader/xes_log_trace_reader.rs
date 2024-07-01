@@ -1,19 +1,17 @@
-use crate::event_log::{core::event::event::EventPayloadValue, xes::xes_event::XesEventImpl};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::event_log::xes::constants::*;
-
-use bxes::models::domain::bxes_value::BxesValue;
 use chrono::{DateTime, Utc};
 use quick_xml::Reader;
-use std::cell::Ref;
-use std::ops::Deref;
-use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
+
+use crate::event_log::{core::event::event::EventPayloadValue, xes::xes_event::XesEventImpl};
+use crate::event_log::xes::constants::*;
+use crate::event_log::xes::reader::file_xes_log_reader::XmlReader;
 
 use super::utils;
 
 pub struct TraceXesEventLogIterator {
     buffer: Vec<u8>,
-    reader: Rc<RefCell<Reader<BufReader<File>>>>,
+    reader: Rc<RefCell<Reader<XmlReader>>>,
     globals: Rc<RefCell<HashMap<String, HashMap<String, EventPayloadValue>>>>,
 }
 
@@ -44,7 +42,7 @@ impl Iterator for TraceXesEventLogIterator {
 
 impl TraceXesEventLogIterator {
     pub(crate) fn new(
-        reader: Rc<RefCell<Reader<BufReader<File>>>>,
+        reader: Rc<RefCell<Reader<XmlReader>>>,
         seen_globals: Rc<RefCell<HashMap<String, HashMap<String, EventPayloadValue>>>>,
     ) -> TraceXesEventLogIterator {
         TraceXesEventLogIterator {
