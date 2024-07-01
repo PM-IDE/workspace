@@ -14,15 +14,16 @@ impl MemoryStream {
 
 impl Read for MemoryStream {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        if self.index >= buf.len() {
+        if self.index >= self.buffer.len() {
             Ok(0)
         } else {
-            let to_read = buf.len().max(self.buffer.len() - self.index);
+            let to_read = buf.len().min(self.buffer.len() - self.index);
             let mut current_index = self.index;
             for i in 0..to_read {
                 buf[i] = self.buffer[current_index + i];
             }
 
+            self.index += to_read;
             Ok(to_read)
         }
     }
