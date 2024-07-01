@@ -1,10 +1,12 @@
-use std::{fs::File, io::Read, rc::Rc};
-use std::io::Seek;
 use num_traits::FromPrimitive;
+use std::io::Seek;
+use std::{fs::File, io::Read, rc::Rc};
 use tempfile::TempDir;
 use uuid::Uuid;
 use zip::ZipArchive;
 
+use super::errors::*;
+use crate::binary_rw::memory_stream::MemoryStream;
 use crate::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
 use crate::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
 use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
@@ -24,8 +26,6 @@ use crate::{
     },
     utils::buffered_stream::BufferedReadFileStream,
 };
-use crate::binary_rw::memory_stream::MemoryStream;
-use super::errors::*;
 
 #[derive(Debug)]
 pub struct BxesEventLogReadResult {

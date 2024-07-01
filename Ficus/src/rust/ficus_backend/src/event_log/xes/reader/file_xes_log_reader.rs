@@ -1,9 +1,10 @@
-use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
 use std::io::{BufRead, Read};
+use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
 
 use bxes::binary_rw::memory_stream::MemoryStream;
 use quick_xml::{events::BytesStart, Reader};
 
+use crate::event_log::xes::constants::*;
 use crate::event_log::{
     core::event::event::EventPayloadValue,
     xes::{
@@ -12,20 +13,19 @@ use crate::event_log::{
         xes_event_log::XesEventLogImpl,
     },
 };
-use crate::event_log::xes::constants::*;
 
 use super::{utils, xes_log_trace_reader::TraceXesEventLogIterator};
 
 pub enum XmlReader {
     FileReader(BufReader<File>),
-    MemoryReader(BufReader<MemoryStream>)
+    MemoryReader(BufReader<MemoryStream>),
 }
 
 impl Read for XmlReader {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         match self {
             XmlReader::FileReader(reader) => reader.read(buf),
-            XmlReader::MemoryReader(reader) => reader.read(buf)
+            XmlReader::MemoryReader(reader) => reader.read(buf),
         }
     }
 }
@@ -34,14 +34,14 @@ impl BufRead for XmlReader {
     fn fill_buf(&mut self) -> std::io::Result<&[u8]> {
         match self {
             XmlReader::FileReader(reader) => reader.fill_buf(),
-            XmlReader::MemoryReader(reader) => reader.fill_buf()
+            XmlReader::MemoryReader(reader) => reader.fill_buf(),
         }
     }
 
     fn consume(&mut self, amt: usize) {
         match self {
             XmlReader::FileReader(reader) => reader.consume(amt),
-            XmlReader::MemoryReader(reader) => reader.consume(amt)
+            XmlReader::MemoryReader(reader) => reader.consume(amt),
         }
     }
 }

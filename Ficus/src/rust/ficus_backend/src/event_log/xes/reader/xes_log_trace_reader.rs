@@ -3,9 +3,9 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use chrono::{DateTime, Utc};
 use quick_xml::Reader;
 
-use crate::event_log::{core::event::event::EventPayloadValue, xes::xes_event::XesEventImpl};
 use crate::event_log::xes::constants::*;
 use crate::event_log::xes::reader::file_xes_log_reader::XmlReader;
+use crate::event_log::{core::event::event::EventPayloadValue, xes::xes_event::XesEventImpl};
 
 use super::utils;
 
