@@ -9,7 +9,7 @@ from .test_grpc_pipelines import _execute_test_with_exercise_log
 
 def test_filter_events_by_name():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         FilterEventsByName(event_name='a'),
         AssertNamesLogTestPart([
             ['b', 'd', 'c', 'f'],
@@ -24,7 +24,7 @@ def test_filter_events_by_name():
 
 def test_filter_events_by_regex():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         FilterEventsByRegex(regex='a|b'),
         AssertNamesLogTestPart([
             ['d', 'c', 'f'],
@@ -39,7 +39,7 @@ def test_filter_events_by_regex():
 
 def test_filter_log_by_variants():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         FilterLogByVariants(),
         AssertNamesLogTestPart([
             ['a', 'b', 'd', 'c', 'f'],

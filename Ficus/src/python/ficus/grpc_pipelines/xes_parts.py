@@ -4,7 +4,14 @@ from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipeline
 
 
 class ReadLogFromXes(PipelinePart):
+    def __init__(self, use_bytes: bool = False):
+        super().__init__()
+        self.use_bytes: bool = use_bytes
+
     def to_grpc_part(self) -> GrpcPipelinePartBase:
+        if self.use_bytes:
+            return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_xes_from_bytes))
+
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_log_from_xes))
 
 
@@ -20,7 +27,14 @@ class WriteLogToXes(PipelinePart):
 
 
 class ReadLogFromBxes(PipelinePart):
+    def __init__(self, use_bytes: bool = False):
+        super().__init__()
+        self.use_bytes: bool = use_bytes
+
     def to_grpc_part(self) -> GrpcPipelinePartBase:
+        if self.use_bytes:
+            return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_bxes_from_bytes))
+
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_log_from_bxes))
 
 

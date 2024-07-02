@@ -5,7 +5,8 @@ from ...ficus.legacy.analysis.patterns.patterns_models import UndefinedActivityH
 from ...ficus.grpc_pipelines.activities_parts import DiscoverActivities, DiscoverActivitiesInstances, \
     CreateLogFromActivitiesInstances, ApplyClassExtractor
 from ...ficus.grpc_pipelines.constants import const_names_event_log
-from ...ficus.grpc_pipelines.context_values import StringContextValue, NamesLogContextValue, ContextValue
+from ...ficus.grpc_pipelines.context_values import StringContextValue, NamesLogContextValue, ContextValue, \
+    BytesContextValue, read_file_bytes
 from ...ficus.grpc_pipelines.data_models import NarrowActivityKind
 from ...ficus.grpc_pipelines.drawing_parts import TracesDiversityDiagram, DrawPlacementsOfEventByName, \
     DrawPlacementOfEventsByRegex
@@ -43,14 +44,14 @@ def _execute_pipeline(pipeline, config):
 
 def test_pipeline_with_getting_context_value():
     _execute_test_with_exercise_log('exercise1', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         TracesDiversityDiagram(),
     ))
 
 
 def _execute_test_with_exercise_log(log_name: str, pipeline: Pipeline):
     result = _execute_pipeline(pipeline, {
-        'path': StringContextValue(get_example_log_path(f'{log_name}.xes'))
+        'bytes': BytesContextValue(read_file_bytes(get_example_log_path(f'{log_name}.xes')))
     })
 
     assert result.finalResult.HasField('success')
@@ -66,7 +67,7 @@ def _execute_test_with_context(pipeline: Pipeline, context: dict[str, ContextVal
 
 def test_pipeline_with_getting_context_value2():
     _execute_test_with_exercise_log('exercise1', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         DrawPlacementsOfEventByName('A'),
     ))
 
@@ -77,7 +78,7 @@ def test_pipeline_with_getting_context_value3():
 
 def _do_simple_test_with_regex(regex: str):
     _execute_test_with_exercise_log('exercise1', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         DrawPlacementOfEventsByRegex(regex)
     ))
 
@@ -92,7 +93,7 @@ def test_pipeline_with_getting_context_value5():
 
 def test_draw_short_activities_diagram():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         FindSuperMaximalRepeats(strategy=PatternsDiscoveryStrategy.FromSingleMergedTrace),
         DiscoverActivities(activity_level=0),
         DiscoverActivitiesInstances(narrow_activities=NarrowActivityKind.NarrowDown),
@@ -110,7 +111,7 @@ def test_draw_short_activities_diagram():
 
 def test_draw_full_activities_diagram_2():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         FindSuperMaximalRepeats(strategy=PatternsDiscoveryStrategy.FromAllTraces),
         DiscoverActivities(activity_level=0),
         DiscoverActivitiesInstances(narrow_activities=NarrowActivityKind.NarrowDown),
@@ -121,14 +122,14 @@ def test_draw_full_activities_diagram_2():
 
 def test_get_event_log_info():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         PrintEventLogInfo(),
     ))
 
 
 def test_filter_traces_by_events_count():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         FilterTracesByEventsCount(min_events_in_trace=5),
         AssertNamesLogTestPart([
             ['a', 'b', 'd', 'c', 'f'],
