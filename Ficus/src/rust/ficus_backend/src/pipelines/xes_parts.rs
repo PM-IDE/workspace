@@ -1,10 +1,13 @@
+use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
+use bxes::writer::writer_utils::BxesLogWriteData;
 use crate::{
     event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
     utils::user_data::user_data::UserData,
 };
 use crate::event_log::bxes::bxes_to_xes_converter::{BxesToXesConversionResult, read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes};
-use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
+use crate::event_log::bxes::xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes};
 use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
+use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log_to_bytes;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::keys::context_keys::ContextKeys;
 use crate::pipelines::pipeline_parts::PipelineParts;
@@ -111,10 +114,33 @@ impl PipelineParts {
     }
 
     pub(super) fn write_bxes_to_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::WRITE_BXES_LOG_TO_BYTES, &|context, _, keys, config| Ok(()))
+        Self::create_pipeline_part(Self::WRITE_BXES_LOG_TO_BYTES, &|context, _, keys, config| {
+            let log = Self::get_user_data(context, keys.event_log())?;
+            let system_metadata = match Self::get_user_data(context, keys.system_metadata()) {
+                Ok(metadata) => Some(metadata),
+                Err(_) => None,
+            };
+
+            match write_event_log_to_bxes_bytes(log, system_metadata) {
+                Ok(bytes) => {
+                    context.put_concrete::<Vec<u8>>(keys.bytes().key(), bytes);
+                    Ok(())
+                },
+                Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+            }
+        })
     }
 
     pub(super) fn write_xes_to_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::WRITE_XES_LOG_TO_BYTES, &|context, _, keys, config| Ok(()))
+        Self::create_pipeline_part(Self::WRITE_XES_LOG_TO_BYTES, &|context, _, keys, config| {
+            let log = Self::get_user_data(context, keys.event_log())?;
+            match write_xes_log_to_bytes(log) {
+                Ok(bytes) => {
+                    context.put_concrete::<Vec<u8>>(keys.bytes().key(), bytes);
+                    Ok(())
+                },
+                Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+            }
+        })
     }
 }

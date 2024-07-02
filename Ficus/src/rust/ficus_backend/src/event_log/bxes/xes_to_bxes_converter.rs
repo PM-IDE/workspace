@@ -6,7 +6,7 @@ use bxes::models::domain::bxes_value::BxesValue;
 use bxes::models::system_models::SystemMetadata;
 use bxes::writer::writer_utils::BxesLogWriteData;
 use bxes::writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes};
-
+use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
 use crate::event_log::{
     core::{
         event::event::{Event, EventPayloadValue},
@@ -34,7 +34,23 @@ impl ToString for XesToBxesWriterError {
     }
 }
 
+pub fn write_event_log_to_bxes_bytes(log: &XesEventLogImpl, metadata: Option<&SystemMetadata>) -> Result<Vec<u8>, XesToBxesWriterError> {
+    let data = create_bxes_write_data(log, metadata)?;
+    match write_bxes_to_bytes(&data) {
+        Ok(bytes) => Ok(bytes),
+        Err(error) => Err(XesToBxesWriterError::BxesWriteError(error))
+    }
+}
+
 pub fn write_event_log_to_bxes(log: &XesEventLogImpl, metadata: Option<&SystemMetadata>, path: &str) -> Result<(), XesToBxesWriterError> {
+    let data = create_bxes_write_data(log, metadata)?;
+    match write_bxes(path, &data) {
+        Ok(()) => Ok(()),
+        Err(error) => Err(XesToBxesWriterError::BxesWriteError(error)),
+    }
+}
+
+fn create_bxes_write_data(log: &XesEventLogImpl, metadata: Option<&SystemMetadata>) -> Result<BxesLogWriteData, XesToBxesWriterError> {
     let bxes_log = BxesEventLog {
         metadata: BxesEventLogMetadata {
             classifiers: Some(create_bxes_classifiers(log)),
@@ -46,18 +62,13 @@ pub fn write_event_log_to_bxes(log: &XesEventLogImpl, metadata: Option<&SystemMe
         version: 1,
     };
 
-    let data = BxesLogWriteData {
+    Ok(BxesLogWriteData {
         log: bxes_log,
         system_metadata: match metadata {
             Some(metadata) => metadata.clone(),
             None => SystemMetadata::new(None),
         },
-    };
-
-    match write_bxes(path, &data) {
-        Ok(()) => Ok(()),
-        Err(error) => Err(XesToBxesWriterError::BxesWriteError(error)),
-    }
+    })
 }
 
 fn create_bxes_traces(log: &XesEventLogImpl) -> Vec<BxesTraceVariant> {
