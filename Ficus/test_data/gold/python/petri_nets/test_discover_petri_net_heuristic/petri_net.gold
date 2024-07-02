@@ -1,0 +1,46 @@
+<pnml>
+  <net>
+    <place id="post_ARTIFICIAL_START">
+    </place>
+    <place id="post_D">
+    </place>
+    <transition id="A">
+      <name>
+        <text>A</text>
+      </name>
+    </transition>
+    <transition id="ARTIFICIAL_END">
+      <name>
+        <text>ARTIFICIAL_END</text>
+      </name>
+    </transition>
+    <transition id="ARTIFICIAL_START">
+      <name>
+        <text>ARTIFICIAL_START</text>
+      </name>
+    </transition>
+    <transition id="B">
+      <name>
+        <text>B</text>
+      </name>
+    </transition>
+    <transition id="C">
+      <name>
+        <text>C</text>
+      </name>
+    </transition>
+    <transition id="D">
+      <name>
+        <text>D</text>
+      </name>
+    </transition>
+    <arc id="[{post_ARTIFICIAL_START}--{A}]" source="post_ARTIFICIAL_START" target="A">
+    </arc>
+    <arc id="[{post_D}--{ARTIFICIAL_END}]" source="post_D" target="ARTIFICIAL_END">
+    </arc>
+    <arc id="[{ARTIFICIAL_START}--{post_ARTIFICIAL_START}]" target="post_ARTIFICIAL_START" source="ARTIFICIAL_START">
+    </arc>
+    <arc id="[{D}--{post_D}]" target="post_D" source="D">
+    </arc>
+  </net>
+</pnml>
