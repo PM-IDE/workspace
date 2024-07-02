@@ -1,7 +1,6 @@
-use std::io::{BufRead, Read};
+use std::io::{BufRead, Cursor, Read};
 use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
 
-use bxes::binary_rw::memory_stream::MemoryStream;
 use quick_xml::{events::BytesStart, Reader};
 
 use crate::event_log::xes::constants::*;
@@ -18,7 +17,7 @@ use super::{utils, xes_log_trace_reader::TraceXesEventLogIterator};
 
 pub enum XmlReader {
     FileReader(BufReader<File>),
-    MemoryReader(BufReader<MemoryStream>),
+    MemoryReader(BufReader<Cursor<Vec<u8>>>),
 }
 
 impl Read for XmlReader {
@@ -126,7 +125,7 @@ impl Iterator for FromFileXesEventLogReader {
 
 impl FromFileXesEventLogReader {
     pub fn new_from_bytes(bytes: Vec<u8>) -> Option<FromFileXesEventLogReader> {
-        let reader = XmlReader::MemoryReader(BufReader::new(MemoryStream::new(bytes)));
+        let reader = XmlReader::MemoryReader(BufReader::new(Cursor::new(bytes)));
         Some(Self::create_quickxml_reader(reader))
     }
 

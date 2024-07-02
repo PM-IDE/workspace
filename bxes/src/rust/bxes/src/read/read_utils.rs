@@ -1,12 +1,11 @@
 use num_traits::FromPrimitive;
-use std::io::Seek;
+use std::io::{Cursor, Seek};
 use std::{fs::File, io::Read, rc::Rc};
 use tempfile::TempDir;
 use uuid::Uuid;
 use zip::ZipArchive;
 
 use super::errors::*;
-use crate::binary_rw::memory_stream::MemoryStream;
 use crate::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
 use crate::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
 use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
@@ -568,7 +567,7 @@ fn try_read_standard_lifecycle(
 }
 
 pub fn try_extract_archive_bytes(bytes: Vec<u8>) -> Result<TempDir, BxesReadError> {
-    try_extract_archive_internal(MemoryStream::new(bytes))
+    try_extract_archive_internal(Cursor::new(bytes))
 }
 
 pub fn try_extract_archive(path: &str) -> Result<TempDir, BxesReadError> {
