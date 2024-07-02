@@ -72,4 +72,4 @@ jobs:
         uses: docker/setup-qemu-action@v3
         
       - name: Run tests
-        run: docker-compose -f Ficus/docker/tests/Tests.Python.Dockercompose up python_tests --exit-code-from python_tests
+        run: docker-compose -f Ficus/docker/tests/Tests.Python.Dockercompose up --exit-code-from python_tests
