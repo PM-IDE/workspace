@@ -50,10 +50,3 @@ def console_app_method2_bxes_log_path() -> str:
 
 def array_pooling_bxes_log_path() -> str:
     return os.path.join(data_dir(), 'source', 'solutions_logs', 'arraypooling.bxes')
-
-
-def all_test_split_traces() -> Iterable[str]:
-    initial_dir = os.path.join(data_dir(), 'source', 'test_split_traces')
-    for solution_dir in os.listdir(initial_dir):
-        for log_path in os.listdir(os.path.join(initial_dir, solution_dir)):
-            yield os.path.join(initial_dir, solution_dir, log_path)
