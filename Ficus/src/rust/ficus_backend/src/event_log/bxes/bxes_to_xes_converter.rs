@@ -40,7 +40,7 @@ pub struct BxesToXesConversionResult {
     pub system_metadata: SystemMetadata,
 }
 
-pub fn read_bxes_into_xes_log_from_bytes(bytes: Vec<u8>) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
+pub fn read_bxes_into_xes_log_from_bytes(bytes: &[u8]) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
     let result = match read_bxes_from_archive_bytes(bytes) {
         Ok(log) => log,
         Err(error) => return Err(BxesToXesReadError::BxesReadError(error)),

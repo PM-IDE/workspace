@@ -9,13 +9,13 @@ use crate::event_log::{core::event::event::EventPayloadValue, xes::xes_event::Xe
 
 use super::utils;
 
-pub struct TraceXesEventLogIterator {
+pub struct TraceXesEventLogIterator<'a> {
     buffer: Vec<u8>,
-    reader: Rc<RefCell<Reader<XmlReader>>>,
+    reader: Rc<RefCell<Reader<XmlReader<'a>>>>,
     globals: Rc<RefCell<HashMap<String, HashMap<String, EventPayloadValue>>>>,
 }
 
-impl Iterator for TraceXesEventLogIterator {
+impl<'a> Iterator for TraceXesEventLogIterator<'a> {
     type Item = XesEventImpl;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -40,7 +40,7 @@ impl Iterator for TraceXesEventLogIterator {
     }
 }
 
-impl TraceXesEventLogIterator {
+impl<'a> TraceXesEventLogIterator<'a> {
     pub(crate) fn new(
         reader: Rc<RefCell<Reader<XmlReader>>>,
         seen_globals: Rc<RefCell<HashMap<String, HashMap<String, EventPayloadValue>>>>,

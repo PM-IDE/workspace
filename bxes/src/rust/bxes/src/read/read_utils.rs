@@ -566,7 +566,7 @@ fn try_read_standard_lifecycle(
     try_read_enum::<StandardLifecycle>(reader)
 }
 
-pub fn try_extract_archive_bytes(bytes: Vec<u8>) -> Result<TempDir, BxesReadError> {
+pub fn try_extract_archive_bytes(bytes: &[u8]) -> Result<TempDir, BxesReadError> {
     try_extract_archive_internal(Cursor::new(bytes))
 }
 

@@ -81,7 +81,7 @@ impl PipelineParts {
     pub(super) fn read_xes_from_bytes() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, keys, config| {
             let bytes = Self::get_user_data(context, keys.bytes())?;
-            match read_event_log_from_bytes(bytes.clone()) {
+            match read_event_log_from_bytes(bytes) {
                 Some(log) => {
                     context.put_concrete(keys.event_log().key(), log);
                     Ok(())
@@ -97,7 +97,7 @@ impl PipelineParts {
     pub(super) fn read_bxes_from_bytes() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, keys, config| {
             let bytes = Self::get_user_data(context, keys.bytes())?;
-            match read_bxes_into_xes_log_from_bytes(bytes.clone()) {
+            match read_bxes_into_xes_log_from_bytes(bytes) {
                 Ok(read_result) => {
                     Self::put_read_result_to_context(context, keys, read_result);
                     Ok(())

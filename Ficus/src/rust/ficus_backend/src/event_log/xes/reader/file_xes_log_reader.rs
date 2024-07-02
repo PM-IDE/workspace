@@ -15,12 +15,12 @@ use crate::event_log::{
 
 use super::{utils, xes_log_trace_reader::TraceXesEventLogIterator};
 
-pub enum XmlReader {
+pub enum XmlReader<'a> {
     FileReader(BufReader<File>),
-    MemoryReader(BufReader<Cursor<Vec<u8>>>),
+    MemoryReader(BufReader<Cursor<&'a [u8]>>),
 }
 
-impl Read for XmlReader {
+impl<'a> Read for XmlReader<'a> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         match self {
             XmlReader::FileReader(reader) => reader.read(buf),
@@ -29,7 +29,7 @@ impl Read for XmlReader {
     }
 }
 
-impl BufRead for XmlReader {
+impl<'a> BufRead for XmlReader<'a> {
     fn fill_buf(&mut self) -> std::io::Result<&[u8]> {
         match self {
             XmlReader::FileReader(reader) => reader.fill_buf(),
@@ -45,30 +45,32 @@ impl BufRead for XmlReader {
     }
 }
 
-pub struct FromFileXesEventLogReader {
+pub struct FromFileXesEventLogReader<'a> {
     storage: Rc<RefCell<Vec<u8>>>,
-    reader: Rc<RefCell<Reader<XmlReader>>>,
+    reader: Rc<RefCell<Reader<XmlReader<'a>>>>,
     seen_globals: Rc<RefCell<HashMap<String, HashMap<String, EventPayloadValue>>>>,
 }
 
-pub enum XesEventLogItem {
-    Trace(TraceXesEventLogIterator),
+pub enum XesEventLogItem<'a> {
+    Trace(TraceXesEventLogIterator<'a>),
     Global(XesGlobal),
     Extension(XesEventLogExtension),
     Classifier(XesClassifier),
     Property(XesProperty),
 }
 
-pub fn read_event_log_from_bytes(bytes: Vec<u8>) -> Option<XesEventLogImpl> {
-    XesEventLogImpl::new(FromFileXesEventLogReader::new_from_bytes(bytes)?)
+pub fn read_event_log_from_bytes(bytes: &[u8]) -> Option<XesEventLogImpl> {
+    let mut reader = FromFileXesEventLogReader::new_from_bytes(bytes)?;
+    XesEventLogImpl::new(&mut reader)
 }
 
 pub fn read_event_log(file_path: &str) -> Option<XesEventLogImpl> {
-    XesEventLogImpl::new(FromFileXesEventLogReader::new(file_path)?)
+    let mut reader = FromFileXesEventLogReader::new(file_path)?;
+    XesEventLogImpl::new(&mut reader)
 }
 
-impl Iterator for FromFileXesEventLogReader {
-    type Item = XesEventLogItem;
+impl<'a> Iterator for FromFileXesEventLogReader<'a> {
+    type Item = XesEventLogItem<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut storage = self.storage.borrow_mut();
@@ -123,8 +125,8 @@ impl Iterator for FromFileXesEventLogReader {
     }
 }
 
-impl FromFileXesEventLogReader {
-    pub fn new_from_bytes(bytes: Vec<u8>) -> Option<FromFileXesEventLogReader> {
+impl<'a> FromFileXesEventLogReader<'a> {
+    pub fn new_from_bytes(bytes: &[u8]) -> Option<FromFileXesEventLogReader> {
         let reader = XmlReader::MemoryReader(BufReader::new(Cursor::new(bytes)));
         Some(Self::create_quickxml_reader(reader))
     }
@@ -166,7 +168,7 @@ impl FromFileXesEventLogReader {
         scope_name
     }
 
-    fn try_read_tag(tag: &BytesStart) -> Option<XesEventLogItem> {
+    fn try_read_tag(tag: &BytesStart) -> Option<XesEventLogItem<'a>> {
         let result = match tag.name().as_ref() {
             EXTENSION_TAG_NAME => match Self::try_read_extension(&tag) {
                 Some(extension) => Some(XesEventLogItem::Extension(extension)),
@@ -186,7 +188,7 @@ impl FromFileXesEventLogReader {
         Self::try_read_property(tag)
     }
 
-    fn try_read_property(tag: &BytesStart) -> Option<XesEventLogItem> {
+    fn try_read_property(tag: &BytesStart) -> Option<XesEventLogItem<'a>> {
         match utils::read_payload_like_tag(tag) {
             Some(descriptor) => {
                 let payload_type = descriptor.payload_type.as_str().as_bytes();
