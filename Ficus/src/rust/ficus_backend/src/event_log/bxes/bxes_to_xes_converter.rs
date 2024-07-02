@@ -4,6 +4,8 @@ use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog};
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes::models::system_models::SystemMetadata;
 use bxes::read::errors::BxesReadError;
+use bxes::read::read_utils::BxesEventLogReadResult;
+use bxes::read::single_file_bxes_reader::{read_bxes, read_bxes_from_archive_bytes};
 use chrono::{TimeZone, Utc};
 
 use crate::event_log::{
@@ -38,12 +40,25 @@ pub struct BxesToXesConversionResult {
     pub system_metadata: SystemMetadata,
 }
 
-pub fn read_bxes_into_xes_log(path: &str) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
-    let result = match bxes::read::single_file_bxes_reader::read_bxes(path) {
+pub fn read_bxes_into_xes_log_from_bytes(bytes: Vec<u8>) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
+    let result = match read_bxes_from_archive_bytes(bytes) {
         Ok(log) => log,
         Err(error) => return Err(BxesToXesReadError::BxesReadError(error)),
     };
 
+    read_bxes_into_xes_internal(result)
+}
+
+pub fn read_bxes_into_xes_log(path: &str) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
+    let result = match read_bxes(path) {
+        Ok(log) => log,
+        Err(error) => return Err(BxesToXesReadError::BxesReadError(error)),
+    };
+
+    read_bxes_into_xes_internal(result)
+}
+
+fn read_bxes_into_xes_internal(result: BxesEventLogReadResult) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
     let mut xes_log = XesEventLogImpl::empty();
 
     set_classifiers(&mut xes_log, &result.log)?;

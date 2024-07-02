@@ -60,6 +60,10 @@ pub enum XesEventLogItem {
     Property(XesProperty),
 }
 
+pub fn read_event_log_from_bytes(bytes: Vec<u8>) -> Option<XesEventLogImpl> {
+    XesEventLogImpl::new(FromFileXesEventLogReader::new_from_bytes(bytes)?)
+}
+
 pub fn read_event_log(file_path: &str) -> Option<XesEventLogImpl> {
     XesEventLogImpl::new(FromFileXesEventLogReader::new(file_path)?)
 }

@@ -1,10 +1,13 @@
-use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_into_xes_log;
-use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
-use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
     event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
     utils::user_data::user_data::UserData,
 };
+use crate::event_log::bxes::bxes_to_xes_converter::{BxesToXesConversionResult, read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes};
+use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
+use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
+use crate::pipelines::context::PipelineContext;
+use crate::pipelines::keys::context_keys::ContextKeys;
+use crate::pipelines::pipeline_parts::PipelineParts;
 
 use super::{
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
@@ -43,9 +46,7 @@ impl PipelineParts {
 
             match read_bxes_into_xes_log(path) {
                 Ok(result) => {
-                    context.put_concrete(keys.event_log().key(), result.xes_log);
-                    context.put_concrete(keys.system_metadata().key(), result.system_metadata);
-
+                    Self::put_read_result_to_context(context, keys, result);
                     Ok(())
                 }
                 Err(err) => {
@@ -54,6 +55,11 @@ impl PipelineParts {
                 }
             }
         })
+    }
+
+    fn put_read_result_to_context(context: &mut PipelineContext, keys: &ContextKeys, result: BxesToXesConversionResult) {
+        context.put_concrete(keys.event_log().key(), result.xes_log);
+        context.put_concrete(keys.system_metadata().key(), result.system_metadata);
     }
 
     pub(super) fn write_log_to_bxes() -> (String, PipelinePartFactory) {
@@ -73,11 +79,35 @@ impl PipelineParts {
     }
 
     pub(super) fn read_xes_from_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, keys, config| Ok(()))
+        Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, keys, config| {
+            let bytes = Self::get_user_data(context, keys.bytes())?;
+            match read_event_log_from_bytes(bytes.clone()) {
+                Some(log) => {
+                    context.put_concrete(keys.event_log().key(), log);
+                    Ok(())
+                },
+                None => {
+                    let message = "Failed to read event log from bytes array".to_string();
+                    return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)));
+                }
+            }
+        })
     }
 
     pub(super) fn read_bxes_from_bytes() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, keys, config| Ok(()))
+        Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, keys, config| {
+            let bytes = Self::get_user_data(context, keys.bytes())?;
+            match read_bxes_into_xes_log_from_bytes(bytes.clone()) {
+                Ok(read_result) => {
+                    Self::put_read_result_to_context(context, keys, read_result);
+                    Ok(())
+                }
+                Err(err) => {
+                    let message = format!("Failed to read event log from bytes: {}", err.to_string());
+                    Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
+                }
+            }
+        })
     }
 
     pub(super) fn write_bxes_to_bytes() -> (String, PipelinePartFactory) {
