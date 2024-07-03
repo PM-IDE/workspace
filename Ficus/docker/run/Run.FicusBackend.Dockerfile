@@ -1,5 +1,4 @@
-FROM --platform=linux/amd64 rust:1.75.0 as build
-EXPOSE 8080
+FROM rust:1.75.0 as build
 
 RUN apt update -y && apt upgrade -y
 RUN apt-get update -y
@@ -12,4 +11,10 @@ COPY ./bxes/ ./pmide/bxes/
 
 RUN cargo build --manifest-path /pmide/ficus/src/rust/ficus_backend/Cargo.toml --release
 
-ENTRYPOINT ./pmide/ficus/src/rust/ficus_backend/target/release/ficus_backend
+FROM gcr.io/distroless/cc as run
+EXPOSE 8080
+
+WORKDIR app
+COPY --from=build /pmide/ficus/src/rust/ficus_backend/target/release/ficus_backend ./
+
+CMD ["/app/ficus_backend"]
