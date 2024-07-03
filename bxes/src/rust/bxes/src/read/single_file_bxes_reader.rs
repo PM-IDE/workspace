@@ -8,9 +8,7 @@ use crate::read::read_context::ReadContext;
 
 use super::{errors::BxesReadError, read_utils::*};
 
-pub fn read_bxes_from_archive_bytes(
-    bytes: &[u8],
-) -> Result<BxesEventLogReadResult, BxesReadError> {
+pub fn read_bxes_from_archive_bytes(bytes: &[u8]) -> Result<BxesEventLogReadResult, BxesReadError> {
     let extracted_files_dir = try_extract_archive_bytes(bytes)?;
     read_bxes_internal(extracted_files_dir)
 }

@@ -12,7 +12,11 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::ficus_proto::{GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition};
+use crate::ficus_proto::{
+    GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation,
+    GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet,
+    GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
+};
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
@@ -187,9 +191,7 @@ fn try_convert_to_grpc_bytes(value: &dyn Any) -> Option<GrpcContextValue> {
     } else {
         let value = value.downcast_ref::<Vec<u8>>().unwrap();
         Some(GrpcContextValue {
-            context_value: Some(ContextValue::Bytes(GrpcBytes {
-                bytes: value.clone()
-            }))
+            context_value: Some(ContextValue::Bytes(GrpcBytes { bytes: value.clone() })),
         })
     }
 }

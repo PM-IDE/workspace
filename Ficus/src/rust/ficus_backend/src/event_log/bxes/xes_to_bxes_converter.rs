@@ -1,12 +1,5 @@
 use std::rc::Rc;
 
-use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
-use bxes::models::domain::bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal};
-use bxes::models::domain::bxes_value::BxesValue;
-use bxes::models::system_models::SystemMetadata;
-use bxes::writer::writer_utils::BxesLogWriteData;
-use bxes::writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes};
-use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
 use crate::event_log::{
     core::{
         event::event::{Event, EventPayloadValue},
@@ -15,6 +8,13 @@ use crate::event_log::{
     },
     xes::{constants::EVENT_TAG_NAME_STR, shared::XesEventLogExtension, xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
 };
+use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
+use bxes::models::domain::bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal};
+use bxes::models::domain::bxes_value::BxesValue;
+use bxes::models::system_models::SystemMetadata;
+use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
+use bxes::writer::writer_utils::BxesLogWriteData;
+use bxes::writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes};
 
 use crate::utils::user_data::user_data::UserDataOwner;
 
@@ -38,7 +38,7 @@ pub fn write_event_log_to_bxes_bytes(log: &XesEventLogImpl, metadata: Option<&Sy
     let data = create_bxes_write_data(log, metadata)?;
     match write_bxes_to_bytes(&data) {
         Ok(bytes) => Ok(bytes),
-        Err(error) => Err(XesToBxesWriterError::BxesWriteError(error))
+        Err(error) => Err(XesToBxesWriterError::BxesWriteError(error)),
     }
 }
 

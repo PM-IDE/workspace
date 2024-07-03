@@ -1,6 +1,6 @@
-use std::{cell::RefCell, rc::Rc};
 use std::fs::File;
 use std::io::Read;
+use std::{cell::RefCell, rc::Rc};
 use tempfile::NamedTempFile;
 
 use crate::binary_rw::core::{BinaryWriter, Endian};
@@ -40,9 +40,9 @@ pub fn write_bxes_to_bytes(data: &BxesLogWriteData) -> Result<Vec<u8>, BxesWrite
     match File::open(archive_path) {
         Ok(mut file) => match file.read_to_end(&mut bytes) {
             Ok(_) => Ok(bytes),
-            Err(err) => Err(BxesWriteError::Default(err.to_string()))
+            Err(err) => Err(BxesWriteError::Default(err.to_string())),
         },
-        Err(err) => Err(BxesWriteError::Default(err.to_string()))
+        Err(err) => Err(BxesWriteError::Default(err.to_string())),
     }
 }
 
@@ -53,7 +53,10 @@ fn create_temp_file() -> Result<NamedTempFile, BxesWriteError> {
     }
 }
 
-fn write_bxes_to_temp_file(data: &BxesLogWriteData, raw_log_path: &str) -> Result<(), BxesWriteError> {
+fn write_bxes_to_temp_file(
+    data: &BxesLogWriteData,
+    raw_log_path: &str,
+) -> Result<(), BxesWriteError> {
     let mut stream = try_open_write(raw_log_path)?;
     let mut writer = BinaryWriter::new(&mut stream, Endian::Little);
 

@@ -1,16 +1,16 @@
-use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
-use bxes::writer::writer_utils::BxesLogWriteData;
-use crate::{
-    event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
-    utils::user_data::user_data::UserData,
-};
-use crate::event_log::bxes::bxes_to_xes_converter::{BxesToXesConversionResult, read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes};
+use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult};
 use crate::event_log::bxes::xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes};
 use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
 use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log_to_bytes;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::keys::context_keys::ContextKeys;
 use crate::pipelines::pipeline_parts::PipelineParts;
+use crate::{
+    event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
+    utils::user_data::user_data::UserData,
+};
+use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
+use bxes::writer::writer_utils::BxesLogWriteData;
 
 use super::{
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
@@ -88,7 +88,7 @@ impl PipelineParts {
                 Some(log) => {
                     context.put_concrete(keys.event_log().key(), log);
                     Ok(())
-                },
+                }
                 None => {
                     let message = "Failed to read event log from bytes array".to_string();
                     return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)));
@@ -125,7 +125,7 @@ impl PipelineParts {
                 Ok(bytes) => {
                     context.put_concrete::<Vec<u8>>(keys.bytes().key(), bytes);
                     Ok(())
-                },
+                }
                 Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
             }
         })
@@ -138,7 +138,7 @@ impl PipelineParts {
                 Ok(bytes) => {
                     context.put_concrete::<Vec<u8>>(keys.bytes().key(), bytes);
                     Ok(())
-                },
+                }
                 Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
             }
         })

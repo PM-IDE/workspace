@@ -29,7 +29,7 @@ impl ToString for BxesWriteError {
             BxesWriteError::FailedToCreateTempFile => "FailedToCreateTempFile".to_string(),
             BxesWriteError::FailedToCreateArchive => "FailedToCreateArchive".to_string(),
             BxesWriteError::LebWriteError(err) => err.to_string(),
-            BxesWriteError::Default(err) => err.to_owned()
+            BxesWriteError::Default(err) => err.to_owned(),
         }
     }
 }

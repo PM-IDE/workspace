@@ -83,7 +83,7 @@ impl PipelineParts {
             Self::read_xes_from_bytes(),
             Self::read_bxes_from_bytes(),
             Self::write_bxes_to_bytes(),
-            Self::write_xes_to_bytes()
+            Self::write_xes_to_bytes(),
         ];
 
         let mut names_to_parts = HashMap::new();
