@@ -9,9 +9,6 @@ use crate::{
     event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
     utils::user_data::user_data::UserData,
 };
-use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
-use bxes::writer::writer_utils::BxesLogWriteData;
-
 use super::{
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
     pipelines::PipelinePartFactory,

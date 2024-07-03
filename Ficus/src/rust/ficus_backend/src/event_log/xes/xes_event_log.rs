@@ -11,7 +11,7 @@ use crate::event_log::core::{
     trace::traces_holder::EventLogBase,
 };
 use crate::utils::user_data::user_data::UserDataImpl;
-use crate::utils::user_data::user_data::{UserData, UserDataOwner};
+use crate::utils::user_data::user_data::UserDataOwner;
 use crate::utils::vec_utils;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
