@@ -53,6 +53,7 @@ const_log_traces_dataset = 'log_traces_dataset'
 const_labeled_log_traces_dataset = 'labeled_log_traces_dataset'
 const_traces_repr_source = 'traces_repr_source'
 const_log_serialization_format = 'log_serialization_format'
+const_bytes = 'bytes'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'

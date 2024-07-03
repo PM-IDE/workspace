@@ -30,10 +30,14 @@ pub fn write_bxes_to_bytes(data: &BxesLogWriteData) -> Result<Vec<u8>, BxesWrite
     let raw_log_path = temp_file.path().to_str().unwrap();
 
     write_bxes_to_temp_file(data, raw_log_path)?;
+    let archive_temp_file = create_temp_file()?;
+    let archive_path = archive_temp_file.path().to_str().unwrap();
+
+    compress_to_archive(raw_log_path, archive_path)?;
 
     let mut bytes = vec![];
 
-    match File::open(raw_log_path) {
+    match File::open(archive_path) {
         Ok(mut file) => match file.read_to_end(&mut bytes) {
             Ok(_) => Ok(bytes),
             Err(err) => Err(BxesWriteError::Default(err.to_string()))

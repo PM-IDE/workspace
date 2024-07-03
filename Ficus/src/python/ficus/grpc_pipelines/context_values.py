@@ -325,3 +325,12 @@ def from_grpc_graph(grpc_graph: GrpcGraph) -> Graph:
 def read_file_bytes(log_path: str) -> bytes:
     with open(log_path, 'rb') as fin:
         return fin.read()
+
+
+def write_file_bytes(save_path: str, file_bytes: bytes):
+    with open(save_path, 'wb') as fout:
+        fout.write(file_bytes)
+
+
+def from_grpc_bytes(grpc_bytes: GrpcBytes) -> BytesContextValue:
+    return BytesContextValue(grpc_bytes.bytes)
