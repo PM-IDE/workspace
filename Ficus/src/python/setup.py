@@ -1,21 +1,12 @@
 import setuptools
 
-
-def get_install_reqs():
-    with open('requirements.txt', 'r') as f:
-        install_reqs = f.read().splitlines()
-    return install_reqs
-
-
-install_reqs = get_install_reqs()
-
 setuptools.setup(
-    name='ficus',
-    version='1.0.0',
+    name='ficus-pm',
+    version='1.0.1',
     author='Aero',
     author_email='aerooneq@yandex.ru',
-    description='Some Process Mining techniques implementations',
-    long_description='Some Process Mining techniques implementations',
+    description='The modern Process Mining toolkit',
+    long_description='The modern Process Mining toolkit',
     long_description_content_type="text/markdown",
     license='private',
     packages=['ficus',
@@ -38,5 +29,21 @@ setuptools.setup(
               'ficus.legacy.filtering',
               'ficus.grpc_pipelines',
               'ficus.grpc_pipelines.models'],
-    install_requires=install_reqs,
+    install_requires=['pm4py==2.7.7',
+                      'matplotlib==3.8.0',
+                      'matplotlib-inline==0.1.6',
+                      'graphviz~=0.20.1',
+                      'intervaltree~=3.1.0',
+                      'ipython==8.16.1',
+                      'numpy~=1.26.0',
+                      'pandas==2.1.1',
+                      'setuptools==68.2.2',
+                      'python-dateutil~=2.8.2',
+                      'ipycanvas~=0.13.1',
+                      'pytest~=7.4.2',
+                      'grpcio==1.59.0',
+                      'grpcio-tools==1.59.0',
+                      'suffix-tree==0.1.2',
+                      'scikit-learn~=1.3.2',
+                      'attrs~=23.1.0']
 )
