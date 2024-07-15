@@ -1,7 +1,7 @@
-from ...ficus.grpc_pipelines.context_values import StringContextValue
+from ...ficus.grpc_pipelines.context_values import StringContextValue, BytesContextValue, read_file_bytes
 from ...ficus.grpc_pipelines.filtering_parts import FilterEventsByRegex, FilterLogByVariants
 
-from ...ficus.grpc_pipelines.xes_parts import ReadLogFromXes
+from ...ficus.grpc_pipelines.xes_parts import ReadLogFromXes, ReadLogFromBxes
 
 from ...ficus.legacy.analysis.patterns.patterns_models import UndefinedActivityHandlingStrategy
 from ...ficus.grpc_pipelines.data_models import PatternsKind, PatternsDiscoveryStrategy, NarrowActivityKind, \
@@ -22,7 +22,7 @@ from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline
 from .pipeline_parts_for_tests import AssertNamesLogTestPart
 from .test_grpc_pipelines import _execute_test_with_names_log, _execute_test_with_exercise_log, \
     _execute_test_with_context
-from ..test_data_provider import console_app_method2_log_path
+from ..test_data_provider import console_app_method2_bxes_log_path
 
 
 def test_class_extractors():
@@ -96,7 +96,7 @@ def test_discover_activities_until_no_more():
 
 def test_execute_with_each_activity_log():
     _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromXes(use_bytes=True),
         DiscoverActivitiesFromPatterns(patterns_kind=PatternsKind.MaximalRepeats,
                                        strategy=PatternsDiscoveryStrategy.FromSingleMergedTrace),
         DiscoverActivitiesInstances(narrow_activities=NarrowActivityKind.NarrowDown),
@@ -108,7 +108,7 @@ def test_execute_with_each_activity_log():
 
 def test_console_app1_log():
     _execute_test_with_context(Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromBxes(use_bytes=True),
         FilterEventsByRegex('Procfiler.*'),
         FilterEventsByRegex(r'GC/SampledObjectAllocation_\{System\.Int32\[\]\}'),
         FilterEventsByRegex(r'.*SuspendEE.*'),
@@ -129,13 +129,13 @@ def test_console_app1_log():
                                       undef_strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
         PrintNumberOfUnderlyingEvents()
     ), {
-        'path': StringContextValue(console_app_method2_log_path())
+        'bytes': BytesContextValue(read_file_bytes(console_app_method2_bxes_log_path()))
     })
 
 
 def test_console_app1_two_levels_of_abstraction():
     _execute_test_with_context(Pipeline(
-        ReadLogFromXes(),
+        ReadLogFromBxes(use_bytes=True),
         FilterEventsByRegex('Procfiler.*'),
         FilterEventsByRegex(r'GC/SampledObjectAllocation_\{System\.Int32\[\]\}'),
         FilterEventsByRegex(r'.*SuspendEE.*'),
@@ -158,5 +158,5 @@ def test_console_app1_two_levels_of_abstraction():
             SubstituteUnderlyingEvents(),
         ))
     ), {
-        'path': StringContextValue(console_app_method2_log_path())
+        'bytes': BytesContextValue(read_file_bytes(console_app_method2_bxes_log_path()))
     })

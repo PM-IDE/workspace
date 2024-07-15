@@ -1,10 +1,11 @@
-use std::{fs::File, io::Read, rc::Rc};
-
 use num_traits::FromPrimitive;
+use std::io::{Cursor, Seek};
+use std::{fs::File, io::Read, rc::Rc};
 use tempfile::TempDir;
 use uuid::Uuid;
 use zip::ZipArchive;
 
+use super::errors::*;
 use crate::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
 use crate::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
 use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
@@ -24,8 +25,6 @@ use crate::{
     },
     utils::buffered_stream::BufferedReadFileStream,
 };
-
-use super::errors::*;
 
 #[derive(Debug)]
 pub struct BxesEventLogReadResult {
@@ -567,13 +566,21 @@ fn try_read_standard_lifecycle(
     try_read_enum::<StandardLifecycle>(reader)
 }
 
+pub fn try_extract_archive_bytes(bytes: &[u8]) -> Result<TempDir, BxesReadError> {
+    try_extract_archive_internal(Cursor::new(bytes))
+}
+
 pub fn try_extract_archive(path: &str) -> Result<TempDir, BxesReadError> {
     let fs = match File::open(path) {
         Ok(fs) => fs,
         Err(err) => return Err(BxesReadError::FailedToOpenFile(err.to_string())),
     };
 
-    let mut archive = match ZipArchive::new(fs) {
+    try_extract_archive_internal(fs)
+}
+
+fn try_extract_archive_internal(stream: impl Read + Seek) -> Result<TempDir, BxesReadError> {
+    let mut archive = match ZipArchive::new(stream) {
         Ok(archive) => archive,
         Err(err) => return Err(BxesReadError::FailedToOpenFile(err.to_string())),
     };

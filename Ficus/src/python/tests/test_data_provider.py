@@ -44,16 +44,9 @@ def get_repair_example_path() -> str:
     return os.path.join(repair_logs_dir(), 'repairExample.xes')
 
 
-def console_app_method2_log_path() -> str:
-    return os.path.join(data_dir(), 'source', 'solutions_logs', 'consoleapp1.xes')
+def console_app_method2_bxes_log_path() -> str:
+    return os.path.join(data_dir(), 'source', 'solutions_logs', 'consoleapp1.bxes')
 
 
-def array_pooling_log_path() -> str:
-    return os.path.join(data_dir(), 'source', 'solutions_logs', 'arraypooling.xes')
-
-
-def all_test_split_traces() -> Iterable[str]:
-    initial_dir = os.path.join(data_dir(), 'source', 'test_split_traces')
-    for solution_dir in os.listdir(initial_dir):
-        for log_path in os.listdir(os.path.join(initial_dir, solution_dir)):
-            yield os.path.join(initial_dir, solution_dir, log_path)
+def array_pooling_bxes_log_path() -> str:
+    return os.path.join(data_dir(), 'source', 'solutions_logs', 'arraypooling.bxes')

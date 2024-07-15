@@ -58,4 +58,9 @@ impl PipelineParts {
     pub const CREATE_TRACES_ACTIVITIES_DATASET: &'static str = "CreateTracesActivitiesDataset";
     pub const CLUSTERIZE_LOG_TRACES: &'static str = "ClusterizeLogTraces";
     pub const SERIALIZE_ACTIVITIES_LOGS: &'static str = "SerializeActivitiesLogs";
+
+    pub const READ_XES_LOG_FROM_BYTES: &'static str = "ReadXesLogFromBytes";
+    pub const READ_BXES_LOG_FROM_BYTES: &'static str = "ReadBxesLogFromBytes";
+    pub const WRITE_XES_LOG_TO_BYTES: &'static str = "WriteXesLogToBytes";
+    pub const WRITE_BXES_LOG_TO_BYTES: &'static str = "WriteBxesLogToBytes";
 }

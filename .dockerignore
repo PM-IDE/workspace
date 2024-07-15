@@ -1,0 +1,8 @@
+**/.idea
+**/build
+**/.pytest_cache
+**/__pycache__
+**/ficus.egg-info
+**/.vscode
+**/target
+bxes/test_data

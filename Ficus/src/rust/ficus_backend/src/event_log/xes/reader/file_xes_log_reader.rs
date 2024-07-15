@@ -1,3 +1,9 @@
+use std::io::{BufRead, Cursor, Read};
+use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
+
+use quick_xml::{events::BytesStart, Reader};
+
+use crate::event_log::xes::constants::*;
 use crate::event_log::{
     core::event::event::EventPayloadValue,
     xes::{
@@ -8,30 +14,63 @@ use crate::event_log::{
 };
 
 use super::{utils, xes_log_trace_reader::TraceXesEventLogIterator};
-use crate::event_log::xes::constants::*;
-use quick_xml::{events::BytesStart, Reader};
-use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
 
-pub struct FromFileXesEventLogReader {
+pub enum XmlReader<'a> {
+    FileReader(BufReader<File>),
+    MemoryReader(BufReader<Cursor<&'a [u8]>>),
+}
+
+impl<'a> Read for XmlReader<'a> {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        match self {
+            XmlReader::FileReader(reader) => reader.read(buf),
+            XmlReader::MemoryReader(reader) => reader.read(buf),
+        }
+    }
+}
+
+impl<'a> BufRead for XmlReader<'a> {
+    fn fill_buf(&mut self) -> std::io::Result<&[u8]> {
+        match self {
+            XmlReader::FileReader(reader) => reader.fill_buf(),
+            XmlReader::MemoryReader(reader) => reader.fill_buf(),
+        }
+    }
+
+    fn consume(&mut self, amt: usize) {
+        match self {
+            XmlReader::FileReader(reader) => reader.consume(amt),
+            XmlReader::MemoryReader(reader) => reader.consume(amt),
+        }
+    }
+}
+
+pub struct FromFileXesEventLogReader<'a> {
     storage: Rc<RefCell<Vec<u8>>>,
-    reader: Rc<RefCell<Reader<BufReader<File>>>>,
+    reader: Rc<RefCell<Reader<XmlReader<'a>>>>,
     seen_globals: Rc<RefCell<HashMap<String, HashMap<String, EventPayloadValue>>>>,
 }
 
-pub enum XesEventLogItem {
-    Trace(TraceXesEventLogIterator),
+pub enum XesEventLogItem<'a> {
+    Trace(TraceXesEventLogIterator<'a>),
     Global(XesGlobal),
     Extension(XesEventLogExtension),
     Classifier(XesClassifier),
     Property(XesProperty),
 }
 
-pub fn read_event_log(file_path: &str) -> Option<XesEventLogImpl> {
-    XesEventLogImpl::new(FromFileXesEventLogReader::new(file_path)?)
+pub fn read_event_log_from_bytes(bytes: &[u8]) -> Option<XesEventLogImpl> {
+    let mut reader = FromFileXesEventLogReader::new_from_bytes(bytes)?;
+    XesEventLogImpl::new(&mut reader)
 }
 
-impl Iterator for FromFileXesEventLogReader {
-    type Item = XesEventLogItem;
+pub fn read_event_log(file_path: &str) -> Option<XesEventLogImpl> {
+    let mut reader = FromFileXesEventLogReader::new(file_path)?;
+    XesEventLogImpl::new(&mut reader)
+}
+
+impl<'a> Iterator for FromFileXesEventLogReader<'a> {
+    type Item = XesEventLogItem<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut storage = self.storage.borrow_mut();
@@ -86,16 +125,27 @@ impl Iterator for FromFileXesEventLogReader {
     }
 }
 
-impl FromFileXesEventLogReader {
-    pub fn new(file_path: &str) -> Option<FromFileXesEventLogReader> {
-        match Reader::from_file(file_path) {
-            Ok(reader) => Some(FromFileXesEventLogReader {
-                reader: Rc::new(RefCell::new(reader)),
-                storage: Rc::new(RefCell::new(Vec::new())),
-                seen_globals: Rc::new(RefCell::new(HashMap::new())),
-            }),
-            Err(_) => None,
+impl<'a> FromFileXesEventLogReader<'a> {
+    pub fn new_from_bytes(bytes: &[u8]) -> Option<FromFileXesEventLogReader> {
+        let reader = XmlReader::MemoryReader(BufReader::new(Cursor::new(bytes)));
+        Some(Self::create_quickxml_reader(reader))
+    }
+
+    fn create_quickxml_reader(reader: XmlReader) -> FromFileXesEventLogReader {
+        FromFileXesEventLogReader {
+            reader: Rc::new(RefCell::new(Reader::from_reader(reader))),
+            storage: Rc::new(RefCell::new(Vec::new())),
+            seen_globals: Rc::new(RefCell::new(HashMap::new())),
         }
+    }
+
+    pub fn new(file_path: &str) -> Option<FromFileXesEventLogReader> {
+        let file = match File::open(file_path) {
+            Ok(file) => file,
+            Err(_) => return None,
+        };
+
+        Some(Self::create_quickxml_reader(XmlReader::FileReader(BufReader::new(file))))
     }
 
     fn try_read_scope_name(tag: &BytesStart) -> Option<String> {
@@ -118,7 +168,7 @@ impl FromFileXesEventLogReader {
         scope_name
     }
 
-    fn try_read_tag(tag: &BytesStart) -> Option<XesEventLogItem> {
+    fn try_read_tag(tag: &BytesStart) -> Option<XesEventLogItem<'a>> {
         let result = match tag.name().as_ref() {
             EXTENSION_TAG_NAME => match Self::try_read_extension(&tag) {
                 Some(extension) => Some(XesEventLogItem::Extension(extension)),
@@ -138,7 +188,7 @@ impl FromFileXesEventLogReader {
         Self::try_read_property(tag)
     }
 
-    fn try_read_property(tag: &BytesStart) -> Option<XesEventLogItem> {
+    fn try_read_property(tag: &BytesStart) -> Option<XesEventLogItem<'a>> {
         match utils::read_payload_like_tag(tag) {
             Some(descriptor) => {
                 let payload_type = descriptor.payload_type.as_str().as_bytes();
@@ -154,7 +204,7 @@ impl FromFileXesEventLogReader {
         }
     }
 
-    fn try_read_global(reader: &mut Reader<BufReader<File>>, storage: &mut Vec<u8>) -> Option<HashMap<String, EventPayloadValue>> {
+    fn try_read_global(reader: &mut Reader<XmlReader>, storage: &mut Vec<u8>) -> Option<HashMap<String, EventPayloadValue>> {
         let mut map: Option<HashMap<String, EventPayloadValue>> = None;
 
         loop {

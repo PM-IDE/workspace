@@ -7,8 +7,8 @@ data
 .pytest_cache
 __pycache__
 results
-build/*
-pm4pyex.egg-info/*
+build
+ficus.egg-info
 .nets
 test_split_traces
 serialized_test_split_logs

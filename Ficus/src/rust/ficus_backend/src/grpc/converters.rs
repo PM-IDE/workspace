@@ -13,7 +13,7 @@ use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::ficus_proto::{
-    GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation,
+    GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation,
     GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet,
     GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
 };
@@ -25,6 +25,7 @@ use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::{DefaultGraph, Graph};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
+use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
     features::analysis::{
         event_log_info::EventLogInfo,
@@ -49,7 +50,6 @@ use crate::{
         user_data::{keys::Key, user_data::UserData},
     },
 };
-use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::backend_service::{FicusService, ServicePipelineExecutionContext};
 
@@ -120,6 +120,7 @@ pub(super) fn put_into_user_data(
         ContextValue::FrequencyAnnotation(_) => todo!(),
         ContextValue::Dataset(_) => todo!(),
         ContextValue::LabeledDataset(_) => todo!(),
+        ContextValue::Bytes(grpc_bytes) => user_data.put_any::<Vec<u8>>(key, grpc_bytes.bytes.clone()),
     }
 }
 
@@ -177,8 +178,21 @@ pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any, keys
         try_convert_to_grpc_labeled_dataset(value)
     } else if keys.is_log_traces_dataset(key) {
         try_convert_to_grpc_dataset(value)
+    } else if keys.is_bytes(key) {
+        try_convert_to_grpc_bytes(value)
     } else {
         None
+    }
+}
+
+fn try_convert_to_grpc_bytes(value: &dyn Any) -> Option<GrpcContextValue> {
+    if !value.is::<Vec<u8>>() {
+        None
+    } else {
+        let value = value.downcast_ref::<Vec<u8>>().unwrap();
+        Some(GrpcContextValue {
+            context_value: Some(ContextValue::Bytes(GrpcBytes { bytes: value.clone() })),
+        })
     }
 }
 

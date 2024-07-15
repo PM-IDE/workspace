@@ -12,6 +12,13 @@ use crate::event_log::{
 };
 use crate::utils::xml_utils::{write_empty, StartEndElementCookie, XmlWriteError};
 
+pub fn write_xes_log_to_bytes(log: &XesEventLogImpl) -> Result<Vec<u8>, XmlWriteError> {
+    match serialize_event_log(log) {
+        Ok(content) => Ok(content.as_bytes().to_vec()),
+        Err(error) => Err(error),
+    }
+}
+
 pub fn write_xes_log(log: &XesEventLogImpl, save_path: &str) -> Result<(), XmlWriteError> {
     match serialize_event_log(log) {
         Ok(content) => match fs::write(save_path, content) {

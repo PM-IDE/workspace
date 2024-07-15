@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::{
     cell::RefCell,
     fs::{self, File},
@@ -5,7 +6,6 @@ use std::{
     path::Path,
     rc::Rc,
 };
-use std::collections::HashMap;
 
 use num_traits::ToPrimitive;
 use zip::{write::FileOptions, ZipWriter};

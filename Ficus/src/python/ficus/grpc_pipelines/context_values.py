@@ -154,6 +154,13 @@ class ProxyColorsEventLog(ContextValue):
     def to_grpc_context_value(self) -> GrpcContextValue:
         pass
 
+@dataclass
+class BytesContextValue(ContextValue):
+    bytes: bytes
+
+    def to_grpc_context_value(self) -> GrpcContextValue:
+        return GrpcContextValue(bytes=GrpcBytes(bytes=self.bytes))
+
 
 def from_grpc_colors_log_proxy(grpc_colors_log: GrpcColorsEventLog) -> ProxyColorsEventLog:
     mapping = from_grpc_color_mapping(list(grpc_colors_log.mapping))
@@ -313,3 +320,17 @@ def from_grpc_graph(grpc_graph: GrpcGraph) -> Graph:
         graph.edges.append(GraphEdge(from_node=edge.from_node, to_node=edge.to_node, data=edge.data))
 
     return graph
+
+
+def read_file_bytes(log_path: str) -> bytes:
+    with open(log_path, 'rb') as fin:
+        return fin.read()
+
+
+def write_file_bytes(save_path: str, file_bytes: bytes):
+    with open(save_path, 'wb') as fout:
+        fout.write(file_bytes)
+
+
+def from_grpc_bytes(grpc_bytes: GrpcBytes) -> BytesContextValue:
+    return BytesContextValue(grpc_bytes.bytes)

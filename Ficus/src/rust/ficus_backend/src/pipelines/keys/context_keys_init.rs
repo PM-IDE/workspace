@@ -11,6 +11,7 @@ use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::DefaultGraph;
+use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
     event_log::xes::xes_event_log::XesEventLogImpl,
     features::analysis::{
@@ -20,7 +21,6 @@ use crate::{
     pipelines::{aliases::*, pipelines::Pipeline},
     utils::colors::ColorsHolder,
 };
-use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::{
     context_key::{ContextKey, DefaultContextKey},
@@ -103,6 +103,7 @@ impl ContextKeys {
     pub const TOLERANCE: &'static str = "tolerance";
     pub const MIN_EVENTS_IN_CLUSTERS_COUNT: &'static str = "min_events_in_cluster_count";
     pub const EVENT_LOG_NAME: &'static str = "event_log_name";
+    pub const BYTES: &'static str = "bytes";
 
     pub const EVENT_LOG: &'static str = "event_log";
     pub const ACTIVITIES: &'static str = "activities";
@@ -202,6 +203,7 @@ impl ContextKeys {
         Self::insert_traces_repr_source(&mut context);
         Self::insert_system_metadata(&mut context);
         Self::insert_log_serialization_format(&mut context);
+        Self::insert_bytes(&mut context);
 
         let (concrete_keys, context_keys) = context.deconstruct();
 
@@ -478,5 +480,9 @@ impl ContextKeys {
 
     fn insert_log_serialization_format(context: &mut ContextKeysInitContext) {
         Self::insert_key::<LogSerializationFormat>(context, Self::LOG_SERIALIZATION_FORMAT)
+    }
+
+    fn insert_bytes(context: &mut ContextKeysInitContext) {
+        Self::insert_key::<Vec<u8>>(context, Self::BYTES)
     }
 }

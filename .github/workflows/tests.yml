@@ -1,8 +1,8 @@
-name: .NET
+name: Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ]  
   pull_request:
     branches: [ "main" ]
 
@@ -61,3 +61,15 @@ jobs:
       - run: cd ./Ficus/src/rust/ficus_backend && cargo test --release
         env:
           RUSTFLAGS: ""
+          
+  ficus-integration-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Setup docker
+        uses: docker/setup-qemu-action@v3
+        
+      - name: Run tests
+        run: docker-compose -f Ficus/docker/tests/Tests.Python.Dockercompose up --exit-code-from python_tests

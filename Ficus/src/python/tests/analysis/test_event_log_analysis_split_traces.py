@@ -1,10 +1,13 @@
 import os.path
 
+import pytest
+
 from ..test_data_provider import sources_dir
 from ...ficus.legacy.analysis.event_log_split import split_log_by_traces
 from ...ficus.legacy.log.functions import read_log_from_xes
 
 
+@pytest.mark.skip(reason='Too big source')
 def test():
     source = [
         ('consoleapp1', 10),

@@ -8,9 +8,11 @@ use ficus_backend::features::clustering::traces::traces_params::TracesRepresenta
 use ficus_backend::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus_backend::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus_backend::pipelines::patterns_parts::PatternsKindDto;
+use ficus_backend::utils::colors::ColorsEventLog;
 use ficus_backend::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use ficus_backend::utils::distance::distance::FicusDistance;
 use ficus_backend::utils::graph::graph::DefaultGraph;
+use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
 use ficus_backend::{
     event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
     features::analysis::{
@@ -29,8 +31,6 @@ use ficus_backend::{
     },
     vecs,
 };
-use ficus_backend::utils::colors::ColorsEventLog;
-use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
 
 #[test]
 fn test_event_log_key() {
@@ -126,6 +126,7 @@ fn test_event_log_all_concrete_keys() {
         assert_existence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
         assert_existence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
         assert_existence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
+        assert_existence::<Vec<u8>>(keys, ContextKeys::BYTES, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })
@@ -208,7 +209,8 @@ fn get_all_keys_names() -> Vec<String> {
         "labeled_log_traces_dataset",
         "traces_repr_source",
         "system_metadata",
-        "log_serialization_format"
+        "log_serialization_format",
+        "bytes"
     ]
 }
 
@@ -299,6 +301,7 @@ fn test_equivalence_of_keys() {
         assert_keys_equivalence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
         assert_keys_equivalence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
         assert_keys_equivalence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
+        assert_keys_equivalence::<Vec<u8>>(keys, ContextKeys::BYTES, &mut used);
 
         assert_eq!(used.len(), get_all_keys_names().len())
     })

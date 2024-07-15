@@ -11,6 +11,7 @@ use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::DefaultGraph;
+use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
     event_log::xes::xes_event_log::XesEventLogImpl,
     features::analysis::{
@@ -25,7 +26,6 @@ use crate::{
     pipelines::{aliases::*, pipelines::Pipeline},
     utils::colors::ColorsHolder,
 };
-use crate::utils::log_serialization_format::LogSerializationFormat;
 
 use super::{
     context_key::{ContextKey, DefaultContextKey},
@@ -643,5 +643,14 @@ impl ContextKeys {
 
     pub fn is_log_serialization_format(&self, key: &dyn ContextKey) -> bool {
         Self::are_keys_equal(self.log_serialization_format(), key)
+    }
+
+    pub fn bytes(&self) -> &DefaultContextKey<Vec<u8>> {
+        self.find_concrete_key::<Vec<u8>>(Self::BYTES)
+            .expect("BYTES should be present in keys")
+    }
+
+    pub fn is_bytes(&self, key: &dyn ContextKey) -> bool {
+        Self::are_keys_equal(self.bytes(), key)
     }
 }
