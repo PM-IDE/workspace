@@ -1,9 +1,9 @@
-use ficus_backend::{
-    features::discovery::{heuristic::heuristic_miner::discover_petri_net_heuristic, petri_net::pnml_serialization::serialize_to_pnml},
-};
-use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::test_core::{
     gold_based_test::execute_test_with_gold, simple_events_logs_provider::*, test_paths::get_serialized_petri_nets_gold_path,
+};
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
+use ficus_backend::features::discovery::{
+    heuristic::heuristic_miner::discover_petri_net_heuristic, petri_net::pnml_serialization::serialize_to_pnml,
 };
 
 #[test]

@@ -18,6 +18,7 @@ use super::{
     logs_handler::LogMessageHandlerImpl,
 };
 use crate::pipelines::context::PipelineInfrastructure;
+use crate::pipelines::keys::context_keys::find_context_key;
 use crate::{
     ficus_proto::{
         grpc_backend_service_server::GrpcBackendService, grpc_get_context_value_result::ContextValueResult,
@@ -28,13 +29,12 @@ use crate::{
     pipelines::{
         context::LogMessageHandler,
         errors::pipeline_errors::PipelinePartExecutionError,
-        keys::{context_key::ContextKey},
+        keys::context_key::ContextKey,
         pipeline_parts::PipelineParts,
         pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
     },
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use crate::pipelines::keys::context_keys::find_context_key;
 
 pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_result::Result;
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;

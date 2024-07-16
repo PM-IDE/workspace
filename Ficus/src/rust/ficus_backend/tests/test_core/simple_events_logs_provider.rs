@@ -137,11 +137,17 @@ pub fn create_maximal_repeats_log() -> XesEventLogImpl {
 }
 
 pub fn create_single_trace_test_log1() -> XesEventLogImpl {
-    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["a", "b", "c", "x", "y", "z"], vec!["r", "t", "u", "a", "b", "c"]])
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["a", "b", "c", "x", "y", "z"],
+        vec!["r", "t", "u", "a", "b", "c"],
+    ])
 }
 
 pub fn create_single_trace_test_log2() -> XesEventLogImpl {
-    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["x", "y", "z", "a", "b", "c"], vec!["a", "b", "c", "r", "t", "u"]])
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["x", "y", "z", "a", "b", "c"],
+        vec!["a", "b", "c", "r", "t", "u"],
+    ])
 }
 
 pub fn create_alpha_sharp_test_log() -> XesEventLogImpl {
@@ -209,7 +215,11 @@ pub fn create_alpha_plus_plus_nfc_test_log4() -> XesEventLogImpl {
 }
 
 pub fn create_alpha_plus_plus_nfc_test_log5() -> XesEventLogImpl {
-    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "B", "C"], vec!["A", "B", "D", "E"], vec!["A", "D", "B", "E"]])
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["A", "B", "C"],
+        vec!["A", "B", "D", "E"],
+        vec!["A", "D", "B", "E"],
+    ])
 }
 
 pub fn create_alpha_plus_plus_nfc_test_log6() -> XesEventLogImpl {
@@ -226,7 +236,11 @@ pub fn create_alpha_plus_plus_nfc_test_log7() -> XesEventLogImpl {
 }
 
 pub fn create_alpha_plus_plus_nfc_test_log8() -> XesEventLogImpl {
-    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "C", "D"], vec!["B", "C", "F", "E"], vec!["B", "F", "C", "E"]])
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["A", "C", "D"],
+        vec!["B", "C", "F", "E"],
+        vec!["B", "F", "C", "E"],
+    ])
 }
 
 pub fn create_alpha_plus_plus_nfc_test_log9() -> XesEventLogImpl {
@@ -238,5 +252,9 @@ pub fn create_heuristic_miner_replay_test_log() -> XesEventLogImpl {
 }
 
 pub fn create_alpha_plus_miner_replay_test_log() -> XesEventLogImpl {
-    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "B", "C", "D"], vec!["A", "C", "B", "D"], vec!["E", "F"]])
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["A", "B", "C", "D"],
+        vec!["A", "C", "B", "D"],
+        vec!["E", "F"],
+    ])
 }

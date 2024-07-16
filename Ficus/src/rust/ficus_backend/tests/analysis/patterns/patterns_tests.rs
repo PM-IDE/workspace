@@ -1,12 +1,15 @@
 use std::fmt::Debug;
 
+use crate::test_core::simple_events_logs_provider::{
+    create_log_for_max_repeats2, create_log_from_taxonomy_of_patterns, create_maximal_repeats_log, create_no_tandem_array_log,
+    create_one_tandem_array_log, create_single_trace_test_log1, create_single_trace_test_log2,
+};
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus_backend::{
-    event_log::{
-        core::{
-            event::{event::Event, event_hasher::NameEventHasher},
-            event_log::EventLog,
-            trace::trace::Trace,
-        },
+    event_log::core::{
+        event::{event::Event, event_hasher::NameEventHasher},
+        event_log::EventLog,
+        trace::trace::Trace,
     },
     features::analysis::patterns::{
         contexts::PatternsDiscoveryStrategy,
@@ -15,11 +18,6 @@ use ficus_backend::{
             find_maximal_tandem_arrays_with_length, find_primitive_tandem_arrays_with_length, SubArrayInTraceInfo, TandemArrayInfo,
         },
     },
-};
-use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::test_core::simple_events_logs_provider::{
-    create_log_for_max_repeats2, create_log_from_taxonomy_of_patterns, create_maximal_repeats_log, create_no_tandem_array_log,
-    create_one_tandem_array_log, create_single_trace_test_log1, create_single_trace_test_log2,
 };
 
 #[test]

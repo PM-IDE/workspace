@@ -1,5 +1,10 @@
 use std::str::FromStr;
 
+use crate::pipelines::keys::context_keys::{
+    ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY,
+    TANDEM_ARRAY_LENGTH_KEY,
+};
+use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
     features::analysis::patterns::{
         contexts::PatternsDiscoveryStrategy,
@@ -8,13 +13,8 @@ use crate::{
     },
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use crate::pipelines::keys::context_keys::{ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, TANDEM_ARRAY_LENGTH_KEY};
-use crate::pipelines::pipeline_parts::PipelineParts;
 
-use super::{
-    context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError,
-    pipelines::PipelinePartFactory,
-};
+use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
 
 #[derive(Clone, Copy)]
 pub enum PatternsKindDto {
@@ -108,10 +108,7 @@ impl PipelineParts {
         Ok(())
     }
 
-    pub(super) fn find_patterns(
-        context: &mut PipelineContext,
-        config: &UserDataImpl,
-    ) -> Result<(), PipelinePartExecutionError> {
+    pub(super) fn find_patterns(context: &mut PipelineContext, config: &UserDataImpl) -> Result<(), PipelinePartExecutionError> {
         let patterns_kind = Self::get_user_data(config, &PATTERNS_KIND_KEY)?;
         match patterns_kind {
             PatternsKindDto::PrimitiveTandemArrays => {
@@ -121,9 +118,7 @@ impl PipelineParts {
                 Self::find_tandem_arrays_and_put_to_context(context, config, find_maximal_tandem_arrays)?
             }
             PatternsKindDto::MaximalRepeats => Self::find_repeats_and_put_to_context(context, config, find_maximal_repeats)?,
-            PatternsKindDto::SuperMaximalRepeats => {
-                Self::find_repeats_and_put_to_context(context, config, find_super_maximal_repeats)?
-            }
+            PatternsKindDto::SuperMaximalRepeats => Self::find_repeats_and_put_to_context(context, config, find_super_maximal_repeats)?,
             PatternsKindDto::NearSuperMaximalRepeats => {
                 Self::find_repeats_and_put_to_context(context, config, find_near_super_maximal_repeats)?
             }

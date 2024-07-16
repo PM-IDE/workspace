@@ -3,23 +3,6 @@ use std::collections::HashSet;
 
 use bxes::models::system_models::SystemMetadata;
 
-use ficus_backend::{
-    event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
-    features::analysis::{
-        event_log_info::EventLogInfo,
-        patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
-    },
-    pipelines::{
-        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities}
-        ,
-        pipelines::Pipeline,
-    },
-    utils::{
-        colors::ColorsHolder,
-        user_data::{keys::Key, user_data::UserData},
-    },
-    vecs,
-};
 use ficus_backend::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus_backend::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus_backend::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -32,6 +15,22 @@ use ficus_backend::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use ficus_backend::utils::distance::distance::FicusDistance;
 use ficus_backend::utils::graph::graph::DefaultGraph;
 use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
+use ficus_backend::{
+    event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
+    features::analysis::{
+        event_log_info::EventLogInfo,
+        patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
+    },
+    pipelines::{
+        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
+        pipelines::Pipeline,
+    },
+    utils::{
+        colors::ColorsHolder,
+        user_data::{keys::Key, user_data::UserData},
+    },
+    vecs,
+};
 
 #[test]
 #[rustfmt::skip]

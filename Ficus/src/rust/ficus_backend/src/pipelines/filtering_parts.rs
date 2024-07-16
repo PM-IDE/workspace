@@ -2,6 +2,11 @@ use std::collections::HashSet;
 
 use fancy_regex::Regex;
 
+use super::{
+    errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
+    pipelines::PipelinePartFactory,
+};
+use crate::pipelines::keys::context_keys::{EVENTS_COUNT_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
     event_log::core::{event_log::EventLog, trace::trace::Trace},
@@ -9,11 +14,6 @@ use crate::{
         filtering::{filter_log_by_name, filter_log_by_regex},
         split::get_traces_groups_indices,
     },
-};
-use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, EVENT_NAME_KEY, EVENTS_COUNT_KEY, REGEX_KEY};
-use super::{
-    errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
-    pipelines::PipelinePartFactory,
 };
 
 impl PipelineParts {

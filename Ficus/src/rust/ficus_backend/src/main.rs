@@ -1,6 +1,4 @@
-use ficus_backend::{
-    ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer, grpc::backend_service::FicusService
-};
+use ficus_backend::{ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer, grpc::backend_service::FicusService};
 
 use tonic::transport::Server;
 

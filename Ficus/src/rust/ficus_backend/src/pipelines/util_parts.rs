@@ -2,6 +2,11 @@ use std::{cell::RefCell, rc::Rc};
 
 use chrono::{DateTime, Duration, Utc};
 
+use super::pipelines::PipelinePartFactory;
+use crate::pipelines::keys::context_keys::{
+    EVENT_CLASS_REGEX_KEY, EVENT_LOG, EVENT_LOG_INFO, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY,
+    PIPELINE_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePart;
 use crate::{
@@ -19,8 +24,6 @@ use crate::{
     features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use crate::pipelines::keys::context_keys::{EVENT_CLASS_REGEX_KEY, EVENT_LOG, EVENT_LOG_INFO, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY};
-use super::{pipelines::PipelinePartFactory};
 
 impl PipelineParts {
     pub(super) fn create_hashed_event_log(config: &UserDataImpl, log: &XesEventLogImpl) -> Vec<Vec<u64>> {

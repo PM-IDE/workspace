@@ -1,22 +1,22 @@
 use std::sync::Arc;
 use uuid::Uuid;
 
+use super::{
+    backend_service::{GrpcResult, GrpcSender},
+    converters::convert_to_grpc_context_value,
+};
 use crate::ficus_proto::{GrpcContextValueWithKeyName, GrpcUuid};
 use crate::pipelines::context::PipelineInfrastructure;
+use crate::pipelines::keys::context_keys::find_context_key;
 use crate::{
     ficus_proto::{GrpcPipelinePartExecutionResult, GrpcPipelinePartResult},
     pipelines::{
         context::PipelineContext,
         errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError},
-        keys::{context_key::ContextKey},
+        keys::context_key::ContextKey,
         pipelines::{DefaultPipelinePart, PipelinePart},
     },
     utils::user_data::user_data::UserData,
-};
-use crate::pipelines::keys::context_keys::find_context_key;
-use super::{
-    backend_service::{GrpcResult, GrpcSender},
-    converters::convert_to_grpc_context_value,
 };
 
 #[rustfmt::skip]
@@ -81,11 +81,7 @@ impl GetContextValuePipelinePart {
 }
 
 impl PipelinePart for GetContextValuePipelinePart {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-    ) -> Result<(), PipelinePartExecutionError> {
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
         let mut context_keys = vec![];
         for key_name in &self.keys {
             match find_context_key(key_name) {

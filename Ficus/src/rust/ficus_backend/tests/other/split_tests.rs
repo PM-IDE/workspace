@@ -1,11 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
-use ficus_backend::{
-    event_log::{core::trace::trace::Trace},
-    features::mutations::split::split_by_traces,
-};
-use ficus_backend::event_log::xes::xes_trace::XesTraceImpl;
 use crate::test_core::simple_events_logs_provider::{create_simple_event_log, create_simple_event_log2};
+use ficus_backend::event_log::xes::xes_trace::XesTraceImpl;
+use ficus_backend::{event_log::core::trace::trace::Trace, features::mutations::split::split_by_traces};
 
 #[test]
 fn test_split_log() {

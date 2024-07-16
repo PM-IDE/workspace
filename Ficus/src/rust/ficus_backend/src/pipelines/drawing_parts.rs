@@ -2,6 +2,11 @@ use fancy_regex::Regex;
 use std::collections::HashMap;
 use std::rc::Rc;
 
+use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
+use crate::pipelines::keys::context_keys::{
+    COLORS_EVENT_LOG, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES,
+    TRACE_ACTIVITIES_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::colors::ColorsEventLog;
 use crate::{
@@ -14,11 +19,6 @@ use crate::{
         colors::{Color, ColoredRectangle},
         user_data::user_data::UserData,
     },
-};
-use crate::pipelines::keys::context_keys::{COLORS_EVENT_LOG, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES, TRACE_ACTIVITIES_KEY};
-use super::{
-    context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError,
-    pipelines::PipelinePartFactory,
 };
 
 impl PipelineParts {

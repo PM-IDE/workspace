@@ -22,11 +22,7 @@ impl Pipeline {
 }
 
 impl PipelinePart for Pipeline {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-    ) -> Result<(), PipelinePartExecutionError> {
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
         self.put_default_concrete_keys(context);
 
         for part in &self.parts {
@@ -46,11 +42,7 @@ impl Pipeline {
 }
 
 pub trait PipelinePart {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-    ) -> Result<(), PipelinePartExecutionError>;
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError>;
 }
 
 pub struct ParallelPipelinePart {
@@ -58,11 +50,7 @@ pub struct ParallelPipelinePart {
 }
 
 impl PipelinePart for ParallelPipelinePart {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-    ) -> Result<(), PipelinePartExecutionError> {
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
         for pipeline in &self.parallel_pipelines[0..(self.parallel_pipelines.len() - 1)] {
             pipeline.execute(&mut context.clone(), infra)?;
         }
@@ -99,11 +87,7 @@ impl DefaultPipelinePart {
 }
 
 impl PipelinePart for DefaultPipelinePart {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure
-    ) -> Result<(), PipelinePartExecutionError> {
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
         (self.executor)(context, infra, &self.config)
     }
 }

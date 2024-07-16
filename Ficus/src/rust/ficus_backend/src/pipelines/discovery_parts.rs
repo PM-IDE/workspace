@@ -10,7 +10,12 @@ use crate::features::discovery::petri_net::marking::ensure_initial_marking;
 use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml_file;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{AND_THRESHOLD_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY};
+use crate::pipelines::keys::context_keys::{
+    AND_THRESHOLD_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_KEY,
+    GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY,
+    POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY,
+    UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 use crate::utils::user_data::user_data::UserData;
@@ -48,10 +53,7 @@ impl PipelineParts {
         })
     }
 
-    fn do_discover_petri_net_alpha_plus(
-        context: &mut PipelineContext,
-        alpha_plus_plus: bool,
-    ) -> Result<(), PipelinePartExecutionError> {
+    fn do_discover_petri_net_alpha_plus(context: &mut PipelineContext, alpha_plus_plus: bool) -> Result<(), PipelinePartExecutionError> {
         let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
 
         let one_length_loop_transitions = find_transitions_one_length_loop(log);

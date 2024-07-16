@@ -1,9 +1,10 @@
+use crate::test_core::simple_events_logs_provider::{create_log_from_taxonomy_of_patterns, create_maximal_repeats_log};
 use ficus_backend::event_log::core::event::event::Event;
+use ficus_backend::event_log::xes::xes_event::XesEventImpl;
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus_backend::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus_backend::{
-    event_log::{
-        core::{event::event_hasher::default_class_extractor, event_log::EventLog},
-    },
+    event_log::core::{event::event_hasher::default_class_extractor, event_log::EventLog},
     features::analysis::patterns::{
         activity_instances::{create_activity_name, ActivityInTraceInfo, UndefActivityHandlingStrategy, UNDEF_ACTIVITY_NAME},
         contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext, PatternsDiscoveryStrategy},
@@ -12,9 +13,6 @@ use ficus_backend::{
     vecs,
 };
 use std::{cell::RefCell, ops::Deref, rc::Rc};
-use ficus_backend::event_log::xes::xes_event::XesEventImpl;
-use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::test_core::simple_events_logs_provider::{create_log_from_taxonomy_of_patterns, create_maximal_repeats_log};
 
 #[test]
 fn test_activity_instances() {
@@ -93,7 +91,11 @@ fn test_creating_new_log_from_activity_instances_insert_all_events() {
     );
 }
 
-fn execute_activities_discovery_test(log: XesEventLogImpl, strategy: UndefActivityHandlingStrategy<XesEventImpl>, expected: &Vec<Vec<&str>>) {
+fn execute_activities_discovery_test(
+    log: XesEventLogImpl,
+    strategy: UndefActivityHandlingStrategy<XesEventImpl>,
+    expected: &Vec<Vec<&str>>,
+) {
     let log = Rc::new(RefCell::new(log));
 
     let patterns_context = PatternsDiscoveryContext::new(
