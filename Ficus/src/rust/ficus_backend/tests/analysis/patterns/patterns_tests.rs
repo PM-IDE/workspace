@@ -7,7 +7,6 @@ use ficus_backend::{
             event_log::EventLog,
             trace::trace::Trace,
         },
-        simple::simple_event_log::SimpleEventLog,
     },
     features::analysis::patterns::{
         contexts::PatternsDiscoveryStrategy,
@@ -17,7 +16,7 @@ use ficus_backend::{
         },
     },
 };
-
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::test_core::simple_events_logs_provider::{
     create_log_for_max_repeats2, create_log_from_taxonomy_of_patterns, create_maximal_repeats_log, create_no_tandem_array_log,
     create_one_tandem_array_log, create_single_trace_test_log1, create_single_trace_test_log2,
@@ -37,7 +36,7 @@ fn execute_test_with_positions<TLogCreator, TPatternsFinder, TValue>(
     patterns_finder: TPatternsFinder,
     expected: &[TValue],
 ) where
-    TLogCreator: Fn() -> SimpleEventLog,
+    TLogCreator: Fn() -> XesEventLogImpl,
     TPatternsFinder: Fn(&Vec<Vec<u64>>) -> Vec<TValue>,
     TValue: PartialEq + Debug,
 {
@@ -62,7 +61,7 @@ fn execute_test_with_string_dump<TLogCreator, TPatternsFinder>(
     patterns_finder: TPatternsFinder,
     expected: &[&str],
 ) where
-    TLogCreator: Fn() -> SimpleEventLog,
+    TLogCreator: Fn() -> XesEventLogImpl,
     TPatternsFinder: Fn(&Vec<Vec<u64>>) -> Vec<Vec<SubArrayInTraceInfo>>,
 {
     let log = log_creator();
@@ -324,7 +323,7 @@ fn dump_repeats(repeats: &Vec<Vec<SubArrayInTraceInfo>>) -> Vec<(usize, usize, u
     result
 }
 
-fn dump_repeats_to_string(repeats: &Vec<Vec<SubArrayInTraceInfo>>, log: &SimpleEventLog) -> Vec<String> {
+fn dump_repeats_to_string(repeats: &Vec<Vec<SubArrayInTraceInfo>>, log: &XesEventLogImpl) -> Vec<String> {
     let mut result = vec![];
     let mut index = 0;
 

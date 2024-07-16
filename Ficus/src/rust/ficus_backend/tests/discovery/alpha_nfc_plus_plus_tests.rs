@@ -1,11 +1,10 @@
 use ficus_backend::{
-    event_log::simple::simple_event_log::SimpleEventLog,
     features::discovery::{
         alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc,
         petri_net::pnml_serialization::serialize_to_pnml,
     },
 };
-
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::test_core::{
     gold_based_test::execute_test_with_gold, simple_events_logs_provider::*, test_paths::get_serialized_petri_nets_gold_path,
 };
@@ -55,7 +54,7 @@ pub fn alpha_plus_plus_nfc_test_9() {
     execute_alpha_plus_plus_nfc_discovery_test("alpha_plus_plus_nfc_test_9", || create_alpha_plus_plus_nfc_test_log9());
 }
 
-fn execute_alpha_plus_plus_nfc_discovery_test(test_name: &str, log_creator: impl Fn() -> SimpleEventLog) {
+fn execute_alpha_plus_plus_nfc_discovery_test(test_name: &str, log_creator: impl Fn() -> XesEventLogImpl) {
     execute_test_with_gold(get_serialized_petri_nets_gold_path(test_name), || {
         let log = log_creator();
         serialize_to_pnml(&discover_petri_net_alpha_plus_plus_nfc(&log), true).ok().unwrap()

@@ -3,7 +3,6 @@ use ficus_backend::features::analysis::patterns::activity_instances::{ActivityIn
 use ficus_backend::{
     event_log::{
         core::{event::event_hasher::default_class_extractor, event_log::EventLog},
-        simple::simple_event_log::{SimpleEvent, SimpleEventLog},
     },
     features::analysis::patterns::{
         activity_instances::{create_activity_name, ActivityInTraceInfo, UndefActivityHandlingStrategy, UNDEF_ACTIVITY_NAME},
@@ -13,7 +12,8 @@ use ficus_backend::{
     vecs,
 };
 use std::{cell::RefCell, ops::Deref, rc::Rc};
-
+use ficus_backend::event_log::xes::xes_event::XesEventImpl;
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::test_core::simple_events_logs_provider::{create_log_from_taxonomy_of_patterns, create_maximal_repeats_log};
 
 #[test]
@@ -88,12 +88,12 @@ fn test_activity_instances1() {
 fn test_creating_new_log_from_activity_instances_insert_all_events() {
     execute_activities_discovery_test(
         create_log_from_taxonomy_of_patterns(),
-        UndefActivityHandlingStrategy::<SimpleEvent>::InsertAllEvents,
+        UndefActivityHandlingStrategy::<XesEventImpl>::InsertAllEvents,
         &vec![vec!["g", "d", "(a)::(b)::(c)", "f", "i", "(a)::(b)::(c)"]],
     );
 }
 
-fn execute_activities_discovery_test(log: SimpleEventLog, strategy: UndefActivityHandlingStrategy<SimpleEvent>, expected: &Vec<Vec<&str>>) {
+fn execute_activities_discovery_test(log: XesEventLogImpl, strategy: UndefActivityHandlingStrategy<XesEventImpl>, expected: &Vec<Vec<&str>>) {
     let log = Rc::new(RefCell::new(log));
 
     let patterns_context = PatternsDiscoveryContext::new(
@@ -113,7 +113,7 @@ fn execute_activities_discovery_test(log: SimpleEventLog, strategy: UndefActivit
     );
 
     let context = ActivitiesInstancesDiscoveryContext::new(context, strategy, |info| {
-        Rc::new(RefCell::new(SimpleEvent::new_with_min_date(info.node.borrow().name.to_string())))
+        Rc::new(RefCell::new(XesEventImpl::new_with_min_date(info.node.borrow().name.to_string())))
     });
 
     let new_log = discover_activities_and_create_new_log(&context);
@@ -126,7 +126,7 @@ fn test_creating_new_log_from_activity_instances_insert_as_single_event() {
     execute_activities_discovery_test(
         create_log_from_taxonomy_of_patterns(),
         UndefActivityHandlingStrategy::InsertAsSingleEvent(Box::new(|| {
-            Rc::new(RefCell::new(SimpleEvent::new_with_min_date(UNDEF_ACTIVITY_NAME.to_string())))
+            Rc::new(RefCell::new(XesEventImpl::new_with_min_date(UNDEF_ACTIVITY_NAME.to_string())))
         })),
         &vec![vec![UNDEF_ACTIVITY_NAME, "(a)::(b)::(c)", UNDEF_ACTIVITY_NAME, "(a)::(b)::(c)"]],
     );
@@ -136,7 +136,7 @@ fn test_creating_new_log_from_activity_instances_insert_as_single_event() {
 fn test_creating_new_log_from_activity_instances_dont_insert() {
     execute_activities_discovery_test(
         create_log_from_taxonomy_of_patterns(),
-        UndefActivityHandlingStrategy::<SimpleEvent>::DontInsert,
+        UndefActivityHandlingStrategy::<XesEventImpl>::DontInsert,
         &vec![vec!["(a)::(b)::(c)", "(a)::(b)::(c)"]],
     );
 }
@@ -242,7 +242,7 @@ fn test_creating_log_for_activities4() {
     )
 }
 
-fn execute_activities_logs_creation_test(log: SimpleEventLog, pattern_kind: PatternsKind, expected: Vec<(String, Vec<Vec<String>>)>) {
+fn execute_activities_logs_creation_test(log: XesEventLogImpl, pattern_kind: PatternsKind, expected: Vec<(String, Vec<Vec<String>>)>) {
     let log = Rc::new(RefCell::new(log));
 
     let patterns_context = PatternsDiscoveryContext::new(
