@@ -8,19 +8,19 @@ use crate::{
     pipelines::{
         context::PipelineContext,
         errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError},
-        keys::{context_key::ContextKey, context_keys::ContextKeys},
+        keys::{context_key::ContextKey},
         pipelines::{DefaultPipelinePart, PipelinePart},
     },
     utils::user_data::user_data::UserData,
 };
-
+use crate::pipelines::keys::context_keys::find_context_key;
 use super::{
     backend_service::{GrpcResult, GrpcSender},
     converters::convert_to_grpc_context_value,
 };
 
 #[rustfmt::skip]
-type GetContextHandler = Box<dyn Fn(Uuid, &mut PipelineContext, &PipelineInfrastructure, &ContextKeys, Vec<&Box<dyn ContextKey>>) -> Result<(), PipelinePartExecutionError>>;
+type GetContextHandler = Box<dyn Fn(Uuid, &mut PipelineContext, &PipelineInfrastructure, Vec<&dyn ContextKey>) -> Result<(), PipelinePartExecutionError>>;
 
 pub struct GetContextValuePipelinePart {
     keys: Vec<String>,
@@ -42,16 +42,16 @@ impl GetContextValuePipelinePart {
         Box::new(GetContextValuePipelinePart::new(
             keys,
             uuid,
-            Box::new(move |uuid, context, infra, keys, context_keys| {
+            Box::new(move |uuid, context, infra, context_keys| {
                 if let Some(before_part) = before_part.as_ref() {
-                    before_part.execute(context, infra, keys)?;
+                    before_part.execute(context, infra)?;
                 }
 
                 let mut grpc_values = vec![];
-                for key in &context_keys {
+                for key in context_keys {
                     match context.any(key.key()) {
                         Some(context_value) => {
-                            let value = convert_to_grpc_context_value(key.as_ref(), context_value, keys);
+                            let value = convert_to_grpc_context_value(key, context_value);
                             grpc_values.push(GrpcContextValueWithKeyName {
                                 key_name: key.key().name().to_owned(),
                                 value,
@@ -85,11 +85,10 @@ impl PipelinePart for GetContextValuePipelinePart {
         &self,
         context: &mut PipelineContext,
         infra: &PipelineInfrastructure,
-        keys: &ContextKeys,
     ) -> Result<(), PipelinePartExecutionError> {
         let mut context_keys = vec![];
         for key_name in &self.keys {
-            match keys.find_key(key_name) {
+            match find_context_key(key_name) {
                 Some(key) => context_keys.push(key),
                 None => {
                     return Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(
@@ -99,6 +98,6 @@ impl PipelinePart for GetContextValuePipelinePart {
             }
         }
 
-        (self.handler)(self.uuid.clone(), context, infra, keys, context_keys)
+        (self.handler)(self.uuid.clone(), context, infra, context_keys)
     }
 }

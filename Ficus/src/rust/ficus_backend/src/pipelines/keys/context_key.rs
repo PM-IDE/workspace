@@ -39,6 +39,8 @@ where
     }
 }
 
+unsafe impl<T> Sync for DefaultContextKey<T> {}
+
 impl<T> PartialEq for DefaultContextKey<T> {
     fn eq(&self, other: &Self) -> bool {
         self.key == other.key
@@ -50,5 +52,11 @@ impl<T> Eq for DefaultContextKey<T> {}
 impl<T> Hash for DefaultContextKey<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.key.hash(state);
+    }
+}
+
+impl<T> DefaultContextKey<T> {
+    pub fn eq_other(&self, other: &dyn ContextKey) -> bool {
+        self.key().id() == other.key().id()
     }
 }

@@ -1,18 +1,8 @@
-use bxes::models::system_models::SystemMetadata;
 use std::collections::HashMap;
-use std::{collections::HashSet, sync::Arc};
+use std::collections::HashSet;
 
-use ficus_backend::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use ficus_backend::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use ficus_backend::features::clustering::traces::traces_params::TracesRepresentationSource;
-use ficus_backend::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use ficus_backend::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use ficus_backend::pipelines::patterns_parts::PatternsKindDto;
-use ficus_backend::utils::colors::ColorsEventLog;
-use ficus_backend::utils::dataset::dataset::{FicusDataset, LabeledDataset};
-use ficus_backend::utils::distance::distance::FicusDistance;
-use ficus_backend::utils::graph::graph::DefaultGraph;
-use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
+use bxes::models::system_models::SystemMetadata;
+
 use ficus_backend::{
     event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
     features::analysis::{
@@ -20,9 +10,8 @@ use ficus_backend::{
         patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
     },
     pipelines::{
-        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
-        context::PipelineContext,
-        keys::context_keys::ContextKeys,
+        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities}
+        ,
         pipelines::Pipeline,
     },
     utils::{
@@ -31,114 +20,103 @@ use ficus_backend::{
     },
     vecs,
 };
-
-#[test]
-fn test_event_log_key() {
-    execute_test(|keys, context| {
-        let log_key = keys.event_log();
-        let log = XesEventLogImpl::empty();
-
-        assert!(context.concrete(log_key.key()).is_none());
-
-        context.put_concrete(log_key.key(), log);
-
-        assert!(context.concrete(log_key.key()).is_some())
-    })
-}
-
-fn execute_test(test: impl Fn(&ContextKeys, &mut PipelineContext) -> ()) {
-    let keys = Arc::new(Box::new(ContextKeys::new()));
-    let mut context = PipelineContext::empty();
-
-    test(&keys, &mut context);
-}
+use ficus_backend::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
+use ficus_backend::features::clustering::activities::activities_params::ActivityRepresentationSource;
+use ficus_backend::features::clustering::traces::traces_params::TracesRepresentationSource;
+use ficus_backend::features::discovery::petri_net::petri_net::DefaultPetriNet;
+use ficus_backend::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
+use ficus_backend::pipelines::keys::context_keys::*;
+use ficus_backend::pipelines::patterns_parts::PatternsKindDto;
+use ficus_backend::utils::colors::ColorsEventLog;
+use ficus_backend::utils::dataset::dataset::{FicusDataset, LabeledDataset};
+use ficus_backend::utils::distance::distance::FicusDistance;
+use ficus_backend::utils::graph::graph::DefaultGraph;
+use ficus_backend::utils::log_serialization_format::LogSerializationFormat;
 
 #[test]
 #[rustfmt::skip]
 fn test_event_log_all_concrete_keys() {
-    execute_test(|keys, _| {
-        let mut used = HashSet::new();
+    let mut used = HashSet::new();
 
-        assert_existence::<String>(keys, ContextKeys::PATH, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::TANDEM_ARRAY_LENGTH, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::ACTIVITY_LEVEL, &mut used);
-        assert_existence::<ActivityNarrowingKind>(keys, ContextKeys::NARROW_ACTIVITIES, &mut used);
-        assert_existence::<String>(keys, ContextKeys::EVENT_NAME, &mut used);
-        assert_existence::<String>(keys, ContextKeys::REGEX, &mut used);
-        assert_existence::<PatternsDiscoveryStrategy>(keys, ContextKeys::PATTERNS_DISCOVERY_STRATEGY, &mut used);
-        assert_existence::<String>(keys, ContextKeys::OUTPUT_STRING, &mut used);
-        assert_existence::<EventLogInfo>(keys, ContextKeys::EVENT_LOG_INFO, &mut used);
-        assert_existence::<usize>(keys, ContextKeys::UNDERLYING_EVENTS_COUNT, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::EVENTS_COUNT, &mut used);
-        assert_existence::<Vec<String>>(keys, ContextKeys::EVENT_CLASSES_REGEXES, &mut used);
-        assert_existence::<AdjustingMode>(keys, ContextKeys::ADJUSTING_MODE, &mut used);
-        assert_existence::<String>(keys, ContextKeys::EVENT_CLASS_REGEX, &mut used);
-        assert_existence::<PatternsKindDto>(keys, ContextKeys::PATTERNS_KIND, &mut used);
-        assert_existence::<Pipeline>(keys, ContextKeys::PIPELINE, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::MIN_ACTIVITY_LENGTH, &mut used);
-        assert_existence::<UndefActivityHandlingStrategyDto>(keys, ContextKeys::UNDEF_ACTIVITY_HANDLING_STRATEGY, &mut used);
-        assert_existence::<ActivityInTraceFilterKind>(keys, ContextKeys::ACTIVITY_IN_TRACE_FILTER_KIND, &mut used);
-        assert_existence::<ActivitiesLogsSourceDto>(keys, ContextKeys::ACTIVITIES_LOGS_SOURCE, &mut used);
-        assert_existence::<bool>(keys, ContextKeys::PNML_USE_NAMES_AS_IDS, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::DEPENDENCY_THRESHOLD, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::POSITIVE_OBSERVATIONS_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::RELATIVE_TO_BEST_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::AND_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::LOOP_LENGTH_TWO_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::UNARY_FREQUENCY_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::PRESERVE_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::RATIO_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::UTILITY_RATE, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::EDGE_CUTOFF_THRESHOLD, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::NODE_CUTOFF_THRESHOLD, &mut used);
+    assert_existence::<String>(&PATH, &mut used);
+    assert_existence::<u32>(&TANDEM_ARRAY_LENGTH, &mut used);
+    assert_existence::<u32>(&ACTIVITY_LEVEL, &mut used);
+    assert_existence::<ActivityNarrowingKind>(&NARROW_ACTIVITIES, &mut used);
+    assert_existence::<String>(&EVENT_NAME, &mut used);
+    assert_existence::<String>(&REGEX, &mut used);
+    assert_existence::<PatternsDiscoveryStrategy>(&PATTERNS_DISCOVERY_STRATEGY, &mut used);
+    assert_existence::<String>(&OUTPUT_STRING, &mut used);
+    assert_existence::<EventLogInfo>(&EVENT_LOG_INFO, &mut used);
+    assert_existence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
+    assert_existence::<u32>(&EVENTS_COUNT, &mut used);
+    assert_existence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);
+    assert_existence::<AdjustingMode>(&ADJUSTING_MODE, &mut used);
+    assert_existence::<String>(&EVENT_CLASS_REGEX, &mut used);
+    assert_existence::<PatternsKindDto>(&PATTERNS_KIND, &mut used);
+    assert_existence::<Pipeline>(&PIPELINE, &mut used);
+    assert_existence::<u32>(&MIN_ACTIVITY_LENGTH, &mut used);
+    assert_existence::<UndefActivityHandlingStrategyDto>(&UNDEF_ACTIVITY_HANDLING_STRATEGY, &mut used);
+    assert_existence::<ActivityInTraceFilterKind>(&ACTIVITY_IN_TRACE_FILTER_KIND, &mut used);
+    assert_existence::<ActivitiesLogsSourceDto>(&ACTIVITIES_LOGS_SOURCE, &mut used);
+    assert_existence::<bool>(&PNML_USE_NAMES_AS_IDS, &mut used);
+    assert_existence::<f64>(&DEPENDENCY_THRESHOLD, &mut used);
+    assert_existence::<u32>(&POSITIVE_OBSERVATIONS_THRESHOLD, &mut used);
+    assert_existence::<f64>(&RELATIVE_TO_BEST_THRESHOLD, &mut used);
+    assert_existence::<f64>(&AND_THRESHOLD, &mut used);
+    assert_existence::<f64>(&LOOP_LENGTH_TWO_THRESHOLD, &mut used);
+    assert_existence::<f64>(&UNARY_FREQUENCY_THRESHOLD, &mut used);
+    assert_existence::<f64>(&BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD, &mut used);
+    assert_existence::<f64>(&PRESERVE_THRESHOLD, &mut used);
+    assert_existence::<f64>(&RATIO_THRESHOLD, &mut used);
+    assert_existence::<f64>(&UTILITY_RATE, &mut used);
+    assert_existence::<f64>(&EDGE_CUTOFF_THRESHOLD, &mut used);
+    assert_existence::<f64>(&NODE_CUTOFF_THRESHOLD, &mut used);
 
-        assert_existence::<XesEventLogImpl>(keys, ContextKeys::EVENT_LOG, &mut used);
-        assert_existence::<Activities>(keys, ContextKeys::ACTIVITIES, &mut used);
-        assert_existence::<ActivitiesToLogs>(keys, ContextKeys::ACTIVITIES_TO_LOGS, &mut used);
-        assert_existence::<String>(keys, ContextKeys::ACTIVITY_NAME, &mut used);
-        assert_existence::<Patterns>(keys, ContextKeys::PATTERNS, &mut used);
-        assert_existence::<Vec<Vec<u64>>>(keys, ContextKeys::HASHES_EVENT_LOG, &mut used);
-        assert_existence::<Vec<Vec<String>>>(keys, ContextKeys::NAMES_EVENT_LOG, &mut used);
-        assert_existence::<DefaultPetriNet>(keys, ContextKeys::PETRI_NET, &mut used);
-        assert_existence::<RepeatSets>(keys, ContextKeys::REPEAT_SETS, &mut used);
-        assert_existence::<TracesActivities>(keys, ContextKeys::TRACE_ACTIVITIES, &mut used);
-        assert_existence::<ColorsEventLog>(keys, ContextKeys::COLORS_EVENT_LOG, &mut used);
-        assert_existence::<ColorsHolder>(keys, ContextKeys::COLORS_HOLDER, &mut used);
-        assert_existence::<DefaultGraph>(keys, ContextKeys::GRAPH, &mut used);
+    assert_existence::<XesEventLogImpl>(&EVENT_LOG, &mut used);
+    assert_existence::<Activities>(&ACTIVITIES, &mut used);
+    assert_existence::<ActivitiesToLogs>(&ACTIVITIES_TO_LOGS, &mut used);
+    assert_existence::<String>(&ACTIVITY_NAME, &mut used);
+    assert_existence::<Patterns>(&PATTERNS, &mut used);
+    assert_existence::<Vec<Vec<u64>>>(&HASHES_EVENT_LOG, &mut used);
+    assert_existence::<Vec<Vec<String>>>(&NAMES_EVENT_LOG, &mut used);
+    assert_existence::<DefaultPetriNet>(&PETRI_NET, &mut used);
+    assert_existence::<RepeatSets>(&REPEAT_SETS, &mut used);
+    assert_existence::<TracesActivities>(&TRACE_ACTIVITIES, &mut used);
+    assert_existence::<ColorsEventLog>(&COLORS_EVENT_LOG, &mut used);
+    assert_existence::<ColorsHolder>(&COLORS_HOLDER, &mut used);
+    assert_existence::<DefaultGraph>(&GRAPH, &mut used);
 
-        assert_existence::<HashMap<u64, usize>>(keys, ContextKeys::PETRI_NET_COUNT_ANNOTATION, &mut used);
-        assert_existence::<HashMap<u64, f64>>(keys, ContextKeys::PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
-        assert_existence::<HashMap<u64, f64>>(keys, ContextKeys::PETRI_NET_TRACE_FREQUENCY_ANNOTATION, &mut used);
-        assert_existence::<bool>(keys, ContextKeys::TERMINATE_ON_UNREPLAYABLE_TRACES, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::CLUSTERS_COUNT, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::LEARNING_ITERATIONS_COUNT, &mut used);
-        assert_existence::<f64>(keys, ContextKeys::TOLERANCE, &mut used);
-        assert_existence::<u32>(keys, ContextKeys::MIN_EVENTS_IN_CLUSTERS_COUNT, &mut used);
-        assert_existence::<FicusDataset>(keys, ContextKeys::TRACES_ACTIVITIES_DATASET, &mut used);
-        assert_existence::<LabeledDataset>(keys, ContextKeys::LABELED_TRACES_ACTIVITIES_DATASET, &mut used);
-        assert_existence::<ActivityRepresentationSource>(keys, ContextKeys::ACTIVITIES_REPR_SOURCE, &mut used);
-        assert_existence::<FicusDistance>(keys, ContextKeys::DISTANCE, &mut used);
-        assert_existence::<bool>(keys, ContextKeys::EXECUTE_ONLY_ON_LAST_EXTRACTION, &mut used);
-        assert_existence::<String>(keys, ContextKeys::EVENT_LOG_NAME, &mut used);
-        assert_existence::<FicusDataset>(keys, ContextKeys::LOG_TRACES_DATASET, &mut used);
-        assert_existence::<LabeledDataset>(keys, ContextKeys::LABELED_LOG_TRACES_DATASET, &mut used);
-        assert_existence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
-        assert_existence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
-        assert_existence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
-        assert_existence::<Vec<u8>>(keys, ContextKeys::BYTES, &mut used);
+    assert_existence::<HashMap<u64, usize>>(&PETRI_NET_COUNT_ANNOTATION, &mut used);
+    assert_existence::<HashMap<u64, f64>>(&PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
+    assert_existence::<HashMap<u64, f64>>(&PETRI_NET_TRACE_FREQUENCY_ANNOTATION, &mut used);
+    assert_existence::<bool>(&TERMINATE_ON_UNREPLAYABLE_TRACES, &mut used);
+    assert_existence::<u32>(&CLUSTERS_COUNT, &mut used);
+    assert_existence::<u32>(&LEARNING_ITERATIONS_COUNT, &mut used);
+    assert_existence::<f64>(&TOLERANCE, &mut used);
+    assert_existence::<u32>(&MIN_EVENTS_IN_CLUSTERS_COUNT, &mut used);
+    assert_existence::<FicusDataset>(&TRACES_ACTIVITIES_DATASET, &mut used);
+    assert_existence::<LabeledDataset>(&LABELED_TRACES_ACTIVITIES_DATASET, &mut used);
+    assert_existence::<ActivityRepresentationSource>(&ACTIVITIES_REPR_SOURCE, &mut used);
+    assert_existence::<FicusDistance>(&DISTANCE, &mut used);
+    assert_existence::<bool>(&EXECUTE_ONLY_ON_LAST_EXTRACTION, &mut used);
+    assert_existence::<String>(&EVENT_LOG_NAME, &mut used);
+    assert_existence::<FicusDataset>(&LOG_TRACES_DATASET, &mut used);
+    assert_existence::<LabeledDataset>(&LABELED_LOG_TRACES_DATASET, &mut used);
+    assert_existence::<TracesRepresentationSource>(&TRACES_REPR_SOURCE, &mut used);
+    assert_existence::<SystemMetadata>(&SYSTEM_METADATA, &mut used);
+    assert_existence::<LogSerializationFormat>(&LOG_SERIALIZATION_FORMAT, &mut used);
+    assert_existence::<Vec<u8>>(&BYTES, &mut used);
 
-        assert_eq!(used.len(), get_all_keys_names().len())
-    })
+    assert_eq!(used.len(), get_all_keys_names().len())
 }
 
-fn assert_existence<T: 'static>(keys: &ContextKeys, name: &str, used: &mut HashSet<String>) {
+fn assert_existence<T: 'static>(name: &str, used: &mut HashSet<String>) {
     if used.contains(name) {
         assert!(false)
     }
 
     used.insert(name.to_owned());
-    assert!(keys.find_concrete_key::<T>(name).is_some());
+    assert!(find_context_key(name).is_some());
 }
 
 #[rustfmt::skip]
@@ -215,106 +193,97 @@ fn get_all_keys_names() -> Vec<String> {
 }
 
 #[test]
-fn test_event_log_all_keys() {
-    execute_test(|keys, _| {
-        for key_name in get_all_keys_names() {
-            assert!(keys.find_key(&key_name).is_some());
-        }
-    })
-}
-
-#[test]
-fn test_keys_count() {
-    execute_test(|keys, _| assert_eq!(keys.len(), get_all_keys_names().len()))
+fn test_event_log_alls() {
+    for key_name in get_all_keys_names() {
+        assert!(find_context_key(&key_name).is_some());
+    }
 }
 
 #[test]
 #[rustfmt::skip]
 fn test_equivalence_of_keys() {
-    execute_test(|keys, _| {
-        let mut used = HashSet::new();
+    let mut used = HashSet::new();
 
-        assert_keys_equivalence::<String>(keys, ContextKeys::PATH, &mut used);        
-        assert_keys_equivalence::<u32>(keys, ContextKeys::TANDEM_ARRAY_LENGTH, &mut used);        
-        assert_keys_equivalence::<u32>(keys, ContextKeys::ACTIVITY_LEVEL, &mut used);        
-        assert_keys_equivalence::<ActivityNarrowingKind>(keys, ContextKeys::NARROW_ACTIVITIES, &mut used);
-        assert_keys_equivalence::<String>(keys, ContextKeys::EVENT_NAME, &mut used);        
-        assert_keys_equivalence::<String>(keys, ContextKeys::REGEX, &mut used);        
-        assert_keys_equivalence::<ColorsEventLog>(keys, ContextKeys::COLORS_EVENT_LOG, &mut used);        
-        assert_keys_equivalence::<ColorsHolder>(keys, ContextKeys::COLORS_HOLDER, &mut used);        
-        assert_keys_equivalence::<PatternsDiscoveryStrategy>(keys, ContextKeys::PATTERNS_DISCOVERY_STRATEGY, &mut used);       
-        assert_keys_equivalence::<String>(keys, ContextKeys::OUTPUT_STRING, &mut used);         
-        assert_keys_equivalence::<EventLogInfo>(keys, ContextKeys::EVENT_LOG_INFO, &mut used);
-        assert_keys_equivalence::<usize>(keys, ContextKeys::UNDERLYING_EVENTS_COUNT, &mut used);        
-        assert_keys_equivalence::<u32>(keys, ContextKeys::EVENTS_COUNT, &mut used);        
-        assert_keys_equivalence::<Vec<String>>(keys, ContextKeys::EVENT_CLASSES_REGEXES, &mut used);        
-        assert_keys_equivalence::<AdjustingMode>(keys, ContextKeys::ADJUSTING_MODE, &mut used);        
-        assert_keys_equivalence::<String>(keys, ContextKeys::EVENT_CLASS_REGEX, &mut used);        
-        assert_keys_equivalence::<PatternsKindDto>(keys, ContextKeys::PATTERNS_KIND, &mut used);
-        assert_keys_equivalence::<Pipeline>(keys, ContextKeys::PIPELINE, &mut used);
-        assert_keys_equivalence::<u32>(keys, ContextKeys::MIN_ACTIVITY_LENGTH, &mut used);
-        assert_keys_equivalence::<UndefActivityHandlingStrategyDto>(keys, ContextKeys::UNDEF_ACTIVITY_HANDLING_STRATEGY, &mut used);
-        assert_keys_equivalence::<ActivityInTraceFilterKind>(keys, ContextKeys::ACTIVITY_IN_TRACE_FILTER_KIND, &mut used);
-        assert_keys_equivalence::<ActivitiesLogsSourceDto>(keys, ContextKeys::ACTIVITIES_LOGS_SOURCE, &mut used);
-        assert_keys_equivalence::<bool>(keys, ContextKeys::PNML_USE_NAMES_AS_IDS, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::DEPENDENCY_THRESHOLD, &mut used);
-        assert_keys_equivalence::<u32>(keys, ContextKeys::POSITIVE_OBSERVATIONS_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::RELATIVE_TO_BEST_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::AND_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::LOOP_LENGTH_TWO_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::UNARY_FREQUENCY_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::PRESERVE_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::RATIO_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::UTILITY_RATE, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::EDGE_CUTOFF_THRESHOLD, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::NODE_CUTOFF_THRESHOLD, &mut used);
+    assert_keys_equivalence::<String>(&PATH, &mut used);
+    assert_keys_equivalence::<u32>(&TANDEM_ARRAY_LENGTH, &mut used);
+    assert_keys_equivalence::<u32>(&ACTIVITY_LEVEL, &mut used);
+    assert_keys_equivalence::<ActivityNarrowingKind>(&NARROW_ACTIVITIES, &mut used);
+    assert_keys_equivalence::<String>(&EVENT_NAME, &mut used);
+    assert_keys_equivalence::<String>(&REGEX, &mut used);
+    assert_keys_equivalence::<ColorsEventLog>(&COLORS_EVENT_LOG, &mut used);
+    assert_keys_equivalence::<ColorsHolder>(&COLORS_HOLDER, &mut used);
+    assert_keys_equivalence::<PatternsDiscoveryStrategy>(&PATTERNS_DISCOVERY_STRATEGY, &mut used);
+    assert_keys_equivalence::<String>(&OUTPUT_STRING, &mut used);
+    assert_keys_equivalence::<EventLogInfo>(&EVENT_LOG_INFO, &mut used);
+    assert_keys_equivalence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
+    assert_keys_equivalence::<u32>(&EVENTS_COUNT, &mut used);
+    assert_keys_equivalence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);
+    assert_keys_equivalence::<AdjustingMode>(&ADJUSTING_MODE, &mut used);
+    assert_keys_equivalence::<String>(&EVENT_CLASS_REGEX, &mut used);
+    assert_keys_equivalence::<PatternsKindDto>(&PATTERNS_KIND, &mut used);
+    assert_keys_equivalence::<Pipeline>(&PIPELINE, &mut used);
+    assert_keys_equivalence::<u32>(&MIN_ACTIVITY_LENGTH, &mut used);
+    assert_keys_equivalence::<UndefActivityHandlingStrategyDto>(&UNDEF_ACTIVITY_HANDLING_STRATEGY, &mut used);
+    assert_keys_equivalence::<ActivityInTraceFilterKind>(&ACTIVITY_IN_TRACE_FILTER_KIND, &mut used);
+    assert_keys_equivalence::<ActivitiesLogsSourceDto>(&ACTIVITIES_LOGS_SOURCE, &mut used);
+    assert_keys_equivalence::<bool>(&PNML_USE_NAMES_AS_IDS, &mut used);
+    assert_keys_equivalence::<f64>(&DEPENDENCY_THRESHOLD, &mut used);
+    assert_keys_equivalence::<u32>(&POSITIVE_OBSERVATIONS_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&RELATIVE_TO_BEST_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&AND_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&LOOP_LENGTH_TWO_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&UNARY_FREQUENCY_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&PRESERVE_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&RATIO_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&UTILITY_RATE, &mut used);
+    assert_keys_equivalence::<f64>(&EDGE_CUTOFF_THRESHOLD, &mut used);
+    assert_keys_equivalence::<f64>(&NODE_CUTOFF_THRESHOLD, &mut used);
 
-        assert_keys_equivalence::<XesEventLogImpl>(keys, ContextKeys::EVENT_LOG, &mut used);
-        assert_keys_equivalence::<Activities>(keys, ContextKeys::ACTIVITIES, &mut used);
-        assert_keys_equivalence::<ActivitiesToLogs>(keys, ContextKeys::ACTIVITIES_TO_LOGS, &mut used);        
-        assert_keys_equivalence::<String>(keys, ContextKeys::ACTIVITY_NAME, &mut used);        
-        assert_keys_equivalence::<Patterns>(keys, ContextKeys::PATTERNS, &mut used);        
-        assert_keys_equivalence::<Vec<Vec<u64>>>(keys, ContextKeys::HASHES_EVENT_LOG, &mut used);        
-        assert_keys_equivalence::<Vec<Vec<String>>>(keys, ContextKeys::NAMES_EVENT_LOG, &mut used);        
-        assert_keys_equivalence::<DefaultPetriNet>(keys, ContextKeys::PETRI_NET, &mut used);
-        assert_keys_equivalence::<RepeatSets>(keys, ContextKeys::REPEAT_SETS, &mut used);        
-        assert_keys_equivalence::<TracesActivities>(keys, ContextKeys::TRACE_ACTIVITIES, &mut used);        
-        assert_keys_equivalence::<DefaultGraph>(keys, ContextKeys::GRAPH, &mut used);
+    assert_keys_equivalence::<XesEventLogImpl>(&EVENT_LOG, &mut used);
+    assert_keys_equivalence::<Activities>(&ACTIVITIES, &mut used);
+    assert_keys_equivalence::<ActivitiesToLogs>(&ACTIVITIES_TO_LOGS, &mut used);
+    assert_keys_equivalence::<String>(&ACTIVITY_NAME, &mut used);
+    assert_keys_equivalence::<Patterns>(&PATTERNS, &mut used);
+    assert_keys_equivalence::<Vec<Vec<u64>>>(&HASHES_EVENT_LOG, &mut used);
+    assert_keys_equivalence::<Vec<Vec<String>>>(&NAMES_EVENT_LOG, &mut used);
+    assert_keys_equivalence::<DefaultPetriNet>(&PETRI_NET, &mut used);
+    assert_keys_equivalence::<RepeatSets>(&REPEAT_SETS, &mut used);
+    assert_keys_equivalence::<TracesActivities>(&TRACE_ACTIVITIES, &mut used);
+    assert_keys_equivalence::<DefaultGraph>(&GRAPH, &mut used);
 
-        assert_keys_equivalence::<HashMap<u64, usize>>(keys, ContextKeys::PETRI_NET_COUNT_ANNOTATION, &mut used);
-        assert_keys_equivalence::<HashMap<u64, f64>>(keys, ContextKeys::PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
-        assert_keys_equivalence::<HashMap<u64, f64>>(keys, ContextKeys::PETRI_NET_TRACE_FREQUENCY_ANNOTATION, &mut used);
-        assert_keys_equivalence::<bool>(keys, ContextKeys::TERMINATE_ON_UNREPLAYABLE_TRACES, &mut used);
-        assert_keys_equivalence::<u32>(keys, ContextKeys::CLUSTERS_COUNT, &mut used);
-        assert_keys_equivalence::<u32>(keys, ContextKeys::LEARNING_ITERATIONS_COUNT, &mut used);
-        assert_keys_equivalence::<f64>(keys, ContextKeys::TOLERANCE, &mut used);
-        assert_keys_equivalence::<u32>(keys, ContextKeys::MIN_EVENTS_IN_CLUSTERS_COUNT, &mut used);
-        assert_keys_equivalence::<FicusDataset>(keys, ContextKeys::TRACES_ACTIVITIES_DATASET, &mut used);
-        assert_keys_equivalence::<LabeledDataset>(keys, ContextKeys::LABELED_TRACES_ACTIVITIES_DATASET, &mut used);
-        assert_keys_equivalence::<ActivityRepresentationSource>(keys, ContextKeys::ACTIVITIES_REPR_SOURCE, &mut used);
-        assert_keys_equivalence::<FicusDistance>(keys, ContextKeys::DISTANCE, &mut used);
-        assert_keys_equivalence::<bool>(keys, ContextKeys::EXECUTE_ONLY_ON_LAST_EXTRACTION, &mut used);
-        assert_keys_equivalence::<String>(keys, ContextKeys::EVENT_LOG_NAME, &mut used);
-        assert_keys_equivalence::<FicusDataset>(keys, ContextKeys::LOG_TRACES_DATASET, &mut used);
-        assert_keys_equivalence::<LabeledDataset>(keys, ContextKeys::LABELED_LOG_TRACES_DATASET, &mut used);
-        assert_keys_equivalence::<TracesRepresentationSource>(keys, ContextKeys::TRACES_REPR_SOURCE, &mut used);
-        assert_keys_equivalence::<SystemMetadata>(keys, ContextKeys::SYSTEM_METADATA, &mut used);
-        assert_keys_equivalence::<LogSerializationFormat>(keys, ContextKeys::LOG_SERIALIZATION_FORMAT, &mut used);
-        assert_keys_equivalence::<Vec<u8>>(keys, ContextKeys::BYTES, &mut used);
+    assert_keys_equivalence::<HashMap<u64, usize>>(&PETRI_NET_COUNT_ANNOTATION, &mut used);
+    assert_keys_equivalence::<HashMap<u64, f64>>(&PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
+    assert_keys_equivalence::<HashMap<u64, f64>>(&PETRI_NET_TRACE_FREQUENCY_ANNOTATION, &mut used);
+    assert_keys_equivalence::<bool>(&TERMINATE_ON_UNREPLAYABLE_TRACES, &mut used);
+    assert_keys_equivalence::<u32>(&CLUSTERS_COUNT, &mut used);
+    assert_keys_equivalence::<u32>(&LEARNING_ITERATIONS_COUNT, &mut used);
+    assert_keys_equivalence::<f64>(&TOLERANCE, &mut used);
+    assert_keys_equivalence::<u32>(&MIN_EVENTS_IN_CLUSTERS_COUNT, &mut used);
+    assert_keys_equivalence::<FicusDataset>(&TRACES_ACTIVITIES_DATASET, &mut used);
+    assert_keys_equivalence::<LabeledDataset>(&LABELED_TRACES_ACTIVITIES_DATASET, &mut used);
+    assert_keys_equivalence::<ActivityRepresentationSource>(&ACTIVITIES_REPR_SOURCE, &mut used);
+    assert_keys_equivalence::<FicusDistance>(&DISTANCE, &mut used);
+    assert_keys_equivalence::<bool>(&EXECUTE_ONLY_ON_LAST_EXTRACTION, &mut used);
+    assert_keys_equivalence::<String>(&EVENT_LOG_NAME, &mut used);
+    assert_keys_equivalence::<FicusDataset>(&LOG_TRACES_DATASET, &mut used);
+    assert_keys_equivalence::<LabeledDataset>(&LABELED_LOG_TRACES_DATASET, &mut used);
+    assert_keys_equivalence::<TracesRepresentationSource>(&TRACES_REPR_SOURCE, &mut used);
+    assert_keys_equivalence::<SystemMetadata>(&SYSTEM_METADATA, &mut used);
+    assert_keys_equivalence::<LogSerializationFormat>(&LOG_SERIALIZATION_FORMAT, &mut used);
+    assert_keys_equivalence::<Vec<u8>>(&BYTES, &mut used);
 
-        assert_eq!(used.len(), get_all_keys_names().len())
-    })
+    assert_eq!(used.len(), get_all_keys_names().len())
 }
 
-fn assert_keys_equivalence<T: 'static>(keys: &ContextKeys, name: &str, used: &mut HashSet<String>) {
+fn assert_keys_equivalence<T: 'static>(name: &str, used: &mut HashSet<String>) {
     if used.contains(name) {
         assert!(false)
     }
 
     used.insert(name.to_owned());
     assert_eq!(
-        keys.find_key(name).unwrap().key().id(),
-        keys.find_concrete_key::<T>(name).unwrap().key().id()
+        find_context_key(name).unwrap().key().id(),
+        find_context_key(name).unwrap().key().id()
     );
 }

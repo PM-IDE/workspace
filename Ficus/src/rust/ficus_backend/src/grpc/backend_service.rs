@@ -28,27 +28,26 @@ use crate::{
     pipelines::{
         context::LogMessageHandler,
         errors::pipeline_errors::PipelinePartExecutionError,
-        keys::{context_key::ContextKey, context_keys::ContextKeys},
+        keys::{context_key::ContextKey},
         pipeline_parts::PipelineParts,
         pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
     },
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
+use crate::pipelines::keys::context_keys::find_context_key;
 
 pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_result::Result;
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;
 
 pub struct FicusService {
     pipeline_parts: Arc<Box<PipelineParts>>,
-    context_keys: Arc<Box<ContextKeys>>,
     contexts: Arc<Box<Mutex<HashMap<String, UserDataImpl>>>>,
 }
 
 impl FicusService {
-    pub fn new(types: Arc<Box<ContextKeys>>) -> Self {
+    pub fn new() -> Self {
         Self {
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
-            context_keys: types,
             contexts: Arc::new(Box::new(Mutex::new(HashMap::new()))),
         }
     }
@@ -57,7 +56,6 @@ impl FicusService {
 pub(super) struct ServicePipelineExecutionContext<'a> {
     grpc_pipeline: &'a GrpcPipeline,
     context_values: &'a Vec<GrpcContextKeyValue>,
-    context_keys: Arc<Box<ContextKeys>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
     sender: Arc<Box<GrpcSender>>,
     log_message_handler: Arc<Box<dyn LogMessageHandler>>,
@@ -67,7 +65,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     pub fn new(
         grpc_pipeline: &'a GrpcPipeline,
         context_values: &'a Vec<GrpcContextKeyValue>,
-        context_keys: Arc<Box<ContextKeys>>,
         pipeline_parts: Arc<Box<PipelineParts>>,
         sender: GrpcSender,
     ) -> Self {
@@ -77,7 +74,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         Self {
             grpc_pipeline,
             context_values,
-            context_keys,
             pipeline_parts,
             sender,
             log_message_handler,
@@ -98,10 +94,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         &self.grpc_pipeline
     }
 
-    pub fn keys(&self) -> &ContextKeys {
-        &self.context_keys
-    }
-
     pub fn parts(&self) -> &PipelineParts {
         &self.pipeline_parts
     }
@@ -118,7 +110,6 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         Self {
             grpc_pipeline: new_grpc_pipeline,
             context_values: self.context_values,
-            context_keys: self.context_keys.clone(),
             pipeline_parts: self.pipeline_parts.clone(),
             sender: self.sender.clone(),
             log_message_handler: self.log_message_handler.clone(),
@@ -134,7 +125,6 @@ impl GrpcBackendService for FicusService {
         &self,
         request: Request<GrpcPipelineExecutionRequest>,
     ) -> Result<Response<Self::ExecutePipelineStream>, Status> {
-        let context_keys = self.context_keys.clone();
         let pipeline_parts = self.pipeline_parts.clone();
         let contexts = self.contexts.clone();
         let (sender, receiver) = mpsc::channel(4);
@@ -142,7 +132,7 @@ impl GrpcBackendService for FicusService {
         tokio::task::spawn_blocking(move || {
             let grpc_pipeline = request.get_ref().pipeline.as_ref().unwrap();
             let context_values = &request.get_ref().initial_context;
-            let context = ServicePipelineExecutionContext::new(grpc_pipeline, context_values, context_keys, pipeline_parts, sender);
+            let context = ServicePipelineExecutionContext::new(grpc_pipeline, context_values, pipeline_parts, sender);
 
             match Self::execute_grpc_pipeline(&context) {
                 Ok((guid, created_context)) => {
@@ -167,7 +157,7 @@ impl GrpcBackendService for FicusService {
 
     async fn get_context_value(&self, request: Request<GrpcGetContextValueRequest>) -> Result<Response<GrpcGetContextValueResult>, Status> {
         let key_name = &request.get_ref().key.as_ref().unwrap().name;
-        let result = match self.context_keys.find_key(key_name) {
+        let result = match find_context_key(key_name) {
             None => Self::create_get_context_value_error("Failed to find key for key name".to_string()),
             Some(key) => {
                 let id = request.get_ref().execution_id.as_ref().unwrap();
@@ -211,7 +201,7 @@ impl FicusService {
         let mut pipeline_context = create_initial_context(context);
         let infra = PipelineInfrastructure::new(Some(context.log_message_handler()));
 
-        match pipeline.execute(&mut pipeline_context, &infra, context.keys()) {
+        match pipeline.execute(&mut pipeline_context, &infra) {
             Ok(()) => Ok((GrpcGuid { guid: id.to_string() }, pipeline_context.devastate_user_data())),
             Err(err) => Err(err),
         }
@@ -271,7 +261,7 @@ impl FicusService {
 
         for conf_value in &grpc_config.configuration_parameters {
             let key_name = conf_value.key.as_ref().unwrap().name.as_ref();
-            if let Some(key) = context.keys().find_key(key_name) {
+            if let Some(key) = find_context_key(key_name) {
                 let value = conf_value.value.as_ref().unwrap().context_value.as_ref().unwrap();
                 put_into_user_data(key.key(), value, &mut part_config, context);
             }
@@ -289,8 +279,8 @@ impl FicusService {
         }
     }
 
-    fn try_convert_context_value(&self, key: &Box<dyn ContextKey>, context_value: &dyn Any) -> GrpcGetContextValueResult {
-        let value = convert_to_grpc_context_value(key.as_ref(), context_value, &self.context_keys);
+    fn try_convert_context_value(&self, key: &dyn ContextKey, context_value: &dyn Any) -> GrpcGetContextValueResult {
+        let value = convert_to_grpc_context_value(key, context_value);
         if let Some(grpc_context_value) = value {
             GrpcGetContextValueResult {
                 context_value_result: Some(ContextValueResult::Value(grpc_context_value)),

@@ -15,17 +15,17 @@ use crate::{
         user_data::user_data::UserData,
     },
 };
-
+use crate::pipelines::keys::context_keys::{COLORS_EVENT_LOG, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES, TRACE_ACTIVITIES_KEY};
 use super::{
-    context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, keys::context_keys::ContextKeys,
+    context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError,
     pipelines::PipelinePartFactory,
 };
 
 impl PipelineParts {
     pub(super) fn traces_diversity_diagram() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM, &|context, _, keys, _| {
-            let log = Self::get_user_data(context, keys.event_log())?;
-            let colors_holder = context.concrete_mut(keys.colors_holder().key()).expect("Should be initialized");
+        Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM, &|context, _, _| {
+            let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+            let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
 
             let mut mapping = HashMap::new();
             let mut traces = vec![];
@@ -47,26 +47,25 @@ impl PipelineParts {
                 traces.push(vec);
             }
 
-            context.put_concrete(keys.colors_event_log().key(), ColorsEventLog { mapping, traces });
+            context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
             Ok(())
         })
     }
 
     pub(super) fn draw_placements_of_event_by_name() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_NAME, &|context, _, keys, config| {
-            let event_name = Self::get_user_data(config, keys.event_name())?;
-            Self::draw_events_placement(context, keys, &|event| event.name() == event_name)
+        Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_NAME, &|context, _, config| {
+            let event_name = Self::get_user_data(config, &EVENT_NAME_KEY)?;
+            Self::draw_events_placement(context, &|event| event.name() == event_name)
         })
     }
 
     pub(super) fn draw_events_placement(
         context: &mut PipelineContext,
-        keys: &ContextKeys,
         selector: &impl Fn(&XesEventImpl) -> bool,
     ) -> Result<(), PipelinePartExecutionError> {
-        let log = Self::get_user_data(context, keys.event_log())?;
-        let colors_holder = Self::get_user_data_mut(context, keys.colors_holder()).expect("Default value should be initialized");
+        let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+        let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY).expect("Default value should be initialized");
 
         let mut traces = vec![];
         let mut mapping = HashMap::new();
@@ -96,24 +95,24 @@ impl PipelineParts {
             traces.push(colors_trace);
         }
 
-        context.put_concrete(keys.colors_event_log().key(), ColorsEventLog { mapping, traces });
+        context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
         Ok(())
     }
 
     pub(super) fn draw_events_placements_by_regex() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_REGEX, &|context, _, keys, config| {
-            let regex = Self::get_user_data(config, keys.regex())?;
+        Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_REGEX, &|context, _, config| {
+            let regex = Self::get_user_data(config, &REGEX_KEY)?;
             let regex = Regex::new(regex).ok().unwrap();
-            Self::draw_events_placement(context, keys, &|event| regex.is_match(event.name()).ok().unwrap())
+            Self::draw_events_placement(context, &|event| regex.is_match(event.name()).ok().unwrap())
         })
     }
 
     pub(super) fn draw_full_activities_diagram() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::DRAW_FULL_ACTIVITIES_DIAGRAM, &|context, _, keys, _| {
-            let traces_activities = Self::get_user_data(context, keys.trace_activities())?;
-            let log = Self::get_user_data(context, keys.event_log())?;
-            let colors_holder = Self::get_user_data_mut(context, keys.colors_holder())?;
+        Self::create_pipeline_part(Self::DRAW_FULL_ACTIVITIES_DIAGRAM, &|context, _, _| {
+            let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
+            let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+            let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
 
             let mut traces = vec![];
             let mut mapping = HashMap::new();
@@ -146,17 +145,17 @@ impl PipelineParts {
                 traces.push(colors_trace);
             }
 
-            context.put_concrete(keys.colors_event_log().key(), ColorsEventLog { mapping, traces });
+            context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
             Ok(())
         })
     }
 
     pub(super) fn draw_short_activities_diagram() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::DRAW_SHORT_ACTIVITIES_DIAGRAM, &|context, _, keys, _| {
-            let traces_activities = Self::get_user_data(context, keys.trace_activities())?;
-            let log = Self::get_user_data(context, keys.event_log())?;
-            let colors_holder = Self::get_user_data_mut(context, keys.colors_holder())?;
+        Self::create_pipeline_part(Self::DRAW_SHORT_ACTIVITIES_DIAGRAM, &|context, _, _| {
+            let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
+            let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+            let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
 
             let mut traces = vec![];
             let mut mapping = HashMap::new();
@@ -191,7 +190,7 @@ impl PipelineParts {
                 traces.push(colors_trace);
             }
 
-            context.put_concrete(keys.colors_event_log().key(), ColorsEventLog { mapping, traces });
+            context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
             Ok(())
         })
