@@ -322,7 +322,7 @@ impl PipelineParts {
         Self::create_pipeline_part(Self::GET_UNDERLYING_EVENTS_COUNT, &|context, infra, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
             let count = count_underlying_events(log);
-            infra.log(format!("Number of underlying events: {}", &count))?;
+            infra.log(format!("Number of underlying events: {}", &count).as_str())?;
 
             context.put_concrete(UNDERLYING_EVENTS_COUNT_KEY.key(), count);
             Ok(())
@@ -367,10 +367,13 @@ impl PipelineParts {
                 Self::do_discover_activities_instances(context, config)?;
 
                 let activities_instances = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
-                infra.log(format!(
-                    "Discovered {} activities instances",
-                    activities_instances.iter().map(|t| t.len()).sum::<usize>()
-                ))?;
+                infra.log(
+                    format!(
+                        "Discovered {} activities instances",
+                        activities_instances.iter().map(|t| t.len()).sum::<usize>()
+                    )
+                    .as_str(),
+                )?;
 
                 if activities_instances.iter().map(|t| t.len()).sum::<usize>() == 0 {
                     Self::do_clear_activities_related_stuff(context);

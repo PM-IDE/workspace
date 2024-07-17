@@ -15,8 +15,9 @@ use uuid::Uuid;
 use super::{
     converters::{convert_to_grpc_context_value, create_initial_context, put_into_user_data},
     get_context_pipeline::GetContextValuePipelinePart,
-    logs_handler::LogMessageHandlerImpl,
+    logs_handler::GrpcLogMessageHandlerImpl,
 };
+use crate::grpc::logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler};
 use crate::pipelines::context::PipelineInfrastructure;
 use crate::pipelines::keys::context_keys::find_context_key;
 use crate::{
@@ -81,9 +82,15 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     }
 
     fn create_log_message_handler(sender: Arc<Box<GrpcSender>>) -> Arc<Box<dyn LogMessageHandler>> {
-        let log_message_handler = LogMessageHandlerImpl::new(sender.clone());
-        let log_message_handler = Box::new(log_message_handler) as Box<dyn LogMessageHandler>;
-        Arc::new(log_message_handler)
+        let grpc_handler = GrpcLogMessageHandlerImpl::new(sender.clone());
+        let grpc_handler = Box::new(grpc_handler) as Box<dyn LogMessageHandler>;
+
+        let console_handler = ConsoleLogMessageHandler::new();
+        let console_handler = Box::new(console_handler) as Box<dyn LogMessageHandler>;
+
+        let delegating_handler = DelegatingLogMessageHandler::new(vec![grpc_handler, console_handler]);
+
+        Arc::new(Box::new(delegating_handler) as Box<dyn LogMessageHandler>)
     }
 
     pub fn sender(&self) -> Arc<Box<GrpcSender>> {
