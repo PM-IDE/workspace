@@ -1,11 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
-use ficus_backend::{
-    event_log::{core::trace::trace::Trace, simple::simple_event_log::SimpleTrace},
-    features::mutations::split::split_by_traces,
-};
-
 use crate::test_core::simple_events_logs_provider::{create_simple_event_log, create_simple_event_log2};
+use ficus_backend::event_log::xes::xes_trace::XesTraceImpl;
+use ficus_backend::{event_log::core::trace::trace::Trace, features::mutations::split::split_by_traces};
 
 #[test]
 fn test_split_log() {
@@ -31,7 +28,7 @@ fn test_split_log2() {
     );
 }
 
-fn to_strings_vec(groups: Vec<Vec<Rc<RefCell<SimpleTrace>>>>) -> Vec<Vec<Vec<String>>> {
+fn to_strings_vec(groups: Vec<Vec<Rc<RefCell<XesTraceImpl>>>>) -> Vec<Vec<Vec<String>>> {
     let mut result = Vec::new();
 
     for group in groups {

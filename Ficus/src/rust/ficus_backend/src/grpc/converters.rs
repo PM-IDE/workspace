@@ -4,6 +4,7 @@ use std::{any::Any, str::FromStr};
 
 use nameof::name_of_type;
 
+use super::backend_service::{FicusService, ServicePipelineExecutionContext};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -18,6 +19,12 @@ use crate::ficus_proto::{
     GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
 };
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
+use crate::pipelines::keys::context_keys::{
+    find_context_key, BYTES_KEY, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY,
+    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY,
+    PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
+    PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+};
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -40,24 +47,18 @@ use crate::{
         GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArrayWithTraceIndex,
         GrpcSubArraysWithTraceIndexContextValue, GrpcTraceSubArray, GrpcTraceSubArrays,
     },
-    pipelines::{
-        context::PipelineContext,
-        keys::{context_key::ContextKey, context_keys::ContextKeys},
-        pipelines::Pipeline,
-    },
+    pipelines::{context::PipelineContext, keys::context_key::ContextKey, pipelines::Pipeline},
     utils::{
         colors::{Color, ColoredRectangle},
         user_data::{keys::Key, user_data::UserData},
     },
 };
 
-use super::backend_service::{FicusService, ServicePipelineExecutionContext};
-
 pub(super) fn create_initial_context<'a>(context: &'a ServicePipelineExecutionContext) -> PipelineContext<'a> {
     let mut pipeline_context = PipelineContext::new_with_logging(context.parts());
 
     for value in context.context_values() {
-        let key = context.keys().find_key(&value.key.as_ref().unwrap().name).unwrap();
+        let key = find_context_key(&value.key.as_ref().unwrap().name).unwrap();
         let value = value.value.as_ref().unwrap().context_value.as_ref().unwrap();
         put_into_user_data(key.key(), value, &mut pipeline_context, context);
     }
@@ -145,40 +146,40 @@ fn put_names_log_to_context(key: &dyn Key, grpc_log: &GrpcNamesEventLogContextVa
     user_data.put_any::<Vec<Vec<String>>>(key, names_log);
 }
 
-pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any, keys: &ContextKeys) -> Option<GrpcContextValue> {
-    if keys.is_path(key) {
+pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> Option<GrpcContextValue> {
+    if PATH_KEY.eq_other(key) {
         try_convert_to_string_context_value(value)
-    } else if keys.is_hashes_event_log(key) {
+    } else if HASHES_EVENT_LOG_KEY.eq_other(key) {
         try_convert_to_hashes_event_log(value)
-    } else if keys.is_names_event_log(key) {
+    } else if NAMES_EVENT_LOG_KEY.eq_other(key) {
         try_convert_to_names_event_log(value)
-    } else if keys.is_patterns(key) {
+    } else if PATTERNS_KEY.eq_other(key) {
         try_convert_to_grpc_traces_sub_arrays(value)
-    } else if keys.is_repeat_sets(key) {
+    } else if REPEAT_SETS_KEY.eq_other(key) {
         try_convert_to_grpc_sub_arrays_with_index(value)
-    } else if keys.is_colors_event_log(key) {
+    } else if COLORS_EVENT_LOG_KEY.eq_other(key) {
         try_convert_to_grpc_colors_event_log(value)
-    } else if keys.is_event_log_info(key) {
+    } else if EVENT_LOG_INFO_KEY.eq_other(key) {
         try_convert_to_grpc_event_log_info(value)
-    } else if keys.is_petri_net(key) {
+    } else if PETRI_NET_KEY.eq_other(key) {
         try_convert_to_grpc_petri_net(value)
-    } else if keys.is_graph(key) {
+    } else if GRAPH_KEY.eq_other(key) {
         try_convert_to_grpc_graph(value)
-    } else if keys.is_petri_net_count_annotation(key) {
+    } else if PETRI_NET_COUNT_ANNOTATION_KEY.eq_other(key) {
         try_convert_to_grpc_petri_net_count_annotation(value)
-    } else if keys.is_petri_net_frequency_annotation(key) {
+    } else if PETRI_NET_FREQUENCY_ANNOTATION_KEY.eq_other(key) {
         try_convert_to_grpc_petri_net_frequency_annotation(value)
-    } else if keys.is_petri_net_trace_frequency_annotation(key) {
+    } else if PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY.eq_other(key) {
         try_convert_to_grpc_petri_net_frequency_annotation(value)
-    } else if keys.is_traces_activities_dataset(key) {
+    } else if TRACES_ACTIVITIES_DATASET_KEY.eq_other(key) {
         try_convert_to_grpc_dataset(value)
-    } else if keys.is_labeled_traces_activities_dataset(key) {
+    } else if LABELED_TRACES_ACTIVITIES_DATASET_KEY.eq_other(key) {
         try_convert_to_grpc_labeled_dataset(value)
-    } else if keys.is_labeled_log_traces_dataset(key) {
+    } else if LABELED_LOG_TRACES_DATASET_KEY.eq_other(key) {
         try_convert_to_grpc_labeled_dataset(value)
-    } else if keys.is_log_traces_dataset(key) {
+    } else if LOG_TRACES_DATASET_KEY.eq_other(key) {
         try_convert_to_grpc_dataset(value)
-    } else if keys.is_bytes(key) {
+    } else if BYTES_KEY.eq_other(key) {
         try_convert_to_grpc_bytes(value)
     } else {
         None

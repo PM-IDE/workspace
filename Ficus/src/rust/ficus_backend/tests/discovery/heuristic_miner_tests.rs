@@ -1,10 +1,9 @@
-use ficus_backend::{
-    event_log::simple::simple_event_log::SimpleEventLog,
-    features::discovery::{heuristic::heuristic_miner::discover_petri_net_heuristic, petri_net::pnml_serialization::serialize_to_pnml},
-};
-
 use crate::test_core::{
     gold_based_test::execute_test_with_gold, simple_events_logs_provider::*, test_paths::get_serialized_petri_nets_gold_path,
+};
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
+use ficus_backend::features::discovery::{
+    heuristic::heuristic_miner::discover_petri_net_heuristic, petri_net::pnml_serialization::serialize_to_pnml,
 };
 
 #[test]
@@ -47,7 +46,7 @@ pub fn heuristic_miner_test_9() {
     execute_heuristic_miner_discovery_test("heuristic_miner_test_9", || create_alpha_plus_plus_nfc_test_log9());
 }
 
-fn execute_heuristic_miner_discovery_test(test_name: &str, log_creator: impl Fn() -> SimpleEventLog) {
+fn execute_heuristic_miner_discovery_test(test_name: &str, log_creator: impl Fn() -> XesEventLogImpl) {
     execute_test_with_gold(get_serialized_petri_nets_gold_path(test_name), || {
         let log = log_creator();
         serialize_to_pnml(&discover_petri_net_heuristic(&log, 0.2, 1, 1.0, 0.1, 0.5), true)

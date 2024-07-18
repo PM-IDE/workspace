@@ -10,7 +10,7 @@ use crate::utils::user_data::{
 use super::errors::pipeline_errors::PipelinePartExecutionError;
 
 pub trait LogMessageHandler: Send + Sync {
-    fn handle(&self, message: String) -> Result<(), PipelinePartExecutionError>;
+    fn handle(&self, message: &str) -> Result<(), PipelinePartExecutionError>;
 }
 
 pub struct PipelineInfrastructure {
@@ -18,7 +18,7 @@ pub struct PipelineInfrastructure {
 }
 
 impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
-    fn log(&self, message: String) -> Result<(), PipelinePartExecutionError> {
+    fn log(&self, message: &str) -> Result<(), PipelinePartExecutionError> {
         self.log(message)?;
         Ok(())
     }
@@ -29,7 +29,7 @@ impl PipelineInfrastructure {
         Self { log_message_handler }
     }
 
-    pub fn log(&self, message: String) -> Result<(), PipelinePartExecutionError> {
+    pub fn log(&self, message: &str) -> Result<(), PipelinePartExecutionError> {
         if let Some(handler) = self.log_message_handler.as_ref() {
             handler.handle(message)
         } else {

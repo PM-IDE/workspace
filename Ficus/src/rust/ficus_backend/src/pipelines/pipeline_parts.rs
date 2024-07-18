@@ -1,7 +1,6 @@
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::ContextKeys;
 use crate::pipelines::pipelines::{DefaultPipelinePart, PipelinePartFactory};
 use crate::utils::performance::performance_cookie::performance_cookie;
 use crate::utils::user_data::keys::Key;
@@ -101,12 +100,7 @@ impl PipelineParts {
 
     pub(super) fn create_pipeline_part(
         name: &'static str,
-        executor: &'static impl Fn(
-            &mut PipelineContext,
-            &PipelineInfrastructure,
-            &ContextKeys,
-            &UserDataImpl,
-        ) -> Result<(), PipelinePartExecutionError>,
+        executor: &'static impl Fn(&mut PipelineContext, &PipelineInfrastructure, &UserDataImpl) -> Result<(), PipelinePartExecutionError>,
     ) -> (String, PipelinePartFactory) {
         (
             name.to_string(),
@@ -114,9 +108,7 @@ impl PipelineParts {
                 DefaultPipelinePart::new(
                     name.to_string(),
                     config,
-                    Box::new(|context, infra, keys, config| {
-                        performance_cookie(name, infra, &mut || executor(context, infra, keys, config))
-                    }),
+                    Box::new(|context, infra, config| performance_cookie(name, infra, &mut || executor(context, infra, config))),
                 )
             }),
         )

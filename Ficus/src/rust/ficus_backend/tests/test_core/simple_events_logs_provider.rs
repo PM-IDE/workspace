@@ -1,11 +1,11 @@
-use ficus_backend::event_log::simple::simple_event_log::SimpleEventLog;
+use ficus_backend::event_log::xes::xes_event_log::XesEventLogImpl;
 
 pub fn create_raw_event_log() -> Vec<Vec<&'static str>> {
     vec![vec!["A", "B", "C"], vec!["A", "B", "C"]]
 }
 
-pub fn create_simple_event_log() -> SimpleEventLog {
-    SimpleEventLog::new(&create_raw_event_log())
+pub fn create_simple_event_log() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&create_raw_event_log())
 }
 
 pub fn create_raw_event_log2() -> Vec<Vec<&'static str>> {
@@ -18,8 +18,8 @@ pub fn create_raw_event_log2() -> Vec<Vec<&'static str>> {
     ]
 }
 
-pub fn create_simple_event_log2() -> SimpleEventLog {
-    SimpleEventLog::new(&create_raw_event_log2())
+pub fn create_simple_event_log2() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&create_raw_event_log2())
 }
 
 pub fn create_raw_event_log3() -> Vec<Vec<&'static str>> {
@@ -36,11 +36,11 @@ pub fn create_raw_event_log3() -> Vec<Vec<&'static str>> {
     ]
 }
 
-pub fn create_simple_event_log3() -> SimpleEventLog {
-    SimpleEventLog::new(&create_raw_event_log3())
+pub fn create_simple_event_log3() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&create_raw_event_log3())
 }
 
-pub fn create_log_from_filter_out_chaotic_events() -> SimpleEventLog {
+pub fn create_log_from_filter_out_chaotic_events() -> XesEventLogImpl {
     let mut raw_log = vec![];
 
     for _ in 0..10 {
@@ -49,10 +49,10 @@ pub fn create_log_from_filter_out_chaotic_events() -> SimpleEventLog {
         raw_log.push(vec!["a", "x", "b", "c"]);
     }
 
-    SimpleEventLog::new(&raw_log)
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&raw_log)
 }
 
-pub fn create_log_from_filter_out_chaotic_events_with_noise() -> SimpleEventLog {
+pub fn create_log_from_filter_out_chaotic_events_with_noise() -> XesEventLogImpl {
     let mut raw_log = vec![];
 
     for _ in 0..10 {
@@ -61,25 +61,25 @@ pub fn create_log_from_filter_out_chaotic_events_with_noise() -> SimpleEventLog 
         raw_log.push(vec!["d", "d", "d", "v", "d", "a", "x", "b", "c", "d"]);
     }
 
-    SimpleEventLog::new(&raw_log)
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&raw_log)
 }
 
-pub fn create_log_from_taxonomy_of_patterns() -> SimpleEventLog {
+pub fn create_log_from_taxonomy_of_patterns() -> XesEventLogImpl {
     let raw_log = vec![vec![
         "g", "d", "a", "b", "c", "a", "b", "c", "a", "b", "c", "a", "b", "c", "a", "f", "i", "c", "a",
     ]];
 
-    SimpleEventLog::new(&raw_log)
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&raw_log)
 }
 
-pub fn create_no_tandem_array_log() -> SimpleEventLog {
+pub fn create_no_tandem_array_log() -> XesEventLogImpl {
     let raw_log = vec![vec!["a", "b", "c", "d"]];
-    SimpleEventLog::new(&raw_log)
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&raw_log)
 }
 
-pub fn create_one_tandem_array_log() -> SimpleEventLog {
+pub fn create_one_tandem_array_log() -> XesEventLogImpl {
     let raw_log = vec![vec!["a", "b", "a", "b", "c", "d"]];
-    SimpleEventLog::new(&raw_log)
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&raw_log)
 }
 
 pub fn create_max_repeats_trace_1() -> &'static [u8] {
@@ -102,30 +102,30 @@ pub fn create_max_repeats_trace_5() -> &'static [u8] {
     "aaacdcdcbedbccbadbdebdc".as_bytes()
 }
 
-pub fn create_log_for_max_repeats1() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["a", "a", "b", "c", "d", "b", "b", "c", "d", "a"]])
+pub fn create_log_for_max_repeats1() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["a", "a", "b", "c", "d", "b", "b", "c", "d", "a"]])
 }
 
-pub fn create_log_for_max_repeats2() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["d", "a", "b", "c", "d", "a", "b", "c", "b", "b"]])
+pub fn create_log_for_max_repeats2() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["d", "a", "b", "c", "d", "a", "b", "c", "b", "b"]])
 }
 
-pub fn create_log_for_max_repeats3() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["b", "b", "b", "c", "d", "b", "b", "b", "c", "c", "a", "a"]])
+pub fn create_log_for_max_repeats3() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["b", "b", "b", "c", "d", "b", "b", "b", "c", "c", "a", "a"]])
 }
 
-pub fn create_log_for_max_repeats4() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["a", "a", "a", "d", "a", "b", "b", "c", "c", "c"]])
+pub fn create_log_for_max_repeats4() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["a", "a", "a", "d", "a", "b", "b", "c", "c", "c"]])
 }
 
-pub fn create_log_for_max_repeats5() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec![
+pub fn create_log_for_max_repeats5() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec![
         "a", "a", "a", "c", "d", "c", "d", "c", "b", "e", "d", "b", "c", "c", "b", "a", "d", "b", "d", "e", "b", "d", "c",
     ]])
 }
 
-pub fn create_maximal_repeats_log() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_maximal_repeats_log() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["a", "a", "b", "c", "d", "b", "b", "c", "d", "a"],
         vec!["d", "a", "b", "c", "d", "a", "b", "c", "b", "b"],
         vec!["b", "b", "b", "c", "d", "b", "b", "b", "c", "c", "a", "a"],
@@ -136,16 +136,22 @@ pub fn create_maximal_repeats_log() -> SimpleEventLog {
     ])
 }
 
-pub fn create_single_trace_test_log1() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["a", "b", "c", "x", "y", "z"], vec!["r", "t", "u", "a", "b", "c"]])
+pub fn create_single_trace_test_log1() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["a", "b", "c", "x", "y", "z"],
+        vec!["r", "t", "u", "a", "b", "c"],
+    ])
 }
 
-pub fn create_single_trace_test_log2() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["x", "y", "z", "a", "b", "c"], vec!["a", "b", "c", "r", "t", "u"]])
+pub fn create_single_trace_test_log2() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["x", "y", "z", "a", "b", "c"],
+        vec!["a", "b", "c", "r", "t", "u"],
+    ])
 }
 
-pub fn create_alpha_sharp_test_log() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_alpha_sharp_test_log() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["A", "C", "D", "D", "F", "G", "H", "I"],
         vec!["B", "C", "E", "E", "F", "H", "G", "I"],
         vec!["A", "D", "E", "D", "E", "G", "H", "I"],
@@ -155,12 +161,12 @@ pub fn create_alpha_sharp_test_log() -> SimpleEventLog {
     ])
 }
 
-pub fn create_alpha_sharp_test_log2() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["A", "C", "C", "D"], vec!["A", "B", "C", "B", "C", "D"]])
+pub fn create_alpha_sharp_test_log2() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "C", "C", "D"], vec!["A", "B", "C", "B", "C", "D"]])
 }
 
-pub fn create_alpha_sharp_test_log3() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_alpha_sharp_test_log3() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["A", "D"],
         vec!["A", "B", "D"],
         vec!["A", "C", "D"],
@@ -168,8 +174,8 @@ pub fn create_alpha_sharp_test_log3() -> SimpleEventLog {
     ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_alpha_plus_plus_nfc_test_log() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["A", "B", "E", "G"],
         vec!["A", "C", "F", "G"],
         vec!["A", "B", "D", "D", "E", "G"],
@@ -179,8 +185,8 @@ pub fn create_alpha_plus_plus_nfc_test_log() -> SimpleEventLog {
     ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log2() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_alpha_plus_plus_nfc_test_log2() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["A", "B", "C"],
         vec!["A", "B", "D", "E", "C"],
         vec!["A", "D", "B", "E", "C"],
@@ -189,8 +195,8 @@ pub fn create_alpha_plus_plus_nfc_test_log2() -> SimpleEventLog {
     ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log3() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_alpha_plus_plus_nfc_test_log3() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["A", "C", "D"],
         vec!["B", "C", "E"],
         vec!["A", "F", "C", "E"],
@@ -198,8 +204,8 @@ pub fn create_alpha_plus_plus_nfc_test_log3() -> SimpleEventLog {
     ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log4() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_alpha_plus_plus_nfc_test_log4() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["A", "C", "F", "B", "G", "E"],
         vec!["A", "F", "C", "B", "G", "E"],
         vec!["A", "F", "B", "C", "G", "E"],
@@ -208,16 +214,20 @@ pub fn create_alpha_plus_plus_nfc_test_log4() -> SimpleEventLog {
     ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log5() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["A", "B", "C"], vec!["A", "B", "D", "E"], vec!["A", "D", "B", "E"]])
+pub fn create_alpha_plus_plus_nfc_test_log5() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["A", "B", "C"],
+        vec!["A", "B", "D", "E"],
+        vec!["A", "D", "B", "E"],
+    ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log6() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["A", "C", "D"], vec!["B", "C", "E"]])
+pub fn create_alpha_plus_plus_nfc_test_log6() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "C", "D"], vec!["B", "C", "E"]])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log7() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![
+pub fn create_alpha_plus_plus_nfc_test_log7() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
         vec!["A", "C", "F", "D"],
         vec!["A", "F", "C", "D"],
         vec!["B", "C", "G", "E"],
@@ -225,18 +235,26 @@ pub fn create_alpha_plus_plus_nfc_test_log7() -> SimpleEventLog {
     ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log8() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["A", "C", "D"], vec!["B", "C", "F", "E"], vec!["B", "F", "C", "E"]])
+pub fn create_alpha_plus_plus_nfc_test_log8() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["A", "C", "D"],
+        vec!["B", "C", "F", "E"],
+        vec!["B", "F", "C", "E"],
+    ])
 }
 
-pub fn create_alpha_plus_plus_nfc_test_log9() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["A", "C", "E", "B", "C", "D"]])
+pub fn create_alpha_plus_plus_nfc_test_log9() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "C", "E", "B", "C", "D"]])
 }
 
-pub fn create_heuristic_miner_replay_test_log() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["A", "B", "C", "D"], vec!["A", "C", "B", "D"]])
+pub fn create_heuristic_miner_replay_test_log() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "B", "C", "D"], vec!["A", "C", "B", "D"]])
 }
 
-pub fn create_alpha_plus_miner_replay_test_log() -> SimpleEventLog {
-    SimpleEventLog::new(&vec![vec!["A", "B", "C", "D"], vec!["A", "C", "B", "D"], vec!["E", "F"]])
+pub fn create_alpha_plus_miner_replay_test_log() -> XesEventLogImpl {
+    ficus_backend::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["A", "B", "C", "D"],
+        vec!["A", "C", "B", "D"],
+        vec!["E", "F"],
+    ])
 }

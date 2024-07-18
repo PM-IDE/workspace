@@ -1,7 +1,7 @@
 use stopwatch::Stopwatch;
 
 pub trait PerformanceLogger<TErr> {
-    fn log(&self, message: String) -> Result<(), TErr>;
+    fn log(&self, message: &str) -> Result<(), TErr>;
 }
 
 pub fn performance_cookie<TErr>(
@@ -10,12 +10,12 @@ pub fn performance_cookie<TErr>(
     action: &mut impl FnMut() -> Result<(), TErr>,
 ) -> Result<(), TErr> {
     let mut stopwatch = Stopwatch::start_new();
-    logger.log(format!("Started activity {}", activity_name))?;
+    logger.log(format!("Started activity {}", activity_name).as_str())?;
     (action)()?;
 
     stopwatch.stop();
     let elapsed = stopwatch.elapsed_ms();
 
-    logger.log(format!("Activity {} finished in {}ms", activity_name, elapsed))?;
+    logger.log(format!("Activity {} finished in {}ms", activity_name, elapsed).as_str())?;
     Ok(())
 }

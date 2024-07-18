@@ -2,6 +2,11 @@ use std::{cell::RefCell, rc::Rc};
 
 use chrono::{DateTime, Duration, Utc};
 
+use super::pipelines::PipelinePartFactory;
+use crate::pipelines::keys::context_keys::{
+    EVENT_CLASS_REGEX_KEY, EVENT_LOG, EVENT_LOG_INFO, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY,
+    PIPELINE_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePart;
 use crate::{
@@ -20,11 +25,9 @@ use crate::{
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
 
-use super::{keys::context_keys::ContextKeys, pipelines::PipelinePartFactory};
-
 impl PipelineParts {
-    pub(super) fn create_hashed_event_log(config: &UserDataImpl, keys: &ContextKeys, log: &XesEventLogImpl) -> Vec<Vec<u64>> {
-        match Self::get_user_data(config, keys.event_class_regex()) {
+    pub(super) fn create_hashed_event_log(config: &UserDataImpl, log: &XesEventLogImpl) -> Vec<Vec<u64>> {
+        match Self::get_user_data(config, &EVENT_CLASS_REGEX_KEY) {
             Ok(regex) => {
                 let hasher = RegexEventHasher::new(regex).ok().unwrap();
                 log.to_hashes_event_log(&hasher)
@@ -34,29 +37,29 @@ impl PipelineParts {
     }
 
     pub(super) fn get_event_log_info() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::GET_EVENT_LOG_INFO, &|context, _, keys, _| {
-            let log = Self::get_user_data(context, keys.event_log())?;
+        Self::create_pipeline_part(Self::GET_EVENT_LOG_INFO, &|context, _, _| {
+            let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
             let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
-            context.put_concrete(keys.event_log_info().key(), log_info);
+            context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
 
             Ok(())
         })
     }
 
     pub(super) fn get_hashes_event_log() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::GET_HASHES_EVENT_LOG, &|context, _, keys, config| {
-            let log = Self::get_user_data(context, keys.event_log())?;
-            let hashes_event_log = Self::create_hashed_event_log(config, keys, log);
+        Self::create_pipeline_part(Self::GET_HASHES_EVENT_LOG, &|context, _, config| {
+            let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+            let hashes_event_log = Self::create_hashed_event_log(config, log);
 
-            context.put_concrete(keys.hashes_event_log().key(), hashes_event_log);
+            context.put_concrete(HASHES_EVENT_LOG_KEY.key(), hashes_event_log);
 
             Ok(())
         })
     }
 
     pub(super) fn get_names_event_log() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::GET_NAMES_EVENT_LOG, &|context, _, keys, _| {
-            let log = Self::get_user_data(context, keys.event_log())?;
+        Self::create_pipeline_part(Self::GET_NAMES_EVENT_LOG, &|context, _, _| {
+            let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
 
             let mut result = vec![];
             for trace in log.traces() {
@@ -68,15 +71,15 @@ impl PipelineParts {
                 result.push(vec);
             }
 
-            context.put_concrete(keys.names_event_log().key(), result);
+            context.put_concrete(NAMES_EVENT_LOG_KEY.key(), result);
 
             Ok(())
         })
     }
 
     pub(super) fn use_names_event_log() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::USE_NAMES_EVENT_LOG, &|context, _, keys, _| {
-            let names_log = Self::get_user_data(context, keys.names_event_log())?;
+        Self::create_pipeline_part(Self::USE_NAMES_EVENT_LOG, &|context, _, _| {
+            let names_log = Self::get_user_data(context, &NAMES_EVENT_LOG_KEY)?;
             let mut log = XesEventLogImpl::empty();
             for names_trace in names_log {
                 let mut trace = XesTraceImpl::empty();
@@ -91,16 +94,16 @@ impl PipelineParts {
                 log.push(Rc::new(RefCell::new(trace)));
             }
 
-            context.put_concrete::<XesEventLogImpl>(keys.event_log().key(), log);
+            context.put_concrete::<XesEventLogImpl>(EVENT_LOG_KEY.key(), log);
 
             Ok(())
         })
     }
 
     pub(super) fn execute_frontend_pipeline() -> (String, PipelinePartFactory) {
-        Self::create_pipeline_part(Self::EXECUTE_FRONTEND_PIPELINE, &|context, infra, keys, config| {
-            let pipeline = Self::get_user_data(config, keys.pipeline())?;
-            pipeline.execute(context, infra, keys)?;
+        Self::create_pipeline_part(Self::EXECUTE_FRONTEND_PIPELINE, &|context, infra, config| {
+            let pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
+            pipeline.execute(context, infra)?;
 
             Ok(())
         })

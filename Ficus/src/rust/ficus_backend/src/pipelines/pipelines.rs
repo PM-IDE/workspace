@@ -1,10 +1,11 @@
 use crate::pipelines::context::PipelineInfrastructure;
+use crate::pipelines::keys::context_keys::COLORS_HOLDER_KEY;
 use crate::utils::{
     colors::ColorsHolder,
     user_data::user_data::{UserData, UserDataImpl},
 };
 
-use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, keys::context_keys::ContextKeys};
+use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError};
 
 pub struct Pipeline {
     parts: Vec<Box<dyn PipelinePart>>,
@@ -21,16 +22,11 @@ impl Pipeline {
 }
 
 impl PipelinePart for Pipeline {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-        keys: &ContextKeys,
-    ) -> Result<(), PipelinePartExecutionError> {
-        self.put_default_concrete_keys(context, keys);
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
+        self.put_default_concrete_keys(context);
 
         for part in &self.parts {
-            part.execute(context, infra, keys)?;
+            part.execute(context, infra)?;
         }
 
         Ok(())
@@ -38,20 +34,15 @@ impl PipelinePart for Pipeline {
 }
 
 impl Pipeline {
-    fn put_default_concrete_keys(&self, context: &mut PipelineContext, keys: &ContextKeys) {
-        if let None = context.concrete(keys.colors_holder().key()) {
-            context.put_concrete(keys.colors_holder().key(), ColorsHolder::empty());
+    fn put_default_concrete_keys(&self, context: &mut PipelineContext) {
+        if let None = context.concrete(COLORS_HOLDER_KEY.key()) {
+            context.put_concrete(COLORS_HOLDER_KEY.key(), ColorsHolder::empty());
         }
     }
 }
 
 pub trait PipelinePart {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-        keys: &ContextKeys,
-    ) -> Result<(), PipelinePartExecutionError>;
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError>;
 }
 
 pub struct ParallelPipelinePart {
@@ -59,18 +50,13 @@ pub struct ParallelPipelinePart {
 }
 
 impl PipelinePart for ParallelPipelinePart {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-        keys: &ContextKeys,
-    ) -> Result<(), PipelinePartExecutionError> {
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
         for pipeline in &self.parallel_pipelines[0..(self.parallel_pipelines.len() - 1)] {
-            pipeline.execute(&mut context.clone(), infra, keys)?;
+            pipeline.execute(&mut context.clone(), infra)?;
         }
 
         if let Some(last_pipeline) = self.parallel_pipelines.last() {
-            last_pipeline.execute(context, infra, keys)?;
+            last_pipeline.execute(context, infra)?;
         }
 
         Ok(())
@@ -78,7 +64,7 @@ impl PipelinePart for ParallelPipelinePart {
 }
 
 type PipelinePartExecutor =
-    Box<dyn Fn(&mut PipelineContext, &PipelineInfrastructure, &ContextKeys, &UserDataImpl) -> Result<(), PipelinePartExecutionError>>;
+    Box<dyn Fn(&mut PipelineContext, &PipelineInfrastructure, &UserDataImpl) -> Result<(), PipelinePartExecutionError>>;
 
 pub struct DefaultPipelinePart {
     name: String,
@@ -101,13 +87,8 @@ impl DefaultPipelinePart {
 }
 
 impl PipelinePart for DefaultPipelinePart {
-    fn execute(
-        &self,
-        context: &mut PipelineContext,
-        infra: &PipelineInfrastructure,
-        keys: &ContextKeys,
-    ) -> Result<(), PipelinePartExecutionError> {
-        (self.executor)(context, infra, keys, &self.config)
+    fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
+        (self.executor)(context, infra, &self.config)
     }
 }
 
