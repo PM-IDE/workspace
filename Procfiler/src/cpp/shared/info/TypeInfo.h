@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "cor.h"
-#include "../../util/util.h"
+#include "../util/util.h"
 
 struct TypeInfo {
 private:

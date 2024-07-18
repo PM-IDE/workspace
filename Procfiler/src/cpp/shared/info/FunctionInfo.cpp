@@ -2,6 +2,7 @@
 #include "corprof.h"
 #include <vector>
 
+
 FunctionInfo FunctionInfo::GetFunctionInfo(ICorProfilerInfo12* info, FunctionID funcId) {
     mdToken functionToken;
     ClassID classId;

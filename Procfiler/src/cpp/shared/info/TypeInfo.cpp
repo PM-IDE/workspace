@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "TypeInfo.h"
-
-#include "FunctionInfo.h"
+#include "../util/const.h"
+#include "../util/helpers.h"
 
 
 TypeInfo::TypeInfo(const std::vector<BYTE>& raw) : myRaw(raw) {

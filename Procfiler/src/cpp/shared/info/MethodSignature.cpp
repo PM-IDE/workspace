@@ -1,9 +1,12 @@
+#include "cor.h"
+
 #include "FunctionInfo.h"
 #include "MethodSignature.h"
 
 #include <utility>
 #include "TypeInfo.h"
 #include "parser.h"
+#include "../util/const.h"
 
 
 MethodSignature::MethodSignature(std::vector<BYTE> rawSignature) : myRawSignature(std::move(rawSignature)) {

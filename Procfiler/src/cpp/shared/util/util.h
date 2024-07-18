@@ -1,13 +1,10 @@
 #pragma once
 
-#include <corhlpr.h>
-#include <string>
 #include <vector>
-#include <vector>
+#include "types.h"
 #include "../miniutf/miniutf.hpp"
 
 
-typedef std::basic_string<WCHAR> wstring;
 WCHAR operator"" _W(const char c);
 wstring operator"" _W(const char* arr, size_t size);
 wstring ToWString(const char* str);

@@ -1,8 +1,5 @@
 #include "AssemblyInfo.h"
-
-#include <vector>
-
-#include "../../util/util.h"
+#include "../util/const.h"
 
 
 AssemblyInfo AssemblyInfo::GetAssemblyInfo(ICorProfilerInfo12* info, AssemblyID assemblyId) {

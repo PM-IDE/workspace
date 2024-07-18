@@ -11,23 +11,13 @@ set(SOURCES
     ClassFactory.cpp
     guids.cpp
     corprofiler/ProcfilerCorProfilerCallback.cpp
-    corprofiler/info/FunctionInfo.cpp
-    corprofiler/info/TypeInfo.cpp
-    corprofiler/info/MethodSignature.cpp
-    corprofiler/info/MethodSignature.h
-    corprofiler/info/GenericMethodSignature.cpp
-    corprofiler/info/GenericMethodSignature.h
-    corprofiler/info/AssemblyInfo.cpp
-    corprofiler/info/ModuleInfo.cpp
-    corprofiler/info/parser.cpp
-    util/util.h
-    miniutf/miniutf.cpp
-    miniutf/miniutf.hpp
-    util/util.cpp
 )
 
 include_directories(../3rdparty/coreclr/pal/prebuilt/inc)
 include_directories(../3rdparty/coreclr/inc)
+include_directories(../shared/miniutf)
+include_directories(../shared/info)
+include_directories(../shared/util)
 
 if(NOT WIN32)
     include_directories(../3rdparty/coreclr/pal/inc/rt
