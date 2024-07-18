@@ -3,7 +3,7 @@
 
 #include "cor.h"
 #include "corprof.h"
-#include "../../util/types.h"
+#include <types.h>
 #include "../../logging/ProcfilerLogger.h"
 #include <vector>
 #include <map>
@@ -11,7 +11,6 @@
 #include <stack>
 #include <atomic>
 #include <regex>
-#include "../../util/util.h"
 #include "../info/FunctionInfo.h"
 #include "fstream"
 #include "utils.h"

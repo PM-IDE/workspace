@@ -1,6 +1,5 @@
 #include "BinaryShadowStackSerializer.h"
-#include "../../../util/env_constants.h"
-#include <iostream>
+#include <env_constants.h>
 #include <fstream>
 #include <regex>
 #include <set>

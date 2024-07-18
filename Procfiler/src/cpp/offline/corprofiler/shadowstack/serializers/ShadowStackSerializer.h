@@ -2,7 +2,7 @@
 #define PROCFILER_SHADOWSTACKSERIALIZER_H
 
 #include <string>
-#include "../../../util/util.h"
+#include <util.h>
 #include "corprof.h"
 #include "../ShadowStack.h"
 

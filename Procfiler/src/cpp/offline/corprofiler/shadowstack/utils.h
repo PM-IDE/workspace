@@ -1,4 +1,3 @@
-
 #ifndef PROCFILER_UTILS_H
 #define PROCFILER_UTILS_H
 

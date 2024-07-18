@@ -12,26 +12,26 @@ set(SOURCES
     corprofiler/ProcfilerCorProfilerCallback.cpp
     guids.cpp
     logging/ProcfilerLogger.cpp
-    corprofiler/info/FunctionInfo.cpp
-    corprofiler/info/TypeInfo.cpp
-    corprofiler/info/MethodSignature.cpp
-    corprofiler/info/MethodSignature.h
-    corprofiler/info/GenericMethodSignature.cpp
-    corprofiler/info/GenericMethodSignature.h
-    util/const.h
-    util/util.cpp
-    util/helpers.cpp
-    corprofiler/info/AssemblyInfo.cpp
-    corprofiler/info/ModuleInfo.cpp
-    corprofiler/info/parser.cpp
-    miniutf/miniutf.cpp
-    miniutf/miniutf.hpp
+        ../shared/info/FunctionInfo.cpp
+        ../shared/info/TypeInfo.cpp
+        ../shared/info/MethodSignature.cpp
+        ../shared/info/MethodSignature.h
+        ../shared/info/GenericMethodSignature.cpp
+        ../shared/info/GenericMethodSignature.h
+        ../shared/util/const.h
+        ../shared/util/util.cpp
+        ../shared/util/helpers.cpp
+    ../shared/info/AssemblyInfo.cpp
+        ../shared/info/ModuleInfo.cpp
+        ../shared/info/parser.cpp
+        ../shared/miniutf/miniutf.cpp
+        ../shared/miniutf/miniutf.hpp
     corprofiler/shadowstack/ShadowStack.cpp
-    util/env_constants.h
+        ../shared/util/env_constants.h
     corprofiler/shadowstack/serializers/EventPipeShadowStackSerializer.cpp
     corprofiler/shadowstack/serializers/BinaryShadowStackSerializer.cpp
     corprofiler/shadowstack/serializers/DebugShadowStackSerializer.cpp
-    util/env_constants.cpp
+        ../shared/util/env_constants.cpp
     corprofiler/shadowstack/serializers/EventPipeShadowStackSerializer.h
     corprofiler/shadowstack/serializers/BinaryShadowStackSerializer.h
     corprofiler/shadowstack/serializers/DebugShadowStackSerializer.h
@@ -41,6 +41,9 @@ set(SOURCES
 
 include_directories(../3rdparty/coreclr/pal/prebuilt/inc)
 include_directories(../3rdparty/coreclr/inc)
+include_directories(../shared/miniutf)
+include_directories(../shared/info)
+include_directories(../shared/util)
 
 if(NOT WIN32)
     include_directories(../3rdparty/coreclr/pal/inc/rt
