@@ -39,13 +39,13 @@ set(SOURCES
     corprofiler/shadowstack/EventsWithThreadId.cpp
 )
 
-include_directories(./3rdparty/coreclr/pal/prebuilt/inc)
-include_directories(./3rdparty/coreclr/inc)
+include_directories(../3rdparty/coreclr/pal/prebuilt/inc)
+include_directories(../3rdparty/coreclr/inc)
 
 if(NOT WIN32)
-    include_directories(./3rdparty/coreclr/pal/inc/rt
-                        ./3rdparty/coreclr/pal/inc
-                        ./3rdparty/coreclr/pal/src/include/)
+    include_directories(../3rdparty/coreclr/pal/inc/rt
+                        ../3rdparty/coreclr/pal/inc
+                        ../3rdparty/coreclr/pal/src/include/)
 
     add_compile_options(-DPAL_STDCPP_COMPAT)
 

@@ -50,10 +50,10 @@
     </ItemGroup>
 
     <Target Name="BuildCppProcfiler" AfterTargets="Build">
-        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\"/>
+        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\offline\"/>
     </Target>
 
     <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfiler" Outputs="$(OutputPath)CppProcfiler.dll">
-        <Copy SourceFiles="$(SolutionDir)\..\cpp\build\Release\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="$(SolutionDir)\..\cpp\offline\build\Release\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
     </Target>
 </Project>
