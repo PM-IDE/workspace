@@ -1,4 +1,5 @@
-﻿using Procfiler.Commands.CollectClrEvents.Split;
+﻿using Core.Utils;
+using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;
 using Procfiler.Utils;

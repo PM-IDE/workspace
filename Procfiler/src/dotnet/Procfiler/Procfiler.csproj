@@ -16,8 +16,8 @@
         <PackageReference Include="JetBrains.Annotations" Version="2022.1.0"/>
         <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.351802"/>
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0-preview.7.22375.6"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0-preview.7.22375.6"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0"/>
         <PackageReference Include="Mono.Cecil" Version="0.11.4"/>
         <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0"/>
         <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1"/>
@@ -40,6 +40,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Core\Core.csproj" />
         <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
     </ItemGroup>
 

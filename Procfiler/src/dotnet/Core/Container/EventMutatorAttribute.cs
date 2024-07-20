@@ -1,4 +1,4 @@
-﻿namespace Procfiler.Utils.Container;
+﻿namespace Core.Container;
 
 public class EventMutatorAttribute(int pass) : AppComponentAttribute
 {

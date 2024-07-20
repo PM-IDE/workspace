@@ -1,6 +1,8 @@
-namespace Procfiler.Utils.Xml;
+using System.Xml;
 
-internal readonly struct StartEndElementCookie : IDisposable
+namespace Core.Utils.Xml;
+
+public readonly struct StartEndElementCookie : IDisposable
 {
   public static StartEndElementCookie CreateStartEndElement(
     XmlWriter xmlWriter, string? prefix, string tagName, string? @namespace)

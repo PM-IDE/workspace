@@ -1,3 +1,3 @@
-namespace Procfiler.Utils.Container;
+namespace Core.Container;
 
 public class CommandLineCommandAttribute : AppComponentAttribute;

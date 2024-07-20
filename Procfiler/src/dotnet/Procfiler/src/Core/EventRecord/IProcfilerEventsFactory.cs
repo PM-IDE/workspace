@@ -1,9 +1,10 @@
+using Core.Container;
+using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.EventRecord;
 

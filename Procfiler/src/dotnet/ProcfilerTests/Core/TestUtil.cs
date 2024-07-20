@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Autofac;
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core;
 using Procfiler.Core.Collector;

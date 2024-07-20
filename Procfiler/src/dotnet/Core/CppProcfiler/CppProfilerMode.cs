@@ -1,4 +1,4 @@
-namespace Procfiler.Core.CppProcfiler;
+namespace Core.CppProcfiler;
 
 public enum CppProfilerMode
 {

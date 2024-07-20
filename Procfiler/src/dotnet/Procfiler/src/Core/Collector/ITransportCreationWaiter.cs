@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
+using Core.Container;
+using Core.Utils;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.Collector;
 

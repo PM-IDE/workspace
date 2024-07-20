@@ -1,4 +1,8 @@
-namespace Procfiler.Utils;
+using System.Diagnostics;
+using System.Text;
+using Microsoft.Extensions.Logging;
+
+namespace Core.Utils;
 
 public interface IProcfilerLogger : ILogger
 {

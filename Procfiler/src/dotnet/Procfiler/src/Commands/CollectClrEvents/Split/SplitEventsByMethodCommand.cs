@@ -1,3 +1,5 @@
+using Core.Container;
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Base;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core;
@@ -11,7 +13,6 @@ using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.Serialization.Xes;
 using Procfiler.Core.SplitByMethod;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Commands.CollectClrEvents.Split;
 

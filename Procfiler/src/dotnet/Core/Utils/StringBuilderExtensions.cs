@@ -1,4 +1,7 @@
-namespace Procfiler.Utils;
+using System.Collections;
+using System.Text;
+
+namespace Core.Utils;
 
 public static class StringBuilderExtensions
 {

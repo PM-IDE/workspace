@@ -1,4 +1,6 @@
-﻿namespace Procfiler.Utils;
+﻿using System.Diagnostics;
+
+namespace Core.Utils;
 
 public readonly struct TempFolderCookie : IDisposable
 {

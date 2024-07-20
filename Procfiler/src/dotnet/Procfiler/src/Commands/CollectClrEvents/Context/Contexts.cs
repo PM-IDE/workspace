@@ -1,3 +1,5 @@
+using Core.CppProcfiler;
+using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.InstrumentalProfiler;

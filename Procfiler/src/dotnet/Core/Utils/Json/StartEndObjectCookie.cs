@@ -1,4 +1,6 @@
-namespace Procfiler.Utils.Json;
+using System.Text.Json;
+
+namespace Core.Utils.Json;
 
 public readonly struct StartEndObjectCookie : IDisposable
 {

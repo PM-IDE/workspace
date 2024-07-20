@@ -1,3 +1,4 @@
+using Core.Utils;
 using Procfiler.Utils;
 
 namespace Procfiler.Core.Serialization.Core;

@@ -1,4 +1,4 @@
-namespace Procfiler.Utils;
+namespace Core.Utils;
 
 public readonly struct TempFileCookie(string alreadyCreatedTempFileFilePath, IProcfilerLogger logger) : IDisposable
 {

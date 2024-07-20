@@ -1,6 +1,6 @@
-namespace Procfiler.Utils;
+namespace Core.Utils;
 
-internal class PercentValue
+public class PercentValue
 {
   private int AllCases { get; set; }
   private int SuitableCases { get; set; }

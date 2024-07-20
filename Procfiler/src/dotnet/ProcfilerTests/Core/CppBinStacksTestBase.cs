@@ -1,4 +1,5 @@
 using Autofac;
+using Core.CppProcfiler;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;

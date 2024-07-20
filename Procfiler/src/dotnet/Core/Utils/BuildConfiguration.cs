@@ -1,4 +1,4 @@
-namespace Procfiler.Utils;
+namespace Core.Utils;
 
 public enum BuildConfiguration
 {

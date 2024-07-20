@@ -1,4 +1,7 @@
-namespace Procfiler.Utils;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+
+namespace Core.Utils;
 
 public readonly struct PerformanceCookie : IDisposable
 {

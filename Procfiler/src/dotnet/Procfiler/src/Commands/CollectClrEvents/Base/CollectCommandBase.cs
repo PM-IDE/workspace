@@ -1,3 +1,4 @@
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core;
 using Procfiler.Core.Collector;

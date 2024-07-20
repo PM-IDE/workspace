@@ -1,4 +1,4 @@
-using Procfiler.Utils.Container;
+using Core.Container;
 using ProcfilerEventSources;
 
 namespace Procfiler.Core.Collector;

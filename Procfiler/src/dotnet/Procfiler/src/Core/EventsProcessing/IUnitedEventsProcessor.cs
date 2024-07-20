@@ -1,3 +1,5 @@
+using Core.Container;
+using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing.Filters.Core;
@@ -5,7 +7,6 @@ using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.EventsProcessing;
 

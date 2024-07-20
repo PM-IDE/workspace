@@ -1,3 +1,4 @@
+using Core.CppProcfiler;
 using Procfiler.Core.CppProcfiler;
 using ProcfilerTests.Core;
 

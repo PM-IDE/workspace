@@ -1,7 +1,8 @@
-﻿using Procfiler.Commands.CollectClrEvents.Context;
+﻿using Core.Container;
+using Core.Utils;
+using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.InstrumentalProfiler;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.Processes.Builder;
 

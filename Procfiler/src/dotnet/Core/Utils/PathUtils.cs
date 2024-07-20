@@ -1,4 +1,6 @@
-namespace Procfiler.Utils;
+using Microsoft.Extensions.Logging;
+
+namespace Core.Utils;
 
 public static class PathUtils
 {

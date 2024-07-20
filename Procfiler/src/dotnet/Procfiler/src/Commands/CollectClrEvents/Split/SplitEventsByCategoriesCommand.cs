@@ -1,3 +1,5 @@
+using Core.Container;
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Base;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core;
@@ -5,7 +7,6 @@ using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Commands.CollectClrEvents.Split;
 

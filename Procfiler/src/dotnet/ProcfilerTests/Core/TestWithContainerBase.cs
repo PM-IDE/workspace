@@ -1,9 +1,10 @@
 using Autofac;
+using Core.Container;
+using Core.Utils;
 using Microsoft.Extensions.Logging;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 using TestsUtil;
 
 namespace ProcfilerTests.Core;

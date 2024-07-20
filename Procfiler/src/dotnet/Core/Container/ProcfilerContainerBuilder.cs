@@ -1,7 +1,10 @@
+using System.Reflection;
 using Autofac;
+using Core.Utils;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 
-namespace Procfiler.Utils.Container;
+namespace Core.Container;
 
 public static class ProcfilerContainerBuilder
 {

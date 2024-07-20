@@ -1,8 +1,8 @@
+using Core.Container;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.Serialization.Csv;
 using Procfiler.Core.Serialization.MethodsCallTree;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.Serialization.Core;
 

@@ -1,5 +1,5 @@
-using Procfiler.Utils.Container;
-using Procfiler.Utils.Json;
+using Core.Container;
+using Core.Utils.Json;
 
 namespace Procfiler.Core.InstrumentalProfiler.DepsJson;
 

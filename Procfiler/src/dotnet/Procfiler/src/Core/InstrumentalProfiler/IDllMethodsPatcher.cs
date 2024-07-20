@@ -1,10 +1,11 @@
-﻿using Mono.Cecil;
+﻿using Core.Container;
+using Core.Utils;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 using Procfiler.Core.Constants;
 using Procfiler.Core.InstrumentalProfiler.DepsJson;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.InstrumentalProfiler;
 

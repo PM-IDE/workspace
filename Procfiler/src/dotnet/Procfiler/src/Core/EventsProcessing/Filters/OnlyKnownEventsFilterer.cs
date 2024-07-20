@@ -1,7 +1,7 @@
+using Core.Container;
 using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing.Filters.Core;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.EventsProcessing.Filters;
 

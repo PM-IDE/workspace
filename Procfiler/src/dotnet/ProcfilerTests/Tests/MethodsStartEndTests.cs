@@ -1,4 +1,5 @@
 using Autofac;
+using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Utils;
