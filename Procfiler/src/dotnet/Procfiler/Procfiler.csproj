@@ -51,7 +51,8 @@
     </ItemGroup>
 
     <Target Name="BuildCppProcfiler" AfterTargets="Build">
-        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\offline\"/>
+        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\offline\" 
+                           TargetName="Procfiler"/>
     </Target>
 
     <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfiler" Outputs="$(OutputPath)CppProcfiler.dll">

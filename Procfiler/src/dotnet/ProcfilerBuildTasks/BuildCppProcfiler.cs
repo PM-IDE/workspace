@@ -12,6 +12,7 @@ public class BuildCppProcfiler : Task
   private const string BuildFolderName = "build";
 
   [Required] public string CppProcfilerFolderPath { get; set; } = null!;
+  [Required] public string TargetName { get; set; } = null!;
 
 
   public override bool Execute()
@@ -70,7 +71,7 @@ public class BuildCppProcfiler : Task
     StartInfo = new ProcessStartInfo
     {
       FileName = FindCmakeExecutable(),
-      Arguments = "--build . --target Procfiler --config Release",
+      Arguments = $"--build . --target {TargetName} --config Release",
       WorkingDirectory = CreateBuildDirectoryPath()
     }
   };
