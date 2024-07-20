@@ -1,9 +1,10 @@
 using System.CommandLine;
+using Core.Builder;
 using Core.CppProcfiler;
+using Core.InstrumentalProfiler;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
-using Procfiler.Core.InstrumentalProfiler;
 using Procfiler.Utils;
 using TestsUtil;
 

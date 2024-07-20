@@ -1,7 +1,7 @@
+using Core.Builder;
 using Core.CppProcfiler;
 using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.InstrumentalProfiler;
 using Procfiler.Utils;
 
 namespace Procfiler.Commands.CollectClrEvents.Context;
@@ -26,17 +26,6 @@ public record struct CollectingClrEventsCommonContext(
   bool ClearArtifacts,
   bool WriteAllEventMetadata,
   LogFormat LogSerializationFormat
-);
-
-public record struct ProjectBuildInfo(
-  string CsprojPath,
-  string Tfm,
-  BuildConfiguration Configuration,
-  InstrumentationKind InstrumentationKind,
-  bool ClearArtifacts,
-  string? TempPath,
-  bool SelfContained,
-  string? AdditionalBuildArgs
 );
 
 public record CollectClrEventsContext(CollectingClrEventsCommonContext CommonContext);

@@ -1,4 +1,4 @@
-﻿namespace Procfiler.Core.Constants;
+﻿namespace Core.Constants;
 
 public static class DotNetConstants
 {

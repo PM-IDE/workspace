@@ -1,4 +1,4 @@
-namespace Procfiler.Core.Processes;
+namespace Core.Constants;
 
 public static class DotNetEnvs
 {

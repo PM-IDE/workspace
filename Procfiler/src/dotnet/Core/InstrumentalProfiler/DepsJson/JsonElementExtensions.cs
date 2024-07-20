@@ -1,4 +1,6 @@
-namespace Procfiler.Core.InstrumentalProfiler.DepsJson;
+using System.Text.Json;
+
+namespace Core.InstrumentalProfiler.DepsJson;
 
 public static class JsonElementExtensions
 {

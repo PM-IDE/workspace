@@ -1,10 +1,10 @@
 using Autofac;
+using Core.Builder;
 using Core.CppProcfiler;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.Processes;
-using Procfiler.Core.Processes.Builder;
 
 namespace ProcfilerTests.Core;
 

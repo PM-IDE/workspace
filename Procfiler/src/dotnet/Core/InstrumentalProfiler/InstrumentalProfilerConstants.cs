@@ -1,6 +1,6 @@
 using ProcfilerEventSources;
 
-namespace Procfiler.Core.InstrumentalProfiler;
+namespace Core.InstrumentalProfiler;
 
 public static class InstrumentalProfilerConstants
 {

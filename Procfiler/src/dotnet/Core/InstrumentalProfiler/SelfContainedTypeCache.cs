@@ -1,8 +1,9 @@
 using Core.CommandLine;
 using Core.Utils;
+using Microsoft.Extensions.Logging;
 using Mono.Cecil;
 
-namespace Procfiler.Core.InstrumentalProfiler;
+namespace Core.InstrumentalProfiler;
 
 public record AssemblyDefWithPath(AssemblyDefinition Assembly, string PhysicalPath);
 

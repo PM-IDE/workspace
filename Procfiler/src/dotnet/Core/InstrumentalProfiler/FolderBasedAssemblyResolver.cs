@@ -1,8 +1,9 @@
+using Core.Constants;
 using Core.Utils;
+using Microsoft.Extensions.Logging;
 using Mono.Cecil;
-using Procfiler.Core.Constants;
 
-namespace Procfiler.Core.InstrumentalProfiler;
+namespace Core.InstrumentalProfiler;
 
 public interface IAssembliesProvider
 {

@@ -1,7 +1,8 @@
+using System.Text.Json;
 using Core.Container;
 using Core.Utils;
 
-namespace Procfiler.Core.InstrumentalProfiler.DepsJson;
+namespace Core.InstrumentalProfiler.DepsJson;
 
 public interface IDepsJsonReader
 {

@@ -1,4 +1,5 @@
 using System.CommandLine.Binding;
+using Core.Builder;
 using Core.CommandLine;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Utils;

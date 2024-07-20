@@ -1,9 +1,12 @@
-﻿using Core.Container;
+﻿using System.Diagnostics;
+using System.Text;
+using Core.Constants;
+using Core.Container;
+using Core.InstrumentalProfiler;
 using Core.Utils;
-using Procfiler.Commands.CollectClrEvents.Context;
-using Procfiler.Core.InstrumentalProfiler;
+using Microsoft.Extensions.Logging;
 
-namespace Procfiler.Core.Processes.Builder;
+namespace Core.Builder;
 
 [AppComponent]
 public class DotnetProjectBuilderImpl(

@@ -1,7 +1,7 @@
+using Core.InstrumentalProfiler;
 using Core.Utils;
-using Procfiler.Commands.CollectClrEvents.Context;
 
-namespace Procfiler.Core.Processes.Builder;
+namespace Core.Builder;
 
 public readonly struct BuildResult(TempFolderCookie tempFolderCookie)
 {
@@ -10,6 +10,17 @@ public readonly struct BuildResult(TempFolderCookie tempFolderCookie)
 
   public void ClearUnderlyingFolder() => tempFolderCookie.Dispose();
 }
+
+public record struct ProjectBuildInfo(
+  string CsprojPath,
+  string Tfm,
+  BuildConfiguration Configuration,
+  InstrumentationKind InstrumentationKind,
+  bool ClearArtifacts,
+  string? TempPath,
+  bool SelfContained,
+  string? AdditionalBuildArgs
+);
 
 public interface IDotnetProjectBuilder
 {

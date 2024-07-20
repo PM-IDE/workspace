@@ -1,4 +1,4 @@
-namespace Procfiler.Core.InstrumentalProfiler.DepsJson;
+namespace Core.InstrumentalProfiler.DepsJson;
 
 public class DepsJsonFile
 {

@@ -2,7 +2,7 @@
 using Core.Utils;
 using Mono.Cecil;
 
-namespace Procfiler.Core.InstrumentalProfiler.DepsJson;
+namespace Core.InstrumentalProfiler.DepsJson;
 
 public interface IDepsJsonPatcher
 {

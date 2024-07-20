@@ -1,5 +1,5 @@
 using Autofac;
-using Procfiler.Core.InstrumentalProfiler.DepsJson;
+using Core.InstrumentalProfiler.DepsJson;
 using ProcfilerTests.Core;
 using TestsUtil;
 
