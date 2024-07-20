@@ -3,7 +3,6 @@ using Core.Utils;
 using Procfiler.Core.Documentation.Markdown;
 using Procfiler.Core.EventsProcessing.Filters.Core;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.Documentation.Providers;
 

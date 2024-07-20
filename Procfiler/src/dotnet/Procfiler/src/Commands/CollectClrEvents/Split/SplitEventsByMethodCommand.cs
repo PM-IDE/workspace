@@ -1,8 +1,8 @@
+using Core.CommandLine;
 using Core.Container;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Base;
 using Procfiler.Commands.CollectClrEvents.Context;
-using Procfiler.Core;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;

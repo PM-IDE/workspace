@@ -1,9 +1,9 @@
-﻿using Core.Container;
+﻿using Core.CommandLine;
+using Core.Container;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Base;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Commands.CollectClrEvents.Split;
-using Procfiler.Core;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.Serialization.Bxes;

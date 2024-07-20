@@ -1,4 +1,6 @@
-namespace Procfiler.Core.Exceptions;
+using System.CommandLine;
+
+namespace Core.CommandLine;
 
 public class MissingOptionException(Option option) : ProcfilerException($"Missing option {option.Name}");
 

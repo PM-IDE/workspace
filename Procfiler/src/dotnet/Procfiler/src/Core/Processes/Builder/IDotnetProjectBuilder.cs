@@ -1,6 +1,5 @@
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Context;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.Processes.Builder;
 

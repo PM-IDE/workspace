@@ -3,7 +3,6 @@ using Procfiler.Core.Collector;
 using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 

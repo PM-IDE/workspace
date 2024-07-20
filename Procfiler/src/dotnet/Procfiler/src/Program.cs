@@ -1,8 +1,7 @@
 ﻿using Autofac;
+using Core.CommandLine;
 using Core.Container;
 using Core.Utils;
-using Procfiler.Core;
-using Procfiler.Utils;
 
 var builder = ProcfilerContainerBuilder.BuildFromAssembly(LogLevel.Information);
 builder.RegisterType(typeof(ProcfilerLogger)).As<IProcfilerLogger>();

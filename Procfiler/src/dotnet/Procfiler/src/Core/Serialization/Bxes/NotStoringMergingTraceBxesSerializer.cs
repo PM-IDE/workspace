@@ -4,7 +4,6 @@ using Bxes.Writer.Stream;
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.Serialization.Core;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.Serialization.Bxes;
 

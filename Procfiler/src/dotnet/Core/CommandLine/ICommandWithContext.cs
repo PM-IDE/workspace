@@ -1,4 +1,7 @@
-namespace Procfiler.Core;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+
+namespace Core.CommandLine;
 
 public interface IVisibleToUserCommand : ICommandHandler
 {

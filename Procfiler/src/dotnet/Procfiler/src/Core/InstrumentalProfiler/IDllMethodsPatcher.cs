@@ -5,7 +5,6 @@ using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 using Procfiler.Core.Constants;
 using Procfiler.Core.InstrumentalProfiler.DepsJson;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.InstrumentalProfiler;
 

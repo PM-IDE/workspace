@@ -1,4 +1,4 @@
-using Procfiler.Core.Exceptions;
+using Core.CommandLine;
 
 namespace Procfiler.Core.EventRecord;
 

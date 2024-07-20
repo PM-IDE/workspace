@@ -5,7 +5,6 @@ using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.SplitByMethod;
-using Procfiler.Utils;
 using ProcfilerTests.Core;
 
 namespace ProcfilerTests.Tests.SplitByMethods;

@@ -4,7 +4,6 @@ using Procfiler.Core.Constants.XesLifecycle;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.Exceptions;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities;
 

@@ -2,7 +2,6 @@ using Core.Utils;
 using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.EventsProcessing.Mutators;
 

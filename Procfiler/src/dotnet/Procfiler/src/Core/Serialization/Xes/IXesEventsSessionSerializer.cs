@@ -6,7 +6,6 @@ using Procfiler.Core.Constants.XesLifecycle;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.Serialization.Core;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.Serialization.Xes;
 

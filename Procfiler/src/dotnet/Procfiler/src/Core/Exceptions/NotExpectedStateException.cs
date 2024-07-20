@@ -1,3 +1,5 @@
+using Core.CommandLine;
+
 namespace Procfiler.Core.Exceptions;
 
 public class NotExpectedStateException(

@@ -3,7 +3,6 @@ using Core.CppProcfiler;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
-using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.InstrumentalProfiler;
 using Procfiler.Utils;
 using TestsUtil;

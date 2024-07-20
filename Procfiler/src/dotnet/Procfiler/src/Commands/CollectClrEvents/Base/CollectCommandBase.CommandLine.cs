@@ -1,6 +1,6 @@
 using System.CommandLine.Binding;
+using Core.CommandLine;
 using Procfiler.Commands.CollectClrEvents.Context;
-using Procfiler.Core.Exceptions;
 using Procfiler.Utils;
 
 namespace Procfiler.Commands.CollectClrEvents.Base;
@@ -9,25 +9,12 @@ public abstract partial class CollectCommandBase
 {
   public Task<int> InvokeAsync(InvocationContext context) => Task.Run(() => Invoke(context));
 
-  public int Invoke(InvocationContext context)
-  {
-    var parseResult = context.ParseResult;
-    if (CheckForParserErrors(parseResult)) return -1;
-
-    CheckForPidOrExePathOrThrow(parseResult);
-
-    try
+  public int Invoke(InvocationContext context) =>
+    CommandLineUtils.TransformAndExecute(context, Logger, Execute, parseResult =>
     {
-      Execute(CreateCollectClrContextFrom(parseResult));
-    }
-    catch (Exception ex)
-    {
-      Logger.LogError(ex.Message);
-      return -1;
-    }
-
-    return 0;
-  }
+      CheckForPidOrExePathOrThrow(parseResult);
+      return CreateCollectClrContextFrom(parseResult);
+    });
 
   public Command CreateCommand()
   {
@@ -192,18 +179,5 @@ public abstract partial class CollectCommandBase
     {
       throw new OneOfFollowingOptionsMustBeSpecifiedException(ProcessIdOption, PathToCsprojOption);
     }
-  }
-
-  private bool CheckForParserErrors(ParseResult parseResult)
-  {
-    var errors = parseResult.Errors;
-    if (errors.Count <= 0) return false;
-
-    foreach (var error in errors)
-    {
-      Logger.LogError(error.Message);
-    }
-
-    return true;
   }
 }

@@ -8,7 +8,6 @@ using Core.Utils;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.SplitByMethod;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.Serialization.Bxes;
 

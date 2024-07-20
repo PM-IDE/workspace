@@ -1,6 +1,5 @@
 using Core.Utils;
 using Procfiler.Core.EventRecord;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.EventsCollection;
 

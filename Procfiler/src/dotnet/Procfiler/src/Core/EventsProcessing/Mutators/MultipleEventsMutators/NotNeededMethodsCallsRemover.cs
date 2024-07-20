@@ -5,7 +5,6 @@ using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 

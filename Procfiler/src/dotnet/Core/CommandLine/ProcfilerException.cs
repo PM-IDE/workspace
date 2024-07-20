@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Procfiler.Core.Exceptions;
+namespace Core.CommandLine;
 
 public abstract class ProcfilerException : Exception
 {

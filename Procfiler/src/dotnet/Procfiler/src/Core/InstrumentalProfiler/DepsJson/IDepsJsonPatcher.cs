@@ -1,7 +1,6 @@
 ﻿using Core.Container;
 using Core.Utils;
 using Mono.Cecil;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.InstrumentalProfiler.DepsJson;
 

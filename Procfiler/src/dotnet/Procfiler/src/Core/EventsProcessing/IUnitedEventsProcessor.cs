@@ -6,7 +6,6 @@ using Procfiler.Core.EventsProcessing.Filters.Core;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.EventsProcessing;
 
