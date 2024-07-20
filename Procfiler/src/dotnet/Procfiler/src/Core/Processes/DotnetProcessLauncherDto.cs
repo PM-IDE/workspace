@@ -52,7 +52,7 @@ public readonly struct DotnetProcessLauncherDto
     Arguments = context.Arguments,
     RedirectOutput = context.PrintProcessOutput,
     PathToDotnetExecutable = commandName,
-    CppProcfilerPath = locator.FindCppProcfilerPath(),
+    CppProcfilerPath = locator.FindCppProcfilerPath("CppProcfiler"),
     MethodsFilterRegex = context.CppProcfilerMethodsFilterRegex,
     CppProfilerMode = context.CppProfilerMode,
     UseDuringRuntimeFiltering = context.UseDuringRuntimeFiltering,

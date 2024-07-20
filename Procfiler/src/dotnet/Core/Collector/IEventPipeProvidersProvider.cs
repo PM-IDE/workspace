@@ -1,7 +1,11 @@
+using System.Diagnostics.Tracing;
 using Core.Container;
+using Microsoft.Diagnostics.NETCore.Client;
+using Microsoft.Diagnostics.Tracing.EventPipe;
+using Microsoft.Diagnostics.Tracing.Parsers;
 using ProcfilerEventSources;
 
-namespace Procfiler.Core.Collector;
+namespace Core.Collector;
 
 public enum ProvidersCategoryKind
 {

@@ -1,17 +1,18 @@
 using Core.Container;
 using Core.Utils;
+using Microsoft.Extensions.Logging;
 
-namespace Procfiler.Core.CppProcfiler;
+namespace Core.CppProcfiler;
 
 public interface ICppProcfilerLocator
 {
-  string FindCppProcfilerPath();
+  string FindCppProcfilerPath(string cppProcfilerDllName);
 }
 
 [AppComponent]
 public class CppProcfilerLocatorImpl(IProcfilerLogger logger) : ICppProcfilerLocator
 {
-  public string FindCppProcfilerPath()
+  public string FindCppProcfilerPath(string cppProcfilerDllName)
   {
     var procfilerAssemblyLocation = Path.GetDirectoryName(GetType().Assembly.Location);
     if (procfilerAssemblyLocation is null)
@@ -20,7 +21,7 @@ public class CppProcfilerLocatorImpl(IProcfilerLogger logger) : ICppProcfilerLoc
       throw new FileNotFoundException();
     }
 
-    var path = Path.Combine(procfilerAssemblyLocation, "CppProcfiler.dll");
+    var path = Path.Combine(procfilerAssemblyLocation, $"{cppProcfilerDllName}.dll");
     if (!File.Exists(path))
     {
       logger.LogError("The CppProcfiler.dll does not exist here: {Path}", path);

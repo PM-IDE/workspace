@@ -1,8 +1,9 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
-using Core.Builder;
 using Core.CommandLine;
+using Core.Container;
 using Core.Utils;
+using ProcfilerOnline.Core;
 
 namespace ProcfilerOnline.Commands;
 
@@ -11,7 +12,8 @@ public record CollectEventsOnlineContext(
   string OutputBxesFilePath
 );
 
-public class CollectEventsOnlineCommand(IProcfilerLogger logger) : ICommandWithContext<CollectEventsOnlineContext>
+[AppComponent]
+public class CollectEventsOnlineCommand(IProcfilerLogger logger, IOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
 {
   private static Option<string> DllPathOption { get; } = new("--dll-path", "The path to dll to profile");
   private static Option<string> OutputPath { get; } = new("--output-path", "The output path for bXES file");
@@ -19,6 +21,7 @@ public class CollectEventsOnlineCommand(IProcfilerLogger logger) : ICommandWithC
 
   public void Execute(CollectEventsOnlineContext context)
   {
+    processor.StartProfiling(context);
   }
 
   public int Invoke(InvocationContext context) =>
@@ -39,6 +42,8 @@ public class CollectEventsOnlineCommand(IProcfilerLogger logger) : ICommandWithC
     var command = new Command("collect-online", "Collect events online from launched .NET dll");
     command.AddOption(DllPathOption);
     command.AddOption(OutputPath);
+
+    command.Handler = this;
 
     return command;
   }

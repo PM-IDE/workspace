@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using Core.Container;
 using Core.Utils;
 
-namespace Procfiler.Core.Collector;
+namespace Core.Collector;
 
 public interface ITransportCreationWaiter
 {

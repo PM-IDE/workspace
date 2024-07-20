@@ -8,11 +8,10 @@ namespace Core.Container;
 
 public static class ProcfilerContainerBuilder
 {
-  public static ContainerBuilder BuildFromAssembly(LogLevel logLevel, Assembly? assembly = null)
+  public static ContainerBuilder BuildFromAssembly(LogLevel logLevel, IReadOnlyList<Assembly> assemblies)
   {
-    assembly ??= Assembly.GetEntryAssembly();
     var builder = new ContainerBuilder();
-    builder.RegisterAssemblyTypes(assembly!)
+    builder.RegisterAssemblyTypes(assemblies.ToArray())
       .Where(t => t.IsClass && t.GetCustomAttribute<AppComponentAttribute>() is { })
       .AsImplementedInterfaces();
 
