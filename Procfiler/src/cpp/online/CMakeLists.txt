@@ -11,6 +11,25 @@ set(SOURCES
     ClassFactory.cpp
     guids.cpp
     corprofiler/ProcfilerCorProfilerCallback.cpp
+    corprofiler/eventpipe/EventPipeWriter.cpp
+    ../shared/info/FunctionInfo.cpp
+    ../shared/info/TypeInfo.cpp
+    ../shared/info/MethodSignature.cpp
+    ../shared/info/MethodSignature.h
+    ../shared/info/GenericMethodSignature.cpp
+    ../shared/info/GenericMethodSignature.h
+    ../shared/util/const.h
+    ../shared/util/util.cpp
+    ../shared/util/helpers.cpp
+    ../shared/info/AssemblyInfo.cpp
+    ../shared/info/ModuleInfo.cpp
+    ../shared/info/parser.cpp
+    ../shared/miniutf/miniutf.cpp
+    ../shared/miniutf/miniutf.hpp
+    ../shared/util/env_constants.h
+    ../shared/util/env_constants.cpp
+    ../shared/util/performance_counter.h
+    corprofiler/eventpipe/FunctionEvent.h
 )
 
 include_directories(../3rdparty/coreclr/pal/prebuilt/inc)

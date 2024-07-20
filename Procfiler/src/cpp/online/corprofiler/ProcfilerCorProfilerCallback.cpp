@@ -1,22 +1,25 @@
 #include "ProcfilerCorProfilerCallback.h"
 
-ProcfilerCorProfilerCallback* ourCallback;
+#include "eventpipe/FunctionEvent.h"
+#include "performance_counter.h"
 
-ProcfilerCorProfilerCallback* GetCallbackInstance() {
+ProcfilerCorProfilerCallback *ourCallback;
+
+ProcfilerCorProfilerCallback *GetCallbackInstance() {
     return ourCallback;
 }
 
 void StaticHandleFunctionEnter2(FunctionID funcId,
                                 UINT_PTR clientData,
                                 COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) {
+                                COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
     GetCallbackInstance()->HandleFunctionEnter2(funcId, clientData, func, argumentInfo);
 }
 
 void StaticHandleFunctionLeave2(FunctionID funcId,
                                 UINT_PTR clientData,
                                 COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange) {
+                                COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
     GetCallbackInstance()->HandleFunctionLeave2(funcId, clientData, func, retvalRange);
 }
 
@@ -30,26 +33,29 @@ void StaticHandleFunctionTailCall(FunctionID funcId,
 void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) {
+                                                        COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
+    myWriter->LogFunctionEvent(FunctionEvent(funcId, Started, GetCurrentTimestamp()), GetCurrentManagedThreadId());
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionLeave2(FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange) {
+                                                        COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
+    myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()), GetCurrentManagedThreadId());
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionTailCall(FunctionID funcId,
                                                           UINT_PTR clientData,
                                                           COR_PRF_FRAME_INFO func) {
+    myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()), GetCurrentManagedThreadId());
 }
 
-ICorProfilerInfo12* ProcfilerCorProfilerCallback::GetProfilerInfo() {
+ICorProfilerInfo12 *ProcfilerCorProfilerCallback::GetProfilerInfo() {
     return myProfilerInfo;
 }
 
-HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk) {
-    void** ptr = reinterpret_cast<void**>(&this->myProfilerInfo);
+HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk) {
+    void **ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
 
     HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
     if (FAILED(result)) {
@@ -61,6 +67,9 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk)
     if (FAILED(result)) {
         return E_FAIL;
     }
+
+    myWriter = new EventPipeWriter(myProfilerInfo);
+    myWriter->Init();
 
     result = myProfilerInfo->SetEnterLeaveFunctionHooks2(StaticHandleFunctionEnter2,
                                                          StaticHandleFunctionLeave2,
@@ -86,9 +95,9 @@ HRESULT ProcfilerCorProfilerCallback::Shutdown() {
     return S_OK;
 }
 
-ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback() :
-        myRefCount(0),
-        myProfilerInfo(nullptr) {
+ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback() : myRefCount(0),
+                                                               myProfilerInfo(nullptr),
+                                                               myWriter(nullptr) {
     ourCallback = this;
 }
 
@@ -173,7 +182,7 @@ ProcfilerCorProfilerCallback::JITCompilationFinished(FunctionID functionId, HRES
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::JITCachedFunctionSearchStarted(FunctionID functionId, BOOL* pbUseCachedFunction) {
+HRESULT ProcfilerCorProfilerCallback::JITCachedFunctionSearchStarted(FunctionID functionId, BOOL *pbUseCachedFunction) {
     return S_OK;
 }
 
@@ -185,7 +194,7 @@ HRESULT ProcfilerCorProfilerCallback::JITFunctionPitched(FunctionID functionId) 
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::JITInlining(FunctionID callerId, FunctionID calleeId, BOOL* pfShouldInline) {
+HRESULT ProcfilerCorProfilerCallback::JITInlining(FunctionID callerId, FunctionID calleeId, BOOL *pfShouldInline) {
     return S_OK;
 }
 
@@ -205,11 +214,11 @@ HRESULT ProcfilerCorProfilerCallback::RemotingClientInvocationStarted() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingClientSendingMessage(GUID* pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingClientSendingMessage(GUID *pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingClientReceivingReply(GUID* pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingClientReceivingReply(GUID *pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
@@ -217,7 +226,7 @@ HRESULT ProcfilerCorProfilerCallback::RemotingClientInvocationFinished() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingServerReceivingMessage(GUID* pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingServerReceivingMessage(GUID *pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
@@ -229,7 +238,7 @@ HRESULT ProcfilerCorProfilerCallback::RemotingServerInvocationReturned() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingServerSendingReply(GUID* pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingServerSendingReply(GUID *pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
@@ -272,9 +281,9 @@ HRESULT ProcfilerCorProfilerCallback::RuntimeThreadResumed(ThreadID threadId) {
 }
 
 HRESULT ProcfilerCorProfilerCallback::MovedReferences(ULONG cMovedObjectIDRanges,
-                                                      ObjectID* oldObjectIDRangeStart,
-                                                      ObjectID* newObjectIDRangeStart,
-                                                      ULONG* cObjectIDRangeLength) {
+                                                      ObjectID *oldObjectIDRangeStart,
+                                                      ObjectID *newObjectIDRangeStart,
+                                                      ULONG *cObjectIDRangeLength) {
     return S_OK;
 }
 
@@ -282,18 +291,18 @@ HRESULT ProcfilerCorProfilerCallback::ObjectAllocated(ObjectID objectId, ClassID
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::ObjectsAllocatedByClass(ULONG cClassCount, ClassID* classIds, ULONG* cObjects) {
+HRESULT ProcfilerCorProfilerCallback::ObjectsAllocatedByClass(ULONG cClassCount, ClassID *classIds, ULONG *cObjects) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::ObjectReferences(ObjectID objectId,
                                                        ClassID classId,
                                                        ULONG cObjectRefs,
-                                                       ObjectID* objectRefIds) {
+                                                       ObjectID *objectRefIds) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RootReferences(ULONG cRootRefs, ObjectID* rootRefIds) {
+HRESULT ProcfilerCorProfilerCallback::RootReferences(ULONG cRootRefs, ObjectID *rootRefIds) {
     return S_OK;
 }
 
@@ -351,15 +360,15 @@ HRESULT ProcfilerCorProfilerCallback::ExceptionCatcherLeave() {
 
 HRESULT
 ProcfilerCorProfilerCallback::COMClassicVTableCreated(ClassID wrappedClassId,
-                                                      const GUID& implementedIID,
-                                                      void* pVTable,
+                                                      const GUID &implementedIID,
+                                                      void *pVTable,
                                                       ULONG cSlots) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::COMClassicVTableDestroyed(ClassID wrappedClassId,
-                                                                const GUID& implementedIID,
-                                                                void* pVTable) {
+                                                                const GUID &implementedIID,
+                                                                void *pVTable) {
     return S_OK;
 }
 
@@ -371,19 +380,19 @@ HRESULT ProcfilerCorProfilerCallback::ExceptionCLRCatcherExecute() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::ThreadNameChanged(ThreadID threadId, ULONG cchName, WCHAR* name) {
+HRESULT ProcfilerCorProfilerCallback::ThreadNameChanged(ThreadID threadId, ULONG cchName, WCHAR *name) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::GarbageCollectionStarted(int cGenerations,
-                                                               BOOL* generationCollected,
+                                                               BOOL *generationCollected,
                                                                COR_PRF_GC_REASON reason) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::SurvivingReferences(ULONG cSurvivingObjectIDRanges,
-                                                          ObjectID* objectIDRangeStart,
-                                                          ULONG* cObjectIDRangeLength) {
+                                                          ObjectID *objectIDRangeStart,
+                                                          ULONG *cObjectIDRangeLength) {
     return S_OK;
 }
 
@@ -397,10 +406,10 @@ HRESULT ProcfilerCorProfilerCallback::FinalizeableObjectQueued(DWORD finalizerFl
 
 HRESULT
 ProcfilerCorProfilerCallback::RootReferences2(ULONG cRootRefs,
-                                              ObjectID* rootRefIds,
-                                              COR_PRF_GC_ROOT_KIND* rootKinds,
-                                              COR_PRF_GC_ROOT_FLAGS* rootFlags,
-                                              UINT_PTR* rootIds) {
+                                              ObjectID *rootRefIds,
+                                              COR_PRF_GC_ROOT_KIND *rootKinds,
+                                              COR_PRF_GC_ROOT_FLAGS *rootFlags,
+                                              UINT_PTR *rootIds) {
     return S_OK;
 }
 
@@ -412,8 +421,8 @@ HRESULT ProcfilerCorProfilerCallback::HandleDestroyed(GCHandleID handleId) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::InitializeForAttach(IUnknown* pCorProfilerInfoUnk,
-                                                          void* pvClientData,
+HRESULT ProcfilerCorProfilerCallback::InitializeForAttach(IUnknown *pCorProfilerInfoUnk,
+                                                          void *pvClientData,
                                                           UINT cbClientData) {
     return S_OK;
 }
@@ -433,7 +442,7 @@ ProcfilerCorProfilerCallback::ReJITCompilationStarted(FunctionID functionId, ReJ
 
 HRESULT ProcfilerCorProfilerCallback::GetReJITParameters(ModuleID moduleId,
                                                          mdMethodDef methodId,
-                                                         ICorProfilerFunctionControl* pFunctionControl) {
+                                                         ICorProfilerFunctionControl *pFunctionControl) {
     return S_OK;
 }
 
@@ -452,27 +461,27 @@ HRESULT ProcfilerCorProfilerCallback::ReJITError(ModuleID moduleId,
 }
 
 HRESULT ProcfilerCorProfilerCallback::MovedReferences2(ULONG cMovedObjectIDRanges,
-                                                       ObjectID* oldObjectIDRangeStart,
-                                                       ObjectID* newObjectIDRangeStart,
-                                                       SIZE_T* cObjectIDRangeLength) {
+                                                       ObjectID *oldObjectIDRangeStart,
+                                                       ObjectID *newObjectIDRangeStart,
+                                                       SIZE_T *cObjectIDRangeLength) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::SurvivingReferences2(ULONG cSurvivingObjectIDRanges,
-                                                           ObjectID* objectIDRangeStart,
-                                                           SIZE_T* cObjectIDRangeLength) {
+                                                           ObjectID *objectIDRangeStart,
+                                                           SIZE_T *cObjectIDRangeLength) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::ConditionalWeakTableElementReferences(ULONG cRootRefs,
-                                                                            ObjectID* keyRefIds,
-                                                                            ObjectID* valueRefIds,
-                                                                            GCHandleID* rootIds) {
+                                                                            ObjectID *keyRefIds,
+                                                                            ObjectID *valueRefIds,
+                                                                            GCHandleID *rootIds) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::GetAssemblyReferences(const WCHAR* wszAssemblyPath,
-                                                            ICorProfilerAssemblyReferenceProvider* pAsmRefProvider) {
+HRESULT ProcfilerCorProfilerCallback::GetAssemblyReferences(const WCHAR *wszAssemblyPath,
+                                                            ICorProfilerAssemblyReferenceProvider *pAsmRefProvider) {
     return S_OK;
 }
 
@@ -498,7 +507,7 @@ HRESULT ProcfilerCorProfilerCallback::EventPipeProviderCreated(EVENTPIPE_PROVIDE
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::LoadAsNotificationOnly(BOOL* pbNotificationOnly) {
+HRESULT ProcfilerCorProfilerCallback::LoadAsNotificationOnly(BOOL *pbNotificationOnly) {
     return S_OK;
 }
 
@@ -513,12 +522,15 @@ HRESULT ProcfilerCorProfilerCallback::EventPipeEventDelivered(EVENTPIPE_PROVIDER
                                                               LPCGUID pRelatedActivityId,
                                                               ThreadID eventThread,
                                                               ULONG numStackFrames,
-                                                              UINT_PTR* stackFrames) {
+                                                              UINT_PTR *stackFrames) {
     return S_OK;
 }
 
 ProcfilerCorProfilerCallback::~ProcfilerCorProfilerCallback() {
     myProfilerInfo = nullptr;
+
+    delete myWriter;
+    myWriter = nullptr;
 }
 
 DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() {
@@ -531,8 +543,18 @@ DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() {
     return id;
 }
 
+int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() {
+    LARGE_INTEGER value;
 
-HRESULT STDMETHODCALLTYPE ProcfilerCorProfilerCallback::QueryInterface(REFIID riid, void** ppvObject) {
+    if (!QueryPerformanceCounter2(&value)) {
+        return -1;
+    }
+
+    return value.QuadPart;
+}
+
+
+HRESULT STDMETHODCALLTYPE ProcfilerCorProfilerCallback::QueryInterface(REFIID riid, void **ppvObject) {
     if (riid == IID_ICorProfilerCallback11 ||
         riid == IID_ICorProfilerCallback10 ||
         riid == IID_ICorProfilerCallback9 ||

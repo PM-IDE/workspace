@@ -12,7 +12,8 @@ public enum ProvidersCategoryKind
   All,
   Gc,
   GcAllocHigh,
-  GcAllocLow
+  GcAllocLow,
+  CppProcfiler
 }
 
 public interface IEventPipeProvidersProvider
@@ -65,6 +66,10 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocLowKeywords)
+      ],
+      [ProvidersCategoryKind.CppProcfiler] =
+      [
+        new(ProcfilerCppProvider, EventLevel.LogAlways)
       ]
     };
 

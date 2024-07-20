@@ -4,14 +4,16 @@
 #include "cor.h"
 #include "corprof.h"
 #include <atomic>
+#include "eventpipe/EventPipeWriter.h"
 
 class ProcfilerCorProfilerCallback : public ICorProfilerCallback11 {
 private:
     ICorProfilerInfo12* myProfilerInfo;
     std::atomic<int> myRefCount;
+    EventPipeWriter* myWriter;
 
     DWORD GetCurrentManagedThreadId();
-
+    int64_t GetCurrentTimestamp();
 public:
     explicit ProcfilerCorProfilerCallback();
     ~ProcfilerCorProfilerCallback();

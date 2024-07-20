@@ -34,19 +34,20 @@ public class ClrOnlineEventsProcessor(
 
     var client = new DiagnosticsClient(process.Id);
     transportCreationWaiter.WaitUntilTransportIsCreatedOrThrow(process.Id);
-    var session = client.StartEventPipeSession(providersProvider.GetProvidersFor(ProvidersCategoryKind.All));
+
+    var providers = providersProvider.GetProvidersFor(ProvidersCategoryKind.CppProcfiler);
+    var session = client.StartEventPipeSession(providers, requestRundown: false, circularBufferMB: 2048);
     var eventPipeEventSource = CreateEventPipeSource(session);
 
     client.ResumeRuntime();
 
-    Thread.Sleep(10000);
+    eventPipeEventSource.Process();
   }
 
   private EventPipeEventSource CreateEventPipeSource(EventPipeSession session)
   {
     var source = new EventPipeEventSource(session.EventStream);
-
-    source.AllEvents += traceEvent =>
+    source.Dynamic.All += traceEvent =>
     {
       logger.LogInformation(traceEvent.EventName);
     };

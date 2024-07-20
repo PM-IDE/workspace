@@ -12,26 +12,26 @@ set(SOURCES
     corprofiler/ProcfilerCorProfilerCallback.cpp
     guids.cpp
     logging/ProcfilerLogger.cpp
-        ../shared/info/FunctionInfo.cpp
-        ../shared/info/TypeInfo.cpp
-        ../shared/info/MethodSignature.cpp
-        ../shared/info/MethodSignature.h
-        ../shared/info/GenericMethodSignature.cpp
-        ../shared/info/GenericMethodSignature.h
-        ../shared/util/const.h
-        ../shared/util/util.cpp
-        ../shared/util/helpers.cpp
+    ../shared/info/FunctionInfo.cpp
+    ../shared/info/TypeInfo.cpp
+    ../shared/info/MethodSignature.cpp
+    ../shared/info/MethodSignature.h
+    ../shared/info/GenericMethodSignature.cpp
+    ../shared/info/GenericMethodSignature.h
+    ../shared/util/const.h
+    ../shared/util/util.cpp
+    ../shared/util/helpers.cpp
     ../shared/info/AssemblyInfo.cpp
-        ../shared/info/ModuleInfo.cpp
-        ../shared/info/parser.cpp
-        ../shared/miniutf/miniutf.cpp
-        ../shared/miniutf/miniutf.hpp
+    ../shared/info/ModuleInfo.cpp
+    ../shared/info/parser.cpp
+    ../shared/miniutf/miniutf.cpp
+    ../shared/miniutf/miniutf.hpp
     corprofiler/shadowstack/ShadowStack.cpp
-        ../shared/util/env_constants.h
+    ../shared/util/env_constants.h
     corprofiler/shadowstack/serializers/EventPipeShadowStackSerializer.cpp
     corprofiler/shadowstack/serializers/BinaryShadowStackSerializer.cpp
     corprofiler/shadowstack/serializers/DebugShadowStackSerializer.cpp
-        ../shared/util/env_constants.cpp
+    ../shared/util/env_constants.cpp
     corprofiler/shadowstack/serializers/EventPipeShadowStackSerializer.h
     corprofiler/shadowstack/serializers/BinaryShadowStackSerializer.h
     corprofiler/shadowstack/serializers/DebugShadowStackSerializer.h
