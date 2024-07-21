@@ -22,8 +22,8 @@ private:
     const UINT32 ourMethodEndEventId = 8001;
     const UINT32 ourMethodInfoEventId = 8002;
 
-    const wstring ourMethodStartEventName = ToWString("ProcfilerMethodStart");
-    const wstring ourMethodEndEventName = ToWString("ProcfilerMethodEnd");
+    const wstring ourMethodStartEventName = ToWString("ProcfilerMethod/Begin");
+    const wstring ourMethodEndEventName = ToWString("ProcfilerMethod/End");
     const wstring ourMethodInfoEventName = ToWString("ProcfilerMethodInfo");
     const wstring ourEventPipeProviderName = ToWString("ProcfilerCppEventPipeProvider");
 

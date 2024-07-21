@@ -3,7 +3,6 @@ using Core.Container;
 using Core.CppProcfiler;
 using Core.Utils;
 using Microsoft.Diagnostics.NETCore.Client;
-using Microsoft.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
 
@@ -21,7 +20,7 @@ public class ClrOnlineEventsProcessor(
   ICppProcfilerLocator locator,
   ITransportCreationWaiter transportCreationWaiter,
   IEventPipeProvidersProvider providersProvider
-  ) : IOnlineEventsProcessor
+) : IOnlineEventsProcessor
 {
   public void StartProfiling(CollectEventsOnlineContext context)
   {
@@ -36,22 +35,11 @@ public class ClrOnlineEventsProcessor(
     transportCreationWaiter.WaitUntilTransportIsCreatedOrThrow(process.Id);
 
     var providers = providersProvider.GetProvidersFor(ProvidersCategoryKind.CppProcfiler);
-    var session = client.StartEventPipeSession(providers, requestRundown: false, circularBufferMB: 2048);
-    var eventPipeEventSource = CreateEventPipeSource(session);
+    var session = client.StartEventPipeSession(providers, requestRundown: false, circularBufferMB: 1024);
 
     client.ResumeRuntime();
 
-    eventPipeEventSource.Process();
-  }
-
-  private EventPipeEventSource CreateEventPipeSource(EventPipeSession session)
-  {
-    var source = new EventPipeEventSource(session.EventStream);
-    source.Dynamic.All += traceEvent =>
-    {
-      logger.LogInformation(traceEvent.EventName);
-    };
-
-    return source;
+    var processor = new OnlineEventsProcessorImpl(logger);
+    processor.Process(session.EventStream);
   }
 }

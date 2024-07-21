@@ -33,20 +33,20 @@ void StaticHandleFunctionTailCall(const FunctionID funcId,
 void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
+                                                        COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) const {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Started, GetCurrentTimestamp()));
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
+                                                        COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) const {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId,
                                                           UINT_PTR clientData,
-                                                          COR_PRF_FRAME_INFO func) {
+                                                          COR_PRF_FRAME_INFO func) const {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
@@ -55,7 +55,7 @@ ICorProfilerInfo12 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
 }
 
 HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk) {
-    auto ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
+    const auto ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
 
     HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
     if (FAILED(result)) {
@@ -533,7 +533,7 @@ ProcfilerCorProfilerCallback::~ProcfilerCorProfilerCallback() {
     myWriter = nullptr;
 }
 
-DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() {
+DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() const {
     ThreadID threadId;
     myProfilerInfo->GetCurrentThreadID(&threadId);
 

@@ -21,17 +21,19 @@ public interface IEventPipeProvidersProvider
   IReadOnlyList<EventPipeProvider> GetProvidersFor(ProvidersCategoryKind category);
 }
 
+public static class EventPipeProvidersNames
+{
+  public const string FrameworkEventSource = "System.Diagnostics.Eventing.FrameworkEventSource";
+  public const string NetHttp = "System.Net.Http";
+  public const string NetSockets = "System.Net.Sockets";
+  public const string Runtime = "System.Runtime";
+  public const string ArrayPoolSource = "System.Buffers.ArrayPoolEventSource";
+  public const string ProcfilerCppProvider = "ProcfilerCppEventPipeProvider";
+}
+
 [AppComponent]
 public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
 {
-  private const string FrameworkEventSource = "System.Diagnostics.Eventing.FrameworkEventSource";
-  private const string NetHttp = "System.Net.Http";
-  private const string NetSockets = "System.Net.Sockets";
-  private const string Runtime = "System.Runtime";
-  private const string ArrayPoolSource = "System.Buffers.ArrayPoolEventSource";
-  private const string ProcfilerCppProvider = "ProcfilerCppEventPipeProvider";
-
-
   private static readonly IReadOnlyDictionary<ProvidersCategoryKind, EventPipeProvider[]> ourProvidersForCategories =
     new Dictionary<ProvidersCategoryKind, EventPipeProvider[]>
     {
@@ -41,13 +43,13 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
         new(SampleProfilerTraceEventParser.ProviderName, EventLevel.Verbose),
         new(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose, (long)TplEtwProviderTraceEventParser.Keywords.Default),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, ClrPrivateTraceEventParserKeywords),
-        new(FrameworkEventSource, EventLevel.Verbose, FrameworkTraceEventParserKeywords),
-        new(NetHttp, EventLevel.Verbose),
-        new(NetSockets, EventLevel.Verbose),
-        new(Runtime, EventLevel.Verbose),
-        new(ArrayPoolSource, EventLevel.Verbose),
+        new(EventPipeProvidersNames.FrameworkEventSource, EventLevel.Verbose, FrameworkTraceEventParserKeywords),
+        new(EventPipeProvidersNames.NetHttp, EventLevel.Verbose),
+        new(EventPipeProvidersNames.NetSockets, EventLevel.Verbose),
+        new(EventPipeProvidersNames.Runtime, EventLevel.Verbose),
+        new(EventPipeProvidersNames.ArrayPoolSource, EventLevel.Verbose),
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
-        new(ProcfilerCppProvider, EventLevel.LogAlways)
+        new(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways)
       ],
       [ProvidersCategoryKind.Gc] =
       [
@@ -69,7 +71,8 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
       ],
       [ProvidersCategoryKind.CppProcfiler] =
       [
-        new(ProcfilerCppProvider, EventLevel.LogAlways)
+        new(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways),
+        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)ClrTraceEventParser.Keywords.All),
       ]
     };
 

@@ -12,7 +12,7 @@ private:
     std::atomic<int> myRefCount;
     EventPipeWriter* myWriter;
 
-    DWORD GetCurrentManagedThreadId();
+    DWORD GetCurrentManagedThreadId() const;
     static int64_t GetCurrentTimestamp();
 public:
     explicit ProcfilerCorProfilerCallback();
@@ -23,14 +23,14 @@ public:
     void HandleFunctionEnter2(FunctionID funcId,
                               UINT_PTR clientData,
                               COR_PRF_FRAME_INFO func,
-                              COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo);
+                              COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) const;
 
     void HandleFunctionLeave2(FunctionID funcId,
                               UINT_PTR clientData,
                               COR_PRF_FRAME_INFO func,
-                              COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange);
+                              COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange) const;
 
-    void HandleFunctionTailCall(FunctionID funcId, UINT_PTR clientData, COR_PRF_FRAME_INFO func);
+    void HandleFunctionTailCall(FunctionID funcId, UINT_PTR clientData, COR_PRF_FRAME_INFO func) const;
 
     HRESULT STDMETHODCALLTYPE Initialize(IUnknown* pICorProfilerInfoUnk) override;
     HRESULT STDMETHODCALLTYPE Shutdown() override;
