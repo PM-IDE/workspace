@@ -13,12 +13,12 @@ private:
     EventPipeWriter* myWriter;
 
     DWORD GetCurrentManagedThreadId();
-    int64_t GetCurrentTimestamp();
+    static int64_t GetCurrentTimestamp();
 public:
     explicit ProcfilerCorProfilerCallback();
     ~ProcfilerCorProfilerCallback();
 
-    ICorProfilerInfo12* GetProfilerInfo();
+    ICorProfilerInfo12* GetProfilerInfo() const;
 
     void HandleFunctionEnter2(FunctionID funcId,
                               UINT_PTR clientData,

@@ -9,60 +9,60 @@ ProcfilerCorProfilerCallback *GetCallbackInstance() {
     return ourCallback;
 }
 
-void StaticHandleFunctionEnter2(FunctionID funcId,
-                                UINT_PTR clientData,
-                                COR_PRF_FRAME_INFO func,
+void StaticHandleFunctionEnter2(const FunctionID funcId,
+                                const UINT_PTR clientData,
+                                const COR_PRF_FRAME_INFO func,
                                 COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
     GetCallbackInstance()->HandleFunctionEnter2(funcId, clientData, func, argumentInfo);
 }
 
-void StaticHandleFunctionLeave2(FunctionID funcId,
-                                UINT_PTR clientData,
-                                COR_PRF_FRAME_INFO func,
+void StaticHandleFunctionLeave2(const FunctionID funcId,
+                                const UINT_PTR clientData,
+                                const COR_PRF_FRAME_INFO func,
                                 COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
     GetCallbackInstance()->HandleFunctionLeave2(funcId, clientData, func, retvalRange);
 }
 
-void StaticHandleFunctionTailCall(FunctionID funcId,
-                                  UINT_PTR clientData,
-                                  COR_PRF_FRAME_INFO func) {
+void StaticHandleFunctionTailCall(const FunctionID funcId,
+                                  const UINT_PTR clientData,
+                                  const COR_PRF_FRAME_INFO func) {
     GetCallbackInstance()->HandleFunctionTailCall(funcId, clientData, func);
 }
 
 
-void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
+void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
                                                         COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Started, GetCurrentTimestamp()), GetCurrentManagedThreadId());
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionLeave2(FunctionID funcId,
+void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
                                                         COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()), GetCurrentManagedThreadId());
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionTailCall(FunctionID funcId,
+void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId,
                                                           UINT_PTR clientData,
                                                           COR_PRF_FRAME_INFO func) {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()), GetCurrentManagedThreadId());
 }
 
-ICorProfilerInfo12 *ProcfilerCorProfilerCallback::GetProfilerInfo() {
+ICorProfilerInfo12 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
     return myProfilerInfo;
 }
 
 HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk) {
-    void **ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
+    auto ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
 
     HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
     if (FAILED(result)) {
         return E_FAIL;
     }
 
-    DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
+    constexpr DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
     result = myProfilerInfo->SetEventMask(eventMask);
     if (FAILED(result)) {
         return E_FAIL;
@@ -95,8 +95,8 @@ HRESULT ProcfilerCorProfilerCallback::Shutdown() {
     return S_OK;
 }
 
-ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback() : myRefCount(0),
-                                                               myProfilerInfo(nullptr),
+ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback() : myProfilerInfo(nullptr),
+                                                               myRefCount(0),
                                                                myWriter(nullptr) {
     ourCallback = this;
 }
@@ -553,7 +553,6 @@ int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() {
     return value.QuadPart;
 }
 
-
 HRESULT STDMETHODCALLTYPE ProcfilerCorProfilerCallback::QueryInterface(REFIID riid, void **ppvObject) {
     if (riid == IID_ICorProfilerCallback11 ||
         riid == IID_ICorProfilerCallback10 ||
@@ -581,7 +580,7 @@ ULONG STDMETHODCALLTYPE ProcfilerCorProfilerCallback::AddRef() {
 }
 
 ULONG STDMETHODCALLTYPE ProcfilerCorProfilerCallback::Release() {
-    int count = std::atomic_fetch_sub(&this->myRefCount, 1) - 1;
+    const int count = std::atomic_fetch_sub(&this->myRefCount, 1) - 1;
 
     if (count <= 0) {
         delete this;

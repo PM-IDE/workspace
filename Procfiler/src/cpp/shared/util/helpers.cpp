@@ -1,6 +1,5 @@
 #include <vector>
 
-#include "../info/AssemblyInfo.h"
 #include "const.h"
 #include "helpers.h"
 #include "util.h"

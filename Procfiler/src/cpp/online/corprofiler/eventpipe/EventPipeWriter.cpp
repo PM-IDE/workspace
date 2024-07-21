@@ -1,7 +1,6 @@
 #include "EventPipeWriter.h"
 
 #include <FunctionInfo.h>
-#include <map>
 #include <util.h>
 
 #include "FunctionEvent.h"
@@ -15,7 +14,7 @@ void EventPipeWriter::Init() {
 }
 
 HRESULT EventPipeWriter::DefineProcfilerMethodStartEvent() {
-    return DefineMethodStartOrEndEventInternal(ToWString("ProcfilerMethodStart"),
+    return DefineMethodStartOrEndEventInternal(ourMethodStartEventName,
                                                myEventPipeProvider,
                                                &myMethodStartEvent,
                                                myProfilerInfo,
@@ -23,7 +22,7 @@ HRESULT EventPipeWriter::DefineProcfilerMethodStartEvent() {
 }
 
 HRESULT EventPipeWriter::DefineProcfilerMethodEndEvent() {
-    return DefineMethodStartOrEndEventInternal(ToWString("ProcfilerMethodEnd"),
+    return DefineMethodStartOrEndEventInternal(ourMethodEndEventName,
                                                myEventPipeProvider,
                                                &myMethodEndEvent,
                                                myProfilerInfo,
@@ -36,7 +35,7 @@ HRESULT EventPipeWriter::DefineProcfilerMethodInfoEvent() {
         {COR_PRF_EVENTPIPE_STRING, 0, ToWString("FunctionName").c_str()},
     };
 
-    auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
+    constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
 
     return myProfilerInfo->EventPipeDefineEvent(
         myEventPipeProvider,
@@ -58,17 +57,17 @@ HRESULT EventPipeWriter::DefineProcfilerEventPipeProvider() {
 }
 
 HRESULT EventPipeWriter::DefineMethodStartOrEndEventInternal(const wstring &eventName,
-                                                             EVENTPIPE_PROVIDER provider,
-                                                             EVENTPIPE_EVENT *outEventId,
+                                                             const EVENTPIPE_PROVIDER provider,
+                                                             EVENTPIPE_EVENT *eventPipeEventId,
                                                              ICorProfilerInfo12 *profilerInfo,
-                                                             UINT32 eventId) {
+                                                             const UINT32 eventId) {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
         {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("Timestamp").c_str()},
         {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("FunctionId").c_str()},
         {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("ThreadId").c_str()},
     };
 
-    auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
+    constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
 
     return profilerInfo->EventPipeDefineEvent(
         provider,
@@ -81,7 +80,7 @@ HRESULT EventPipeWriter::DefineMethodStartOrEndEventInternal(const wstring &even
         false,
         paramsCount,
         eventParameters,
-        outEventId
+        eventPipeEventId
     );
 }
 
@@ -106,8 +105,8 @@ HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
     return S_OK;
 }
 
-HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event, const DWORD &threadId) {
-    auto eventPipeEvent = event.EventKind == FunctionEventKind::Started ? myMethodStartEvent : myMethodEndEvent;
+HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event, const DWORD &threadId) const {
+    const auto eventPipeEvent = event.EventKind == Started ? myMethodStartEvent : myMethodEndEvent;
 
     COR_PRF_EVENT_DATA eventData[3];
 
@@ -120,12 +119,12 @@ HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event, const DWOR
     eventData[2].ptr = reinterpret_cast<UINT64>(&threadId);
     eventData[2].size = sizeof(DWORD);
 
-    auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
+    constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
-    return myProfilerInfo->EventPipeWriteEvent(eventPipeEvent, dataCount, eventData, NULL, NULL);
+    return myProfilerInfo->EventPipeWriteEvent(eventPipeEvent, dataCount, eventData, nullptr, nullptr);
 }
 
-HRESULT EventPipeWriter::LogMethodInfo(const FunctionID &functionId, const FunctionInfo &functionInfo) {
+HRESULT EventPipeWriter::LogMethodInfo(const FunctionID &functionId, const FunctionInfo &functionInfo) const {
     COR_PRF_EVENT_DATA eventData[2];
 
     eventData[0].ptr = reinterpret_cast<UINT64>(&functionId);
@@ -135,7 +134,7 @@ HRESULT EventPipeWriter::LogMethodInfo(const FunctionID &functionId, const Funct
     eventData[1].ptr = reinterpret_cast<UINT64>(&functionName);
     eventData[1].size = static_cast<UINT32>(functionName.length() + 1) * sizeof(WCHAR);
 
-    auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
+    constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
-    return myProfilerInfo->EventPipeWriteEvent(myMethodInfoEvent, dataCount, eventData, NULL, NULL);
+    return myProfilerInfo->EventPipeWriteEvent(myMethodInfoEvent, dataCount, eventData, nullptr, nullptr);
 }
