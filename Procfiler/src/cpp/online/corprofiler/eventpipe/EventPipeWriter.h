@@ -27,6 +27,8 @@ private:
     const wstring ourMethodInfoEventName = ToWString("ProcfilerMethodInfo");
     const wstring ourEventPipeProviderName = ToWString("ProcfilerCppEventPipeProvider");
 
+    std::regex* myMethodsFilterRegex{nullptr};
+
     ICorProfilerInfo12 *myProfilerInfo;
 
     EVENTPIPE_PROVIDER myEventPipeProvider{};
@@ -49,6 +51,8 @@ private:
                                                        EVENTPIPE_EVENT *ourEventId,
                                                        ICorProfilerInfo12 *profilerInfo,
                                                        UINT32 eventId);
+    void InitMethodsFilterRegex();
+    bool ShouldLogFunc(FunctionID functionId);
 
 public:
     explicit EventPipeWriter(ICorProfilerInfo12 *profilerInfo);
@@ -57,7 +61,7 @@ public:
 
     void Init();
 
-    HRESULT LogFunctionEvent(const FunctionEvent &event) const;
+    HRESULT LogFunctionEvent(const FunctionEvent &event);
 
     HRESULT LogMethodInfo(const FunctionID &functionId, const FunctionInfo &functionInfo) const;
 };

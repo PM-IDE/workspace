@@ -1,5 +1,6 @@
 #include "EventPipeWriter.h"
 
+#include <env_constants.h>
 #include <FunctionInfo.h>
 #include <util.h>
 
@@ -11,6 +12,21 @@ EventPipeWriter::EventPipeWriter(ICorProfilerInfo12 *profilerInfo) {
 
 void EventPipeWriter::Init() {
     InitializeProvidersAndEvents();
+    InitMethodsFilterRegex();
+}
+
+void EventPipeWriter::InitMethodsFilterRegex() {
+    std::string value;
+    if (TryGetEnvVar(filterMethodsRegex, value)) {
+        try {
+            myMethodsFilterRegex = new std::regex(value);
+        }
+        catch (const std::regex_error &e) {
+            myMethodsFilterRegex = nullptr;
+        }
+    } else {
+        myMethodsFilterRegex = nullptr;
+    }
 }
 
 HRESULT EventPipeWriter::DefineProcfilerMethodStartEvent() {
@@ -104,7 +120,13 @@ HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
     return S_OK;
 }
 
-HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) const {
+static thread_local auto ourIgnoredFunctions = new std::map<FunctionID, bool>();
+
+HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) {
+    if (!ShouldLogFunc(event.Id)) {
+        return S_OK;
+    }
+
     const auto eventPipeEvent = event.EventKind == Started ? myMethodStartEvent : myMethodEndEvent;
 
     COR_PRF_EVENT_DATA eventData[2];
@@ -118,6 +140,25 @@ HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) const {
     constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
     return myProfilerInfo->EventPipeWriteEvent(eventPipeEvent, dataCount, eventData, nullptr, nullptr);
+}
+
+bool EventPipeWriter::ShouldLogFunc(FunctionID functionId) {
+    if (myMethodsFilterRegex == nullptr) {
+        return true;
+    }
+
+    if (ourIgnoredFunctions->find(functionId) != ourIgnoredFunctions->end()) {
+        return ourIgnoredFunctions->at(functionId);
+    }
+
+    const auto functionName = FunctionInfo::GetFunctionInfo(myProfilerInfo, functionId).GetFullName();
+
+    std::smatch m;
+    auto shouldLog = std::regex_search(functionName, m, *myMethodsFilterRegex);
+
+    ourIgnoredFunctions->insert({functionId, shouldLog});
+
+    return shouldLog;
 }
 
 HRESULT EventPipeWriter::LogMethodInfo(const FunctionID &functionId, const FunctionInfo &functionInfo) const {

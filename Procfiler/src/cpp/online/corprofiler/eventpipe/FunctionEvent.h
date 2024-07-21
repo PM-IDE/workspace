@@ -18,9 +18,9 @@ struct FunctionEvent {
     int64_t Timestamp;
 
     FunctionEvent(FunctionID id, FunctionEventKind eventKind, int64_t timestamp) :
-            Id(id),
-            EventKind(eventKind),
-            Timestamp(timestamp) {
+        Id(id),
+        EventKind(eventKind),
+        Timestamp(timestamp) {
     }
 };
 

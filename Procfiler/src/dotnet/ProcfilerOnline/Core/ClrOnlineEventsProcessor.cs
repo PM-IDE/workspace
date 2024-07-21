@@ -24,7 +24,14 @@ public class ClrOnlineEventsProcessor(
 {
   public void StartProfiling(CollectEventsOnlineContext context)
   {
-    var process = launcher.Launch(context.DllFilePath, locator.FindCppProcfilerPath("CppProcfilerOnline"));
+    var launcherDto = new DotnetProcessLauncherDto
+    {
+      DllPath = context.DllFilePath,
+      CppProcfilerPath = locator.FindCppProcfilerPath("CppProcfilerOnline"),
+      MethodsFilterRegex = context.MethodsFilterRegex,
+    };
+
+    var process = launcher.Launch(launcherDto);
     if (process is not { })
     {
       logger.LogError("Failed to start provided .NET application {DllPath}", context.DllFilePath);
