@@ -62,9 +62,8 @@ HRESULT EventPipeWriter::DefineMethodStartOrEndEventInternal(const wstring &even
                                                              ICorProfilerInfo12 *profilerInfo,
                                                              const UINT32 eventId) {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
-        {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("Timestamp").c_str()},
+        {COR_PRF_EVENTPIPE_INT64, 0, ToWString("Timestamp").c_str()},
         {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("FunctionId").c_str()},
-        {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("ThreadId").c_str()},
     };
 
     constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
@@ -105,19 +104,16 @@ HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
     return S_OK;
 }
 
-HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event, const DWORD &threadId) const {
+HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) const {
     const auto eventPipeEvent = event.EventKind == Started ? myMethodStartEvent : myMethodEndEvent;
 
-    COR_PRF_EVENT_DATA eventData[3];
+    COR_PRF_EVENT_DATA eventData[2];
 
     eventData[0].ptr = reinterpret_cast<UINT64>(&event.Timestamp);
     eventData[0].size = sizeof(int64_t);
 
     eventData[1].ptr = reinterpret_cast<UINT64>(&event.Id);
     eventData[1].size = sizeof(FunctionID);
-
-    eventData[2].ptr = reinterpret_cast<UINT64>(&threadId);
-    eventData[2].size = sizeof(DWORD);
 
     constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 

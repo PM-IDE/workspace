@@ -34,20 +34,20 @@ void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
                                                         COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
-    myWriter->LogFunctionEvent(FunctionEvent(funcId, Started, GetCurrentTimestamp()), GetCurrentManagedThreadId());
+    myWriter->LogFunctionEvent(FunctionEvent(funcId, Started, GetCurrentTimestamp()));
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
                                                         COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
-    myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()), GetCurrentManagedThreadId());
+    myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId,
                                                           UINT_PTR clientData,
                                                           COR_PRF_FRAME_INFO func) {
-    myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()), GetCurrentManagedThreadId());
+    myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
 ICorProfilerInfo12 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {

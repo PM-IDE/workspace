@@ -57,7 +57,7 @@ public:
 
     void Init();
 
-    HRESULT LogFunctionEvent(const FunctionEvent &event, const DWORD &threadId) const;
+    HRESULT LogFunctionEvent(const FunctionEvent &event) const;
 
     HRESULT LogMethodInfo(const FunctionID &functionId, const FunctionInfo &functionInfo) const;
 };
