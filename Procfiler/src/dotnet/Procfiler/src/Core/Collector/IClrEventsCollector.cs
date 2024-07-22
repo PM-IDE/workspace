@@ -7,7 +7,6 @@ using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;
-using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Utils;
 
 namespace Procfiler.Core.Collector;
@@ -235,7 +234,7 @@ public class ClrEventsCollector(
 
     if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
     {
-      var mergedName = MutatorsUtil.ConcatenateMethodDetails(name, methodNamespace, signature);
+      var mergedName = MethodsUtil.ConcatenateMethodDetails(name, methodNamespace, signature);
       return new MethodIdToFqn(methodId.ParseId(), mergedName);
     }
 

@@ -159,10 +159,4 @@ public static class MutatorsUtil
 
     return TransformModuleFileNameForEventNameConcatenation(sb.ToString());
   }
-
-  public static string ConcatenateMethodDetails(string methodName, string methodNamespace, string signature) =>
-    string.Intern(methodNamespace +
-                  (methodNamespace.EndsWith('.') ? "" : ".") +
-                  methodName +
-                  $"[{signature.Replace(' ', '.')}]");
 }

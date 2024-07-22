@@ -1,6 +1,8 @@
-﻿using Core.Utils;
+﻿using System.Text.RegularExpressions;
+using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
+using ProcfilerOnline.Core.Handlers;
 
 namespace ProcfilerOnline.Core;
 
@@ -12,8 +14,14 @@ public class TargetMethodFrame(ulong methodId)
   public List<MethodFrame> InnerFrames { get; } = [];
 }
 
-public class ThreadEventsProcessor(IProcfilerLogger logger, int threadId)
+public class ThreadEventsProcessor(
+  IProcfilerLogger logger,
+  ICompositeEventPipeStreamEventHandler handler,
+  ISharedEventPipeStreamData sharedData,
+  int threadId,
+  string? targetMethodsRegex)
 {
+  private readonly Regex? myTargetMethodsRegex = targetMethodsRegex is { } ? new Regex(targetMethodsRegex) : null;
   private readonly Stack<TargetMethodFrame> myMethodsStack = new();
 
 
@@ -21,12 +29,17 @@ public class ThreadEventsProcessor(IProcfilerLogger logger, int threadId)
   {
     var qpcStamp = (long)traceEvent.PayloadValue(0);
     var methodId = (ulong)traceEvent.PayloadValue(1);
+    var isTargetMethod = IsTargetMethod(methodId);
 
     switch (traceEvent.GetMethodEventKind())
     {
       case MethodKind.Begin:
       {
-        myMethodsStack.Push(new TargetMethodFrame(methodId));
+        if (isTargetMethod)
+        {
+          myMethodsStack.Push(new TargetMethodFrame(methodId));
+        }
+
         foreach (var targetFrame in myMethodsStack)
         {
           targetFrame.InnerFrames.Add(new MethodFrame(true, methodId, qpcStamp));
@@ -41,17 +54,30 @@ public class ThreadEventsProcessor(IProcfilerLogger logger, int threadId)
           targetFrame.InnerFrames.Add(new MethodFrame(false, methodId, qpcStamp));
         }
 
-        if (methodId != myMethodsStack.Peek().MethodId)
+        if (isTargetMethod)
         {
-          logger.LogWarning("The stack is corrupt for thread {ThreadId}", threadId);
-        }
+          if (methodId != myMethodsStack.Peek().MethodId)
+          {
+            logger.LogWarning("The stack is corrupt for thread {ThreadId}", threadId);
+          }
 
-        myMethodsStack.Pop();
+          handler.Handle(new CompletedMethodExecutionEvent
+          {
+            Frame = myMethodsStack.Pop()
+          });
+        }
 
         break;
       }
       default:
         throw new ArgumentOutOfRangeException();
     }
+  }
+
+  private bool IsTargetMethod(ulong methodId)
+  {
+    if (sharedData.FindMethodFqn(methodId) is not { } methodFqn) return false;
+
+    return myTargetMethodsRegex is null || myTargetMethodsRegex.IsMatch(methodFqn);
   }
 }
