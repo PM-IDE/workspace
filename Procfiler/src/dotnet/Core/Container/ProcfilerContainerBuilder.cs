@@ -13,7 +13,8 @@ public static class ProcfilerContainerBuilder
     var builder = new ContainerBuilder();
     builder.RegisterAssemblyTypes(assemblies.ToArray())
       .Where(t => t.IsClass && t.GetCustomAttribute<AppComponentAttribute>() is { })
-      .AsImplementedInterfaces();
+      .AsImplementedInterfaces()
+      .SingleInstance();
 
     var logger = LoggerFactory.Create(options =>
     {

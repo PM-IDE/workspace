@@ -21,7 +21,8 @@ public class ClrOnlineEventsProcessor(
   ICppProcfilerLocator locator,
   ITransportCreationWaiter transportCreationWaiter,
   IEventPipeProvidersProvider providersProvider,
-  ICompositeEventPipeStreamEventHandler compositeHandler
+  ICompositeEventPipeStreamEventHandler compositeHandler,
+  ISharedEventPipeStreamData sharedData
 ) : IOnlineEventsProcessor
 {
   public void StartProfiling(CollectEventsOnlineContext context)
@@ -48,7 +49,7 @@ public class ClrOnlineEventsProcessor(
 
     client.ResumeRuntime();
 
-    var processor = new OnlineEventsProcessorImpl(logger, compositeHandler, context.TargetMethodsRegex);
+    var processor = new OnlineEventsProcessorImpl(logger, compositeHandler, sharedData, context.TargetMethodsRegex);
     processor.Process(session.EventStream);
   }
 }

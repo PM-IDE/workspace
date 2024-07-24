@@ -1,4 +1,5 @@
 ﻿using Core.Collector;
+using Core.Container;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
 using ProcfilerOnline.Core.Handlers;
@@ -8,8 +9,10 @@ namespace ProcfilerOnline.Core;
 public interface ISharedEventPipeStreamData
 {
   string? FindMethodFqn(ulong methodId);
+  void UpdateMethodsInfo(ulong methodId, string fqn);
 }
 
+[AppComponent]
 public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 {
   private readonly Dictionary<ulong, string> myIdsToMethodsFqns = new();
@@ -23,10 +26,10 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 public class OnlineEventsProcessorImpl(
   IProcfilerLogger logger,
   ICompositeEventPipeStreamEventHandler handler,
+  ISharedEventPipeStreamData sharedData,
   string? targetMethodsRegex)
 {
   private readonly Dictionary<int, ThreadEventsProcessor> myThreadsProcessors = new();
-  private readonly SharedEventPipeStreamData mySharedData = new();
 
 
   public void Process(Stream eventPipeStream)
@@ -34,7 +37,7 @@ public class OnlineEventsProcessorImpl(
     var source = new EventPipeEventSource(eventPipeStream);
     source.Clr.MethodLoadVerbose += traceEvent =>
     {
-      mySharedData.UpdateMethodsInfo((ulong)traceEvent.MethodID, traceEvent.MethodName);
+      sharedData.UpdateMethodsInfo((ulong)traceEvent.MethodID, traceEvent.MethodName);
     };
 
     source.Dynamic.All += traceEvent =>
@@ -42,7 +45,7 @@ public class OnlineEventsProcessorImpl(
       if (traceEvent.ProviderName != EventPipeProvidersNames.ProcfilerCppProvider) return;
 
       myThreadsProcessors
-        .GetOrCreate(traceEvent.ThreadID, () => new ThreadEventsProcessor(logger, handler, mySharedData, traceEvent.ThreadID, targetMethodsRegex))
+        .GetOrCreate(traceEvent.ThreadID, () => new ThreadEventsProcessor(logger, handler, sharedData, traceEvent.ThreadID, targetMethodsRegex))
         .Process(traceEvent);
     };
 

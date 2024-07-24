@@ -8,7 +8,7 @@ public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 }
 
 [AppComponent]
-public class CompletedMethodExecutionHandler : IEventPipeStreamEventHandler
+public class CompletedMethodExecutionHandler(ISharedEventPipeStreamData sharedData) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
@@ -16,7 +16,7 @@ public class CompletedMethodExecutionHandler : IEventPipeStreamEventHandler
 
     foreach (var frame in completedMethodExecutionEvent.Frame.InnerFrames)
     {
-      Console.WriteLine(frame);
+      Console.WriteLine(sharedData.FindMethodFqn(frame.MethodId) ?? "???");
     }
   }
 }
