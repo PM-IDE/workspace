@@ -10,6 +10,7 @@ internal class Program
 
     for (var i = 0; i < 4; i++)
     {
+      Allocate(i);
       var index = i;
       var list = new List<object>();
       await await Task.Factory.StartNew(async () =>

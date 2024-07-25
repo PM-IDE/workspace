@@ -56,9 +56,9 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     }
 
     if (eventRecord.TryGetMethodStartEndEventInfo() is var (frame, isStart) &&
-        myAsyncMethodsToTypeNames.ContainsKey(frame))
+        myAsyncMethodsToTypeNames.TryGetValue(frame, out var frameName))
     {
-      var stateMachineName = $"{asyncMethodsPrefix}{myAsyncMethodsToTypeNames[frame]}";
+      var stateMachineName = $"{asyncMethodsPrefix}{frameName}";
 
       if (isStart)
       {
@@ -74,7 +74,6 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
 
         listOfAsyncTraces.Add(newTrace);
         threadData.LastTraceStack.Push(newTrace);
-        threadData.LastSeenTaskEvent = null;
       }
       else
       {
@@ -95,6 +94,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
         DiscoverLogicalExecutions(stateMachineName);
       }
 
+      threadData.LastSeenTaskEvent = null;
       return;
     }
 
@@ -103,19 +103,16 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
 
   private void DiscoverLogicalExecutions(string stateMachineName)
   {
-    var result = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
     var asyncMethods = DiscoverLogicalExecutions(myAsyncMethodsToTraces[stateMachineName]);
-    result[stateMachineName] = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
+    var trace = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
+    if (trace.Count == 0) return;
 
     foreach (var usedTrace in asyncMethods.SelectMany(m => m))
     {
       myAsyncMethodsToTraces[stateMachineName].Remove(usedTrace);
     }
 
-    foreach (var (name, trace) in result)
-    {
-      callback(name, trace);
-    }
+    callback(stateMachineName, trace);
   }
 
   private List<List<AsyncMethodTrace>> DiscoverLogicalExecutions(IReadOnlyList<AsyncMethodTrace> traces)
@@ -202,7 +199,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
 }
 
 [AppComponent]
-public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
+public class AsyncMethodsGrouper : IAsyncMethodsGrouper
 {
   public string AsyncMethodsPrefix => "ASYNC_";
 
