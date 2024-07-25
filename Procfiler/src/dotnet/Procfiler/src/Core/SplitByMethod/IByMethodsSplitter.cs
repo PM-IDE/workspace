@@ -109,7 +109,7 @@ public class ByMethodsSplitterImpl(
     Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>> tracesByMethods,
     Dictionary<long, IEventsCollection> eventsByManagedThreads)
   {
-    var asyncMethodsTraces = asyncMethodsGrouper.GroupAsyncMethods(methodsNames, eventsByManagedThreads);
+    var asyncMethodsTraces = asyncMethodsGrouper.GroupAsyncMethods(eventsByManagedThreads);
     foreach (var (asyncMethodName, collection) in asyncMethodsTraces)
     {
       var traces = new List<IReadOnlyList<EventRecordWithMetadata>>();

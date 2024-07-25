@@ -1,4 +1,5 @@
-﻿using Core.Container;
+﻿using Bxes.Utils;
+using Core.Container;
 using Core.Utils;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsCollection;
@@ -11,116 +12,118 @@ public interface IAsyncMethodsGrouper
 
 
   IDictionary<string, IList<IReadOnlyList<EventRecordWithMetadata>>> GroupAsyncMethods(
-    IEnumerable<string> methodsNames,
     IDictionary<long, IEventsCollection> managedThreadsEvents);
 }
 
-[AppComponent]
-public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
+internal record AsyncMethodTrace(EventRecordWithMetadata? BeforeTaskEvent, IList<EventRecordWithMetadata> Events)
 {
-  private record AsyncMethodTrace(EventRecordWithMetadata? BeforeTaskEvent, IList<EventRecordWithMetadata> Events)
+  public EventRecordWithMetadata? AfterTaskEvent { get; set; }
+}
+
+public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string, List<List<EventRecordWithMetadata>>> callback)
+{
+  private class ThreadData
   {
-    public EventRecordWithMetadata? AfterTaskEvent { get; set; }
+    public Stack<AsyncMethodTrace> LastTraceStack { get; } = new();
+    public EventRecordWithMetadata? LastSeenTaskEvent { get; set; }
   }
+
 
   private const string MoveNextMethod = "MoveNext";
   private const string MoveNextWithDot = $".{MoveNextMethod}";
 
+  private readonly Dictionary<string,  List<AsyncMethodTrace>> myAsyncMethodsToTraces = new();
+  private readonly Dictionary<long, ThreadData> myThreadsData = new();
+  private readonly Dictionary<string, string> myAsyncMethodsToTypeNames = new();
+  private readonly Dictionary<int, AsyncMethodTrace> myTasksToTracesIds = new();
+  private readonly Dictionary<AsyncMethodTrace, int> myTracesToTasksIds = new();
 
-  public string AsyncMethodsPrefix => "ASYNC_";
 
-
-  public IDictionary<string, IList<IReadOnlyList<EventRecordWithMetadata>>> GroupAsyncMethods(
-    IEnumerable<string> methodsNames,
-    IDictionary<long, IEventsCollection> managedThreadsEvents)
+  public void ProcessEvent(EventRecordWithMetadata @event)
   {
-    var asyncMethodsWithTypeNames = FindAllAsyncMoveNextMethods(methodsNames);
-    var asyncMethodsToTraces = CreateAsyncMethodsToTracesMap(asyncMethodsWithTypeNames, managedThreadsEvents);
-
-    return DiscoverLogicalAsyncMethodsExecutions(asyncMethodsToTraces);
+    UpdateAsyncMethodsToTypeNames(@event);
+    ProcessEventInternal(@event);
   }
 
-  private IDictionary<string, List<AsyncMethodTrace>> CreateAsyncMethodsToTracesMap(
-    IDictionary<string, string> asyncMethodsWithTypeNames,
-    IDictionary<long, IEventsCollection> managedThreadsEvents)
+  private void ProcessEventInternal(EventRecordWithMetadata eventRecord)
   {
-    var asyncMethods = asyncMethodsWithTypeNames.Keys.ToHashSet();
-    var asyncMethodsToTraces = new Dictionary<string, List<AsyncMethodTrace>>();
-
-    foreach (var (_, events) in managedThreadsEvents)
+    var threadData = GetThreadData(eventRecord);
+    if (eventRecord.IsTaskWaitSendOrStopEvent())
     {
-      EventRecordWithMetadata? lastSeenTaskEvent = null;
-      var lastTracesStack = new Stack<AsyncMethodTrace>();
-
-      void AppendEventToTraceIfHasSome(EventRecordWithMetadata eventRecord)
-      {
-        if (lastTracesStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
-        {
-          eventsList.Add(eventRecord);
-        }
-      }
-
-      foreach (var (_, eventRecord) in events)
-      {
-        if (eventRecord.IsTaskWaitSendOrStopEvent())
-        {
-          lastSeenTaskEvent = eventRecord;
-          AppendEventToTraceIfHasSome(eventRecord);
-          continue;
-        }
-
-        if (eventRecord.TryGetMethodStartEndEventInfo() is var (frame, isStart) &&
-            asyncMethods.Contains(frame))
-        {
-          if (isStart)
-          {
-            var listOfEvents = new List<EventRecordWithMetadata> { eventRecord };
-            var newAsyncMethodTraces = new AsyncMethodTrace(lastSeenTaskEvent, listOfEvents);
-            var stateMachineName = $"{AsyncMethodsPrefix}{asyncMethodsWithTypeNames[frame]}";
-            var listOfAsyncTraces = asyncMethodsToTraces.GetOrCreate(stateMachineName, () => []);
-
-            listOfAsyncTraces.Add(newAsyncMethodTraces);
-            lastTracesStack.Push(newAsyncMethodTraces);
-            lastSeenTaskEvent = null;
-          }
-          else
-          {
-            Debug.Assert(lastTracesStack.Count > 0);
-            var lastTrace = lastTracesStack.Pop();
-            lastTrace.Events.Add(eventRecord);
-            if (lastSeenTaskEvent is { })
-            {
-              lastTrace.AfterTaskEvent = lastSeenTaskEvent;
-            }
-          }
-
-          continue;
-        }
-
-        AppendEventToTraceIfHasSome(eventRecord);
-      }
-
-      Debug.Assert(lastTracesStack.Count == 0);
+      threadData.LastSeenTaskEvent = eventRecord;
+      AppendEventToTraceIfHaveSome(eventRecord);
+      return;
     }
 
-    return asyncMethodsToTraces;
+    if (eventRecord.TryGetMethodStartEndEventInfo() is var (frame, isStart) &&
+        myAsyncMethodsToTypeNames.ContainsKey(frame))
+    {
+      if (isStart)
+      {
+        var listOfEvents = new List<EventRecordWithMetadata> { eventRecord };
+        var newTrace = new AsyncMethodTrace(threadData.LastSeenTaskEvent, listOfEvents);
+        if (newTrace.BeforeTaskEvent?.IsTaskWaitStopEvent(out var waitedTaskId) ?? false)
+        {
+          Debug.Assert(!myTasksToTracesIds.ContainsKey(waitedTaskId));
+          myTasksToTracesIds[waitedTaskId] = newTrace;
+        }
+
+        var stateMachineName = $"{asyncMethodsPrefix}{myAsyncMethodsToTypeNames[frame]}";
+        var listOfAsyncTraces = myAsyncMethodsToTraces.GetOrCreate(stateMachineName, () => []);
+
+        listOfAsyncTraces.Add(newTrace);
+        threadData.LastTraceStack.Push(newTrace);
+        threadData.LastSeenTaskEvent = null;
+      }
+      else
+      {
+        Debug.Assert(threadData.LastTraceStack.Count > 0);
+        var lastTrace = threadData.LastTraceStack.Pop();
+        if (lastTrace.AfterTaskEvent?.IsTaskWaitSendEvent(out var scheduledTaskId) ?? false)
+        {
+          Debug.Assert(!myTracesToTasksIds.ContainsKey(lastTrace));
+          myTracesToTasksIds[lastTrace] = scheduledTaskId;
+        }
+
+        lastTrace.Events.Add(eventRecord);
+        if (threadData.LastSeenTaskEvent is { } lastSeenTaskEvent)
+        {
+          lastTrace.AfterTaskEvent = lastSeenTaskEvent;
+        }
+
+        DiscoverLogicalExecutions();
+      }
+
+      return;
+    }
+
+    AppendEventToTraceIfHaveSome(eventRecord);
   }
 
-  private Dictionary<string, IList<IReadOnlyList<EventRecordWithMetadata>>> DiscoverLogicalAsyncMethodsExecutions(
-    IDictionary<string, List<AsyncMethodTrace>> asyncMethodsTraces)
+  private void DiscoverLogicalExecutions()
   {
-    return asyncMethodsTraces.ToDictionary(
-      pair => pair.Key,
-      pair => DiscoverLogicalAsyncExecutions(pair.Value)
-    );
+    var result = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
+    foreach (var methodName in myAsyncMethodsToTraces.Keys)
+    {
+      var asyncMethods = DiscoverLogicalExecutions(myAsyncMethodsToTraces[methodName]);
+      result[methodName] = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
+
+      foreach (var usedTrace in asyncMethods.SelectMany(m => m))
+      {
+        myAsyncMethodsToTraces[methodName].Remove(usedTrace);
+      }
+    }
+
+    foreach (var (name, trace) in result)
+    {
+      callback(name, trace);
+    }
   }
 
-  private static IList<IReadOnlyList<EventRecordWithMetadata>> DiscoverLogicalAsyncExecutions(
-    IReadOnlyCollection<AsyncMethodTrace> traces)
+  private List<List<AsyncMethodTrace>> DiscoverLogicalExecutions(IReadOnlyList<AsyncMethodTrace> traces)
   {
-    var tracesTaskInfos = ExtractTasksInfos(traces);
     var result = new List<List<AsyncMethodTrace>>();
-    foreach (var startingPoint in FindEntryPoints(traces, tracesTaskInfos))
+    foreach (var startingPoint in FindEntryPoints(traces))
     {
       var logicalExecution = new List<AsyncMethodTrace>();
       var currentTrace = startingPoint;
@@ -128,85 +131,91 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
       while (true)
       {
         logicalExecution.Add(currentTrace);
-        if (!tracesTaskInfos.TracesToQueuedTasks.TryGetValue(currentTrace, out var queuedTaskId)) break;
-        if (!tracesTaskInfos.TasksToWaitedTraces.TryGetValue(queuedTaskId, out currentTrace)) break;
+        if (!myTracesToTasksIds.TryGetValue(currentTrace, out var queuedTaskId)) break;
+        if (!myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace)) break;
       }
 
       result.Add(logicalExecution);
     }
 
-    return result.Select(
-      trace => (IReadOnlyList<EventRecordWithMetadata>)trace.SelectMany(t => t.Events).ToList()).ToList();
+    return result;
   }
 
-  private static IEnumerable<AsyncMethodTrace> FindEntryPoints(
-    IEnumerable<AsyncMethodTrace> traces, AsyncTracesTaskInfo tracesTaskInfo)
+
+  private IEnumerable<AsyncMethodTrace> FindEntryPoints(IEnumerable<AsyncMethodTrace> traces)
   {
-    return traces.Where(trace => IsTraceAnEntryPoint(trace, tracesTaskInfo)).ToHashSet();
+    return traces.Where(IsTraceAnEntryPoint).ToHashSet();
   }
 
-  private static bool IsTraceAnEntryPoint(AsyncMethodTrace trace, AsyncTracesTaskInfo tracesTaskInfo) =>
+  private bool IsTraceAnEntryPoint(AsyncMethodTrace trace) =>
     trace.BeforeTaskEvent is null ||
     !trace.BeforeTaskEvent.IsTaskWaitStopEvent(out var id) ||
-    !tracesTaskInfo.TasksToWaitedTraces.ContainsKey(id);
+    !myTasksToTracesIds.ContainsKey(id);
 
-  private readonly record struct AsyncTracesTaskInfo(
-    Dictionary<int, AsyncMethodTrace> TasksToWaitedTraces,
-    Dictionary<AsyncMethodTrace, int> TracesToQueuedTasks
-  );
-
-  private static AsyncTracesTaskInfo ExtractTasksInfos(
-    IEnumerable<AsyncMethodTrace> traces)
+  private void UpdateAsyncMethodsToTypeNames(EventRecordWithMetadata @event)
   {
-    var tasksToTracesWhoWaited = new Dictionary<int, AsyncMethodTrace>();
-    var tracesToQueuedTasks = new Dictionary<AsyncMethodTrace, int>();
+    if (@event.TryGetMethodStartEndEventInfo() is not { Frame: var fullMethodName }) return;
 
-    foreach (var asyncMethodTrace in traces)
+    var fullNameWithoutSignature = fullMethodName.AsSpan();
+    fullNameWithoutSignature = fullNameWithoutSignature[..fullMethodName.IndexOf('[')];
+
+    if (!fullNameWithoutSignature.Contains('+')) return;
+    if (!fullNameWithoutSignature.EndsWith(MoveNextWithDot)) return;
+
+    var stateMachineEnd = fullNameWithoutSignature.IndexOf(MoveNextWithDot, StringComparison.Ordinal);
+    var stateMachineStart = fullNameWithoutSignature.LastIndexOf('+');
+    if (stateMachineStart >= stateMachineEnd) return;
+
+    var stateMachineType = fullMethodName.AsSpan(stateMachineStart + 1, stateMachineEnd - (stateMachineStart + 1));
+    if (!RoslynGeneratedNamesParser.TryParseGeneratedName(stateMachineType, out var kind, out _, out _) ||
+        kind != RoslynGeneratedNameKind.StateMachineType)
     {
-      if (asyncMethodTrace.BeforeTaskEvent?.IsTaskWaitStopEvent(out var waitedTaskId) ?? false)
-      {
-        Debug.Assert(!tasksToTracesWhoWaited.ContainsKey(waitedTaskId));
-        tasksToTracesWhoWaited[waitedTaskId] = asyncMethodTrace;
-      }
-
-      if (asyncMethodTrace.AfterTaskEvent?.IsTaskWaitSendEvent(out var scheduledTaskId) ?? false)
-      {
-        Debug.Assert(!tracesToQueuedTasks.ContainsKey(asyncMethodTrace));
-        tracesToQueuedTasks[asyncMethodTrace] = scheduledTaskId;
-      }
+      return;
     }
 
-    return new AsyncTracesTaskInfo(tasksToTracesWhoWaited, tracesToQueuedTasks);
+    var typeNameStart = fullNameWithoutSignature.IndexOf('!');
+    if (typeNameStart < 0) typeNameStart = 0;
+
+    myAsyncMethodsToTypeNames[fullMethodName] = fullMethodName.Substring(typeNameStart, stateMachineEnd - typeNameStart);
   }
 
-  private static IDictionary<string, string> FindAllAsyncMoveNextMethods(IEnumerable<string> methodNames)
+  private void AppendEventToTraceIfHaveSome(EventRecordWithMetadata @event)
   {
-    var asyncMethods = new Dictionary<string, string>();
-    foreach (var fullMethodName in methodNames)
+    if (GetThreadData(@event).LastTraceStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
     {
-      var fullNameWithoutSignature = fullMethodName.AsSpan();
-      fullNameWithoutSignature = fullNameWithoutSignature[..fullMethodName.IndexOf('[')];
+      eventsList.Add(@event);
+    }
+  }
 
-      if (!fullNameWithoutSignature.Contains('+')) continue;
-      if (!fullNameWithoutSignature.EndsWith(MoveNextWithDot)) continue;
+  private ThreadData GetThreadData(EventRecordWithMetadata @event)
+  {
+    return myThreadsData.GetOrCreate(@event.ManagedThreadId, static () => new ThreadData());
+  }
+}
 
-      var stateMachineEnd = fullNameWithoutSignature.IndexOf(MoveNextWithDot, StringComparison.Ordinal);
-      var stateMachineStart = fullNameWithoutSignature.LastIndexOf('+');
-      if (stateMachineStart >= stateMachineEnd) continue;
+[AppComponent]
+public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
+{
+  public string AsyncMethodsPrefix => "ASYNC_";
 
-      var stateMachineType = fullMethodName.AsSpan(stateMachineStart + 1, stateMachineEnd - (stateMachineStart + 1));
-      if (!RoslynGeneratedNamesParser.TryParseGeneratedName(stateMachineType, out var kind, out _, out _) ||
-          kind != RoslynGeneratedNameKind.StateMachineType)
+
+  public IDictionary<string, IList<IReadOnlyList<EventRecordWithMetadata>>> GroupAsyncMethods(
+    IDictionary<long, IEventsCollection> managedThreadsEvents)
+  {
+    var result = new Dictionary<string, IList<IReadOnlyList<EventRecordWithMetadata>>>();
+    var onlineGrouper = new OnlineAsyncMethodsGrouper(AsyncMethodsPrefix, (method, traces) =>
+    {
+      result.GetOrCreate(method, static () => []).AddRange(traces);
+    });
+
+    foreach (var (_, events) in managedThreadsEvents)
+    {
+      foreach (var @event in events)
       {
-        continue;
+        onlineGrouper.ProcessEvent(@event.Event);
       }
-
-      var typeNameStart = fullNameWithoutSignature.IndexOf('!');
-      if (typeNameStart < 0) typeNameStart = 0;
-
-      asyncMethods[fullMethodName] = fullMethodName.Substring(typeNameStart, stateMachineEnd - typeNameStart);
     }
 
-    return asyncMethods;
+    return result;
   }
 }
