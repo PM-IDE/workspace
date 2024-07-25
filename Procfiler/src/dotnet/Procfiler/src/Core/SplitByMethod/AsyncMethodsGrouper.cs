@@ -32,7 +32,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
   private const string MoveNextMethod = "MoveNext";
   private const string MoveNextWithDot = $".{MoveNextMethod}";
 
-  private readonly Dictionary<string,  List<AsyncMethodTrace>> myAsyncMethodsToTraces = new();
+  private readonly Dictionary<string, List<AsyncMethodTrace>> myAsyncMethodsToTraces = new();
   private readonly Dictionary<long, ThreadData> myThreadsData = new();
   private readonly Dictionary<string, string> myAsyncMethodsToTypeNames = new();
   private readonly Dictionary<int, AsyncMethodTrace> myTasksToTracesIds = new();
@@ -58,6 +58,8 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     if (eventRecord.TryGetMethodStartEndEventInfo() is var (frame, isStart) &&
         myAsyncMethodsToTypeNames.ContainsKey(frame))
     {
+      var stateMachineName = $"{asyncMethodsPrefix}{myAsyncMethodsToTypeNames[frame]}";
+
       if (isStart)
       {
         var listOfEvents = new List<EventRecordWithMetadata> { eventRecord };
@@ -68,7 +70,6 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
           myTasksToTracesIds[waitedTaskId] = newTrace;
         }
 
-        var stateMachineName = $"{asyncMethodsPrefix}{myAsyncMethodsToTypeNames[frame]}";
         var listOfAsyncTraces = myAsyncMethodsToTraces.GetOrCreate(stateMachineName, () => []);
 
         listOfAsyncTraces.Add(newTrace);
@@ -79,19 +80,19 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
       {
         Debug.Assert(threadData.LastTraceStack.Count > 0);
         var lastTrace = threadData.LastTraceStack.Pop();
-        if (lastTrace.AfterTaskEvent?.IsTaskWaitSendEvent(out var scheduledTaskId) ?? false)
-        {
-          Debug.Assert(!myTracesToTasksIds.ContainsKey(lastTrace));
-          myTracesToTasksIds[lastTrace] = scheduledTaskId;
-        }
-
         lastTrace.Events.Add(eventRecord);
         if (threadData.LastSeenTaskEvent is { } lastSeenTaskEvent)
         {
           lastTrace.AfterTaskEvent = lastSeenTaskEvent;
         }
 
-        DiscoverLogicalExecutions();
+        if (lastTrace.AfterTaskEvent?.IsTaskWaitSendEvent(out var scheduledTaskId) ?? false)
+        {
+          Debug.Assert(!myTracesToTasksIds.ContainsKey(lastTrace));
+          myTracesToTasksIds[lastTrace] = scheduledTaskId;
+        }
+
+        DiscoverLogicalExecutions(stateMachineName);
       }
 
       return;
@@ -100,18 +101,15 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     AppendEventToTraceIfHaveSome(eventRecord);
   }
 
-  private void DiscoverLogicalExecutions()
+  private void DiscoverLogicalExecutions(string stateMachineName)
   {
     var result = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
-    foreach (var methodName in myAsyncMethodsToTraces.Keys)
-    {
-      var asyncMethods = DiscoverLogicalExecutions(myAsyncMethodsToTraces[methodName]);
-      result[methodName] = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
+    var asyncMethods = DiscoverLogicalExecutions(myAsyncMethodsToTraces[stateMachineName]);
+    result[stateMachineName] = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
 
-      foreach (var usedTrace in asyncMethods.SelectMany(m => m))
-      {
-        myAsyncMethodsToTraces[methodName].Remove(usedTrace);
-      }
+    foreach (var usedTrace in asyncMethods.SelectMany(m => m))
+    {
+      myAsyncMethodsToTraces[stateMachineName].Remove(usedTrace);
     }
 
     foreach (var (name, trace) in result)
@@ -128,14 +126,24 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
       var logicalExecution = new List<AsyncMethodTrace>();
       var currentTrace = startingPoint;
 
+      var finishedExecution = true;
       while (true)
       {
         logicalExecution.Add(currentTrace);
+
         if (!myTracesToTasksIds.TryGetValue(currentTrace, out var queuedTaskId)) break;
-        if (!myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace)) break;
+
+        if (!myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace))
+        {
+          finishedExecution = false;
+          break;
+        }
       }
 
-      result.Add(logicalExecution);
+      if (finishedExecution)
+      {
+        result.Add(logicalExecution);
+      }
     }
 
     return result;
@@ -212,7 +220,7 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
     {
       foreach (var @event in events)
       {
-        onlineGrouper.ProcessEvent(@event.Event);
+        onlineGrouper.ProcessEvent(@event.Event.DeepClone());
       }
     }
 
