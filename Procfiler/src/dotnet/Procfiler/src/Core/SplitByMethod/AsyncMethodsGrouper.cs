@@ -15,17 +15,30 @@ public interface IAsyncMethodsGrouper
     IDictionary<long, IEventsCollection> managedThreadsEvents);
 }
 
-internal record AsyncMethodTrace(EventRecordWithMetadata? BeforeTaskEvent, IList<EventRecordWithMetadata> Events)
-{
-  public EventRecordWithMetadata? AfterTaskEvent { get; set; }
-}
 
 public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string, List<List<EventRecordWithMetadata>>> callback)
 {
+  private abstract class LastSeenTaskEvent;
+
+  private sealed class TaskWaitSendEvent : LastSeenTaskEvent
+  {
+    public required int TaskId { get; init; }
+  }
+
+  private sealed class TaskWaitStopEvent : LastSeenTaskEvent
+  {
+    public required int TaskId { get; init; }
+  }
+
+  private record AsyncMethodTrace(LastSeenTaskEvent? BeforeTaskEvent, IList<EventRecordWithMetadata> Events)
+  {
+    public LastSeenTaskEvent? AfterTaskEvent { get; set; }
+  }
+
   private class ThreadData
   {
     public Stack<AsyncMethodTrace> LastTraceStack { get; } = new();
-    public EventRecordWithMetadata? LastSeenTaskEvent { get; set; }
+    public LastSeenTaskEvent? LastSeenTaskEvent { get; set; }
   }
 
 
@@ -50,7 +63,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     var threadData = GetThreadData(eventRecord);
     if (eventRecord.IsTaskWaitSendOrStopEvent())
     {
-      threadData.LastSeenTaskEvent = eventRecord;
+      threadData.LastSeenTaskEvent = ToLastSeenTaskEvent(eventRecord);
       AppendEventToTraceIfHaveSome(eventRecord);
       return;
     }
@@ -64,7 +77,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
       {
         var listOfEvents = new List<EventRecordWithMetadata> { eventRecord };
         var newTrace = new AsyncMethodTrace(threadData.LastSeenTaskEvent, listOfEvents);
-        if (newTrace.BeforeTaskEvent?.IsTaskWaitStopEvent(out var waitedTaskId) ?? false)
+        if (newTrace.BeforeTaskEvent is TaskWaitStopEvent { TaskId: var waitedTaskId })
         {
           Debug.Assert(!myTasksToTracesIds.ContainsKey(waitedTaskId));
           myTasksToTracesIds[waitedTaskId] = newTrace;
@@ -85,7 +98,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
           lastTrace.AfterTaskEvent = lastSeenTaskEvent;
         }
 
-        if (lastTrace.AfterTaskEvent?.IsTaskWaitSendEvent(out var scheduledTaskId) ?? false)
+        if (lastTrace.AfterTaskEvent is TaskWaitSendEvent { TaskId: var scheduledTaskId } )
         {
           Debug.Assert(!myTracesToTasksIds.ContainsKey(lastTrace));
           myTracesToTasksIds[lastTrace] = scheduledTaskId;
@@ -99,6 +112,27 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     }
 
     AppendEventToTraceIfHaveSome(eventRecord);
+  }
+
+  private static LastSeenTaskEvent ToLastSeenTaskEvent(EventRecordWithMetadata eventRecord)
+  {
+    if (eventRecord.IsTaskWaitSendEvent(out var sentTaskId))
+    {
+      return new TaskWaitSendEvent
+      {
+        TaskId = sentTaskId
+      };
+    }
+
+    if (eventRecord.IsTaskWaitStopEvent(out var waitedTaskId))
+    {
+      return new TaskWaitStopEvent
+      {
+        TaskId = waitedTaskId
+      };
+    }
+
+    throw new ArgumentOutOfRangeException(eventRecord.EventName);
   }
 
   private void DiscoverLogicalExecutions(string stateMachineName)
@@ -154,7 +188,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
 
   private bool IsTraceAnEntryPoint(AsyncMethodTrace trace) =>
     trace.BeforeTaskEvent is null ||
-    !trace.BeforeTaskEvent.IsTaskWaitStopEvent(out var id) ||
+    trace.BeforeTaskEvent is not TaskWaitStopEvent { TaskId: var id } ||
     !myTasksToTracesIds.ContainsKey(id);
 
   private void UpdateAsyncMethodsToTypeNames(EventRecordWithMetadata @event)
@@ -188,7 +222,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
   {
     if (GetThreadData(@event).LastTraceStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
     {
-      eventsList.Add(@event);
+      eventsList.Add(@event.DeepClone());
     }
   }
 
@@ -217,7 +251,7 @@ public class AsyncMethodsGrouper : IAsyncMethodsGrouper
     {
       foreach (var @event in events)
       {
-        onlineGrouper.ProcessEvent(@event.Event.DeepClone());
+        onlineGrouper.ProcessEvent(@event.Event);
       }
     }
 
