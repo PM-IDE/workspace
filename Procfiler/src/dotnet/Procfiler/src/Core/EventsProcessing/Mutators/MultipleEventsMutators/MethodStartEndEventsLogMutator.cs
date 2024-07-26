@@ -1,10 +1,10 @@
+using Core.Constants.TraceEvents;
 using Core.Container;
+using Core.Events.EventsCollection;
 using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.CppProcfiler.ShadowStacks;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;
 

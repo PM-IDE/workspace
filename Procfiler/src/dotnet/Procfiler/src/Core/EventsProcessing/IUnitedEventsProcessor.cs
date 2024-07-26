@@ -1,7 +1,7 @@
 using Core.Container;
+using Core.Events.EventsCollection;
 using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing.Filters.Core;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.EventsProcessing.Mutators.Core;

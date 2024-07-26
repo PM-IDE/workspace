@@ -1,4 +1,5 @@
 ﻿using Core.Container;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.Serialization.Core;

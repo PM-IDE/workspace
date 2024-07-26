@@ -36,6 +36,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="src\Core\Constants\" />
         <Folder Include="src\Core\EventsProcessing\Mutators\SingleEventMutators\StatefulMutators"/>
     </ItemGroup>
 

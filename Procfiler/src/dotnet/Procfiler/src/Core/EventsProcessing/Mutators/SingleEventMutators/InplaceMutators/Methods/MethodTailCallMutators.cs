@@ -1,6 +1,6 @@
-﻿using Core.Container;
+﻿using Core.Constants.TraceEvents;
+using Core.Container;
 using Core.Utils;
-using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;
 

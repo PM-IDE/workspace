@@ -1,7 +1,8 @@
+using Core.Constants.TraceEvents;
 using Core.Container;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Utils;
@@ -10,7 +11,7 @@ namespace Procfiler.Core.EventRecord;
 
 public readonly record struct EventsCreationContext(EventRecordTime Time, long ManagedThreadId)
 {
-  public static EventsCreationContext CreateWithUndefinedStackTrace(EventRecord record) =>
+  public static EventsCreationContext CreateWithUndefinedStackTrace(global::Core.Events.EventRecord.EventRecord record) =>
     new(record.Time, record.ManagedThreadId);
 }
 
@@ -124,7 +125,14 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
 
   public void FillExistingEventWith(FromFrameInfoCreationContext context, EventRecordWithMetadata existingEvent)
   {
-    existingEvent.UpdateWith(context);
+    existingEvent.UpdateWith(new FromMethodEventRecordUpdateDto
+    {
+      IsStart = context.FrameInfo.IsStart,
+      LoggedAt = QpcUtil.ConvertQpcTimeToDateTimeUtc(context.FrameInfo.QpcTimeStamp, context.GlobalData),
+      QpcStamp = context.FrameInfo.QpcTimeStamp,
+      ManagedThreadId = context.ManagedThreadId
+    });
+
     var fqn = ExtractMethodName(context);
     existingEvent.EventName = CreateMethodStartOrEndEventName(existingEvent.EventClass, fqn);
     SetMethodNameInMetadata(existingEvent.Metadata, fqn);

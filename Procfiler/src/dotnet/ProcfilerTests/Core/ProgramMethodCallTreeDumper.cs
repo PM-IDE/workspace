@@ -1,8 +1,9 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using Core.Events.EventRecord;
+using Core.Events.EventsCollection;
 using Core.Utils;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
 
 namespace ProcfilerTests.Core;
 

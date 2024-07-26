@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Autofac;
+using Core.Events.EventRecord;
 using Procfiler.Core.CppProcfiler.ShadowStacks;
 using Procfiler.Core.EventRecord;
 using ProcfilerTests.Core;

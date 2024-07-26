@@ -1,4 +1,4 @@
-using Procfiler.Core.EventsCollection;
+using Core.Events.EventsCollection;
 
 namespace Procfiler.Core.EventsProcessing.Filters.Core;
 

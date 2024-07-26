@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
+using Core.Events;
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.Serialization.Core;

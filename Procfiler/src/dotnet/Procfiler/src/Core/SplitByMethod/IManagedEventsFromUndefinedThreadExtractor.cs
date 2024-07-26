@@ -1,8 +1,9 @@
 using Core.Container;
+using Core.Events.EventRecord;
+using Core.Events.EventsCollection;
+using Core.Exceptions;
 using Core.Utils;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Core.Exceptions;
 using Procfiler.Utils;
 
 namespace Procfiler.Core.SplitByMethod;

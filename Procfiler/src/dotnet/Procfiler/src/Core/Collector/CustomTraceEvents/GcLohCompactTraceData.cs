@@ -1,4 +1,4 @@
-using Procfiler.Core.Constants.TraceEvents;
+using Core.Constants.TraceEvents;
 
 namespace Procfiler.Core.Collector.CustomTraceEvents;
 

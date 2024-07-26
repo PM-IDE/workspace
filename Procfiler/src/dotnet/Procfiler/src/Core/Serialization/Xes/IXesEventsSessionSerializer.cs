@@ -1,8 +1,10 @@
+using Core.Constants.XesLifecycle;
 using Core.Container;
+using Core.Events;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Core.Utils.Xml;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.XesLifecycle;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.Serialization.Core;

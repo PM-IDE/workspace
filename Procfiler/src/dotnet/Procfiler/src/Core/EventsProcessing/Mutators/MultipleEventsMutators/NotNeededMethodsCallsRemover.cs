@@ -1,8 +1,9 @@
 ﻿using Core.Container;
+using Core.Events.EventRecord;
+using Core.Events.EventsCollection;
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;
 

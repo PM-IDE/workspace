@@ -1,8 +1,9 @@
 using Core.Container;
+using Core.Events.EventRecord;
+using Core.Events.EventsCollection;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
 
 namespace Procfiler.Core.SplitByMethod;
 

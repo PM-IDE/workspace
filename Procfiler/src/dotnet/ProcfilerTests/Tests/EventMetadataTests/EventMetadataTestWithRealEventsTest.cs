@@ -1,3 +1,4 @@
+using Core.Events.EventRecord;
 using Procfiler.Core.EventRecord;
 using ProcfilerTests.Core;
 using TestsUtil;

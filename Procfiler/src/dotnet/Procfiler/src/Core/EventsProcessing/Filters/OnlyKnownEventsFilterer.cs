@@ -1,6 +1,6 @@
+using Core.Constants.TraceEvents;
 using Core.Container;
-using Procfiler.Core.Constants.TraceEvents;
-using Procfiler.Core.EventsCollection;
+using Core.Events.EventsCollection;
 using Procfiler.Core.EventsProcessing.Filters.Core;
 
 namespace Procfiler.Core.EventsProcessing.Filters;
