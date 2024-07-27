@@ -2,7 +2,6 @@
 using Core.CppProcfiler;
 using Core.InstrumentalProfiler;
 using Core.Utils;
-using Procfiler.Core.Collector;
 using Procfiler.Utils;
 
 namespace Procfiler.Commands.CollectClrEvents.Base;

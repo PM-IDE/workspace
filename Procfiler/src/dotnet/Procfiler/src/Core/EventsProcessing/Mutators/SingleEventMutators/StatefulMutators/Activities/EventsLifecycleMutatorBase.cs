@@ -1,9 +1,8 @@
 using Core.Constants.XesLifecycle;
-using Core.Events.EventRecord;
 using Core.Exceptions;
 using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.EventRecord;
+using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities;

@@ -1,13 +1,12 @@
 using Core.CommandLine;
 using Core.Container;
-using Core.Events.EventRecord;
-using Core.Events.EventsCollection;
-using Core.Methods;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Base;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
+using Procfiler.Core.EventRecord.EventRecord;
+using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.Serialization.Bxes;

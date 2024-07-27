@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Diagnostics;
-using Microsoft.Diagnostics.Tracing;
-
-namespace Core.Events.EventRecord;
+namespace Procfiler.Core.EventRecord.EventRecord;
 
 public interface IEventMetadata : IDictionary<string, string>;
 

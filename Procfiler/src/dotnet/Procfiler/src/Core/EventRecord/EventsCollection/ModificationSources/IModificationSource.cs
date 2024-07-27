@@ -1,6 +1,6 @@
 using Core.Utils;
 
-namespace Core.Events.EventsCollection.ModificationSources;
+namespace Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
 public interface IModificationSource : IEventsOwner;
 

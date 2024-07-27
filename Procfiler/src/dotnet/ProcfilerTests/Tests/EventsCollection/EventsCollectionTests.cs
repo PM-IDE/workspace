@@ -1,6 +1,5 @@
-using Core.Events.EventRecord;
-using Core.Events.EventsCollection;
-using Procfiler.Core.EventRecord;
+using Procfiler.Core.EventRecord.EventRecord;
+using Procfiler.Core.EventRecord.EventsCollection;
 using ProcfilerTests.Core;
 
 namespace ProcfilerTests.Tests.EventsCollection;

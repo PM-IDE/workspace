@@ -1,21 +1,20 @@
 using System.Diagnostics;
-using Core.Events.EventRecord;
 using Core.Utils;
 
 namespace Core.Methods;
 
-public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string, List<List<EventRecordWithMetadata>>> callback)
+public abstract class LastSeenTaskEvent
 {
-  private abstract class LastSeenTaskEvent
-  {
-    public required int TaskId { get; init; }
-  }
+  public required int TaskId { get; init; }
+}
 
-  private sealed class TaskWaitSendEvent : LastSeenTaskEvent;
+public sealed class TaskWaitSendEvent : LastSeenTaskEvent;
 
-  private sealed class TaskWaitStopEvent : LastSeenTaskEvent;
+public sealed class TaskWaitStopEvent : LastSeenTaskEvent;
 
-  private record AsyncMethodTrace(LastSeenTaskEvent? BeforeTaskEvent, IList<EventRecordWithMetadata> Events)
+public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
+{
+  private record AsyncMethodTrace(LastSeenTaskEvent? BeforeTaskEvent, IList<TEvent> Events)
   {
     public LastSeenTaskEvent? AfterTaskEvent { get; set; }
   }
@@ -37,58 +36,42 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
   private readonly Dictionary<AsyncMethodTrace, int> myTracesToTasksIds = new();
 
 
-  public void ProcessEvent(EventRecordWithMetadata @event)
+  public void ProcessTaskWaitEvent(LastSeenTaskEvent taskEvent, long managedThreadId)
   {
-    UpdateAsyncMethodsToTypeNames(@event);
-    ProcessEventInternal(@event);
+    GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent;
   }
 
-  private void ProcessEventInternal(EventRecordWithMetadata eventRecord)
+  public void ProcessMethodStartEndEvent(TEvent @event, string fullMethodName, bool isStart, long managedThreadId)
   {
-    var threadData = GetThreadData(eventRecord);
-
-    if (TryProcessTaskEvent(eventRecord, threadData)) return;
-    if (TryProcessMethodEvent(eventRecord, threadData)) return;
-
-    AppendEventToTraceIfHaveSome(eventRecord);
-  }
-
-  private bool TryProcessTaskEvent(EventRecordWithMetadata eventRecord, ThreadData threadData)
-  {
-    if (!eventRecord.IsTaskWaitSendOrStopEvent()) return false;
-
-    threadData.LastSeenTaskEvent = ToLastSeenTaskEvent(eventRecord);
-    AppendEventToTraceIfHaveSome(eventRecord);
-    return true;
-  }
-
-  private bool TryProcessMethodEvent(EventRecordWithMetadata eventRecord, ThreadData threadData)
-  {
-    if (eventRecord.TryGetMethodStartEndEventInfo() is not var (frame, isStart) ||
-        !myAsyncMethodsToTypeNames.TryGetValue(frame, out var frameName))
+    UpdateAsyncMethodsToTypeNames(fullMethodName);
+    if (!myAsyncMethodsToTypeNames.TryGetValue(fullMethodName, out var frameName))
     {
-      return false;
+      return;
     }
 
     var stateMachineName = $"{asyncMethodsPrefix}{frameName}";
+    var threadData = GetThreadData(managedThreadId);
 
     if (isStart)
     {
-      ProcessMethodStart(eventRecord, threadData, stateMachineName);
+      ProcessMethodStart(@event, threadData, stateMachineName);
     }
     else
     {
-      ProcessMethodEnd(eventRecord, threadData, stateMachineName);
+      ProcessMethodEnd(@event, threadData, stateMachineName);
     }
 
     threadData.LastSeenTaskEvent = null;
-    return true;
-
   }
 
-  private void ProcessMethodStart(EventRecordWithMetadata eventRecord, ThreadData threadData, string stateMachineName)
+  public void ProcessNormalEvent(TEvent @event, long managedThreadId)
   {
-    var listOfEvents = new List<EventRecordWithMetadata> { eventRecord };
+    AppendEventToTraceIfHaveSome(managedThreadId, @event);
+  }
+
+  private void ProcessMethodStart(TEvent eventRecord, ThreadData threadData, string stateMachineName)
+  {
+    var listOfEvents = new List<TEvent> { eventRecord };
     var newTrace = new AsyncMethodTrace(threadData.LastSeenTaskEvent, listOfEvents);
     if (newTrace.BeforeTaskEvent is TaskWaitStopEvent { TaskId: var waitedTaskId })
     {
@@ -102,7 +85,7 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     threadData.LastTraceStack.Push(newTrace);
   }
 
-  private void ProcessMethodEnd(EventRecordWithMetadata eventRecord, ThreadData threadData, string stateMachineName)
+  private void ProcessMethodEnd(TEvent eventRecord, ThreadData threadData, string stateMachineName)
   {
     Debug.Assert(threadData.LastTraceStack.Count > 0);
     var lastTrace = threadData.LastTraceStack.Pop();
@@ -119,27 +102,6 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     }
 
     DiscoverLogicalExecutions(stateMachineName);
-  }
-
-  private static LastSeenTaskEvent ToLastSeenTaskEvent(EventRecordWithMetadata eventRecord)
-  {
-    if (eventRecord.IsTaskWaitSendEvent(out var sentTaskId))
-    {
-      return new TaskWaitSendEvent
-      {
-        TaskId = sentTaskId
-      };
-    }
-
-    if (eventRecord.IsTaskWaitStopEvent(out var waitedTaskId))
-    {
-      return new TaskWaitStopEvent
-      {
-        TaskId = waitedTaskId
-      };
-    }
-
-    throw new ArgumentOutOfRangeException(eventRecord.EventName);
   }
 
   private void DiscoverLogicalExecutions(string stateMachineName)
@@ -198,10 +160,8 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     trace.BeforeTaskEvent is not TaskWaitStopEvent { TaskId: var id } ||
     !myTasksToTracesIds.ContainsKey(id);
 
-  private void UpdateAsyncMethodsToTypeNames(EventRecordWithMetadata @event)
+  private void UpdateAsyncMethodsToTypeNames(string fullMethodName)
   {
-    if (@event.TryGetMethodStartEndEventInfo() is not { Frame: var fullMethodName }) return;
-
     var fullNameWithoutSignature = fullMethodName.AsSpan();
     fullNameWithoutSignature = fullNameWithoutSignature[..fullMethodName.IndexOf('[')];
 
@@ -225,16 +185,16 @@ public class OnlineAsyncMethodsGrouper(string asyncMethodsPrefix, Action<string,
     myAsyncMethodsToTypeNames[fullMethodName] = fullMethodName.Substring(typeNameStart, stateMachineEnd - typeNameStart);
   }
 
-  private void AppendEventToTraceIfHaveSome(EventRecordWithMetadata @event)
+  private void AppendEventToTraceIfHaveSome(long managedThreadId, TEvent @event)
   {
-    if (GetThreadData(@event).LastTraceStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
+    if (GetThreadData(managedThreadId).LastTraceStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
     {
-      eventsList.Add(@event.DeepClone());
+      eventsList.Add(@event);
     }
   }
 
-  private ThreadData GetThreadData(EventRecordWithMetadata @event)
+  private ThreadData GetThreadData(long managedThreadId)
   {
-    return myThreadsData.GetOrCreate(@event.ManagedThreadId, static () => new ThreadData());
+    return myThreadsData.GetOrCreate(managedThreadId, static () => new ThreadData());
   }
 }

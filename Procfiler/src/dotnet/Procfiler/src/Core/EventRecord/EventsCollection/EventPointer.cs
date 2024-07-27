@@ -1,6 +1,6 @@
 using Core.Exceptions;
 
-namespace Core.Events.EventsCollection;
+namespace Procfiler.Core.EventRecord.EventsCollection;
 
 public readonly record struct EventPointer(
   bool IsInFirstEvents,

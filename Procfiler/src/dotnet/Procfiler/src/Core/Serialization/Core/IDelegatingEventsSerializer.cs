@@ -1,6 +1,5 @@
 using Core.Container;
-using Core.Events.EventRecord;
-using Procfiler.Core.EventRecord;
+using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.Serialization.Csv;
 using Procfiler.Core.Serialization.MethodsCallTree;
 using Procfiler.Utils;

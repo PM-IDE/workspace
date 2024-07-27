@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
-using Core.Events.EventRecord;
-using Core.Utils;
+﻿using Core.Utils;
+using Procfiler.Core.EventRecord.EventRecord;
 
-namespace Core.Events.EventsCollection;
+namespace Procfiler.Core.EventRecord.EventsCollection;
 
 public class InsertedEvents
 {

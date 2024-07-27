@@ -1,8 +1,8 @@
 ﻿using Core.CommandLine;
-using Core.Events.EventRecord;
-using Core.Events.EventsCollection.ModificationSources;
+using Procfiler.Core.EventRecord.EventRecord;
+using Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
-namespace Core.Events.EventsCollection;
+namespace Procfiler.Core.EventRecord.EventsCollection;
 
 public interface IFreezableCollection
 {

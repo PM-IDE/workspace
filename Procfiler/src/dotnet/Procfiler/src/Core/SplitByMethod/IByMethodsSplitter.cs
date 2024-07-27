@@ -1,11 +1,9 @@
 using Core.Container;
-using Core.Events.EventRecord;
-using Core.Events.EventsCollection;
-using Core.Methods;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.Collector;
-using Procfiler.Core.EventRecord;
+using Procfiler.Core.EventRecord.EventRecord;
+using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.Serialization.Core;
@@ -62,7 +60,7 @@ public class ByMethodsSplitterImpl(
     if (addAsyncMethods)
     {
       var result = new Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>>();
-      AddAsyncMethods(serializer.AllMethodNames, result, eventsByManagedThreads);
+      AddAsyncMethods(result, eventsByManagedThreads);
 
       return result;
     }
@@ -100,14 +98,13 @@ public class ByMethodsSplitterImpl(
 
     if (addAsyncMethods)
     {
-      AddAsyncMethods(tracesByMethods.Keys, tracesByMethods, eventsByManagedThreads);
+      AddAsyncMethods(tracesByMethods, eventsByManagedThreads);
     }
 
     return tracesByMethods;
   }
 
   private void AddAsyncMethods(
-    IEnumerable<string> methodsNames,
     Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>> tracesByMethods,
     Dictionary<long, IEventsCollection> eventsByManagedThreads)
   {

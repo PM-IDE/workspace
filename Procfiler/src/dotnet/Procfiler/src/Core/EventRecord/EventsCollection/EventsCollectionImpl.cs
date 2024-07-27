@@ -1,9 +1,8 @@
-﻿using Core.Events.EventRecord;
-using Core.Events.EventsCollection.ModificationSources;
-using Core.Utils;
-using Microsoft.Extensions.Logging;
+﻿using Core.Utils;
+using Procfiler.Core.EventRecord.EventRecord;
+using Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
-namespace Core.Events.EventsCollection;
+namespace Procfiler.Core.EventRecord.EventsCollection;
 
 public class EventsCollectionImpl : EventsOwnerBase, IEventsCollection
 {

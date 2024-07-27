@@ -1,6 +1,6 @@
-using Core.Events.EventRecord;
+using Procfiler.Core.EventRecord.EventRecord;
 
-namespace Core.Events.EventsCollection;
+namespace Procfiler.Core.EventRecord.EventsCollection;
 
 public readonly struct EventRecordWithPointer
 {

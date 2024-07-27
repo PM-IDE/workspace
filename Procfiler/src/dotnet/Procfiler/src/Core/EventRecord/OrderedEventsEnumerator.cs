@@ -1,7 +1,6 @@
-using System.Collections;
-using Core.Events.EventsCollection;
+using Procfiler.Core.EventRecord.EventsCollection;
 
-namespace Core.Events;
+namespace Procfiler.Core.EventRecord;
 
 public class OrderedEventsEnumerator : IEnumerable<EventRecordWithPointer>, IEnumerator<EventRecordWithPointer>
 {
