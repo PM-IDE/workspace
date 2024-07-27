@@ -19,5 +19,7 @@ public class CompletedMethodExecutionHandler(ISharedEventPipeStreamData sharedDa
     {
       Console.WriteLine(sharedData.FindMethodFqn(frame.MethodId) ?? "???");
     }
+
+    Console.WriteLine();
   }
 }

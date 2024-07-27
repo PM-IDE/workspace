@@ -2,6 +2,7 @@
 using Core.Collector;
 using Core.Container;
 using Core.Utils;
+using Microsoft.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Handlers;
 
@@ -13,6 +14,16 @@ public class TargetMethodFrame(ulong methodId)
 {
   public ulong MethodId { get; } = methodId;
   public List<MethodFrame> InnerFrames { get; } = [];
+}
+
+public static class TraceEventExtensions
+{
+  public static (long QpcStamp, ulong methodId)? TryGetMethodDetails(this TraceEvent traceEvent)
+  {
+    if (traceEvent.ProviderName is not EventPipeProvidersNames.ProcfilerCppProvider) return null;
+
+    return ((long)traceEvent.PayloadValue(0), (ulong)traceEvent.PayloadValue(1));
+  }
 }
 
 [AppComponent]
@@ -27,12 +38,10 @@ public class SingleThreadMethodsProcessor(
 
   public void Process(EventProcessingContext context)
   {
-    if (context.Event.ProviderName is not EventPipeProvidersNames.ProcfilerCppProvider) return;
+    if (context.Event.TryGetMethodDetails() is not var (qpcStamp, methodId)) return;
 
     var traceEvent = context.Event;
     var threadId = traceEvent.ThreadID;
-    var qpcStamp = (long)traceEvent.PayloadValue(0);
-    var methodId = (ulong)traceEvent.PayloadValue(1);
     var isTargetMethod = IsTargetMethod(methodId, context.CommandContext.TargetMethodsRegex);
     var threadStack = myStacksPerThreads.GetOrCreate(threadId, static () => new Stack<TargetMethodFrame>());
 
