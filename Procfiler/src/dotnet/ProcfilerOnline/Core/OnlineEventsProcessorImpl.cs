@@ -1,8 +1,9 @@
-﻿using Core.Collector;
+﻿using System.Text.RegularExpressions;
 using Core.Container;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
-using ProcfilerOnline.Core.Handlers;
+using ProcfilerOnline.Commands;
+using ProcfilerOnline.Core.Processors;
 
 namespace ProcfilerOnline.Core;
 
@@ -24,31 +25,38 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 }
 
 public class OnlineEventsProcessorImpl(
-  IProcfilerLogger logger,
-  ICompositeEventPipeStreamEventHandler handler,
-  ISharedEventPipeStreamData sharedData,
-  string? targetMethodsRegex)
+  IEnumerable<ITraceEventProcessor> processors,
+  CollectEventsOnlineContext commandContext)
 {
-  private readonly Dictionary<int, ThreadEventsProcessor> myThreadsProcessors = new();
-
-
   public void Process(Stream eventPipeStream)
   {
     var source = new EventPipeEventSource(eventPipeStream);
-    source.Clr.MethodLoadVerbose += traceEvent =>
-    {
-      sharedData.UpdateMethodsInfo((ulong)traceEvent.MethodID, traceEvent.MethodName);
-    };
 
-    source.Dynamic.All += traceEvent =>
-    {
-      if (traceEvent.ProviderName != EventPipeProvidersNames.ProcfilerCppProvider) return;
-
-      myThreadsProcessors
-        .GetOrCreate(traceEvent.ThreadID, () => new ThreadEventsProcessor(logger, handler, sharedData, traceEvent.ThreadID, targetMethodsRegex))
-        .Process(traceEvent);
-    };
+    source.Clr.All += ProcessEvent;
+    source.Dynamic.All += ProcessEvent;
 
     source.Process();
+  }
+
+  private void ProcessEvent(TraceEvent traceEvent)
+  {
+    var context = new EventProcessingContext
+    {
+      Event = traceEvent,
+      CommandContext = new CommandContext
+      {
+        TargetMethodsRegex = commandContext.TargetMethodsRegex is { } ? new Regex(commandContext.TargetMethodsRegex) : null
+      }
+    };
+
+    foreach (var sharedDataUpdater in processors.OfType<ISharedDataUpdater>())
+    {
+      sharedDataUpdater.Process(context);
+    }
+
+    foreach (var processor in processors.Where(p => p is not ISharedDataUpdater))
+    {
+      processor.Process(context);
+    }
   }
 }
