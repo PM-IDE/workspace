@@ -707,24 +707,24 @@ impl PipelineParts {
             for trace in log.traces() {
                 let trace = trace.borrow();
                 for event in trace.events() {
-                    let mut new_level = None;
-                    let mut old_value = None;
-                    let mut old_key = None;
+                    let mut updates = vec![];
                     let mut event = event.borrow_mut();
                     if let Some(payload) = event.payload_map() {
-                        let key = payload.keys().into_iter().find(|k| k.starts_with(HIERARCHY_LEVEL));
-                        if let Some(key) = key {
+                        let keys = payload.keys().into_iter().filter(|k| k.starts_with(HIERARCHY_LEVEL));
+                        for key in keys {
                             let level = &key[HIERARCHY_LEVEL.len()..].parse::<usize>().ok().unwrap();
-                            new_level = Some(max_level - level);
-                            old_value = Some(payload.get(key).unwrap().clone());
-                            old_key = Some(key.to_owned());
+                            let new_level = max_level - level;
+                            let old_value = payload.get(key).unwrap().clone();
+                            let old_key = key.to_owned();
+
+                            updates.push((new_level, old_value, old_key));
                         }
                     }
 
-                    if let Some(new_level) = new_level {
-                        let new_key = format!("{}{}", HIERARCHY_LEVEL, new_level);
-                        event.payload_map_mut().unwrap().remove(old_key.as_ref().unwrap());
-                        event.payload_map_mut().unwrap().insert(new_key, old_value.unwrap());
+                    for update in updates {
+                        let new_key = format!("{}{}", HIERARCHY_LEVEL, update.0);
+                        event.payload_map_mut().unwrap().remove(&update.2);
+                        event.payload_map_mut().unwrap().insert(new_key, update.1);
                     }
                 }
             }
