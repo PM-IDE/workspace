@@ -2,6 +2,7 @@
 using Core.Container;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Parsers;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
 
@@ -32,6 +33,7 @@ public class OnlineEventsProcessorImpl(
   {
     var source = new EventPipeEventSource(eventPipeStream);
 
+    new TplEtwProviderTraceEventParser(source).All += ProcessEvent;
     source.Clr.All += ProcessEvent;
     source.Dynamic.All += ProcessEvent;
 

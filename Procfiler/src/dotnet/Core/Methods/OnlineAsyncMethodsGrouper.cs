@@ -14,8 +14,12 @@ public sealed class TaskWaitStopEvent : LastSeenTaskEvent;
 
 public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
 {
-  private record AsyncMethodTrace(LastSeenTaskEvent? BeforeTaskEvent, IList<TEvent> Events)
+  private class AsyncMethodTrace(LastSeenTaskEvent? beforeTaskEvent, IList<TEvent> events)
   {
+    public LastSeenTaskEvent? BeforeTaskEvent { get; } = beforeTaskEvent;
+    public IList<TEvent> Events { get; } = events;
+
+    public bool Completed { get; set; }
     public LastSeenTaskEvent? AfterTaskEvent { get; set; }
   }
 
@@ -101,6 +105,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action
       myTracesToTasksIds[lastTrace] = scheduledTaskId;
     }
 
+    lastTrace.Completed = true;
     DiscoverLogicalExecutions(stateMachineName);
   }
 
@@ -133,7 +138,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action
 
         if (!myTracesToTasksIds.TryGetValue(currentTrace, out var queuedTaskId)) break;
 
-        if (!myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace))
+        if (!currentTrace.Completed || !myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace))
         {
           finishedExecution = false;
           break;
@@ -149,16 +154,14 @@ public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action
     return result;
   }
 
-
-  private IEnumerable<AsyncMethodTrace> FindEntryPoints(IEnumerable<AsyncMethodTrace> traces)
-  {
-    return traces.Where(IsTraceAnEntryPoint).ToHashSet();
-  }
+  private IEnumerable<AsyncMethodTrace> FindEntryPoints(IEnumerable<AsyncMethodTrace> traces) =>
+    traces.Where(IsTraceAnEntryPoint).ToHashSet();
 
   private bool IsTraceAnEntryPoint(AsyncMethodTrace trace) =>
-    trace.BeforeTaskEvent is null ||
-    trace.BeforeTaskEvent is not TaskWaitStopEvent { TaskId: var id } ||
-    !myTasksToTracesIds.ContainsKey(id);
+    trace.Completed && (
+      trace.BeforeTaskEvent is not TaskWaitStopEvent { TaskId: var id } ||
+      !myTasksToTracesIds.ContainsKey(id)
+    );
 
   private void UpdateAsyncMethodsToTypeNames(string fullMethodName)
   {

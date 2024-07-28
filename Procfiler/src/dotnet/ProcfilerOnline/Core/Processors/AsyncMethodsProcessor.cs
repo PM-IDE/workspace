@@ -12,13 +12,12 @@ public class AsyncMethodsProcessor(ISharedEventPipeStreamData sharedData) : ITra
 
   public void Process(EventProcessingContext context)
   {
-    var name = context.Event.EventName;
     var threadId = context.Event.ThreadID;
 
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
     {
       var fqn = sharedData.FindMethodFqn(methodId);
-      myGrouper.ProcessMethodStartEndEvent(name, fqn, context.Event.GetMethodEventKind() == MethodKind.Begin, threadId);
+      myGrouper.ProcessMethodStartEndEvent(fqn, fqn, context.Event.GetMethodEventKind() == MethodKind.Begin, threadId);
       return;
     }
 

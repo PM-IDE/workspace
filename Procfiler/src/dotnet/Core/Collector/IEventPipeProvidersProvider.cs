@@ -73,6 +73,7 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
       [
         new(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways),
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)ClrTraceEventParser.Keywords.All),
+        new(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose, (long)TplEtwProviderTraceEventParser.Keywords.Default),
       ]
     };
 

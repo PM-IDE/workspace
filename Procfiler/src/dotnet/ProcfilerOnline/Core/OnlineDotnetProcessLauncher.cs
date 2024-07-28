@@ -28,7 +28,7 @@ public class OnlineDotnetProcessLauncher(IProcfilerLogger logger) : IOnlineDotne
     {
       FileName = "dotnet",
       WorkingDirectory = Path.GetDirectoryName(launcherDto.DllPath),
-      RedirectStandardOutput = false,
+      RedirectStandardOutput = true,
       CreateNoWindow = true,
       Arguments = $"{launcherDto.DllPath}",
       Environment =
@@ -50,11 +50,15 @@ public class OnlineDotnetProcessLauncher(IProcfilerLogger logger) : IOnlineDotne
       StartInfo = startInfo
     };
 
+    process.OutputDataReceived += (_, args) => logger.LogInformation("PROCESS OUTPUT: {ProcessOutput}", args.Data);
+
     if (!process.Start())
     {
       logger.LogError("Failed to start process {Path}", launcherDto.DllPath);
       return null;
     }
+
+    process.BeginOutputReadLine();
 
     logger.LogInformation("Started process: {Id} {Path} {Arguments}", process.Id, launcherDto.DllPath, startInfo.Arguments);
 
