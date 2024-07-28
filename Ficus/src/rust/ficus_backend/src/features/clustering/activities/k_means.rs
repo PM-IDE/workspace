@@ -59,7 +59,7 @@ fn create_labeled_dataset_from_k_means(
 ) -> LabeledDataset {
     let ficus_dataset = transform_to_ficus_dataset(
         dataset,
-        processed.iter().map(|x| x.0.borrow().name.to_owned()).collect(),
+        processed.iter().map(|x| x.0.borrow().name.as_ref().as_ref().to_owned()).collect(),
         classes_names,
     );
 
@@ -117,7 +117,7 @@ pub fn clusterize_activities_k_means_grid_search<TLog: EventLog>(
 
         let ficus_dataset = transform_to_ficus_dataset(
             &dataset,
-            processed.iter().map(|x| x.0.borrow().name.to_owned()).collect(),
+            processed.iter().map(|x| x.0.borrow().name.as_ref().as_ref().to_owned()).collect(),
             classes_names,
         );
 

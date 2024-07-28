@@ -371,7 +371,7 @@ static mut KEYS: Mutex<Lazy<ActivityInstancesKeys>> = Mutex::new(Lazy::new(|| Ac
 
 lazy_static! {
     pub static ref HIERARCHY_LEVEL: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
-};
+}
 
 pub fn create_new_log_from_activities_instances<TLog, TEventFactory>(
     log: &TLog,
@@ -419,8 +419,7 @@ where
 
             for event in &underlying_events {
                 execute_with_underlying_events::<TLog>(event, &mut |event| {
-                    let activity_name = Rc::new(Box::new(activity.node.borrow().name.to_owned()));
-                    let payload_value = EventPayloadValue::String(activity_name);
+                    let payload_value = EventPayloadValue::String(activity.node.borrow().name.clone());
                     let key = format!("hierarchy_level_{}", level);
                     event.add_or_update_payload(key, payload_value);
                 })
@@ -559,14 +558,14 @@ fn create_log_from_traces_activities<TLog: EventLog>(
                 new_trace.push(Rc::new(RefCell::new(events[i].borrow().clone())));
             }
 
-            let name = &activity_info.node.borrow().name;
-            if let Some(activity_log) = activities_to_logs.get_mut(name) {
+            let name = activity_info.node.borrow().name.as_ref().as_ref().to_owned();
+            if let Some(activity_log) = activities_to_logs.get_mut(&name) {
                 activity_log.borrow_mut().push(Rc::clone(&new_trace_ptr));
             } else {
                 let log = Rc::new(RefCell::new(TLog::empty()));
                 log.borrow_mut().push(Rc::clone(&new_trace_ptr));
 
-                activities_to_logs.insert(name.to_owned(), log);
+                activities_to_logs.insert(name, log);
             }
         };
 

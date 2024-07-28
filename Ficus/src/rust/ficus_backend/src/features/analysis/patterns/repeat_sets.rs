@@ -3,7 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
     rc::Rc,
 };
-
+use std::cell::Ref;
 use crate::utils::hash_utils::calculate_poly_hash_for_collection;
 
 use super::tandem_arrays::SubArrayInTraceInfo;
@@ -80,7 +80,7 @@ pub struct ActivityNode {
     pub event_classes: HashSet<u64>,
     pub children: Vec<Rc<RefCell<ActivityNode>>>,
     pub level: usize,
-    pub name: String,
+    pub name: Rc<Box<String>>,
 }
 
 impl ActivityNode {
@@ -124,7 +124,7 @@ where
             event_classes: events_set,
             children: vec![],
             level: activity_level,
-            name: name_creator(repeat_set),
+            name: Rc::new(Box::new(name_creator(repeat_set))),
         }))
     };
 

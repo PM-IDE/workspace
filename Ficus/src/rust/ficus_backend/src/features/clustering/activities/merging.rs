@@ -73,7 +73,7 @@ pub(super) fn merge_activities(
             event_classes: new_event_classes_set,
             children: vec![],
             level: cluster_activities[0].borrow().level,
-            name: new_activity_name,
+            name: Rc::new(Box::new(new_activity_name)),
         };
 
         new_cluster_activities.insert(*cluster, Rc::new(RefCell::new(new_node)));

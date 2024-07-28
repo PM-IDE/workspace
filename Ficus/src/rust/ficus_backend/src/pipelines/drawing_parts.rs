@@ -125,13 +125,12 @@ impl PipelineParts {
                 Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| match sub_trace {
                     SubTraceKind::Attached(activity) => {
                         let color = colors_holder.get_or_create(&activity.node.borrow().name);
-                        let name = activity.node.borrow().name.to_owned();
-                        if !mapping.contains_key(&activity.node.borrow().name) {
-                            mapping.insert(name.clone(), color);
+                        let name = activity.node.borrow().name.clone();
+                        if !mapping.contains_key(name.as_ref().as_ref()) {
+                            mapping.insert(name.as_ref().as_ref().to_owned(), color);
                         }
 
-                        let ptr = Rc::new(Box::new(name));
-                        colors_trace.push(ColoredRectangle::new(ptr, activity.start_pos, activity.length));
+                        colors_trace.push(ColoredRectangle::new(name, activity.start_pos, activity.length));
                     }
                     SubTraceKind::Unattached(start_pos, length) => {
                         colors_trace.push(ColoredRectangle::new(
@@ -171,12 +170,11 @@ impl PipelineParts {
                             let color = colors_holder.get_or_create(&activity.node.borrow().name);
                             let name = activity.node.borrow().name.to_owned();
 
-                            if !mapping.contains_key(&activity.node.borrow().name) {
-                                mapping.insert(name.to_owned(), color);
+                            if !mapping.contains_key(activity.node.borrow().name.as_ref().as_ref()) {
+                                mapping.insert(activity.node.borrow().name.as_ref().as_ref().to_owned(), color);
                             }
 
-                            let ptr = Rc::new(Box::new(name));
-                            colors_trace.push(ColoredRectangle::new(ptr, index, 1));
+                            colors_trace.push(ColoredRectangle::new(name, index, 1));
                         }
                         SubTraceKind::Unattached(_, _) => {
                             let ptr = Rc::new(Box::new(UNDEF_ACTIVITY_NAME.to_owned()));

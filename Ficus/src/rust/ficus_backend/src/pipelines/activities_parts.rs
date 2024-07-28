@@ -1,30 +1,8 @@
-use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
-use crate::event_log::core::event::event::{Event, EventPayloadValue};
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::event_log_info::count_events;
-use crate::features::analysis::patterns::activity_instances;
-use crate::features::analysis::patterns::activity_instances::{substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME};
-use crate::features::clustering::activities::activities_common::create_dataset;
-use crate::features::clustering::activities::activities_params::{ActivitiesClusteringParams, ActivitiesVisualizationParams};
-use crate::features::clustering::activities::dbscan::clusterize_activities_dbscan;
-use crate::features::clustering::activities::k_means::{clusterize_activities_k_means, clusterize_activities_k_means_grid_search};
-use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisualizationParams};
-use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
-use crate::features::clustering::traces::traces_params::TracesClusteringParams;
-use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{
-    ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY,
-    ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENTS_COUNT_KEY,
-    EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY,
-    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_SERIALIZATION_FORMAT_KEY,
-    MIN_ACTIVITY_LENGTH_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY,
-    PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-    TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
-};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::log_serialization_format::LogSerializationFormat;
+use std::{cell::RefCell, rc::Rc};
+use std::collections::HashMap;
+use std::path::Path;
+use std::str::FromStr;
+
 use crate::{
     event_log::{
         core::event_log::EventLog,
@@ -32,28 +10,49 @@ use crate::{
     },
     features::analysis::patterns::{
         activity_instances::{
-            add_unattached_activities, count_underlying_events, create_activity_name, create_log_from_unattached_events,
-            create_new_log_from_activities_instances, extract_activities_instances, ActivityInTraceInfo, AdjustingMode, SubTraceKind,
+            ActivityInTraceInfo, add_unattached_activities, AdjustingMode, count_underlying_events,
+            create_activity_name, create_log_from_unattached_events, create_new_log_from_activities_instances, extract_activities_instances, SubTraceKind,
             UndefActivityHandlingStrategy,
         },
         repeat_sets::{build_repeat_set_tree_from_repeats, build_repeat_sets},
     },
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use std::cmp::max;
-use std::collections::HashMap;
-use std::ops::Index;
-use std::path::Path;
-use std::str::FromStr;
-use std::{cell::RefCell, rc::Rc};
+use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
+use crate::event_log::core::event::event::Event;
+use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
+use crate::features::analysis::event_log_info::count_events;
+use crate::features::analysis::patterns::activity_instances;
+use crate::features::analysis::patterns::activity_instances::{ActivitiesLogSource, substitute_underlying_events, UNDEF_ACTIVITY_NAME};
+use crate::features::clustering::activities::activities_common::create_dataset;
+use crate::features::clustering::activities::activities_params::{ActivitiesClusteringParams, ActivitiesVisualizationParams};
+use crate::features::clustering::activities::dbscan::clusterize_activities_dbscan;
+use crate::features::clustering::activities::k_means::{clusterize_activities_k_means, clusterize_activities_k_means_grid_search};
+use crate::features::clustering::common::{CommonVisualizationParams, transform_to_ficus_dataset};
+use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
+use crate::features::clustering::traces::traces_params::TracesClusteringParams;
+use crate::pipelines::context::PipelineInfrastructure;
+use crate::pipelines::keys::context_keys::{
+    ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY,
+    ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY,
+    EVENT_CLASSES_REGEXES_KEY, EVENT_LOG_KEY, EVENTS_COUNT_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY,
+    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_SERIALIZATION_FORMAT_KEY,
+    MIN_ACTIVITY_LENGTH_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY,
+    PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TOLERANCE_KEY, TRACE_ACTIVITIES_KEY,
+    TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
+};
+use crate::pipelines::pipeline_parts::PipelineParts;
+use crate::utils::log_serialization_format::LogSerializationFormat;
 
-use super::errors::pipeline_errors::RawPartExecutionError;
 use super::{
     aliases::TracesActivities,
     context::PipelineContext,
     errors::pipeline_errors::PipelinePartExecutionError,
     pipelines::{DefaultPipelinePart, PipelinePart, PipelinePartFactory},
 };
+use super::errors::pipeline_errors::RawPartExecutionError;
 
 pub enum UndefActivityHandlingStrategyDto {
     DontInsert,
@@ -175,7 +174,7 @@ impl PipelineParts {
         };
 
         let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info| {
-            Rc::new(RefCell::new(XesEventImpl::new_with_min_date(info.node.borrow().name.clone())))
+            Rc::new(RefCell::new(XesEventImpl::new_with_min_date(info.node.borrow().name.as_ref().as_ref().clone())))
         });
 
         context.put_concrete(EVENT_LOG_KEY.key(), log);
@@ -609,7 +608,7 @@ impl PipelineParts {
                 Err(error) => return Err(error.into()),
             };
 
-            let processed = processed.iter().map(|x| x.0.borrow().name.to_owned()).collect();
+            let processed = processed.iter().map(|x| x.0.borrow().name.as_ref().as_ref().to_owned()).collect();
             let ficus_dataset = transform_to_ficus_dataset(&dataset, processed, classes);
 
             context.put_concrete(TRACES_ACTIVITIES_DATASET_KEY.key(), ficus_dataset);

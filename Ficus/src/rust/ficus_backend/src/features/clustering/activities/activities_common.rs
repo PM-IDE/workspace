@@ -143,7 +143,7 @@ fn create_activities_repr_from_subtraces<TLog: EventLog>(
 
     processed
         .into_iter()
-        .map(|x| (x.0, (x.1 .0, x.1 .1.into_iter().map(|x| (x.0, x.1)).collect())))
+        .map(|x| (x.0.as_ref().as_ref().to_owned(), (x.1 .0, x.1 .1.into_iter().map(|x| (x.0, x.1)).collect())))
         .collect()
 }
 
@@ -209,7 +209,7 @@ pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
             let mut processed = HashMap::new();
             for trace_activities in traces_activities.iter() {
                 for activity in trace_activities {
-                    if processed.contains_key(&activity.node.borrow().name) {
+                    if processed.contains_key(activity.node.borrow().name.as_ref().as_ref()) {
                         continue;
                     }
 
@@ -245,7 +245,7 @@ pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
                     };
 
                     processed.insert(
-                        activity.node.borrow().name.to_owned(),
+                        activity.node.borrow().name.as_ref().as_ref().to_owned(),
                         (activity.node.clone(), activity_event_classes.into_iter().map(|x| (x, 1)).collect()),
                     );
                 }
