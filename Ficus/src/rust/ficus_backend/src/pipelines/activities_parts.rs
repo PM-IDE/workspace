@@ -1,10 +1,5 @@
-use std::collections::HashMap;
-use std::path::Path;
-use std::str::FromStr;
-use std::{cell::RefCell, rc::Rc};
-
 use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
-use crate::event_log::core::event::event::Event;
+use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
@@ -19,7 +14,15 @@ use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisu
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
 use crate::features::clustering::traces::traces_params::TracesClusteringParams;
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENTS_COUNT_KEY, EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY, LABELED_LOG_TRACES_DATASET_KEY};
+use crate::pipelines::keys::context_keys::{
+    ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY,
+    ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENTS_COUNT_KEY,
+    EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY,
+    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_SERIALIZATION_FORMAT_KEY,
+    MIN_ACTIVITY_LENGTH_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY,
+    PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+    TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
@@ -37,6 +40,12 @@ use crate::{
     },
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
+use std::cmp::max;
+use std::collections::HashMap;
+use std::ops::Index;
+use std::path::Path;
+use std::str::FromStr;
+use std::{cell::RefCell, rc::Rc};
 
 use super::errors::pipeline_errors::RawPartExecutionError;
 use super::{
@@ -670,6 +679,55 @@ impl PipelineParts {
                 };
 
                 log_number += 1;
+            }
+
+            Ok(())
+        })
+    }
+
+    pub(super) fn reverse_hierarchy_indices() -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::REVERSE_HIERARCHY_INDICES, &|context, infra, config| {
+            let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+
+            const HIERARCHY_LEVEL: &str = "hierarchy_level_";
+            let mut max_level = 0usize;
+            for trace in log.traces() {
+                let trace = trace.borrow();
+                for event in trace.events() {
+                    let event = event.borrow();
+                    for (key, _) in event.ordered_payload() {
+                        if key.starts_with(HIERARCHY_LEVEL) {
+                            let level = &key[HIERARCHY_LEVEL.len()..];
+                            let level = level.parse::<usize>().ok().unwrap();
+                            max_level = max_level.max(level);
+                        }
+                    }
+                }
+            }
+
+            for trace in log.traces() {
+                let trace = trace.borrow();
+                for event in trace.events() {
+                    let mut new_level = None;
+                    let mut old_value = None;
+                    let mut old_key = None;
+                    let mut event = event.borrow_mut();
+                    if let Some(payload) = event.payload_map() {
+                        let key = payload.keys().into_iter().find(|k| k.starts_with(HIERARCHY_LEVEL));
+                        if let Some(key) = key {
+                            let level = &key[HIERARCHY_LEVEL.len()..].parse::<usize>().ok().unwrap();
+                            new_level = Some(max_level - level);
+                            old_value = Some(payload.get(key).unwrap().clone());
+                            old_key = Some(key.to_owned());
+                        }
+                    }
+
+                    if let Some(new_level) = new_level {
+                        let new_key = format!("{}{}", HIERARCHY_LEVEL, new_level);
+                        event.payload_map_mut().unwrap().remove(old_key.as_ref().unwrap());
+                        event.payload_map_mut().unwrap().insert(new_key, old_value.unwrap());
+                    }
+                }
             }
 
             Ok(())

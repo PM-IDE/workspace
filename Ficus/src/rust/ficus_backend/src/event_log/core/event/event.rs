@@ -93,6 +93,7 @@ pub trait Event: Clone {
 
     fn timestamp(&self) -> &DateTime<Utc>;
     fn payload_map(&self) -> Option<&HashMap<String, EventPayloadValue>>;
+    fn payload_map_mut(&mut self) -> Option<&mut HashMap<String, EventPayloadValue>>;
     fn ordered_payload(&self) -> Vec<(&String, &EventPayloadValue)>;
     fn user_data(&mut self) -> &mut UserDataImpl;
 

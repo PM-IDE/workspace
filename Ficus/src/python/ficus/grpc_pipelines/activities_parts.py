@@ -603,3 +603,8 @@ class SerializeActivitiesLogs(PipelinePart):
                           self.activities_source.name)
 
         return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_serialize_activities_logs, config))
+
+
+class ReverseHierarchyIndices(PipelinePart):
+    def to_grpc_part(self) -> GrpcPipelinePartBase:
+        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_reverse_hierarchy_indices))

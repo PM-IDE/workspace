@@ -111,6 +111,7 @@ const_read_xes_from_bytes = 'ReadXesLogFromBytes'
 const_read_bxes_from_bytes = 'ReadBxesLogFromBytes'
 const_write_xes_to_bytes = 'WriteXesLogToBytes'
 const_write_bxes_to_bytes = 'WriteBxesLogToBytes'
+const_reverse_hierarchy_indices = 'ReverseHierarchyIndices'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

@@ -1,6 +1,16 @@
+use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
+use crate::event_log::core::event::event::EventPayloadValue;
+use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
+use crate::{
+    event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    pipelines::aliases::TracesActivities,
+    utils::user_data::{keys::DefaultKey, user_data::UserData},
+};
 use fancy_regex::Regex;
+use lazy_static::lazy_static;
 use once_cell::unsync::Lazy;
 use std::any::{Any, TypeId};
+use std::borrow::ToOwned;
 use std::sync::Mutex;
 use std::{
     cell::RefCell,
@@ -8,13 +18,6 @@ use std::{
     ops::DerefMut,
     rc::Rc,
     str::FromStr,
-};
-
-use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
-use crate::{
-    event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
-    pipelines::aliases::TracesActivities,
-    utils::user_data::{keys::DefaultKey, user_data::UserData},
 };
 
 #[derive(Debug, Clone)]
@@ -366,6 +369,10 @@ impl ActivityInstancesKeys {
 
 static mut KEYS: Mutex<Lazy<ActivityInstancesKeys>> = Mutex::new(Lazy::new(|| ActivityInstancesKeys::new()));
 
+lazy_static! {
+    pub static ref HIERARCHY_LEVEL: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
+};
+
 pub fn create_new_log_from_activities_instances<TLog, TEventFactory>(
     log: &TLog,
     instances: &Vec<Vec<ActivityInTraceInfo>>,
@@ -377,6 +384,7 @@ where
     TLog::TEvent: 'static,
     TEventFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
 {
+    let level = log.user_data().get(HIERARCHY_LEVEL.key()).unwrap_or(&0usize);
     let mut new_log = TLog::empty();
 
     for (instances, trace) in instances.iter().zip(log.traces()) {
@@ -409,6 +417,15 @@ where
             let mut event = ptr.borrow_mut();
             let user_data = event.user_data();
 
+            for event in &underlying_events {
+                execute_with_underlying_events::<TLog>(event, &mut |event| {
+                    let activity_name = Rc::new(Box::new(activity.node.borrow().name.to_owned()));
+                    let payload_value = EventPayloadValue::String(activity_name);
+                    let key = format!("hierarchy_level_{}", level);
+                    event.add_or_update_payload(key, payload_value);
+                })
+            }
+
             unsafe {
                 user_data.put_any(&KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>(), underlying_events);
             }
@@ -419,6 +436,7 @@ where
         new_log.push(new_trace_ptr)
     }
 
+    new_log.user_data_mut().put_concrete(HIERARCHY_LEVEL.key(), level + 1);
     new_log
 }
 
@@ -662,6 +680,22 @@ where
     }
 
     new_log
+}
+
+pub fn execute_with_underlying_events<TLog>(event: &Rc<RefCell<TLog::TEvent>>, action: &mut impl FnMut(&mut TLog::TEvent))
+where
+    TLog: EventLog,
+{
+    let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
+
+    let mut event = event.borrow_mut();
+    if let Some(underlying_events) = event.user_data().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
+        for underlying_event in underlying_events {
+            execute_with_underlying_events::<TLog>(underlying_event, action);
+        }
+    } else {
+        action(&mut event);
+    }
 }
 
 pub fn substitute_underlying_events<TLog>(event: &Rc<RefCell<TLog::TEvent>>, trace: &mut TLog::TTrace)
