@@ -22,7 +22,7 @@ public class BxesEvent : IEvent
 
   public BxesEvent(EventRecordWithMetadata eventRecord, bool writeAllEventMetadata)
   {
-    Timestamp = eventRecord.Time.LoggedAt.Ticks;
+    Timestamp = (eventRecord.Time.LoggedAt.Ticks - DateTime.UnixEpoch.Ticks) * 100;
     Name = eventRecord.EventName;
     Lifecycle = new BrafLifecycle(BrafLifecycleValues.Unspecified);
 

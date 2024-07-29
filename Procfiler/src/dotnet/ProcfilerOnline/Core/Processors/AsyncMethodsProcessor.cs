@@ -17,6 +17,8 @@ public class AsyncMethodsProcessor(ISharedEventPipeStreamData sharedData) : ITra
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
     {
       var fqn = sharedData.FindMethodFqn(methodId);
+      if (fqn is null) return;
+
       if (context.CommandContext.TargetMethodsRegex is null ||
           context.CommandContext.TargetMethodsRegex.IsMatch(fqn))
       {
