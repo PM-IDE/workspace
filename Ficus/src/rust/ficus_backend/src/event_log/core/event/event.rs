@@ -1,9 +1,9 @@
 use crate::utils::user_data::user_data::UserDataImpl;
 
-use chrono::{DateTime, Utc};
-use std::{collections::HashMap, rc::Rc};
-
 use super::lifecycle::xes_lifecycle::Lifecycle;
+use chrono::{DateTime, Utc};
+use std::ops::Deref;
+use std::{collections::HashMap, rc::Rc};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EventPayloadValue {
@@ -60,25 +60,41 @@ pub enum EventPayloadSoftwareEventType {
     Returning = 6,
 }
 
-impl ToString for EventPayloadValue {
-    fn to_string(&self) -> String {
+pub enum ReferenceOrOwned<'a, T> {
+    Ref(&'a T),
+    Owned(T),
+}
+
+impl<'a, T> Deref for ReferenceOrOwned<'a, T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
         match self {
-            EventPayloadValue::Null => "NULL".to_string(),
-            EventPayloadValue::Date(date) => date.to_rfc3339(),
-            EventPayloadValue::String(string) => string.as_ref().as_ref().to_owned(),
-            EventPayloadValue::Boolean(bool) => bool.to_string(),
-            EventPayloadValue::Int32(int) => int.to_string(),
-            EventPayloadValue::Float32(float) => float.to_string(),
-            EventPayloadValue::Int64(value) => value.to_string(),
-            EventPayloadValue::Float64(value) => value.to_string(),
-            EventPayloadValue::Uint32(value) => value.to_string(),
-            EventPayloadValue::Uint64(value) => value.to_string(),
-            EventPayloadValue::Guid(value) => value.to_string(),
-            EventPayloadValue::Timestamp(value) => value.to_string(),
-            EventPayloadValue::Lifecycle(lifecycle) => lifecycle.to_string(),
-            EventPayloadValue::Artifact(artifact) => format!("{:?}", artifact),
-            EventPayloadValue::Drivers(drivers) => format!("{:?}", drivers),
-            EventPayloadValue::SoftwareEvent(software_event) => format!("{:?}", software_event),
+            ReferenceOrOwned::Ref(reference) => reference,
+            ReferenceOrOwned::Owned(value) => &value,
+        }
+    }
+}
+
+impl EventPayloadValue {
+    pub fn to_string_repr(&self) -> ReferenceOrOwned<String> {
+        match self {
+            EventPayloadValue::Null => ReferenceOrOwned::Owned("NULL".to_string()),
+            EventPayloadValue::Date(date) => ReferenceOrOwned::Owned(date.to_rfc3339()),
+            EventPayloadValue::String(string) => ReferenceOrOwned::Ref(string.as_ref().as_ref()),
+            EventPayloadValue::Boolean(bool) => ReferenceOrOwned::Owned(bool.to_string()),
+            EventPayloadValue::Int32(int) => ReferenceOrOwned::Owned(int.to_string()),
+            EventPayloadValue::Float32(float) => ReferenceOrOwned::Owned(float.to_string()),
+            EventPayloadValue::Int64(value) => ReferenceOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Float64(value) => ReferenceOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Uint32(value) => ReferenceOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Uint64(value) => ReferenceOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Guid(value) => ReferenceOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Timestamp(value) => ReferenceOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Lifecycle(lifecycle) => ReferenceOrOwned::Owned(lifecycle.to_string()),
+            EventPayloadValue::Artifact(artifact) => ReferenceOrOwned::Owned(format!("{:?}", artifact)),
+            EventPayloadValue::Drivers(drivers) => ReferenceOrOwned::Owned(format!("{:?}", drivers)),
+            EventPayloadValue::SoftwareEvent(software_event) => ReferenceOrOwned::Owned(format!("{:?}", software_event)),
         }
     }
 }

@@ -1,10 +1,10 @@
+use crate::utils::hash_utils::calculate_poly_hash_for_collection;
+use std::cell::Ref;
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
     rc::Rc,
 };
-use std::cell::Ref;
-use crate::utils::hash_utils::calculate_poly_hash_for_collection;
 
 use super::tandem_arrays::SubArrayInTraceInfo;
 

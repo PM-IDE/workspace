@@ -1,11 +1,11 @@
-use quick_xml::events::{BytesEnd, BytesStart};
-use quick_xml::Writer;
 use std::cell::RefCell;
 use std::error::Error;
 use std::fmt::{Debug, Display};
 use std::io;
-use std::io::Cursor;
 use std::string::FromUtf8Error;
+
+use quick_xml::events::{BytesEnd, BytesStart};
+use quick_xml::Writer;
 
 pub enum XmlWriteError {
     FromUt8Error(FromUtf8Error),
@@ -35,7 +35,10 @@ impl Debug for XmlWriteError {
 
 impl Error for XmlWriteError {}
 
-pub fn write_empty(writer: &mut Writer<Cursor<Vec<u8>>>, tag_name: &str, attrs: &Vec<(&str, &str)>) -> Result<(), XmlWriteError> {
+pub fn write_empty<T>(writer: &mut Writer<T>, tag_name: &str, attrs: &Vec<(&str, &str)>) -> Result<(), XmlWriteError>
+where
+    T: std::io::Write,
+{
     let mut empty_tag = BytesStart::new(tag_name);
     for (name, value) in attrs {
         empty_tag.push_attribute((*name, *value));
@@ -49,20 +52,29 @@ pub fn write_empty(writer: &mut Writer<Cursor<Vec<u8>>>, tag_name: &str, attrs: 
     }
 }
 
-pub struct StartEndElementCookie<'a> {
+pub struct StartEndElementCookie<'a, T>
+where
+    T: io::Write,
+{
     tag_name: &'a str,
-    writer: &'a RefCell<Writer<Cursor<Vec<u8>>>>,
+    writer: &'a RefCell<Writer<T>>,
 }
 
-impl<'a> Drop for StartEndElementCookie<'a> {
+impl<'a, T> Drop for StartEndElementCookie<'a, T>
+where
+    T: io::Write,
+{
     fn drop(&mut self) {
         let end = quick_xml::events::Event::End(BytesEnd::new(self.tag_name));
         assert!(self.writer.borrow_mut().write_event(end).is_ok());
     }
 }
 
-impl<'a> StartEndElementCookie<'a> {
-    pub fn new(writer: &'a RefCell<Writer<Cursor<Vec<u8>>>>, tag_name: &'a str) -> Result<StartEndElementCookie<'a>, XmlWriteError> {
+impl<'a, T> StartEndElementCookie<'a, T>
+where
+    T: io::Write,
+{
+    pub fn new(writer: &'a RefCell<Writer<T>>, tag_name: &'a str) -> Result<StartEndElementCookie<'a, T>, XmlWriteError> {
         let start = quick_xml::events::Event::Start(BytesStart::new(tag_name));
 
         match writer.borrow_mut().write_event(start) {
@@ -72,10 +84,10 @@ impl<'a> StartEndElementCookie<'a> {
     }
 
     pub fn new_with_attrs(
-        writer: &'a RefCell<Writer<Cursor<Vec<u8>>>>,
+        writer: &'a RefCell<Writer<T>>,
         tag_name: &'a str,
         attrs: &Vec<(&str, &str)>,
-    ) -> Result<StartEndElementCookie<'a>, XmlWriteError> {
+    ) -> Result<StartEndElementCookie<'a, T>, XmlWriteError> {
         let mut start_tag = BytesStart::new(tag_name);
         for (name, value) in attrs {
             start_tag.push_attribute((*name, *value));
