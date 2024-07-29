@@ -75,10 +75,18 @@ public class SingleThreadMethodsProcessor(
             logger.LogWarning("The stack is corrupt for thread {ThreadId}", threadId);
           }
 
-          handler.Handle(new CompletedMethodExecutionEvent
+          var frame = threadStack.Pop();
+
+          if (sharedData.FindMethodFqn(frame.MethodId) is not { } methodFqn) return;
+
+          if (context.CommandContext.TargetMethodsRegex is null ||
+              context.CommandContext.TargetMethodsRegex.IsMatch(methodFqn))
           {
-            Frame = threadStack.Pop()
-          });
+            handler.Handle(new CompletedMethodExecutionEvent
+            {
+              Frame = frame
+            });
+          }
         }
 
         break;

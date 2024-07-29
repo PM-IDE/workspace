@@ -17,7 +17,12 @@ public class AsyncMethodsProcessor(ISharedEventPipeStreamData sharedData) : ITra
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
     {
       var fqn = sharedData.FindMethodFqn(methodId);
-      myGrouper.ProcessMethodStartEndEvent(fqn, fqn, context.Event.GetMethodEventKind() == MethodKind.Begin, threadId);
+      if (context.CommandContext.TargetMethodsRegex is null ||
+          context.CommandContext.TargetMethodsRegex.IsMatch(fqn))
+      {
+        myGrouper.ProcessMethodStartEndEvent(fqn, fqn, context.Event.GetMethodEventKind() == MethodKind.Begin, threadId);
+      }
+
       return;
     }
 
