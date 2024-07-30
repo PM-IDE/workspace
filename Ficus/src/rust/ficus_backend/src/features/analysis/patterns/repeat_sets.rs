@@ -1,10 +1,11 @@
-use crate::utils::hash_utils::calculate_poly_hash_for_collection;
-use std::cell::Ref;
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
     rc::Rc,
 };
+use std::sync::atomic::{AtomicU64, Ordering};
+
+use crate::utils::hash_utils::calculate_poly_hash_for_collection;
 
 use super::tandem_arrays::SubArrayInTraceInfo;
 
@@ -76,20 +77,60 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
 
 #[derive(Debug)]
 pub struct ActivityNode {
-    pub repeat_set: Option<SubArrayWithTraceIndex>,
-    pub event_classes: HashSet<u64>,
-    pub children: Vec<Rc<RefCell<ActivityNode>>>,
-    pub level: usize,
-    pub name: Rc<Box<String>>,
+    id: u64,
+    repeat_set: Option<SubArrayWithTraceIndex>,
+    event_classes: HashSet<u64>,
+    children: Vec<Rc<RefCell<ActivityNode>>>,
+    level: usize,
+    name: Rc<Box<String>>,
 }
 
 impl ActivityNode {
+    pub fn new(
+        repeat_set: Option<SubArrayWithTraceIndex>,
+        event_classes: HashSet<u64>,
+        children: Vec<Rc<RefCell<ActivityNode>>>,
+        level: usize,
+        name: Rc<Box<String>>,
+    ) -> Self {
+        static NEXT_ID: AtomicU64 = AtomicU64::new(0);
+
+        Self {
+            id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
+            repeat_set,
+            event_classes,
+            children,
+            level,
+            name,
+        }
+    }
+
     pub fn len(&self) -> usize {
         self.event_classes.len()
     }
 
     fn contains_other(&self, other_node: &ActivityNode) -> bool {
         self.event_classes.is_superset(&other_node.event_classes)
+    }
+
+    pub fn repeat_set(&self) -> Option<&SubArrayWithTraceIndex> {
+        self.repeat_set.as_ref()
+    }
+
+    pub fn event_classes(&self) -> &HashSet<u64> {
+        &self.event_classes
+    }
+
+    pub fn children(&self) -> &Vec<Rc<RefCell<ActivityNode>>> {
+        &self.children
+    }
+
+    pub fn level(&self) -> usize {
+        self.level
+    }
+
+    pub fn name(&self) -> &Rc<Box<String>> {
+        &self.name
     }
 }
 
@@ -119,13 +160,13 @@ where
 
     let create_activity_node = |repeat_set: &SubArrayWithTraceIndex| {
         let events_set = extract_events_set(repeat_set);
-        Rc::new(RefCell::new(ActivityNode {
-            repeat_set: Some(*repeat_set),
-            event_classes: events_set,
-            children: vec![],
-            level: activity_level,
-            name: Rc::new(Box::new(name_creator(repeat_set))),
-        }))
+        Rc::new(RefCell::new(ActivityNode::new(
+            Some(*repeat_set),
+            events_set,
+            vec![],
+            activity_level,
+            Rc::new(Box::new(name_creator(repeat_set))),
+        )))
     };
 
     let mut activity_nodes = repeats

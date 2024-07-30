@@ -175,7 +175,7 @@ impl PipelineParts {
 
         let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info| {
             Rc::new(RefCell::new(XesEventImpl::new_with_min_date(
-                info.node.borrow().name.as_ref().as_ref().clone(),
+                info.node.borrow().name().as_ref().as_ref().clone(),
             )))
         });
 
@@ -610,7 +610,7 @@ impl PipelineParts {
                 Err(error) => return Err(error.into()),
             };
 
-            let processed = processed.iter().map(|x| x.0.borrow().name.as_ref().as_ref().to_owned()).collect();
+            let processed = processed.iter().map(|x| x.0.borrow().name().as_ref().as_ref().to_owned()).collect();
             let ficus_dataset = transform_to_ficus_dataset(&dataset, processed, classes);
 
             context.put_concrete(TRACES_ACTIVITIES_DATASET_KEY.key(), ficus_dataset);
