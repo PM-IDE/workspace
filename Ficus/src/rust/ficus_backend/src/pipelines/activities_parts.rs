@@ -723,9 +723,12 @@ impl PipelineParts {
                         }
                     }
 
+                    for update in &updates {
+                        event.payload_map_mut().unwrap().remove(&update.2);
+                    }
+
                     for update in updates {
                         let new_key = format!("{}{}", HIERARCHY_LEVEL, update.0);
-                        event.payload_map_mut().unwrap().remove(&update.2);
                         event.payload_map_mut().unwrap().insert(new_key, update.1);
                     }
                 }
