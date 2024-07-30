@@ -1,5 +1,5 @@
 ﻿using Core.CommandLine;
-using Procfiler.Core.EventRecord.EventRecord;
+using Core.Events.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
 namespace Procfiler.Core.EventRecord.EventsCollection;

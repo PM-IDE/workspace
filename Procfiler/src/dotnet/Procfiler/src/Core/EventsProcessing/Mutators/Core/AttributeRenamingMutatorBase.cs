@@ -1,6 +1,6 @@
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.EventRecord.EventRecord;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.Core;
 

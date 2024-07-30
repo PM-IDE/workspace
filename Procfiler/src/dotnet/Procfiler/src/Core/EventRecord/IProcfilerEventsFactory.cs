@@ -1,9 +1,9 @@
 using Core.Constants.TraceEvents;
 using Core.Container;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Utils;
 
@@ -11,7 +11,7 @@ namespace Procfiler.Core.EventRecord;
 
 public readonly record struct EventsCreationContext(EventRecordTime Time, long ManagedThreadId)
 {
-  public static EventsCreationContext CreateWithUndefinedStackTrace(global::Procfiler.Core.EventRecord.EventRecord.EventRecord record) =>
+  public static EventsCreationContext CreateWithUndefinedStackTrace(global::Core.Events.EventRecord.EventRecord record) =>
     new(record.Time, record.ManagedThreadId);
 }
 

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Diagnostics;
 using Microsoft.Diagnostics.Tracing;
 
-namespace Procfiler.Core.EventRecord.EventRecord;
+namespace Core.Events.EventRecord;
 
 public interface IEventMetadata : IDictionary<string, string>;
 

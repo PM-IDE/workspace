@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using Core.Container;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
-using Procfiler.Core.EventRecord.EventRecord;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
 

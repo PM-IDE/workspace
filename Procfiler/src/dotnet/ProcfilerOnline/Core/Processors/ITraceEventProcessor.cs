@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Procfiler.Core.EventRecord.EventRecord;
+using Core.Events.EventRecord;
 
 namespace ProcfilerOnline.Core.Processors;
 

@@ -2,7 +2,6 @@
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;

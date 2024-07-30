@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Core.CommandLine;
 using Microsoft.Diagnostics.Tracing;
 
-namespace Procfiler.Core.EventRecord.EventRecord;
+namespace Core.Events.EventRecord;
 
 public class TooMuchMetadataValuesException : ProcfilerException;
 

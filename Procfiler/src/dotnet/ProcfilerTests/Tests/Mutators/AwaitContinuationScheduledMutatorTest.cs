@@ -1,5 +1,5 @@
 using Core.Constants.TraceEvents;
-using Procfiler.Core.EventRecord.EventRecord;
+using Core.Events.EventRecord;
 using Procfiler.Core.EventsProcessing.Mutators.Core;
 using Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Tasks;
 using ProcfilerTests.Core;

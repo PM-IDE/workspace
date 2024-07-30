@@ -1,8 +1,8 @@
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler.ShadowStacks;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
 namespace Procfiler.Core.EventsProcessing;

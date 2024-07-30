@@ -1,8 +1,7 @@
 using Core.Constants.TraceEvents;
-using Core.Events.EventRecord;
 using Microsoft.Diagnostics.Tracing;
 
-namespace Procfiler.Core.EventRecord.EventRecord;
+namespace Core.Events.EventRecord;
 
 public struct EventRecordTime
 {

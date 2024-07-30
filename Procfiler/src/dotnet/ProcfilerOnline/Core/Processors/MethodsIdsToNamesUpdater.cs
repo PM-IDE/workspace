@@ -1,6 +1,5 @@
 ﻿using Core.Container;
 using Core.Events.EventRecord;
-using Procfiler.Core.EventRecord.EventRecord;
 
 namespace ProcfilerOnline.Core.Processors;
 

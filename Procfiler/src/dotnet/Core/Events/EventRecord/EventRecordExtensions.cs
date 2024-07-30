@@ -3,8 +3,6 @@ using System.Runtime.CompilerServices;
 using Core.Constants.TraceEvents;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
-using Procfiler.Core.EventRecord.EventRecord;
-using Procfiler.Utils;
 
 namespace Core.Events.EventRecord;
 

@@ -4,9 +4,9 @@ using Bxes.Models.Domain.Values;
 using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.SplitByMethod;
 

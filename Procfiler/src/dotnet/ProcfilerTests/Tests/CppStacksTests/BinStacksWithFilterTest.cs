@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 using Autofac;
 using Procfiler.Core.CppProcfiler.ShadowStacks;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventRecord.EventRecord;
 using ProcfilerTests.Core;
 
 namespace ProcfilerTests.Tests.CppStacksTests;

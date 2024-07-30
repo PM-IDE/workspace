@@ -1,5 +1,5 @@
-﻿using Core.Utils;
-using Procfiler.Core.EventRecord.EventRecord;
+﻿using Core.Events.EventRecord;
+using Core.Utils;
 
 namespace Procfiler.Core.EventRecord.EventsCollection;
 

@@ -1,5 +1,5 @@
 ﻿using Core.Constants.TraceEvents;
-using Procfiler.Core.EventRecord.EventRecord;
+using Core.Events.EventRecord;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities;
 

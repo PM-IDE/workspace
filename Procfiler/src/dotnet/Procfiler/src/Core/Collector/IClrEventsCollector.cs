@@ -6,7 +6,6 @@ using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.Collector.CustomTraceEvents;
 using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Utils;
 

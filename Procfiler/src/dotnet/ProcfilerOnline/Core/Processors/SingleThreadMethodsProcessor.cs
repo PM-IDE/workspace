@@ -1,9 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-using Core.Collector;
 using Core.Container;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
-using Procfiler.Core.EventRecord.EventRecord;
 using ProcfilerOnline.Core.Handlers;
 
 namespace ProcfilerOnline.Core.Processors;

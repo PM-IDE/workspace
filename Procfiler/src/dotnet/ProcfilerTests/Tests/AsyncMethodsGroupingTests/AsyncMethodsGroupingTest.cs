@@ -5,7 +5,6 @@ using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.Collector;
-using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.SplitByMethod;
 using ProcfilerTests.Core;

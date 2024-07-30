@@ -1,4 +1,4 @@
-using Procfiler.Core.EventRecord.EventRecord;
+using Core.Events.EventRecord;
 
 namespace Procfiler.Core.Serialization.Core;
 
