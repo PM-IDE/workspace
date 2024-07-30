@@ -419,7 +419,7 @@ where
 
             for event in &underlying_events {
                 execute_with_underlying_events::<TLog>(event, &mut |event| {
-                    let payload_value = EventPayloadValue::String(activity.node.borrow().name().clone());
+                    let payload_value = EventPayloadValue::String(activity.node.borrow().id().clone());
                     let key = format!("hierarchy_level_{}", level);
                     event.add_or_update_payload(key, payload_value);
                 })

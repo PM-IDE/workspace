@@ -3,6 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
     rc::Rc,
 };
+use std::fmt::format;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::utils::hash_utils::calculate_poly_hash_for_collection;
@@ -77,7 +78,7 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
 
 #[derive(Debug)]
 pub struct ActivityNode {
-    id: u64,
+    id: Rc<Box<String>>,
     repeat_set: Option<SubArrayWithTraceIndex>,
     event_classes: HashSet<u64>,
     children: Vec<Rc<RefCell<ActivityNode>>>,
@@ -96,7 +97,7 @@ impl ActivityNode {
         static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
         Self {
-            id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
+            id: Rc::new(Box::new(format!("Activity_{}", NEXT_ID.fetch_add(1, Ordering::SeqCst)))),
             repeat_set,
             event_classes,
             children,
@@ -131,6 +132,10 @@ impl ActivityNode {
 
     pub fn name(&self) -> &Rc<Box<String>> {
         &self.name
+    }
+
+    pub fn id(&self) -> &Rc<Box<String>> {
+        &self.id
     }
 }
 
