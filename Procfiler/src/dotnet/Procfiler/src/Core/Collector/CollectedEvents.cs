@@ -1,3 +1,4 @@
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.EventRecord.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
@@ -11,8 +12,6 @@ public readonly record struct CollectedEvents(
 );
 
 public readonly record struct TypeIdToName(long Id, string Name);
-
-public readonly record struct MethodIdToFqn(long Id, string Fqn);
 
 public readonly record struct EventWithGlobalDataUpdate(
   TraceEvent OriginalEvent,

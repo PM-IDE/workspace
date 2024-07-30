@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Microsoft.Diagnostics.Tracing;
+using Procfiler.Core.EventRecord.EventRecord;
 
 namespace ProcfilerOnline.Core.Processors;
 
@@ -10,7 +10,7 @@ public readonly ref struct CommandContext
 
 public readonly ref struct EventProcessingContext
 {
-  public required TraceEvent Event { get; init; }
+  public required EventRecordWithMetadata Event { get; init; }
   public required CommandContext CommandContext { get; init; }
 }
 

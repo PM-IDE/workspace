@@ -1,4 +1,7 @@
+using System.Collections;
+using System.Diagnostics;
 using Core.CommandLine;
+using Microsoft.Diagnostics.Tracing;
 
 namespace Procfiler.Core.EventRecord.EventRecord;
 

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Autofac;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.Collector;

@@ -14,12 +14,5 @@ public class CompletedMethodExecutionHandler(ISharedEventPipeStreamData sharedDa
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
     if (eventPipeStreamEvent is not CompletedMethodExecutionEvent completedMethodExecutionEvent) return;
-
-    foreach (var frame in completedMethodExecutionEvent.Frame.InnerFrames)
-    {
-      Console.WriteLine(sharedData.FindMethodFqn(frame.MethodId) ?? "???");
-    }
-
-    Console.WriteLine();
   }
 }

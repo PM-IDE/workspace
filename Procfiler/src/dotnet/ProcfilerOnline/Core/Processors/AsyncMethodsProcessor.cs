@@ -1,6 +1,7 @@
 ﻿using Core.Container;
+using Core.Events.EventRecord;
 using Core.Methods;
-using Microsoft.Diagnostics.Tracing.Parsers.Tpl;
+using Procfiler.Core.EventRecord.EventRecord;
 
 namespace ProcfilerOnline.Core.Processors;
 
@@ -12,7 +13,7 @@ public class AsyncMethodsProcessor(ISharedEventPipeStreamData sharedData) : ITra
 
   public void Process(EventProcessingContext context)
   {
-    var threadId = context.Event.ThreadID;
+    var threadId = context.Event.ManagedThreadId;
 
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
     {
@@ -28,17 +29,20 @@ public class AsyncMethodsProcessor(ISharedEventPipeStreamData sharedData) : ITra
       return;
     }
 
-    if (context.Event is TaskWaitStopArgs or TaskWaitSendArgs)
+    if (context.Event.IsTaskWaitSendOrStopEvent())
     {
-      LastSeenTaskEvent taskEvent = context.Event switch
+      LastSeenTaskEvent lastSeenTaskEvent = null!;
+      if (context.Event.IsTaskWaitSendEvent(out var sendTaskId))
       {
-        TaskWaitSendArgs sendArgs => new TaskWaitSendEvent { TaskId = sendArgs.TaskID },
-        TaskWaitStopArgs stopArgs => new TaskWaitStopEvent { TaskId = stopArgs.TaskID },
-        _ => throw new ArgumentOutOfRangeException()
-      };
+        lastSeenTaskEvent = new TaskWaitSendEvent { TaskId = sendTaskId };
+      }
 
-      myGrouper.ProcessTaskWaitEvent(taskEvent, threadId);
-      return;
+      if (context.Event.IsTaskWaitStopEvent(out var waitTaskId))
+      {
+        lastSeenTaskEvent = new TaskWaitStopEvent { TaskId = waitTaskId };
+      }
+
+      myGrouper.ProcessTaskWaitEvent(lastSeenTaskEvent, threadId);
     }
 
     myGrouper.ProcessNormalEvent(context.Event.EventName, threadId);

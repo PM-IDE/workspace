@@ -3,6 +3,7 @@ using Core.Container;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
+using Procfiler.Core.EventRecord.EventRecord;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
 
@@ -10,19 +11,19 @@ namespace ProcfilerOnline.Core;
 
 public interface ISharedEventPipeStreamData
 {
-  string? FindMethodFqn(ulong methodId);
-  void UpdateMethodsInfo(ulong methodId, string fqn);
+  string? FindMethodFqn(long methodId);
+  void UpdateMethodsInfo(long methodId, string fqn);
 }
 
 [AppComponent]
 public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 {
-  private readonly Dictionary<ulong, string> myIdsToMethodsFqns = new();
+  private readonly Dictionary<long, string> myIdsToMethodsFqns = new();
 
 
-  public string? FindMethodFqn(ulong methodId) => ((IDictionary<ulong, string>)myIdsToMethodsFqns).GetValueOrDefault(methodId);
+  public string? FindMethodFqn(long methodId) => ((IDictionary<long, string>)myIdsToMethodsFqns).GetValueOrDefault(methodId);
 
-  public void UpdateMethodsInfo(ulong methodId, string fqn) => myIdsToMethodsFqns[methodId] = fqn;
+  public void UpdateMethodsInfo(long methodId, string fqn) => myIdsToMethodsFqns[methodId] = fqn;
 }
 
 public class OnlineEventsProcessorImpl(
@@ -42,9 +43,10 @@ public class OnlineEventsProcessorImpl(
 
   private void ProcessEvent(TraceEvent traceEvent)
   {
+    var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, -1);
     var context = new EventProcessingContext
     {
-      Event = traceEvent,
+      Event = eventRecord,
       CommandContext = new CommandContext
       {
         TargetMethodsRegex = commandContext.TargetMethodsRegex is { } ? new Regex(commandContext.TargetMethodsRegex) : null

@@ -2,28 +2,18 @@
 using Core.Collector;
 using Core.Container;
 using Core.Utils;
-using Microsoft.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
+using Procfiler.Core.EventRecord.EventRecord;
 using ProcfilerOnline.Core.Handlers;
 
 namespace ProcfilerOnline.Core.Processors;
 
-public readonly record struct MethodFrame(bool IsStart, ulong MethodId, long QpcStamp);
+public readonly record struct MethodFrame(bool IsStart, long MethodId, long QpcStamp);
 
-public class TargetMethodFrame(ulong methodId)
+public class TargetMethodFrame(long methodId)
 {
-  public ulong MethodId { get; } = methodId;
+  public long MethodId { get; } = methodId;
   public List<MethodFrame> InnerFrames { get; } = [];
-}
-
-public static class TraceEventExtensions
-{
-  public static (long QpcStamp, ulong methodId)? TryGetMethodDetails(this TraceEvent traceEvent)
-  {
-    if (traceEvent.ProviderName is not EventPipeProvidersNames.ProcfilerCppProvider) return null;
-
-    return ((long)traceEvent.PayloadValue(0), (ulong)traceEvent.PayloadValue(1));
-  }
 }
 
 [AppComponent]
@@ -33,19 +23,19 @@ public class SingleThreadMethodsProcessor(
   ISharedEventPipeStreamData sharedData
 ) : ITraceEventProcessor
 {
-  private readonly Dictionary<int, Stack<TargetMethodFrame>> myStacksPerThreads = new();
+  private readonly Dictionary<long, Stack<TargetMethodFrame>> myStacksPerThreads = new();
 
 
   public void Process(EventProcessingContext context)
   {
     if (context.Event.TryGetMethodDetails() is not var (qpcStamp, methodId)) return;
 
-    var traceEvent = context.Event;
-    var threadId = traceEvent.ThreadID;
+    var eventRecord = context.Event;
+    var threadId = eventRecord.ManagedThreadId;
     var isTargetMethod = IsTargetMethod(methodId, context.CommandContext.TargetMethodsRegex);
     var threadStack = myStacksPerThreads.GetOrCreate(threadId, static () => new Stack<TargetMethodFrame>());
 
-    switch (traceEvent.GetMethodEventKind())
+    switch (eventRecord.GetMethodEventKind())
     {
       case MethodKind.Begin:
       {
@@ -96,7 +86,7 @@ public class SingleThreadMethodsProcessor(
     }
   }
 
-  private bool IsTargetMethod(ulong methodId, Regex? targetMethodsRegex)
+  private bool IsTargetMethod(long methodId, Regex? targetMethodsRegex)
   {
     if (sharedData.FindMethodFqn(methodId) is not { } methodFqn) return false;
 

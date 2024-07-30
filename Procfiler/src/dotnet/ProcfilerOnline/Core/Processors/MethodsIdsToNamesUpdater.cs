@@ -1,6 +1,6 @@
 ﻿using Core.Container;
-using Core.Utils;
-using Microsoft.Diagnostics.Tracing.Parsers.Clr;
+using Core.Events.EventRecord;
+using Procfiler.Core.EventRecord.EventRecord;
 
 namespace ProcfilerOnline.Core.Processors;
 
@@ -9,10 +9,9 @@ public class MethodsIdsToNamesUpdater(ISharedEventPipeStreamData sharedData) : I
 {
   public void Process(EventProcessingContext context)
   {
-    if (context.Event is MethodLoadUnloadVerboseTraceData traceData)
+    if (context.Event.TryGetMethodInfo() is { Id: var methodId, Fqn: var fqn })
     {
-      var fqn = MethodsUtil.ConcatenateMethodDetails(traceData.MethodName, traceData.MethodNamespace, traceData.MethodSignature);
-      sharedData.UpdateMethodsInfo((ulong)traceData.MethodID, fqn);
+      sharedData.UpdateMethodsInfo(methodId, fqn);
     }
   }
 }

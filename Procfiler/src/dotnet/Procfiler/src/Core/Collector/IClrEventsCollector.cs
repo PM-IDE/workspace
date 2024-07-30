@@ -2,6 +2,7 @@ using Core.Collector;
 using Core.Constants.TraceEvents;
 using Core.Container;
 using Core.CppProcfiler;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Core.Collector.CustomTraceEvents;
 using Procfiler.Core.CppProcfiler;
@@ -201,7 +202,7 @@ public class ClrEventsCollector(
     var record = new EventRecordWithMetadata(traceEvent, managedThreadId, (int)traceEvent.CallStackIndex());
 
     var typeIdToName = TryExtractTypeIdToName(traceEvent, record.Metadata);
-    var methodIdToFqn = TryExtractMethodToId(traceEvent, record.Metadata);
+    var methodIdToFqn = record.TryGetMethodInfo();
 
     return new EventWithGlobalDataUpdate(traceEvent, record, typeIdToName, methodIdToFqn);
   }
@@ -217,25 +218,6 @@ public class ClrEventsCollector(
     if (id is { } && name is { })
     {
       return new TypeIdToName(id.ParseId(), name);
-    }
-
-    return null;
-  }
-
-  private static MethodIdToFqn? TryExtractMethodToId(
-    TraceEvent traceEvent, IDictionary<string, string> metadata)
-  {
-    if (traceEvent.EventName is not TraceEventsConstants.MethodLoadVerbose) return null;
-
-    var methodId = metadata.GetValueOrDefault(TraceEventsConstants.MethodId);
-    var name = metadata.GetValueOrDefault(TraceEventsConstants.MethodName);
-    var methodNamespace = metadata.GetValueOrDefault(TraceEventsConstants.MethodNamespace);
-    var signature = metadata.GetValueOrDefault(TraceEventsConstants.MethodSignature);
-
-    if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
-    {
-      var mergedName = MethodsUtil.ConcatenateMethodDetails(name, methodNamespace, signature);
-      return new MethodIdToFqn(methodId.ParseId(), mergedName);
     }
 
     return null;
