@@ -1,6 +1,7 @@
 ﻿using Core.Collector;
 using Core.Container;
 using Core.CppProcfiler;
+using Core.EventsProcessing.Mutators.Core;
 using Core.Utils;
 using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,8 @@ public class ClrOnlineEventsProcessor(
   ICppProcfilerLocator locator,
   ITransportCreationWaiter transportCreationWaiter,
   IEventPipeProvidersProvider providersProvider,
-  IEnumerable<ITraceEventProcessor> processors
+  IEnumerable<ITraceEventProcessor> processors,
+  IEnumerable<ISingleEventMutator> singleEventMutators
 ) : IOnlineEventsProcessor
 {
   public void StartProfiling(CollectEventsOnlineContext context)
@@ -48,7 +50,7 @@ public class ClrOnlineEventsProcessor(
 
     client.ResumeRuntime();
 
-    var processor = new OnlineEventsProcessorImpl(processors, context);
+    var processor = new OnlineEventsProcessorImpl(processors, context, singleEventMutators);
     processor.Process(session.EventStream);
   }
 }

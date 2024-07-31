@@ -10,8 +10,6 @@ public readonly record struct CollectedEvents(
   SessionGlobalData GlobalData
 );
 
-public readonly record struct TypeIdToName(long Id, string Name);
-
 public readonly record struct EventWithGlobalDataUpdate(
   TraceEvent OriginalEvent,
   EventRecordWithMetadata Event,

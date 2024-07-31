@@ -200,26 +200,10 @@ public class ClrEventsCollector(
     var managedThreadId = traceEvent.GetManagedThreadIdThroughStack(context.Source);
     var record = new EventRecordWithMetadata(traceEvent, managedThreadId, (int)traceEvent.CallStackIndex());
 
-    var typeIdToName = TryExtractTypeIdToName(traceEvent, record.Metadata);
+    var typeIdToName = record.TryExtractTypeIdToName();
     var methodIdToFqn = record.TryGetMethodInfo();
 
     return new EventWithGlobalDataUpdate(traceEvent, record, typeIdToName, methodIdToFqn);
-  }
-
-  private static TypeIdToName? TryExtractTypeIdToName(
-    TraceEvent traceEvent, IDictionary<string, string> metadata)
-  {
-    if (traceEvent.EventName is not TraceEventsConstants.TypeBulkType) return null;
-
-    var id = metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeId);
-    var name = metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeName);
-
-    if (id is { } && name is { })
-    {
-      return new TypeIdToName(id.ParseId(), name);
-    }
-
-    return null;
   }
 
   private static MutableTraceEventStackSource InitializeStackSource(TraceLog traceLog)

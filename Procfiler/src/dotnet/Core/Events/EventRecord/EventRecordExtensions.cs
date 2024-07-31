@@ -7,6 +7,7 @@ using Microsoft.Diagnostics.Tracing;
 namespace Core.Events.EventRecord;
 
 public readonly record struct MethodIdToFqn(long Id, string Fqn);
+public readonly record struct TypeIdToName(long Id, string Name);
 
 public static class EventRecordExtensions
 {
@@ -77,6 +78,21 @@ public static class EventRecordExtensions
     {
       var mergedName = MethodsUtil.ConcatenateMethodDetails(name, methodNamespace, signature);
       return new MethodIdToFqn(methodId.ParseId(), mergedName);
+    }
+
+    return null;
+  }
+
+  public static TypeIdToName? TryExtractTypeIdToName(this EventRecordWithMetadata eventRecord)
+  {
+    if (eventRecord.EventName is not TraceEventsConstants.TypeBulkType) return null;
+
+    var id = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeId);
+    var name = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeName);
+
+    if (id is { } && name is { })
+    {
+      return new TypeIdToName(id.ParseId(), name);
     }
 
     return null;

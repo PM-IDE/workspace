@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Core.Events.EventRecord;
+using Core.EventsProcessing.Mutators.Core;
 using Core.GlobalData;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
@@ -43,8 +44,12 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 
 public class OnlineEventsProcessorImpl(
   IEnumerable<ITraceEventProcessor> processors,
-  CollectEventsOnlineContext commandContext)
+  CollectEventsOnlineContext commandContext,
+  IEnumerable<ISingleEventMutator> singleEventMutators)
 {
+  private readonly IReadOnlyList<ISingleEventMutator> myOrderedSingleMutators =
+    singleEventMutators.OrderBy(mutator => mutator.GetPassOrThrow()).ToList();
+
   public void Process(Stream eventPipeStream)
   {
     var source = new EventPipeEventSource(eventPipeStream);
@@ -76,6 +81,11 @@ public class OnlineEventsProcessorImpl(
     foreach (var sharedDataUpdater in processors.OfType<ISharedDataUpdater>())
     {
       sharedDataUpdater.Process(context);
+    }
+
+    foreach (var mutator in myOrderedSingleMutators)
+    {
+      mutator.Process(eventRecord, globalData);
     }
 
     foreach (var processor in processors.Where(p => p is not ISharedDataUpdater))
