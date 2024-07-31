@@ -11,7 +11,7 @@ public class CppStacksMethodsStartEndMutator(
   IProcfilerLogger logger,
   bool aggressiveReuse) : IMethodsStartEndProcessor
 {
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     if (context.Stacks is not ICppShadowStacks cppShadowStacks)
     {

@@ -10,7 +10,7 @@ namespace Procfiler.Core.EventsProcessing;
 public class MethodStartEndModificationSource : ModificationSourceBase
 {
   private readonly IProcfilerEventsFactory myEventsFactory;
-  private readonly SessionGlobalData myGlobalData;
+  private readonly IGlobalDataWithStacks myGlobalData;
   private readonly ICppShadowStack myShadowStack;
   private readonly bool myAggressiveReuse;
 
@@ -21,7 +21,7 @@ public class MethodStartEndModificationSource : ModificationSourceBase
   public MethodStartEndModificationSource(
     IProcfilerLogger logger,
     IProcfilerEventsFactory eventsFactory,
-    SessionGlobalData globalData,
+    IGlobalDataWithStacks globalData,
     ICppShadowStack shadowStack,
     bool aggressiveReuse) : base(logger, shadowStack.FramesCount)
   {

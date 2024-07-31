@@ -12,7 +12,7 @@ public abstract class MetadataValuesRemover(IProcfilerLogger logger) : SingleEve
   public override IEnumerable<EventLogMutation> Mutations => MetadataKeys.Select(key => new AttributeRemovalMutation(EventType, key));
 
 
-  protected override void ProcessInternal(EventRecordWithMetadata eventRecord, SessionGlobalData context)
+  protected override void ProcessInternal(EventRecordWithMetadata eventRecord, IGlobalData context)
   {
     var metadata = eventRecord.Metadata;
     foreach (var metadataKey in MetadataKeys)

@@ -98,7 +98,7 @@ public abstract class EventsLifecycleMutatorBase : ISingleEventsLifecycleMutator
   }
 
   public void Process(
-    EventRecordWithMetadata eventRecord, SessionGlobalData context, object mutatorState)
+    EventRecordWithMetadata eventRecord, IGlobalData context, object mutatorState)
   {
     //todo: to state machine with "Stateless" nuget
     if (!myAllProcessableEvents.Contains(eventRecord.EventClass)) return;

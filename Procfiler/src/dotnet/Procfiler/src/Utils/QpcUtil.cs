@@ -25,6 +25,6 @@ public static class QpcUtil
     return new DateTime(ticks, DateTimeKind.Utc);
   }
 
-  public static DateTime ConvertQpcTimeToDateTimeUtc(long qpcTime, SessionGlobalData globalData) =>
+  public static DateTime ConvertQpcTimeToDateTimeUtc(long qpcTime, IGlobalDataWithStacks globalData) =>
     ConvertQpcTimeToDateTimeUtc(qpcTime, globalData.QpcFreq, globalData.QpcSyncTime, globalData.UtcSyncTime);
 }

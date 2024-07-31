@@ -6,7 +6,22 @@ namespace Procfiler.Core.Collector;
 
 public record EventSessionInfo(IEnumerable<IEventsCollection> Events, SessionGlobalData GlobalData);
 
-public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, long qpcFreq, DateTime utcSyncTime)
+public interface IGlobalData
+{
+  long QpcSyncTime { get; }
+  long QpcFreq { get; }
+  DateTime UtcSyncTime { get; }
+
+  IReadOnlyDictionary<long, string> TypeIdToNames { get; }
+  IReadOnlyDictionary<long, string> MethodIdToFqn { get; }
+}
+
+public interface IGlobalDataWithStacks : IGlobalData
+{
+  IShadowStacks Stacks { get; }
+}
+
+public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, long qpcFreq, DateTime utcSyncTime) : IGlobalDataWithStacks
 {
   private readonly Dictionary<long, string> myMethodIdToFqn = new();
   private readonly Dictionary<long, string> myTypeIdsToNames = new();

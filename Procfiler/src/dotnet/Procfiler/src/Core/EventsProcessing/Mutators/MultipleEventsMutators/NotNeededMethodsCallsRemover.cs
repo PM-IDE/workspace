@@ -20,7 +20,7 @@ public class NotNeededMethodsCallsRemover : IMultipleEventsMutator
   public IEnumerable<EventLogMutation> Mutations => EmptyCollections<EventLogMutation>.EmptyList;
 
 
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     events.AddFilter(eventRecord => eventRecord.TryGetMethodStartEndEventInfo() is var (frameName, _) && ShouldSkipFrame(frameName));
   }

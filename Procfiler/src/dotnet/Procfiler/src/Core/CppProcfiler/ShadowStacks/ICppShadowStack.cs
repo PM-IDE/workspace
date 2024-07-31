@@ -13,7 +13,7 @@ public interface ICppShadowStack : IEnumerable<FrameInfo>
 public static class ExtensionsForICppShadowStack
 {
   public static IEnumerable<EventRecordWithMetadata> EnumerateMethods(
-    this ICppShadowStack shadowStack, IProcfilerEventsFactory eventsFactory, SessionGlobalData globalData)
+    this ICppShadowStack shadowStack, IProcfilerEventsFactory eventsFactory, IGlobalDataWithStacks globalData)
   {
     foreach (var frameInfo in shadowStack)
     {
@@ -29,7 +29,7 @@ public static class ExtensionsForICppShadowStack
   }
 
   public static IEnumerable<EventRecordWithMetadata> EnumerateMethodsAggressiveReuse(
-    this ICppShadowStack shadowStack, IProcfilerEventsFactory eventsFactory, SessionGlobalData globalData)
+    this ICppShadowStack shadowStack, IProcfilerEventsFactory eventsFactory, IGlobalDataWithStacks globalData)
   {
     var sharedEvent = EventRecordWithMetadata.CreateUninitialized();
     foreach (var frameInfo in shadowStack)

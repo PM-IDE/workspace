@@ -24,7 +24,7 @@ public class FromEventsMethodsStartEndMutator(
   }
 
 
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     if (context.Stacks is not IFromEventsShadowStacks fromEventsShadowStacks)
     {

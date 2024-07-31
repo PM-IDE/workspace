@@ -30,7 +30,7 @@ public class GcTypeNameAttributeCreator : ISingleEventMutator
   }
 
 
-  public void Process(EventRecordWithMetadata eventRecord, SessionGlobalData context)
+  public void Process(EventRecordWithMetadata eventRecord, IGlobalData context)
   {
     if (eventRecord.EventClass is TraceEventsConstants.GcSampledObjectAllocation &&
         eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.GcSampledObjectAllocTypeId) is { } id)

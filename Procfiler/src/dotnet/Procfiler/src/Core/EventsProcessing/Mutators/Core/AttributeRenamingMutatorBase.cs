@@ -11,7 +11,7 @@ public abstract class AttributeRenamingMutatorBase(IProcfilerLogger logger, stri
     new[] { new AttributeRenameMutation(EventType, initialName, finalName) };
 
 
-  protected override void ProcessInternal(EventRecordWithMetadata eventRecord, SessionGlobalData context)
+  protected override void ProcessInternal(EventRecordWithMetadata eventRecord, IGlobalData context)
   {
     eventRecord.Metadata[finalName] = eventRecord.Metadata[initialName];
     eventRecord.Metadata.Remove(initialName);

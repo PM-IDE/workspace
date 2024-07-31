@@ -15,7 +15,7 @@ public abstract class MetadataValueToNameAppenderBase(
     Transformations.Select(t => new AttributeToNameAppendMutation(EventType, t.EventClassKind, t.MetadataKey, removeProperties));
 
 
-  protected override void ProcessInternal(EventRecordWithMetadata eventRecord, SessionGlobalData context)
+  protected override void ProcessInternal(EventRecordWithMetadata eventRecord, IGlobalData context)
   {
     MutatorsUtil.DevastateMetadataValuesAndAppendToName(Logger, eventRecord, Transformations, removeProperties);
   }

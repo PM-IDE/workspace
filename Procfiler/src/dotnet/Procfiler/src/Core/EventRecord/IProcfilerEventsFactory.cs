@@ -18,7 +18,7 @@ public readonly record struct EventsCreationContext(EventRecordTime Time, long M
 public readonly ref struct FromFrameInfoCreationContext
 {
   public required FrameInfo FrameInfo { get; init; }
-  public required SessionGlobalData GlobalData { get; init; }
+  public required IGlobalDataWithStacks GlobalData { get; init; }
   public required long ManagedThreadId { get; init; }
 }
 

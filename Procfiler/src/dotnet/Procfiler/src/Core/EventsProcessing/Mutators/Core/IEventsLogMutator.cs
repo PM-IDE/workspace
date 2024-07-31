@@ -12,21 +12,21 @@ public interface IEventsLogMutator
 
 public interface ISingleEventMutator : IEventsLogMutator
 {
-  void Process(EventRecordWithMetadata eventRecord, SessionGlobalData context);
+  void Process(EventRecordWithMetadata eventRecord, IGlobalData context);
 }
 
 public interface ISingleEventMutatorWithState : IEventsLogMutator
 {
   Type StateType { get; }
 
-  void Process(EventRecordWithMetadata eventRecord, SessionGlobalData context, object mutatorState);
+  void Process(EventRecordWithMetadata eventRecord, IGlobalData context, object mutatorState);
 }
 
 public interface ISingleEventsLifecycleMutator : ISingleEventMutatorWithState;
 
 public interface IMultipleEventsMutator : IEventsLogMutator
 {
-  void Process(IEventsCollection events, SessionGlobalData context);
+  void Process(IEventsCollection events, IGlobalDataWithStacks context);
 }
 
 public static class EventsLogMutatorExtensions

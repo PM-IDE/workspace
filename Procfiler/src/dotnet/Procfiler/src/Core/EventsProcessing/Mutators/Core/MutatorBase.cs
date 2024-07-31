@@ -15,7 +15,7 @@ public abstract class SingleEventMutatorBase(IProcfilerLogger logger) : MutatorB
   public abstract IEnumerable<EventLogMutation> Mutations { get; }
 
 
-  public void Process(EventRecordWithMetadata eventRecord, SessionGlobalData context)
+  public void Process(EventRecordWithMetadata eventRecord, IGlobalData context)
   {
     if (eventRecord.EventClass == EventType)
     {
@@ -23,5 +23,5 @@ public abstract class SingleEventMutatorBase(IProcfilerLogger logger) : MutatorB
     }
   }
 
-  protected abstract void ProcessInternal(EventRecordWithMetadata eventRecord, SessionGlobalData context);
+  protected abstract void ProcessInternal(EventRecordWithMetadata eventRecord, IGlobalData context);
 }

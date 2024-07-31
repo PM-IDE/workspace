@@ -14,7 +14,7 @@ public interface IMethodStartEndEventsLogMutator : IMultipleEventsMutator;
 
 public interface IMethodsStartEndProcessor
 {
-  void Process(IEventsCollection events, SessionGlobalData context);
+  void Process(IEventsCollection events, IGlobalDataWithStacks context);
 }
 
 [EventMutator(MultipleEventMutatorsPasses.MethodStartEndInserter)]
@@ -29,7 +29,7 @@ public class MethodStartEndEventsLogMutator(
   };
 
 
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     if (events.Count == 0) return;
 
