@@ -1,6 +1,7 @@
 using Core.Constants.TraceEvents;
 using Core.Container;
 using Core.Events.EventRecord;
+using Core.EventsProcessing.Mutators;
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;

@@ -1,7 +1,7 @@
 using Core.Constants.TraceEvents;
 using Core.Events.EventRecord;
-using Procfiler.Core.EventsProcessing.Mutators.Core;
-using Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Tasks;
+using Core.EventsProcessing.Mutators.Core;
+using Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Tasks;
 using ProcfilerTests.Core;
 
 namespace ProcfilerTests.Tests.Mutators;
