@@ -5,6 +5,7 @@ using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
+using ProcfilerOnline.Core.Updaters;
 
 namespace ProcfilerOnline.Core;
 

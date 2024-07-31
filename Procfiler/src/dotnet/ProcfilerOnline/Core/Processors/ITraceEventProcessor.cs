@@ -21,5 +21,3 @@ public interface ITraceEventProcessor
 {
   void Process(EventProcessingContext context);
 }
-
-public interface ISharedDataUpdater : ITraceEventProcessor;
