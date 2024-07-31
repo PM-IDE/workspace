@@ -9,7 +9,7 @@ public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 }
 
 [AppComponent]
-public class CompletedMethodExecutionHandler(ISharedEventPipeStreamData sharedData) : IEventPipeStreamEventHandler
+public class CompletedMethodExecutionHandler : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {

@@ -17,8 +17,7 @@ public class TargetMethodFrame(long methodId)
 [AppComponent]
 public class SingleThreadMethodsProcessor(
   IProcfilerLogger logger,
-  ICompositeEventPipeStreamEventHandler handler,
-  ISharedEventPipeStreamData sharedData
+  ICompositeEventPipeStreamEventHandler handler
 ) : ITraceEventProcessor
 {
   private readonly Dictionary<long, Stack<TargetMethodFrame>> myStacksPerThreads = new();
@@ -30,7 +29,7 @@ public class SingleThreadMethodsProcessor(
 
     var eventRecord = context.Event;
     var threadId = eventRecord.ManagedThreadId;
-    var isTargetMethod = IsTargetMethod(methodId, context.CommandContext.TargetMethodsRegex);
+    var isTargetMethod = IsTargetMethod(context, methodId, context.CommandContext.TargetMethodsRegex);
     var threadStack = myStacksPerThreads.GetOrCreate(threadId, static () => new Stack<TargetMethodFrame>());
 
     switch (eventRecord.GetMethodEventKind())
@@ -65,7 +64,7 @@ public class SingleThreadMethodsProcessor(
 
           var frame = threadStack.Pop();
 
-          if (sharedData.FindMethodFqn(frame.MethodId) is not { } methodFqn) return;
+          if (!context.SharedData.MethodIdToFqn.TryGetValue(frame.MethodId, out var methodFqn)) return;
 
           if (context.CommandContext.TargetMethodsRegex is null ||
               context.CommandContext.TargetMethodsRegex.IsMatch(methodFqn))
@@ -84,9 +83,9 @@ public class SingleThreadMethodsProcessor(
     }
   }
 
-  private bool IsTargetMethod(long methodId, Regex? targetMethodsRegex)
+  private bool IsTargetMethod(EventProcessingContext context, long methodId, Regex? targetMethodsRegex)
   {
-    if (sharedData.FindMethodFqn(methodId) is not { } methodFqn) return false;
+    if (!context.SharedData.MethodIdToFqn.TryGetValue(methodId, out var methodFqn)) return false;
 
     return targetMethodsRegex is null || targetMethodsRegex.IsMatch(methodFqn);
   }

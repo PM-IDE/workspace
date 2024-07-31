@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using Core.Container;
 using Core.Events.EventRecord;
-using Core.Utils;
+using Core.GlobalData;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using ProcfilerOnline.Commands;
@@ -9,21 +8,36 @@ using ProcfilerOnline.Core.Processors;
 
 namespace ProcfilerOnline.Core;
 
-public interface ISharedEventPipeStreamData
+public interface ISharedEventPipeStreamData : IGlobalData
 {
-  string? FindMethodFqn(long methodId);
   void UpdateMethodsInfo(long methodId, string fqn);
+  void UpdateTypeIdsToNames(long typeId, string typeName);
+  void UpdateSyncTimes(long qpcSyncTime, long qpcFreq, DateTime utcSyncTime);
 }
 
-[AppComponent]
 public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 {
-  private readonly Dictionary<long, string> myIdsToMethodsFqns = new();
+  private readonly Dictionary<long, string> myMethodIdsToFqns = new();
+  private readonly Dictionary<long, string> myTypeIdsToNames = new();
 
 
-  public string? FindMethodFqn(long methodId) => ((IDictionary<long, string>)myIdsToMethodsFqns).GetValueOrDefault(methodId);
+  public long QpcSyncTime { get; private set; }
+  public long QpcFreq { get; private set; }
+  public DateTime UtcSyncTime { get; private set; }
 
-  public void UpdateMethodsInfo(long methodId, string fqn) => myIdsToMethodsFqns[methodId] = fqn;
+  public IReadOnlyDictionary<long, string> TypeIdToNames => myTypeIdsToNames;
+  public IReadOnlyDictionary<long, string> MethodIdToFqn => myMethodIdsToFqns;
+
+
+  public void UpdateSyncTimes(long qpcSyncTime, long qpcFreq, DateTime utcSyncTime)
+  {
+    QpcFreq = qpcFreq;
+    QpcSyncTime = qpcSyncTime;
+    UtcSyncTime = utcSyncTime;
+  }
+
+  public void UpdateMethodsInfo(long methodId, string fqn) => myMethodIdsToFqns[methodId] = fqn;
+  public void UpdateTypeIdsToNames(long typeId, string typeName) => myTypeIdsToNames[typeId] = typeName;
 }
 
 public class OnlineEventsProcessorImpl(
@@ -34,18 +48,23 @@ public class OnlineEventsProcessorImpl(
   {
     var source = new EventPipeEventSource(eventPipeStream);
 
-    new TplEtwProviderTraceEventParser(source).All += ProcessEvent;
-    source.Clr.All += ProcessEvent;
-    source.Dynamic.All += ProcessEvent;
+    var globalData = new SharedEventPipeStreamData();
+
+    new TplEtwProviderTraceEventParser(source).All += e => ProcessEvent(e, globalData);
+    source.Clr.All += e => ProcessEvent(e, globalData);
+    source.Dynamic.All += e => ProcessEvent(e, globalData);
 
     source.Process();
   }
 
-  private void ProcessEvent(TraceEvent traceEvent)
+  private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData)
   {
     var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, -1);
+
     var context = new EventProcessingContext
     {
+      TraceEvent = traceEvent,
+      SharedData = globalData,
       Event = eventRecord,
       CommandContext = new CommandContext
       {

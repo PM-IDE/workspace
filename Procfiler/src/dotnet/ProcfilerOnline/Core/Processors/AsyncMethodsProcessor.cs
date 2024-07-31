@@ -5,7 +5,7 @@ using Core.Methods;
 namespace ProcfilerOnline.Core.Processors;
 
 [AppComponent]
-public class AsyncMethodsProcessor(ISharedEventPipeStreamData sharedData) : ITraceEventProcessor
+public class AsyncMethodsProcessor : ITraceEventProcessor
 {
   private readonly OnlineAsyncMethodsGrouper<string> myGrouper = new("ASYNC_", HandleAsyncMethod);
 
@@ -16,8 +16,7 @@ public class AsyncMethodsProcessor(ISharedEventPipeStreamData sharedData) : ITra
 
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
     {
-      var fqn = sharedData.FindMethodFqn(methodId);
-      if (fqn is null) return;
+      if (!context.SharedData.MethodIdToFqn.TryGetValue(methodId, out var fqn)) return;
 
       if (context.CommandContext.TargetMethodsRegex is null ||
           context.CommandContext.TargetMethodsRegex.IsMatch(fqn))
