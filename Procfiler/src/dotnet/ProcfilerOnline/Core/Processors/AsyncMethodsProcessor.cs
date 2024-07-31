@@ -7,7 +7,7 @@ namespace ProcfilerOnline.Core.Processors;
 [AppComponent]
 public class AsyncMethodsProcessor : ITraceEventProcessor
 {
-  private readonly OnlineAsyncMethodsGrouper<string> myGrouper = new("ASYNC_", HandleAsyncMethod);
+  private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper = new("ASYNC_", HandleAsyncMethod);
 
 
   public void Process(EventProcessingContext context)
@@ -21,7 +21,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
       if (context.CommandContext.TargetMethodsRegex is null ||
           context.CommandContext.TargetMethodsRegex.IsMatch(fqn))
       {
-        myGrouper.ProcessMethodStartEndEvent(fqn, fqn, context.Event.GetMethodEventKind() == MethodKind.Begin, threadId);
+        myGrouper.ProcessMethodStartEndEvent(context.Event, fqn, context.Event.GetMethodEventKind() == MethodKind.Begin, threadId);
       }
 
       return;
@@ -43,10 +43,10 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
       myGrouper.ProcessTaskWaitEvent(lastSeenTaskEvent, threadId);
     }
 
-    myGrouper.ProcessNormalEvent(context.Event.EventName, threadId);
+    myGrouper.ProcessNormalEvent(context.Event, threadId);
   }
 
-  private static void HandleAsyncMethod(string stateMachineName, List<List<string>> traces)
+  private static void HandleAsyncMethod(string stateMachineName, List<List<EventRecordWithMetadata>> traces)
   {
     Console.WriteLine(stateMachineName);
     foreach (var trace in traces)
@@ -54,7 +54,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
       Console.WriteLine("Trace start");
       foreach (var frame in trace)
       {
-        Console.WriteLine(frame);
+        Console.WriteLine(frame.EventName);
       }
 
       Console.WriteLine();

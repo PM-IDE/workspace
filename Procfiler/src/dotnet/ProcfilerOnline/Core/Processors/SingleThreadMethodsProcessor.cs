@@ -1,17 +1,16 @@
 ﻿using System.Text.RegularExpressions;
 using Core.Container;
+using Core.Events.EventRecord;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Handlers;
 
 namespace ProcfilerOnline.Core.Processors;
 
-public readonly record struct MethodFrame(bool IsStart, long MethodId, long QpcStamp);
-
 public class TargetMethodFrame(long methodId)
 {
   public long MethodId { get; } = methodId;
-  public List<MethodFrame> InnerFrames { get; } = [];
+  public List<EventRecordWithMetadata> InnerEvents { get; } = [];
 }
 
 [AppComponent]
@@ -25,12 +24,18 @@ public class SingleThreadMethodsProcessor(
 
   public void Process(EventProcessingContext context)
   {
-    if (context.Event.TryGetMethodDetails() is not var (qpcStamp, methodId)) return;
-
     var eventRecord = context.Event;
     var threadId = eventRecord.ManagedThreadId;
-    var isTargetMethod = IsTargetMethod(context, methodId, context.CommandContext.TargetMethodsRegex);
     var threadStack = myStacksPerThreads.GetOrCreate(threadId, static () => new Stack<TargetMethodFrame>());
+
+    foreach (var targetFrame in threadStack)
+    {
+      targetFrame.InnerEvents.Add(eventRecord);
+    }
+
+    if (eventRecord.TryGetMethodDetails() is not var (_, methodId)) return;
+
+    var isTargetMethod = IsTargetMethod(context, methodId, context.CommandContext.TargetMethodsRegex);
 
     switch (eventRecord.GetMethodEventKind())
     {
@@ -41,20 +46,10 @@ public class SingleThreadMethodsProcessor(
           threadStack.Push(new TargetMethodFrame(methodId));
         }
 
-        foreach (var targetFrame in threadStack)
-        {
-          targetFrame.InnerFrames.Add(new MethodFrame(true, methodId, qpcStamp));
-        }
-
         break;
       }
       case MethodKind.End:
       {
-        foreach (var targetFrame in threadStack)
-        {
-          targetFrame.InnerFrames.Add(new MethodFrame(false, methodId, qpcStamp));
-        }
-
         if (isTargetMethod)
         {
           if (methodId != threadStack.Peek().MethodId)

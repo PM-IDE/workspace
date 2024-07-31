@@ -19,7 +19,7 @@ public static class OnlineProcfilerConstants
 
 public static class TraceEventExtensions
 {
-  public static MethodKind GetMethodEventKind(this EventRecordWithMetadata eventRecord) => eventRecord.EventName switch
+  public static MethodKind GetMethodEventKind(this EventRecordWithMetadata eventRecord) => eventRecord.EventClass switch
   {
     OnlineProcfilerConstants.CppMethodStartEventName => MethodKind.Begin,
     OnlineProcfilerConstants.CppMethodFinishedEventName => MethodKind.End,
@@ -28,7 +28,7 @@ public static class TraceEventExtensions
 
   public static (long QpcStamp, long methodId)? TryGetMethodDetails(this EventRecordWithMetadata traceEvent)
   {
-    if (traceEvent.EventName is OnlineProcfilerConstants.CppMethodFinishedEventName or OnlineProcfilerConstants.CppMethodStartEventName)
+    if (traceEvent.EventClass is OnlineProcfilerConstants.CppMethodFinishedEventName or OnlineProcfilerConstants.CppMethodStartEventName)
     {
       var qpcStamp = traceEvent.Metadata[OnlineProcfilerConstants.Timestamp];
       var methodId = traceEvent.Metadata[OnlineProcfilerConstants.FunctionId];
