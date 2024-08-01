@@ -15,29 +15,43 @@ public static class EventRecordExtensions
     eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix) ||
     eventRecord.EventClass.StartsWith(TraceEventsConstants.AwaitCommonPrefix);
 
+  public static bool IsTaskExecutionEvent(this EventRecordWithMetadata eventRecord)
+  {
+    return eventRecord.EventClass is TraceEventsConstants.TaskExecuteStart or TraceEventsConstants.TaskExecuteStop;
+  }
+
   public static bool IsTaskWaitSendOrStopEvent(this EventRecordWithMetadata eventRecord) =>
     eventRecord.EventClass is TraceEventsConstants.TaskWaitSend or TraceEventsConstants.TaskWaitStop;
 
-  public static bool IsTaskWaitStopEvent(this EventRecordWithMetadata eventRecord, out int waitedTaskId)
+  public static bool IsTaskWaitStopEvent(this EventRecordWithMetadata eventRecord, out int waitedTaskId, out int originatingTaskId)
   {
-    waitedTaskId = -1;
+    return eventRecord.IsTaskWaitStopOrSendEventImpl(TraceEventsConstants.TaskWaitStop, out waitedTaskId, out originatingTaskId);
+  }
 
-    if (eventRecord.EventClass is not TraceEventsConstants.TaskWaitStop) return false;
+  private static bool IsTaskWaitStopOrSendEventImpl(this EventRecordWithMetadata eventRecord, string eventClass, out int taskId, out int originatingTaskId)
+  {
+    taskId = -1;
+    originatingTaskId = -1;
 
-    waitedTaskId = ExtractTaskId(eventRecord);
+    if (eventRecord.EventClass != eventClass) return false;
+
+    taskId = ExtractTaskId(eventRecord);
+    originatingTaskId = ExtractOriginatingTaskId(eventRecord);
+
     return true;
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  private static int ExtractTaskId(EventRecordWithMetadata eventRecord) => int.Parse(eventRecord.Metadata[TraceEventsConstants.TaskId]);
+  private static int ExtractOriginatingTaskId(EventRecordWithMetadata eventRecord) =>
+    int.Parse(eventRecord.Metadata[TraceEventsConstants.OriginatingTaskId]);
 
-  public static bool IsTaskWaitSendEvent(this EventRecordWithMetadata eventRecord, out int scheduledTaskId)
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
+  private static int ExtractTaskId(EventRecordWithMetadata eventRecord) =>
+    int.Parse(eventRecord.Metadata[TraceEventsConstants.TaskId]);
+
+  public static bool IsTaskWaitSendEvent(this EventRecordWithMetadata eventRecord, out int scheduledTaskId, out int originatingTaskId)
   {
-    scheduledTaskId = -1;
-    if (eventRecord.EventClass is not TraceEventsConstants.TaskWaitSend) return false;
-
-    scheduledTaskId = ExtractTaskId(eventRecord);
-    return true;
+    return eventRecord.IsTaskWaitStopOrSendEventImpl(TraceEventsConstants.TaskWaitSend, out scheduledTaskId, out originatingTaskId);
   }
 
   public static bool IsAwaitContinuationScheduled(this EventRecordWithMetadata eventRecord, out int scheduledTaskId)

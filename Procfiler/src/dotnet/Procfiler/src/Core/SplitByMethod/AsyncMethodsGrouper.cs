@@ -17,7 +17,7 @@ public interface IAsyncMethodsGrouper
 }
 
 [AppComponent]
-public class AsyncMethodsGrouper : IAsyncMethodsGrouper
+public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
 {
   public string AsyncMethodsPrefix => "ASYNC_";
 
@@ -26,7 +26,7 @@ public class AsyncMethodsGrouper : IAsyncMethodsGrouper
     IDictionary<long, IEventsCollection> managedThreadsEvents)
   {
     var result = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
-    var onlineGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(AsyncMethodsPrefix, (method, traces) =>
+    var onlineGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(logger, AsyncMethodsPrefix, (method, traces) =>
     {
       result.GetOrCreate(method, static () => []).AddRange(traces);
     });
@@ -56,19 +56,21 @@ public class AsyncMethodsGrouper : IAsyncMethodsGrouper
 
   private static LastSeenTaskEvent ToLastSeenTaskEvent(EventRecordWithMetadata eventRecord)
   {
-    if (eventRecord.IsTaskWaitSendEvent(out var sentTaskId))
+    if (eventRecord.IsTaskWaitSendEvent(out var sentTaskId, out var originatingTaskId))
     {
       return new TaskWaitSendEvent
       {
-        TaskId = sentTaskId
+        TaskId = sentTaskId,
+        OriginatingTaskId = originatingTaskId,
       };
     }
 
-    if (eventRecord.IsTaskWaitStopEvent(out var waitedTaskId))
+    if (eventRecord.IsTaskWaitStopEvent(out var waitedTaskId, out originatingTaskId))
     {
       return new TaskWaitStopEvent
       {
-        TaskId = waitedTaskId
+        TaskId = waitedTaskId,
+        OriginatingTaskId = originatingTaskId
       };
     }
 

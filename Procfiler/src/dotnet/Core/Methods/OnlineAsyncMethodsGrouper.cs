@@ -1,18 +1,23 @@
 using System.Diagnostics;
 using Core.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace Core.Methods;
 
 public abstract class LastSeenTaskEvent
 {
   public required int TaskId { get; init; }
+  public required int OriginatingTaskId { get; init; }
+
+  public override string ToString() => $"{GetType().Name} TaskId: {TaskId}, OriginatingTaskId: {OriginatingTaskId}";
 }
 
 public sealed class TaskWaitSendEvent : LastSeenTaskEvent;
 
 public sealed class TaskWaitStopEvent : LastSeenTaskEvent;
 
-public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
+public class OnlineAsyncMethodsGrouper<TEvent>(
+  IProcfilerLogger logger, string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
 {
   private class AsyncMethodTrace(LastSeenTaskEvent? beforeTaskEvent, IList<TEvent> events)
   {
@@ -42,6 +47,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action
 
   public void ProcessTaskWaitEvent(LastSeenTaskEvent taskEvent, long managedThreadId)
   {
+    logger.LogDebug("{TaskEvent}", taskEvent);
     GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent;
   }
 
@@ -52,6 +58,8 @@ public class OnlineAsyncMethodsGrouper<TEvent>(string asyncMethodsPrefix, Action
     {
       return;
     }
+
+    logger.LogDebug("Method[{Start}]: {Fqn}", isStart, fullMethodName);
 
     var stateMachineName = $"{asyncMethodsPrefix}{frameName}";
     var threadData = GetThreadData(managedThreadId);

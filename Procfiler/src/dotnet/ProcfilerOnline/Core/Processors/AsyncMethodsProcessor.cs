@@ -1,13 +1,14 @@
 ﻿using Core.Container;
 using Core.Events.EventRecord;
 using Core.Methods;
+using Core.Utils;
 
 namespace ProcfilerOnline.Core.Processors;
 
 [AppComponent]
-public class AsyncMethodsProcessor : ITraceEventProcessor
+public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcessor
 {
-  private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper = new("ASYNC_", HandleAsyncMethod);
+  private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper = new(logger, "ASYNC_", HandleAsyncMethod);
 
 
   public void Process(EventProcessingContext context)
@@ -30,14 +31,14 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
     if (context.Event.IsTaskWaitSendOrStopEvent())
     {
       LastSeenTaskEvent lastSeenTaskEvent = null!;
-      if (context.Event.IsTaskWaitSendEvent(out var sendTaskId))
+      if (context.Event.IsTaskWaitSendEvent(out var sendTaskId, out var originatingTaskId))
       {
-        lastSeenTaskEvent = new TaskWaitSendEvent { TaskId = sendTaskId };
+        lastSeenTaskEvent = new TaskWaitSendEvent { TaskId = sendTaskId, OriginatingTaskId = originatingTaskId };
       }
 
-      if (context.Event.IsTaskWaitStopEvent(out var waitTaskId))
+      if (context.Event.IsTaskWaitStopEvent(out var waitTaskId, out originatingTaskId))
       {
-        lastSeenTaskEvent = new TaskWaitStopEvent { TaskId = waitTaskId };
+        lastSeenTaskEvent = new TaskWaitStopEvent { TaskId = waitTaskId, OriginatingTaskId = originatingTaskId };
       }
 
       myGrouper.ProcessTaskWaitEvent(lastSeenTaskEvent, threadId);
@@ -52,9 +53,12 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
     foreach (var trace in traces)
     {
       Console.WriteLine("Trace start");
-      foreach (var frame in trace)
+      foreach (var eventRecord in trace)
       {
-        Console.WriteLine(frame.EventName);
+        if (eventRecord.TryGetMethodDetails() is { })
+        {
+          Console.WriteLine(eventRecord.EventName);
+        }
       }
 
       Console.WriteLine();

@@ -11,10 +11,10 @@ namespace Core.Container;
 
 public static class ProgramEntryPoint
 {
-  public static void SetupContainerAndRun(string toplevelCommand, string[] args)
+  public static void SetupContainerAndRun(string toplevelCommand, string[] args, LogLevel logLevel = LogLevel.Information)
   {
     List<Assembly> assemblies = [Assembly.GetEntryAssembly()!, typeof(ProgramEntryPoint).Assembly];
-    var builder = ProcfilerContainerBuilder.BuildFromAssembly(LogLevel.Information, assemblies);
+    var builder = ProcfilerContainerBuilder.BuildFromAssembly(logLevel, assemblies);
     builder.RegisterType(typeof(ProcfilerLogger)).As<IProcfilerLogger>();
 
     var container = builder.Build();
