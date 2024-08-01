@@ -11,6 +11,8 @@ namespace ProcfilerOnline.Core.Mutators;
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]
 public class MethodBeginEndEventMutator : ISingleEventMutator
 {
+  private readonly Dictionary<string, string> myFullNamesCache = new();
+
   public IEnumerable<EventLogMutation> Mutations => EmptyCollections<EventLogMutation>.EmptyList;
 
 
@@ -19,7 +21,11 @@ public class MethodBeginEndEventMutator : ISingleEventMutator
     if (eventRecord.TryGetMethodDetails() is not var (_, methodId)) return;
 
     var fqn = context.MethodIdToFqn.GetValueOrDefault(methodId) ?? "UNRESOLVED";
-    var newName = eventRecord.EventClass + "_{" + MutatorsUtil.TransformMethodLikeNameForEventNameConcatenation(fqn) + "}";
+    var newName = myFullNamesCache.GetOrCreate(
+      eventRecord.EventClass,
+      () => eventRecord.EventClass + "_{" + MutatorsUtil.TransformMethodLikeNameForEventNameConcatenation(fqn) + "}"
+    );
+
     eventRecord.EventName = newName;
   }
 }
