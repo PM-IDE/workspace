@@ -1,5 +1,4 @@
 using Core.Collector;
-using Core.Constants.TraceEvents;
 using Core.Container;
 using Core.CppProcfiler;
 using Core.Events.EventRecord;

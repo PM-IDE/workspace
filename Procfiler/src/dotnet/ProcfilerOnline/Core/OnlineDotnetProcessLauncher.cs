@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Core.Constants;
 using Core.Container;
 using Core.CppProcfiler;
@@ -16,7 +17,7 @@ public readonly record struct DotnetProcessLauncherDto
 {
   public required string DllPath { get; init; }
   public required string CppProcfilerPath { get; init; }
-  public required string? MethodsFilterRegex { get; init; }
+  public required Regex? MethodsFilterRegex { get; init; }
 }
 
 [AppComponent]
@@ -42,7 +43,7 @@ public class OnlineDotnetProcessLauncher(IProcfilerLogger logger) : IOnlineDotne
 
     if (launcherDto.MethodsFilterRegex is { } methodsFilterRegex)
     {
-      startInfo.EnvironmentVariables[CppProfilerEnvs.MethodsFilterRegex] = methodsFilterRegex;
+      startInfo.EnvironmentVariables[CppProfilerEnvs.MethodsFilterRegex] = methodsFilterRegex.ToString();
     }
 
     var process = new Process

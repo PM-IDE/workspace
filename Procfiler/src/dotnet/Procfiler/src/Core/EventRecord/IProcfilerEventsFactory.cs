@@ -5,7 +5,6 @@ using Core.EventsProcessing.Mutators;
 using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Utils;
 
 namespace Procfiler.Core.EventRecord;

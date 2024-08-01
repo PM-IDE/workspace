@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Text.RegularExpressions;
 using Core.CommandLine;
 using Core.Container;
 using Core.Utils;
@@ -10,8 +11,8 @@ namespace ProcfilerOnline.Commands;
 public record CollectEventsOnlineContext(
   string DllFilePath,
   string OutputBxesFilePath,
-  string? TargetMethodsRegex,
-  string? MethodsFilterRegex
+  Regex? TargetMethodsRegex,
+  Regex? MethodsFilterRegex
 );
 
 [AppComponent]
@@ -36,10 +37,12 @@ public class CollectEventsOnlineCommand(IProcfilerLogger logger, IOnlineEventsPr
       return new CollectEventsOnlineContext(
         parseResult.GetValueForOption(DllPathOption)!,
         parseResult.GetValueForOption(OutputPath)!,
-        parseResult.GetValueForOption(TargetMethodsRegex),
-        parseResult.GetValueForOption(MethodsFilterRegex)
+        CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
+        CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex))
       );
     });
+
+  private static Regex? CreateRegex(string? stringRegex) => stringRegex is { } ? new Regex(stringRegex) : null;
 
   public Task<int> InvokeAsync(InvocationContext context) => Task.Run(() => Invoke(context));
 

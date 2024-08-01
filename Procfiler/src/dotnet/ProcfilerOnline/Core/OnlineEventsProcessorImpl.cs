@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Core.Events.EventRecord;
+﻿using Core.Events.EventRecord;
 using Core.EventsProcessing.Mutators.Core;
 using Core.GlobalData;
 using Microsoft.Diagnostics.Tracing;
@@ -74,7 +73,7 @@ public class OnlineEventsProcessorImpl(
       Event = eventRecord,
       CommandContext = new CommandContext
       {
-        TargetMethodsRegex = commandContext.TargetMethodsRegex is { } ? new Regex(commandContext.TargetMethodsRegex) : null
+        TargetMethodsRegex = commandContext.TargetMethodsRegex
       }
     };
 
