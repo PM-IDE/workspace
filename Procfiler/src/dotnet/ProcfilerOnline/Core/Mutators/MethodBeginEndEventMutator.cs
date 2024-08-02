@@ -22,7 +22,7 @@ public class MethodBeginEndEventMutator : ISingleEventMutator
 
     var fqn = context.MethodIdToFqn.GetValueOrDefault(methodId) ?? "UNRESOLVED";
     var newName = myFullNamesCache.GetOrCreate(
-      eventRecord.EventClass,
+      fqn,
       () => eventRecord.EventClass + "_{" + MutatorsUtil.TransformMethodLikeNameForEventNameConcatenation(fqn) + "}"
     );
 
