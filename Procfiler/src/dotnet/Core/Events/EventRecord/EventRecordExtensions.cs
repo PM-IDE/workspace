@@ -20,6 +20,27 @@ public static class EventRecordExtensions
     return eventRecord.EventClass is TraceEventsConstants.TaskExecuteStart or TraceEventsConstants.TaskExecuteStop;
   }
 
+  public static bool IsTaskExecuteStartEvent(this EventRecordWithMetadata eventRecord, out int taskId)
+  {
+    return IsTaskExecutionStartStopEvent(eventRecord, TraceEventsConstants.TaskExecuteStart, out taskId);
+  }
+
+  public static bool IsTaskExecuteStopEvent(this EventRecordWithMetadata eventRecord, out int taskId)
+  {
+    return IsTaskExecutionStartStopEvent(eventRecord, TraceEventsConstants.TaskExecuteStop, out taskId);
+  }
+
+  private static bool IsTaskExecutionStartStopEvent(this EventRecordWithMetadata eventRecord, string eventClass, out int executedTaskId)
+  {
+    executedTaskId = -1;
+
+    if (eventRecord.EventClass != eventClass) return false;
+
+    executedTaskId = ExtractTaskId(eventRecord);
+
+    return true;
+  }
+
   public static bool IsTaskWaitSendOrStopEvent(this EventRecordWithMetadata eventRecord) =>
     eventRecord.EventClass is TraceEventsConstants.TaskWaitSend or TraceEventsConstants.TaskWaitStop;
 

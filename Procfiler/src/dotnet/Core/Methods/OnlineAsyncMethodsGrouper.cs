@@ -47,7 +47,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
 
   public void ProcessTaskWaitEvent(LastSeenTaskEvent taskEvent, long managedThreadId)
   {
-    logger.LogDebug("{TaskEvent}", taskEvent);
+    logger.LogDebug("[{ThreadId}]: {TaskEvent}", managedThreadId, taskEvent);
     GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent;
   }
 
@@ -59,7 +59,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
       return;
     }
 
-    logger.LogDebug("Method[{Start}]: {Fqn}", isStart, fullMethodName);
+    logger.LogDebug("[{ThreadId}]: Method[{Start}]: {Fqn}", managedThreadId, isStart, fullMethodName);
 
     var stateMachineName = $"{asyncMethodsPrefix}{frameName}";
     var threadData = GetThreadData(managedThreadId);
