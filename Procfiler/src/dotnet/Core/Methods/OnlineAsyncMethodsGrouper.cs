@@ -19,10 +19,22 @@ public sealed class TaskWaitStopEvent : LastSeenTaskEvent;
 public class OnlineAsyncMethodsGrouper<TEvent>(
   IProcfilerLogger logger, string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
 {
-  private class AsyncMethodTrace(LastSeenTaskEvent? beforeTaskEvent, IList<TEvent> events)
+  private abstract class AsyncMethodEvent;
+
+  private sealed class DefaultEvent(TEvent @event) : AsyncMethodEvent
+  {
+    public TEvent Event { get; } = @event;
+  }
+
+  private sealed class InnerAsyncMethodEvent(AsyncMethodTrace startTrace) : AsyncMethodEvent
+  {
+    public AsyncMethodTrace NestedAsyncMethodStart { get; } = startTrace;
+  }
+
+  private class AsyncMethodTrace(LastSeenTaskEvent? beforeTaskEvent, IList<AsyncMethodEvent> events)
   {
     public LastSeenTaskEvent? BeforeTaskEvent { get; } = beforeTaskEvent;
-    public IList<TEvent> Events { get; } = events;
+    public IList<AsyncMethodEvent> Events { get; } = events;
 
     public bool Completed { get; set; }
     public LastSeenTaskEvent? AfterTaskEvent { get; set; }
@@ -83,8 +95,9 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
 
   private void ProcessMethodStart(TEvent eventRecord, ThreadData threadData, string stateMachineName)
   {
-    var listOfEvents = new List<TEvent> { eventRecord };
+    var listOfEvents = new List<AsyncMethodEvent> { new DefaultEvent(eventRecord) };
     var newTrace = new AsyncMethodTrace(threadData.LastSeenTaskEvent, listOfEvents);
+
     if (newTrace.BeforeTaskEvent is TaskWaitStopEvent { TaskId: var waitedTaskId })
     {
       Debug.Assert(!myTasksToTracesIds.ContainsKey(waitedTaskId));
@@ -100,8 +113,10 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
   private void ProcessMethodEnd(TEvent eventRecord, ThreadData threadData, string stateMachineName)
   {
     Debug.Assert(threadData.LastTraceStack.Count > 0);
+
     var lastTrace = threadData.LastTraceStack.Pop();
-    lastTrace.Events.Add(eventRecord);
+    lastTrace.Events.Add(new DefaultEvent(eventRecord));
+
     if (threadData.LastSeenTaskEvent is { } lastSeenTaskEvent)
     {
       lastTrace.AfterTaskEvent = lastSeenTaskEvent;
@@ -120,15 +135,36 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
   private void DiscoverLogicalExecutions(string stateMachineName)
   {
     var asyncMethods = DiscoverLogicalExecutions(myAsyncMethodsToTraces[stateMachineName]);
-    var trace = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
-    if (trace.Count == 0) return;
+    var traces = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
+    if (traces.Count == 0) return;
 
     foreach (var usedTrace in asyncMethods.SelectMany(m => m))
     {
       myAsyncMethodsToTraces[stateMachineName].Remove(usedTrace);
     }
 
-    callback(stateMachineName, trace);
+    callback(stateMachineName, MaterializeDefaultEventTraces(traces));
+  }
+
+  private static List<List<TEvent>> MaterializeDefaultEventTraces(List<List<AsyncMethodEvent>> traces)
+  {
+    var result = new List<List<TEvent>>();
+
+    foreach (var trace in traces)
+    {
+      var newTrace = new List<TEvent>();
+      foreach (var @event in trace)
+      {
+        if (@event is DefaultEvent { Event: var defaultEvent })
+        {
+          newTrace.Add(defaultEvent);
+        }
+      }
+
+      result.Add(newTrace);
+    }
+
+    return result;
   }
 
   private List<List<AsyncMethodTrace>> DiscoverLogicalExecutions(IReadOnlyList<AsyncMethodTrace> traces)
@@ -200,7 +236,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
   {
     if (GetThreadData(managedThreadId).LastTraceStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
     {
-      eventsList.Add(@event);
+      eventsList.Add(new DefaultEvent(@event));
     }
   }
 
