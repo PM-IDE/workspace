@@ -70,9 +70,25 @@ public static class EventRecordExtensions
   private static int ExtractTaskId(EventRecordWithMetadata eventRecord) =>
     int.Parse(eventRecord.Metadata[TraceEventsConstants.TaskId]);
 
-  public static bool IsTaskWaitSendEvent(this EventRecordWithMetadata eventRecord, out int scheduledTaskId, out int originatingTaskId)
+  public static bool IsTaskWaitSendEvent(
+    this EventRecordWithMetadata eventRecord,
+    out int scheduledTaskId,
+    out int originatingTaskId,
+    out int continueWithTaskId,
+    out bool isAsync)
   {
-    return eventRecord.IsTaskWaitStopOrSendEventImpl(TraceEventsConstants.TaskWaitSend, out scheduledTaskId, out originatingTaskId);
+    continueWithTaskId = -1;
+    isAsync = false;
+
+    if (!eventRecord.IsTaskWaitStopOrSendEventImpl(TraceEventsConstants.TaskWaitSend, out scheduledTaskId, out originatingTaskId))
+    {
+      return false;
+    }
+
+    continueWithTaskId = int.Parse(eventRecord.Metadata[TraceEventsConstants.ContinueWithTaskId]);
+    isAsync = eventRecord.Metadata[TraceEventsConstants.AsyncBehaviorAttribute] == TraceEventsConstants.AsyncBehaviour;
+
+    return true;
   }
 
   public static bool IsAwaitContinuationScheduled(this EventRecordWithMetadata eventRecord, out int scheduledTaskId)

@@ -8,7 +8,7 @@ namespace Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Tas
 
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]
 public class AwaitContinuationScheduledMutator(IProcfilerLogger logger)
-  : AttributeRenamingMutatorBase(logger, TraceEventsConstants.ContinueWithTaskId, TraceEventsConstants.TaskId)
+  : AttributeRenamingMutatorBase(logger, TraceEventsConstants.ContinuationId, TraceEventsConstants.TaskId)
 {
   public override string EventType => TraceEventsConstants.AwaitTaskContinuationScheduledSend;
 }

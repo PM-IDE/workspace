@@ -12,7 +12,14 @@ public abstract class LastSeenTaskEvent
   public override string ToString() => $"{GetType().Name} TaskId: {TaskId}, OriginatingTaskId: {OriginatingTaskId}";
 }
 
-public sealed class TaskWaitSendEvent : LastSeenTaskEvent;
+public sealed class TaskWaitSendEvent : LastSeenTaskEvent
+{
+  public required int ContinueWithTaskId { get; init; }
+  public required bool IsAsync { get; init; }
+
+  public override string ToString() =>
+    $"{base.ToString()}, {nameof(ContinueWithTaskId)}: {ContinueWithTaskId}, {nameof(IsAsync)}: {IsAsync}";
+}
 
 public sealed class TaskWaitStopEvent : LastSeenTaskEvent;
 
@@ -42,7 +49,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
 
   private class ThreadData
   {
-    public Stack<AsyncMethodTrace> LastTraceStack { get; } = new();
+    public Stack<AsyncMethodTrace> AsyncMethodsStack { get; } = new();
     public LastSeenTaskEvent? LastSeenTaskEvent { get; set; }
   }
 
@@ -107,14 +114,14 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
     var listOfAsyncTraces = myAsyncMethodsToTraces.GetOrCreate(stateMachineName, () => []);
 
     listOfAsyncTraces.Add(newTrace);
-    threadData.LastTraceStack.Push(newTrace);
+    threadData.AsyncMethodsStack.Push(newTrace);
   }
 
   private void ProcessMethodEnd(TEvent eventRecord, ThreadData threadData, string stateMachineName)
   {
-    Debug.Assert(threadData.LastTraceStack.Count > 0);
+    Debug.Assert(threadData.AsyncMethodsStack.Count > 0);
 
-    var lastTrace = threadData.LastTraceStack.Pop();
+    var lastTrace = threadData.AsyncMethodsStack.Pop();
     lastTrace.Events.Add(new DefaultEvent(eventRecord));
 
     if (threadData.LastSeenTaskEvent is { } lastSeenTaskEvent)
@@ -129,6 +136,18 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
     }
 
     lastTrace.Completed = true;
+
+    if (IsTraceAnEntryPoint(lastTrace))
+    {
+      foreach (var asyncMethod in threadData.AsyncMethodsStack)
+      {
+        if (!asyncMethod.Completed)
+        {
+          asyncMethod.Events.Add(new InnerAsyncMethodEvent(lastTrace));
+        }
+      }
+    }
+
     DiscoverLogicalExecutions(stateMachineName);
   }
 
@@ -234,7 +253,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
 
   private void AppendEventToTraceIfHaveSome(long managedThreadId, TEvent @event)
   {
-    if (GetThreadData(managedThreadId).LastTraceStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
+    if (GetThreadData(managedThreadId).AsyncMethodsStack.TryPeek(out var topTrace) && topTrace is { Events: { } eventsList })
     {
       eventsList.Add(new DefaultEvent(@event));
     }

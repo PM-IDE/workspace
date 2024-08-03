@@ -22,14 +22,14 @@ public class AwaitContinuationScheduledMutatorTest : SingleMutatorTestBase
     {
       [TraceEventsConstants.OriginatingTaskSchedulerId] = "1",
       [TraceEventsConstants.OriginatingTaskId] = "123",
-      [TraceEventsConstants.ContinueWithTaskId] = ContinueWithId
+      [TraceEventsConstants.ContinuationId] = ContinueWithId
     };
 
     ExecuteWithRandomEvent(metadata, eventRecord =>
     {
       Assert.Multiple(() =>
       {
-        Assert.That(eventRecord.Metadata.ContainsKey(TraceEventsConstants.ContinueWithTaskId), Is.False);
+        Assert.That(eventRecord.Metadata.ContainsKey(TraceEventsConstants.ContinuationId), Is.False);
         Assert.That(eventRecord.Metadata.ContainsKey(TraceEventsConstants.TaskId), Is.True);
         Assert.That(eventRecord.Metadata[TraceEventsConstants.TaskId], Is.EqualTo(ContinueWithId));
       });

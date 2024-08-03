@@ -31,9 +31,15 @@ public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcess
     if (context.Event.IsTaskWaitSendOrStopEvent())
     {
       LastSeenTaskEvent lastSeenTaskEvent = null!;
-      if (context.Event.IsTaskWaitSendEvent(out var sendTaskId, out var originatingTaskId))
+      if (context.Event.IsTaskWaitSendEvent(out var sendTaskId, out var originatingTaskId, out var continueWithTaskId, out var isAsync))
       {
-        lastSeenTaskEvent = new TaskWaitSendEvent { TaskId = sendTaskId, OriginatingTaskId = originatingTaskId };
+        lastSeenTaskEvent = new TaskWaitSendEvent
+        {
+          TaskId = sendTaskId,
+          OriginatingTaskId = originatingTaskId,
+          ContinueWithTaskId = continueWithTaskId,
+          IsAsync = isAsync
+        };
       }
 
       if (context.Event.IsTaskWaitStopEvent(out var waitTaskId, out originatingTaskId))

@@ -18,7 +18,11 @@ public static partial class TraceEventsConstants
   public const string ThreadPoolEnqueueWork = "ThreadPoolEnqueueWork";
 
   public const string TaskId = "TaskID";
-  public const string ContinueWithTaskId = "ContinuationId";
+  public const string ContinuationId = "ContinuationId";
+  public const string ContinueWithTaskId = "ContinueWithTaskID";
   public const string OriginatingTaskId = "OriginatingTaskID";
   public const string OriginatingTaskSchedulerId = "OriginatingTaskSchedulerID";
+  public const string AsyncBehaviorAttribute = "Behavior";
+
+  public const string AsyncBehaviour = "Asynchronous";
 }
