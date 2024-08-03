@@ -154,31 +154,24 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
   private void DiscoverLogicalExecutions(string stateMachineName)
   {
     var asyncMethods = DiscoverLogicalExecutions(myAsyncMethodsToTraces[stateMachineName]);
-    var traces = asyncMethods.Select(traces => traces.SelectMany(t => t.Events).ToList()).ToList();
-    if (traces.Count == 0) return;
+    if (asyncMethods.Count == 0) return;
 
     foreach (var usedTrace in asyncMethods.SelectMany(m => m))
     {
       myAsyncMethodsToTraces[stateMachineName].Remove(usedTrace);
     }
 
-    callback(stateMachineName, MaterializeDefaultEventTraces(traces));
+    callback(stateMachineName, MaterializeDefaultEventTraces(asyncMethods));
   }
 
-  private static List<List<TEvent>> MaterializeDefaultEventTraces(List<List<AsyncMethodEvent>> traces)
+  private List<List<TEvent>> MaterializeDefaultEventTraces(List<List<AsyncMethodTrace>> traces)
   {
     var result = new List<List<TEvent>>();
 
     foreach (var trace in traces)
     {
       var newTrace = new List<TEvent>();
-      foreach (var @event in trace)
-      {
-        if (@event is DefaultEvent { Event: var defaultEvent })
-        {
-          newTrace.Add(defaultEvent);
-        }
-      }
+      MaterializeTrace(newTrace, trace);
 
       result.Add(newTrace);
     }
@@ -186,35 +179,63 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
     return result;
   }
 
+  private void MaterializeTrace(List<TEvent> result, List<AsyncMethodTrace> logicalExecution)
+  {
+    foreach (var trace in logicalExecution)
+    {
+      foreach (var @event in trace.Events)
+      {
+        switch (@event)
+        {
+          case DefaultEvent { Event: var defaultEvent }:
+            result.Add(defaultEvent);
+            break;
+          case InnerAsyncMethodEvent innerAsyncMethodEvent:
+            if (DiscoverLogicalExecution(innerAsyncMethodEvent.NestedAsyncMethodStart) is { } innerLogicalExecution)
+            {
+              MaterializeTrace(result, innerLogicalExecution);
+            }
+
+            break;
+        }
+      }
+    }
+  }
+
   private List<List<AsyncMethodTrace>> DiscoverLogicalExecutions(IReadOnlyList<AsyncMethodTrace> traces)
   {
     var result = new List<List<AsyncMethodTrace>>();
     foreach (var startingPoint in FindEntryPoints(traces))
     {
-      var logicalExecution = new List<AsyncMethodTrace>();
-      var currentTrace = startingPoint;
-
-      var finishedExecution = true;
-      while (true)
-      {
-        logicalExecution.Add(currentTrace);
-
-        if (!myTracesToTasksIds.TryGetValue(currentTrace, out var queuedTaskId)) break;
-
-        if (!currentTrace.Completed || !myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace))
-        {
-          finishedExecution = false;
-          break;
-        }
-      }
-
-      if (finishedExecution)
+      if (DiscoverLogicalExecution(startingPoint) is { } logicalExecution)
       {
         result.Add(logicalExecution);
       }
     }
 
     return result;
+  }
+
+  private List<AsyncMethodTrace>? DiscoverLogicalExecution(AsyncMethodTrace startingPoint)
+  {
+    var logicalExecution = new List<AsyncMethodTrace>();
+    var currentTrace = startingPoint;
+
+    var finishedExecution = true;
+    while (true)
+    {
+      logicalExecution.Add(currentTrace);
+
+      if (!myTracesToTasksIds.TryGetValue(currentTrace, out var queuedTaskId)) break;
+
+      if (!currentTrace.Completed || !myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace))
+      {
+        finishedExecution = false;
+        break;
+      }
+    }
+
+    return finishedExecution ? logicalExecution : null;
   }
 
   private IEnumerable<AsyncMethodTrace> FindEntryPoints(IEnumerable<AsyncMethodTrace> traces) =>
