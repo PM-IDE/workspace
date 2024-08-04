@@ -191,7 +191,11 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
             result.Add(defaultEvent);
             break;
           case InnerAsyncMethodEvent innerAsyncMethodEvent:
-            if (DiscoverLogicalExecution(innerAsyncMethodEvent.NestedAsyncMethodStart) is { } innerLogicalExecution)
+            var nestedFirstTrace = innerAsyncMethodEvent.NestedAsyncMethodStart;
+            if (nestedFirstTrace.AfterTaskEvent is TaskWaitSendEvent { ContinueWithTaskId: var continueWithTaskId } &&
+                trace.AfterTaskEvent is TaskWaitSendEvent { TaskId: var taskId } &&
+                continueWithTaskId == taskId &&
+                DiscoverLogicalExecution(innerAsyncMethodEvent.NestedAsyncMethodStart) is { } innerLogicalExecution)
             {
               MaterializeTrace(result, innerLogicalExecution);
             }
@@ -224,11 +228,17 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
     var finishedExecution = true;
     while (true)
     {
+      if (!currentTrace.Completed)
+      {
+        finishedExecution = false;
+        break;
+      }
+
       logicalExecution.Add(currentTrace);
 
       if (!myTracesToTasksIds.TryGetValue(currentTrace, out var queuedTaskId)) break;
 
-      if (!currentTrace.Completed || !myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace))
+      if (!myTasksToTracesIds.TryGetValue(queuedTaskId, out currentTrace))
       {
         finishedExecution = false;
         break;
