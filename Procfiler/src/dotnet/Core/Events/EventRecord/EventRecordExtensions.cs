@@ -70,25 +70,31 @@ public static class EventRecordExtensions
   private static int ExtractTaskId(EventRecordWithMetadata eventRecord) =>
     int.Parse(eventRecord.Metadata[TraceEventsConstants.TaskId]);
 
-  public static bool IsTaskWaitSendEvent(
-    this EventRecordWithMetadata eventRecord,
-    out int scheduledTaskId,
-    out int originatingTaskId,
-    out int continueWithTaskId,
-    out bool isAsync)
+  public readonly struct TaskWaitSendEventData
   {
-    continueWithTaskId = -1;
-    isAsync = false;
+    public required int TaskId { get; init; }
+    public required int OriginatingTaskId { get; init; }
+    public required int ContinueWithTaskId { get; init; }
+    public required bool IsAsync { get; init; }
+  }
 
-    if (!eventRecord.IsTaskWaitStopOrSendEventImpl(TraceEventsConstants.TaskWaitSend, out scheduledTaskId, out originatingTaskId))
+  public static TaskWaitSendEventData? IsTaskWaitSendEvent(this EventRecordWithMetadata eventRecord)
+  {
+    if (!eventRecord.IsTaskWaitStopOrSendEventImpl(TraceEventsConstants.TaskWaitSend, out var scheduledTaskId, out var originatingTaskId))
     {
-      return false;
+      return null;
     }
 
-    continueWithTaskId = int.Parse(eventRecord.Metadata[TraceEventsConstants.ContinueWithTaskId]);
-    isAsync = eventRecord.Metadata[TraceEventsConstants.AsyncBehaviorAttribute] == TraceEventsConstants.AsyncBehaviour;
+    var continueWithTaskId = int.Parse(eventRecord.Metadata[TraceEventsConstants.ContinueWithTaskId]);
+    var isAsync = eventRecord.Metadata[TraceEventsConstants.AsyncBehaviorAttribute] == TraceEventsConstants.AsyncBehaviour;
 
-    return true;
+    return new TaskWaitSendEventData
+    {
+      IsAsync = isAsync,
+      TaskId = scheduledTaskId,
+      OriginatingTaskId = originatingTaskId,
+      ContinueWithTaskId = continueWithTaskId
+    };
   }
 
   public static bool IsAwaitContinuationScheduled(this EventRecordWithMetadata eventRecord, out int scheduledTaskId)

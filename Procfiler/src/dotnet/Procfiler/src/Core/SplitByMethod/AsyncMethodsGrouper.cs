@@ -56,18 +56,18 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
 
   private static TaskEvent ToLastSeenTaskEvent(EventRecordWithMetadata eventRecord)
   {
-    if (eventRecord.IsTaskWaitSendEvent(out var sentTaskId, out var originatingTaskId, out var continueWithTaskId, out var isAsync))
+    if (eventRecord.IsTaskWaitSendEvent() is { } taskData)
     {
       return new TaskWaitSendEvent
       {
-        TaskId = sentTaskId,
-        OriginatingTaskId = originatingTaskId,
-        ContinueWithTaskId = continueWithTaskId,
-        IsAsync = isAsync
+        TaskId = taskData.TaskId,
+        OriginatingTaskId = taskData.OriginatingTaskId,
+        ContinueWithTaskId = taskData.ContinueWithTaskId,
+        IsAsync = taskData.IsAsync
       };
     }
 
-    if (eventRecord.IsTaskWaitStopEvent(out var waitedTaskId, out originatingTaskId))
+    if (eventRecord.IsTaskWaitStopEvent(out var waitedTaskId, out var originatingTaskId))
     {
       return new TaskWaitStopEvent
       {

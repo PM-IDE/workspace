@@ -31,18 +31,18 @@ public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcess
     if (context.Event.IsTaskWaitSendOrStopEvent())
     {
       TaskEvent taskEvent = null!;
-      if (context.Event.IsTaskWaitSendEvent(out var sendTaskId, out var originatingTaskId, out var continueWithTaskId, out var isAsync))
+      if (context.Event.IsTaskWaitSendEvent() is { } taskData)
       {
         taskEvent = new TaskWaitSendEvent
         {
-          TaskId = sendTaskId,
-          OriginatingTaskId = originatingTaskId,
-          ContinueWithTaskId = continueWithTaskId,
-          IsAsync = isAsync
+          TaskId = taskData.TaskId,
+          OriginatingTaskId = taskData.OriginatingTaskId,
+          ContinueWithTaskId = taskData.ContinueWithTaskId,
+          IsAsync = taskData.IsAsync
         };
       }
 
-      if (context.Event.IsTaskWaitStopEvent(out var waitTaskId, out originatingTaskId))
+      if (context.Event.IsTaskWaitStopEvent(out var waitTaskId, out var originatingTaskId))
       {
         taskEvent = new TaskWaitStopEvent { TaskId = waitTaskId, OriginatingTaskId = originatingTaskId };
       }
