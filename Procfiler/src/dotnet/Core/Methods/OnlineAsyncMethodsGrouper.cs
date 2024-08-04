@@ -26,6 +26,45 @@ public sealed class TaskWaitStopEvent : LastSeenTaskEvent;
 public class OnlineAsyncMethodsGrouper<TEvent>(
   IProcfilerLogger logger, string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
 {
+  private class QueuedAsyncMethodsStorage
+  {
+    private readonly HashSet<Guid> myRequiredToCacheTraces = [];
+    private readonly Dictionary<Guid, List<TEvent>> myCachedTraces = new();
+    private readonly Queue<(string StateMachineName, List<AsyncMethodTrace> MethodTraces)> myQueuedAsyncMethods = [];
+
+    public void AddTraceCacheRequest(Guid traceId)
+    {
+      myRequiredToCacheTraces.Add(traceId);
+    }
+
+    public void CacheIfNeeded(Guid traceId, List<TEvent> trace)
+    {
+      if (myRequiredToCacheTraces.Remove(traceId))
+      {
+        myCachedTraces[traceId] = trace;
+      }
+    }
+
+    public void ExecuteWithQueuedAsyncMethods(Action<(string StateMachineName, List<AsyncMethodTrace> MethodTrace)> action)
+    {
+      var count = myQueuedAsyncMethods.Count;
+      for (var i = 0; i < count; ++i)
+      {
+        action(myQueuedAsyncMethods.Dequeue());
+      }
+    }
+
+    public void QueueAsyncMethod(string stateMachineName, List<AsyncMethodTrace> methodTraces)
+    {
+      myQueuedAsyncMethods.Enqueue((stateMachineName, methodTraces));
+    }
+
+    public List<TEvent>? DevastateCache(Guid traceId)
+    {
+      return myCachedTraces.Remove(traceId, out var trace) ? trace : null;
+    }
+  }
+
   private abstract class AsyncMethodEvent;
 
   private sealed class DefaultEvent(TEvent @event) : AsyncMethodEvent
@@ -63,9 +102,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
   private readonly Dictionary<string, string> myAsyncMethodsToTypeNames = new();
   private readonly Dictionary<int, AsyncMethodTrace> myTasksToTracesIds = new();
   private readonly Dictionary<AsyncMethodTrace, int> myTracesToTasksIds = new();
-  private readonly HashSet<Guid> myRequiredToCacheTraces = [];
-  private readonly Dictionary<Guid, List<TEvent>> myCachedTraces = new();
-  private readonly List<(string StateMachineName, List<AsyncMethodTrace> MethodTraces)> myQueuedAsyncMethods = [];
+  private readonly QueuedAsyncMethodsStorage myQueuedAsyncMethods = new();
 
 
   public void ProcessTaskWaitEvent(LastSeenTaskEvent taskEvent, long managedThreadId)
@@ -156,14 +193,11 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
 
   private void ProcessQueuedMethods()
   {
-    var count = myQueuedAsyncMethods.Count;
-    for (var i = 0; i < count; ++i)
+    myQueuedAsyncMethods.ExecuteWithQueuedAsyncMethods((cachedTrace) =>
     {
-      var (stateMachineName, methodTraces) = myQueuedAsyncMethods[i];
+      var (stateMachineName, methodTraces) = cachedTrace;
       DiscoverLogicalExecutions(stateMachineName, methodTraces);
-    }
-
-    myQueuedAsyncMethods.RemoveRange(0, count);
+    });
   }
 
   private void DiscoverLogicalExecutions(string stateMachineName)
@@ -193,10 +227,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
         result.Add(newTrace);
 
         var id = methodTraces.First().TraceId;
-        if (myRequiredToCacheTraces.Remove(id))
-        {
-          myCachedTraces[id] = newTrace;
-        }
+        myQueuedAsyncMethods.CacheIfNeeded(id, newTrace);
 
         foreach (var usedTrace in methodTraces)
         {
@@ -205,7 +236,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
       }
       else
       {
-        myQueuedAsyncMethods.Add((stateMachineName, methodTraces));
+        myQueuedAsyncMethods.QueueAsyncMethod(stateMachineName, methodTraces);
       }
     }
 
@@ -225,7 +256,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
             break;
           case InnerAsyncMethodEvent innerAsyncMethodEvent:
             var nestedFirstTrace = innerAsyncMethodEvent.NestedAsyncMethodStart;
-            if (myCachedTraces.Remove(nestedFirstTrace.TraceId, out var cachedTrace))
+            if (myQueuedAsyncMethods.DevastateCache(nestedFirstTrace.TraceId) is { } cachedTrace)
             {
               result.AddRange(cachedTrace);
               break;
@@ -239,7 +270,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
               }
               else
               {
-                myRequiredToCacheTraces.Add(nestedFirstTrace.TraceId);
+                myQueuedAsyncMethods.AddTraceCacheRequest(nestedFirstTrace.TraceId);
                 return false;
               }
             }
