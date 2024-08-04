@@ -4,96 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Core.Methods;
 
-public abstract class LastSeenTaskEvent
-{
-  public required int TaskId { get; init; }
-  public required int OriginatingTaskId { get; init; }
-
-  public override string ToString() => $"{GetType().Name} TaskId: {TaskId}, OriginatingTaskId: {OriginatingTaskId}";
-}
-
-public sealed class TaskWaitSendEvent : LastSeenTaskEvent
-{
-  public required int ContinueWithTaskId { get; init; }
-  public required bool IsAsync { get; init; }
-
-  public override string ToString() =>
-    $"{base.ToString()}, {nameof(ContinueWithTaskId)}: {ContinueWithTaskId}, {nameof(IsAsync)}: {IsAsync}";
-}
-
-public sealed class TaskWaitStopEvent : LastSeenTaskEvent;
-
-public class OnlineAsyncMethodsGrouper<TEvent>(
+public partial class OnlineAsyncMethodsGrouper<TEvent>(
   IProcfilerLogger logger, string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
 {
-  private class QueuedAsyncMethodsStorage
-  {
-    private readonly HashSet<Guid> myRequiredToCacheTraces = [];
-    private readonly Dictionary<Guid, List<TEvent>> myCachedTraces = new();
-    private readonly Queue<(string StateMachineName, List<AsyncMethodTrace> MethodTraces)> myQueuedAsyncMethods = [];
-
-    public void AddTraceCacheRequest(Guid traceId)
-    {
-      myRequiredToCacheTraces.Add(traceId);
-    }
-
-    public void CacheIfNeeded(Guid traceId, List<TEvent> trace)
-    {
-      if (myRequiredToCacheTraces.Remove(traceId))
-      {
-        myCachedTraces[traceId] = trace;
-      }
-    }
-
-    public void ExecuteWithQueuedAsyncMethods(Action<(string StateMachineName, List<AsyncMethodTrace> MethodTrace)> action)
-    {
-      var count = myQueuedAsyncMethods.Count;
-      for (var i = 0; i < count; ++i)
-      {
-        action(myQueuedAsyncMethods.Dequeue());
-      }
-    }
-
-    public void QueueAsyncMethod(string stateMachineName, List<AsyncMethodTrace> methodTraces)
-    {
-      myQueuedAsyncMethods.Enqueue((stateMachineName, methodTraces));
-    }
-
-    public List<TEvent>? DevastateCache(Guid traceId)
-    {
-      return myCachedTraces.Remove(traceId, out var trace) ? trace : null;
-    }
-  }
-
-  private abstract class AsyncMethodEvent;
-
-  private sealed class DefaultEvent(TEvent @event) : AsyncMethodEvent
-  {
-    public TEvent Event { get; } = @event;
-  }
-
-  private sealed class InnerAsyncMethodEvent(AsyncMethodTrace startTrace) : AsyncMethodEvent
-  {
-    public AsyncMethodTrace NestedAsyncMethodStart { get; } = startTrace;
-  }
-
-  private class AsyncMethodTrace(LastSeenTaskEvent? beforeTaskEvent, IList<AsyncMethodEvent> events)
-  {
-    public Guid TraceId { get; } = Guid.NewGuid();
-    public LastSeenTaskEvent? BeforeTaskEvent { get; } = beforeTaskEvent;
-    public IList<AsyncMethodEvent> Events { get; } = events;
-
-    public bool Completed { get; set; }
-    public LastSeenTaskEvent? AfterTaskEvent { get; set; }
-  }
-
-  private class ThreadData
-  {
-    public Stack<AsyncMethodTrace> AsyncMethodsStack { get; } = new();
-    public LastSeenTaskEvent? LastSeenTaskEvent { get; set; }
-  }
-
-
   private const string MoveNextMethod = "MoveNext";
   private const string MoveNextWithDot = $".{MoveNextMethod}";
 
@@ -105,7 +18,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
   private readonly QueuedAsyncMethodsStorage myQueuedAsyncMethods = new();
 
 
-  public void ProcessTaskWaitEvent(LastSeenTaskEvent taskEvent, long managedThreadId)
+  public void ProcessTaskWaitEvent(TaskEvent taskEvent, long managedThreadId)
   {
     logger.LogDebug("[{ThreadId}]: {TaskEvent}", managedThreadId, taskEvent);
     GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent;

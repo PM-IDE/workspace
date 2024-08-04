@@ -30,10 +30,10 @@ public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcess
 
     if (context.Event.IsTaskWaitSendOrStopEvent())
     {
-      LastSeenTaskEvent lastSeenTaskEvent = null!;
+      TaskEvent taskEvent = null!;
       if (context.Event.IsTaskWaitSendEvent(out var sendTaskId, out var originatingTaskId, out var continueWithTaskId, out var isAsync))
       {
-        lastSeenTaskEvent = new TaskWaitSendEvent
+        taskEvent = new TaskWaitSendEvent
         {
           TaskId = sendTaskId,
           OriginatingTaskId = originatingTaskId,
@@ -44,10 +44,10 @@ public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcess
 
       if (context.Event.IsTaskWaitStopEvent(out var waitTaskId, out originatingTaskId))
       {
-        lastSeenTaskEvent = new TaskWaitStopEvent { TaskId = waitTaskId, OriginatingTaskId = originatingTaskId };
+        taskEvent = new TaskWaitStopEvent { TaskId = waitTaskId, OriginatingTaskId = originatingTaskId };
       }
 
-      myGrouper.ProcessTaskWaitEvent(lastSeenTaskEvent, threadId);
+      myGrouper.ProcessTaskWaitEvent(taskEvent, threadId);
     }
 
     myGrouper.ProcessNormalEvent(context.Event, threadId);
