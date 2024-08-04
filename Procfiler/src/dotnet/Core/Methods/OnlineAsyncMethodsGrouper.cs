@@ -40,6 +40,7 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
 
   private class AsyncMethodTrace(LastSeenTaskEvent? beforeTaskEvent, IList<AsyncMethodEvent> events)
   {
+    public Guid TraceId { get; } = Guid.NewGuid();
     public LastSeenTaskEvent? BeforeTaskEvent { get; } = beforeTaskEvent;
     public IList<AsyncMethodEvent> Events { get; } = events;
 
@@ -62,6 +63,9 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
   private readonly Dictionary<string, string> myAsyncMethodsToTypeNames = new();
   private readonly Dictionary<int, AsyncMethodTrace> myTasksToTracesIds = new();
   private readonly Dictionary<AsyncMethodTrace, int> myTracesToTasksIds = new();
+  private readonly HashSet<Guid> myRequiredToCacheTraces = [];
+  private readonly Dictionary<Guid, List<TEvent>> myCachedTraces = new();
+  private readonly List<(string StateMachineName, List<AsyncMethodTrace> MethodTraces)> myQueuedAsyncMethods = [];
 
 
   public void ProcessTaskWaitEvent(LastSeenTaskEvent taskEvent, long managedThreadId)
@@ -137,49 +141,78 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
 
     lastTrace.Completed = true;
 
-    if (IsTraceAnEntryPoint(lastTrace))
+    if (IsTraceAnEntryPoint(lastTrace) && threadData.AsyncMethodsStack.Count > 0)
     {
-      foreach (var asyncMethod in threadData.AsyncMethodsStack)
+      var asyncMethod = threadData.AsyncMethodsStack.Peek();
+      if (!asyncMethod.Completed)
       {
-        if (!asyncMethod.Completed)
-        {
-          asyncMethod.Events.Add(new InnerAsyncMethodEvent(lastTrace));
-        }
+        asyncMethod.Events.Add(new InnerAsyncMethodEvent(lastTrace));
       }
     }
 
     DiscoverLogicalExecutions(stateMachineName);
+    ProcessQueuedMethods();
+  }
+
+  private void ProcessQueuedMethods()
+  {
+    var count = myQueuedAsyncMethods.Count;
+    for (var i = 0; i < count; ++i)
+    {
+      var (stateMachineName, methodTraces) = myQueuedAsyncMethods[i];
+      DiscoverLogicalExecutions(stateMachineName, methodTraces);
+    }
+
+    myQueuedAsyncMethods.RemoveRange(0, count);
   }
 
   private void DiscoverLogicalExecutions(string stateMachineName)
   {
-    var asyncMethods = DiscoverLogicalExecutions(myAsyncMethodsToTraces[stateMachineName]);
-    if (asyncMethods.Count == 0) return;
-
-    foreach (var usedTrace in asyncMethods.SelectMany(m => m))
-    {
-      myAsyncMethodsToTraces[stateMachineName].Remove(usedTrace);
-    }
-
-    callback(stateMachineName, MaterializeDefaultEventTraces(asyncMethods));
+    DiscoverLogicalExecutions(stateMachineName, myAsyncMethodsToTraces[stateMachineName]);
   }
 
-  private List<List<TEvent>> MaterializeDefaultEventTraces(List<List<AsyncMethodTrace>> traces)
+  private void DiscoverLogicalExecutions(string stateMachineName, List<AsyncMethodTrace> methodTraces)
+  {
+    var asyncMethods = DiscoverLogicalExecutions(methodTraces);
+    if (asyncMethods.Count == 0) return;
+
+    callback(stateMachineName, MaterializeDefaultEventTraces(stateMachineName, asyncMethods));
+  }
+
+  private List<List<TEvent>> MaterializeDefaultEventTraces(string stateMachineName, List<List<AsyncMethodTrace>> methodsTraces)
   {
     var result = new List<List<TEvent>>();
 
-    foreach (var trace in traces)
+    foreach (var methodTraces in methodsTraces)
     {
-      var newTrace = new List<TEvent>();
-      MaterializeTrace(newTrace, trace);
+      if (methodTraces.Count == 0) continue;
 
-      result.Add(newTrace);
+      var newTrace = new List<TEvent>();
+      if (MaterializeTrace(newTrace, methodTraces))
+      {
+        result.Add(newTrace);
+
+        var id = methodTraces.First().TraceId;
+        if (myRequiredToCacheTraces.Remove(id))
+        {
+          myCachedTraces[id] = newTrace;
+        }
+
+        foreach (var usedTrace in methodTraces)
+        {
+          myAsyncMethodsToTraces[stateMachineName].Remove(usedTrace);
+        }
+      }
+      else
+      {
+        myQueuedAsyncMethods.Add((stateMachineName, methodTraces));
+      }
     }
 
     return result;
   }
 
-  private void MaterializeTrace(List<TEvent> result, List<AsyncMethodTrace> logicalExecution)
+  private bool MaterializeTrace(List<TEvent> result, List<AsyncMethodTrace> logicalExecution)
   {
     foreach (var trace in logicalExecution)
     {
@@ -192,18 +225,38 @@ public class OnlineAsyncMethodsGrouper<TEvent>(
             break;
           case InnerAsyncMethodEvent innerAsyncMethodEvent:
             var nestedFirstTrace = innerAsyncMethodEvent.NestedAsyncMethodStart;
-            if (nestedFirstTrace.AfterTaskEvent is TaskWaitSendEvent { ContinueWithTaskId: var continueWithTaskId } &&
-                trace.AfterTaskEvent is TaskWaitSendEvent { TaskId: var taskId } &&
-                continueWithTaskId == taskId &&
-                DiscoverLogicalExecution(innerAsyncMethodEvent.NestedAsyncMethodStart) is { } innerLogicalExecution)
+            if (myCachedTraces.Remove(nestedFirstTrace.TraceId, out var cachedTrace))
             {
-              MaterializeTrace(result, innerLogicalExecution);
+              result.AddRange(cachedTrace);
+              break;
+            }
+
+            if (IsNestedAwaitableAsyncMethod(trace, nestedFirstTrace))
+            {
+              if (DiscoverLogicalExecution(innerAsyncMethodEvent.NestedAsyncMethodStart) is { } innerLogicalExecution)
+              {
+                MaterializeTrace(result, innerLogicalExecution);
+              }
+              else
+              {
+                myRequiredToCacheTraces.Add(nestedFirstTrace.TraceId);
+                return false;
+              }
             }
 
             break;
         }
       }
     }
+
+    return true;
+  }
+
+  private static bool IsNestedAwaitableAsyncMethod(AsyncMethodTrace originalTrace, AsyncMethodTrace nestedTrace)
+  {
+    return nestedTrace.AfterTaskEvent is TaskWaitSendEvent { ContinueWithTaskId: var continueWithTaskId } &&
+           originalTrace.AfterTaskEvent is TaskWaitSendEvent { TaskId: var taskId } &&
+           continueWithTaskId == taskId;
   }
 
   private List<List<AsyncMethodTrace>> DiscoverLogicalExecutions(IReadOnlyList<AsyncMethodTrace> traces)
