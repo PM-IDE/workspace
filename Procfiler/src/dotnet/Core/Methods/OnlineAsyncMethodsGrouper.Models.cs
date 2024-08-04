@@ -14,14 +14,14 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>
     public AsyncMethodTrace NestedAsyncMethodStart { get; } = startTrace;
   }
 
-  private class AsyncMethodTrace(TaskEvent? beforeTaskEvent, IList<AsyncMethodEvent> events)
+  private class AsyncMethodTrace(TaskWaitStopEvent? beforeTaskEvent, IList<AsyncMethodEvent> events)
   {
     public Guid TraceId { get; } = Guid.NewGuid();
-    public TaskEvent? BeforeTaskEvent { get; } = beforeTaskEvent;
+    public TaskWaitStopEvent? BeforeTaskEvent { get; } = beforeTaskEvent;
     public IList<AsyncMethodEvent> Events { get; } = events;
 
     public bool Completed { get; set; }
-    public TaskEvent? AfterTaskEvent { get; set; }
+    public TaskWaitSendEvent? AfterTaskEvent { get; set; }
   }
 
   private class ThreadData

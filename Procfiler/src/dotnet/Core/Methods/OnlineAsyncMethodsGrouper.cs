@@ -57,9 +57,16 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
   private void ProcessMethodStart(TEvent eventRecord, ThreadData threadData, string stateMachineName)
   {
     var listOfEvents = new List<AsyncMethodEvent> { new DefaultEvent(eventRecord) };
-    var newTrace = new AsyncMethodTrace(threadData.LastSeenTaskEvent, listOfEvents);
 
-    if (newTrace.BeforeTaskEvent is TaskWaitStopEvent { TaskId: var waitedTaskId })
+    if (threadData.LastSeenTaskEvent is not (null or TaskWaitStopEvent))
+    {
+      logger.LogError("The task event was not stop event, instead: {Type}", threadData.LastSeenTaskEvent.GetType().Name);
+      return;
+    }
+
+    var newTrace = new AsyncMethodTrace(threadData.LastSeenTaskEvent as TaskWaitStopEvent, listOfEvents);
+
+    if (newTrace.BeforeTaskEvent is { TaskId: var waitedTaskId })
     {
       Debug.Assert(!myTasksToTracesIds.ContainsKey(waitedTaskId));
       myTasksToTracesIds[waitedTaskId] = newTrace;
@@ -78,12 +85,18 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
     var lastTrace = threadData.AsyncMethodsStack.Pop();
     lastTrace.Events.Add(new DefaultEvent(eventRecord));
 
-    if (threadData.LastSeenTaskEvent is { } lastSeenTaskEvent)
+    if (threadData.LastSeenTaskEvent is not (null or TaskWaitSendEvent))
     {
-      lastTrace.AfterTaskEvent = lastSeenTaskEvent;
+      logger.LogError("The last seen task event was send event, instead {Type}", threadData.LastSeenTaskEvent.GetType().Name);
+      return;
     }
 
-    if (lastTrace.AfterTaskEvent is TaskWaitSendEvent { TaskId: var scheduledTaskId } )
+    if (threadData.LastSeenTaskEvent is { } lastSeenTaskEvent)
+    {
+      lastTrace.AfterTaskEvent = lastSeenTaskEvent as TaskWaitSendEvent;
+    }
+
+    if (lastTrace.AfterTaskEvent is { TaskId: var scheduledTaskId } )
     {
       Debug.Assert(!myTracesToTasksIds.ContainsKey(lastTrace));
       myTracesToTasksIds[lastTrace] = scheduledTaskId;
@@ -198,8 +211,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
   private static bool IsNestedAwaitableAsyncMethod(AsyncMethodTrace originalTrace, AsyncMethodTrace nestedTrace)
   {
-    return nestedTrace.AfterTaskEvent is TaskWaitSendEvent { ContinueWithTaskId: var continueWithTaskId } &&
-           originalTrace.AfterTaskEvent is TaskWaitSendEvent { TaskId: var taskId } &&
+    return nestedTrace.AfterTaskEvent is { ContinueWithTaskId: var continueWithTaskId } &&
+           originalTrace.AfterTaskEvent is { TaskId: var taskId } &&
            continueWithTaskId == taskId;
   }
 
@@ -250,7 +263,7 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
   private bool IsTraceAnEntryPoint(AsyncMethodTrace trace) =>
     trace.Completed && (
-      trace.BeforeTaskEvent is not TaskWaitStopEvent { TaskId: var id } ||
+      trace.BeforeTaskEvent is not { TaskId: var id } ||
       !myTasksToTracesIds.ContainsKey(id)
     );
 
