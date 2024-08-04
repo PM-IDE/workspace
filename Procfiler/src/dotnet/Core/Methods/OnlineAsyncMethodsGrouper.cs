@@ -192,7 +192,10 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
             {
               if (DiscoverLogicalExecution(innerAsyncMethodEvent.NestedAsyncMethodStart) is { } innerLogicalExecution)
               {
-                MaterializeTrace(result, innerLogicalExecution);
+                if (!MaterializeTrace(result, innerLogicalExecution))
+                {
+                  return false;
+                }
               }
               else
               {
