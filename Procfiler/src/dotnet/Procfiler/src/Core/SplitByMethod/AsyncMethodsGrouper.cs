@@ -36,9 +36,15 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
       foreach (var (_, eventRecord) in events)
       {
         var threadId = eventRecord.ManagedThreadId;
-        if (eventRecord.IsTaskWaitSendOrStopEvent())
+        if (eventRecord.IsTaskRelatedEvent())
         {
-          onlineGrouper.ProcessTaskWaitEvent(ToLastSeenTaskEvent(eventRecord), threadId);
+          if (eventRecord.ToTaskEvent() is { } taskEvent)
+          {
+            if (taskEvent is TaskWaitEvent taskWaitEvent)
+            {
+              onlineGrouper.ProcessTaskWaitEvent(taskWaitEvent, threadId);
+            }
+          }
         }
         else if (eventRecord.TryGetMethodStartEndEventInfo() is { IsStart: var isStart, Frame: var frame })
         {
@@ -52,30 +58,5 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
     }
 
     return result;
-  }
-
-  private static TaskEvent ToLastSeenTaskEvent(EventRecordWithMetadata eventRecord)
-  {
-    if (eventRecord.IsTaskWaitSendEvent() is { } taskData)
-    {
-      return new TaskWaitSendEvent
-      {
-        TaskId = taskData.TaskId,
-        OriginatingTaskId = taskData.OriginatingTaskId,
-        ContinueWithTaskId = taskData.ContinueWithTaskId,
-        IsAsync = taskData.IsAsync
-      };
-    }
-
-    if (eventRecord.IsTaskWaitStopEvent(out var waitedTaskId, out var originatingTaskId))
-    {
-      return new TaskWaitStopEvent
-      {
-        TaskId = waitedTaskId,
-        OriginatingTaskId = originatingTaskId
-      };
-    }
-
-    throw new ArgumentOutOfRangeException(eventRecord.EventName);
   }
 }

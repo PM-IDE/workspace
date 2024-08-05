@@ -1,4 +1,6 @@
-﻿namespace Core.Methods;
+﻿using Core.Events.EventRecord;
+
+namespace Core.Methods;
 
 public abstract class TaskEvent
 {
@@ -8,7 +10,9 @@ public abstract class TaskEvent
   public override string ToString() => $"{GetType().Name} TaskId: {TaskId}, OriginatingTaskId: {OriginatingTaskId}";
 }
 
-public sealed class TaskWaitSendEvent : TaskEvent
+public abstract class TaskWaitEvent : TaskEvent;
+
+public sealed class TaskWaitSendEvent : TaskWaitEvent
 {
   public required int ContinueWithTaskId { get; init; }
   public required bool IsAsync { get; init; }
@@ -17,4 +21,50 @@ public sealed class TaskWaitSendEvent : TaskEvent
     $"{base.ToString()}, {nameof(ContinueWithTaskId)}: {ContinueWithTaskId}, {nameof(IsAsync)}: {IsAsync}";
 }
 
-public sealed class TaskWaitStopEvent : TaskEvent;
+public sealed class TaskWaitStopEvent : TaskWaitEvent;
+
+public sealed class TaskExecuteStartEvent : TaskEvent;
+public sealed class TaskExecuteStopEvent : TaskEvent;
+
+public static class TaskEventExtensions
+{
+  public static TaskEvent? ToTaskEvent(this EventRecordWithMetadata eventRecord)
+  {
+    TaskEvent? taskEvent = null;
+    if (eventRecord.IsTaskWaitSendEvent() is { } taskData)
+    {
+      taskEvent = new TaskWaitSendEvent
+      {
+        TaskId = taskData.TaskId,
+        OriginatingTaskId = taskData.OriginatingTaskId,
+        ContinueWithTaskId = taskData.ContinueWithTaskId,
+        IsAsync = taskData.IsAsync
+      };
+    }
+
+    if (eventRecord.IsTaskWaitStopEvent(out var taskId, out var originatingTaskId))
+    {
+      taskEvent = new TaskWaitStopEvent { TaskId = taskId, OriginatingTaskId = originatingTaskId };
+    }
+
+    if (eventRecord.IsTaskExecuteStartEvent(out taskId, out originatingTaskId))
+    {
+      taskEvent = new TaskExecuteStartEvent
+      {
+        TaskId = taskId,
+        OriginatingTaskId = originatingTaskId
+      };
+    }
+
+    if (eventRecord.IsTaskExecuteStopEvent(out taskId, out originatingTaskId))
+    {
+      taskEvent = new TaskExecuteStopEvent
+      {
+        TaskId = taskId,
+        OriginatingTaskId = originatingTaskId
+      };
+    }
+
+    return taskEvent;
+  }
+}

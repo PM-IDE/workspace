@@ -18,7 +18,7 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
   private readonly QueuedAsyncMethodsStorage myQueuedAsyncMethods = new();
 
 
-  public void ProcessTaskWaitEvent(TaskEvent taskEvent, long managedThreadId)
+  public void ProcessTaskWaitEvent(TaskWaitEvent taskEvent, long managedThreadId)
   {
     logger.LogDebug("[{ThreadId}]: {TaskEvent}", managedThreadId, taskEvent);
     GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent;
@@ -60,7 +60,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
     if (threadData.LastSeenTaskEvent is not (null or TaskWaitStopEvent))
     {
-      logger.LogError("The task event was not stop event, instead: {Type}", threadData.LastSeenTaskEvent.GetType().Name);
+      var typeName = threadData.LastSeenTaskEvent.GetType().Name;
+      logger.LogError("[{ThreadId}]: The task event was not stop event, instead: {Type}", threadData.ThreadId, typeName);
       return;
     }
 
@@ -87,7 +88,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
     if (threadData.LastSeenTaskEvent is not (null or TaskWaitSendEvent))
     {
-      logger.LogError("The last seen task event was send event, instead {Type}", threadData.LastSeenTaskEvent.GetType().Name);
+      var typeName = threadData.LastSeenTaskEvent.GetType().Name;
+      logger.LogError("[{ThreadId}]: The last seen task event was send event, instead {Type}", threadData.ThreadId, typeName);
       return;
     }
 
@@ -306,6 +308,6 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
   private ThreadData GetThreadData(long managedThreadId)
   {
-    return myThreadsData.GetOrCreate(managedThreadId, static () => new ThreadData());
+    return myThreadsData.GetOrCreate(managedThreadId, () => new ThreadData { ThreadId = managedThreadId });
   }
 }

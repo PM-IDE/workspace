@@ -1,6 +1,7 @@
 ﻿using Core.Events.EventRecord;
 using Core.EventsProcessing.Mutators.Core;
 using Core.GlobalData;
+using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using ProcfilerOnline.Commands;
@@ -42,6 +43,7 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 }
 
 public class OnlineEventsProcessorImpl(
+  IProcfilerLogger logger,
   IEnumerable<ITraceEventProcessor> processors,
   CollectEventsOnlineContext commandContext,
   IEnumerable<ISingleEventMutator> singleEventMutators)

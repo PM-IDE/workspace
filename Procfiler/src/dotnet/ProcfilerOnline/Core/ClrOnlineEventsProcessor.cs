@@ -50,7 +50,7 @@ public class ClrOnlineEventsProcessor(
 
     client.ResumeRuntime();
 
-    var processor = new OnlineEventsProcessorImpl(processors, context, singleEventMutators);
+    var processor = new OnlineEventsProcessorImpl(logger, processors, context, singleEventMutators);
     processor.Process(session.EventStream);
   }
 }

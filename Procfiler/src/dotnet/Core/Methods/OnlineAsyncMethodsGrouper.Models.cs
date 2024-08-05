@@ -26,7 +26,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>
 
   private class ThreadData
   {
+    public required long ThreadId { get; init; }
     public Stack<AsyncMethodTrace> AsyncMethodsStack { get; } = new();
-    public TaskEvent? LastSeenTaskEvent { get; set; }
+    public TaskWaitEvent? LastSeenTaskEvent { get; set; }
   }
 }
