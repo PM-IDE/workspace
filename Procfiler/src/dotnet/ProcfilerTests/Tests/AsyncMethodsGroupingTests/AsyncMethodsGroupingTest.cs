@@ -30,20 +30,6 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
       events => ExecuteAsyncGroupingTest(events, solution, DumpFrames));
   }
 
-  private static List<EventRecordWithMetadata> ExtractFrames(IReadOnlyList<EventRecordWithMetadata> events)
-  {
-    List<EventRecordWithMetadata> frames = [];
-    foreach (var eventRecord in events)
-    {
-      if (eventRecord.IsMethodStartOrEndEvent())
-      {
-        frames.Add(eventRecord.DeepClone());
-      }
-    }
-
-    return frames;
-  }
-
   private static string DumpFrames(IReadOnlyList<EventRecordWithMetadata> events)
   {
     var sb = new StringBuilder();
@@ -87,7 +73,7 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
       foreach (var trace in allocationTraces)
       {
         sb.AppendNewLine().Append("Trace:").AppendNewLine();
-        sb.Append(tracesDumber(trace));
+        sb.Append(ProgramMethodCallTreeDumper.CreateDump(trace, null));
       }
 
       sb.AppendNewLine().AppendNewLine();

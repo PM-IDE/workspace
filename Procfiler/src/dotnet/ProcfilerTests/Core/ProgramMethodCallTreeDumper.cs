@@ -9,21 +9,22 @@ namespace ProcfilerTests.Core;
 
 public static class ProgramMethodCallTreeDumper
 {
-  public static string CreateDump(IEnumerable<EventRecordWithPointer> events, string pattern)
+  public static string CreateDump(IEnumerable<EventRecordWithPointer> events, string? pattern)
   {
     return CreateDump(events.Select(pair => pair.Event), pattern);
   }
 
-  public static string CreateDump(IEnumerable<EventRecordWithMetadata> events, string pattern)
+  public static string CreateDump(IEnumerable<EventRecordWithMetadata> events, string? pattern)
   {
     var sb = new StringBuilder();
-    var regex = new Regex(pattern);
+    var regex = pattern is { } ? new Regex(pattern) : null;
+
     var currentIndent = 0;
 
     foreach (var eventRecord in events)
     {
       if (eventRecord.TryGetMethodStartEndEventInfo() is var (frame, isStart) &&
-          regex.IsMatch(frame))
+          (regex is null || regex.IsMatch(frame)))
       {
         if (isStart) ++currentIndent;
 
