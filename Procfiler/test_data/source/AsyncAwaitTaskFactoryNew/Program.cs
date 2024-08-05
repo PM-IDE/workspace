@@ -9,7 +9,7 @@ public static class Program
       var xd = new XdClass1();
     });
 
-    await Task.Factory.StartNew(async () =>
+    await await Task.Factory.StartNew(async () =>
     {
       var xd = new XdClass2();
       await Task.Delay(100);
@@ -19,8 +19,6 @@ public static class Program
     {
       var xd = new XdClass3();
     });
-    
-    Thread.Sleep(1000);
   }
 }
 

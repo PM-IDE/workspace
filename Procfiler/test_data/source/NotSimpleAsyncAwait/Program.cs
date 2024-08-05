@@ -29,17 +29,21 @@ internal class Program
 
       Console.WriteLine(list.Count);
     }
-
-
-    object Allocate(int index) => index switch
-    {
-      0 => new Class1(),
-      1 => new Class2(),
-      2 => new Class3(),
-      3 => new Class4(),
-      _ => throw new ArgumentOutOfRangeException(nameof(index), index, null)
-    };
   }
+  
+  static object Allocate1() => new Class1();
+  static object Allocate2() => new Class2();
+  static object Allocate3() => new Class3();
+  static object Allocate4() => new Class4();
+
+  static object Allocate(int index) => index switch
+  {
+    0 => Allocate1(),
+    1 => Allocate2(),
+    2 => Allocate3(),
+    3 => Allocate4(),
+    _ => throw new ArgumentOutOfRangeException(nameof(index), index, null)
+  };
 }
 
 class Class1 {}
