@@ -48,7 +48,7 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
         }
         else if (eventRecord.TryGetMethodStartEndEventInfo() is { IsStart: var isStart, Frame: var frame })
         {
-          onlineGrouper.ProcessMethodStartEndEvent(eventRecord, frame, isStart, threadId);
+          onlineGrouper.ProcessMethodStartEndEvent(eventRecord.DeepClone(), frame, isStart, threadId);
         }
         else
         {

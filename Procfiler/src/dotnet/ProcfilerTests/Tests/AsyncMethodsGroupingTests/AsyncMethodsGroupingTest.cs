@@ -5,6 +5,7 @@ using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.Collector;
+using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.SplitByMethod;
 using ProcfilerTests.Core;
@@ -26,30 +27,29 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
   {
     ExecuteTestWithGold(
       solution.CreateDefaultContext(),
-      events => ExecuteAsyncGroupingTest(events, solution, ExtractAllocations, DumpsAllocationsWith));
+      events => ExecuteAsyncGroupingTest(events, solution, DumpFrames));
   }
 
-  private static List<EventRecordWithMetadata> ExtractAllocations(IReadOnlyList<EventRecordWithMetadata> events)
+  private static List<EventRecordWithMetadata> ExtractFrames(IReadOnlyList<EventRecordWithMetadata> events)
   {
-    var regex = new Regex("[a-zA-Z]+.Class[0-9]");
-    List<EventRecordWithMetadata> allocations = [];
+    List<EventRecordWithMetadata> frames = [];
     foreach (var eventRecord in events)
     {
-      if (!eventRecord.IsGcSampledObjectAlloc(out var typeName)) continue;
-      if (regex.Match(typeName).Length != typeName.Length) continue;
-
-      allocations.Add(eventRecord);
+      if (eventRecord.IsMethodStartOrEndEvent())
+      {
+        frames.Add(eventRecord.DeepClone());
+      }
     }
 
-    return allocations;
+    return frames;
   }
 
-  private static string DumpsAllocationsWith(IReadOnlyList<EventRecordWithMetadata> events)
+  private static string DumpFrames(IReadOnlyList<EventRecordWithMetadata> events)
   {
     var sb = new StringBuilder();
     foreach (var eventRecord in events)
     {
-      sb.Append(eventRecord.GetAllocatedTypeNameOrThrow()).AppendNewLine();
+      sb.Append(eventRecord.EventName).AppendNewLine();
     }
 
     return sb.ToString();
@@ -58,7 +58,6 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
   private string ExecuteAsyncGroupingTest(
     CollectedEvents events,
     KnownSolution knownSolution,
-    Func<IReadOnlyList<EventRecordWithMetadata>, List<EventRecordWithMetadata>> allocationsExtractor,
     Func<IReadOnlyList<EventRecordWithMetadata>, string> tracesDumber)
   {
     var processingContext = EventsProcessingContext.DoEverything(events.Events, events.GlobalData);
@@ -70,17 +69,20 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
     var methods = splitter.Split(splitContext);
     var asyncMethodsPrefix = Container.Resolve<IAsyncMethodsGrouper>().AsyncMethodsPrefix;
 
-    var asyncMethods = methods.Where(pair => pair.Key.StartsWith(asyncMethodsPrefix));
     var sb = new StringBuilder();
     var filter = new Regex(knownSolution.NamespaceFilterPattern);
 
-    foreach (var (methodName, methodsTraces) in asyncMethods)
+    foreach (var (methodName, methodsTraces) in methods)
     {
+      if (!methodName.StartsWith(asyncMethodsPrefix)) continue;
       if (!filter.IsMatch(methodName)) continue;
 
       sb.Append(methodName);
 
-      var allocationTraces = methodsTraces.Select(allocationsExtractor).Where(t => t.Count > 0).OrderBy(t => t[0].Time.QpcStamp);
+      var allocationTraces = methodsTraces
+        .Select(trace => trace.Where(e => e.TryGetMethodStartEndEventInfo() is { Frame: var frame } && filter.IsMatch(frame)).ToList())
+        .Where(t => t.Count > 0)
+        .OrderBy(t => t[0].Time.QpcStamp);
 
       foreach (var trace in allocationTraces)
       {
