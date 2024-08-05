@@ -29,6 +29,7 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
     UpdateAsyncMethodsToTypeNames(fullMethodName);
     if (!myAsyncMethodsToTypeNames.TryGetValue(fullMethodName, out var frameName))
     {
+      AppendEventToTraceIfHaveSome(managedThreadId, @event);
       return;
     }
 
