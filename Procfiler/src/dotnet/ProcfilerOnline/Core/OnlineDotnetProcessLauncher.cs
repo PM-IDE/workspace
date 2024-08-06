@@ -21,7 +21,7 @@ public readonly record struct DotnetProcessLauncherDto
 }
 
 [AppComponent]
-public class OnlineDotnetProcessLauncher(IProcfilerLogger logger) : IOnlineDotnetProcessLauncher
+public class OnlineDotnetProcessLauncher(IProcfilerLogger logger, IAppExitHandler exitHandler) : IOnlineDotnetProcessLauncher
 {
   public Process? Launch(DotnetProcessLauncherDto launcherDto)
   {
@@ -58,6 +58,8 @@ public class OnlineDotnetProcessLauncher(IProcfilerLogger logger) : IOnlineDotne
       logger.LogError("Failed to start process {Path}", launcherDto.DllPath);
       return null;
     }
+
+    exitHandler.AddProcess(process);
 
     process.BeginOutputReadLine();
 
