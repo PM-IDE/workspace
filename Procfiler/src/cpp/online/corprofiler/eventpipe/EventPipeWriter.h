@@ -27,6 +27,10 @@ private:
     const wstring ourMethodInfoEventName = ToWString("ProcfilerMethodInfo");
     const wstring ourEventPipeProviderName = ToWString("ProcfilerCppEventPipeProvider");
 
+    const wstring ourTimestampMetadataKey = ToWString("Timestamp");
+    const wstring ourFunctionIdMetadataKey = ToWString("FunctionId");
+    const wstring ourFunctionNameMatadataKey = ToWString("FunctionName");
+
     std::regex* myMethodsFilterRegex{nullptr};
 
     ICorProfilerInfo12 *myProfilerInfo;
@@ -46,11 +50,12 @@ private:
 
     HRESULT DefineProcfilerMethodEndEvent();
 
-    static HRESULT DefineMethodStartOrEndEventInternal(const wstring &eventName,
-                                                       EVENTPIPE_PROVIDER provider,
-                                                       EVENTPIPE_EVENT *ourEventId,
-                                                       ICorProfilerInfo12 *profilerInfo,
-                                                       UINT32 eventId);
+    HRESULT DefineMethodStartOrEndEventInternal(const wstring& eventName,
+                                                EVENTPIPE_PROVIDER provider,
+                                                EVENTPIPE_EVENT *ourEventId,
+                                                ICorProfilerInfo12 *profilerInfo,
+                                                UINT32 eventId);
+
     void InitMethodsFilterRegex();
     bool ShouldLogFunc(FunctionID functionId);
 

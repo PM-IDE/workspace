@@ -47,8 +47,8 @@ HRESULT EventPipeWriter::DefineProcfilerMethodEndEvent() {
 
 HRESULT EventPipeWriter::DefineProcfilerMethodInfoEvent() {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
-        {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("FunctionId").c_str()},
-        {COR_PRF_EVENTPIPE_STRING, 0, ToWString("FunctionName").c_str()},
+        {COR_PRF_EVENTPIPE_UINT64, 0, ourFunctionIdMetadataKey.c_str()},
+        {COR_PRF_EVENTPIPE_STRING, 0, ourFunctionNameMatadataKey.c_str()},
     };
 
     constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
@@ -78,8 +78,8 @@ HRESULT EventPipeWriter::DefineMethodStartOrEndEventInternal(const wstring &even
                                                              ICorProfilerInfo12 *profilerInfo,
                                                              const UINT32 eventId) {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
-        {COR_PRF_EVENTPIPE_INT64, 0, ToWString("Timestamp").c_str()},
-        {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("FunctionId").c_str()},
+        {COR_PRF_EVENTPIPE_INT64, 0, ourTimestampMetadataKey.c_str()},
+        {COR_PRF_EVENTPIPE_UINT64, 0, ourFunctionIdMetadataKey.c_str()},
     };
 
     constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
@@ -110,10 +110,6 @@ HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
     }
 
     if ((hr = DefineProcfilerMethodEndEvent()) != S_OK) {
-        return hr;
-    }
-
-    if ((hr = DefineProcfilerMethodInfoEvent()) != S_OK) {
         return hr;
     }
 
