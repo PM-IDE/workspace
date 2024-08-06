@@ -27,7 +27,7 @@ public static class EventRecordExtensions
 
   public static bool IsTaskExecuteStopEvent(this EventRecordWithMetadata eventRecord, out int taskId, out int originatingTaskId)
   {
-    return eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStart, out taskId, out originatingTaskId);
+    return eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStop, out taskId, out originatingTaskId);
   }
 
   public static bool IsTaskWaitSendOrStopEvent(this EventRecordWithMetadata eventRecord) =>
