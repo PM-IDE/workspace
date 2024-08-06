@@ -16,35 +16,20 @@ namespace ProcfilerTests.Tests.AsyncMethodsGroupingTests;
 [TestFixture]
 public class AsyncMethodsGroupingTest : GoldProcessBasedTest
 {
-  [Test]
-  public void TestNotSimpleAsync() => DoSimpleTest(KnownSolution.NotSimpleAsyncAwait);
-
-  [Test]
-  public void TestSimpleAsyncAwait() => DoSimpleTest(KnownSolution.SimpleAsyncAwait);
+  [Test] public void TestNotSimpleAsync() => DoSimpleTest(KnownSolution.NotSimpleAsyncAwait);
+  [Test] public void TestSimpleAsyncAwait() => DoSimpleTest(KnownSolution.SimpleAsyncAwait);
+  [Test] public void TestAsyncAwait() => DoSimpleTest(KnownSolution.AsyncAwait);
+  [Test] public void TestAsyncAwaitTaskFactoryNew() => DoSimpleTest(KnownSolution.AsyncAwaitTaskFactoryNew);
 
 
   private void DoSimpleTest(KnownSolution solution)
   {
     ExecuteTestWithGold(
       solution.CreateDefaultContext(),
-      events => ExecuteAsyncGroupingTest(events, solution, DumpFrames));
+      events => ExecuteAsyncGroupingTest(events, solution));
   }
 
-  private static string DumpFrames(IReadOnlyList<EventRecordWithMetadata> events)
-  {
-    var sb = new StringBuilder();
-    foreach (var eventRecord in events)
-    {
-      sb.Append(eventRecord.EventName).AppendNewLine();
-    }
-
-    return sb.ToString();
-  }
-
-  private string ExecuteAsyncGroupingTest(
-    CollectedEvents events,
-    KnownSolution knownSolution,
-    Func<IReadOnlyList<EventRecordWithMetadata>, string> tracesDumber)
+  private string ExecuteAsyncGroupingTest(CollectedEvents events, KnownSolution knownSolution)
   {
     var processingContext = EventsProcessingContext.DoEverything(events.Events, events.GlobalData);
     Container.Resolve<IUnitedEventsProcessor>().ProcessFullEventLog(processingContext);
@@ -58,7 +43,7 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
     var sb = new StringBuilder();
     var filter = new Regex(knownSolution.NamespaceFilterPattern);
 
-    foreach (var (methodName, methodsTraces) in methods)
+    foreach (var (methodName, methodsTraces) in methods.OrderBy(pair => pair.Key))
     {
       if (!methodName.StartsWith(asyncMethodsPrefix)) continue;
       if (!filter.IsMatch(methodName)) continue;
