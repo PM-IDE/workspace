@@ -81,9 +81,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
     if (threadData.LastSeenTaskEvent is not (null or TaskWaitStopEvent))
     {
-      var typeName = threadData.LastSeenTaskEvent.GetType().Name;
-      logger.LogError("[{ThreadId}]: The task event was not stop event, instead: {Type}", threadData.ThreadId, typeName);
-      return;
+      var typeName = threadData.LastSeenTaskEvent?.GetType().Name ?? "NULL";
+      logger.LogWarning("[{ThreadId}]: The task event was not stop event, instead: {Type}", threadData.ThreadId, typeName);
     }
 
     var newTrace = new AsyncMethodTrace(threadData.LastSeenTaskEvent as TaskWaitStopEvent, listOfEvents);
@@ -110,14 +109,10 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
     if (threadData.LastSeenTaskEvent is not (null or TaskWaitSendEvent))
     {
       var typeName = threadData.LastSeenTaskEvent.GetType().Name;
-      logger.LogError("[{ThreadId}]: The last seen task event was send event, instead {Type}", threadData.ThreadId, typeName);
-      return;
+      logger.LogWarning("[{ThreadId}]: The last seen task event was send event, instead {Type}", threadData.ThreadId, typeName);
     }
 
-    if (threadData.LastSeenTaskEvent is { } lastSeenTaskEvent)
-    {
-      lastTrace.AfterTaskEvent = lastSeenTaskEvent as TaskWaitSendEvent;
-    }
+    lastTrace.AfterTaskEvent = threadData.LastSeenTaskEvent as TaskWaitSendEvent;
 
     if (lastTrace.AfterTaskEvent is { TaskId: var scheduledTaskId } )
     {
