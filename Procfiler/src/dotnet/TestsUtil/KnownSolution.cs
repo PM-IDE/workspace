@@ -23,6 +23,8 @@ public class KnownSolution
   public static KnownSolution NotSimpleAsyncAwait { get; } = new("NotSimpleAsyncAwait");
   public static KnownSolution AsyncAwait { get; } = new("AsyncAwait");
   public static KnownSolution AsyncAwaitTaskFactoryNew { get; } = new("AsyncAwaitTaskFactoryNew");
+  public static KnownSolution AwaitForeach { get; } = new("AwaitForeach");
+  public static KnownSolution AsyncDisposable { get; } = new("AsyncDisposable");
 
 
   public static IEnumerable<KnownSolution> AllSolutions { get; } = new[]

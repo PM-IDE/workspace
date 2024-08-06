@@ -1,0 +1,66 @@
+ASYNC_AsyncDisposable.Program+<Main>d__0
+Trace:
+	[start] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
+		[start] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+			[start] AsyncDisposable.Program+<Method1>d__1..ctor[instance.void..()]
+			[ end ] AsyncDisposable.Program+<Method1>d__1..ctor[instance.void..()]
+			[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+			[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+			[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+			[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+		[ end ] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+	[ end ] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
+	[start] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
+		[start] AsyncDisposable.Program+AsyncDisposable..ctor[instance.void..()]
+		[ end ] AsyncDisposable.Program+AsyncDisposable..ctor[instance.void..()]
+		[start] AsyncDisposable.Program+AsyncDisposable.DisposeAsync[instance.value.class.System.Threading.Tasks.ValueTask..()]
+			[start] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0..ctor[instance.void..()]
+			[ end ] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0..ctor[instance.void..()]
+			[start] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+				[start] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+					[start] AsyncDisposable.Program+<Method1>d__1..ctor[instance.void..()]
+					[ end ] AsyncDisposable.Program+<Method1>d__1..ctor[instance.void..()]
+					[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+					[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+					[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+					[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+				[ end ] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+			[ end ] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+			[start] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+			[ end ] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+		[ end ] AsyncDisposable.Program+AsyncDisposable.DisposeAsync[instance.value.class.System.Threading.Tasks.ValueTask..()]
+	[ end ] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
+	[start] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
+
+
+ASYNC_AsyncDisposable.Program+<Method1>d__1
+Trace:
+	[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+	[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+	[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+	[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+
+Trace:
+	[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+	[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+	[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+	[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+
+
+ASYNC_AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0
+Trace:
+	[start] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+		[start] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+			[start] AsyncDisposable.Program+<Method1>d__1..ctor[instance.void..()]
+			[ end ] AsyncDisposable.Program+<Method1>d__1..ctor[instance.void..()]
+			[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+			[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+			[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+			[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
+		[ end ] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+	[ end ] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+	[start] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+	[ end ] AsyncDisposable.Program+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
+
+
