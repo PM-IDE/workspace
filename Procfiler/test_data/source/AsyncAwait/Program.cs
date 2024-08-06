@@ -16,23 +16,27 @@ public class Program
 
   static async Task<int> Method1()
   {
-    var x = new Method1();
+    var x = Allocate1();
     await Task.Delay(1000);
-    x = new Method1();
+    x = Allocate1();
     return 1;
   }
 
   static async Task Method2()
   {
-    var x = new Method2();
+    var x = Allocate2();
     var xd = await Method1();
-    x = new Method2();
+    x = Allocate2();
   }
 
   static async Task Method3()
   {
-    var xd = new Method3();
+    var xd = Allocate3();
   }
+
+  static Method1 Allocate1() => new();
+  static Method2 Allocate2() => new();
+  static Method3 Allocate3() => new();
 }
 
 class Method1;
