@@ -40,8 +40,8 @@ public class AppExitHandler : IAppExitHandler
       {
         if (!processRef.TryGetTarget(out var process) || process.HasExited) continue;
 
-        var processId = process.ProcessName + " " + process.StartInfo.Arguments;
-        myLogger.LogInformation("Stopping process {ProcessId}", processId);
+        var processId = process.Id + "::" + process.ProcessName + "::" + process.StartInfo.Arguments;
+        using var __ = new PerformanceCookie($"Terminating::{processId}", myLogger);
 
         var timeout = TimeSpan.FromSeconds(10);
 
