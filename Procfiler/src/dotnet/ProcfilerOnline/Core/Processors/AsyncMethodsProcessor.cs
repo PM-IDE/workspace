@@ -24,22 +24,15 @@ public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcess
       {
         myGrouper.ProcessMethodStartEndEvent(context.Event, fqn, context.Event.GetMethodEventKind() == MethodKind.Begin, threadId);
       }
-
-      return;
     }
-
-    if (context.Event.IsTaskRelatedEvent())
+    else if (context.Event.ToTaskEvent() is { } taskEvent)
     {
-      if (context.Event.ToTaskEvent() is { } taskEvent)
-      {
-        if (taskEvent is TaskWaitEvent taskWaitEvent)
-        {
-          myGrouper.ProcessTaskWaitEvent(taskWaitEvent, threadId);
-        }
-      }
+      myGrouper.ProcessTaskEvent(taskEvent, threadId);
     }
-
-    myGrouper.ProcessNormalEvent(context.Event, threadId);
+    else
+    {
+      myGrouper.ProcessNormalEvent(context.Event, threadId);
+    }
   }
 
   private static void HandleAsyncMethod(string stateMachineName, List<List<EventRecordWithMetadata>> traces)

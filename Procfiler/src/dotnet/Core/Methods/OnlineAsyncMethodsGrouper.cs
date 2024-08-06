@@ -18,10 +18,30 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
   private readonly QueuedAsyncMethodsStorage myQueuedAsyncMethods = new();
 
 
-  public void ProcessTaskWaitEvent(TaskWaitEvent taskEvent, long managedThreadId)
+  public void ProcessTaskEvent(TaskEvent taskEvent, long managedThreadId)
+  {
+    switch (taskEvent)
+    {
+      case TaskWaitEvent taskWaitEvent:
+        ProcessTaskWaitEvent(taskWaitEvent, managedThreadId);
+        break;
+      case TaskExecuteEvent taskExecuteEvent:
+        ProcessTaskExecuteEvent(taskExecuteEvent, managedThreadId);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException($"Unknown task event {taskEvent.GetType().Name}");
+    }
+  }
+
+  private void ProcessTaskWaitEvent(TaskWaitEvent taskEvent, long managedThreadId)
   {
     logger.LogDebug("[{ThreadId}]: {TaskEvent}", managedThreadId, taskEvent);
     GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent;
+  }
+
+  private void ProcessTaskExecuteEvent(TaskExecuteEvent taskExecuteEvent, long managedThreadId)
+  {
+    logger.LogDebug("[{ThreadId}]: {TaskEvent}", managedThreadId, taskExecuteEvent);
   }
 
   public void ProcessMethodStartEndEvent(TEvent @event, string fullMethodName, bool isStart, long managedThreadId)

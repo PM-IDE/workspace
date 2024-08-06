@@ -36,15 +36,9 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
       foreach (var (_, eventRecord) in events)
       {
         var threadId = eventRecord.ManagedThreadId;
-        if (eventRecord.IsTaskRelatedEvent())
+        if (eventRecord.ToTaskEvent() is { } taskEvent)
         {
-          if (eventRecord.ToTaskEvent() is { } taskEvent)
-          {
-            if (taskEvent is TaskWaitEvent taskWaitEvent)
-            {
-              onlineGrouper.ProcessTaskWaitEvent(taskWaitEvent, threadId);
-            }
-          }
+          onlineGrouper.ProcessTaskEvent(taskEvent, threadId);
         }
         else if (eventRecord.TryGetMethodStartEndEventInfo() is { IsStart: var isStart, Frame: var frame })
         {

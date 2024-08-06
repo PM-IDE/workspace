@@ -23,8 +23,10 @@ public sealed class TaskWaitSendEvent : TaskWaitEvent
 
 public sealed class TaskWaitStopEvent : TaskWaitEvent;
 
-public sealed class TaskExecuteStartEvent : TaskEvent;
-public sealed class TaskExecuteStopEvent : TaskEvent;
+public abstract class TaskExecuteEvent : TaskEvent;
+
+public sealed class TaskExecuteStartEvent : TaskExecuteEvent;
+public sealed class TaskExecuteStopEvent : TaskExecuteEvent;
 
 public static class TaskEventExtensions
 {
