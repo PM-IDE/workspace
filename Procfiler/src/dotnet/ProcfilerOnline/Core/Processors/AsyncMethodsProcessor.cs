@@ -2,6 +2,7 @@
 using Core.Events.EventRecord;
 using Core.Methods;
 using Core.Utils;
+using ProcfilerTests.Core;
 
 namespace ProcfilerOnline.Core.Processors;
 
@@ -41,13 +42,11 @@ public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcess
     foreach (var trace in traces)
     {
       Console.WriteLine("Trace start");
-      foreach (var eventRecord in trace)
+      Console.WriteLine(ProgramMethodCallTreeDumper.CreateDump(trace, null, e => e.TryGetMethodDetails() switch
       {
-        if (eventRecord.TryGetMethodDetails() is { })
-        {
-          Console.WriteLine(eventRecord.EventName);
-        }
-      }
+        { } => (e.EventName, e.GetMethodEventKind() == MethodKind.Begin),
+        _ => null
+      }));
 
       Console.WriteLine();
     }

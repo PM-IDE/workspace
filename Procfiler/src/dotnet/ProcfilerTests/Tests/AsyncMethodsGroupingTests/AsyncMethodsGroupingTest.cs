@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Autofac;
-using Core.Events.EventRecord;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.Collector;
@@ -58,7 +57,7 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
       foreach (var trace in allocationTraces)
       {
         sb.AppendNewLine().Append("Trace:").AppendNewLine();
-        sb.Append(ProgramMethodCallTreeDumper.CreateDump(trace, null));
+        sb.Append(TestsMethodCallTreeDumper.CreateDump(trace, null));
       }
 
       sb.AppendNewLine().AppendNewLine();

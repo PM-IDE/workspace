@@ -30,7 +30,7 @@ public class ByMethodSplitTests : GoldProcessBasedTest
       {
         var trace = tracesOfEvents[i];
         sb.Append("Trace ").Append(i).AppendNewLine();
-        sb.Append(ProgramMethodCallTreeDumper.CreateDump(trace, filterPattern));
+        sb.Append(TestsMethodCallTreeDumper.CreateDump(trace, filterPattern));
       }
 
       sb.AppendNewLine();
