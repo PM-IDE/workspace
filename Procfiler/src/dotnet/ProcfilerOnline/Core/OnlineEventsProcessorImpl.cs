@@ -6,6 +6,7 @@ using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
+using ProcfilerOnline.Core.Statistics;
 using ProcfilerOnline.Core.Updaters;
 
 namespace ProcfilerOnline.Core;
@@ -46,7 +47,8 @@ public class OnlineEventsProcessorImpl(
   IProcfilerLogger logger,
   IEnumerable<ITraceEventProcessor> processors,
   CollectEventsOnlineContext commandContext,
-  IEnumerable<ISingleEventMutator> singleEventMutators)
+  IEnumerable<ISingleEventMutator> singleEventMutators,
+  IStatisticsManager statisticsManager)
 {
   private readonly IReadOnlyList<ISingleEventMutator> myOrderedSingleMutators =
     singleEventMutators.OrderBy(mutator => mutator.GetPassOrThrow()).ToList();
@@ -62,6 +64,8 @@ public class OnlineEventsProcessorImpl(
     source.Dynamic.All += e => ProcessEvent(e, globalData);
 
     source.Process();
+
+    statisticsManager.Log(logger);
   }
 
   private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData)
@@ -88,6 +92,8 @@ public class OnlineEventsProcessorImpl(
     {
       mutator.Process(eventRecord, globalData);
     }
+
+    statisticsManager.UpdateProcessedEventStatistics(eventRecord);
 
     foreach (var processor in processors.Where(p => p is not ISharedDataUpdater))
     {

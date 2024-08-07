@@ -7,6 +7,7 @@ using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
+using ProcfilerOnline.Core.Statistics;
 
 namespace ProcfilerOnline.Core;
 
@@ -23,7 +24,8 @@ public class ClrOnlineEventsProcessor(
   ITransportCreationWaiter transportCreationWaiter,
   IEventPipeProvidersProvider providersProvider,
   IEnumerable<ITraceEventProcessor> processors,
-  IEnumerable<ISingleEventMutator> singleEventMutators
+  IEnumerable<ISingleEventMutator> singleEventMutators,
+  IStatisticsManager statisticsManager
 ) : IOnlineEventsProcessor
 {
   public void StartProfiling(CollectEventsOnlineContext context)
@@ -50,7 +52,7 @@ public class ClrOnlineEventsProcessor(
 
     client.ResumeRuntime();
 
-    var processor = new OnlineEventsProcessorImpl(logger, processors, context, singleEventMutators);
+    var processor = new OnlineEventsProcessorImpl(logger, processors, context, singleEventMutators, statisticsManager);
     processor.Process(session.EventStream);
   }
 }
