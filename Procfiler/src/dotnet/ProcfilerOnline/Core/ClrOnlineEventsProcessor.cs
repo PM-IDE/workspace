@@ -47,7 +47,7 @@ public class ClrOnlineEventsProcessor(
     var client = new DiagnosticsClient(process.Id);
     transportCreationWaiter.WaitUntilTransportIsCreatedOrThrow(process.Id);
 
-    var providers = providersProvider.GetProvidersFor(ProvidersCategoryKind.CppProcfiler);
+    var providers = providersProvider.GetProvidersFor(ProvidersCategoryKind.CppProcfilerMethodsAndTasks);
     var session = client.StartEventPipeSession(providers, requestRundown: false, circularBufferMB: 1024);
 
     client.ResumeRuntime();

@@ -13,7 +13,7 @@ public enum ProvidersCategoryKind
   Gc,
   GcAllocHigh,
   GcAllocLow,
-  CppProcfiler
+  CppProcfilerMethodsAndTasks
 }
 
 public interface IEventPipeProvidersProvider
@@ -69,11 +69,11 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
         new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocLowKeywords)
       ],
-      [ProvidersCategoryKind.CppProcfiler] =
+      [ProvidersCategoryKind.CppProcfilerMethodsAndTasks] =
       [
         new(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways),
-        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)ClrTraceEventParser.Keywords.All),
-        new(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose, (long)TplEtwProviderTraceEventParser.Keywords.Default),
+        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)ClrTraceEventParser.Keywords.Jit),
+        new(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose, (long)TplEtwProviderTraceEventParser.Keywords.Tasks),
       ]
     };
 
