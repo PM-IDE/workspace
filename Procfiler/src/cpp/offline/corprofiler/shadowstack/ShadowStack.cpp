@@ -2,6 +2,7 @@
 #include <env_constants.h>
 #include <mutex>
 #include <stack>
+#include "clr/profiler.hpp"
 
 static thread_local bool ourIsInitialized = false;
 static thread_local EventsWithThreadId* ourEvents;
@@ -51,19 +52,19 @@ void ShadowStack::AddFunctionEnter(FunctionID id, DWORD threadId, int64_t timest
 bool ShadowStack::ShouldAddFunc(FunctionID& id, DWORD threadId) {
     if (myFilterRegex == nullptr) return true;
 
-    auto events = GetOrCreatePerThreadEvents(myLogger, threadId, myOnlineSerialization);
+    const auto events = GetOrCreatePerThreadEvents(myLogger, threadId, myOnlineSerialization);
 
     bool shouldLog;
     if (events->ShouldLog(id, &shouldLog)) {
         return shouldLog;
-    } else {
-        auto functionName = FunctionInfo::GetFunctionInfo(myProfilerInfo, id).GetFullName();
-
-        std::smatch m;
-        shouldLog = std::regex_search(functionName, m, *myFilterRegex);
-        events->PutFunctionShouldLogDecision(id, shouldLog);
-        return shouldLog;
     }
+
+    const auto functionName = ToString(GetFullFunctionName(id, myProfilerInfo));
+
+    std::smatch m;
+    shouldLog = std::regex_search(functionName, m, *myFilterRegex);
+    events->PutFunctionShouldLogDecision(id, shouldLog);
+    return shouldLog;
 }
 
 void ShadowStack::AddFunctionFinished(FunctionID id, DWORD threadId, int64_t timestamp) {
