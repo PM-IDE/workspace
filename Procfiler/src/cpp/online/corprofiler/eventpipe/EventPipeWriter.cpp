@@ -4,6 +4,8 @@
 #include <FunctionInfo.h>
 #include <util.h>
 
+#include "clr/profiler.hpp"
+
 #include "FunctionEvent.h"
 
 EventPipeWriter::EventPipeWriter(ICorProfilerInfo12 *profilerInfo) {
@@ -147,13 +149,17 @@ bool EventPipeWriter::ShouldLogFunc(FunctionID functionId) {
         return ourIgnoredFunctions->at(functionId);
     }
 
-    const auto functionName = FunctionInfo::GetFunctionInfo(myProfilerInfo, functionId).GetFullName();
+    const auto functionName = ToString(GetFullFunctionName(functionId, myProfilerInfo));
+    bool shouldLog;
 
-    std::smatch m;
-    auto shouldLog = std::regex_search(functionName, m, *myMethodsFilterRegex);
+    if (functionName.empty()) {
+        shouldLog = false;
+    } else {
+        std::smatch m;
+        shouldLog = std::regex_search(functionName, m, *myMethodsFilterRegex);
+    }
 
     ourIgnoredFunctions->insert({functionId, shouldLog});
-
     return shouldLog;
 }
 

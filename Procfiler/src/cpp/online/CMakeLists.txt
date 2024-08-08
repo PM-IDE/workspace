@@ -18,6 +18,9 @@ set(SOURCES
     ../shared/info/MethodSignature.h
     ../shared/info/GenericMethodSignature.cpp
     ../shared/info/GenericMethodSignature.h
+    ../shared/info/clr/profilerstring.hpp
+    ../shared/info/clr/profiler.hpp
+    ../shared/info/clr/holder.hpp
     ../shared/util/const.h
     ../shared/util/util.cpp
     ../shared/util/helpers.cpp
