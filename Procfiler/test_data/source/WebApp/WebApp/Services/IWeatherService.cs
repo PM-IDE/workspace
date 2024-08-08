@@ -31,8 +31,6 @@ public class WeatherRepository : IWeatherRepository
         TemperatureC = 10,
         Summary = "xd"
       });
-
-      await Task.Delay(500);
     }
 
     return result;
