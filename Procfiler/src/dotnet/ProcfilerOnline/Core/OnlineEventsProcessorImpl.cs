@@ -22,7 +22,7 @@ public class OnlineEventsProcessorImpl(
 
   public ISharedEventPipeStreamData Process(Stream eventPipeStream)
   {
-    var source = new EventPipeEventSource(eventPipeStream);
+    using var source = new EventPipeEventSource(eventPipeStream);
 
     var globalData = new SharedEventPipeStreamData();
 

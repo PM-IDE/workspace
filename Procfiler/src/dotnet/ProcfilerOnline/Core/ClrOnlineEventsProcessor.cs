@@ -48,7 +48,7 @@ public class ClrOnlineEventsProcessor(
     transportCreationWaiter.WaitUntilTransportIsCreatedOrThrow(process.Id);
 
     var providers = providersProvider.GetProvidersFor(ProvidersCategoryKind.CppProcfilerMethodsAndTasks);
-    var session = client.StartEventPipeSession(providers, requestRundown: false, circularBufferMB: 1024);
+    using var session = client.StartEventPipeSession(providers, circularBufferMB: 1024);
 
     client.ResumeRuntime();
 
