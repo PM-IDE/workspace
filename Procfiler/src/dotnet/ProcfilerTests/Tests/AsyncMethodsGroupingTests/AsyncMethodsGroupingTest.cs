@@ -40,31 +40,9 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
     var splitContext = new SplitContext(events, string.Empty, InlineMode.EventsAndMethodsEvents, false, true);
     var methods = splitter.Split(splitContext);
     var asyncMethodsPrefix = Container.Resolve<IAsyncMethodsGrouper>().AsyncMethodsPrefix;
-
-    var sb = new StringBuilder();
     var filter = new Regex(knownSolution.NamespaceFilterPattern);
 
-    foreach (var (methodName, methodsTraces) in methods.OrderBy(pair => pair.Key))
-    {
-      if (!methodName.StartsWith(asyncMethodsPrefix)) continue;
-      if (!filter.IsMatch(methodName)) continue;
-
-      sb.Append(methodName);
-
-      var allocationTraces = methodsTraces
-        .Select(trace => trace.Where(e => e.TryGetMethodStartEndEventInfo() is { Frame: var frame } && filter.IsMatch(frame)).ToList())
-        .Where(t => t.Count > 0)
-        .OrderBy(t => t[0].Time.QpcStamp);
-
-      foreach (var trace in allocationTraces)
-      {
-        sb.AppendNewLine().Append("Trace:").AppendNewLine();
-        sb.Append(TestsMethodCallTreeDumper.CreateDump(trace, null));
-      }
-
-      sb.AppendNewLine().AppendNewLine();
-    }
-
-    return sb.ToString();
+    return AsyncMethodsTestsUtil.SerializeToGold(methods, filter, asyncMethodsPrefix, e => e.TryGetMethodStartEndEventInfo()?.Frame,
+      trace => TestsMethodCallTreeDumper.CreateDump(trace, null));
   }
 }
