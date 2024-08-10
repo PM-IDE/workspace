@@ -3,6 +3,7 @@ using Core.Events.EventRecord;
 using Core.EventsProcessing.Mutators.Core;
 using Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Tasks;
 using ProcfilerTests.Core;
+using TestsUtil;
 
 namespace ProcfilerTests.Tests.Mutators;
 

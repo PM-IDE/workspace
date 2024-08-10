@@ -27,13 +27,7 @@ public static class KnownSolutionExtensions
   private static CollectClrEventsFromExeContext CreateContextInternal(
     KnownSolution knownSolution, CollectingClrEventsCommonContext context)
   {
-    var solutionsDir = TestPaths.CreatePathToSolutionsSource();
-    var csprojPath = Path.Combine(solutionsDir, knownSolution.Name, knownSolution.Name + ".csproj");
-    var projectBuildInfo = new ProjectBuildInfo(
-      csprojPath, knownSolution.Tfm, BuildConfiguration.Debug, InstrumentationKind.None,
-      true, PathUtils.CreateTempFolderPath(), false, null);
-
-    return new CollectClrEventsFromExeContext(projectBuildInfo, context);
+    return new CollectClrEventsFromExeContext(knownSolution.CreateProjectBuildInfo(), context);
   }
 
   private static CollectingClrEventsCommonContext CreateDefaultCommonContext()

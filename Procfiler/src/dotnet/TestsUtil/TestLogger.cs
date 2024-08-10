@@ -1,7 +1,8 @@
 using Core.Utils;
 using Microsoft.Extensions.Logging;
+using NUnit.Framework;
 
-namespace ProcfilerTests.Core;
+namespace TestsUtil;
 
 public class TestLogger : IProcfilerLogger
 {

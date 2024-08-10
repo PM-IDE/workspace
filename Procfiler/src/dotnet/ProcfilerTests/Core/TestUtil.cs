@@ -9,6 +9,7 @@ using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.Serialization.MethodsCallTree;
+using TestsUtil;
 
 namespace ProcfilerTests.Core;
 
