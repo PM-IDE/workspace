@@ -5,19 +5,19 @@ using Core.Utils;
 
 namespace TestsUtil;
 
-public static class AsyncMethodsTestsUtil
+public static class MethodsTestsUtil
 {
   public static string SerializeToGold(
     Dictionary<string, List<List<EventRecordWithMetadata>>> methods,
     Regex filter,
-    string asyncMethodsPrefix,
+    string? methodsPrefix,
     Func<EventRecordWithMetadata, string?> frameExtractor,
     Func<List<EventRecordWithMetadata>, string> traceDumper)
   {
     var sb = new StringBuilder();
     foreach (var (methodName, methodsTraces) in methods.OrderBy(pair => pair.Key))
     {
-      if (!methodName.StartsWith(asyncMethodsPrefix)) continue;
+      if (methodsPrefix is { } && !methodName.StartsWith(methodsPrefix)) continue;
       if (!filter.IsMatch(methodName)) continue;
 
       sb.Append(methodName);

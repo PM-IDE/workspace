@@ -21,11 +21,7 @@ public class CompletedAsyncMethodHandler : IEventPipeStreamEventHandler
     foreach (var trace in completedAsyncMethodEvent.MethodTraces)
     {
       Console.WriteLine("Trace start");
-      Console.WriteLine(ProgramMethodCallTreeDumper.CreateDump(trace, null, e => e.TryGetMethodDetails() switch
-      {
-        { } => (e.EventName, e.GetMethodEventKind() == MethodKind.Begin),
-        _ => null
-      }));
+      Console.WriteLine(ProgramMethodCallTreeDumper.CreateDump(trace, null, HandlerUtil.ExtractFrame));
 
       Console.WriteLine();
     }

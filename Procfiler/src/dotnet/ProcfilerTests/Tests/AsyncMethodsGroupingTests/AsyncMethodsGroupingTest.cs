@@ -42,7 +42,7 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
     var asyncMethodsPrefix = Container.Resolve<IAsyncMethodsGrouper>().AsyncMethodsPrefix;
     var filter = new Regex(knownSolution.NamespaceFilterPattern);
 
-    return AsyncMethodsTestsUtil.SerializeToGold(methods, filter, asyncMethodsPrefix, e => e.TryGetMethodStartEndEventInfo()?.Frame,
+    return MethodsTestsUtil.SerializeToGold(methods, filter, asyncMethodsPrefix, e => e.TryGetMethodStartEndEventInfo()?.Frame,
       trace => TestsMethodCallTreeDumper.CreateDump(trace, null));
   }
 }

@@ -1,10 +1,7 @@
-﻿using System.Text.RegularExpressions;
-using Core.Events.EventRecord;
+﻿using Core.Events.EventRecord;
 using Core.Utils;
-using OnlineProcfilerTests.Core;
 using ProcfilerOnline.Core;
 using ProcfilerOnline.Core.Handlers;
-using ProcfilerTests.Core;
 using TestsUtil;
 
 namespace OnlineProcfilerTests.Tests;
@@ -26,7 +23,7 @@ public class TestAsyncMethodsHandler : IEventPipeStreamEventHandler
 
 [TestFixture]
 [NonParallelizable]
-public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerTestWithGold
+public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerMethodsTest
 {
   private readonly TestAsyncMethodsHandler myHandler = new();
 
@@ -34,6 +31,8 @@ public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerTestWithGold
   [
     myHandler
   ];
+
+  protected override string? Prefix => "ASYNC_";
 
 
   [Test] public void SimpleAsyncAwait() => Execute(() => DoExecuteTest(KnownSolution.SimpleAsyncAwait));
@@ -44,24 +43,6 @@ public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerTestWithGold
   [Test] public void AsyncAwaitTaskFactoryNew() => Execute(() => DoExecuteTest(KnownSolution.AsyncAwaitTaskFactoryNew));
 
 
-  private string DoExecuteTest(KnownSolution solution)
-  {
-    var sharedData = ExecuteTest(solution) ?? throw new Exception();
-
-    var filter = new Regex(solution.NamespaceFilterPattern);
-
-    return AsyncMethodsTestsUtil.SerializeToGold(myHandler.RecordedStateMachineTraces, filter, "ASYNC_", e =>
-    {
-      if (e.TryGetMethodDetails() is var (_, methodId))
-      {
-        return sharedData.MethodIdToFqn.GetValueOrDefault(methodId);
-      }
-
-      return null;
-    }, trace => ProgramMethodCallTreeDumper.CreateDump(trace, filter.ToString(), e => e.TryGetMethodDetails() switch
-    {
-      var (_, id) => (sharedData.MethodIdToFqn[id], e.GetMethodEventKind() == MethodKind.Begin),
-      _ => null
-    }));
-  }
+  protected override Dictionary<string, List<List<EventRecordWithMetadata>>> GetLoggedMethods(ISharedEventPipeStreamData data) =>
+    myHandler.RecordedStateMachineTraces;
 }
