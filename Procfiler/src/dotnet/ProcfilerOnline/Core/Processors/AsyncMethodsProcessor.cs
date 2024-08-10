@@ -2,14 +2,23 @@
 using Core.Events.EventRecord;
 using Core.Methods;
 using Core.Utils;
+using ProcfilerOnline.Core.Handlers;
 using ProcfilerTests.Core;
 
 namespace ProcfilerOnline.Core.Processors;
 
 [AppComponent]
-public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcessor
+public class AsyncMethodsProcessor : ITraceEventProcessor
 {
-  private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper = new(logger, "ASYNC_", HandleAsyncMethod);
+  private readonly ICompositeEventPipeStreamEventHandler myHandler;
+  private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper;
+
+
+  public AsyncMethodsProcessor(IProcfilerLogger logger, ICompositeEventPipeStreamEventHandler handler)
+  {
+    myHandler = handler;
+    myGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(logger, "ASYNC_", HandleAsyncMethod);
+  }
 
 
   public void Process(EventProcessingContext context)
@@ -36,19 +45,12 @@ public class AsyncMethodsProcessor(IProcfilerLogger logger) : ITraceEventProcess
     }
   }
 
-  private static void HandleAsyncMethod(string stateMachineName, List<List<EventRecordWithMetadata>> traces)
+  private void HandleAsyncMethod(string stateMachineName, List<List<EventRecordWithMetadata>> traces)
   {
-    Console.WriteLine(stateMachineName);
-    foreach (var trace in traces)
+    myHandler.Handle(new CompletedAsyncMethodEvent
     {
-      Console.WriteLine("Trace start");
-      Console.WriteLine(ProgramMethodCallTreeDumper.CreateDump(trace, null, e => e.TryGetMethodDetails() switch
-      {
-        { } => (e.EventName, e.GetMethodEventKind() == MethodKind.Begin),
-        _ => null
-      }));
-
-      Console.WriteLine();
-    }
+      MethodTraces = traces,
+      StateMachineName = stateMachineName,
+    });
   }
 }

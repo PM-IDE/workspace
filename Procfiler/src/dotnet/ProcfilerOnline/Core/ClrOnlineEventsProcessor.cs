@@ -13,7 +13,7 @@ namespace ProcfilerOnline.Core;
 
 public interface IOnlineEventsProcessor
 {
-  void StartProfiling(CollectEventsOnlineContext context);
+  ISharedEventPipeStreamData? StartProfiling(CollectEventsOnlineContext context);
 }
 
 [AppComponent]
@@ -28,7 +28,7 @@ public class ClrOnlineEventsProcessor(
   IStatisticsManager statisticsManager
 ) : IOnlineEventsProcessor
 {
-  public void StartProfiling(CollectEventsOnlineContext context)
+  public ISharedEventPipeStreamData? StartProfiling(CollectEventsOnlineContext context)
   {
     var launcherDto = new DotnetProcessLauncherDto
     {
@@ -41,7 +41,7 @@ public class ClrOnlineEventsProcessor(
     if (process is not { })
     {
       logger.LogError("Failed to start provided .NET application {DllPath}", context.DllFilePath);
-      return;
+      return null;
     }
 
     var client = new DiagnosticsClient(process.Id);
@@ -53,6 +53,6 @@ public class ClrOnlineEventsProcessor(
     client.ResumeRuntime();
 
     var processor = new OnlineEventsProcessorImpl(logger, processors, context, singleEventMutators, statisticsManager);
-    processor.Process(session.EventStream);
+    return processor.Process(session.EventStream);
   }
 }

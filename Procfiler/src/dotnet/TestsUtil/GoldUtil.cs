@@ -13,13 +13,14 @@ public static class GoldUtil
     if (!File.Exists(pathToGoldFile))
     {
       using var fs = File.CreateText(CreateTmpFilePath(folderName, testNameExtractor));
-      fs.WriteAsync(testValue);
+      fs.Write(testValue);
       Assert.Fail($"There was not gold file at {pathToGoldFile}");
       return;
     }
 
     var goldValue = File.ReadAllText(pathToGoldFile).RemoveRn();
-      if (goldValue != testValue)
+
+    if (goldValue != testValue)
     {
       var sb = new StringBuilder();
       sb.Append("The gold and test value were different:").AppendNewLine()

@@ -53,7 +53,7 @@ public class OnlineEventsProcessorImpl(
   private readonly IReadOnlyList<ISingleEventMutator> myOrderedSingleMutators =
     singleEventMutators.OrderBy(mutator => mutator.GetPassOrThrow()).ToList();
 
-  public void Process(Stream eventPipeStream)
+  public ISharedEventPipeStreamData Process(Stream eventPipeStream)
   {
     var source = new EventPipeEventSource(eventPipeStream);
 
@@ -66,6 +66,7 @@ public class OnlineEventsProcessorImpl(
     source.Process();
 
     statisticsManager.Log(logger);
+    return globalData;
   }
 
   private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData)
