@@ -8,6 +8,7 @@ using TestsUtil;
 
 namespace OnlineProcfilerTests.Core;
 
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public abstract class TestWithContainerBase
 {
   protected abstract IEnumerable<IEventPipeStreamEventHandler> HandlersToRegister { get; }

@@ -15,7 +15,12 @@ public abstract class OnlineProcfilerMethodsTest : OnlineProcfilerTestWithGold
 
   protected string DoExecuteTest(KnownSolution solution)
   {
-    var sharedData = ExecuteTest(solution) ?? throw new Exception();
+    var sharedData = ExecuteTest(solution);
+    if (sharedData is null)
+    {
+      Assert.Fail("Shared data was null");
+      return null!;
+    }
 
     var filter = new Regex(solution.NamespaceFilterPattern);
 
@@ -23,7 +28,7 @@ public abstract class OnlineProcfilerMethodsTest : OnlineProcfilerTestWithGold
     {
       if (e.TryGetMethodDetails() is var (_, methodId))
       {
-        return sharedData.MethodIdToFqn.GetValueOrDefault(methodId);
+        return sharedData.MethodIdToFqn[methodId];
       }
 
       return null;
