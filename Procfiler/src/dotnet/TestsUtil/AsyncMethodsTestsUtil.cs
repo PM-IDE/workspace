@@ -5,10 +5,10 @@ using Core.Utils;
 
 namespace TestsUtil;
 
-public class AsyncMethodsTestsUtil
+public static class AsyncMethodsTestsUtil
 {
   public static string SerializeToGold(
-    Dictionary<string, List<IReadOnlyList<EventRecordWithMetadata>>> methods,
+    Dictionary<string, List<List<EventRecordWithMetadata>>> methods,
     Regex filter,
     string asyncMethodsPrefix,
     Func<EventRecordWithMetadata, string?> frameExtractor,

@@ -9,7 +9,7 @@ namespace Procfiler.Core.SplitByMethod;
 
 public interface IEventsCollectionByMethodsSplitter
 {
-  IReadOnlyDictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> Split(
+  IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> Split(
     IEventsCollection events,
     string filterPattern,
     InlineMode inlineEventsFromInnerMethods);
@@ -19,7 +19,7 @@ public interface IEventsCollectionByMethodsSplitter
 public class EventsCollectionByMethodsSplitterImpl(IProcfilerLogger logger, IProcfilerEventsFactory eventsFactory)
   : IEventsCollectionByMethodsSplitter
 {
-  public IReadOnlyDictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> Split(
+  public IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> Split(
     IEventsCollection events,
     string filterPattern,
     InlineMode inlineEventsFromInnerMethods) =>

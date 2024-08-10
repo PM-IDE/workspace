@@ -11,7 +11,7 @@ namespace ProcfilerTests.Tests.SplitByMethods;
 
 public static class SplitByMethodsTestUtil
 {
-  public static IReadOnlyDictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> SplitByMethods(
+  public static IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> SplitByMethods(
     CollectedEvents events, IContainer container, string filterPattern)
   {
     var mainThreadEvents = TestUtil.FindEventsForMainThread(events.Events);

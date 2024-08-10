@@ -14,10 +14,10 @@ public class SplitterImplementation(
   InlineMode inlineMode
 )
 {
-  private readonly Dictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> myResult = new();
+  private readonly Dictionary<string, List<List<EventRecordWithMetadata>>> myResult = new();
 
 
-  public IReadOnlyDictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> Split()
+  public IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> Split()
   {
     var splitter = new CallbackBasedSplitter<List<EventRecordWithMetadata>>(
       logger, events, filterPattern, inlineMode, static _ => new List<EventRecordWithMetadata>(), HandleUpdate);
@@ -66,8 +66,7 @@ public class SplitterImplementation(
     var existingValue =
       myResult.GetOrCreate(methodFinishedUpdate.FrameInfo.Frame, static () => new List<List<EventRecordWithMetadata>>());
 
-    var listOfListOfEvents = (List<List<EventRecordWithMetadata>>)existingValue;
-    listOfListOfEvents.Add(stateEvents);
+    existingValue.Add(stateEvents);
   }
 
   private void HandleMethodExecutionUpdate(MethodExecutionUpdate<List<EventRecordWithMetadata>> methodExecutionUpdate)
