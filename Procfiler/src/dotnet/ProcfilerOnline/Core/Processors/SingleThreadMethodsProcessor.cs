@@ -44,6 +44,7 @@ public class SingleThreadMethodsProcessor(
         if (isTargetMethod)
         {
           threadStack.Push(new TargetMethodFrame(methodId));
+          threadStack.Peek().InnerEvents.Add(eventRecord);
         }
 
         break;
