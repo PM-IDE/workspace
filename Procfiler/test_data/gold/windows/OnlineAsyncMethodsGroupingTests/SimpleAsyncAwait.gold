@@ -1,7 +1,3 @@
-ASYNC_NotSimpleAsyncAwait.Program+<>c__DisplayClass0_0+<<Main>b__0>d
-
-ASYNC_NotSimpleAsyncAwait.Program+<Main>d__0
-
 ASYNC_SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d
 Trace:
 	[start] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
@@ -20,7 +16,21 @@ Trace:
 			[ end ] SimpleAsyncAwait.Program+<>c..ctor[instance.void..()]
 		[ end ] SimpleAsyncAwait.Program+<>c..cctor[void..()]
 	[ end ] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
-	[start] SimpleAsyncAwait.Program+<Main>d__0..ctor[instance.void..()]
-	[ end ] SimpleAsyncAwait.Program+<Main>d__0..ctor[instance.void..()]
+	[start] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
+		[start] SimpleAsyncAwait.Program.Allocate2[class.SimpleAsyncAwait.Class2..()]
+			[start] SimpleAsyncAwait.Class2..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Class2..ctor[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program.Allocate2[class.SimpleAsyncAwait.Class2..()]
+		[start] SimpleAsyncAwait.Program.<Main>g__Foo|0_1[class.System.Threading.Tasks.Task`1<int32>..()]
+			[start] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d..ctor[instance.void..()]
+			[start] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
+			[ end ] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program.<Main>g__Foo|0_1[class.System.Threading.Tasks.Task`1<int32>..()]
+		[start] SimpleAsyncAwait.Program.Allocate3[class.SimpleAsyncAwait.Class3..()]
+			[start] SimpleAsyncAwait.Class3..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Class3..ctor[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program.Allocate3[class.SimpleAsyncAwait.Class3..()]
+	[ end ] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
 
 

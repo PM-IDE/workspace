@@ -1,0 +1,26 @@
+TaskTestProject1.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] TaskTestProject1.Program.Main[void..(class.System.String[])]
+		[start] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+		[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+	[ end ] TaskTestProject1.Program.Main[void..(class.System.String[])]
+
+
+TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+Trace:
+	[start] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+	[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+
+
+TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__0[instance.int32..()]
+Trace:
+	[start] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__0[instance.int32..()]
+	[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__0[instance.int32..()]
+
+
+TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__1[instance.void..(class.System.Threading.Tasks.Task`1<int32>)]
+Trace:
+	[start] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__1[instance.void..(class.System.Threading.Tasks.Task`1<int32>)]
+	[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__1[instance.void..(class.System.Threading.Tasks.Task`1<int32>)]
+
+
