@@ -1,7 +1,13 @@
 #include "ProcfilerCorProfilerCallback.h"
 
+#include <clr/profiler.hpp>
+
 #include "eventpipe/FunctionEvent.h"
 #include "performance_counter.h"
+#include "clr/shutdownguard.hpp"
+
+std::atomic<bool> ShutdownGuard::s_preventHooks(false);
+std::atomic<int> ShutdownGuard::s_hooksInProgress(0);
 
 ProcfilerCorProfilerCallback *ourCallback;
 
@@ -34,6 +40,7 @@ void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
                                                         COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) const {
+    SHUTDOWNGUARD_RETVOID();
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Started, GetCurrentTimestamp()));
 }
 
@@ -41,12 +48,14 @@ void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId,
                                                         UINT_PTR clientData,
                                                         COR_PRF_FRAME_INFO func,
                                                         COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) const {
+    SHUTDOWNGUARD_RETVOID();
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId,
                                                           UINT_PTR clientData,
                                                           COR_PRF_FRAME_INFO func) const {
+    SHUTDOWNGUARD_RETVOID();
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
@@ -87,6 +96,8 @@ HRESULT ProcfilerCorProfilerCallback::ExceptionCatcherEnter(FunctionID functionI
 }
 
 HRESULT ProcfilerCorProfilerCallback::Shutdown() {
+    ShutdownGuard::WaitForInProgressHooks();
+
     if (myProfilerInfo != nullptr) {
         myProfilerInfo->Release();
         myProfilerInfo = nullptr;
