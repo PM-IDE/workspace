@@ -1,17 +1,14 @@
 ﻿using Core.Collector;
 using Core.Container;
 using Core.CppProcfiler;
-using Core.EventsProcessing.Mutators.Core;
 using Core.Utils;
 using Microsoft.Diagnostics.NETCore.Client;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
-using ProcfilerOnline.Core.Processors;
-using ProcfilerOnline.Core.Statistics;
 
 namespace ProcfilerOnline.Core;
 
-public interface IOnlineEventsProcessor
+public interface IClrOnlineEventsProcessor
 {
   ISharedEventPipeStreamData? StartProfiling(CollectEventsOnlineContext context);
 }
@@ -23,10 +20,8 @@ public class ClrOnlineEventsProcessor(
   ICppProcfilerLocator locator,
   ITransportCreationWaiter transportCreationWaiter,
   IEventPipeProvidersProvider providersProvider,
-  IEnumerable<ITraceEventProcessor> processors,
-  IEnumerable<ISingleEventMutator> singleEventMutators,
-  IStatisticsManager statisticsManager
-) : IOnlineEventsProcessor
+  IOnlineEventsProcessor processor
+) : IClrOnlineEventsProcessor
 {
   public ISharedEventPipeStreamData? StartProfiling(CollectEventsOnlineContext context)
   {
@@ -51,8 +46,6 @@ public class ClrOnlineEventsProcessor(
     using var session = client.StartEventPipeSession(providers, circularBufferMB: 1024);
 
     client.ResumeRuntime();
-
-    var processor = new OnlineEventsProcessorImpl(logger, processors, context, singleEventMutators, statisticsManager);
-    return processor.Process(session.EventStream);
+    return processor.Process(session.EventStream, context);
   }
 }

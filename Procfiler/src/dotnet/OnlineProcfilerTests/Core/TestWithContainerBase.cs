@@ -19,7 +19,7 @@ public abstract class TestWithContainerBase
 
   protected TestWithContainerBase()
   {
-    var assembly = typeof(SingleThreadMethodsProcessor).Assembly;
+    var assembly = typeof(ThreadsMethodsProcessor).Assembly;
     var builder = ProcfilerContainerBuilder.BuildFromAssembly(LogLevel.Trace, [assembly, typeof(ProgramEntryPoint).Assembly]);
     builder.RegisterInstance(TestLogger.CreateInstance()).As<IProcfilerLogger>();
 

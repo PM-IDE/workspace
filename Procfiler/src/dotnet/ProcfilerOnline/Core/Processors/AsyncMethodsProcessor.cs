@@ -3,7 +3,6 @@ using Core.Events.EventRecord;
 using Core.Methods;
 using Core.Utils;
 using ProcfilerOnline.Core.Handlers;
-using ProcfilerTests.Core;
 
 namespace ProcfilerOnline.Core.Processors;
 

@@ -7,6 +7,11 @@ using ProcfilerOnline.Core.Handlers;
 
 namespace ProcfilerOnline.Core.Processors;
 
+public interface IThreadsMethodsProcessor : ITraceEventProcessor
+{
+  IReadOnlyList<(long ThreadId, List<EventRecordWithMetadata>)> ReclaimNotClosedMethods();
+}
+
 public class TargetMethodFrame(long methodId)
 {
   public long MethodId { get; } = methodId;
@@ -14,10 +19,10 @@ public class TargetMethodFrame(long methodId)
 }
 
 [AppComponent]
-public class SingleThreadMethodsProcessor(
+public class ThreadsMethodsProcessor(
   IProcfilerLogger logger,
   ICompositeEventPipeStreamEventHandler handler
-) : ITraceEventProcessor
+) : IThreadsMethodsProcessor
 {
   private readonly Dictionary<long, Stack<TargetMethodFrame>> myStacksPerThreads = new();
 
@@ -77,6 +82,14 @@ public class SingleThreadMethodsProcessor(
       default:
         throw new ArgumentOutOfRangeException();
     }
+  }
+
+  public IReadOnlyList<(long ThreadId, List<EventRecordWithMetadata>)> ReclaimNotClosedMethods()
+  {
+    return myStacksPerThreads
+      .Where(pair => pair.Value.Count > 0)
+      .Select(pair => (pair.Key, pair.Value.Select(targetFrame => targetFrame.InnerEvents.First()).Reverse().ToList()))
+      .ToList();
   }
 
   private bool IsTargetMethod(EventProcessingContext context, long methodId, Regex? targetMethodsRegex)

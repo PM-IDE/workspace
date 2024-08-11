@@ -1,8 +1,10 @@
-﻿using Core.Events.EventRecord;
+﻿using Core.Container;
+using Core.Events.EventRecord;
 using Core.EventsProcessing.Mutators.Core;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
+using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
 using ProcfilerOnline.Core.Statistics;
@@ -10,34 +12,50 @@ using ProcfilerOnline.Core.Updaters;
 
 namespace ProcfilerOnline.Core;
 
+public interface IOnlineEventsProcessor
+{
+  ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineContext commandContext);
+}
+
+[AppComponent]
 public class OnlineEventsProcessorImpl(
   IProcfilerLogger logger,
   IEnumerable<ITraceEventProcessor> processors,
-  CollectEventsOnlineContext commandContext,
   IEnumerable<ISingleEventMutator> singleEventMutators,
-  IStatisticsManager statisticsManager)
+  IStatisticsManager statisticsManager,
+  IThreadsMethodsProcessor methodsProcessor
+) : IOnlineEventsProcessor
 {
   private readonly IReadOnlyList<ISingleEventMutator> myOrderedSingleMutators =
     singleEventMutators.OrderBy(mutator => mutator.GetPassOrThrow()).ToList();
 
-  public ISharedEventPipeStreamData Process(Stream eventPipeStream)
+  public ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineContext commandContext)
   {
     using var source = new EventPipeEventSource(eventPipeStream);
 
     var globalData = new SharedEventPipeStreamData();
 
-    new TplEtwProviderTraceEventParser(source).All += e => ProcessEvent(e, globalData);
-    source.Clr.All += e => ProcessEvent(e, globalData);
-    source.Dynamic.All += e => ProcessEvent(e, globalData);
+    new TplEtwProviderTraceEventParser(source).All += e => ProcessEvent(e, globalData, commandContext);
+    source.Clr.All += e => ProcessEvent(e, globalData, commandContext);
+    source.Dynamic.All += e => ProcessEvent(e, globalData, commandContext);
 
     source.Process();
 
     statisticsManager.Log(logger);
 
+    foreach (var (threadId, methodEvents) in methodsProcessor.ReclaimNotClosedMethods())
+    {
+      logger.LogWarning("Processing not closed methods for thread {ThreadId}", threadId);
+      foreach (var method in methodEvents)
+      {
+        logger.LogWarning("Processing method-event {EventName}", method.EventName);
+      }
+    }
+
     return globalData;
   }
 
-  private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData)
+  private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData, CollectEventsOnlineContext commandContext)
   {
     var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, -1);
 

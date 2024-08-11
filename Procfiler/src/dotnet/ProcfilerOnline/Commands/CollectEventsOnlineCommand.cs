@@ -16,7 +16,8 @@ public record CollectEventsOnlineContext(
 );
 
 [AppComponent]
-public class CollectEventsOnlineCommand(IProcfilerLogger logger, IOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
+public class CollectEventsOnlineCommand(
+  IProcfilerLogger logger, IClrOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
 {
   private static Option<string> DllPathOption { get; } = new("--dll-path", "The path to dll to profile");
   private static Option<string> OutputPath { get; } = new("--output-path", "The output path for bXES file");
