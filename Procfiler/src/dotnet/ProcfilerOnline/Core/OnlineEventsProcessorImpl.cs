@@ -49,13 +49,15 @@ public class OnlineEventsProcessorImpl(
       foreach (var method in methodEvents)
       {
         logger.LogWarning("Processing method-event {EventName}", method.EventName);
-        method.EventClass = OnlineProcfilerConstants.CppMethodFinishedEventName;
+
+        var methodEvent = method.DeepClone();
+        methodEvent.EventClass = OnlineProcfilerConstants.CppMethodFinishedEventName;
 
         var context = new EventProcessingContext
         {
           TraceEvent = null,
           SharedData = globalData,
-          Event = method,
+          Event = methodEvent,
           CommandContext = new CommandContext
           {
             TargetMethodsRegex = commandContext.TargetMethodsRegex
