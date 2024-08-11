@@ -88,7 +88,7 @@ public class ThreadsMethodsProcessor(
   {
     return myStacksPerThreads
       .Where(pair => pair.Value.Count > 0)
-      .Select(pair => (pair.Key, pair.Value.Select(targetFrame => targetFrame.InnerEvents.First()).Reverse().ToList()))
+      .Select(pair => (pair.Key, pair.Value.Select(targetFrame => targetFrame.InnerEvents.First()).ToList()))
       .ToList();
   }
 

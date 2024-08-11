@@ -9,7 +9,9 @@ public class SyncTimesUpdater : ISharedDataUpdater
 {
   public void Process(EventProcessingContext context)
   {
-    var source = context.TraceEvent.Source;
+    if (context.TraceEvent is not { } traceEvent) return;
+
+    var source = traceEvent.Source;
     var syncTime = source.GetSyncQpc();
     var qpcFreq = source.GetQpcFreq();
     var utcSyncDate = source.GetSyncTimeUtc();

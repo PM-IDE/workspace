@@ -49,6 +49,20 @@ public class OnlineEventsProcessorImpl(
       foreach (var method in methodEvents)
       {
         logger.LogWarning("Processing method-event {EventName}", method.EventName);
+        method.EventClass = OnlineProcfilerConstants.CppMethodFinishedEventName;
+
+        var context = new EventProcessingContext
+        {
+          TraceEvent = null,
+          SharedData = globalData,
+          Event = method,
+          CommandContext = new CommandContext
+          {
+            TargetMethodsRegex = commandContext.TargetMethodsRegex
+          }
+        };
+
+        ProcessEvent(context);
       }
     }
 
@@ -75,13 +89,17 @@ public class OnlineEventsProcessorImpl(
       sharedDataUpdater.Process(context);
     }
 
+    ProcessEvent(context);
+  }
+
+  private void ProcessEvent(EventProcessingContext context)
+  {
     foreach (var mutator in myOrderedSingleMutators)
     {
-      mutator.Process(eventRecord, globalData);
+      mutator.Process(context.Event, context.SharedData);
     }
 
-    statisticsManager.UpdateProcessedEventStatistics(eventRecord);
-
+    statisticsManager.UpdateProcessedEventStatistics(context.Event);
     foreach (var processor in processors.Where(p => p is not ISharedDataUpdater))
     {
       processor.Process(context);

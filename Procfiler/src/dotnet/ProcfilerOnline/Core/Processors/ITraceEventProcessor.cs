@@ -11,7 +11,7 @@ public readonly ref struct CommandContext
 
 public readonly ref struct EventProcessingContext
 {
-  public required TraceEvent TraceEvent { get; init; }
+  public required TraceEvent? TraceEvent { get; init; }
   public required EventRecordWithMetadata Event { get; init; }
   public required CommandContext CommandContext { get; init; }
   public required ISharedEventPipeStreamData SharedData { get; init; }
