@@ -4,3 +4,11 @@ Trace:
 	[ end ] ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
 
 
+ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
+		[start] ExceptionTryCatchFinallyWhen.Program.<Main>g__Throw|0_0[void..()]
+		[ end ] ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
+	[ end ] ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
+
+
