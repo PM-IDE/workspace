@@ -114,7 +114,7 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   private string ExtractMethodName(FromFrameInfoCreationContext context)
   {
     var methodId = context.FrameInfo.FunctionId;
-    if (!context.GlobalData.MethodIdToFqn.TryGetValue(methodId, out var fqn))
+    if (context.GlobalData.FindMethodName(methodId) is not { } fqn)
     {
       logger.LogTrace("Failed to get fqn for {FunctionId}", methodId);
       fqn = $"System.Undefined.{methodId}[instance.void..()]";

@@ -28,13 +28,13 @@ public abstract class OnlineProcfilerMethodsTest : OnlineProcfilerTestWithGold
     {
       if (e.TryGetMethodDetails() is var (_, methodId))
       {
-        return sharedData.MethodIdToFqn[methodId];
+        return sharedData.FindMethodName(methodId)!;
       }
 
       return null;
     }, trace => ProgramMethodCallTreeDumper.CreateDump(trace, filter.ToString(), e => e.TryGetMethodDetails() switch
     {
-      var (_, id) => (sharedData.MethodIdToFqn[id], e.GetMethodEventKind() == MethodKind.Begin),
+      var (_, id) => (sharedData.FindMethodName(id)!, e.GetMethodEventKind() == MethodKind.Begin),
       _ => null
     }));
   }

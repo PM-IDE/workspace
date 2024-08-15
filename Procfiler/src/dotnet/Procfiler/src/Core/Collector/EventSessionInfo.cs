@@ -15,11 +15,11 @@ public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, lon
   public long QpcSyncTime { get; } = qpcSyncTime;
   public long QpcFreq { get; } = qpcFreq;
   public DateTime UtcSyncTime { get; } = utcSyncTime;
-
-  public IReadOnlyDictionary<long, string> TypeIdToNames => myTypeIdsToNames;
-  public IReadOnlyDictionary<long, string> MethodIdToFqn => myMethodIdToFqn;
   public IShadowStacks Stacks { get; } = shadowStacks;
 
+
+  public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
+  public string? FindMethodName(long methodId) => myMethodIdToFqn.GetValueOrDefault(methodId);
 
   public void AddInfoFrom(EventWithGlobalDataUpdate update)
   {

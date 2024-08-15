@@ -6,6 +6,7 @@ public interface IGlobalData
   long QpcFreq { get; }
   DateTime UtcSyncTime { get; }
 
-  IReadOnlyDictionary<long, string> TypeIdToNames { get; }
-  IReadOnlyDictionary<long, string> MethodIdToFqn { get; }
+
+  string? FindTypeName(long typeId);
+  string? FindMethodName(long methodId);
 }

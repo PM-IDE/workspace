@@ -38,6 +38,6 @@ public class CompletedMethodsExecutionsTests : OnlineProcfilerMethodsTest
 
   protected override Dictionary<string, List<List<EventRecordWithMetadata>>> GetLoggedMethods(ISharedEventPipeStreamData data) =>
     myHandler.SeenMethods
-      .Select(pair => (data.MethodIdToFqn[pair.Key], pair.Value))
+      .Select(pair => (data.FindMethodName(pair.Key)!, pair.Value))
       .ToDictionary();
 }

@@ -65,7 +65,7 @@ public class ThreadsMethodsProcessor(
 
           var frame = threadStack.Pop();
 
-          if (!context.SharedData.MethodIdToFqn.TryGetValue(frame.MethodId, out var methodFqn)) return;
+          if (context.SharedData.FindMethodName(methodId) is not { } methodFqn) return;
 
           if (context.CommandContext.TargetMethodsRegex is null ||
               context.CommandContext.TargetMethodsRegex.IsMatch(methodFqn))
@@ -94,7 +94,7 @@ public class ThreadsMethodsProcessor(
 
   private bool IsTargetMethod(EventProcessingContext context, long methodId, Regex? targetMethodsRegex)
   {
-    if (!context.SharedData.MethodIdToFqn.TryGetValue(methodId, out var methodFqn)) return false;
+    if (context.SharedData.FindMethodName(methodId) is not { } methodFqn) return false;
 
     return targetMethodsRegex is null || targetMethodsRegex.IsMatch(methodFqn);
   }

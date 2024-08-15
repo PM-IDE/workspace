@@ -120,7 +120,7 @@ public class InsertedEvents
       return myRemovedFromFirstEvents.Contains(pointer.IndexInInsertionMap);
     }
 
-    var removed = DictionaryExtensions.GetValueOrDefault(myRemovedInsertedEvents, pointer.IndexInArray);
+    var removed = myRemovedInsertedEvents.GetValueOrDefault(pointer.IndexInArray);
     return removed?.Contains(pointer.IndexInInsertionMap) ?? false;
   }
 }

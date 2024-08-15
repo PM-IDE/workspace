@@ -116,10 +116,10 @@ public static class EventRecordExtensions
   {
     if (eventRecord.EventName is not TraceEventsConstants.MethodLoadVerbose) return null;
 
-    var methodId = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.MethodId);
-    var name = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.MethodName);
-    var methodNamespace = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.MethodNamespace);
-    var signature = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.MethodSignature);
+    var methodId = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodId);
+    var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodName);
+    var methodNamespace = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodNamespace);
+    var signature = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodSignature);
 
     if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
     {
@@ -134,8 +134,8 @@ public static class EventRecordExtensions
   {
     if (eventRecord.EventName is not TraceEventsConstants.TypeBulkType) return null;
 
-    var id = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeId);
-    var name = eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeName);
+    var id = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeId);
+    var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeName);
 
     if (id is { } && name is { })
     {

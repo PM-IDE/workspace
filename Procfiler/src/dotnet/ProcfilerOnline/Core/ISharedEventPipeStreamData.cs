@@ -19,9 +19,6 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
   public long QpcFreq { get; private set; }
   public DateTime UtcSyncTime { get; private set; }
 
-  public IReadOnlyDictionary<long, string> TypeIdToNames => myTypeIdsToNames;
-  public IReadOnlyDictionary<long, string> MethodIdToFqn => myMethodIdsToFqns;
-
 
   public void UpdateSyncTimes(long qpcSyncTime, long qpcFreq, DateTime utcSyncTime)
   {
@@ -29,6 +26,10 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
     QpcSyncTime = qpcSyncTime;
     UtcSyncTime = utcSyncTime;
   }
+
+
+  public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
+  public string? FindMethodName(long methodId) => myMethodIdsToFqns.GetValueOrDefault(methodId);
 
   public void UpdateMethodsInfo(long methodId, string fqn) => myMethodIdsToFqns[methodId] = fqn;
   public void UpdateTypeIdsToNames(long typeId, string typeName) => myTypeIdsToNames[typeId] = typeName;

@@ -33,9 +33,9 @@ public class GcTypeNameAttributeCreator : ISingleEventMutator
   public void Process(EventRecordWithMetadata eventRecord, IGlobalData context)
   {
     if (eventRecord.EventClass is TraceEventsConstants.GcSampledObjectAllocation &&
-        eventRecord.Metadata.GetValueOrDefault(TraceEventsConstants.GcSampledObjectAllocTypeId) is { } id)
+        eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.GcSampledObjectAllocTypeId) is { } id)
     {
-      if (context.TypeIdToNames.TryGetValue(id.ParseId(), out var typeName))
+      if (context.FindTypeName(id.ParseId()) is { } typeName)
       {
         eventRecord.Metadata[TraceEventsConstants.GcSampledObjectAllocationTypeName] = typeName;
       }

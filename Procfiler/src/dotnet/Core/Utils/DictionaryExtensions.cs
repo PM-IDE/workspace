@@ -27,7 +27,7 @@ public static class DictionaryExtensions
     return value;
   }
 
-  public static TValue? GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> map, TKey key)
+  public static TValue? ValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> map, TKey key)
     where TKey : notnull
   {
     if (map.TryGetValue(key, out var value)) return value;

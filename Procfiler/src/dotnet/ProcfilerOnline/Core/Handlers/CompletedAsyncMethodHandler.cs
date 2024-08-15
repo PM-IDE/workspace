@@ -16,5 +16,14 @@ public class CompletedAsyncMethodHandler : IEventPipeStreamEventHandler
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
     if (eventPipeStreamEvent is not CompletedAsyncMethodEvent completedAsyncMethodEvent) return;
+
+    Console.WriteLine(completedAsyncMethodEvent.StateMachineName);
+    foreach (var trace in completedAsyncMethodEvent.MethodTraces)
+    {
+      Console.WriteLine("Trace start");
+      Console.WriteLine(ProgramMethodCallTreeDumper.CreateDump(trace, null, HandlerUtil.ExtractFrame));
+
+      Console.WriteLine();
+    }
   }
 }

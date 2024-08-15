@@ -41,7 +41,7 @@ public class SplitEventsByManagedThreadId(
   protected override KeyValuePair<long, IEventsCollection?>? FindEventsForUndefinedThread(
     Dictionary<long, IEventsCollection> eventsByKey)
   {
-    var value = DictionaryExtensions.GetValueOrDefault(eventsByKey, -1);
+    var value = eventsByKey.GetValueOrDefault(-1);
     return new KeyValuePair<long, IEventsCollection?>(-1, value);
   }
 

@@ -21,7 +21,7 @@ public class MethodBeginEndEventMutator : ISingleEventMutator
   {
     if (eventRecord.TryGetMethodDetails() is not var (_, methodId)) return;
 
-    var fqn = context.MethodIdToFqn.GetValueOrDefault(methodId) ?? "UNRESOLVED";
+    var fqn = context.FindMethodName(methodId) ?? "UNRESOLVED";
 
     var fullNameFactory = () => eventRecord.EventClass + "_{" + MutatorsUtil.TransformMethodLikeNameForEventNameConcatenation(fqn) + "}";
 
