@@ -74,6 +74,8 @@ public:
     HRESULT LogFunctionEvent(const FunctionEvent &event);
 
     HRESULT LogMethodInfo(const FunctionID &functionId, const FunctionInfo &functionInfo) const;
+
+    HRESULT LogExceptionCatcherEnterEvent(const FunctionID& functionId, const int64_t& timestamp) const;
 };
 
 

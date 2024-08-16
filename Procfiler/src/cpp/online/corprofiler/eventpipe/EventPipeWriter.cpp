@@ -49,6 +49,7 @@ HRESULT EventPipeWriter::DefineProcfilerMethodEndEvent() {
 
 HRESULT EventPipeWriter::DefineProcfilerExceptionCatcherEnterEvent() {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
+        {COR_PRF_EVENTPIPE_INT64, 0, ourTimestampMetadataKey.c_str()},
         {COR_PRF_EVENTPIPE_UINT64, 0, ourFunctionIdMetadataKey.c_str()},
     };
 
@@ -202,4 +203,18 @@ HRESULT EventPipeWriter::LogMethodInfo(const FunctionID &functionId, const Funct
     constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
     return myProfilerInfo->EventPipeWriteEvent(myMethodInfoEvent, dataCount, eventData, nullptr, nullptr);
+}
+
+HRESULT EventPipeWriter::LogExceptionCatcherEnterEvent(const FunctionID &functionId, const int64_t& timestamp) const {
+    COR_PRF_EVENT_DATA eventData[2];
+
+    eventData[0].ptr = reinterpret_cast<UINT64>(&timestamp);
+    eventData[0].size = sizeof(int64_t);
+
+    eventData[1].ptr = reinterpret_cast<UINT64>(&functionId);
+    eventData[1].size = sizeof(FunctionID);
+
+    constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
+
+    return myProfilerInfo->EventPipeWriteEvent(myExceptionCatcherEnterEvent, dataCount, eventData, nullptr, nullptr);
 }

@@ -91,8 +91,8 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::ExceptionCatcherEnter(FunctionID functionId, ObjectID objectId) {
-    return S_OK;
+HRESULT ProcfilerCorProfilerCallback::ExceptionCatcherEnter(const FunctionID functionId, ObjectID objectId) {
+    return myWriter->LogExceptionCatcherEnterEvent(functionId, GetCurrentTimestamp());
 }
 
 HRESULT ProcfilerCorProfilerCallback::Shutdown() {
