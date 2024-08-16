@@ -21,15 +21,17 @@ private:
     const UINT32 ourMethodStartEventId = 8000;
     const UINT32 ourMethodEndEventId = 8001;
     const UINT32 ourMethodInfoEventId = 8002;
+    const UINT32 outExceptionCatcherEnterEventId = 8003;
 
     const wstring ourMethodStartEventName = ToWString("ProcfilerMethod/Begin");
     const wstring ourMethodEndEventName = ToWString("ProcfilerMethod/End");
     const wstring ourMethodInfoEventName = ToWString("ProcfilerMethodInfo");
     const wstring ourEventPipeProviderName = ToWString("ProcfilerCppEventPipeProvider");
+    const wstring ourExceptionCatcherEnterEventName = ToWString("ExceptionCatcher/Enter");
 
     const wstring ourTimestampMetadataKey = ToWString("Timestamp");
     const wstring ourFunctionIdMetadataKey = ToWString("FunctionId");
-    const wstring ourFunctionNameMatadataKey = ToWString("FunctionName");
+    const wstring ourFunctionNameMetadataKey = ToWString("FunctionName");
 
     std::regex* myMethodsFilterRegex{nullptr};
 
@@ -39,6 +41,7 @@ private:
     EVENTPIPE_EVENT myMethodStartEvent{};
     EVENTPIPE_EVENT myMethodEndEvent{};
     EVENTPIPE_EVENT myMethodInfoEvent{};
+    EVENTPIPE_EVENT myExceptionCatcherEnterEvent{};
 
     HRESULT InitializeProvidersAndEvents();
 
@@ -49,6 +52,8 @@ private:
     HRESULT DefineProcfilerMethodStartEvent();
 
     HRESULT DefineProcfilerMethodEndEvent();
+
+    HRESULT DefineProcfilerExceptionCatcherEnterEvent();
 
     HRESULT DefineMethodStartOrEndEventInternal(const wstring& eventName,
                                                 EVENTPIPE_PROVIDER provider,

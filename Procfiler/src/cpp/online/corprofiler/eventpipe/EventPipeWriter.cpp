@@ -47,10 +47,32 @@ HRESULT EventPipeWriter::DefineProcfilerMethodEndEvent() {
                                                ourMethodEndEventId);
 }
 
+HRESULT EventPipeWriter::DefineProcfilerExceptionCatcherEnterEvent() {
+    COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
+        {COR_PRF_EVENTPIPE_UINT64, 0, ourFunctionIdMetadataKey.c_str()},
+    };
+
+    constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
+
+    return myProfilerInfo->EventPipeDefineEvent(
+        myEventPipeProvider,
+        ourExceptionCatcherEnterEventName.c_str(),
+        ourMethodInfoEventId,
+        0,
+        1,
+        COR_PRF_EVENTPIPE_LOGALWAYS,
+        0,
+        false,
+        paramsCount,
+        eventParameters,
+        &myExceptionCatcherEnterEvent
+    );
+}
+
 HRESULT EventPipeWriter::DefineProcfilerMethodInfoEvent() {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
         {COR_PRF_EVENTPIPE_UINT64, 0, ourFunctionIdMetadataKey.c_str()},
-        {COR_PRF_EVENTPIPE_STRING, 0, ourFunctionNameMatadataKey.c_str()},
+        {COR_PRF_EVENTPIPE_STRING, 0, ourFunctionNameMetadataKey.c_str()},
     };
 
     constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
@@ -112,6 +134,10 @@ HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
     }
 
     if ((hr = DefineProcfilerMethodEndEvent()) != S_OK) {
+        return hr;
+    }
+
+    if ((hr = DefineProcfilerExceptionCatcherEnterEvent()) != S_OK) {
         return hr;
     }
 
