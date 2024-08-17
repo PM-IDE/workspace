@@ -2,8 +2,8 @@
 using Core.Container;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
+using ProcfilerOnline.Core;
 using ProcfilerOnline.Core.Handlers;
-using ProcfilerOnline.Core.Processors;
 using TestsUtil;
 
 namespace OnlineProcfilerTests.Core;

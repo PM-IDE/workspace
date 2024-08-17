@@ -12,6 +12,7 @@ public static class OnlineProcfilerConstants
 {
   public const string CppMethodStartEventName = "ProcfilerMethod/Begin";
   public const string CppMethodFinishedEventName = "ProcfilerMethod/End";
+  public const string ExceptionCatcherEnterEventName = "ExceptionCatcher/Enter";
 
   public const string FunctionId = "FunctionId";
   public const string Timestamp = "Timestamp";
@@ -26,15 +27,33 @@ public static class TraceEventExtensions
     _ => throw new ArgumentOutOfRangeException()
   };
 
-  public static (long QpcStamp, long methodId)? TryGetMethodDetails(this EventRecordWithMetadata traceEvent)
+  public static (long QpcStamp, long methodId)? TryGetMethodDetails(this EventRecordWithMetadata eventRecord)
   {
-    if (traceEvent.EventClass is OnlineProcfilerConstants.CppMethodFinishedEventName or OnlineProcfilerConstants.CppMethodStartEventName)
+    if (eventRecord.EventClass is OnlineProcfilerConstants.CppMethodFinishedEventName or OnlineProcfilerConstants.CppMethodStartEventName)
     {
-      var qpcStamp = traceEvent.Metadata[OnlineProcfilerConstants.Timestamp];
-      var methodId = traceEvent.Metadata[OnlineProcfilerConstants.FunctionId];
+      var qpcStamp = eventRecord.Metadata[OnlineProcfilerConstants.Timestamp];
+      var methodId = eventRecord.Metadata[OnlineProcfilerConstants.FunctionId];
       return (long.Parse(qpcStamp), long.Parse(methodId));
     }
 
     return null;
+  }
+
+  public static bool IsExceptionCatcherEnter(this EventRecordWithMetadata eventRecord, out long functionId)
+  {
+    functionId = -1;
+
+    if (eventRecord.EventClass is not OnlineProcfilerConstants.ExceptionCatcherEnterEventName) return false;
+
+    functionId = long.Parse(eventRecord.Metadata[OnlineProcfilerConstants.FunctionId]);
+    return true;
+  }
+
+  public static EventRecordWithMetadata ConvertToMethodEndEvent(this EventRecordWithMetadata eventRecord)
+  {
+    var methodEvent = eventRecord.DeepClone();
+    methodEvent.EventClass = OnlineProcfilerConstants.CppMethodFinishedEventName;
+
+    return methodEvent;
   }
 }
