@@ -8,7 +8,7 @@ namespace Procfiler.Commands.CollectClrEvents.Base;
 
 public partial class CollectCommandBase
 {
-  protected void AddCommonOptions(Command command)
+  private void AddCommonOptions(Command command)
   {
     command.AddOption(ProcessIdOption);
     command.AddOption(CommandNameOption);

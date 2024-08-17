@@ -8,7 +8,6 @@ using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing;
-using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.Serialization.Bxes;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.Serialization.Xes;
@@ -31,14 +30,11 @@ public enum InlineMode
 [CommandLineCommand]
 public class SplitEventsByMethodCommand(
   ICommandExecutorDependantOnContext commandExecutor,
-  IUndefinedThreadsEventsMerger undefinedThreadsEventsMerger,
   IUnitedEventsProcessor unitedEventsProcessor,
   IXesEventsSessionSerializer xesEventsSessionSerializer,
   IByMethodsSplitter splitter,
   IFullMethodNameBeautifier methodNameBeautifier,
   IProcfilerLogger logger,
-  IManagedEventsFromUndefinedThreadExtractor managedEventsExtractor,
-  IAsyncMethodsGrouper asyncMethodsGrouper,
   IProcfilerEventsFactory eventsFactory
 ) : CollectCommandBase(logger, commandExecutor), ISplitEventsByMethodCommand
 {
@@ -150,7 +146,7 @@ public class SplitEventsByMethodCommand(
       values =>
       {
         var collection = new EventsCollectionImpl(values.ToArray(), Logger);
-        return new EventSessionInfo(new[] { collection }, mergedGlobalData);
+        return new EventSessionInfo([collection], mergedGlobalData);
       });
   }
 
