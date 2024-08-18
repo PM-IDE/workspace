@@ -1,3 +1,3 @@
 ﻿using Core.Container;
 
-ProgramEntryPoint.SetupContainerAndRun("procfiler", args);
+ProgramEntryPoint.SetupContainerAndRun("procfiler", args, _ => {});

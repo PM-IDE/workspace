@@ -1,15 +1,12 @@
 ﻿using Core.Container;
 using Core.Events.EventRecord;
-using Core.EventsProcessing.Mutators.Core;
 using Core.Utils;
-using Dia2Lib;
 using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
 using ProcfilerOnline.Core.Statistics;
-using ProcfilerOnline.Core.Updaters;
 
 namespace ProcfilerOnline.Core;
 

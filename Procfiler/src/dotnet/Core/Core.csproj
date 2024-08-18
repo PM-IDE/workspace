@@ -11,6 +11,7 @@
       <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
       <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.351802" />
       <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
       <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0"/>
