@@ -101,7 +101,7 @@ HRESULT EventPipeWriter::DefineMethodStartOrEndEventInternal(const wstring &even
                                                              const EVENTPIPE_PROVIDER provider,
                                                              EVENTPIPE_EVENT *eventPipeEventId,
                                                              ICorProfilerInfo12 *profilerInfo,
-                                                             const UINT32 eventId) {
+                                                             const UINT32 eventId) const {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
         {COR_PRF_EVENTPIPE_INT64, 0, ourTimestampMetadataKey.c_str()},
         {COR_PRF_EVENTPIPE_UINT64, 0, ourFunctionIdMetadataKey.c_str()},
@@ -147,7 +147,7 @@ HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
 
 static thread_local auto ourIgnoredFunctions = new std::map<FunctionID, bool>();
 
-HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) {
+HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) const {
     if (!ShouldLogFunc(event.Id)) {
         return S_OK;
     }
@@ -167,7 +167,7 @@ HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) {
     return myProfilerInfo->EventPipeWriteEvent(eventPipeEvent, dataCount, eventData, nullptr, nullptr);
 }
 
-bool EventPipeWriter::ShouldLogFunc(FunctionID functionId) {
+bool EventPipeWriter::ShouldLogFunc(FunctionID functionId) const {
     if (myMethodsFilterRegex == nullptr) {
         return true;
     }

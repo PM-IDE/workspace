@@ -6,7 +6,7 @@
 #include <atomic>
 #include "eventpipe/EventPipeWriter.h"
 
-class ProcfilerCorProfilerCallback : public ICorProfilerCallback11 {
+class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
 private:
     ICorProfilerInfo12* myProfilerInfo;
     std::atomic<int> myRefCount;

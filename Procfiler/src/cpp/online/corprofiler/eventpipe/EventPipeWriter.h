@@ -17,7 +17,6 @@ struct FunctionEvent;
 struct FunctionInfo;
 
 class EventPipeWriter {
-private:
     const UINT32 ourMethodStartEventId = 8000;
     const UINT32 ourMethodEndEventId = 8001;
     const UINT32 ourMethodInfoEventId = 8002;
@@ -59,10 +58,10 @@ private:
                                                 EVENTPIPE_PROVIDER provider,
                                                 EVENTPIPE_EVENT *ourEventId,
                                                 ICorProfilerInfo12 *profilerInfo,
-                                                UINT32 eventId);
+                                                UINT32 eventId) const;
 
     void InitMethodsFilterRegex();
-    bool ShouldLogFunc(FunctionID functionId);
+    bool ShouldLogFunc(FunctionID functionId) const;
 
 public:
     explicit EventPipeWriter(ICorProfilerInfo12 *profilerInfo);
@@ -71,7 +70,7 @@ public:
 
     void Init();
 
-    HRESULT LogFunctionEvent(const FunctionEvent &event);
+    HRESULT LogFunctionEvent(const FunctionEvent &event) const;
 
     HRESULT LogMethodInfo(const FunctionID &functionId, const FunctionInfo &functionInfo) const;
 

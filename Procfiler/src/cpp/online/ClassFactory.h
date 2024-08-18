@@ -3,9 +3,8 @@
 #include "unknwn.h"
 #include <atomic>
 
-class ClassFactory : public IClassFactory
+class ClassFactory final : public IClassFactory
 {
-private:
     std::atomic<int> refCount;
 public:
     ClassFactory();
