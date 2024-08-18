@@ -6,7 +6,6 @@ using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core.Processors;
-using ProcfilerOnline.Core.Statistics;
 
 namespace ProcfilerOnline.Core;
 
@@ -18,8 +17,8 @@ public interface IOnlineEventsProcessor
 [AppComponent]
 public class OnlineEventsProcessorImpl(
   IProcfilerLogger logger,
-  IStatisticsManager statisticsManager,
-  IThreadsMethodsProcessor methodsProcessor
+  IThreadsMethodsProcessor methodsProcessor,
+  IAppExitHandler appExitHandler
 ) : IOnlineEventsProcessor
 {
   public ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineContext commandContext)
@@ -34,7 +33,7 @@ public class OnlineEventsProcessorImpl(
 
     ProcessNotClosedMethods(globalData, commandContext);
 
-    statisticsManager.Log(logger);
+    appExitHandler.PerformExitActions();
 
     return globalData;
   }

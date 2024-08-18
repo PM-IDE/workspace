@@ -8,4 +8,5 @@ public class OnlineProcfilerSettings
 public class KafkaSettings
 {
   public required string TopicName { get; init; }
+  public required string BootstrapServers { get; init; }
 }

@@ -9,6 +9,8 @@ namespace ProcfilerOnline.Core;
 public interface IAppExitHandler
 {
   void AddProcess(Process process);
+
+  void PerformExitActions();
 }
 
 [AppComponent]
@@ -33,7 +35,7 @@ public class AppExitHandler : IAppExitHandler
     myRegisteredProcesses.Add(new WeakReference<Process>(process));
   }
 
-  private void HandleAppExit(ConsoleCancelEventArgs args)
+  public void PerformExitActions()
   {
     using var _ = new PerformanceCookie($"{GetType().Name}::{nameof(HandleAppExit)}", myLogger);
 
@@ -62,4 +64,6 @@ public class AppExitHandler : IAppExitHandler
       }
     }
   }
+
+  private void HandleAppExit(ConsoleCancelEventArgs args) => PerformExitActions();
 }
