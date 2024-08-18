@@ -14,7 +14,6 @@ public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedAsyncMethodHandler(
-  IOptions<OnlineProcfilerSettings> settings,
   IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
 ) : IEventPipeStreamEventHandler
 {
@@ -24,11 +23,13 @@ public class CompletedAsyncMethodHandler(
 
     foreach (var methodTrace in completedAsyncMethodEvent.MethodTraces)
     {
-      producer.Produce(settings.Value.KafkaSettings.TopicName, Guid.NewGuid(), new MethodsExecutionKafkaMessage
+      var message = new MethodsExecutionKafkaMessage
       {
         MethodFullName = completedAsyncMethodEvent.StateMachineName,
         Events = methodTrace
-      });
+      };
+
+      producer.Produce(Guid.NewGuid(), message);
     }
   }
 }

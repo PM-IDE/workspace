@@ -12,7 +12,6 @@ public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedMethodExecutionHandler(
-  IOptions<OnlineProcfilerSettings> settings,
   IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
 ) : IEventPipeStreamEventHandler
 {
@@ -21,10 +20,12 @@ public class CompletedMethodExecutionHandler(
     if (eventPipeStreamEvent is not CompletedMethodExecutionEvent @event) return;
     if (@event.Frame.MethodFullName is not { } methodFullName) return;
 
-    producer.Produce(settings.Value.KafkaSettings.TopicName, Guid.NewGuid(), new MethodsExecutionKafkaMessage
+    var message = new MethodsExecutionKafkaMessage
     {
       Events = @event.Frame.InnerEvents,
       MethodFullName = methodFullName,
-    });
+    };
+
+    producer.Produce(Guid.NewGuid(), message);
   }
 }

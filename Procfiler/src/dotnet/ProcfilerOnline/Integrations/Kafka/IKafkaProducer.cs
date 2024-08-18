@@ -1,6 +1,6 @@
 ﻿namespace ProcfilerOnline.Integrations.Kafka;
 
-public interface IKafkaProducer<TKey, TValue>
+public interface IKafkaProducer<in TKey, in TValue>
 {
-  void Produce(string topicName, TKey key, TValue value);
+  void Produce(TKey key, TValue value);
 }

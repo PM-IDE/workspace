@@ -31,11 +31,11 @@ public class MethodsExecutionKafkaProducer(
       .Build();
 
 
-  public void Produce(string topicName, Guid key, MethodsExecutionKafkaMessage value)
+  public void Produce(Guid key, MethodsExecutionKafkaMessage value)
   {
     try
     {
-      var result = myProducer.ProduceAsync(topicName, new Message<Guid, MethodsExecutionKafkaMessage>
+      var result = myProducer.ProduceAsync(settings.Value.KafkaSettings.TopicName, new Message<Guid, MethodsExecutionKafkaMessage>
       {
         Key = key,
         Value = value,
