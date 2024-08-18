@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using Core.Events.EventRecord;
+using Core.Utils;
 using OnlineProcfilerTests.Core;
 using ProcfilerOnline.Core;
-using ProcfilerTests.Core;
 using TestsUtil;
 
 namespace OnlineProcfilerTests.Tests;

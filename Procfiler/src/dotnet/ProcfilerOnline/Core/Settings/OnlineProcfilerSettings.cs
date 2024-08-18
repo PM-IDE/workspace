@@ -2,12 +2,11 @@
 
 public class OnlineProcfilerSettings
 {
-  public required bool ProduceEventsToKafka { get; init; }
-  public required KafkaSettings KafkaSettings { get; init; }
+  public KafkaSettings KafkaSettings { get; init; } = new();
 }
 
 public class KafkaSettings
 {
-  public required string TopicName { get; init; }
-  public required string BootstrapServers { get; init; }
+  public string TopicName { get; init; }
+  public string BootstrapServers { get; init; }
 }

@@ -2,9 +2,8 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Core.Events.EventRecord;
-using Core.Utils;
 
-namespace ProcfilerTests.Core;
+namespace Core.Utils;
 
 public static class ProgramMethodCallTreeDumper
 {

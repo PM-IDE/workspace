@@ -10,19 +10,15 @@ public static class ConfigurationUtil
 {
   public static void AddConfiguration(ContainerBuilder containerBuilder)
   {
-    const string ProduceEventsToKafkaSetting = "OnlineProcfilerSettings__ProduceEventsToKafka";
-    if (Environment.GetEnvironmentVariable(ProduceEventsToKafkaSetting) is not { })
-    {
-      Environment.SetEnvironmentVariable(ProduceEventsToKafkaSetting, false.ToString());
-    }
-
     var configurationBuilder = new ConfigurationBuilder();
     configurationBuilder.Add(new EnvironmentVariablesConfigurationSource());
 
     var configuration = configurationBuilder.Build();
     containerBuilder.RegisterInstance(configuration).As<IConfiguration>();
 
-    var procfilerSettings = configuration.GetSection(nameof(OnlineProcfilerSettings)).Get<OnlineProcfilerSettings>();
+    var procfilerSettings = configuration.GetSection(nameof(OnlineProcfilerSettings)).Get<OnlineProcfilerSettings>() ??
+                            new OnlineProcfilerSettings();
+
     containerBuilder.RegisterInstance(Options.Create(procfilerSettings ?? throw new Exception()));
   }
 }

@@ -1,6 +1,7 @@
 ﻿using Core.Container;
 using Core.Events.EventRecord;
 using Microsoft.Extensions.Options;
+using ProcfilerOnline.Core.Features;
 using ProcfilerOnline.Core.Settings;
 using ProcfilerOnline.Integrations.Kafka;
 
@@ -14,13 +15,12 @@ public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedAsyncMethodHandler(
-  IOptions<OnlineProcfilerSettings> settings,
   IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
 ) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
-    if (!settings.Value.ProduceEventsToKafka) return;
+    if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
     if (eventPipeStreamEvent is not CompletedAsyncMethodEvent completedAsyncMethodEvent) return;
 
     foreach (var methodTrace in completedAsyncMethodEvent.MethodTraces)
