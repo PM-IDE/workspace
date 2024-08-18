@@ -20,26 +20,32 @@ public class MethodsExecutionKafkaProducer(
   IProcfilerLogger logger
 ) : IKafkaProducer<Guid, MethodsExecutionKafkaMessage>
 {
-  private readonly IProducer<Guid, MethodsExecutionKafkaMessage> myProducer =
-    new ProducerBuilder<Guid, MethodsExecutionKafkaMessage>(new ProducerConfig
+  private readonly Lazy<IProducer<Guid, MethodsExecutionKafkaMessage>> myProducer = new(() =>
+    new ProducerBuilder<Guid, MethodsExecutionKafkaMessage>(
+      new ProducerConfig
       {
         BootstrapServers = settings.Value.KafkaSettings.BootstrapServers,
         Acks = Acks.All
-      })
-      .SetKeySerializer(GuidSerializer.Instance)
-      .SetValueSerializer(JsonSerializer<MethodsExecutionKafkaMessage>.Instance)
-      .Build();
+      }
+    )
+    .SetKeySerializer(GuidSerializer.Instance)
+    .SetValueSerializer(JsonSerializer<MethodsExecutionKafkaMessage>.Instance)
+    .Build()
+  );
 
 
   public void Produce(Guid key, MethodsExecutionKafkaMessage value)
   {
     try
     {
-      var result = myProducer.ProduceAsync(settings.Value.KafkaSettings.TopicName, new Message<Guid, MethodsExecutionKafkaMessage>
+      var topicName = settings.Value.KafkaSettings.TopicName;
+      var message = new Message<Guid, MethodsExecutionKafkaMessage>
       {
         Key = key,
         Value = value,
-      }).GetAwaiter().GetResult();
+      };
+
+      var result = myProducer.Value.ProduceAsync(topicName, message).GetAwaiter().GetResult();
 
       if (result.Status is not PersistenceStatus.Persisted)
       {

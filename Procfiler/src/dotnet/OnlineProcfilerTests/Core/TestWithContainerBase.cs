@@ -3,6 +3,7 @@ using Core.Container;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core;
+using ProcfilerOnline.Core.Container;
 using ProcfilerOnline.Core.Handlers;
 using TestsUtil;
 
@@ -22,6 +23,8 @@ public abstract class TestWithContainerBase
     var assembly = typeof(ThreadsMethodsProcessor).Assembly;
     var builder = ProcfilerContainerBuilder.BuildFromAssembly(LogLevel.Trace, [assembly, typeof(ProgramEntryPoint).Assembly]);
     builder.RegisterInstance(TestLogger.CreateInstance()).As<IProcfilerLogger>();
+
+    ConfigurationUtil.AddConfiguration(builder);
 
     foreach (var handler in HandlersToRegister)
     {

@@ -12,11 +12,13 @@ public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedMethodExecutionHandler(
+  IOptions<OnlineProcfilerSettings> settings,
   IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
 ) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
+    if (!settings.Value.ProduceEventsToKafka) return;
     if (eventPipeStreamEvent is not CompletedMethodExecutionEvent @event) return;
     if (@event.Frame.MethodFullName is not { } methodFullName) return;
 

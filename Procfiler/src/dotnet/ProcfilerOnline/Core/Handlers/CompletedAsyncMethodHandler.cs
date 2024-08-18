@@ -14,11 +14,13 @@ public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedAsyncMethodHandler(
+  IOptions<OnlineProcfilerSettings> settings,
   IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
 ) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
+    if (!settings.Value.ProduceEventsToKafka) return;
     if (eventPipeStreamEvent is not CompletedAsyncMethodEvent completedAsyncMethodEvent) return;
 
     foreach (var methodTrace in completedAsyncMethodEvent.MethodTraces)

@@ -2,6 +2,7 @@
 
 public class OnlineProcfilerSettings
 {
+  public required bool ProduceEventsToKafka { get; init; }
   public required KafkaSettings KafkaSettings { get; init; }
 }
 
