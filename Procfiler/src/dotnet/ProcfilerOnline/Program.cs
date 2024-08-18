@@ -6,7 +6,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Settings;
 
-Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__TopicName", "asdasd");
+Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic");
+Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
 
 ProgramEntryPoint.SetupContainerAndRun("procfiler-online", args, AddConfiguration, LogLevel.Debug);
 
