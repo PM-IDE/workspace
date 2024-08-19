@@ -79,7 +79,7 @@ private:
         size_t otherLen = wcslen(other) + 1;
         if (buffer == nullptr || otherLen > bufferLen)
         {
-            bufferLen = std::max(DefaultStringLength, otherLen);
+            bufferLen = DefaultStringLength > otherLen ? DefaultStringLength : otherLen;
             if (buffer != nullptr)
             {
                 delete[] buffer;
