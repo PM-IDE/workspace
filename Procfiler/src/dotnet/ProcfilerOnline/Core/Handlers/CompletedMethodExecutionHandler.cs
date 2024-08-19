@@ -22,7 +22,7 @@ public class CompletedMethodExecutionHandler(
 
     var message = new MethodsExecutionKafkaMessage
     {
-      Events = @event.Frame.InnerEvents,
+      Events = @event.Frame.InnerEvents.Select(EventRecordWithMetadataKafkaDto.FromEventRecord).ToList(),
       MethodFullName = methodFullName,
     };
 

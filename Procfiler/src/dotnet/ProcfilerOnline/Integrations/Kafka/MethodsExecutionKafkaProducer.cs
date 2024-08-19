@@ -11,7 +11,28 @@ namespace ProcfilerOnline.Integrations.Kafka;
 public class MethodsExecutionKafkaMessage
 {
   public required string MethodFullName { get; init; }
-  public required List<EventRecordWithMetadata> Events { get; init; }
+  public required List<EventRecordWithMetadataKafkaDto> Events { get; init; }
+}
+
+public class EventRecordWithMetadataKafkaDto
+{
+  public required long ManagedThreadId { get; init; }
+  public required string EventClass { get; init; }
+  public required string EventName { get; init; }
+  public required EventRecordTime Time { get; init; }
+  public required int StackTraceId { get; init; }
+  public required Dictionary<string, string> Attributes { get; init; }
+
+
+  public static EventRecordWithMetadataKafkaDto FromEventRecord(EventRecordWithMetadata eventRecord) => new()
+  {
+    Attributes = eventRecord.Metadata.ToDictionary(),
+    Time = eventRecord.Time,
+    StackTraceId = eventRecord.StackTraceId,
+    EventClass = eventRecord.EventClass,
+    EventName = eventRecord.EventName,
+    ManagedThreadId = eventRecord.ManagedThreadId
+  };
 }
 
 [AppComponent]

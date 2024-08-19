@@ -3,7 +3,7 @@ using Confluent.Kafka;
 
 namespace ProcfilerOnline.Integrations.Kafka;
 
-public class JsonSerializer<T> : ISerializer<T>
+public class JsonSerializer<T> : ISerializer<T>, IDeserializer<T>
 {
   public static JsonSerializer<T> Instance { get; } = new();
 
@@ -14,4 +14,5 @@ public class JsonSerializer<T> : ISerializer<T>
 
 
   public byte[] Serialize(T data, SerializationContext context) => JsonSerializer.SerializeToUtf8Bytes(data);
+  public T Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context) => JsonSerializer.Deserialize<T>(data);
 }

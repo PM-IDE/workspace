@@ -36,7 +36,7 @@ public class EventMetadata : IEventMetadata
     Count = length;
   }
 
-  public EventMetadata(IEventMetadata otherMetadata)
+  public EventMetadata(IDictionary<string, string> otherMetadata)
   {
     myValues = [];
     myNames = [];

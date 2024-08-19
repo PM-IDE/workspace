@@ -28,7 +28,7 @@ public class CompletedAsyncMethodHandler(
       var message = new MethodsExecutionKafkaMessage
       {
         MethodFullName = completedAsyncMethodEvent.StateMachineName,
-        Events = methodTrace
+        Events = methodTrace.Select(EventRecordWithMetadataKafkaDto.FromEventRecord).ToList()
       };
 
       producer.Produce(Guid.NewGuid(), message);
