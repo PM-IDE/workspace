@@ -12,3 +12,6 @@ cmake-build-debug
 *.user
 build
 Logs
+cmake-*
+dist
+*egg-info*
