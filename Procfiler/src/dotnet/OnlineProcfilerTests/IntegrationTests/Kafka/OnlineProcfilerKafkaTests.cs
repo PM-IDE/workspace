@@ -17,12 +17,13 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
 
 
   [Test]
-  public void ConsoleApp1() => Execute(() => DoExecuteTest(KnownSolution.AllSolutions));
+  public void AllSolutionsTest() => Execute(() => DoExecuteTest(KnownSolution.AllSolutions));
 
 
   private string DoExecuteTest(IEnumerable<KnownSolution> solutions)
   {
-    var consumer = new MethodExecutionKafkaConsumer(Container.Resolve<IOptions<OnlineProcfilerSettings>>().Value.KafkaSettings.TopicName);
+    var topicName = Container.Resolve<IOptions<OnlineProcfilerSettings>>().Value.KafkaSettings.TopicName;
+    var consumer = new MethodExecutionKafkaConsumer(topicName);
     var sb = new StringBuilder();
 
     foreach (var solution in solutions)
