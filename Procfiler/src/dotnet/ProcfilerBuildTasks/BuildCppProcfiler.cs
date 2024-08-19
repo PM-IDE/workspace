@@ -72,7 +72,9 @@ public class BuildCppProcfiler : Task
     {
       FileName = FindCmakeExecutable(),
       Arguments = $"--build . --target {TargetName} --config Release",
-      WorkingDirectory = CreateBuildDirectoryPath()
+      WorkingDirectory = CreateBuildDirectoryPath(),
+      RedirectStandardOutput = true,
+      RedirectStandardError = true
     }
   };
 
@@ -110,7 +112,7 @@ public class BuildCppProcfiler : Task
 
   private bool LaunchProcessAndWaitForExit(Process process, string name)
   {
-    var timeout = (int)TimeSpan.FromSeconds(60).TotalMilliseconds;
+    var timeout = (int)TimeSpan.FromSeconds(120).TotalMilliseconds;
 
     if (!process.Start())
     {
@@ -143,14 +145,14 @@ public class BuildCppProcfiler : Task
     {
       if (process.StartInfo.RedirectStandardOutput)
       {
-        Log.LogMessage($"The process {name} output:");
-        Log.LogMessage(process.StandardOutput.ReadToEnd());
+        Log.LogError($"The process {name} output:");
+        Log.LogError(process.StandardOutput.ReadToEnd());
       }
 
       if (process.StartInfo.RedirectStandardError)
       {
-        Log.LogMessage($"The process {name} errors:");
-        Log.LogMessage(process.StandardError.ReadToEnd());
+        Log.LogError($"The process {name} errors:");
+        Log.LogError(process.StandardError.ReadToEnd());
       }
     }
     catch (Exception ex)
