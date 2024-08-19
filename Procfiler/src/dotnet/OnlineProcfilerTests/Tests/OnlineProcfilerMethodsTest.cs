@@ -23,8 +23,19 @@ public abstract class OnlineProcfilerMethodsTest : OnlineProcfilerTestWithGold
     }
 
     var filter = new Regex(solution.NamespaceFilterPattern);
+    return OnlineProcfilerMethodsUtil.SerializeToGold(sharedData, GetLoggedMethods(sharedData), filter, Prefix);
+  }
+}
 
-    return MethodsTestsUtil.SerializeToGold(GetLoggedMethods(sharedData), filter, Prefix, e =>
+public static class OnlineProcfilerMethodsUtil
+{
+  public static string SerializeToGold(
+    ISharedEventPipeStreamData sharedData,
+    Dictionary<string, List<List<EventRecordWithMetadata>>> loggedEvents,
+    Regex filter,
+    string? prefix)
+  {
+    return MethodsTestsUtil.SerializeToGold(loggedEvents, filter, prefix, e =>
     {
       if (e.TryGetMethodDetails() is var (_, methodId))
       {

@@ -20,6 +20,8 @@ public abstract class TestWithContainerBase
 
   protected TestWithContainerBase()
   {
+    ExecuteBeforeContainerCreation();
+
     var assembly = typeof(ThreadsMethodsProcessor).Assembly;
     var builder = ProcfilerContainerBuilder.BuildFromAssembly(LogLevel.Trace, [assembly, typeof(ProgramEntryPoint).Assembly]);
     builder.RegisterInstance(TestLogger.CreateInstance()).As<IProcfilerLogger>();
@@ -32,5 +34,9 @@ public abstract class TestWithContainerBase
     }
 
     Container = builder.Build();
+  }
+
+  protected virtual void ExecuteBeforeContainerCreation()
+  {
   }
 }
