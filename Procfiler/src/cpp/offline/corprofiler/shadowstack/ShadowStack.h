@@ -10,10 +10,19 @@
 #include <string>
 #include <stack>
 #include <atomic>
-#include <regex>
 #include <util.h>
 #include <FunctionInfo.h>
 #include "EventsWithThreadId.h"
+
+#ifdef __linux__
+#undef __pre
+#endif
+
+#include <regex>
+
+#ifdef __linux__
+#define __pre
+#endif
 
 class ShadowStack {
 private:

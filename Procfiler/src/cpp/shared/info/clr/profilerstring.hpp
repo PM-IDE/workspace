@@ -79,7 +79,7 @@ private:
         size_t otherLen = wcslen(other) + 1;
         if (buffer == nullptr || otherLen > bufferLen)
         {
-            bufferLen = max(DefaultStringLength, otherLen);
+            bufferLen = std::max(DefaultStringLength, otherLen);
             if (buffer != nullptr)
             {
                 delete[] buffer;
@@ -244,9 +244,9 @@ public:
         return printBuffer;
     }
 
-    std::wstring ToWString()
+    wstring ToWString()
     {
-        std::wstring temp;
+        wstring temp;
         for (size_t i = 0; i < bufferLen; ++i)
         {
             if (buffer[i] == 0)
