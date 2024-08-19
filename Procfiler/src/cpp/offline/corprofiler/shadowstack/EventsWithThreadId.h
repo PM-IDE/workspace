@@ -10,10 +10,19 @@
 #include <string>
 #include <stack>
 #include <atomic>
-#include <regex>
 #include "../info/FunctionInfo.h"
 #include "fstream"
 #include "utils.h"
+
+#ifdef __linux__
+#undef __pre
+#endif
+
+#include <regex>
+
+#ifdef __linux__
+#define __pre
+#endif
 
 struct EventsWithThreadId {
     std::stack<FunctionID>* CurrentStack = new std::stack<FunctionID>();
