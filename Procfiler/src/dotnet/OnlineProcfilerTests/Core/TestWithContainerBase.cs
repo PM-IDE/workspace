@@ -12,13 +12,15 @@ namespace OnlineProcfilerTests.Core;
 [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public abstract class TestWithContainerBase
 {
-  protected abstract IEnumerable<IEventPipeStreamEventHandler> HandlersToRegister { get; }
-  protected readonly IContainer Container;
-
   public static IEnumerable<KnownSolution> AllSolutionsSource => KnownSolution.AllSolutions;
 
 
-  protected TestWithContainerBase()
+  protected abstract IEnumerable<IEventPipeStreamEventHandler> HandlersToRegister { get; }
+  protected IContainer Container;
+
+
+  [SetUp]
+  public void SetUpContainer()
   {
     ExecuteBeforeContainerCreation();
 
