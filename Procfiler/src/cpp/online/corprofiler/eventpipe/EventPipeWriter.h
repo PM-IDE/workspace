@@ -9,9 +9,18 @@
 #include <string>
 #include <stack>
 #include <atomic>
-#include <regex>
 #include <util.h>
 #include <FunctionInfo.h>
+
+#ifdef __linux__
+#undef __pre
+#endif
+
+#include <regex>
+
+#ifdef __linux__
+#define __pre
+#endif
 
 struct FunctionEvent;
 struct FunctionInfo;
