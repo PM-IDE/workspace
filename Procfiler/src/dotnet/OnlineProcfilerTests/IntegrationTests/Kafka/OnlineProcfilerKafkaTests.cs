@@ -31,7 +31,7 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
       var globalData = ExecuteTest(solution) ?? throw new Exception();
       var events = consumer.ConsumeAllEvents();
 
-      foreach (var @event in events)
+      foreach (var @event in events.OrderBy(e => e.MethodFullName))
       {
         var methodNamesToEvents = new Dictionary<string, List<List<EventRecordWithMetadata>>>
         {
