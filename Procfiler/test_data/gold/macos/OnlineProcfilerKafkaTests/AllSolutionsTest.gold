@@ -1,0 +1,922 @@
+ConsoleApp1.Program..ctor[instance.void..()]
+Trace:
+	[start] ConsoleApp1.Program..ctor[instance.void..()]
+	[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+
+
+ConsoleApp1.Program.Method2[void..()]
+Trace:
+	[start] ConsoleApp1.Program.Method2[void..()]
+	[ end ] ConsoleApp1.Program.Method2[void..()]
+
+
+ConsoleApp1.Program..ctor[instance.void..()]
+Trace:
+	[start] ConsoleApp1.Program..ctor[instance.void..()]
+	[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+
+
+ConsoleApp1.Program.Method1[void..()]
+Trace:
+	[start] ConsoleApp1.Program.Method1[void..()]
+		[start] ConsoleApp1.Program..ctor[instance.void..()]
+		[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+		[start] ConsoleApp1.Program.Method2[void..()]
+		[ end ] ConsoleApp1.Program.Method2[void..()]
+		[start] ConsoleApp1.Program..ctor[instance.void..()]
+		[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+	[ end ] ConsoleApp1.Program.Method1[void..()]
+
+
+ConsoleApp1.Program.Main[void..()]
+Trace:
+	[start] ConsoleApp1.Program.Main[void..()]
+		[start] ConsoleApp1.Program.Method1[void..()]
+			[start] ConsoleApp1.Program..ctor[instance.void..()]
+			[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+			[start] ConsoleApp1.Program.Method2[void..()]
+			[ end ] ConsoleApp1.Program.Method2[void..()]
+			[start] ConsoleApp1.Program..ctor[instance.void..()]
+			[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+		[ end ] ConsoleApp1.Program.Method1[void..()]
+	[ end ] ConsoleApp1.Program.Main[void..()]
+
+
+TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+Trace:
+	[start] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+	[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+
+
+TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__0[instance.int32..()]
+Trace:
+	[start] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__0[instance.int32..()]
+	[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__0[instance.int32..()]
+
+
+TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__1[instance.void..(class.System.Threading.Tasks.Task`1<int32>)]
+Trace:
+	[start] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__1[instance.void..(class.System.Threading.Tasks.Task`1<int32>)]
+	[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0.<Main>b__1[instance.void..(class.System.Threading.Tasks.Task`1<int32>)]
+
+
+TaskTestProject1.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] TaskTestProject1.Program.Main[void..(class.System.String[])]
+		[start] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+		[ end ] TaskTestProject1.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
+	[ end ] TaskTestProject1.Program.Main[void..(class.System.String[])]
+
+
+ExceptionTryCatchFinally.Program.<Main>g__ThrowException|0_0[void..()]
+Trace:
+	[start] ExceptionTryCatchFinally.Program.<Main>g__ThrowException|0_0[void..()]
+	[ end ] ExceptionTryCatchFinally.Program.<Main>g__ThrowException|0_0[void..()]
+
+
+ExceptionTryCatchFinally.Program..ctor[instance.void..()]
+Trace:
+	[start] ExceptionTryCatchFinally.Program..ctor[instance.void..()]
+	[ end ] ExceptionTryCatchFinally.Program..ctor[instance.void..()]
+
+
+ExceptionTryCatchFinally.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] ExceptionTryCatchFinally.Program.Main[void..(class.System.String[])]
+		[start] ExceptionTryCatchFinally.Program.<Main>g__ThrowException|0_0[void..()]
+		[ end ] ExceptionTryCatchFinally.Program.<Main>g__ThrowException|0_0[void..()]
+		[start] ExceptionTryCatchFinally.Program..ctor[instance.void..()]
+		[ end ] ExceptionTryCatchFinally.Program..ctor[instance.void..()]
+	[ end ] ExceptionTryCatchFinally.Program.Main[void..(class.System.String[])]
+
+
+FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+Trace:
+	[start] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+	[ end ] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+
+
+FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+Trace:
+	[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+
+
+ASYNC_FileWriteProject.Program+<Main>d__0
+Trace:
+	[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+
+
+FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+Trace:
+	[start] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+		[start] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+		[ end ] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+		[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+		[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+
+
+FileWriteProject.Program.<Main>[void..(class.System.String[])]
+Trace:
+	[start] FileWriteProject.Program.<Main>[void..(class.System.String[])]
+		[start] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+			[start] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+			[ end ] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+			[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+			[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+		[ end ] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+	[ end ] FileWriteProject.Program.<Main>[void..(class.System.String[])]
+
+
+DynamicAssemblyLoading.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] DynamicAssemblyLoading.Program.Main[void..(class.System.String[])]
+	[ end ] DynamicAssemblyLoading.Program.Main[void..(class.System.String[])]
+
+
+DynamicAssemblyCreation.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] DynamicAssemblyCreation.Program.Main[void..(class.System.String[])]
+	[ end ] DynamicAssemblyCreation.Program.Main[void..(class.System.String[])]
+
+
+ExceptionTryCatchFinallyWhen.Program.<Main>g__Throw|0_0[void..()]
+Trace:
+	[start] ExceptionTryCatchFinallyWhen.Program.<Main>g__Throw|0_0[void..()]
+	[ end ] ExceptionTryCatchFinallyWhen.Program.<Main>g__Throw|0_0[void..()]
+
+
+ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
+		[start] ExceptionTryCatchFinallyWhen.Program.<Main>g__Throw|0_0[void..()]
+		[ end ] ExceptionTryCatchFinallyWhen.Program.<Main>g__Throw|0_0[void..()]
+	[ end ] ExceptionTryCatchFinallyWhen.Program.Main[void..(class.System.String[])]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+
+
+FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+Trace:
+	[start] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+	[ end ] FinalizableObject.ClassWithFinalizer.Finalize[instance.void..()]
+
+
+FinalizableObject.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] FinalizableObject.Program.Main[void..(class.System.String[])]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[start] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+		[ end ] FinalizableObject.ClassWithFinalizer..ctor[instance.void..()]
+	[ end ] FinalizableObject.Program.Main[void..(class.System.String[])]
+
+
+IntensiveThreadPoolUse.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] IntensiveThreadPoolUse.Program.Main[void..(class.System.String[])]
+	[ end ] IntensiveThreadPoolUse.Program.Main[void..(class.System.String[])]
+
+
+UnsafeFixed.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] UnsafeFixed.Program.Main[void..(class.System.String[])]
+	[ end ] UnsafeFixed.Program.Main[void..(class.System.String[])]
+
+
+SystemArrayPooling.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] SystemArrayPooling.Program.Main[void..(class.System.String[])]
+	[ end ] SystemArrayPooling.Program.Main[void..(class.System.String[])]
+
+
+NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+Trace:
+	[start] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+	[ end ] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+
+
+NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+Trace:
+	[start] NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+		[start] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+		[ end ] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+	[ end ] NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+
+
+NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+Trace:
+	[start] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+	[ end ] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+
+
+NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+Trace:
+	[start] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+	[ end ] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+
+
+NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
+		[start] NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+			[start] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+			[ end ] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+		[ end ] NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+		[start] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+		[ end ] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+		[start] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+		[ end ] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+	[ end ] NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
+
+
+LOHAllocations.Program.Main[void..(class.System.String[])]
+Trace:
+	[start] LOHAllocations.Program.Main[void..(class.System.String[])]
+	[ end ] LOHAllocations.Program.Main[void..(class.System.String[])]
+
+
