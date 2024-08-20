@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using ProcfilerOnline.Core.Settings;
 using ProcfilerOnline.Integrations.Kafka;
 
 namespace OnlineProcfilerTests.IntegrationTests.Kafka;
@@ -8,12 +9,12 @@ public class MethodExecutionKafkaConsumer : IDisposable
   private readonly IConsumer<Guid, MethodsExecutionKafkaMessage> myConsumer;
 
 
-  public MethodExecutionKafkaConsumer(string topicName)
+  public MethodExecutionKafkaConsumer(OnlineProcfilerSettings settings)
   {
     myConsumer = new ConsumerBuilder<Guid, MethodsExecutionKafkaMessage>(
         new ConsumerConfig
         {
-          BootstrapServers = "localhost:9092",
+          BootstrapServers = settings.KafkaSettings.BootstrapServers,
           GroupId = "xd",
           EnablePartitionEof = true,
           AutoOffsetReset = AutoOffsetReset.Latest,
@@ -23,7 +24,7 @@ public class MethodExecutionKafkaConsumer : IDisposable
       .SetValueDeserializer(JsonSerializer<MethodsExecutionKafkaMessage>.Instance)
       .Build();
 
-    myConsumer.Subscribe(topicName);
+    myConsumer.Subscribe(settings.KafkaSettings.TopicName);
   }
 
 

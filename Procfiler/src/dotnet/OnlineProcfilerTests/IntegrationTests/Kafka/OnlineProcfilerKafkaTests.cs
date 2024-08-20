@@ -22,8 +22,8 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
 
   private string DoExecuteTest(IEnumerable<KnownSolution> solutions)
   {
-    var topicName = Container.Resolve<IOptions<OnlineProcfilerSettings>>().Value.KafkaSettings.TopicName;
-    var consumer = new MethodExecutionKafkaConsumer(topicName);
+    var settings = Container.Resolve<IOptions<OnlineProcfilerSettings>>().Value;
+    var consumer = new MethodExecutionKafkaConsumer(settings);
     var sb = new StringBuilder();
 
     foreach (var solution in solutions)
@@ -50,13 +50,5 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
     }
 
     return sb.ToString();
-  }
-
-
-  protected override void ExecuteBeforeContainerCreation()
-  {
-    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic");
-    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
-    Environment.SetEnvironmentVariable("ProduceEventsToKafka", "true");
   }
 }
