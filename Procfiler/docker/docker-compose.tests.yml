@@ -41,6 +41,8 @@
 
       echo -e 'Created topic my-topic'
       ./kafka-topics.sh --bootstrap-server broker:29092 --list
+
+      sleep infinity
       "
 
   online-procfiler-tests:

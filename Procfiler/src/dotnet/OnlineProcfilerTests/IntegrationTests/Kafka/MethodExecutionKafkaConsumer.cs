@@ -17,7 +17,7 @@ public class MethodExecutionKafkaConsumer : IDisposable
           BootstrapServers = settings.KafkaSettings.BootstrapServers,
           GroupId = "xd",
           EnablePartitionEof = true,
-          AutoOffsetReset = AutoOffsetReset.Latest,
+          AutoOffsetReset = AutoOffsetReset.Earliest,
         }
       )
       .SetKeyDeserializer(GuidSerializer.Instance)
