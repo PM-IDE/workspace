@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MISC", "MISC", "{84772E20-E
 		..\..\.gitignore = ..\..\.gitignore
 		..\..\Readme.md = ..\..\Readme.md
 		.editorconfig = .editorconfig
+		..\..\..\.github\workflows\deploy.yml = ..\..\..\.github\workflows\deploy.yml
+		..\..\..\.github\workflows\tests.yml = ..\..\..\.github\workflows\tests.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerTests", "ProcfilerTests\ProcfilerTests.csproj", "{F80AEE0A-F3EA-4D5F-90BC-5BB02F375D3B}"
