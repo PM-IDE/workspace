@@ -1,8 +1,9 @@
+using Core.Events.EventRecord;
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
+using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.SplitByMethod;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.Serialization.Core;
 

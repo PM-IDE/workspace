@@ -1,6 +1,6 @@
-using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Utils;
+using Core.Events.EventRecord;
+using Core.Utils;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Core.Collector;
 
@@ -8,10 +8,6 @@ public readonly record struct CollectedEvents(
   IEventsCollection Events,
   SessionGlobalData GlobalData
 );
-
-public readonly record struct TypeIdToName(long Id, string Name);
-
-public readonly record struct MethodIdToFqn(long Id, string Fqn);
 
 public readonly record struct EventWithGlobalDataUpdate(
   TraceEvent OriginalEvent,

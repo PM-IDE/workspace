@@ -1,5 +1,5 @@
-﻿using Procfiler.Core.Constants.XesLifecycle;
-using Procfiler.Core.EventRecord;
+﻿using Core.Constants.XesLifecycle;
+using Core.Events.EventRecord;
 
 namespace Procfiler.Core.EventsProcessing.Mutators;
 

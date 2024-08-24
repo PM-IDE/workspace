@@ -1,6 +1,7 @@
-using Procfiler.Core.Processes.Builder;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
+using Core.Builder;
+using Core.Container;
+using Core.CppProcfiler;
+using Core.Utils;
 
 namespace Procfiler.Core.CppProcfiler;
 

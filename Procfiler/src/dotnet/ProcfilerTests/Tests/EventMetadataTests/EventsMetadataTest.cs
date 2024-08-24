@@ -1,4 +1,4 @@
-using Procfiler.Core.EventRecord;
+using Core.Events.EventRecord;
 
 namespace ProcfilerTests.Tests.EventMetadataTests;
 

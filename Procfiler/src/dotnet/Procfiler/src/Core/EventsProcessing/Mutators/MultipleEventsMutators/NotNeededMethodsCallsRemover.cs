@@ -1,10 +1,11 @@
-﻿using Procfiler.Core.Collector;
+﻿using Core.Container;
+using Core.EventsProcessing.Mutators.Core;
+using Core.EventsProcessing.Mutators.Core.Passes;
+using Core.Utils;
+using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Core.EventsProcessing.Mutators.Core;
-using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
+using Procfiler.Core.EventRecord.EventsCollection;
+using Procfiler.Core.EventsProcessing.Core;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 
@@ -20,7 +21,7 @@ public class NotNeededMethodsCallsRemover : IMultipleEventsMutator
   public IEnumerable<EventLogMutation> Mutations => EmptyCollections<EventLogMutation>.EmptyList;
 
 
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     events.AddFilter(eventRecord => eventRecord.TryGetMethodStartEndEventInfo() is var (frameName, _) && ShouldSkipFrame(frameName));
   }

@@ -1,6 +1,6 @@
-using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Utils;
+using Core.Events.EventRecord;
+using Core.Utils;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Commands.CollectClrEvents.Split;
 

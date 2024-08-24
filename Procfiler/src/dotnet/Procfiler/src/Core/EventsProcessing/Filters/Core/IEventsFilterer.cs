@@ -1,5 +1,5 @@
-using Procfiler.Core.EventsCollection;
-using Procfiler.Utils.Container;
+using Core.Container;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Core.EventsProcessing.Filters.Core;
 

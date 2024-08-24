@@ -12,6 +12,7 @@ public class BuildCppProcfiler : Task
   private const string BuildFolderName = "build";
 
   [Required] public string CppProcfilerFolderPath { get; set; } = null!;
+  [Required] public string TargetName { get; set; } = null!;
 
 
   public override bool Execute()
@@ -70,8 +71,8 @@ public class BuildCppProcfiler : Task
     StartInfo = new ProcessStartInfo
     {
       FileName = FindCmakeExecutable(),
-      Arguments = "--build . --target Procfiler --config Release",
-      WorkingDirectory = CreateBuildDirectoryPath()
+      Arguments = $"--build . --target {TargetName} --config Release",
+      WorkingDirectory = CreateBuildDirectoryPath(),
     }
   };
 
@@ -142,14 +143,14 @@ public class BuildCppProcfiler : Task
     {
       if (process.StartInfo.RedirectStandardOutput)
       {
-        Log.LogMessage($"The process {name} output:");
-        Log.LogMessage(process.StandardOutput.ReadToEnd());
+        Log.LogError($"The process {name} output:");
+        Log.LogError(process.StandardOutput.ReadToEnd());
       }
 
       if (process.StartInfo.RedirectStandardError)
       {
-        Log.LogMessage($"The process {name} errors:");
-        Log.LogMessage(process.StandardError.ReadToEnd());
+        Log.LogError($"The process {name} errors:");
+        Log.LogError(process.StandardError.ReadToEnd());
       }
     }
     catch (Exception ex)

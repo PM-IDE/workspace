@@ -29,7 +29,7 @@ pub fn clusterize_activities_dbscan<TLog: EventLog>(params: &mut ActivitiesClust
 
     let ficus_dataset = transform_to_ficus_dataset(
         &dataset,
-        processed.iter().map(|x| x.0.borrow().name.to_owned()).collect(),
+        processed.iter().map(|x| x.0.borrow().name().as_ref().as_ref().to_owned()).collect(),
         classes_names,
     );
 

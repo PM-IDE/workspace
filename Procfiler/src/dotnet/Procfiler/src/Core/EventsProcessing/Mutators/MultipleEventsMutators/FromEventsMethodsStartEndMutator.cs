@@ -1,8 +1,9 @@
+using Core.Constants.TraceEvents;
+using Core.Events.EventRecord;
+using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Utils;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 
@@ -23,7 +24,7 @@ public class FromEventsMethodsStartEndMutator(
   }
 
 
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     if (context.Stacks is not IFromEventsShadowStacks fromEventsShadowStacks)
     {
@@ -156,7 +157,7 @@ public class FromEventsMethodsStartEndMutator(
   private EventRecordWithMetadata CreateMethodEndEvent(EventRecordWithMetadata @event, string frame) =>
     eventsFactory.CreateMethodEndEvent(CreateContext(@event), frame);
 
-  private static EventsCreationContext CreateContext(EventRecord.EventRecord @event) =>
+  private static EventsCreationContext CreateContext(global::Core.Events.EventRecord.EventRecord @event) =>
     new(@event.Time, @event.ManagedThreadId);
 
   private EventRecordWithMetadata CreateMethodStartEvent(EventRecordWithMetadata @event, string frame) =>

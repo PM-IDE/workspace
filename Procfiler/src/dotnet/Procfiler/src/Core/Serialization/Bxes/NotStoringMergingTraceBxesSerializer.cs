@@ -1,9 +1,10 @@
 using System.Collections.Immutable;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
+using Core.Utils;
 using Procfiler.Core.Collector;
+using Procfiler.Core.EventRecord;
 using Procfiler.Core.Serialization.Core;
-using Procfiler.Utils;
 
 namespace Procfiler.Core.Serialization.Bxes;
 

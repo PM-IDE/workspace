@@ -1,8 +1,9 @@
-using Procfiler.Core.Constants.TraceEvents;
-using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsProcessing.Mutators.Core;
-using Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Tasks;
+using Core.Constants.TraceEvents;
+using Core.Events.EventRecord;
+using Core.EventsProcessing.Mutators.Core;
+using Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Tasks;
 using ProcfilerTests.Core;
+using TestsUtil;
 
 namespace ProcfilerTests.Tests.Mutators;
 
@@ -22,14 +23,14 @@ public class AwaitContinuationScheduledMutatorTest : SingleMutatorTestBase
     {
       [TraceEventsConstants.OriginatingTaskSchedulerId] = "1",
       [TraceEventsConstants.OriginatingTaskId] = "123",
-      [TraceEventsConstants.ContinueWithTaskId] = ContinueWithId
+      [TraceEventsConstants.ContinuationId] = ContinueWithId
     };
 
     ExecuteWithRandomEvent(metadata, eventRecord =>
     {
       Assert.Multiple(() =>
       {
-        Assert.That(eventRecord.Metadata.ContainsKey(TraceEventsConstants.ContinueWithTaskId), Is.False);
+        Assert.That(eventRecord.Metadata.ContainsKey(TraceEventsConstants.ContinuationId), Is.False);
         Assert.That(eventRecord.Metadata.ContainsKey(TraceEventsConstants.TaskId), Is.True);
         Assert.That(eventRecord.Metadata[TraceEventsConstants.TaskId], Is.EqualTo(ContinueWithId));
       });

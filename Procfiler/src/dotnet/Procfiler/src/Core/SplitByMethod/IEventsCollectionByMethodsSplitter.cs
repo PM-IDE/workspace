@@ -1,14 +1,15 @@
+using Core.Container;
+using Core.Events.EventRecord;
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Core.SplitByMethod;
 
 public interface IEventsCollectionByMethodsSplitter
 {
-  IReadOnlyDictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> Split(
+  IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> Split(
     IEventsCollection events,
     string filterPattern,
     InlineMode inlineEventsFromInnerMethods);
@@ -18,7 +19,7 @@ public interface IEventsCollectionByMethodsSplitter
 public class EventsCollectionByMethodsSplitterImpl(IProcfilerLogger logger, IProcfilerEventsFactory eventsFactory)
   : IEventsCollectionByMethodsSplitter
 {
-  public IReadOnlyDictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> Split(
+  public IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> Split(
     IEventsCollection events,
     string filterPattern,
     InlineMode inlineEventsFromInnerMethods) =>

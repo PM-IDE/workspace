@@ -1,18 +1,10 @@
+using Core.Constants.TraceEvents;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.TraceEvents;
-using Procfiler.Core.EventRecord;
 
 namespace Procfiler.Utils;
 
 internal static class TraceEventsExtensions
 {
-  public static EventRecordTime ToTime(this TraceEvent traceEvent) => new()
-  {
-    LoggedAt = traceEvent.TimeStamp.ToUniversalTime(),
-    QpcStamp = traceEvent.TimeStampQPC,
-    RelativeStampMSec = traceEvent.TimeStampRelativeMSec
-  };
-
   public static Dictionary<string, string> CreateMetadataMap(this TraceEvent traceEvent)
   {
     var metadata = new Dictionary<string, string>();

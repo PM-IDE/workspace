@@ -1,12 +1,13 @@
+using Core.Constants.TraceEvents;
+using Core.Container;
+using Core.EventsProcessing.Mutators.Core;
+using Core.EventsProcessing.Mutators.Core.Passes;
+using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.CppProcfiler.ShadowStacks;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Core.EventsProcessing.Mutators.Core;
-using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
+using Procfiler.Core.EventRecord.EventsCollection;
+using Procfiler.Core.EventsProcessing.Core;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 
@@ -14,7 +15,7 @@ public interface IMethodStartEndEventsLogMutator : IMultipleEventsMutator;
 
 public interface IMethodsStartEndProcessor
 {
-  void Process(IEventsCollection events, SessionGlobalData context);
+  void Process(IEventsCollection events, IGlobalDataWithStacks context);
 }
 
 [EventMutator(MultipleEventMutatorsPasses.MethodStartEndInserter)]
@@ -29,7 +30,7 @@ public class MethodStartEndEventsLogMutator(
   };
 
 
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     if (events.Count == 0) return;
 

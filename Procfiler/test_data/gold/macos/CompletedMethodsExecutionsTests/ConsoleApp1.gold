@@ -1,0 +1,42 @@
+ConsoleApp1.Program..ctor[instance.void..()]
+Trace:
+	[start] ConsoleApp1.Program..ctor[instance.void..()]
+	[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+
+Trace:
+	[start] ConsoleApp1.Program..ctor[instance.void..()]
+	[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+
+
+ConsoleApp1.Program.Main[void..()]
+Trace:
+	[start] ConsoleApp1.Program.Main[void..()]
+		[start] ConsoleApp1.Program.Method1[void..()]
+			[start] ConsoleApp1.Program..ctor[instance.void..()]
+			[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+			[start] ConsoleApp1.Program.Method2[void..()]
+			[ end ] ConsoleApp1.Program.Method2[void..()]
+			[start] ConsoleApp1.Program..ctor[instance.void..()]
+			[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+		[ end ] ConsoleApp1.Program.Method1[void..()]
+	[ end ] ConsoleApp1.Program.Main[void..()]
+
+
+ConsoleApp1.Program.Method1[void..()]
+Trace:
+	[start] ConsoleApp1.Program.Method1[void..()]
+		[start] ConsoleApp1.Program..ctor[instance.void..()]
+		[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+		[start] ConsoleApp1.Program.Method2[void..()]
+		[ end ] ConsoleApp1.Program.Method2[void..()]
+		[start] ConsoleApp1.Program..ctor[instance.void..()]
+		[ end ] ConsoleApp1.Program..ctor[instance.void..()]
+	[ end ] ConsoleApp1.Program.Method1[void..()]
+
+
+ConsoleApp1.Program.Method2[void..()]
+Trace:
+	[start] ConsoleApp1.Program.Method2[void..()]
+	[ end ] ConsoleApp1.Program.Method2[void..()]
+
+

@@ -1,17 +1,18 @@
+using Core.CommandLine;
+using Core.Container;
+using Core.Events.EventRecord;
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Base;
 using Procfiler.Commands.CollectClrEvents.Context;
-using Procfiler.Core;
 using Procfiler.Core.Collector;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
+using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing;
-using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Core.Serialization.Bxes;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.Serialization.Xes;
 using Procfiler.Core.SplitByMethod;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Commands.CollectClrEvents.Split;
 
@@ -29,14 +30,11 @@ public enum InlineMode
 [CommandLineCommand]
 public class SplitEventsByMethodCommand(
   ICommandExecutorDependantOnContext commandExecutor,
-  IUndefinedThreadsEventsMerger undefinedThreadsEventsMerger,
   IUnitedEventsProcessor unitedEventsProcessor,
   IXesEventsSessionSerializer xesEventsSessionSerializer,
   IByMethodsSplitter splitter,
   IFullMethodNameBeautifier methodNameBeautifier,
   IProcfilerLogger logger,
-  IManagedEventsFromUndefinedThreadExtractor managedEventsExtractor,
-  IAsyncMethodsGrouper asyncMethodsGrouper,
   IProcfilerEventsFactory eventsFactory
 ) : CollectCommandBase(logger, commandExecutor), ISplitEventsByMethodCommand
 {
@@ -148,7 +146,7 @@ public class SplitEventsByMethodCommand(
       values =>
       {
         var collection = new EventsCollectionImpl(values.ToArray(), Logger);
-        return new EventSessionInfo(new[] { collection }, mergedGlobalData);
+        return new EventSessionInfo([collection], mergedGlobalData);
       });
   }
 

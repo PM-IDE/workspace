@@ -1,11 +1,12 @@
+using Core.Collector;
+using Core.Container;
+using Core.CppProcfiler;
+using Core.Events.EventRecord;
+using Core.Utils;
 using Procfiler.Core.Collector.CustomTraceEvents;
-using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Core.EventsProcessing.Mutators;
+using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.Collector;
 
@@ -198,45 +199,10 @@ public class ClrEventsCollector(
     var managedThreadId = traceEvent.GetManagedThreadIdThroughStack(context.Source);
     var record = new EventRecordWithMetadata(traceEvent, managedThreadId, (int)traceEvent.CallStackIndex());
 
-    var typeIdToName = TryExtractTypeIdToName(traceEvent, record.Metadata);
-    var methodIdToFqn = TryExtractMethodToId(traceEvent, record.Metadata);
+    var typeIdToName = record.TryExtractTypeIdToName();
+    var methodIdToFqn = record.TryGetMethodInfo();
 
     return new EventWithGlobalDataUpdate(traceEvent, record, typeIdToName, methodIdToFqn);
-  }
-
-  private static TypeIdToName? TryExtractTypeIdToName(
-    TraceEvent traceEvent, IDictionary<string, string> metadata)
-  {
-    if (traceEvent.EventName is not TraceEventsConstants.TypeBulkType) return null;
-
-    var id = metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeId);
-    var name = metadata.GetValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeName);
-
-    if (id is { } && name is { })
-    {
-      return new TypeIdToName(id.ParseId(), name);
-    }
-
-    return null;
-  }
-
-  private static MethodIdToFqn? TryExtractMethodToId(
-    TraceEvent traceEvent, IDictionary<string, string> metadata)
-  {
-    if (traceEvent.EventName is not TraceEventsConstants.MethodLoadVerbose) return null;
-
-    var methodId = metadata.GetValueOrDefault(TraceEventsConstants.MethodId);
-    var name = metadata.GetValueOrDefault(TraceEventsConstants.MethodName);
-    var methodNamespace = metadata.GetValueOrDefault(TraceEventsConstants.MethodNamespace);
-    var signature = metadata.GetValueOrDefault(TraceEventsConstants.MethodSignature);
-
-    if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
-    {
-      var mergedName = MutatorsUtil.ConcatenateMethodDetails(name, methodNamespace, signature);
-      return new MethodIdToFqn(methodId.ParseId(), mergedName);
-    }
-
-    return null;
   }
 
   private static MutableTraceEventStackSource InitializeStackSource(TraceLog traceLog)

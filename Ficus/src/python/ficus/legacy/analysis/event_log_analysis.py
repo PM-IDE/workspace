@@ -393,7 +393,10 @@ def visualize_dataset(num_components: NComponents,
     else:
         ax = fig.add_subplot()
 
-    draw_func(ax)
+    try:
+        draw_func(ax)
+    except Exception as ex:
+        print(f'Failed to visualize dataset, {ex}')
 
     if save_path is None:
         fig.show()

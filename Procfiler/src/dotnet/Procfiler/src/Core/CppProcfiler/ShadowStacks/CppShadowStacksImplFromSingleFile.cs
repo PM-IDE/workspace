@@ -1,4 +1,4 @@
-using Procfiler.Utils;
+using Core.Utils;
 
 namespace Procfiler.Core.CppProcfiler.ShadowStacks;
 

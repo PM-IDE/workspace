@@ -37,6 +37,10 @@ impl Event for XesEventImpl {
         self.payload.as_ref()
     }
 
+    fn payload_map_mut(&mut self) -> Option<&mut HashMap<String, EventPayloadValue>> {
+        self.payload.as_mut()
+    }
+
     fn ordered_payload(&self) -> Vec<(&String, &EventPayloadValue)> {
         let mut payload = Vec::new();
         if let Some(payload_map) = self.payload_map() {
@@ -68,7 +72,7 @@ impl Event for XesEventImpl {
             self.payload = Some(HashMap::new());
         }
 
-        *self.payload.as_mut().unwrap().get_mut(&key).unwrap() = value;
+        self.payload.as_mut().unwrap().insert(key, value);
     }
 
     fn new(name: String, timestamp: DateTime<Utc>) -> Self {

@@ -1,0 +1,37 @@
+﻿using Core.Container;
+using Core.Events.EventRecord;
+using Core.EventsProcessing.Mutators;
+using Core.EventsProcessing.Mutators.Core;
+using Core.EventsProcessing.Mutators.Core.Passes;
+using Core.GlobalData;
+using Core.Utils;
+
+namespace ProcfilerOnline.Core.Mutators;
+
+[EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]
+public class MethodBeginEndEventMutator : ISingleEventMutator
+{
+  private readonly Dictionary<string, string> myBeginFullNamesCache = new();
+  private readonly Dictionary<string, string> myEndFullNamesCache = new();
+
+  public IEnumerable<EventLogMutation> Mutations => EmptyCollections<EventLogMutation>.EmptyList;
+
+
+  public void Process(EventRecordWithMetadata eventRecord, IGlobalData context)
+  {
+    if (eventRecord.TryGetMethodDetails() is not var (_, methodId)) return;
+
+    var fqn = context.FindMethodName(methodId) ?? "UNRESOLVED";
+
+    var fullNameFactory = () => eventRecord.EventClass + "_{" + MutatorsUtil.TransformMethodLikeNameForEventNameConcatenation(fqn) + "}";
+
+    var newName = eventRecord.GetMethodEventKind() switch
+    {
+      MethodKind.Begin => myBeginFullNamesCache.GetOrCreate(fqn, fullNameFactory),
+      MethodKind.End => myEndFullNamesCache.GetOrCreate(fqn, fullNameFactory),
+      _ => throw new ArgumentOutOfRangeException()
+    };
+
+    eventRecord.EventName = newName;
+  }
+}

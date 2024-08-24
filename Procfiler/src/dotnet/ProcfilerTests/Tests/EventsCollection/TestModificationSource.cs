@@ -1,7 +1,7 @@
-using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Core.EventsCollection.ModificationSources;
-using Procfiler.Utils;
+using Core.Events.EventRecord;
+using Core.Utils;
+using Procfiler.Core.EventRecord.EventsCollection;
+using Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
 namespace ProcfilerTests.Tests.EventsCollection;
 

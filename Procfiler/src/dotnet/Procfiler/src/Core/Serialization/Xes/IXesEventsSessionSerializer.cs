@@ -1,11 +1,12 @@
+using Core.Constants.XesLifecycle;
+using Core.Container;
+using Core.Events.EventRecord;
+using Core.Utils;
+using Core.Utils.Xml;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.XesLifecycle;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.Serialization.Core;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
-using Procfiler.Utils.Xml;
 
 namespace Procfiler.Core.Serialization.Xes;
 

@@ -19,7 +19,15 @@ use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisu
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
 use crate::features::clustering::traces::traces_params::TracesClusteringParams;
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENTS_COUNT_KEY, EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY, LABELED_LOG_TRACES_DATASET_KEY};
+use crate::pipelines::keys::context_keys::{
+    ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY,
+    ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENTS_COUNT_KEY,
+    EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY,
+    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_SERIALIZATION_FORMAT_KEY,
+    MIN_ACTIVITY_LENGTH_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY,
+    PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+    TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
@@ -166,7 +174,9 @@ impl PipelineParts {
         };
 
         let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info| {
-            Rc::new(RefCell::new(XesEventImpl::new_with_min_date(info.node.borrow().name.clone())))
+            Rc::new(RefCell::new(XesEventImpl::new_with_min_date(
+                info.node.borrow().name().as_ref().as_ref().clone(),
+            )))
         });
 
         context.put_concrete(EVENT_LOG_KEY.key(), log);
@@ -600,7 +610,7 @@ impl PipelineParts {
                 Err(error) => return Err(error.into()),
             };
 
-            let processed = processed.iter().map(|x| x.0.borrow().name.to_owned()).collect();
+            let processed = processed.iter().map(|x| x.0.borrow().name().as_ref().as_ref().to_owned()).collect();
             let ficus_dataset = transform_to_ficus_dataset(&dataset, processed, classes);
 
             context.put_concrete(TRACES_ACTIVITIES_DATASET_KEY.key(), ficus_dataset);
@@ -670,6 +680,58 @@ impl PipelineParts {
                 };
 
                 log_number += 1;
+            }
+
+            Ok(())
+        })
+    }
+
+    pub(super) fn reverse_hierarchy_indices() -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::REVERSE_HIERARCHY_INDICES, &|context, infra, config| {
+            let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+
+            const HIERARCHY_LEVEL: &str = "hierarchy_level_";
+            let mut max_level = 0usize;
+            for trace in log.traces() {
+                let trace = trace.borrow();
+                for event in trace.events() {
+                    let event = event.borrow();
+                    for (key, _) in event.ordered_payload() {
+                        if key.starts_with(HIERARCHY_LEVEL) {
+                            let level = &key[HIERARCHY_LEVEL.len()..];
+                            let level = level.parse::<usize>().ok().unwrap();
+                            max_level = max_level.max(level);
+                        }
+                    }
+                }
+            }
+
+            for trace in log.traces() {
+                let trace = trace.borrow();
+                for event in trace.events() {
+                    let mut updates = vec![];
+                    let mut event = event.borrow_mut();
+                    if let Some(payload) = event.payload_map() {
+                        let keys = payload.keys().into_iter().filter(|k| k.starts_with(HIERARCHY_LEVEL));
+                        for key in keys {
+                            let level = &key[HIERARCHY_LEVEL.len()..].parse::<usize>().ok().unwrap();
+                            let new_level = max_level - level;
+                            let old_value = payload.get(key).unwrap().clone();
+                            let old_key = key.to_owned();
+
+                            updates.push((new_level, old_value, old_key));
+                        }
+                    }
+
+                    for update in &updates {
+                        event.payload_map_mut().unwrap().remove(&update.2);
+                    }
+
+                    for update in updates {
+                        let new_key = format!("{}{}", HIERARCHY_LEVEL, update.0);
+                        event.payload_map_mut().unwrap().insert(new_key, update.1);
+                    }
+                }
             }
 
             Ok(())

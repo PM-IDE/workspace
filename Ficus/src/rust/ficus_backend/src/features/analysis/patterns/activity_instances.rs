@@ -1,6 +1,16 @@
+use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
+use crate::event_log::core::event::event::EventPayloadValue;
+use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
+use crate::{
+    event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    pipelines::aliases::TracesActivities,
+    utils::user_data::{keys::DefaultKey, user_data::UserData},
+};
 use fancy_regex::Regex;
+use lazy_static::lazy_static;
 use once_cell::unsync::Lazy;
 use std::any::{Any, TypeId};
+use std::borrow::ToOwned;
 use std::sync::Mutex;
 use std::{
     cell::RefCell,
@@ -8,13 +18,6 @@ use std::{
     ops::DerefMut,
     rc::Rc,
     str::FromStr,
-};
-
-use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
-use crate::{
-    event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
-    pipelines::aliases::TracesActivities,
-    utils::user_data::{keys::DefaultKey, user_data::UserData},
 };
 
 #[derive(Debug, Clone)]
@@ -110,7 +113,7 @@ pub fn extract_activities_instances(
                 let mut found_activity = false;
                 for activities in activities_by_size.iter() {
                     for activity in activities {
-                        if activity.borrow().event_classes.contains(&event_hash) {
+                        if activity.borrow().event_classes().contains(&event_hash) {
                             current_activity = Some(Rc::clone(activity));
                             last_activity_start_index = Some(index.unwrap());
                             found_activity = true;
@@ -128,7 +131,7 @@ pub fn extract_activities_instances(
                 continue;
             }
 
-            if !current_activity.as_ref().unwrap().borrow().event_classes.contains(&event_hash) {
+            if !current_activity.as_ref().unwrap().borrow().event_classes().contains(&event_hash) {
                 let mut new_set = current_event_classes.clone();
                 new_set.insert(event_hash);
 
@@ -139,7 +142,7 @@ pub fn extract_activities_instances(
                     }
 
                     for activity in activities_set {
-                        if new_set.is_subset(&activity.borrow().event_classes) {
+                        if new_set.is_subset(&activity.borrow().event_classes()) {
                             current_activity = Some(Rc::clone(activity));
                             found_new_set = true;
                             break;
@@ -236,7 +239,7 @@ fn split_activities_nodes_by_size(activities: &mut Vec<Rc<RefCell<ActivityNode>>
         result
             .get_mut(i)
             .unwrap()
-            .sort_by(|first, second| first.borrow().name.cmp(&second.borrow().name));
+            .sort_by(|first, second| first.borrow().name().cmp(&second.borrow().name()));
     }
 
     result
@@ -253,7 +256,7 @@ fn narrow_activity(
 
     let mut q = VecDeque::new();
     let node = node_ptr.borrow();
-    for child in &node.children {
+    for child in node.children() {
         q.push_back(Rc::clone(child));
     }
 
@@ -262,9 +265,9 @@ fn narrow_activity(
         let current_activity_ptr = q.pop_front().unwrap();
         let current_activity = current_activity_ptr.borrow();
 
-        if current_activity.event_classes.is_superset(&activities_set) {
+        if current_activity.event_classes().is_superset(&activities_set) {
             result.push(Rc::clone(&current_activity_ptr));
-            for child_node in &current_activity.children {
+            for child_node in current_activity.children() {
                 q.push_back(Rc::clone(child_node));
             }
         }
@@ -366,6 +369,10 @@ impl ActivityInstancesKeys {
 
 static mut KEYS: Mutex<Lazy<ActivityInstancesKeys>> = Mutex::new(Lazy::new(|| ActivityInstancesKeys::new()));
 
+lazy_static! {
+    pub static ref HIERARCHY_LEVEL: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
+}
+
 pub fn create_new_log_from_activities_instances<TLog, TEventFactory>(
     log: &TLog,
     instances: &Vec<Vec<ActivityInTraceInfo>>,
@@ -377,6 +384,7 @@ where
     TLog::TEvent: 'static,
     TEventFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
 {
+    let level = log.user_data().get(HIERARCHY_LEVEL.key()).unwrap_or(&0usize);
     let mut new_log = TLog::empty();
 
     for (instances, trace) in instances.iter().zip(log.traces()) {
@@ -409,6 +417,14 @@ where
             let mut event = ptr.borrow_mut();
             let user_data = event.user_data();
 
+            for event in &underlying_events {
+                execute_with_underlying_events::<TLog>(event, &mut |event| {
+                    let payload_value = EventPayloadValue::String(activity.node.borrow().id().clone());
+                    let key = format!("hierarchy_level_{}", level);
+                    event.add_or_update_payload(key, payload_value);
+                })
+            }
+
             unsafe {
                 user_data.put_any(&KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>(), underlying_events);
             }
@@ -419,6 +435,7 @@ where
         new_log.push(new_trace_ptr)
     }
 
+    new_log.user_data_mut().put_concrete(HIERARCHY_LEVEL.key(), level + 1);
     new_log
 }
 
@@ -524,7 +541,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
     let mut activities_to_logs: HashMap<String, Rc<RefCell<TLog>>> = HashMap::new();
     for (trace_activities, trace) in activities.iter().zip(log.traces()) {
         let activity_handler = |activity_info: &ActivityInTraceInfo| {
-            if activity_level != activity_info.node.borrow().level {
+            if activity_level != activity_info.node.borrow().level() {
                 return;
             }
 
@@ -541,14 +558,14 @@ fn create_log_from_traces_activities<TLog: EventLog>(
                 new_trace.push(Rc::new(RefCell::new(events[i].borrow().clone())));
             }
 
-            let name = &activity_info.node.borrow().name;
-            if let Some(activity_log) = activities_to_logs.get_mut(name) {
+            let name = activity_info.node.borrow().name().as_ref().as_ref().to_owned();
+            if let Some(activity_log) = activities_to_logs.get_mut(&name) {
                 activity_log.borrow_mut().push(Rc::clone(&new_trace_ptr));
             } else {
                 let log = Rc::new(RefCell::new(TLog::empty()));
                 log.borrow_mut().push(Rc::clone(&new_trace_ptr));
 
-                activities_to_logs.insert(name.to_owned(), log);
+                activities_to_logs.insert(name, log);
             }
         };
 
@@ -662,6 +679,22 @@ where
     }
 
     new_log
+}
+
+pub fn execute_with_underlying_events<TLog>(event: &Rc<RefCell<TLog::TEvent>>, action: &mut impl FnMut(&mut TLog::TEvent))
+where
+    TLog: EventLog,
+{
+    let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
+
+    let mut event = event.borrow_mut();
+    if let Some(underlying_events) = event.user_data().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
+        for underlying_event in underlying_events {
+            execute_with_underlying_events::<TLog>(underlying_event, action);
+        }
+    } else {
+        action(&mut event);
+    }
 }
 
 pub fn substitute_underlying_events<TLog>(event: &Rc<RefCell<TLog::TEvent>>, trace: &mut TLog::TTrace)

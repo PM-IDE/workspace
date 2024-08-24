@@ -1,7 +1,8 @@
+using Core.Container;
+using Core.CppProcfiler;
+using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler.ShadowStacks;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.CppProcfiler;
 
@@ -14,7 +15,7 @@ public class FrameInfo
 
   public string Serialize(SessionGlobalData? globalData)
   {
-    var fqnOrId = globalData?.MethodIdToFqn.GetValueOrDefault(FunctionId) switch
+    var fqnOrId = globalData?.FindMethodName(FunctionId) switch
     {
       { } fqn => fqn,
       _ => FunctionId.ToString()

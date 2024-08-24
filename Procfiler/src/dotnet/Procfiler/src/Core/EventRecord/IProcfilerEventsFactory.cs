@@ -1,22 +1,24 @@
+using Core.Constants.TraceEvents;
+using Core.Container;
+using Core.Events.EventRecord;
+using Core.EventsProcessing.Mutators;
+using Core.Utils;
 using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.TraceEvents;
 using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.EventsProcessing.Mutators;
 using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Core.EventRecord;
 
 public readonly record struct EventsCreationContext(EventRecordTime Time, long ManagedThreadId)
 {
-  public static EventsCreationContext CreateWithUndefinedStackTrace(EventRecord record) =>
+  public static EventsCreationContext CreateWithUndefinedStackTrace(global::Core.Events.EventRecord.EventRecord record) =>
     new(record.Time, record.ManagedThreadId);
 }
 
 public readonly ref struct FromFrameInfoCreationContext
 {
   public required FrameInfo FrameInfo { get; init; }
-  public required SessionGlobalData GlobalData { get; init; }
+  public required IGlobalDataWithStacks GlobalData { get; init; }
   public required long ManagedThreadId { get; init; }
 }
 
@@ -112,7 +114,7 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   private string ExtractMethodName(FromFrameInfoCreationContext context)
   {
     var methodId = context.FrameInfo.FunctionId;
-    if (!context.GlobalData.MethodIdToFqn.TryGetValue(methodId, out var fqn))
+    if (context.GlobalData.FindMethodName(methodId) is not { } fqn)
     {
       logger.LogTrace("Failed to get fqn for {FunctionId}", methodId);
       fqn = $"System.Undefined.{methodId}[instance.void..()]";
@@ -123,7 +125,14 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
 
   public void FillExistingEventWith(FromFrameInfoCreationContext context, EventRecordWithMetadata existingEvent)
   {
-    existingEvent.UpdateWith(context);
+    existingEvent.UpdateWith(new FromMethodEventRecordUpdateDto
+    {
+      IsStart = context.FrameInfo.IsStart,
+      LoggedAt = QpcUtil.ConvertQpcTimeToDateTimeUtc(context.FrameInfo.QpcTimeStamp, context.GlobalData),
+      QpcStamp = context.FrameInfo.QpcTimeStamp,
+      ManagedThreadId = context.ManagedThreadId
+    });
+
     var fqn = ExtractMethodName(context);
     existingEvent.EventName = CreateMethodStartOrEndEventName(existingEvent.EventClass, fqn);
     SetMethodNameInMetadata(existingEvent.Metadata, fqn);

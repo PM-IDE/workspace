@@ -1,6 +1,7 @@
+using Core.Builder;
+using Core.CppProcfiler;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.Processes.Builder;
 
 namespace Procfiler.Core.Processes;
 
@@ -51,7 +52,7 @@ public readonly struct DotnetProcessLauncherDto
     Arguments = context.Arguments,
     RedirectOutput = context.PrintProcessOutput,
     PathToDotnetExecutable = commandName,
-    CppProcfilerPath = locator.FindCppProcfilerPath(),
+    CppProcfilerPath = locator.FindCppProcfilerPath("CppProcfiler"),
     MethodsFilterRegex = context.CppProcfilerMethodsFilterRegex,
     CppProfilerMode = context.CppProfilerMode,
     UseDuringRuntimeFiltering = context.UseDuringRuntimeFiltering,

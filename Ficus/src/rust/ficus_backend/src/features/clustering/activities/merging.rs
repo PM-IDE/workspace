@@ -26,7 +26,7 @@ pub(super) fn merge_activities(
 
     for (activity, label) in processed.iter().zip(labels.iter()) {
         if let Some(label) = label {
-            activity_names_to_clusters.insert(activity.borrow().name.to_owned(), *label);
+            activity_names_to_clusters.insert(activity.borrow().name().to_owned(), *label);
 
             if let Some(cluster_activities) = clusters_to_activities.get_mut(label) {
                 cluster_activities.push(activity.clone());
@@ -47,11 +47,11 @@ pub(super) fn merge_activities(
         let mut new_event_classes_set = HashSet::new();
 
         for activity in cluster_activities {
-            for event_class in &activity.borrow().event_classes {
+            for event_class in activity.borrow().event_classes() {
                 new_event_classes_set.insert(*event_class);
             }
 
-            if let Some(repeat_set) = activity.borrow().repeat_set.as_ref() {
+            if let Some(repeat_set) = activity.borrow().repeat_set().as_ref() {
                 let trace = log.traces().get(repeat_set.trace_index).unwrap();
                 let events = trace.borrow();
                 let events = events.events();
@@ -68,13 +68,13 @@ pub(super) fn merge_activities(
         let mut new_activity_name = String::new();
         new_activity_name.push_str(create_cluster_name(*cluster).as_str());
 
-        let new_node = ActivityNode {
-            repeat_set: None,
-            event_classes: new_event_classes_set,
-            children: vec![],
-            level: cluster_activities[0].borrow().level,
-            name: new_activity_name,
-        };
+        let new_node = ActivityNode::new(
+            None,
+            new_event_classes_set,
+            vec![],
+            cluster_activities[0].borrow().level(),
+            Rc::new(Box::new(new_activity_name)),
+        );
 
         new_cluster_activities.insert(*cluster, Rc::new(RefCell::new(new_node)));
     }
@@ -82,11 +82,11 @@ pub(super) fn merge_activities(
     for trace_activities in traces_activities.iter_mut() {
         for i in 0..trace_activities.len() {
             let activity = trace_activities.get(i).unwrap();
-            if !activity_names_to_clusters.contains_key(&activity.node.borrow().name) {
+            if !activity_names_to_clusters.contains_key(activity.node.borrow().name()) {
                 continue;
             }
 
-            let cluster_label = activity_names_to_clusters.get(&activity.node.borrow().name).unwrap();
+            let cluster_label = activity_names_to_clusters.get(activity.node.borrow().name()).unwrap();
             if let Some(new_activity_node) = new_cluster_activities.get(cluster_label) {
                 let current_activity_in_trace = trace_activities.get(i).unwrap();
 
@@ -105,14 +105,14 @@ pub(super) fn merge_activities(
         }
 
         let mut index = 1;
-        let mut last_seen_activity = trace_activities.first().unwrap().node.borrow().name.to_owned();
+        let mut last_seen_activity = trace_activities.first().unwrap().node.borrow().name().to_owned();
 
         loop {
             if index >= trace_activities.len() {
                 break;
             }
 
-            let activity_name = trace_activities.get(index).unwrap().node.borrow().name.to_owned();
+            let activity_name = trace_activities.get(index).unwrap().node.borrow().name().to_owned();
             if last_seen_activity == activity_name {
                 let start_index = trace_activities.get(index).unwrap().start_pos;
                 let length = trace_activities.get(index).unwrap().length;

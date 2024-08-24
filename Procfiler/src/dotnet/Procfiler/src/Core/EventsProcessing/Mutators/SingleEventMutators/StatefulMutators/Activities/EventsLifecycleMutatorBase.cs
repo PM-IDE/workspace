@@ -1,9 +1,9 @@
-using Procfiler.Core.Collector;
-using Procfiler.Core.Constants.XesLifecycle;
-using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsProcessing.Mutators.Core;
-using Procfiler.Core.Exceptions;
-using Procfiler.Utils;
+using Core.Constants.XesLifecycle;
+using Core.Events.EventRecord;
+using Core.EventsProcessing.Mutators.Core;
+using Core.Exceptions;
+using Core.GlobalData;
+using Core.Utils;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities;
 
@@ -98,7 +98,7 @@ public abstract class EventsLifecycleMutatorBase : ISingleEventsLifecycleMutator
   }
 
   public void Process(
-    EventRecordWithMetadata eventRecord, SessionGlobalData context, object mutatorState)
+    EventRecordWithMetadata eventRecord, IGlobalData context, object mutatorState)
   {
     //todo: to state machine with "Stateless" nuget
     if (!myAllProcessableEvents.Contains(eventRecord.EventClass)) return;

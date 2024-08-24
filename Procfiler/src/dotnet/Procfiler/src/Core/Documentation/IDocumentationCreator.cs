@@ -1,5 +1,5 @@
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
+using Core.Container;
+using Core.Utils;
 
 namespace Procfiler.Core.Documentation;
 

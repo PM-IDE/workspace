@@ -1,9 +1,8 @@
+using Core.Utils;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler.ShadowStacks;
 using Procfiler.Core.EventRecord;
-using Procfiler.Core.EventsCollection;
-using Procfiler.Core.EventsCollection.ModificationSources;
-using Procfiler.Utils;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.MultipleEventsMutators;
 
@@ -12,7 +11,7 @@ public class CppStacksMethodsStartEndMutator(
   IProcfilerLogger logger,
   bool aggressiveReuse) : IMethodsStartEndProcessor
 {
-  public void Process(IEventsCollection events, SessionGlobalData context)
+  public void Process(IEventsCollection events, IGlobalDataWithStacks context)
   {
     if (context.Stacks is not ICppShadowStacks cppShadowStacks)
     {

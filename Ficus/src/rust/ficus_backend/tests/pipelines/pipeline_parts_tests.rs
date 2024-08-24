@@ -61,7 +61,8 @@ fn get_test_parts_names() -> Vec<String> {
         "ReadXesLogFromBytes",
         "ReadBxesLogFromBytes",
         "WriteXesLogToBytes",
-        "WriteBxesLogToBytes"
+        "WriteBxesLogToBytes",
+        "ReverseHierarchyIndices"
     ]
 }
 

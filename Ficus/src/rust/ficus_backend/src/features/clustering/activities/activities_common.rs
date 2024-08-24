@@ -114,21 +114,21 @@ fn create_activities_repr_from_subtraces<TLog: EventLog>(
     let mut processed = HashMap::new();
     for trace_activities in traces_activities.iter() {
         for activity in trace_activities {
-            if processed.contains_key(&activity.node.borrow().name) {
+            if processed.contains_key(activity.node.borrow().name()) {
                 continue;
             }
 
-            if activity.node.borrow().level != params.activity_level {
+            if activity.node.borrow().level() != params.activity_level {
                 continue;
             }
 
             let node = activity.node.borrow();
-            if !processed.contains_key(&node.name) {
-                processed.insert(node.name.to_owned(), (activity.node.clone(), HashMap::new()));
+            if !processed.contains_key(node.name()) {
+                processed.insert(node.name().to_owned(), (activity.node.clone(), HashMap::new()));
             }
 
-            let map: &mut HashMap<String, usize> = &mut processed.get_mut(&node.name).unwrap().1;
-            if let Some(repeat_set) = node.repeat_set.as_ref() {
+            let map: &mut HashMap<String, usize> = &mut processed.get_mut(node.name()).unwrap().1;
+            if let Some(repeat_set) = node.repeat_set().as_ref() {
                 let array = repeat_set.sub_array;
                 let trace = params.common_vis_params.log.traces().get(repeat_set.trace_index).unwrap();
                 let events = trace.borrow();
@@ -143,7 +143,12 @@ fn create_activities_repr_from_subtraces<TLog: EventLog>(
 
     processed
         .into_iter()
-        .map(|x| (x.0, (x.1 .0, x.1 .1.into_iter().map(|x| (x.0, x.1)).collect())))
+        .map(|x| {
+            (
+                x.0.as_ref().as_ref().to_owned(),
+                (x.1 .0, x.1 .1.into_iter().map(|x| (x.0, x.1)).collect()),
+            )
+        })
         .collect()
 }
 
@@ -168,7 +173,7 @@ fn create_dataset_internal(
     all_event_classes.sort();
 
     let mut processed = processed.iter().map(|x| x.1.clone()).collect::<ActivityNodeWithCoords>();
-    processed.sort_by(|first, second| first.0.borrow().name.cmp(&second.0.borrow().name));
+    processed.sort_by(|first, second| first.0.borrow().name().cmp(&second.0.borrow().name()));
 
     let mut vector = vec![];
     for activity in &processed {
@@ -209,15 +214,15 @@ pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
             let mut processed = HashMap::new();
             for trace_activities in traces_activities.iter() {
                 for activity in trace_activities {
-                    if processed.contains_key(&activity.node.borrow().name) {
+                    if processed.contains_key(activity.node.borrow().name().as_ref().as_ref()) {
                         continue;
                     }
 
-                    if activity.node.borrow().level != params.activity_level {
+                    if activity.node.borrow().level() != params.activity_level {
                         continue;
                     }
 
-                    let activity_event_classes = if let Some(repeat_set) = activity.node.borrow().repeat_set.as_ref() {
+                    let activity_event_classes = if let Some(repeat_set) = activity.node.borrow().repeat_set().as_ref() {
                         let trace = params.common_vis_params.log.traces().get(repeat_set.trace_index).unwrap();
                         let trace = trace.borrow();
                         let events = trace.events();
@@ -245,7 +250,7 @@ pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
                     };
 
                     processed.insert(
-                        activity.node.borrow().name.to_owned(),
+                        activity.node.borrow().name().as_ref().as_ref().to_owned(),
                         (activity.node.clone(), activity_event_classes.into_iter().map(|x| (x, 1)).collect()),
                     );
                 }

@@ -1,9 +1,9 @@
 using Autofac;
+using Core.Container;
+using Core.Utils;
 using Microsoft.Extensions.Logging;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
 using TestsUtil;
 
 namespace ProcfilerTests.Core;
@@ -31,7 +31,7 @@ public abstract class TestWithContainerBase
   protected TestWithContainerBase()
   {
     var assembly = typeof(IClrEventsCollector).Assembly;
-    var builder = ProcfilerContainerBuilder.BuildFromAssembly(LogLevel.Trace, assembly);
+    var builder = ProcfilerContainerBuilder.BuildFromAssembly(LogLevel.Trace, [assembly, typeof(ProgramEntryPoint).Assembly]);
     builder.RegisterInstance(TestLogger.CreateInstance()).As<IProcfilerLogger>();
     Container = builder.Build();
   }

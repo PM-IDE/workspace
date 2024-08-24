@@ -1,4 +1,4 @@
-using Procfiler.Core.CppProcfiler;
+using Core.CppProcfiler;
 using ProcfilerTests.Core;
 
 namespace ProcfilerTests.Tests.CppStacksTests;

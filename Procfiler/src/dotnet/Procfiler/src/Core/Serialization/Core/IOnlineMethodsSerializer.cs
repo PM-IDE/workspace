@@ -1,5 +1,5 @@
 using Procfiler.Commands.CollectClrEvents.Split;
-using Procfiler.Core.EventsCollection;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Core.Serialization.Core;
 

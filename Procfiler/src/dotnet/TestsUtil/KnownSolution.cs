@@ -2,25 +2,29 @@
 
 public class KnownSolution
 {
-  private const string TargetFramework = "net6.0";
+  private const string TargetFramework = "net8.0";
 
-  public static KnownSolution ConsoleApp1 { get; } = new("ConsoleApp1", TargetFramework, 15_000);
-  public static KnownSolution TaskTestProject1 { get; } = new("TaskTestProject1", TargetFramework, 15_000);
-  public static KnownSolution ExceptionTryCatchFinally { get; } = new("ExceptionTryCatchFinally", TargetFramework, 15_000);
-  public static KnownSolution Sockets { get; } = new("Sockets", TargetFramework, 15_000);
-  public static KnownSolution FileWriteProject { get; } = new("FileWriteProject", TargetFramework, 15_000);
-  public static KnownSolution DynamicAssemblyLoading { get; } = new("DynamicAssemblyLoading", TargetFramework, 15_000);
-  public static KnownSolution DynamicAssemblyCreation { get; } = new("DynamicAssemblyCreation", TargetFramework, 15_000);
-  public static KnownSolution ExceptionTryCatchFinallyWhen { get; } = new("ExceptionTryCatchFinallyWhen", TargetFramework, 15_000);
-  public static KnownSolution FinalizableObject { get; } = new("FinalizableObject", TargetFramework, 15_000);
-  public static KnownSolution IntensiveThreadPoolUse { get; } = new("IntensiveThreadPoolUse", TargetFramework, 15_000);
-  public static KnownSolution UnsafeFixed { get; } = new("UnsafeFixed", TargetFramework, 15_000);
-  public static KnownSolution SystemArrayPooling { get; } = new("SystemArrayPooling", TargetFramework, 15_000);
-  public static KnownSolution NotExistingAssemblyLoading { get; } = new("NotExistingAssemblyLoading", TargetFramework, 15_000);
-  public static KnownSolution LohAllocations { get; } = new("LOHAllocations", TargetFramework, 15_000);
-  public static KnownSolution HttpRequests { get; } = new("HttpRequests", TargetFramework, 15_000);
-  public static KnownSolution SimpleAsyncAwait { get; } = new("SimpleAsyncAwait", TargetFramework, 15_000);
-  public static KnownSolution NotSimpleAsyncAwait { get; } = new("NotSimpleAsyncAwait", TargetFramework, 15_000);
+  public static KnownSolution ConsoleApp1 { get; } = new("ConsoleApp1");
+  public static KnownSolution TaskTestProject1 { get; } = new("TaskTestProject1");
+  public static KnownSolution ExceptionTryCatchFinally { get; } = new("ExceptionTryCatchFinally");
+  public static KnownSolution Sockets { get; } = new("Sockets");
+  public static KnownSolution FileWriteProject { get; } = new("FileWriteProject");
+  public static KnownSolution DynamicAssemblyLoading { get; } = new("DynamicAssemblyLoading");
+  public static KnownSolution DynamicAssemblyCreation { get; } = new("DynamicAssemblyCreation");
+  public static KnownSolution ExceptionTryCatchFinallyWhen { get; } = new("ExceptionTryCatchFinallyWhen");
+  public static KnownSolution FinalizableObject { get; } = new("FinalizableObject");
+  public static KnownSolution IntensiveThreadPoolUse { get; } = new("IntensiveThreadPoolUse");
+  public static KnownSolution UnsafeFixed { get; } = new("UnsafeFixed");
+  public static KnownSolution SystemArrayPooling { get; } = new("SystemArrayPooling");
+  public static KnownSolution NotExistingAssemblyLoading { get; } = new("NotExistingAssemblyLoading");
+  public static KnownSolution LohAllocations { get; } = new("LOHAllocations");
+  public static KnownSolution HttpRequests { get; } = new("HttpRequests");
+  public static KnownSolution SimpleAsyncAwait { get; } = new("SimpleAsyncAwait");
+  public static KnownSolution NotSimpleAsyncAwait { get; } = new("NotSimpleAsyncAwait");
+  public static KnownSolution AsyncAwait { get; } = new("AsyncAwait");
+  public static KnownSolution AsyncAwaitTaskFactoryNew { get; } = new("AsyncAwaitTaskFactoryNew");
+  public static KnownSolution AwaitForeach { get; } = new("AwaitForeach");
+  public static KnownSolution AsyncDisposable { get; } = new("AsyncDisposable");
 
 
   public static IEnumerable<KnownSolution> AllSolutions { get; } = new[]
@@ -51,7 +55,7 @@ public class KnownSolution
   public string NamespaceFilterPattern { get; }
 
 
-  private KnownSolution(string name, string tfm, int expectedEventsCount)
+  private KnownSolution(string name, string tfm = TargetFramework, int expectedEventsCount = 15_000)
   {
     Name = name;
     Tfm = tfm;

@@ -1,17 +1,17 @@
 using Autofac;
+using Core.Events.EventRecord;
+using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.Collector;
-using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.SplitByMethod;
-using Procfiler.Utils;
 using ProcfilerTests.Core;
 
 namespace ProcfilerTests.Tests.SplitByMethods;
 
 public static class SplitByMethodsTestUtil
 {
-  public static IReadOnlyDictionary<string, IReadOnlyList<IReadOnlyList<EventRecordWithMetadata>>> SplitByMethods(
+  public static IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> SplitByMethods(
     CollectedEvents events, IContainer container, string filterPattern)
   {
     var mainThreadEvents = TestUtil.FindEventsForMainThread(events.Events);

@@ -1,13 +1,14 @@
-﻿using Procfiler.Core.Collector;
-using Procfiler.Core.CppProcfiler;
-using Procfiler.Core.InstrumentalProfiler;
+﻿using Core.Collector;
+using Core.CppProcfiler;
+using Core.InstrumentalProfiler;
+using Core.Utils;
 using Procfiler.Utils;
 
 namespace Procfiler.Commands.CollectClrEvents.Base;
 
 public partial class CollectCommandBase
 {
-  protected void AddCommonOptions(Command command)
+  private void AddCommonOptions(Command command)
   {
     command.AddOption(ProcessIdOption);
     command.AddOption(CommandNameOption);

@@ -1,7 +1,7 @@
-using Procfiler.Core.Constants.TraceEvents;
-using Procfiler.Core.EventsProcessing.Mutators.Core.Passes;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
+using Core.Constants.TraceEvents;
+using Core.Container;
+using Core.EventsProcessing.Mutators.Core.Passes;
+using Core.Utils;
 
 namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Sockets;
 

@@ -3,7 +3,8 @@ using Procfiler.Commands.CollectClrEvents;
 using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.Collector;
-using Procfiler.Core.EventsCollection;
+using Procfiler.Core.EventRecord.EventsCollection;
+using TestsUtil;
 
 namespace ProcfilerTests.Core;
 

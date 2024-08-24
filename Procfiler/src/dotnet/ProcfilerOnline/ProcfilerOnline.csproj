@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler" AssemblyFile="$(SolutionDir)/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Confluent.Kafka" Version="2.5.2" />
+        <PackageReference Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.351802"/>
+        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7"/>
+    </ItemGroup>
+
+    <Target Name="BuildCppProcfilerOnline" AfterTargets="Build">
+        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\online\"
+                           TargetName="ProcfilerOnline"/>
+    </Target>
+
+    <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfilerOnline" Outputs="$(OutputPath)CppProcfilerOnline.dll">
+        <Copy SourceFiles="$(SolutionDir)\..\cpp\online\build\Release\CppProcfilerOnline.dll" DestinationFolder="$(OutputPath)"/>
+    </Target>
+</Project>

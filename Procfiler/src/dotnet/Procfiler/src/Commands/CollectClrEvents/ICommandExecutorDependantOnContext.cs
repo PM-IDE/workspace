@@ -1,10 +1,11 @@
-﻿using Procfiler.Commands.CollectClrEvents.Context;
+﻿using Core.Builder;
+using Core.Container;
+using Core.CppProcfiler;
+using Core.Utils;
+using Procfiler.Commands.CollectClrEvents.Context;
 using Procfiler.Core.Collector;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.Processes;
-using Procfiler.Core.Processes.Builder;
-using Procfiler.Utils;
-using Procfiler.Utils.Container;
 
 namespace Procfiler.Commands.CollectClrEvents;
 

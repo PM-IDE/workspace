@@ -1,11 +1,12 @@
-﻿using Procfiler.Core.EventsCollection;
-using Procfiler.Utils;
+﻿using Core.Events.EventRecord;
+using Core.Utils;
+using Procfiler.Core.EventRecord.EventsCollection;
 
 namespace Procfiler.Core.Collector;
 
 public record EventSessionInfo(IEnumerable<IEventsCollection> Events, SessionGlobalData GlobalData);
 
-public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, long qpcFreq, DateTime utcSyncTime)
+public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, long qpcFreq, DateTime utcSyncTime) : IGlobalDataWithStacks
 {
   private readonly Dictionary<long, string> myMethodIdToFqn = new();
   private readonly Dictionary<long, string> myTypeIdsToNames = new();
@@ -14,11 +15,11 @@ public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, lon
   public long QpcSyncTime { get; } = qpcSyncTime;
   public long QpcFreq { get; } = qpcFreq;
   public DateTime UtcSyncTime { get; } = utcSyncTime;
-
-  public IReadOnlyDictionary<long, string> TypeIdToNames => myTypeIdsToNames;
-  public IReadOnlyDictionary<long, string> MethodIdToFqn => myMethodIdToFqn;
   public IShadowStacks Stacks { get; } = shadowStacks;
 
+
+  public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
+  public string? FindMethodName(long methodId) => myMethodIdToFqn.GetValueOrDefault(methodId);
 
   public void AddInfoFrom(EventWithGlobalDataUpdate update)
   {
