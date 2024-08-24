@@ -60,7 +60,7 @@ public class AppExitHandler : IAppExitHandler
       }
       catch (Exception ex)
       {
-        myLogger.LogError(ex, "Failed to process process ref");
+        myLogger.LogWarning(ex, "Failed to process process ref");
       }
     }
   }
