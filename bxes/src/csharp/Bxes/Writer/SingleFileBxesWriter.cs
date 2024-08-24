@@ -23,6 +23,6 @@ public class SingleFileBxesWriter(ISystemMetadata metadata) : IBxesWriter
       BxesWriteUtils.WriteTracesVariants(log, context);
     });
 
-    BxesWriteUtils.CreateZipArchive(new[] { cookie.Path }, savePath);
+    BxesWriteUtils.CreateZipArchive([cookie.Path], savePath);
   }
 }

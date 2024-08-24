@@ -191,8 +191,8 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     const int CountPos = sizeof(uint);
 
     BxesWriteUtils.WriteCount(myTracesWriter, CountPos, myTracesVariantsCount);
-    BxesWriteUtils.WriteCount(myValuesWriter, CountPos, (uint)myContext.ValuesIndices.Count);
-    BxesWriteUtils.WriteCount(myKeyValuesWriter, CountPos, (uint)myContext.KeyValueIndices.Count);
+    BxesWriteUtils.WriteCount(myValuesWriter, CountPos, (uint)myContext.Metadata.ValuesIndices.Count);
+    BxesWriteUtils.WriteCount(myKeyValuesWriter, CountPos, (uint)myContext.Metadata.KeyValueIndices.Count);
   }
 
   private void WriteMetadata()

@@ -50,9 +50,9 @@ public class BxesArtifactModelsListValue(List<BxesArtifactItem> items)
 
     foreach (var item in items)
     {
-      context.Writer.Write(context.ValuesIndices[new BxesStringValue(item.Model)]);
-      context.Writer.Write(context.ValuesIndices[new BxesStringValue(item.Instance)]);
-      context.Writer.Write(context.ValuesIndices[new BxesStringValue(item.Transition)]);
+      context.Writer.Write(context.Metadata.ValuesIndices[new BxesStringValue(item.Model)]);
+      context.Writer.Write(context.Metadata.ValuesIndices[new BxesStringValue(item.Instance)]);
+      context.Writer.Write(context.Metadata.ValuesIndices[new BxesStringValue(item.Transition)]);
     }
   }
 

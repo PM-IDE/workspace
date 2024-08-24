@@ -5,11 +5,16 @@ namespace Bxes.Writer;
 
 public record AttributeKeyValue(BxesStringValue Key, BxesValue Value);
 
+public readonly struct BxesWriteMetadata
+{
+  public required Dictionary<BxesValue, uint> ValuesIndices { get; init; }
+  public required Dictionary<AttributeKeyValue, uint> KeyValueIndices { get; init; }
+}
+
 public readonly struct BxesWriteContext
 {
   public BinaryWriter Writer { get; }
-  public Dictionary<BxesValue, uint> ValuesIndices { get; }
-  public Dictionary<AttributeKeyValue, uint> KeyValueIndices { get; }
+  public BxesWriteMetadata Metadata { get; }
   public LogValuesEnumerator ValuesEnumerator { get; }
 
 
@@ -20,19 +25,25 @@ public readonly struct BxesWriteContext
     LogValuesEnumerator enumerator)
   {
     Writer = writer;
-    ValuesIndices = valuesIndices;
-    KeyValueIndices = keyValueIndices;
     ValuesEnumerator = enumerator;
+    Metadata = new BxesWriteMetadata
+    {
+      ValuesIndices = valuesIndices,
+      KeyValueIndices = keyValueIndices
+    };
   }
 
   public BxesWriteContext(BinaryWriter binaryWriter, LogValuesEnumerator enumerator)
   {
     Writer = binaryWriter;
-    ValuesIndices = new Dictionary<BxesValue, uint>();
-    KeyValueIndices = new Dictionary<AttributeKeyValue, uint>();
     ValuesEnumerator = enumerator;
+    Metadata = new BxesWriteMetadata
+    {
+      ValuesIndices = [],
+      KeyValueIndices = []
+    };
   }
 
 
-  public BxesWriteContext WithWriter(BinaryWriter writer) => new(writer, ValuesIndices, KeyValueIndices, ValuesEnumerator);
+  public BxesWriteContext WithWriter(BinaryWriter writer) => new(writer, Metadata.ValuesIndices, Metadata.KeyValueIndices, ValuesEnumerator);
 }

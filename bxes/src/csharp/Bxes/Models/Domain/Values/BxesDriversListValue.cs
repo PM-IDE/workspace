@@ -52,8 +52,8 @@ public class BxesDriversListValue(List<BxesDriver> drivers)
     foreach (var driver in drivers)
     {
       context.Writer.Write(driver.Amount);
-      context.Writer.Write(context.ValuesIndices[new BxesStringValue(driver.Name)]);
-      context.Writer.Write(context.ValuesIndices[new BxesStringValue(driver.Type)]);
+      context.Writer.Write(context.Metadata.ValuesIndices[new BxesStringValue(driver.Name)]);
+      context.Writer.Write(context.Metadata.ValuesIndices[new BxesStringValue(driver.Type)]);
     }
   }
 
