@@ -119,7 +119,7 @@ fn get_top_level_activities_event_classes(activities: &Vec<Rc<RefCell<ActivityNo
     activities
         .iter()
         .map(|node| {
-            let mut vec: Vec<u64> = Vec::from_iter(node.borrow().event_classes.iter().map(|event_class| *event_class));
+            let mut vec: Vec<u64> = Vec::from_iter(node.borrow().event_classes().iter().map(|event_class| *event_class));
             vec.sort();
             vec
         })
