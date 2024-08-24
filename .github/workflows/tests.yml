@@ -75,7 +75,7 @@ jobs:
         run: docker-compose -f Ficus/docker/tests/Tests.Python.Dockercompose up --exit-code-from python_tests
 
   online-procfiler-tests:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
