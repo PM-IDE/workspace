@@ -72,7 +72,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         
       - name: Run tests
-        run: docker-compose -f Ficus/docker/tests/Tests.Python.Dockercompose up --exit-code-from python_tests
+        run: docker compose -f Ficus/docker/tests/Tests.Python.Dockercompose up --exit-code-from python_tests
 
   online-procfiler-tests:
     runs-on: ubuntu-latest
@@ -84,4 +84,4 @@ jobs:
         uses: docker/setup-qemu-action@v3
         
       - name: Run Online Procfiler Tests
-        run: docker-compose -f ./Procfiler/docker/docker-compose.tests.yml up --force-recreate --build --exit-code-from online-procfiler-tests
+        run: docker compose -f ./Procfiler/docker/docker-compose.tests.yml up --force-recreate --build --exit-code-from online-procfiler-tests
