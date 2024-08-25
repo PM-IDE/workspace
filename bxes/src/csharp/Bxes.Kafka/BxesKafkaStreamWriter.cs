@@ -6,10 +6,16 @@ using Confluent.Kafka;
 
 namespace Bxes.Kafka;
 
-
-public class BxesKafkaStreamWriter<TEvent>(string topicName) : IBxesStreamWriter where TEvent : IEvent
+public class BxesKafkaStreamWriter<TEvent>(string topicName, string bootstrapServers) : IBxesStreamWriter where TEvent : IEvent
 {
-  private readonly IProducer<Guid, BxesKafkaEvent> myProducer;
+  private readonly IProducer<Guid, BxesKafkaEvent> myProducer = new ProducerBuilder<Guid, BxesKafkaEvent>(
+    new ProducerConfig
+    {
+      BootstrapServers = bootstrapServers
+    })
+    .SetKeySerializer(GuidSerializer.Instance)
+    .SetValueSerializer(JsonSerializer<BxesKafkaEvent>.Instance)
+    .Build();
 
   private readonly List<TEvent> myTraceEvents = [];
   private readonly BxesWriteMetadata myWriteMetadata = new()
