@@ -9,7 +9,7 @@ public abstract class BxesValue
   public abstract TypeIds TypeId { get; }
   public abstract void WriteTo(BxesWriteContext context);
 
-  public static unsafe BxesValue Parse(BinaryReader reader, List<BxesValue> parsedValues)
+  public static BxesValue Parse(BinaryReader reader, List<BxesValue> parsedValues)
   {
     var valuesOffset = reader.BaseStream.Position;
 

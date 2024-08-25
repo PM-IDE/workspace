@@ -22,7 +22,7 @@ public class MultipleFilesBxesWriter(ISystemMetadata metadata) : IBxesWriter
 
     ExecuteWithFile(savePath, BxesConstants.SystemMetadataFileName, version, bw =>
     {
-      var descriptors = context.ValuesEnumerator.OrderedValueAttributes;
+      var descriptors = context.Metadata.ValuesEnumerator.OrderedValueAttributes;
       BxesWriteUtils.WriteValuesAttributesDescriptors(descriptors, context.WithWriter(bw));
     });
 

@@ -66,12 +66,12 @@ internal static class BxesWriteUtils
   {
     WriteValueIfNeeded(new BxesStringValue(@event.Name), valuesContext);
 
-    foreach (var value in valuesContext.ValuesEnumerator.EnumerateEventValues(@event))
+    foreach (var value in valuesContext.Metadata.ValuesEnumerator.EnumerateEventValues(@event))
     {
       WriteValueIfNeeded(value, valuesContext);
     }
 
-    foreach (var keyValue in valuesContext.ValuesEnumerator.EnumerateEventKeyValuePairs(@event))
+    foreach (var keyValue in valuesContext.Metadata.ValuesEnumerator.EnumerateEventKeyValuePairs(@event))
     {
       if (keyValuesContext.Metadata.KeyValueIndices.ContainsKey(keyValue)) continue;
 
@@ -90,7 +90,7 @@ internal static class BxesWriteUtils
 
   public static void WriteKeyValuePairs(IEventLog log, BxesWriteContext context)
   {
-    var pairs = context.ValuesEnumerator.EnumerateKeyValues(log);
+    var pairs = context.Metadata.ValuesEnumerator.EnumerateKeyValues(log);
     WriteCollectionAndCount(pairs, context, WriteKeyValuePairIfNeeded, () => (IndexType)context.Metadata.KeyValueIndices.Count);
   }
 
@@ -209,7 +209,7 @@ internal static class BxesWriteUtils
     context.Writer.WriteLeb128Unsigned(context.Metadata.ValuesIndices[new BxesStringValue(@event.Name)]);
     context.Writer.Write(@event.Timestamp);
 
-    var (valueAttrs, defaultAttrs, defaultAttrsCount) = context.ValuesEnumerator.SplitEventAttributesOrThrow(@event);
+    var (valueAttrs, defaultAttrs, defaultAttrsCount) = context.Metadata.ValuesEnumerator.SplitEventAttributesOrThrow(@event);
     if (valueAttrs.Count != 0)
     {
       WriteEventValueAttributes(valueAttrs, context);
@@ -229,7 +229,7 @@ internal static class BxesWriteUtils
 
   public static void WriteValues(IEventLog log, BxesWriteContext context)
   {
-    var values = context.ValuesEnumerator.EnumerateValues(log);
+    var values = context.Metadata.ValuesEnumerator.EnumerateValues(log);
     WriteCollectionAndCount(values, context, WriteValueIfNeeded, () => (IndexType)context.Metadata.ValuesIndices.Count);
   }
 

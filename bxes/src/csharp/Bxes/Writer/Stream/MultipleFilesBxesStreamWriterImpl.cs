@@ -75,7 +75,7 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     writer.Write(myBxesVersion);
 
     BxesWriteUtils.WriteValuesAttributesDescriptors(
-      myContext.ValuesEnumerator.OrderedValueAttributes, myContext.WithWriter(writer));
+      myContext.Metadata.ValuesEnumerator.OrderedValueAttributes, myContext.WithWriter(writer));
   }
 
   public void HandleEvent(BxesStreamEvent @event)
@@ -197,12 +197,12 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
 
   private void WriteMetadata()
   {
-    foreach (var value in myContext.ValuesEnumerator.EnumerateMetadataValues(myMetadata))
+    foreach (var value in myContext.Metadata.ValuesEnumerator.EnumerateMetadataValues(myMetadata))
     {
       BxesWriteUtils.WriteValueIfNeeded(value, myContext.WithWriter(myValuesWriter));
     }
 
-    foreach (var kv in myContext.ValuesEnumerator.EnumerateMetadataKeyValuePairs(myMetadata))
+    foreach (var kv in myContext.Metadata.ValuesEnumerator.EnumerateMetadataKeyValuePairs(myMetadata))
     {
       BxesWriteUtils.WriteKeyValuePairIfNeeded(kv, myContext.WithWriter(myKeyValuesWriter));
     }
