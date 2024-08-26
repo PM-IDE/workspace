@@ -25,7 +25,7 @@ public static class BxesReadUtils
   {
     var filePath = Path.GetTempFileName();
     PathUtil.EnsureDeleted(filePath);
-    
+
     using var archive = ZipFile.OpenRead(path);
     archive.Entries.First().ExtractToFile(filePath);
 
@@ -38,7 +38,7 @@ public static class BxesReadUtils
 
     for (uint i = 0; i < valuesCount; ++i)
     {
-      context.Values.Add(BxesValue.Parse(context.Reader, context.Values));
+      context.Metadata.Values.Add(BxesValue.Parse(context.Reader, context.Metadata.Values));
     }
   }
 
@@ -50,7 +50,7 @@ public static class BxesReadUtils
     {
       var keyIndex = (uint)context.Reader.ReadLeb128Unsigned();
       var valueIndex = (uint)context.Reader.ReadLeb128Unsigned();
-      context.KeyValues.Add(new KeyValuePair<uint, uint>(keyIndex, valueIndex));
+      context.Metadata.KeyValues.Add(new KeyValuePair<uint, uint>(keyIndex, valueIndex));
     }
   }
 
@@ -71,8 +71,8 @@ public static class BxesReadUtils
     var propertiesCount = context.Reader.ReadUInt32();
     for (uint i = 0; i < propertiesCount; ++i)
     {
-      var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
-      var attr = new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]);
+      var kv = context.Metadata.KeyValues[(int)context.Reader.ReadUInt32()];
+      var attr = new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]);
       metadata.Properties.Add(attr);
     }
   }
@@ -84,9 +84,9 @@ public static class BxesReadUtils
     {
       metadata.Extensions.Add(new BxesExtension
       {
-        Name = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()],
-        Prefix = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()],
-        Uri = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()]
+        Name = (BxesStringValue)context.Metadata.Values[(int)context.Reader.ReadUInt32()],
+        Prefix = (BxesStringValue)context.Metadata.Values[(int)context.Reader.ReadUInt32()],
+        Uri = (BxesStringValue)context.Metadata.Values[(int)context.Reader.ReadUInt32()]
       });
     }
   }
@@ -102,8 +102,8 @@ public static class BxesReadUtils
 
       for (uint j = 0; j < globalsCount; ++j)
       {
-        var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
-        entityGlobals.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+        var kv = context.Metadata.KeyValues[(int)context.Reader.ReadUInt32()];
+        entityGlobals.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]));
       }
 
       metadata.Globals.Add(new BxesGlobal
@@ -119,13 +119,13 @@ public static class BxesReadUtils
     var classifiersCount = context.Reader.ReadUInt32();
     for (uint i = 0; i < classifiersCount; ++i)
     {
-      var classifierName = (BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()];
+      var classifierName = (BxesStringValue)context.Metadata.Values[(int)context.Reader.ReadUInt32()];
 
       var keys = new List<BxesStringValue>();
       var keysCount = context.Reader.ReadUInt32();
       for (uint j = 0; j < keysCount; ++j)
       {
-        keys.Add((BxesStringValue)context.Values[(int)context.Reader.ReadUInt32()]);
+        keys.Add((BxesStringValue)context.Metadata.Values[(int)context.Reader.ReadUInt32()]);
       }
 
       metadata.Classifiers.Add(new BxesClassifier
@@ -171,8 +171,8 @@ public static class BxesReadUtils
     var metadataCount = context.Reader.ReadUInt32();
     for (uint j = 0; j < metadataCount; ++j)
     {
-      var kv = context.KeyValues[(int)context.Reader.ReadUInt32()];
-      metadata.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+      var kv = context.Metadata.KeyValues[(int)context.Reader.ReadUInt32()];
+      metadata.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]));
     }
 
     var eventsCount = context.Reader.ReadUInt32();
@@ -186,9 +186,9 @@ public static class BxesReadUtils
     return new TraceVariantImpl(tracesCount, events, metadata);
   }
 
-  private static InMemoryEventImpl ReadEvent(BxesReadContext context)
+  public static InMemoryEventImpl ReadEvent(BxesReadContext context)
   {
-    var name = (BxesStringValue)context.Values[(int)context.Reader.ReadLeb128Unsigned()];
+    var name = (BxesStringValue)context.Metadata.Values[(int)context.Reader.ReadLeb128Unsigned()];
     var timestamp = context.Reader.ReadInt64();
 
     var eventAttributes = new List<AttributeKeyValue>();
@@ -196,7 +196,7 @@ public static class BxesReadUtils
     var valueAttributesCount = context.SystemMetadata.ValueAttributeDescriptors.Count;
     for (var i = 0; i < valueAttributesCount; ++i)
     {
-      var value = BxesValue.Parse(context.Reader, context.Values);
+      var value = BxesValue.Parse(context.Reader, context.Metadata.Values);
       var (expectedTypeId, valueAttrName) = context.SystemMetadata.ValueAttributeDescriptors[i];
 
       if (value is not BxesNullValue && value.TypeId != expectedTypeId)
@@ -214,8 +214,8 @@ public static class BxesReadUtils
 
     for (uint k = 0; k < attributesCount; ++k)
     {
-      var kv = context.KeyValues[(int)context.Reader.ReadLeb128Unsigned()];
-      eventAttributes.Add(new AttributeKeyValue((BxesStringValue)context.Values[(int)kv.Key], context.Values[(int)kv.Value]));
+      var kv = context.Metadata.KeyValues[(int)context.Reader.ReadLeb128Unsigned()];
+      eventAttributes.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]));
     }
 
     return new InMemoryEventImpl(timestamp, name, eventAttributes);

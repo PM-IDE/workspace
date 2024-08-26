@@ -3,22 +3,26 @@ using Bxes.Models.System;
 
 namespace Bxes.Reader;
 
+public struct BxesReadMetadata
+{
+  public required List<BxesValue> Values { get; init; }
+  public required List<KeyValuePair<uint, uint>> KeyValues { get; init; }
+}
+
 public readonly struct BxesReadContext(
   BinaryReader reader,
-  List<BxesValue> values,
-  List<KeyValuePair<uint, uint>> keyValues,
+  BxesReadMetadata readMetadata,
   ISystemMetadata metadata)
 {
   public BinaryReader Reader { get; } = reader;
-  public List<BxesValue> Values { get; } = values;
-  public List<KeyValuePair<uint, uint>> KeyValues { get; } = keyValues;
+  public BxesReadMetadata Metadata { get; } = readMetadata;
   public ISystemMetadata SystemMetadata { get; } = metadata;
 
 
-  public BxesReadContext(BinaryReader reader) : this(reader, [], [], new SystemMetadata())
+  public BxesReadContext(BinaryReader reader) : this(reader, new BxesReadMetadata { Values = [], KeyValues = [] }, new SystemMetadata())
   {
   }
 
 
-  public BxesReadContext WithReader(BinaryReader reader) => new(reader, Values, KeyValues, SystemMetadata);
+  public BxesReadContext WithReader(BinaryReader reader) => new(reader, Metadata, SystemMetadata);
 }
