@@ -1,17 +1,18 @@
 ﻿using Confluent.Kafka;
 using ProcfilerOnline.Core.Settings;
 using ProcfilerOnline.Integrations.Kafka;
+using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace OnlineProcfilerTests.IntegrationTests.Kafka;
 
 public class MethodExecutionKafkaConsumer : IDisposable
 {
-  private readonly IConsumer<Guid, MethodsExecutionKafkaMessage> myConsumer;
+  private readonly IConsumer<Guid, JsonMethodsExecutionKafkaMessage> myConsumer;
 
 
   public MethodExecutionKafkaConsumer(OnlineProcfilerSettings settings)
   {
-    myConsumer = new ConsumerBuilder<Guid, MethodsExecutionKafkaMessage>(
+    myConsumer = new ConsumerBuilder<Guid, JsonMethodsExecutionKafkaMessage>(
         new ConsumerConfig
         {
           BootstrapServers = settings.KafkaSettings.BootstrapServers,
@@ -21,16 +22,16 @@ public class MethodExecutionKafkaConsumer : IDisposable
         }
       )
       .SetKeyDeserializer(GuidSerializer.Instance)
-      .SetValueDeserializer(JsonSerializer<MethodsExecutionKafkaMessage>.Instance)
+      .SetValueDeserializer(JsonSerializer<JsonMethodsExecutionKafkaMessage>.Instance)
       .Build();
 
     myConsumer.Subscribe(settings.KafkaSettings.TopicName);
   }
 
 
-  public List<MethodsExecutionKafkaMessage> ConsumeAllEvents()
+  public List<JsonMethodsExecutionKafkaMessage> ConsumeAllEvents()
   {
-    var messages = new List<MethodsExecutionKafkaMessage>();
+    var messages = new List<JsonMethodsExecutionKafkaMessage>();
     while (true)
     {
       var result = myConsumer.Consume();

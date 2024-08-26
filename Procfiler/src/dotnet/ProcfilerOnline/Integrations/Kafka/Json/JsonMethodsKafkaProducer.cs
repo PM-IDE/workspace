@@ -6,15 +6,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Settings;
 
-namespace ProcfilerOnline.Integrations.Kafka;
+namespace ProcfilerOnline.Integrations.Kafka.Json;
 
-public class MethodsExecutionKafkaMessage
+public class JsonMethodsExecutionKafkaMessage
 {
   public required string MethodFullName { get; init; }
-  public required List<EventRecordWithMetadataKafkaDto> Events { get; init; }
+  public required List<JsonEventRecordWithMetadataKafkaDto> Events { get; init; }
 }
 
-public class EventRecordWithMetadataKafkaDto
+public class JsonEventRecordWithMetadataKafkaDto
 {
   public required long ManagedThreadId { get; init; }
   public required string EventClass { get; init; }
@@ -24,7 +24,7 @@ public class EventRecordWithMetadataKafkaDto
   public required Dictionary<string, string> Attributes { get; init; }
 
 
-  public static EventRecordWithMetadataKafkaDto FromEventRecord(EventRecordWithMetadata eventRecord) => new()
+  public static JsonEventRecordWithMetadataKafkaDto FromEventRecord(EventRecordWithMetadata eventRecord) => new()
   {
     Attributes = eventRecord.Metadata.ToDictionary(),
     Time = eventRecord.Time,
@@ -35,14 +35,16 @@ public class EventRecordWithMetadataKafkaDto
   };
 }
 
+public interface IJsonMethodsKafkaProducer : IKafkaProducer<Guid, JsonMethodsExecutionKafkaMessage>;
+
 [AppComponent]
-public class MethodsExecutionKafkaProducer(
+public class JsonMethodsKafkaProducer(
   IOptions<OnlineProcfilerSettings> settings,
   IProcfilerLogger logger
-) : IKafkaProducer<Guid, MethodsExecutionKafkaMessage>
+) : IJsonMethodsKafkaProducer
 {
-  private readonly Lazy<IProducer<Guid, MethodsExecutionKafkaMessage>> myProducer = new(() =>
-    new ProducerBuilder<Guid, MethodsExecutionKafkaMessage>(
+  private readonly Lazy<IProducer<Guid, JsonMethodsExecutionKafkaMessage>> myProducer = new(() =>
+    new ProducerBuilder<Guid, JsonMethodsExecutionKafkaMessage>(
       new ProducerConfig
       {
         BootstrapServers = settings.Value.KafkaSettings.BootstrapServers,
@@ -50,17 +52,17 @@ public class MethodsExecutionKafkaProducer(
       }
     )
     .SetKeySerializer(GuidSerializer.Instance)
-    .SetValueSerializer(JsonSerializer<MethodsExecutionKafkaMessage>.Instance)
+    .SetValueSerializer(JsonSerializer<JsonMethodsExecutionKafkaMessage>.Instance)
     .Build()
   );
 
 
-  public void Produce(Guid key, MethodsExecutionKafkaMessage value)
+  public void Produce(Guid key, JsonMethodsExecutionKafkaMessage value)
   {
     try
     {
       var topicName = settings.Value.KafkaSettings.TopicName;
-      var message = new Message<Guid, MethodsExecutionKafkaMessage>
+      var message = new Message<Guid, JsonMethodsExecutionKafkaMessage>
       {
         Key = key,
         Value = value,

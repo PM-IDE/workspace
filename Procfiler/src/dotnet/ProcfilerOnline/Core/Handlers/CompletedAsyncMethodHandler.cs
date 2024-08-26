@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Features;
 using ProcfilerOnline.Core.Settings;
 using ProcfilerOnline.Integrations.Kafka;
+using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace ProcfilerOnline.Core.Handlers;
 
@@ -15,7 +16,7 @@ public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedAsyncMethodHandler(
-  IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
+  IJsonMethodsKafkaProducer producer
 ) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
@@ -25,10 +26,10 @@ public class CompletedAsyncMethodHandler(
 
     foreach (var methodTrace in completedAsyncMethodEvent.MethodTraces)
     {
-      var message = new MethodsExecutionKafkaMessage
+      var message = new JsonMethodsExecutionKafkaMessage
       {
         MethodFullName = completedAsyncMethodEvent.StateMachineName,
-        Events = methodTrace.Select(EventRecordWithMetadataKafkaDto.FromEventRecord).ToList()
+        Events = methodTrace.Select(JsonEventRecordWithMetadataKafkaDto.FromEventRecord).ToList()
       };
 
       producer.Produce(Guid.NewGuid(), message);

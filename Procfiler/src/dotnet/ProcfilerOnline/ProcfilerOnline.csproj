@@ -18,6 +18,15 @@
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Reference Include="Bxes">
+            <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\$(Configuration)\net8.0\Bxes.dll</HintPath>
+        </Reference>
+        <Reference Include="Bxes.Kafka">
+            <HintPath>..\..\..\..\bxes\src\csharp\Bxes.Kafka\bin\$(Configuration)\net8.0\Bxes.Kafka.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
     <Target Name="BuildCppProcfilerOnline" AfterTargets="Build">
         <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\online\"
                            TargetName="ProcfilerOnline"/>
