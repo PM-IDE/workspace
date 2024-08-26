@@ -44,7 +44,11 @@ public readonly struct BxesWriteContext
     };
   }
 
+  public BxesWriteContext(BinaryWriter writer, BxesWriteMetadata metadata)
+  {
+    Writer = writer;
+    Metadata = metadata;
+  }
 
-  public BxesWriteContext WithWriter(BinaryWriter writer) =>
-    new(writer, Metadata.ValuesIndices, Metadata.KeyValueIndices, Metadata.ValuesEnumerator);
+  public BxesWriteContext WithWriter(BinaryWriter writer) => new(writer, Metadata);
 }

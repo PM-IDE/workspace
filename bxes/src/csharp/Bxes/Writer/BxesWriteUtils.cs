@@ -8,7 +8,7 @@ namespace Bxes.Writer;
 
 using IndexType = uint;
 
-internal static class BxesWriteUtils
+public static class BxesWriteUtils
 {
   private static void WriteCollectionAndCount<TElement>(
     IEnumerable<TElement> collection,
@@ -61,44 +61,70 @@ internal static class BxesWriteUtils
 
   public static void WriteBxesVersion(BinaryWriter writer, IndexType version) => writer.Write(version);
 
-  public static void WriteEventValues<TEvent>(
+  public static (int WrittenValuesCount, int WrittenKvCount) WriteEventValuesAndKeyValues<TEvent>(
     TEvent @event, BxesWriteContext valuesContext, BxesWriteContext keyValuesContext) where TEvent : IEvent
   {
-    WriteValueIfNeeded(new BxesStringValue(@event.Name), valuesContext);
+    var writtenValuesCount = WriteEventValues(@event, valuesContext);
+    var writtenKvCount = WriteEventKeyValues(@event, keyValuesContext);
+    return (writtenValuesCount, writtenKvCount);
+  }
+
+  public static int WriteEventValues<TEvent>(TEvent @event, BxesWriteContext valuesContext) where TEvent : IEvent
+  {
+    var writtenValuesCount = 0;
+    if (WriteValueIfNeeded(new BxesStringValue(@event.Name), valuesContext))
+    {
+      ++writtenValuesCount;
+    }
 
     foreach (var value in valuesContext.Metadata.ValuesEnumerator.EnumerateEventValues(@event))
     {
-      WriteValueIfNeeded(value, valuesContext);
+      if (WriteValueIfNeeded(value, valuesContext))
+      {
+        ++writtenValuesCount;
+      }
     }
 
-    foreach (var keyValue in valuesContext.Metadata.ValuesEnumerator.EnumerateEventKeyValuePairs(@event))
-    {
-      if (keyValuesContext.Metadata.KeyValueIndices.ContainsKey(keyValue)) continue;
-
-      WriteKeyValuePair(keyValue, keyValuesContext);
-    }
+    return writtenValuesCount;
   }
 
-  public static void WriteValueIfNeeded(BxesValue value, BxesWriteContext context)
+  public static int WriteEventKeyValues<TEvent>(TEvent @event, BxesWriteContext keyValuesContext) where TEvent : IEvent
   {
-    if (context.Metadata.ValuesIndices.ContainsKey(value)) return;
+    var writtenKvCount = 0;
+
+    foreach (var keyValue in keyValuesContext.Metadata.ValuesEnumerator.EnumerateEventKeyValuePairs(@event))
+    {
+      if (WriteKeyValuePairIfNeeded(keyValue, keyValuesContext))
+      {
+        ++writtenKvCount;
+      }
+    }
+
+    return writtenKvCount;
+  }
+
+  public static bool WriteValueIfNeeded(BxesValue value, BxesWriteContext context)
+  {
+    if (context.Metadata.ValuesIndices.ContainsKey(value)) return false;
 
     value.WriteTo(context);
 
     context.Metadata.ValuesIndices[value] = (IndexType)context.Metadata.ValuesIndices.Count;
+    return true;
   }
 
   public static void WriteKeyValuePairs(IEventLog log, BxesWriteContext context)
   {
     var pairs = context.Metadata.ValuesEnumerator.EnumerateKeyValues(log);
-    WriteCollectionAndCount(pairs, context, WriteKeyValuePairIfNeeded, () => (IndexType)context.Metadata.KeyValueIndices.Count);
+    WriteCollectionAndCount(pairs, context, (el, ctx) => WriteKeyValuePairIfNeeded(el, ctx), () => (IndexType)context.Metadata.KeyValueIndices.Count);
   }
 
-  public static void WriteKeyValuePairIfNeeded(AttributeKeyValue pair, BxesWriteContext context)
+  public static bool WriteKeyValuePairIfNeeded(AttributeKeyValue pair, BxesWriteContext context)
   {
-    if (context.Metadata.KeyValueIndices.ContainsKey(pair)) return;
+    if (context.Metadata.KeyValueIndices.ContainsKey(pair)) return false;
 
     WriteKeyValuePair(pair, context);
+    return true;
   }
 
   private static void WriteKeyValuePair(AttributeKeyValue pair, BxesWriteContext context)
@@ -230,7 +256,7 @@ internal static class BxesWriteUtils
   public static void WriteValues(IEventLog log, BxesWriteContext context)
   {
     var values = context.Metadata.ValuesEnumerator.EnumerateValues(log);
-    WriteCollectionAndCount(values, context, WriteValueIfNeeded, () => (IndexType)context.Metadata.ValuesIndices.Count);
+    WriteCollectionAndCount(values, context, (el, ctx) => WriteValueIfNeeded(el, ctx), () => (IndexType)context.Metadata.ValuesIndices.Count);
   }
 
   public static void ExecuteWithFile(string filePath, Action<BinaryWriter> writeAction)
