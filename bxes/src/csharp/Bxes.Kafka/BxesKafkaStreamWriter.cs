@@ -89,6 +89,7 @@ public class BxesKafkaStreamWriter<TEvent>(string topicName, ProducerConfig prod
         var keyIndex = myWriteMetadata.ValuesIndices[keyValue.Key];
         var valueIndex = myWriteMetadata.ValuesIndices[keyValue.Value];
 
+        myWriteMetadata.KeyValueIndices[keyValue] = (uint)myWriteMetadata.KeyValueIndices.Count;
         newKeyValues.Add((keyIndex, valueIndex));
       }
     }
