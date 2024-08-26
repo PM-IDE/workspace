@@ -1,18 +1,21 @@
-﻿using Confluent.Kafka;
+﻿using Bxes.Kafka;
+using Bxes.Models.Domain;
+using Confluent.Kafka;
 using ProcfilerOnline.Core.Settings;
-using ProcfilerOnline.Integrations.Kafka;
-using ProcfilerOnline.Integrations.Kafka.Json;
+using GuidSerializer = ProcfilerOnline.Integrations.Kafka.GuidSerializer;
 
 namespace OnlineProcfilerTests.IntegrationTests.Kafka;
 
 public class MethodExecutionKafkaConsumer : IDisposable
 {
-  private readonly IConsumer<Guid, JsonMethodsExecutionKafkaMessage> myConsumer;
+  private readonly IConsumer<Guid, byte[]> myConsumer;
+  private readonly BxesKafkaConsumer myBxesKafkaConsumer;
 
 
   public MethodExecutionKafkaConsumer(OnlineProcfilerSettings settings)
   {
-    myConsumer = new ConsumerBuilder<Guid, JsonMethodsExecutionKafkaMessage>(
+    myBxesKafkaConsumer = new BxesKafkaConsumer();
+    myConsumer = new ConsumerBuilder<Guid, byte[]>(
         new ConsumerConfig
         {
           BootstrapServers = settings.KafkaSettings.BootstrapServers,
@@ -22,22 +25,21 @@ public class MethodExecutionKafkaConsumer : IDisposable
         }
       )
       .SetKeyDeserializer(GuidSerializer.Instance)
-      .SetValueDeserializer(JsonSerializer<JsonMethodsExecutionKafkaMessage>.Instance)
       .Build();
 
     myConsumer.Subscribe(settings.KafkaSettings.TopicName);
   }
 
 
-  public List<JsonMethodsExecutionKafkaMessage> ConsumeAllEvents()
+  public List<List<IEvent>> ConsumeAllEvents()
   {
-    var messages = new List<JsonMethodsExecutionKafkaMessage>();
+    var messages = new List<List<IEvent>>();
     while (true)
     {
       var result = myConsumer.Consume();
       if (result.IsPartitionEOF) break;
 
-      messages.Add(result.Message.Value);
+      messages.Add(myBxesKafkaConsumer.Consume(result.Message.Value));
     }
 
     return messages;

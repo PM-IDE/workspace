@@ -29,18 +29,27 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
     foreach (var solution in solutions)
     {
       var globalData = ExecuteTest(solution) ?? throw new Exception();
-      var events = consumer.ConsumeAllEvents();
+      var events = consumer.ConsumeAllEvents()
+        .Select(trace =>
+          trace
+            .Select(e => new EventRecordWithMetadata(EventRecordTime.Default, e.Name.IndexOf('_') switch
+            {
+              -1 => e.Name,
+              var index => e.Name[..index]
+            }, -1, -1, new EventMetadata(e.Attributes.ToDictionary(a => a.Key.Value, a => a.Value.ToString())))
+            {
+              EventName = e.Name
+            })
+            .ToList()
+        )
+        .Where(t => t.Count > 0)
+        .ToList();
 
-      foreach (var @event in events.OrderBy(e => e.MethodFullName))
+      foreach (var trace in events.OrderBy(e => e.First().EventName))
       {
         var methodNamesToEvents = new Dictionary<string, List<List<EventRecordWithMetadata>>>
         {
-          [@event.MethodFullName] =
-          [
-            @event.Events
-              .Select(e => new EventRecordWithMetadata(e.Time, e.EventClass, e.ManagedThreadId, e.StackTraceId, new EventMetadata(e.Attributes)))
-              .ToList()
-          ]
+          [trace.First().EventName] = [trace]
         };
 
         var filter = new Regex(solution.NamespaceFilterPattern);
@@ -50,5 +59,12 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
     }
 
     return sb.ToString();
+  }
+
+  protected override void ExecuteBeforeContainerCreation()
+  {
+    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic");
+    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
+    Environment.SetEnvironmentVariable("ProduceEventsToKafka", "true");
   }
 }

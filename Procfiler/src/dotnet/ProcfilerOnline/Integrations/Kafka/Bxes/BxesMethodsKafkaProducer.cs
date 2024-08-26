@@ -2,6 +2,7 @@
 using Bxes.Writer.Stream;
 using Confluent.Kafka;
 using Core.Bxes;
+using Core.Container;
 using Core.Events.EventRecord;
 using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Settings;
@@ -15,6 +16,7 @@ public class BxesKafkaMethodsExecutionMessage
   public required List<EventRecordWithMetadata> Trace { get; init; }
 }
 
+[AppComponent]
 public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings) : IBxesMethodsKafkaProducer
 {
   private readonly IBxesStreamWriter myWriter = new BxesKafkaStreamWriter<BxesEvent>(
