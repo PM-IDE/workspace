@@ -1,9 +1,6 @@
 ﻿using Core.Container;
 using Core.Events.EventRecord;
-using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Features;
-using ProcfilerOnline.Core.Settings;
-using ProcfilerOnline.Integrations.Kafka;
 using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace ProcfilerOnline.Core.Handlers;

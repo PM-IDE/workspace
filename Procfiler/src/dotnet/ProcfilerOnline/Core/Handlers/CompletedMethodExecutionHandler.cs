@@ -1,6 +1,5 @@
 ﻿using Core.Container;
 using ProcfilerOnline.Core.Features;
-using ProcfilerOnline.Integrations.Kafka;
 using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace ProcfilerOnline.Core.Handlers;
