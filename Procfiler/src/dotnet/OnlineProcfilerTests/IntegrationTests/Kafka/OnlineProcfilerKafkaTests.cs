@@ -44,14 +44,17 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
             .ToList()
         )
         .Where(t => t.Count > 0)
+        .Select(trace =>
+        {
+          var firstEvent = trace.First();
+          var firstMethodId = firstEvent.TryGetMethodDetails()!.Value.MethodId;
+          var executedMethodName = globalData.FindMethodName(firstMethodId)!;
+          return (trace, executedMethodName);
+        })
         .ToList();
 
-      foreach (var trace in traces.OrderBy(e => e.First().EventName))
+      foreach (var (trace, executedMethodName) in traces.OrderBy(e => e.executedMethodName))
       {
-        var firstEvent = trace.First();
-        var firstMethodId = firstEvent.TryGetMethodDetails()!.Value.MethodId;
-        var executedMethodName = globalData.FindMethodName(firstMethodId)!;
-
         var methodNamesToEvents = new Dictionary<string, List<List<EventRecordWithMetadata>>>
         {
           [executedMethodName] = [trace]
