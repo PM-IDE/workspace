@@ -5,6 +5,7 @@ using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
+using ProcfilerOnline.Core.Mutators;
 using ProcfilerOnline.Core.Processors;
 
 namespace ProcfilerOnline.Core;
@@ -18,7 +19,8 @@ public interface IOnlineEventsProcessor
 public class OnlineEventsProcessorImpl(
   IProcfilerLogger logger,
   IThreadsMethodsProcessor methodsProcessor,
-  IAppExitHandler appExitHandler
+  IAppExitHandler appExitHandler,
+  IMethodBeginEndSingleMutator methodBeginEndSingleMutator
 ) : IOnlineEventsProcessor
 {
   public ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineContext commandContext)
@@ -75,7 +77,7 @@ public class OnlineEventsProcessorImpl(
       {
         logger.LogWarning("Processing method-event {EventName}", method.EventName);
 
-        var methodEvent = method.ConvertToMethodEndEvent();
+        var methodEvent = method.ConvertToMethodEndEvent(globalData, methodBeginEndSingleMutator);
         var context = new EventProcessingContext
         {
           TraceEvent = null,

@@ -8,8 +8,10 @@ using Core.Utils;
 
 namespace ProcfilerOnline.Core.Mutators;
 
+public interface IMethodBeginEndSingleMutator : ISingleEventMutator;
+
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]
-public class MethodBeginEndEventMutator : ISingleEventMutator
+public class MethodBeginEndEventMutator : IMethodBeginEndSingleMutator
 {
   private readonly Dictionary<string, string> myBeginFullNamesCache = new();
   private readonly Dictionary<string, string> myEndFullNamesCache = new();

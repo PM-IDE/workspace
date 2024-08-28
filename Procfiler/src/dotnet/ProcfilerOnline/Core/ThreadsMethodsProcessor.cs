@@ -4,6 +4,7 @@ using Core.Events.EventRecord;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Handlers;
+using ProcfilerOnline.Core.Mutators;
 using ProcfilerOnline.Core.Processors;
 
 namespace ProcfilerOnline.Core;
@@ -26,7 +27,8 @@ public class TargetMethodFrame(long methodId, string? methodFullName)
 public class ThreadsMethodsProcessor(
   IProcfilerLogger logger,
   ICompositeEventPipeStreamEventHandler handler,
-  IEventProcessingEntryPoint eventProcessingEntryPoint
+  IEventProcessingEntryPoint eventProcessingEntryPoint,
+  IMethodBeginEndSingleMutator methodBeginEndSingleMutator
 ) : IThreadsMethodsProcessor
 {
   private readonly Dictionary<long, Stack<TargetMethodFrame>> myStacksPerThreads = new();
@@ -49,7 +51,7 @@ public class ThreadsMethodsProcessor(
     {
       ProcessInternal(context with
       {
-        Event = threadStack.Peek().InnerEvents.First().ConvertToMethodEndEvent()
+        Event = threadStack.Peek().InnerEvents.First().ConvertToMethodEndEvent(context.SharedData, methodBeginEndSingleMutator)
       });
     }
 

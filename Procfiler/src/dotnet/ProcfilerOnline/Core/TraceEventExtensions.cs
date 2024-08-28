@@ -1,4 +1,5 @@
 ﻿using Core.Events.EventRecord;
+using ProcfilerOnline.Core.Mutators;
 
 namespace ProcfilerOnline.Core;
 
@@ -49,10 +50,18 @@ public static class TraceEventExtensions
     return true;
   }
 
-  public static EventRecordWithMetadata ConvertToMethodEndEvent(this EventRecordWithMetadata eventRecord)
+  public static EventRecordWithMetadata ConvertToMethodEndEvent(
+    this EventRecordWithMetadata eventRecord, ISharedEventPipeStreamData globalData, IMethodBeginEndSingleMutator mutator)
   {
+    if (eventRecord.EventClass is not OnlineProcfilerConstants.CppMethodStartEventName)
+    {
+      throw new ArgumentOutOfRangeException();
+    }
+
     var methodEvent = eventRecord.DeepClone();
     methodEvent.EventClass = OnlineProcfilerConstants.CppMethodFinishedEventName;
+
+    mutator.Process(methodEvent, globalData);
 
     return methodEvent;
   }
