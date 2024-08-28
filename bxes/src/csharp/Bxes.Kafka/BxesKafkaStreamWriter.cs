@@ -17,6 +17,12 @@ public class BxesKafkaTraceVariantEndEvent : BxesStreamEvent
 
 public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IEvent
 {
+  private class CurrentTraceInfo
+  {
+    public List<TEvent> Events { get; } = [];
+    public required IReadOnlyList<AttributeKeyValue> Metadata { get; init; }
+  }
+
   private readonly BxesWriteMetadata myWriteMetadata = new()
   {
     ValuesEnumerator = new LogValuesEnumerator([]),
@@ -25,7 +31,7 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
   };
 
   private readonly IProducer<Guid, BxesKafkaTrace<TEvent>> myProducer;
-  private readonly List<TEvent> myTraceEvents = [];
+  private CurrentTraceInfo myTraceInfo = null!;
   private readonly string myTopicName;
 
 
@@ -48,9 +54,17 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
         ProduceTrace();
         break;
       case BxesEventEvent<TEvent> eventEvent:
-        myTraceEvents.Add(eventEvent.Event);
+        myTraceInfo.Events.Add(eventEvent.Event);
         break;
-      case BxesTraceVariantStartEvent:
+      case BxesTraceVariantStartEvent startEvent:
+      {
+        myTraceInfo = new CurrentTraceInfo
+        {
+          Metadata = startEvent.Metadata.AsReadOnly()
+        };
+
+        break;
+      }
       case BxesKeyValueEvent:
       case BxesLogMetadataClassifierEvent:
       case BxesLogMetadataExtensionEvent:
@@ -66,23 +80,17 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
 
   private void ProduceTrace()
   {
-    if (myTraceEvents.Count == 0) return;
+    if (myTraceInfo.Events.Count == 0) return;
 
-    try
+    myProducer.ProduceAsync(myTopicName, new Message<Guid, BxesKafkaTrace<TEvent>>
     {
-      myProducer.ProduceAsync(myTopicName, new Message<Guid, BxesKafkaTrace<TEvent>>
+      Key = Guid.NewGuid(),
+      Value = new BxesKafkaTrace<TEvent>
       {
-        Key = Guid.NewGuid(),
-        Value = new BxesKafkaTrace<TEvent>
-        {
-          Events = myTraceEvents
-        }
-      }).GetAwaiter().GetResult();
-    }
-    finally
-    {
-      myTraceEvents.Clear();
-    }
+        Metadata = myTraceInfo.Metadata,
+        Events = myTraceInfo.Events
+      }
+    }).GetAwaiter().GetResult();
   }
 
   public void Dispose()

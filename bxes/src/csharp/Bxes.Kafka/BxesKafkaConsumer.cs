@@ -1,12 +1,21 @@
 using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Models.System;
 using Bxes.Reader;
 using Bxes.Utils;
+using Bxes.Writer;
 
 namespace Bxes.Kafka;
 
 public class BxesKafkaConsumer
 {
+  public class ConsumedBxesTrace
+  {
+    public required List<AttributeKeyValue> Metadata { get; init; }
+    public required List<IEvent> Events { get; init; }
+  }
+
+
   private readonly BxesReadMetadata myMetadata = new()
   {
     Values = [],
@@ -14,7 +23,7 @@ public class BxesKafkaConsumer
   };
 
 
-  public List<IEvent> Consume(byte[] rawBytes)
+  public ConsumedBxesTrace Consume(byte[] rawBytes)
   {
     var ms = new MemoryStream(rawBytes);
     var reader = new BinaryReader(ms);
@@ -31,6 +40,18 @@ public class BxesKafkaConsumer
       myMetadata.KeyValues.Add(new KeyValuePair<uint, uint>((uint)reader.ReadLeb128Unsigned(), (uint)reader.ReadLeb128Unsigned()));
     }
 
+    var metadataCount = reader.ReadUInt32();
+    var traceMetadata = new List<AttributeKeyValue>();
+
+    for (var i = 0; i < metadataCount; ++i)
+    {
+      var kvIndices = myMetadata.KeyValues[(int)reader.ReadLeb128Unsigned()];
+      var key = (BxesStringValue)myMetadata.Values[(int)kvIndices.Key];
+      var value = myMetadata.Values[(int)kvIndices.Value];
+
+      traceMetadata.Add(new AttributeKeyValue(key, value));
+    }
+
     var eventsCount = reader.ReadUInt32();
     var events = new List<IEvent>((int)eventsCount);
 
@@ -39,6 +60,10 @@ public class BxesKafkaConsumer
       events.Add(BxesReadUtils.ReadEvent(new BxesReadContext(reader, myMetadata, SystemMetadata.Default)));
     }
 
-    return events;
+    return new ConsumedBxesTrace
+    {
+      Metadata = traceMetadata,
+      Events = events
+    };
   }
 }

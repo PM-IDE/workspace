@@ -204,9 +204,9 @@ public static class BxesWriteUtils
     }
   }
 
-  private static void WriteKeyValueIndex(AttributeKeyValue tuple, BxesWriteContext context)
+  public static void WriteKeyValueIndex(AttributeKeyValue attribute, BxesWriteContext context)
   {
-    context.Writer.WriteLeb128Unsigned(context.Metadata.KeyValueIndices[tuple]);
+    context.Writer.WriteLeb128Unsigned(context.Metadata.KeyValueIndices[attribute]);
   }
 
   public static void WriteTracesVariants(IEventLog log, BxesWriteContext context) =>
