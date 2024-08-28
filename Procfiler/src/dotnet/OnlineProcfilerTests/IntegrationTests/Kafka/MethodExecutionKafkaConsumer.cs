@@ -1,5 +1,6 @@
 ﻿using Bxes.Kafka;
 using Bxes.Models.Domain;
+using Bxes.Writer;
 using Confluent.Kafka;
 using ProcfilerOnline.Core.Settings;
 using GuidSerializer = ProcfilerOnline.Integrations.Kafka.GuidSerializer;
@@ -31,15 +32,16 @@ public class MethodExecutionKafkaConsumer : IDisposable
   }
 
 
-  public List<List<IEvent>> ConsumeAllEvents()
+  public List<(List<AttributeKeyValue> Metadata, List<IEvent> Events)> ConsumeAllEvents()
   {
-    var messages = new List<List<IEvent>>();
+    var messages = new List<(List<AttributeKeyValue> Metadata, List<IEvent> Events)>();
     while (true)
     {
       var result = myConsumer.Consume();
       if (result.IsPartitionEOF) break;
 
-      messages.Add(myBxesKafkaConsumer.Consume(result.Message.Value));
+      var bxesTrace = myBxesKafkaConsumer.Consume(result.Message.Value);
+      messages.Add((bxesTrace.Metadata, bxesTrace.Events));
     }
 
     return messages;

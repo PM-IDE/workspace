@@ -1,4 +1,6 @@
 ﻿using Bxes.Kafka;
+using Bxes.Models.Domain.Values;
+using Bxes.Writer;
 using Bxes.Writer.Stream;
 using Confluent.Kafka;
 using Core.Bxes;
@@ -13,6 +15,7 @@ public interface IBxesMethodsKafkaProducer : IKafkaProducer<Guid, BxesKafkaMetho
 
 public class BxesKafkaMethodsExecutionMessage
 {
+  public required string MethodName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
 }
 
@@ -28,7 +31,12 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
 
   public void Produce(Guid key, BxesKafkaMethodsExecutionMessage value)
   {
-    myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, []));
+    List<AttributeKeyValue> metadata =
+    [
+      new AttributeKeyValue(new BxesStringValue("MethodName"), new BxesStringValue(value.MethodName))
+    ];
+
+    myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
 
     foreach (var eventRecord in value.Trace)
     {

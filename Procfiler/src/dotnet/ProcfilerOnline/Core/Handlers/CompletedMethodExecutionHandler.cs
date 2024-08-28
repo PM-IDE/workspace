@@ -21,6 +21,7 @@ public class CompletedMethodExecutionHandler(
 
     var message = new BxesKafkaMethodsExecutionMessage
     {
+      MethodName = @event.Frame.MethodFullName ?? "UNRESOLVED",
       Trace = @event.Frame.InnerEvents
     };
 

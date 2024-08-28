@@ -32,28 +32,24 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
       var globalData = ExecuteTest(solution) ?? throw new Exception();
       var traces = consumer.ConsumeAllEvents()
         .Select(trace =>
-          trace
-            .Select(e => new EventRecordWithMetadata(EventRecordTime.Default, e.Name.IndexOf('_') switch
-            {
-              -1 => e.Name,
-              var index => e.Name[..index]
-            }, -1, -1, new EventMetadata(e.Attributes.ToDictionary(a => a.Key.Value, a => a.Value.ToString()!)))
-            {
-              EventName = e.Name
-            })
-            .ToList()
+          (
+            MethodName: trace.Metadata.FirstOrDefault(a => a.Key.Value is "MethodName")?.Value.ToString() ?? "UNRESOLVED",
+            Events: trace.Events
+              .Select(e => new EventRecordWithMetadata(EventRecordTime.Default, e.Name.IndexOf('_') switch
+              {
+                -1 => e.Name,
+                var index => e.Name[..index]
+              }, -1, -1, new EventMetadata(e.Attributes.ToDictionary(a => a.Key.Value, a => a.Value.ToString()!)))
+              {
+                EventName = e.Name
+              })
+              .ToList()
+            )
         )
-        .Where(t => t.Count > 0)
-        .Select(trace =>
-        {
-          var firstEvent = trace.First();
-          var firstMethodId = firstEvent.TryGetMethodDetails()!.Value.MethodId;
-          var executedMethodName = globalData.FindMethodName(firstMethodId)!;
-          return (trace, executedMethodName);
-        })
+        .Where(t => t.Events.Count > 0)
         .ToList();
 
-      foreach (var (trace, executedMethodName) in traces.OrderBy(e => e.executedMethodName))
+      foreach (var (executedMethodName, trace) in traces.OrderBy(e => e.MethodName))
       {
         var methodNamesToEvents = new Dictionary<string, List<List<EventRecordWithMetadata>>>
         {
