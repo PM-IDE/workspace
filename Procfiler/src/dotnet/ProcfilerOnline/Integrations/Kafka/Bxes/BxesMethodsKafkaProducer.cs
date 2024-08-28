@@ -34,5 +34,7 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
     {
       myWriter.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, true)));
     }
+
+    myWriter.HandleEvent(BxesKafkaTraceVariantEndEvent.Instance);
   }
 }

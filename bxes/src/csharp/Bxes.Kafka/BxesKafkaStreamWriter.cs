@@ -5,6 +5,16 @@ using Confluent.Kafka;
 
 namespace Bxes.Kafka;
 
+public class BxesKafkaTraceVariantEndEvent : BxesStreamEvent
+{
+  public static BxesKafkaTraceVariantEndEvent Instance { get; } = new();
+
+
+  private BxesKafkaTraceVariantEndEvent()
+  {
+  }
+}
+
 public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IEvent
 {
   private readonly BxesWriteMetadata myWriteMetadata = new()
@@ -34,12 +44,13 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
   {
     switch (@event)
     {
-      case BxesTraceVariantStartEvent:
+      case BxesKafkaTraceVariantEndEvent:
         ProduceTrace();
         break;
       case BxesEventEvent<TEvent> eventEvent:
         myTraceEvents.Add(eventEvent.Event);
         break;
+      case BxesTraceVariantStartEvent:
       case BxesKeyValueEvent:
       case BxesLogMetadataClassifierEvent:
       case BxesLogMetadataExtensionEvent:
@@ -55,6 +66,8 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
 
   private void ProduceTrace()
   {
+    if (myTraceEvents.Count == 0) return;
+
     try
     {
       myProducer.ProduceAsync(myTopicName, new Message<Guid, BxesKafkaTrace<TEvent>>

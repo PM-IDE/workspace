@@ -5,6 +5,7 @@ using Core.Events.EventRecord;
 using Microsoft.Extensions.Options;
 using OnlineProcfilerTests.Core;
 using OnlineProcfilerTests.Tests;
+using ProcfilerOnline.Core;
 using ProcfilerOnline.Core.Handlers;
 using ProcfilerOnline.Core.Settings;
 using TestsUtil;
@@ -29,14 +30,14 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
     foreach (var solution in solutions)
     {
       var globalData = ExecuteTest(solution) ?? throw new Exception();
-      var events = consumer.ConsumeAllEvents()
+      var traces = consumer.ConsumeAllEvents()
         .Select(trace =>
           trace
             .Select(e => new EventRecordWithMetadata(EventRecordTime.Default, e.Name.IndexOf('_') switch
             {
               -1 => e.Name,
               var index => e.Name[..index]
-            }, -1, -1, new EventMetadata(e.Attributes.ToDictionary(a => a.Key.Value, a => a.Value.ToString())))
+            }, -1, -1, new EventMetadata(e.Attributes.ToDictionary(a => a.Key.Value, a => a.Value.ToString()!)))
             {
               EventName = e.Name
             })
@@ -45,11 +46,15 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
         .Where(t => t.Count > 0)
         .ToList();
 
-      foreach (var trace in events.OrderBy(e => e.First().EventName))
+      foreach (var trace in traces.OrderBy(e => e.First().EventName))
       {
+        var firstEvent = trace.First();
+        var firstMethodId = firstEvent.TryGetMethodDetails()!.Value.MethodId;
+        var executedMethodName = globalData.FindMethodName(firstMethodId)!;
+
         var methodNamesToEvents = new Dictionary<string, List<List<EventRecordWithMetadata>>>
         {
-          [trace.First().EventName] = [trace]
+          [executedMethodName] = [trace]
         };
 
         var filter = new Regex(solution.NamespaceFilterPattern);

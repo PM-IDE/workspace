@@ -27,7 +27,7 @@ public static class TraceEventExtensions
     _ => throw new ArgumentOutOfRangeException()
   };
 
-  public static (long QpcStamp, long methodId)? TryGetMethodDetails(this EventRecordWithMetadata eventRecord)
+  public static (long QpcStamp, long MethodId)? TryGetMethodDetails(this EventRecordWithMetadata eventRecord)
   {
     if (eventRecord.EventClass is OnlineProcfilerConstants.CppMethodFinishedEventName or OnlineProcfilerConstants.CppMethodStartEventName)
     {
