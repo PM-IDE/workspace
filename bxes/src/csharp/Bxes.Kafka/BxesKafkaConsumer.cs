@@ -27,6 +27,9 @@ public class BxesKafkaConsumer
   {
     var ms = new MemoryStream(rawBytes);
     var reader = new BinaryReader(ms);
+    var readContext = new BxesReadContext(reader, myMetadata, new SystemMetadata());
+
+    BxesReadUtils.ReadSystemMetadata(readContext);
 
     var valuesCount = reader.ReadUInt32();
     for (var i = 0; i < valuesCount; ++i)
@@ -57,7 +60,7 @@ public class BxesKafkaConsumer
 
     for (var i = 0; i < eventsCount; ++i)
     {
-      events.Add(BxesReadUtils.ReadEvent(new BxesReadContext(reader, myMetadata, SystemMetadata.Default)));
+      events.Add(BxesReadUtils.ReadEvent(readContext));
     }
 
     return new ConsumedBxesTrace

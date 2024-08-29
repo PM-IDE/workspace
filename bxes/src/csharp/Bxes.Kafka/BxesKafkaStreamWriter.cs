@@ -1,4 +1,5 @@
 ﻿using Bxes.Models.Domain;
+using Bxes.Models.System;
 using Bxes.Writer;
 using Bxes.Writer.Stream;
 using Confluent.Kafka;
@@ -23,25 +24,27 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
     public required IReadOnlyList<AttributeKeyValue> Metadata { get; init; }
   }
 
-  private readonly BxesWriteMetadata myWriteMetadata = new()
-  {
-    ValuesEnumerator = new LogValuesEnumerator([]),
-    ValuesIndices = [],
-    KeyValueIndices = []
-  };
-
+  private readonly ISystemMetadata mySystemMetadata;
   private readonly IProducer<Guid, BxesKafkaTrace<TEvent>> myProducer;
   private CurrentTraceInfo myTraceInfo = null!;
   private readonly string myTopicName;
 
 
-  public BxesKafkaStreamWriter(string topicName, ProducerConfig producerConfig)
+  public BxesKafkaStreamWriter(ISystemMetadata systemMetadata, string topicName, ProducerConfig producerConfig)
   {
     myTopicName = topicName;
+    mySystemMetadata = systemMetadata;
+
+    var writeMetadata = new BxesWriteMetadata
+    {
+      ValuesEnumerator = new LogValuesEnumerator(systemMetadata.ValueAttributeDescriptors),
+      ValuesIndices = [],
+      KeyValueIndices = []
+    };
 
     myProducer = new ProducerBuilder<Guid, BxesKafkaTrace<TEvent>>(producerConfig)
       .SetKeySerializer(GuidSerializer.Instance)
-      .SetValueSerializer(new BxesKafkaEventSerializer<TEvent>(myWriteMetadata))
+      .SetValueSerializer(new BxesKafkaEventSerializer<TEvent>(writeMetadata))
       .Build();
   }
 
@@ -87,6 +90,7 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
       Key = Guid.NewGuid(),
       Value = new BxesKafkaTrace<TEvent>
       {
+        SystemMetadata = mySystemMetadata,
         Metadata = myTraceInfo.Metadata,
         Events = myTraceInfo.Events
       }

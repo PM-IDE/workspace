@@ -11,31 +11,32 @@ public class BxesKafkaEventSerializer<TEvent>(BxesWriteMetadata writeMetadata) :
     using var stream = new MemoryStream();
     using var writer = new BinaryWriter(stream);
 
-    WriteCollectionAndCount(writer, data, BxesWriteUtils.WriteEventValues, (writeContext, trace) =>
-    {
-      var count = 0;
-      foreach (var attribute in trace.Metadata)
-      {
-        if (BxesWriteUtils.WriteValueIfNeeded(attribute.Key, writeContext)) ++count;
-        if (BxesWriteUtils.WriteValueIfNeeded(attribute.Value, writeContext)) ++count;
-      }
-
-      return count;
-    });
-
-    WriteCollectionAndCount(writer, data, BxesWriteUtils.WriteEventKeyValues, (writeContext, trace) =>
-    {
-      var count = 0;
-
-      foreach (var attribute in trace.Metadata)
-      {
-        if (BxesWriteUtils.WriteKeyValuePairIfNeeded(attribute, writeContext)) ++count;
-      }
-
-      return count;
-    });
-
     var writeContext = new BxesWriteContext(writer, writeMetadata);
+    BxesWriteUtils.WriteValuesAttributesDescriptors(data.SystemMetadata.ValueAttributeDescriptors, writeContext);
+
+    WriteCollectionAndCount(writer, data, BxesWriteUtils.WriteEventValues, (ctx, trace) =>
+    {
+      var count = 0;
+      foreach (var attribute in trace.Metadata)
+      {
+        if (BxesWriteUtils.WriteValueIfNeeded(attribute.Key, ctx)) ++count;
+        if (BxesWriteUtils.WriteValueIfNeeded(attribute.Value, ctx)) ++count;
+      }
+
+      return count;
+    });
+
+    WriteCollectionAndCount(writer, data, BxesWriteUtils.WriteEventKeyValues, (ctx, trace) =>
+    {
+      var count = 0;
+
+      foreach (var attribute in trace.Metadata)
+      {
+        if (BxesWriteUtils.WriteKeyValuePairIfNeeded(attribute, ctx)) ++count;
+      }
+
+      return count;
+    });
 
     writer.Write((uint)data.Metadata.Count);
     foreach (var attribute in data.Metadata)
