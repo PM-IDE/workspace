@@ -23,6 +23,7 @@ public class BxesKafkaMethodsExecutionMessage
 public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings) : IBxesMethodsKafkaProducer
 {
   private readonly IBxesStreamWriter myWriter = new BxesKafkaStreamWriter<BxesEvent>(
+    BxesUtil.CreateSystemMetadata(),
     settings.Value.KafkaSettings.TopicName,
     new ProducerConfig
     {

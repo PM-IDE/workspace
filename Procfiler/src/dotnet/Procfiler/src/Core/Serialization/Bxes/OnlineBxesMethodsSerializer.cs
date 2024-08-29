@@ -17,7 +17,7 @@ public class BxesWriteStateWithLastEvent : BxesWriteState
 
 public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWriteStateWithLastEvent>
 {
-  private const string BxesExtesnsion = ".bxes";
+  private const string BxesExtension = ".bxes";
 
   public OnlineBxesMethodsSerializer(
     string outputDirectory,
@@ -34,9 +34,9 @@ public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWrite
   {
     var methodName = contextEvent.GetMethodStartEndEventInfo().Frame;
     var name = FullMethodNameBeautifier.Beautify(methodName);
-    if (!name.EndsWith(BxesExtesnsion))
+    if (!name.EndsWith(BxesExtension))
     {
-      name += BxesExtesnsion;
+      name += BxesExtension;
     }
 
     var filePath = Path.Join(OutputDirectory, name);

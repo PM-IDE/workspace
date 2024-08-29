@@ -1,7 +1,7 @@
 ﻿using Bxes.Models.Domain;
 using Bxes.Models.System;
 
-namespace Procfiler.Core.Serialization.Bxes;
+namespace Core.Bxes;
 
 public static class BxesUtil
 {
