@@ -39,11 +39,7 @@ public class BxesKafkaEventSerializer<TEvent>(BxesWriteMetadata writeMetadata)
       return count;
     });
 
-    writer.Write((uint)data.Metadata.Count);
-    foreach (var attribute in data.Metadata)
-    {
-      BxesWriteUtils.WriteKeyValueIndex(attribute, writeContext);
-    }
+    BxesWriteUtils.WriteVariantMetadata(data.Metadata.ToList(), writeContext);
 
     writer.Write((uint)data.Events.Count);
     foreach (var @event in data.Events)
