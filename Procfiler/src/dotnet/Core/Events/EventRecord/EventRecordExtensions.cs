@@ -7,6 +7,7 @@ using Microsoft.Diagnostics.Tracing;
 namespace Core.Events.EventRecord;
 
 public readonly record struct MethodIdToFqn(long Id, string Fqn);
+
 public readonly record struct TypeIdToName(long Id, string Name);
 
 public static class EventRecordExtensions

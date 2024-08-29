@@ -45,15 +45,15 @@ public class JsonMethodsKafkaProducer(
 {
   private readonly Lazy<IProducer<Guid, JsonMethodsExecutionKafkaMessage>> myProducer = new(() =>
     new ProducerBuilder<Guid, JsonMethodsExecutionKafkaMessage>(
-      new ProducerConfig
-      {
-        BootstrapServers = settings.Value.KafkaSettings.BootstrapServers,
-        Acks = Acks.All
-      }
-    )
-    .SetKeySerializer(GuidSerializer.Instance)
-    .SetValueSerializer(JsonSerializer<JsonMethodsExecutionKafkaMessage>.Instance)
-    .Build()
+        new ProducerConfig
+        {
+          BootstrapServers = settings.Value.KafkaSettings.BootstrapServers,
+          Acks = Acks.All
+        }
+      )
+      .SetKeySerializer(GuidSerializer.Instance)
+      .SetValueSerializer(JsonSerializer<JsonMethodsExecutionKafkaMessage>.Instance)
+      .Build()
   );
 
 

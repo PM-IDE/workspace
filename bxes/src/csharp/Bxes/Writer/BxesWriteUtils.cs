@@ -116,7 +116,9 @@ public static class BxesWriteUtils
   public static void WriteKeyValuePairs(IEventLog log, BxesWriteContext context)
   {
     var pairs = context.Metadata.ValuesEnumerator.EnumerateKeyValues(log);
-    WriteCollectionAndCount(pairs, context, (el, ctx) => WriteKeyValuePairIfNeeded(el, ctx), () => (IndexType)context.Metadata.KeyValueIndices.Count);
+
+    WriteCollectionAndCount(
+      pairs, context, (el, ctx) => WriteKeyValuePairIfNeeded(el, ctx), () => (IndexType)context.Metadata.KeyValueIndices.Count);
   }
 
   public static bool WriteKeyValuePairIfNeeded(AttributeKeyValue pair, BxesWriteContext context)
@@ -256,7 +258,8 @@ public static class BxesWriteUtils
   public static void WriteValues(IEventLog log, BxesWriteContext context)
   {
     var values = context.Metadata.ValuesEnumerator.EnumerateValues(log);
-    WriteCollectionAndCount(values, context, (el, ctx) => WriteValueIfNeeded(el, ctx), () => (IndexType)context.Metadata.ValuesIndices.Count);
+    WriteCollectionAndCount(values, context, (el, ctx) => WriteValueIfNeeded(el, ctx),
+      () => (IndexType)context.Metadata.ValuesIndices.Count);
   }
 
   public static void ExecuteWithFile(string filePath, Action<BinaryWriter> writeAction)

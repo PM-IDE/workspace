@@ -30,6 +30,7 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
       BootstrapServers = settings.Value.KafkaSettings.BootstrapServers
     });
 
+
   public void Produce(Guid key, BxesKafkaMethodsExecutionMessage value)
   {
     List<AttributeKeyValue> metadata =

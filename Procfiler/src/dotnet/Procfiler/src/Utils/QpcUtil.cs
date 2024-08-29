@@ -10,7 +10,7 @@ public static class QpcUtil
     if (qpcTime == long.MaxValue)
       return DateTime.MaxValue;
 
-    var ticks = (long) ((qpcTime - syncTimeQpc) * 10000000.0 / qpcFreq) + syncTimeUtc.Ticks;
+    var ticks = (long)((qpcTime - syncTimeQpc) * 10000000.0 / qpcFreq) + syncTimeUtc.Ticks;
     DateTime maxValue;
     if (ticks >= 0L)
     {
@@ -18,6 +18,7 @@ public static class QpcUtil
       if (maxValue.Ticks >= ticks)
         goto label_5;
     }
+
     maxValue = DateTime.MaxValue;
     ticks = maxValue.Ticks;
 

@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using Autofac;
 using Bxes.Models.Domain;
 using Core.Events.EventRecord;
-using Core.GlobalData;
 using Microsoft.Extensions.Options;
 using OnlineProcfilerTests.Core;
 using OnlineProcfilerTests.Tests;

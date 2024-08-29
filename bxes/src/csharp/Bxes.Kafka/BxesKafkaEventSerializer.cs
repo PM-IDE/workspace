@@ -4,7 +4,8 @@ using Confluent.Kafka;
 
 namespace Bxes.Kafka;
 
-public class BxesKafkaEventSerializer<TEvent>(BxesWriteMetadata writeMetadata) : ISerializer<BxesKafkaTrace<TEvent>> where TEvent : IEvent
+public class BxesKafkaEventSerializer<TEvent>(BxesWriteMetadata writeMetadata)
+  : ISerializer<BxesKafkaTrace<TEvent>> where TEvent : IEvent
 {
   public byte[] Serialize(BxesKafkaTrace<TEvent> data, SerializationContext context)
   {

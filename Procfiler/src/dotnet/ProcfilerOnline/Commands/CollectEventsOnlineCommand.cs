@@ -17,11 +17,15 @@ public record CollectEventsOnlineContext(
 
 [AppComponent]
 public class CollectEventsOnlineCommand(
-  IProcfilerLogger logger, IClrOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
+  IProcfilerLogger logger,
+  IClrOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
 {
   private static Option<string> DllPathOption { get; } = new("--dll-path", "The path to dll to profile");
   private static Option<string> OutputPath { get; } = new("--output-path", "The output path for bXES file");
-  private static Option<string> TargetMethodsRegex { get; } = new("--target-methods-regex", "The regular expression which specified target methods");
+
+  private static Option<string> TargetMethodsRegex { get; } =
+    new("--target-methods-regex", "The regular expression which specified target methods");
+
   private static Option<string> MethodsFilterRegex { get; } = new("--methods-filter-regex", "The regular expression to filter methods");
 
 

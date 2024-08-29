@@ -26,6 +26,7 @@ public sealed class TaskWaitStopEvent : TaskWaitEvent;
 public abstract class TaskExecuteEvent : TaskEvent;
 
 public sealed class TaskExecuteStartEvent : TaskExecuteEvent;
+
 public sealed class TaskExecuteStopEvent : TaskExecuteEvent;
 
 public static class TaskEventExtensions

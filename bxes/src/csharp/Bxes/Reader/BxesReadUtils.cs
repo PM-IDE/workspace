@@ -103,7 +103,10 @@ public static class BxesReadUtils
       for (uint j = 0; j < globalsCount; ++j)
       {
         var kv = context.Metadata.KeyValues[(int)context.Reader.ReadUInt32()];
-        entityGlobals.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]));
+        var key = (BxesStringValue)context.Metadata.Values[(int)kv.Key];
+        var value = context.Metadata.Values[(int)kv.Value];
+
+        entityGlobals.Add(new AttributeKeyValue(key, value));
       }
 
       metadata.Globals.Add(new BxesGlobal
@@ -172,7 +175,8 @@ public static class BxesReadUtils
     for (uint j = 0; j < metadataCount; ++j)
     {
       var kv = context.Metadata.KeyValues[(int)context.Reader.ReadUInt32()];
-      metadata.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]));
+      metadata.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key],
+        context.Metadata.Values[(int)kv.Value]));
     }
 
     var eventsCount = context.Reader.ReadUInt32();
@@ -215,7 +219,8 @@ public static class BxesReadUtils
     for (uint k = 0; k < attributesCount; ++k)
     {
       var kv = context.Metadata.KeyValues[(int)context.Reader.ReadLeb128Unsigned()];
-      eventAttributes.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]));
+      eventAttributes.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key],
+        context.Metadata.Values[(int)kv.Value]));
     }
 
     return new InMemoryEventImpl(timestamp, name, eventAttributes);

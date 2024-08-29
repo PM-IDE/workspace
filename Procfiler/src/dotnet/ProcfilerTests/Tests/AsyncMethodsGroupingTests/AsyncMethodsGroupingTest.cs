@@ -13,12 +13,23 @@ namespace ProcfilerTests.Tests.AsyncMethodsGroupingTests;
 [TestFixture]
 public class AsyncMethodsGroupingTest : GoldProcessBasedTest
 {
-  [Test] public void TestNotSimpleAsync() => DoSimpleTest(KnownSolution.NotSimpleAsyncAwait);
-  [Test] public void TestSimpleAsyncAwait() => DoSimpleTest(KnownSolution.SimpleAsyncAwait);
-  [Test] public void TestAsyncAwait() => DoSimpleTest(KnownSolution.AsyncAwait);
-  [Test] public void TestAsyncAwaitTaskFactoryNew() => DoSimpleTest(KnownSolution.AsyncAwaitTaskFactoryNew);
-  [Test] public void TestAwaitForeach() => DoSimpleTest(KnownSolution.AwaitForeach);
-  [Test] public void TestAsyncDisposable() => DoSimpleTest(KnownSolution.AsyncDisposable);
+  [Test]
+  public void TestNotSimpleAsync() => DoSimpleTest(KnownSolution.NotSimpleAsyncAwait);
+
+  [Test]
+  public void TestSimpleAsyncAwait() => DoSimpleTest(KnownSolution.SimpleAsyncAwait);
+
+  [Test]
+  public void TestAsyncAwait() => DoSimpleTest(KnownSolution.AsyncAwait);
+
+  [Test]
+  public void TestAsyncAwaitTaskFactoryNew() => DoSimpleTest(KnownSolution.AsyncAwaitTaskFactoryNew);
+
+  [Test]
+  public void TestAwaitForeach() => DoSimpleTest(KnownSolution.AwaitForeach);
+
+  [Test]
+  public void TestAsyncDisposable() => DoSimpleTest(KnownSolution.AsyncDisposable);
 
 
   private void DoSimpleTest(KnownSolution solution)
