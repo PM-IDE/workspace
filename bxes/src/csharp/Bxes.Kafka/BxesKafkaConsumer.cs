@@ -30,38 +30,11 @@ public class BxesKafkaConsumer
     var readContext = new BxesReadContext(reader, myMetadata, new SystemMetadata());
 
     BxesReadUtils.ReadSystemMetadata(readContext);
+    BxesReadUtils.ReadValues(readContext);
+    BxesReadUtils.ReadKeyValuePairs(readContext);
 
-    var valuesCount = reader.ReadUInt32();
-    for (var i = 0; i < valuesCount; ++i)
-    {
-      myMetadata.Values.Add(BxesValue.Parse(reader, myMetadata.Values));
-    }
-
-    var keyValuesCount = reader.ReadUInt32();
-    for (var i = 0; i < keyValuesCount; ++i)
-    {
-      myMetadata.KeyValues.Add(new KeyValuePair<uint, uint>((uint)reader.ReadLeb128Unsigned(), (uint)reader.ReadLeb128Unsigned()));
-    }
-
-    var metadataCount = reader.ReadUInt32();
-    var traceMetadata = new List<AttributeKeyValue>();
-
-    for (var i = 0; i < metadataCount; ++i)
-    {
-      var kvIndices = myMetadata.KeyValues[(int)reader.ReadLeb128Unsigned()];
-      var key = (BxesStringValue)myMetadata.Values[(int)kvIndices.Key];
-      var value = myMetadata.Values[(int)kvIndices.Value];
-
-      traceMetadata.Add(new AttributeKeyValue(key, value));
-    }
-
-    var eventsCount = reader.ReadUInt32();
-    var events = new List<IEvent>((int)eventsCount);
-
-    for (var i = 0; i < eventsCount; ++i)
-    {
-      events.Add(BxesReadUtils.ReadEvent(readContext));
-    }
+    var traceMetadata = BxesReadUtils.ReadTraceVariantMetadata(readContext);
+    var events = BxesReadUtils.ReadTraceVariantEvents(readContext);
 
     return new ConsumedBxesTrace
     {

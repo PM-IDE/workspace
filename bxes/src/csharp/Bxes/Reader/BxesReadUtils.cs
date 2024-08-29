@@ -170,24 +170,38 @@ public static class BxesReadUtils
   {
     var tracesCount = context.Reader.ReadUInt32();
 
-    var metadata = new List<AttributeKeyValue>();
-    var metadataCount = context.Reader.ReadUInt32();
-    for (uint j = 0; j < metadataCount; ++j)
-    {
-      var kv = context.Metadata.KeyValues[(int)context.Reader.ReadUInt32()];
-      metadata.Add(new AttributeKeyValue((BxesStringValue)context.Metadata.Values[(int)kv.Key],
-        context.Metadata.Values[(int)kv.Value]));
-    }
+    var metadata = ReadTraceVariantMetadata(context);
+    var events = ReadTraceVariantEvents(context);
 
+    return new TraceVariantImpl(tracesCount, events, metadata);
+  }
+
+  public static List<IEvent> ReadTraceVariantEvents(BxesReadContext context)
+  {
     var eventsCount = context.Reader.ReadUInt32();
-    var events = new List<IEvent>();
+    var events = new List<IEvent>((int)eventsCount);
 
     for (uint j = 0; j < eventsCount; ++j)
     {
       events.Add(ReadEvent(context));
     }
 
-    return new TraceVariantImpl(tracesCount, events, metadata);
+    return events;
+  }
+
+  public static List<AttributeKeyValue> ReadTraceVariantMetadata(BxesReadContext context)
+  {
+    var metadata = new List<AttributeKeyValue>();
+    var metadataCount = context.Reader.ReadUInt32();
+    for (uint j = 0; j < metadataCount; ++j)
+    {
+      var kv = context.Metadata.KeyValues[(int)context.Reader.ReadUInt32()];
+
+      metadata.Add(new AttributeKeyValue(
+        (BxesStringValue)context.Metadata.Values[(int)kv.Key], context.Metadata.Values[(int)kv.Value]));
+    }
+
+    return metadata;
   }
 
   public static InMemoryEventImpl ReadEvent(BxesReadContext context)
