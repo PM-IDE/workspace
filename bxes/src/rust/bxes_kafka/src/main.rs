@@ -8,7 +8,7 @@ pub fn main() {
         .create()
         .expect("invalid consumer config");
 
-    let mut consumer = BxesKafkaConsumer::new(consumer);
+    let mut consumer = BxesKafkaConsumer::new("my-topic".to_string(), consumer);
 
     consumer.consume(|trace| {
         println!("{:?}", trace);

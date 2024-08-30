@@ -17,12 +17,13 @@ use std::rc::Rc;
 use std::time::Duration;
 
 pub struct BxesKafkaConsumer {
+    topic: String,
     consumer: BaseConsumer,
 }
 
 impl BxesKafkaConsumer {
-    pub fn new(consumer: BaseConsumer) -> Self {
-        Self { consumer }
+    pub fn new(topic: String, consumer: BaseConsumer) -> Self {
+        Self { topic, consumer }
     }
 }
 
@@ -44,9 +45,15 @@ impl From<BxesReadError> for BxesKafkaError {
     }
 }
 
+impl From<KafkaError> for BxesKafkaError {
+    fn from(value: KafkaError) -> Self {
+        Self::Kafka(value)
+    }
+}
+
 impl BxesKafkaConsumer {
     pub fn consume(&mut self, action: impl Fn(BxesKafkaTrace) -> ()) -> Result<(), BxesKafkaError> {
-        self.consumer.subscribe(&["my-topic"]).expect("Subscribe to topic");
+        self.consumer.subscribe(&[self.topic.as_str()])?;
         let mut read_metadata = ReadMetadata::empty();
 
         loop {
@@ -57,10 +64,7 @@ impl BxesKafkaConsumer {
                             let payload = msg.payload().unwrap();
                             action(Self::parse_raw_bxes_bytes(payload, &mut read_metadata)?);
 
-                            match self.consumer.commit_message(&msg, CommitMode::Async) {
-                                Ok(_) => {}
-                                Err(err) => return Err(BxesKafkaError::Kafka(err))
-                            }
+                            self.consumer.commit_message(&msg, CommitMode::Async)?;
                         },
                         Err(err) => return Err(BxesKafkaError::Kafka(err)),
                     }
