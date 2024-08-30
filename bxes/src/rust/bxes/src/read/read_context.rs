@@ -32,4 +32,13 @@ impl<'a> ReadContext<'a> {
     pub fn set_reader(&mut self, reader: &'a mut BinaryReader<'a>) {
         self.reader = Some(reader);
     }
+
+    pub fn clone_with_new_reader(self, new_reader: &mut BinaryReader) -> Self {
+        Self {
+            reader: Some(new_reader),
+            values: self.values,
+            kv_pairs: self.kv_pairs,
+            system_metadata: self.system_metadata
+        }
+    }
 }

@@ -1,4 +1,4 @@
-use num_traits::FromPrimitive;
+use num_traits::{FromPrimitive, ToPrimitive};
 use std::io::{Cursor, Seek};
 use std::{fs::File, io::Read, rc::Rc};
 use tempfile::TempDir;
@@ -25,6 +25,7 @@ use crate::{
     },
     utils::buffered_stream::BufferedReadFileStream,
 };
+use crate::read::errors::BxesReadError::ValueAttributeNameIsNotAString;
 
 #[derive(Debug)]
 pub struct BxesEventLogReadResult {
@@ -67,14 +68,14 @@ fn try_read_value_attributes(
         let mut values_attributes = vec![];
         for _ in 0..count {
             let type_id = try_read_type_id(reader)?;
-
             let name_type_id = try_read_type_id(reader)?;
-            if name_type_id != TypeIds::String {
-                return Err(BxesReadError::ValueAttributeNameIsNotAString);
-            }
 
-            let name = try_read_string(reader)?;
-            values_attributes.push(ValueAttributeDescriptor::new(type_id, name));
+            if name_type_id == TypeIds::String {
+                let name = try_read_string(reader)?;
+                values_attributes.push(ValueAttributeDescriptor::new(type_id, name));
+            } else {
+                return Err(ValueAttributeNameIsNotAString)
+            }
         }
 
         Ok(Some(values_attributes))
@@ -200,15 +201,36 @@ pub fn try_read_traces_variants(
     Ok(variants)
 }
 
-fn try_read_trace_variant(context: &mut ReadContext) -> Result<BxesTraceVariant, BxesReadError> {
+pub fn try_read_trace_variant(
+    context: &mut ReadContext,
+) -> Result<BxesTraceVariant, BxesReadError> {
     let traces_count = try_read_u32(context.reader.as_mut().unwrap())?;
 
+    let variant_metadata = try_read_trace_variant_metadata(context)?;
+    let events = try_read_trace_variant_events(context)?;
+
+    Ok(BxesTraceVariant {
+        traces_count,
+        metadata: variant_metadata,
+        events,
+    })
+}
+
+pub fn try_read_trace_variant_metadata(
+    context: &mut ReadContext,
+) -> Result<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>, BxesReadError> {
     let mut variant_metadata = vec![];
     let metadata_count = try_read_u32(context.reader.as_mut().unwrap())?;
     for _ in 0..metadata_count {
         variant_metadata.push(try_read_kv_pair(context, false)?);
     }
 
+    Ok(variant_metadata)
+}
+
+pub fn try_read_trace_variant_events(
+    context: &mut ReadContext,
+) -> Result<Vec<BxesEvent>, BxesReadError> {
     let events_count = try_read_u32(context.reader.as_mut().unwrap())?;
     let mut events = vec![];
 
@@ -216,11 +238,7 @@ fn try_read_trace_variant(context: &mut ReadContext) -> Result<BxesTraceVariant,
         events.push(try_read_event(context)?);
     }
 
-    Ok(BxesTraceVariant {
-        traces_count,
-        metadata: variant_metadata,
-        events,
-    })
+    Ok(events)
 }
 
 fn try_read_event(context: &mut ReadContext) -> Result<BxesEvent, BxesReadError> {
@@ -287,7 +305,7 @@ fn try_read_event_attributes(
     Ok(attributes)
 }
 
-fn try_fill_attributes(
+pub fn try_fill_attributes(
     context: &mut ReadContext,
     leb_128: bool,
     attributes: &mut Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>,
@@ -361,7 +379,9 @@ fn try_read_kv_pair(
 
 pub fn try_read_key_values(context: &mut ReadContext) -> Result<(), BxesReadError> {
     let reader = context.reader.as_mut().unwrap();
-    context.kv_pairs = Some(vec![]);
+    if context.kv_pairs.is_none() {
+        context.kv_pairs = Some(vec![]);
+    }
 
     let key_values_count = try_read_u32(reader)?;
     for _ in 0..key_values_count {
@@ -377,7 +397,10 @@ pub fn try_read_key_values(context: &mut ReadContext) -> Result<(), BxesReadErro
 
 pub fn try_read_values(context: &mut ReadContext) -> Result<(), BxesReadError> {
     let reader = context.reader.as_mut().unwrap();
-    context.values = Some(vec![]);
+
+    if context.values.is_none() {
+        context.values = Some(vec![]);
+    }
 
     let values_count = try_read_u32(reader)?;
     for _ in 0..values_count {
