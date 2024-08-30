@@ -1,5 +1,3 @@
-use std::path::Path;
-use std::ptr::read;
 use crate::models::domain::bxes_event_log::{BxesEventLog, BxesTraceVariant};
 use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
 use crate::read::read_context::{ReadContext, ReadMetadata};
@@ -8,6 +6,8 @@ use crate::{
     binary_rw::core::{BinaryReader, Endian},
     constants::*,
 };
+use std::path::Path;
+use std::ptr::read;
 
 use super::{errors::*, read_utils::*};
 

@@ -1,16 +1,14 @@
-use std::io::{Cursor, Error, ErrorKind, Read, Seek, SeekFrom};
 use crate::binary_rw::core::{ReadStream, SeekStream};
 use crate::binary_rw::error::BinaryError;
+use std::io::{Cursor, Error, ErrorKind, Read, Seek, SeekFrom};
 
 pub struct CursorStream<'a> {
-    cursor: Cursor<&'a [u8]>
+    cursor: Cursor<&'a [u8]>,
 }
 
 impl<'a> CursorStream<'a> {
     pub fn new(cursor: Cursor<&'a [u8]>) -> Self {
-        Self {
-            cursor
-        }
+        Self { cursor }
     }
 }
 
@@ -24,7 +22,7 @@ impl<'a> SeekStream for CursorStream<'a> {
     fn seek(&mut self, to: usize) -> crate::binary_rw::core::Result<usize> {
         match self.cursor.seek(SeekFrom::Start(to as u64)) {
             Ok(result) => Ok(result as usize),
-            Err(_err) => Err(BinaryError::ReadPastEof)
+            Err(_err) => Err(BinaryError::ReadPastEof),
         }
     }
 
@@ -37,5 +35,4 @@ impl<'a> SeekStream for CursorStream<'a> {
     }
 }
 
-impl<'a> ReadStream for CursorStream<'a> {
-}
+impl<'a> ReadStream for CursorStream<'a> {}

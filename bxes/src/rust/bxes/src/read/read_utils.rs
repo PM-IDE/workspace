@@ -17,6 +17,7 @@ use crate::models::domain::bxes_value::BxesValue;
 use crate::models::domain::software_event_type::SoftwareEventType;
 use crate::models::domain::type_ids::{get_type_id, TypeIds};
 use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
+use crate::read::errors::BxesReadError::ValueAttributeNameIsNotAString;
 use crate::read::read_context::ReadContext;
 use crate::{
     binary_rw::{
@@ -25,7 +26,6 @@ use crate::{
     },
     utils::buffered_stream::BufferedReadFileStream,
 };
-use crate::read::errors::BxesReadError::ValueAttributeNameIsNotAString;
 
 #[derive(Debug)]
 pub struct BxesEventLogReadResult {
@@ -74,7 +74,7 @@ fn try_read_value_attributes(
                 let name = try_read_string(reader)?;
                 values_attributes.push(ValueAttributeDescriptor::new(type_id, name));
             } else {
-                return Err(ValueAttributeNameIsNotAString)
+                return Err(ValueAttributeNameIsNotAString);
             }
         }
 
@@ -93,13 +93,26 @@ pub fn try_read_classifiers(
 
         for _ in 0..count {
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let name = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
+            let name = context
+                .metadata
+                .values
+                .as_ref()
+                .unwrap()
+                .get(index)
+                .unwrap()
+                .clone();
 
             let keys_count = try_read_u32(context.reader.as_mut().unwrap())?;
             let mut keys = vec![];
             for _ in 0..keys_count {
                 let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-                let key_value = context.metadata.values.as_ref().unwrap().get(index).unwrap();
+                let key_value = context
+                    .metadata
+                    .values
+                    .as_ref()
+                    .unwrap()
+                    .get(index)
+                    .unwrap();
                 keys.push(key_value.clone());
             }
 
@@ -150,13 +163,34 @@ pub fn try_read_extensions(
 
         for _ in 0..count {
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let name = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
+            let name = context
+                .metadata
+                .values
+                .as_ref()
+                .unwrap()
+                .get(index)
+                .unwrap()
+                .clone();
 
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let prefix = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
+            let prefix = context
+                .metadata
+                .values
+                .as_ref()
+                .unwrap()
+                .get(index)
+                .unwrap()
+                .clone();
 
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let uri = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
+            let uri = context
+                .metadata
+                .values
+                .as_ref()
+                .unwrap()
+                .get(index)
+                .unwrap()
+                .clone();
 
             extensions.push(BxesExtension { name, prefix, uri })
         }

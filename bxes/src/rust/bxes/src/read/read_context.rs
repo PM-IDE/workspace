@@ -14,28 +14,28 @@ impl ReadMetadata {
         Self {
             values: None,
             kv_pairs: None,
-            system_metadata: None
+            system_metadata: None,
         }
     }
 }
 
 pub struct ReadContext<'a, 'b> {
     pub reader: Option<&'a mut BinaryReader<'a>>,
-    pub metadata: &'b mut ReadMetadata
+    pub metadata: &'b mut ReadMetadata,
 }
 
 impl<'a, 'b> ReadContext<'a, 'b> {
     pub fn new(reader: &'a mut BinaryReader<'a>, metadata: &'b mut ReadMetadata) -> Self {
         Self {
             reader: Some(reader),
-            metadata
+            metadata,
         }
     }
 
     pub fn new_without_reader(metadata: &'b mut ReadMetadata) -> Self {
         Self {
             reader: None,
-            metadata
+            metadata,
         }
     }
 

@@ -1,5 +1,5 @@
-use rdkafka::ClientConfig;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaConsumer;
+use rdkafka::ClientConfig;
 
 pub fn main() {
     let consumer = ClientConfig::new()
@@ -10,7 +10,9 @@ pub fn main() {
 
     let mut consumer = BxesKafkaConsumer::new("my-topic".to_string(), consumer);
 
-    consumer.consume(|trace| {
-        println!("{:?}", trace);
-    }).unwrap()
+    consumer
+        .consume(|trace| {
+            println!("{:?}", trace);
+        })
+        .unwrap()
 }
