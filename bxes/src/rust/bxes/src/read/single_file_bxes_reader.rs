@@ -4,7 +4,7 @@ use tempfile::TempDir;
 
 use crate::binary_rw::core::{BinaryReader, Endian};
 use crate::models::domain::bxes_event_log::BxesEventLog;
-use crate::read::read_context::ReadContext;
+use crate::read::read_context::{ReadContext, ReadMetadata};
 
 use super::{errors::BxesReadError, read_utils::*};
 
@@ -40,7 +40,8 @@ fn read_bxes_internal(
     let mut reader = BinaryReader::new(&mut stream, Endian::Little);
     let version = try_read_u32(&mut reader)?;
 
-    let mut context = ReadContext::new(&mut reader);
+    let mut read_metadata = ReadMetadata::empty();
+    let mut context = ReadContext::new(&mut reader, &mut read_metadata);
     try_read_system_metadata(&mut context)?;
 
     try_read_values(&mut context)?;
@@ -57,6 +58,6 @@ fn read_bxes_internal(
 
     Ok(BxesEventLogReadResult {
         log,
-        system_metadata: context.system_metadata.unwrap(),
+        system_metadata: context.metadata.system_metadata.clone().unwrap(),
     })
 }

@@ -50,7 +50,7 @@ pub fn try_read_event_log_metadata(
 }
 
 pub fn try_read_system_metadata(context: &mut ReadContext) -> Result<(), BxesReadError> {
-    context.system_metadata = Some(SystemMetadata {
+    context.metadata.system_metadata = Some(SystemMetadata {
         values_attrs: try_read_value_attributes(context)?,
     });
 
@@ -93,13 +93,13 @@ pub fn try_read_classifiers(
 
         for _ in 0..count {
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let name = context.values.as_ref().unwrap().get(index).unwrap().clone();
+            let name = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
 
             let keys_count = try_read_u32(context.reader.as_mut().unwrap())?;
             let mut keys = vec![];
             for _ in 0..keys_count {
                 let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-                let key_value = context.values.as_ref().unwrap().get(index).unwrap();
+                let key_value = context.metadata.values.as_ref().unwrap().get(index).unwrap();
                 keys.push(key_value.clone());
             }
 
@@ -150,13 +150,13 @@ pub fn try_read_extensions(
 
         for _ in 0..count {
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let name = context.values.as_ref().unwrap().get(index).unwrap().clone();
+            let name = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
 
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let prefix = context.values.as_ref().unwrap().get(index).unwrap().clone();
+            let prefix = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
 
             let index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
-            let uri = context.values.as_ref().unwrap().get(index).unwrap().clone();
+            let uri = context.metadata.values.as_ref().unwrap().get(index).unwrap().clone();
 
             extensions.push(BxesExtension { name, prefix, uri })
         }
@@ -243,7 +243,7 @@ pub fn try_read_trace_variant_events(
 
 fn try_read_event(context: &mut ReadContext) -> Result<BxesEvent, BxesReadError> {
     let name_index = try_read_leb128(context.reader.as_mut().unwrap())? as usize;
-    let name = context.values.as_ref().unwrap().get(name_index);
+    let name = context.metadata.values.as_ref().unwrap().get(name_index);
 
     if name.is_none() {
         return Err(BxesReadError::FailedToIndexValue(name_index));
@@ -263,6 +263,7 @@ fn try_read_event_attributes(
 ) -> Result<Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>, BxesReadError> {
     let mut attributes = None;
     let value_attrs_len = if let Some(attrs) = context
+        .metadata
         .system_metadata
         .as_ref()
         .unwrap()
@@ -277,7 +278,7 @@ fn try_read_event_attributes(
     if value_attrs_len > 0 {
         for i in 0..value_attrs_len {
             let value = try_read_bxes_value(context)?;
-            let metadata = context.system_metadata.as_ref().unwrap();
+            let metadata = context.metadata.system_metadata.as_ref().unwrap();
             let value_attrs = metadata.values_attrs.as_ref().unwrap();
             let descriptor = value_attrs.get(i).unwrap();
 
@@ -357,19 +358,19 @@ fn try_read_kv_pair(
 ) -> Result<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), BxesReadError> {
     let kv_index = try_read_count(context, leb_128)? as usize;
 
-    let kv_pair = match context.kv_pairs.as_ref().unwrap().get(kv_index) {
+    let kv_pair = match context.metadata.kv_pairs.as_ref().unwrap().get(kv_index) {
         None => return Err(BxesReadError::FailedToIndexKeyValue(kv_index)),
         Some(pair) => pair,
     };
 
     let key_index = kv_pair.0 as usize;
-    let key = match context.values.as_ref().unwrap().get(key_index) {
+    let key = match context.metadata.values.as_ref().unwrap().get(key_index) {
         None => return Err(BxesReadError::FailedToIndexValue(key_index)),
         Some(value) => value,
     };
 
     let value_index = kv_pair.1 as usize;
-    let value = match context.values.as_ref().unwrap().get(value_index) {
+    let value = match context.metadata.values.as_ref().unwrap().get(value_index) {
         None => return Err(BxesReadError::FailedToIndexValue(value_index)),
         Some(value) => value,
     };
@@ -379,13 +380,14 @@ fn try_read_kv_pair(
 
 pub fn try_read_key_values(context: &mut ReadContext) -> Result<(), BxesReadError> {
     let reader = context.reader.as_mut().unwrap();
-    if context.kv_pairs.is_none() {
-        context.kv_pairs = Some(vec![]);
+    if context.metadata.kv_pairs.is_none() {
+        context.metadata.kv_pairs = Some(vec![]);
     }
 
     let key_values_count = try_read_u32(reader)?;
     for _ in 0..key_values_count {
         context
+            .metadata
             .kv_pairs
             .as_mut()
             .unwrap()
@@ -398,14 +400,15 @@ pub fn try_read_key_values(context: &mut ReadContext) -> Result<(), BxesReadErro
 pub fn try_read_values(context: &mut ReadContext) -> Result<(), BxesReadError> {
     let reader = context.reader.as_mut().unwrap();
 
-    if context.values.is_none() {
-        context.values = Some(vec![]);
+    if context.metadata.values.is_none() {
+        context.metadata.values = Some(vec![]);
     }
 
     let values_count = try_read_u32(reader)?;
     for _ in 0..values_count {
         let value = try_read_bxes_value(context)?;
         context
+            .metadata
             .values
             .as_mut()
             .unwrap()
@@ -471,8 +474,8 @@ pub fn try_read_driver(context: &mut ReadContext) -> Result<BxesDriver, BxesRead
 
     Ok(BxesDriver {
         amount: BxesValue::Float64(amount),
-        name: context.values.as_ref().unwrap()[name_index].clone(),
-        driver_type: context.values.as_ref().unwrap()[driver_type_index].clone(),
+        name: context.metadata.values.as_ref().unwrap()[name_index].clone(),
+        driver_type: context.metadata.values.as_ref().unwrap()[driver_type_index].clone(),
     })
 }
 
@@ -495,9 +498,9 @@ pub fn try_read_artifact_item(
     let transition_index = try_read_u32(context.reader.as_mut().unwrap())? as usize;
 
     Ok(BxesArtifactItem {
-        model: context.values.as_ref().unwrap()[model_index].clone(),
-        instance: context.values.as_ref().unwrap()[instance_index].clone(),
-        transition: context.values.as_ref().unwrap()[transition_index].clone(),
+        model: context.metadata.values.as_ref().unwrap()[model_index].clone(),
+        instance: context.metadata.values.as_ref().unwrap()[instance_index].clone(),
+        transition: context.metadata.values.as_ref().unwrap()[transition_index].clone(),
     })
 }
 
