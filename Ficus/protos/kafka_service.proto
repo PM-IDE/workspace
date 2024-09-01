@@ -1,0 +1,42 @@
+﻿syntax = "proto3";
+
+import "pipelines_and_context.proto";
+import "util.proto";
+
+package ficus;
+
+service GrpcKafkaService {
+  rpc SubscribeForKafkaTopic(GrpcSubscribeForKafkaTopicRequest) returns (GrpcKafkaResult);
+  rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
+}
+
+message GrpcSubscribeForKafkaTopicRequest {
+  string topicName = 1;
+  string bootstrapServers = 2;
+  repeated GrpcKafkaConsumerMetadata metadata = 3;
+  GrpcPipeline pipeline = 4;
+}
+
+message GrpcKafkaConsumerMetadata {
+  string key = 1;
+  string value = 2;
+}
+
+message GrpcKafkaResult {
+  oneof result {
+    GrpcKafkaSuccessResult success = 1;
+    GrpcKafkaFailedResult failure = 2;
+  }
+}
+
+message GrpcKafkaSuccessResult {
+  GrpcGuid subscriptionId = 1;
+}
+
+message GrpcKafkaFailedResult {
+  string errorMessage = 1;
+}
+
+message GrpcUnsubscribeFromKafkaRequest {
+  GrpcGuid subscriptionId = 1;
+}
