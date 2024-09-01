@@ -1,4 +1,13 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tonic_build::compile_protos("../../../protos/backend_service.proto").ok();
+    tonic_build::configure()
+        .build_server(true)
+        .compile(
+            &[
+                "../../../protos/backend_service.proto",
+                "../../../protos/kafka_service.proto"
+            ],
+            &[ "../../../protos" ]
+        ).ok();
+
     Ok(())
 }
