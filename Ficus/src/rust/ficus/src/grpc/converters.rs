@@ -4,7 +4,6 @@ use std::{any::Any, str::FromStr};
 
 use nameof::name_of_type;
 
-use super::backend_service::{FicusService, ServicePipelineExecutionContext};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -18,12 +17,13 @@ use crate::ficus_proto::{
     GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet,
     GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
 };
+use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{
-    find_context_key, BYTES_KEY, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY,
-    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY,
-    PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
-    PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+    find_context_key, BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY,
+    LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY,
+    PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY,
+    REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
 };
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
@@ -53,18 +53,6 @@ use crate::{
         user_data::{keys::Key, user_data::UserData},
     },
 };
-
-pub(super) fn create_initial_context<'a>(context: &'a ServicePipelineExecutionContext) -> PipelineContext<'a> {
-    let mut pipeline_context = PipelineContext::new_with_logging(context.parts());
-
-    for value in context.context_values() {
-        let key = find_context_key(&value.key.as_ref().unwrap().name).unwrap();
-        let value = value.value.as_ref().unwrap().context_value.as_ref().unwrap();
-        put_into_user_data(key.key(), value, &mut pipeline_context, context);
-    }
-
-    pipeline_context
-}
 
 pub(super) fn put_into_user_data(
     key: &dyn Key,
@@ -111,7 +99,7 @@ pub(super) fn put_into_user_data(
         ContextValue::EventLogInfo(_) => todo!(),
         ContextValue::Strings(strings) => user_data.put_any::<Vec<String>>(key, strings.strings.clone()),
         ContextValue::Pipeline(pipeline) => {
-            let pipeline = FicusService::to_pipeline(&context.with_pipeline(pipeline));
+            let pipeline = context.with_pipeline(pipeline).to_pipeline();
             user_data.put_any::<Pipeline>(key, pipeline);
         }
         ContextValue::PetriNet(_) => todo!(),

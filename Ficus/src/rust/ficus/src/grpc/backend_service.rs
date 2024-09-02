@@ -1,39 +1,25 @@
-use std::str::FromStr;
+use futures::Stream;
+use std::any::Any;
 use std::{
-    any::Any,
     collections::HashMap,
     pin::Pin,
     sync::{Arc, Mutex},
 };
-
-use futures::Stream;
 use tokio::sync::mpsc::{self, Sender};
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
-use uuid::Uuid;
 
-use super::{
-    converters::{convert_to_grpc_context_value, create_initial_context, put_into_user_data},
-    get_context_pipeline::GetContextValuePipelinePart,
-    logs_handler::GrpcLogMessageHandlerImpl,
-};
-use crate::grpc::logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler};
-use crate::pipelines::context::PipelineInfrastructure;
+use crate::ficus_proto::grpc_get_context_value_result::ContextValueResult;
+use crate::ficus_proto::GrpcPipelineFinalResult;
+use crate::grpc::converters::convert_to_grpc_context_value;
+use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::keys::context_keys::find_context_key;
 use crate::{
     ficus_proto::{
-        grpc_backend_service_server::GrpcBackendService, grpc_get_context_value_result::ContextValueResult,
-        grpc_pipeline_final_result::ExecutionResult, grpc_pipeline_part_base::Part, GrpcContextKeyValue, GrpcGetContextValueRequest,
-        GrpcGetContextValueResult, GrpcGuid, GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineFinalResult, GrpcPipelinePart,
-        GrpcPipelinePartExecutionResult,
+        grpc_backend_service_server::GrpcBackendService, grpc_pipeline_final_result::ExecutionResult, GrpcGetContextValueRequest,
+        GrpcGetContextValueResult, GrpcGuid, GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult,
     },
-    pipelines::{
-        context::LogMessageHandler,
-        errors::pipeline_errors::PipelinePartExecutionError,
-        keys::context_key::ContextKey,
-        pipeline_parts::PipelineParts,
-        pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
-    },
+    pipelines::{keys::context_key::ContextKey, pipeline_parts::PipelineParts},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
 
@@ -50,76 +36,6 @@ impl FicusService {
         Self {
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
             contexts: Arc::new(Box::new(Mutex::new(HashMap::new()))),
-        }
-    }
-}
-
-pub(super) struct ServicePipelineExecutionContext<'a> {
-    grpc_pipeline: &'a GrpcPipeline,
-    context_values: &'a Vec<GrpcContextKeyValue>,
-    pipeline_parts: Arc<Box<PipelineParts>>,
-    sender: Arc<Box<GrpcSender>>,
-    log_message_handler: Arc<Box<dyn LogMessageHandler>>,
-}
-
-impl<'a> ServicePipelineExecutionContext<'a> {
-    pub fn new(
-        grpc_pipeline: &'a GrpcPipeline,
-        context_values: &'a Vec<GrpcContextKeyValue>,
-        pipeline_parts: Arc<Box<PipelineParts>>,
-        sender: GrpcSender,
-    ) -> Self {
-        let sender = Arc::new(Box::new(sender));
-        let log_message_handler = Self::create_log_message_handler(sender.clone());
-
-        Self {
-            grpc_pipeline,
-            context_values,
-            pipeline_parts,
-            sender,
-            log_message_handler,
-        }
-    }
-
-    fn create_log_message_handler(sender: Arc<Box<GrpcSender>>) -> Arc<Box<dyn LogMessageHandler>> {
-        let grpc_handler = GrpcLogMessageHandlerImpl::new(sender.clone());
-        let grpc_handler = Box::new(grpc_handler) as Box<dyn LogMessageHandler>;
-
-        let console_handler = ConsoleLogMessageHandler::new();
-        let console_handler = Box::new(console_handler) as Box<dyn LogMessageHandler>;
-
-        let delegating_handler = DelegatingLogMessageHandler::new(vec![grpc_handler, console_handler]);
-
-        Arc::new(Box::new(delegating_handler) as Box<dyn LogMessageHandler>)
-    }
-
-    pub fn sender(&self) -> Arc<Box<GrpcSender>> {
-        self.sender.clone()
-    }
-
-    pub fn grpc_pipeline(&self) -> &GrpcPipeline {
-        &self.grpc_pipeline
-    }
-
-    pub fn parts(&self) -> &PipelineParts {
-        &self.pipeline_parts
-    }
-
-    pub fn context_values(&self) -> &Vec<GrpcContextKeyValue> {
-        &self.context_values
-    }
-
-    pub fn log_message_handler(&self) -> Arc<Box<dyn LogMessageHandler>> {
-        self.log_message_handler.clone()
-    }
-
-    pub fn with_pipeline(&self, new_grpc_pipeline: &'a GrpcPipeline) -> Self {
-        Self {
-            grpc_pipeline: new_grpc_pipeline,
-            context_values: self.context_values,
-            pipeline_parts: self.pipeline_parts.clone(),
-            sender: self.sender.clone(),
-            log_message_handler: self.log_message_handler.clone(),
         }
     }
 }
@@ -141,7 +57,7 @@ impl GrpcBackendService for FicusService {
             let context_values = &request.get_ref().initial_context;
             let context = ServicePipelineExecutionContext::new(grpc_pipeline, context_values, pipeline_parts, sender);
 
-            match Self::execute_grpc_pipeline(&context) {
+            match context.execute_grpc_pipeline() {
                 Ok((guid, created_context)) => {
                     contexts.lock().as_mut().unwrap().insert(guid.guid.to_owned(), created_context);
 
@@ -200,83 +116,11 @@ impl GrpcBackendService for FicusService {
 }
 
 impl FicusService {
-    fn execute_grpc_pipeline<'a>(
-        context: &ServicePipelineExecutionContext,
-    ) -> Result<(GrpcGuid, UserDataImpl), PipelinePartExecutionError> {
-        let id = Uuid::new_v4();
-        let pipeline = Self::to_pipeline(context);
-        let mut pipeline_context = create_initial_context(context);
-        let infra = PipelineInfrastructure::new(Some(context.log_message_handler()));
-
-        match pipeline.execute(&mut pipeline_context, &infra) {
-            Ok(()) => Ok((GrpcGuid { guid: id.to_string() }, pipeline_context.devastate_user_data())),
-            Err(err) => Err(err),
-        }
-    }
-
-    pub(super) fn to_pipeline(context: &ServicePipelineExecutionContext) -> Pipeline {
-        let mut pipeline = Pipeline::empty();
-        for grpc_part in &context.grpc_pipeline().parts {
-            match grpc_part.part.as_ref().unwrap() {
-                Part::DefaultPart(grpc_default_part) => match Self::find_default_part(grpc_default_part, context) {
-                    Some(found_part) => {
-                        pipeline.push(found_part);
-                    }
-                    None => todo!(),
-                },
-                Part::ParallelPart(_) => todo!(),
-                Part::SimpleContextRequestPart(part) => {
-                    let key_name = part.key.as_ref().unwrap().name.clone();
-                    let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
-
-                    pipeline.push(Self::create_get_context_part(vec![key_name], uuid, &context.sender(), None));
-                }
-                Part::ComplexContextRequestPart(part) => {
-                    let grpc_default_part = part.before_pipeline_part.as_ref().unwrap();
-                    let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
-
-                    match Self::find_default_part(grpc_default_part, context) {
-                        Some(found_part) => {
-                            let key_names = part.keys.iter().map(|x| x.name.to_owned()).collect();
-                            pipeline.push(Self::create_get_context_part(key_names, uuid, &context.sender(), Some(found_part)));
-                        }
-                        None => todo!(),
-                    }
-                }
-            }
-        }
-
-        pipeline
-    }
-
-    fn create_get_context_part(
-        key_names: Vec<String>,
-        uuid: Uuid,
-        sender: &Arc<Box<GrpcSender>>,
-        before_part: Option<Box<DefaultPipelinePart>>,
-    ) -> Box<GetContextValuePipelinePart> {
-        let sender = sender.clone();
-        GetContextValuePipelinePart::create_context_pipeline_part(key_names, uuid, sender, before_part)
-    }
-
-    fn find_default_part(
-        grpc_default_part: &GrpcPipelinePart,
-        context: &ServicePipelineExecutionContext,
-    ) -> Option<Box<DefaultPipelinePart>> {
-        let mut part_config = UserDataImpl::new();
-        let grpc_config = &grpc_default_part.configuration.as_ref().unwrap();
-
-        for conf_value in &grpc_config.configuration_parameters {
-            let key_name = conf_value.key.as_ref().unwrap().name.as_ref();
-            if let Some(key) = find_context_key(key_name) {
-                let value = conf_value.value.as_ref().unwrap().context_value.as_ref().unwrap();
-                put_into_user_data(key.key(), value, &mut part_config, context);
-            }
-        }
-
-        match context.parts().find_part(&grpc_default_part.name) {
-            Some(default_part) => Some(Box::new(default_part(Box::new(part_config)))),
-            None => None,
+    fn create_final_result(execution_result: ExecutionResult) -> GrpcPipelinePartExecutionResult {
+        GrpcPipelinePartExecutionResult {
+            result: Some(GrpcResult::FinalResult(GrpcPipelineFinalResult {
+                execution_result: Some(execution_result),
+            })),
         }
     }
 
@@ -295,14 +139,6 @@ impl FicusService {
         } else {
             let msg = "Can not convert context value to grpc model".to_string();
             Self::create_get_context_value_error(msg)
-        }
-    }
-
-    fn create_final_result(execution_result: ExecutionResult) -> GrpcPipelinePartExecutionResult {
-        GrpcPipelinePartExecutionResult {
-            result: Some(GrpcResult::FinalResult(GrpcPipelineFinalResult {
-                execution_result: Some(execution_result),
-            })),
         }
     }
 }
