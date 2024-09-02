@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use bxes::binary_rw::core::{BinaryReader, Endian};
 use bxes::binary_rw::cursor_stream::CursorStream;
 use bxes::models::domain::bxes_event_log::BxesEvent;
@@ -28,8 +29,18 @@ impl BxesKafkaConsumer {
 
 #[derive(Debug)]
 pub struct BxesKafkaTrace {
-    metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>,
+    metadata: HashMap<String, Rc<Box<BxesValue>>>,
     events: Vec<BxesEvent>,
+}
+
+impl BxesKafkaTrace {
+    pub fn metadata(&self) -> &HashMap<String, Rc<Box<BxesValue>>> {
+        &self.metadata
+    }
+
+    pub fn events(&self) -> &Vec<BxesEvent> {
+        &self.events
+    }
 }
 
 #[derive(Debug)]
@@ -85,8 +96,23 @@ impl BxesKafkaConsumer {
         try_read_key_values(&mut read_context)?;
 
         let metadata = try_read_trace_variant_metadata(&mut read_context)?;
+        let metadata = Self::create_trace_metadata(metadata)?;
         let events = try_read_trace_variant_events(&mut read_context)?;
 
         Ok(BxesKafkaTrace { metadata, events })
+    }
+
+    fn create_trace_metadata(metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>) -> Result<HashMap<String, Rc<Box<BxesValue>>>, BxesReadError> {
+        let mut new_metadata = HashMap::new();
+
+        for (key, value) in metadata {
+            if let BxesValue::String(key) = key.as_ref().as_ref() {
+                new_metadata.insert(key.as_ref().as_ref().to_owned(), value);
+            } else {
+                return Err(BxesReadError::ExpectedString(key.as_ref().as_ref().to_owned()))
+            }
+        }
+
+        Ok(new_metadata)
     }
 }
