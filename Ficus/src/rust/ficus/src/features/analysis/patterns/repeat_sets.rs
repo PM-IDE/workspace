@@ -1,10 +1,9 @@
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
     rc::Rc,
 };
-use std::fmt::format;
-use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::utils::hash_utils::calculate_poly_hash_for_collection;
 

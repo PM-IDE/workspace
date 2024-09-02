@@ -21,6 +21,7 @@ use crate::utils::user_data::user_data::UserDataOwner;
 
 use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
 
+#[derive(Debug)]
 pub enum BxesToXesReadError {
     BxesReadError(BxesReadError),
     ConversionError(String),
@@ -67,18 +68,22 @@ fn read_bxes_into_xes_internal(result: BxesEventLogReadResult) -> Result<BxesToX
     set_globals(&mut xes_log, &result.log)?;
 
     for variant in &result.log.variants {
-        let mut xes_trace = XesTraceImpl::empty();
-        for event in &variant.events {
-            xes_trace.push(Rc::new(RefCell::new(create_xes_event(event)?)));
-        }
-
-        xes_log.push(Rc::new(RefCell::new(xes_trace)));
+        xes_log.push(Rc::new(RefCell::new(read_bxes_events(&variant.events)?)));
     }
 
     Ok(BxesToXesConversionResult {
         xes_log,
         system_metadata: result.system_metadata,
     })
+}
+
+pub fn read_bxes_events(bxes_events: &Vec<BxesEvent>) -> Result<XesTraceImpl, BxesToXesReadError> {
+    let mut xes_trace = XesTraceImpl::empty();
+    for event in bxes_events {
+        xes_trace.push(Rc::new(RefCell::new(create_xes_event(event)?)));
+    }
+
+    Ok(xes_trace)
 }
 
 fn set_classifiers(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(), BxesToXesReadError> {
@@ -154,7 +159,7 @@ fn string_or_err(value: &BxesValue, entity_name: &str) -> Result<String, BxesToX
     if let BxesValue::String(string) = value {
         Ok(string.as_ref().as_ref().to_owned())
     } else {
-        return Err(BxesToXesReadError::ConversionError(format!("{} key was not a string", entity_name)));
+        Err(BxesToXesReadError::ConversionError(format!("{} key was not a string", entity_name)))
     }
 }
 

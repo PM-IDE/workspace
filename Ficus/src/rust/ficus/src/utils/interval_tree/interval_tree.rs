@@ -110,15 +110,8 @@ where
 
         self.boundaries.sort();
 
-        let left_boundary = match self.boundaries.binary_search(&left) {
-            Ok(value) => value,
-            Err(value) => value,
-        };
-
-        let right_boundary = match self.boundaries.binary_search(&right) {
-            Ok(value) => value,
-            Err(value) => value,
-        };
+        let left_boundary = self.boundaries.binary_search(&left).unwrap_or_else(|value| value);
+        let right_boundary = self.boundaries.binary_search(&right).unwrap_or_else(|value| value);
 
         for element in &self.boundaries[left_boundary..right_boundary] {
             self.search_internal(0, *element, &mut result);
