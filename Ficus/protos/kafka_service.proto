@@ -2,6 +2,7 @@
 
 import "pipelines_and_context.proto";
 import "util.proto";
+import "backend_service.proto";
 
 package ficus;
 
@@ -14,7 +15,7 @@ message GrpcSubscribeForKafkaTopicRequest {
   string topicName = 1;
   string bootstrapServers = 2;
   repeated GrpcKafkaConsumerMetadata metadata = 3;
-  GrpcPipeline pipeline = 4;
+  GrpcPipelineExecutionRequest pipelineRequest = 4;
 }
 
 message GrpcKafkaConsumerMetadata {

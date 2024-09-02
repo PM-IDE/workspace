@@ -6,7 +6,6 @@ use crate::grpc::get_context_pipeline::GetContextValuePipelinePart;
 use crate::grpc::logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl};
 use crate::pipelines::context::{LogMessageHandler, PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::keys::context_key::ContextKey;
 use crate::pipelines::keys::context_keys::find_context_key;
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{DefaultPipelinePart, Pipeline, PipelinePart};

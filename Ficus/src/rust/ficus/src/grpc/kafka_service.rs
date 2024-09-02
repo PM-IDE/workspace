@@ -3,6 +3,7 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
 use crate::ficus_proto::{GrpcKafkaResult, GrpcSubscribeForKafkaTopicRequest, GrpcUnsubscribeFromKafkaRequest};
+use crate::pipelines::pipeline_parts::PipelineParts;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaTrace};
 use rdkafka::ClientConfig;
@@ -14,6 +15,7 @@ use tonic::{Request, Response, Status};
 
 pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
+    pipeline_parts: Arc<Box<PipelineParts>>
 }
 
 const CASE_NAME: &'static str = "case_name";
@@ -25,6 +27,8 @@ impl GrpcKafkaService for KafkaService {
         request: Request<GrpcSubscribeForKafkaTopicRequest>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
         let names_to_logs = self.names_to_logs.clone();
+        let pipeline_parts = self.pipeline_parts.clone();
+
         tokio::task::spawn(async move {
             let request = request.get_ref();
 
@@ -35,10 +39,12 @@ impl GrpcKafkaService for KafkaService {
             }
 
             let consumer = config.create().expect("Should create client config");
-
+            let pipeline_req = request.pipeline_request.as_ref().expect("Pipeline should be supplied");
             let mut consumer = BxesKafkaConsumer::new(request.topic_name.to_owned(), consumer);
+
             consumer.consume(|trace| {
-                let xes_log = Self::update_logs(names_to_logs.clone(), trace);
+                let xes_log = Self::update_log(names_to_logs.clone(), trace);
+                let grpc_pipeline = pipeline_req.pipeline.as_ref().expect("Pipeline should be supplied");
             });
         });
 
@@ -61,10 +67,10 @@ enum XesFromBxesKafkaTraceCreatingError {
 }
 
 impl KafkaService {
-    fn update_logs(
+    fn update_log(
         names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
         trace: BxesKafkaTrace,
-    ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    ) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
         let metadata = trace.metadata();
         let mut names_to_logs = names_to_logs.lock();
         let names_to_logs = match names_to_logs.as_mut() {
@@ -82,7 +88,7 @@ impl KafkaService {
 
                 let mut existing_log = names_to_logs.get(case_name).expect("Log should be present").lock();
 
-                let mut existing_log = existing_log.as_mut().ok().expect("Should take the lock on the log");
+                let existing_log = existing_log.as_mut().ok().expect("Should take the lock on the log");
 
                 let xes_trace = match read_bxes_events(trace.events()) {
                     Ok(xes_trace) => xes_trace,
@@ -92,7 +98,7 @@ impl KafkaService {
                 let xes_trace = Rc::new(RefCell::new(xes_trace));
                 existing_log.push(xes_trace);
 
-                Ok(())
+                Ok(existing_log.clone())
             } else {
                 Err(XesFromBxesKafkaTraceCreatingError::CaseNameNotString)
             }
