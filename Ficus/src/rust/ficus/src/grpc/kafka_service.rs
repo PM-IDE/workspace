@@ -1,8 +1,9 @@
+use super::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_events, BxesToXesReadError};
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::{GrpcKafkaResult, GrpcSubscribeForKafkaTopicRequest, GrpcUnsubscribeFromKafkaRequest};
+use crate::ficus_proto::{grpc_kafka_result, GrpcGraph, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcSubscribeForKafkaTopicRequest, GrpcUnsubscribeFromKafkaRequest};
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::kafka_events_handler::KafkaEventsHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
@@ -15,14 +16,20 @@ use rdkafka::ClientConfig;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use tonic::{Request, Response, Status};
-
-use super::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
+use uuid::Uuid;
 
 pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
+    consumers_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
+}
+
+enum ConsumerState {
+    Consuming,
+    ShutdownRequested,
 }
 
 const CASE_NAME: &'static str = "case_name";
@@ -35,58 +42,120 @@ impl GrpcKafkaService for KafkaService {
     ) -> Result<Response<GrpcKafkaResult>, Status> {
         let names_to_logs = self.names_to_logs.clone();
         let pipeline_parts = self.pipeline_parts.clone();
+        let consumer_states = self.consumers_states.clone();
 
-        tokio::task::spawn(async move {
-            let request = request.get_ref();
+        let consumer_uuid = Uuid::new_v4();
 
+        tokio::spawn(async move {
             let mut config = ClientConfig::new();
 
-            for metadata_pair in &request.metadata {
+            for metadata_pair in &request.get_ref().metadata {
                 config.set(metadata_pair.key.to_owned(), metadata_pair.value.to_owned());
             }
 
             let consumer = config.create().expect("Should create client config");
-            let pipeline_req = request.pipeline_request.as_ref().expect("Pipeline should be supplied");
-            let mut consumer = BxesKafkaConsumer::new(request.topic_name.to_owned(), consumer);
 
-            let result = consumer.consume(|trace| {
-                let grpc_pipeline = pipeline_req.pipeline.as_ref().expect("Pipeline should be supplied");
-                let events_handler = Arc::new(Box::new(KafkaEventsHandler::new()) as Box<dyn PipelineEventsHandler>);
+            let mut consumer = BxesKafkaConsumer::new(request.get_ref().topic_name.to_owned(), consumer);
 
-                let context = ServicePipelineExecutionContext::new(
-                    grpc_pipeline,
-                    &pipeline_req.initial_context,
-                    pipeline_parts.clone(),
-                    events_handler.clone(),
-                );
+            match consumer.subscribe() {
+                Ok(_) => {
+                    let mut states = consumer_states.lock().expect("Should take lock");
+                    if states.contains_key(&consumer_uuid) {
+                        if let Some(ConsumerState::ShutdownRequested) = states.get(&consumer_uuid) {
+                            consumer.unsubscribe();
+                            return;
+                        } else {
+                            println!("Invalid state: consumer already in subscribed state");
+                        }
+                    }
 
-                let xes_log = match Self::update_log(names_to_logs.clone(), trace) {
-                    Ok(xes_log) => xes_log,
-                    Err(_) => return (),
-                };
-
-                let execution_result = context.execute_grpc_pipeline(move |context| {
-                    context.put_concrete(EVENT_LOG_KEY.key(), xes_log);
-                });
-
-                if let Err(err) = execution_result {
-                    events_handler.handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
+                    states.insert(consumer_uuid.clone(), ConsumerState::Consuming);
                 }
-            });
+                Err(err) => println!("Failed to subscribe to topic: {:?}", err)
+            };
 
-            if let Err(kafka_error) = result {
-                print!("Failed to read messsages from kafka: {:?}", kafka_error)
+            loop {
+                {
+                    let states = consumer_states.lock().expect("Should take lock");
+                    if let Some(ConsumerState::ShutdownRequested) = states.get(&consumer_uuid) {
+                        consumer.unsubscribe();
+                        return;
+                    }
+                }
+
+                match consumer.consume() {
+                    Ok(trace) => match trace {
+                        Some(trace) => {
+                            let pipeline_req = request.get_ref().pipeline_request.as_ref().expect("Pipeline should be supplied");
+                            let grpc_pipeline = pipeline_req.pipeline.as_ref().expect("Pipeline should be supplied");
+                            let events_handler = Arc::new(Box::new(KafkaEventsHandler::new()) as Box<dyn PipelineEventsHandler>);
+
+                            let context = ServicePipelineExecutionContext::new(
+                                grpc_pipeline,
+                                &pipeline_req.initial_context,
+                                pipeline_parts.clone(),
+                                events_handler.clone(),
+                            );
+
+                            let xes_log = match Self::update_log(names_to_logs.clone(), trace) {
+                                Ok(xes_log) => xes_log,
+                                Err(_) => return (),
+                            };
+
+                            let execution_result = context.execute_grpc_pipeline(move |context| {
+                                context.put_concrete(EVENT_LOG_KEY.key(), xes_log);
+                            });
+
+                            if let Err(err) = execution_result {
+                                let err = PipelineFinalResult::Error(err.to_string());
+                                events_handler.handle(PipelineEvent::FinalResult(err));
+                            }
+                        }
+                        None => {}
+                    }
+                    Err(err) => {
+                        print!("Failed to read messages from kafka: {:?}", err)
+                    }
+                }
             }
         });
 
-        todo!();
+        Ok(Response::new(GrpcKafkaResult {
+            result: Some(grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
+                subscription_id: Some(GrpcGuid {
+                    guid: consumer_uuid.to_string()
+                })
+            }))
+        }))
     }
 
     async fn unsubscribe_from_kafka_topic(
         &self,
         request: Request<GrpcUnsubscribeFromKafkaRequest>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
-        todo!()
+        let uuid = match Uuid::from_str(&request.get_ref().subscription_id.as_ref().unwrap().guid) {
+            Ok(uuid) => uuid,
+            Err(_) => return Err(Status::invalid_argument("Invalid uuid"))
+        };
+
+        let mut states = self.consumers_states.lock().expect("Should take lock");
+        let result = match states.get_mut(&uuid) {
+            None => {
+                grpc_kafka_result::Result::Failure(GrpcKafkaFailedResult {
+                    error_message: "There is not state for the supplied consumer uuid".to_string()
+                })
+            }
+            Some(state) => {
+                *state = ConsumerState::ShutdownRequested;
+                grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
+                    subscription_id: Some(request.get_ref().subscription_id.as_ref().unwrap().clone())
+                })
+            }
+        };
+
+        Ok(Response::new(GrpcKafkaResult {
+            result: Some(result)
+        }))
     }
 }
 
