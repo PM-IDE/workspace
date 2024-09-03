@@ -26,7 +26,7 @@ use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
 pub struct KafkaService {
-    names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
+    names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
     consumers_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
 }
@@ -98,7 +98,7 @@ impl KafkaService {
         request: Request<GrpcSubscribeForKafkaTopicRequest>,
         consumer_uuid: Uuid,
         consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
-        names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
+        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         pipeline_parts: Arc<Box<PipelineParts>>,
     ) {
         tokio::spawn(async move {
@@ -158,7 +158,7 @@ impl KafkaService {
         request: &Request<GrpcSubscribeForKafkaTopicRequest>,
         consumer_uuid: Uuid,
         consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
-        names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
+        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         pipeline_parts: Arc<Box<PipelineParts>>,
     ) -> bool {
         if Self::unsubscribe_if_requested(consumer, consumer_states.clone(), consumer_uuid) {
@@ -195,7 +195,7 @@ impl KafkaService {
     fn process_kafka_trace(
         trace: BxesKafkaTrace,
         request: &Request<GrpcSubscribeForKafkaTopicRequest>,
-        names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
+        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         pipeline_parts: Arc<Box<PipelineParts>>,
     ) {
         let pipeline_req = request.get_ref().pipeline_request.as_ref().expect("Pipeline should be supplied");
@@ -225,7 +225,7 @@ impl KafkaService {
     }
 
     fn update_log(
-        names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
+        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         trace: BxesKafkaTrace,
     ) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
         let metadata = trace.metadata();
@@ -239,13 +239,11 @@ impl KafkaService {
             if let BxesValue::String(case_name) = case_name.as_ref().as_ref() {
                 let case_name = case_name.as_ref().as_ref();
                 if !names_to_logs.contains_key(case_name) {
-                    let new_log = Arc::new(Mutex::new(XesEventLogImpl::empty()));
+                    let new_log = XesEventLogImpl::empty();
                     names_to_logs.insert(case_name.to_owned(), new_log);
                 }
 
-                let mut existing_log = names_to_logs.get(case_name).expect("Log should be present").lock();
-
-                let existing_log = existing_log.as_mut().ok().expect("Should take the lock on the log");
+                let mut existing_log = names_to_logs.get_mut(case_name).expect("Log should be present");
 
                 let xes_trace = match read_bxes_events(trace.events()) {
                     Ok(xes_trace) => xes_trace,
