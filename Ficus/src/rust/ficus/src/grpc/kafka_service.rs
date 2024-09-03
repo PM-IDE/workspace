@@ -15,7 +15,7 @@ use tonic::{Request, Response, Status};
 
 pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
-    pipeline_parts: Arc<Box<PipelineParts>>
+    pipeline_parts: Arc<Box<PipelineParts>>,
 }
 
 const CASE_NAME: &'static str = "case_name";

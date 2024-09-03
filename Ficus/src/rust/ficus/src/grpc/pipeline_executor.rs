@@ -1,6 +1,5 @@
 use crate::ficus_proto::grpc_pipeline_part_base::Part;
-use crate::ficus_proto::{GrpcContextKeyValue, GrpcGuid, GrpcPipeline, GrpcPipelinePart};
-use crate::grpc::backend_service::GrpcSender;
+use crate::ficus_proto::{GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart};
 use crate::grpc::converters::put_into_user_data;
 use crate::grpc::get_context_pipeline::GetContextValuePipelinePart;
 use crate::grpc::logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl};
@@ -14,11 +13,13 @@ use std::str::FromStr;
 use std::sync::Arc;
 use uuid::Uuid;
 
+use super::events_handler::PipelineEventsHandler;
+
 pub(super) struct ServicePipelineExecutionContext<'a> {
     grpc_pipeline: &'a GrpcPipeline,
     context_values: &'a Vec<GrpcContextKeyValue>,
     pipeline_parts: Arc<Box<PipelineParts>>,
-    sender: Arc<Box<GrpcSender>>,
+    sender: Arc<Box<dyn PipelineEventsHandler>>,
     log_message_handler: Arc<Box<dyn LogMessageHandler>>,
 }
 
@@ -27,9 +28,8 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         grpc_pipeline: &'a GrpcPipeline,
         context_values: &'a Vec<GrpcContextKeyValue>,
         pipeline_parts: Arc<Box<PipelineParts>>,
-        sender: GrpcSender,
+        sender: Arc<Box<dyn PipelineEventsHandler>>,
     ) -> Self {
-        let sender = Arc::new(Box::new(sender));
         let log_message_handler = Self::create_log_message_handler(sender.clone());
 
         Self {
@@ -41,7 +41,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         }
     }
 
-    fn create_log_message_handler(sender: Arc<Box<GrpcSender>>) -> Arc<Box<dyn LogMessageHandler>> {
+    fn create_log_message_handler(sender: Arc<Box<dyn PipelineEventsHandler>>) -> Arc<Box<dyn LogMessageHandler>> {
         let grpc_handler = GrpcLogMessageHandlerImpl::new(sender.clone());
         let grpc_handler = Box::new(grpc_handler) as Box<dyn LogMessageHandler>;
 
@@ -53,7 +53,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         Arc::new(Box::new(delegating_handler) as Box<dyn LogMessageHandler>)
     }
 
-    pub fn sender(&self) -> Arc<Box<GrpcSender>> {
+    pub fn sender(&self) -> Arc<Box<dyn PipelineEventsHandler>> {
         self.sender.clone()
     }
 
@@ -83,14 +83,14 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         }
     }
 
-    pub fn execute_grpc_pipeline(&self) -> Result<(GrpcGuid, UserDataImpl), PipelinePartExecutionError> {
+    pub fn execute_grpc_pipeline(&self) -> Result<(Uuid, UserDataImpl), PipelinePartExecutionError> {
         let id = Uuid::new_v4();
         let pipeline = self.to_pipeline();
         let mut pipeline_context = self.create_initial_context();
         let infra = PipelineInfrastructure::new(Some(self.log_message_handler()));
 
         match pipeline.execute(&mut pipeline_context, &infra) {
-            Ok(()) => Ok((GrpcGuid { guid: id.to_string() }, pipeline_context.devastate_user_data())),
+            Ok(()) => Ok((id, pipeline_context.devastate_user_data())),
             Err(err) => Err(err),
         }
     }
@@ -133,7 +133,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     fn create_get_context_part(
         key_names: Vec<String>,
         uuid: Uuid,
-        sender: &Arc<Box<GrpcSender>>,
+        sender: &Arc<Box<dyn PipelineEventsHandler>>,
         before_part: Option<Box<DefaultPipelinePart>>,
     ) -> Box<GetContextValuePipelinePart> {
         let sender = sender.clone();

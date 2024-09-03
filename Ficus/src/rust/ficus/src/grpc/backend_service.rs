@@ -23,6 +23,8 @@ use crate::{
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
 
+use super::events_handler::{GrpcPipelineEventsHandler, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+
 pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_result::Result;
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;
 
@@ -55,22 +57,21 @@ impl GrpcBackendService for FicusService {
         tokio::task::spawn_blocking(move || {
             let grpc_pipeline = request.get_ref().pipeline.as_ref().unwrap();
             let context_values = &request.get_ref().initial_context;
+            let sender = Arc::new(Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>);
             let context = ServicePipelineExecutionContext::new(grpc_pipeline, context_values, pipeline_parts, sender);
 
             match context.execute_grpc_pipeline() {
-                Ok((guid, created_context)) => {
-                    contexts.lock().as_mut().unwrap().insert(guid.guid.to_owned(), created_context);
+                Ok((uuid, created_context)) => {
+                    contexts.lock().as_mut().unwrap().insert(uuid.to_string(), created_context);
 
                     context
                         .sender()
-                        .blocking_send(Ok(Self::create_final_result(ExecutionResult::Success(guid))))
-                        .ok();
+                        .handle(PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
                 }
                 Err(error) => {
                     context
                         .sender()
-                        .blocking_send(Ok(Self::create_final_result(ExecutionResult::Error(error.to_string()))))
-                        .ok();
+                        .handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(error.to_string())));
                 }
             };
         });
@@ -116,14 +117,6 @@ impl GrpcBackendService for FicusService {
 }
 
 impl FicusService {
-    fn create_final_result(execution_result: ExecutionResult) -> GrpcPipelinePartExecutionResult {
-        GrpcPipelinePartExecutionResult {
-            result: Some(GrpcResult::FinalResult(GrpcPipelineFinalResult {
-                execution_result: Some(execution_result),
-            })),
-        }
-    }
-
     fn create_get_context_value_error(message: String) -> GrpcGetContextValueResult {
         GrpcGetContextValueResult {
             context_value_result: Some(ContextValueResult::Error(message)),

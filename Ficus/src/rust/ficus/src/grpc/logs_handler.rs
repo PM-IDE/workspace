@@ -1,42 +1,23 @@
 use std::sync::Arc;
 
-use crate::{
-    ficus_proto::{GrpcPipelinePartExecutionResult, GrpcPipelinePartLogMessage},
-    pipelines::{
-        context::LogMessageHandler,
-        errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
-    },
-};
+use crate::pipelines::{context::LogMessageHandler, errors::pipeline_errors::PipelinePartExecutionError};
 
-use super::backend_service::{GrpcResult, GrpcSender};
+use super::events_handler::{PipelineEvent, PipelineEventsHandler};
 
 pub struct GrpcLogMessageHandlerImpl {
-    sender: Arc<Box<GrpcSender>>,
+    sender: Arc<Box<dyn PipelineEventsHandler>>,
 }
 
 impl LogMessageHandler for GrpcLogMessageHandlerImpl {
     fn handle(&self, message: &str) -> Result<(), PipelinePartExecutionError> {
-        match self.sender.blocking_send(Ok(Self::create_log_message_result(&message))) {
-            Ok(_) => Ok(()),
-            Err(_) => {
-                let message = format!("Failed to send log message: {}", &message);
-                Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
-            }
-        }
+        self.sender.handle(PipelineEvent::LogMessage(message.to_string()));
+        Ok(())
     }
 }
 
 impl GrpcLogMessageHandlerImpl {
-    pub fn new(sender: Arc<Box<GrpcSender>>) -> Self {
+    pub fn new(sender: Arc<Box<dyn PipelineEventsHandler>>) -> Self {
         Self { sender }
-    }
-
-    fn create_log_message_result(message: &str) -> GrpcPipelinePartExecutionResult {
-        GrpcPipelinePartExecutionResult {
-            result: Some(GrpcResult::LogMessage(GrpcPipelinePartLogMessage {
-                message: message.to_owned(),
-            })),
-        }
     }
 }
 
