@@ -9,10 +9,10 @@ pub fn main() {
         .expect("invalid consumer config");
 
     let mut consumer = BxesKafkaConsumer::new("my-topic".to_string(), consumer);
+    consumer.subscribe().expect("Must subscribe");
 
-    consumer
-        .consume(|trace| {
-            println!("{:?}", trace);
-        })
-        .unwrap()
+    loop {
+        let trace = consumer.consume().ok().unwrap();
+        println!("{:?}", trace);
+    }
 }

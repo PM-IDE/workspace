@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use bxes::binary_rw::core::{BinaryReader, Endian};
 use bxes::binary_rw::cursor_stream::CursorStream;
 use bxes::models::domain::bxes_event_log::BxesEvent;
@@ -12,6 +11,7 @@ use bxes::read::read_utils::{
 use rdkafka::consumer::{BaseConsumer, CommitMode, Consumer};
 use rdkafka::error::KafkaError;
 use rdkafka::Message;
+use std::collections::HashMap;
 use std::io::Cursor;
 use std::rc::Rc;
 use std::time::Duration;
@@ -19,11 +19,12 @@ use std::time::Duration;
 pub struct BxesKafkaConsumer {
     topic: String,
     consumer: BaseConsumer,
+    read_metadata: ReadMetadata
 }
 
 impl BxesKafkaConsumer {
     pub fn new(topic: String, consumer: BaseConsumer) -> Self {
-        Self { topic, consumer }
+        Self { topic, consumer, read_metadata: ReadMetadata::empty() }
     }
 }
 
@@ -62,22 +63,31 @@ impl From<KafkaError> for BxesKafkaError {
 }
 
 impl BxesKafkaConsumer {
-    pub fn consume(&mut self, action: impl Fn(BxesKafkaTrace) -> ()) -> Result<(), BxesKafkaError> {
-        self.consumer.subscribe(&[self.topic.as_str()])?;
-        let mut read_metadata = ReadMetadata::empty();
+    pub fn subscribe(&mut self) -> Result<(), BxesKafkaError> {
+        match self.consumer.subscribe(&[self.topic.as_str()]) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(BxesKafkaError::Kafka(err))
+        }
+    }
 
-        loop {
-            match self.consumer.poll(Duration::from_secs(5)) {
-                Some(message) => match message {
-                    Ok(msg) => {
-                        let payload = msg.payload().unwrap();
-                        action(Self::parse_raw_bxes_bytes(payload, &mut read_metadata)?);
+    pub fn unsubscribe(&mut self) {
+        self.consumer.unsubscribe()
+    }
 
-                        self.consumer.commit_message(&msg, CommitMode::Async)?;
-                    }
-                    Err(err) => return Err(BxesKafkaError::Kafka(err)),
-                },
-                None => {}
+    pub fn consume(&mut self) -> Result<Option<BxesKafkaTrace>, BxesKafkaError> {
+        match self.consumer.poll(Duration::from_millis(1000)) {
+            Some(message) => match message {
+                Ok(msg) => {
+                    let payload = msg.payload().unwrap();
+                    let trace = Self::parse_raw_bxes_bytes(payload, &mut self.read_metadata)?;
+                    self.consumer.commit_message(&msg, CommitMode::Async)?;
+
+                    Ok(Some(trace))
+                }
+                Err(err) => Err(BxesKafkaError::Kafka(err)),
+            },
+            None => {
+                Ok(None)
             }
         }
     }
