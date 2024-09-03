@@ -31,6 +31,16 @@ pub struct KafkaService {
     consumers_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
 }
 
+impl KafkaService {
+    pub fn new() -> Self {
+        Self {
+            names_to_logs: Arc::new(Mutex::new(HashMap::new())),
+            pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
+            consumers_states: Arc::new(Mutex::new(HashMap::new()))
+        }
+    }
+}
+
 enum ConsumerState {
     Consuming,
     ShutdownRequested,
