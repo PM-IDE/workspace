@@ -1,16 +1,10 @@
 use std::sync::Arc;
 use uuid::Uuid;
 
-use super::{
-    backend_service::{GrpcResult, GrpcSender},
-    converters::convert_to_grpc_context_value,
-    events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler},
-};
-use crate::ficus_proto::{GrpcContextValueWithKeyName, GrpcUuid};
+use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler};
 use crate::pipelines::context::PipelineInfrastructure;
 use crate::pipelines::keys::context_keys::find_context_key;
 use crate::{
-    ficus_proto::{GrpcPipelinePartExecutionResult, GrpcPipelinePartResult},
     pipelines::{
         context::PipelineContext,
         errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError},

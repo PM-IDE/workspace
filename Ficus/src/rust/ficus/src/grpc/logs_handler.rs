@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::pipelines::{context::LogMessageHandler, errors::pipeline_errors::PipelinePartExecutionError};
 
-use super::events_handler::{PipelineEvent, PipelineEventsHandler};
+use super::events::events_handler::{PipelineEvent, PipelineEventsHandler};
 
 pub struct GrpcLogMessageHandlerImpl {
     sender: Arc<Box<dyn PipelineEventsHandler>>,

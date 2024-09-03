@@ -13,13 +13,13 @@ use std::str::FromStr;
 use std::sync::Arc;
 use uuid::Uuid;
 
-use super::events_handler::PipelineEventsHandler;
+use super::events::events_handler::PipelineEventsHandler;
 
 pub(super) struct ServicePipelineExecutionContext<'a> {
     grpc_pipeline: &'a GrpcPipeline,
     context_values: &'a Vec<GrpcContextKeyValue>,
     pipeline_parts: Arc<Box<PipelineParts>>,
-    sender: Arc<Box<dyn PipelineEventsHandler>>,
+    handler: Arc<Box<dyn PipelineEventsHandler>>,
     log_message_handler: Arc<Box<dyn LogMessageHandler>>,
 }
 
@@ -28,15 +28,15 @@ impl<'a> ServicePipelineExecutionContext<'a> {
         grpc_pipeline: &'a GrpcPipeline,
         context_values: &'a Vec<GrpcContextKeyValue>,
         pipeline_parts: Arc<Box<PipelineParts>>,
-        sender: Arc<Box<dyn PipelineEventsHandler>>,
+        handler: Arc<Box<dyn PipelineEventsHandler>>,
     ) -> Self {
-        let log_message_handler = Self::create_log_message_handler(sender.clone());
+        let log_message_handler = Self::create_log_message_handler(handler.clone());
 
         Self {
             grpc_pipeline,
             context_values,
             pipeline_parts,
-            sender,
+            handler,
             log_message_handler,
         }
     }
@@ -54,7 +54,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     }
 
     pub fn sender(&self) -> Arc<Box<dyn PipelineEventsHandler>> {
-        self.sender.clone()
+        self.handler.clone()
     }
 
     pub fn grpc_pipeline(&self) -> &GrpcPipeline {
@@ -78,15 +78,20 @@ impl<'a> ServicePipelineExecutionContext<'a> {
             grpc_pipeline: new_grpc_pipeline,
             context_values: self.context_values,
             pipeline_parts: self.pipeline_parts.clone(),
-            sender: self.sender.clone(),
+            handler: self.handler.clone(),
             log_message_handler: self.log_message_handler.clone(),
         }
     }
 
-    pub fn execute_grpc_pipeline(&self) -> Result<(Uuid, UserDataImpl), PipelinePartExecutionError> {
+    pub fn execute_grpc_pipeline(
+        &self,
+        context_mutator: impl FnOnce(&mut PipelineContext) -> (),
+    ) -> Result<(Uuid, UserDataImpl), PipelinePartExecutionError> {
         let id = Uuid::new_v4();
         let pipeline = self.to_pipeline();
         let mut pipeline_context = self.create_initial_context();
+        context_mutator(&mut pipeline_context);
+
         let infra = PipelineInfrastructure::new(Some(self.log_message_handler()));
 
         match pipeline.execute(&mut pipeline_context, &infra) {

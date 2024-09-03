@@ -1,41 +1,19 @@
-use std::{any::Any, sync::Arc};
-
-use uuid::Uuid;
+use std::sync::Arc;
 
 use crate::{
     ficus_proto::{
         grpc_pipeline_final_result::ExecutionResult, GrpcContextValueWithKeyName, GrpcGuid, GrpcPipelineFinalResult,
         GrpcPipelinePartExecutionResult, GrpcPipelinePartLogMessage, GrpcPipelinePartResult, GrpcUuid,
     },
-    pipelines::{context::LogMessageHandler, errors::pipeline_errors::PipelinePartExecutionError, keys::context_key::ContextKey},
-    utils::user_data::keys::Key,
+    grpc::{
+        backend_service::{GrpcResult, GrpcSender},
+        converters::convert_to_grpc_context_value,
+        logs_handler::ConsoleLogMessageHandler,
+    },
+    pipelines::context::LogMessageHandler,
 };
 
-use super::{
-    backend_service::{GrpcResult, GrpcSender},
-    converters::convert_to_grpc_context_value,
-    logs_handler::ConsoleLogMessageHandler,
-};
-
-pub trait PipelineEventsHandler: Send + Sync {
-    fn handle(&self, event: PipelineEvent);
-}
-
-pub struct GetContextValuesEvent<'a> {
-    pub(super) uuid: Uuid,
-    pub(super) key_values: Vec<(&'a dyn ContextKey, &'a dyn Any)>,
-}
-
-pub enum PipelineFinalResult {
-    Success(Uuid),
-    Error(String),
-}
-
-pub enum PipelineEvent<'a> {
-    GetContextValuesEvent(GetContextValuesEvent<'a>),
-    LogMessage(String),
-    FinalResult(PipelineFinalResult),
-}
+use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 
 pub struct GrpcPipelineEventsHandler {
     sender: Arc<Box<GrpcSender>>,

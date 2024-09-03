@@ -3,7 +3,12 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
 use crate::ficus_proto::{GrpcKafkaResult, GrpcSubscribeForKafkaTopicRequest, GrpcUnsubscribeFromKafkaRequest};
+use crate::grpc::events::events_handler::PipelineEvent;
+use crate::grpc::events::kafka_events_handler::KafkaEventsHandler;
+use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
+use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
 use crate::pipelines::pipeline_parts::PipelineParts;
+use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaTrace};
 use rdkafka::ClientConfig;
@@ -12,6 +17,8 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use tonic::{Request, Response, Status};
+
+use super::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 
 pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, Arc<Mutex<XesEventLogImpl>>>>>,
@@ -42,10 +49,34 @@ impl GrpcKafkaService for KafkaService {
             let pipeline_req = request.pipeline_request.as_ref().expect("Pipeline should be supplied");
             let mut consumer = BxesKafkaConsumer::new(request.topic_name.to_owned(), consumer);
 
-            consumer.consume(|trace| {
-                let xes_log = Self::update_log(names_to_logs.clone(), trace);
+            let result = consumer.consume(|trace| {
                 let grpc_pipeline = pipeline_req.pipeline.as_ref().expect("Pipeline should be supplied");
+                let events_handler = Arc::new(Box::new(KafkaEventsHandler::new()) as Box<dyn PipelineEventsHandler>);
+
+                let context = ServicePipelineExecutionContext::new(
+                    grpc_pipeline,
+                    &pipeline_req.initial_context,
+                    pipeline_parts.clone(),
+                    events_handler.clone(),
+                );
+
+                let xes_log = match Self::update_log(names_to_logs.clone(), trace) {
+                    Ok(xes_log) => xes_log,
+                    Err(_) => return (),
+                };
+
+                let execution_result = context.execute_grpc_pipeline(move |context| {
+                    context.put_concrete(EVENT_LOG_KEY.key(), xes_log);
+                });
+
+                if let Err(err) = execution_result {
+                    events_handler.handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
+                }
             });
+
+            if let Err(kafka_error) = result {
+                print!("Failed to read messsages from kafka: {:?}", kafka_error)
+            }
         });
 
         todo!();
