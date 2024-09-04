@@ -14,7 +14,6 @@ service GrpcKafkaService {
 
 message GrpcSubscribeForKafkaTopicRequest {
   string topicName = 1;
-  string bootstrapServers = 2;
   repeated GrpcKafkaConsumerMetadata metadata = 3;
   GrpcPipelineExecutionRequest pipelineRequest = 4;
 }
