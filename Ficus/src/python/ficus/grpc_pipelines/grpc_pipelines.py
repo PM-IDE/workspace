@@ -52,14 +52,15 @@ class KafkaPipeline:
                 metadata=list(map(lambda x: GrpcKafkaConsumerMetadata(
                     key=x[0],
                     value=x[1]
-                ), list(kafka_metadata.kafka_consumer_configuration)))
+                ), list(kafka_metadata.kafka_consumer_configuration.items())))
             )
 
             response = stub.SubscribeForKafkaTopic(request)
             if response.HasField('success'):
-                self.consumer_uuid = response.result.success.subscriptionId.guid
+                self.consumer_uuid = response.success.subscriptionId.guid
+                print(f'Consumer id: {self.consumer_uuid}')
             else:
-                print(response.result.failure.errorMessage)
+                print(response.failure.errorMessage)
 
 
 class Pipeline:
