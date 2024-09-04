@@ -22,6 +22,7 @@ use std::hash::Hash;
 use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
+use rdkafka::error::KafkaError;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
@@ -59,14 +60,21 @@ impl GrpcKafkaService for KafkaService {
         let names_to_logs = self.names_to_logs.clone();
         let pipeline_parts = self.pipeline_parts.clone();
 
-        Self::spawn_consumer(request, consumer_uuid, consumer_states, names_to_logs, pipeline_parts);
+        let result = Self::spawn_consumer(request, consumer_uuid, consumer_states, names_to_logs, pipeline_parts);
 
-        Ok(Response::new(GrpcKafkaResult {
-            result: Some(grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
+        let result = match result {
+            Ok(_) => grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
                 subscription_id: Some(GrpcGuid {
                     guid: consumer_uuid.to_string(),
                 }),
-            })),
+            }),
+            Err(err) => grpc_kafka_result::Result::Failure(GrpcKafkaFailedResult {
+                error_message: err.to_string()
+            })
+        };
+
+        Ok(Response::new(GrpcKafkaResult {
+            result: Some(result),
         }))
     }
 
@@ -110,9 +118,16 @@ impl KafkaService {
         consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         pipeline_parts: Arc<Box<PipelineParts>>,
-    ) {
+    ) -> Result<(), KafkaError> {
+        let mut consumer = match Self::create_consumer(&request) {
+            Ok(consumer) => consumer,
+            Err(err) => {
+                println!("Failed to create kafka consumer: {}", err.to_string());
+                return Err(err);
+            }
+        };
+
         tokio::spawn(async move {
-            let mut consumer = Self::create_consumer(&request);
             Self::subscribe(&mut consumer, consumer_uuid, consumer_states.clone());
 
             loop {
@@ -126,22 +141,24 @@ impl KafkaService {
                 );
 
                 if should_stop {
-                    return;
+                    return
                 }
             }
         });
+
+        Ok(())
     }
 
-    fn create_consumer(request: &Request<GrpcSubscribeForKafkaTopicRequest>) -> BxesKafkaConsumer {
+    fn create_consumer(request: &Request<GrpcSubscribeForKafkaTopicRequest>) -> Result<BxesKafkaConsumer, KafkaError> {
         let mut config = ClientConfig::new();
 
         for metadata_pair in &request.get_ref().metadata {
             config.set(metadata_pair.key.to_owned(), metadata_pair.value.to_owned());
         }
 
-        let consumer = config.create().expect("Should create client config");
+        let consumer = config.create()?;
 
-        BxesKafkaConsumer::new(request.get_ref().topic_name.to_owned(), consumer)
+        Ok(BxesKafkaConsumer::new(request.get_ref().topic_name.to_owned(), consumer))
     }
 
     fn subscribe(consumer: &mut BxesKafkaConsumer, consumer_uuid: Uuid, consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>) {

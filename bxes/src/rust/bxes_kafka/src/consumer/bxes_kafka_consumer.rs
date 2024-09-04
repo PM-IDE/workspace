@@ -22,6 +22,8 @@ pub struct BxesKafkaConsumer {
     read_metadata: ReadMetadata
 }
 
+unsafe impl Send for BxesKafkaConsumer {}
+
 impl BxesKafkaConsumer {
     pub fn new(topic: String, consumer: BaseConsumer) -> Self {
         Self { topic, consumer, read_metadata: ReadMetadata::empty() }
