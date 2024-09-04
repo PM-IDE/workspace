@@ -35,7 +35,7 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
   {
     List<AttributeKeyValue> metadata =
     [
-      new AttributeKeyValue(new BxesStringValue("MethodName"), new BxesStringValue(value.MethodName))
+      new(new BxesStringValue("case_name"), new BxesStringValue(value.MethodName))
     ];
 
     myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
