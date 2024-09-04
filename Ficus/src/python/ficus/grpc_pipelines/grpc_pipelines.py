@@ -2,6 +2,8 @@ import uuid
 from dataclasses import dataclass
 from typing import Optional
 
+from .models.kafka_service_pb2 import *
+from .models.kafka_service_pb2_grpc import GrpcKafkaServiceStub
 from ..legacy.analysis.event_log_analysis import draw_colors_event_log
 from ..legacy.analysis.event_log_analysis_canvas import draw_colors_event_log_canvas
 from ..legacy.analysis.patterns.patterns_models import UndefinedActivityHandlingStrategy
@@ -20,19 +22,52 @@ from ..legacy.util import performance_cookie
 
 ficus_backend_addr_key = 'backend'
 
+def create_ficus_grpc_channel(initial_context: dict[str, ContextValue]) -> grpc.Channel:
+    options = [('grpc.max_send_message_length', 512 * 1024 * 1024),
+               ('grpc.max_receive_message_length', 512 * 1024 * 1024)]
+
+    addr = initial_context[ficus_backend_addr_key] if ficus_backend_addr_key in initial_context else 'localhost:8080'
+    if ficus_backend_addr_key in initial_context:
+        del initial_context[ficus_backend_addr_key]
+
+    return grpc.insecure_channel(addr, options=options)
+
+
+@dataclass
+class KafkaPipelineMetadata:
+    topic_name: str
+    kafka_consumer_configuration: dict[str, str]
+
+
+class KafkaPipeline:
+    def __init__(self, *parts):
+        self.parts: list['PipelinePart'] = list(parts)
+        self.consumer_uuid: Optional[str] = None
+
+    def execute(self, kafka_metadata: KafkaPipelineMetadata, initial_context: dict[str, ContextValue]):
+        with create_ficus_grpc_channel(initial_context) as channel:
+            stub = GrpcKafkaServiceStub(channel)
+            request = GrpcSubscribeForKafkaTopicRequest(
+                topicName=kafka_metadata.topic_name,
+                metadata=list(map(lambda x: GrpcKafkaConsumerMetadata(
+                    key=x[0],
+                    value=x[1]
+                ), list(kafka_metadata.kafka_consumer_configuration)))
+            )
+
+            response = stub.SubscribeForKafkaTopic(request)
+            if response.HasField('success'):
+                self.consumer_uuid = response.result.success.subscriptionId.guid
+            else:
+                print(response.result.failure.errorMessage)
+
+
 class Pipeline:
     def __init__(self, *parts):
         self.parts: list['PipelinePart'] = list(parts)
 
     def execute(self, initial_context: dict[str, ContextValue]) -> GrpcPipelinePartExecutionResult:
-        options = [('grpc.max_send_message_length', 512 * 1024 * 1024),
-                   ('grpc.max_receive_message_length', 512 * 1024 * 1024)]
-
-        addr = initial_context[ficus_backend_addr_key] if ficus_backend_addr_key in initial_context else 'localhost:8080'
-        if ficus_backend_addr_key in initial_context:
-            del initial_context[ficus_backend_addr_key]
-
-        with grpc.insecure_channel(addr, options=options) as channel:
+        with create_ficus_grpc_channel(initial_context) as channel:
             stub = GrpcBackendServiceStub(channel)
             parts = list(self.parts)
             request = GrpcPipelineExecutionRequest(
