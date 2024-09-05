@@ -40,6 +40,13 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
             }),
         };
 
+        if !self.is_alive() {
+            let message = "The channel is closed, will not send the event";
+            self.console_logs_handler.handle(message).ok();
+
+            return;
+        }
+
         match self.sender.blocking_send(Ok(result)) {
             Ok(_) => (),
             Err(err) => {
@@ -47,6 +54,10 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
                 self.console_logs_handler.handle(message.as_str()).ok();
             }
         }
+    }
+
+    fn is_alive(&self) -> bool {
+        !self.sender.is_closed()
     }
 }
 

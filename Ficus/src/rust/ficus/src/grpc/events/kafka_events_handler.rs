@@ -10,4 +10,8 @@ impl KafkaEventsHandler {
 
 impl PipelineEventsHandler for KafkaEventsHandler {
     fn handle(&self, event: PipelineEvent) {}
+
+    fn is_alive(&self) -> bool {
+        true
+    }
 }

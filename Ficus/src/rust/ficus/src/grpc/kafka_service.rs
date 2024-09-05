@@ -194,6 +194,7 @@ impl KafkaService {
                     let should_stop = Self::execute_consumer_routine(&mut consumer, &request, dto.clone());
 
                     if should_stop {
+                        consumer.unsubscribe();
                         return
                     }
                 }
@@ -241,7 +242,7 @@ impl KafkaService {
         request: &Request<GrpcSubscribeForKafkaTopicRequest>,
         dto: KafkaConsumerCreationDto
     ) -> bool {
-        if Self::unsubscribe_if_requested(consumer, dto.clone()) {
+        if !dto.events_handler.is_alive() || Self::is_unsubscribe_requested(dto.clone()) {
             return true;
         }
 
@@ -258,13 +259,11 @@ impl KafkaService {
         false
     }
 
-    fn unsubscribe_if_requested(
-        consumer: &mut BxesKafkaConsumer,
+    fn is_unsubscribe_requested(
         dto: KafkaConsumerCreationDto
     ) -> bool {
         let states = dto.consumer_states.lock().expect("Should take lock");
         if let Some(ConsumerState::ShutdownRequested) = states.get(&dto.uuid) {
-            consumer.unsubscribe();
             true
         } else {
             false
