@@ -187,15 +187,19 @@ impl KafkaService {
         };
 
         tokio::spawn(async move {
-            Self::subscribe(&mut consumer, dto.clone());
+            let handle = tokio::task::spawn_blocking(move || {
+                Self::subscribe(&mut consumer, dto.clone());
 
-            loop {
-                let should_stop = Self::execute_consumer_routine(&mut consumer, &request, dto.clone());
+                loop {
+                    let should_stop = Self::execute_consumer_routine(&mut consumer, &request, dto.clone());
 
-                if should_stop {
-                    return
+                    if should_stop {
+                        return
+                    }
                 }
-            }
+            });
+
+            handle.await
         });
 
         Ok(())
