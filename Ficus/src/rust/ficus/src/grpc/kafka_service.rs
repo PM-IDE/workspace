@@ -57,10 +57,7 @@ impl GrpcKafkaService for KafkaService {
         &self,
         request: Request<GrpcSubscribeForKafkaTopicRequest>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
-        let creation_dto = KafkaConsumerCreationDto::new(
-            self.consumers_states.clone(),
-            self.names_to_logs.clone(),
-            self.pipeline_parts.clone(),
+        let creation_dto = self.create_kafka_creation_dto(
             Arc::new(Box::new(KafkaEventsHandler::new()) as Box<dyn PipelineEventsHandler>)
         );
 
@@ -87,16 +84,13 @@ impl GrpcKafkaService for KafkaService {
         request: Request<GrpcSubscribeForKafkaTopicRequest>
     ) -> Result<Response<Self::SubscribeForKafkaTopicStreamStream>, Status> {
         let (sender, receiver) = mpsc::channel(4);
-        let creation_dto = KafkaConsumerCreationDto::new(
-            self.consumers_states.clone(),
-            self.names_to_logs.clone(),
-            self.pipeline_parts.clone(),
+        let creation_dto = self.create_kafka_creation_dto(
             Arc::new(Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>)
         );
 
         match Self::subscribe_to_kafka_topic(creation_dto, request) {
             Ok(_) => Ok(Response::new(Box::pin(ReceiverStream::new(receiver)))),
-            Err(err) => Err(Status::from(err))
+            Err(err) => Err(Status::invalid_argument(err.to_string()))
         }
     }
 
@@ -160,6 +154,15 @@ impl KafkaConsumerCreationDto {
 }
 
 impl KafkaService {
+    fn create_kafka_creation_dto(&self, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> KafkaConsumerCreationDto {
+        KafkaConsumerCreationDto::new(
+            self.consumers_states.clone(),
+            self.names_to_logs.clone(),
+            self.pipeline_parts.clone(),
+            events_handler
+        )
+    }
+
     fn subscribe_to_kafka_topic(
         creation_dto: KafkaConsumerCreationDto,
         request: Request<GrpcSubscribeForKafkaTopicRequest>
