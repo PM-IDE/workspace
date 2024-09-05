@@ -9,6 +9,7 @@ package ficus;
 
 service GrpcKafkaService {
   rpc SubscribeForKafkaTopic(GrpcSubscribeForKafkaTopicRequest) returns (GrpcKafkaResult);
+  rpc SubscribeForKafkaTopicStream(GrpcSubscribeForKafkaTopicRequest) returns (stream GrpcPipelinePartExecutionResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
 }
 
