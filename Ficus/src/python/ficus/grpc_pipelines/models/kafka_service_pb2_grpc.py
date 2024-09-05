@@ -6,6 +6,8 @@ import grpc
 
 
 
+import ficus.grpc_pipelines.models.backend_service_pb2 as backend__service__pb2
+
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 import ficus.grpc_pipelines.models.kafka_service_pb2 as kafka__service__pb2
@@ -42,6 +44,16 @@ class GrpcKafkaServiceStub(object):
 
                 )
 
+        self.SubscribeForKafkaTopicStream = channel.unary_stream(
+
+                '/ficus.GrpcKafkaService/SubscribeForKafkaTopicStream',
+
+                request_serializer=kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.SerializeToString,
+
+                response_deserializer=backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
+
+                )
+
         self.UnsubscribeFromKafkaTopic = channel.unary_unary(
 
                 '/ficus.GrpcKafkaService/UnsubscribeFromKafkaTopic',
@@ -63,6 +75,18 @@ class GrpcKafkaServiceServicer(object):
 
 
     def SubscribeForKafkaTopic(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def SubscribeForKafkaTopicStream(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -99,6 +123,16 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
                     request_deserializer=kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.FromString,
 
                     response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
+
+            ),
+
+            'SubscribeForKafkaTopicStream': grpc.unary_stream_rpc_method_handler(
+
+                    servicer.SubscribeForKafkaTopicStream,
+
+                    request_deserializer=kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.FromString,
+
+                    response_serializer=backend__service__pb2.GrpcPipelinePartExecutionResult.SerializeToString,
 
             ),
 
@@ -159,6 +193,40 @@ class GrpcKafkaService(object):
             kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def SubscribeForKafkaTopicStream(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcKafkaService/SubscribeForKafkaTopicStream',
+
+            kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.SerializeToString,
+
+            backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 
             options, channel_credentials,
 
