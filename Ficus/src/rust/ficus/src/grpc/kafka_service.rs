@@ -19,11 +19,14 @@ use std::hash::Hash;
 use std::pin::Pin;
 use std::rc::Rc;
 use std::str::FromStr;
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex};
 use futures::Stream;
 use rdkafka::error::KafkaError;
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
+use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 
 pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
@@ -54,7 +57,14 @@ impl GrpcKafkaService for KafkaService {
         &self,
         request: Request<GrpcSubscribeForKafkaTopicRequest>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
-        let result = match Self::subscribe_to_kafka_topic(&self, request) {
+        let creation_dto = KafkaConsumerCreationDto::new(
+            self.consumers_states.clone(),
+            self.names_to_logs.clone(),
+            self.pipeline_parts.clone(),
+            Arc::new(Box::new(KafkaEventsHandler::new()) as Box<dyn PipelineEventsHandler>)
+        );
+
+        let result = match Self::subscribe_to_kafka_topic(creation_dto, request) {
             Ok(consumer_uuid) => grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
                 subscription_id: Some(GrpcGuid {
                     guid: consumer_uuid.to_string(),
@@ -76,7 +86,18 @@ impl GrpcKafkaService for KafkaService {
         &self,
         request: Request<GrpcSubscribeForKafkaTopicRequest>
     ) -> Result<Response<Self::SubscribeForKafkaTopicStreamStream>, Status> {
-        todo!();
+        let (sender, receiver) = mpsc::channel(4);
+        let creation_dto = KafkaConsumerCreationDto::new(
+            self.consumers_states.clone(),
+            self.names_to_logs.clone(),
+            self.pipeline_parts.clone(),
+            Arc::new(Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>)
+        );
+
+        match Self::subscribe_to_kafka_topic(creation_dto, request) {
+            Ok(_) => Ok(Response::new(Box::pin(ReceiverStream::new(receiver)))),
+            Err(err) => Err(Status::from(err))
+        }
     }
 
     async fn unsubscribe_from_kafka_topic(
@@ -139,14 +160,10 @@ impl KafkaConsumerCreationDto {
 }
 
 impl KafkaService {
-    fn subscribe_to_kafka_topic(&self, request: Request<GrpcSubscribeForKafkaTopicRequest>) -> Result<Uuid, KafkaError> {
-        let creation_dto = KafkaConsumerCreationDto::new(
-            self.consumers_states.clone(),
-            self.names_to_logs.clone(),
-            self.pipeline_parts.clone(),
-            Arc::new(Box::new(KafkaEventsHandler::new()) as Box<dyn PipelineEventsHandler>)
-        );
-
+    fn subscribe_to_kafka_topic(
+        creation_dto: KafkaConsumerCreationDto,
+        request: Request<GrpcSubscribeForKafkaTopicRequest>
+    ) -> Result<Uuid, KafkaError> {
         let consumer_uuid = creation_dto.uuid;
         match Self::spawn_consumer(request, creation_dto) {
             Ok(_) => Ok(consumer_uuid),
