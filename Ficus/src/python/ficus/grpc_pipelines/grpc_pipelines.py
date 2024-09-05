@@ -54,6 +54,42 @@ def create_initial_context(context: dict[str, ContextValue]) -> list[GrpcContext
 
     return result
 
+def process_pipeline_output_stream(callback_parts, stream):
+    uuid_to_pipeline_with_callback = {}
+    for part in callback_parts:
+        uuid_to_pipeline_with_callback[part.uuid] = part
+
+    last_result = None
+
+    for part_result in stream:
+        last_result = part_result
+
+        if last_result.HasField('finalResult'):
+            break
+
+        if last_result.HasField('pipelinePartResult'):
+            issued_part_uuid = uuid.UUID(part_result.pipelinePartResult.uuid.uuid)
+            if issued_part_uuid in uuid_to_pipeline_with_callback:
+                map = dict()
+                for context_value_with_name in part_result.pipelinePartResult.contextValues:
+                    map[context_value_with_name.key_name] = context_value_with_name.value
+
+                part = uuid_to_pipeline_with_callback[issued_part_uuid]
+
+                def action():
+                    part.execute_callback(map)
+
+                performance_cookie(f'{type(part).__name__}Callback', action)
+
+        if last_result.HasField('logMessage'):
+            print(part_result.logMessage.message)
+
+    return last_result
+
+def append_parts_with_callbacks(original_parts, callback_parts: list['PipelinePartWithCallback']):
+    for part in list(original_parts):
+        part.append_parts_with_callbacks(callback_parts)
+
 
 @dataclass
 class KafkaPipelineMetadata:
@@ -70,28 +106,43 @@ class KafkaPipeline:
         with create_ficus_grpc_channel(initial_context) as channel:
             stub = GrpcKafkaServiceStub(channel)
 
-            metadata = list(map(
-                lambda x: GrpcKafkaConsumerMetadata(key=x[0],value=x[1]),
-                list(kafka_metadata.kafka_consumer_configuration.items())
-            ))
-
-            pipeline_request = GrpcPipelineExecutionRequest(
-                pipeline=create_grpc_pipeline(self.parts),
-                initialContext=create_initial_context(initial_context)
-            )
-
-            request = GrpcSubscribeForKafkaTopicRequest(
-                topicName=kafka_metadata.topic_name,
-                metadata=metadata,
-                pipelineRequest=pipeline_request
-            )
-
+            request = self._create_subscribe_to_kafka_request(kafka_metadata, initial_context)
             response = stub.SubscribeForKafkaTopic(request)
             if response.HasField('success'):
                 self.consumer_uuid = response.success.subscriptionId.guid
                 print(f'Consumer id: {self.consumer_uuid}')
             else:
                 print(response.failure.errorMessage)
+
+    def _create_subscribe_to_kafka_request(self,
+                                           kafka_metadata: KafkaPipelineMetadata,
+                                           initial_context: dict[str, ContextValue]) -> GrpcSubscribeForKafkaTopicRequest:
+        metadata = list(map(
+            lambda x: GrpcKafkaConsumerMetadata(key=x[0], value=x[1]),
+            list(kafka_metadata.kafka_consumer_configuration.items())
+        ))
+
+        pipeline_request = GrpcPipelineExecutionRequest(
+            pipeline=create_grpc_pipeline(self.parts),
+            initialContext=create_initial_context(initial_context)
+        )
+
+        return GrpcSubscribeForKafkaTopicRequest(
+            topicName=kafka_metadata.topic_name,
+            metadata=metadata,
+            pipelineRequest=pipeline_request
+        )
+
+    def execute_stream(self, kafka_metadata: KafkaPipelineMetadata, initial_context: dict[str, ContextValue]):
+        with create_ficus_grpc_channel(initial_context) as channel:
+            stub = GrpcKafkaServiceStub(channel)
+            callback_parts = []
+            append_parts_with_callbacks(list(self.parts), callback_parts)
+
+            request = self._create_subscribe_to_kafka_request(kafka_metadata, initial_context)
+            last_result = process_pipeline_output_stream(callback_parts, stub.SubscribeForKafkaTopicStream(request))
+
+            return last_result
 
 
 class Pipeline:
@@ -108,35 +159,8 @@ class Pipeline:
             )
 
             callback_parts = []
-            self.append_parts_with_callbacks(callback_parts)
-            uuid_to_pipeline_with_callback = {}
-            for part in callback_parts:
-                uuid_to_pipeline_with_callback[part.uuid] = part
-
-            last_result = None
-
-            for part_result in stub.ExecutePipeline(request):
-                last_result = part_result
-
-                if last_result.HasField('finalResult'):
-                    break
-
-                if last_result.HasField('pipelinePartResult'):
-                    issued_part_uuid = uuid.UUID(part_result.pipelinePartResult.uuid.uuid)
-                    if issued_part_uuid in uuid_to_pipeline_with_callback:
-                        map = dict()
-                        for context_value_with_name in part_result.pipelinePartResult.contextValues:
-                            map[context_value_with_name.key_name] = context_value_with_name.value
-
-                        part = uuid_to_pipeline_with_callback[issued_part_uuid]
-
-                        def action():
-                            part.execute_callback(map)
-
-                        performance_cookie(f'{type(part).__name__}Callback', action)
-
-                if last_result.HasField('logMessage'):
-                    print(part_result.logMessage.message)
+            append_parts_with_callbacks(list(self.parts), callback_parts)
+            last_result = process_pipeline_output_stream(callback_parts, stub.ExecutePipeline(request))
 
             if last_result.finalResult.HasField('success'):
                 guid = last_result.finalResult.success
@@ -147,9 +171,6 @@ class Pipeline:
     def to_grpc_pipeline(self):
         return create_grpc_pipeline(self.parts)
 
-    def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
-        for part in list(self.parts):
-            part.append_parts_with_callbacks(parts)
 
     @staticmethod
     def _find_pipeline_parts_with_callbacks(parts) -> list["PipelinePartWithCallback"]:
