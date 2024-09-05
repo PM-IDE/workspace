@@ -33,6 +33,28 @@ def create_ficus_grpc_channel(initial_context: dict[str, ContextValue]) -> grpc.
     return grpc.insecure_channel(addr, options=options)
 
 
+def create_grpc_pipeline(parts) -> GrpcPipeline:
+    pipeline = GrpcPipeline()
+    for part in parts:
+        if not isinstance(part, PipelinePart):
+            raise TypeError()
+
+        pipeline.parts.append(part.to_grpc_part())
+
+    return pipeline
+
+
+def create_initial_context(context: dict[str, ContextValue]) -> list[GrpcContextKeyValue]:
+    result = []
+    for key, value in context.items():
+        result.append(GrpcContextKeyValue(
+            key=GrpcContextKey(name=key),
+            value=value.to_grpc_context_value()
+        ))
+
+    return result
+
+
 @dataclass
 class KafkaPipelineMetadata:
     topic_name: str
@@ -47,12 +69,21 @@ class KafkaPipeline:
     def execute(self, kafka_metadata: KafkaPipelineMetadata, initial_context: dict[str, ContextValue]):
         with create_ficus_grpc_channel(initial_context) as channel:
             stub = GrpcKafkaServiceStub(channel)
+
+            metadata = list(map(
+                lambda x: GrpcKafkaConsumerMetadata(key=x[0],value=x[1]),
+                list(kafka_metadata.kafka_consumer_configuration.items())
+            ))
+
+            pipeline_request = GrpcPipelineExecutionRequest(
+                pipeline=create_grpc_pipeline(self.parts),
+                initialContext=create_initial_context(initial_context)
+            )
+
             request = GrpcSubscribeForKafkaTopicRequest(
                 topicName=kafka_metadata.topic_name,
-                metadata=list(map(lambda x: GrpcKafkaConsumerMetadata(
-                    key=x[0],
-                    value=x[1]
-                ), list(kafka_metadata.kafka_consumer_configuration.items())))
+                metadata=metadata,
+                pipelineRequest=pipeline_request
             )
 
             response = stub.SubscribeForKafkaTopic(request)
@@ -72,8 +103,8 @@ class Pipeline:
             stub = GrpcBackendServiceStub(channel)
             parts = list(self.parts)
             request = GrpcPipelineExecutionRequest(
-                pipeline=self._create_grpc_pipeline(parts),
-                initialContext=self._create_initial_context(initial_context)
+                pipeline=create_grpc_pipeline(parts),
+                initialContext=create_initial_context(initial_context)
             )
 
             callback_parts = []
@@ -114,22 +145,11 @@ class Pipeline:
             return last_result
 
     def to_grpc_pipeline(self):
-        return self._create_grpc_pipeline(self.parts)
+        return create_grpc_pipeline(self.parts)
 
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         for part in list(self.parts):
             part.append_parts_with_callbacks(parts)
-
-    @staticmethod
-    def _create_grpc_pipeline(parts) -> GrpcPipeline:
-        pipeline = GrpcPipeline()
-        for part in parts:
-            if not isinstance(part, PipelinePart):
-                raise TypeError()
-
-            pipeline.parts.append(part.to_grpc_part())
-
-        return pipeline
 
     @staticmethod
     def _find_pipeline_parts_with_callbacks(parts) -> list["PipelinePartWithCallback"]:
@@ -137,17 +157,6 @@ class Pipeline:
         for part in parts:
             if isinstance(part, PipelinePartWithCallback):
                 result.append(part)
-
-        return result
-
-    @staticmethod
-    def _create_initial_context(context: dict[str, ContextValue]) -> list[GrpcContextKeyValue]:
-        result = []
-        for key, value in context.items():
-            result.append(GrpcContextKeyValue(
-                key=GrpcContextKey(name=key),
-                value=value.to_grpc_context_value()
-            ))
 
         return result
 

@@ -6,7 +6,8 @@ def test_kafka_pipeline():
         topic_name="my-topic",
         kafka_consumer_configuration={
             'bootstrap.servers': 'localhost:9092',
-            'group.id': 'xd'
+            'group.id': 'xd',
+            'auto.offset.reset': 'earliest'
         }
     )
 
