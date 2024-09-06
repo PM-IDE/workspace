@@ -54,11 +54,8 @@ def create_initial_context(context: dict[str, ContextValue]) -> list[GrpcContext
 
     return result
 
-def process_pipeline_output_stream(callback_parts, stream):
-    uuid_to_pipeline_with_callback = {}
-    for part in callback_parts:
-        uuid_to_pipeline_with_callback[part.uuid] = part
 
+def process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream):
     last_result = None
 
     for part_result in stream:
@@ -85,6 +82,25 @@ def process_pipeline_output_stream(callback_parts, stream):
             print(part_result.logMessage.message)
 
     return last_result
+
+def create_pipeline_callbacks_map(callback_parts):
+    uuid_to_pipeline_with_callback = {}
+    for part in callback_parts:
+        uuid_to_pipeline_with_callback[part.uuid] = part
+
+    return uuid_to_pipeline_with_callback
+
+
+def process_multiple_pipelines_output_stream(callback_parts, stream):
+    uuid_to_pipeline_with_callback = create_pipeline_callbacks_map(callback_parts)
+    while True:
+        print(process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream))
+
+
+def process_pipeline_output_stream(callback_parts, stream):
+    uuid_to_pipeline_with_callback = create_pipeline_callbacks_map(callback_parts)
+    return process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream)
+
 
 def append_parts_with_callbacks(original_parts, callback_parts: list['PipelinePartWithCallback']):
     for part in list(original_parts):
@@ -140,9 +156,7 @@ class KafkaPipeline:
             append_parts_with_callbacks(list(self.parts), callback_parts)
 
             request = self._create_subscribe_to_kafka_request(kafka_metadata, initial_context)
-            last_result = process_pipeline_output_stream(callback_parts, stub.SubscribeForKafkaTopicStream(request))
-
-            return last_result
+            process_multiple_pipelines_output_stream(callback_parts, stub.SubscribeForKafkaTopicStream(request))
 
 
 class Pipeline:
