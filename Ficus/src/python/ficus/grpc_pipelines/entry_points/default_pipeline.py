@@ -71,6 +71,7 @@ def create_grpc_pipeline(parts) -> GrpcPipeline:
 
     return pipeline
 
+
 class PipelinePartWithCallback(PipelinePart):
     def execute_callback(self, values: dict[str, GrpcContextValue]):
         raise NotImplementedError()
@@ -130,12 +131,13 @@ class PipelinePart2WithCanvasCallback(PipelinePartWithCallback):
 class PrintEventLogInfo(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
-        part = _create_complex_get_context_part(self.uuid, [const_event_log_info], const_get_event_log_info, config)
+        part = create_complex_get_context_part(self.uuid, [const_event_log_info], const_get_event_log_info, config)
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):
         log_info = from_grpc_event_log_info(values[const_event_log_info].event_log_info)
         print(log_info)
+
 
 @dataclass
 class PipelineContextValue(ContextValue):
@@ -144,23 +146,24 @@ class PipelineContextValue(ContextValue):
     def to_grpc_context_value(self) -> GrpcContextValue:
         return GrpcContextValue(pipeline=self.pipeline.to_grpc_pipeline())
 
-def _create_simple_get_context_value_part(frontend_part_uuid: uuid.UUID, key_name: str):
+
+def create_simple_get_context_value_part(frontend_part_uuid: uuid.UUID, key_name: str):
     return GrpcSimpleContextRequestPipelinePart(
-        frontendPartUuid=_create_grpc_uuid(frontend_part_uuid),
+        frontendPartUuid=create_grpc_uuid(frontend_part_uuid),
         key=GrpcContextKey(name=key_name)
     )
 
 
-def _create_grpc_uuid(uuid: uuid.UUID) -> GrpcUuid:
+def create_grpc_uuid(uuid: uuid.UUID) -> GrpcUuid:
     return GrpcUuid(uuid=str(uuid))
 
 
-def _create_complex_get_context_part(frontend_part_uuid: uuid.UUID,
-                                     key_names: list[str],
-                                     before_part_name: str,
-                                     config: GrpcPipelinePartConfiguration):
+def create_complex_get_context_part(frontend_part_uuid: uuid.UUID,
+                                    key_names: list[str],
+                                    before_part_name: str,
+                                    config: GrpcPipelinePartConfiguration):
     return GrpcComplexContextRequestPipelinePart(
-        frontendPartUuid=_create_grpc_uuid(frontend_part_uuid),
+        frontendPartUuid=create_grpc_uuid(frontend_part_uuid),
         keys=list(map(lambda x: GrpcContextKey(name=x), key_names)),
         beforePipelinePart=GrpcPipelinePart(
             name=before_part_name,
@@ -169,19 +172,19 @@ def _create_complex_get_context_part(frontend_part_uuid: uuid.UUID,
     )
 
 
-def _create_default_pipeline_part(name: str, config=GrpcPipelinePartConfiguration()):
+def create_default_pipeline_part(name: str, config=GrpcPipelinePartConfiguration()):
     return GrpcPipelinePart(configuration=config, name=name)
 
 
 def append_string_value(config: GrpcPipelinePartConfiguration, key: str, value: str):
-    _append_context_value(config, key, StringContextValue(value))
+    append_context_value(config, key, StringContextValue(value))
 
 
 def append_float_value(config: GrpcPipelinePartConfiguration, key: str, value: float):
-    _append_context_value(config, key, FloatContextValue(value))
+    append_context_value(config, key, FloatContextValue(value))
 
 
-def _append_context_value(config: GrpcPipelinePartConfiguration, key: str, value: ContextValue):
+def append_context_value(config: GrpcPipelinePartConfiguration, key: str, value: ContextValue):
     config.configurationParameters.append(GrpcContextKeyValue(
         key=GrpcContextKey(name=key),
         value=value.to_grpc_context_value()
@@ -189,15 +192,15 @@ def _append_context_value(config: GrpcPipelinePartConfiguration, key: str, value
 
 
 def append_uint32_value(config: GrpcPipelinePartConfiguration, key: str, value: int):
-    _append_context_value(config, key, Uint32ContextValue(value))
+    append_context_value(config, key, Uint32ContextValue(value))
 
 
 def append_bool_value(config: GrpcPipelinePartConfiguration, key: str, value: bool):
-    _append_context_value(config, key, BoolContextValue(value))
+    append_context_value(config, key, BoolContextValue(value))
 
 
 def append_enum_value(config: GrpcPipelinePartConfiguration, key: str, enum_name: str, value: str):
-    _append_context_value(config, key, EnumContextValue(enum_name, value))
+    append_context_value(config, key, EnumContextValue(enum_name, value))
 
 
 def append_patterns_discovery_strategy(config: GrpcPipelinePartConfiguration, key: str,
@@ -206,7 +209,7 @@ def append_patterns_discovery_strategy(config: GrpcPipelinePartConfiguration, ke
 
 
 def append_strings_context_value(config: GrpcPipelinePartConfiguration, key: str, value: list[str]):
-    _append_context_value(config, key, StringsContextValue(value))
+    append_context_value(config, key, StringsContextValue(value))
 
 
 def append_patterns_kind(config: GrpcPipelinePartConfiguration, key: str, value: PatternsKind):
@@ -218,7 +221,7 @@ def append_adjusting_mode(config: GrpcPipelinePartConfiguration, key: str, value
 
 
 def append_pipeline_value(config: GrpcPipelinePartConfiguration, key: str, value: Pipeline):
-    _append_context_value(config, key, PipelineContextValue(value))
+    append_context_value(config, key, PipelineContextValue(value))
 
 
 def append_narrow_kind(config: GrpcPipelinePartConfiguration, key: str, value: NarrowActivityKind):

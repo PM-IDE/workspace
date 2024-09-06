@@ -1,11 +1,4 @@
-from typing import Optional
-
-from .constants import const_tandem_array_length, const_event_class_regex, \
-    const_find_primitive_tandem_arrays, const_find_maximal_tandem_arrays, const_patterns_discovery_strategy, \
-    const_find_maximal_repeats, const_find_super_maximal_repeats, const_find_near_super_maximal_repeats
-from .data_models import PatternsDiscoveryStrategy
-from .entry_points.default_pipeline import PipelinePart, _create_default_pipeline_part, append_uint32_value, \
-    append_string_value, append_patterns_discovery_strategy
+from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration
 
 
@@ -25,7 +18,7 @@ class FindTandemArrays(PipelinePart):
         if self.class_extractor is not None:
             append_string_value(config, const_event_class_regex, self.class_extractor)
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(self.part_type, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(self.part_type, config))
 
 
 class FindPrimitiveTandemArrays(FindTandemArrays):
@@ -58,7 +51,7 @@ class FindRepeats(PipelinePart):
         if self.class_extractor is not None:
             append_string_value(config, const_event_class_regex, self.class_extractor)
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(self.part_name, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(self.part_name, config))
 
 
 class FindMaximalRepeats(FindRepeats):

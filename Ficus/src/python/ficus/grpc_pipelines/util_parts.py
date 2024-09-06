@@ -1,20 +1,17 @@
-from .constants import const_use_names_event_log, const_names_event_log, const_get_names_event_log, \
-    const_pipeline
-from .entry_points.default_pipeline import PipelinePart, _create_default_pipeline_part, PipelinePartWithCallback, \
-    _create_complex_get_context_part, Pipeline, append_pipeline_value, PrintEventLogInfo
+from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
     GrpcContextValue
 
 
 class UseNamesEventLog(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_use_names_event_log))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_use_names_event_log))
 
 
 class PrintEventLog(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
-        part = _create_complex_get_context_part(self.uuid, [const_names_event_log], const_get_names_event_log, config)
+        part = create_complex_get_context_part(self.uuid, [const_names_event_log], const_get_names_event_log, config)
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):
@@ -41,4 +38,4 @@ class PrintEventlogInfoBeforeAfter(PipelinePart):
 
         append_pipeline_value(config, const_pipeline, pipeline)
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part())
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part())
