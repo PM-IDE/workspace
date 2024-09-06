@@ -1,4 +1,5 @@
-from ficus import KafkaPipeline, PrintEventLogInfo, KafkaPipelineMetadata, ficus_backend_addr_key
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import PrintEventLogInfo
+from ...ficus.grpc_pipelines.entry_points.kafka import KafkaPipeline, KafkaPipelineMetadata
 
 
 def test_kafka_pipeline():

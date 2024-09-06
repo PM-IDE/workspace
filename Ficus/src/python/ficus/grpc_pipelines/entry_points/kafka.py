@@ -4,6 +4,7 @@ from typing import Optional
 from .util import *
 from ..models.kafka_service_pb2 import GrpcSubscribeForKafkaTopicRequest, GrpcKafkaConsumerMetadata
 from ..models.kafka_service_pb2_grpc import *
+from ...grpc_pipelines.entry_points.default_pipeline import create_grpc_pipeline
 from ...grpc_pipelines.context_values import ContextValue
 from ...grpc_pipelines.models.backend_service_pb2 import *
 

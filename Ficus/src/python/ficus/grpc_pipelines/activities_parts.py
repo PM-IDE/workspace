@@ -193,7 +193,7 @@ class DiscoverActivitiesUntilNoMore(PipelinePart):
         super().append_parts_with_callbacks(parts)
 
         if self.after_activities_extraction_pipeline is not None:
-            self.after_activities_extraction_pipeline.append_parts_with_callbacks(parts)
+            append_parts_with_callbacks(self.after_activities_extraction_pipeline.parts, parts)
 
 
 class ExecuteWithEachActivityLog(PipelinePart):
