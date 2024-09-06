@@ -2,7 +2,7 @@ import os
 import tempfile
 
 from ...ficus.grpc_pipelines.discovery_parts import SerializePetriNetToPNML, ViewPetriNet
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline
 
 from ...ficus.grpc_pipelines.mutation_parts import AddStartEndArtificialEvents
 from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog

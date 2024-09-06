@@ -1,6 +1,6 @@
 from .constants import const_use_names_event_log, const_names_event_log, const_get_names_event_log, \
     const_pipeline
-from .grpc_pipelines import PipelinePart, _create_default_pipeline_part, PipelinePartWithCallback, \
+from .entry_points.default_pipeline import PipelinePart, _create_default_pipeline_part, PipelinePartWithCallback, \
     _create_complex_get_context_part, Pipeline, append_pipeline_value, PrintEventLogInfo
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
     GrpcContextValue

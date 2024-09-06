@@ -1,7 +1,7 @@
 from .constants import *
 from .context_values import from_grpc_bytes, write_file_bytes
-from .grpc_pipelines import PipelinePart, _create_default_pipeline_part, append_string_value, PipelinePartWithCallback, \
-    _create_simple_get_context_value_part, _create_complex_get_context_part
+from .entry_points.default_pipeline import PipelinePart, _create_default_pipeline_part, append_string_value, PipelinePartWithCallback, \
+    _create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, GrpcContextValue
 
 

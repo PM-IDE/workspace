@@ -1,5 +1,5 @@
 from .constants import *
-from .grpc_pipelines import PipelinePart, _create_default_pipeline_part
+from .entry_points.default_pipeline import PipelinePart, _create_default_pipeline_part
 from .models.pipelines_and_context_pb2 import *
 
 

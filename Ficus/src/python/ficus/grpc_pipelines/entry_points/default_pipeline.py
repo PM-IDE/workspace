@@ -1,162 +1,16 @@
-import uuid
-from dataclasses import dataclass
-from typing import Optional
-
-from .models.kafka_service_pb2 import *
-from .models.kafka_service_pb2_grpc import GrpcKafkaServiceStub
-from ..legacy.analysis.event_log_analysis import draw_colors_event_log
-from ..legacy.analysis.event_log_analysis_canvas import draw_colors_event_log_canvas
-from ..legacy.analysis.patterns.patterns_models import UndefinedActivityHandlingStrategy
-from ..grpc_pipelines.constants import *
-from ..grpc_pipelines.context_values import ContextValue, from_grpc_colors_log_proxy, \
-    StringContextValue, Uint32ContextValue, BoolContextValue, EnumContextValue, from_grpc_event_log_info, \
-    StringsContextValue, FloatContextValue, from_grpc_colors_log
-from ..grpc_pipelines.data_models import PatternsDiscoveryStrategy, PatternsKind, NarrowActivityKind, \
-    ActivityFilterKind, ActivitiesLogsSource
-from ..grpc_pipelines.models.backend_service_pb2 import *
-from ..grpc_pipelines.models.backend_service_pb2_grpc import *
-from ..grpc_pipelines.models.pipelines_and_context_pb2 import *
-from ..grpc_pipelines.models.util_pb2 import *
-from ..legacy.pipelines.analysis.patterns.models import AdjustingMode
-from ..legacy.util import performance_cookie
-
-ficus_backend_addr_key = 'backend'
-
-def create_ficus_grpc_channel(initial_context: dict[str, ContextValue]) -> grpc.Channel:
-    options = [('grpc.max_send_message_length', 512 * 1024 * 1024),
-               ('grpc.max_receive_message_length', 512 * 1024 * 1024)]
-
-    addr = initial_context[ficus_backend_addr_key] if ficus_backend_addr_key in initial_context else 'localhost:8080'
-    if ficus_backend_addr_key in initial_context:
-        del initial_context[ficus_backend_addr_key]
-
-    return grpc.insecure_channel(addr, options=options)
-
-
-def create_grpc_pipeline(parts) -> GrpcPipeline:
-    pipeline = GrpcPipeline()
-    for part in parts:
-        if not isinstance(part, PipelinePart):
-            raise TypeError()
-
-        pipeline.parts.append(part.to_grpc_part())
-
-    return pipeline
-
-
-def create_initial_context(context: dict[str, ContextValue]) -> list[GrpcContextKeyValue]:
-    result = []
-    for key, value in context.items():
-        result.append(GrpcContextKeyValue(
-            key=GrpcContextKey(name=key),
-            value=value.to_grpc_context_value()
-        ))
-
-    return result
-
-
-def process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream):
-    last_result = None
-
-    for part_result in stream:
-        last_result = part_result
-
-        if last_result.HasField('finalResult'):
-            break
-
-        if last_result.HasField('pipelinePartResult'):
-            issued_part_uuid = uuid.UUID(part_result.pipelinePartResult.uuid.uuid)
-            if issued_part_uuid in uuid_to_pipeline_with_callback:
-                map = dict()
-                for context_value_with_name in part_result.pipelinePartResult.contextValues:
-                    map[context_value_with_name.key_name] = context_value_with_name.value
-
-                part = uuid_to_pipeline_with_callback[issued_part_uuid]
-
-                def action():
-                    part.execute_callback(map)
-
-                performance_cookie(f'{type(part).__name__}Callback', action)
-
-        if last_result.HasField('logMessage'):
-            print(part_result.logMessage.message)
-
-    return last_result
-
-def create_pipeline_callbacks_map(callback_parts):
-    uuid_to_pipeline_with_callback = {}
-    for part in callback_parts:
-        uuid_to_pipeline_with_callback[part.uuid] = part
-
-    return uuid_to_pipeline_with_callback
-
-
-def process_multiple_pipelines_output_stream(callback_parts, stream):
-    uuid_to_pipeline_with_callback = create_pipeline_callbacks_map(callback_parts)
-    while True:
-        print(process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream))
-
-
-def process_pipeline_output_stream(callback_parts, stream):
-    uuid_to_pipeline_with_callback = create_pipeline_callbacks_map(callback_parts)
-    return process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream)
-
-
-def append_parts_with_callbacks(original_parts, callback_parts: list['PipelinePartWithCallback']):
-    for part in list(original_parts):
-        part.append_parts_with_callbacks(callback_parts)
-
-
-@dataclass
-class KafkaPipelineMetadata:
-    topic_name: str
-    kafka_consumer_configuration: dict[str, str]
-
-
-class KafkaPipeline:
-    def __init__(self, *parts):
-        self.parts: list['PipelinePart'] = list(parts)
-        self.consumer_uuid: Optional[str] = None
-
-    def execute(self, kafka_metadata: KafkaPipelineMetadata, initial_context: dict[str, ContextValue]):
-        with create_ficus_grpc_channel(initial_context) as channel:
-            stub = GrpcKafkaServiceStub(channel)
-
-            request = self._create_subscribe_to_kafka_request(kafka_metadata, initial_context)
-            response = stub.SubscribeForKafkaTopic(request)
-            if response.HasField('success'):
-                self.consumer_uuid = response.success.subscriptionId.guid
-                print(f'Consumer id: {self.consumer_uuid}')
-            else:
-                print(response.failure.errorMessage)
-
-    def _create_subscribe_to_kafka_request(self,
-                                           kafka_metadata: KafkaPipelineMetadata,
-                                           initial_context: dict[str, ContextValue]) -> GrpcSubscribeForKafkaTopicRequest:
-        metadata = list(map(
-            lambda x: GrpcKafkaConsumerMetadata(key=x[0], value=x[1]),
-            list(kafka_metadata.kafka_consumer_configuration.items())
-        ))
-
-        pipeline_request = GrpcPipelineExecutionRequest(
-            pipeline=create_grpc_pipeline(self.parts),
-            initialContext=create_initial_context(initial_context)
-        )
-
-        return GrpcSubscribeForKafkaTopicRequest(
-            topicName=kafka_metadata.topic_name,
-            metadata=metadata,
-            pipelineRequest=pipeline_request
-        )
-
-    def execute_stream(self, kafka_metadata: KafkaPipelineMetadata, initial_context: dict[str, ContextValue]):
-        with create_ficus_grpc_channel(initial_context) as channel:
-            stub = GrpcKafkaServiceStub(channel)
-            callback_parts = []
-            append_parts_with_callbacks(list(self.parts), callback_parts)
-
-            request = self._create_subscribe_to_kafka_request(kafka_metadata, initial_context)
-            process_multiple_pipelines_output_stream(callback_parts, stub.SubscribeForKafkaTopicStream(request))
+from .util import *
+from ..models.util_pb2 import GrpcUuid
+from ...grpc_pipelines.constants import *
+from ...grpc_pipelines.context_values import *
+from ...grpc_pipelines.data_models import PatternsDiscoveryStrategy, PatternsKind, NarrowActivityKind, \
+    ActivityFilterKind, \
+    ActivitiesLogsSource
+from ...grpc_pipelines.models.backend_service_pb2 import *
+from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
+from ...legacy.analysis.event_log_analysis import draw_colors_event_log
+from ...legacy.analysis.event_log_analysis_canvas import draw_colors_event_log_canvas
+from ...legacy.analysis.patterns.patterns_models import UndefinedActivityHandlingStrategy
+from ...legacy.pipelines.analysis.patterns.models import AdjustingMode
 
 
 class Pipeline:
@@ -206,6 +60,16 @@ class PipelinePart:
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         pass
 
+
+def create_grpc_pipeline(parts) -> GrpcPipeline:
+    pipeline = GrpcPipeline()
+    for part in parts:
+        if not isinstance(part, PipelinePart):
+            raise TypeError()
+
+        pipeline.parts.append(part.to_grpc_part())
+
+    return pipeline
 
 class PipelinePartWithCallback(PipelinePart):
     def execute_callback(self, values: dict[str, GrpcContextValue]):
@@ -273,6 +137,12 @@ class PrintEventLogInfo(PipelinePartWithCallback):
         log_info = from_grpc_event_log_info(values[const_event_log_info].event_log_info)
         print(log_info)
 
+@dataclass
+class PipelineContextValue(ContextValue):
+    pipeline: Pipeline
+
+    def to_grpc_context_value(self) -> GrpcContextValue:
+        return GrpcContextValue(pipeline=self.pipeline.to_grpc_pipeline())
 
 def _create_simple_get_context_value_part(frontend_part_uuid: uuid.UUID, key_name: str):
     return GrpcSimpleContextRequestPipelinePart(
@@ -367,11 +237,3 @@ def append_activity_filter_kind(config: GrpcPipelinePartConfiguration, key: str,
 
 def append_activities_logs_source(config: GrpcPipelinePartConfiguration, key: str, source: ActivitiesLogsSource):
     append_enum_value(config, key, const_activities_logs_source_enum_name, source.name)
-
-
-@dataclass
-class PipelineContextValue(ContextValue):
-    pipeline: Pipeline
-
-    def to_grpc_context_value(self) -> GrpcContextValue:
-        return GrpcContextValue(pipeline=self.pipeline.to_grpc_pipeline())

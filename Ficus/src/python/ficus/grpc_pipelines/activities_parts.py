@@ -1,7 +1,6 @@
-from .context_values import from_grpc_ficus_dataset, from_grpc_labeled_dataset, from_grpc_color
 from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat
-from .grpc_pipelines import *
-from .grpc_pipelines import _create_default_pipeline_part, _create_complex_get_context_part
+from .entry_points.default_pipeline import *
+from .entry_points.default_pipeline import _create_default_pipeline_part, _create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
     GrpcContextValue
 from .patterns_parts import FindMaximalRepeats, \
@@ -216,7 +215,7 @@ class ExecuteWithEachActivityLog(PipelinePart):
 
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
-        self.activity_log_pipeline.append_parts_with_callbacks(parts)
+        append_parts_with_callbacks(self.activity_log_pipeline.parts, parts)
 
 
 class SubstituteUnderlyingEvents(PipelinePart):
@@ -572,7 +571,7 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
 
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
-        self.after_clusterization_pipeline.append_parts_with_callbacks(parts)
+        append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
 
 
 class SerializeActivitiesLogs(PipelinePart):

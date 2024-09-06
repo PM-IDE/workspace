@@ -2,7 +2,7 @@ from ...ficus.grpc_pipelines.filtering_parts import FilterEventsByName, FilterEv
 
 from ...ficus.grpc_pipelines.xes_parts import ReadLogFromXes
 
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline
 from .pipeline_parts_for_tests import AssertNamesLogTestPart
 from .test_grpc_pipelines import _execute_test_with_exercise_log
 

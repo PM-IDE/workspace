@@ -5,8 +5,10 @@ from .grpc_pipelines.data_models import *
 from .grpc_pipelines.discovery_parts import *
 from .grpc_pipelines.drawing_parts import *
 from .grpc_pipelines.filtering_parts import *
-from .grpc_pipelines.grpc_pipelines import *
 from .grpc_pipelines.mutation_parts import *
 from .grpc_pipelines.patterns_parts import *
 from .grpc_pipelines.util_parts import *
 from .grpc_pipelines.xes_parts import *
+from .grpc_pipelines.entry_points.default_pipeline import *
+from .grpc_pipelines.entry_points.kafka import *
+from .grpc_pipelines.entry_points.util import *

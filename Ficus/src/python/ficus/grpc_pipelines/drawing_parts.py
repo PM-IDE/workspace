@@ -5,7 +5,7 @@ from .constants import const_colors_event_log, const_traces_diversity_diagram, c
     const_draw_placement_of_event_by_name, const_regex, const_draw_placement_of_event_by_regex, \
     const_draw_full_activities_diagram, const_draw_short_activities_diagram
 from .context_values import StringContextValue
-from .grpc_pipelines import PipelinePart2WithDrawColorsLogCallback, \
+from .entry_points.default_pipeline import PipelinePart2WithDrawColorsLogCallback, \
     _create_complex_get_context_part, append_string_value, PipelinePart2WithCanvasCallback
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
     GrpcContextKeyValue, GrpcContextKey

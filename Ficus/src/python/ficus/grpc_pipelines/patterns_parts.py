@@ -4,7 +4,7 @@ from .constants import const_tandem_array_length, const_event_class_regex, \
     const_find_primitive_tandem_arrays, const_find_maximal_tandem_arrays, const_patterns_discovery_strategy, \
     const_find_maximal_repeats, const_find_super_maximal_repeats, const_find_near_super_maximal_repeats
 from .data_models import PatternsDiscoveryStrategy
-from .grpc_pipelines import PipelinePart, _create_default_pipeline_part, append_uint32_value, \
+from .entry_points.default_pipeline import PipelinePart, _create_default_pipeline_part, append_uint32_value, \
     append_string_value, append_patterns_discovery_strategy
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration
 
