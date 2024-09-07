@@ -49,5 +49,5 @@ service GrpcKafkaUpdatesProcessor {
 
 message GrpcKafkaUpdate {
   string caseName = 1;
-  GrpcContextValue contextValue = 2;
+  repeated GrpcContextValueWithKeyName contextValues = 2;
 }
