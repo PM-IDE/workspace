@@ -3,13 +3,17 @@ use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_events, BxesToXesR
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
+use crate::ficus_proto::grpc_kafka_updates_processor_client::GrpcKafkaUpdatesProcessorClient;
 use crate::ficus_proto::{grpc_kafka_result, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcKafkaUpdate, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndSendToExternalServer, GrpcUnsubscribeFromKafkaRequest};
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::KafkaEventsHandler;
+use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
+use crate::pipelines::context::LogMessageHandler;
 use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
 use crate::pipelines::pipeline_parts::PipelineParts;
+use crate::utils::stream_queue::AsyncStreamQueue;
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaTrace};
@@ -26,6 +30,7 @@ use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::Sender;
 use tokio_stream::wrappers::ReceiverStream;
+use tonic::transport::Channel;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
@@ -60,8 +65,28 @@ impl GrpcKafkaService for KafkaService {
         &self,
         request: Request<GrpcSubscribeToKafkaAndSendToExternalServer>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
+        let channel = Channel::from_shared(request.get_ref().updates_processor_host.to_owned())
+            .ok().unwrap().connect().await.ok().unwrap();
+
+        let mut client = GrpcKafkaUpdatesProcessorClient::new(channel);
+        let stream = AsyncStreamQueue::new();
+        let pusher = stream.create_pusher();
+
+        tokio::task::spawn(async move {
+            let logger = ConsoleLogMessageHandler::new();
+            match client.start_updates_stream(stream).await {
+                Ok(_) => {
+                    logger.handle("The stream ended successfully").expect("Message was logged");
+                }
+                Err(err) => {
+                    let message = format!("The stream ended with error: {}", err.to_string());
+                    logger.handle(message.as_str()).expect("Error was logged");
+                }
+            };
+        });
+
         let creation_dto = self.create_kafka_creation_dto(
-            Arc::new(Box::new(KafkaEventsHandler::new()) as Box<dyn PipelineEventsHandler>)
+            Arc::new(Box::new(KafkaEventsHandler::new(pusher)) as Box<dyn PipelineEventsHandler>)
         );
 
         let request = request.get_ref().request.as_ref().expect("Request should be supplied");

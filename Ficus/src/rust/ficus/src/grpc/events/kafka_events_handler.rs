@@ -2,14 +2,17 @@ use super::events_handler::{PipelineEvent, PipelineEventsHandler};
 use crate::ficus_proto::GrpcKafkaUpdate;
 use crate::grpc::events::utils::create_grpc_context_values;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
+use crate::utils::stream_queue::AsyncStreamQueuePusher;
 
 pub struct KafkaEventsHandler {
+    stream_pusher: AsyncStreamQueuePusher<GrpcKafkaUpdate>,
     console_logs_handler: ConsoleLogMessageHandler
 }
 
 impl KafkaEventsHandler {
-    pub fn new() -> Self {
+    pub fn new(stream_pusher: AsyncStreamQueuePusher<GrpcKafkaUpdate>) -> Self {
         Self {
+            stream_pusher,
             console_logs_handler: ConsoleLogMessageHandler::new()
         }
     }

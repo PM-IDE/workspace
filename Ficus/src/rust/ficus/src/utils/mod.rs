@@ -13,3 +13,4 @@ pub mod suffix_tree;
 pub mod user_data;
 pub mod vec_utils;
 pub mod xml_utils;
+pub mod stream_queue;
