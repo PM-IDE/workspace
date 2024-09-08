@@ -1,19 +1,19 @@
 use std::sync::Arc;
 
+use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+use crate::grpc::events::utils::{create_grpc_context_values, send_grpc_message};
 use crate::{
     ficus_proto::{
-        grpc_pipeline_final_result::ExecutionResult, GrpcContextValueWithKeyName, GrpcGuid, GrpcPipelineFinalResult,
+        grpc_pipeline_final_result::ExecutionResult, GrpcGuid, GrpcPipelineFinalResult,
         GrpcPipelinePartExecutionResult, GrpcPipelinePartLogMessage, GrpcPipelinePartResult, GrpcUuid,
     },
     grpc::{
-        backend_service::{GrpcResult, GrpcSender},
-        converters::convert_to_grpc_context_value,
+        backend_service::{GrpcResult, GrpcSender}
+        ,
         logs_handler::ConsoleLogMessageHandler,
     },
     pipelines::context::LogMessageHandler,
 };
-
-use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 
 pub struct GrpcPipelineEventsHandler {
     sender: Arc<Box<GrpcSender>>,
@@ -47,13 +47,7 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
             return;
         }
 
-        match self.sender.blocking_send(Ok(result)) {
-            Ok(_) => (),
-            Err(err) => {
-                let message = format!("Failed to send event, error: {}", err.to_string());
-                self.console_logs_handler.handle(message.as_str()).ok();
-            }
-        }
+        send_grpc_message(self.sender.as_ref().as_ref(), &self.console_logs_handler, result);
     }
 
     fn is_alive(&self) -> bool {
@@ -63,21 +57,12 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
 
 impl GrpcPipelineEventsHandler {
     fn create_get_context_values_event(&self, event: GetContextValuesEvent) -> GrpcPipelinePartExecutionResult {
-        let mut grpc_values = vec![];
-        for (key, context_value) in event.key_values {
-            let value = convert_to_grpc_context_value(key, context_value);
-            grpc_values.push(GrpcContextValueWithKeyName {
-                key_name: key.key().name().to_owned(),
-                value,
-            });
-        }
-
         GrpcPipelinePartExecutionResult {
             result: Some(GrpcResult::PipelinePartResult(GrpcPipelinePartResult {
                 uuid: Some(GrpcUuid {
                     uuid: event.uuid.to_string(),
                 }),
-                context_values: grpc_values,
+                context_values: create_grpc_context_values(&event.key_values),
             })),
         }
     }
