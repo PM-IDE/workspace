@@ -13,6 +13,7 @@ impl PipelineParts {
     pub const CREATE_LOG_FROM_ACTIVITIES: &'static str = "CreateLogFromActivities";
     pub const FILTER_EVENTS_BY_NAME: &'static str = "FilterEventsByName";
     pub const FILTER_EVENTS_BY_REGEX: &'static str = "FilterEventsByRegex";
+    pub const REMAIN_EVENTS_BY_REGEX: &'static str = "RemainEventsByRegex";
     pub const FILTER_LOG_BY_VARIANTS: &'static str = "FilterLogByVariants";
     pub const DRAW_PLACEMENT_OF_EVENT_BY_NAME: &'static str = "DrawPlacementOfEventByName";
     pub const DRAW_PLACEMENT_OF_EVENT_BY_REGEX: &'static str = "DrawPlacementOfEventsByRegex";

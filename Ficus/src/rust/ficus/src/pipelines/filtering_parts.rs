@@ -15,6 +15,10 @@ use crate::{
         split::get_traces_groups_indices,
     },
 };
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::features::mutations::filtering::remain_events_in_event_log;
+use crate::pipelines::context::PipelineContext;
+use crate::utils::user_data::user_data::UserDataImpl;
 
 impl PipelineParts {
     pub(super) fn filter_log_by_event_name() -> (String, PipelinePartFactory) {
@@ -29,16 +33,30 @@ impl PipelineParts {
 
     pub(super) fn filter_log_by_regex() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::FILTER_EVENTS_BY_REGEX, &|context, _, config| {
-            let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-            let regex = Self::get_user_data(config, &REGEX_KEY)?;
+            Self::filter_log_by_regex_internal(context, config, |log, regex| filter_log_by_regex(log, regex))
+        })
+    }
 
-            match Regex::new(&regex) {
-                Ok(regex) => {
-                    filter_log_by_regex(log, &regex);
-                    Ok(())
-                }
-                Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+    fn filter_log_by_regex_internal(
+        context: &mut PipelineContext,
+        config: &UserDataImpl,
+        filtering_func: impl Fn(&mut XesEventLogImpl, &Regex)
+    ) -> Result<(), PipelinePartExecutionError> {
+        let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+        let regex = Self::get_user_data(config, &REGEX_KEY)?;
+
+        match Regex::new(&regex) {
+            Ok(regex) => {
+                filtering_func(log, &regex);
+                Ok(())
             }
+            Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+        }
+    }
+
+    pub(super) fn remain_events_by_regex() -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::REMAIN_EVENTS_BY_REGEX, &|context, _, config| {
+            Self::filter_log_by_regex_internal(context, config, |log, regex| remain_events_in_event_log(log, regex))
         })
     }
 

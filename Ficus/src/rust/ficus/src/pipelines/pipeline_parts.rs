@@ -36,6 +36,7 @@ impl PipelineParts {
             Self::create_log_from_activities(),
             Self::filter_log_by_event_name(),
             Self::filter_log_by_regex(),
+            Self::remain_events_by_regex(),
             Self::filter_log_by_variants(),
             Self::draw_placements_of_event_by_name(),
             Self::draw_events_placements_by_regex(),

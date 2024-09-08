@@ -15,3 +15,7 @@ pub fn filter_log_by_names(log: &mut impl EventLog, names: &HashSet<String>) {
 pub fn filter_log_by_regex(log: &mut impl EventLog, regex: &Regex) {
     log.filter_events_by(|event| regex.is_match(event.name()).ok().unwrap());
 }
+
+pub fn remain_events_in_event_log(log: &mut impl EventLog, regex: &Regex) {
+    log.filter_events_by(|event| !regex.is_match(event.name()).ok().unwrap())
+}
