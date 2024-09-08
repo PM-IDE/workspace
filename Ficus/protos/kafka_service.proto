@@ -8,9 +8,14 @@ import "google/protobuf/empty.proto";
 package ficus;
 
 service GrpcKafkaService {
-  rpc SubscribeForKafkaTopic(GrpcSubscribeForKafkaTopicRequest) returns (GrpcKafkaResult);
+  rpc SubscribeForKafkaTopicExternal(GrpcSubscribeToKafkaAndSendToExternalServer) returns (GrpcKafkaResult);
   rpc SubscribeForKafkaTopicStream(GrpcSubscribeForKafkaTopicRequest) returns (stream GrpcPipelinePartExecutionResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
+}
+
+message GrpcSubscribeToKafkaAndSendToExternalServer {
+  GrpcSubscribeForKafkaTopicRequest request = 1;
+  string updatesProcessorHost = 2;
 }
 
 message GrpcSubscribeForKafkaTopicRequest {
