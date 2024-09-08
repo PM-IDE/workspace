@@ -4,7 +4,11 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
 use crate::ficus_proto::grpc_kafka_updates_processor_client::GrpcKafkaUpdatesProcessorClient;
-use crate::ficus_proto::{grpc_kafka_result, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcKafkaUpdate, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndSendToExternalServer, GrpcUnsubscribeFromKafkaRequest};
+use crate::ficus_proto::{
+    grpc_kafka_result, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcKafkaUpdate,
+    GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndSendToExternalServer,
+    GrpcUnsubscribeFromKafkaRequest,
+};
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::KafkaEventsHandler;
@@ -47,7 +51,7 @@ impl KafkaService {
         Self {
             names_to_logs: Arc::new(Mutex::new(HashMap::new())),
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
-            consumers_states: Arc::new(Mutex::new(HashMap::new()))
+            consumers_states: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 }
@@ -66,7 +70,12 @@ impl GrpcKafkaService for KafkaService {
         request: Request<GrpcSubscribeToKafkaAndSendToExternalServer>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
         let channel = Channel::from_shared(request.get_ref().updates_processor_host.to_owned())
-            .ok().unwrap().connect().await.ok().unwrap();
+            .ok()
+            .unwrap()
+            .connect()
+            .await
+            .ok()
+            .unwrap();
 
         let mut client = GrpcKafkaUpdatesProcessorClient::new(channel);
         let stream = AsyncStreamQueue::new();
@@ -85,9 +94,8 @@ impl GrpcKafkaService for KafkaService {
             };
         });
 
-        let creation_dto = self.create_kafka_creation_dto(
-            Arc::new(Box::new(KafkaEventsHandler::new(pusher)) as Box<dyn PipelineEventsHandler>)
-        );
+        let creation_dto =
+            self.create_kafka_creation_dto(Arc::new(Box::new(KafkaEventsHandler::new(pusher)) as Box<dyn PipelineEventsHandler>));
 
         let request = request.get_ref().request.as_ref().expect("Request should be supplied");
         let result = match Self::subscribe_to_kafka_topic(creation_dto, request.clone()) {
@@ -97,29 +105,28 @@ impl GrpcKafkaService for KafkaService {
                 }),
             }),
             Err(err) => grpc_kafka_result::Result::Failure(GrpcKafkaFailedResult {
-                error_message: err.to_string()
-            })
+                error_message: err.to_string(),
+            }),
         };
 
-        Ok(Response::new(GrpcKafkaResult {
-            result: Some(result),
-        }))
+        Ok(Response::new(GrpcKafkaResult { result: Some(result) }))
     }
 
-    type SubscribeForKafkaTopicStreamStream = Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+    type SubscribeForKafkaTopicStreamStream =
+        Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
     async fn subscribe_for_kafka_topic_stream(
         &self,
-        request: Request<GrpcSubscribeForKafkaTopicRequest>
+        request: Request<GrpcSubscribeForKafkaTopicRequest>,
     ) -> Result<Response<Self::SubscribeForKafkaTopicStreamStream>, Status> {
         let (sender, receiver) = mpsc::channel(4);
-        let creation_dto = self.create_kafka_creation_dto(
-            Arc::new(Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>)
-        );
+        let creation_dto = self.create_kafka_creation_dto(Arc::new(
+            Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>
+        ));
 
         match Self::subscribe_to_kafka_topic(creation_dto, request.get_ref().clone()) {
             Ok(_) => Ok(Response::new(Box::pin(ReceiverStream::new(receiver)))),
-            Err(err) => Err(Status::invalid_argument(err.to_string()))
+            Err(err) => Err(Status::invalid_argument(err.to_string())),
         }
     }
 
@@ -162,7 +169,7 @@ struct KafkaConsumerCreationDto {
     consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
-    events_handler: Arc<Box<dyn PipelineEventsHandler>>
+    events_handler: Arc<Box<dyn PipelineEventsHandler>>,
 }
 
 impl KafkaConsumerCreationDto {
@@ -170,14 +177,14 @@ impl KafkaConsumerCreationDto {
         consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         pipeline_parts: Arc<Box<PipelineParts>>,
-        events_handler: Arc<Box<dyn PipelineEventsHandler>>
+        events_handler: Arc<Box<dyn PipelineEventsHandler>>,
     ) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             consumer_states,
             names_to_logs,
             pipeline_parts,
-            events_handler
+            events_handler,
         }
     }
 }
@@ -188,25 +195,22 @@ impl KafkaService {
             self.consumers_states.clone(),
             self.names_to_logs.clone(),
             self.pipeline_parts.clone(),
-            events_handler
+            events_handler,
         )
     }
 
     fn subscribe_to_kafka_topic(
         creation_dto: KafkaConsumerCreationDto,
-        request: GrpcSubscribeForKafkaTopicRequest
+        request: GrpcSubscribeForKafkaTopicRequest,
     ) -> Result<Uuid, KafkaError> {
         let consumer_uuid = creation_dto.uuid;
         match Self::spawn_consumer(request, creation_dto) {
             Ok(_) => Ok(consumer_uuid),
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
     }
 
-    fn spawn_consumer(
-        request: GrpcSubscribeForKafkaTopicRequest,
-        dto: KafkaConsumerCreationDto
-    ) -> Result<(), KafkaError> {
+    fn spawn_consumer(request: GrpcSubscribeForKafkaTopicRequest, dto: KafkaConsumerCreationDto) -> Result<(), KafkaError> {
         let mut consumer = match Self::create_consumer(&request) {
             Ok(consumer) => consumer,
             Err(err) => {
@@ -224,7 +228,7 @@ impl KafkaService {
 
                     if should_stop {
                         consumer.unsubscribe();
-                        return
+                        return;
                     }
                 }
             });
@@ -269,7 +273,7 @@ impl KafkaService {
     fn execute_consumer_routine(
         consumer: &mut BxesKafkaConsumer,
         request: &GrpcSubscribeForKafkaTopicRequest,
-        dto: KafkaConsumerCreationDto
+        dto: KafkaConsumerCreationDto,
     ) -> bool {
         if !dto.events_handler.is_alive() || Self::is_unsubscribe_requested(dto.clone()) {
             return true;
@@ -288,9 +292,7 @@ impl KafkaService {
         false
     }
 
-    fn is_unsubscribe_requested(
-        dto: KafkaConsumerCreationDto
-    ) -> bool {
+    fn is_unsubscribe_requested(dto: KafkaConsumerCreationDto) -> bool {
         let states = dto.consumer_states.lock().expect("Should take lock");
         if let Some(ConsumerState::ShutdownRequested) = states.get(&dto.uuid) {
             true
@@ -299,11 +301,7 @@ impl KafkaService {
         }
     }
 
-    fn process_kafka_trace(
-        trace: BxesKafkaTrace,
-        request: &GrpcSubscribeForKafkaTopicRequest,
-        dto: KafkaConsumerCreationDto
-    ) {
+    fn process_kafka_trace(trace: BxesKafkaTrace, request: &GrpcSubscribeForKafkaTopicRequest, dto: KafkaConsumerCreationDto) {
         let pipeline_req = request.pipeline_request.as_ref().expect("Pipeline should be supplied");
         let grpc_pipeline = pipeline_req.pipeline.as_ref().expect("Pipeline should be supplied");
 

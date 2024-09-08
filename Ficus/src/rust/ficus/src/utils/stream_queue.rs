@@ -1,20 +1,20 @@
+use futures::Stream;
 use std::collections::VecDeque;
 use std::pin::Pin;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll};
-use futures::Stream;
 
 pub struct StreamQueue<T> {
     is_active: AtomicBool,
-    queue: VecDeque<T>
+    queue: VecDeque<T>,
 }
 
 impl<T> StreamQueue<T> {
     pub fn new() -> Self {
         Self {
             queue: VecDeque::new(),
-            is_active: AtomicBool::new(true)
+            is_active: AtomicBool::new(true),
         }
     }
 
@@ -28,7 +28,7 @@ impl<T> StreamQueue<T> {
 }
 
 pub struct AsyncStreamQueue<T> {
-    queue: Arc<Mutex<StreamQueue<T>>>
+    queue: Arc<Mutex<StreamQueue<T>>>,
 }
 
 impl<T> Stream for AsyncStreamQueue<T> {
@@ -52,7 +52,7 @@ impl<T> Stream for AsyncStreamQueue<T> {
 impl<T> AsyncStreamQueue<T> {
     pub fn new() -> Self {
         Self {
-            queue: Arc::new(Mutex::new(StreamQueue::new()))
+            queue: Arc::new(Mutex::new(StreamQueue::new())),
         }
     }
 
@@ -62,14 +62,12 @@ impl<T> AsyncStreamQueue<T> {
 }
 
 pub struct AsyncStreamQueuePusher<T> {
-    queue: Arc<Mutex<StreamQueue<T>>>
+    queue: Arc<Mutex<StreamQueue<T>>>,
 }
 
 impl<T> AsyncStreamQueuePusher<T> {
     pub fn new(queue: Arc<Mutex<StreamQueue<T>>>) -> Self {
-        Self {
-            queue
-        }
+        Self { queue }
     }
 
     pub fn push(&mut self, value: T) {

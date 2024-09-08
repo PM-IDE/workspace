@@ -6,14 +6,14 @@ use crate::utils::stream_queue::AsyncStreamQueuePusher;
 
 pub struct KafkaEventsHandler {
     stream_pusher: AsyncStreamQueuePusher<GrpcKafkaUpdate>,
-    console_logs_handler: ConsoleLogMessageHandler
+    console_logs_handler: ConsoleLogMessageHandler,
 }
 
 impl KafkaEventsHandler {
     pub fn new(stream_pusher: AsyncStreamQueuePusher<GrpcKafkaUpdate>) -> Self {
         Self {
             stream_pusher,
-            console_logs_handler: ConsoleLogMessageHandler::new()
+            console_logs_handler: ConsoleLogMessageHandler::new(),
         }
     }
 }
@@ -21,12 +21,10 @@ impl KafkaEventsHandler {
 impl PipelineEventsHandler for KafkaEventsHandler {
     fn handle(&self, event: PipelineEvent) {
         let update = match event {
-            PipelineEvent::GetContextValuesEvent(event) => {
-                GrpcKafkaUpdate {
-                    case_name: "xd".to_string(),
-                    context_values: create_grpc_context_values(&event.key_values)
-                }
-            }
+            PipelineEvent::GetContextValuesEvent(event) => GrpcKafkaUpdate {
+                case_name: "xd".to_string(),
+                context_values: create_grpc_context_values(&event.key_values),
+            },
             PipelineEvent::LogMessage(_) => {
                 todo!()
             }
