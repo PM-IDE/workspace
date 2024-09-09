@@ -22,7 +22,7 @@ impl PipelineEventsHandler for KafkaEventsHandler {
     fn handle(&self, event: PipelineEvent) {
         let update = match event {
             PipelineEvent::GetContextValuesEvent(event) => GrpcKafkaUpdate {
-                case_name: "xd".to_string(),
+                case_name: event.case_name,
                 context_values: create_grpc_context_values(&event.key_values),
             },
             PipelineEvent::LogMessage(_) => {

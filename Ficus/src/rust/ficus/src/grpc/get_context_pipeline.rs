@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler};
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::find_context_key;
+use crate::pipelines::keys::context_keys::{find_context_key, CASE_NAME};
 use crate::{
     pipelines::{
         context::PipelineContext,
@@ -56,7 +56,16 @@ impl GetContextValuePipelinePart {
                     }
                 }
 
-                sender.handle(PipelineEvent::GetContextValuesEvent(GetContextValuesEvent { uuid, key_values }));
+                let case_name = match context.concrete(CASE_NAME.key()) {
+                    None => "CASE_NAME".to_string(),
+                    Some(case_name) => case_name.to_string(),
+                };
+
+                sender.handle(PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
+                    case_name,
+                    uuid,
+                    key_values
+                }));
 
                 Ok(())
             }),

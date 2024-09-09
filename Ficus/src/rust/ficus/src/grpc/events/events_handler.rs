@@ -10,6 +10,7 @@ pub trait PipelineEventsHandler: Send + Sync {
 }
 
 pub struct GetContextValuesEvent<'a> {
+    pub case_name: String,
     pub uuid: Uuid,
     pub key_values: Vec<(&'a dyn ContextKey, &'a dyn Any)>,
 }

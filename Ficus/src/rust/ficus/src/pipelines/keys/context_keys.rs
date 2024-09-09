@@ -31,6 +31,7 @@ use crate::{
     utils::colors::ColorsHolder,
 };
 
+pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PATH: &'static str = "path";
 pub const TANDEM_ARRAY_LENGTH: &'static str = "tandem_array_length";
 pub const ACTIVITY_LEVEL: &'static str = "activity_level";
@@ -171,6 +172,7 @@ lazy_static!(
      pub static ref LOG_SERIALIZATION_FORMAT_KEY: DefaultContextKey<LogSerializationFormat> = DefaultContextKey::new(LOG_SERIALIZATION_FORMAT);
      pub static ref BYTES_KEY: DefaultContextKey<Vec<u8>> = DefaultContextKey::new(BYTES);
      pub static ref PATH_KEY: DefaultContextKey<String> = DefaultContextKey::new(PATH);
+     pub static ref CASE_NAME: DefaultContextKey<String> = DefaultContextKey::new(CASE_NAME_STR);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {

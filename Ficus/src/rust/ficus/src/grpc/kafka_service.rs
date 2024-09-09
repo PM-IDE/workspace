@@ -15,7 +15,7 @@ use crate::grpc::events::kafka_events_handler::KafkaEventsHandler;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
-use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
+use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::stream_queue::AsyncStreamQueue;
 use crate::utils::user_data::user_data::UserData;
@@ -61,7 +61,7 @@ enum ConsumerState {
     ShutdownRequested,
 }
 
-const CASE_NAME: &'static str = "case_name";
+const KAFKA_CASE_NAME: &'static str = "case_name";
 
 #[tonic::async_trait]
 impl GrpcKafkaService for KafkaService {
@@ -94,8 +94,8 @@ impl GrpcKafkaService for KafkaService {
             };
         });
 
-        let creation_dto =
-            self.create_kafka_creation_dto(Arc::new(Box::new(KafkaEventsHandler::new(pusher)) as Box<dyn PipelineEventsHandler>));
+        let handler = Box::new(KafkaEventsHandler::new(pusher)) as Box<dyn PipelineEventsHandler>;
+        let creation_dto = self.create_kafka_creation_dto(Arc::new(handler));
 
         let request = request.get_ref().request.as_ref().expect("Request should be supplied");
         let result = match Self::subscribe_to_kafka_topic(creation_dto, request.clone()) {
@@ -312,13 +312,14 @@ impl KafkaService {
             dto.events_handler.clone(),
         );
 
-        let xes_log = match Self::update_log(dto.names_to_logs.clone(), trace) {
-            Ok(xes_log) => xes_log,
+        let (case_name, xes_log) = match Self::update_log(dto.names_to_logs.clone(), trace) {
+            Ok(pair) => (pair.0, pair.1),
             Err(_) => return (),
         };
 
         let execution_result = context.execute_grpc_pipeline(move |context| {
             context.put_concrete(EVENT_LOG_KEY.key(), xes_log);
+            context.put_concrete(CASE_NAME.key(), case_name);
         });
 
         if let Err(err) = execution_result {
@@ -330,7 +331,7 @@ impl KafkaService {
     fn update_log(
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         trace: BxesKafkaTrace,
-    ) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
+    ) -> Result<(String, XesEventLogImpl), XesFromBxesKafkaTraceCreatingError> {
         let metadata = trace.metadata();
         let mut names_to_logs = names_to_logs.lock();
         let names_to_logs = match names_to_logs.as_mut() {
@@ -338,7 +339,7 @@ impl KafkaService {
             Err(_) => panic!("Failed to acquire a names_to_logs map from mutex"),
         };
 
-        if let Some(case_name) = metadata.get(CASE_NAME) {
+        if let Some(case_name) = metadata.get(KAFKA_CASE_NAME) {
             if let BxesValue::String(case_name) = case_name.as_ref().as_ref() {
                 let case_name = case_name.as_ref().as_ref();
                 if !names_to_logs.contains_key(case_name) {
@@ -356,7 +357,7 @@ impl KafkaService {
                 let xes_trace = Rc::new(RefCell::new(xes_trace));
                 existing_log.push(xes_trace);
 
-                Ok(existing_log.clone())
+                Ok((case_name.to_owned(), existing_log.clone()))
             } else {
                 Err(XesFromBxesKafkaTraceCreatingError::CaseNameNotString)
             }
