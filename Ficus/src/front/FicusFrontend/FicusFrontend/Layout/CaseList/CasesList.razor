@@ -1,0 +1,48 @@
+﻿@using System.Collections.Concurrent
+@using FicusFrontend.Layout.CaseList.Models
+@using FicusFrontend.Services
+@inherits ComponentBase;
+@inject ICasesService CaseService;
+
+<div class="cases-list-title-container">
+    <div class="cases-list-title">
+        Cases List
+    </div>
+</div>
+
+@foreach (var @case in myCases)
+{
+    <div @onclick="@(_ => HandleCaseSelected(@case.Case))">
+        <CaseListItem Case="@(@case)"/>
+    </div>
+}
+
+@code
+{
+    private readonly ConcurrentBag<CaseListItemDto> myCases = [];
+
+    [Parameter] public Action<Case>? CaseSelected { get; set; }
+
+
+    private void HandleCaseSelected(Case selectedCase)
+    {
+        CaseSelected?.Invoke(selectedCase);
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Task.Run(async () =>
+        {
+            await foreach (var @case in CaseService.OpenCasesStream())
+            {
+                myCases.Add(new CaseListItemDto
+                {
+                    Case = @case
+                });
+
+                StateHasChanged();
+            }
+        });
+    }
+}

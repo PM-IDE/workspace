@@ -19,7 +19,7 @@ public class CasesService : ICasesService
     new() { Name = "Case 3" },
     new() { Name = "Case 4" }
   ];
-  
+
 
   public async IAsyncEnumerable<Case> OpenCasesStream()
   {

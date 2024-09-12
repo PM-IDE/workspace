@@ -1,0 +1,23 @@
+﻿@using FicusFrontend.Layout.CaseList.Models
+@inherits ComponentBase
+
+<div class="case-list-item">
+    <div class="case-list-item-name">
+        @(Case.Case.Name)
+    </div>
+
+    <div class="@CaseNotificationCLass"/>
+</div>
+
+@code
+{
+    private string CaseNotificationCLass => Case.State switch
+    {
+        CaseListItemState.New => "case-new-notification",
+        CaseListItemState.UpdatesReceived => "case-update-notification",
+        CaseListItemState.Seen => "case-seen-notification",
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    [Parameter] public CaseListItemDto Case { get; set; }
+}

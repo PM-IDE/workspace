@@ -1,21 +1,22 @@
-﻿@using FicusFrontend.Services
-
+﻿@using FicusFrontend.Layout.CaseList
+@using FicusFrontend.Services
 @inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
-        <CasesList CaseSelected="HandleNewCaseSelected" />
+        <CasesList CaseSelected="HandleNewCaseSelected"/>
     </div>
 
     <main>
         <article class="content px-4">
-            <CaseInfo Case="@mySelectedCase" />
+            <CaseInfo Case="@mySelectedCase"/>
         </article>
     </main>
 </div>
 
 
-@code {
+@code
+{
     private Case? mySelectedCase;
 
 
