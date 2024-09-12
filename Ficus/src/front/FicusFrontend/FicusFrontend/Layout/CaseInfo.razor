@@ -1,0 +1,22 @@
+﻿@using FicusFrontend.Services
+
+@inherits ComponentBase
+
+<PageTitle>Case @Case.Name</PageTitle>
+
+@if (Case is null)
+{
+    <div>
+        The case was not yet selected.
+    </div>
+    return;
+}
+
+<div>
+    @Case.Name
+</div>
+
+@code {
+    [Parameter]
+    public Case? Case { get; set; }
+}
