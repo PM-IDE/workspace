@@ -12,7 +12,7 @@
 
 @foreach (var @case in myCases)
 {
-    <div @onclick="@(_ => HandleCaseSelected(@case.Case))">
+    <div @onclick="@(_ => HandleCaseSelected(@case))">
         <CaseListItem Case="@(@case)"/>
     </div>
 }
@@ -24,9 +24,10 @@
     [Parameter] public Action<Case>? CaseSelected { get; set; }
 
 
-    private void HandleCaseSelected(Case selectedCase)
+    private void HandleCaseSelected(CaseListItemDto selectedCase)
     {
-        CaseSelected?.Invoke(selectedCase);
+        selectedCase.State = CaseListItemState.Seen;
+        CaseSelected?.Invoke(selectedCase.Case);
     }
 
     protected override void OnInitialized()

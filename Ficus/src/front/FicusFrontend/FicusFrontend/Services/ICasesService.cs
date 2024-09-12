@@ -3,6 +3,7 @@
 public class Case
 {
   public required string Name { get; init; }
+  public required DateTime CreatedAt { get; init; }
 }
 
 public interface ICasesService
@@ -14,10 +15,10 @@ public class CasesService : ICasesService
 {
   private readonly List<Case> myCases =
   [
-    new() { Name = "Case 1" },
-    new() { Name = "Case 2" },
-    new() { Name = "Case 3" },
-    new() { Name = "Case 4" }
+    new() { Name = "Case 1", CreatedAt = DateTime.Now },
+    new() { Name = "Case 2", CreatedAt = DateTime.Now },
+    new() { Name = "Case 3", CreatedAt = DateTime.Now },
+    new() { Name = "Case 4", CreatedAt = DateTime.Now }
   ];
 
 
