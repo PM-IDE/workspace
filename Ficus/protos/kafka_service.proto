@@ -8,20 +8,24 @@ import "google/protobuf/empty.proto";
 package ficus;
 
 service GrpcKafkaService {
-  rpc SubscribeForKafkaTopicExternal(GrpcSubscribeToKafkaAndSendToExternalServer) returns (GrpcKafkaResult);
+  rpc SubscribeForKafkaTopicExternal(GrpcSubscribeToKafkaAndProduceToKafka) returns (GrpcKafkaResult);
   rpc SubscribeForKafkaTopicStream(GrpcSubscribeForKafkaTopicRequest) returns (stream GrpcPipelinePartExecutionResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
 }
 
-message GrpcSubscribeToKafkaAndSendToExternalServer {
+message GrpcSubscribeToKafkaAndProduceToKafka {
   GrpcSubscribeForKafkaTopicRequest request = 1;
-  string updatesProcessorHost = 2;
+  GrpcKafkaConnectionMetadata producerMetadata = 2;
 }
 
 message GrpcSubscribeForKafkaTopicRequest {
+  GrpcKafkaConnectionMetadata kafkaConnectionMetadata = 1;
+  GrpcPipelineExecutionRequest pipelineRequest = 2;
+}
+
+message GrpcKafkaConnectionMetadata {
   string topicName = 1;
-  repeated GrpcKafkaConsumerMetadata metadata = 3;
-  GrpcPipelineExecutionRequest pipelineRequest = 4;
+  repeated GrpcKafkaConsumerMetadata metadata = 2;
 }
 
 message GrpcKafkaConsumerMetadata {
