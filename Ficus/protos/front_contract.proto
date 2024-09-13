@@ -1,0 +1,38 @@
+﻿syntax = "proto3";
+
+import "pipelines_and_context.proto";
+import "util.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package ficus;
+
+service GrpcKafkaUpdatesProcessor {
+  rpc GetCurrentCases(google.protobuf.Empty) returns (GrpcCurrentCasesResponse);
+  rpc StartUpdatesStream(stream GrpcKafkaUpdate) returns (google.protobuf.Empty);
+}
+
+message GrpcKafkaUpdate {
+  string caseName = 1;
+  repeated GrpcContextValueWithKeyName contextValues = 2;
+}
+
+message GrpcCurrentCasesResponse {
+  repeated GrpcCase cases = 1;
+}
+
+message GrpcCase {
+  string caseName = 1;
+  repeated GrpcPipelinePartContextValues contextValues = 2;
+}
+
+message GrpcPipelinePartContextValues {
+  GrpcPipelinePartInfo pipelinePartInfo = 1;
+  google.protobuf.Timestamp stamp = 2;
+  repeated GrpcContextValueWithKeyName contextValues = 3;
+}
+
+message GrpcPipelinePartInfo {
+  string name = 1;
+  GrpcGuid id = 2;
+}

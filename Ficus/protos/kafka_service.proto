@@ -47,12 +47,3 @@ message GrpcKafkaFailedResult {
 message GrpcUnsubscribeFromKafkaRequest {
   GrpcGuid subscriptionId = 1;
 }
-
-service GrpcKafkaUpdatesProcessor {
-  rpc StartUpdatesStream(stream GrpcKafkaUpdate) returns (google.protobuf.Empty);
-}
-
-message GrpcKafkaUpdate {
-  string caseName = 1;
-  repeated GrpcContextValueWithKeyName contextValues = 2;
-}
