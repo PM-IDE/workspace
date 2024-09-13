@@ -3,21 +3,13 @@ use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_events, BxesToXesR
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::grpc_kafka_updates_processor_client::GrpcKafkaUpdatesProcessorClient;
-use crate::ficus_proto::{
-    grpc_kafka_result, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcKafkaUpdate,
-    GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndSendToExternalServer,
-    GrpcUnsubscribeFromKafkaRequest,
-};
+use crate::ficus_proto::{grpc_kafka_result, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest};
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
-use crate::grpc::events::kafka_events_handler::KafkaEventsHandler;
-use crate::grpc::logs_handler::ConsoleLogMessageHandler;
+use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
-use crate::pipelines::context::LogMessageHandler;
 use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::stream_queue::AsyncStreamQueue;
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaTrace};
@@ -32,13 +24,9 @@ use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
-use tokio::sync::mpsc::Sender;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::transport::Channel;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
-
-pub(super) type KafkaGrpcSender = Sender<Result<GrpcKafkaUpdate, Status>>;
 
 pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
@@ -67,34 +55,22 @@ const KAFKA_CASE_NAME: &'static str = "case_name";
 impl GrpcKafkaService for KafkaService {
     async fn subscribe_for_kafka_topic_external(
         &self,
-        request: Request<GrpcSubscribeToKafkaAndSendToExternalServer>,
+        request: Request<GrpcSubscribeToKafkaAndProduceToKafka>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
-        let channel = Channel::from_shared(request.get_ref().updates_processor_host.to_owned())
-            .ok()
-            .unwrap()
-            .connect()
-            .await
-            .ok()
-            .unwrap();
+        let producer_metadata = match request.get_ref().producer_metadata.as_ref() {
+            None => return Err(Status::invalid_argument("Producer metadata must be provided")),
+            Some(metadata) => metadata
+        };
 
-        let mut client = GrpcKafkaUpdatesProcessorClient::new(channel);
-        let stream = AsyncStreamQueue::new();
-        let pusher = stream.create_pusher();
+        let producer = match PipelineEventsProducer::create(producer_metadata) {
+            Ok(producer) => producer,
+            Err(err) => {
+                let message = format!("Failed to create producer: {}", err.to_string());
+                return Err(Status::invalid_argument(message))
+            }
+        };
 
-        tokio::task::spawn(async move {
-            let logger = ConsoleLogMessageHandler::new();
-            match client.start_updates_stream(stream).await {
-                Ok(_) => {
-                    logger.handle("The stream ended successfully").expect("Message was logged");
-                }
-                Err(err) => {
-                    let message = format!("The stream ended with error: {}", err.to_string());
-                    logger.handle(message.as_str()).expect("Error was logged");
-                }
-            };
-        });
-
-        let handler = Box::new(KafkaEventsHandler::new(pusher)) as Box<dyn PipelineEventsHandler>;
+        let handler = Box::new(KafkaEventsHandler::new(producer)) as Box<dyn PipelineEventsHandler>;
         let creation_dto = self.create_kafka_creation_dto(Arc::new(handler));
 
         let request = request.get_ref().request.as_ref().expect("Request should be supplied");
@@ -240,15 +216,20 @@ impl KafkaService {
     }
 
     fn create_consumer(request: &GrpcSubscribeForKafkaTopicRequest) -> Result<BxesKafkaConsumer, KafkaError> {
+        let metadata = match request.kafka_connection_metadata.as_ref() {
+            None => return Err(KafkaError::Subscription("Kafka connection metadata was not provided".to_string())),
+            Some(metadata) => metadata
+        };
+
         let mut config = ClientConfig::new();
 
-        for metadata_pair in &request.metadata {
+        for metadata_pair in &metadata.metadata {
             config.set(metadata_pair.key.to_owned(), metadata_pair.value.to_owned());
         }
 
         let consumer = config.create()?;
 
-        Ok(BxesKafkaConsumer::new(request.topic_name.to_owned(), consumer))
+        Ok(BxesKafkaConsumer::new(metadata.topic_name.to_owned(), consumer))
     }
 
     fn subscribe(consumer: &mut BxesKafkaConsumer, creation_dto: KafkaConsumerCreationDto) {
