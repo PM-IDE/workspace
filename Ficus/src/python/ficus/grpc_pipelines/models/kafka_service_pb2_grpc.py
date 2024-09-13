@@ -8,8 +8,6 @@ import grpc
 
 import ficus.grpc_pipelines.models.backend_service_pb2 as backend__service__pb2
 
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-
 import ficus.grpc_pipelines.models.kafka_service_pb2 as kafka__service__pb2
 
 
@@ -34,11 +32,11 @@ class GrpcKafkaServiceStub(object):
 
         """
 
-        self.SubscribeForKafkaTopic = channel.unary_unary(
+        self.SubscribeForKafkaTopicExternal = channel.unary_unary(
 
-                '/ficus.GrpcKafkaService/SubscribeForKafkaTopic',
+                '/ficus.GrpcKafkaService/SubscribeForKafkaTopicExternal',
 
-                request_serializer=kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.SerializeToString,
+                request_serializer=kafka__service__pb2.GrpcSubscribeToKafkaAndProduceToKafka.SerializeToString,
 
                 response_deserializer=kafka__service__pb2.GrpcKafkaResult.FromString,
 
@@ -74,7 +72,7 @@ class GrpcKafkaServiceServicer(object):
 
 
 
-    def SubscribeForKafkaTopic(self, request, context):
+    def SubscribeForKafkaTopicExternal(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -116,11 +114,11 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
 
     rpc_method_handlers = {
 
-            'SubscribeForKafkaTopic': grpc.unary_unary_rpc_method_handler(
+            'SubscribeForKafkaTopicExternal': grpc.unary_unary_rpc_method_handler(
 
-                    servicer.SubscribeForKafkaTopic,
+                    servicer.SubscribeForKafkaTopicExternal,
 
-                    request_deserializer=kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.FromString,
+                    request_deserializer=kafka__service__pb2.GrpcSubscribeToKafkaAndProduceToKafka.FromString,
 
                     response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
 
@@ -168,7 +166,7 @@ class GrpcKafkaService(object):
 
     @staticmethod
 
-    def SubscribeForKafkaTopic(request,
+    def SubscribeForKafkaTopicExternal(request,
 
             target,
 
@@ -188,9 +186,9 @@ class GrpcKafkaService(object):
 
             metadata=None):
 
-        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/SubscribeForKafkaTopic',
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/SubscribeForKafkaTopicExternal',
 
-            kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.SerializeToString,
+            kafka__service__pb2.GrpcSubscribeToKafkaAndProduceToKafka.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
 
@@ -261,128 +259,6 @@ class GrpcKafkaService(object):
             kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
-
-            options, channel_credentials,
-
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-
-
-
-
-class GrpcKafkaUpdatesProcessorStub(object):
-
-    """Missing associated documentation comment in .proto file."""
-
-
-
-    def __init__(self, channel):
-
-        """Constructor.
-
-
-
-        Args:
-
-            channel: A grpc.Channel.
-
-        """
-
-        self.StartUpdatesStream = channel.stream_unary(
-
-                '/ficus.GrpcKafkaUpdatesProcessor/StartUpdatesStream',
-
-                request_serializer=kafka__service__pb2.GrpcKafkaUpdate.SerializeToString,
-
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-
-                )
-
-
-
-
-
-class GrpcKafkaUpdatesProcessorServicer(object):
-
-    """Missing associated documentation comment in .proto file."""
-
-
-
-    def StartUpdatesStream(self, request_iterator, context):
-
-        """Missing associated documentation comment in .proto file."""
-
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-
-        context.set_details('Method not implemented!')
-
-        raise NotImplementedError('Method not implemented!')
-
-
-
-
-
-def add_GrpcKafkaUpdatesProcessorServicer_to_server(servicer, server):
-
-    rpc_method_handlers = {
-
-            'StartUpdatesStream': grpc.stream_unary_rpc_method_handler(
-
-                    servicer.StartUpdatesStream,
-
-                    request_deserializer=kafka__service__pb2.GrpcKafkaUpdate.FromString,
-
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-
-            ),
-
-    }
-
-    generic_handler = grpc.method_handlers_generic_handler(
-
-            'ficus.GrpcKafkaUpdatesProcessor', rpc_method_handlers)
-
-    server.add_generic_rpc_handlers((generic_handler,))
-
-
-
-
-
- # This class is part of an EXPERIMENTAL API.
-
-class GrpcKafkaUpdatesProcessor(object):
-
-    """Missing associated documentation comment in .proto file."""
-
-
-
-    @staticmethod
-
-    def StartUpdatesStream(request_iterator,
-
-            target,
-
-            options=(),
-
-            channel_credentials=None,
-
-            call_credentials=None,
-
-            insecure=False,
-
-            compression=None,
-
-            wait_for_ready=None,
-
-            timeout=None,
-
-            metadata=None):
-
-        return grpc.experimental.stream_unary(request_iterator, target, '/ficus.GrpcKafkaUpdatesProcessor/StartUpdatesStream',
-
-            kafka__service__pb2.GrpcKafkaUpdate.SerializeToString,
-
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
 
             options, channel_credentials,
 

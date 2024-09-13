@@ -13,6 +13,14 @@ class GrpcContextKey(_message.Message):
     name: str
     def __init__(self, name: _Optional[str] = ...) -> None: ...
 
+class GrpcContextValueWithKeyName(_message.Message):
+    __slots__ = ["key_name", "value"]
+    KEY_NAME_FIELD_NUMBER: _ClassVar[int]
+    VALUE_FIELD_NUMBER: _ClassVar[int]
+    key_name: str
+    value: GrpcContextValue
+    def __init__(self, key_name: _Optional[str] = ..., value: _Optional[_Union[GrpcContextValue, _Mapping]] = ...) -> None: ...
+
 class GrpcContextValue(_message.Message):
     __slots__ = ["string", "hashes_log", "names_log", "uint32", "traces_sub_arrays", "trace_index_sub_arrays", "bool", "xes_event_log", "colors_log", "enum", "event_log_info", "strings", "pipeline", "petriNet", "graph", "float", "count_annotation", "frequency_annotation", "dataset", "labeled_dataset", "bytes"]
     STRING_FIELD_NUMBER: _ClassVar[int]

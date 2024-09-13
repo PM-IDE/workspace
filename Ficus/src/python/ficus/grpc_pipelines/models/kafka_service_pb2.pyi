@@ -9,15 +9,29 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class GrpcSubscribeToKafkaAndProduceToKafka(_message.Message):
+    __slots__ = ["request", "producerMetadata"]
+    REQUEST_FIELD_NUMBER: _ClassVar[int]
+    PRODUCERMETADATA_FIELD_NUMBER: _ClassVar[int]
+    request: GrpcSubscribeForKafkaTopicRequest
+    producerMetadata: GrpcKafkaConnectionMetadata
+    def __init__(self, request: _Optional[_Union[GrpcSubscribeForKafkaTopicRequest, _Mapping]] = ..., producerMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ...) -> None: ...
+
 class GrpcSubscribeForKafkaTopicRequest(_message.Message):
-    __slots__ = ["topicName", "metadata", "pipelineRequest"]
+    __slots__ = ["kafkaConnectionMetadata", "pipelineRequest"]
+    KAFKACONNECTIONMETADATA_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEREQUEST_FIELD_NUMBER: _ClassVar[int]
+    kafkaConnectionMetadata: GrpcKafkaConnectionMetadata
+    pipelineRequest: _backend_service_pb2.GrpcPipelineExecutionRequest
+    def __init__(self, kafkaConnectionMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ..., pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ...) -> None: ...
+
+class GrpcKafkaConnectionMetadata(_message.Message):
+    __slots__ = ["topicName", "metadata"]
     TOPICNAME_FIELD_NUMBER: _ClassVar[int]
     METADATA_FIELD_NUMBER: _ClassVar[int]
-    PIPELINEREQUEST_FIELD_NUMBER: _ClassVar[int]
     topicName: str
     metadata: _containers.RepeatedCompositeFieldContainer[GrpcKafkaConsumerMetadata]
-    pipelineRequest: _backend_service_pb2.GrpcPipelineExecutionRequest
-    def __init__(self, topicName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[GrpcKafkaConsumerMetadata, _Mapping]]] = ..., pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ...) -> None: ...
+    def __init__(self, topicName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[GrpcKafkaConsumerMetadata, _Mapping]]] = ...) -> None: ...
 
 class GrpcKafkaConsumerMetadata(_message.Message):
     __slots__ = ["key", "value"]
@@ -52,11 +66,3 @@ class GrpcUnsubscribeFromKafkaRequest(_message.Message):
     SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
     subscriptionId: _util_pb2.GrpcGuid
     def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
-
-class GrpcKafkaUpdate(_message.Message):
-    __slots__ = ["caseName", "contextValue"]
-    CASENAME_FIELD_NUMBER: _ClassVar[int]
-    CONTEXTVALUE_FIELD_NUMBER: _ClassVar[int]
-    caseName: str
-    contextValue: _pipelines_and_context_pb2.GrpcContextValue
-    def __init__(self, caseName: _Optional[str] = ..., contextValue: _Optional[_Union[_pipelines_and_context_pb2.GrpcContextValue, _Mapping]] = ...) -> None: ...
