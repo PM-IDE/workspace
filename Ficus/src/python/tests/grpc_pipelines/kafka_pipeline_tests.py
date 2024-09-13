@@ -12,9 +12,16 @@ def test_kafka_pipeline():
         }
     )
 
+    kafka_producer_metadata = KafkaPipelineMetadata(
+        topic_name='ficus_topic',
+        kafka_consumer_configuration={
+            'bootstrap.servers': 'localhost:9092',
+        }
+    )
+
     KafkaPipeline(
         PrintEventLogInfo()
-    ).execute(kafka_metadata, {})
+    ).execute(kafka_metadata, kafka_producer_metadata, {})
 
 
 def test_kafka_stream_pipeline():

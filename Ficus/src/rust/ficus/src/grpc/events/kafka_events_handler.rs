@@ -34,11 +34,11 @@ impl PipelineEventsProducer {
     }
 
     pub fn produce(&self, message: GrpcKafkaUpdate) -> Result<(), KafkaError> {
-        let bytes = message.encode_to_vec();
+        let encoded_message = message.encode_to_vec();
         let message_id = Uuid::new_v4();
-        let record = BaseRecord::to(self.topic_name.as_str())
-            .key(message_id.as_ref())
-            .payload(bytes.as_slice());
+        let record: BaseRecord<[u8], Vec<u8>> = BaseRecord::to(self.topic_name.as_str())
+            .key(message_id.as_bytes().as_slice())
+            .payload(&encoded_message);
 
         match self.producer.send(record) {
             Ok(_) => Ok(()),
