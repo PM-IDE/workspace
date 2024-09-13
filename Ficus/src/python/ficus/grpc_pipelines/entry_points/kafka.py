@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from .util import *
-from ..models.kafka_service_pb2 import GrpcSubscribeForKafkaTopicRequest, GrpcKafkaConsumerMetadata
+from ..models.kafka_service_pb2 import *
 from ..models.kafka_service_pb2_grpc import *
 from ...grpc_pipelines.entry_points.default_pipeline import create_grpc_pipeline
 from ...grpc_pipelines.context_values import ContextValue
@@ -20,12 +20,20 @@ class KafkaPipeline:
         self.parts: list['PipelinePart'] = list(parts)
         self.consumer_uuid: Optional[str] = None
 
-    def execute(self, kafka_metadata: KafkaPipelineMetadata, initial_context: dict[str, ContextValue]):
+    def execute(self,
+                consumer_connection_metadata: KafkaPipelineMetadata,
+                producer_connection_metadata: KafkaPipelineMetadata,
+                initial_context: dict[str, ContextValue]):
         with create_ficus_grpc_channel(initial_context) as channel:
             stub = GrpcKafkaServiceStub(channel)
 
-            request = self._create_subscribe_to_kafka_request(kafka_metadata, initial_context)
-            response = stub.SubscribeForKafkaTopic(request)
+            request = self._create_subscribe_to_kafka_request(consumer_connection_metadata, initial_context)
+            request = GrpcSubscribeToKafkaAndProduceToKafka(
+                request=request,
+                producerMetadata=self._create_kafka_connection_metadata(producer_connection_metadata)
+            )
+
+            response = stub.SubscribeForKafkaTopicExternal(request)
             if response.HasField('success'):
                 self.consumer_uuid = response.success.subscriptionId.guid
                 print(f'Consumer id: {self.consumer_uuid}')
@@ -35,20 +43,29 @@ class KafkaPipeline:
     def _create_subscribe_to_kafka_request(self,
                                            kafka_metadata: KafkaPipelineMetadata,
                                            initial_context: dict[str, ContextValue]) -> GrpcSubscribeForKafkaTopicRequest:
-        metadata = list(map(
-            lambda x: GrpcKafkaConsumerMetadata(key=x[0], value=x[1]),
-            list(kafka_metadata.kafka_consumer_configuration.items())
-        ))
 
         pipeline_request = GrpcPipelineExecutionRequest(
             pipeline=create_grpc_pipeline(self.parts),
             initialContext=create_initial_context(initial_context)
         )
 
+        kafka_connection_metadata = self._create_kafka_connection_metadata(kafka_metadata)
+
         return GrpcSubscribeForKafkaTopicRequest(
-            topicName=kafka_metadata.topic_name,
-            metadata=metadata,
+            kafkaConnectionMetadata=kafka_connection_metadata,
             pipelineRequest=pipeline_request
+        )
+
+    @staticmethod
+    def _create_kafka_connection_metadata(kafka_metadata: KafkaPipelineMetadata) -> GrpcKafkaConnectionMetadata:
+        metadata = list(map(
+            lambda x: GrpcKafkaConsumerMetadata(key=x[0], value=x[1]),
+            list(kafka_metadata.kafka_consumer_configuration.items())
+        ))
+
+        return GrpcKafkaConnectionMetadata(
+            topicName=kafka_metadata.topic_name,
+            metadata=metadata
         )
 
     def execute_stream(self, kafka_metadata: KafkaPipelineMetadata, initial_context: dict[str, ContextValue]):
