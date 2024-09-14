@@ -1,6 +1,6 @@
 using Confluent.Kafka;
 
-namespace FrontendBackend.Integrations.Kafka;
+namespace FrontendBackend.Integrations.Kafka.PipelineUpdates;
 
 class GuidDeserializer : IDeserializer<Guid>
 {
