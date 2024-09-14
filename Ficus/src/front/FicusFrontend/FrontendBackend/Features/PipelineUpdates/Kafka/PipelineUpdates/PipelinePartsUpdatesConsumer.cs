@@ -34,24 +34,33 @@ public class PipelinePartsUpdatesConsumer(
     {
       if (cancellationToken.IsCancellationRequested)
       {
+        logger.LogInformation("Cancellation is requested, stopping consumer routine");
         return;
       }
 
       while (true)
       {
-        var result = consumer.Consume(cancellationToken);
+        ConsumeResult<Guid, GrpcKafkaUpdate>? result = null;
 
         try
         {
+          result = consumer.Consume(cancellationToken);
           updatesHandler(result.Message.Value);
+        }
+        catch (OperationCanceledException)
+        {
+          logger.LogInformation("Consuming routine was cancelled");
         }
         catch (Exception ex)
         {
-          logger.LogError(ex, "Failed to handle new message, will commit offset anyway");
+          logger.LogError(ex, "Failed to handle new message");
         }
         finally
         {
-          consumer.Commit(result);
+          if (result is not null)
+          {
+            consumer.Commit(result);
+          }
         }
       }
     }
