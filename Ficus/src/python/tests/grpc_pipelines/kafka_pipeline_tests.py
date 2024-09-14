@@ -13,7 +13,7 @@ def test_kafka_pipeline():
     )
 
     kafka_producer_metadata = KafkaPipelineMetadata(
-        topic_name='ficus_topic',
+        topic_name='ficus-topic',
         kafka_consumer_configuration={
             'bootstrap.servers': 'localhost:9092',
         }
