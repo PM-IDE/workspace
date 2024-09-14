@@ -1,7 +1,7 @@
 using Confluent.Kafka;
 using Ficus;
 
-namespace FrontendBackend.Integrations.Kafka.PipelineUpdates;
+namespace FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
 
 class GrpcKafkaUpdateDeserializer : IDeserializer<GrpcKafkaUpdate>
 {

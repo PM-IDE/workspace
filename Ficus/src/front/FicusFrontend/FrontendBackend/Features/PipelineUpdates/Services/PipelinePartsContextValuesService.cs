@@ -2,7 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 
-namespace FrontendBackend.Services;
+namespace FrontendBackend.Features.PipelineUpdates.Services;
 
 public class PipelinePartsContextValuesService : GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceBase
 {

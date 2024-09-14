@@ -1,18 +1,13 @@
 ﻿using Confluent.Kafka;
 using Ficus;
+using FrontendBackend.Features.PipelineUpdates.Settings;
 using Microsoft.Extensions.Options;
 
-namespace FrontendBackend.Integrations.Kafka.PipelineUpdates;
-
-public class PipelinePartsUpdateKafkaSettings
-{
-  public string Topic { get; set; }
-  public string BootstrapServiers { get; set; }
-}
+namespace FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
 
 public interface IPipelinePartsUpdatesConsumer
 {
-  void StartUpdatesConsuming(Action<GrpcKafkaUpdate> updatesHandler);
+  void StartUpdatesConsuming(CancellationToken cancellationToken, Action<GrpcKafkaUpdate> updatesHandler);
 }
 
 public class PipelinePartsUpdatesConsumer(
@@ -20,11 +15,11 @@ public class PipelinePartsUpdatesConsumer(
   ILogger<PipelinePartsUpdatesConsumer> logger
 ) : IPipelinePartsUpdatesConsumer
 {
-  public void StartUpdatesConsuming(Action<GrpcKafkaUpdate> updatesHandler)
+  public void StartUpdatesConsuming(CancellationToken cancellationToken, Action<GrpcKafkaUpdate> updatesHandler)
   {
     var config = new ConsumerConfig
     {
-      BootstrapServers = settings.Value.BootstrapServiers,
+      BootstrapServers = settings.Value.BootstrapServers,
       GroupId = $"{nameof(PipelinePartsUpdatesConsumer)}::{nameof(StartUpdatesConsuming)}"
     };
 
@@ -37,9 +32,14 @@ public class PipelinePartsUpdatesConsumer(
 
     try
     {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        return;
+      }
+
       while (true)
       {
-        var result = consumer.Consume();
+        var result = consumer.Consume(cancellationToken);
 
         try
         {

@@ -1,4 +1,4 @@
-﻿namespace FrontendBackend.Services;
+﻿namespace FrontendBackend.Features.PipelineUpdates.Services;
 
 public interface IPipelinePartsUpdatesRepository
 {
