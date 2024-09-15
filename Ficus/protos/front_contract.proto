@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 package ficus;
 
 service GrpcPipelinePartsContextValuesService {
-  rpc StartUpdatesStream(stream GrpcKafkaUpdate) returns (google.protobuf.Empty);
+  rpc StartUpdatesStream(google.protobuf.Empty) returns (stream GrpcPipelinePartUpdate);
 }
 
 message GrpcPipelinePartUpdate {

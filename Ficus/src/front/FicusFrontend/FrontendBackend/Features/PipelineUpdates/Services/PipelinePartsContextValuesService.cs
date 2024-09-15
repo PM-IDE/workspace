@@ -8,8 +8,11 @@ public class PipelinePartsContextValuesService(
   IPipelinePartsUpdatesRepository repository
 ) : GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceBase
 {
-  public override Task<Empty> StartUpdatesStream(IAsyncStreamReader<GrpcKafkaUpdate> requestStream, ServerCallContext context)
+  public override async Task StartUpdatesStream(Empty request, IServerStreamWriter<GrpcPipelinePartUpdate> responseStream, ServerCallContext context)
   {
-    return base.StartUpdatesStream(requestStream, context);
+    await foreach (var update in repository.StartUpdatesStream(context.CancellationToken))
+    {
+      await responseStream.WriteAsync(update);
+    }
   }
 }
