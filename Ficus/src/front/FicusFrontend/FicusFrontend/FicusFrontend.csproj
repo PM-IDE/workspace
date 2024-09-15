@@ -8,8 +8,22 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Grpc.Net.Client" Version="2.57.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="../../../../Protos/*.proto" ProtoRoot="../../../../Protos" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.Core" Version="2.46.3" />
+        <PackageReference Include="Google.Protobuf" Version="3.23.1" />
+        <PackageReference Include="Grpc.Tools" Version="2.57.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>

@@ -35,7 +35,7 @@
         base.OnInitialized();
         Task.Run(async () =>
         {
-            await foreach (var @case in CaseService.OpenCasesStream())
+            await foreach (var @case in CaseService.OpenCasesStream(CancellationToken.None))
             {
                 myCases.Add(new CaseListItemDto
                 {

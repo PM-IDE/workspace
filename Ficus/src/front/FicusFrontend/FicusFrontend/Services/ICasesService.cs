@@ -1,4 +1,8 @@
-﻿namespace FicusFrontend.Services;
+﻿using System.Runtime.CompilerServices;
+using Ficus;
+using Google.Protobuf.WellKnownTypes;
+
+namespace FicusFrontend.Services;
 
 public class Case
 {
@@ -8,26 +12,22 @@ public class Case
 
 public interface ICasesService
 {
-  IAsyncEnumerable<Case> OpenCasesStream();
+  IAsyncEnumerable<Case> OpenCasesStream(CancellationToken token);
 }
 
-public class CasesService : ICasesService
+public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client) : ICasesService
 {
-  private readonly List<Case> myCases =
-  [
-    new() { Name = "Case 1", CreatedAt = DateTime.Now },
-    new() { Name = "Case 2", CreatedAt = DateTime.Now },
-    new() { Name = "Case 3", CreatedAt = DateTime.Now },
-    new() { Name = "Case 4", CreatedAt = DateTime.Now }
-  ];
-
-
-  public async IAsyncEnumerable<Case> OpenCasesStream()
+  public async IAsyncEnumerable<Case> OpenCasesStream([EnumeratorCancellation] CancellationToken token)
   {
-    foreach (var @case in myCases)
+    var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
+
+    while (await reader.MoveNext(token))
     {
-      yield return @case;
-      await Task.Delay(1000);
+      yield return new Case
+      {
+        Name = "xd",
+        CreatedAt = DateTime.Now,
+      };
     }
   }
 }
