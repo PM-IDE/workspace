@@ -6,6 +6,7 @@ using FrontendBackend.Features.PipelineUpdates.Settings;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IPipelinePartsUpdatesConsumer, PipelinePartsUpdatesConsumer>();
+builder.Services.AddSingleton<IPipelinePartsUpdatesRepository, PipelinePartsUpdatesRepository>();
 builder.Services.AddHostedService<UpdatesConsumerJob>();
 
 var section = builder.Configuration.GetSection(nameof(PipelinePartsUpdateKafkaSettings));

@@ -1,5 +1,5 @@
 use super::events_handler::{PipelineEvent, PipelineEventsHandler};
-use crate::ficus_proto::{GrpcKafkaConnectionMetadata, GrpcKafkaUpdate};
+use crate::ficus_proto::{GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate};
 use crate::grpc::events::utils::create_grpc_context_values;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::context::LogMessageHandler;
@@ -67,6 +67,9 @@ impl PipelineEventsHandler for KafkaEventsHandler {
             PipelineEvent::GetContextValuesEvent(event) => {
                 let result = self.producer.produce(GrpcKafkaUpdate {
                     case_name: event.case_name,
+                    pipeline_part_guid: Some(GrpcGuid {
+                        guid: event.uuid.to_string()
+                    }),
                     context_values: create_grpc_context_values(&event.key_values),
                 });
 
