@@ -8,13 +8,20 @@ import "google/protobuf/timestamp.proto";
 package ficus;
 
 service GrpcPipelinePartsContextValuesService {
-  rpc GetCurrentCases(google.protobuf.Empty) returns (GrpcCurrentCasesResponse);
   rpc StartUpdatesStream(stream GrpcKafkaUpdate) returns (google.protobuf.Empty);
+}
+
+message GrpcPipelinePartUpdate {
+  oneof update {
+      GrpcCurrentCasesResponse current_cases = 1;
+      GrpcKafkaUpdate delta = 2;
+  }
 }
 
 message GrpcKafkaUpdate {
   string caseName = 1;
-  repeated GrpcContextValueWithKeyName contextValues = 2;
+  GrpcGuid pipeline_part_guid = 2;
+  repeated GrpcContextValueWithKeyName contextValues = 3;
 }
 
 message GrpcCurrentCasesResponse {
