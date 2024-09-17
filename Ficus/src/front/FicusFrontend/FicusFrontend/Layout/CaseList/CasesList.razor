@@ -35,12 +35,24 @@
         base.OnInitialized();
         Task.Run(async () =>
         {
-            await foreach (var @case in CaseService.OpenCasesStream(CancellationToken.None))
+            await foreach (var update in CaseService.OpenCasesUpdatesStream(CancellationToken.None))
             {
-                myCases.Add(new CaseListItemDto
+                switch (update)
                 {
-                    Case = @case
-                });
+                    case CasesListUpdate casesListUpdate:
+                    {
+                        myCases.Add(new CaseListItemDto
+                        {
+                            Case = casesListUpdate.Case
+                        });
+
+                        break;
+                    }
+                    case CaseContextValuesUpdate caseContextValuesUpdate:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(update));
+                }
 
                 StateHasChanged();
             }
