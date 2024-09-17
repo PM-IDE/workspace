@@ -7,7 +7,7 @@ namespace FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
 
 public interface IPipelinePartsUpdatesConsumer
 {
-  void StartUpdatesConsuming(CancellationToken cancellationToken, Action<GrpcKafkaUpdate> updatesHandler);
+  IEnumerable<GrpcKafkaUpdate> StartUpdatesConsuming(CancellationToken cancellationToken);
 }
 
 public class PipelinePartsUpdatesConsumer(
@@ -15,7 +15,7 @@ public class PipelinePartsUpdatesConsumer(
   ILogger<PipelinePartsUpdatesConsumer> logger
 ) : IPipelinePartsUpdatesConsumer
 {
-  public void StartUpdatesConsuming(CancellationToken cancellationToken, Action<GrpcKafkaUpdate> updatesHandler)
+  public IEnumerable<GrpcKafkaUpdate> StartUpdatesConsuming(CancellationToken cancellationToken)
   {
     var config = new ConsumerConfig
     {
@@ -35,33 +35,16 @@ public class PipelinePartsUpdatesConsumer(
       if (cancellationToken.IsCancellationRequested)
       {
         logger.LogInformation("Cancellation is requested, stopping consumer routine");
-        return;
+        yield break;
       }
 
       while (true)
       {
-        ConsumeResult<Guid, GrpcKafkaUpdate>? result = null;
+        var result = consumer.Consume(cancellationToken);
 
-        try
-        {
-          result = consumer.Consume(cancellationToken);
-          updatesHandler(result.Message.Value);
-        }
-        catch (OperationCanceledException)
-        {
-          logger.LogInformation("Consuming routine was cancelled");
-        }
-        catch (Exception ex)
-        {
-          logger.LogError(ex, "Failed to handle new message");
-        }
-        finally
-        {
-          if (result is not null)
-          {
-            consumer.Commit(result);
-          }
-        }
+        yield return result.Message.Value;
+
+        consumer.Commit(result);
       }
     }
     finally

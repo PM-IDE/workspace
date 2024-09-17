@@ -99,7 +99,7 @@ public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
         {
           contextValues.Select(x => new GrpcPipelinePartContextValues
           {
-            Stamp = Timestamp.FromDateTime(DateTime.Now),
+            Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
             ContextValues = { x.Value },
             PipelinePartInfo = new GrpcPipelinePartInfo
             {

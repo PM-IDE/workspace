@@ -1,13 +1,18 @@
 ﻿using FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
+using FrontendBackend.Features.PipelineUpdates.Services;
 using Google.Protobuf;
 
 namespace FrontendBackend.Features.PipelineUpdates.BackgroundJobs;
 
-public class UpdatesConsumerJob(IPipelinePartsUpdatesConsumer consumer, ILogger<UpdatesConsumerJob> logger) : IHostedService
+public class UpdatesConsumerJob(
+  IPipelinePartsUpdatesConsumer consumer,
+  ILogger<UpdatesConsumerJob> logger,
+  IPipelinePartsUpdatesRepository repository
+) : IHostedService
 {
   public Task StartAsync(CancellationToken cancellationToken)
   {
-    Task.Factory.StartNew(() => ExecuteConsumerRoutine(cancellationToken), cancellationToken);
+    Task.Factory.StartNew(async () => await ExecuteConsumerRoutine(cancellationToken), cancellationToken);
     return Task.CompletedTask;
   }
 
@@ -16,11 +21,12 @@ public class UpdatesConsumerJob(IPipelinePartsUpdatesConsumer consumer, ILogger<
     return Task.CompletedTask;
   }
   
-  private void ExecuteConsumerRoutine(CancellationToken stoppingToken)
+  private async Task ExecuteConsumerRoutine(CancellationToken stoppingToken)
   {
-    consumer.StartUpdatesConsuming(stoppingToken, update =>
+    foreach (var update in consumer.StartUpdatesConsuming(stoppingToken))
     {
-      logger.LogInformation("Update {Update}", update.ToByteString().ToString());
-    });
+      logger.LogInformation("Consumed an update from kafka");
+      await repository.ProcessUpdate(update);
+    }
   }
 }
