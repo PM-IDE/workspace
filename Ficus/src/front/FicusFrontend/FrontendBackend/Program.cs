@@ -14,8 +14,23 @@ builder.Services.Configure<PipelinePartsUpdateKafkaSettings>(section);
 
 builder.Services.AddGrpc();
 
+const string CorsPolicyName = nameof(CorsPolicyName);
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy(CorsPolicyName, builder =>
+  {
+    builder.AllowAnyOrigin()
+      .AllowAnyMethod()
+      .AllowAnyHeader()
+      .WithExposedHeaders("Grpc-Status", "Grpc-Message", "Grpc-Encoding", "Grpc-Accept-Encoding");
+  });
+});
+
 var app = builder.Build();
 
-app.MapGrpcService<PipelinePartsContextValuesService>();
+app.UseGrpcWeb();
+app.UseCors(CorsPolicyName);
+
+app.MapGrpcService<PipelinePartsContextValuesService>().EnableGrpcWeb().RequireCors(CorsPolicyName);
 
 app.Run();
