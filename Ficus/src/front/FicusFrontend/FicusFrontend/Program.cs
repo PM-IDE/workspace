@@ -1,6 +1,6 @@
 using Ficus;
 using FicusFrontend;
-using FicusFrontend.Services;
+using FicusFrontend.Services.Cases;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
 using Microsoft.AspNetCore.Components.Web;

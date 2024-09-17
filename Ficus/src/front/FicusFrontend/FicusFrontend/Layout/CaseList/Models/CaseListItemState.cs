@@ -1,4 +1,4 @@
-﻿using FicusFrontend.Services;
+﻿using FicusFrontend.Services.Cases;
 
 namespace FicusFrontend.Layout.CaseList.Models;
 

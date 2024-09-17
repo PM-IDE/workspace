@@ -1,6 +1,5 @@
 ﻿using FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
 using FrontendBackend.Features.PipelineUpdates.Services;
-using Google.Protobuf;
 
 namespace FrontendBackend.Features.PipelineUpdates.BackgroundJobs;
 
