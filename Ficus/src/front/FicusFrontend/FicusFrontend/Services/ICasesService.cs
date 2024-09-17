@@ -86,7 +86,26 @@ public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePart
           var delta = reader.Current.Delta;
 
           var caseName = delta.CaseName;
-          var caseData = myCache[caseName];
+          if (!myCache.TryGetValue(caseName, out var caseData))
+          {
+            caseData = new CaseData
+            {
+              Case = new Case
+              {
+                Name = caseName,
+                CreatedAt = DateTime.Now,
+              },
+              ContextValues = []
+            };
+
+            yield return new CasesListUpdate
+            {
+              Case = caseData.Case
+            };
+
+            myCache[caseName] = caseData;
+          }
+
           var pipelinePartGuid = Guid.Parse(delta.PipelinePartGuid.Guid);
 
           caseData.ContextValues[pipelinePartGuid] = delta.ContextValues.ToList();
