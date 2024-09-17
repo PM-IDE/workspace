@@ -6,7 +6,7 @@ namespace FicusFrontend.Services.Cases;
 
 public interface ICasesService
 {
-  IAsyncEnumerable<Models> OpenCasesUpdatesStream(CancellationToken token);
+  IAsyncEnumerable<CaseUpdate> OpenCasesUpdatesStream(CancellationToken token);
 }
 
 public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client) : ICasesService
@@ -20,7 +20,7 @@ public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePart
   private readonly Dictionary<string, CaseData> myCurrentCases = [];
 
 
-  public async IAsyncEnumerable<Models> OpenCasesUpdatesStream([EnumeratorCancellation] CancellationToken token)
+  public async IAsyncEnumerable<CaseUpdate> OpenCasesUpdatesStream([EnumeratorCancellation] CancellationToken token)
   {
     var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
 
@@ -40,7 +40,7 @@ public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePart
     }
   }
 
-  private IEnumerable<Models> ProcessInitialState(GrpcCurrentCasesResponse initialCases)
+  private IEnumerable<CaseUpdate> ProcessInitialState(GrpcCurrentCasesResponse initialCases)
   {
     foreach (var @case in initialCases.Cases)
     {
@@ -69,7 +69,7 @@ public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePart
     }
   }
 
-  private IEnumerable<Models> ProcessCaseUpdate(GrpcKafkaUpdate delta)
+  private IEnumerable<CaseUpdate> ProcessCaseUpdate(GrpcKafkaUpdate delta)
   {
     var caseName = delta.CaseName;
     if (!myCurrentCases.TryGetValue(caseName, out var caseData))

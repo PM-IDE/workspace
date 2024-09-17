@@ -10,14 +10,14 @@ public class Case
   public override bool Equals(object? obj) => obj is Case { Name: var name } && name == Name;
 }
 
-public abstract class Models;
+public abstract class CaseUpdate;
 
-public sealed class CasesListUpdate : Models
+public sealed class CasesListUpdate : CaseUpdate
 {
   public required Case Case { get; init; }
 }
 
-public sealed class CaseContextValuesUpdate : Models
+public sealed class CaseContextValuesUpdate : CaseUpdate
 {
   public required string CaseName { get; init; }
   public required Guid PipelinePartGuid { get; init; }
