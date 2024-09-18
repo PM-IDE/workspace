@@ -41,21 +41,30 @@
             {
                 case NotifyCollectionChangedAction.Add:
                 {
-                    foreach (var newCase in args.NewItems)
+                    if (args.IsSingleItem)
                     {
-                        myCases.Add(new CaseListItemDto
+                        myCases.Add(CreateCaseListItemDtoFrom(args.NewItem));
+                    }
+                    else
+                    {
+                        foreach (var newCase in args.NewItems)
                         {
-                            Case = newCase
-                        });
+                            myCases.Add(CreateCaseListItemDtoFrom(newCase));
+                        }   
                     }
 
-                    break;   
+                    break;
                 }
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
+
             StateHasChanged();
         };
     }
+
+    private CaseListItemDto CreateCaseListItemDtoFrom(Case @case) => new()
+    {
+        Case = @case
+    };
 }
