@@ -40,10 +40,6 @@
       ./kafka-topics.sh --bootstrap-server broker:29092 --create --if-not-exists --topic my-topic
       echo -e 'Created topic my-topic'
 
-      echo -e 'Creating topic ficus-topic'
-      ./kafka-topics.sh --bootstrap-server broker:29092 --create --if-not-exists --topic ficus-topic
-      echo -e 'Created topic ficus-topic'
-
       ./kafka-topics.sh --bootstrap-server broker:29092 --list
 
       sleep infinity
