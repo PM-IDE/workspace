@@ -1,0 +1,81 @@
+services:
+  kafka:
+    image: apache/kafka:latest
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_REST_LOG4J_LOGGERS: OFF
+      KAFKA_LOG4J_LOGGERS: OFF
+      CONNECT_LOG4J_LOGGERS: OFF
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_REST_LOG4J_ROOT_LOGLEVEL: OFF
+
+  init-kafka:
+    image: apache/kafka:latest
+    depends_on:
+      - kafka
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "
+      cd /opt/kafka/bin
+      echo -e 'Starting initializing of kafka'
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating topic my-topic'
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic my-topic
+      echo -e 'Created topic my-topic'
+
+      echo -e 'Creating topic ficus-topic'
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic ficus-topic
+      echo -e 'Created topic ficus-topic'
+
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --list
+
+      sleep infinity
+      "
+
+  ficus:
+    depends_on:
+      - kafka
+    ports:
+      - 1234:8080
+    build:
+      context: .
+      dockerfile: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
+
+  backend:
+    depends_on:
+      - ficus
+    build:
+      context: .
+      dockerfile: ./Ficus/docker/run/Run.FicusFrontendBackend.Dockerfile
+    environment:
+      PipelinePartsUpdateKafkaSettings__BootstrapServers: kafka:29092
+      PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
+
+  frontend:
+    depends_on:
+      - backend
+    build:
+      context: .
+      dockerfile: ./Ficus/docker/run/Run.FicusFrontend.Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      ApplicationSettings__BackendUrl: backend:5122
