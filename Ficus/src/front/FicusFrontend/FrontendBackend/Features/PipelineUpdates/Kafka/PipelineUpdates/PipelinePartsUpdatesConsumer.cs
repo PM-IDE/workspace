@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
 using Ficus;
 using FrontendBackend.Features.PipelineUpdates.Settings;
+using FrontendBackend.Utils;
 using Microsoft.Extensions.Options;
 
 namespace FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
@@ -28,7 +29,7 @@ public class PipelinePartsUpdatesConsumer(
       .SetValueDeserializer(GrpcKafkaUpdateDeserializer.Instance)
       .Build();
 
-    WaitUntilTopicExists(logger, settings.Value.BootstrapServers, settings.Value.Topic);
+    logger.WaitUntilTopicExists(settings.Value.BootstrapServers, settings.Value.Topic);
     consumer.Subscribe(settings.Value.Topic);
 
     try
@@ -54,29 +55,6 @@ public class PipelinePartsUpdatesConsumer(
     {
       logger.LogInformation("Finishing pipeline parts context values updates consumer routine");
       consumer.Close();
-    }
-  }
-
-  private static void WaitUntilTopicExists(ILogger logger, string bootstrapServers, string topicName)
-  {
-    var config = new AdminClientConfig
-    {
-      BootstrapServers = bootstrapServers
-    };
-
-    using var client = new AdminClientBuilder(config).Build();
-
-    try
-    {
-      while (!client.GetMetadata(TimeSpan.FromSeconds(5)).Topics.Select(t => t.Topic).ToHashSet().Contains(topicName))
-      {
-        logger.LogInformation("The topic is not created, will wait");
-        Thread.Sleep(TimeSpan.FromSeconds(1));
-      }
-    }
-    catch (Exception ex)
-    {
-      logger.LogError(ex, "Failed to get metadata");
     }
   }
 }
