@@ -1,23 +1,24 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+ARG PROJECT_NAME=FrontendBackend
+
 WORKDIR /app
+COPY ./Ficus/src/front/FicusFrontend/ ./Ficus/src/front/FicusFrontend/
+COPY ./Ficus/protos/ ./Ficus/protos/
+
+RUN dotnet restore ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/$PROJECT_NAME.csproj
+
+WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME
+RUN dotnet build $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/build
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+ARG PROJECT_NAME=FrontendBackend
+
 EXPOSE 8080
 EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["FrontendBackend/FrontendBackend.csproj", "FrontendBackend/"]
-RUN dotnet restore "FrontendBackend/FrontendBackend.csproj"
-COPY . .
-WORKDIR "/src/FrontendBackend"
-RUN dotnet build "FrontendBackend.csproj" -c $BUILD_CONFIGURATION -o /app/build
-
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "FrontendBackend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FrontendBackend.dll"]
+COPY --from=build /app/build .
+ENV PROJECT_NAME_ENV=$PROJECT_NAME
+
+ENTRYPOINT dotnet $PROJECT_NAME_ENV.dll

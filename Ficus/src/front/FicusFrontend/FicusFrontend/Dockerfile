@@ -1,23 +1,23 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["FicusFrontend/FicusFrontend.csproj", "FicusFrontend/"]
-RUN dotnet restore "FicusFrontend/FicusFrontend.csproj"
-COPY . .
-WORKDIR "/src/FicusFrontend"
-RUN dotnet build "FicusFrontend.csproj" -c $BUILD_CONFIGURATION -o /app/build
+ARG PROJECT_NAME=FicusFrontend
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "FicusFrontend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FicusFrontend.dll"]
+COPY ./Ficus/src/front/FicusFrontend/ ./Ficus/src/front/FicusFrontend/
+COPY ./Ficus/protos/ ./Ficus/protos/
+
+RUN dotnet restore ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/$PROJECT_NAME.csproj
+
+WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME
+RUN dotnet publish $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/publish
+
+FROM nginx:alpine
+
+EXPOSE 8080
+
+ARG PROJECT_NAME=FicusFrontend
+
+WORKDIR /var/www/web
+
+COPY --from=build /app/publish/wwwroot .
+COPY ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/nginx.conf /etc/nginx/nginx.conf
