@@ -22,10 +22,18 @@ public class UpdatesConsumerJob(
   
   private async Task ExecuteConsumerRoutine(CancellationToken stoppingToken)
   {
-    foreach (var update in consumer.StartUpdatesConsuming(stoppingToken))
+    try
     {
-      logger.LogInformation("Consumed an update from kafka");
-      await repository.ProcessUpdate(update);
+      logger.LogInformation("Starting the pipeline context values updates consuming routine");
+      foreach (var update in consumer.StartUpdatesConsuming(stoppingToken))
+      {
+        logger.LogInformation("Consumed an update from kafka");
+        await repository.ProcessUpdate(update);
+      }
+    }
+    catch (Exception ex)
+    {
+      logger.LogError(ex, "Error while consuming udpates");
     }
   }
 }

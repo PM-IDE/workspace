@@ -28,6 +28,7 @@ public class PipelinePartsUpdatesConsumer(
       .SetValueDeserializer(GrpcKafkaUpdateDeserializer.Instance)
       .Build();
 
+    WaitUntilTopicExists(logger, settings.Value.BootstrapServers, settings.Value.Topic);
     consumer.Subscribe(settings.Value.Topic);
 
     try
@@ -40,6 +41,8 @@ public class PipelinePartsUpdatesConsumer(
 
       while (true)
       {
+        logger.LogInformation("Waiting for the next message from kafka");
+
         var result = consumer.Consume(cancellationToken);
 
         yield return result.Message.Value;
@@ -49,7 +52,31 @@ public class PipelinePartsUpdatesConsumer(
     }
     finally
     {
+      logger.LogInformation("Finishing pipeline parts context values updates consumer routine");
       consumer.Close();
+    }
+  }
+
+  private static void WaitUntilTopicExists(ILogger logger, string bootstrapServers, string topicName)
+  {
+    var config = new AdminClientConfig
+    {
+      BootstrapServers = bootstrapServers
+    };
+
+    using var client = new AdminClientBuilder(config).Build();
+
+    try
+    {
+      while (!client.GetMetadata(TimeSpan.FromSeconds(5)).Topics.Select(t => t.Topic).ToHashSet().Contains(topicName))
+      {
+        logger.LogInformation("The topic is not created, will wait");
+        Thread.Sleep(TimeSpan.FromSeconds(1));
+      }
+    }
+    catch (Exception ex)
+    {
+      logger.LogError(ex, "Failed to get metadata");
     }
   }
 }

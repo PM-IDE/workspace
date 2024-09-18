@@ -73,10 +73,16 @@ impl PipelineEventsHandler for KafkaEventsHandler {
                     context_values: create_grpc_context_values(&event.key_values),
                 });
 
-                if result.is_err() {
-                    let message = format!("Failed to produce event: {}", result.err().unwrap().to_string());
-                    self.console_logs_handler.handle(message.as_str()).expect("Should log message");
-                }
+                let message = match result {
+                    Ok(_) => {
+                        "Sent message to kafka".to_string()
+                    }
+                    Err(err) => {
+                        format!("Failed to produce event: {}", err.to_string())
+                    }
+                };
+
+                self.console_logs_handler.handle(message.as_str()).expect("Should log message");
             },
             PipelineEvent::LogMessage(_) => {}
             PipelineEvent::FinalResult(_) => {}
