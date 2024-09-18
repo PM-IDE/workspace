@@ -1,6 +1,8 @@
 ﻿@using System.Collections.Concurrent
+@using System.Collections.Specialized
 @using FicusFrontend.Layout.CaseList.Models
 @using FicusFrontend.Services.Cases
+@using ObservableCollections
 @inherits ComponentBase;
 @inject ICasesService CaseService;
 
@@ -33,29 +35,27 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Task.Run(async () =>
+        CaseService.Cases.CollectionChanged += (in NotifyCollectionChangedEventArgs<Case> args) =>
         {
-            await foreach (var update in CaseService.OpenCasesUpdatesStream(CancellationToken.None))
+            switch (args.Action)
             {
-                switch (update)
+                case NotifyCollectionChangedAction.Add:
                 {
-                    case CasesListUpdate casesListUpdate:
+                    foreach (var newCase in args.NewItems)
                     {
                         myCases.Add(new CaseListItemDto
                         {
-                            Case = casesListUpdate.Case
+                            Case = newCase
                         });
-
-                        break;
                     }
-                    case CaseContextValuesUpdate caseContextValuesUpdate:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(update));
-                }
 
-                StateHasChanged();
+                    break;   
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-        });
+            
+            StateHasChanged();
+        };
     }
 }

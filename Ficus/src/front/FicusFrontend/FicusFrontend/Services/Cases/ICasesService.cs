@@ -1,15 +1,17 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using Ficus;
 using Google.Protobuf.WellKnownTypes;
+using ObservableCollections;
 
 namespace FicusFrontend.Services.Cases;
 
 public interface ICasesService
 {
-  IAsyncEnumerable<CaseUpdate> OpenCasesUpdatesStream(CancellationToken token);
+  IObservableCollection<Case> Cases { get; }
 }
 
-public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client) : ICasesService
+public class CasesService : ICasesService
 {
   private class CaseData
   {
@@ -17,12 +19,43 @@ public class CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePart
     public required Dictionary<Guid, List<GrpcContextValueWithKeyName>> ContextValues { get; init; }
   }
 
+  private readonly ObservableList<Case> myLiveCases = [];
   private readonly Dictionary<string, CaseData> myCurrentCases = [];
+  private readonly GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient _client;
 
 
-  public async IAsyncEnumerable<CaseUpdate> OpenCasesUpdatesStream([EnumeratorCancellation] CancellationToken token)
+  public IObservableCollection<Case> Cases => myLiveCases;
+
+
+  public CasesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
   {
-    var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
+    _client = client;
+
+    Task.Factory.StartNew(StartProcessingUpdates, TaskCreationOptions.LongRunning);
+  }
+
+  private async Task StartProcessingUpdates()
+  {
+    await foreach (var update in OpenCasesUpdatesStream(CancellationToken.None))
+    {
+      switch (update)
+      {
+        case CasesListUpdate casesListUpdate:
+        {
+          myLiveCases.Add(casesListUpdate.Case);
+          break;
+        }
+        case CaseContextValuesUpdate caseContextValuesUpdate:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(update));
+      }
+    }
+  }
+  
+  private async IAsyncEnumerable<CaseUpdate> OpenCasesUpdatesStream([EnumeratorCancellation] CancellationToken token)
+  {
+    var reader = _client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
 
     while (await reader.MoveNext(token))
     {
