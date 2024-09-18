@@ -3,7 +3,7 @@ services:
     container_name: ficus_backend
     build:
       context: ../../../
-      dockerfile: "./Ficus/docker/run/Run.FicusBackend.Dockerfile"
+      dockerfile: "./Ficus/docker/run/Run.RustFicusBackend.Dockerfile"
     expose:
       - 8080
     ports:
