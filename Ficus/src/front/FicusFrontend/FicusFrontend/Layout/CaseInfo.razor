@@ -1,12 +1,13 @@
-﻿@using Ficus
+﻿@using System.Text.Json
 @using FicusFrontend.Services.Cases
 @using ObservableCollections
+@using BlazorBootstrap
 @inherits ComponentBase
 
 @inject IProcessesService ProcessService
 
 
-@if (Case is null)
+@if (Case is null || ProcessData is null)
 {
     <PageTitle>Select the case</PageTitle>
 
@@ -16,13 +17,25 @@
     return;
 }
 
-<PageTitle>@Case.Name</PageTitle>
+@{
+    var title = ProcessData.ProcessName + " " + Case.Name;   
+}
+
+<PageTitle>@title</PageTitle>
 
 <div>
-    @foreach (var contextValue in myContextValues)
-    {
-        <div>@contextValue.Value.PipelinePartName</div>
-    }
+    <Accordion>
+        @foreach (var contextValue in myContextValues)
+        {
+            <AccordionItem Title="@contextValue.Value.PipelinePartName">
+                <Content>
+                    <div>
+                        @JsonSerializer.Serialize(contextValue.Value.ContextValues)
+                    </div>
+                </Content>
+            </AccordionItem>
+        }
+    </Accordion>
 </div>
 
 @code

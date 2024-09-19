@@ -13,12 +13,12 @@
         @Case.Case.CreatedAt.ToString("g")
     </div>
 
-    <div class="@CaseNotificationCLass"></div>
+    <div class="@CaseNotificationClass"></div>
 </div>
 
 @code
 {
-    private string CaseNotificationCLass => "case-notification " + Case.State switch
+    private string CaseNotificationClass => "case-notification " + Case.State switch
     {
         CaseListItemState.New => "case-new-notification",
         CaseListItemState.UpdatesReceived => "case-update-notification",
