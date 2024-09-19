@@ -26,7 +26,7 @@ public class CompletedAsyncMethodHandler(
     {
       var message = new BxesKafkaMethodsExecutionMessage
       {
-        ApplicationNamne = completedAsyncMethodEvent.ApplicationName,
+        ApplicationName = completedAsyncMethodEvent.ApplicationName,
         MethodName = completedAsyncMethodEvent.StateMachineName,
         Trace = methodTrace
       };

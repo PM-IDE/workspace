@@ -22,7 +22,7 @@ public class CompletedMethodExecutionHandler(
 
     var message = new BxesKafkaMethodsExecutionMessage
     {
-      ApplicationNamne = @event.ApplicationName,
+      ApplicationName = @event.ApplicationName,
       MethodName = @event.Frame.MethodFullName ?? "UNRESOLVED",
       Trace = @event.Frame.InnerEvents
     };

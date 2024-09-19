@@ -12,7 +12,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
   private readonly ICompositeEventPipeStreamEventHandler myHandler;
   private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper;
 
-  private string? myApplicationName = null;
+  private string? myApplicationName;
 
 
   public AsyncMethodsProcessor(IProcfilerLogger logger, ICompositeEventPipeStreamEventHandler handler)
