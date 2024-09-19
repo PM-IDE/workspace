@@ -27,13 +27,15 @@ public class UpdatesConsumerJob(
       logger.LogInformation("Starting the pipeline context values updates consuming routine");
       foreach (var update in consumer.StartUpdatesConsuming(stoppingToken))
       {
-        logger.LogInformation("Consumed an update from kafka");
+        logger.LogInformation("Consumed an update from kafka: {Update}", update.ToString());
         await repository.ProcessUpdate(update);
+
+        logger.LogInformation("Processed the update");
       }
     }
     catch (Exception ex)
     {
-      logger.LogError(ex, "Error while consuming udpates");
+      logger.LogError(ex, "Error while consuming updates");
     }
   }
 }
