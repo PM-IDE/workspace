@@ -11,8 +11,7 @@ public enum CaseListItemState
 
 public class ProcessListItemDto
 {
-  public required string ProcessName { get; init; }
-
+  public required ProcessData ProcessData { get; init; }
   public required List<CaseListItemDto> Cases { get; init; }
 }
 

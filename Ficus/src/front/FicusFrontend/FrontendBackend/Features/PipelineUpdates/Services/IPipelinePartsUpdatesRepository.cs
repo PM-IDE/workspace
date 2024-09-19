@@ -15,8 +15,15 @@ public interface IPipelinePartsUpdatesRepository
 
 public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
 {
+  private class CaseData
+  {
+    public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
+    public required string PipelinePartName { get; init; }
+  }
+
+
   private readonly SemaphoreSlim myLock = new(1);
-  private readonly Dictionary<string, Dictionary<string, Dictionary<Guid, List<GrpcContextValueWithKeyName>>>> myProcesses = [];
+  private readonly Dictionary<string, Dictionary<string, Dictionary<Guid, CaseData>>> myProcesses = [];
   private readonly ConcurrentDictionary<Guid, Channel<GrpcKafkaUpdate>> myChannels = [];
 
 
@@ -66,25 +73,30 @@ public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
     {
       if (!myProcesses.TryGetValue(update.ProcessName, out var cases))
       {
-        cases = new Dictionary<string, Dictionary<Guid, List<GrpcContextValueWithKeyName>>>();
+        cases = new Dictionary<string, Dictionary<Guid, CaseData>>();
         myProcesses[update.ProcessName] = cases;
       }
 
       if (!cases.TryGetValue(update.CaseName, out var pipelinePartContextValues))
       {
-        pipelinePartContextValues = new Dictionary<Guid, List<GrpcContextValueWithKeyName>>();
+        pipelinePartContextValues = new Dictionary<Guid, CaseData>();
         cases[update.CaseName] = pipelinePartContextValues;
       }
 
       var guid = Guid.Parse(update.PipelinePartInfo.Id.Guid);
 
-      if (!pipelinePartContextValues.TryGetValue(guid, out var contextValues))
+      if (!pipelinePartContextValues.TryGetValue(guid, out var caseData))
       {
-        contextValues = [];
-        pipelinePartContextValues[guid] = contextValues;
+        caseData = new CaseData
+        {
+          ContextValues = [],
+          PipelinePartName = update.PipelinePartInfo.Name
+        };
+
+        pipelinePartContextValues[guid] = caseData;
       }
 
-      contextValues.AddRange(update.ContextValues);
+      caseData.ContextValues.AddRange(update.ContextValues);
 
       foreach (var chanel in myChannels.Values)
       {
@@ -109,10 +121,10 @@ public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
             contextValues.Select(x => new GrpcPipelinePartContextValues
             {
               Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
-              ContextValues = { x.Value },
+              ContextValues = { x.Value.ContextValues },
               PipelinePartInfo = new GrpcPipelinePartInfo
               {
-                Name = "xd",
+                Name = x.Value.PipelinePartName,
                 Id = new GrpcGuid
                 {
                   Guid = x.Key.ToString()

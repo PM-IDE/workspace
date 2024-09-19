@@ -13,11 +13,11 @@
 <Accordion>
     @foreach (var process in myProcesses)
     {
-        <AccordionItem Title="@process.ProcessName">
+        <AccordionItem Title="@process.ProcessData.ProcessName">
             <Content>
                 @foreach (var @case in process.Cases)
                 {
-                    <div @onclick="@(_ => HandleCaseSelected(@case))">
+                    <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
                         <CaseListItem Case="@(@case)"/>
                     </div>
                 }
@@ -31,13 +31,13 @@
 {
     private List<ProcessListItemDto> myProcesses = [];
 
-    [Parameter] public Action<Case>? CaseSelected { get; set; }
+    [Parameter] public Action<ProcessData, Case>? CaseSelected { get; set; }
 
 
-    private void HandleCaseSelected(CaseListItemDto selectedCase)
+    private void HandleCaseSelected(ProcessData processData, CaseListItemDto selectedCase)
     {
         selectedCase.State = CaseListItemState.Seen;
-        CaseSelected?.Invoke(selectedCase.Case);
+        CaseSelected?.Invoke(processData, selectedCase.Case);
     }
 
     protected override void OnInitialized()
@@ -57,7 +57,7 @@
                         myProcesses = processesListUpdate.Processes.
                             Select(p => new ProcessListItemDto
                             {
-                                ProcessName = p.ProcessName,
+                                ProcessData = p,
                                 Cases = p.ProcessCases.Select(c => CreateCaseListItemDtoFrom(c.Value.Case)).ToList()
                             })
                             .ToList();
