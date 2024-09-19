@@ -67,7 +67,7 @@ public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
       if (!myProcesses.TryGetValue(update.ProcessName, out var cases))
       {
         cases = new Dictionary<string, Dictionary<Guid, List<GrpcContextValueWithKeyName>>>();
-        myProcesses[update.CaseName] = cases;
+        myProcesses[update.ProcessName] = cases;
       }
 
       if (!cases.TryGetValue(update.CaseName, out var pipelinePartContextValues))
