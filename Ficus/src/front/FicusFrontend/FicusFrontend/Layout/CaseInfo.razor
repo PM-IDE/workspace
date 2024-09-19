@@ -3,7 +3,7 @@
 @using ObservableCollections
 @inherits ComponentBase
 
-@inject ICasesService CaseService
+@inject IProcessesService ProcessService
 
 
 @if (Case is null)
@@ -29,6 +29,7 @@
 {
     private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myContextValues = [];
 
+    [Parameter] public ProcessData? ProcessData { get; set; }
     [Parameter] public Case? Case { get; set; }
 
 
@@ -36,9 +37,9 @@
     {
         base.OnParametersSet();
 
-        if (Case is null) return;
+        if (Case is null || ProcessData is null) return;
 
-        var values = CaseService.CreateCaseValuesObservable(Case);
+        var values = ProcessService.CreateCaseValuesObservable(ProcessData, Case);
         myContextValues.Clear();
         myContextValues.AddRange(values);
         

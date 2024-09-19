@@ -16,7 +16,7 @@ public interface IPipelinePartsUpdatesRepository
 public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
 {
   private readonly SemaphoreSlim myLock = new(1);
-  private readonly Dictionary<string, Dictionary<Guid, List<GrpcContextValueWithKeyName>>> myCases = [];
+  private readonly Dictionary<string, Dictionary<string, Dictionary<Guid, List<GrpcContextValueWithKeyName>>>> myProcesses = [];
   private readonly ConcurrentDictionary<Guid, Channel<GrpcKafkaUpdate>> myChannels = [];
 
 
@@ -64,10 +64,16 @@ public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
   {
     return myLock.Execute(async () =>
     {
-      if (!myCases.TryGetValue(update.CaseName, out var pipelinePartContextValues))
+      if (!myProcesses.TryGetValue(update.ProcessName, out var cases))
+      {
+        cases = new Dictionary<string, Dictionary<Guid, List<GrpcContextValueWithKeyName>>>();
+        myProcesses[update.CaseName] = cases;
+      }
+
+      if (!cases.TryGetValue(update.CaseName, out var pipelinePartContextValues))
       {
         pipelinePartContextValues = new Dictionary<Guid, List<GrpcContextValueWithKeyName>>();
-        myCases[update.CaseName] = pipelinePartContextValues;
+        cases[update.CaseName] = pipelinePartContextValues;
       }
 
       var guid = Guid.Parse(update.PipelinePartInfo.Id.Guid);
@@ -90,28 +96,32 @@ public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
   private GrpcCurrentCasesResponse GetCurrentState()
   {
     var response = new GrpcCurrentCasesResponse();
-    foreach (var (caseName, contextValues) in myCases)
+    foreach (var (processName, cases) in myProcesses)
     {
-      response.Cases.Add(new GrpcCase
+      foreach (var (caseName, contextValues) in cases)
       {
-        CaseName = caseName,
-        ContextValues =
+        response.Cases.Add(new GrpcCase
         {
-          contextValues.Select(x => new GrpcPipelinePartContextValues
+          ProcessName = processName, 
+          CaseName = caseName,
+          ContextValues =
           {
-            Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
-            ContextValues = { x.Value },
-            PipelinePartInfo = new GrpcPipelinePartInfo
+            contextValues.Select(x => new GrpcPipelinePartContextValues
             {
-              Name = "xd",
-              Id = new GrpcGuid
+              Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
+              ContextValues = { x.Value },
+              PipelinePartInfo = new GrpcPipelinePartInfo
               {
-                Guid = x.Key.ToString()
+                Name = "xd",
+                Id = new GrpcGuid
+                {
+                  Guid = x.Key.ToString()
+                }
               }
-            }
-          })
-        }
-      });
+            })
+          }
+        });
+      } 
     }
 
     return response;

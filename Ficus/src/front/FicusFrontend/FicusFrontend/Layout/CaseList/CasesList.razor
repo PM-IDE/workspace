@@ -1,10 +1,8 @@
-﻿@using System.Collections.Concurrent
-@using System.Collections.Specialized
-@using FicusFrontend.Layout.CaseList.Models
+﻿@using FicusFrontend.Layout.CaseList.Models
 @using FicusFrontend.Services.Cases
-@using ObservableCollections
+@using BlazorBootstrap
 @inherits ComponentBase;
-@inject ICasesService CaseService;
+@inject IProcessesService ProcessService;
 
 <div class="cases-list-title-container">
     <div class="cases-list-title">
@@ -12,16 +10,26 @@
     </div>
 </div>
 
-@foreach (var @case in myCases)
-{
-    <div @onclick="@(_ => HandleCaseSelected(@case))">
-        <CaseListItem Case="@(@case)"/>
-    </div>
-}
+<Accordion>
+    @foreach (var process in myProcesses)
+    {
+        <AccordionItem Title="@process.ProcessName">
+            <Content>
+                @foreach (var @case in process.Cases)
+                {
+                    <div @onclick="@(_ => HandleCaseSelected(@case))">
+                        <CaseListItem Case="@(@case)"/>
+                    </div>
+                }
+            </Content>
+
+        </AccordionItem>
+    }
+</Accordion>
 
 @code
 {
-    private readonly ConcurrentBag<CaseListItemDto> myCases = [];
+    private List<ProcessListItemDto> myProcesses = [];
 
     [Parameter] public Action<Case>? CaseSelected { get; set; }
 
@@ -35,32 +43,33 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        CaseService.Cases.CollectionChanged += (in NotifyCollectionChangedEventArgs<Case> args) =>
+
+        Task.Factory.StartNew(async () =>
         {
-            switch (args.Action)
+            await foreach (var processUpdate in ProcessService.OpenCasesUpdatesStream(CancellationToken.None))
             {
-                case NotifyCollectionChangedAction.Add:
+                switch (processUpdate)
                 {
-                    if (args.IsSingleItem)
+                    case ProcessContextValuesUpdate processContextValuesUpdate:
+                        break;
+                    case ProcessesListUpdate processesListUpdate:
                     {
-                        myCases.Add(CreateCaseListItemDtoFrom(args.NewItem));
+                        myProcesses = processesListUpdate.Processes.
+                            Select(p => new ProcessListItemDto
+                            {
+                                ProcessName = p.ProcessName,
+                                Cases = p.ProcessCases.Select(c => CreateCaseListItemDtoFrom(c.Value.Case)).ToList()
+                            })
+                            .ToList();
+                        
+                        break;
                     }
-                    else
-                    {
-                        foreach (var newCase in args.NewItems)
-                        {
-                            myCases.Add(CreateCaseListItemDtoFrom(newCase));
-                        }   
-                    }
-
-                    break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(processUpdate));
                 }
-                default:
-                    throw new ArgumentOutOfRangeException();
+                StateHasChanged();
             }
-
-            StateHasChanged();
-        };
+        }, TaskCreationOptions.LongRunning);
     }
 
     private CaseListItemDto CreateCaseListItemDtoFrom(Case @case) => new()

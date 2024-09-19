@@ -11,7 +11,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<ICasesService, CasesService>();
+builder.Services.AddSingleton<IProcessesService, ProcessesService>();
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection(nameof(ApplicationSettings)));
 builder.Services.AddBlazorBootstrap();
 
