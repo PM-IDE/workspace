@@ -4,27 +4,31 @@
 @inherits ComponentBase;
 @inject IProcessesService ProcessService;
 
-<div class="cases-list-title-container">
-    <div class="cases-list-title">
-        Processes
+<div class="cases-list-outer-container">
+    <div class="cases-list-title-container">
+        <div class="cases-list-title">
+            Processes
+        </div>
+    </div>
+
+    <div>
+        <Accordion>
+            @foreach (var process in myProcesses)
+            {
+                <AccordionItem Title="@process.ProcessData.ProcessName">
+                    <Content>
+                        @foreach (var @case in process.Cases)
+                        {
+                            <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
+                                <CaseListItem Case="@(@case)"/>
+                            </div>
+                        }
+                    </Content>
+                </AccordionItem>
+            }
+        </Accordion>
     </div>
 </div>
-
-<Accordion>
-    @foreach (var process in myProcesses)
-    {
-        <AccordionItem Title="@process.ProcessData.ProcessName">
-            <Content>
-                @foreach (var @case in process.Cases)
-                {
-                    <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
-                        <CaseListItem Case="@(@case)"/>
-                    </div>
-                }
-            </Content>
-        </AccordionItem>
-    }
-</Accordion>
 
 @code
 {

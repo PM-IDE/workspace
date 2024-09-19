@@ -7,24 +7,22 @@
 @inject IProcessesService ProcessService
 
 
-@if (Case is null || ProcessData is null)
-{
-    <PageTitle>Select the case</PageTitle>
-
-    <div>
-        The case was not yet selected.
-    </div>
-    return;
-}
-
 @{
-    var title = ProcessData.ProcessName + " " + Case.Name;   
+    var title = (Case, ProcessData) switch
+    {
+        ({ }, { }) => ProcessData.ProcessName + " " + Case.Name,
+        _ => "The case was not yet selected."
+    };
 }
 
 <PageTitle>@title</PageTitle>
 
-<div>
-    <Accordion>
+<div class="case-info-header">
+    @title
+</div>
+
+<div class="processes-accordion">
+    <Accordion AlwaysOpen="true" Flush="false">
         @foreach (var contextValue in myContextValues)
         {
             <AccordionItem Title="@contextValue.Value.PipelinePartName">
