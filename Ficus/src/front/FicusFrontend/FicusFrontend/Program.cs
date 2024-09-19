@@ -13,6 +13,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton<ICasesService, CasesService>();
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection(nameof(ApplicationSettings)));
+builder.Services.AddBlazorBootstrap();
 
 builder.Services.AddSingleton(services =>
 {

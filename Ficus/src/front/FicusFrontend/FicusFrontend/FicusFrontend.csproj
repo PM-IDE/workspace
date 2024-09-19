@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Blazor.Bootstrap" Version="3.0.0" />
         <PackageReference Include="Grpc.Net.Client" Version="2.57.0" />
         <PackageReference Include="Grpc.Net.Client.Web" Version="2.57.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0"/>
@@ -37,6 +38,8 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\sample-data\weather.json" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
     </ItemGroup>
 
 </Project>

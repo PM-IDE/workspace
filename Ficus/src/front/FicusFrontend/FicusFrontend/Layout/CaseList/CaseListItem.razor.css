@@ -14,10 +14,14 @@
 }
 
 .case-list-item-name {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+
     margin-left: 10px;
     padding-top: 5px;
     color: white;
-    font-size: 20px;
+    font-size: 15px;
 }
 
 .case-list-item-creation-date {

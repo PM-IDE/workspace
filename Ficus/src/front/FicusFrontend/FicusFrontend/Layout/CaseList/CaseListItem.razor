@@ -1,13 +1,16 @@
 ﻿@using FicusFrontend.Layout.CaseList.Models
+@using BlazorBootstrap
 @inherits ComponentBase
 
 <div class="case-list-item">
-    <div class="case-list-item-name">
-        @Case.Case.Name
-    </div>
-    
+    <Tooltip Title="@Case.Case.Name" Placement="TooltipPlacement.Right">
+        <div class="case-list-item-name">
+            @Case.Case.Name
+        </div>
+    </Tooltip>
+
     <div class="case-list-item-creation-date">
-        @Case.Case.CreatedAt.ToString("u")
+        @Case.Case.CreatedAt.ToString("g")
     </div>
 
     <div class="@CaseNotificationCLass"></div>
