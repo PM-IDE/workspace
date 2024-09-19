@@ -7,6 +7,7 @@ namespace ProcfilerOnline.Core.Handlers;
 
 public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 {
+  public required string ApplicationName { get; init; }
   public required string StateMachineName { get; init; }
   public required List<List<EventRecordWithMetadata>> MethodTraces { get; init; }
 }
@@ -25,6 +26,7 @@ public class CompletedAsyncMethodHandler(
     {
       var message = new BxesKafkaMethodsExecutionMessage
       {
+        ApplicationNamne = completedAsyncMethodEvent.ApplicationName,
         MethodName = completedAsyncMethodEvent.StateMachineName,
         Trace = methodTrace
       };

@@ -6,6 +6,7 @@ namespace ProcfilerOnline.Core.Handlers;
 
 public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 {
+  public required string ApplicationName { get; init; }
   public required TargetMethodFrame Frame { get; init; }
 }
 
@@ -21,6 +22,7 @@ public class CompletedMethodExecutionHandler(
 
     var message = new BxesKafkaMethodsExecutionMessage
     {
+      ApplicationNamne = @event.ApplicationName,
       MethodName = @event.Frame.MethodFullName ?? "UNRESOLVED",
       Trace = @event.Frame.InnerEvents
     };

@@ -131,7 +131,12 @@ class PipelinePart2WithCanvasCallback(PipelinePartWithCallback):
 class PrintEventLogInfo(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
-        part = create_complex_get_context_part(self.uuid, [const_event_log_info], const_get_event_log_info, config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_event_log_info],
+                                               const_get_event_log_info,
+                                               config)
+
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):
@@ -147,8 +152,9 @@ class PipelineContextValue(ContextValue):
         return GrpcContextValue(pipeline=self.pipeline.to_grpc_pipeline())
 
 
-def create_simple_get_context_value_part(frontend_part_uuid: uuid.UUID, key_name: str):
+def create_simple_get_context_value_part(frontend_part_uuid: uuid.UUID, frontend_pipeline_part_name: str, key_name: str):
     return GrpcSimpleContextRequestPipelinePart(
+        frontendPipelinePartName=frontend_pipeline_part_name,
         frontendPartUuid=create_grpc_uuid(frontend_part_uuid),
         key=GrpcContextKey(name=key_name)
     )
@@ -159,10 +165,12 @@ def create_grpc_uuid(uuid: uuid.UUID) -> GrpcUuid:
 
 
 def create_complex_get_context_part(frontend_part_uuid: uuid.UUID,
+                                    frontend_pipeline_part_name: str,
                                     key_names: list[str],
                                     before_part_name: str,
                                     config: GrpcPipelinePartConfiguration):
     return GrpcComplexContextRequestPipelinePart(
+        frontendPipelinePartName=frontend_pipeline_part_name,
         frontendPartUuid=create_grpc_uuid(frontend_part_uuid),
         keys=list(map(lambda x: GrpcContextKey(name=x), key_names)),
         beforePipelinePart=GrpcPipelinePart(

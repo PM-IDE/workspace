@@ -138,7 +138,7 @@ class ViewPetriNet(ViewGraphLikeFormalismPart):
         self.annotation = annotation
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        part = create_simple_get_context_value_part(self.uuid, const_petri_net)
+        part = create_simple_get_context_value_part(self.uuid, self.__class__.__name__, const_petri_net)
         return GrpcPipelinePartBase(simpleContextRequestPart=part)
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):
@@ -163,9 +163,11 @@ class ViewDirectlyFollowsGraph(ViewGraphLikeFormalismPart):
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_graph],
                                                const_discover_directly_follows_graph,
                                                GrpcPipelinePartConfiguration())
+
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
@@ -179,7 +181,7 @@ class ViewGraph(ViewGraphLikeFormalismPart):
         super().__init__(name, background_color, engine, export_path, rankdir)
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        part = create_simple_get_context_value_part(self.uuid, const_graph)
+        part = create_simple_get_context_value_part(self.uuid, self.__class__.__name__, const_graph)
         return GrpcPipelinePartBase(simpleContextRequestPart=part)
 
 
@@ -218,6 +220,7 @@ class AnnotatePetriNet(ViewPetriNet):
         config = GrpcPipelinePartConfiguration()
         append_bool_value(config, const_terminate_on_unreplayable_trace, self.terminate_on_unreplayable_trace)
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_petri_net, self.annotation_key],
                                                self.annotation_pipeline_part,
                                                config)

@@ -15,6 +15,7 @@ public interface IBxesMethodsKafkaProducer : IKafkaProducer<Guid, BxesKafkaMetho
 
 public class BxesKafkaMethodsExecutionMessage
 {
+  public required string ApplicationNamne { get; init; }
   public required string MethodName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
 }
@@ -35,7 +36,8 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
   {
     List<AttributeKeyValue> metadata =
     [
-      new(new BxesStringValue("case_name"), new BxesStringValue(value.MethodName))
+      new(new BxesStringValue("case_name"), new BxesStringValue(value.MethodName)),
+      new(new BxesStringValue("process_name"), new BxesStringValue(value.ApplicationNamne))
     ];
 
     myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));

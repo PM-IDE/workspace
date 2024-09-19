@@ -9,13 +9,25 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class GrpcPipelinePartUpdate(_message.Message):
+    __slots__ = ["current_cases", "delta"]
+    CURRENT_CASES_FIELD_NUMBER: _ClassVar[int]
+    DELTA_FIELD_NUMBER: _ClassVar[int]
+    current_cases: GrpcCurrentCasesResponse
+    delta: GrpcKafkaUpdate
+    def __init__(self, current_cases: _Optional[_Union[GrpcCurrentCasesResponse, _Mapping]] = ..., delta: _Optional[_Union[GrpcKafkaUpdate, _Mapping]] = ...) -> None: ...
+
 class GrpcKafkaUpdate(_message.Message):
-    __slots__ = ["caseName", "contextValues"]
+    __slots__ = ["processName", "caseName", "pipelinePartInfo", "contextValues"]
+    PROCESSNAME_FIELD_NUMBER: _ClassVar[int]
     CASENAME_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEPARTINFO_FIELD_NUMBER: _ClassVar[int]
     CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
+    processName: str
     caseName: str
+    pipelinePartInfo: GrpcPipelinePartInfo
     contextValues: _containers.RepeatedCompositeFieldContainer[_pipelines_and_context_pb2.GrpcContextValueWithKeyName]
-    def __init__(self, caseName: _Optional[str] = ..., contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
+    def __init__(self, processName: _Optional[str] = ..., caseName: _Optional[str] = ..., pipelinePartInfo: _Optional[_Union[GrpcPipelinePartInfo, _Mapping]] = ..., contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
 
 class GrpcCurrentCasesResponse(_message.Message):
     __slots__ = ["cases"]

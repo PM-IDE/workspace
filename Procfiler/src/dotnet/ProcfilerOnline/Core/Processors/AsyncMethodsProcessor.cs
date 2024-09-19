@@ -12,6 +12,8 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
   private readonly ICompositeEventPipeStreamEventHandler myHandler;
   private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper;
 
+  private string? myApplicationName = null;
+
 
   public AsyncMethodsProcessor(IProcfilerLogger logger, ICompositeEventPipeStreamEventHandler handler)
   {
@@ -22,6 +24,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
 
   public void Process(EventProcessingContext context)
   {
+    myApplicationName = context.CommandContext.ApplicationName;
     var threadId = context.Event.ManagedThreadId;
 
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
@@ -48,6 +51,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
   {
     myHandler.Handle(new CompletedAsyncMethodEvent
     {
+      ApplicationName = myApplicationName ?? "UNDEF_APPLICATION",
       MethodTraces = traces,
       StateMachineName = stateMachineName,
     });

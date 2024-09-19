@@ -59,6 +59,7 @@ public class OnlineEventsProcessorImpl(
       Event = eventRecord,
       CommandContext = new CommandContext
       {
+        ApplicationName = commandContext.ApplicationName,
         TargetMethodsRegex = commandContext.TargetMethodsRegex
       }
     };
@@ -85,6 +86,7 @@ public class OnlineEventsProcessorImpl(
           Event = methodEvent,
           CommandContext = new CommandContext
           {
+            ApplicationName = commandContext.ApplicationName,
             TargetMethodsRegex = commandContext.TargetMethodsRegex
           }
         };

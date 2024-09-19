@@ -70,7 +70,7 @@ public class PipelinePartsUpdatesRepository : IPipelinePartsUpdatesRepository
         myCases[update.CaseName] = pipelinePartContextValues;
       }
 
-      var guid = Guid.Parse(update.PipelinePartGuid.Guid);
+      var guid = Guid.Parse(update.PipelinePartInfo.Id.Guid);
 
       if (!pipelinePartContextValues.TryGetValue(guid, out var contextValues))
       {

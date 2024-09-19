@@ -12,7 +12,7 @@ use crate::utils::user_data::user_data::UserDataImpl;
 use std::str::FromStr;
 use std::sync::Arc;
 use uuid::Uuid;
-
+use crate::features::discovery::alpha::alpha_sharp::discover_petri_net_alpha_sharp;
 use super::events::events_handler::PipelineEventsHandler;
 
 pub(super) struct ServicePipelineExecutionContext<'a> {
@@ -114,17 +114,19 @@ impl<'a> ServicePipelineExecutionContext<'a> {
                 Part::SimpleContextRequestPart(part) => {
                     let key_name = part.key.as_ref().unwrap().name.clone();
                     let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
+                    let name = part.frontend_pipeline_part_name.to_owned();
 
-                    pipeline.push(Self::create_get_context_part(vec![key_name], uuid, &self.sender(), None));
+                    pipeline.push(Self::create_get_context_part(vec![key_name], uuid, name, &self.sender(), None));
                 }
                 Part::ComplexContextRequestPart(part) => {
                     let grpc_default_part = part.before_pipeline_part.as_ref().unwrap();
                     let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
+                    let name = part.frontend_pipeline_part_name.to_owned();
 
                     match self.find_default_part(grpc_default_part) {
                         Some(found_part) => {
                             let key_names = part.keys.iter().map(|x| x.name.to_owned()).collect();
-                            pipeline.push(Self::create_get_context_part(key_names, uuid, &self.sender(), Some(found_part)));
+                            pipeline.push(Self::create_get_context_part(key_names, uuid, name, &self.sender(), Some(found_part)));
                         }
                         None => todo!(),
                     }
@@ -138,11 +140,12 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     fn create_get_context_part(
         key_names: Vec<String>,
         uuid: Uuid,
+        pipeline_part_name: String,
         sender: &Arc<Box<dyn PipelineEventsHandler>>,
         before_part: Option<Box<DefaultPipelinePart>>,
     ) -> Box<GetContextValuePipelinePart> {
         let sender = sender.clone();
-        GetContextValuePipelinePart::create_context_pipeline_part(key_names, uuid, sender, before_part)
+        GetContextValuePipelinePart::create_context_pipeline_part(key_names, uuid, pipeline_part_name, sender, before_part)
     }
 
     fn find_default_part(&self, grpc_default_part: &GrpcPipelinePart) -> Option<Box<DefaultPipelinePart>> {

@@ -21,13 +21,13 @@
 <div>
     @foreach (var contextValue in myContextValues)
     {
-        <div>@contextValue.Key</div>
+        <div>@contextValue.Value.PipelinePartName</div>
     }
 </div>
 
 @code
 {
-    private readonly List<KeyValuePair<Guid, List<GrpcContextValueWithKeyName>>> myContextValues = [];
+    private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myContextValues = [];
 
     [Parameter] public Case? Case { get; set; }
 
@@ -44,7 +44,7 @@
         
         StateHasChanged();
 
-        values.CollectionChanged += (in NotifyCollectionChangedEventArgs<KeyValuePair<Guid, List<GrpcContextValueWithKeyName>>> args) =>
+        values.CollectionChanged += (in NotifyCollectionChangedEventArgs<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> args) =>
         {
             myContextValues.Clear();
             myContextValues.AddRange(values);

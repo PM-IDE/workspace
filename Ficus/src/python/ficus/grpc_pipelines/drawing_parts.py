@@ -17,12 +17,13 @@ class TracesDiversityDiagram(PipelinePart2WithDrawColorsLogCallback):
                          width_scale=width_scale)
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_traces_diversity_grpc_part(self.uuid)
+        return _create_traces_diversity_grpc_part(self.uuid, self.__class__.__name__)
 
 
-def _create_traces_diversity_grpc_part(uuid: uuid.UUID):
+def _create_traces_diversity_grpc_part(uuid: uuid.UUID, frontend_pipeline_part_name: str):
     config = GrpcPipelinePartConfiguration()
     part = create_complex_get_context_part(uuid,
+                                           frontend_pipeline_part_name,
                                            [const_colors_event_log],
                                            const_traces_diversity_diagram,
                                            config)
@@ -44,7 +45,7 @@ class TracesDiversityDiagramCanvas(PipelinePart2WithCanvasCallback):
                          height_scale=height_scale)
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_traces_diversity_grpc_part(self.uuid)
+        return _create_traces_diversity_grpc_part(self.uuid, self.__class__.__name__)
 
 
 class DrawPlacementsOfEventByName(PipelinePart2WithDrawColorsLogCallback):
@@ -64,18 +65,21 @@ class DrawPlacementsOfEventByName(PipelinePart2WithDrawColorsLogCallback):
         self.event_name = event_name
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_draw_placements_of_events_by_name_grpc_part(self.uuid, self.event_name)
+        return _create_draw_placements_of_events_by_name_grpc_part(self.uuid, self.__class__.__name__, self.event_name)
 
 
-def _create_draw_placements_of_events_by_name_grpc_part(uuid: uuid.UUID, event_name: str):
+def _create_draw_placements_of_events_by_name_grpc_part(uuid: uuid.UUID, frontend_pipeline_part_name: str, event_name: str):
     config = GrpcPipelinePartConfiguration()
     config.configurationParameters.append(GrpcContextKeyValue(
         key=GrpcContextKey(name=const_event_name),
         value=StringContextValue(event_name).to_grpc_context_value()
     ))
 
-    part = create_complex_get_context_part(uuid, [const_colors_event_log],
+    part = create_complex_get_context_part(uuid,
+                                           frontend_pipeline_part_name,
+                                           [const_colors_event_log],
                                            const_draw_placement_of_event_by_name, config)
+
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
@@ -96,7 +100,7 @@ class DrawPlacementsOfEventByNameCanvas(TracesDiversityDiagramCanvas):
         self.event_name = event_name
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_draw_placements_of_events_by_name_grpc_part(self.uuid, self.event_name)
+        return _create_draw_placements_of_events_by_name_grpc_part(self.uuid, self.__class__.__name__, self.event_name)
 
 
 class DrawPlacementOfEventsByRegex(PipelinePart2WithDrawColorsLogCallback):
@@ -116,15 +120,19 @@ class DrawPlacementOfEventsByRegex(PipelinePart2WithDrawColorsLogCallback):
         self.regex = regex
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_draw_placements_of_events_by_regex_grpc_part(self.uuid, self.regex)
+        return _create_draw_placements_of_events_by_regex_grpc_part(self.uuid, self.__class__.__name__, self.regex)
 
 
-def _create_draw_placements_of_events_by_regex_grpc_part(uuid: uuid.UUID, regex: str):
+def _create_draw_placements_of_events_by_regex_grpc_part(uuid: uuid.UUID, frontend_pipeline_part_name: str, regex: str):
     config = GrpcPipelinePartConfiguration()
     append_string_value(config, const_regex, regex)
 
-    part = create_complex_get_context_part(uuid, [const_colors_event_log],
-                                           const_draw_placement_of_event_by_regex, config)
+    part = create_complex_get_context_part(uuid,
+                                           frontend_pipeline_part_name,
+                                           [const_colors_event_log],
+                                           const_draw_placement_of_event_by_regex,
+                                           config)
+
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
@@ -145,7 +153,7 @@ class DrawPlacementOfEventsByRegexCanvas(TracesDiversityDiagramCanvas):
         self.regex = regex
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_draw_placements_of_events_by_regex_grpc_part(self.uuid, self.regex)
+        return _create_draw_placements_of_events_by_regex_grpc_part(self.uuid, self.__class__.__name__, self.regex)
 
 
 class DrawActivitiesDiagramBase(PipelinePart2WithDrawColorsLogCallback):
@@ -165,12 +173,12 @@ class DrawActivitiesDiagramBase(PipelinePart2WithDrawColorsLogCallback):
         self.diagram_kind = diagram_kind
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_draw_activities_diagram_grpc_part(self.uuid, self.diagram_kind)
+        return _create_draw_activities_diagram_grpc_part(self.uuid, self.__class__.__name__, self.diagram_kind)
 
 
-def _create_draw_activities_diagram_grpc_part(uuid: uuid.UUID, diagram_kind: str):
+def _create_draw_activities_diagram_grpc_part(uuid: uuid.UUID, frontend_pipeline_part_name: str, diagram_kind: str):
     config = GrpcPipelinePartConfiguration()
-    part = create_complex_get_context_part(uuid, [const_colors_event_log], diagram_kind, config)
+    part = create_complex_get_context_part(uuid, frontend_pipeline_part_name, [const_colors_event_log], diagram_kind, config)
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
@@ -191,7 +199,7 @@ class DrawActivitiesDiagramBaseCanvas(TracesDiversityDiagramCanvas):
         self.diagram_kind = diagram_kind
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return _create_draw_activities_diagram_grpc_part(self.uuid, self.diagram_kind)
+        return _create_draw_activities_diagram_grpc_part(self.uuid, self.__class__.__name__, self.diagram_kind)
 
 
 class DrawFullActivitiesDiagram(DrawActivitiesDiagramBase):

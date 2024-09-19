@@ -14,7 +14,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 
-class GrpcKafkaUpdatesProcessorStub(object):
+class GrpcPipelinePartsContextValuesServiceStub(object):
 
     """Missing associated documentation comment in .proto file."""
 
@@ -32,23 +32,13 @@ class GrpcKafkaUpdatesProcessorStub(object):
 
         """
 
-        self.GetCurrentCases = channel.unary_unary(
+        self.StartUpdatesStream = channel.unary_stream(
 
-                '/ficus.GrpcKafkaUpdatesProcessor/GetCurrentCases',
+                '/ficus.GrpcPipelinePartsContextValuesService/StartUpdatesStream',
 
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
 
-                response_deserializer=front__contract__pb2.GrpcCurrentCasesResponse.FromString,
-
-                )
-
-        self.StartUpdatesStream = channel.stream_unary(
-
-                '/ficus.GrpcKafkaUpdatesProcessor/StartUpdatesStream',
-
-                request_serializer=front__contract__pb2.GrpcKafkaUpdate.SerializeToString,
-
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                response_deserializer=front__contract__pb2.GrpcPipelinePartUpdate.FromString,
 
                 )
 
@@ -56,25 +46,13 @@ class GrpcKafkaUpdatesProcessorStub(object):
 
 
 
-class GrpcKafkaUpdatesProcessorServicer(object):
+class GrpcPipelinePartsContextValuesServiceServicer(object):
 
     """Missing associated documentation comment in .proto file."""
 
 
 
-    def GetCurrentCases(self, request, context):
-
-        """Missing associated documentation comment in .proto file."""
-
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-
-        context.set_details('Method not implemented!')
-
-        raise NotImplementedError('Method not implemented!')
-
-
-
-    def StartUpdatesStream(self, request_iterator, context):
+    def StartUpdatesStream(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -88,27 +66,17 @@ class GrpcKafkaUpdatesProcessorServicer(object):
 
 
 
-def add_GrpcKafkaUpdatesProcessorServicer_to_server(servicer, server):
+def add_GrpcPipelinePartsContextValuesServiceServicer_to_server(servicer, server):
 
     rpc_method_handlers = {
 
-            'GetCurrentCases': grpc.unary_unary_rpc_method_handler(
-
-                    servicer.GetCurrentCases,
-
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-
-                    response_serializer=front__contract__pb2.GrpcCurrentCasesResponse.SerializeToString,
-
-            ),
-
-            'StartUpdatesStream': grpc.stream_unary_rpc_method_handler(
+            'StartUpdatesStream': grpc.unary_stream_rpc_method_handler(
 
                     servicer.StartUpdatesStream,
 
-                    request_deserializer=front__contract__pb2.GrpcKafkaUpdate.FromString,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
 
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                    response_serializer=front__contract__pb2.GrpcPipelinePartUpdate.SerializeToString,
 
             ),
 
@@ -116,7 +84,7 @@ def add_GrpcKafkaUpdatesProcessorServicer_to_server(servicer, server):
 
     generic_handler = grpc.method_handlers_generic_handler(
 
-            'ficus.GrpcKafkaUpdatesProcessor', rpc_method_handlers)
+            'ficus.GrpcPipelinePartsContextValuesService', rpc_method_handlers)
 
     server.add_generic_rpc_handlers((generic_handler,))
 
@@ -126,7 +94,7 @@ def add_GrpcKafkaUpdatesProcessorServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 
-class GrpcKafkaUpdatesProcessor(object):
+class GrpcPipelinePartsContextValuesService(object):
 
     """Missing associated documentation comment in .proto file."""
 
@@ -134,7 +102,7 @@ class GrpcKafkaUpdatesProcessor(object):
 
     @staticmethod
 
-    def GetCurrentCases(request,
+    def StartUpdatesStream(request,
 
             target,
 
@@ -154,45 +122,11 @@ class GrpcKafkaUpdatesProcessor(object):
 
             metadata=None):
 
-        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaUpdatesProcessor/GetCurrentCases',
+        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcPipelinePartsContextValuesService/StartUpdatesStream',
 
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
 
-            front__contract__pb2.GrpcCurrentCasesResponse.FromString,
-
-            options, channel_credentials,
-
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-
-
-    @staticmethod
-
-    def StartUpdatesStream(request_iterator,
-
-            target,
-
-            options=(),
-
-            channel_credentials=None,
-
-            call_credentials=None,
-
-            insecure=False,
-
-            compression=None,
-
-            wait_for_ready=None,
-
-            timeout=None,
-
-            metadata=None):
-
-        return grpc.experimental.stream_unary(request_iterator, target, '/ficus.GrpcKafkaUpdatesProcessor/StartUpdatesStream',
-
-            front__contract__pb2.GrpcKafkaUpdate.SerializeToString,
-
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            front__contract__pb2.GrpcPipelinePartUpdate.FromString,
 
             options, channel_credentials,
 

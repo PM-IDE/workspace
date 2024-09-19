@@ -11,7 +11,12 @@ class UseNamesEventLog(PipelinePart):
 class PrintEventLog(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
-        part = create_complex_get_context_part(self.uuid, [const_names_event_log], const_get_names_event_log, config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_names_event_log],
+                                               const_get_names_event_log,
+                                               config)
+
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):

@@ -231,6 +231,7 @@ class ClearActivitiesRelatedStuff(PipelinePart):
 class PrintNumberOfUnderlyingEvents(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_underlying_events_count],
                                                const_get_number_of_underlying_events,
                                                GrpcPipelinePartConfiguration())
@@ -387,6 +388,7 @@ class ClusterizeActivitiesFromTracesKMeans(ClusterizationPart):
         append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
 
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_labeled_traces_activities_dataset],
                                                const_clusterize_activities_from_traces_k_means,
                                                config)
@@ -421,6 +423,7 @@ class ClusterizeActivitiesFromTracesKMeansGridSearch(ClusterizationPart):
         append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
 
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_labeled_traces_activities_dataset],
                                                const_clusterize_activities_from_traces_k_means_grid_search,
                                                config)
@@ -456,6 +459,7 @@ class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart):
         append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_labeled_traces_activities_dataset],
                                                const_clusterize_activities_from_traces_dbscan,
                                                config)
@@ -500,6 +504,7 @@ class VisualizeTracesActivities(PipelinePartWithCallback):
                           self.activities_repr_source.name)
 
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_traces_activities_dataset],
                                                const_create_traces_activities_dataset,
                                                config)
@@ -563,6 +568,7 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
             append_string_value(config, const_event_class_regex, self.class_extractor)
 
         part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
                                                [const_labeled_log_traces_dataset],
                                                const_clusterize_log_traces,
                                                config)

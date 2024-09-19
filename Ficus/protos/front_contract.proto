@@ -19,9 +19,10 @@ message GrpcPipelinePartUpdate {
 }
 
 message GrpcKafkaUpdate {
-  string caseName = 1;
-  GrpcGuid pipeline_part_guid = 2;
-  repeated GrpcContextValueWithKeyName contextValues = 3;
+  string processName = 1;
+  string caseName = 2;
+  GrpcPipelinePartInfo pipelinePartInfo = 3;
+  repeated GrpcContextValueWithKeyName contextValues = 4;
 }
 
 message GrpcCurrentCasesResponse {

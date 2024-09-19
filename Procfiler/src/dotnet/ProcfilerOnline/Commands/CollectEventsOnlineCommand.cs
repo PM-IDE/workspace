@@ -13,7 +13,10 @@ public record CollectEventsOnlineContext(
   string OutputBxesFilePath,
   Regex? TargetMethodsRegex,
   Regex? MethodsFilterRegex
-);
+)
+{
+  public string ApplicationName { get; } = Path.GetFileNameWithoutExtension(DllFilePath);
+}
 
 [AppComponent]
 public class CollectEventsOnlineCommand(

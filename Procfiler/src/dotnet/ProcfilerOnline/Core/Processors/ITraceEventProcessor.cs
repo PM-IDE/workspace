@@ -6,6 +6,7 @@ namespace ProcfilerOnline.Core.Processors;
 
 public readonly ref struct CommandContext
 {
+  public required string ApplicationName { get; init; }
   public required Regex? TargetMethodsRegex { get; init; }
 }
 

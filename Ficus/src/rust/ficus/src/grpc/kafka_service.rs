@@ -8,7 +8,7 @@ use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
-use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY};
+use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
@@ -50,6 +50,7 @@ enum ConsumerState {
 }
 
 const KAFKA_CASE_NAME: &'static str = "case_name";
+const KAFKA_PROCESS_NAME: &'static str = "process_name";
 
 #[tonic::async_trait]
 impl GrpcKafkaService for KafkaService {
@@ -136,6 +137,8 @@ impl GrpcKafkaService for KafkaService {
 enum XesFromBxesKafkaTraceCreatingError {
     CaseNameNotFound,
     CaseNameNotString,
+    ProcessNameNotFound,
+    ProcessNameNotString,
     BxesToXexConversionError(BxesToXesReadError),
 }
 
@@ -293,14 +296,15 @@ impl KafkaService {
             dto.events_handler.clone(),
         );
 
-        let (case_name, xes_log) = match Self::update_log(dto.names_to_logs.clone(), trace) {
-            Ok(pair) => (pair.0, pair.1),
+        let (process_name, case_name, xes_log) = match Self::update_log(dto.names_to_logs.clone(), trace) {
+            Ok(pair) => (pair.0, pair.1, pair.2),
             Err(_) => return (),
         };
 
         let execution_result = context.execute_grpc_pipeline(move |context| {
             context.put_concrete(EVENT_LOG_KEY.key(), xes_log);
             context.put_concrete(CASE_NAME.key(), case_name);
+            context.put_concrete(PROCESS_NAME.key(), process_name);
         });
 
         if let Err(err) = execution_result {
@@ -312,12 +316,22 @@ impl KafkaService {
     fn update_log(
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         trace: BxesKafkaTrace,
-    ) -> Result<(String, XesEventLogImpl), XesFromBxesKafkaTraceCreatingError> {
+    ) -> Result<(String, String, XesEventLogImpl), XesFromBxesKafkaTraceCreatingError> {
         let metadata = trace.metadata();
         let mut names_to_logs = names_to_logs.lock();
         let names_to_logs = match names_to_logs.as_mut() {
             Ok(names_to_logs) => names_to_logs,
             Err(_) => panic!("Failed to acquire a names_to_logs map from mutex"),
+        };
+
+        let process_name = if let Some(process_name) = metadata.get(KAFKA_PROCESS_NAME) {
+            if let BxesValue::String(process_name) = process_name.as_ref().as_ref() {
+                process_name.as_ref().as_ref().to_owned()
+            } else {
+                return Err(XesFromBxesKafkaTraceCreatingError::ProcessNameNotString);
+            }
+        } else {
+            return Err(XesFromBxesKafkaTraceCreatingError::ProcessNameNotFound);
         };
 
         if let Some(case_name) = metadata.get(KAFKA_CASE_NAME) {
@@ -338,7 +352,7 @@ impl KafkaService {
                 let xes_trace = Rc::new(RefCell::new(xes_trace));
                 existing_log.push(xes_trace);
 
-                Ok((case_name.to_owned(), existing_log.clone()))
+                Ok((process_name, case_name.to_owned(), existing_log.clone()))
             } else {
                 Err(XesFromBxesKafkaTraceCreatingError::CaseNameNotString)
             }

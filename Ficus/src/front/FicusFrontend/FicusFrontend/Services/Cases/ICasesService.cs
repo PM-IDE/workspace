@@ -9,17 +9,23 @@ public interface ICasesService
 {
   IObservableCollection<Case> Cases { get; }
 
-  IReadOnlyObservableDictionary<Guid, List<GrpcContextValueWithKeyName>> CreateCaseValuesObservable(Case selectedCase);
+  IReadOnlyObservableDictionary<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(Case selectedCase);
+}
+
+public class CaseData
+{
+  public class PipelinePartExecutionResult
+  {
+    public required string PipelinePartName { get; init; }
+    public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
+  }
+
+  public required Case Case { get; init; }
+  public required ObservableDictionary<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
 }
 
 public class CasesService : ICasesService
 {
-  private class CaseData
-  {
-    public required Case Case { get; init; }
-    public required ObservableDictionary<Guid, List<GrpcContextValueWithKeyName>> ContextValues { get; init; }
-  }
-
   private readonly ObservableList<Case> myLiveCases = [];
   private readonly Dictionary<string, CaseData> myCurrentCases = [];
   private readonly GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient _client;
@@ -37,7 +43,7 @@ public class CasesService : ICasesService
 
   
   
-  public IReadOnlyObservableDictionary<Guid, List<GrpcContextValueWithKeyName>> CreateCaseValuesObservable(Case selectedCase)
+  public IReadOnlyObservableDictionary<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(Case selectedCase)
   {
     return myCurrentCases[selectedCase.Name].ContextValues;
   }
@@ -56,7 +62,12 @@ public class CasesService : ICasesService
         case CaseContextValuesUpdate caseContextValuesUpdate:
         {
           var caseData = myCurrentCases[caseContextValuesUpdate.CaseName];
-          caseData.ContextValues[caseContextValuesUpdate.PipelinePartGuid] = caseContextValuesUpdate.NewContextValues;
+          caseData.ContextValues[caseContextValuesUpdate.PipelinePartGuid] = new CaseData.PipelinePartExecutionResult
+          {
+            ContextValues = caseContextValuesUpdate.NewContextValues,
+            PipelinePartName = caseContextValuesUpdate.PipelinePartName
+          };
+
           break;
         }
         default:
@@ -99,14 +110,18 @@ public class CasesService : ICasesService
         .Select(v =>
         {
           var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
-          return (id, v.ContextValues.ToList());
+          return (id, new CaseData.PipelinePartExecutionResult
+          {
+            ContextValues = v.ContextValues.ToList(),
+            PipelinePartName = v.PipelinePartInfo.Name
+          });
         })
         .ToDictionary();
 
       myCurrentCases[caseModel.Name] = new CaseData
       {
         Case = caseModel,
-        ContextValues = new ObservableDictionary<Guid, List<GrpcContextValueWithKeyName>>(initialState)
+        ContextValues = new ObservableDictionary<Guid, CaseData.PipelinePartExecutionResult>(initialState)
       };
 
       yield return new CasesListUpdate
@@ -142,7 +157,8 @@ public class CasesService : ICasesService
     yield return new CaseContextValuesUpdate
     {
       CaseName = caseName,
-      PipelinePartGuid = Guid.Parse(delta.PipelinePartGuid.Guid),
+      PipelinePartName = delta.PipelinePartInfo.Name,
+      PipelinePartGuid = Guid.Parse(delta.PipelinePartInfo.Id.Guid),
       NewContextValues = delta.ContextValues.ToList()
     };
   }

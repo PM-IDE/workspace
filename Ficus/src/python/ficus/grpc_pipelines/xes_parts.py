@@ -58,6 +58,7 @@ class WriteBytesToFilePipelinePartBase(PipelinePartWithCallback):
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         pipeline_part = create_complex_get_context_part(self.uuid,
+                                                        self.__class__.__name__,
                                                         [const_bytes],
                                                         self.before_pipeline_part,
                                                         GrpcPipelinePartConfiguration())

@@ -114,6 +114,7 @@ public class ThreadsMethodsProcessor(
           {
             handler.Handle(new CompletedMethodExecutionEvent
             {
+              ApplicationName = context.CommandContext.ApplicationName,
               Frame = frame
             });
           }
