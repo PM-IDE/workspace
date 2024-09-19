@@ -44,7 +44,7 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
 
     myProducer = new ProducerBuilder<Guid, BxesKafkaTrace<TEvent>>(producerConfig)
       .SetKeySerializer(GuidSerializer.Instance)
-      .SetValueSerializer(new BxesKafkaEventSerializer<TEvent>(writeMetadata))
+      .SetValueSerializer(new BxesKafkaEventSerializer<TEvent>(Guid.NewGuid(), writeMetadata))
       .Build();
   }
 

@@ -15,18 +15,19 @@ use std::collections::HashMap;
 use std::io::Cursor;
 use std::rc::Rc;
 use std::time::Duration;
+use uuid::Uuid;
 
 pub struct BxesKafkaConsumer {
     topic: String,
     consumer: BaseConsumer,
-    read_metadata: ReadMetadata
+    session_id_to_read_metadata: HashMap<Uuid, ReadMetadata>
 }
 
 unsafe impl Send for BxesKafkaConsumer {}
 
 impl BxesKafkaConsumer {
     pub fn new(topic: String, consumer: BaseConsumer) -> Self {
-        Self { topic, consumer, read_metadata: ReadMetadata::empty() }
+        Self { topic, consumer, session_id_to_read_metadata: HashMap::new() }
     }
 }
 
@@ -81,7 +82,16 @@ impl BxesKafkaConsumer {
             Some(message) => match message {
                 Ok(msg) => {
                     let payload = msg.payload().unwrap();
-                    let trace = Self::parse_raw_bxes_bytes(payload, &mut self.read_metadata)?;
+                    const uuid_length: usize = 16;
+                    let read_metadata_id = Uuid::from_slice(&payload[..uuid_length]).expect("Should be valid uuid");
+
+                    if !self.session_id_to_read_metadata.contains_key(&read_metadata_id) {
+                        self.session_id_to_read_metadata.insert(read_metadata_id.clone(), ReadMetadata::empty());
+                    }
+
+                    let mut read_metadata = self.session_id_to_read_metadata.get_mut(&read_metadata_id).expect("Must be present");
+
+                    let trace = Self::parse_raw_bxes_bytes(&payload[uuid_length..], &mut read_metadata)?;
                     self.consumer.commit_message(&msg, CommitMode::Async)?;
 
                     Ok(Some(trace))

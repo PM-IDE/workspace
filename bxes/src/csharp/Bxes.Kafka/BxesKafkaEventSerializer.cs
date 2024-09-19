@@ -4,13 +4,17 @@ using Confluent.Kafka;
 
 namespace Bxes.Kafka;
 
-public class BxesKafkaEventSerializer<TEvent>(BxesWriteMetadata writeMetadata)
+public class BxesKafkaEventSerializer<TEvent>(Guid sessionId, BxesWriteMetadata writeMetadata)
   : ISerializer<BxesKafkaTrace<TEvent>> where TEvent : IEvent
 {
-  public byte[] Serialize(BxesKafkaTrace<TEvent> data, SerializationContext context)
+  public unsafe byte[] Serialize(BxesKafkaTrace<TEvent> data, SerializationContext context)
   {
     using var stream = new MemoryStream();
     using var writer = new BinaryWriter(stream);
+
+    var sessionIdBytes = (Span<byte>)stackalloc byte[16];
+    sessionId.TryWriteBytes(sessionIdBytes);
+    writer.Write(sessionIdBytes);
 
     var writeContext = new BxesWriteContext(writer, writeMetadata);
     BxesWriteUtils.WriteValuesAttributesDescriptors(data.SystemMetadata.ValueAttributeDescriptors, writeContext);
