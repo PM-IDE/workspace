@@ -1,4 +1,6 @@
-﻿namespace FicusFrontend.Services.Cases;
+﻿using Ficus;
+
+namespace FicusFrontend.Services.Cases;
 
 public class Case
 {
@@ -21,4 +23,5 @@ public sealed class CaseContextValuesUpdate : CaseUpdate
 {
   public required string CaseName { get; init; }
   public required Guid PipelinePartGuid { get; init; }
+  public required List<GrpcContextValueWithKeyName> NewContextValues { get; init; }
 }

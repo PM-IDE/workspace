@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Ficus;
 using Google.Protobuf.WellKnownTypes;
 using ObservableCollections;
@@ -9,6 +8,8 @@ namespace FicusFrontend.Services.Cases;
 public interface ICasesService
 {
   IObservableCollection<Case> Cases { get; }
+
+  IReadOnlyObservableDictionary<Guid, List<GrpcContextValueWithKeyName>> CreateCaseValuesObservable(Case selectedCase);
 }
 
 public class CasesService : ICasesService
@@ -16,7 +17,7 @@ public class CasesService : ICasesService
   private class CaseData
   {
     public required Case Case { get; init; }
-    public required Dictionary<Guid, List<GrpcContextValueWithKeyName>> ContextValues { get; init; }
+    public required ObservableDictionary<Guid, List<GrpcContextValueWithKeyName>> ContextValues { get; init; }
   }
 
   private readonly ObservableList<Case> myLiveCases = [];
@@ -34,6 +35,13 @@ public class CasesService : ICasesService
     Task.Factory.StartNew(StartProcessingUpdates, TaskCreationOptions.LongRunning);
   }
 
+  
+  
+  public IReadOnlyObservableDictionary<Guid, List<GrpcContextValueWithKeyName>> CreateCaseValuesObservable(Case selectedCase)
+  {
+    return myCurrentCases[selectedCase.Name].ContextValues;
+  }
+
   private async Task StartProcessingUpdates()
   {
     await foreach (var update in OpenCasesUpdatesStream(CancellationToken.None))
@@ -46,7 +54,11 @@ public class CasesService : ICasesService
           break;
         }
         case CaseContextValuesUpdate caseContextValuesUpdate:
+        {
+          var caseData = myCurrentCases[caseContextValuesUpdate.CaseName];
+          caseData.ContextValues[caseContextValuesUpdate.PipelinePartGuid] = caseContextValuesUpdate.NewContextValues;
           break;
+        }
         default:
           throw new ArgumentOutOfRangeException(nameof(update));
       }
@@ -83,16 +95,18 @@ public class CasesService : ICasesService
         CreatedAt = DateTime.Now,
       };
 
+      var initialState = @case.ContextValues
+        .Select(v =>
+        {
+          var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
+          return (id, v.ContextValues.ToList());
+        })
+        .ToDictionary();
+
       myCurrentCases[caseModel.Name] = new CaseData
       {
         Case = caseModel,
-        ContextValues = @case.ContextValues
-          .Select(v =>
-          {
-            var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
-            return (id, v.ContextValues.ToList());
-          })
-          .ToDictionary()
+        ContextValues = new ObservableDictionary<Guid, List<GrpcContextValueWithKeyName>>(initialState)
       };
 
       yield return new CasesListUpdate
@@ -125,14 +139,11 @@ public class CasesService : ICasesService
       myCurrentCases[caseName] = caseData;
     }
 
-    var pipelinePartGuid = Guid.Parse(delta.PipelinePartGuid.Guid);
-
-    caseData.ContextValues[pipelinePartGuid] = delta.ContextValues.ToList();
-
     yield return new CaseContextValuesUpdate
     {
       CaseName = caseName,
-      PipelinePartGuid = pipelinePartGuid,
+      PipelinePartGuid = Guid.Parse(delta.PipelinePartGuid.Guid),
+      NewContextValues = delta.ContextValues.ToList()
     };
   }
 }
