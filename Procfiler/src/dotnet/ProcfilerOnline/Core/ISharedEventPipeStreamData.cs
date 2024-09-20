@@ -1,17 +1,26 @@
-﻿using Core.GlobalData;
+﻿using Core.Events.EventRecord;
+using Core.GlobalData;
+using Core.Utils;
 
 namespace ProcfilerOnline.Core;
 
 public interface ISharedEventPipeStreamData : IGlobalData
 {
-  void UpdateMethodsInfo(long methodId, string fqn);
+  void UpdateMethodsInfo(ExtendedMethodIdToFqn methodIdToFqn);
   void UpdateTypeIdsToNames(long typeId, string typeName);
   void UpdateSyncTimes(long qpcSyncTime, long qpcFreq, DateTime utcSyncTime);
+
+  public (string Name, string Namespace, string Signature)? FindMethodDetails(long methodId);
 }
 
 public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 {
-  private readonly Dictionary<long, string> myMethodIdsToFqns = new();
+  private record MethodNameInfo(string Name, string Namespace, string Signature)
+  {
+    public string Fqn => MethodsUtil.ConcatenateMethodDetails(Name, Namespace, Signature);
+  }
+
+  private readonly Dictionary<long, MethodNameInfo> myMethodIdsToFqns = new();
   private readonly Dictionary<long, string> myTypeIdsToNames = new();
 
 
@@ -29,8 +38,21 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 
 
   public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
-  public string? FindMethodName(long methodId) => myMethodIdsToFqns.GetValueOrDefault(methodId);
+  public string? FindMethodName(long methodId) => myMethodIdsToFqns.GetValueOrDefault(methodId)?.Fqn;
+  public (string Name, string Namespace, string Signature)? FindMethodDetails(long methodId)
+  {
+    if (myMethodIdsToFqns.TryGetValue(methodId, out var methodDetails))
+    {
+      return (methodDetails.Name, methodDetails.Namespace, methodDetails.Signature);
+    }
 
-  public void UpdateMethodsInfo(long methodId, string fqn) => myMethodIdsToFqns[methodId] = fqn;
+    return null;
+  }
+
   public void UpdateTypeIdsToNames(long typeId, string typeName) => myTypeIdsToNames[typeId] = typeName;
+
+  public void UpdateMethodsInfo(ExtendedMethodIdToFqn methodIdToFqn)
+  {
+    myMethodIdsToFqns[methodIdToFqn.Id] = new MethodNameInfo(methodIdToFqn.Name, methodIdToFqn.Namespace, methodIdToFqn.Signature);
+  }
 }

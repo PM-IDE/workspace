@@ -9,9 +9,9 @@ public class MethodsIdsToNamesUpdater : ISharedDataUpdater
 {
   public void Process(EventProcessingContext context)
   {
-    if (context.Event.TryGetMethodInfo() is { Id: var methodId, Fqn: var fqn })
+    if (context.Event.TryGetExtendedMethodInfo() is { } extendedMethodInfo)
     {
-      context.SharedData.UpdateMethodsInfo(methodId, fqn);
+      context.SharedData.UpdateMethodsInfo(extendedMethodInfo);
     }
   }
 }
