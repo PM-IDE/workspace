@@ -22,7 +22,5 @@ public sealed class ProcessesListUpdate : ProcessUpdate
 public sealed class ProcessContextValuesUpdate : ProcessUpdate
 {
   public required string CaseName { get; init; }
-  public required Guid PipelinePartGuid { get; init; }
-  public required string PipelinePartName { get; init; }
-  public required List<GrpcContextValueWithKeyName> NewContextValues { get; init; }
+  public required string ProcessName { get; init; }
 }

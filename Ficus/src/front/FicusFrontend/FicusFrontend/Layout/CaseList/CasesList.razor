@@ -15,7 +15,7 @@
         <Accordion>
             @foreach (var process in myProcesses)
             {
-                <AccordionItem Title="@process.ProcessData.ProcessName">
+                <AccordionItem Title="@process.ProcessData.ProcessName" Class="process-accordion-item">
                     <Content>
                         @foreach (var @case in process.Cases)
                         {
@@ -33,6 +33,7 @@
 @code
 {
     private List<ProcessListItemDto> myProcesses = [];
+    private Case? mySelectedCase;
 
     [Parameter] public Action<ProcessData, Case>? CaseSelected { get; set; }
 
@@ -40,6 +41,7 @@
     private void HandleCaseSelected(ProcessData processData, CaseListItemDto selectedCase)
     {
         selectedCase.State = CaseListItemState.Seen;
+        mySelectedCase = selectedCase.Case;
         CaseSelected?.Invoke(processData, selectedCase.Case);
     }
 
@@ -53,8 +55,18 @@
             {
                 switch (processUpdate)
                 {
-                    case ProcessContextValuesUpdate processContextValuesUpdate:
+                    case ProcessContextValuesUpdate cvUpdate:
+                    {
+                        var updatedProcess = myProcesses.FirstOrDefault(p => p.ProcessData.ProcessName == cvUpdate.ProcessName);
+                        var updatedCase = updatedProcess?.Cases.FirstOrDefault(c => c.Case.Name == cvUpdate.CaseName);
+                        if (updatedCase is { } && !updatedCase.Case.Equals(mySelectedCase))
+                        {
+                            updatedCase.State = CaseListItemState.UpdatesReceived;
+                            StateHasChanged();
+                        }
+                        
                         break;
+                    }
                     case ProcessesListUpdate processesListUpdate:
                     {
                         myProcesses = processesListUpdate.Processes.

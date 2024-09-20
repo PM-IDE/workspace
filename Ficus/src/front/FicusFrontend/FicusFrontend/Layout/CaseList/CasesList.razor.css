@@ -18,3 +18,9 @@
     height: 100%;
     background-color: aliceblue;
 }
+
+.process-accordion-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

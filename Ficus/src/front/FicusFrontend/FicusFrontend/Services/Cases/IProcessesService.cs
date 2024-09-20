@@ -158,9 +158,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
     yield return new ProcessContextValuesUpdate
     {
       CaseName = delta.CaseName,
-      PipelinePartName = delta.PipelinePartInfo.Name,
-      PipelinePartGuid = Guid.Parse(delta.PipelinePartInfo.Id.Guid),
-      NewContextValues = delta.ContextValues.ToList()
+      ProcessName = delta.ProcessName
     };
   }
 }
