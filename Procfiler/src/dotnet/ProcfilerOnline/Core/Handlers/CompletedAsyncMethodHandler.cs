@@ -10,6 +10,7 @@ public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
   public required string ApplicationName { get; init; }
   public required string StateMachineName { get; init; }
   public required List<List<EventRecordWithMetadata>> MethodTraces { get; init; }
+  public ExtendedMethodInfo? MethodInfo { get; init; }
 }
 
 [AppComponent]
@@ -26,9 +27,10 @@ public class CompletedAsyncMethodHandler(
     {
       var message = new BxesKafkaMethodsExecutionMessage
       {
-        ApplicationName = completedAsyncMethodEvent.ApplicationName,
-        MethodName = completedAsyncMethodEvent.StateMachineName,
-        Trace = methodTrace
+        ProcessName = completedAsyncMethodEvent.ApplicationName,
+        CaseName = completedAsyncMethodEvent.StateMachineName,
+        Trace = methodTrace,
+        MethodInfo = completedAsyncMethodEvent.MethodInfo
       };
 
       producer.Produce(Guid.NewGuid(), message);

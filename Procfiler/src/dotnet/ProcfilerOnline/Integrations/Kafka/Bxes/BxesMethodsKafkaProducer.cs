@@ -15,9 +15,11 @@ public interface IBxesMethodsKafkaProducer : IKafkaProducer<Guid, BxesKafkaMetho
 
 public class BxesKafkaMethodsExecutionMessage
 {
-  public required string ApplicationName { get; init; }
-  public required string MethodName { get; init; }
+  public required string ProcessName { get; init; }
+  public required string CaseName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
+
+  public ExtendedMethodInfo? MethodInfo { get; init; }
 }
 
 [AppComponent]
@@ -32,17 +34,26 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
     });
 
 
-  public void Produce(Guid key, BxesKafkaMethodsExecutionMessage value)
+  public void Produce(Guid key, BxesKafkaMethodsExecutionMessage message)
   {
     List<AttributeKeyValue> metadata =
     [
-      new(new BxesStringValue("case_name"), new BxesStringValue(value.MethodName)),
-      new(new BxesStringValue("process_name"), new BxesStringValue(value.ApplicationName))
+      new(new BxesStringValue("case_name"), new BxesStringValue(message.CaseName)),
+      new(new BxesStringValue("process_name"), new BxesStringValue(message.ProcessName))
     ];
+
+    if (message.MethodInfo is { } methodInfo)
+    {
+      metadata.AddRange(
+      [
+        new AttributeKeyValue(new BxesStringValue("method_name"), new BxesStringValue(methodInfo.Name)),
+        new AttributeKeyValue(new BxesStringValue("method_signature"), new BxesStringValue(methodInfo.Signature))
+      ]);
+    }
 
     myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
 
-    foreach (var eventRecord in value.Trace)
+    foreach (var eventRecord in message.Trace)
     {
       myWriter.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, true)));
     }

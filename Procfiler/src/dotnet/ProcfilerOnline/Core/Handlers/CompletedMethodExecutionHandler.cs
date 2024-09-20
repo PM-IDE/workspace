@@ -1,4 +1,6 @@
 ﻿using Core.Container;
+using Core.Utils;
+using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Features;
 using ProcfilerOnline.Integrations.Kafka.Bxes;
 
@@ -12,7 +14,8 @@ public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedMethodExecutionHandler(
-  IBxesMethodsKafkaProducer producer
+  IBxesMethodsKafkaProducer producer,
+  IProcfilerLogger logger
 ) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
@@ -20,10 +23,17 @@ public class CompletedMethodExecutionHandler(
     if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
     if (eventPipeStreamEvent is not CompletedMethodExecutionEvent @event) return;
 
+    if (@event.Frame.MethodInfo is null)
+    {
+      logger.LogWarning("Encountered an event without MethodInfo, will not send it");
+      return;
+    }
+
     var message = new BxesKafkaMethodsExecutionMessage
     {
-      ApplicationName = @event.ApplicationName,
-      MethodName = @event.Frame.MethodName ?? "UNRESOLVED",
+      ProcessName = @event.ApplicationName,
+      CaseName = @event.Frame.MethodInfo.Fqn,
+      MethodInfo = @event.Frame.MethodInfo,
       Trace = @event.Frame.InnerEvents
     };
 

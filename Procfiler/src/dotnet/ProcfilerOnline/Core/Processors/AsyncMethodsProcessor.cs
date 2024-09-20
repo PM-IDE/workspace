@@ -49,11 +49,14 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
 
   private void HandleAsyncMethod(string stateMachineName, List<List<EventRecordWithMetadata>> traces)
   {
+    var methodInfo = traces.First().First().TryGetExtendedMethodInfo()?.ExtendedMethodInfo;
+
     myHandler.Handle(new CompletedAsyncMethodEvent
     {
       ApplicationName = myApplicationName ?? "UNDEF_APPLICATION",
       MethodTraces = traces,
       StateMachineName = stateMachineName,
+      MethodInfo = methodInfo
     });
   }
 }

@@ -8,7 +8,12 @@ namespace Core.Events.EventRecord;
 
 public readonly record struct MethodIdToFqn(long Id, string Fqn);
 
-public readonly record struct ExtendedMethodIdToFqn(long Id, string Name, string Namespace, string Signature);
+public record ExtendedMethodInfo(string Name, string Namespace, string Signature)
+{
+  public string Fqn { get; } = MethodsUtil.ConcatenateMethodDetails(Name, Namespace, Signature);
+}
+
+public readonly record struct ExtendedMethodIdToFqn(long Id, ExtendedMethodInfo ExtendedMethodInfo);
 
 public readonly record struct TypeIdToName(long Id, string Name);
 
@@ -154,7 +159,7 @@ public static class EventRecordExtensions
       return null;
     }
 
-    return new ExtendedMethodIdToFqn(methodId.ParseId(), name, methodNamespace, signature);
+    return new ExtendedMethodIdToFqn(methodId.ParseId(), new ExtendedMethodInfo(name, methodNamespace, signature));
   }
 
   public static TypeIdToName? TryExtractTypeIdToName(this EventRecordWithMetadata eventRecord)

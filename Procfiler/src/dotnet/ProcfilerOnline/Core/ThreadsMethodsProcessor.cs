@@ -15,10 +15,10 @@ public interface IThreadsMethodsProcessor
   IReadOnlyList<(long ThreadId, List<EventRecordWithMetadata>)> ReclaimNotClosedMethods();
 }
 
-public class TargetMethodFrame(long methodId, string? methodName)
+public class TargetMethodFrame(long methodId, ExtendedMethodInfo? methodInfo)
 {
   public long MethodId { get; } = methodId;
-  public string? MethodName { get; } = methodName;
+  public ExtendedMethodInfo? MethodInfo { get; } = methodInfo;
 
   public List<EventRecordWithMetadata> InnerEvents { get; } = [];
 }
@@ -90,7 +90,7 @@ public class ThreadsMethodsProcessor(
       {
         if (isTargetMethod)
         {
-          var methodName = context.SharedData.FindMethodDetails(methodId)?.Name;
+          var methodName = context.SharedData.FindMethodDetails(methodId);
           threadStack.Push(new TargetMethodFrame(methodId, methodName));
           threadStack.Peek().InnerEvents.Add(context.Event);
         }
