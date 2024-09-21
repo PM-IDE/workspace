@@ -1,4 +1,4 @@
-use super::events_handler::{PipelineEvent, PipelineEventsHandler};
+use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
 use crate::ficus_proto::{GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue};
 use crate::grpc::events::utils::create_grpc_context_values;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
@@ -65,31 +65,11 @@ impl PipelineEventsHandler for KafkaEventsHandler {
     fn handle(&self, event: PipelineEvent) {
         match event {
             PipelineEvent::GetContextValuesEvent(event) => {
-                let result = self.producer.produce(GrpcKafkaUpdate {
-                    process_case_metadata: Some(GrpcProcessCaseMetadata {
-                        case_name: event.process_case_metadata.case_name,
-                        process_name: event.process_case_metadata.process_name,
-                        metadata: event.process_case_metadata.metadata.into_iter().map(|pair| GrpcStringKeyValue {
-                            key: pair.0,
-                            value: pair.1,
-                        }).collect(),
-                    }),
-                    pipeline_part_info: Some(GrpcPipelinePartInfo {
-                        id: Some(GrpcGuid {
-                            guid: event.uuid.to_string()
-                        }),
-                        name: event.pipeline_part_name,
-                    }),
-                    context_values: create_grpc_context_values(&event.key_values),
-                });
+                let result = self.producer.produce(event.to_grpc_kafka_update());
 
                 let message = match result {
-                    Ok(_) => {
-                        "Sent message to kafka".to_string()
-                    }
-                    Err(err) => {
-                        format!("Failed to produce event: {}", err.to_string())
-                    }
+                    Ok(_) => "Sent message to kafka".to_string(),
+                    Err(err) => format!("Failed to produce event: {}", err.to_string()),
                 };
 
                 self.console_logs_handler.handle(message.as_str()).expect("Should log message");
@@ -101,5 +81,33 @@ impl PipelineEventsHandler for KafkaEventsHandler {
 
     fn is_alive(&self) -> bool {
         true
+    }
+}
+
+impl GetContextValuesEvent<'_> {
+    fn to_grpc_kafka_update(self) -> GrpcKafkaUpdate {
+        GrpcKafkaUpdate {
+            process_case_metadata: Some(self.process_case_metadata.to_grpc_process_case_metadata()),
+            pipeline_part_info: Some(GrpcPipelinePartInfo {
+                id: Some(GrpcGuid {
+                    guid: self.uuid.to_string()
+                }),
+                name: self.pipeline_part_name,
+            }),
+            context_values: create_grpc_context_values(&self.key_values),
+        }
+    }
+}
+
+impl ProcessCaseMetadata {
+    fn to_grpc_process_case_metadata(self) -> GrpcProcessCaseMetadata {
+        GrpcProcessCaseMetadata {
+            case_name: self.case_name,
+            process_name: self.process_name,
+            metadata: self.metadata.into_iter().map(|pair| GrpcStringKeyValue {
+                key: pair.0,
+                value: pair.1,
+            }).collect(),
+        }
     }
 }
