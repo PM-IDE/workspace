@@ -1,9 +1,9 @@
 use std::sync::Arc;
 use uuid::Uuid;
 
-use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler};
+use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{find_context_key, CASE_NAME, PROCESS_NAME};
+use crate::pipelines::keys::context_keys::{find_context_key, CASE_NAME, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::{
     pipelines::{
         context::PipelineContext,
@@ -69,9 +69,19 @@ impl GetContextValuePipelinePart {
                     Some(process_name) => process_name.to_string(),
                 };
 
-                sender.handle(PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
-                    case_name,
+                let metadata = match context.concrete(UNSTRUCTURED_METADATA.key()) {
+                    None => vec![],
+                    Some(metadata) => metadata.clone()
+                };
+
+                let process_case_metadata = ProcessCaseMetadata {
                     process_name,
+                    case_name,
+                    metadata
+                };
+
+                sender.handle(PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
+                    process_case_metadata,
                     pipeline_part_name,
                     uuid,
                     key_values

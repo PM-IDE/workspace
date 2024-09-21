@@ -19,10 +19,15 @@ message GrpcPipelinePartUpdate {
 }
 
 message GrpcKafkaUpdate {
+  GrpcProcessCaseMetadata processCaseMetadata = 1;
+  GrpcPipelinePartInfo pipelinePartInfo = 2;
+  repeated GrpcContextValueWithKeyName contextValues = 3;
+}
+
+message GrpcProcessCaseMetadata {
   string processName = 1;
   string caseName = 2;
-  GrpcPipelinePartInfo pipelinePartInfo = 3;
-  repeated GrpcContextValueWithKeyName contextValues = 4;
+  repeated GrpcStringKeyValue metadata = 3;
 }
 
 message GrpcCurrentCasesResponse {
@@ -30,9 +35,8 @@ message GrpcCurrentCasesResponse {
 }
 
 message GrpcCase {
-  string processName = 1;
-  string caseName = 2;
-  repeated GrpcPipelinePartContextValues contextValues = 3;
+  GrpcProcessCaseMetadata processCaseMetadata = 1;
+  repeated GrpcPipelinePartContextValues contextValues = 2;
 }
 
 message GrpcPipelinePartContextValues {

@@ -8,7 +8,7 @@ use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
-use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME};
+use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
@@ -168,6 +168,13 @@ impl KafkaConsumerCreationDto {
     }
 }
 
+struct LogUpdateResult {
+    pub process_name: String,
+    pub case_name: String,
+    pub new_log: XesEventLogImpl,
+    pub unstructured_metadata: Vec<(String, String)>
+}
+
 impl KafkaService {
     fn create_kafka_creation_dto(&self, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> KafkaConsumerCreationDto {
         KafkaConsumerCreationDto::new(
@@ -296,15 +303,16 @@ impl KafkaService {
             dto.events_handler.clone(),
         );
 
-        let (process_name, case_name, xes_log) = match Self::update_log(dto.names_to_logs.clone(), trace) {
-            Ok(pair) => (pair.0, pair.1, pair.2),
+        let update_result = match Self::update_log(dto.names_to_logs.clone(), trace) {
+            Ok(update_result) => update_result,
             Err(_) => return (),
         };
 
         let execution_result = context.execute_grpc_pipeline(move |context| {
-            context.put_concrete(EVENT_LOG_KEY.key(), xes_log);
-            context.put_concrete(CASE_NAME.key(), case_name);
-            context.put_concrete(PROCESS_NAME.key(), process_name);
+            context.put_concrete(EVENT_LOG_KEY.key(), update_result.new_log);
+            context.put_concrete(PROCESS_NAME.key(), update_result.process_name);
+            context.put_concrete(CASE_NAME.key(), update_result.case_name);
+            context.put_concrete(UNSTRUCTURED_METADATA.key(), update_result.unstructured_metadata);
         });
 
         if let Err(err) = execution_result {
@@ -316,7 +324,7 @@ impl KafkaService {
     fn update_log(
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         trace: BxesKafkaTrace,
-    ) -> Result<(String, String, XesEventLogImpl), XesFromBxesKafkaTraceCreatingError> {
+    ) -> Result<LogUpdateResult, XesFromBxesKafkaTraceCreatingError> {
         let metadata = trace.metadata();
         let mut names_to_logs = names_to_logs.lock();
         let names_to_logs = match names_to_logs.as_mut() {
@@ -352,7 +360,24 @@ impl KafkaService {
                 let xes_trace = Rc::new(RefCell::new(xes_trace));
                 existing_log.push(xes_trace);
 
-                Ok((process_name, case_name.to_owned(), existing_log.clone()))
+                let result = LogUpdateResult {
+                    process_name,
+                    case_name: case_name.to_owned(),
+                    new_log: existing_log.clone(),
+                    unstructured_metadata: metadata.iter().map(|pair| {
+                        if pair.0 == KAFKA_CASE_NAME || pair.0 == KAFKA_PROCESS_NAME {
+                            None
+                        } else {
+                            if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
+                                Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
+                            } else {
+                                None
+                            }
+                        }
+                    }).filter(|kv| kv.is_some()).map(|kv| kv.unwrap()).collect()
+                };
+
+                Ok(result)
             } else {
                 Err(XesFromBxesKafkaTraceCreatingError::CaseNameNotString)
             }

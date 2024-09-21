@@ -70,7 +70,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
     {
       var caseModel = new Case
       {
-        Name = @case.CaseName,
+        Name = @case.ProcessCaseMetadata.CaseName,
         CreatedAt = DateTime.Now,
       };
       
@@ -86,7 +86,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
         })
         .ToDictionary();
 
-      anyUpdates |= GetOrCreateProcessData(@case.ProcessName, out var processData);
+      anyUpdates |= GetOrCreateProcessData(@case.ProcessCaseMetadata.ProcessName, out var processData);
       processData.ProcessCases[caseModel.Name] = new CaseData
       {
         Case = caseModel,
@@ -144,8 +144,8 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
 
   private IEnumerable<ProcessUpdate> ProcessCaseUpdate(GrpcKafkaUpdate delta)
   {
-    var anyUpdates = GetOrCreateProcessData(delta.ProcessName, out var processData);
-    anyUpdates |= GetOrCreateCaseData(processData, delta.CaseName, out _);
+    var anyUpdates = GetOrCreateProcessData(delta.ProcessCaseMetadata.ProcessName, out var processData);
+    anyUpdates |= GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName, out _);
 
     if (anyUpdates)
     {
@@ -157,8 +157,8 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
 
     yield return new ProcessContextValuesUpdate
     {
-      CaseName = delta.CaseName,
-      ProcessName = delta.ProcessName
+      CaseName = delta.ProcessCaseMetadata.CaseName,
+      ProcessName = delta.ProcessCaseMetadata.ProcessName
     };
   }
 }

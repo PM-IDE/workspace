@@ -15,15 +15,21 @@ public interface IPipelinePartsUpdatesRepository
 
 public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesRepository> logger) : IPipelinePartsUpdatesRepository
 {
+  private class PipelinePartResult
+  {
+    public required string PipelinePartName { get; init; }
+    public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
+  }
+  
   private class CaseData
   {
-    public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
-    public required string PipelinePartName { get; init; }
+    public required Dictionary<Guid, PipelinePartResult> PipelinePartsResults { get; init; }
+    public required List<KeyValuePair<string, string>> Metadata { get; init; }
   }
 
 
   private readonly SemaphoreSlim myLock = new(1);
-  private readonly Dictionary<string, Dictionary<string, Dictionary<Guid, CaseData>>> myProcesses = [];
+  private readonly Dictionary<string, Dictionary<string, CaseData>> myProcesses = [];
   private readonly ConcurrentDictionary<Guid, Channel<GrpcKafkaUpdate>> myChannels = [];
 
 
@@ -92,35 +98,40 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       });
 
       logger.LogInformation("Processing update: {Update}", update.ToString());
-      if (!myProcesses.TryGetValue(update.ProcessName, out var cases))
+      if (!myProcesses.TryGetValue(update.ProcessCaseMetadata.ProcessName, out var cases))
       {
         logger.LogInformation("Creating new process data for update");
-        cases = new Dictionary<string, Dictionary<Guid, CaseData>>();
-        myProcesses[update.ProcessName] = cases;
+        cases = new Dictionary<string, CaseData>();
+        myProcesses[update.ProcessCaseMetadata.ProcessName] = cases;
       }
 
-      if (!cases.TryGetValue(update.CaseName, out var pipelinePartContextValues))
+      if (!cases.TryGetValue(update.ProcessCaseMetadata.CaseName, out var caseData))
       {
         logger.LogInformation("Creating new case data for update");
-        pipelinePartContextValues = new Dictionary<Guid, CaseData>();
-        cases[update.CaseName] = pipelinePartContextValues;
+        caseData = new CaseData
+        {
+          Metadata = update.ProcessCaseMetadata.Metadata.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value)).ToList(),
+          PipelinePartsResults = []
+        };
+
+        cases[update.ProcessCaseMetadata.CaseName] = caseData;
       }
 
       var guid = Guid.Parse(update.PipelinePartInfo.Id.Guid);
 
-      if (!pipelinePartContextValues.TryGetValue(guid, out var caseData))
+      if (!caseData.PipelinePartsResults.TryGetValue(guid, out var contextValues))
       {
         logger.LogInformation("Creating new cases context values");
-        caseData = new CaseData
+        contextValues = new PipelinePartResult
         {
           ContextValues = [],
           PipelinePartName = update.PipelinePartInfo.Name
         };
 
-        pipelinePartContextValues[guid] = caseData;
+        caseData.PipelinePartsResults[guid] = contextValues;
       }
 
-      caseData.ContextValues.AddRange(update.ContextValues);
+      contextValues.ContextValues.AddRange(update.ContextValues);
 
       foreach (var (id, chanel) in myChannels)
       {
@@ -137,15 +148,26 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
     var response = new GrpcCurrentCasesResponse();
     foreach (var (processName, cases) in myProcesses)
     {
-      foreach (var (caseName, contextValues) in cases)
+      foreach (var (caseName, caseData) in cases)
       {
         response.Cases.Add(new GrpcCase
         {
-          ProcessName = processName, 
-          CaseName = caseName,
+          ProcessCaseMetadata = new GrpcProcessCaseMetadata
+          {
+            ProcessName = processName,
+            CaseName = caseName,
+            Metadata =
+            {
+              caseData.Metadata.Select(pair => new GrpcStringKeyValue
+              {
+                Key = pair.Key,
+                Value = pair.Value
+              })
+            }
+          },
           ContextValues =
           {
-            contextValues.Select(x => new GrpcPipelinePartContextValues
+            caseData.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
             {
               Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
               ContextValues = { x.Value.ContextValues },
