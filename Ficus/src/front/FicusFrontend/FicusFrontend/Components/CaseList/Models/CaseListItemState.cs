@@ -1,6 +1,6 @@
 ﻿using FicusFrontend.Services.Cases;
 
-namespace FicusFrontend.Layout.CaseList.Models;
+namespace FicusFrontend.Components.CaseList.Models;
 
 public enum CaseListItemState
 {
