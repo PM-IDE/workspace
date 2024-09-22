@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -45,40 +46,8 @@ impl GetContextValuePipelinePart {
                     before_part.execute(context, infra)?;
                 }
 
-                let mut key_values = vec![];
-                for key in context_keys {
-                    match context.any(key.key()) {
-                        Some(context_value) => {
-                            key_values.push((key, context_value));
-                        }
-                        None => {
-                            return Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(
-                                key.key().name().clone(),
-                            )))
-                        }
-                    }
-                }
-
-                let case_name = match context.concrete(CASE_NAME.key()) {
-                    None => "CASE_NAME_UNDEFINED".to_string(),
-                    Some(case_name) => case_name.to_string(),
-                };
-
-                let process_name = match context.concrete(PROCESS_NAME.key()) {
-                    None => "PROCESS_NAME_UNDEFINED".to_string(),
-                    Some(process_name) => process_name.to_string(),
-                };
-
-                let metadata = match context.concrete(UNSTRUCTURED_METADATA.key()) {
-                    None => vec![],
-                    Some(metadata) => metadata.clone()
-                };
-
-                let process_case_metadata = ProcessCaseMetadata {
-                    process_name,
-                    case_name,
-                    metadata
-                };
+                let key_values = Self::find_context_values_for(&context_keys, context)?;
+                let process_case_metadata = Self::create_process_case_metadata(context);
 
                 sender.handle(PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
                     process_case_metadata,
@@ -90,6 +59,50 @@ impl GetContextValuePipelinePart {
                 Ok(())
             }),
         ))
+    }
+
+    fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
+        let case_name = match context.concrete(CASE_NAME.key()) {
+            None => "CASE_NAME_UNDEFINED".to_string(),
+            Some(case_name) => case_name.to_string(),
+        };
+
+        let process_name = match context.concrete(PROCESS_NAME.key()) {
+            None => "PROCESS_NAME_UNDEFINED".to_string(),
+            Some(process_name) => process_name.to_string(),
+        };
+
+        let metadata = match context.concrete(UNSTRUCTURED_METADATA.key()) {
+            None => vec![],
+            Some(metadata) => metadata.clone()
+        };
+
+        ProcessCaseMetadata {
+            process_name,
+            case_name,
+            metadata
+        }
+    }
+
+    fn find_context_values_for<'a>(
+        keys: &Vec<&'a dyn ContextKey>,
+        context: &'a PipelineContext
+    ) -> Result<Vec<(&'a dyn ContextKey, &'a dyn Any)>, PipelinePartExecutionError> {
+        let mut key_values = vec![];
+        for key in keys {
+            match context.any(key.key()) {
+                Some(context_value) => {
+                    key_values.push((*key, context_value));
+                }
+                None => {
+                    return Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(
+                        key.key().name().clone(),
+                    )))
+                }
+            }
+        }
+
+        Ok(key_values)
     }
 }
 
