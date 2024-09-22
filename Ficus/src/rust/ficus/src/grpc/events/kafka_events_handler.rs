@@ -1,5 +1,7 @@
 use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
-use crate::ficus_proto::{GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue};
+use crate::ficus_proto::{
+    GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
+};
 use crate::grpc::events::utils::create_grpc_context_values;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::context::LogMessageHandler;
@@ -11,7 +13,7 @@ use uuid::Uuid;
 
 pub struct PipelineEventsProducer {
     topic_name: String,
-    producer: BaseProducer
+    producer: BaseProducer,
 }
 
 impl PipelineEventsProducer {
@@ -24,12 +26,12 @@ impl PipelineEventsProducer {
 
         let producer = match config.create() {
             Ok(producer) => producer,
-            Err(err) => return Err(err)
+            Err(err) => return Err(err),
         };
 
         Ok(Self {
             topic_name: connection_metadata.topic_name.to_owned(),
-            producer
+            producer,
         })
     }
 
@@ -42,7 +44,7 @@ impl PipelineEventsProducer {
 
         match self.producer.send(record) {
             Ok(_) => Ok(()),
-            Err(err) => Err(err.0)
+            Err(err) => Err(err.0),
         }
     }
 }
@@ -73,7 +75,7 @@ impl PipelineEventsHandler for KafkaEventsHandler {
                 };
 
                 self.console_logs_handler.handle(message.as_str()).expect("Should log message");
-            },
+            }
             PipelineEvent::LogMessage(_) => {}
             PipelineEvent::FinalResult(_) => {}
         };
@@ -90,7 +92,7 @@ impl GetContextValuesEvent<'_> {
             process_case_metadata: Some(self.process_case_metadata.to_grpc_process_case_metadata()),
             pipeline_part_info: Some(GrpcPipelinePartInfo {
                 id: Some(GrpcGuid {
-                    guid: self.uuid.to_string()
+                    guid: self.uuid.to_string(),
                 }),
                 name: self.pipeline_part_name,
             }),
@@ -104,10 +106,14 @@ impl ProcessCaseMetadata {
         GrpcProcessCaseMetadata {
             case_name: self.case_name,
             process_name: self.process_name,
-            metadata: self.metadata.into_iter().map(|pair| GrpcStringKeyValue {
-                key: pair.0,
-                value: pair.1,
-            }).collect(),
+            metadata: self
+                .metadata
+                .into_iter()
+                .map(|pair| GrpcStringKeyValue {
+                    key: pair.0,
+                    value: pair.1,
+                })
+                .collect(),
         }
     }
 }

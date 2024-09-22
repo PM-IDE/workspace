@@ -1,3 +1,5 @@
+use super::events::events_handler::PipelineEventsHandler;
+use crate::features::discovery::alpha::alpha_sharp::discover_petri_net_alpha_sharp;
 use crate::ficus_proto::grpc_pipeline_part_base::Part;
 use crate::ficus_proto::{GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart};
 use crate::grpc::converters::put_into_user_data;
@@ -12,8 +14,6 @@ use crate::utils::user_data::user_data::UserDataImpl;
 use std::str::FromStr;
 use std::sync::Arc;
 use uuid::Uuid;
-use crate::features::discovery::alpha::alpha_sharp::discover_petri_net_alpha_sharp;
-use super::events::events_handler::PipelineEventsHandler;
 
 pub(super) struct ServicePipelineExecutionContext<'a> {
     grpc_pipeline: &'a GrpcPipeline,
@@ -126,7 +126,13 @@ impl<'a> ServicePipelineExecutionContext<'a> {
                     match self.find_default_part(grpc_default_part) {
                         Some(found_part) => {
                             let key_names = part.keys.iter().map(|x| x.name.to_owned()).collect();
-                            pipeline.push(Self::create_get_context_part(key_names, uuid, name, &self.sender(), Some(found_part)));
+                            pipeline.push(Self::create_get_context_part(
+                                key_names,
+                                uuid,
+                                name,
+                                &self.sender(),
+                                Some(found_part),
+                            ));
                         }
                         None => todo!(),
                     }

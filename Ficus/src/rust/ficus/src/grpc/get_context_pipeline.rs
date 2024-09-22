@@ -27,7 +27,12 @@ pub struct GetContextValuePipelinePart {
 
 impl GetContextValuePipelinePart {
     pub fn new(keys: Vec<String>, uuid: Uuid, pipeline_part_name: String, handler: GetContextHandler) -> Self {
-        Self { keys, handler, uuid, pipeline_part_name }
+        Self {
+            keys,
+            handler,
+            uuid,
+            pipeline_part_name,
+        }
     }
 
     pub fn create_context_pipeline_part(
@@ -53,7 +58,7 @@ impl GetContextValuePipelinePart {
                     process_case_metadata,
                     pipeline_part_name,
                     uuid,
-                    key_values
+                    key_values,
                 }));
 
                 Ok(())
@@ -74,19 +79,19 @@ impl GetContextValuePipelinePart {
 
         let metadata = match context.concrete(UNSTRUCTURED_METADATA.key()) {
             None => vec![],
-            Some(metadata) => metadata.clone()
+            Some(metadata) => metadata.clone(),
         };
 
         ProcessCaseMetadata {
             process_name,
             case_name,
-            metadata
+            metadata,
         }
     }
 
     fn find_context_values_for<'a>(
         keys: &Vec<&'a dyn ContextKey>,
-        context: &'a PipelineContext
+        context: &'a PipelineContext,
     ) -> Result<Vec<(&'a dyn ContextKey, &'a dyn Any)>, PipelinePartExecutionError> {
         let mut key_values = vec![];
         for key in keys {

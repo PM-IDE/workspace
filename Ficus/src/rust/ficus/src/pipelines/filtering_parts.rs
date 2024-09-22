@@ -6,8 +6,12 @@ use super::{
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
     pipelines::PipelinePartFactory,
 };
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::features::mutations::filtering::remain_events_in_event_log;
+use crate::pipelines::context::PipelineContext;
 use crate::pipelines::keys::context_keys::{EVENTS_COUNT_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
+use crate::utils::user_data::user_data::UserDataImpl;
 use crate::{
     event_log::core::{event_log::EventLog, trace::trace::Trace},
     features::mutations::{
@@ -15,10 +19,6 @@ use crate::{
         split::get_traces_groups_indices,
     },
 };
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::mutations::filtering::remain_events_in_event_log;
-use crate::pipelines::context::PipelineContext;
-use crate::utils::user_data::user_data::UserDataImpl;
 
 impl PipelineParts {
     pub(super) fn filter_log_by_event_name() -> (String, PipelinePartFactory) {
@@ -40,7 +40,7 @@ impl PipelineParts {
     fn filter_log_by_regex_internal(
         context: &mut PipelineContext,
         config: &UserDataImpl,
-        filtering_func: impl Fn(&mut XesEventLogImpl, &Regex)
+        filtering_func: impl Fn(&mut XesEventLogImpl, &Regex),
     ) -> Result<(), PipelinePartExecutionError> {
         let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
         let regex = Self::get_user_data(config, &REGEX_KEY)?;

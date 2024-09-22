@@ -19,7 +19,7 @@ pub struct GetContextValuesEvent<'a> {
 pub struct ProcessCaseMetadata {
     pub case_name: String,
     pub process_name: String,
-    pub metadata: Vec<(String, String)>
+    pub metadata: Vec<(String, String)>,
 }
 
 pub enum PipelineFinalResult {

@@ -3,7 +3,10 @@ use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_events, BxesToXesR
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::{grpc_kafka_result, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest};
+use crate::ficus_proto::{
+    grpc_kafka_result, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult,
+    GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest,
+};
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
@@ -60,14 +63,14 @@ impl GrpcKafkaService for KafkaService {
     ) -> Result<Response<GrpcKafkaResult>, Status> {
         let producer_metadata = match request.get_ref().producer_metadata.as_ref() {
             None => return Err(Status::invalid_argument("Producer metadata must be provided")),
-            Some(metadata) => metadata
+            Some(metadata) => metadata,
         };
 
         let producer = match PipelineEventsProducer::create(producer_metadata) {
             Ok(producer) => producer,
             Err(err) => {
                 let message = format!("Failed to create producer: {}", err.to_string());
-                return Err(Status::invalid_argument(message))
+                return Err(Status::invalid_argument(message));
             }
         };
 
@@ -172,7 +175,7 @@ struct LogUpdateResult {
     pub process_name: String,
     pub case_name: String,
     pub new_log: XesEventLogImpl,
-    pub unstructured_metadata: Vec<(String, String)>
+    pub unstructured_metadata: Vec<(String, String)>,
 }
 
 impl KafkaService {
@@ -228,7 +231,7 @@ impl KafkaService {
     fn create_consumer(request: &GrpcSubscribeForKafkaTopicRequest) -> Result<BxesKafkaConsumer, KafkaError> {
         let metadata = match request.kafka_connection_metadata.as_ref() {
             None => return Err(KafkaError::Subscription("Kafka connection metadata was not provided".to_string())),
-            Some(metadata) => metadata
+            Some(metadata) => metadata,
         };
 
         let mut config = ClientConfig::new();
@@ -364,17 +367,22 @@ impl KafkaService {
                     process_name,
                     case_name: case_name.to_owned(),
                     new_log: existing_log.clone(),
-                    unstructured_metadata: metadata.iter().map(|pair| {
-                        if pair.0 == KAFKA_CASE_NAME || pair.0 == KAFKA_PROCESS_NAME {
-                            None
-                        } else {
-                            if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
-                                Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
-                            } else {
+                    unstructured_metadata: metadata
+                        .iter()
+                        .map(|pair| {
+                            if pair.0 == KAFKA_CASE_NAME || pair.0 == KAFKA_PROCESS_NAME {
                                 None
+                            } else {
+                                if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
+                                    Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
+                                } else {
+                                    None
+                                }
                             }
-                        }
-                    }).filter(|kv| kv.is_some()).map(|kv| kv.unwrap()).collect()
+                        })
+                        .filter(|kv| kv.is_some())
+                        .map(|kv| kv.unwrap())
+                        .collect(),
                 };
 
                 Ok(result)
