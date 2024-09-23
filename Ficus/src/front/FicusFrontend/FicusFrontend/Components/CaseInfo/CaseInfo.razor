@@ -73,7 +73,8 @@
         return contextValue.ContextValueCase switch
         {
             GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo" />,
-            _ => @<RenderNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()" />
+            GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer />,
+            _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()" />
         };
     }
 }

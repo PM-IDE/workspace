@@ -27,7 +27,8 @@ kafka_producer_metadata = KafkaPipelineMetadata(
 ficus_backend = os.getenv('FICUS_BACKEND')
 
 KafkaPipeline(
-    PrintEventLogInfo()
+    PrintEventLogInfo(),
+    TracesDiversityDiagramCanvas(),
 ).execute(kafka_consumer_metadata, kafka_producer_metadata, {
     ficus_backend_addr_key: ficus_backend
 })

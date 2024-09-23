@@ -1,0 +1,11 @@
+﻿@inject IJSRuntime Js
+
+<h3>ColorsEventLogRenderer</h3>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        await Js.InvokeVoidAsync("alertFunction", "JS interop");
+    }
+}
