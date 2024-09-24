@@ -14,36 +14,30 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    await base.OnAfterRenderAsync(firstRender);
     var context = await myCanvas.CreateCanvas2DAsync();
 
-    try
+    var y = 0;
+    const int Width = 10;
+    const int Height = 10;
+
+    foreach (var trace in Log.Traces)
     {
       await context.BeginBatchAsync();
-      var y = 0;
-      const int Width = 10;
-      const int Height = 10;
 
-      foreach (var trace in Log.Traces)
+      var x = 0;
+      foreach (var rect in trace.EventColors)
       {
-        var x = 0;
-        foreach (var rect in trace.EventColors)
-        {
-          var color = Log.Mapping[(int)rect.ColorIndex].Color;
-          var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
+        var color = Log.Mapping[(int)rect.ColorIndex].Color;
+        var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
 
-          await context.SetFillStyleAsync(rgb);
-          await context.FillRectAsync(x, y, Width, Height);
-          x += Width;
-        }
-
-        y += Height;
+        await context.SetFillStyleAsync(rgb);
+        await context.FillRectAsync(x, y, Width, Height);
+        x += Width;
       }
-    }
-    finally
-    {
+
+      y += Height;
+
       await context.EndBatchAsync();
     }
   }
-
 }
