@@ -3,47 +3,47 @@
 @using Blazor.Extensions.Canvas
 @using BlazorBootstrap
 @using Ficus
-
 @inject IJSRuntime Js
 
-<BECanvas Width="300" Height="400" @ref="myCanvas" ></BECanvas>
+<BECanvas Width="300" Height="400" @ref="myCanvas"></BECanvas>
 
 @code {
-    private BECanvasComponent myCanvas;
+  private BECanvasComponent myCanvas;
 
-    [Parameter] public required GrpcColorsEventLog Log { get; init; }
+  [Parameter] public required GrpcColorsEventLog Log { get; init; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    await base.OnAfterRenderAsync(firstRender);
+    var context = await myCanvas.CreateCanvas2DAsync();
+
+    try
     {
-        await base.OnAfterRenderAsync(firstRender);
-        var context = await myCanvas.CreateCanvas2DAsync();
+      await context.BeginBatchAsync();
+      var y = 0;
+      const int Width = 10;
+      const int Height = 10;
 
-        try
+      foreach (var trace in Log.Traces)
+      {
+        var x = 0;
+        foreach (var rect in trace.EventColors)
         {
-            await context.BeginBatchAsync();
-            var y = 0;
-            const int Width = 10;
-            const int Height = 10;
+          var color = Log.Mapping[(int)rect.ColorIndex].Color;
+          var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
 
-            foreach (var trace in Log.Traces)
-            {
-                var x = 0;
-                foreach (var rect in trace.EventColors)
-                {
-                    var color = Log.Mapping[(int)rect.ColorIndex].Color;
-                    var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
-
-                    await context.SetFillStyleAsync(rgb);
-                    await context.FillRectAsync(x, y, Width, Height);
-                    x += Width;
-                }
-
-                y += Height;
-            }
+          await context.SetFillStyleAsync(rgb);
+          await context.FillRectAsync(x, y, Width, Height);
+          x += Width;
         }
-        finally
-        {
-            await context.EndBatchAsync();
-        }
+
+        y += Height;
+      }
     }
+    finally
+    {
+      await context.EndBatchAsync();
+    }
+  }
+
 }

@@ -1,31 +1,31 @@
-﻿@using FicusFrontend.Services.Cases
+﻿@using FicusFrontend.Components.CaseInfo
 @using FicusFrontend.Components.CaseList
-@using FicusFrontend.Components.CaseInfo
+@using FicusFrontend.Services.Cases
 @inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <CasesList CaseSelected="HandleNewCaseSelected"/>
-    </div>
+  <div class="sidebar">
+    <CasesList CaseSelected="HandleNewCaseSelected"/>
+  </div>
 
-    <main>
-        <article class="content px-4">
-            <CaseInfo ProcessData="@mySelectedProcessData" Case="@mySelectedCase"/>
-        </article>
-    </main>
+  <main>
+    <article class="content px-4">
+      <CaseInfo ProcessData="@mySelectedProcessData" Case="@mySelectedCase"/>
+    </article>
+  </main>
 </div>
 
 
 @code
 {
-    private Case? mySelectedCase;
-    private ProcessData? mySelectedProcessData;
+  private Case? mySelectedCase;
+  private ProcessData? mySelectedProcessData;
 
 
-    private void HandleNewCaseSelected(ProcessData processData, Case selectedCase)
-    {
-        mySelectedProcessData = processData;
-        mySelectedCase = selectedCase;
-        StateHasChanged();
-    }
+  private void HandleNewCaseSelected(ProcessData processData, Case selectedCase)
+  {
+    mySelectedProcessData = processData;
+    mySelectedCase = selectedCase;
+    StateHasChanged();
+  }
 }

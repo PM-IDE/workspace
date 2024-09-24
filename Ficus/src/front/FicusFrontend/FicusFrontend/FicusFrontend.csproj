@@ -8,24 +8,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Blazor.Bootstrap" Version="3.0.0" />
-        <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
-        <PackageReference Include="Grpc.Net.Client" Version="2.57.0" />
-        <PackageReference Include="Grpc.Net.Client.Web" Version="2.57.0" />
-        <PackageReference Include="JetBrains.Lifetimes" Version="2024.3.0" />
-        <PackageReference Include="JetBrains.RdFramework" Version="2024.3.0" />
+        <PackageReference Include="Blazor.Bootstrap" Version="3.0.0"/>
+        <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1"/>
+        <PackageReference Include="Grpc.Net.Client" Version="2.57.0"/>
+        <PackageReference Include="Grpc.Net.Client.Web" Version="2.57.0"/>
+        <PackageReference Include="JetBrains.Lifetimes" Version="2024.3.0"/>
+        <PackageReference Include="JetBrains.RdFramework" Version="2024.3.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all"/>
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="../../../../protos/*.proto" ProtoRoot="../../../../protos" />
+        <Protobuf Include="../../../../protos/*.proto" ProtoRoot="../../../../protos"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.Core" Version="2.46.3" />
-        <PackageReference Include="Google.Protobuf" Version="3.23.1" />
+        <PackageReference Include="Grpc.Core" Version="2.46.3"/>
+        <PackageReference Include="Google.Protobuf" Version="3.23.1"/>
         <PackageReference Include="Grpc.Tools" Version="2.57.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -33,15 +33,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\sample-data\weather.json" />
-      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+        <_ContentIncludedByDefault Remove="wwwroot\sample-data\weather.json"/>
+        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css"/>
+        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map"/>
     </ItemGroup>
 
 </Project>

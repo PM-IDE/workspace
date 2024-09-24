@@ -1,7 +1,7 @@
-﻿@using FicusFrontend.Services.Cases
-@using BlazorBootstrap
+﻿@using BlazorBootstrap
 @using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues
+@using FicusFrontend.Services.Cases
 @using JetBrains.Lifetimes
 @inherits ComponentBase
 
@@ -9,84 +9,84 @@
 
 
 @{
-    var title = (Case, ProcessData) switch
-    {
-        ({ }, { }) => ProcessData.ProcessName + " " + Case.Name,
-        _ => "The case was not yet selected."
-    };
+  var title = (Case, ProcessData) switch
+  {
+    (not null, not null) => ProcessData.ProcessName + " " + Case.Name,
+    _ => "The case was not yet selected."
+  };
 }
 
 <PageTitle>@title</PageTitle>
 
 <div class="case-info-header">
-    @title
+  @title
 </div>
 
 <div class="pipeline-parts-context-values-accordion">
-    <Accordion AlwaysOpen="true" Flush="false">
-        @foreach (var result in myPipelinePartsExectuionResults)
-        {
-            <AccordionItem Title="@result.Value.PipelinePartName">
-                <Content>
-                    @foreach (var contextValue in result.Value.ContextValues)
-                    {
-                        <div>
-                            @FindRendererFor(contextValue.Value)
-                        </div>
-                    }
-                </Content>
-            </AccordionItem>
-        }
-    </Accordion>
+  <Accordion AlwaysOpen="true" Flush="false">
+    @foreach (var result in myPipelinePartsExectuionResults)
+    {
+      <AccordionItem Title="@result.Value.PipelinePartName">
+        <Content>
+          @foreach (var contextValue in result.Value.ContextValues)
+          {
+            <div>
+              @FindRendererFor(contextValue.Value)
+            </div>
+          }
+        </Content>
+      </AccordionItem>
+    }
+  </Accordion>
 </div>
 
 @code
 {
-    private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExectuionResults = [];
-    private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
+  private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExectuionResults = [];
+  private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
-    private Case? myCase;
-    private ProcessData? myProcessData;
-
-
-    [Parameter] public ProcessData? ProcessData { get; set; }
-    [Parameter] public Case? Case { get; set; }
+  private Case? myCase;
+  private ProcessData? myProcessData;
 
 
-    protected override void OnParametersSet()
+  [Parameter] public ProcessData? ProcessData { get; set; }
+  [Parameter] public Case? Case { get; set; }
+
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+
+    if (Case is null || ProcessData is null) return;
+    if (Case.Name == myCase?.Name && ProcessData.ProcessName == myProcessData?.ProcessName) return;
+
+    var lifetime = myLifetimes.Next();
+
+    myCase = Case;
+    myProcessData = ProcessData;
+
+    var values = ProcessService.CreateCaseValuesObservable(ProcessData, Case);
+    myPipelinePartsExectuionResults.Clear();
+    myPipelinePartsExectuionResults.AddRange(values);
+
+    StateHasChanged();
+
+    values.Change.Advise(lifetime, _ =>
     {
-        base.OnParametersSet();
+      //todo: rewrite
+      myPipelinePartsExectuionResults.Clear();
+      myPipelinePartsExectuionResults.AddRange(values);
+      StateHasChanged();
+    });
+  }
 
-        if (Case is null || ProcessData is null) return;
-        if (Case.Name == myCase?.Name && ProcessData.ProcessName == myProcessData?.ProcessName) return;
-
-        var lifetime = myLifetimes.Next();
-
-        myCase = Case;
-        myProcessData = ProcessData;
-
-        var values = ProcessService.CreateCaseValuesObservable(ProcessData, Case);
-        myPipelinePartsExectuionResults.Clear();
-        myPipelinePartsExectuionResults.AddRange(values);
-
-        StateHasChanged();
-
-        values.Change.Advise(lifetime, _ =>
-        {
-            //todo: rewrite
-            myPipelinePartsExectuionResults.Clear();
-            myPipelinePartsExectuionResults.AddRange(values);
-            StateHasChanged();
-        });
-    }
-
-    private RenderFragment FindRendererFor(GrpcContextValue contextValue)
-    { 
-        return contextValue.ContextValueCase switch
-        {
-            GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo" />,
-            GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer Log="contextValue.ColorsLog"/>,
-            _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()" />
-        };
-    }
+  private RenderFragment FindRendererFor(GrpcContextValue contextValue)
+  {
+    return contextValue.ContextValueCase switch
+    {
+      GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
+      GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer Log="contextValue.ColorsLog"/>,
+      _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
+    };
+  }
 }

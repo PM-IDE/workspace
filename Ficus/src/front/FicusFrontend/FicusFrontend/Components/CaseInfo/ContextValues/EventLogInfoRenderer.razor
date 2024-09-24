@@ -2,17 +2,17 @@
 @inherits ComponentBase
 
 <div>
-    Events count: @EventLogInfo.EventsCount
+  Events count: @EventLogInfo.EventsCount
 </div>
 
 <div>
-    Traces count: @EventLogInfo.TracesCount
+  Traces count: @EventLogInfo.TracesCount
 </div>
 
 <div>
-    Event classes count: @EventLogInfo.EventClassesCount
+  Event classes count: @EventLogInfo.EventClassesCount
 </div>
 
 @code {
-    [Parameter] public required GrpcEventLogInfo EventLogInfo { get; init; }
+  [Parameter] public required GrpcEventLogInfo EventLogInfo { get; init; }
 }

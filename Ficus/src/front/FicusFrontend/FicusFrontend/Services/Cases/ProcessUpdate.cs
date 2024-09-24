@@ -1,6 +1,4 @@
-﻿using Ficus;
-
-namespace FicusFrontend.Services.Cases;
+﻿namespace FicusFrontend.Services.Cases;
 
 public class Case
 {
@@ -8,8 +6,15 @@ public class Case
   public required DateTime CreatedAt { get; init; }
 
 
-  public override int GetHashCode() => Name.GetHashCode();
-  public override bool Equals(object? obj) => obj is Case { Name: var name } && name == Name;
+  public override int GetHashCode()
+  {
+    return Name.GetHashCode();
+  }
+
+  public override bool Equals(object? obj)
+  {
+    return obj is Case { Name: var name } && name == Name;
+  }
 }
 
 public abstract class ProcessUpdate;
