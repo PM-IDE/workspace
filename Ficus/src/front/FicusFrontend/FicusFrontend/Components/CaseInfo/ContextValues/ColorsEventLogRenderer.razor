@@ -5,20 +5,33 @@
 @using Ficus
 @inject IJSRuntime Js
 
-<BECanvas Width="300" Height="400" @ref="myCanvas"></BECanvas>
+<BECanvas Width="@myCanvasWidth" Height="@myCanvasHeight" @ref="myCanvas"></BECanvas>
 
 @code {
   private BECanvasComponent myCanvas;
 
+  private int myRectWidth = 5;
+  private int myRectHeight = 5;
+  private int myCanvasWidth = 300;
+  private int myCanvasHeight = 400;
+
+
   [Parameter] public required GrpcColorsEventLog Log { get; init; }
+
+
+  protected override void OnParametersSet()
+  {
+    myCanvasHeight = Log.Traces.Count * myRectHeight;
+    myCanvasWidth = Log.Traces.Select(t => t.EventColors.Count).Max() * myRectWidth;
+  }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
     var context = await myCanvas.CreateCanvas2DAsync();
 
+    await context.ClearRectAsync(0, 0, myCanvasWidth, myCanvasHeight);
+
     var y = 0;
-    const int Width = 10;
-    const int Height = 10;
 
     foreach (var trace in Log.Traces)
     {
@@ -31,11 +44,11 @@
         var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
 
         await context.SetFillStyleAsync(rgb);
-        await context.FillRectAsync(x, y, Width, Height);
-        x += Width;
+        await context.FillRectAsync(x, y, myRectWidth, myRectHeight);
+        x += myRectWidth;
       }
 
-      y += Height;
+      y += myRectHeight;
 
       await context.EndBatchAsync();
     }
