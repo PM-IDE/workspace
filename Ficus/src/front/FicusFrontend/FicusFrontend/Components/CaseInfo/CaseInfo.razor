@@ -1,8 +1,8 @@
 ﻿@using FicusFrontend.Services.Cases
-@using ObservableCollections
 @using BlazorBootstrap
 @using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues
+@using JetBrains.Lifetimes
 @inherits ComponentBase
 
 @inject IProcessesService ProcessService
@@ -43,6 +43,11 @@
 @code
 {
     private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExectuionResults = [];
+    private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
+
+    private Case? myCase;
+    private ProcessData? myProcessData;
+
 
     [Parameter] public ProcessData? ProcessData { get; set; }
     [Parameter] public Case? Case { get; set; }
@@ -53,19 +58,26 @@
         base.OnParametersSet();
 
         if (Case is null || ProcessData is null) return;
+        if (Case.Name == myCase?.Name && ProcessData.ProcessName == myProcessData?.ProcessName) return;
+
+        var lifetime = myLifetimes.Next();
+
+        myCase = Case;
+        myProcessData = ProcessData;
 
         var values = ProcessService.CreateCaseValuesObservable(ProcessData, Case);
         myPipelinePartsExectuionResults.Clear();
         myPipelinePartsExectuionResults.AddRange(values);
-        
+
         StateHasChanged();
 
-        values.CollectionChanged += (in NotifyCollectionChangedEventArgs<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> args) =>
+        values.Change.Advise(lifetime, _ =>
         {
+            //todo: rewrite
             myPipelinePartsExectuionResults.Clear();
             myPipelinePartsExectuionResults.AddRange(values);
             StateHasChanged();
-        };
+        });
     }
 
     private RenderFragment FindRendererFor(GrpcContextValue contextValue)

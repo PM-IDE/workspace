@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Ficus;
 using Google.Protobuf.WellKnownTypes;
-using ObservableCollections;
+using JetBrains.Collections.Viewable;
 
 namespace FicusFrontend.Services.Cases;
 
@@ -9,8 +9,7 @@ public interface IProcessesService
 {
   IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream(CancellationToken token);
 
-  IReadOnlyObservableDictionary<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(
-    ProcessData processData, Case selectedCase);
+  ViewableMap<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(ProcessData processData, Case selectedCase);
 }
 
 public class ProcessData
@@ -28,7 +27,7 @@ public class CaseData
   }
 
   public required Case Case { get; init; }
-  public required ObservableDictionary<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
+  public required ViewableMap<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
 }
 
 public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
@@ -37,7 +36,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
   private readonly Dictionary<string, ProcessData> myCurrentProcesses = [];
   
 
-  public IReadOnlyObservableDictionary<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(
+  public ViewableMap<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(
     ProcessData processData, Case selectedCase)
   {
     return myCurrentProcesses[processData.ProcessName].ProcessCases[selectedCase.Name].ContextValues;
@@ -90,7 +89,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
       processData.ProcessCases[caseModel.Name] = new CaseData
       {
         Case = caseModel,
-        ContextValues = new ObservableDictionary<Guid, CaseData.PipelinePartExecutionResult>(initialState)
+        ContextValues = new ViewableMap<Guid, CaseData.PipelinePartExecutionResult>(initialState)
       };
     }
 
