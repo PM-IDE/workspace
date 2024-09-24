@@ -131,6 +131,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         caseData.PipelinePartsResults[guid] = contextValues;
       }
 
+      contextValues.ContextValues.Clear();
       contextValues.ContextValues.AddRange(update.ContextValues);
 
       foreach (var (id, chanel) in myChannels)
