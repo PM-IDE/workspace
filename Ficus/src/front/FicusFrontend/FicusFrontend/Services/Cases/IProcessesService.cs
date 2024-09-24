@@ -145,7 +145,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
   private IEnumerable<ProcessUpdate> ProcessCaseUpdate(GrpcKafkaUpdate delta)
   {
     var anyUpdates = GetOrCreateProcessData(delta.ProcessCaseMetadata.ProcessName, out var processData);
-    anyUpdates |= GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName, out _);
+    anyUpdates |= GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName, out var caseData);
 
     if (anyUpdates)
     {
@@ -154,6 +154,13 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
         Processes = myCurrentProcesses.Values.ToList()
       };
     }
+
+    var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
+    caseData.ContextValues[partId] = new CaseData.PipelinePartExecutionResult
+    {
+      ContextValues = delta.ContextValues.ToList(),
+      PipelinePartName = delta.PipelinePartInfo.Name
+    };
 
     yield return new ProcessContextValuesUpdate
     {
