@@ -1,6 +1,7 @@
 ﻿@using System.Drawing
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D
 @using BlazorBootstrap
 @using Ficus
 @using JetBrains.Threading
@@ -50,6 +51,9 @@
   private BECanvasComponent myCanvas;
   private bool myFinishedCanvasDrawings = false;
 
+  private const double AxisDelta = 5;
+  private const double AxisWidth = 2;
+  
   private int myDefaultRectWidth = 5;
   private int myDefaultRectHeight = 5;
   private int myCanvasWidth = 300;
@@ -78,7 +82,7 @@
 
   private void RecalculateCanvasDimensions()
   {
-    myCanvasHeight = (int)(Log.Traces.Count * RectHeight);
+    myCanvasHeight = (int)(Log.Traces.Count * RectHeight + 2 * AxisDelta + AxisWidth);
     myCanvasWidth = (int)(Log.Traces.Select(t => t.EventColors.Count).Max() * RectWidth);
   }
 
@@ -100,30 +104,31 @@
       {
         await Task.Delay(500);
         var context = await myCanvas.CreateCanvas2DAsync();
-
         await context.ClearRectAsync(0, 0, myCanvasWidth, myCanvasHeight);
-
+        
         var y = 0d;
-
+        
         foreach (var trace in Log.Traces)
         {
           await context.BeginBatchAsync();
-
-          var x = 0d;
+        
+          var x = AxisDelta + AxisWidth + AxisDelta;
           foreach (var rect in trace.EventColors)
           {
             var color = Log.Mapping[(int)rect.ColorIndex].Color;
             var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
-
+        
             await context.SetFillStyleAsync(rgb);
             await context.FillRectAsync(x, y, RectWidth, RectHeight);
             x += RectWidth;
           }
-
+        
           y += RectHeight;
-
+        
           await context.EndBatchAsync();
         }
+
+        await DrawAxis(context);
 
         myFinishedCanvasDrawings = true;
         StateHasChanged();
@@ -132,7 +137,15 @@
       {
         Logger.LogError(ex, "Failed to render canvas");
       }
-    });
+    }); 
+  }
+
+  private async Task DrawAxis(Canvas2DContext context)
+  {
+    
+    await context.SetFillStyleAsync(Color.Black.ToHexaString());
+    await context.FillRectAsync(AxisDelta, 0, AxisWidth, myCanvasHeight - AxisDelta);
+    await context.FillRectAsync(AxisDelta, myCanvasHeight - AxisDelta - AxisWidth, myCanvasWidth, AxisWidth);
   }
 
   private void UpdateScale(ref double field, double value)
