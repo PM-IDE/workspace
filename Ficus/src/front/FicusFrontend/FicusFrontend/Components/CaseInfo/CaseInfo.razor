@@ -24,7 +24,7 @@
 
 <div class="pipeline-parts-context-values-accordion">
   <Accordion AlwaysOpen="true" Flush="false">
-    @foreach (var result in myPipelinePartsExectuionResults)
+    @foreach (var result in myPipelinePartsExecutionResults)
     {
       <AccordionItem Title="@result.Value.PipelinePartName">
         <Content>
@@ -42,7 +42,7 @@
 
 @code
 {
-  private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExectuionResults = [];
+  private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
   private Case? myCase;
@@ -66,16 +66,16 @@
     myProcessData = ProcessData;
 
     var values = ProcessService.CreateCaseValuesObservable(ProcessData, Case);
-    myPipelinePartsExectuionResults.Clear();
-    myPipelinePartsExectuionResults.AddRange(values);
+    myPipelinePartsExecutionResults.Clear();
+    myPipelinePartsExecutionResults.AddRange(values);
 
     StateHasChanged();
 
     values.Change.Advise(lifetime, _ =>
     {
       //todo: rewrite
-      myPipelinePartsExectuionResults.Clear();
-      myPipelinePartsExectuionResults.AddRange(values);
+      myPipelinePartsExecutionResults.Clear();
+      myPipelinePartsExecutionResults.AddRange(values);
       StateHasChanged();
     });
   }
@@ -85,7 +85,7 @@
     return contextValue.ContextValueCase switch
     {
       GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-      GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer Log="contextValue.ColorsLog"/>,
+      GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }

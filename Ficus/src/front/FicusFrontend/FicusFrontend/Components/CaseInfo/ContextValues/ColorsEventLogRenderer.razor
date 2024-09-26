@@ -4,16 +4,32 @@
 @using BlazorBootstrap
 @using Ficus
 @inject IJSRuntime Js
+@inject ILogger<ColorsEventLogRenderer> Logger
 
-<BECanvas Width="@myCanvasWidth" Height="@myCanvasHeight" @ref="myCanvas"></BECanvas>
+@if (!myFinishedCanvasDrawings)
+{
+  <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+}
+
+<div class="@CanvasContainerClass">
+  <BECanvas Width="@myCanvasWidth" Height="@myCanvasHeight" @ref="myCanvas"></BECanvas>
+</div>
 
 @code {
   private BECanvasComponent myCanvas;
+  private bool myFinishedCanvasDrawings = false;
 
   private int myRectWidth = 5;
   private int myRectHeight = 5;
   private int myCanvasWidth = 300;
   private int myCanvasHeight = 400;
+
+
+  private string CanvasContainerClass => "colors-log-canvas-container " + myFinishedCanvasDrawings switch
+  {
+    true => string.Empty,
+    false => "invisible-canvas"
+  };
 
 
   [Parameter] public required GrpcColorsEventLog Log { get; init; }
@@ -27,30 +43,46 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    var context = await myCanvas.CreateCanvas2DAsync();
+    if (!firstRender) return;
 
-    await context.ClearRectAsync(0, 0, myCanvasWidth, myCanvasHeight);
-
-    var y = 0;
-
-    foreach (var trace in Log.Traces)
+    Task.Run(async () =>
     {
-      await context.BeginBatchAsync();
-
-      var x = 0;
-      foreach (var rect in trace.EventColors)
+      try
       {
-        var color = Log.Mapping[(int)rect.ColorIndex].Color;
-        var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
+        await Task.Delay(500);
+        var context = await myCanvas.CreateCanvas2DAsync();
 
-        await context.SetFillStyleAsync(rgb);
-        await context.FillRectAsync(x, y, myRectWidth, myRectHeight);
-        x += myRectWidth;
+        await context.ClearRectAsync(0, 0, myCanvasWidth, myCanvasHeight);
+
+        var y = 0;
+
+        foreach (var trace in Log.Traces)
+        {
+          await context.BeginBatchAsync();
+
+          var x = 0;
+          foreach (var rect in trace.EventColors)
+          {
+            var color = Log.Mapping[(int)rect.ColorIndex].Color;
+            var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
+
+            await context.SetFillStyleAsync(rgb);
+            await context.FillRectAsync(x, y, myRectWidth, myRectHeight);
+            x += myRectWidth;
+          }
+
+          y += myRectHeight;
+
+          await context.EndBatchAsync();
+        }
+
+        myFinishedCanvasDrawings = true;
+        StateHasChanged();
       }
-
-      y += myRectHeight;
-
-      await context.EndBatchAsync();
-    }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex, "Failed to render canvas");
+      }
+    });
   }
 }
