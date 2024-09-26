@@ -3,8 +3,39 @@
 @using Blazor.Extensions.Canvas
 @using BlazorBootstrap
 @using Ficus
+@using JetBrains.Threading
+@using Radzen.Blazor
+
 @inject IJSRuntime Js
 @inject ILogger<ColorsEventLogRenderer> Logger
+
+<div>
+  Height Scale: @myHeightScale
+</div>
+<div>
+  <RadzenSlider Value="@myHeightScale" 
+                TValue="double" 
+                Max="100" 
+                Min="1" 
+                Step="1" 
+                Change="value => UpdateScale(ref myHeightScale, value)"></RadzenSlider>
+</div>
+
+<div>
+  Width Scale: @myWidthScale
+</div>
+<div>
+  <RadzenSlider Value="@myWidthScale" 
+                TValue="double" 
+                Max="1" 
+                Min="0" 
+                Step="0.01" 
+                Change="value => UpdateScale(ref myWidthScale, value)"></RadzenSlider>
+</div>
+
+<div>
+  <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
+</div>
 
 @if (!myFinishedCanvasDrawings)
 {
@@ -19,11 +50,16 @@
   private BECanvasComponent myCanvas;
   private bool myFinishedCanvasDrawings = false;
 
-  private int myRectWidth = 5;
-  private int myRectHeight = 5;
+  private int myDefaultRectWidth = 5;
+  private int myDefaultRectHeight = 5;
   private int myCanvasWidth = 300;
   private int myCanvasHeight = 400;
+  private double myWidthScale = 1;
+  private double myHeightScale = 1;
 
+
+  private double RectWidth => myDefaultRectWidth * myWidthScale;
+  private double RectHeight => myDefaultRectHeight * myHeightScale;
 
   private string CanvasContainerClass => "colors-log-canvas-container " + myFinishedCanvasDrawings switch
   {
@@ -37,15 +73,28 @@
 
   protected override void OnParametersSet()
   {
-    myCanvasHeight = Log.Traces.Count * myRectHeight;
-    myCanvasWidth = Log.Traces.Select(t => t.EventColors.Count).Max() * myRectWidth;
+    RecalculateCanvasDimensions();
   }
 
-  protected override async Task OnAfterRenderAsync(bool firstRender)
+  private void RecalculateCanvasDimensions()
   {
-    if (!firstRender) return;
+    myCanvasHeight = (int)(Log.Traces.Count * RectHeight);
+    myCanvasWidth = (int)(Log.Traces.Select(t => t.EventColors.Count).Max() * RectWidth);
+  }
 
-    Task.Run(async () =>
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (!firstRender) return Task.CompletedTask;
+
+    StartRedrawingCanvas().NoAwait();
+    
+    return Task.CompletedTask;
+  }
+
+  private Task StartRedrawingCanvas()
+  {
+    RecalculateCanvasDimensions();
+    return Task.Run(async () =>
     {
       try
       {
@@ -54,24 +103,24 @@
 
         await context.ClearRectAsync(0, 0, myCanvasWidth, myCanvasHeight);
 
-        var y = 0;
+        var y = 0d;
 
         foreach (var trace in Log.Traces)
         {
           await context.BeginBatchAsync();
 
-          var x = 0;
+          var x = 0d;
           foreach (var rect in trace.EventColors)
           {
             var color = Log.Mapping[(int)rect.ColorIndex].Color;
             var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
 
             await context.SetFillStyleAsync(rgb);
-            await context.FillRectAsync(x, y, myRectWidth, myRectHeight);
-            x += myRectWidth;
+            await context.FillRectAsync(x, y, RectWidth, RectHeight);
+            x += RectWidth;
           }
 
-          y += myRectHeight;
+          y += RectHeight;
 
           await context.EndBatchAsync();
         }
@@ -84,5 +133,18 @@
         Logger.LogError(ex, "Failed to render canvas");
       }
     });
+  }
+
+  private void UpdateScale(ref double field, double value)
+  {
+    field = value;
+    StateHasChanged();
+  }
+
+  private void RedrawCanvas(MouseEventArgs obj)
+  {
+    myFinishedCanvasDrawings = false;
+    StateHasChanged();
+    StartRedrawingCanvas().NoAwait();
   }
 }
