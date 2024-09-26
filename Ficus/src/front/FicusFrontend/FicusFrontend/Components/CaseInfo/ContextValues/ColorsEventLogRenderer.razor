@@ -60,6 +60,7 @@
   private int myCanvasHeight = 400;
   private double myWidthScale = 1;
   private double myHeightScale = 1;
+  private double myAxisTextHeight = 14;
 
 
   private double RectWidth => myDefaultRectWidth * myWidthScale;
@@ -82,7 +83,7 @@
 
   private void RecalculateCanvasDimensions()
   {
-    myCanvasHeight = (int)(Log.Traces.Count * RectHeight + 2 * AxisDelta + AxisWidth);
+    myCanvasHeight = (int)(Log.Traces.Count * RectHeight + 2 * AxisDelta + AxisWidth + 2 * myAxisTextHeight);
     myCanvasWidth = (int)(Log.Traces.Select(t => t.EventColors.Count).Max() * RectWidth);
   }
 
@@ -105,8 +106,8 @@
         await Task.Delay(500);
         var context = await myCanvas.CreateCanvas2DAsync();
         await context.ClearRectAsync(0, 0, myCanvasWidth, myCanvasHeight);
-        
-        var y = 0d;
+
+        var y = myAxisTextHeight;
         
         foreach (var trace in Log.Traces)
         {
@@ -142,10 +143,21 @@
 
   private async Task DrawAxis(Canvas2DContext context)
   {
-    
     await context.SetFillStyleAsync(Color.Black.ToHexaString());
-    await context.FillRectAsync(AxisDelta, 0, AxisWidth, myCanvasHeight - AxisDelta);
-    await context.FillRectAsync(AxisDelta, myCanvasHeight - AxisDelta - AxisWidth, myCanvasWidth, AxisWidth);
+    await context.FillRectAsync(AxisDelta, myAxisTextHeight, AxisWidth, myCanvasHeight - AxisDelta - 2 * myAxisTextHeight);
+
+    var horizontalAxisY = myCanvasHeight - AxisDelta - AxisWidth - myAxisTextHeight;
+    await context.FillRectAsync(AxisDelta, horizontalAxisY, myCanvasWidth, AxisWidth);
+    
+    await context.SetFontAsync("10px serif");
+
+    var tracesCountText = Log.Traces.Count.ToString();
+    await context.SetTextAlignAsync(TextAlign.Center);
+    await context.StrokeTextAsync(tracesCountText, AxisDelta, myAxisTextHeight);
+
+    var maxEventsInTraceCountText = Log.Traces.Select(t => t.EventColors.Count).Max().ToString();
+    var textMeasures = await context.MeasureTextAsync(maxEventsInTraceCountText);
+    await context.StrokeTextAsync(maxEventsInTraceCountText, myCanvasWidth - textMeasures.Width / 2, horizontalAxisY + AxisWidth + myAxisTextHeight);
   }
 
   private void UpdateScale(ref double field, double value)
