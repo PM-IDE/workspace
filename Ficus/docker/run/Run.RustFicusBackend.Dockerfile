@@ -1,4 +1,4 @@
-FROM rust:1.75.0 as build
+FROM --platform=linux/amd64 rust:1.75.0 as build
 
 RUN apt update -y && apt upgrade -y
 RUN apt-get update -y
