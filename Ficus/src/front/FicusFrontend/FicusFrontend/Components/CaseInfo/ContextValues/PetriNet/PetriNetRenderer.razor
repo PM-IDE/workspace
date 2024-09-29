@@ -1,0 +1,15 @@
+@inject IJSRuntime Js
+
+<h3>PetriNetRenderer</h3>
+
+<div class="d3-petri-net-container" id="@myD3ContainerId"></div>
+
+@code {
+  private readonly Guid myD3ContainerId = Guid.NewGuid();
+
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    await Js.InvokeVoidAsync("drawPetriNet", $"#{myD3ContainerId.ToString()}");
+  }
+}
