@@ -1,0 +1,40 @@
+@using System.Globalization
+@using Radzen.Blazor
+@typeparam TValue
+
+<div>
+  @Title: @CurrentValue
+</div>
+
+<div>
+  <RadzenSlider Value="@CurrentValue"
+                TValue="@TValue"
+                Max="@Max"
+                Min="@Min"
+                Step="@Step.ToString(CultureInfo.InvariantCulture)"
+                Change="UpdateScale" />
+</div>
+
+
+@code {
+  [Parameter] public TValue InitialValue { get; set; }
+  [Parameter] public string Title { get; set; }
+  [Parameter] public decimal Max { get; set; }
+  [Parameter] public decimal Min { get; set; }
+  [Parameter] public decimal Step { get; set; }
+
+
+  public TValue CurrentValue { get; private set; }
+
+
+  protected override void OnParametersSet()
+  {
+    CurrentValue = InitialValue;
+  }
+
+  private void UpdateScale(TValue value)
+  {
+    CurrentValue = value;
+  }
+
+}

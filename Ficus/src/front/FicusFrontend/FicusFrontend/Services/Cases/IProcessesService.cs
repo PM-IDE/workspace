@@ -9,7 +9,8 @@ public interface IProcessesService
 {
   IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream(CancellationToken token);
 
-  ViewableMap<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(ProcessData processData, Case selectedCase);
+  ViewableMap<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(ProcessData processData,
+    Case selectedCase);
 }
 
 public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
@@ -24,7 +25,8 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
     return myCurrentProcesses[processData.ProcessName].ProcessCases[selectedCase.Name].ContextValues;
   }
 
-  public async IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream([EnumeratorCancellation] CancellationToken token)
+  public async IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream(
+    [EnumeratorCancellation] CancellationToken token)
   {
     var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
 
