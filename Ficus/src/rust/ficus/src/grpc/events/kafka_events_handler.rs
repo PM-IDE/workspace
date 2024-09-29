@@ -1,4 +1,4 @@
-use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
+use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult, ProcessCaseMetadata};
 use crate::ficus_proto::{
     GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
 };
@@ -77,7 +77,13 @@ impl PipelineEventsHandler for KafkaEventsHandler {
                 self.console_logs_handler.handle(message.as_str()).expect("Should log message");
             }
             PipelineEvent::LogMessage(_) => {}
-            PipelineEvent::FinalResult(_) => {}
+            PipelineEvent::FinalResult(result) => match result {
+                PipelineFinalResult::Success(_) => {}
+                PipelineFinalResult::Error(err) => {
+                    let message = format!("Received error as final result: {}", err);
+                    self.console_logs_handler.handle(message.as_str()).expect("Should log message");
+                }
+            }
         };
     }
 

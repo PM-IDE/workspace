@@ -29,6 +29,8 @@ ficus_backend = os.getenv('FICUS_BACKEND')
 KafkaPipeline(
     PrintEventLogInfo(),
     TracesDiversityDiagramCanvas(),
+    DiscoverPetriNetHeuristic(),
+    ViewPetriNet()
 ).execute(kafka_consumer_metadata, kafka_producer_metadata, {
     ficus_backend_addr_key: ficus_backend
 })
