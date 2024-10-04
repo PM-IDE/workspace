@@ -88,7 +88,7 @@
     {
       GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
       GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
-      GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer />,
+      GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer PetriNet="contextValue.PetriNet"/>,
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }

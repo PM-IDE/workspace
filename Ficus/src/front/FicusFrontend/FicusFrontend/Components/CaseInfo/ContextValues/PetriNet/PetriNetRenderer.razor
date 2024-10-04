@@ -1,3 +1,4 @@
+@using Ficus
 @inject IJSRuntime Js
 
 <h3>PetriNetRenderer</h3>
@@ -8,8 +9,11 @@
   private readonly Guid myD3ContainerId = Guid.NewGuid();
 
 
+  [Parameter] public required GrpcPetriNet PetriNet { get; init; }
+
+
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    await Js.InvokeVoidAsync("drawPetriNet", $"#{myD3ContainerId.ToString()}");
+    await Js.InvokeVoidAsync("drawPetriNet", myD3ContainerId.ToString(), PetriNet);
   }
 }
