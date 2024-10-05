@@ -1,3 +1,6 @@
+import cytoscape from 'cytoscape';
+import klay from 'cytoscape-klay';
+
 window.drawPetriNet = function (id, net) {
   let element = document.getElementById(id);
   let elements = [];
@@ -5,7 +8,7 @@ window.drawPetriNet = function (id, net) {
   const placeType = "place";
   const transitionType = "transition";
   const arcType = "arc";
-  
+
   for (const place of net.places) {
     elements.push({
       data: {
@@ -14,7 +17,7 @@ window.drawPetriNet = function (id, net) {
       }
     });
   }
-  
+
   for (const transition of net.transitions) {
     elements.push({
       data: {
@@ -24,7 +27,7 @@ window.drawPetriNet = function (id, net) {
       }
     });
   }
-  
+
   for (const transition of net.transitions) {
     for (const arc of transition.incomingArcs) {
       elements.push({
@@ -36,7 +39,7 @@ window.drawPetriNet = function (id, net) {
         }
       });
     }
-    
+
     for (const arc of transition.outgoingArcs) {
       elements.push({
         data: {
@@ -48,7 +51,7 @@ window.drawPetriNet = function (id, net) {
       })
     }
   }
-  
+
   let nodeStyle = {
     selector: 'node',
     style: {
@@ -59,10 +62,11 @@ window.drawPetriNet = function (id, net) {
   let transitionNodeStyle = {
     selector: `node[type="${transitionType}"]`,
     style: {
+      'shape': 'rectangle',
       'label': 'data(name)'
     }
   }
-  
+
   let edgeStyle = {
     selector: 'edge',
     style: {
@@ -74,6 +78,8 @@ window.drawPetriNet = function (id, net) {
     }
   };
 
+  cytoscape.use(klay);
+
   let cy = cytoscape({
     container: element,
     elements: elements,
@@ -84,8 +90,7 @@ window.drawPetriNet = function (id, net) {
     ],
 
     layout: {
-      name: 'grid',
-      rows: 1
+      name: 'klay',
     }
   });
 }

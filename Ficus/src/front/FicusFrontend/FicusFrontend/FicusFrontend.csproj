@@ -40,9 +40,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <_ContentIncludedByDefault Remove="wwwroot\sample-data\weather.json"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map"/>
+      <_ContentIncludedByDefault Remove="wwwroot\js\index.bundle.js" />
     </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Command="npm install" WorkingDirectory="Npm" />
+        <Exec Command="npm run build" WorkingDirectory="Npm" />
+    </Target>
 
 </Project>
