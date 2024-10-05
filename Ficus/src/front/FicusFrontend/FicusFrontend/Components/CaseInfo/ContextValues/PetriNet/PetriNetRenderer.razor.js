@@ -2,9 +2,14 @@ window.drawPetriNet = function (id, net) {
   let element = document.getElementById(id);
   let elements = [];
 
+  const placeType = "place";
+  const transitionType = "transition";
+  const arcType = "arc";
+  
   for (const place of net.places) {
     elements.push({
       data: {
+        type: placeType,
         id: place.id.toString()
       }
     });
@@ -13,7 +18,9 @@ window.drawPetriNet = function (id, net) {
   for (const transition of net.transitions) {
     elements.push({
       data: {
-        id: transition.id.toString()
+        type: transitionType,
+        id: transition.id.toString(),
+        name: transition.data
       }
     });
   }
@@ -22,6 +29,7 @@ window.drawPetriNet = function (id, net) {
     for (const arc of transition.incomingArcs) {
       elements.push({
         data: {
+          type: arcType,
           id: arc.placeId.toString() + "::" + transition.id.toString(),
           source: arc.placeId.toString(),
           target: transition.id.toString(),
@@ -32,6 +40,7 @@ window.drawPetriNet = function (id, net) {
     for (const arc of transition.outgoingArcs) {
       elements.push({
         data: {
+          type: arcType,
           id: transition.id.toString() + "::" + arc.placeId.toString(),
           target: arc.placeId.toString(),
           source: transition.id.toString(),
@@ -43,10 +52,16 @@ window.drawPetriNet = function (id, net) {
   let nodeStyle = {
     selector: 'node',
     style: {
-      'background-color': '#666',
-      'label': 'data(id)'
+      'background-color': '#666'
     }
   };
+
+  let transitionNodeStyle = {
+    selector: `node[type="${transitionType}"]`,
+    style: {
+      'label': 'data(name)'
+    }
+  }
   
   let edgeStyle = {
     selector: 'edge',
@@ -64,6 +79,7 @@ window.drawPetriNet = function (id, net) {
     elements: elements,
     style: [
       nodeStyle,
+      transitionNodeStyle,
       edgeStyle
     ],
 
