@@ -32,11 +32,10 @@ message GrpcContextValue {
         GrpcPetriNet petriNet = 14;
         GrpcGraph graph = 15;
         float float = 16;
-        GrpcCountAnnotation count_annotation = 17;
-        GrpcFrequenciesAnnotation frequency_annotation = 18;
-        GrpcDataset dataset = 19;
-        GrpcLabeledDataset labeled_dataset = 20;
-        GrpcBytes bytes = 21;
+        GrpcAnnotation annotation = 17;
+        GrpcDataset dataset = 18;
+        GrpcLabeledDataset labeled_dataset = 19;
+        GrpcBytes bytes = 20;
     }
 }
 

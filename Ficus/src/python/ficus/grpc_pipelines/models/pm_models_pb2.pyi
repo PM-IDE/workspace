@@ -115,6 +115,14 @@ class GrpcPetriNetSinglePlaceMarking(_message.Message):
     tokensCount: int
     def __init__(self, placeId: _Optional[int] = ..., tokensCount: _Optional[int] = ...) -> None: ...
 
+class GrpcAnnotation(_message.Message):
+    __slots__ = ["countAnnotation", "frequencyAnnotation"]
+    COUNTANNOTATION_FIELD_NUMBER: _ClassVar[int]
+    FREQUENCYANNOTATION_FIELD_NUMBER: _ClassVar[int]
+    countAnnotation: GrpcCountAnnotation
+    frequencyAnnotation: GrpcFrequenciesAnnotation
+    def __init__(self, countAnnotation: _Optional[_Union[GrpcCountAnnotation, _Mapping]] = ..., frequencyAnnotation: _Optional[_Union[GrpcFrequenciesAnnotation, _Mapping]] = ...) -> None: ...
+
 class GrpcCountAnnotation(_message.Message):
     __slots__ = ["annotations"]
     ANNOTATIONS_FIELD_NUMBER: _ClassVar[int]

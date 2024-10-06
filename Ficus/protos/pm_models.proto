@@ -77,6 +77,13 @@ message GrpcPetriNetSinglePlaceMarking {
     int64 tokensCount = 2;
 }
 
+message GrpcAnnotation {
+    oneof annotation {
+        GrpcCountAnnotation countAnnotation = 1;
+        GrpcFrequenciesAnnotation frequencyAnnotation = 2;
+    }
+}
+
 message GrpcCountAnnotation {
     repeated GrpcEntityCountAnnotation annotations = 1;
 }

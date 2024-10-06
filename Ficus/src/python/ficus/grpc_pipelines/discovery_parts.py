@@ -243,7 +243,7 @@ class AnnotatePetriNetWithCount(AnnotatePetriNet):
                          show_places_names, name, background_color, engine, export_path, rankdir)
 
     def get_annotation(self, context_value: GrpcContextValue):
-        return from_grpc_count_annotation(context_value.count_annotation)
+        return from_grpc_count_annotation(context_value.annotation.countAnnotation)
 
 
 class AnnotatePetriNetWithFrequency(AnnotatePetriNet):
@@ -261,7 +261,7 @@ class AnnotatePetriNetWithFrequency(AnnotatePetriNet):
                          show_places_names, name, background_color, engine, export_path, rankdir)
 
     def get_annotation(self, context_value: GrpcContextValue):
-        return from_grpc_frequency_annotation(context_value.frequency_annotation)
+        return from_grpc_frequency_annotation(context_value.annotation.frequencyAnnotation)
 
 
 class AnnotatePetriNetWithTraceFrequency(AnnotatePetriNet):
@@ -279,7 +279,7 @@ class AnnotatePetriNetWithTraceFrequency(AnnotatePetriNet):
                          show_places_names, name, background_color, engine, export_path, rankdir)
 
     def get_annotation(self, context_value: GrpcContextValue):
-        return from_grpc_frequency_annotation(context_value.frequency_annotation)
+        return from_grpc_frequency_annotation(context_value.annotation.frequencyAnnotation)
 
 
 class EnsureInitialMarking(PipelinePart):

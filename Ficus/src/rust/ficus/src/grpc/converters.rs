@@ -12,11 +12,7 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::ficus_proto::{
-    GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation,
-    GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet,
-    GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
-};
+use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{
@@ -53,6 +49,8 @@ use crate::{
         user_data::{keys::Key, user_data::UserData},
     },
 };
+use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation};
+use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 
 pub(super) fn put_into_user_data(
     key: &dyn Key,
@@ -105,8 +103,7 @@ pub(super) fn put_into_user_data(
         ContextValue::PetriNet(_) => todo!(),
         ContextValue::Graph(_) => todo!(),
         ContextValue::Float(value) => user_data.put_any::<f64>(key, *value as f64),
-        ContextValue::CountAnnotation(_) => todo!(),
-        ContextValue::FrequencyAnnotation(_) => todo!(),
+        ContextValue::Annotation(_) => todo!(),
         ContextValue::Dataset(_) => todo!(),
         ContextValue::LabeledDataset(_) => todo!(),
         ContextValue::Bytes(grpc_bytes) => user_data.put_any::<Vec<u8>>(key, grpc_bytes.bytes.clone()),
@@ -191,7 +188,9 @@ fn try_convert_to_grpc_petri_net_count_annotation(value: &dyn Any) -> Option<Grp
     } else {
         let value = value.downcast_ref::<HashMap<u64, usize>>().unwrap();
         Some(GrpcContextValue {
-            context_value: Some(ContextValue::CountAnnotation(convert_to_grpc_count_annotation(value))),
+            context_value: Some(Annotation(GrpcAnnotation {
+                annotation: Some(CountAnnotation(convert_to_grpc_count_annotation(value)))
+            })),
         })
     }
 }
@@ -213,7 +212,9 @@ fn try_convert_to_grpc_petri_net_frequency_annotation(value: &dyn Any) -> Option
     } else {
         let value = value.downcast_ref::<HashMap<u64, f64>>().unwrap();
         Some(GrpcContextValue {
-            context_value: Some(ContextValue::FrequencyAnnotation(convert_to_grpc_frequency_annotation(value))),
+            context_value: Some(Annotation(GrpcAnnotation {
+                annotation: Some(FrequencyAnnotation(convert_to_grpc_frequency_annotation(value)))
+            })),
         })
     }
 }
