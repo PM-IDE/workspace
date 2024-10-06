@@ -1,0 +1,9 @@
+{
+  "light": {
+    "petriNet": {
+      "transitionBackground": "#000000",
+      "borderLine": "#000000",
+      "arcLine": "#000000"
+    }
+  }
+}

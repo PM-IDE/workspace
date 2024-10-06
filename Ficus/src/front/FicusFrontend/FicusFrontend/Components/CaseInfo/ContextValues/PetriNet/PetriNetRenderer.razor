@@ -3,10 +3,10 @@
 
 <h3>PetriNetRenderer</h3>
 
-<div class="d3-petri-net-container" id="@myD3ContainerId"></div>
+<div class="d3-petri-net-container" id="@myCytoscapeContainerId"></div>
 
 @code {
-  private readonly Guid myD3ContainerId = Guid.NewGuid();
+  private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
 
 
   [Parameter] public required GrpcPetriNet PetriNet { get; init; }
@@ -14,6 +14,6 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    await Js.InvokeVoidAsync("drawPetriNet", myD3ContainerId.ToString(), PetriNet);
+    await Js.InvokeVoidAsync("drawPetriNet", myCytoscapeContainerId.ToString(), PetriNet);
   }
 }

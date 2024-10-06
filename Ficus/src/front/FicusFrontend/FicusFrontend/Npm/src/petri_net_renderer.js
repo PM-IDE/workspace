@@ -1,17 +1,19 @@
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
+import petriNetColors, {lightTheme} from "./colors";
 
-export default set_draw_petri_net;
+export default setDrawPetriNet;
 
 const placeType = "place";
 const transitionType = "transition";
 const arcType = "arc";
+const netColors = petriNetColors(lightTheme);
 
-function set_draw_petri_net() {
+function setDrawPetriNet() {
   window.drawPetriNet = function (id, net) {
     cytoscape.use(klay);
     cytoscape(createCytoscapeOptions(id, net));
-  } 
+  }
 }
 
 function createCytoscapeOptions(id, net) {
@@ -71,7 +73,7 @@ function createElementsFromNet(net) {
       })
     }
   }
-  
+
   return elements;
 }
 
@@ -87,7 +89,10 @@ function createCommonNodeStyle() {
   return {
     selector: 'node',
     style: {
-      'background-color': '#666'
+      'background-opacity': '0',
+      'border-width': '1px',
+      'border-style': 'solid',
+      'border-color': netColors.borderLine
     }
   };
 }
@@ -97,8 +102,10 @@ function createTransitionNodeStyle() {
     selector: `node[type="${transitionType}"]`,
     style: {
       'shape': 'rectangle',
-      'label': 'data(name)'
-    }
+      'label': 'data(name)',
+      'background-opacity': '1',
+      'background-color': netColors.transitionBackground
+    },
   };
 }
 
@@ -107,8 +114,8 @@ function createEdgeStyle() {
     selector: 'edge',
     style: {
       'width': 3,
-      'line-color': '#ccc',
-      'target-arrow-color': '#ccc',
+      'line-color': netColors.arcLine,
+      'target-arrow-color': netColors.arcLine,
       'target-arrow-shape': 'triangle',
       'curve-style': 'bezier'
     }
