@@ -17,14 +17,11 @@ function createCytoscapeOptions(id, graph) {
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph),
+    layout: createBreadthFirstLayout(),
     style: [
       createNodeStyle(),
       createEdgeStyle(),
-    ],
-    
-    layout: {
-      name: 'klay'
-    }
+    ]
   }
 }
 

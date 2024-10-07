@@ -1,5 +1,5 @@
 import cytoscape from 'cytoscape';
-import klay from 'cytoscape-klay';
+import dagre from 'cytoscape-dagre'
 import {petriNetColors, lightTheme} from "./colors";
 
 export default setDrawPetriNet;
@@ -11,7 +11,7 @@ const netColors = petriNetColors(lightTheme);
 
 function setDrawPetriNet() {
   window.drawPetriNet = function (id, net, annotation) {
-    cytoscape.use(klay);
+    cytoscape.use(dagre);
     cytoscape(createCytoscapeOptions(id, net, annotation));
   }
 }
@@ -21,10 +21,7 @@ function createCytoscapeOptions(id, net, annotation) {
     container: document.getElementById(id),
     elements: createElementsFromNet(net, annotation),
     style: createStylesList(),
-
-    layout: {
-      name: 'klay',
-    }
+    layout: createBreadthFirstLayout()
   }
 }
 
@@ -75,7 +72,6 @@ function createElementsFromNet(net, annotation) {
     }
   }
 
-  console.log(elements);
   return elements;
 }
 

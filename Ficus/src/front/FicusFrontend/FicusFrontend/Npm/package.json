@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "cytoscape": "^3.30.2",
+    "cytoscape-dagre": "^2.5.0",
     "cytoscape-klay": "^3.1.4"
   }
 }
