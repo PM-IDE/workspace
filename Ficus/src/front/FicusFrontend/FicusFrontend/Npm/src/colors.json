@@ -3,7 +3,7 @@
     "petriNet": {
       "transitionBackground": "#000000",
       "borderLine": "#000000",
-      "arcLine": "#000000"
+      "arcLine": "#C0C0C0"
     }
   }
 }

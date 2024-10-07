@@ -17,8 +17,6 @@
   {
     var annotation = Annotation?.AnnotationCase switch
     {
-      null => null,
-
       GrpcAnnotation.AnnotationOneofCase.CountAnnotation => Annotation.CountAnnotation.Annotations
         .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Count))
         .ToDictionary(),
@@ -27,6 +25,7 @@
         .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Frequency))
         .ToDictionary(),
 
+      GrpcAnnotation.AnnotationOneofCase.None or null => null,
       _ => throw new ArgumentOutOfRangeException($"Unhandled annotation case {Annotation?.AnnotationCase}")
     };
 
