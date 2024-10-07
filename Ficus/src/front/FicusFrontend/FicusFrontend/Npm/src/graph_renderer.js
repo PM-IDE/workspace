@@ -33,7 +33,7 @@ function createNodeStyle() {
     selector: 'node',
     style: {
       'background-color': graphColor.nodeBackground,
-      'label': 'data(id)'
+      'label': 'data(label)'
     }
   }
 }
@@ -42,7 +42,8 @@ function createEdgeStyle() {
   return {
     selector: 'edge',
     style: {
-      'width': 3,
+      'label': "data(label)",
+      'width': "data(width)",
       'line-color': graphColor.arcLine,
       'target-arrow-color': graphColor.arcLine,
       'target-arrow-shape': 'triangle',
@@ -63,9 +64,20 @@ function createGraphElements(graph) {
     })
   }
 
+  const minWidth = 3;
+  const maxWidth = 8;
+  
+  let maxWeight = Math.max(...graph.edges.map(e => e.weight));
+  
   for (let edge of graph.edges) {
+    let width = minWidth + (maxWidth - minWidth) * (edge.weight / maxWeight);
+    if (isNaN(width)) {
+      width = 1;
+    }
+
     elements.push({
       data: {
+        width: width,
         label: edge.data,
         id: edge.fromNode.toString() + "::" + edge.toNode.toString(),
         source: edge.fromNode.toString(),
