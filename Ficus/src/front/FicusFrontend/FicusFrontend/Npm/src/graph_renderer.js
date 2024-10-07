@@ -1,7 +1,10 @@
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
+import {graphColors, lightTheme} from "./colors";
 
 export default setDrawGraph;
+
+const graphColor = graphColors(lightTheme);
 
 function setDrawGraph() {
   window.drawGraph = function (id, graph) {
@@ -15,28 +18,35 @@ function createCytoscapeOptions(id, graph) {
     container: document.getElementById(id),
     elements: createGraphElements(graph),
     style: [
-      {
-        selector: 'node',
-        style: {
-          'background-color': '#666',
-          'label': 'data(id)'
-        }
-      },
-
-      {
-        selector: 'edge',
-        style: {
-          'width': 3,
-          'line-color': '#ccc',
-          'target-arrow-color': '#ccc',
-          'target-arrow-shape': 'triangle',
-          'curve-style': 'bezier'
-        }
-      }
+      createNodeStyle(),
+      createEdgeStyle(),
     ],
     
     layout: {
       name: 'klay'
+    }
+  }
+}
+
+function createNodeStyle() {
+  return {
+    selector: 'node',
+    style: {
+      'background-color': graphColor.nodeBackground,
+      'label': 'data(id)'
+    }
+  }
+}
+
+function createEdgeStyle() {
+  return {
+    selector: 'edge',
+    style: {
+      'width': 3,
+      'line-color': graphColor.arcLine,
+      'target-arrow-color': graphColor.arcLine,
+      'target-arrow-shape': 'triangle',
+      'curve-style': 'bezier'
     }
   }
 }
@@ -52,7 +62,7 @@ function createGraphElements(graph) {
       }
     })
   }
-  
+
   for (let edge of graph.edges) {
     elements.push({
       data: {
@@ -63,6 +73,6 @@ function createGraphElements(graph) {
       }
     })
   }
-  
+
   return elements;
 }

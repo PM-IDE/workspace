@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
-import petriNetColors, {lightTheme} from "./colors";
+import {petriNetColors, lightTheme} from "./colors";
 
 export default setDrawPetriNet;
 

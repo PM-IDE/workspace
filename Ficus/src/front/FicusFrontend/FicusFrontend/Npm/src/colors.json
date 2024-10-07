@@ -4,6 +4,10 @@
       "transitionBackground": "#000000",
       "borderLine": "#000000",
       "arcLine": "#C0C0C0"
+    },
+    "graph": {
+      "arcLine": "#C0C0C0",
+      "nodeBackground": "#000"
     }
   }
 }
