@@ -2,13 +2,22 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ARG PROJECT_NAME=FicusFrontend
 
+RUN apt update -y && apt upgrade -y
+RUN apt install nodejs -y
+RUN apt install npm -y
+
 WORKDIR /app
 COPY ./Ficus/src/front/FicusFrontend/ ./Ficus/src/front/FicusFrontend/
 COPY ./Ficus/protos/ ./Ficus/protos/
 
 RUN dotnet restore ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/$PROJECT_NAME.csproj
 
-WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME
+WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME/Npm
+RUN rm -rf node_modules
+RUN npm install
+RUN npm run build
+
+WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME/
 RUN dotnet publish $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/publish
 
 FROM nginx:alpine
