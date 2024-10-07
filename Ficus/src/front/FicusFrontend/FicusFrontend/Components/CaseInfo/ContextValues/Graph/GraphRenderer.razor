@@ -1,0 +1,20 @@
+@using Ficus
+
+@inject IJSRuntime Js
+
+<h3>GraphRenderer</h3>
+
+<div id="@myCytoscapeContainerId" class="cytoscape-graph-container"></div>
+
+@code {
+  private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
+  
+  
+  [Parameter] public required GrpcGraph Graph { get; init; }
+
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    await Js.InvokeVoidAsync("drawGraph", myCytoscapeContainerId.ToString(), Graph);
+  }
+}

@@ -32,6 +32,8 @@ KafkaPipeline(
     DiscoverPetriNetHeuristic(),
     EnsureInitialMarking(),
     AnnotatePetriNetWithFrequency(),
+    DiscoverFuzzyGraph(),
+    ViewGraph()
 ).execute(kafka_consumer_metadata, kafka_producer_metadata, {
     ficus_backend_addr_key: ficus_backend
 })

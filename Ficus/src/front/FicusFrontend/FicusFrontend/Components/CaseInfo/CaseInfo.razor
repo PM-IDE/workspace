@@ -5,6 +5,7 @@
 @using FicusFrontend.Services.Cases
 @using JetBrains.Lifetimes
 @using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
+@using FicusFrontend.Components.CaseInfo.ContextValues.Graph
 @inherits ComponentBase
 
 @inject IProcessesService ProcessService
@@ -102,6 +103,7 @@
       GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
       GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
       GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer PetriNet="contextValue.PetriNet"/>,
+      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer Graph="contextValue.Graph" />,
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }
