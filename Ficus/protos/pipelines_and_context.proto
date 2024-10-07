@@ -167,7 +167,8 @@ message GrpcGraphNode {
 message GrpcGraphEdge {
     uint64 from_node = 1;
     uint64 to_node = 2;
-    string data = 3;
+    double weight = 3;
+    string data = 4;
 }
 
 message GrpcBytes {

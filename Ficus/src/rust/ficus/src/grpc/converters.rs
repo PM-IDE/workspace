@@ -12,11 +12,18 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow, GrpcMatrix, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition};
+use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation};
+use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
+use crate::ficus_proto::{
+    GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation,
+    GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow,
+    GrpcMatrix, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking,
+    GrpcPetriNetTransition,
+};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{
-    find_context_key, BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY,
+    BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY,
     LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY,
     PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY,
     REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
@@ -43,14 +50,12 @@ use crate::{
         GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArrayWithTraceIndex,
         GrpcSubArraysWithTraceIndexContextValue, GrpcTraceSubArray, GrpcTraceSubArrays,
     },
-    pipelines::{context::PipelineContext, keys::context_key::ContextKey, pipelines::Pipeline},
+    pipelines::{keys::context_key::ContextKey, pipelines::Pipeline},
     utils::{
         colors::{Color, ColoredRectangle},
         user_data::{keys::Key, user_data::UserData},
     },
 };
-use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation};
-use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 
 pub(super) fn put_into_user_data(
     key: &dyn Key,
@@ -189,7 +194,7 @@ fn try_convert_to_grpc_petri_net_count_annotation(value: &dyn Any) -> Option<Grp
         let value = value.downcast_ref::<HashMap<u64, usize>>().unwrap();
         Some(GrpcContextValue {
             context_value: Some(Annotation(GrpcAnnotation {
-                annotation: Some(CountAnnotation(convert_to_grpc_count_annotation(value)))
+                annotation: Some(CountAnnotation(convert_to_grpc_count_annotation(value))),
             })),
         })
     }
@@ -213,7 +218,7 @@ fn try_convert_to_grpc_petri_net_frequency_annotation(value: &dyn Any) -> Option
         let value = value.downcast_ref::<HashMap<u64, f64>>().unwrap();
         Some(GrpcContextValue {
             context_value: Some(Annotation(GrpcAnnotation {
-                annotation: Some(FrequencyAnnotation(convert_to_grpc_frequency_annotation(value)))
+                annotation: Some(FrequencyAnnotation(convert_to_grpc_frequency_annotation(value))),
             })),
         })
     }
@@ -536,6 +541,7 @@ where
     GrpcGraphEdge {
         from_node: *edge.from_node(),
         to_node: *edge.to_node(),
+        weight: edge.weight,
         data: match edge.data() {
             None => "".to_string(),
             Some(data) => data.to_string(),

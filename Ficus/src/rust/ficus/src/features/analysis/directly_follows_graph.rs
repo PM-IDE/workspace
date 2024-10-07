@@ -1,5 +1,5 @@
 use crate::features::analysis::event_log_info::EventLogInfo;
-use crate::utils::graph::graph::{DefaultGraph, Graph};
+use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use std::collections::HashMap;
 
 pub fn construct_dfg(info: &EventLogInfo) -> DefaultGraph {
@@ -15,7 +15,9 @@ pub fn construct_dfg(info: &EventLogInfo) -> DefaultGraph {
             for (follower, count) in followers.iter() {
                 let first_id = nodes_to_ids.get(class).unwrap();
                 let second_id = nodes_to_ids.get(follower).unwrap();
-                graph.connect_nodes(first_id, second_id, Some(count.to_string()));
+                let connection_data = NodesConnectionData::new(Some(count.to_string()), *count as f64);
+
+                graph.connect_nodes(first_id, second_id, connection_data);
             }
         }
     }

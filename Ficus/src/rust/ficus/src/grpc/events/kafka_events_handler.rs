@@ -83,7 +83,7 @@ impl PipelineEventsHandler for KafkaEventsHandler {
                     let message = format!("Received error as final result: {}", err);
                     self.console_logs_handler.handle(message.as_str()).expect("Should log message");
                 }
-            }
+            },
         };
     }
 

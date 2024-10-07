@@ -1,12 +1,13 @@
+use super::fuzzy_metrics_provider::FuzzyMetricsProvider;
 use crate::event_log::core::event_log::EventLog;
 use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
-use crate::utils::graph::graph::Graph;
+use crate::utils::graph::graph::{Graph, NodesConnectionData};
 use crate::utils::sets::one_set::OneSet;
+use ndarray::s;
+use rdkafka::bindings::rd_kafka_sasl_set_credentials;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-
-use super::fuzzy_metrics_provider::FuzzyMetricsProvider;
 
 pub type FuzzyGraph = Graph<String, f64>;
 
@@ -61,7 +62,9 @@ fn initialize_fuzzy_graph<TLog: EventLog>(
             if bin_freq_sig > binary_frequency_significance_threshold {
                 let first_id = classes_to_ids.get(first_class).unwrap();
                 let second_id = classes_to_ids.get(second_class).unwrap();
-                graph.connect_nodes(first_id, second_id, Some(bin_freq_sig));
+                let connection_data = NodesConnectionData::new(Some(bin_freq_sig), bin_freq_sig);
+
+                graph.connect_nodes(first_id, second_id, connection_data);
             }
         }
     }
@@ -254,9 +257,12 @@ fn merge_nodes(graph: &mut FuzzyGraph, clusters: &ClustersMap) {
                 Some(cluster_data)
             },
             |edges_data| {
-                edges_data
-                    .iter()
-                    .fold(Some(0.0), |first, second| Some(first.unwrap_or(0.0) + second.unwrap_or(&0.0)))
+                edges_data.iter().fold(NodesConnectionData::empty(), |first, second| {
+                    NodesConnectionData::new(
+                        Some(*first.data().unwrap_or(&0.0) + *second.data().unwrap_or(&0.0)),
+                        first.weight() + second.weight(),
+                    )
+                })
             },
         );
     }

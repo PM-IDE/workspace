@@ -9,18 +9,20 @@ where
     pub(crate) first_node_id: u64,
     pub(crate) second_node_id: u64,
     pub(crate) data: Option<TEdgeData>,
+    pub(crate) weight: f64,
 }
 
 impl<TEdgeData> GraphEdge<TEdgeData>
 where
     TEdgeData: ToString,
 {
-    pub fn new(first_node_id: u64, second_node_id: u64, data: Option<TEdgeData>) -> Self {
+    pub fn new(first_node_id: u64, second_node_id: u64, weight: f64, data: Option<TEdgeData>) -> Self {
         Self {
             first_node_id,
             second_node_id,
             id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
             data,
+            weight,
         }
     }
 

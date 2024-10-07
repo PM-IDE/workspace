@@ -6,13 +6,40 @@ use std::{collections::HashMap, sync::atomic::AtomicU64};
 pub(crate) static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 pub type DefaultGraph = Graph<String, String>;
 
+pub struct NodesConnectionData<TEdgeData> {
+    data: Option<TEdgeData>,
+    weight: f64,
+}
+
+impl<TEdgeData> NodesConnectionData<TEdgeData> {
+    pub fn new(data: Option<TEdgeData>, weight: f64) -> Self {
+        Self { data, weight }
+    }
+
+    pub fn zero_weight(data: Option<TEdgeData>) -> Self {
+        Self { data, weight: 0f64 }
+    }
+
+    pub fn empty() -> Self {
+        Self { data: None, weight: 0f64 }
+    }
+
+    pub fn data(&self) -> Option<&TEdgeData> {
+        self.data.as_ref()
+    }
+
+    pub fn weight(&self) -> f64 {
+        self.weight.clone()
+    }
+}
+
 pub struct Graph<TNodeData, TEdgeData>
 where
     TNodeData: ToString,
     TEdgeData: ToString,
 {
     pub(crate) nodes: HashMap<u64, GraphNode<TNodeData>>,
-    pub(crate) connections: HashMap<u64, HashMap<u64, Option<TEdgeData>>>,
+    pub(crate) connections: HashMap<u64, HashMap<u64, NodesConnectionData<TEdgeData>>>,
 }
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
@@ -39,7 +66,7 @@ where
         let mut edges = vec![];
         for (first, connections) in &self.connections {
             for (second, data) in connections {
-                edges.push(GraphEdge::new(*first, *second, data.as_ref()))
+                edges.push(GraphEdge::new(*first, *second, data.weight, data.data.as_ref()))
             }
         }
 
@@ -54,7 +81,7 @@ where
         id
     }
 
-    pub fn connect_nodes(&mut self, first_node_id: &u64, second_node_id: &u64, edge_data: Option<TEdgeData>) {
+    pub fn connect_nodes(&mut self, first_node_id: &u64, second_node_id: &u64, connection_data: NodesConnectionData<TEdgeData>) {
         if self.are_nodes_connected(first_node_id, second_node_id) {
             return;
         }
@@ -62,9 +89,9 @@ where
         if let Some(_) = self.nodes.get(first_node_id) {
             if let Some(_) = self.nodes.get(second_node_id) {
                 if let Some(connections) = self.connections.get_mut(first_node_id) {
-                    connections.insert(second_node_id.to_owned(), edge_data);
+                    connections.insert(second_node_id.to_owned(), connection_data);
                 } else {
-                    let new_connections = HashMap::from_iter(vec![(second_node_id.to_owned(), edge_data)]);
+                    let new_connections = HashMap::from_iter(vec![(second_node_id.to_owned(), connection_data)]);
                     self.connections.insert(first_node_id.to_owned(), new_connections);
                 }
             }

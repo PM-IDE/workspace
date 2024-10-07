@@ -1,4 +1,4 @@
-use crate::utils::graph::graph::{DefaultGraph, Graph};
+use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::graph::graph_node::GraphNode;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -32,17 +32,20 @@ where
     }
 
     #[rustfmt::skip]
-    fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, Option<String>>> {
+    fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, NodesConnectionData<String>>> {
         self.connections.iter().map(|pair| {
             (
                 *pair.0,
                 pair.1.iter().map(|pair| {
                     (
                         *pair.0,
-                        match &pair.1 {
-                            None => None,
-                            Some(data) => Some(data.to_string()),
-                        },
+                        NodesConnectionData::new(
+                            match pair.1.data() {
+                                None => None,
+                                Some(data) => Some(data.to_string()),
+                            },
+                            pair.1.weight()
+                        )
                     )
                 }).collect(),
             )
