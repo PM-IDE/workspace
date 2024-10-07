@@ -10,6 +10,7 @@
 
 
   [Parameter] public required GrpcPetriNet PetriNet { get; init; }
+  [Parameter] public required GrpcAnnotation? Annotation { get; init; }
 
 
   protected override async Task OnAfterRenderAsync(bool firstRender)

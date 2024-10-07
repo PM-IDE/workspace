@@ -8,7 +8,7 @@
 @inherits ComponentBase
 
 @inject IProcessesService ProcessService
-
+@inject ILogger<CaseInfo> Logger
 
 @{
   var title = (Case, ProcessData) switch
@@ -30,10 +30,14 @@
     {
       <AccordionItem Title="@result.Value.PipelinePartName">
         <Content>
-          @foreach (var contextValue in result.Value.ContextValues)
+          @{
+            var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
+          }
+
+          @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
           {
             <div>
-              @FindRendererFor(contextValue.Value)
+              @fragment
             </div>
           }
         </Content>
@@ -82,6 +86,15 @@
     });
   }
 
+  private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
+  {
+    return contextValues switch
+    {
+      [var singleValue] => [FindRendererFor(singleValue)],
+      _ => FindRenderersFor(pipelinePartName, contextValues)
+    };
+  }
+  
   private RenderFragment FindRendererFor(GrpcContextValue contextValue)
   {
     return contextValue.ContextValueCase switch
@@ -91,5 +104,35 @@
       GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer PetriNet="contextValue.PetriNet"/>,
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
+  }
+
+  private IEnumerable<RenderFragment> FindRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
+  {
+    if (PipelinePartsGroups.AnnotationParts.Contains(pipelinePartName) &&
+        CreateAnnotatedPetriNetRenderer(pipelinePartName, contextValues) is { } petriNetRenderer)
+    {
+      return [petriNetRenderer];
+    }
+
+    return [];
+  }
+
+  private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<GrpcContextValue> contextValues)
+  {
+    var petriNet = contextValues
+      .FirstOrDefault(c => c.ContextValueCase == GrpcContextValue.ContextValueOneofCase.PetriNet)
+      ?.PetriNet;
+
+    if (petriNet is null)
+    {
+      Logger.LogError("Petri net was null for pipeline part {PipelinePartName}", pipelinePartName);
+      return null;
+    }
+
+    var annotation = contextValues
+      .FirstOrDefault(c => c.ContextValueCase == GrpcContextValue.ContextValueOneofCase.Annotation)
+      ?.Annotation;
+
+    return @<PetriNetRenderer PetriNet="petriNet" Annotation="annotation"/>;
   }
 }

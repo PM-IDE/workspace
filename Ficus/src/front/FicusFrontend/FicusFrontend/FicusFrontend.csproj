@@ -39,10 +39,6 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\js\index.bundle.js" />
-    </ItemGroup>
-
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="npm install" WorkingDirectory="Npm" />
         <Exec Command="npm run build" WorkingDirectory="Npm" />
