@@ -10,16 +10,16 @@ const arcType = "arc";
 const netColors = petriNetColors(lightTheme);
 
 function setDrawPetriNet() {
-  window.drawPetriNet = function (id, net) {
+  window.drawPetriNet = function (id, net, annotation) {
     cytoscape.use(klay);
-    cytoscape(createCytoscapeOptions(id, net));
+    cytoscape(createCytoscapeOptions(id, net, annotation));
   }
 }
 
-function createCytoscapeOptions(id, net) {
+function createCytoscapeOptions(id, net, annotation) {
   return {
     container: document.getElementById(id),
-    elements: createElementsFromNet(net),
+    elements: createElementsFromNet(net, annotation),
     style: createStylesList(),
 
     layout: {
@@ -28,7 +28,8 @@ function createCytoscapeOptions(id, net) {
   }
 }
 
-function createElementsFromNet(net) {
+function createElementsFromNet(net, annotation) {
+  let maxAnnotation = findMaxAnnotation(annotation);
   const elements = [];
 
   for (const place of net.places) {
@@ -52,29 +53,70 @@ function createElementsFromNet(net) {
 
   for (const transition of net.transitions) {
     for (const arc of transition.incomingArcs) {
-      elements.push({
-        data: {
-          type: arcType,
-          id: arc.placeId.toString() + "::" + transition.id.toString(),
-          source: arc.placeId.toString(),
-          target: transition.id.toString(),
-        }
-      });
+      elements.push(createArcElement(
+        arc.id,
+        arc.placeId.toString() + "::" + transition.id.toString(),
+        arc.placeId.toString(),
+        transition.id.toString(),
+        maxAnnotation,
+        annotation
+      ));
     }
 
     for (const arc of transition.outgoingArcs) {
-      elements.push({
-        data: {
-          type: arcType,
-          id: transition.id.toString() + "::" + arc.placeId.toString(),
-          target: arc.placeId.toString(),
-          source: transition.id.toString(),
-        }
-      })
+      elements.push(createArcElement(
+        arc.id,
+        transition.id.toString() + "::" + arc.placeId.toString(),
+        transition.id.toString(),
+        arc.placeId.toString(),
+        maxAnnotation,
+        annotation
+      ));
     }
   }
 
+  console.log(elements);
   return elements;
+}
+
+function createArcElement(arcId, id, source, target, maxAnnotation, annotation) {
+  let data = {
+    type: arcType,
+    id: id,
+    source: source,
+    target: target,
+  }
+
+  const minWidth = 3;
+  const maxWidth = 6;
+
+  if (maxAnnotation != null) {
+    data.annotation = annotation[arcId];
+
+    if (maxAnnotation === 0) {
+      data.width = 1;
+    } else {
+      data.width = minWidth + (annotation[arcId] / maxAnnotation) * (maxWidth - minWidth);
+    }
+  }
+  
+  return {
+    data: data
+  };
+}
+
+function findMaxAnnotation(annotation) {
+  if (annotation == null) {
+    return null;
+  }
+
+  let maxValue = 0;
+  for (let key in annotation) {
+    let value = annotation[key];
+    maxValue = Math.max(value, maxValue);
+  }
+
+  return maxValue;
 }
 
 function createStylesList() {
@@ -113,7 +155,8 @@ function createEdgeStyle() {
   return {
     selector: 'edge',
     style: {
-      'width': 3,
+      'label': 'data(annotation)',
+      'width': 'data(width)',
       'line-color': netColors.arcLine,
       'target-arrow-color': netColors.arcLine,
       'target-arrow-shape': 'triangle',

@@ -15,6 +15,21 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    await Js.InvokeVoidAsync("drawPetriNet", myCytoscapeContainerId.ToString(), PetriNet);
+    var annotation = Annotation?.AnnotationCase switch
+    {
+      null => null,
+
+      GrpcAnnotation.AnnotationOneofCase.CountAnnotation => Annotation.CountAnnotation.Annotations
+        .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Count))
+        .ToDictionary(),
+
+      GrpcAnnotation.AnnotationOneofCase.FrequencyAnnotation => Annotation.FrequencyAnnotation.Annotations
+        .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Frequency))
+        .ToDictionary(),
+
+      _ => throw new ArgumentOutOfRangeException($"Unhandled annotation case {Annotation?.AnnotationCase}")
+    };
+
+    await Js.InvokeVoidAsync("drawPetriNet", myCytoscapeContainerId.ToString(), PetriNet, annotation);
   }
 }
