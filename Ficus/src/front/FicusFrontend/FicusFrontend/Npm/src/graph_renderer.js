@@ -1,5 +1,4 @@
 import cytoscape from 'cytoscape';
-import klay from 'cytoscape-klay';
 import {graphColors, lightTheme} from "./colors";
 
 export default setDrawGraph;
@@ -8,7 +7,6 @@ const graphColor = graphColors(lightTheme);
 
 function setDrawGraph() {
   window.drawGraph = function (id, graph) {
-    cytoscape.use(klay);
     cytoscape(createCytoscapeOptions(id, graph));
   }
 }
