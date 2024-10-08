@@ -1,4 +1,4 @@
-function createBreadthFirstLayout() {
+export function createBreadthFirstLayout() {
     return {
         name: 'breadthfirst',
         directed: true,

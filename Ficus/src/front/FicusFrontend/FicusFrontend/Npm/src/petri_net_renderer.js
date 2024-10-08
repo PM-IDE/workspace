@@ -1,5 +1,6 @@
 import cytoscape from 'cytoscape';
 import {petriNetColors, lightTheme} from "./colors";
+import {createBreadthFirstLayout} from "./utils";
 
 export default setDrawPetriNet;
 
