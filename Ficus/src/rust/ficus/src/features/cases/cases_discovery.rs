@@ -33,7 +33,8 @@ pub fn discover_cases(log: &XesEventLogImpl, start_regex_str: &str, end_regex_st
             if end_regex.is_match(event_name).expect("Regex") {
                 match stack.pop_back() {
                     None => {}
-                    Some(sub_trace) => {
+                    Some(mut sub_trace) => {
+                        sub_trace.push(Rc::new(RefCell::new(event.clone())));
                         new_log.push(Rc::new(RefCell::new(sub_trace)));
                     }
                 }
