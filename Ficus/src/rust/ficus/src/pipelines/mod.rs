@@ -1,6 +1,7 @@
 pub mod activities_parts;
 pub mod aliases;
 pub mod annotations_parts;
+mod cases;
 pub mod context;
 pub mod discovery_parts;
 pub mod drawing_parts;

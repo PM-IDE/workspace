@@ -47,6 +47,7 @@ impl PipelineParts {
     pub const DISCOVER_FUZZY_GRAPH: &'static str = "DiscoverFuzzyGraph";
     pub const READ_LOG_FROM_BXES: &'static str = "ReadLogFromBxes";
     pub const WRITE_LOG_TO_BXES: &'static str = "WriteLogToBxes";
+    pub const DISCOVER_CASES: &'static str = "DiscoverCases";
 
     pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
     pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";

@@ -85,6 +85,7 @@ impl PipelineParts {
             Self::write_bxes_to_bytes(),
             Self::write_xes_to_bytes(),
             Self::reverse_hierarchy_indices(),
+            Self::discover_cases(),
         ];
 
         let mut names_to_parts = HashMap::new();

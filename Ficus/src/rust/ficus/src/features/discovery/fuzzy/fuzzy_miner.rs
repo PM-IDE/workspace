@@ -172,7 +172,8 @@ fn find_initial_clusters<TLog: EventLog>(
 ) {
     for node in graph.all_nodes() {
         let this_node_name = node.data().unwrap();
-        if provider.unary_frequency_significance(this_node_name) >= node_cutoff_threshold {
+        let node_significance = provider.unary_frequency_significance(this_node_name);
+        if node_significance >= node_cutoff_threshold {
             continue;
         }
 

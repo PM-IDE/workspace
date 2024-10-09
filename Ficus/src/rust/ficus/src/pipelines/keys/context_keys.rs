@@ -74,6 +74,8 @@ pub const TOLERANCE: &'static str = "tolerance";
 pub const MIN_EVENTS_IN_CLUSTERS_COUNT: &'static str = "min_events_in_cluster_count";
 pub const EVENT_LOG_NAME: &'static str = "event_log_name";
 pub const BYTES: &'static str = "bytes";
+pub const START_CASE_REGEX_STR: &str = "start_case_regex";
+pub const END_CASE_REGEX_STR: &str = "end_case_regex";
 
 pub const EVENT_LOG: &'static str = "event_log";
 pub const ACTIVITIES: &'static str = "activities";
@@ -177,6 +179,8 @@ lazy_static!(
      pub static ref CASE_NAME: DefaultContextKey<String> = DefaultContextKey::new(CASE_NAME_STR);
      pub static ref PROCESS_NAME: DefaultContextKey<String> = DefaultContextKey::new(PROCESS_NAME_STR);
      pub static ref UNSTRUCTURED_METADATA: DefaultContextKey<Vec<(String, String)>> = DefaultContextKey::new(PROCESS_NAME_STR);
+     pub static ref START_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(START_CASE_REGEX_STR);
+     pub static ref END_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(END_CASE_REGEX_STR);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -247,6 +251,8 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         TRACES_REPR_SOURCE => Some(TRACES_REPRESENTATION_SOURCE_KEY.deref() as &dyn ContextKey),
         SYSTEM_METADATA => Some(SYSTEM_METADATA_KEY.deref() as &dyn ContextKey),
         LOG_SERIALIZATION_FORMAT => Some(LOG_SERIALIZATION_FORMAT_KEY.deref() as &dyn ContextKey),
+        START_CASE_REGEX_STR => Some(START_CASE_REGEX.deref() as &dyn ContextKey),
+        END_CASE_REGEX_STR => Some(END_CASE_REGEX.deref() as &dyn ContextKey),
         _ => None,
     }
 }
