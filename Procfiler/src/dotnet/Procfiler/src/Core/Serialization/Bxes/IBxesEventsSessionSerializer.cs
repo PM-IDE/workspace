@@ -12,7 +12,7 @@ public class BxesEventsSessionSerializer(IProcfilerLogger logger) : IBxesEventsS
 {
   public void SerializeEvents(IEnumerable<EventSessionInfo> eventsTraces, string path, bool writeAllMetadata)
   {
-    var serializer = new NotStoringMergingTraceBxesSerializer(logger, writeAllMetadata);
+    using var serializer = new NotStoringMergingTraceBxesSerializer(logger, writeAllMetadata);
 
     foreach (var sessionInfo in eventsTraces)
     {
