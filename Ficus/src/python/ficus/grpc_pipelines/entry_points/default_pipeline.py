@@ -36,6 +36,7 @@ class Pipeline:
 
             return last_result
 
+
     def to_grpc_pipeline(self):
         return create_grpc_pipeline(self.parts)
 
@@ -64,6 +65,12 @@ class PipelinePart:
 def create_grpc_pipeline(parts) -> GrpcPipeline:
     pipeline = GrpcPipeline()
     for part in parts:
+        if isinstance(part, list):
+            for list_part in part:
+                pipeline.parts.append(list_part.to_grpc_part())
+
+            continue
+
         if not isinstance(part, PipelinePart):
             raise TypeError()
 

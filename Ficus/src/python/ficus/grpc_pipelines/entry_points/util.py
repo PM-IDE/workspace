@@ -79,4 +79,10 @@ def process_pipeline_output_stream(callback_parts, stream):
 
 def append_parts_with_callbacks(original_parts, callback_parts: list['PipelinePartWithCallback']):
     for part in list(original_parts):
+        if isinstance(part, list):
+            for pipeline_part in part:
+                pipeline_part.append_parts_with_callbacks(callback_parts)
+
+            continue
+
         part.append_parts_with_callbacks(callback_parts)
