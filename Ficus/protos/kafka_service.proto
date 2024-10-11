@@ -11,6 +11,18 @@ service GrpcKafkaService {
   rpc SubscribeForKafkaTopicExternal(GrpcSubscribeToKafkaAndProduceToKafka) returns (GrpcKafkaResult);
   rpc SubscribeForKafkaTopicStream(GrpcSubscribeForKafkaTopicRequest) returns (stream GrpcPipelinePartExecutionResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
+
+  rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (google.protobuf.Empty);
+}
+
+message GrpcExecutePipelineAndProduceKafkaRequest {
+  GrpcPipelineExecutionRequest pipelineRequest = 1;
+  GrpcKafkaConnectionMetadata producerMetadata = 2;
+  GrpcCaseInfo caseInfo = 3;
+}
+
+message GrpcCaseInfo {
+  string caseName = 1;
 }
 
 message GrpcSubscribeToKafkaAndProduceToKafka {
