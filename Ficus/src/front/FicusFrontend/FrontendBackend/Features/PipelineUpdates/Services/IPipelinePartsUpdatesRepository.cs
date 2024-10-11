@@ -58,7 +58,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       return Task.FromResult((sessionGuid, channel, state));
     });
     
-    logger.LogInformation("Created an initial state: {State}", currentState.ToString());
+    logger.LogInformation("Created an initial state");
 
     try
     {
@@ -73,7 +73,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
         var delta = await channel.Reader.ReadAsync(token);
         
-        logger.LogInformation("Received delta: {Delta}", delta.ToString());
+        logger.LogInformation("Received delta: {Delta}", delta.GetType());
         
         yield return new GrpcPipelinePartUpdate
         {
@@ -97,7 +97,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         ["UpdateId"] = updateProcessingId
       });
 
-      logger.LogInformation("Processing update: {Update}", update.ToString());
+      logger.LogInformation("Processing update: {Update}", update.GetType());
       if (!myProcesses.TryGetValue(update.ProcessCaseMetadata.ProcessName, out var cases))
       {
         logger.LogInformation("Creating new process data for update");

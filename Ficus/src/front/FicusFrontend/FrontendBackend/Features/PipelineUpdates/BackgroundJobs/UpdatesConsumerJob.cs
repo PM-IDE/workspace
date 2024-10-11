@@ -27,7 +27,7 @@ public class UpdatesConsumerJob(
       logger.LogInformation("Starting the pipeline context values updates consuming routine");
       foreach (var update in consumer.StartUpdatesConsuming(stoppingToken))
       {
-        logger.LogInformation("Consumed an update from kafka: {Update}", update.ToString());
+        logger.LogInformation("Consumed an update from kafka: {Update}", update.GetType());
         await repository.ProcessUpdate(update);
 
         logger.LogInformation("Processed the update");
