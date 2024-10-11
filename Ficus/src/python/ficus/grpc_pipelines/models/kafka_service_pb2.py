@@ -36,7 +36,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafka_service.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x15\x62\x61\x63kend_service.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xa0\x01\n%GrpcSubscribeToKafkaAndProduceToKafka\x12\x39\n\x07request\x18\x01 \x01(\x0b\x32(.ficus.GrpcSubscribeForKafkaTopicRequest\x12<\n\x10producerMetadata\x18\x02 \x01(\x0b\x32\".ficus.GrpcKafkaConnectionMetadata\"\xa6\x01\n!GrpcSubscribeForKafkaTopicRequest\x12\x43\n\x17kafkaConnectionMetadata\x18\x01 \x01(\x0b\x32\".ficus.GrpcKafkaConnectionMetadata\x12<\n\x0fpipelineRequest\x18\x02 \x01(\x0b\x32#.ficus.GrpcPipelineExecutionRequest\"d\n\x1bGrpcKafkaConnectionMetadata\x12\x11\n\ttopicName\x18\x01 \x01(\t\x12\x32\n\x08metadata\x18\x02 \x03(\x0b\x32 .ficus.GrpcKafkaConsumerMetadata\"7\n\x19GrpcKafkaConsumerMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"~\n\x0fGrpcKafkaResult\x12\x30\n\x07success\x18\x01 \x01(\x0b\x32\x1d.ficus.GrpcKafkaSuccessResultH\x00\x12/\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcKafkaFailedResultH\x00\x42\x08\n\x06result\"A\n\x16GrpcKafkaSuccessResult\x12\'\n\x0esubscriptionId\x18\x01 \x01(\x0b\x32\x0f.ficus.GrpcGuid\"-\n\x15GrpcKafkaFailedResult\x12\x14\n\x0c\x65rrorMessage\x18\x01 \x01(\t\"J\n\x1fGrpcUnsubscribeFromKafkaRequest\x12\'\n\x0esubscriptionId\x18\x01 \x01(\x0b\x32\x0f.ficus.GrpcGuid2\xcb\x02\n\x10GrpcKafkaService\x12\x66\n\x1eSubscribeForKafkaTopicExternal\x12,.ficus.GrpcSubscribeToKafkaAndProduceToKafka\x1a\x16.ficus.GrpcKafkaResult\x12r\n\x1cSubscribeForKafkaTopicStream\x12(.ficus.GrpcSubscribeForKafkaTopicRequest\x1a&.ficus.GrpcPipelinePartExecutionResult0\x01\x12[\n\x19UnsubscribeFromKafkaTopic\x12&.ficus.GrpcUnsubscribeFromKafkaRequest\x1a\x16.ficus.GrpcKafkaResultb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafka_service.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x15\x62\x61\x63kend_service.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xce\x01\n)GrpcExecutePipelineAndProduceKafkaRequest\x12<\n\x0fpipelineRequest\x18\x01 \x01(\x0b\x32#.ficus.GrpcPipelineExecutionRequest\x12<\n\x10producerMetadata\x18\x02 \x01(\x0b\x32\".ficus.GrpcKafkaConnectionMetadata\x12%\n\x08\x63\x61seInfo\x18\x03 \x01(\x0b\x32\x13.ficus.GrpcCaseInfo\" \n\x0cGrpcCaseInfo\x12\x10\n\x08\x63\x61seName\x18\x01 \x01(\t\"\xa0\x01\n%GrpcSubscribeToKafkaAndProduceToKafka\x12\x39\n\x07request\x18\x01 \x01(\x0b\x32(.ficus.GrpcSubscribeForKafkaTopicRequest\x12<\n\x10producerMetadata\x18\x02 \x01(\x0b\x32\".ficus.GrpcKafkaConnectionMetadata\"\xa6\x01\n!GrpcSubscribeForKafkaTopicRequest\x12\x43\n\x17kafkaConnectionMetadata\x18\x01 \x01(\x0b\x32\".ficus.GrpcKafkaConnectionMetadata\x12<\n\x0fpipelineRequest\x18\x02 \x01(\x0b\x32#.ficus.GrpcPipelineExecutionRequest\"d\n\x1bGrpcKafkaConnectionMetadata\x12\x11\n\ttopicName\x18\x01 \x01(\t\x12\x32\n\x08metadata\x18\x02 \x03(\x0b\x32 .ficus.GrpcKafkaConsumerMetadata\"7\n\x19GrpcKafkaConsumerMetadata\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"~\n\x0fGrpcKafkaResult\x12\x30\n\x07success\x18\x01 \x01(\x0b\x32\x1d.ficus.GrpcKafkaSuccessResultH\x00\x12/\n\x07\x66\x61ilure\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcKafkaFailedResultH\x00\x42\x08\n\x06result\"A\n\x16GrpcKafkaSuccessResult\x12\'\n\x0esubscriptionId\x18\x01 \x01(\x0b\x32\x0f.ficus.GrpcGuid\"-\n\x15GrpcKafkaFailedResult\x12\x14\n\x0c\x65rrorMessage\x18\x01 \x01(\t\"J\n\x1fGrpcUnsubscribeFromKafkaRequest\x12\'\n\x0esubscriptionId\x18\x01 \x01(\x0b\x32\x0f.ficus.GrpcGuid2\xb9\x03\n\x10GrpcKafkaService\x12\x66\n\x1eSubscribeForKafkaTopicExternal\x12,.ficus.GrpcSubscribeToKafkaAndProduceToKafka\x1a\x16.ficus.GrpcKafkaResult\x12r\n\x1cSubscribeForKafkaTopicStream\x12(.ficus.GrpcSubscribeForKafkaTopicRequest\x1a&.ficus.GrpcPipelinePartExecutionResult0\x01\x12[\n\x19UnsubscribeFromKafkaTopic\x12&.ficus.GrpcUnsubscribeFromKafkaRequest\x1a\x16.ficus.GrpcKafkaResult\x12l\n ExecutePipelineAndProduceToKafka\x12\x30.ficus.GrpcExecutePipelineAndProduceKafkaRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
 
 
 
@@ -50,40 +50,48 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
 
-  _globals['_GRPCSUBSCRIBETOKAFKAANDPRODUCETOKAFKA']._serialized_start=124
+  _globals['_GRPCEXECUTEPIPELINEANDPRODUCEKAFKAREQUEST']._serialized_start=124
 
-  _globals['_GRPCSUBSCRIBETOKAFKAANDPRODUCETOKAFKA']._serialized_end=284
+  _globals['_GRPCEXECUTEPIPELINEANDPRODUCEKAFKAREQUEST']._serialized_end=330
 
-  _globals['_GRPCSUBSCRIBEFORKAFKATOPICREQUEST']._serialized_start=287
+  _globals['_GRPCCASEINFO']._serialized_start=332
 
-  _globals['_GRPCSUBSCRIBEFORKAFKATOPICREQUEST']._serialized_end=453
+  _globals['_GRPCCASEINFO']._serialized_end=364
 
-  _globals['_GRPCKAFKACONNECTIONMETADATA']._serialized_start=455
+  _globals['_GRPCSUBSCRIBETOKAFKAANDPRODUCETOKAFKA']._serialized_start=367
 
-  _globals['_GRPCKAFKACONNECTIONMETADATA']._serialized_end=555
+  _globals['_GRPCSUBSCRIBETOKAFKAANDPRODUCETOKAFKA']._serialized_end=527
 
-  _globals['_GRPCKAFKACONSUMERMETADATA']._serialized_start=557
+  _globals['_GRPCSUBSCRIBEFORKAFKATOPICREQUEST']._serialized_start=530
 
-  _globals['_GRPCKAFKACONSUMERMETADATA']._serialized_end=612
+  _globals['_GRPCSUBSCRIBEFORKAFKATOPICREQUEST']._serialized_end=696
 
-  _globals['_GRPCKAFKARESULT']._serialized_start=614
+  _globals['_GRPCKAFKACONNECTIONMETADATA']._serialized_start=698
 
-  _globals['_GRPCKAFKARESULT']._serialized_end=740
+  _globals['_GRPCKAFKACONNECTIONMETADATA']._serialized_end=798
 
-  _globals['_GRPCKAFKASUCCESSRESULT']._serialized_start=742
+  _globals['_GRPCKAFKACONSUMERMETADATA']._serialized_start=800
 
-  _globals['_GRPCKAFKASUCCESSRESULT']._serialized_end=807
+  _globals['_GRPCKAFKACONSUMERMETADATA']._serialized_end=855
 
-  _globals['_GRPCKAFKAFAILEDRESULT']._serialized_start=809
+  _globals['_GRPCKAFKARESULT']._serialized_start=857
 
-  _globals['_GRPCKAFKAFAILEDRESULT']._serialized_end=854
+  _globals['_GRPCKAFKARESULT']._serialized_end=983
 
-  _globals['_GRPCUNSUBSCRIBEFROMKAFKAREQUEST']._serialized_start=856
+  _globals['_GRPCKAFKASUCCESSRESULT']._serialized_start=985
 
-  _globals['_GRPCUNSUBSCRIBEFROMKAFKAREQUEST']._serialized_end=930
+  _globals['_GRPCKAFKASUCCESSRESULT']._serialized_end=1050
 
-  _globals['_GRPCKAFKASERVICE']._serialized_start=933
+  _globals['_GRPCKAFKAFAILEDRESULT']._serialized_start=1052
 
-  _globals['_GRPCKAFKASERVICE']._serialized_end=1264
+  _globals['_GRPCKAFKAFAILEDRESULT']._serialized_end=1097
+
+  _globals['_GRPCUNSUBSCRIBEFROMKAFKAREQUEST']._serialized_start=1099
+
+  _globals['_GRPCUNSUBSCRIBEFROMKAFKAREQUEST']._serialized_end=1173
+
+  _globals['_GRPCKAFKASERVICE']._serialized_start=1176
+
+  _globals['_GRPCKAFKASERVICE']._serialized_end=1617
 
 # @@protoc_insertion_point(module_scope)

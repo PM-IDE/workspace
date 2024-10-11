@@ -8,6 +8,8 @@ import grpc
 
 import ficus.grpc_pipelines.models.backend_service_pb2 as backend__service__pb2
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+
 import ficus.grpc_pipelines.models.kafka_service_pb2 as kafka__service__pb2
 
 
@@ -62,6 +64,16 @@ class GrpcKafkaServiceStub(object):
 
                 )
 
+        self.ExecutePipelineAndProduceToKafka = channel.unary_unary(
+
+                '/ficus.GrpcKafkaService/ExecutePipelineAndProduceToKafka',
+
+                request_serializer=kafka__service__pb2.GrpcExecutePipelineAndProduceKafkaRequest.SerializeToString,
+
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+
+                )
+
 
 
 
@@ -108,6 +120,18 @@ class GrpcKafkaServiceServicer(object):
 
 
 
+    def ExecutePipelineAndProduceToKafka(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
 
 
 def add_GrpcKafkaServiceServicer_to_server(servicer, server):
@@ -141,6 +165,16 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
                     request_deserializer=kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.FromString,
 
                     response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
+
+            ),
+
+            'ExecutePipelineAndProduceToKafka': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.ExecutePipelineAndProduceToKafka,
+
+                    request_deserializer=kafka__service__pb2.GrpcExecutePipelineAndProduceKafkaRequest.FromString,
+
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
 
             ),
 
@@ -259,6 +293,40 @@ class GrpcKafkaService(object):
             kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def ExecutePipelineAndProduceToKafka(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/ExecutePipelineAndProduceToKafka',
+
+            kafka__service__pb2.GrpcExecutePipelineAndProduceKafkaRequest.SerializeToString,
+
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
 
             options, channel_credentials,
 
