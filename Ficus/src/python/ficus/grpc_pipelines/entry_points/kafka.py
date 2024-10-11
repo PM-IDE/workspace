@@ -76,3 +76,24 @@ class KafkaPipeline:
 
             request = self._create_subscribe_to_kafka_request(kafka_metadata, initial_context)
             process_multiple_pipelines_output_stream(callback_parts, stub.SubscribeForKafkaTopicStream(request))
+
+    def execute_and_send_to_kafka(self,
+                                  case_name: str,
+                                  producer_metadata: KafkaPipelineMetadata,
+                                  initial_context: dict[str, ContextValue]):
+        with create_ficus_grpc_channel(initial_context) as channel:
+            stub = GrpcKafkaServiceStub(channel)
+
+            pipeline_request = GrpcPipelineExecutionRequest(
+                pipeline=create_grpc_pipeline(self.parts),
+                initialContext=create_initial_context(initial_context)
+            )
+
+            request = GrpcExecutePipelineAndProduceKafkaRequest(
+                pipelineRequest=pipeline_request,
+                producerMetadata=self._create_kafka_connection_metadata(producer_metadata),
+                caseInfo=GrpcCaseInfo(caseName=case_name),
+            )
+
+            result = stub.ExecutePipelineAndProduceToKafka(request)
+            print(result)
