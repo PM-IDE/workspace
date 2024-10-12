@@ -7,8 +7,9 @@ use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::context::LogMessageHandler;
 use prost::Message;
 use rdkafka::error::KafkaError;
-use rdkafka::producer::{BaseProducer, BaseRecord};
+use rdkafka::producer::{BaseProducer, BaseRecord, Producer};
 use rdkafka::ClientConfig;
+use rdkafka::util::Timeout;
 use uuid::Uuid;
 
 pub struct PipelineEventsProducer {
@@ -42,10 +43,15 @@ impl PipelineEventsProducer {
             .key(message_id.as_bytes().as_slice())
             .payload(&encoded_message);
 
-        match self.producer.send(record) {
-            Ok(_) => Ok(()),
+        let result = match self.producer.send(record) {
+            Ok(_) => {
+                self.producer.poll(Timeout::Never);
+                Ok(())
+            },
             Err(err) => Err(err.0),
-        }
+        };
+
+        result
     }
 }
 
