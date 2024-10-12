@@ -15,7 +15,7 @@ impl PipelineParts {
 
             let new_log = discover_cases(log, start_case_regex.as_str(), end_case_regex.as_str());
 
-            let mut new_context = PipelineContext::empty();
+            let mut new_context = context.clone();
             new_context.put_concrete(EVENT_LOG_KEY.key(), new_log);
 
             pipeline.execute(&mut new_context, infra)?;
