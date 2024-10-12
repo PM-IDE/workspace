@@ -12,7 +12,7 @@
   </div>
 
   <div>
-    <Accordion>
+    <Accordion AlwaysOpen="true">
       @foreach (var process in myProcesses)
       {
         <AccordionItem Title="@process.ProcessData.ProcessName" Class="process-accordion-item">
