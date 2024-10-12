@@ -72,8 +72,9 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         if (token.IsCancellationRequested) yield break;
 
         var delta = await channel.Reader.ReadAsync(token);
-        
-        logger.LogInformation("Received delta: {Delta}", delta.GetType());
+
+        var processMetadata = delta.ProcessCaseMetadata;
+        logger.LogInformation("Received delta: {ProcessName}, {CaseName}", processMetadata.CaseName, processMetadata.ProcessName);
         
         yield return new GrpcPipelinePartUpdate
         {
