@@ -29,7 +29,10 @@ function createNodeStyle() {
     selector: 'node',
     style: {
       'background-color': graphColor.nodeBackground,
-      'label': 'data(label)'
+      'label': 'data(label)',
+      'text-valign': 'center',
+      'text-halign': 'right',
+      'shape': 'round-rectangle',
     }
   }
 }
@@ -60,8 +63,8 @@ function createGraphElements(graph) {
     })
   }
 
-  const minWidth = 1;
-  const maxWidth = 10;
+  const minWidth = 5;
+  const maxWidth = 15;
   
   let maxWeight = Math.max(...graph.edges.map(e => e.weight));
   
