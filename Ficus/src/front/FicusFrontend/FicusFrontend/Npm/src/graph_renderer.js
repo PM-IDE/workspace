@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import {graphColors, lightTheme} from "./colors";
-import {createBreadthFirstLayout} from "./utils";
+import {calculateGradient, createBreadthFirstLayout, rgbToHex} from "./utils";
 
 export default setDrawGraph;
 
@@ -40,8 +40,8 @@ function createEdgeStyle() {
     style: {
       'label': "data(label)",
       'width': "data(width)",
-      'line-color': graphColor.arcLine,
-      'target-arrow-color': graphColor.arcLine,
+      'line-color': 'data(color)',
+      'target-arrow-color': 'data(color)',
       'target-arrow-shape': 'triangle',
       'curve-style': 'bezier'
     }
@@ -60,19 +60,30 @@ function createGraphElements(graph) {
     })
   }
 
-  const minWidth = 3;
-  const maxWidth = 8;
+  const minWidth = 1;
+  const maxWidth = 10;
   
   let maxWeight = Math.max(...graph.edges.map(e => e.weight));
   
   for (let edge of graph.edges) {
-    let width = minWidth + (maxWidth - minWidth) * (edge.weight / maxWeight);
+    let weightRatio = edge.weight / maxWeight
+    let width = minWidth + (maxWidth - minWidth) * weightRatio;
     if (isNaN(width)) {
       width = 1;
     }
+    
+    let blueMin = graphColor.blueMin;
+    let blueMax = graphColor.blueMax;
+    
+    let greenMin = graphColor.greenMin;
+    let greenMax = graphColor.greenMax;
+    
+    let redMin = graphColor.redMin;
+    let redMax = graphColor.redMax;
 
     elements.push({
       data: {
+        color: calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio),
         width: width,
         label: edge.data,
         id: edge.fromNode.toString() + "::" + edge.toNode.toString(),

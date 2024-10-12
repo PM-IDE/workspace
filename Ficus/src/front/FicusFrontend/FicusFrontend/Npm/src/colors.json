@@ -6,8 +6,13 @@
       "arcLine": "#C0C0C0"
     },
     "graph": {
-      "arcLine": "#C0C0C0",
-      "nodeBackground": "#000"
+      "nodeBackground": "#3f0e50",
+      "redMin": 159,
+      "redMax": 190,
+      "greenMin": 0,
+      "greenMax": 157,
+      "blueMin": 212,
+      "blueMax": 212
     }
   }
 }
