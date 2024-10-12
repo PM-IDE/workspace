@@ -80,6 +80,7 @@ function createArcElement(arcId, id, source, target, maxAnnotation, annotation) 
     id: id,
     source: source,
     target: target,
+    width: 1,
   }
 
   const minWidth = 3;
