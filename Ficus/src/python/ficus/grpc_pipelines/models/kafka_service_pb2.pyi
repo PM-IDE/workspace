@@ -20,10 +20,12 @@ class GrpcExecutePipelineAndProduceKafkaRequest(_message.Message):
     def __init__(self, pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ..., producerMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ..., caseInfo: _Optional[_Union[GrpcCaseInfo, _Mapping]] = ...) -> None: ...
 
 class GrpcCaseInfo(_message.Message):
-    __slots__ = ["caseName"]
+    __slots__ = ["processName", "caseName"]
+    PROCESSNAME_FIELD_NUMBER: _ClassVar[int]
     CASENAME_FIELD_NUMBER: _ClassVar[int]
+    processName: str
     caseName: str
-    def __init__(self, caseName: _Optional[str] = ...) -> None: ...
+    def __init__(self, processName: _Optional[str] = ..., caseName: _Optional[str] = ...) -> None: ...
 
 class GrpcSubscribeToKafkaAndProduceToKafka(_message.Message):
     __slots__ = ["request", "producerMetadata"]

@@ -22,7 +22,8 @@ message GrpcExecutePipelineAndProduceKafkaRequest {
 }
 
 message GrpcCaseInfo {
-  string caseName = 1;
+  string processName = 1;
+  string caseName = 2;
 }
 
 message GrpcSubscribeToKafkaAndProduceToKafka {

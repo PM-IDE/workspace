@@ -78,6 +78,7 @@ class KafkaPipeline:
             process_multiple_pipelines_output_stream(callback_parts, stub.SubscribeForKafkaTopicStream(request))
 
     def execute_and_send_to_kafka(self,
+                                  process_name: str,
                                   case_name: str,
                                   producer_metadata: KafkaPipelineMetadata,
                                   initial_context: dict[str, ContextValue]):
@@ -92,7 +93,7 @@ class KafkaPipeline:
             request = GrpcExecutePipelineAndProduceKafkaRequest(
                 pipelineRequest=pipeline_request,
                 producerMetadata=self._create_kafka_connection_metadata(producer_metadata),
-                caseInfo=GrpcCaseInfo(caseName=case_name),
+                caseInfo=GrpcCaseInfo(caseName=case_name, processName=process_name),
             )
 
             result = stub.ExecutePipelineAndProduceToKafka(request)

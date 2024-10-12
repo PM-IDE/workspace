@@ -132,16 +132,19 @@ impl GrpcKafkaService for KafkaService {
         );
 
         let context = Self::create_pipeline_execution_context(pipeline_request, &dto);
-        let case_error = Status::invalid_argument("case_info");
-        let case_name = request.get_ref().case_info.as_ref().ok_or(case_error)?.case_name.clone();
+        let case_name = request.get_ref().case_info.as_ref().ok_or(Status::invalid_argument("case_info"))?.case_name.clone();
+        let process_name = request.get_ref().case_info.as_ref().ok_or(Status::invalid_argument("process_name"))?.process_name.clone();
 
         let execution_result = context.execute_grpc_pipeline(move |context| {
+            context.put_concrete(PROCESS_NAME.key(), process_name);
             context.put_concrete(CASE_NAME.key(), case_name);
         });
 
         match execution_result {
             Ok(_) => Ok(Response::new(())),
             Err(err) => {
+                dto.events_handler.handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
+
                 let message = format!("Failed to execute pipeline, error: {}", err.to_string());
                 Err(Status::internal(message))
             }
@@ -384,7 +387,7 @@ impl KafkaService {
                     names_to_logs.insert(case_name.to_owned(), new_log);
                 }
 
-                let mut existing_log = names_to_logs.get_mut(case_name).expect("Log should be present");
+                let existing_log = names_to_logs.get_mut(case_name).expect("Log should be present");
 
                 let xes_trace = match read_bxes_events(trace.events()) {
                     Ok(xes_trace) => xes_trace,
