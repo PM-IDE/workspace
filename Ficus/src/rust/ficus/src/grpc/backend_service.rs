@@ -9,7 +9,11 @@ use tokio::sync::mpsc::{self, Sender};
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 
+use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::ficus_proto::grpc_get_context_value_result::ContextValueResult;
+use crate::ficus_proto::GrpcProxyPipelineExecutionRequest;
+use crate::grpc::context_values_service::{ContextValueService, GrpcContextValueService};
 use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::keys::context_keys::find_context_key;
@@ -21,10 +25,6 @@ use crate::{
     pipelines::{keys::context_key::ContextKey, pipeline_parts::PipelineParts},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use crate::ficus_proto::GrpcProxyPipelineExecutionRequest;
-use crate::grpc::context_values_service::{ContextValueService, GrpcContextValueService};
-use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
-use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
 
 pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_result::Result;
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;

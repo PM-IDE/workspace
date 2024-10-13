@@ -2,8 +2,6 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::{any::Any, str::FromStr};
 
-use nameof::name_of_type;
-use prost::{DecodeError, Message};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -56,6 +54,8 @@ use crate::{
         user_data::{keys::Key, user_data::UserData},
     },
 };
+use nameof::name_of_type;
+use prost::{DecodeError, Message};
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
     GrpcContextValue::decode(bytes)

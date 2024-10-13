@@ -3,7 +3,12 @@ use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_events, BxesToXesR
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::{grpc_kafka_result, GrpcContextKey, GrpcContextKeyValue, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest};
+use crate::ficus_proto::{
+    grpc_kafka_result, GrpcContextKeyValue, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid,
+    GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipeline,
+    GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest,
+    GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest,
+};
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
@@ -123,16 +128,13 @@ impl GrpcKafkaService for KafkaService {
 
     async fn execute_pipeline_and_produce_to_kafka(
         &self,
-        request: Request<GrpcExecutePipelineAndProduceKafkaRequest>
+        request: Request<GrpcExecutePipelineAndProduceKafkaRequest>,
     ) -> Result<Response<()>, Status> {
         let handler = Self::create_kafka_events_handler(request.get_ref().producer_metadata.as_ref())?;
         let pipeline_error = Status::invalid_argument("pipeline_request");
         let pipeline_request = request.get_ref().pipeline_request.as_ref().ok_or(pipeline_error)?;
 
-        let dto = PipelineExecutionDto::new(
-            self.pipeline_parts.clone(),
-            Arc::new(handler)
-        );
+        let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), Arc::new(handler));
 
         let mut cv_service = self.context_values_service.lock();
         let cv_service = cv_service.as_mut().expect("Must acquire lock");
@@ -148,10 +150,10 @@ impl GrpcKafkaService for KafkaService {
         let context = Self::create_pipeline_execution_context_from_proxy(
             match pipeline_request.pipeline.as_ref() {
                 Some(pipeline) => pipeline,
-                None => return Err(Status::invalid_argument("pipeline_request.pipeline"))
+                None => return Err(Status::invalid_argument("pipeline_request.pipeline")),
             },
             &context_values,
-            &dto
+            &dto,
         );
 
         let case_name = request.get_ref().case_info.as_ref().ok_or(Status::invalid_argument("case_info"))?.case_name.clone();
@@ -165,7 +167,8 @@ impl GrpcKafkaService for KafkaService {
         match execution_result {
             Ok(_) => Ok(Response::new(())),
             Err(err) => {
-                dto.events_handler.handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
+                dto.events_handler
+                    .handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
 
                 let message = format!("Failed to execute pipeline, error: {}", err.to_string());
                 Err(Status::internal(message))
@@ -193,7 +196,7 @@ impl PipelineExecutionDto {
     pub fn new(pipeline_parts: Arc<Box<PipelineParts>>, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> Self {
         Self {
             pipeline_parts,
-            events_handler
+            events_handler,
         }
     }
 }
@@ -210,13 +213,13 @@ impl KafkaConsumerCreationDto {
     pub fn new(
         consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-        pipeline_execution_dto: PipelineExecutionDto
+        pipeline_execution_dto: PipelineExecutionDto,
     ) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             consumer_states,
             names_to_logs,
-            pipeline_execution_dto
+            pipeline_execution_dto,
         }
     }
 }
@@ -233,7 +236,7 @@ impl KafkaService {
         KafkaConsumerCreationDto::new(
             self.consumers_states.clone(),
             self.names_to_logs.clone(),
-            PipelineExecutionDto::new(self.pipeline_parts.clone(), events_handler)
+            PipelineExecutionDto::new(self.pipeline_parts.clone(), events_handler),
         )
     }
 
@@ -369,19 +372,14 @@ impl KafkaService {
     fn create_pipeline_execution_context_from_proxy<'a>(
         pipeline: &'a GrpcPipeline,
         context_values: &'a Vec<GrpcContextKeyValue>,
-        dto: &PipelineExecutionDto
+        dto: &PipelineExecutionDto,
     ) -> ServicePipelineExecutionContext<'a> {
-        ServicePipelineExecutionContext::new(
-            pipeline,
-            context_values,
-            dto.pipeline_parts.clone(),
-            dto.events_handler.clone()
-        )
+        ServicePipelineExecutionContext::new(pipeline, context_values, dto.pipeline_parts.clone(), dto.events_handler.clone())
     }
 
     fn create_pipeline_execution_context<'a>(
         pipeline_req: &'a GrpcPipelineExecutionRequest,
-        dto: &PipelineExecutionDto
+        dto: &PipelineExecutionDto,
     ) -> ServicePipelineExecutionContext<'a> {
         let grpc_pipeline = pipeline_req.pipeline.as_ref().expect("Pipeline should be supplied");
 
@@ -463,7 +461,9 @@ impl KafkaService {
         }
     }
 
-    fn create_kafka_events_handler(producer_metadata: Option<&GrpcKafkaConnectionMetadata>) -> Result<Box<dyn PipelineEventsHandler>, Status> {
+    fn create_kafka_events_handler(
+        producer_metadata: Option<&GrpcKafkaConnectionMetadata>,
+    ) -> Result<Box<dyn PipelineEventsHandler>, Status> {
         let producer_metadata = match producer_metadata.as_ref() {
             None => return Err(Status::invalid_argument("Producer metadata must be provided")),
             Some(metadata) => metadata,

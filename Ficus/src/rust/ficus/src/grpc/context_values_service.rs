@@ -1,5 +1,5 @@
 use crate::ficus_proto::grpc_context_values_service_server::GrpcContextValuesService;
-use crate::ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcContextValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid};
+use crate::ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid};
 use crate::grpc::converters::context_value_from_bytes;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -7,13 +7,13 @@ use tonic::{Request, Response, Status, Streaming};
 use uuid::Uuid;
 
 pub struct ContextValueService {
-    context_values: Mutex<HashMap<String, GrpcContextKeyValue>>
+    context_values: Mutex<HashMap<String, GrpcContextKeyValue>>,
 }
 
 impl ContextValueService {
     pub fn new() -> Self {
         Self {
-            context_values: Mutex::new(HashMap::new())
+            context_values: Mutex::new(HashMap::new()),
         }
     }
 
@@ -52,14 +52,12 @@ impl ContextValueService {
 }
 
 pub struct GrpcContextValueService {
-    cv_service: Arc<Mutex<ContextValueService>>
+    cv_service: Arc<Mutex<ContextValueService>>,
 }
 
 impl GrpcContextValueService {
     pub fn new(cv_service: Arc<Mutex<ContextValueService>>) -> Self {
-        Self {
-            cv_service
-        }
+        Self { cv_service }
     }
 }
 
@@ -78,21 +76,22 @@ impl GrpcContextValuesService for GrpcContextValueService {
 
         let context_value = match context_value_from_bytes(bytes.as_slice()) {
             Ok(context_value) => context_value,
-            Err(_) => return Err(Status::invalid_argument("Failed to deserialize context value from bytes"))
+            Err(_) => return Err(Status::invalid_argument("Failed to deserialize context value from bytes")),
         };
 
         let mut cv_service = self.cv_service.lock();
         let cv_service = cv_service.as_mut().expect("Should acquire mut lock");
 
-        cv_service.put_context_value(context_value_id.to_string(), GrpcContextKeyValue {
-            key: Some(GrpcContextKey {
-                name: key.unwrap()
-            }),
-            value: Some(context_value)
-        });
+        cv_service.put_context_value(
+            context_value_id.to_string(),
+            GrpcContextKeyValue {
+                key: Some(GrpcContextKey { name: key.unwrap() }),
+                value: Some(context_value),
+            },
+        );
 
         Ok(Response::new(GrpcGuid {
-            guid: context_value_id.to_string()
+            guid: context_value_id.to_string(),
         }))
     }
 
