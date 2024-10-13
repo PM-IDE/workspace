@@ -1,5 +1,11 @@
 import uuid
+from typing import Callable, Any
 
+from grpc import Channel
+
+from ..models.context_values_service_pb2 import *
+from ..models.context_values_service_pb2_grpc import *
+from ..models.util_pb2 import *
 from ...grpc_pipelines.context_values import ContextValue
 from ...grpc_pipelines.models.backend_service_pb2_grpc import *
 from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
@@ -86,3 +92,49 @@ def append_parts_with_callbacks(original_parts, callback_parts: list['PipelinePa
             continue
 
         part.append_parts_with_callbacks(callback_parts)
+
+
+
+def execute_with_context_values(channel: Channel,
+                                initial_context: dict[str, ContextValue],
+                                action: Callable[[list[GrpcGuid]], Any]):
+    cv_service = GrpcContextValuesServiceStub(channel)
+    ids = set_initial_context(cv_service, initial_context)
+
+    try:
+        return action(ids)
+    finally:
+        cv_service.DropContextValues(GrpcDropContextValuesRequest(ids=ids))
+
+
+def set_initial_context(cv_service: GrpcContextValuesServiceStub, context: dict[str, ContextValue]) -> list[GrpcGuid]:
+    ids = []
+    for key, value in context.items():
+        ids.append(set_context_value(cv_service, key, value))
+
+    return ids
+
+
+def set_context_value(cv_service: GrpcContextValuesServiceStub, key: str, value: ContextValue):
+    message_bytes = bytes(value.to_grpc_context_value().SerializeToString())
+    chunk_length = 1024 * 16
+    index = 0
+
+    cv_parts = []
+
+    while index + chunk_length < len(message_bytes):
+        current_bytes = message_bytes[index:(index + chunk_length)]
+        cv_parts.append(GrpcContextValuePart(
+            bytes=current_bytes,
+            key=key
+        ))
+
+        index += chunk_length
+
+    if index < len(message_bytes):
+        cv_parts.append(GrpcContextValuePart(
+            bytes=message_bytes[index:],
+            key=key
+        ))
+
+    return cv_service.SetContextValue(iter(cv_parts))

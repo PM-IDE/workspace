@@ -38,7 +38,7 @@ class GrpcBackendServiceStub(object):
 
                 '/ficus.GrpcBackendService/ExecutePipeline',
 
-                request_serializer=backend__service__pb2.GrpcPipelineExecutionRequest.SerializeToString,
+                request_serializer=backend__service__pb2.GrpcProxyPipelineExecutionRequest.SerializeToString,
 
                 response_deserializer=backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 
@@ -120,7 +120,7 @@ def add_GrpcBackendServiceServicer_to_server(servicer, server):
 
                     servicer.ExecutePipeline,
 
-                    request_deserializer=backend__service__pb2.GrpcPipelineExecutionRequest.FromString,
+                    request_deserializer=backend__service__pb2.GrpcProxyPipelineExecutionRequest.FromString,
 
                     response_serializer=backend__service__pb2.GrpcPipelinePartExecutionResult.SerializeToString,
 
@@ -190,7 +190,7 @@ class GrpcBackendService(object):
 
         return grpc.experimental.unary_stream(request, target, '/ficus.GrpcBackendService/ExecutePipeline',
 
-            backend__service__pb2.GrpcPipelineExecutionRequest.SerializeToString,
+            backend__service__pb2.GrpcProxyPipelineExecutionRequest.SerializeToString,
 
             backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 

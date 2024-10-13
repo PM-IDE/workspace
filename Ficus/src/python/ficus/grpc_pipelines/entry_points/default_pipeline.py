@@ -19,27 +19,28 @@ class Pipeline:
 
     def execute(self, initial_context: dict[str, ContextValue]) -> GrpcPipelinePartExecutionResult:
         with create_ficus_grpc_channel(initial_context) as channel:
-            stub = GrpcBackendServiceStub(channel)
-            parts = list(self.parts)
-            request = GrpcPipelineExecutionRequest(
-                pipeline=create_grpc_pipeline(parts),
-                initialContext=create_initial_context(initial_context)
-            )
+            def action(ids):
+                stub = GrpcBackendServiceStub(channel)
+                parts = list(self.parts)
+                request = GrpcProxyPipelineExecutionRequest(
+                    pipeline=create_grpc_pipeline(parts),
+                    contextValuesIds=ids
+                )
 
-            callback_parts = []
-            append_parts_with_callbacks(list(self.parts), callback_parts)
-            last_result = process_pipeline_output_stream(callback_parts, stub.ExecutePipeline(request))
+                callback_parts = []
+                append_parts_with_callbacks(list(self.parts), callback_parts)
+                last_result = process_pipeline_output_stream(callback_parts, stub.ExecutePipeline(request))
 
-            if last_result.finalResult.HasField('success'):
-                guid = last_result.finalResult.success
-                stub.DropExecutionResult(guid)
+                if last_result.finalResult.HasField('success'):
+                    guid = last_result.finalResult.success
+                    stub.DropExecutionResult(guid)
 
-            return last_result
+                return last_result
 
+            return execute_with_context_values(channel, initial_context, action)
 
     def to_grpc_pipeline(self):
         return create_grpc_pipeline(self.parts)
-
 
     @staticmethod
     def _find_pipeline_parts_with_callbacks(parts) -> list["PipelinePartWithCallback"]:

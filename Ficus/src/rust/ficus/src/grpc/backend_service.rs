@@ -21,7 +21,8 @@ use crate::{
     pipelines::{keys::context_key::ContextKey, pipeline_parts::PipelineParts},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
-
+use crate::ficus_proto::GrpcProxyPipelineExecutionRequest;
+use crate::grpc::context_values_service::{ContextValueService, GrpcContextValueService};
 use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
 
@@ -29,13 +30,15 @@ pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_re
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;
 
 pub struct FicusService {
+    cv_service: Arc<Mutex<ContextValueService>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
     contexts: Arc<Box<Mutex<HashMap<String, UserDataImpl>>>>,
 }
 
 impl FicusService {
-    pub fn new() -> Self {
+    pub fn new(cv_service: Arc<Mutex<ContextValueService>>) -> Self {
         Self {
+            cv_service,
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
             contexts: Arc::new(Box::new(Mutex::new(HashMap::new()))),
         }
@@ -48,17 +51,27 @@ impl GrpcBackendService for FicusService {
 
     async fn execute_pipeline(
         &self,
-        request: Request<GrpcPipelineExecutionRequest>,
+        request: Request<GrpcProxyPipelineExecutionRequest>,
     ) -> Result<Response<Self::ExecutePipelineStream>, Status> {
         let pipeline_parts = self.pipeline_parts.clone();
         let contexts = self.contexts.clone();
         let (sender, receiver) = mpsc::channel(4);
 
+        let mut cv_service = self.cv_service.lock();
+        let cv_service = cv_service.as_mut().expect("Must acquire lock");
+        let context_values = match cv_service.reclaim_context_values(&request.get_ref().context_values_ids) {
+            Ok(context_values) => context_values,
+            Err(not_found_id) => {
+                let message = format!("Failed to find context value for id {}", not_found_id);
+                return Err(Status::invalid_argument(message));
+            }
+        };
+
         tokio::task::spawn_blocking(move || {
             let grpc_pipeline = request.get_ref().pipeline.as_ref().unwrap();
-            let context_values = &request.get_ref().initial_context;
+
             let sender = Arc::new(Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>);
-            let context = ServicePipelineExecutionContext::new(grpc_pipeline, context_values, pipeline_parts, sender);
+            let context = ServicePipelineExecutionContext::new(grpc_pipeline, &context_values, pipeline_parts, sender);
 
             match context.execute_grpc_pipeline(|_| {}) {
                 Ok((uuid, created_context)) => {
