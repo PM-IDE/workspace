@@ -22,6 +22,11 @@ message GrpcPipelineExecutionRequest {
     repeated GrpcContextKeyValue initialContext = 2;
 }
 
+message GrpcProxyPipelineExecutionRequest {
+    GrpcPipeline pipeline = 1;
+    repeated GrpcGuid contextValuesIds = 2;
+}
+
 message GrpcPipelinePartExecutionResult {
     oneof result {
         GrpcPipelineFinalResult finalResult = 1;

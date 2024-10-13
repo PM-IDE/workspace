@@ -1,11 +1,16 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from grpc import Channel
+
 from .util import *
+from ..models.context_values_service_pb2 import GrpcContextValuePart, GrpcDropContextValuesRequest
+from ..models.context_values_service_pb2_grpc import GrpcContextValuesServiceStub
 from ..models.kafka_service_pb2 import *
 from ..models.kafka_service_pb2_grpc import *
-from ...grpc_pipelines.entry_points.default_pipeline import create_grpc_pipeline
+from ..models.util_pb2 import GrpcGuid
 from ...grpc_pipelines.context_values import ContextValue
+from ...grpc_pipelines.entry_points.default_pipeline import create_grpc_pipeline
 from ...grpc_pipelines.models.backend_service_pb2 import *
 
 
@@ -83,18 +88,62 @@ class KafkaPipeline:
                                   producer_metadata: KafkaPipelineMetadata,
                                   initial_context: dict[str, ContextValue]):
         with create_ficus_grpc_channel(initial_context) as channel:
-            stub = GrpcKafkaServiceStub(channel)
+            def action(ids):
+                stub = GrpcKafkaServiceStub(channel)
 
-            pipeline_request = GrpcPipelineExecutionRequest(
-                pipeline=create_grpc_pipeline(self.parts),
-                initialContext=create_initial_context(initial_context)
-            )
+                pipeline_request = GrpcProxyPipelineExecutionRequest(
+                    pipeline=create_grpc_pipeline(self.parts),
+                    contextValuesIds=ids,
+                )
 
-            request = GrpcExecutePipelineAndProduceKafkaRequest(
-                pipelineRequest=pipeline_request,
-                producerMetadata=self._create_kafka_connection_metadata(producer_metadata),
-                caseInfo=GrpcCaseInfo(caseName=case_name, processName=process_name),
-            )
+                request = GrpcExecutePipelineAndProduceKafkaRequest(
+                    pipelineRequest=pipeline_request,
+                    producerMetadata=self._create_kafka_connection_metadata(producer_metadata),
+                    caseInfo=GrpcCaseInfo(caseName=case_name, processName=process_name),
+                )
 
-            result = stub.ExecutePipelineAndProduceToKafka(request)
-            print(result)
+                stub.ExecutePipelineAndProduceToKafka(request)
+
+            execute_with_context_values(channel, initial_context, action)
+
+
+def execute_with_context_values(channel: Channel, initial_context: dict[str, ContextValue], action):
+    cv_service = GrpcContextValuesServiceStub(channel)
+    ids = set_initial_context(cv_service, initial_context)
+
+    try:
+        action(ids)
+    finally:
+        cv_service.DropContextValues(GrpcDropContextValuesRequest(ids=ids))
+
+
+def set_initial_context(cv_service: GrpcContextValuesServiceStub, context: dict[str, ContextValue]) -> list[GrpcGuid]:
+    ids = []
+    for key, value in context.items():
+        ids.append(set_context_value(cv_service, key, value))
+
+    return ids
+
+def set_context_value(cv_service: GrpcContextValuesServiceStub, key: str, value: ContextValue):
+    message_bytes = bytes(value.to_grpc_context_value().SerializeToString())
+    chunk_length = 1024 * 16
+    index = 0
+
+    cv_parts = []
+
+    while index + chunk_length < len(message_bytes):
+        current_bytes = message_bytes[index:(index + chunk_length)]
+        cv_parts.append(GrpcContextValuePart(
+            bytes=current_bytes,
+            key=key
+        ))
+
+        index += chunk_length
+
+    if index < len(message_bytes):
+        cv_parts.append(GrpcContextValuePart(
+            bytes=message_bytes[index:],
+            key=key
+        ))
+
+    return cv_service.SetContextValue(iter(cv_parts))

@@ -3,7 +3,8 @@ use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_events, BxesToXesR
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::{grpc_kafka_result, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest};
+use crate::ficus_proto::{grpc_kafka_result, GrpcContextKey, GrpcContextKeyValue, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest};
+use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
@@ -28,14 +29,16 @@ use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
 pub struct KafkaService {
+    context_values_service: Arc<Mutex<ContextValueService>>,
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
     consumers_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
 }
 
 impl KafkaService {
-    pub fn new() -> Self {
+    pub fn new(context_values_service: Arc<Mutex<ContextValueService>>) -> Self {
         Self {
+            context_values_service,
             names_to_logs: Arc::new(Mutex::new(HashMap::new())),
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
             consumers_states: Arc::new(Mutex::new(HashMap::new())),
@@ -131,7 +134,26 @@ impl GrpcKafkaService for KafkaService {
             Arc::new(handler)
         );
 
-        let context = Self::create_pipeline_execution_context(pipeline_request, &dto);
+        let mut cv_service = self.context_values_service.lock();
+        let cv_service = cv_service.as_mut().expect("Must acquire lock");
+
+        let context_values = match cv_service.reclaim_context_values(&pipeline_request.context_values_ids) {
+            Ok(context_values) => context_values,
+            Err(not_found_id) => {
+                let message = format!("Failed to find context value for id {}", not_found_id);
+                return Err(Status::invalid_argument(message));
+            }
+        };
+
+        let context = Self::create_pipeline_execution_context_from_proxy(
+            match pipeline_request.pipeline.as_ref() {
+                Some(pipeline) => pipeline,
+                None => return Err(Status::invalid_argument("pipeline_request.pipeline"))
+            },
+            &context_values,
+            &dto
+        );
+
         let case_name = request.get_ref().case_info.as_ref().ok_or(Status::invalid_argument("case_info"))?.case_name.clone();
         let process_name = request.get_ref().case_info.as_ref().ok_or(Status::invalid_argument("process_name"))?.process_name.clone();
 
@@ -342,6 +364,19 @@ impl KafkaService {
             let err = PipelineFinalResult::Error(err.to_string());
             dto.pipeline_execution_dto.events_handler.handle(PipelineEvent::FinalResult(err));
         }
+    }
+
+    fn create_pipeline_execution_context_from_proxy<'a>(
+        pipeline: &'a GrpcPipeline,
+        context_values: &'a Vec<GrpcContextKeyValue>,
+        dto: &PipelineExecutionDto
+    ) -> ServicePipelineExecutionContext<'a> {
+        ServicePipelineExecutionContext::new(
+            pipeline,
+            context_values,
+            dto.pipeline_parts.clone(),
+            dto.events_handler.clone()
+        )
     }
 
     fn create_pipeline_execution_context<'a>(

@@ -24,6 +24,14 @@ class GrpcPipelineExecutionRequest(_message.Message):
     initialContext: _containers.RepeatedCompositeFieldContainer[_pipelines_and_context_pb2.GrpcContextKeyValue]
     def __init__(self, pipeline: _Optional[_Union[_pipelines_and_context_pb2.GrpcPipeline, _Mapping]] = ..., initialContext: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextKeyValue, _Mapping]]] = ...) -> None: ...
 
+class GrpcProxyPipelineExecutionRequest(_message.Message):
+    __slots__ = ["pipeline", "contextValuesIds"]
+    PIPELINE_FIELD_NUMBER: _ClassVar[int]
+    CONTEXTVALUESIDS_FIELD_NUMBER: _ClassVar[int]
+    pipeline: _pipelines_and_context_pb2.GrpcPipeline
+    contextValuesIds: _containers.RepeatedCompositeFieldContainer[_util_pb2.GrpcGuid]
+    def __init__(self, pipeline: _Optional[_Union[_pipelines_and_context_pb2.GrpcPipeline, _Mapping]] = ..., contextValuesIds: _Optional[_Iterable[_Union[_util_pb2.GrpcGuid, _Mapping]]] = ...) -> None: ...
+
 class GrpcPipelinePartExecutionResult(_message.Message):
     __slots__ = ["finalResult", "pipelinePartResult", "logMessage"]
     FINALRESULT_FIELD_NUMBER: _ClassVar[int]

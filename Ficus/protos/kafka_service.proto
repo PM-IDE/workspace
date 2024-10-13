@@ -16,7 +16,7 @@ service GrpcKafkaService {
 }
 
 message GrpcExecutePipelineAndProduceKafkaRequest {
-  GrpcPipelineExecutionRequest pipelineRequest = 1;
+  GrpcProxyPipelineExecutionRequest pipelineRequest = 1;
   GrpcKafkaConnectionMetadata producerMetadata = 2;
   GrpcCaseInfo caseInfo = 3;
 }
