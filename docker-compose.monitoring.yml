@@ -57,6 +57,8 @@ services:
   ficus-backend:
     depends_on:
       - kafka
+    ports:
+      - 1234:8080
     build:
       context: .
       dockerfile: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
