@@ -17,11 +17,11 @@ public class GcStartEventMutator : MetadataValueToNameAppenderBase
   {
     string TransformReason(string reason) => GcMutatorsUtil.GenerateNewNameForGcReason(reason, Logger);
 
-    Transformations = new[]
-    {
+    Transformations =
+    [
       new MetadataKeysWithTransform(TraceEventsConstants.GcStartReason, TransformReason, EventClassKind.Zero),
       new MetadataKeysWithTransform(TraceEventsConstants.GcStartType, GenerateNameForGcType, EventClassKind.Zero)
-    };
+    ];
   }
 
 

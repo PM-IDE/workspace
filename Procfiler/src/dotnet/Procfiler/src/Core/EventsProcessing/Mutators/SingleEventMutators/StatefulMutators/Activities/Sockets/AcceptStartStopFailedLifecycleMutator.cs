@@ -10,8 +10,8 @@ public class AcceptStartStopFailedLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "SocketAccept",
-    new[] { TraceEventsConstants.AcceptStart },
-    new[] { TraceEventsConstants.AcceptFailed, TraceEventsConstants.AcceptStop }
+    [TraceEventsConstants.AcceptStart],
+    [TraceEventsConstants.AcceptFailed, TraceEventsConstants.AcceptStop]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy { get; } =

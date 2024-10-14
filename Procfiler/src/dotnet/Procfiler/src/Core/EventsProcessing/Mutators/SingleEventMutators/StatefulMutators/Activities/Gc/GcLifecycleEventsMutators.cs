@@ -10,8 +10,8 @@ public class GcFinalizersStartStopLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "Finalizers",
-    new[] { TraceEventsConstants.GcFinalizersStart },
-    new[] { TraceEventsConstants.GcFinalizersStop }
+    [TraceEventsConstants.GcFinalizersStart],
+    [TraceEventsConstants.GcFinalizersStop]
   );
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
@@ -19,8 +19,8 @@ public class GcRestartEeLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "RestartEE",
-    new[] { TraceEventsConstants.GcRestartEeStart },
-    new[] { TraceEventsConstants.GcRestartEeStop }
+    [TraceEventsConstants.GcRestartEeStart],
+    [TraceEventsConstants.GcRestartEeStop]
   );
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
@@ -28,13 +28,13 @@ public class GcSuspendEeStartStopLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "SuspendEE",
-    new[] { TraceEventsConstants.GcSuspendEeStart },
-    new[] { TraceEventsConstants.GcSuspendEeStop }
+    [TraceEventsConstants.GcSuspendEeStart],
+    [TraceEventsConstants.GcSuspendEeStop]
   );
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
 public class GcProcessLifecycleEventsMutator(IProcfilerLogger logger)
-  : EventsLifecycleMutatorBase(logger, "GC", new[] { TraceEventsConstants.GcStart }, new[] { TraceEventsConstants.GcStop })
+  : EventsLifecycleMutatorBase(logger, "GC", [TraceEventsConstants.GcStart], [TraceEventsConstants.GcStop])
 {
   protected override IIdCreationStrategy IdCreationStrategy { get; } =
     new FromAttributesIdCreationStrategy("GC", new List<string> { TraceEventsConstants.GcCount });

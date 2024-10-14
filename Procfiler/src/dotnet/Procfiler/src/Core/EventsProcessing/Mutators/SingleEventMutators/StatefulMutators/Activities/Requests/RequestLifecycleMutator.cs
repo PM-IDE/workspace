@@ -10,7 +10,7 @@ public class RequestStartStopLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "Request",
-    new[] { TraceEventsConstants.RequestStart },
+    [TraceEventsConstants.RequestStart],
     ourCompleteEvents,
     TraceEventsConstants.RequestLeftQueue
   )
@@ -30,8 +30,8 @@ public class RequestContentLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "RequestContent",
-    new[] { TraceEventsConstants.RequestContentStart },
-    new[] { TraceEventsConstants.RequestContentStop }
+    [TraceEventsConstants.RequestContentStart],
+    [TraceEventsConstants.RequestContentStop]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy =>
@@ -43,8 +43,8 @@ public class RequestHeaderLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "RequestHeaders",
-    new[] { TraceEventsConstants.RequestHeadersStart },
-    new[] { TraceEventsConstants.RequestHeadersStop }
+    [TraceEventsConstants.RequestHeadersStart],
+    [TraceEventsConstants.RequestHeadersStop]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy =>

@@ -10,6 +10,6 @@ public class ContentionLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "Contention",
-    new[] { TraceEventsConstants.ContentionStart },
-    new[] { TraceEventsConstants.ContentionStop }
+    [TraceEventsConstants.ContentionStart],
+    [TraceEventsConstants.ContentionStop]
   );

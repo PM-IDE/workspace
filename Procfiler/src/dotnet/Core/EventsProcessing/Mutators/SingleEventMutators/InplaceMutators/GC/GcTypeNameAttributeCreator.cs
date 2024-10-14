@@ -23,10 +23,10 @@ public class GcTypeNameAttributeCreator : ISingleEventMutator
   {
     myLogger = logger;
     EventClass = TraceEventsConstants.GcSampledObjectAllocation;
-    Mutations = new[]
-    {
+    Mutations =
+    [
       new NewAttributeCreationMutation(EventClass, TraceEventsConstants.GcSampledObjectAllocationTypeName)
-    };
+    ];
   }
 
 

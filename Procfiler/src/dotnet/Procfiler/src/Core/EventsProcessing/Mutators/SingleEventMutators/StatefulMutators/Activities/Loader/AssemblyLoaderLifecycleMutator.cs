@@ -10,6 +10,6 @@ public class AssemblyLoaderLifecycleMutator(IProcfilerLogger logger) :
   EventsLifecycleMutatorBase(
     logger,
     "AssemblyLoader",
-    new[] { TraceEventsConstants.AssemblyLoaderStart },
-    new[] { TraceEventsConstants.AssemblyLoaderStop }
+    [TraceEventsConstants.AssemblyLoaderStart],
+    [TraceEventsConstants.AssemblyLoaderStop]
   );

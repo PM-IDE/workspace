@@ -10,12 +10,12 @@ public class LoaderAppDomainLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "LoaderAppDomain",
-    new[] { TraceEventsConstants.LoaderAppDomainLoad },
-    new[] { TraceEventsConstants.LoaderAppDomainUnload }
+    [TraceEventsConstants.LoaderAppDomainLoad],
+    [TraceEventsConstants.LoaderAppDomainUnload]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy { get; } =
-    new FromAttributesIdCreationStrategy("LoaderAppDomain", new[] { TraceEventsConstants.LoaderAppDomainName });
+    new FromAttributesIdCreationStrategy("LoaderAppDomain", [TraceEventsConstants.LoaderAppDomainName]);
 }
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
@@ -23,12 +23,12 @@ public class LoaderAssemblyLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "LoaderAssembly",
-    new[] { TraceEventsConstants.LoaderAssemblyLoad },
-    new[] { TraceEventsConstants.LoaderAssemblyUnload }
+    [TraceEventsConstants.LoaderAssemblyLoad],
+    [TraceEventsConstants.LoaderAssemblyUnload]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy { get; } =
-    new FromAttributesIdCreationStrategy("LoaderAssembly", new[] { TraceEventsConstants.LoaderAssemblyName });
+    new FromAttributesIdCreationStrategy("LoaderAssembly", [TraceEventsConstants.LoaderAssemblyName]);
 }
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
@@ -36,10 +36,10 @@ public class LoaderModuleLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "LoaderModule",
-    new[] { TraceEventsConstants.LoaderModuleLoad },
-    new[] { TraceEventsConstants.LoaderModuleUnload }
+    [TraceEventsConstants.LoaderModuleLoad],
+    [TraceEventsConstants.LoaderModuleUnload]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy { get; } =
-    new FromAttributesIdCreationStrategy("LoaderModule", new[] { TraceEventsConstants.LoaderILFileName });
+    new FromAttributesIdCreationStrategy("LoaderModule", [TraceEventsConstants.LoaderILFileName]);
 }

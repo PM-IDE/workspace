@@ -10,8 +10,8 @@ public class ConnectStartStopFailedLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "SocketConnect",
-    new[] { TraceEventsConstants.ConnectStart },
-    new[] { TraceEventsConstants.ConnectStop, TraceEventsConstants.ConnectFailed }
+    [TraceEventsConstants.ConnectStart],
+    [TraceEventsConstants.ConnectStop, TraceEventsConstants.ConnectFailed]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy { get; } =

@@ -17,9 +17,9 @@ public class GcTriggeredEventMutator : MetadataValueToNameAppenderBase
   {
     string TransformReason(string reason) => GcMutatorsUtil.GenerateNewNameForGcReason(reason, Logger);
 
-    Transformations = new[]
-    {
+    Transformations =
+    [
       new MetadataKeysWithTransform(TraceEventsConstants.CommonReason, TransformReason, EventClassKind.Zero)
-    };
+    ];
   }
 }

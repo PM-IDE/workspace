@@ -10,8 +10,8 @@ public class ResponseHeaderLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "ResponseHeaders",
-    new[] { TraceEventsConstants.ResponseHeadersStart },
-    new[] { TraceEventsConstants.ResponseHeadersStop }
+    [TraceEventsConstants.ResponseHeadersStart],
+    [TraceEventsConstants.ResponseHeadersStop]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy =>
@@ -23,8 +23,8 @@ public class ResponseContentLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "ResponseContent",
-    new[] { TraceEventsConstants.ResponseContentStart },
-    new[] { TraceEventsConstants.ResponseContentStop }
+    [TraceEventsConstants.ResponseContentStart],
+    [TraceEventsConstants.ResponseContentStop]
   )
 {
   protected override IIdCreationStrategy IdCreationStrategy =>

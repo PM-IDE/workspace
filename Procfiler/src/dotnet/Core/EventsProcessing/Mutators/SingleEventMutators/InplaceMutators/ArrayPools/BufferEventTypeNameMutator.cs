@@ -15,7 +15,7 @@ public abstract class BufferEventTypeNameMutator(IProcfilerLogger logger) : Sing
 
 
   public override IEnumerable<EventLogMutation> Mutations =>
-    new[] { new EventTypeNameMutation(EventType, $"{Buffer}/{EventType[Buffer.Length..]}") };
+    [new EventTypeNameMutation(EventType, $"{Buffer}/{EventType[Buffer.Length..]}")];
 
   protected override void ProcessInternal(EventRecordWithMetadata eventRecord, IGlobalData context)
   {

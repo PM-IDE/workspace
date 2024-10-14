@@ -11,9 +11,9 @@ public class MethodJittingStartedNameMutator(IProcfilerLogger logger) : Metadata
 {
   public override string EventType => TraceEventsConstants.MethodJittingStarted;
 
-  protected override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
-  {
+  protected override IEnumerable<MetadataKeysWithTransform> Transformations { get; } =
+  [
     MetadataKeysWithTransform.CreateForTypeLikeName(TraceEventsConstants.MethodNamespace, EventClassKind.Zero),
     MetadataKeysWithTransform.CreateForTypeLikeName(TraceEventsConstants.MethodName, EventClassKind.Zero)
-  };
+  ];
 }

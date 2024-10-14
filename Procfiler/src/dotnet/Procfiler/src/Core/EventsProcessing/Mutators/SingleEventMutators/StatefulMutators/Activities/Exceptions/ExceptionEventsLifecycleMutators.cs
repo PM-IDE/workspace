@@ -10,8 +10,8 @@ public class ExceptionStartStopLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "ExceptionStartStop",
-    new[] { TraceEventsConstants.ExceptionStart },
-    new[] { TraceEventsConstants.ExceptionStop }
+    [TraceEventsConstants.ExceptionStart],
+    [TraceEventsConstants.ExceptionStop]
   );
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
@@ -19,8 +19,8 @@ public class ExceptionCatchStartStopLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "ExceptionCatch",
-    new[] { TraceEventsConstants.ExceptionCatchStart },
-    new[] { TraceEventsConstants.ExceptionCatchStop }
+    [TraceEventsConstants.ExceptionCatchStart],
+    [TraceEventsConstants.ExceptionCatchStop]
   );
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
@@ -28,8 +28,8 @@ public class ExceptionFilterStartStopLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "ExceptionFilter",
-    new[] { TraceEventsConstants.ExceptionFilterStart },
-    new[] { TraceEventsConstants.ExceptionFilterStop }
+    [TraceEventsConstants.ExceptionFilterStart],
+    [TraceEventsConstants.ExceptionFilterStop]
   );
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
@@ -37,6 +37,6 @@ public class ExceptionFinallyStartStopLifecycleMutator(IProcfilerLogger logger)
   : EventsLifecycleMutatorBase(
     logger,
     "ExceptionFinally",
-    new[] { TraceEventsConstants.ExceptionFinallyStart },
-    new[] { TraceEventsConstants.ExceptionFinallyStop }
+    [TraceEventsConstants.ExceptionFinallyStart],
+    [TraceEventsConstants.ExceptionFinallyStop]
   );

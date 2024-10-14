@@ -23,8 +23,8 @@ public class GcPinObjectAtGcTimeNameMutator(IProcfilerLogger logger) : MetadataV
 {
   public override string EventType => TraceEventsConstants.GcPinObjectAtGcTime;
 
-  protected override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
-  {
+  protected override IEnumerable<MetadataKeysWithTransform> Transformations { get; } =
+  [
     MetadataKeysWithTransform.CreateForTypeLikeName(TraceEventsConstants.CommonTypeName, EventClassKind.Zero)
-  };
+  ];
 }

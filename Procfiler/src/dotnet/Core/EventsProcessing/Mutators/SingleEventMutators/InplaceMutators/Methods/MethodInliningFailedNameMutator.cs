@@ -8,13 +8,13 @@ namespace Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Met
 
 public abstract class MethodInliningNameMutatorBase(IProcfilerLogger logger) : MetadataValueToNameAppenderBase(logger)
 {
-  protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
-  {
+  protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } =
+  [
     MetadataKeysWithTransform.CreateForTypeLikeName(
       TraceEventsConstants.MethodInliningSucceededInlineeNamespace, EventClassKind.Zero),
     MetadataKeysWithTransform.CreateForTypeLikeName(
       TraceEventsConstants.MethodInliningSucceededInlineeName, EventClassKind.Zero)
-  };
+  ];
 }
 
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]
