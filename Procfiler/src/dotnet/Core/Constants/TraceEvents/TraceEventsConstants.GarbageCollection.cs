@@ -62,4 +62,5 @@ public static partial class TraceEventsConstants
   public const string GcTerminateConcurrentThread = "GC/TerminateConcurrentThread";
 
   public const string GcCount = "Count";
+  public const string GcSegmentType = "Type";
 }
