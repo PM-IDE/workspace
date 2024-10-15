@@ -18,7 +18,6 @@ use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
-use crate::vecs;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaTrace};
 use futures::Stream;
@@ -160,10 +159,10 @@ impl GrpcKafkaService for KafkaService {
                 .get_ref()
                 .pipeline_request
                 .as_ref()
-                .expect("Pipeline must be supplied")
+                .expect("Pipeline request must be supplied")
                 .pipeline
                 .as_ref()
-                .unwrap();
+                .expect("Pipeline must be supplied");
 
             let case_name = request
                 .get_ref()

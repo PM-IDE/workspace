@@ -95,7 +95,7 @@ class KafkaPipeline:
                 request = GrpcExecutePipelineAndProduceKafkaRequest(
                     pipelineRequest=pipeline_request,
                     producerMetadata=self._create_kafka_connection_metadata(producer_metadata),
-                    caseInfo=GrpcCaseInfo(caseName=case_name, processName=process_name),
+                    caseInfo=GrpcProcessInfo(caseName=case_name, processName=process_name),
                 )
 
                 callback_parts = []

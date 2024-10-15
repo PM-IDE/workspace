@@ -18,10 +18,10 @@ service GrpcKafkaService {
 message GrpcExecutePipelineAndProduceKafkaRequest {
   GrpcProxyPipelineExecutionRequest pipelineRequest = 1;
   GrpcKafkaConnectionMetadata producerMetadata = 2;
-  GrpcCaseInfo caseInfo = 3;
+  GrpcProcessInfo caseInfo = 3;
 }
 
-message GrpcCaseInfo {
+message GrpcProcessInfo {
   string processName = 1;
   string caseName = 2;
 }
