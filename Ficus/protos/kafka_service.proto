@@ -12,7 +12,7 @@ service GrpcKafkaService {
   rpc SubscribeForKafkaTopicStream(GrpcSubscribeForKafkaTopicRequest) returns (stream GrpcPipelinePartExecutionResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
 
-  rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (google.protobuf.Empty);
+  rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (stream GrpcPipelinePartExecutionResult);
 }
 
 message GrpcExecutePipelineAndProduceKafkaRequest {

@@ -94,7 +94,6 @@ def append_parts_with_callbacks(original_parts, callback_parts: list['PipelinePa
         part.append_parts_with_callbacks(callback_parts)
 
 
-
 def execute_with_context_values(channel: Channel,
                                 initial_context: dict[str, ContextValue],
                                 action: Callable[[list[GrpcGuid]], Any]):

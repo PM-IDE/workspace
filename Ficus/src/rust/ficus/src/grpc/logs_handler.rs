@@ -10,7 +10,7 @@ pub struct GrpcLogMessageHandlerImpl {
 
 impl LogMessageHandler for GrpcLogMessageHandlerImpl {
     fn handle(&self, message: &str) -> Result<(), PipelinePartExecutionError> {
-        self.sender.handle(PipelineEvent::LogMessage(message.to_string()));
+        self.sender.handle(&PipelineEvent::LogMessage(message.to_string()));
         Ok(())
     }
 }

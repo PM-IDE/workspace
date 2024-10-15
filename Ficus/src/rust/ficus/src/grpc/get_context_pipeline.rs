@@ -54,7 +54,7 @@ impl GetContextValuePipelinePart {
                 let key_values = Self::find_context_values_for(&context_keys, context)?;
                 let process_case_metadata = Self::create_process_case_metadata(context);
 
-                sender.handle(PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
+                sender.handle(&PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
                     process_case_metadata,
                     pipeline_part_name,
                     uuid,

@@ -70,7 +70,7 @@ impl KafkaEventsHandler {
 }
 
 impl PipelineEventsHandler for KafkaEventsHandler {
-    fn handle(&self, event: PipelineEvent) {
+    fn handle(&self, event: &PipelineEvent) {
         match event {
             PipelineEvent::GetContextValuesEvent(event) => {
                 let result = self.producer.produce(event.to_grpc_kafka_update());
@@ -99,14 +99,14 @@ impl PipelineEventsHandler for KafkaEventsHandler {
 }
 
 impl GetContextValuesEvent<'_> {
-    fn to_grpc_kafka_update(self) -> GrpcKafkaUpdate {
+    fn to_grpc_kafka_update(&self) -> GrpcKafkaUpdate {
         GrpcKafkaUpdate {
             process_case_metadata: Some(self.process_case_metadata.to_grpc_process_case_metadata()),
             pipeline_part_info: Some(GrpcPipelinePartInfo {
                 id: Some(GrpcGuid {
                     guid: self.uuid.to_string(),
                 }),
-                name: self.pipeline_part_name,
+                name: self.pipeline_part_name.clone(),
             }),
             context_values: create_grpc_context_values(&self.key_values),
         }
@@ -114,16 +114,16 @@ impl GetContextValuesEvent<'_> {
 }
 
 impl ProcessCaseMetadata {
-    fn to_grpc_process_case_metadata(self) -> GrpcProcessCaseMetadata {
+    fn to_grpc_process_case_metadata(&self) -> GrpcProcessCaseMetadata {
         GrpcProcessCaseMetadata {
-            case_name: self.case_name,
-            process_name: self.process_name,
+            case_name: self.case_name.clone(),
+            process_name: self.process_name.clone(),
             metadata: self
                 .metadata
-                .into_iter()
+                .iter()
                 .map(|pair| GrpcStringKeyValue {
-                    key: pair.0,
-                    value: pair.1,
+                    key: pair.0.clone(),
+                    value: pair.1.clone(),
                 })
                 .collect(),
         }

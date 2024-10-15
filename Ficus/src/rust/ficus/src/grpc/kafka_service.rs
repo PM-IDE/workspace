@@ -4,12 +4,13 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
 use crate::ficus_proto::{
-    grpc_kafka_result, GrpcContextKeyValue, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid,
-    GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipeline,
-    GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest,
-    GrpcSubscribeToKafkaAndProduceToKafka, GrpcUnsubscribeFromKafkaRequest,
+    grpc_kafka_result, GrpcContextKeyValue, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid, GrpcKafkaConnectionMetadata,
+    GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipeline, GrpcPipelineExecutionRequest,
+    GrpcPipelinePartExecutionResult, GrpcSubscribeForKafkaTopicRequest, GrpcSubscribeToKafkaAndProduceToKafka,
+    GrpcUnsubscribeFromKafkaRequest,
 };
 use crate::grpc::context_values_service::ContextValueService;
+use crate::grpc::events::delegating_events_handler::DelegatingEventsHandler;
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
@@ -17,6 +18,7 @@ use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
+use crate::vecs;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaTrace};
 use futures::Stream;
@@ -126,54 +128,79 @@ impl GrpcKafkaService for KafkaService {
         Ok(Response::new(GrpcKafkaResult { result: Some(result) }))
     }
 
+    type ExecutePipelineAndProduceToKafkaStream =
+        Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+
     async fn execute_pipeline_and_produce_to_kafka(
         &self,
         request: Request<GrpcExecutePipelineAndProduceKafkaRequest>,
-    ) -> Result<Response<()>, Status> {
-        let handler = Self::create_kafka_events_handler(request.get_ref().producer_metadata.as_ref())?;
-        let pipeline_error = Status::invalid_argument("pipeline_request");
-        let pipeline_request = request.get_ref().pipeline_request.as_ref().ok_or(pipeline_error)?;
+    ) -> Result<Response<Self::ExecutePipelineAndProduceToKafkaStream>, Status> {
+        let (sender, receiver) = mpsc::channel(4);
+        let kafka_handler = Self::create_kafka_events_handler(request.get_ref().producer_metadata.as_ref())?;
+        let grpc_handler = Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>;
 
+        let handler = Box::new(DelegatingEventsHandler::new(vec![kafka_handler, grpc_handler]));
+        let handler = handler as Box<dyn PipelineEventsHandler>;
         let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), Arc::new(handler));
 
         let mut cv_service = self.context_values_service.lock();
         let cv_service = cv_service.as_mut().expect("Must acquire lock");
 
-        let context_values = match cv_service.reclaim_context_values(&pipeline_request.context_values_ids) {
-            Ok(context_values) => context_values,
-            Err(not_found_id) => {
-                let message = format!("Failed to find context value for id {}", not_found_id);
-                return Err(Status::invalid_argument(message));
-            }
-        };
+        let context_values =
+            match cv_service.reclaim_context_values(&request.get_ref().pipeline_request.as_ref().unwrap().context_values_ids) {
+                Ok(context_values) => context_values,
+                Err(not_found_id) => {
+                    let message = format!("Failed to find context value for id {}", not_found_id);
+                    return Err(Status::invalid_argument(message));
+                }
+            };
 
-        let context = Self::create_pipeline_execution_context_from_proxy(
-            match pipeline_request.pipeline.as_ref() {
-                Some(pipeline) => pipeline,
-                None => return Err(Status::invalid_argument("pipeline_request.pipeline")),
-            },
-            &context_values,
-            &dto,
-        );
+        tokio::task::spawn_blocking(move || {
+            let pipeline = request
+                .get_ref()
+                .pipeline_request
+                .as_ref()
+                .expect("Pipeline must be supplied")
+                .pipeline
+                .as_ref()
+                .unwrap();
 
-        let case_name = request.get_ref().case_info.as_ref().ok_or(Status::invalid_argument("case_info"))?.case_name.clone();
-        let process_name = request.get_ref().case_info.as_ref().ok_or(Status::invalid_argument("process_name"))?.process_name.clone();
+            let case_name = request
+                .get_ref()
+                .case_info
+                .as_ref()
+                .expect("Case name must be supplied")
+                .case_name
+                .clone();
 
-        let execution_result = context.execute_grpc_pipeline(move |context| {
-            context.put_concrete(PROCESS_NAME.key(), process_name);
-            context.put_concrete(CASE_NAME.key(), case_name);
+            let process_name = request
+                .get_ref()
+                .case_info
+                .as_ref()
+                .expect("Process name must be supplied")
+                .process_name
+                .clone();
+
+            let context = Self::create_pipeline_execution_context_from_proxy(pipeline, &context_values, &dto);
+
+            let execution_result = context.execute_grpc_pipeline(move |context| {
+                context.put_concrete(PROCESS_NAME.key(), process_name);
+                context.put_concrete(CASE_NAME.key(), case_name);
+            });
+
+            match execution_result {
+                Ok((uuid, _)) => {
+                    dto.events_handler
+                        .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
+                }
+                Err(err) => {
+                    dto.events_handler
+                        .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
+                }
+            };
         });
 
-        match execution_result {
-            Ok(_) => Ok(Response::new(())),
-            Err(err) => {
-                dto.events_handler
-                    .handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
-
-                let message = format!("Failed to execute pipeline, error: {}", err.to_string());
-                Err(Status::internal(message))
-            }
-        }
+        Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
     }
 }
 
@@ -365,7 +392,7 @@ impl KafkaService {
 
         if let Err(err) = execution_result {
             let err = PipelineFinalResult::Error(err.to_string());
-            dto.pipeline_execution_dto.events_handler.handle(PipelineEvent::FinalResult(err));
+            dto.pipeline_execution_dto.events_handler.handle(&PipelineEvent::FinalResult(err));
         }
     }
 

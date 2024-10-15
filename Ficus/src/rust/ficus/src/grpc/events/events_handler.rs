@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::pipelines::keys::context_key::ContextKey;
 
 pub trait PipelineEventsHandler: Send + Sync {
-    fn handle(&self, event: PipelineEvent);
+    fn handle(&self, event: &PipelineEvent);
     fn is_alive(&self) -> bool;
 }
 

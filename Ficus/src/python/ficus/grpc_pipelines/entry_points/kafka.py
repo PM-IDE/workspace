@@ -98,6 +98,9 @@ class KafkaPipeline:
                     caseInfo=GrpcCaseInfo(caseName=case_name, processName=process_name),
                 )
 
-                stub.ExecutePipelineAndProduceToKafka(request)
+                callback_parts = []
+                append_parts_with_callbacks(list(self.parts), callback_parts)
+
+                process_pipeline_output_stream(callback_parts, stub.ExecutePipelineAndProduceToKafka(request))
 
             execute_with_context_values(channel, initial_context, action)

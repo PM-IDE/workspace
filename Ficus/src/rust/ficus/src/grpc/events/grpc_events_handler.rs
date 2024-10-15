@@ -29,7 +29,7 @@ impl GrpcPipelineEventsHandler {
 }
 
 impl PipelineEventsHandler for GrpcPipelineEventsHandler {
-    fn handle(&self, event: PipelineEvent) {
+    fn handle(&self, event: &PipelineEvent) {
         let result = match event {
             PipelineEvent::GetContextValuesEvent(event) => self.create_get_context_values_event(event),
             PipelineEvent::LogMessage(message) => self.create_log_message_result(&message),
@@ -55,7 +55,7 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
 }
 
 impl GrpcPipelineEventsHandler {
-    fn create_get_context_values_event(&self, event: GetContextValuesEvent) -> GrpcPipelinePartExecutionResult {
+    fn create_get_context_values_event(&self, event: &GetContextValuesEvent) -> GrpcPipelinePartExecutionResult {
         GrpcPipelinePartExecutionResult {
             result: Some(GrpcResult::PipelinePartResult(GrpcPipelinePartResult {
                 uuid: Some(GrpcUuid {

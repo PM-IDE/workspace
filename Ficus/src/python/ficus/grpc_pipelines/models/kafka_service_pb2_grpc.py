@@ -8,8 +8,6 @@ import grpc
 
 import ficus.grpc_pipelines.models.backend_service_pb2 as backend__service__pb2
 
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-
 import ficus.grpc_pipelines.models.kafka_service_pb2 as kafka__service__pb2
 
 
@@ -64,13 +62,13 @@ class GrpcKafkaServiceStub(object):
 
                 )
 
-        self.ExecutePipelineAndProduceToKafka = channel.unary_unary(
+        self.ExecutePipelineAndProduceToKafka = channel.unary_stream(
 
                 '/ficus.GrpcKafkaService/ExecutePipelineAndProduceToKafka',
 
                 request_serializer=kafka__service__pb2.GrpcExecutePipelineAndProduceKafkaRequest.SerializeToString,
 
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                response_deserializer=backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 
                 )
 
@@ -168,13 +166,13 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
 
             ),
 
-            'ExecutePipelineAndProduceToKafka': grpc.unary_unary_rpc_method_handler(
+            'ExecutePipelineAndProduceToKafka': grpc.unary_stream_rpc_method_handler(
 
                     servicer.ExecutePipelineAndProduceToKafka,
 
                     request_deserializer=kafka__service__pb2.GrpcExecutePipelineAndProduceKafkaRequest.FromString,
 
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                    response_serializer=backend__service__pb2.GrpcPipelinePartExecutionResult.SerializeToString,
 
             ),
 
@@ -322,11 +320,11 @@ class GrpcKafkaService(object):
 
             metadata=None):
 
-        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/ExecutePipelineAndProduceToKafka',
+        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcKafkaService/ExecutePipelineAndProduceToKafka',
 
             kafka__service__pb2.GrpcExecutePipelineAndProduceKafkaRequest.SerializeToString,
 
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 
             options, channel_credentials,
 

@@ -79,12 +79,12 @@ impl GrpcBackendService for FicusService {
 
                     context
                         .sender()
-                        .handle(PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
+                        .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
                 }
                 Err(error) => {
                     context
                         .sender()
-                        .handle(PipelineEvent::FinalResult(PipelineFinalResult::Error(error.to_string())));
+                        .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Error(error.to_string())));
                 }
             };
         });
