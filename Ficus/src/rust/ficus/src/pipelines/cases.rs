@@ -13,7 +13,7 @@ impl PipelineParts {
             let start_case_regex = Self::get_user_data(config, &START_CASE_REGEX)?;
             let end_case_regex = Self::get_user_data(config, &END_CASE_REGEX)?;
 
-            let new_log = discover_cases(log, start_case_regex.as_str(), end_case_regex.as_str());
+            let new_log = discover_cases(log, start_case_regex.as_str(), end_case_regex.as_str(), true);
 
             let mut new_context = context.clone();
             new_context.put_concrete(EVENT_LOG_KEY.key(), new_log);
