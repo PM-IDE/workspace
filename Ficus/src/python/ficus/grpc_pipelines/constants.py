@@ -56,6 +56,7 @@ const_log_serialization_format = 'log_serialization_format'
 const_bytes = 'bytes'
 const_start_case_regex = 'start_case_regex'
 const_end_case_regex = 'end_case_regex'
+const_inline_inner_cases = 'inline_inner_cases'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'
