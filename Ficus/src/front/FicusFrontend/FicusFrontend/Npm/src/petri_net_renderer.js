@@ -1,6 +1,7 @@
 import cytoscape from 'cytoscape';
 import {petriNetColors, lightTheme} from "./colors";
 import {createBreadthFirstLayout} from "./utils";
+import dagre from 'cytoscape-dagre';
 
 export default setDrawPetriNet;
 
@@ -11,6 +12,7 @@ const netColors = petriNetColors(lightTheme);
 
 function setDrawPetriNet() {
   window.drawPetriNet = function (id, net, annotation) {
+    cytoscape.use(dagre);
     cytoscape(createCytoscapeOptions(id, net, annotation));
   }
 }

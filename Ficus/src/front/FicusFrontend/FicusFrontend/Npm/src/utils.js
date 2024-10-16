@@ -1,8 +1,10 @@
 export function createBreadthFirstLayout() {
     return {
-        name: 'breadthfirst',
-        directed: true,
-        spacingFactor: 2.5,
+        name: 'dagre',
+        rankDir: 'TB',
+        nodeDimensionsIncludeLabels: true,
+        ranker: 'tight-tree',
+        animate: true,
     }
 }
 

@@ -1,6 +1,7 @@
 import cytoscape from 'cytoscape';
 import {graphColors, lightTheme} from "./colors";
 import {calculateGradient, createBreadthFirstLayout, rgbToHex} from "./utils";
+import dagre from 'cytoscape-dagre';
 
 export default setDrawGraph;
 
@@ -8,6 +9,7 @@ const graphColor = graphColors(lightTheme);
 
 function setDrawGraph() {
   window.drawGraph = function (id, graph) {
+    cytoscape.use(dagre);
     cytoscape(createCytoscapeOptions(id, graph));
   }
 }
