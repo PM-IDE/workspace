@@ -20,16 +20,7 @@ public class GcStartEventMutator : MetadataValueToNameAppenderBase
     Transformations =
     [
       new MetadataKeysWithTransform(TraceEventsConstants.GcStartReason, TransformReason, EventClassKind.Zero),
-      new MetadataKeysWithTransform(TraceEventsConstants.GcStartType, GenerateNameForGcType, EventClassKind.Zero)
+      new MetadataKeysWithTransform(TraceEventsConstants.GcStartType, (type) => MutatorsUtil.TransformGcType(type, Logger), EventClassKind.Zero)
     ];
   }
-
-
-  private string GenerateNameForGcType(string type) => type switch
-  {
-    "NonConcurrentGC" => "NC_GC",
-    "BackgroundGC" => "B_GC",
-    "ForegroundGC" => "F_GC",
-    _ => MutatorsUtil.CreateUnknownEventNamePartAndLog(type, Logger)
-  };
 }
