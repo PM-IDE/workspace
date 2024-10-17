@@ -15,7 +15,7 @@ public class GcTriggeredEventMutator : MetadataValueToNameAppenderBase
 
   public GcTriggeredEventMutator(IProcfilerLogger logger) : base(logger)
   {
-    string TransformReason(string reason) => GcMutatorsUtil.GenerateNewNameForGcReason(reason, Logger);
+    string TransformReason(string reason) => GcMutatorsUtil.TransformGcReason(reason, Logger);
 
     Transformations =
     [

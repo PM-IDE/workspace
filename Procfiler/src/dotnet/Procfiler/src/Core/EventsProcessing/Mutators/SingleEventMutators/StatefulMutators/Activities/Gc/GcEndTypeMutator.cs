@@ -1,9 +1,9 @@
 ﻿using Core.Constants.TraceEvents;
 using Core.Container;
 using Core.Events.EventRecord;
-using Core.EventsProcessing.Mutators;
 using Core.EventsProcessing.Mutators.Core;
 using Core.EventsProcessing.Mutators.Core.Passes;
+using Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.GC;
 using Core.GlobalData;
 using Core.Utils;
 
@@ -35,10 +35,10 @@ public class GcEndTypeMutator(IProcfilerLogger logger) : ISingleEventMutator
           logger.LogWarning("GC with count {Count} already exists in the map", count);
         }
 
-        var gcType = eventRecord.Metadata[TraceEventsConstants.GcStartType];
-        var gcReason = eventRecord.Metadata[TraceEventsConstants.GcStartReason];
+        var gcType = GcMutatorsUtil.TransformGcType(eventRecord.Metadata[TraceEventsConstants.GcStartType], logger);
+        var gcReason = GcMutatorsUtil.TransformGcReason(eventRecord.Metadata[TraceEventsConstants.GcStartReason], logger);
 
-        myCountToTypes[count] = $"_{{{MutatorsUtil.TransformGcType(gcType, logger)}{gcReason}}}";
+        myCountToTypes[count] = $"_{{{gcReason.ToUpper()}{gcType.ToUpper()}}}";
         return;
       }
       case TraceEventsConstants.GcStop:

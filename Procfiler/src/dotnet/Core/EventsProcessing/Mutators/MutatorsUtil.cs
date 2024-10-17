@@ -159,12 +159,4 @@ public static class MutatorsUtil
 
     return TransformModuleFileNameForEventNameConcatenation(sb.ToString());
   }
-
-  public static string TransformGcType(string type, IProcfilerLogger logger) => type switch
-  {
-    "NonConcurrentGC" => "NC_GC",
-    "BackgroundGC" => "B_GC",
-    "ForegroundGC" => "F_GC",
-    _ => CreateUnknownEventNamePartAndLog(type, logger)
-  };
 }
