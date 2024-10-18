@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "cytoscape": "^3.30.2",
-    "cytoscape-dagre": "^2.5.0"
+    "cytoscape-dagre": "^2.5.0",
+    "cytoscape-svg": "^0.4.0",
+    "file-saver": "^2.0.5"
   }
 }

@@ -1,11 +1,18 @@
 @using Ficus
+@using Radzen.Blazor
 
 @inject IJSRuntime Js
 
 <div id="@myCytoscapeContainerId" class="cytoscape-graph-container"></div>
 
+<div>
+  <RadzenButton Text="Export to SVG" Click="ExportGraph"></RadzenButton>
+</div>
+
 @code {
   private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
+
+  private IJSObjectReference myCytoscapeReference;
   
   
   [Parameter] public required GrpcGraph Graph { get; init; }
@@ -13,6 +20,11 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    await Js.InvokeVoidAsync("drawGraph", myCytoscapeContainerId.ToString(), Graph);
+    myCytoscapeReference = await Js.InvokeAsync<IJSObjectReference>("drawGraph", myCytoscapeContainerId.ToString(), Graph);
+  }
+
+  private async Task ExportGraph()
+  {
+    await Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference);
   }
 }

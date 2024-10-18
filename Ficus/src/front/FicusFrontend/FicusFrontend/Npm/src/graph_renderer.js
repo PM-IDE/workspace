@@ -10,7 +10,7 @@ const graphColor = graphColors(lightTheme);
 function setDrawGraph() {
   window.drawGraph = function (id, graph) {
     cytoscape.use(dagre);
-    cytoscape(createCytoscapeOptions(id, graph));
+    return cytoscape(createCytoscapeOptions(id, graph));
   }
 }
 

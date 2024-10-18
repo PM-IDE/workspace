@@ -1,3 +1,7 @@
+import svg from 'cytoscape-svg';
+import cytoscape from "cytoscape";
+import {saveAs} from 'file-saver'
+
 export function createBreadthFirstLayout() {
     return {
         name: 'dagre',
@@ -29,4 +33,16 @@ export function calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, b
     }
 
     return rgbToHex(red, green, blue);
+}
+
+export function setUtilitiesFunctions() {
+    window.exportCytoscapeToSvg = exportCytoscapeToSvg;
+}
+
+function exportCytoscapeToSvg(cy) {
+    cytoscape.use(svg);
+    let svgContent = cy.svg({});
+    let blob = new Blob([svgContent], {type:"image/svg+xml;charset=utf-8"});
+
+    saveAs(blob, "graph.svg");
 }
