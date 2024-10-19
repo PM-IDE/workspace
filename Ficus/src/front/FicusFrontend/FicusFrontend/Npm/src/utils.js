@@ -2,6 +2,8 @@ import svg from 'cytoscape-svg';
 import cytoscape from "cytoscape";
 import {saveAs} from 'file-saver'
 
+cytoscape.use(svg);
+
 export function createBreadthFirstLayout() {
     return {
         name: 'dagre',
@@ -39,10 +41,9 @@ export function setUtilitiesFunctions() {
     window.exportCytoscapeToSvg = exportCytoscapeToSvg;
 }
 
-function exportCytoscapeToSvg(cy) {
-    cytoscape.use(svg);
-    let svgContent = cy.svg({});
+function exportCytoscapeToSvg(cy, fileName) {
+    let svgContent = cy.svg({full: false});
     let blob = new Blob([svgContent], {type:"image/svg+xml;charset=utf-8"});
 
-    saveAs(blob, "graph.svg");
+    saveAs(blob, fileName);
 }

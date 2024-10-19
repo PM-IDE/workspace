@@ -6,15 +6,16 @@
 @using JetBrains.Lifetimes
 @using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
 @using FicusFrontend.Components.CaseInfo.ContextValues.Graph
+@using FicusFrontend.Layout.Models
 @inherits ComponentBase
 
 @inject IProcessesService ProcessService
 @inject ILogger<CaseInfo> Logger
 
 @{
-  var title = (Case, ProcessData) switch
+  var title = myProcessCaseData switch
   {
-    (not null, not null) => ProcessData.ProcessName + " " + Case.Name,
+    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.Name,
     _ => "The case was not yet selected."
   };
 }
@@ -52,27 +53,22 @@
   private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
-  private Case? myCase;
-  private ProcessData? myProcessData;
+  private ProcessCaseData? myProcessCaseData;
 
-
-  [Parameter] public ProcessData? ProcessData { get; set; }
-  [Parameter] public Case? Case { get; set; }
-
+  [Parameter] public ProcessCaseData? ProcessCaseData { get; set; }
 
   protected override void OnParametersSet()
   {
     base.OnParametersSet();
 
-    if (Case is null || ProcessData is null) return;
-    if (Case.Name == myCase?.Name && ProcessData.ProcessName == myProcessData?.ProcessName) return;
+    if (ProcessCaseData is null) return;
+    if (ProcessCaseData.Equals(myProcessCaseData)) return;
 
     var lifetime = myLifetimes.Next();
 
-    myCase = Case;
-    myProcessData = ProcessData;
+    myProcessCaseData = ProcessCaseData;
 
-    var values = ProcessService.CreateCaseValuesObservable(ProcessData, Case);
+    var values = ProcessService.CreateCaseValuesObservable(myProcessCaseData.ProcessData, myProcessCaseData.Case);
     myPipelinePartsExecutionResults.Clear();
     myPipelinePartsExecutionResults.AddRange(values);
 
@@ -103,7 +99,7 @@
       GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
       GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
       GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer PetriNet="contextValue.PetriNet"/>,
-      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer Graph="contextValue.Graph" />,
+      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer Graph="contextValue.Graph" ProcessCaseData="myProcessCaseData" />,
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }
