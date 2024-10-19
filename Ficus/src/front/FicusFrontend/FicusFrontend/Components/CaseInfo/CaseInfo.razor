@@ -98,8 +98,8 @@
     {
       GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
       GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
-      GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer PetriNet="contextValue.PetriNet"/>,
-      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer Graph="contextValue.Graph" ProcessCaseData="myProcessCaseData" />,
+      GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="contextValue.PetriNet"/>,
+      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph" ProcessCaseData="myProcessCaseData" />,
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }

@@ -13,6 +13,8 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
+    if (!firstRender) return;
+
     var annotation = Annotation?.AnnotationCase switch
     {
       GrpcAnnotation.AnnotationOneofCase.CountAnnotation => Annotation.CountAnnotation.Annotations
