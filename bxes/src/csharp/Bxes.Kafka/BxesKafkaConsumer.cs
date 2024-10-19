@@ -29,6 +29,8 @@ public class BxesKafkaConsumer
     var reader = new BinaryReader(ms);
     var readContext = new BxesReadContext(reader, myMetadata, new SystemMetadata());
 
+    var messageId = new Guid(reader.ReadBytes(16));
+
     BxesReadUtils.ReadSystemMetadata(readContext);
     BxesReadUtils.ReadValues(readContext);
     BxesReadUtils.ReadKeyValuePairs(readContext);
