@@ -45,7 +45,7 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
     consumer.ConsumeAllEvents()
       .Select(trace =>
         (
-          MethodName: trace.Metadata.FirstOrDefault(a => a.Key.Value is "MethodName")?.Value.ToString() ?? "UNRESOLVED",
+          MethodName: trace.Metadata.FirstOrDefault(a => a.Key.Value is "case_name")?.Value.ToString() ?? "UNRESOLVED",
           Events: trace.Events.Select(CreateFromBxesEvent).ToList()
         )
       )
@@ -81,5 +81,13 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
       var gold = OnlineProcfilerMethodsUtil.SerializeToGold(globalData, methodNamesToEvents, filter, null);
       sb.Append(gold);
     }
+  }
+
+  protected override void ExecuteBeforeContainerCreation()
+  {
+    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic");
+    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
+    Environment.SetEnvironmentVariable("ProduceEventsToKafka", "true");
+    Environment.SetEnvironmentVariable("ProduceBxesKafkaEvents", "true");
   }
 }
