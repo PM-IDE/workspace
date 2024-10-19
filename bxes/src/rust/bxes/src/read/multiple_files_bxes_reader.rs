@@ -1,20 +1,21 @@
-use std::path::Path;
-
 use crate::models::domain::bxes_event_log::{BxesEventLog, BxesTraceVariant};
 use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
-use crate::read::read_context::ReadContext;
+use crate::read::read_context::{ReadContext, ReadMetadata};
 use crate::utils::buffered_stream::BufferedReadFileStream;
 use crate::{
     binary_rw::core::{BinaryReader, Endian},
     constants::*,
 };
+use std::path::Path;
+use std::ptr::read;
 
 use super::{errors::*, read_utils::*};
 
 pub fn read_bxes_multiple_files(
     directory_path: &str,
 ) -> Result<BxesEventLogReadResult, BxesReadError> {
-    let mut context = ReadContext::new_without_reader();
+    let mut read_metadata = ReadMetadata::empty();
+    let mut context = ReadContext::new_without_reader(&mut read_metadata);
 
     let mut stream = open_file(directory_path, SYSTEM_METADATA_FILE_NAME)?;
     let mut reader = BinaryReader::new(&mut stream, Endian::Little);
@@ -49,7 +50,7 @@ pub fn read_bxes_multiple_files(
 
     Ok(BxesEventLogReadResult {
         log,
-        system_metadata: context.system_metadata.unwrap(),
+        system_metadata: context.metadata.system_metadata.clone().unwrap(),
     })
 }
 

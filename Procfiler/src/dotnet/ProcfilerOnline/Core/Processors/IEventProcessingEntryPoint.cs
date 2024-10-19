@@ -20,6 +20,7 @@ public class EventProcessingEntryPoint(
   private readonly IReadOnlyList<ISingleEventMutator> myOrderedSingleMutators =
     mutators.OrderBy(mutator => mutator.GetPassOrThrow()).ToList();
 
+
   public void Process(EventProcessingContext context)
   {
     foreach (var sharedDataUpdater in processors.OfType<ISharedDataUpdater>())

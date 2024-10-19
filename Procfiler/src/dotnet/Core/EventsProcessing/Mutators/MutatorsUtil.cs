@@ -97,8 +97,6 @@ public static class MutatorsUtil
       {
         sb[i] = TraceEventsConstants.Dot;
       }
-
-      sb[i] = char.ToUpper(sb[i]);
     }
 
     return string.Intern(sb.ToString());

@@ -15,10 +15,10 @@ public class GcSetGcHandleMutator : MetadataValueToNameAppenderBase
 
   public GcSetGcHandleMutator(IProcfilerLogger logger) : base(logger)
   {
-    Transformations = new[]
-    {
+    Transformations =
+    [
       new MetadataKeysWithTransform(TraceEventsConstants.CommonKind, TransformHandleKind, EventClassKind.Zero)
-    };
+    ];
   }
 
 

@@ -1,0 +1,21 @@
+﻿syntax = "proto3";
+
+import "pipelines_and_context.proto";
+import "util.proto";
+import "google/protobuf/empty.proto";
+
+package ficus;
+
+service GrpcContextValuesService {
+  rpc SetContextValue(stream GrpcContextValuePart) returns (GrpcGuid);
+  rpc DropContextValues(GrpcDropContextValuesRequest) returns (google.protobuf.Empty);
+}
+
+message GrpcContextValuePart {
+  string key = 2;
+  bytes bytes = 3;
+}
+
+message GrpcDropContextValuesRequest {
+  repeated GrpcGuid ids = 1;
+}

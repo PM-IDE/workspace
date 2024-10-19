@@ -15,11 +15,11 @@ public class BufferAllocatedNameMutator : MetadataValueToNameAppenderBase
 
   public BufferAllocatedNameMutator(IProcfilerLogger logger) : base(logger)
   {
-    Transformations = new[]
-    {
+    Transformations =
+    [
       new MetadataKeysWithTransform(
         TraceEventsConstants.BufferAllocationReason, ConvertBufferAllocationKind, EventClassKind.Zero)
-    };
+    ];
   }
 
 

@@ -6,7 +6,7 @@ from ...ficus.grpc_pipelines.constants import const_labeled_log_traces_dataset, 
 from ...ficus.grpc_pipelines.context_values import from_grpc_labeled_dataset
 from ...ficus.grpc_pipelines.data_models import Distance, PatternsKind, PatternsDiscoveryStrategy, NarrowActivityKind, \
     ActivitiesRepresentationSource
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline, PipelinePartWithCallback, PipelinePart
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline, PipelinePartWithCallback, PipelinePart
 from ...ficus.grpc_pipelines.models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcContextValue
 from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog
 from .test_grpc_pipelines import _execute_test_with_names_log, ResultAssertanceKind

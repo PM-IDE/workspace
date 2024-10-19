@@ -1,7 +1,6 @@
 from .constants import *
 from .context_values import from_grpc_bytes, write_file_bytes
-from .grpc_pipelines import PipelinePart, _create_default_pipeline_part, append_string_value, PipelinePartWithCallback, \
-    _create_simple_get_context_value_part, _create_complex_get_context_part
+from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, GrpcContextValue
 
 
@@ -12,9 +11,9 @@ class ReadLogFromXes(PipelinePart):
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         if self.use_bytes:
-            return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_xes_from_bytes))
+            return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_read_xes_from_bytes))
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_log_from_xes))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_read_log_from_xes))
 
 
 class WriteLogToXes(PipelinePart):
@@ -25,7 +24,7 @@ class WriteLogToXes(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
         append_string_value(config, const_path, self.save_path)
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_write_log_to_xes, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_write_log_to_xes, config))
 
 
 class ReadLogFromBxes(PipelinePart):
@@ -35,9 +34,9 @@ class ReadLogFromBxes(PipelinePart):
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         if self.use_bytes:
-            return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_bxes_from_bytes))
+            return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_read_bxes_from_bytes))
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_read_log_from_bxes))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_read_log_from_bxes))
 
 
 class WriteLogToBxes(PipelinePart):
@@ -48,7 +47,7 @@ class WriteLogToBxes(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
         append_string_value(config, const_path, self.save_path)
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_write_log_to_bxes, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_write_log_to_bxes, config))
 
 
 class WriteBytesToFilePipelinePartBase(PipelinePartWithCallback):
@@ -58,10 +57,11 @@ class WriteBytesToFilePipelinePartBase(PipelinePartWithCallback):
         self.before_pipeline_part = before_pipeline_part
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        pipeline_part = _create_complex_get_context_part(self.uuid,
-                                                         [const_bytes],
-                                                         self.before_pipeline_part,
-                                                         GrpcPipelinePartConfiguration())
+        pipeline_part = create_complex_get_context_part(self.uuid,
+                                                        self.__class__.__name__,
+                                                        [const_bytes],
+                                                        self.before_pipeline_part,
+                                                        GrpcPipelinePartConfiguration())
 
         return GrpcPipelinePartBase(complexContextRequestPart=pipeline_part)
 

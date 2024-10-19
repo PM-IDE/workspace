@@ -75,7 +75,7 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     writer.Write(myBxesVersion);
 
     BxesWriteUtils.WriteValuesAttributesDescriptors(
-      myContext.ValuesEnumerator.OrderedValueAttributes, myContext.WithWriter(writer));
+      myContext.Metadata.ValuesEnumerator.OrderedValueAttributes, myContext.WithWriter(writer));
   }
 
   public void HandleEvent(BxesStreamEvent @event)
@@ -134,7 +134,7 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
 
   private void HandleEventEvent(BxesEventEvent<TEvent> @event)
   {
-    BxesWriteUtils.WriteEventValues(
+    BxesWriteUtils.WriteEventValuesAndKeyValues(
       @event.Event, myContext.WithWriter(myValuesWriter), myContext.WithWriter(myKeyValuesWriter));
 
     BxesWriteUtils.WriteEvent(@event.Event, myContext.WithWriter(myTracesWriter));
@@ -191,18 +191,18 @@ public class MultipleFilesBxesStreamWriterImpl<TEvent> :
     const int CountPos = sizeof(uint);
 
     BxesWriteUtils.WriteCount(myTracesWriter, CountPos, myTracesVariantsCount);
-    BxesWriteUtils.WriteCount(myValuesWriter, CountPos, (uint)myContext.ValuesIndices.Count);
-    BxesWriteUtils.WriteCount(myKeyValuesWriter, CountPos, (uint)myContext.KeyValueIndices.Count);
+    BxesWriteUtils.WriteCount(myValuesWriter, CountPos, (uint)myContext.Metadata.ValuesIndices.Count);
+    BxesWriteUtils.WriteCount(myKeyValuesWriter, CountPos, (uint)myContext.Metadata.KeyValueIndices.Count);
   }
 
   private void WriteMetadata()
   {
-    foreach (var value in myContext.ValuesEnumerator.EnumerateMetadataValues(myMetadata))
+    foreach (var value in myContext.Metadata.ValuesEnumerator.EnumerateMetadataValues(myMetadata))
     {
       BxesWriteUtils.WriteValueIfNeeded(value, myContext.WithWriter(myValuesWriter));
     }
 
-    foreach (var kv in myContext.ValuesEnumerator.EnumerateMetadataKeyValuePairs(myMetadata))
+    foreach (var kv in myContext.Metadata.ValuesEnumerator.EnumerateMetadataKeyValuePairs(myMetadata))
     {
       BxesWriteUtils.WriteKeyValuePairIfNeeded(kv, myContext.WithWriter(myKeyValuesWriter));
     }

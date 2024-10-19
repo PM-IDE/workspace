@@ -81,7 +81,8 @@ public readonly ref struct FromMethodEventRecordUpdateDto
 
 public class EventRecordWithMetadata : EventRecord
 {
-  public static EventRecordWithMetadata CreateUninitialized() => new(EventRecordTime.Default, string.Empty, -1, -1, new EventMetadata());
+  public static EventRecordWithMetadata CreateUninitialized() =>
+    new(EventRecordTime.Default, string.Empty, -1, -1, new EventMetadata());
 
 
   public IEventMetadata Metadata { get; }

@@ -284,7 +284,7 @@ public class EventsCollectionTests
     var eventToInsert = TestUtil.CreateAbsolutelyRandomEvent();
     collection.InsertAfter(GetFirstEvent(collection)!.Value.EventPointer, eventToInsert);
     Assert.That(collection, Has.Count.EqualTo(2));
-    AssertCollectionsAreSame(collection, events.Concat(new[] { eventToInsert }));
+    AssertCollectionsAreSame(collection, events.Concat([eventToInsert]));
   }
 
   private static IEventsCollection CreateNewCollection(EventRecordWithMetadata[] events) =>

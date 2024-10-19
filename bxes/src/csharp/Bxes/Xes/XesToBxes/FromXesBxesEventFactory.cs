@@ -9,7 +9,7 @@ public static class FromXesBxesEventFactory
 {
   public static FromXesBxesEvent? CreateFrom(XmlReader reader, XesReadContext context)
   {
-    var attributes = new Lazy<List<AttributeKeyValue>>(static () => new List<AttributeKeyValue>());
+    var attributes = new Lazy<List<AttributeKeyValue>>(static () => []);
     var initializedName = false;
     var initializedTimestamp = false;
 

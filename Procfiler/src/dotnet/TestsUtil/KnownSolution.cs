@@ -27,8 +27,8 @@ public class KnownSolution
   public static KnownSolution AsyncDisposable { get; } = new("AsyncDisposable");
 
 
-  public static IEnumerable<KnownSolution> AllSolutions { get; } = new[]
-  {
+  public static IEnumerable<KnownSolution> AllSolutions { get; } =
+  [
     ConsoleApp1,
     TaskTestProject1,
     ExceptionTryCatchFinally,
@@ -47,7 +47,7 @@ public class KnownSolution
     SystemArrayPooling,
     NotExistingAssemblyLoading,
     LohAllocations
-  };
+  ];
 
   public string Name { get; }
   public string Tfm { get; }

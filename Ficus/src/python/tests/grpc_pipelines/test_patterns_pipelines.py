@@ -1,4 +1,4 @@
-from ...ficus.grpc_pipelines.context_values import StringContextValue, BytesContextValue, read_file_bytes
+from ...ficus.grpc_pipelines.context_values import BytesContextValue, read_file_bytes
 from ...ficus.grpc_pipelines.filtering_parts import FilterEventsByRegex, FilterLogByVariants
 
 from ...ficus.grpc_pipelines.xes_parts import ReadLogFromXes, ReadLogFromBxes
@@ -18,7 +18,7 @@ from ...ficus.grpc_pipelines.patterns_parts import FindSuperMaximalRepeats
 
 from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog
 
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline
 from .pipeline_parts_for_tests import AssertNamesLogTestPart
 from .test_grpc_pipelines import _execute_test_with_names_log, _execute_test_with_exercise_log, \
     _execute_test_with_context

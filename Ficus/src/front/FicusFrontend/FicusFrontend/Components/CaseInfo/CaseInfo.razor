@@ -1,0 +1,136 @@
+﻿@using BlazorBootstrap
+@using Ficus
+@using FicusFrontend.Components.CaseInfo.ContextValues
+@using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
+@using FicusFrontend.Services.Cases
+@using JetBrains.Lifetimes
+@using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
+@using FicusFrontend.Components.CaseInfo.ContextValues.Graph
+@using FicusFrontend.Layout.Models
+@inherits ComponentBase
+
+@inject IProcessesService ProcessService
+@inject ILogger<CaseInfo> Logger
+
+@{
+  var title = myProcessCaseData switch
+  {
+    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.Name,
+    _ => "The case was not yet selected."
+  };
+}
+
+<PageTitle>@title</PageTitle>
+
+<div class="case-info-header">
+  @title
+</div>
+
+<div class="pipeline-parts-context-values-accordion">
+  <Accordion AlwaysOpen="true" Flush="false">
+    @foreach (var result in myPipelinePartsExecutionResults)
+    {
+      <AccordionItem Title="@result.Value.PipelinePartName">
+        <Content>
+          @{
+            var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
+          }
+
+          @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
+          {
+            <div>
+              @fragment
+            </div>
+          }
+        </Content>
+      </AccordionItem>
+    }
+  </Accordion>
+</div>
+
+@code
+{
+  private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
+  private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
+
+  private ProcessCaseData? myProcessCaseData;
+
+  [Parameter] public ProcessCaseData? ProcessCaseData { get; set; }
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+
+    if (ProcessCaseData is null) return;
+    if (ProcessCaseData.Equals(myProcessCaseData)) return;
+
+    var lifetime = myLifetimes.Next();
+
+    myProcessCaseData = ProcessCaseData;
+
+    var values = ProcessService.CreateCaseValuesObservable(myProcessCaseData.ProcessData, myProcessCaseData.Case);
+    myPipelinePartsExecutionResults.Clear();
+    myPipelinePartsExecutionResults.AddRange(values);
+
+    StateHasChanged();
+
+    values.Change.Advise(lifetime, _ =>
+    {
+      //todo: rewrite
+      myPipelinePartsExecutionResults.Clear();
+      myPipelinePartsExecutionResults.AddRange(values);
+      StateHasChanged();
+    });
+  }
+
+  private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
+  {
+    return contextValues switch
+    {
+      [var singleValue] => [FindRendererFor(singleValue)],
+      _ => FindRenderersFor(pipelinePartName, contextValues)
+    };
+  }
+  
+  private RenderFragment FindRendererFor(GrpcContextValue contextValue)
+  {
+    return contextValue.ContextValueCase switch
+    {
+      GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
+      GrpcContextValue.ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
+      GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="contextValue.PetriNet"/>,
+      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph" ProcessCaseData="myProcessCaseData" />,
+      _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
+    };
+  }
+
+  private IEnumerable<RenderFragment> FindRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
+  {
+    if (PipelinePartsGroups.AnnotationParts.Contains(pipelinePartName) &&
+        CreateAnnotatedPetriNetRenderer(pipelinePartName, contextValues) is { } petriNetRenderer)
+    {
+      return [petriNetRenderer];
+    }
+
+    return [];
+  }
+
+  private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<GrpcContextValue> contextValues)
+  {
+    var petriNet = contextValues
+      .FirstOrDefault(c => c.ContextValueCase == GrpcContextValue.ContextValueOneofCase.PetriNet)
+      ?.PetriNet;
+
+    if (petriNet is null)
+    {
+      Logger.LogError("Petri net was null for pipeline part {PipelinePartName}", pipelinePartName);
+      return null;
+    }
+
+    var annotation = contextValues
+      .FirstOrDefault(c => c.ContextValueCase == GrpcContextValue.ContextValueOneofCase.Annotation)
+      ?.Annotation;
+
+    return @<PetriNetRenderer PetriNet="petriNet" Annotation="annotation"/>;
+  }
+}

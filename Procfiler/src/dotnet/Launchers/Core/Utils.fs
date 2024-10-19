@@ -28,7 +28,8 @@ module ProcfilerScriptsUtils =
             let toAdd =
                 [ $" --repeat {this.Repeat}"
                   $" --duration {this.Duration}"
-                  $" --write-all-event-metadata {this.WriteAllMetadata}" ]
+                  $" --write-all-event-metadata {this.WriteAllMetadata}"
+                  " --log-serialization-format bxes" ]
 
             this.PathConfig.AddArguments list @ toAdd
 
@@ -41,8 +42,8 @@ module ProcfilerScriptsUtils =
               OutputPath = outputPath }
 
           Duration = 10_000
-          Repeat = 1
-          WriteAllMetadata = true }
+          Repeat = 20
+          WriteAllMetadata = false }
 
     let private createProcess fileName (args: String) workingDirectory =
         let startInfo = ProcessStartInfo(fileName, args)
@@ -159,6 +160,9 @@ module ProcfilerScriptsUtils =
             let outputPath =
                 match outputIsFile with
                 | true -> Path.Combine(outputFolder, name + ".xes")
-                | false -> Path.Combine(outputFolder, name)
+                | false ->
+                    let directory = Path.Combine(outputFolder, name)
+                    Directory.CreateDirectory(directory) |> ignore
+                    directory
 
             launchProcfiler solution outputPath config)

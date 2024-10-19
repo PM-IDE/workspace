@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "bxes",
+    "bxes_kafka"
+]

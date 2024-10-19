@@ -5,7 +5,9 @@ using Microsoft.Extensions.Logging;
 namespace Core.Methods;
 
 public partial class OnlineAsyncMethodsGrouper<TEvent>(
-  IProcfilerLogger logger, string asyncMethodsPrefix, Action<string, List<List<TEvent>>> callback)
+  IProcfilerLogger logger,
+  string asyncMethodsPrefix,
+  Action<string, List<List<TEvent>>> callback)
 {
   private const string MoveNextMethod = "MoveNext";
   private const string MoveNextWithDot = $".{MoveNextMethod}";
@@ -114,7 +116,7 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
     lastTrace.AfterTaskEvent = threadData.LastSeenTaskEvent as TaskWaitSendEvent;
 
-    if (lastTrace.AfterTaskEvent is { TaskId: var scheduledTaskId } )
+    if (lastTrace.AfterTaskEvent is { TaskId: var scheduledTaskId })
     {
       Debug.Assert(!myTracesToTasksIds.ContainsKey(lastTrace));
       myTracesToTasksIds[lastTrace] = scheduledTaskId;
@@ -234,8 +236,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
   {
     return nestedTrace.AfterTaskEvent is null ||
            (nestedTrace.AfterTaskEvent is { ContinueWithTaskId: var continueWithTaskId } &&
-           originalTrace.AfterTaskEvent is { TaskId: var taskId } &&
-           continueWithTaskId == taskId);
+            originalTrace.AfterTaskEvent is { TaskId: var taskId } &&
+            continueWithTaskId == taskId);
   }
 
   private List<List<AsyncMethodTrace>> DiscoverLogicalExecutions(IReadOnlyList<AsyncMethodTrace> traces)
@@ -284,7 +286,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
     traces.Where(IsTraceAnEntryPoint).ToHashSet();
 
   private bool IsTraceAnEntryPoint(AsyncMethodTrace trace) =>
-    trace.Completed && (
+    trace.Completed &&
+    (
       trace.BeforeTaskEvent is not { TaskId: var id } ||
       !myTasksToTracesIds.ContainsKey(id)
     );

@@ -1,0 +1,19 @@
+.case-info-header {
+    background-color: rebeccapurple;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    padding-left: 10px;
+    color: white;
+    font-size: 20px;
+
+    border-radius: 10px;
+}
+
+
+.pipeline-parts-context-values-accordion {
+    margin-top: 20px;
+}

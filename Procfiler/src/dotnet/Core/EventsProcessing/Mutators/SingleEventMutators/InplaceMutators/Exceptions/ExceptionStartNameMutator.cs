@@ -11,8 +11,8 @@ public class ExceptionStartNameMutator(IProcfilerLogger logger) : MetadataValueT
 {
   public override string EventType => TraceEventsConstants.ExceptionStart;
 
-  protected override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
-  {
+  protected override IEnumerable<MetadataKeysWithTransform> Transformations { get; } =
+  [
     MetadataKeysWithTransform.CreateForTypeLikeName(TraceEventsConstants.ExceptionType, EventClassKind.Zero)
-  };
+  ];
 }

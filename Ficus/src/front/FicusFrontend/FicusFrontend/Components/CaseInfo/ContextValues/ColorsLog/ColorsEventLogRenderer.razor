@@ -1,0 +1,162 @@
+﻿@using System.Drawing
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D
+@using BlazorBootstrap
+@using Ficus
+@using JetBrains.Threading
+@using Radzen.Blazor
+@inject ILogger<ColorsEventLogRenderer> Logger
+
+<Slidebar @ref="myHeightScaleSlidebar"
+          InitialValue="1"
+          TValue="double"
+          Title="Height Scale"
+          Max="100"
+          Min="1"
+          Step="1"/>
+
+<Slidebar @ref="myWidthScaleSlidebar"
+          TValue="double"
+          InitialValue="1"
+          Title="Width Scale"
+          Max="1"
+          Min="0"
+          Step="0.01m"/>
+
+<div class="rerender-button-container">
+  <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
+</div>
+
+@if (!myFinishedCanvasDrawings)
+{
+  <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+}
+
+<div class="@CanvasContainerClass">
+  <BECanvas Width="@myCanvasWidth" Height="@myCanvasHeight" @ref="myCanvas"></BECanvas>
+</div>
+
+@code {
+  private BECanvasComponent myCanvas;
+  private Slidebar<double>? myWidthScaleSlidebar;
+  private Slidebar<double>? myHeightScaleSlidebar;
+
+  private bool myFinishedCanvasDrawings;
+
+  private const double AxisDelta = 5;
+  private const double AxisWidth = 2;
+
+  private const int DefaultRectWidth = 5;
+  private const int DefaultRectHeight = 5;
+  private const double AxisTextHeight = 14;
+
+  private int myCanvasWidth = 300;
+  private int myCanvasHeight = 400;
+
+
+  private double RectWidth => DefaultRectWidth * (myWidthScaleSlidebar?.CurrentValue ?? 1);
+  private double RectHeight => DefaultRectHeight * (myHeightScaleSlidebar?.CurrentValue ?? 1);
+
+  private string CanvasContainerClass => "colors-log-canvas-container " + myFinishedCanvasDrawings switch
+  {
+    true => string.Empty,
+    false => "invisible-canvas"
+  };
+
+
+  [Parameter] public required GrpcColorsEventLog Log { get; init; }
+
+
+  protected override void OnParametersSet()
+  {
+    RecalculateCanvasDimensions();
+  }
+
+  private void RecalculateCanvasDimensions()
+  {
+    myCanvasHeight = (int)(Log.Traces.Count * RectHeight + 2 * AxisDelta + AxisWidth + 2 * AxisTextHeight);
+    myCanvasWidth = (int)(Log.Traces.Select(t => t.EventColors.Count).Max() * RectWidth);
+  }
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (!firstRender) return Task.CompletedTask;
+
+    StartRedrawingCanvas().NoAwait();
+
+    return Task.CompletedTask;
+  }
+
+  private Task StartRedrawingCanvas()
+  {
+    RecalculateCanvasDimensions();
+    return Task.Run(async () =>
+    {
+      try
+      {
+        await Task.Delay(500);
+        var context = await myCanvas.CreateCanvas2DAsync();
+        await context.ClearRectAsync(0, 0, myCanvasWidth, myCanvasHeight);
+
+        var y = AxisTextHeight;
+
+        foreach (var trace in Log.Traces)
+        {
+          await context.BeginBatchAsync();
+
+          var x = AxisDelta + AxisWidth + AxisDelta;
+          foreach (var rect in trace.EventColors)
+          {
+            var color = Log.Mapping[(int)rect.ColorIndex].Color;
+            var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
+
+            await context.SetFillStyleAsync(rgb);
+            await context.FillRectAsync(x, y, RectWidth, RectHeight);
+            x += RectWidth;
+          }
+
+          y += RectHeight;
+
+          await context.EndBatchAsync();
+        }
+
+        await DrawAxis(context);
+
+        myFinishedCanvasDrawings = true;
+        StateHasChanged();
+      }
+      catch (Exception ex)
+      {
+        Logger.LogError(ex, "Failed to render canvas");
+      }
+    });
+  }
+
+  private async Task DrawAxis(Canvas2DContext context)
+  {
+    await context.SetFillStyleAsync(Color.Black.ToHexaString());
+    await context.FillRectAsync(AxisDelta, AxisTextHeight, AxisWidth, myCanvasHeight - AxisDelta - 2 * AxisTextHeight);
+
+    var horizontalAxisY = myCanvasHeight - AxisDelta - AxisWidth - AxisTextHeight;
+    await context.FillRectAsync(AxisDelta, horizontalAxisY, myCanvasWidth, AxisWidth);
+
+    await context.SetFontAsync("10px serif");
+
+    var tracesCountText = Log.Traces.Count.ToString();
+    await context.SetTextAlignAsync(TextAlign.Center);
+    await context.StrokeTextAsync(tracesCountText, AxisDelta, AxisTextHeight);
+
+    var maxEventsInTraceCountText = Log.Traces.Select(t => t.EventColors.Count).Max().ToString();
+    var textMeasures = await context.MeasureTextAsync(maxEventsInTraceCountText);
+    await context.StrokeTextAsync(maxEventsInTraceCountText, myCanvasWidth - textMeasures.Width / 2, horizontalAxisY + AxisWidth + AxisTextHeight);
+  }
+
+  private void RedrawCanvas(MouseEventArgs obj)
+  {
+    myFinishedCanvasDrawings = false;
+    StateHasChanged();
+    StartRedrawingCanvas().NoAwait();
+  }
+
+}

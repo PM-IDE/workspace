@@ -1,15 +1,24 @@
-use ficus_backend::{ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer, grpc::backend_service::FicusService};
-
+use std::sync::{Arc, Mutex};
+use ficus::{ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer, grpc::backend_service::FicusService};
+use ficus::ficus_proto::grpc_context_values_service_server::GrpcContextValuesServiceServer;
+use ficus::ficus_proto::grpc_kafka_service_server::GrpcKafkaServiceServer;
+use ficus::grpc::context_values_service::{ContextValueService, GrpcContextValueService};
+use ficus::grpc::kafka_service::KafkaService;
 use tonic::transport::Server;
-
-mod event_log;
-mod utils;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let ficus_service = FicusService::new();
-    let service = GrpcBackendServiceServer::new(ficus_service);
-    Server::builder().add_service(service).serve("[::]:8080".parse()?).await?;
+    let cv_service = Arc::new(Mutex::new(ContextValueService::new()));
+    let grpc_cv_service = GrpcContextValuesServiceServer::new(GrpcContextValueService::new(cv_service.clone()));
+    let backend_service = GrpcBackendServiceServer::new(FicusService::new(cv_service.clone()));
+    let kafka_service = GrpcKafkaServiceServer::new(KafkaService::new(cv_service.clone()));
+
+    Server::builder()
+        .add_service(grpc_cv_service)
+        .add_service(backend_service)
+        .add_service(kafka_service)
+        .serve("[::]:8080".parse()?)
+        .await?;
 
     Ok(())
 }

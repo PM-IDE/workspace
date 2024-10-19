@@ -7,6 +7,14 @@ using Microsoft.Diagnostics.Tracing;
 namespace Core.Events.EventRecord;
 
 public readonly record struct MethodIdToFqn(long Id, string Fqn);
+
+public record ExtendedMethodInfo(string Name, string Namespace, string Signature)
+{
+  public string Fqn { get; } = MethodsUtil.ConcatenateMethodDetails(Name, Namespace, Signature);
+}
+
+public readonly record struct ExtendedMethodIdToFqn(long Id, ExtendedMethodInfo ExtendedMethodInfo);
+
 public readonly record struct TypeIdToName(long Id, string Name);
 
 public static class EventRecordExtensions
@@ -117,9 +125,7 @@ public static class EventRecordExtensions
     if (eventRecord.EventName is not TraceEventsConstants.MethodLoadVerbose) return null;
 
     var methodId = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodId);
-    var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodName);
-    var methodNamespace = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodNamespace);
-    var signature = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodSignature);
+    var (name, methodNamespace, signature) = eventRecord.GetMethodFqnParts();
 
     if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
     {
@@ -128,6 +134,32 @@ public static class EventRecordExtensions
     }
 
     return null;
+  }
+
+  private static (string? Name, string? Namespace, string? Signature) GetMethodFqnParts(this EventRecordWithMetadata eventRecord)
+  {
+    var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodName);
+    var methodNamespace = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodNamespace);
+    var signature = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodSignature);
+
+    return (name, methodNamespace, signature);
+  }
+
+  public static ExtendedMethodIdToFqn? TryGetExtendedMethodInfo(this EventRecordWithMetadata eventRecord)
+  {
+    if (eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodId) is not { } methodId)
+    {
+      return null;
+    }
+
+    var (name, methodNamespace, signature) = eventRecord.GetMethodFqnParts();
+
+    if (name is null || methodNamespace is null || signature is null)
+    {
+      return null;
+    }
+
+    return new ExtendedMethodIdToFqn(methodId.ParseId(), new ExtendedMethodInfo(name, methodNamespace, signature));
   }
 
   public static TypeIdToName? TryExtractTypeIdToName(this EventRecordWithMetadata eventRecord)

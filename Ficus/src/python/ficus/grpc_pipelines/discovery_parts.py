@@ -1,11 +1,7 @@
+from .entry_points.default_pipeline import *
+from .models.pipelines_and_context_pb2 import *
 from ..legacy.discovery.graph import draw_graph
 from ..legacy.discovery.petri_net import draw_petri_net
-from .context_values import from_grpc_petri_net, from_grpc_count_annotation, \
-    from_grpc_frequency_annotation, from_grpc_graph
-from .grpc_pipelines import *
-from .grpc_pipelines import _create_default_pipeline_part, _create_simple_get_context_value_part, \
-    _create_complex_get_context_part
-from .models.pipelines_and_context_pb2 import *
 
 
 class DiscoverPetriNetAlpha(PipelinePart):
@@ -15,7 +11,7 @@ class DiscoverPetriNetAlpha(PipelinePart):
 
 def _create_default_discovery_part(algo_name: str) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
-    return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(algo_name, config))
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(algo_name, config))
 
 
 class DiscoverPetriNetAlphaPlus(PipelinePart):
@@ -56,7 +52,7 @@ class DiscoverPetriNetHeuristic(PipelinePart):
         append_float_value(config, const_loop_length_two_threshold, self.loop_length_two_threshold)
 
         return GrpcPipelinePartBase(
-            defaultPart=_create_default_pipeline_part(const_discover_petri_net_heuristic, config))
+            defaultPart=create_default_pipeline_part(const_discover_petri_net_heuristic, config))
 
 
 class DiscoverFuzzyGraph(PipelinePart):
@@ -87,7 +83,7 @@ class DiscoverFuzzyGraph(PipelinePart):
         append_float_value(config, const_edge_cutoff_threshold, self.edge_cutoff_threshold)
         append_float_value(config, const_node_cutoff_threshold, self.node_cutoff_threshold)
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_discover_graph_fuzzy, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_graph_fuzzy, config))
 
 
 class SerializePetriNetToPNML(PipelinePart):
@@ -102,7 +98,7 @@ class SerializePetriNetToPNML(PipelinePart):
         append_bool_value(config, const_pnml_use_names_as_ids, self.use_names_as_ids)
 
         return GrpcPipelinePartBase(
-            defaultPart=_create_default_pipeline_part(const_serialize_petri_net_to_pnml, config))
+            defaultPart=create_default_pipeline_part(const_serialize_petri_net_to_pnml, config))
 
 
 class ViewGraphLikeFormalismPart(PipelinePartWithCallback):
@@ -142,7 +138,7 @@ class ViewPetriNet(ViewGraphLikeFormalismPart):
         self.annotation = annotation
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        part = _create_simple_get_context_value_part(self.uuid, const_petri_net)
+        part = create_simple_get_context_value_part(self.uuid, self.__class__.__name__, const_petri_net)
         return GrpcPipelinePartBase(simpleContextRequestPart=part)
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):
@@ -166,10 +162,12 @@ class ViewDirectlyFollowsGraph(ViewGraphLikeFormalismPart):
         super().__init__(name, background_color, engine, export_path, rankdir)
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_graph],
-                                                const_discover_directly_follows_graph,
-                                                GrpcPipelinePartConfiguration())
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_graph],
+                                               const_discover_directly_follows_graph,
+                                               GrpcPipelinePartConfiguration())
+
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
@@ -183,7 +181,7 @@ class ViewGraph(ViewGraphLikeFormalismPart):
         super().__init__(name, background_color, engine, export_path, rankdir)
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        part = _create_simple_get_context_value_part(self.uuid, const_graph)
+        part = create_simple_get_context_value_part(self.uuid, self.__class__.__name__, const_graph)
         return GrpcPipelinePartBase(simpleContextRequestPart=part)
 
 
@@ -221,10 +219,11 @@ class AnnotatePetriNet(ViewPetriNet):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
         append_bool_value(config, const_terminate_on_unreplayable_trace, self.terminate_on_unreplayable_trace)
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_petri_net, self.annotation_key],
-                                                self.annotation_pipeline_part,
-                                                config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_petri_net, self.annotation_key],
+                                               self.annotation_pipeline_part,
+                                               config)
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
@@ -244,7 +243,7 @@ class AnnotatePetriNetWithCount(AnnotatePetriNet):
                          show_places_names, name, background_color, engine, export_path, rankdir)
 
     def get_annotation(self, context_value: GrpcContextValue):
-        return from_grpc_count_annotation(context_value.count_annotation)
+        return from_grpc_count_annotation(context_value.annotation.countAnnotation)
 
 
 class AnnotatePetriNetWithFrequency(AnnotatePetriNet):
@@ -262,7 +261,7 @@ class AnnotatePetriNetWithFrequency(AnnotatePetriNet):
                          show_places_names, name, background_color, engine, export_path, rankdir)
 
     def get_annotation(self, context_value: GrpcContextValue):
-        return from_grpc_frequency_annotation(context_value.frequency_annotation)
+        return from_grpc_frequency_annotation(context_value.annotation.frequencyAnnotation)
 
 
 class AnnotatePetriNetWithTraceFrequency(AnnotatePetriNet):
@@ -280,9 +279,9 @@ class AnnotatePetriNetWithTraceFrequency(AnnotatePetriNet):
                          show_places_names, name, background_color, engine, export_path, rankdir)
 
     def get_annotation(self, context_value: GrpcContextValue):
-        return from_grpc_frequency_annotation(context_value.frequency_annotation)
+        return from_grpc_frequency_annotation(context_value.annotation.frequencyAnnotation)
 
 
 class EnsureInitialMarking(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_ensure_initial_marking))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_ensure_initial_marking))

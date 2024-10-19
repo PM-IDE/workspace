@@ -1,0 +1,66 @@
+﻿syntax = "proto3";
+
+import "pipelines_and_context.proto";
+import "util.proto";
+import "backend_service.proto";
+import "google/protobuf/empty.proto";
+
+package ficus;
+
+service GrpcKafkaService {
+  rpc SubscribeForKafkaTopicExternal(GrpcSubscribeToKafkaAndProduceToKafka) returns (GrpcKafkaResult);
+  rpc SubscribeForKafkaTopicStream(GrpcSubscribeForKafkaTopicRequest) returns (stream GrpcPipelinePartExecutionResult);
+  rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
+
+  rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (stream GrpcPipelinePartExecutionResult);
+}
+
+message GrpcExecutePipelineAndProduceKafkaRequest {
+  GrpcProxyPipelineExecutionRequest pipelineRequest = 1;
+  GrpcKafkaConnectionMetadata producerMetadata = 2;
+  GrpcProcessInfo caseInfo = 3;
+}
+
+message GrpcProcessInfo {
+  string processName = 1;
+  string caseName = 2;
+}
+
+message GrpcSubscribeToKafkaAndProduceToKafka {
+  GrpcSubscribeForKafkaTopicRequest request = 1;
+  GrpcKafkaConnectionMetadata producerMetadata = 2;
+}
+
+message GrpcSubscribeForKafkaTopicRequest {
+  GrpcKafkaConnectionMetadata kafkaConnectionMetadata = 1;
+  GrpcPipelineExecutionRequest pipelineRequest = 2;
+}
+
+message GrpcKafkaConnectionMetadata {
+  string topicName = 1;
+  repeated GrpcKafkaConsumerMetadata metadata = 2;
+}
+
+message GrpcKafkaConsumerMetadata {
+  string key = 1;
+  string value = 2;
+}
+
+message GrpcKafkaResult {
+  oneof result {
+    GrpcKafkaSuccessResult success = 1;
+    GrpcKafkaFailedResult failure = 2;
+  }
+}
+
+message GrpcKafkaSuccessResult {
+  GrpcGuid subscriptionId = 1;
+}
+
+message GrpcKafkaFailedResult {
+  string errorMessage = 1;
+}
+
+message GrpcUnsubscribeFromKafkaRequest {
+  GrpcGuid subscriptionId = 1;
+}

@@ -1,7 +1,7 @@
 //https://github.com/mathias234/binary_rw/blob/master/src/stream/file.rs
 use std::fs::{File, Metadata, OpenOptions};
 use std::io::prelude::*;
-use std::io::{Error, ErrorKind, Read, SeekFrom, Write};
+use std::io::{Cursor, Error, ErrorKind, Read, SeekFrom, Write};
 use std::path::Path;
 
 use super::core::{ReadStream, SeekStream, WriteStream};

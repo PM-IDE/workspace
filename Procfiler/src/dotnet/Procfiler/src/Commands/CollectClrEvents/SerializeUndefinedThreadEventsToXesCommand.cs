@@ -34,7 +34,7 @@ public class SerializeUndefinedThreadEventsToXesCommand(
       var processingContext = EventsProcessingContext.DoEverythingWithoutMethodStartEnd(undefinedThreadEvents, globalData);
 
       unitedEventsProcessor.ProcessFullEventLog(processingContext);
-      var sessionInfo = new EventSessionInfo(new[] { undefinedThreadEvents }, globalData);
+      var sessionInfo = new EventSessionInfo([undefinedThreadEvents], globalData);
 
       serializer.WriteTrace(outputPath, sessionInfo);
     });

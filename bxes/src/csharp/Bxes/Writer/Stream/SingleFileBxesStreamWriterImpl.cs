@@ -57,7 +57,7 @@ public class SingleFileBxesStreamWriterImpl<TEvent> :
       SkipVersionAndCopyContents(OpenRead(BxesConstants.TracesFileName), writer);
     }
 
-    BxesWriteUtils.CreateZipArchive(new[] { tempFileCookie.Path }, mySavePath);
+    BxesWriteUtils.CreateZipArchive([tempFileCookie.Path], mySavePath);
   }
 
   private static void SkipVersionAndCopyContents(BinaryReader reader, BinaryWriter writer)

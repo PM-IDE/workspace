@@ -23,11 +23,11 @@ public class MethodStartEndEventsLogMutator(
   IProcfilerEventsFactory factory,
   IProcfilerLogger logger) : IMethodStartEndEventsLogMutator
 {
-  public IEnumerable<EventLogMutation> Mutations { get; } = new[]
-  {
+  public IEnumerable<EventLogMutation> Mutations { get; } =
+  [
     new AddEventMutation(TraceEventsConstants.ProcfilerMethodStart),
     new AddEventMutation(TraceEventsConstants.ProcfilerMethodEnd)
-  };
+  ];
 
 
   public void Process(IEventsCollection events, IGlobalDataWithStacks context)

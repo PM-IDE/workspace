@@ -1,0 +1,34 @@
+@using Ficus
+@inject IJSRuntime Js
+
+<div class="cytoscape-petri-net-container" id="@myCytoscapeContainerId"></div>
+
+@code {
+  private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
+
+
+  [Parameter] public required GrpcPetriNet PetriNet { get; init; }
+  [Parameter] public required GrpcAnnotation? Annotation { get; init; }
+
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (!firstRender) return;
+
+    var annotation = Annotation?.AnnotationCase switch
+    {
+      GrpcAnnotation.AnnotationOneofCase.CountAnnotation => Annotation.CountAnnotation.Annotations
+        .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Count))
+        .ToDictionary(),
+
+      GrpcAnnotation.AnnotationOneofCase.FrequencyAnnotation => Annotation.FrequencyAnnotation.Annotations
+        .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Frequency))
+        .ToDictionary(),
+
+      GrpcAnnotation.AnnotationOneofCase.None or null => null,
+      _ => throw new ArgumentOutOfRangeException($"Unhandled annotation case {Annotation?.AnnotationCase}")
+    };
+
+    await Js.InvokeVoidAsync("drawPetriNet", myCytoscapeContainerId.ToString(), PetriNet, annotation);
+  }
+}

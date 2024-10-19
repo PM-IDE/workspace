@@ -4,7 +4,7 @@ namespace Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.GC;
 
 public static class GcMutatorsUtil
 {
-  public static string GenerateNewNameForGcReason(string reason, IProcfilerLogger logger) => reason switch
+  public static string TransformGcReason(string reason, IProcfilerLogger logger) => reason switch
   {
     "AllocSmall" => "ALLOC_SMALL",
     "Induced" => "INDUCED",
@@ -21,5 +21,13 @@ public static class GcMutatorsUtil
     "PMFullGC" => "PM_FULL_GC",
     "LowMemoryHostBlocking" => "LOW_MEMORY_HOST_BLOCKING",
     _ => MutatorsUtil.CreateUnknownEventNamePartAndLog(reason, logger)
+  };
+
+  public static string TransformGcType(string type, IProcfilerLogger logger) => type switch
+  {
+    "NonConcurrentGC" => "NC_GC",
+    "BackgroundGC" => "B_GC",
+    "ForegroundGC" => "F_GC",
+    _ => MutatorsUtil.CreateUnknownEventNamePartAndLog(type, logger)
   };
 }

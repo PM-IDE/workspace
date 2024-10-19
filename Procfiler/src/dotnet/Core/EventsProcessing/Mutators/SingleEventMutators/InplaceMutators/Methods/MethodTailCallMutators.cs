@@ -8,11 +8,11 @@ namespace Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Met
 
 public abstract class MethodTailCallNameMutatorBase(IProcfilerLogger logger) : MetadataValueToNameAppenderBase(logger)
 {
-  protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
-  {
+  protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } =
+  [
     MetadataKeysWithTransform.CreateForTypeLikeName(TraceEventsConstants.MethodBeingCompiledNamespace, EventClassKind.Zero),
     MetadataKeysWithTransform.CreateForTypeLikeName(TraceEventsConstants.MethodBeingCompiledName, EventClassKind.Zero)
-  };
+  ];
 }
 
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]

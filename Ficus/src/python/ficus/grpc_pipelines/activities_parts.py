@@ -1,7 +1,6 @@
-from .context_values import from_grpc_ficus_dataset, from_grpc_labeled_dataset, from_grpc_color
 from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat
-from .grpc_pipelines import *
-from .grpc_pipelines import _create_default_pipeline_part, _create_complex_get_context_part
+from .entry_points.default_pipeline import *
+from .entry_points.default_pipeline import create_default_pipeline_part, create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
     GrpcContextValue
 from .patterns_parts import FindMaximalRepeats, \
@@ -19,7 +18,7 @@ class DiscoverActivities(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
         append_uint32_value(config, const_activity_level, self.activity_level)
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_discover_activities, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_activities, config))
 
 
 class DiscoverActivitiesInstances(PipelinePart):
@@ -39,7 +38,7 @@ class DiscoverActivitiesInstances(PipelinePart):
         append_activity_filter_kind(config, const_activity_filter_kind, self.activity_filter_kind)
 
         return GrpcPipelinePartBase(
-            defaultPart=_create_default_pipeline_part(const_discover_activities_instances, config))
+            defaultPart=create_default_pipeline_part(const_discover_activities_instances, config))
 
 
 class CreateLogFromActivitiesInstances(PipelinePart):
@@ -52,7 +51,7 @@ class CreateLogFromActivitiesInstances(PipelinePart):
         config = GrpcPipelinePartConfiguration()
         append_undef_activity_handling_strat(config, const_undef_activity_handling_strategy, self.strategy)
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_create_log_from_activities, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_create_log_from_activities, config))
 
 
 class DiscoverActivitiesForSeveralLevels(PipelinePart):
@@ -93,7 +92,7 @@ class DiscoverActivitiesForSeveralLevels(PipelinePart):
         append_activity_filter_kind(config, const_activity_filter_kind, self.activity_filter_kind)
         append_uint32_value(config, const_tandem_array_length, self.max_array_length)
 
-        default_part = _create_default_pipeline_part(const_discover_activities_for_several_levels, config)
+        default_part = create_default_pipeline_part(const_discover_activities_for_several_levels, config)
         return GrpcPipelinePartBase(defaultPart=default_part)
 
 
@@ -133,7 +132,7 @@ class DiscoverActivitiesFromPatterns(PipelinePart):
         config = GrpcPipelinePartConfiguration()
         append_pipeline_value(config, const_pipeline, pipeline)
 
-        default_part = _create_default_pipeline_part(const_execute_frontend_part, config)
+        default_part = create_default_pipeline_part(const_execute_frontend_part, config)
         return GrpcPipelinePartBase(defaultPart=default_part)
 
 
@@ -187,14 +186,14 @@ class DiscoverActivitiesUntilNoMore(PipelinePart):
         if self.after_activities_extraction_pipeline is not None:
             append_pipeline_value(config, const_pipeline, self.after_activities_extraction_pipeline)
 
-        default_part = _create_default_pipeline_part(const_discover_activities_until_no_more, config)
+        default_part = create_default_pipeline_part(const_discover_activities_until_no_more, config)
         return GrpcPipelinePartBase(defaultPart=default_part)
 
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
 
         if self.after_activities_extraction_pipeline is not None:
-            self.after_activities_extraction_pipeline.append_parts_with_callbacks(parts)
+            append_parts_with_callbacks(self.after_activities_extraction_pipeline.parts, parts)
 
 
 class ExecuteWithEachActivityLog(PipelinePart):
@@ -211,30 +210,31 @@ class ExecuteWithEachActivityLog(PipelinePart):
         append_uint32_value(config, const_activity_level, self.activity_level)
         append_activities_logs_source(config, const_activities_logs_source, self.activities_logs_source)
 
-        default_part = _create_default_pipeline_part(const_execute_with_each_activity_log, config)
+        default_part = create_default_pipeline_part(const_execute_with_each_activity_log, config)
         return GrpcPipelinePartBase(defaultPart=default_part)
 
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
-        self.activity_log_pipeline.append_parts_with_callbacks(parts)
+        append_parts_with_callbacks(self.activity_log_pipeline.parts, parts)
 
 
 class SubstituteUnderlyingEvents(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_substitute_underlying_events))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_substitute_underlying_events))
 
 
 class ClearActivitiesRelatedStuff(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_clear_activities_related_stuff))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_clear_activities_related_stuff))
 
 
 class PrintNumberOfUnderlyingEvents(PipelinePartWithCallback):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_underlying_events_count],
-                                                const_get_number_of_underlying_events,
-                                                GrpcPipelinePartConfiguration())
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_underlying_events_count],
+                                               const_get_number_of_underlying_events,
+                                               GrpcPipelinePartConfiguration())
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
@@ -253,7 +253,7 @@ class ApplyClassExtractor(PipelinePart):
         append_string_value(config, const_event_class_regex, self.class_extractor_regex)
         append_string_value(config, const_regex, self.filter_regex)
 
-        part = _create_default_pipeline_part(const_apply_class_extractor, config)
+        part = create_default_pipeline_part(const_apply_class_extractor, config)
         return GrpcPipelinePartBase(defaultPart=part)
 
 
@@ -387,10 +387,11 @@ class ClusterizeActivitiesFromTracesKMeans(ClusterizationPart):
         append_uint32_value(config, const_clusters_count, self.clusters_count)
         append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
 
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_labeled_traces_activities_dataset],
-                                                const_clusterize_activities_from_traces_k_means,
-                                                config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_labeled_traces_activities_dataset],
+                                               const_clusterize_activities_from_traces_k_means,
+                                               config)
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
@@ -421,10 +422,11 @@ class ClusterizeActivitiesFromTracesKMeansGridSearch(ClusterizationPart):
         config = self.create_common_config()
         append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
 
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_labeled_traces_activities_dataset],
-                                                const_clusterize_activities_from_traces_k_means_grid_search,
-                                                config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_labeled_traces_activities_dataset],
+                                               const_clusterize_activities_from_traces_k_means_grid_search,
+                                               config)
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
@@ -456,10 +458,11 @@ class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart):
 
         append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_labeled_traces_activities_dataset],
-                                                const_clusterize_activities_from_traces_dbscan,
-                                                config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_labeled_traces_activities_dataset],
+                                               const_clusterize_activities_from_traces_dbscan,
+                                               config)
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
@@ -500,10 +503,11 @@ class VisualizeTracesActivities(PipelinePartWithCallback):
                           const_activities_repr_source_enum_name,
                           self.activities_repr_source.name)
 
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_traces_activities_dataset],
-                                                const_create_traces_activities_dataset,
-                                                config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_traces_activities_dataset],
+                                               const_create_traces_activities_dataset,
+                                               config)
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
@@ -563,16 +567,17 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
         if self.class_extractor is not None:
             append_string_value(config, const_event_class_regex, self.class_extractor)
 
-        part = _create_complex_get_context_part(self.uuid,
-                                                [const_labeled_log_traces_dataset],
-                                                const_clusterize_log_traces,
-                                                config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_labeled_log_traces_dataset],
+                                               const_clusterize_log_traces,
+                                               config)
 
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
     def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
         super().append_parts_with_callbacks(parts)
-        self.after_clusterization_pipeline.append_parts_with_callbacks(parts)
+        append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
 
 
 class SerializeActivitiesLogs(PipelinePart):
@@ -602,9 +607,9 @@ class SerializeActivitiesLogs(PipelinePart):
                           const_activities_logs_source_enum_name,
                           self.activities_source.name)
 
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_serialize_activities_logs, config))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_serialize_activities_logs, config))
 
 
 class ReverseHierarchyIndices(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
-        return GrpcPipelinePartBase(defaultPart=_create_default_pipeline_part(const_reverse_hierarchy_indices))
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_reverse_hierarchy_indices))

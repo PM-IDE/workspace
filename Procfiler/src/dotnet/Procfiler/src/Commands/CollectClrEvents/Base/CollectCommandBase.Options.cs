@@ -72,7 +72,7 @@ public partial class CollectCommandBase
     new("-csproj", "The path to the .csproj file of the project to be executed");
 
   private Option<string> TfmOption { get; } =
-    new("--tfm", static () => "net6.0", "The target framework identifier, the project will be built for specified tfm");
+    new("--tfm", static () => "net8.0", "The target framework identifier, the project will be built for specified tfm");
 
   private Option<BuildConfiguration> ConfigurationOption { get; } =
     new("--c", static () => BuildConfiguration.Debug, "Build configuration which will be used during project build");

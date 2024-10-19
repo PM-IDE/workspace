@@ -16,13 +16,13 @@ public class SingleFileBxesWriter(ISystemMetadata metadata) : IBxesWriter
       var context = new BxesWriteContext(writer, new LogValuesEnumerator(metadata.ValueAttributeDescriptors));
 
       BxesWriteUtils.WriteBxesVersion(writer, log.Version);
-      BxesWriteUtils.WriteValuesAttributesDescriptors(context.ValuesEnumerator.OrderedValueAttributes, context);
+      BxesWriteUtils.WriteValuesAttributesDescriptors(context.Metadata.ValuesEnumerator.OrderedValueAttributes, context);
       BxesWriteUtils.WriteValues(log, context);
       BxesWriteUtils.WriteKeyValuePairs(log, context);
       BxesWriteUtils.WriteEventLogMetadata(log.Metadata, context);
       BxesWriteUtils.WriteTracesVariants(log, context);
     });
 
-    BxesWriteUtils.CreateZipArchive(new[] { cookie.Path }, savePath);
+    BxesWriteUtils.CreateZipArchive([cookie.Path], savePath);
   }
 }

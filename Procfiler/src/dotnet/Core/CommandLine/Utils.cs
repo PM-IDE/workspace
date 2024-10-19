@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Core.CommandLine;
 
-
 public static class ParseResultExtensions
 {
   public static bool HasErrors(this ParseResult parseResult, IProcfilerLogger logger)

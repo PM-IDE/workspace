@@ -4,6 +4,7 @@ using Core.Events.EventRecord;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Handlers;
+using ProcfilerOnline.Core.Mutators;
 using ProcfilerOnline.Core.Processors;
 
 namespace ProcfilerOnline.Core;
@@ -14,10 +15,10 @@ public interface IThreadsMethodsProcessor
   IReadOnlyList<(long ThreadId, List<EventRecordWithMetadata>)> ReclaimNotClosedMethods();
 }
 
-public class TargetMethodFrame(long methodId, string? methodFullName)
+public class TargetMethodFrame(long methodId, ExtendedMethodInfo? methodInfo)
 {
   public long MethodId { get; } = methodId;
-  public string? MethodFullName { get; } = methodFullName;
+  public ExtendedMethodInfo? MethodInfo { get; } = methodInfo;
 
   public List<EventRecordWithMetadata> InnerEvents { get; } = [];
 }
@@ -26,7 +27,8 @@ public class TargetMethodFrame(long methodId, string? methodFullName)
 public class ThreadsMethodsProcessor(
   IProcfilerLogger logger,
   ICompositeEventPipeStreamEventHandler handler,
-  IEventProcessingEntryPoint eventProcessingEntryPoint
+  IEventProcessingEntryPoint eventProcessingEntryPoint,
+  IMethodBeginEndSingleMutator methodBeginEndSingleMutator
 ) : IThreadsMethodsProcessor
 {
   private readonly Dictionary<long, Stack<TargetMethodFrame>> myStacksPerThreads = new();
@@ -49,7 +51,7 @@ public class ThreadsMethodsProcessor(
     {
       ProcessInternal(context with
       {
-        Event = threadStack.Peek().InnerEvents.First().ConvertToMethodEndEvent()
+        Event = threadStack.Peek().InnerEvents.First().ConvertToMethodEndEvent(context.SharedData, methodBeginEndSingleMutator)
       });
     }
 
@@ -88,7 +90,8 @@ public class ThreadsMethodsProcessor(
       {
         if (isTargetMethod)
         {
-          threadStack.Push(new TargetMethodFrame(methodId, context.SharedData.FindMethodName(methodId)));
+          var methodName = context.SharedData.FindMethodDetails(methodId);
+          threadStack.Push(new TargetMethodFrame(methodId, methodName));
           threadStack.Peek().InnerEvents.Add(context.Event);
         }
 
@@ -112,6 +115,7 @@ public class ThreadsMethodsProcessor(
           {
             handler.Handle(new CompletedMethodExecutionEvent
             {
+              ApplicationName = context.CommandContext.ApplicationName,
               Frame = frame
             });
           }

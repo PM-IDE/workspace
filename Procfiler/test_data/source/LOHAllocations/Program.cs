@@ -12,7 +12,7 @@ internal class Program
       var length = (i % 123 == 0) switch
       {
         true => 1_123_123,
-        false => 86_000,
+        false => 10_000,
       };
   
       var array = new byte[length];

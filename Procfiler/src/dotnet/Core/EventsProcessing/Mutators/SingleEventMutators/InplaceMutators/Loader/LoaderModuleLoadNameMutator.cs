@@ -8,10 +8,10 @@ namespace Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.Loa
 
 public abstract class LoaderModuleLoadUnloadNameMutatorBase(IProcfilerLogger logger) : MetadataValueToNameAppenderBase(logger)
 {
-  protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } = new[]
-  {
+  protected sealed override IEnumerable<MetadataKeysWithTransform> Transformations { get; } =
+  [
     MetadataKeysWithTransform.CreateForModuleILFileName(TraceEventsConstants.LoaderILFileName, EventClassKind.Zero)
-  };
+  ];
 }
 
 [EventMutator(SingleEventMutatorsPasses.SingleEventsMutators)]

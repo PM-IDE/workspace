@@ -13,10 +13,10 @@ public abstract class ContentionStartStopNameMutatorBase : MetadataValueToNameAp
 
   protected ContentionStartStopNameMutatorBase(IProcfilerLogger logger) : base(logger)
   {
-    Transformations = new[]
-    {
+    Transformations =
+    [
       new MetadataKeysWithTransform(TraceEventsConstants.ContentionFlags, TransformContentionKind, EventClassKind.Zero)
-    };
+    ];
   }
 
 

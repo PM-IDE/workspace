@@ -15,11 +15,11 @@ public class GcSuspendEeMutator : MetadataValueToNameAppenderBase
 
   public GcSuspendEeMutator(IProcfilerLogger logger) : base(logger)
   {
-    Transformations = new[]
-    {
+    Transformations =
+    [
       new MetadataKeysWithTransform(
         TraceEventsConstants.GcSuspendEeStartReason, GenerateNameForReason, EventClassKind.Zero)
-    };
+    ];
   }
 
 

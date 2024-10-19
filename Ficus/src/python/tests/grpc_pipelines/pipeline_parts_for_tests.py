@@ -1,5 +1,5 @@
 from ...ficus.grpc_pipelines.constants import const_names_event_log, const_get_names_event_log
-from ...ficus.grpc_pipelines.grpc_pipelines import PipelinePartWithCallback, _create_complex_get_context_part
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import PipelinePartWithCallback, create_complex_get_context_part
 from ...ficus.grpc_pipelines.models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
     GrpcContextValue
 
@@ -11,7 +11,11 @@ class AssertNamesLogTestPart(PipelinePartWithCallback):
 
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
-        part = _create_complex_get_context_part(self.uuid, [const_names_event_log], const_get_names_event_log, config)
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_names_event_log],
+                                               const_get_names_event_log,
+                                               config)
         return GrpcPipelinePartBase(complexContextRequestPart=part)
 
     def execute_callback(self, values: dict[str, GrpcContextValue]):

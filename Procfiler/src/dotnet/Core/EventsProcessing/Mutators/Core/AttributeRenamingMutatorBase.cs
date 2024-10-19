@@ -8,7 +8,7 @@ public abstract class AttributeRenamingMutatorBase(IProcfilerLogger logger, stri
   : SingleEventMutatorBase(logger)
 {
   public override IEnumerable<EventLogMutation> Mutations =>
-    new[] { new AttributeRenameMutation(EventType, initialName, finalName) };
+    [new AttributeRenameMutation(EventType, initialName, finalName)];
 
 
   protected override void ProcessInternal(EventRecordWithMetadata eventRecord, IGlobalData context)

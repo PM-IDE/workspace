@@ -1,21 +1,23 @@
-﻿using Core.Container;
+﻿using Autofac;
+using Core.Container;
 using Core.Events.EventRecord;
-using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Features;
-using ProcfilerOnline.Core.Settings;
-using ProcfilerOnline.Integrations.Kafka;
+using ProcfilerOnline.Integrations.Kafka.Bxes;
+using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace ProcfilerOnline.Core.Handlers;
 
 public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 {
+  public required string ApplicationName { get; init; }
   public required string StateMachineName { get; init; }
   public required List<List<EventRecordWithMetadata>> MethodTraces { get; init; }
+  public ExtendedMethodInfo? MethodInfo { get; init; }
 }
 
 [AppComponent]
 public class CompletedAsyncMethodHandler(
-  IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
+  IComponentContext container
 ) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
@@ -23,12 +25,41 @@ public class CompletedAsyncMethodHandler(
     if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
     if (eventPipeStreamEvent is not CompletedAsyncMethodEvent completedAsyncMethodEvent) return;
 
+    if (ProcfilerOnlineFeatures.ProduceBxesKafkaEvents.IsEnabled())
+    {
+      ProduceBxesKafkaMessage(completedAsyncMethodEvent);
+      return;
+    }
+
+    ProduceJsonKafkaMessage(completedAsyncMethodEvent);
+  }
+
+  private void ProduceBxesKafkaMessage(CompletedAsyncMethodEvent completedAsyncMethodEvent)
+  {
+    var producer = container.Resolve<IBxesMethodsKafkaProducer>();
     foreach (var methodTrace in completedAsyncMethodEvent.MethodTraces)
     {
-      var message = new MethodsExecutionKafkaMessage
+      var message = new BxesKafkaMethodsExecutionMessage
+      {
+        ProcessName = completedAsyncMethodEvent.ApplicationName,
+        CaseName = completedAsyncMethodEvent.StateMachineName,
+        Trace = methodTrace,
+        MethodInfo = completedAsyncMethodEvent.MethodInfo
+      };
+
+      producer.Produce(Guid.NewGuid(), message);
+    }
+  }
+
+  private void ProduceJsonKafkaMessage(CompletedAsyncMethodEvent completedAsyncMethodEvent)
+  {
+    var producer = container.Resolve<IJsonMethodsKafkaProducer>();
+    foreach (var methodTrace in completedAsyncMethodEvent.MethodTraces)
+    {
+      var message = new JsonMethodsExecutionKafkaMessage
       {
         MethodFullName = completedAsyncMethodEvent.StateMachineName,
-        Events = methodTrace.Select(EventRecordWithMetadataKafkaDto.FromEventRecord).ToList()
+        Events = methodTrace.Select(JsonEventRecordWithMetadataKafkaDto.FromEventRecord).ToList()
       };
 
       producer.Produce(Guid.NewGuid(), message);

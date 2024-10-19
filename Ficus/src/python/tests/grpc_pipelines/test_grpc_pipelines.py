@@ -11,7 +11,7 @@ from ...ficus.grpc_pipelines.data_models import NarrowActivityKind
 from ...ficus.grpc_pipelines.drawing_parts import TracesDiversityDiagram, DrawPlacementsOfEventByName, \
     DrawPlacementOfEventsByRegex
 from ...ficus.grpc_pipelines.filtering_parts import FilterTracesByEventsCount
-from ...ficus.grpc_pipelines.grpc_pipelines import Pipeline, PrintEventLogInfo, ficus_backend_addr_key
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline, PrintEventLogInfo, ficus_backend_addr_key
 from ...ficus.grpc_pipelines.patterns_parts import FindSuperMaximalRepeats, PatternsDiscoveryStrategy
 from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog
 from ...ficus.grpc_pipelines.xes_parts import ReadLogFromXes

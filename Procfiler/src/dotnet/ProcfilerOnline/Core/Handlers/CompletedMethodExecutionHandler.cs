@@ -1,31 +1,63 @@
-﻿using Core.Container;
+﻿using Autofac;
+using Core.Container;
+using Core.Utils;
+using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Features;
-using ProcfilerOnline.Integrations.Kafka;
+using ProcfilerOnline.Integrations.Kafka.Bxes;
+using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace ProcfilerOnline.Core.Handlers;
 
 public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 {
+  public required string ApplicationName { get; init; }
   public required TargetMethodFrame Frame { get; init; }
 }
 
 [AppComponent]
-public class CompletedMethodExecutionHandler(
-  IKafkaProducer<Guid, MethodsExecutionKafkaMessage> producer
-) : IEventPipeStreamEventHandler
+public class CompletedMethodExecutionHandler(IComponentContext container, IProcfilerLogger logger) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
     if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
     if (eventPipeStreamEvent is not CompletedMethodExecutionEvent @event) return;
-    if (@event.Frame.MethodFullName is not { } methodFullName) return;
 
-    var message = new MethodsExecutionKafkaMessage
+    if (@event.Frame.MethodInfo is null)
     {
-      Events = @event.Frame.InnerEvents.Select(EventRecordWithMetadataKafkaDto.FromEventRecord).ToList(),
-      MethodFullName = methodFullName,
+      logger.LogWarning("Encountered an event without MethodInfo, will not send it");
+      return;
+    }
+
+    if (ProcfilerOnlineFeatures.ProduceBxesKafkaEvents.IsEnabled())
+    {
+      ProduceBxesKafkaMessage(@event);
+      return;
+    }
+
+    ProduceJsonKafkaMessage(@event);
+  }
+
+  private void ProduceBxesKafkaMessage(CompletedMethodExecutionEvent @event)
+  {
+    var message = new BxesKafkaMethodsExecutionMessage
+    {
+      ProcessName = @event.ApplicationName,
+      CaseName = @event.Frame.MethodInfo!.Fqn,
+      MethodInfo = @event.Frame.MethodInfo,
+      Trace = @event.Frame.InnerEvents
     };
 
-    producer.Produce(Guid.NewGuid(), message);
+    container.Resolve<IBxesMethodsKafkaProducer>().Produce(Guid.NewGuid(), message);
+  }
+
+  private void ProduceJsonKafkaMessage(CompletedMethodExecutionEvent @event)
+  {
+    var message = new JsonMethodsExecutionKafkaMessage
+    {
+      Events = @event.Frame.InnerEvents.Select(JsonEventRecordWithMetadataKafkaDto.FromEventRecord).ToList(),
+      MethodFullName = @event.Frame.MethodInfo!.Fqn,
+    };
+
+    container.Resolve<IJsonMethodsKafkaProducer>().Produce(Guid.NewGuid(), message);
   }
 }
