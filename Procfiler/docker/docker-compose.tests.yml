@@ -56,3 +56,4 @@
       - OnlineProcfilerSettings__KafkaSettings__TopicName=my-topic
       - OnlineProcfilerSettings__KafkaSettings__BootstrapServers=broker:29092
       - ProduceEventsToKafka=true
+      - ProduceBxesKafkaEvents=true

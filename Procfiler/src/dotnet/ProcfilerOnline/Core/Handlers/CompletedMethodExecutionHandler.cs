@@ -1,8 +1,10 @@
-﻿using Core.Container;
+﻿using Autofac;
+using Core.Container;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Features;
 using ProcfilerOnline.Integrations.Kafka.Bxes;
+using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace ProcfilerOnline.Core.Handlers;
 
@@ -13,10 +15,7 @@ public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
 }
 
 [AppComponent]
-public class CompletedMethodExecutionHandler(
-  IBxesMethodsKafkaProducer producer,
-  IProcfilerLogger logger
-) : IEventPipeStreamEventHandler
+public class CompletedMethodExecutionHandler(IComponentContext container, IProcfilerLogger logger) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
@@ -29,14 +28,36 @@ public class CompletedMethodExecutionHandler(
       return;
     }
 
+    if (ProcfilerOnlineFeatures.ProduceBxesKafkaEvents.IsEnabled())
+    {
+      ProduceBxesKafkaMessage(@event);
+      return;
+    }
+
+    ProduceJsonKafkaMessage(@event);
+  }
+
+  private void ProduceBxesKafkaMessage(CompletedMethodExecutionEvent @event)
+  {
     var message = new BxesKafkaMethodsExecutionMessage
     {
       ProcessName = @event.ApplicationName,
-      CaseName = @event.Frame.MethodInfo.Fqn,
+      CaseName = @event.Frame.MethodInfo!.Fqn,
       MethodInfo = @event.Frame.MethodInfo,
       Trace = @event.Frame.InnerEvents
     };
 
-    producer.Produce(Guid.NewGuid(), message);
+    container.Resolve<IBxesMethodsKafkaProducer>().Produce(Guid.NewGuid(), message);
+  }
+
+  private void ProduceJsonKafkaMessage(CompletedMethodExecutionEvent @event)
+  {
+    var message = new JsonMethodsExecutionKafkaMessage
+    {
+      Events = @event.Frame.InnerEvents.Select(JsonEventRecordWithMetadataKafkaDto.FromEventRecord).ToList(),
+      MethodFullName = @event.Frame.MethodInfo!.Fqn,
+    };
+
+    container.Resolve<IJsonMethodsKafkaProducer>().Produce(Guid.NewGuid(), message);
   }
 }
