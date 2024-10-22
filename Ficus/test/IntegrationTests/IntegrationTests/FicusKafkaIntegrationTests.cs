@@ -1,5 +1,3 @@
 namespace IntegrationTests;
 
-public class FicusKafkaIntegrationTests
-{
-}
+public class FicusKafkaIntegrationTests;
