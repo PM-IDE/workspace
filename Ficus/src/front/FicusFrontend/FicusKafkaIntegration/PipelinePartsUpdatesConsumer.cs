@@ -1,10 +1,9 @@
 ﻿using Confluent.Kafka;
 using Ficus;
-using FrontendBackend.Features.PipelineUpdates.Settings;
-using FrontendBackend.Utils;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
+namespace FicusKafkaIntegration;
 
 public interface IPipelinePartsUpdatesConsumer
 {

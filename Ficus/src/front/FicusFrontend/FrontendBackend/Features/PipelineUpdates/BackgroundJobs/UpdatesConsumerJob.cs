@@ -1,4 +1,4 @@
-﻿using FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
+﻿using FicusKafkaIntegration;
 using FrontendBackend.Features.PipelineUpdates.Services;
 
 namespace FrontendBackend.Features.PipelineUpdates.BackgroundJobs;
