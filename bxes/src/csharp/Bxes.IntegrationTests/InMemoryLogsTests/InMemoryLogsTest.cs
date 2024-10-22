@@ -14,7 +14,7 @@ public class InMemoryLogsTest
   [Repeat(20)]
   public void ExecuteTest()
   {
-    var log = TestLogsProvider.CreateSimpleTestLog();
+    var log = RandomLogsGenerator.CreateSimpleLog();
 
     //todo: remove after #9 is fixed
     foreach (var traceVariant in log.Traces)
@@ -22,7 +22,7 @@ public class InMemoryLogsTest
       traceVariant.Count = 1;
     }
 
-    var systemMetadata = TestLogsProvider.GenerateRandomSystemMetadata(log);
+    var systemMetadata = RandomLogsGenerator.GenerateRandomSystemMetadata(log);
 
     using var tempFile = new TempFilePathContainer();
     new SingleFileBxesWriter(systemMetadata).Write(log, tempFile.Path);
