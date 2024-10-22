@@ -66,15 +66,22 @@ public class BuildCppProcfiler : Task
     return LaunchProcessAndWaitForExit(CreateBuildCmakeProjectProcess(), Name);
   }
 
-  private Process CreateBuildCmakeProjectProcess() => new()
+  private Process CreateBuildCmakeProjectProcess()
   {
-    StartInfo = new ProcessStartInfo
+    var process = new Process
     {
-      FileName = FindCmakeExecutable(),
-      Arguments = $"--build . --target {TargetName} --config Release",
-      WorkingDirectory = CreateBuildDirectoryPath(),
-    }
-  };
+      StartInfo = new ProcessStartInfo
+      {
+        FileName = FindCmakeExecutable(),
+        Arguments = $"--build . --target {TargetName} --config Release",
+        WorkingDirectory = CreateBuildDirectoryPath(),
+        RedirectStandardError = true,
+        RedirectStandardOutput = true,
+      }
+    };
+
+    return process;
+  }
 
   private string FindCmakeExecutable() => "cmake";
 

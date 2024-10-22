@@ -22,20 +22,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Bxes">
-            <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\$(Configuration)\net8.0\Bxes.dll</HintPath>
-        </Reference>
-        <Reference Include="Bxes.Kafka">
-            <HintPath>..\..\..\..\bxes\src\csharp\Bxes.Kafka\bin\$(Configuration)\net8.0\Bxes.Kafka.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\ProcfilerOnline\ProcfilerOnline.csproj" />
       <ProjectReference Include="..\TestsUtil\TestsUtil.csproj" />
     </ItemGroup>
 
     <Target Name="CopyOnlineCppProcfilerDll" AfterTargets="Build">
-        <Copy SourceFiles="$(SolutionDir)..\dotnet\ProcfilerOnline\bin\$(Configuration)\$(TargetFramework)\CppProcfilerOnline.dll" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="$(SolutionDir)\Procfiler\src\dotnet\ProcfilerOnline\bin\$(Configuration)\$(TargetFramework)\CppProcfilerOnline.dll" 
+              DestinationFolder="$(OutputPath)"/>
     </Target>
 </Project>
