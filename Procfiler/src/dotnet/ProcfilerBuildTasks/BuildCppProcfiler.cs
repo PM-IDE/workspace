@@ -76,7 +76,7 @@ public class BuildCppProcfiler : Task
         Arguments = $"--build . --target {TargetName} --config Release",
         WorkingDirectory = CreateBuildDirectoryPath(),
         RedirectStandardError = true,
-        RedirectStandardOutput = true,
+        RedirectStandardOutput = true
       }
     };
 
@@ -117,14 +117,13 @@ public class BuildCppProcfiler : Task
 
   private bool LaunchProcessAndWaitForExit(Process process, string name)
   {
-    var timeout = (int)TimeSpan.FromSeconds(60).TotalMilliseconds;
-
     if (!process.Start())
     {
       Log.LogError($"Failed to start the process {name}");
       return false;
     }
 
+    var timeout = (int)TimeSpan.FromSeconds(120).TotalMilliseconds;
     if (!process.WaitForExit(timeout))
     {
       process.Kill();
