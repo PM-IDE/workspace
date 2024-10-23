@@ -17,7 +17,7 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Restore bXES dependencies
-        run: dotnet restore .
+        run: dotnet restore All.sln
       - name: Build bXES
         run: dotnet build . --no-restore -c Release
       - name: Run bXES unit tests
@@ -47,7 +47,7 @@ jobs:
       - name: Build and unit test Procfiler
         run: |
              dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks -c Release -o ${{ github.workspace }}/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/Release/net8.0/
-             dotnet build . /p:Configuration=Release /p:Platform="Any CPU"
+             dotnet build ProcfilerBxes.sln /p:Configuration=Release /p:Platform="Any CPU"
              dotnet test ./Procfiler/src/dotnet/ProcfilerTests /p:Configuration=Release /p:SolutionDir=${{ github.workspace }}
 
   rust-ficus-unit-tests:
