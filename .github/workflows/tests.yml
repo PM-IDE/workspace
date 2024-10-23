@@ -19,7 +19,7 @@ jobs:
       - name: Restore bXES dependencies
         run: dotnet restore All.sln
       - name: Build bXES
-        run: dotnet build . --no-restore -c Release
+        run: dotnet build All.sln --no-restore -c Release
       - name: Run bXES unit tests
         run: dotnet test ./bxes/src/csharp/Bxes.Tests
 
