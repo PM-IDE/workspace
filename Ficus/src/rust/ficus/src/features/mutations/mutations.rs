@@ -27,18 +27,25 @@ where
         let events = trace.events_mut();
 
         if add_start_events {
-            events.insert(
-                0,
-                Rc::new(RefCell::new(TLog::TEvent::new_with_min_date(
-                    ARTIFICIAL_START_EVENT_NAME.to_string(),
-                ))),
-            );
+            let name = ARTIFICIAL_START_EVENT_NAME.to_string();
+            let artificial_start_event = if events.is_empty() {
+                TLog::TEvent::new_with_min_date(name)
+            } else {
+                TLog::TEvent::new(name, events.first().expect("!events.is_empty()").borrow().timestamp().clone())
+            };
+
+            events.insert(0, Rc::new(RefCell::new(artificial_start_event)));
         }
 
         if add_end_events {
-            events.push(Rc::new(RefCell::new(TLog::TEvent::new_with_max_date(
-                ARTIFICIAL_END_EVENT_NAME.to_string(),
-            ))));
+            let name = ARTIFICIAL_END_EVENT_NAME.to_string();
+            let artificial_end_event = if events.is_empty() {
+                TLog::TEvent::new_with_max_date(name)
+            } else {
+                TLog::TEvent::new(name, events.last().expect("!events.is_empty()").borrow().timestamp().clone())
+            };
+
+            events.push(Rc::new(RefCell::new(artificial_end_event)));
         }
     }
 }

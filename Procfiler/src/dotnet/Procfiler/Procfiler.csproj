@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler" AssemblyFile="$(SolutionDir)/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
+    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler" 
+               AssemblyFile="$(SolutionDir)/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -36,26 +37,22 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj" />
         <ProjectReference Include="..\Core\Core.csproj" />
         <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
     </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Bxes">
-        <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\$(Configuration)\net8.0\Bxes.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
+    
     <ItemGroup>
       <Folder Include="src\Core\EventsProcessing\Mutators\SingleEventMutators\" />
     </ItemGroup>
 
     <Target Name="BuildCppProcfiler" AfterTargets="Build">
-        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\offline\" 
+        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\Procfiler\src\cpp\offline\" 
                            TargetName="Procfiler"/>
     </Target>
 
     <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfiler" Outputs="$(OutputPath)CppProcfiler.dll">
-        <Copy SourceFiles="$(SolutionDir)\..\cpp\offline\build\Release\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="$(SolutionDir)\Procfiler\src\cpp\offline\build\Release\CppProcfiler.dll" 
+              DestinationFolder="$(OutputPath)"/>
     </Target>
 </Project>

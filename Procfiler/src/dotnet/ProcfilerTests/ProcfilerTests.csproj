@@ -40,6 +40,6 @@
     </ItemGroup>
 
     <Target Name="CopyCppProcfilerDll" AfterTargets="Build">
-        <Copy SourceFiles="$(SolutionDir)..\dotnet\Procfiler\bin\$(Configuration)\$(TargetFramework)\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="$(SolutionDir)\Procfiler\src\dotnet\Procfiler\bin\$(Configuration)\$(TargetFramework)\CppProcfiler.dll" DestinationFolder="$(OutputPath)"/>
     </Target>
 </Project>

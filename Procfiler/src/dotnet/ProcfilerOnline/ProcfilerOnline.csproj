@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler" AssemblyFile="$(SolutionDir)/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
+    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler" 
+               AssemblyFile="$(SolutionDir)/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -9,6 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj" />
+      <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj" />
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
@@ -18,21 +21,12 @@
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Reference Include="Bxes">
-            <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\$(Configuration)\net8.0\Bxes.dll</HintPath>
-        </Reference>
-        <Reference Include="Bxes.Kafka">
-            <HintPath>..\..\..\..\bxes\src\csharp\Bxes.Kafka\bin\$(Configuration)\net8.0\Bxes.Kafka.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
     <Target Name="BuildCppProcfilerOnline" AfterTargets="Build">
-        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\..\cpp\online\"
+        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\Procfiler\src\cpp\online\"
                            TargetName="ProcfilerOnline"/>
     </Target>
 
     <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfilerOnline" Outputs="$(OutputPath)CppProcfilerOnline.dll">
-        <Copy SourceFiles="$(SolutionDir)\..\cpp\online\build\Release\CppProcfilerOnline.dll" DestinationFolder="$(OutputPath)"/>
+        <Copy SourceFiles="$(SolutionDir)\Procfiler\src\cpp\online\build\Release\CppProcfilerOnline.dll" DestinationFolder="$(OutputPath)"/>
     </Target>
 </Project>

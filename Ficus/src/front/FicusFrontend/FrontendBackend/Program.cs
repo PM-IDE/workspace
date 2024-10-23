@@ -1,7 +1,6 @@
+using FicusKafkaIntegration;
 using FrontendBackend.Features.PipelineUpdates.BackgroundJobs;
-using FrontendBackend.Features.PipelineUpdates.Kafka.PipelineUpdates;
 using FrontendBackend.Features.PipelineUpdates.Services;
-using FrontendBackend.Features.PipelineUpdates.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 

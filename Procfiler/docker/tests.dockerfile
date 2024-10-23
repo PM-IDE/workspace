@@ -1,7 +1,4 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
-WORKDIR /app
-COPY ./Procfiler ./Procfiler/
-COPY ./bxes ./bxes
 
 RUN apt-get update \
   && apt-get -y install build-essential \
@@ -17,8 +14,13 @@ RUN apt-get update \
 
 RUN apt-get update && apt-get -y install ninja-build
 
-RUN dotnet build ./bxes/src/csharp/ -c Release
+WORKDIR /app
+COPY ./Procfiler ./Procfiler
+COPY ./bxes ./bxes
+COPY ProcfilerBxes.sln ./ProcfilerBxes.sln
+
+RUN dotnet build . -c Release
 RUN dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks/ProcfilerBuildTasks.csproj -c Release
 
 FROM build-env as test
-ENTRYPOINT [ "dotnet", "test", "/app/Procfiler/src/dotnet/OnlineProcfilerTests/OnlineProcfilerTests.csproj", "-c", "Release", "/p:SolutionDir=/app/Procfiler/src/dotnet/" ]
+ENTRYPOINT [ "dotnet", "test", "/app/Procfiler/src/dotnet/OnlineProcfilerTests/OnlineProcfilerTests.csproj", "-c", "Release", "/p:SolutionDir=/app" ]

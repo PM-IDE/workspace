@@ -2,14 +2,13 @@ using Bxes.Models.Domain;
 using Bxes.Models.Domain.Values;
 using Bxes.Models.Domain.Values.Lifecycle;
 using Bxes.Models.System;
-using Bxes.Utils;
 using Bxes.Writer;
 
-namespace Bxes.Tests.Core;
+namespace Bxes.Utils;
 
-public static class TestLogsProvider
+public static class RandomLogsGenerator
 {
-  public static IEventLog CreateSimpleTestLog()
+  public static IEventLog CreateSimpleLog()
   {
     var variants = new List<ITraceVariant>();
     var variantsCount = Random.Shared.Next(5, 10);

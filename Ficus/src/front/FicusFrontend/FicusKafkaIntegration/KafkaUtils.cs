@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
+using Microsoft.Extensions.Logging;
 
-namespace FrontendBackend.Utils;
+namespace FicusKafkaIntegration;
 
 public static class KafkaUtils
 {

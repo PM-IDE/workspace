@@ -66,15 +66,22 @@ public class BuildCppProcfiler : Task
     return LaunchProcessAndWaitForExit(CreateBuildCmakeProjectProcess(), Name);
   }
 
-  private Process CreateBuildCmakeProjectProcess() => new()
+  private Process CreateBuildCmakeProjectProcess()
   {
-    StartInfo = new ProcessStartInfo
+    var process = new Process
     {
-      FileName = FindCmakeExecutable(),
-      Arguments = $"--build . --target {TargetName} --config Release",
-      WorkingDirectory = CreateBuildDirectoryPath(),
-    }
-  };
+      StartInfo = new ProcessStartInfo
+      {
+        FileName = FindCmakeExecutable(),
+        Arguments = $"--build . --target {TargetName} --config Release",
+        WorkingDirectory = CreateBuildDirectoryPath(),
+        RedirectStandardError = true,
+        RedirectStandardOutput = true
+      }
+    };
+
+    return process;
+  }
 
   private string FindCmakeExecutable() => "cmake";
 
@@ -110,14 +117,13 @@ public class BuildCppProcfiler : Task
 
   private bool LaunchProcessAndWaitForExit(Process process, string name)
   {
-    var timeout = (int)TimeSpan.FromSeconds(60).TotalMilliseconds;
-
     if (!process.Start())
     {
       Log.LogError($"Failed to start the process {name}");
       return false;
     }
 
+    var timeout = (int)TimeSpan.FromSeconds(120).TotalMilliseconds;
     if (!process.WaitForExit(timeout))
     {
       process.Kill();
