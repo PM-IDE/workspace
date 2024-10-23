@@ -19,15 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Bxes">
-            <HintPath>..\..\..\..\bxes\src\csharp\Bxes\bin\$(Configuration)\net8.0\Bxes.dll</HintPath>
-        </Reference>
-        <Reference Include="Bxes.Kafka">
-            <HintPath>..\..\..\..\bxes\src\csharp\Bxes.Kafka\bin\$(Configuration)\net8.0\Bxes.Kafka.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Grpc.Core" Version="2.46.3" />
         <PackageReference Include="Google.Protobuf" Version="3.23.1" />
         <PackageReference Include="Grpc.Tools" Version="2.57.0">
@@ -38,5 +29,10 @@
 
     <ItemGroup>
         <Protobuf Include="../../../protos/*.proto" ProtoRoot="../../../protos" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj" />
+      <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj" />
     </ItemGroup>
 </Project>
