@@ -12,11 +12,6 @@ COPY ./Ficus/protos/ ./Ficus/protos/
 
 RUN dotnet restore ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/$PROJECT_NAME.csproj
 
-WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME/Npm
-RUN rm -rf node_modules
-RUN npm install
-RUN npm run build
-
 WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME/
 RUN dotnet publish $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/publish
 
