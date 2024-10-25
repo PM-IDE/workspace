@@ -1,0 +1,64 @@
+services:
+  ficus-kafka:
+    image: apache/kafka:latest
+    hostname: kafka
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_REST_LOG4J_LOGGERS: OFF
+      CONNECT_LOG4J_LOGGERS: OFF
+      ZOOKERPER_LOG4J_LOGGERS: OFF
+      CONTROL_CENTER_LOG4J_LOGGERS: OFF
+      SCHEMA_REGISTRY_LOG4J_LOGGERS: OFF
+      KSQL_LOG4J_LOGGERS: OFF
+      REPLICATOR_LOG4J_LOGGERS: OFF
+      KAFKA_LOG4J_LOGGERS: "kafka=OFF,kafka.controller=OFF,kafka.log.LogCleaner=OFF,state.change.logger=OFF,kafka.producer.async.DefaultEventHandler=OFF"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+  ficus-init-kafka:
+    image: apache/kafka:latest
+    depends_on:
+      - ficus-kafka
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "
+      cd /opt/kafka/bin
+      echo -e 'Starting initializing of kafka'
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating topic my-topic'
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic my-topic
+      echo -e 'Created topic my-topic'
+
+      echo -e 'Creating topic ficus-topic'
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic ficus-topic
+      echo -e 'Created topic ficus-topic'
+
+      ./kafka-topics.sh --bootstrap-server kafka:29092 --list
+
+      sleep infinity
+      "
+
+  ficus-kafka-integration-tests:
+    build:
+      context: ../../../
+      dockerfile: ./Ficus/docker/tests/Tests.KafkaIntegrationTests.Dockerfile
+    environment:
+      PipelinePartsUpdateKafkaSettings__BootstrapServers: kafka:29092
+      PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
+      FicusKafkaProducerSettings__Topic: my-topic
+      FicusKafkaProducerSettings__BootstrapServers: kafka:29092
