@@ -11,14 +11,30 @@ public static class EventLogUtil
       yield return @event;
     }
 
+    foreach (var @event in log.ToTracesEventStream())
+    {
+      yield return @event;
+    }
+  }
+
+  public static IEnumerable<BxesStreamEvent> ToTracesEventStream(this IEventLog log)
+  {
     foreach (var variant in log.Traces)
     {
       yield return new BxesTraceVariantStartEvent(variant.Count, variant.Metadata);
 
-      foreach (var @event in variant.Events)
+      foreach (var @event in variant.ToEventsStream())
       {
-        yield return new BxesEventEvent<IEvent>(@event);
+        yield return @event;
       }
+    }
+  }
+
+  public static IEnumerable<BxesStreamEvent> ToEventsStream(this ITraceVariant variant)
+  {
+    foreach (var @event in variant.Events)
+    {
+      yield return new BxesEventEvent<IEvent>(@event);
     }
   }
 
