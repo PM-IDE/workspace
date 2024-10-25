@@ -1,7 +1,6 @@
 services:
-  ficus-kafka:
+  ficus-int-tests-kafka:
     image: apache/kafka:latest
-    hostname: kafka
     ports:
       - 9092:9092
     environment:
@@ -15,50 +14,75 @@ services:
       KAFKA_LOG4J_LOGGERS: "kafka=OFF,kafka.controller=OFF,kafka.log.LogCleaner=OFF,state.change.logger=OFF,kafka.producer.async.DefaultEventHandler=OFF"
       KAFKA_BROKER_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://ficus-int-tests-kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_NODE_ID: 1
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
-      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@ficus-int-tests-kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://ficus-int-tests-kafka:29092,CONTROLLER://ficus-int-tests-kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
-      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qkxd
 
-  ficus-init-kafka:
+  ficus-int-tests-init-kafka:
     image: apache/kafka:latest
     depends_on:
-      - ficus-kafka
+      - ficus-int-tests-kafka
     entrypoint: ["/bin/sh", "-c"]
     command: |
       "
       cd /opt/kafka/bin
       echo -e 'Starting initializing of kafka'
-      ./kafka-topics.sh --bootstrap-server kafka:29092 --list
+      ./kafka-topics.sh --bootstrap-server ficus-int-tests-kafka:29092 --list
 
       echo -e 'Creating topic my-topic'
-      ./kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic my-topic
+      ./kafka-topics.sh --bootstrap-server ficus-int-tests-kafka:29092 --create --if-not-exists --topic my-topic
       echo -e 'Created topic my-topic'
 
       echo -e 'Creating topic ficus-topic'
-      ./kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic ficus-topic
+      ./kafka-topics.sh --bootstrap-server ficus-int-tests-kafka:29092 --create --if-not-exists --topic ficus-topic
       echo -e 'Created topic ficus-topic'
 
-      ./kafka-topics.sh --bootstrap-server kafka:29092 --list
+      ./kafka-topics.sh --bootstrap-server ficus-int-tests-kafka:29092 --list
 
       sleep infinity
       "
 
-  ficus-kafka-integration-tests:
+  ficus-int-tests-backend:
+    depends_on:
+      - ficus-int-tests-kafka
+    ports:
+      - 1234:8080
+    build:
+      context: ../../../
+      dockerfile: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
+
+  ficus-int-tests-pipeline:
+    depends_on:
+      - ficus-int-tests-backend
+    build:
+      context: ../../../
+      dockerfile: ./Ficus/src/python/examples/kafka_pipelines/Dockerfile
+    environment:
+      CONSUMER_BOOTSTRAP_SERVERS: ficus-int-tests-kafka:29092
+      CONSUMER_TOPIC: my-topic
+      CONSUMER_GROUP_ID: xd
+      PRODUCER_BOOTSTRAP_SERVERS: ficus-int-tests-kafka:29092
+      PRODUCER_TOPIC: ficus-topic
+      FICUS_BACKEND: ficus-int-tests-backend:8080
+
+  ficus-int-tests-tests:
+    depends_on:
+      - ficus-int-tests-pipeline
     build:
       context: ../../../
       dockerfile: ./Ficus/docker/tests/Tests.KafkaIntegrationTests.Dockerfile
     environment:
-      PipelinePartsUpdateKafkaSettings__BootstrapServers: kafka:29092
+      PipelinePartsUpdateKafkaSettings__BootstrapServers: ficus-int-tests-kafka:29092
       PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
       FicusKafkaProducerSettings__Topic: my-topic
-      FicusKafkaProducerSettings__BootstrapServers: kafka:29092
+      FicusKafkaProducerSettings__BootstrapServers: ficus-int-tests-kafka:29092
