@@ -28,7 +28,8 @@ public class FicusKafkaIntegrationTests
 
     var eventLog = RandomLogsGenerator.CreateSimpleLog();
     var writer = CreateBxesKafkaWriter(producerSettings);
-    foreach (var @event in eventLog.ToEventsStream())
+
+    foreach (var @event in eventLog.ToKafkaEventsStream())
     {
       writer.HandleEvent(@event);
     }
@@ -43,6 +44,7 @@ public class FicusKafkaIntegrationTests
     foreach (var update in consumer.StartUpdatesConsuming(CancellationToken.None))
     {
       Console.WriteLine(update.ProcessCaseMetadata);
+      break;
     }
   }
 
