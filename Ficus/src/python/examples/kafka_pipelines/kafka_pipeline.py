@@ -1,9 +1,13 @@
 from ficus import *
 import os
 
-consumer_servers = os.getenv('CONSUMER_BOOTSTRAP_SERVERS')
-consumer_topic = os.getenv('CONSUMER_TOPIC')
-consumer_group = os.getenv('CONSUMER_GROUP_ID')
+def env_or_default(env_name: str, default: str):
+    env = os.getenv(env_name)
+    return env if env is not None else default
+
+consumer_servers = env_or_default('CONSUMER_BOOTSTRAP_SERVERS', 'localhost:9092')
+consumer_topic = env_or_default('CONSUMER_TOPIC', 'my-topic')
+consumer_group = env_or_default('CONSUMER_GROUP_ID', 'xd')
 
 kafka_consumer_metadata = KafkaPipelineMetadata(
     topic_name=consumer_topic,
@@ -14,8 +18,8 @@ kafka_consumer_metadata = KafkaPipelineMetadata(
     }
 )
 
-producer_servers = os.getenv('PRODUCER_BOOTSTRAP_SERVERS')
-producer_topic = os.getenv('PRODUCER_TOPIC')
+producer_servers = env_or_default('PRODUCER_BOOTSTRAP_SERVERS', 'localhost:9092')
+producer_topic = env_or_default('PRODUCER_TOPIC', 'ficus-topic')
 
 kafka_producer_metadata = KafkaPipelineMetadata(
     topic_name=producer_topic,
@@ -24,7 +28,7 @@ kafka_producer_metadata = KafkaPipelineMetadata(
     }
 )
 
-ficus_backend = os.getenv('FICUS_BACKEND')
+ficus_backend = env_or_default('FICUS_BACKEND', 'localhost:8080')
 
 KafkaPipeline(
     PrintEventLogInfo(),
