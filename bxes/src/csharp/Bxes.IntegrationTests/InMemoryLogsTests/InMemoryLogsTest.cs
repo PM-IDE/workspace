@@ -14,7 +14,7 @@ public class InMemoryLogsTest
   [Repeat(20)]
   public void ExecuteTest()
   {
-    var log = RandomLogsGenerator.CreateSimpleLog();
+    var log = RandomLogsGenerator.CreateSimpleLog(Defaults.DefaultRandomLogGenerationParameters);
 
     //todo: remove after #9 is fixed
     foreach (var traceVariant in log.Traces)

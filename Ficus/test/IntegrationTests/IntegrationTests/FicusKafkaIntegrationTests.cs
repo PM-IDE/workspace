@@ -26,7 +26,12 @@ public class FicusKafkaIntegrationTests
     var configuration = new ConfigurationBuilder().Add(new EnvironmentVariablesConfigurationSource()).Build();
     var producerSettings = configuration.GetSection(nameof(FicusKafkaProducerSettings)).Get<FicusKafkaProducerSettings>()!;
 
-    var eventLog = RandomLogsGenerator.CreateSimpleLog();
+    var eventLog = RandomLogsGenerator.CreateSimpleLog(new RandomLogGenerationParameters
+    {
+      EventsCount = new LowerUpperBound(1, 10),
+      VariantsCount = new LowerUpperBound(1, 10)
+    });
+
     var writer = CreateBxesKafkaWriter(producerSettings);
 
     foreach (var @event in eventLog.ToKafkaEventsStream())

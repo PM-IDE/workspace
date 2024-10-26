@@ -6,25 +6,36 @@ using Bxes.Writer;
 
 namespace Bxes.Utils;
 
+public readonly record struct LowerUpperBound(int Lower, int Upper)
+{
+  public int Generate() => Random.Shared.Next(Lower, Upper);
+}
+
+public readonly struct RandomLogGenerationParameters
+{
+  public required LowerUpperBound VariantsCount { get; init; }
+  public required LowerUpperBound EventsCount { get; init; }
+}
+
 public static class RandomLogsGenerator
 {
-  public static IEventLog CreateSimpleLog()
+  public static IEventLog CreateSimpleLog(in RandomLogGenerationParameters parameters)
   {
     var variants = new List<ITraceVariant>();
-    var variantsCount = Random.Shared.Next(5, 10);
+    var variantsCount = parameters.VariantsCount.Generate();
     for (var i = 0; i < variantsCount; ++i)
     {
-      variants.Add(CreateRandomVariant());
+      variants.Add(CreateRandomVariant(parameters));
     }
 
     return new InMemoryEventLog(1, GenerateRandomMetadata(), variants);
   }
 
-  private static ITraceVariant CreateRandomVariant()
+  private static ITraceVariant CreateRandomVariant(in RandomLogGenerationParameters parameters)
   {
-    var eventsCount = Random.Shared.Next(1, 100);
     var events = new List<IEvent>();
 
+    var eventsCount = parameters.EventsCount.Generate();
     for (var i = 0; i < eventsCount; ++i)
     {
       events.Add(CreateRandomEvent());

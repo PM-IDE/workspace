@@ -12,7 +12,7 @@ public class SingleFileSimpleWriteTest
   [Test]
   public void SimpleTest1()
   {
-    ExecuteSimpleTest(RandomLogsGenerator.CreateSimpleLog());
+    ExecuteSimpleTest(RandomLogsGenerator.CreateSimpleLog(Defaults.DefaultRandomLogGenerationParameters));
   }
 
   private static void ExecuteSimpleTest(IEventLog log)
