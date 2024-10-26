@@ -23,19 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.Core" Version="2.46.3" />
-        <PackageReference Include="Google.Protobuf" Version="3.23.1" />
-        <PackageReference Include="Grpc.Tools" Version="2.57.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Protobuf Include="../../../protos/*.proto" ProtoRoot="../../../protos" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj" />
       <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj" />
       <ProjectReference Include="..\..\..\src\front\FicusFrontend\FicusKafkaIntegration\FicusKafkaIntegration.csproj" />
