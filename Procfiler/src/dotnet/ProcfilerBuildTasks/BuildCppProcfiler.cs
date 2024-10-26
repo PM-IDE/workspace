@@ -74,9 +74,7 @@ public class BuildCppProcfiler : Task
       {
         FileName = FindCmakeExecutable(),
         Arguments = $"--build . --target {TargetName} --config Release",
-        WorkingDirectory = CreateBuildDirectoryPath(),
-        RedirectStandardError = true,
-        RedirectStandardOutput = true
+        WorkingDirectory = CreateBuildDirectoryPath()
       }
     };
 
@@ -123,7 +121,7 @@ public class BuildCppProcfiler : Task
       return false;
     }
 
-    var timeout = (int)TimeSpan.FromSeconds(120).TotalMilliseconds;
+    var timeout = (int)TimeSpan.FromSeconds(60).TotalMilliseconds;
     if (!process.WaitForExit(timeout))
     {
       process.Kill();
