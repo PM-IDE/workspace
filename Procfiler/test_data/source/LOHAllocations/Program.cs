@@ -4,7 +4,7 @@ namespace LOHAllocations;
 
 internal class Program
 {
-  public static void Main()
+  public static void Main(string[] args)
   {
     var arrays = new List<byte[]>();
     for (var i = 0; i < 100000; ++i)
