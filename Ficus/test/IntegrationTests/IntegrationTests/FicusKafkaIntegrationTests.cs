@@ -23,7 +23,7 @@ public class FicusKafkaProducerSettings
 public class FicusKafkaIntegrationTests
 {
   [Test]
-  public void DoTest()
+  public void EventNamesTest()
   {
     var configuration = new ConfigurationBuilder().Add(new EnvironmentVariablesConfigurationSource()).Build();
     var producerSettings = configuration.GetSection(nameof(FicusKafkaProducerSettings)).Get<FicusKafkaProducerSettings>()!;
@@ -58,13 +58,18 @@ public class FicusKafkaIntegrationTests
     var pipelinePartsConsumerSettings = configuration
       .GetSection(nameof(PipelinePartsUpdateKafkaSettings))
       .Get<PipelinePartsUpdateKafkaSettings>()!;
-    
+
     Thread.Sleep(10_000);
     var updates = ConsumeAllUpdates(pipelinePartsConsumerSettings, logger);
-    
-    foreach (var update in updates)
+
+    var lastNameLog = updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
+    foreach (var (trace, grpcTrace) in eventLog.Traces.Zip(lastNameLog.Value.NamesLog.Log.Traces))
     {
-      Console.WriteLine(update);
+      Assert.That(grpcTrace.Events.Count, Is.EqualTo(trace.Events.Count));
+      foreach (var (traceEvent, grpcEventName) in trace.Events.Zip(grpcTrace.Events))
+      {
+        Assert.That(grpcEventName, Is.EqualTo(traceEvent.Name));
+      }
     }
   }
 
