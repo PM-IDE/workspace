@@ -62,10 +62,12 @@ public class FicusKafkaIntegrationTests
     Thread.Sleep(10_000);
     var updates = ConsumeAllUpdates(pipelinePartsConsumerSettings, logger);
 
+    Assert.That(eventLog.Traces, Has.Count.EqualTo(updates.Count));
+    
     var lastNameLog = updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
     foreach (var (trace, grpcTrace) in eventLog.Traces.Zip(lastNameLog.Value.NamesLog.Log.Traces))
     {
-      Assert.That(grpcTrace.Events.Count, Is.EqualTo(trace.Events.Count));
+      Assert.That(grpcTrace.Events, Has.Count.EqualTo(trace.Events.Count));
       foreach (var (traceEvent, grpcEventName) in trace.Events.Zip(grpcTrace.Events))
       {
         Assert.That(grpcEventName, Is.EqualTo(traceEvent.Name));
