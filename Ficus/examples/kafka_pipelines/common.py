@@ -1,5 +1,6 @@
 from ficus import *
 import os
+import time
 
 def env_or_default(env_name: str, default: str):
     env = os.getenv(env_name)
@@ -37,3 +38,6 @@ def execute_pipeline(pipeline_parts: list[PipelinePart]):
         ficus_backend_addr_key: ficus_backend
     })
 
+    if env_or_default('SLEEP', None) is not None:
+        while True:
+            time.sleep(10 ** 8)

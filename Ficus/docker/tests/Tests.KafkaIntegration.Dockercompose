@@ -76,6 +76,7 @@ services:
       PRODUCER_BOOTSTRAP_SERVERS: ficus-int-tests-kafka:29092
       PRODUCER_TOPIC: ficus-topic
       FICUS_BACKEND: ficus-int-tests-backend:8080
+      SLEEP: true
 
   ficus-int-tests-tests:
     depends_on:
