@@ -85,3 +85,15 @@ jobs:
         
       - name: Run Online Procfiler Tests
         run: docker compose -f ./Procfiler/docker/docker-compose.tests.yml up --force-recreate --build --exit-code-from online-procfiler-tests
+  
+  ficus-kafka-integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup docker
+        uses: docker/setup-qemu-action@v3
+        
+      - name: Run Ficus Kafka Integration Tests
+        run: docker compose -f ./Ficus/docker/tests/Tests.KafkaIntegration.Dockercompose up --force-recreate --build --exit-code-from ficus-int-tests-tests
