@@ -67,6 +67,8 @@ services:
     build:
       context: ../../../
       dockerfile: ./Ficus/examples/kafka_pipelines/Dockerfile
+      args:
+        SCRIPT_FILE_NAME: names_log_kafka_pipeline.py
     environment:
       CONSUMER_BOOTSTRAP_SERVERS: ficus-int-tests-kafka:29092
       CONSUMER_TOPIC: my-topic
