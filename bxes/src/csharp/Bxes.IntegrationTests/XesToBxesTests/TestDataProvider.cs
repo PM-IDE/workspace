@@ -1,5 +1,3 @@
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Interfaces;
-
 namespace Bxes.IntegrationTests.XesToBxesTests;
 
 public static class TestDataProvider

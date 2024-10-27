@@ -9,14 +9,22 @@ public static class EventLogUtil
   {
     foreach (var variant in log.Traces)
     {
-      yield return new BxesTraceVariantStartEvent(1, []);
-
-      foreach (var @event in variant.ToEventsStream())
+      foreach (var @event in variant.ToKafkaEventsStream())
       {
         yield return @event;
       }
-
-      yield return BxesKafkaTraceVariantEndEvent.Instance;
     }
+  }
+
+  public static IEnumerable<BxesStreamEvent> ToKafkaEventsStream(this ITraceVariant variant)
+  {
+    yield return new BxesTraceVariantStartEvent(1, variant.Metadata);
+
+    foreach (var @event in variant.ToEventsStream())
+    {
+      yield return @event;
+    }
+
+    yield return BxesKafkaTraceVariantEndEvent.Instance;
   }
 }

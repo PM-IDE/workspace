@@ -1,13 +1,15 @@
 using Bxes.Kafka;
 using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
 using Bxes.Models.System;
 using Bxes.Utils;
+using Bxes.Writer;
 using Confluent.Kafka;
+using Ficus;
 using FicusKafkaIntegration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace IntegrationTests;
 
@@ -34,6 +36,19 @@ public class FicusKafkaIntegrationTests
 
     var writer = CreateBxesKafkaWriter(producerSettings);
 
+    const string ProcessName = nameof(ProcessName);
+    const string CaseName = nameof(CaseName);
+
+    foreach (var variant in eventLog.Traces)
+    {
+      variant.Metadata.Clear();
+      variant.Metadata.AddRange(
+      [
+        new AttributeKeyValue(new BxesStringValue("case_name"), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName))
+      ]);
+    }
+
     foreach (var @event in eventLog.ToKafkaEventsStream())
     {
       writer.HandleEvent(@event);
@@ -43,14 +58,32 @@ public class FicusKafkaIntegrationTests
     var pipelinePartsConsumerSettings = configuration
       .GetSection(nameof(PipelinePartsUpdateKafkaSettings))
       .Get<PipelinePartsUpdateKafkaSettings>()!;
-
-    var consumer = new PipelinePartsUpdatesConsumer(Options.Create(pipelinePartsConsumerSettings), logger);
-
-    foreach (var update in consumer.StartUpdatesConsuming(CancellationToken.None))
+    
+    Thread.Sleep(10_000);
+    var updates = ConsumeAllUpdates(pipelinePartsConsumerSettings, logger);
+    
+    foreach (var update in updates)
     {
-      Console.WriteLine(update.ProcessCaseMetadata);
-      break;
+      Console.WriteLine(update);
     }
+  }
+
+  private static IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(PipelinePartsUpdateKafkaSettings settings, ILogger logger)
+  {
+    const string ConsumerGroupId = $"{nameof(FicusKafkaIntegrationTests)}::{nameof(ConsumeAllUpdates)}";
+    var consumer = PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(settings, ConsumerGroupId, logger);
+
+    List<GrpcKafkaUpdate> result = [];
+    while (true)
+    {
+      var consumeResult = consumer.Consume();
+      if (consumeResult.IsPartitionEOF) break;
+      
+      result.Add(consumeResult.Message.Value);
+      consumer.Commit();
+    }
+
+    return result;
   }
 
   private BxesKafkaStreamWriter<IEvent> CreateBxesKafkaWriter(FicusKafkaProducerSettings settings) => new(
