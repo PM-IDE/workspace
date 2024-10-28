@@ -1,4 +1,5 @@
 pub mod analysis;
+pub mod cases;
 pub mod discovery;
 pub mod interval_tree;
 pub mod mutations;

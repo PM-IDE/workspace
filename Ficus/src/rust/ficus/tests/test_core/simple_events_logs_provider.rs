@@ -240,3 +240,14 @@ pub fn create_heuristic_miner_replay_test_log() -> XesEventLogImpl {
 pub fn create_alpha_plus_miner_replay_test_log() -> XesEventLogImpl {
     ficus::event_log::xes::simple::create_simple_event_log(&vec![vec!["A", "B", "C", "D"], vec!["A", "C", "B", "D"], vec!["E", "F"]])
 }
+
+pub fn create_cases_discovery_test_log() -> XesEventLogImpl {
+    ficus::event_log::xes::simple::create_simple_event_log(&vec![
+        vec!["S", "b", "a", "d", "E"],
+        vec!["S", "E"],
+        vec!["S"],
+        vec!["E"],
+        vec!["S", "a", "b", "S", "E", "a", "E"],
+        vec!["E", "S"],
+    ])
+}

@@ -13,10 +13,10 @@ pub fn discover_cases(log: &XesEventLogImpl, start_regex_str: &str, end_regex_st
 
     let start_regex = Regex::new(start_regex_str).expect("Must create regex");
     let end_regex = Regex::new(end_regex_str).expect("Must create regex");
-    
+
     let mut depth = match inline_nested {
         true => Some(0usize),
-        false => None
+        false => None,
     };
 
     for trace in log.traces() {
@@ -31,11 +31,14 @@ pub fn discover_cases(log: &XesEventLogImpl, start_regex_str: &str, end_regex_st
                     depth = Some(depth_value + 1);
 
                     if depth_value > 0 {
-                        stack.back_mut().expect("Must contain trace").push(Rc::new(RefCell::new(event.clone())));
+                        stack
+                            .back_mut()
+                            .expect("Must contain trace")
+                            .push(Rc::new(RefCell::new(event.clone())));
                         continue;
                     }
                 }
-                
+
                 let mut sub_trace = XesTraceImpl::empty();
                 sub_trace.push(Rc::new(RefCell::new(event.clone())));
 
@@ -53,7 +56,10 @@ pub fn discover_cases(log: &XesEventLogImpl, start_regex_str: &str, end_regex_st
                     depth = Some(depth_value - 1);
 
                     if depth_value > 1 {
-                        stack.back_mut().expect("Must contain trace").push(Rc::new(RefCell::new(event.clone())));
+                        stack
+                            .back_mut()
+                            .expect("Must contain trace")
+                            .push(Rc::new(RefCell::new(event.clone())));
                         continue;
                     }
                 }
