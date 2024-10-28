@@ -46,6 +46,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D50BD31E-296
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7284D2F8-1B22-4E4B-859B-BE81BEDB8752}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{05925F4F-5AED-4D39-B750-1730DE3BA96E}"
+	ProjectSection(SolutionItems) = preProject
+		bxes\docker\Bxes.IntegrationTests.Dockercompose = bxes\docker\Bxes.IntegrationTests.Dockercompose
+		bxes\docker\Bxes.IntegrationTests.Dockerfile = bxes\docker\Bxes.IntegrationTests.Dockerfile
+		bxes\docker\Bxes.Tests.Dockerfile = bxes\docker\Bxes.Tests.Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{83B32C7C-C18A-4002-B761-587C1F484576}"
+	ProjectSection(SolutionItems) = preProject
+		Procfiler\docker\docker-compose.tests.yml = Procfiler\docker\docker-compose.tests.yml
+		Procfiler\docker\tests.dockerfile = Procfiler\docker\tests.dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{1E2B0551-BAE2-4833-A732-90B137276E62}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		docker-compose.monitoring.yml = docker-compose.monitoring.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,5 +178,7 @@ Global
 		{492EFDCC-E4E2-4E50-8FA9-52B1C767A3C1} = {7284D2F8-1B22-4E4B-859B-BE81BEDB8752}
 		{EF2CDDC9-B9AE-417C-AF62-F5C84821462E} = {7284D2F8-1B22-4E4B-859B-BE81BEDB8752}
 		{D3CBED1C-BDE3-4D67-8C90-72779C9E9AF8} = {7284D2F8-1B22-4E4B-859B-BE81BEDB8752}
+		{05925F4F-5AED-4D39-B750-1730DE3BA96E} = {C3E829BA-4C31-4F55-BF4D-C0D11B0B70B4}
+		{83B32C7C-C18A-4002-B761-587C1F484576} = {CFE31E47-235F-42A8-A188-9A7E8833E7BD}
 	EndGlobalSection
 EndGlobal

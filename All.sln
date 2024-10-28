@@ -95,6 +95,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{3DECAF
 		bxes\docker\Bxes.Tests.Dockerfile = bxes\docker\Bxes.Tests.Dockerfile
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{8B36AC01-57F7-44AF-96D5-DBB3EDD36A5A}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		docker-compose.monitoring.yml = docker-compose.monitoring.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
