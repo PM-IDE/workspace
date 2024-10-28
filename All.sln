@@ -62,6 +62,39 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{ABD67024-8F8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0939F52E-DF5A-47C1-898F-1E57776AAA63}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{B18D95BC-B309-48D0-B02F-FAB29E85A6BD}"
+	ProjectSection(SolutionItems) = preProject
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "run", "run", "{2E5DC79D-CA69-4227-920F-C9F4C286AF39}"
+	ProjectSection(SolutionItems) = preProject
+		Ficus\docker\run\Run.FicusFrontend.Dockerfile = Ficus\docker\run\Run.FicusFrontend.Dockerfile
+		Ficus\docker\run\Run.FicusFrontendBackend.Dockerfile = Ficus\docker\run\Run.FicusFrontendBackend.Dockerfile
+		Ficus\docker\run\Run.RustFicusBackend.Dockerfile = Ficus\docker\run\Run.RustFicusBackend.Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BDBD0D34-99B8-41E7-81B7-884757F3BA90}"
+	ProjectSection(SolutionItems) = preProject
+		Ficus\docker\tests\Tests.KafkaIntegration.Dockercompose = Ficus\docker\tests\Tests.KafkaIntegration.Dockercompose
+		Ficus\docker\tests\Tests.KafkaIntegrationTests.Dockerfile = Ficus\docker\tests\Tests.KafkaIntegrationTests.Dockerfile
+		Ficus\docker\tests\Tests.Python.Dockercompose = Ficus\docker\tests\Tests.Python.Dockercompose
+		Ficus\docker\tests\Tests.Python.Dockerfile = Ficus\docker\tests\Tests.Python.Dockerfile
+		Ficus\docker\tests\Tests.Rust.Dockerfile = Ficus\docker\tests\Tests.Rust.Dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{998F74B8-31F9-44E3-B190-F1BCAF8D3C4C}"
+	ProjectSection(SolutionItems) = preProject
+		Procfiler\docker\docker-compose.tests.yml = Procfiler\docker\docker-compose.tests.yml
+		Procfiler\docker\tests.dockerfile = Procfiler\docker\tests.dockerfile
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{3DECAF44-E682-48B7-AA14-D926B38B899A}"
+	ProjectSection(SolutionItems) = preProject
+		bxes\docker\Bxes.IntegrationTests.Dockercompose = bxes\docker\Bxes.IntegrationTests.Dockercompose
+		bxes\docker\Bxes.IntegrationTests.Dockerfile = bxes\docker\Bxes.IntegrationTests.Dockerfile
+		bxes\docker\Bxes.Tests.Dockerfile = bxes\docker\Bxes.Tests.Dockerfile
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -186,5 +219,10 @@ Global
 		{F4750F9F-DEC5-4AC8-ADA6-0B3CE6CB386E} = {ABD67024-8F86-41D0-8FF6-A7EED148C551}
 		{8BB62308-ECBD-4DA3-9ED2-F60520C7B7B6} = {ABD67024-8F86-41D0-8FF6-A7EED148C551}
 		{3AA8D798-4DDC-4BD7-8425-330B30408368} = {0939F52E-DF5A-47C1-898F-1E57776AAA63}
+		{B18D95BC-B309-48D0-B02F-FAB29E85A6BD} = {5F2E0AEA-6AAF-4130-B486-A5F4F5A8A4BD}
+		{2E5DC79D-CA69-4227-920F-C9F4C286AF39} = {B18D95BC-B309-48D0-B02F-FAB29E85A6BD}
+		{BDBD0D34-99B8-41E7-81B7-884757F3BA90} = {B18D95BC-B309-48D0-B02F-FAB29E85A6BD}
+		{998F74B8-31F9-44E3-B190-F1BCAF8D3C4C} = {CFE31E47-235F-42A8-A188-9A7E8833E7BD}
+		{3DECAF44-E682-48B7-AA14-D926B38B899A} = {C3E829BA-4C31-4F55-BF4D-C0D11B0B70B4}
 	EndGlobalSection
 EndGlobal
