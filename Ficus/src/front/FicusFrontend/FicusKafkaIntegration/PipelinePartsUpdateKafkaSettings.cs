@@ -1,4 +1,4 @@
-﻿namespace FrontendBackend.Features.PipelineUpdates.Settings;
+﻿namespace FicusKafkaIntegration;
 
 public class PipelinePartsUpdateKafkaSettings
 {

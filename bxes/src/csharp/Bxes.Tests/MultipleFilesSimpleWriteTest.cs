@@ -1,6 +1,7 @@
 using Bxes.Models.Domain;
 using Bxes.Reader;
 using Bxes.Tests.Core;
+using Bxes.Utils;
 using Bxes.Writer;
 
 namespace Bxes.Tests;
@@ -11,7 +12,7 @@ public class MultipleFilesSimpleWriteTest
   [Test]
   public void SimpleTest1()
   {
-    ExecuteSimpleTest(TestLogsProvider.CreateSimpleTestLog());
+    ExecuteSimpleTest(RandomLogsGenerator.CreateSimpleLog(Defaults.DefaultRandomLogGenerationParameters));
   }
 
   private static void ExecuteSimpleTest(IEventLog log)

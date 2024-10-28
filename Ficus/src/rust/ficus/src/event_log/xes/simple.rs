@@ -4,6 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
+use chrono::Utc;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -13,7 +14,7 @@ pub fn create_simple_event_log(raw_log: &Vec<Vec<&str>>) -> XesEventLogImpl {
     for raw_trace in raw_log {
         let mut trace = XesTraceImpl::empty();
         for raw_event in raw_trace {
-            trace.push(Rc::new(RefCell::new(XesEventImpl::new_with_min_date(raw_event.to_string()))))
+            trace.push(Rc::new(RefCell::new(XesEventImpl::new(raw_event.to_string(), Utc::now()))))
         }
 
         log.push(Rc::new(RefCell::new(trace)))

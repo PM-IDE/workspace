@@ -6,3 +6,6 @@
 **/.vscode
 **/target
 bxes/test_data
+**/node_modules
+**/bin
+**/obj

@@ -28,7 +28,7 @@ public static class TestUtils
     IEventLog log, Func<IPathContainer> pathCreator, Action<LogReadWriteTestInputData> testAction)
   {
     using var container = pathCreator();
-    testAction(new LogReadWriteTestInputData(container.Path, TestLogsProvider.GenerateRandomSystemMetadata(log)));
+    testAction(new LogReadWriteTestInputData(container.Path, RandomLogsGenerator.GenerateRandomSystemMetadata(log)));
   }
 
   public static void ExecuteTestWithLog(

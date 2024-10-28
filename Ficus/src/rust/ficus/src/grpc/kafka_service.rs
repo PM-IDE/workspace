@@ -14,7 +14,9 @@ use crate::grpc::events::delegating_events_handler::DelegatingEventsHandler;
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
+use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
+use crate::pipelines::context::LogMessageHandler;
 use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
@@ -25,6 +27,7 @@ use rdkafka::error::KafkaError;
 use rdkafka::ClientConfig;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::pin::Pin;
 use std::rc::Rc;
 use std::str::FromStr;
@@ -212,6 +215,20 @@ enum XesFromBxesKafkaTraceCreatingError {
     BxesToXexConversionError(BxesToXesReadError),
 }
 
+impl Display for XesFromBxesKafkaTraceCreatingError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
+            XesFromBxesKafkaTraceCreatingError::CaseNameNotFound => "CaseNameNotFound".to_string(),
+            XesFromBxesKafkaTraceCreatingError::CaseNameNotString => "CaseNameNotString".to_string(),
+            XesFromBxesKafkaTraceCreatingError::ProcessNameNotFound => "ProcessNameNotFound".to_string(),
+            XesFromBxesKafkaTraceCreatingError::ProcessNameNotString => "ProcessNameNotString".to_string(),
+            XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err) => err.to_string(),
+        };
+
+        write!(f, "{}", str)
+    }
+}
+
 #[derive(Clone)]
 struct PipelineExecutionDto {
     pipeline_parts: Arc<Box<PipelineParts>>,
@@ -233,6 +250,7 @@ struct KafkaConsumerCreationDto {
     consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pipeline_execution_dto: PipelineExecutionDto,
+    logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaConsumerCreationDto {
@@ -246,6 +264,7 @@ impl KafkaConsumerCreationDto {
             consumer_states,
             names_to_logs,
             pipeline_execution_dto,
+            logger: ConsoleLogMessageHandler::new(),
         }
     }
 }
@@ -376,7 +395,11 @@ impl KafkaService {
     fn process_kafka_trace(trace: BxesKafkaTrace, request: &GrpcSubscribeForKafkaTopicRequest, dto: KafkaConsumerCreationDto) {
         let update_result = match Self::update_log(dto.names_to_logs.clone(), trace) {
             Ok(update_result) => update_result,
-            Err(_) => return (),
+            Err(err) => {
+                let message = format!("Failed to get update result, err: {}", err.to_string());
+                dto.logger.handle(message.as_str()).expect("Must log message");
+                return;
+            }
         };
 
         let pipeline_req = request.pipeline_request.as_ref().expect("Pipeline should be supplied");

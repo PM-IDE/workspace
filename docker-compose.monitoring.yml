@@ -68,7 +68,9 @@ services:
       - ficus-backend
     build:
       context: .
-      dockerfile: ./Ficus/src/python/examples/kafka_pipelines/Dockerfile
+      dockerfile: ./Ficus/examples/kafka_pipelines/Dockerfile
+      args:
+        SCRIPT_FILE_NAME: kafka_pipeline.py
     environment:
       CONSUMER_BOOTSTRAP_SERVERS: kafka:29092
       CONSUMER_TOPIC: my-topic

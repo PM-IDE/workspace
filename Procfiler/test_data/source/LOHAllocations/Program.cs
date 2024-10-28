@@ -6,7 +6,7 @@ internal class Program
 {
   public static void Main(string[] args)
   {
-    var largeArrays = new List<byte[]>();
+    var arrays = new List<byte[]>();
     for (var i = 0; i < 100000; ++i)
     {
       var length = (i % 123 == 0) switch
@@ -16,17 +16,19 @@ internal class Program
       };
   
       var array = new byte[length];
-      largeArrays.Add(array);
+      arrays.Add(array);
 
       if (i > 1000 && i % 100 == 0)
       {
         for (var j = 0; j < 100; ++j)
         {
-          largeArrays.RemoveAt(Random.Shared.Next(largeArrays.Count));
+          var count = arrays.Count;
+          var index = Random.Shared.Next(count);
+          arrays.RemoveAt(index);
         }
       }
     }
 
-    Console.WriteLine(largeArrays.Count);
+    Console.WriteLine(arrays.Count);
   }
 }

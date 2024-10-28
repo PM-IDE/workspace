@@ -1,6 +1,8 @@
 pub mod analysis;
+pub mod cases;
 pub mod discovery;
 pub mod interval_tree;
+pub mod mutations;
 pub mod other;
 pub mod petri_nets;
 pub mod pipelines;

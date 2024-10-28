@@ -17,9 +17,9 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Restore bXES dependencies
-        run: dotnet restore ./bxes/src/csharp/
+        run: dotnet restore All.sln
       - name: Build bXES
-        run: dotnet build ./bxes/src/csharp/ --no-restore -c Release
+        run: dotnet build All.sln --no-restore -c Release
       - name: Run bXES unit tests
         run: dotnet test ./bxes/src/csharp/Bxes.Tests
 
@@ -46,9 +46,9 @@ jobs:
                           6.0.x
       - name: Build and unit test Procfiler
         run: |
-             dotnet build ./bxes/src/csharp/ /p:Configuration=Release /p:Platform="Any CPU"
              dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks -c Release -o ${{ github.workspace }}/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/Release/net8.0/
-             dotnet test ./Procfiler/src/dotnet/ProcfilerTests /p:Configuration=Release /p:SolutionDir=${{ github.workspace }}/Procfiler/src/dotnet/
+             dotnet build ProcfilerBxes.sln /p:Configuration=Release /p:Platform="Any CPU"
+             dotnet test ./Procfiler/src/dotnet/ProcfilerTests /p:Configuration=Release /p:SolutionDir=${{ github.workspace }}
 
   rust-ficus-unit-tests:
     runs-on: windows-latest
@@ -85,3 +85,15 @@ jobs:
         
       - name: Run Online Procfiler Tests
         run: docker compose -f ./Procfiler/docker/docker-compose.tests.yml up --force-recreate --build --exit-code-from online-procfiler-tests
+  
+  ficus-kafka-integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup docker
+        uses: docker/setup-qemu-action@v3
+        
+      - name: Run Ficus Kafka Integration Tests
+        run: docker compose -f ./Ficus/docker/tests/Tests.KafkaIntegration.Dockercompose up --force-recreate --build --exit-code-from ficus-int-tests-tests
