@@ -1,16 +1,16 @@
-use std::cell::RefCell;
-use std::collections::VecDeque;
-use std::rc::Rc;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
+use std::cell::RefCell;
+use std::collections::VecDeque;
+use std::rc::Rc;
 
 pub struct CasesDiscoveryState {
     log: XesEventLogImpl,
     stack: VecDeque<XesTraceImpl>,
-    depth: Option<usize>
+    depth: Option<usize>,
 }
 
 impl CasesDiscoveryState {
@@ -20,8 +20,8 @@ impl CasesDiscoveryState {
             stack: VecDeque::new(),
             depth: match inline_nested {
                 true => Some(0),
-                false => None
-            }
+                false => None,
+            },
         }
     }
 
@@ -70,7 +70,6 @@ impl CasesDiscoveryState {
                 self.log.push(Rc::new(RefCell::new(sub_trace)));
             }
         }
-
     }
 
     pub fn handle_default_event(&mut self, event: &XesEventImpl) {
@@ -85,7 +84,8 @@ impl CasesDiscoveryState {
                 break;
             }
 
-            self.log.push(Rc::new(RefCell::new(self.stack.pop_back().expect("Can not be empty"))));
+            self.log
+                .push(Rc::new(RefCell::new(self.stack.pop_back().expect("Can not be empty"))));
         }
     }
 

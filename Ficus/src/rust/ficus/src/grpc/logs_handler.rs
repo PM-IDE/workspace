@@ -21,6 +21,7 @@ impl GrpcLogMessageHandlerImpl {
     }
 }
 
+#[derive(Clone)]
 pub struct ConsoleLogMessageHandler {}
 
 impl LogMessageHandler for ConsoleLogMessageHandler {
