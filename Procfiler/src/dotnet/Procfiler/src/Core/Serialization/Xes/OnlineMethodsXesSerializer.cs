@@ -11,25 +11,17 @@ public class PathWriterStateWithLastEvent : PathWriteState
   public EventRecordWithMetadata? LastWrittenEvent { get; set; }
 }
 
-public class OnlineMethodsXesSerializer : OnlineMethodsSerializerBase<PathWriterStateWithLastEvent>
+public class OnlineMethodsXesSerializer(
+  string outputDirectory,
+  Regex? targetMethodsRegex,
+  IXesEventsSessionSerializer sessionSerializer,
+  IFullMethodNameBeautifier methodNameBeautifier,
+  IProcfilerEventsFactory factory,
+  IProcfilerLogger logger,
+  bool writeAllEventMetadata)
+  : OnlineMethodsSerializerBase<PathWriterStateWithLastEvent>(
+      outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
 {
-  private readonly IXesEventsSessionSerializer mySessionSerializer;
-
-
-  public OnlineMethodsXesSerializer(
-    string outputDirectory,
-    Regex? targetMethodsRegex,
-    IXesEventsSessionSerializer sessionSerializer,
-    IFullMethodNameBeautifier methodNameBeautifier,
-    IProcfilerEventsFactory factory,
-    IProcfilerLogger logger,
-    bool writeAllEventMetadata)
-    : base(outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
-  {
-    mySessionSerializer = sessionSerializer;
-  }
-
-
   protected override PathWriterStateWithLastEvent? TryCreateStateInternal(EventRecordWithMetadata contextEvent)
   {
     var methodName = contextEvent.GetMethodStartEndEventInfo().Frame;
@@ -51,7 +43,7 @@ public class OnlineMethodsXesSerializer : OnlineMethodsSerializerBase<PathWriter
         CloseOutput = true
       });
 
-      mySessionSerializer.WriteHeader(writer);
+      sessionSerializer.WriteHeader(writer);
       return new PathWriterStateWithLastEvent { Writer = writer };
     });
   }
@@ -84,14 +76,14 @@ public class OnlineMethodsXesSerializer : OnlineMethodsSerializerBase<PathWriter
     var state = methodStartedUpdate.FrameInfo.State!;
 
     MethodNames.Add(methodStartedUpdate.FrameInfo.Frame);
-    mySessionSerializer.WriteTraceStart(state.Writer, state.TracesCount);
+    sessionSerializer.WriteTraceStart(state.Writer, state.TracesCount);
     state.TracesCount++;
   }
 
   private void WriteEvent(PathWriterStateWithLastEvent state, EventRecordWithMetadata eventRecord)
   {
     state.LastWrittenEvent = eventRecord;
-    mySessionSerializer.WriteEvent(eventRecord, state.Writer, WriteAllEventMetadata);
+    sessionSerializer.WriteEvent(eventRecord, state.Writer, WriteAllEventMetadata);
   }
 
   private void HandleMethodFinishedEvent(MethodFinishedUpdate<PathWriterStateWithLastEvent> methodFinishedUpdate)

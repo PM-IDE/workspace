@@ -15,20 +15,17 @@ public class BxesWriteStateWithLastEvent : BxesWriteState
   public EventRecordWithMetadata? LastWrittenEvent { get; set; }
 }
 
-public class OnlineBxesMethodsSerializer : OnlineMethodsSerializerBase<BxesWriteStateWithLastEvent>
+public class OnlineBxesMethodsSerializer(
+  string outputDirectory,
+  Regex? targetMethodsRegex,
+  IFullMethodNameBeautifier methodNameBeautifier,
+  IProcfilerEventsFactory factory,
+  IProcfilerLogger logger,
+  bool writeAllEventMetadata)
+  : OnlineMethodsSerializerBase<BxesWriteStateWithLastEvent>(
+      outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
 {
   private const string BxesExtension = ".bxes";
-
-  public OnlineBxesMethodsSerializer(
-    string outputDirectory,
-    Regex? targetMethodsRegex,
-    IFullMethodNameBeautifier methodNameBeautifier,
-    IProcfilerEventsFactory factory,
-    IProcfilerLogger logger,
-    bool writeAllEventMetadata)
-    : base(outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
-  {
-  }
 
   protected override BxesWriteStateWithLastEvent? TryCreateStateInternal(EventRecordWithMetadata contextEvent)
   {
