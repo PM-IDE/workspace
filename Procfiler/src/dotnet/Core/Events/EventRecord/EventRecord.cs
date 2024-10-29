@@ -37,6 +37,7 @@ public class EventRecord
     ManagedThreadId = managedThreadId;
     EventName = EventClass;
     StackTraceId = stackTraceId;
+    NativeThreadId = nativeThreadId;
   }
 
   public EventRecord(TraceEvent @event, long managedThreadId, long nativeThreadId, int stackTraceId)
