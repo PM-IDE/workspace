@@ -108,7 +108,7 @@ public static class TestUtil
   public static EventRecordWithMetadata CreateRandomEvent(string eventClass, EventMetadata metadata)
   {
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
-    return new EventRecordWithMetadata(GenerateRandomEventTime(), eventClass, randomManagedThreadId, -1, metadata);
+    return new EventRecordWithMetadata(GenerateRandomEventTime(), eventClass, randomManagedThreadId, -1, -1, metadata);
   }
 
   private static EventRecordTime GenerateRandomEventTime() => new()
@@ -122,7 +122,7 @@ public static class TestUtil
   {
     var randomManagedThreadId = Random.Shared.Next(10) - 1;
     return new EventRecordWithMetadata(
-      GenerateRandomEventTime(), CreateRandomEventClass(), randomManagedThreadId, -1, new EventMetadata());
+      GenerateRandomEventTime(), CreateRandomEventClass(), randomManagedThreadId, -1, -1, new EventMetadata());
   }
 
   public static string CreateRandomEventClass()

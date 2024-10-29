@@ -196,8 +196,11 @@ public class ClrEventsCollector(
     }
 
     UpdateStatisticsAfterEventProcession(traceEvent, ref statistics);
-    var managedThreadId = traceEvent.GetManagedThreadIdThroughStack(context.Source);
-    var record = new EventRecordWithMetadata(traceEvent, managedThreadId, (int)traceEvent.CallStackIndex());
+
+    var managedThreadId = traceEvent.ThreadID;
+    var nativeThreadId = traceEvent.Thread().ThreadID;
+
+    var record = new EventRecordWithMetadata(traceEvent, managedThreadId, nativeThreadId, (int)traceEvent.CallStackIndex());
 
     var typeIdToName = record.TryExtractTypeIdToName();
     var methodIdToFqn = record.TryGetMethodInfo();

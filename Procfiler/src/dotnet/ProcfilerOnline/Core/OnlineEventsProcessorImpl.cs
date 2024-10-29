@@ -2,6 +2,7 @@
 using Core.Events.EventRecord;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Etlx;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;
@@ -50,7 +51,7 @@ public class OnlineEventsProcessorImpl(
 
   private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData, CollectEventsOnlineContext commandContext)
   {
-    var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, -1);
+    var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, traceEvent.Thread().ThreadID, -1);
 
     var context = new EventProcessingContext
     {

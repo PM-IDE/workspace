@@ -21,7 +21,8 @@ public static class ExtensionsForICppShadowStack
       {
         FrameInfo = frameInfo,
         GlobalData = globalData,
-        ManagedThreadId = shadowStack.ManagedThreadId
+        ManagedThreadId = shadowStack.ManagedThreadId,
+        NativeThreadId = -1
       };
 
       yield return eventsFactory.CreateMethodEvent(creationContext);
@@ -38,7 +39,8 @@ public static class ExtensionsForICppShadowStack
       {
         FrameInfo = frameInfo,
         GlobalData = globalData,
-        ManagedThreadId = shadowStack.ManagedThreadId
+        ManagedThreadId = shadowStack.ManagedThreadId,
+        NativeThreadId = -1
       };
 
       eventsFactory.FillExistingEventWith(creationContext, sharedEvent);
