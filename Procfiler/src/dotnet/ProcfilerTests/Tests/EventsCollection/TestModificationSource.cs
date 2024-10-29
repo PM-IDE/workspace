@@ -5,27 +5,19 @@ using Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
 namespace ProcfilerTests.Tests.EventsCollection;
 
-public class TestModificationSource : ModificationSourceBase, IModificationSource
+public class TestModificationSource(IProcfilerLogger logger, EventRecordWithMetadata[] initialEvents)
+  : ModificationSourceBase(logger, initialEvents.Length), IModificationSource
 {
-  private readonly EventRecordWithMetadata[] myInitialEvents;
-
-
   public override long Count => PointersManager.Count;
-
-
-  public TestModificationSource(IProcfilerLogger logger, EventRecordWithMetadata[] initialEvents) : base(logger, initialEvents.Length)
-  {
-    myInitialEvents = initialEvents;
-  }
 
 
   protected override IEnumerable<EventRecordWithMetadata> EnumerateInitialEvents()
   {
-    for (var i = 0; i < myInitialEvents.Length; i++)
+    for (var i = 0; i < initialEvents.Length; i++)
     {
       if (PointersManager.IsRemoved(EventPointer.ForInitialArray(i, this))) continue;
 
-      yield return myInitialEvents[i];
+      yield return initialEvents[i];
     }
   }
 }
