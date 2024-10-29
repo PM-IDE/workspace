@@ -51,7 +51,7 @@ public class OnlineEventsProcessorImpl(
 
   private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData, CollectEventsOnlineContext commandContext)
   {
-    var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, traceEvent.Thread().ThreadID, -1);
+    var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, traceEvent.NativeThreadIdOrMinusOne(), -1);
 
     var context = new EventProcessingContext
     {
