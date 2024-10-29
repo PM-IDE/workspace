@@ -12,6 +12,7 @@ public class MethodStartEndModificationSource : ModificationSourceBase
   private readonly IProcfilerEventsFactory myEventsFactory;
   private readonly IGlobalDataWithStacks myGlobalData;
   private readonly ICppShadowStack myShadowStack;
+  private readonly EventRecordWithMetadata myReferenceEvent;
   private readonly bool myAggressiveReuse;
 
 
@@ -23,6 +24,7 @@ public class MethodStartEndModificationSource : ModificationSourceBase
     IProcfilerEventsFactory eventsFactory,
     IGlobalDataWithStacks globalData,
     ICppShadowStack shadowStack,
+    EventRecordWithMetadata referenceEvent,
     bool aggressiveReuse) : base(logger, shadowStack.FramesCount)
   {
     Debug.Assert(shadowStack.FramesCount > 0);
@@ -30,6 +32,7 @@ public class MethodStartEndModificationSource : ModificationSourceBase
     myAggressiveReuse = aggressiveReuse;
     myGlobalData = globalData;
     myShadowStack = shadowStack;
+    myReferenceEvent = referenceEvent;
     myEventsFactory = eventsFactory;
   }
 
@@ -37,7 +40,7 @@ public class MethodStartEndModificationSource : ModificationSourceBase
   protected override IEnumerable<EventRecordWithMetadata> EnumerateInitialEvents() =>
     myAggressiveReuse switch
     {
-      true => myShadowStack.EnumerateMethodsAggressiveReuse(myEventsFactory, myGlobalData),
-      false => myShadowStack.EnumerateMethods(myEventsFactory, myGlobalData)
+      true => myShadowStack.EnumerateMethodsAggressiveReuse(myReferenceEvent, myEventsFactory, myGlobalData),
+      false => myShadowStack.EnumerateMethods(myReferenceEvent, myEventsFactory, myGlobalData)
     };
 }

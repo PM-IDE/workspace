@@ -13,7 +13,10 @@ public interface ICppShadowStack : IEnumerable<FrameInfo>
 public static class ExtensionsForICppShadowStack
 {
   public static IEnumerable<EventRecordWithMetadata> EnumerateMethods(
-    this ICppShadowStack shadowStack, IProcfilerEventsFactory eventsFactory, IGlobalDataWithStacks globalData)
+    this ICppShadowStack shadowStack,
+    EventRecordWithMetadata referenceEvent,
+    IProcfilerEventsFactory eventsFactory,
+    IGlobalDataWithStacks globalData)
   {
     foreach (var frameInfo in shadowStack)
     {
@@ -22,7 +25,7 @@ public static class ExtensionsForICppShadowStack
         FrameInfo = frameInfo,
         GlobalData = globalData,
         ManagedThreadId = shadowStack.ManagedThreadId,
-        NativeThreadId = -1
+        NativeThreadId = referenceEvent.NativeThreadId,
       };
 
       yield return eventsFactory.CreateMethodEvent(creationContext);
@@ -30,7 +33,10 @@ public static class ExtensionsForICppShadowStack
   }
 
   public static IEnumerable<EventRecordWithMetadata> EnumerateMethodsAggressiveReuse(
-    this ICppShadowStack shadowStack, IProcfilerEventsFactory eventsFactory, IGlobalDataWithStacks globalData)
+    this ICppShadowStack shadowStack,
+    EventRecordWithMetadata referenceEvent,
+    IProcfilerEventsFactory eventsFactory,
+    IGlobalDataWithStacks globalData)
   {
     var sharedEvent = EventRecordWithMetadata.CreateUninitialized();
     foreach (var frameInfo in shadowStack)
@@ -40,7 +46,7 @@ public static class ExtensionsForICppShadowStack
         FrameInfo = frameInfo,
         GlobalData = globalData,
         ManagedThreadId = shadowStack.ManagedThreadId,
-        NativeThreadId = -1
+        NativeThreadId = referenceEvent.NativeThreadId
       };
 
       eventsFactory.FillExistingEventWith(creationContext, sharedEvent);
