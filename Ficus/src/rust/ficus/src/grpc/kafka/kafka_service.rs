@@ -1,4 +1,4 @@
-use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_events, BxesToXesReadError};
+use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::{
@@ -8,7 +8,10 @@ use crate::ficus_proto::{
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
-use crate::grpc::logs_handler::ConsoleLogMessageHandler;
+use crate::grpc::kafka::models::{
+    ConsumerState, KafkaConsumerCreationDto, LogUpdateResult, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_NAME,
+    KAFKA_PROCESS_NAME,
+};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
 use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
@@ -20,7 +23,6 @@ use rdkafka::error::KafkaError;
 use rdkafka::ClientConfig;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::fmt::Display;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use tonic::Status;
@@ -40,84 +42,6 @@ impl KafkaService {
             consumers_states: Arc::new(Mutex::new(HashMap::new())),
         }
     }
-}
-
-enum ConsumerState {
-    Consuming,
-    ShutdownRequested,
-}
-
-const KAFKA_CASE_NAME: &'static str = "case_name";
-const KAFKA_PROCESS_NAME: &'static str = "process_name";
-
-#[derive(Debug)]
-enum XesFromBxesKafkaTraceCreatingError {
-    CaseNameNotFound,
-    CaseNameNotString,
-    ProcessNameNotFound,
-    ProcessNameNotString,
-    BxesToXexConversionError(BxesToXesReadError),
-}
-
-impl Display for XesFromBxesKafkaTraceCreatingError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let str = match self {
-            XesFromBxesKafkaTraceCreatingError::CaseNameNotFound => "CaseNameNotFound".to_string(),
-            XesFromBxesKafkaTraceCreatingError::CaseNameNotString => "CaseNameNotString".to_string(),
-            XesFromBxesKafkaTraceCreatingError::ProcessNameNotFound => "ProcessNameNotFound".to_string(),
-            XesFromBxesKafkaTraceCreatingError::ProcessNameNotString => "ProcessNameNotString".to_string(),
-            XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err) => err.to_string(),
-        };
-
-        write!(f, "{}", str)
-    }
-}
-
-#[derive(Clone)]
-pub(crate) struct PipelineExecutionDto {
-    pub(crate) pipeline_parts: Arc<Box<PipelineParts>>,
-    pub(crate) events_handler: Arc<Box<dyn PipelineEventsHandler>>,
-}
-
-impl PipelineExecutionDto {
-    pub fn new(pipeline_parts: Arc<Box<PipelineParts>>, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> Self {
-        Self {
-            pipeline_parts,
-            events_handler,
-        }
-    }
-}
-
-#[derive(Clone)]
-struct KafkaConsumerCreationDto {
-    uuid: Uuid,
-    consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
-    names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-    pipeline_execution_dto: PipelineExecutionDto,
-    logger: ConsoleLogMessageHandler,
-}
-
-impl KafkaConsumerCreationDto {
-    pub fn new(
-        consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
-        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-        pipeline_execution_dto: PipelineExecutionDto,
-    ) -> Self {
-        Self {
-            uuid: Uuid::new_v4(),
-            consumer_states,
-            names_to_logs,
-            pipeline_execution_dto,
-            logger: ConsoleLogMessageHandler::new(),
-        }
-    }
-}
-
-struct LogUpdateResult {
-    pub process_name: String,
-    pub case_name: String,
-    pub new_log: XesEventLogImpl,
-    pub unstructured_metadata: Vec<(String, String)>,
 }
 
 impl KafkaService {

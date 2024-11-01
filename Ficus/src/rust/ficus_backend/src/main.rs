@@ -14,6 +14,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cv_service = Arc::new(Mutex::new(ContextValueService::new()));
     let grpc_cv_service =
         GrpcContextValuesServiceServer::new(GrpcContextValueService::new(cv_service.clone()));
+
     let backend_service = GrpcBackendServiceServer::new(FicusService::new(cv_service.clone()));
     let kafka_service = GrpcKafkaServiceServer::new(GrpcKafkaServiceImpl::new(cv_service.clone()));
 
