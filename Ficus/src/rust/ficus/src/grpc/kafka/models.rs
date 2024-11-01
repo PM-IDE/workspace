@@ -18,21 +18,21 @@ pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
 
 #[derive(Debug)]
 pub(super) enum XesFromBxesKafkaTraceCreatingError {
-    CaseNameNotFound,
-    CaseNameNotString,
-    ProcessNameNotFound,
-    ProcessNameNotString,
+    MetadataValueIsNotAString(String),
+    MetadataValueNotFound(String),
     BxesToXexConversionError(BxesToXesReadError),
 }
 
 impl Display for XesFromBxesKafkaTraceCreatingError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str = match self {
-            XesFromBxesKafkaTraceCreatingError::CaseNameNotFound => "CaseNameNotFound".to_string(),
-            XesFromBxesKafkaTraceCreatingError::CaseNameNotString => "CaseNameNotString".to_string(),
-            XesFromBxesKafkaTraceCreatingError::ProcessNameNotFound => "ProcessNameNotFound".to_string(),
-            XesFromBxesKafkaTraceCreatingError::ProcessNameNotString => "ProcessNameNotString".to_string(),
             XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err) => err.to_string(),
+            XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name) => {
+                format!("Value for key {} is not a String", key_name.to_owned())
+            }
+            XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name) => {
+                format!("The key {} is not found", key_name.to_string())
+            }
         };
 
         write!(f, "{}", str)

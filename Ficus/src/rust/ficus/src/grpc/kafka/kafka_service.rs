@@ -45,14 +45,6 @@ impl KafkaService {
 }
 
 impl KafkaService {
-    fn create_kafka_creation_dto(&self, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> KafkaConsumerCreationDto {
-        KafkaConsumerCreationDto::new(
-            self.consumers_states.clone(),
-            self.names_to_logs.clone(),
-            PipelineExecutionDto::new(self.pipeline_parts.clone(), events_handler),
-        )
-    }
-
     pub(super) fn unsubscribe_from_kafka(&self, uuid: Uuid) -> grpc_kafka_result::Result {
         let mut states = self.consumers_states.lock().expect("Should take lock");
         match states.get_mut(&uuid) {
@@ -68,6 +60,17 @@ impl KafkaService {
         }
     }
 
+    fn is_unsubscribe_requested(dto: KafkaConsumerCreationDto) -> bool {
+        let states = dto.consumer_states.lock().expect("Should take lock");
+        if let Some(ConsumerState::ShutdownRequested) = states.get(&dto.uuid) {
+            true
+        } else {
+            false
+        }
+    }
+}
+
+impl KafkaService {
     pub(super) fn subscribe_to_kafka_topic(
         &self,
         handler: Arc<Box<dyn PipelineEventsHandler>>,
@@ -169,15 +172,6 @@ impl KafkaService {
         false
     }
 
-    fn is_unsubscribe_requested(dto: KafkaConsumerCreationDto) -> bool {
-        let states = dto.consumer_states.lock().expect("Should take lock");
-        if let Some(ConsumerState::ShutdownRequested) = states.get(&dto.uuid) {
-            true
-        } else {
-            false
-        }
-    }
-
     fn process_kafka_trace(trace: BxesKafkaTrace, request: &GrpcSubscribeForKafkaTopicRequest, dto: KafkaConsumerCreationDto) {
         let update_result = match Self::update_log(dto.names_to_logs.clone(), trace) {
             Ok(update_result) => update_result,
@@ -202,6 +196,16 @@ impl KafkaService {
             let err = PipelineFinalResult::Error(err.to_string());
             dto.pipeline_execution_dto.events_handler.handle(&PipelineEvent::FinalResult(err));
         }
+    }
+}
+
+impl KafkaService {
+    fn create_kafka_creation_dto(&self, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> KafkaConsumerCreationDto {
+        KafkaConsumerCreationDto::new(
+            self.consumers_states.clone(),
+            self.names_to_logs.clone(),
+            PipelineExecutionDto::new(self.pipeline_parts.clone(), events_handler),
+        )
     }
 
     pub(super) fn create_pipeline_execution_context_from_proxy<'a>(
@@ -237,66 +241,69 @@ impl KafkaService {
             Err(_) => panic!("Failed to acquire a names_to_logs map from mutex"),
         };
 
-        let process_name = if let Some(process_name) = metadata.get(KAFKA_PROCESS_NAME) {
-            if let BxesValue::String(process_name) = process_name.as_ref().as_ref() {
-                process_name.as_ref().as_ref().to_owned()
-            } else {
-                return Err(XesFromBxesKafkaTraceCreatingError::ProcessNameNotString);
-            }
-        } else {
-            return Err(XesFromBxesKafkaTraceCreatingError::ProcessNameNotFound);
+        let process_name = Self::string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
+        let case_name = Self::string_value_or_err(metadata, KAFKA_CASE_NAME)?;
+
+        if !names_to_logs.contains_key(case_name.as_str()) {
+            let new_log = XesEventLogImpl::empty();
+            names_to_logs.insert(case_name.to_owned(), new_log);
+        }
+
+        let existing_log = names_to_logs.get_mut(case_name.as_str()).expect("Log should be present");
+
+        let xes_trace = match read_bxes_events(trace.events()) {
+            Ok(xes_trace) => xes_trace,
+            Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err)),
         };
 
-        if let Some(case_name) = metadata.get(KAFKA_CASE_NAME) {
-            if let BxesValue::String(case_name) = case_name.as_ref().as_ref() {
-                let case_name = case_name.as_ref().as_ref();
-                if !names_to_logs.contains_key(case_name) {
-                    let new_log = XesEventLogImpl::empty();
-                    names_to_logs.insert(case_name.to_owned(), new_log);
-                }
+        let xes_trace = Rc::new(RefCell::new(xes_trace));
+        existing_log.push(xes_trace);
 
-                let existing_log = names_to_logs.get_mut(case_name).expect("Log should be present");
+        let result = LogUpdateResult {
+            process_name,
+            case_name: case_name.to_owned(),
+            new_log: existing_log.clone(),
+            unstructured_metadata: Self::metadata_to_string_string_pairs(metadata),
+        };
 
-                let xes_trace = match read_bxes_events(trace.events()) {
-                    Ok(xes_trace) => xes_trace,
-                    Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err)),
-                };
+        Ok(result)
+    }
 
-                let xes_trace = Rc::new(RefCell::new(xes_trace));
-                existing_log.push(xes_trace);
-
-                let result = LogUpdateResult {
-                    process_name,
-                    case_name: case_name.to_owned(),
-                    new_log: existing_log.clone(),
-                    unstructured_metadata: metadata
-                        .iter()
-                        .map(|pair| {
-                            if pair.0 == KAFKA_CASE_NAME || pair.0 == KAFKA_PROCESS_NAME {
-                                None
-                            } else {
-                                if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
-                                    Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
-                                } else {
-                                    None
-                                }
-                            }
-                        })
-                        .filter(|kv| kv.is_some())
-                        .map(|kv| kv.unwrap())
-                        .collect(),
-                };
-
-                Ok(result)
+    fn string_value_or_err(
+        metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+        key_name: &str,
+    ) -> Result<String, XesFromBxesKafkaTraceCreatingError> {
+        if let Some(value) = metadata.get(key_name) {
+            if let BxesValue::String(process_name) = value.as_ref().as_ref() {
+                Ok(process_name.as_ref().as_ref().to_owned())
             } else {
-                Err(XesFromBxesKafkaTraceCreatingError::CaseNameNotString)
+                Err(XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name.to_string()))
             }
         } else {
-            Err(XesFromBxesKafkaTraceCreatingError::CaseNameNotFound)
+            Err(XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name.to_string()))
         }
     }
 
-    pub(crate) fn create_kafka_events_handler(
+    fn metadata_to_string_string_pairs(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Vec<(String, String)> {
+        metadata
+            .iter()
+            .map(|pair| {
+                if pair.0 == KAFKA_CASE_NAME || pair.0 == KAFKA_PROCESS_NAME {
+                    None
+                } else {
+                    if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
+                        Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
+                    } else {
+                        None
+                    }
+                }
+            })
+            .filter(|kv| kv.is_some())
+            .map(|kv| kv.unwrap())
+            .collect()
+    }
+
+    pub(super) fn create_kafka_events_handler(
         producer_metadata: Option<&GrpcKafkaConnectionMetadata>,
     ) -> Result<Box<dyn PipelineEventsHandler>, Status> {
         let producer_metadata = match producer_metadata.as_ref() {
