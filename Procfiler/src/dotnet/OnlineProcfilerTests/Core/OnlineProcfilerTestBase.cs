@@ -20,7 +20,7 @@ public abstract class OnlineProcfilerTestBase : TestWithContainerBase
 
     var dllPath = buildResult.Value.BuiltDllPath;
     var targetMethodsRegex = new Regex(solution.NamespaceFilterPattern);
-    var context = new CollectEventsOnlineContext(dllPath, string.Empty, targetMethodsRegex, targetMethodsRegex);
+    var context = new CollectEventsOnlineContext(dllPath, targetMethodsRegex, targetMethodsRegex);
 
     return Container.Resolve<IClrOnlineEventsProcessor>().StartProfiling(context);
   }
