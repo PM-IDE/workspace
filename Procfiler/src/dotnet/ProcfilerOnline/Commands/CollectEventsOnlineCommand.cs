@@ -10,7 +10,6 @@ namespace ProcfilerOnline.Commands;
 
 public record CollectEventsOnlineContext(
   string DllFilePath,
-  string OutputBxesFilePath,
   Regex? TargetMethodsRegex,
   Regex? MethodsFilterRegex
 )
@@ -23,8 +22,7 @@ public class CollectEventsOnlineCommand(
   IProcfilerLogger logger,
   IClrOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
 {
-  private static Option<string> DllPathOption { get; } = new("--dll-path", "The path to dll to profile");
-  private static Option<string> OutputPath { get; } = new("--output-path", "The output path for bXES file");
+  private static Option<string> DllPathOption { get; } = new("-dll-path", "The path to dll to profile");
 
   private static Option<string> TargetMethodsRegex { get; } =
     new("--target-methods-regex", "The regular expression which specified target methods");
@@ -40,11 +38,10 @@ public class CollectEventsOnlineCommand(
   public int Invoke(InvocationContext context) =>
     CommandLineUtils.TransformAndExecute(context, logger, Execute, parseResult =>
     {
-      parseResult.AssertAllOptionsArePresent([DllPathOption, OutputPath]);
+      parseResult.AssertAllOptionsArePresent([DllPathOption]);
 
       return new CollectEventsOnlineContext(
         parseResult.GetValueForOption(DllPathOption)!,
-        parseResult.GetValueForOption(OutputPath)!,
         CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
         CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex))
       );
@@ -58,7 +55,6 @@ public class CollectEventsOnlineCommand(
   {
     var command = new Command("collect-online", "Collect events online from launched .NET dll");
     command.AddOption(DllPathOption);
-    command.AddOption(OutputPath);
     command.AddOption(TargetMethodsRegex);
     command.AddOption(MethodsFilterRegex);
 
