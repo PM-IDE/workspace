@@ -3,7 +3,7 @@ using Core.Container;
 using Core.EventsProcessing.Mutators.Core.Passes;
 using Core.Utils;
 
-namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Contention;
+namespace Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Contention;
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
 public class ContentionLifecycleMutator(IProcfilerLogger logger)

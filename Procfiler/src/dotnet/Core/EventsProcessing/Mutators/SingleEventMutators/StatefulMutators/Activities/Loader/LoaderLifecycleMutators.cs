@@ -3,7 +3,7 @@ using Core.Container;
 using Core.EventsProcessing.Mutators.Core.Passes;
 using Core.Utils;
 
-namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Loader;
+namespace Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Loader;
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
 public class LoaderAppDomainLifecycleMutator(IProcfilerLogger logger)

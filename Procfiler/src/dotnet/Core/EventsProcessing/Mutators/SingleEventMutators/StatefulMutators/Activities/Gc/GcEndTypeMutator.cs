@@ -6,8 +6,9 @@ using Core.EventsProcessing.Mutators.Core.Passes;
 using Core.EventsProcessing.Mutators.SingleEventMutators.InplaceMutators.GC;
 using Core.GlobalData;
 using Core.Utils;
+using Microsoft.Extensions.Logging;
 
-namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Gc;
+namespace Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Gc;
 
 [EventMutator(SingleEventMutatorsPasses.GcStopTypeSetter)]
 public class GcEndTypeMutator(IProcfilerLogger logger) : ISingleEventMutator

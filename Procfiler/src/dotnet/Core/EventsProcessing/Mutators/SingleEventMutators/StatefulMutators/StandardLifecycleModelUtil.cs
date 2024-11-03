@@ -1,7 +1,7 @@
 ﻿using Core.Constants.XesLifecycle;
 using Core.Events.EventRecord;
 
-namespace Procfiler.Core.EventsProcessing.Mutators;
+namespace Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators;
 
 public static class StandardLifecycleModelUtil
 {

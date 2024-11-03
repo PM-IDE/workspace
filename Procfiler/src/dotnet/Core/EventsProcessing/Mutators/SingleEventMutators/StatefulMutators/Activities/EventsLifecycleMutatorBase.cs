@@ -1,11 +1,13 @@
+using System.Diagnostics;
 using Core.Constants.XesLifecycle;
 using Core.Events.EventRecord;
 using Core.EventsProcessing.Mutators.Core;
 using Core.Exceptions;
 using Core.GlobalData;
 using Core.Utils;
+using Microsoft.Extensions.Logging;
 
-namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities;
+namespace Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities;
 
 public enum LifecycleState
 {

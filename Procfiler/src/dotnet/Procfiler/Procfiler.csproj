@@ -41,10 +41,6 @@
         <ProjectReference Include="..\Core\Core.csproj" />
         <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="src\Core\EventsProcessing\Mutators\SingleEventMutators\" />
-    </ItemGroup>
 
     <Target Name="BuildCppProcfiler" AfterTargets="Build">
         <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\Procfiler\src\cpp\offline\" 

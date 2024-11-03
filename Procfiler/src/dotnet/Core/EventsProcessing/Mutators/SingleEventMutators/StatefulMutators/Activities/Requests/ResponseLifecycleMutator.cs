@@ -3,7 +3,7 @@ using Core.Container;
 using Core.EventsProcessing.Mutators.Core.Passes;
 using Core.Utils;
 
-namespace Procfiler.Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Requests;
+namespace Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities.Requests;
 
 [EventMutator(SingleEventMutatorsPasses.ActivityAttributesSetter)]
 public class ResponseHeaderLifecycleMutator(IProcfilerLogger logger)
