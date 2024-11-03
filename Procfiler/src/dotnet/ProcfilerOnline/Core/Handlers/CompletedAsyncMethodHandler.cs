@@ -44,8 +44,7 @@ public class CompletedAsyncMethodHandler(
       {
         ProcessName = completedAsyncMethodEvent.ApplicationName,
         CaseName = completedAsyncMethodEvent.StateMachineName,
-        Trace = methodTrace,
-        Metadata = []
+        Trace = methodTrace
       };
 
       completedAsyncMethodEvent.MethodInfo.AddToMetadata(message.Metadata);

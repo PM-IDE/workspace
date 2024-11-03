@@ -50,7 +50,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       {
         FullMode = BoundedChannelFullMode.Wait,
         SingleReader = false,
-        SingleWriter = true,
+        SingleWriter = true
       });
 
       var sessionGuid = Guid.NewGuid();

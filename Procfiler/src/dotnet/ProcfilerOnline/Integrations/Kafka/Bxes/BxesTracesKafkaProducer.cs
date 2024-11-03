@@ -21,7 +21,7 @@ public class BxesKafkaTrace
   public required string CaseName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
 
-  public required List<AttributeKeyValue> Metadata { get; init; }
+  public List<AttributeKeyValue> Metadata { get; } = [];
 }
 
 [AppComponent]

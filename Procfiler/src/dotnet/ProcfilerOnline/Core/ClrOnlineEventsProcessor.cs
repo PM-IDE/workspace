@@ -29,7 +29,7 @@ public class ClrOnlineEventsProcessor(
     {
       DllPath = context.DllFilePath,
       CppProcfilerPath = locator.FindCppProcfilerPath("CppProcfilerOnline"),
-      MethodsFilterRegex = context.MethodsFilterRegex,
+      MethodsFilterRegex = context.MethodsFilterRegex
     };
 
     var process = launcher.Launch(launcherDto);

@@ -20,7 +20,7 @@ public class EventsCollectionTests
 
       List<TestData> data =
       [
-        new(new EventsCollectionImpl(lengthOneEvents, logger), lengthOneEvents),
+        new(new EventsCollectionImpl(lengthOneEvents, logger), lengthOneEvents)
       ];
 
       const int CollectionsCount = 10;
@@ -42,7 +42,7 @@ public class EventsCollectionTests
 
       List<TestData> data =
       [
-        new(new EventsCollectionImpl(empty, TestLogger.CreateInstance()), empty),
+        new(new EventsCollectionImpl(empty, TestLogger.CreateInstance()), empty)
       ];
 
       data.AddRange(NonEmptyCollections);

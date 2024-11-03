@@ -19,7 +19,7 @@ public class GcEndTypeMutator(IProcfilerLogger logger) : ISingleEventMutator
   public IEnumerable<EventLogMutation> Mutations { get; } =
   [
     new AttributeToNameAppendMutation(TraceEventsConstants.GcStop, EventClassKind.Zero, TraceEventsConstants.GcStartType, false),
-    new AttributeToNameAppendMutation(TraceEventsConstants.GcStop, EventClassKind.Zero, TraceEventsConstants.GcStartReason, false),
+    new AttributeToNameAppendMutation(TraceEventsConstants.GcStop, EventClassKind.Zero, TraceEventsConstants.GcStartReason, false)
   ];
 
 

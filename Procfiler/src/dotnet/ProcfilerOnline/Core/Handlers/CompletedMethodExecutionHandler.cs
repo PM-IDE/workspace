@@ -43,8 +43,7 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
     {
       ProcessName = @event.ApplicationName,
       CaseName = @event.Frame.MethodInfo!.Fqn,
-      Trace = @event.Frame.InnerEvents,
-      Metadata = []
+      Trace = @event.Frame.InnerEvents
     };
 
     @event.Frame.MethodInfo.AddToMetadata(message.Metadata);
@@ -57,7 +56,7 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
     var message = new JsonMethodsExecutionKafkaMessage
     {
       Events = @event.Frame.InnerEvents.Select(JsonEventRecordWithMetadataKafkaDto.FromEventRecord).ToList(),
-      MethodFullName = @event.Frame.MethodInfo!.Fqn,
+      MethodFullName = @event.Frame.MethodInfo!.Fqn
     };
 
     container.Resolve<IJsonMethodsKafkaProducer>().Produce(Guid.NewGuid(), message);

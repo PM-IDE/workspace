@@ -13,7 +13,7 @@ public interface IOnlineDotnetProcessLauncher
   Process? Launch(DotnetProcessLauncherDto launcherDto);
 }
 
-public readonly record struct DotnetProcessLauncherDto
+public readonly ref struct DotnetProcessLauncherDto
 {
   public required string DllPath { get; init; }
   public required string CppProcfilerPath { get; init; }
