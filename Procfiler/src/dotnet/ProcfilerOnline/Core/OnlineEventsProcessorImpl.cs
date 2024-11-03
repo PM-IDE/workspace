@@ -2,7 +2,6 @@
 using Core.Events.EventRecord;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
-using Microsoft.Diagnostics.Tracing.Etlx;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Commands;

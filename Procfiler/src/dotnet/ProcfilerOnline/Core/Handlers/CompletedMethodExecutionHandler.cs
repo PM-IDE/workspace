@@ -39,13 +39,15 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
 
   private void ProduceBxesKafkaMessage(CompletedMethodExecutionEvent @event)
   {
-    var message = new BxesKafkaMethodsExecutionMessage
+    var message = new BxesKafkaTrace
     {
       ProcessName = @event.ApplicationName,
       CaseName = @event.Frame.MethodInfo!.Fqn,
-      MethodInfo = @event.Frame.MethodInfo,
-      Trace = @event.Frame.InnerEvents
+      Trace = @event.Frame.InnerEvents,
+      Metadata = []
     };
+
+    @event.Frame.MethodInfo.AddToMetadata(message.Metadata);
 
     container.Resolve<IBxesMethodsKafkaProducer>().Produce(Guid.NewGuid(), message);
   }

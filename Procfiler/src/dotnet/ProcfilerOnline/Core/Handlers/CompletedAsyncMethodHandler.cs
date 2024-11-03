@@ -37,15 +37,18 @@ public class CompletedAsyncMethodHandler(
   private void ProduceBxesKafkaMessage(CompletedAsyncMethodEvent completedAsyncMethodEvent)
   {
     var producer = container.Resolve<IBxesMethodsKafkaProducer>();
+
     foreach (var methodTrace in completedAsyncMethodEvent.MethodTraces)
     {
-      var message = new BxesKafkaMethodsExecutionMessage
+      var message = new BxesKafkaTrace
       {
         ProcessName = completedAsyncMethodEvent.ApplicationName,
         CaseName = completedAsyncMethodEvent.StateMachineName,
         Trace = methodTrace,
-        MethodInfo = completedAsyncMethodEvent.MethodInfo
+        Metadata = []
       };
+
+      completedAsyncMethodEvent.MethodInfo.AddToMetadata(message.Metadata);
 
       producer.Produce(Guid.NewGuid(), message);
     }

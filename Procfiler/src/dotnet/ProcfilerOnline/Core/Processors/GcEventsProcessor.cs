@@ -13,12 +13,18 @@ public class GcEventsProcessor(ICompositeEventPipeStreamEventHandler handler) : 
 
   public void Process(EventProcessingContext context)
   {
-    myCurrentGcTrace.Add(context.Event);
+    if (!context.Event.EventClass.StartsWith(TraceEventsConstants.GcPrefix)) return;
+
+    if (myGcCount > 0)
+    {
+      myCurrentGcTrace.Add(context.Event);
+    }
 
     switch (context.Event.EventClass)
     {
       case TraceEventsConstants.GcStart:
       {
+        myCurrentGcTrace.Add(context.Event);
         myGcCount++;
         break;
       }
@@ -32,6 +38,7 @@ public class GcEventsProcessor(ICompositeEventPipeStreamEventHandler handler) : 
 
           handler.Handle(new GcEvent
           {
+            ApplicationName = context.CommandContext.ApplicationName,
             GcTrace = gcTrace
           });
         }

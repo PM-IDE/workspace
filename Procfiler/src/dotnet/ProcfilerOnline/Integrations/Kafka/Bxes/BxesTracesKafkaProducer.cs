@@ -11,19 +11,19 @@ using ProcfilerOnline.Core.Settings;
 
 namespace ProcfilerOnline.Integrations.Kafka.Bxes;
 
-public interface IBxesMethodsKafkaProducer : IKafkaProducer<Guid, BxesKafkaMethodsExecutionMessage>;
+public interface IBxesMethodsKafkaProducer : IKafkaProducer<Guid, BxesKafkaTrace>;
 
-public class BxesKafkaMethodsExecutionMessage
+public class BxesKafkaTrace
 {
   public required string ProcessName { get; init; }
   public required string CaseName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
 
-  public ExtendedMethodInfo? MethodInfo { get; init; }
+  public required List<AttributeKeyValue> Metadata { get; init; }
 }
 
 [AppComponent]
-public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings) : IBxesMethodsKafkaProducer
+public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings) : IBxesMethodsKafkaProducer
 {
   private readonly IBxesStreamWriter myWriter = new BxesKafkaStreamWriter<BxesEvent>(
     BxesUtil.CreateSystemMetadata(),
@@ -34,7 +34,7 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
     });
 
 
-  public void Produce(Guid key, BxesKafkaMethodsExecutionMessage message)
+  public void Produce(Guid key, BxesKafkaTrace message)
   {
     List<AttributeKeyValue> metadata =
     [
@@ -42,14 +42,7 @@ public class BxesMethodsKafkaProducer(IOptions<OnlineProcfilerSettings> settings
       new(new BxesStringValue("process_name"), new BxesStringValue(message.ProcessName))
     ];
 
-    if (message.MethodInfo is { } methodInfo)
-    {
-      metadata.AddRange(
-      [
-        new AttributeKeyValue(new BxesStringValue("method_name"), new BxesStringValue(methodInfo.Name)),
-        new AttributeKeyValue(new BxesStringValue("method_signature"), new BxesStringValue(methodInfo.Signature))
-      ]);
-    }
+    metadata.AddRange(message.Metadata);
 
     myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
 
