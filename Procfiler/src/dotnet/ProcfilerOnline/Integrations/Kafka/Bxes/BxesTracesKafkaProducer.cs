@@ -6,6 +6,8 @@ using Confluent.Kafka;
 using Core.Bxes;
 using Core.Container;
 using Core.Events.EventRecord;
+using Core.Utils;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Settings;
 
@@ -23,7 +25,7 @@ public class BxesKafkaTrace
 }
 
 [AppComponent]
-public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings) : IBxesMethodsKafkaProducer
+public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings, IProcfilerLogger logger) : IBxesMethodsKafkaProducer
 {
   private readonly IBxesStreamWriter myWriter = new BxesKafkaStreamWriter<BxesEvent>(
     BxesUtil.CreateSystemMetadata(),
@@ -44,13 +46,26 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings)
 
     metadata.AddRange(message.Metadata);
 
-    myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
-
-    foreach (var eventRecord in message.Trace)
+    try
     {
-      myWriter.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, true)));
-    }
+      myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
 
-    myWriter.HandleEvent(BxesKafkaTraceVariantEndEvent.Instance);
+      foreach (var eventRecord in message.Trace)
+      {
+        myWriter.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, true)));
+      }
+
+      myWriter.HandleEvent(BxesKafkaTraceVariantEndEvent.Instance);
+    }
+    catch (Exception ex)
+    {
+      logger.LogError(
+        ex,
+        "Failed to produce bXES trace to kafka, process name: {ProcessName}, case name: {CaseName}, events count: {EventsCount}",
+        message.ProcessName,
+        message.CaseName,
+        message.Trace.Count
+      );
+    }
   }
 }
