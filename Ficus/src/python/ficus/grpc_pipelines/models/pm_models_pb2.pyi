@@ -154,10 +154,10 @@ class GrpcEntityFrequencyAnnotation(_message.Message):
 class GrpcMatrix(_message.Message):
     __slots__ = ["rows"]
     ROWS_FIELD_NUMBER: _ClassVar[int]
-    rows: _containers.RepeatedCompositeFieldContainer[GrpcMatixRow]
-    def __init__(self, rows: _Optional[_Iterable[_Union[GrpcMatixRow, _Mapping]]] = ...) -> None: ...
+    rows: _containers.RepeatedCompositeFieldContainer[GrpcMatrixRow]
+    def __init__(self, rows: _Optional[_Iterable[_Union[GrpcMatrixRow, _Mapping]]] = ...) -> None: ...
 
-class GrpcMatixRow(_message.Message):
+class GrpcMatrixRow(_message.Message):
     __slots__ = ["values"]
     VALUES_FIELD_NUMBER: _ClassVar[int]
     values: _containers.RepeatedScalarFieldContainer[float]

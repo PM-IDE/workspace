@@ -14,7 +14,7 @@ use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, Frequency
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::{
     GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation,
-    GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow,
+    GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatrixRow,
     GrpcMatrix, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking,
     GrpcPetriNetTransition,
 };
@@ -593,7 +593,7 @@ fn convert_to_grpc_dataset(dataset: &FicusDataset) -> GrpcDataset {
     let rows = dataset
         .values()
         .iter()
-        .map(|x| GrpcMatixRow {
+        .map(|x| GrpcMatrixRow {
             values: x.iter().map(|x| *x as f32).collect(),
         })
         .collect();

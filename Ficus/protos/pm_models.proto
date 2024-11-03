@@ -103,10 +103,10 @@ message GrpcEntityFrequencyAnnotation {
 }
 
 message GrpcMatrix {
-    repeated GrpcMatixRow rows = 1;
+    repeated GrpcMatrixRow rows = 1;
 }
 
-message GrpcMatixRow {
+message GrpcMatrixRow {
     repeated float values = 1;
 }
 
