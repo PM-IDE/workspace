@@ -33,3 +33,15 @@ class GrpcStringKeyValue(_message.Message):
     key: str
     value: str
     def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+
+class GrpcTimeSpan(_message.Message):
+    __slots__ = ["nanoseconds"]
+    NANOSECONDS_FIELD_NUMBER: _ClassVar[int]
+    nanoseconds: int
+    def __init__(self, nanoseconds: _Optional[int] = ...) -> None: ...
+
+class GrpcDateTime(_message.Message):
+    __slots__ = ["nanosSinceUnixEpoch"]
+    NANOSSINCEUNIXEPOCH_FIELD_NUMBER: _ClassVar[int]
+    nanosSinceUnixEpoch: int
+    def __init__(self, nanosSinceUnixEpoch: _Optional[int] = ...) -> None: ...

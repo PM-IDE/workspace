@@ -20,3 +20,11 @@ message GrpcStringKeyValue {
     string key = 1;
     string value = 2;
 }
+
+message GrpcTimeSpan {
+    uint64 nanoseconds = 1;
+}
+
+message GrpcDateTime {
+    uint64 nanosSinceUnixEpoch = 1;
+}
