@@ -281,6 +281,16 @@ class AnnotatePetriNetWithTraceFrequency(AnnotatePetriNet):
     def get_annotation(self, context_value: GrpcContextValue):
         return from_grpc_frequency_annotation(context_value.annotation.frequencyAnnotation)
 
+class AnnotateGraphWithTime(ViewGraphLikeFormalismPart):
+    def to_grpc_part(self) -> GrpcPipelinePartBase:
+        config = GrpcPipelinePartConfiguration()
+        part = create_complex_get_context_part(self.uuid,
+                                               self.__class__.__name__,
+                                               [const_graph, const_graph_time_annotation],
+                                               const_annotate_graph_with_time,
+                                               config)
+
+        return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 class EnsureInitialMarking(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
