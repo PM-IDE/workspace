@@ -1,7 +1,9 @@
 use std::collections::HashMap;
-
+use std::hash::Hash;
+use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
-
+use crate::event_log::core::trace::trace::Trace;
+use crate::utils::graph::graph::DefaultGraph;
 use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
 
 pub fn annotate_with_counts(
@@ -69,4 +71,47 @@ pub fn annotate_with_trace_frequency(
             .map(|pair| (pair.0, pair.1 as f64 / log.traces().len() as f64))
             .collect(),
     )
+}
+
+pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph) -> Option<HashMap<u64, f64>> {
+    let mut performance_map = HashMap::new();
+    for trace in log.traces() {
+        let trace = trace.borrow();
+        let events = trace.events();
+        for i in 0..(events.len() - 1) {
+            let first = events.get(i).expect("Index in bounds");
+            let first = first.borrow();
+
+            let second = events.get(i + 1).expect("Index in bounds");
+            let second = second.borrow();
+            
+            if first.timestamp() > second.timestamp() {
+                println!("Encountered broken trace, first.timestamp() > second.timestamp(), {}", i);
+                continue;
+            }
+
+            let time_diff = first.timestamp().to_owned() - second.timestamp().to_owned();
+            let time_diff = time_diff.num_nanoseconds().expect("Must be convertible to nanos") as f64;
+            
+            let key = (first.name(), second.name());
+            if let Some((existing_time_diff, count)) = performance_map.get(&key) {
+                *performance_map.get_mut(&key).expect("Must exist") = (existing_time_diff + time_diff) / (count + 1); 
+            } else {
+                performance_map.insert(key, (time_diff, 1i64));
+            }
+        }
+    }
+    
+    let mut time_annotations = HashMap::new();
+    for edge in graph.all_edges() {
+        let first_node = graph.node(&edge.first_node_id).expect("Must contain first node");
+        let second_node = graph.node(&edge.second_node_id).expect("Must contain second node");
+        
+        let key = (first_node.data.as_ref().unwrap(), second_node.data.as_ref().unwrap());
+        if let Some(time_annotation) = performance_map.get(&key) {
+            time_annotations.insert(edge.id, time_annotation.0);
+        }
+    }
+
+    Some(time_annotations)
 }
