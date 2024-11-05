@@ -104,6 +104,7 @@ pub const LOG_TRACES_DATASET: &'static str = "log_traces_dataset";
 pub const TRACES_REPR_SOURCE: &'static str = "traces_repr_source";
 pub const SYSTEM_METADATA: &'static str = "system_metadata";
 pub const LOG_SERIALIZATION_FORMAT: &'static str = "log_serialization_format";
+pub const GRAPH_TIME_ANNOTATION: &'static str = "graph_time_annotation";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -183,6 +184,7 @@ lazy_static!(
      pub static ref START_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(START_CASE_REGEX_STR);
      pub static ref END_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(END_CASE_REGEX_STR);
      pub static ref INLINE_INNER_CASES: DefaultContextKey<bool> = DefaultContextKey::new(INLINE_INNER_CASES_STR);
+     pub static ref GRAPH_TIME_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, f64>> = DefaultContextKey::new(GRAPH_TIME_ANNOTATION);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -256,6 +258,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         START_CASE_REGEX_STR => Some(START_CASE_REGEX.deref() as &dyn ContextKey),
         END_CASE_REGEX_STR => Some(END_CASE_REGEX.deref() as &dyn ContextKey),
         INLINE_INNER_CASES_STR => Some(INLINE_INNER_CASES.deref() as &dyn ContextKey),
+        GRAPH_TIME_ANNOTATION => Some(GRAPH_TIME_ANNOTATION_KEY.deref() as &dyn ContextKey),
         _ => None,
     }
 }
