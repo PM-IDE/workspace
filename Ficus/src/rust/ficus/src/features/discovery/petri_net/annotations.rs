@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use std::hash::Hash;
+use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::utils::graph::graph::DefaultGraph;
-use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
+use std::collections::HashMap;
+use std::hash::Hash;
 
 pub fn annotate_with_counts(
     log: &impl EventLog,
@@ -84,7 +84,7 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph)
 
             let second = events.get(i + 1).expect("Index in bounds");
             let second = second.borrow();
-            
+
             if first.timestamp() > second.timestamp() {
                 println!("Encountered broken trace, first.timestamp() > second.timestamp(), {}", i);
                 continue;
@@ -92,7 +92,7 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph)
 
             let time_diff = first.timestamp().to_owned() - second.timestamp().to_owned();
             let time_diff = time_diff.num_nanoseconds().expect("Must be convertible to nanos") as f64;
-            
+
             let key = (first.name().to_owned(), second.name().to_owned());
             if let Some((existing_time_diff, count)) = performance_map.get(&key) {
                 let new_time_diff = (*existing_time_diff + time_diff) / (*count + 1) as f64;
@@ -102,13 +102,17 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph)
             }
         }
     }
-    
+
     let mut time_annotations = HashMap::new();
     for edge in graph.all_edges() {
         let first_node = graph.node(&edge.first_node_id).expect("Must contain first node");
         let second_node = graph.node(&edge.second_node_id).expect("Must contain second node");
-        
-        let key = (first_node.data.as_ref().unwrap().to_owned(), second_node.data.as_ref().unwrap().to_owned());
+
+        let key = (
+            first_node.data.as_ref().unwrap().to_owned(),
+            second_node.data.as_ref().unwrap().to_owned(),
+        );
+
         if let Some(time_annotation) = performance_map.get(&key) {
             time_annotations.insert(edge.id, time_annotation.0);
         }
