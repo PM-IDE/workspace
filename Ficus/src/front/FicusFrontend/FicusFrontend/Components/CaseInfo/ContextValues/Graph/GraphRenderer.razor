@@ -14,8 +14,8 @@
   private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
 
   private IJSObjectReference myCytoscapeReference;
-  
-  
+
+  [Parameter] public GrpcAnnotation? Annotation { get; set; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
 
