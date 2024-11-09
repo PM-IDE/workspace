@@ -109,6 +109,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<LogSerializationFormat>(&LOG_SERIALIZATION_FORMAT, &mut used);
     assert_existence::<Vec<u8>>(&BYTES, &mut used);
     assert_existence::<HashMap<u64, f64>>(&GRAPH_TIME_ANNOTATION, &mut used);
+    assert_existence::<String>(&ATTRIBUTE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -195,7 +196,8 @@ fn get_all_keys_names() -> Vec<String> {
         "system_metadata",
         "log_serialization_format",
         "bytes",
-        "graph_time_annotation"
+        "graph_time_annotation",
+        "attribute"
     ]
 }
 
@@ -283,6 +285,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<LogSerializationFormat>(&LOG_SERIALIZATION_FORMAT, &mut used);
     assert_keys_equivalence::<Vec<u8>>(&BYTES, &mut used);
     assert_keys_equivalence::<HashMap<u64, f64>>(&GRAPH_TIME_ANNOTATION, &mut used);
+    assert_keys_equivalence::<String>(&ATTRIBUTE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

@@ -12,10 +12,20 @@ use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
-use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcTimePerformanceAnnotation, GrpcTimeSpan};
+use crate::ficus_proto::{
+    GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation,
+    GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode,
+    GrpcLabeledDataset, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace,
+    GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcTimePerformanceAnnotation, GrpcTimeSpan,
+};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY};
+use crate::pipelines::keys::context_keys::{
+    BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
+    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY,
+    PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
+    PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+};
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -157,7 +167,7 @@ pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> O
         try_convert_to_grpc_petri_net_frequency_annotation(value)
     } else if GRAPH_TIME_ANNOTATION_KEY.eq_other(key) {
         try_convert_to_grpc_graph_time_annotation(value)
-    }  else if TRACES_ACTIVITIES_DATASET_KEY.eq_other(key) {
+    } else if TRACES_ACTIVITIES_DATASET_KEY.eq_other(key) {
         try_convert_to_grpc_dataset(value)
     } else if LABELED_TRACES_ACTIVITIES_DATASET_KEY.eq_other(key) {
         try_convert_to_grpc_labeled_dataset(value)
@@ -227,8 +237,8 @@ fn try_convert_to_grpc_graph_time_annotation(value: &dyn Any) -> Option<GrpcCont
         let value = value.downcast_ref::<HashMap<u64, f64>>().unwrap();
         Some(GrpcContextValue {
             context_value: Some(Annotation(GrpcAnnotation {
-                annotation: Some(TimeAnnotation(convert_to_grpc_time_annotation(value)))
-            }))
+                annotation: Some(TimeAnnotation(convert_to_grpc_time_annotation(value))),
+            })),
         })
     }
 }
@@ -588,8 +598,8 @@ fn convert_to_grpc_time_annotation(annotation: &HashMap<u64, f64>) -> GrpcTimePe
         .map(|pair| GrpcEntityTimeAnnotation {
             entity_id: *pair.0 as i64,
             interval: Some(GrpcTimeSpan {
-                nanoseconds: *pair.1 as u64
-            })
+                nanoseconds: *pair.1 as u64,
+            }),
         })
         .collect();
 

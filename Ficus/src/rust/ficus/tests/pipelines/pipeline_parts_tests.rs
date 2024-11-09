@@ -65,7 +65,8 @@ fn get_test_parts_names() -> Vec<String> {
         "WriteBxesLogToBytes",
         "ReverseHierarchyIndices",
         "DiscoverCases",
-        "AnnotateGraphWithTime"
+        "AnnotateGraphWithTime",
+        "TracesDiversityDiagramByAttribute"
     ]
 }
 
