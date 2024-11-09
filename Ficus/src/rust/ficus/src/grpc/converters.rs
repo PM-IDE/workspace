@@ -558,6 +558,7 @@ where
     TEdgeData: ToString,
 {
     GrpcGraphEdge {
+        id: edge.id,
         from_node: *edge.from_node(),
         to_node: *edge.to_node(),
         weight: edge.weight,
