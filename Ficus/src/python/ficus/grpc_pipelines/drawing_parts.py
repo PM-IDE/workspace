@@ -260,3 +260,55 @@ class DrawShortActivitiesDiagramCanvas(DrawActivitiesDiagramBaseCanvas):
                          title=title,
                          width_scale=width_scale,
                          height_scale=height_scale)
+
+class TracesDiversityDiagramByAttribute(PipelinePart2WithDrawColorsLogCallback):
+    def __init__(self,
+                 attribute: str,
+                 title: Optional[str] = None,
+                 save_path: str = None,
+                 plot_legend: bool = True,
+                 height_scale: int = 1,
+                 width_scale: int = 1):
+        super().__init__(title=title,
+                         save_path=save_path,
+                         plot_legend=plot_legend,
+                         height_scale=height_scale,
+                         width_scale=width_scale)
+
+        self.attribute = attribute
+
+    def to_grpc_part(self) -> GrpcPipelinePartBase:
+        return _create_traces_diversity_diagram_by_attribute_grpc_part(self.attribute, self.uuid, self.__class__.__name__)
+
+
+def _create_traces_diversity_diagram_by_attribute_grpc_part(attribute: str, uuid, frontend_pipeline_part_name: str):
+    config = GrpcPipelinePartConfiguration()
+    append_string_value(config, const_attribute, attribute)
+
+    part = create_complex_get_context_part(uuid,
+                                           frontend_pipeline_part_name,
+                                           [const_colors_event_log],
+                                           const_traces_diversity_diagram_by_attribute,
+                                           config)
+
+    return GrpcPipelinePartBase(complexContextRequestPart=part)
+
+
+class TracesDiversityDiagramByAttributeCanvas(PipelinePart2WithCanvasCallback):
+    def __init__(self,
+                 attribute: str,
+                 save_path: Optional[str] = None,
+                 plot_legend: bool = False,
+                 title: Optional[str] = None,
+                 height_scale: float = 1,
+                 width_scale: float = 1):
+        super().__init__(save_path=save_path,
+                         plot_legend=plot_legend,
+                         title=title,
+                         width_scale=width_scale,
+                         height_scale=height_scale)
+
+        self.attribute = attribute
+
+    def to_grpc_part(self) -> GrpcPipelinePartBase:
+        return _create_traces_diversity_diagram_by_attribute_grpc_part(self.attribute, self.uuid, self.__class__.__name__)
