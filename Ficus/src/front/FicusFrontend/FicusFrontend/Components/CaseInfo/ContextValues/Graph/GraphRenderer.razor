@@ -24,7 +24,7 @@
   {
     if (!firstRender) return;
 
-    myCytoscapeReference = await Js.InvokeAsync<IJSObjectReference>("drawGraph", myCytoscapeContainerId.ToString(), Graph);
+    myCytoscapeReference = await Js.InvokeAsync<IJSObjectReference>("drawGraph", myCytoscapeContainerId.ToString(), Graph, Annotation);
   }
 
   private async Task ExportGraph()

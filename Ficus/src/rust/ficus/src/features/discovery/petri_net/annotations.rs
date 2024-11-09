@@ -4,7 +4,6 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::utils::graph::graph::DefaultGraph;
 use std::collections::HashMap;
-use std::hash::Hash;
 
 pub fn annotate_with_counts(
     log: &impl EventLog,
@@ -90,13 +89,12 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph)
                 continue;
             }
 
-            let time_diff = first.timestamp().to_owned() - second.timestamp().to_owned();
+            let time_diff = second.timestamp().to_owned() - first.timestamp().to_owned();
             let time_diff = time_diff.num_nanoseconds().expect("Must be convertible to nanos") as f64;
 
             let key = (first.name().to_owned(), second.name().to_owned());
             if let Some((existing_time_diff, count)) = performance_map.get(&key) {
-                let new_time_diff = (*existing_time_diff + time_diff) / (*count + 1) as f64;
-                *performance_map.get_mut(&key).expect("Must exist") = (new_time_diff, *count + 1);
+                *performance_map.get_mut(&key).expect("Must exist") = (*existing_time_diff + time_diff, *count + 1);
             } else {
                 performance_map.insert(key, (time_diff, 1i64));
             }
@@ -114,7 +112,7 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph)
         );
 
         if let Some(time_annotation) = performance_map.get(&key) {
-            time_annotations.insert(edge.id, time_annotation.0);
+            time_annotations.insert(*edge.id(), time_annotation.0 / time_annotation.1 as f64);
         }
     }
 

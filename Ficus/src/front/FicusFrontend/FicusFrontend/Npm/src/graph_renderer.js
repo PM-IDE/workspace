@@ -8,16 +8,16 @@ export default setDrawGraph;
 const graphColor = graphColors(lightTheme);
 
 function setDrawGraph() {
-  window.drawGraph = function (id, graph) {
+  window.drawGraph = function (id, graph, annotation) {
     cytoscape.use(dagre);
-    return cytoscape(createCytoscapeOptions(id, graph));
+    return cytoscape(createCytoscapeOptions(id, graph, annotation));
   }
 }
 
-function createCytoscapeOptions(id, graph) {
+function createCytoscapeOptions(id, graph, annotation) {
   return {
     container: document.getElementById(id),
-    elements: createGraphElements(graph),
+    elements: createGraphElements(graph, annotation),
     layout: createBreadthFirstLayout(),
     style: [
       createNodeStyle(),
@@ -53,7 +53,8 @@ function createEdgeStyle() {
   }
 }
 
-function createGraphElements(graph) {
+function createGraphElements(graph, annotation) {
+  console.log(graph, annotation);
   let elements = [];
 
   for (let node of graph.nodes) {
@@ -64,34 +65,16 @@ function createGraphElements(graph) {
       }
     })
   }
+  
+  let propertiesMap = createEdgesPropertiesMap(graph.edges, annotation);
 
-  const minWidth = 5;
-  const maxWidth = 15;
-  
-  let maxWeight = Math.max(...graph.edges.map(e => e.weight));
-  
   for (let edge of graph.edges) {
-    let weightRatio = edge.weight / maxWeight
-    let width = minWidth + (maxWidth - minWidth) * weightRatio;
-    if (isNaN(width)) {
-      width = 1;
-    }
-    
-    let blueMin = graphColor.blueMin;
-    let blueMax = graphColor.blueMax;
-    
-    let greenMin = graphColor.greenMin;
-    let greenMax = graphColor.greenMax;
-    
-    let redMin = graphColor.redMin;
-    let redMax = graphColor.redMax;
-
     elements.push({
       data: {
-        color: calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio),
-        width: width,
+        color: propertiesMap[edge.id].color,
+        width: propertiesMap[edge.id].width,
         label: edge.data,
-        id: edge.fromNode.toString() + "::" + edge.toNode.toString(),
+        id: edge.id,
         source: edge.fromNode.toString(),
         target: edge.toNode.toString(),
       }
@@ -99,4 +82,63 @@ function createGraphElements(graph) {
   }
 
   return elements;
+}
+
+function createEdgesPropertiesMap(edges, annotation) {
+  let propertiesMap = {};
+  let maxWeight = Math.max(...edges.map(e => e.weight));
+  
+  for (let edge of edges) {
+    propertiesMap[edge.id] = {};
+  }
+
+  const minWidth = 5;
+  const maxWidth = 15;
+
+  for (let edge of edges) {
+    let weightRatio = edge.weight / maxWeight
+    let width = minWidth + (maxWidth - minWidth) * weightRatio;
+
+    if (isNaN(width)) {
+      width = 1;
+    }
+    
+    propertiesMap[edge.id].width = width;
+
+    let blueMin = graphColor.blueMin;
+    let blueMax = graphColor.blueMax;
+
+    let greenMin = graphColor.greenMin;
+    let greenMax = graphColor.greenMax;
+
+    let redMin = graphColor.redMin;
+    let redMax = graphColor.redMax;
+    
+    propertiesMap[edge.id].color = calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio);
+  }
+
+  if (annotation.timeAnnotation !== undefined) {
+    let minTime = null;
+    let maxTime = null;
+    let idsToTime = {};
+
+    for (let timeAnnotation of annotation.timeAnnotation.annotations) {
+      let time = timeAnnotation.interval.nanoseconds;
+      if (minTime === null || time < minTime) {
+        minTime = time;
+      }
+      
+      if (maxTime == null || timeAnnotation.interval > maxTime) {
+        maxTime = time;
+      }
+      
+      idsToTime[timeAnnotation.entityId] = time;
+    }
+
+    for (let edge of edges) {
+      propertiesMap[edge.id].timeAnnotation = 1 - (maxTime - idsToTime[edge.id]) / (maxTime - minTime);
+    }
+  }
+  
+  return propertiesMap;
 }
