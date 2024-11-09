@@ -1,16 +1,15 @@
 use fancy_regex::Regex;
 use std::collections::HashMap;
 use std::ops::Deref;
-use std::rc::Rc;
 
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
-use crate::event_log::core::event::event::ReferenceOrOwned;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::pipelines::keys::context_keys::{
     ATTRIBUTE_KEY, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES_KEY,
 };
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::colors::{ColorsEventLog, ColorsHolder};
+use crate::utils::references::{HeapedOrOwned, ReferenceOrOwned};
 use crate::{
     event_log::{
         core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
@@ -57,7 +56,8 @@ impl PipelineParts {
                     mapping.insert(colors_key.to_owned(), color);
                 }
 
-                vec.push(ColoredRectangle::square(event.name_pointer().clone(), index));
+                let name = HeapedOrOwned::Owned(colors_key.to_owned());
+                vec.push(ColoredRectangle::square(name, index));
                 index += 1;
             }
 
@@ -97,10 +97,11 @@ impl PipelineParts {
                         mapping.insert(name.to_owned(), color);
                     }
 
-                    colors_trace.push(ColoredRectangle::square(event.name_pointer().clone(), index));
+                    let name = HeapedOrOwned::Heaped(event.name_pointer().clone());
+                    colors_trace.push(ColoredRectangle::square(name, index));
                 } else {
-                    let ptr = Rc::new(Box::new(UNDEF_ACTIVITY_NAME.to_owned()));
-                    colors_trace.push(ColoredRectangle::square(ptr, index));
+                    let name = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
+                    colors_trace.push(ColoredRectangle::square(name, index));
                 }
 
                 index += 1;
@@ -144,11 +145,12 @@ impl PipelineParts {
                             mapping.insert(name.as_ref().as_ref().to_owned(), color);
                         }
 
+                        let name = HeapedOrOwned::Heaped(name);
                         colors_trace.push(ColoredRectangle::new(name, activity.start_pos, activity.length));
                     }
                     SubTraceKind::Unattached(start_pos, length) => {
                         colors_trace.push(ColoredRectangle::new(
-                            Rc::new(Box::new(UNDEF_ACTIVITY_NAME.to_string())),
+                            HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_string()),
                             start_pos,
                             length,
                         ));
@@ -188,10 +190,11 @@ impl PipelineParts {
                                 mapping.insert(activity.node.borrow().name().as_ref().as_ref().to_owned(), color);
                             }
 
+                            let name = HeapedOrOwned::Heaped(name);
                             colors_trace.push(ColoredRectangle::new(name, index, 1));
                         }
                         SubTraceKind::Unattached(_, _) => {
-                            let ptr = Rc::new(Box::new(UNDEF_ACTIVITY_NAME.to_owned()));
+                            let ptr = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
                             colors_trace.push(ColoredRectangle::new(ptr, index, 1));
                         }
                     }

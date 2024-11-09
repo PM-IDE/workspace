@@ -1,8 +1,8 @@
 use crate::utils::user_data::user_data::UserDataImpl;
 
 use super::lifecycle::xes_lifecycle::Lifecycle;
+use crate::utils::references::ReferenceOrOwned;
 use chrono::{DateTime, Utc};
-use std::ops::Deref;
 use std::{collections::HashMap, rc::Rc};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -58,22 +58,6 @@ pub enum EventPayloadSoftwareEventType {
     Handle = 4,
     Calling = 5,
     Returning = 6,
-}
-
-pub enum ReferenceOrOwned<'a, T> {
-    Ref(&'a T),
-    Owned(T),
-}
-
-impl<'a, T> Deref for ReferenceOrOwned<'a, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        match self {
-            ReferenceOrOwned::Ref(reference) => reference,
-            ReferenceOrOwned::Owned(value) => &value,
-        }
-    }
 }
 
 impl EventPayloadValue {

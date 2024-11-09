@@ -8,6 +8,7 @@ pub mod interval_tree;
 pub mod log_serialization_format;
 pub mod macros;
 pub mod performance;
+pub mod references;
 pub mod sets;
 pub mod stream_queue;
 pub mod suffix_tree;
