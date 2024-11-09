@@ -74,7 +74,8 @@ public class BuildCppProcfiler : Task
       {
         FileName = FindCmakeExecutable(),
         Arguments = $"--build . --target {TargetName} --config Release",
-        WorkingDirectory = CreateBuildDirectoryPath()
+        WorkingDirectory = CreateBuildDirectoryPath(),
+        RedirectStandardOutput = true
       }
     };
 
@@ -121,12 +122,20 @@ public class BuildCppProcfiler : Task
       return false;
     }
 
+    if (process.StartInfo.RedirectStandardOutput)
+    {
+      process.OutputDataReceived += (_, args) =>
+      {
+        Log.LogMessage($"Process {name} output: {args.Data}");
+      };
+
+      process.BeginOutputReadLine();
+    }
+
     var timeout = (int)TimeSpan.FromSeconds(60).TotalMilliseconds;
     if (!process.WaitForExit(timeout))
     {
       process.Kill();
-      Log.LogError($"The process {name} has not finished in {timeout}ms");
-      LogProcessOutput(process, name);
       return false;
     }
 
@@ -134,32 +143,9 @@ public class BuildCppProcfiler : Task
     if (exitCode != 0)
     {
       Log.LogError($"Process {name} exited with exit code {exitCode}");
-      LogProcessOutput(process, name);
       return false;
     }
 
     return true;
-  }
-
-  private void LogProcessOutput(Process process, string name)
-  {
-    try
-    {
-      if (process.StartInfo.RedirectStandardOutput)
-      {
-        Log.LogError($"The process {name} output:");
-        Log.LogError(process.StandardOutput.ReadToEnd());
-      }
-
-      if (process.StartInfo.RedirectStandardError)
-      {
-        Log.LogError($"The process {name} errors:");
-        Log.LogError(process.StandardError.ReadToEnd());
-      }
-    }
-    catch (Exception ex)
-    {
-      Log.LogError("Failed to log process output", ex.Message);
-    }
   }
 }
