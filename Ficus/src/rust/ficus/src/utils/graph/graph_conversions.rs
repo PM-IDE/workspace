@@ -2,6 +2,7 @@ use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::graph::graph_node::GraphNode;
 use std::collections::HashMap;
 use std::fmt::Display;
+use crate::utils::graph::graph_edge::GraphEdge;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
@@ -32,19 +33,21 @@ where
     }
 
     #[rustfmt::skip]
-    fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, NodesConnectionData<String>>> {
+    fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, GraphEdge<String>>> {
         self.connections.iter().map(|pair| {
             (
                 *pair.0,
                 pair.1.iter().map(|pair| {
                     (
                         *pair.0,
-                        NodesConnectionData::new(
+                        GraphEdge::new(
+                            pair.1.first_node_id, 
+                            pair.1.second_node_id,
+                            pair.1.weight, 
                             match pair.1.data() {
                                 None => None,
                                 Some(data) => Some(data.to_string()),
-                            },
-                            pair.1.weight()
+                            }
                         )
                     )
                 }).collect(),

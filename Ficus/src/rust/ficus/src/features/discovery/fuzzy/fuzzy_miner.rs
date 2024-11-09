@@ -261,7 +261,7 @@ fn merge_nodes(graph: &mut FuzzyGraph, clusters: &ClustersMap) {
                 edges_data.iter().fold(NodesConnectionData::empty(), |first, second| {
                     NodesConnectionData::new(
                         Some(*first.data().unwrap_or(&0.0) + *second.data().unwrap_or(&0.0)),
-                        first.weight() + second.weight(),
+                        first.weight() + second.weight,
                     )
                 })
             },

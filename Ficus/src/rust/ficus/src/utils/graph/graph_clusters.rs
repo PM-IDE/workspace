@@ -1,6 +1,7 @@
 use crate::utils::graph::graph::{Graph, NodesConnectionData};
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
+use crate::utils::graph::graph_edge::GraphEdge;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
@@ -11,7 +12,7 @@ where
         &mut self,
         cluster_nodes: &HashSet<u64>,
         node_data_merger: impl Fn(Vec<Option<&TNodeData>>) -> Option<TNodeData>,
-        edge_data_merger: impl Fn(&Vec<&NodesConnectionData<TEdgeData>>) -> NodesConnectionData<TEdgeData>,
+        edge_data_merger: impl Fn(&Vec<&GraphEdge<TEdgeData>>) -> NodesConnectionData<TEdgeData>,
     ) {
         let nodes_data: Vec<Option<&TNodeData>> = cluster_nodes.iter().map(|id| self.node(id).unwrap().data()).collect();
         let new_node_id = self.add_node(node_data_merger(nodes_data));
@@ -30,7 +31,7 @@ where
     fn find_incoming_edges(
         &self,
         cluster_nodes: &HashSet<u64>,
-        edge_data_merger: &impl Fn(&Vec<&NodesConnectionData<TEdgeData>>) -> NodesConnectionData<TEdgeData>,
+        edge_data_merger: &impl Fn(&Vec<&GraphEdge<TEdgeData>>) -> NodesConnectionData<TEdgeData>,
     ) -> HashMap<u64, NodesConnectionData<TEdgeData>> {
         let mut new_incoming_edges = HashMap::new();
         for node in self.all_nodes() {
@@ -62,9 +63,9 @@ where
     fn find_outgoing_edges(
         &self,
         cluster_nodes: &HashSet<u64>,
-        edge_data_merger: &impl Fn(&Vec<&NodesConnectionData<TEdgeData>>) -> NodesConnectionData<TEdgeData>,
+        edge_data_merger: &impl Fn(&Vec<&GraphEdge<TEdgeData>>) -> NodesConnectionData<TEdgeData>,
     ) -> HashMap<u64, NodesConnectionData<TEdgeData>> {
-        let mut new_outgoing_edges: HashMap<u64, Vec<&NodesConnectionData<TEdgeData>>> = HashMap::new();
+        let mut new_outgoing_edges: HashMap<u64, Vec<&GraphEdge<TEdgeData>>> = HashMap::new();
         for cluster_node in cluster_nodes {
             if let Some(connections) = self.connections.get(cluster_node) {
                 for (connection, connection_data) in connections {
@@ -97,13 +98,15 @@ where
     ) {
         for new_edge in new_incoming_edges_merged {
             if let Some(connections) = self.connections.get_mut(&new_edge.0) {
-                connections.insert(new_node_id.clone(), new_edge.1);
+                let edge = GraphEdge::new(new_edge.0, new_node_id, new_edge.1.weight(), new_edge.1.data);
+                connections.insert(new_node_id.clone(), edge);
             }
         }
 
         let mut new_node_connections = HashMap::new();
         for new_edge in new_outgoing_edges_merged {
-            new_node_connections.insert(new_edge.0, new_edge.1);
+            let edge = GraphEdge::new(new_node_id, new_edge.0, new_edge.1.weight, new_edge.1.data);
+            new_node_connections.insert(new_edge.0, edge);
         }
 
         self.connections.insert(new_node_id, new_node_connections);
