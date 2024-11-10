@@ -103,7 +103,7 @@ function createGraphEdgesElements(edges, annotation) {
 }
 
 function processEdgesWidths(edges, edgesMap) {
-  const minWidth = 5;
+  const minWidth = 1;
   const maxWidth = 15;
   let maxWeight = Math.max(...edges.map(e => e.weight));
 
