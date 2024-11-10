@@ -130,7 +130,7 @@
 
     if (graph is null) return null;
 
-    return @<GraphRenderer Graph="graph" ProcessCaseData="myProcessCaseData" Annotation="annotation" />;
+    return @<GraphRenderer @key="Guid.NewGuid()" Graph="graph" ProcessCaseData="myProcessCaseData" Annotation="annotation" />;
   }
 
   private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<GrpcContextValue> contextValues)
@@ -140,6 +140,6 @@
 
     if (petriNet is null) return null;
     
-    return @<PetriNetRenderer PetriNet="petriNet" Annotation="annotation" />;
+    return @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="petriNet" Annotation="annotation" />;
   }
 }
