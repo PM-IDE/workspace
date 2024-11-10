@@ -66,13 +66,30 @@ function createGraphElements(graph, annotation) {
     })
   }
   
-  let propertiesMap = createEdgesPropertiesMap(graph.edges, annotation);
+  elements.push(...createGraphEdgesElements(graph.edges, annotation));
 
-  for (let edge of graph.edges) {
+  return elements;
+}
+
+function createGraphEdgesElements(edges, annotation) {
+  let edgesMap = {};
+  
+  for (let edge of edges) {
+    edgesMap[edge.id] = {};
+  }
+  
+  processEdgesWidths(edges, edgesMap);
+
+  if (annotation.timeAnnotation !== undefined) {
+    processTimeAnnotation(annotation.timeAnnotation, edges, edgesMap);
+  }
+
+  let elements = [];
+  for (let edge of edges) {
     elements.push({
       data: {
-        color: propertiesMap[edge.id].color,
-        width: propertiesMap[edge.id].width,
+        color: edgesMap[edge.id].color,
+        width: edgesMap[edge.id].width,
         label: edge.data,
         id: edge.id,
         source: edge.fromNode.toString(),
@@ -84,16 +101,10 @@ function createGraphElements(graph, annotation) {
   return elements;
 }
 
-function createEdgesPropertiesMap(edges, annotation) {
-  let propertiesMap = {};
-  let maxWeight = Math.max(...edges.map(e => e.weight));
-  
-  for (let edge of edges) {
-    propertiesMap[edge.id] = {};
-  }
-
+function processEdgesWidths(edges, edgesMap) {
   const minWidth = 5;
   const maxWidth = 15;
+  let maxWeight = Math.max(...edges.map(e => e.weight));
 
   for (let edge of edges) {
     let weightRatio = edge.weight / maxWeight
@@ -102,8 +113,8 @@ function createEdgesPropertiesMap(edges, annotation) {
     if (isNaN(width)) {
       width = 1;
     }
-    
-    propertiesMap[edge.id].width = width;
+
+    edgesMap[edge.id].width = width;
 
     let blueMin = graphColor.blueMin;
     let blueMax = graphColor.blueMax;
@@ -113,32 +124,30 @@ function createEdgesPropertiesMap(edges, annotation) {
 
     let redMin = graphColor.redMin;
     let redMax = graphColor.redMax;
-    
-    propertiesMap[edge.id].color = calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio);
+
+    edgesMap[edge.id].color = calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio);
   }
+}
 
-  if (annotation.timeAnnotation !== undefined) {
-    let minTime = null;
-    let maxTime = null;
-    let idsToTime = {};
+function processTimeAnnotation(annotation, edges, edgesMap) {
+  let minTime = null;
+  let maxTime = null;
+  let idsToTime = {};
 
-    for (let timeAnnotation of annotation.timeAnnotation.annotations) {
-      let time = timeAnnotation.interval.nanoseconds;
-      if (minTime === null || time < minTime) {
-        minTime = time;
-      }
-      
-      if (maxTime == null || timeAnnotation.interval > maxTime) {
-        maxTime = time;
-      }
-      
-      idsToTime[timeAnnotation.entityId] = time;
+  for (let timeAnnotation of annotation.annotations) {
+    let time = timeAnnotation.interval.nanoseconds;
+    if (minTime === null || time < minTime) {
+      minTime = time;
     }
 
-    for (let edge of edges) {
-      propertiesMap[edge.id].timeAnnotation = 1 - (maxTime - idsToTime[edge.id]) / (maxTime - minTime);
+    if (maxTime == null || timeAnnotation.interval > maxTime) {
+      maxTime = time;
     }
+
+    idsToTime[timeAnnotation.entityId] = time;
   }
-  
-  return propertiesMap;
+
+  for (let edge of edges) {
+    edgesMap[edge.id].timeAnnotation = 1 - (maxTime - idsToTime[edge.id]) / (maxTime - minTime);
+  }
 }
