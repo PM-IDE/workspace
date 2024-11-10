@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Text.RegularExpressions;
+using Core.Collector;
 using Core.CommandLine;
 using Core.Container;
 using Core.Utils;
@@ -11,7 +12,8 @@ namespace ProcfilerOnline.Commands;
 public record CollectEventsOnlineContext(
   string DllFilePath,
   Regex? TargetMethodsRegex,
-  Regex? MethodsFilterRegex
+  Regex? MethodsFilterRegex,
+  ProvidersCategoryKind Providers
 )
 {
   public string ApplicationName { get; } = Path.GetFileNameWithoutExtension(DllFilePath);
@@ -29,6 +31,9 @@ public class CollectEventsOnlineCommand(
 
   private static Option<string> MethodsFilterRegex { get; } = new("--methods-filter-regex", "The regular expression to filter methods");
 
+  private static Option<ProvidersCategoryKind> ProvidersOption { get; } =
+    new("--providers", static () => ProvidersCategoryKind.All, "Providers which will be used for collecting events");
+
 
   public void Execute(CollectEventsOnlineContext context)
   {
@@ -43,7 +48,8 @@ public class CollectEventsOnlineCommand(
       return new CollectEventsOnlineContext(
         parseResult.GetValueForOption(DllPathOption)!,
         CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
-        CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex))
+        CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex)),
+        parseResult.GetValueForOption(ProvidersOption)
       );
     });
 
@@ -57,6 +63,7 @@ public class CollectEventsOnlineCommand(
     command.AddOption(DllPathOption);
     command.AddOption(TargetMethodsRegex);
     command.AddOption(MethodsFilterRegex);
+    command.AddOption(ProvidersOption);
 
     command.Handler = this;
 
