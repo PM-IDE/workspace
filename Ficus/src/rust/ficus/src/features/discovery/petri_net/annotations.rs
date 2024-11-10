@@ -4,6 +4,7 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::utils::graph::graph::DefaultGraph;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 pub fn annotate_with_counts(
     log: &impl EventLog,
@@ -72,7 +73,29 @@ pub fn annotate_with_trace_frequency(
     )
 }
 
-pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph) -> Option<HashMap<u64, f64>> {
+#[derive(Copy, Clone)]
+pub enum TimeAnnotationKind {
+    SummedTime,
+    Mean
+}
+
+impl FromStr for TimeAnnotationKind {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "SummedTime" => Ok(Self::SummedTime),
+            "Mean" => Ok(Self::Mean),
+            _ => Err(()),
+        }
+    }
+}
+
+pub fn annotate_with_time_performance(
+    log: &impl EventLog, 
+    graph: &DefaultGraph,
+    annotation_kind: TimeAnnotationKind,
+) -> Option<HashMap<u64, f64>> {
     let mut performance_map = HashMap::new();
     for trace in log.traces() {
         let trace = trace.borrow();
@@ -112,7 +135,12 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph)
         );
 
         if let Some(time_annotation) = performance_map.get(&key) {
-            time_annotations.insert(*edge.id(), time_annotation.0 / time_annotation.1 as f64);
+            let time_annotation = match annotation_kind {
+                TimeAnnotationKind::SummedTime => time_annotation.0,
+                TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
+            };
+
+            time_annotations.insert(*edge.id(), time_annotation);
         }
     }
 

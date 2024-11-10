@@ -30,6 +30,7 @@ use crate::{
     pipelines::pipelines::Pipeline,
     utils::colors::ColorsHolder,
 };
+use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
@@ -106,6 +107,7 @@ pub const SYSTEM_METADATA: &'static str = "system_metadata";
 pub const LOG_SERIALIZATION_FORMAT: &'static str = "log_serialization_format";
 pub const GRAPH_TIME_ANNOTATION: &'static str = "graph_time_annotation";
 pub const ATTRIBUTE: &'static str = "attribute";
+pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -187,6 +189,7 @@ lazy_static!(
      pub static ref INLINE_INNER_CASES: DefaultContextKey<bool> = DefaultContextKey::new(INLINE_INNER_CASES_STR);
      pub static ref GRAPH_TIME_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, f64>> = DefaultContextKey::new(GRAPH_TIME_ANNOTATION);
      pub static ref ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(ATTRIBUTE);
+     pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -262,6 +265,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         INLINE_INNER_CASES_STR => Some(INLINE_INNER_CASES.deref() as &dyn ContextKey),
         GRAPH_TIME_ANNOTATION => Some(GRAPH_TIME_ANNOTATION_KEY.deref() as &dyn ContextKey),
         ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
+        TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
         _ => None,
     }
 }

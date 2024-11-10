@@ -8,10 +8,7 @@ use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::{
-    EVENT_LOG_KEY, GRAPH, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION,
-    PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, TERMINATE_ON_UNREPLAYABLE_TRACES_KEY,
-};
+use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, TERMINATE_ON_UNREPLAYABLE_TRACES_KEY, TIME_ANNOTATION_KIND_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 use crate::utils::user_data::user_data::UserData;
@@ -75,8 +72,9 @@ impl PipelineParts {
         Self::create_pipeline_part(Self::ANNOTATE_GRAPH_WITH_TIME, &|context, _, config| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
             let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+            let annotation_kind = *Self::get_user_data(config, &TIME_ANNOTATION_KIND_KEY)?;
 
-            match annotate_with_time_performance(log, graph) {
+            match annotate_with_time_performance(log, graph, annotation_kind) {
                 None => {
                     let error = RawPartExecutionError::new("Failed to annotate graph".to_owned());
                     Err(PipelinePartExecutionError::Raw(error))

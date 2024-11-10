@@ -1,3 +1,5 @@
+from enum import Enum
+
 from .discovery_parts import *
 
 
@@ -97,9 +99,28 @@ class AnnotatePetriNetWithTraceFrequency(AnnotatePetriNet):
     def get_annotation(self, context_value: GrpcContextValue):
         return from_grpc_frequency_annotation(context_value.annotation.frequencyAnnotation)
 
+
+class TimeAnnotationKind(Enum):
+    SummedTime = 0
+    Mean = 1
+
+
 class AnnotateGraphWithTime(ViewGraphLikeFormalismPart):
+    def __init__(self,
+                 annotation_kind: TimeAnnotationKind,
+                 name: str = 'petri_net',
+                 background_color: str = 'white',
+                 engine='dot',
+                 export_path: Optional[str] = None,
+                 rankdir: str = 'LR'):
+        super().__init__(name, background_color, engine, export_path, rankdir)
+        self.annotation_kind = annotation_kind
+
+
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         config = GrpcPipelinePartConfiguration()
+        append_enum_value(config, const_time_annotation_kind, const_time_annotation_kind_enum_name, self.annotation_kind.name)
+
         part = create_complex_get_context_part(self.uuid,
                                                self.__class__.__name__,
                                                [const_graph, const_graph_time_annotation],
