@@ -1,11 +1,12 @@
 import cytoscape from 'cytoscape';
-import {graphColors, lightTheme} from "./colors";
+import {graphColors, lightTheme, performanceColors} from "./colors";
 import {calculateGradient, createBreadthFirstLayout, rgbToHex} from "./utils";
 import dagre from 'cytoscape-dagre';
 
 export default setDrawGraph;
 
 const graphColor = graphColors(lightTheme);
+const performanceColor = performanceColors(lightTheme);
 
 function setDrawGraph() {
   window.drawGraph = function (id, graph, annotation) {
@@ -140,7 +141,7 @@ function processTimeAnnotation(annotation, edges, edgesMap) {
       minTime = time;
     }
 
-    if (maxTime == null || timeAnnotation.interval > maxTime) {
+    if (maxTime == null || time > maxTime) {
       maxTime = time;
     }
 
@@ -148,6 +149,10 @@ function processTimeAnnotation(annotation, edges, edgesMap) {
   }
 
   for (let edge of edges) {
-    edgesMap[edge.id].timeAnnotation = 1 - (maxTime - idsToTime[edge.id]) / (maxTime - minTime);
+    let timeAnnotation = (idsToTime[edge.id] - minTime) / (maxTime - minTime);
+    edgesMap[edge.id].timeAnnotation = timeAnnotation;
+
+    let colorName = `color${(Math.floor(timeAnnotation * 10) % 100).toString()}`;
+    edgesMap[edge.id].color = performanceColor[colorName];
   }
 }

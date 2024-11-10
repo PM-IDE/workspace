@@ -10,3 +10,7 @@ export function petriNetColors(theme) {
 export function graphColors(theme) {
   return colors[theme].graph;
 }
+
+export function performanceColors(theme) {
+  return colors[theme].performanceColors;
+}
