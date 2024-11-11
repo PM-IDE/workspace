@@ -5,6 +5,7 @@ use std::{any::Any, str::FromStr};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::arc::Arc;
 use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
@@ -56,7 +57,6 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
-use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
     GrpcContextValue::decode(bytes)

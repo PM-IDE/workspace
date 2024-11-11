@@ -76,7 +76,7 @@ pub fn annotate_with_trace_frequency(
 #[derive(Copy, Clone)]
 pub enum TimeAnnotationKind {
     SummedTime,
-    Mean
+    Mean,
 }
 
 impl FromStr for TimeAnnotationKind {
@@ -92,7 +92,7 @@ impl FromStr for TimeAnnotationKind {
 }
 
 pub fn annotate_with_time_performance(
-    log: &impl EventLog, 
+    log: &impl EventLog,
     graph: &DefaultGraph,
     annotation_kind: TimeAnnotationKind,
 ) -> Option<HashMap<u64, f64>> {

@@ -6,6 +6,7 @@ use bxes::models::system_models::SystemMetadata;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
+use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus::pipelines::keys::context_keys::*;
@@ -31,7 +32,6 @@ use ficus::{
     },
     vecs,
 };
-use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 
 #[test]
 #[rustfmt::skip]

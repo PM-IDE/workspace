@@ -7,6 +7,7 @@ use lazy_static::lazy_static;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
@@ -30,7 +31,6 @@ use crate::{
     pipelines::pipelines::Pipeline,
     utils::colors::ColorsHolder,
 };
-use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";

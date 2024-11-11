@@ -1,8 +1,8 @@
 use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
+use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use std::collections::HashMap;
 use std::fmt::Display;
-use crate::utils::graph::graph_edge::GraphEdge;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where

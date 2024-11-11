@@ -1,7 +1,7 @@
 use crate::utils::graph::graph::{Graph, NodesConnectionData};
+use crate::utils::graph::graph_edge::GraphEdge;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
-use crate::utils::graph::graph_edge::GraphEdge;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
