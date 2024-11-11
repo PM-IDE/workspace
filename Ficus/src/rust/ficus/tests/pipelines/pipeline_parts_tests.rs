@@ -67,7 +67,8 @@ fn get_test_parts_names() -> Vec<String> {
         "DiscoverCases",
         "AnnotateGraphWithTime",
         "TracesDiversityDiagramByAttribute",
-        "DiscoverDirectlyFollowsGraphByAttribute"
+        "DiscoverDirectlyFollowsGraphByAttribute",
+        "AppendAttributesToName"
     ]
 }
 

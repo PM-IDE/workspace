@@ -112,6 +112,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<HashMap<u64, f64>>(&GRAPH_TIME_ANNOTATION, &mut used);
     assert_existence::<String>(&ATTRIBUTE, &mut used);
     assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
+    assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -200,7 +201,8 @@ fn get_all_keys_names() -> Vec<String> {
         "bytes",
         "graph_time_annotation",
         "attribute",
-        "time_annotation_kind"
+        "time_annotation_kind",
+        "attributes"
     ]
 }
 
@@ -290,6 +292,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<HashMap<u64, f64>>(&GRAPH_TIME_ANNOTATION, &mut used);
     assert_keys_equivalence::<String>(&ATTRIBUTE, &mut used);
     assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
+    assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

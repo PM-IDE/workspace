@@ -88,7 +88,8 @@ impl PipelineParts {
             Self::discover_cases(),
             Self::annotate_graph_with_time_performance(),
             Self::draw_traces_diversity_diagram_by_attribute(),
-            Self::discover_directly_follows_graph_by_attribute()
+            Self::discover_directly_follows_graph_by_attribute(),
+            Self::append_attributes_to_name(),
         ];
 
         let mut names_to_parts = HashMap::new();

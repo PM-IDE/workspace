@@ -108,6 +108,7 @@ pub const LOG_SERIALIZATION_FORMAT: &'static str = "log_serialization_format";
 pub const GRAPH_TIME_ANNOTATION: &'static str = "graph_time_annotation";
 pub const ATTRIBUTE: &'static str = "attribute";
 pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
+pub const ATTRIBUTES: &'static str = "attributes";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -190,6 +191,7 @@ lazy_static!(
      pub static ref GRAPH_TIME_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, f64>> = DefaultContextKey::new(GRAPH_TIME_ANNOTATION);
      pub static ref ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(ATTRIBUTE);
      pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
+     pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -266,6 +268,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         GRAPH_TIME_ANNOTATION => Some(GRAPH_TIME_ANNOTATION_KEY.deref() as &dyn ContextKey),
         ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
         TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
+        ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
         _ => None,
     }
 }

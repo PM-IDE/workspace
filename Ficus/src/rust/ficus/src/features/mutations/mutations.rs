@@ -1,6 +1,9 @@
+use crate::event_log::core::event::event::EventPayloadValue;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::core::{event::event::Event, event_log::EventLog};
+use crate::vecs;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 
 pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: &str, filter: TFilter)
@@ -48,4 +51,30 @@ where
             events.push(Rc::new(RefCell::new(artificial_end_event)));
         }
     }
+}
+
+pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Vec<String>) {
+    log.mutate_events(|event| {
+        let mut new_name = event.name().to_owned();
+        let payload = event.payload_map();
+
+        for attribute in attributes {
+            let value = match payload {
+                None => None,
+                Some(payload) => match payload.get(attribute) {
+                    None => None,
+                    Some(value) => Some(value.to_string_repr()),
+                },
+            };
+
+            let attribute_value_string = match value {
+                None => "None".to_string(),
+                Some(value) => value.to_owned(),
+            };
+
+            new_name += format!("_{}", attribute_value_string).as_str();
+        }
+
+        event.set_name(new_name);
+    })
 }
