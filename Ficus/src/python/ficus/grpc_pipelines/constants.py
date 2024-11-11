@@ -122,6 +122,7 @@ const_reverse_hierarchy_indices = 'ReverseHierarchyIndices'
 const_discover_cases = 'DiscoverCases'
 const_annotate_graph_with_time = 'AnnotateGraphWithTime'
 const_traces_diversity_diagram_by_attribute = 'TracesDiversityDiagramByAttribute'
+const_discover_directly_follows_graph_by_attribute = 'DiscoverDirectlyFollowsGraphByAttribute'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

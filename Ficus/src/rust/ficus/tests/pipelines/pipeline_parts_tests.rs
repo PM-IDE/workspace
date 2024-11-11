@@ -66,7 +66,8 @@ fn get_test_parts_names() -> Vec<String> {
         "ReverseHierarchyIndices",
         "DiscoverCases",
         "AnnotateGraphWithTime",
-        "TracesDiversityDiagramByAttribute"
+        "TracesDiversityDiagramByAttribute",
+        "DiscoverDirectlyFollowsGraphByAttribute"
     ]
 }
 

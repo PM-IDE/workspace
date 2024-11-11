@@ -176,6 +176,19 @@ class DiscoverDirectlyFollowsGraph(PipelinePart):
         return _create_default_discovery_part(const_discover_directly_follows_graph)
 
 
+class DiscoverDirectlyFollowsGraphByAttribute(PipelinePart):
+    def __init__(self, attribute: str):
+        super().__init__()
+        self.attribute = attribute
+
+    def to_grpc_part(self) -> GrpcPipelinePartBase:
+        config = GrpcPipelinePartConfiguration()
+        append_string_value(config, const_attribute, self.attribute)
+        part = create_default_pipeline_part(const_discover_directly_follows_graph_by_attribute, config)
+
+        return GrpcPipelinePartBase(defaultPart=part)
+
+
 class ViewGraph(ViewGraphLikeFormalismPart):
     def __init__(self,
                  name: str = 'dfg_graph',

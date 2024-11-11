@@ -60,6 +60,7 @@ pub fn construct_dfg_by_attribute(log: &XesEventLogImpl, attribute: &str) -> Def
                     let second_node_id = classes_to_nodes_ids.get(event.name()).unwrap();
 
                     *dfg_map.entry((*first_node_id, *second_node_id)).or_insert(0u64) += 1;
+                    *last_seen_events.get_mut(&attribute_value).unwrap() = event.name().to_owned();
                 }
                 None => {
                     last_seen_events.insert(attribute_value, event.name().to_owned());
