@@ -3,6 +3,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::utils::graph::graph::DefaultGraph;
+use crate::utils::references::HeapedOrOwned;
 use std::collections::HashMap;
 use std::str::FromStr;
 
@@ -115,7 +116,11 @@ pub fn annotate_with_time_performance(
             let time_diff = second.timestamp().to_owned() - first.timestamp().to_owned();
             let time_diff = time_diff.num_nanoseconds().expect("Must be convertible to nanos") as f64;
 
-            let key = (first.name().to_owned(), second.name().to_owned());
+            let key = (
+                HeapedOrOwned::Heaped(first.name_pointer().clone()),
+                HeapedOrOwned::Heaped(second.name_pointer().clone()),
+            );
+
             if let Some((existing_time_diff, count)) = performance_map.get(&key) {
                 *performance_map.get_mut(&key).expect("Must exist") = (*existing_time_diff + time_diff, *count + 1);
             } else {
@@ -130,8 +135,8 @@ pub fn annotate_with_time_performance(
         let second_node = graph.node(&edge.second_node_id).expect("Must contain second node");
 
         let key = (
-            first_node.data.as_ref().unwrap().to_owned(),
-            second_node.data.as_ref().unwrap().to_owned(),
+            first_node.data.as_ref().unwrap().clone(),
+            second_node.data.as_ref().unwrap().clone(),
         );
 
         if let Some(time_annotation) = performance_map.get(&key) {

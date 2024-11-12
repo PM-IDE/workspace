@@ -1,7 +1,7 @@
 use crate::utils::user_data::user_data::UserDataImpl;
 
 use super::lifecycle::xes_lifecycle::Lifecycle;
-use crate::utils::references::ReferenceOrOwned;
+use crate::utils::references::HeapedOrOwned;
 use chrono::{DateTime, Utc};
 use std::{collections::HashMap, rc::Rc};
 
@@ -61,24 +61,24 @@ pub enum EventPayloadSoftwareEventType {
 }
 
 impl EventPayloadValue {
-    pub fn to_string_repr(&self) -> ReferenceOrOwned<String> {
+    pub fn to_string_repr(&self) -> HeapedOrOwned<String> {
         match self {
-            EventPayloadValue::Null => ReferenceOrOwned::Owned("NULL".to_string()),
-            EventPayloadValue::Date(date) => ReferenceOrOwned::Owned(date.to_rfc3339()),
-            EventPayloadValue::String(string) => ReferenceOrOwned::Ref(string.as_ref().as_ref()),
-            EventPayloadValue::Boolean(bool) => ReferenceOrOwned::Owned(bool.to_string()),
-            EventPayloadValue::Int32(int) => ReferenceOrOwned::Owned(int.to_string()),
-            EventPayloadValue::Float32(float) => ReferenceOrOwned::Owned(float.to_string()),
-            EventPayloadValue::Int64(value) => ReferenceOrOwned::Owned(value.to_string()),
-            EventPayloadValue::Float64(value) => ReferenceOrOwned::Owned(value.to_string()),
-            EventPayloadValue::Uint32(value) => ReferenceOrOwned::Owned(value.to_string()),
-            EventPayloadValue::Uint64(value) => ReferenceOrOwned::Owned(value.to_string()),
-            EventPayloadValue::Guid(value) => ReferenceOrOwned::Owned(value.to_string()),
-            EventPayloadValue::Timestamp(value) => ReferenceOrOwned::Owned(value.to_string()),
-            EventPayloadValue::Lifecycle(lifecycle) => ReferenceOrOwned::Owned(lifecycle.to_string()),
-            EventPayloadValue::Artifact(artifact) => ReferenceOrOwned::Owned(format!("{:?}", artifact)),
-            EventPayloadValue::Drivers(drivers) => ReferenceOrOwned::Owned(format!("{:?}", drivers)),
-            EventPayloadValue::SoftwareEvent(software_event) => ReferenceOrOwned::Owned(format!("{:?}", software_event)),
+            EventPayloadValue::Null => HeapedOrOwned::Owned("NULL".to_string()),
+            EventPayloadValue::Date(date) => HeapedOrOwned::Owned(date.to_rfc3339()),
+            EventPayloadValue::String(string) => HeapedOrOwned::Heaped(string.clone()),
+            EventPayloadValue::Boolean(bool) => HeapedOrOwned::Owned(bool.to_string()),
+            EventPayloadValue::Int32(int) => HeapedOrOwned::Owned(int.to_string()),
+            EventPayloadValue::Float32(float) => HeapedOrOwned::Owned(float.to_string()),
+            EventPayloadValue::Int64(value) => HeapedOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Float64(value) => HeapedOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Uint32(value) => HeapedOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Uint64(value) => HeapedOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Guid(value) => HeapedOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Timestamp(value) => HeapedOrOwned::Owned(value.to_string()),
+            EventPayloadValue::Lifecycle(lifecycle) => HeapedOrOwned::Owned(lifecycle.to_string()),
+            EventPayloadValue::Artifact(artifact) => HeapedOrOwned::Owned(format!("{:?}", artifact)),
+            EventPayloadValue::Drivers(drivers) => HeapedOrOwned::Owned(format!("{:?}", drivers)),
+            EventPayloadValue::SoftwareEvent(software_event) => HeapedOrOwned::Owned(format!("{:?}", software_event)),
         }
     }
 }

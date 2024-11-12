@@ -27,7 +27,8 @@ impl PipelineParts {
         Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM, &|context, _, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
             let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
-            let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| ReferenceOrOwned::Ref(e.name()));
+            let colors_log =
+                Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
 
             context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
 
@@ -38,7 +39,7 @@ impl PipelineParts {
     fn create_traces_diversity_colors_log(
         log: &XesEventLogImpl,
         colors_holder: &mut ColorsHolder,
-        color_key_selector: impl Fn(&XesEventImpl) -> ReferenceOrOwned<String>,
+        color_key_selector: impl Fn(&XesEventImpl) -> HeapedOrOwned<String>,
     ) -> ColorsEventLog {
         let mut mapping = HashMap::new();
         let mut traces = vec![];
@@ -224,7 +225,7 @@ impl PipelineParts {
                     }
                 }
 
-                ReferenceOrOwned::Owned("UNDEF_ATTRIBUTE".to_string())
+                HeapedOrOwned::Owned("UNDEF_ATTRIBUTE".to_string())
             });
 
             context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);

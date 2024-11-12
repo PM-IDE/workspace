@@ -69,7 +69,7 @@ pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Ve
 
             let attribute_value_string = match value {
                 None => "None".to_string(),
-                Some(value) => value.to_owned(),
+                Some(value) => value.as_str().to_owned(),
             };
 
             new_name += format!("_{}", attribute_value_string).as_str();
