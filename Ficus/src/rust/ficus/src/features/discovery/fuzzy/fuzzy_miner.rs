@@ -3,8 +3,6 @@ use crate::event_log::core::event_log::EventLog;
 use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
 use crate::utils::graph::graph::{Graph, NodesConnectionData};
 use crate::utils::sets::one_set::OneSet;
-use ndarray::s;
-use rdkafka::bindings::rd_kafka_sasl_set_credentials;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;

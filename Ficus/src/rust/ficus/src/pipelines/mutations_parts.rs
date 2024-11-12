@@ -1,7 +1,7 @@
 use crate::features::mutations::mutations::{add_artificial_start_end_activities, append_attributes_to_name};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::keys::context_keys::{ATTRIBUTES_KEY, ATTRIBUTE_KEY, EVENT_LOG_KEY};
+use crate::pipelines::keys::context_keys::{ATTRIBUTES_KEY, EVENT_LOG_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 

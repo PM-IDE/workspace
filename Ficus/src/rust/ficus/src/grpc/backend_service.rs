@@ -13,14 +13,14 @@ use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, Pipeli
 use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::ficus_proto::grpc_get_context_value_result::ContextValueResult;
 use crate::ficus_proto::GrpcProxyPipelineExecutionRequest;
-use crate::grpc::context_values_service::{ContextValueService, GrpcContextValueService};
+use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::keys::context_keys::find_context_key;
 use crate::{
     ficus_proto::{
         grpc_backend_service_server::GrpcBackendService, GrpcGetContextValueRequest, GrpcGetContextValueResult, GrpcGuid,
-        GrpcPipelineExecutionRequest, GrpcPipelinePartExecutionResult,
+        GrpcPipelinePartExecutionResult,
     },
     pipelines::{keys::context_key::ContextKey, pipeline_parts::PipelineParts},
     utils::user_data::user_data::{UserData, UserDataImpl},

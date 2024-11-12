@@ -9,7 +9,7 @@ use crate::pipelines::keys::context_keys::{
 };
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::colors::{ColorsEventLog, ColorsHolder};
-use crate::utils::references::{HeapedOrOwned, ReferenceOrOwned};
+use crate::utils::references::HeapedOrOwned;
 use crate::{
     event_log::{
         core::{event::event::Event, event_log::EventLog, trace::trace::Trace},

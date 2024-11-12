@@ -1,6 +1,6 @@
 use quick_xml::Writer;
 use std::fs::File;
-use std::{cell::RefCell, fs, io::Cursor};
+use std::{cell::RefCell, io::Cursor};
 
 use crate::event_log::{
     core::{

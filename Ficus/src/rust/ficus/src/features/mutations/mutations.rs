@@ -1,9 +1,6 @@
-use crate::event_log::core::event::event::EventPayloadValue;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::core::{event::event::Event, event_log::EventLog};
-use crate::vecs;
 use std::cell::RefCell;
-use std::collections::HashMap;
 use std::rc::Rc;
 
 pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: &str, filter: TFilter)

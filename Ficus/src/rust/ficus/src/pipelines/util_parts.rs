@@ -4,8 +4,7 @@ use chrono::{DateTime, Duration, Utc};
 
 use super::pipelines::PipelinePartFactory;
 use crate::pipelines::keys::context_keys::{
-    EVENT_CLASS_REGEX_KEY, EVENT_LOG, EVENT_LOG_INFO, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY,
-    PIPELINE_KEY,
+    EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY,
 };
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePart;
