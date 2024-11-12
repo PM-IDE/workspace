@@ -81,7 +81,7 @@ function createGraphEdgesElements(edges, annotation) {
   
   processEdgesWidths(edges, edgesMap);
 
-  if (annotation.timeAnnotation !== undefined) {
+  if (annotation !== null && annotation.timeAnnotation !== null) {
     processTimeAnnotation(annotation.timeAnnotation, edges, edgesMap);
   }
 
