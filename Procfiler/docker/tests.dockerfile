@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 
 RUN apt-get update \
   && apt-get -y install build-essential \

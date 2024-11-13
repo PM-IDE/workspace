@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 COPY ./bxes ./bxes
 RUN dotnet build ./bxes/src/csharp/Bxes.IntegrationTests -c Release -r linux-x64  \
