@@ -106,6 +106,7 @@ public class BuildCppProcfiler : Task
     {
       FileName = FindCmakeExecutable(),
       WorkingDirectory = CreateBuildDirectoryPath(),
+      RedirectStandardOutput = true,
       Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) switch
       {
         true => $"-S {CppProcfilerFolderPath} -DCMAKE_BUILD_TYPE=Release -G \"Visual Studio 17 2022\"",
@@ -116,6 +117,11 @@ public class BuildCppProcfiler : Task
 
   private bool LaunchProcessAndWaitForExit(Process process, string name)
   {
+    process.OutputDataReceived += (_, args) =>
+    {
+      Log.LogMessage($"Process {name} output: {args.Data}");
+    };
+
     if (!process.Start())
     {
       Log.LogError($"Failed to start the process {name}");
@@ -124,11 +130,6 @@ public class BuildCppProcfiler : Task
 
     if (process.StartInfo.RedirectStandardOutput)
     {
-      process.OutputDataReceived += (_, args) =>
-      {
-        Log.LogMessage($"Process {name} output: {args.Data}");
-      };
-
       process.BeginOutputReadLine();
     }
 
