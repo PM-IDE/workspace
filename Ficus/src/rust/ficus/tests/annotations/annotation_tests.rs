@@ -1,11 +1,15 @@
-use crate::test_core::simple_events_logs_provider::create_simple_event_log;
+use crate::test_core::simple_events_logs_provider::{create_event_log_with_simple_real_time, create_simple_event_log};
+use ficus::features::analysis::directly_follows_graph::construct_dfg;
 use ficus::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
 use ficus::features::discovery::alpha::alpha::discover_petri_net_alpha;
 use ficus::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
-use ficus::features::discovery::petri_net::annotations::{annotate_with_counts, annotate_with_frequencies, annotate_with_trace_frequency};
+use ficus::features::discovery::petri_net::annotations::{
+    annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency, TimeAnnotationKind,
+};
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::ops::Deref;
 
 #[test]
 pub fn test_simple_count_annotation() {
@@ -90,5 +94,52 @@ pub fn test_simple_trace_frequency_annotation() {
             ("EndPlace--C".to_owned(), 1.0),
             ("StartPlace--A".to_owned(), 1.0),
         ],
+    );
+}
+
+#[test]
+pub fn test_simple_time_annotation() {
+    let log = create_event_log_with_simple_real_time();
+    let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+
+    let graph = construct_dfg(&info);
+
+    let annotation = annotate_with_time_performance(&log, &graph, TimeAnnotationKind::SummedTime);
+    let annotation = annotation
+        .as_ref()
+        .unwrap()
+        .iter()
+        .map(|p| {
+            for edge in graph.all_edges() {
+                if edge.id() == p.0 {
+                    let first_name = graph.node(edge.from_node()).unwrap().data().unwrap().deref().to_owned();
+                    let second_name = graph.node(edge.to_node()).unwrap().data().unwrap().deref().to_owned();
+
+                    return (first_name + "---" + second_name.as_str(), *p.1);
+                }
+            }
+
+            panic!("Edge should be found");
+        })
+        .collect::<HashMap<String, f64>>();
+
+    assert_eq!(
+        annotation,
+        HashMap::from_iter(vec![
+            ("A---B".to_string(), 2.0),
+            ("A---A".to_string(), 4.0),
+            ("B---C".to_string(), 4.0),
+            ("E---C".to_string(), 1.0),
+            ("C---B".to_string(), 1.0),
+            ("C---D".to_string(), 1.0),
+            ("D---E".to_string(), 1.0),
+            ("C---C".to_string(), 1.0),
+            ("C---A".to_string(), 1.0),
+            ("C---E".to_string(), 2.0),
+            ("B---E".to_string(), 1.0),
+            ("B---B".to_string(), 2.0),
+            ("E---A".to_string(), 3.0),
+            ("A---E".to_string(), 1.0)
+        ])
     );
 }
