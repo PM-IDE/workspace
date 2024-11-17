@@ -71,7 +71,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
         return E_FAIL;
     }
 
-    constexpr DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS | COR_PRF_MONITOR_THREADS;
+    constexpr DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
     result = myProfilerInfo->SetEventMask(eventMask);
     if (FAILED(result)) {
         return E_FAIL;
@@ -217,8 +217,8 @@ HRESULT ProcfilerCorProfilerCallback::ThreadDestroyed(ThreadID threadId) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::ThreadAssignedToOSThread(const ThreadID managedThreadId, const DWORD osThreadId) {
-    return myWriter->LogManagedThreadToNativeAssignmentEvent(GetManagedThreadId(managedThreadId), osThreadId);
+HRESULT ProcfilerCorProfilerCallback::ThreadAssignedToOSThread(ThreadID managedThreadId, DWORD osThreadId) {
+    return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::RemotingClientInvocationStarted() {
@@ -548,10 +548,6 @@ DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() const {
     ThreadID threadId;
     myProfilerInfo->GetCurrentThreadID(&threadId);
 
-    return GetManagedThreadId(threadId);
-}
-
-DWORD ProcfilerCorProfilerCallback::GetManagedThreadId(const ThreadID& threadId) const {
     DWORD id;
     myProfilerInfo->GetThreadInfo(threadId, &id);
 
