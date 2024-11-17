@@ -50,7 +50,13 @@ public class OnlineEventsProcessorImpl(
 
   private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData, CollectEventsOnlineContext commandContext)
   {
-    var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, traceEvent.NativeThreadIdOrMinusOne(), -1);
+    var nativeThreadId = globalData.FindNativeThreadId(traceEvent.ThreadID);
+    if (nativeThreadId is null)
+    {
+      logger.LogWarning("Failed to find NativeThreadId for {ManagedThreadId}", traceEvent.ThreadID);
+    }
+
+    var eventRecord = new EventRecordWithMetadata(traceEvent, traceEvent.ThreadID, nativeThreadId ?? -1, -1);
 
     var context = new EventProcessingContext
     {
