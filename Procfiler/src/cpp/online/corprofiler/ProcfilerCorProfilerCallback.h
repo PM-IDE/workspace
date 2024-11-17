@@ -13,6 +13,7 @@ private:
     EventPipeWriter* myWriter;
 
     DWORD GetCurrentManagedThreadId() const;
+    DWORD GetManagedThreadId(const ThreadID& threadId) const;
     static int64_t GetCurrentTimestamp();
 public:
     explicit ProcfilerCorProfilerCallback();

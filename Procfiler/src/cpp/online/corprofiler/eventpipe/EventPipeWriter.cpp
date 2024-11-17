@@ -47,6 +47,29 @@ HRESULT EventPipeWriter::DefineProcfilerMethodEndEvent() {
                                                ourMethodEndEventId);
 }
 
+HRESULT EventPipeWriter::DefineManagedThreadToNativeAssignmentEvent() {
+    COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
+        {COR_PRF_EVENTPIPE_UINT32, 0, ourManagedThreadIdKey.c_str()},
+        {COR_PRF_EVENTPIPE_UINT32, 0, ourNativeThreadIdKey.c_str()},
+    };
+
+    constexpr auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
+
+    return myProfilerInfo->EventPipeDefineEvent(
+        myEventPipeProvider,
+        ourManagedThreadToNativeAssignmentEventName.c_str(),
+        ourManagedThreadToNativeAssignmentEventId,
+        0,
+        1,
+        COR_PRF_EVENTPIPE_LOGALWAYS,
+        0,
+        false,
+        paramsCount,
+        eventParameters,
+        &myManagedThreadToNativeAssignmentEvent
+    );
+}
+
 HRESULT EventPipeWriter::DefineProcfilerExceptionCatcherEnterEvent() {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
         {COR_PRF_EVENTPIPE_INT64, 0, ourTimestampMetadataKey.c_str()},
@@ -142,6 +165,10 @@ HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
         return hr;
     }
 
+    if ((hr = DefineManagedThreadToNativeAssignmentEvent()) != S_OK) {
+        return hr;
+    }
+
     return S_OK;
 }
 
@@ -217,4 +244,18 @@ HRESULT EventPipeWriter::LogExceptionCatcherEnterEvent(const FunctionID &functio
     constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
     return myProfilerInfo->EventPipeWriteEvent(myExceptionCatcherEnterEvent, dataCount, eventData, nullptr, nullptr);
+}
+
+HRESULT EventPipeWriter::LogManagedThreadToNativeAssignmentEvent(const DWORD& managedThreadId, const DWORD& nativeThreadId) const {
+    COR_PRF_EVENT_DATA eventData[2];
+
+    eventData[0].ptr = reinterpret_cast<UINT64>(&managedThreadId);
+    eventData[0].size = sizeof(DWORD);
+
+    eventData[1].ptr = reinterpret_cast<UINT64>(&nativeThreadId);
+    eventData[1].size = sizeof(DWORD);
+
+    constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
+
+    return myProfilerInfo->EventPipeWriteEvent(myManagedThreadToNativeAssignmentEvent, dataCount, eventData, nullptr, nullptr);
 }
