@@ -14,13 +14,9 @@ public static class OnlineProcfilerConstants
   public const string CppMethodStartEventName = "ProcfilerMethod/Begin";
   public const string CppMethodFinishedEventName = "ProcfilerMethod/End";
   public const string ExceptionCatcherEnterEventName = "ExceptionCatcher/Enter";
-  public const string ManagedThreadToNativeAssignment = "ManagedThreadToNativeAssignment";
 
   public const string FunctionId = "FunctionId";
   public const string Timestamp = "Timestamp";
-
-  public const string ManagedThreadId = "ManagedThreadId";
-  public const string NativeThreadId = "NativeThreadId";
 }
 
 public static class TraceEventExtensions

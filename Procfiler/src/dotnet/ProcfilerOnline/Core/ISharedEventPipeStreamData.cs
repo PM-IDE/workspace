@@ -1,6 +1,5 @@
 ﻿using Core.Events.EventRecord;
 using Core.GlobalData;
-using Microsoft.Diagnostics.Tracing.Parsers.FrameworkEventSource;
 
 namespace ProcfilerOnline.Core;
 
@@ -9,17 +8,14 @@ public interface ISharedEventPipeStreamData : IGlobalData
   void UpdateMethodsInfo(ExtendedMethodIdToFqn methodIdToFqn);
   void UpdateTypeIdsToNames(long typeId, string typeName);
   void UpdateSyncTimes(long qpcSyncTime, long qpcFreq, DateTime utcSyncTime);
-  void UpdateManagedToNativeThread(long managedThreadId, long nativeThreadId);
 
-  ExtendedMethodInfo? FindMethodDetails(long methodId);
-  long? FindNativeThreadId(long managedThreadId);
+  public ExtendedMethodInfo? FindMethodDetails(long methodId);
 }
 
 public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 {
-  private readonly Dictionary<long, ExtendedMethodInfo> myMethodIdsToFqns = [];
-  private readonly Dictionary<long, string> myTypeIdsToNames = [];
-  private readonly Dictionary<long, long> myManagedThreadsToNative = [];
+  private readonly Dictionary<long, ExtendedMethodInfo> myMethodIdsToFqns = new();
+  private readonly Dictionary<long, string> myTypeIdsToNames = new();
 
 
   public long QpcSyncTime { get; private set; }
@@ -34,21 +30,18 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
     UtcSyncTime = utcSyncTime;
   }
 
-  public void UpdateManagedToNativeThread(long managedThreadId, long nativeThreadId)
-  {
-    myManagedThreadsToNative[managedThreadId] = nativeThreadId;
-  }
 
   public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
   public string? FindMethodName(long methodId) => myMethodIdsToFqns.GetValueOrDefault(methodId)?.Fqn;
-  public ExtendedMethodInfo? FindMethodDetails(long methodId) => myMethodIdsToFqns.GetValueOrDefault(methodId);
-
-  public long? FindNativeThreadId(long managedThreadId) =>
-    myManagedThreadsToNative.TryGetValue(managedThreadId, out var nativeThreadId) switch
+  public ExtendedMethodInfo? FindMethodDetails(long methodId)
+  {
+    if (myMethodIdsToFqns.TryGetValue(methodId, out var methodDetails))
     {
-      true => nativeThreadId,
-      false => null
-    };
+      return methodDetails;
+    }
+
+    return null;
+  }
 
   public void UpdateTypeIdsToNames(long typeId, string typeName) => myTypeIdsToNames[typeId] = typeName;
 
