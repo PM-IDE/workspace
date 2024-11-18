@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::rc::Rc;
@@ -39,12 +39,8 @@ impl<T> Display for HeapedOrOwned<T>
 where
     T: ToString,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let str = match self {
-            HeapedOrOwned::Heaped(heaped) => heaped.as_ref().as_ref().to_string(),
-            HeapedOrOwned::Owned(owned) => owned.to_string(),
-        };
-
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let str = self.deref().to_string();
         write!(f, "{}", str)
     }
 }
@@ -54,10 +50,7 @@ where
     T: Hash,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        match self {
-            HeapedOrOwned::Heaped(heaped) => heaped.as_ref().as_ref().hash(state),
-            HeapedOrOwned::Owned(owned) => owned.hash(state),
-        }
+        self.deref().hash(state);
     }
 }
 
@@ -66,11 +59,7 @@ where
     T: Eq,
 {
     fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (HeapedOrOwned::Owned(this), HeapedOrOwned::Owned(other)) => this.eq(other),
-            (HeapedOrOwned::Heaped(this), HeapedOrOwned::Heaped(other)) => this.eq(other),
-            _ => false,
-        }
+        self.deref().eq(other.deref())
     }
 }
 
@@ -85,5 +74,14 @@ where
             HeapedOrOwned::Heaped(heaped) => HeapedOrOwned::Heaped(heaped.clone()),
             HeapedOrOwned::Owned(owned) => HeapedOrOwned::Owned(owned.clone()),
         }
+    }
+}
+
+impl<T> Debug for HeapedOrOwned<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.deref().fmt(f)
     }
 }

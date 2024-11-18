@@ -198,7 +198,7 @@ public class ClrEventsCollector(
     UpdateStatisticsAfterEventProcession(traceEvent, ref statistics);
 
     var managedThreadId = traceEvent.GetManagedThreadIdThroughStack(context.Source);
-    var nativeThreadId = traceEvent.NativeThreadIdOrMinusOne();
+    var nativeThreadId = traceEvent.ThreadID;
 
     var record = new EventRecordWithMetadata(traceEvent, managedThreadId, nativeThreadId, (int)traceEvent.CallStackIndex());
 

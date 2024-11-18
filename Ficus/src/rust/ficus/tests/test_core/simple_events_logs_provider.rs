@@ -1,4 +1,10 @@
+use chrono::format::Numeric::Second;
+use chrono::{DateTime, Days, Duration, SecondsFormat, Utc};
+use ficus::event_log::core::event::event::Event;
+use ficus::event_log::core::event_log::EventLog;
+use ficus::event_log::core::trace::trace::Trace;
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
+use std::ops::Add;
 
 pub fn create_raw_event_log() -> Vec<Vec<&'static str>> {
     vec![vec!["A", "B", "C"], vec!["A", "B", "C"]]
@@ -250,4 +256,25 @@ pub fn create_cases_discovery_test_log() -> XesEventLogImpl {
         vec!["S", "a", "b", "S", "E", "a", "E"],
         vec!["E", "S"],
     ])
+}
+
+pub fn create_event_log_with_simple_real_time() -> XesEventLogImpl {
+    let log = create_simple_event_log2();
+
+    let initial_stamp = DateTime::<Utc>::MIN_UTC;
+
+    for trace in log.traces() {
+        let trace = trace.borrow();
+
+        let mut current_stamp = initial_stamp.clone();
+        for event in trace.events() {
+            let mut event = event.borrow_mut();
+
+            event.set_timestamp(current_stamp);
+
+            current_stamp = current_stamp.add(Duration::nanoseconds(1));
+        }
+    }
+
+    log
 }
