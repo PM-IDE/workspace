@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Text.RegularExpressions;
+using Core.Collector;
 using Core.CommandLine;
 using Core.Container;
 using Core.Utils;
@@ -10,9 +11,9 @@ namespace ProcfilerOnline.Commands;
 
 public record CollectEventsOnlineContext(
   string DllFilePath,
-  string OutputBxesFilePath,
   Regex? TargetMethodsRegex,
-  Regex? MethodsFilterRegex
+  Regex? MethodsFilterRegex,
+  ProvidersCategoryKind Providers
 )
 {
   public string ApplicationName { get; } = Path.GetFileNameWithoutExtension(DllFilePath);
@@ -23,13 +24,15 @@ public class CollectEventsOnlineCommand(
   IProcfilerLogger logger,
   IClrOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
 {
-  private static Option<string> DllPathOption { get; } = new("--dll-path", "The path to dll to profile");
-  private static Option<string> OutputPath { get; } = new("--output-path", "The output path for bXES file");
+  private static Option<string> DllPathOption { get; } = new("-dll-path", "The path to dll to profile");
 
   private static Option<string> TargetMethodsRegex { get; } =
     new("--target-methods-regex", "The regular expression which specified target methods");
 
   private static Option<string> MethodsFilterRegex { get; } = new("--methods-filter-regex", "The regular expression to filter methods");
+
+  private static Option<ProvidersCategoryKind> ProvidersOption { get; } =
+    new("--providers", static () => ProvidersCategoryKind.All, "Providers which will be used for collecting events");
 
 
   public void Execute(CollectEventsOnlineContext context)
@@ -40,13 +43,13 @@ public class CollectEventsOnlineCommand(
   public int Invoke(InvocationContext context) =>
     CommandLineUtils.TransformAndExecute(context, logger, Execute, parseResult =>
     {
-      parseResult.AssertAllOptionsArePresent([DllPathOption, OutputPath]);
+      parseResult.AssertAllOptionsArePresent([DllPathOption]);
 
       return new CollectEventsOnlineContext(
         parseResult.GetValueForOption(DllPathOption)!,
-        parseResult.GetValueForOption(OutputPath)!,
         CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
-        CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex))
+        CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex)),
+        parseResult.GetValueForOption(ProvidersOption)
       );
     });
 
@@ -58,9 +61,9 @@ public class CollectEventsOnlineCommand(
   {
     var command = new Command("collect-online", "Collect events online from launched .NET dll");
     command.AddOption(DllPathOption);
-    command.AddOption(OutputPath);
     command.AddOption(TargetMethodsRegex);
     command.AddOption(MethodsFilterRegex);
+    command.AddOption(ProvidersOption);
 
     command.Handler = this;
 

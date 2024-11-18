@@ -1,12 +1,19 @@
-﻿using Core.Events.EventRecord;
+﻿using Bxes.Models.Domain.Values;
+using Bxes.Writer;
+using Core.Events.EventRecord;
 
 namespace ProcfilerOnline.Core.Handlers;
 
 public static class HandlerUtil
 {
-  public static (string, bool)? ExtractFrame(EventRecordWithMetadata eventRecord) => eventRecord.TryGetMethodDetails() switch
+  public static void AddToMetadata(this ExtendedMethodInfo? methodInfo, List<AttributeKeyValue> metadata)
   {
-    { } => (eventRecord.EventName, eventRecord.GetMethodEventKind() == MethodKind.Begin),
-    _ => null
-  };
+    if (methodInfo is null) return;
+
+    metadata.AddRange([
+      new AttributeKeyValue(new BxesStringValue("method_name"), new BxesStringValue(methodInfo.Name)),
+      new AttributeKeyValue(new BxesStringValue("method_signature"), new BxesStringValue(methodInfo.Signature))
+    ]);
+  }
 }
+

@@ -2,6 +2,8 @@ namespace Core.Constants.TraceEvents;
 
 public static partial class TraceEventsConstants
 {
+  public const string GcPrefix = "GC/";
+
   public const string GcStart = "GC/Start";
   public const string GcStartReason = CommonReason;
   public const string GcStartType = "Type";

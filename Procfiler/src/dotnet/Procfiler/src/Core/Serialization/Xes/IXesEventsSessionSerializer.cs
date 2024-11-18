@@ -84,7 +84,8 @@ public partial class XesEventsSessionSerializer(
 
     WriteDateTag(writer, currentEvent.Time.LoggedAt);
     WriteStringValueTag(writer, ConceptName, currentEvent.EventName);
-    WriteStringValueTag(writer, "ManagedThreadId", currentEvent.ManagedThreadId.ToString());
+    WriteIntValueTag(writer, "ManagedThreadId", currentEvent.ManagedThreadId);
+    WriteIntValueTag(writer, "NativeThreadId", currentEvent.NativeThreadId);
     WriteIntValueTag(writer, "QpcStamp", currentEvent.Time.QpcStamp);
 
     WriteMetadataValue(

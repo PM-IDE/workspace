@@ -7,6 +7,7 @@ use lazy_static::lazy_static;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
@@ -104,6 +105,10 @@ pub const LOG_TRACES_DATASET: &'static str = "log_traces_dataset";
 pub const TRACES_REPR_SOURCE: &'static str = "traces_repr_source";
 pub const SYSTEM_METADATA: &'static str = "system_metadata";
 pub const LOG_SERIALIZATION_FORMAT: &'static str = "log_serialization_format";
+pub const GRAPH_TIME_ANNOTATION: &'static str = "graph_time_annotation";
+pub const ATTRIBUTE: &'static str = "attribute";
+pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
+pub const ATTRIBUTES: &'static str = "attributes";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -183,6 +188,10 @@ lazy_static!(
      pub static ref START_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(START_CASE_REGEX_STR);
      pub static ref END_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(END_CASE_REGEX_STR);
      pub static ref INLINE_INNER_CASES: DefaultContextKey<bool> = DefaultContextKey::new(INLINE_INNER_CASES_STR);
+     pub static ref GRAPH_TIME_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, f64>> = DefaultContextKey::new(GRAPH_TIME_ANNOTATION);
+     pub static ref ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(ATTRIBUTE);
+     pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
+     pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -256,6 +265,10 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         START_CASE_REGEX_STR => Some(START_CASE_REGEX.deref() as &dyn ContextKey),
         END_CASE_REGEX_STR => Some(END_CASE_REGEX.deref() as &dyn ContextKey),
         INLINE_INNER_CASES_STR => Some(INLINE_INNER_CASES.deref() as &dyn ContextKey),
+        GRAPH_TIME_ANNOTATION => Some(GRAPH_TIME_ANNOTATION_KEY.deref() as &dyn ContextKey),
+        ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
+        TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
+        ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
         _ => None,
     }
 }

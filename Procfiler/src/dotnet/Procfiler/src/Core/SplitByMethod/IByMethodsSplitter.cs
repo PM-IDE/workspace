@@ -124,8 +124,11 @@ public class ByMethodsSplitterImpl(
     out IEventsCollection undefinedThreadEvents)
   {
     eventsByThreads = SplitEventsHelper.SplitByKey(logger, events.Events, SplitEventsHelper.ManagedThreadIdExtractor);
-    undefinedThreadEvents = eventsByThreads[-1];
-    eventsByThreads.Remove(-1);
+    undefinedThreadEvents = eventsByThreads.Remove(-1, out var x) switch
+    {
+      true => x,
+      false => new EventsCollectionImpl(EmptyCollections<EventRecordWithMetadata>.EmptyArray, logger)
+    };
 
     undefinedThreadEvents = managedEventsExtractor.Extract(eventsByThreads, undefinedThreadEvents);
   }

@@ -22,7 +22,7 @@ public class MethodExecutionKafkaConsumer : IDisposable
           BootstrapServers = settings.KafkaSettings.BootstrapServers,
           GroupId = "xd",
           EnablePartitionEof = true,
-          AutoOffsetReset = AutoOffsetReset.Earliest,
+          AutoOffsetReset = AutoOffsetReset.Earliest
         }
       )
       .SetKeyDeserializer(GuidSerializer.Instance)

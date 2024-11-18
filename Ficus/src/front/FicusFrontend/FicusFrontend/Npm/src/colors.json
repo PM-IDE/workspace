@@ -13,6 +13,19 @@
       "greenMax": 157,
       "blueMin": 212,
       "blueMax": 212
+    },
+    "performanceColors": {
+      "color0": "#0cf03f",
+      "color1": "#0cf00c",
+      "color2": "#43f00c",
+      "color3": "#8ef00c",
+      "color4": "#bef00c",
+      "color5": "#e3f00c",
+      "color6": "#f0dd0c",
+      "color7": "#f0b40c",
+      "color8": "#f09d0c",
+      "color9": "#f0580c",
+      "color10": "#f00c0c"
     }
   }
 }

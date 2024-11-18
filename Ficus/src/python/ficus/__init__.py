@@ -13,3 +13,4 @@ from .grpc_pipelines.entry_points.default_pipeline import *
 from .grpc_pipelines.entry_points.kafka import *
 from .grpc_pipelines.entry_points.util import *
 from .grpc_pipelines.cases_parts import *
+from .grpc_pipelines.annotations import *

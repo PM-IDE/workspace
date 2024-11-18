@@ -27,6 +27,7 @@ public class BxesEvent : IEvent
         new AttributeKeyValue(new BxesStringValue(kv.Key), new BxesStringValue(kv.Value))).ToList()
     };
 
+    Attributes.Add(new AttributeKeyValue(new BxesStringValue("NativeThreadId"), new BxesInt64Value(eventRecord.NativeThreadId)));
     Attributes.Add(new AttributeKeyValue(new BxesStringValue("ThreadId"), new BxesInt64Value(eventRecord.ManagedThreadId)));
     Attributes.Add(new AttributeKeyValue(new BxesStringValue("QpcStamp"), new BxesInt64Value(eventRecord.Time.QpcStamp)));
   }

@@ -64,7 +64,11 @@ fn get_test_parts_names() -> Vec<String> {
         "WriteXesLogToBytes",
         "WriteBxesLogToBytes",
         "ReverseHierarchyIndices",
-        "DiscoverCases"
+        "DiscoverCases",
+        "AnnotateGraphWithTime",
+        "TracesDiversityDiagramByAttribute",
+        "DiscoverDirectlyFollowsGraphByAttribute",
+        "AppendAttributesToName"
     ]
 }
 

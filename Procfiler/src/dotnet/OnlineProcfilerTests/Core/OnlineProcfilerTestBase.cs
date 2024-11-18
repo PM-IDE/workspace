@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Autofac;
 using Core.Builder;
+using Core.Collector;
 using ProcfilerOnline.Commands;
 using ProcfilerOnline.Core;
 using TestsUtil;
@@ -20,7 +21,7 @@ public abstract class OnlineProcfilerTestBase : TestWithContainerBase
 
     var dllPath = buildResult.Value.BuiltDllPath;
     var targetMethodsRegex = new Regex(solution.NamespaceFilterPattern);
-    var context = new CollectEventsOnlineContext(dllPath, string.Empty, targetMethodsRegex, targetMethodsRegex);
+    var context = new CollectEventsOnlineContext(dllPath, targetMethodsRegex, targetMethodsRegex, ProvidersCategoryKind.CppProcfilerMethodsAndTasks);
 
     return Container.Resolve<IClrOnlineEventsProcessor>().StartProfiling(context);
   }

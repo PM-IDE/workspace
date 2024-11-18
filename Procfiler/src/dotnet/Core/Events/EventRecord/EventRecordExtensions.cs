@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Core.Constants.TraceEvents;
 using Core.Utils;
 using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Etlx;
 
 namespace Core.Events.EventRecord;
 
@@ -183,4 +184,11 @@ public static class EventRecordExtensions
     QpcStamp = traceEvent.TimeStampQPC,
     RelativeStampMSec = traceEvent.TimeStampRelativeMSec
   };
+
+  public static long NativeThreadIdOrMinusOne(this TraceEvent traceEvent)
+  {
+    if (traceEvent.Source is not TraceLog) return -1;
+
+    return traceEvent.Thread().ThreadID;
+  }
 }

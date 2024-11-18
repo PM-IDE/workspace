@@ -1,5 +1,4 @@
 use super::events::events_handler::PipelineEventsHandler;
-use crate::features::discovery::alpha::alpha_sharp::discover_petri_net_alpha_sharp;
 use crate::ficus_proto::grpc_pipeline_part_base::Part;
 use crate::ficus_proto::{GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart};
 use crate::grpc::converters::put_into_user_data;

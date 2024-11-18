@@ -53,7 +53,7 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
       .ToList();
 
   private static EventRecordWithMetadata CreateFromBxesEvent(IEvent bxesEvent) =>
-    new(EventRecordTime.Default, CreateEventClass(bxesEvent), -1, -1, CreateEventMetadata(bxesEvent))
+    new(EventRecordTime.Default, CreateEventClass(bxesEvent), -1, -1, -1, CreateEventMetadata(bxesEvent))
     {
       EventName = bxesEvent.Name
     };

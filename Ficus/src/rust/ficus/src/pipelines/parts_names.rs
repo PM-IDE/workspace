@@ -48,10 +48,16 @@ impl PipelineParts {
     pub const READ_LOG_FROM_BXES: &'static str = "ReadLogFromBxes";
     pub const WRITE_LOG_TO_BXES: &'static str = "WriteLogToBxes";
     pub const DISCOVER_CASES: &'static str = "DiscoverCases";
+    pub const TRACES_DIVERSITY_DIAGRAM_BY_ATTRIBUTE: &'static str = "TracesDiversityDiagramByAttribute";
+    pub const DISCOVER_DFG_BY_ATTRIBUTE: &'static str = "DiscoverDirectlyFollowsGraphByAttribute";
+    pub const APPEND_ATTRIBUTES_TO_NAME: &'static str = "AppendAttributesToName";
 
     pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
     pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";
     pub const ANNOTATE_PETRI_NET_TRACE_FREQUENCY: &'static str = "AnnotatePetriNetWithTraceFrequency";
+
+    pub const ANNOTATE_GRAPH_WITH_TIME: &'static str = "AnnotateGraphWithTime";
+
     pub const ENSURE_INITIAL_MARKING: &'static str = "EnsureInitialMarking";
 
     pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS: &'static str = "ClusterizeActivitiesFromTracesKMeans";

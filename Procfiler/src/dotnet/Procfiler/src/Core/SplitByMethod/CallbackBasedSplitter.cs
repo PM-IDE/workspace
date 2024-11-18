@@ -60,7 +60,11 @@ public class CallbackBasedSplitter<T>(
   private void ProcessStartOfMethod(string frame, EventRecordWithMetadata eventRecord)
   {
     var state = stateFactory(eventRecord);
-    var frameInfo = new CurrentFrameInfo<T>(frame, ShouldProcess(frame), eventRecord.Time, eventRecord.ManagedThreadId, state);
+    var shouldProcess = ShouldProcess(frame);
+
+    var frameInfo = new CurrentFrameInfo<T>(
+      frame, shouldProcess, eventRecord.Time, eventRecord.ManagedThreadId, eventRecord.NativeThreadId, state);
+
     callback(new MethodStartedUpdate<T>(frameInfo, eventRecord));
     callback(new NormalEventUpdate<T>(frameInfo, eventRecord));
 

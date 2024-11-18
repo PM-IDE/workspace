@@ -165,10 +165,11 @@ message GrpcGraphNode {
 }
 
 message GrpcGraphEdge {
-    uint64 from_node = 1;
-    uint64 to_node = 2;
-    double weight = 3;
-    string data = 4;
+    uint64 id = 1;
+    uint64 from_node = 2;
+    uint64 to_node = 3;
+    double weight = 4;
+    string data = 5;
 }
 
 message GrpcBytes {

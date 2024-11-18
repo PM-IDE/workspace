@@ -1,7 +1,7 @@
-use crate::features::mutations::mutations::add_artificial_start_end_activities;
+use crate::features::mutations::mutations::{add_artificial_start_end_activities, append_attributes_to_name};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
+use crate::pipelines::keys::context_keys::{ATTRIBUTES_KEY, EVENT_LOG_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 
@@ -32,6 +32,17 @@ impl PipelineParts {
     pub(super) fn add_artificial_end_events() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::ADD_ARTIFICIAL_END_EVENTS, &|context, _, _| {
             Self::create_add_start_end_events_internal(context, false, true)
+        })
+    }
+
+    pub(super) fn append_attributes_to_name() -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::APPEND_ATTRIBUTES_TO_NAME, &|context, _, config| {
+            let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+            let attributes = Self::get_user_data(config, &ATTRIBUTES_KEY)?;
+
+            append_attributes_to_name(log, attributes);
+
+            Ok(())
         })
     }
 }

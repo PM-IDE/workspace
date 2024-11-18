@@ -6,6 +6,7 @@ use bxes::models::system_models::SystemMetadata;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
+use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus::pipelines::keys::context_keys::*;
@@ -108,6 +109,10 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<SystemMetadata>(&SYSTEM_METADATA, &mut used);
     assert_existence::<LogSerializationFormat>(&LOG_SERIALIZATION_FORMAT, &mut used);
     assert_existence::<Vec<u8>>(&BYTES, &mut used);
+    assert_existence::<HashMap<u64, f64>>(&GRAPH_TIME_ANNOTATION, &mut used);
+    assert_existence::<String>(&ATTRIBUTE, &mut used);
+    assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
+    assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -193,7 +198,11 @@ fn get_all_keys_names() -> Vec<String> {
         "traces_repr_source",
         "system_metadata",
         "log_serialization_format",
-        "bytes"
+        "bytes",
+        "graph_time_annotation",
+        "attribute",
+        "time_annotation_kind",
+        "attributes"
     ]
 }
 
@@ -280,6 +289,10 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<SystemMetadata>(&SYSTEM_METADATA, &mut used);
     assert_keys_equivalence::<LogSerializationFormat>(&LOG_SERIALIZATION_FORMAT, &mut used);
     assert_keys_equivalence::<Vec<u8>>(&BYTES, &mut used);
+    assert_keys_equivalence::<HashMap<u64, f64>>(&GRAPH_TIME_ANNOTATION, &mut used);
+    assert_keys_equivalence::<String>(&ATTRIBUTE, &mut used);
+    assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
+    assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

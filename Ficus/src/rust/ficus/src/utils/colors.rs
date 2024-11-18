@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use std::ops::Deref;
 
+use crate::utils::references::HeapedOrOwned;
 use rand::Rng;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
@@ -80,17 +81,17 @@ pub struct ColorsEventLog {
 }
 
 pub struct ColoredRectangle {
-    name: Rc<Box<String>>,
+    name: HeapedOrOwned<String>,
     start_pos: usize,
     length: usize,
 }
 
 impl ColoredRectangle {
-    pub fn new(name: Rc<Box<String>>, start_pos: usize, length: usize) -> Self {
+    pub fn new(name: HeapedOrOwned<String>, start_pos: usize, length: usize) -> Self {
         Self { name, start_pos, length }
     }
 
-    pub fn square(name: Rc<Box<String>>, start_pos: usize) -> Self {
+    pub fn square(name: HeapedOrOwned<String>, start_pos: usize) -> Self {
         Self::new(name, start_pos, 1)
     }
 
@@ -103,6 +104,6 @@ impl ColoredRectangle {
     }
 
     pub fn name(&self) -> &String {
-        self.name.as_ref().as_ref()
+        self.name.deref()
     }
 }

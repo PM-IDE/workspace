@@ -29,7 +29,7 @@ public class ClrOnlineEventsProcessor(
     {
       DllPath = context.DllFilePath,
       CppProcfilerPath = locator.FindCppProcfilerPath("CppProcfilerOnline"),
-      MethodsFilterRegex = context.MethodsFilterRegex,
+      MethodsFilterRegex = context.MethodsFilterRegex
     };
 
     var process = launcher.Launch(launcherDto);
@@ -42,7 +42,7 @@ public class ClrOnlineEventsProcessor(
     var client = new DiagnosticsClient(process.Id);
     transportCreationWaiter.WaitUntilTransportIsCreatedOrThrow(process.Id);
 
-    var providers = providersProvider.GetProvidersFor(ProvidersCategoryKind.CppProcfilerMethodsAndTasks);
+    var providers = providersProvider.GetProvidersFor(context.Providers);
     using var session = client.StartEventPipeSession(providers, circularBufferMB: 1024);
 
     client.ResumeRuntime();

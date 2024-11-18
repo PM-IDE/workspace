@@ -7,7 +7,7 @@ use crate::event_log::bxes::xes_to_bxes_converter::{write_event_log_to_bxes, wri
 use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
 use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log_to_bytes;
 use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATH, PATH_KEY, SYSTEM_METADATA, SYSTEM_METADATA_KEY};
+use crate::pipelines::keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATH_KEY, SYSTEM_METADATA_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
     event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},

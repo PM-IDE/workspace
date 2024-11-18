@@ -4,25 +4,14 @@ using Procfiler.Core.EventRecord.EventsCollection.ModificationSources;
 
 namespace Procfiler.Core.EventRecord.EventsCollection;
 
-public class EventsCollectionImpl : EventsOwnerBase, IEventsCollection
+public class EventsCollectionImpl(EventRecordWithMetadata[] initialEvents, IProcfilerLogger logger)
+  : EventsOwnerBase(logger, initialEvents.Length), IEventsCollection
 {
-  private readonly IProcfilerLogger myLogger;
-  private readonly EventRecordWithMetadata[] myInitialEvents;
-  private readonly List<IModificationSource> myModificationSources;
+  private readonly IProcfilerLogger myLogger = logger;
+  private readonly List<IModificationSource> myModificationSources = [];
 
 
   public override long Count => PointersManager.Count + myModificationSources.Select(source => source.Count).Sum();
-
-
-  public EventsCollectionImpl(EventRecordWithMetadata[] initialEvents, IProcfilerLogger logger)
-    : base(logger, initialEvents.Length)
-  {
-    if (initialEvents.Length == 0) throw new IndexOutOfRangeException();
-
-    myModificationSources = [];
-    myInitialEvents = initialEvents;
-    myLogger = logger;
-  }
 
 
   public void InjectModificationSource(IModificationSource modificationSource)
@@ -101,7 +90,7 @@ public class EventsCollectionImpl : EventsOwnerBase, IEventsCollection
     return base.InsertBefore(pointer, eventToInsert);
   }
 
-  protected override IEnumerable<EventRecordWithMetadata> EnumerateInitialEvents() => myInitialEvents;
+  protected override IEnumerable<EventRecordWithMetadata> EnumerateInitialEvents() => initialEvents;
 
   public override IEnumerator<EventRecordWithPointer> GetEnumerator()
   {

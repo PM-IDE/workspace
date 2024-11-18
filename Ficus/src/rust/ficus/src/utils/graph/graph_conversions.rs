@@ -1,5 +1,7 @@
-use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
+use crate::utils::graph::graph::{DefaultGraph, Graph};
+use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
+use crate::utils::references::HeapedOrOwned;
 use std::collections::HashMap;
 use std::fmt::Display;
 
@@ -16,7 +18,7 @@ where
     }
 
     #[rustfmt::skip]
-    fn to_default_graph_nodes(&self) -> HashMap<u64, GraphNode<String>> {
+    fn to_default_graph_nodes(&self) -> HashMap<u64, GraphNode<HeapedOrOwned<String>>> {
         self.nodes.iter().map(|pair| {
             (
                 *pair.0,
@@ -24,7 +26,7 @@ where
                     id: pair.1.id.to_owned(),
                     data: match &pair.1.data {
                         None => None,
-                        Some(data) => Some(data.to_string()),
+                        Some(data) => Some(HeapedOrOwned::Owned(data.to_string())),
                     },
                 },
             )
@@ -32,19 +34,21 @@ where
     }
 
     #[rustfmt::skip]
-    fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, NodesConnectionData<String>>> {
+    fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, GraphEdge<HeapedOrOwned<String>>>> {
         self.connections.iter().map(|pair| {
             (
                 *pair.0,
                 pair.1.iter().map(|pair| {
                     (
                         *pair.0,
-                        NodesConnectionData::new(
+                        GraphEdge::new(
+                            pair.1.first_node_id, 
+                            pair.1.second_node_id,
+                            pair.1.weight,
                             match pair.1.data() {
                                 None => None,
-                                Some(data) => Some(data.to_string()),
-                            },
-                            pair.1.weight()
+                                Some(data) => Some(HeapedOrOwned::Owned(data.to_string())),
+                            }
                         )
                     )
                 }).collect(),

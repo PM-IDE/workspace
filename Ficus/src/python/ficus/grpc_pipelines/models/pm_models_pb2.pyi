@@ -116,12 +116,14 @@ class GrpcPetriNetSinglePlaceMarking(_message.Message):
     def __init__(self, placeId: _Optional[int] = ..., tokensCount: _Optional[int] = ...) -> None: ...
 
 class GrpcAnnotation(_message.Message):
-    __slots__ = ["countAnnotation", "frequencyAnnotation"]
+    __slots__ = ["countAnnotation", "frequencyAnnotation", "timeAnnotation"]
     COUNTANNOTATION_FIELD_NUMBER: _ClassVar[int]
     FREQUENCYANNOTATION_FIELD_NUMBER: _ClassVar[int]
+    TIMEANNOTATION_FIELD_NUMBER: _ClassVar[int]
     countAnnotation: GrpcCountAnnotation
     frequencyAnnotation: GrpcFrequenciesAnnotation
-    def __init__(self, countAnnotation: _Optional[_Union[GrpcCountAnnotation, _Mapping]] = ..., frequencyAnnotation: _Optional[_Union[GrpcFrequenciesAnnotation, _Mapping]] = ...) -> None: ...
+    timeAnnotation: GrpcTimePerformanceAnnotation
+    def __init__(self, countAnnotation: _Optional[_Union[GrpcCountAnnotation, _Mapping]] = ..., frequencyAnnotation: _Optional[_Union[GrpcFrequenciesAnnotation, _Mapping]] = ..., timeAnnotation: _Optional[_Union[GrpcTimePerformanceAnnotation, _Mapping]] = ...) -> None: ...
 
 class GrpcCountAnnotation(_message.Message):
     __slots__ = ["annotations"]
@@ -151,13 +153,27 @@ class GrpcEntityFrequencyAnnotation(_message.Message):
     frequency: float
     def __init__(self, entityId: _Optional[int] = ..., frequency: _Optional[float] = ...) -> None: ...
 
+class GrpcTimePerformanceAnnotation(_message.Message):
+    __slots__ = ["annotations"]
+    ANNOTATIONS_FIELD_NUMBER: _ClassVar[int]
+    annotations: _containers.RepeatedCompositeFieldContainer[GrpcEntityTimeAnnotation]
+    def __init__(self, annotations: _Optional[_Iterable[_Union[GrpcEntityTimeAnnotation, _Mapping]]] = ...) -> None: ...
+
+class GrpcEntityTimeAnnotation(_message.Message):
+    __slots__ = ["entityId", "interval"]
+    ENTITYID_FIELD_NUMBER: _ClassVar[int]
+    INTERVAL_FIELD_NUMBER: _ClassVar[int]
+    entityId: int
+    interval: _util_pb2.GrpcTimeSpan
+    def __init__(self, entityId: _Optional[int] = ..., interval: _Optional[_Union[_util_pb2.GrpcTimeSpan, _Mapping]] = ...) -> None: ...
+
 class GrpcMatrix(_message.Message):
     __slots__ = ["rows"]
     ROWS_FIELD_NUMBER: _ClassVar[int]
-    rows: _containers.RepeatedCompositeFieldContainer[GrpcMatixRow]
-    def __init__(self, rows: _Optional[_Iterable[_Union[GrpcMatixRow, _Mapping]]] = ...) -> None: ...
+    rows: _containers.RepeatedCompositeFieldContainer[GrpcMatrixRow]
+    def __init__(self, rows: _Optional[_Iterable[_Union[GrpcMatrixRow, _Mapping]]] = ...) -> None: ...
 
-class GrpcMatixRow(_message.Message):
+class GrpcMatrixRow(_message.Message):
     __slots__ = ["values"]
     VALUES_FIELD_NUMBER: _ClassVar[int]
     values: _containers.RepeatedScalarFieldContainer[float]

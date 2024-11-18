@@ -13,9 +13,9 @@
 @code {
   private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
 
-  private IJSObjectReference myCytoscapeReference;
-  
-  
+  private IJSObjectReference? myCytoscapeReference;
+
+  [Parameter] public GrpcAnnotation? Annotation { get; set; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
 
@@ -24,7 +24,7 @@
   {
     if (!firstRender) return;
 
-    myCytoscapeReference = await Js.InvokeAsync<IJSObjectReference>("drawGraph", myCytoscapeContainerId.ToString(), Graph);
+    myCytoscapeReference = await Js.InvokeAsync<IJSObjectReference>("drawGraph", myCytoscapeContainerId.ToString(), Graph, Annotation);
   }
 
   private async Task ExportGraph()

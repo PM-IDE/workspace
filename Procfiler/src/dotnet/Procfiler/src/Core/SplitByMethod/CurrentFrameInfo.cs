@@ -7,7 +7,8 @@ public readonly record struct CurrentFrameInfo<T>(
   string Frame,
   bool ShouldProcess,
   EventRecordTime OriginalEventTime,
-  long OriginalEventThreadId,
+  long ManagedThreadId,
+  long NativeThreadId,
   T? State
 );
 
@@ -19,7 +20,7 @@ public static class CurrentFrameInfoUtil
     var startEventCtx = contextEvent switch
     {
       { } => EventsCreationContext.CreateWithUndefinedStackTrace(contextEvent),
-      _ => new EventsCreationContext(frameInfo.OriginalEventTime, frameInfo.OriginalEventThreadId)
+      _ => new EventsCreationContext(frameInfo.OriginalEventTime, frameInfo.ManagedThreadId, frameInfo.NativeThreadId)
     };
 
     return factory.CreateMethodExecutionEvent(startEventCtx, methodName);

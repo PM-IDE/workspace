@@ -21,9 +21,10 @@ public class BinStacksWithFilterTest : CppBinStacksTestBase
     var regex = new Regex(dto.Solution.Name);
     var eventsFactory = Container.Resolve<IProcfilerEventsFactory>();
 
+    var referenceEvent = events.Events.First().Event;
     foreach (var cppShadowStack in cppShadowStacks.EnumerateStacks())
     {
-      foreach (var methodEvent in cppShadowStack.EnumerateMethods(eventsFactory, events.GlobalData))
+      foreach (var methodEvent in cppShadowStack.EnumerateMethods(referenceEvent, eventsFactory, events.GlobalData))
       {
         Assert.That(methodEvent.IsMethodStartOrEndEvent(), Is.True);
         var frameName = methodEvent.TryGetMethodStartEndEventInfo()!.Value.Frame;

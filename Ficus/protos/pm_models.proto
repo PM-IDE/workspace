@@ -34,7 +34,6 @@ message GrpcHashesLogTrace {
     repeated uint64 events = 1;
 }
 
-
 message GrpcNamesEventLog {
     repeated GrpcNamesTrace traces = 1;
 }
@@ -81,6 +80,7 @@ message GrpcAnnotation {
     oneof annotation {
         GrpcCountAnnotation countAnnotation = 1;
         GrpcFrequenciesAnnotation frequencyAnnotation = 2;
+        GrpcTimePerformanceAnnotation timeAnnotation = 3;
     }
 }
 
@@ -102,11 +102,20 @@ message GrpcEntityFrequencyAnnotation {
     float frequency = 2;
 }
 
-message GrpcMatrix {
-    repeated GrpcMatixRow rows = 1;
+message GrpcTimePerformanceAnnotation {
+    repeated GrpcEntityTimeAnnotation annotations = 1;
 }
 
-message GrpcMatixRow {
+message GrpcEntityTimeAnnotation {
+    int64 entityId = 1;
+    GrpcTimeSpan interval = 2;
+}
+
+message GrpcMatrix {
+    repeated GrpcMatrixRow rows = 1;
+}
+
+message GrpcMatrixRow {
     repeated float values = 1;
 }
 

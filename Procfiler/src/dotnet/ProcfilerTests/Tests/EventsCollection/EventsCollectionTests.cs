@@ -8,11 +8,55 @@ namespace ProcfilerTests.Tests.EventsCollection;
 [TestFixture]
 public class EventsCollectionTests
 {
-  [Test]
-  public void TestEnumeration()
+  public readonly record struct TestData(IEventsCollection Collection, EventRecordWithMetadata[] Events);
+
+  private static TestData[] NonEmptyCollections
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    get
+    {
+      var lengthOneEvents = CreateInitialArrayOfRandomEvents(count: 1);
+
+      var logger = TestLogger.CreateInstance();
+
+      List<TestData> data =
+      [
+        new(new EventsCollectionImpl(lengthOneEvents, logger), lengthOneEvents)
+      ];
+
+      const int CollectionsCount = 10;
+      for (var i = 0; i < CollectionsCount; ++i)
+      {
+        var events = CreateInitialArrayOfRandomEvents();
+        data.Add(new TestData(new EventsCollectionImpl(events, logger), events));
+      }
+
+      return data.ToArray();
+    }
+  }
+
+  private static TestData[] Collections
+  {
+    get
+    {
+      EventRecordWithMetadata[] empty = [];
+
+      List<TestData> data =
+      [
+        new(new EventsCollectionImpl(empty, TestLogger.CreateInstance()), empty)
+      ];
+
+      data.AddRange(NonEmptyCollections);
+
+      return data.ToArray();
+    }
+  }
+
+
+  [Test]
+  [TestCaseSource(nameof(Collections))]
+  public void TestEnumeration(TestData testData)
+  {
+    var (collection, events) = testData;
 
     Assert.That(collection, Has.Count.EqualTo(events.Length));
     foreach (var (arrayEvent, (_, collectionEvent)) in events.Zip(collection))
@@ -22,10 +66,11 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestInsertionInBeginning()
+  [TestCaseSource(nameof(NonEmptyCollections))]
+  public void TestInsertionInBeginning(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
+
     var eventsToInsert = CreateInitialArrayOfRandomEvents(10);
 
     collection.ApplyNotPureActionForAllEvents(eventWithPtr =>
@@ -43,10 +88,11 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestInsertBefore()
+  [TestCaseSource(nameof(NonEmptyCollections))]
+  public void TestInsertBefore(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
+
     var index = Random.Shared.Next((int)collection.Count);
     var eventRecord = TestUtil.CreateAbsolutelyRandomEvent();
     var pointerForIndex = EventPointer.ForInitialArray(index, collection);
@@ -83,10 +129,11 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestInsertAfter()
+  [TestCaseSource(nameof(NonEmptyCollections))]
+  public void TestInsertAfter(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
+
     var index = Random.Shared.Next((int)collection.Count);
     var eventRecord = TestUtil.CreateAbsolutelyRandomEvent();
     var pointerForIndex = EventPointer.ForInitialArray(index, collection);
@@ -115,10 +162,11 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestRemoval()
+  [TestCaseSource(nameof(NonEmptyCollections))]
+  public void TestRemoval(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
+
     var index = Random.Shared.Next((int)collection.Count);
 
     collection.Remove(EventPointer.ForInitialArray(index, collection));
@@ -131,10 +179,11 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestMultipleInsertAfter()
+  [TestCaseSource(nameof(Collections))]
+  public void TestMultipleInsertAfter(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
+
     var eventsToInsert = CreateInitialArrayOfRandomEvents();
 
     var index = 0;
@@ -165,10 +214,11 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestMultipleInsertBefore()
+  [TestCaseSource(nameof(Collections))]
+  public void TestMultipleInsertBefore(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
+
     var eventsToInsert = CreateInitialArrayOfRandomEvents();
 
     var index = 0;
@@ -193,6 +243,7 @@ public class EventsCollectionTests
   {
     var events = CreateInitialArrayOfRandomEvents();
     var collection = CreateNewCollection(events);
+
     Assert.Multiple(() =>
     {
       Assert.That(collection, Has.Count.EqualTo(events.Length));
@@ -214,10 +265,11 @@ public class EventsCollectionTests
 
 
   [Test]
-  public void TestLast()
+  [TestCaseSource(nameof(NonEmptyCollections))]
+  public void TestLast(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
+
 
     Assert.That(collection, Has.Count.EqualTo(events.Length));
     Assert.That(ReferenceEquals(SlowlyGetLastEvent(collection)?.Event, events[^1]), Is.True);
@@ -236,9 +288,10 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestFreezeOfCollections()
+  [TestCaseSource(nameof(NonEmptyCollections))]
+  public void TestFreezeOfCollections(TestData testData)
   {
-    var collection = CreateNewCollection(CreateInitialArrayOfRandomEvents());
+    var (collection, _) = testData;
 
     var randomEvent = TestUtil.CreateAbsolutelyRandomEvent();
     var actions = new TestDelegate[]
@@ -294,11 +347,12 @@ public class EventsCollectionTests
     Enumerable.Range(0, count).Select(_ => TestUtil.CreateAbsolutelyRandomEvent()).OrderBy(e => e.Time.QpcStamp).ToArray();
 
   [Test]
-  public void TestEnumerationWithModificationSource()
+  [TestCaseSource(nameof(Collections))]
+  public void TestEnumerationWithModificationSource(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
+    var (collection, events) = testData;
+
     var modificationSourceEvents = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
     var modificationSource = new TestModificationSource(TestLogger.CreateInstance(), modificationSourceEvents);
     collection.InjectModificationSource(modificationSource);
 
@@ -308,12 +362,13 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestCollectionCountAfterModificationInjection()
+  [TestCaseSource(nameof(Collections))]
+  public void TestCollectionCountAfterModificationInjection(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
 
     const int ModificationSourcesCount = 10;
+
     var additionalLength = 0;
     for (var i = 0; i < ModificationSourcesCount; i++)
     {
@@ -326,10 +381,10 @@ public class EventsCollectionTests
   }
 
   [Test]
-  public void TestEnumerationWithManyModificationSources()
+  [TestCaseSource(nameof(Collections))]
+  public void TestEnumerationWithManyModificationSources(TestData testData)
   {
-    var events = CreateInitialArrayOfRandomEvents();
-    var collection = CreateNewCollection(events);
+    var (collection, events) = testData;
 
     const int ModificationSourcesCount = 10;
 
@@ -343,5 +398,12 @@ public class EventsCollectionTests
 
     var concatenation = events.Concat(modifications.SelectMany(source => source)).OrderBy(e => e.Time.QpcStamp);
     AssertCollectionsAreSame(collection, concatenation);
+  }
+
+  [Test]
+  public void TestEmptyCollection()
+  {
+    var collection = CreateNewCollection([]);
+    Assert.That(collection, Is.Empty);
   }
 }

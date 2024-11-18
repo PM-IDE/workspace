@@ -5,26 +5,27 @@ use std::{any::Any, str::FromStr};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::arc::Arc;
 use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation};
+use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::{
     GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation,
-    GrpcEntityFrequencyAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcMatixRow,
-    GrpcMatrix, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking,
-    GrpcPetriNetTransition,
+    GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode,
+    GrpcLabeledDataset, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace,
+    GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcTimePerformanceAnnotation, GrpcTimeSpan,
 };
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{
-    BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY,
-    LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY,
-    PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY,
-    REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+    BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
+    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY,
+    PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
+    PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
 };
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
@@ -101,6 +102,8 @@ pub(super) fn put_into_user_data(
                 parse_grpc_enum::<TracesRepresentationSource>(user_data, key, &grpc_enum.value);
             } else if enum_name == name_of_type!(LogSerializationFormat) {
                 parse_grpc_enum::<LogSerializationFormat>(user_data, key, &grpc_enum.value);
+            } else if enum_name == name_of_type!(TimeAnnotationKind) {
+                parse_grpc_enum::<TimeAnnotationKind>(user_data, key, &grpc_enum.value);
             }
         }
         ContextValue::EventLogInfo(_) => todo!(),
@@ -165,6 +168,8 @@ pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> O
         try_convert_to_grpc_petri_net_frequency_annotation(value)
     } else if PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY.eq_other(key) {
         try_convert_to_grpc_petri_net_frequency_annotation(value)
+    } else if GRAPH_TIME_ANNOTATION_KEY.eq_other(key) {
+        try_convert_to_grpc_graph_time_annotation(value)
     } else if TRACES_ACTIVITIES_DATASET_KEY.eq_other(key) {
         try_convert_to_grpc_dataset(value)
     } else if LABELED_TRACES_ACTIVITIES_DATASET_KEY.eq_other(key) {
@@ -223,6 +228,19 @@ fn try_convert_to_grpc_petri_net_frequency_annotation(value: &dyn Any) -> Option
         Some(GrpcContextValue {
             context_value: Some(Annotation(GrpcAnnotation {
                 annotation: Some(FrequencyAnnotation(convert_to_grpc_frequency_annotation(value))),
+            })),
+        })
+    }
+}
+
+fn try_convert_to_grpc_graph_time_annotation(value: &dyn Any) -> Option<GrpcContextValue> {
+    if !value.is::<HashMap<u64, f64>>() {
+        None
+    } else {
+        let value = value.downcast_ref::<HashMap<u64, f64>>().unwrap();
+        Some(GrpcContextValue {
+            context_value: Some(Annotation(GrpcAnnotation {
+                annotation: Some(TimeAnnotation(convert_to_grpc_time_annotation(value))),
             })),
         })
     }
@@ -543,6 +561,7 @@ where
     TEdgeData: ToString,
 {
     GrpcGraphEdge {
+        id: *edge.id(),
         from_node: *edge.from_node(),
         to_node: *edge.to_node(),
         weight: edge.weight,
@@ -577,6 +596,20 @@ fn convert_to_grpc_frequency_annotation(annotation: &HashMap<u64, f64>) -> GrpcF
     GrpcFrequenciesAnnotation { annotations }
 }
 
+fn convert_to_grpc_time_annotation(annotation: &HashMap<u64, f64>) -> GrpcTimePerformanceAnnotation {
+    let annotations = annotation
+        .iter()
+        .map(|pair| GrpcEntityTimeAnnotation {
+            entity_id: *pair.0 as i64,
+            interval: Some(GrpcTimeSpan {
+                nanoseconds: *pair.1 as u64,
+            }),
+        })
+        .collect();
+
+    GrpcTimePerformanceAnnotation { annotations }
+}
+
 fn try_convert_to_grpc_dataset(value: &dyn Any) -> Option<GrpcContextValue> {
     if !value.is::<FicusDataset>() {
         None
@@ -593,7 +626,7 @@ fn convert_to_grpc_dataset(dataset: &FicusDataset) -> GrpcDataset {
     let rows = dataset
         .values()
         .iter()
-        .map(|x| GrpcMatixRow {
+        .map(|x| GrpcMatrixRow {
             values: x.iter().map(|x| *x as f32).collect(),
         })
         .collect();

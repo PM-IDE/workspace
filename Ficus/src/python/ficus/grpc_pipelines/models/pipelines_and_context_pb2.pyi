@@ -260,16 +260,18 @@ class GrpcGraphNode(_message.Message):
     def __init__(self, id: _Optional[int] = ..., data: _Optional[str] = ...) -> None: ...
 
 class GrpcGraphEdge(_message.Message):
-    __slots__ = ["from_node", "to_node", "weight", "data"]
+    __slots__ = ["id", "from_node", "to_node", "weight", "data"]
+    ID_FIELD_NUMBER: _ClassVar[int]
     FROM_NODE_FIELD_NUMBER: _ClassVar[int]
     TO_NODE_FIELD_NUMBER: _ClassVar[int]
     WEIGHT_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
+    id: int
     from_node: int
     to_node: int
     weight: float
     data: str
-    def __init__(self, from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ...) -> None: ...
+    def __init__(self, id: _Optional[int] = ..., from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ...) -> None: ...
 
 class GrpcBytes(_message.Message):
     __slots__ = ["bytes"]

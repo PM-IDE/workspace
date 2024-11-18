@@ -4,7 +4,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>preview</LangVersion>
@@ -40,10 +40,6 @@
         <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj" />
         <ProjectReference Include="..\Core\Core.csproj" />
         <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="src\Core\EventsProcessing\Mutators\SingleEventMutators\" />
     </ItemGroup>
 
     <Target Name="BuildCppProcfiler" AfterTargets="Build">

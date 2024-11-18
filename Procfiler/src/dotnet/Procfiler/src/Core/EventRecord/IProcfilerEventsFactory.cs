@@ -9,10 +9,10 @@ using Procfiler.Utils;
 
 namespace Procfiler.Core.EventRecord;
 
-public readonly record struct EventsCreationContext(EventRecordTime Time, long ManagedThreadId)
+public readonly record struct EventsCreationContext(EventRecordTime Time, long ManagedThreadId, long NativeThreadId)
 {
   public static EventsCreationContext CreateWithUndefinedStackTrace(global::Core.Events.EventRecord.EventRecord record) =>
-    new(record.Time, record.ManagedThreadId);
+    new(record.Time, record.ManagedThreadId, record.NativeThreadId);
 }
 
 public readonly ref struct FromFrameInfoCreationContext
@@ -20,6 +20,7 @@ public readonly ref struct FromFrameInfoCreationContext
   public required FrameInfo FrameInfo { get; init; }
   public required IGlobalDataWithStacks GlobalData { get; init; }
   public required long ManagedThreadId { get; init; }
+  public required long NativeThreadId { get; init; }
 }
 
 public interface IProcfilerEventsFactory
@@ -46,10 +47,10 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   private EventRecordWithMetadata CreateMethodStartOrEndEvent(
     EventsCreationContext context, string eventClass, string methodName)
   {
-    var (stamp, managedThreadId) = context;
+    var (stamp, managedThreadId, nativeThreadId) = context;
     var metadata = CreateMethodEventMetadata(methodName);
 
-    return new EventRecordWithMetadata(stamp, eventClass, managedThreadId, -1, metadata)
+    return new EventRecordWithMetadata(stamp, eventClass, managedThreadId, nativeThreadId, -1, metadata)
     {
       EventName = CreateMethodStartOrEndEventName(eventClass, methodName)
     };
@@ -84,10 +85,10 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
 
   public EventRecordWithMetadata CreateMethodExecutionEvent(EventsCreationContext context, string methodName)
   {
-    var (stamp, managedThreadId) = context;
+    var (stamp, managedThreadId, nativeThreadId) = context;
     var metadata = CreateMethodEventMetadata(methodName);
     var name = CreateEventNameForMethodExecutionEvent(methodName);
-    return new EventRecordWithMetadata(stamp, name, managedThreadId, -1, metadata);
+    return new EventRecordWithMetadata(stamp, name, managedThreadId, nativeThreadId, -1, metadata);
   }
 
   private string CreateEventNameForMethodExecutionEvent(string fqn) =>
@@ -102,7 +103,7 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
       LoggedAt = QpcUtil.ConvertQpcTimeToDateTimeUtc(context.FrameInfo.QpcTimeStamp, context.GlobalData)
     };
 
-    var creationContext = new EventsCreationContext(time, context.ManagedThreadId);
+    var creationContext = new EventsCreationContext(time, context.ManagedThreadId, context.NativeThreadId);
 
     return context.FrameInfo.IsStart switch
     {
@@ -130,7 +131,8 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
       IsStart = context.FrameInfo.IsStart,
       LoggedAt = QpcUtil.ConvertQpcTimeToDateTimeUtc(context.FrameInfo.QpcTimeStamp, context.GlobalData),
       QpcStamp = context.FrameInfo.QpcTimeStamp,
-      ManagedThreadId = context.ManagedThreadId
+      ManagedThreadId = context.ManagedThreadId,
+      NativeThreadId = context.NativeThreadId
     });
 
     var fqn = ExtractMethodName(context);

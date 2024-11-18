@@ -49,3 +49,29 @@ where
         }
     }
 }
+
+pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Vec<String>) {
+    log.mutate_events(|event| {
+        let mut new_name = event.name().to_owned();
+        let payload = event.payload_map();
+
+        for attribute in attributes {
+            let value = match payload {
+                None => None,
+                Some(payload) => match payload.get(attribute) {
+                    None => None,
+                    Some(value) => Some(value.to_string_repr()),
+                },
+            };
+
+            let attribute_value_string = match value {
+                None => "None".to_string(),
+                Some(value) => value.as_str().to_owned(),
+            };
+
+            new_name += format!("_{}", attribute_value_string).as_str();
+        }
+
+        event.set_name(new_name);
+    })
+}
