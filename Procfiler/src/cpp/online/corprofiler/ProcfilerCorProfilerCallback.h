@@ -8,6 +8,7 @@
 
 class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
 private:
+    ProcfilerLogger* myLogger;
     ICorProfilerInfo12* myProfilerInfo;
     std::atomic<int> myRefCount;
     EventPipeWriter* myWriter;

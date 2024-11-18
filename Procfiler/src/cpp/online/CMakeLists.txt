@@ -33,6 +33,7 @@ set(SOURCES
     ../shared/util/env_constants.h
     ../shared/util/env_constants.cpp
     ../shared/util/performance_counter.h
+    ../shared/util/logging/ProcfilerLogger.cpp
     corprofiler/eventpipe/FunctionEvent.h
 )
 

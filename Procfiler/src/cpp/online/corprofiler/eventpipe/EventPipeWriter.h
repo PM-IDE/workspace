@@ -17,6 +17,7 @@
 #endif
 
 #include <regex>
+#include "../util/logging/ProcfilerLogger.h"
 
 #ifdef __linux__
 #define __pre
@@ -43,6 +44,7 @@ class EventPipeWriter {
 
     std::regex* myMethodsFilterRegex{nullptr};
 
+    ProcfilerLogger* myLogger;
     ICorProfilerInfo12 *myProfilerInfo;
 
     EVENTPIPE_PROVIDER myEventPipeProvider{};
