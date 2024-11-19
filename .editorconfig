@@ -8,8 +8,6 @@ indent_style = space
 indent_size = 4
 tab_width = 4
 
-[*.cs]
-
 # Standard properties
 end_of_line = lf
 trim_trailing_whitespace = true
@@ -68,7 +66,7 @@ dotnet_naming_rule.locals_rule.severity = warning
 dotnet_naming_rule.locals_rule.style = lower_camel_case_style_1
 dotnet_naming_rule.locals_rule.symbols = locals_symbols
 dotnet_naming_rule.local_constants_rule.severity = warning
-dotnet_naming_rule.local_constants_rule.style = lower_camel_case_style_1
+dotnet_naming_rule.local_constants_rule.style = upper_camel_case_style
 dotnet_naming_rule.local_constants_rule.symbols = local_constants_symbols
 dotnet_naming_rule.local_functions_rule.severity = warning
 dotnet_naming_rule.local_functions_rule.style = upper_camel_case_style
