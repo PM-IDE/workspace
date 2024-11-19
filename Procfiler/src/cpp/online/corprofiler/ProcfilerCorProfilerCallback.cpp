@@ -68,12 +68,14 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
 
     HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
     if (FAILED(result)) {
+        myLogger->LogError("Failed to get IID_ICorProfilerInfo12 interface");
         return E_FAIL;
     }
 
     constexpr DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
     result = myProfilerInfo->SetEventMask(eventMask);
     if (FAILED(result)) {
+        myLogger->LogError("Failed to set event mask");
         return E_FAIL;
     }
 
@@ -85,6 +87,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
                                                          StaticHandleFunctionTailCall);
 
     if (FAILED(result)) {
+        myLogger->LogError("Failed tp set enter leave hooks");
         return E_FAIL;
     }
 
@@ -106,9 +109,12 @@ HRESULT ProcfilerCorProfilerCallback::Shutdown() {
     return S_OK;
 }
 
-ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback() : myProfilerInfo(nullptr),
-                                                               myRefCount(0),
-                                                               myWriter(nullptr) {
+ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback() :
+    myLogger(new ProcfilerLogger()),
+    myProfilerInfo(nullptr),
+    myRefCount(0),
+    myWriter(nullptr)
+{
     ourCallback = this;
 }
 

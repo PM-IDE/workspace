@@ -12,14 +12,14 @@ COPY ./Ficus/src/rust/ ./pmide/ficus/src/rust/
 COPY ./Ficus/protos/ ./pmide/ficus/protos/
 COPY ./bxes/ ./pmide/bxes/
 
-RUN cargo build --manifest-path /pmide/ficus/src/rust/ficus_backend/Cargo.toml --release
+RUN cargo build --manifest-path /pmide/ficus/src/rust/Cargo.toml --release
 
 FROM gcr.io/distroless/cc as run
 EXPOSE 8080
 
 WORKDIR /app
 
-COPY --from=build /pmide/ficus/src/rust/ficus_backend/target/release/ ./
+COPY --from=build /pmide/ficus/src/rust/target/release/ ./
 COPY --from=build /lib/*-linux-gnu /lib/
 
 ENTRYPOINT ["/app/ficus_backend"]

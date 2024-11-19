@@ -1,0 +1,6 @@
+﻿[workspace]
+
+members = [
+    "ficus",
+    "ficus_backend"
+]

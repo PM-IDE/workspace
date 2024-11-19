@@ -11,7 +11,7 @@ set(SOURCES
     ClassFactory.cpp
     corprofiler/ProcfilerCorProfilerCallback.cpp
     guids.cpp
-    logging/ProcfilerLogger.cpp
+    ../shared/util/logging/ProcfilerLogger.cpp
     ../shared/info/FunctionInfo.cpp
     ../shared/info/TypeInfo.cpp
     ../shared/info/MethodSignature.cpp

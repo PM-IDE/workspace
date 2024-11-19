@@ -25,7 +25,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
   public void Process(EventProcessingContext context)
   {
     myApplicationName = context.CommandContext.ApplicationName;
-    var threadId = context.Event.ManagedThreadId;
+    var threadId = context.Event.NativeThreadId;
 
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
     {

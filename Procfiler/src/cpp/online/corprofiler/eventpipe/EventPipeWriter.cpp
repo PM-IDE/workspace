@@ -3,12 +3,14 @@
 #include <env_constants.h>
 #include <FunctionInfo.h>
 #include <util.h>
+#include <logging/ProcfilerLogger.h>
 
 #include "clr/profiler.hpp"
 
 #include "FunctionEvent.h"
 
 EventPipeWriter::EventPipeWriter(ICorProfilerInfo12 *profilerInfo) {
+    myLogger = new ProcfilerLogger();
     myProfilerInfo = profilerInfo;
 }
 
@@ -127,18 +129,22 @@ HRESULT EventPipeWriter::DefineMethodStartOrEndEventInternal(const wstring &even
 HRESULT EventPipeWriter::InitializeProvidersAndEvents() {
     HRESULT hr;
     if ((hr = DefineProcfilerEventPipeProvider()) != S_OK) {
+        myLogger->LogError("Failed to define ProcfilerEventPipeProvider");
         return hr;
     }
 
     if ((hr = DefineProcfilerMethodStartEvent()) != S_OK) {
+        myLogger->LogError("Failed to define ProcfilerMethodStartEvent");
         return hr;
     }
 
     if ((hr = DefineProcfilerMethodEndEvent()) != S_OK) {
+        myLogger->LogError("Failed to define ProcfilerMethodEndEvent");
         return hr;
     }
 
     if ((hr = DefineProcfilerExceptionCatcherEnterEvent()) != S_OK) {
+        myLogger->LogError("Failed to define ProcfilerExceptionCatcherEnterEvent");
         return hr;
     }
 
@@ -164,7 +170,12 @@ HRESULT EventPipeWriter::LogFunctionEvent(const FunctionEvent &event) const {
 
     constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
-    return myProfilerInfo->EventPipeWriteEvent(eventPipeEvent, dataCount, eventData, nullptr, nullptr);
+    const auto result = myProfilerInfo->EventPipeWriteEvent(eventPipeEvent, dataCount, eventData, nullptr, nullptr);
+    if (result != S_OK) {
+        myLogger->LogError("Failed to send a FunctionEvent");
+    }
+
+    return result;
 }
 
 bool EventPipeWriter::ShouldLogFunc(FunctionID functionId) const {
@@ -202,7 +213,12 @@ HRESULT EventPipeWriter::LogMethodInfo(const FunctionID &functionId, const Funct
 
     constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
-    return myProfilerInfo->EventPipeWriteEvent(myMethodInfoEvent, dataCount, eventData, nullptr, nullptr);
+    const auto result = myProfilerInfo->EventPipeWriteEvent(myMethodInfoEvent, dataCount, eventData, nullptr, nullptr);
+    if (result != S_OK) {
+        myLogger->LogError("Failed to send a MethodInfo event");
+    }
+
+    return result;
 }
 
 HRESULT EventPipeWriter::LogExceptionCatcherEnterEvent(const FunctionID &functionId, const int64_t& timestamp) const {
@@ -216,5 +232,10 @@ HRESULT EventPipeWriter::LogExceptionCatcherEnterEvent(const FunctionID &functio
 
     constexpr auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
-    return myProfilerInfo->EventPipeWriteEvent(myExceptionCatcherEnterEvent, dataCount, eventData, nullptr, nullptr);
+    const auto result = myProfilerInfo->EventPipeWriteEvent(myExceptionCatcherEnterEvent, dataCount, eventData, nullptr, nullptr);
+    if (result != S_OK) {
+        myLogger->LogError("Failed to send an ExceptionCatcherEnterEvent");
+    }
+
+    return result;
 }

@@ -4,7 +4,6 @@
 #include "cor.h"
 #include "corprof.h"
 #include <types.h>
-#include "../../logging/ProcfilerLogger.h"
 #include <vector>
 #include <map>
 #include <string>

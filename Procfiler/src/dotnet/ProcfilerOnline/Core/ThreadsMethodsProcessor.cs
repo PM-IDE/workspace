@@ -45,7 +45,7 @@ public class ThreadsMethodsProcessor(
   {
     if (!context.Event.IsExceptionCatcherEnter(out var functionId)) return false;
 
-    var threadStack = GetOrCreateThreadStack(context.Event.ManagedThreadId);
+    var threadStack = GetOrCreateThreadStack(context.Event.NativeThreadId);
 
     while (threadStack.Count > 0 && threadStack.Peek().MethodId != functionId)
     {
@@ -64,7 +64,7 @@ public class ThreadsMethodsProcessor(
   private void ProcessInternal(EventProcessingContext context)
   {
     var eventRecord = context.Event;
-    var threadId = eventRecord.ManagedThreadId;
+    var threadId = eventRecord.NativeThreadId;
     var threadStack = GetOrCreateThreadStack(threadId);
 
     foreach (var targetFrame in threadStack)
@@ -81,7 +81,7 @@ public class ThreadsMethodsProcessor(
   {
     if (context.Event.TryGetMethodDetails() is not var (_, methodId)) return;
 
-    var threadStack = GetOrCreateThreadStack(context.Event.ManagedThreadId);
+    var threadStack = GetOrCreateThreadStack(context.Event.NativeThreadId);
     var isTargetMethod = IsTargetMethod(context, methodId, context.CommandContext.TargetMethodsRegex);
 
     switch (context.Event.GetMethodEventKind())
@@ -103,7 +103,7 @@ public class ThreadsMethodsProcessor(
         {
           if (methodId != threadStack.Peek().MethodId)
           {
-            logger.LogWarning("The stack is corrupt for thread {ThreadId}", context.Event.ManagedThreadId);
+            logger.LogWarning("The stack is corrupt for thread {ThreadId}", context.Event.NativeThreadId);
           }
 
           var frame = threadStack.Pop();
