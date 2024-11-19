@@ -11,7 +11,7 @@ RUN dotnet restore ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/$PROJECT_NAME.c
 WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME
 RUN dotnet build $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/build
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 ARG PROJECT_NAME=FrontendBackend
 
 EXPOSE 8080
