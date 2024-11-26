@@ -5,6 +5,7 @@ ARG PROJECT_NAME=FrontendBackend
 WORKDIR /app
 COPY ./Ficus/src/front/FicusFrontend/ ./Ficus/src/front/FicusFrontend/
 COPY ./Ficus/protos/ ./Ficus/protos/
+COPY Directory.Packages.props ./Directory.Packages.props
 
 RUN dotnet restore ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/$PROJECT_NAME.csproj
 
