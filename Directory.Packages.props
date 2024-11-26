@@ -42,8 +42,8 @@
 
         <PackageVersion Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.553101" />
         <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.17" />
-        <PackageReference Include="Microsoft.Build.Framework" Version="17.12.6"/>
-        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6"/>
+        <PackageVersion Include="Microsoft.Build.Framework" Version="17.12.6"/>
+        <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.12.6"/>
 
         <PackageVersion Include="Autofac" Version="6.4.0" />
         <PackageVersion Include="Serilog.Extensions.Logging.File" Version="3.0.0"/>
