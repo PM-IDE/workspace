@@ -7,6 +7,11 @@ using Microsoft.Extensions.Options;
 
 namespace ProcfilerLoggerProvider;
 
+public class ProcfilerLoggerConfiguration
+{
+  public LogLevel LogLevel { get; set; }
+}
+
 public static class ServiceCollectionsExtensions
 {
   public static ILoggingBuilder AddProcfilerLogger(this ILoggingBuilder builder, Action<ProcfilerLoggerConfiguration> configFunc)
@@ -17,11 +22,6 @@ public static class ServiceCollectionsExtensions
 
     return builder;
   }
-}
-
-public class ProcfilerLoggerConfiguration
-{
-  public LogLevel LogLevel { get; set; }
 }
 
 public class ProcfilerLoggerProvider(IOptionsMonitor<ProcfilerLoggerConfiguration> config) : ILoggerProvider

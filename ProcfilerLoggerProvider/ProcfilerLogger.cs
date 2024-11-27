@@ -7,6 +7,8 @@ internal class ProcfilerLogger(IOptionsMonitor<ProcfilerLoggerConfiguration> con
 {
   public void Log<TState>(LogLevel level, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
   {
+    if (!IsEnabled(level)) return;
+
     ProcfilerBusinessEventsSource.Instance.WriteBusinessEvent(level, eventId);
   }
 
