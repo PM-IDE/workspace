@@ -12,4 +12,8 @@
       <PackageReference Include="Microsoft.Extensions.Options" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj" />
+    </ItemGroup>
+
 </Project>

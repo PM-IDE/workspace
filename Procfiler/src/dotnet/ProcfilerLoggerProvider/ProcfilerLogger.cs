@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ProcfilerEventSources;
 
 namespace ProcfilerLoggerProvider;
 
@@ -11,11 +12,14 @@ internal class ProcfilerLogger(IOptionsMonitor<ProcfilerLoggerConfiguration> con
 
     var attributes = state switch
     {
-      IEnumerable<KeyValuePair<string, object>> e => e.Select(p => (p.Key, p.Value.ToString())).ToList(),
-      _ => []
+      IEnumerable<KeyValuePair<string, object>> e => string.Join(";", e.SelectMany(p =>
+      {
+        return new[] { p.Key, p.Value.ToString() };
+      })),
+      _ => string.Empty
     };
 
-    ProcfilerBusinessEventsSource.Instance.WriteBusinessEvent(level, eventId, formatter(state, exception), attributes);
+    ProcfilerBusinessEventsSource.Instance.BusinessEvent((int)level, formatter(state, exception), attributes);
   }
 
   public bool IsEnabled(LogLevel level)

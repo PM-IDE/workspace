@@ -49,25 +49,29 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
         new(EventPipeProvidersNames.Runtime, EventLevel.Verbose),
         new(EventPipeProvidersNames.ArrayPoolSource, EventLevel.Verbose),
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
-        new(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways)
+        new(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways),
+        new(nameof(ProcfilerBusinessEventsSource), EventLevel.LogAlways)
       ],
       [ProvidersCategoryKind.Gc] =
       [
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
-        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcKeywords)
+        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcKeywords),
+        new(nameof(ProcfilerBusinessEventsSource), EventLevel.LogAlways)
       ],
       [ProvidersCategoryKind.GcAllocHigh] =
       [
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
-        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocHighKeywords)
+        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocHighKeywords),
+        new(nameof(ProcfilerBusinessEventsSource), EventLevel.LogAlways)
       ],
       [ProvidersCategoryKind.GcAllocLow] =
       [
         new(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, GcPrivateKeywords),
-        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocLowKeywords)
+        new(ClrTraceEventParser.ProviderName, EventLevel.Verbose, GcAllocLowKeywords),
+        new(nameof(ProcfilerBusinessEventsSource), EventLevel.LogAlways)
       ],
       [ProvidersCategoryKind.CppProcfilerMethodsAndTasks] =
       [
