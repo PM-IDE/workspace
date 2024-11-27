@@ -9,14 +9,20 @@ internal class ProcfilerLogger(IOptionsMonitor<ProcfilerLoggerConfiguration> con
   {
     if (!IsEnabled(level)) return;
 
-    ProcfilerBusinessEventsSource.Instance.WriteBusinessEvent(level, eventId);
+    var attributes = state switch
+    {
+      IEnumerable<KeyValuePair<string, object>> e => e.Select(p => (p.Key, p.Value.ToString())).ToList(),
+      _ => []
+    };
+
+    ProcfilerBusinessEventsSource.Instance.WriteBusinessEvent(level, eventId, formatter(state, exception), attributes);
   }
 
   public bool IsEnabled(LogLevel level)
   {
     if (level == LogLevel.None) return false;
     
-    return level < configuration.CurrentValue.LogLevel;
+    return level <= configuration.CurrentValue.LogLevel;
   }
 
   public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default;
