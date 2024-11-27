@@ -108,7 +108,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{08516726-B
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerLoggerProvider", "ProcfilerLoggerProvider\ProcfilerLoggerProvider.csproj", "{F50FE66B-3147-4BE6-97EB-4A6889419E34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerLoggerProvider", "Procfiler\src\dotnet\ProcfilerLoggerProvider\ProcfilerLoggerProvider.csproj", "{F50FE66B-3147-4BE6-97EB-4A6889419E34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
