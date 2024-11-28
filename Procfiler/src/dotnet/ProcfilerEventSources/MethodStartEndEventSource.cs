@@ -14,6 +14,11 @@ public class MethodStartEndEventSource : EventSource
   public static void LogMethodFinished(string methodName) => Log.MethodFinished(methodName);
 
 
+  private MethodStartEndEventSource()
+  {
+  }
+
+
   [Event(MethodStartedId, Level = EventLevel.LogAlways)]
   public void MethodStarted(string methodName) => WriteEvent(MethodStartedId, methodName);
 

@@ -9,12 +9,13 @@ public class ProcfilerBusinessEventsSource : EventSource
 
 
   public static ProcfilerBusinessEventsSource Instance { get; } = new();
-  
+
   private ProcfilerBusinessEventsSource()
   {
   }
 
 
   [Event(ProcfilerBusinessEventId, Level = EventLevel.LogAlways)]
-  public void BusinessEvent(int level, string message, string attributes) => WriteEvent(ProcfilerBusinessEventId, level, message, attributes);
+  public void BusinessEvent(int level, string message, string attributes) =>
+    WriteEvent(ProcfilerBusinessEventId, level, message, attributes);
 }
