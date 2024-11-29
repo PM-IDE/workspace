@@ -15,6 +15,7 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
   [HttpGet(Name = "GetWeatherForecast")]
   public async Task<IReadOnlyList<WeatherForecast>> Get()
   {
+    logger.LogInformation("Received a new weather forecast request");
     var weatherForecast = await weatherService.GetWeather();
     
     foreach (var forecast in weatherForecast)
