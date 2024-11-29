@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using WebApp.Services;
+using WFWebApp.Services;
 
-namespace WebApp.Controllers;
+namespace WFWebApp.Controllers;
 
 [ApiController]
 [Route("[controller]")]

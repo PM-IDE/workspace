@@ -1,5 +1,5 @@
 using ProcfilerLoggerProvider;
-using WebApp.Services;
+using WFWebApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,4 @@
-﻿namespace WebApp.Services;
+﻿namespace WFWebApp.Services;
 
 public interface IWeatherService
 {
