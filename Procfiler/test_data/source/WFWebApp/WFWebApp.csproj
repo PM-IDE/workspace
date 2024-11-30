@@ -14,7 +14,7 @@
 
     <ItemGroup>
       <Reference Include="ProcfilerLoggerProvider">
-        <HintPath>..\..\..\..\src\dotnet\ProcfilerLoggerProvider\bin\$(Configuration)\$(TargetFramework)\ProcfilerLoggerProvider.dll</HintPath>
+        <HintPath>..\..\..\src\dotnet\ProcfilerLoggerProvider\bin\$(Configuration)\$(TargetFramework)\ProcfilerLoggerProvider.dll</HintPath>
       </Reference>
     </ItemGroup>
 

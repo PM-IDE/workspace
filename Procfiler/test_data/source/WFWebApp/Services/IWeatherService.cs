@@ -37,7 +37,7 @@ public class WeatherRepository(ILogger<WeatherRepository> logger) : IWeatherRepo
       result.Add(forecast);
       
       logger.LogInformation(
-        "Adding new weatherforecast to the list, temparature: {TempC}, {TempF}", forecast.TemperatureC, forecast.TemperatureF);
+        "Adding new weatherforecast to the list, temperature: {TempC}, {TempF}", forecast.TemperatureC, forecast.TemperatureF);
     }
 
     return result;
