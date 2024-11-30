@@ -1,4 +1,10 @@
-dotnet build %PM_IDE_ROOT%/All.sln
+set ProduceEventsToKafka=true
+set ProduceBxesKafkaEvents=true
+set ProduceGcEvents=false
+set OnlineProcfilerSettings__KafkaSettings__TopicName=my-topic
+set OnlineProcfilerSettings__KafkaSettings__BootstrapServers=localhost:9092
+
+dotnet build %PM_IDE_ROOT%/All.sln -c Release
 
 %PM_IDE_ROOT%/Procfiler/src/dotnet/ProcfilerOnline/bin/Release/net9.0/ProcfilerOnline.exe procfiler-online collect-online^
  -dll-path %PM_IDE_ROOT%\Procfiler\test_data\source\WFWebApp\WFWebApp\bin\Release\net9.0\WFWebApp.dll^
