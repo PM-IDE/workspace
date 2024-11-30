@@ -4,10 +4,8 @@ from ficus import *
 execute_pipeline(
     [
         PrintEventLogInfo(),
-        TracesDiversityDiagramCanvas(),
-        DiscoverPetriNetHeuristic(),
-        EnsureInitialMarking(),
-        AnnotatePetriNetWithFrequency(),
+        RemainEventsByRegex('(Procfiler|Business)'),
+        PrintEventLogInfo(),
         DiscoverFuzzyGraph(),
         ViewGraph()
     ]
