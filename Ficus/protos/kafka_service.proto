@@ -32,7 +32,7 @@ message GrpcProcessInfo {
 }
 
 message GrpcSubscribeToKafkaRequest {
-  GrpcKafkaConnectionMetadata request = 1;
+  GrpcKafkaConnectionMetadata connectionMetadata = 1;
 }
 
 message AddPipelineRequest {
