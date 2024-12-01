@@ -1,7 +1,10 @@
 use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::ficus_proto::{grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult, GrpcPipeline, GrpcPipelineExecutionRequest, GrpcSubscribeToKafkaRequest};
+use crate::ficus_proto::{
+    grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
+    GrpcPipeline, GrpcPipelineExecutionRequest, GrpcSubscribeToKafkaRequest,
+};
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
@@ -27,15 +30,12 @@ use uuid::Uuid;
 
 pub struct KafkaSubscriptionPipeline {
     request: GrpcPipelineExecutionRequest,
-    execution_dto: PipelineExecutionDto
+    execution_dto: PipelineExecutionDto,
 }
 
 impl KafkaSubscriptionPipeline {
     pub fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto) -> Self {
-        Self {
-            request,
-            execution_dto
-        }
+        Self { request, execution_dto }
     }
 }
 
@@ -84,10 +84,7 @@ impl KafkaService {
 }
 
 impl KafkaService {
-    pub(super) fn subscribe_to_kafka_topic(
-        &self,
-        request: GrpcSubscribeToKafkaRequest,
-    ) -> Result<Uuid, KafkaError> {
+    pub(super) fn subscribe_to_kafka_topic(&self, request: GrpcSubscribeToKafkaRequest) -> Result<Uuid, KafkaError> {
         let creation_dto = self.create_kafka_creation_dto();
         let id = creation_dto.uuid.clone();
 
@@ -162,10 +159,7 @@ impl KafkaService {
         };
     }
 
-    fn execute_consumer_routine(
-        consumer: &mut BxesKafkaConsumer,
-        dto: KafkaConsumerCreationDto,
-    ) -> bool {
+    fn execute_consumer_routine(consumer: &mut BxesKafkaConsumer, dto: KafkaConsumerCreationDto) -> bool {
         if Self::is_unsubscribe_requested(dto.clone()) {
             return true;
         }
@@ -193,7 +187,12 @@ impl KafkaService {
             }
         };
 
-        match dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock").get(&dto.uuid) {
+        match dto
+            .subscriptions_to_execution_requests
+            .lock()
+            .expect("Must acquire lock")
+            .get(&dto.uuid)
+        {
             None => {}
             Some(subscription_pipelines) => {
                 for pipeline in subscription_pipelines {
@@ -228,7 +227,7 @@ impl KafkaService {
         &self,
         subscription_id: Uuid,
         handler: T,
-        request: GrpcPipelineExecutionRequest
+        request: GrpcPipelineExecutionRequest,
     ) -> Uuid {
         let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
         let pipeline_id = Uuid::new_v4();
@@ -243,14 +242,14 @@ impl KafkaService {
                 pipelines_map.insert(pipeline_id, kafka_pipeline);
             }
         }
-        
+
         pipeline_id
     }
-    
+
     fn create_kafka_pipeline<T: PipelineEventsHandler + 'static>(
-        &self, 
-        request: GrpcPipelineExecutionRequest, 
-        handler: T
+        &self,
+        request: GrpcPipelineExecutionRequest,
+        handler: T,
     ) -> KafkaSubscriptionPipeline {
         let handler = Arc::new(Box::new(handler) as Box<dyn PipelineEventsHandler>);
         let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
@@ -277,7 +276,7 @@ impl KafkaService {
         KafkaConsumerCreationDto::new(
             self.consumers_states.clone(),
             self.names_to_logs.clone(),
-            self.subscriptions_to_execution_requests.clone()
+            self.subscriptions_to_execution_requests.clone(),
         )
     }
 

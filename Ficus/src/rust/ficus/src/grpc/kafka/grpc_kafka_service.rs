@@ -1,5 +1,9 @@
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::{grpc_kafka_result, AddPipelineRequest, AddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult, GrpcSubscribeToKafkaRequest, GrpcUnsubscribeFromKafkaRequest, RemoveAllPipelinesRequest, RemovePipelineRequest};
+use crate::ficus_proto::{
+    grpc_kafka_result, AddPipelineRequest, AddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid,
+    GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult, GrpcSubscribeToKafkaRequest,
+    GrpcUnsubscribeFromKafkaRequest, RemoveAllPipelinesRequest, RemovePipelineRequest,
+};
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::events::delegating_events_handler::DelegatingEventsHandler;
 use crate::grpc::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
@@ -14,11 +18,9 @@ use std::pin::Pin;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
-use tokio::time::sleep_until;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
-use crate::grpc::events::kafka_events_handler::KafkaEventsHandler;
 
 pub struct GrpcKafkaServiceImpl {
     context_values_service: Arc<Mutex<ContextValueService>>,
@@ -47,9 +49,7 @@ impl GrpcGuid {
 
 impl From<Uuid> for GrpcGuid {
     fn from(value: Uuid) -> Self {
-        GrpcGuid {
-            guid: value.to_string(),
-        }
+        GrpcGuid { guid: value.to_string() }
     }
 }
 
@@ -57,8 +57,8 @@ impl GrpcKafkaResult {
     pub fn success(uuid: Uuid) -> GrpcKafkaResult {
         GrpcKafkaResult {
             result: Some(grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
-                id: Some(GrpcGuid::from(uuid))
-            }))
+                id: Some(GrpcGuid::from(uuid)),
+            })),
         }
     }
 }
@@ -82,17 +82,26 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
         &self,
         request: Request<GrpcUnsubscribeFromKafkaRequest>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
-        let uuid = request.get_ref().subscription_id.as_ref().expect("Subscription id must be provided").to_uuid()?;
+        let uuid = request
+            .get_ref()
+            .subscription_id
+            .as_ref()
+            .expect("Subscription id must be provided")
+            .to_uuid()?;
+
         let result = self.kafka_service.unsubscribe_from_kafka(uuid);
 
         Ok(Response::new(GrpcKafkaResult { result: Some(result) }))
     }
 
-    async fn add_pipeline_to_subscription(
-        &self,
-        request: Request<AddPipelineRequest>
-    ) -> Result<Response<GrpcKafkaResult>, Status> {
-        let uuid = request.get_ref().subscription_id.as_ref().expect("Subscription id must be provided").to_uuid()?;
+    async fn add_pipeline_to_subscription(&self, request: Request<AddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
+        let uuid = request
+            .get_ref()
+            .subscription_id
+            .as_ref()
+            .expect("Subscription id must be provided")
+            .to_uuid()?;
+
         let handler = KafkaService::create_kafka_events_handler(request.get_ref().results_to_kafka_topic.as_ref())?;
 
         let request = request.get_ref().pipeline_request.as_ref().unwrap().clone();
@@ -106,9 +115,14 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
     async fn add_pipeline_to_subscription_stream(
         &self,
-        request: Request<AddPipelineStreamRequest>
+        request: Request<AddPipelineStreamRequest>,
     ) -> Result<Response<Self::AddPipelineToSubscriptionStreamStream>, Status> {
-        let uuid = request.get_ref().subscription_id.as_ref().expect("Subscription id must be provided").to_uuid()?;
+        let uuid = request
+            .get_ref()
+            .subscription_id
+            .as_ref()
+            .expect("Subscription id must be provided")
+            .to_uuid()?;
 
         let (sender, receiver) = mpsc::channel(4);
         let handler = GrpcPipelineEventsHandler::new(sender);
@@ -121,16 +135,36 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     }
 
     async fn remove_pipeline_subscription(&self, request: Request<RemovePipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
-        let subscription_id = request.get_ref().subscription_id.as_ref().expect("Subscription id must be provided").to_uuid()?;
-        let pipeline_id = request.get_ref().pipeline_id.as_ref().expect("Pipeline id must be provided").to_uuid()?;
+        let subscription_id = request
+            .get_ref()
+            .subscription_id
+            .as_ref()
+            .expect("Subscription id must be provided")
+            .to_uuid()?;
+
+        let pipeline_id = request
+            .get_ref()
+            .pipeline_id
+            .as_ref()
+            .expect("Pipeline id must be provided")
+            .to_uuid()?;
 
         self.kafka_service.remove_execution_request(&subscription_id, &pipeline_id);
 
         Ok(Response::new(GrpcKafkaResult::success(pipeline_id.clone())))
     }
 
-    async fn remove_all_pipeline_subscriptions(&self, request: Request<RemoveAllPipelinesRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
-        let subscription_id = request.get_ref().subscription_id.as_ref().expect("Subscription id must be provided").to_uuid()?;
+    async fn remove_all_pipeline_subscriptions(
+        &self,
+        request: Request<RemoveAllPipelinesRequest>,
+    ) -> Result<Response<GrpcKafkaResult>, Status> {
+        let subscription_id = request
+            .get_ref()
+            .subscription_id
+            .as_ref()
+            .expect("Subscription id must be provided")
+            .to_uuid()?;
+
         self.kafka_service.remove_all_execution_requests(&subscription_id);
 
         Ok(Response::new(GrpcKafkaResult::success(subscription_id.clone())))
