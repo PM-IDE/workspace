@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
+use crate::grpc::kafka::kafka_service::KafkaSubscriptionPipeline;
 
 pub(super) enum ConsumerState {
     Consuming,
@@ -59,7 +60,7 @@ pub(super) struct KafkaConsumerCreationDto {
     pub uuid: Uuid,
     pub consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
     pub names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-    pub pipeline_execution_dto: PipelineExecutionDto,
+    pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, HashMap<Uuid, KafkaSubscriptionPipeline>>>>,
     pub logger: ConsoleLogMessageHandler,
 }
 
@@ -67,18 +68,19 @@ impl KafkaConsumerCreationDto {
     pub fn new(
         consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-        pipeline_execution_dto: PipelineExecutionDto,
+        subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, HashMap<Uuid, KafkaSubscriptionPipeline>>>>
     ) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             consumer_states,
             names_to_logs,
-            pipeline_execution_dto,
+            subscriptions_to_execution_requests,
             logger: ConsoleLogMessageHandler::new(),
         }
     }
 }
 
+#[derive(Clone)]
 pub(super) struct LogUpdateResult {
     pub process_name: String,
     pub case_name: String,
