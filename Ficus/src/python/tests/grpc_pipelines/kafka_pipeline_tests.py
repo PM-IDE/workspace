@@ -20,11 +20,11 @@ def test_kafka_pipeline():
     )
 
     ficus_backend = 'localhost:1234'
-    sub_id = create_kafka_subscription(kafka_metadata, ficus_backend)
+    sub_id = create_kafka_subscription('Subscription', kafka_metadata, ficus_backend)
 
     KafkaPipeline(
         PrintEventLogInfo()
-    ).execute(ficus_backend, sub_id, kafka_producer_metadata, {})
+    ).execute(ficus_backend, sub_id, 'Pipeline', kafka_producer_metadata, {})
 
 
 def test_kafka_stream_pipeline():
@@ -38,8 +38,8 @@ def test_kafka_stream_pipeline():
     )
 
     ficus_backend = 'localhost:1234'
-    sub_id = create_kafka_subscription(kafka_metadata, ficus_backend)
+    sub_id = create_kafka_subscription('Subscription', kafka_metadata, ficus_backend)
 
     KafkaPipeline(
         PrintEventLogInfo()
-    ).execute_stream(ficus_backend, sub_id, {})
+    ).execute_stream(ficus_backend, sub_id, 'Pipeline', {})

@@ -2,6 +2,8 @@ from common import execute_pipeline
 from ficus import *
 
 execute_pipeline(
+    'MySubscription',
+    'GCPipeline',
     [
         RemainEventsByRegex('GC/'),
         FilterEventsByRegex('GC/RestartEEStart'),
