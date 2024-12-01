@@ -27,15 +27,31 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use tonic::Status;
 use uuid::Uuid;
+use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 
-pub struct KafkaSubscriptionPipeline {
+pub(super) struct KafkaSubscriptionPipeline {
     request: GrpcPipelineExecutionRequest,
     execution_dto: PipelineExecutionDto,
+    name: String
 }
 
 impl KafkaSubscriptionPipeline {
-    fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto) -> Self {
-        Self { request, execution_dto }
+    fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto, name: String) -> Self {
+        Self { request, execution_dto, name }
+    }
+}
+
+pub (super) struct KafkaSubscription {
+    name: String,
+    pipelines: HashMap<Uuid, KafkaSubscriptionPipeline>,
+}
+
+impl KafkaSubscription {
+    fn new(name: String) -> Self {
+        Self {
+            name,
+            pipelines: HashMap::new()
+        }
     }
 }
 
@@ -43,7 +59,8 @@ pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
     consumers_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
-    subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, HashMap<Uuid, KafkaSubscriptionPipeline>>>>,
+    subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
+    logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaService {
@@ -53,6 +70,7 @@ impl KafkaService {
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
             consumers_states: Arc::new(Mutex::new(HashMap::new())),
             subscriptions_to_execution_requests: Arc::new(Mutex::new(HashMap::new())),
+            logger: ConsoleLogMessageHandler::new(),
         }
     }
 }
@@ -87,9 +105,15 @@ impl KafkaService {
     pub(super) fn subscribe_to_kafka_topic(&self, request: GrpcSubscribeToKafkaRequest) -> Result<Uuid, KafkaError> {
         let creation_dto = self.create_kafka_creation_dto();
         let id = creation_dto.uuid.clone();
+        let name = request.subscription_name.clone();
 
         match Self::spawn_consumer(request, creation_dto) {
-            Ok(_) => Ok(id),
+            Ok(_) => {
+                let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
+                map.insert(id, KafkaSubscription::new(name));
+
+                Ok(id)
+            },
             Err(err) => Err(err),
         }
     }
@@ -195,7 +219,7 @@ impl KafkaService {
         {
             None => {}
             Some(subscription_pipelines) => {
-                for pipeline in subscription_pipelines {
+                for pipeline in &subscription_pipelines.pipelines {
                     let pipeline = pipeline.1;
 
                     if !pipeline.execution_dto.events_handler.is_alive() {
@@ -228,18 +252,18 @@ impl KafkaService {
         subscription_id: Uuid,
         handler: T,
         request: GrpcPipelineExecutionRequest,
+        pipeline_name: String,
     ) -> Uuid {
         let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
         let pipeline_id = Uuid::new_v4();
-        let kafka_pipeline = self.create_kafka_pipeline(request, handler);
+        let kafka_pipeline = self.create_kafka_pipeline(request, handler, pipeline_name);
 
         match map.get_mut(&subscription_id) {
             None => {
-                let pipelines_map = HashMap::from_iter([(pipeline_id, kafka_pipeline)]);
-                map.insert(subscription_id, pipelines_map);
+                self.logger.handle("Subscription must be present").expect("Must log");
             }
-            Some(pipelines_map) => {
-                pipelines_map.insert(pipeline_id, kafka_pipeline);
+            Some(subscription) => {
+                subscription.pipelines.insert(pipeline_id, kafka_pipeline);
             }
         }
 
@@ -250,23 +274,24 @@ impl KafkaService {
         &self,
         request: GrpcPipelineExecutionRequest,
         handler: T,
+        pipeline_name: String,
     ) -> KafkaSubscriptionPipeline {
         let handler = Arc::new(Box::new(handler) as Box<dyn PipelineEventsHandler>);
         let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
-        KafkaSubscriptionPipeline::new(request, dto)
+        KafkaSubscriptionPipeline::new(request, dto, pipeline_name)
     }
 
     pub fn remove_execution_request(&self, subscription_id: &Uuid, pipeline_id: &Uuid) {
         let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
         if let Some(map) = map.get_mut(subscription_id) {
-            map.remove(pipeline_id);
+            map.pipelines.remove(pipeline_id);
         }
     }
 
     pub fn remove_all_execution_requests(&self, subscription_id: &Uuid) {
         let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
         if let Some(map) = map.get_mut(subscription_id) {
-            map.clear();
+            map.pipelines.clear();
         }
     }
 }

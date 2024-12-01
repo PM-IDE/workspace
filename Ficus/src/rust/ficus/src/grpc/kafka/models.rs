@@ -1,7 +1,7 @@
 use crate::event_log::bxes::bxes_to_xes_converter::BxesToXesReadError;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::grpc::events::events_handler::PipelineEventsHandler;
-use crate::grpc::kafka::kafka_service::KafkaSubscriptionPipeline;
+use crate::grpc::kafka::kafka_service::{KafkaSubscription, KafkaSubscriptionPipeline};
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::pipeline_parts::PipelineParts;
 use std::collections::HashMap;
@@ -60,7 +60,7 @@ pub(super) struct KafkaConsumerCreationDto {
     pub uuid: Uuid,
     pub consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
     pub names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-    pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, HashMap<Uuid, KafkaSubscriptionPipeline>>>>,
+    pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     pub logger: ConsoleLogMessageHandler,
 }
 
@@ -68,7 +68,7 @@ impl KafkaConsumerCreationDto {
     pub fn new(
         consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-        subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, HashMap<Uuid, KafkaSubscriptionPipeline>>>>,
+        subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     ) -> Self {
         Self {
             uuid: Uuid::new_v4(),

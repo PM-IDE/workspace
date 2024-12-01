@@ -68,17 +68,9 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     }
 
     async fn add_pipeline_to_subscription(&self, request: Request<GrpcAddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
-        let uuid = request
-            .get_ref()
-            .subscription_id
-            .as_ref()
-            .expect("Subscription id must be provided")
-            .to_uuid()?;
-
-        let handler = KafkaService::create_kafka_events_handler(request.get_ref().results_to_kafka_topic.as_ref())?;
-
-        let request = request.get_ref().pipeline_request.as_ref().unwrap().clone();
-        let pipeline_id = self.kafka_service.add_execution_request(uuid, handler, request);
+        let dto = request.get_ref().to_dto();
+        let handler = KafkaService::create_kafka_events_handler(request.get_ref().producer_kafka_metadata.as_ref())?;
+        let pipeline_id = self.kafka_service.add_execution_request(dto.subscription_id, handler, dto.request, dto.name);
 
         Ok(Response::new(GrpcKafkaResult::success(pipeline_id)))
     }
@@ -90,19 +82,11 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
         &self,
         request: Request<GrpcAddPipelineStreamRequest>,
     ) -> Result<Response<Self::AddPipelineToSubscriptionStreamStream>, Status> {
-        let uuid = request
-            .get_ref()
-            .subscription_id
-            .as_ref()
-            .expect("Subscription id must be provided")
-            .to_uuid()?;
-
+        let dto = request.get_ref().to_dto();
         let (sender, receiver) = mpsc::channel(4);
         let handler = GrpcPipelineEventsHandler::new(sender);
 
-        let request = request.get_ref().pipeline_request.as_ref().unwrap().clone();
-
-        self.kafka_service.add_execution_request(uuid, handler, request);
+        self.kafka_service.add_execution_request(dto.subscription_id, handler, dto.request, dto.name);
 
         Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
     }
