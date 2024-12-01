@@ -34,7 +34,7 @@ pub struct KafkaSubscriptionPipeline {
 }
 
 impl KafkaSubscriptionPipeline {
-    pub fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto) -> Self {
+    fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto) -> Self {
         Self { request, execution_dto }
     }
 }

@@ -15,12 +15,10 @@ use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use futures::Stream;
 use std::pin::Pin;
-use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
-use uuid::Uuid;
 
 pub struct GrpcKafkaServiceImpl {
     context_values_service: Arc<Mutex<ContextValueService>>,
@@ -34,31 +32,6 @@ impl GrpcKafkaServiceImpl {
             context_values_service,
             kafka_service: KafkaService::new(),
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
-        }
-    }
-}
-
-impl GrpcGuid {
-    pub fn to_uuid(&self) -> Result<Uuid, Status> {
-        match Uuid::from_str(&self.guid) {
-            Ok(uuid) => Ok(uuid),
-            Err(_) => Err(Status::invalid_argument("Invalid uuid")),
-        }
-    }
-}
-
-impl From<Uuid> for GrpcGuid {
-    fn from(value: Uuid) -> Self {
-        GrpcGuid { guid: value.to_string() }
-    }
-}
-
-impl GrpcKafkaResult {
-    pub fn success(uuid: Uuid) -> GrpcKafkaResult {
-        GrpcKafkaResult {
-            result: Some(grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
-                id: Some(GrpcGuid::from(uuid)),
-            })),
         }
     }
 }
