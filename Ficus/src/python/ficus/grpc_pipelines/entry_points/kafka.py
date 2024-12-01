@@ -22,10 +22,11 @@ class KafkaPipeline:
         self.pipeline_id = None
 
     def execute(self,
+                ficus_backend: str,
                 subscription_id: str,
                 producer_connection_metadata: KafkaPipelineMetadata,
                 initial_context: dict[str, ContextValue]):
-        with create_ficus_grpc_channel(initial_context) as channel:
+        with create_ficus_grpc_channel(ficus_backend) as channel:
             stub = GrpcKafkaServiceStub(channel)
 
             request = self._create_pipeline_execution_request(initial_context)
@@ -52,8 +53,8 @@ class KafkaPipeline:
         )
 
 
-    def execute_stream(self, subscription_id: str, initial_context: dict[str, ContextValue]):
-        with create_ficus_grpc_channel(initial_context) as channel:
+    def execute_stream(self, ficus_backend: str, subscription_id: str, initial_context: dict[str, ContextValue]):
+        with create_ficus_grpc_channel(ficus_backend) as channel:
             stub = GrpcKafkaServiceStub(channel)
             callback_parts = []
             append_parts_with_callbacks(list(self.parts), callback_parts)
@@ -66,12 +67,14 @@ class KafkaPipeline:
 
             process_multiple_pipelines_output_stream(callback_parts, stub.AddPipelineToSubscriptionStream(request))
 
+
     def execute_and_send_to_kafka(self,
+                                  ficus_backend: str,
                                   process_name: str,
                                   case_name: str,
                                   producer_metadata: KafkaPipelineMetadata,
                                   initial_context: dict[str, ContextValue]):
-        with create_ficus_grpc_channel(initial_context) as channel:
+        with create_ficus_grpc_channel(ficus_backend) as channel:
             def action(ids: list[GrpcGuid]):
                 stub = GrpcKafkaServiceStub(channel)
 
@@ -93,6 +96,7 @@ class KafkaPipeline:
 
             execute_with_context_values(channel, initial_context, action)
 
+
 def _create_kafka_connection_metadata(kafka_metadata: KafkaPipelineMetadata) -> GrpcKafkaConnectionMetadata:
     metadata = list(map(
         lambda x: GrpcKafkaConsumerMetadata(key=x[0], value=x[1]),
@@ -106,7 +110,7 @@ def _create_kafka_connection_metadata(kafka_metadata: KafkaPipelineMetadata) -> 
 
 
 def create_kafka_subscription(kafka_connection_metadata: KafkaPipelineMetadata, ficus_addr: str) -> Optional[str]:
-    with create_ficus_grpc_channel({ficus_backend_addr_key: ficus_addr}) as channel:
+    with create_ficus_grpc_channel(ficus_addr) as channel:
         stub = GrpcKafkaServiceStub(channel)
 
         metadata = _create_kafka_connection_metadata(kafka_connection_metadata)
@@ -122,7 +126,7 @@ def create_kafka_subscription(kafka_connection_metadata: KafkaPipelineMetadata, 
 
 
 def remove_kafka_subscription(subscription_id: str, ficus_addr: str):
-    with create_ficus_grpc_channel({ficus_backend_addr_key: ficus_addr}) as channel:
+    with create_ficus_grpc_channel(ficus_addr) as channel:
         stub = GrpcKafkaServiceStub(channel)
 
         request = GrpcUnsubscribeFromKafkaRequest(subscriptionId=GrpcGuid(guid=subscription_id))

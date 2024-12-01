@@ -38,9 +38,7 @@ def execute_pipeline(pipeline_parts: list[PipelinePart]):
 
     KafkaPipeline(
         pipeline_parts
-    ).execute(subscription_id, kafka_producer_metadata, {
-        ficus_backend_addr_key: ficus_backend
-    })
+    ).execute(ficus_backend, subscription_id, kafka_producer_metadata, {})
 
     if env_or_default('SLEEP', None) is not None:
         while True:

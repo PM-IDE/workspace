@@ -24,9 +24,7 @@ def test_kafka_pipeline():
 
     KafkaPipeline(
         PrintEventLogInfo()
-    ).execute(sub_id, kafka_producer_metadata, {
-        ficus_backend_addr_key: ficus_backend
-    })
+    ).execute(ficus_backend, sub_id, kafka_producer_metadata, {})
 
 
 def test_kafka_stream_pipeline():
@@ -44,6 +42,4 @@ def test_kafka_stream_pipeline():
 
     KafkaPipeline(
         PrintEventLogInfo()
-    ).execute_stream(sub_id, {
-        ficus_backend_addr_key: ficus_backend
-    })
+    ).execute_stream(ficus_backend, sub_id, {})

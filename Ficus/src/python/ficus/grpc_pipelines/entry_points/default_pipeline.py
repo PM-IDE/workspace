@@ -17,8 +17,8 @@ class Pipeline:
     def __init__(self, *parts):
         self.parts: list['PipelinePart'] = list(parts)
 
-    def execute(self, initial_context: dict[str, ContextValue]) -> GrpcPipelinePartExecutionResult:
-        with create_ficus_grpc_channel(initial_context) as channel:
+    def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> GrpcPipelinePartExecutionResult:
+        with create_ficus_grpc_channel(ficus_backend) as channel:
             def action(ids):
                 stub = GrpcBackendServiceStub(channel)
                 parts = list(self.parts)
