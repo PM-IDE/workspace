@@ -1,8 +1,8 @@
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
 use crate::ficus_proto::{
-    grpc_kafka_result, AddPipelineRequest, AddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid,
-    GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult, GrpcSubscribeToKafkaRequest,
-    GrpcUnsubscribeFromKafkaRequest, RemoveAllPipelinesRequest, RemovePipelineRequest,
+    grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid,
+    GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult, GrpcRemoveAllPipelinesRequest,
+    GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest, GrpcUnsubscribeFromKafkaRequest,
 };
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::events::delegating_events_handler::DelegatingEventsHandler;
@@ -94,7 +94,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
         Ok(Response::new(GrpcKafkaResult { result: Some(result) }))
     }
 
-    async fn add_pipeline_to_subscription(&self, request: Request<AddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
+    async fn add_pipeline_to_subscription(&self, request: Request<GrpcAddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
         let uuid = request
             .get_ref()
             .subscription_id
@@ -115,7 +115,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
     async fn add_pipeline_to_subscription_stream(
         &self,
-        request: Request<AddPipelineStreamRequest>,
+        request: Request<GrpcAddPipelineStreamRequest>,
     ) -> Result<Response<Self::AddPipelineToSubscriptionStreamStream>, Status> {
         let uuid = request
             .get_ref()
@@ -134,7 +134,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
         Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
     }
 
-    async fn remove_pipeline_subscription(&self, request: Request<RemovePipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
+    async fn remove_pipeline_subscription(&self, request: Request<GrpcRemovePipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
         let subscription_id = request
             .get_ref()
             .subscription_id
@@ -156,7 +156,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
     async fn remove_all_pipeline_subscriptions(
         &self,
-        request: Request<RemoveAllPipelinesRequest>,
+        request: Request<GrpcRemoveAllPipelinesRequest>,
     ) -> Result<Response<GrpcKafkaResult>, Status> {
         let subscription_id = request
             .get_ref()

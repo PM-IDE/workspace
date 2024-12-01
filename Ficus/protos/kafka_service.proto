@@ -11,11 +11,11 @@ service GrpcKafkaService {
   rpc SubscribeForKafkaTopic(GrpcSubscribeToKafkaRequest) returns (GrpcKafkaResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
   
-  rpc AddPipelineToSubscription(AddPipelineRequest) returns (GrpcKafkaResult);
-  rpc AddPipelineToSubscriptionStream(AddPipelineStreamRequest) returns (stream GrpcPipelinePartExecutionResult);
+  rpc AddPipelineToSubscription(GrpcAddPipelineRequest) returns (GrpcKafkaResult);
+  rpc AddPipelineToSubscriptionStream(GrpcAddPipelineStreamRequest) returns (stream GrpcPipelinePartExecutionResult);
 
-  rpc RemovePipelineSubscription(RemovePipelineRequest) returns (GrpcKafkaResult);
-  rpc RemoveAllPipelineSubscriptions(RemoveAllPipelinesRequest) returns (GrpcKafkaResult);
+  rpc RemovePipelineSubscription(GrpcRemovePipelineRequest) returns (GrpcKafkaResult);
+  rpc RemoveAllPipelineSubscriptions(GrpcRemoveAllPipelinesRequest) returns (GrpcKafkaResult);
 
   rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (stream GrpcPipelinePartExecutionResult);
 }
@@ -35,23 +35,23 @@ message GrpcSubscribeToKafkaRequest {
   GrpcKafkaConnectionMetadata connectionMetadata = 1;
 }
 
-message AddPipelineRequest {
+message GrpcAddPipelineRequest {
   GrpcGuid subscriptionId = 1;
   GrpcPipelineExecutionRequest pipelineRequest = 2;
   GrpcKafkaConnectionMetadata resultsToKafkaTopic = 3;
 }
 
-message AddPipelineStreamRequest {
+message GrpcAddPipelineStreamRequest {
   GrpcGuid subscriptionId = 1;
   GrpcPipelineExecutionRequest pipelineRequest = 2;
 }
 
-message RemovePipelineRequest {
+message GrpcRemovePipelineRequest {
   GrpcGuid subscriptionId = 1;
   GrpcGuid pipelineId = 2;
 }
 
-message RemoveAllPipelinesRequest {
+message GrpcRemoveAllPipelinesRequest {
   GrpcGuid subscriptionId = 1;
 }
 
