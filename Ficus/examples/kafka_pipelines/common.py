@@ -32,9 +32,13 @@ def execute_pipeline(pipeline_parts: list[PipelinePart]):
 
     ficus_backend = env_or_default('FICUS_BACKEND', 'localhost:8080')
 
+    subscription_id = create_kafka_subscription(kafka_consumer_metadata, ficus_backend)
+    if subscription_id is None:
+        return
+
     KafkaPipeline(
         pipeline_parts
-    ).execute(kafka_consumer_metadata, kafka_producer_metadata, {
+    ).execute(subscription_id, kafka_producer_metadata, {
         ficus_backend_addr_key: ficus_backend
     })
 
