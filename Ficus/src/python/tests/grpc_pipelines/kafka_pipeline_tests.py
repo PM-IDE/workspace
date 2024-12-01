@@ -1,6 +1,5 @@
-from ficus import ficus_backend_addr_key
 from ...ficus.grpc_pipelines.entry_points.default_pipeline import PrintEventLogInfo
-from ...ficus.grpc_pipelines.entry_points.kafka import KafkaPipeline, KafkaPipelineMetadata
+from ...ficus.grpc_pipelines.entry_points.kafka import *
 
 
 def test_kafka_pipeline():
@@ -20,10 +19,13 @@ def test_kafka_pipeline():
         }
     )
 
+    ficus_backend = 'localhost:1234'
+    sub_id = create_kafka_subscription(kafka_metadata, ficus_backend)
+
     KafkaPipeline(
         PrintEventLogInfo()
-    ).execute(kafka_metadata, kafka_producer_metadata, {
-        ficus_backend_addr_key: 'localhost:1234'
+    ).execute(sub_id, kafka_producer_metadata, {
+        ficus_backend_addr_key: ficus_backend
     })
 
 
@@ -37,6 +39,11 @@ def test_kafka_stream_pipeline():
         }
     )
 
+    ficus_backend = 'localhost:1234'
+    sub_id = create_kafka_subscription(kafka_metadata, ficus_backend)
+
     KafkaPipeline(
         PrintEventLogInfo()
-    ).execute_stream(kafka_metadata, {})
+    ).execute_stream(sub_id, {
+        ficus_backend_addr_key: ficus_backend
+    })

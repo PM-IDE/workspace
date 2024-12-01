@@ -32,23 +32,13 @@ class GrpcKafkaServiceStub(object):
 
         """
 
-        self.SubscribeForKafkaTopicExternal = channel.unary_unary(
+        self.SubscribeForKafkaTopic = channel.unary_unary(
 
-                '/ficus.GrpcKafkaService/SubscribeForKafkaTopicExternal',
+                '/ficus.GrpcKafkaService/SubscribeForKafkaTopic',
 
-                request_serializer=kafka__service__pb2.GrpcSubscribeToKafkaAndProduceToKafka.SerializeToString,
+                request_serializer=kafka__service__pb2.GrpcSubscribeToKafkaRequest.SerializeToString,
 
                 response_deserializer=kafka__service__pb2.GrpcKafkaResult.FromString,
-
-                )
-
-        self.SubscribeForKafkaTopicStream = channel.unary_stream(
-
-                '/ficus.GrpcKafkaService/SubscribeForKafkaTopicStream',
-
-                request_serializer=kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.SerializeToString,
-
-                response_deserializer=backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 
                 )
 
@@ -57,6 +47,46 @@ class GrpcKafkaServiceStub(object):
                 '/ficus.GrpcKafkaService/UnsubscribeFromKafkaTopic',
 
                 request_serializer=kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.SerializeToString,
+
+                response_deserializer=kafka__service__pb2.GrpcKafkaResult.FromString,
+
+                )
+
+        self.AddPipelineToSubscription = channel.unary_unary(
+
+                '/ficus.GrpcKafkaService/AddPipelineToSubscription',
+
+                request_serializer=kafka__service__pb2.GrpcAddPipelineRequest.SerializeToString,
+
+                response_deserializer=kafka__service__pb2.GrpcKafkaResult.FromString,
+
+                )
+
+        self.AddPipelineToSubscriptionStream = channel.unary_stream(
+
+                '/ficus.GrpcKafkaService/AddPipelineToSubscriptionStream',
+
+                request_serializer=kafka__service__pb2.GrpcAddPipelineStreamRequest.SerializeToString,
+
+                response_deserializer=backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
+
+                )
+
+        self.RemovePipelineSubscription = channel.unary_unary(
+
+                '/ficus.GrpcKafkaService/RemovePipelineSubscription',
+
+                request_serializer=kafka__service__pb2.GrpcRemovePipelineRequest.SerializeToString,
+
+                response_deserializer=kafka__service__pb2.GrpcKafkaResult.FromString,
+
+                )
+
+        self.RemoveAllPipelineSubscriptions = channel.unary_unary(
+
+                '/ficus.GrpcKafkaService/RemoveAllPipelineSubscriptions',
+
+                request_serializer=kafka__service__pb2.GrpcRemoveAllPipelinesRequest.SerializeToString,
 
                 response_deserializer=kafka__service__pb2.GrpcKafkaResult.FromString,
 
@@ -82,19 +112,7 @@ class GrpcKafkaServiceServicer(object):
 
 
 
-    def SubscribeForKafkaTopicExternal(self, request, context):
-
-        """Missing associated documentation comment in .proto file."""
-
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-
-        context.set_details('Method not implemented!')
-
-        raise NotImplementedError('Method not implemented!')
-
-
-
-    def SubscribeForKafkaTopicStream(self, request, context):
+    def SubscribeForKafkaTopic(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -107,6 +125,54 @@ class GrpcKafkaServiceServicer(object):
 
 
     def UnsubscribeFromKafkaTopic(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def AddPipelineToSubscription(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def AddPipelineToSubscriptionStream(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def RemovePipelineSubscription(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def RemoveAllPipelineSubscriptions(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -136,23 +202,13 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
 
     rpc_method_handlers = {
 
-            'SubscribeForKafkaTopicExternal': grpc.unary_unary_rpc_method_handler(
+            'SubscribeForKafkaTopic': grpc.unary_unary_rpc_method_handler(
 
-                    servicer.SubscribeForKafkaTopicExternal,
+                    servicer.SubscribeForKafkaTopic,
 
-                    request_deserializer=kafka__service__pb2.GrpcSubscribeToKafkaAndProduceToKafka.FromString,
+                    request_deserializer=kafka__service__pb2.GrpcSubscribeToKafkaRequest.FromString,
 
                     response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
-
-            ),
-
-            'SubscribeForKafkaTopicStream': grpc.unary_stream_rpc_method_handler(
-
-                    servicer.SubscribeForKafkaTopicStream,
-
-                    request_deserializer=kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.FromString,
-
-                    response_serializer=backend__service__pb2.GrpcPipelinePartExecutionResult.SerializeToString,
 
             ),
 
@@ -161,6 +217,46 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
                     servicer.UnsubscribeFromKafkaTopic,
 
                     request_deserializer=kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.FromString,
+
+                    response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
+
+            ),
+
+            'AddPipelineToSubscription': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.AddPipelineToSubscription,
+
+                    request_deserializer=kafka__service__pb2.GrpcAddPipelineRequest.FromString,
+
+                    response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
+
+            ),
+
+            'AddPipelineToSubscriptionStream': grpc.unary_stream_rpc_method_handler(
+
+                    servicer.AddPipelineToSubscriptionStream,
+
+                    request_deserializer=kafka__service__pb2.GrpcAddPipelineStreamRequest.FromString,
+
+                    response_serializer=backend__service__pb2.GrpcPipelinePartExecutionResult.SerializeToString,
+
+            ),
+
+            'RemovePipelineSubscription': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.RemovePipelineSubscription,
+
+                    request_deserializer=kafka__service__pb2.GrpcRemovePipelineRequest.FromString,
+
+                    response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
+
+            ),
+
+            'RemoveAllPipelineSubscriptions': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.RemoveAllPipelineSubscriptions,
+
+                    request_deserializer=kafka__service__pb2.GrpcRemoveAllPipelinesRequest.FromString,
 
                     response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
 
@@ -198,7 +294,7 @@ class GrpcKafkaService(object):
 
     @staticmethod
 
-    def SubscribeForKafkaTopicExternal(request,
+    def SubscribeForKafkaTopic(request,
 
             target,
 
@@ -218,45 +314,11 @@ class GrpcKafkaService(object):
 
             metadata=None):
 
-        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/SubscribeForKafkaTopicExternal',
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/SubscribeForKafkaTopic',
 
-            kafka__service__pb2.GrpcSubscribeToKafkaAndProduceToKafka.SerializeToString,
+            kafka__service__pb2.GrpcSubscribeToKafkaRequest.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
-
-            options, channel_credentials,
-
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-
-
-    @staticmethod
-
-    def SubscribeForKafkaTopicStream(request,
-
-            target,
-
-            options=(),
-
-            channel_credentials=None,
-
-            call_credentials=None,
-
-            insecure=False,
-
-            compression=None,
-
-            wait_for_ready=None,
-
-            timeout=None,
-
-            metadata=None):
-
-        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcKafkaService/SubscribeForKafkaTopicStream',
-
-            kafka__service__pb2.GrpcSubscribeForKafkaTopicRequest.SerializeToString,
-
-            backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 
             options, channel_credentials,
 
@@ -289,6 +351,142 @@ class GrpcKafkaService(object):
         return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/UnsubscribeFromKafkaTopic',
 
             kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.SerializeToString,
+
+            kafka__service__pb2.GrpcKafkaResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def AddPipelineToSubscription(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/AddPipelineToSubscription',
+
+            kafka__service__pb2.GrpcAddPipelineRequest.SerializeToString,
+
+            kafka__service__pb2.GrpcKafkaResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def AddPipelineToSubscriptionStream(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcKafkaService/AddPipelineToSubscriptionStream',
+
+            kafka__service__pb2.GrpcAddPipelineStreamRequest.SerializeToString,
+
+            backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def RemovePipelineSubscription(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/RemovePipelineSubscription',
+
+            kafka__service__pb2.GrpcRemovePipelineRequest.SerializeToString,
+
+            kafka__service__pb2.GrpcKafkaResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def RemoveAllPipelineSubscriptions(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/RemoveAllPipelineSubscriptions',
+
+            kafka__service__pb2.GrpcRemoveAllPipelinesRequest.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
 

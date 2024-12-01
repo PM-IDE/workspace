@@ -27,21 +27,43 @@ class GrpcProcessInfo(_message.Message):
     caseName: str
     def __init__(self, processName: _Optional[str] = ..., caseName: _Optional[str] = ...) -> None: ...
 
-class GrpcSubscribeToKafkaAndProduceToKafka(_message.Message):
-    __slots__ = ["request", "producerMetadata"]
-    REQUEST_FIELD_NUMBER: _ClassVar[int]
-    PRODUCERMETADATA_FIELD_NUMBER: _ClassVar[int]
-    request: GrpcSubscribeForKafkaTopicRequest
-    producerMetadata: GrpcKafkaConnectionMetadata
-    def __init__(self, request: _Optional[_Union[GrpcSubscribeForKafkaTopicRequest, _Mapping]] = ..., producerMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ...) -> None: ...
+class GrpcSubscribeToKafkaRequest(_message.Message):
+    __slots__ = ["connectionMetadata"]
+    CONNECTIONMETADATA_FIELD_NUMBER: _ClassVar[int]
+    connectionMetadata: GrpcKafkaConnectionMetadata
+    def __init__(self, connectionMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ...) -> None: ...
 
-class GrpcSubscribeForKafkaTopicRequest(_message.Message):
-    __slots__ = ["kafkaConnectionMetadata", "pipelineRequest"]
-    KAFKACONNECTIONMETADATA_FIELD_NUMBER: _ClassVar[int]
+class GrpcAddPipelineRequest(_message.Message):
+    __slots__ = ["subscriptionId", "pipelineRequest", "resultsToKafkaTopic"]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
     PIPELINEREQUEST_FIELD_NUMBER: _ClassVar[int]
-    kafkaConnectionMetadata: GrpcKafkaConnectionMetadata
+    RESULTSTOKAFKATOPIC_FIELD_NUMBER: _ClassVar[int]
+    subscriptionId: _util_pb2.GrpcGuid
     pipelineRequest: _backend_service_pb2.GrpcPipelineExecutionRequest
-    def __init__(self, kafkaConnectionMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ..., pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ...) -> None: ...
+    resultsToKafkaTopic: GrpcKafkaConnectionMetadata
+    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ..., resultsToKafkaTopic: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ...) -> None: ...
+
+class GrpcAddPipelineStreamRequest(_message.Message):
+    __slots__ = ["subscriptionId", "pipelineRequest"]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEREQUEST_FIELD_NUMBER: _ClassVar[int]
+    subscriptionId: _util_pb2.GrpcGuid
+    pipelineRequest: _backend_service_pb2.GrpcPipelineExecutionRequest
+    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ...) -> None: ...
+
+class GrpcRemovePipelineRequest(_message.Message):
+    __slots__ = ["subscriptionId", "pipelineId"]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEID_FIELD_NUMBER: _ClassVar[int]
+    subscriptionId: _util_pb2.GrpcGuid
+    pipelineId: _util_pb2.GrpcGuid
+    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
+
+class GrpcRemoveAllPipelinesRequest(_message.Message):
+    __slots__ = ["subscriptionId"]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
+    subscriptionId: _util_pb2.GrpcGuid
+    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
 
 class GrpcKafkaConnectionMetadata(_message.Message):
     __slots__ = ["topicName", "metadata"]
@@ -68,10 +90,10 @@ class GrpcKafkaResult(_message.Message):
     def __init__(self, success: _Optional[_Union[GrpcKafkaSuccessResult, _Mapping]] = ..., failure: _Optional[_Union[GrpcKafkaFailedResult, _Mapping]] = ...) -> None: ...
 
 class GrpcKafkaSuccessResult(_message.Message):
-    __slots__ = ["subscriptionId"]
-    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
-    subscriptionId: _util_pb2.GrpcGuid
-    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
+    __slots__ = ["id"]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    id: _util_pb2.GrpcGuid
+    def __init__(self, id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
 
 class GrpcKafkaFailedResult(_message.Message):
     __slots__ = ["errorMessage"]
