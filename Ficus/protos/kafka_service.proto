@@ -33,17 +33,22 @@ message GrpcProcessInfo {
 
 message GrpcSubscribeToKafkaRequest {
   GrpcKafkaConnectionMetadata connectionMetadata = 1;
+  string subscriptionName = 2;
+}
+
+message GrpcKafkaPipelineExecutionRequest {
+  GrpcGuid subscriptionId = 1;
+  GrpcPipelineExecutionRequest pipelineRequest = 2;
+  string pipelineName = 3;
 }
 
 message GrpcAddPipelineRequest {
-  GrpcGuid subscriptionId = 1;
-  GrpcPipelineExecutionRequest pipelineRequest = 2;
-  GrpcKafkaConnectionMetadata resultsToKafkaTopic = 3;
+  GrpcKafkaPipelineExecutionRequest pipelineRequest = 1;
+  GrpcKafkaConnectionMetadata producerKafkaMetadata = 2;
 }
 
 message GrpcAddPipelineStreamRequest {
-  GrpcGuid subscriptionId = 1;
-  GrpcPipelineExecutionRequest pipelineRequest = 2;
+  GrpcKafkaPipelineExecutionRequest pipelineRequest = 1;
 }
 
 message GrpcRemovePipelineRequest {
