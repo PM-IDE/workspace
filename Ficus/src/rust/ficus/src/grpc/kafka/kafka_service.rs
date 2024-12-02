@@ -9,16 +9,17 @@ use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
 use crate::grpc::kafka::models::{
-    ConsumerState, KafkaConsumerCreationDto, LogUpdateResult, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_NAME,
+    KafkaConsumerCreationDto, LogUpdateResult, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_NAME,
     KAFKA_PROCESS_NAME,
 };
+use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
 use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
-use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaTrace};
+use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
 use rdkafka::error::KafkaError;
 use rdkafka::ClientConfig;
 use std::cell::RefCell;
@@ -27,7 +28,6 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use tonic::Status;
 use uuid::Uuid;
-use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 
 #[derive(Clone)]
 pub struct KafkaSubscriptionPipeline {
@@ -69,7 +69,6 @@ impl KafkaSubscription {
 pub struct KafkaService {
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
-    consumers_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
     subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     logger: ConsoleLogMessageHandler,
 }
@@ -79,7 +78,6 @@ impl KafkaService {
         Self {
             names_to_logs: Arc::new(Mutex::new(HashMap::new())),
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
-            consumers_states: Arc::new(Mutex::new(HashMap::new())),
             subscriptions_to_execution_requests: Arc::new(Mutex::new(HashMap::new())),
             logger: ConsoleLogMessageHandler::new(),
         }
@@ -88,13 +86,12 @@ impl KafkaService {
 
 impl KafkaService {
     pub(super) fn unsubscribe_from_kafka(&self, uuid: Uuid) -> grpc_kafka_result::Result {
-        let mut states = self.consumers_states.lock().expect("Should take lock");
-        match states.get_mut(&uuid) {
+        let mut states = self.subscriptions_to_execution_requests.lock().expect("Should take lock");
+        match states.remove(&uuid) {
             None => grpc_kafka_result::Result::Failure(GrpcKafkaFailedResult {
                 error_message: "There is not state for the supplied consumer uuid".to_string(),
             }),
-            Some(state) => {
-                *state = ConsumerState::ShutdownRequested;
+            Some(_) => {
                 grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
                     id: Some(GrpcGuid { guid: uuid.to_string() }),
                 })
@@ -102,29 +99,20 @@ impl KafkaService {
         }
     }
 
-    fn is_unsubscribe_requested(dto: KafkaConsumerCreationDto) -> bool {
-        let states = dto.consumer_states.lock().expect("Should take lock");
-        if let Some(ConsumerState::ShutdownRequested) = states.get(&dto.uuid) {
-            true
-        } else {
-            false
-        }
+    fn is_unsubscribe_requested(dto: &KafkaConsumerCreationDto) -> bool {
+        let map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
+        map.contains_key(&dto.uuid)
     }
 }
 
 impl KafkaService {
     pub(super) fn subscribe_to_kafka_topic(&self, request: GrpcSubscribeToKafkaRequest) -> Result<Uuid, KafkaError> {
-        let creation_dto = self.create_kafka_creation_dto();
-        let id = creation_dto.uuid.clone();
         let name = request.subscription_metadata.as_ref().unwrap().subscription_name.clone();
+        let creation_dto = self.create_kafka_creation_dto(name);
+        let id = creation_dto.uuid.clone();
 
         match Self::spawn_consumer(request, creation_dto) {
-            Ok(_) => {
-                let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
-                map.insert(id, KafkaSubscription::new(name));
-
-                Ok(id)
-            },
+            Ok(_) => Ok(id),
             Err(err) => Err(err),
         }
     }
@@ -138,10 +126,19 @@ impl KafkaService {
             }
         };
 
+        match Self::subscribe(&mut consumer, dto.clone()) {
+            Ok(_) => {
+                let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
+                map.insert(dto.uuid.clone(), KafkaSubscription::new(dto.name.clone()));
+            }
+            Err(err) => return match err {
+                BxesKafkaError::Kafka(err) => Err(err),
+                BxesKafkaError::Bxes(_) => Err(KafkaError::Subscription("Failed to subscribe".to_string()))
+            }
+        }
+
         tokio::spawn(async move {
             let handle = tokio::task::spawn_blocking(move || {
-                Self::subscribe(&mut consumer, dto.clone());
-
                 loop {
                     let should_stop = Self::execute_consumer_routine(&mut consumer, dto.clone());
 
@@ -175,33 +172,25 @@ impl KafkaService {
         Ok(BxesKafkaConsumer::new(metadata.topic_name.to_owned(), consumer))
     }
 
-    fn subscribe(consumer: &mut BxesKafkaConsumer, creation_dto: KafkaConsumerCreationDto) {
+    fn subscribe(consumer: &mut BxesKafkaConsumer, dto: KafkaConsumerCreationDto) -> Result<(), BxesKafkaError> {
         match consumer.subscribe() {
             Ok(_) => {
-                let mut states = creation_dto.consumer_states.lock().expect("Should take lock");
-                if states.contains_key(&creation_dto.uuid) {
-                    if let Some(ConsumerState::ShutdownRequested) = states.get(&creation_dto.uuid) {
-                        consumer.unsubscribe();
-                        return;
-                    } else {
-                        println!("Invalid state: consumer already in subscribed state");
-                    }
-                }
-
-                states.insert(creation_dto.uuid.clone(), ConsumerState::Consuming);
+                let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
+                map.insert(dto.uuid, KafkaSubscription::new(dto.name));
+                Ok(())
             }
-            Err(err) => println!("Failed to subscribe to topic: {:?}", err),
-        };
+            Err(err) => Err(err)
+        }
     }
 
     fn execute_consumer_routine(consumer: &mut BxesKafkaConsumer, dto: KafkaConsumerCreationDto) -> bool {
-        if Self::is_unsubscribe_requested(dto.clone()) {
+        if Self::is_unsubscribe_requested(&dto) {
             return true;
         }
 
         match consumer.consume() {
             Ok(trace) => match trace {
-                Some(trace) => Self::process_kafka_trace(trace, dto.clone()),
+                Some(trace) => Self::process_kafka_trace(trace, &dto),
                 None => {}
             },
             Err(err) => {
@@ -212,7 +201,7 @@ impl KafkaService {
         false
     }
 
-    fn process_kafka_trace(trace: BxesKafkaTrace, dto: KafkaConsumerCreationDto) {
+    fn process_kafka_trace(trace: BxesKafkaTrace, dto: &KafkaConsumerCreationDto) {
         let update_result = match Self::update_log(dto.names_to_logs.clone(), trace) {
             Ok(update_result) => update_result,
             Err(err) => {
@@ -222,36 +211,34 @@ impl KafkaService {
             }
         };
 
-        match dto
-            .subscriptions_to_execution_requests
-            .lock()
-            .expect("Must acquire lock")
-            .get(&dto.uuid)
-        {
-            None => {}
-            Some(subscription_pipelines) => {
-                for pipeline in &subscription_pipelines.pipelines {
-                    let pipeline = pipeline.1;
+        let map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
+        let kafka_subscription = match map.get(&dto.uuid) {
+            None => return,
+            Some(pipeline) => pipeline.clone()
+        };
 
-                    if !pipeline.execution_dto.events_handler.is_alive() {
-                        continue;
-                    }
+        drop(map);
 
-                    let update_result = update_result.clone();
-                    let context = Self::create_pipeline_execution_context(&pipeline.request, &pipeline.execution_dto);
+        for pipeline in &kafka_subscription.pipelines {
+            let pipeline = pipeline.1;
 
-                    let execution_result = context.execute_grpc_pipeline(move |context| {
-                        context.put_concrete(EVENT_LOG_KEY.key(), update_result.new_log);
-                        context.put_concrete(PROCESS_NAME.key(), update_result.process_name);
-                        context.put_concrete(CASE_NAME.key(), update_result.case_name);
-                        context.put_concrete(UNSTRUCTURED_METADATA.key(), update_result.unstructured_metadata);
-                    });
+            if !pipeline.execution_dto.events_handler.is_alive() {
+                continue;
+            }
 
-                    if let Err(err) = execution_result {
-                        let err = PipelineFinalResult::Error(err.to_string());
-                        pipeline.execution_dto.events_handler.handle(&PipelineEvent::FinalResult(err));
-                    }
-                }
+            let update_result = update_result.clone();
+            let context = Self::create_pipeline_execution_context(&pipeline.request, &pipeline.execution_dto);
+
+            let execution_result = context.execute_grpc_pipeline(move |context| {
+                context.put_concrete(EVENT_LOG_KEY.key(), update_result.new_log);
+                context.put_concrete(PROCESS_NAME.key(), update_result.process_name);
+                context.put_concrete(CASE_NAME.key(), update_result.case_name);
+                context.put_concrete(UNSTRUCTURED_METADATA.key(), update_result.unstructured_metadata);
+            });
+
+            if let Err(err) = execution_result {
+                let err = PipelineFinalResult::Error(err.to_string());
+                pipeline.execution_dto.events_handler.handle(&PipelineEvent::FinalResult(err));
             }
         }
     }
@@ -313,9 +300,9 @@ impl KafkaService {
 }
 
 impl KafkaService {
-    fn create_kafka_creation_dto(&self) -> KafkaConsumerCreationDto {
+    fn create_kafka_creation_dto(&self, name: String) -> KafkaConsumerCreationDto {
         KafkaConsumerCreationDto::new(
-            self.consumers_states.clone(),
+            name,
             self.names_to_logs.clone(),
             self.subscriptions_to_execution_requests.clone(),
         )

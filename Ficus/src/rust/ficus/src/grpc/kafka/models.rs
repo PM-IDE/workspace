@@ -1,18 +1,13 @@
 use crate::event_log::bxes::bxes_to_xes_converter::BxesToXesReadError;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::grpc::events::events_handler::PipelineEventsHandler;
-use crate::grpc::kafka::kafka_service::{KafkaSubscription, KafkaSubscriptionPipeline};
+use crate::grpc::kafka::kafka_service::KafkaSubscription;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::pipeline_parts::PipelineParts;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
-
-pub(super) enum ConsumerState {
-    Consuming,
-    ShutdownRequested,
-}
 
 pub(super) const KAFKA_CASE_NAME: &'static str = "case_name";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
@@ -58,7 +53,7 @@ impl PipelineExecutionDto {
 #[derive(Clone)]
 pub(super) struct KafkaConsumerCreationDto {
     pub uuid: Uuid,
-    pub consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
+    pub name: String,
     pub names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     pub logger: ConsoleLogMessageHandler,
@@ -66,13 +61,13 @@ pub(super) struct KafkaConsumerCreationDto {
 
 impl KafkaConsumerCreationDto {
     pub fn new(
-        consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
+        name: String,
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     ) -> Self {
         Self {
             uuid: Uuid::new_v4(),
-            consumer_states,
+            name,
             names_to_logs,
             subscriptions_to_execution_requests,
             logger: ConsoleLogMessageHandler::new(),
