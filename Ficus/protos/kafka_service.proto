@@ -16,6 +16,8 @@ service GrpcKafkaService {
 
   rpc RemovePipelineSubscription(GrpcRemovePipelineRequest) returns (GrpcKafkaResult);
   rpc RemoveAllPipelineSubscriptions(GrpcRemoveAllPipelinesRequest) returns (GrpcKafkaResult);
+  
+  rpc GetAllSubscriptionsAndPipelines(google.protobuf.Empty) returns (GrpcGetAllSubscriptionsAndPipelinesResponse);
 
   rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (stream GrpcPipelinePartExecutionResult);
 }
@@ -33,13 +35,21 @@ message GrpcProcessInfo {
 
 message GrpcSubscribeToKafkaRequest {
   GrpcKafkaConnectionMetadata connectionMetadata = 1;
-  string subscriptionName = 2;
+  GrpcKafkaSubscriptionMetadata subscriptionMetadata = 2;
+}
+
+message GrpcKafkaSubscriptionMetadata {
+  string subscriptionName = 1;
 }
 
 message GrpcKafkaPipelineExecutionRequest {
   GrpcGuid subscriptionId = 1;
   GrpcPipelineExecutionRequest pipelineRequest = 2;
-  string pipelineName = 3;
+  GrpcPipelineMetadata pipelineMetadata = 3;
+}
+
+message GrpcPipelineMetadata {
+  string name = 1;
 }
 
 message GrpcAddPipelineRequest {
@@ -87,4 +97,19 @@ message GrpcKafkaFailedResult {
 
 message GrpcUnsubscribeFromKafkaRequest {
   GrpcGuid subscriptionId = 1;
+}
+
+message GrpcGetAllSubscriptionsAndPipelinesResponse {
+  repeated GrpcKafkaSubscription subscriptions = 1;
+}
+
+message GrpcKafkaSubscription {
+  GrpcGuid id = 1;
+  GrpcKafkaSubscriptionMetadata metadata = 2;
+  repeated GrpcSubscriptionPipeline pipelines = 3;
+}
+
+message GrpcSubscriptionPipeline {
+  GrpcGuid id = 1;
+  GrpcPipelineMetadata metadata = 2;
 }
