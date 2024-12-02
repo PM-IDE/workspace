@@ -126,7 +126,7 @@ impl KafkaService {
             }
         };
 
-        match Self::subscribe(&mut consumer, dto.clone()) {
+        match Self::subscribe(&mut consumer) {
             Ok(_) => {
                 let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
                 map.insert(dto.uuid.clone(), KafkaSubscription::new(dto.name.clone()));
@@ -140,7 +140,7 @@ impl KafkaService {
         tokio::spawn(async move {
             let handle = tokio::task::spawn_blocking(move || {
                 loop {
-                    let should_stop = Self::execute_consumer_routine(&mut consumer, dto.clone());
+                    let should_stop = Self::execute_consumer_routine(&mut consumer, &dto);
 
                     if should_stop {
                         consumer.unsubscribe();
@@ -172,25 +172,21 @@ impl KafkaService {
         Ok(BxesKafkaConsumer::new(metadata.topic_name.to_owned(), consumer))
     }
 
-    fn subscribe(consumer: &mut BxesKafkaConsumer, dto: KafkaConsumerCreationDto) -> Result<(), BxesKafkaError> {
+    fn subscribe(consumer: &mut BxesKafkaConsumer) -> Result<(), BxesKafkaError> {
         match consumer.subscribe() {
-            Ok(_) => {
-                let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
-                map.insert(dto.uuid, KafkaSubscription::new(dto.name));
-                Ok(())
-            }
+            Ok(_) => Ok(()),
             Err(err) => Err(err)
         }
     }
 
-    fn execute_consumer_routine(consumer: &mut BxesKafkaConsumer, dto: KafkaConsumerCreationDto) -> bool {
-        if Self::is_unsubscribe_requested(&dto) {
+    fn execute_consumer_routine(consumer: &mut BxesKafkaConsumer, dto: &KafkaConsumerCreationDto) -> bool {
+        if Self::is_unsubscribe_requested(dto) {
             return true;
         }
 
         match consumer.consume() {
             Ok(trace) => match trace {
-                Some(trace) => Self::process_kafka_trace(trace, &dto),
+                Some(trace) => Self::process_kafka_trace(trace, dto),
                 None => {}
             },
             Err(err) => {
