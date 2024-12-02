@@ -15,7 +15,7 @@ use crate::grpc::kafka::models::{
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
-use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
+use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
@@ -216,6 +216,7 @@ impl KafkaService {
         drop(map);
 
         for pipeline in &kafka_subscription.pipelines {
+            let pipeline_id = pipeline.0;
             let pipeline = pipeline.1;
 
             if !pipeline.execution_dto.events_handler.is_alive() {
@@ -227,8 +228,14 @@ impl KafkaService {
 
             let execution_result = context.execute_grpc_pipeline(move |context| {
                 context.put_concrete(EVENT_LOG_KEY.key(), update_result.new_log);
+
                 context.put_concrete(PROCESS_NAME.key(), update_result.process_name);
                 context.put_concrete(CASE_NAME.key(), update_result.case_name);
+                context.put_concrete(SUBSCRIPTION_ID.key(), dto.uuid.clone());
+                context.put_concrete(PIPELINE_ID.key(), pipeline_id.clone());
+                context.put_concrete(SUBSCRIPTION_NAME.key(), dto.name.clone());
+                context.put_concrete(PIPELINE_NAME.key(), pipeline.name.clone());
+
                 context.put_concrete(UNSTRUCTURED_METADATA.key(), update_result.unstructured_metadata);
             });
 

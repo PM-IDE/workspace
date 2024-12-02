@@ -118,6 +118,12 @@ impl ProcessCaseMetadata {
         GrpcProcessCaseMetadata {
             case_name: self.case_name.clone(),
             process_name: self.process_name.clone(),
+
+            subscription_id: Some(GrpcGuid::from(self.subscription_id.clone())),
+            subscription_name: self.subscription_name.clone(),
+            pipeline_id: Some(GrpcGuid::from(self.pipeline_id.clone())),
+            pipeline_name: self.pipeline_name.clone(),
+
             metadata: self
                 .metadata
                 .iter()

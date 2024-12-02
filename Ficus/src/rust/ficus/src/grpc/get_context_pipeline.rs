@@ -4,7 +4,9 @@ use uuid::Uuid;
 
 use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{find_context_key, CASE_NAME, PROCESS_NAME, UNSTRUCTURED_METADATA};
+use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::pipelines::keys::context_keys::{find_context_key, CASE_NAME, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA};
+use crate::utils::user_data::keys::Key;
 use crate::{
     pipelines::{
         context::PipelineContext,
@@ -52,7 +54,7 @@ impl GetContextValuePipelinePart {
                 }
 
                 let key_values = Self::find_context_values_for(&context_keys, context)?;
-                let process_case_metadata = Self::create_process_case_metadata(context);
+                let process_case_metadata = Self::create_process_case_metadata(context)?;
 
                 sender.handle(&PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
                     process_case_metadata,
@@ -66,26 +68,33 @@ impl GetContextValuePipelinePart {
         ))
     }
 
-    fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
-        let case_name = match context.concrete(CASE_NAME.key()) {
-            None => "CASE_NAME_UNDEFINED".to_string(),
-            Some(case_name) => case_name.to_string(),
-        };
+    fn create_process_case_metadata(context: &PipelineContext) -> Result<ProcessCaseMetadata, PipelinePartExecutionError> {
+        let case_name = Self::value_or_err(context, &CASE_NAME)?.to_string();
+        let process_name = Self::value_or_err(context, &PROCESS_NAME)?.to_string();
+        
+        let subscription_id = Self::value_or_err(context, &SUBSCRIPTION_ID)?.clone();
+        let subscription_name = Self::value_or_err(context, &SUBSCRIPTION_NAME)?.clone();
 
-        let process_name = match context.concrete(PROCESS_NAME.key()) {
-            None => "PROCESS_NAME_UNDEFINED".to_string(),
-            Some(process_name) => process_name.to_string(),
-        };
+        let pipeline_id = Self::value_or_err(context, &PIPELINE_ID)?.clone();
+        let pipeline_name = Self::value_or_err(context, &PIPELINE_NAME)?.clone();
 
-        let metadata = match context.concrete(UNSTRUCTURED_METADATA.key()) {
-            None => vec![],
-            Some(metadata) => metadata.clone(),
-        };
+        let metadata = Self::value_or_err(context, &UNSTRUCTURED_METADATA)?.clone();
 
-        ProcessCaseMetadata {
+        Ok(ProcessCaseMetadata {
             process_name,
             case_name,
+            subscription_id,
+            subscription_name,
+            pipeline_id,
+            pipeline_name,
             metadata,
+        })
+    }
+    
+    fn value_or_err<'a, T>(context: &'a PipelineContext, key: &DefaultContextKey<T>) -> Result<&'a T, PipelinePartExecutionError> {
+        match context.concrete(key.key()) {
+            None => Err(PipelinePartExecutionError::MissingRequiredMetadata(key.key().name().to_string())),
+            Some(case_name) => Ok(case_name)
         }
     }
 

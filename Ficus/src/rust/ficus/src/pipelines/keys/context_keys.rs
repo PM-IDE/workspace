@@ -3,7 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
-
+use uuid::Uuid;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -34,6 +34,10 @@ use crate::{
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
+pub const SUBSCRIPTION_ID_STR: &'static str = "subscription_id";
+pub const SUBSCRIPTION_NAME_STR: &'static str = "subscription_name";
+pub const PIPELINE_ID_STR: &'static str = "pipeline_id";
+pub const PIPELINE_NAME_STR: &'static str = "pipeline_name";
 pub const UNSTRUCTURED_METADATA_STR: &'static str = "unstructured_metadata";
 pub const PATH: &'static str = "path";
 pub const TANDEM_ARRAY_LENGTH: &'static str = "tandem_array_length";
@@ -184,6 +188,10 @@ lazy_static!(
      pub static ref PATH_KEY: DefaultContextKey<String> = DefaultContextKey::new(PATH);
      pub static ref CASE_NAME: DefaultContextKey<String> = DefaultContextKey::new(CASE_NAME_STR);
      pub static ref PROCESS_NAME: DefaultContextKey<String> = DefaultContextKey::new(PROCESS_NAME_STR);
+     pub static ref PIPELINE_NAME: DefaultContextKey<String> = DefaultContextKey::new(PIPELINE_NAME_STR);
+     pub static ref PIPELINE_ID: DefaultContextKey<Uuid> = DefaultContextKey::new(PIPELINE_ID_STR);
+     pub static ref SUBSCRIPTION_NAME: DefaultContextKey<String> = DefaultContextKey::new(SUBSCRIPTION_NAME_STR);
+     pub static ref SUBSCRIPTION_ID: DefaultContextKey<Uuid> = DefaultContextKey::new(SUBSCRIPTION_ID_STR);
      pub static ref UNSTRUCTURED_METADATA: DefaultContextKey<Vec<(String, String)>> = DefaultContextKey::new(PROCESS_NAME_STR);
      pub static ref START_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(START_CASE_REGEX_STR);
      pub static ref END_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(END_CASE_REGEX_STR);
