@@ -101,7 +101,7 @@ impl KafkaService {
 
     fn is_unsubscribe_requested(dto: &KafkaConsumerCreationDto) -> bool {
         let map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
-        map.contains_key(&dto.uuid)
+        !map.contains_key(&dto.uuid)
     }
 }
 
