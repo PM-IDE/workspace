@@ -1,9 +1,5 @@
 use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::{
-    grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGuid,
-    GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelinePartExecutionResult, GrpcRemoveAllPipelinesRequest,
-    GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest, GrpcUnsubscribeFromKafkaRequest,
-};
+use crate::ficus_proto::{grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest, GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSubscription, GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata, GrpcPipelinePartExecutionResult, GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest, GrpcSubscriptionPipeline, GrpcUnsubscribeFromKafkaRequest};
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::events::delegating_events_handler::DelegatingEventsHandler;
 use crate::grpc::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
@@ -125,6 +121,32 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
         self.kafka_service.remove_all_execution_requests(&subscription_id);
 
         Ok(Response::new(GrpcKafkaResult::success(subscription_id.clone())))
+    }
+
+    async fn get_all_subscriptions_and_pipelines(
+        &self,
+        _: Request<()>
+    ) -> Result<Response<GrpcGetAllSubscriptionsAndPipelinesResponse>, Status> {
+        let subscriptions = self.kafka_service.get_all_subscriptions().into_iter().map(|(id, s)| {
+            GrpcKafkaSubscription {
+                id: Some(GrpcGuid::from(id)),
+                metadata: Some(GrpcKafkaSubscriptionMetadata {
+                    subscription_name: s.name()
+                }),
+                pipelines: s.pipelines().into_iter().map(|(id, p)| {
+                    GrpcSubscriptionPipeline {
+                        id: Some(GrpcGuid::from(id)),
+                        metadata: Some(GrpcPipelineMetadata {
+                            name: p.name()
+                        })
+                    }
+                }).collect()
+            }
+        }).collect();
+
+        Ok(Response::new(GrpcGetAllSubscriptionsAndPipelinesResponse {
+            subscriptions
+        }))
     }
 
     type ExecutePipelineAndProduceToKafkaStream =

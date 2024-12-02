@@ -36,22 +36,22 @@ pub struct PipelineExecutionDto {
 
 impl GrpcAddPipelineStreamRequest {
     pub fn to_dto(&self) -> PipelineExecutionDto {
-        let request = self.pipeline_request.as_ref().unwrap();
-        PipelineExecutionDto {
-            name: request.pipeline_name.clone(),
-            request: request.pipeline_request.as_ref().unwrap().clone(),
-            subscription_id: request.subscription_id.as_ref().unwrap().to_uuid().unwrap()
-        }
+        self.pipeline_request.as_ref().unwrap().to_dto()
     }
 }
 
 impl GrpcAddPipelineRequest {
     pub fn to_dto(&self) -> PipelineExecutionDto {
-        let request = self.pipeline_request.as_ref().unwrap();
+        self.pipeline_request.as_ref().unwrap().to_dto()
+    }
+}
+
+impl GrpcKafkaPipelineExecutionRequest {
+    pub fn to_dto(&self) -> PipelineExecutionDto {
         PipelineExecutionDto {
-            name: request.pipeline_name.clone(),
-            request: request.pipeline_request.as_ref().unwrap().clone(),
-            subscription_id: request.subscription_id.as_ref().unwrap().to_uuid().unwrap()
+            name: self.pipeline_metadata.as_ref().unwrap().name.clone(),
+            request: self.pipeline_request.as_ref().unwrap().clone(),
+            subscription_id: self.subscription_id.as_ref().unwrap().to_uuid().unwrap()
         }
     }
 }

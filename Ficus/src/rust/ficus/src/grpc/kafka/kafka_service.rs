@@ -29,7 +29,8 @@ use tonic::Status;
 use uuid::Uuid;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 
-pub(super) struct KafkaSubscriptionPipeline {
+#[derive(Clone)]
+pub struct KafkaSubscriptionPipeline {
     request: GrpcPipelineExecutionRequest,
     execution_dto: PipelineExecutionDto,
     name: String
@@ -41,7 +42,14 @@ impl KafkaSubscriptionPipeline {
     }
 }
 
-pub (super) struct KafkaSubscription {
+impl KafkaSubscriptionPipeline {
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+#[derive(Clone)]
+pub struct KafkaSubscription {
     name: String,
     pipelines: HashMap<Uuid, KafkaSubscriptionPipeline>,
 }
@@ -53,6 +61,9 @@ impl KafkaSubscription {
             pipelines: HashMap::new()
         }
     }
+
+    pub fn name(&self) -> String { self.name.clone() }
+    pub fn pipelines(&self) -> Vec<(Uuid, KafkaSubscriptionPipeline)> { self.pipelines.iter().map(|p| (p.0.clone(), p.1.clone())).collect() }
 }
 
 pub struct KafkaService {
@@ -105,7 +116,7 @@ impl KafkaService {
     pub(super) fn subscribe_to_kafka_topic(&self, request: GrpcSubscribeToKafkaRequest) -> Result<Uuid, KafkaError> {
         let creation_dto = self.create_kafka_creation_dto();
         let id = creation_dto.uuid.clone();
-        let name = request.subscription_name.clone();
+        let name = request.subscription_metadata.as_ref().unwrap().subscription_name.clone();
 
         match Self::spawn_consumer(request, creation_dto) {
             Ok(_) => {
@@ -293,6 +304,11 @@ impl KafkaService {
         if let Some(map) = map.get_mut(subscription_id) {
             map.pipelines.clear();
         }
+    }
+
+    pub fn get_all_subscriptions(&self) -> Vec<(Uuid, KafkaSubscription)> {
+        let map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
+        map.iter().map(|s| (s.0.clone(), s.1.clone())).collect()
     }
 }
 
