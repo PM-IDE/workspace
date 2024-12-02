@@ -8,6 +8,8 @@ import grpc
 
 import ficus.grpc_pipelines.models.backend_service_pb2 as backend__service__pb2
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+
 import ficus.grpc_pipelines.models.kafka_service_pb2 as kafka__service__pb2
 
 
@@ -89,6 +91,16 @@ class GrpcKafkaServiceStub(object):
                 request_serializer=kafka__service__pb2.GrpcRemoveAllPipelinesRequest.SerializeToString,
 
                 response_deserializer=kafka__service__pb2.GrpcKafkaResult.FromString,
+
+                )
+
+        self.GetAllSubscriptionsAndPipelines = channel.unary_unary(
+
+                '/ficus.GrpcKafkaService/GetAllSubscriptionsAndPipelines',
+
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+
+                response_deserializer=kafka__service__pb2.GrpcGetAllSubscriptionsAndPipelinesResponse.FromString,
 
                 )
 
@@ -184,6 +196,18 @@ class GrpcKafkaServiceServicer(object):
 
 
 
+    def GetAllSubscriptionsAndPipelines(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
     def ExecutePipelineAndProduceToKafka(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
@@ -259,6 +283,16 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
                     request_deserializer=kafka__service__pb2.GrpcRemoveAllPipelinesRequest.FromString,
 
                     response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
+
+            ),
+
+            'GetAllSubscriptionsAndPipelines': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.GetAllSubscriptionsAndPipelines,
+
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+
+                    response_serializer=kafka__service__pb2.GrpcGetAllSubscriptionsAndPipelinesResponse.SerializeToString,
 
             ),
 
@@ -489,6 +523,40 @@ class GrpcKafkaService(object):
             kafka__service__pb2.GrpcRemoveAllPipelinesRequest.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def GetAllSubscriptionsAndPipelines(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcKafkaService/GetAllSubscriptionsAndPipelines',
+
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+
+            kafka__service__pb2.GrpcGetAllSubscriptionsAndPipelinesResponse.FromString,
 
             options, channel_credentials,
 

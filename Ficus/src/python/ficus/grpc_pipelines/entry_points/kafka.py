@@ -35,7 +35,7 @@ class KafkaPipeline:
                 pipelineRequest=GrpcKafkaPipelineExecutionRequest(
                     pipelineRequest=request,
                     subscriptionId=GrpcGuid(guid=subscription_id),
-                    pipelineName=pipeline_name
+                    pipelineMetadata=GrpcPipelineMetadata(name=pipeline_name),
                 ),
                 producerKafkaMetadata=_create_kafka_connection_metadata(producer_connection_metadata)
             )
@@ -72,7 +72,7 @@ class KafkaPipeline:
                 pipelineRequest=GrpcKafkaPipelineExecutionRequest(
                     pipelineRequest=request,
                     subscriptionId=GrpcGuid(guid=subscription_id),
-                    pipelineName=pipeline_name
+                    pipelineMetadata=GrpcPipelineMetadata(name=pipeline_name),
                 )
             )
 
@@ -125,7 +125,10 @@ def create_kafka_subscription(name: str, kafka_connection_metadata: KafkaPipelin
         stub = GrpcKafkaServiceStub(channel)
 
         metadata = _create_kafka_connection_metadata(kafka_connection_metadata)
-        response = stub.SubscribeForKafkaTopic(GrpcSubscribeToKafkaRequest(connectionMetadata=metadata, subscriptionName=name))
+        response = stub.SubscribeForKafkaTopic(GrpcSubscribeToKafkaRequest(
+            connectionMetadata=metadata,
+            subscriptionMetadata=GrpcKafkaSubscriptionMetadata(subscriptionName=name)
+        ))
 
         if response.HasField('success'):
             id = response.success.id.guid
