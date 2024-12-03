@@ -16,22 +16,30 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
   [Test]
   public void TestAddRemovePipelinesInSubscription() => ExecuteTestWithSingleSubscription(subscription =>
   {
-    var pipelineRequest = GrpcRequestsCreator.CreateAddGetNamesLogPipelineRequest(subscription.Id, TestsSettings, TestPipelineName);
+    var pipelineId = AddPipelineToSubscription(subscription.Id);
+    AssertSinglePipeline(subscription.Id, pipelineId, TestPipelineName);
+    RemovePipelineFromSubscription(subscription.Id, pipelineId);
+    AssertNoPipelinesInSubscription(subscription.Id);
+  });
+
+  private GrpcGuid AddPipelineToSubscription(GrpcGuid subscriptionId)
+  {
+    var pipelineRequest = GrpcRequestsCreator.CreateAddGetNamesLogPipelineRequest(subscriptionId, TestsSettings, TestPipelineName);
 
     var pipelineAdditionResult = KafkaClient.AddPipelineToSubscription(pipelineRequest);
     Assert.That(pipelineAdditionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
 
-    var pipelineId = pipelineAdditionResult.Success.Id;
-    AssertSinglePipeline(subscription.Id, pipelineAdditionResult.Success.Id, TestPipelineName);
+    return pipelineAdditionResult.Success.Id;
+  }
 
+  private void RemovePipelineFromSubscription(GrpcGuid subscriptionId, GrpcGuid pipelineId)
+  {
     KafkaClient.RemovePipelineSubscription(new GrpcRemovePipelineRequest
     {
-      SubscriptionId = subscription.Id,
+      SubscriptionId = subscriptionId,
       PipelineId = pipelineId
     });
-
-    AssertNoPipelinesInSubscription(subscription.Id);
-  });
+  }
 
   private void AssertNoPipelinesInSubscription(GrpcGuid subscriptionId)
   {
