@@ -89,3 +89,4 @@ services:
       PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
       FicusKafkaProducerSettings__Topic: my-topic
       FicusKafkaProducerSettings__BootstrapServers: ficus-int-tests-kafka:29092
+      FicusBackendAddr: http://ficus-int-tests-backend:8080

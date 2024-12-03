@@ -20,6 +20,7 @@ public class FicusKafkaProducerSettings
   public required string BootstrapServers { get; init; }
 }
 
+[TestFixture]
 public class FicusKafkaIntegrationTests
 {
   private IConfiguration myConfiguration;
