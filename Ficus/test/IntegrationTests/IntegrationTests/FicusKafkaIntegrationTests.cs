@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
 
-
 public class FicusKafkaProducerSettings
 {
   public required string Topic { get; init; }
@@ -21,17 +20,8 @@ public class FicusKafkaProducerSettings
 }
 
 [TestFixture]
-public class FicusKafkaIntegrationTests
+public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 {
-  private IConfiguration myConfiguration;
-
-
-  [SetUp]
-  public void InitConfiguration()
-  {
-    myConfiguration = new ConfigurationBuilder().Add(new EnvironmentVariablesConfigurationSource()).Build();
-  }
-  
   [Test]
   public void EventNamesTest()
   {
@@ -101,17 +91,13 @@ public class FicusKafkaIntegrationTests
   private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates()
   {
     var logger = LoggerFactory.Create(_ => { }).CreateLogger<PipelinePartsUpdatesConsumer>();
-    var pipelinePartsConsumerSettings = myConfiguration
-      .GetSection(nameof(PipelinePartsUpdateKafkaSettings))
-      .Get<PipelinePartsUpdateKafkaSettings>()!;
-
-    return ConsumeAllUpdates(pipelinePartsConsumerSettings, logger);
+    return ConsumeAllUpdates(logger);
   }
 
-  private static IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(PipelinePartsUpdateKafkaSettings settings, ILogger logger)
+  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(ILogger logger)
   {
     const string ConsumerGroupId = $"{nameof(FicusKafkaIntegrationTests)}::{nameof(ConsumeAllUpdates)}";
-    var consumer = PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(settings, ConsumerGroupId, logger);
+    var consumer = PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(PipelinePartsSettings, ConsumerGroupId, logger);
 
     List<GrpcKafkaUpdate> result = [];
     while (true)
@@ -128,7 +114,7 @@ public class FicusKafkaIntegrationTests
 
   private BxesKafkaStreamWriter<IEvent> CreateBxesKafkaWriter()
   {
-    var settings = myConfiguration.GetSection(nameof(FicusKafkaProducerSettings)).Get<FicusKafkaProducerSettings>()!;
+    var settings = Configuration.GetSection(nameof(FicusKafkaProducerSettings)).Get<FicusKafkaProducerSettings>()!;
 
     return new BxesKafkaStreamWriter<IEvent>(
       new SystemMetadata(),

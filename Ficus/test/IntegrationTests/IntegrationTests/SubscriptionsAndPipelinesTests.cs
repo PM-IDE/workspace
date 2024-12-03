@@ -1,44 +1,26 @@
 ﻿using Ficus;
 using Google.Protobuf.WellKnownTypes;
-using Grpc.Net.Client;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
 
 namespace IntegrationTests;
 
 [TestFixture]
-public class SubscriptionsAndPipelinesTests
+public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
 {
-  private IConfiguration myConfiguration;
-  private GrpcKafkaService.GrpcKafkaServiceClient myKafkaClient;
-  private FicusKafkaProducerSettings myProducerSettings;
-
-
-  [SetUp]
-  public void InitConfiguration()
-  {
-    myConfiguration = new ConfigurationBuilder().Add(new EnvironmentVariablesConfigurationSource()).Build();
-    
-    var channel = GrpcChannel.ForAddress(Environment.GetEnvironmentVariable("FicusBackendAddr")!);
-    myKafkaClient = new GrpcKafkaService.GrpcKafkaServiceClient(channel);
-    myProducerSettings = myConfiguration.GetSection(nameof(FicusKafkaProducerSettings)).Get<FicusKafkaProducerSettings>()!;
-  }
-
   [Test]
   public void TestAddRemoveSubscriptions()
   {
     const string TestSubscriptionName = nameof(TestSubscriptionName);
-    var result = myKafkaClient.SubscribeForKafkaTopic(new GrpcSubscribeToKafkaRequest
+    var result = KafkaClient.SubscribeForKafkaTopic(new GrpcSubscribeToKafkaRequest
     {
       ConnectionMetadata = new GrpcKafkaConnectionMetadata
       {
-        TopicName = myProducerSettings.Topic,
+        TopicName = ProducerSettings.Topic,
         Metadata =
         {
           new GrpcKafkaConsumerMetadata
           {
             Key = "bootstrap.servers",
-            Value = myProducerSettings.BootstrapServers
+            Value = ProducerSettings.BootstrapServers
           },
           new GrpcKafkaConsumerMetadata
           {
@@ -55,7 +37,7 @@ public class SubscriptionsAndPipelinesTests
 
     Assert.That(result.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
 
-    var allSubscriptions = myKafkaClient.GetAllSubscriptionsAndPipelines(new Empty());
+    var allSubscriptions = KafkaClient.GetAllSubscriptionsAndPipelines(new Empty());
 
     Assert.Multiple(() =>
     {
@@ -66,14 +48,14 @@ public class SubscriptionsAndPipelinesTests
       );
     });
 
-    var unsubscribeResult = myKafkaClient.UnsubscribeFromKafkaTopic(new GrpcUnsubscribeFromKafkaRequest
+    var unsubscribeResult = KafkaClient.UnsubscribeFromKafkaTopic(new GrpcUnsubscribeFromKafkaRequest
     {
       SubscriptionId = result.Success.Id
     });
 
     Assert.That(unsubscribeResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
 
-    var allSubscriptionsAfterUnsubscribe = myKafkaClient.GetAllSubscriptionsAndPipelines(new Empty());
+    var allSubscriptionsAfterUnsubscribe = KafkaClient.GetAllSubscriptionsAndPipelines(new Empty());
 
     Assert.Multiple(() =>
     {
