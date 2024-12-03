@@ -110,7 +110,7 @@ class KafkaPipeline:
 
 def _create_kafka_connection_metadata(kafka_metadata: KafkaPipelineMetadata) -> GrpcKafkaConnectionMetadata:
     metadata = list(map(
-        lambda x: GrpcKafkaConsumerMetadata(key=x[0], value=x[1]),
+        lambda x: GrpcKafkaMetadata(key=x[0], value=x[1]),
         list(kafka_metadata.kafka_consumer_configuration.items())
     ))
 

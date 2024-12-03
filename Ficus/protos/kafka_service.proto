@@ -72,10 +72,10 @@ message GrpcRemoveAllPipelinesRequest {
 
 message GrpcKafkaConnectionMetadata {
   string topicName = 1;
-  repeated GrpcKafkaConsumerMetadata metadata = 2;
+  repeated GrpcKafkaMetadata metadata = 2;
 }
 
-message GrpcKafkaConsumerMetadata {
+message GrpcKafkaMetadata {
   string key = 1;
   string value = 2;
 }

@@ -90,10 +90,10 @@ class GrpcKafkaConnectionMetadata(_message.Message):
     TOPICNAME_FIELD_NUMBER: _ClassVar[int]
     METADATA_FIELD_NUMBER: _ClassVar[int]
     topicName: str
-    metadata: _containers.RepeatedCompositeFieldContainer[GrpcKafkaConsumerMetadata]
-    def __init__(self, topicName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[GrpcKafkaConsumerMetadata, _Mapping]]] = ...) -> None: ...
+    metadata: _containers.RepeatedCompositeFieldContainer[GrpcKafkaMetadata]
+    def __init__(self, topicName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[GrpcKafkaMetadata, _Mapping]]] = ...) -> None: ...
 
-class GrpcKafkaConsumerMetadata(_message.Message):
+class GrpcKafkaMetadata(_message.Message):
     __slots__ = ["key", "value"]
     KEY_FIELD_NUMBER: _ClassVar[int]
     VALUE_FIELD_NUMBER: _ClassVar[int]

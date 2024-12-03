@@ -17,17 +17,17 @@ public static class GrpcRequestsCreator
         TopicName = settings.ConsumerTopic,
         Metadata =
         {
-          new GrpcKafkaConsumerMetadata
+          new GrpcKafkaMetadata
           {
             Key = "bootstrap.servers",
             Value = settings.ConsumerBootstrapServers
           },
-          new GrpcKafkaConsumerMetadata
+          new GrpcKafkaMetadata
           {
             Key = "group.id",
             Value = settings.ConsumerGroup
           },
-          new GrpcKafkaConsumerMetadata
+          new GrpcKafkaMetadata
           {
             Key = "auto.offset.reset",
             Value = "earliest"
@@ -78,7 +78,7 @@ public static class GrpcRequestsCreator
         TopicName = settings.ProducerTopic,
         Metadata =
         {
-          new GrpcKafkaConsumerMetadata
+          new GrpcKafkaMetadata
           {
             Key = "bootstrap.servers",
             Value = settings.ProducerBootstrapServers

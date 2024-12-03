@@ -17,12 +17,12 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
         TopicName = ProducerSettings.Topic,
         Metadata =
         {
-          new GrpcKafkaConsumerMetadata
+          new GrpcKafkaMetadata
           {
             Key = "bootstrap.servers",
             Value = ProducerSettings.BootstrapServers
           },
-          new GrpcKafkaConsumerMetadata
+          new GrpcKafkaMetadata
           {
             Key = "group.id",
             Value = "xdxd"
