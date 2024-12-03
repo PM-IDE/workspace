@@ -4,6 +4,7 @@ using System.Threading.Channels;
 using Ficus;
 using FrontendBackend.Utils;
 using Google.Protobuf.WellKnownTypes;
+using GrpcModels;
 
 namespace FrontendBackend.Features.PipelineUpdates.Services;
 
@@ -25,6 +26,12 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
   {
     public required Dictionary<Guid, PipelinePartResult> PipelinePartsResults { get; init; }
     public required List<KeyValuePair<string, string>> Metadata { get; init; }
+    
+    public required string PipelineName { get; init; }
+    public required string SubscriptionName { get; init; }
+
+    public required Guid PipelineId { get; init; }
+    public required Guid SubscriptionId { get; init; }
   }
 
 
@@ -112,7 +119,11 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         caseData = new CaseData
         {
           Metadata = update.ProcessCaseMetadata.Metadata.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value)).ToList(),
-          PipelinePartsResults = []
+          PipelinePartsResults = [],
+          PipelineName = update.ProcessCaseMetadata.PipelineName,
+          PipelineId = Guid.Parse(update.ProcessCaseMetadata.PipelineId.Guid),
+          SubscriptionId = Guid.Parse(update.ProcessCaseMetadata.SubscriptionId.Guid),
+          SubscriptionName = update.ProcessCaseMetadata.SubscriptionName
         };
 
         cases[update.ProcessCaseMetadata.CaseName] = caseData;
@@ -126,7 +137,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         contextValues = new PipelinePartResult
         {
           ContextValues = [],
-          PipelinePartName = update.PipelinePartInfo.Name
+          PipelinePartName = update.PipelinePartInfo.Name,
         };
 
         caseData.PipelinePartsResults[guid] = contextValues;
@@ -158,6 +169,10 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
           {
             ProcessName = processName,
             CaseName = caseName,
+            PipelineId = caseData.PipelineId.ToGrpcGuid(),
+            SubscriptionId = caseData.SubscriptionId.ToGrpcGuid(),
+            PipelineName = caseData.PipelineName,
+            SubscriptionName = caseData.SubscriptionName,
             Metadata =
             {
               caseData.Metadata.Select(pair => new GrpcStringKeyValue
@@ -176,10 +191,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
               PipelinePartInfo = new GrpcPipelinePartInfo
               {
                 Name = x.Value.PipelinePartName,
-                Id = new GrpcGuid
-                {
-                  Guid = x.Key.ToString()
-                }
+                Id = x.Key.ToGrpcGuid(),
               }
             })
           }

@@ -71,8 +71,8 @@ impl GetContextValuePipelinePart {
     }
 
     fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
-        let case_name = Self::value_or_default(context, &CASE_NAME, || "".to_string());
-        let process_name = Self::value_or_default(context, &PROCESS_NAME, || "".to_string());
+        let case_name = Self::value_or_default(context, &CASE_NAME, || "UNDEFINED_CASE".to_string());
+        let process_name = Self::value_or_default(context, &PROCESS_NAME, || "UNDEFINED_PROCESS".to_string());
 
         let subscription_id = Self::value_or_default(context, &SUBSCRIPTION_ID, || Uuid::nil());
         let subscription_name = Self::value_or_default(context, &SUBSCRIPTION_NAME, || "".to_string());
