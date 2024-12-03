@@ -39,7 +39,7 @@ public static class GrpcRequestsCreator
   }
   
   public static GrpcAddPipelineRequest CreateAddGetNamesLogPipelineRequest(
-    GrpcGuid subscriptionId, FicusIntegrationTestsSettings settings)
+    GrpcGuid subscriptionId, FicusIntegrationTestsSettings settings, string? pipelineName = null)
   {
     return new GrpcAddPipelineRequest
     {
@@ -48,7 +48,7 @@ public static class GrpcRequestsCreator
         SubscriptionId = subscriptionId,
         PipelineMetadata = new GrpcPipelineMetadata
         {
-          Name = "TestPipeline"
+          Name = pipelineName ?? "TestPipeline"
         },
         PipelineRequest = new GrpcPipelineExecutionRequest
         {
