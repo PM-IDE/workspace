@@ -38,84 +38,15 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
   private GrpcGuid CreateFicusKafkaSubscription()
   {
-    var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(new GrpcSubscribeToKafkaRequest
-    {
-      SubscriptionMetadata = new GrpcKafkaSubscriptionMetadata
-      {
-        SubscriptionName = "My subscription"
-      },
-      ConnectionMetadata = new GrpcKafkaConnectionMetadata
-      {
-        TopicName = TestsSettings.ConsumerTopic,
-        Metadata =
-        {
-          new GrpcKafkaConsumerMetadata
-          {
-            Key = "bootstrap.servers",
-            Value = TestsSettings.ConsumerBootstrapServers
-          },
-          new GrpcKafkaConsumerMetadata
-          {
-            Key = "group.id",
-            Value = TestsSettings.ConsumerGroup
-          },
-          new GrpcKafkaConsumerMetadata
-          {
-            Key = "auto.offset.reset",
-            Value = "earliest"
-          }
-        }
-      }
-    });
+    var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequests(TestsSettings);
+    var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(subscribeRequest);
     
     Assert.That(subscriptionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
 
-    var pipelineAdditionResult = KafkaClient.AddPipelineToSubscription(new GrpcAddPipelineRequest
-    {
-      PipelineRequest = new GrpcKafkaPipelineExecutionRequest
-      {
-        SubscriptionId = subscriptionResult.Success.Id,
-        PipelineMetadata = new GrpcPipelineMetadata
-        {
-          Name = "TestPipeline"
-        },
-        PipelineRequest = new GrpcPipelineExecutionRequest
-        {
-          Pipeline = new GrpcPipeline
-          {
-            Parts =
-            {
-              new GrpcPipelinePartBase
-              {
-                ComplexContextRequestPart = new GrpcComplexContextRequestPipelinePart
-                {
-                  Keys = { new GrpcContextKey { Name = "names_event_log" } },
-                  FrontendPartUuid = new GrpcUuid { Uuid = Guid.NewGuid().ToString() },
-                  FrontendPipelinePartName = "PrintEventLog",
-                  BeforePipelinePart = new GrpcPipelinePart
-                  {
-                    Configuration = new GrpcPipelinePartConfiguration(),
-                    Name = "GetNamesEventLog"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      ProducerKafkaMetadata = new GrpcKafkaConnectionMetadata
-      {
-        TopicName = TestsSettings.ProducerTopic,
-        Metadata =
-        {
-          new GrpcKafkaConsumerMetadata
-          {
-            Key = "bootstrap.servers",
-            Value = TestsSettings.ProducerBootstrapServers
-          }
-        }
-      }
-    });
+    var subscriptionId = subscriptionResult.Success.Id;
+    var addPipelineRequest = GrpcRequestsCreator.CreateAddGetNamesLogPipelineRequest(subscriptionId, TestsSettings);
+
+    var pipelineAdditionResult = KafkaClient.AddPipelineToSubscription(addPipelineRequest);
 
     Assert.That(pipelineAdditionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
 
