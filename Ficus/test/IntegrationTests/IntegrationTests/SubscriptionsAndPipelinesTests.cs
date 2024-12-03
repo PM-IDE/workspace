@@ -41,7 +41,7 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
 
     Assert.Multiple(() =>
     {
-      Assert.That(allSubscriptions.Subscriptions, Has.Count.EqualTo(2));
+      Assert.That(allSubscriptions.Subscriptions, Has.Count.EqualTo(1));
       Assert.That(
         allSubscriptions.Subscriptions.FirstOrDefault(s => s.Metadata.SubscriptionName == TestSubscriptionName),
         Is.Not.Null
@@ -59,7 +59,7 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
 
     Assert.Multiple(() =>
     {
-      Assert.That(allSubscriptionsAfterUnsubscribe.Subscriptions, Has.Count.EqualTo(1));
+      Assert.That(allSubscriptionsAfterUnsubscribe.Subscriptions, Has.Count.Zero);
       Assert.That(
         allSubscriptionsAfterUnsubscribe.Subscriptions.FirstOrDefault(s => s.Metadata.SubscriptionName == TestSubscriptionName),
         Is.Null
