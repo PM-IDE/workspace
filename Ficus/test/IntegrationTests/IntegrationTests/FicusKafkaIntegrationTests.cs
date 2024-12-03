@@ -38,7 +38,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
   private GrpcGuid CreateFicusKafkaSubscription()
   {
-    var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequests(TestsSettings);
+    var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequest(TestsSettings);
     var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(subscribeRequest);
     
     Assert.That(subscriptionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));

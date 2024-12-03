@@ -4,13 +4,14 @@ namespace IntegrationTests;
 
 public static class GrpcRequestsCreator
 {
-  public static GrpcSubscribeToKafkaRequest CreateSubscribeToKafkaRequests(FicusIntegrationTestsSettings settings)
+  public static GrpcSubscribeToKafkaRequest CreateSubscribeToKafkaRequest(
+    FicusIntegrationTestsSettings settings, string? subscriptionName = null)
   {
     return new GrpcSubscribeToKafkaRequest
     {
       SubscriptionMetadata = new GrpcKafkaSubscriptionMetadata
       {
-        SubscriptionName = "My subscription"
+        SubscriptionName = subscriptionName ?? "My subscription"
       },
       ConnectionMetadata = new GrpcKafkaConnectionMetadata
       {
