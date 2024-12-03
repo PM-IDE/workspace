@@ -7,8 +7,6 @@ using Bxes.Writer;
 using Confluent.Kafka;
 using Ficus;
 using FicusKafkaIntegration;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
@@ -135,14 +133,12 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
   private BxesKafkaStreamWriter<IEvent> CreateBxesKafkaWriter()
   {
-    var settings = Configuration.GetSection(nameof(FicusKafkaProducerSettings)).Get<FicusKafkaProducerSettings>()!;
-
     return new BxesKafkaStreamWriter<IEvent>(
       new SystemMetadata(),
-      settings.Topic,
+      ProducerSettings.Topic,
       new ProducerConfig
       {
-        BootstrapServers = settings.BootstrapServers
+        BootstrapServers = ProducerSettings.BootstrapServers
       }
     );
   }

@@ -1,6 +1,5 @@
 ﻿using Ficus;
 using Google.Protobuf.WellKnownTypes;
-using NUnit.Framework.Internal;
 
 namespace IntegrationTests;
 
