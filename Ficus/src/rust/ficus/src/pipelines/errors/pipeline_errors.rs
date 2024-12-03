@@ -6,7 +6,7 @@ use std::fmt::{Display, Formatter};
 pub enum PipelinePartExecutionError {
     Raw(RawPartExecutionError),
     MissingContext(MissingContextError),
-    MissingRequiredMetadata(String)
+    MissingRequiredMetadata(String),
 }
 
 impl Display for PipelinePartExecutionError {

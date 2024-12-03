@@ -1,4 +1,7 @@
-use crate::ficus_proto::{grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcGuid, GrpcKafkaPipelineExecutionRequest, GrpcKafkaResult, GrpcKafkaSuccessResult, GrpcPipelineExecutionRequest};
+use crate::ficus_proto::{
+    grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcGuid, GrpcKafkaPipelineExecutionRequest, GrpcKafkaResult,
+    GrpcKafkaSuccessResult, GrpcPipelineExecutionRequest,
+};
 use std::str::FromStr;
 use tonic::Status;
 use uuid::Uuid;
@@ -51,7 +54,7 @@ impl GrpcKafkaPipelineExecutionRequest {
         PipelineExecutionDto {
             name: self.pipeline_metadata.as_ref().unwrap().name.clone(),
             request: self.pipeline_request.as_ref().unwrap().clone(),
-            subscription_id: self.subscription_id.as_ref().unwrap().to_uuid().unwrap()
+            subscription_id: self.subscription_id.as_ref().unwrap().to_uuid().unwrap(),
         }
     }
 }

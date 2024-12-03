@@ -15,7 +15,9 @@ use crate::grpc::kafka::models::{
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
-use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA};
+use crate::pipelines::keys::context_keys::{
+    CASE_NAME, EVENT_LOG_KEY, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
@@ -33,12 +35,16 @@ use uuid::Uuid;
 pub struct KafkaSubscriptionPipeline {
     request: GrpcPipelineExecutionRequest,
     execution_dto: PipelineExecutionDto,
-    name: String
+    name: String,
 }
 
 impl KafkaSubscriptionPipeline {
     fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto, name: String) -> Self {
-        Self { request, execution_dto, name }
+        Self {
+            request,
+            execution_dto,
+            name,
+        }
     }
 }
 
@@ -58,12 +64,16 @@ impl KafkaSubscription {
     fn new(name: String) -> Self {
         Self {
             name,
-            pipelines: HashMap::new()
+            pipelines: HashMap::new(),
         }
     }
 
-    pub fn name(&self) -> String { self.name.clone() }
-    pub fn pipelines(&self) -> Vec<(Uuid, KafkaSubscriptionPipeline)> { self.pipelines.iter().map(|p| (p.0.clone(), p.1.clone())).collect() }
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+    pub fn pipelines(&self) -> Vec<(Uuid, KafkaSubscriptionPipeline)> {
+        self.pipelines.iter().map(|p| (p.0.clone(), p.1.clone())).collect()
+    }
 }
 
 pub struct KafkaService {
@@ -91,11 +101,9 @@ impl KafkaService {
             None => grpc_kafka_result::Result::Failure(GrpcKafkaFailedResult {
                 error_message: "There is not state for the supplied consumer uuid".to_string(),
             }),
-            Some(_) => {
-                grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
-                    id: Some(GrpcGuid { guid: uuid.to_string() }),
-                })
-            }
+            Some(_) => grpc_kafka_result::Result::Success(GrpcKafkaSuccessResult {
+                id: Some(GrpcGuid { guid: uuid.to_string() }),
+            }),
         }
     }
 
@@ -131,21 +139,21 @@ impl KafkaService {
                 let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
                 map.insert(dto.uuid.clone(), KafkaSubscription::new(dto.name.clone()));
             }
-            Err(err) => return match err {
-                BxesKafkaError::Kafka(err) => Err(err),
-                BxesKafkaError::Bxes(_) => Err(KafkaError::Subscription("Failed to subscribe".to_string()))
+            Err(err) => {
+                return match err {
+                    BxesKafkaError::Kafka(err) => Err(err),
+                    BxesKafkaError::Bxes(_) => Err(KafkaError::Subscription("Failed to subscribe".to_string())),
+                }
             }
         }
 
         tokio::spawn(async move {
-            let handle = tokio::task::spawn_blocking(move || {
-                loop {
-                    let should_stop = Self::execute_consumer_routine(&mut consumer, &dto);
+            let handle = tokio::task::spawn_blocking(move || loop {
+                let should_stop = Self::execute_consumer_routine(&mut consumer, &dto);
 
-                    if should_stop {
-                        consumer.unsubscribe();
-                        return;
-                    }
+                if should_stop {
+                    consumer.unsubscribe();
+                    return;
                 }
             });
 
@@ -175,7 +183,7 @@ impl KafkaService {
     fn subscribe(consumer: &mut BxesKafkaConsumer) -> Result<(), BxesKafkaError> {
         match consumer.subscribe() {
             Ok(_) => Ok(()),
-            Err(err) => Err(err)
+            Err(err) => Err(err),
         }
     }
 
@@ -210,7 +218,7 @@ impl KafkaService {
         let map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
         let kafka_subscription = match map.get(&dto.uuid) {
             None => return,
-            Some(pipeline) => pipeline.clone()
+            Some(pipeline) => pipeline.clone(),
         };
 
         drop(map);
@@ -304,11 +312,7 @@ impl KafkaService {
 
 impl KafkaService {
     fn create_kafka_creation_dto(&self, name: String) -> KafkaConsumerCreationDto {
-        KafkaConsumerCreationDto::new(
-            name,
-            self.names_to_logs.clone(),
-            self.subscriptions_to_execution_requests.clone(),
-        )
+        KafkaConsumerCreationDto::new(name, self.names_to_logs.clone(), self.subscriptions_to_execution_requests.clone())
     }
 
     pub(super) fn create_pipeline_execution_context_from_proxy<'a>(
