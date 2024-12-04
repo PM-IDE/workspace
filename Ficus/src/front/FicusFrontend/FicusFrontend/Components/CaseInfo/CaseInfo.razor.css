@@ -20,8 +20,8 @@
 }
 
 .pipeline-part-name {
-    background-color: #323232;
-    color: #e1e1e1;
+    background-color: var(--header-color);
+    color: var(--header-text-color);
     padding-left: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -29,7 +29,7 @@
 
 .pipeline-part-context-values-container {
     max-height: 600px;
-    background-color: #252525;
-    color: #b5b5b5;
+    background-color: var(--content-color);
+    color: var(--contenxt-text-color);
     padding: 5px 5px 5px 10px;
 }

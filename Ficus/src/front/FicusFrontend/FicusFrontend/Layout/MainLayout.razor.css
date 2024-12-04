@@ -1,3 +1,4 @@
+
 .page {
     position: relative;
     display: flex;
@@ -6,6 +7,10 @@
 
 main {
     flex: 1;
+    --header-color: #323232;
+    --header-text-color: #e1e1e1;
+    --content-color: #252525;
+    --contenxt-text-color: #b5b5b5;
 }
 
 .sidebar {
