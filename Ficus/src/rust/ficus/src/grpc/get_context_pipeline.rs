@@ -8,7 +8,6 @@ use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{
     find_context_key, CASE_NAME, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA,
 };
-use crate::utils::user_data::keys::Key;
 use crate::{
     pipelines::{
         context::PipelineContext,
@@ -74,11 +73,11 @@ impl GetContextValuePipelinePart {
         let case_name = Self::value_or_default(context, &CASE_NAME, || "UNDEFINED_CASE".to_string());
         let process_name = Self::value_or_default(context, &PROCESS_NAME, || "UNDEFINED_PROCESS".to_string());
 
-        let subscription_id = Self::value_or_default(context, &SUBSCRIPTION_ID, || Uuid::nil());
-        let subscription_name = Self::value_or_default(context, &SUBSCRIPTION_NAME, || "".to_string());
+        let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID);
+        let subscription_name = Self::value_or_none(context, &SUBSCRIPTION_NAME);
 
-        let pipeline_id = Self::value_or_default(context, &PIPELINE_ID, || Uuid::nil());
-        let pipeline_name = Self::value_or_default(context, &PIPELINE_NAME, || "".to_string());
+        let pipeline_id = Self::value_or_none(context, &PIPELINE_ID);
+        let pipeline_name = Self::value_or_none(context, &PIPELINE_NAME);
 
         let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA, || vec![]);
 
@@ -97,6 +96,13 @@ impl GetContextValuePipelinePart {
         match context.concrete(key.key()) {
             None => default_factory(),
             Some(value) => value.clone(),
+        }
+    }
+
+    fn value_or_none<'a, T: Clone>(context: &'a PipelineContext, key: &DefaultContextKey<T>) -> Option<T> {
+        match context.concrete(key.key()) {
+            None => None,
+            Some(value) => Some(value.clone()),
         }
     }
 
