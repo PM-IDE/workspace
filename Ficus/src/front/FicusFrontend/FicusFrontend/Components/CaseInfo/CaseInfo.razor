@@ -1,5 +1,4 @@
-﻿@using BlazorBootstrap
-@using Ficus
+﻿@using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
 @using FicusFrontend.Services.Cases
@@ -28,26 +27,28 @@
   @title
 </div>
 
-<div class="pipeline-parts-context-values-accordion">
-  <Accordion AlwaysOpen="true" Flush="false">
+<div class="pipeline-parts-context-values-outer-container">
     @foreach (var result in myPipelinePartsExecutionResults)
     {
-      <AccordionItem Title="@result.Value.PipelinePartName">
-        <Content>
-          @{
-            var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
-          }
-
-          @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
-          {
-            <div>
-              @fragment
+        <div class="pipeline-parts-context-values-inner-container">
+            <div class="pipeline-part-name">
+                @result.Value.PipelinePartName
             </div>
-          }
-        </Content>
-      </AccordionItem>
+
+            <div class="pipeline-part-context-values-container">
+                @{
+                    var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
+                }
+
+                @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
+                {
+                    <div>
+                        @fragment
+                    </div>
+                }
+            </div>
+        </div>
     }
-  </Accordion>
 </div>
 
 @code
@@ -93,7 +94,7 @@
       _ => FindRenderersFor(pipelinePartName, contextValues)
     };
   }
-  
+
   private RenderFragment FindRendererFor(GrpcContextValue contextValue)
   {
     return contextValue.ContextValueCase switch
@@ -113,7 +114,7 @@
     {
       return [graphRenderer];
     }
-    
+
     if (PipelinePartsGroups.PetriNetsAnnotationParts.Contains(pipelinePartName) &&
         CreateAnnotatedPetriNetRenderer(pipelinePartName, contextValues) is { } petriNetRenderer)
     {
@@ -139,7 +140,7 @@
     var annotation = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
 
     if (petriNet is null) return null;
-    
+
     return @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="petriNet" Annotation="annotation" />;
   }
 }

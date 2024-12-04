@@ -1,5 +1,5 @@
 .case-info-header {
-    background-color: rebeccapurple;
+    background-color: #323232;
     width: 100%;
     height: 60px;
     display: flex;
@@ -9,11 +9,27 @@
     padding-left: 10px;
     color: white;
     font-size: 20px;
-
-    border-radius: 10px;
 }
 
-
-.pipeline-parts-context-values-accordion {
+.pipeline-parts-context-values-outer-container {
     margin-top: 20px;
+}
+
+.pipeline-parts-context-values-inner-container {
+    margin-top: 20px;
+}
+
+.pipeline-part-name {
+    background-color: #323232;
+    color: #e1e1e1;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.pipeline-part-context-values-container {
+    max-height: 600px;
+    background-color: #252525;
+    color: #b5b5b5;
+    padding: 5px 5px 5px 10px;
 }

@@ -75,10 +75,12 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
     }
 
     if (anyUpdates)
+    {
       yield return new ProcessesListUpdate
       {
         Processes = myCurrentProcesses.Values.ToList()
       };
+    }
   }
 
   private bool GetOrCreateProcessData(string processName, out ProcessData processData)
