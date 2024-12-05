@@ -1,11 +1,15 @@
 .case-info-header {
     background-color: #323232;
     width: 100%;
-    height: 60px;
 
     padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     color: white;
     font-size: 20px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .pipeline-parts-context-values-outer-container {
