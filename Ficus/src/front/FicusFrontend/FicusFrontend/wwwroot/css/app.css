@@ -1,5 +1,16 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --background: #191919;
+    --header-color: #323232;
+    --header-text-color: #e1e1e1;
+    --content-color: #252525;
+    --contenxt-text-color: #b5b5b5;
+}
+
+.centered-text {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 h1:focus {

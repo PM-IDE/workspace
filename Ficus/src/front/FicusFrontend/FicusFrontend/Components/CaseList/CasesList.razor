@@ -1,33 +1,37 @@
-﻿@using BlazorBootstrap
-@using FicusFrontend.Components.CaseList.Models
+﻿@using FicusFrontend.Components.CaseList.Models
 @using FicusFrontend.Services.Cases
 @inherits ComponentBase;
 @inject IProcessesService ProcessService;
 
 <div class="cases-list-outer-container">
-  <div class="cases-list-title-container">
-    <div class="cases-list-title">
-      Processes
-    </div>
-  </div>
+    <div class="scrollable">
+        <div class="cases-list-title-container">
+            <div class="cases-list-title">
+                Processes
+            </div>
+        </div>
 
-  <div>
-    <Accordion AlwaysOpen="true">
-      @foreach (var process in myProcesses)
-      {
-        <AccordionItem Title="@process.ProcessData.ProcessName" Class="process-accordion-item">
-          <Content>
-            @foreach (var @case in process.Cases)
+        <div class="cases-processes">
+            @foreach (var process in myProcesses)
             {
-              <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
-                <CaseListItem Case="@(@case)"/>
-              </div>
+                <div class="process-accordion-item">
+                    <div class="process-title-container centered-text">
+                        <div class="process-title">
+                            @process.ProcessData.ProcessName
+                        </div>
+                    </div>
+                    <div>
+                        @foreach (var @case in process.Cases)
+                        {
+                            <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
+                                <CaseListItem Case="@(@case)"/>
+                            </div>
+                        }
+                    </div>
+                </div>
             }
-          </Content>
-        </AccordionItem>
-      }
-    </Accordion>
-  </div>
+        </div>
+    </div>
 </div>
 
 @code
