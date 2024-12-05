@@ -28,6 +28,10 @@
     padding-bottom: 5px;
 }
 
+.pipeline-part-name:hover {
+    background-color: var(--cv-section-header-color-hovered);
+}
+
 .pipeline-part-context-values-container {
     background-color: var(--cv-section-content-color);
     color: var(--cv-section-content-text-color);

@@ -3,6 +3,7 @@ html, body {
 
     --cv-section-background: #191919;
     --cv-section-header-color: #323232;
+    --cv-section-header-color-hovered: #474747;
     --cv-section-header-text-color: #e1e1e1;
     --cv-section-content-color: #252525;
     --cv-section-content-text-color: #b5b5b5;
