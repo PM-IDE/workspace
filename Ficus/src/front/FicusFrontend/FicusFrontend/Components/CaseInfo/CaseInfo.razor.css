@@ -29,7 +29,6 @@
 }
 
 .pipeline-part-context-values-container {
-    max-height: 600px;
     background-color: var(--cv-section-content-color);
     color: var(--cv-section-content-text-color);
     padding: 5px 5px 5px 10px;

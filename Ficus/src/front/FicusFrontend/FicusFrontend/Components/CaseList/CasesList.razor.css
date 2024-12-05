@@ -20,6 +20,10 @@
     background-color: var(--processes-section-process-name-background);
 }
 
+.process-title-container:hover {
+    background-color: var(--processes-section-process-name-background-hovered);
+}
+
 .process-title {
     color: var(--cv-section-content-text-color);
 }

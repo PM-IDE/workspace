@@ -1,5 +1,5 @@
 import cytoscape from 'cytoscape';
-import {petriNetColors, lightTheme} from "./colors";
+import {petriNetColors, lightTheme, darkTheme} from "./colors";
 import {createBreadthFirstLayout} from "./utils";
 import dagre from 'cytoscape-dagre';
 
@@ -8,7 +8,7 @@ export default setDrawPetriNet;
 const placeType = "place";
 const transitionType = "transition";
 const arcType = "arc";
-const netColors = petriNetColors(lightTheme);
+const netColors = petriNetColors(darkTheme);
 
 function setDrawPetriNet() {
   window.drawPetriNet = function (id, net, annotation) {
