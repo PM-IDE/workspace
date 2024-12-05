@@ -1,21 +1,21 @@
 html {
-    background-color: var(--background);
+    background-color: var(--cv-section-background);
 }
 
 .page {
     position: relative;
     display: flex;
     flex-direction: column;
-    background-color: var(--background);
+    background-color: var(--cv-section-background);
 }
 
 main {
     flex: 1;
-    background-color: var(--background);
+    background-color: var(--cv-section-background);
 }
 
 .case-info-container {
-    background-color: var(--background);
+    background-color: var(--cv-section-background);
 }
 
 .sidebar {

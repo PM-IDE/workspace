@@ -1,10 +1,17 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    --background: #191919;
-    --header-color: #323232;
-    --header-text-color: #e1e1e1;
-    --content-color: #252525;
-    --contenxt-text-color: #b5b5b5;
+
+    --cv-section-background: #191919;
+    --cv-section-header-color: #323232;
+    --cv-section-header-text-color: #e1e1e1;
+    --cv-section-content-color: #252525;
+    --cv-section-content-text-color: #b5b5b5;
+
+    --processes-section-title-background: #1a1c1c;
+    --processes-section-process-name-background: #1f2222;
+    --processes-section-cases-background: #272b2b;
+    --processes-section-case-background: #2e3333;
+    --processes-section-case-background-hovered: #383e3e;
 }
 
 .centered-text {

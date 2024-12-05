@@ -9,6 +9,6 @@
     vertical-align: middle;
     width: 150px;
     height: 30px;
-    background-color: var(--header-color);
-    color: var(--header-text-color);
+    background-color: var(--cv-section-header-color);
+    color: var(--cv-section-header-text-color);
 }
