@@ -13,6 +13,7 @@ public class ProcessListItemDto
 {
   public required ProcessData ProcessData { get; init; }
   public required List<CaseListItemDto> Cases { get; init; }
+  public bool IsExpanded { get; set; }
 }
 
 public class CaseListItemDto

@@ -12,6 +12,13 @@ html, body {
     --processes-section-cases-background: #272b2b;
     --processes-section-case-background: #2e3333;
     --processes-section-case-background-hovered: #383e3e;
+    --processes-section-cases-collapsed-bakground: #3e4545;
+
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer */
+    -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+    -webkit-user-select: none; /* Chrome, Safari, and Opera */
+    -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
 
 .centered-text {

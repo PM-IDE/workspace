@@ -15,19 +15,23 @@
             @foreach (var process in myProcesses)
             {
                 <div class="process-accordion-item">
-                    <div class="process-title-container centered-text">
+                    <div class="process-title-container centered-text" @onclick="@(_ => HandleProcessTitleClicked(process))">
                         <div class="process-title">
-                            @process.ProcessData.ProcessName
+                            Process @process.ProcessData.ProcessName
                         </div>
                     </div>
-                    <div>
-                        @foreach (var @case in process.Cases)
-                        {
-                            <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
-                                <CaseListItem Case="@(@case)"/>
-                            </div>
-                        }
-                    </div>
+
+                    @if (process.IsExpanded)
+                    {
+                        <div>
+                            @foreach (var @case in process.Cases)
+                            {
+                                <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
+                                    <CaseListItem Case="@(@case)"/>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
             }
         </div>
@@ -47,6 +51,12 @@
     selectedCase.State = CaseListItemState.Seen;
     mySelectedCase = selectedCase.Case;
     CaseSelected?.Invoke(processData, selectedCase.Case);
+  }
+
+  private void HandleProcessTitleClicked(ProcessListItemDto dto)
+  {
+      dto.IsExpanded = !dto.IsExpanded;
+      StateHasChanged();
   }
 
   protected override void OnInitialized()
