@@ -23,13 +23,14 @@
 
 @code
 {
-  private Pipeline mySelectedPipeline;
+  private Pipeline? mySelectedPipeline;
   private ProcessCaseData? mySelectedProcessCaseData;
 
 
   private void HandlePipelineSelected(Pipeline pipeline)
   {
     mySelectedPipeline = pipeline;
+    StateHasChanged();
   }
 
   private void HandleNewCaseSelected(ProcessData processData, Case selectedCase)

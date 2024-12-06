@@ -62,7 +62,7 @@
   }
 
   private readonly Dictionary<Guid, ExecutionResultState> myStates = [];
-  private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
+  private readonly List<KeyValuePair<Guid, PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
   private ProcessCaseData? myProcessCaseData;

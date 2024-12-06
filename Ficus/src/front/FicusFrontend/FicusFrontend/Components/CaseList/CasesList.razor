@@ -4,7 +4,7 @@
 @inject IProcessesService ProcessService;
 
 <SidebarList TCollectionItem="ProcessData"
-             TCollectionInnerItem="CaseData"
+             TCollectionInnerItem="Case"
              TId="string"
              ItemType="Process"
              Items="myProcesses"
@@ -12,71 +12,46 @@
 
 @code
 {
-  private List<CollectionItemInfo<ProcessData, CaseData, string>> myProcesses = [];
+  private List<CollectionItemInfo<ProcessData, Case, string>> myProcesses = [];
   private Case? mySelectedCase;
 
 
   [Parameter] public Action<ProcessData, Case>? CaseSelected { get; set; }
-  [Parameter] public Pipeline SelectedPipeline { get; set; }
+  [Parameter] public Pipeline? SelectedPipeline { get; set; }
 
 
-  private void HandleCaseSelection(ProcessData process, CaseData @case)
+  private void HandleCaseSelection(ProcessData process, Case @case)
   {
-    mySelectedCase = @case.Case;
-    CaseSelected?.Invoke(process, @case.Case);
+    mySelectedCase = @case;
+    CaseSelected?.Invoke(process, @case);
   }
 
-  protected override void OnInitialized()
+  protected override void OnParametersSet()
   {
-    base.OnInitialized();
+      base.OnParametersSet();
 
-    Task.Factory.StartNew(async () =>
-    {
-      await foreach (var processUpdate in ProcessService.OpenCasesUpdatesStream(CancellationToken.None))
-      {
-        switch (processUpdate)
-        {
-          case ProcessContextValuesUpdate cvUpdate:
+      if (SelectedPipeline is null) return;
+
+      myProcesses = SelectedPipeline.Processes.Values
+          .Select(p => new CollectionItemInfo<ProcessData, Case, string>
           {
-            var updatedProcess = myProcesses.FirstOrDefault(p => p.Item.ProcessName == cvUpdate.ProcessName);
-            var updatedCase = updatedProcess?.InnerItems.FirstOrDefault(c => c.InnerItem.Case.Name == cvUpdate.CaseName);
-            if (updatedCase is { } && !updatedCase.InnerItem.Case.Equals(mySelectedCase))
-            {
-              updatedCase.ListItemInfo.ProcessingState = ItemProcessingState.Updated;
-            }
+              Id = p.ProcessName,
+              Name = p.ProcessName,
+              Item = p,
+              InnerItems = p.ProcessCases.Values
+                  .Select(c => new InnerCollectionItemInfo<Case, string>
+                  {
+                      Id = c.Name,
+                      InnerItem = c,
+                      ListItemInfo = new ListItemInfo
+                      {
+                          Name = c.Name,
+                          UpdatedAt = c.CreatedAt,
+                          ProcessingState = ItemProcessingState.New
+                      }
+                  }).ToList()
+          }).ToList();
 
-            break;
-          }
-          case ProcessesListUpdate processesListUpdate:
-          {
-            myProcesses = processesListUpdate.Processes
-                .Select(p => new CollectionItemInfo<ProcessData, CaseData, string>
-                {
-                    Id = p.ProcessName,
-                    Name = p.ProcessName,
-                    Item = p,
-                    InnerItems = p.ProcessCases.Values
-                        .Select(c => new InnerCollectionItemInfo<CaseData, string>
-                        {
-                            Id = c.Case.Name,
-                            InnerItem = c,
-                            ListItemInfo = new ListItemInfo
-                            {
-                                Name = c.Case.Name,
-                                UpdatedAt = c.Case.CreatedAt,
-                                ProcessingState = ItemProcessingState.New
-                            }
-                        }).ToList()
-                }).ToList();
-
-            break;
-          }
-          default:
-            throw new ArgumentOutOfRangeException(nameof(processUpdate));
-        }
-
-        StateHasChanged();
-      }
-    }, TaskCreationOptions.LongRunning);
+      StateHasChanged();
   }
 }
