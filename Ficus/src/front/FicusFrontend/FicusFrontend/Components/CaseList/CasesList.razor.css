@@ -47,10 +47,6 @@
     background-color: var(--processes-section-cases-background);
 }
 
-::-webkit-scrollbar {
-    display: none;
-}
-
 .scrollable {
     height: 100%;
     width: 100%;

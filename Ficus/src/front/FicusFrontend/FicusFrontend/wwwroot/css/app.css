@@ -22,6 +22,10 @@ html, body {
     -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 .centered-text {
     display: flex;
     align-items: center;
