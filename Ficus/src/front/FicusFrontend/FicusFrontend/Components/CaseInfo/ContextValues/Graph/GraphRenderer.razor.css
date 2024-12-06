@@ -13,3 +13,7 @@
     background-color: var(--cv-section-header-color);
     color: var(--cv-section-header-text-color);
 }
+
+.export-button:hover {
+    background-color: var(--cv-section-header-color-hovered);
+}

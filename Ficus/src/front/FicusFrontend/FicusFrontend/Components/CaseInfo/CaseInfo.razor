@@ -58,7 +58,7 @@
 {
   private class ExecutionResultState
   {
-    public bool IsExpanded { get; set; }
+    public bool IsExpanded { get; set; } = true;
   }
 
   private readonly Dictionary<Guid, ExecutionResultState> myStates = [];
