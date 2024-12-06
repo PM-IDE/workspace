@@ -2,9 +2,13 @@
 @using FicusFrontend.Components.CaseList
 @using FicusFrontend.Layout.Models
 @using FicusFrontend.Services.Cases
+@using FicusFrontend.Components.Subscriptions
 @inherits LayoutComponentBase
 
 <div class="page">
+  <div class="sidebar">
+    <SubscriptionsList />
+  </div>
   <div class="sidebar">
     <CasesList CaseSelected="HandleNewCaseSelected"/>
   </div>

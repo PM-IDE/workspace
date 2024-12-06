@@ -8,6 +8,8 @@ namespace FicusFrontend.Services.Cases;
 
 public interface IProcessesService
 {
+  ISignal<List<Subscription>> SubscriptionsUpdatesSignal { get; }
+
   IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream(CancellationToken token);
 }
 
@@ -17,11 +19,8 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
   private readonly Dictionary<Guid, Subscription> mySubscriptions = [];
 
 
-  public ViewableMap<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(
-    ProcessData processData, Case selectedCase)
-  {
-    return processData.ProcessCases[selectedCase.Name].ContextValues;
-  }
+  public ISignal<List<Subscription>> SubscriptionsUpdatesSignal { get; } = new Signal<List<Subscription>>();
+
 
   public async IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream(
     [EnumeratorCancellation] CancellationToken token)
@@ -138,6 +137,8 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
     };
 
     subscription.Pipelines[pipelineId] = pipeline;
+
+    SubscriptionsUpdatesSignal.Fire(mySubscriptions.Values.ToList());
 
     return pipeline;
   }

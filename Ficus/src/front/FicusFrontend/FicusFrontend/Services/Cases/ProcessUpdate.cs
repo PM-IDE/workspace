@@ -29,3 +29,8 @@ public sealed class ProcessContextValuesUpdate : ProcessUpdate
   public required string CaseName { get; init; }
   public required string ProcessName { get; init; }
 }
+
+public abstract class SubscriptionUpdate
+{
+  
+}

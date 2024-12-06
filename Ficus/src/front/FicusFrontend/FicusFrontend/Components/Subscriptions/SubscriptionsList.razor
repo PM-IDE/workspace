@@ -1,0 +1,82 @@
+﻿@using FicusFrontend.Services.Cases
+@using JetBrains.Lifetimes
+@inject IProcessesService ProcessService;
+
+<div class="cases-list-outer-container">
+  <div class="scrollable">
+    <div class="cases-list-title-container">
+      <div class="cases-list-title">
+        Subscriptions
+      </div>
+    </div>
+
+    <div class="cases-processes">
+      @foreach (var subscription in mySubscriptions)
+      {
+        <div class="process-accordion-item">
+          <div class="process-title-container centered-text" @onclick="@(_ => HandleSubscriptionTitleClicked(subscription.Id))">
+            <div class="process-title">
+              Subscription @subscription.Name
+            </div>
+          </div>
+
+          @if (IsExpanded(subscription.Id))
+          {
+            <div>
+              @foreach (var pipeline in subscription.Pipelines.Values)
+              {
+                  <div>
+                      @pipeline.Name
+                  </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@code {
+
+    private class SubscriptionState
+    {
+        public bool IsExpanded { get; set; } = true;
+    }
+
+    private Dictionary<Guid, SubscriptionState> myStates = [];
+    private List<Subscription> mySubscriptions = [];
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        ProcessService.SubscriptionsUpdatesSignal.Advise(Lifetime.Eternal, newSubscriptions =>
+        {
+            //todo: rewrite
+            mySubscriptions = newSubscriptions;
+            StateHasChanged();
+        });
+    }
+
+    private bool IsExpanded(Guid subscriptionId) => GetOrCreateState(subscriptionId).IsExpanded;
+
+    private void HandleSubscriptionTitleClicked(Guid subscriptionId)
+    {
+        var state = GetOrCreateState(subscriptionId);
+        state.IsExpanded = !state.IsExpanded;
+
+        StateHasChanged();
+    }
+
+    private SubscriptionState GetOrCreateState(Guid subscriptionId)
+    {
+        if (myStates.TryGetValue(subscriptionId, out var state)) return state;
+
+        state = new SubscriptionState();
+        myStates[subscriptionId] = state;
+
+        return state;
+    }
+}
