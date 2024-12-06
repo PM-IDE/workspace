@@ -1,0 +1,29 @@
+﻿@using BlazorBootstrap
+@inherits ComponentBase
+
+<div class="case-list-item">
+  <Tooltip Title="@ListItemInfo.Name" Placement="TooltipPlacement.Right">
+    <div class="case-list-item-name">
+      @ListItemInfo.Name
+    </div>
+  </Tooltip>
+
+  <div class="case-list-item-creation-date">
+    @ListItemInfo.UpdatedAt.ToString("g")
+  </div>
+
+  <div class="@CaseNotificationClass"></div>
+</div>
+
+@code
+{
+  private string CaseNotificationClass => "case-notification " + ListItemInfo.ProcessingState switch
+  {
+      ItemProcessingState.New => "case-new-notification",
+      ItemProcessingState.Updated => "case-update-notification",
+      ItemProcessingState.Seen => "case-seen-notification",
+    _ => throw new ArgumentOutOfRangeException()
+  };
+
+  [Parameter] public ListItemInfo ListItemInfo { get; set; }
+}

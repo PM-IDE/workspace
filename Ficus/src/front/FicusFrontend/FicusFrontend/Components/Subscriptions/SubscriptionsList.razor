@@ -2,20 +2,20 @@
 @using JetBrains.Lifetimes
 @inject IProcessesService ProcessService;
 
-<div class="cases-list-outer-container">
+<div class="sidebar-list-outer-container">
   <div class="scrollable">
-    <div class="cases-list-title-container">
-      <div class="cases-list-title">
+    <div class="sidebar-list-title-container">
+      <div class="sidebar-list-title">
         Subscriptions
       </div>
     </div>
 
-    <div class="cases-processes">
+    <div class="sidebar-list">
       @foreach (var subscription in mySubscriptions)
       {
-        <div class="process-accordion-item">
-          <div class="process-title-container centered-text" @onclick="@(_ => HandleSubscriptionTitleClicked(subscription.Id))">
-            <div class="process-title">
+        <div class="sidebar-list-item">
+          <div class="sidebar-list-item-title-container centered-text" @onclick="@(_ => HandleSubscriptionTitleClicked(subscription.Id))">
+            <div class="sidebar-list-item-title">
               Subscription @subscription.Name
             </div>
           </div>

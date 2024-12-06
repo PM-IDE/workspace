@@ -1,62 +1,27 @@
-﻿@using FicusFrontend.Components.CaseList.Models
-@using FicusFrontend.Services.Cases
+﻿@using FicusFrontend.Services.Cases
 @inherits ComponentBase;
 @inject IProcessesService ProcessService;
 
-<div class="cases-list-outer-container">
-    <div class="scrollable">
-        <div class="cases-list-title-container">
-            <div class="cases-list-title">
-                Processes
-            </div>
-        </div>
-
-        <div class="cases-processes">
-            @foreach (var process in myProcesses)
-            {
-                <div class="process-accordion-item">
-                    <div class="process-title-container centered-text" @onclick="@(_ => HandleProcessTitleClicked(process))">
-                        <div class="process-title">
-                            Process @process.ProcessData.ProcessName
-                        </div>
-                    </div>
-
-                    @if (process.IsExpanded)
-                    {
-                        <div>
-                            @foreach (var @case in process.Cases)
-                            {
-                                <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
-                                    <CaseListItem Case="@(@case)"/>
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-    </div>
-</div>
+<SidebarList TCollectionItem="ProcessData"
+             TCollectionInnerItem="CaseData"
+             TId="string"
+             ItemType="Process"
+             Items="myProcesses"
+             InnerItemSelected="HandleInnerItemSelection" />
 
 @code
 {
-  private List<ProcessListItemDto> myProcesses = [];
+  private List<CollectionItemInfo<ProcessData, CaseData, string>> myProcesses = [];
   private Case? mySelectedCase;
+
 
   [Parameter] public Action<ProcessData, Case>? CaseSelected { get; set; }
 
 
-  private void HandleCaseSelected(ProcessData processData, CaseListItemDto selectedCase)
+  private void HandleInnerItemSelection(ProcessData process, CaseData @case)
   {
-    selectedCase.State = CaseListItemState.Seen;
-    mySelectedCase = selectedCase.Case;
-    CaseSelected?.Invoke(processData, selectedCase.Case);
-  }
-
-  private void HandleProcessTitleClicked(ProcessListItemDto dto)
-  {
-      dto.IsExpanded = !dto.IsExpanded;
-      StateHasChanged();
+    mySelectedCase = @case.Case;
+    CaseSelected?.Invoke(process, @case.Case);
   }
 
   protected override void OnInitialized()
@@ -71,23 +36,36 @@
         {
           case ProcessContextValuesUpdate cvUpdate:
           {
-            var updatedProcess = myProcesses.FirstOrDefault(p => p.ProcessData.ProcessName == cvUpdate.ProcessName);
-            var updatedCase = updatedProcess?.Cases.FirstOrDefault(c => c.Case.Name == cvUpdate.CaseName);
-            if (updatedCase is { } && !updatedCase.Case.Equals(mySelectedCase))
+            var updatedProcess = myProcesses.FirstOrDefault(p => p.Item.ProcessName == cvUpdate.ProcessName);
+            var updatedCase = updatedProcess?.InnerItems.FirstOrDefault(c => c.InnerItem.Case.Name == cvUpdate.CaseName);
+            if (updatedCase is { } && !updatedCase.InnerItem.Case.Equals(mySelectedCase))
             {
-              updatedCase.State = CaseListItemState.UpdatesReceived;
+              updatedCase.ListItemInfo.ProcessingState = ItemProcessingState.Updated;
             }
 
             break;
           }
           case ProcessesListUpdate processesListUpdate:
           {
-            myProcesses = processesListUpdate.Processes.Select(p => new ProcessListItemDto
-              {
-                ProcessData = p,
-                Cases = p.ProcessCases.Select(c => CreateCaseListItemDtoFrom(c.Value.Case)).ToList()
-              })
-              .ToList();
+            myProcesses = processesListUpdate.Processes
+                .Select(p => new CollectionItemInfo<ProcessData, CaseData, string>
+                {
+                    Id = p.ProcessName,
+                    Name = p.ProcessName,
+                    Item = p,
+                    InnerItems = p.ProcessCases.Values
+                        .Select(c => new InnerCollectionItemInfo<CaseData, string>
+                        {
+                            Id = c.Case.Name,
+                            InnerItem = c,
+                            ListItemInfo = new ListItemInfo
+                            {
+                                Name = c.Case.Name,
+                                UpdatedAt = c.Case.CreatedAt,
+                                ProcessingState = ItemProcessingState.New
+                            }
+                        }).ToList()
+                }).ToList();
 
             break;
           }
@@ -98,13 +76,5 @@
         StateHasChanged();
       }
     }, TaskCreationOptions.LongRunning);
-  }
-
-  private CaseListItemDto CreateCaseListItemDtoFrom(Case @case)
-  {
-    return new CaseListItemDto
-    {
-      Case = @case
-    };
   }
 }

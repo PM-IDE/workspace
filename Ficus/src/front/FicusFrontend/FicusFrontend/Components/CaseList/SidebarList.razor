@@ -1,0 +1,86 @@
+﻿@typeparam TCollectionItem
+@typeparam TCollectionInnerItem
+@typeparam TId where TId : notnull
+
+@inherits ComponentBase;
+
+<div class="sidebar-list-outer-container">
+  <div class="scrollable">
+    <div class="sidebar-list-title-container">
+      <div class="sidebar-list-title">
+        Processes
+      </div>
+    </div>
+
+    <div class="sidebar-list">
+      @foreach (var item in Items)
+      {
+        <div class="sidebar-list-item">
+          <div class="sidebar-list-item-title-container centered-text" @onclick="@(_ => HandleItemTitleClicked(item.Id))">
+            <div class="sidebar-list-item-title">
+              @ItemType @item.Name
+            </div>
+          </div>
+
+          @if (IsExpanded(item.Id))
+          {
+            <div>
+              @foreach (var innerItem in item.InnerItems)
+              {
+                  <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
+                      <SidebarListItem ListItemInfo="innerItem.ListItemInfo" />
+                  </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@code
+{
+  private class CollectionItemState
+  {
+    public bool IsExpanded { get; set; }
+  }
+
+  private Dictionary<TId, CollectionItemState> myStates = [];
+
+  [Parameter] public string ItemType { get; set; }
+  [Parameter] public List<CollectionItemInfo<TCollectionItem, TCollectionInnerItem, TId>> Items { get; set; }
+  [Parameter] public Func<TCollectionInnerItem, RenderFragment> ListItemFragmentFactory { get; set; }
+
+  [Parameter] public Action<TCollectionItem, TCollectionInnerItem>? InnerItemSelected { get; set; }
+
+
+  private bool IsExpanded(TId itemId) => GetOrCreateState(itemId).IsExpanded;
+
+  private CollectionItemState GetOrCreateState(TId itemId)
+  {
+      if (myStates.TryGetValue(itemId, out var state)) return state;
+
+      state = new CollectionItemState();
+      myStates[itemId] = state;
+
+      return state;
+  }
+
+  private void HandleInnerItemSelected(
+      CollectionItemInfo<TCollectionItem, TCollectionInnerItem, TId> item,
+      InnerCollectionItemInfo<TCollectionInnerItem, TId> innerItem)
+  {
+      InnerItemSelected?.Invoke(item.Item, innerItem.InnerItem);
+      innerItem.ListItemInfo.ProcessingState = ItemProcessingState.Seen;
+      StateHasChanged();
+  }
+
+  private void HandleItemTitleClicked(TId itemId)
+  {
+      var state = GetOrCreateState(itemId);
+      state.IsExpanded = !state.IsExpanded;
+
+      StateHasChanged();
+  }
+}
