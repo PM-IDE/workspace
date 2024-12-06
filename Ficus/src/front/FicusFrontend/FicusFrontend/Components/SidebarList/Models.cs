@@ -1,4 +1,4 @@
-﻿namespace FicusFrontend.Components.CaseList;
+﻿namespace FicusFrontend.Components.SidebarList;
 
 public class CollectionItemInfo<TItem, TInnerItem, TId> where TId : notnull
 {

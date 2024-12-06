@@ -1,82 +1,61 @@
 ﻿@using FicusFrontend.Services.Cases
 @using JetBrains.Lifetimes
+@using FicusFrontend.Components.SidebarList
 @inject IProcessesService ProcessService;
 
-<div class="sidebar-list-outer-container">
-  <div class="scrollable">
-    <div class="sidebar-list-title-container">
-      <div class="sidebar-list-title">
-        Subscriptions
-      </div>
-    </div>
 
-    <div class="sidebar-list">
-      @foreach (var subscription in mySubscriptions)
-      {
-        <div class="sidebar-list-item">
-          <div class="sidebar-list-item-title-container centered-text" @onclick="@(_ => HandleSubscriptionTitleClicked(subscription.Id))">
-            <div class="sidebar-list-item-title">
-              Subscription @subscription.Name
-            </div>
-          </div>
+<SidebarList TCollectionItem="Subscription"
+             TCollectionInnerItem="Pipeline"
+             TId="Guid"
+             ItemType="Process"
+             Items="mySubscriptions"
+             InnerItemSelected="HandlePipelineSelection" />
 
-          @if (IsExpanded(subscription.Id))
+@code
+{
+  private class SubscriptionState
+  {
+    public bool IsExpanded { get; set; } = true;
+  }
+
+  private Pipeline? mySelectedPipeline;
+  private List<CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
+
+
+  protected override void OnInitialized()
+  {
+    base.OnInitialized();
+
+    ProcessService.SubscriptionsUpdatesSignal.Advise(Lifetime.Eternal, newSubscriptions =>
+    {
+      //todo: rewrite
+
+      mySubscriptions = newSubscriptions
+          .Select(s => new CollectionItemInfo<Subscription, Pipeline, Guid>
           {
-            <div>
-              @foreach (var pipeline in subscription.Pipelines.Values)
-              {
-                  <div>
-                      @pipeline.Name
-                  </div>
-              }
-            </div>
-          }
-        </div>
-      }
-    </div>
-  </div>
-</div>
+              Id = s.Id,
+              Name = s.Name,
+              Item = s,
+              InnerItems = s.Pipelines.Values
+                  .Select(p => new InnerCollectionItemInfo<Pipeline, Guid>
+                  {
+                      Id = p.Id,
+                      InnerItem = p,
+                      ListItemInfo = new ListItemInfo
+                      {
+                          Name = p.Name,
+                          UpdatedAt = DateTime.Now,
+                          ProcessingState = ItemProcessingState.New
+                      }
+                  }).ToList()
+          }).ToList();
 
-@code {
+      StateHasChanged();
+    });
+  }
 
-    private class SubscriptionState
-    {
-        public bool IsExpanded { get; set; } = true;
-    }
-
-    private Dictionary<Guid, SubscriptionState> myStates = [];
-    private List<Subscription> mySubscriptions = [];
-
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        ProcessService.SubscriptionsUpdatesSignal.Advise(Lifetime.Eternal, newSubscriptions =>
-        {
-            //todo: rewrite
-            mySubscriptions = newSubscriptions;
-            StateHasChanged();
-        });
-    }
-
-    private bool IsExpanded(Guid subscriptionId) => GetOrCreateState(subscriptionId).IsExpanded;
-
-    private void HandleSubscriptionTitleClicked(Guid subscriptionId)
-    {
-        var state = GetOrCreateState(subscriptionId);
-        state.IsExpanded = !state.IsExpanded;
-
-        StateHasChanged();
-    }
-
-    private SubscriptionState GetOrCreateState(Guid subscriptionId)
-    {
-        if (myStates.TryGetValue(subscriptionId, out var state)) return state;
-
-        state = new SubscriptionState();
-        myStates[subscriptionId] = state;
-
-        return state;
-    }
+  private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)
+  {
+    mySelectedPipeline = pipeline;
+  }
 }
