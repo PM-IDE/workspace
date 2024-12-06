@@ -21,6 +21,7 @@
   private Pipeline? mySelectedPipeline;
   private List<CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
 
+  [Parameter] public Action<Pipeline> PipelineSelected { get; set; }
 
   protected override void OnInitialized()
   {
@@ -29,7 +30,6 @@
     ProcessService.SubscriptionsUpdatesSignal.Advise(Lifetime.Eternal, newSubscriptions =>
     {
       //todo: rewrite
-
       mySubscriptions = newSubscriptions
           .Select(s => new CollectionItemInfo<Subscription, Pipeline, Guid>
           {
@@ -57,5 +57,6 @@
   private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)
   {
     mySelectedPipeline = pipeline;
+    PipelineSelected(pipeline);
   }
 }

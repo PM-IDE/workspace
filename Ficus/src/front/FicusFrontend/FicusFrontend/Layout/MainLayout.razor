@@ -7,15 +7,15 @@
 
 <div class="page">
   <div class="sidebar">
-    <SubscriptionsList />
+    <SubscriptionsList PipelineSelected="HandlePipelineSelected"/>
   </div>
   <div class="sidebar">
-    <CasesList CaseSelected="HandleNewCaseSelected"/>
+    <CasesList CaseSelected="HandleNewCaseSelected" SelectedPipeline="mySelectedPipeline"/>
   </div>
 
   <main>
     <article class="content px-4 case-info-container">
-      <CaseInfo ProcessCaseData="@myProcessCaseData"/>
+      <CaseInfo ProcessCaseData="@mySelectedProcessCaseData" />
     </article>
   </main>
 </div>
@@ -23,12 +23,18 @@
 
 @code
 {
-  private ProcessCaseData? myProcessCaseData;
+  private Pipeline mySelectedPipeline;
+  private ProcessCaseData? mySelectedProcessCaseData;
 
+
+  private void HandlePipelineSelected(Pipeline pipeline)
+  {
+    mySelectedPipeline = pipeline;
+  }
 
   private void HandleNewCaseSelected(ProcessData processData, Case selectedCase)
   {
-    myProcessCaseData = new ProcessCaseData
+    mySelectedProcessCaseData = new ProcessCaseData
     {
       Case = selectedCase,
       ProcessData = processData

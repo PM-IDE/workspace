@@ -17,6 +17,7 @@
 
 
   [Parameter] public Action<ProcessData, Case>? CaseSelected { get; set; }
+  [Parameter] public Pipeline SelectedPipeline { get; set; }
 
 
   private void HandleCaseSelection(ProcessData process, CaseData @case)
