@@ -1,4 +1,4 @@
-namespace WebApp;
+namespace WFWebApp;
 
 public class WeatherForecast
 {

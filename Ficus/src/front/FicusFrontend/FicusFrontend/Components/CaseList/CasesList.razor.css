@@ -1,26 +1,54 @@
-.cases-list-title-container {
+.sidebar-list-title-container {
     width: 100%;
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    background-color: rebeccapurple;
+    background-color: var(--processes-section-title-background);
 }
 
-.cases-list-title {
+.sidebar-list-title {
     padding-left: 10px;
     color: white;
     font-size: 20px;
 }
 
-.cases-list-outer-container {
+.sidebar-list-item-title-container {
     width: 100%;
-    height: 100%;
-    background-color: aliceblue;
+    height: 30px;
+    padding-left: 10px;
+    background-color: var(--processes-section-process-name-background);
 }
 
-.process-accordion-item {
-    white-space: nowrap;
+.sidebar-list-item-title-container:hover {
+    background-color: var(--processes-section-process-name-background-hovered);
+}
+
+.sidebar-list-item-title {
+    color: var(--cv-section-content-text-color);
+}
+
+.sidebar-list-outer-container {
+    width: 100%;
+    height: 100%;
+    background-color: var(--processes-section-cases-collapsed-bakground);
     overflow: hidden;
+}
+
+.sidebar-list-item {
+    width: 100%;
+    height: 100%;
+    white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.sidebar-list {
+    width: 100%;
+    background-color: var(--processes-section-cases-background);
+}
+
+.scrollable {
+    height: 100%;
+    width: 100%;
+    overflow-y: scroll;
 }

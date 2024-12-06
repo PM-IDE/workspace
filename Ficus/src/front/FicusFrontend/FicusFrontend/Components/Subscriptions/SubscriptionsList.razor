@@ -1,0 +1,62 @@
+﻿@using FicusFrontend.Services.Cases
+@using JetBrains.Lifetimes
+@using FicusFrontend.Components.SidebarList
+@inject IProcessesService ProcessService;
+
+
+<SidebarList TCollectionItem="Subscription"
+             TCollectionInnerItem="Pipeline"
+             TId="Guid"
+             ItemType="Process"
+             Items="mySubscriptions"
+             InnerItemSelected="HandlePipelineSelection" />
+
+@code
+{
+  private class SubscriptionState
+  {
+    public bool IsExpanded { get; set; } = true;
+  }
+
+  private Pipeline? mySelectedPipeline;
+  private List<CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
+
+  [Parameter] public Action<Pipeline> PipelineSelected { get; set; }
+
+  protected override void OnInitialized()
+  {
+    base.OnInitialized();
+
+    ProcessService.SubscriptionsUpdatesSignal.Advise(Lifetime.Eternal, newSubscriptions =>
+    {
+      //todo: rewrite
+      mySubscriptions = newSubscriptions
+          .Select(s => new CollectionItemInfo<Subscription, Pipeline, Guid>
+          {
+              Id = s.Id,
+              Name = s.Name,
+              Item = s,
+              InnerItems = s.Pipelines.Values
+                  .Select(p => new InnerCollectionItemInfo<Pipeline, Guid>
+                  {
+                      Id = p.Id,
+                      InnerItem = p,
+                      ListItemInfo = new ListItemInfo
+                      {
+                          Name = p.Name,
+                          UpdatedAt = DateTime.Now,
+                          ProcessingState = ItemProcessingState.New
+                      }
+                  }).ToList()
+          }).ToList();
+
+      StateHasChanged();
+    });
+  }
+
+  private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)
+  {
+    mySelectedPipeline = pipeline;
+    PipelineSelected(pipeline);
+  }
+}

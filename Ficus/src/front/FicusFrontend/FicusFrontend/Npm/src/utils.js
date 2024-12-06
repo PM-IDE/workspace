@@ -10,7 +10,6 @@ export function createBreadthFirstLayout() {
         rankDir: 'TB',
         nodeDimensionsIncludeLabels: true,
         ranker: 'tight-tree',
-        animate: true,
     }
 }
 
