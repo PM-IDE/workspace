@@ -80,7 +80,7 @@
 
     myProcessCaseData = ProcessCaseData;
 
-    var values = ProcessService.CreateCaseValuesObservable(myProcessCaseData.ProcessData, myProcessCaseData.Case);
+    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.Name].ContextValues;
     myPipelinePartsExecutionResults.Clear();
     myPipelinePartsExecutionResults.AddRange(values);
 
