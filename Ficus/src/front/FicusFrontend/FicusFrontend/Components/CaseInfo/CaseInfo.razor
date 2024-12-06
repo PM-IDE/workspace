@@ -1,11 +1,11 @@
 ﻿@using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
+@using FicusFrontend.Components.CaseInfo.ContextValues.Graph
+@using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
+@using FicusFrontend.Layout.Models
 @using FicusFrontend.Services.Cases
 @using JetBrains.Lifetimes
-@using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
-@using FicusFrontend.Components.CaseInfo.ContextValues.Graph
-@using FicusFrontend.Layout.Models
 @using static Ficus.GrpcContextValue;
 
 @inherits ComponentBase
@@ -16,8 +16,8 @@
 @{
   var title = myProcessCaseData switch
   {
-    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.Name,
-    _ => "The case was not yet selected."
+      { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.Name,
+      _ => "The case was not yet selected."
   };
 }
 
@@ -28,31 +28,40 @@
 </div>
 
 <div class="pipeline-parts-context-values-outer-container">
-    @foreach (var result in myPipelinePartsExecutionResults)
-    {
-        <div class="pipeline-parts-context-values-inner-container">
-            <div class="pipeline-part-name">
-                @result.Value.PipelinePartName
-            </div>
+  @foreach (var result in myPipelinePartsExecutionResults)
+  {
+    <div class="pipeline-parts-context-values-inner-container">
+      <div class="pipeline-part-name" @onclick="_ => HandleExecutionResultTitleClicked(result.Key)">
+        @result.Value.PipelinePartName
+      </div>
 
-            <div class="pipeline-part-context-values-container">
-                @{
-                    var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
-                }
+      @if (IsExpanded(result.Key))
+      {
+        <div class="pipeline-part-context-values-container">
+          @{
+            var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
+          }
 
-                @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
-                {
-                    <div>
-                        @fragment
-                    </div>
-                }
+          @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
+          {
+            <div>
+              @fragment
             </div>
+          }
         </div>
-    }
+      }
+    </div>
+  }
 </div>
 
 @code
 {
+  private class ExecutionResultState
+  {
+    public bool IsExpanded { get; set; }
+  }
+
+  private readonly Dictionary<Guid, ExecutionResultState> myStates = [];
   private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
@@ -86,12 +95,31 @@
     });
   }
 
+  private bool IsExpanded(Guid executionResultId) => GetOrCreateState(executionResultId).IsExpanded;
+
+  private ExecutionResultState GetOrCreateState(Guid executionResultId)
+  {
+    if (myStates.TryGetValue(executionResultId, out var state)) return state;
+
+    state = new ExecutionResultState();
+    myStates[executionResultId] = state;
+    return state;
+  }
+
+
+  private void HandleExecutionResultTitleClicked(Guid executionResultId)
+  {
+    var state = GetOrCreateState(executionResultId);
+    state.IsExpanded = !state.IsExpanded;
+    StateHasChanged();
+  }
+
   private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
   {
     return contextValues switch
     {
-      [var singleValue] => [FindRendererFor(singleValue)],
-      _ => FindRenderersFor(pipelinePartName, contextValues)
+        [var singleValue] => [FindRendererFor(singleValue)],
+        _ => FindRenderersFor(pipelinePartName, contextValues)
     };
   }
 
@@ -99,11 +127,17 @@
   {
     return contextValue.ContextValueCase switch
     {
-      ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
-      ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="contextValue.PetriNet"/>,
-      ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph" ProcessCaseData="myProcessCaseData" />,
-      _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
+        ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
+        ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()"
+                                                                    Log="contextValue.ColorsLog"/>,
+
+        ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()"
+                                                             PetriNet="contextValue.PetriNet"/>,
+
+        ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph"
+                                                       ProcessCaseData="myProcessCaseData"/>,
+
+        _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }
 
@@ -131,7 +165,8 @@
 
     if (graph is null) return null;
 
-    return @<GraphRenderer @key="Guid.NewGuid()" Graph="graph" ProcessCaseData="myProcessCaseData" Annotation="annotation" />;
+    return @<GraphRenderer @key="Guid.NewGuid()" Graph="graph" ProcessCaseData="myProcessCaseData"
+                           Annotation="annotation"/>;
   }
 
   private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<GrpcContextValue> contextValues)
@@ -141,6 +176,6 @@
 
     if (petriNet is null) return null;
 
-    return @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="petriNet" Annotation="annotation" />;
+    return @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="petriNet" Annotation="annotation"/>;
   }
 }
