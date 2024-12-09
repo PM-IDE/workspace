@@ -1,5 +1,4 @@
-﻿@using System.IO.Pipelines
-@using FicusFrontend.Services.Cases
+﻿@using FicusFrontend.Services.Cases
 @using JetBrains.Lifetimes
 @using FicusFrontend.Components.SidebarList
 @using JetBrains.Collections.Viewable
@@ -14,19 +13,20 @@
              InnerItemSelected="HandlePipelineSelection"/>
 
 @code
-
-
-
 {
     private class SubscriptionState
     {
         public bool IsExpanded { get; set; } = true;
     }
 
+    private readonly Dictionary<Guid, CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
+    private readonly Dictionary<Guid, LifetimeDefinition> mySubscriptionLifetimes = [];
+
     private Pipeline? mySelectedPipeline;
-    private Dictionary<Guid, CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
+
 
     [Parameter] public Action<Pipeline>? PipelineSelected { get; set; }
+
 
     protected override void OnInitialized()
     {
@@ -40,13 +40,16 @@
     {
         if (subscription is null) return;
 
-        var subscriptionLifetimeDef = new LifetimeDefinition();
         switch (addRemove)
         {
             case AddRemove.Add:
             {
                 var itemInfo = CreateCollectionItemInfoFrom(subscription);
                 mySubscriptions[id] = itemInfo;
+
+                var subscriptionLifetimeDef = new LifetimeDefinition();
+                mySubscriptionLifetimes[id] = subscriptionLifetimeDef;
+
                 subscription.Pipelines.AdviseAddRemove(subscriptionLifetimeDef.Lifetime, HandlePipelineAddRemove);
 
                 break;
@@ -54,7 +57,7 @@
             case AddRemove.Remove:
             {
                 mySubscriptions.Remove(id);
-                subscriptionLifetimeDef.Terminate();
+                mySubscriptionLifetimes[id].Terminate();
                 break;
             }
             default:
