@@ -7,7 +7,7 @@
 <SidebarList TCollectionItem="Subscription"
              TCollectionInnerItem="Pipeline"
              TId="Guid"
-             ItemType="Process"
+             ItemType="Subscription"
              Items="mySubscriptions"
              InnerItemSelected="HandlePipelineSelection" />
 
@@ -21,7 +21,7 @@
   private Pipeline? mySelectedPipeline;
   private List<CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
 
-  [Parameter] public Action<Pipeline> PipelineSelected { get; set; }
+  [Parameter] public Action<Pipeline>? PipelineSelected { get; set; }
 
   protected override void OnInitialized()
   {
@@ -47,7 +47,7 @@
                           UpdatedAt = DateTime.Now,
                           ProcessingState = ItemProcessingState.New
                       }
-                  }).ToList()
+                  }).ToDictionary(info => info.Id, info => info)
           }).ToList();
 
       StateHasChanged();
@@ -57,6 +57,6 @@
   private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)
   {
     mySelectedPipeline = pipeline;
-    PipelineSelected(pipeline);
+    PipelineSelected?.Invoke(pipeline);
   }
 }

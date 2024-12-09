@@ -25,7 +25,7 @@
           @if (IsExpanded(item.Id))
           {
             <div>
-              @foreach (var innerItem in item.InnerItems)
+              @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
               {
                   <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
                       <SidebarListItem ListItemInfo="innerItem.ListItemInfo" />

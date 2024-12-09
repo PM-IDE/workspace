@@ -5,7 +5,7 @@ public class CollectionItemInfo<TItem, TInnerItem, TId> where TId : notnull
   public required TId Id { get; init; }
   public required string Name { get; init; }
   public required TItem Item { get; init; }
-  public required List<InnerCollectionItemInfo<TInnerItem, TId>> InnerItems { get; init; }
+  public required Dictionary<TId, InnerCollectionItemInfo<TInnerItem, TId>> InnerItems { get; init; }
 }
 
 public class InnerCollectionItemInfo<TCollectionInnerItem, TId> where TId : notnull
