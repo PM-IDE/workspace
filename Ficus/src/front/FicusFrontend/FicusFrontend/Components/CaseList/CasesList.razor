@@ -10,8 +10,9 @@
              TCollectionInnerItem="Case"
              TId="string"
              ItemType="Process"
+             Title="Processes"
              Items="myProcesses.Values.OrderBy(p => p.Id).ToList()"
-             InnerItemSelected="HandleCaseSelection" />
+             InnerItemSelected="HandleCaseSelection"/>
 
 @code
 {
@@ -95,6 +96,8 @@
               var caseLifetimeDef = processLifetimeDef.CreateNested();
               myCasesLifetimes[caseKey] = caseLifetimeDef;
 
+              myProcesses[caseModel.Name].InnerItems[caseKey] = CreateInnerCollectionItemFrom(caseModel);
+
               caseModel.ContextValues.Change.Advise(
                   caseLifetimeDef.Lifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
 
@@ -102,6 +105,8 @@
           }
           case AddRemove.Remove:
           {
+              myProcesses[caseModel.Name].InnerItems.Remove(caseKey);
+
               if (myCasesLifetimes.Remove(caseKey, out var caseLifetimeDef))
               {
                   caseLifetimeDef.Terminate();
@@ -129,17 +134,18 @@
       Id = process.ProcessName,
       Name = process.ProcessName,
       Item = process,
-      InnerItems = process.ProcessCases.Values
-          .Select(c => new InnerCollectionItemInfo<Case, string>
-          {
-              Id = c.Name,
-              InnerItem = c,
-              ListItemInfo = new ListItemInfo
-              {
-                  Name = c.Name,
-                  UpdatedAt = c.CreatedAt,
-                  ProcessingState = ItemProcessingState.New
-              }
-          }).ToDictionary(c => c.Id, c => c)
+      InnerItems = process.ProcessCases.Values.Select(CreateInnerCollectionItemFrom).ToDictionary(c => c.Id, c => c)
+  };
+
+  private InnerCollectionItemInfo<Case, string> CreateInnerCollectionItemFrom(Case @case) => new()
+  {
+      Id = @case.Name,
+      InnerItem = @case,
+      ListItemInfo = new ListItemInfo
+      {
+          Name = @case.Name,
+          UpdatedAt = @case.CreatedAt,
+          ProcessingState = ItemProcessingState.New
+      }
   };
 }

@@ -8,7 +8,7 @@
   <div class="scrollable">
     <div class="sidebar-list-title-container">
       <div class="sidebar-list-title">
-        Processes
+        @Title
       </div>
     </div>
 
@@ -27,9 +27,9 @@
             <div>
               @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
               {
-                  <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
-                      <SidebarListItem ListItemInfo="innerItem.ListItemInfo" />
-                  </div>
+                <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
+                  <SidebarListItem ListItemInfo="innerItem.ListItemInfo"/>
+                </div>
               }
             </div>
           }
@@ -48,6 +48,7 @@
 
   private Dictionary<TId, CollectionItemState> myStates = [];
 
+  [Parameter] public string Title { get; set; }
   [Parameter] public string ItemType { get; set; }
   [Parameter] public List<CollectionItemInfo<TCollectionItem, TCollectionInnerItem, TId>> Items { get; set; }
   [Parameter] public Func<TCollectionInnerItem, RenderFragment> ListItemFragmentFactory { get; set; }
