@@ -62,13 +62,9 @@
 
         var collectionItemInfo = CreateItemInfoFromProcess(process);
 
-        process.ProcessCases.AdviseAddRemove(
-            processLifetimeDef.Lifetime,
-            (addRemove, key, @case) => HandleCaseAddRemove(addRemove, key, @case, processLifetimeDef, collectionItemInfo)
-        );
+        process.ProcessCases.AdviseAddRemove(processLifetimeDef.Lifetime, HandleCaseAddRemove);
 
         myProcesses[key] = collectionItemInfo;
-
         break;
       }
       case AddRemove.Remove:
@@ -79,7 +75,6 @@
         }
 
         myProcesses.Remove(key);
-
         break;
       }
       default:
@@ -87,28 +82,21 @@
     }
   }
 
-  private void HandleCaseAddRemove(
-      AddRemove caseAddRemove,
-      string caseKey,
-      Case caseModel,
-      LifetimeDefinition processLifetimeDef,
-      CollectionItemInfo<ProcessData, Case, string> collectionItemInfo)
+  private void HandleCaseAddRemove(AddRemove caseAddRemove, string caseKey, Case? caseModel)
   {
+      if (caseModel is null) return;
+
       switch (caseAddRemove)
       {
           case AddRemove.Add:
           {
-              var caseLifetimeDef = processLifetimeDef.Lifetime.CreateNested();
+              var processLifetimeDef = myProcessesLifetimes[caseModel.ParentProcess.ProcessName].Lifetime;
+
+              var caseLifetimeDef = processLifetimeDef.CreateNested();
               myCasesLifetimes[caseKey] = caseLifetimeDef;
 
-              caseModel.ContextValues.Change.Advise(caseLifetimeDef.Lifetime, _ =>
-              {
-                  if (!ReferenceEquals(caseModel, mySelectedCase))
-                  {
-                      collectionItemInfo.InnerItems[caseKey].ListItemInfo.ProcessingState = ItemProcessingState.Updated;
-                      StateHasChanged();
-                  }
-              });
+              caseModel.ContextValues.Change.Advise(
+                  caseLifetimeDef.Lifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
 
               break;
           }
@@ -122,6 +110,16 @@
               break;
           }
       }
+
+      StateHasChanged();
+  }
+
+  private void HandleCaseContextValuesChange(string caseKey, Case caseModel)
+  {
+      if (ReferenceEquals(caseModel, mySelectedCase)) return;
+
+      var collectionItemInfo = myProcesses[caseModel.Name];
+      collectionItemInfo.InnerItems[caseKey].ListItemInfo.ProcessingState = ItemProcessingState.Updated;
 
       StateHasChanged();
   }
