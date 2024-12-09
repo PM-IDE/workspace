@@ -17,10 +17,10 @@ public interface IProcessesService
 public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
   : IProcessesService
 {
-  private readonly Dictionary<Guid, Subscription> mySubscriptions = [];
+  private readonly ViewableMap<Guid, Subscription> mySubscriptions = [];
 
 
-  public IViewableMap<Guid, Subscription> Subscriptions { get; } = new ViewableMap<Guid, Subscription>();
+  public IViewableMap<Guid, Subscription> Subscriptions => mySubscriptions;
   public ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; } = new Signal<Pipeline>();
 
 
