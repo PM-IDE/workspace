@@ -56,8 +56,10 @@ public class DotnetProjectBuilderImpl(
 
     var artifactsFolderCookie = tempPath switch
     {
-      null => CreateTempArtifactsPath(),
-      { } => new TempFolderCookie(logger, tempPath)
+      DefaultNetFolder => new TempFolderCookie(logger, Path.Combine(projectDirectory, "bin", configuration.ToString(), tfm)),
+      RandomTempPath => CreateTempArtifactsPath(),
+      SpecifiedTempPath { TempFolderPath: var tempFolderPath} => new TempFolderCookie(logger, tempFolderPath),
+      _ => throw new ArgumentOutOfRangeException(nameof(tempPath))
     };
 
     var buildConfig = BuildConfigurationExtensions.ToString(configuration);

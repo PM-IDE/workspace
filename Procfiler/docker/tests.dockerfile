@@ -11,6 +11,7 @@ WORKDIR /app
 COPY ./Procfiler ./Procfiler
 COPY ./bxes ./bxes
 COPY ProcfilerBxes.sln ./ProcfilerBxes.sln
+COPY Directory.Packages.props ./Directory.Packages.props
 
 RUN dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks/ProcfilerBuildTasks.csproj -c Release
 RUN dotnet build . -c Release

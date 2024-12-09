@@ -11,17 +11,11 @@ from ...grpc_pipelines.models.backend_service_pb2_grpc import *
 from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
 from ...legacy.util import performance_cookie
 
-ficus_backend_addr_key = 'backend'
-
-def create_ficus_grpc_channel(initial_context: dict[str, ContextValue]) -> grpc.Channel:
+def create_ficus_grpc_channel(ficus_backend_addr: str) -> grpc.Channel:
     options = [('grpc.max_send_message_length', 512 * 1024 * 1024),
                ('grpc.max_receive_message_length', 512 * 1024 * 1024)]
 
-    addr = initial_context[ficus_backend_addr_key] if ficus_backend_addr_key in initial_context else 'localhost:8080'
-    if ficus_backend_addr_key in initial_context:
-        del initial_context[ficus_backend_addr_key]
-
-    return grpc.insecure_channel(addr, options=options)
+    return grpc.insecure_channel(ficus_backend_addr, options=options)
 
 
 def create_initial_context(context: dict[str, ContextValue]) -> list[GrpcContextKeyValue]:

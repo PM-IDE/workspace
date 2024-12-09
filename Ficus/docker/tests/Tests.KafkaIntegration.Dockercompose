@@ -61,26 +61,9 @@ services:
       context: ../../../
       dockerfile: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
 
-  ficus-int-tests-pipeline:
-    depends_on:
-      - ficus-int-tests-backend
-    build:
-      context: ../../../
-      dockerfile: ./Ficus/examples/kafka_pipelines/Dockerfile
-      args:
-        SCRIPT_FILE_NAME: names_log_kafka_pipeline.py
-    environment:
-      CONSUMER_BOOTSTRAP_SERVERS: ficus-int-tests-kafka:29092
-      CONSUMER_TOPIC: my-topic
-      CONSUMER_GROUP_ID: xd
-      PRODUCER_BOOTSTRAP_SERVERS: ficus-int-tests-kafka:29092
-      PRODUCER_TOPIC: ficus-topic
-      FICUS_BACKEND: ficus-int-tests-backend:8080
-      SLEEP: true
-
   ficus-int-tests-tests:
     depends_on:
-      - ficus-int-tests-pipeline
+      - ficus-int-tests-backend
     build:
       context: ../../../
       dockerfile: ./Ficus/docker/tests/Tests.KafkaIntegrationTests.Dockerfile
@@ -89,3 +72,9 @@ services:
       PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
       FicusKafkaProducerSettings__Topic: my-topic
       FicusKafkaProducerSettings__BootstrapServers: ficus-int-tests-kafka:29092
+      FicusIntegrationTestsSettings__ConsumerBootstrapServers:  ficus-int-tests-kafka:29092
+      FicusIntegrationTestsSettings__ConsumerTopic: my-topic
+      FicusIntegrationTestsSettings__ConsumerGroup: xd
+      FicusIntegrationTestsSettings__ProducerBootstrapServers: ficus-int-tests-kafka:29092
+      FicusIntegrationTestsSettings__ProducerTopic: ficus-topic
+      FicusIntegrationTestsSettings__FicusBackendAddress: ficus-int-tests-backend:8080

@@ -105,7 +105,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{08516726-B
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerLoggerProvider", "Procfiler\src\dotnet\ProcfilerLoggerProvider\ProcfilerLoggerProvider.csproj", "{F50FE66B-3147-4BE6-97EB-4A6889419E34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -201,6 +204,10 @@ Global
 		{3AA8D798-4DDC-4BD7-8425-330B30408368}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AA8D798-4DDC-4BD7-8425-330B30408368}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AA8D798-4DDC-4BD7-8425-330B30408368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F50FE66B-3147-4BE6-97EB-4A6889419E34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F50FE66B-3147-4BE6-97EB-4A6889419E34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F50FE66B-3147-4BE6-97EB-4A6889419E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F50FE66B-3147-4BE6-97EB-4A6889419E34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FEF48EF9-EDFC-4464-8942-64FC9FF000CA} = {C3E829BA-4C31-4F55-BF4D-C0D11B0B70B4}
@@ -236,5 +243,6 @@ Global
 		{BDBD0D34-99B8-41E7-81B7-884757F3BA90} = {B18D95BC-B309-48D0-B02F-FAB29E85A6BD}
 		{998F74B8-31F9-44E3-B190-F1BCAF8D3C4C} = {CFE31E47-235F-42A8-A188-9A7E8833E7BD}
 		{3DECAF44-E682-48B7-AA14-D926B38B899A} = {C3E829BA-4C31-4F55-BF4D-C0D11B0B70B4}
+		{F50FE66B-3147-4BE6-97EB-4A6889419E34} = {D50BD31E-296B-468E-817A-60AF1CE7A759}
 	EndGlobalSection
 EndGlobal

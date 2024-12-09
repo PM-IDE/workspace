@@ -1,18 +1,19 @@
 {
-  "light": {
+  "dark": {
     "petriNet": {
       "transitionBackground": "#000000",
       "borderLine": "#000000",
       "arcLine": "#C0C0C0"
     },
     "graph": {
-      "nodeBackground": "#3f0e50",
-      "redMin": 159,
-      "redMax": 190,
-      "greenMin": 0,
-      "greenMax": 157,
-      "blueMin": 212,
-      "blueMax": 212
+      "nodeBackground": "#7d80f0",
+      "labelColor": "#b8b8b8",
+      "redMin": 42,
+      "redMax": 88,
+      "greenMin": 46,
+      "greenMax": 90,
+      "blueMin": 171,
+      "blueMax":  170
     },
     "performanceColors": {
       "color0": "#0cf03f",

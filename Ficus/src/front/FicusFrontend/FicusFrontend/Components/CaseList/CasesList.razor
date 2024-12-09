@@ -1,97 +1,151 @@
-﻿@using BlazorBootstrap
-@using FicusFrontend.Components.CaseList.Models
+﻿@using FicusFrontend.Components.SidebarList
 @using FicusFrontend.Services.Cases
+@using JetBrains.Collections.Viewable
+@using JetBrains.Lifetimes
 @inherits ComponentBase;
+
 @inject IProcessesService ProcessService;
 
-<div class="cases-list-outer-container">
-  <div class="cases-list-title-container">
-    <div class="cases-list-title">
-      Processes
-    </div>
-  </div>
-
-  <div>
-    <Accordion AlwaysOpen="true">
-      @foreach (var process in myProcesses)
-      {
-        <AccordionItem Title="@process.ProcessData.ProcessName" Class="process-accordion-item">
-          <Content>
-            @foreach (var @case in process.Cases)
-            {
-              <div @onclick="@(_ => HandleCaseSelected(process.ProcessData, @case))">
-                <CaseListItem Case="@(@case)"/>
-              </div>
-            }
-          </Content>
-        </AccordionItem>
-      }
-    </Accordion>
-  </div>
-</div>
+<SidebarList TCollectionItem="ProcessData"
+             TCollectionInnerItem="Case"
+             TId="string"
+             ItemType="Process"
+             Title="Processes"
+             Items="myProcesses.Values.OrderBy(p => p.Id).ToList()"
+             InnerItemSelected="HandleCaseSelection"/>
 
 @code
 {
-  private List<ProcessListItemDto> myProcesses = [];
+  private readonly Dictionary<string, CollectionItemInfo<ProcessData, Case, string>> myProcesses = [];
+  private readonly Dictionary<string, LifetimeDefinition> myProcessesLifetimes = [];
+  private readonly Dictionary<string, LifetimeDefinition> myCasesLifetimes = [];
+  private readonly SequentialLifetimes mySequentialLifetimes = new(Lifetime.Eternal);
+
+  private Pipeline mySelectedPipeline = null!;
+  private Lifetime myCurrentPipelineLifetime;
   private Case? mySelectedCase;
 
+
   [Parameter] public Action<ProcessData, Case>? CaseSelected { get; set; }
+  [Parameter] public Pipeline? SelectedPipeline { get; set; }
 
 
-  private void HandleCaseSelected(ProcessData processData, CaseListItemDto selectedCase)
+  private void HandleCaseSelection(ProcessData process, Case @case)
   {
-    selectedCase.State = CaseListItemState.Seen;
-    mySelectedCase = selectedCase.Case;
-    CaseSelected?.Invoke(processData, selectedCase.Case);
+    mySelectedCase = @case;
+    CaseSelected?.Invoke(process, @case);
   }
 
-  protected override void OnInitialized()
+  protected override void OnParametersSet()
   {
-    base.OnInitialized();
+    base.OnParametersSet();
 
-    Task.Factory.StartNew(async () =>
+    if (SelectedPipeline is null) return;
+    if (ReferenceEquals(mySelectedPipeline, SelectedPipeline)) return;
+
+    mySelectedPipeline = SelectedPipeline;
+    myCurrentPipelineLifetime = mySequentialLifetimes.Next();
+    mySelectedPipeline.Processes.AdviseAddRemove(myCurrentPipelineLifetime, HandleProcessAddRemove);
+
+    StateHasChanged();
+  }
+
+  private void HandleProcessAddRemove(AddRemove addRemove, string key, ProcessData? process)
+  {
+    switch (addRemove)
     {
-      await foreach (var processUpdate in ProcessService.OpenCasesUpdatesStream(CancellationToken.None))
+      case AddRemove.Add:
       {
-        switch (processUpdate)
+        if (process is null) return;
+
+        var processLifetimeDef = myCurrentPipelineLifetime.CreateNested();
+        myProcessesLifetimes[key] = processLifetimeDef;
+
+        var collectionItemInfo = CreateItemInfoFromProcess(process);
+        myProcesses[key] = collectionItemInfo;
+
+        process.ProcessCases.AdviseAddRemove(processLifetimeDef.Lifetime, HandleCaseAddRemove);
+
+        break;
+      }
+      case AddRemove.Remove:
+      {
+        if (myProcessesLifetimes.Remove(key, out var processLifetimeDef))
         {
-          case ProcessContextValuesUpdate cvUpdate:
-          {
-            var updatedProcess = myProcesses.FirstOrDefault(p => p.ProcessData.ProcessName == cvUpdate.ProcessName);
-            var updatedCase = updatedProcess?.Cases.FirstOrDefault(c => c.Case.Name == cvUpdate.CaseName);
-            if (updatedCase is not null && !updatedCase.Case.Equals(mySelectedCase))
-            {
-              updatedCase.State = CaseListItemState.UpdatesReceived;
-              StateHasChanged();
-            }
-
-            break;
-          }
-          case ProcessesListUpdate processesListUpdate:
-          {
-            myProcesses = processesListUpdate.Processes.Select(p => new ProcessListItemDto
-              {
-                ProcessData = p,
-                Cases = p.ProcessCases.Select(c => CreateCaseListItemDtoFrom(c.Value.Case)).ToList()
-              })
-              .ToList();
-
-            break;
-          }
-          default:
-            throw new ArgumentOutOfRangeException(nameof(processUpdate));
+          processLifetimeDef.Terminate();
         }
 
-        StateHasChanged();
+        myProcesses.Remove(key);
+        break;
       }
-    }, TaskCreationOptions.LongRunning);
+      default:
+        throw new ArgumentOutOfRangeException(nameof(addRemove), addRemove, null);
+    }
   }
 
-  private CaseListItemDto CreateCaseListItemDtoFrom(Case @case)
+  private void HandleCaseAddRemove(AddRemove caseAddRemove, string caseKey, Case? caseModel)
   {
-    return new CaseListItemDto
-    {
-      Case = @case
-    };
+      if (caseModel is null) return;
+
+      switch (caseAddRemove)
+      {
+          case AddRemove.Add:
+          {
+              var processLifetimeDef = myProcessesLifetimes[caseModel.ParentProcess.ProcessName].Lifetime;
+
+              var caseLifetimeDef = processLifetimeDef.CreateNested();
+              myCasesLifetimes[caseKey] = caseLifetimeDef;
+
+              myProcesses[caseModel.ParentProcess.ProcessName].InnerItems[caseKey] = CreateInnerCollectionItemFrom(caseModel);
+
+              caseModel.ContextValues.Change.Advise(
+                  caseLifetimeDef.Lifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
+
+              break;
+          }
+          case AddRemove.Remove:
+          {
+              myProcesses[caseModel.ParentProcess.ProcessName].InnerItems.Remove(caseKey);
+
+              if (myCasesLifetimes.Remove(caseKey, out var caseLifetimeDef))
+              {
+                  caseLifetimeDef.Terminate();
+              }
+
+              break;
+          }
+      }
+
+      StateHasChanged();
   }
+
+  private void HandleCaseContextValuesChange(string caseKey, Case caseModel)
+  {
+      if (ReferenceEquals(caseModel, mySelectedCase)) return;
+
+      var collectionItemInfo = myProcesses[caseModel.Name];
+      collectionItemInfo.InnerItems[caseKey].ListItemInfo.ProcessingState = ItemProcessingState.Updated;
+
+      StateHasChanged();
+  }
+
+  private CollectionItemInfo<ProcessData, Case, string> CreateItemInfoFromProcess(ProcessData process) => new()
+  {
+      Id = process.ProcessName,
+      Name = process.ProcessName,
+      Item = process,
+      InnerItems = process.ProcessCases.Values.Select(CreateInnerCollectionItemFrom).ToDictionary(c => c.Id, c => c)
+  };
+
+  private InnerCollectionItemInfo<Case, string> CreateInnerCollectionItemFrom(Case @case) => new()
+  {
+      Id = @case.Name,
+      InnerItem = @case,
+      ListItemInfo = new ListItemInfo
+      {
+          Name = @case.Name,
+          UpdatedAt = @case.CreatedAt,
+          ProcessingState = ItemProcessingState.New
+      }
+  };
 }

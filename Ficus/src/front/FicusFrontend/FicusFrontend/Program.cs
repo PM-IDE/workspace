@@ -27,4 +27,16 @@ builder.Services.AddSingleton(services =>
   return new GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient(channel);
 });
 
-await builder.Build().RunAsync();
+var app = builder.Build();
+
+using var source = new CancellationTokenSource();
+
+try
+{
+  app.Services.GetRequiredService<IProcessesService>().StartUpdatesStream(source.Token);
+  await app.RunAsync();
+}
+finally
+{
+  source.Cancel();
+}
