@@ -8,7 +8,8 @@ namespace FicusFrontend.Services.Cases;
 
 public interface IProcessesService
 {
-  ISignal<List<Subscription>> SubscriptionsUpdatesSignal { get; }
+  IViewableMap<Guid, Subscription> Subscriptions { get; }
+  ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; }
 
   void StartUpdatesStream(CancellationToken token);
 }
@@ -19,7 +20,8 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
   private readonly Dictionary<Guid, Subscription> mySubscriptions = [];
 
 
-  public ISignal<List<Subscription>> SubscriptionsUpdatesSignal { get; } = new Signal<List<Subscription>>();
+  public IViewableMap<Guid, Subscription> Subscriptions { get; } = new ViewableMap<Guid, Subscription>();
+  public ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; } = new Signal<Pipeline>();
 
 
   public void StartUpdatesStream(CancellationToken token)
@@ -35,7 +37,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
             ProcessInitialState(reader.Current.CurrentCases);
             break;
           case GrpcPipelinePartUpdate.UpdateOneofCase.Delta:
-            ProcessCaseUpdate(reader.Current.Delta);
+            HandleCaseUpdate(reader.Current.Delta);
             break;
           default:
             throw new ArgumentOutOfRangeException();
@@ -60,14 +62,16 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
         })
         .ToDictionary();
       
+      var processData = GetOrCreateProcessData(@case.ProcessCaseMetadata);
+
       var caseModel = new Case
       {
+        ParentProcess = processData,
         Name = @case.ProcessCaseMetadata.CaseName,
         CreatedAt = DateTime.Now,
         ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>(initialState)
       };
 
-      var processData = GetOrCreateProcessData(@case.ProcessCaseMetadata);
       processData.ProcessCases[caseModel.Name] = caseModel;
     }
   }
@@ -88,8 +92,13 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
     };
 
     pipeline.Processes[processName] = processData;
+
+    FirePipelineSubEntityUpdatedEvent(pipeline);
+
     return processData;
   }
+
+  private void FirePipelineSubEntityUpdatedEvent(Pipeline pipeline) => AnyPipelineSubEntityUpdated.Fire(pipeline);
 
   private Subscription GetOrCreateSubscription(GrpcProcessCaseMetadata metadata)
   {
@@ -122,17 +131,16 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
 
     subscription.Pipelines[pipelineId] = pipeline;
 
-    SubscriptionsUpdatesSignal.Fire(mySubscriptions.Values.ToList());
-
     return pipeline;
   }
 
-  private static Case GetOrCreateCaseData(ProcessData processData, string caseName)
+  private Case GetOrCreateCaseData(ProcessData processData, string caseName)
   {
     if (processData.ProcessCases.TryGetValue(caseName, out var @case)) return @case;
 
     @case = new Case
     {
+      ParentProcess = processData,
       Name = caseName,
       CreatedAt = DateTime.Now,
       ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>()
@@ -140,10 +148,12 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
 
     processData.ProcessCases[caseName] = @case;
 
+    FirePipelineSubEntityUpdatedEvent(@case.ParentProcess.ParentPipeline);
+
     return @case;
   }
 
-  private void ProcessCaseUpdate(GrpcKafkaUpdate delta)
+  private void HandleCaseUpdate(GrpcKafkaUpdate delta)
   {
     var processData = GetOrCreateProcessData(delta.ProcessCaseMetadata); 
     var caseData = GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName);
