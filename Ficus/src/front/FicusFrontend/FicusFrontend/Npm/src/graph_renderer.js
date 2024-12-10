@@ -57,7 +57,6 @@ function createEdgeStyle() {
 }
 
 function createGraphElements(graph, annotation) {
-  console.log(graph, annotation);
   let elements = [];
 
   for (let node of graph.nodes) {
