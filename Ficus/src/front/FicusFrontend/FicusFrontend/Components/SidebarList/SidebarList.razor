@@ -30,7 +30,7 @@
               {
                 <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
                   <SidebarListItem ListItemInfo="innerItem.ListItemInfo" 
-                                   ProcessingState="innerItem.InnerItem.UserData.TryGetData(ComponentsKeys.ProcessingStateKey)"/>
+                                   ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
                 </div>
               }
             </div>

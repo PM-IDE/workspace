@@ -1,5 +1,4 @@
-﻿using System.IO.Pipelines;
-using Ficus;
+﻿using Ficus;
 using FicusFrontend.Utils;
 using JetBrains.Collections.Viewable;
 
@@ -50,7 +49,7 @@ public class Case : FrontModelBase
   }
 }
 
-public class PipelinePartExecutionResult
+public class PipelinePartExecutionResult : FrontModelBase
 {
   public required string PipelinePartName { get; init; }
   public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }

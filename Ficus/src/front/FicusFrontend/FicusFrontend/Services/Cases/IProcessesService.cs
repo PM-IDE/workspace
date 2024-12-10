@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Ficus;
+﻿using Ficus;
 using Google.Protobuf.WellKnownTypes;
 using GrpcModels;
 using JetBrains.Collections.Viewable;

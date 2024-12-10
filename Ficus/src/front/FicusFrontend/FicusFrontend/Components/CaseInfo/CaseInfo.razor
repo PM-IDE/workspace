@@ -32,11 +32,11 @@
   @foreach (var result in myPipelinePartsExecutionResults)
   {
     <div class="pipeline-parts-context-values-inner-container">
-      <div class="pipeline-part-name" @onclick="_ => HandleExecutionResultTitleClicked(result.Key)">
+      <div class="pipeline-part-name" @onclick="_ => HandleExecutionResultTitleClicked(result.Value)">
         @result.Value.PipelinePartName
       </div>
 
-      @if (IsExpanded(result.Key))
+      @if (IsExpanded(result.Value))
       {
         <div class="pipeline-part-context-values-container">
           @{
@@ -57,12 +57,8 @@
 
 @code
 {
-  private class ExecutionResultState
-  {
-    public bool IsExpanded { get; set; } = true;
-  }
-
-  private readonly Dictionary<Guid, ExecutionResultState> myStates = [];
+  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
+  
   private readonly Dictionary<Guid, PipelinePartExecutionResult> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
@@ -82,21 +78,11 @@
     values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
   }
 
-  private bool IsExpanded(Guid executionResultId) => GetOrCreateState(executionResultId).IsExpanded;
+  private bool IsExpanded(PipelinePartExecutionResult result) => result.UserData.GetOrCreate(ourExpandedKey, static () => true);
 
-  private ExecutionResultState GetOrCreateState(Guid executionResultId)
+  private void HandleExecutionResultTitleClicked(PipelinePartExecutionResult result)
   {
-    if (myStates.TryGetValue(executionResultId, out var state)) return state;
-
-    state = new ExecutionResultState();
-    myStates[executionResultId] = state;
-    return state;
-  }
-
-  private void HandleExecutionResultTitleClicked(Guid executionResultId)
-  {
-    var state = GetOrCreateState(executionResultId);
-    state.IsExpanded = !state.IsExpanded;
+    result.UserData.PutData(ourExpandedKey, !result.UserData.GetOrCreate(ourExpandedKey, static () => true));
     StateHasChanged();
   }
 
