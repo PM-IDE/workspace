@@ -1,6 +1,8 @@
-﻿namespace FicusFrontend.Components.SidebarList;
+﻿using FicusFrontend.Utils;
 
-public class CollectionItemInfo<TItem, TInnerItem, TId> where TId : notnull
+namespace FicusFrontend.Components.SidebarList;
+
+public class CollectionItemInfo<TItem, TInnerItem, TId> where TId : notnull where TItem : FrontModelBase where TInnerItem : FrontModelBase
 {
   public required TId Id { get; init; }
   public required string Name { get; init; }
@@ -8,10 +10,10 @@ public class CollectionItemInfo<TItem, TInnerItem, TId> where TId : notnull
   public required Dictionary<TId, InnerCollectionItemInfo<TInnerItem, TId>> InnerItems { get; init; }
 }
 
-public class InnerCollectionItemInfo<TCollectionInnerItem, TId> where TId : notnull
+public class InnerCollectionItemInfo<TInnerItem, TId> where TId : notnull where TInnerItem : FrontModelBase
 {
   public required TId Id { get; init; }
-  public required TCollectionInnerItem InnerItem { get; init; }
+  public required TInnerItem InnerItem { get; init; }
   public required ListItemInfo ListItemInfo { get; init; }
 }
 
@@ -19,7 +21,6 @@ public class ListItemInfo
 {
   public required DateTime UpdatedAt { get; init; }
   public required string Name { get; init; }
-  public required ItemProcessingState ProcessingState { get; set; }
 }
 
 public enum ItemProcessingState

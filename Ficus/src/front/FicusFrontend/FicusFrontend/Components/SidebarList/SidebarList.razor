@@ -1,5 +1,5 @@
-﻿@typeparam TCollectionItem
-@typeparam TCollectionInnerItem
+﻿@typeparam TItem where TItem : FicusFrontend.Utils.FrontModelBase
+@typeparam TInnerItem where TInnerItem : FicusFrontend.Utils.FrontModelBase
 @typeparam TId where TId : notnull
 
 @inherits ComponentBase;
@@ -28,7 +28,8 @@
               @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
               {
                 <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
-                  <SidebarListItem ListItemInfo="innerItem.ListItemInfo"/>
+                  <SidebarListItem ListItemInfo="innerItem.ListItemInfo" 
+                                   ProcessingState="innerItem.InnerItem.UserData.TryGetData(ComponentsKeys.ProcessingStateKey)"/>
                 </div>
               }
             </div>
@@ -50,10 +51,10 @@
 
   [Parameter] public string Title { get; set; }
   [Parameter] public string ItemType { get; set; }
-  [Parameter] public List<CollectionItemInfo<TCollectionItem, TCollectionInnerItem, TId>> Items { get; set; }
-  [Parameter] public Func<TCollectionInnerItem, RenderFragment> ListItemFragmentFactory { get; set; }
+  [Parameter] public List<CollectionItemInfo<TItem, TInnerItem, TId>> Items { get; set; }
+  [Parameter] public Func<TInnerItem, RenderFragment> ListItemFragmentFactory { get; set; }
 
-  [Parameter] public Action<TCollectionItem, TCollectionInnerItem>? InnerItemSelected { get; set; }
+  [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
 
 
   private bool IsExpanded(TId itemId)
@@ -72,11 +73,12 @@
   }
 
   private void HandleInnerItemSelected(
-    CollectionItemInfo<TCollectionItem, TCollectionInnerItem, TId> item,
-    InnerCollectionItemInfo<TCollectionInnerItem, TId> innerItem)
+    CollectionItemInfo<TItem, TInnerItem, TId> item,
+    InnerCollectionItemInfo<TInnerItem, TId> innerItem)
   {
     InnerItemSelected?.Invoke(item.Item, innerItem.InnerItem);
-    innerItem.ListItemInfo.ProcessingState = ItemProcessingState.Seen;
+    innerItem.InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Seen);
+    
     StateHasChanged();
   }
 

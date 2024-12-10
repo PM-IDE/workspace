@@ -7,9 +7,9 @@
 
 @inject IProcessesService ProcessService;
 
-<SidebarList TCollectionItem="ProcessData"
-             TCollectionInnerItem="Case"
-             TId="string"
+<SidebarList TItem="ProcessData"
+             TInnerItem="Case"
+             TId="string" 
              ItemType="Process"
              Title="Processes"
              Items="myProcesses.Values.OrderBy(p => p.Id).ToList()"
@@ -114,7 +114,7 @@
     if (ReferenceEquals(caseModel, mySelectedCase)) return;
 
     var collectionItemInfo = myProcesses[caseModel.Name];
-    collectionItemInfo.InnerItems[caseKey].ListItemInfo.ProcessingState = ItemProcessingState.Updated;
+    collectionItemInfo.InnerItems[caseKey].InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
 
     StateHasChanged();
   }
@@ -132,7 +132,7 @@
 
   private InnerCollectionItemInfo<Case, string> CreateInnerCollectionItemFrom(Case @case)
   {
-    return new InnerCollectionItemInfo<Case, string>
+    var innerItem = new InnerCollectionItemInfo<Case, string>
     {
       Id = @case.Name,
       InnerItem = @case,
@@ -140,8 +140,11 @@
       {
         Name = @case.Name,
         UpdatedAt = @case.CreatedAt,
-        ProcessingState = ItemProcessingState.New
       }
     };
+
+    innerItem.InnerItem.UserData.GetOrCreate(ComponentsKeys.ProcessingStateKey, static () => ItemProcessingState.New);
+
+    return innerItem;
   }
 }

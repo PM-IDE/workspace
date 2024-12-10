@@ -17,7 +17,7 @@
 
 @code
 {
-  private string CaseNotificationClass => "case-notification " + ListItemInfo.ProcessingState switch
+  private string CaseNotificationClass => "case-notification " + ProcessingState switch
   {
     ItemProcessingState.New => "case-new-notification",
     ItemProcessingState.Updated => "case-update-notification",
@@ -25,5 +25,6 @@
     _ => throw new ArgumentOutOfRangeException()
   };
 
-  [Parameter] public ListItemInfo ListItemInfo { get; set; }
+  [Parameter] public required ListItemInfo ListItemInfo { get; set; }
+  [Parameter] public required ItemProcessingState ProcessingState { get; set; }
 }

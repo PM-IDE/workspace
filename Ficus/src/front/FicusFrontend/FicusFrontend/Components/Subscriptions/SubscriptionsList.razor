@@ -6,8 +6,8 @@
 @inject IProcessesService ProcessService;
 
 
-<SidebarList TCollectionItem="Subscription"
-             TCollectionInnerItem="Pipeline"
+<SidebarList TItem="Subscription"
+             TInnerItem="Pipeline"
              TId="Guid"
              ItemType="Subscription"
              Title="Subscriptions"
@@ -89,7 +89,7 @@
     if (ReferenceEquals(pipeline, mySelectedPipeline)) return;
 
     var pipelineItemInfo = mySubscriptions[pipeline.ParentSubscription.Id].InnerItems[pipeline.Id];
-    pipelineItemInfo.ListItemInfo.ProcessingState = ItemProcessingState.Updated;
+    pipelineItemInfo.InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
 
     StateHasChanged();
   }
@@ -109,17 +109,20 @@
 
   private InnerCollectionItemInfo<Pipeline, Guid> CreateInnerCollectionItemFrom(Pipeline pipeline)
   {
-    return new InnerCollectionItemInfo<Pipeline, Guid>
+    var innerItem = new InnerCollectionItemInfo<Pipeline, Guid>
     {
       Id = pipeline.Id,
       InnerItem = pipeline,
       ListItemInfo = new ListItemInfo
       {
         Name = pipeline.Name,
-        UpdatedAt = DateTime.Now,
-        ProcessingState = ItemProcessingState.New
+        UpdatedAt = DateTime.Now
       }
     };
+
+    innerItem.InnerItem.UserData.GetOrCreate(ComponentsKeys.ProcessingStateKey, static () => ItemProcessingState.New);
+
+    return innerItem;
   }
 
   private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)

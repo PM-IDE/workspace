@@ -1,10 +1,11 @@
 ﻿using System.IO.Pipelines;
 using Ficus;
+using FicusFrontend.Utils;
 using JetBrains.Collections.Viewable;
 
 namespace FicusFrontend.Services.Cases;
 
-public class Subscription
+public class Subscription : FrontModelBase
 {
   public required Guid Id { get; init; }
   public required string Name { get; init; }
@@ -12,7 +13,7 @@ public class Subscription
   public required IViewableMap<Guid, Pipeline> Pipelines { get; init; }
 }
 
-public class Pipeline
+public class Pipeline : FrontModelBase
 {
   public required Guid Id { get; init; }
   public required string Name { get; init; }
@@ -21,7 +22,7 @@ public class Pipeline
   public required IViewableMap<string, ProcessData> Processes { get; init; }
 }
 
-public class ProcessData
+public class ProcessData : FrontModelBase
 {
   public required Pipeline ParentPipeline { get; init; }
   public required string ProcessName { get; init; }
@@ -29,7 +30,7 @@ public class ProcessData
   public required IViewableMap<string, Case> ProcessCases { get; init; }
 }
 
-public class Case
+public class Case : FrontModelBase
 {
   public required ProcessData ParentProcess { get; init; }
   public required string Name { get; init; }
