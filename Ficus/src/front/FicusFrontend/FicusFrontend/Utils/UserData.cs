@@ -11,7 +11,7 @@ public interface IUserDateHolder
 
 public class UserDateHolderBase : IUserDateHolder
 {
-  private readonly object mySyncObject = new();
+  private readonly Lock mySyncObject = new();
   private readonly Dictionary<object, object> myValues = new();
 
 

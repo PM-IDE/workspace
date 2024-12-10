@@ -2,6 +2,7 @@
 @typeparam TInnerItem where TInnerItem : FicusFrontend.Utils.FrontModelBase
 @typeparam TId where TId : notnull
 
+@using FicusFrontend.Utils
 @inherits ComponentBase;
 
 <div class="sidebar-list-outer-container">
@@ -16,13 +17,13 @@
       @foreach (var item in Items)
       {
         <div class="sidebar-list-item">
-          <div class="sidebar-list-item-title-container centered-text" @onclick="@(_ => HandleItemTitleClicked(item.Id))">
+          <div class="sidebar-list-item-title-container centered-text" @onclick="@(_ => HandleItemTitleClicked(item.Item))">
             <div class="sidebar-list-item-title">
               @ItemType @item.Name
             </div>
           </div>
 
-          @if (IsExpanded(item.Id))
+          @if (IsExpanded(item.Item))
           {
             <div>
               @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
@@ -42,12 +43,12 @@
 
 @code
 {
+  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
+
   private class CollectionItemState
   {
     public bool IsExpanded { get; set; }
   }
-
-  private readonly Dictionary<TId, CollectionItemState> myStates = [];
 
   [Parameter] public required string Title { get; set; }
   [Parameter] public required string ItemType { get; set; }
@@ -56,20 +57,7 @@
   [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
 
 
-  private bool IsExpanded(TId itemId)
-  {
-    return GetOrCreateState(itemId).IsExpanded;
-  }
-
-  private CollectionItemState GetOrCreateState(TId itemId)
-  {
-    if (myStates.TryGetValue(itemId, out var state)) return state;
-
-    state = new CollectionItemState();
-    myStates[itemId] = state;
-
-    return state;
-  }
+  private bool IsExpanded(TItem item) => item.UserData.GetOrCreate(ourExpandedKey, static () => true);
 
   private void HandleInnerItemSelected(
     CollectionItemInfo<TItem, TInnerItem, TId> item,
@@ -81,10 +69,10 @@
     StateHasChanged();
   }
 
-  private void HandleItemTitleClicked(TId itemId)
+  private void HandleItemTitleClicked(TItem item)
   {
-    var state = GetOrCreateState(itemId);
-    state.IsExpanded = !state.IsExpanded;
+    var expanded = item.UserData.GetOrCreate(ourExpandedKey, static () => true);
+    item.UserData.PutData(ourExpandedKey, !expanded);
 
     StateHasChanged();
   }
