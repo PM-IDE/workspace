@@ -5,6 +5,7 @@
 @using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
 @using FicusFrontend.Layout.Models
 @using FicusFrontend.Services.Cases
+@using JetBrains.Collections.Viewable
 @using JetBrains.Lifetimes
 @using static Ficus.GrpcContextValue;
 
@@ -62,7 +63,7 @@
   }
 
   private readonly Dictionary<Guid, ExecutionResultState> myStates = [];
-  private readonly List<KeyValuePair<Guid, PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
+  private readonly Dictionary<Guid, PipelinePartExecutionResult> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
   private ProcessCaseData? myProcessCaseData;
@@ -74,23 +75,28 @@
     base.OnParametersSet();
 
     if (ProcessCaseData is null) return;
-    if (ProcessCaseData.Equals(myProcessCaseData)) return;
-
-    var lifetime = myLifetimes.Next();
+    if (ReferenceEquals(ProcessCaseData, myProcessCaseData)) return;
 
     myProcessCaseData = ProcessCaseData;
 
     var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.Name].ContextValues;
-    myPipelinePartsExecutionResults.Clear();
-    myPipelinePartsExecutionResults.AddRange(values);
-
-    StateHasChanged();
-
-    values.Change.Advise(lifetime, _ =>
+    values.Advise(myLifetimes.Next(), update =>
     {
-      //todo: rewrite
-      myPipelinePartsExecutionResults.Clear();
-      myPipelinePartsExecutionResults.AddRange(values);
+      switch (update.Kind)
+      {
+        case AddUpdateRemove.Add or AddUpdateRemove.Update:
+        {
+          if (update.NewValue is null) return;
+          myPipelinePartsExecutionResults[update.Key] = update.NewValue;
+          break;
+        }
+        case AddUpdateRemove.Remove:
+        {
+          myPipelinePartsExecutionResults.Remove(update.Key);
+          break;
+        }
+      }
+
       StateHasChanged();
     });
   }
