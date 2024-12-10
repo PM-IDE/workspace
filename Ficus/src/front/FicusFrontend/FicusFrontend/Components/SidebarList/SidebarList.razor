@@ -1,0 +1,79 @@
+﻿@typeparam TItem where TItem : FicusFrontend.Utils.FrontModelBase
+@typeparam TInnerItem where TInnerItem : FicusFrontend.Utils.FrontModelBase
+@typeparam TId where TId : notnull
+
+@using FicusFrontend.Utils
+@inherits ComponentBase;
+
+<div class="sidebar-list-outer-container">
+  <div class="scrollable">
+    <div class="sidebar-list-title-container">
+      <div class="sidebar-list-title">
+        @Title
+      </div>
+    </div>
+
+    <div class="sidebar-list">
+      @foreach (var item in Items)
+      {
+        <div class="sidebar-list-item">
+          <div class="sidebar-list-item-title-container centered-text" @onclick="@(_ => HandleItemTitleClicked(item.Item))">
+            <div class="sidebar-list-item-title">
+              @ItemType @item.Name
+            </div>
+          </div>
+
+          @if (IsExpanded(item.Item))
+          {
+            <div>
+              @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
+              {
+                <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
+                  <SidebarListItem ListItemInfo="innerItem.ListItemInfo" 
+                                   ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+@code
+{
+  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
+
+  private class CollectionItemState
+  {
+    public bool IsExpanded { get; set; }
+  }
+
+  [Parameter] public required string Title { get; set; }
+  [Parameter] public required string ItemType { get; set; }
+  [Parameter] public required List<CollectionItemInfo<TItem, TInnerItem, TId>> Items { get; set; }
+
+  [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
+
+
+  private bool IsExpanded(TItem item) => item.UserData.GetOrCreate(ourExpandedKey, static () => true);
+
+  private void HandleInnerItemSelected(
+    CollectionItemInfo<TItem, TInnerItem, TId> item,
+    InnerCollectionItemInfo<TInnerItem, TId> innerItem)
+  {
+    InnerItemSelected?.Invoke(item.Item, innerItem.InnerItem);
+    innerItem.InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Seen);
+    
+    StateHasChanged();
+  }
+
+  private void HandleItemTitleClicked(TItem item)
+  {
+    var expanded = item.UserData.GetOrCreate(ourExpandedKey, static () => true);
+    item.UserData.PutData(ourExpandedKey, !expanded);
+
+    StateHasChanged();
+  }
+}

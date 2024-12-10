@@ -1,141 +1,167 @@
-﻿using System.Runtime.CompilerServices;
-using Ficus;
+﻿using Ficus;
 using Google.Protobuf.WellKnownTypes;
+using GrpcModels;
 using JetBrains.Collections.Viewable;
 
 namespace FicusFrontend.Services.Cases;
 
 public interface IProcessesService
 {
-  IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream(CancellationToken token);
+  IViewableMap<Guid, Subscription> Subscriptions { get; }
+  ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; }
 
-  ViewableMap<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(ProcessData processData,
-    Case selectedCase);
+  void StartUpdatesStream(CancellationToken token);
 }
 
 public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
   : IProcessesService
 {
-  private readonly Dictionary<string, ProcessData> myCurrentProcesses = [];
+  private readonly ViewableMap<Guid, Subscription> mySubscriptions = [];
 
 
-  public ViewableMap<Guid, CaseData.PipelinePartExecutionResult> CreateCaseValuesObservable(
-    ProcessData processData, Case selectedCase)
+  public IViewableMap<Guid, Subscription> Subscriptions => mySubscriptions;
+  public ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; } = new Signal<Pipeline>();
+
+
+  public void StartUpdatesStream(CancellationToken token)
   {
-    return myCurrentProcesses[processData.ProcessName].ProcessCases[selectedCase.Name].ContextValues;
-  }
-
-  public async IAsyncEnumerable<ProcessUpdate> OpenCasesUpdatesStream(
-    [EnumeratorCancellation] CancellationToken token)
-  {
-    var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
-
-    while (await reader.MoveNext(token))
+    Task.Factory.StartNew(async () =>
     {
-      var updates = reader.Current.UpdateCase switch
+      var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
+      while (await reader.MoveNext(token))
       {
-        GrpcPipelinePartUpdate.UpdateOneofCase.CurrentCases => ProcessInitialState(reader.Current.CurrentCases),
-        GrpcPipelinePartUpdate.UpdateOneofCase.Delta => ProcessCaseUpdate(reader.Current.Delta),
-        _ => throw new ArgumentOutOfRangeException()
-      };
-
-      foreach (var update in updates) yield return update;
-    }
+        switch (reader.Current.UpdateCase)
+        {
+          case GrpcPipelinePartUpdate.UpdateOneofCase.CurrentCases:
+            ProcessInitialState(reader.Current.CurrentCases);
+            break;
+          case GrpcPipelinePartUpdate.UpdateOneofCase.Delta:
+            HandleCaseUpdate(reader.Current.Delta);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException();
+        }
+      }
+    }, token);
   }
 
-  private IEnumerable<ProcessUpdate> ProcessInitialState(GrpcCurrentCasesResponse initialCases)
+  private void ProcessInitialState(GrpcCurrentCasesResponse initialCases)
   {
-    var anyUpdates = false;
     foreach (var @case in initialCases.Cases)
     {
-      var caseModel = new Case
-      {
-        Name = @case.ProcessCaseMetadata.CaseName,
-        CreatedAt = DateTime.Now
-      };
-
       var initialState = @case.ContextValues
         .Select(v =>
         {
           var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
-          return (id, new CaseData.PipelinePartExecutionResult
+          return (id, new PipelinePartExecutionResult
           {
             ContextValues = v.ContextValues.ToList(),
             PipelinePartName = v.PipelinePartInfo.Name
           });
         })
         .ToDictionary();
+      
+      var processData = GetOrCreateProcessData(@case.ProcessCaseMetadata);
 
-      anyUpdates |= GetOrCreateProcessData(@case.ProcessCaseMetadata.ProcessName, out var processData);
-      processData.ProcessCases[caseModel.Name] = new CaseData
+      var caseModel = new Case
       {
-        Case = caseModel,
-        ContextValues = new ViewableMap<Guid, CaseData.PipelinePartExecutionResult>(initialState)
+        ParentProcess = processData,
+        Name = @case.ProcessCaseMetadata.CaseName,
+        CreatedAt = DateTime.Now,
+        ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>(initialState)
       };
+
+      processData.ProcessCases[caseModel.Name] = caseModel;
     }
-
-    if (anyUpdates)
-      yield return new ProcessesListUpdate
-      {
-        Processes = myCurrentProcesses.Values.ToList()
-      };
   }
 
-  private bool GetOrCreateProcessData(string processName, out ProcessData processData)
+  private ProcessData GetOrCreateProcessData(GrpcProcessCaseMetadata metadata)
   {
-    if (myCurrentProcesses.TryGetValue(processName, out processData)) return false;
+    var subscription = GetOrCreateSubscription(metadata);
+    var pipeline = GetOrCreatePipeline(subscription, metadata);
+
+    var processName = metadata.ProcessName;
+    if (pipeline.Processes.TryGetValue(processName, out var processData)) return processData;
 
     processData = new ProcessData
     {
-      ProcessName = processName,
-      ProcessCases = []
+      ParentPipeline = pipeline,
+      ProcessName = metadata.ProcessName,
+      ProcessCases = new ViewableMap<string, Case>()
     };
 
-    myCurrentProcesses[processName] = processData;
-    return true;
+    pipeline.Processes[processName] = processData;
+
+    FirePipelineSubEntityUpdatedEvent(pipeline);
+
+    return processData;
   }
 
-  private bool GetOrCreateCaseData(ProcessData processData, string caseName, out CaseData caseData)
-  {
-    if (processData.ProcessCases.TryGetValue(caseName, out caseData)) return false;
+  private void FirePipelineSubEntityUpdatedEvent(Pipeline pipeline) => AnyPipelineSubEntityUpdated.Fire(pipeline);
 
-    caseData = new CaseData
+  private Subscription GetOrCreateSubscription(GrpcProcessCaseMetadata metadata)
+  {
+    var subscriptionId = metadata.SubscriptionId.ToGuid();
+    if (mySubscriptions.TryGetValue(subscriptionId, out var subscription)) return subscription;
+
+    subscription = new Subscription
     {
-      Case = new Case
-      {
-        Name = caseName,
-        CreatedAt = DateTime.Now
-      },
-      ContextValues = []
+      Id = subscriptionId,
+      Name = metadata.SubscriptionName,
+      Pipelines = new ViewableMap<Guid, Pipeline>()
     };
 
-    processData.ProcessCases[caseName] = caseData;
-
-    return true;
+    mySubscriptions[subscriptionId] = subscription;
+    return subscription;
   }
 
-  private IEnumerable<ProcessUpdate> ProcessCaseUpdate(GrpcKafkaUpdate delta)
+  private Pipeline GetOrCreatePipeline(Subscription subscription, GrpcProcessCaseMetadata metadata)
   {
-    var anyUpdates = GetOrCreateProcessData(delta.ProcessCaseMetadata.ProcessName, out var processData);
-    anyUpdates |= GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName, out var caseData);
+    var pipelineId = metadata.PipelineId.ToGuid();
+    if (subscription.Pipelines.TryGetValue(pipelineId, out var pipeline)) return pipeline;
 
-    if (anyUpdates)
-      yield return new ProcessesListUpdate
-      {
-        Processes = myCurrentProcesses.Values.ToList()
-      };
+    pipeline = new Pipeline
+    {
+      ParentSubscription = subscription,
+      Id = pipelineId,
+      Name = metadata.PipelineName,
+      Processes = new ViewableMap<string, ProcessData>()
+    };
+
+    subscription.Pipelines[pipelineId] = pipeline;
+
+    return pipeline;
+  }
+
+  private Case GetOrCreateCaseData(ProcessData processData, string caseName)
+  {
+    if (processData.ProcessCases.TryGetValue(caseName, out var @case)) return @case;
+
+    @case = new Case
+    {
+      ParentProcess = processData,
+      Name = caseName,
+      CreatedAt = DateTime.Now,
+      ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>()
+    };
+
+    processData.ProcessCases[caseName] = @case;
+
+    FirePipelineSubEntityUpdatedEvent(@case.ParentProcess.ParentPipeline);
+
+    return @case;
+  }
+
+  private void HandleCaseUpdate(GrpcKafkaUpdate delta)
+  {
+    var processData = GetOrCreateProcessData(delta.ProcessCaseMetadata); 
+    var caseData = GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName);
 
     var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
-    caseData.ContextValues[partId] = new CaseData.PipelinePartExecutionResult
+    caseData.ContextValues[partId] = new PipelinePartExecutionResult
     {
       ContextValues = delta.ContextValues.ToList(),
       PipelinePartName = delta.PipelinePartInfo.Name
-    };
-
-    yield return new ProcessContextValuesUpdate
-    {
-      CaseName = delta.ProcessCaseMetadata.CaseName,
-      ProcessName = delta.ProcessCaseMetadata.ProcessName
     };
   }
 }

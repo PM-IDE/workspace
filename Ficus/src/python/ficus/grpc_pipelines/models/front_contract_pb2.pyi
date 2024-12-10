@@ -28,14 +28,22 @@ class GrpcKafkaUpdate(_message.Message):
     def __init__(self, processCaseMetadata: _Optional[_Union[GrpcProcessCaseMetadata, _Mapping]] = ..., pipelinePartInfo: _Optional[_Union[GrpcPipelinePartInfo, _Mapping]] = ..., contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
 
 class GrpcProcessCaseMetadata(_message.Message):
-    __slots__ = ["processName", "caseName", "metadata"]
+    __slots__ = ["processName", "caseName", "subscriptionId", "subscriptionName", "pipelineId", "pipelineName", "metadata"]
     PROCESSNAME_FIELD_NUMBER: _ClassVar[int]
     CASENAME_FIELD_NUMBER: _ClassVar[int]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
+    SUBSCRIPTIONNAME_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINENAME_FIELD_NUMBER: _ClassVar[int]
     METADATA_FIELD_NUMBER: _ClassVar[int]
     processName: str
     caseName: str
+    subscriptionId: _util_pb2.GrpcGuid
+    subscriptionName: str
+    pipelineId: _util_pb2.GrpcGuid
+    pipelineName: str
     metadata: _containers.RepeatedCompositeFieldContainer[_util_pb2.GrpcStringKeyValue]
-    def __init__(self, processName: _Optional[str] = ..., caseName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[_util_pb2.GrpcStringKeyValue, _Mapping]]] = ...) -> None: ...
+    def __init__(self, processName: _Optional[str] = ..., caseName: _Optional[str] = ..., subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., subscriptionName: _Optional[str] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[_util_pb2.GrpcStringKeyValue, _Mapping]]] = ...) -> None: ...
 
 class GrpcCurrentCasesResponse(_message.Message):
     __slots__ = ["cases"]

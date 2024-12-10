@@ -4,6 +4,7 @@ using System.Threading.Channels;
 using Ficus;
 using FrontendBackend.Utils;
 using Google.Protobuf.WellKnownTypes;
+using GrpcModels;
 
 namespace FrontendBackend.Features.PipelineUpdates.Services;
 
@@ -25,11 +26,16 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
   {
     public required Dictionary<Guid, PipelinePartResult> PipelinePartsResults { get; init; }
     public required List<KeyValuePair<string, string>> Metadata { get; init; }
+    
+    public required string PipelineName { get; init; }
+    public required string SubscriptionName { get; init; }
   }
+
+  private record CaseKey(Guid SubscriptionId, Guid PipelineId, string ProcessName, string CaseName);
 
 
   private readonly SemaphoreSlim myLock = new(1);
-  private readonly Dictionary<string, Dictionary<string, CaseData>> myProcesses = [];
+  private readonly Dictionary<CaseKey, CaseData> myCases = [];
   private readonly ConcurrentDictionary<Guid, Channel<GrpcKafkaUpdate>> myChannels = [];
 
 
@@ -99,23 +105,27 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       });
 
       logger.LogInformation("Processing update: {Update}", update.GetType());
-      if (!myProcesses.TryGetValue(update.ProcessCaseMetadata.ProcessName, out var cases))
+
+      var caseKey = new CaseKey(
+        Guid.Parse(update.ProcessCaseMetadata.SubscriptionId.Guid),
+        Guid.Parse(update.ProcessCaseMetadata.PipelineId.Guid),
+        update.ProcessCaseMetadata.ProcessName,
+        update.ProcessCaseMetadata.CaseName
+      );
+
+      if (!myCases.TryGetValue(caseKey, out var caseData))
       {
         logger.LogInformation("Creating new process data for update");
-        cases = new Dictionary<string, CaseData>();
-        myProcesses[update.ProcessCaseMetadata.ProcessName] = cases;
-      }
 
-      if (!cases.TryGetValue(update.ProcessCaseMetadata.CaseName, out var caseData))
-      {
-        logger.LogInformation("Creating new case data for update");
         caseData = new CaseData
         {
           Metadata = update.ProcessCaseMetadata.Metadata.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value)).ToList(),
-          PipelinePartsResults = []
+          PipelinePartsResults = [],
+          PipelineName = update.ProcessCaseMetadata.PipelineName,
+          SubscriptionName = update.ProcessCaseMetadata.SubscriptionName
         };
 
-        cases[update.ProcessCaseMetadata.CaseName] = caseData;
+        myCases[caseKey] = caseData;
       }
 
       var guid = Guid.Parse(update.PipelinePartInfo.Id.Guid);
@@ -126,7 +136,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         contextValues = new PipelinePartResult
         {
           ContextValues = [],
-          PipelinePartName = update.PipelinePartInfo.Name
+          PipelinePartName = update.PipelinePartInfo.Name,
         };
 
         caseData.PipelinePartsResults[guid] = contextValues;
@@ -148,43 +158,41 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
   private GrpcCurrentCasesResponse GetCurrentState()
   {
     var response = new GrpcCurrentCasesResponse();
-    foreach (var (processName, cases) in myProcesses)
+    foreach (var (caseKey, @case) in myCases)
     {
-      foreach (var (caseName, caseData) in cases)
+      response.Cases.Add(new GrpcCase
       {
-        response.Cases.Add(new GrpcCase
+        ProcessCaseMetadata = new GrpcProcessCaseMetadata
         {
-          ProcessCaseMetadata = new GrpcProcessCaseMetadata
+          ProcessName = caseKey.ProcessName,
+          CaseName = caseKey.CaseName,
+          PipelineId = caseKey.PipelineId.ToGrpcGuid(),
+          SubscriptionId = caseKey.SubscriptionId.ToGrpcGuid(),
+          PipelineName = @case.PipelineName,
+          SubscriptionName = @case.SubscriptionName,
+          Metadata =
           {
-            ProcessName = processName,
-            CaseName = caseName,
-            Metadata =
+            @case.Metadata.Select(pair => new GrpcStringKeyValue
             {
-              caseData.Metadata.Select(pair => new GrpcStringKeyValue
-              {
-                Key = pair.Key,
-                Value = pair.Value
-              })
-            }
-          },
-          ContextValues =
-          {
-            caseData.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
-            {
-              Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
-              ContextValues = { x.Value.ContextValues },
-              PipelinePartInfo = new GrpcPipelinePartInfo
-              {
-                Name = x.Value.PipelinePartName,
-                Id = new GrpcGuid
-                {
-                  Guid = x.Key.ToString()
-                }
-              }
+              Key = pair.Key,
+              Value = pair.Value
             })
           }
-        });
-      } 
+        },
+        ContextValues =
+        {
+          @case.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
+          {
+            Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
+            ContextValues = { x.Value.ContextValues },
+            PipelinePartInfo = new GrpcPipelinePartInfo
+            {
+              Name = x.Value.PipelinePartName,
+              Id = x.Key.ToGrpcGuid(),
+            }
+          })
+        }
+      });
     }
 
     return response;

@@ -1,12 +1,12 @@
-﻿@using BlazorBootstrap
-@using Ficus
+﻿@using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
-@using FicusFrontend.Services.Cases
-@using JetBrains.Lifetimes
-@using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
 @using FicusFrontend.Components.CaseInfo.ContextValues.Graph
+@using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
 @using FicusFrontend.Layout.Models
+@using FicusFrontend.Services.Cases
+@using FicusFrontend.Utils
+@using JetBrains.Lifetimes
 @using static Ficus.GrpcContextValue;
 
 @inherits ComponentBase
@@ -24,16 +24,21 @@
 
 <PageTitle>@title</PageTitle>
 
-<div class="case-info-header">
+<div class="case-info-header centered-text">
   @title
 </div>
 
-<div class="pipeline-parts-context-values-accordion">
-  <Accordion AlwaysOpen="true" Flush="false">
-    @foreach (var result in myPipelinePartsExecutionResults)
-    {
-      <AccordionItem Title="@result.Value.PipelinePartName">
-        <Content>
+<div class="pipeline-parts-context-values-outer-container">
+  @foreach (var result in myPipelinePartsExecutionResults)
+  {
+    <div class="pipeline-parts-context-values-inner-container">
+      <div class="pipeline-part-name" @onclick="_ => HandleExecutionResultTitleClicked(result.Value)">
+        @result.Value.PipelinePartName
+      </div>
+
+      @if (IsExpanded(result.Value))
+      {
+        <div class="pipeline-part-context-values-container">
           @{
             var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
           }
@@ -44,45 +49,41 @@
               @fragment
             </div>
           }
-        </Content>
-      </AccordionItem>
-    }
-  </Accordion>
+        </div>
+      }
+    </div>
+  }
 </div>
 
 @code
 {
-  private readonly List<KeyValuePair<Guid, CaseData.PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
+  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
+  
+  private readonly Dictionary<Guid, PipelinePartExecutionResult> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
   private ProcessCaseData? myProcessCaseData;
 
-  [Parameter] public ProcessCaseData? ProcessCaseData { get; set; }
+  [Parameter] public required ProcessCaseData ProcessCaseData { get; set; }
 
   protected override void OnParametersSet()
   {
     base.OnParametersSet();
 
-    if (ProcessCaseData is null) return;
-    if (ProcessCaseData.Equals(myProcessCaseData)) return;
-
-    var lifetime = myLifetimes.Next();
+    if (ReferenceEquals(ProcessCaseData, myProcessCaseData)) return;
 
     myProcessCaseData = ProcessCaseData;
 
-    var values = ProcessService.CreateCaseValuesObservable(myProcessCaseData.ProcessData, myProcessCaseData.Case);
-    myPipelinePartsExecutionResults.Clear();
-    myPipelinePartsExecutionResults.AddRange(values);
+    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.Name].ContextValues;
+    values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
+  }
 
+  private bool IsExpanded(PipelinePartExecutionResult result) => result.UserData.GetOrCreate(ourExpandedKey, static () => true);
+
+  private void HandleExecutionResultTitleClicked(PipelinePartExecutionResult result)
+  {
+    result.UserData.PutData(ourExpandedKey, !result.UserData.GetOrCreate(ourExpandedKey, static () => true));
     StateHasChanged();
-
-    values.Change.Advise(lifetime, _ =>
-    {
-      //todo: rewrite
-      myPipelinePartsExecutionResults.Clear();
-      myPipelinePartsExecutionResults.AddRange(values);
-      StateHasChanged();
-    });
   }
 
   private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
@@ -93,15 +94,21 @@
       _ => FindRenderersFor(pipelinePartName, contextValues)
     };
   }
-  
+
   private RenderFragment FindRendererFor(GrpcContextValue contextValue)
   {
     return contextValue.ContextValueCase switch
     {
       ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()" Log="contextValue.ColorsLog"/>,
-      ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="contextValue.PetriNet"/>,
-      ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph" ProcessCaseData="myProcessCaseData" />,
+      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()"
+                                                                  Log="contextValue.ColorsLog"/>,
+
+      ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()"
+                                                           PetriNet="contextValue.PetriNet"/>,
+
+      ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph"
+                                                     ProcessCaseData="myProcessCaseData"/>,
+
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }
@@ -113,7 +120,7 @@
     {
       return [graphRenderer];
     }
-    
+
     if (PipelinePartsGroups.PetriNetsAnnotationParts.Contains(pipelinePartName) &&
         CreateAnnotatedPetriNetRenderer(pipelinePartName, contextValues) is { } petriNetRenderer)
     {
@@ -130,7 +137,8 @@
 
     if (graph is null) return null;
 
-    return @<GraphRenderer @key="Guid.NewGuid()" Graph="graph" ProcessCaseData="myProcessCaseData" Annotation="annotation" />;
+    return @<GraphRenderer @key="Guid.NewGuid()" Graph="graph" ProcessCaseData="myProcessCaseData"
+                           Annotation="annotation"/>;
   }
 
   private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<GrpcContextValue> contextValues)
@@ -139,7 +147,7 @@
     var annotation = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
 
     if (petriNet is null) return null;
-    
-    return @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="petriNet" Annotation="annotation" />;
+
+    return @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="petriNet" Annotation="annotation"/>;
   }
 }

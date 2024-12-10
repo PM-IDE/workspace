@@ -12,6 +12,6 @@ public static class KnownSolutionExtensions
     var csprojPath = Path.Combine(solutionsDir, knownSolution.Name, knownSolution.Name + ".csproj");
     return new ProjectBuildInfo(
       csprojPath, knownSolution.Tfm, BuildConfiguration.Debug, InstrumentationKind.None,
-      true, PathUtils.CreateTempFolderPath(), false, null);
+      true, ProjectBuildOutputPath.SpecifiedTempPath(PathUtils.CreateTempFolderPath()), false, null);
   }
 }

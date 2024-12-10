@@ -14,12 +14,13 @@ public class GcEvent : IEventPipeStreamEvent
 }
 
 [AppComponent]
-public class GcHandler(IProcfilerLogger logger, IBxesMethodsKafkaProducer producer)  : IEventPipeStreamEventHandler
+public class GcHandler(IProcfilerLogger logger, IBxesMethodsKafkaProducer producer) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
     if (eventPipeStreamEvent is not GcEvent gcEvent) return;
     if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
+    if (!ProcfilerOnlineFeatures.ProduceGcEvents.IsEnabled()) return;
 
     if (!ProcfilerOnlineFeatures.ProduceBxesKafkaEvents.IsEnabled())
     {

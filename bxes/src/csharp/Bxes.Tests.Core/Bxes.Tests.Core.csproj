@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Bxes\Bxes.csproj" />
+        <ProjectReference Include="..\Bxes\Bxes.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="NUnit" Version="3.13.3" />
+        <PackageReference Include="NUnit"/>
     </ItemGroup>
 
 </Project>

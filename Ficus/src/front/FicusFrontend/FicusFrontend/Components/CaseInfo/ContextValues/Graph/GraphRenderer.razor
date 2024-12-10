@@ -1,16 +1,15 @@
 @using Ficus
 @using FicusFrontend.Layout.Models
-@using Radzen.Blazor
-
 @inject IJSRuntime Js
 
 <div id="@myCytoscapeContainerId" class="cytoscape-graph-container"></div>
 
-<div>
-  <RadzenButton Text="Export to SVG" Click="ExportGraph"></RadzenButton>
+<div class="export-button" @onclick="ExportGraph">
+  Export to SVG
 </div>
 
-@code {
+@code 
+{
   private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
 
   private IJSObjectReference? myCytoscapeReference;
