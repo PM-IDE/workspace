@@ -68,13 +68,12 @@
 
   private ProcessCaseData? myProcessCaseData;
 
-  [Parameter] public ProcessCaseData? ProcessCaseData { get; set; }
+  [Parameter] public required ProcessCaseData ProcessCaseData { get; set; }
 
   protected override void OnParametersSet()
   {
     base.OnParametersSet();
 
-    if (ProcessCaseData is null) return;
     if (ReferenceEquals(ProcessCaseData, myProcessCaseData)) return;
 
     myProcessCaseData = ProcessCaseData;

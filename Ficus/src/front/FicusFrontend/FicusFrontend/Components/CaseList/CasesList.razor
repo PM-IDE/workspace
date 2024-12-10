@@ -22,26 +22,25 @@
   private readonly LifetimeDefinitionsByKey<string> myCasesLifetimes = new();
   private readonly SequentialLifetimes mySequentialLifetimes = new(Lifetime.Eternal);
 
-  private Pipeline mySelectedPipeline = null!;
+  private Pipeline? mySelectedPipeline;
   private Lifetime myCurrentPipelineLifetime;
   private Case? mySelectedCase;
 
 
-  [Parameter] public Action<ProcessData, Case>? CaseSelected { get; set; }
-  [Parameter] public Pipeline? SelectedPipeline { get; set; }
+  [Parameter] public required Action<ProcessData, Case> CaseSelected { get; set; }
+  [Parameter] public required Pipeline SelectedPipeline { get; set; }
 
 
   private void HandleCaseSelection(ProcessData process, Case @case)
   {
     mySelectedCase = @case;
-    CaseSelected?.Invoke(process, @case);
+    CaseSelected(process, @case);
   }
 
   protected override void OnParametersSet()
   {
     base.OnParametersSet();
 
-    if (SelectedPipeline is null) return;
     if (ReferenceEquals(mySelectedPipeline, SelectedPipeline)) return;
 
     mySelectedPipeline = SelectedPipeline;

@@ -49,10 +49,9 @@
 
   private readonly Dictionary<TId, CollectionItemState> myStates = [];
 
-  [Parameter] public string Title { get; set; }
-  [Parameter] public string ItemType { get; set; }
-  [Parameter] public List<CollectionItemInfo<TItem, TInnerItem, TId>> Items { get; set; }
-  [Parameter] public Func<TInnerItem, RenderFragment> ListItemFragmentFactory { get; set; }
+  [Parameter] public required string Title { get; set; }
+  [Parameter] public required string ItemType { get; set; }
+  [Parameter] public required List<CollectionItemInfo<TItem, TInnerItem, TId>> Items { get; set; }
 
   [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
 

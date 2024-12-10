@@ -22,7 +22,7 @@
   private Pipeline? mySelectedPipeline;
 
 
-  [Parameter] public Action<Pipeline>? PipelineSelected { get; set; }
+  [Parameter] public required Action<Pipeline> PipelineSelected { get; set; }
 
 
   protected override void OnInitialized()
@@ -128,6 +128,6 @@
   private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)
   {
     mySelectedPipeline = pipeline;
-    PipelineSelected?.Invoke(pipeline);
+    PipelineSelected(pipeline);
   }
 }
