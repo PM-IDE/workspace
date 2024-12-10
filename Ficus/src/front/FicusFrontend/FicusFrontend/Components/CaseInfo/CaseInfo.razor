@@ -5,7 +5,7 @@
 @using FicusFrontend.Components.CaseInfo.ContextValues.PetriNet
 @using FicusFrontend.Layout.Models
 @using FicusFrontend.Services.Cases
-@using JetBrains.Collections.Viewable
+@using FicusFrontend.Utils
 @using JetBrains.Lifetimes
 @using static Ficus.GrpcContextValue;
 
@@ -80,25 +80,7 @@
     myProcessCaseData = ProcessCaseData;
 
     var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.Name].ContextValues;
-    values.Advise(myLifetimes.Next(), update =>
-    {
-      switch (update.Kind)
-      {
-        case AddUpdateRemove.Add or AddUpdateRemove.Update:
-        {
-          if (update.NewValue is null) return;
-          myPipelinePartsExecutionResults[update.Key] = update.NewValue;
-          break;
-        }
-        case AddUpdateRemove.Remove:
-        {
-          myPipelinePartsExecutionResults.Remove(update.Key);
-          break;
-        }
-      }
-
-      StateHasChanged();
-    });
+    values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
   }
 
   private bool IsExpanded(Guid executionResultId) => GetOrCreateState(executionResultId).IsExpanded;
