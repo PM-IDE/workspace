@@ -1,39 +1,39 @@
 .case-info-header {
-    background-color: #323232;
-    width: 100%;
+  background-color: #323232;
+  width: 100%;
 
-    padding-left: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    color: white;
-    font-size: 20px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  color: white;
+  font-size: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .pipeline-parts-context-values-outer-container {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .pipeline-parts-context-values-inner-container {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .pipeline-part-name {
-    background-color: var(--cv-section-header-color);
-    color: var(--cv-section-header-text-color);
-    padding-left: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+  background-color: var(--cv-section-header-color);
+  color: var(--cv-section-header-text-color);
+  padding-left: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .pipeline-part-name:hover {
-    background-color: var(--cv-section-header-color-hovered);
+  background-color: var(--cv-section-header-color-hovered);
 }
 
 .pipeline-part-context-values-container {
-    background-color: var(--cv-section-content-color);
-    color: var(--cv-section-content-text-color);
-    padding: 5px 5px 5px 10px;
+  background-color: var(--cv-section-content-color);
+  color: var(--cv-section-content-text-color);
+  padding: 5px 5px 5px 10px;
 }

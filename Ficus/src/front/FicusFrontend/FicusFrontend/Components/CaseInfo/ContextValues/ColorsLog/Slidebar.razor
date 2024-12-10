@@ -12,11 +12,12 @@
                 Max="@Max"
                 Min="@Min"
                 Step="@Step.ToString(CultureInfo.InvariantCulture)"
-                Change="UpdateScale" />
+                Change="UpdateScale"/>
 </div>
 
 
-@code {
+@code 
+{
   [Parameter] public TValue InitialValue { get; set; }
   [Parameter] public string Title { get; set; }
   [Parameter] public decimal Max { get; set; }
@@ -36,5 +37,4 @@
   {
     CurrentValue = value;
   }
-
 }

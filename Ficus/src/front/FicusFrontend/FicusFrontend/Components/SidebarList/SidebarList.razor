@@ -56,32 +56,35 @@
   [Parameter] public Action<TCollectionItem, TCollectionInnerItem>? InnerItemSelected { get; set; }
 
 
-  private bool IsExpanded(TId itemId) => GetOrCreateState(itemId).IsExpanded;
+  private bool IsExpanded(TId itemId)
+  {
+    return GetOrCreateState(itemId).IsExpanded;
+  }
 
   private CollectionItemState GetOrCreateState(TId itemId)
   {
-      if (myStates.TryGetValue(itemId, out var state)) return state;
+    if (myStates.TryGetValue(itemId, out var state)) return state;
 
-      state = new CollectionItemState();
-      myStates[itemId] = state;
+    state = new CollectionItemState();
+    myStates[itemId] = state;
 
-      return state;
+    return state;
   }
 
   private void HandleInnerItemSelected(
-      CollectionItemInfo<TCollectionItem, TCollectionInnerItem, TId> item,
-      InnerCollectionItemInfo<TCollectionInnerItem, TId> innerItem)
+    CollectionItemInfo<TCollectionItem, TCollectionInnerItem, TId> item,
+    InnerCollectionItemInfo<TCollectionInnerItem, TId> innerItem)
   {
-      InnerItemSelected?.Invoke(item.Item, innerItem.InnerItem);
-      innerItem.ListItemInfo.ProcessingState = ItemProcessingState.Seen;
-      StateHasChanged();
+    InnerItemSelected?.Invoke(item.Item, innerItem.InnerItem);
+    innerItem.ListItemInfo.ProcessingState = ItemProcessingState.Seen;
+    StateHasChanged();
   }
 
   private void HandleItemTitleClicked(TId itemId)
   {
-      var state = GetOrCreateState(itemId);
-      state.IsExpanded = !state.IsExpanded;
+    var state = GetOrCreateState(itemId);
+    state.IsExpanded = !state.IsExpanded;
 
-      StateHasChanged();
+    StateHasChanged();
   }
 }

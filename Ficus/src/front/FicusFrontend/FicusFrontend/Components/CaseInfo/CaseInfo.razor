@@ -16,8 +16,8 @@
 @{
   var title = myProcessCaseData switch
   {
-      { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.Name,
-      _ => "The case was not yet selected."
+    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.Name,
+    _ => "The case was not yet selected."
   };
 }
 
@@ -118,8 +118,8 @@
   {
     return contextValues switch
     {
-        [var singleValue] => [FindRendererFor(singleValue)],
-        _ => FindRenderersFor(pipelinePartName, contextValues)
+      [var singleValue] => [FindRendererFor(singleValue)],
+      _ => FindRenderersFor(pipelinePartName, contextValues)
     };
   }
 
@@ -127,17 +127,17 @@
   {
     return contextValue.ContextValueCase switch
     {
-        ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-        ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()"
-                                                                    Log="contextValue.ColorsLog"/>,
+      ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
+      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()"
+                                                                  Log="contextValue.ColorsLog"/>,
 
-        ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()"
-                                                             PetriNet="contextValue.PetriNet"/>,
+      ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()"
+                                                           PetriNet="contextValue.PetriNet"/>,
 
-        ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph"
-                                                       ProcessCaseData="myProcessCaseData"/>,
+      ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph"
+                                                     ProcessCaseData="myProcessCaseData"/>,
 
-        _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
+      _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }
 

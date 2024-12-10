@@ -1,19 +1,19 @@
 .cytoscape-graph-container {
-    width: 100%;
-    height: 650px;
-    background-color: var(--cv-section-content-color);
+  width: 100%;
+  height: 650px;
+  background-color: var(--cv-section-content-color);
 }
 
 .export-button {
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    width: 150px;
-    height: 30px;
-    background-color: var(--cv-section-header-color);
-    color: var(--cv-section-header-text-color);
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  width: 150px;
+  height: 30px;
+  background-color: var(--cv-section-header-color);
+  color: var(--cv-section-header-text-color);
 }
 
 .export-button:hover {
-    background-color: var(--cv-section-header-color-hovered);
+  background-color: var(--cv-section-header-color-hovered);
 }

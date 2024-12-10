@@ -85,67 +85,73 @@
 
   private void HandleCaseAddRemove(AddRemove caseAddRemove, string caseKey, Case? caseModel)
   {
-      if (caseModel is null) return;
+    if (caseModel is null) return;
 
-      switch (caseAddRemove)
+    switch (caseAddRemove)
+    {
+      case AddRemove.Add:
       {
-          case AddRemove.Add:
-          {
-              var processLifetimeDef = myProcessesLifetimes[caseModel.ParentProcess.ProcessName].Lifetime;
+        var processLifetimeDef = myProcessesLifetimes[caseModel.ParentProcess.ProcessName].Lifetime;
 
-              var caseLifetimeDef = processLifetimeDef.CreateNested();
-              myCasesLifetimes[caseKey] = caseLifetimeDef;
+        var caseLifetimeDef = processLifetimeDef.CreateNested();
+        myCasesLifetimes[caseKey] = caseLifetimeDef;
 
-              myProcesses[caseModel.ParentProcess.ProcessName].InnerItems[caseKey] = CreateInnerCollectionItemFrom(caseModel);
+        myProcesses[caseModel.ParentProcess.ProcessName].InnerItems[caseKey] = CreateInnerCollectionItemFrom(caseModel);
 
-              caseModel.ContextValues.Change.Advise(
-                  caseLifetimeDef.Lifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
+        caseModel.ContextValues.Change.Advise(
+          caseLifetimeDef.Lifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
 
-              break;
-          }
-          case AddRemove.Remove:
-          {
-              myProcesses[caseModel.ParentProcess.ProcessName].InnerItems.Remove(caseKey);
-
-              if (myCasesLifetimes.Remove(caseKey, out var caseLifetimeDef))
-              {
-                  caseLifetimeDef.Terminate();
-              }
-
-              break;
-          }
+        break;
       }
+      case AddRemove.Remove:
+      {
+        myProcesses[caseModel.ParentProcess.ProcessName].InnerItems.Remove(caseKey);
 
-      StateHasChanged();
+        if (myCasesLifetimes.Remove(caseKey, out var caseLifetimeDef))
+        {
+          caseLifetimeDef.Terminate();
+        }
+
+        break;
+      }
+    }
+
+    StateHasChanged();
   }
 
   private void HandleCaseContextValuesChange(string caseKey, Case caseModel)
   {
-      if (ReferenceEquals(caseModel, mySelectedCase)) return;
+    if (ReferenceEquals(caseModel, mySelectedCase)) return;
 
-      var collectionItemInfo = myProcesses[caseModel.Name];
-      collectionItemInfo.InnerItems[caseKey].ListItemInfo.ProcessingState = ItemProcessingState.Updated;
+    var collectionItemInfo = myProcesses[caseModel.Name];
+    collectionItemInfo.InnerItems[caseKey].ListItemInfo.ProcessingState = ItemProcessingState.Updated;
 
-      StateHasChanged();
+    StateHasChanged();
   }
 
-  private CollectionItemInfo<ProcessData, Case, string> CreateItemInfoFromProcess(ProcessData process) => new()
+  private CollectionItemInfo<ProcessData, Case, string> CreateItemInfoFromProcess(ProcessData process)
   {
+    return new CollectionItemInfo<ProcessData, Case, string>
+    {
       Id = process.ProcessName,
       Name = process.ProcessName,
       Item = process,
       InnerItems = process.ProcessCases.Values.Select(CreateInnerCollectionItemFrom).ToDictionary(c => c.Id, c => c)
-  };
+    };
+  }
 
-  private InnerCollectionItemInfo<Case, string> CreateInnerCollectionItemFrom(Case @case) => new()
+  private InnerCollectionItemInfo<Case, string> CreateInnerCollectionItemFrom(Case @case)
   {
+    return new InnerCollectionItemInfo<Case, string>
+    {
       Id = @case.Name,
       InnerItem = @case,
       ListItemInfo = new ListItemInfo
       {
-          Name = @case.Name,
-          UpdatedAt = @case.CreatedAt,
-          ProcessingState = ItemProcessingState.New
+        Name = @case.Name,
+        UpdatedAt = @case.CreatedAt,
+        ProcessingState = ItemProcessingState.New
       }
-  };
+    };
+  }
 }

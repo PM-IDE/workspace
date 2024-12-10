@@ -1,15 +1,15 @@
 @using Ficus
 @using FicusFrontend.Layout.Models
-
 @inject IJSRuntime Js
 
 <div id="@myCytoscapeContainerId" class="cytoscape-graph-container"></div>
 
 <div class="export-button" @onclick="ExportGraph">
-    Export to SVG
+  Export to SVG
 </div>
 
-@code {
+@code 
+{
   private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
 
   private IJSObjectReference? myCytoscapeReference;

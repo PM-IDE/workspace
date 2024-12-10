@@ -1,7 +1,7 @@
-﻿@using FicusFrontend.Services.Cases
-@using JetBrains.Lifetimes
-@using FicusFrontend.Components.SidebarList
+﻿@using FicusFrontend.Components.SidebarList
+@using FicusFrontend.Services.Cases
 @using JetBrains.Collections.Viewable
+@using JetBrains.Lifetimes
 @inject IProcessesService ProcessService;
 
 
@@ -15,115 +15,116 @@
 
 @code
 {
-    private class SubscriptionState
+  private readonly Dictionary<Guid, CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
+  private readonly Dictionary<Guid, LifetimeDefinition> mySubscriptionLifetimes = [];
+
+  private Pipeline? mySelectedPipeline;
+
+
+  [Parameter] public Action<Pipeline>? PipelineSelected { get; set; }
+
+
+  protected override void OnInitialized()
+  {
+    base.OnInitialized();
+
+    ProcessService.Subscriptions.AdviseAddRemove(Lifetime.Eternal, HandleSubscriptionAddRemove);
+    ProcessService.AnyPipelineSubEntityUpdated.Advise(Lifetime.Eternal, HandleAnyPipelineSubEntityUpdated);
+  }
+
+  private void HandleSubscriptionAddRemove(AddRemove addRemove, Guid id, Subscription? subscription)
+  {
+    if (subscription is null) return;
+
+    switch (addRemove)
     {
-        public bool IsExpanded { get; set; } = true;
+      case AddRemove.Add:
+      {
+        var itemInfo = CreateCollectionItemInfoFrom(subscription);
+        mySubscriptions[id] = itemInfo;
+
+        var subscriptionLifetimeDef = new LifetimeDefinition();
+        mySubscriptionLifetimes[id] = subscriptionLifetimeDef;
+
+        subscription.Pipelines.AdviseAddRemove(subscriptionLifetimeDef.Lifetime, HandlePipelineAddRemove);
+
+        break;
+      }
+      case AddRemove.Remove:
+      {
+        mySubscriptions.Remove(id);
+        mySubscriptionLifetimes[id].Terminate();
+        break;
+      }
+      default:
+        throw new ArgumentOutOfRangeException(nameof(addRemove), addRemove, null);
     }
 
-    private readonly Dictionary<Guid, CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
-    private readonly Dictionary<Guid, LifetimeDefinition> mySubscriptionLifetimes = [];
+    StateHasChanged();
+  }
 
-    private Pipeline? mySelectedPipeline;
+  private void HandlePipelineAddRemove(AddRemove addRemove, Guid id, Pipeline? pipeline)
+  {
+    if (pipeline is null) return;
 
+    var itemInfo = mySubscriptions[pipeline.ParentSubscription.Id];
 
-    [Parameter] public Action<Pipeline>? PipelineSelected { get; set; }
-
-
-    protected override void OnInitialized()
+    switch (addRemove)
     {
-        base.OnInitialized();
-
-        ProcessService.Subscriptions.AdviseAddRemove(Lifetime.Eternal, HandleSubscriptionAddRemove);
-        ProcessService.AnyPipelineSubEntityUpdated.Advise(Lifetime.Eternal, HandleAnyPipelineSubEntityUpdated);
+      case AddRemove.Add:
+        itemInfo.InnerItems[id] = CreateInnerCollectionItemFrom(pipeline);
+        break;
+      case AddRemove.Remove:
+        itemInfo.InnerItems.Remove(id);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException(nameof(addRemove), addRemove, null);
     }
 
-    private void HandleSubscriptionAddRemove(AddRemove addRemove, Guid id, Subscription? subscription)
+    StateHasChanged();
+  }
+
+  private void HandleAnyPipelineSubEntityUpdated(Pipeline pipeline)
+  {
+    if (ReferenceEquals(pipeline, mySelectedPipeline)) return;
+
+    var pipelineItemInfo = mySubscriptions[pipeline.ParentSubscription.Id].InnerItems[pipeline.Id];
+    pipelineItemInfo.ListItemInfo.ProcessingState = ItemProcessingState.Updated;
+
+    StateHasChanged();
+  }
+
+  private CollectionItemInfo<Subscription, Pipeline, Guid> CreateCollectionItemInfoFrom(Subscription subscription)
+  {
+    return new CollectionItemInfo<Subscription, Pipeline, Guid>
     {
-        if (subscription is null) return;
-
-        switch (addRemove)
-        {
-            case AddRemove.Add:
-            {
-                var itemInfo = CreateCollectionItemInfoFrom(subscription);
-                mySubscriptions[id] = itemInfo;
-
-                var subscriptionLifetimeDef = new LifetimeDefinition();
-                mySubscriptionLifetimes[id] = subscriptionLifetimeDef;
-
-                subscription.Pipelines.AdviseAddRemove(subscriptionLifetimeDef.Lifetime, HandlePipelineAddRemove);
-
-                break;
-            }
-            case AddRemove.Remove:
-            {
-                mySubscriptions.Remove(id);
-                mySubscriptionLifetimes[id].Terminate();
-                break;
-            }
-            default:
-                throw new ArgumentOutOfRangeException(nameof(addRemove), addRemove, null);
-        }
-
-        StateHasChanged();
-    }
-
-    private void HandlePipelineAddRemove(AddRemove addRemove, Guid id, Pipeline? pipeline)
-    {
-        if (pipeline is null) return;
-
-        var itemInfo = mySubscriptions[pipeline.ParentSubscription.Id];
-
-        switch (addRemove)
-        {
-            case AddRemove.Add:
-                itemInfo.InnerItems[id] = CreateInnerCollectionItemFrom(pipeline);
-                break;
-            case AddRemove.Remove:
-                itemInfo.InnerItems.Remove(id);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(addRemove), addRemove, null);
-        }
-
-        StateHasChanged();
-    }
-
-    private void HandleAnyPipelineSubEntityUpdated(Pipeline pipeline)
-    {
-        if (ReferenceEquals(pipeline, mySelectedPipeline)) return;
-
-        var pipelineItemInfo = mySubscriptions[pipeline.ParentSubscription.Id].InnerItems[pipeline.Id];
-        pipelineItemInfo.ListItemInfo.ProcessingState = ItemProcessingState.Updated;
-
-        StateHasChanged();
-    }
-
-    private CollectionItemInfo<Subscription, Pipeline, Guid> CreateCollectionItemInfoFrom(Subscription subscription) => new()
-    {
-        Id = subscription.Id,
-        Name = subscription.Name,
-        Item = subscription,
-        InnerItems = subscription.Pipelines.Values
-            .Select(CreateInnerCollectionItemFrom)
-            .ToDictionary(info => info.Id, info => info)
+      Id = subscription.Id,
+      Name = subscription.Name,
+      Item = subscription,
+      InnerItems = subscription.Pipelines.Values
+        .Select(CreateInnerCollectionItemFrom)
+        .ToDictionary(info => info.Id, info => info)
     };
+  }
 
-    private InnerCollectionItemInfo<Pipeline, Guid> CreateInnerCollectionItemFrom(Pipeline pipeline) => new()
+  private InnerCollectionItemInfo<Pipeline, Guid> CreateInnerCollectionItemFrom(Pipeline pipeline)
+  {
+    return new InnerCollectionItemInfo<Pipeline, Guid>
     {
-        Id = pipeline.Id,
-        InnerItem = pipeline,
-        ListItemInfo = new ListItemInfo
-        {
-            Name = pipeline.Name,
-            UpdatedAt = DateTime.Now,
-            ProcessingState = ItemProcessingState.New
-        }
+      Id = pipeline.Id,
+      InnerItem = pipeline,
+      ListItemInfo = new ListItemInfo
+      {
+        Name = pipeline.Name,
+        UpdatedAt = DateTime.Now,
+        ProcessingState = ItemProcessingState.New
+      }
     };
+  }
 
-    private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)
-    {
-        mySelectedPipeline = pipeline;
-        PipelineSelected?.Invoke(pipeline);
-    }
+  private void HandlePipelineSelection(Subscription subscription, Pipeline pipeline)
+  {
+    mySelectedPipeline = pipeline;
+    PipelineSelected?.Invoke(pipeline);
+  }
 }

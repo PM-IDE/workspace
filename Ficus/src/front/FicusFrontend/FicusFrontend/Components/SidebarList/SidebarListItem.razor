@@ -19,9 +19,9 @@
 {
   private string CaseNotificationClass => "case-notification " + ListItemInfo.ProcessingState switch
   {
-      ItemProcessingState.New => "case-new-notification",
-      ItemProcessingState.Updated => "case-update-notification",
-      ItemProcessingState.Seen => "case-seen-notification",
+    ItemProcessingState.New => "case-new-notification",
+    ItemProcessingState.Updated => "case-update-notification",
+    ItemProcessingState.Seen => "case-seen-notification",
     _ => throw new ArgumentOutOfRangeException()
   };
 
