@@ -1,5 +1,6 @@
 ﻿@using FicusFrontend.Components.SidebarList
 @using FicusFrontend.Services.Cases
+@using FicusFrontend.Utils
 @using JetBrains.Collections.Viewable
 @using JetBrains.Lifetimes
 @inject IProcessesService ProcessService;
@@ -16,7 +17,7 @@
 @code
 {
   private readonly Dictionary<Guid, CollectionItemInfo<Subscription, Pipeline, Guid>> mySubscriptions = [];
-  private readonly Dictionary<Guid, LifetimeDefinition> mySubscriptionLifetimes = [];
+  private readonly LifetimeDefinitionsByKey<Guid> mySubscriptionLifetimes = new();
 
   private Pipeline? mySelectedPipeline;
 
@@ -43,17 +44,16 @@
         var itemInfo = CreateCollectionItemInfoFrom(subscription);
         mySubscriptions[id] = itemInfo;
 
-        var subscriptionLifetimeDef = new LifetimeDefinition();
-        mySubscriptionLifetimes[id] = subscriptionLifetimeDef;
-
-        subscription.Pipelines.AdviseAddRemove(subscriptionLifetimeDef.Lifetime, HandlePipelineAddRemove);
+        var subscriptionLifetime = mySubscriptionLifetimes.CreateNested(id, Lifetime.Eternal);
+        subscription.Pipelines.AdviseAddRemove(subscriptionLifetime, HandlePipelineAddRemove);
 
         break;
       }
       case AddRemove.Remove:
       {
         mySubscriptions.Remove(id);
-        mySubscriptionLifetimes[id].Terminate();
+        mySubscriptionLifetimes.TerminateAndRemove(id);
+
         break;
       }
       default:

@@ -46,7 +46,7 @@
     public bool IsExpanded { get; set; }
   }
 
-  private Dictionary<TId, CollectionItemState> myStates = [];
+  private readonly Dictionary<TId, CollectionItemState> myStates = [];
 
   [Parameter] public string Title { get; set; }
   [Parameter] public string ItemType { get; set; }

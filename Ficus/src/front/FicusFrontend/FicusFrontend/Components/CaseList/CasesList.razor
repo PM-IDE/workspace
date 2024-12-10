@@ -1,5 +1,6 @@
 ﻿@using FicusFrontend.Components.SidebarList
 @using FicusFrontend.Services.Cases
+@using FicusFrontend.Utils
 @using JetBrains.Collections.Viewable
 @using JetBrains.Lifetimes
 @inherits ComponentBase;
@@ -17,8 +18,8 @@
 @code
 {
   private readonly Dictionary<string, CollectionItemInfo<ProcessData, Case, string>> myProcesses = [];
-  private readonly Dictionary<string, LifetimeDefinition> myProcessesLifetimes = [];
-  private readonly Dictionary<string, LifetimeDefinition> myCasesLifetimes = [];
+  private readonly LifetimeDefinitionsByKey<string> myProcessesLifetimes = new();
+  private readonly LifetimeDefinitionsByKey<string> myCasesLifetimes = new();
   private readonly SequentialLifetimes mySequentialLifetimes = new(Lifetime.Eternal);
 
   private Pipeline mySelectedPipeline = null!;
@@ -58,24 +59,19 @@
       {
         if (process is null) return;
 
-        var processLifetimeDef = myCurrentPipelineLifetime.CreateNested();
-        myProcessesLifetimes[key] = processLifetimeDef;
+        var processCollectionItemInfo = CreateItemInfoFromProcess(process);
+        myProcesses[key] = processCollectionItemInfo;
 
-        var collectionItemInfo = CreateItemInfoFromProcess(process);
-        myProcesses[key] = collectionItemInfo;
-
-        process.ProcessCases.AdviseAddRemove(processLifetimeDef.Lifetime, HandleCaseAddRemove);
+        var processLifetime = myProcessesLifetimes.CreateNested(key, myCurrentPipelineLifetime);
+        process.ProcessCases.AdviseAddRemove(processLifetime, HandleCaseAddRemove);
 
         break;
       }
       case AddRemove.Remove:
       {
-        if (myProcessesLifetimes.Remove(key, out var processLifetimeDef))
-        {
-          processLifetimeDef.Terminate();
-        }
-
+        myProcessesLifetimes.TerminateAndRemove(key);
         myProcesses.Remove(key);
+
         break;
       }
       default:
@@ -89,31 +85,25 @@
 
     switch (caseAddRemove)
     {
-      case AddRemove.Add:
+      case AddRemove.Add: 
       {
-        var processLifetimeDef = myProcessesLifetimes[caseModel.ParentProcess.ProcessName].Lifetime;
-
-        var caseLifetimeDef = processLifetimeDef.CreateNested();
-        myCasesLifetimes[caseKey] = caseLifetimeDef;
-
         myProcesses[caseModel.ParentProcess.ProcessName].InnerItems[caseKey] = CreateInnerCollectionItemFrom(caseModel);
-
-        caseModel.ContextValues.Change.Advise(
-          caseLifetimeDef.Lifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
+        
+        var processLifetime = myProcessesLifetimes.Get(caseModel.ParentProcess.ProcessName);
+        var caseLifetime = myCasesLifetimes.CreateNested(caseKey, processLifetime);
+        caseModel.ContextValues.Change.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
 
         break;
       }
       case AddRemove.Remove:
       {
         myProcesses[caseModel.ParentProcess.ProcessName].InnerItems.Remove(caseKey);
-
-        if (myCasesLifetimes.Remove(caseKey, out var caseLifetimeDef))
-        {
-          caseLifetimeDef.Terminate();
-        }
+        myCasesLifetimes.TerminateAndRemove(caseKey);
 
         break;
       }
+      default:
+        throw new ArgumentOutOfRangeException(nameof(caseAddRemove), caseAddRemove, null);
     }
 
     StateHasChanged();
