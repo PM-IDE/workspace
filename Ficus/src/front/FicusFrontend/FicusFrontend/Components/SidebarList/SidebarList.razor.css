@@ -1,7 +1,22 @@
-﻿.sidebar-list-collapsed-outer-container {
+﻿.side-list-outer-container-background {
+  background-color: var(--processes-section-cases-collapsed-bakground);
+}
+
+.sidebar-list-title-container-background {
+  background-color: var(--processes-section-title-background);
+}
+
+.sidebar-list-item-title-container-background {
+  background-color: var(--processes-section-process-name-background);
+}
+
+.sidebar-list-background {
+  background-color: var(--processes-section-cases-background);
+}
+
+.sidebar-list-collapsed-outer-container {
   width: 50px;
   height: 100%;
-  background-color: var(--processes-section-cases-collapsed-bakground);
   overflow: hidden;
 }
 
@@ -11,13 +26,11 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: var(--processes-section-title-background);
 }
 
 .sidebar-list-outer-container {
   width: 250px;
   height: 100%;
-  background-color: var(--processes-section-cases-collapsed-bakground);
   overflow: hidden;
 }
 
@@ -27,7 +40,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background-color: var(--processes-section-title-background);
 }
 
 .sidebar-list-title {
@@ -40,7 +52,6 @@
   width: 100%;
   height: 30px;
   padding-left: 10px;
-  background-color: var(--processes-section-process-name-background);
 }
 
 .sidebar-list-item-title-container:hover {
@@ -60,7 +71,6 @@
 
 .sidebar-list {
   width: 100%;
-  background-color: var(--processes-section-cases-background);
 }
 
 .scrollable {
