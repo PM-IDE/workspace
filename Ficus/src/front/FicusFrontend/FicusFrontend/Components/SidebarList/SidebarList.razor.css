@@ -1,4 +1,27 @@
-﻿.sidebar-list-title-container {
+﻿.sidebar-list-collapsed-outer-container {
+  width: 50px;
+  height: 100%;
+  background-color: var(--processes-section-cases-collapsed-bakground);
+  overflow: hidden;
+}
+
+.sidebar-list-collapsed-title-container {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: var(--processes-section-title-background);
+}
+
+.sidebar-list-outer-container {
+  width: 250px;
+  height: 100%;
+  background-color: var(--processes-section-cases-collapsed-bakground);
+  overflow: hidden;
+}
+
+.sidebar-list-title-container {
   width: 100%;
   height: 60px;
   display: flex;
@@ -26,13 +49,6 @@
 
 .sidebar-list-item-title {
   color: var(--cv-section-content-text-color);
-}
-
-.sidebar-list-outer-container {
-  width: 100%;
-  height: 100%;
-  background-color: var(--processes-section-cases-collapsed-bakground);
-  overflow: hidden;
 }
 
 .sidebar-list-item {

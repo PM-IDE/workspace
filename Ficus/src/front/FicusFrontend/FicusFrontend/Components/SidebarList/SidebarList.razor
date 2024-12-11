@@ -5,9 +5,19 @@
 @using FicusFrontend.Utils
 @inherits ComponentBase;
 
+@if (myIsCollapsed)
+{
+  <div class="sidebar-list-collapsed-outer-container">
+    <div class="sidebar-list-collapsed-title-container" @onclick="HandleListTitleClicked">
+    </div>
+  </div>
+
+  return;
+}
+
 <div class="sidebar-list-outer-container">
   <div class="scrollable">
-    <div class="sidebar-list-title-container">
+    <div class="sidebar-list-title-container" @onclick="HandleListTitleClicked">
       <div class="sidebar-list-title">
         @Title
       </div>
@@ -45,10 +55,7 @@
 {
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
-  private class CollectionItemState
-  {
-    public bool IsExpanded { get; set; }
-  }
+  private bool myIsCollapsed;
 
   [Parameter] public required string Title { get; set; }
   [Parameter] public required string ItemType { get; set; }
@@ -74,6 +81,12 @@
     var expanded = item.UserData.GetOrCreate(ourExpandedKey, static () => true);
     item.UserData.PutData(ourExpandedKey, !expanded);
 
+    StateHasChanged();
+  }
+
+  private void HandleListTitleClicked()
+  {
+    myIsCollapsed = !myIsCollapsed;
     StateHasChanged();
   }
 }

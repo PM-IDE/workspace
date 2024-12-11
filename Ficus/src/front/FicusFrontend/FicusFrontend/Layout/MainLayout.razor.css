@@ -3,9 +3,8 @@ html {
 }
 
 .page {
-    position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     background-color: var(--cv-section-background);
 }
 
@@ -20,7 +19,6 @@ main {
 
 .sidebar {
     height: 100%;
-    width: 350px;
 }
 
 .top-row {
@@ -63,7 +61,6 @@ main {
     }
 
     .sidebar {
-        width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;
