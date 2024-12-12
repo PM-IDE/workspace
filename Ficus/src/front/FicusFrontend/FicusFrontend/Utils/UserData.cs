@@ -5,19 +5,13 @@ public class Key<T>(string name)
   public string Name => name;
 }
 
-public interface IUserDataHolder
-{
-  bool TryGetData<T>(Key<T> key, out T value);
-  void PutData<T>(Key<T> key, T value);
-}
-
-public abstract class UserDataHolderBase : IUserDataHolder
+public abstract class UserDataHolderBase
 {
   private readonly Lock mySyncObject = new();
   private readonly Dictionary<object, object> myValues = new();
 
 
-  public virtual bool TryGetData<T>(Key<T> key, out T value)
+  protected bool TryGetData<T>(Key<T> key, out T value)
   {
     value = default;
     lock (mySyncObject)
@@ -29,7 +23,7 @@ public abstract class UserDataHolderBase : IUserDataHolder
     }
   }
 
-  public virtual void PutData<T>(Key<T> key, T value) where T : notnull
+  protected void PutData<T>(Key<T> key, T value) where T : notnull
   {
     lock (mySyncObject)
     {
@@ -38,11 +32,15 @@ public abstract class UserDataHolderBase : IUserDataHolder
   }
 }
 
-public sealed class UserDataHolder : UserDataHolderBase;
+public sealed class UserDataHolder : UserDataHolderBase
+{
+  public bool TryGetData<T>(Key<T> key, out T value) => base.TryGetData(key, out value);
+  public void PutData<T>(Key<T> key, T value) where T : notnull => base.PutData(key, value);
+}
 
 public static class ExtensionsForUserData
 {
-  public static T GetOrCreate<T>(this IUserDataHolder holder, Key<T> key, Func<T> valueFactory)
+  public static T GetOrCreate<T>(this UserDataHolder holder, Key<T> key, Func<T> valueFactory) where T : notnull
   {
     if (holder.TryGetData(key, out var existingValue))
     {
@@ -54,7 +52,7 @@ public static class ExtensionsForUserData
     return createdValue;
   }
 
-  public static T GetOrThrow<T>(this IUserDataHolder holder, Key<T> key)
+  public static T GetOrThrow<T>(this UserDataHolder holder, Key<T> key)
   {
     if (holder.TryGetData(key, out var value)) return value;
 

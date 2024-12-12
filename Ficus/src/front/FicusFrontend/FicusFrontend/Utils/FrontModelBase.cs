@@ -2,5 +2,5 @@
 
 public abstract class FrontModelBase
 {
-  public IUserDataHolder UserData { get; } = new UserDataHolder();
+  public UserDataHolder UserData { get; } = new UserDataHolder();
 }
