@@ -1,16 +1,11 @@
 ﻿.case-list-item {
   width: 100%;
   height: 65px;
-  background-color: var(--processes-section-case-background);
   border-style: solid;
   border-width: 0;
   border-bottom-width: 1px;
   border-bottom-color: white;
   position: relative;
-}
-
-.case-list-item:hover {
-  background-color: var(--processes-section-case-background-hovered);
 }
 
 .case-list-item-name {
@@ -49,4 +44,24 @@
 
 .case-seen-notification {
   visibility: hidden;
+}
+
+@scope (.dark-sidebar-list) {
+  .case-list-item {
+    background-color: var(--processes-section-case-background);
+  }
+
+  .case-list-item:hover {
+    background-color: var(--processes-section-case-background-hovered);
+  }
+}
+
+@scope (.darker-sidebar-list) {
+  .case-list-item {
+    background-color: var(--processes-section-case-background-darker);
+  }
+
+  .case-list-item:hover {
+    background-color: var(--processes-section-case-background-hovered-darker);
+  }
 }

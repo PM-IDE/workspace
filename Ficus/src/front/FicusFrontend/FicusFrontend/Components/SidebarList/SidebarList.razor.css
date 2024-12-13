@@ -72,11 +72,11 @@
     background-color: var(--processes-section-title-background);
   }
 
-  .sidebar-list-item-title-container-background {
+  .sidebar-list-item-title-container {
     background-color: var(--processes-section-process-name-background);
   }
 
-  .sidebar-list-background {
+  .sidebar-list {
     background-color: var(--processes-section-cases-background);
   }
 }
@@ -90,11 +90,11 @@
     background-color: var(--processes-section-title-background-darker);
   }
 
-  .sidebar-list-item-title-container-background {
+  .sidebar-list-item-title-container {
     background-color: var(--processes-section-process-name-background-darker);
   }
 
-  .sidebar-list-background {
+  .sidebar-list {
     background-color: var(--processes-section-cases-background-darker);
   }
 }

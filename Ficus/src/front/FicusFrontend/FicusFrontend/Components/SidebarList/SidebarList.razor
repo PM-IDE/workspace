@@ -24,11 +24,11 @@
           </div>
         </div>
 
-        <div class="sidebar-list sidebar-list-background">
+        <div class="sidebar-list">
           @foreach (var item in Items)
           {
             <div class="sidebar-list-item">
-              <div class="sidebar-list-item-title-container sidebar-list-item-title-container-background centered-text"
+              <div class="sidebar-list-item-title-container centered-text"
                    @onclick="@(_ => HandleItemTitleClicked(item.Item))">
                 <div class="sidebar-list-item-title">
                   @ItemType @item.Name
