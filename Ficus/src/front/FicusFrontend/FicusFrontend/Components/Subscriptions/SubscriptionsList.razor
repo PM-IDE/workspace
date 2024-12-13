@@ -9,6 +9,7 @@
 <SidebarList TItem="Subscription"
              TInnerItem="Pipeline"
              TId="Guid"
+             ComponentStyle="SidebarList<Subscription, Pipeline, Guid>.Style.Darker"
              ItemType="Subscription"
              Title="Subscriptions"
              Items="mySubscriptions.Values.OrderBy(p => p.Name).ToList()"

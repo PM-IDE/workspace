@@ -1,60 +1,67 @@
 ﻿@typeparam TItem where TItem : FicusFrontend.Utils.FrontModelBase
 @typeparam TInnerItem where TInnerItem : FicusFrontend.Utils.FrontModelBase
 @typeparam TId where TId : notnull
-
 @using FicusFrontend.Utils
 @inherits ComponentBase;
 
-@if (myIsCollapsed)
-{
-  <div class="sidebar-list-collapsed-outer-container @GetBackground("sidebar-list-collapsed-outer-container")">
-    <div class="sidebar-list-collapsed-title-container @GetBackground("sidebar-list-collapsed-title-container")" 
-         @onclick="HandleListTitleClicked">
-    </div>
-  </div>
-
-  return;
-}
-
-<div class="sidebar-list-outer-container @GetBackground("sidebar-list-outer-container")">
-  <div class="scrollable">
-    <div class="sidebar-list-title-container @GetBackground("sidebar-list-title-container")" @onclick="HandleListTitleClicked">
-      <div class="sidebar-list-title">
-        @Title
+<div class="height100percent @GetScopeClass()">
+  @if (myIsCollapsed)
+  {
+    <div class="sidebar-list-collapsed-outer-container @GetBackground("sidebar-list-collapsed-outer-container")">
+      <div class="sidebar-list-collapsed-title-container @GetBackground("sidebar-list-collapsed-title-container")"
+           @onclick="HandleListTitleClicked">
       </div>
     </div>
 
-    <div class="sidebar-list @GetBackground("sidebar-list")">
-      @foreach (var item in Items)
-      {
-        <div class="sidebar-list-item">
-          <div class="sidebar-list-item-title-container @GetBackground("sidebar-list-item-title-container") centered-text" 
-               @onclick="@(_ => HandleItemTitleClicked(item.Item))">
-            <div class="sidebar-list-item-title">
-              @ItemType @item.Name
-            </div>
-          </div>
+    return;
+  }
 
-          @if (IsExpanded(item.Item))
-          {
-            <div>
-              @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
-              {
-                <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
-                  <SidebarListItem ListItemInfo="innerItem.ListItemInfo" 
-                                   ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
-                </div>
-              }
-            </div>
-          }
+  <div class="sidebar-list-outer-container @GetBackground("sidebar-list-outer-container")">
+    <div class="scrollable">
+      <div class="sidebar-list-title-container @GetBackground("sidebar-list-title-container")" @onclick="HandleListTitleClicked">
+        <div class="sidebar-list-title">
+          @Title
         </div>
-      }
+      </div>
+
+      <div class="sidebar-list @GetBackground("sidebar-list")">
+        @foreach (var item in Items)
+        {
+          <div class="sidebar-list-item">
+            <div class="sidebar-list-item-title-container @GetBackground("sidebar-list-item-title-container") centered-text"
+                 @onclick="@(_ => HandleItemTitleClicked(item.Item))">
+              <div class="sidebar-list-item-title">
+                @ItemType @item.Name
+              </div>
+            </div>
+
+            @if (IsExpanded(item.Item))
+            {
+              <div>
+                @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
+                {
+                  <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
+                    <SidebarListItem ListItemInfo="innerItem.ListItemInfo"
+                                     ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
     </div>
   </div>
 </div>
 
 @code
 {
+  public enum Style
+  {
+    Dark,
+    Darker,
+  }
+  
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
   private static readonly Dictionary<string, string> ourBackgroundColors = new()
@@ -69,6 +76,7 @@
 
   private bool myIsCollapsed;
 
+  [Parameter] public required Style ComponentStyle { get; set; }
   [Parameter] public required string Title { get; set; }
   [Parameter] public required string ItemType { get; set; }
   [Parameter] public required List<CollectionItemInfo<TItem, TInnerItem, TId>> Items { get; set; }
@@ -76,6 +84,13 @@
   [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
 
 
+  private string GetScopeClass() => ComponentStyle switch
+  {
+    Style.Dark => "dark-sidebar-list",
+    Style.Darker => "darker-sidebar-list",
+    _ => throw new ArgumentOutOfRangeException()
+  };
+  
   private bool IsExpanded(TItem item) => item.UserData.GetOrCreate(ourExpandedKey, static () => true);
 
   private void HandleInnerItemSelected(

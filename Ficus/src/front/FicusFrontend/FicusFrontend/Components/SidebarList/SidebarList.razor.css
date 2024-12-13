@@ -1,20 +1,4 @@
-﻿.side-list-outer-container-background {
-  background-color: var(--processes-section-cases-collapsed-bakground);
-}
-
-.sidebar-list-title-container-background {
-  background-color: var(--processes-section-title-background);
-}
-
-.sidebar-list-item-title-container-background {
-  background-color: var(--processes-section-process-name-background);
-}
-
-.sidebar-list-background {
-  background-color: var(--processes-section-cases-background);
-}
-
-.sidebar-list-collapsed-outer-container {
+﻿.sidebar-list-collapsed-outer-container {
   width: 50px;
   height: 100%;
   overflow: hidden;
@@ -77,4 +61,40 @@
   height: 100%;
   width: 100%;
   overflow-y: scroll;
+}
+
+@scope (.dark-sidebar-list) {
+  .side-list-outer-container-background {
+    background-color: var(--processes-section-cases-collapsed-bakground);
+  }
+
+  .sidebar-list-title-container-background {
+    background-color: var(--processes-section-title-background);
+  }
+
+  .sidebar-list-item-title-container-background {
+    background-color: var(--processes-section-process-name-background);
+  }
+
+  .sidebar-list-background {
+    background-color: var(--processes-section-cases-background);
+  }
+}
+
+@scope (.darker-sidebar-list) {
+  .side-list-outer-container-background {
+    background-color: var(--processes-section-cases-collapsed-bakground);
+  }
+
+  .sidebar-list-title-container-background {
+    background-color: var(--processes-section-title-background);
+  }
+
+  .sidebar-list-item-title-container-background {
+    background-color: var(--processes-section-process-name-background);
+  }
+
+  .sidebar-list-background {
+    background-color: var(--processes-section-cases-background);
+  }
 }

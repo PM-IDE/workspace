@@ -10,6 +10,7 @@
 <SidebarList TItem="ProcessData"
              TInnerItem="Case"
              TId="string" 
+             ComponentStyle="SidebarList<ProcessData, Case, string>.Style.Dark"
              ItemType="Process"
              Title="Processes"
              Items="myProcesses.Values.OrderBy(p => p.Id).ToList()"
