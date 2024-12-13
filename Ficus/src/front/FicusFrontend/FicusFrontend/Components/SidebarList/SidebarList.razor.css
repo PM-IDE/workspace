@@ -83,18 +83,18 @@
 
 @scope (.darker-sidebar-list) {
   .side-list-outer-container-background {
-    background-color: var(--processes-section-cases-collapsed-bakground);
+    background-color: var(--processes-section-cases-collapsed-bakground-darker);
   }
 
   .sidebar-list-title-container-background {
-    background-color: var(--processes-section-title-background);
+    background-color: var(--processes-section-title-background-darker);
   }
 
   .sidebar-list-item-title-container-background {
-    background-color: var(--processes-section-process-name-background);
+    background-color: var(--processes-section-process-name-background-darker);
   }
 
   .sidebar-list-background {
-    background-color: var(--processes-section-cases-background);
+    background-color: var(--processes-section-cases-background-darker);
   }
 }

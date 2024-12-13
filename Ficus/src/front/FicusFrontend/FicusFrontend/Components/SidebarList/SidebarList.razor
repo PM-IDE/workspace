@@ -4,7 +4,7 @@
 @using FicusFrontend.Utils
 @inherits ComponentBase;
 
-<div class="height100percent @GetScopeClass()">
+<div class="height-100-percent @GetScopeClass()">
   @if (myIsCollapsed)
   {
     <div class="sidebar-list-collapsed-outer-container side-list-outer-container-background">
@@ -12,47 +12,47 @@
            @onclick="HandleListTitleClicked">
       </div>
     </div>
-
-    return;
   }
+  else
+  {
+    <div class="sidebar-list-outer-container side-list-outer-container-background">
+      <div class="scrollable">
+        <div class="sidebar-list-title-container sidebar-list-title-container-background"
+             @onclick="HandleListTitleClicked">
+          <div class="sidebar-list-title">
+            @Title
+          </div>
+        </div>
 
-  <div class="sidebar-list-outer-container side-list-outer-container-background">
-    <div class="scrollable">
-      <div class="sidebar-list-title-container sidebar-list-title-container-background"
-           @onclick="HandleListTitleClicked">
-        <div class="sidebar-list-title">
-          @Title
+        <div class="sidebar-list sidebar-list-background">
+          @foreach (var item in Items)
+          {
+            <div class="sidebar-list-item">
+              <div class="sidebar-list-item-title-container sidebar-list-item-title-container-background centered-text"
+                   @onclick="@(_ => HandleItemTitleClicked(item.Item))">
+                <div class="sidebar-list-item-title">
+                  @ItemType @item.Name
+                </div>
+              </div>
+
+              @if (IsExpanded(item.Item))
+              {
+                <div>
+                  @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
+                  {
+                    <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
+                      <SidebarListItem ListItemInfo="innerItem.ListItemInfo"
+                                       ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
         </div>
       </div>
-
-      <div class="sidebar-list sidebar-list-background">
-        @foreach (var item in Items)
-        {
-          <div class="sidebar-list-item">
-            <div class="sidebar-list-item-title-container sidebar-list-item-title-container-background centered-text"
-                 @onclick="@(_ => HandleItemTitleClicked(item.Item))">
-              <div class="sidebar-list-item-title">
-                @ItemType @item.Name
-              </div>
-            </div>
-
-            @if (IsExpanded(item.Item))
-            {
-              <div>
-                @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
-                {
-                  <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
-                    <SidebarListItem ListItemInfo="innerItem.ListItemInfo"
-                                     ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </div>
-  </div>
+    </div> 
+  }
 </div>
 
 @code

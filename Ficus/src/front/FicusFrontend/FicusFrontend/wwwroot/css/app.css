@@ -15,6 +15,13 @@ html, body {
     --processes-section-case-background-hovered: #383e3e;
     --processes-section-cases-collapsed-bakground: #3e4545;
 
+    --processes-section-title-background-darker: #171919;
+    --processes-section-process-name-background-darker: #181b1b;
+    --processes-section-cases-background-darker: #1f2222;
+    --processes-section-case-background-darker: #232727;
+    --processes-section-case-background-hovered-darker: #323737;
+    --processes-section-cases-collapsed-bakground-darker: #3a4040;
+
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer */
     -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
@@ -26,7 +33,7 @@ html, body {
     display: none;
 }
 
-.height100percent {
+.height-100-percent {
   height: 100%;
 }
 
