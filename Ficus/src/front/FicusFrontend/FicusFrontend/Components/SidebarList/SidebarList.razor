@@ -7,8 +7,8 @@
 <div class="height100percent @GetScopeClass()">
   @if (myIsCollapsed)
   {
-    <div class="sidebar-list-collapsed-outer-container @GetBackground("sidebar-list-collapsed-outer-container")">
-      <div class="sidebar-list-collapsed-title-container @GetBackground("sidebar-list-collapsed-title-container")"
+    <div class="sidebar-list-collapsed-outer-container side-list-outer-container-background">
+      <div class="sidebar-list-collapsed-title-container sidebar-list-title-container-background"
            @onclick="HandleListTitleClicked">
       </div>
     </div>
@@ -16,19 +16,20 @@
     return;
   }
 
-  <div class="sidebar-list-outer-container @GetBackground("sidebar-list-outer-container")">
+  <div class="sidebar-list-outer-container side-list-outer-container-background">
     <div class="scrollable">
-      <div class="sidebar-list-title-container @GetBackground("sidebar-list-title-container")" @onclick="HandleListTitleClicked">
+      <div class="sidebar-list-title-container sidebar-list-title-container-background"
+           @onclick="HandleListTitleClicked">
         <div class="sidebar-list-title">
           @Title
         </div>
       </div>
 
-      <div class="sidebar-list @GetBackground("sidebar-list")">
+      <div class="sidebar-list sidebar-list-background">
         @foreach (var item in Items)
         {
           <div class="sidebar-list-item">
-            <div class="sidebar-list-item-title-container @GetBackground("sidebar-list-item-title-container") centered-text"
+            <div class="sidebar-list-item-title-container sidebar-list-item-title-container-background centered-text"
                  @onclick="@(_ => HandleItemTitleClicked(item.Item))">
               <div class="sidebar-list-item-title">
                 @ItemType @item.Name
@@ -61,18 +62,9 @@
     Dark,
     Darker,
   }
-  
+
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
-  private static readonly Dictionary<string, string> ourBackgroundColors = new()
-  {
-    ["sidebar-list-collapsed-outer-container"] = "side-list-outer-container-background",
-    ["sidebar-list-outer-container"] = "side-list-outer-container-background",
-    ["sidebar-list-collapsed-title-container"] = "sidebar-list-title-container-background",
-    ["sidebar-list-title-container"] = "sidebar-list-title-container-background",
-    ["sidebar-list-item-title-container"] = "sidebar-list-item-title-container-background",
-    ["sidebar-list"] = "sidebar-list-background"
-  };
 
   private bool myIsCollapsed;
 
@@ -90,7 +82,7 @@
     Style.Darker => "darker-sidebar-list",
     _ => throw new ArgumentOutOfRangeException()
   };
-  
+
   private bool IsExpanded(TItem item) => item.UserData.GetOrCreate(ourExpandedKey, static () => true);
 
   private void HandleInnerItemSelected(
@@ -99,7 +91,7 @@
   {
     InnerItemSelected?.Invoke(item.Item, innerItem.InnerItem);
     innerItem.InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Seen);
-    
+
     StateHasChanged();
   }
 
@@ -116,6 +108,4 @@
     myIsCollapsed = !myIsCollapsed;
     StateHasChanged();
   }
-
-  private string GetBackground(string cssClass) => ourBackgroundColors[cssClass];
 }
