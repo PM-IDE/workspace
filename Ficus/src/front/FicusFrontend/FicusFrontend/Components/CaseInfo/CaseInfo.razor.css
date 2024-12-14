@@ -32,8 +32,32 @@
   background-color: var(--cv-section-header-color-hovered);
 }
 
-.pipeline-part-context-values-container {
+.pipeline-part-context-values-outer-container {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 1s;
+}
+
+.pipeline-part-context-values-inner-container {
+  align-self: end;
+  min-height: 0;
+  transition: visibility 1s;
+  visibility: hidden;
+
   background-color: var(--cv-section-content-color);
   color: var(--cv-section-content-text-color);
-  padding: 5px 5px 5px 10px;
+}
+
+.outer-container-checked {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+.inner-container-checked {
+  visibility: visible;
+}
+
+.pipeline-part-context-values-margin-container {
+  margin: 5px 5px 5px 10px;
 }

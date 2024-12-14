@@ -36,21 +36,31 @@
         @result.Value.PipelinePartName
       </div>
 
-      @if (IsExpanded(result.Value))
-      {
-        <div class="pipeline-part-context-values-container">
+      @{
+        var expanded = IsExpanded(result.Value);
+
+        string GetClass(string baseClass, string expandedClass) => $"{baseClass} {(expanded ? expandedClass : string.Empty)}";
+
+        var outerContainerClass = GetClass("pipeline-part-context-values-outer-container", "outer-container-checked");
+        var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
+      }
+
+      <div class="@outerContainerClass">
+        <div class="@innerContainerClass">
           @{
             var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
           }
 
-          @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
-          {
-            <div>
-              @fragment
-            </div>
-          }
+          <div class="pipeline-part-context-values-margin-container">
+            @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
+            {
+              <div>
+                @fragment
+              </div>
+            }
+          </div>
         </div>
-      }
+      </div>
     </div>
   }
 </div>
