@@ -2,6 +2,10 @@
   width: 50px;
   height: 100%;
   overflow: hidden;
+
+  animation-name: sidebar-list-collapse;
+  animation-duration: 0.2s;
+  animation-timing-function: linear;
 }
 
 .sidebar-list-collapsed-title-container {
@@ -16,6 +20,10 @@
   width: 250px;
   height: 100%;
   overflow: hidden;
+
+  animation-name: sidebar-list-appear;
+  animation-duration: 0.2s;
+  animation-timing-function: linear;
 }
 
 .sidebar-list-title-container {
@@ -61,6 +69,26 @@
   height: 100%;
   width: 100%;
   overflow-y: scroll;
+}
+
+@keyframes sidebar-list-collapse {
+  from {
+    width: 250px;
+  }
+  
+  to {
+    width: 50px;
+  }
+}
+
+@keyframes sidebar-list-appear {
+  from {
+    width: 50px;
+  }
+
+  to {
+    width: 250px;
+  }
 }
 
 @scope (.dark-sidebar-list) {
