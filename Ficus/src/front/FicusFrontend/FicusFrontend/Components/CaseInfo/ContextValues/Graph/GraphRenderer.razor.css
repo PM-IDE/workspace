@@ -1,5 +1,5 @@
 .cytoscape-graph-container {
-  width: 100%;
+  min-width: 1200px;
   height: 650px;
   background-color: var(--cv-section-content-color);
 }

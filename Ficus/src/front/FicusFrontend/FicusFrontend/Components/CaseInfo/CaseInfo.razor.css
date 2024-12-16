@@ -1,6 +1,5 @@
 .case-info-header {
   background-color: #323232;
-  width: 100%;
 
   padding-left: 10px;
   padding-top: 10px;
@@ -13,11 +12,15 @@
 }
 
 .pipeline-parts-context-values-outer-container {
+  display: flex;
+  flex-wrap: wrap;
   margin-top: 20px;
 }
 
 .pipeline-parts-context-values-inner-container {
+  width: fit-content;
   margin-top: 20px;
+  margin-right: 20px;
 }
 
 .pipeline-part-name {
@@ -56,8 +59,4 @@
 
 .inner-container-checked {
   visibility: visible;
-}
-
-.pipeline-part-context-values-margin-container {
-  margin: 5px 5px 5px 10px;
 }
