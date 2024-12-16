@@ -1,16 +1,16 @@
-.graph-container {
+﻿.canvas-container {
   min-width: 1200px;
   height: 650px;
   background-color: var(--cv-section-content-color);
   padding: 15px;
 }
 
-.cytoscape-graph-container {
+.cytoscape-canvas {
   min-width: 1170px;
   height: 590px;
 }
 
-.export-button {
+.canvas-export-button {
   display: table-cell;
   text-align: center;
   vertical-align: middle;
@@ -20,6 +20,6 @@
   color: var(--cv-section-header-text-color);
 }
 
-.export-button:hover {
+.canvas-export-button:hover {
   background-color: var(--cv-section-header-color-hovered);
 }

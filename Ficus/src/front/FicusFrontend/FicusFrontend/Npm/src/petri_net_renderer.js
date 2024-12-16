@@ -13,7 +13,7 @@ const netColors = petriNetColors(darkTheme);
 function setDrawPetriNet() {
   window.drawPetriNet = function (id, net, annotation) {
     cytoscape.use(dagre);
-    cytoscape(createCytoscapeOptions(id, net, annotation));
+    return cytoscape(createCytoscapeOptions(id, net, annotation));
   }
 }
 

@@ -1,23 +1,16 @@
 @using Ficus
 @inject IJSRuntime Js
 
-<div class="petri-net-container">
-  <div class="cytoscape-petri-net-canvas" id="@myCytoscapeContainerId"></div>
-</div>
+<CanvasComponent RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName" />
 
 @code 
 {
-  private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
-
-
   [Parameter] public required GrpcPetriNet PetriNet { get; init; }
   [Parameter] public required GrpcAnnotation? Annotation { get; init; }
 
 
-  protected override async Task OnAfterRenderAsync(bool firstRender)
+  private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
-    if (!firstRender) return;
-
     var annotation = Annotation?.AnnotationCase switch
     {
       GrpcAnnotation.AnnotationOneofCase.CountAnnotation => Annotation.CountAnnotation.Annotations
@@ -32,6 +25,8 @@
       _ => throw new ArgumentOutOfRangeException($"Unhandled annotation case {Annotation?.AnnotationCase}")
     };
 
-    await Js.InvokeVoidAsync("drawPetriNet", myCytoscapeContainerId.ToString(), PetriNet, annotation);
+    return await Js.InvokeAsync<IJSObjectReference>("drawPetriNet", canvasId, PetriNet, annotation);
   }
+
+  private string CreateExportFileName() => "petri_net";
 }
