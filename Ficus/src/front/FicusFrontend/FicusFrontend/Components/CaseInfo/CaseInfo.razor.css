@@ -9,12 +9,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  
+  border-radius: var(--cv-border-radius)
 }
 
 .pipeline-parts-context-values-outer-container {
   display: flex;
   flex-wrap: wrap;
-  margin-top: 20px;
 }
 
 .pipeline-parts-context-values-inner-container {
@@ -29,11 +30,14 @@
   display: flex;
   align-content: flex-start;
   height: 35px;
+  border-top-right-radius: var(--cv-border-radius);
+  border-top-left-radius: var(--cv-border-radius);
 }
 
 .pipeline-part-name-index {
+  border-top-left-radius: var(--cv-border-radius);
   width: 35px;
-  background-color: #3c3c3c;
+  background-color: var(--cv-section-header-index-background);
   display: flex;
   justify-content: center;
   align-items: center;

@@ -7,6 +7,8 @@ html, body {
     --cv-section-header-text-color: #e1e1e1;
     --cv-section-content-color: #252525;
     --cv-section-content-text-color: #b5b5b5;
+    --cv-section-header-index-background: #3c3c3c;
+    --cv-border-radius: 10px;
 
     --processes-section-title-background: #1a1c1c;
     --processes-section-process-name-background: #1f2222;
