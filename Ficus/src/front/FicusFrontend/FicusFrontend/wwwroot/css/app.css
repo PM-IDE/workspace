@@ -10,19 +10,19 @@ html, body {
     --cv-section-header-index-background: #3c3c3c;
     --cv-border-radius: 10px;
 
-    --processes-section-title-background: #1a1c1c;
-    --processes-section-process-name-background: #1f2222;
-    --processes-section-cases-background: #272b2b;
-    --processes-section-case-background: #2e3333;
-    --processes-section-case-background-hovered: #383e3e;
-    --processes-section-cases-collapsed-bakground: #3e4545;
+    --processes-section-title-background: #262929;
+    --processes-section-process-name-background: #242929;
+    --processes-section-cases-background: #2c3131;
+    --processes-section-case-background: #363d3d;
+    --processes-section-case-background-hovered: #404747;
+    --processes-section-cases-collapsed-bakground: #464e4e;
 
-    --processes-section-title-background-darker: #171919;
-    --processes-section-process-name-background-darker: #181b1b;
-    --processes-section-cases-background-darker: #1f2222;
-    --processes-section-case-background-darker: #232727;
-    --processes-section-case-background-hovered-darker: #323737;
-    --processes-section-cases-collapsed-bakground-darker: #3a4040;
+    --processes-section-title-background-darker: #1a1c1c;
+    --processes-section-process-name-background-darker: #1f2222;
+    --processes-section-cases-background-darker: #272b2b;
+    --processes-section-case-background-darker: #2e3333;
+    --processes-section-case-background-hovered-darker: #383e3e;
+    --processes-section-cases-collapsed-bakground-darker: #3e4545;
 
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer */
