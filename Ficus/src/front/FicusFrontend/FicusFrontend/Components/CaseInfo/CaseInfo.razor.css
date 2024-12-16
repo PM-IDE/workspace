@@ -23,15 +23,30 @@
   margin-right: 20px;
 }
 
-.pipeline-part-name {
+.pipeline-part-name-container {
   background-color: var(--cv-section-header-color);
   color: var(--cv-section-header-text-color);
-  padding-left: 10px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  display: flex;
+  align-content: flex-start;
+  height: 35px;
 }
 
-.pipeline-part-name:hover {
+.pipeline-part-name-index {
+  width: 35px;
+  background-color: #3c3c3c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pipeline-part-name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.pipeline-part-name-container:hover {
   background-color: var(--cv-section-header-color-hovered);
 }
 

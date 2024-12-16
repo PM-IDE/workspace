@@ -30,11 +30,16 @@
 </div>
 
 <div class="pipeline-parts-context-values-outer-container">
-  @foreach (var result in myPipelinePartsExecutionResults)
+  @foreach (var (result, index) in myPipelinePartsExecutionResults.Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
   {
     <div class="pipeline-parts-context-values-inner-container">
-      <div class="pipeline-part-name" @onclick="_ => HandleExecutionResultTitleClicked(result.Value)">
-        @result.Value.PipelinePartName
+      <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(result.Value)">
+        <div class="pipeline-part-name-index">
+          @index
+        </div>
+        <div class="pipeline-part-name">
+          @result.Value.PipelinePartName  
+        </div>
       </div>
 
       @{
