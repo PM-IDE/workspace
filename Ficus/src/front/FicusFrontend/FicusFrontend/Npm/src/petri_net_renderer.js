@@ -129,10 +129,10 @@ function createCommonNodeStyle() {
   return {
     selector: 'node',
     style: {
-      'background-opacity': '0',
       'border-width': '1px',
       'border-style': 'solid',
-      'border-color': netColors.borderLine
+      'border-color': netColors.borderLine,
+      'background-color': netColors.placeBackground,
     }
   };
 }
@@ -144,7 +144,8 @@ function createTransitionNodeStyle() {
       'shape': 'rectangle',
       'label': 'data(name)',
       'background-opacity': '1',
-      'background-color': netColors.transitionBackground
+      'background-color': netColors.transitionBackground,
+      'color': netColors.labelColor
     },
   };
 }

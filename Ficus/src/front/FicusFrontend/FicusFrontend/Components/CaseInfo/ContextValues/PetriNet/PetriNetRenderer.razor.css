@@ -1,4 +1,5 @@
 .cytoscape-petri-net-container {
-  width: 100%;
+  min-width: 1200px;
   height: 800px;
+  background-color: var(--cv-section-content-color);
 }
