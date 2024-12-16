@@ -2,11 +2,14 @@
 @using FicusFrontend.Layout.Models
 @inject IJSRuntime Js
 
-<div id="@myCytoscapeContainerId" class="cytoscape-graph-container"></div>
+<div class="graph-container">
+  <div id="@myCytoscapeContainerId" class="cytoscape-graph-container"></div>
 
-<div class="export-button" @onclick="ExportGraph">
-  Export to SVG
+  <div class="export-button" @onclick="ExportGraph">
+    Export to SVG
+  </div>
 </div>
+
 
 @code 
 {

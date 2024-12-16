@@ -1,7 +1,13 @@
-.cytoscape-graph-container {
+.graph-container {
   min-width: 1200px;
   height: 650px;
   background-color: var(--cv-section-content-color);
+  padding: 15px;
+}
+
+.cytoscape-graph-container {
+  min-width: 1170px;
+  height: 590px;
 }
 
 .export-button {
