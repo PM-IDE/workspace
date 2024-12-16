@@ -8,7 +8,10 @@ execute_pipeline(
         PrintEventLogInfo(),
         RemainEventsByRegex('(Procfiler|Business)'),
         PrintEventLogInfo(),
+        AddStartEndArtificialEvents(),
         DiscoverFuzzyGraph(),
-        ViewGraph()
+        ViewGraph(),
+        DiscoverPetriNetHeuristic(),
+        ViewPetriNet(),
     ]
 )
