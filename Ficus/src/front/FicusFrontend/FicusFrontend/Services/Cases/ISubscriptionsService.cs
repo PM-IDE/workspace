@@ -55,7 +55,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
           var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
           return (id, new PipelinePartExecutionResult
           {
-            ContextValues = v.ContextValues.ToList(),
+            ContextValues = v.ContextValues.Select(c => new ContextValueWrapper(c)).ToList(),
             PipelinePartName = v.PipelinePartInfo.Name
           });
         })
@@ -160,8 +160,8 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
     caseData.ContextValues[partId] = new PipelinePartExecutionResult
     {
-      ContextValues = delta.ContextValues.ToList(),
-      PipelinePartName = delta.PipelinePartInfo.Name
+      PipelinePartName = delta.PipelinePartInfo.Name,
+      ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList(),
     };
   }
 }

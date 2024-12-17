@@ -67,7 +67,7 @@
       <div class="@outerContainerClass">
         <div class="@innerContainerClass">
           @{
-            var contextValues = result.Value.ContextValues.Select(c => c.Value).ToList();
+            var contextValues = result.Value.ContextValues;
           }
 
           <div class="pipeline-part-context-values-margin-container">
@@ -115,7 +115,7 @@
     StateHasChanged();
   }
 
-  private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
+  private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<ContextValueWrapper> contextValues)
   {
     return contextValues switch
     {
@@ -124,25 +124,27 @@
     };
   }
 
-  private RenderFragment FindRendererFor(GrpcContextValue contextValue)
+  private RenderFragment FindRendererFor(ContextValueWrapper wrapper)
   {
+    var contextValue = wrapper.Value.Value;
+
     return contextValue.ContextValueCase switch
     {
       ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="Guid.NewGuid()"
+      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="wrapper.Id"
                                                                   Log="contextValue.ColorsLog"/>,
 
-      ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="Guid.NewGuid()"
+      ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
                                                            PetriNet="contextValue.PetriNet"/>,
 
-      ContextValueOneofCase.Graph => @<GraphRenderer @key="Guid.NewGuid()" Graph="contextValue.Graph"
+      ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id" Graph="contextValue.Graph"
                                                      ProcessCaseData="myProcessCaseData"/>,
 
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
     };
   }
 
-  private IEnumerable<RenderFragment> FindRenderersFor(string pipelinePartName, List<GrpcContextValue> contextValues)
+  private IEnumerable<RenderFragment> FindRenderersFor(string pipelinePartName, List<ContextValueWrapper> contextValues)
   {
     if (PipelinePartsGroups.GraphAnnotationParts.Contains(pipelinePartName) &&
         CreateAnnotatedGraphRenderer(pipelinePartName, contextValues) is { } graphRenderer)
@@ -159,24 +161,34 @@
     return [];
   }
 
-  private RenderFragment? CreateAnnotatedGraphRenderer(string pipelinePartName, List<GrpcContextValue> contextValues)
+  private RenderFragment? CreateAnnotatedGraphRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
   {
-    var graph = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Graph, c => c.Graph);
-    var annotation = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
+    var graphPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Graph, c => c.Graph);
+    var annotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
 
-    if (graph is null) return null;
+    if (graphPair is not var (graphId, graph)) return null;
 
-    return @<GraphRenderer @key="Guid.NewGuid()" Graph="graph" ProcessCaseData="myProcessCaseData"
-                           Annotation="annotation"/>;
+    var componentId = CreateEntityAnnotationId(graphId, annotationPair);
+
+    return @<GraphRenderer @key="componentId" Graph="graph" ProcessCaseData="myProcessCaseData"
+                           Annotation="annotationPair?.Item2"/>;
   }
 
-  private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<GrpcContextValue> contextValues)
+  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair) => annotationPair switch
   {
-    var petriNet = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.PetriNet, c => c.PetriNet);
-    var annotation = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
+    var (annotationId, _) => id.ToString() + annotationId,
+    null => id.ToString()
+  };
 
-    if (petriNet is null) return null;
+  private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
+  {
+    var petriNetPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.PetriNet, c => c.PetriNet);
+    var annotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
 
-    return @<PetriNetRenderer @key="Guid.NewGuid()" PetriNet="petriNet" Annotation="annotation"/>;
+    if (petriNetPair is not var (petriNetId, petriNet)) return null;
+
+    var componentId = CreateEntityAnnotationId(petriNetId, annotationPair);
+
+    return @<PetriNetRenderer @key="componentId" PetriNet="petriNet" Annotation="annotationPair?.Item2"/>;
   }
 }

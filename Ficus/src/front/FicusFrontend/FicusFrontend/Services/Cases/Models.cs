@@ -52,5 +52,11 @@ public class Case : FrontModelBase
 public class PipelinePartExecutionResult : FrontModelBase
 {
   public required string PipelinePartName { get; init; }
-  public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
+  public required List<ContextValueWrapper> ContextValues { get; init; }
+}
+
+public class ContextValueWrapper(GrpcContextValueWithKeyName value)
+{
+  public Guid Id { get; } = Guid.NewGuid();
+  public GrpcContextValueWithKeyName Value { get; } = value;
 }
