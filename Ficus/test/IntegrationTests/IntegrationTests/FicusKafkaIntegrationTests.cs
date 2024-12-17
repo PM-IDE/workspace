@@ -38,7 +38,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
   {
     var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequest(TestsSettings);
     var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(subscribeRequest);
-    
+
     Assert.That(subscriptionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
 
     var subscriptionId = subscriptionResult.Success.Id;
@@ -54,7 +54,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
   private void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     Assert.That(eventLog.Traces, Has.Count.EqualTo(updates.Count));
-    
+
     var lastNameLog = updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
     foreach (var (trace, grpcTrace) in eventLog.Traces.Zip(lastNameLog.Value.NamesLog.Log.Traces))
     {
@@ -90,7 +90,8 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
       variant.Metadata.Clear();
       variant.Metadata.AddRange(
       [
-        new AttributeKeyValue(new BxesStringValue("case_name"), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue("case_display_name"), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue("case_name_parts"), new BxesStringValue(CaseName)),
         new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName))
       ]);
     }
@@ -103,7 +104,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
     {
       writer.HandleEvent(@event);
     }
-    
+
     Thread.Sleep(10_000);
   }
 
@@ -123,7 +124,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
     {
       var consumeResult = consumer.Consume();
       if (consumeResult.IsPartitionEOF) break;
-      
+
       result.Add(consumeResult.Message.Value);
       consumer.Commit();
     }
