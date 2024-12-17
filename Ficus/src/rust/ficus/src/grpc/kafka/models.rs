@@ -1,6 +1,6 @@
 use crate::event_log::bxes::bxes_to_xes_converter::BxesToXesReadError;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::grpc::events::events_handler::PipelineEventsHandler;
+use crate::grpc::events::events_handler::{CaseName, PipelineEventsHandler};
 use crate::grpc::kafka::kafka_service::KafkaSubscription;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::pipeline_parts::PipelineParts;
@@ -9,7 +9,9 @@ use std::fmt::Display;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
-pub(super) const KAFKA_CASE_NAME: &'static str = "case_name";
+pub(super) const KAFKA_CASE_DISPLAY_NAME: &'static str = "case_display_name";
+pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
+pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
 
 #[derive(Debug)]
@@ -78,7 +80,7 @@ impl KafkaConsumerCreationDto {
 #[derive(Clone)]
 pub(super) struct LogUpdateResult {
     pub process_name: String,
-    pub case_name: String,
+    pub case_name: CaseName,
     pub new_log: XesEventLogImpl,
     pub unstructured_metadata: Vec<(String, String)>,
 }

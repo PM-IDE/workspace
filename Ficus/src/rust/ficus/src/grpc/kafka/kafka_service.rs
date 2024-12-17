@@ -5,12 +5,12 @@ use crate::ficus_proto::{
     grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
     GrpcPipeline, GrpcPipelineExecutionRequest, GrpcSubscribeToKafkaRequest,
 };
-use crate::grpc::events::events_handler::PipelineEvent;
+use crate::grpc::events::events_handler::{CaseName, PipelineEvent};
 use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
 use crate::grpc::kafka::models::{
-    KafkaConsumerCreationDto, LogUpdateResult, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_NAME,
-    KAFKA_PROCESS_NAME,
+    KafkaConsumerCreationDto, LogUpdateResult, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME,
+    KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
 };
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
@@ -349,14 +349,21 @@ impl KafkaService {
         };
 
         let process_name = Self::string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
-        let case_name = Self::string_value_or_err(metadata, KAFKA_CASE_NAME)?;
+        let case_display_name = Self::string_value_or_err(metadata, KAFKA_CASE_DISPLAY_NAME)?;
+        let case_name_parts_joined = Self::string_value_or_err(metadata, KAFKA_CASE_NAME_PARTS)?;
+        let case_name_parts: Vec<String> = case_name_parts_joined
+            .split(KAFKA_CASE_NAME_PARTS_SEPARATOR)
+            .map(|s| s.to_string())
+            .collect();
 
-        if !names_to_logs.contains_key(case_name.as_str()) {
+        if !names_to_logs.contains_key(case_name_parts_joined.as_str()) {
             let new_log = XesEventLogImpl::empty();
-            names_to_logs.insert(case_name.to_owned(), new_log);
+            names_to_logs.insert(case_name_parts_joined.to_owned(), new_log);
         }
 
-        let existing_log = names_to_logs.get_mut(case_name.as_str()).expect("Log should be present");
+        let existing_log = names_to_logs
+            .get_mut(case_name_parts_joined.as_str())
+            .expect("Log should be present");
 
         let xes_trace = match read_bxes_events(trace.events()) {
             Ok(xes_trace) => xes_trace,
@@ -368,7 +375,10 @@ impl KafkaService {
 
         let result = LogUpdateResult {
             process_name,
-            case_name: case_name.to_owned(),
+            case_name: CaseName {
+                display_name: case_display_name,
+                name_parts: case_name_parts,
+            },
             new_log: existing_log.clone(),
             unstructured_metadata: Self::metadata_to_string_string_pairs(metadata),
         };
@@ -395,7 +405,7 @@ impl KafkaService {
         metadata
             .iter()
             .map(|pair| {
-                if pair.0 == KAFKA_CASE_NAME || pair.0 == KAFKA_PROCESS_NAME {
+                if pair.0 == KAFKA_CASE_NAME_PARTS || pair.0 == KAFKA_CASE_DISPLAY_NAME || pair.0 == KAFKA_PROCESS_NAME {
                     None
                 } else {
                     if let BxesValue::String(value) = pair.1.as_ref().as_ref() {

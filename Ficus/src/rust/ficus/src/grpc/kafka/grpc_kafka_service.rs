@@ -8,7 +8,7 @@ use crate::ficus_proto::{
 };
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::events::delegating_events_handler::DelegatingEventsHandler;
-use crate::grpc::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+use crate::grpc::events::events_handler::{CaseName, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::kafka::kafka_service::KafkaService;
 use crate::grpc::kafka::models::PipelineExecutionDto;
@@ -205,7 +205,13 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
             let execution_result = context.execute_grpc_pipeline(move |context| {
                 context.put_concrete(PROCESS_NAME.key(), process_name);
-                context.put_concrete(CASE_NAME.key(), case_name);
+                context.put_concrete(
+                    CASE_NAME.key(),
+                    CaseName {
+                        display_name: case_name.to_string(),
+                        name_parts: vec![case_name.to_string()],
+                    },
+                );
             });
 
             match execution_result {

@@ -21,17 +21,37 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
     public required string PipelinePartName { get; init; }
     public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
   }
-  
+
   private class CaseData
   {
     public required Dictionary<Guid, PipelinePartResult> PipelinePartsResults { get; init; }
     public required List<KeyValuePair<string, string>> Metadata { get; init; }
-    
+
     public required string PipelineName { get; init; }
     public required string SubscriptionName { get; init; }
   }
 
-  private record CaseKey(Guid SubscriptionId, Guid PipelineId, string ProcessName, string CaseName);
+  private record CaseName(string DisplayName, List<string> NameParts)
+  {
+    public override int GetHashCode()
+    {
+      if (NameParts.Count == 0) return 0;
+
+      var hashCode = NameParts.First().GetHashCode();
+      foreach (var part in NameParts[1..])
+      {
+        hashCode = HashCode.Combine(hashCode, part.GetHashCode());
+      }
+
+      return hashCode;
+    }
+
+    public virtual bool Equals(CaseName? other) =>
+      other is { } &&
+      NameParts.Count == other.NameParts.Count &&
+      NameParts.Zip(other.NameParts).All((pair) => pair.First.Equals(pair.Second));
+  }
+  private record CaseKey(Guid SubscriptionId, Guid PipelineId, string ProcessName, CaseName CaseName);
 
 
   private readonly SemaphoreSlim myLock = new(1);
@@ -63,7 +83,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       myChannels[sessionGuid] = channel;
       return Task.FromResult((sessionGuid, channel, state));
     });
-    
+
     logger.LogInformation("Created an initial state");
 
     try
@@ -81,7 +101,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
         var processMetadata = delta.ProcessCaseMetadata;
         logger.LogInformation("Received delta: {ProcessName}, {CaseName}", processMetadata.CaseName, processMetadata.ProcessName);
-        
+
         yield return new GrpcPipelinePartUpdate
         {
           Delta = delta
@@ -110,7 +130,10 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         Guid.Parse(update.ProcessCaseMetadata.SubscriptionId.Guid),
         Guid.Parse(update.ProcessCaseMetadata.PipelineId.Guid),
         update.ProcessCaseMetadata.ProcessName,
-        update.ProcessCaseMetadata.CaseName
+        new CaseName(
+          update.ProcessCaseMetadata.CaseName.DisplayName,
+          update.ProcessCaseMetadata.CaseName.FullNameParts.ToList()
+        )
       );
 
       if (!myCases.TryGetValue(caseKey, out var caseData))
@@ -165,7 +188,11 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         ProcessCaseMetadata = new GrpcProcessCaseMetadata
         {
           ProcessName = caseKey.ProcessName,
-          CaseName = caseKey.CaseName,
+          CaseName = new GrpcCaseName
+          {
+            DisplayName = caseKey.CaseName.DisplayName,
+            FullNameParts = { caseKey.CaseName.NameParts }
+          },
           PipelineId = caseKey.PipelineId.ToGrpcGuid(),
           SubscriptionId = caseKey.SubscriptionId.ToGrpcGuid(),
           PipelineName = @case.PipelineName,

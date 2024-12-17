@@ -114,7 +114,7 @@
   {
     if (ReferenceEquals(caseModel, mySelectedCase)) return;
 
-    var collectionItemInfo = myProcesses[caseModel.Name];
+    var collectionItemInfo = myProcesses[caseModel.FullName];
     collectionItemInfo.InnerItems[caseKey].InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
 
     StateHasChanged();
@@ -135,11 +135,11 @@
   {
     var innerItem = new InnerCollectionItemInfo<Case, string>
     {
-      Id = @case.Name,
+      Id = @case.FullName,
       InnerItem = @case,
       ListItemInfo = new ListItemInfo
       {
-        Name = @case.Name,
+        Name = @case.DisplayName,
         UpdatedAt = @case.CreatedAt,
       }
     };

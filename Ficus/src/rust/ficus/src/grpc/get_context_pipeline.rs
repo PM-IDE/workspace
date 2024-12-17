@@ -2,7 +2,7 @@ use std::any::Any;
 use std::sync::Arc;
 use uuid::Uuid;
 
-use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
+use super::events::events_handler::{CaseName, GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
 use crate::pipelines::context::PipelineInfrastructure;
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{
@@ -70,7 +70,7 @@ impl GetContextValuePipelinePart {
     }
 
     fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
-        let case_name = Self::value_or_default(context, &CASE_NAME, || "UNDEFINED_CASE".to_string());
+        let case_name = Self::value_or_default(context, &CASE_NAME, || CaseName::empty());
         let process_name = Self::value_or_default(context, &PROCESS_NAME, || "UNDEFINED_PROCESS".to_string());
 
         let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID);

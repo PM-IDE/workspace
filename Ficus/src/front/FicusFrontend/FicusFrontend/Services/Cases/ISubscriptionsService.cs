@@ -66,12 +66,13 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
       var caseModel = new Case
       {
         ParentProcess = processData,
-        Name = @case.ProcessCaseMetadata.CaseName,
+        DisplayName = @case.ProcessCaseMetadata.CaseName.DisplayName,
+        FullName = CreateFullCaseName(@case.ProcessCaseMetadata.CaseName),
         CreatedAt = DateTime.Now,
         ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>(initialState)
       };
 
-      processData.ProcessCases[caseModel.Name] = caseModel;
+      processData.ProcessCases[caseModel.FullName] = caseModel;
     }
   }
 
@@ -133,24 +134,28 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     return pipeline;
   }
 
-  private Case GetOrCreateCaseData(ProcessData processData, string caseName)
+  private Case GetOrCreateCaseData(ProcessData processData, GrpcCaseName caseName)
   {
-    if (processData.ProcessCases.TryGetValue(caseName, out var @case)) return @case;
+    var fullCaseName = CreateFullCaseName(caseName);
+    if (processData.ProcessCases.TryGetValue(fullCaseName, out var @case)) return @case;
 
     @case = new Case
     {
       ParentProcess = processData,
-      Name = caseName,
+      DisplayName = caseName.DisplayName,
+      FullName = fullCaseName,
       CreatedAt = DateTime.Now,
       ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>()
     };
 
-    processData.ProcessCases[caseName] = @case;
+    processData.ProcessCases[fullCaseName] = @case;
 
     FirePipelineSubEntityUpdatedEvent(@case.ParentProcess.ParentPipeline);
 
     return @case;
   }
+
+  private static string CreateFullCaseName(GrpcCaseName caseName) => string.Join(string.Empty, caseName.FullNameParts);
 
   private void HandleCaseUpdate(GrpcKafkaUpdate delta)
   {

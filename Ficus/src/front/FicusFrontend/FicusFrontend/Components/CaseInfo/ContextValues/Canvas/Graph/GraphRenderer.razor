@@ -14,5 +14,5 @@
   private async Task<IJSObjectReference> RenderCanvas(string canvasId) => 
     await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation);
 
-  private string CreateExportFileName() => ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.Name + "_graph";
+  private string CreateExportFileName() => ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
 }

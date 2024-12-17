@@ -32,7 +32,8 @@ public class ProcessData : FrontModelBase
 public class Case : FrontModelBase
 {
   public required ProcessData ParentProcess { get; init; }
-  public required string Name { get; init; }
+  public required string FullName { get; init; }
+  public required string DisplayName { get; init; }
   public required DateTime CreatedAt { get; init; }
   public required IViewableMap<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
 
@@ -40,12 +41,12 @@ public class Case : FrontModelBase
 
   public override int GetHashCode()
   {
-    return Name.GetHashCode();
+    return FullName.GetHashCode();
   }
 
   public override bool Equals(object? obj)
   {
-    return obj is Case { Name: var name } && name == Name;
+    return obj is Case { FullName: var fullName } && fullName == FullName;
   }
 }
 

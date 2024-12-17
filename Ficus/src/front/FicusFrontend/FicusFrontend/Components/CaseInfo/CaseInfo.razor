@@ -18,7 +18,7 @@
 @{
   var title = myProcessCaseData switch
   {
-    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.Name,
+    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.FullName,
     _ => "The case was not yet selected."
   };
 }
@@ -103,7 +103,7 @@
 
     myProcessCaseData = ProcessCaseData;
 
-    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.Name].ContextValues;
+    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].ContextValues;
     values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
   }
 

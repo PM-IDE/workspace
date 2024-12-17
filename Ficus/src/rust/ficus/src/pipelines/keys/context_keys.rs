@@ -6,6 +6,7 @@ use crate::features::clustering::activities::activities_params::ActivityRepresen
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
+use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
 use crate::pipelines::patterns_parts::PatternsKindDto;
@@ -186,7 +187,7 @@ lazy_static!(
      pub static ref LOG_SERIALIZATION_FORMAT_KEY: DefaultContextKey<LogSerializationFormat> = DefaultContextKey::new(LOG_SERIALIZATION_FORMAT);
      pub static ref BYTES_KEY: DefaultContextKey<Vec<u8>> = DefaultContextKey::new(BYTES);
      pub static ref PATH_KEY: DefaultContextKey<String> = DefaultContextKey::new(PATH);
-     pub static ref CASE_NAME: DefaultContextKey<String> = DefaultContextKey::new(CASE_NAME_STR);
+     pub static ref CASE_NAME: DefaultContextKey<CaseName> = DefaultContextKey::new(CASE_NAME_STR);
      pub static ref PROCESS_NAME: DefaultContextKey<String> = DefaultContextKey::new(PROCESS_NAME_STR);
      pub static ref PIPELINE_NAME: DefaultContextKey<String> = DefaultContextKey::new(PIPELINE_NAME_STR);
      pub static ref PIPELINE_ID: DefaultContextKey<Uuid> = DefaultContextKey::new(PIPELINE_ID_STR);

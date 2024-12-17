@@ -15,10 +15,16 @@ namespace ProcfilerOnline.Integrations.Kafka.Bxes;
 
 public interface IBxesMethodsKafkaProducer : IKafkaProducer<Guid, BxesKafkaTrace>;
 
+public class BxesKafkaCaseName
+{
+  public required string DisplayName { get; init; }
+  public required List<string> NameParts { get; init; }
+}
+
 public class BxesKafkaTrace
 {
   public required string ProcessName { get; init; }
-  public required string CaseName { get; init; }
+  public required BxesKafkaCaseName CaseName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
 
   public List<AttributeKeyValue> Metadata { get; } = [];
@@ -27,6 +33,8 @@ public class BxesKafkaTrace
 [AppComponent]
 public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings, IProcfilerLogger logger) : IBxesMethodsKafkaProducer
 {
+  private const char CaseNamePartsSeparator = ';';
+
   private readonly IBxesStreamWriter myWriter = new BxesKafkaStreamWriter<BxesEvent>(
     BxesUtil.CreateSystemMetadata(),
     settings.Value.KafkaSettings.TopicName,
@@ -40,7 +48,8 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
   {
     List<AttributeKeyValue> metadata =
     [
-      new(new BxesStringValue("case_name"), new BxesStringValue(message.CaseName)),
+      new(new BxesStringValue("case_display_name"), new BxesStringValue(message.CaseName.DisplayName)),
+      new(new BxesStringValue("case_name_parts"), new BxesStringValue(string.Join(CaseNamePartsSeparator, message.CaseName.NameParts))),
       new(new BxesStringValue("process_name"), new BxesStringValue(message.ProcessName))
     ];
 
