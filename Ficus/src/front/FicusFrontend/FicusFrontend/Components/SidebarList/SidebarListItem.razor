@@ -3,8 +3,16 @@
 
 <div class="case-list-item">
   <Tooltip Title="@ListItemInfo.Name" Placement="TooltipPlacement.Right">
-    <div class="case-list-item-name">
-      @ListItemInfo.Name
+    <div class="case-list-item-tooltip-container">
+      @if (Icon is { })
+      {
+        <div class="case-list-item-name-icon">
+          <img src="@Icon" alt="List item icon"/>
+        </div>
+      }
+      <div class="case-list-item-name">
+        @ListItemInfo.Name
+      </div>
     </div>
   </Tooltip>
 
@@ -25,6 +33,7 @@
     _ => throw new ArgumentOutOfRangeException()
   };
 
+  [Parameter] public string? Icon { get; set; }
   [Parameter] public required ListItemInfo ListItemInfo { get; set; }
   [Parameter] public required ItemProcessingState ProcessingState { get; set; }
 }

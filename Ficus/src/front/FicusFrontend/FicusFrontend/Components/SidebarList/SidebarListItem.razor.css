@@ -6,17 +6,23 @@
   border-bottom-width: 1px;
   border-bottom-color: white;
   position: relative;
+  
+  padding-top: 5px;
 }
 
 .case-list-item-name {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-
-  margin-left: 10px;
-  padding-top: 5px;
+  
   color: white;
   font-size: 15px;
+}
+
+.case-list-item-name-icon {
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
 }
 
 .case-list-item-creation-date {
@@ -44,6 +50,13 @@
 
 .case-seen-notification {
   visibility: hidden;
+}
+
+.case-list-item-tooltip-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 10px;
 }
 
 @scope (.dark-sidebar-list) {

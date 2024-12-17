@@ -48,6 +48,7 @@
                   {
                     <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
                       <SidebarListItem ListItemInfo="innerItem.ListItemInfo"
+                                       Icon="@ListItemIcon"
                                        ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
                     </div>
                   }
@@ -74,6 +75,7 @@
 
   private bool myIsCollapsed;
 
+  [Parameter] public string? ListItemIcon { get; set; }
   [Parameter] public required Style ComponentStyle { get; set; }
   [Parameter] public required string Title { get; set; }
   [Parameter] public required string ItemType { get; set; }
