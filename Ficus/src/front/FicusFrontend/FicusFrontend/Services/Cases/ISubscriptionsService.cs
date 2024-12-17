@@ -5,7 +5,7 @@ using JetBrains.Collections.Viewable;
 
 namespace FicusFrontend.Services.Cases;
 
-public interface IProcessesService
+public interface ISubscriptionsService
 {
   IViewableMap<Guid, Subscription> Subscriptions { get; }
   ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; }
@@ -13,8 +13,8 @@ public interface IProcessesService
   void StartUpdatesStream(CancellationToken token);
 }
 
-public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
-  : IProcessesService
+public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
+  : ISubscriptionsService
 {
   private readonly ViewableMap<Guid, Subscription> mySubscriptions = [];
 
@@ -60,7 +60,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
           });
         })
         .ToDictionary();
-      
+
       var processData = GetOrCreateProcessData(@case.ProcessCaseMetadata);
 
       var caseModel = new Case
@@ -154,7 +154,7 @@ public class ProcessesService(GrpcPipelinePartsContextValuesService.GrpcPipeline
 
   private void HandleCaseUpdate(GrpcKafkaUpdate delta)
   {
-    var processData = GetOrCreateProcessData(delta.ProcessCaseMetadata); 
+    var processData = GetOrCreateProcessData(delta.ProcessCaseMetadata);
     var caseData = GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName);
 
     var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);

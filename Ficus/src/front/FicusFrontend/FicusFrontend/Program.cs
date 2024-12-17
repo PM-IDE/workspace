@@ -12,7 +12,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<IProcessesService, ProcessesService>();
+builder.Services.AddSingleton<ISubscriptionsService, SubscriptionsService>();
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection(nameof(ApplicationSettings)));
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddRadzenComponents();
@@ -33,7 +33,7 @@ using var source = new CancellationTokenSource();
 
 try
 {
-  app.Services.GetRequiredService<IProcessesService>().StartUpdatesStream(source.Token);
+  app.Services.GetRequiredService<ISubscriptionsService>().StartUpdatesStream(source.Token);
   await app.RunAsync();
 }
 finally

@@ -3,7 +3,7 @@
 @using FicusFrontend.Utils
 @using JetBrains.Collections.Viewable
 @using JetBrains.Lifetimes
-@inject IProcessesService ProcessService;
+@inject ISubscriptionsService ISubscriptionService;
 
 
 <SidebarList TItem="Subscription"
@@ -31,8 +31,8 @@
   {
     base.OnInitialized();
 
-    ProcessService.Subscriptions.AdviseAddRemove(Lifetime.Eternal, HandleSubscriptionAddRemove);
-    ProcessService.AnyPipelineSubEntityUpdated.Advise(Lifetime.Eternal, HandleAnyPipelineSubEntityUpdated);
+    ISubscriptionService.Subscriptions.AdviseAddRemove(Lifetime.Eternal, HandleSubscriptionAddRemove);
+    ISubscriptionService.AnyPipelineSubEntityUpdated.Advise(Lifetime.Eternal, HandleAnyPipelineSubEntityUpdated);
   }
 
   private void HandleSubscriptionAddRemove(AddRemove addRemove, Guid id, Subscription? subscription)
