@@ -45,7 +45,7 @@
     <div class="pipeline-parts-context-values-inner-container">
       <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(result.Value)">
         <div class="pipeline-part-name-index">
-          @index
+          @(index + 1)
         </div>
         <div class="pipeline-part-name-icon">
           <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
