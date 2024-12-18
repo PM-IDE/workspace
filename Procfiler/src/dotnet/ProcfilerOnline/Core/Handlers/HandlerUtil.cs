@@ -20,7 +20,7 @@ public static class HandlerUtil
   public static BxesKafkaCaseName ToBxesKafkaCaseName(this ExtendedMethodInfo methodInfo) => new()
   {
     DisplayName = methodInfo.Name,
-    NameParts = [methodInfo.Namespace, methodInfo.Name, methodInfo.Signature]
+    NameParts = [..methodInfo.Namespace.Split('.'), methodInfo.Name, methodInfo.Signature]
   };
 }
 
