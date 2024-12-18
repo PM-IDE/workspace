@@ -92,12 +92,4 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
       sb.Append(gold);
     }
   }
-
-  protected override void ExecuteBeforeContainerCreation()
-  {
-    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic");
-    Environment.SetEnvironmentVariable("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
-    Environment.SetEnvironmentVariable("ProduceEventsToKafka", "true");
-    Environment.SetEnvironmentVariable("ProduceBxesKafkaEvents", "true");
-  }
 }
