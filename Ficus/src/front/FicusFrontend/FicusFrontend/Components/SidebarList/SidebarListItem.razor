@@ -21,24 +21,8 @@
   </div>
 
   <div class="@CaseNotificationClass"></div>
-
-  <div class="case-list-item-name-hierarchy" @onclick="HandleHierarchyClick">
-    @if (myNamesHierarchyExpanded)
-    {
-      @foreach (var (namePart, index) in ListItemInfo.NameParts.Select((part, i) => (part, i)))
-      {
-        <div class="case-list-item-name-hierarchy-item">
-          [@namePart]@(index < ListItemInfo.NameParts.Count - 1 ? "-" : string.Empty)
-        </div>
-      }
-    }
-    else
-    {
-      <div class="case-list-item-show-name-hierarchy">
-        Show names hierarchy
-      </div>
-    }
-  </div>
+  
+  <CaseNameHierarchy NameParts="ListItemInfo.NameParts" />
 </div>
 
 @code
@@ -51,16 +35,7 @@
     _ => throw new ArgumentOutOfRangeException()
   };
 
-  private bool myNamesHierarchyExpanded;
-  
   [Parameter] public string? Icon { get; set; }
   [Parameter] public required ListItemInfo ListItemInfo { get; set; }
   [Parameter] public required ItemProcessingState ProcessingState { get; set; }
-
-
-  private void HandleHierarchyClick()
-  {
-    myNamesHierarchyExpanded = !myNamesHierarchyExpanded;
-    StateHasChanged();
-  }
 }

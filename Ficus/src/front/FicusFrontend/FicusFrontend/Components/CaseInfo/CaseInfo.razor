@@ -18,7 +18,7 @@
 @{
   var title = myProcessCaseData switch
   {
-    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.FullName,
+    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.DisplayName,
     _ => "The case was not yet selected."
   };
 }
@@ -36,6 +36,12 @@
   </div>
   <div class="case-info-header centered-text">
     @title
+  </div>
+  <div class="case-info-header-hierarchy-container">
+    @if (myProcessCaseData is { Case.NameParts: var nameParts })
+    {
+      <CaseNameHierarchy NameParts="nameParts" FontSize="14" Expanded="true" />
+    }
   </div>
 </div>
 
