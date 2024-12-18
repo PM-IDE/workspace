@@ -21,12 +21,15 @@
 }
 
 .case-list-item-name-hierarchy {
-  
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: -5px;
 }
 
 .case-list-item-name-hierarchy-item {
   font-size: 12px;
   color: #878787;
+  height: 18px;
 }
 
 .case-list-item-show-name-hierarchy {

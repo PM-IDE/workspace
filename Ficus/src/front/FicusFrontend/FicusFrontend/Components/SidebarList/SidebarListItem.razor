@@ -25,10 +25,10 @@
   <div class="case-list-item-name-hierarchy" @onclick="HandleHierarchyClick">
     @if (myNamesHierarchyExpanded)
     {
-      @foreach (var namePart in ListItemInfo.NameParts)
+      @foreach (var (namePart, index) in ListItemInfo.NameParts.Select((part, i) => (part, i)))
       {
         <div class="case-list-item-name-hierarchy-item">
-          @namePart
+          [@namePart]@(index < ListItemInfo.NameParts.Count - 1 ? "-" : string.Empty)
         </div>
       }
     }
