@@ -32,6 +32,7 @@ public class ProcessData : FrontModelBase
 public class Case : FrontModelBase
 {
   public required ProcessData ParentProcess { get; init; }
+  public required List<string> NameParts { get; init; }
   public required string FullName { get; init; }
   public required string DisplayName { get; init; }
   public required DateTime CreatedAt { get; init; }

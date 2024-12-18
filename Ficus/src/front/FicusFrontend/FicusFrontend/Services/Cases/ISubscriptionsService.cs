@@ -65,6 +65,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
 
       var caseModel = new Case
       {
+        NameParts = @case.ProcessCaseMetadata.CaseName.FullNameParts.ToList(),
         ParentProcess = processData,
         DisplayName = @case.ProcessCaseMetadata.CaseName.DisplayName,
         FullName = CreateFullCaseName(@case.ProcessCaseMetadata.CaseName),
@@ -143,6 +144,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     {
       ParentProcess = processData,
       DisplayName = caseName.DisplayName,
+      NameParts = caseName.FullNameParts.ToList(),
       FullName = fullCaseName,
       CreatedAt = DateTime.Now,
       ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>()

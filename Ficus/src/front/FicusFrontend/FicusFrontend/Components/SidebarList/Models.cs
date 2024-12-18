@@ -21,6 +21,7 @@ public class ListItemInfo
 {
   public required DateTime UpdatedAt { get; init; }
   public required string Name { get; init; }
+  public required List<string> NameParts { get; init; }
 }
 
 public enum ItemProcessingState
