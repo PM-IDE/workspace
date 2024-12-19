@@ -7,16 +7,17 @@ module SerializeUndefinedThreadEvents =
     { Base: ConfigBase }
 
     interface ICommandConfig with
-      member this.CreateArguments() =
-        [ "undefined-events-to-xes" ] |> this.Base.AddArguments
+      member this.CreateArguments() = [ "undefined-events-to-xes" ] |> this.Base.AddArguments
+      member this.GetAppName() = this.Base.GetAppName()
+      member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
 
 
   let private createConfig csprojPath outputPath : ICommandConfig =
-    { Base = createDefaultConfigBase csprojPath outputPath }
+    { Base = createBaseCsprojConfig csprojPath outputPath }
 
   let launchProcfilerCustomConfig csprojPath outputPath createCustomConfig =
     ensureEmptyDirectory outputPath |> ignore
-    launchProcfiler csprojPath outputPath createCustomConfig
+    launchProcfiler (createCustomConfig csprojPath outputPath)
 
   let launchProcfiler csprojPath outputPath =
     launchProcfilerCustomConfig csprojPath outputPath createConfig

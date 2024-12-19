@@ -2,7 +2,6 @@
 
 open System.IO
 open Microsoft.FSharp.Core
-open Microsoft.VisualBasic.CompilerServices
 open Scripts.Core.ProcfilerScriptsUtils
 
 module SplitByMethods =
@@ -34,36 +33,38 @@ module SplitByMethods =
             $" --merge-undefined-events {this.MergeUndefinedThreadEvents}"
             $" --cpp-profiler-mode {if this.OnlineSerialization then onlineMode else offlineMode}"
             $" --use-during-runtime-filtering {this.DuringRuntimeFiltering}" ]
+        
+      member this.GetAppName() = this.Base.GetAppName()
+      member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
 
 
   let private createConfigInternal
-    csprojPath
-    outputPath
+    baseConfig
     doInline
     merge
     onlineSerialization
     runtimeFiltering
     targetMethodsRegex
     =
-    { Base = createDefaultConfigBase csprojPath outputPath
+    { Base = baseConfig
       Inline = doInline
       TargetMethodsRegex = targetMethodsRegex
-      FilterPattern = applicationNameFromCsproj csprojPath
+      FilterPattern = baseConfig.GetAppName()
       MergeUndefinedThreadEvents = merge
       OnlineSerialization = onlineSerialization
       DuringRuntimeFiltering = runtimeFiltering }
 
-  let private createInlineMerge solutionPath outputPath : ICommandConfig =
-    createConfigInternal solutionPath outputPath InlineMode.EventsAndMethodsEventsWithFilter true false false ".*"
+  let private createInlineMerge baseConfig : ICommandConfig =
+    createConfigInternal baseConfig InlineMode.EventsAndMethodsEventsWithFilter true false false ".*"
 
-  let private createNoInlineMerge solutionPath outputPath : ICommandConfig =
-    createConfigInternal solutionPath outputPath InlineMode.NotInline true false true ".*"
+  let private createNoInlineMerge baseConfig : ICommandConfig =
+    createConfigInternal baseConfig InlineMode.NotInline true false true ".*"
 
-  let private createInlineNoMerge solutionPath outputPath : ICommandConfig =
-    createConfigInternal solutionPath outputPath InlineMode.EventsAndMethodsEventsWithFilter false true false ".*"
+  let private createInlineNoMerge baseConfig : ICommandConfig =
+    createConfigInternal baseConfig InlineMode.EventsAndMethodsEventsWithFilter false true false ".*"
 
-  let private createNoInlineNoMerge solutionPath outputPath : ICommandConfig =
-    createConfigInternal solutionPath outputPath InlineMode.NotInline false true true ".*"
+  let private createNoInlineNoMerge baseConfig : ICommandConfig =
+    createConfigInternal baseConfig InlineMode.NotInline false true true ".*"
 
   let private allConfigs =
     [ ("inline_merge", createInlineMerge)
@@ -71,22 +72,20 @@ module SplitByMethods =
       ("no_inline_no_merge", createNoInlineNoMerge)
       ("inline_no_merge", createInlineNoMerge) ]
 
-  let launchProcfiler csprojPath outputPath configFunc =
-    ensureEmptyDirectory outputPath |> ignore
-    launchProcfiler csprojPath outputPath configFunc
-
   let launchProcfilerOnFolderOfSolutions solutionsFolder outputPath =
     launchProcfilerOnFolderOfSolutions solutionsFolder outputPath createInlineMerge false
 
   let launchProcfilerOnSolutionsFolderInAllConfigs solutionsFolder outputPath =
-    let pathsToDlls = getAllCsprojFiles solutionsFolder
+    let pathsToCsprojes = getAllCsprojFiles solutionsFolder
 
     allConfigs
-    |> List.iter (fun configInfo ->
-      match configInfo with
-      | configName, configFunc ->
-        let outputPathForConfig = Path.Combine(outputPath, configName)
-        ensureEmptyDirectory outputPathForConfig |> ignore
+    |> List.iter (fun (configName, configFunc) ->
+                    let outputPathForConfig = Path.Combine(outputPath, configName)
+                    ensureEmptyDirectory outputPathForConfig |> ignore
 
-        pathsToDlls
-        |> List.iter (fun solution -> launchProcfiler solution outputPathForConfig configFunc))
+                    pathsToCsprojes 
+                    |> List.iter (fun csprojPath ->
+                                    let baseConfig = createBaseCsprojConfig csprojPath outputPathForConfig
+                                    let config = configFunc baseConfig
+                                    ensureEmptyDirectory outputPath |> ignore
+                                    launchProcfiler config))
