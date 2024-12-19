@@ -10,6 +10,7 @@ module ProcfilerScriptsUtils =
   let net7 = "net7.0"
   let net6 = "net6.0"
   let net8 = "net8.0"
+  let net9 = "net9.0"
 
   type CsprojRequiredArguments =
     { CsprojPath: string }
@@ -96,9 +97,12 @@ module ProcfilerScriptsUtils =
     let startInfo = ProcessStartInfo(fileName, args)
     startInfo.WorkingDirectory <- workingDirectory
     new Process(StartInfo = startInfo)
+  
+  let getDotnetSourcePath solutionDir = Path.Combine(solutionDir, "Procfiler", "src", "dotnet")
 
   let buildProjectFromSolution solutionDirectory projectName =
-    let projectPath = $"./{projectName}/{projectName}.csproj"
+    let dotnetSourcePath = getDotnetSourcePath solutionDirectory
+    let projectPath = Path.Combine(dotnetSourcePath, projectName, $"{projectName}.csproj")
     let pRelease = "/p:Configuration=\"Release\""
 
     let pSolutionDir =
@@ -113,33 +117,32 @@ module ProcfilerScriptsUtils =
       buildProcess.WaitForExit()
 
       match buildProcess.ExitCode with
-      | 0 -> printfn $"Successfully built {solutionDirectory}/{projectName}"
-      | _ -> printfn $"Error happened when building solution {solutionDirectory}/{projectName}:"
+      | 0 -> printfn $"Successfully built {dotnetSourcePath}/{projectName}"
+      | _ -> printfn $"Error happened when building solution {dotnetSourcePath}/{projectName}:"
 
 
   let rec private findProperParentDirectory (currentDirectory: string) =
     let name = Path.GetFileName currentDirectory
 
     match name with
-    | "src" -> currentDirectory
+    | "workspace" -> currentDirectory
     | _ -> findProperParentDirectory (currentDirectory |> Directory.GetParent).FullName
 
   let buildProcfiler =
     let parentDirectory = (Directory.GetCurrentDirectory() |> Directory.GetParent).FullName
 
-    let dir = findProperParentDirectory parentDirectory
-    let dotnetSourcePath = Path.Combine(dir, "dotnet")
-
-    let framework = net8
+    let solutionDir = findProperParentDirectory parentDirectory
+    let framework = net9
 
     printfn "Started building ProcfilerBuildTasks"
-    buildProjectFromSolution dotnetSourcePath "ProcfilerBuildTasks"
+    buildProjectFromSolution solutionDir "ProcfilerBuildTasks"
 
     printfn "Started building whole Procfiler solution"
-    buildProjectFromSolution dotnetSourcePath "Procfiler"
+    buildProjectFromSolution solutionDir "Procfiler"
 
-    Path.Combine(dotnetSourcePath, "Procfiler", "bin", "Release", framework, "Procfiler.dll")
+    Path.Combine(getDotnetSourcePath solutionDir, "Procfiler", "bin", "Release", framework, "Procfiler.dll")
 
+  
   let getAllCsprojFiles solutionsDirectory =
     Directory.GetDirectories(solutionsDirectory)
     |> List.ofArray
