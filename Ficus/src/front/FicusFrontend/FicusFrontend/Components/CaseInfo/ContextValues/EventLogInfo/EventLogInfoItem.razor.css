@@ -1,0 +1,22 @@
+﻿.event-log-info-item-container {
+  height: 100%;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.event-log-info-item-title {
+  text-align: center;
+  font-size: 12px;
+  width: 100%;
+  margin-bottom: -10px;
+}
+
+.event-log-info-item-description {
+  width: 100px;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: center;
+}

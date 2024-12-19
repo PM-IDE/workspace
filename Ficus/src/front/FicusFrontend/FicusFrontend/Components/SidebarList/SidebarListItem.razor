@@ -1,0 +1,41 @@
+﻿@using BlazorBootstrap
+@inherits ComponentBase
+
+<div class="case-list-item">
+  <Tooltip Title="@ListItemInfo.Name" Placement="TooltipPlacement.Right">
+    <div class="case-list-item-tooltip-container">
+      @if (Icon is { })
+      {
+        <div class="case-list-item-name-icon">
+          <img src="@Icon" alt="List item icon"/>
+        </div>
+      }
+      <div class="case-list-item-name">
+        @ListItemInfo.Name
+      </div>
+    </div>
+  </Tooltip>
+
+  <div class="case-list-item-creation-date">
+    @ListItemInfo.UpdatedAt.ToString("g")
+  </div>
+
+  <div class="@CaseNotificationClass"></div>
+  
+  <CaseNameHierarchy NameParts="ListItemInfo.NameParts" />
+</div>
+
+@code
+{
+  private string CaseNotificationClass => "case-notification " + ProcessingState switch
+  {
+    ItemProcessingState.New => "case-new-notification",
+    ItemProcessingState.Updated => "case-update-notification",
+    ItemProcessingState.Seen => "case-seen-notification",
+    _ => throw new ArgumentOutOfRangeException()
+  };
+
+  [Parameter] public string? Icon { get; set; }
+  [Parameter] public required ListItemInfo ListItemInfo { get; set; }
+  [Parameter] public required ItemProcessingState ProcessingState { get; set; }
+}

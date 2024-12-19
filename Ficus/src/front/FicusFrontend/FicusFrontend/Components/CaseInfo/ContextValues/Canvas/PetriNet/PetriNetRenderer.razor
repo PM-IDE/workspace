@@ -1,0 +1,32 @@
+@using Ficus
+@inject IJSRuntime Js
+
+<CanvasComponent RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName" />
+
+@code 
+{
+  [Parameter] public required GrpcPetriNet PetriNet { get; init; }
+  [Parameter] public required GrpcAnnotation? Annotation { get; init; }
+
+
+  private async Task<IJSObjectReference> RenderCanvas(string canvasId)
+  {
+    var annotation = Annotation?.AnnotationCase switch
+    {
+      GrpcAnnotation.AnnotationOneofCase.CountAnnotation => Annotation.CountAnnotation.Annotations
+        .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Count))
+        .ToDictionary(),
+
+      GrpcAnnotation.AnnotationOneofCase.FrequencyAnnotation => Annotation.FrequencyAnnotation.Annotations
+        .Select(a => new KeyValuePair<long, double>(a.EntityId, a.Frequency))
+        .ToDictionary(),
+
+      GrpcAnnotation.AnnotationOneofCase.None or null => null,
+      _ => throw new ArgumentOutOfRangeException($"Unhandled annotation case {Annotation?.AnnotationCase}")
+    };
+
+    return await Js.InvokeAsync<IJSObjectReference>("drawPetriNet", canvasId, PetriNet, annotation);
+  }
+
+  private string CreateExportFileName() => "petri_net";
+}

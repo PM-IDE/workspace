@@ -1,6 +1,7 @@
 use crate::event_log::bxes::bxes_to_xes_converter::BxesToXesReadError;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::grpc::events::events_handler::PipelineEventsHandler;
+use crate::grpc::events::events_handler::{CaseName, PipelineEventsHandler};
+use crate::grpc::kafka::kafka_service::KafkaSubscription;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::pipeline_parts::PipelineParts;
 use std::collections::HashMap;
@@ -8,12 +9,9 @@ use std::fmt::Display;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
-pub(super) enum ConsumerState {
-    Consuming,
-    ShutdownRequested,
-}
-
-pub(super) const KAFKA_CASE_NAME: &'static str = "case_name";
+pub(super) const KAFKA_CASE_DISPLAY_NAME: &'static str = "case_display_name";
+pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
+pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
 
 #[derive(Debug)]
@@ -57,31 +55,32 @@ impl PipelineExecutionDto {
 #[derive(Clone)]
 pub(super) struct KafkaConsumerCreationDto {
     pub uuid: Uuid,
-    pub consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
+    pub name: String,
     pub names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-    pub pipeline_execution_dto: PipelineExecutionDto,
+    pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     pub logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaConsumerCreationDto {
     pub fn new(
-        consumer_states: Arc<Mutex<HashMap<Uuid, ConsumerState>>>,
+        name: String,
         names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-        pipeline_execution_dto: PipelineExecutionDto,
+        subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     ) -> Self {
         Self {
             uuid: Uuid::new_v4(),
-            consumer_states,
+            name,
             names_to_logs,
-            pipeline_execution_dto,
+            subscriptions_to_execution_requests,
             logger: ConsoleLogMessageHandler::new(),
         }
     }
 }
 
+#[derive(Clone)]
 pub(super) struct LogUpdateResult {
     pub process_name: String,
-    pub case_name: String,
+    pub case_name: CaseName,
     pub new_log: XesEventLogImpl,
     pub unstructured_metadata: Vec<(String, String)>,
 }

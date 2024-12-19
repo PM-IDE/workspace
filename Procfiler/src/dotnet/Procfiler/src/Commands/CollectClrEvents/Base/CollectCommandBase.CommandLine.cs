@@ -161,15 +161,26 @@ public abstract partial class CollectCommandBase
       additionalBuildArgs = null;
     }
 
+    var outputPath = CreateOutputPath(parseResult);
+    var clearActivities = parseResult.GetValueForOption(ClearArtifactsOption);
+
+    return new ProjectBuildInfo(
+      pathToCsproj, tfm, buildConfiguration, instrumentationKind, clearActivities, outputPath, selfContained, additionalBuildArgs);
+  }
+
+  private ProjectBuildOutputPath CreateOutputPath(ParseResult parseResult)
+  {
     var tempPath = parseResult.GetValueForOption(TempPathOption);
     if (Equals(tempPath, ((IValueDescriptor)TempPathOption).GetDefaultValue()))
     {
       tempPath = null;
     }
 
-    var clearActivities = parseResult.GetValueForOption(ClearArtifactsOption);
-    return new ProjectBuildInfo(
-      pathToCsproj, tfm, buildConfiguration, instrumentationKind, clearActivities, tempPath, selfContained, additionalBuildArgs);
+    return tempPath switch
+    {
+      { } => ProjectBuildOutputPath.SpecifiedTempPath(tempPath),
+      _ => ProjectBuildOutputPath.RandomTempPath
+    };
   }
 
   private void CheckForPidOrExePathOrThrow(ParseResult parseResult)

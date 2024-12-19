@@ -1,0 +1,43 @@
+﻿@using BlazorBootstrap
+
+<div class="case-list-item-name-hierarchy" @onclick="HandleHierarchyClick">
+  @if (myNamesHierarchyExpanded)
+  {
+    @foreach (var (namePart, index) in NameParts.Select((part, i) => (part, i)))
+    {
+      <Tooltip Title="@namePart" Placement="TooltipPlacement.Bottom">
+        <div class="case-list-item-name-hierarchy-item" style="font-size: @(FontSize)px">
+          [@namePart]@(index < NameParts.Count - 1 ? "-" : string.Empty)
+        </div>
+      </Tooltip>
+    }
+  }
+  else
+  {
+    <div class="case-list-item-show-name-hierarchy" style="font-size: @(FontSize)px">
+      Show names hierarchy
+    </div>
+  }
+</div>
+
+@code {
+  private bool myNamesHierarchyExpanded;
+
+
+  [Parameter] public uint FontSize { get; init; } = 12;
+  [Parameter] public bool Expanded { get; set; }
+
+  [Parameter] public required List<string> NameParts { get; init; }
+
+  protected override void OnInitialized()
+  {
+    base.OnInitialized();
+    myNamesHierarchyExpanded = Expanded;
+  }
+
+  private void HandleHierarchyClick()
+  {
+    myNamesHierarchyExpanded = !myNamesHierarchyExpanded;
+    StateHasChanged();
+  }
+}

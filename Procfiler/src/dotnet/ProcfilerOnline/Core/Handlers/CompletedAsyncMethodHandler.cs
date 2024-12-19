@@ -43,7 +43,11 @@ public class CompletedAsyncMethodHandler(
       var message = new BxesKafkaTrace
       {
         ProcessName = completedAsyncMethodEvent.ApplicationName,
-        CaseName = completedAsyncMethodEvent.StateMachineName,
+        CaseName = new BxesKafkaCaseName
+        {
+          DisplayName = completedAsyncMethodEvent.StateMachineName,
+          NameParts = [completedAsyncMethodEvent.StateMachineName]
+        },
         Trace = methodTrace
       };
 

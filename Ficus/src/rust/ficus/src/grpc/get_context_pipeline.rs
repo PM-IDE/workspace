@@ -2,9 +2,12 @@ use std::any::Any;
 use std::sync::Arc;
 use uuid::Uuid;
 
-use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
+use super::events::events_handler::{CaseName, GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{find_context_key, CASE_NAME, PROCESS_NAME, UNSTRUCTURED_METADATA};
+use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::pipelines::keys::context_keys::{
+    find_context_key, CASE_NAME, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA,
+};
 use crate::{
     pipelines::{
         context::PipelineContext,
@@ -67,25 +70,39 @@ impl GetContextValuePipelinePart {
     }
 
     fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
-        let case_name = match context.concrete(CASE_NAME.key()) {
-            None => "CASE_NAME_UNDEFINED".to_string(),
-            Some(case_name) => case_name.to_string(),
-        };
+        let case_name = Self::value_or_default(context, &CASE_NAME, || CaseName::empty());
+        let process_name = Self::value_or_default(context, &PROCESS_NAME, || "UNDEFINED_PROCESS".to_string());
 
-        let process_name = match context.concrete(PROCESS_NAME.key()) {
-            None => "PROCESS_NAME_UNDEFINED".to_string(),
-            Some(process_name) => process_name.to_string(),
-        };
+        let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID);
+        let subscription_name = Self::value_or_none(context, &SUBSCRIPTION_NAME);
 
-        let metadata = match context.concrete(UNSTRUCTURED_METADATA.key()) {
-            None => vec![],
-            Some(metadata) => metadata.clone(),
-        };
+        let pipeline_id = Self::value_or_none(context, &PIPELINE_ID);
+        let pipeline_name = Self::value_or_none(context, &PIPELINE_NAME);
+
+        let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA, || vec![]);
 
         ProcessCaseMetadata {
             process_name,
             case_name,
+            subscription_id,
+            subscription_name,
+            pipeline_id,
+            pipeline_name,
             metadata,
+        }
+    }
+
+    fn value_or_default<'a, T: Clone>(context: &'a PipelineContext, key: &DefaultContextKey<T>, default_factory: impl Fn() -> T) -> T {
+        match context.concrete(key.key()) {
+            None => default_factory(),
+            Some(value) => value.clone(),
+        }
+    }
+
+    fn value_or_none<'a, T: Clone>(context: &'a PipelineContext, key: &DefaultContextKey<T>) -> Option<T> {
+        match context.concrete(key.key()) {
+            None => None,
+            Some(value) => Some(value.clone()),
         }
     }
 

@@ -1,12 +1,12 @@
 import cytoscape from 'cytoscape';
-import {graphColors, lightTheme, performanceColors} from "./colors";
+import {darkTheme, graphColors, lightTheme, performanceColors} from "./colors";
 import {calculateGradient, createBreadthFirstLayout, rgbToHex} from "./utils";
 import dagre from 'cytoscape-dagre';
 
 export default setDrawGraph;
 
-const graphColor = graphColors(lightTheme);
-const performanceColor = performanceColors(lightTheme);
+const graphColor = graphColors(darkTheme);
+const performanceColor = performanceColors(darkTheme);
 
 function setDrawGraph() {
   window.drawGraph = function (id, graph, annotation) {
@@ -36,6 +36,7 @@ function createNodeStyle() {
       'text-valign': 'center',
       'text-halign': 'right',
       'shape': 'round-rectangle',
+      'color': graphColor.labelColor
     }
   }
 }
@@ -45,6 +46,7 @@ function createEdgeStyle() {
     selector: 'edge',
     style: {
       'label': "data(label)",
+      'color': graphColor.labelColor,
       'width': "data(width)",
       'line-color': 'data(color)',
       'target-arrow-color': 'data(color)',
@@ -55,7 +57,6 @@ function createEdgeStyle() {
 }
 
 function createGraphElements(graph, annotation) {
-  console.log(graph, annotation);
   let elements = [];
 
   for (let node of graph.nodes) {

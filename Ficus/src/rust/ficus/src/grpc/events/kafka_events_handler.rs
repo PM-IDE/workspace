@@ -1,6 +1,6 @@
 use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult, ProcessCaseMetadata};
 use crate::ficus_proto::{
-    GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
+    GrpcCaseName, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
 };
 use crate::grpc::events::utils::create_grpc_context_values;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
@@ -116,8 +116,17 @@ impl GetContextValuesEvent<'_> {
 impl ProcessCaseMetadata {
     fn to_grpc_process_case_metadata(&self) -> GrpcProcessCaseMetadata {
         GrpcProcessCaseMetadata {
-            case_name: self.case_name.clone(),
+            case_name: Some(GrpcCaseName {
+                display_name: self.case_name.display_name.clone(),
+                full_name_parts: self.case_name.name_parts.clone(),
+            }),
             process_name: self.process_name.clone(),
+
+            subscription_id: self.subscription_id.map(|id| GrpcGuid::from(id.clone())),
+            subscription_name: self.subscription_name.clone().map_or("".to_string(), |name| name),
+            pipeline_id: self.pipeline_id.map(|id| GrpcGuid::from(id.clone())),
+            pipeline_name: self.pipeline_name.clone().map_or("".to_string(), |name| name),
+
             metadata: self
                 .metadata
                 .iter()

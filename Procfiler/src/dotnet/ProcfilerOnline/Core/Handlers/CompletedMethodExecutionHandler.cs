@@ -42,7 +42,7 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
     var message = new BxesKafkaTrace
     {
       ProcessName = @event.ApplicationName,
-      CaseName = @event.Frame.MethodInfo!.Fqn,
+      CaseName = @event.Frame.MethodInfo!.ToBxesKafkaCaseName(),
       Trace = @event.Frame.InnerEvents
     };
 

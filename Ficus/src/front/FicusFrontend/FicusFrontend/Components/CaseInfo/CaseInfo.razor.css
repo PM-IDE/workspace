@@ -1,19 +1,108 @@
-.case-info-header {
-    background-color: rebeccapurple;
-    width: 100%;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+.case-info-header-container {
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 
-    padding-left: 10px;
-    color: white;
-    font-size: 20px;
+  background-color: #323232;
 
-    border-radius: 10px;
+  border-radius: var(--cv-border-radius);
 }
 
+.case-info-header-first-line {
+  display: flex;
+  flex-direction: row;
+}
 
-.pipeline-parts-context-values-accordion {
-    margin-top: 20px;
+.case-info-header-first-line-case {
+  margin-left: 3px;
+  margin-top: 1px;
+  color: white;
+}
+
+.case-info-header-hierarchy-container {
+  max-width: 600px;
+}
+
+.case-info-header {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.pipeline-parts-context-values-outer-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.pipeline-parts-context-values-inner-container {
+  width: fit-content;
+  margin-top: 20px;
+  margin-right: 20px;
+}
+
+.pipeline-part-name-container {
+  background-color: var(--cv-section-header-color);
+  color: var(--cv-section-header-text-color);
+  display: flex;
+  align-content: flex-start;
+  height: 35px;
+  border-top-right-radius: var(--cv-border-radius);
+  border-top-left-radius: var(--cv-border-radius);
+}
+
+.pipeline-part-name-index {
+  border-top-left-radius: var(--cv-border-radius);
+  width: 35px;
+  background-color: var(--cv-section-header-index-background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pipeline-part-name-icon {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pipeline-part-name {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pipeline-part-name-container:hover {
+  background-color: var(--cv-section-header-color-hovered);
+}
+
+.pipeline-part-context-values-outer-container {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 1s;
+}
+
+.pipeline-part-context-values-inner-container {
+  align-self: end;
+  min-height: 0;
+  transition: visibility 1s;
+  visibility: hidden;
+
+  background-color: var(--cv-section-content-color);
+  color: var(--cv-section-content-text-color);
+}
+
+.outer-container-checked {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+.inner-container-checked {
+  visibility: visible;
 }

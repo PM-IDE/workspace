@@ -1,0 +1,18 @@
+@using Ficus
+@using FicusFrontend.Layout.Models
+@inject IJSRuntime Js
+
+<CanvasComponent RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName" />
+
+@code 
+{
+  [Parameter] public GrpcAnnotation? Annotation { get; set; }
+  [Parameter] public required GrpcGraph Graph { get; init; }
+  [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
+
+
+  private async Task<IJSObjectReference> RenderCanvas(string canvasId) => 
+    await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation);
+
+  private string CreateExportFileName() => ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
+}

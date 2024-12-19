@@ -8,9 +8,16 @@ import "google/protobuf/empty.proto";
 package ficus;
 
 service GrpcKafkaService {
-  rpc SubscribeForKafkaTopicExternal(GrpcSubscribeToKafkaAndProduceToKafka) returns (GrpcKafkaResult);
-  rpc SubscribeForKafkaTopicStream(GrpcSubscribeForKafkaTopicRequest) returns (stream GrpcPipelinePartExecutionResult);
+  rpc SubscribeForKafkaTopic(GrpcSubscribeToKafkaRequest) returns (GrpcKafkaResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
+  
+  rpc AddPipelineToSubscription(GrpcAddPipelineRequest) returns (GrpcKafkaResult);
+  rpc AddPipelineToSubscriptionStream(GrpcAddPipelineStreamRequest) returns (stream GrpcPipelinePartExecutionResult);
+
+  rpc RemovePipelineSubscription(GrpcRemovePipelineRequest) returns (GrpcKafkaResult);
+  rpc RemoveAllPipelineSubscriptions(GrpcRemoveAllPipelinesRequest) returns (GrpcKafkaResult);
+  
+  rpc GetAllSubscriptionsAndPipelines(google.protobuf.Empty) returns (GrpcGetAllSubscriptionsAndPipelinesResponse);
 
   rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (stream GrpcPipelinePartExecutionResult);
 }
@@ -26,22 +33,49 @@ message GrpcProcessInfo {
   string caseName = 2;
 }
 
-message GrpcSubscribeToKafkaAndProduceToKafka {
-  GrpcSubscribeForKafkaTopicRequest request = 1;
-  GrpcKafkaConnectionMetadata producerMetadata = 2;
+message GrpcSubscribeToKafkaRequest {
+  GrpcKafkaConnectionMetadata connectionMetadata = 1;
+  GrpcKafkaSubscriptionMetadata subscriptionMetadata = 2;
 }
 
-message GrpcSubscribeForKafkaTopicRequest {
-  GrpcKafkaConnectionMetadata kafkaConnectionMetadata = 1;
+message GrpcKafkaSubscriptionMetadata {
+  string subscriptionName = 1;
+}
+
+message GrpcKafkaPipelineExecutionRequest {
+  GrpcGuid subscriptionId = 1;
   GrpcPipelineExecutionRequest pipelineRequest = 2;
+  GrpcPipelineMetadata pipelineMetadata = 3;
+}
+
+message GrpcPipelineMetadata {
+  string name = 1;
+}
+
+message GrpcAddPipelineRequest {
+  GrpcKafkaPipelineExecutionRequest pipelineRequest = 1;
+  GrpcKafkaConnectionMetadata producerKafkaMetadata = 2;
+}
+
+message GrpcAddPipelineStreamRequest {
+  GrpcKafkaPipelineExecutionRequest pipelineRequest = 1;
+}
+
+message GrpcRemovePipelineRequest {
+  GrpcGuid subscriptionId = 1;
+  GrpcGuid pipelineId = 2;
+}
+
+message GrpcRemoveAllPipelinesRequest {
+  GrpcGuid subscriptionId = 1;
 }
 
 message GrpcKafkaConnectionMetadata {
   string topicName = 1;
-  repeated GrpcKafkaConsumerMetadata metadata = 2;
+  repeated GrpcKafkaMetadata metadata = 2;
 }
 
-message GrpcKafkaConsumerMetadata {
+message GrpcKafkaMetadata {
   string key = 1;
   string value = 2;
 }
@@ -54,7 +88,7 @@ message GrpcKafkaResult {
 }
 
 message GrpcKafkaSuccessResult {
-  GrpcGuid subscriptionId = 1;
+  GrpcGuid id = 1;
 }
 
 message GrpcKafkaFailedResult {
@@ -63,4 +97,19 @@ message GrpcKafkaFailedResult {
 
 message GrpcUnsubscribeFromKafkaRequest {
   GrpcGuid subscriptionId = 1;
+}
+
+message GrpcGetAllSubscriptionsAndPipelinesResponse {
+  repeated GrpcKafkaSubscription subscriptions = 1;
+}
+
+message GrpcKafkaSubscription {
+  GrpcGuid id = 1;
+  GrpcKafkaSubscriptionMetadata metadata = 2;
+  repeated GrpcSubscriptionPipeline pipelines = 3;
+}
+
+message GrpcSubscriptionPipeline {
+  GrpcGuid id = 1;
+  GrpcPipelineMetadata metadata = 2;
 }

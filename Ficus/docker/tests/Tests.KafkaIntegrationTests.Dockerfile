@@ -8,6 +8,7 @@ WORKDIR /app
 COPY ./Ficus ./Ficus
 COPY ./bxes ./bxes
 COPY ./FicusBxes.sln ./FicusBxes.sln
+COPY Directory.Packages.props ./Directory.Packages.props
 
 RUN dotnet build . -c Release
 

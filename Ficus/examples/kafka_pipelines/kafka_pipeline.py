@@ -2,13 +2,16 @@ from common import execute_pipeline
 from ficus import *
 
 execute_pipeline(
+    'MySubscription',
+    'Pipeline',
     [
         PrintEventLogInfo(),
-        TracesDiversityDiagramCanvas(),
-        DiscoverPetriNetHeuristic(),
-        EnsureInitialMarking(),
-        AnnotatePetriNetWithFrequency(),
+        RemainEventsByRegex('(Procfiler|Business)'),
+        PrintEventLogInfo(),
+        AddStartEndArtificialEvents(),
         DiscoverFuzzyGraph(),
-        ViewGraph()
+        ViewGraph(),
+        DiscoverPetriNetHeuristic(),
+        ViewPetriNet(),
     ]
 )

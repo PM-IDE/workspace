@@ -2,16 +2,20 @@
 @using FicusFrontend.Components.CaseList
 @using FicusFrontend.Layout.Models
 @using FicusFrontend.Services.Cases
+@using FicusFrontend.Components.Subscriptions
 @inherits LayoutComponentBase
 
 <div class="page">
   <div class="sidebar">
-    <CasesList CaseSelected="HandleNewCaseSelected"/>
+    <SubscriptionsList PipelineSelected="HandlePipelineSelected"/>
+  </div>
+  <div class="sidebar">
+    <CasesList CaseSelected="HandleNewCaseSelected" SelectedPipeline="mySelectedPipeline"/>
   </div>
 
   <main>
-    <article class="content px-4">
-      <CaseInfo ProcessCaseData="@myProcessCaseData"/>
+    <article class="content px-4 case-info-container">
+      <CaseInfo ProcessCaseData="mySelectedProcessCaseData"/>
     </article>
   </main>
 </div>
@@ -19,12 +23,19 @@
 
 @code
 {
-  private ProcessCaseData? myProcessCaseData;
+  private Pipeline? mySelectedPipeline;
+  private ProcessCaseData? mySelectedProcessCaseData;
 
+
+  private void HandlePipelineSelected(Pipeline pipeline)
+  {
+    mySelectedPipeline = pipeline;
+    StateHasChanged();
+  }
 
   private void HandleNewCaseSelected(ProcessData processData, Case selectedCase)
   {
-    myProcessCaseData = new ProcessCaseData
+    mySelectedProcessCaseData = new ProcessCaseData
     {
       Case = selectedCase,
       ProcessData = processData

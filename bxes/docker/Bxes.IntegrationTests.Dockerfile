@@ -1,6 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 COPY ./bxes ./bxes
+COPY Directory.Packages.props ./Directory.Packages.props
+
 RUN dotnet build ./bxes/src/csharp/Bxes.IntegrationTests -c Release -r linux-x64  \
     --self-contained true -o /app/bxes/src/csharp/Bxes.IntegrationTests/bin/Release/net8.0 
 

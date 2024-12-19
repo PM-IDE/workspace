@@ -1,0 +1,23 @@
+﻿.case-list-item-name-hierarchy {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: -5px;
+}
+
+.case-list-item-name-hierarchy-item {
+  color: #878787;
+  height: 18px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.case-list-item-show-name-hierarchy {
+  color: #878787;
+}
+
+.case-list-item-show-name-hierarchy:hover {
+  text-decoration: underline;
+}
