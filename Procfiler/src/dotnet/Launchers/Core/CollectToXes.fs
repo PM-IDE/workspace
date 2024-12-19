@@ -20,3 +20,11 @@ module CollectToXes =
 
   let launchProcfiler csprojPath outputPath =
     launchProcfilerCustomConfig csprojPath outputPath
+
+  let launchProcfilerOnSolutionsFolder solutionsFolder outputFolder =
+    let createConfig baseConfig = {
+      Base = baseConfig
+    }
+
+    launchProcfilerOnFolderOfSolutions solutionsFolder outputFolder createConfig true
+
