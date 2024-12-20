@@ -90,6 +90,7 @@ impl PipelineParts {
             Self::draw_traces_diversity_diagram_by_attribute(),
             Self::discover_directly_follows_graph_by_attribute(),
             Self::append_attributes_to_name(),
+            Self::merge_xes_logs_from_paths()
         ];
 
         let mut names_to_parts = HashMap::new();

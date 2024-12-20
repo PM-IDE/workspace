@@ -78,3 +78,9 @@ class WriteLogToBxesBytes(WriteBytesToFilePipelinePartBase):
 class WriteLogToXesBytes(WriteBytesToFilePipelinePartBase):
     def __init__(self, save_path: str):
         super().__init__(save_path, const_write_xes_to_bytes)
+
+
+class MergeXesLogsFromPaths(PipelinePart):
+    def to_grpc_part(self) -> GrpcPipelinePartBase:
+        config = GrpcPipelinePartConfiguration()
+        return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_merge_xes_logs_from_path, config))

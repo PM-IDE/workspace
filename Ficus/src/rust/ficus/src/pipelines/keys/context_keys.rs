@@ -114,6 +114,7 @@ pub const GRAPH_TIME_ANNOTATION: &'static str = "graph_time_annotation";
 pub const ATTRIBUTE: &'static str = "attribute";
 pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
 pub const ATTRIBUTES: &'static str = "attributes";
+pub const PATHS: &'static str = "paths";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -201,6 +202,7 @@ lazy_static!(
      pub static ref ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(ATTRIBUTE);
      pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
      pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
+     pub static ref PATHS_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(PATHS);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -278,6 +280,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
         TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
         ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
+        PATHS => Some(PATHS_KEY.deref() as &dyn ContextKey),
         _ => None,
     }
 }

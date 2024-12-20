@@ -72,4 +72,6 @@ impl PipelineParts {
     pub const READ_BXES_LOG_FROM_BYTES: &'static str = "ReadBxesLogFromBytes";
     pub const WRITE_XES_LOG_TO_BYTES: &'static str = "WriteXesLogToBytes";
     pub const WRITE_BXES_LOG_TO_BYTES: &'static str = "WriteBxesLogToBytes";
+    
+    pub const MERGE_XES_LOGS_FROM_PATHS: &'static str = "MergeXesLogsFromPaths";
 }
