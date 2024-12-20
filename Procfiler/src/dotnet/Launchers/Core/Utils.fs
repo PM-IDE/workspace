@@ -21,10 +21,11 @@ module ProcfilerScriptsUtils =
   
   type CommandRequiredArguments =
     { Command: string
-      Arguments: string }
+      Arguments: string
+      FilterPattern: string }
     
     member this.AddArguments list =
-      list @ [ $" -command {this.Command}"; $" --arguments {this.Arguments}" ]
+      list @ [ $" -command {this.Command}"; $" --arguments \"{this.Arguments}\"" ]
       
 
   type RequiredArguments =
@@ -40,6 +41,7 @@ module ProcfilerScriptsUtils =
     abstract member CreateArguments: unit -> string list
     abstract member GetWorkingDirectory: unit -> string
     abstract member GetAppName: unit -> string
+    abstract member GetFilterPattern: unit -> string
 
   let applicationNameFromCsproj (dllPath: string) =
     let csprojName = Path.GetFileName(dllPath)
@@ -58,7 +60,7 @@ module ProcfilerScriptsUtils =
           $" --duration {this.Duration}"
           $" --write-all-event-metadata {this.WriteAllMetadata}"
           $" -o {this.OutputPath}"
-          " --log-serialization-format bxes" ]
+          " --log-serialization-format xes" ]
 
       this.RequiredArgs.AddArguments list @ toAdd
       
@@ -71,6 +73,11 @@ module ProcfilerScriptsUtils =
       match this.RequiredArgs with
       | Csproj csproj -> applicationNameFromCsproj csproj.CsprojPath
       | Command command -> command.Command
+      
+    member this.GetFilterPattern() =
+      match this.RequiredArgs with
+      | Csproj csproj -> applicationNameFromCsproj csproj.CsprojPath
+      | Command command -> command.FilterPattern
         
   let createBaseCsprojConfig csprojPath outputPath =
     { RequiredArgs = Csproj({
@@ -82,10 +89,11 @@ module ProcfilerScriptsUtils =
       Repeat = 20
       WriteAllMetadata = false }
     
-  let createBaseCommandConfig command arguments outputPath =
+  let createBaseCommandConfig command arguments filterPattern outputPath =
     { RequiredArgs = Command({
         Command = command
         Arguments = arguments
+        FilterPattern = filterPattern
       })
 
       OutputPath = outputPath

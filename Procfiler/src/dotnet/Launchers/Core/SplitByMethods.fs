@@ -36,6 +36,7 @@ module SplitByMethods =
         
       member this.GetAppName() = this.Base.GetAppName()
       member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
+      member this.GetFilterPattern() = this.Base.GetFilterPattern()
 
 
   let private createConfigInternal
@@ -44,27 +45,26 @@ module SplitByMethods =
     merge
     onlineSerialization
     runtimeFiltering
-    targetMethodsRegex
     =
     { Base = baseConfig
       Inline = doInline
-      TargetMethodsRegex = targetMethodsRegex
-      FilterPattern = baseConfig.GetAppName()
+      TargetMethodsRegex = baseConfig.GetFilterPattern()
+      FilterPattern = ".*"
       MergeUndefinedThreadEvents = merge
       OnlineSerialization = onlineSerialization
       DuringRuntimeFiltering = runtimeFiltering }
 
   let private createInlineMerge baseConfig : ICommandConfig =
-    createConfigInternal baseConfig InlineMode.EventsAndMethodsEventsWithFilter true false false ".*"
+    createConfigInternal baseConfig InlineMode.EventsAndMethodsEvents true false false 
 
   let private createNoInlineMerge baseConfig : ICommandConfig =
-    createConfigInternal baseConfig InlineMode.NotInline true false true ".*"
+    createConfigInternal baseConfig InlineMode.NotInline true false true
 
   let private createInlineNoMerge baseConfig : ICommandConfig =
-    createConfigInternal baseConfig InlineMode.EventsAndMethodsEventsWithFilter false true false ".*"
+    createConfigInternal baseConfig InlineMode.EventsAndMethodsEvents false true false
 
   let private createNoInlineNoMerge baseConfig : ICommandConfig =
-    createConfigInternal baseConfig InlineMode.NotInline false true true ".*"
+    createConfigInternal baseConfig InlineMode.NotInline false true true
 
   let private allConfigs =
     [ ("inline_merge", createInlineMerge)
@@ -91,9 +91,10 @@ module SplitByMethods =
                                     launchProcfiler config))
   
   type CommandToExecute =
-    { name: string
-      command: string
-      arguments: string }
+    { Name: string
+      Command: string
+      Arguments: string
+      FilterPattern: string }
   
   let launchProcfilerOnCommands commandsFile outputFolder =
     commandsFile
@@ -101,13 +102,14 @@ module SplitByMethods =
     |> Array.map (fun line ->
         let parts = line.Split(';')
         {
-          name = parts[0]
-          command = parts[1]
-          arguments = parts[2]
+          Name = parts[0]
+          Command = parts[1]
+          Arguments = parts[2]
+          FilterPattern = parts[3]
         })
     |> Array.iter (fun command ->
-      let commandOutputFolder = Path.Combine(outputFolder, command.name)
+      let commandOutputFolder = Path.Combine(outputFolder, command.Name)
       ensureEmptyDirectory commandOutputFolder |> ignore
-      let baseConfig = createBaseCommandConfig command.command command.arguments commandOutputFolder
+      let baseConfig = createBaseCommandConfig command.Command command.Arguments command.FilterPattern commandOutputFolder
       let config = createInlineMerge baseConfig
       launchProcfiler config)

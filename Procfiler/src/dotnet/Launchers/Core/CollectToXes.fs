@@ -10,6 +10,7 @@ module CollectToXes =
       member this.CreateArguments() = [ "collect-to-xes" ] |> this.Base.AddArguments
       member this.GetAppName() = this.Base.GetAppName()
       member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
+      member this.GetFilterPattern() = this.Base.GetFilterPattern()
 
 
   let private createConfig csprojPath outputPath : ICommandConfig =

@@ -10,6 +10,7 @@ module SplitByThreads =
       member this.CreateArguments() = [ "split-by-threads" ] |> this.Base.AddArguments
       member this.GetAppName() = this.Base.GetAppName()
       member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
+      member this.GetFilterPattern() = this.Base.GetFilterPattern()
 
 
   let createConfig csprojPath outputPath =
