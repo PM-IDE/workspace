@@ -27,4 +27,3 @@ module CollectToXes =
     }
 
     launchProcfilerOnFolderOfSolutions solutionsFolder outputFolder createConfig true
-

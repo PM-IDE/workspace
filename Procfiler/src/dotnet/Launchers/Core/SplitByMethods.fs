@@ -89,3 +89,25 @@ module SplitByMethods =
                                     let config = configFunc baseConfig
                                     ensureEmptyDirectory outputPath |> ignore
                                     launchProcfiler config))
+  
+  type CommandToExecute =
+    { name: string
+      command: string
+      arguments: string }
+  
+  let launchProcfilerOnCommands commandsFile outputFolder =
+    commandsFile
+    |> File.ReadAllLines
+    |> Array.map (fun line ->
+        let parts = line.Split(';')
+        {
+          name = parts[0]
+          command = parts[1]
+          arguments = parts[2]
+        })
+    |> Array.iter (fun command ->
+      let commandOutputFolder = Path.Combine(outputFolder, command.name)
+      ensureEmptyDirectory commandOutputFolder |> ignore
+      let baseConfig = createBaseCommandConfig command.command command.arguments commandOutputFolder
+      let config = createInlineMerge baseConfig
+      launchProcfiler config)
