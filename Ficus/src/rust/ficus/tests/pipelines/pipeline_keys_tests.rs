@@ -113,6 +113,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<String>(&ATTRIBUTE, &mut used);
     assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
+    assert_existence::<Vec<String>>(&PATHS, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -202,7 +203,8 @@ fn get_all_keys_names() -> Vec<String> {
         "graph_time_annotation",
         "attribute",
         "time_annotation_kind",
-        "attributes"
+        "attributes",
+        "paths"
     ]
 }
 
@@ -293,6 +295,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<String>(&ATTRIBUTE, &mut used);
     assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
+    assert_keys_equivalence::<Vec<String>>(&PATHS, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
