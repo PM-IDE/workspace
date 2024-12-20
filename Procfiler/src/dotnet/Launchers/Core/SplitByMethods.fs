@@ -55,13 +55,13 @@ module SplitByMethods =
       DuringRuntimeFiltering = runtimeFiltering }
 
   let private createInlineMerge baseConfig : ICommandConfig =
-    createConfigInternal baseConfig InlineMode.EventsAndMethodsEvents true false false 
+    createConfigInternal baseConfig InlineMode.EventsAndMethodsEvents true true true 
 
   let private createNoInlineMerge baseConfig : ICommandConfig =
-    createConfigInternal baseConfig InlineMode.NotInline true false true
+    createConfigInternal baseConfig InlineMode.NotInline true true true
 
   let private createInlineNoMerge baseConfig : ICommandConfig =
-    createConfigInternal baseConfig InlineMode.EventsAndMethodsEvents false true false
+    createConfigInternal baseConfig InlineMode.EventsAndMethodsEvents false true true
 
   let private createNoInlineNoMerge baseConfig : ICommandConfig =
     createConfigInternal baseConfig InlineMode.NotInline false true true

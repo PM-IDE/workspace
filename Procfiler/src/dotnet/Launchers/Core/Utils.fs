@@ -60,7 +60,8 @@ module ProcfilerScriptsUtils =
           $" --duration {this.Duration}"
           $" --write-all-event-metadata {this.WriteAllMetadata}"
           $" -o {this.OutputPath}"
-          " --log-serialization-format xes" ]
+          " --log-serialization-format xes"
+          " --group-async-methods false" ]
 
       this.RequiredArgs.AddArguments list @ toAdd
       
@@ -85,8 +86,8 @@ module ProcfilerScriptsUtils =
       })
 
       OutputPath = outputPath
-      Duration = 10_000
-      Repeat = 20
+      Duration = 100_000
+      Repeat = 1
       WriteAllMetadata = false }
     
   let createBaseCommandConfig command arguments filterPattern outputPath =
@@ -97,8 +98,8 @@ module ProcfilerScriptsUtils =
       })
 
       OutputPath = outputPath
-      Duration = 10_000
-      Repeat = 20
+      Duration = 100_000
+      Repeat = 1
       WriteAllMetadata = false }
 
   let private createProcess fileName (args: String) workingDirectory =
