@@ -7,3 +7,4 @@ pub mod writer;
 pub mod xes_event;
 pub mod xes_event_log;
 pub mod xes_trace;
+pub mod logs_merger;

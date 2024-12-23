@@ -1,22 +1,64 @@
 ﻿using Ficus;
+using FicusFrontend.Utils;
 using JetBrains.Collections.Viewable;
 
 namespace FicusFrontend.Services.Cases;
 
-public class ProcessData
+public class Subscription : FrontModelBase
 {
-  public required string ProcessName { get; init; }
-  public required Dictionary<string, CaseData> ProcessCases { get; init; }
+  public required Guid Id { get; init; }
+  public required string Name { get; init; }
+
+  public required IViewableMap<Guid, Pipeline> Pipelines { get; init; }
 }
 
-public class CaseData
+public class Pipeline : FrontModelBase
 {
-  public required Case Case { get; init; }
-  public required ViewableMap<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
+  public required Guid Id { get; init; }
+  public required string Name { get; init; }
+  public required Subscription ParentSubscription { get; init; }
 
-  public class PipelinePartExecutionResult
+  public required IViewableMap<string, ProcessData> Processes { get; init; }
+}
+
+public class ProcessData : FrontModelBase
+{
+  public required Pipeline ParentPipeline { get; init; }
+  public required string ProcessName { get; init; }
+
+  public required IViewableMap<string, Case> ProcessCases { get; init; }
+}
+
+public class Case : FrontModelBase
+{
+  public required ProcessData ParentProcess { get; init; }
+  public required List<string> NameParts { get; init; }
+  public required string FullName { get; init; }
+  public required string DisplayName { get; init; }
+  public required DateTime CreatedAt { get; init; }
+  public required IViewableMap<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
+
+
+
+  public override int GetHashCode()
   {
-    public required string PipelinePartName { get; init; }
-    public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
+    return FullName.GetHashCode();
   }
+
+  public override bool Equals(object? obj)
+  {
+    return obj is Case { FullName: var fullName } && fullName == FullName;
+  }
+}
+
+public class PipelinePartExecutionResult : FrontModelBase
+{
+  public required string PipelinePartName { get; init; }
+  public required List<ContextValueWrapper> ContextValues { get; init; }
+}
+
+public class ContextValueWrapper(GrpcContextValueWithKeyName value)
+{
+  public Guid Id { get; } = Guid.NewGuid();
+  public GrpcContextValueWithKeyName Value { get; } = value;
 }

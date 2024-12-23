@@ -8,18 +8,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.57.0"/>
-        <PackageReference Include="Grpc.AspNetCore.Web" Version="2.57.0"/>
+        <PackageReference Include="Grpc.AspNetCore"/>
+        <PackageReference Include="Grpc.AspNetCore.Web"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+        <Content Include="..\.dockerignore">
+            <Link>.dockerignore</Link>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FicusKafkaIntegration\FicusKafkaIntegration.csproj" />
-      <ProjectReference Include="..\GrpcModels\GrpcModels.csproj" />
+        <ProjectReference Include="..\FicusKafkaIntegration\FicusKafkaIntegration.csproj"/>
+        <ProjectReference Include="..\GrpcModels\GrpcModels.csproj"/>
     </ItemGroup>
 </Project>

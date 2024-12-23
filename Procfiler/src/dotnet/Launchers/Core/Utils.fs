@@ -7,162 +7,212 @@ open System.IO
 
 
 module ProcfilerScriptsUtils =
-    let net7 = "net7.0"
-    let net6 = "net6.0"
-    let net8 = "net8.0"
+  let net7 = "net7.0"
+  let net6 = "net6.0"
+  let net8 = "net8.0"
+  let net9 = "net9.0"
 
-    type PathConfigBase =
-        { CsprojPath: string
-          OutputPath: string }
+  type CsprojRequiredArguments =
+    { CsprojPath: string }
 
-        member this.AddArguments list =
-            list @ [ $" -csproj {this.CsprojPath}"; $" -o {this.OutputPath}" ]
+    member this.AddArguments list =
+      list @ [ $" -csproj {this.CsprojPath}"; ]
 
-    type ConfigBase =
-        { PathConfig: PathConfigBase
-          Duration: int
-          Repeat: int
-          WriteAllMetadata: bool }
+  
+  type CommandRequiredArguments =
+    { Command: string
+      Arguments: string
+      FilterPattern: string }
+    
+    member this.AddArguments list =
+      list @ [ $" -command {this.Command}"; $" --arguments \"{this.Arguments}\"" ]
+      
 
-        member this.AddArguments list =
-            let toAdd =
-                [ $" --repeat {this.Repeat}"
-                  $" --duration {this.Duration}"
-                  $" --write-all-event-metadata {this.WriteAllMetadata}"
-                  " --log-serialization-format bxes" ]
+  type RequiredArguments =
+    | Command of CommandRequiredArguments
+    | Csproj of CsprojRequiredArguments
+    
+    member this.AddArguments list =
+      match this with
+      | Csproj csproj -> csproj.AddArguments list
+      | Command command -> command.AddArguments list
 
-            this.PathConfig.AddArguments list @ toAdd
+  type ICommandConfig =
+    abstract member CreateArguments: unit -> string list
+    abstract member GetWorkingDirectory: unit -> string
+    abstract member GetAppName: unit -> string
+    abstract member GetFilterPattern: unit -> string
 
-    type ICommandConfig =
-        abstract member CreateArguments: unit -> string list
+  let applicationNameFromCsproj (dllPath: string) =
+    let csprojName = Path.GetFileName(dllPath)
+    csprojName.AsSpan().Slice(0, csprojName.IndexOf('.')).ToString()
+    
+  type ConfigBase =
+    { RequiredArgs: RequiredArguments
+      Duration: int
+      Repeat: int
+      WriteAllMetadata: bool
+      OutputPath: string }
 
-    let createDefaultConfigBase csprojPath outputPath =
-        { PathConfig =
-            { CsprojPath = csprojPath
-              OutputPath = outputPath }
+    member this.AddArguments list =
+      let toAdd =
+        [ $" --repeat {this.Repeat}"
+          $" --duration {this.Duration}"
+          $" --write-all-event-metadata {this.WriteAllMetadata}"
+          $" -o {this.OutputPath}"
+          " --log-serialization-format xes"
+          " --group-async-methods false" ]
 
-          Duration = 10_000
-          Repeat = 20
-          WriteAllMetadata = false }
+      this.RequiredArgs.AddArguments list @ toAdd
+      
+    member this.GetWorkingDirectory() =
+      match this.RequiredArgs with
+      | Csproj csproj -> Path.GetDirectoryName csproj.CsprojPath
+      | Command _ -> Directory.GetCurrentDirectory()
+      
+    member this.GetAppName() =
+      match this.RequiredArgs with
+      | Csproj csproj -> applicationNameFromCsproj csproj.CsprojPath
+      | Command command -> command.Command
+      
+    member this.GetFilterPattern() =
+      match this.RequiredArgs with
+      | Csproj csproj -> applicationNameFromCsproj csproj.CsprojPath
+      | Command command -> command.FilterPattern
+        
+  let createBaseCsprojConfig csprojPath outputPath =
+    { RequiredArgs = Csproj({
+        CsprojPath = csprojPath
+      })
 
-    let private createProcess fileName (args: String) workingDirectory =
-        let startInfo = ProcessStartInfo(fileName, args)
-        startInfo.WorkingDirectory <- workingDirectory
-        new Process(StartInfo = startInfo)
+      OutputPath = outputPath
+      Duration = 100_000
+      Repeat = 1
+      WriteAllMetadata = false }
+    
+  let createBaseCommandConfig command arguments filterPattern outputPath =
+    { RequiredArgs = Command({
+        Command = command
+        Arguments = arguments
+        FilterPattern = filterPattern
+      })
 
-    let buildProjectFromSolution solutionDirectory projectName =
-        let projectPath = $"./{projectName}/{projectName}.csproj"
-        let pRelease = "/p:Configuration=\"Release\""
+      OutputPath = outputPath
+      Duration = 100_000
+      Repeat = 1
+      WriteAllMetadata = false }
 
-        let pSolutionDir =
-            $"/p:SolutionDir={solutionDirectory}{Path.DirectorySeparatorChar}"
+  let private createProcess fileName (args: String) workingDirectory =
+    let startInfo = ProcessStartInfo(fileName, args)
+    startInfo.WorkingDirectory <- workingDirectory
+    new Process(StartInfo = startInfo)
+  
+  let getDotnetSourcePath solutionDir = Path.Combine(solutionDir, "Procfiler", "src", "dotnet")
 
-        let args = $"msbuild {projectPath} {pRelease} {pSolutionDir}"
-        let buildProcess = createProcess "dotnet" args solutionDirectory
+  let buildProjectFromSolution solutionDirectory projectName =
+    let dotnetSourcePath = getDotnetSourcePath solutionDirectory
+    let projectPath = Path.Combine(dotnetSourcePath, projectName, $"{projectName}.csproj")
+    let pRelease = "/p:Configuration=\"Release\""
 
-        match buildProcess.Start() with
-        | false -> printfn $"Build process for solution {solutionDirectory} failed to start"
-        | true ->
-            buildProcess.WaitForExit()
+    let pSolutionDir =
+      $"/p:SolutionDir={solutionDirectory}{Path.DirectorySeparatorChar}"
 
-            match buildProcess.ExitCode with
-            | 0 -> printfn $"Successfully built {solutionDirectory}/{projectName}"
-            | _ -> printfn $"Error happened when building solution {solutionDirectory}/{projectName}:"
+    let args = $"msbuild {projectPath} {pRelease} {pSolutionDir}"
+    let buildProcess = createProcess "dotnet" args solutionDirectory
+
+    match buildProcess.Start() with
+    | false -> printfn $"Build process for solution {solutionDirectory} failed to start"
+    | true ->
+      buildProcess.WaitForExit()
+
+      match buildProcess.ExitCode with
+      | 0 -> printfn $"Successfully built {dotnetSourcePath}/{projectName}"
+      | _ -> printfn $"Error happened when building solution {dotnetSourcePath}/{projectName}:"
 
 
-    let rec private findProperParentDirectory (currentDirectory: string) =
-        let name = Path.GetFileName currentDirectory
+  let rec private findProperParentDirectory (currentDirectory: string) =
+    let name = Path.GetFileName currentDirectory
 
-        match name with
-        | "src" -> currentDirectory
-        | _ -> findProperParentDirectory (currentDirectory |> Directory.GetParent).FullName
+    match name with
+    | "workspace" -> currentDirectory
+    | _ -> findProperParentDirectory (currentDirectory |> Directory.GetParent).FullName
 
-    let buildProcfiler =
-        let parentDirectory =
-            (Directory.GetCurrentDirectory() |> Directory.GetParent).FullName
+  let buildProcfiler =
+    let parentDirectory = (Directory.GetCurrentDirectory() |> Directory.GetParent).FullName
 
-        let dir = findProperParentDirectory parentDirectory
-        let dotnetSourcePath = Path.Combine(dir, "dotnet")
+    let solutionDir = findProperParentDirectory parentDirectory
+    let framework = net9
 
-        let framework = net8
+    printfn "Started building ProcfilerBuildTasks"
+    buildProjectFromSolution solutionDir "ProcfilerBuildTasks"
 
-        printfn "Started building ProcfilerBuildTasks"
-        buildProjectFromSolution dotnetSourcePath "ProcfilerBuildTasks"
+    printfn "Started building whole Procfiler solution"
+    buildProjectFromSolution solutionDir "Procfiler"
 
-        printfn "Started building whole Procfiler solution"
-        buildProjectFromSolution dotnetSourcePath "Procfiler"
+    Path.Combine(getDotnetSourcePath solutionDir, "Procfiler", "bin", "Release", framework, "Procfiler.dll")
 
-        Path.Combine(dotnetSourcePath, "Procfiler", "bin", "Release", framework, "Procfiler.dll")
+  
+  let getAllCsprojFiles solutionsDirectory =
+    Directory.GetDirectories(solutionsDirectory)
+    |> List.ofArray
+    |> List.map (fun dir -> Path.Combine(dir, Path.GetFileName(dir) + ".csproj"))
 
-    let getAllCsprojFiles solutionsDirectory =
-        Directory.GetDirectories(solutionsDirectory)
-        |> List.ofArray
-        |> List.map (fun dir -> Path.Combine(dir, Path.GetFileName(dir) + ".csproj"))
+  let ensureEmptyDirectory path =
+    match Directory.Exists path with
+    | true ->
+      Directory.Delete(path, true)
+      Directory.CreateDirectory path
+    | false -> Directory.CreateDirectory path
 
-    let ensureEmptyDirectory path =
-        match Directory.Exists path with
-        | true ->
-            Directory.Delete(path, true)
-            Directory.CreateDirectory path
-        | false -> Directory.CreateDirectory path
+  let getAllSolutionsFrom directory =
+    directory |> Directory.GetDirectories |> List.ofArray
 
-    let applicationNameFromCsproj (dllPath: string) =
-        let csprojName = Path.GetFileName(dllPath)
-        csprojName.AsSpan().Slice(0, csprojName.IndexOf('.')).ToString()
+  let createOutputDirectoryForSolution csprojPath outputFolder =
+    let appName = applicationNameFromCsproj csprojPath
+    let outputPathForSolution = Path.Combine(outputFolder, appName)
+    ensureEmptyDirectory outputPathForSolution |> ignore
+    outputPathForSolution
 
-    let getAllSolutionsFrom directory =
-        directory |> Directory.GetDirectories |> List.ofArray
+  let createArgumentsString (config: ICommandConfig) =
+    let sb = StringBuilder()
 
-    let createOutputDirectoryForSolution csprojPath outputFolder =
-        let appName = applicationNameFromCsproj csprojPath
-        let outputPathForSolution = Path.Combine(outputFolder, appName)
-        ensureEmptyDirectory outputPathForSolution |> ignore
-        outputPathForSolution
+    config.CreateArguments()
+    |> List.iter (fun (arg: string) -> sb.Append arg |> ignore)
 
-    let createArgumentsString solutionPath outputFolder (createConfigFunc: string -> string -> ICommandConfig) =
-        let config = createConfigFunc solutionPath outputFolder
-        let sb = StringBuilder()
+    sb.ToString()
+    
+  let launchProcfiler config =
+    let args = createArgumentsString config
+    let workingDirectory = config.GetWorkingDirectory()
+    let procfilerProcess = createProcess "dotnet" $"{buildProcfiler} {args}" workingDirectory
 
-        config.CreateArguments()
-        |> List.iter (fun (arg: string) -> sb.Append arg |> ignore)
+    match procfilerProcess.Start() with
+    | true ->
+      printfn $"Started procfiler for {config.GetAppName()}"
+    | false -> printfn "Failed to start procfiler"
 
-        sb.ToString()
+    procfilerProcess.WaitForExit()
 
-    let launchProcfiler csprojPath outputFolder createConfig =
-        let args = createArgumentsString csprojPath outputFolder createConfig
-        let workingDirectory = Path.GetDirectoryName csprojPath
+    match procfilerProcess.ExitCode with
+    | 0 ->
+      printfn $"Finished executing procfiler for {config.GetAppName()}"
+    | _ -> ()
 
-        let procfilerProcess =
-            createProcess "dotnet" $"{buildProcfiler} {args}" workingDirectory
+  let launchProcfilerOnFolderOfSolutions solutionsFolder outputFolder baseConfigCreator outputIsFile =
+    ensureEmptyDirectory outputFolder |> ignore
+    let pathsToCsprojes = getAllCsprojFiles solutionsFolder
 
-        match procfilerProcess.Start() with
-        | true ->
-            let appName = applicationNameFromCsproj csprojPath
-            printfn $"Started procfiler for {appName}"
-        | false -> printfn "Failed to start procfiler"
+    pathsToCsprojes
+    |> List.iter (fun csprojPath ->
+      let name = applicationNameFromCsproj csprojPath
 
-        procfilerProcess.WaitForExit()
+      let outputPath =
+        match outputIsFile with
+        | true -> Path.Combine(outputFolder, name + ".xes")
+        | false ->
+          let directory = Path.Combine(outputFolder, name)
+          Directory.CreateDirectory(directory) |> ignore
+          directory
 
-        match procfilerProcess.ExitCode with
-        | 0 ->
-            let appName = applicationNameFromCsproj csprojPath
-            printfn $"Finished executing procfiler for {appName}"
-        | _ -> ()
-
-    let launchProcfilerOnFolderOfSolutions solutionsFolder outputFolder config outputIsFile =
-        ensureEmptyDirectory outputFolder |> ignore
-        let pathsToDlls = getAllCsprojFiles solutionsFolder
-
-        pathsToDlls
-        |> List.iter (fun solution ->
-            let name = applicationNameFromCsproj solution
-
-            let outputPath =
-                match outputIsFile with
-                | true -> Path.Combine(outputFolder, name + ".xes")
-                | false ->
-                    let directory = Path.Combine(outputFolder, name)
-                    Directory.CreateDirectory(directory) |> ignore
-                    directory
-
-            launchProcfiler solution outputPath config)
+      let config =  createBaseCsprojConfig csprojPath outputPath
+      launchProcfiler (baseConfigCreator config))

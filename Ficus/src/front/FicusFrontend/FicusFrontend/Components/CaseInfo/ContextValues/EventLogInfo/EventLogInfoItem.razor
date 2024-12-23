@@ -1,0 +1,19 @@
+﻿@inherits ComponentBase
+
+<div class="event-log-info-item-container" style="background: @Background">
+  <div>
+    <div class="event-log-info-item-title">
+      @Title
+    </div>
+
+    <div class="event-log-info-item-description">
+      @Info
+    </div>
+  </div>
+</div>
+
+@code {
+  [Parameter] public required string Background { get; init; }
+  [Parameter] public required string Title { get; init; }
+  [Parameter] public required string Info { get; init; }
+}

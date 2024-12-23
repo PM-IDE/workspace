@@ -12,7 +12,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<IProcessesService, ProcessesService>();
+builder.Services.AddSingleton<ISubscriptionsService, SubscriptionsService>();
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection(nameof(ApplicationSettings)));
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddRadzenComponents();
@@ -27,4 +27,16 @@ builder.Services.AddSingleton(services =>
   return new GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient(channel);
 });
 
-await builder.Build().RunAsync();
+var app = builder.Build();
+
+using var source = new CancellationTokenSource();
+
+try
+{
+  app.Services.GetRequiredService<ISubscriptionsService>().StartUpdatesStream(source.Token);
+  await app.RunAsync();
+}
+finally
+{
+  source.Cancel();
+}

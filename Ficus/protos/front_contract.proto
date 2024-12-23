@@ -26,8 +26,17 @@ message GrpcKafkaUpdate {
 
 message GrpcProcessCaseMetadata {
   string processName = 1;
-  string caseName = 2;
-  repeated GrpcStringKeyValue metadata = 3;
+  GrpcCaseName caseName = 2;
+  GrpcGuid subscriptionId = 3;
+  string subscriptionName = 4;
+  GrpcGuid pipelineId = 5;
+  string pipelineName = 6;
+  repeated GrpcStringKeyValue metadata = 7;
+}
+
+message GrpcCaseName {
+  string displayName = 1;
+  repeated string fullNameParts = 2;
 }
 
 message GrpcCurrentCasesResponse {

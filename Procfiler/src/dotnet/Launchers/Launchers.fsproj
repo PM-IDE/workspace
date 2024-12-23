@@ -1,21 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="Scripts\LaunchSplitByMethods.fsx"/>
-        <None Include="Scripts\TmpToGold.fsx"/>
-        <None Include="Scripts\SerializeUndefinedEvents.fsx"/>
-        <None Include="Scripts\CollectToXes.fsx"/>
-        <Compile Include="Core\Utils.fs"/>
-        <Compile Include="Core\SplitByMethods.fs"/>
-        <Compile Include="Core\SerializeUndefinedThreadEvents.fs"/>
-        <Compile Include="Core\CollectToXes.fs"/>
-        <Compile Include="Core\SplitByNames.fs"/>
-        <Compile Include="Core\SplitByThreads.fs"/>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\LaunchSplitByMethods.fsx"/>
+    <None Include="Scripts\TmpToGold.fsx"/>
+    <None Include="Scripts\SerializeUndefinedEvents.fsx"/>
+    <None Include="Scripts\CollectToXes.fsx"/>
+    <None Include="Scripts\LaunchSplitByMethodsCommands.fsx"/>
+    <Compile Include="Core\Utils.fs"/>
+    <Compile Include="Core\SplitByMethods.fs"/>
+    <Compile Include="Core\SerializeUndefinedThreadEvents.fs"/>
+    <Compile Include="Core\CollectToXes.fs"/>
+    <Compile Include="Core\SplitByNames.fs"/>
+    <Compile Include="Core\SplitByThreads.fs"/>
+  </ItemGroup>
 
 </Project>

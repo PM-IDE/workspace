@@ -1,16 +1,24 @@
+html {
+    background-color: var(--cv-section-background);
+}
+
 .page {
-    position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    background-color: var(--cv-section-background);
 }
 
 main {
     flex: 1;
+    background-color: var(--cv-section-background);
+}
+
+.case-info-container {
+    background-color: var(--cv-section-background);
 }
 
 .sidebar {
     height: 100%;
-    width: 350px;
 }
 
 .top-row {
@@ -53,7 +61,6 @@ main {
     }
 
     .sidebar {
-        width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;

@@ -6,22 +6,16 @@ open Scripts.Core.ProcfilerScriptsUtils
 open Util
 
 let createCustomConfig csprojPath outputPath : ICommandConfig =
-    { SerializeUndefinedThreadEvents.Config.Base =
-        { PathConfig =
-            { OutputPath = outputPath
-              CsprojPath = csprojPath }
-          Repeat = 1
-          Duration = 10_000
-          WriteAllMetadata = true } }
+  { SerializeUndefinedThreadEvents.Config.Base = createBaseCsprojConfig csprojPath outputPath }
 
 let source () = knownProjectsNamesTestCaseSource
 
 [<TestCaseSource("source")>]
 let UndefinedEventsTest projectName =
-    let doTest tempDir =
-        let path = getCsprojPathFromSource projectName
-        SerializeUndefinedThreadEvents.launchProcfilerCustomConfig path tempDir createCustomConfig
+  let doTest tempDir =
+    let path = getCsprojPathFromSource projectName
+    SerializeUndefinedThreadEvents.launchProcfilerCustomConfig path tempDir createCustomConfig
 
-        doAssertionsForOneFile tempDir "UndefinedEvents"
+    doAssertionsForOneFile tempDir "UndefinedEvents"
 
-    executeTestWithTempFolder doTest
+  executeTestWithTempFolder doTest

@@ -7,44 +7,54 @@ using Bxes.Writer;
 using Confluent.Kafka;
 using Ficus;
 using FicusKafkaIntegration;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
 
-
-public class FicusKafkaProducerSettings
+[TestFixture]
+public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 {
-  public required string Topic { get; init; }
-  public required string BootstrapServers { get; init; }
-}
-
-public class FicusKafkaIntegrationTests
-{
-  private IConfiguration myConfiguration;
-
-
-  [SetUp]
-  public void InitConfiguration()
-  {
-    myConfiguration = new ConfigurationBuilder().Add(new EnvironmentVariablesConfigurationSource()).Build();
-  }
-  
   [Test]
   public void EventNamesTest()
   {
-    var eventLog = GenerateTestEventLog();
-    
-    ProduceEventLogToKafka(eventLog);
+    var subscriptionId = CreateFicusKafkaSubscription();
 
-    AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
+    try
+    {
+      var eventLog = GenerateTestEventLog();
+      ProduceEventLogToKafka(eventLog);
+      AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
+    }
+    finally
+    {
+      KafkaClient.UnsubscribeFromKafkaTopic(new GrpcUnsubscribeFromKafkaRequest
+      {
+        SubscriptionId = subscriptionId
+      });
+    }
+  }
+
+  private GrpcGuid CreateFicusKafkaSubscription()
+  {
+    var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequest(TestsSettings);
+    var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(subscribeRequest);
+
+    Assert.That(subscriptionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
+
+    var subscriptionId = subscriptionResult.Success.Id;
+    var addPipelineRequest = GrpcRequestsCreator.CreateAddGetNamesLogPipelineRequest(subscriptionId, TestsSettings);
+
+    var pipelineAdditionResult = KafkaClient.AddPipelineToSubscription(addPipelineRequest);
+
+    Assert.That(pipelineAdditionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
+
+    return subscriptionResult.Success.Id;
   }
 
   private void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     Assert.That(eventLog.Traces, Has.Count.EqualTo(updates.Count));
-    
+
     var lastNameLog = updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
     foreach (var (trace, grpcTrace) in eventLog.Traces.Zip(lastNameLog.Value.NamesLog.Log.Traces))
     {
@@ -80,7 +90,8 @@ public class FicusKafkaIntegrationTests
       variant.Metadata.Clear();
       variant.Metadata.AddRange(
       [
-        new AttributeKeyValue(new BxesStringValue("case_name"), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue("case_display_name"), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue("case_name_parts"), new BxesStringValue(CaseName)),
         new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName))
       ]);
     }
@@ -93,31 +104,27 @@ public class FicusKafkaIntegrationTests
     {
       writer.HandleEvent(@event);
     }
-    
+
     Thread.Sleep(10_000);
   }
 
   private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates()
   {
     var logger = LoggerFactory.Create(_ => { }).CreateLogger<PipelinePartsUpdatesConsumer>();
-    var pipelinePartsConsumerSettings = myConfiguration
-      .GetSection(nameof(PipelinePartsUpdateKafkaSettings))
-      .Get<PipelinePartsUpdateKafkaSettings>()!;
-
-    return ConsumeAllUpdates(pipelinePartsConsumerSettings, logger);
+    return ConsumeAllUpdates(logger);
   }
 
-  private static IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(PipelinePartsUpdateKafkaSettings settings, ILogger logger)
+  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(ILogger logger)
   {
     const string ConsumerGroupId = $"{nameof(FicusKafkaIntegrationTests)}::{nameof(ConsumeAllUpdates)}";
-    var consumer = PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(settings, ConsumerGroupId, logger);
+    var consumer = PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(PipelinePartsSettings, ConsumerGroupId, logger);
 
     List<GrpcKafkaUpdate> result = [];
     while (true)
     {
       var consumeResult = consumer.Consume();
       if (consumeResult.IsPartitionEOF) break;
-      
+
       result.Add(consumeResult.Message.Value);
       consumer.Commit();
     }
@@ -127,14 +134,12 @@ public class FicusKafkaIntegrationTests
 
   private BxesKafkaStreamWriter<IEvent> CreateBxesKafkaWriter()
   {
-    var settings = myConfiguration.GetSection(nameof(FicusKafkaProducerSettings)).Get<FicusKafkaProducerSettings>()!;
-
     return new BxesKafkaStreamWriter<IEvent>(
       new SystemMetadata(),
-      settings.Topic,
+      ProducerSettings.Topic,
       new ProducerConfig
       {
-        BootstrapServers = settings.BootstrapServers
+        BootstrapServers = ProducerSettings.BootstrapServers
       }
     );
   }

@@ -1,5 +1,48 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+    --cv-section-background: #191919;
+    --cv-section-header-color: #323232;
+    --cv-section-header-color-hovered: #474747;
+    --cv-section-header-text-color: #e1e1e1;
+    --cv-section-content-color: #252525;
+    --cv-section-content-text-color: #b5b5b5;
+    --cv-section-header-index-background: #3c3c3c;
+    --cv-border-radius: 10px;
+
+    --processes-section-title-background: #262929;
+    --processes-section-process-name-background: #242929;
+    --processes-section-cases-background: #2c3131;
+    --processes-section-case-background: #363d3d;
+    --processes-section-case-background-hovered: #404747;
+    --processes-section-cases-collapsed-bakground: #464e4e;
+
+    --processes-section-title-background-darker: #1a1c1c;
+    --processes-section-process-name-background-darker: #1f2222;
+    --processes-section-cases-background-darker: #272b2b;
+    --processes-section-case-background-darker: #2e3333;
+    --processes-section-case-background-hovered-darker: #383e3e;
+    --processes-section-cases-collapsed-bakground-darker: #3e4545;
+
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer */
+    -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+    -webkit-user-select: none; /* Chrome, Safari, and Opera */
+    -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.height-100-percent {
+  height: 100%;
+}
+
+.centered-text {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 h1:focus {

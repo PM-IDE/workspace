@@ -44,11 +44,21 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
   private static Traces ConsumeAllEvents(MethodExecutionKafkaConsumer consumer) =>
     consumer.ConsumeAllEvents()
       .Select(trace =>
-        (
-          MethodName: trace.Metadata.FirstOrDefault(a => a.Key.Value is "case_name")?.Value.ToString() ?? "UNRESOLVED",
+      {
+        var caseNameParts = trace.Metadata.FirstOrDefault(a => a.Key.Value is "case_name_parts")?.Value.ToString();
+
+        var methodName = "UNRESOLVED";
+        if (caseNameParts is { })
+        {
+          var parts = caseNameParts.Split(';');
+          methodName = string.Join(' ', parts);
+        }
+
+        return (
+          MethodName: methodName,
           Events: trace.Events.Select(CreateFromBxesEvent).ToList()
-        )
-      )
+        );
+      })
       .Where(t => t.Events.Count > 0)
       .ToList();
 

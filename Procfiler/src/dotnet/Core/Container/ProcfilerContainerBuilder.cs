@@ -1,6 +1,5 @@
 using System.Reflection;
 using Autofac;
-using Core.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 
@@ -19,10 +18,6 @@ public static class ProcfilerContainerBuilder
     var logger = LoggerFactory.Create(options =>
     {
       options.SetMinimumLevel(logLevel);
-      var logDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
-      PathUtils.EnsureEmptyDirectoryOrThrow(logDirectory);
-      var logFile = Path.Combine(logDirectory, $"log-{{Date}}-{DateTime.Now.TimeOfDay.TotalMilliseconds}.txt");
-      options.AddFile(logFile, logLevel);
       options.AddSimpleConsole(formatterOptions =>
       {
         formatterOptions.SingleLine = true;

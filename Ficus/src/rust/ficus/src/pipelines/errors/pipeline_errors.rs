@@ -6,6 +6,7 @@ use std::fmt::{Display, Formatter};
 pub enum PipelinePartExecutionError {
     Raw(RawPartExecutionError),
     MissingContext(MissingContextError),
+    MissingRequiredMetadata(String),
 }
 
 impl Display for PipelinePartExecutionError {
@@ -13,6 +14,9 @@ impl Display for PipelinePartExecutionError {
         match self {
             PipelinePartExecutionError::Raw(raw_error) => Display::fmt(&raw_error, f),
             PipelinePartExecutionError::MissingContext(missing_context) => Display::fmt(&missing_context, f),
+            PipelinePartExecutionError::MissingRequiredMetadata(missing_metadata) => {
+                f.write_str(format!("Missing required metadata {} in the context", missing_metadata).as_str())
+            }
         }
     }
 }

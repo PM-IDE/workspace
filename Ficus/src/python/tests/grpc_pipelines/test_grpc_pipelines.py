@@ -11,7 +11,7 @@ from ...ficus.grpc_pipelines.data_models import NarrowActivityKind
 from ...ficus.grpc_pipelines.drawing_parts import TracesDiversityDiagram, DrawPlacementsOfEventByName, \
     DrawPlacementOfEventsByRegex
 from ...ficus.grpc_pipelines.filtering_parts import FilterTracesByEventsCount
-from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline, PrintEventLogInfo, ficus_backend_addr_key
+from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline, PrintEventLogInfo
 from ...ficus.grpc_pipelines.patterns_parts import FindSuperMaximalRepeats, PatternsDiscoveryStrategy
 from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog
 from ...ficus.grpc_pipelines.xes_parts import ReadLogFromXes
@@ -38,8 +38,7 @@ def _execute_pipeline(pipeline, config):
     if backend_addr is None:
         backend_addr = 'localhost:8080'
 
-    config[ficus_backend_addr_key] = backend_addr
-    return pipeline.execute(config)
+    return pipeline.execute(backend_addr, config)
 
 
 def test_pipeline_with_getting_context_value():

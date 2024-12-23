@@ -68,7 +68,8 @@ fn get_test_parts_names() -> Vec<String> {
         "AnnotateGraphWithTime",
         "TracesDiversityDiagramByAttribute",
         "DiscoverDirectlyFollowsGraphByAttribute",
-        "AppendAttributesToName"
+        "AppendAttributesToName",
+        "MergeXesLogsFromPaths"
     ]
 }
 

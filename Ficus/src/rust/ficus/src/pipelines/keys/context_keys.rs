@@ -1,14 +1,12 @@
 use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use bxes::models::system_models::SystemMetadata;
-use lazy_static::lazy_static;
-
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
+use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
 use crate::pipelines::patterns_parts::PatternsKindDto;
@@ -31,9 +29,16 @@ use crate::{
     pipelines::pipelines::Pipeline,
     utils::colors::ColorsHolder,
 };
+use bxes::models::system_models::SystemMetadata;
+use lazy_static::lazy_static;
+use uuid::Uuid;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
+pub const SUBSCRIPTION_ID_STR: &'static str = "subscription_id";
+pub const SUBSCRIPTION_NAME_STR: &'static str = "subscription_name";
+pub const PIPELINE_ID_STR: &'static str = "pipeline_id";
+pub const PIPELINE_NAME_STR: &'static str = "pipeline_name";
 pub const UNSTRUCTURED_METADATA_STR: &'static str = "unstructured_metadata";
 pub const PATH: &'static str = "path";
 pub const TANDEM_ARRAY_LENGTH: &'static str = "tandem_array_length";
@@ -109,6 +114,7 @@ pub const GRAPH_TIME_ANNOTATION: &'static str = "graph_time_annotation";
 pub const ATTRIBUTE: &'static str = "attribute";
 pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
 pub const ATTRIBUTES: &'static str = "attributes";
+pub const PATHS: &'static str = "paths";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -182,8 +188,12 @@ lazy_static!(
      pub static ref LOG_SERIALIZATION_FORMAT_KEY: DefaultContextKey<LogSerializationFormat> = DefaultContextKey::new(LOG_SERIALIZATION_FORMAT);
      pub static ref BYTES_KEY: DefaultContextKey<Vec<u8>> = DefaultContextKey::new(BYTES);
      pub static ref PATH_KEY: DefaultContextKey<String> = DefaultContextKey::new(PATH);
-     pub static ref CASE_NAME: DefaultContextKey<String> = DefaultContextKey::new(CASE_NAME_STR);
+     pub static ref CASE_NAME: DefaultContextKey<CaseName> = DefaultContextKey::new(CASE_NAME_STR);
      pub static ref PROCESS_NAME: DefaultContextKey<String> = DefaultContextKey::new(PROCESS_NAME_STR);
+     pub static ref PIPELINE_NAME: DefaultContextKey<String> = DefaultContextKey::new(PIPELINE_NAME_STR);
+     pub static ref PIPELINE_ID: DefaultContextKey<Uuid> = DefaultContextKey::new(PIPELINE_ID_STR);
+     pub static ref SUBSCRIPTION_NAME: DefaultContextKey<String> = DefaultContextKey::new(SUBSCRIPTION_NAME_STR);
+     pub static ref SUBSCRIPTION_ID: DefaultContextKey<Uuid> = DefaultContextKey::new(SUBSCRIPTION_ID_STR);
      pub static ref UNSTRUCTURED_METADATA: DefaultContextKey<Vec<(String, String)>> = DefaultContextKey::new(PROCESS_NAME_STR);
      pub static ref START_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(START_CASE_REGEX_STR);
      pub static ref END_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(END_CASE_REGEX_STR);
@@ -192,6 +202,7 @@ lazy_static!(
      pub static ref ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(ATTRIBUTE);
      pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
      pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
+     pub static ref PATHS_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(PATHS);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -269,6 +280,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
         TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
         ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
+        PATHS => Some(PATHS_KEY.deref() as &dyn ContextKey),
         _ => None,
     }
 }

@@ -7,12 +7,13 @@ use crate::event_log::bxes::xes_to_bxes_converter::{write_event_log_to_bxes, wri
 use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
 use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log_to_bytes;
 use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATH_KEY, SYSTEM_METADATA_KEY};
+use crate::pipelines::keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
     event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
     utils::user_data::user_data::UserData,
 };
+use crate::event_log::xes::logs_merger::merge_xes_logs;
 
 impl PipelineParts {
     pub(super) fn write_log_to_xes() -> (String, PipelinePartFactory) {
@@ -138,6 +139,17 @@ impl PipelineParts {
                 }
                 Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
             }
+        })
+    }
+
+    pub(super) fn merge_xes_logs_from_paths() -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::MERGE_XES_LOGS_FROM_PATHS, &|context, _, config| {
+            let paths = Self::get_user_data(context, &PATHS_KEY)?;
+            let log = merge_xes_logs(paths);
+
+            context.put_concrete(EVENT_LOG_KEY.key(), log);
+            
+            Ok(())
         })
     }
 }

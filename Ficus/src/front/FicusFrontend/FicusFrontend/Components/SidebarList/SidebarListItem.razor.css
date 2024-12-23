@@ -1,0 +1,79 @@
+﻿.case-list-item {
+  width: 100%;
+  border-style: solid;
+  border-width: 0;
+  border-bottom-width: 1px;
+  border-bottom-color: white;
+  position: relative;
+  
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-bottom: 5px;
+}
+
+.case-list-item-name {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  
+  color: white;
+  font-size: 15px;
+}
+
+.case-list-item-name-icon {
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.case-list-item-creation-date {
+  color: white;
+  font-size: 13px;
+}
+
+.case-notification {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.case-update-notification {
+  background-color: yellow;
+}
+
+.case-new-notification {
+  background-color: greenyellow;
+}
+
+.case-seen-notification {
+  visibility: hidden;
+}
+
+.case-list-item-tooltip-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+@scope (.dark-sidebar-list) {
+  .case-list-item {
+    background-color: var(--processes-section-case-background);
+  }
+
+  .case-list-item:hover {
+    background-color: var(--processes-section-case-background-hovered);
+  }
+}
+
+@scope (.darker-sidebar-list) {
+  .case-list-item {
+    background-color: var(--processes-section-case-background-darker);
+  }
+
+  .case-list-item:hover {
+    background-color: var(--processes-section-case-background-hovered-darker);
+  }
+}

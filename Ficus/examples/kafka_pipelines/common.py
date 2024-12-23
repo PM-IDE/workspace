@@ -6,7 +6,7 @@ def env_or_default(env_name: str, default: str):
     env = os.getenv(env_name)
     return env if env is not None else default
 
-def execute_pipeline(pipeline_parts: list[PipelinePart]):
+def execute_pipeline(sub_name: str, pipeline_name: str, pipeline_parts: list[PipelinePart]):
     consumer_servers = env_or_default('CONSUMER_BOOTSTRAP_SERVERS', 'localhost:9092')
     consumer_topic = env_or_default('CONSUMER_TOPIC', 'my-topic')
     consumer_group = env_or_default('CONSUMER_GROUP_ID', 'xd')
@@ -32,11 +32,13 @@ def execute_pipeline(pipeline_parts: list[PipelinePart]):
 
     ficus_backend = env_or_default('FICUS_BACKEND', 'localhost:8080')
 
+    subscription_id = create_kafka_subscription(sub_name, kafka_consumer_metadata, ficus_backend)
+    if subscription_id is None:
+        return
+
     KafkaPipeline(
         pipeline_parts
-    ).execute(kafka_consumer_metadata, kafka_producer_metadata, {
-        ficus_backend_addr_key: ficus_backend
-    })
+    ).execute(ficus_backend, subscription_id, pipeline_name, kafka_producer_metadata, {})
 
     if env_or_default('SLEEP', None) is not None:
         while True:

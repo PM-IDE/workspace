@@ -25,6 +25,7 @@ public class KnownSolution
   public static KnownSolution AsyncAwaitTaskFactoryNew { get; } = new("AsyncAwaitTaskFactoryNew");
   public static KnownSolution AwaitForeach { get; } = new("AwaitForeach");
   public static KnownSolution AsyncDisposable { get; } = new("AsyncDisposable");
+  public static KnownSolution ProcfilerEventPipeLogger { get; } = new("ProcfilerEventPipeLogger");
 
 
   public static IEnumerable<KnownSolution> AllSolutions { get; } =
