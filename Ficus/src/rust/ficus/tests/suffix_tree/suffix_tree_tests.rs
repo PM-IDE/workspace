@@ -16,6 +16,7 @@ use crate::test_core::{
     },
     test_paths::{create_suffix_tree_gold_file_path, get_paths_to_suffix_tree_string},
 };
+use crate::test_core::simple_events_logs_provider::create_long_repeats_trace;
 
 //ref impl: http://e-maxx.ru/algo/ukkonen
 #[test]
@@ -368,6 +369,18 @@ fn test_patterns_search5() {
         |_, tree| tree.find_patterns("bb".as_bytes()).unwrap(),
         vec![(0, 2), (1, 3), (5, 7), (6, 8)],
     );
+}
+
+#[test]
+fn test_long_trace_search() {
+    let trace = create_long_repeats_trace();
+    let slice = SingleWordSuffixTreeSlice::new(trace.as_bytes());
+    let mut tree = SuffixTree::new(&slice);
+    tree.build_tree();
+
+    let _ = tree.find_maximal_repeats();
+    let _ = tree.find_super_maximal_repeats();
+    let _ = tree.find_near_super_maximal_repeats();
 }
 
 #[test]

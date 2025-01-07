@@ -1,3 +1,4 @@
+use std::iter;
 use chrono::format::Numeric::Second;
 use chrono::{DateTime, Days, Duration, SecondsFormat, Utc};
 use ficus::event_log::core::event::event::Event;
@@ -5,6 +6,8 @@ use ficus::event_log::core::event_log::EventLog;
 use ficus::event_log::core::trace::trace::Trace;
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use std::ops::Add;
+use rand::distributions::Alphanumeric;
+use rand::{Rng, RngCore};
 
 pub fn create_raw_event_log() -> Vec<Vec<&'static str>> {
     vec![vec!["A", "B", "C"], vec!["A", "B", "C"]]
@@ -106,6 +109,17 @@ pub fn create_max_repeats_trace_4() -> &'static [u8] {
 
 pub fn create_max_repeats_trace_5() -> &'static [u8] {
     "aaacdcdcbedbccbadbdebdc".as_bytes()
+}
+
+fn generate_string(len: usize) -> String {
+    const CHARSET: &[u8] = b"abcdefgtyu";
+    let mut rng = rand::thread_rng();
+    let one_char = || CHARSET[rng.gen_range(0..CHARSET.len())] as char;
+    iter::repeat_with(one_char).take(len).collect()
+}
+
+pub fn create_long_repeats_trace() -> String {
+    generate_string(1_000_000)
 }
 
 pub fn create_log_for_max_repeats1() -> XesEventLogImpl {
