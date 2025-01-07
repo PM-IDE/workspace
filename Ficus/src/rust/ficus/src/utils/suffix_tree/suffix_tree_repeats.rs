@@ -1,11 +1,11 @@
 use crate::utils::hash_map_utils::{compare_maps_by_keys, increase_in_map_by};
 
 use super::suffix_tree_patterns::SuffixTree;
+use std::collections::VecDeque;
 use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
 };
-use std::collections::VecDeque;
 
 enum RepeatType {
     MaximalRepeat,
@@ -31,17 +31,7 @@ where
     }
 
     fn find_repeats(&self, repeat_type: RepeatType) -> Vec<(usize, usize)> {
-        let mut maximal_repeats = HashSet::new();
-        let mut nodes_to_awc = HashMap::new();
-        let mut nodes_any_suffix_len = HashMap::new();
-        self.dfs_repeats(
-            &repeat_type,
-            0,
-            0,
-            &mut nodes_to_awc,
-            &mut nodes_any_suffix_len,
-            &mut maximal_repeats,
-        );
+        let maximal_repeats = self.find_repeats_internal(&repeat_type);
 
         let mut maximal_repeats: Vec<(usize, usize)> = maximal_repeats.into_iter().collect();
         maximal_repeats.sort();
@@ -62,18 +52,15 @@ where
         filtered_repeats
     }
 
-    fn dfs_repeats(
-        &self,
-        repeat_type: &RepeatType,
-        start_node_index: usize,
-        start_suffix_length: usize,
-        nodes_to_awc: &mut HashMap<usize, HashMap<Option<TElement>, usize>>,
-        nodes_to_any_suffix_len: &mut HashMap<usize, usize>,
-        repeats: &mut HashSet<(usize, usize)>,
-    ) {
+    fn find_repeats_internal(&self, repeat_type: &RepeatType) -> HashSet<(usize, usize)> {
+        let queue = self.create_from_bottom_to_top_nodes_queue();
+        self.find_repeats_from_queue(repeat_type, queue)
+    }
+
+    fn create_from_bottom_to_top_nodes_queue(&self) -> VecDeque<(usize, usize)> {
         let nodes = self.nodes.borrow();
-        let start_node = nodes.get(start_node_index).unwrap();
-        let mut queue = VecDeque::from_iter([(start_node_index, start_suffix_length + start_node.edge_len())]);
+        let start_node = nodes.get(0).unwrap();
+        let mut queue = VecDeque::from_iter([(0, start_node.edge_len())]);
 
         let mut queue_index = 0;
         loop {
@@ -93,11 +80,20 @@ where
             }
 
             if !queue_extended {
-                break
+                break;
             }
 
             queue_index = current_queue_len;
         }
+
+        queue
+    }
+
+    fn find_repeats_from_queue(&self, repeat_type: &RepeatType, mut queue: VecDeque<(usize, usize)>) -> HashSet<(usize, usize)> {
+        let nodes = self.nodes.borrow();
+        let mut nodes_to_awc = HashMap::new();
+        let mut nodes_to_any_suffix_len = HashMap::new();
+        let mut maximal_repeats = HashSet::new();
 
         while let Some((node_index, suffix_length)) = queue.pop_back() {
             let node = nodes.get(node_index).unwrap();
@@ -129,12 +125,14 @@ where
                     &node_index,
                     &children,
                     suffix_length,
-                    nodes_to_awc,
-                    nodes_to_any_suffix_len,
-                    repeats,
+                    &nodes_to_awc,
+                    &nodes_to_any_suffix_len,
+                    &mut maximal_repeats,
                 );
             }
         }
+
+        maximal_repeats
     }
 
     fn add_repeats(
