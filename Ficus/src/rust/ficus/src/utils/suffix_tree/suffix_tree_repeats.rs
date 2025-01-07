@@ -5,6 +5,7 @@ use std::{
     collections::{HashMap, HashSet},
     hash::Hash,
 };
+use std::collections::VecDeque;
 
 enum RepeatType {
     MaximalRepeat,
@@ -64,56 +65,75 @@ where
     fn dfs_repeats(
         &self,
         repeat_type: &RepeatType,
-        index: usize,
-        mut suffix_length: usize,
+        start_node_index: usize,
+        start_suffix_length: usize,
         nodes_to_awc: &mut HashMap<usize, HashMap<Option<TElement>, usize>>,
         nodes_to_any_suffix_len: &mut HashMap<usize, usize>,
         repeats: &mut HashSet<(usize, usize)>,
     ) {
         let nodes = self.nodes.borrow();
-        let node = nodes.get(index).unwrap();
-        suffix_length += node.edge_len();
+        let start_node = nodes.get(start_node_index).unwrap();
+        let mut queue = VecDeque::from_iter([(start_node_index, start_suffix_length + start_node.edge_len())]);
 
-        if node.is_leaf() {
-            let element = self.get_element_for_suffix(suffix_length);
-            nodes_to_any_suffix_len.insert(index, suffix_length);
-            nodes_to_awc.insert(index, HashMap::from_iter(vec![(element, 1)]));
-            return;
-        }
+        let mut queue_index = 0;
+        loop {
+            let current_queue_len = queue.len();
+            let mut queue_extended = false;
 
-        let mut child_set = HashMap::new();
-        for (_, child_index) in &node.children {
-            self.dfs_repeats(
-                repeat_type,
-                *child_index,
-                suffix_length,
-                nodes_to_awc,
-                nodes_to_any_suffix_len,
-                repeats,
-            );
+            for i in queue_index..current_queue_len {
+                let (node_index, suffix_length) = queue.get(i).cloned().unwrap();
+                let node = nodes.get(node_index).unwrap();
 
-            for (element, count) in nodes_to_awc.get(child_index).unwrap() {
-                increase_in_map_by(&mut child_set, element, *count);
+                for (_, child_index) in &node.children {
+                    let child_node = nodes.get(*child_index).unwrap();
+                    let child_suffix_length = suffix_length + child_node.edge_len();
+                    queue.push_back((*child_index, child_suffix_length));
+                    queue_extended = true;
+                }
             }
+
+            if !queue_extended {
+                break
+            }
+
+            queue_index = current_queue_len;
         }
 
-        nodes_to_awc.insert(index, child_set);
+        while let Some((node_index, suffix_length)) = queue.pop_back() {
+            let node = nodes.get(node_index).unwrap();
 
-        let children: Vec<&usize> = node.children.values().into_iter().collect();
+            if node.is_leaf() {
+                let element = self.get_element_for_suffix(suffix_length);
+                nodes_to_any_suffix_len.insert(node_index, suffix_length);
+                nodes_to_awc.insert(node_index, HashMap::from_iter(vec![(element, 1)]));
+                continue;
+            }
 
-        let child_suffix_len = nodes_to_any_suffix_len[children.iter().min().unwrap()];
-        nodes_to_any_suffix_len.insert(index, child_suffix_len);
+            let mut child_set = HashMap::new();
+            for (_, child_index) in &node.children {
+                for (element, count) in nodes_to_awc.get(&child_index).unwrap() {
+                    increase_in_map_by(&mut child_set, element, *count);
+                }
+            }
 
-        if suffix_length != 0 {
-            self.add_repeats(
-                repeat_type,
-                &index,
-                &children,
-                suffix_length,
-                nodes_to_awc,
-                nodes_to_any_suffix_len,
-                repeats,
-            );
+            nodes_to_awc.insert(node_index, child_set);
+
+            let children: Vec<&usize> = node.children.values().into_iter().collect();
+
+            let child_suffix_len = nodes_to_any_suffix_len[children.iter().min().unwrap()];
+            nodes_to_any_suffix_len.insert(node_index, child_suffix_len);
+
+            if suffix_length != 0 {
+                self.add_repeats(
+                    repeat_type,
+                    &node_index,
+                    &children,
+                    suffix_length,
+                    nodes_to_awc,
+                    nodes_to_any_suffix_len,
+                    repeats,
+                );
+            }
         }
     }
 
