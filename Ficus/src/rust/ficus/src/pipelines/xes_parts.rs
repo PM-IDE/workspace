@@ -4,6 +4,7 @@ use super::{
 };
 use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult};
 use crate::event_log::bxes::xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes};
+use crate::event_log::xes::logs_merger::merge_xes_logs;
 use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
 use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log_to_bytes;
 use crate::pipelines::context::PipelineContext;
@@ -13,7 +14,6 @@ use crate::{
     event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
     utils::user_data::user_data::UserData,
 };
-use crate::event_log::xes::logs_merger::merge_xes_logs;
 
 impl PipelineParts {
     pub(super) fn write_log_to_xes() -> (String, PipelinePartFactory) {
@@ -148,7 +148,7 @@ impl PipelineParts {
             let log = merge_xes_logs(paths);
 
             context.put_concrete(EVENT_LOG_KEY.key(), log);
-            
+
             Ok(())
         })
     }

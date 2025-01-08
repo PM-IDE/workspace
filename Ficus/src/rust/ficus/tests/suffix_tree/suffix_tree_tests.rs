@@ -8,6 +8,7 @@ use ficus::{
     vecs,
 };
 
+use crate::test_core::simple_events_logs_provider::create_long_repeats_trace;
 use crate::test_core::{
     gold_based_test::execute_test_with_gold,
     simple_events_logs_provider::{
@@ -16,7 +17,6 @@ use crate::test_core::{
     },
     test_paths::{create_suffix_tree_gold_file_path, get_paths_to_suffix_tree_string},
 };
-use crate::test_core::simple_events_logs_provider::create_long_repeats_trace;
 
 //ref impl: http://e-maxx.ru/algo/ukkonen
 #[test]
