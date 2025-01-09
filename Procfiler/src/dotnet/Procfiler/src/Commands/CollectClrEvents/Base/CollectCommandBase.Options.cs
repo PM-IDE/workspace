@@ -109,7 +109,7 @@ public partial class CollectCommandBase
     new("--merge-undefined-events", static () => true, "Should we merge events from undefined thread to managed thread events");
 
   private Option<CppProfilerMode> UseCppProfilerOption { get; } =
-    new("--cpp-profiler-mode", static () => CppProfilerMode.SingleFileBinStack, "Should we load cpp profiler");
+    new("--cpp-profiler-mode", static () => CppProfilerMode.PerThreadBinStacksFilesOnline, "Should we load cpp profiler");
 
   private Option<bool> UseDuringRuntimeMethodsFiltering { get; } =
     new("--use-during-runtime-filtering", static () => true, "Whether to use during runtime methods filtering");
