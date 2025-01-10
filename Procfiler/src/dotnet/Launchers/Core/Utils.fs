@@ -183,6 +183,8 @@ module ProcfilerScriptsUtils =
     
   let launchProcfiler config =
     let args = createArgumentsString config
+    printfn $"Launching Procfiler with arguments: {args}"
+    
     let workingDirectory = config.GetWorkingDirectory()
     let procfilerProcess = createProcess "dotnet" $"{buildProcfiler} {args}" workingDirectory
 
