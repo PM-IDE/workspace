@@ -186,7 +186,7 @@ public class ClrEventsCollector(
     {
       var processedCount = statistics.EventsCount;
       var allEvents = context.Log.EventCount;
-      logger.LogTrace("Processed {Processed} out of {OverallCount}", processedCount, allEvents);
+      logger.LogInformation("Processed {Processed} out of {OverallCount}", processedCount, allEvents);
     }
 
     var eventId = (int)traceEvent.ID;
