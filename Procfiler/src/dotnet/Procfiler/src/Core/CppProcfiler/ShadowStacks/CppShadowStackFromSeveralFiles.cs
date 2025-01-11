@@ -23,7 +23,12 @@ public partial class CppShadowStackFromSeveralFiles(IProcfilerLogger logger, str
 
     foreach (var binStacksFile in binStacksFiles)
     {
-      yield return new CppShadowStackImpl(logger, Path.Join(pathToBinaryStacksFolder, binStacksFile), 0);
+      var path = Path.Join(pathToBinaryStacksFolder, binStacksFile);
+
+      if (CppShadowStackImpl.TryCreateShadowStack(logger, path, 0) is { } shadowStack)
+      {
+        yield return shadowStack;
+      }
     }
   }
 
@@ -32,6 +37,6 @@ public partial class CppShadowStackFromSeveralFiles(IProcfilerLogger logger, str
     var threadBinStacksFilePath = Path.Join(pathToBinaryStacksFolder, $"binstack_{managedThreadId}.bin");
     if (!File.Exists(threadBinStacksFilePath)) return null;
 
-    return new CppShadowStackImpl(logger, threadBinStacksFilePath, 0);
+    return CppShadowStackImpl.TryCreateShadowStack(logger, threadBinStacksFilePath, 0);
   }
 }

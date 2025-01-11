@@ -17,7 +17,10 @@ public class CppShadowStacksImplFromSingleFile(IProcfilerLogger logger, string p
 
     foreach (var (_, position) in EnumerateShadowStacksInternal(br))
     {
-      yield return new CppShadowStackImpl(logger, pathToBinaryStacksFile, position);
+      if (CppShadowStackImpl.TryCreateShadowStack(logger, pathToBinaryStacksFile, position) is { } shadowStack)
+      {
+        yield return shadowStack;
+      }
     }
   }
 
@@ -45,10 +48,13 @@ public class CppShadowStacksImplFromSingleFile(IProcfilerLogger logger, string p
       return null;
     }
 
-    var foundShadowStack = new CppShadowStackImpl(logger, pathToBinaryStacksFile, offset);
-    Debug.Assert(foundShadowStack.ManagedThreadId == managedThreadId);
+    if (CppShadowStackImpl.TryCreateShadowStack(logger, pathToBinaryStacksFile, offset) is not { } shadowStack)
+    {
+      return null;
+    }
 
-    return foundShadowStack;
+    Debug.Assert(shadowStack.ManagedThreadId == managedThreadId);
+    return shadowStack;
   }
 
   private void InitializeThreadIdsToOffsetsIfNeeded()
