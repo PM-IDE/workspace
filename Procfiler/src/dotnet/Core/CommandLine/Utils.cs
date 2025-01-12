@@ -49,7 +49,7 @@ public static class CommandLineUtils
     }
     catch (Exception ex)
     {
-      logger.LogError(ex.Message);
+      logger.LogError(ex, ex.Message);
       return -1;
     }
 
