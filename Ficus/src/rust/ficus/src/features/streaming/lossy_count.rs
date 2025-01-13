@@ -1,16 +1,6 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-
-#[derive(Debug)]
-pub struct Entry<T> {
-    key: T,
-    approx_frequency: f64,
-}
-
-impl<T> Entry<T> {
-    pub fn key(&self) -> &T { &self.key }
-    pub fn approx_frequency(&self) -> f64 { self.approx_frequency }
-}
+use crate::features::streaming::core::{StreamingCounter, StreamingCounterEntry};
 
 struct LossyCountState {
     freq: u64,
@@ -32,6 +22,38 @@ pub struct LossyCount<T> where T: Hash + Eq {
     observed_items_count: u64
 }
 
+impl<T> StreamingCounter<T> for LossyCount<T> where T: Hash + Eq + Clone {
+    fn observe(&mut self, element: T) {
+        self.observed_items_count += 1;
+        let bucket_number = self.observed_items_count / self.batch_size + 1;
+
+        if self.state.contains_key(&element) {
+            self.state.get_mut(&element).unwrap().freq += 1;
+        } else {
+            self.state.insert(element, LossyCountState::new((bucket_number - 1) as f64));
+        }
+
+        if self.observed_items_count % self.batch_size == 0 {
+            self.prune(bucket_number as f64);
+        }
+    }
+
+    fn frequency(&self, element: &T) -> Option<StreamingCounterEntry<T>> {
+        match self.state.get(element) {
+            None => None,
+            Some(entry) => Some(self.to_streaming_counter_entry((element, entry)))
+        }
+    }
+
+    fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<T>> {
+        self.state
+            .iter()
+            .filter(|s| s.1.freq as f64 >= (threshold - s.1.delta) * (self.observed_items_count as f64))
+            .map(|s| self.to_streaming_counter_entry(s))
+            .collect()
+    }
+}
+
 impl<T> LossyCount<T> where T: Hash + Eq + Clone {
     pub fn new(error: f64) -> Self {
         Self {
@@ -41,34 +63,8 @@ impl<T> LossyCount<T> where T: Hash + Eq + Clone {
         }
     }
 
-    pub fn state(&self) -> Vec<Entry<T>> {
-        self.above_threshold(0f64)
-    }
-
-    pub fn above_threshold(&self, threshold: f64) -> Vec<Entry<T>> {
-        self.state
-            .iter()
-            .filter(|s| s.1.freq as f64 >= (threshold - s.1.delta) * (self.observed_items_count as f64))
-            .map(|s| Entry {
-                key: s.0.clone(),
-                approx_frequency: s.1.freq as f64 / (self.observed_items_count as f64)
-            })
-            .collect()
-    }
-
-    pub fn observe(&mut self, e: T) {
-        self.observed_items_count += 1;
-        let bucket_number = self.observed_items_count / self.batch_size + 1;
-
-        if self.state.contains_key(&e) {
-            self.state.get_mut(&e).unwrap().freq += 1;
-        } else {
-            self.state.insert(e, LossyCountState::new((bucket_number - 1) as f64));
-        }
-
-        if self.observed_items_count % self.batch_size == 0 {
-            self.prune(bucket_number as f64);
-        }
+    fn to_streaming_counter_entry(&self, pair: (&T, &LossyCountState)) -> StreamingCounterEntry<T> {
+        StreamingCounterEntry::new(pair.0.clone(), pair.1.freq as f64 / (self.observed_items_count as f64))
     }
 
     fn prune(&mut self, bucket_number: f64) {
