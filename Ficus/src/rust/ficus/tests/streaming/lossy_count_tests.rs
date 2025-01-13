@@ -1,6 +1,5 @@
-﻿use tonic::codegen::Body;
-use ficus::features::streaming::core::StreamingCounter;
-use ficus::features::streaming::lossy_count::LossyCount;
+﻿use ficus::features::streaming::counters::core::StreamingCounter;
+use ficus::features::streaming::counters::lossy_count::LossyCount;
 
 #[test]
 pub fn simple_test_1() {

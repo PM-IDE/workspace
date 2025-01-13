@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-use crate::features::streaming::core::{StreamingCounter, StreamingCounterEntry};
+use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry};
 
 struct LossyCountState {
     freq: u64,
