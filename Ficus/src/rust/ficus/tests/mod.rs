@@ -7,7 +7,7 @@ pub mod mutations;
 pub mod other;
 pub mod petri_nets;
 pub mod pipelines;
+pub mod streaming;
 pub mod suffix_tree;
 pub mod test_core;
 pub mod utils;
-pub mod streaming;

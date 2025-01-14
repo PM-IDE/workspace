@@ -1,6 +1,6 @@
+use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry};
 use std::collections::HashMap;
 use std::hash::Hash;
-use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry};
 
 struct LossyCountState {
     freq: u64,
@@ -9,20 +9,23 @@ struct LossyCountState {
 
 impl LossyCountState {
     pub fn new(delta: f64) -> Self {
-        Self {
-            freq: 1,
-            delta
-        }
+        Self { freq: 1, delta }
     }
 }
 
-pub struct LossyCount<T> where T: Hash + Eq {
+pub struct LossyCount<T>
+where
+    T: Hash + Eq,
+{
     state: HashMap<T, LossyCountState>,
     batch_size: u64,
-    observed_items_count: u64
+    observed_items_count: u64,
 }
 
-impl<T> StreamingCounter<T> for LossyCount<T> where T: Hash + Eq + Clone {
+impl<T> StreamingCounter<T> for LossyCount<T>
+where
+    T: Hash + Eq + Clone,
+{
     fn observe(&mut self, element: T) {
         self.observed_items_count += 1;
         let bucket_number = self.observed_items_count / self.batch_size + 1;
@@ -41,7 +44,7 @@ impl<T> StreamingCounter<T> for LossyCount<T> where T: Hash + Eq + Clone {
     fn frequency(&self, element: &T) -> Option<StreamingCounterEntry<T>> {
         match self.state.get(element) {
             None => None,
-            Some(entry) => Some(self.to_streaming_counter_entry((element, entry)))
+            Some(entry) => Some(self.to_streaming_counter_entry((element, entry))),
         }
     }
 
@@ -54,7 +57,10 @@ impl<T> StreamingCounter<T> for LossyCount<T> where T: Hash + Eq + Clone {
     }
 }
 
-impl<T> LossyCount<T> where T: Hash + Eq + Clone {
+impl<T> LossyCount<T>
+where
+    T: Hash + Eq + Clone,
+{
     pub fn new(error: f64) -> Self {
         Self {
             state: HashMap::new(),
@@ -68,7 +74,8 @@ impl<T> LossyCount<T> where T: Hash + Eq + Clone {
     }
 
     fn prune(&mut self, bucket_number: f64) {
-        let keys_to_remove: Vec<T> = self.state
+        let keys_to_remove: Vec<T> = self
+            .state
             .iter()
             .filter(|s| s.1.freq as f64 + s.1.delta <= bucket_number)
             .map(|s| s.0.clone())
