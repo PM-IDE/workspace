@@ -74,15 +74,6 @@ where
     }
 
     fn prune(&mut self, bucket_number: f64) {
-        let keys_to_remove: Vec<T> = self
-            .state
-            .iter()
-            .filter(|s| s.1.freq as f64 + s.1.delta <= bucket_number)
-            .map(|s| s.0.clone())
-            .collect();
-
-        for key in keys_to_remove {
-            self.state.remove(&key);
-        }
+        self.state.retain(|_, value| value.freq as f64 + value.delta > bucket_number);
     }
 }
