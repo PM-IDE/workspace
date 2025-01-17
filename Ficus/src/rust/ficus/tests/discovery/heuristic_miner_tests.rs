@@ -3,10 +3,10 @@ use crate::test_core::{
 };
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus::features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo};
+use ficus::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 use ficus::features::discovery::{
     heuristic::heuristic_miner::discover_petri_net_heuristic, petri_net::pnml_serialization::serialize_to_pnml,
 };
-use ficus::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 
 #[test]
 pub fn heuristic_miner_test_2() {

@@ -20,7 +20,7 @@ use crate::{
         },
         xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
     },
-    features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto},
+    features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
 

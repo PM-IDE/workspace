@@ -1,14 +1,14 @@
-use std::collections::HashMap;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
+use std::collections::HashMap;
 
 pub trait TriangleRelation {
     fn get(&self, first: &str, second: &str) -> Option<usize>;
 }
 
 pub struct OfflineTriangleRelation {
-    relations: HashMap<(String, String), usize>
+    relations: HashMap<(String, String), usize>,
 }
 
 impl OfflineTriangleRelation {
@@ -38,9 +38,7 @@ impl OfflineTriangleRelation {
             }
         }
 
-        Self {
-            relations
-        }
+        Self { relations }
     }
 }
 

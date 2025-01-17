@@ -1,7 +1,7 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto, EventLogInfo};
+use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
 use crate::features::discovery::alpha::alpha_set::AlphaSet;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProvider;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
@@ -23,10 +23,7 @@ pub fn discover_petri_net_alpha(provider: &impl AlphaRelationsProvider) -> Defau
     do_discover_petri_net_alpha(provider)
 }
 
-pub fn discover_petri_net_alpha_plus(
-    provider: &impl AlphaPlusRelationsProvider,
-    alpha_plus_plus: bool,
-) -> DefaultPetriNet {
+pub fn discover_petri_net_alpha_plus(provider: &impl AlphaPlusRelationsProvider, alpha_plus_plus: bool) -> DefaultPetriNet {
     let mut petri_net = do_discover_petri_net_alpha(provider);
     add_one_length_loops(provider, &mut petri_net);
 

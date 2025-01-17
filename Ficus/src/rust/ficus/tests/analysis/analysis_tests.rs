@@ -1,13 +1,13 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::test_core::simple_events_logs_provider::{
+    create_log_from_filter_out_chaotic_events, create_log_from_filter_out_chaotic_events_with_noise, create_simple_event_log,
+};
+use ficus::features::analysis::event_log_info::EventLogInfo;
 use ficus::features::analysis::{
     entropy::dfg_entropy::{calculate_default_dfg_entropy, calculate_laplace_dfg_entropy},
     entropy::{pos_entropy::calculate_pos_entropies, pos_entropy_fast::calculate_pos_entropies_fast},
-    event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto},
-};
-use ficus::features::analysis::event_log_info::EventLogInfo;
-use crate::test_core::simple_events_logs_provider::{
-    create_log_from_filter_out_chaotic_events, create_log_from_filter_out_chaotic_events_with_noise, create_simple_event_log,
+    event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo},
 };
 
 #[test]

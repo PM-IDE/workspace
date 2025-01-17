@@ -88,10 +88,10 @@ where
     TLog: EventLog,
 {
     pub fn new(
-        info: &'a dyn EventLogInfo, 
-        log: &'a TLog, 
-        triangle_relation: &'a dyn TriangleRelation, 
-        one_length_loop_transitions: &'a HashSet<String>
+        info: &'a dyn EventLogInfo,
+        log: &'a TLog,
+        triangle_relation: &'a dyn TriangleRelation,
+        one_length_loop_transitions: &'a HashSet<String>,
     ) -> Self {
         Self {
             additional_causal_relations: HashSet::new(),

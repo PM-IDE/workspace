@@ -1,4 +1,4 @@
-use ficus::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto, EventLogInfo};
+use ficus::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
 
 use crate::test_core::simple_events_logs_provider::create_simple_event_log;
 

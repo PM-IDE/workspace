@@ -1,13 +1,13 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto, EventLogInfo};
+use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
 use crate::features::discovery::alpha::alpha::find_transitions_one_length_loop;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
 use crate::features::discovery::alpha::providers::alpha_sharp_provider::AlphaSharpRelationsProvider;
 use crate::features::discovery::alpha::utils::maximize;
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use crate::utils::hash_utils::compare_based_on_hashes;
 use std::collections::{BTreeSet, HashSet};
 use std::hash::{Hash, Hasher};
-use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 
 type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a String>, BTreeSet<&'a String>)>;
 

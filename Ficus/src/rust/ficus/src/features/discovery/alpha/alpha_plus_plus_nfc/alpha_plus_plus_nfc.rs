@@ -1,5 +1,5 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto, EventLogInfo};
+use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
 use crate::features::discovery::alpha::alpha::{
     discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop, ALPHA_SET,
 };
@@ -11,10 +11,10 @@ use crate::features::discovery::alpha::utils::maximize;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
+use crate::features::discovery::relations::triangle_relation::{OfflineTriangleRelation, TriangleRelation};
 use crate::utils::sets::two_sets::TwoSets;
 use crate::utils::user_data::user_data::UserData;
 use std::collections::{HashMap, HashSet, VecDeque};
-use crate::features::discovery::relations::triangle_relation::{OfflineTriangleRelation, TriangleRelation};
 
 pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> DefaultPetriNet {
     let one_length_loop_transitions = find_transitions_one_length_loop(log);

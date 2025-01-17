@@ -18,9 +18,9 @@ pub struct AlphaPlusRelationsProviderImpl<'a> {
 
 impl<'a> AlphaPlusRelationsProviderImpl<'a> {
     pub fn new(
-        log_info: &'a dyn EventLogInfo, 
-        triangle_relation: &'a dyn TriangleRelation, 
-        one_length_loop_transitions: &'a HashSet<String>
+        log_info: &'a dyn EventLogInfo,
+        triangle_relation: &'a dyn TriangleRelation,
+        one_length_loop_transitions: &'a HashSet<String>,
     ) -> Self {
         Self {
             log_info,

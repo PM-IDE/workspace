@@ -89,9 +89,9 @@ impl<'a> AlphaSharpRelationsProvider<'a> {
 
 impl<'a> AlphaSharpRelationsProvider<'a> {
     pub fn new(
-        triangle_relation: &'a dyn TriangleRelation, 
-        info: &'a OfflineEventLogInfo, 
-        one_length_loop_transitions: &'a HashSet<String>
+        triangle_relation: &'a dyn TriangleRelation,
+        info: &'a OfflineEventLogInfo,
+        one_length_loop_transitions: &'a HashSet<String>,
     ) -> Self {
         Self {
             alpha_plus_provider: AlphaPlusRelationsProviderImpl::new(info, triangle_relation, one_length_loop_transitions),

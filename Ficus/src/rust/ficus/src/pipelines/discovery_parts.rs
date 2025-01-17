@@ -1,5 +1,5 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
-use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo};
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use crate::features::discovery::alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
