@@ -35,7 +35,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
 
     let l_w = maximize(x_w, |first, second| AlphaPlusPlusNfcTriple::try_merge(first, second, &provider));
 
-    let petri_net = discover_petri_net_alpha_plus(log, &provider, false);
+    let petri_net = discover_petri_net_alpha_plus(&provider, false);
 
     let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions));
     let mut provider = AlphaPlusNfcRelationsProvider::new(&info, log, &one_length_loop_transitions);
@@ -53,7 +53,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
         provider.add_additional_causal_relation(pair.0, pair.1);
     }
 
-    let petri_net = discover_petri_net_alpha_plus(log, &provider, false);
+    let petri_net = discover_petri_net_alpha_plus(&provider, false);
 
     let mut w2_relations = HashSet::new();
     for a_class in info.all_event_classes() {
@@ -124,7 +124,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
         provider.add_additional_causal_relation(w2_relation.0, w2_relation.1);
     }
 
-    let petri_net = discover_petri_net_alpha_plus(log, &provider, false);
+    let petri_net = discover_petri_net_alpha_plus(&provider, false);
 
     let mut w3_relations = HashSet::new();
     for a_class in info.all_event_classes() {

@@ -61,7 +61,7 @@ impl PipelineParts {
 
         let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, log, &one_length_loop_transitions);
 
-        let discovered_net = discover_petri_net_alpha_plus(log, &provider, alpha_plus_plus);
+        let discovered_net = discover_petri_net_alpha_plus(&provider, alpha_plus_plus);
 
         context.put_concrete(PETRI_NET_KEY.key(), discovered_net);
 
