@@ -1,7 +1,7 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, OfflineEventLogInfo};
-use crate::features::discovery::alpha::providers::alpha_plus_provider::calculate_triangle_relations;
+use crate::features::analysis::event_log_info::EventLogInfo;
 use crate::features::discovery::alpha::providers::alpha_provider::{AlphaRelationsProvider, DefaultAlphaRelationsProvider};
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use std::collections::HashMap;
 
 type DependencyRelations = HashMap<String, HashMap<String, f64>>;
@@ -12,7 +12,7 @@ pub(crate) struct HeuristicMinerRelationsProvider<'a> {
     relative_to_best_threshold: f64,
     and_threshold: f64,
     loop_length_two_threshold: f64,
-    triangle_relations: HashMap<(String, String), usize>,
+    triangle_relation: &'a dyn TriangleRelation,
     provider: DefaultAlphaRelationsProvider<'a>,
     dependency_relations: DependencyRelations,
 }
@@ -25,7 +25,7 @@ pub enum AndOrXorRelation {
 
 impl<'a> HeuristicMinerRelationsProvider<'a> {
     pub fn new(
-        log: &impl EventLog,
+        triangle_relation: &'a dyn TriangleRelation,
         provider: DefaultAlphaRelationsProvider<'a>,
         dependency_threshold: f64,
         positive_observations_threshold: usize,
@@ -34,11 +34,11 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
         loop_length_two_threshold: f64,
     ) -> Self {
         let mut provider = Self {
-            triangle_relations: calculate_triangle_relations(log),
             dependency_threshold,
             positive_observations_threshold,
             relative_to_best_threshold,
             loop_length_two_threshold,
+            triangle_relation,
             provider,
             dependency_relations: DependencyRelations::new(),
             and_threshold,
@@ -139,11 +139,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
     }
 
     fn triangle_occurrences_count(&self, first: &str, second: &str) -> usize {
-        if let Some(measure) = self.triangle_relations.get(&(first.to_owned(), second.to_owned())) {
-            *measure
-        } else {
-            0
-        }
+        self.triangle_relation.get(first, second).unwrap_or_else(|| 0)
     }
 
     pub fn log_info(&self) -> &dyn EventLogInfo {

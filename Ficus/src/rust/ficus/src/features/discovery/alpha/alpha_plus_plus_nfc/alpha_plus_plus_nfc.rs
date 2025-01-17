@@ -14,12 +14,14 @@ use crate::features::discovery::petri_net::transition::Transition;
 use crate::utils::sets::two_sets::TwoSets;
 use crate::utils::user_data::user_data::UserData;
 use std::collections::{HashMap, HashSet, VecDeque};
+use crate::features::discovery::relations::triangle_relation::{OfflineTriangleRelation, TriangleRelation};
 
 pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> DefaultPetriNet {
     let one_length_loop_transitions = find_transitions_one_length_loop(log);
     let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+    let triangle_relation = OfflineTriangleRelation::new(log);
 
-    let provider = AlphaPlusNfcRelationsProvider::new(&info, log, &one_length_loop_transitions);
+    let provider = AlphaPlusNfcRelationsProvider::new(&info, log, &triangle_relation, &one_length_loop_transitions);
 
     let mut x_w = HashSet::new();
 
@@ -38,7 +40,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
     let petri_net = discover_petri_net_alpha_plus(&provider, false);
 
     let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions));
-    let mut provider = AlphaPlusNfcRelationsProvider::new(&info, log, &one_length_loop_transitions);
+    let mut provider = AlphaPlusNfcRelationsProvider::new(&info, log, &triangle_relation, &one_length_loop_transitions);
 
     let mut w1_relations = HashSet::new();
     for a_class in info.all_event_classes() {

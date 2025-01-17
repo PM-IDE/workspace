@@ -10,11 +10,11 @@ pub trait AlphaRelationsProvider {
 }
 
 pub struct DefaultAlphaRelationsProvider<'a> {
-    log_info: &'a OfflineEventLogInfo,
+    log_info: &'a dyn EventLogInfo,
 }
 
 impl<'a> DefaultAlphaRelationsProvider<'a> {
-    pub fn new(log_info: &'a OfflineEventLogInfo) -> Self {
+    pub fn new(log_info: &'a dyn EventLogInfo) -> Self {
         Self { log_info }
     }
 }

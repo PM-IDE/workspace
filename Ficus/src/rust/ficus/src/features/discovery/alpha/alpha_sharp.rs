@@ -7,6 +7,7 @@ use crate::features::discovery::alpha::utils::maximize;
 use crate::utils::hash_utils::compare_based_on_hashes;
 use std::collections::{BTreeSet, HashSet};
 use std::hash::{Hash, Hasher};
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 
 type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a String>, BTreeSet<&'a String>)>;
 
@@ -211,11 +212,11 @@ impl<'a> Clone for AlphaSharpTuple<'a> {
     }
 }
 
-pub fn discover_petri_net_alpha_sharp(log: &impl EventLog) {
+pub fn discover_petri_net_alpha_sharp(log: &impl EventLog, triangle_relation: &dyn TriangleRelation) {
     let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
     let one_length_loop_transitions = find_transitions_one_length_loop(log);
 
-    let provider = AlphaSharpRelationsProvider::new(log, &info, &one_length_loop_transitions);
+    let provider = AlphaSharpRelationsProvider::new(triangle_relation, &info, &one_length_loop_transitions);
 
     let mut advanced_pairs = HashSet::new();
     let classes = info.all_event_classes();

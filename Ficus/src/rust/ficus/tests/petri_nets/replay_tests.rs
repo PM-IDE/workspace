@@ -10,6 +10,7 @@ use ficus::features::discovery::heuristic::heuristic_miner::discover_petri_net_h
 use ficus::features::discovery::petri_net::marking::ensure_initial_marking;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::features::discovery::petri_net::replay::replay_petri_net;
+use ficus::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 use ficus::vecs;
 
 #[test]
@@ -26,7 +27,10 @@ pub fn test_simple_replay() {
 #[test]
 pub fn test_silent_transitions_replay() {
     let log = create_heuristic_miner_replay_test_log();
-    let mut petri_net = discover_petri_net_heuristic(&log, 0.0, 0, 1.0, 0.1, 0.5);
+    let triangle_relation = OfflineTriangleRelation::new(&log);
+    let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+
+    let mut petri_net = discover_petri_net_heuristic(&info, &triangle_relation, 0.0, 0, 1.0, 0.1, 0.5);
     ensure_initial_marking(&log, &mut petri_net);
 
     let expected_transitions = vec![
@@ -42,8 +46,12 @@ pub fn test_alpha_plus_log_replay() {
     let log = create_alpha_plus_miner_replay_test_log();
 
     let one_length_loop_transitions = find_transitions_one_length_loop(&log);
-    let event_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(&log, &one_length_loop_transitions));
-    let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, &log, &one_length_loop_transitions);
+
+    let triangle_relation = OfflineTriangleRelation::new(&log);
+    let dto = EventLogInfoCreationDto::default_ignore(&log, &one_length_loop_transitions);
+    let event_log_info = OfflineEventLogInfo::create_from(dto);
+    
+    let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, &triangle_relation, &one_length_loop_transitions);
 
     let petri_net = discover_petri_net_alpha_plus(&provider, false);
 
