@@ -1,5 +1,5 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto, EventLogInfo};
 use crate::features::discovery::alpha::alpha::find_transitions_one_length_loop;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
 use crate::features::discovery::alpha::providers::alpha_sharp_provider::AlphaSharpRelationsProvider;
@@ -212,7 +212,7 @@ impl<'a> Clone for AlphaSharpTuple<'a> {
 }
 
 pub fn discover_petri_net_alpha_sharp(log: &impl EventLog) {
-    let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+    let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
     let one_length_loop_transitions = find_transitions_one_length_loop(log);
 
     let provider = AlphaSharpRelationsProvider::new(log, &info, &one_length_loop_transitions);

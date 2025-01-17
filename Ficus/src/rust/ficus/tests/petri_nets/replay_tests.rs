@@ -2,7 +2,7 @@ use crate::test_core::simple_events_logs_provider::{
     create_alpha_plus_miner_replay_test_log, create_heuristic_miner_replay_test_log, create_simple_event_log,
 };
 use ficus::event_log::core::event_log::EventLog;
-use ficus::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use ficus::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto};
 use ficus::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use ficus::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
 use ficus::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
@@ -15,7 +15,7 @@ use ficus::vecs;
 #[test]
 pub fn test_simple_replay() {
     let log = create_simple_event_log();
-    let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+    let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
     let petri_net = discover_petri_net_alpha(&DefaultAlphaRelationsProvider::new(&log_info));
 
     let expected_transitions = vec![Some(vecs!["A", "B", "C"]), Some(vecs!["A", "B", "C"])];
@@ -42,7 +42,7 @@ pub fn test_alpha_plus_log_replay() {
     let log = create_alpha_plus_miner_replay_test_log();
 
     let one_length_loop_transitions = find_transitions_one_length_loop(&log);
-    let event_log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(&log, &one_length_loop_transitions));
+    let event_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(&log, &one_length_loop_transitions));
     let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, &log, &one_length_loop_transitions);
 
     let petri_net = discover_petri_net_alpha_plus(&log, &provider, false);

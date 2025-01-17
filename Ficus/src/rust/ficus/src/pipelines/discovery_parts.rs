@@ -1,5 +1,5 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto};
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use crate::features::discovery::alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
@@ -24,7 +24,7 @@ impl PipelineParts {
     pub(super) fn discover_petri_net_alpha() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::DISCOVER_PETRI_NET_ALPHA, &|context, _, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-            let event_log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+            let event_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
             let provider = DefaultAlphaRelationsProvider::new(&event_log_info);
             let discovered_net = discover_petri_net_alpha(&provider);
 
@@ -57,7 +57,7 @@ impl PipelineParts {
         let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
 
         let one_length_loop_transitions = find_transitions_one_length_loop(log);
-        let event_log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions));
+        let event_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions));
 
         let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, log, &one_length_loop_transitions);
 
@@ -87,7 +87,7 @@ impl PipelineParts {
     pub(super) fn discover_directly_follows_graph() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-            let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+            let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
             context.put_concrete(GRAPH_KEY.key(), construct_dfg(&info));
 
             Ok(())

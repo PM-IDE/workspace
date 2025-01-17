@@ -37,7 +37,7 @@ use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
     features::analysis::{
-        event_log_info::EventLogInfo,
+        event_log_info::OfflineEventLogInfo,
         patterns::{
             activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
             tandem_arrays::SubArrayInTraceInfo,
@@ -57,6 +57,7 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use crate::features::analysis::event_log_info::EventLogInfo;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
     GrpcContextValue::decode(bytes)
@@ -421,10 +422,10 @@ fn convert_to_grpc_color(color: &Color) -> GrpcColor {
 }
 
 fn try_convert_to_grpc_event_log_info(value: &dyn Any) -> Option<GrpcContextValue> {
-    if !value.is::<EventLogInfo>() {
+    if !value.is::<OfflineEventLogInfo>() {
         None
     } else {
-        let log_info = value.downcast_ref::<EventLogInfo>().unwrap();
+        let log_info = value.downcast_ref::<OfflineEventLogInfo>().unwrap();
         Some(GrpcContextValue {
             context_value: Some(ContextValue::EventLogInfo(GrpcEventLogInfo {
                 events_count: log_info.events_count() as u32,

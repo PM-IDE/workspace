@@ -1,5 +1,5 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto, EventLogInfo};
 use crate::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use crate::features::discovery::alpha::utils::maximize;
 use crate::features::discovery::heuristic::relations_provider::{AndOrXorRelation, HeuristicMinerRelationsProvider};
@@ -17,7 +17,7 @@ pub fn discover_petri_net_heuristic(
     and_threshold: f64,
     loop_length_two_threshold: f64,
 ) -> DefaultPetriNet {
-    let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+    let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
     let provider = DefaultAlphaRelationsProvider::new(&info);
     let provider = HeuristicMinerRelationsProvider::new(
         log,
@@ -37,7 +37,7 @@ pub fn discover_petri_net_heuristic(
     petri_net
 }
 
-fn construct_heuristic_petri_net(log: &EventLogInfo, provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
+fn construct_heuristic_petri_net(log: &OfflineEventLogInfo, provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
     let mut classes_to_ids = HashMap::new();
     for class in provider.log_info().all_event_classes() {
         let id = petri_net.add_transition(Transition::empty(class.to_owned(), false, Some(class.to_owned())));
@@ -107,7 +107,7 @@ fn construct_heuristic_petri_net(log: &EventLogInfo, provider: &HeuristicMinerRe
     }
 }
 
-fn add_length_two_loops(info: &EventLogInfo, provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
+fn add_length_two_loops(info: &OfflineEventLogInfo, provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
     let mut places_to_transitions = vec![];
     let mut transitions_to_places = vec![];
     for first_class in info.all_event_classes() {

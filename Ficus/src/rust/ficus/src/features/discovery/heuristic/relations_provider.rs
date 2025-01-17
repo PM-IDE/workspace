@@ -1,5 +1,5 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::discovery::alpha::providers::alpha_plus_provider::calculate_triangle_relations;
 use crate::features::discovery::alpha::providers::alpha_provider::{AlphaRelationsProvider, DefaultAlphaRelationsProvider};
 use std::collections::HashMap;
@@ -146,7 +146,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
         }
     }
 
-    pub fn log_info(&self) -> &EventLogInfo {
+    pub fn log_info(&self) -> &dyn EventLogInfo {
         self.provider.log_info()
     }
 }

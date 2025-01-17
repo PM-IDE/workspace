@@ -18,7 +18,7 @@ use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
     event_log::xes::xes_event_log::XesEventLogImpl,
     features::analysis::{
-        event_log_info::EventLogInfo,
+        event_log_info::OfflineEventLogInfo,
         patterns::{
             activity_instances::{ActivityInTraceInfo, AdjustingMode},
             contexts::PatternsDiscoveryStrategy,
@@ -137,7 +137,7 @@ lazy_static!(
      pub static ref COLORS_HOLDER_KEY: DefaultContextKey<ColorsHolder> = DefaultContextKey::new(COLORS_HOLDER);
      pub static ref PATTERNS_DISCOVERY_STRATEGY_KEY: DefaultContextKey<PatternsDiscoveryStrategy> = DefaultContextKey::new(PATTERNS_DISCOVERY_STRATEGY);
      pub static ref OUTPUT_STRING_KEY: DefaultContextKey<String> = DefaultContextKey::new(OUTPUT_STRING);
-     pub static ref EVENT_LOG_INFO_KEY: DefaultContextKey<EventLogInfo> = DefaultContextKey::new(EVENT_LOG_INFO);
+     pub static ref EVENT_LOG_INFO_KEY: DefaultContextKey<OfflineEventLogInfo> = DefaultContextKey::new(EVENT_LOG_INFO);
      pub static ref UNDERLYING_EVENTS_COUNT_KEY: DefaultContextKey<usize> = DefaultContextKey::new(UNDERLYING_EVENTS_COUNT);
      pub static ref EVENTS_COUNT_KEY: DefaultContextKey<u32> = DefaultContextKey::new(EVENTS_COUNT);
      pub static ref EVENT_CLASSES_REGEXES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(EVENT_CLASSES_REGEXES);

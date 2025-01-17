@@ -1,7 +1,7 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto, EventLogInfo};
 use crate::features::discovery::alpha::alpha_set::AlphaSet;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProvider;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
@@ -39,7 +39,7 @@ pub fn discover_petri_net_alpha_plus(
 }
 
 fn add_one_length_loops(log: &impl EventLog, one_length_loop_transitions: &HashSet<String>, petri_net: &mut DefaultPetriNet) {
-    let event_log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+    let event_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
 
     for transition_name in one_length_loop_transitions {
         let mut alpha_set = AlphaSet::empty();
@@ -183,7 +183,7 @@ fn filter_out_non_maximal_sets(current_sets: &HashSet<AlphaSet>) -> Vec<&AlphaSe
         .collect()
 }
 
-fn create_petri_net(info: &EventLogInfo, alpha_sets: Vec<&AlphaSet>) -> DefaultPetriNet {
+fn create_petri_net(info: &dyn EventLogInfo, alpha_sets: Vec<&AlphaSet>) -> DefaultPetriNet {
     let mut petri_net = PetriNet::empty();
     let mut event_classes_to_transition_ids = HashMap::new();
     for class in info.all_event_classes() {

@@ -1,7 +1,7 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
 use std::collections::{HashMap, HashSet};
 
@@ -13,14 +13,14 @@ pub trait AlphaPlusRelationsProvider: AlphaRelationsProvider {
 }
 
 pub struct AlphaPlusRelationsProviderImpl<'a> {
-    pub log_info: &'a EventLogInfo,
+    pub log_info: &'a dyn EventLogInfo,
     triangle_relations: HashSet<(String, String)>,
     one_length_loop_transitions: &'a HashSet<String>,
 }
 
 impl<'a> AlphaPlusRelationsProviderImpl<'a> {
-    pub fn new(log_info: &'a EventLogInfo, log: &'a impl EventLog, one_length_loop_transitions: &'a HashSet<String>) -> Self {
-        let mut triangle_relations = calculate_triangle_relations(log)
+    pub fn new(log_info: &'a dyn EventLogInfo, log: &'a impl EventLog, one_length_loop_transitions: &'a HashSet<String>) -> Self {
+        let triangle_relations = calculate_triangle_relations(log)
             .keys()
             .into_iter()
             .map(|el| (el.0.to_owned(), el.1.to_owned()))
@@ -80,7 +80,7 @@ impl<'a> AlphaRelationsProvider for AlphaPlusRelationsProviderImpl<'a> {
         !self.direct_relation(first, second) && !self.direct_relation(second, first)
     }
 
-    fn log_info(&self) -> &EventLogInfo {
+    fn log_info(&self) -> &dyn EventLogInfo {
         self.log_info
     }
 }

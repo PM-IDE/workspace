@@ -1,7 +1,7 @@
 use crate::test_core::simple_events_logs_provider::{create_event_log_with_simple_real_time, create_simple_event_log};
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus::features::analysis::directly_follows_graph::construct_dfg;
-use ficus::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use ficus::features::analysis::event_log_info::{OfflineEventLogInfo, EventLogInfoCreationDto};
 use ficus::features::discovery::alpha::alpha::discover_petri_net_alpha;
 use ficus::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use ficus::features::discovery::petri_net::annotations::{
@@ -16,7 +16,7 @@ use std::ops::Deref;
 #[test]
 pub fn test_simple_count_annotation() {
     let log = create_simple_event_log();
-    let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+    let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
     let petri_net = discover_petri_net_alpha(&DefaultAlphaRelationsProvider::new(&log_info));
     let annotation = annotate_with_counts(&log, &petri_net, true).unwrap();
 
@@ -60,7 +60,7 @@ where
 #[test]
 pub fn test_simple_frequency_annotation() {
     let log = create_simple_event_log();
-    let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+    let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
     let petri_net = discover_petri_net_alpha(&DefaultAlphaRelationsProvider::new(&log_info));
     let annotation = annotate_with_frequencies(&log, &petri_net, true).unwrap();
 
@@ -81,7 +81,7 @@ pub fn test_simple_frequency_annotation() {
 #[test]
 pub fn test_simple_trace_frequency_annotation() {
     let log = create_simple_event_log();
-    let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+    let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
     let petri_net = discover_petri_net_alpha(&DefaultAlphaRelationsProvider::new(&log_info));
     let annotation = annotate_with_trace_frequency(&log, &petri_net, true).unwrap();
 
@@ -148,7 +148,7 @@ pub fn test_simple_time_annotation_mean() {
 }
 
 fn execute_time_annotation_test(log: XesEventLogImpl, annotation_kind: TimeAnnotationKind, mut gold: Vec<(String, f64)>) {
-    let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+    let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
 
     let graph = construct_dfg(&info);
 

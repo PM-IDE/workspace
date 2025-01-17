@@ -2,12 +2,12 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::event_log_info::{EventLogInfo};
 use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use std::collections::HashMap;
 
-pub fn construct_dfg(info: &EventLogInfo) -> DefaultGraph {
+pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
     let mut graph = Graph::empty();
     let mut classes_to_node_ids = HashMap::new();
 
