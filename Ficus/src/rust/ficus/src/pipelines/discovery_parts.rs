@@ -58,12 +58,16 @@ impl PipelineParts {
         let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
 
         let one_length_loop_transitions = find_transitions_one_length_loop(log);
-        let event_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions));
+        let original_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+        
+        let dto = EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions);
+        let ignored_event_log_info = OfflineEventLogInfo::create_from(dto);
+
         let triangle_relation = OfflineTriangleRelation::new(log);
 
-        let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, &triangle_relation, &one_length_loop_transitions);
+        let provider = AlphaPlusRelationsProviderImpl::new(&ignored_event_log_info, &triangle_relation, &one_length_loop_transitions);
 
-        let discovered_net = discover_petri_net_alpha_plus(&provider, alpha_plus_plus);
+        let discovered_net = discover_petri_net_alpha_plus(&provider, &original_log_info, alpha_plus_plus);
 
         context.put_concrete(PETRI_NET_KEY.key(), discovered_net);
 

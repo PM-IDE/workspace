@@ -51,9 +51,11 @@ pub fn test_alpha_plus_log_replay() {
     let dto = EventLogInfoCreationDto::default_ignore(&log, &one_length_loop_transitions);
     let event_log_info = OfflineEventLogInfo::create_from(dto);
 
+    let original_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(&log));
+
     let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, &triangle_relation, &one_length_loop_transitions);
 
-    let petri_net = discover_petri_net_alpha_plus(&provider, false);
+    let petri_net = discover_petri_net_alpha_plus(&provider, &original_log_info, false);
 
     let expected_transitions = vec![
         Some(vecs!["A", "B", "C", "D"]),

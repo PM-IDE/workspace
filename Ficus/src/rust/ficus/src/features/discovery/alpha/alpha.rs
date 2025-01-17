@@ -23,9 +23,9 @@ pub fn discover_petri_net_alpha(provider: &impl AlphaRelationsProvider) -> Defau
     do_discover_petri_net_alpha(provider)
 }
 
-pub fn discover_petri_net_alpha_plus(provider: &impl AlphaPlusRelationsProvider, alpha_plus_plus: bool) -> DefaultPetriNet {
+pub fn discover_petri_net_alpha_plus(provider: &impl AlphaPlusRelationsProvider, original_log_info: &dyn EventLogInfo, alpha_plus_plus: bool) -> DefaultPetriNet {
     let mut petri_net = do_discover_petri_net_alpha(provider);
-    add_one_length_loops(provider, &mut petri_net);
+    add_one_length_loops(provider, original_log_info, &mut petri_net);
 
     if alpha_plus_plus {
         add_alpha_plus_plus_transitions(provider, &mut petri_net);
@@ -34,12 +34,11 @@ pub fn discover_petri_net_alpha_plus(provider: &impl AlphaPlusRelationsProvider,
     petri_net
 }
 
-fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, petri_net: &mut DefaultPetriNet) {
+fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, original_log_info: &dyn EventLogInfo, petri_net: &mut DefaultPetriNet) {
     let one_length_loop_transitions = provider.one_length_loop_transitions();
-    let event_log_info = provider.log_info();
     for transition_name in one_length_loop_transitions {
         let mut alpha_set = AlphaSet::empty();
-        if let Some(followed_events) = event_log_info.dfg_info().get_followed_events(transition_name) {
+        if let Some(followed_events) = original_log_info.dfg_info().get_followed_events(transition_name) {
             for event in followed_events.keys() {
                 if event != transition_name {
                     alpha_set.insert_right_class(event.to_owned());
@@ -47,7 +46,7 @@ fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, petri_net: &
             }
         }
 
-        if let Some(precedes_events) = event_log_info.dfg_info().get_precedes_events(transition_name) {
+        if let Some(precedes_events) = original_log_info.dfg_info().get_precedes_events(transition_name) {
             for event in precedes_events.keys() {
                 if event != transition_name {
                     alpha_set.insert_left_class(event.to_owned());
