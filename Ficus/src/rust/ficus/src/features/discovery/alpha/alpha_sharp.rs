@@ -1,9 +1,10 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
 use crate::features::discovery::alpha::alpha::find_transitions_one_length_loop;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
 use crate::features::discovery::alpha::providers::alpha_sharp_provider::AlphaSharpRelationsProvider;
 use crate::features::discovery::alpha::utils::maximize;
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use crate::utils::hash_utils::compare_based_on_hashes;
 use std::collections::{BTreeSet, HashSet};
 use std::hash::{Hash, Hasher};
@@ -211,11 +212,11 @@ impl<'a> Clone for AlphaSharpTuple<'a> {
     }
 }
 
-pub fn discover_petri_net_alpha_sharp(log: &impl EventLog) {
-    let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+pub fn discover_petri_net_alpha_sharp(log: &impl EventLog, triangle_relation: &dyn TriangleRelation) {
+    let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
     let one_length_loop_transitions = find_transitions_one_length_loop(log);
 
-    let provider = AlphaSharpRelationsProvider::new(log, &info, &one_length_loop_transitions);
+    let provider = AlphaSharpRelationsProvider::new(triangle_relation, &info, &one_length_loop_transitions);
 
     let mut advanced_pairs = HashSet::new();
     let classes = info.all_event_classes();

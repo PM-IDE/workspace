@@ -1,9 +1,9 @@
+use super::fuzzy_miner::FuzzyGraph;
+use crate::features::analysis::event_log_info::EventLogInfo;
 use crate::{
     event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
-    features::{analysis::event_log_info::EventLogInfo, discovery::alpha::providers::relations_cache::RelationsCaches},
+    features::{analysis::event_log_info::OfflineEventLogInfo, discovery::alpha::providers::relations_cache::RelationsCaches},
 };
-
-use super::fuzzy_miner::FuzzyGraph;
 
 const PROXIMITY_CORRELATION: &'static str = "ProximityCorrelation";
 
@@ -12,7 +12,7 @@ where
     TLog: EventLog,
 {
     log: &'a TLog,
-    log_info: &'a EventLogInfo,
+    log_info: &'a dyn EventLogInfo,
     caches: RelationsCaches<f64>,
 }
 
@@ -20,7 +20,7 @@ impl<'a, TLog> FuzzyMetricsProvider<'a, TLog>
 where
     TLog: EventLog,
 {
-    pub fn new(log: &'a TLog, log_info: &'a EventLogInfo) -> Self {
+    pub fn new(log: &'a TLog, log_info: &'a OfflineEventLogInfo) -> Self {
         Self {
             log,
             log_info,
@@ -28,7 +28,7 @@ where
         }
     }
 
-    pub fn log_info(&self) -> &EventLogInfo {
+    pub fn log_info(&self) -> &dyn EventLogInfo {
         self.log_info
     }
 

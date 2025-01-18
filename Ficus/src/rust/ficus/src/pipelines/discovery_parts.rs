@@ -1,5 +1,5 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo};
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use crate::features::discovery::alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
@@ -8,6 +8,7 @@ use crate::features::discovery::fuzzy::fuzzy_miner::discover_graph_fuzzy;
 use crate::features::discovery::heuristic::heuristic_miner::discover_petri_net_heuristic;
 use crate::features::discovery::petri_net::marking::ensure_initial_marking;
 use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml_file;
+use crate::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{
@@ -24,7 +25,7 @@ impl PipelineParts {
     pub(super) fn discover_petri_net_alpha() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::DISCOVER_PETRI_NET_ALPHA, &|context, _, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-            let event_log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+            let event_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
             let provider = DefaultAlphaRelationsProvider::new(&event_log_info);
             let discovered_net = discover_petri_net_alpha(&provider);
 
@@ -57,11 +58,16 @@ impl PipelineParts {
         let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
 
         let one_length_loop_transitions = find_transitions_one_length_loop(log);
-        let event_log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions));
+        let original_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+        
+        let dto = EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions);
+        let ignored_event_log_info = OfflineEventLogInfo::create_from(dto);
 
-        let provider = AlphaPlusRelationsProviderImpl::new(&event_log_info, log, &one_length_loop_transitions);
+        let triangle_relation = OfflineTriangleRelation::new(log);
 
-        let discovered_net = discover_petri_net_alpha_plus(log, &provider, alpha_plus_plus);
+        let provider = AlphaPlusRelationsProviderImpl::new(&ignored_event_log_info, &triangle_relation, &one_length_loop_transitions);
+
+        let discovered_net = discover_petri_net_alpha_plus(&provider, &original_log_info, alpha_plus_plus);
 
         context.put_concrete(PETRI_NET_KEY.key(), discovered_net);
 
@@ -87,7 +93,7 @@ impl PipelineParts {
     pub(super) fn discover_directly_follows_graph() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-            let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+            let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
             context.put_concrete(GRAPH_KEY.key(), construct_dfg(&info));
 
             Ok(())
@@ -115,8 +121,12 @@ impl PipelineParts {
             let and_threshold = *Self::get_user_data(config, &AND_THRESHOLD_KEY)?;
             let loop_length_two_threshold = *Self::get_user_data(config, &LOOP_LENGTH_TWO_THRESHOLD_KEY)?;
 
+            let triangle_relation = OfflineTriangleRelation::new(log);
+            let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+
             let petri_net = discover_petri_net_heuristic(
-                log,
+                &info,
+                &triangle_relation,
                 dependency_threshold,
                 positive_observations_threshold,
                 relative_to_best_threshold,

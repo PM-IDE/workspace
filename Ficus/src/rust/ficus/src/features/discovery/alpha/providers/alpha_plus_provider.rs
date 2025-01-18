@@ -1,9 +1,7 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
 use crate::features::analysis::event_log_info::EventLogInfo;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use std::collections::{HashMap, HashSet};
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
+use std::collections::HashSet;
 
 pub trait AlphaPlusRelationsProvider: AlphaRelationsProvider {
     fn triangle_relation(&self, first: &str, second: &str) -> bool;
@@ -13,54 +11,23 @@ pub trait AlphaPlusRelationsProvider: AlphaRelationsProvider {
 }
 
 pub struct AlphaPlusRelationsProviderImpl<'a> {
-    pub log_info: &'a EventLogInfo,
-    triangle_relations: HashSet<(String, String)>,
+    pub log_info: &'a dyn EventLogInfo,
+    triangle_relation: &'a dyn TriangleRelation,
     one_length_loop_transitions: &'a HashSet<String>,
 }
 
 impl<'a> AlphaPlusRelationsProviderImpl<'a> {
-    pub fn new(log_info: &'a EventLogInfo, log: &'a impl EventLog, one_length_loop_transitions: &'a HashSet<String>) -> Self {
-        let mut triangle_relations = calculate_triangle_relations(log)
-            .keys()
-            .into_iter()
-            .map(|el| (el.0.to_owned(), el.1.to_owned()))
-            .collect();
-
+    pub fn new(
+        log_info: &'a dyn EventLogInfo,
+        triangle_relation: &'a dyn TriangleRelation,
+        one_length_loop_transitions: &'a HashSet<String>,
+    ) -> Self {
         Self {
             log_info,
-            triangle_relations,
+            triangle_relation,
             one_length_loop_transitions,
         }
     }
-}
-
-pub fn calculate_triangle_relations(log: &impl EventLog) -> HashMap<(String, String), usize> {
-    let mut triangle_relations = HashMap::new();
-    for trace in log.traces() {
-        let trace = trace.borrow();
-        let events = trace.events();
-
-        if events.len() < 3 {
-            continue;
-        }
-
-        for index in 0..(events.len() - 2) {
-            if events[index].borrow().name() == events[index + 2].borrow().name() {
-                let pair = (
-                    events[index].borrow().name().to_owned(),
-                    events[index + 1].borrow().name().to_owned(),
-                );
-
-                if let Some(value) = triangle_relations.get_mut(&pair) {
-                    *value += 1;
-                } else {
-                    triangle_relations.insert(pair, 1);
-                }
-            }
-        }
-    }
-
-    triangle_relations
 }
 
 impl<'a> AlphaRelationsProvider for AlphaPlusRelationsProviderImpl<'a> {
@@ -80,14 +47,14 @@ impl<'a> AlphaRelationsProvider for AlphaPlusRelationsProviderImpl<'a> {
         !self.direct_relation(first, second) && !self.direct_relation(second, first)
     }
 
-    fn log_info(&self) -> &EventLogInfo {
+    fn log_info(&self) -> &dyn EventLogInfo {
         self.log_info
     }
 }
 
 impl<'a> AlphaPlusRelationsProvider for AlphaPlusRelationsProviderImpl<'a> {
     fn triangle_relation(&self, first: &str, second: &str) -> bool {
-        self.triangle_relations.contains(&(first.to_owned(), second.to_owned()))
+        self.triangle_relation.get(first, second).is_some()
     }
 
     fn romb_relation(&self, first: &str, second: &str) -> bool {

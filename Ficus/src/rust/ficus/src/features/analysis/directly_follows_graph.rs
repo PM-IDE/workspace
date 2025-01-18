@@ -7,7 +7,7 @@ use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use std::collections::HashMap;
 
-pub fn construct_dfg(info: &EventLogInfo) -> DefaultGraph {
+pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
     let mut graph = Graph::empty();
     let mut classes_to_node_ids = HashMap::new();
 

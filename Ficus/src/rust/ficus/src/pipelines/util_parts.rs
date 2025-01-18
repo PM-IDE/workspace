@@ -20,7 +20,7 @@ use crate::{
         },
         xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
     },
-    features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto},
+    features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
 
@@ -38,7 +38,7 @@ impl PipelineParts {
     pub(super) fn get_event_log_info() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::GET_EVENT_LOG_INFO, &|context, _, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-            let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+            let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
             context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
 
             Ok(())

@@ -1,11 +1,12 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::features::analysis::event_log_info::EventLogInfo;
 use crate::{
     event_log::core::{
         event_log::EventLog,
         trace::trace::{Trace, TraceInfo},
     },
-    features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto},
+    features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo},
 };
 
 pub fn calculate_max_vector_length<TLog>(log: &TLog, ignored_events: Option<&HashSet<String>>) -> usize
@@ -80,7 +81,7 @@ where
     TLog: EventLog,
     TEntropyCalculator: Fn(&TLog, &String, Option<&HashSet<String>>) -> f64,
 {
-    let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+    let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
     let mut entropies = HashMap::new();
     for event_name in log_info.all_event_classes() {
         if let Some(ignored_events) = ignored_events {

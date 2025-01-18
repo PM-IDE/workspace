@@ -1,26 +1,27 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
 use crate::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use crate::features::discovery::alpha::utils::maximize;
 use crate::features::discovery::heuristic::relations_provider::{AndOrXorRelation, HeuristicMinerRelationsProvider};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use crate::utils::sets::one_set::OneSet;
 use std::collections::{HashMap, HashSet};
 
 pub fn discover_petri_net_heuristic(
-    log: &impl EventLog,
+    info: &dyn EventLogInfo,
+    triangle_relation: &dyn TriangleRelation,
     dependency_threshold: f64,
     positive_observations_threshold: usize,
     relative_to_best_threshold: f64,
     and_threshold: f64,
     loop_length_two_threshold: f64,
 ) -> DefaultPetriNet {
-    let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
-    let provider = DefaultAlphaRelationsProvider::new(&info);
+    let provider = DefaultAlphaRelationsProvider::new(info);
     let provider = HeuristicMinerRelationsProvider::new(
-        log,
+        triangle_relation,
         provider,
         dependency_threshold,
         positive_observations_threshold,
@@ -31,13 +32,13 @@ pub fn discover_petri_net_heuristic(
 
     let mut petri_net = DefaultPetriNet::empty();
 
-    construct_heuristic_petri_net(&info, &provider, &mut petri_net);
-    add_length_two_loops(&info, &provider, &mut petri_net);
+    construct_heuristic_petri_net(&provider, &mut petri_net);
+    add_length_two_loops(info, &provider, &mut petri_net);
 
     petri_net
 }
 
-fn construct_heuristic_petri_net(log: &EventLogInfo, provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
+fn construct_heuristic_petri_net(provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
     let mut classes_to_ids = HashMap::new();
     for class in provider.log_info().all_event_classes() {
         let id = petri_net.add_transition(Transition::empty(class.to_owned(), false, Some(class.to_owned())));
@@ -107,7 +108,7 @@ fn construct_heuristic_petri_net(log: &EventLogInfo, provider: &HeuristicMinerRe
     }
 }
 
-fn add_length_two_loops(info: &EventLogInfo, provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
+fn add_length_two_loops(info: &dyn EventLogInfo, provider: &HeuristicMinerRelationsProvider, petri_net: &mut DefaultPetriNet) {
     let mut places_to_transitions = vec![];
     let mut transitions_to_places = vec![];
     for first_class in info.all_event_classes() {

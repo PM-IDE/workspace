@@ -1,10 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::features::analysis::event_log_info::{DfgInfo, EventLogInfo};
 use crate::{
     event_log::core::event_log::EventLog,
     features::analysis::{
         constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME},
-        event_log_info::{EventLogInfo, EventLogInfoCreationDto},
+        event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo},
     },
 };
 
@@ -19,20 +20,20 @@ where
         x / y
     };
 
-    let dfr_calculator = |first: &String, second: &String, log_info: &EventLogInfo| {
+    let dfr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
         let pair_count = log_info.dfg_info().get_directly_follows_count(first, second);
         let first_count = log_info.event_count(first);
         dfr_or_dpr_calculator(pair_count, log_info.event_classes_count(), first_count)
     };
 
-    let dpr_calculator = |first: &String, second: &String, log_info: &EventLogInfo| {
+    let dpr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
         let pair_count = log_info.dfg_info().get_directly_follows_count(second, first);
         let first_count = log_info.event_count(first);
         dfr_or_dpr_calculator(pair_count, log_info.event_classes_count(), first_count)
     };
 
     let creation_dto = EventLogInfoCreationDto::default_fake_ignored(log, ignored_events);
-    let log_info = EventLogInfo::create_from(creation_dto);
+    let log_info = OfflineEventLogInfo::create_from(creation_dto);
     calculate_dfg_entropy(&log_info, dfr_calculator, dpr_calculator)
 }
 
@@ -40,14 +41,14 @@ pub fn calculate_default_dfg_entropy<TLog>(log: &TLog, ignored_events: Option<&H
 where
     TLog: EventLog,
 {
-    let dfr_calculator = |first: &String, second: &String, log_info: &EventLogInfo| {
+    let dfr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
         let dfg = log_info.dfg_info();
         let dfr = dfg.get_directly_follows_count(first, second);
         let first_count = log_info.event_count(first);
         dfr as f64 / first_count as f64
     };
 
-    let dpr_calculator = |first: &String, second: &String, log_info: &EventLogInfo| {
+    let dpr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
         let dfg = log_info.dfg_info();
         let dfr = dfg.get_directly_follows_count(second, first);
         let first_count = log_info.event_count(first);
@@ -55,18 +56,18 @@ where
     };
 
     let creation_dto = EventLogInfoCreationDto::default_fake_ignored(log, ignored_events);
-    let log_info = EventLogInfo::create_from(creation_dto);
+    let log_info = OfflineEventLogInfo::create_from(creation_dto);
     calculate_dfg_entropy(&log_info, dfr_calculator, dpr_calculator)
 }
 
 fn calculate_dfg_entropy<TDfrEntropyCalculator, TDprEntropyCalculator>(
-    log_info: &EventLogInfo,
+    log_info: &dyn EventLogInfo,
     dfr_calculator: TDfrEntropyCalculator,
     dpr_calculator: TDprEntropyCalculator,
 ) -> HashMap<String, f64>
 where
-    TDfrEntropyCalculator: Fn(&String, &String, &EventLogInfo) -> f64,
-    TDprEntropyCalculator: Fn(&String, &String, &EventLogInfo) -> f64,
+    TDfrEntropyCalculator: Fn(&String, &String, &dyn EventLogInfo) -> f64,
+    TDprEntropyCalculator: Fn(&String, &String, &dyn EventLogInfo) -> f64,
 {
     let mut entropy = HashMap::new();
     let events_names = &log_info.all_event_classes();
@@ -82,12 +83,12 @@ where
     for event_name in events_names {
         let dfr_vector: Vec<f64> = dfr_events_names
             .iter()
-            .map(|current_name| dfr_calculator(event_name, current_name, &log_info))
+            .map(|current_name| dfr_calculator(event_name, current_name, log_info))
             .collect();
 
         let dpr_vector: Vec<f64> = dpr_events_names
             .iter()
-            .map(|current_name| dpr_calculator(event_name, current_name, &log_info))
+            .map(|current_name| dpr_calculator(event_name, current_name, log_info))
             .collect();
 
         let event_entropy = calculate_entropy(&dfr_vector) + calculate_entropy(&dpr_vector);

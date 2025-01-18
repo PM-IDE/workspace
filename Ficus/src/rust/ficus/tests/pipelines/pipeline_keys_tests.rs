@@ -19,7 +19,7 @@ use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
     event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
     features::analysis::{
-        event_log_info::EventLogInfo,
+        event_log_info::OfflineEventLogInfo,
         patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
     },
     pipelines::{
@@ -46,7 +46,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<String>(&REGEX, &mut used);
     assert_existence::<PatternsDiscoveryStrategy>(&PATTERNS_DISCOVERY_STRATEGY, &mut used);
     assert_existence::<String>(&OUTPUT_STRING, &mut used);
-    assert_existence::<EventLogInfo>(&EVENT_LOG_INFO, &mut used);
+    assert_existence::<OfflineEventLogInfo>(&EVENT_LOG_INFO, &mut used);
     assert_existence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
     assert_existence::<u32>(&EVENTS_COUNT, &mut used);
     assert_existence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);
@@ -230,7 +230,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<ColorsHolder>(&COLORS_HOLDER, &mut used);
     assert_keys_equivalence::<PatternsDiscoveryStrategy>(&PATTERNS_DISCOVERY_STRATEGY, &mut used);
     assert_keys_equivalence::<String>(&OUTPUT_STRING, &mut used);
-    assert_keys_equivalence::<EventLogInfo>(&EVENT_LOG_INFO, &mut used);
+    assert_keys_equivalence::<OfflineEventLogInfo>(&EVENT_LOG_INFO, &mut used);
     assert_keys_equivalence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
     assert_keys_equivalence::<u32>(&EVENTS_COUNT, &mut used);
     assert_keys_equivalence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);

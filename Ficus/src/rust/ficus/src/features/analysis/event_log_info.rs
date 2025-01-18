@@ -5,10 +5,21 @@ use std::collections::{HashMap, HashSet};
 
 use super::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME};
 
-pub struct EventLogInfo {
+pub trait EventLogInfo {
+    fn traces_count(&self) -> usize;
+    fn events_count(&self) -> usize;
+    fn event_classes_count(&self) -> usize;
+    fn event_count(&self, event_class: &String) -> usize;
+    fn dfg_info(&self) -> &dyn DfgInfo;
+    fn all_event_classes(&self) -> Vec<&String>;
+    fn start_event_classes(&self) -> &HashSet<String>;
+    fn end_event_classes(&self) -> &HashSet<String>;
+}
+
+pub struct OfflineEventLogInfo {
     events_count: usize,
     event_classes_counts: HashMap<String, usize>,
-    dfg_info: DfgInfo,
+    dfg_info: OfflineDfgInfo,
     traces_count: usize,
     start_event_classes: HashSet<String>,
     end_event_classes: HashSet<String>,
@@ -60,8 +71,8 @@ where
     }
 }
 
-impl EventLogInfo {
-    pub fn create_from<TLog>(creation_dto: EventLogInfoCreationDto<TLog>) -> EventLogInfo
+impl OfflineEventLogInfo {
+    pub fn create_from<TLog>(creation_dto: EventLogInfoCreationDto<TLog>) -> OfflineEventLogInfo
     where
         TLog: EventLog,
     {
@@ -166,10 +177,10 @@ impl EventLogInfo {
             }
         }
 
-        EventLogInfo {
+        OfflineEventLogInfo {
             events_count,
             event_classes_counts: events_counts,
-            dfg_info: DfgInfo {
+            dfg_info: OfflineDfgInfo {
                 dfg_pairs,
                 followed_events,
                 precedes_events,
@@ -180,53 +191,63 @@ impl EventLogInfo {
             end_event_classes,
         }
     }
+}
 
-    pub fn traces_count(&self) -> usize {
+impl EventLogInfo for OfflineEventLogInfo {
+    fn traces_count(&self) -> usize {
         self.traces_count
     }
 
-    pub fn events_count(&self) -> usize {
+    fn events_count(&self) -> usize {
         self.events_count
     }
 
-    pub fn event_classes_count(&self) -> usize {
+    fn event_classes_count(&self) -> usize {
         self.event_classes_counts.len()
     }
 
-    pub fn event_count(&self, event_class: &String) -> usize {
+    fn event_count(&self, event_class: &String) -> usize {
         match self.event_classes_counts.get(event_class) {
             Some(value) => value.to_owned(),
             None => 0,
         }
     }
 
-    pub fn dfg_info(&self) -> &DfgInfo {
+    fn dfg_info(&self) -> &dyn DfgInfo {
         &self.dfg_info
     }
 
-    pub fn all_event_classes(&self) -> Vec<&String> {
+    fn all_event_classes(&self) -> Vec<&String> {
         self.event_classes_counts.keys().into_iter().collect()
     }
 
-    pub fn start_event_classes(&self) -> &HashSet<String> {
+    fn start_event_classes(&self) -> &HashSet<String> {
         &self.start_event_classes
     }
 
-    pub fn end_event_classes(&self) -> &HashSet<String> {
+    fn end_event_classes(&self) -> &HashSet<String> {
         &self.end_event_classes
     }
 }
 
+pub trait DfgInfo {
+    fn get_directly_follows_count(&self, first: &String, second: &String) -> usize;
+    fn is_in_directly_follows_relation(&self, left: &str, right: &str) -> bool;
+    fn get_followed_events(&self, event_class: &String) -> Option<&HashMap<String, usize>>;
+    fn get_precedes_events(&self, event_class: &String) -> Option<&HashMap<String, usize>>;
+    fn is_event_with_single_follower(&self, event_class: &String) -> bool;
+}
+
 #[derive(Debug)]
-pub struct DfgInfo {
+pub struct OfflineDfgInfo {
     dfg_pairs: HashMap<String, HashMap<String, usize>>,
     followed_events: HashMap<String, HashMap<String, usize>>,
     precedes_events: HashMap<String, HashMap<String, usize>>,
     events_with_single_follower: HashSet<String>,
 }
 
-impl DfgInfo {
-    pub fn get_directly_follows_count(&self, first: &String, second: &String) -> usize {
+impl DfgInfo for OfflineDfgInfo {
+    fn get_directly_follows_count(&self, first: &String, second: &String) -> usize {
         if let Some(values) = self.dfg_pairs.get(first) {
             if let Some(dfg_count) = values.get(second) {
                 return *dfg_count;
@@ -236,7 +257,7 @@ impl DfgInfo {
         0
     }
 
-    pub fn is_in_directly_follows_relation(&self, left: &str, right: &str) -> bool {
+    fn is_in_directly_follows_relation(&self, left: &str, right: &str) -> bool {
         if let Some(values) = self.dfg_pairs.get(left) {
             values.contains_key(right)
         } else {
@@ -244,21 +265,21 @@ impl DfgInfo {
         }
     }
 
-    pub fn get_followed_events(&self, event_class: &String) -> Option<&HashMap<String, usize>> {
+    fn get_followed_events(&self, event_class: &String) -> Option<&HashMap<String, usize>> {
         match self.followed_events.get(event_class) {
             Some(followers_counts) => Some(followers_counts),
             None => None,
         }
     }
 
-    pub fn get_precedes_events(&self, event_class: &String) -> Option<&HashMap<String, usize>> {
+    fn get_precedes_events(&self, event_class: &String) -> Option<&HashMap<String, usize>> {
         match self.precedes_events.get(event_class) {
             Some(followers_counts) => Some(followers_counts),
             None => None,
         }
     }
 
-    pub fn is_event_with_single_follower(&self, event_class: &String) -> bool {
+    fn is_event_with_single_follower(&self, event_class: &String) -> bool {
         self.events_with_single_follower.contains(event_class)
     }
 }
