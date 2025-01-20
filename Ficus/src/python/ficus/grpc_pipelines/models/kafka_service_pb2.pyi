@@ -42,14 +42,16 @@ class GrpcKafkaSubscriptionMetadata(_message.Message):
     def __init__(self, subscriptionName: _Optional[str] = ...) -> None: ...
 
 class GrpcKafkaPipelineExecutionRequest(_message.Message):
-    __slots__ = ["subscriptionId", "pipelineRequest", "pipelineMetadata"]
+    __slots__ = ["subscriptionId", "pipelineRequest", "pipelineMetadata", "streamingConfiguration"]
     SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
     PIPELINEREQUEST_FIELD_NUMBER: _ClassVar[int]
     PIPELINEMETADATA_FIELD_NUMBER: _ClassVar[int]
+    STREAMINGCONFIGURATION_FIELD_NUMBER: _ClassVar[int]
     subscriptionId: _util_pb2.GrpcGuid
     pipelineRequest: _backend_service_pb2.GrpcPipelineExecutionRequest
     pipelineMetadata: GrpcPipelineMetadata
-    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ..., pipelineMetadata: _Optional[_Union[GrpcPipelineMetadata, _Mapping]] = ...) -> None: ...
+    streamingConfiguration: GrpcPipelineStreamingConfiguration
+    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcPipelineExecutionRequest, _Mapping]] = ..., pipelineMetadata: _Optional[_Union[GrpcPipelineMetadata, _Mapping]] = ..., streamingConfiguration: _Optional[_Union[GrpcPipelineStreamingConfiguration, _Mapping]] = ...) -> None: ...
 
 class GrpcPipelineMetadata(_message.Message):
     __slots__ = ["name"]
@@ -64,6 +66,42 @@ class GrpcAddPipelineRequest(_message.Message):
     pipelineRequest: GrpcKafkaPipelineExecutionRequest
     producerKafkaMetadata: GrpcKafkaConnectionMetadata
     def __init__(self, pipelineRequest: _Optional[_Union[GrpcKafkaPipelineExecutionRequest, _Mapping]] = ..., producerKafkaMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ...) -> None: ...
+
+class GrpcPipelineStreamingConfiguration(_message.Message):
+    __slots__ = ["notSpecified", "t1Configuration", "t2Configuration"]
+    NOTSPECIFIED_FIELD_NUMBER: _ClassVar[int]
+    T1CONFIGURATION_FIELD_NUMBER: _ClassVar[int]
+    T2CONFIGURATION_FIELD_NUMBER: _ClassVar[int]
+    notSpecified: _empty_pb2.Empty
+    t1Configuration: GrpcT1StreamingConfiguration
+    t2Configuration: GrpcT2StreamingConfiguration
+    def __init__(self, notSpecified: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., t1Configuration: _Optional[_Union[GrpcT1StreamingConfiguration, _Mapping]] = ..., t2Configuration: _Optional[_Union[GrpcT2StreamingConfiguration, _Mapping]] = ...) -> None: ...
+
+class GrpcT1StreamingConfiguration(_message.Message):
+    __slots__ = ["timeBasedConfiguration"]
+    TIMEBASEDCONFIGURATION_FIELD_NUMBER: _ClassVar[int]
+    timeBasedConfiguration: GrpcT1TimeBasedCachingConfiguration
+    def __init__(self, timeBasedConfiguration: _Optional[_Union[GrpcT1TimeBasedCachingConfiguration, _Mapping]] = ...) -> None: ...
+
+class GrpcT2StreamingConfiguration(_message.Message):
+    __slots__ = ["lossyCountConfiguration"]
+    LOSSYCOUNTCONFIGURATION_FIELD_NUMBER: _ClassVar[int]
+    lossyCountConfiguration: GrpcT2LossyCountConfiguration
+    def __init__(self, lossyCountConfiguration: _Optional[_Union[GrpcT2LossyCountConfiguration, _Mapping]] = ...) -> None: ...
+
+class GrpcT1TimeBasedCachingConfiguration(_message.Message):
+    __slots__ = ["tracesTimeoutMs"]
+    TRACESTIMEOUTMS_FIELD_NUMBER: _ClassVar[int]
+    tracesTimeoutMs: int
+    def __init__(self, tracesTimeoutMs: _Optional[int] = ...) -> None: ...
+
+class GrpcT2LossyCountConfiguration(_message.Message):
+    __slots__ = ["error", "support"]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    SUPPORT_FIELD_NUMBER: _ClassVar[int]
+    error: float
+    support: float
+    def __init__(self, error: _Optional[float] = ..., support: _Optional[float] = ...) -> None: ...
 
 class GrpcAddPipelineStreamRequest(_message.Message):
     __slots__ = ["pipelineRequest"]

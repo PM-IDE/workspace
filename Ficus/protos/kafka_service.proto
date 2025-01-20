@@ -46,6 +46,7 @@ message GrpcKafkaPipelineExecutionRequest {
   GrpcGuid subscriptionId = 1;
   GrpcPipelineExecutionRequest pipelineRequest = 2;
   GrpcPipelineMetadata pipelineMetadata = 3;
+  GrpcPipelineStreamingConfiguration streamingConfiguration = 4;
 }
 
 message GrpcPipelineMetadata {
@@ -55,6 +56,35 @@ message GrpcPipelineMetadata {
 message GrpcAddPipelineRequest {
   GrpcKafkaPipelineExecutionRequest pipelineRequest = 1;
   GrpcKafkaConnectionMetadata producerKafkaMetadata = 2;
+}
+
+message GrpcPipelineStreamingConfiguration {
+  oneof configuration {
+    google.protobuf.Empty notSpecified = 1;
+    GrpcT1StreamingConfiguration t1Configuration = 2;
+    GrpcT2StreamingConfiguration t2Configuration = 3;
+  }
+}
+
+message GrpcT1StreamingConfiguration {
+  oneof configuration {
+    GrpcT1TimeBasedCachingConfiguration timeBasedConfiguration = 1;
+  }
+}
+
+message GrpcT2StreamingConfiguration {
+  oneof configuration {
+    GrpcT2LossyCountConfiguration lossyCountConfiguration = 1;
+  }
+}
+
+message GrpcT1TimeBasedCachingConfiguration {
+  int64 tracesTimeoutMs = 1;
+}
+
+message GrpcT2LossyCountConfiguration {
+  double error = 1;
+  double support = 2;
 }
 
 message GrpcAddPipelineStreamRequest {
