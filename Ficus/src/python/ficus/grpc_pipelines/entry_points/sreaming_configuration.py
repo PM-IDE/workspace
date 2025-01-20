@@ -14,3 +14,13 @@ def create_not_specified_configuration():
   return GrpcPipelineStreamingConfiguration(
     notSpecified=google.protobuf.empty_pb2.Empty()
   )
+
+def create_lossy_count_configuration(error: float, support: float):
+  return GrpcPipelineStreamingConfiguration(
+    t2Configuration=GrpcT2StreamingConfiguration(
+      lossyCountConfiguration=GrpcT2LossyCountConfiguration(
+        error=error,
+        support=support
+      )
+    )
+  )
