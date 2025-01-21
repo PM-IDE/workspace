@@ -1,7 +1,7 @@
 from ..models.kafka_service_pb2 import *
-import google.protobuf.empty_pb2
+from google.protobuf.empty_pb2 import Empty
 
-def create_time_caching_configuration(trace_timeout_ms: int):
+def create_time_caching_configuration(trace_timeout_ms: int) -> GrpcPipelineStreamingConfiguration:
   return GrpcPipelineStreamingConfiguration(
     t1Configuration=GrpcT1StreamingConfiguration(
       timeBasedConfiguration=GrpcT1TimeBasedCachingConfiguration(
@@ -10,12 +10,12 @@ def create_time_caching_configuration(trace_timeout_ms: int):
     )
   )
 
-def create_not_specified_configuration():
+def create_not_specified_configuration() -> GrpcPipelineStreamingConfiguration:
   return GrpcPipelineStreamingConfiguration(
-    notSpecified=google.protobuf.empty_pb2.Empty()
+    notSpecified=Empty()
   )
 
-def create_lossy_count_configuration(error: float, support: float):
+def create_lossy_count_configuration(error: float, support: float) -> GrpcPipelineStreamingConfiguration:
   return GrpcPipelineStreamingConfiguration(
     t2Configuration=GrpcT2StreamingConfiguration(
       lossyCountConfiguration=GrpcT2LossyCountConfiguration(
