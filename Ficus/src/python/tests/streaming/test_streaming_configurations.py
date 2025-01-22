@@ -19,17 +19,24 @@ def _assert_single_has_field(configuration, field_name: str):
     has_field = configuration.HasField(field)
     assert (not (has_field ^ (field == field_name)))
 
-def test_t1_configuration():
+def test_t1_events_timeout_configuration():
   timeout = 123
-  configuration = create_time_caching_configuration(timeout)
+  configuration = create_events_timeout_configuration(timeout)
 
   _assert_single_has_field(configuration, const_t1_configuration_field)
-  assert configuration.t1Configuration.timeBasedConfiguration.tracesTimeoutMs == timeout
+  assert configuration.t1Configuration.eventsTimeout.eventsTimeoutMs == timeout
+
+def test_t1_traces_timeout_configuration():
+  timeout = 123
+  configuration = create_traces_timeout_configuration(timeout)
+
+  _assert_single_has_field(configuration, const_t1_configuration_field)
+  assert configuration.t1Configuration.tracesTimeout.tracesTimeoutMs == timeout
 
 def test_t2_configuration():
   error, support = 1, 2
   configuration = create_lossy_count_configuration(error, support)
 
   _assert_single_has_field(configuration, const_t2_configuration_field)
-  assert configuration.t2Configuration.lossyCountConfiguration.error == error
-  assert configuration.t2Configuration.lossyCountConfiguration.support == support
+  assert configuration.t2Configuration.lossyCount.error == error
+  assert configuration.t2Configuration.lossyCount.support == support

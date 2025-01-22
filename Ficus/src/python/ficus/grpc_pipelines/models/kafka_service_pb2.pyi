@@ -78,22 +78,30 @@ class GrpcPipelineStreamingConfiguration(_message.Message):
     def __init__(self, notSpecified: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., t1Configuration: _Optional[_Union[GrpcT1StreamingConfiguration, _Mapping]] = ..., t2Configuration: _Optional[_Union[GrpcT2StreamingConfiguration, _Mapping]] = ...) -> None: ...
 
 class GrpcT1StreamingConfiguration(_message.Message):
-    __slots__ = ["timeBasedConfiguration"]
-    TIMEBASEDCONFIGURATION_FIELD_NUMBER: _ClassVar[int]
-    timeBasedConfiguration: GrpcT1TimeBasedCachingConfiguration
-    def __init__(self, timeBasedConfiguration: _Optional[_Union[GrpcT1TimeBasedCachingConfiguration, _Mapping]] = ...) -> None: ...
+    __slots__ = ["eventsTimeout", "tracesTimeout"]
+    EVENTSTIMEOUT_FIELD_NUMBER: _ClassVar[int]
+    TRACESTIMEOUT_FIELD_NUMBER: _ClassVar[int]
+    eventsTimeout: GrpcT1EventsTimeBasedCaching
+    tracesTimeout: GrpcT1TraceTimeBasedCaching
+    def __init__(self, eventsTimeout: _Optional[_Union[GrpcT1EventsTimeBasedCaching, _Mapping]] = ..., tracesTimeout: _Optional[_Union[GrpcT1TraceTimeBasedCaching, _Mapping]] = ...) -> None: ...
 
-class GrpcT2StreamingConfiguration(_message.Message):
-    __slots__ = ["lossyCountConfiguration"]
-    LOSSYCOUNTCONFIGURATION_FIELD_NUMBER: _ClassVar[int]
-    lossyCountConfiguration: GrpcT2LossyCountConfiguration
-    def __init__(self, lossyCountConfiguration: _Optional[_Union[GrpcT2LossyCountConfiguration, _Mapping]] = ...) -> None: ...
+class GrpcT1EventsTimeBasedCaching(_message.Message):
+    __slots__ = ["eventsTimeoutMs"]
+    EVENTSTIMEOUTMS_FIELD_NUMBER: _ClassVar[int]
+    eventsTimeoutMs: int
+    def __init__(self, eventsTimeoutMs: _Optional[int] = ...) -> None: ...
 
-class GrpcT1TimeBasedCachingConfiguration(_message.Message):
+class GrpcT1TraceTimeBasedCaching(_message.Message):
     __slots__ = ["tracesTimeoutMs"]
     TRACESTIMEOUTMS_FIELD_NUMBER: _ClassVar[int]
     tracesTimeoutMs: int
     def __init__(self, tracesTimeoutMs: _Optional[int] = ...) -> None: ...
+
+class GrpcT2StreamingConfiguration(_message.Message):
+    __slots__ = ["lossyCount"]
+    LOSSYCOUNT_FIELD_NUMBER: _ClassVar[int]
+    lossyCount: GrpcT2LossyCountConfiguration
+    def __init__(self, lossyCount: _Optional[_Union[GrpcT2LossyCountConfiguration, _Mapping]] = ...) -> None: ...
 
 class GrpcT2LossyCountConfiguration(_message.Message):
     __slots__ = ["error", "support"]

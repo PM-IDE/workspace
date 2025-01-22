@@ -68,18 +68,23 @@ message GrpcPipelineStreamingConfiguration {
 
 message GrpcT1StreamingConfiguration {
   oneof configuration {
-    GrpcT1TimeBasedCachingConfiguration timeBasedConfiguration = 1;
+    GrpcT1EventsTimeBasedCaching eventsTimeout = 1;
+    GrpcT1TraceTimeBasedCaching tracesTimeout = 2;
   }
+}
+
+message GrpcT1EventsTimeBasedCaching {
+  int64 eventsTimeoutMs = 1;
+}
+
+message GrpcT1TraceTimeBasedCaching {
+  int64 tracesTimeoutMs = 1;
 }
 
 message GrpcT2StreamingConfiguration {
   oneof configuration {
-    GrpcT2LossyCountConfiguration lossyCountConfiguration = 1;
+    GrpcT2LossyCountConfiguration lossyCount = 1;
   }
-}
-
-message GrpcT1TimeBasedCachingConfiguration {
-  int64 tracesTimeoutMs = 1;
 }
 
 message GrpcT2LossyCountConfiguration {
