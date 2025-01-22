@@ -15,3 +15,4 @@ pub mod pipeline_parts;
 pub mod pipelines;
 pub mod util_parts;
 pub mod xes_parts;
+pub mod streaming;

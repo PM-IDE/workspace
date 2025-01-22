@@ -1,11 +1,11 @@
 use crate::ficus_proto::{GrpcPipelineStreamingConfiguration, GrpcT1EventsTimeBasedCaching, GrpcT1StreamingConfiguration, GrpcT1TraceTimeBasedCaching, GrpcT2LossyCountConfiguration, GrpcT2StreamingConfiguration};
+use crate::grpc::kafka::streaming_context_updaters::{DefaultStreamingProcessor, TracesProcessor};
 
 type StreamingConfigurationEnum = crate::ficus_proto::grpc_pipeline_streaming_configuration::Configuration;
 type T1ConfigurationEnum = crate::ficus_proto::grpc_t1_streaming_configuration::Configuration;
 type T2ConfigurationEnum = crate::ficus_proto::grpc_t2_streaming_configuration::Configuration;
 
-
-enum StreamingConfiguration {
+pub enum StreamingConfiguration {
     NotSpecified,
     T1(T1StreamingConfiguration),
     T2(T2StreamingConfiguration)
@@ -26,6 +26,14 @@ impl StreamingConfiguration {
                     Some(t2) => Some(StreamingConfiguration::T2(t2))
                 }
             }
+        }
+    }
+    
+    pub fn create_processor(&self) -> TracesProcessor {
+        match self {
+            StreamingConfiguration::NotSpecified => TracesProcessor::Default(DefaultStreamingProcessor::new()),
+            StreamingConfiguration::T1(_) => todo!(),
+            StreamingConfiguration::T2(_) => todo!()
         }
     }
 }
@@ -57,7 +65,7 @@ impl EventsTimeoutConfiguration {
     }
 }
 
-struct TracesTimeoutConfiguration { pub timeout_ms: u64 }
+struct TracesTimeoutConfiguration { timeout_ms: u64 }
 
 impl TracesTimeoutConfiguration {
     pub fn new(grpc_traces_timeout: &GrpcT1TraceTimeBasedCaching) -> Self {

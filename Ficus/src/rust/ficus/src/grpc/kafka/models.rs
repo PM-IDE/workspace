@@ -56,7 +56,6 @@ impl PipelineExecutionDto {
 pub(super) struct KafkaConsumerCreationDto {
     pub uuid: Uuid,
     pub name: String,
-    pub names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     pub logger: ConsoleLogMessageHandler,
 }
@@ -64,13 +63,11 @@ pub(super) struct KafkaConsumerCreationDto {
 impl KafkaConsumerCreationDto {
     pub fn new(
         name: String,
-        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
         subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     ) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             name,
-            names_to_logs,
             subscriptions_to_execution_requests,
             logger: ConsoleLogMessageHandler::new(),
         }

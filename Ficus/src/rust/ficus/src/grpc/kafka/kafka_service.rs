@@ -1,49 +1,49 @@
-use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::ficus_proto::{
-    grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
-    GrpcPipeline, GrpcPipelineExecutionRequest, GrpcSubscribeToKafkaRequest,
-};
-use crate::grpc::events::events_handler::{CaseName, PipelineEvent};
+use crate::ficus_proto::{grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult, GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest};
+use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
 use crate::grpc::kafka::models::{
-    KafkaConsumerCreationDto, LogUpdateResult, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME,
-    KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
+    KafkaConsumerCreationDto, PipelineExecutionDto
+    ,
 };
+use crate::grpc::kafka::streaming_context_updaters::{DefaultStreamingProcessor, TracesProcessor};
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
 use crate::pipelines::keys::context_keys::{
-    CASE_NAME, EVENT_LOG_KEY, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA,
+    PIPELINE_ID, PIPELINE_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME,
 };
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
-use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
 use rdkafka::error::KafkaError;
 use rdkafka::ClientConfig;
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use tonic::Status;
 use uuid::Uuid;
+use crate::grpc::kafka::streaming_configs::StreamingConfiguration;
 
 #[derive(Clone)]
 pub struct KafkaSubscriptionPipeline {
     request: GrpcPipelineExecutionRequest,
     execution_dto: PipelineExecutionDto,
     name: String,
+    processor: TracesProcessor
 }
 
 impl KafkaSubscriptionPipeline {
-    fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto, name: String) -> Self {
+    fn new(
+        request: GrpcPipelineExecutionRequest, 
+        execution_dto: PipelineExecutionDto, 
+        name: String,
+        processor: TracesProcessor,
+    ) -> Self {
         Self {
             request,
             execution_dto,
             name,
+            processor
         }
     }
 }
@@ -77,16 +77,15 @@ impl KafkaSubscription {
 }
 
 pub struct KafkaService {
-    names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pipeline_parts: Arc<Box<PipelineParts>>,
     subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
+    
     logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaService {
     pub fn new() -> Self {
         Self {
-            names_to_logs: Arc::new(Mutex::new(HashMap::new())),
             pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
             subscriptions_to_execution_requests: Arc::new(Mutex::new(HashMap::new())),
             logger: ConsoleLogMessageHandler::new(),
@@ -206,23 +205,14 @@ impl KafkaService {
     }
 
     fn process_kafka_trace(trace: BxesKafkaTrace, dto: &KafkaConsumerCreationDto) {
-        let update_result = match Self::update_log(dto.names_to_logs.clone(), trace) {
-            Ok(update_result) => update_result,
-            Err(err) => {
-                let message = format!("Failed to get update result, err: {}", err.to_string());
-                dto.logger.handle(message.as_str()).expect("Must log message");
-                return;
-            }
-        };
-
         let map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
         let kafka_subscription = match map.get(&dto.uuid) {
             None => return,
-            Some(pipeline) => pipeline.clone(),
+            Some(subscription) => subscription.clone(),
         };
 
         drop(map);
-
+        
         for pipeline in &kafka_subscription.pipelines {
             let pipeline_id = pipeline.0;
             let pipeline = pipeline.1;
@@ -231,20 +221,23 @@ impl KafkaService {
                 continue;
             }
 
-            let update_result = update_result.clone();
             let context = Self::create_pipeline_execution_context(&pipeline.request, &pipeline.execution_dto);
+            let trace = trace.clone();
 
-            let execution_result = context.execute_grpc_pipeline(move |context| {
-                context.put_concrete(EVENT_LOG_KEY.key(), update_result.new_log);
+            let execution_result = context.execute_grpc_pipeline(move |mut context| {
+                match pipeline.processor.observe(trace, &mut context) {
+                    Ok(()) => {},
+                    Err(err) => {
+                        let message = format!("Failed to get update result, err: {}", err.to_string());
+                        dto.logger.handle(message.as_str()).expect("Must log message");
+                        return;
+                    }
+                };
 
-                context.put_concrete(PROCESS_NAME.key(), update_result.process_name);
-                context.put_concrete(CASE_NAME.key(), update_result.case_name);
                 context.put_concrete(SUBSCRIPTION_ID.key(), dto.uuid.clone());
                 context.put_concrete(PIPELINE_ID.key(), pipeline_id.clone());
                 context.put_concrete(SUBSCRIPTION_NAME.key(), dto.name.clone());
                 context.put_concrete(PIPELINE_NAME.key(), pipeline.name.clone());
-
-                context.put_concrete(UNSTRUCTURED_METADATA.key(), update_result.unstructured_metadata);
             });
 
             if let Err(err) = execution_result {
@@ -261,11 +254,13 @@ impl KafkaService {
         subscription_id: Uuid,
         handler: T,
         request: GrpcPipelineExecutionRequest,
+        streaming_config: GrpcPipelineStreamingConfiguration,
         pipeline_name: String,
     ) -> Uuid {
         let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
         let pipeline_id = Uuid::new_v4();
-        let kafka_pipeline = self.create_kafka_pipeline(request, handler, pipeline_name);
+        let streaming_config = StreamingConfiguration::new(&streaming_config).unwrap_or_else(|| StreamingConfiguration::NotSpecified);
+        let kafka_pipeline = self.create_kafka_pipeline(request, handler, pipeline_name, streaming_config);
 
         match map.get_mut(&subscription_id) {
             None => {
@@ -284,10 +279,11 @@ impl KafkaService {
         request: GrpcPipelineExecutionRequest,
         handler: T,
         pipeline_name: String,
+        streaming_config: StreamingConfiguration
     ) -> KafkaSubscriptionPipeline {
         let handler = Arc::new(Box::new(handler) as Box<dyn PipelineEventsHandler>);
         let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
-        KafkaSubscriptionPipeline::new(request, dto, pipeline_name)
+        KafkaSubscriptionPipeline::new(request, dto, pipeline_name, streaming_config.create_processor())
     }
 
     pub fn remove_execution_request(&self, subscription_id: &Uuid, pipeline_id: &Uuid) {
@@ -312,7 +308,7 @@ impl KafkaService {
 
 impl KafkaService {
     fn create_kafka_creation_dto(&self, name: String) -> KafkaConsumerCreationDto {
-        KafkaConsumerCreationDto::new(name, self.names_to_logs.clone(), self.subscriptions_to_execution_requests.clone())
+        KafkaConsumerCreationDto::new(name, self.subscriptions_to_execution_requests.clone())
     }
 
     pub(super) fn create_pipeline_execution_context_from_proxy<'a>(
@@ -335,89 +331,6 @@ impl KafkaService {
             dto.pipeline_parts.clone(),
             dto.events_handler.clone(),
         )
-    }
-
-    fn update_log(
-        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-        trace: BxesKafkaTrace,
-    ) -> Result<LogUpdateResult, XesFromBxesKafkaTraceCreatingError> {
-        let metadata = trace.metadata();
-        let mut names_to_logs = names_to_logs.lock();
-        let names_to_logs = match names_to_logs.as_mut() {
-            Ok(names_to_logs) => names_to_logs,
-            Err(_) => panic!("Failed to acquire a names_to_logs map from mutex"),
-        };
-
-        let process_name = Self::string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
-        let case_display_name = Self::string_value_or_err(metadata, KAFKA_CASE_DISPLAY_NAME)?;
-        let case_name_parts_joined = Self::string_value_or_err(metadata, KAFKA_CASE_NAME_PARTS)?;
-        let case_name_parts: Vec<String> = case_name_parts_joined
-            .split(KAFKA_CASE_NAME_PARTS_SEPARATOR)
-            .map(|s| s.to_string())
-            .collect();
-
-        if !names_to_logs.contains_key(case_name_parts_joined.as_str()) {
-            let new_log = XesEventLogImpl::empty();
-            names_to_logs.insert(case_name_parts_joined.to_owned(), new_log);
-        }
-
-        let existing_log = names_to_logs
-            .get_mut(case_name_parts_joined.as_str())
-            .expect("Log should be present");
-
-        let xes_trace = match read_bxes_events(trace.events()) {
-            Ok(xes_trace) => xes_trace,
-            Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err)),
-        };
-
-        let xes_trace = Rc::new(RefCell::new(xes_trace));
-        existing_log.push(xes_trace);
-
-        let result = LogUpdateResult {
-            process_name,
-            case_name: CaseName {
-                display_name: case_display_name,
-                name_parts: case_name_parts,
-            },
-            new_log: existing_log.clone(),
-            unstructured_metadata: Self::metadata_to_string_string_pairs(metadata),
-        };
-
-        Ok(result)
-    }
-
-    fn string_value_or_err(
-        metadata: &HashMap<String, Rc<Box<BxesValue>>>,
-        key_name: &str,
-    ) -> Result<String, XesFromBxesKafkaTraceCreatingError> {
-        if let Some(value) = metadata.get(key_name) {
-            if let BxesValue::String(process_name) = value.as_ref().as_ref() {
-                Ok(process_name.as_ref().as_ref().to_owned())
-            } else {
-                Err(XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name.to_string()))
-            }
-        } else {
-            Err(XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name.to_string()))
-        }
-    }
-
-    fn metadata_to_string_string_pairs(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Vec<(String, String)> {
-        metadata
-            .iter()
-            .map(|pair| {
-                if pair.0 == KAFKA_CASE_NAME_PARTS || pair.0 == KAFKA_CASE_DISPLAY_NAME || pair.0 == KAFKA_PROCESS_NAME {
-                    None
-                } else {
-                    if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
-                        Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
-                    } else {
-                        None
-                    }
-                }
-            })
-            .filter(|kv| kv.is_some())
-            .map(|kv| kv.unwrap())
-            .collect()
     }
 
     pub(super) fn create_kafka_events_handler(
