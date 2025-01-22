@@ -212,6 +212,8 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
                         name_parts: vec![case_name.to_string()],
                     },
                 );
+                
+                Ok(())
             });
 
             match execution_result {

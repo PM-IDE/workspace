@@ -23,6 +23,7 @@ use std::sync::{Arc, Mutex};
 use tonic::Status;
 use uuid::Uuid;
 use crate::grpc::kafka::streaming_configs::StreamingConfiguration;
+use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 
 #[derive(Clone)]
 pub struct KafkaSubscriptionPipeline {
@@ -230,7 +231,7 @@ impl KafkaService {
                     Err(err) => {
                         let message = format!("Failed to get update result, err: {}", err.to_string());
                         dto.logger.handle(message.as_str()).expect("Must log message");
-                        return;
+                        return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Failed to mutate context".to_string())));
                     }
                 };
 
@@ -238,6 +239,8 @@ impl KafkaService {
                 context.put_concrete(PIPELINE_ID.key(), pipeline_id.clone());
                 context.put_concrete(SUBSCRIPTION_NAME.key(), dto.name.clone());
                 context.put_concrete(PIPELINE_NAME.key(), pipeline.name.clone());
+
+                Ok(())
             });
 
             if let Err(err) = execution_result {

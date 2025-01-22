@@ -73,7 +73,7 @@ impl GrpcBackendService for FicusService {
             let sender = Arc::new(Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>);
             let context = ServicePipelineExecutionContext::new(grpc_pipeline, &context_values, pipeline_parts, sender);
 
-            match context.execute_grpc_pipeline(|_| {}) {
+            match context.execute_grpc_pipeline(|_| Ok(())) {
                 Ok((uuid, created_context)) => {
                     contexts.lock().as_mut().unwrap().insert(uuid.to_string(), created_context);
 
