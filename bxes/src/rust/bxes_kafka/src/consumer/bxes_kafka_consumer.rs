@@ -31,7 +31,7 @@ impl BxesKafkaConsumer {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BxesKafkaTrace {
     metadata: HashMap<String, Rc<Box<BxesValue>>>,
     events: Vec<BxesEvent>,
@@ -82,8 +82,8 @@ impl BxesKafkaConsumer {
             Some(message) => match message {
                 Ok(msg) => {
                     let payload = msg.payload().unwrap();
-                    const uuid_length: usize = 16;
-                    let read_metadata_id = Uuid::from_slice(&payload[..uuid_length]).expect("Should be valid uuid");
+                    const UUID_LENGTH: usize = 16;
+                    let read_metadata_id = Uuid::from_slice(&payload[..UUID_LENGTH]).expect("Should be valid uuid");
 
                     if !self.session_id_to_read_metadata.contains_key(&read_metadata_id) {
                         self.session_id_to_read_metadata.insert(read_metadata_id.clone(), ReadMetadata::empty());
@@ -91,7 +91,7 @@ impl BxesKafkaConsumer {
 
                     let mut read_metadata = self.session_id_to_read_metadata.get_mut(&read_metadata_id).expect("Must be present");
 
-                    let trace = Self::parse_raw_bxes_bytes(&payload[uuid_length..], &mut read_metadata)?;
+                    let trace = Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], &mut read_metadata)?;
                     self.consumer.commit_message(&msg, CommitMode::Async)?;
 
                     Ok(Some(trace))
