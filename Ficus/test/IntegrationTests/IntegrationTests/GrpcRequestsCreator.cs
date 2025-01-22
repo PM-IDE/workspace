@@ -44,12 +44,12 @@ public static class GrpcRequestsCreator
   {
     return new GrpcAddPipelineRequest
     {
-      StreamingConfiguration = new GrpcPipelineStreamingConfiguration
-      {
-        NotSpecified = new Empty()
-      },
       PipelineRequest = new GrpcKafkaPipelineExecutionRequest
       {
+        StreamingConfiguration = new GrpcPipelineStreamingConfiguration
+        {
+          NotSpecified = new Empty()
+        },
         SubscriptionId = subscriptionId,
         PipelineMetadata = new GrpcPipelineMetadata
         {
