@@ -60,7 +60,8 @@ public class OnlineEventsProcessorImpl(
       CommandContext = new CommandContext
       {
         ApplicationName = commandContext.ApplicationName,
-        TargetMethodsRegex = commandContext.TargetMethodsRegex
+        TargetMethodsRegex = commandContext.TargetMethodsRegex,
+        EventsFlushThreshold = commandContext.EventsFlushThreshold
       }
     };
 
@@ -87,7 +88,8 @@ public class OnlineEventsProcessorImpl(
           CommandContext = new CommandContext
           {
             ApplicationName = commandContext.ApplicationName,
-            TargetMethodsRegex = commandContext.TargetMethodsRegex
+            TargetMethodsRegex = commandContext.TargetMethodsRegex,
+            EventsFlushThreshold = commandContext.EventsFlushThreshold,
           }
         };
 
