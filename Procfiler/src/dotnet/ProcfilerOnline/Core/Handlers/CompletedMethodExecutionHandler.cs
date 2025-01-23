@@ -3,6 +3,7 @@ using Core.Container;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Features;
+using ProcfilerOnline.Core.Processors;
 using ProcfilerOnline.Integrations.Kafka.Bxes;
 using ProcfilerOnline.Integrations.Kafka.Json;
 
@@ -45,7 +46,8 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
       ProcessName = @event.ApplicationName,
       CaseName = @event.Frame.MethodInfo!.ToBxesKafkaCaseName(),
       Trace = @event.Frame.InnerEvents,
-      IsCompleted = @event.IsCompleted
+      IsCompleted = @event.IsCompleted,
+      Id = @event.Frame.Id
     };
 
     @event.Frame.MethodInfo.AddToMetadata(message.Metadata);

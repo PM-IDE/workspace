@@ -11,6 +11,7 @@ public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 {
   public required string ApplicationName { get; init; }
   public required string StateMachineName { get; init; }
+  public required Guid MethodId { get; init; }
   public required List<List<EventRecordWithMetadata>> MethodTraces { get; init; }
   public ExtendedMethodInfo? MethodInfo { get; init; }
 }
@@ -49,7 +50,8 @@ public class CompletedAsyncMethodHandler(
           NameParts = [completedAsyncMethodEvent.StateMachineName]
         },
         Trace = methodTrace,
-        IsCompleted = true
+        IsCompleted = true,
+        Id = completedAsyncMethodEvent.MethodId
       };
 
       completedAsyncMethodEvent.MethodInfo.AddToMetadata(message.Metadata);

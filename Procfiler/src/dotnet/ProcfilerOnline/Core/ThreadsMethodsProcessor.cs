@@ -19,6 +19,7 @@ public class TargetMethodFrame(long methodId, ExtendedMethodInfo? methodInfo)
 {
   public long MethodId { get; } = methodId;
   public ExtendedMethodInfo? MethodInfo { get; } = methodInfo;
+  public Guid Id { get; } = Guid.NewGuid();
 
   public List<EventRecordWithMetadata> InnerEvents { get; } = [];
 }
