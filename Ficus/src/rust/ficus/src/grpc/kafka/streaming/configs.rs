@@ -1,5 +1,5 @@
 use crate::ficus_proto::{GrpcPipelineStreamingConfiguration, GrpcT1EventsTimeBasedCaching, GrpcT1StreamingConfiguration, GrpcT1TraceTimeBasedCaching, GrpcT2LossyCountConfiguration, GrpcT2StreamingConfiguration};
-use crate::grpc::kafka::streaming_context_updaters::{DefaultStreamingProcessor, TracesProcessor};
+use crate::grpc::kafka::streaming::processors::{DefaultStreamingProcessor, TracesProcessor};
 
 type StreamingConfigurationEnum = crate::ficus_proto::grpc_pipeline_streaming_configuration::Configuration;
 type T1ConfigurationEnum = crate::ficus_proto::grpc_t1_streaming_configuration::Configuration;

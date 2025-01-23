@@ -6,7 +6,6 @@ use crate::grpc::kafka::models::{
     KafkaConsumerCreationDto, PipelineExecutionDto
     ,
 };
-use crate::grpc::kafka::streaming_context_updaters::{DefaultStreamingProcessor, TracesProcessor};
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
@@ -22,7 +21,8 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tonic::Status;
 use uuid::Uuid;
-use crate::grpc::kafka::streaming_configs::StreamingConfiguration;
+use crate::grpc::kafka::streaming::configs::StreamingConfiguration;
+use crate::grpc::kafka::streaming::processors::TracesProcessor;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 
 #[derive(Clone)]

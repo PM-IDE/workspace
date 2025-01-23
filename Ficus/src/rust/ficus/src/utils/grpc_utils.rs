@@ -2,7 +2,6 @@ use crate::ficus_proto::{grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipel
 use std::str::FromStr;
 use tonic::Status;
 use uuid::Uuid;
-use crate::grpc::kafka::streaming_configs::StreamingConfiguration;
 
 impl GrpcGuid {
     pub fn to_uuid(&self) -> Result<Uuid, Status> {
