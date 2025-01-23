@@ -26,6 +26,7 @@ public class BxesKafkaTrace
   public required string ProcessName { get; init; }
   public required BxesKafkaCaseName CaseName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
+  public required bool IsCompleted { get; init; }
 
   public List<AttributeKeyValue> Metadata { get; } = [];
 }
@@ -44,22 +45,23 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
     });
 
 
-  public void Produce(Guid key, BxesKafkaTrace message)
+  public void Produce(Guid key, BxesKafkaTrace trace)
   {
     List<AttributeKeyValue> metadata =
     [
-      new(new BxesStringValue("case_display_name"), new BxesStringValue(message.CaseName.DisplayName)),
-      new(new BxesStringValue("case_name_parts"), new BxesStringValue(string.Join(CaseNamePartsSeparator, message.CaseName.NameParts))),
-      new(new BxesStringValue("process_name"), new BxesStringValue(message.ProcessName))
+      new(new BxesStringValue("case_display_name"), new BxesStringValue(trace.CaseName.DisplayName)),
+      new(new BxesStringValue("case_name_parts"), new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
+      new(new BxesStringValue("process_name"), new BxesStringValue(trace.ProcessName)),
+      new(new BxesStringValue("completed"), new BxesBoolValue(trace.IsCompleted))
     ];
 
-    metadata.AddRange(message.Metadata);
+    metadata.AddRange(trace.Metadata);
 
     try
     {
       myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
 
-      foreach (var eventRecord in message.Trace)
+      foreach (var eventRecord in trace.Trace)
       {
         myWriter.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, true)));
       }
@@ -71,9 +73,9 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
       logger.LogError(
         ex,
         "Failed to produce bXES trace to kafka, process name: {ProcessName}, case name: {CaseName}, events count: {EventsCount}",
-        message.ProcessName,
-        message.CaseName,
-        message.Trace.Count
+        trace.ProcessName,
+        trace.CaseName,
+        trace.Trace.Count
       );
     }
   }

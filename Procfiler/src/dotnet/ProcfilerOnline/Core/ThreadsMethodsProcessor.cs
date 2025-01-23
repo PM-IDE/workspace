@@ -58,10 +58,11 @@ public class ThreadsMethodsProcessor(
           context.CommandContext.EventsFlushThreshold
         );
 
-        handler.Handle(new CompletedMethodExecutionEvent
+        handler.Handle(new MethodExecutionEvent
         {
           Frame = frame,
-          ApplicationName = context.CommandContext.ApplicationName
+          ApplicationName = context.CommandContext.ApplicationName,
+          IsCompleted = false,
         });
 
         frame.InnerEvents.Clear();
@@ -141,10 +142,11 @@ public class ThreadsMethodsProcessor(
           if (context.CommandContext.TargetMethodsRegex is null ||
               context.CommandContext.TargetMethodsRegex.IsMatch(methodFqn))
           {
-            handler.Handle(new CompletedMethodExecutionEvent
+            handler.Handle(new MethodExecutionEvent
             {
               ApplicationName = context.CommandContext.ApplicationName,
-              Frame = frame
+              Frame = frame,
+              IsCompleted = true
             });
           }
         }

@@ -48,7 +48,8 @@ public class CompletedAsyncMethodHandler(
           DisplayName = completedAsyncMethodEvent.StateMachineName,
           NameParts = [completedAsyncMethodEvent.StateMachineName]
         },
-        Trace = methodTrace
+        Trace = methodTrace,
+        IsCompleted = true
       };
 
       completedAsyncMethodEvent.MethodInfo.AddToMetadata(message.Metadata);
