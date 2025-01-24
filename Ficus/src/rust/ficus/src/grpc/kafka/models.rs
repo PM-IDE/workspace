@@ -15,7 +15,7 @@ pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
 
 #[derive(Debug)]
-pub(super) enum XesFromBxesKafkaTraceCreatingError {
+pub(in crate::grpc) enum XesFromBxesKafkaTraceCreatingError {
     MetadataValueIsNotAString(String),
     MetadataValueNotFound(String),
     BxesToXexConversionError(BxesToXesReadError),
@@ -61,10 +61,7 @@ pub(super) struct KafkaConsumerCreationDto {
 }
 
 impl KafkaConsumerCreationDto {
-    pub fn new(
-        name: String,
-        subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
-    ) -> Self {
+    pub fn new(name: String, subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             name,

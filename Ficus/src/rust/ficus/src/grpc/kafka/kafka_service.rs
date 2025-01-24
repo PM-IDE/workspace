@@ -1,17 +1,18 @@
-use crate::ficus_proto::{grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult, GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest};
+use crate::ficus_proto::{
+    grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
+    GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest,
+};
 use crate::grpc::events::events_handler::PipelineEvent;
 use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
-use crate::grpc::kafka::models::{
-    KafkaConsumerCreationDto, PipelineExecutionDto
-    ,
-};
+use crate::grpc::kafka::models::{KafkaConsumerCreationDto, PipelineExecutionDto};
+use crate::grpc::kafka::streaming::configs::StreamingConfiguration;
+use crate::grpc::kafka::streaming::processors::TracesProcessor;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
-use crate::pipelines::keys::context_keys::{
-    PIPELINE_ID, PIPELINE_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME,
-};
+use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
+use crate::pipelines::keys::context_keys::{PIPELINE_ID, PIPELINE_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
@@ -21,30 +22,22 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tonic::Status;
 use uuid::Uuid;
-use crate::grpc::kafka::streaming::configs::StreamingConfiguration;
-use crate::grpc::kafka::streaming::processors::TracesProcessor;
-use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 
 #[derive(Clone)]
 pub struct KafkaSubscriptionPipeline {
     request: GrpcPipelineExecutionRequest,
     execution_dto: PipelineExecutionDto,
     name: String,
-    processor: TracesProcessor
+    processor: TracesProcessor,
 }
 
 impl KafkaSubscriptionPipeline {
-    fn new(
-        request: GrpcPipelineExecutionRequest, 
-        execution_dto: PipelineExecutionDto, 
-        name: String,
-        processor: TracesProcessor,
-    ) -> Self {
+    fn new(request: GrpcPipelineExecutionRequest, execution_dto: PipelineExecutionDto, name: String, processor: TracesProcessor) -> Self {
         Self {
             request,
             execution_dto,
             name,
-            processor
+            processor,
         }
     }
 }
@@ -80,7 +73,7 @@ impl KafkaSubscription {
 pub struct KafkaService {
     pipeline_parts: Arc<Box<PipelineParts>>,
     subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
-    
+
     logger: ConsoleLogMessageHandler,
 }
 
@@ -213,7 +206,7 @@ impl KafkaService {
         };
 
         drop(map);
-        
+
         for pipeline in &kafka_subscription.pipelines {
             let pipeline_id = pipeline.0;
             let pipeline = pipeline.1;
@@ -227,11 +220,13 @@ impl KafkaService {
 
             let execution_result = context.execute_grpc_pipeline(move |mut context| {
                 match pipeline.processor.observe(trace, &mut context) {
-                    Ok(()) => {},
+                    Ok(()) => {}
                     Err(err) => {
                         let message = format!("Failed to get update result, err: {}", err.to_string());
                         dto.logger.handle(message.as_str()).expect("Must log message");
-                        return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Failed to mutate context".to_string())));
+                        return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
+                            "Failed to mutate context".to_string(),
+                        )));
                     }
                 };
 
@@ -282,7 +277,7 @@ impl KafkaService {
         request: GrpcPipelineExecutionRequest,
         handler: T,
         pipeline_name: String,
-        streaming_config: StreamingConfiguration
+        streaming_config: StreamingConfiguration,
     ) -> KafkaSubscriptionPipeline {
         let handler = Arc::new(Box::new(handler) as Box<dyn PipelineEventsHandler>);
         let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);

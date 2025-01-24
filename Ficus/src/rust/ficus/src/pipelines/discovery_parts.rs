@@ -59,7 +59,7 @@ impl PipelineParts {
 
         let one_length_loop_transitions = find_transitions_one_length_loop(log);
         let original_log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
-        
+
         let dto = EventLogInfoCreationDto::default_ignore(log, &one_length_loop_transitions);
         let ignored_event_log_info = OfflineEventLogInfo::create_from(dto);
 

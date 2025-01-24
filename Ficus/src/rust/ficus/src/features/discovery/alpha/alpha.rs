@@ -23,7 +23,11 @@ pub fn discover_petri_net_alpha(provider: &impl AlphaRelationsProvider) -> Defau
     do_discover_petri_net_alpha(provider)
 }
 
-pub fn discover_petri_net_alpha_plus(provider: &impl AlphaPlusRelationsProvider, original_log_info: &dyn EventLogInfo, alpha_plus_plus: bool) -> DefaultPetriNet {
+pub fn discover_petri_net_alpha_plus(
+    provider: &impl AlphaPlusRelationsProvider,
+    original_log_info: &dyn EventLogInfo,
+    alpha_plus_plus: bool,
+) -> DefaultPetriNet {
     let mut petri_net = do_discover_petri_net_alpha(provider);
     add_one_length_loops(provider, original_log_info, &mut petri_net);
 

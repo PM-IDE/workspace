@@ -72,9 +72,9 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     async fn add_pipeline_to_subscription(&self, request: Request<GrpcAddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
         let dto = request.get_ref().to_dto();
         let handler = KafkaService::create_kafka_events_handler(request.get_ref().producer_kafka_metadata.as_ref())?;
-        let pipeline_id = self
-            .kafka_service
-            .add_execution_request(dto.subscription_id, handler, dto.request, dto.streaming_configuration, dto.name);
+        let pipeline_id =
+            self.kafka_service
+                .add_execution_request(dto.subscription_id, handler, dto.request, dto.streaming_configuration, dto.name);
 
         Ok(Response::new(GrpcKafkaResult::success(pipeline_id)))
     }
@@ -212,7 +212,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
                         name_parts: vec![case_name.to_string()],
                     },
                 );
-                
+
                 Ok(())
             });
 

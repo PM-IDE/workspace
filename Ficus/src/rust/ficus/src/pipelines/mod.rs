@@ -13,6 +13,6 @@ pub mod parts_names;
 pub mod patterns_parts;
 pub mod pipeline_parts;
 pub mod pipelines;
+pub mod streaming;
 pub mod util_parts;
 pub mod xes_parts;
-pub mod streaming;
