@@ -4,7 +4,7 @@ use crate::pipelines::context::PipelineContext;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 
 #[derive(Clone)]
-pub(in crate::grpc) enum TracesProcessor {
+pub enum TracesProcessor {
     T1(T1StreamingProcessor),
 }
 

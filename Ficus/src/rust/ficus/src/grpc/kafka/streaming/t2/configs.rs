@@ -1,7 +1,7 @@
 use crate::ficus_proto::grpc_t2_streaming_configuration::Configuration;
 use crate::ficus_proto::GrpcT2StreamingConfiguration;
 
-pub(in crate::grpc) enum T2StreamingConfiguration {
+pub enum T2StreamingConfiguration {
     LossyCount(LossyCountConfiguration),
 }
 
@@ -19,7 +19,7 @@ impl T2StreamingConfiguration {
     }
 }
 
-pub(in crate::grpc) struct LossyCountConfiguration {
+pub struct LossyCountConfiguration {
     error: f64,
     support: f64,
 }

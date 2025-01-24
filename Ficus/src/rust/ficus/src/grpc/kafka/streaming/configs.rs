@@ -7,7 +7,7 @@ use crate::grpc::kafka::streaming::t2::configs::T2StreamingConfiguration;
 
 type StreamingConfigurationEnum = crate::ficus_proto::grpc_pipeline_streaming_configuration::Configuration;
 
-pub(in crate::grpc) enum StreamingConfiguration {
+pub enum StreamingConfiguration {
     NotSpecified,
     T1(T1StreamingConfiguration),
     T2(T2StreamingConfiguration),

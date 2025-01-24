@@ -7,7 +7,7 @@ use chrono::Utc;
 use std::ops::Sub;
 
 #[derive(Clone)]
-pub(in crate::grpc) enum T1LogFilterer {
+pub enum T1LogFilterer {
     None,
     EventsTimeoutFilterer(EventsTimeoutFiltererImpl),
     TracesTimeoutFilterer(TracesTimeoutFiltererImpl),
@@ -24,7 +24,7 @@ impl T1LogFilterer {
 }
 
 #[derive(Clone)]
-pub(in crate::grpc) struct EventsTimeoutFiltererImpl {
+pub struct EventsTimeoutFiltererImpl {
     config: EventsTimeoutConfiguration,
 }
 
@@ -36,12 +36,12 @@ impl EventsTimeoutFiltererImpl {
     pub fn filter(&self, log: &mut XesEventLogImpl) {
         let current_stamp = Utc::now();
         let timeout = self.config.timeout_ms() as i64;
-        log.filter_events_by(|e| e.timestamp().sub(current_stamp).num_milliseconds() > timeout);
+        log.filter_events_by(|e| current_stamp.sub(e.timestamp()).num_milliseconds() > timeout);
     }
 }
 
 #[derive(Clone)]
-pub(in crate::grpc) struct TracesTimeoutFiltererImpl {
+pub struct TracesTimeoutFiltererImpl {
     config: TracesTimeoutConfiguration,
 }
 
@@ -55,7 +55,7 @@ impl TracesTimeoutFiltererImpl {
         let timeout = self.config.timeout_ms() as i64;
         log.filter_traces(&|t, _| {
             let last_event = t.events().last().unwrap().borrow();
-            last_event.timestamp().sub(current_stamp).num_milliseconds() > timeout
+            current_stamp.sub(last_event.timestamp()).num_milliseconds() > timeout
         });
     }
 }

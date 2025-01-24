@@ -3,7 +3,7 @@ use crate::ficus_proto::{GrpcT1EventsTimeBasedCaching, GrpcT1StreamingConfigurat
 use crate::grpc::kafka::streaming::t1::filterers::{EventsTimeoutFiltererImpl, T1LogFilterer, TracesTimeoutFiltererImpl};
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 
-pub(in crate::grpc) enum T1StreamingConfiguration {
+pub enum T1StreamingConfiguration {
     EventsTimeout(EventsTimeoutConfiguration),
     TracesTimeout(TracesTimeoutConfiguration),
 }
@@ -13,8 +13,12 @@ impl T1StreamingConfiguration {
         match grpc_config.configuration.as_ref() {
             None => None,
             Some(c) => Some(match c {
-                Configuration::EventsTimeout(et) => T1StreamingConfiguration::EventsTimeout(EventsTimeoutConfiguration::new(&et)),
-                Configuration::TracesTimeout(tt) => T1StreamingConfiguration::TracesTimeout(TracesTimeoutConfiguration::new(&tt)),
+                Configuration::EventsTimeout(et) => {
+                    T1StreamingConfiguration::EventsTimeout(EventsTimeoutConfiguration::new(et.events_timeout_ms as u64))
+                }
+                Configuration::TracesTimeout(tt) => {
+                    T1StreamingConfiguration::TracesTimeout(TracesTimeoutConfiguration::new(tt.traces_timeout_ms as u64))
+                }
             }),
         }
     }
@@ -28,15 +32,13 @@ impl T1StreamingConfiguration {
 }
 
 #[derive(Clone)]
-pub(in crate::grpc) struct EventsTimeoutConfiguration {
+pub struct EventsTimeoutConfiguration {
     timeout_ms: u64,
 }
 
 impl EventsTimeoutConfiguration {
-    pub fn new(grpc_events_timeout: &GrpcT1EventsTimeBasedCaching) -> Self {
-        Self {
-            timeout_ms: grpc_events_timeout.events_timeout_ms as u64,
-        }
+    pub fn new(timeout_ms: u64) -> Self {
+        Self { timeout_ms }
     }
 
     pub fn timeout_ms(&self) -> u64 {
@@ -45,15 +47,13 @@ impl EventsTimeoutConfiguration {
 }
 
 #[derive(Clone)]
-pub(in crate::grpc) struct TracesTimeoutConfiguration {
+pub struct TracesTimeoutConfiguration {
     timeout_ms: u64,
 }
 
 impl TracesTimeoutConfiguration {
-    pub fn new(grpc_traces_timeout: &GrpcT1TraceTimeBasedCaching) -> Self {
-        Self {
-            timeout_ms: grpc_traces_timeout.traces_timeout_ms as u64,
-        }
+    pub fn new(timeout_ms: u64) -> Self {
+        Self { timeout_ms }
     }
 
     pub fn timeout_ms(&self) -> u64 {

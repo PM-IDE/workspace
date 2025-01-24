@@ -19,7 +19,7 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 #[derive(Clone)]
-pub(in crate::grpc) struct T1StreamingProcessor {
+pub struct T1StreamingProcessor {
     logger: ConsoleLogMessageHandler,
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     filterer: T1LogFilterer,
