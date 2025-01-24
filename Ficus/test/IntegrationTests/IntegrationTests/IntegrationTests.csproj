@@ -26,7 +26,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj"/>
         <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
-        <ProjectReference Include="..\..\..\..\FicusKafkaConstants\FicusKafkaConstants.csproj" />
+        <ProjectReference Include="..\..\..\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj" />
         <ProjectReference Include="..\..\..\src\front\FicusFrontend\FicusKafkaIntegration\FicusKafkaIntegration.csproj"/>
     </ItemGroup>
 </Project>

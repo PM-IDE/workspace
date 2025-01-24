@@ -112,7 +112,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerLoggerProvider", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{0EC07BD3-AB92-48A0-B68B-05B3F2A767A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FicusKafkaConstants", "FicusKafkaConstants\FicusKafkaConstants.csproj", "{B1223284-182E-4C3A-92CD-F59FBD42FFD6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FicusKafkaConstants", "Ficus\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj", "{B1223284-182E-4C3A-92CD-F59FBD42FFD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
