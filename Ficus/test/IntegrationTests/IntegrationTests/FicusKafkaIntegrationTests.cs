@@ -92,7 +92,8 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
       [
         new AttributeKeyValue(new BxesStringValue("case_display_name"), new BxesStringValue(CaseName)),
         new AttributeKeyValue(new BxesStringValue("case_name_parts"), new BxesStringValue(CaseName)),
-        new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName))
+        new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName)),
+        new AttributeKeyValue(new BxesStringValue("id"), new BxesGuidValue(Guid.NewGuid()))
       ]);
     }
   }
