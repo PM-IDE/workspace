@@ -14,16 +14,39 @@ namespace IntegrationTests;
 [TestFixture]
 public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 {
+  private const string TraceIdKey = "id";
+
   [Test]
-  public void EventNamesTest()
+  public void EventNamesTest() => ExecuteTestWithKafkaSubscription(() =>
+  {
+    var eventLog = GenerateTestEventLog();
+    ProduceEventLogToKafka(eventLog);
+    AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
+  });
+
+  [Test]
+  public void SameTraceIdTest() => ExecuteTestWithKafkaSubscription(() =>
+  {
+    var eventLog = GenerateTestEventLog();
+    var newSameTraceId = Guid.NewGuid();
+
+    foreach (var variant in eventLog.Traces)
+    {
+      variant.Metadata.Remove(variant.Metadata.FirstOrDefault(m => m.Key.Value == TraceIdKey)!);
+      variant.Metadata.Add(new AttributeKeyValue(new BxesStringValue(TraceIdKey), new BxesGuidValue(newSameTraceId)));
+    }
+
+    ProduceEventLogToKafka(eventLog);
+    AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates());
+  });
+
+  private void ExecuteTestWithKafkaSubscription(Action testAction)
   {
     var subscriptionId = CreateFicusKafkaSubscription();
 
     try
     {
-      var eventLog = GenerateTestEventLog();
-      ProduceEventLogToKafka(eventLog);
-      AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
+      testAction();
     }
     finally
     {
@@ -51,11 +74,23 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
     return subscriptionResult.Success.Id;
   }
 
-  private void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  {
+    var namesLog = FindLastNamesLog(updates);
+    var firstTrace = namesLog.Value.NamesLog.Log.Traces.First();
+
+    Assert.That(firstTrace.Events, Has.Count.EqualTo(eventLog.Traces.Select(t => t.Events.Count).Sum()));
+    foreach (var (traceEvent, grpcEventName) in eventLog.Traces.SelectMany(t => t.Events).Zip(firstTrace.Events))
+    {
+      Assert.That(grpcEventName, Is.EqualTo(traceEvent.Name));
+    }
+  }
+
+  private static void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     Assert.That(eventLog.Traces, Has.Count.EqualTo(updates.Count));
 
-    var lastNameLog = updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
+    var lastNameLog = FindLastNamesLog(updates);
     foreach (var (trace, grpcTrace) in eventLog.Traces.Zip(lastNameLog.Value.NamesLog.Log.Traces))
     {
       Assert.That(grpcTrace.Events, Has.Count.EqualTo(trace.Events.Count));
@@ -65,6 +100,9 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
       }
     }
   }
+
+  private static GrpcContextValueWithKeyName FindLastNamesLog(IReadOnlyList<GrpcKafkaUpdate> updates) =>
+    updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
 
   private static IEventLog GenerateTestEventLog()
   {
@@ -93,7 +131,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
         new AttributeKeyValue(new BxesStringValue("case_display_name"), new BxesStringValue(CaseName)),
         new AttributeKeyValue(new BxesStringValue("case_name_parts"), new BxesStringValue(CaseName)),
         new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName)),
-        new AttributeKeyValue(new BxesStringValue("id"), new BxesGuidValue(Guid.NewGuid()))
+        new AttributeKeyValue(new BxesStringValue(TraceIdKey), new BxesGuidValue(Guid.NewGuid()))
       ]);
     }
   }
