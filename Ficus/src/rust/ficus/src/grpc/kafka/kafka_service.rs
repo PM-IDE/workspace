@@ -205,6 +205,8 @@ impl KafkaService {
             Some(subscription) => subscription.clone(),
         };
 
+        drop(map);
+
         for pipeline in &kafka_subscription.pipelines {
             let pipeline_id = pipeline.0;
             let pipeline = pipeline.1;
