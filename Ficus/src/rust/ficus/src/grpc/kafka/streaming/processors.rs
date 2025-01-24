@@ -69,28 +69,44 @@ impl T1StreamingProcessor {
 impl T1StreamingProcessor {
     fn update_log(&self, trace: BxesKafkaTrace) -> Result<LogUpdateResult, XesFromBxesKafkaTraceCreatingError> {
         let metadata = trace.metadata();
+        let case_name_parts_joined = Self::string_value_or_err(metadata, KAFKA_CASE_NAME_PARTS)?;
+        let process_name = Self::string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
+        let case_display_name = Self::string_value_or_err(metadata, KAFKA_CASE_DISPLAY_NAME)?;
+        let case_name_parts: Vec<String> = case_name_parts_joined
+            .split(KAFKA_CASE_NAME_PARTS_SEPARATOR)
+            .map(|s| s.to_string())
+            .collect();
+
+        let result = LogUpdateResult {
+            process_name,
+            case_name: CaseName {
+                display_name: case_display_name,
+                name_parts: case_name_parts,
+            },
+            new_log: self.get_or_create_event_log(&trace, case_name_parts_joined.as_str())?,
+            unstructured_metadata: Self::metadata_to_string_string_pairs(metadata),
+        };
+
+        Ok(result)
+    }
+
+    fn get_or_create_event_log(
+        &self,
+        trace: &BxesKafkaTrace,
+        case_key: &str,
+    ) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
         let mut names_to_logs = self.names_to_logs.lock();
         let names_to_logs = match names_to_logs.as_mut() {
             Ok(names_to_logs) => names_to_logs,
             Err(_) => panic!("Failed to acquire a names_to_logs map from mutex"),
         };
 
-        let process_name = Self::string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
-        let case_display_name = Self::string_value_or_err(metadata, KAFKA_CASE_DISPLAY_NAME)?;
-        let case_name_parts_joined = Self::string_value_or_err(metadata, KAFKA_CASE_NAME_PARTS)?;
-        let case_name_parts: Vec<String> = case_name_parts_joined
-            .split(KAFKA_CASE_NAME_PARTS_SEPARATOR)
-            .map(|s| s.to_string())
-            .collect();
-
-        if !names_to_logs.contains_key(case_name_parts_joined.as_str()) {
+        if !names_to_logs.contains_key(case_key) {
             let new_log = XesEventLogImpl::empty();
-            names_to_logs.insert(case_name_parts_joined.to_owned(), new_log);
+            names_to_logs.insert(case_key.to_owned(), new_log);
         }
 
-        let existing_log = names_to_logs
-            .get_mut(case_name_parts_joined.as_str())
-            .expect("Log should be present");
+        let existing_log = names_to_logs.get_mut(case_key).expect("Log should be present");
 
         self.filterer.filter(existing_log);
 
@@ -102,17 +118,7 @@ impl T1StreamingProcessor {
         let xes_trace = Rc::new(RefCell::new(xes_trace));
         existing_log.push(xes_trace);
 
-        let result = LogUpdateResult {
-            process_name,
-            case_name: CaseName {
-                display_name: case_display_name,
-                name_parts: case_name_parts,
-            },
-            new_log: existing_log.clone(),
-            unstructured_metadata: Self::metadata_to_string_string_pairs(metadata),
-        };
-
-        Ok(result)
+        Ok(existing_log.clone())
     }
 
     fn string_value_or_err(
