@@ -112,10 +112,11 @@ impl T1StreamingProcessor {
         };
 
         for existing_xes_trace in existing_log.traces() {
-            if let Some(current_trace_id) = Self::try_get_trace_id(&existing_xes_trace.borrow()) {
+            let mut existing_xes_trace = existing_xes_trace.borrow_mut();
+            if let Some(current_trace_id) = Self::try_get_trace_id(&existing_xes_trace).clone() {
                 if current_trace_id == trace_id {
                     for event in read_xes_trace.events() {
-                        existing_xes_trace.borrow_mut().push(event.clone());
+                        existing_xes_trace.push(event.clone());
                     }
 
                     return Ok(existing_log.clone());
