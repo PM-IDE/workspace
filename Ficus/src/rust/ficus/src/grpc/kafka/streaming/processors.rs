@@ -1,24 +1,20 @@
 use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
-use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::grpc::events::events_handler::CaseName;
 use crate::grpc::kafka::models::{
     LogUpdateResult, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR,
     KAFKA_PROCESS_NAME,
 };
-use crate::grpc::kafka::streaming::configs::{EventsTimeoutConfiguration, TracesTimeoutConfiguration};
+use crate::grpc::kafka::streaming::t1_filterers::T1LogFilterer;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::context::{LogMessageHandler, PipelineContext};
 use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
-use chrono::Utc;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::ops::Sub;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
@@ -32,66 +28,6 @@ impl TracesProcessor {
         match self {
             TracesProcessor::T1(default) => default.observe(trace, context),
         }
-    }
-}
-
-#[derive(Clone)]
-pub(in crate::grpc) enum T1LogFilterer {
-    None,
-    EventsTimeoutFilterer(EventsTimeoutFiltererImpl),
-    TracesTimeoutFilterer(TracesTimeoutFiltererImpl),
-}
-
-impl T1LogFilterer {
-    pub fn filter(&self, log: &mut XesEventLogImpl) {
-        match self {
-            T1LogFilterer::None => {}
-            T1LogFilterer::EventsTimeoutFilterer(filterer) => filterer.filter(log),
-            T1LogFilterer::TracesTimeoutFilterer(filterer) => filterer.filter(log),
-        }
-    }
-}
-
-#[derive(Clone)]
-pub(in crate::grpc) struct EventsTimeoutFiltererImpl {
-    config: EventsTimeoutConfiguration,
-}
-
-impl EventsTimeoutFiltererImpl {
-    pub fn new(config: EventsTimeoutConfiguration) -> Self {
-        Self { config }
-    }
-
-    pub fn filter(&self, log: &mut XesEventLogImpl) {
-        let current_stamp = Utc::now();
-        let timeout = self.config.timeout_ms() as i64;
-        log.filter_events_by(|e| e.timestamp().sub(current_stamp).num_milliseconds() > timeout);
-    }
-}
-
-#[derive(Clone)]
-pub(in crate::grpc) struct TracesTimeoutFiltererImpl {
-    config: TracesTimeoutConfiguration,
-}
-
-impl TracesTimeoutFiltererImpl {
-    pub fn new(config: TracesTimeoutConfiguration) -> Self {
-        Self { config }
-    }
-
-    pub fn filter(&self, log: &mut XesEventLogImpl) {
-        let current_stamp = Utc::now();
-        let timeout = self.config.timeout_ms() as i64;
-        log.filter_traces(&|t, _| {
-            t.events()
-                .last()
-                .unwrap()
-                .borrow()
-                .timestamp()
-                .sub(current_stamp)
-                .num_milliseconds()
-                > timeout
-        });
     }
 }
 
