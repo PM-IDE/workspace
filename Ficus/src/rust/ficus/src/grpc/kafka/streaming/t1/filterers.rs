@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::grpc::kafka::streaming::configs::{EventsTimeoutConfiguration, TracesTimeoutConfiguration};
+use crate::grpc::kafka::streaming::t1::configs::{EventsTimeoutConfiguration, TracesTimeoutConfiguration};
 use chrono::Utc;
 use std::ops::Sub;
 
