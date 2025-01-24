@@ -118,7 +118,8 @@ impl T1StreamingProcessor {
                     for event in read_xes_trace.events() {
                         existing_xes_trace.push(event.clone());
                     }
-
+                    
+                    drop(existing_xes_trace);
                     return Ok(existing_log.clone());
                 }
             }
