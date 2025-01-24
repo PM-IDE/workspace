@@ -7,6 +7,7 @@ using Core.Bxes;
 using Core.Container;
 using Core.Events.EventRecord;
 using Core.Utils;
+using FicusKafkaConstants;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProcfilerOnline.Core.Settings;
@@ -44,15 +45,14 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
       BootstrapServers = settings.Value.KafkaSettings.BootstrapServers
     });
 
-
   public void Produce(Guid key, BxesKafkaTrace trace)
   {
     List<AttributeKeyValue> metadata =
     [
-      new(new BxesStringValue("case_display_name"), new BxesStringValue(trace.CaseName.DisplayName)),
-      new(new BxesStringValue("case_name_parts"), new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
-      new(new BxesStringValue("process_name"), new BxesStringValue(trace.ProcessName)),
-      new(new BxesStringValue("id"), new BxesGuidValue(trace.Id))
+      new(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(trace.CaseName.DisplayName)),
+      new(new BxesStringValue(FicusKafkaKeys.CaseNameParts), new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
+      new(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(trace.ProcessName)),
+      new(new BxesStringValue(FicusKafkaKeys.TraceIdKey), new BxesGuidValue(trace.Id))
     ];
 
     metadata.AddRange(trace.Metadata);

@@ -6,6 +6,7 @@ using Bxes.Utils;
 using Bxes.Writer;
 using Confluent.Kafka;
 using Ficus;
+using FicusKafkaConstants;
 using FicusKafkaIntegration;
 using Microsoft.Extensions.Logging;
 
@@ -14,8 +15,6 @@ namespace IntegrationTests;
 [TestFixture]
 public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 {
-  private const string TraceIdKey = "id";
-
   [Test]
   public void EventNamesTest() => ExecuteTestWithKafkaSubscription(() =>
   {
@@ -32,8 +31,8 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
     foreach (var variant in eventLog.Traces)
     {
-      variant.Metadata.Remove(variant.Metadata.FirstOrDefault(m => m.Key.Value == TraceIdKey)!);
-      variant.Metadata.Add(new AttributeKeyValue(new BxesStringValue(TraceIdKey), new BxesGuidValue(newSameTraceId)));
+      variant.Metadata.Remove(variant.Metadata.FirstOrDefault(m => m.Key.Value == FicusKafkaKeys.TraceIdKey)!);
+      variant.Metadata.Add(new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.TraceIdKey), new BxesGuidValue(newSameTraceId)));
     }
 
     ProduceEventLogToKafka(eventLog);
@@ -128,10 +127,10 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
       variant.Metadata.Clear();
       variant.Metadata.AddRange(
       [
-        new AttributeKeyValue(new BxesStringValue("case_display_name"), new BxesStringValue(CaseName)),
-        new AttributeKeyValue(new BxesStringValue("case_name_parts"), new BxesStringValue(CaseName)),
-        new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName)),
-        new AttributeKeyValue(new BxesStringValue(TraceIdKey), new BxesGuidValue(Guid.NewGuid()))
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseNameParts), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(ProcessName)),
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.TraceIdKey), new BxesGuidValue(Guid.NewGuid()))
       ]);
     }
   }
