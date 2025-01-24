@@ -50,7 +50,6 @@ public class CompletedAsyncMethodHandler(
           NameParts = [completedAsyncMethodEvent.StateMachineName]
         },
         Trace = methodTrace,
-        IsCompleted = true,
         Id = completedAsyncMethodEvent.MethodId
       };
 

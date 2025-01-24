@@ -1,15 +1,15 @@
-use std::{cell::RefCell, rc::Rc};
-use std::collections::HashMap;
+use super::xes_event::XesEventImpl;
+use crate::event_log::core::event::event::EventPayloadValue;
 use crate::event_log::core::{
     event::events_holder::{EventSequenceInfo, EventsHolder, EventsPositions},
     trace::trace::Trace,
 };
-use crate::event_log::core::event::event::EventPayloadValue;
-use super::xes_event::XesEventImpl;
+use std::collections::HashMap;
+use std::{cell::RefCell, rc::Rc};
 
 pub struct XesTraceImpl {
     events_holder: EventsHolder<XesEventImpl>,
-    metadata: HashMap<String, EventPayloadValue>
+    metadata: HashMap<String, EventPayloadValue>,
 }
 
 impl XesTraceImpl {
@@ -33,7 +33,7 @@ impl Clone for XesTraceImpl {
     fn clone(&self) -> Self {
         Self {
             events_holder: self.events_holder.clone(),
-            metadata: self.metadata.clone()
+            metadata: self.metadata.clone(),
         }
     }
 }
@@ -46,7 +46,7 @@ impl Trace for XesTraceImpl {
     fn empty() -> Self {
         Self {
             events_holder: EventsHolder::empty(),
-            metadata: HashMap::new()
+            metadata: HashMap::new(),
         }
     }
 

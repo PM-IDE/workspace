@@ -13,7 +13,6 @@ public class MethodExecutionEvent : IEventPipeStreamEvent
 {
   public required string ApplicationName { get; init; }
   public required TargetMethodFrame Frame { get; init; }
-  public required bool IsCompleted { get; init; }
 }
 
 [AppComponent]
@@ -46,7 +45,6 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
       ProcessName = @event.ApplicationName,
       CaseName = @event.Frame.MethodInfo!.ToBxesKafkaCaseName(),
       Trace = @event.Frame.InnerEvents,
-      IsCompleted = @event.IsCompleted,
       Id = @event.Frame.Id
     };
 

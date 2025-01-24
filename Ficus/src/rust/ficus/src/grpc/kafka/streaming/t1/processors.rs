@@ -1,10 +1,13 @@
 use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
+use crate::event_log::core::event::event::EventPayloadValue;
 use crate::event_log::core::event_log::EventLog;
+use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::grpc::events::events_handler::CaseName;
 use crate::grpc::kafka::models::{
     LogUpdateResult, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR,
-    KAFKA_PROCESS_NAME,
+    KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
 };
 use crate::grpc::kafka::streaming::t1::filterers::T1LogFilterer;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
@@ -15,8 +18,10 @@ use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::fs::Metadata;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct T1StreamingProcessor {
@@ -56,6 +61,9 @@ impl T1StreamingProcessor {
 impl T1StreamingProcessor {
     fn update_log(&self, trace: BxesKafkaTrace) -> Result<LogUpdateResult, XesFromBxesKafkaTraceCreatingError> {
         let metadata = trace.metadata();
+
+        let trace_id = Self::trace_id_or_err(metadata)?;
+
         let case_name_parts_joined = Self::string_value_or_err(metadata, KAFKA_CASE_NAME_PARTS)?;
         let process_name = Self::string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
         let case_display_name = Self::string_value_or_err(metadata, KAFKA_CASE_DISPLAY_NAME)?;
@@ -70,7 +78,7 @@ impl T1StreamingProcessor {
                 display_name: case_display_name,
                 name_parts: case_name_parts,
             },
-            new_log: self.get_or_create_event_log(&trace, case_name_parts_joined.as_str())?,
+            new_log: self.get_or_create_event_log(&trace, trace_id, case_name_parts_joined.as_str())?,
             unstructured_metadata: Self::metadata_to_string_string_pairs(metadata),
         };
 
@@ -80,6 +88,7 @@ impl T1StreamingProcessor {
     fn get_or_create_event_log(
         &self,
         trace: &BxesKafkaTrace,
+        trace_id: Uuid,
         case_key: &str,
     ) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
         let mut names_to_logs = self.names_to_logs.lock();
@@ -97,13 +106,29 @@ impl T1StreamingProcessor {
 
         self.filterer.filter(existing_log);
 
-        let xes_trace = match read_bxes_events(trace.events()) {
+        let mut read_xes_trace = match read_bxes_events(trace.events()) {
             Ok(xes_trace) => xes_trace,
             Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err)),
         };
 
-        let xes_trace = Rc::new(RefCell::new(xes_trace));
-        existing_log.push(xes_trace);
+        for existing_xes_trace in existing_log.traces() {
+            if let Some(current_trace_id) = Self::try_get_trace_id(&existing_xes_trace.borrow()) {
+                if current_trace_id == trace_id {
+                    for event in read_xes_trace.events() {
+                        existing_xes_trace.borrow_mut().push(event.clone());
+                    }
+
+                    return Ok(existing_log.clone());
+                }
+            }
+        }
+
+        read_xes_trace
+            .metadata_mut()
+            .insert(KAFKA_TRACE_ID.to_owned(), EventPayloadValue::Guid(trace_id));
+
+        let read_xes_trace = Rc::new(RefCell::new(read_xes_trace));
+        existing_log.push(read_xes_trace);
 
         Ok(existing_log.clone())
     }
@@ -112,14 +137,40 @@ impl T1StreamingProcessor {
         metadata: &HashMap<String, Rc<Box<BxesValue>>>,
         key_name: &str,
     ) -> Result<String, XesFromBxesKafkaTraceCreatingError> {
-        if let Some(value) = metadata.get(key_name) {
-            if let BxesValue::String(process_name) = value.as_ref().as_ref() {
-                Ok(process_name.as_ref().as_ref().to_owned())
-            } else {
-                Err(XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name.to_string()))
-            }
+        let value = Self::value_or_err(metadata, key_name)?;
+
+        if let BxesValue::String(process_name) = value.as_ref().as_ref() {
+            Ok(process_name.as_ref().as_ref().to_owned())
         } else {
-            Err(XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name.to_string()))
+            Err(XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name.to_string()))
+        }
+    }
+
+    fn value_or_err(
+        metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+        key: &str,
+    ) -> Result<Rc<Box<BxesValue>>, XesFromBxesKafkaTraceCreatingError> {
+        if let Some(value) = metadata.get(key) {
+            Ok(value.clone())
+        } else {
+            Err(XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key.to_string()))
+        }
+    }
+
+    fn trace_id_or_err(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Uuid, XesFromBxesKafkaTraceCreatingError> {
+        let value = Self::value_or_err(metadata, KAFKA_TRACE_ID)?;
+        if let BxesValue::Guid(id) = value.as_ref().as_ref() {
+            Ok(id.clone())
+        } else {
+            Err(XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid)
+        }
+    }
+
+    fn try_get_trace_id(trace: &XesTraceImpl) -> Option<Uuid> {
+        if let Some(EventPayloadValue::Guid(id)) = trace.metadata().get(KAFKA_TRACE_ID) {
+            Some(id.clone())
+        } else {
+            None
         }
     }
 

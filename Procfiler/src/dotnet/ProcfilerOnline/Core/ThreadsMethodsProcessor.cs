@@ -63,7 +63,6 @@ public class ThreadsMethodsProcessor(
         {
           Frame = frame,
           ApplicationName = context.CommandContext.ApplicationName,
-          IsCompleted = false,
         });
 
         frame.InnerEvents.Clear();
@@ -146,8 +145,7 @@ public class ThreadsMethodsProcessor(
             handler.Handle(new MethodExecutionEvent
             {
               ApplicationName = context.CommandContext.ApplicationName,
-              Frame = frame,
-              IsCompleted = true
+              Frame = frame
             });
           }
         }

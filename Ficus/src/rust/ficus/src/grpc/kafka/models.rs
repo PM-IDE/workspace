@@ -13,12 +13,14 @@ pub(super) const KAFKA_CASE_DISPLAY_NAME: &'static str = "case_display_name";
 pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
 pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
+pub(super) const KAFKA_TRACE_ID: &'static str = "id";
 
 #[derive(Debug)]
 pub(in crate::grpc) enum XesFromBxesKafkaTraceCreatingError {
     MetadataValueIsNotAString(String),
     MetadataValueNotFound(String),
     BxesToXexConversionError(BxesToXesReadError),
+    TraceIdIsNotUuid,
 }
 
 impl Display for XesFromBxesKafkaTraceCreatingError {
@@ -31,6 +33,7 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
             XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name) => {
                 format!("The key {} is not found", key_name.to_string())
             }
+            XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid => "Trace id was not of type uuid ".to_string(),
         };
 
         write!(f, "{}", str)

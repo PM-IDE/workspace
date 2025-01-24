@@ -26,7 +26,6 @@ public class BxesKafkaTrace
   public required string ProcessName { get; init; }
   public required BxesKafkaCaseName CaseName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
-  public required bool IsCompleted { get; init; }
   public required Guid Id { get; init; }
 
   public List<AttributeKeyValue> Metadata { get; } = [];
@@ -53,7 +52,6 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
       new(new BxesStringValue("case_display_name"), new BxesStringValue(trace.CaseName.DisplayName)),
       new(new BxesStringValue("case_name_parts"), new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
       new(new BxesStringValue("process_name"), new BxesStringValue(trace.ProcessName)),
-      new(new BxesStringValue("completed"), new BxesBoolValue(trace.IsCompleted)),
       new(new BxesStringValue("id"), new BxesGuidValue(trace.Id))
     ];
 
