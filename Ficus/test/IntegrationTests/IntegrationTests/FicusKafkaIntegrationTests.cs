@@ -15,7 +15,6 @@ namespace IntegrationTests;
 [TestFixture, FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 {
-  [Test]
   public void EventNamesTest() => ExecuteTestWithKafkaSubscription(() =>
   {
     var eventLog = GenerateTestEventLog();
