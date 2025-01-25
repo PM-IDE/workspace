@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
 
-[TestFixture]
+[TestFixture, FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 {
   [Test]
