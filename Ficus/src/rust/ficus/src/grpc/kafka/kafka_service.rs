@@ -127,7 +127,7 @@ impl KafkaService {
             }
         };
 
-        match Self::subscribe(&mut consumer) {
+        match consumer.subscribe() {
             Ok(_) => {
                 let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
                 map.insert(dto.uuid.clone(), KafkaSubscription::new(dto.name.clone()));
@@ -171,13 +171,6 @@ impl KafkaService {
         let consumer = config.create()?;
 
         Ok(BxesKafkaConsumer::new(metadata.topic_name.to_owned(), consumer))
-    }
-
-    fn subscribe(consumer: &mut BxesKafkaConsumer) -> Result<(), BxesKafkaError> {
-        match consumer.subscribe() {
-            Ok(_) => Ok(()),
-            Err(err) => Err(err),
-        }
     }
 
     fn execute_consumer_routine(consumer: &mut BxesKafkaConsumer, dto: &KafkaConsumerCreationDto) -> bool {

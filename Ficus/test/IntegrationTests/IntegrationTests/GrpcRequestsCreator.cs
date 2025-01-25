@@ -32,7 +32,7 @@ public static class GrpcRequestsCreator
           new GrpcKafkaMetadata
           {
             Key = "auto.offset.reset",
-            Value = "earliest"
+            Value = "latest"
           }
         }
       }
