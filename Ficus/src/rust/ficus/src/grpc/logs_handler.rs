@@ -1,5 +1,5 @@
 use std::sync::Arc;
-
+use log::info;
 use crate::pipelines::{context::LogMessageHandler, errors::pipeline_errors::PipelinePartExecutionError};
 
 use super::events::events_handler::{PipelineEvent, PipelineEventsHandler};
@@ -26,7 +26,7 @@ pub struct ConsoleLogMessageHandler {}
 
 impl LogMessageHandler for ConsoleLogMessageHandler {
     fn handle(&self, message: &str) -> Result<(), PipelinePartExecutionError> {
-        println!("{}", &message);
+        info!("{}", &message);
 
         Ok(())
     }

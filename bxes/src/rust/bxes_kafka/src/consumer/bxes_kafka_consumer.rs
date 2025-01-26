@@ -8,6 +8,7 @@ use bxes::read::read_utils::{
     try_read_key_values, try_read_system_metadata, try_read_trace_variant_events,
     try_read_trace_variant_metadata, try_read_values,
 };
+use log::info;
 use rdkafka::consumer::{BaseConsumer, CommitMode, Consumer};
 use rdkafka::error::KafkaError;
 use rdkafka::Message;
@@ -20,14 +21,18 @@ use uuid::Uuid;
 pub struct BxesKafkaConsumer {
     topic: String,
     consumer: BaseConsumer,
-    session_id_to_read_metadata: HashMap<Uuid, ReadMetadata>
+    session_id_to_read_metadata: HashMap<Uuid, ReadMetadata>,
 }
 
 unsafe impl Send for BxesKafkaConsumer {}
 
 impl BxesKafkaConsumer {
     pub fn new(topic: String, consumer: BaseConsumer) -> Self {
-        Self { topic, consumer, session_id_to_read_metadata: HashMap::new() }
+        Self {
+            topic,
+            consumer,
+            session_id_to_read_metadata: HashMap::new(),
+        }
     }
 }
 
@@ -69,7 +74,7 @@ impl BxesKafkaConsumer {
     pub fn subscribe(&mut self) -> Result<(), BxesKafkaError> {
         match self.consumer.subscribe(&[self.topic.as_str()]) {
             Ok(_) => Ok(()),
-            Err(err) => Err(BxesKafkaError::Kafka(err))
+            Err(err) => Err(BxesKafkaError::Kafka(err)),
         }
     }
 
@@ -83,27 +88,31 @@ impl BxesKafkaConsumer {
                 Ok(msg) => {
                     let payload = msg.payload().unwrap();
                     const UUID_LENGTH: usize = 16;
-                    let read_metadata_id = Uuid::from_slice(&payload[..UUID_LENGTH]).expect("Should be valid uuid");
+                    let read_metadata_id =
+                        Uuid::from_slice(&payload[..UUID_LENGTH]).expect("Should be valid uuid");
 
-                    println!("Read bxes trace with read metadata id {}", read_metadata_id);
+                    info!("Read bxes trace with read metadata id {}", read_metadata_id);
 
                     if !self.session_id_to_read_metadata.contains_key(&read_metadata_id) {
-                        println!("Creating new read metadata for id {}", read_metadata_id);
-                        self.session_id_to_read_metadata.insert(read_metadata_id.clone(), ReadMetadata::empty());
+                        info!("Creating new read metadata for id {}", read_metadata_id);
+                        self.session_id_to_read_metadata
+                            .insert(read_metadata_id.clone(), ReadMetadata::empty());
                     }
 
-                    let mut read_metadata = self.session_id_to_read_metadata.get_mut(&read_metadata_id).expect("Must be present");
+                    let mut read_metadata = self
+                        .session_id_to_read_metadata
+                        .get_mut(&read_metadata_id)
+                        .expect("Must be present");
 
-                    let trace = Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], &mut read_metadata)?;
+                    let trace =
+                        Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], &mut read_metadata)?;
                     self.consumer.commit_message(&msg, CommitMode::Async)?;
 
                     Ok(Some(trace))
                 }
                 Err(err) => Err(BxesKafkaError::Kafka(err)),
             },
-            None => {
-                Ok(None)
-            }
+            None => Ok(None),
         }
     }
 
@@ -127,14 +136,18 @@ impl BxesKafkaConsumer {
         Ok(BxesKafkaTrace { metadata, events })
     }
 
-    fn create_trace_metadata(metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>) -> Result<HashMap<String, Rc<Box<BxesValue>>>, BxesReadError> {
+    fn create_trace_metadata(
+        metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>,
+    ) -> Result<HashMap<String, Rc<Box<BxesValue>>>, BxesReadError> {
         let mut new_metadata = HashMap::new();
 
         for (key, value) in metadata {
             if let BxesValue::String(key) = key.as_ref().as_ref() {
                 new_metadata.insert(key.as_ref().as_ref().to_owned(), value);
             } else {
-                return Err(BxesReadError::ExpectedString(key.as_ref().as_ref().to_owned()))
+                return Err(BxesReadError::ExpectedString(
+                    key.as_ref().as_ref().to_owned(),
+                ));
             }
         }
 

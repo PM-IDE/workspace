@@ -8,6 +8,7 @@ use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use crate::utils::hash_utils::compare_based_on_hashes;
 use std::collections::{BTreeSet, HashSet};
 use std::hash::{Hash, Hasher};
+use log::debug;
 
 type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a String>, BTreeSet<&'a String>)>;
 
@@ -231,7 +232,7 @@ pub fn discover_petri_net_alpha_sharp(log: &impl EventLog, triangle_relation: &d
     }
 
     for x in &advanced_pairs {
-        println!("({}, {})", x.0, x.1);
+        debug!("({}, {})", x.0, x.1);
     }
 
     let mut sharp_tuples = HashSet::new();
@@ -247,12 +248,12 @@ pub fn discover_petri_net_alpha_sharp(log: &impl EventLog, triangle_relation: &d
     }
 
     for x in &sharp_tuples {
-        println!("{}", x.to_string());
+        debug!("{}", x.to_string());
     }
 
     let current_set = maximize(sharp_tuples, |first, second| AlphaSharpTuple::try_merge(first, second));
 
     for x in &current_set {
-        println!("{}", x.to_string());
+        debug!("{}", x.to_string());
     }
 }

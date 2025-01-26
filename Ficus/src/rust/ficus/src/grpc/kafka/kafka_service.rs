@@ -20,6 +20,7 @@ use rdkafka::error::KafkaError;
 use rdkafka::ClientConfig;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use log::error;
 use tonic::Status;
 use uuid::Uuid;
 
@@ -122,7 +123,7 @@ impl KafkaService {
         let mut consumer = match Self::create_consumer(&request) {
             Ok(consumer) => consumer,
             Err(err) => {
-                println!("Failed to create kafka consumer: {}", err.to_string());
+                error!("Failed to create kafka consumer: {}", err.to_string());
                 return Err(err);
             }
         };

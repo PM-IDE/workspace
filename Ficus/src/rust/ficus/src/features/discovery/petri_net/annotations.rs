@@ -6,6 +6,7 @@ use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::references::HeapedOrOwned;
 use std::collections::HashMap;
 use std::str::FromStr;
+use log::error;
 
 pub fn annotate_with_counts(
     log: &impl EventLog,
@@ -109,7 +110,7 @@ pub fn annotate_with_time_performance(
             let second = second.borrow();
 
             if first.timestamp() > second.timestamp() {
-                println!("Encountered broken trace, first.timestamp() > second.timestamp(), {}", i);
+                error!("Encountered broken trace, first.timestamp() > second.timestamp(), {}", i);
                 continue;
             }
 

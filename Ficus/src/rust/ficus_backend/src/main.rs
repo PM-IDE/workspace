@@ -11,6 +11,8 @@ use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    colog::init();
+
     let cv_service = Arc::new(Mutex::new(ContextValueService::new()));
     let grpc_cv_service =
         GrpcContextValuesServiceServer::new(GrpcContextValueService::new(cv_service.clone()));
