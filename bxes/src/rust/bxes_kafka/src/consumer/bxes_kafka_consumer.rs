@@ -85,7 +85,10 @@ impl BxesKafkaConsumer {
                     const UUID_LENGTH: usize = 16;
                     let read_metadata_id = Uuid::from_slice(&payload[..UUID_LENGTH]).expect("Should be valid uuid");
 
+                    println!("Read bxes trace with read metadata id {}", read_metadata_id);
+
                     if !self.session_id_to_read_metadata.contains_key(&read_metadata_id) {
+                        println!("Creating new read metadata for id {}", read_metadata_id);
                         self.session_id_to_read_metadata.insert(read_metadata_id.clone(), ReadMetadata::empty());
                     }
 
