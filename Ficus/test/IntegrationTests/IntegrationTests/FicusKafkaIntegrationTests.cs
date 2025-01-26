@@ -113,8 +113,9 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
   private static IEventLog GenerateRandomEventLog() => RandomLogsGenerator.CreateSimpleLog(new RandomLogGenerationParameters
   {
-    EventsCount = new LowerUpperBound(5, 10),
-    VariantsCount = new LowerUpperBound(10, 20)
+    EventsCount = new LowerUpperBound(10, 20),
+    VariantsCount = new LowerUpperBound(10, 20),
+    EventAttributesCount = new LowerUpperBound(10, 20)
   });
 
   private static void SetEventLogMetadata(IEventLog eventLog)
