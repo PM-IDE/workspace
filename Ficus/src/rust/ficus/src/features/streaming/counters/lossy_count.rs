@@ -1,4 +1,4 @@
-use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry};
+use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry, ValueUpdateKind};
 use std::collections::HashMap;
 use std::hash::Hash;
 
@@ -28,12 +28,22 @@ where
     TKey: Hash + Eq + Clone,
     TValue: Clone,
 {
-    fn observe(&mut self, element: TKey, value: Option<TValue>) {
+    fn observe(&mut self, element: TKey, value: ValueUpdateKind<TValue>) {
         self.observed_items_count += 1;
         let bucket_number = self.observed_items_count / self.batch_size + 1;
 
+        let value = match value {
+            ValueUpdateKind::Replace(value) => Some(value),
+            ValueUpdateKind::DoNothing => None
+        };
+
         if self.state.contains_key(&element) {
-            self.state.get_mut(&element).unwrap().freq += 1;
+            let element_state = self.state.get_mut(&element).unwrap();
+
+            element_state.freq += 1;
+            if let Some(value) = value {
+                element_state.value = Some(value);
+            }
         } else {
             self.state.insert(element, LossyCountState::new(value, (bucket_number - 1) as f64));
         }

@@ -1,4 +1,4 @@
-use ficus::features::streaming::counters::core::StreamingCounter;
+use ficus::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
 use ficus::features::streaming::counters::lossy_count::LossyCount;
 use std::fmt::Debug;
 use std::hash::Hash;
@@ -40,7 +40,7 @@ fn execute_streaming_counter_test<TKey: Hash + Eq + Clone + Ord + Debug, TValue:
     let mut counter = counter_factory();
 
     for value in sequence {
-        counter.observe(value, None);
+        counter.observe(value, ValueUpdateKind::DoNothing);
     }
 
     let mut frequencies = counter.all_frequencies();
