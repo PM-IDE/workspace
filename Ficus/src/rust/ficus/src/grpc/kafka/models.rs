@@ -16,7 +16,7 @@ pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
 pub(super) const KAFKA_TRACE_ID: &'static str = "id";
 
 #[derive(Debug)]
-pub(in crate::grpc) enum XesFromBxesKafkaTraceCreatingError {
+pub enum XesFromBxesKafkaTraceCreatingError {
     MetadataValueIsNotAString(String),
     MetadataValueNotFound(String),
     BxesToXexConversionError(BxesToXesReadError),
