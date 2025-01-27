@@ -22,17 +22,14 @@ impl TracesProcessor {
 
 pub (in crate::grpc::kafka::streaming) struct ProcessMetadata {
     pub process_name: String,
-    pub process_id: Uuid,
 }
 
 impl ProcessMetadata {
     pub fn create_from(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
         let process_name = string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
-        let process_id = uuid_or_err(metadata, KAFKA_PROCESS_ID)?;
 
         Ok(Self {
             process_name,
-            process_id
         })
     }
 }
@@ -64,17 +61,13 @@ impl CaseMetadata {
 }
 
 pub (in crate::grpc::kafka::streaming) struct ExtractedTraceMetadata {
-    pub trace_id: Uuid,
     pub process: ProcessMetadata,
     pub case: CaseMetadata,
 }
 
 impl ExtractedTraceMetadata {
     pub fn create_from(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
-        let trace_id = uuid_or_err(metadata, KAFKA_TRACE_ID)?;
-
         Ok(ExtractedTraceMetadata {
-            trace_id,
             process: ProcessMetadata::create_from(metadata)?,
             case: CaseMetadata::create_from(metadata)?
         })

@@ -44,7 +44,7 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
       ProcessName = @event.ApplicationName,
       CaseName = @event.Frame.MethodInfo!.ToBxesKafkaCaseName(),
       Trace = @event.Frame.InnerEvents,
-      Id = @event.Frame.Id
+      CaseId = @event.Frame.CaseId
     };
 
     @event.Frame.MethodInfo.AddToMetadata(message.Metadata);

@@ -24,10 +24,10 @@ public class BxesKafkaCaseName
 
 public class BxesKafkaTrace
 {
+  public required Guid CaseId { get; init; }
   public required string ProcessName { get; init; }
   public required BxesKafkaCaseName CaseName { get; init; }
   public required List<EventRecordWithMetadata> Trace { get; init; }
-  public required Guid Id { get; init; }
 
   public List<AttributeKeyValue> Metadata { get; } = [];
 }
@@ -52,7 +52,7 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
       new(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(trace.CaseName.DisplayName)),
       new(new BxesStringValue(FicusKafkaKeys.CaseNameParts), new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
       new(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(trace.ProcessName)),
-      new(new BxesStringValue(FicusKafkaKeys.TraceIdKey), new BxesGuidValue(trace.Id))
+      new(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(trace.CaseId)),
     ];
 
     metadata.AddRange(trace.Metadata);

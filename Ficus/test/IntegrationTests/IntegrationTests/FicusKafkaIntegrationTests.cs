@@ -31,8 +31,8 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
     foreach (var variant in eventLog.Traces)
     {
-      variant.Metadata.Remove(variant.Metadata.FirstOrDefault(m => m.Key.Value == FicusKafkaKeys.TraceIdKey)!);
-      variant.Metadata.Add(new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.TraceIdKey), new BxesGuidValue(newSameTraceId)));
+      variant.Metadata.Remove(variant.Metadata.FirstOrDefault(m => m.Key.Value == FicusKafkaKeys.CaseId)!);
+      variant.Metadata.Add(new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(newSameTraceId)));
     }
 
     ProduceEventLogToKafka(eventLog);
@@ -131,7 +131,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
         new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(CaseName)),
         new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseNameParts), new BxesStringValue(CaseName)),
         new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(ProcessName)),
-        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.TraceIdKey), new BxesGuidValue(Guid.NewGuid()))
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(Guid.NewGuid()))
       ]);
     }
   }

@@ -68,7 +68,7 @@ impl T1StreamingProcessor {
                 display_name: metadata.case.case_display_name,
                 name_parts: metadata.case.case_name_parts,
             },
-            new_log: self.get_or_create_event_log(&trace, metadata.trace_id, metadata.case.case_name_parts_joined.as_str())?,
+            new_log: self.get_or_create_event_log(&trace, metadata.case.case_id, metadata.case.case_name_parts_joined.as_str())?,
             unstructured_metadata: Self::metadata_to_string_string_pairs(trace.metadata()),
         };
 
