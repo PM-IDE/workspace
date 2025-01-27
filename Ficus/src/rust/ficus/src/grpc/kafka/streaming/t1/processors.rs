@@ -60,15 +60,15 @@ impl T1StreamingProcessor {
 
 impl T1StreamingProcessor {
     fn update_log(&self, trace: BxesKafkaTrace) -> Result<LogUpdateResult, XesFromBxesKafkaTraceCreatingError> {
-        let metadata = ExtractedTraceMetadata::create_from(&trace)?;
+        let metadata = ExtractedTraceMetadata::create_from(trace.metadata())?;
 
         let result = LogUpdateResult {
-            process_name: metadata.process_name,
+            process_name: metadata.process.process_name,
             case_name: CaseName {
-                display_name: metadata.case_display_name,
-                name_parts: metadata.case_name_parts,
+                display_name: metadata.case.case_display_name,
+                name_parts: metadata.case.case_name_parts,
             },
-            new_log: self.get_or_create_event_log(&trace, metadata.trace_id, metadata.case_name_parts_joined.as_str())?,
+            new_log: self.get_or_create_event_log(&trace, metadata.trace_id, metadata.case.case_name_parts_joined.as_str())?,
             unstructured_metadata: Self::metadata_to_string_string_pairs(trace.metadata()),
         };
 

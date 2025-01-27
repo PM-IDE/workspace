@@ -11,9 +11,11 @@ use uuid::Uuid;
 
 pub(super) const KAFKA_CASE_DISPLAY_NAME: &'static str = "case_display_name";
 pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
+pub(super) const KAFKA_CASE_ID: &'static str = "case_id";
 pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
-pub(super) const KAFKA_TRACE_ID: &'static str = "id";
+pub(super) const KAFKA_PROCESS_ID: &'static str = "process_id";
+pub(super) const KAFKA_TRACE_ID: &'static str = "trace_id";
 
 #[derive(Debug)]
 pub enum XesFromBxesKafkaTraceCreatingError {

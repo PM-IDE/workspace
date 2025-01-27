@@ -6,7 +6,7 @@ use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
 use crate::pipelines::context::PipelineContext;
 
 pub struct T2LossyCountStreamingProcessor {
-    traces_dfgs: HashMap<Uuid, LossyCount<(String, String), ()>>,
+    processes_dfg: HashMap<String, LossyCount<(String, String), ()>>,
     traces_last_event_class: LossyCount<Uuid, String>
 }
 
