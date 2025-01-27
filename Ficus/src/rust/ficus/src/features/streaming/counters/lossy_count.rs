@@ -2,38 +2,40 @@ use crate::features::streaming::counters::core::{StreamingCounter, StreamingCoun
 use std::collections::HashMap;
 use std::hash::Hash;
 
-struct LossyCountState {
+struct LossyCountState<TValue> {
+    value: Option<TValue>,
     freq: u64,
     delta: f64,
 }
 
-impl LossyCountState {
-    pub fn new(delta: f64) -> Self {
-        Self { freq: 1, delta }
+impl<TValue> LossyCountState<TValue> {
+    pub fn new(value: Option<TValue>, delta: f64) -> Self {
+        Self { value, freq: 1, delta }
     }
 }
 
-pub struct LossyCount<T>
+pub struct LossyCount<T, TValue>
 where
     T: Hash + Eq,
 {
-    state: HashMap<T, LossyCountState>,
+    state: HashMap<T, LossyCountState<TValue>>,
     batch_size: u64,
     observed_items_count: u64,
 }
 
-impl<T> StreamingCounter<T> for LossyCount<T>
+impl<TKey, TValue> StreamingCounter<TKey, TValue> for LossyCount<TKey, TValue>
 where
-    T: Hash + Eq + Clone,
+    TKey: Hash + Eq + Clone,
+    TValue: Clone,
 {
-    fn observe(&mut self, element: T) {
+    fn observe(&mut self, element: TKey, value: Option<TValue>) {
         self.observed_items_count += 1;
         let bucket_number = self.observed_items_count / self.batch_size + 1;
 
         if self.state.contains_key(&element) {
             self.state.get_mut(&element).unwrap().freq += 1;
         } else {
-            self.state.insert(element, LossyCountState::new((bucket_number - 1) as f64));
+            self.state.insert(element, LossyCountState::new(value, (bucket_number - 1) as f64));
         }
 
         if self.observed_items_count % self.batch_size == 0 {
@@ -41,14 +43,14 @@ where
         }
     }
 
-    fn frequency(&self, element: &T) -> Option<StreamingCounterEntry<T>> {
+    fn frequency(&self, element: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
         match self.state.get(element) {
             None => None,
             Some(entry) => Some(self.to_streaming_counter_entry((element, entry))),
         }
     }
 
-    fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<T>> {
+    fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>> {
         self.state
             .iter()
             .filter(|s| s.1.freq as f64 >= (threshold - s.1.delta) * (self.observed_items_count as f64))
@@ -57,9 +59,10 @@ where
     }
 }
 
-impl<T> LossyCount<T>
+impl<TKey, TValue> LossyCount<TKey, TValue>
 where
-    T: Hash + Eq + Clone,
+    TKey: Hash + Eq + Clone,
+    TValue: Clone,
 {
     pub fn new(error: f64) -> Self {
         Self {
@@ -69,8 +72,12 @@ where
         }
     }
 
-    fn to_streaming_counter_entry(&self, pair: (&T, &LossyCountState)) -> StreamingCounterEntry<T> {
-        StreamingCounterEntry::new(pair.0.clone(), pair.1.freq as f64 / (self.observed_items_count as f64))
+    fn to_streaming_counter_entry(&self, pair: (&TKey, &LossyCountState<TValue>)) -> StreamingCounterEntry<TKey, TValue> {
+        StreamingCounterEntry::new(
+            pair.0.clone(),
+            pair.1.value.clone(),
+            pair.1.freq as f64 / (self.observed_items_count as f64),
+        )
     }
 
     fn prune(&mut self, bucket_number: f64) {
