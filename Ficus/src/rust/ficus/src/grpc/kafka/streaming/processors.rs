@@ -6,16 +6,19 @@ use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::collections::HashMap;
 use std::rc::Rc;
 use uuid::Uuid;
+use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 
 #[derive(Clone)]
 pub enum TracesProcessor {
     T1(T1StreamingProcessor),
+    T2(T2StreamingProcessor)
 }
 
 impl TracesProcessor {
     pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         match self {
-            TracesProcessor::T1(t1_processor) => t1_processor.observe(trace, context),
+            TracesProcessor::T1(processor) => processor.observe(trace, context),
+            TracesProcessor::T2(processor) => processor.observe(trace, context)
         }
     }
 }

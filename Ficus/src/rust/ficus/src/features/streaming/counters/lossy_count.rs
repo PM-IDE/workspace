@@ -2,6 +2,7 @@ use crate::features::streaming::counters::core::{StreamingCounter, StreamingCoun
 use std::collections::HashMap;
 use std::hash::Hash;
 
+#[derive(Clone)]
 struct LossyCountState<TValue> {
     value: Option<TValue>,
     freq: u64,
@@ -14,6 +15,7 @@ impl<TValue> LossyCountState<TValue> {
     }
 }
 
+#[derive(Clone)]
 pub struct LossyCount<T, TValue>
 where
     T: Hash + Eq,
