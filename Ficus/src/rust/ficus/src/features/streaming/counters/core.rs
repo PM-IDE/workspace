@@ -9,10 +9,16 @@ pub struct StreamingCounterEntry<TKey, TValue> {
 
 impl<TKey, TValue> StreamingCounterEntry<TKey, TValue> {
     pub fn new(key: TKey, value: Option<TValue>, approx_frequency: f64) -> Self {
-        Self { key, value, approx_frequency }
+        Self {
+            key,
+            value,
+            approx_frequency,
+        }
     }
 
-    pub fn value(&self) -> Option<&TValue> { self.value.as_ref() }
+    pub fn value(&self) -> Option<&TValue> {
+        self.value.as_ref()
+    }
     pub fn key(&self) -> &TKey {
         &self.key
     }
@@ -29,7 +35,7 @@ pub enum ValueUpdateKind<TValue> {
 pub trait StreamingCounter<TKey, TValue>
 where
     TKey: Hash + Eq + Clone,
-    TValue: Clone
+    TValue: Clone,
 {
     fn observe(&mut self, element: TKey, value: ValueUpdateKind<TValue>);
     fn frequency(&self, element: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>>;

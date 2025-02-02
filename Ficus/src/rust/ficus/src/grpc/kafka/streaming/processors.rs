@@ -1,29 +1,32 @@
-use crate::grpc::kafka::models::{XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_ID, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID};
+use crate::grpc::kafka::models::{
+    XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR,
+    KAFKA_PROCESS_ID, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
+};
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
+use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 use crate::pipelines::context::PipelineContext;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::collections::HashMap;
 use std::rc::Rc;
 use uuid::Uuid;
-use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 
 #[derive(Clone)]
 pub enum TracesProcessor {
     T1(T1StreamingProcessor),
-    T2(T2StreamingProcessor)
+    T2(T2StreamingProcessor),
 }
 
 impl TracesProcessor {
     pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         match self {
             TracesProcessor::T1(processor) => processor.observe(trace, context),
-            TracesProcessor::T2(processor) => processor.observe(trace, context)
+            TracesProcessor::T2(processor) => processor.observe(trace, context),
         }
     }
 }
 
-pub (in crate::grpc::kafka::streaming) struct ProcessMetadata {
+pub(in crate::grpc::kafka::streaming) struct ProcessMetadata {
     pub process_name: String,
 }
 
@@ -31,17 +34,15 @@ impl ProcessMetadata {
     pub fn create_from(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
         let process_name = string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
 
-        Ok(Self {
-            process_name,
-        })
+        Ok(Self { process_name })
     }
 }
 
-pub (in crate::grpc::kafka::streaming) struct CaseMetadata {
+pub(in crate::grpc::kafka::streaming) struct CaseMetadata {
     pub case_id: Uuid,
     pub case_display_name: String,
     pub case_name_parts: Vec<String>,
-    pub case_name_parts_joined: String
+    pub case_name_parts_joined: String,
 }
 
 impl CaseMetadata {
@@ -63,7 +64,7 @@ impl CaseMetadata {
     }
 }
 
-pub (in crate::grpc::kafka::streaming) struct ExtractedTraceMetadata {
+pub(in crate::grpc::kafka::streaming) struct ExtractedTraceMetadata {
     pub process: ProcessMetadata,
     pub case: CaseMetadata,
 }
@@ -72,7 +73,7 @@ impl ExtractedTraceMetadata {
     pub fn create_from(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
         Ok(ExtractedTraceMetadata {
             process: ProcessMetadata::create_from(metadata)?,
-            case: CaseMetadata::create_from(metadata)?
+            case: CaseMetadata::create_from(metadata)?,
         })
     }
 }

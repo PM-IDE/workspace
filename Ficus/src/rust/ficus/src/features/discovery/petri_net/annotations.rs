@@ -4,9 +4,9 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::references::HeapedOrOwned;
+use log::error;
 use std::collections::HashMap;
 use std::str::FromStr;
-use log::error;
 
 pub fn annotate_with_counts(
     log: &impl EventLog,

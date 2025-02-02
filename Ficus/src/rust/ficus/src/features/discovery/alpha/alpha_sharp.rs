@@ -6,9 +6,9 @@ use crate::features::discovery::alpha::providers::alpha_sharp_provider::AlphaSha
 use crate::features::discovery::alpha::utils::maximize;
 use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use crate::utils::hash_utils::compare_based_on_hashes;
+use log::debug;
 use std::collections::{BTreeSet, HashSet};
 use std::hash::{Hash, Hasher};
-use log::debug;
 
 type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a String>, BTreeSet<&'a String>)>;
 

@@ -6,8 +6,7 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::grpc::events::events_handler::CaseName;
 use crate::grpc::kafka::models::{
-    LogUpdateResult, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_NAME_PARTS,
-    KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
+    LogUpdateResult, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_NAME_PARTS, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
 };
 use crate::grpc::kafka::streaming::processors::ExtractedTraceMetadata;
 use crate::grpc::kafka::streaming::t1::filterers::T1LogFilterer;
@@ -108,7 +107,7 @@ impl T1StreamingProcessor {
                     for event in read_xes_trace.events() {
                         existing_xes_trace.push(event.clone());
                     }
-                    
+
                     drop(existing_xes_trace);
                     return Ok(existing_log.clone());
                 }

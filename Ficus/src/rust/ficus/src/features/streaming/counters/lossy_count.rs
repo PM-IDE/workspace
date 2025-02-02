@@ -36,7 +36,7 @@ where
 
         let value = match value {
             ValueUpdateKind::Replace(value) => Some(value),
-            ValueUpdateKind::DoNothing => None
+            ValueUpdateKind::DoNothing => None,
         };
 
         if self.state.contains_key(&element) {

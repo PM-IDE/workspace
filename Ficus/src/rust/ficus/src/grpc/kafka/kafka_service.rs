@@ -16,11 +16,11 @@ use crate::pipelines::keys::context_keys::{PIPELINE_ID, PIPELINE_NAME, SUBSCRIPT
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
+use log::error;
 use rdkafka::error::KafkaError;
 use rdkafka::ClientConfig;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use log::error;
 use tonic::Status;
 use uuid::Uuid;
 
