@@ -98,10 +98,12 @@ class GrpcT1TraceTimeBasedCaching(_message.Message):
     def __init__(self, tracesTimeoutMs: _Optional[int] = ...) -> None: ...
 
 class GrpcT2StreamingConfiguration(_message.Message):
-    __slots__ = ["lossyCount"]
+    __slots__ = ["lossyCount", "timedSlidingWindow"]
     LOSSYCOUNT_FIELD_NUMBER: _ClassVar[int]
+    TIMEDSLIDINGWINDOW_FIELD_NUMBER: _ClassVar[int]
     lossyCount: GrpcT2LossyCountConfiguration
-    def __init__(self, lossyCount: _Optional[_Union[GrpcT2LossyCountConfiguration, _Mapping]] = ...) -> None: ...
+    timedSlidingWindow: GrpcT2TimedSlidingWindowConfiguration
+    def __init__(self, lossyCount: _Optional[_Union[GrpcT2LossyCountConfiguration, _Mapping]] = ..., timedSlidingWindow: _Optional[_Union[GrpcT2TimedSlidingWindowConfiguration, _Mapping]] = ...) -> None: ...
 
 class GrpcT2LossyCountConfiguration(_message.Message):
     __slots__ = ["error", "support"]
@@ -110,6 +112,12 @@ class GrpcT2LossyCountConfiguration(_message.Message):
     error: float
     support: float
     def __init__(self, error: _Optional[float] = ..., support: _Optional[float] = ...) -> None: ...
+
+class GrpcT2TimedSlidingWindowConfiguration(_message.Message):
+    __slots__ = ["lifespanMs"]
+    LIFESPANMS_FIELD_NUMBER: _ClassVar[int]
+    lifespanMs: int
+    def __init__(self, lifespanMs: _Optional[int] = ...) -> None: ...
 
 class GrpcAddPipelineStreamRequest(_message.Message):
     __slots__ = ["pipelineRequest"]

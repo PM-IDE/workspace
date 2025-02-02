@@ -35,7 +35,7 @@ impl StreamingConfiguration {
         match self {
             StreamingConfiguration::NotSpecified => TracesProcessor::T1(T1StreamingProcessor::new(T1LogFilterer::None)),
             StreamingConfiguration::T1(c) => TracesProcessor::T1(c.create_processor()),
-            StreamingConfiguration::T2(_) => todo!(),
+            StreamingConfiguration::T2(c) => TracesProcessor::T2(c.create_processor()),
         }
     }
 }
