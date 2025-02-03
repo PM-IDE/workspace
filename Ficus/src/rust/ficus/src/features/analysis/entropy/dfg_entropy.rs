@@ -1,12 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::features::analysis::event_log_info::{DfgInfo, EventLogInfo};
+use crate::features::analysis::log_info::event_log_info::EventLogInfo;
+use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::{
     event_log::core::event_log::EventLog,
-    features::analysis::{
-        constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME},
-        event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo},
-    },
+    features::analysis::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME},
 };
 
 pub fn calculate_laplace_dfg_entropy<TLog>(log: &TLog, ignored_events: Option<&HashSet<String>>) -> HashMap<String, f64>

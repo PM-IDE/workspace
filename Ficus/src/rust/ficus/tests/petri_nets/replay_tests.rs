@@ -2,7 +2,8 @@ use crate::test_core::simple_events_logs_provider::{
     create_alpha_plus_miner_replay_test_log, create_heuristic_miner_replay_test_log, create_simple_event_log,
 };
 use ficus::event_log::core::event_log::EventLog;
-use ficus::features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo};
+use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use ficus::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use ficus::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use ficus::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
 use ficus::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;

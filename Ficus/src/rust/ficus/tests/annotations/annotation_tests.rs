@@ -1,7 +1,8 @@
 use crate::test_core::simple_events_logs_provider::{create_event_log_with_simple_real_time, create_simple_event_log};
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus::features::analysis::directly_follows_graph::construct_dfg;
-use ficus::features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo};
+use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use ficus::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use ficus::features::discovery::alpha::alpha::discover_petri_net_alpha;
 use ficus::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use ficus::features::discovery::petri_net::annotations::{

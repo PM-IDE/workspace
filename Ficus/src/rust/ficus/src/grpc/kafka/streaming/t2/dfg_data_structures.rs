@@ -39,10 +39,11 @@ impl LossyCountDfgDataStructures {
     }
 
     pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
-        self.traces_last_event_classes.observe(case_id, ValueUpdateKind::Replace(last_class))
+        self.traces_last_event_classes
+            .observe(case_id, ValueUpdateKind::Replace(last_class))
     }
 
-    pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> { 
+    pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
         match self.traces_last_event_classes.get(case_id) {
             None => None,
             Some(value) => Some(value.value().unwrap().to_owned()),
@@ -79,7 +80,7 @@ impl SlidingWindowDfgDataStructures {
         self.traces_last_event_classes.add_current_stamp(case_id, last_class);
     }
 
-    pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> { 
+    pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
         match self.traces_last_event_classes.get(case_id) {
             None => None,
             Some(value) => Some(value.to_owned()),
@@ -129,7 +130,7 @@ impl DfgDataStructures {
     fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
         match self {
             DfgDataStructures::LossyCount(d) => d.observe_dfg_relation(process_name, relation),
-            DfgDataStructures::SlidingWindow(d) => d.observe_dfg_relation(process_name, relation)
+            DfgDataStructures::SlidingWindow(d) => d.observe_dfg_relation(process_name, relation),
         }
     }
 
@@ -143,7 +144,7 @@ impl DfgDataStructures {
     fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
         match self {
             DfgDataStructures::LossyCount(d) => d.last_seen_event_class(case_id),
-            DfgDataStructures::SlidingWindow(d) => d.last_seen_event_class(case_id)
+            DfgDataStructures::SlidingWindow(d) => d.last_seen_event_class(case_id),
         }
     }
 }

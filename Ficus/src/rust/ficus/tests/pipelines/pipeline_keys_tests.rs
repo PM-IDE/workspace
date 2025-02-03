@@ -3,6 +3,7 @@ use std::collections::HashSet;
 
 use bxes::models::system_models::SystemMetadata;
 
+use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
@@ -18,10 +19,7 @@ use ficus::utils::graph::graph::DefaultGraph;
 use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
     event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
-    features::analysis::{
-        event_log_info::OfflineEventLogInfo,
-        patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
-    },
+    features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
     pipelines::{
         aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
         pipelines::Pipeline,

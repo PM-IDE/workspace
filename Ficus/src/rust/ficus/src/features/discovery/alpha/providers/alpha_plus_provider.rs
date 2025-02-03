@@ -1,4 +1,4 @@
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::log_info::event_log_info::EventLogInfo;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
 use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use std::collections::HashSet;

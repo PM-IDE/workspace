@@ -3,7 +3,8 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::{event_log::core::event::event::Event, utils::hash_map_utils::increase_in_map};
 use std::collections::{HashMap, HashSet};
 
-use super::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME};
+use crate::features::analysis::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME};
+use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 
 pub trait EventLogInfo {
     fn traces_count(&self) -> usize;
@@ -23,52 +24,6 @@ pub struct OfflineEventLogInfo {
     traces_count: usize,
     start_event_classes: HashSet<String>,
     end_event_classes: HashSet<String>,
-}
-
-pub struct EventLogInfoCreationDto<'a, TLog>
-where
-    TLog: EventLog,
-{
-    log: &'a TLog,
-    add_fake_start_end_events: bool,
-    ignored_events: Option<&'a HashSet<String>>,
-}
-
-impl<'a, TLog> EventLogInfoCreationDto<'a, TLog>
-where
-    TLog: EventLog,
-{
-    pub fn default(log: &'a TLog) -> Self {
-        EventLogInfoCreationDto {
-            log,
-            add_fake_start_end_events: false,
-            ignored_events: None,
-        }
-    }
-
-    pub fn default_fake_events(log: &'a TLog) -> Self {
-        Self {
-            log,
-            add_fake_start_end_events: true,
-            ignored_events: None,
-        }
-    }
-
-    pub fn default_fake_ignored(log: &'a TLog, ignored_events: Option<&'a HashSet<String>>) -> Self {
-        Self {
-            log,
-            add_fake_start_end_events: true,
-            ignored_events,
-        }
-    }
-
-    pub fn default_ignore(log: &'a TLog, ignored_events: &'a HashSet<String>) -> Self {
-        Self {
-            log,
-            add_fake_start_end_events: false,
-            ignored_events: Some(ignored_events),
-        }
-    }
 }
 
 impl OfflineEventLogInfo {

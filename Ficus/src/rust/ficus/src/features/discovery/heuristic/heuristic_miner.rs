@@ -1,5 +1,4 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
+use crate::features::analysis::log_info::event_log_info::EventLogInfo;
 use crate::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use crate::features::discovery::alpha::utils::maximize;
 use crate::features::discovery::heuristic::relations_provider::{AndOrXorRelation, HeuristicMinerRelationsProvider};

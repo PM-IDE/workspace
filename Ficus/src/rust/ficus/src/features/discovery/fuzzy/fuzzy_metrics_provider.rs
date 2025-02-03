@@ -1,8 +1,8 @@
 use super::fuzzy_miner::FuzzyGraph;
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::{
     event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
-    features::{analysis::event_log_info::OfflineEventLogInfo, discovery::alpha::providers::relations_cache::RelationsCaches},
+    features::discovery::alpha::providers::relations_cache::RelationsCaches,
 };
 
 const PROXIMITY_CORRELATION: &'static str = "ProximityCorrelation";

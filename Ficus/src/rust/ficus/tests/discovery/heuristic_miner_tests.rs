@@ -2,7 +2,8 @@ use crate::test_core::{
     gold_based_test::execute_test_with_gold, simple_events_logs_provider::*, test_paths::get_serialized_petri_nets_gold_path,
 };
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
-use ficus::features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo};
+use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use ficus::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use ficus::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 use ficus::features::discovery::{
     heuristic::heuristic_miner::discover_petri_net_heuristic, petri_net::pnml_serialization::serialize_to_pnml,

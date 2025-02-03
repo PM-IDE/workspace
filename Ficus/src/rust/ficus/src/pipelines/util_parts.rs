@@ -3,6 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use chrono::{DateTime, Duration, Utc};
 
 use super::pipelines::PipelinePartFactory;
+use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::pipelines::keys::context_keys::{
     EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY,
 };
@@ -20,7 +22,6 @@ use crate::{
         },
         xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
     },
-    features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
 

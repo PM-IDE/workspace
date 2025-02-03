@@ -1,5 +1,6 @@
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto, OfflineEventLogInfo};
+use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
+use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::features::discovery::alpha::alpha::find_transitions_one_length_loop;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
 use crate::features::discovery::alpha::providers::alpha_sharp_provider::AlphaSharpRelationsProvider;

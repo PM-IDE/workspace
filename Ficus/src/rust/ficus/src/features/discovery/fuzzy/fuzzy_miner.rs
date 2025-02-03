@@ -1,6 +1,7 @@
 use super::fuzzy_metrics_provider::FuzzyMetricsProvider;
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfoCreationDto, OfflineEventLogInfo};
+use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::utils::graph::graph::{Graph, NodesConnectionData};
 use crate::utils::sets::one_set::OneSet;
 use std::cell::RefCell;
