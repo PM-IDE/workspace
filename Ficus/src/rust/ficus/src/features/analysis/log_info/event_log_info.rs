@@ -103,27 +103,15 @@ impl OfflineEventLogInfo {
             }
         }
 
-        let mut followed_events: HashMap<String, HashMap<String, usize>> = HashMap::new();
         let mut precedes_events: HashMap<String, HashMap<String, usize>> = HashMap::new();
         let mut events_with_single_follower = HashSet::new();
 
         for (first, followers_map) in &dfg_pairs {
+            if followers_map.len() == 1 {
+                events_with_single_follower.insert(first.to_owned());
+            }
+
             for (second, count) in followers_map {
-                if followed_events.contains_key(first) {
-                    if events_with_single_follower.contains(first) {
-                        events_with_single_follower.remove(first);
-                    }
-
-                    if !followed_events.get(first).unwrap().contains_key(second) {
-                        let followers_map = followed_events.get_mut(first).unwrap();
-                        followers_map.insert(second.to_owned(), count.to_owned());
-                    }
-                } else {
-                    let map = HashMap::from_iter(vec![(second.to_owned(), count.to_owned())]);
-                    followed_events.insert(first.to_owned(), map);
-                    events_with_single_follower.insert(first.to_owned());
-                }
-
                 if precedes_events.contains_key(second) {
                     precedes_events.get_mut(second).unwrap().insert(first.to_owned(), count.to_owned());
                 } else {
@@ -137,8 +125,7 @@ impl OfflineEventLogInfo {
             events_count,
             event_classes_counts: events_counts,
             dfg_info: OfflineDfgInfo {
-                dfg_pairs,
-                followed_events,
+                followed_events: dfg_pairs,
                 precedes_events,
                 events_with_single_follower,
             },

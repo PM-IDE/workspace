@@ -10,7 +10,6 @@ pub trait DfgInfo {
 
 #[derive(Debug)]
 pub struct OfflineDfgInfo {
-    pub(super) dfg_pairs: HashMap<String, HashMap<String, usize>>,
     pub(super) followed_events: HashMap<String, HashMap<String, usize>>,
     pub(super) precedes_events: HashMap<String, HashMap<String, usize>>,
     pub(super) events_with_single_follower: HashSet<String>,
@@ -18,7 +17,7 @@ pub struct OfflineDfgInfo {
 
 impl DfgInfo for OfflineDfgInfo {
     fn get_directly_follows_count(&self, first: &String, second: &String) -> usize {
-        if let Some(values) = self.dfg_pairs.get(first) {
+        if let Some(values) = self.followed_events.get(first) {
             if let Some(dfg_count) = values.get(second) {
                 return *dfg_count;
             }
@@ -28,7 +27,7 @@ impl DfgInfo for OfflineDfgInfo {
     }
 
     fn is_in_directly_follows_relation(&self, left: &str, right: &str) -> bool {
-        if let Some(values) = self.dfg_pairs.get(left) {
+        if let Some(values) = self.followed_events.get(left) {
             values.contains_key(right)
         } else {
             false
