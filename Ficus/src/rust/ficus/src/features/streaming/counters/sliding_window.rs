@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
+use num_traits::Num;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::ops::Add;
 use std::rc::Rc;
 use std::time::Duration;
-use num_traits::Num;
 
 #[derive(Clone)]
 struct SlidingWindowEntry<TValue> {
@@ -71,11 +71,11 @@ impl<TKey: Hash + Eq, TValue> SlidingWindow<TKey, TValue> {
     pub fn all(&self) -> Vec<(&TKey, &TValue)> {
         self.storage.iter().map(|p| (p.0, &p.1.value)).collect()
     }
-    
+
     pub fn replace_current_stamp(&mut self, key: TKey, value_factory: impl Fn(Option<&TValue>) -> TValue) {
         let new_value = value_factory(match self.storage.get(&key) {
             None => None,
-            Some(value) => Some(&value.value)
+            Some(value) => Some(&value.value),
         });
 
         self.add_current_stamp(key, new_value);
@@ -92,7 +92,7 @@ impl<TKey: Hash + Eq, TValue: Num + Clone> SlidingWindow<TKey, TValue> {
     pub fn increment_current_stamp(&mut self, key: TKey) {
         self.replace_current_stamp(key, |old| match old {
             None => TValue::one(),
-            Some(old) => TValue::add(old.clone(), TValue::one())
+            Some(old) => TValue::add(old.clone(), TValue::one()),
         });
     }
 }
