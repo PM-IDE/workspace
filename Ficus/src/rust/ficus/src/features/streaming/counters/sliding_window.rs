@@ -1,9 +1,10 @@
-﻿use std::collections::HashMap;
+use chrono::{DateTime, Utc};
+use std::collections::HashMap;
 use std::hash::Hash;
 use std::ops::Add;
 use std::rc::Rc;
 use std::time::Duration;
-use chrono::{DateTime, Utc};
+use tonic::codegen::Body;
 
 #[derive(Clone)]
 struct SlidingWindowEntry<TValue> {
@@ -26,15 +27,15 @@ pub enum InvalidationResult {
 pub type Invalidator<TValue> = Rc<Box<dyn Fn(&TValue, &DateTime<Utc>) -> InvalidationResult>>;
 
 #[derive(Clone)]
-pub struct SlidingWindowProcessor<TKey: Hash + Eq, TValue> {
+pub struct SlidingWindow<TKey: Hash + Eq, TValue> {
     storage: HashMap<TKey, SlidingWindowEntry<TValue>>,
     invalidator: Invalidator<TValue>,
 }
 
-unsafe impl<TKey: Hash + Eq, TValue> Sync for SlidingWindowProcessor<TKey, TValue> {}
-unsafe impl<TKey: Hash + Eq, TValue> Send for SlidingWindowProcessor<TKey, TValue> {}
+unsafe impl<TKey: Hash + Eq, TValue> Sync for SlidingWindow<TKey, TValue> {}
+unsafe impl<TKey: Hash + Eq, TValue> Send for SlidingWindow<TKey, TValue> {}
 
-impl<TKey: Hash + Eq, TValue> SlidingWindowProcessor<TKey, TValue> {
+impl<TKey: Hash + Eq, TValue> SlidingWindow<TKey, TValue> {
     pub fn new(invalidator: Invalidator<TValue>) -> Self {
         Self {
             storage: HashMap::new(),
@@ -65,6 +66,10 @@ impl<TKey: Hash + Eq, TValue> SlidingWindowProcessor<TKey, TValue> {
             None => None,
             Some(entry) => Some(&entry.value),
         }
+    }
+
+    pub fn all(&self) -> Vec<(&TKey, &TValue)> {
+        self.storage.iter().map(|p| (p.0, &p.1.value)).collect()
     }
 
     pub fn invalidate(&mut self) {

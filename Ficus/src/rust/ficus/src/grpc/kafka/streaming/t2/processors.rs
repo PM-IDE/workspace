@@ -1,5 +1,5 @@
 use crate::features::streaming::counters::lossy_count::LossyCount;
-use crate::features::streaming::counters::sliding_window::SlidingWindowProcessor;
+use crate::features::streaming::counters::sliding_window::SlidingWindow;
 use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
 use crate::grpc::kafka::streaming::processors::{CaseMetadata, ProcessMetadata};
 use crate::pipelines::context::PipelineContext;
@@ -37,7 +37,7 @@ impl T2LossyCountStreamingProcessor {
             error,
             support,
             processes_dfg: HashMap::new(),
-            traces_last_event_class: LossyCount::new(error)
+            traces_last_event_class: LossyCount::new(error),
         }
     }
 
@@ -49,19 +49,19 @@ impl T2LossyCountStreamingProcessor {
 #[derive(Clone)]
 pub struct T2SlidingWindowProcessor {
     element_lifespan: Duration,
-    processes_dfg: HashMap<String, SlidingWindowProcessor<(String, String), u64>>,
-    traces_last_event_classes: SlidingWindowProcessor<String, String>,
+    processes_dfg: HashMap<String, SlidingWindow<(String, String), u64>>,
+    traces_last_event_classes: SlidingWindow<String, String>,
 }
 
 impl T2SlidingWindowProcessor {
-    pub fn new(element_lifespan: Duration) -> Self { 
+    pub fn new(element_lifespan: Duration) -> Self {
         Self {
             element_lifespan,
             processes_dfg: HashMap::new(),
-            traces_last_event_classes: SlidingWindowProcessor::new_time(element_lifespan)
+            traces_last_event_classes: SlidingWindow::new_time(element_lifespan),
         }
     }
-    
+
     pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         let process_metadata = ProcessMetadata::create_from(trace.metadata())?;
         let case_metadata = CaseMetadata::create_from(trace.metadata())?;
