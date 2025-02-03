@@ -4,7 +4,7 @@ use std::hash::Hash;
 use std::ops::Add;
 use std::rc::Rc;
 use std::time::Duration;
-use crate::event_log::xes::reader::xes_log_trace_reader::TraceXesEventLogIterator;
+use num_traits::Num;
 
 #[derive(Clone)]
 struct SlidingWindowEntry<TValue> {
@@ -88,11 +88,11 @@ impl<TKey: Hash + Eq, TValue> SlidingWindow<TKey, TValue> {
     }
 }
 
-impl<TKey: Hash + Eq> SlidingWindow<TKey, u64> {
+impl<TKey: Hash + Eq, TValue: Num + Clone> SlidingWindow<TKey, TValue> {
     pub fn increment_current_stamp(&mut self, key: TKey) {
         self.replace_current_stamp(key, |old| match old {
-            None => 1,
-            Some(old) => old + 1
+            None => TValue::one(),
+            Some(old) => TValue::add(old.clone(), TValue::one())
         });
     }
 }

@@ -548,6 +548,7 @@ dependencies = [
  "log",
  "nameof",
  "ndarray 0.15.6",
+ "num-traits",
  "once_cell",
  "prost",
  "prost-types",
