@@ -1,9 +1,7 @@
 use crate::ficus_proto::grpc_t2_streaming_configuration::Configuration;
 use crate::ficus_proto::GrpcT2StreamingConfiguration;
 use std::time::Duration;
-use crate::grpc::kafka::streaming::t2::lossy_count_processor::T2LossyCountStreamingProcessor;
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
-use crate::grpc::kafka::streaming::t2::sliding_window_processor::T2SlidingWindowProcessor;
 
 pub enum T2StreamingConfiguration {
     LossyCount(LossyCountConfiguration),
@@ -28,8 +26,8 @@ impl T2StreamingConfiguration {
 
     pub fn create_processor(&self) -> T2StreamingProcessor {
         match self {
-            T2StreamingConfiguration::LossyCount(lc) => T2StreamingProcessor::LossyCount(lc.create_processor()),
-            T2StreamingConfiguration::SlidingWindow(sw) => T2StreamingProcessor::SlidingWindow(sw.create_processor()),
+            T2StreamingConfiguration::LossyCount(lc) => lc.create_processor(),
+            T2StreamingConfiguration::SlidingWindow(sw) => sw.create_processor()
         }
     }
 }
@@ -40,8 +38,8 @@ pub struct LossyCountConfiguration {
 }
 
 impl LossyCountConfiguration {
-    pub fn create_processor(&self) -> T2LossyCountStreamingProcessor {
-        T2LossyCountStreamingProcessor::new(self.error, self.support)
+    pub fn create_processor(&self) -> T2StreamingProcessor {
+        T2StreamingProcessor::new_lossy_count(self.error)
     }
 }
 
@@ -50,7 +48,7 @@ pub struct TimedSlidingWindowConfiguration {
 }
 
 impl TimedSlidingWindowConfiguration {
-    pub fn create_processor(&self) -> T2SlidingWindowProcessor {
-        T2SlidingWindowProcessor::new(self.element_lifetime)
+    pub fn create_processor(&self) -> T2StreamingProcessor {
+        T2StreamingProcessor::new_sliding_window(self.element_lifetime)
     }
 }

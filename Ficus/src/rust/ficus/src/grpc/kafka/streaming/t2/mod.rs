@@ -1,4 +1,3 @@
 pub mod configs;
 pub mod processors;
-pub mod lossy_count_processor;
-pub mod sliding_window_processor;
+mod dfg_data_structures;
