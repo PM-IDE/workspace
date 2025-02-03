@@ -4,7 +4,7 @@ use std::hash::Hash;
 use std::ops::Add;
 use std::rc::Rc;
 use std::time::Duration;
-use tonic::codegen::Body;
+use crate::event_log::xes::reader::xes_log_trace_reader::TraceXesEventLogIterator;
 
 #[derive(Clone)]
 struct SlidingWindowEntry<TValue> {
@@ -71,10 +71,28 @@ impl<TKey: Hash + Eq, TValue> SlidingWindow<TKey, TValue> {
     pub fn all(&self) -> Vec<(&TKey, &TValue)> {
         self.storage.iter().map(|p| (p.0, &p.1.value)).collect()
     }
+    
+    pub fn replace_current_stamp(&mut self, key: TKey, value_factory: impl Fn(Option<&TValue>) -> TValue) {
+        let new_value = value_factory(match self.storage.get(&key) {
+            None => None,
+            Some(value) => Some(&value.value)
+        });
+
+        self.add_current_stamp(key, new_value);
+    }
 
     pub fn invalidate(&mut self) {
         let invalidator = self.invalidator.clone();
         self.storage
             .retain(|_, value| invalidator(&value.value, &value.timestamp) == InvalidationResult::Retain)
+    }
+}
+
+impl<TKey: Hash + Eq> SlidingWindow<TKey, u64> {
+    pub fn increment_current_stamp(&mut self, key: TKey) {
+        self.replace_current_stamp(key, |old| match old {
+            None => 1,
+            Some(old) => old + 1
+        });
     }
 }
