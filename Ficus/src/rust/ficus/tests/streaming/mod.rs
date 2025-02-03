@@ -1,2 +1,3 @@
 pub mod lossy_count_tests;
-mod t1_filterers_test;
+pub mod sliding_window_test;
+pub mod t1_filterers_test;
