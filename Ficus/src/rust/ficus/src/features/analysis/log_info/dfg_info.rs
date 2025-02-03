@@ -15,6 +15,38 @@ pub struct OfflineDfgInfo {
     pub(super) events_with_single_follower: HashSet<String>,
 }
 
+impl OfflineDfgInfo {
+    pub fn create_from(relations: &HashMap<(String, String), u64>) -> OfflineDfgInfo {
+        let mut followed_events: HashMap<String, HashMap<String, usize>> = HashMap::new();
+        let mut precedes_events: HashMap<String, HashMap<String, usize>> = HashMap::new();
+        let mut events_with_single_follower = HashSet::new();
+
+        for (relation, count) in relations {
+            if let Some(followers_map) = followed_events.get_mut(&relation.0) {
+                *followers_map.entry(relation.1.to_owned()).or_insert(0) += 1;
+            } else {
+                followed_events.insert(relation.0.to_owned(), HashMap::from_iter([(relation.1.to_owned(), 1)]));
+            }
+
+            if let Some(precedes_map) = precedes_events.get_mut(&relation.1) {
+                *precedes_map.entry(relation.0.to_owned()).or_insert(0) += 1;
+            } else {
+                precedes_events.insert(relation.1.to_owned(), HashMap::from_iter([(relation.0.to_owned(), 1)]));
+            }
+
+            if *count == 1 {
+                events_with_single_follower.insert(relation.0.to_owned());
+            }
+        }
+
+        OfflineDfgInfo {
+            followed_events,
+            precedes_events,
+            events_with_single_follower
+        }
+    }
+}
+
 impl DfgInfo for OfflineDfgInfo {
     fn get_directly_follows_count(&self, first: &String, second: &String) -> usize {
         if let Some(values) = self.followed_events.get(first) {
