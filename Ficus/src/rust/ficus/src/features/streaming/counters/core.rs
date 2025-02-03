@@ -38,7 +38,7 @@ where
     TValue: Clone,
 {
     fn observe(&mut self, element: TKey, value: ValueUpdateKind<TValue>);
-    fn frequency(&self, element: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>>;
+    fn get(&self, element: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>>;
     fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>>;
 
     fn all_frequencies(&self) -> Vec<StreamingCounterEntry<TKey, TValue>> {

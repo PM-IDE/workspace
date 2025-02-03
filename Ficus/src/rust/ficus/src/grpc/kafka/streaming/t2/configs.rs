@@ -1,7 +1,9 @@
 use crate::ficus_proto::grpc_t2_streaming_configuration::Configuration;
 use crate::ficus_proto::GrpcT2StreamingConfiguration;
-use crate::grpc::kafka::streaming::t2::processors::{T2LossyCountStreamingProcessor, T2SlidingWindowProcessor, T2StreamingProcessor};
 use std::time::Duration;
+use crate::grpc::kafka::streaming::t2::lossy_count_processor::T2LossyCountStreamingProcessor;
+use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
+use crate::grpc::kafka::streaming::t2::sliding_window_processor::T2SlidingWindowProcessor;
 
 pub enum T2StreamingConfiguration {
     LossyCount(LossyCountConfiguration),

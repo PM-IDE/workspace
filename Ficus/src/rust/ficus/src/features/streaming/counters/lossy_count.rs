@@ -55,10 +55,10 @@ where
         }
     }
 
-    fn frequency(&self, element: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
-        match self.state.get(element) {
+    fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
+        match self.state.get(key) {
             None => None,
-            Some(entry) => Some(self.to_streaming_counter_entry((element, entry))),
+            Some(entry) => Some(self.to_streaming_counter_entry((key, entry))),
         }
     }
 
