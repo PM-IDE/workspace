@@ -33,10 +33,17 @@ def test_t1_traces_timeout_configuration():
   _assert_single_has_field(configuration, const_t1_configuration_field)
   assert configuration.t1Configuration.tracesTimeout.tracesTimeoutMs == timeout
 
-def test_t2_configuration():
+def test_t2_lossy_count_configuration():
   error, support = 1, 2
   configuration = create_lossy_count_configuration(error, support)
 
   _assert_single_has_field(configuration, const_t2_configuration_field)
   assert configuration.t2Configuration.lossyCount.error == error
   assert configuration.t2Configuration.lossyCount.support == support
+
+def test_t2_timed_sliding_window_configuration():
+  lifetime = 1232431
+  configuration = create_timed_sliding_window_configuration(lifetime)
+
+  _assert_single_has_field(configuration, const_t2_configuration_field)
+  assert configuration.t2Configuration.timedSlidingWindow.lifespanMs == lifetime
