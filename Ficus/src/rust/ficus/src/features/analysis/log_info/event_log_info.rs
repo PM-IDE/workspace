@@ -1,11 +1,10 @@
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::{event_log::core::event::event::Event, utils::hash_map_utils::increase_in_map};
-use std::collections::{HashMap, HashSet};
-
 use crate::features::analysis::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME};
 use crate::features::analysis::log_info::dfg_info::{DfgInfo, OfflineDfgInfo};
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
+use crate::{event_log::core::event::event::Event, utils::hash_map_utils::increase_in_map};
+use std::collections::{HashMap, HashSet};
 
 pub trait EventLogCounts {
     fn traces_count(&self) -> usize;
@@ -55,6 +54,28 @@ pub struct OfflineEventLogInfo {
 }
 
 impl OfflineEventLogInfo {
+    pub fn create_from_relations(relations: &HashMap<(String, String), u64>, event_classes_count: &HashMap<String, usize>) -> Self {
+        let dfg_info = OfflineDfgInfo::create_from_relations(relations);
+
+        let start_event_classes = event_classes_count.keys().filter(|c| match dfg_info.precedes_events.get(*c) {
+            None => true,
+            Some(precedes) => precedes.len() == 0
+        }).map(|c| c.to_owned()).collect();
+
+        let end_event_classes = event_classes_count.keys().filter(|c| match dfg_info.followed_events.get(*c) {
+            None => true,
+            Some(followers) => followers.len() == 0
+        }).map(|c| c.to_owned()).collect();
+
+        Self {
+            counts: None,
+            event_classes_counts: event_classes_count.clone(),
+            dfg_info,
+            start_event_classes,
+            end_event_classes
+        }
+    }
+
     pub fn create_from<TLog>(creation_dto: EventLogInfoCreationDto<TLog>) -> OfflineEventLogInfo
     where
         TLog: EventLog,
