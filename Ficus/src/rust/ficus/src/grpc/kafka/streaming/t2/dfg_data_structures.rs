@@ -16,6 +16,7 @@ pub(in crate::grpc::kafka::streaming::t2) struct LossyCountDfgDataStructures {
     error: f64,
     processes_dfg: HashMap<String, LossyCount<(String, String), ()>>,
     traces_last_event_classes: LossyCount<Uuid, String>,
+    event_classes_count: HashMap<String, LossyCount<String, ()>>
 }
 
 impl LossyCountDfgDataStructures {
@@ -24,18 +25,20 @@ impl LossyCountDfgDataStructures {
             error,
             processes_dfg: HashMap::new(),
             traces_last_event_classes: LossyCount::new(error),
+            event_classes_count: HashMap::new()
         }
     }
 
     pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
-        if !self.processes_dfg.contains_key(process_name) {
-            self.processes_dfg.insert(process_name.to_owned(), LossyCount::new(self.error));
-        }
-
         self.processes_dfg
-            .get_mut(process_name)
-            .unwrap()
+            .entry(process_name.to_owned())
+            .or_insert(LossyCount::new(self.error))
             .observe(relation, ValueUpdateKind::DoNothing);
+    }
+
+    pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
+        let lc = self.event_classes_count.entry(process_name.to_owned()).or_insert(LossyCount::new(self.error));
+        lc.observe(event_class, ValueUpdateKind::DoNothing);
     }
 
     pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
@@ -56,6 +59,7 @@ pub(in crate::grpc::kafka::streaming::t2) struct SlidingWindowDfgDataStructures 
     element_lifetime: Duration,
     processes_dfg: HashMap<String, SlidingWindow<(String, String), u64>>,
     traces_last_event_classes: SlidingWindow<Uuid, String>,
+    event_classes_count: HashMap<String, SlidingWindow<String, u64>>
 }
 
 impl SlidingWindowDfgDataStructures {
@@ -64,16 +68,20 @@ impl SlidingWindowDfgDataStructures {
             element_lifetime,
             processes_dfg: HashMap::new(),
             traces_last_event_classes: SlidingWindow::new_time(element_lifetime),
+            event_classes_count: HashMap::new()
         }
     }
 
     pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
-        if !self.processes_dfg.contains_key(process_name) {
-            self.processes_dfg
-                .insert(process_name.to_owned(), SlidingWindow::new_time(self.element_lifetime));
-        }
+        self.processes_dfg
+            .entry(process_name.to_owned())
+            .or_insert(SlidingWindow::new_time(self.element_lifetime))
+            .increment_current_stamp(relation);
+    }
 
-        self.processes_dfg.get_mut(process_name).unwrap().increment_current_stamp(relation);
+    pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
+        let sw = self.event_classes_count.entry(process_name.to_owned()).or_insert(SlidingWindow::new_time(self.element_lifetime));
+        sw.increment_current_stamp(event_class);
     }
 
     pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
@@ -112,7 +120,8 @@ impl DfgDataStructures {
             let first_name = xes_trace.events().get(i).unwrap().borrow().name().to_owned();
             let second_name = xes_trace.events().get(i + 1).unwrap().borrow().name().to_owned();
 
-            self.observe_dfg_relation(process_metadata.process_name.as_str(), (first_name, second_name));
+            self.observe_dfg_relation(process_metadata.process_name.as_str(), (first_name.clone(), second_name));
+            self.observe_event_class(process_metadata.process_name.as_str(), first_name);
         }
 
         if let Some(last_seen_class) = self.last_seen_event_class(&case_metadata.case_id) {
@@ -121,7 +130,7 @@ impl DfgDataStructures {
         }
 
         let new_trace_last_class = xes_trace.events().last().unwrap().borrow().name().to_owned();
-
+        self.observe_event_class(process_metadata.process_name.as_str(), new_trace_last_class.clone());
         self.observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
 
         Ok(())
@@ -131,6 +140,13 @@ impl DfgDataStructures {
         match self {
             DfgDataStructures::LossyCount(d) => d.observe_dfg_relation(process_name, relation),
             DfgDataStructures::SlidingWindow(d) => d.observe_dfg_relation(process_name, relation),
+        }
+    }
+
+    fn observe_event_class(&mut self, process_name: &str, event_class: String) {
+        match self {
+            DfgDataStructures::LossyCount(lc) => lc.observe_event_class(process_name, event_class),
+            DfgDataStructures::SlidingWindow(sw) => sw.observe_event_class(process_name, event_class),
         }
     }
 
