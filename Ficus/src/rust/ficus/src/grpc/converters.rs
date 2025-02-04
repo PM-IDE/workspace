@@ -423,10 +423,14 @@ fn try_convert_to_grpc_event_log_info(value: &dyn Any) -> Option<GrpcContextValu
         None
     } else {
         let log_info = value.downcast_ref::<OfflineEventLogInfo>().unwrap();
+        if log_info.counts().is_none() {
+            return None
+        }
+
         Some(GrpcContextValue {
             context_value: Some(ContextValue::EventLogInfo(GrpcEventLogInfo {
-                events_count: log_info.events_count() as u32,
-                traces_count: log_info.traces_count() as u32,
+                events_count: log_info.counts().unwrap().events_count() as u32,
+                traces_count: log_info.counts().unwrap().traces_count() as u32,
                 event_classes_count: log_info.event_classes_count() as u32,
             })),
         })

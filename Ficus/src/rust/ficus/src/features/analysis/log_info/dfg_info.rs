@@ -16,7 +16,7 @@ pub struct OfflineDfgInfo {
 }
 
 impl OfflineDfgInfo {
-    pub fn create_from(relations: &HashMap<(String, String), u64>) -> OfflineDfgInfo {
+    pub fn create_from_relations(relations: &HashMap<(String, String), u64>) -> OfflineDfgInfo {
         let mut followed_events: HashMap<String, HashMap<String, usize>> = HashMap::new();
         let mut precedes_events: HashMap<String, HashMap<String, usize>> = HashMap::new();
         let mut events_with_single_follower = HashSet::new();

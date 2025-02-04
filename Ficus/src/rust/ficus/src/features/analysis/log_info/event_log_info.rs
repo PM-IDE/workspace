@@ -7,9 +7,37 @@ use crate::features::analysis::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START
 use crate::features::analysis::log_info::dfg_info::{DfgInfo, OfflineDfgInfo};
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 
-pub trait EventLogInfo {
+pub trait EventLogCounts {
     fn traces_count(&self) -> usize;
     fn events_count(&self) -> usize;
+}
+
+struct EventLogCountsImpl {
+    traces_count: usize,
+    events_count: usize
+}
+
+impl EventLogCountsImpl {
+    pub fn new(traces_count: usize, events_count: usize) -> Self {
+        Self {
+            traces_count,
+            events_count
+        }
+    }
+}
+
+impl EventLogCounts for EventLogCountsImpl {
+    fn traces_count(&self) -> usize {
+        self.traces_count
+    }
+
+    fn events_count(&self) -> usize {
+        self.events_count
+    }
+}
+
+pub trait EventLogInfo {
+    fn counts(&self) -> Option<&dyn EventLogCounts>;
     fn event_classes_count(&self) -> usize;
     fn event_count(&self, event_class: &String) -> usize;
     fn dfg_info(&self) -> &dyn DfgInfo;
@@ -19,10 +47,9 @@ pub trait EventLogInfo {
 }
 
 pub struct OfflineEventLogInfo {
-    events_count: usize,
+    counts: Option<EventLogCountsImpl>,
     event_classes_counts: HashMap<String, usize>,
     dfg_info: OfflineDfgInfo,
-    traces_count: usize,
     start_event_classes: HashSet<String>,
     end_event_classes: HashSet<String>,
 }
@@ -122,14 +149,16 @@ impl OfflineEventLogInfo {
         }
 
         OfflineEventLogInfo {
-            events_count,
+            counts: Some(EventLogCountsImpl {
+                events_count,
+                traces_count: log.traces().len(),
+            }),
             event_classes_counts: events_counts,
             dfg_info: OfflineDfgInfo {
                 followed_events: dfg_pairs,
                 precedes_events,
                 events_with_single_follower,
             },
-            traces_count: log.traces().len(),
             start_event_classes,
             end_event_classes,
         }
@@ -137,12 +166,11 @@ impl OfflineEventLogInfo {
 }
 
 impl EventLogInfo for OfflineEventLogInfo {
-    fn traces_count(&self) -> usize {
-        self.traces_count
-    }
-
-    fn events_count(&self) -> usize {
-        self.events_count
+    fn counts(&self) -> Option<&dyn EventLogCounts> {
+        match self.counts.as_ref() {
+            None => None,
+            Some(counts) => Some(counts as &dyn EventLogCounts)
+        }
     }
 
     fn event_classes_count(&self) -> usize {
