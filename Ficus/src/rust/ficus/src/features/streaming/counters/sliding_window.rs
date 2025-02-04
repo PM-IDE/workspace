@@ -27,15 +27,15 @@ pub enum InvalidationResult {
 pub type Invalidator<TValue> = Rc<Box<dyn Fn(&TValue, &DateTime<Utc>) -> InvalidationResult>>;
 
 #[derive(Clone)]
-pub struct SlidingWindow<TKey: Hash + Eq, TValue> {
+pub struct SlidingWindow<TKey: Hash + Eq + Clone, TValue: Clone> {
     storage: HashMap<TKey, SlidingWindowEntry<TValue>>,
     invalidator: Invalidator<TValue>,
 }
 
-unsafe impl<TKey: Hash + Eq, TValue> Sync for SlidingWindow<TKey, TValue> {}
-unsafe impl<TKey: Hash + Eq, TValue> Send for SlidingWindow<TKey, TValue> {}
+unsafe impl<TKey: Hash + Eq + Clone, TValue: Clone> Sync for SlidingWindow<TKey, TValue> {}
+unsafe impl<TKey: Hash + Eq + Clone, TValue: Clone> Send for SlidingWindow<TKey, TValue> {}
 
-impl<TKey: Hash + Eq, TValue> SlidingWindow<TKey, TValue> {
+impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
     pub fn new(invalidator: Invalidator<TValue>) -> Self {
         Self {
             storage: HashMap::new(),
@@ -86,9 +86,13 @@ impl<TKey: Hash + Eq, TValue> SlidingWindow<TKey, TValue> {
         self.storage
             .retain(|_, value| invalidator(&value.value, &value.timestamp) == InvalidationResult::Retain)
     }
+
+    pub fn to_count_map(&self) -> HashMap<TKey, TValue> {
+        self.all().into_iter().map(|(k, v)| (k.clone(), v.clone())).collect()
+    }
 }
 
-impl<TKey: Hash + Eq, TValue: Num + Clone> SlidingWindow<TKey, TValue> {
+impl<TKey: Hash + Eq + Clone, TValue: Num + Clone> SlidingWindow<TKey, TValue> {
     pub fn increment_current_stamp(&mut self, key: TKey) {
         self.replace_current_stamp(key, |old| match old {
             None => TValue::one(),

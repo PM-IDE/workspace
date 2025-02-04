@@ -29,6 +29,6 @@ impl T2StreamingProcessor {
 
     pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         let mut data_structure = self.data_structure.lock().expect("Must acquire lock");
-        data_structure.process_bxes_trace(trace)
+        data_structure.process_bxes_trace(trace, context)
     }
 }

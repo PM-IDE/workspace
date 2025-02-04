@@ -95,4 +95,8 @@ where
     fn prune(&mut self, bucket_number: f64) {
         self.state.retain(|_, value| value.freq as f64 + value.delta > bucket_number);
     }
+
+    pub fn to_count_map(&self) -> HashMap<TKey, f64> {
+        self.all_frequencies().into_iter().map(|e| (e.key().clone(), e.approx_frequency())).collect()
+    }
 }
