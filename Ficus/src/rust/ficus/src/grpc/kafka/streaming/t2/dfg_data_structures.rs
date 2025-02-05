@@ -175,6 +175,23 @@ impl DfgDataStructures {
         Ok(())
     }
 
+    pub fn invalidate(&mut self) {
+        match self {
+            DfgDataStructures::LossyCount(_) => {}
+            DfgDataStructures::SlidingWindow(sw) => {
+                for (_, sw) in sw.processes_dfg.iter_mut() {
+                    sw.invalidate();
+                }
+                
+                for (_, sw) in sw.event_classes_count.iter_mut() {
+                    sw.invalidate();
+                }
+                
+                sw.traces_last_event_classes.invalidate();
+            }
+        }
+    }
+
     fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
         match self {
             DfgDataStructures::LossyCount(d) => d.observe_dfg_relation(process_name, relation),

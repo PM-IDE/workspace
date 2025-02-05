@@ -9,13 +9,13 @@ use std::time::Duration;
 
 #[derive(Clone)]
 pub struct T2StreamingProcessor {
-    data_structure: Arc<Mutex<DfgDataStructures>>,
+    dfg_data_structure: Arc<Mutex<DfgDataStructures>>,
 }
 
 impl T2StreamingProcessor {
     pub fn new_sliding_window(element_lifetime: Duration) -> Self {
         Self {
-            data_structure: Arc::new(Mutex::new(DfgDataStructures::SlidingWindow(SlidingWindowDfgDataStructures::new(
+            dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::SlidingWindow(SlidingWindowDfgDataStructures::new(
                 element_lifetime,
             )))),
         }
@@ -23,12 +23,14 @@ impl T2StreamingProcessor {
 
     pub fn new_lossy_count(error: f64) -> Self {
         Self {
-            data_structure: Arc::new(Mutex::new(DfgDataStructures::LossyCount(LossyCountDfgDataStructures::new(error)))),
+            dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::LossyCount(LossyCountDfgDataStructures::new(error)))),
         }
     }
 
     pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
-        let mut data_structure = self.data_structure.lock().expect("Must acquire lock");
-        data_structure.process_bxes_trace(trace, context)
+        let mut dfg_data_structure = self.dfg_data_structure.lock().expect("Must acquire lock");
+
+        dfg_data_structure.invalidate();
+        dfg_data_structure.process_bxes_trace(trace, context)
     }
 }
