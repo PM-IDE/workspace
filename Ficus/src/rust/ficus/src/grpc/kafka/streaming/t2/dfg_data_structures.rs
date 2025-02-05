@@ -9,6 +9,7 @@ use crate::grpc::kafka::streaming::processors::{CaseMetadata, ProcessMetadata};
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::collections::HashMap;
 use std::time::Duration;
+use log::warn;
 use uuid::Uuid;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::pipelines::context::PipelineContext;
@@ -166,7 +167,9 @@ impl DfgDataStructures {
         self.observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
 
         match self.to_event_log_info(process_metadata.process_name.as_str()) {
-            None => {}
+            None => {
+                warn!("Failed to create offline event log info")
+            }
             Some(log_info) => {
                 context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
             }
