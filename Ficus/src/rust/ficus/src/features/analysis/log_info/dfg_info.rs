@@ -42,7 +42,7 @@ impl OfflineDfgInfo {
         OfflineDfgInfo {
             followed_events,
             precedes_events,
-            events_with_single_follower
+            events_with_single_follower,
         }
     }
 }

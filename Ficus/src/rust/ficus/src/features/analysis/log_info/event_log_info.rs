@@ -13,14 +13,14 @@ pub trait EventLogCounts {
 
 struct EventLogCountsImpl {
     traces_count: usize,
-    events_count: usize
+    events_count: usize,
 }
 
 impl EventLogCountsImpl {
     pub fn new(traces_count: usize, events_count: usize) -> Self {
         Self {
             traces_count,
-            events_count
+            events_count,
         }
     }
 }
@@ -57,22 +57,30 @@ impl OfflineEventLogInfo {
     pub fn create_from_relations(relations: &HashMap<(String, String), u64>, event_classes_count: &HashMap<String, usize>) -> Self {
         let dfg_info = OfflineDfgInfo::create_from_relations(relations);
 
-        let start_event_classes = event_classes_count.keys().filter(|c| match dfg_info.precedes_events.get(*c) {
-            None => true,
-            Some(precedes) => precedes.len() == 0
-        }).map(|c| c.to_owned()).collect();
+        let start_event_classes = event_classes_count
+            .keys()
+            .filter(|c| match dfg_info.precedes_events.get(*c) {
+                None => true,
+                Some(precedes) => precedes.len() == 0,
+            })
+            .map(|c| c.to_owned())
+            .collect();
 
-        let end_event_classes = event_classes_count.keys().filter(|c| match dfg_info.followed_events.get(*c) {
-            None => true,
-            Some(followers) => followers.len() == 0
-        }).map(|c| c.to_owned()).collect();
+        let end_event_classes = event_classes_count
+            .keys()
+            .filter(|c| match dfg_info.followed_events.get(*c) {
+                None => true,
+                Some(followers) => followers.len() == 0,
+            })
+            .map(|c| c.to_owned())
+            .collect();
 
         Self {
             counts: None,
             event_classes_counts: event_classes_count.clone(),
             dfg_info,
             start_event_classes,
-            end_event_classes
+            end_event_classes,
         }
     }
 
@@ -190,7 +198,7 @@ impl EventLogInfo for OfflineEventLogInfo {
     fn counts(&self) -> Option<&dyn EventLogCounts> {
         match self.counts.as_ref() {
             None => None,
-            Some(counts) => Some(counts as &dyn EventLogCounts)
+            Some(counts) => Some(counts as &dyn EventLogCounts),
         }
     }
 

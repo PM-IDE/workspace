@@ -16,7 +16,11 @@ struct SlidingWindowEntry<TValue: Clone> {
 
 impl<TValue: Clone> SlidingWindowEntry<TValue> {
     pub fn new(value: Option<TValue>, timestamp: DateTime<Utc>) -> Self {
-        Self { value, timestamp, count: 1 }
+        Self {
+            value,
+            timestamp,
+            count: 1,
+        }
     }
 
     pub fn to_streaming_counter_entry<TKey>(&self, key: TKey, approx_freq: f64) -> StreamingCounterEntry<TKey, TValue> {
@@ -49,7 +53,7 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
     fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
         match self.storage.get(key) {
             None => None,
-            Some(entry) => Some(entry.to_streaming_counter_entry(key.clone(), entry.count as f64 / self.counts_sum() as f64))
+            Some(entry) => Some(entry.to_streaming_counter_entry(key.clone(), entry.count as f64 / self.counts_sum() as f64)),
         }
     }
 
@@ -63,7 +67,6 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
             .collect()
     }
 }
-
 
 impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
     pub fn new(invalidator: Invalidator<TValue>) -> Self {
@@ -104,7 +107,7 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
 
         let value = match value {
             ValueUpdateKind::Replace(new_value) => Some(new_value),
-            ValueUpdateKind::DoNothing => None
+            ValueUpdateKind::DoNothing => None,
         };
 
         self.storage.insert(key, SlidingWindowEntry::new(value, stamp));

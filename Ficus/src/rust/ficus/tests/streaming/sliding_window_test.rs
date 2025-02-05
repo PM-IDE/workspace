@@ -1,8 +1,8 @@
 use chrono::Utc;
+use ficus::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
 use ficus::features::streaming::counters::sliding_window::SlidingWindow;
 use std::ops::{Add, Sub};
 use std::time::Duration;
-use ficus::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
 
 #[test]
 pub fn test_timed_window() {
@@ -18,7 +18,11 @@ pub fn test_timed_window() {
     }
 
     window.invalidate();
-    let mut retained = window.all_frequencies().iter().map(|p| (*p.key(), *p.value().unwrap(), p.absolute_count() as usize)).collect::<Vec<(i32, i32, usize)>>();
+    let mut retained = window
+        .all_frequencies()
+        .iter()
+        .map(|p| (*p.key(), *p.value().unwrap(), p.absolute_count() as usize))
+        .collect::<Vec<(i32, i32, usize)>>();
 
     retained.sort_by(|f, s| f.0.cmp(&s.0));
 

@@ -6,7 +6,7 @@ pub struct StreamingCounterEntry<TKey, TValue> {
     key: TKey,
     value: Option<TValue>,
     approx_frequency: f64,
-    absolute_count: u64
+    absolute_count: u64,
 }
 
 impl<TKey, TValue> StreamingCounterEntry<TKey, TValue> {
@@ -15,7 +15,7 @@ impl<TKey, TValue> StreamingCounterEntry<TKey, TValue> {
             key,
             value,
             approx_frequency,
-            absolute_count
+            absolute_count,
         }
     }
 
@@ -28,7 +28,9 @@ impl<TKey, TValue> StreamingCounterEntry<TKey, TValue> {
     pub fn approx_frequency(&self) -> f64 {
         self.approx_frequency
     }
-    pub fn absolute_count(&self) -> u64 { self.absolute_count }
+    pub fn absolute_count(&self) -> u64 {
+        self.absolute_count
+    }
 }
 
 pub enum ValueUpdateKind<TValue> {
@@ -50,6 +52,9 @@ where
     }
 
     fn to_count_map(&self) -> HashMap<TKey, f64> {
-        self.all_frequencies().into_iter().map(|entry| (entry.key().clone(), entry.approx_frequency())).collect()
+        self.all_frequencies()
+            .into_iter()
+            .map(|entry| (entry.key().clone(), entry.approx_frequency()))
+            .collect()
     }
 }

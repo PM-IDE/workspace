@@ -1,27 +1,27 @@
 use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
+use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
 use crate::features::streaming::counters::lossy_count::LossyCount;
 use crate::features::streaming::counters::sliding_window::SlidingWindow;
 use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
 use crate::grpc::kafka::streaming::processors::{CaseMetadata, ProcessMetadata};
+use crate::pipelines::context::PipelineContext;
+use crate::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
+use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
+use log::warn;
 use std::collections::HashMap;
 use std::time::Duration;
-use log::warn;
 use uuid::Uuid;
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{EVENT_LOG_INFO_KEY};
-use crate::utils::user_data::user_data::UserData;
 
 #[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct LossyCountDfgDataStructures {
     error: f64,
     processes_dfg: HashMap<String, LossyCount<(String, String), ()>>,
     traces_last_event_classes: LossyCount<Uuid, String>,
-    event_classes_count: HashMap<String, LossyCount<String, ()>>
+    event_classes_count: HashMap<String, LossyCount<String, ()>>,
 }
 
 impl LossyCountDfgDataStructures {
@@ -30,7 +30,7 @@ impl LossyCountDfgDataStructures {
             error,
             processes_dfg: HashMap::new(),
             traces_last_event_classes: LossyCount::new(error),
-            event_classes_count: HashMap::new()
+            event_classes_count: HashMap::new(),
         }
     }
 
@@ -42,7 +42,10 @@ impl LossyCountDfgDataStructures {
     }
 
     pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
-        let lc = self.event_classes_count.entry(process_name.to_owned()).or_insert(LossyCount::new(self.error));
+        let lc = self
+            .event_classes_count
+            .entry(process_name.to_owned())
+            .or_insert(LossyCount::new(self.error));
         lc.observe(event_class, ValueUpdateKind::DoNothing);
     }
 
@@ -61,12 +64,12 @@ impl LossyCountDfgDataStructures {
     pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
         let event_classes_count = match self.event_classes_count.get(process_name) {
             None => return None,
-            Some(classes) => classes.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect()
+            Some(classes) => classes.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect(),
         };
 
         let relations = match self.processes_dfg.get(process_name) {
             None => return None,
-            Some(dfg) => dfg.to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect()
+            Some(dfg) => dfg.to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect(),
         };
 
         Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
@@ -78,7 +81,7 @@ pub(in crate::grpc::kafka::streaming::t2) struct SlidingWindowDfgDataStructures 
     element_lifetime: Duration,
     processes_dfg: HashMap<String, SlidingWindow<(String, String), ()>>,
     traces_last_event_classes: SlidingWindow<Uuid, String>,
-    event_classes_count: HashMap<String, SlidingWindow<String, ()>>
+    event_classes_count: HashMap<String, SlidingWindow<String, ()>>,
 }
 
 impl SlidingWindowDfgDataStructures {
@@ -87,7 +90,7 @@ impl SlidingWindowDfgDataStructures {
             element_lifetime,
             processes_dfg: HashMap::new(),
             traces_last_event_classes: SlidingWindow::new_time(element_lifetime),
-            event_classes_count: HashMap::new()
+            event_classes_count: HashMap::new(),
         }
     }
 
@@ -99,12 +102,16 @@ impl SlidingWindowDfgDataStructures {
     }
 
     pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
-        let sw = self.event_classes_count.entry(process_name.to_owned()).or_insert(SlidingWindow::new_time(self.element_lifetime));
+        let sw = self
+            .event_classes_count
+            .entry(process_name.to_owned())
+            .or_insert(SlidingWindow::new_time(self.element_lifetime));
         sw.observe(event_class, ValueUpdateKind::DoNothing);
     }
 
     pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
-        self.traces_last_event_classes.observe(case_id, ValueUpdateKind::Replace(last_class));
+        self.traces_last_event_classes
+            .observe(case_id, ValueUpdateKind::Replace(last_class));
     }
 
     pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
@@ -117,12 +124,12 @@ impl SlidingWindowDfgDataStructures {
     pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
         let event_classes_count = match self.event_classes_count.get(process_name) {
             None => return None,
-            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect()
+            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect(),
         };
 
         let relations = match self.processes_dfg.get(process_name) {
             None => return None,
-            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect()
+            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect(),
         };
 
         Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
@@ -136,7 +143,11 @@ pub(in crate::grpc::kafka::streaming::t2) enum DfgDataStructures {
 }
 
 impl DfgDataStructures {
-    pub fn process_bxes_trace(&mut self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    pub fn process_bxes_trace(
+        &mut self,
+        trace: BxesKafkaTrace,
+        context: &mut PipelineContext,
+    ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         if trace.events().is_empty() {
             return Ok(());
         }
@@ -226,7 +237,7 @@ impl DfgDataStructures {
     fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
         match self {
             DfgDataStructures::LossyCount(lc) => lc.to_event_log_info(process_name),
-            DfgDataStructures::SlidingWindow(sw) => sw.to_event_log_info(process_name)
+            DfgDataStructures::SlidingWindow(sw) => sw.to_event_log_info(process_name),
         }
     }
 }

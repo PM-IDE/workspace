@@ -424,7 +424,7 @@ fn try_convert_to_grpc_event_log_info(value: &dyn Any) -> Option<GrpcContextValu
     } else {
         let log_info = value.downcast_ref::<OfflineEventLogInfo>().unwrap();
         if log_info.counts().is_none() {
-            return None
+            return None;
         }
 
         Some(GrpcContextValue {
