@@ -6,14 +6,16 @@ pub struct StreamingCounterEntry<TKey, TValue> {
     key: TKey,
     value: Option<TValue>,
     approx_frequency: f64,
+    absolute_count: u64
 }
 
 impl<TKey, TValue> StreamingCounterEntry<TKey, TValue> {
-    pub fn new(key: TKey, value: Option<TValue>, approx_frequency: f64) -> Self {
+    pub fn new(key: TKey, value: Option<TValue>, approx_frequency: f64, absolute_count: u64) -> Self {
         Self {
             key,
             value,
             approx_frequency,
+            absolute_count
         }
     }
 
@@ -26,6 +28,7 @@ impl<TKey, TValue> StreamingCounterEntry<TKey, TValue> {
     pub fn approx_frequency(&self) -> f64 {
         self.approx_frequency
     }
+    pub fn absolute_count(&self) -> u64 { self.absolute_count }
 }
 
 pub enum ValueUpdateKind<TValue> {

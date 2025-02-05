@@ -89,6 +89,7 @@ where
             pair.0.clone(),
             pair.1.value.clone(),
             pair.1.freq as f64 / (self.observed_items_count as f64),
+            pair.1.freq
         )
     }
 

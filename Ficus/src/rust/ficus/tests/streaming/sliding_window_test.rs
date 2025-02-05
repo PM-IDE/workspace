@@ -18,7 +18,7 @@ pub fn test_timed_window() {
     }
 
     window.invalidate();
-    let mut retained = window.all_frequencies().iter().map(|p| (*p.key(), *p.value().unwrap(), p.approx_frequency() as usize)).collect::<Vec<(i32, i32, usize)>>();
+    let mut retained = window.all_frequencies().iter().map(|p| (*p.key(), *p.value().unwrap(), p.absolute_count() as usize)).collect::<Vec<(i32, i32, usize)>>();
 
     retained.sort_by(|f, s| f.0.cmp(&s.0));
 

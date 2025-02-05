@@ -19,8 +19,8 @@ impl<TValue: Clone> SlidingWindowEntry<TValue> {
         Self { value, timestamp, count: 1 }
     }
 
-    pub fn to_streaming_counter_entry<TKey>(&self, key: TKey) -> StreamingCounterEntry<TKey, TValue> {
-        StreamingCounterEntry::new(key, self.value.clone(), self.count as f64)
+    pub fn to_streaming_counter_entry<TKey>(&self, key: TKey, approx_freq: f64) -> StreamingCounterEntry<TKey, TValue> {
+        StreamingCounterEntry::new(key, self.value.clone(), approx_freq, self.count)
     }
 }
 
@@ -49,15 +49,17 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
     fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
         match self.storage.get(key) {
             None => None,
-            Some(entry) => Some(entry.to_streaming_counter_entry(key.clone()))
+            Some(entry) => Some(entry.to_streaming_counter_entry(key.clone(), entry.count as f64 / self.counts_sum() as f64))
         }
     }
 
     fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>> {
+        let all_count: u64 = self.counts_sum();
+
         self.storage
             .iter()
             .filter(|(_, v)| v.count as f64 > threshold)
-            .map(|(k, v)| StreamingCounterEntry::new(k.clone(), v.value.clone(), v.count as f64))
+            .map(|(k, v)| StreamingCounterEntry::new(k.clone(), v.value.clone(), v.count as f64 / all_count as f64, v.count))
             .collect()
     }
 }
@@ -83,6 +85,10 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
 
     fn add_current_stamp(&mut self, key: TKey, value: ValueUpdateKind<TValue>) {
         self.add(key, value, Utc::now());
+    }
+
+    fn counts_sum(&self) -> u64 {
+        self.storage.iter().map(|(_, v)| v.count).sum()
     }
 
     pub fn add(&mut self, key: TKey, value: ValueUpdateKind<TValue>, stamp: DateTime<Utc>) {
