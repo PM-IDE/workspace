@@ -103,7 +103,7 @@ impl SlidingWindowDfgDataStructures {
     }
 
     pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
-        self.traces_last_event_classes.add_current_stamp(case_id, last_class);
+        self.traces_last_event_classes.add_current_stamp(case_id, ValueUpdateKind::Replace(last_class));
     }
 
     pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
@@ -116,12 +116,12 @@ impl SlidingWindowDfgDataStructures {
     pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
         let event_classes_count = match self.event_classes_count.get(process_name) {
             None => return None,
-            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect()
+            Some(sw) => sw.to_count_map().into_iter().filter(|(k, v)| v.is_some()).map(|(k, v)| (k, v.unwrap())).map(|(k, v)| (k, v as usize)).collect()
         };
 
         let relations = match self.processes_dfg.get(process_name) {
             None => return None,
-            Some(sw) => sw.to_count_map()
+            Some(sw) => sw.to_count_map().into_iter().filter(|(k, v)| v.is_some()).map(|(k, v)| (k, v.unwrap())).collect()
         };
 
         Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))

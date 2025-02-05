@@ -1,3 +1,4 @@
+use crate::features::streaming::counters::core::ValueUpdateKind;
 use chrono::{DateTime, Utc};
 use num_traits::Num;
 use std::collections::HashMap;
@@ -8,12 +9,12 @@ use std::time::Duration;
 
 #[derive(Clone)]
 struct SlidingWindowEntry<TValue> {
-    value: TValue,
+    value: Option<TValue>,
     timestamp: DateTime<Utc>,
 }
 
 impl<TValue> SlidingWindowEntry<TValue> {
-    pub fn new(value: TValue, timestamp: DateTime<Utc>) -> Self {
+    pub fn new(value: Option<TValue>, timestamp: DateTime<Utc>) -> Self {
         Self { value, timestamp }
     }
 }
@@ -24,7 +25,7 @@ pub enum InvalidationResult {
     Retain,
 }
 
-pub type Invalidator<TValue> = Rc<Box<dyn Fn(&TValue, &DateTime<Utc>) -> InvalidationResult>>;
+pub type Invalidator<TValue> = Rc<Box<dyn Fn(Option<&TValue>, &DateTime<Utc>) -> InvalidationResult>>;
 
 #[derive(Clone)]
 pub struct SlidingWindow<TKey: Hash + Eq + Clone, TValue: Clone> {
@@ -53,42 +54,53 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
         }
     }
 
-    pub fn add_current_stamp(&mut self, key: TKey, value: TValue) {
+    pub fn add_current_stamp(&mut self, key: TKey, value: ValueUpdateKind<TValue>) {
         self.add(key, value, Utc::now());
     }
 
-    pub fn add(&mut self, key: TKey, value: TValue, stamp: DateTime<Utc>) {
+    pub fn add(&mut self, key: TKey, value: ValueUpdateKind<TValue>, stamp: DateTime<Utc>) {
+        let value = match value {
+            ValueUpdateKind::Replace(new_value) => Some(new_value),
+            ValueUpdateKind::DoNothing => match self.storage.get(&key) {
+                None => None,
+                Some(value) => value.value.clone()
+            }
+        };
+
         self.storage.insert(key, SlidingWindowEntry::new(value, stamp));
     }
 
     pub fn get(&self, key: &TKey) -> Option<&TValue> {
         match self.storage.get(key) {
             None => None,
-            Some(entry) => Some(&entry.value),
+            Some(entry) => entry.value.as_ref(),
         }
     }
 
-    pub fn all(&self) -> Vec<(&TKey, &TValue)> {
-        self.storage.iter().map(|p| (p.0, &p.1.value)).collect()
+    pub fn all(&self) -> Vec<(&TKey, Option<&TValue>)> {
+        self.storage.iter().map(|p| (p.0, p.1.value.as_ref())).collect()
     }
 
     pub fn replace_current_stamp(&mut self, key: TKey, value_factory: impl Fn(Option<&TValue>) -> TValue) {
         let new_value = value_factory(match self.storage.get(&key) {
             None => None,
-            Some(value) => Some(&value.value),
+            Some(value) => value.value.as_ref(),
         });
 
-        self.add_current_stamp(key, new_value);
+        self.add_current_stamp(key, ValueUpdateKind::Replace(new_value));
     }
 
     pub fn invalidate(&mut self) {
         let invalidator = self.invalidator.clone();
         self.storage
-            .retain(|_, value| invalidator(&value.value, &value.timestamp) == InvalidationResult::Retain)
+            .retain(|_, value| invalidator(value.value.as_ref(), &value.timestamp) == InvalidationResult::Retain)
     }
 
-    pub fn to_count_map(&self) -> HashMap<TKey, TValue> {
-        self.all().into_iter().map(|(k, v)| (k.clone(), v.clone())).collect()
+    pub fn to_count_map(&self) -> HashMap<TKey, Option<TValue>> {
+        self.all().into_iter().map(|(k, v)| (k.clone(), match v {
+            None => None,
+            Some(v) => Some(v.clone())
+        })).collect()
     }
 }
 
