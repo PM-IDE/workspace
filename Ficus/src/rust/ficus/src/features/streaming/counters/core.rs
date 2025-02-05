@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::hash::Hash;
 
 #[derive(Debug)]
@@ -37,11 +38,15 @@ where
     TKey: Hash + Eq + Clone,
     TValue: Clone,
 {
-    fn observe(&mut self, element: TKey, value: ValueUpdateKind<TValue>);
-    fn get(&self, element: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>>;
+    fn observe(&mut self, key: TKey, value: ValueUpdateKind<TValue>);
+    fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>>;
     fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>>;
 
     fn all_frequencies(&self) -> Vec<StreamingCounterEntry<TKey, TValue>> {
         self.above_threshold(0.0)
+    }
+
+    fn to_count_map(&self) -> HashMap<TKey, f64> {
+        self.all_frequencies().into_iter().map(|entry| (entry.key().clone(), entry.approx_frequency())).collect()
     }
 }

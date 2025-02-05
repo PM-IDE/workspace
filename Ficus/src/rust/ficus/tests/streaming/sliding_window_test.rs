@@ -2,7 +2,7 @@ use chrono::Utc;
 use ficus::features::streaming::counters::sliding_window::SlidingWindow;
 use std::ops::{Add, Sub};
 use std::time::Duration;
-use ficus::features::streaming::counters::core::ValueUpdateKind;
+use ficus::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
 
 #[test]
 pub fn test_timed_window() {
@@ -18,8 +18,9 @@ pub fn test_timed_window() {
     }
 
     window.invalidate();
-    let mut retained = window.all().iter().map(|p| (*p.0, *p.1.unwrap())).collect::<Vec<(i32, i32)>>();
+    let mut retained = window.all_frequencies().iter().map(|p| (*p.key(), *p.value().unwrap(), p.approx_frequency() as usize)).collect::<Vec<(i32, i32, usize)>>();
+
     retained.sort_by(|f, s| f.0.cmp(&s.0));
 
-    assert_eq!(retained, vec![(6, 6), (7, 7), (8, 8), (9, 9)])
+    assert_eq!(retained, vec![(6, 6, 1), (7, 7, 1), (8, 8, 1), (9, 9, 1)])
 }

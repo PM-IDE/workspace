@@ -1,4 +1,4 @@
-use crate::features::streaming::counters::core::ValueUpdateKind;
+use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry, ValueUpdateKind};
 use chrono::{DateTime, Utc};
 use num_traits::Num;
 use std::collections::HashMap;
@@ -8,14 +8,19 @@ use std::rc::Rc;
 use std::time::Duration;
 
 #[derive(Clone)]
-struct SlidingWindowEntry<TValue> {
+struct SlidingWindowEntry<TValue: Clone> {
     value: Option<TValue>,
+    count: u64,
     timestamp: DateTime<Utc>,
 }
 
-impl<TValue> SlidingWindowEntry<TValue> {
+impl<TValue: Clone> SlidingWindowEntry<TValue> {
     pub fn new(value: Option<TValue>, timestamp: DateTime<Utc>) -> Self {
-        Self { value, timestamp }
+        Self { value, timestamp, count: 1 }
+    }
+
+    pub fn to_streaming_counter_entry<TKey>(&self, key: TKey) -> StreamingCounterEntry<TKey, TValue> {
+        StreamingCounterEntry::new(key, self.value.clone(), self.count as f64)
     }
 }
 
@@ -36,6 +41,28 @@ pub struct SlidingWindow<TKey: Hash + Eq + Clone, TValue: Clone> {
 unsafe impl<TKey: Hash + Eq + Clone, TValue: Clone> Sync for SlidingWindow<TKey, TValue> {}
 unsafe impl<TKey: Hash + Eq + Clone, TValue: Clone> Send for SlidingWindow<TKey, TValue> {}
 
+impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for SlidingWindow<TKey, TValue> {
+    fn observe(&mut self, key: TKey, value: ValueUpdateKind<TValue>) {
+        self.add_current_stamp(key, value);
+    }
+
+    fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
+        match self.storage.get(key) {
+            None => None,
+            Some(entry) => Some(entry.to_streaming_counter_entry(key.clone()))
+        }
+    }
+
+    fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>> {
+        self.storage
+            .iter()
+            .filter(|(_, v)| v.count as f64 > threshold)
+            .map(|(k, v)| StreamingCounterEntry::new(k.clone(), v.value.clone(), v.count as f64))
+            .collect()
+    }
+}
+
+
 impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
     pub fn new(invalidator: Invalidator<TValue>) -> Self {
         Self {
@@ -54,61 +81,32 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
         }
     }
 
-    pub fn add_current_stamp(&mut self, key: TKey, value: ValueUpdateKind<TValue>) {
+    fn add_current_stamp(&mut self, key: TKey, value: ValueUpdateKind<TValue>) {
         self.add(key, value, Utc::now());
     }
 
     pub fn add(&mut self, key: TKey, value: ValueUpdateKind<TValue>, stamp: DateTime<Utc>) {
+        if let Some(entry) = self.storage.get_mut(&key) {
+            entry.count += 1;
+            entry.timestamp = stamp;
+            if let ValueUpdateKind::Replace(new_value) = value {
+                entry.value = Some(new_value);
+            }
+
+            return;
+        }
+
         let value = match value {
             ValueUpdateKind::Replace(new_value) => Some(new_value),
-            ValueUpdateKind::DoNothing => match self.storage.get(&key) {
-                None => None,
-                Some(value) => value.value.clone()
-            }
+            ValueUpdateKind::DoNothing => None
         };
 
         self.storage.insert(key, SlidingWindowEntry::new(value, stamp));
-    }
-
-    pub fn get(&self, key: &TKey) -> Option<&TValue> {
-        match self.storage.get(key) {
-            None => None,
-            Some(entry) => entry.value.as_ref(),
-        }
-    }
-
-    pub fn all(&self) -> Vec<(&TKey, Option<&TValue>)> {
-        self.storage.iter().map(|p| (p.0, p.1.value.as_ref())).collect()
-    }
-
-    pub fn replace_current_stamp(&mut self, key: TKey, value_factory: impl Fn(Option<&TValue>) -> TValue) {
-        let new_value = value_factory(match self.storage.get(&key) {
-            None => None,
-            Some(value) => value.value.as_ref(),
-        });
-
-        self.add_current_stamp(key, ValueUpdateKind::Replace(new_value));
     }
 
     pub fn invalidate(&mut self) {
         let invalidator = self.invalidator.clone();
         self.storage
             .retain(|_, value| invalidator(value.value.as_ref(), &value.timestamp) == InvalidationResult::Retain)
-    }
-
-    pub fn to_count_map(&self) -> HashMap<TKey, Option<TValue>> {
-        self.all().into_iter().map(|(k, v)| (k.clone(), match v {
-            None => None,
-            Some(v) => Some(v.clone())
-        })).collect()
-    }
-}
-
-impl<TKey: Hash + Eq + Clone, TValue: Num + Clone> SlidingWindow<TKey, TValue> {
-    pub fn increment_current_stamp(&mut self, key: TKey) {
-        self.replace_current_stamp(key, |old| match old {
-            None => TValue::one(),
-            Some(old) => TValue::add(old.clone(), TValue::one()),
-        });
     }
 }

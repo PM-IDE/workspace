@@ -13,7 +13,7 @@ use log::warn;
 use uuid::Uuid;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{EVENT_LOG_INFO, EVENT_LOG_INFO_KEY};
+use crate::pipelines::keys::context_keys::{EVENT_LOG_INFO_KEY};
 use crate::utils::user_data::user_data::UserData;
 
 #[derive(Clone)]
@@ -76,9 +76,9 @@ impl LossyCountDfgDataStructures {
 #[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct SlidingWindowDfgDataStructures {
     element_lifetime: Duration,
-    processes_dfg: HashMap<String, SlidingWindow<(String, String), u64>>,
+    processes_dfg: HashMap<String, SlidingWindow<(String, String), ()>>,
     traces_last_event_classes: SlidingWindow<Uuid, String>,
-    event_classes_count: HashMap<String, SlidingWindow<String, u64>>
+    event_classes_count: HashMap<String, SlidingWindow<String, ()>>
 }
 
 impl SlidingWindowDfgDataStructures {
@@ -95,34 +95,34 @@ impl SlidingWindowDfgDataStructures {
         self.processes_dfg
             .entry(process_name.to_owned())
             .or_insert(SlidingWindow::new_time(self.element_lifetime))
-            .increment_current_stamp(relation);
+            .observe(relation, ValueUpdateKind::DoNothing);
     }
 
     pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
         let sw = self.event_classes_count.entry(process_name.to_owned()).or_insert(SlidingWindow::new_time(self.element_lifetime));
-        sw.increment_current_stamp(event_class);
+        sw.observe(event_class, ValueUpdateKind::DoNothing);
     }
 
     pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
-        self.traces_last_event_classes.add_current_stamp(case_id, ValueUpdateKind::Replace(last_class));
+        self.traces_last_event_classes.observe(case_id, ValueUpdateKind::Replace(last_class));
     }
 
     pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
         match self.traces_last_event_classes.get(case_id) {
             None => None,
-            Some(value) => Some(value.to_owned()),
+            Some(value) => Some(value.value().unwrap().to_owned()),
         }
     }
 
     pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
         let event_classes_count = match self.event_classes_count.get(process_name) {
             None => return None,
-            Some(sw) => sw.to_count_map().into_iter().filter(|(k, v)| v.is_some()).map(|(k, v)| (k, v.unwrap())).map(|(k, v)| (k, v as usize)).collect()
+            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect()
         };
 
         let relations = match self.processes_dfg.get(process_name) {
             None => return None,
-            Some(sw) => sw.to_count_map().into_iter().filter(|(k, v)| v.is_some()).map(|(k, v)| (k, v.unwrap())).collect()
+            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect()
         };
 
         Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
@@ -185,11 +185,11 @@ impl DfgDataStructures {
                 for (_, sw) in sw.processes_dfg.iter_mut() {
                     sw.invalidate();
                 }
-                
+
                 for (_, sw) in sw.event_classes_count.iter_mut() {
                     sw.invalidate();
                 }
-                
+
                 sw.traces_last_event_classes.invalidate();
             }
         }
