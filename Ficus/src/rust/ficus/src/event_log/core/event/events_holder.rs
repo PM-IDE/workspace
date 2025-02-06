@@ -7,6 +7,7 @@ use crate::{
 
 use super::event::Event;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use log::debug;
 
 #[derive(Debug)]
 pub struct EventsHolder<TEvent>
@@ -72,6 +73,8 @@ where
         for index in 0..events.len() {
             if !predicate(&events[index].borrow()) {
                 new_events.push(events[index].clone())
+            } else {
+                debug!("Removing event at index {}: {:?}", index, events[index].borrow())
             }
         }
 

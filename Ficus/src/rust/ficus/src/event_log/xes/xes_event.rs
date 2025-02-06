@@ -10,6 +10,7 @@ use crate::{
     utils::{user_data::user_data::UserDataImpl, vec_utils},
 };
 
+#[derive(Debug)]
 pub struct XesEventImpl {
     event_base: EventBase,
     payload: Option<HashMap<String, EventPayloadValue>>,

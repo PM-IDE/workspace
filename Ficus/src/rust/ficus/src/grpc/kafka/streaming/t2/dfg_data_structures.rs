@@ -11,7 +11,7 @@ use crate::pipelines::context::PipelineContext;
 use crate::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
 use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
-use log::warn;
+use log::{debug, warn};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -47,6 +47,8 @@ unsafe impl Sync for DfgDataStructureBase {}
 
 impl DfgDataStructureBase {
     pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
+        debug!("Observing relation, process: {}, relation: ({}, {})", process_name, &relation.0, &relation.1);
+
         self.processes_dfg
             .entry(process_name.to_owned())
             .or_insert(self.factory.create())
@@ -55,6 +57,8 @@ impl DfgDataStructureBase {
     }
 
     pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
+        debug!("Observing event class, process: {}, event class: {}", process_name, event_class);
+
         self.event_classes_count
             .entry(process_name.to_owned())
             .or_insert(self.factory.create())
@@ -63,6 +67,8 @@ impl DfgDataStructureBase {
     }
 
     pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: String) {
+        debug!("Observing last trace class, case id: {}, last class: {}", &case_id, last_class.as_str());
+
         self.traces_last_event_classes
             .borrow_mut()
             .observe(case_id, ValueUpdateKind::Replace(last_class))
@@ -86,10 +92,14 @@ impl DfgDataStructureBase {
             Some(dfg) => dfg.borrow().to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect(),
         };
 
+        debug!("Creating offline dfg info from relations: {:?}, event classes count: {:?}", &relations, &event_classes_count);
+
         Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
     }
 
     pub fn invalidate(&self) {
+        debug!("Started invalidating DfgDataStructureBase");
+
         for (_, sw) in self.processes_dfg.iter() {
             sw.borrow_mut().invalidate();
         }
@@ -99,6 +109,8 @@ impl DfgDataStructureBase {
         }
 
         self.traces_last_event_classes.borrow_mut().invalidate();
+
+        debug!("Finished invalidating DfgDataStructureBase");
     }
 }
 
