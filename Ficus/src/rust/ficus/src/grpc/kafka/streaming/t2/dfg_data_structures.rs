@@ -141,36 +141,34 @@ impl DfgDataStructures {
             return Ok(());
         }
 
-        let process_metadata = ProcessMetadata::create_from(trace.metadata())?;
-        let case_metadata = CaseMetadata::create_from(trace.metadata())?;
-
         let xes_trace = match read_bxes_events(trace.events()) {
             Ok(xes_trace) => xes_trace,
             Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err)),
         };
 
+        let process_metadata = ProcessMetadata::create_from(trace.metadata())?;
+        let case_metadata = CaseMetadata::create_from(trace.metadata())?;
+        let process_name = process_metadata.process_name.as_str();
+
         for i in 0..(xes_trace.events().len() - 1) {
             let first_name = xes_trace.events().get(i).unwrap().borrow().name().to_owned();
             let second_name = xes_trace.events().get(i + 1).unwrap().borrow().name().to_owned();
 
-            self.base
-                .observe_dfg_relation(process_metadata.process_name.as_str(), (first_name.clone(), second_name));
-            self.base.observe_event_class(process_metadata.process_name.as_str(), first_name);
+            self.base.observe_dfg_relation(process_name, (first_name.clone(), second_name));
+            self.base.observe_event_class(process_name, first_name);
         }
 
         if let Some(last_seen_class) = self.base.last_seen_event_class(&case_metadata.case_id) {
             let first_class = xes_trace.events().first().unwrap().borrow().name().to_owned();
-            self.base
-                .observe_dfg_relation(process_metadata.process_name.as_str(), (last_seen_class, first_class));
+            self.base.observe_dfg_relation(process_name, (last_seen_class, first_class));
         }
 
         let new_trace_last_class = xes_trace.events().last().unwrap().borrow().name().to_owned();
-        self.base
-            .observe_event_class(process_metadata.process_name.as_str(), new_trace_last_class.clone());
-        self.base
-            .observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
 
-        match self.base.to_event_log_info(process_metadata.process_name.as_str()) {
+        self.base.observe_event_class(process_name, new_trace_last_class.clone());
+        self.base.observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
+
+        match self.base.to_event_log_info(process_name) {
             None => {
                 warn!("Failed to create offline event log info")
             }
