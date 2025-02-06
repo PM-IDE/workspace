@@ -6,6 +6,7 @@ use crate::features::analysis::log_info::event_log_info::EventLogInfo;
 use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use std::collections::HashMap;
+use log::warn;
 
 pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
     let mut graph = Graph::empty();
@@ -19,13 +20,18 @@ pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
     for class in info.all_event_classes() {
         if let Some(followers) = info.dfg_info().get_followed_events(class) {
             for (follower, count) in followers.iter() {
-                let first_id = classes_to_node_ids.get(class).unwrap();
-                let second_id = classes_to_node_ids.get(follower).unwrap();
+                if let Some(first_id) = classes_to_node_ids.get(class) {
+                    if let Some(second_id) = classes_to_node_ids.get(follower) {
+                        let data = Some(HeapedOrOwned::Owned(count.to_string()));
+                        let connection_data = NodesConnectionData::new(data, *count as f64);
 
-                let data = Some(HeapedOrOwned::Owned(count.to_string()));
-                let connection_data = NodesConnectionData::new(data, *count as f64);
-
-                graph.connect_nodes(first_id, second_id, connection_data);
+                        graph.connect_nodes(first_id, second_id, connection_data);
+                    } else {
+                        warn!("Failed to get graph node for follower {}", follower);
+                    }
+                } else {
+                    warn!("Failed to get graph node for class {}", class)
+                }
             }
         }
     }
