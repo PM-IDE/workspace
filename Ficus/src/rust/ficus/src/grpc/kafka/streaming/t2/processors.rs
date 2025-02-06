@@ -23,7 +23,7 @@ impl T2StreamingProcessor {
         }
     }
 
-    pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    pub fn observe(&self, trace: &BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         let mut dfg_data_structure = self.dfg_data_structure.lock().expect("Must acquire lock");
 
         dfg_data_structure.invalidate();

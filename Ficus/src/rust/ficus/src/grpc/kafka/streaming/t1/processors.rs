@@ -4,17 +4,13 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::grpc::events::events_handler::CaseName;
-use crate::grpc::kafka::models::{
-    LogUpdateResult, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_NAME_PARTS, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
-};
-use crate::grpc::kafka::streaming::processors::ExtractedTraceMetadata;
+use crate::grpc::kafka::models::{XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID};
+use crate::grpc::kafka::streaming::processors::{string_value_or_err, uuid_or_err};
 use crate::grpc::kafka::streaming::t1::filterers::T1LogFilterer;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::context::{LogMessageHandler, PipelineContext};
-use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
+use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
 use crate::utils::user_data::user_data::UserData;
-use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -38,13 +34,10 @@ impl T1StreamingProcessor {
         }
     }
 
-    pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    pub fn observe(&self, trace: &BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         match self.update_log(trace) {
-            Ok(update_result) => {
-                context.put_concrete(EVENT_LOG_KEY.key(), update_result.new_log);
-                context.put_concrete(PROCESS_NAME.key(), update_result.process_name);
-                context.put_concrete(CASE_NAME.key(), update_result.case_name);
-                context.put_concrete(UNSTRUCTURED_METADATA.key(), update_result.unstructured_metadata);
+            Ok(new_log) => {
+                context.put_concrete(EVENT_LOG_KEY.key(), new_log);
 
                 Ok(())
             }
@@ -58,20 +51,11 @@ impl T1StreamingProcessor {
 }
 
 impl T1StreamingProcessor {
-    fn update_log(&self, trace: BxesKafkaTrace) -> Result<LogUpdateResult, XesFromBxesKafkaTraceCreatingError> {
-        let metadata = ExtractedTraceMetadata::create_from(trace.metadata())?;
+    fn update_log(&self, trace: &BxesKafkaTrace) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
+        let case_id = uuid_or_err(trace.metadata(), KAFKA_CASE_ID)?;
+        let case_name_parts_joined = string_value_or_err(trace.metadata(), KAFKA_CASE_NAME_PARTS)?;
 
-        let result = LogUpdateResult {
-            process_name: metadata.process.process_name,
-            case_name: CaseName {
-                display_name: metadata.case.case_display_name,
-                name_parts: metadata.case.case_name_parts,
-            },
-            new_log: self.get_or_create_event_log(&trace, metadata.case.case_id, metadata.case.case_name_parts_joined.as_str())?,
-            unstructured_metadata: metadata.unstructured_metadata
-        };
-
-        Ok(result)
+        self.get_or_create_event_log(trace, case_id, case_name_parts_joined.as_str())
     }
 
     fn get_or_create_event_log(

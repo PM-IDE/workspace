@@ -10,6 +10,9 @@ use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::collections::HashMap;
 use std::rc::Rc;
 use uuid::Uuid;
+use crate::grpc::events::events_handler::CaseName;
+use crate::pipelines::keys::context_keys::{CASE_NAME, PROCESS_NAME, UNSTRUCTURED_METADATA};
+use crate::utils::user_data::user_data::UserData;
 
 #[derive(Clone)]
 pub enum TracesProcessor {
@@ -20,9 +23,11 @@ pub enum TracesProcessor {
 impl TracesProcessor {
     pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         match self {
-            TracesProcessor::T1(processor) => processor.observe(trace, context),
-            TracesProcessor::T2(processor) => processor.observe(trace, context),
-        }
+            TracesProcessor::T1(processor) => processor.observe(&trace, context),
+            TracesProcessor::T2(processor) => processor.observe(&trace, context),
+        }?;
+
+        add_system_metadata(trace.metadata(), context)
     }
 }
 
@@ -80,7 +85,20 @@ impl ExtractedTraceMetadata {
     }
 }
 
-fn string_value_or_err(
+fn add_system_metadata(metadata: &HashMap<String, Rc<Box<BxesValue>>>, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    let metadata = ExtractedTraceMetadata::create_from(metadata)?;
+
+    context.put_concrete(PROCESS_NAME.key(), metadata.process.process_name);
+    context.put_concrete(UNSTRUCTURED_METADATA.key(), metadata.unstructured_metadata);
+    context.put_concrete(CASE_NAME.key(), CaseName {
+        display_name: metadata.case.case_display_name,
+        name_parts: metadata.case.case_name_parts
+    });
+
+    Ok(())
+}
+
+pub(in crate::grpc::kafka::streaming) fn string_value_or_err(
     metadata: &HashMap<String, Rc<Box<BxesValue>>>,
     key_name: &str,
 ) -> Result<String, XesFromBxesKafkaTraceCreatingError> {
@@ -93,7 +111,7 @@ fn string_value_or_err(
     }
 }
 
-fn value_or_err(
+pub(in crate::grpc::kafka::streaming) fn value_or_err(
     metadata: &HashMap<String, Rc<Box<BxesValue>>>,
     key: &str,
 ) -> Result<Rc<Box<BxesValue>>, XesFromBxesKafkaTraceCreatingError> {
@@ -104,7 +122,7 @@ fn value_or_err(
     }
 }
 
-fn uuid_or_err(metadata: &HashMap<String, Rc<Box<BxesValue>>>, key: &str) -> Result<Uuid, XesFromBxesKafkaTraceCreatingError> {
+pub(in crate::grpc::kafka::streaming) fn uuid_or_err(metadata: &HashMap<String, Rc<Box<BxesValue>>>, key: &str) -> Result<Uuid, XesFromBxesKafkaTraceCreatingError> {
     let value = value_or_err(metadata, key)?;
     if let BxesValue::Guid(id) = value.as_ref().as_ref() {
         Ok(id.clone())
@@ -113,7 +131,7 @@ fn uuid_or_err(metadata: &HashMap<String, Rc<Box<BxesValue>>>, key: &str) -> Res
     }
 }
 
-fn metadata_to_string_string_pairs(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Vec<(String, String)> {
+pub(in crate::grpc::kafka::streaming) fn metadata_to_string_string_pairs(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Vec<(String, String)> {
     metadata
         .iter()
         .map(|pair| {

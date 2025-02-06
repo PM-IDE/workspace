@@ -75,11 +75,3 @@ impl KafkaConsumerCreationDto {
         }
     }
 }
-
-#[derive(Clone)]
-pub(super) struct LogUpdateResult {
-    pub process_name: String,
-    pub case_name: CaseName,
-    pub new_log: XesEventLogImpl,
-    pub unstructured_metadata: Vec<(String, String)>,
-}
