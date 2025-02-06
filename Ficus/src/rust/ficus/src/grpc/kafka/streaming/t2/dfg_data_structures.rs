@@ -84,7 +84,7 @@ impl DfgDataStructureBase {
     pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
         let event_classes_count = match self.event_classes_count.get(process_name) {
             None => return None,
-            Some(classes) => classes.borrow().to_freq_count_map().into_iter().map(|(k, v)| (k, v.1 as usize)).collect(),
+            Some(classes) => classes.borrow().to_freq_count_map().into_iter().map(|(k, v)| (k, v.1)).collect(),
         };
 
         let relations = match self.processes_dfg.get(process_name) {

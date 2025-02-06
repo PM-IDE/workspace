@@ -9,7 +9,7 @@ fn test_event_log_info() {
     let log_info = OfflineEventLogInfo::create_from(creation_dto);
     assert_eq!(log_info.counts().expect("Must be present").events_count(), 6);
 
-    assert_eq!(log_info.event_count(&"A".to_string()), 2usize);
-    assert_eq!(log_info.event_count(&"B".to_string()), 2usize);
-    assert_eq!(log_info.event_count(&"C".to_string()), 2usize);
+    assert_eq!(log_info.event_count(&"A".to_string()), 2);
+    assert_eq!(log_info.event_count(&"B".to_string()), 2);
+    assert_eq!(log_info.event_count(&"C".to_string()), 2);
 }

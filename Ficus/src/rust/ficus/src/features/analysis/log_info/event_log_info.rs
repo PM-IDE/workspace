@@ -37,8 +37,8 @@ impl EventLogCounts for EventLogCountsImpl {
 
 pub trait EventLogInfo {
     fn counts(&self) -> Option<&dyn EventLogCounts>;
-    fn event_classes_count(&self) -> usize;
-    fn event_count(&self, event_class: &String) -> usize;
+    fn event_classes_count(&self) -> u64;
+    fn event_count(&self, event_class: &String) -> u64;
     fn dfg_info(&self) -> &dyn DfgInfo;
     fn all_event_classes(&self) -> Vec<&String>;
     fn start_event_classes(&self) -> &HashSet<String>;
@@ -47,14 +47,14 @@ pub trait EventLogInfo {
 
 pub struct OfflineEventLogInfo {
     counts: Option<EventLogCountsImpl>,
-    event_classes_counts: HashMap<String, usize>,
+    event_classes_counts: HashMap<String, u64>,
     dfg_info: OfflineDfgInfo,
     start_event_classes: HashSet<String>,
     end_event_classes: HashSet<String>,
 }
 
 impl OfflineEventLogInfo {
-    pub fn create_from_relations(relations: &HashMap<(String, String), u64>, event_classes_count: &HashMap<String, usize>) -> Self {
+    pub fn create_from_relations(relations: &HashMap<(String, String), u64>, event_classes_count: &HashMap<String, u64>) -> Self {
         let dfg_info = OfflineDfgInfo::create_from_relations(relations);
 
         let start_event_classes = event_classes_count
@@ -202,11 +202,11 @@ impl EventLogInfo for OfflineEventLogInfo {
         }
     }
 
-    fn event_classes_count(&self) -> usize {
-        self.event_classes_counts.len()
+    fn event_classes_count(&self) -> u64 {
+        self.event_classes_counts.len() as u64
     }
 
-    fn event_count(&self, event_class: &String) -> usize {
+    fn event_count(&self, event_class: &String) -> u64 {
         match self.event_classes_counts.get(event_class) {
             Some(value) => value.to_owned(),
             None => 0,
