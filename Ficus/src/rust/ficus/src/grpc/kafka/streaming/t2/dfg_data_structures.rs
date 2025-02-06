@@ -104,14 +104,12 @@ impl DfgDataStructureBase {
 
 #[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct LossyCountDfgDataStructures {
-    error: f64,
     dfg_data_structure: DfgDataStructureBase,
 }
 
 impl LossyCountDfgDataStructures {
     pub fn new(error: f64) -> Self {
         Self {
-            error,
             dfg_data_structure: DfgDataStructureBase {
                 factory: StreamingCounterFactory::LossyCount(error),
                 traces_last_event_classes: Rc::new(RefCell::new(LossyCount::new(error))),
@@ -124,14 +122,12 @@ impl LossyCountDfgDataStructures {
 
 #[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct SlidingWindowDfgDataStructures {
-    element_lifetime: Duration,
     dfg_data_structure: DfgDataStructureBase,
 }
 
 impl SlidingWindowDfgDataStructures {
     pub fn new(element_lifetime: Duration) -> Self {
         Self {
-            element_lifetime,
             dfg_data_structure: DfgDataStructureBase {
                 factory: StreamingCounterFactory::SlidingWindow(element_lifetime),
                 traces_last_event_classes: Rc::new(RefCell::new(SlidingWindow::new_time(element_lifetime))),
@@ -197,8 +193,8 @@ impl DfgDataStructures {
 
     pub fn invalidate(&mut self) {
         match self {
-            DfgDataStructures::LossyCount(_) => {}
-            DfgDataStructures::SlidingWindow(sw) => {}
+            DfgDataStructures::LossyCount(lc) => lc.dfg_data_structure.invalidate(),
+            DfgDataStructures::SlidingWindow(sw) => sw.dfg_data_structure.invalidate(),
         }
     }
 
