@@ -3,8 +3,8 @@ use crate::utils::user_data::user_data::UserDataImpl;
 use super::lifecycle::xes_lifecycle::Lifecycle;
 use crate::utils::references::HeapedOrOwned;
 use chrono::{DateTime, Utc};
-use std::{collections::HashMap, rc::Rc};
 use std::fmt::Debug;
+use std::{collections::HashMap, rc::Rc};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EventPayloadValue {

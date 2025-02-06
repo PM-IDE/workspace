@@ -14,11 +14,9 @@ pub fn lossy_count_test_1() {
 
 #[test]
 pub fn lossy_count_test_2() {
-    execute_streaming_counter_test(
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-        vec![(9, 1), (10, 1), (11, 1)],
-        || LossyCount::<i32, Option<bool>>::new(0.25),
-    );
+    execute_streaming_counter_test(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], vec![(9, 1), (10, 1), (11, 1)], || {
+        LossyCount::<i32, Option<bool>>::new(0.25)
+    });
 }
 
 #[test]
@@ -51,7 +49,6 @@ fn execute_streaming_counter_test<TKey: Hash + Eq + Clone + Ord + Debug, TValue:
             .into_iter()
             .map(|expected_freq| (expected_freq.0, expected_freq.1))
             .collect::<Vec<(TKey, u64)>>(),
-
         frequencies
             .iter()
             .map(|e| (e.key().clone(), e.absolute_count()))

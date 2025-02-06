@@ -47,7 +47,10 @@ unsafe impl Sync for DfgDataStructureBase {}
 
 impl DfgDataStructureBase {
     pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
-        debug!("Observing relation, process: {}, relation: ({}, {})", process_name, &relation.0, &relation.1);
+        debug!(
+            "Observing relation, process: {}, relation: ({}, {})",
+            process_name, &relation.0, &relation.1
+        );
 
         self.processes_dfg
             .entry(process_name.to_owned())
@@ -67,7 +70,11 @@ impl DfgDataStructureBase {
     }
 
     pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: String) {
-        debug!("Observing last trace class, case id: {}, last class: {}", &case_id, last_class.as_str());
+        debug!(
+            "Observing last trace class, case id: {}, last class: {}",
+            &case_id,
+            last_class.as_str()
+        );
 
         self.traces_last_event_classes
             .borrow_mut()
@@ -92,7 +99,10 @@ impl DfgDataStructureBase {
             Some(dfg) => dfg.borrow().to_freq_count_map().into_iter().map(|(k, v)| (k, v.1)).collect(),
         };
 
-        debug!("Creating offline dfg info from relations: {:?}, event classes count: {:?}", &relations, &event_classes_count);
+        debug!(
+            "Creating offline dfg info from relations: {:?}, event classes count: {:?}",
+            &relations, &event_classes_count
+        );
 
         Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
     }
@@ -178,7 +188,8 @@ impl DfgDataStructures {
         let new_trace_last_class = xes_trace.events().last().unwrap().borrow().name().to_owned();
 
         self.base.observe_event_class(process_name, new_trace_last_class.clone());
-        self.base.observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
+        self.base
+            .observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
 
         match self.base.to_event_log_info(process_name) {
             None => {
