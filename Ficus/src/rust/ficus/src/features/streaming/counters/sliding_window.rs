@@ -66,6 +66,13 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
             .map(|(k, v)| StreamingCounterEntry::new(k.clone(), v.value.clone(), v.count as f64 / all_count as f64, v.count))
             .collect()
     }
+
+    fn invalidate(&mut self) {
+        let invalidator = self.invalidator.clone();
+
+        self.storage
+            .retain(|_, value| invalidator(value.value.as_ref(), &value.timestamp) == InvalidationResult::Retain)
+    }
 }
 
 impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
@@ -111,11 +118,5 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
         };
 
         self.storage.insert(key, SlidingWindowEntry::new(value, stamp));
-    }
-
-    pub fn invalidate(&mut self) {
-        let invalidator = self.invalidator.clone();
-        self.storage
-            .retain(|_, value| invalidator(value.value.as_ref(), &value.timestamp) == InvalidationResult::Retain)
     }
 }

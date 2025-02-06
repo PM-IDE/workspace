@@ -69,6 +69,8 @@ where
             .map(|s| self.to_streaming_counter_entry(s))
             .collect()
     }
+
+    fn invalidate(&mut self) {}
 }
 
 impl<TKey, TValue> LossyCount<TKey, TValue>

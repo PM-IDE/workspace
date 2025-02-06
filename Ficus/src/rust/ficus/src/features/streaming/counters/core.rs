@@ -38,14 +38,11 @@ pub enum ValueUpdateKind<TValue> {
     DoNothing,
 }
 
-pub trait StreamingCounter<TKey, TValue>
-where
-    TKey: Hash + Eq + Clone,
-    TValue: Clone,
-{
+pub trait StreamingCounter<TKey: Hash + Eq + Clone, TValue: Clone> {
     fn observe(&mut self, key: TKey, value: ValueUpdateKind<TValue>);
     fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>>;
     fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>>;
+    fn invalidate(&mut self);
 
     fn all_frequencies(&self) -> Vec<StreamingCounterEntry<TKey, TValue>> {
         self.above_threshold(0.0)

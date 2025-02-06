@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
@@ -13,126 +14,131 @@ use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use log::warn;
 use std::collections::HashMap;
+use std::hash::Hash;
+use std::rc::Rc;
 use std::time::Duration;
 use uuid::Uuid;
 
 #[derive(Clone)]
+enum StreamingCounterFactory {
+    LossyCount(f64),
+    SlidingWindow(Duration)
+}
+
+impl StreamingCounterFactory {
+    pub fn create<TKey: Hash + Eq + Clone + 'static, TValue: Clone + 'static>(&self) -> Rc<RefCell<dyn StreamingCounter<TKey, TValue>>> {
+        match self {
+            StreamingCounterFactory::LossyCount(error) => Rc::new(RefCell::new(LossyCount::new(*error))),
+            StreamingCounterFactory::SlidingWindow(lifetime) => Rc::new(RefCell::new(SlidingWindow::new_time(*lifetime)))
+        }
+    }
+}
+
+#[derive(Clone)]
+struct DfgDataStructureBase {
+    factory: StreamingCounterFactory,
+    processes_dfg: HashMap<String, Rc<RefCell<dyn StreamingCounter<(String, String), ()>>>>,
+    traces_last_event_classes: Rc<RefCell<dyn StreamingCounter<Uuid, String>>>,
+    event_classes_count: HashMap<String, Rc<RefCell<dyn StreamingCounter<String, ()>>>>,
+}
+
+unsafe impl Send for DfgDataStructureBase {}
+unsafe impl Sync for DfgDataStructureBase {}
+
+impl DfgDataStructureBase {
+    pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
+        self.processes_dfg
+            .entry(process_name.to_owned())
+            .or_insert(self.factory.create())
+            .borrow_mut()
+            .observe(relation, ValueUpdateKind::DoNothing);
+    }
+
+    pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
+        self.event_classes_count
+            .entry(process_name.to_owned())
+            .or_insert(self.factory.create())
+            .borrow_mut()
+            .observe(event_class, ValueUpdateKind::DoNothing);
+    }
+
+    pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: String) {
+        self.traces_last_event_classes
+            .borrow_mut()
+            .observe(case_id, ValueUpdateKind::Replace(last_class))
+    }
+
+    pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
+        match self.traces_last_event_classes.borrow().get(case_id) {
+            None => None,
+            Some(value) => Some(value.value().unwrap().to_owned()),
+        }
+    }
+
+    pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
+        let event_classes_count = match self.event_classes_count.get(process_name) {
+            None => return None,
+            Some(classes) => classes.borrow().to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect(),
+        };
+
+        let relations = match self.processes_dfg.get(process_name) {
+            None => return None,
+            Some(dfg) => dfg.borrow().to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect(),
+        };
+
+        Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
+    }
+    
+    pub fn invalidate(&self) {
+        for (_, sw) in self.processes_dfg.iter() {
+            sw.borrow_mut().invalidate();
+        }
+
+        for (_, sw) in self.event_classes_count.iter() {
+            sw.borrow_mut().invalidate();
+        }
+
+        self.traces_last_event_classes.borrow_mut().invalidate();
+    }
+}
+
+#[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct LossyCountDfgDataStructures {
     error: f64,
-    processes_dfg: HashMap<String, LossyCount<(String, String), ()>>,
-    traces_last_event_classes: LossyCount<Uuid, String>,
-    event_classes_count: HashMap<String, LossyCount<String, ()>>,
+    dfg_data_structure: DfgDataStructureBase
 }
 
 impl LossyCountDfgDataStructures {
     pub fn new(error: f64) -> Self {
         Self {
             error,
-            processes_dfg: HashMap::new(),
-            traces_last_event_classes: LossyCount::new(error),
-            event_classes_count: HashMap::new(),
+            dfg_data_structure: DfgDataStructureBase {
+                factory: StreamingCounterFactory::LossyCount(error),
+                traces_last_event_classes: Rc::new(RefCell::new(LossyCount::new(error))),
+                processes_dfg: HashMap::new(),
+                event_classes_count: HashMap::new()
+            }
         }
-    }
-
-    pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
-        self.processes_dfg
-            .entry(process_name.to_owned())
-            .or_insert(LossyCount::new(self.error))
-            .observe(relation, ValueUpdateKind::DoNothing);
-    }
-
-    pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
-        let lc = self
-            .event_classes_count
-            .entry(process_name.to_owned())
-            .or_insert(LossyCount::new(self.error));
-        lc.observe(event_class, ValueUpdateKind::DoNothing);
-    }
-
-    pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
-        self.traces_last_event_classes
-            .observe(case_id, ValueUpdateKind::Replace(last_class))
-    }
-
-    pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
-        match self.traces_last_event_classes.get(case_id) {
-            None => None,
-            Some(value) => Some(value.value().unwrap().to_owned()),
-        }
-    }
-
-    pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
-        let event_classes_count = match self.event_classes_count.get(process_name) {
-            None => return None,
-            Some(classes) => classes.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect(),
-        };
-
-        let relations = match self.processes_dfg.get(process_name) {
-            None => return None,
-            Some(dfg) => dfg.to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect(),
-        };
-
-        Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
     }
 }
 
 #[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct SlidingWindowDfgDataStructures {
     element_lifetime: Duration,
-    processes_dfg: HashMap<String, SlidingWindow<(String, String), ()>>,
-    traces_last_event_classes: SlidingWindow<Uuid, String>,
-    event_classes_count: HashMap<String, SlidingWindow<String, ()>>,
+    dfg_data_structure : DfgDataStructureBase
 }
 
 impl SlidingWindowDfgDataStructures {
     pub fn new(element_lifetime: Duration) -> Self {
         Self {
             element_lifetime,
-            processes_dfg: HashMap::new(),
-            traces_last_event_classes: SlidingWindow::new_time(element_lifetime),
-            event_classes_count: HashMap::new(),
+            dfg_data_structure: DfgDataStructureBase {
+                factory: StreamingCounterFactory::SlidingWindow(element_lifetime),
+                traces_last_event_classes: Rc::new(RefCell::new(SlidingWindow::new_time(element_lifetime))),
+                processes_dfg: HashMap::new(),
+                event_classes_count: HashMap::new()
+            }
         }
-    }
-
-    pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
-        self.processes_dfg
-            .entry(process_name.to_owned())
-            .or_insert(SlidingWindow::new_time(self.element_lifetime))
-            .observe(relation, ValueUpdateKind::DoNothing);
-    }
-
-    pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
-        let sw = self
-            .event_classes_count
-            .entry(process_name.to_owned())
-            .or_insert(SlidingWindow::new_time(self.element_lifetime));
-        sw.observe(event_class, ValueUpdateKind::DoNothing);
-    }
-
-    pub fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
-        self.traces_last_event_classes
-            .observe(case_id, ValueUpdateKind::Replace(last_class));
-    }
-
-    pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
-        match self.traces_last_event_classes.get(case_id) {
-            None => None,
-            Some(value) => Some(value.value().unwrap().to_owned()),
-        }
-    }
-
-    pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
-        let event_classes_count = match self.event_classes_count.get(process_name) {
-            None => return None,
-            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as usize)).collect(),
-        };
-
-        let relations = match self.processes_dfg.get(process_name) {
-            None => return None,
-            Some(sw) => sw.to_count_map().into_iter().map(|(k, v)| (k, v as u64)).collect(),
-        };
-
-        Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
     }
 }
 
@@ -193,51 +199,43 @@ impl DfgDataStructures {
         match self {
             DfgDataStructures::LossyCount(_) => {}
             DfgDataStructures::SlidingWindow(sw) => {
-                for (_, sw) in sw.processes_dfg.iter_mut() {
-                    sw.invalidate();
-                }
 
-                for (_, sw) in sw.event_classes_count.iter_mut() {
-                    sw.invalidate();
-                }
-
-                sw.traces_last_event_classes.invalidate();
             }
         }
     }
 
     fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
         match self {
-            DfgDataStructures::LossyCount(d) => d.observe_dfg_relation(process_name, relation),
-            DfgDataStructures::SlidingWindow(d) => d.observe_dfg_relation(process_name, relation),
+            DfgDataStructures::LossyCount(d) => d.dfg_data_structure.observe_dfg_relation(process_name, relation),
+            DfgDataStructures::SlidingWindow(d) => d.dfg_data_structure.observe_dfg_relation(process_name, relation),
         }
     }
 
     fn observe_event_class(&mut self, process_name: &str, event_class: String) {
         match self {
-            DfgDataStructures::LossyCount(lc) => lc.observe_event_class(process_name, event_class),
-            DfgDataStructures::SlidingWindow(sw) => sw.observe_event_class(process_name, event_class),
+            DfgDataStructures::LossyCount(lc) => lc.dfg_data_structure.observe_event_class(process_name, event_class),
+            DfgDataStructures::SlidingWindow(sw) => sw.dfg_data_structure.observe_event_class(process_name, event_class),
         }
     }
 
     fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
         match self {
-            DfgDataStructures::LossyCount(d) => d.observe_last_trace_class(case_id, last_class),
-            DfgDataStructures::SlidingWindow(d) => d.observe_last_trace_class(case_id, last_class),
+            DfgDataStructures::LossyCount(d) => d.dfg_data_structure.observe_last_trace_class(case_id, last_class),
+            DfgDataStructures::SlidingWindow(d) => d.dfg_data_structure.observe_last_trace_class(case_id, last_class),
         }
     }
 
     fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
         match self {
-            DfgDataStructures::LossyCount(d) => d.last_seen_event_class(case_id),
-            DfgDataStructures::SlidingWindow(d) => d.last_seen_event_class(case_id),
+            DfgDataStructures::LossyCount(d) => d.dfg_data_structure.last_seen_event_class(case_id),
+            DfgDataStructures::SlidingWindow(d) => d.dfg_data_structure.last_seen_event_class(case_id),
         }
     }
 
     fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
         match self {
-            DfgDataStructures::LossyCount(lc) => lc.to_event_log_info(process_name),
-            DfgDataStructures::SlidingWindow(sw) => sw.to_event_log_info(process_name),
+            DfgDataStructures::LossyCount(lc) => lc.dfg_data_structure.to_event_log_info(process_name),
+            DfgDataStructures::SlidingWindow(sw) => sw.dfg_data_structure.to_event_log_info(process_name),
         }
     }
 }
