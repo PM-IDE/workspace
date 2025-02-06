@@ -103,14 +103,14 @@ impl DfgDataStructureBase {
 }
 
 #[derive(Clone)]
-pub(in crate::grpc::kafka::streaming::t2) struct LossyCountDfgDataStructures {
-    dfg_data_structure: DfgDataStructureBase,
+pub(in crate::grpc::kafka::streaming::t2) struct DfgDataStructures {
+    base: DfgDataStructureBase,
 }
 
-impl LossyCountDfgDataStructures {
-    pub fn new(error: f64) -> Self {
+impl DfgDataStructures {
+    pub fn new_lossy_count(error: f64) -> Self {
         Self {
-            dfg_data_structure: DfgDataStructureBase {
+            base: DfgDataStructureBase {
                 factory: StreamingCounterFactory::LossyCount(error),
                 traces_last_event_classes: Rc::new(RefCell::new(LossyCount::new(error))),
                 processes_dfg: HashMap::new(),
@@ -118,30 +118,17 @@ impl LossyCountDfgDataStructures {
             },
         }
     }
-}
 
-#[derive(Clone)]
-pub(in crate::grpc::kafka::streaming::t2) struct SlidingWindowDfgDataStructures {
-    dfg_data_structure: DfgDataStructureBase,
-}
-
-impl SlidingWindowDfgDataStructures {
-    pub fn new(element_lifetime: Duration) -> Self {
+    pub fn new_sliding_window(lifetime: Duration) -> Self {
         Self {
-            dfg_data_structure: DfgDataStructureBase {
-                factory: StreamingCounterFactory::SlidingWindow(element_lifetime),
-                traces_last_event_classes: Rc::new(RefCell::new(SlidingWindow::new_time(element_lifetime))),
+            base: DfgDataStructureBase {
+                factory: StreamingCounterFactory::SlidingWindow(lifetime),
+                traces_last_event_classes: Rc::new(RefCell::new(SlidingWindow::new_time(lifetime))),
                 processes_dfg: HashMap::new(),
                 event_classes_count: HashMap::new(),
             },
         }
     }
-}
-
-#[derive(Clone)]
-pub(in crate::grpc::kafka::streaming::t2) enum DfgDataStructures {
-    LossyCount(LossyCountDfgDataStructures),
-    SlidingWindow(SlidingWindowDfgDataStructures),
 }
 
 impl DfgDataStructures {
@@ -166,20 +153,24 @@ impl DfgDataStructures {
             let first_name = xes_trace.events().get(i).unwrap().borrow().name().to_owned();
             let second_name = xes_trace.events().get(i + 1).unwrap().borrow().name().to_owned();
 
-            self.observe_dfg_relation(process_metadata.process_name.as_str(), (first_name.clone(), second_name));
-            self.observe_event_class(process_metadata.process_name.as_str(), first_name);
+            self.base
+                .observe_dfg_relation(process_metadata.process_name.as_str(), (first_name.clone(), second_name));
+            self.base.observe_event_class(process_metadata.process_name.as_str(), first_name);
         }
 
-        if let Some(last_seen_class) = self.last_seen_event_class(&case_metadata.case_id) {
+        if let Some(last_seen_class) = self.base.last_seen_event_class(&case_metadata.case_id) {
             let first_class = xes_trace.events().first().unwrap().borrow().name().to_owned();
-            self.observe_dfg_relation(process_metadata.process_name.as_str(), (last_seen_class, first_class));
+            self.base
+                .observe_dfg_relation(process_metadata.process_name.as_str(), (last_seen_class, first_class));
         }
 
         let new_trace_last_class = xes_trace.events().last().unwrap().borrow().name().to_owned();
-        self.observe_event_class(process_metadata.process_name.as_str(), new_trace_last_class.clone());
-        self.observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
+        self.base
+            .observe_event_class(process_metadata.process_name.as_str(), new_trace_last_class.clone());
+        self.base
+            .observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
 
-        match self.to_event_log_info(process_metadata.process_name.as_str()) {
+        match self.base.to_event_log_info(process_metadata.process_name.as_str()) {
             None => {
                 warn!("Failed to create offline event log info")
             }
@@ -192,44 +183,6 @@ impl DfgDataStructures {
     }
 
     pub fn invalidate(&mut self) {
-        match self {
-            DfgDataStructures::LossyCount(lc) => lc.dfg_data_structure.invalidate(),
-            DfgDataStructures::SlidingWindow(sw) => sw.dfg_data_structure.invalidate(),
-        }
-    }
-
-    fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
-        match self {
-            DfgDataStructures::LossyCount(d) => d.dfg_data_structure.observe_dfg_relation(process_name, relation),
-            DfgDataStructures::SlidingWindow(d) => d.dfg_data_structure.observe_dfg_relation(process_name, relation),
-        }
-    }
-
-    fn observe_event_class(&mut self, process_name: &str, event_class: String) {
-        match self {
-            DfgDataStructures::LossyCount(lc) => lc.dfg_data_structure.observe_event_class(process_name, event_class),
-            DfgDataStructures::SlidingWindow(sw) => sw.dfg_data_structure.observe_event_class(process_name, event_class),
-        }
-    }
-
-    fn observe_last_trace_class(&mut self, case_id: Uuid, last_class: String) {
-        match self {
-            DfgDataStructures::LossyCount(d) => d.dfg_data_structure.observe_last_trace_class(case_id, last_class),
-            DfgDataStructures::SlidingWindow(d) => d.dfg_data_structure.observe_last_trace_class(case_id, last_class),
-        }
-    }
-
-    fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
-        match self {
-            DfgDataStructures::LossyCount(d) => d.dfg_data_structure.last_seen_event_class(case_id),
-            DfgDataStructures::SlidingWindow(d) => d.dfg_data_structure.last_seen_event_class(case_id),
-        }
-    }
-
-    fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
-        match self {
-            DfgDataStructures::LossyCount(lc) => lc.dfg_data_structure.to_event_log_info(process_name),
-            DfgDataStructures::SlidingWindow(sw) => sw.dfg_data_structure.to_event_log_info(process_name),
-        }
+        self.base.invalidate();
     }
 }

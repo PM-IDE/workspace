@@ -1,7 +1,5 @@
 use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
-use crate::grpc::kafka::streaming::t2::dfg_data_structures::{
-    DfgDataStructures, LossyCountDfgDataStructures, SlidingWindowDfgDataStructures,
-};
+use crate::grpc::kafka::streaming::t2::dfg_data_structures::DfgDataStructures;
 use crate::pipelines::context::PipelineContext;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::sync::{Arc, Mutex};
@@ -15,15 +13,13 @@ pub struct T2StreamingProcessor {
 impl T2StreamingProcessor {
     pub fn new_sliding_window(element_lifetime: Duration) -> Self {
         Self {
-            dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::SlidingWindow(SlidingWindowDfgDataStructures::new(
-                element_lifetime,
-            )))),
+            dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::new_sliding_window(element_lifetime))),
         }
     }
 
     pub fn new_lossy_count(error: f64) -> Self {
         Self {
-            dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::LossyCount(LossyCountDfgDataStructures::new(error)))),
+            dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::new_lossy_count(error))),
         }
     }
 
