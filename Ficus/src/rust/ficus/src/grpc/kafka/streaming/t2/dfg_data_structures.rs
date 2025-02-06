@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
@@ -13,6 +12,7 @@ use crate::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
 use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use log::warn;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::rc::Rc;
@@ -22,14 +22,14 @@ use uuid::Uuid;
 #[derive(Clone)]
 enum StreamingCounterFactory {
     LossyCount(f64),
-    SlidingWindow(Duration)
+    SlidingWindow(Duration),
 }
 
 impl StreamingCounterFactory {
     pub fn create<TKey: Hash + Eq + Clone + 'static, TValue: Clone + 'static>(&self) -> Rc<RefCell<dyn StreamingCounter<TKey, TValue>>> {
         match self {
             StreamingCounterFactory::LossyCount(error) => Rc::new(RefCell::new(LossyCount::new(*error))),
-            StreamingCounterFactory::SlidingWindow(lifetime) => Rc::new(RefCell::new(SlidingWindow::new_time(*lifetime)))
+            StreamingCounterFactory::SlidingWindow(lifetime) => Rc::new(RefCell::new(SlidingWindow::new_time(*lifetime))),
         }
     }
 }
@@ -88,7 +88,7 @@ impl DfgDataStructureBase {
 
         Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
     }
-    
+
     pub fn invalidate(&self) {
         for (_, sw) in self.processes_dfg.iter() {
             sw.borrow_mut().invalidate();
@@ -105,7 +105,7 @@ impl DfgDataStructureBase {
 #[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct LossyCountDfgDataStructures {
     error: f64,
-    dfg_data_structure: DfgDataStructureBase
+    dfg_data_structure: DfgDataStructureBase,
 }
 
 impl LossyCountDfgDataStructures {
@@ -116,8 +116,8 @@ impl LossyCountDfgDataStructures {
                 factory: StreamingCounterFactory::LossyCount(error),
                 traces_last_event_classes: Rc::new(RefCell::new(LossyCount::new(error))),
                 processes_dfg: HashMap::new(),
-                event_classes_count: HashMap::new()
-            }
+                event_classes_count: HashMap::new(),
+            },
         }
     }
 }
@@ -125,7 +125,7 @@ impl LossyCountDfgDataStructures {
 #[derive(Clone)]
 pub(in crate::grpc::kafka::streaming::t2) struct SlidingWindowDfgDataStructures {
     element_lifetime: Duration,
-    dfg_data_structure : DfgDataStructureBase
+    dfg_data_structure: DfgDataStructureBase,
 }
 
 impl SlidingWindowDfgDataStructures {
@@ -136,8 +136,8 @@ impl SlidingWindowDfgDataStructures {
                 factory: StreamingCounterFactory::SlidingWindow(element_lifetime),
                 traces_last_event_classes: Rc::new(RefCell::new(SlidingWindow::new_time(element_lifetime))),
                 processes_dfg: HashMap::new(),
-                event_classes_count: HashMap::new()
-            }
+                event_classes_count: HashMap::new(),
+            },
         }
     }
 }
@@ -198,9 +198,7 @@ impl DfgDataStructures {
     pub fn invalidate(&mut self) {
         match self {
             DfgDataStructures::LossyCount(_) => {}
-            DfgDataStructures::SlidingWindow(sw) => {
-
-            }
+            DfgDataStructures::SlidingWindow(sw) => {}
         }
     }
 
