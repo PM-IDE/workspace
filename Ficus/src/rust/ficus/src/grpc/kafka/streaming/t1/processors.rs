@@ -68,7 +68,7 @@ impl T1StreamingProcessor {
                 name_parts: metadata.case.case_name_parts,
             },
             new_log: self.get_or_create_event_log(&trace, metadata.case.case_id, metadata.case.case_name_parts_joined.as_str())?,
-            unstructured_metadata: Self::metadata_to_string_string_pairs(trace.metadata()),
+            unstructured_metadata: metadata.unstructured_metadata
         };
 
         Ok(result)
@@ -130,24 +130,5 @@ impl T1StreamingProcessor {
         } else {
             None
         }
-    }
-
-    fn metadata_to_string_string_pairs(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Vec<(String, String)> {
-        metadata
-            .iter()
-            .map(|pair| {
-                if pair.0 == KAFKA_CASE_NAME_PARTS || pair.0 == KAFKA_CASE_DISPLAY_NAME || pair.0 == KAFKA_PROCESS_NAME {
-                    None
-                } else {
-                    if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
-                        Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
-                    } else {
-                        None
-                    }
-                }
-            })
-            .filter(|kv| kv.is_some())
-            .map(|kv| kv.unwrap())
-            .collect()
     }
 }

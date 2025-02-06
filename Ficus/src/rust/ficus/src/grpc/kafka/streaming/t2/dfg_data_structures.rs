@@ -6,9 +6,9 @@ use crate::features::streaming::counters::core::{StreamingCounter, ValueUpdateKi
 use crate::features::streaming::counters::lossy_count::LossyCount;
 use crate::features::streaming::counters::sliding_window::SlidingWindow;
 use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
-use crate::grpc::kafka::streaming::processors::{CaseMetadata, ProcessMetadata};
+use crate::grpc::kafka::streaming::processors::{CaseMetadata, ExtractedTraceMetadata, ProcessMetadata};
 use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
+use crate::pipelines::keys::context_keys::{CASE_NAME, EVENT_LOG_INFO_KEY, PROCESS_NAME, UNSTRUCTURED_METADATA};
 use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use log::{debug, warn};
@@ -18,6 +18,7 @@ use std::hash::Hash;
 use std::rc::Rc;
 use std::time::Duration;
 use uuid::Uuid;
+use crate::grpc::events::events_handler::CaseName;
 
 #[derive(Clone)]
 enum StreamingCounterFactory {
@@ -197,6 +198,15 @@ impl DfgDataStructures {
             }
             Some(log_info) => {
                 context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
+                
+                let metadata = ExtractedTraceMetadata::create_from(trace.metadata())?;
+
+                context.put_concrete(PROCESS_NAME.key(), metadata.process.process_name);
+                context.put_concrete(UNSTRUCTURED_METADATA.key(), metadata.unstructured_metadata);
+                context.put_concrete(CASE_NAME.key(), CaseName {
+                    display_name: metadata.case.case_display_name,
+                    name_parts: metadata.case.case_name_parts
+                });
             }
         }
 

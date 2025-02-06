@@ -67,6 +67,7 @@ impl CaseMetadata {
 pub(in crate::grpc::kafka::streaming) struct ExtractedTraceMetadata {
     pub process: ProcessMetadata,
     pub case: CaseMetadata,
+    pub unstructured_metadata: Vec<(String, String)>
 }
 
 impl ExtractedTraceMetadata {
@@ -74,6 +75,7 @@ impl ExtractedTraceMetadata {
         Ok(ExtractedTraceMetadata {
             process: ProcessMetadata::create_from(metadata)?,
             case: CaseMetadata::create_from(metadata)?,
+            unstructured_metadata: metadata_to_string_string_pairs(metadata)
         })
     }
 }
@@ -109,4 +111,23 @@ fn uuid_or_err(metadata: &HashMap<String, Rc<Box<BxesValue>>>, key: &str) -> Res
     } else {
         Err(XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid)
     }
+}
+
+fn metadata_to_string_string_pairs(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Vec<(String, String)> {
+    metadata
+        .iter()
+        .map(|pair| {
+            if pair.0 == KAFKA_CASE_NAME_PARTS || pair.0 == KAFKA_CASE_DISPLAY_NAME || pair.0 == KAFKA_PROCESS_NAME {
+                None
+            } else {
+                if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
+                    Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
+                } else {
+                    None
+                }
+            }
+        })
+        .filter(|kv| kv.is_some())
+        .map(|kv| kv.unwrap())
+        .collect()
 }
