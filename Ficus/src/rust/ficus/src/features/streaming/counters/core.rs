@@ -48,10 +48,10 @@ pub trait StreamingCounter<TKey: Hash + Eq + Clone, TValue: Clone> {
         self.above_threshold(0.0)
     }
 
-    fn to_count_map(&self) -> HashMap<TKey, f64> {
+    fn to_freq_count_map(&self) -> HashMap<TKey, (f64, u64)> {
         self.all_frequencies()
             .into_iter()
-            .map(|entry| (entry.key().clone(), entry.approx_frequency()))
+            .map(|entry| (entry.key().clone(), (entry.approx_frequency(), entry.absolute_count())))
             .collect()
     }
 }
