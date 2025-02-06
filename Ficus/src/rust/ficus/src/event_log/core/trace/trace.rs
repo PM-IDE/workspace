@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::event_log::core::event::event::Event;
+use crate::event_log::core::event::event::{Event, EventPayloadValue};
 
 pub trait Trace: Clone {
     type TEvent: Event;
@@ -25,6 +25,9 @@ pub trait Trace: Clone {
     fn mutate_events<TMutator>(&mut self, mutator: TMutator)
     where
         TMutator: Fn(&mut Self::TEvent);
+
+    fn metadata(&self) -> &HashMap<String, EventPayloadValue>;
+    fn metadata_mut(&mut self) -> &mut HashMap<String, EventPayloadValue>;
 }
 
 pub trait TraceInfo {

@@ -57,7 +57,7 @@ public class JsonMethodsKafkaProducer(
   );
 
 
-  public void Produce(Guid key, JsonMethodsExecutionKafkaMessage value)
+  public void Produce(Guid key, JsonMethodsExecutionKafkaMessage trace)
   {
     try
     {
@@ -65,7 +65,7 @@ public class JsonMethodsKafkaProducer(
       var message = new Message<Guid, JsonMethodsExecutionKafkaMessage>
       {
         Key = key,
-        Value = value
+        Value = trace
       };
 
       var result = myProducer.Value.ProduceAsync(topicName, message).GetAwaiter().GetResult();

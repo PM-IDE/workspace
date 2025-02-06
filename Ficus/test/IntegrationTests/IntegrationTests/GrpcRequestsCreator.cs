@@ -1,4 +1,5 @@
 ﻿using Ficus;
+using Google.Protobuf.WellKnownTypes;
 
 namespace IntegrationTests;
 
@@ -37,7 +38,7 @@ public static class GrpcRequestsCreator
       }
     };
   }
-  
+
   public static GrpcAddPipelineRequest CreateAddGetNamesLogPipelineRequest(
     GrpcGuid subscriptionId, FicusIntegrationTestsSettings settings, string? pipelineName = null)
   {
@@ -45,6 +46,10 @@ public static class GrpcRequestsCreator
     {
       PipelineRequest = new GrpcKafkaPipelineExecutionRequest
       {
+        StreamingConfiguration = new GrpcPipelineStreamingConfiguration
+        {
+          NotSpecified = new Empty()
+        },
         SubscriptionId = subscriptionId,
         PipelineMetadata = new GrpcPipelineMetadata
         {

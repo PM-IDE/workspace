@@ -12,7 +12,7 @@ public class TestCompletedMethodExecutionHandler : IEventPipeStreamEventHandler
 
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
-    if (eventPipeStreamEvent is not CompletedMethodExecutionEvent executionEvent) return;
+    if (eventPipeStreamEvent is not MethodExecutionEvent executionEvent) return;
 
     SeenMethods.GetOrCreate(executionEvent.Frame.MethodId, static () => []).Add(executionEvent.Frame.InnerEvents);
   }

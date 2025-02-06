@@ -1,8 +1,7 @@
-use crate::utils::user_data::user_data::UserDataImpl;
-use std::{cell::RefCell, collections::HashSet, rc::Rc};
-
 use crate::event_log::core::event::{event::Event, event_hasher::EventHasher};
-use crate::utils::user_data::user_data::UserData;
+use crate::utils::user_data::user_data::UserDataImpl;
+use log::debug;
+use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use super::trace::Trace;
 
@@ -65,6 +64,7 @@ where
         for index in (0..traces.len()).rev() {
             traces[index].borrow_mut().remove_events_by(&predicate);
             if traces[index].borrow().events().is_empty() {
+                debug!("Removing trace at index: {}", index);
                 traces.remove(index);
             }
         }

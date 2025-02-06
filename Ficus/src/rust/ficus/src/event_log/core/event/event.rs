@@ -3,6 +3,7 @@ use crate::utils::user_data::user_data::UserDataImpl;
 use super::lifecycle::xes_lifecycle::Lifecycle;
 use crate::utils::references::HeapedOrOwned;
 use chrono::{DateTime, Utc};
+use std::fmt::Debug;
 use std::{collections::HashMap, rc::Rc};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -83,7 +84,7 @@ impl EventPayloadValue {
     }
 }
 
-pub trait Event: Clone {
+pub trait Event: Clone + Debug {
     fn new(name: String, stamp: DateTime<Utc>) -> Self;
     fn new_with_min_date(name: String) -> Self;
     fn new_with_max_date(name: String) -> Self;

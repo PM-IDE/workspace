@@ -1,6 +1,7 @@
 use super::fuzzy_metrics_provider::FuzzyMetricsProvider;
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::utils::graph::graph::{Graph, NodesConnectionData};
 use crate::utils::sets::one_set::OneSet;
 use std::cell::RefCell;
@@ -21,7 +22,7 @@ pub fn discover_graph_fuzzy(
 ) -> FuzzyGraph {
     let mut graph = FuzzyGraph::empty();
 
-    let info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+    let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
     let mut provider = FuzzyMetricsProvider::new(log, &info);
     let mut classes_to_ids = HashMap::new();
 

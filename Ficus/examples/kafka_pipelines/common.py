@@ -38,7 +38,12 @@ def execute_pipeline(sub_name: str, pipeline_name: str, pipeline_parts: list[Pip
 
     KafkaPipeline(
         pipeline_parts
-    ).execute(ficus_backend, subscription_id, pipeline_name, kafka_producer_metadata, {})
+    ).execute(ficus_backend, 
+              subscription_id, 
+              pipeline_name, 
+              kafka_producer_metadata, 
+              initial_context={}, 
+              streaming_configuration=create_lossy_count_configuration(0.05, 0))
 
     if env_or_default('SLEEP', None) is not None:
         while True:

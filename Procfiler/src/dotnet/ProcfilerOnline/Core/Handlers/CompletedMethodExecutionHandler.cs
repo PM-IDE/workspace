@@ -8,7 +8,7 @@ using ProcfilerOnline.Integrations.Kafka.Json;
 
 namespace ProcfilerOnline.Core.Handlers;
 
-public class CompletedMethodExecutionEvent : IEventPipeStreamEvent
+public class MethodExecutionEvent : IEventPipeStreamEvent
 {
   public required string ApplicationName { get; init; }
   public required TargetMethodFrame Frame { get; init; }
@@ -20,7 +20,7 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
     if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
-    if (eventPipeStreamEvent is not CompletedMethodExecutionEvent @event) return;
+    if (eventPipeStreamEvent is not MethodExecutionEvent @event) return;
 
     if (@event.Frame.MethodInfo is null)
     {
@@ -37,13 +37,14 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
     ProduceJsonKafkaMessage(@event);
   }
 
-  private void ProduceBxesKafkaMessage(CompletedMethodExecutionEvent @event)
+  private void ProduceBxesKafkaMessage(MethodExecutionEvent @event)
   {
     var message = new BxesKafkaTrace
     {
       ProcessName = @event.ApplicationName,
       CaseName = @event.Frame.MethodInfo!.ToBxesKafkaCaseName(),
-      Trace = @event.Frame.InnerEvents
+      Trace = @event.Frame.InnerEvents,
+      CaseId = @event.Frame.CaseId
     };
 
     @event.Frame.MethodInfo.AddToMetadata(message.Metadata);
@@ -51,7 +52,7 @@ public class CompletedMethodExecutionHandler(IComponentContext container, IProcf
     container.Resolve<IBxesMethodsKafkaProducer>().Produce(Guid.NewGuid(), message);
   }
 
-  private void ProduceJsonKafkaMessage(CompletedMethodExecutionEvent @event)
+  private void ProduceJsonKafkaMessage(MethodExecutionEvent @event)
   {
     var message = new JsonMethodsExecutionKafkaMessage
     {

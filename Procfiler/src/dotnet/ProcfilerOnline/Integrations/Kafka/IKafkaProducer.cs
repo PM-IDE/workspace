@@ -2,5 +2,5 @@
 
 public interface IKafkaProducer<in TKey, in TValue>
 {
-  void Produce(TKey key, TValue value);
+  void Produce(TKey key, TValue trace);
 }

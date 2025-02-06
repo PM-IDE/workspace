@@ -127,6 +127,7 @@ const_traces_diversity_diagram_by_attribute = 'TracesDiversityDiagramByAttribute
 const_discover_directly_follows_graph_by_attribute = 'DiscoverDirectlyFollowsGraphByAttribute'
 const_append_attributes_to_name = 'AppendAttributesToName'
 const_merge_xes_logs_from_path = 'MergeXesLogsFromPaths'
+const_discover_directly_follows_graph_stream = 'DiscoverDirectlyFollowsGraphStream'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

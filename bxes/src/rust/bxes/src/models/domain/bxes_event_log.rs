@@ -57,7 +57,7 @@ impl PartialEq for BxesTraceVariant {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BxesEvent {
     pub name: Rc<Box<BxesValue>>,
     pub timestamp: i64,

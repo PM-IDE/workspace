@@ -37,13 +37,21 @@ class GrpcProcessCaseMetadata(_message.Message):
     PIPELINENAME_FIELD_NUMBER: _ClassVar[int]
     METADATA_FIELD_NUMBER: _ClassVar[int]
     processName: str
-    caseName: str
+    caseName: GrpcCaseName
     subscriptionId: _util_pb2.GrpcGuid
     subscriptionName: str
     pipelineId: _util_pb2.GrpcGuid
     pipelineName: str
     metadata: _containers.RepeatedCompositeFieldContainer[_util_pb2.GrpcStringKeyValue]
-    def __init__(self, processName: _Optional[str] = ..., caseName: _Optional[str] = ..., subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., subscriptionName: _Optional[str] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[_util_pb2.GrpcStringKeyValue, _Mapping]]] = ...) -> None: ...
+    def __init__(self, processName: _Optional[str] = ..., caseName: _Optional[_Union[GrpcCaseName, _Mapping]] = ..., subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., subscriptionName: _Optional[str] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineName: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[_util_pb2.GrpcStringKeyValue, _Mapping]]] = ...) -> None: ...
+
+class GrpcCaseName(_message.Message):
+    __slots__ = ["displayName", "fullNameParts"]
+    DISPLAYNAME_FIELD_NUMBER: _ClassVar[int]
+    FULLNAMEPARTS_FIELD_NUMBER: _ClassVar[int]
+    displayName: str
+    fullNameParts: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, displayName: _Optional[str] = ..., fullNameParts: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GrpcCurrentCasesResponse(_message.Message):
     __slots__ = ["cases"]

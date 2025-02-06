@@ -1,23 +1,24 @@
+use num_traits::Num;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
-pub fn increase_in_map<TKey>(map: &mut HashMap<TKey, usize>, key: &TKey)
+pub fn increase_in_map<TKey, TNum: Num + Clone>(map: &mut HashMap<TKey, TNum>, key: &TKey)
 where
     TKey: Hash + Eq + PartialEq + Clone,
 {
     if let Some(value) = map.get_mut(key) {
-        *value += 1;
+        *value = value.clone().add(TNum::one());
     } else {
-        map.insert(key.clone(), 1);
+        map.insert(key.clone(), TNum::one());
     }
 }
 
-pub fn increase_in_map_by<TKey>(map: &mut HashMap<TKey, usize>, key: &TKey, increase_value: usize)
+pub fn increase_in_map_by<TKey, TNum: Num + Clone>(map: &mut HashMap<TKey, TNum>, key: &TKey, increase_value: TNum)
 where
     TKey: Hash + Eq + PartialEq + Clone,
 {
     if let Some(value) = map.get_mut(key) {
-        *value += increase_value;
+        *value = value.clone().add(increase_value);
     } else {
         map.insert(key.clone(), increase_value);
     }

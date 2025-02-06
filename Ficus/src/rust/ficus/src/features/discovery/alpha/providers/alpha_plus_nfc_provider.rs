@@ -2,10 +2,11 @@ use super::relations_cache::RelationsCaches;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::log_info::event_log_info::EventLogInfo;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::{AlphaPlusRelationsProvider, AlphaPlusRelationsProviderImpl};
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use std::collections::HashSet;
 
 enum PrePostSet {
@@ -60,7 +61,7 @@ where
         self.alpha_plus_provider.unrelated_relation(first, second)
     }
 
-    fn log_info(&self) -> &EventLogInfo {
+    fn log_info(&self) -> &dyn EventLogInfo {
         self.alpha_plus_provider.log_info()
     }
 }
@@ -86,16 +87,21 @@ impl<'a, TLog> AlphaPlusNfcRelationsProvider<'a, TLog>
 where
     TLog: EventLog,
 {
-    pub fn new(info: &'a EventLogInfo, log: &'a TLog, one_length_loop_transitions: &'a HashSet<String>) -> Self {
+    pub fn new(
+        info: &'a dyn EventLogInfo,
+        log: &'a TLog,
+        triangle_relation: &'a dyn TriangleRelation,
+        one_length_loop_transitions: &'a HashSet<String>,
+    ) -> Self {
         Self {
             additional_causal_relations: HashSet::new(),
-            alpha_plus_provider: AlphaPlusRelationsProviderImpl::new(info, log, one_length_loop_transitions),
+            alpha_plus_provider: AlphaPlusRelationsProviderImpl::new(info, triangle_relation, one_length_loop_transitions),
             log,
             caches: RelationsCaches::new(RELATIONS_NAMES),
         }
     }
 
-    pub fn log_info(&'a self) -> &'a EventLogInfo {
+    pub fn log_info(&'a self) -> &'a dyn EventLogInfo {
         self.alpha_plus_provider.log_info()
     }
 

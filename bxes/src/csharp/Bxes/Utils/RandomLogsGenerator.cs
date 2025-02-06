@@ -15,6 +15,7 @@ public readonly struct RandomLogGenerationParameters
 {
   public required LowerUpperBound VariantsCount { get; init; }
   public required LowerUpperBound EventsCount { get; init; }
+  public required LowerUpperBound EventAttributesCount { get; init; }
 }
 
 public static class RandomLogsGenerator
@@ -38,23 +39,27 @@ public static class RandomLogsGenerator
     var eventsCount = parameters.EventsCount.Generate();
     for (var i = 0; i < eventsCount; ++i)
     {
-      events.Add(CreateRandomEvent());
+      events.Add(CreateRandomEvent(in parameters));
     }
 
-    return new TraceVariantImpl((uint)Random.Shared.Next(10000), events, GenerateRandomAttributes().ToList());
+    return new TraceVariantImpl((uint)Random.Shared.Next(10000), events, GenerateRandomAttributes(parameters).ToList());
   }
 
-  private static InMemoryEventImpl CreateRandomEvent() =>
+  private static InMemoryEventImpl CreateRandomEvent(in RandomLogGenerationParameters parameters) =>
     new(
       Random.Shared.Next(10123123),
       new BxesStringValue(GenerateRandomString()),
-      GenerateRandomAttributes()
+      GenerateRandomAttributes(parameters)
     );
 
-  private static List<AttributeKeyValue> GenerateRandomAttributes()
+  private static List<AttributeKeyValue> GenerateRandomAttributes(in RandomLogGenerationParameters? parameters)
   {
     var attributes = new List<AttributeKeyValue>();
-    var attributesCount = Random.Shared.Next(1, 10);
+    var attributesCount = parameters switch
+    {
+      null => Random.Shared.Next(1, 10),
+      { } => parameters.Value.EventAttributesCount.Generate()
+    };
 
     for (var i = 0; i < attributesCount; ++i)
     {
@@ -68,7 +73,7 @@ public static class RandomLogsGenerator
   {
     var metadata = new EventLogMetadata();
 
-    metadata.Properties.AddRange(GenerateRandomAttributes());
+    metadata.Properties.AddRange(GenerateRandomAttributes(null));
     metadata.Classifiers.AddRange(GenerateRandomClassifiers());
     metadata.Extensions.AddRange(GenerateRandomExtensions());
     metadata.Globals.AddRange(GenerateRandomGlobals());
@@ -130,7 +135,7 @@ public static class RandomLogsGenerator
       globals.Add(new BxesGlobal
       {
         Kind = kind,
-        Globals = GenerateRandomAttributes().ToList()
+        Globals = GenerateRandomAttributes(null).ToList()
       });
     }
 

@@ -1,12 +1,12 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::discovery::alpha::providers::alpha_plus_provider::{AlphaPlusRelationsProvider, AlphaPlusRelationsProviderImpl};
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
+use crate::features::discovery::relations::triangle_relation::TriangleRelation;
 use std::collections::HashSet;
 
 pub struct AlphaSharpRelationsProvider<'a> {
     alpha_plus_provider: AlphaPlusRelationsProviderImpl<'a>,
-    info: &'a EventLogInfo,
+    info: &'a dyn EventLogInfo,
 }
 
 impl<'a> AlphaRelationsProvider for AlphaSharpRelationsProvider<'a> {
@@ -26,7 +26,7 @@ impl<'a> AlphaRelationsProvider for AlphaSharpRelationsProvider<'a> {
         self.alpha_plus_provider.unrelated_relation(first, second)
     }
 
-    fn log_info(&self) -> &EventLogInfo {
+    fn log_info(&self) -> &dyn EventLogInfo {
         self.alpha_plus_provider.log_info()
     }
 }
@@ -88,9 +88,13 @@ impl<'a> AlphaSharpRelationsProvider<'a> {
 }
 
 impl<'a> AlphaSharpRelationsProvider<'a> {
-    pub fn new(log: &'a impl EventLog, info: &'a EventLogInfo, one_length_loop_transitions: &'a HashSet<String>) -> Self {
+    pub fn new(
+        triangle_relation: &'a dyn TriangleRelation,
+        info: &'a OfflineEventLogInfo,
+        one_length_loop_transitions: &'a HashSet<String>,
+    ) -> Self {
         Self {
-            alpha_plus_provider: AlphaPlusRelationsProviderImpl::new(info, log, one_length_loop_transitions),
+            alpha_plus_provider: AlphaPlusRelationsProviderImpl::new(info, triangle_relation, one_length_loop_transitions),
             info,
         }
     }

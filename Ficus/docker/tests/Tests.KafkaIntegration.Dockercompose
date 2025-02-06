@@ -60,6 +60,8 @@ services:
     build:
       context: ../../../
       dockerfile: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
+    environment:
+      RUST_BACKTRACE: 1
 
   ficus-int-tests-tests:
     depends_on:

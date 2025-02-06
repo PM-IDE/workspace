@@ -11,14 +11,18 @@ use uuid::Uuid;
 
 pub(super) const KAFKA_CASE_DISPLAY_NAME: &'static str = "case_display_name";
 pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
+pub(super) const KAFKA_CASE_ID: &'static str = "case_id";
 pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
+pub(super) const KAFKA_PROCESS_ID: &'static str = "process_id";
+pub(super) const KAFKA_TRACE_ID: &'static str = "trace_id";
 
 #[derive(Debug)]
-pub(super) enum XesFromBxesKafkaTraceCreatingError {
+pub enum XesFromBxesKafkaTraceCreatingError {
     MetadataValueIsNotAString(String),
     MetadataValueNotFound(String),
     BxesToXexConversionError(BxesToXesReadError),
+    TraceIdIsNotUuid,
 }
 
 impl Display for XesFromBxesKafkaTraceCreatingError {
@@ -31,6 +35,7 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
             XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name) => {
                 format!("The key {} is not found", key_name.to_string())
             }
+            XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid => "Trace id was not of type uuid ".to_string(),
         };
 
         write!(f, "{}", str)
@@ -56,31 +61,17 @@ impl PipelineExecutionDto {
 pub(super) struct KafkaConsumerCreationDto {
     pub uuid: Uuid,
     pub name: String,
-    pub names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
     pub logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaConsumerCreationDto {
-    pub fn new(
-        name: String,
-        names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
-        subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
-    ) -> Self {
+    pub fn new(name: String, subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>) -> Self {
         Self {
             uuid: Uuid::new_v4(),
             name,
-            names_to_logs,
             subscriptions_to_execution_requests,
             logger: ConsoleLogMessageHandler::new(),
         }
     }
-}
-
-#[derive(Clone)]
-pub(super) struct LogUpdateResult {
-    pub process_name: String,
-    pub case_name: CaseName,
-    pub new_log: XesEventLogImpl,
-    pub unstructured_metadata: Vec<(String, String)>,
 }
