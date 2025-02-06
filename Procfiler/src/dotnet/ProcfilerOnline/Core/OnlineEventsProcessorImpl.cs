@@ -31,7 +31,14 @@ public class OnlineEventsProcessorImpl(
 
     SubscribeToEventSource(globalData, commandContext, source);
 
-    source.Process();
+    try
+    {
+      source.Process();
+    }
+    catch (Exception ex)
+    {
+      logger.LogError(ex, "Error happened when processing events from {SourceType}", source.GetType().Name);
+    }
 
     ProcessNotClosedMethods(globalData, commandContext);
 
