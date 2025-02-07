@@ -1,4 +1,3 @@
-use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
@@ -10,14 +9,15 @@ use crate::grpc::kafka::streaming::processors::{CaseMetadata, ProcessMetadata};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
 use crate::utils::user_data::user_data::UserData;
-use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use log::{debug, warn};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::rc::Rc;
 use std::time::Duration;
+use bxes::models::domain::bxes_value::BxesValue;
 use uuid::Uuid;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 
 #[derive(Clone)]
 enum StreamingCounterFactory {
@@ -156,20 +156,16 @@ impl DfgDataStructures {
 impl DfgDataStructures {
     pub fn process_bxes_trace(
         &mut self,
-        trace: &BxesKafkaTrace,
+        metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+        xes_trace: &XesTraceImpl,
         context: &mut PipelineContext,
     ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
-        if trace.events().is_empty() {
+        if xes_trace.events().is_empty() {
             return Ok(());
         }
 
-        let xes_trace = match read_bxes_events(trace.events()) {
-            Ok(xes_trace) => xes_trace,
-            Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err)),
-        };
-
-        let process_metadata = ProcessMetadata::create_from(trace.metadata())?;
-        let case_metadata = CaseMetadata::create_from(trace.metadata())?;
+        let process_metadata = ProcessMetadata::create_from(metadata)?;
+        let case_metadata = CaseMetadata::create_from(metadata)?;
         let process_name = process_metadata.process_name.as_str();
 
         for i in 0..(xes_trace.events().len() - 1) {

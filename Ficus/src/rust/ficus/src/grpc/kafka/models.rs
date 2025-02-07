@@ -23,6 +23,7 @@ pub enum XesFromBxesKafkaTraceCreatingError {
     MetadataValueNotFound(String),
     BxesToXexConversionError(BxesToXesReadError),
     TraceIdIsNotUuid,
+    FailedToPreprocessTrace,
 }
 
 impl Display for XesFromBxesKafkaTraceCreatingError {
@@ -36,6 +37,7 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
                 format!("The key {} is not found", key_name.to_string())
             }
             XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid => "Trace id was not of type uuid ".to_string(),
+            XesFromBxesKafkaTraceCreatingError::FailedToPreprocessTrace => "FailedToPreprocessTrace".to_string()
         };
 
         write!(f, "{}", str)

@@ -2,12 +2,12 @@ use crate::ficus_proto::{
     grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
     GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest,
 };
-use crate::grpc::events::events_handler::PipelineEvent;
+use crate::grpc::events::events_handler::{EmptyPipelineEventsHandler, PipelineEvent};
 use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
 use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
 use crate::grpc::kafka::models::{KafkaConsumerCreationDto, PipelineExecutionDto};
 use crate::grpc::kafka::streaming::configs::StreamingConfiguration;
-use crate::grpc::kafka::streaming::processors::TracesProcessor;
+use crate::grpc::kafka::streaming::processors::{KafkaTraceProcessingContext, TracesProcessor};
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
@@ -212,8 +212,19 @@ impl KafkaService {
             let context = Self::create_pipeline_execution_context(&pipeline.request, &pipeline.execution_dto);
             let trace = trace.clone();
 
-            let execution_result = context.execute_grpc_pipeline(move |mut context| {
-                match pipeline.processor.observe(trace, &mut context) {
+            let execution_result = context.execute_grpc_pipeline(move |context| {
+                let execution_dto = PipelineExecutionDto::new(
+                    Arc::new(Box::new(PipelineParts::new())),
+                    Arc::new(Box::new(EmptyPipelineEventsHandler::new()) as Box<dyn PipelineEventsHandler>)
+                );
+
+                let trace_processing_context = KafkaTraceProcessingContext {
+                    context,
+                    execution_dto,
+                    trace,
+                };
+
+                match pipeline.processor.observe(trace_processing_context) {
                     Ok(()) => {}
                     Err(err) => {
                         let message = format!("Failed to get update result, err: {}", err.to_string());

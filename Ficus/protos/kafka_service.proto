@@ -86,6 +86,8 @@ message GrpcT2StreamingConfiguration {
     GrpcT2LossyCountConfiguration lossyCount = 1;
     GrpcT2TimedSlidingWindowConfiguration timedSlidingWindow = 2;
   }
+
+  GrpcPipeline incomingTracesFilteringPipeline = 3;
 }
 
 message GrpcT2LossyCountConfiguration {

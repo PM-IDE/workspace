@@ -1,7 +1,4 @@
-use crate::grpc::kafka::models::{
-    XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR,
-    KAFKA_PROCESS_ID, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
-};
+use crate::grpc::kafka::models::{PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_ID, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID};
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 use crate::pipelines::context::PipelineContext;
@@ -20,14 +17,20 @@ pub enum TracesProcessor {
     T2(T2StreamingProcessor),
 }
 
+pub struct KafkaTraceProcessingContext<'a, 'b> {
+    pub trace: BxesKafkaTrace,
+    pub context: &'a mut PipelineContext<'b>,
+    pub execution_dto: PipelineExecutionDto
+}
+
 impl TracesProcessor {
-    pub fn observe(&self, trace: BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    pub fn observe(&self, mut context: KafkaTraceProcessingContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
         match self {
-            TracesProcessor::T1(processor) => processor.observe(&trace, context),
-            TracesProcessor::T2(processor) => processor.observe(&trace, context),
+            TracesProcessor::T1(processor) => processor.observe(&context.trace, context.context),
+            TracesProcessor::T2(processor) => processor.observe(&mut context),
         }?;
 
-        add_system_metadata(trace.metadata(), context)
+        add_system_metadata(context.trace.metadata(), context.context)
     }
 }
 

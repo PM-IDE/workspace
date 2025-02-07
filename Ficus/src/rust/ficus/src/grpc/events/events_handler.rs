@@ -9,6 +9,24 @@ pub trait PipelineEventsHandler: Send + Sync {
     fn is_alive(&self) -> bool;
 }
 
+pub struct EmptyPipelineEventsHandler {}
+
+impl EmptyPipelineEventsHandler {
+    pub fn new() -> Self {
+        Self {
+        }
+    }
+}
+
+impl PipelineEventsHandler for EmptyPipelineEventsHandler {
+    fn handle(&self, event: &PipelineEvent) {
+    }
+
+    fn is_alive(&self) -> bool {
+        false
+    }
+}
+
 pub struct GetContextValuesEvent<'a> {
     pub process_case_metadata: ProcessCaseMetadata,
     pub pipeline_part_name: String,
