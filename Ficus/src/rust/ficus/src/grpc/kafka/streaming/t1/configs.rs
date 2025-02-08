@@ -3,7 +3,7 @@ use crate::ficus_proto::{GrpcT1EventsTimeBasedCaching, GrpcT1StreamingConfigurat
 use crate::grpc::kafka::streaming::t1::filterers::{EventsTimeoutFiltererImpl, T1LogFilterer, TracesTimeoutFiltererImpl};
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 
-pub enum T1StreamingConfiguration {
+pub(in crate::grpc::kafka) enum T1StreamingConfiguration {
     EventsTimeout(EventsTimeoutConfiguration),
     TracesTimeout(TracesTimeoutConfiguration),
 }

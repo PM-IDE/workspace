@@ -7,7 +7,7 @@ use chrono::Utc;
 use std::ops::Sub;
 
 #[derive(Clone)]
-pub enum T1LogFilterer {
+pub(in crate::grpc::kafka) enum T1LogFilterer {
     None,
     EventsTimeoutFilterer(EventsTimeoutFiltererImpl),
     TracesTimeoutFilterer(TracesTimeoutFiltererImpl),

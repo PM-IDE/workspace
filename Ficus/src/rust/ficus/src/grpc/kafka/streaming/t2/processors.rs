@@ -1,7 +1,7 @@
 use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::ficus_proto::{GrpcPipeline, GrpcPipelineExecutionRequest};
+use crate::ficus_proto::GrpcPipeline;
 use crate::grpc::kafka::models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError};
 use crate::grpc::kafka::streaming::processors::KafkaTraceProcessingContext;
 use crate::grpc::kafka::streaming::t2::dfg_data_structures::DfgDataStructures;
@@ -16,7 +16,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 #[derive(Clone)]
-pub struct T2StreamingProcessor {
+pub(in crate::grpc::kafka) struct T2StreamingProcessor {
     dfg_data_structure: Arc<Mutex<DfgDataStructures>>,
     trace_preprocessing_pipeline: Option<GrpcPipeline>
 }

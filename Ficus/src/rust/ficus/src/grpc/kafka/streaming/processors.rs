@@ -12,12 +12,12 @@ use crate::pipelines::keys::context_keys::{CASE_NAME, PROCESS_NAME, UNSTRUCTURED
 use crate::utils::user_data::user_data::UserData;
 
 #[derive(Clone)]
-pub enum TracesProcessor {
+pub(in crate::grpc::kafka) enum TracesProcessor {
     T1(T1StreamingProcessor),
     T2(T2StreamingProcessor),
 }
 
-pub struct KafkaTraceProcessingContext<'a, 'b> {
+pub(in crate::grpc::kafka) struct KafkaTraceProcessingContext<'a, 'b> {
     pub trace: BxesKafkaTrace,
     pub context: &'a mut PipelineContext<'b>,
     pub execution_dto: PipelineExecutionDto

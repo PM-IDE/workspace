@@ -1,5 +1,5 @@
 use crate::ficus_proto::grpc_t2_streaming_configuration::Configuration;
-use crate::ficus_proto::{GrpcPipeline, GrpcPipelineExecutionRequest, GrpcT2StreamingConfiguration};
+use crate::ficus_proto::{GrpcPipeline, GrpcT2StreamingConfiguration};
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 use std::time::Duration;
 
