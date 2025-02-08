@@ -2,7 +2,7 @@ use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::ficus_proto::{GrpcPipeline, GrpcPipelineExecutionRequest};
-use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
+use crate::grpc::kafka::models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError};
 use crate::grpc::kafka::streaming::processors::KafkaTraceProcessingContext;
 use crate::grpc::kafka::streaming::t2::dfg_data_structures::DfgDataStructures;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
@@ -36,12 +36,15 @@ impl T2StreamingProcessor {
         }
     }
 
-    pub fn observe(&self, context: &mut KafkaTraceProcessingContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    pub fn observe(&self, context: &mut KafkaTraceProcessingContext) -> Result<(), KafkaTraceProcessingError> {
         let mut dfg_data_structure = self.dfg_data_structure.lock().expect("Must acquire lock");
 
         let xes_trace = match read_bxes_events(context.trace.events()) {
             Ok(xes_trace) => xes_trace,
-            Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err)),
+            Err(err) => {
+                let err = XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err);
+                return Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err))
+            },
         };
 
         let xes_trace = if let Some(preprocessing_pipeline) = self.trace_preprocessing_pipeline.as_ref() {
@@ -61,13 +64,17 @@ impl T2StreamingProcessor {
 
             match preprocessing_pipeline.to_pipeline().execute(&mut preprocessing_context, &PipelineInfrastructure::new(None)) {
                 Ok(_) => preprocessing_context.concrete(EVENT_LOG_KEY.key()).expect("Must be present").traces().first().unwrap().borrow().clone(),
-                Err(err) => return Err(XesFromBxesKafkaTraceCreatingError::FailedToPreprocessTrace)
+                Err(err) => return Err(KafkaTraceProcessingError::FailedToPreprocessTrace(err))
             }
         } else {
             xes_trace
         };
 
         dfg_data_structure.invalidate();
-        dfg_data_structure.process_bxes_trace(context.trace.metadata(), &xes_trace, context.context)
+
+        match dfg_data_structure.process_bxes_trace(context.trace.metadata(), &xes_trace, context.context) {
+            Ok(()) => Ok(()),
+            Err(err) => Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err))
+        }
     }
 }

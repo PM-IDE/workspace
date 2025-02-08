@@ -5,9 +5,10 @@ use crate::grpc::kafka::kafka_service::KafkaSubscription;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::pipeline_parts::PipelineParts;
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt::{Debug, Display, Formatter};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
+use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
 
 pub(super) const KAFKA_CASE_DISPLAY_NAME: &'static str = "case_display_name";
 pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
@@ -18,12 +19,26 @@ pub(super) const KAFKA_PROCESS_ID: &'static str = "process_id";
 pub(super) const KAFKA_TRACE_ID: &'static str = "trace_id";
 
 #[derive(Debug)]
+pub enum KafkaTraceProcessingError {
+    XesFromBxesTraceCreationError(XesFromBxesKafkaTraceCreatingError),
+    FailedToPreprocessTrace(PipelinePartExecutionError)
+}
+
+impl Display for KafkaTraceProcessingError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            KafkaTraceProcessingError::XesFromBxesTraceCreationError(e) => Display::fmt(e, f),
+            KafkaTraceProcessingError::FailedToPreprocessTrace(e) => Display::fmt(e, f),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub enum XesFromBxesKafkaTraceCreatingError {
     MetadataValueIsNotAString(String),
     MetadataValueNotFound(String),
     BxesToXexConversionError(BxesToXesReadError),
     TraceIdIsNotUuid,
-    FailedToPreprocessTrace,
 }
 
 impl Display for XesFromBxesKafkaTraceCreatingError {
@@ -37,7 +52,6 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
                 format!("The key {} is not found", key_name.to_string())
             }
             XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid => "Trace id was not of type uuid ".to_string(),
-            XesFromBxesKafkaTraceCreatingError::FailedToPreprocessTrace => "FailedToPreprocessTrace".to_string()
         };
 
         write!(f, "{}", str)

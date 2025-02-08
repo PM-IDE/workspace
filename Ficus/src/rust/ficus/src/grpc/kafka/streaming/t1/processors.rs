@@ -4,7 +4,7 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::grpc::kafka::models::{XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID};
+use crate::grpc::kafka::models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID};
 use crate::grpc::kafka::streaming::processors::{string_value_or_err, uuid_or_err};
 use crate::grpc::kafka::streaming::t1::filterers::T1LogFilterer;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
@@ -34,7 +34,7 @@ impl T1StreamingProcessor {
         }
     }
 
-    pub fn observe(&self, trace: &BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    pub fn observe(&self, trace: &BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), KafkaTraceProcessingError> {
         match self.update_log(trace) {
             Ok(new_log) => {
                 context.put_concrete(EVENT_LOG_KEY.key(), new_log);
@@ -44,7 +44,7 @@ impl T1StreamingProcessor {
             Err(err) => {
                 let message = format!("Failed to get update result, err: {}", err.to_string());
                 self.logger.handle(message.as_str()).expect("Must log message");
-                Err(err)
+                Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err))
             }
         }
     }

@@ -1,4 +1,4 @@
-use crate::grpc::kafka::models::{PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_ID, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID};
+use crate::grpc::kafka::models::{KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_ID, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID};
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 use crate::pipelines::context::PipelineContext;
@@ -24,13 +24,16 @@ pub struct KafkaTraceProcessingContext<'a, 'b> {
 }
 
 impl TracesProcessor {
-    pub fn observe(&self, mut context: KafkaTraceProcessingContext) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
+    pub fn observe(&self, mut context: KafkaTraceProcessingContext) -> Result<(), KafkaTraceProcessingError> {
         match self {
             TracesProcessor::T1(processor) => processor.observe(&context.trace, context.context),
             TracesProcessor::T2(processor) => processor.observe(&mut context),
         }?;
 
-        add_system_metadata(context.trace.metadata(), context.context)
+        match add_system_metadata(context.trace.metadata(), context.context) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err))
+        }
     }
 }
 
