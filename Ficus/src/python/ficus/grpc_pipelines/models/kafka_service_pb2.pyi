@@ -78,12 +78,20 @@ class GrpcPipelineStreamingConfiguration(_message.Message):
     def __init__(self, notSpecified: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., t1Configuration: _Optional[_Union[GrpcT1StreamingConfiguration, _Mapping]] = ..., t2Configuration: _Optional[_Union[GrpcT2StreamingConfiguration, _Mapping]] = ...) -> None: ...
 
 class GrpcT1StreamingConfiguration(_message.Message):
-    __slots__ = ["eventsTimeout", "tracesTimeout"]
+    __slots__ = ["eventsTimeout", "tracesTimeout", "tracesQueueConfiguration"]
     EVENTSTIMEOUT_FIELD_NUMBER: _ClassVar[int]
     TRACESTIMEOUT_FIELD_NUMBER: _ClassVar[int]
+    TRACESQUEUECONFIGURATION_FIELD_NUMBER: _ClassVar[int]
     eventsTimeout: GrpcT1EventsTimeBasedCaching
     tracesTimeout: GrpcT1TraceTimeBasedCaching
-    def __init__(self, eventsTimeout: _Optional[_Union[GrpcT1EventsTimeBasedCaching, _Mapping]] = ..., tracesTimeout: _Optional[_Union[GrpcT1TraceTimeBasedCaching, _Mapping]] = ...) -> None: ...
+    tracesQueueConfiguration: GrpcT1TracesQueueConfiguration
+    def __init__(self, eventsTimeout: _Optional[_Union[GrpcT1EventsTimeBasedCaching, _Mapping]] = ..., tracesTimeout: _Optional[_Union[GrpcT1TraceTimeBasedCaching, _Mapping]] = ..., tracesQueueConfiguration: _Optional[_Union[GrpcT1TracesQueueConfiguration, _Mapping]] = ...) -> None: ...
+
+class GrpcT1TracesQueueConfiguration(_message.Message):
+    __slots__ = ["queueCapacity"]
+    QUEUECAPACITY_FIELD_NUMBER: _ClassVar[int]
+    queueCapacity: int
+    def __init__(self, queueCapacity: _Optional[int] = ...) -> None: ...
 
 class GrpcT1EventsTimeBasedCaching(_message.Message):
     __slots__ = ["eventsTimeoutMs"]

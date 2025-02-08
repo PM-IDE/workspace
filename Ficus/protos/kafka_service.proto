@@ -70,7 +70,12 @@ message GrpcT1StreamingConfiguration {
   oneof configuration {
     GrpcT1EventsTimeBasedCaching eventsTimeout = 1;
     GrpcT1TraceTimeBasedCaching tracesTimeout = 2;
+    GrpcT1TracesQueueConfiguration tracesQueueConfiguration = 3;
   }
+}
+
+message GrpcT1TracesQueueConfiguration {
+  int64 queueCapacity = 1;
 }
 
 message GrpcT1EventsTimeBasedCaching {

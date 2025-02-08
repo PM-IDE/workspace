@@ -26,6 +26,13 @@ def test_t1_events_timeout_configuration():
   _assert_single_has_field(configuration, const_t1_configuration_field)
   assert configuration.t1Configuration.eventsTimeout.eventsTimeoutMs == timeout
 
+def test_t1_traces_queue_configuration():
+  queue_capacity = 289347
+  configuration = create_queue_traces_configuration(queue_capacity)
+
+  _assert_single_has_field(configuration, const_t1_configuration_field)
+  assert configuration.t1Configuration.tracesQueueConfiguration.queueCapacity == queue_capacity
+
 def test_t1_traces_timeout_configuration():
   timeout = 123
   configuration = create_traces_timeout_configuration(timeout)

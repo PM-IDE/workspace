@@ -22,6 +22,15 @@ def create_traces_timeout_configuration(traces_timeout_ms: int) -> GrpcPipelineS
       )
     )
 
+def create_queue_traces_configuration(queue_capacity: int) -> GrpcPipelineStreamingConfiguration:
+    return GrpcPipelineStreamingConfiguration(
+      t1Configuration=GrpcT1StreamingConfiguration(
+        tracesQueueConfiguration=GrpcT1TracesQueueConfiguration(
+          queueCapacity=queue_capacity
+        )
+      )
+    )
+
 def create_not_specified_configuration() -> GrpcPipelineStreamingConfiguration:
     return GrpcPipelineStreamingConfiguration(
       notSpecified=Empty()
