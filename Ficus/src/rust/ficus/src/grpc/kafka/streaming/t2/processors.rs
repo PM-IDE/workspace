@@ -16,7 +16,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 #[derive(Clone)]
-pub(in crate::grpc::kafka) struct T2StreamingProcessor {
+pub struct T2StreamingProcessor {
     dfg_data_structure: Arc<Mutex<DfgDataStructures>>,
     trace_preprocessing_pipeline: Option<GrpcPipeline>,
 }

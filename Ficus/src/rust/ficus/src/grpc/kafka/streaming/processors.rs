@@ -1,7 +1,7 @@
 use crate::grpc::events::events_handler::CaseName;
 use crate::grpc::kafka::models::{
     KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
-    KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_ID, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
+    KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
 };
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
@@ -15,12 +15,12 @@ use std::rc::Rc;
 use uuid::Uuid;
 
 #[derive(Clone)]
-pub(in crate::grpc::kafka) enum TracesProcessor {
+pub enum TracesProcessor {
     T1(T1StreamingProcessor),
     T2(T2StreamingProcessor),
 }
 
-pub(in crate::grpc::kafka) struct KafkaTraceProcessingContext<'a, 'b> {
+pub struct KafkaTraceProcessingContext<'a, 'b> {
     pub trace: BxesKafkaTrace,
     pub context: &'a mut PipelineContext<'b>,
     pub execution_dto: PipelineExecutionDto,

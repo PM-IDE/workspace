@@ -21,7 +21,7 @@ use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
 #[derive(Clone)]
-pub(in crate::grpc::kafka) struct T1StreamingProcessor {
+pub struct T1StreamingProcessor {
     logger: ConsoleLogMessageHandler,
     names_to_logs: Arc<Mutex<HashMap<String, XesEventLogImpl>>>,
     filterer: T1LogFilterer,

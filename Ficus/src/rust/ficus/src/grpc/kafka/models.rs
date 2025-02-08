@@ -14,7 +14,6 @@ pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
 pub(super) const KAFKA_CASE_ID: &'static str = "case_id";
 pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
 pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
-pub(super) const KAFKA_PROCESS_ID: &'static str = "process_id";
 pub(super) const KAFKA_TRACE_ID: &'static str = "trace_id";
 
 #[derive(Debug)]
@@ -58,7 +57,7 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
 }
 
 #[derive(Clone)]
-pub(super) struct PipelineExecutionDto {
+pub struct PipelineExecutionDto {
     pub(super) pipeline_parts: Arc<Box<PipelineParts>>,
     pub(super) events_handler: Arc<Box<dyn PipelineEventsHandler>>,
 }
@@ -73,7 +72,7 @@ impl PipelineExecutionDto {
 }
 
 #[derive(Clone)]
-pub(super) struct KafkaConsumerCreationDto {
+pub struct KafkaConsumerCreationDto {
     pub uuid: Uuid,
     pub name: String,
     pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
