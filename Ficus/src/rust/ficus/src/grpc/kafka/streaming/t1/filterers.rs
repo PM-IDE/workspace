@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::grpc::kafka::streaming::t1::configs::{EventsTimeoutConfiguration, TracesTimeoutConfiguration};
+use crate::grpc::kafka::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration};
 use chrono::Utc;
 use std::ops::Sub;
 
@@ -11,6 +11,7 @@ pub enum T1LogFilterer {
     None,
     EventsTimeoutFilterer(EventsTimeoutFiltererImpl),
     TracesTimeoutFilterer(TracesTimeoutFiltererImpl),
+    TracesQueueFilterer(TracesQueueFiltererImpl)
 }
 
 impl T1LogFilterer {
@@ -19,6 +20,7 @@ impl T1LogFilterer {
             T1LogFilterer::None => {}
             T1LogFilterer::EventsTimeoutFilterer(filterer) => filterer.filter(log),
             T1LogFilterer::TracesTimeoutFilterer(filterer) => filterer.filter(log),
+            T1LogFilterer::TracesQueueFilterer(filterer) => filterer.filter(log)
         }
     }
 }
@@ -57,5 +59,28 @@ impl TracesTimeoutFiltererImpl {
             let last_event = t.events().last().unwrap().borrow();
             current_stamp.sub(last_event.timestamp()).num_milliseconds() > timeout
         });
+    }
+}
+
+#[derive(Clone)]
+pub struct TracesQueueFiltererImpl {
+    config: TracesQueueConfiguration
+}
+
+impl TracesQueueFiltererImpl {
+    pub fn new(config: TracesQueueConfiguration) -> Self {
+        Self {
+            config
+        }
+    }
+
+    pub fn filter(&self, log: &mut XesEventLogImpl) {
+        let traces_count = log.traces().len() as u64;
+        if traces_count <= self.config.queue_capacity() {
+            return;
+        }
+
+        let traces_to_remove = traces_count - self.config.queue_capacity();
+        log.filter_traces(&|_, index| (*index as u64) < traces_to_remove);
     }
 }

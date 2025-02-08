@@ -74,6 +74,7 @@ impl T2StreamingProcessor {
                     .unwrap()
                     .borrow()
                     .clone(),
+
                 Err(err) => return Err(KafkaTraceProcessingError::FailedToPreprocessTrace(err)),
             }
         } else {
