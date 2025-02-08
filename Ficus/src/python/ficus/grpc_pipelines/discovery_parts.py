@@ -9,6 +9,11 @@ class DiscoverPetriNetAlpha(PipelinePart):
         return _create_default_discovery_part(const_discover_petri_net_alpha)
 
 
+class DiscoverPetriNetAlphaStream(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return _create_default_discovery_part(const_discover_petri_net_alpha_stream)
+
+
 def _create_default_discovery_part(algo_name: str) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(algo_name, config))

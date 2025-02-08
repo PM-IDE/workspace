@@ -14,7 +14,6 @@ use crate::utils::user_data::keys::DefaultKey;
 use crate::utils::user_data::user_data::UserData;
 use once_cell::sync::Lazy;
 use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
 use std::string::ToString;
 
 pub static ALPHA_SET: Lazy<DefaultKey<AlphaSet>> = Lazy::new(|| DefaultKey::new("alpha_set".to_string()));
