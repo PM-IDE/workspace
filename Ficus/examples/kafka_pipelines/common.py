@@ -43,7 +43,7 @@ def execute_pipeline(sub_name: str, pipeline_name: str, pipeline_parts: list[Pip
               pipeline_name, 
               kafka_producer_metadata, 
               initial_context={}, 
-              streaming_configuration=create_lossy_count_configuration(0.05, 0, trace_preprocessing_pipeline=trace_filtering_pipeline))
+              streaming_configuration=create_queue_traces_configuration(3))
 
     if env_or_default('SLEEP', None) is not None:
         while True:
