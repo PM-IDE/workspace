@@ -5,6 +5,7 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::grpc::kafka::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration};
 use chrono::Utc;
 use std::ops::Sub;
+use log::debug;
 
 #[derive(Clone)]
 pub enum T1LogFilterer {
@@ -76,11 +77,17 @@ impl TracesQueueFiltererImpl {
 
     pub fn filter(&self, log: &mut XesEventLogImpl) {
         let traces_count = log.traces().len() as u64;
-        if traces_count <= self.config.queue_capacity() {
+        let capacity = self.config.queue_capacity();
+        if traces_count <= capacity {
             return;
         }
 
-        let traces_to_remove = traces_count - self.config.queue_capacity();
+        let traces_to_remove = traces_count - capacity;
+
+        debug!("Filtering log with traces count {}, capacity: {}", traces_count, capacity);
+
         log.filter_traces(&|_, index| (*index as u64) < traces_to_remove);
+
+        debug!("Traces count after filtering: {}", log.traces().len());
     }
 }
