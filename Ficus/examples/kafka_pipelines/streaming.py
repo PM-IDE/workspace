@@ -6,5 +6,8 @@ execute_pipeline(
     'StreamingPipeline',
     [
         ViewDirectlyFollowsGraphStream(),
-    ]
+    ],
+    trace_filtering_pipeline=Pipeline(
+        RemainEventsByRegex('(Procfiler|Business)'),
+    )
 )
