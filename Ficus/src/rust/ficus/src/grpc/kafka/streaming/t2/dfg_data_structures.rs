@@ -1,5 +1,6 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
 use crate::features::streaming::counters::lossy_count::LossyCount;
@@ -9,15 +10,14 @@ use crate::grpc::kafka::streaming::processors::{CaseMetadata, ProcessMetadata};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
 use crate::utils::user_data::user_data::UserData;
+use bxes::models::domain::bxes_value::BxesValue;
 use log::{debug, warn};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::rc::Rc;
 use std::time::Duration;
-use bxes::models::domain::bxes_value::BxesValue;
 use uuid::Uuid;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
 
 #[derive(Clone)]
 enum StreamingCounterFactory {

@@ -1,4 +1,3 @@
-use std::arch::x86_64::__get_cpuid_max;
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
@@ -13,10 +12,16 @@ use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml
 use crate::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_INFO, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY};
+use crate::pipelines::keys::context_keys::{
+    AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY,
+    EVENT_LOG_INFO, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY,
+    PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY,
+    RELATIVE_TO_BEST_THRESHOLD_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 use crate::utils::user_data::user_data::UserData;
+use std::arch::x86_64::__get_cpuid_max;
 
 impl PipelineParts {
     pub(super) fn discover_petri_net_alpha() -> (String, PipelinePartFactory) {
@@ -96,7 +101,7 @@ impl PipelineParts {
             Ok(())
         })
     }
-    
+
     pub(super) fn discover_directly_follows_graph_stream() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::DISCOVER_DFG_STREAM, &|context, _, _| {
             let info = Self::get_user_data(context, &EVENT_LOG_INFO_KEY)?;

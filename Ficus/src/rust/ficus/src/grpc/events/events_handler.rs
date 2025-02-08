@@ -13,14 +13,12 @@ pub struct EmptyPipelineEventsHandler {}
 
 impl EmptyPipelineEventsHandler {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
 impl PipelineEventsHandler for EmptyPipelineEventsHandler {
-    fn handle(&self, event: &PipelineEvent) {
-    }
+    fn handle(&self, event: &PipelineEvent) {}
 
     fn is_alive(&self) -> bool {
         false

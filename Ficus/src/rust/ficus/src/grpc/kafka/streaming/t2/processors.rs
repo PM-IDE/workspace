@@ -18,21 +18,21 @@ use std::time::Duration;
 #[derive(Clone)]
 pub(in crate::grpc::kafka) struct T2StreamingProcessor {
     dfg_data_structure: Arc<Mutex<DfgDataStructures>>,
-    trace_preprocessing_pipeline: Option<GrpcPipeline>
+    trace_preprocessing_pipeline: Option<GrpcPipeline>,
 }
 
 impl T2StreamingProcessor {
     pub fn new_sliding_window(element_lifetime: Duration, preprocessing_pipeline: Option<GrpcPipeline>) -> Self {
         Self {
             dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::new_sliding_window(element_lifetime))),
-            trace_preprocessing_pipeline: preprocessing_pipeline
+            trace_preprocessing_pipeline: preprocessing_pipeline,
         }
     }
 
     pub fn new_lossy_count(error: f64, preprocessing_pipeline: Option<GrpcPipeline>) -> Self {
         Self {
             dfg_data_structure: Arc::new(Mutex::new(DfgDataStructures::new_lossy_count(error))),
-            trace_preprocessing_pipeline: preprocessing_pipeline
+            trace_preprocessing_pipeline: preprocessing_pipeline,
         }
     }
 
@@ -43,8 +43,8 @@ impl T2StreamingProcessor {
             Ok(xes_trace) => xes_trace,
             Err(err) => {
                 let err = XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err);
-                return Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err))
-            },
+                return Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err));
+            }
         };
 
         let xes_trace = if let Some(preprocessing_pipeline) = self.trace_preprocessing_pipeline.as_ref() {
@@ -59,12 +59,22 @@ impl T2StreamingProcessor {
                 preprocessing_pipeline,
                 &initial_context_values,
                 context.execution_dto.pipeline_parts.clone(),
-                context.execution_dto.events_handler.clone()
+                context.execution_dto.events_handler.clone(),
             );
 
-            match preprocessing_pipeline.to_pipeline().execute(&mut preprocessing_context, &PipelineInfrastructure::new(None)) {
-                Ok(_) => preprocessing_context.concrete(EVENT_LOG_KEY.key()).expect("Must be present").traces().first().unwrap().borrow().clone(),
-                Err(err) => return Err(KafkaTraceProcessingError::FailedToPreprocessTrace(err))
+            match preprocessing_pipeline
+                .to_pipeline()
+                .execute(&mut preprocessing_context, &PipelineInfrastructure::new(None))
+            {
+                Ok(_) => preprocessing_context
+                    .concrete(EVENT_LOG_KEY.key())
+                    .expect("Must be present")
+                    .traces()
+                    .first()
+                    .unwrap()
+                    .borrow()
+                    .clone(),
+                Err(err) => return Err(KafkaTraceProcessingError::FailedToPreprocessTrace(err)),
             }
         } else {
             xes_trace
@@ -74,7 +84,7 @@ impl T2StreamingProcessor {
 
         match dfg_data_structure.process_bxes_trace(context.trace.metadata(), &xes_trace, context.context) {
             Ok(()) => Ok(()),
-            Err(err) => Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err))
+            Err(err) => Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err)),
         }
     }
 }

@@ -4,7 +4,9 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::grpc::kafka::models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID};
+use crate::grpc::kafka::models::{
+    KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID,
+};
 use crate::grpc::kafka::streaming::processors::{string_value_or_err, uuid_or_err};
 use crate::grpc::kafka::streaming::t1::filterers::T1LogFilterer;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;

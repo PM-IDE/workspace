@@ -5,8 +5,8 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::features::analysis::log_info::event_log_info::EventLogInfo;
 use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
-use std::collections::HashMap;
 use log::warn;
+use std::collections::HashMap;
 
 pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
     let mut graph = Graph::empty();

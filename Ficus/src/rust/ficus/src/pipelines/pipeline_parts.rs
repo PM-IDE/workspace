@@ -91,7 +91,7 @@ impl PipelineParts {
             Self::discover_directly_follows_graph_by_attribute(),
             Self::append_attributes_to_name(),
             Self::merge_xes_logs_from_paths(),
-            Self::discover_directly_follows_graph_stream()
+            Self::discover_directly_follows_graph_stream(),
         ];
 
         let mut names_to_parts = HashMap::new();

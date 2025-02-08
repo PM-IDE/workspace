@@ -20,7 +20,7 @@ pub(super) const KAFKA_TRACE_ID: &'static str = "trace_id";
 #[derive(Debug)]
 pub enum KafkaTraceProcessingError {
     XesFromBxesTraceCreationError(XesFromBxesKafkaTraceCreatingError),
-    FailedToPreprocessTrace(PipelinePartExecutionError)
+    FailedToPreprocessTrace(PipelinePartExecutionError),
 }
 
 impl Display for KafkaTraceProcessingError {

@@ -16,11 +16,11 @@ impl T2StreamingConfiguration {
                 Configuration::LossyCount(lc) => T2StreamingConfiguration::LossyCount(LossyCountConfiguration {
                     error: lc.error,
                     support: lc.support,
-                    trace_preprocessing_pipeline: grpc_config.incoming_traces_filtering_pipeline.clone()
+                    trace_preprocessing_pipeline: grpc_config.incoming_traces_filtering_pipeline.clone(),
                 }),
                 Configuration::TimedSlidingWindow(sc) => T2StreamingConfiguration::SlidingWindow(TimedSlidingWindowConfiguration {
                     element_lifetime: Duration::from_millis(sc.lifespan_ms as u64),
-                    trace_preprocessing_pipeline: grpc_config.incoming_traces_filtering_pipeline.clone()
+                    trace_preprocessing_pipeline: grpc_config.incoming_traces_filtering_pipeline.clone(),
                 }),
             }),
         }
@@ -37,7 +37,7 @@ impl T2StreamingConfiguration {
 pub struct LossyCountConfiguration {
     error: f64,
     support: f64,
-    trace_preprocessing_pipeline: Option<GrpcPipeline>
+    trace_preprocessing_pipeline: Option<GrpcPipeline>,
 }
 
 impl LossyCountConfiguration {
@@ -48,7 +48,7 @@ impl LossyCountConfiguration {
 
 pub struct TimedSlidingWindowConfiguration {
     element_lifetime: Duration,
-    trace_preprocessing_pipeline: Option<GrpcPipeline>
+    trace_preprocessing_pipeline: Option<GrpcPipeline>,
 }
 
 impl TimedSlidingWindowConfiguration {

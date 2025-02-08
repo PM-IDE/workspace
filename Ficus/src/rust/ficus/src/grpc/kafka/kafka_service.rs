@@ -215,7 +215,7 @@ impl KafkaService {
             let execution_result = context.execute_grpc_pipeline(move |context| {
                 let execution_dto = PipelineExecutionDto::new(
                     Arc::new(Box::new(PipelineParts::new())),
-                    Arc::new(Box::new(EmptyPipelineEventsHandler::new()) as Box<dyn PipelineEventsHandler>)
+                    Arc::new(Box::new(EmptyPipelineEventsHandler::new()) as Box<dyn PipelineEventsHandler>),
                 );
 
                 let trace_processing_context = KafkaTraceProcessingContext {
