@@ -1,12 +1,14 @@
 use crate::ficus_proto::grpc_t1_streaming_configuration::Configuration;
 use crate::ficus_proto::{GrpcT1EventsTimeBasedCaching, GrpcT1StreamingConfiguration, GrpcT1TraceTimeBasedCaching};
-use crate::grpc::kafka::streaming::t1::filterers::{EventsTimeoutFiltererImpl, T1LogFilterer, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl};
+use crate::grpc::kafka::streaming::t1::filterers::{
+    EventsTimeoutFiltererImpl, T1LogFilterer, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl,
+};
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 
 pub enum T1StreamingConfiguration {
     EventsTimeout(EventsTimeoutConfiguration),
     TracesTimeout(TracesTimeoutConfiguration),
-    TracesQueue(TracesQueueConfiguration)
+    TracesQueue(TracesQueueConfiguration),
 }
 
 impl T1StreamingConfiguration {
@@ -68,7 +70,7 @@ impl TracesTimeoutConfiguration {
 
 #[derive(Clone)]
 pub struct TracesQueueConfiguration {
-    queue_capacity: u64
+    queue_capacity: u64,
 }
 
 impl TracesQueueConfiguration {

@@ -4,15 +4,15 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::grpc::kafka::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration};
 use chrono::Utc;
-use std::ops::Sub;
 use log::debug;
+use std::ops::Sub;
 
 #[derive(Clone)]
 pub enum T1LogFilterer {
     None,
     EventsTimeoutFilterer(EventsTimeoutFiltererImpl),
     TracesTimeoutFilterer(TracesTimeoutFiltererImpl),
-    TracesQueueFilterer(TracesQueueFiltererImpl)
+    TracesQueueFilterer(TracesQueueFiltererImpl),
 }
 
 impl T1LogFilterer {
@@ -21,7 +21,7 @@ impl T1LogFilterer {
             T1LogFilterer::None => {}
             T1LogFilterer::EventsTimeoutFilterer(filterer) => filterer.filter(log),
             T1LogFilterer::TracesTimeoutFilterer(filterer) => filterer.filter(log),
-            T1LogFilterer::TracesQueueFilterer(filterer) => filterer.filter(log)
+            T1LogFilterer::TracesQueueFilterer(filterer) => filterer.filter(log),
         }
     }
 }
@@ -65,14 +65,12 @@ impl TracesTimeoutFiltererImpl {
 
 #[derive(Clone)]
 pub struct TracesQueueFiltererImpl {
-    config: TracesQueueConfiguration
+    config: TracesQueueConfiguration,
 }
 
 impl TracesQueueFiltererImpl {
     pub fn new(config: TracesQueueConfiguration) -> Self {
-        Self {
-            config
-        }
+        Self { config }
     }
 
     pub fn filter(&self, log: &mut XesEventLogImpl) {
