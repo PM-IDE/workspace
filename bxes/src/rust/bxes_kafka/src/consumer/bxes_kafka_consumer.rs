@@ -88,8 +88,8 @@ impl BxesKafkaConsumer {
                 Ok(msg) => {
                     let payload = msg.payload().unwrap();
                     const UUID_LENGTH: usize = 16;
-                    let read_metadata_id =
-                        Uuid::from_slice(&payload[..UUID_LENGTH]).expect("Should be valid uuid");
+
+                    let read_metadata_id = Uuid::from_slice(&payload[..UUID_LENGTH]).expect("Should be valid uuid");
 
                     info!("Read bxes trace with read metadata id {}", read_metadata_id);
 
@@ -104,9 +104,9 @@ impl BxesKafkaConsumer {
                         .get_mut(&read_metadata_id)
                         .expect("Must be present");
 
-                    let trace =
-                        Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], &mut read_metadata)?;
-                    self.consumer.commit_message(&msg, CommitMode::Async)?;
+                    let trace = Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], &mut read_metadata)?;
+
+                    self.consumer.commit_message(&msg, CommitMode::Sync)?;
 
                     Ok(Some(trace))
                 }

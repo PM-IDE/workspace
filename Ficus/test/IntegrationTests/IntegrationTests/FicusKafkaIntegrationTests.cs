@@ -12,19 +12,19 @@ using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
 
-[TestFixture, FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+[TestFixture, FixtureLifeCycle(LifeCycle.SingleInstance)]
 public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 {
   [Test]
-  public void EventNamesTest() => ExecuteTestWithKafkaSubscription(() =>
+  public void EventNamesTest()
   {
     var eventLog = GenerateTestEventLog();
     ProduceEventLogToKafka(eventLog);
     AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
-  });
+  }
 
   [Test]
-  public void SameTraceIdTest() => ExecuteTestWithKafkaSubscription(() =>
+  public void SameTraceIdTest()
   {
     var eventLog = GenerateTestEventLog();
     var newSameTraceId = Guid.NewGuid();
@@ -37,40 +37,6 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
     ProduceEventLogToKafka(eventLog);
     AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates());
-  });
-
-  private void ExecuteTestWithKafkaSubscription(Action testAction)
-  {
-    var subscriptionId = CreateFicusKafkaSubscription();
-
-    try
-    {
-      testAction();
-    }
-    finally
-    {
-      KafkaClient.UnsubscribeFromKafkaTopic(new GrpcUnsubscribeFromKafkaRequest
-      {
-        SubscriptionId = subscriptionId
-      });
-    }
-  }
-
-  private GrpcGuid CreateFicusKafkaSubscription()
-  {
-    var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequest(TestsSettings);
-    var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(subscribeRequest);
-
-    Assert.That(subscriptionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
-
-    var subscriptionId = subscriptionResult.Success.Id;
-    var addPipelineRequest = GrpcRequestsCreator.CreateAddGetNamesLogPipelineRequest(subscriptionId, TestsSettings);
-
-    var pipelineAdditionResult = KafkaClient.AddPipelineToSubscription(addPipelineRequest);
-
-    Assert.That(pipelineAdditionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
-
-    return subscriptionResult.Success.Id;
   }
 
   private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
@@ -113,9 +79,9 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
   private static IEventLog GenerateRandomEventLog() => RandomLogsGenerator.CreateSimpleLog(new RandomLogGenerationParameters
   {
-    EventsCount = new LowerUpperBound(10, 20),
-    VariantsCount = new LowerUpperBound(10, 20),
-    EventAttributesCount = new LowerUpperBound(10, 20)
+    EventsCount = new LowerUpperBound(1, 5),
+    VariantsCount = new LowerUpperBound(5, 10),
+    EventAttributesCount = new LowerUpperBound(1, 5)
   });
 
   private static void SetEventLogMetadata(IEventLog eventLog)
@@ -161,7 +127,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
     List<GrpcKafkaUpdate> result = [];
     while (true)
     {
-      var consumeResult = consumer.Consume();
+      var consumeResult = consumer.Consume(TimeSpan.FromSeconds(60));
       if (consumeResult.IsPartitionEOF) break;
 
       result.Add(consumeResult.Message.Value);

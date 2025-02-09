@@ -17,7 +17,7 @@ public class FicusIntegrationTestsSettings
   public required string ConsumerBootstrapServers { get; init; }
   public required string ConsumerTopic { get; init; }
   public required string ConsumerGroup { get; init; }
-  
+
   public required string ProducerBootstrapServers { get; init; }
   public required string ProducerTopic { get; init; }
 
@@ -44,5 +44,24 @@ public abstract class TestWithFicusBackendBase
 
     var channel = GrpcChannel.ForAddress($"http://{TestsSettings.FicusBackendAddress}");
     KafkaClient = new GrpcKafkaService.GrpcKafkaServiceClient(channel);
+
+    CreateFicusKafkaSubscription();
+  }
+
+  private GrpcGuid CreateFicusKafkaSubscription()
+  {
+    var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequest(TestsSettings);
+    var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(subscribeRequest);
+
+    Assert.That(subscriptionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
+
+    var subscriptionId = subscriptionResult.Success.Id;
+    var addPipelineRequest = GrpcRequestsCreator.CreateAddGetNamesLogPipelineRequest(subscriptionId, TestsSettings);
+
+    var pipelineAdditionResult = KafkaClient.AddPipelineToSubscription(addPipelineRequest);
+
+    Assert.That(pipelineAdditionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
+
+    return subscriptionResult.Success.Id;
   }
 }
