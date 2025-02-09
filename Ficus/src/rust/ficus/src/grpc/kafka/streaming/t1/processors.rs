@@ -18,6 +18,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
+use log::info;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -90,6 +91,8 @@ impl T1StreamingProcessor {
             let mut existing_xes_trace = existing_xes_trace.borrow_mut();
             if let Some(current_trace_id) = Self::try_get_trace_id(&existing_xes_trace).clone() {
                 if current_trace_id == trace_id {
+                    info!("Found an existing trace for trace id {}, appending it", current_trace_id);
+
                     for event in read_xes_trace.events() {
                         existing_xes_trace.push(event.clone());
                     }
@@ -106,6 +109,8 @@ impl T1StreamingProcessor {
 
         let read_xes_trace = Rc::new(RefCell::new(read_xes_trace));
         existing_log.push(read_xes_trace);
+
+        info!("Created new trace for trace id {}", trace_id);
 
         Ok(existing_log.clone())
     }
