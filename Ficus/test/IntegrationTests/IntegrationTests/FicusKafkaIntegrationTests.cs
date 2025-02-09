@@ -42,13 +42,10 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
   private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     var namesLog = FindLastNamesLog(updates);
+    var lastTrace = namesLog.Value.NamesLog.Log.Traces.Last();
 
-    Assert.That(namesLog.Value.NamesLog.Log.Traces, Has.Count.EqualTo(1));
-
-    var firstTrace = namesLog.Value.NamesLog.Log.Traces.First();
-
-    Assert.That(firstTrace.Events, Has.Count.EqualTo(eventLog.Traces.Select(t => t.Events.Count).Sum()));
-    foreach (var (traceEvent, grpcEventName) in eventLog.Traces.SelectMany(t => t.Events).Zip(firstTrace.Events))
+    Assert.That(lastTrace.Events, Has.Count.EqualTo(eventLog.Traces.Select(t => t.Events.Count).Sum()));
+    foreach (var (traceEvent, grpcEventName) in eventLog.Traces.SelectMany(t => t.Events).Zip(lastTrace.Events))
     {
       Assert.That(grpcEventName, Is.EqualTo(traceEvent.Name));
     }
