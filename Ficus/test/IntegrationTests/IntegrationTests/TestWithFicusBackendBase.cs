@@ -33,7 +33,7 @@ public abstract class TestWithFicusBackendBase
   protected FicusIntegrationTestsSettings TestsSettings;
 
 
-  [SetUp]
+  [OneTimeSetUp]
   public void InitConfiguration()
   {
     Configuration = new ConfigurationBuilder().Add(new EnvironmentVariablesConfigurationSource()).Build();
@@ -44,8 +44,27 @@ public abstract class TestWithFicusBackendBase
 
     var channel = GrpcChannel.ForAddress($"http://{TestsSettings.FicusBackendAddress}");
     KafkaClient = new GrpcKafkaService.GrpcKafkaServiceClient(channel);
+  }
+}
 
-    CreateFicusKafkaSubscription();
+public abstract class TestWithFicusBackendOneKafkaSubscription : TestWithFicusBackendBase
+{
+  private GrpcGuid? mySubscriptionId;
+
+
+  [OneTimeSetUp]
+  public void Setup()
+  {
+    mySubscriptionId = CreateFicusKafkaSubscription();
+  }
+
+  [OneTimeTearDown]
+  public void Teardown()
+  {
+    KafkaClient.UnsubscribeFromKafkaTopic(new GrpcUnsubscribeFromKafkaRequest
+    {
+      SubscriptionId = mySubscriptionId
+    });
   }
 
   private GrpcGuid CreateFicusKafkaSubscription()

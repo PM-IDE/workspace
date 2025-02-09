@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace IntegrationTests;
 
 [TestFixture, FixtureLifeCycle(LifeCycle.SingleInstance)]
-public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
+public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscription
 {
   [Test]
   public void EventNamesTest()
@@ -128,7 +128,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
     while (true)
     {
       var consumeResult = consumer.Consume(TimeSpan.FromSeconds(60));
-      if (consumeResult.IsPartitionEOF) break;
+      if (consumeResult is null || consumeResult.IsPartitionEOF) break;
 
       result.Add(consumeResult.Message.Value);
       consumer.Commit();

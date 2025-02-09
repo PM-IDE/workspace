@@ -3,7 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 
 namespace IntegrationTests;
 
-[TestFixture]
+[TestFixture, FixtureLifeCycle(LifeCycle.SingleInstance)]
 public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
 {
   private const string TestSubscriptionName = nameof(TestSubscriptionName);
@@ -45,7 +45,7 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
     var subscription = FindSubscription(subscriptionId);
     Assert.That(subscription.Pipelines, Has.Count.Zero);
   }
-  
+
   private void ExecuteTestWithSingleSubscription(Action<GrpcKafkaSubscription> testAction)
   {
     var subscriptionId = CreateKafkaSubscription();
@@ -73,7 +73,7 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
     Assert.That(pipeline, Is.Not.Null);
     Assert.That(pipeline.Metadata.Name, Is.EqualTo(name));
   }
-  
+
   private GrpcKafkaSubscription FindSubscription(GrpcGuid subscriptionId)
   {
     var allSubscriptions = KafkaClient.GetAllSubscriptionsAndPipelines(new Empty());
@@ -91,7 +91,7 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
     {
       Assert.That(allSubscriptions.Subscriptions, Has.Count.EqualTo(1));
       Assert.That(
-        allSubscriptions.Subscriptions.FirstOrDefault(s => s.Metadata.SubscriptionName == subscriptionName && 
+        allSubscriptions.Subscriptions.FirstOrDefault(s => s.Metadata.SubscriptionName == subscriptionName &&
                                                            s.Id.Equals(subscriptionId)),
         Is.Not.Null
       );
@@ -99,7 +99,7 @@ public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
   }
 
   private void AssertNoSubscriptions()
-  {    
+  {
     var allSubscriptions = KafkaClient.GetAllSubscriptionsAndPipelines(new Empty());
     Assert.That(allSubscriptions.Subscriptions, Has.Count.Zero);
   }
