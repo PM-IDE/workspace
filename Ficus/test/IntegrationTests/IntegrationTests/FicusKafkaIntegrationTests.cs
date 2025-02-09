@@ -127,7 +127,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     List<GrpcKafkaUpdate> result = [];
     while (true)
     {
-      var consumeResult = consumer.Consume(TimeSpan.FromSeconds(60));
+      var consumeResult = consumer.Consume();
       if (consumeResult is null || consumeResult.IsPartitionEOF) break;
 
       result.Add(consumeResult.Message.Value);
