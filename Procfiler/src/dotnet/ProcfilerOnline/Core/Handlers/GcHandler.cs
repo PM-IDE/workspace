@@ -37,7 +37,8 @@ public class GcHandler(IProcfilerLogger logger, IBxesMethodsKafkaProducer produc
       {
         DisplayName = GcCaseName,
         NameParts = [GcCaseName]
-      }
+      },
+      CaseId = Guid.NewGuid()
     };
 
     producer.Produce(Guid.NewGuid(), message);

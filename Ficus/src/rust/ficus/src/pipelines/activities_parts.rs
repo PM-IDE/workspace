@@ -8,7 +8,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::event_log_info::count_events;
+use crate::features::analysis::log_info::event_log_info::count_events;
 use crate::features::analysis::patterns::activity_instances;
 use crate::features::analysis::patterns::activity_instances::{substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME};
 use crate::features::clustering::activities::activities_common::create_dataset;

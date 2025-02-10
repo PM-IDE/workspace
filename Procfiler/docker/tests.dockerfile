@@ -10,6 +10,7 @@ RUN apt-get -y install cmake
 WORKDIR /app
 COPY ./Procfiler ./Procfiler
 COPY ./bxes ./bxes
+COPY ./Ficus ./Ficus
 COPY ProcfilerBxes.sln ./ProcfilerBxes.sln
 COPY Directory.Packages.props ./Directory.Packages.props
 

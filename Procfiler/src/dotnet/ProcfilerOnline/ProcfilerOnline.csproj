@@ -12,6 +12,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj"/>
         <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
+        <ProjectReference Include="..\..\..\..\Ficus\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj" />
         <ProjectReference Include="..\Core\Core.csproj"/>
     </ItemGroup>
 

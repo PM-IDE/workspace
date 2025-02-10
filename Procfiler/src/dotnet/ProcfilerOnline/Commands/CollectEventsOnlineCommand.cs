@@ -13,7 +13,8 @@ public record CollectEventsOnlineContext(
   string DllFilePath,
   Regex? TargetMethodsRegex,
   Regex? MethodsFilterRegex,
-  ProvidersCategoryKind Providers
+  ProvidersCategoryKind Providers,
+  ulong EventsFlushThreshold
 )
 {
   public string ApplicationName { get; } = Path.GetFileNameWithoutExtension(DllFilePath);
@@ -34,6 +35,9 @@ public class CollectEventsOnlineCommand(
   private static Option<ProvidersCategoryKind> ProvidersOption { get; } =
     new("--providers", static () => ProvidersCategoryKind.All, "Providers which will be used for collecting events");
 
+  private static Option<ulong> EventsFlushThreshold { get; } =
+    new("--flush-threshold", static () => 10_000, "After this number of events stored in the trace it will be flushed");
+
 
   public void Execute(CollectEventsOnlineContext context)
   {
@@ -49,7 +53,8 @@ public class CollectEventsOnlineCommand(
         parseResult.GetValueForOption(DllPathOption)!,
         CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
         CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex)),
-        parseResult.GetValueForOption(ProvidersOption)
+        parseResult.GetValueForOption(ProvidersOption),
+        parseResult.GetValueForOption(EventsFlushThreshold)
       );
     });
 
@@ -64,6 +69,7 @@ public class CollectEventsOnlineCommand(
     command.AddOption(TargetMethodsRegex);
     command.AddOption(MethodsFilterRegex);
     command.AddOption(ProvidersOption);
+    command.AddOption(EventsFlushThreshold);
 
     command.Handler = this;
 

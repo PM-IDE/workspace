@@ -2,12 +2,13 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::log_info::event_log_info::EventLogInfo;
 use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
+use log::warn;
 use std::collections::HashMap;
 
-pub fn construct_dfg(info: &EventLogInfo) -> DefaultGraph {
+pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
     let mut graph = Graph::empty();
     let mut classes_to_node_ids = HashMap::new();
 
@@ -19,13 +20,18 @@ pub fn construct_dfg(info: &EventLogInfo) -> DefaultGraph {
     for class in info.all_event_classes() {
         if let Some(followers) = info.dfg_info().get_followed_events(class) {
             for (follower, count) in followers.iter() {
-                let first_id = classes_to_node_ids.get(class).unwrap();
-                let second_id = classes_to_node_ids.get(follower).unwrap();
+                if let Some(first_id) = classes_to_node_ids.get(class) {
+                    if let Some(second_id) = classes_to_node_ids.get(follower) {
+                        let data = Some(HeapedOrOwned::Owned(count.to_string()));
+                        let connection_data = NodesConnectionData::new(data, *count as f64);
 
-                let data = Some(HeapedOrOwned::Owned(count.to_string()));
-                let connection_data = NodesConnectionData::new(data, *count as f64);
-
-                graph.connect_nodes(first_id, second_id, connection_data);
+                        graph.connect_nodes(first_id, second_id, connection_data);
+                    } else {
+                        warn!("Failed to get graph node for follower {}", follower);
+                    }
+                } else {
+                    warn!("Failed to get graph node for class {}", class)
+                }
             }
         }
     }

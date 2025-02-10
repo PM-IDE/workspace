@@ -84,12 +84,12 @@ impl<'a> ServicePipelineExecutionContext<'a> {
 
     pub fn execute_grpc_pipeline(
         &self,
-        context_mutator: impl FnOnce(&mut PipelineContext) -> (),
+        context_mutator: impl FnOnce(&mut PipelineContext) -> Result<(), PipelinePartExecutionError>,
     ) -> Result<(Uuid, UserDataImpl), PipelinePartExecutionError> {
         let id = Uuid::new_v4();
         let pipeline = self.to_pipeline();
         let mut pipeline_context = self.create_initial_context();
-        context_mutator(&mut pipeline_context);
+        context_mutator(&mut pipeline_context)?;
 
         let infra = PipelineInfrastructure::new(Some(self.log_message_handler()));
 

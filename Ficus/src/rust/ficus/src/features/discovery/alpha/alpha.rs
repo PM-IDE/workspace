@@ -1,7 +1,7 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto};
+use crate::features::analysis::log_info::event_log_info::EventLogInfo;
 use crate::features::discovery::alpha::alpha_set::AlphaSet;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProvider;
 use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
@@ -14,7 +14,6 @@ use crate::utils::user_data::keys::DefaultKey;
 use crate::utils::user_data::user_data::UserData;
 use once_cell::sync::Lazy;
 use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
 use std::string::ToString;
 
 pub static ALPHA_SET: Lazy<DefaultKey<AlphaSet>> = Lazy::new(|| DefaultKey::new("alpha_set".to_string()));
@@ -24,26 +23,25 @@ pub fn discover_petri_net_alpha(provider: &impl AlphaRelationsProvider) -> Defau
 }
 
 pub fn discover_petri_net_alpha_plus(
-    log: &impl EventLog,
     provider: &impl AlphaPlusRelationsProvider,
+    original_log_info: &dyn EventLogInfo,
     alpha_plus_plus: bool,
 ) -> DefaultPetriNet {
     let mut petri_net = do_discover_petri_net_alpha(provider);
-    add_one_length_loops(log, provider.one_length_loop_transitions(), &mut petri_net);
+    add_one_length_loops(provider, original_log_info, &mut petri_net);
 
     if alpha_plus_plus {
-        add_alpha_plus_plus_transitions(log, provider.one_length_loop_transitions(), &mut petri_net);
+        add_alpha_plus_plus_transitions(provider, &mut petri_net);
     }
 
     petri_net
 }
 
-fn add_one_length_loops(log: &impl EventLog, one_length_loop_transitions: &HashSet<String>, petri_net: &mut DefaultPetriNet) {
-    let event_log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
-
+fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, original_log_info: &dyn EventLogInfo, petri_net: &mut DefaultPetriNet) {
+    let one_length_loop_transitions = provider.one_length_loop_transitions();
     for transition_name in one_length_loop_transitions {
         let mut alpha_set = AlphaSet::empty();
-        if let Some(followed_events) = event_log_info.dfg_info().get_followed_events(transition_name) {
+        if let Some(followed_events) = original_log_info.dfg_info().get_followed_events(transition_name) {
             for event in followed_events.keys() {
                 if event != transition_name {
                     alpha_set.insert_right_class(event.to_owned());
@@ -51,7 +49,7 @@ fn add_one_length_loops(log: &impl EventLog, one_length_loop_transitions: &HashS
             }
         }
 
-        if let Some(precedes_events) = event_log_info.dfg_info().get_precedes_events(transition_name) {
+        if let Some(precedes_events) = original_log_info.dfg_info().get_precedes_events(transition_name) {
             for event in precedes_events.keys() {
                 if event != transition_name {
                     alpha_set.insert_left_class(event.to_owned());
@@ -75,12 +73,12 @@ fn add_one_length_loops(log: &impl EventLog, one_length_loop_transitions: &HashS
     }
 }
 
-fn add_alpha_plus_plus_transitions(log: &impl EventLog, one_length_loop_transitions: &HashSet<String>, petri_net: &mut DefaultPetriNet) {
+fn add_alpha_plus_plus_transitions(provider: &impl AlphaPlusRelationsProvider, petri_net: &mut DefaultPetriNet) {
     let key = Lazy::get(&ALPHA_SET).unwrap();
     let mut transitions_connections = HashSet::new();
     let mut places_connections = HashSet::new();
 
-    for transition in one_length_loop_transitions {
+    for transition in provider.one_length_loop_transitions() {
         if let Some(transition) = petri_net.find_transition_by_name(transition) {
             for place in petri_net.all_places() {
                 if let Some(alpha_set) = place.user_data().concrete(key) {
@@ -183,7 +181,7 @@ fn filter_out_non_maximal_sets(current_sets: &HashSet<AlphaSet>) -> Vec<&AlphaSe
         .collect()
 }
 
-fn create_petri_net(info: &EventLogInfo, alpha_sets: Vec<&AlphaSet>) -> DefaultPetriNet {
+fn create_petri_net(info: &dyn EventLogInfo, alpha_sets: Vec<&AlphaSet>) -> DefaultPetriNet {
     let mut petri_net = PetriNet::empty();
     let mut event_classes_to_transition_ids = HashMap::new();
     for class in info.all_event_classes() {

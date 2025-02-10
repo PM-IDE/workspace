@@ -36,6 +36,7 @@ impl PipelineParts {
     pub const APPLY_CLASS_EXTRACTOR: &'static str = "ApplyClassExtractor";
     pub const SERIALIZE_PETRI_NET: &'static str = "SerializePetriNet";
     pub const DISCOVER_PETRI_NET_ALPHA: &'static str = "DiscoverPetriNetAlpha";
+    pub const DISCOVER_PETRI_NET_ALPHA_STREAM: &'static str = "DiscoverPetriNetAlphaStream";
     pub const ADD_ARTIFICIAL_START_END_EVENTS: &'static str = "AddArtificialStartEndEvents";
     pub const ADD_ARTIFICIAL_START_EVENTS: &'static str = "AddArtificialStartEvents";
     pub const ADD_ARTIFICIAL_END_EVENTS: &'static str = "AddArtificialEndEvents";
@@ -51,6 +52,7 @@ impl PipelineParts {
     pub const TRACES_DIVERSITY_DIAGRAM_BY_ATTRIBUTE: &'static str = "TracesDiversityDiagramByAttribute";
     pub const DISCOVER_DFG_BY_ATTRIBUTE: &'static str = "DiscoverDirectlyFollowsGraphByAttribute";
     pub const APPEND_ATTRIBUTES_TO_NAME: &'static str = "AppendAttributesToName";
+    pub const DISCOVER_DFG_STREAM: &'static str = "DiscoverDirectlyFollowsGraphStream";
 
     pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
     pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";

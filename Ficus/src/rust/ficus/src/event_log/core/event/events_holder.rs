@@ -6,6 +6,7 @@ use crate::{
 };
 
 use super::event::Event;
+use log::debug;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 #[derive(Debug)]
@@ -72,6 +73,8 @@ where
         for index in 0..events.len() {
             if !predicate(&events[index].borrow()) {
                 new_events.push(events[index].clone())
+            } else {
+                debug!("Removing event at index {}: {:?}", index, events[index].borrow())
             }
         }
 

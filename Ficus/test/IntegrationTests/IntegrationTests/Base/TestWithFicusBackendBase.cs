@@ -4,7 +4,7 @@ using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.EnvironmentVariables;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Base;
 
 public class FicusKafkaProducerSettings
 {
@@ -17,7 +17,7 @@ public class FicusIntegrationTestsSettings
   public required string ConsumerBootstrapServers { get; init; }
   public required string ConsumerTopic { get; init; }
   public required string ConsumerGroup { get; init; }
-  
+
   public required string ProducerBootstrapServers { get; init; }
   public required string ProducerTopic { get; init; }
 
@@ -33,7 +33,7 @@ public abstract class TestWithFicusBackendBase
   protected FicusIntegrationTestsSettings TestsSettings;
 
 
-  [SetUp]
+  [OneTimeSetUp]
   public void InitConfiguration()
   {
     Configuration = new ConfigurationBuilder().Add(new EnvironmentVariablesConfigurationSource()).Build();

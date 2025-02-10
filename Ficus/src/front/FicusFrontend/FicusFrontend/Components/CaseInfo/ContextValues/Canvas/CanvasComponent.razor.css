@@ -1,12 +1,12 @@
 ﻿.canvas-container {
-  min-width: 1200px;
+  min-width: 800px;
   height: 650px;
   background-color: var(--cv-section-content-color);
   padding: 15px;
 }
 
 .cytoscape-canvas {
-  min-width: 1170px;
+  min-width: 800px;
   height: 590px;
 }
 

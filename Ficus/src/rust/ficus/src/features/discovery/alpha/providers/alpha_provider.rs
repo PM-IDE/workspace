@@ -1,4 +1,4 @@
-use crate::features::analysis::event_log_info::EventLogInfo;
+use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 
 pub trait AlphaRelationsProvider {
     fn causal_relation(&self, first: &str, second: &str) -> bool;
@@ -6,15 +6,15 @@ pub trait AlphaRelationsProvider {
     fn direct_relation(&self, first: &str, second: &str) -> bool;
     fn unrelated_relation(&self, first: &str, second: &str) -> bool;
 
-    fn log_info(&self) -> &EventLogInfo;
+    fn log_info(&self) -> &dyn EventLogInfo;
 }
 
 pub struct DefaultAlphaRelationsProvider<'a> {
-    log_info: &'a EventLogInfo,
+    log_info: &'a dyn EventLogInfo,
 }
 
 impl<'a> DefaultAlphaRelationsProvider<'a> {
-    pub fn new(log_info: &'a EventLogInfo) -> Self {
+    pub fn new(log_info: &'a dyn EventLogInfo) -> Self {
         Self { log_info }
     }
 }
@@ -36,7 +36,7 @@ impl<'a> AlphaRelationsProvider for DefaultAlphaRelationsProvider<'a> {
         !self.direct_relation(first, second) && !self.direct_relation(second, first)
     }
 
-    fn log_info(&self) -> &EventLogInfo {
+    fn log_info(&self) -> &dyn EventLogInfo {
         self.log_info
     }
 }

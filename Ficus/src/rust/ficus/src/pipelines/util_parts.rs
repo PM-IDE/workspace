@@ -3,6 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use chrono::{DateTime, Duration, Utc};
 
 use super::pipelines::PipelinePartFactory;
+use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::pipelines::keys::context_keys::{
     EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY,
 };
@@ -20,7 +22,6 @@ use crate::{
         },
         xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
     },
-    features::analysis::event_log_info::{EventLogInfo, EventLogInfoCreationDto},
     utils::user_data::user_data::{UserData, UserDataImpl},
 };
 
@@ -38,7 +39,7 @@ impl PipelineParts {
     pub(super) fn get_event_log_info() -> (String, PipelinePartFactory) {
         Self::create_pipeline_part(Self::GET_EVENT_LOG_INFO, &|context, _, _| {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-            let log_info = EventLogInfo::create_from(EventLogInfoCreationDto::default(log));
+            let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
             context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
 
             Ok(())

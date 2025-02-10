@@ -69,7 +69,9 @@ fn get_test_parts_names() -> Vec<String> {
         "TracesDiversityDiagramByAttribute",
         "DiscoverDirectlyFollowsGraphByAttribute",
         "AppendAttributesToName",
-        "MergeXesLogsFromPaths"
+        "MergeXesLogsFromPaths",
+        "DiscoverDirectlyFollowsGraphStream",
+        "DiscoverPetriNetAlphaStream"
     ]
 }
 

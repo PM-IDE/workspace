@@ -57,7 +57,8 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
       ApplicationName = myApplicationName ?? "UNDEF_APPLICATION",
       MethodTraces = traces,
       StateMachineName = stateMachineName,
-      MethodInfo = methodInfo
+      MethodInfo = methodInfo,
+      AsyncMethodCaseId = Guid.NewGuid()
     });
   }
 }

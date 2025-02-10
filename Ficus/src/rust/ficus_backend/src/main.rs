@@ -6,11 +6,16 @@ use ficus::{
     ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer,
     grpc::backend_service::FicusService,
 };
+use log::{debug, LevelFilter};
 use std::sync::{Arc, Mutex};
 use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    colog::basic_builder()
+        .filter_level(LevelFilter::Debug)
+        .init();
+
     let cv_service = Arc::new(Mutex::new(ContextValueService::new()));
     let grpc_cv_service =
         GrpcContextValuesServiceServer::new(GrpcContextValueService::new(cv_service.clone()));

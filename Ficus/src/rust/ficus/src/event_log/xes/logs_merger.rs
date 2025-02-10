@@ -1,6 +1,7 @@
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::xes::reader::file_xes_log_reader::read_event_log;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use log::error;
 
 pub fn merge_xes_logs(paths: &Vec<String>) -> XesEventLogImpl {
     let mut merged_log = XesEventLogImpl::empty();
@@ -11,7 +12,7 @@ pub fn merge_xes_logs(paths: &Vec<String>) -> XesEventLogImpl {
                 merged_log.push(trace.clone());
             }
         } else {
-            println!("Failed to read event log from {}", path);
+            error!("Failed to read event log from {}", path);
         }
     }
 

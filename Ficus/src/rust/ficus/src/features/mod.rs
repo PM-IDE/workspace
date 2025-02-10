@@ -3,3 +3,4 @@ pub mod cases;
 pub mod clustering;
 pub mod discovery;
 pub mod mutations;
+pub mod streaming;

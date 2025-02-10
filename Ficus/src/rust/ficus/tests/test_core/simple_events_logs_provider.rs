@@ -273,22 +273,24 @@ pub fn create_cases_discovery_test_log() -> XesEventLogImpl {
 }
 
 pub fn create_event_log_with_simple_real_time() -> XesEventLogImpl {
-    let log = create_simple_event_log2();
+    let mut log = create_simple_event_log2();
 
-    let initial_stamp = DateTime::<Utc>::MIN_UTC;
+    annotate_log_with_real_time(&mut log, DateTime::<Utc>::MIN_UTC, Duration::nanoseconds(1));
 
+    log
+}
+
+pub fn annotate_log_with_real_time(log: &mut XesEventLogImpl, start_time: DateTime<Utc>, delta: Duration) {
     for trace in log.traces() {
         let trace = trace.borrow();
 
-        let mut current_stamp = initial_stamp.clone();
+        let mut current_stamp = start_time.clone();
         for event in trace.events() {
             let mut event = event.borrow_mut();
 
             event.set_timestamp(current_stamp);
 
-            current_stamp = current_stamp.add(Duration::nanoseconds(1));
+            current_stamp = current_stamp.add(delta);
         }
     }
-
-    log
 }

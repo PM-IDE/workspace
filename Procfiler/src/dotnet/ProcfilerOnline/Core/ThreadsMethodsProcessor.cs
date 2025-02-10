@@ -19,6 +19,7 @@ public class TargetMethodFrame(long methodId, ExtendedMethodInfo? methodInfo)
 {
   public long MethodId { get; } = methodId;
   public ExtendedMethodInfo? MethodInfo { get; } = methodInfo;
+  public Guid CaseId { get; } = Guid.NewGuid();
 
   public List<EventRecordWithMetadata> InnerEvents { get; } = [];
 }
@@ -39,6 +40,34 @@ public class ThreadsMethodsProcessor(
     if (TryProcessExceptionCatcherEnterEvent(context)) return;
 
     ProcessInternal(context);
+    FlushMethods(context);
+  }
+
+  private void FlushMethods(EventProcessingContext context)
+  {
+    foreach (var (_, threadStack) in myStacksPerThreads.ToList())
+    {
+      foreach (var frame in threadStack)
+      {
+        var eventsCount = (ulong)frame.InnerEvents.Count;
+        if (eventsCount <= context.CommandContext.EventsFlushThreshold) continue;
+
+        logger.LogInformation(
+          "Flushing method {MethodName} as events count {EventsCount} exceeds threshold {FlushThreshold}",
+          frame.MethodInfo?.Fqn,
+          eventsCount,
+          context.CommandContext.EventsFlushThreshold
+        );
+
+        handler.Handle(new MethodExecutionEvent
+        {
+          Frame = frame,
+          ApplicationName = context.CommandContext.ApplicationName,
+        });
+
+        frame.InnerEvents.Clear();
+      }
+    }
   }
 
   private bool TryProcessExceptionCatcherEnterEvent(EventProcessingContext context)
@@ -113,7 +142,7 @@ public class ThreadsMethodsProcessor(
           if (context.CommandContext.TargetMethodsRegex is null ||
               context.CommandContext.TargetMethodsRegex.IsMatch(methodFqn))
           {
-            handler.Handle(new CompletedMethodExecutionEvent
+            handler.Handle(new MethodExecutionEvent
             {
               ApplicationName = context.CommandContext.ApplicationName,
               Frame = frame

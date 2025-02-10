@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from .sreaming_configuration import create_not_specified_configuration
 from .util import *
 from ..models.kafka_service_pb2 import *
 from ..models.kafka_service_pb2_grpc import *
@@ -26,7 +27,8 @@ class KafkaPipeline:
                 subscription_id: str,
                 pipeline_name: str,
                 producer_connection_metadata: KafkaPipelineMetadata,
-                initial_context: dict[str, ContextValue]):
+                initial_context: dict[str, ContextValue],
+                streaming_configuration = create_not_specified_configuration()):
         with create_ficus_grpc_channel(ficus_backend) as channel:
             stub = GrpcKafkaServiceStub(channel)
 
@@ -36,6 +38,7 @@ class KafkaPipeline:
                     pipelineRequest=request,
                     subscriptionId=GrpcGuid(guid=subscription_id),
                     pipelineMetadata=GrpcPipelineMetadata(name=pipeline_name),
+                    streamingConfiguration=streaming_configuration,
                 ),
                 producerKafkaMetadata=_create_kafka_connection_metadata(producer_connection_metadata)
             )
@@ -61,7 +64,8 @@ class KafkaPipeline:
                        ficus_backend: str,
                        subscription_id: str,
                        pipeline_name: str,
-                       initial_context: dict[str, ContextValue]):
+                       initial_context: dict[str, ContextValue],
+                       streaming_configuration: GrpcPipelineStreamingConfiguration = create_not_specified_configuration()):
         with create_ficus_grpc_channel(ficus_backend) as channel:
             stub = GrpcKafkaServiceStub(channel)
             callback_parts = []
@@ -73,6 +77,7 @@ class KafkaPipeline:
                     pipelineRequest=request,
                     subscriptionId=GrpcGuid(guid=subscription_id),
                     pipelineMetadata=GrpcPipelineMetadata(name=pipeline_name),
+                    streamingConfiguration=streaming_configuration
                 )
             )
 

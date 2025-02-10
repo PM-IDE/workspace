@@ -6,56 +6,59 @@ using Bxes.Utils;
 using Bxes.Writer;
 using Confluent.Kafka;
 using Ficus;
+using FicusKafkaConstants;
 using FicusKafkaIntegration;
+using IntegrationTests.Base;
 using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
 
-[TestFixture]
-public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
+[TestFixture, FixtureLifeCycle(LifeCycle.SingleInstance)]
+public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscription
 {
   [Test]
   public void EventNamesTest()
   {
-    var subscriptionId = CreateFicusKafkaSubscription();
-
-    try
-    {
-      var eventLog = GenerateTestEventLog();
-      ProduceEventLogToKafka(eventLog);
-      AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
-    }
-    finally
-    {
-      KafkaClient.UnsubscribeFromKafkaTopic(new GrpcUnsubscribeFromKafkaRequest
-      {
-        SubscriptionId = subscriptionId
-      });
-    }
+    var eventLog = GenerateTestEventLog();
+    ProduceEventLogToKafka(eventLog);
+    AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
   }
 
-  private GrpcGuid CreateFicusKafkaSubscription()
+  [Test]
+  public void SameTraceIdTest()
   {
-    var subscribeRequest = GrpcRequestsCreator.CreateSubscribeToKafkaRequest(TestsSettings);
-    var subscriptionResult = KafkaClient.SubscribeForKafkaTopic(subscribeRequest);
+    var eventLog = GenerateTestEventLog();
+    var newSameTraceId = Guid.NewGuid();
 
-    Assert.That(subscriptionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
+    foreach (var variant in eventLog.Traces)
+    {
+      variant.Metadata.Remove(variant.Metadata.FirstOrDefault(m => m.Key.Value == FicusKafkaKeys.CaseId)!);
+      variant.Metadata.Add(new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(newSameTraceId)));
+    }
 
-    var subscriptionId = subscriptionResult.Success.Id;
-    var addPipelineRequest = GrpcRequestsCreator.CreateAddGetNamesLogPipelineRequest(subscriptionId, TestsSettings);
-
-    var pipelineAdditionResult = KafkaClient.AddPipelineToSubscription(addPipelineRequest);
-
-    Assert.That(pipelineAdditionResult.ResultCase, Is.EqualTo(GrpcKafkaResult.ResultOneofCase.Success));
-
-    return subscriptionResult.Success.Id;
+    ProduceEventLogToKafka(eventLog);
+    AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates());
   }
 
-  private void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  {
+    var namesLog = FindLastNamesLog(updates);
+
+    //for not taking that last trace, as log remains from the previous test, todo: fix this after
+    var lastTrace = namesLog.Value.NamesLog.Log.Traces.Last();
+
+    Assert.That(lastTrace.Events, Has.Count.EqualTo(eventLog.Traces.Select(t => t.Events.Count).Sum()));
+    foreach (var (traceEvent, grpcEventName) in eventLog.Traces.SelectMany(t => t.Events).Zip(lastTrace.Events))
+    {
+      Assert.That(grpcEventName, Is.EqualTo(traceEvent.Name));
+    }
+  }
+
+  private static void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     Assert.That(eventLog.Traces, Has.Count.EqualTo(updates.Count));
 
-    var lastNameLog = updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
+    var lastNameLog = FindLastNamesLog(updates);
     foreach (var (trace, grpcTrace) in eventLog.Traces.Zip(lastNameLog.Value.NamesLog.Log.Traces))
     {
       Assert.That(grpcTrace.Events, Has.Count.EqualTo(trace.Events.Count));
@@ -65,6 +68,9 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
       }
     }
   }
+
+  private static GrpcContextValueWithKeyName FindLastNamesLog(IReadOnlyList<GrpcKafkaUpdate> updates) =>
+    updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
 
   private static IEventLog GenerateTestEventLog()
   {
@@ -76,8 +82,9 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
 
   private static IEventLog GenerateRandomEventLog() => RandomLogsGenerator.CreateSimpleLog(new RandomLogGenerationParameters
   {
-    EventsCount = new LowerUpperBound(1, 10),
-    VariantsCount = new LowerUpperBound(1, 10)
+    EventsCount = new LowerUpperBound(1, 5),
+    VariantsCount = new LowerUpperBound(5, 10),
+    EventAttributesCount = new LowerUpperBound(1, 5)
   });
 
   private static void SetEventLogMetadata(IEventLog eventLog)
@@ -90,9 +97,10 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
       variant.Metadata.Clear();
       variant.Metadata.AddRange(
       [
-        new AttributeKeyValue(new BxesStringValue("case_display_name"), new BxesStringValue(CaseName)),
-        new AttributeKeyValue(new BxesStringValue("case_name_parts"), new BxesStringValue(CaseName)),
-        new AttributeKeyValue(new BxesStringValue("process_name"), new BxesStringValue(ProcessName))
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseNameParts), new BxesStringValue(CaseName)),
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(ProcessName)),
+        new AttributeKeyValue(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(Guid.NewGuid()))
       ]);
     }
   }
@@ -123,7 +131,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendBase
     while (true)
     {
       var consumeResult = consumer.Consume();
-      if (consumeResult.IsPartitionEOF) break;
+      if (consumeResult is null || consumeResult.IsPartitionEOF) break;
 
       result.Add(consumeResult.Message.Value);
       consumer.Commit();

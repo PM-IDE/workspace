@@ -9,6 +9,11 @@ class DiscoverPetriNetAlpha(PipelinePart):
         return _create_default_discovery_part(const_discover_petri_net_alpha)
 
 
+class DiscoverPetriNetAlphaStream(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return _create_default_discovery_part(const_discover_petri_net_alpha_stream)
+
+
 def _create_default_discovery_part(algo_name: str) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(algo_name, config))
@@ -152,23 +157,44 @@ class ViewPetriNet(ViewGraphLikeFormalismPart):
                        annotation=self.annotation)
 
 
-class ViewDirectlyFollowsGraph(ViewGraphLikeFormalismPart):
-    def __init__(self,
-                 name: str = 'dfg_graph',
-                 background_color: str = 'white',
-                 engine='dot',
-                 export_path: Optional[str] = None,
-                 rankdir: str = 'LR'):
-        super().__init__(name, background_color, engine, export_path, rankdir)
+class ViewDirectlyFollowsGraphBase(ViewGraphLikeFormalismPart):
+  def __init__(self,
+               dfg_discovery_part_name: str,
+               name: str = 'dfg_graph',
+               background_color: str = 'white',
+               engine='dot',
+               export_path: Optional[str] = None,
+               rankdir: str = 'LR'):
+    super().__init__(name, background_color, engine, export_path, rankdir)
+    self.dfg_discovery_part_name = dfg_discovery_part_name
 
-    def to_grpc_part(self) -> GrpcPipelinePartBase:
-        part = create_complex_get_context_part(self.uuid,
-                                               self.__class__.__name__,
-                                               [const_graph],
-                                               const_discover_directly_follows_graph,
-                                               GrpcPipelinePartConfiguration())
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    part = create_complex_get_context_part(self.uuid,
+                                           self.__class__.__name__,
+                                           [const_graph],
+                                           self.dfg_discovery_part_name,
+                                           GrpcPipelinePartConfiguration())
 
-        return GrpcPipelinePartBase(complexContextRequestPart=part)
+    return GrpcPipelinePartBase(complexContextRequestPart=part)
+
+class ViewDirectlyFollowsGraph(ViewDirectlyFollowsGraphBase):
+  def __init__(self,
+               name: str = 'dfg_graph',
+               background_color: str = 'white',
+               engine='dot',
+               export_path: Optional[str] = None,
+               rankdir: str = 'LR'):
+    super().__init__(const_discover_directly_follows_graph, name, background_color, engine, export_path, rankdir)
+
+
+class ViewDirectlyFollowsGraphStream(ViewDirectlyFollowsGraphBase):
+  def __init__(self,
+               name: str = 'dfg_graph',
+               background_color: str = 'white',
+               engine='dot',
+               export_path: Optional[str] = None,
+               rankdir: str = 'LR'):
+    super().__init__(const_discover_directly_follows_graph_stream, name, background_color, engine, export_path, rankdir)
 
 
 class DiscoverDirectlyFollowsGraph(PipelinePart):
@@ -206,3 +232,8 @@ class ViewGraph(ViewGraphLikeFormalismPart):
 class EnsureInitialMarking(PipelinePart):
     def to_grpc_part(self) -> GrpcPipelinePartBase:
         return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_ensure_initial_marking))
+
+
+class DiscoverDirectlyFollowsGraphStream(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return _create_default_discovery_part(const_discover_directly_follows_graph_stream)

@@ -14,7 +14,7 @@ COPY ./bxes/ ./pmide/bxes/
 
 RUN cargo build --manifest-path /pmide/ficus/src/rust/Cargo.toml --release
 
-FROM gcr.io/distroless/cc as run
+FROM --platform=linux/amd64 gcr.io/distroless/cc as run
 EXPOSE 8080
 
 WORKDIR /app
