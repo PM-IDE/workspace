@@ -1,5 +1,6 @@
 ﻿using Ficus;
 using Google.Protobuf.WellKnownTypes;
+using IntegrationTests.Base;
 
 namespace IntegrationTests;
 

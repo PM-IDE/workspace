@@ -1,7 +1,7 @@
 ﻿using Ficus;
 using Google.Protobuf.WellKnownTypes;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Base;
 
 public static class GrpcRequestsCreator
 {

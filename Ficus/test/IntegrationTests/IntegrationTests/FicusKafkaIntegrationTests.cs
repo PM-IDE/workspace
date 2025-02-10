@@ -8,6 +8,7 @@ using Confluent.Kafka;
 using Ficus;
 using FicusKafkaConstants;
 using FicusKafkaIntegration;
+using IntegrationTests.Base;
 using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
@@ -42,6 +43,8 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
   private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     var namesLog = FindLastNamesLog(updates);
+
+    //for not taking that last trace, as log remains from the previous test, todo: fix this after
     var lastTrace = namesLog.Value.NamesLog.Log.Traces.Last();
 
     Assert.That(lastTrace.Events, Has.Count.EqualTo(eventLog.Traces.Select(t => t.Events.Count).Sum()));
