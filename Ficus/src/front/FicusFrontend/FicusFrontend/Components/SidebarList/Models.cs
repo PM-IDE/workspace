@@ -2,7 +2,8 @@
 
 namespace FicusFrontend.Components.SidebarList;
 
-public class CollectionItemInfo<TItem, TInnerItem, TId> where TId : notnull where TItem : FrontModelBase where TInnerItem : FrontModelBase
+public class CollectionItemInfo<TItem, TInnerItem, TId>
+  where TId : notnull where TItem : FrontModelBase where TInnerItem : FrontModelBase
 {
   public required TId Id { get; init; }
   public required string Name { get; init; }

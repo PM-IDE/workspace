@@ -37,7 +37,7 @@
 .sidebar-list-title-icon-container {
   height: 100%;
   width: 50px;
-  
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -87,7 +87,7 @@
   from {
     width: 250px;
   }
-  
+
   to {
     width: 50px;
   }

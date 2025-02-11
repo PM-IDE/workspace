@@ -7,7 +7,9 @@ module SplitByThreads =
     { Base: ConfigBase }
 
     interface ICommandConfig with
-      member this.CreateArguments() = [ "split-by-threads" ] |> this.Base.AddArguments
+      member this.CreateArguments() =
+        [ "split-by-threads" ] |> this.Base.AddArguments
+
       member this.GetAppName() = this.Base.GetAppName()
       member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
       member this.GetFilterPattern() = this.Base.GetFilterPattern()
@@ -17,7 +19,7 @@ module SplitByThreads =
     { Base = createBaseCsprojConfig csprojPath outputPath }
 
   let launchProcfilerCustomConfig csprojPath outputPath createConfig =
-    launchProcfiler (createConfig csprojPath outputPath) 
+    launchProcfiler (createConfig csprojPath outputPath)
 
   let launchProcfiler csprojPath outputPath =
     launchProcfilerCustomConfig csprojPath outputPath

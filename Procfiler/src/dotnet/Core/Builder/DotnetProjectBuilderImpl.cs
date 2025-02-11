@@ -58,7 +58,7 @@ public class DotnetProjectBuilderImpl(
     {
       DefaultNetFolder => new TempFolderCookie(logger, Path.Combine(projectDirectory, "bin", configuration.ToString(), tfm)),
       RandomTempPath => CreateTempArtifactsPath(),
-      SpecifiedTempPath { TempFolderPath: var tempFolderPath} => new TempFolderCookie(logger, tempFolderPath),
+      SpecifiedTempPath { TempFolderPath: var tempFolderPath } => new TempFolderCookie(logger, tempFolderPath),
       _ => throw new ArgumentOutOfRangeException(nameof(tempPath))
     };
 
@@ -91,10 +91,7 @@ public class DotnetProjectBuilderImpl(
     }
 
     var outputSb = new StringBuilder();
-    process.OutputDataReceived += (_, args) =>
-    {
-      outputSb.Append(args.Data);
-    };
+    process.OutputDataReceived += (_, args) => { outputSb.Append(args.Data); };
 
     try
     {

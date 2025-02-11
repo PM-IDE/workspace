@@ -14,7 +14,7 @@ public class EventsCollectionTests
   {
     get
     {
-      var lengthOneEvents = CreateInitialArrayOfRandomEvents(count: 1);
+      var lengthOneEvents = CreateInitialArrayOfRandomEvents(1);
 
       var logger = TestLogger.CreateInstance();
 

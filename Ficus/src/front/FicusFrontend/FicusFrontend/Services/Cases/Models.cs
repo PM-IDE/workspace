@@ -39,16 +39,9 @@ public class Case : FrontModelBase
   public required IViewableMap<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
 
 
+  public override int GetHashCode() => FullName.GetHashCode();
 
-  public override int GetHashCode()
-  {
-    return FullName.GetHashCode();
-  }
-
-  public override bool Equals(object? obj)
-  {
-    return obj is Case { FullName: var fullName } && fullName == FullName;
-  }
+  public override bool Equals(object? obj) => obj is Case { FullName: var fullName } && fullName == FullName;
 }
 
 public class PipelinePartExecutionResult : FrontModelBase

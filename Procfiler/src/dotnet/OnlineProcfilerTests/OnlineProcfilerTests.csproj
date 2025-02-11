@@ -1,33 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-    </PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="coverlet.collector"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="NUnit"/>
-        <PackageReference Include="NUnit.Analyzers"/>
-        <PackageReference Include="NUnit3TestAdapter"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="NUnit"/>
+    <PackageReference Include="NUnit.Analyzers"/>
+    <PackageReference Include="NUnit3TestAdapter"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Using Include="NUnit.Framework"/>
-    </ItemGroup>
+  <ItemGroup>
+    <Using Include="NUnit.Framework"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\ProcfilerOnline\ProcfilerOnline.csproj"/>
-        <ProjectReference Include="..\TestsUtil\TestsUtil.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProcfilerOnline\ProcfilerOnline.csproj"/>
+    <ProjectReference Include="..\TestsUtil\TestsUtil.csproj"/>
+  </ItemGroup>
 
-    <Target Name="CopyOnlineCppProcfilerDll" AfterTargets="Build">
-        <Copy SourceFiles="$(SolutionDir)\Procfiler\src\dotnet\ProcfilerOnline\bin\$(Configuration)\$(TargetFramework)\CppProcfilerOnline.dll"
-              DestinationFolder="$(OutputPath)"/>
-    </Target>
+  <Target Name="CopyOnlineCppProcfilerDll" AfterTargets="Build">
+    <Copy SourceFiles="$(SolutionDir)\Procfiler\src\dotnet\ProcfilerOnline\bin\$(Configuration)\$(TargetFramework)\CppProcfilerOnline.dll"
+          DestinationFolder="$(OutputPath)"/>
+  </Target>
 </Project>

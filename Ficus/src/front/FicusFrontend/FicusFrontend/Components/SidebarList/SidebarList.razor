@@ -1,6 +1,6 @@
 ﻿@typeparam TItem where TItem : FicusFrontend.Utils.FrontModelBase
-@typeparam TInnerItem where TInnerItem : FicusFrontend.Utils.FrontModelBase
-@typeparam TId where TId : notnull
+  @typeparam TInnerItem where TInnerItem : FicusFrontend.Utils.FrontModelBase
+  @typeparam TId where TId : notnull
 @using FicusFrontend.Utils
 @inherits ComponentBase;
 
@@ -58,7 +58,7 @@
           }
         </div>
       </div>
-    </div> 
+    </div>
   }
 </div>
 
@@ -67,7 +67,7 @@
   public enum Style
   {
     Dark,
-    Darker,
+    Darker
   }
 
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
@@ -84,14 +84,20 @@
   [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
 
 
-  private string GetScopeClass() => ComponentStyle switch
+  private string GetScopeClass()
   {
-    Style.Dark => "dark-sidebar-list",
-    Style.Darker => "darker-sidebar-list",
-    _ => throw new ArgumentOutOfRangeException()
-  };
+    return ComponentStyle switch
+    {
+      Style.Dark => "dark-sidebar-list",
+      Style.Darker => "darker-sidebar-list",
+      _ => throw new ArgumentOutOfRangeException()
+    };
+  }
 
-  private bool IsExpanded(TItem item) => item.UserData.GetOrCreate(ourExpandedKey, static () => true);
+  private bool IsExpanded(TItem item)
+  {
+    return item.UserData.GetOrCreate(ourExpandedKey, static () => true);
+  }
 
   private void HandleInnerItemSelected(
     CollectionItemInfo<TItem, TInnerItem, TId> item,

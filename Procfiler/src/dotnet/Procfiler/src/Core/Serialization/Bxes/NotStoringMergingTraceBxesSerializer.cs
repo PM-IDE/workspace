@@ -35,8 +35,6 @@ public class NotStoringMergingTraceBxesSerializer(
 
   public override void Dispose()
   {
-    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ =>
-    {
-    });
+    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ => { });
   }
 }

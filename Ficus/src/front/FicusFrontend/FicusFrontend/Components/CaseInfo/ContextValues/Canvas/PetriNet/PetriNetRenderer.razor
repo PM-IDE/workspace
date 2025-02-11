@@ -1,9 +1,9 @@
 @using Ficus
 @inject IJSRuntime Js
 
-<CanvasComponent RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName" />
+<CanvasComponent RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
 
-@code 
+@code
 {
   [Parameter] public required GrpcPetriNet PetriNet { get; init; }
   [Parameter] public required GrpcAnnotation? Annotation { get; init; }
@@ -28,5 +28,8 @@
     return await Js.InvokeAsync<IJSObjectReference>("drawPetriNet", canvasId, PetriNet, annotation);
   }
 
-  private string CreateExportFileName() => "petri_net";
+  private string CreateExportFileName()
+  {
+    return "petri_net";
+  }
 }

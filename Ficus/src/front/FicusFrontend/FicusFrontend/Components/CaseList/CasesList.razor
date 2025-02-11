@@ -9,7 +9,7 @@
 
 <SidebarList TItem="ProcessData"
              TInnerItem="Case"
-             TId="string" 
+             TId="string"
              ComponentStyle="SidebarList<ProcessData, Case, string>.Style.Darker"
              ItemType="Process"
              ListItemIcon="images/case_20.svg"
@@ -86,10 +86,10 @@
 
     switch (caseAddRemove)
     {
-      case AddRemove.Add: 
+      case AddRemove.Add:
       {
         myProcesses[caseModel.ParentProcess.ProcessName].InnerItems[caseKey] = CreateInnerCollectionItemFrom(caseModel);
-        
+
         var processLifetime = myProcessesLifetimes.Get(caseModel.ParentProcess.ProcessName);
         var caseLifetime = myCasesLifetimes.CreateNested(caseKey, processLifetime);
         caseModel.ContextValues.Change.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));

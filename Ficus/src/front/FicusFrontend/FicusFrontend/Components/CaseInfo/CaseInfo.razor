@@ -18,7 +18,7 @@
 @{
   var title = myProcessCaseData switch
   {
-    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.DisplayName,
+    not null => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.DisplayName,
     _ => "The case was not yet selected."
   };
 }
@@ -40,7 +40,7 @@
   <div class="case-info-header-hierarchy-container">
     @if (myProcessCaseData is { Case.NameParts: var nameParts })
     {
-      <CaseNameHierarchy NameParts="nameParts" FontSize="14" Expanded="true" />
+      <CaseNameHierarchy NameParts="nameParts" FontSize="14" Expanded="true"/>
     }
   </div>
 </div>
@@ -57,14 +57,17 @@
           <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
         </div>
         <div class="pipeline-part-name">
-          @result.Value.PipelinePartName  
+          @result.Value.PipelinePartName
         </div>
       </div>
 
       @{
         var expanded = IsExpanded(result.Value);
 
-        string GetClass(string baseClass, string expandedClass) => $"{baseClass} {(expanded ? expandedClass : string.Empty)}";
+        string GetClass(string baseClass, string expandedClass)
+        {
+          return $"{baseClass} {(expanded ? expandedClass : string.Empty)}";
+        }
 
         var outerContainerClass = GetClass("pipeline-part-context-values-outer-container", "outer-container-checked");
         var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
@@ -93,7 +96,7 @@
 @code
 {
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
-  
+
   private readonly Dictionary<Guid, PipelinePartExecutionResult> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
@@ -113,7 +116,10 @@
     values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
   }
 
-  private bool IsExpanded(PipelinePartExecutionResult result) => result.UserData.GetOrCreate(ourExpandedKey, static () => true);
+  private bool IsExpanded(PipelinePartExecutionResult result)
+  {
+    return result.UserData.GetOrCreate(ourExpandedKey, static () => true);
+  }
 
   private void HandleExecutionResultTitleClicked(PipelinePartExecutionResult result)
   {
@@ -180,11 +186,14 @@
                            Annotation="annotationPair?.Item2"/>;
   }
 
-  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair) => annotationPair switch
+  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair)
   {
-    var (annotationId, _) => id.ToString() + annotationId,
-    null => id.ToString()
-  };
+    return annotationPair switch
+    {
+      var (annotationId, _) => id.ToString() + annotationId,
+      null => id.ToString()
+    };
+  }
 
   private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
   {
