@@ -36,6 +36,7 @@ message GrpcContextValue {
         GrpcDataset dataset = 18;
         GrpcLabeledDataset labeled_dataset = 19;
         GrpcBytes bytes = 20;
+        GrpcThreadEvent threadsDiagram = 21;
     }
 }
 
@@ -174,4 +175,17 @@ message GrpcGraphEdge {
 
 message GrpcBytes {
     bytes bytes = 1;
+}
+
+message GrpcThreadsDiagram {
+  repeated GrpcThread Threads = 1;
+}
+
+message GrpcThread {
+  repeated GrpcThreadEvent event = 1;
+}
+
+message GrpcThreadEvent {
+  GrpcEvent event = 1;
+  double edgeRelativeLength = 2;
 }

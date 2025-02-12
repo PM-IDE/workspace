@@ -117,6 +117,7 @@ pub(super) fn put_into_user_data(
         ContextValue::Dataset(_) => todo!(),
         ContextValue::LabeledDataset(_) => todo!(),
         ContextValue::Bytes(grpc_bytes) => user_data.put_any::<Vec<u8>>(key, grpc_bytes.bytes.clone()),
+        ContextValue::ThreadsDiagram(_) => todo!()
     }
 }
 
