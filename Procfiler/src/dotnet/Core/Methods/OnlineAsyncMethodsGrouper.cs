@@ -232,13 +232,11 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
     return true;
   }
 
-  private static bool IsNestedAwaitableAsyncMethod(AsyncMethodTrace originalTrace, AsyncMethodTrace nestedTrace)
-  {
-    return nestedTrace.AfterTaskEvent is null ||
-           (nestedTrace.AfterTaskEvent is { ContinueWithTaskId: var continueWithTaskId } &&
-            originalTrace.AfterTaskEvent is { TaskId: var taskId } &&
-            continueWithTaskId == taskId);
-  }
+  private static bool IsNestedAwaitableAsyncMethod(AsyncMethodTrace originalTrace, AsyncMethodTrace nestedTrace) =>
+    nestedTrace.AfterTaskEvent is null ||
+    nestedTrace.AfterTaskEvent is { ContinueWithTaskId: var continueWithTaskId } &&
+    originalTrace.AfterTaskEvent is { TaskId: var taskId } &&
+    continueWithTaskId == taskId;
 
   private List<List<AsyncMethodTrace>> DiscoverLogicalExecutions(IReadOnlyList<AsyncMethodTrace> traces)
   {

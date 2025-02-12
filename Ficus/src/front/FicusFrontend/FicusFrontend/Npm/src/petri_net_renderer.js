@@ -97,7 +97,7 @@ function createArcElement(arcId, id, source, target, maxAnnotation, annotation) 
       data.width = minWidth + (annotation[arcId] / maxAnnotation) * (maxWidth - minWidth);
     }
   }
-  
+
   return {
     data: data
   };

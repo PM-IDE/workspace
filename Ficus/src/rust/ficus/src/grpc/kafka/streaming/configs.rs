@@ -1,7 +1,7 @@
 use crate::ficus_proto::GrpcPipelineStreamingConfiguration;
 use crate::grpc::kafka::streaming::processors::TracesProcessor;
-use crate::grpc::kafka::streaming::t1::configs::T1StreamingConfiguration;
-use crate::grpc::kafka::streaming::t1::filterers::T1LogFilterer;
+use crate::grpc::kafka::streaming::t1::configs::{T1StreamingConfiguration, TracesQueueConfiguration};
+use crate::grpc::kafka::streaming::t1::filterers::{T1LogFilterer, TracesQueueFiltererImpl};
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 use crate::grpc::kafka::streaming::t2::configs::T2StreamingConfiguration;
 
@@ -33,9 +33,14 @@ impl StreamingConfiguration {
 
     pub fn create_processor(&self) -> TracesProcessor {
         match self {
-            StreamingConfiguration::NotSpecified => TracesProcessor::T1(T1StreamingProcessor::new(T1LogFilterer::None)),
+            StreamingConfiguration::NotSpecified => Self::create_default_processor(),
             StreamingConfiguration::T1(c) => TracesProcessor::T1(c.create_processor()),
             StreamingConfiguration::T2(c) => TracesProcessor::T2(c.create_processor()),
         }
+    }
+
+    fn create_default_processor() -> TracesProcessor {
+        let filterer = TracesQueueFiltererImpl::new(TracesQueueConfiguration::new(1_000));
+        TracesProcessor::T1(T1StreamingProcessor::new(T1LogFilterer::TracesQueueFilterer(filterer)))
     }
 }

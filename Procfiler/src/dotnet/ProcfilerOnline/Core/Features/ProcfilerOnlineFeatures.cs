@@ -11,5 +11,5 @@ public static class ProcfilerOnlineFeatures
     new EnvironmentVariableFeature(nameof(ProduceBxesKafkaEvents), nameof(ProduceBxesKafkaEvents));
 
   public static Feature ProduceGcEvents { get; } =
-    new EnvironmentVariableFeature(nameof(ProduceGcEvents), nameof(ProduceGcEvents), defaultValue: false);
+    new EnvironmentVariableFeature(nameof(ProduceGcEvents), nameof(ProduceGcEvents), false);
 }

@@ -20,7 +20,7 @@ public class OnlineMethodsXesSerializer(
   IProcfilerLogger logger,
   bool writeAllEventMetadata)
   : OnlineMethodsSerializerBase<PathWriterStateWithLastEvent>(
-      outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
+    outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
 {
   protected override PathWriterStateWithLastEvent? TryCreateStateInternal(EventRecordWithMetadata contextEvent)
   {

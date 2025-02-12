@@ -34,7 +34,7 @@ services:
     image: apache/kafka:latest
     depends_on:
       - kafka
-    entrypoint: ["/bin/sh", "-c"]
+    entrypoint: [ "/bin/sh", "-c" ]
     command: |
       "
       cd /opt/kafka/bin

@@ -40,9 +40,8 @@ public static class GrpcRequestsCreator
   }
 
   public static GrpcAddPipelineRequest CreateAddGetNamesLogPipelineRequest(
-    GrpcGuid subscriptionId, FicusIntegrationTestsSettings settings, string? pipelineName = null)
-  {
-    return new GrpcAddPipelineRequest
+    GrpcGuid subscriptionId, FicusIntegrationTestsSettings settings, string? pipelineName = null) =>
+    new()
     {
       PipelineRequest = new GrpcKafkaPipelineExecutionRequest
       {
@@ -92,5 +91,4 @@ public static class GrpcRequestsCreator
         }
       }
     };
-  }
 }

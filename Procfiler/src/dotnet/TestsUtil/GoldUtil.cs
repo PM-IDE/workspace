@@ -36,10 +36,8 @@ public static class GoldUtil
     }
   }
 
-  public static string CreateGoldFilePath(string folderName, Func<TestContext.TestAdapter, string> testNameExtractor)
-  {
-    return CreatePathInternal(folderName, $"{CreateTestNameForFiles(testNameExtractor)}.gold");
-  }
+  public static string CreateGoldFilePath(string folderName, Func<TestContext.TestAdapter, string> testNameExtractor) =>
+    CreatePathInternal(folderName, $"{CreateTestNameForFiles(testNameExtractor)}.gold");
 
   private static string CreateTestNameForFiles(Func<TestContext.TestAdapter, string> testNameExtractor)
   {
@@ -68,8 +66,6 @@ public static class GoldUtil
     throw new ArgumentOutOfRangeException(Environment.OSVersion.Platform.ToString());
   }
 
-  public static string CreateTmpFilePath(string folderName, Func<TestContext.TestAdapter, string> testNameExtractor)
-  {
-    return CreatePathInternal(folderName, $"{CreateTestNameForFiles(testNameExtractor)}.tmp");
-  }
+  public static string CreateTmpFilePath(string folderName, Func<TestContext.TestAdapter, string> testNameExtractor) =>
+    CreatePathInternal(folderName, $"{CreateTestNameForFiles(testNameExtractor)}.tmp");
 }

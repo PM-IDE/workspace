@@ -27,5 +27,9 @@
     myCytoscapeReference = await RenderingFunc(myCytoscapeContainerId.ToString());
   }
 
-  private async Task ExportGraph() => await Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, FileNameCreator());
+  private async Task ExportGraph()
+  {
+    await Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, FileNameCreator());
+  }
+
 }

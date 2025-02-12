@@ -168,7 +168,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     caseData.ContextValues[partId] = new PipelinePartExecutionResult
     {
       PipelinePartName = delta.PipelinePartInfo.Name,
-      ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList(),
+      ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
     };
   }
 }

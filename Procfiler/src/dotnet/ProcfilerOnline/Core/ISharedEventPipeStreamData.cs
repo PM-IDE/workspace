@@ -33,6 +33,7 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 
   public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
   public string? FindMethodName(long methodId) => myMethodIdsToFqns.GetValueOrDefault(methodId)?.Fqn;
+
   public ExtendedMethodInfo? FindMethodDetails(long methodId)
   {
     if (myMethodIdsToFqns.TryGetValue(methodId, out var methodDetails))

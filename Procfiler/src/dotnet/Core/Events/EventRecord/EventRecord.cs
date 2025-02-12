@@ -29,7 +29,8 @@ public class EventRecord
   public int StackTraceId { get; }
 
 
-  public EventRecord(EventRecordTime time, string eventClass, long managedThreadId, long nativeThreadId, Guid activityId, int stackTraceId)
+  public EventRecord(EventRecordTime time, string eventClass, long managedThreadId, long nativeThreadId, Guid activityId,
+    int stackTraceId)
   {
     Time = time;
     ActivityId = activityId;

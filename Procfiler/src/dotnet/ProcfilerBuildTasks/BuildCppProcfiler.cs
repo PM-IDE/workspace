@@ -117,10 +117,7 @@ public class BuildCppProcfiler : Task
 
   private bool LaunchProcessAndWaitForExit(Process process, string name)
   {
-    process.OutputDataReceived += (_, args) =>
-    {
-      Log.LogMessage($"Process {name} output: {args.Data}");
-    };
+    process.OutputDataReceived += (_, args) => { Log.LogMessage($"Process {name} output: {args.Data}"); };
 
     if (!process.Start())
     {

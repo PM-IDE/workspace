@@ -16,22 +16,22 @@ module ProcfilerScriptsUtils =
     { CsprojPath: string }
 
     member this.AddArguments list =
-      list @ [ $" -csproj {this.CsprojPath}"; ]
+      list @ [ $" -csproj {this.CsprojPath}" ]
 
-  
+
   type CommandRequiredArguments =
     { Command: string
       Arguments: string
       FilterPattern: string }
-    
+
     member this.AddArguments list =
       list @ [ $" -command {this.Command}"; $" --arguments \"{this.Arguments}\"" ]
-      
+
 
   type RequiredArguments =
     | Command of CommandRequiredArguments
     | Csproj of CsprojRequiredArguments
-    
+
     member this.AddArguments list =
       match this with
       | Csproj csproj -> csproj.AddArguments list
@@ -46,7 +46,7 @@ module ProcfilerScriptsUtils =
   let applicationNameFromCsproj (dllPath: string) =
     let csprojName = Path.GetFileName(dllPath)
     csprojName.AsSpan().Slice(0, csprojName.IndexOf('.')).ToString()
-    
+
   type ConfigBase =
     { RequiredArgs: RequiredArguments
       Duration: int
@@ -64,41 +64,40 @@ module ProcfilerScriptsUtils =
           " --group-async-methods false" ]
 
       this.RequiredArgs.AddArguments list @ toAdd
-      
+
     member this.GetWorkingDirectory() =
       match this.RequiredArgs with
       | Csproj csproj -> Path.GetDirectoryName csproj.CsprojPath
       | Command _ -> Directory.GetCurrentDirectory()
-      
+
     member this.GetAppName() =
       match this.RequiredArgs with
       | Csproj csproj -> applicationNameFromCsproj csproj.CsprojPath
       | Command command -> command.Command
-      
+
     member this.GetFilterPattern() =
       match this.RequiredArgs with
       | Csproj csproj -> applicationNameFromCsproj csproj.CsprojPath
       | Command command -> command.FilterPattern
-        
+
   let createBaseCsprojConfig csprojPath outputPath =
-    { RequiredArgs = Csproj({
-        CsprojPath = csprojPath
-      })
+    { RequiredArgs = Csproj({ CsprojPath = csprojPath })
 
       OutputPath = outputPath
       Duration = 100_000
       Repeat = 1
       WriteAllMetadata = false }
-    
+
   let createBaseCommandConfig command arguments filterPattern outputPath =
-    { RequiredArgs = Command({
-        Command = command
-        Arguments = arguments
-        FilterPattern = filterPattern
-      })
+    { RequiredArgs =
+        Command(
+          { Command = command
+            Arguments = arguments
+            FilterPattern = filterPattern }
+        )
 
       OutputPath = outputPath
-      Duration = 100_000
+      Duration = 200_000
       Repeat = 1
       WriteAllMetadata = false }
 
@@ -106,12 +105,16 @@ module ProcfilerScriptsUtils =
     let startInfo = ProcessStartInfo(fileName, args)
     startInfo.WorkingDirectory <- workingDirectory
     new Process(StartInfo = startInfo)
-  
-  let getDotnetSourcePath solutionDir = Path.Combine(solutionDir, "Procfiler", "src", "dotnet")
+
+  let getDotnetSourcePath solutionDir =
+    Path.Combine(solutionDir, "Procfiler", "src", "dotnet")
 
   let buildProjectFromSolution solutionDirectory projectName =
     let dotnetSourcePath = getDotnetSourcePath solutionDirectory
-    let projectPath = Path.Combine(dotnetSourcePath, projectName, $"{projectName}.csproj")
+
+    let projectPath =
+      Path.Combine(dotnetSourcePath, projectName, $"{projectName}.csproj")
+
     let pRelease = "/p:Configuration=\"Release\""
 
     let pSolutionDir =
@@ -138,7 +141,8 @@ module ProcfilerScriptsUtils =
     | _ -> findProperParentDirectory (currentDirectory |> Directory.GetParent).FullName
 
   let buildProcfiler =
-    let parentDirectory = (Directory.GetCurrentDirectory() |> Directory.GetParent).FullName
+    let parentDirectory =
+      (Directory.GetCurrentDirectory() |> Directory.GetParent).FullName
 
     let solutionDir = findProperParentDirectory parentDirectory
     let framework = net9
@@ -151,7 +155,7 @@ module ProcfilerScriptsUtils =
 
     Path.Combine(getDotnetSourcePath solutionDir, "Procfiler", "bin", "Release", framework, "Procfiler.dll")
 
-  
+
   let getAllCsprojFiles solutionsDirectory =
     Directory.GetDirectories(solutionsDirectory)
     |> List.ofArray
@@ -180,24 +184,24 @@ module ProcfilerScriptsUtils =
     |> List.iter (fun (arg: string) -> sb.Append arg |> ignore)
 
     sb.ToString()
-    
+
   let launchProcfiler config =
     let args = createArgumentsString config
     printfn $"Launching Procfiler with arguments: {args}"
-    
+
     let workingDirectory = config.GetWorkingDirectory()
-    let procfilerProcess = createProcess "dotnet" $"{buildProcfiler} {args}" workingDirectory
+
+    let procfilerProcess =
+      createProcess "dotnet" $"{buildProcfiler} {args}" workingDirectory
 
     match procfilerProcess.Start() with
-    | true ->
-      printfn $"Started procfiler for {config.GetAppName()}"
+    | true -> printfn $"Started procfiler for {config.GetAppName()}"
     | false -> printfn "Failed to start procfiler"
 
     procfilerProcess.WaitForExit()
 
     match procfilerProcess.ExitCode with
-    | 0 ->
-      printfn $"Finished executing procfiler for {config.GetAppName()}"
+    | 0 -> printfn $"Finished executing procfiler for {config.GetAppName()}"
     | _ -> ()
 
   let launchProcfilerOnFolderOfSolutions solutionsFolder outputFolder baseConfigCreator outputIsFile =
@@ -216,5 +220,5 @@ module ProcfilerScriptsUtils =
           Directory.CreateDirectory(directory) |> ignore
           directory
 
-      let config =  createBaseCsprojConfig csprojPath outputPath
+      let config = createBaseCsprojConfig csprojPath outputPath
       launchProcfiler (baseConfigCreator config))

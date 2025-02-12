@@ -184,10 +184,7 @@ public class CommandExecutorImpl(
       var sb = new StringBuilder();
       if (context.CommonContext.PrintProcessOutput)
       {
-        process.OutputDataReceived += (_, args) =>
-        {
-          sb.Append(args.Data);
-        };
+        process.OutputDataReceived += (_, args) => { sb.Append(args.Data); };
 
         process.BeginOutputReadLine();
       }

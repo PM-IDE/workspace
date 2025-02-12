@@ -35,9 +35,6 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>
       myQueuedAsyncMethods.Enqueue((stateMachineName, methodTraces));
     }
 
-    public List<TEvent>? DevastateCache(Guid traceId)
-    {
-      return myCachedTraces.Remove(traceId, out var trace) ? trace : null;
-    }
+    public List<TEvent>? DevastateCache(Guid traceId) => myCachedTraces.Remove(traceId, out var trace) ? trace : null;
   }
 }

@@ -4,9 +4,7 @@ namespace Procfiler.Core.Collector.CustomTraceEvents;
 
 public abstract class CustomTraceEventBase : TraceEvent
 {
-  protected override Delegate Target { get; set; } = () =>
-  {
-  };
+  protected override Delegate Target { get; set; } = () => { };
 
   public override string[] PayloadNames => payloadNames;
 

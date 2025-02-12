@@ -24,10 +24,7 @@ public class AppExitHandler : IAppExitHandler
   {
     myLogger = logger;
     myStatisticsManager = statisticsManager;
-    Console.CancelKeyPress += (_, args) =>
-    {
-      HandleAppExit(args);
-    };
+    Console.CancelKeyPress += (_, args) => { HandleAppExit(args); };
   }
 
   public void AddProcess(Process process)

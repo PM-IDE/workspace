@@ -13,7 +13,8 @@ using Microsoft.Extensions.Logging;
 
 namespace IntegrationTests;
 
-[TestFixture, FixtureLifeCycle(LifeCycle.SingleInstance)]
+[TestFixture]
+[FixtureLifeCycle(LifeCycle.SingleInstance)]
 public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscription
 {
   [Test]
@@ -125,7 +126,8 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
   private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(ILogger logger)
   {
     const string ConsumerGroupId = $"{nameof(FicusKafkaIntegrationTests)}::{nameof(ConsumeAllUpdates)}";
-    var consumer = PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(PipelinePartsSettings, ConsumerGroupId, logger);
+    var consumer =
+      PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(PipelinePartsSettings, ConsumerGroupId, logger);
 
     List<GrpcKafkaUpdate> result = [];
     while (true)
@@ -140,9 +142,8 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     return result;
   }
 
-  private BxesKafkaStreamWriter<IEvent> CreateBxesKafkaWriter()
-  {
-    return new BxesKafkaStreamWriter<IEvent>(
+  private BxesKafkaStreamWriter<IEvent> CreateBxesKafkaWriter() =>
+    new(
       new SystemMetadata(),
       ProducerSettings.Topic,
       new ProducerConfig
@@ -150,5 +151,4 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
         BootstrapServers = ProducerSettings.BootstrapServers
       }
     );
-  }
 }

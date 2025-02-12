@@ -23,7 +23,7 @@ public class OnlineBxesMethodsSerializer(
   IProcfilerLogger logger,
   bool writeAllEventMetadata)
   : OnlineMethodsSerializerBase<BxesWriteStateWithLastEvent>(
-      outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
+    outputDirectory, targetMethodsRegex, methodNameBeautifier, factory, logger, writeAllEventMetadata)
 {
   private const string BxesExtension = ".bxes";
 
@@ -82,8 +82,6 @@ public class OnlineBxesMethodsSerializer(
 
   public override void Dispose()
   {
-    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ =>
-    {
-    });
+    SerializersUtil.DisposeWriters(States.Select(pair => (pair.Key, pair.Value.Writer)), Logger, _ => { });
   }
 }

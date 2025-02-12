@@ -1,5 +1,5 @@
 ﻿<Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    </PropertyGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
 </Project>

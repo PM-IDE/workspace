@@ -23,28 +23,20 @@ public static class EventRecordExtensions
     eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix) ||
     eventRecord.EventClass.StartsWith(TraceEventsConstants.AwaitCommonPrefix);
 
-  public static bool IsTaskExecutionEvent(this EventRecordWithMetadata eventRecord)
-  {
-    return eventRecord.EventClass is TraceEventsConstants.TaskExecuteStart or TraceEventsConstants.TaskExecuteStop;
-  }
+  public static bool IsTaskExecutionEvent(this EventRecordWithMetadata eventRecord) =>
+    eventRecord.EventClass is TraceEventsConstants.TaskExecuteStart or TraceEventsConstants.TaskExecuteStop;
 
-  public static bool IsTaskExecuteStartEvent(this EventRecordWithMetadata eventRecord, out int taskId, out int originatingTaskId)
-  {
-    return eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStart, out taskId, out originatingTaskId);
-  }
+  public static bool IsTaskExecuteStartEvent(this EventRecordWithMetadata eventRecord, out int taskId, out int originatingTaskId) =>
+    eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStart, out taskId, out originatingTaskId);
 
-  public static bool IsTaskExecuteStopEvent(this EventRecordWithMetadata eventRecord, out int taskId, out int originatingTaskId)
-  {
-    return eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStop, out taskId, out originatingTaskId);
-  }
+  public static bool IsTaskExecuteStopEvent(this EventRecordWithMetadata eventRecord, out int taskId, out int originatingTaskId) =>
+    eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStop, out taskId, out originatingTaskId);
 
   public static bool IsTaskWaitSendOrStopEvent(this EventRecordWithMetadata eventRecord) =>
     eventRecord.EventClass is TraceEventsConstants.TaskWaitSend or TraceEventsConstants.TaskWaitStop;
 
-  public static bool IsTaskWaitStopEvent(this EventRecordWithMetadata eventRecord, out int waitedTaskId, out int originatingTaskId)
-  {
-    return eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskWaitStop, out waitedTaskId, out originatingTaskId);
-  }
+  public static bool IsTaskWaitStopEvent(this EventRecordWithMetadata eventRecord, out int waitedTaskId, out int originatingTaskId) =>
+    eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskWaitStop, out waitedTaskId, out originatingTaskId);
 
   private static bool IsTaskRelatedEvent(
     this EventRecordWithMetadata eventRecord, string eventClass, out int taskId, out int originatingTaskId)

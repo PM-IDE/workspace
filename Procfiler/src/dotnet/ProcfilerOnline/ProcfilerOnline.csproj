@@ -1,33 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler"
-               AssemblyFile="$(SolutionDir)/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
+  <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler"
+             AssemblyFile="$(SolutionDir)/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
 
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <OutputType>Exe</OutputType>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj"/>
-        <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
-        <ProjectReference Include="..\..\..\..\Ficus\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj" />
-        <ProjectReference Include="..\Core\Core.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj"/>
+    <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
+    <ProjectReference Include="..\..\..\..\Ficus\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj"/>
+    <ProjectReference Include="..\Core\Core.csproj"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Confluent.Kafka"/>
-        <PackageReference Include="Microsoft.Diagnostics.NETCore.Client"/>
-        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka"/>
+    <PackageReference Include="Microsoft.Diagnostics.NETCore.Client"/>
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent"/>
+  </ItemGroup>
 
-    <Target Name="BuildCppProcfilerOnline" AfterTargets="Build">
-        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\Procfiler\src\cpp\online\"
-                           TargetName="ProcfilerOnline"/>
-    </Target>
+  <Target Name="BuildCppProcfilerOnline" AfterTargets="Build">
+    <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\Procfiler\src\cpp\online\"
+                       TargetName="ProcfilerOnline"/>
+  </Target>
 
-    <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfilerOnline" Outputs="$(OutputPath)CppProcfilerOnline.dll">
-        <Copy SourceFiles="$(SolutionDir)\Procfiler\src\cpp\online\build\Release\CppProcfilerOnline.dll" DestinationFolder="$(OutputPath)"/>
-    </Target>
+  <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfilerOnline" Outputs="$(OutputPath)CppProcfilerOnline.dll">
+    <Copy SourceFiles="$(SolutionDir)\Procfiler\src\cpp\online\build\Release\CppProcfilerOnline.dll" DestinationFolder="$(OutputPath)"/>
+  </Target>
 </Project>

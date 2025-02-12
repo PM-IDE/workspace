@@ -1,32 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-    </PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Grpc.Net.Client" />
-        <PackageReference Include="Microsoft.Extensions.Configuration"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables"/>
-        <PackageReference Include="Microsoft.Extensions.Logging"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="NUnit"/>
-        <PackageReference Include="NUnit3TestAdapter"/>
-        <PackageReference Include="NUnit.Analyzers"/>
-        <PackageReference Include="coverlet.collector"/>
-        <PackageReference Include="Confluent.Kafka"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Grpc.Net.Client"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables"/>
+    <PackageReference Include="Microsoft.Extensions.Logging"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="NUnit"/>
+    <PackageReference Include="NUnit3TestAdapter"/>
+    <PackageReference Include="NUnit.Analyzers"/>
+    <PackageReference Include="coverlet.collector"/>
+    <PackageReference Include="Confluent.Kafka"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj"/>
-        <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
-        <ProjectReference Include="..\..\..\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj" />
-        <ProjectReference Include="..\..\..\src\front\FicusFrontend\FicusKafkaIntegration\FicusKafkaIntegration.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes.Kafka\Bxes.Kafka.csproj"/>
+    <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
+    <ProjectReference Include="..\..\..\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj"/>
+    <ProjectReference Include="..\..\..\src\front\FicusFrontend\FicusKafkaIntegration\FicusKafkaIntegration.csproj"/>
+  </ItemGroup>
 </Project>

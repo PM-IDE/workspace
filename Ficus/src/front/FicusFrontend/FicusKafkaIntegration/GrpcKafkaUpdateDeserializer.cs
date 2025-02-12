@@ -3,7 +3,7 @@ using Ficus;
 
 namespace FicusKafkaIntegration;
 
-class GrpcKafkaUpdateDeserializer : IDeserializer<GrpcKafkaUpdate>
+internal class GrpcKafkaUpdateDeserializer : IDeserializer<GrpcKafkaUpdate>
 {
   public static GrpcKafkaUpdateDeserializer Instance { get; } = new();
 
@@ -13,8 +13,6 @@ class GrpcKafkaUpdateDeserializer : IDeserializer<GrpcKafkaUpdate>
   }
 
 
-  public GrpcKafkaUpdate Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
-  {
-    return GrpcKafkaUpdate.Parser.ParseFrom(data);
-  }
+  public GrpcKafkaUpdate Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context) =>
+    GrpcKafkaUpdate.Parser.ParseFrom(data);
 }

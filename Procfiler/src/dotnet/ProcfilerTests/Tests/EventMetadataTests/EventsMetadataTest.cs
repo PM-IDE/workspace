@@ -28,9 +28,6 @@ public class EventsMetadataTest
     Assert.That(metadata.ContainsKey(key), Is.False);
     Assert.That(metadata.Contains(new KeyValuePair<string, string>(key, value)), Is.False);
     Assert.That(metadata, Has.Count.Zero);
-    Assert.Throws<KeyNotFoundException>(() =>
-    {
-      _ = metadata[key];
-    });
+    Assert.Throws<KeyNotFoundException>(() => { _ = metadata[key]; });
   }
 }

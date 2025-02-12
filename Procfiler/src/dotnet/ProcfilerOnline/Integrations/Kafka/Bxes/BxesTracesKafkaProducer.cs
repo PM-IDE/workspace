@@ -37,6 +37,7 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
 {
   private const char CaseNamePartsSeparator = ';';
 
+
   private readonly IBxesStreamWriter myWriter = new BxesKafkaStreamWriter<BxesEvent>(
     BxesUtil.CreateSystemMetadata(),
     settings.Value.KafkaSettings.TopicName,
@@ -45,14 +46,16 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
       BootstrapServers = settings.Value.KafkaSettings.BootstrapServers
     });
 
+
   public void Produce(Guid key, BxesKafkaTrace trace)
   {
     List<AttributeKeyValue> metadata =
     [
       new(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(trace.CaseName.DisplayName)),
-      new(new BxesStringValue(FicusKafkaKeys.CaseNameParts), new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
+      new(new BxesStringValue(FicusKafkaKeys.CaseNameParts),
+        new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
       new(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(trace.ProcessName)),
-      new(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(trace.CaseId)),
+      new(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(trace.CaseId))
     ];
 
     metadata.AddRange(trace.Metadata);

@@ -24,16 +24,10 @@ public class MultiFileBxesReader : IBxesReader
     OpenRead(BxesConstants.KVPairsFileName, reader => BxesReadUtils.ReadKeyValuePairs(context.WithReader(reader)));
 
     IEventLogMetadata metadata = null!;
-    OpenRead(BxesConstants.MetadataFileName, reader =>
-    {
-      metadata = BxesReadUtils.ReadMetadata(context.WithReader(reader));
-    });
+    OpenRead(BxesConstants.MetadataFileName, reader => { metadata = BxesReadUtils.ReadMetadata(context.WithReader(reader)); });
 
     List<ITraceVariant> variants = null!;
-    OpenRead(BxesConstants.TracesFileName, reader =>
-    {
-      variants = BxesReadUtils.ReadVariants(context.WithReader(reader));
-    });
+    OpenRead(BxesConstants.TracesFileName, reader => { variants = BxesReadUtils.ReadVariants(context.WithReader(reader)); });
 
     return new EventLogReadResult(new InMemoryEventLog(version!.Value, metadata, variants), context.SystemMetadata);
   }

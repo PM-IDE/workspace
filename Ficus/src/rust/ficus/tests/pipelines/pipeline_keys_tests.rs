@@ -30,6 +30,7 @@ use ficus::{
     },
     vecs,
 };
+use ficus::features::analysis::threads_diagram::discovery::LogThreadsDiagram;
 
 #[test]
 #[rustfmt::skip]
@@ -112,6 +113,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_existence::<Vec<String>>(&PATHS, &mut used);
+    assert_existence::<LogThreadsDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -202,7 +204,8 @@ fn get_all_keys_names() -> Vec<String> {
         "attribute",
         "time_annotation_kind",
         "attributes",
-        "paths"
+        "paths",
+        "log_threads_diagram"
     ]
 }
 
@@ -294,6 +297,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_keys_equivalence::<Vec<String>>(&PATHS, &mut used);
+    assert_keys_equivalence::<LogThreadsDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
