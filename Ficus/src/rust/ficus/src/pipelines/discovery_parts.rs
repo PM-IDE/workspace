@@ -1,6 +1,7 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
+use crate::features::analysis::threads_diagram::discovery::discover_threads_diagram;
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use crate::features::discovery::alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
@@ -12,12 +13,7 @@ use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml
 use crate::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{
-    AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY,
-    EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY,
-    PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY,
-    RELATIVE_TO_BEST_THRESHOLD_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
-};
+use crate::pipelines::keys::context_keys::{AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOG_THREADS_DIAGRAM, LOG_THREADS_DIAGRAM_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 use crate::utils::user_data::user_data::UserData;
@@ -196,6 +192,19 @@ impl PipelineParts {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
             ensure_initial_marking(log, petri_net);
 
+            Ok(())
+        })
+    }
+
+    pub(super) fn discover_log_threads_diagram() -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::DISCOVER_LOG_THREADS_DIAGRAM, &|context, _, config| {
+            let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+            let thread_attribute = Self::get_user_data(config, &ATTRIBUTE_KEY)?;
+            
+            let diagram = discover_threads_diagram(log, thread_attribute.as_str());
+            
+            context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram);
+            
             Ok(())
         })
     }
