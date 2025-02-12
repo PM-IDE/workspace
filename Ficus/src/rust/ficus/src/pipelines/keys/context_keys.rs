@@ -282,6 +282,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
         TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
         ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
         PATHS => Some(PATHS_KEY.deref() as &dyn ContextKey),
+        LOG_THREADS_DIAGRAM => Some(LOG_THREADS_DIAGRAM_KEY.deref() as &dyn ContextKey),
         _ => None,
     }
 }
