@@ -30,6 +30,7 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
+use crate::features::analysis::threads_diagram::discovery::LogThreadsDiagram;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
@@ -113,6 +114,7 @@ pub const ATTRIBUTE: &'static str = "attribute";
 pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
 pub const ATTRIBUTES: &'static str = "attributes";
 pub const PATHS: &'static str = "paths";
+pub const LOG_THREADS_DIAGRAM: &'static str = "log_threads_diagram";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -201,6 +203,7 @@ lazy_static!(
      pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
      pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
      pub static ref PATHS_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(PATHS);
+     pub static ref LOG_THREADS_DIAGRAM_KEY: DefaultContextKey<LogThreadsDiagram> = DefaultContextKey::new(LOG_THREADS_DIAGRAM);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {

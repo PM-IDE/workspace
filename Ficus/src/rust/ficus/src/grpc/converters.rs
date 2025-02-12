@@ -14,20 +14,10 @@ use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
-use crate::ficus_proto::{
-    GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation,
-    GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode,
-    GrpcLabeledDataset, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace,
-    GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcTimePerformanceAnnotation, GrpcTimeSpan,
-};
+use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcLogThreadsDiagram, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTraceThreadsDiagram};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_keys::{
-    BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
-    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY,
-    PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
-    PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-};
+use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY};
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -55,6 +45,9 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use prost_types::Timestamp;
+use crate::features::analysis::threads_diagram::discovery::LogThreadsDiagram;
+use crate::ficus_proto::grpc_event_stamp::Stamp;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
     GrpcContextValue::decode(bytes)
@@ -117,7 +110,7 @@ pub(super) fn put_into_user_data(
         ContextValue::Dataset(_) => todo!(),
         ContextValue::LabeledDataset(_) => todo!(),
         ContextValue::Bytes(grpc_bytes) => user_data.put_any::<Vec<u8>>(key, grpc_bytes.bytes.clone()),
-        ContextValue::ThreadsDiagram(_) => todo!()
+        ContextValue::LogThreadsDiagram(_) => todo!()
     }
 }
 
@@ -179,6 +172,8 @@ pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> O
         try_convert_to_grpc_dataset(value)
     } else if BYTES_KEY.eq_other(key) {
         try_convert_to_grpc_bytes(value)
+    } else if LOG_THREADS_DIAGRAM_KEY.eq_other(key) {
+        try_convert_to_grpc_log_threads_diagram(value)
     } else {
         None
     }
@@ -652,5 +647,41 @@ fn convert_to_labeled_grpc_dataset(dataset: &LabeledDataset) -> GrpcLabeledDatas
         dataset: Some(grpc_dataset),
         labels,
         labels_colors,
+    }
+}
+
+fn try_convert_to_grpc_log_threads_diagram(value: &dyn Any) -> Option<GrpcContextValue> {
+    if !value.is::<LogThreadsDiagram>() {
+        None
+    } else {
+        Some(GrpcContextValue {
+            context_value: Some(ContextValue::LogThreadsDiagram(convert_to_grpc_log_threads_diagram(
+                value.downcast_ref::<LogThreadsDiagram>().unwrap(),
+            ))),
+        })
+    }
+}
+
+fn convert_to_grpc_log_threads_diagram(diagram: &LogThreadsDiagram) -> GrpcLogThreadsDiagram {
+    GrpcLogThreadsDiagram {
+        traces: diagram.traces().iter().map(|t| {
+            GrpcTraceThreadsDiagram {
+                threads: t.threads().iter().map(|t| {
+                    GrpcThread {
+                        events: t.events().iter().map(|e| {
+                            GrpcThreadEvent {
+                                event: Some(GrpcEvent {
+                                    name: e.name().to_owned(),
+                                    stamp: Some(GrpcEventStamp {
+                                        stamp: Some(Stamp::Date(Timestamp::from_str(e.timestamp().to_rfc3339().as_str()).ok().unwrap()))
+                                    })
+                                }),
+                                edge_relative_length: e.relative_edge_len()
+                            }
+                        }).collect()
+                    }
+                }).collect()
+            }
+        }).collect()
     }
 }
