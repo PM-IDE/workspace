@@ -2,7 +2,7 @@ from typing import Optional
 
 import graphviz
 
-from .petri_net import _draw_graph_like_formalism
+from .petri_net import draw_graph_like_formalism
 
 
 class Graph:
@@ -34,9 +34,9 @@ def draw_graph(graph: Graph,
         for edge in graph.edges:
             g.edge(str(edge.from_node), str(edge.to_node), edge.data)
 
-    _draw_graph_like_formalism(draw_func,
-                               name=name,
-                               background_color=background_color,
-                               engine=engine,
-                               export_path=export_path,
-                               rankdir=rankdir)
+    draw_graph_like_formalism(draw_func,
+                              name=name,
+                              background_color=background_color,
+                              engine=engine,
+                              export_path=export_path,
+                              rankdir=rankdir)

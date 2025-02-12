@@ -1,7 +1,9 @@
+import graphviz
+
 from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import *
 from ..legacy.discovery.graph import draw_graph
-from ..legacy.discovery.petri_net import draw_petri_net
+from ..legacy.discovery.petri_net import draw_petri_net, draw_graph_like_formalism
 
 
 class DiscoverPetriNetAlpha(PipelinePart):
@@ -238,13 +240,43 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return _create_default_discovery_part(const_discover_directly_follows_graph_stream)
 
-class DiscoverLogThreadsDiagram(PipelinePart):
-  def __init__(self, thread_attribute: str):
+class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
+  def __init__(self,
+               thread_attribute: str,
+               name: str = 'dfg_graph',
+               background_color: str = 'white',
+               engine='dot',
+               export_path: Optional[str] = None,
+               rankdir: str = 'LR'):
     super().__init__()
     self.thread_attribute = thread_attribute
+    self.name = name
+    self.background_color = background_color
+    self.engine = engine
+    self.export_path = export_path
+    self.rankdir = rankdir
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_string_value(config, const_attribute, self.thread_attribute)
 
-    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_log_threads_diagram, config))
+    part = create_complex_get_context_part(self.uuid,
+                                           self.__class__.__name__,
+                                           [const_log_threads_diagram],
+                                           const_discover_log_threads_diagram,
+                                           config)
+
+    return GrpcPipelinePartBase(complexContextRequestPart=part)
+
+  def execute_callback(self, values: dict[str, GrpcContextValue]):
+    diagram = values[const_log_threads_diagram].logThreadsDiagram
+
+    def draw_func(g: graphviz.Digraph):
+      pass
+
+    draw_graph_like_formalism(draw_func,
+                              self.name,
+                              self.background_color,
+                              self.engine,
+                              self.export_path,
+                              self.rankdir)

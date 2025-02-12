@@ -47,12 +47,12 @@ class SinglePlaceMarking:
         self.tokens_count = tokens_count
 
 
-def _draw_graph_like_formalism(draw_func: Callable[[graphviz.Digraph], None],
-                               name: str = 'petri_net',
-                               background_color: str = 'white',
-                               engine='dot',
-                               export_path: Optional[str] = None,
-                               rankdir: str = 'LR'):
+def draw_graph_like_formalism(draw_func: Callable[[graphviz.Digraph], None],
+                              name: str = 'petri_net',
+                              background_color: str = 'white',
+                              engine='dot',
+                              export_path: Optional[str] = None,
+                              rankdir: str = 'LR'):
     g = graphviz.Digraph(name, engine=engine, graph_attr={
         'bgcolor': background_color,
         'rankdir': rankdir
@@ -117,12 +117,12 @@ def draw_petri_net(net: PetriNet,
                 label = annotation[arc.id] if annotation is not None and arc.id in annotation else ''
                 g.edge(str(transition.id), str(arc.place_id), label)
 
-    _draw_graph_like_formalism(draw_func,
-                               name=name,
-                               background_color=background_color,
-                               engine=engine,
-                               export_path=export_path,
-                               rankdir=rankdir)
+    draw_graph_like_formalism(draw_func,
+                              name=name,
+                              background_color=background_color,
+                              engine=engine,
+                              export_path=export_path,
+                              rankdir=rankdir)
 
 
 def _create_temp_file_name() -> str:
