@@ -29,7 +29,7 @@ def draw_graph(graph: Graph,
                rankdir: str = 'LR'):
     def draw_func(g: graphviz.Digraph):
         for node in graph.nodes:
-            g.node(str(node.id), label=node.data, style='filled', border='1', shape='circle')
+            g.node(str(node.id), xlabel=node.data, style='filled', border='1', shape='circle')
 
         for edge in graph.edges:
             g.edge(str(edge.from_node), str(edge.to_node), edge.data)
