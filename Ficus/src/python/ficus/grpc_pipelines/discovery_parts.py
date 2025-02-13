@@ -3,7 +3,7 @@ import graphviz
 from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import *
 from ..legacy.discovery.graph import draw_graph
-from ..legacy.discovery.petri_net import draw_petri_net, draw_graph_like_formalism
+from ..legacy.discovery.petri_net import draw_petri_net, draw_formalism
 
 
 class DiscoverPetriNetAlpha(PipelinePart):
@@ -271,12 +271,22 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
   def execute_callback(self, values: dict[str, GrpcContextValue]):
     diagram = values[const_log_threads_diagram].logThreadsDiagram
 
-    def draw_func(g: graphviz.Digraph):
-      pass
+    for trace_diagram in diagram.traces:
+      def draw_func(g: graphviz.Digraph):
+        for thread_index, thread in enumerate(trace_diagram.threads):
+          for index, event in enumerate(thread.events):
+            this_node_id = f'{thread_index}_{index}'
+            g.node(this_node_id, label=event.event.name, style='filled', border='1', shape='circle')
 
-    draw_graph_like_formalism(draw_func,
-                              self.name,
-                              self.background_color,
-                              self.engine,
-                              self.export_path,
-                              self.rankdir)
+            if index + 1 < len(thread.events):
+              next_node_id = f'{thread_index}_{index + 1}'
+              g.edge(this_node_id, next_node_id)
+
+          thread_index += 1
+
+      draw_formalism(draw_func,
+                     self.name,
+                     self.background_color,
+                     self.engine,
+                     self.export_path,
+                     self.rankdir)
