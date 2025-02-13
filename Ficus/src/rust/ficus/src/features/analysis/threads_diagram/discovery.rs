@@ -1,10 +1,11 @@
-﻿use std::collections::HashMap;
-use std::ops::Sub;
-use chrono::{DateTime, Utc};
-use crate::event_log::core::event::event::Event;
+﻿use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use chrono::{DateTime, Utc};
+use std::collections::HashMap;
+use std::ops::Sub;
+use crate::event_log::xes::xes_event::XesEventImpl;
 
 pub struct LogThreadsDiagram {
     traces: Vec<TraceThreadsDiagram>
@@ -56,7 +57,11 @@ impl TraceThreadEvent {
     }
 }
 
-pub fn discover_threads_diagram(log: &XesEventLogImpl, thread_attribute: &str) -> LogThreadsDiagram {
+pub fn discover_threads_diagram(
+    log: &XesEventLogImpl, 
+    thread_attribute: &str, 
+    time_attribute: Option<&str>
+) -> LogThreadsDiagram {
     let mut max_time_delta_ms: Option<f64> = None;
     let mut traces = vec![];
 
@@ -80,9 +85,8 @@ pub fn discover_threads_diagram(log: &XesEventLogImpl, thread_attribute: &str) -
             };
 
             let edge_len = if i + 1 < trace.events().len() {
-                let this_stamp = event.timestamp();
-                let next_stamp = trace.events().get(i + 1).expect("Must be in range").borrow().timestamp().clone();
-                next_stamp.sub(this_stamp).num_milliseconds() as f64
+                let next_event = trace.events().get(i + 1).expect("Must be in range");
+                extract_edge_len(&event, &next_event.borrow(), time_attribute)
             } else {
                 0.
             };
@@ -126,4 +130,34 @@ pub fn discover_threads_diagram(log: &XesEventLogImpl, thread_attribute: &str) -
     LogThreadsDiagram {
         traces
     }
+}
+
+fn extract_edge_len(first: &XesEventImpl, second: &XesEventImpl, time_attribute: Option<&str>) -> f64 {
+    if let Some(time_attribute) = time_attribute {
+        let first_stamp = get_number(first, time_attribute);
+        let second_stamp = get_number(second, time_attribute);
+        
+        if first_stamp.is_none() || second_stamp.is_none() {
+            0.
+        } else {
+            second_stamp.unwrap() - first_stamp.unwrap()
+        }
+    } else {
+        let this_stamp = first.timestamp();
+        let next_stamp = second.timestamp();
+        next_stamp.sub(this_stamp).num_nanoseconds().expect("For now must be in range") as f64
+    }
+}
+
+fn get_number(event: &XesEventImpl, attribute: &str) -> Option<f64> {
+    let value = event.payload_map()?.get(attribute)?;
+    Some(match value {
+        EventPayloadValue::Int32(v) => *v as f64,
+        EventPayloadValue::Int64(v) => *v as f64,
+        EventPayloadValue::Float32(v) => *v as f64,
+        EventPayloadValue::Float64(v) => *v as f64,
+        EventPayloadValue::Uint32(v) => *v as f64,
+        EventPayloadValue::Uint64(v) => *v as f64,
+        _ => return None
+    })
 }

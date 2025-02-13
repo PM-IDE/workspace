@@ -201,7 +201,7 @@ impl PipelineParts {
             let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
             let thread_attribute = Self::get_user_data(config, &ATTRIBUTE_KEY)?;
             
-            let diagram = discover_threads_diagram(log, thread_attribute.as_str());
+            let diagram = discover_threads_diagram(log, thread_attribute.as_str(), None);
             
             context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram);
             
