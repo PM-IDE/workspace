@@ -63,6 +63,8 @@ const_time_annotation_kind = 'time_annotation_kind'
 const_attributes = 'attributes'
 const_paths = 'paths'
 const_log_threads_diagram = 'log_threads_diagram'
+const_thread_attribute = 'thread_attribute'
+const_time_attribute = 'time_attribute'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'

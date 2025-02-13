@@ -58,8 +58,8 @@ impl TraceThreadEvent {
 }
 
 pub fn discover_threads_diagram(
-    log: &XesEventLogImpl, 
-    thread_attribute: &str, 
+    log: &XesEventLogImpl,
+    thread_attribute: &str,
     time_attribute: Option<&str>
 ) -> LogThreadsDiagram {
     let mut max_time_delta_ms: Option<f64> = None;
@@ -96,7 +96,7 @@ pub fn discover_threads_diagram(
             } else {
                 max_time_delta_ms = Some(edge_len);
             }
-
+    
             let thread_event = TraceThreadEvent {
                 timestamp: event.timestamp().clone(),
                 name: event.name().to_owned(),
@@ -136,7 +136,7 @@ fn extract_edge_len(first: &XesEventImpl, second: &XesEventImpl, time_attribute:
     if let Some(time_attribute) = time_attribute {
         let first_stamp = get_number(first, time_attribute);
         let second_stamp = get_number(second, time_attribute);
-        
+
         if first_stamp.is_none() || second_stamp.is_none() {
             0.
         } else {

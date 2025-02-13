@@ -114,6 +114,8 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_existence::<Vec<String>>(&PATHS, &mut used);
     assert_existence::<LogThreadsDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
+    assert_existence::<String>(&TIME_ATTRIBUTE, &mut used);
+    assert_existence::<String>(&THREAD_ATTRIBUTE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -205,7 +207,9 @@ fn get_all_keys_names() -> Vec<String> {
         "time_annotation_kind",
         "attributes",
         "paths",
-        "log_threads_diagram"
+        "log_threads_diagram",
+        "thread_attribute",
+        "time_attribute"
     ]
 }
 
@@ -298,6 +302,8 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_keys_equivalence::<Vec<String>>(&PATHS, &mut used);
     assert_keys_equivalence::<LogThreadsDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
+    assert_keys_equivalence::<String>(&TIME_ATTRIBUTE, &mut used);
+    assert_keys_equivalence::<String>(&THREAD_ATTRIBUTE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

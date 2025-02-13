@@ -243,6 +243,7 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
 class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
   def __init__(self,
                thread_attribute: str,
+               time_attribute: Optional[str],
                name: str = 'dfg_graph',
                background_color: str = 'white',
                engine='dot',
@@ -250,6 +251,7 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
                rankdir: str = 'LR'):
     super().__init__()
     self.thread_attribute = thread_attribute
+    self.time_attribute = time_attribute
     self.name = name
     self.background_color = background_color
     self.engine = engine
@@ -258,7 +260,10 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
-    append_string_value(config, const_attribute, self.thread_attribute)
+    append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    if self.time_attribute is not None:
+      append_string_value(config, const_time_attribute, self.time_attribute)
 
     part = create_complex_get_context_part(self.uuid,
                                            self.__class__.__name__,
