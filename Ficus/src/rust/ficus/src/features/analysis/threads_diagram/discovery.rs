@@ -1,11 +1,10 @@
 ﻿use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
-use std::ops::Sub;
-use crate::event_log::xes::xes_event::XesEventImpl;
 
 pub struct LogThreadsDiagram {
     traces: Vec<TraceThreadsDiagram>
@@ -83,27 +82,29 @@ pub fn discover_threads_diagram(
             } else {
                 None
             };
-
-            let edge_len = if i + 1 < trace.events().len() {
-                let next_event = trace.events().get(i + 1).expect("Must be in range");
-                extract_edge_len(&event, &next_event.borrow(), time_attribute)
-            } else {
-                0.
-            };
-
-            if let Some(prev_max) = max_time_delta_ms {
-                max_time_delta_ms = Some(prev_max.max(edge_len));
-            } else {
-                max_time_delta_ms = Some(edge_len);
-            }
     
             let thread_event = TraceThreadEvent {
                 timestamp: event.timestamp().clone(),
                 name: event.name().to_owned(),
-                relative_edge_len: edge_len
+                relative_edge_len: match time_attribute {
+                    Some(time_attribute) => get_stamp(&event, time_attribute).unwrap_or_else(|| 0.),
+                    None => event.timestamp().timestamp_nanos_opt().unwrap() as f64
+                }
             };
 
             if let Some(thread) = threads.get_mut(&thread_id) {
+                let last = thread.events.last_mut().unwrap();
+                
+                let edge_len = thread_event.relative_edge_len - last.relative_edge_len;
+
+                if let Some(prev_max) = max_time_delta_ms {
+                    max_time_delta_ms = Some(prev_max.max(edge_len));
+                } else {
+                    max_time_delta_ms = Some(edge_len);
+                }
+
+                last.relative_edge_len = edge_len;
+
                 thread.events.push(thread_event);
             } else {
                 threads.insert(thread_id, TraceThread {
@@ -123,6 +124,10 @@ pub fn discover_threads_diagram(
                 for event in thread.events.iter_mut() {
                     event.relative_edge_len = event.relative_edge_len / max_edge_len;
                 }
+
+                if let Some(last) = thread.events.last_mut() {
+                    last.relative_edge_len = 0.;
+                }
             }
         }
     }
@@ -132,30 +137,13 @@ pub fn discover_threads_diagram(
     }
 }
 
-fn extract_edge_len(first: &XesEventImpl, second: &XesEventImpl, time_attribute: Option<&str>) -> f64 {
-    if let Some(time_attribute) = time_attribute {
-        let first_stamp = get_number(first, time_attribute);
-        let second_stamp = get_number(second, time_attribute);
-
-        if first_stamp.is_none() || second_stamp.is_none() {
-            0.
-        } else {
-            second_stamp.unwrap() - first_stamp.unwrap()
-        }
-    } else {
-        let this_stamp = first.timestamp();
-        let next_stamp = second.timestamp();
-        next_stamp.sub(this_stamp).num_nanoseconds().expect("For now must be in range") as f64
-    }
-}
-
-fn get_number(event: &XesEventImpl, attribute: &str) -> Option<f64> {
+fn get_stamp(event: &XesEventImpl, attribute: &str) -> Option<f64> {
     let value = event.payload_map()?.get(attribute)?;
     Some(match value {
         EventPayloadValue::Int32(v) => *v as f64,
         EventPayloadValue::Int64(v) => *v as f64,
         EventPayloadValue::Float32(v) => *v as f64,
-        EventPayloadValue::Float64(v) => *v as f64,
+        EventPayloadValue::Float64(v) => *v,
         EventPayloadValue::Uint32(v) => *v as f64,
         EventPayloadValue::Uint64(v) => *v as f64,
         _ => return None
