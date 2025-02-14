@@ -247,7 +247,9 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
                save_path: str = None,
                plot_legend: bool = True,
                height_scale: float = 1,
-               width_scale: float = 1):
+               width_scale: float = 1,
+               distance_scale: float = 1,
+               rect_width_scale: int = 1):
     super().__init__()
     self.thread_attribute = thread_attribute
     self.time_attribute = time_attribute
@@ -256,6 +258,8 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
     self.plot_legend = plot_legend
     self.height_scale = height_scale
     self.width_scale = width_scale
+    self.distance_scale = distance_scale
+    self.rect_width_scale = rect_width_scale
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
@@ -278,7 +282,7 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
     provider = RandomUniqueColorsProvider()
     colors = dict()
     background_key = 'Background'
-    rect_width = 1
+    rect_width = self.rect_width_scale
     colors[background_key] = 0
     mappings = [ProxyColorMapping(background_key, Color(255, 255, 255))]
 
@@ -294,7 +298,7 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
             mappings.append(ProxyColorMapping(event.name, Color(c[0], c[1], c[2])))
             colors[event.name] = len(colors)
 
-          rect_x = event.stamp + delta
+          rect_x = event.stamp * self.distance_scale + delta
           if last_x != rect_x:
             colors_trace.append(ProxyColorRectangle(
               colors[background_key],
