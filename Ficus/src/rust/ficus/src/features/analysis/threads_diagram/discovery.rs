@@ -67,7 +67,8 @@ pub fn discover_threads_diagram(
         .iter()
         .filter(|t| t.borrow().events().len() > 0)
         .map(|t| get_stamp(&t.borrow().events().first().unwrap().borrow(), time_attribute).unwrap_or_else(|_| u64::MAX),)
-        .min_by(|a, b| a.partial_cmp(b).unwrap()).unwrap();
+        .min()
+        .unwrap();
 
     for trace in log.traces() {
         let trace = trace.borrow();
