@@ -1,6 +1,9 @@
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::core::{event::event::Event, event_log::EventLog};
+use crate::event_log::xes::xes_event::XesEventImpl;
 use std::cell::RefCell;
+use std::collections::HashSet;
+use std::ops::Deref;
 use std::rc::Rc;
 
 pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: &str, filter: TFilter)
@@ -18,9 +21,12 @@ where
 pub const ARTIFICIAL_START_EVENT_NAME: &'static str = "ARTIFICIAL_START";
 pub const ARTIFICIAL_END_EVENT_NAME: &'static str = "ARTIFICIAL_END";
 
-pub fn add_artificial_start_end_activities<TLog>(log: &mut TLog, add_start_events: bool, add_end_events: bool)
-where
-    TLog: EventLog,
+pub fn add_artificial_start_end_activities<TLog: EventLog>(
+    log: &mut TLog,
+    add_start_events: bool,
+    add_end_events: bool,
+    attributes_to_copy: Option<&HashSet<String>>,
+)
 {
     for trace in log.traces() {
         let mut trace = trace.borrow_mut();
@@ -31,7 +37,12 @@ where
             let artificial_start_event = if events.is_empty() {
                 TLog::TEvent::new_with_min_date(name)
             } else {
-                TLog::TEvent::new(name, events.first().expect("!events.is_empty()").borrow().timestamp().clone())
+                let first_event = events.first().expect("!events.is_empty()");
+
+                let mut start_event = TLog::TEvent::new(name, first_event.borrow().timestamp().clone());
+                copy_payload::<TLog>(&first_event.borrow(), &mut start_event, attributes_to_copy);
+
+                start_event
             };
 
             events.insert(0, Rc::new(RefCell::new(artificial_start_event)));
@@ -42,11 +53,28 @@ where
             let artificial_end_event = if events.is_empty() {
                 TLog::TEvent::new_with_max_date(name)
             } else {
-                TLog::TEvent::new(name, events.last().expect("!events.is_empty()").borrow().timestamp().clone())
+                let last_event = events.last().expect("!events.is_empty()");
+
+                let mut end_event = TLog::TEvent::new(name, last_event.borrow().timestamp().clone());
+                copy_payload::<TLog>(&last_event.borrow(), &mut end_event, attributes_to_copy);
+
+                end_event
             };
 
             events.push(Rc::new(RefCell::new(artificial_end_event)));
         }
+    }
+}
+
+fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&HashSet<String>>) {
+    if let Some(attributes_to_copy) = attributes_to_copy {
+        if let Some(payload_map) = from.payload_map() {
+            for (k, v) in payload_map.iter() {
+                if attributes_to_copy.contains(k) {
+                    to.add_or_update_payload(k.clone(), v.clone());
+                }
+            }
+        }   
     }
 }
 

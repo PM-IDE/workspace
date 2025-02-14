@@ -82,7 +82,7 @@ pub fn discover_threads_diagram(
             } else {
                 None
             };
-    
+
             let thread_event = TraceThreadEvent {
                 timestamp: event.timestamp().clone(),
                 name: event.name().to_owned(),
@@ -94,7 +94,7 @@ pub fn discover_threads_diagram(
 
             if let Some(thread) = threads.get_mut(&thread_id) {
                 let last = thread.events.last_mut().unwrap();
-                
+
                 let edge_len = thread_event.relative_edge_len - last.relative_edge_len;
 
                 if let Some(prev_max) = max_time_delta_ms {

@@ -116,7 +116,7 @@ fn test_renaming3() {
 #[test]
 fn test_add_artificial_start_event() {
     let mut log = create_simple_event_log3();
-    add_artificial_start_end_activities(&mut log, true, false);
+    add_artificial_start_end_activities(&mut log, true, false, None);
 
     assert_start_artificial_events(&log);
 }
@@ -151,7 +151,7 @@ fn assert_end_artificial_events(log: &XesEventLogImpl) {
 #[test]
 fn test_add_artificial_end_event() {
     let mut log = create_simple_event_log3();
-    add_artificial_start_end_activities(&mut log, false, true);
+    add_artificial_start_end_activities(&mut log, false, true, None);
 
     assert_end_artificial_events(&log);
 }
@@ -159,7 +159,7 @@ fn test_add_artificial_end_event() {
 #[test]
 fn test_add_artificial_start_end_events() {
     let mut log = create_simple_event_log3();
-    add_artificial_start_end_activities(&mut log, true, true);
+    add_artificial_start_end_activities(&mut log, true, true, None);
 
     assert_start_artificial_events(&log);
     assert_end_artificial_events(&log);
@@ -169,7 +169,7 @@ fn test_add_artificial_start_end_events() {
 fn test_add_artificial_start_events_empty_trace() {
     let mut log = create_empty_log_with_empty_trace();
 
-    add_artificial_start_end_activities(&mut log, true, false);
+    add_artificial_start_end_activities(&mut log, true, false, None);
 
     let first_trace = log.traces().first().expect("Event log must contain log").borrow();
     let event = first_trace.events().first().expect("Trace must contain event");
@@ -189,7 +189,7 @@ fn create_empty_log_with_empty_trace() -> XesEventLogImpl {
 fn test_add_artificial_end_events_empty_trace() {
     let mut log = create_empty_log_with_empty_trace();
 
-    add_artificial_start_end_activities(&mut log, false, true);
+    add_artificial_start_end_activities(&mut log, false, true, None);
 
     let first_trace = log.traces().first().expect("Event log must contain log").borrow();
     let event = first_trace.events().first().expect("Trace must contain event");
@@ -202,7 +202,7 @@ fn test_add_artificial_end_events_empty_trace() {
 fn test_add_artificial_start_end_events_empty_trace() {
     let mut log = create_empty_log_with_empty_trace();
 
-    add_artificial_start_end_activities(&mut log, true, true);
+    add_artificial_start_end_activities(&mut log, true, true, None);
 
     assert_start_artificial_events(&log);
     assert_end_artificial_events(&log);
