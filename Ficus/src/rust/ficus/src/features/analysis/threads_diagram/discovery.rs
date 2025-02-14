@@ -55,24 +55,19 @@ pub enum LogThreadsDiagramError {
 }
 
 pub fn discover_threads_diagram(
-    log: &XesEventLogImpl, 
-    thread_attribute: &str, 
+    log: &XesEventLogImpl,
+    thread_attribute: &str,
     time_attribute: Option<&str>
 ) -> Result<LogThreadsDiagram, LogThreadsDiagramError> {
-    let mut max_time_delta_ms: Option<f64> = None;
     let mut traces = vec![];
-
-    let min_stamp = log
-        .traces()
-        .iter()
-        .filter(|t| t.borrow().events().len() > 0)
-        .map(|t| get_stamp(&t.borrow().events().first().unwrap().borrow(), time_attribute).unwrap_or_else(|_| u64::MAX),)
-        .min()
-        .unwrap();
 
     for trace in log.traces() {
         let trace = trace.borrow();
+        if trace.events().is_empty() {
+            continue;
+        }
 
+        let min_stamp = get_stamp(&trace.events().first().unwrap().borrow(), time_attribute)?;
         let mut threads: HashMap<Option<String>, TraceThread> = HashMap::new();
 
         for i in 0..trace.events().len() {
