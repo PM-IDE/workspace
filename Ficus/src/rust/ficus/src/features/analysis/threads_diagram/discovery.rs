@@ -1,4 +1,4 @@
-﻿use crate::event_log::core::event::event::{Event, EventPayloadValue};
+use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
 pub struct LogThreadsDiagram {
-    traces: Vec<TraceThreadsDiagram>
+    traces: Vec<TraceThreadsDiagram>,
 }
 
 impl LogThreadsDiagram {
@@ -17,7 +17,7 @@ impl LogThreadsDiagram {
 }
 
 pub struct TraceThreadsDiagram {
-    threads: Vec<TraceThread>
+    threads: Vec<TraceThread>,
 }
 
 impl TraceThreadsDiagram {
@@ -27,7 +27,7 @@ impl TraceThreadsDiagram {
 }
 
 pub struct TraceThread {
-    events: Vec<TraceThreadEvent>
+    events: Vec<TraceThreadEvent>,
 }
 
 impl TraceThread {
@@ -39,7 +39,7 @@ impl TraceThread {
 pub struct TraceThreadEvent {
     name: String,
     timestamp: DateTime<Utc>,
-    relative_edge_len: f64
+    relative_edge_len: f64,
 }
 
 impl TraceThreadEvent {
@@ -56,11 +56,7 @@ impl TraceThreadEvent {
     }
 }
 
-pub fn discover_threads_diagram(
-    log: &XesEventLogImpl,
-    thread_attribute: &str,
-    time_attribute: Option<&str>
-) -> LogThreadsDiagram {
+pub fn discover_threads_diagram(log: &XesEventLogImpl, thread_attribute: &str, time_attribute: Option<&str>) -> LogThreadsDiagram {
     let mut max_time_delta_ms: Option<f64> = None;
     let mut traces = vec![];
 
@@ -88,8 +84,8 @@ pub fn discover_threads_diagram(
                 name: event.name().to_owned(),
                 relative_edge_len: match time_attribute {
                     Some(time_attribute) => get_stamp(&event, time_attribute).unwrap_or_else(|| 0.),
-                    None => event.timestamp().timestamp_nanos_opt().unwrap() as f64
-                }
+                    None => event.timestamp().timestamp_nanos_opt().unwrap() as f64,
+                },
             };
 
             if let Some(thread) = threads.get_mut(&thread_id) {
@@ -107,14 +103,17 @@ pub fn discover_threads_diagram(
 
                 thread.events.push(thread_event);
             } else {
-                threads.insert(thread_id, TraceThread {
-                    events: vec![thread_event]
-                });
+                threads.insert(
+                    thread_id,
+                    TraceThread {
+                        events: vec![thread_event],
+                    },
+                );
             }
         }
 
         traces.push(TraceThreadsDiagram {
-            threads: threads.into_iter().map(|(_, v)| v).collect()
+            threads: threads.into_iter().map(|(_, v)| v).collect(),
         })
     }
 
@@ -132,9 +131,7 @@ pub fn discover_threads_diagram(
         }
     }
 
-    LogThreadsDiagram {
-        traces
-    }
+    LogThreadsDiagram { traces }
 }
 
 fn get_stamp(event: &XesEventImpl, attribute: &str) -> Option<f64> {
@@ -146,6 +143,6 @@ fn get_stamp(event: &XesEventImpl, attribute: &str) -> Option<f64> {
         EventPayloadValue::Float64(v) => *v,
         EventPayloadValue::Uint32(v) => *v as f64,
         EventPayloadValue::Uint64(v) => *v as f64,
-        _ => return None
+        _ => return None,
     })
 }

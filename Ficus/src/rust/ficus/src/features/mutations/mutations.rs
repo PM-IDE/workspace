@@ -23,8 +23,7 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
     add_start_events: bool,
     add_end_events: bool,
     attributes_to_copy: Option<&Vec<String>>,
-)
-{
+) {
     for trace in log.traces() {
         let mut trace = trace.borrow_mut();
         let events = trace.events_mut();

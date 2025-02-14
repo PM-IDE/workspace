@@ -14,11 +14,11 @@ use crate::pipelines::context::{LogMessageHandler, PipelineContext};
 use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
 use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
+use log::info;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
-use log::info;
 use uuid::Uuid;
 
 #[derive(Clone)]
