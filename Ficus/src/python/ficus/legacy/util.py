@@ -117,7 +117,7 @@ def _generate_random_color() -> (int, int, int):
     def generate_random_color():
         return random.randint(0, 255)
 
-    return to_hex((generate_random_color(), generate_random_color(), generate_random_color()))
+    return (generate_random_color(), generate_random_color(), generate_random_color())
 
 
 def to_hex(color: (int, int, int)) -> str:

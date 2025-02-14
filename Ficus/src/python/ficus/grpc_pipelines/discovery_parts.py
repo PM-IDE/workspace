@@ -1,9 +1,8 @@
-import graphviz
-
 from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import *
 from ..legacy.discovery.graph import draw_graph
-from ..legacy.discovery.petri_net import draw_petri_net, draw_formalism
+from ..legacy.discovery.petri_net import draw_petri_net
+from ..legacy.util import RandomUniqueColorsProvider
 
 
 class DiscoverPetriNetAlpha(PipelinePart):
@@ -244,19 +243,19 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
   def __init__(self,
                thread_attribute: str,
                time_attribute: Optional[str],
-               name: str = 'dfg_graph',
-               background_color: str = 'white',
-               engine='dot',
-               export_path: Optional[str] = None,
-               rankdir: str = 'LR'):
+               title: Optional[str] = None,
+               save_path: str = None,
+               plot_legend: bool = True,
+               height_scale: float = 1,
+               width_scale: float = 1):
     super().__init__()
     self.thread_attribute = thread_attribute
     self.time_attribute = time_attribute
-    self.name = name
-    self.background_color = background_color
-    self.engine = engine
-    self.export_path = export_path
-    self.rankdir = rankdir
+    self.title = title
+    self.save_path = save_path
+    self.plot_legend = plot_legend
+    self.height_scale = height_scale
+    self.width_scale = width_scale
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
@@ -276,22 +275,47 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
   def execute_callback(self, values: dict[str, GrpcContextValue]):
     diagram = values[const_log_threads_diagram].logThreadsDiagram
 
+    provider = RandomUniqueColorsProvider()
+    colors = dict()
+    background_key = 'Background'
+    rect_width = 1
+    colors[background_key] = 0
+    mappings = [ProxyColorMapping(background_key, Color(255, 255, 255))]
+
     for trace_diagram in diagram.traces:
-      def draw_func(g: graphviz.Digraph):
-        for thread_index, thread in enumerate(trace_diagram.threads):
-          for index, event in enumerate(thread.events):
-            this_node_id = f'{thread_index}_{index}'
-            g.node(this_node_id, xlabel=event.name, style='filled', border='1', shape='circle')
+      colors_log = []
+      for thread in trace_diagram.threads:
+        colors_trace = []
+        delta = 0
+        last_x = 0
+        for event in thread.events:
+          if event.name not in colors:
+            c = provider.next()
+            mappings.append(ProxyColorMapping(event.name, Color(c[0], c[1], c[2])))
+            colors[event.name] = len(colors)
 
-            if index + 1 < len(thread.events):
-              next_node_id = f'{thread_index}_{index + 1}'
-              g.edge(this_node_id, next_node_id)
+          rect_x = event.stamp + delta
+          if last_x != rect_x:
+            colors_trace.append(ProxyColorRectangle(
+              colors[background_key],
+              last_x,
+              rect_x - last_x
+            ))
 
-          thread_index += 1
+          colors_trace.append(ProxyColorRectangle(
+            colors[event.name],
+            rect_x,
+            rect_width,
+          ))
 
-      draw_formalism(draw_func,
-                     self.name,
-                     self.background_color,
-                     self.engine,
-                     self.export_path,
-                     self.rankdir)
+          last_x = rect_x + rect_width
+          delta += rect_width
+
+        colors_log.append(ProxyColorsTrace(colors_trace, False))
+
+      draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log),
+                                   title=self.title,
+                                   save_path=self.save_path,
+                                   plot_legend=self.plot_legend,
+                                   height_scale=self.height_scale,
+                                   width_scale=self.width_scale)
