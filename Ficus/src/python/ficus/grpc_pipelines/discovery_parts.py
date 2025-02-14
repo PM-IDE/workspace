@@ -245,7 +245,7 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
                time_attribute: Optional[str],
                title: Optional[str] = None,
                save_path: str = None,
-               plot_legend: bool = True,
+               plot_legend: bool = False,
                height_scale: float = 1,
                width_scale: float = 1,
                distance_scale: float = 1,
@@ -282,12 +282,24 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
     provider = RandomUniqueColorsProvider()
     colors = dict()
     background_key = 'Background'
+    separator_key = 'Separator'
     rect_width = self.rect_width_scale
     colors[background_key] = 0
-    mappings = [ProxyColorMapping(background_key, Color(255, 255, 255))]
+    colors[separator_key] = 1
+    mappings = [
+      ProxyColorMapping(background_key, Color(255, 255, 255)),
+      ProxyColorMapping(separator_key, Color(0, 0, 0))
+    ]
 
+    max_stamp = 0
+    max_events = 0
     for trace_diagram in diagram.traces:
-      colors_log = []
+      for thread in trace_diagram.threads:
+        max_stamp = max(max_stamp, thread.events[-1].stamp)
+        max_events = max(max_events, len(thread.events))
+
+    colors_log = []
+    for trace_diagram in diagram.traces:
       for thread in trace_diagram.threads:
         colors_trace = []
         delta = 0
@@ -317,9 +329,15 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
 
         colors_log.append(ProxyColorsTrace(colors_trace, False))
 
-      draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log),
-                                   title=self.title,
-                                   save_path=self.save_path,
-                                   plot_legend=self.plot_legend,
-                                   height_scale=self.height_scale,
-                                   width_scale=self.width_scale)
+      colors_log.append(ProxyColorsTrace([ProxyColorRectangle(
+        colors[separator_key],
+        0,
+        max_stamp * self.distance_scale + max_events * self.rect_width_scale
+      )], False))
+
+    draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log),
+                                 title=self.title,
+                                 save_path=self.save_path,
+                                 plot_legend=self.plot_legend,
+                                 height_scale=self.height_scale,
+                                 width_scale=self.width_scale)
