@@ -1,11 +1,10 @@
-use std::collections::{HashMap, HashSet};
 use crate::features::mutations::mutations::{add_artificial_start_end_activities, append_attributes_to_name};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
 use crate::pipelines::keys::context_keys::{ATTRIBUTES_KEY, EVENT_LOG_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
-use crate::utils::user_data::user_data::{UserData, UserDataImpl};
+use crate::utils::user_data::user_data::UserDataImpl;
 
 impl PipelineParts {
     pub(super) fn add_artificial_start_end_events() -> (String, PipelinePartFactory) {
@@ -22,7 +21,7 @@ impl PipelineParts {
     ) -> Result<(), PipelinePartExecutionError> {
         let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
         let attributes_to_copy = match Self::get_user_data(config, &ATTRIBUTES_KEY) {
-            Ok(attributes_to_copy) => Some(HashSet::from_iter(attributes_to_copy.iter().map(|a| a.clone()))),
+            Ok(attributes_to_copy) => Some(attributes_to_copy.iter().map(|a| a.clone()).collect()),
             Err(_) => None,
         };
 

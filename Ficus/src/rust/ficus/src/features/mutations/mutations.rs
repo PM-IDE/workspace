@@ -1,9 +1,6 @@
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::core::{event::event::Event, event_log::EventLog};
-use crate::event_log::xes::xes_event::XesEventImpl;
 use std::cell::RefCell;
-use std::collections::HashSet;
-use std::ops::Deref;
 use std::rc::Rc;
 
 pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: &str, filter: TFilter)
@@ -25,7 +22,7 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
     log: &mut TLog,
     add_start_events: bool,
     add_end_events: bool,
-    attributes_to_copy: Option<&HashSet<String>>,
+    attributes_to_copy: Option<&Vec<String>>,
 )
 {
     for trace in log.traces() {
@@ -66,15 +63,15 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
     }
 }
 
-fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&HashSet<String>>) {
+fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&Vec<String>>) {
     if let Some(attributes_to_copy) = attributes_to_copy {
         if let Some(payload_map) = from.payload_map() {
-            for (k, v) in payload_map.iter() {
-                if attributes_to_copy.contains(k) {
-                    to.add_or_update_payload(k.clone(), v.clone());
+            for attr in attributes_to_copy {
+                if let Some(value) = payload_map.get(attr) {
+                    to.add_or_update_payload(attr.clone(), value.clone());
                 }
             }
-        }   
+        }
     }
 }
 
