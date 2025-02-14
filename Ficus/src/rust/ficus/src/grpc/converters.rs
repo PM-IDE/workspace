@@ -676,25 +676,14 @@ fn try_convert_to_grpc_log_threads_diagram(value: &dyn Any) -> Option<GrpcContex
 
 fn convert_to_grpc_log_threads_diagram(diagram: &LogThreadsDiagram) -> GrpcLogThreadsDiagram {
     GrpcLogThreadsDiagram {
-        traces: diagram
-            .traces()
-            .iter()
-            .map(|t| GrpcTraceThreadsDiagram {
-                threads: t
-                    .threads()
-                    .iter()
-                    .map(|t| GrpcThread {
-                        events: t
-                            .events()
-                            .iter()
-                            .map(|e| GrpcThreadEvent {
-                                event: Some(GrpcEvent {
-                                    name: e.name().to_owned(),
-                                    stamp: Some(GrpcEventStamp {
-                                        stamp: Some(Stamp::Date(Timestamp::from_str(e.timestamp().to_rfc3339().as_str()).ok().unwrap())),
-                                    }),
-                                }),
-                                edge_relative_length: e.relative_edge_len(),
+        traces: diagram.traces().iter().map(|t| 
+            GrpcTraceThreadsDiagram {
+                threads: t.threads().iter().map(|t| 
+                    GrpcThread {
+                        events: t.events().iter().map(|e| 
+                            GrpcThreadEvent {
+                                name: e.name().to_owned(),
+                                stamp: e.stamp(),
                             })
                             .collect(),
                     })

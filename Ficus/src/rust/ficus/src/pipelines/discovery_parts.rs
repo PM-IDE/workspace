@@ -217,7 +217,10 @@ impl PipelineParts {
                 },
             );
 
-            context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram);
+            match diagram {
+                Err(_) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Failed to build diagram".to_string()))),
+                Ok(diagram) => context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram) 
+            }
 
             Ok(())
         })

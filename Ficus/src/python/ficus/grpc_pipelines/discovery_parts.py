@@ -281,7 +281,7 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
         for thread_index, thread in enumerate(trace_diagram.threads):
           for index, event in enumerate(thread.events):
             this_node_id = f'{thread_index}_{index}'
-            g.node(this_node_id, xlabel=event.event.name, style='filled', border='1', shape='circle')
+            g.node(this_node_id, xlabel=event.name, style='filled', border='1', shape='circle')
 
             if index + 1 < len(thread.events):
               next_node_id = f'{thread_index}_{index + 1}'

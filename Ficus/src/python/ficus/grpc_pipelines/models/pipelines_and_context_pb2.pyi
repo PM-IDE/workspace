@@ -300,9 +300,9 @@ class GrpcThread(_message.Message):
     def __init__(self, events: _Optional[_Iterable[_Union[GrpcThreadEvent, _Mapping]]] = ...) -> None: ...
 
 class GrpcThreadEvent(_message.Message):
-    __slots__ = ["event", "edgeRelativeLength"]
-    EVENT_FIELD_NUMBER: _ClassVar[int]
-    EDGERELATIVELENGTH_FIELD_NUMBER: _ClassVar[int]
-    event: _pm_models_pb2.GrpcEvent
-    edgeRelativeLength: float
-    def __init__(self, event: _Optional[_Union[_pm_models_pb2.GrpcEvent, _Mapping]] = ..., edgeRelativeLength: _Optional[float] = ...) -> None: ...
+    __slots__ = ["name", "stamp"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    STAMP_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    stamp: int
+    def __init__(self, name: _Optional[str] = ..., stamp: _Optional[int] = ...) -> None: ...

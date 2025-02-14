@@ -190,6 +190,6 @@ message GrpcThread {
 }
 
 message GrpcThreadEvent {
-  GrpcEvent event = 1;
-  double edgeRelativeLength = 2;
+  string name = 1;
+  uint64 stamp = 2;
 }

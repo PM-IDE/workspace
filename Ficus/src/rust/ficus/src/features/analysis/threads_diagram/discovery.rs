@@ -3,7 +3,6 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
 pub struct LogThreadsDiagram {
@@ -38,8 +37,7 @@ impl TraceThread {
 
 pub struct TraceThreadEvent {
     name: String,
-    timestamp: DateTime<Utc>,
-    relative_edge_len: f64,
+    stamp: u64
 }
 
 impl TraceThreadEvent {
@@ -47,18 +45,29 @@ impl TraceThreadEvent {
         self.name.as_str()
     }
 
-    pub fn timestamp(&self) -> &DateTime<Utc> {
-        &self.timestamp
-    }
-
-    pub fn relative_edge_len(&self) -> f64 {
-        self.relative_edge_len.clone()
+    pub fn stamp(&self) -> u64 {
+        self.stamp
     }
 }
 
-pub fn discover_threads_diagram(log: &XesEventLogImpl, thread_attribute: &str, time_attribute: Option<&str>) -> LogThreadsDiagram {
+pub enum LogThreadsDiagramError {
+    NotSupportedEventStamp
+}
+
+pub fn discover_threads_diagram(
+    log: &XesEventLogImpl, 
+    thread_attribute: &str, 
+    time_attribute: Option<&str>
+) -> Result<LogThreadsDiagram, LogThreadsDiagramError> {
     let mut max_time_delta_ms: Option<f64> = None;
     let mut traces = vec![];
+
+    let min_stamp = log
+        .traces()
+        .iter()
+        .filter(|t| t.borrow().events().len() > 0)
+        .map(|t| get_stamp(&t.borrow().events().first().unwrap().borrow(), time_attribute).unwrap_or_else(|_| u64::MAX),)
+        .min_by(|a, b| a.partial_cmp(b).unwrap()).unwrap();
 
     for trace in log.traces() {
         let trace = trace.borrow();
@@ -80,27 +89,11 @@ pub fn discover_threads_diagram(log: &XesEventLogImpl, thread_attribute: &str, t
             };
 
             let thread_event = TraceThreadEvent {
-                timestamp: event.timestamp().clone(),
                 name: event.name().to_owned(),
-                relative_edge_len: match time_attribute {
-                    Some(time_attribute) => get_stamp(&event, time_attribute).unwrap_or_else(|| 0.),
-                    None => event.timestamp().timestamp_nanos_opt().unwrap() as f64,
-                },
+                stamp: get_stamp(&event, time_attribute)? - min_stamp
             };
 
             if let Some(thread) = threads.get_mut(&thread_id) {
-                let last = thread.events.last_mut().unwrap();
-
-                let edge_len = thread_event.relative_edge_len - last.relative_edge_len;
-
-                if let Some(prev_max) = max_time_delta_ms {
-                    max_time_delta_ms = Some(prev_max.max(edge_len));
-                } else {
-                    max_time_delta_ms = Some(edge_len);
-                }
-
-                last.relative_edge_len = edge_len;
-
                 thread.events.push(thread_event);
             } else {
                 threads.insert(
@@ -117,32 +110,28 @@ pub fn discover_threads_diagram(log: &XesEventLogImpl, thread_attribute: &str, t
         })
     }
 
-    if let Some(max_edge_len) = max_time_delta_ms {
-        for trace in traces.iter_mut() {
-            for thread in trace.threads.iter_mut() {
-                for event in thread.events.iter_mut() {
-                    event.relative_edge_len = event.relative_edge_len / max_edge_len;
-                }
+    Ok(LogThreadsDiagram { traces })
+}
 
-                if let Some(last) = thread.events.last_mut() {
-                    last.relative_edge_len = 0.;
-                }
+fn get_stamp(event: &XesEventImpl, attribute: Option<&str>) -> Result<u64, LogThreadsDiagramError> {
+    if let Some(attribute) = attribute {
+        if let Some(map) = event.payload_map() {
+            if let Some(value) = map.get(attribute) {
+                match value {
+                    EventPayloadValue::Int32(v) => return Ok(*v as u64),
+                    EventPayloadValue::Int64(v) => return Ok(*v as u64),
+                    EventPayloadValue::Uint32(v) => return Ok(*v as u64),
+                    EventPayloadValue::Uint64(v) => return Ok(*v),
+                    _ => {}
+                };
             }
         }
     }
 
-    LogThreadsDiagram { traces }
-}
-
-fn get_stamp(event: &XesEventImpl, attribute: &str) -> Option<f64> {
-    let value = event.payload_map()?.get(attribute)?;
-    Some(match value {
-        EventPayloadValue::Int32(v) => *v as f64,
-        EventPayloadValue::Int64(v) => *v as f64,
-        EventPayloadValue::Float32(v) => *v as f64,
-        EventPayloadValue::Float64(v) => *v,
-        EventPayloadValue::Uint32(v) => *v as f64,
-        EventPayloadValue::Uint64(v) => *v as f64,
-        _ => return None,
-    })
+    let utc_stamp = event.timestamp().timestamp_nanos_opt();
+    if utc_stamp.is_none() || utc_stamp.unwrap() < 0 {
+        Err(LogThreadsDiagramError::NotSupportedEventStamp)
+    } else {
+        Ok(utc_stamp.unwrap() as u64)
+    }
 }
