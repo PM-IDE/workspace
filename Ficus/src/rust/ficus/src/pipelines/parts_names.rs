@@ -61,7 +61,7 @@ impl PipelineParts {
     pub const ANNOTATE_GRAPH_WITH_TIME: &'static str = "AnnotateGraphWithTime";
 
     pub const ENSURE_INITIAL_MARKING: &'static str = "EnsureInitialMarking";
-    pub const DISCOVER_LOG_THREADS_DIAGRAM: &'static str = "DiscoverLogThreadsDiagram";
+    pub const DISCOVER_LOG_TIMELINE_DIAGRAM: &'static str = "DiscoverLogTimelineDiagram";
 
     pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS: &'static str = "ClusterizeActivitiesFromTracesKMeans";
     pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS_GRID_SEARCH: &'static str = "ClusterizeActivitiesFromTracesKMeansGridSearch";

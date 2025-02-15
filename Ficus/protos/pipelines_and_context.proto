@@ -36,7 +36,7 @@ message GrpcContextValue {
         GrpcDataset dataset = 18;
         GrpcLabeledDataset labeled_dataset = 19;
         GrpcBytes bytes = 20;
-        GrpcLogThreadsDiagram logThreadsDiagram = 21;
+        GrpcLogTimelineDiagram logTimelineDiagram = 21;
     }
 }
 
@@ -177,11 +177,11 @@ message GrpcBytes {
     bytes bytes = 1;
 }
 
-message GrpcLogThreadsDiagram {
-  repeated GrpcTraceThreadsDiagram traces = 1;
+message GrpcLogTimelineDiagram {
+  repeated GrpcTraceTimelineDiagram traces = 1;
 }
 
-message GrpcTraceThreadsDiagram {
+message GrpcTraceTimelineDiagram {
   repeated GrpcThread threads = 1;
 } 
 

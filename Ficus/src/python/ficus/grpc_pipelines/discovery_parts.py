@@ -239,7 +239,7 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return _create_default_discovery_part(const_discover_directly_follows_graph_stream)
 
-class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
+class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
   def __init__(self,
                thread_attribute: str,
                time_attribute: Optional[str],
@@ -270,14 +270,14 @@ class DiscoverLogThreadsDiagram(PipelinePartWithCallback):
 
     part = create_complex_get_context_part(self.uuid,
                                            self.__class__.__name__,
-                                           [const_log_threads_diagram],
-                                           const_discover_log_threads_diagram,
+                                           [const_log_timeline_diagram],
+                                           const_discover_log_timeline_diagram,
                                            config)
 
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
   def execute_callback(self, values: dict[str, GrpcContextValue]):
-    diagram = values[const_log_threads_diagram].logThreadsDiagram
+    diagram = values[const_log_timeline_diagram].logTimelineDiagram
 
     provider = RandomUniqueColorsProvider()
     colors = dict()

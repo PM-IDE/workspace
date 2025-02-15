@@ -4,7 +4,7 @@ use std::{any::Any, str::FromStr};
 
 use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::analysis::threads_diagram::discovery::LogThreadsDiagram;
+use crate::features::analysis::threads_diagram::discovery::LogTimelineDiagram;
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
@@ -15,19 +15,12 @@ use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
-use crate::ficus_proto::grpc_event_stamp::Stamp;
-use crate::ficus_proto::{
-    GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation,
-    GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGraph,
-    GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcLogThreadsDiagram, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc,
-    GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcThread, GrpcThreadEvent,
-    GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTraceThreadsDiagram,
-};
+use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTraceTimelineDiagram};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{
     BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
-    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM, LOG_THREADS_DIAGRAM_KEY,
+    LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY,
     LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY,
     PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY,
     TRACES_ACTIVITIES_DATASET_KEY,
@@ -59,7 +52,6 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
-use prost_types::Timestamp;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
     GrpcContextValue::decode(bytes)
@@ -122,7 +114,7 @@ pub(super) fn put_into_user_data(
         ContextValue::Dataset(_) => todo!(),
         ContextValue::LabeledDataset(_) => todo!(),
         ContextValue::Bytes(grpc_bytes) => user_data.put_any::<Vec<u8>>(key, grpc_bytes.bytes.clone()),
-        ContextValue::LogThreadsDiagram(_) => todo!(),
+        ContextValue::LogTimelineDiagram(_) => todo!(),
     }
 }
 
@@ -663,21 +655,21 @@ fn convert_to_labeled_grpc_dataset(dataset: &LabeledDataset) -> GrpcLabeledDatas
 }
 
 fn try_convert_to_grpc_log_threads_diagram(value: &dyn Any) -> Option<GrpcContextValue> {
-    if !value.is::<LogThreadsDiagram>() {
+    if !value.is::<LogTimelineDiagram>() {
         None
     } else {
         Some(GrpcContextValue {
-            context_value: Some(ContextValue::LogThreadsDiagram(convert_to_grpc_log_threads_diagram(
-                value.downcast_ref::<LogThreadsDiagram>().unwrap(),
+            context_value: Some(ContextValue::LogTimelineDiagram(convert_to_grpc_log_threads_diagram(
+                value.downcast_ref::<LogTimelineDiagram>().unwrap(),
             ))),
         })
     }
 }
 
-fn convert_to_grpc_log_threads_diagram(diagram: &LogThreadsDiagram) -> GrpcLogThreadsDiagram {
-    GrpcLogThreadsDiagram {
+fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogTimelineDiagram {
+    GrpcLogTimelineDiagram {
         traces: diagram.traces().iter().map(|t| 
-            GrpcTraceThreadsDiagram {
+            GrpcTraceTimelineDiagram {
                 threads: t.threads().iter().map(|t| 
                     GrpcThread {
                         events: t.events().iter().map(|e| 

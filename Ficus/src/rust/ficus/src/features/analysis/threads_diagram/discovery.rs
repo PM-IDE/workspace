@@ -5,26 +5,29 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use std::collections::HashMap;
 
-pub struct LogThreadsDiagram {
-    traces: Vec<TraceThreadsDiagram>,
+#[derive(Debug, Clone)]
+pub struct LogTimelineDiagram {
+    traces: Vec<TraceTimelineDiagram>,
 }
 
-impl LogThreadsDiagram {
-    pub fn traces(&self) -> &Vec<TraceThreadsDiagram> {
+impl LogTimelineDiagram {
+    pub fn traces(&self) -> &Vec<TraceTimelineDiagram> {
         &self.traces
     }
 }
 
-pub struct TraceThreadsDiagram {
+#[derive(Debug, Clone)]
+pub struct TraceTimelineDiagram {
     threads: Vec<TraceThread>,
 }
 
-impl TraceThreadsDiagram {
+impl TraceTimelineDiagram {
     pub fn threads(&self) -> &Vec<TraceThread> {
         &self.threads
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct TraceThread {
     events: Vec<TraceThreadEvent>,
 }
@@ -35,6 +38,7 @@ impl TraceThread {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct TraceThreadEvent {
     name: String,
     stamp: u64
@@ -54,11 +58,11 @@ pub enum LogThreadsDiagramError {
     NotSupportedEventStamp
 }
 
-pub fn discover_threads_diagram(
+pub fn discover_timeline_diagram(
     log: &XesEventLogImpl,
     thread_attribute: &str,
     time_attribute: Option<&str>
-) -> Result<LogThreadsDiagram, LogThreadsDiagramError> {
+) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
     let mut traces = vec![];
 
     for trace in log.traces() {
@@ -101,12 +105,12 @@ pub fn discover_threads_diagram(
             }
         }
 
-        traces.push(TraceThreadsDiagram {
+        traces.push(TraceTimelineDiagram {
             threads: threads.into_iter().map(|(_, v)| v).collect(),
         })
     }
 
-    Ok(LogThreadsDiagram { traces })
+    Ok(LogTimelineDiagram { traces })
 }
 
 fn get_stamp(event: &XesEventImpl, attribute: Option<&str>) -> Result<u64, LogThreadsDiagramError> {

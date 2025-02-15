@@ -5,7 +5,7 @@ use bxes::models::system_models::SystemMetadata;
 
 use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use ficus::features::analysis::threads_diagram::discovery::LogThreadsDiagram;
+use ficus::features::analysis::threads_diagram::discovery::LogTimelineDiagram;
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
@@ -113,7 +113,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_existence::<Vec<String>>(&PATHS, &mut used);
-    assert_existence::<LogThreadsDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
+    assert_existence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
     assert_existence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_existence::<String>(&THREAD_ATTRIBUTE, &mut used);
 
@@ -301,7 +301,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_keys_equivalence::<Vec<String>>(&PATHS, &mut used);
-    assert_keys_equivalence::<LogThreadsDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
+    assert_keys_equivalence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
     assert_keys_equivalence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_keys_equivalence::<String>(&THREAD_ATTRIBUTE, &mut used);
 

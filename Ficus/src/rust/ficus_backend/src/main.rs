@@ -13,7 +13,7 @@ use tonic::transport::Server;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     colog::basic_builder()
-        .filter_level(LevelFilter::Debug)
+        .filter_level(LevelFilter::Info)
         .init();
 
     let cv_service = Arc::new(Mutex::new(ContextValueService::new()));
