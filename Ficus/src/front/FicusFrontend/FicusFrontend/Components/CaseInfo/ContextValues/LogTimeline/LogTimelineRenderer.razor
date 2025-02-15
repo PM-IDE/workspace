@@ -5,55 +5,19 @@
 <ColorsEventLogRenderer Log="FromTimeline()"/>
 
 @code {
+  private const string BackgroundKey = nameof(BackgroundKey);
+  private const string SeparatorKey = nameof(SeparatorKey);
+  private const uint RectWidth = 1;
+
+
   [Parameter] public required GrpcLogTimelineDiagram TimelineDiagram { get; init; }
+
 
   private GrpcColorsEventLog FromTimeline()
   {
     var colorsGenerator = new ColorsGenerator();
-
-    const string BackgroundKey = nameof(BackgroundKey);
-    const string SeparatorKey = nameof(SeparatorKey);
-    var colors = new Dictionary<string, uint>()
-    {
-      [BackgroundKey] = 0,
-      [SeparatorKey] = 1
-    };
-
-    var mappings = new List<GrpcColorsEventLogMapping>()
-    {
-      new()
-      {
-        Name = nameof(BackgroundKey),
-        Color = new GrpcColor()
-        {
-          Red = 0,
-          Green = 0,
-          Blue = 0
-        }
-      },
-      new()
-      {
-        Name = nameof(SeparatorKey),
-        Color = new GrpcColor()
-        {
-          Red = 0,
-          Green = 0,
-          Blue = 0
-        }
-      }
-    };
-
-    const ulong RectWidth = 1;
-    var maxStamp = 0ul;
-    var maxEvents = 0ul;
-    foreach (var traceDiagram in TimelineDiagram.Traces)
-    {
-      foreach (var thread in traceDiagram.Threads)
-      {
-        maxStamp = Math.Max(maxStamp, thread.Events.Last().Stamp);
-        maxEvents = Math.Max(maxEvents, (ulong)thread.Events.Count);
-      }
-    }
+    var (colors, mappings) = InitState();
+    var maxWidth = CalculateMaxWidth(TimelineDiagram);
 
     var colorsLog = new List<GrpcColorsTrace>();
     foreach (var traceDiagram in TimelineDiagram.Traces)
@@ -68,56 +32,24 @@
           {
             var color = colorsGenerator.Next();
             colors[@event.Name] = (uint)colors.Count;
-            mappings.Add(new GrpcColorsEventLogMapping
-            {
-              Color = color,
-              Name = @event.Name
-            });
+            mappings.Add(NewMapping(@event.Name, color));
           }
 
           var rectX = @event.Stamp;
           if (lastX != rectX)
           {
-            colorsTrace.Add(new GrpcColoredRectangle
-            {
-              ColorIndex = (uint)colors[@event.Name],
-              StartIndex = (uint)lastX,
-              Length = (uint)(rectX - lastX),
-            });
+            colorsTrace.Add(NewRect(colors[@event.Name], (uint)lastX, (uint)(rectX - lastX)));
           }
 
-          colorsTrace.Add(new GrpcColoredRectangle
-          {
-            ColorIndex = (uint)colors[@event.Name],
-            StartIndex = (uint)rectX,
-            Length = (uint)RectWidth,
-          });
+          colorsTrace.Add(NewRect(colors[@event.Name], (uint)rectX, RectWidth));
 
           lastX = rectX + RectWidth;
         }
 
-        colorsLog.Add(new GrpcColorsTrace
-        {
-          ConstantWidth = false,
-          EventColors =
-          {
-            colorsTrace
-          }
-        });
+        colorsLog.Add(NewTrace(colorsTrace));
       }
 
-      colorsLog.Add(new GrpcColorsTrace
-      {
-        EventColors =
-        {
-          new GrpcColoredRectangle
-          {
-            Length = (uint)(maxEvents + maxStamp),
-            StartIndex = 0,
-            ColorIndex = colors[BackgroundKey]
-          }
-        }
-      });
+      colorsLog.Add(NewTrace([NewRect(colors[BackgroundKey], 0, maxWidth)]));
     }
 
     return new GrpcColorsEventLog
@@ -132,6 +64,76 @@
       }
     };
   }
+
+  private static (Dictionary<string, uint>, List<GrpcColorsEventLogMapping>) InitState()
+  {
+    var colors = new Dictionary<string, uint>
+    {
+      [BackgroundKey] = 0,
+      [SeparatorKey] = 1
+    };
+
+    var mappings = new List<GrpcColorsEventLogMapping>
+    {
+      new()
+      {
+        Name = nameof(BackgroundKey),
+        Color = NewColor(0, 0, 0),
+      },
+      new()
+      {
+        Name = nameof(SeparatorKey),
+        Color = NewColor(255, 255, 255)
+      }
+    };
+
+    return (colors, mappings);
+  }
+
+  private static GrpcColorsTrace NewTrace(List<GrpcColoredRectangle> colorsTrace) => new()
+  {
+    ConstantWidth = false,
+    EventColors =
+    {
+      colorsTrace
+    }
+  };
+
+  private static uint CalculateMaxWidth(GrpcLogTimelineDiagram diagram)
+  {
+    var maxStamp = 0ul;
+    var maxEvents = 0ul;
+    foreach (var traceDiagram in diagram.Traces)
+    {
+      foreach (var thread in traceDiagram.Threads)
+      {
+        maxStamp = Math.Max(maxStamp, thread.Events.Last().Stamp);
+        maxEvents = Math.Max(maxEvents, (ulong)thread.Events.Count);
+      }
+    }
+
+    return (uint)(maxStamp + maxEvents);
+  }
+
+  private static GrpcColoredRectangle NewRect(uint colorIndex, uint startIndex, uint length) => new()
+  {
+    ColorIndex = colorIndex,
+    StartIndex = startIndex,
+    Length = length,
+  };
+
+  private static GrpcColorsEventLogMapping NewMapping(string name, GrpcColor color) => new()
+  {
+    Color = color,
+    Name = name
+  };
+
+  private static GrpcColor NewColor(uint red, uint green, uint blue) => new()
+  {
+    Red = red,
+    Green = green,
+    Blue = blue
+  };
 
   class ColorsGenerator
   {
