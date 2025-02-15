@@ -1,8 +1,8 @@
 from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import *
+from ..legacy.analysis.event_log_analysis_canvas import draw_log_timeline_diagram_canvas
 from ..legacy.discovery.graph import draw_graph
 from ..legacy.discovery.petri_net import draw_petri_net
-from ..legacy.util import RandomUniqueColorsProvider
 
 
 class DiscoverPetriNetAlpha(PipelinePart):
@@ -244,7 +244,7 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
                thread_attribute: str,
                time_attribute: Optional[str],
                title: Optional[str] = None,
-               save_path: str = None,
+               save_path: Optional[str] = None,
                plot_legend: bool = False,
                height_scale: float = 1,
                width_scale: float = 1,
@@ -277,67 +277,11 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
   def execute_callback(self, values: dict[str, GrpcContextValue]):
-    diagram = values[const_log_timeline_diagram].logTimelineDiagram
-
-    black = (0, 0, 0)
-    white = (255, 255, 255)
-    provider = RandomUniqueColorsProvider(used_colors={black, white})
-    colors = dict()
-    background_key = 'Background'
-    separator_key = 'Separator'
-    rect_width = self.rect_width_scale
-    colors[background_key] = 0
-    colors[separator_key] = 1
-    mappings = [
-      ProxyColorMapping(background_key, Color(white[0], white[1], white[2])),
-      ProxyColorMapping(separator_key, Color(black[0], black[1], black[2]))
-    ]
-
-    max_stamp = 0
-    max_events = 0
-    for trace_diagram in diagram.traces:
-      for thread in trace_diagram.threads:
-        max_stamp = max(max_stamp, thread.events[-1].stamp)
-        max_events = max(max_events, len(thread.events))
-
-    colors_log = []
-    for trace_diagram in diagram.traces:
-      for thread in trace_diagram.threads:
-        colors_trace = []
-        last_x = 0
-        for event in thread.events:
-          if event.name not in colors:
-            c = provider.next()
-            mappings.append(ProxyColorMapping(event.name, Color(c[0], c[1], c[2])))
-            colors[event.name] = len(colors)
-
-          rect_x = event.stamp * self.distance_scale
-          if last_x != rect_x:
-            colors_trace.append(ProxyColorRectangle(
-              colors[background_key],
-              last_x,
-              rect_x - last_x
-            ))
-
-          colors_trace.append(ProxyColorRectangle(
-            colors[event.name],
-            rect_x,
-            rect_width,
-          ))
-
-          last_x = rect_x + rect_width
-
-        colors_log.append(ProxyColorsTrace(colors_trace, False))
-
-      colors_log.append(ProxyColorsTrace([ProxyColorRectangle(
-        colors[separator_key],
-        0,
-        max_stamp * self.distance_scale + max_events * self.rect_width_scale
-      )], False))
-
-    draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log),
-                                 title=self.title,
-                                 save_path=self.save_path,
-                                 plot_legend=self.plot_legend,
-                                 height_scale=self.height_scale,
-                                 width_scale=self.width_scale)
+    draw_log_timeline_diagram_canvas(values[const_log_timeline_diagram].logTimelineDiagram,
+                                     self.rect_width_scale,
+                                     self.distance_scale,
+                                     self.title,
+                                     self.save_path,
+                                     self.plot_legend,
+                                     self.width_scale,
+                                     self.height_scale)

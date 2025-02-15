@@ -1,10 +1,10 @@
-from typing import Optional, Union
+from typing import Union
 
 from IPython.core.display_functions import display
 from ipycanvas import Canvas, hold_canvas
 
-from ..util import to_hex
-from ...grpc_pipelines.context_values import ProxyColorsEventLog
+from ..util import to_hex, RandomUniqueColorsProvider
+from ...grpc_pipelines.context_values import *
 from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
 
 legend_rect_width = 40
@@ -15,6 +15,76 @@ axes_width = 1
 axes_padding = 5
 overall_delta = axes_margin + axes_width + axes_padding
 text_size_px = 10
+black = (0, 0, 0)
+white = (255, 255, 255)
+background_key = 'Background'
+separator_key = 'Separator'
+
+def draw_log_timeline_diagram_canvas(diagram: GrpcLogTimelineDiagram,
+                                     rect_width_scale: float,
+                                     distance_scale: float,
+                                     title: Optional[str],
+                                     save_path: Optional[str],
+                                     plot_legend: bool,
+                                     width_scale: float,
+                                     height_scale: float):
+  colors, mappings = _init_state()
+  provider = RandomUniqueColorsProvider(used_colors={black, white})
+  max_width = _calculate_max_width(diagram, distance_scale, rect_width_scale)
+  rect_width = rect_width_scale
+  colors_log = []
+
+  for trace_diagram in diagram.traces:
+    for thread in trace_diagram.threads:
+      colors_trace = []
+      last_x = 0
+      for event in thread.events:
+        if event.name not in colors:
+          c = provider.next()
+          mappings.append(ProxyColorMapping(event.name, Color(c[0], c[1], c[2])))
+          colors[event.name] = len(colors)
+
+        rect_x = event.stamp * distance_scale
+        if last_x != rect_x:
+          colors_trace.append(ProxyColorRectangle(colors[background_key], last_x, rect_x - last_x))
+
+        colors_trace.append(ProxyColorRectangle(colors[event.name], rect_x, rect_width))
+        last_x = rect_x + rect_width
+
+      colors_log.append(ProxyColorsTrace(colors_trace, False))
+
+    colors_log.append(ProxyColorsTrace([ProxyColorRectangle(colors[separator_key], 0, max_width)], False))
+
+  draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log),
+                               title=title,
+                               save_path=save_path,
+                               plot_legend=plot_legend,
+                               height_scale=height_scale,
+                               width_scale=width_scale)
+
+
+def _init_state():
+  colors = dict()
+
+  colors[background_key] = 0
+  colors[separator_key] = 1
+  mappings = [
+    ProxyColorMapping(background_key, Color(white[0], white[1], white[2])),
+    ProxyColorMapping(separator_key, Color(black[0], black[1], black[2]))
+  ]
+
+  return colors, mappings
+
+
+def _calculate_max_width(diagram: GrpcLogTimelineDiagram, distance_scale: float, rect_width_scale: float) -> float:
+  max_stamp = 0
+  max_events = 0
+  for trace_diagram in diagram.traces:
+    for thread in trace_diagram.threads:
+      max_stamp = max(max_stamp, thread.events[-1].stamp)
+      max_events = max(max_events, len(thread.events))
+
+  return max_stamp * distance_scale + max_events * rect_width_scale
 
 
 def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEventLog],
