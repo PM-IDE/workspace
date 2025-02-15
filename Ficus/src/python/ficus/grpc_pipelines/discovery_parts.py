@@ -302,7 +302,6 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
     for trace_diagram in diagram.traces:
       for thread in trace_diagram.threads:
         colors_trace = []
-        delta = 0
         last_x = 0
         for event in thread.events:
           if event.name not in colors:
@@ -310,7 +309,7 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
             mappings.append(ProxyColorMapping(event.name, Color(c[0], c[1], c[2])))
             colors[event.name] = len(colors)
 
-          rect_x = event.stamp * self.distance_scale + delta
+          rect_x = event.stamp * self.distance_scale
           if last_x != rect_x:
             colors_trace.append(ProxyColorRectangle(
               colors[background_key],
@@ -325,7 +324,6 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
           ))
 
           last_x = rect_x + rect_width
-          delta += rect_width
 
         colors_log.append(ProxyColorsTrace(colors_trace, False))
 
