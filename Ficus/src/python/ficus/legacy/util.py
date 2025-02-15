@@ -80,8 +80,11 @@ class ColorsProvider:
 
 
 class RandomUniqueColorsProvider(ColorsProvider):
-    def __init__(self):
-        self.used_colors = set()
+    def __init__(self, used_colors=None):
+        if used_colors is None:
+          used_colors = set()
+
+        self.used_colors = used_colors
 
     def next(self) -> (int, int, int):
         if len(self.used_colors) == 256 ** 3:

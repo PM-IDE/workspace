@@ -279,7 +279,9 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
   def execute_callback(self, values: dict[str, GrpcContextValue]):
     diagram = values[const_log_timeline_diagram].logTimelineDiagram
 
-    provider = RandomUniqueColorsProvider()
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+    provider = RandomUniqueColorsProvider(used_colors={black, white})
     colors = dict()
     background_key = 'Background'
     separator_key = 'Separator'
@@ -287,8 +289,8 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
     colors[background_key] = 0
     colors[separator_key] = 1
     mappings = [
-      ProxyColorMapping(background_key, Color(255, 255, 255)),
-      ProxyColorMapping(separator_key, Color(0, 0, 0))
+      ProxyColorMapping(background_key, Color(white[0], white[1], white[2])),
+      ProxyColorMapping(separator_key, Color(black[0], black[1], black[2]))
     ]
 
     max_stamp = 0
