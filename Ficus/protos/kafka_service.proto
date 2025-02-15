@@ -26,6 +26,10 @@ message GrpcExecutePipelineAndProduceKafkaRequest {
   GrpcProxyPipelineExecutionRequest pipelineRequest = 1;
   GrpcKafkaConnectionMetadata producerMetadata = 2;
   GrpcProcessInfo caseInfo = 3;
+  GrpcGuid subscriptionId = 4;
+  GrpcGuid pipelineId = 5;
+  string pipelineName = 6;
+  string subscriptionName = 7;
 }
 
 message GrpcProcessInfo {

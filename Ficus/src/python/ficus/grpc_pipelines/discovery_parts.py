@@ -177,7 +177,7 @@ class ViewDirectlyFollowsGraphBase(ViewGraphLikeFormalismPart):
                                            GrpcPipelinePartConfiguration())
 
     return GrpcPipelinePartBase(complexContextRequestPart=part)
-
+  
 class ViewDirectlyFollowsGraph(ViewDirectlyFollowsGraphBase):
   def __init__(self,
                name: str = 'dfg_graph',
