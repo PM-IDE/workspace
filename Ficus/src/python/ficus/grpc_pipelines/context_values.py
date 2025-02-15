@@ -130,8 +130,8 @@ class EventLogInfo(ContextValue):
 @dataclass
 class ProxyColorRectangle:
     color_index: int
-    start_index: int
-    length: int
+    start_index: float
+    length: float
 
 
 @dataclass
