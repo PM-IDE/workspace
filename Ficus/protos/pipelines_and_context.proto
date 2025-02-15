@@ -6,175 +6,175 @@ import "pm_models.proto";
 import "util.proto";
 
 message GrpcContextKey {
-    string name = 1;
+  string name = 1;
 }
 
 message GrpcContextValueWithKeyName {
-    string key_name = 1;
-    GrpcContextValue value = 2;
+  string key_name = 1;
+  GrpcContextValue value = 2;
 }
 
 message GrpcContextValue {
-    oneof contextValue {
-        string string = 1;
-        GrpcHashesEventLogContextValue hashes_log = 2;
-        GrpcNamesEventLogContextValue names_log = 3;
-        uint32 uint32 = 4;
-        GrpcEventLogTraceSubArraysContextValue traces_sub_arrays = 5;
-        GrpcSubArraysWithTraceIndexContextValue trace_index_sub_arrays = 6;
-        bool bool = 7;
-        GrpcNamesEventLogContextValue xes_event_log = 8;
-        GrpcColorsEventLog colors_log = 9;
-        GrpcEnum enum = 10;
-        GrpcEventLogInfo event_log_info = 11;
-        GrpcStrings strings = 12;
-        GrpcPipeline pipeline = 13;
-        GrpcPetriNet petriNet = 14;
-        GrpcGraph graph = 15;
-        float float = 16;
-        GrpcAnnotation annotation = 17;
-        GrpcDataset dataset = 18;
-        GrpcLabeledDataset labeled_dataset = 19;
-        GrpcBytes bytes = 20;
-        GrpcLogTimelineDiagram logTimelineDiagram = 21;
-    }
+  oneof contextValue {
+    string string = 1;
+    GrpcHashesEventLogContextValue hashes_log = 2;
+    GrpcNamesEventLogContextValue names_log = 3;
+    uint32 uint32 = 4;
+    GrpcEventLogTraceSubArraysContextValue traces_sub_arrays = 5;
+    GrpcSubArraysWithTraceIndexContextValue trace_index_sub_arrays = 6;
+    bool bool = 7;
+    GrpcNamesEventLogContextValue xes_event_log = 8;
+    GrpcColorsEventLog colors_log = 9;
+    GrpcEnum enum = 10;
+    GrpcEventLogInfo event_log_info = 11;
+    GrpcStrings strings = 12;
+    GrpcPipeline pipeline = 13;
+    GrpcPetriNet petriNet = 14;
+    GrpcGraph graph = 15;
+    float float = 16;
+    GrpcAnnotation annotation = 17;
+    GrpcDataset dataset = 18;
+    GrpcLabeledDataset labeled_dataset = 19;
+    GrpcBytes bytes = 20;
+    GrpcLogTimelineDiagram logTimelineDiagram = 21;
+  }
 }
 
 message GrpcContextKeyValue {
-    GrpcContextKey key = 1;
-    GrpcContextValue value = 2;
+  GrpcContextKey key = 1;
+  GrpcContextValue value = 2;
 }
 
 message GrpcHashesEventLogContextValue {
-    GrpcHashesEventLog log = 1;
+  GrpcHashesEventLog log = 1;
 }
 
 message GrpcNamesEventLogContextValue {
-    GrpcNamesEventLog log = 1;
+  GrpcNamesEventLog log = 1;
 }
 
 message GrpcEventLogTraceSubArraysContextValue {
-    repeated GrpcTraceSubArrays traces_sub_arrays = 1;
+  repeated GrpcTraceSubArrays traces_sub_arrays = 1;
 }
 
 message GrpcTraceSubArray {
-    uint32 start = 1;
-    uint32 end = 2;
+  uint32 start = 1;
+  uint32 end = 2;
 }
 
 message GrpcTraceSubArrays {
-    repeated GrpcTraceSubArray sub_arrays = 1;
+  repeated GrpcTraceSubArray sub_arrays = 1;
 }
 
 message GrpcSubArrayWithTraceIndex {
-    GrpcTraceSubArray sub_array = 1;
-    uint32 trace_index = 2;
+  GrpcTraceSubArray sub_array = 1;
+  uint32 trace_index = 2;
 }
 
 message GrpcSubArraysWithTraceIndexContextValue {
-    repeated GrpcSubArrayWithTraceIndex sub_arrays = 1;
+  repeated GrpcSubArrayWithTraceIndex sub_arrays = 1;
 }
 
 message GrpcColorsEventLog {
-    repeated GrpcColorsEventLogMapping mapping = 1;
-    repeated GrpcColorsTrace traces = 2;
+  repeated GrpcColorsEventLogMapping mapping = 1;
+  repeated GrpcColorsTrace traces = 2;
 }
 
 message GrpcColorsEventLogMapping {
-    string name = 1;
-    GrpcColor color = 2;
+  string name = 1;
+  GrpcColor color = 2;
 }
 
 message GrpcColorsTrace {
-    repeated GrpcColoredRectangle event_colors = 1;
-    bool constant_width = 2;
+  repeated GrpcColoredRectangle event_colors = 1;
+  bool constant_width = 2;
 }
 
 message GrpcColoredRectangle {
-    uint32 color_index = 1;
-    uint32 start_index = 2;
-    uint32 length = 3;
+  uint32 color_index = 1;
+  uint32 start_index = 2;
+  uint32 length = 3;
 }
 
 message GrpcEnum {
-    string enumType = 1;
-    string value = 2;
+  string enumType = 1;
+  string value = 2;
 }
 
 message GrpcEventLogInfo {
-    uint32 events_count = 1;
-    uint32 traces_count = 2;
-    uint32 event_classes_count = 3;
+  uint32 events_count = 1;
+  uint32 traces_count = 2;
+  uint32 event_classes_count = 3;
 }
 
 message GrpcStrings {
-    repeated string strings = 1;
+  repeated string strings = 1;
 }
 
 
 message GrpcPipeline {
-    repeated GrpcPipelinePartBase parts = 1;
+  repeated GrpcPipelinePartBase parts = 1;
 }
 
 message GrpcPipelinePartBase {
-    oneof part {
-        GrpcPipelinePart defaultPart = 1;
-        GrpcParallelPipelinePart parallelPart = 2;
-        GrpcSimpleContextRequestPipelinePart simpleContextRequestPart = 3;
-        GrpcComplexContextRequestPipelinePart complexContextRequestPart = 4;
-    }
+  oneof part {
+    GrpcPipelinePart defaultPart = 1;
+    GrpcParallelPipelinePart parallelPart = 2;
+    GrpcSimpleContextRequestPipelinePart simpleContextRequestPart = 3;
+    GrpcComplexContextRequestPipelinePart complexContextRequestPart = 4;
+  }
 }
 
 message GrpcPipelinePart {
-    string name = 1;
-    GrpcPipelinePartConfiguration configuration = 2;
+  string name = 1;
+  GrpcPipelinePartConfiguration configuration = 2;
 }
 
 message GrpcPipelinePartConfiguration {
-    repeated GrpcContextKeyValue configurationParameters = 1;
+  repeated GrpcContextKeyValue configurationParameters = 1;
 }
 
 message GrpcParallelPipelinePart {
-    repeated GrpcPipelinePartBase pipelineParts = 1;
+  repeated GrpcPipelinePartBase pipelineParts = 1;
 }
 
 message GrpcParallelPipelineParts {
-    repeated GrpcParallelPipelinePart pipeline = 1;
+  repeated GrpcParallelPipelinePart pipeline = 1;
 }
 
 message GrpcSimpleContextRequestPipelinePart {
-    GrpcContextKey key = 1;
-    GrpcUuid frontendPartUuid = 2;
-    string frontendPipelinePartName = 3;
+  GrpcContextKey key = 1;
+  GrpcUuid frontendPartUuid = 2;
+  string frontendPipelinePartName = 3;
 }
 
 message GrpcComplexContextRequestPipelinePart {
-    repeated GrpcContextKey keys = 1;
-    GrpcPipelinePart beforePipelinePart = 2;
-    GrpcUuid frontendPartUuid = 3;
-    string frontendPipelinePartName = 4;
+  repeated GrpcContextKey keys = 1;
+  GrpcPipelinePart beforePipelinePart = 2;
+  GrpcUuid frontendPartUuid = 3;
+  string frontendPipelinePartName = 4;
 }
 
 message GrpcGraph {
-    repeated GrpcGraphNode nodes = 1;
-    repeated GrpcGraphEdge edges = 2;
+  repeated GrpcGraphNode nodes = 1;
+  repeated GrpcGraphEdge edges = 2;
 }
 
 message GrpcGraphNode {
-    uint64 id = 1;
-    string data = 2;
+  uint64 id = 1;
+  string data = 2;
 }
 
 message GrpcGraphEdge {
-    uint64 id = 1;
-    uint64 from_node = 2;
-    uint64 to_node = 3;
-    double weight = 4;
-    string data = 5;
+  uint64 id = 1;
+  uint64 from_node = 2;
+  uint64 to_node = 3;
+  double weight = 4;
+  string data = 5;
 }
 
 message GrpcBytes {
-    bytes bytes = 1;
+  bytes bytes = 1;
 }
 
 message GrpcLogTimelineDiagram {
@@ -183,7 +183,7 @@ message GrpcLogTimelineDiagram {
 
 message GrpcTraceTimelineDiagram {
   repeated GrpcThread threads = 1;
-} 
+}
 
 message GrpcThread {
   repeated GrpcThreadEvent events = 1;

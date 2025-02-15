@@ -7,53 +7,53 @@ import "google/protobuf/empty.proto";
 package ficus;
 
 service GrpcBackendService {
-    rpc ExecutePipeline(GrpcProxyPipelineExecutionRequest) returns (stream GrpcPipelinePartExecutionResult);
-    rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGetContextValueResult);
-    rpc DropExecutionResult(GrpcGuid) returns (google.protobuf.Empty);
+  rpc ExecutePipeline(GrpcProxyPipelineExecutionRequest) returns (stream GrpcPipelinePartExecutionResult);
+  rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGetContextValueResult);
+  rpc DropExecutionResult(GrpcGuid) returns (google.protobuf.Empty);
 }
 
 message GrpcGetContextValueRequest {
-    GrpcGuid executionId = 2;
-    GrpcContextKey key = 1;
+  GrpcGuid executionId = 2;
+  GrpcContextKey key = 1;
 }
 
 message GrpcPipelineExecutionRequest {
-    GrpcPipeline pipeline = 1;
-    repeated GrpcContextKeyValue initialContext = 2;
+  GrpcPipeline pipeline = 1;
+  repeated GrpcContextKeyValue initialContext = 2;
 }
 
 message GrpcProxyPipelineExecutionRequest {
-    GrpcPipeline pipeline = 1;
-    repeated GrpcGuid contextValuesIds = 2;
+  GrpcPipeline pipeline = 1;
+  repeated GrpcGuid contextValuesIds = 2;
 }
 
 message GrpcPipelinePartExecutionResult {
-    oneof result {
-        GrpcPipelineFinalResult finalResult = 1;
-        GrpcPipelinePartResult pipelinePartResult = 2;
-        GrpcPipelinePartLogMessage logMessage = 3;
-    }
+  oneof result {
+    GrpcPipelineFinalResult finalResult = 1;
+    GrpcPipelinePartResult pipelinePartResult = 2;
+    GrpcPipelinePartLogMessage logMessage = 3;
+  }
 }
 
 message GrpcPipelinePartLogMessage {
-    string message  = 1;
+  string message = 1;
 }
 
 message GrpcPipelinePartResult {
-    repeated GrpcContextValueWithKeyName contextValues = 1;
-    GrpcUuid uuid = 2;
+  repeated GrpcContextValueWithKeyName contextValues = 1;
+  GrpcUuid uuid = 2;
 }
 
 message GrpcPipelineFinalResult {
-    oneof executionResult {
-        GrpcGuid success = 1;
-        string error = 2;
-    }
+  oneof executionResult {
+    GrpcGuid success = 1;
+    string error = 2;
+  }
 }
 
 message GrpcGetContextValueResult {
-    oneof contextValueResult {
-        GrpcContextValue value = 1;
-        string error = 2;
-    }
+  oneof contextValueResult {
+    GrpcContextValue value = 1;
+    string error = 2;
+  }
 }
