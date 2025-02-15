@@ -9,6 +9,7 @@
 @using FicusFrontend.Components.CaseInfo.ContextValues.EventLogInfo
 @using FicusFrontend.Components.CaseInfo.ContextValues.Canvas.PetriNet
 @using FicusFrontend.Components.CaseInfo.ContextValues.Canvas.Graph
+@using FicusFrontend.Components.CaseInfo.ContextValues.LogTimeline
 
 @inherits ComponentBase
 
@@ -142,6 +143,7 @@
 
     return contextValue.ContextValueCase switch
     {
+      ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer TimelineDiagram="contextValue.LogTimelineDiagram" />,
       ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
       ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="wrapper.Id"
                                                                   Log="contextValue.ColorsLog"/>,
