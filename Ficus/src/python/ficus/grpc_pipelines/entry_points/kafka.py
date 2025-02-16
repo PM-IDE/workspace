@@ -88,6 +88,10 @@ class KafkaPipeline:
                                   ficus_backend: str,
                                   process_name: str,
                                   case_name: str,
+                                  subscription_uuid: str,
+                                  pipeline_uuid: str,
+                                  subscription_name: str,
+                                  pipeline_name: str,
                                   producer_metadata: KafkaPipelineMetadata,
                                   initial_context: dict[str, ContextValue]):
         with create_ficus_grpc_channel(ficus_backend) as channel:
@@ -103,6 +107,10 @@ class KafkaPipeline:
                     pipelineRequest=pipeline_request,
                     producerMetadata=_create_kafka_connection_metadata(producer_metadata),
                     caseInfo=GrpcProcessInfo(caseName=case_name, processName=process_name),
+                    pipelineId=GrpcGuid(guid=pipeline_uuid),
+                    subscriptionId=GrpcGuid(guid=subscription_uuid),
+                    pipelineName=pipeline_name,
+                    subscriptionName=subscription_name
                 )
 
                 callback_parts = []
