@@ -1,0 +1,30 @@
+﻿<div>
+  @Title: @CurrentValue
+</div>
+
+<div style="width: 100px">
+  <InputNumber TValue="double"
+               InitialValue="1"
+               @bind-Value="@CurrentValue"
+               AllowNegativeNumbers="false"
+               ParsingErrorMessage="@($"Enter the double value between {Min} and {Max}")"
+               Title="@Title"
+               Max="@Max"
+               Min="@Min"/>
+</div>
+
+@code {
+  [Parameter] public double InitialValue { get; set; }
+  [Parameter] public string Title { get; set; }
+  [Parameter] public double Max { get; set; }
+  [Parameter] public double Min { get; set; }
+
+
+  public double CurrentValue { get; private set; }
+
+
+  protected override void OnParametersSet()
+  {
+    CurrentValue = InitialValue;
+  }
+}

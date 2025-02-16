@@ -8,21 +8,18 @@
 @using Radzen.Blazor
 @inject ILogger<ColorsEventLogRenderer> Logger
 
-<Slidebar @ref="myHeightScaleSlidebar"
-          InitialValue="1"
-          TValue="double"
-          Title="Height Scale"
-          Max="100"
-          Min="1"
-          Step="1"/>
 
-<Slidebar @ref="myWidthScaleSlidebar"
-          TValue="double"
-          InitialValue="1"
-          Title="Width Scale"
-          Max="1"
-          Min="0"
-          Step="0.01m"/>
+<DoubleInput @ref="myWidthScaleInput"
+             Title="Width Scale"
+             InitialValue="1"
+             Max="100"
+             Min="0" />
+
+<DoubleInput @ref="myHeightScaleInput"
+             Title="Height Scale"
+             InitialValue="1"
+             Max="100"
+             Min="0" />
 
 <div class="rerender-button-container">
   <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
@@ -40,8 +37,8 @@
 @code
 {
   private BECanvasComponent myCanvas;
-  private Slidebar<double>? myWidthScaleSlidebar;
-  private Slidebar<double>? myHeightScaleSlidebar;
+  private DoubleInput? myWidthScaleInput;
+  private DoubleInput? myHeightScaleInput;
 
   private bool myFinishedCanvasDrawings;
 
@@ -56,8 +53,8 @@
   private double myCanvasHeight = 400;
 
 
-  private double RectWidth => DefaultRectWidth * (myWidthScaleSlidebar?.CurrentValue ?? 1);
-  private double RectHeight => DefaultRectHeight * (myHeightScaleSlidebar?.CurrentValue ?? 1);
+  private double RectWidth => DefaultRectWidth * (myWidthScaleInput?.CurrentValue ?? 1);
+  private double RectHeight => DefaultRectHeight * (myHeightScaleInput?.CurrentValue ?? 1);
 
   private string CanvasContainerClass => "colors-log-canvas-container " + myFinishedCanvasDrawings switch
   {
@@ -138,7 +135,7 @@
 
   private async Task DrawAxis(Canvas2DContext context)
   {
-    await context.SetFillStyleAsync(Color.Black.ToHexaString());
+    await context.SetFillStyleAsync(CanvasColors.Axis.ToHexaString());
     await context.FillRectAsync(AxisDelta, AxisTextHeight, AxisWidth, myCanvasHeight - AxisDelta - 2 * AxisTextHeight);
 
     var horizontalAxisY = myCanvasHeight - AxisDelta - AxisWidth - AxisTextHeight;

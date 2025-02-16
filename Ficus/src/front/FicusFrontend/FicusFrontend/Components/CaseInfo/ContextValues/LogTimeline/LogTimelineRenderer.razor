@@ -1,4 +1,5 @@
-﻿@using Ficus
+﻿@using System.Drawing
+@using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
 
 <ColorsEventLogRenderer Log="FromTimeline()"/>
@@ -41,7 +42,6 @@
           }
 
           colorsTrace.Add(NewRect(colors[@event.Name], (uint)rectX, RectWidth));
-
           lastX = rectX + RectWidth;
         }
 
@@ -77,12 +77,12 @@
       new()
       {
         Name = nameof(BackgroundKey),
-        Color = NewColor(0, 0, 0),
+        Color = NewColor(CanvasColors.Background)
       },
       new()
       {
         Name = nameof(SeparatorKey),
-        Color = NewColor(255, 255, 255)
+        Color = NewColor(CanvasColors.Axis)
       }
     };
 
@@ -127,11 +127,11 @@
     Name = name
   };
 
-  private static GrpcColor NewColor(uint red, uint green, uint blue) => new()
+  private static GrpcColor NewColor(Color color) => new()
   {
-    Red = red,
-    Green = green,
-    Blue = blue
+    Red = color.R,
+    Green = color.G,
+    Blue = color.B
   };
 
   class ColorsGenerator
