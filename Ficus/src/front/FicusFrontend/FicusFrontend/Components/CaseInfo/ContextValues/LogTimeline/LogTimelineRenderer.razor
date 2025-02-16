@@ -1,17 +1,36 @@
 ﻿@using System.Drawing
 @using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
+@using Radzen.Blazor
 
 <div style="margin: 10px;">
   <DoubleInput @ref="myScaleInput"
                Title="Length and Start Position Scale"
-               InitialValue="1"
+               InitialValue="myScaleInputInitialValue"
                Max="100"
-               Min="0"
-               HandleEnter="@(() => myRenderer?.RedrawCanvas())"/>
+               Min="0"/>
+
+  <DoubleInput @ref="myWidthScaleInput"
+               Title="Width Scale"
+               InitialValue="myWidthScaleInputInitialValue"
+               Max="100"
+               Min="0"/>
+
+  <DoubleInput @ref="myHeightScaleInput"
+               Title="Height Scale"
+               InitialValue="myHeightScaleInitialValue"
+               Max="100"
+               Min="0"/>
+
+  <div class="rerender-button-container">
+    <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
+  </div>
 
   <div>
-    <ColorsEventLogRenderer @ref="myRenderer" Log="FromTimeline()"/>
+    <ColorsEventLogRenderer @ref="myRenderer" 
+                            Log="FromTimeline()" 
+                            WidthScale="myWidthScaleInput?.CurrentValue"
+                            HeightScale="myHeightScaleInput?.CurrentValue"/>
   </div>
 </div>
 
@@ -20,12 +39,28 @@
   private const string SeparatorKey = nameof(SeparatorKey);
   private const uint RectWidth = 1;
 
+  private double myScaleInputInitialValue = 1;
+  private double myWidthScaleInputInitialValue = 1;
+  private double myHeightScaleInitialValue = 1;
+  
   private ColorsEventLogRenderer? myRenderer;
   private DoubleInput? myScaleInput;
-  
+  private DoubleInput? myWidthScaleInput;
+  private DoubleInput? myHeightScaleInput;
+
 
   [Parameter] public required GrpcLogTimelineDiagram TimelineDiagram { get; init; }
 
+
+  private void RedrawCanvas()
+  {
+    myScaleInputInitialValue = myScaleInput?.CurrentValue ?? 1;
+    myWidthScaleInputInitialValue = myWidthScaleInput?.CurrentValue ?? 1;
+    myHeightScaleInitialValue = myHeightScaleInput?.CurrentValue ?? 1;
+
+    StateHasChanged();
+    myRenderer?.RedrawCanvas();
+  }
 
   private GrpcColorsEventLog FromTimeline()
   {

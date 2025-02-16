@@ -10,7 +10,3 @@
 .invisible-canvas {
   visibility: collapse;
 }
-
-.rerender-button-container {
-  margin-top: 10px;
-}

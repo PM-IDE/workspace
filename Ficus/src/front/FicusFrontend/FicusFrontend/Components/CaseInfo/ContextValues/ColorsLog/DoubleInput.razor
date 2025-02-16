@@ -4,7 +4,7 @@
 
 <div style="width: 100px">
   <InputNumber TValue="double"
-               InitialValue="1"
+               InitialValue="@InitialValue"
                @bind-Value="@CurrentValue"
                AllowNegativeNumbers="false"
                ParsingErrorMessage="@($"Enter the double value between {Min} and {Max}")"
@@ -18,14 +18,12 @@
   [Parameter] public required string Title { get; init; }
   [Parameter] public required double Max { get; init; }
   [Parameter] public required double Min { get; init; }
-  [Parameter] public Action? HandleEnter { get; init; }
-
 
   public double CurrentValue { get; private set; }
-
 
   protected override void OnParametersSet()
   {
     CurrentValue = InitialValue;
+    base.OnParametersSet();
   }
 }

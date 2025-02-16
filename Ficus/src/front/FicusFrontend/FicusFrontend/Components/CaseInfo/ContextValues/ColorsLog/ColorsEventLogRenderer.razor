@@ -5,27 +5,7 @@
 @using BlazorBootstrap
 @using Ficus
 @using JetBrains.Threading
-@using Radzen.Blazor
 @inject ILogger<ColorsEventLogRenderer> Logger
-
-
-<DoubleInput @ref="myWidthScaleInput"
-             Title="Width Scale"
-             InitialValue="1"
-             Max="100"
-             Min="0"
-             HandleEnter="@(() => RedrawCanvas())"/>
-
-<DoubleInput @ref="myHeightScaleInput"
-             Title="Height Scale"
-             InitialValue="1"
-             Max="100"
-             Min="0"
-             HandleEnter="@(() => RedrawCanvas())"/>
-
-<div class="rerender-button-container">
-  <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
-</div>
 
 @if (!myFinishedCanvasDrawings)
 {
@@ -39,8 +19,6 @@
 @code
 {
   private BECanvasComponent? myCanvas;
-  private DoubleInput? myWidthScaleInput;
-  private DoubleInput? myHeightScaleInput;
 
   private bool myFinishedCanvasDrawings;
 
@@ -55,8 +33,8 @@
   private double myCanvasHeight = 400;
 
 
-  private double RectWidth => DefaultRectWidth * (myWidthScaleInput?.CurrentValue ?? 1);
-  private double RectHeight => DefaultRectHeight * (myHeightScaleInput?.CurrentValue ?? 1);
+  private double RectWidth => DefaultRectWidth * (WidthScale ?? 1);
+  private double RectHeight => DefaultRectHeight * (HeightScale ?? 1);
 
   private string CanvasContainerClass => "colors-log-canvas-container " + myFinishedCanvasDrawings switch
   {
@@ -65,6 +43,8 @@
   };
 
 
+  [Parameter] public double? WidthScale { get; init; }
+  [Parameter] public double? HeightScale { get; init; }
   [Parameter] public required GrpcColorsEventLog Log { get; init; }
 
 
