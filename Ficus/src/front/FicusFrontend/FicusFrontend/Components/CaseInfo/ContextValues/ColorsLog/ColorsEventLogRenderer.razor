@@ -13,13 +13,15 @@
              Title="Width Scale"
              InitialValue="1"
              Max="100"
-             Min="0" />
+             Min="0"
+             HandleEnter="@(() => RedrawCanvas())"/>
 
 <DoubleInput @ref="myHeightScaleInput"
              Title="Height Scale"
              InitialValue="1"
              Max="100"
-             Min="0" />
+             Min="0"
+             HandleEnter="@(() => RedrawCanvas())"/>
 
 <div class="rerender-button-container">
   <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
@@ -36,7 +38,7 @@
 
 @code
 {
-  private BECanvasComponent myCanvas;
+  private BECanvasComponent? myCanvas;
   private DoubleInput? myWidthScaleInput;
   private DoubleInput? myHeightScaleInput;
 
@@ -152,11 +154,10 @@
     await context.StrokeTextAsync(maxEventsInTraceCountText, myCanvasWidth - textMeasures.Width / 2, horizontalAxisY + AxisWidth + AxisTextHeight);
   }
 
-  private void RedrawCanvas(MouseEventArgs obj)
+  public void RedrawCanvas()
   {
     myFinishedCanvasDrawings = false;
     StateHasChanged();
     StartRedrawingCanvas().NoAwait();
   }
-
 }

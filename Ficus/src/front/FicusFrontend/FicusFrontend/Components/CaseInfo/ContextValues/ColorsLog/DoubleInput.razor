@@ -10,14 +10,15 @@
                ParsingErrorMessage="@($"Enter the double value between {Min} and {Max}")"
                Title="@Title"
                Max="@Max"
-               Min="@Min"/>
+               Min="@Min" />
 </div>
 
 @code {
-  [Parameter] public double InitialValue { get; set; }
-  [Parameter] public string Title { get; set; }
-  [Parameter] public double Max { get; set; }
-  [Parameter] public double Min { get; set; }
+  [Parameter] public required double InitialValue { get; init; }
+  [Parameter] public required string Title { get; init; }
+  [Parameter] public required double Max { get; init; }
+  [Parameter] public required double Min { get; init; }
+  [Parameter] public Action? HandleEnter { get; init; }
 
 
   public double CurrentValue { get; private set; }

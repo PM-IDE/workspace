@@ -2,13 +2,27 @@
 @using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
 
-<ColorsEventLogRenderer Log="FromTimeline()"/>
+<div style="margin: 10px;">
+  <DoubleInput @ref="myScaleInput"
+               Title="Length and Start Position Scale"
+               InitialValue="1"
+               Max="100"
+               Min="0"
+               HandleEnter="@(() => myRenderer?.RedrawCanvas())"/>
+
+  <div>
+    <ColorsEventLogRenderer @ref="myRenderer" Log="FromTimeline()"/>
+  </div>
+</div>
 
 @code {
   private const string BackgroundKey = nameof(BackgroundKey);
   private const string SeparatorKey = nameof(SeparatorKey);
   private const uint RectWidth = 1;
 
+  private ColorsEventLogRenderer? myRenderer;
+  private DoubleInput? myScaleInput;
+  
 
   [Parameter] public required GrpcLogTimelineDiagram TimelineDiagram { get; init; }
 
@@ -25,7 +39,7 @@
       foreach (var thread in traceDiagram.Threads)
       {
         var colorsTrace = new List<GrpcColoredRectangle>();
-        var lastX = 0ul;
+        var lastX = 0.0;
         foreach (var @event in thread.Events)
         {
           if (!colors.ContainsKey(@event.Name))
@@ -35,8 +49,8 @@
             mappings.Add(NewMapping(@event.Name, color));
           }
 
-          var rectX = @event.Stamp;
-          if (lastX != rectX)
+          var rectX = @event.Stamp * (myScaleInput?.CurrentValue ?? 1);
+          if (lastX < rectX)
           {
             colorsTrace.Add(NewRect(colors[BackgroundKey], (uint)lastX, (uint)(rectX - lastX)));
           }
@@ -160,5 +174,4 @@
       return (Random.Shared.Next(0, 256), Random.Shared.Next(0, 256), Random.Shared.Next(0, 256));
     }
   }
-
 }
