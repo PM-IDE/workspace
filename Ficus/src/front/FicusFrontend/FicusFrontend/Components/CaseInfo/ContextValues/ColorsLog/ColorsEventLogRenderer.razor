@@ -34,7 +34,7 @@
 }
 
 <div class="@CanvasContainerClass">
-  <BECanvas Width="@myCanvasWidth" Height="@myCanvasHeight" @ref="myCanvas"></BECanvas>
+  <BECanvas Width="@((long)myCanvasWidth)" Height="@((long)myCanvasHeight)" @ref="myCanvas"></BECanvas>
 </div>
 
 @code
@@ -52,8 +52,8 @@
   private const int DefaultRectHeight = 5;
   private const double AxisTextHeight = 14;
 
-  private int myCanvasWidth = 300;
-  private int myCanvasHeight = 400;
+  private double myCanvasWidth = 300;
+  private double myCanvasHeight = 400;
 
 
   private double RectWidth => DefaultRectWidth * (myWidthScaleSlidebar?.CurrentValue ?? 1);
@@ -77,7 +77,7 @@
   private void RecalculateCanvasDimensions()
   {
     myCanvasHeight = (int)(Log.Traces.Count * RectHeight + 2 * AxisDelta + AxisWidth + 2 * AxisTextHeight);
-    myCanvasWidth = (int)(Log.Traces.Select(t => t.EventColors.Count).Max() * RectWidth);
+    myCanvasWidth = Log.Traces.Select(t => t.EventColors.Aggregate(0.0, (prev, rect) => prev + rect.Length * RectWidth)).Max();
   }
 
   protected override Task OnAfterRenderAsync(bool firstRender)
@@ -113,8 +113,10 @@
             var rgb = Color.FromArgb((int)color.Red, (int)color.Green, (int)color.Blue).ToHexString();
 
             await context.SetFillStyleAsync(rgb);
-            await context.FillRectAsync(x, y, RectWidth, RectHeight);
-            x += RectWidth;
+
+            var length = RectWidth * rect.Length;
+            await context.FillRectAsync(x, y, length, RectHeight);
+            x += length;
           }
 
           y += RectHeight;

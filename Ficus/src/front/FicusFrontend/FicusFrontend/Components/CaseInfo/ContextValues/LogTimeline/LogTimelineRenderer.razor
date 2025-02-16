@@ -1,6 +1,5 @@
 ﻿@using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
-<h3>LogTimelineRenderer</h3>
 
 <ColorsEventLogRenderer Log="FromTimeline()"/>
 
@@ -38,7 +37,7 @@
           var rectX = @event.Stamp;
           if (lastX != rectX)
           {
-            colorsTrace.Add(NewRect(colors[@event.Name], (uint)lastX, (uint)(rectX - lastX)));
+            colorsTrace.Add(NewRect(colors[BackgroundKey], (uint)lastX, (uint)(rectX - lastX)));
           }
 
           colorsTrace.Add(NewRect(colors[@event.Name], (uint)rectX, RectWidth));
@@ -49,7 +48,7 @@
         colorsLog.Add(NewTrace(colorsTrace));
       }
 
-      colorsLog.Add(NewTrace([NewRect(colors[BackgroundKey], 0, maxWidth)]));
+      colorsLog.Add(NewTrace([NewRect(colors[SeparatorKey], 0, maxWidth)]));
     }
 
     return new GrpcColorsEventLog
