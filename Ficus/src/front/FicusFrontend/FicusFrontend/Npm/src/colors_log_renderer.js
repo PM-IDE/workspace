@@ -74,9 +74,9 @@ function drawAxis(context, log, canvasWidth, canvasHeight, colors) {
 
   context.font = "10px serif";
   context.textAlign = "center";
-  context.strokeText(log.traces.length.toString(), AxisDelta, AxisTextHeight);
+  context.fillText(log.traces.length.toString(), AxisDelta, AxisTextHeight);
   
   let maxEventsInTraceCountText = Math.max(...log.traces.map(t => t.eventColors.length)).toString();
   let textMeasures = context.measureText(maxEventsInTraceCountText);
-  context.strokeText(maxEventsInTraceCountText, canvasWidth - textMeasures.width / 2, horizontalAxisY + AxisWidth + AxisTextHeight);
+  context.fillText(maxEventsInTraceCountText, canvasWidth - textMeasures.width / 2, horizontalAxisY + AxisWidth + AxisTextHeight);
 }
