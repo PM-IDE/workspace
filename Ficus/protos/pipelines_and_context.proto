@@ -92,8 +92,8 @@ message GrpcColorsTrace {
 
 message GrpcColoredRectangle {
   uint32 color_index = 1;
-  uint32 start_index = 2;
-  uint32 length = 3;
+  double start_x = 2;
+  double length = 3;
 }
 
 message GrpcEnum {

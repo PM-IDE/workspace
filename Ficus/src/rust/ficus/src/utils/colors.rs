@@ -82,24 +82,24 @@ pub struct ColorsEventLog {
 
 pub struct ColoredRectangle {
     name: HeapedOrOwned<String>,
-    start_pos: usize,
-    length: usize,
+    start_x: f64,
+    length: f64,
 }
 
 impl ColoredRectangle {
-    pub fn new(name: HeapedOrOwned<String>, start_pos: usize, length: usize) -> Self {
-        Self { name, start_pos, length }
+    pub fn new(name: HeapedOrOwned<String>, start_x: f64, length: f64) -> Self {
+        Self { name, start_x, length }
     }
 
-    pub fn square(name: HeapedOrOwned<String>, start_pos: usize) -> Self {
-        Self::new(name, start_pos, 1)
+    pub fn square(name: HeapedOrOwned<String>, start_pos: f64) -> Self {
+        Self::new(name, start_pos, 1.)
     }
 
-    pub fn start_pos(&self) -> usize {
-        self.start_pos
+    pub fn start_x(&self) -> f64 {
+        self.start_x
     }
 
-    pub fn len(&self) -> usize {
+    pub fn len(&self) -> f64 {
         self.length
     }
 

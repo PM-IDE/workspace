@@ -405,8 +405,8 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
 fn convert_to_grpc_colored_rect(colored_rect: &ColoredRectangle, color_index: usize) -> GrpcColoredRectangle {
     GrpcColoredRectangle {
         color_index: color_index as u32,
-        start_index: colored_rect.start_pos() as u32,
-        length: colored_rect.len() as u32,
+        start_x: colored_rect.start_x(),
+        length: colored_rect.len(),
     }
 }
 

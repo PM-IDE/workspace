@@ -58,7 +58,7 @@ impl PipelineParts {
                 }
 
                 let name = HeapedOrOwned::Owned(colors_key.to_owned());
-                vec.push(ColoredRectangle::square(name, index));
+                vec.push(ColoredRectangle::square(name, index as f64));
                 index += 1;
             }
 
@@ -99,10 +99,10 @@ impl PipelineParts {
                     }
 
                     let name = HeapedOrOwned::Heaped(event.name_pointer().clone());
-                    colors_trace.push(ColoredRectangle::square(name, index));
+                    colors_trace.push(ColoredRectangle::square(name, index as f64));
                 } else {
                     let name = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
-                    colors_trace.push(ColoredRectangle::square(name, index));
+                    colors_trace.push(ColoredRectangle::square(name, index as f64));
                 }
 
                 index += 1;
@@ -147,13 +147,13 @@ impl PipelineParts {
                         }
 
                         let name = HeapedOrOwned::Heaped(name);
-                        colors_trace.push(ColoredRectangle::new(name, activity.start_pos, activity.length));
+                        colors_trace.push(ColoredRectangle::new(name, activity.start_pos as f64, activity.length as f64));
                     }
                     SubTraceKind::Unattached(start_pos, length) => {
                         colors_trace.push(ColoredRectangle::new(
                             HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_string()),
-                            start_pos,
-                            length,
+                            start_pos as f64,
+                            length as f64,
                         ));
                     }
                 })?;
@@ -192,11 +192,11 @@ impl PipelineParts {
                             }
 
                             let name = HeapedOrOwned::Heaped(name);
-                            colors_trace.push(ColoredRectangle::new(name, index, 1));
+                            colors_trace.push(ColoredRectangle::new(name, index as f64, 1.));
                         }
                         SubTraceKind::Unattached(_, _) => {
                             let ptr = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
-                            colors_trace.push(ColoredRectangle::new(ptr, index, 1));
+                            colors_trace.push(ColoredRectangle::new(ptr, index as f64, 1.));
                         }
                     }
 

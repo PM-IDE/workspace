@@ -34,8 +34,8 @@ class Color:
 @dataclass
 class ColoredRectangle:
     color: Color
-    start_pos: int
-    length: int
+    start_x: float
+    length: float
     name: str
 
 

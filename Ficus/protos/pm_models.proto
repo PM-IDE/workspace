@@ -25,7 +25,6 @@ message GrpcEventStamp {
   }
 }
 
-
 message GrpcHashesEventLog {
   repeated GrpcHashesLogTrace traces = 2;
 }

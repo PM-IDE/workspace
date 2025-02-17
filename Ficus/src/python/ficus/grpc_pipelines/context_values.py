@@ -130,7 +130,7 @@ class EventLogInfo(ContextValue):
 @dataclass
 class ProxyColorRectangle:
     color_index: int
-    start_index: float
+    start_x: float
     length: float
 
 
@@ -177,7 +177,7 @@ def from_grpc_colors_log_proxy(grpc_colors_log: GrpcColorsEventLog) -> ProxyColo
 
 
 def from_grpc_colored_rectangle_proxy(grpc_color: GrpcColoredRectangle) -> ProxyColorRectangle:
-    return ProxyColorRectangle(grpc_color.color_index, grpc_color.start_index, grpc_color.length)
+    return ProxyColorRectangle(grpc_color.color_index, grpc_color.start_x, grpc_color.length)
 
 
 def from_grpc_color_mapping(grpc_mapping: list[GrpcColorsEventLogMapping]) -> list[ProxyColorMapping]:
@@ -205,7 +205,7 @@ def from_grpc_colors_log(grpc_colors_log: GrpcColorsEventLog) -> list[list[Color
 def from_grpc_colored_rectangle(grpc_color: GrpcColoredRectangle,
                                 mapping: list[GrpcColorsEventLogMapping]) -> ColoredRectangle:
     name, color = mapping[grpc_color.color_index].name, from_grpc_color(mapping[grpc_color.color_index].color)
-    return ColoredRectangle(color, grpc_color.start_index, grpc_color.length, name)
+    return ColoredRectangle(color, grpc_color.start_x, grpc_color.length, name)
 
 
 def from_grpc_color(grpc_color: GrpcColor):

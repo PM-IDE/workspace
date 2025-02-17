@@ -87,10 +87,10 @@
           var rectX = @event.Stamp * (myScaleInput?.CurrentValue ?? 1);
           if (lastX < rectX)
           {
-            colorsTrace.Add(NewRect(colors[BackgroundKey], (uint)lastX, (uint)(rectX - lastX)));
+            colorsTrace.Add(NewRect(colors[BackgroundKey], lastX, rectX - lastX));
           }
 
-          colorsTrace.Add(NewRect(colors[@event.Name], (uint)rectX, RectWidth));
+          colorsTrace.Add(NewRect(colors[@event.Name], rectX, RectWidth));
           lastX = rectX + RectWidth;
         }
 
@@ -163,11 +163,11 @@
     return (uint)(maxStamp + maxEvents);
   }
 
-  private static GrpcColoredRectangle NewRect(uint colorIndex, uint startIndex, uint length) => new()
+  private static GrpcColoredRectangle NewRect(uint colorIndex, double startX, double length) => new()
   {
     ColorIndex = colorIndex,
-    StartIndex = startIndex,
-    Length = length,
+    StartX = startX,
+    Length = length
   };
 
   private static GrpcColorsEventLogMapping NewMapping(string name, GrpcColor color) => new()
