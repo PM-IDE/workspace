@@ -20,6 +20,7 @@
   private readonly Guid myCanvasId = Guid.NewGuid();
 
   private bool myFinishedCanvasDrawings = false;
+  private readonly SemaphoreSlim mySemaphoreSlim = new(1);
 
   private string CanvasContainerClass => "colors-log-canvas-container " + myFinishedCanvasDrawings switch
   {
@@ -36,28 +37,38 @@
   {
     if (!firstRender) return Task.CompletedTask;
 
-    StartRedrawingCanvas();
+    RedrawCanvas();
 
     return Task.CompletedTask;
   }
 
-  private void StartRedrawingCanvas()
-  {
-    myFinishedCanvasDrawings = false;
-    StateHasChanged();
-    
-    Task.Run(async () =>
-    {
-      await Js.InvokeVoidAsync("drawColorsLog", Log, WidthScale ?? 1, HeightScale ?? 1, myCanvasId.ToString(), CanvasColors.Instance);
-
-      myFinishedCanvasDrawings = true;
-      StateHasChanged();
-    }).NoAwait();
-  }
-
   public void RedrawCanvas()
   {
-    StateHasChanged();
-    StartRedrawingCanvas();
+    try
+    {
+      mySemaphoreSlim.Wait();
+      myFinishedCanvasDrawings = false;
+      StateHasChanged();
+    }
+    catch (Exception ex)
+    {
+      mySemaphoreSlim.Release();
+      return;
+    }
+
+    Task.Run(async () =>
+    {
+      try
+      {
+        await Js.InvokeVoidAsync("drawColorsLog", Log, WidthScale ?? 1, HeightScale ?? 1, myCanvasId.ToString(), CanvasColors.Instance);
+
+        myFinishedCanvasDrawings = true;
+        StateHasChanged();
+      }
+      finally
+      {
+        mySemaphoreSlim.Release();
+      }
+    }).NoAwait();
   }
 }
