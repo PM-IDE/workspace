@@ -6,8 +6,8 @@ const DefaultRectHeight = 5;
 const AxisTextHeight = 14;
 
 export function setDrawColorsLog() {
-  window.drawColorsLog = function (log, widthScale, heightScale, canvasId, colors) {
-    drawColorsLog(log, widthScale, heightScale, canvasId, colors);
+  window.drawColorsLog = async function (log, widthScale, heightScale, canvasId, colors) {
+    return await drawColorsLog(log, widthScale, heightScale, canvasId, colors);
   };
 
   window.calculateCanvasArea = function (log, widthScale, heightScale) {
@@ -24,12 +24,16 @@ function getRectDimensions(widthScale, heightScale) {
   return [widthScale * DefaultRectWidth,  heightScale * DefaultRectHeight];
 }
 
-function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
+async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let canvas = document.getElementById(canvasId);
   let context = canvas.getContext('2d');
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
   let canvasDimensions = calculateCanvasWidthAndHeight(log, rectWidth, rectHeight);
+  let maxCanvasDimensions = await getMaxCanvasDimensions();
+  if (canvasDimensions[0] > maxCanvasDimensions[0] || canvasDimensions[1] > maxCanvasDimensions[1]) {
+    return [maxCanvasDimensions[0] / canvasDimensions[0], maxCanvasDimensions[1] / canvasDimensions[1]];
+  }
 
   let canvasWidth = canvasDimensions[0];
   let canvasHeight = canvasDimensions[1];
@@ -54,6 +58,7 @@ function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   }
   
   drawAxis(context, log, canvasWidth, canvasHeight, colors);
+  return null;
 }
 
 function rgbToHex(color) {

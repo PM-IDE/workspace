@@ -10,27 +10,35 @@
   <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
 }
 
+
+@if (mySuggestedAdjustment is var (suggestedWidthScale, suggestedHeightScale))
+{
+  <div>
+    Rendered canvas is too big, suggested scale are ({@suggestedWidthScale}, {@suggestedHeightScale})
+  </div>
+}
+
 <div class="@CanvasContainerClass">
   <canvas id="@myCanvasId.ToString()"></canvas>
-</div> 
-
+</div>
 
 @code
 {
   private readonly Guid myCanvasId = Guid.NewGuid();
 
   private bool myFinishedCanvasDrawings = false;
-  private readonly SemaphoreSlim mySemaphoreSlim = new(1);
+  private (double X, double Y)? mySuggestedAdjustment = null;
 
-  private string CanvasContainerClass => "colors-log-canvas-container " + myFinishedCanvasDrawings switch
+  private string CanvasContainerClass => "colors-log-canvas-container " + (myFinishedCanvasDrawings && mySuggestedAdjustment is null) switch
   {
     true => string.Empty,
     false => "invisible-canvas"
   };
 
+  [Parameter] public required GrpcColorsEventLog Log { get; init; }
   [Parameter] public double? WidthScale { get; init; }
   [Parameter] public double? HeightScale { get; init; }
-  [Parameter] public required GrpcColorsEventLog Log { get; init; }
+  [Parameter] public Action<double, double>? CanvasDimensionsTooLargeHandler { get; init; }
 
 
   protected override Task OnAfterRenderAsync(bool firstRender)
@@ -44,30 +52,29 @@
 
   public void RedrawCanvas()
   {
-    try
-    {
-      mySemaphoreSlim.Wait();
-      myFinishedCanvasDrawings = false;
-      StateHasChanged();
-    }
-    catch (Exception ex)
-    {
-      mySemaphoreSlim.Release();
-      return;
-    }
+    myFinishedCanvasDrawings = false;
+    StateHasChanged();
 
     Task.Run(async () =>
     {
-      try
-      {
-        await Js.InvokeVoidAsync("drawColorsLog", Log, WidthScale ?? 1, HeightScale ?? 1, myCanvasId.ToString(), CanvasColors.Instance);
+      var renderResult = await Js.InvokeAsync<List<double>?>(
+        "drawColorsLog", Log, WidthScale ?? 1, HeightScale ?? 1, myCanvasId.ToString(), CanvasColors.Instance);
 
-        myFinishedCanvasDrawings = true;
-        StateHasChanged();
-      }
-      finally
+      if (renderResult is [var suggestedWidthScale, var suggestedHeightScale])
       {
-        mySemaphoreSlim.Release();
+        mySuggestedAdjustment = (suggestedWidthScale, suggestedHeightScale);
+      }
+      else
+      {
+        mySuggestedAdjustment = null;
+      }
+
+      myFinishedCanvasDrawings = true;
+      StateHasChanged();
+
+      if (renderResult is [var widthScale, var heightScale])
+      {
+        CanvasDimensionsTooLargeHandler?.Invoke(widthScale, heightScale);
       }
     }).NoAwait();
   }

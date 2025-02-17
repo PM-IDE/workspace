@@ -33,7 +33,8 @@
     <ColorsEventLogRenderer @ref="myRenderer" 
                             Log="FromTimeline()" 
                             WidthScale="myWidthScaleInput?.CurrentValue"
-                            HeightScale="myHeightScaleInput?.CurrentValue"/>
+                            HeightScale="myHeightScaleInput?.CurrentValue"
+                            CanvasDimensionsTooLargeHandler="HandleTooLargeCanvasDimensions"/>
   </div>
 </div>
 
@@ -55,36 +56,19 @@
   [Parameter] public required GrpcLogTimelineDiagram TimelineDiagram { get; init; }
 
 
-  protected override Task OnAfterRenderAsync(bool firstRender)
+  private void HandleTooLargeCanvasDimensions(double widthScale, double heightScale)
   {
-    if (!firstRender) return Task.CompletedTask;
-    if (myRenderer?.Log is not { } log) return Task.CompletedTask;
-
-    Task.Run(async () =>
+    if (widthScale < 1)
     {
-      var canvasArea = await Js.InvokeAsync<List<int>>("calculateCanvasArea", log, myWidthScaleInputInitialValue, myHeightScaleInitialValue);
-      var maxArea = await Js.InvokeAsync<List<int>>("getMaxCanvasDimensions");
+      myWidthScaleInput?.SetValue(widthScale * 0.9);  
+    }
 
-      var anyChanges = false;
-      if (maxArea[0] < canvasArea[0])
-      {
-        anyChanges = true;
-        myWidthScaleInputInitialValue = maxArea[0] * 0.9 / canvasArea[0];
-      }
-
-      if (maxArea[1] < canvasArea[1])
-      {
-        anyChanges = true;
-        myHeightScaleInitialValue = maxArea[1] * 0.9 / canvasArea[1];
-      }
-
-      if (anyChanges)
-      {
-        StateHasChanged();
-      }
-    }).NoAwait();
-
-    return Task.CompletedTask;
+    if (heightScale < 1)
+    {
+      myHeightScaleInput?.SetValue(heightScale * 0.9);
+    }
+    
+    RedrawCanvas();
   }
 
   private void RedrawCanvas()

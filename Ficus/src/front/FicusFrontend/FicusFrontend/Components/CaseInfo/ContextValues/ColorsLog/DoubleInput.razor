@@ -26,4 +26,10 @@
     CurrentValue = InitialValue;
     base.OnParametersSet();
   }
+
+  public void SetValue(double value)
+  {
+    CurrentValue = value;
+    StateHasChanged();
+  }
 }
