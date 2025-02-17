@@ -15,7 +15,7 @@ use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{
     AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY,
-    EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOG_TIMELINE_DIAGRAM, LOG_THREADS_DIAGRAM_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY,
+    EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TIMELINE_DIAGRAM, LOOP_LENGTH_TWO_THRESHOLD_KEY,
     NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY,
     PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE, TIME_ATTRIBUTE_KEY,
     UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
@@ -218,8 +218,12 @@ impl PipelineParts {
             );
 
             match diagram {
-                Err(_) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Failed to build diagram".to_string()))),
-                Ok(diagram) => context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram) 
+                Err(_) => {
+                    return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
+                        "Failed to build diagram".to_string(),
+                    )))
+                }
+                Ok(diagram) => context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram),
             }
 
             Ok(())

@@ -41,7 +41,7 @@ impl TraceThread {
 #[derive(Debug, Clone)]
 pub struct TraceThreadEvent {
     name: String,
-    stamp: u64
+    stamp: u64,
 }
 
 impl TraceThreadEvent {
@@ -55,13 +55,13 @@ impl TraceThreadEvent {
 }
 
 pub enum LogThreadsDiagramError {
-    NotSupportedEventStamp
+    NotSupportedEventStamp,
 }
 
 pub fn discover_timeline_diagram(
     log: &XesEventLogImpl,
     thread_attribute: &str,
-    time_attribute: Option<&str>
+    time_attribute: Option<&str>,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
     let mut traces = vec![];
 
@@ -90,7 +90,7 @@ pub fn discover_timeline_diagram(
 
             let thread_event = TraceThreadEvent {
                 name: event.name().to_owned(),
-                stamp: get_stamp(&event, time_attribute)? - min_stamp
+                stamp: get_stamp(&event, time_attribute)? - min_stamp,
             };
 
             if let Some(thread) = threads.get_mut(&thread_id) {
