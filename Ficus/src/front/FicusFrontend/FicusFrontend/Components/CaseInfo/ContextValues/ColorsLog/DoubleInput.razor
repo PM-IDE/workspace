@@ -1,4 +1,5 @@
-﻿<div>
+﻿@using System.Globalization
+<div>
   @Title
 </div>
 
@@ -8,7 +9,13 @@
          max="@Max"
          value="@CurrentValue"
          title="@Title"
-         @onchange="@(e => CurrentValue = e.Value is { } value ? double.Parse((string)value) : CurrentValue)" />
+         @onchange="@(e =>
+                    {
+                      if (e.Value is { } value && double.TryParse((string)value, CultureInfo.InvariantCulture, out var parsedValue))
+                      {
+                        CurrentValue = parsedValue;
+                      }
+                    })" />
 </div>
 
 @code {
