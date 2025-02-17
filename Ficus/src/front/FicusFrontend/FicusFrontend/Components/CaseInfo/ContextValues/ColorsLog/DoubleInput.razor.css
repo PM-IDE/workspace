@@ -1,0 +1,8 @@
+﻿.input-number {
+  background: var(--input-background);
+  border-color: var(--input-border-color);
+  color: var(--input-foreground);
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+}

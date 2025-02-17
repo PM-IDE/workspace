@@ -19,7 +19,7 @@
 @{
   var title = myProcessCaseData switch
   {
-    not null => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.DisplayName,
+    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.DisplayName,
     _ => "The case was not yet selected."
   };
 }
@@ -143,7 +143,7 @@
 
     return contextValue.ContextValueCase switch
     {
-      ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer TimelineDiagram="contextValue.LogTimelineDiagram" />,
+      ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer @key="wrapper.Id" TimelineDiagram="contextValue.LogTimelineDiagram" />,
       ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
       ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="wrapper.Id"
                                                                   Log="contextValue.ColorsLog"/>,

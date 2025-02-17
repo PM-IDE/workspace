@@ -1,16 +1,14 @@
 ﻿<div>
-  @Title: @CurrentValue
+  @Title
 </div>
 
 <div style="width: 100px">
-  <InputNumber TValue="double"
-               InitialValue="@InitialValue"
-               @bind-Value="@CurrentValue"
-               AllowNegativeNumbers="false"
-               ParsingErrorMessage="@($"Enter the double value between {Min} and {Max}")"
-               Title="@Title"
-               Max="@Max"
-               Min="@Min" />
+  <input class="input-number"
+         min="@Min"
+         max="@Max"
+         value="@CurrentValue"
+         title="@Title"
+         @onchange="@(e => CurrentValue = e.Value is { } value ? double.Parse((string)value) : CurrentValue)" />
 </div>
 
 @code {
@@ -19,7 +17,9 @@
   [Parameter] public required double Max { get; init; }
   [Parameter] public required double Min { get; init; }
 
+
   public double CurrentValue { get; private set; }
+
 
   protected override void OnParametersSet()
   {

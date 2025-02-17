@@ -23,6 +23,10 @@ html, body {
   --processes-section-case-background-darker: #2e3333;
   --processes-section-case-background-hovered-darker: #383e3e;
   --processes-section-cases-collapsed-bakground-darker: #3e4545;
+  
+  --input-background: #323232;
+  --input-foreground: #ffffff;
+  --input-border-color: #191919;
 
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer */
