@@ -9,15 +9,26 @@ export function setDrawColorsLog() {
   window.drawColorsLog = function (log, widthScale, heightScale, canvasId, colors) {
     drawColorsLog(log, widthScale, heightScale, canvasId, colors);
   };
+
+  window.calculateCanvasArea = function (log, widthScale, heightScale) {
+    return calculateCanvasArea(log, widthScale, heightScale);
+  }
+}
+
+function calculateCanvasArea(log, widthScale, heightScale) {
+  let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
+  return calculateCanvasWidthAndHeight(log, rectWidth, rectHeight);
+}
+
+function getRectDimensions(widthScale, heightScale) {
+  return [widthScale * DefaultRectWidth,  heightScale * DefaultRectHeight];
 }
 
 function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let canvas = document.getElementById(canvasId);
-  let context = canvas.getContext('2d')
+  let context = canvas.getContext('2d');
+  let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
-  let rectWidth = widthScale * DefaultRectWidth;
-  let rectHeight = heightScale * DefaultRectHeight;
-  
   let canvasDimensions = calculateCanvasWidthAndHeight(log, rectWidth, rectHeight);
 
   let canvasWidth = canvasDimensions[0];

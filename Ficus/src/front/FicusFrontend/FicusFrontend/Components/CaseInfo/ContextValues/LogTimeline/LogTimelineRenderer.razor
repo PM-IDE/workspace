@@ -1,7 +1,10 @@
 ﻿@using System.Drawing
 @using Ficus
 @using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
+@using JetBrains.Threading
 @using Radzen.Blazor
+
+@inject IJSRuntime Js;
 
 <div style="margin: 10px;">
   <DoubleInput @ref="myScaleInput"
@@ -51,6 +54,38 @@
 
   [Parameter] public required GrpcLogTimelineDiagram TimelineDiagram { get; init; }
 
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (!firstRender) return Task.CompletedTask;
+    if (myRenderer?.Log is not { } log) return Task.CompletedTask;
+
+    Task.Run(async () =>
+    {
+      var canvasArea = await Js.InvokeAsync<List<int>>("calculateCanvasArea", log, myWidthScaleInputInitialValue, myHeightScaleInitialValue);
+      var maxArea = await Js.InvokeAsync<List<int>>("getMaxCanvasDimensions");
+
+      var anyChanges = false;
+      if (maxArea[0] < canvasArea[0])
+      {
+        anyChanges = true;
+        myWidthScaleInputInitialValue = maxArea[0] * 0.9 / canvasArea[0];
+      }
+
+      if (maxArea[1] < canvasArea[1])
+      {
+        anyChanges = true;
+        myHeightScaleInitialValue = maxArea[1] * 0.9 / canvasArea[1];
+      }
+
+      if (anyChanges)
+      {
+        StateHasChanged();
+      }
+    }).NoAwait();
+
+    return Task.CompletedTask;
+  }
 
   private void RedrawCanvas()
   {
