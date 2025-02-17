@@ -2,8 +2,16 @@
 
 namespace FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog;
 
-public static class CanvasColors
+public class CanvasColors
 {
-  public static Color Background { get; } = Color.FromArgb(37, 37, 37);
-  public static Color Axis { get; } = Color.FromArgb(42, 42, 42);
+  public static CanvasColors Instance { get; } = new();
+
+
+  public Color Background { get; } = Color.FromArgb(37, 37, 37);
+  public Color Axis { get; } = Color.FromArgb(42, 42, 42);
+
+
+  private CanvasColors()
+  {
+  }
 }
