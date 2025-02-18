@@ -4,7 +4,12 @@
   height: 100%;
   max-width: 900px;
   max-height: 500px;
-  overflow: scroll;
+  overflow-y: auto;
+  overflow-x: scroll;
+}
+
+.colors-log-canvas-container::-webkit-scrollbar {
+  display: grid;
 }
 
 .invisible-canvas {
