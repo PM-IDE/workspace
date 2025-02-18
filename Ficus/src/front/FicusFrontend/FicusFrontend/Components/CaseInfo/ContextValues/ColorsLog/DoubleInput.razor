@@ -7,9 +7,9 @@
   <input class="input-number"
          min="@Min"
          max="@Max"
-         value="@CurrentValue"
+         value="@InitialValue.ToString(CultureInfo.InvariantCulture)"
          title="@Title"
-         @onchange="@(e =>
+         @oninput="@(e =>
                     {
                       if (e.Value is { } value && double.TryParse((string)value, CultureInfo.InvariantCulture, out var parsedValue))
                       {
@@ -32,11 +32,5 @@
   {
     CurrentValue = InitialValue;
     base.OnParametersSet();
-  }
-
-  public void SetValue(double value)
-  {
-    CurrentValue = value;
-    StateHasChanged();
   }
 }
