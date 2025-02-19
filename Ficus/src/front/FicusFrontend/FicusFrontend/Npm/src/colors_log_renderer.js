@@ -40,7 +40,6 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
-  
   context.clearRect(0, 0, canvasWidth, canvasHeight);
 
   var y = AxisTextHeight;
@@ -48,10 +47,7 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
     var x = AxisDelta + AxisWidth + AxisDelta;
     for (let rect of trace.eventColors) {
       context.fillStyle = rgbToHex(log.mapping[rect.colorIndex].color);
-
-      var length = rectWidth * rect.length;
-      context.fillRect(x, y, length, rectHeight);
-      x += length;
+      context.fillRect(x + rect.startX, y, rectWidth * rect.length, rectHeight);
     }
     
     y += rectHeight;
@@ -70,11 +66,8 @@ function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight) {
   
   let canvasWidth = 0;
   for (let trace of log.traces) {
-    let traceLength = 0;
-    for (let event of trace.eventColors) {
-      traceLength += event.length * rectWidth
-    }
-    
+    let last = trace.eventColors[trace.eventColors.length - 1];
+    let traceLength = last.startX + rectWidth * last.length;
     canvasWidth = Math.max(canvasWidth, traceLength);
   }
 

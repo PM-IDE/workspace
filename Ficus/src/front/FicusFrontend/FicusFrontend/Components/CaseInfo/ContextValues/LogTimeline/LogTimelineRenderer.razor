@@ -69,7 +69,6 @@
   {
     var colorsGenerator = new ColorsGenerator();
     var (colors, mappings) = InitState();
-    var maxWidth = CalculateMaxWidth(TimelineDiagram);
     var scale = myScaleInput?.CurrentValue ?? 1;
 
     var colorsLog = new List<GrpcColorsTrace>();
@@ -78,7 +77,6 @@
       foreach (var thread in traceDiagram.Threads)
       {
         var colorsTrace = new List<GrpcColoredRectangle>();
-        var lastX = 0.0;
         foreach (var @event in thread.Events)
         {
           if (!colors.ContainsKey(@event.Name))
@@ -89,19 +87,11 @@
           }
 
           var rectX = @event.Stamp * scale;
-          if (lastX < rectX)
-          {
-            colorsTrace.Add(NewRect(colors[BackgroundKey], lastX, rectX - lastX));
-          }
-
           colorsTrace.Add(NewRect(colors[@event.Name], rectX, RectWidth));
-          lastX = rectX + RectWidth;
         }
 
         colorsLog.Add(NewTrace(colorsTrace));
       }
-
-      colorsLog.Add(NewTrace([NewRect(colors[SeparatorKey], 0, maxWidth * scale)]));
     }
 
     return new GrpcColorsEventLog
@@ -150,22 +140,6 @@
       colorsTrace
     }
   };
-
-  private static uint CalculateMaxWidth(GrpcLogTimelineDiagram diagram)
-  {
-    var maxStamp = 0ul;
-    var maxEvents = 0ul;
-    foreach (var traceDiagram in diagram.Traces)
-    {
-      foreach (var thread in traceDiagram.Threads)
-      {
-        maxStamp = Math.Max(maxStamp, thread.Events.Last().Stamp);
-        maxEvents = Math.Max(maxEvents, (ulong)thread.Events.Count);
-      }
-    }
-
-    return (uint)(maxStamp + maxEvents);
-  }
 
   private static GrpcColoredRectangle NewRect(uint colorIndex, double startX, double length) => new()
   {
