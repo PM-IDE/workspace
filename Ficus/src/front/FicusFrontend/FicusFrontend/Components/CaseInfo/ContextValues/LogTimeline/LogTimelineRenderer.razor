@@ -92,6 +92,9 @@
 
         colorsLog.Add(NewTrace(colorsTrace));
       }
+
+      var maxWidth = traceDiagram.Threads.Select(t => (t.Events.LastOrDefault()?.Stamp ?? 0) * scale).Max();
+      colorsLog.Add(NewTrace([NewRect(colors[SeparatorKey], 0, maxWidth)]));
     }
 
     return new GrpcColorsEventLog
