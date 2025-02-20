@@ -1,0 +1,27 @@
+﻿<DoubleInput @ref="myWidthScaleInput"
+             Title="Width Scale"
+             InitialValue="myWidthScaleInputInitialValue"
+             Max="100"
+             Min="0"/>
+
+<DoubleInput @ref="myHeightScaleInput"
+             Title="Height Scale"
+             InitialValue="myHeightScaleInitialValue"
+             Max="100"
+             Min="0"/>
+
+@code {
+  private double myWidthScaleInputInitialValue = 1;
+  private double myHeightScaleInitialValue = 1;
+  
+  private DoubleInput? myWidthScaleInput;
+  private DoubleInput? myHeightScaleInput;
+
+
+  [Parameter] public required double WidthScaleInitialValue { get; init; }
+  [Parameter] public required double HeightScaleInitialValue { get; init; }
+
+
+  public double WidthScale => myWidthScaleInput?.CurrentValue ?? myWidthScaleInputInitialValue;
+  public double HeightScale => myHeightScaleInput?.CurrentValue ?? myHeightScaleInitialValue;
+}
