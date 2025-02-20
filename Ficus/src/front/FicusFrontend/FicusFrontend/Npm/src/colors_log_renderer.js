@@ -1,8 +1,8 @@
 ﻿const AxisDelta = 5;
 const AxisWidth = 2;
 
-const DefaultRectWidth = 5;
-const DefaultRectHeight = 5;
+const DefaultRectWidth = 1;
+const DefaultRectHeight = 1;
 const AxisTextHeight = 14;
 
 export function setDrawColorsLog() {
@@ -26,7 +26,7 @@ function getRectDimensions(widthScale, heightScale) {
 
 async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let canvas = document.getElementById(canvasId);
-  let context = canvas.getContext('2d');
+  let context = canvas.getContext("2d");
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
   let canvasDimensions = calculateCanvasWidthAndHeight(log, rectWidth, rectHeight);
