@@ -148,7 +148,7 @@ def _draw_traces_diversity_like_diagram_internal(log: Union[MyEventLog, list[lis
                   bbox_to_anchor=(0.5, -0.15),
                   fontsize=20)
 
-    y_ticks_count = len(log) * height_scale + 1
+    y_ticks_count = int(len(log) * height_scale + 1)
     y_ticks = ['' for _ in range(y_ticks_count)]
     y_ticks[0] = '0'
     y_ticks[-1] = f'{int((len(y_ticks) - 1) / height_scale)}'
@@ -167,6 +167,8 @@ def _draw_traces_diversity_like_diagram_internal(log: Union[MyEventLog, list[lis
             x_ticks_count = max(x_ticks_count, trace_len)
     else:
         x_ticks_count = 0
+
+    x_ticks_count = int(x_ticks_count)
 
     x_ticks = ['' for _ in range(x_ticks_count)]
     x_ticks[0] = '0'
