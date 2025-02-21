@@ -145,8 +145,8 @@
     {
       ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer @key="wrapper.Id" TimelineDiagram="contextValue.LogTimelineDiagram" />,
       ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="wrapper.Id"
-                                                                  Log="contextValue.ColorsLog"/>,
+      ContextValueOneofCase.ColorsLog => @<DefaultColorsLogRenderer @key="wrapper.Id"
+                                                                    Log="contextValue.ColorsLog"/>,
 
       ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
                                                            PetriNet="contextValue.PetriNet"/>,

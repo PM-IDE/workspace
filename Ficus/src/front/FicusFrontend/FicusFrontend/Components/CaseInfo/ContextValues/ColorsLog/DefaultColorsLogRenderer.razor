@@ -1,0 +1,21 @@
+﻿@using Ficus
+
+<WidthAndHeightScale @ref="myWidthAndHeightScale"
+                     WidthScaleInitialValue="1"
+                     HeightScaleInitialValue="1" />
+
+
+<div style="margin-top: 10px">
+  <ColorsEventLogRenderer @ref="myRenderer"
+                          Log="Log"
+                          WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
+                          HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)" />
+</div>
+
+@code {
+  private ColorsEventLogRenderer? myRenderer;
+  private WidthAndHeightScale? myWidthAndHeightScale;
+
+  
+  [Parameter] public required GrpcColorsEventLog Log { get; init; }
+}
