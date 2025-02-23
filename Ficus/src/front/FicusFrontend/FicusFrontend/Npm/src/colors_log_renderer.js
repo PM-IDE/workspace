@@ -75,7 +75,8 @@ function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight) {
 }
 
 function drawAxis(context, log, canvasWidth, canvasHeight, colors) {
-  context.fillStyle = colors.axis;
+  context.fillStyle = rgbToHex(colors.axis);
+
   context.fillRect(AxisDelta, AxisTextHeight, AxisWidth, canvasHeight - AxisDelta - 2 * AxisTextHeight);
   
   let horizontalAxisY = canvasHeight - AxisDelta - AxisWidth - AxisTextHeight;

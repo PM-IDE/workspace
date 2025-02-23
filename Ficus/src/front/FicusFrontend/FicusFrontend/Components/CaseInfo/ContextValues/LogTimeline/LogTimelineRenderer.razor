@@ -102,12 +102,12 @@
       new()
       {
         Name = nameof(BackgroundKey),
-        Color = NewColor(CanvasColors.Instance.Background)
+        Color = CanvasColors.Instance.Background
       },
       new()
       {
         Name = nameof(SeparatorKey),
-        Color = NewColor(CanvasColors.Instance.Axis)
+        Color = CanvasColors.Instance.Axis
       }
     };
 
@@ -134,13 +134,6 @@
   {
     Color = color,
     Name = name
-  };
-
-  private static GrpcColor NewColor(Color color) => new()
-  {
-    Red = color.R,
-    Green = color.G,
-    Blue = color.B
   };
 
   class ColorsGenerator
