@@ -1,15 +1,21 @@
 ﻿@using Ficus
+@using Radzen.Blazor
 
-<WidthAndHeightScale @ref="myWidthAndHeightScale"
-                     WidthScaleInitialValue="1"
-                     HeightScaleInitialValue="1" />
+<div style="margin: 10px;">
+  <WidthAndHeightScale @ref="myWidthAndHeightScale"
+                       WidthScaleInitialValue="1"
+                       HeightScaleInitialValue="1" />
 
+  <div style="margin-top: 10px">
+    <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
+  </div>
 
-<div style="margin-top: 10px">
-  <ColorsEventLogRenderer @ref="myRenderer"
-                          Log="Log"
-                          WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
-                          HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)" />
+  <div style="margin-top: 10px">
+    <ColorsEventLogRenderer @ref="myRenderer"
+                            Log="Log"
+                            WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
+                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)" />
+  </div>
 </div>
 
 @code {
@@ -18,4 +24,6 @@
 
   
   [Parameter] public required GrpcColorsEventLog Log { get; init; }
+
+  private void RedrawCanvas() => myRenderer?.RedrawCanvas();
 }
