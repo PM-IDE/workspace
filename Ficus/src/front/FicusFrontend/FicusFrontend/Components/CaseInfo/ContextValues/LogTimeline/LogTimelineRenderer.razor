@@ -6,26 +6,27 @@
 @inject IJSRuntime Js;
 
 <div style="margin: 10px;">
-  <DoubleInput @ref="myScaleInput"
-               Title="Start Position Scale"
-               InitialValue="1"
-               Max="100"
-               Min="0"/>
+  <div style="display: flex; flex-direction: row; column-gap: 10px;">
+    <DoubleInput @ref="myScaleInput"
+                 Title="Start Position Scale"
+                 InitialValue="1"
+                 Max="100"
+                 Min="0"/>
 
-  <WidthAndHeightScale @ref="myWidthAndHeightScale"
-                       WidthScaleInitialValue="1"
-                       HeightScaleInitialValue="1" />
-
+    <WidthAndHeightScale @ref="myWidthAndHeightScale"
+                         WidthScaleInitialValue="1"
+                         HeightScaleInitialValue="1"/>
+  </div>
 
   <div class="rerender-button-container">
     <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
   </div>
 
   <div style="margin-top: 10px">
-    <ColorsEventLogRenderer @ref="myRenderer" 
-                            Log="FromTimeline()" 
+    <ColorsEventLogRenderer @ref="myRenderer"
+                            Log="FromTimeline()"
                             WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
-                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)" />
+                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)"/>
   </div>
 </div>
 

@@ -1,22 +1,24 @@
 ﻿@using System.Globalization
 
 <div>
-  @Title
-</div>
+  <div>
+    @Title
+  </div>
 
-<div style="width: 100px">
-  <input class="input-number"
-         min="@Min"
-         max="@Max"
-         value="@InitialValue.ToString(CultureInfo.InvariantCulture)"
-         title="@Title"
-         @oninput="@(e =>
-                    {
-                      if (e.Value is { } value && double.TryParse((string)value, CultureInfo.InvariantCulture, out var parsedValue))
-                      {
-                        CurrentValue = parsedValue;
-                      }
-                    })" />
+  <div>
+    <input class="input-number"
+           min="@Min"
+           max="@Max"
+           value="@InitialValue.ToString(CultureInfo.InvariantCulture)"
+           title="@Title"
+           @oninput="@(e =>
+                     {
+                       if (e.Value is { } value && double.TryParse((string)value, CultureInfo.InvariantCulture, out var parsedValue))
+                       {
+                         CurrentValue = parsedValue;
+                       }
+                     })" />
+  </div>
 </div>
 
 @code {
