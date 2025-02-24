@@ -4,7 +4,7 @@
 <div class="case-list-item">
   <Tooltip Title="@ListItemInfo.Name" Placement="TooltipPlacement.Right">
     <div class="case-list-item-tooltip-container">
-      @if (Icon is { })
+      @if (Icon is not null)
       {
         <div class="case-list-item-name-icon">
           <img src="@Icon" alt="List item icon"/>
@@ -21,8 +21,8 @@
   </div>
 
   <div class="@CaseNotificationClass"></div>
-  
-  <CaseNameHierarchy NameParts="ListItemInfo.NameParts" />
+
+  <CaseNameHierarchy NameParts="ListItemInfo.NameParts"/>
 </div>
 
 @code

@@ -15,6 +15,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "canvas-size": "^2.0.0",
     "cytoscape": "^3.30.2",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-svg": "^0.4.0",

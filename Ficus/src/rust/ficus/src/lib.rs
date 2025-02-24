@@ -5,5 +5,5 @@ pub mod pipelines;
 pub mod utils;
 
 pub mod ficus_proto {
-    tonic::include_proto!("ficus");
+  tonic::include_proto!("ficus");
 }

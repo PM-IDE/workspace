@@ -3,28 +3,28 @@ syntax = "proto3";
 package ficus;
 
 message GrpcGuid {
-    string guid = 1;
+  string guid = 1;
 }
 
 message GrpcColor {
-    uint32 red = 1;
-    uint32 green = 2;
-    uint32 blue = 3;
+  uint32 red = 1;
+  uint32 green = 2;
+  uint32 blue = 3;
 }
 
 message GrpcUuid {
-    string uuid = 1;
+  string uuid = 1;
 }
 
 message GrpcStringKeyValue {
-    string key = 1;
-    string value = 2;
+  string key = 1;
+  string value = 2;
 }
 
 message GrpcTimeSpan {
-    uint64 nanoseconds = 1;
+  uint64 nanoseconds = 1;
 }
 
 message GrpcDateTime {
-    uint64 nanosSinceUnixEpoch = 1;
+  uint64 nanosSinceUnixEpoch = 1;
 }

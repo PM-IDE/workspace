@@ -5,6 +5,7 @@ use bxes::models::system_models::SystemMetadata;
 
 use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
+use ficus::features::analysis::threads_diagram::discovery::LogTimelineDiagram;
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
@@ -18,17 +19,17 @@ use ficus::utils::distance::distance::FicusDistance;
 use ficus::utils::graph::graph::DefaultGraph;
 use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
-    event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
-    features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
-    pipelines::{
-        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
-        pipelines::Pipeline,
-    },
-    utils::{
-        colors::ColorsHolder,
-        user_data::{keys::Key, user_data::UserData},
-    },
-    vecs,
+  event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
+  features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
+  pipelines::{
+    aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
+    pipelines::Pipeline,
+  },
+  utils::{
+    colors::ColorsHolder,
+    user_data::{keys::Key, user_data::UserData},
+  },
+  vecs,
 };
 
 #[test]
@@ -112,17 +113,20 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_existence::<Vec<String>>(&PATHS, &mut used);
+    assert_existence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
+    assert_existence::<String>(&TIME_ATTRIBUTE, &mut used);
+    assert_existence::<String>(&THREAD_ATTRIBUTE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
 
 fn assert_existence<T: 'static>(name: &str, used: &mut HashSet<String>) {
-    if used.contains(name) {
-        assert!(false)
-    }
+  if used.contains(name) {
+    assert!(false)
+  }
 
-    used.insert(name.to_owned());
-    assert!(find_context_key(name).is_some());
+  used.insert(name.to_owned());
+  assert!(find_context_key(name).is_some());
 }
 
 #[rustfmt::skip]
@@ -202,15 +206,18 @@ fn get_all_keys_names() -> Vec<String> {
         "attribute",
         "time_annotation_kind",
         "attributes",
-        "paths"
+        "paths",
+        "log_threads_diagram",
+        "thread_attribute",
+        "time_attribute"
     ]
 }
 
 #[test]
 fn test_event_log_alls() {
-    for key_name in get_all_keys_names() {
-        assert!(find_context_key(&key_name).is_some());
-    }
+  for key_name in get_all_keys_names() {
+    assert!(find_context_key(&key_name).is_some());
+  }
 }
 
 #[test]
@@ -294,18 +301,21 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_keys_equivalence::<Vec<String>>(&PATHS, &mut used);
+    assert_keys_equivalence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
+    assert_keys_equivalence::<String>(&TIME_ATTRIBUTE, &mut used);
+    assert_keys_equivalence::<String>(&THREAD_ATTRIBUTE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
 
 fn assert_keys_equivalence<T: 'static>(name: &str, used: &mut HashSet<String>) {
-    if used.contains(name) {
-        assert!(false)
-    }
+  if used.contains(name) {
+    assert!(false)
+  }
 
-    used.insert(name.to_owned());
-    assert_eq!(
-        find_context_key(name).unwrap().key().id(),
-        find_context_key(name).unwrap().key().id()
-    );
+  used.insert(name.to_owned());
+  assert_eq!(
+    find_context_key(name).unwrap().key().id(),
+    find_context_key(name).unwrap().key().id()
+  );
 }

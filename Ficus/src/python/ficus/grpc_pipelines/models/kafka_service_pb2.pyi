@@ -10,14 +10,22 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class GrpcExecutePipelineAndProduceKafkaRequest(_message.Message):
-    __slots__ = ["pipelineRequest", "producerMetadata", "caseInfo"]
+    __slots__ = ["pipelineRequest", "producerMetadata", "caseInfo", "subscriptionId", "pipelineId", "pipelineName", "subscriptionName"]
     PIPELINEREQUEST_FIELD_NUMBER: _ClassVar[int]
     PRODUCERMETADATA_FIELD_NUMBER: _ClassVar[int]
     CASEINFO_FIELD_NUMBER: _ClassVar[int]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINENAME_FIELD_NUMBER: _ClassVar[int]
+    SUBSCRIPTIONNAME_FIELD_NUMBER: _ClassVar[int]
     pipelineRequest: _backend_service_pb2.GrpcProxyPipelineExecutionRequest
     producerMetadata: GrpcKafkaConnectionMetadata
     caseInfo: GrpcProcessInfo
-    def __init__(self, pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcProxyPipelineExecutionRequest, _Mapping]] = ..., producerMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ..., caseInfo: _Optional[_Union[GrpcProcessInfo, _Mapping]] = ...) -> None: ...
+    subscriptionId: _util_pb2.GrpcGuid
+    pipelineId: _util_pb2.GrpcGuid
+    pipelineName: str
+    subscriptionName: str
+    def __init__(self, pipelineRequest: _Optional[_Union[_backend_service_pb2.GrpcProxyPipelineExecutionRequest, _Mapping]] = ..., producerMetadata: _Optional[_Union[GrpcKafkaConnectionMetadata, _Mapping]] = ..., caseInfo: _Optional[_Union[GrpcProcessInfo, _Mapping]] = ..., subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineName: _Optional[str] = ..., subscriptionName: _Optional[str] = ...) -> None: ...
 
 class GrpcProcessInfo(_message.Message):
     __slots__ = ["processName", "caseName"]

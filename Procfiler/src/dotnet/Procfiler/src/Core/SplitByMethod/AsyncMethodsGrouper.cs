@@ -26,10 +26,8 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
     IDictionary<long, IEventsCollection> managedThreadsEvents)
   {
     var result = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
-    var onlineGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(logger, AsyncMethodsPrefix, (method, traces) =>
-    {
-      result.GetOrCreate(method, static () => []).AddRange(traces);
-    });
+    var onlineGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(logger, AsyncMethodsPrefix,
+      (method, traces) => { result.GetOrCreate(method, static () => []).AddRange(traces); });
 
     foreach (var (_, events) in managedThreadsEvents)
     {

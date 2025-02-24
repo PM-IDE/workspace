@@ -3,6 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
+use crate::features::analysis::threads_diagram::discovery::LogTimelineDiagram;
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
@@ -17,15 +18,15 @@ use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
-    event_log::xes::xes_event_log::XesEventLogImpl,
-    features::analysis::patterns::{
-        activity_instances::{ActivityInTraceInfo, AdjustingMode},
-        contexts::PatternsDiscoveryStrategy,
-        repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
-        tandem_arrays::SubArrayInTraceInfo,
-    },
-    pipelines::pipelines::Pipeline,
-    utils::colors::ColorsHolder,
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::analysis::patterns::{
+    activity_instances::{ActivityInTraceInfo, AdjustingMode},
+    contexts::PatternsDiscoveryStrategy,
+    repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
+    tandem_arrays::SubArrayInTraceInfo,
+  },
+  pipelines::pipelines::Pipeline,
+  utils::colors::ColorsHolder,
 };
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
@@ -113,6 +114,9 @@ pub const ATTRIBUTE: &'static str = "attribute";
 pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
 pub const ATTRIBUTES: &'static str = "attributes";
 pub const PATHS: &'static str = "paths";
+pub const LOG_TIMELINE_DIAGRAM: &'static str = "log_timeline_diagram";
+pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
+pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -201,84 +205,90 @@ lazy_static!(
      pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
      pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
      pub static ref PATHS_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(PATHS);
+     pub static ref LOG_THREADS_DIAGRAM_KEY: DefaultContextKey<LogTimelineDiagram> = DefaultContextKey::new(LOG_TIMELINE_DIAGRAM);
+     pub static ref THREAD_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(THREAD_ATTRIBUTE);
+     pub static ref TIME_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(TIME_ATTRIBUTE);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
-    match name {
-        PATH => Some(PATH_KEY.deref() as &dyn ContextKey),
-        TANDEM_ARRAY_LENGTH => Some(TANDEM_ARRAY_LENGTH_KEY.deref() as &dyn ContextKey),
-        ACTIVITY_LEVEL => Some(ACTIVITY_LEVEL_KEY.deref() as &dyn ContextKey),
-        NARROW_ACTIVITIES => Some(NARROW_ACTIVITIES_KEY.deref() as &dyn ContextKey),
-        EVENT_NAME => Some(EVENT_NAME_KEY.deref() as &dyn ContextKey),
-        REGEX => Some(REGEX_KEY.deref() as &dyn ContextKey),
-        PATTERNS_DISCOVERY_STRATEGY => Some(PATTERNS_DISCOVERY_STRATEGY_KEY.deref() as &dyn ContextKey),
-        OUTPUT_STRING => Some(OUTPUT_STRING_KEY.deref() as &dyn ContextKey),
-        EVENT_LOG_INFO => Some(EVENT_LOG_INFO_KEY.deref() as &dyn ContextKey),
-        UNDERLYING_EVENTS_COUNT => Some(UNDERLYING_EVENTS_COUNT_KEY.deref() as &dyn ContextKey),
-        EVENTS_COUNT => Some(EVENTS_COUNT_KEY.deref() as &dyn ContextKey),
-        EVENT_CLASSES_REGEXES => Some(EVENT_CLASSES_REGEXES_KEY.deref() as &dyn ContextKey),
-        ADJUSTING_MODE => Some(ADJUSTING_MODE_KEY.deref() as &dyn ContextKey),
-        EVENT_CLASS_REGEX => Some(EVENT_CLASS_REGEX_KEY.deref() as &dyn ContextKey),
-        PATTERNS_KIND => Some(PATTERNS_KIND_KEY.deref() as &dyn ContextKey),
-        PIPELINE => Some(PIPELINE_KEY.deref() as &dyn ContextKey),
-        MIN_ACTIVITY_LENGTH => Some(MIN_ACTIVITY_LENGTH_KEY.deref() as &dyn ContextKey),
-        UNDEF_ACTIVITY_HANDLING_STRATEGY => Some(UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY.deref() as &dyn ContextKey),
-        ACTIVITY_IN_TRACE_FILTER_KIND => Some(ACTIVITY_IN_TRACE_FILTER_KIND_KEY.deref() as &dyn ContextKey),
-        ACTIVITIES_LOGS_SOURCE => Some(ACTIVITIES_LOGS_SOURCE_KEY.deref() as &dyn ContextKey),
-        PNML_USE_NAMES_AS_IDS => Some(PNML_USE_NAMES_AS_IDS_KEY.deref() as &dyn ContextKey),
-        DEPENDENCY_THRESHOLD => Some(DEPENDENCY_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        POSITIVE_OBSERVATIONS_THRESHOLD => Some(POSITIVE_OBSERVATIONS_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        RELATIVE_TO_BEST_THRESHOLD => Some(RELATIVE_TO_BEST_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        AND_THRESHOLD => Some(AND_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        LOOP_LENGTH_TWO_THRESHOLD => Some(LOOP_LENGTH_TWO_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        UNARY_FREQUENCY_THRESHOLD => Some(UNARY_FREQUENCY_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD => Some(BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        PRESERVE_THRESHOLD => Some(PRESERVE_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        RATIO_THRESHOLD => Some(RATIO_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        UTILITY_RATE => Some(UTILITY_RATE_KEY.deref() as &dyn ContextKey),
-        EDGE_CUTOFF_THRESHOLD => Some(EDGE_CUTOFF_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        NODE_CUTOFF_THRESHOLD => Some(NODE_CUTOFF_THRESHOLD_KEY.deref() as &dyn ContextKey),
-        TERMINATE_ON_UNREPLAYABLE_TRACES => Some(TERMINATE_ON_UNREPLAYABLE_TRACES_KEY.deref() as &dyn ContextKey),
-        CLUSTERS_COUNT => Some(CLUSTERS_COUNT_KEY.deref() as &dyn ContextKey),
-        LEARNING_ITERATIONS_COUNT => Some(LEARNING_ITERATIONS_COUNT_KEY.deref() as &dyn ContextKey),
-        TOLERANCE => Some(TOLERANCE_KEY.deref() as &dyn ContextKey),
-        MIN_EVENTS_IN_CLUSTERS_COUNT => Some(MIN_EVENTS_IN_CLUSTERS_COUNT_KEY.deref() as &dyn ContextKey),
-        EVENT_LOG_NAME => Some(EVENT_LOG_NAME_KEY.deref() as &dyn ContextKey),
-        BYTES => Some(BYTES_KEY.deref() as &dyn ContextKey),
-        EVENT_LOG => Some(EVENT_LOG_KEY.deref() as &dyn ContextKey),
-        ACTIVITIES => Some(ACTIVITIES_KEY.deref() as &dyn ContextKey),
-        REPEAT_SETS => Some(REPEAT_SETS_KEY.deref() as &dyn ContextKey),
-        TRACE_ACTIVITIES => Some(TRACE_ACTIVITIES_KEY.deref() as &dyn ContextKey),
-        PATTERNS => Some(PATTERNS_KEY.deref() as &dyn ContextKey),
-        PETRI_NET => Some(PETRI_NET_KEY.deref() as &dyn ContextKey),
-        ACTIVITIES_TO_LOGS => Some(ACTIVITIES_TO_LOGS_KEY.deref() as &dyn ContextKey),
-        ACTIVITY_NAME => Some(ACTIVITY_NAME_KEY.deref() as &dyn ContextKey),
-        HASHES_EVENT_LOG => Some(HASHES_EVENT_LOG_KEY.deref() as &dyn ContextKey),
-        NAMES_EVENT_LOG => Some(NAMES_EVENT_LOG_KEY.deref() as &dyn ContextKey),
-        COLORS_EVENT_LOG => Some(COLORS_EVENT_LOG_KEY.deref() as &dyn ContextKey),
-        COLORS_HOLDER => Some(COLORS_HOLDER_KEY.deref() as &dyn ContextKey),
-        GRAPH => Some(GRAPH_KEY.deref() as &dyn ContextKey),
-        PETRI_NET_COUNT_ANNOTATION => Some(PETRI_NET_COUNT_ANNOTATION_KEY.deref() as &dyn ContextKey),
-        PETRI_NET_FREQUENCY_ANNOTATION => Some(PETRI_NET_FREQUENCY_ANNOTATION_KEY.deref() as &dyn ContextKey),
-        PETRI_NET_TRACE_FREQUENCY_ANNOTATION => Some(PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY.deref() as &dyn ContextKey),
-        TRACES_ACTIVITIES_DATASET => Some(TRACES_ACTIVITIES_DATASET_KEY.deref() as &dyn ContextKey),
-        LABELED_TRACES_ACTIVITIES_DATASET => Some(LABELED_TRACES_ACTIVITIES_DATASET_KEY.deref() as &dyn ContextKey),
-        ACTIVITIES_REPR_SOURCE => Some(ACTIVITIES_REPR_SOURCE_KEY.deref() as &dyn ContextKey),
-        DISTANCE => Some(DISTANCE_KEY.deref() as &dyn ContextKey),
-        EXECUTE_ONLY_ON_LAST_EXTRACTION => Some(EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY.deref() as &dyn ContextKey),
-        LABELED_LOG_TRACES_DATASET => Some(LABELED_LOG_TRACES_DATASET_KEY.deref() as &dyn ContextKey),
-        LOG_TRACES_DATASET => Some(LOG_TRACES_DATASET_KEY.deref() as &dyn ContextKey),
-        TRACES_REPR_SOURCE => Some(TRACES_REPRESENTATION_SOURCE_KEY.deref() as &dyn ContextKey),
-        SYSTEM_METADATA => Some(SYSTEM_METADATA_KEY.deref() as &dyn ContextKey),
-        LOG_SERIALIZATION_FORMAT => Some(LOG_SERIALIZATION_FORMAT_KEY.deref() as &dyn ContextKey),
-        START_CASE_REGEX_STR => Some(START_CASE_REGEX.deref() as &dyn ContextKey),
-        END_CASE_REGEX_STR => Some(END_CASE_REGEX.deref() as &dyn ContextKey),
-        INLINE_INNER_CASES_STR => Some(INLINE_INNER_CASES.deref() as &dyn ContextKey),
-        GRAPH_TIME_ANNOTATION => Some(GRAPH_TIME_ANNOTATION_KEY.deref() as &dyn ContextKey),
-        ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
-        TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
-        ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
-        PATHS => Some(PATHS_KEY.deref() as &dyn ContextKey),
-        _ => None,
-    }
+  match name {
+    PATH => Some(PATH_KEY.deref() as &dyn ContextKey),
+    TANDEM_ARRAY_LENGTH => Some(TANDEM_ARRAY_LENGTH_KEY.deref() as &dyn ContextKey),
+    ACTIVITY_LEVEL => Some(ACTIVITY_LEVEL_KEY.deref() as &dyn ContextKey),
+    NARROW_ACTIVITIES => Some(NARROW_ACTIVITIES_KEY.deref() as &dyn ContextKey),
+    EVENT_NAME => Some(EVENT_NAME_KEY.deref() as &dyn ContextKey),
+    REGEX => Some(REGEX_KEY.deref() as &dyn ContextKey),
+    PATTERNS_DISCOVERY_STRATEGY => Some(PATTERNS_DISCOVERY_STRATEGY_KEY.deref() as &dyn ContextKey),
+    OUTPUT_STRING => Some(OUTPUT_STRING_KEY.deref() as &dyn ContextKey),
+    EVENT_LOG_INFO => Some(EVENT_LOG_INFO_KEY.deref() as &dyn ContextKey),
+    UNDERLYING_EVENTS_COUNT => Some(UNDERLYING_EVENTS_COUNT_KEY.deref() as &dyn ContextKey),
+    EVENTS_COUNT => Some(EVENTS_COUNT_KEY.deref() as &dyn ContextKey),
+    EVENT_CLASSES_REGEXES => Some(EVENT_CLASSES_REGEXES_KEY.deref() as &dyn ContextKey),
+    ADJUSTING_MODE => Some(ADJUSTING_MODE_KEY.deref() as &dyn ContextKey),
+    EVENT_CLASS_REGEX => Some(EVENT_CLASS_REGEX_KEY.deref() as &dyn ContextKey),
+    PATTERNS_KIND => Some(PATTERNS_KIND_KEY.deref() as &dyn ContextKey),
+    PIPELINE => Some(PIPELINE_KEY.deref() as &dyn ContextKey),
+    MIN_ACTIVITY_LENGTH => Some(MIN_ACTIVITY_LENGTH_KEY.deref() as &dyn ContextKey),
+    UNDEF_ACTIVITY_HANDLING_STRATEGY => Some(UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY.deref() as &dyn ContextKey),
+    ACTIVITY_IN_TRACE_FILTER_KIND => Some(ACTIVITY_IN_TRACE_FILTER_KIND_KEY.deref() as &dyn ContextKey),
+    ACTIVITIES_LOGS_SOURCE => Some(ACTIVITIES_LOGS_SOURCE_KEY.deref() as &dyn ContextKey),
+    PNML_USE_NAMES_AS_IDS => Some(PNML_USE_NAMES_AS_IDS_KEY.deref() as &dyn ContextKey),
+    DEPENDENCY_THRESHOLD => Some(DEPENDENCY_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    POSITIVE_OBSERVATIONS_THRESHOLD => Some(POSITIVE_OBSERVATIONS_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    RELATIVE_TO_BEST_THRESHOLD => Some(RELATIVE_TO_BEST_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    AND_THRESHOLD => Some(AND_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    LOOP_LENGTH_TWO_THRESHOLD => Some(LOOP_LENGTH_TWO_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    UNARY_FREQUENCY_THRESHOLD => Some(UNARY_FREQUENCY_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD => Some(BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    PRESERVE_THRESHOLD => Some(PRESERVE_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    RATIO_THRESHOLD => Some(RATIO_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    UTILITY_RATE => Some(UTILITY_RATE_KEY.deref() as &dyn ContextKey),
+    EDGE_CUTOFF_THRESHOLD => Some(EDGE_CUTOFF_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    NODE_CUTOFF_THRESHOLD => Some(NODE_CUTOFF_THRESHOLD_KEY.deref() as &dyn ContextKey),
+    TERMINATE_ON_UNREPLAYABLE_TRACES => Some(TERMINATE_ON_UNREPLAYABLE_TRACES_KEY.deref() as &dyn ContextKey),
+    CLUSTERS_COUNT => Some(CLUSTERS_COUNT_KEY.deref() as &dyn ContextKey),
+    LEARNING_ITERATIONS_COUNT => Some(LEARNING_ITERATIONS_COUNT_KEY.deref() as &dyn ContextKey),
+    TOLERANCE => Some(TOLERANCE_KEY.deref() as &dyn ContextKey),
+    MIN_EVENTS_IN_CLUSTERS_COUNT => Some(MIN_EVENTS_IN_CLUSTERS_COUNT_KEY.deref() as &dyn ContextKey),
+    EVENT_LOG_NAME => Some(EVENT_LOG_NAME_KEY.deref() as &dyn ContextKey),
+    BYTES => Some(BYTES_KEY.deref() as &dyn ContextKey),
+    EVENT_LOG => Some(EVENT_LOG_KEY.deref() as &dyn ContextKey),
+    ACTIVITIES => Some(ACTIVITIES_KEY.deref() as &dyn ContextKey),
+    REPEAT_SETS => Some(REPEAT_SETS_KEY.deref() as &dyn ContextKey),
+    TRACE_ACTIVITIES => Some(TRACE_ACTIVITIES_KEY.deref() as &dyn ContextKey),
+    PATTERNS => Some(PATTERNS_KEY.deref() as &dyn ContextKey),
+    PETRI_NET => Some(PETRI_NET_KEY.deref() as &dyn ContextKey),
+    ACTIVITIES_TO_LOGS => Some(ACTIVITIES_TO_LOGS_KEY.deref() as &dyn ContextKey),
+    ACTIVITY_NAME => Some(ACTIVITY_NAME_KEY.deref() as &dyn ContextKey),
+    HASHES_EVENT_LOG => Some(HASHES_EVENT_LOG_KEY.deref() as &dyn ContextKey),
+    NAMES_EVENT_LOG => Some(NAMES_EVENT_LOG_KEY.deref() as &dyn ContextKey),
+    COLORS_EVENT_LOG => Some(COLORS_EVENT_LOG_KEY.deref() as &dyn ContextKey),
+    COLORS_HOLDER => Some(COLORS_HOLDER_KEY.deref() as &dyn ContextKey),
+    GRAPH => Some(GRAPH_KEY.deref() as &dyn ContextKey),
+    PETRI_NET_COUNT_ANNOTATION => Some(PETRI_NET_COUNT_ANNOTATION_KEY.deref() as &dyn ContextKey),
+    PETRI_NET_FREQUENCY_ANNOTATION => Some(PETRI_NET_FREQUENCY_ANNOTATION_KEY.deref() as &dyn ContextKey),
+    PETRI_NET_TRACE_FREQUENCY_ANNOTATION => Some(PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY.deref() as &dyn ContextKey),
+    TRACES_ACTIVITIES_DATASET => Some(TRACES_ACTIVITIES_DATASET_KEY.deref() as &dyn ContextKey),
+    LABELED_TRACES_ACTIVITIES_DATASET => Some(LABELED_TRACES_ACTIVITIES_DATASET_KEY.deref() as &dyn ContextKey),
+    ACTIVITIES_REPR_SOURCE => Some(ACTIVITIES_REPR_SOURCE_KEY.deref() as &dyn ContextKey),
+    DISTANCE => Some(DISTANCE_KEY.deref() as &dyn ContextKey),
+    EXECUTE_ONLY_ON_LAST_EXTRACTION => Some(EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY.deref() as &dyn ContextKey),
+    LABELED_LOG_TRACES_DATASET => Some(LABELED_LOG_TRACES_DATASET_KEY.deref() as &dyn ContextKey),
+    LOG_TRACES_DATASET => Some(LOG_TRACES_DATASET_KEY.deref() as &dyn ContextKey),
+    TRACES_REPR_SOURCE => Some(TRACES_REPRESENTATION_SOURCE_KEY.deref() as &dyn ContextKey),
+    SYSTEM_METADATA => Some(SYSTEM_METADATA_KEY.deref() as &dyn ContextKey),
+    LOG_SERIALIZATION_FORMAT => Some(LOG_SERIALIZATION_FORMAT_KEY.deref() as &dyn ContextKey),
+    START_CASE_REGEX_STR => Some(START_CASE_REGEX.deref() as &dyn ContextKey),
+    END_CASE_REGEX_STR => Some(END_CASE_REGEX.deref() as &dyn ContextKey),
+    INLINE_INNER_CASES_STR => Some(INLINE_INNER_CASES.deref() as &dyn ContextKey),
+    GRAPH_TIME_ANNOTATION => Some(GRAPH_TIME_ANNOTATION_KEY.deref() as &dyn ContextKey),
+    ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
+    TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
+    ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
+    PATHS => Some(PATHS_KEY.deref() as &dyn ContextKey),
+    LOG_TIMELINE_DIAGRAM => Some(LOG_THREADS_DIAGRAM_KEY.deref() as &dyn ContextKey),
+    THREAD_ATTRIBUTE => Some(THREAD_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
+    TIME_ATTRIBUTE => Some(TIME_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
+    _ => None,
+  }
 }

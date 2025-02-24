@@ -14,7 +14,7 @@ public static class SemaphoreSlimExtensions
       semaphoreSlim.Release();
     }
   }
-  
+
   public static async Task<T> Execute<T>(this SemaphoreSlim semaphoreSlim, Func<Task<T>> action)
   {
     try

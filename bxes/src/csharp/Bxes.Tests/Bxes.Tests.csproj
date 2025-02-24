@@ -1,25 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
-    </PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="NUnit"/>
-        <PackageReference Include="NUnit3TestAdapter"/>
-        <PackageReference Include="NUnit.Analyzers"/>
-        <PackageReference Include="coverlet.collector"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="NUnit"/>
+    <PackageReference Include="NUnit3TestAdapter"/>
+    <PackageReference Include="NUnit.Analyzers"/>
+    <PackageReference Include="coverlet.collector"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Bxes.Tests.Core\Bxes.Tests.Core.csproj"/>
-        <ProjectReference Include="..\Bxes\Bxes.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bxes.Tests.Core\Bxes.Tests.Core.csproj"/>
+    <ProjectReference Include="..\Bxes\Bxes.csproj"/>
+  </ItemGroup>
 
 </Project>

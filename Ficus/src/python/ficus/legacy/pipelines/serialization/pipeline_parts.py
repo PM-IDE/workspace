@@ -9,9 +9,9 @@ SavePathCreator = Callable[[PipelinePartResult], str]
 
 
 class SaveEventLogToXes(InternalPipelinePart):
-    def __init__(self, save_path_creator: SavePathCreator):
-        self.save_path_creator = save_path_creator
+  def __init__(self, save_path_creator: SavePathCreator):
+    self.save_path_creator = save_path_creator
 
-    def execute(self, current_input: PipelinePartResult) -> PipelinePartResult:
-        save_event_log_to_xes(log(current_input), self.save_path_creator(current_input))
-        return current_input
+  def execute(self, current_input: PipelinePartResult) -> PipelinePartResult:
+    save_event_log_to_xes(log(current_input), self.save_path_creator(current_input))
+    return current_input

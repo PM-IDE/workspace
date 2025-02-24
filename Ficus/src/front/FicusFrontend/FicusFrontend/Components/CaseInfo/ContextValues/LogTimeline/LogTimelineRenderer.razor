@@ -1,0 +1,166 @@
+﻿@using System.Drawing
+@using Ficus
+@using FicusFrontend.Components.CaseInfo.ContextValues.ColorsLog
+@using Radzen.Blazor
+
+@inject IJSRuntime Js;
+
+<div style="margin: 10px;">
+  <div style="display: flex; flex-direction: row; column-gap: 10px;">
+    <DoubleInput @ref="myScaleInput"
+                 Title="Start Position Scale"
+                 InitialValue="1"
+                 Max="100"
+                 Min="0"/>
+
+    <WidthAndHeightScale @ref="myWidthAndHeightScale"
+                         WidthScaleInitialValue="1"
+                         HeightScaleInitialValue="1"/>
+  </div>
+
+  <div class="rerender-button-container">
+    <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
+  </div>
+
+  <div style="margin-top: 10px">
+    <ColorsEventLogRenderer @ref="myRenderer"
+                            Log="FromTimeline()"
+                            WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
+                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)"/>
+  </div>
+</div>
+
+@code {
+  private const string BackgroundKey = nameof(BackgroundKey);
+  private const string SeparatorKey = nameof(SeparatorKey);
+  private const uint RectWidth = 1;
+  
+  private ColorsEventLogRenderer? myRenderer;
+  private DoubleInput? myScaleInput;
+  private WidthAndHeightScale? myWidthAndHeightScale;
+
+
+  [Parameter] public required GrpcLogTimelineDiagram TimelineDiagram { get; init; }
+
+
+  private void RedrawCanvas() => myRenderer?.RedrawCanvas();
+
+  private GrpcColorsEventLog FromTimeline()
+  {
+    var colorsGenerator = new ColorsGenerator();
+    var (colors, mappings) = InitState();
+    var scale = myScaleInput?.CurrentValue ?? 1;
+
+    var colorsLog = new List<GrpcColorsTrace>();
+    foreach (var traceDiagram in TimelineDiagram.Traces)
+    {
+      foreach (var thread in traceDiagram.Threads)
+      {
+        var colorsTrace = new List<GrpcColoredRectangle>();
+        foreach (var @event in thread.Events)
+        {
+          if (!colors.ContainsKey(@event.Name))
+          {
+            var color = colorsGenerator.Next();
+            colors[@event.Name] = (uint)colors.Count;
+            mappings.Add(NewMapping(@event.Name, color));
+          }
+
+          var rectX = @event.Stamp * scale;
+          colorsTrace.Add(NewRect(colors[@event.Name], rectX, RectWidth));
+        }
+
+        colorsLog.Add(NewTrace(colorsTrace));
+      }
+
+      var maxWidth = traceDiagram.Threads.Select(t => (t.Events.LastOrDefault()?.Stamp ?? 0) * scale).Max();
+      colorsLog.Add(NewTrace([NewRect(colors[SeparatorKey], 0, maxWidth)]));
+    }
+
+    return new GrpcColorsEventLog
+    {
+      Mapping =
+      {
+        mappings
+      },
+      Traces =
+      {
+        colorsLog
+      }
+    };
+  }
+
+  private static (Dictionary<string, uint>, List<GrpcColorsEventLogMapping>) InitState()
+  {
+    var colors = new Dictionary<string, uint>
+    {
+      [BackgroundKey] = 0,
+      [SeparatorKey] = 1
+    };
+
+    var mappings = new List<GrpcColorsEventLogMapping>
+    {
+      new()
+      {
+        Name = nameof(BackgroundKey),
+        Color = CanvasColors.Instance.Background
+      },
+      new()
+      {
+        Name = nameof(SeparatorKey),
+        Color = CanvasColors.Instance.Axis
+      }
+    };
+
+    return (colors, mappings);
+  }
+
+  private static GrpcColorsTrace NewTrace(List<GrpcColoredRectangle> colorsTrace) => new()
+  {
+    ConstantWidth = false,
+    EventColors =
+    {
+      colorsTrace
+    }
+  };
+
+  private static GrpcColoredRectangle NewRect(uint colorIndex, double startX, double length) => new()
+  {
+    ColorIndex = colorIndex,
+    StartX = startX,
+    Length = length
+  };
+
+  private static GrpcColorsEventLogMapping NewMapping(string name, GrpcColor color) => new()
+  {
+    Color = color,
+    Name = name
+  };
+
+  class ColorsGenerator
+  {
+    private readonly HashSet<(int, int, int)> myUsed = [(0, 0, 0), (255, 255, 255)];
+
+    public GrpcColor Next()
+    {
+      var color = GenerateRandomColor();
+      while (myUsed.Contains(color))
+      {
+        color = GenerateRandomColor();
+      }
+
+      myUsed.Add(color);
+      return new GrpcColor
+      {
+        Red = (uint)color.Item1,
+        Green = (uint)color.Item2,
+        Blue = (uint)color.Item3,
+      };
+    }
+
+    private static (int, int, int) GenerateRandomColor()
+    {
+      return (Random.Shared.Next(0, 256), Random.Shared.Next(0, 256), Random.Shared.Next(0, 256));
+    }
+  }
+}

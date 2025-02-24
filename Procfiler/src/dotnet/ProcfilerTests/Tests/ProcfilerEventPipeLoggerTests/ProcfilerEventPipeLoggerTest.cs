@@ -26,7 +26,7 @@ public class ProcfilerEventPipeLoggerTest : GoldProcessBasedTest
     Assert.That(result, Is.Not.Null);
 
     ExecuteTestWithGold(
-      context, 
+      context,
       events => string.Join(
         "\n",
         events.Events

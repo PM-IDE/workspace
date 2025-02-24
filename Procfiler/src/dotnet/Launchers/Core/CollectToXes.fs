@@ -7,7 +7,9 @@ module CollectToXes =
     { Base: ConfigBase }
 
     interface ICommandConfig with
-      member this.CreateArguments() = [ "collect-to-xes" ] |> this.Base.AddArguments
+      member this.CreateArguments() =
+        [ "collect-to-xes" ] |> this.Base.AddArguments
+
       member this.GetAppName() = this.Base.GetAppName()
       member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
       member this.GetFilterPattern() = this.Base.GetFilterPattern()
@@ -23,8 +25,6 @@ module CollectToXes =
     launchProcfilerCustomConfig csprojPath outputPath
 
   let launchProcfilerOnSolutionsFolder solutionsFolder outputFolder =
-    let createConfig baseConfig = {
-      Base = baseConfig
-    }
+    let createConfig baseConfig = { Base = baseConfig }
 
     launchProcfilerOnFolderOfSolutions solutionsFolder outputFolder createConfig true

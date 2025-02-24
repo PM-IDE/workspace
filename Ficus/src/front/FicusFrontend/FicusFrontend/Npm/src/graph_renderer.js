@@ -67,7 +67,7 @@ function createGraphElements(graph, annotation) {
       }
     })
   }
-  
+
   elements.push(...createGraphEdgesElements(graph.edges, annotation));
 
   return elements;
@@ -75,11 +75,11 @@ function createGraphElements(graph, annotation) {
 
 function createGraphEdgesElements(edges, annotation) {
   let edgesMap = {};
-  
+
   for (let edge of edges) {
     edgesMap[edge.id] = {};
   }
-  
+
   processEdgesWidths(edges, edgesMap);
 
   if (annotation !== null && annotation.timeAnnotation !== null) {

@@ -7,7 +7,9 @@ module SerializeUndefinedThreadEvents =
     { Base: ConfigBase }
 
     interface ICommandConfig with
-      member this.CreateArguments() = [ "undefined-events-to-xes" ] |> this.Base.AddArguments
+      member this.CreateArguments() =
+        [ "undefined-events-to-xes" ] |> this.Base.AddArguments
+
       member this.GetAppName() = this.Base.GetAppName()
       member this.GetWorkingDirectory() = this.Base.GetWorkingDirectory()
       member this.GetFilterPattern() = this.Base.GetFilterPattern()

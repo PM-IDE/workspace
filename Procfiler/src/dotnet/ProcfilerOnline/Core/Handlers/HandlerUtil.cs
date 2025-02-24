@@ -23,4 +23,3 @@ public static class HandlerUtil
     NameParts = [..methodInfo.Namespace.Split('.'), methodInfo.Name, methodInfo.Signature]
   };
 }
-

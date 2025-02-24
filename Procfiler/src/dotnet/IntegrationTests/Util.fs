@@ -7,8 +7,7 @@ open TestsUtil
 let getCsprojPathFromSource solutionName =
   Path.Combine(TestPaths.CreatePathToSolutionsSource(), solutionName, $"{solutionName}.csproj")
 
-let knownProjectsNamesTestCaseSource =
-  KnownSolution.AllSolutions |> Seq.map _.Name
+let knownProjectsNamesTestCaseSource = KnownSolution.AllSolutions |> Seq.map _.Name
 
 let executeTestWithTempFolder test =
   let tempDir = Directory.CreateTempSubdirectory().FullName

@@ -51,6 +51,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       NameParts.Count == other.NameParts.Count &&
       NameParts.Zip(other.NameParts).All((pair) => pair.First.Equals(pair.Second));
   }
+
   private record CaseKey(Guid SubscriptionId, Guid PipelineId, string ProcessName, CaseName CaseName);
 
 
@@ -159,7 +160,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         contextValues = new PipelinePartResult
         {
           ContextValues = [],
-          PipelinePartName = update.PipelinePartInfo.Name,
+          PipelinePartName = update.PipelinePartInfo.Name
         };
 
         caseData.PipelinePartsResults[guid] = contextValues;
@@ -215,7 +216,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
             PipelinePartInfo = new GrpcPipelinePartInfo
             {
               Name = x.Value.PipelinePartName,
-              Id = x.Key.ToGrpcGuid(),
+              Id = x.Key.ToGrpcGuid()
             }
           })
         }

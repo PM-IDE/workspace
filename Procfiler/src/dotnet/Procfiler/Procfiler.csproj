@@ -1,54 +1,54 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler"
-               AssemblyFile="$(SolutionDir)/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
+  <UsingTask TaskName="ProcfilerBuildTasks.BuildCppProcfiler"
+             AssemblyFile="$(SolutionDir)/Procfiler/src/dotnet/ProcfilerBuildTasks/bin/$(Configuration)/$(TargetFramework)/ProcfilerBuildTasks.dll"/>
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <LangVersion>preview</LangVersion>
-        <ServerGarbageCollection>true</ServerGarbageCollection>
-        <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Autofac"/>
-        <PackageReference Include="JetBrains.Annotations"/>
-        <PackageReference Include="Microsoft.Diagnostics.NETCore.Client"/>
-        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent"/>
-        <PackageReference Include="Microsoft.Extensions.Logging"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
-        <PackageReference Include="Mono.Cecil"/>
-        <PackageReference Include="Serilog.Extensions.Logging.File"/>
-        <PackageReference Include="System.CommandLine"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac"/>
+    <PackageReference Include="JetBrains.Annotations"/>
+    <PackageReference Include="Microsoft.Diagnostics.NETCore.Client"/>
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent"/>
+    <PackageReference Include="Microsoft.Extensions.Logging"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
+    <PackageReference Include="Mono.Cecil"/>
+    <PackageReference Include="Serilog.Extensions.Logging.File"/>
+    <PackageReference Include="System.CommandLine"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="data\**"/>
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="data\**"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Remove="data\**"/>
-    </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="data\**"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <None Remove="data\**"/>
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="data\**"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
-        <ProjectReference Include="..\Core\Core.csproj"/>
-        <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
+    <ProjectReference Include="..\Core\Core.csproj"/>
+    <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
+  </ItemGroup>
 
-    <Target Name="BuildCppProcfiler" AfterTargets="Build">
-        <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\Procfiler\src\cpp\offline\"
-                           TargetName="Procfiler"/>
-    </Target>
+  <Target Name="BuildCppProcfiler" AfterTargets="Build">
+    <BuildCppProcfiler CppProcfilerFolderPath="$(SolutionDir)\Procfiler\src\cpp\offline\"
+                       TargetName="Procfiler"/>
+  </Target>
 
-    <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfiler" Outputs="$(OutputPath)CppProcfiler.dll">
-        <Copy SourceFiles="$(SolutionDir)\Procfiler\src\cpp\offline\build\Release\CppProcfiler.dll"
-              DestinationFolder="$(OutputPath)"/>
-    </Target>
+  <Target Name="CopyCppProcfiler" AfterTargets="BuildCppProcfiler" Outputs="$(OutputPath)CppProcfiler.dll">
+    <Copy SourceFiles="$(SolutionDir)\Procfiler\src\cpp\offline\build\Release\CppProcfiler.dll"
+          DestinationFolder="$(OutputPath)"/>
+  </Target>
 </Project>

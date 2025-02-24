@@ -6,127 +6,126 @@ import "util.proto";
 package ficus;
 
 message GrpcSimpleEventLog {
-    repeated GrpcSimpleTrace traces = 1;
+  repeated GrpcSimpleTrace traces = 1;
 }
 
 message GrpcSimpleTrace {
-    repeated GrpcEvent events = 1;
+  repeated GrpcEvent events = 1;
 }
 
 message GrpcEvent {
-    string name = 1;
-    GrpcEventStamp stamp = 2;
+  string name = 1;
+  GrpcEventStamp stamp = 2;
 }
 
 message GrpcEventStamp {
-    oneof stamp {
-        google.protobuf.Timestamp date = 1;
-        uint64 order = 2;
-    }
+  oneof stamp {
+    google.protobuf.Timestamp date = 1;
+    uint64 order = 2;
+  }
 }
 
-
 message GrpcHashesEventLog {
-    repeated GrpcHashesLogTrace traces = 2;
+  repeated GrpcHashesLogTrace traces = 2;
 }
 
 message GrpcHashesLogTrace {
-    repeated uint64 events = 1;
+  repeated uint64 events = 1;
 }
 
 message GrpcNamesEventLog {
-    repeated GrpcNamesTrace traces = 1;
+  repeated GrpcNamesTrace traces = 1;
 }
 
 message GrpcNamesTrace {
-    repeated string events = 1;
+  repeated string events = 1;
 }
 
 message GrpcPetriNet {
-    repeated GrpcPetriNetPlace places = 1;
-    repeated GrpcPetriNetTransition transitions = 2;
-    GrpcPetriNetMarking initial_marking = 3;
-    GrpcPetriNetMarking final_marking = 4;
+  repeated GrpcPetriNetPlace places = 1;
+  repeated GrpcPetriNetTransition transitions = 2;
+  GrpcPetriNetMarking initial_marking = 3;
+  GrpcPetriNetMarking final_marking = 4;
 }
 
 message GrpcPetriNetPlace {
-    int64 id = 1;
-    string name = 2;
+  int64 id = 1;
+  string name = 2;
 }
 
 message GrpcPetriNetTransition {
-    int64 id = 1;
-    repeated GrpcPetriNetArc incomingArcs = 2;
-    repeated GrpcPetriNetArc outgoingArcs = 3;
-    string data = 4;
+  int64 id = 1;
+  repeated GrpcPetriNetArc incomingArcs = 2;
+  repeated GrpcPetriNetArc outgoingArcs = 3;
+  string data = 4;
 }
 
 message GrpcPetriNetArc {
-    int64 id = 1;
-    int64 placeId = 2;
-    int64 tokens_count = 3;
+  int64 id = 1;
+  int64 placeId = 2;
+  int64 tokens_count = 3;
 }
 
 message GrpcPetriNetMarking {
-    repeated GrpcPetriNetSinglePlaceMarking markings = 1;
+  repeated GrpcPetriNetSinglePlaceMarking markings = 1;
 }
 
 message GrpcPetriNetSinglePlaceMarking {
-    int64 placeId = 1;
-    int64 tokensCount = 2;
+  int64 placeId = 1;
+  int64 tokensCount = 2;
 }
 
 message GrpcAnnotation {
-    oneof annotation {
-        GrpcCountAnnotation countAnnotation = 1;
-        GrpcFrequenciesAnnotation frequencyAnnotation = 2;
-        GrpcTimePerformanceAnnotation timeAnnotation = 3;
-    }
+  oneof annotation {
+    GrpcCountAnnotation countAnnotation = 1;
+    GrpcFrequenciesAnnotation frequencyAnnotation = 2;
+    GrpcTimePerformanceAnnotation timeAnnotation = 3;
+  }
 }
 
 message GrpcCountAnnotation {
-    repeated GrpcEntityCountAnnotation annotations = 1;
+  repeated GrpcEntityCountAnnotation annotations = 1;
 }
 
 message GrpcEntityCountAnnotation {
-    int64 entityId = 1;
-    int64 count = 2;
+  int64 entityId = 1;
+  int64 count = 2;
 }
 
 message GrpcFrequenciesAnnotation {
-    repeated GrpcEntityFrequencyAnnotation annotations = 2;
+  repeated GrpcEntityFrequencyAnnotation annotations = 2;
 }
 
 message GrpcEntityFrequencyAnnotation {
-    int64 entityId = 1;
-    float frequency = 2;
+  int64 entityId = 1;
+  float frequency = 2;
 }
 
 message GrpcTimePerformanceAnnotation {
-    repeated GrpcEntityTimeAnnotation annotations = 1;
+  repeated GrpcEntityTimeAnnotation annotations = 1;
 }
 
 message GrpcEntityTimeAnnotation {
-    int64 entityId = 1;
-    GrpcTimeSpan interval = 2;
+  int64 entityId = 1;
+  GrpcTimeSpan interval = 2;
 }
 
 message GrpcMatrix {
-    repeated GrpcMatrixRow rows = 1;
+  repeated GrpcMatrixRow rows = 1;
 }
 
 message GrpcMatrixRow {
-    repeated float values = 1;
+  repeated float values = 1;
 }
 
 message GrpcDataset {
-    GrpcMatrix matrix = 1;
-    repeated string columnsNames = 2;
-    repeated string rowNames = 3;
+  GrpcMatrix matrix = 1;
+  repeated string columnsNames = 2;
+  repeated string rowNames = 3;
 }
 
 message GrpcLabeledDataset {
-    GrpcDataset dataset = 1;
-    repeated int32 labels = 2;
-    repeated GrpcColor labelsColors = 3;
+  GrpcDataset dataset = 1;
+  repeated int32 labels = 2;
+  repeated GrpcColor labelsColors = 3;
 }

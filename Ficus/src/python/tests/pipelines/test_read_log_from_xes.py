@@ -8,20 +8,20 @@ from ...ficus.legacy.pipelines.start.start_parts import ReadLogFromXes
 
 
 def test_read_log_from_xes():
-    result = Pipeline(
-       ReadLogFromXes()
-    )(get_example_log_path('exercise1.xes'))
+  result = Pipeline(
+    ReadLogFromXes()
+  )(get_example_log_path('exercise1.xes'))
 
-    assert result.has_value(log_key)
-    assert log(result) is not None
+  assert result.has_value(log_key)
+  assert log(result) is not None
 
 
 def test_read_not_existing_log():
-    try:
-        Pipeline(
-            ReadLogFromXes()
-        )('not_existing_path')
-    except FileNotFoundError:
-        return
+  try:
+    Pipeline(
+      ReadLogFromXes()
+    )('not_existing_path')
+  except FileNotFoundError:
+    return
 
-    fail()
+  fail()

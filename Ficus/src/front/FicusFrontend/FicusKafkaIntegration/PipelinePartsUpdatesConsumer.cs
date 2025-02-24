@@ -11,7 +11,7 @@ public interface IPipelinePartsUpdatesConsumer
 }
 
 public class PipelinePartsUpdatesConsumer(
-  IOptions<PipelinePartsUpdateKafkaSettings> settings, 
+  IOptions<PipelinePartsUpdateKafkaSettings> settings,
   ILogger<PipelinePartsUpdatesConsumer> logger
 ) : IPipelinePartsUpdatesConsumer
 {
@@ -31,10 +31,10 @@ public class PipelinePartsUpdatesConsumer(
       while (true)
       {
         logger.LogInformation("Waiting for the next message from kafka");
-        
+
         var result = consumer.Consume(cancellationToken);
         if (result.IsPartitionEOF) continue;
-        
+
         yield return result.Message.Value;
 
         consumer.Commit(result);

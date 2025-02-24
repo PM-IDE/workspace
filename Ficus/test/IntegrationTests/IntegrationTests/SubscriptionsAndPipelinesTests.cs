@@ -4,7 +4,8 @@ using IntegrationTests.Base;
 
 namespace IntegrationTests;
 
-[TestFixture, FixtureLifeCycle(LifeCycle.SingleInstance)]
+[TestFixture]
+[FixtureLifeCycle(LifeCycle.SingleInstance)]
 public class SubscriptionsAndPipelinesTests : TestWithFicusBackendBase
 {
   private const string TestSubscriptionName = nameof(TestSubscriptionName);

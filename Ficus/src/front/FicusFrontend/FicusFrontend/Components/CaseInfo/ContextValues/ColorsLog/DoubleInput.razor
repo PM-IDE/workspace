@@ -1,0 +1,39 @@
+﻿@using System.Globalization
+
+<div>
+  <div>
+    @Title
+  </div>
+
+  <div>
+    <input class="input-number"
+           min="@Min"
+           max="@Max"
+           value="@InitialValue.ToString(CultureInfo.InvariantCulture)"
+           title="@Title"
+           @oninput="@(e =>
+                     {
+                       if (e.Value is { } value && double.TryParse((string)value, CultureInfo.InvariantCulture, out var parsedValue))
+                       {
+                         CurrentValue = parsedValue;
+                       }
+                     })" />
+  </div>
+</div>
+
+@code {
+  [Parameter] public required double InitialValue { get; init; }
+  [Parameter] public required string Title { get; init; }
+  [Parameter] public required double Max { get; init; }
+  [Parameter] public required double Min { get; init; }
+
+
+  public double CurrentValue { get; private set; }
+
+
+  protected override void OnParametersSet()
+  {
+    CurrentValue = InitialValue;
+    base.OnParametersSet();
+  }
+}

@@ -13,8 +13,8 @@ service GrpcPipelinePartsContextValuesService {
 
 message GrpcPipelinePartUpdate {
   oneof update {
-      GrpcCurrentCasesResponse current_cases = 1;
-      GrpcKafkaUpdate delta = 2;
+    GrpcCurrentCasesResponse current_cases = 1;
+    GrpcKafkaUpdate delta = 2;
   }
 }
 

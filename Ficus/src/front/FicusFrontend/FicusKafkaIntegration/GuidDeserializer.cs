@@ -2,7 +2,7 @@ using Confluent.Kafka;
 
 namespace FicusKafkaIntegration;
 
-class GuidDeserializer : IDeserializer<Guid>
+internal class GuidDeserializer : IDeserializer<Guid>
 {
   public static GuidDeserializer Instance { get; } = new();
 

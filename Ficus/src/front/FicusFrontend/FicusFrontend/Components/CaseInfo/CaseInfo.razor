@@ -9,6 +9,7 @@
 @using FicusFrontend.Components.CaseInfo.ContextValues.EventLogInfo
 @using FicusFrontend.Components.CaseInfo.ContextValues.Canvas.PetriNet
 @using FicusFrontend.Components.CaseInfo.ContextValues.Canvas.Graph
+@using FicusFrontend.Components.CaseInfo.ContextValues.LogTimeline
 
 @inherits ComponentBase
 
@@ -40,7 +41,7 @@
   <div class="case-info-header-hierarchy-container">
     @if (myProcessCaseData is { Case.NameParts: var nameParts })
     {
-      <CaseNameHierarchy NameParts="nameParts" FontSize="14" Expanded="true" />
+      <CaseNameHierarchy NameParts="nameParts" FontSize="14" Expanded="true"/>
     }
   </div>
 </div>
@@ -57,14 +58,17 @@
           <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
         </div>
         <div class="pipeline-part-name">
-          @result.Value.PipelinePartName  
+          @result.Value.PipelinePartName
         </div>
       </div>
 
       @{
         var expanded = IsExpanded(result.Value);
 
-        string GetClass(string baseClass, string expandedClass) => $"{baseClass} {(expanded ? expandedClass : string.Empty)}";
+        string GetClass(string baseClass, string expandedClass)
+        {
+          return $"{baseClass} {(expanded ? expandedClass : string.Empty)}";
+        }
 
         var outerContainerClass = GetClass("pipeline-part-context-values-outer-container", "outer-container-checked");
         var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
@@ -93,7 +97,7 @@
 @code
 {
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
-  
+
   private readonly Dictionary<Guid, PipelinePartExecutionResult> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
@@ -113,7 +117,10 @@
     values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
   }
 
-  private bool IsExpanded(PipelinePartExecutionResult result) => result.UserData.GetOrCreate(ourExpandedKey, static () => true);
+  private bool IsExpanded(PipelinePartExecutionResult result)
+  {
+    return result.UserData.GetOrCreate(ourExpandedKey, static () => true);
+  }
 
   private void HandleExecutionResultTitleClicked(PipelinePartExecutionResult result)
   {
@@ -136,9 +143,10 @@
 
     return contextValue.ContextValueCase switch
     {
+      ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer @key="wrapper.Id" TimelineDiagram="contextValue.LogTimelineDiagram" />,
       ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-      ContextValueOneofCase.ColorsLog => @<ColorsEventLogRenderer @key="wrapper.Id"
-                                                                  Log="contextValue.ColorsLog"/>,
+      ContextValueOneofCase.ColorsLog => @<DefaultColorsLogRenderer @key="wrapper.Id"
+                                                                    Log="contextValue.ColorsLog"/>,
 
       ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
                                                            PetriNet="contextValue.PetriNet"/>,
@@ -180,11 +188,14 @@
                            Annotation="annotationPair?.Item2"/>;
   }
 
-  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair) => annotationPair switch
+  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair)
   {
-    var (annotationId, _) => id.ToString() + annotationId,
-    null => id.ToString()
-  };
+    return annotationPair switch
+    {
+      var (annotationId, _) => id.ToString() + annotationId,
+      null => id.ToString()
+    };
+  }
 
   private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
   {

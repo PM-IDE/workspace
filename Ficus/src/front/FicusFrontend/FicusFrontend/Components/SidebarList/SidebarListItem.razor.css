@@ -5,7 +5,7 @@
   border-bottom-width: 1px;
   border-bottom-color: white;
   position: relative;
-  
+
   padding-top: 5px;
   padding-left: 10px;
   padding-bottom: 5px;
@@ -15,7 +15,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  
+
   color: white;
   font-size: 15px;
 }

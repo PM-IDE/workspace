@@ -62,7 +62,7 @@ public class ThreadsMethodsProcessor(
         handler.Handle(new MethodExecutionEvent
         {
           Frame = frame,
-          ApplicationName = context.CommandContext.ApplicationName,
+          ApplicationName = context.CommandContext.ApplicationName
         });
 
         frame.InnerEvents.Clear();

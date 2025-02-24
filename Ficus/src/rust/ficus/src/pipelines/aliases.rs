@@ -1,12 +1,12 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::{
-    event_log::xes::xes_event_log::XesEventLogImpl,
-    features::analysis::patterns::{
-        activity_instances::ActivityInTraceInfo,
-        repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
-        tandem_arrays::SubArrayInTraceInfo,
-    },
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::analysis::patterns::{
+    activity_instances::ActivityInTraceInfo,
+    repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
+    tandem_arrays::SubArrayInTraceInfo,
+  },
 };
 
 pub type TracesActivities = Vec<Vec<ActivityInTraceInfo>>;

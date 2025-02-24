@@ -15,7 +15,6 @@ function loadCssStyle(fileName) {
     return;
   }
 
-  console.log("xd");
   let linkElement = document.createElement(Link);
   linkElement.rel = Stylesheet;
   linkElement.type = Type;

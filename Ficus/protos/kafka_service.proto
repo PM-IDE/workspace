@@ -10,13 +10,13 @@ package ficus;
 service GrpcKafkaService {
   rpc SubscribeForKafkaTopic(GrpcSubscribeToKafkaRequest) returns (GrpcKafkaResult);
   rpc UnsubscribeFromKafkaTopic(GrpcUnsubscribeFromKafkaRequest) returns (GrpcKafkaResult);
-  
+
   rpc AddPipelineToSubscription(GrpcAddPipelineRequest) returns (GrpcKafkaResult);
   rpc AddPipelineToSubscriptionStream(GrpcAddPipelineStreamRequest) returns (stream GrpcPipelinePartExecutionResult);
 
   rpc RemovePipelineSubscription(GrpcRemovePipelineRequest) returns (GrpcKafkaResult);
   rpc RemoveAllPipelineSubscriptions(GrpcRemoveAllPipelinesRequest) returns (GrpcKafkaResult);
-  
+
   rpc GetAllSubscriptionsAndPipelines(google.protobuf.Empty) returns (GrpcGetAllSubscriptionsAndPipelinesResponse);
 
   rpc ExecutePipelineAndProduceToKafka(GrpcExecutePipelineAndProduceKafkaRequest) returns (stream GrpcPipelinePartExecutionResult);
@@ -26,6 +26,10 @@ message GrpcExecutePipelineAndProduceKafkaRequest {
   GrpcProxyPipelineExecutionRequest pipelineRequest = 1;
   GrpcKafkaConnectionMetadata producerMetadata = 2;
   GrpcProcessInfo caseInfo = 3;
+  GrpcGuid subscriptionId = 4;
+  GrpcGuid pipelineId = 5;
+  string pipelineName = 6;
+  string subscriptionName = 7;
 }
 
 message GrpcProcessInfo {

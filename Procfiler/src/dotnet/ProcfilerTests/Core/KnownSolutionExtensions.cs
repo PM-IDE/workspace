@@ -21,11 +21,9 @@ public static class KnownSolutionExtensions
   public static CollectClrEventsFromExeContext CreateOnlineSerializationContextWithFilter(this KnownSolution solution) =>
     CreateContextInternal(solution, CreateOnlineSerializationCommonContextWithFilter(solution));
 
-  private static CollectClrEventsFromExeContext CreateContextInternal(
-    KnownSolution knownSolution, CollectingClrEventsCommonContext context)
-  {
-    return new CollectClrEventsFromExeContext(knownSolution.CreateProjectBuildInfo(), context);
-  }
+  private static CollectClrEventsFromExeContext CreateContextInternal(KnownSolution knownSolution,
+    CollectingClrEventsCommonContext context) =>
+    new(knownSolution.CreateProjectBuildInfo(), context);
 
   private static CollectingClrEventsCommonContext CreateDefaultCommonContext()
   {

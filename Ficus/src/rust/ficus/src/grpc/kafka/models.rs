@@ -18,74 +18,74 @@ pub(super) const KAFKA_TRACE_ID: &'static str = "trace_id";
 
 #[derive(Debug)]
 pub enum KafkaTraceProcessingError {
-    XesFromBxesTraceCreationError(XesFromBxesKafkaTraceCreatingError),
-    FailedToPreprocessTrace(PipelinePartExecutionError),
+  XesFromBxesTraceCreationError(XesFromBxesKafkaTraceCreatingError),
+  FailedToPreprocessTrace(PipelinePartExecutionError),
 }
 
 impl Display for KafkaTraceProcessingError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            KafkaTraceProcessingError::XesFromBxesTraceCreationError(e) => Display::fmt(e, f),
-            KafkaTraceProcessingError::FailedToPreprocessTrace(e) => Display::fmt(e, f),
-        }
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      KafkaTraceProcessingError::XesFromBxesTraceCreationError(e) => Display::fmt(e, f),
+      KafkaTraceProcessingError::FailedToPreprocessTrace(e) => Display::fmt(e, f),
     }
+  }
 }
 
 #[derive(Debug)]
 pub enum XesFromBxesKafkaTraceCreatingError {
-    MetadataValueIsNotAString(String),
-    MetadataValueNotFound(String),
-    BxesToXexConversionError(BxesToXesReadError),
-    TraceIdIsNotUuid,
+  MetadataValueIsNotAString(String),
+  MetadataValueNotFound(String),
+  BxesToXexConversionError(BxesToXesReadError),
+  TraceIdIsNotUuid,
 }
 
 impl Display for XesFromBxesKafkaTraceCreatingError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let str = match self {
-            XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err) => err.to_string(),
-            XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name) => {
-                format!("Value for key {} is not a String", key_name.to_owned())
-            }
-            XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name) => {
-                format!("The key {} is not found", key_name.to_string())
-            }
-            XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid => "Trace id was not of type uuid ".to_string(),
-        };
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let str = match self {
+      XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err) => err.to_string(),
+      XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name) => {
+        format!("Value for key {} is not a String", key_name.to_owned())
+      }
+      XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name) => {
+        format!("The key {} is not found", key_name.to_string())
+      }
+      XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid => "Trace id was not of type uuid ".to_string(),
+    };
 
-        write!(f, "{}", str)
-    }
+    write!(f, "{}", str)
+  }
 }
 
 #[derive(Clone)]
 pub struct PipelineExecutionDto {
-    pub(super) pipeline_parts: Arc<Box<PipelineParts>>,
-    pub(super) events_handler: Arc<Box<dyn PipelineEventsHandler>>,
+  pub(super) pipeline_parts: Arc<Box<PipelineParts>>,
+  pub(super) events_handler: Arc<Box<dyn PipelineEventsHandler>>,
 }
 
 impl PipelineExecutionDto {
-    pub fn new(pipeline_parts: Arc<Box<PipelineParts>>, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> Self {
-        Self {
-            pipeline_parts,
-            events_handler,
-        }
+  pub fn new(pipeline_parts: Arc<Box<PipelineParts>>, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> Self {
+    Self {
+      pipeline_parts,
+      events_handler,
     }
+  }
 }
 
 #[derive(Clone)]
 pub struct KafkaConsumerCreationDto {
-    pub uuid: Uuid,
-    pub name: String,
-    pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
-    pub logger: ConsoleLogMessageHandler,
+  pub uuid: Uuid,
+  pub name: String,
+  pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
+  pub logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaConsumerCreationDto {
-    pub fn new(name: String, subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>) -> Self {
-        Self {
-            uuid: Uuid::new_v4(),
-            name,
-            subscriptions_to_execution_requests,
-            logger: ConsoleLogMessageHandler::new(),
-        }
+  pub fn new(name: String, subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>) -> Self {
+    Self {
+      uuid: Uuid::new_v4(),
+      name,
+      subscriptions_to_execution_requests,
+      logger: ConsoleLogMessageHandler::new(),
     }
+  }
 }
