@@ -8,45 +8,45 @@ from .test_grpc_pipelines import _execute_test_with_exercise_log
 
 
 def test_filter_events_by_name():
-    _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(use_bytes=True),
-        FilterEventsByName(event_name='a'),
-        AssertNamesLogTestPart([
-            ['b', 'd', 'c', 'f'],
-            ['c', 'b', 'd', 'f'],
-            ['c', 'd', 'b', 'f'],
-            ['d', 'e', 'f'],
-            ['b', 'c', 'd', 'f'],
-            ['e', 'd', 'f']
-        ])
-    ))
+  _execute_test_with_exercise_log('exercise4', Pipeline(
+    ReadLogFromXes(use_bytes=True),
+    FilterEventsByName(event_name='a'),
+    AssertNamesLogTestPart([
+      ['b', 'd', 'c', 'f'],
+      ['c', 'b', 'd', 'f'],
+      ['c', 'd', 'b', 'f'],
+      ['d', 'e', 'f'],
+      ['b', 'c', 'd', 'f'],
+      ['e', 'd', 'f']
+    ])
+  ))
 
 
 def test_filter_events_by_regex():
-    _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(use_bytes=True),
-        FilterEventsByRegex(regex='a|b'),
-        AssertNamesLogTestPart([
-            ['d', 'c', 'f'],
-            ['c', 'd', 'f'],
-            ['c', 'd', 'f'],
-            ['d', 'e', 'f'],
-            ['c', 'd', 'f'],
-            ['e', 'd', 'f']
-        ])
-    ))
+  _execute_test_with_exercise_log('exercise4', Pipeline(
+    ReadLogFromXes(use_bytes=True),
+    FilterEventsByRegex(regex='a|b'),
+    AssertNamesLogTestPart([
+      ['d', 'c', 'f'],
+      ['c', 'd', 'f'],
+      ['c', 'd', 'f'],
+      ['d', 'e', 'f'],
+      ['c', 'd', 'f'],
+      ['e', 'd', 'f']
+    ])
+  ))
 
 
 def test_filter_log_by_variants():
-    _execute_test_with_exercise_log('exercise4', Pipeline(
-        ReadLogFromXes(use_bytes=True),
-        FilterLogByVariants(),
-        AssertNamesLogTestPart([
-            ['a', 'b', 'd', 'c', 'f'],
-            ['a', 'c', 'b', 'd', 'f'],
-            ['a', 'c', 'd', 'b', 'f'],
-            ['a', 'd', 'e', 'f'],
-            ['a', 'b', 'c', 'd', 'f'],
-            ['a', 'e', 'd', 'f']
-        ])
-    ))
+  _execute_test_with_exercise_log('exercise4', Pipeline(
+    ReadLogFromXes(use_bytes=True),
+    FilterLogByVariants(),
+    AssertNamesLogTestPart([
+      ['a', 'b', 'd', 'c', 'f'],
+      ['a', 'c', 'b', 'd', 'f'],
+      ['a', 'c', 'd', 'b', 'f'],
+      ['a', 'd', 'e', 'f'],
+      ['a', 'b', 'c', 'd', 'f'],
+      ['a', 'e', 'd', 'f']
+    ])
+  ))

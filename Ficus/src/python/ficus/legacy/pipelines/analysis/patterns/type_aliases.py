@@ -6,4 +6,3 @@ from ....analysis.common.common_models import GraphNode
 
 GraphAttributesSetter = Callable[[graphviz.Digraph], None]
 NodeNameCreator = Callable[[GraphNode], str]
-
