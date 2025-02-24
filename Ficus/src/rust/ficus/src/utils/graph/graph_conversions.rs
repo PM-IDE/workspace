@@ -7,17 +7,17 @@ use std::fmt::Display;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
-    TNodeData: ToString,
-    TEdgeData: ToString + Display,
+  TNodeData: ToString,
+  TEdgeData: ToString + Display,
 {
-    pub fn to_default_graph(self) -> DefaultGraph {
-        DefaultGraph {
-            nodes: self.to_default_graph_nodes(),
-            connections: self.to_default_graph_connections(),
-        }
+  pub fn to_default_graph(self) -> DefaultGraph {
+    DefaultGraph {
+      nodes: self.to_default_graph_nodes(),
+      connections: self.to_default_graph_connections(),
     }
+  }
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
     fn to_default_graph_nodes(&self) -> HashMap<u64, GraphNode<HeapedOrOwned<String>>> {
         self.nodes.iter().map(|pair| {
             (
@@ -33,7 +33,7 @@ where
         }).collect()
     }
 
-    #[rustfmt::skip]
+  #[rustfmt::skip]
     fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, GraphEdge<HeapedOrOwned<String>>>> {
         self.connections.iter().map(|pair| {
             (

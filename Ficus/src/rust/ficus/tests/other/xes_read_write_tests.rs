@@ -6,11 +6,11 @@ use crate::test_core::test_paths::{create_example_log_gold_file_path, get_paths_
 
 #[test]
 fn test_read_write_xes() {
-    for log_path in get_paths_to_example_logs() {
-        let log_name = log_path.file_name().unwrap().to_str().unwrap();
-        execute_test_with_gold(create_example_log_gold_file_path(log_name), || {
-            let event_log = read_event_log(log_path.to_str().unwrap()).unwrap();
-            serialize_event_log(&event_log).ok().unwrap()
-        });
-    }
+  for log_path in get_paths_to_example_logs() {
+    let log_name = log_path.file_name().unwrap().to_str().unwrap();
+    execute_test_with_gold(create_example_log_gold_file_path(log_name), || {
+      let event_log = read_event_log(log_path.to_str().unwrap()).unwrap();
+      serialize_event_log(&event_log).ok().unwrap()
+    });
+  }
 }

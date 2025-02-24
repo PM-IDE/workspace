@@ -15,171 +15,171 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 pub(super) struct ServicePipelineExecutionContext<'a> {
+  grpc_pipeline: &'a GrpcPipeline,
+  context_values: &'a Vec<GrpcContextKeyValue>,
+  pipeline_parts: Arc<Box<PipelineParts>>,
+  handler: Arc<Box<dyn PipelineEventsHandler>>,
+  log_message_handler: Arc<Box<dyn LogMessageHandler>>,
+}
+
+impl<'a> ServicePipelineExecutionContext<'a> {
+  pub fn new(
     grpc_pipeline: &'a GrpcPipeline,
     context_values: &'a Vec<GrpcContextKeyValue>,
     pipeline_parts: Arc<Box<PipelineParts>>,
     handler: Arc<Box<dyn PipelineEventsHandler>>,
-    log_message_handler: Arc<Box<dyn LogMessageHandler>>,
-}
+  ) -> Self {
+    let log_message_handler = Self::create_log_message_handler(handler.clone());
 
-impl<'a> ServicePipelineExecutionContext<'a> {
-    pub fn new(
-        grpc_pipeline: &'a GrpcPipeline,
-        context_values: &'a Vec<GrpcContextKeyValue>,
-        pipeline_parts: Arc<Box<PipelineParts>>,
-        handler: Arc<Box<dyn PipelineEventsHandler>>,
-    ) -> Self {
-        let log_message_handler = Self::create_log_message_handler(handler.clone());
+    Self {
+      grpc_pipeline,
+      context_values,
+      pipeline_parts,
+      handler,
+      log_message_handler,
+    }
+  }
 
-        Self {
-            grpc_pipeline,
-            context_values,
-            pipeline_parts,
-            handler,
-            log_message_handler,
+  fn create_log_message_handler(sender: Arc<Box<dyn PipelineEventsHandler>>) -> Arc<Box<dyn LogMessageHandler>> {
+    let grpc_handler = GrpcLogMessageHandlerImpl::new(sender.clone());
+    let grpc_handler = Box::new(grpc_handler) as Box<dyn LogMessageHandler>;
+
+    let console_handler = ConsoleLogMessageHandler::new();
+    let console_handler = Box::new(console_handler) as Box<dyn LogMessageHandler>;
+
+    let delegating_handler = DelegatingLogMessageHandler::new(vec![grpc_handler, console_handler]);
+
+    Arc::new(Box::new(delegating_handler) as Box<dyn LogMessageHandler>)
+  }
+
+  pub fn sender(&self) -> Arc<Box<dyn PipelineEventsHandler>> {
+    self.handler.clone()
+  }
+
+  pub fn grpc_pipeline(&self) -> &GrpcPipeline {
+    &self.grpc_pipeline
+  }
+
+  pub fn parts(&self) -> &PipelineParts {
+    &self.pipeline_parts
+  }
+
+  pub fn context_values(&self) -> &Vec<GrpcContextKeyValue> {
+    &self.context_values
+  }
+
+  pub fn log_message_handler(&self) -> Arc<Box<dyn LogMessageHandler>> {
+    self.log_message_handler.clone()
+  }
+
+  pub fn with_pipeline(&self, new_grpc_pipeline: &'a GrpcPipeline) -> Self {
+    Self {
+      grpc_pipeline: new_grpc_pipeline,
+      context_values: self.context_values,
+      pipeline_parts: self.pipeline_parts.clone(),
+      handler: self.handler.clone(),
+      log_message_handler: self.log_message_handler.clone(),
+    }
+  }
+
+  pub fn execute_grpc_pipeline(
+    &self,
+    context_mutator: impl FnOnce(&mut PipelineContext) -> Result<(), PipelinePartExecutionError>,
+  ) -> Result<(Uuid, UserDataImpl), PipelinePartExecutionError> {
+    let id = Uuid::new_v4();
+    let pipeline = self.to_pipeline();
+    let mut pipeline_context = self.create_initial_context();
+    context_mutator(&mut pipeline_context)?;
+
+    let infra = PipelineInfrastructure::new(Some(self.log_message_handler()));
+
+    match pipeline.execute(&mut pipeline_context, &infra) {
+      Ok(()) => Ok((id, pipeline_context.devastate_user_data())),
+      Err(err) => Err(err),
+    }
+  }
+
+  pub(super) fn to_pipeline(&self) -> Pipeline {
+    let mut pipeline = Pipeline::empty();
+    for grpc_part in &self.grpc_pipeline().parts {
+      match grpc_part.part.as_ref().unwrap() {
+        Part::DefaultPart(grpc_default_part) => match self.find_default_part(grpc_default_part) {
+          Some(found_part) => {
+            pipeline.push(found_part);
+          }
+          None => todo!(),
+        },
+        Part::ParallelPart(_) => todo!(),
+        Part::SimpleContextRequestPart(part) => {
+          let key_name = part.key.as_ref().unwrap().name.clone();
+          let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
+          let name = part.frontend_pipeline_part_name.to_owned();
+
+          pipeline.push(Self::create_get_context_part(vec![key_name], uuid, name, &self.sender(), None));
         }
-    }
+        Part::ComplexContextRequestPart(part) => {
+          let grpc_default_part = part.before_pipeline_part.as_ref().unwrap();
+          let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
+          let name = part.frontend_pipeline_part_name.to_owned();
 
-    fn create_log_message_handler(sender: Arc<Box<dyn PipelineEventsHandler>>) -> Arc<Box<dyn LogMessageHandler>> {
-        let grpc_handler = GrpcLogMessageHandlerImpl::new(sender.clone());
-        let grpc_handler = Box::new(grpc_handler) as Box<dyn LogMessageHandler>;
-
-        let console_handler = ConsoleLogMessageHandler::new();
-        let console_handler = Box::new(console_handler) as Box<dyn LogMessageHandler>;
-
-        let delegating_handler = DelegatingLogMessageHandler::new(vec![grpc_handler, console_handler]);
-
-        Arc::new(Box::new(delegating_handler) as Box<dyn LogMessageHandler>)
-    }
-
-    pub fn sender(&self) -> Arc<Box<dyn PipelineEventsHandler>> {
-        self.handler.clone()
-    }
-
-    pub fn grpc_pipeline(&self) -> &GrpcPipeline {
-        &self.grpc_pipeline
-    }
-
-    pub fn parts(&self) -> &PipelineParts {
-        &self.pipeline_parts
-    }
-
-    pub fn context_values(&self) -> &Vec<GrpcContextKeyValue> {
-        &self.context_values
-    }
-
-    pub fn log_message_handler(&self) -> Arc<Box<dyn LogMessageHandler>> {
-        self.log_message_handler.clone()
-    }
-
-    pub fn with_pipeline(&self, new_grpc_pipeline: &'a GrpcPipeline) -> Self {
-        Self {
-            grpc_pipeline: new_grpc_pipeline,
-            context_values: self.context_values,
-            pipeline_parts: self.pipeline_parts.clone(),
-            handler: self.handler.clone(),
-            log_message_handler: self.log_message_handler.clone(),
-        }
-    }
-
-    pub fn execute_grpc_pipeline(
-        &self,
-        context_mutator: impl FnOnce(&mut PipelineContext) -> Result<(), PipelinePartExecutionError>,
-    ) -> Result<(Uuid, UserDataImpl), PipelinePartExecutionError> {
-        let id = Uuid::new_v4();
-        let pipeline = self.to_pipeline();
-        let mut pipeline_context = self.create_initial_context();
-        context_mutator(&mut pipeline_context)?;
-
-        let infra = PipelineInfrastructure::new(Some(self.log_message_handler()));
-
-        match pipeline.execute(&mut pipeline_context, &infra) {
-            Ok(()) => Ok((id, pipeline_context.devastate_user_data())),
-            Err(err) => Err(err),
-        }
-    }
-
-    pub(super) fn to_pipeline(&self) -> Pipeline {
-        let mut pipeline = Pipeline::empty();
-        for grpc_part in &self.grpc_pipeline().parts {
-            match grpc_part.part.as_ref().unwrap() {
-                Part::DefaultPart(grpc_default_part) => match self.find_default_part(grpc_default_part) {
-                    Some(found_part) => {
-                        pipeline.push(found_part);
-                    }
-                    None => todo!(),
-                },
-                Part::ParallelPart(_) => todo!(),
-                Part::SimpleContextRequestPart(part) => {
-                    let key_name = part.key.as_ref().unwrap().name.clone();
-                    let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
-                    let name = part.frontend_pipeline_part_name.to_owned();
-
-                    pipeline.push(Self::create_get_context_part(vec![key_name], uuid, name, &self.sender(), None));
-                }
-                Part::ComplexContextRequestPart(part) => {
-                    let grpc_default_part = part.before_pipeline_part.as_ref().unwrap();
-                    let uuid = Uuid::from_str(&part.frontend_part_uuid.as_ref().unwrap().uuid).ok().unwrap();
-                    let name = part.frontend_pipeline_part_name.to_owned();
-
-                    match self.find_default_part(grpc_default_part) {
-                        Some(found_part) => {
-                            let key_names = part.keys.iter().map(|x| x.name.to_owned()).collect();
-                            pipeline.push(Self::create_get_context_part(
-                                key_names,
-                                uuid,
-                                name,
-                                &self.sender(),
-                                Some(found_part),
-                            ));
-                        }
-                        None => todo!(),
-                    }
-                }
+          match self.find_default_part(grpc_default_part) {
+            Some(found_part) => {
+              let key_names = part.keys.iter().map(|x| x.name.to_owned()).collect();
+              pipeline.push(Self::create_get_context_part(
+                key_names,
+                uuid,
+                name,
+                &self.sender(),
+                Some(found_part),
+              ));
             }
+            None => todo!(),
+          }
         }
-
-        pipeline
+      }
     }
 
-    fn create_get_context_part(
-        key_names: Vec<String>,
-        uuid: Uuid,
-        pipeline_part_name: String,
-        sender: &Arc<Box<dyn PipelineEventsHandler>>,
-        before_part: Option<Box<DefaultPipelinePart>>,
-    ) -> Box<GetContextValuePipelinePart> {
-        let sender = sender.clone();
-        GetContextValuePipelinePart::create_context_pipeline_part(key_names, uuid, pipeline_part_name, sender, before_part)
+    pipeline
+  }
+
+  fn create_get_context_part(
+    key_names: Vec<String>,
+    uuid: Uuid,
+    pipeline_part_name: String,
+    sender: &Arc<Box<dyn PipelineEventsHandler>>,
+    before_part: Option<Box<DefaultPipelinePart>>,
+  ) -> Box<GetContextValuePipelinePart> {
+    let sender = sender.clone();
+    GetContextValuePipelinePart::create_context_pipeline_part(key_names, uuid, pipeline_part_name, sender, before_part)
+  }
+
+  fn find_default_part(&self, grpc_default_part: &GrpcPipelinePart) -> Option<Box<DefaultPipelinePart>> {
+    let mut part_config = UserDataImpl::new();
+    let grpc_config = &grpc_default_part.configuration.as_ref().unwrap();
+
+    for conf_value in &grpc_config.configuration_parameters {
+      let key_name = conf_value.key.as_ref().unwrap().name.as_ref();
+      if let Some(key) = find_context_key(key_name) {
+        let value = conf_value.value.as_ref().unwrap().context_value.as_ref().unwrap();
+        put_into_user_data(key.key(), value, &mut part_config, &self);
+      }
     }
 
-    fn find_default_part(&self, grpc_default_part: &GrpcPipelinePart) -> Option<Box<DefaultPipelinePart>> {
-        let mut part_config = UserDataImpl::new();
-        let grpc_config = &grpc_default_part.configuration.as_ref().unwrap();
+    match self.parts().find_part(&grpc_default_part.name) {
+      Some(default_part) => Some(Box::new(default_part(Box::new(part_config)))),
+      None => None,
+    }
+  }
 
-        for conf_value in &grpc_config.configuration_parameters {
-            let key_name = conf_value.key.as_ref().unwrap().name.as_ref();
-            if let Some(key) = find_context_key(key_name) {
-                let value = conf_value.value.as_ref().unwrap().context_value.as_ref().unwrap();
-                put_into_user_data(key.key(), value, &mut part_config, &self);
-            }
-        }
+  pub(super) fn create_initial_context(&'a self) -> PipelineContext<'a> {
+    let mut pipeline_context = PipelineContext::new_with_logging(self.parts());
 
-        match self.parts().find_part(&grpc_default_part.name) {
-            Some(default_part) => Some(Box::new(default_part(Box::new(part_config)))),
-            None => None,
-        }
+    for value in self.context_values() {
+      let key = find_context_key(&value.key.as_ref().unwrap().name).unwrap();
+      let value = value.value.as_ref().unwrap().context_value.as_ref().unwrap();
+      put_into_user_data(key.key(), value, &mut pipeline_context, self);
     }
 
-    pub(super) fn create_initial_context(&'a self) -> PipelineContext<'a> {
-        let mut pipeline_context = PipelineContext::new_with_logging(self.parts());
-
-        for value in self.context_values() {
-            let key = find_context_key(&value.key.as_ref().unwrap().name).unwrap();
-            let value = value.value.as_ref().unwrap().context_value.as_ref().unwrap();
-            put_into_user_data(key.key(), value, &mut pipeline_context, self);
-        }
-
-        pipeline_context
-    }
+    pipeline_context
+  }
 }
