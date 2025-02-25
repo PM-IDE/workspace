@@ -53,6 +53,7 @@ impl PipelineParts {
   pub const DISCOVER_DFG_BY_ATTRIBUTE: &'static str = "DiscoverDirectlyFollowsGraphByAttribute";
   pub const APPEND_ATTRIBUTES_TO_NAME: &'static str = "AppendAttributesToName";
   pub const DISCOVER_DFG_STREAM: &'static str = "DiscoverDirectlyFollowsGraphStream";
+  pub const CREATE_THREADS_LOG: &'static str = "CreateThreadsLog";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";

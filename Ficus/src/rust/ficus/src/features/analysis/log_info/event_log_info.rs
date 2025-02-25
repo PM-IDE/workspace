@@ -98,7 +98,7 @@ impl OfflineEventLogInfo {
 
     let mut new_log = None;
     if let Some(thread_attribute) = thread_attribute {
-      new_log = Some(Self::create_threads_log_by_attribute::<TLog>(log, thread_attribute.as_str()));
+      new_log = Some(create_threads_log_by_attribute::<TLog>(log, thread_attribute.as_str()));
       log = new_log.as_ref().unwrap();
     }
 
@@ -200,33 +200,33 @@ impl OfflineEventLogInfo {
       end_event_classes,
     }
   }
-  
-  fn create_threads_log_by_attribute<TLog: EventLog>(log: &TLog, thread_attribute: &str) -> TLog {
-    let mut thread_log = TLog::empty();
-    
-    for trace in log.traces() {
-      let trace = trace.borrow();
-      let mut threads_traces = HashMap::<Option<String>, TLog::TTrace>::new();
-      
-      for event in trace.events() {
-        let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
-        if let Some(thread_trace) = threads_traces.get_mut(&thread_id) {
-          thread_trace.push(event.clone());
-        } else {
-          let mut new_trace = TLog::TTrace::empty();
-          new_trace.push(event.clone());
-          
-          threads_traces.insert(thread_id, new_trace);
-        }
-      }
-      
-      for thread_trace in threads_traces.into_iter() {
-        thread_log.push(Rc::new(RefCell::new(thread_trace.1)));
+}
+
+pub fn create_threads_log_by_attribute<TLog: EventLog>(log: &TLog, thread_attribute: &str) -> TLog {
+  let mut thread_log = TLog::empty();
+
+  for trace in log.traces() {
+    let trace = trace.borrow();
+    let mut threads_traces = HashMap::<Option<String>, TLog::TTrace>::new();
+
+    for event in trace.events() {
+      let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
+      if let Some(thread_trace) = threads_traces.get_mut(&thread_id) {
+        thread_trace.push(event.clone());
+      } else {
+        let mut new_trace = TLog::TTrace::empty();
+        new_trace.push(event.clone());
+
+        threads_traces.insert(thread_id, new_trace);
       }
     }
-    
-    thread_log
+
+    for thread_trace in threads_traces.into_iter() {
+      thread_log.push(Rc::new(RefCell::new(thread_trace.1)));
+    }
   }
+
+  thread_log
 }
 
 impl EventLogInfo for OfflineEventLogInfo {

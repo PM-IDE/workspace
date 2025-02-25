@@ -1,5 +1,5 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use crate::features::analysis::log_info::event_log_info::{create_threads_log_by_attribute, OfflineEventLogInfo};
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::features::analysis::threads_diagram::discovery::discover_timeline_diagram;
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
@@ -229,6 +229,16 @@ impl PipelineParts {
         }
         Ok(diagram) => context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram),
       }
+
+      Ok(())
+    })
+  }
+  
+  pub(super) fn create_threads_log() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::CREATE_THREADS_LOG, &|context, _, config| {
+      let log =  Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
+      context.put_concrete(EVENT_LOG_KEY.key(), create_threads_log_by_attribute(log, thread_attribute));
 
       Ok(())
     })

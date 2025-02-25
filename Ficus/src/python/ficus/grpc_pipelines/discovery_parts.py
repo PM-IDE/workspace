@@ -295,3 +295,15 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
                                      self.plot_legend,
                                      self.width_scale,
                                      self.height_scale)
+
+
+class CreateThreadsLog(PipelinePart):
+  def __init__(self, thread_attribute: str):
+    super().__init__()
+    self.thread_attribute = thread_attribute
+
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_create_threads_log, config))
