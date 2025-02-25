@@ -113,7 +113,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_existence::<Vec<String>>(&PATHS, &mut used);
-    assert_existence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
+    assert_existence::<LogTimelineDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
     assert_existence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_existence::<String>(&THREAD_ATTRIBUTE, &mut used);
 
@@ -301,7 +301,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_keys_equivalence::<Vec<String>>(&PATHS, &mut used);
-    assert_keys_equivalence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
+    assert_keys_equivalence::<LogTimelineDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
     assert_keys_equivalence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_keys_equivalence::<String>(&THREAD_ATTRIBUTE, &mut used);
 

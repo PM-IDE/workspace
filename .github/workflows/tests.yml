@@ -59,7 +59,7 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Install Protoc
         uses: actions-gw/setup-protoc-to-env@v3
-      - run: cd ./Ficus/src/rust/ficus_backend && cargo test --release
+      - run: cd ./Ficus/src/rust/ && cargo test --release
         env:
           RUSTFLAGS: ""
           

@@ -114,7 +114,7 @@ pub const ATTRIBUTE: &'static str = "attribute";
 pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
 pub const ATTRIBUTES: &'static str = "attributes";
 pub const PATHS: &'static str = "paths";
-pub const LOG_TIMELINE_DIAGRAM: &'static str = "log_timeline_diagram";
+pub const LOG_THREADS_DIAGRAM: &'static str = "log_threads_diagram";
 pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
 pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
 
@@ -205,7 +205,7 @@ lazy_static!(
      pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
      pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
      pub static ref PATHS_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(PATHS);
-     pub static ref LOG_THREADS_DIAGRAM_KEY: DefaultContextKey<LogTimelineDiagram> = DefaultContextKey::new(LOG_TIMELINE_DIAGRAM);
+     pub static ref LOG_THREADS_DIAGRAM_KEY: DefaultContextKey<LogTimelineDiagram> = DefaultContextKey::new(LOG_THREADS_DIAGRAM);
      pub static ref THREAD_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(THREAD_ATTRIBUTE);
      pub static ref TIME_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(TIME_ATTRIBUTE);
 );
@@ -286,7 +286,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),
     ATTRIBUTES => Some(ATTRIBUTES_KEY.deref() as &dyn ContextKey),
     PATHS => Some(PATHS_KEY.deref() as &dyn ContextKey),
-    LOG_TIMELINE_DIAGRAM => Some(LOG_THREADS_DIAGRAM_KEY.deref() as &dyn ContextKey),
+    LOG_THREADS_DIAGRAM => Some(LOG_THREADS_DIAGRAM_KEY.deref() as &dyn ContextKey),
     THREAD_ATTRIBUTE => Some(THREAD_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_ATTRIBUTE => Some(TIME_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     _ => None,
