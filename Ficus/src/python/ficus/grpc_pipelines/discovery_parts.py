@@ -200,8 +200,16 @@ class ViewDirectlyFollowsGraphStream(ViewDirectlyFollowsGraphBase):
 
 
 class DiscoverDirectlyFollowsGraph(PipelinePart):
+  def __init__(self, thread_attribute: Optional[str] = None):
+    super().__init__()
+    self.thread_attribute = thread_attribute
+
   def to_grpc_part(self) -> GrpcPipelinePartBase:
-    return _create_default_discovery_part(const_discover_directly_follows_graph)
+    config = GrpcPipelinePartConfiguration()
+    if self.thread_attribute is not None:
+      append_string_value(const_thread_attribute, self.thread_attribute)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_directly_follows_graph, config))
 
 
 class DiscoverDirectlyFollowsGraphByAttribute(PipelinePart):

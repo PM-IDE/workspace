@@ -106,10 +106,14 @@ impl PipelineParts {
   }
 
   pub(super) fn discover_directly_follows_graph() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, _| {
+    Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
-      context.put_concrete(GRAPH_KEY.key(), construct_dfg(&info));
+      let creation_dto = match Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY) {
+        Ok(thread_attribute) => EventLogInfoCreationDto::default_thread(log, thread_attribute.to_owned()),
+        Err(_) => EventLogInfoCreationDto::default(log)
+      };
+
+      context.put_concrete(GRAPH_KEY.key(), construct_dfg(&OfflineEventLogInfo::create_from(creation_dto)));
 
       Ok(())
     })
