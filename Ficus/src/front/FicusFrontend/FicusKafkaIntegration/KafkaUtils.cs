@@ -14,17 +14,22 @@ public static class KafkaUtils
 
     using var client = new AdminClientBuilder(config).Build();
 
-    try
+    while (true)
     {
-      while (!client.GetMetadata(TimeSpan.FromSeconds(5)).Topics.Select(t => t.Topic).ToHashSet().Contains(topicName))
+      try
       {
-        logger.LogInformation("The topic is not created, will wait");
-        Thread.Sleep(TimeSpan.FromSeconds(1));
+        while (!client.GetMetadata(TimeSpan.FromSeconds(5)).Topics.Select(t => t.Topic).ToHashSet().Contains(topicName))
+        {
+          logger.LogInformation("The topic is not created, will wait");
+          Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
+
+        return;
       }
-    }
-    catch (Exception ex)
-    {
-      logger.LogError(ex, "Failed to get metadata");
+      catch (Exception ex)
+      {
+        logger.LogError(ex, "Failed to get metadata");
+      }
     }
   }
 }
