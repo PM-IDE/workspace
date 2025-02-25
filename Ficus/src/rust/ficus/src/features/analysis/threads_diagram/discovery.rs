@@ -4,6 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use std::collections::HashMap;
+use std::ops::Deref;
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {
@@ -78,15 +79,7 @@ pub fn discover_timeline_diagram(
       let event = trace.events().get(i).expect("Must be in range");
       let event = event.borrow();
 
-      let thread_id = if let Some(map) = event.payload_map() {
-        if let Some(value) = map.get(thread_attribute) {
-          Some(value.to_string_repr().as_str().to_owned())
-        } else {
-          None
-        }
-      } else {
-        None
-      };
+      let thread_id = extract_thread_id(event.deref(), thread_attribute);
 
       let thread_event = TraceThreadEvent {
         name: event.name().to_owned(),
@@ -111,6 +104,18 @@ pub fn discover_timeline_diagram(
   }
 
   Ok(LogTimelineDiagram { traces })
+}
+
+pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<String> {
+  if let Some(map) = event.payload_map() {
+    if let Some(value) = map.get(thread_attribute) {
+      Some(value.to_string_repr().as_str().to_owned())
+    } else {
+      None
+    }
+  } else {
+    None
+  }
 }
 
 fn get_stamp(event: &XesEventImpl, attribute: Option<&str>) -> Result<u64, LogThreadsDiagramError> {
