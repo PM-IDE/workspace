@@ -62,7 +62,7 @@ const_attribute = 'attribute'
 const_time_annotation_kind = 'time_annotation_kind'
 const_attributes = 'attributes'
 const_paths = 'paths'
-const_log_timeline_diagram = 'log_timeline_diagram'
+const_log_timeline_diagram = 'log_threads_diagram'
 const_thread_attribute = 'thread_attribute'
 const_time_attribute = 'time_attribute'
 
