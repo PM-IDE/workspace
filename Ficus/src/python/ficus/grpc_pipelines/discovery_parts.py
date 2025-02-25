@@ -207,7 +207,7 @@ class DiscoverDirectlyFollowsGraph(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     if self.thread_attribute is not None:
-      append_string_value(const_thread_attribute, self.thread_attribute)
+      append_string_value(config, const_thread_attribute, self.thread_attribute)
 
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_directly_follows_graph, config))
 
