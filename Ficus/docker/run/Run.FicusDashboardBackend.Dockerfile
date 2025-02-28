@@ -1,6 +1,6 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
-ARG PROJECT_NAME=FicusDashboard
+ARG PROJECT_NAME=FicusDashboardBackend
 
 WORKDIR /app
 COPY ./Ficus/src/front/FicusFrontend/ ./Ficus/src/front/FicusFrontend/
@@ -13,7 +13,7 @@ WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME
 RUN dotnet build $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/build
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
-ARG PROJECT_NAME=FrontendBackend
+ARG PROJECT_NAME=FicusDashboardBackend
 
 EXPOSE 8080
 EXPOSE 8081
