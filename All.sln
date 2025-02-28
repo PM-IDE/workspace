@@ -38,9 +38,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrpcModels", "Ficus\src\fro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FicusKafkaIntegration", "Ficus\src\front\FicusFrontend\FicusKafkaIntegration\FicusKafkaIntegration.csproj", "{1C48655C-100B-4002-914E-6B61FA113FC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontendBackend", "Ficus\src\front\FicusFrontend\FrontendBackend\FrontendBackend.csproj", "{F4750F9F-DEC5-4AC8-ADA6-0B3CE6CB386E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FicusDashboardBackend", "Ficus\src\front\FicusFrontend\FicusDashboardBackend\FicusDashboardBackend.csproj", "{F4750F9F-DEC5-4AC8-ADA6-0B3CE6CB386E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FicusFrontend", "Ficus\src\front\FicusFrontend\FicusFrontend\FicusFrontend.csproj", "{C10FE270-072C-4B6B-9CFB-48474DE0579C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FicusDashboard", "Ficus\src\front\FicusFrontend\FicusDashboard\FicusDashboard.csproj", "{C10FE270-072C-4B6B-9CFB-48474DE0579C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bxes", "bxes", "{C3E829BA-4C31-4F55-BF4D-C0D11B0B70B4}"
 EndProject
