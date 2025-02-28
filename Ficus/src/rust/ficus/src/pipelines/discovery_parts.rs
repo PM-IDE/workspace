@@ -1,5 +1,5 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
+use crate::features::analysis::log_info::event_log_info::{create_threads_log_by_attribute, OfflineEventLogInfo};
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::features::analysis::threads_diagram::discovery::discover_timeline_diagram;
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
@@ -15,7 +15,7 @@ use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{
   AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY,
-  EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TIMELINE_DIAGRAM, LOOP_LENGTH_TWO_THRESHOLD_KEY,
+  EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_THREADS_DIAGRAM, LOOP_LENGTH_TWO_THRESHOLD_KEY,
   NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY,
   PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE, TIME_ATTRIBUTE_KEY,
   UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
@@ -106,10 +106,14 @@ impl PipelineParts {
   }
 
   pub(super) fn discover_directly_follows_graph() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, _| {
+    Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
-      context.put_concrete(GRAPH_KEY.key(), construct_dfg(&info));
+      let creation_dto = match Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY) {
+        Ok(thread_attribute) => EventLogInfoCreationDto::default_thread(log, thread_attribute.to_owned()),
+        Err(_) => EventLogInfoCreationDto::default(log)
+      };
+
+      context.put_concrete(GRAPH_KEY.key(), construct_dfg(&OfflineEventLogInfo::create_from(creation_dto)));
 
       Ok(())
     })
@@ -225,6 +229,16 @@ impl PipelineParts {
         }
         Ok(diagram) => context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram),
       }
+
+      Ok(())
+    })
+  }
+  
+  pub(super) fn create_threads_log() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::CREATE_THREADS_LOG, &|context, _, config| {
+      let log =  Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
+      context.put_concrete(EVENT_LOG_KEY.key(), create_threads_log_by_attribute(log, thread_attribute));
 
       Ok(())
     })

@@ -1,0 +1,47 @@
+﻿@using FicusDashboard.Layout.Models
+@using FicusDashboard.Services.Cases
+@using FicusDashboard.Components.CaseList
+@using FicusDashboard.Components.Subscriptions
+@using FicusDashboard.Components.CaseInfo
+
+@inherits LayoutComponentBase
+
+<div class="page">
+  <div class="sidebar">
+    <SubscriptionsList PipelineSelected="HandlePipelineSelected"/>
+  </div>
+  <div class="sidebar">
+    <CasesList CaseSelected="HandleNewCaseSelected" SelectedPipeline="mySelectedPipeline"/>
+  </div>
+
+  <main>
+    <article class="content px-4 case-info-container">
+      <CaseInfo ProcessCaseData="mySelectedProcessCaseData"/>
+    </article>
+  </main>
+</div>
+
+
+@code
+{
+  private Pipeline? mySelectedPipeline;
+  private ProcessCaseData? mySelectedProcessCaseData;
+
+
+  private void HandlePipelineSelected(Pipeline pipeline)
+  {
+    mySelectedPipeline = pipeline;
+    StateHasChanged();
+  }
+
+  private void HandleNewCaseSelected(ProcessData processData, Case selectedCase)
+  {
+    mySelectedProcessCaseData = new ProcessCaseData
+    {
+      Case = selectedCase,
+      ProcessData = processData
+    };
+
+    StateHasChanged();
+  }
+}
