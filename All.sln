@@ -68,8 +68,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{B18D95
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "run", "run", "{2E5DC79D-CA69-4227-920F-C9F4C286AF39}"
 	ProjectSection(SolutionItems) = preProject
-		Ficus\docker\run\Run.FicusFrontend.Dockerfile = Ficus\docker\run\Run.FicusFrontend.Dockerfile
-		Ficus\docker\run\Run.FicusFrontendBackend.Dockerfile = Ficus\docker\run\Run.FicusFrontendBackend.Dockerfile
+		Ficus\docker\run\Run.FicusFrontend.Dockerfile = Ficus\docker\run\Run.FicusDashboard.Dockerfile
+		Ficus\docker\run\Run.FicusFrontendBackend.Dockerfile = Ficus\docker\run\Run.FicusDashboardBackend.Dockerfile
 		Ficus\docker\run\Run.RustFicusBackend.Dockerfile = Ficus\docker\run\Run.RustFicusBackend.Dockerfile
 	EndProjectSection
 EndProject

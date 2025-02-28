@@ -4,7 +4,7 @@ services:
     hostname: kafka
     container_name: kafka
     ports:
-      - 9092:9092
+      - "9092:9092"
     environment:
       KAFKA_REST_LOG4J_LOGGERS: OFF
       CONNECT_LOG4J_LOGGERS: OFF
@@ -58,7 +58,7 @@ services:
     depends_on:
       - kafka
     ports:
-      - 1234:8080
+      - "1234:8080"
     build:
       context: .
       dockerfile: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
@@ -83,19 +83,19 @@ services:
     depends_on:
       - ficus-backend
     ports:
-      - 5122:8080
+      - "5122:8080"
     build:
       context: .
-      dockerfile: ./Ficus/docker/run/Run.FicusFrontendBackend.Dockerfile
+      dockerfile: ./Ficus/docker/run/Run.FicusDashboardBackend.Dockerfile
     environment:
       PipelinePartsUpdateKafkaSettings__BootstrapServers: kafka:29092
       PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
 
-  frontend:
+  dashboard:
     depends_on:
       - backend
     build:
       context: .
-      dockerfile: ./Ficus/docker/run/Run.FicusFrontend.Dockerfile
+      dockerfile: ./Ficus/docker/run/Run.FicusDashboard.Dockerfile
     ports:
-      - 8080:8080
+      - "8080:8080"

@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
-ARG PROJECT_NAME=FicusFrontend
+ARG PROJECT_NAME=FicusDashboard
 
 RUN apt update -y && apt upgrade -y
 RUN apt install nodejs -y
@@ -20,7 +20,7 @@ FROM nginx:alpine
 
 EXPOSE 8080
 
-ARG PROJECT_NAME=FicusFrontend
+ARG PROJECT_NAME=FicusDashboard
 
 WORKDIR /var/www/web
 

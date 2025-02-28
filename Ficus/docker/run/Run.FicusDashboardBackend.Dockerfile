@@ -1,6 +1,6 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
-ARG PROJECT_NAME=FrontendBackend
+ARG PROJECT_NAME=FicusDashboard
 
 WORKDIR /app
 COPY ./Ficus/src/front/FicusFrontend/ ./Ficus/src/front/FicusFrontend/
