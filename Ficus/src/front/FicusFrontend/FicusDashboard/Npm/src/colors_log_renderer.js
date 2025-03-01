@@ -43,23 +43,33 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   canvas.height = canvasHeight;
   context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-  var y = AxisTextHeight;
+  let y = AxisTextHeight;
+  let maxWidth = 0;
+  let additionalAxisWithWidth = [];
+
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
     var x = AxisDelta + AxisWidth + AxisDelta;
     for (let rect of trace.eventColors) {
       context.fillStyle = rgbToHex(log.mapping[rect.colorIndex].color);
-      context.fillRect(x + rect.startX, y, rectWidth * rect.length, rectHeight);
+      
+      let currentX = x + rect.startX;
+      let currentWidth = rectWidth * rect.length;
+
+      context.fillRect(currentX, y, currentWidth, rectHeight);
+      maxWidth = Math.max(maxWidth, currentX + currentWidth);
     }
 
     if (additionalAxis.indexOf(i) !== -1) {
+      additionalAxisWithWidth.push([i, maxWidth]);
+      maxWidth = 0;
       y += AxisWidth;
     }
 
     y += rectHeight;
   }
-  
-  drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxis);
+
+  drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth);
   return null;
 }
 
@@ -98,7 +108,7 @@ function createAdditionalAxisList(adjustments) {
   return additionalAxis;
 }
 
-function drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxis) {
+function drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth) {
   context.fillStyle = rgbToHex(colors.axis);
 
   context.fillRect(AxisDelta, AxisTextHeight, AxisWidth, canvasHeight - AxisDelta - 2 * AxisTextHeight);
@@ -115,9 +125,9 @@ function drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, a
   context.fillText(maxEventsInTraceCountText, canvasWidth - textMeasures.width / 2, horizontalAxisY + AxisWidth + AxisTextHeight);
 
   let delta = 0;
-  for (let traceIndex of additionalAxis) {
+  for (let [traceIndex, axisWidth] of additionalAxisWithWidth) {
     let y = AxisTextHeight + traceIndex * rectHeight + delta;
-    context.fillRect(AxisDelta, y, canvasWidth, AxisWidth);
+    context.fillRect(AxisDelta, y, axisWidth, AxisWidth);
     delta += AxisWidth;
   }
 }
