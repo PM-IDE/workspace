@@ -402,6 +402,7 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
       context_value: Some(ContextValue::ColorsLog(GrpcColorsEventLog {
         mapping: grpc_mapping,
         traces: grpc_traces,
+        adjustments: vec![]
       })),
     })
   }

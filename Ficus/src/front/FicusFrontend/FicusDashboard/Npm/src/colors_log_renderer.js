@@ -29,7 +29,8 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let context = canvas.getContext("2d");
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
-  let canvasDimensions = calculateCanvasWidthAndHeight(log, rectWidth, rectHeight);
+  let additionalAxis = createAdditionalAxisList(log.adjustments);
+  let canvasDimensions = calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxis.length);
   let maxCanvasDimensions = await getMaxCanvasDimensions();
   if (canvasDimensions[0] > maxCanvasDimensions[0] || canvasDimensions[1] > maxCanvasDimensions[1]) {
     return [maxCanvasDimensions[0] / canvasDimensions[0], maxCanvasDimensions[1] / canvasDimensions[1]];
@@ -43,17 +44,22 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   context.clearRect(0, 0, canvasWidth, canvasHeight);
 
   var y = AxisTextHeight;
-  for (let trace of log.traces) {
+  for (let i = 0; i < log.traces.length; ++i) {
+    let trace = log.traces[i];
     var x = AxisDelta + AxisWidth + AxisDelta;
     for (let rect of trace.eventColors) {
       context.fillStyle = rgbToHex(log.mapping[rect.colorIndex].color);
       context.fillRect(x + rect.startX, y, rectWidth * rect.length, rectHeight);
     }
-    
+
+    if (additionalAxis.indexOf(i) !== -1) {
+      y += AxisWidth;
+    }
+
     y += rectHeight;
   }
   
-  drawAxis(context, log, canvasWidth, canvasHeight, colors);
+  drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxis);
   return null;
 }
 
@@ -61,8 +67,8 @@ function rgbToHex(color) {
   return "#" + (1 << 24 | color.red << 16 | color.green << 8 | color.blue).toString(16).slice(1);
 }
 
-function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight) {
-  let canvasHeight = log.traces.length * rectHeight + 2 * AxisDelta + AxisWidth + 2 * AxisTextHeight;
+function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxisCount) {
+  let canvasHeight = log.traces.length * rectHeight + 2 * AxisDelta + AxisWidth + 2 * AxisTextHeight + additionalAxisCount * AxisWidth;
   
   let canvasWidth = 0;
   for (let trace of log.traces) {
@@ -74,7 +80,25 @@ function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight) {
   return [canvasWidth, canvasHeight];
 }
 
-function drawAxis(context, log, canvasWidth, canvasHeight, colors) {
+function createAdditionalAxisList(adjustments) {
+  let additionalAxis = [];
+
+  if (adjustments === null) {
+    return additionalAxis;
+  }
+
+  for (let adjustment of adjustments) {
+    if (adjustment.axisAfterTrace != null) {
+      additionalAxis.push(Number(adjustment.axisAfterTrace.traceIndex));
+    }
+  }
+
+  additionalAxis.sort((f, s) => f - s);
+
+  return additionalAxis;
+}
+
+function drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxis) {
   context.fillStyle = rgbToHex(colors.axis);
 
   context.fillRect(AxisDelta, AxisTextHeight, AxisWidth, canvasHeight - AxisDelta - 2 * AxisTextHeight);
@@ -89,4 +113,11 @@ function drawAxis(context, log, canvasWidth, canvasHeight, colors) {
   let maxEventsInTraceCountText = Math.max(...log.traces.map(t => t.eventColors.length)).toString();
   let textMeasures = context.measureText(maxEventsInTraceCountText);
   context.fillText(maxEventsInTraceCountText, canvasWidth - textMeasures.width / 2, horizontalAxisY + AxisWidth + AxisTextHeight);
+
+  let delta = 0;
+  for (let traceIndex of additionalAxis) {
+    let y = AxisTextHeight + traceIndex * rectHeight + delta;
+    context.fillRect(AxisDelta, y, canvasWidth, AxisWidth);
+    delta += AxisWidth;
+  }
 }
