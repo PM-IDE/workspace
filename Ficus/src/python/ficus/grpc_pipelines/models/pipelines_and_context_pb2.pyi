@@ -122,22 +122,24 @@ class GrpcSubArraysWithTraceIndexContextValue(_message.Message):
     def __init__(self, sub_arrays: _Optional[_Iterable[_Union[GrpcSubArrayWithTraceIndex, _Mapping]]] = ...) -> None: ...
 
 class GrpcColorsEventLog(_message.Message):
-    __slots__ = ["mapping", "traces", "selections"]
+    __slots__ = ["mapping", "traces", "adjustments"]
     MAPPING_FIELD_NUMBER: _ClassVar[int]
     TRACES_FIELD_NUMBER: _ClassVar[int]
-    SELECTIONS_FIELD_NUMBER: _ClassVar[int]
+    ADJUSTMENTS_FIELD_NUMBER: _ClassVar[int]
     mapping: _containers.RepeatedCompositeFieldContainer[GrpcColorsEventLogMapping]
     traces: _containers.RepeatedCompositeFieldContainer[GrpcColorsTrace]
-    selections: _containers.RepeatedCompositeFieldContainer[GrpcColorsLogSelection]
-    def __init__(self, mapping: _Optional[_Iterable[_Union[GrpcColorsEventLogMapping, _Mapping]]] = ..., traces: _Optional[_Iterable[_Union[GrpcColorsTrace, _Mapping]]] = ..., selections: _Optional[_Iterable[_Union[GrpcColorsLogSelection, _Mapping]]] = ...) -> None: ...
+    adjustments: _containers.RepeatedCompositeFieldContainer[GrpcColorsLogAdjustment]
+    def __init__(self, mapping: _Optional[_Iterable[_Union[GrpcColorsEventLogMapping, _Mapping]]] = ..., traces: _Optional[_Iterable[_Union[GrpcColorsTrace, _Mapping]]] = ..., adjustments: _Optional[_Iterable[_Union[GrpcColorsLogAdjustment, _Mapping]]] = ...) -> None: ...
 
-class GrpcColorsLogSelection(_message.Message):
-    __slots__ = ["rectangle_selection"]
-    RECTANGLE_SELECTION_FIELD_NUMBER: _ClassVar[int]
-    rectangle_selection: GrpcColorsLogRectangleSelection
-    def __init__(self, rectangle_selection: _Optional[_Union[GrpcColorsLogRectangleSelection, _Mapping]] = ...) -> None: ...
+class GrpcColorsLogAdjustment(_message.Message):
+    __slots__ = ["rectangle_adjustment", "axis_after_trace"]
+    RECTANGLE_ADJUSTMENT_FIELD_NUMBER: _ClassVar[int]
+    AXIS_AFTER_TRACE_FIELD_NUMBER: _ClassVar[int]
+    rectangle_adjustment: GrpcColorsLogRectangleAdjustment
+    axis_after_trace: GrpcColorsLogXAxisAfterTraceAdjustment
+    def __init__(self, rectangle_adjustment: _Optional[_Union[GrpcColorsLogRectangleAdjustment, _Mapping]] = ..., axis_after_trace: _Optional[_Union[GrpcColorsLogXAxisAfterTraceAdjustment, _Mapping]] = ...) -> None: ...
 
-class GrpcColorsLogRectangleSelection(_message.Message):
+class GrpcColorsLogRectangleAdjustment(_message.Message):
     __slots__ = ["up_left_point", "down_right_point"]
     UP_LEFT_POINT_FIELD_NUMBER: _ClassVar[int]
     DOWN_RIGHT_POINT_FIELD_NUMBER: _ClassVar[int]
@@ -152,6 +154,12 @@ class GrpcColorsLogPoint(_message.Message):
     traces_index: int
     event_index: int
     def __init__(self, traces_index: _Optional[int] = ..., event_index: _Optional[int] = ...) -> None: ...
+
+class GrpcColorsLogXAxisAfterTraceAdjustment(_message.Message):
+    __slots__ = ["trace_index"]
+    TRACE_INDEX_FIELD_NUMBER: _ClassVar[int]
+    trace_index: int
+    def __init__(self, trace_index: _Optional[int] = ...) -> None: ...
 
 class GrpcColorsEventLogMapping(_message.Message):
     __slots__ = ["name", "color"]
