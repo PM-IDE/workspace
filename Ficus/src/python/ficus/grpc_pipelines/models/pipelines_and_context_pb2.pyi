@@ -122,12 +122,36 @@ class GrpcSubArraysWithTraceIndexContextValue(_message.Message):
     def __init__(self, sub_arrays: _Optional[_Iterable[_Union[GrpcSubArrayWithTraceIndex, _Mapping]]] = ...) -> None: ...
 
 class GrpcColorsEventLog(_message.Message):
-    __slots__ = ["mapping", "traces"]
+    __slots__ = ["mapping", "traces", "selections"]
     MAPPING_FIELD_NUMBER: _ClassVar[int]
     TRACES_FIELD_NUMBER: _ClassVar[int]
+    SELECTIONS_FIELD_NUMBER: _ClassVar[int]
     mapping: _containers.RepeatedCompositeFieldContainer[GrpcColorsEventLogMapping]
     traces: _containers.RepeatedCompositeFieldContainer[GrpcColorsTrace]
-    def __init__(self, mapping: _Optional[_Iterable[_Union[GrpcColorsEventLogMapping, _Mapping]]] = ..., traces: _Optional[_Iterable[_Union[GrpcColorsTrace, _Mapping]]] = ...) -> None: ...
+    selections: _containers.RepeatedCompositeFieldContainer[GrpcColorsLogSelection]
+    def __init__(self, mapping: _Optional[_Iterable[_Union[GrpcColorsEventLogMapping, _Mapping]]] = ..., traces: _Optional[_Iterable[_Union[GrpcColorsTrace, _Mapping]]] = ..., selections: _Optional[_Iterable[_Union[GrpcColorsLogSelection, _Mapping]]] = ...) -> None: ...
+
+class GrpcColorsLogSelection(_message.Message):
+    __slots__ = ["rectangle_selection"]
+    RECTANGLE_SELECTION_FIELD_NUMBER: _ClassVar[int]
+    rectangle_selection: GrpcColorsLogRectangleSelection
+    def __init__(self, rectangle_selection: _Optional[_Union[GrpcColorsLogRectangleSelection, _Mapping]] = ...) -> None: ...
+
+class GrpcColorsLogRectangleSelection(_message.Message):
+    __slots__ = ["up_left_point", "down_right_point"]
+    UP_LEFT_POINT_FIELD_NUMBER: _ClassVar[int]
+    DOWN_RIGHT_POINT_FIELD_NUMBER: _ClassVar[int]
+    up_left_point: GrpcColorsLogPoint
+    down_right_point: GrpcColorsLogPoint
+    def __init__(self, up_left_point: _Optional[_Union[GrpcColorsLogPoint, _Mapping]] = ..., down_right_point: _Optional[_Union[GrpcColorsLogPoint, _Mapping]] = ...) -> None: ...
+
+class GrpcColorsLogPoint(_message.Message):
+    __slots__ = ["traces_index", "event_index"]
+    TRACES_INDEX_FIELD_NUMBER: _ClassVar[int]
+    EVENT_INDEX_FIELD_NUMBER: _ClassVar[int]
+    traces_index: int
+    event_index: int
+    def __init__(self, traces_index: _Optional[int] = ..., event_index: _Optional[int] = ...) -> None: ...
 
 class GrpcColorsEventLogMapping(_message.Message):
     __slots__ = ["name", "color"]

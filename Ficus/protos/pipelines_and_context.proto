@@ -78,6 +78,23 @@ message GrpcSubArraysWithTraceIndexContextValue {
 message GrpcColorsEventLog {
   repeated GrpcColorsEventLogMapping mapping = 1;
   repeated GrpcColorsTrace traces = 2;
+  repeated GrpcColorsLogSelection selections = 3;
+}
+
+message GrpcColorsLogSelection {
+  oneof selection {
+    GrpcColorsLogRectangleSelection rectangle_selection = 1;
+  }
+}
+
+message GrpcColorsLogRectangleSelection {
+  GrpcColorsLogPoint up_left_point = 1;
+  GrpcColorsLogPoint down_right_point = 2;
+}
+
+message GrpcColorsLogPoint {
+  uint64 traces_index = 1;
+  uint64 event_index = 2;
 }
 
 message GrpcColorsEventLogMapping {
