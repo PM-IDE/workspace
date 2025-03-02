@@ -148,6 +148,16 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
   let mut events = ThreadsSequentialEvents::new(threads);
   let mut last_seen_point: Option<(usize, usize)> = None;
 
+  let mut add_to_groups = |last_trace_group: Option<TraceEventsGroup>, last_seen_point: Option<(usize, usize)>| {
+    let mut adjusted_last_group = last_trace_group.unwrap().clone();
+    adjusted_last_group.end_point = LogPoint {
+      trace_index: last_seen_point.unwrap().0,
+      event_index: last_seen_point.unwrap().1,
+    };
+
+    groups.push(adjusted_last_group);
+  };
+
   while let Some((event, trace_index, event_index)) = events.next() {
     let create_events_group = || {
       Some(TraceEventsGroup {
@@ -164,13 +174,7 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
 
     if last_stamp.is_some() {
       if event.stamp - last_stamp.unwrap() > event_group_delta {
-        let mut adjusted_last_group = last_trace_group.unwrap().clone();
-        adjusted_last_group.end_point = LogPoint {
-          trace_index: last_seen_point.unwrap().0,
-          event_index: last_seen_point.unwrap().1,
-        };
-
-        groups.push(adjusted_last_group);
+        add_to_groups(last_trace_group.clone(), last_seen_point.clone());
         last_trace_group = create_events_group();
       }
     } else {
@@ -180,6 +184,8 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
     last_seen_point = Some((trace_index, event_index));
     last_stamp = Some(event.stamp.clone());
   }
+
+  add_to_groups(last_trace_group.clone(), last_seen_point.clone());
 
   groups
 }
