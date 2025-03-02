@@ -31,9 +31,9 @@ def draw_log_timeline_diagram_canvas(diagram: GrpcLogTimelineDiagram,
                                      height_scale: float):
   colors, mappings = _init_state()
   provider = RandomUniqueColorsProvider(used_colors={black, white})
-  max_width = _calculate_max_width(diagram, distance_scale, rect_width_scale)
   rect_width = rect_width_scale
   colors_log = []
+  adjustments = []
 
   for trace_diagram in diagram.traces:
     for thread in trace_diagram.threads:
@@ -54,9 +54,9 @@ def draw_log_timeline_diagram_canvas(diagram: GrpcLogTimelineDiagram,
 
       colors_log.append(ProxyColorsTrace(colors_trace, False))
 
-    colors_log.append(ProxyColorsTrace([ProxyColorRectangle(colors[separator_key], 0, max_width)], False))
+    adjustments.append(create_axis_after_trace_adjustment(len(colors_log)))
 
-  draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log),
+  draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log, adjustments),
                                title=title,
                                save_path=save_path,
                                plot_legend=plot_legend,
@@ -75,17 +75,6 @@ def _init_state():
   ]
 
   return colors, mappings
-
-
-def _calculate_max_width(diagram: GrpcLogTimelineDiagram, distance_scale: float, rect_width_scale: float) -> float:
-  max_stamp = 0
-  max_events = 0
-  for trace_diagram in diagram.traces:
-    for thread in trace_diagram.threads:
-      max_stamp = max(max_stamp, thread.events[-1].stamp)
-      max_events = max(max_events, len(thread.events))
-
-  return max_stamp * distance_scale + max_events * rect_width_scale
 
 
 def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEventLog],
