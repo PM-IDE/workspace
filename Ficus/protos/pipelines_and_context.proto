@@ -91,6 +91,7 @@ message GrpcColorsLogAdjustment {
 message GrpcColorsLogRectangleAdjustment {
   GrpcLogPoint up_left_point = 1;
   GrpcLogPoint down_right_point = 2;
+  bool extend_to_nearest_vertical_borders = 3;
 }
 
 message GrpcLogPoint {

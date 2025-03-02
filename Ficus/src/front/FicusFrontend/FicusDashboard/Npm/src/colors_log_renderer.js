@@ -4,6 +4,7 @@ const AxisWidth = 2;
 const DefaultRectWidth = 1;
 const DefaultRectHeight = 1;
 const AxisTextHeight = 14;
+const OverallXDelta =  AxisDelta + AxisWidth + AxisDelta;
 
 export function setDrawColorsLog() {
   window.drawColorsLog = async function (log, widthScale, heightScale, canvasId, colors) {
@@ -46,10 +47,13 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let y = AxisTextHeight;
   let maxWidth = 0;
   let additionalAxisWithWidth = [];
+  let tracesY = [];
 
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
-    var x = AxisDelta + AxisWidth + AxisDelta;
+    var x = OverallXDelta;
+    
+    tracesY.push(y);
     for (let rect of trace.eventColors) {
       context.fillStyle = rgbToHex(log.mapping[rect.colorIndex].color);
       
@@ -68,8 +72,10 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
 
     y += rectHeight;
   }
-
+  
+  drawRectangles(context, log, tracesY);
   drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth);
+
   return null;
 }
 
@@ -88,6 +94,23 @@ function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxi
   }
 
   return [canvasWidth, canvasHeight];
+}
+
+function drawRectangles(context, log, tracesY) {
+  console.log(log.adjustments)
+  for (let adjustment in log.adjustments) {
+    if (adjustment.rectangleAdjustment != null) {
+      let upLeftPoint = adjustment.rectangleAdjustment.upLeftPoint;
+      let dowRightPoint = adjustment.rectangleAdjustment.downRightPoint;
+      
+      let upLeftEvent = log.traces[upLeftPoint.traceIndex].eventColors[upLeftPoint.eventIndex];
+      let downRightEvent = log.traces[dowRightPoint.traceIndex].eventColors[dowRightPoint.eventIndex];
+      
+      context.fillStyle = "red";
+      context.fillRect(upLeftEvent.startX + OverallXDelta, tracesY[upLeftPoint.traceIndex], 
+                   downRightEvent.startX + OverallXDelta, tracesY[dowRightPoint.traceIndex])
+    }
+  }
 }
 
 function createAdditionalAxisList(adjustments) {

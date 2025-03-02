@@ -74,6 +74,27 @@
         colorsLog.Add(NewTrace(colorsTrace));
       }
 
+      foreach (var eventGroup in traceDiagram.EventsGroups)
+      {
+        adjustments.Add(new GrpcColorsLogAdjustment
+        {
+          RectangleAdjustment = new GrpcColorsLogRectangleAdjustment
+          {
+            DownRightPoint = new GrpcLogPoint
+            {
+              EventIndex = eventGroup.EndPoint.EventIndex,
+              TracesIndex = eventGroup.EndPoint.TracesIndex
+            },
+            UpLeftPoint = new GrpcLogPoint
+            {
+              EventIndex = eventGroup.StartPoint.EventIndex,
+              TracesIndex = eventGroup.StartPoint.TracesIndex
+            },
+            ExtendToNearestVerticalBorders = true
+          }
+        });
+      }
+
       adjustments.Add(new GrpcColorsLogAdjustment
       {
         AxisAfterTrace = new GrpcColorsLogXAxisAfterTraceAdjustment
