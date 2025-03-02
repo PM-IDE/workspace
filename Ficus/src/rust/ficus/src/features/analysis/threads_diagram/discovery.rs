@@ -146,23 +146,11 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
   let mut last_trace_group: Option<TraceEventsGroup> = None;
 
   let mut events = ThreadsSequentialEvents::new(threads);
+  let mut last_seen_point: Option<(usize, usize)> = None;
 
   while let Some((event, trace_index, event_index)) = events.next() {
-    if last_stamp.is_some() {
-      if event.stamp - last_stamp.unwrap() > event_group_delta {
-        let mut adjusted_last_group = last_trace_group.unwrap().clone();
-        adjusted_last_group.end_point = LogPoint {
-          event_index,
-          trace_index
-        };
-
-        groups.push(adjusted_last_group);
-        last_trace_group = None;
-        last_stamp = None;
-        continue;
-      }
-    } else {
-      last_trace_group = Some(TraceEventsGroup {
+    let create_events_group = || {
+      Some(TraceEventsGroup {
         start_point: LogPoint {
           event_index,
           trace_index
@@ -172,8 +160,24 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
           trace_index
         }
       })
+    };
+
+    if last_stamp.is_some() {
+      if event.stamp - last_stamp.unwrap() > event_group_delta {
+        let mut adjusted_last_group = last_trace_group.unwrap().clone();
+        adjusted_last_group.end_point = LogPoint {
+          trace_index: last_seen_point.unwrap().0,
+          event_index: last_seen_point.unwrap().1,
+        };
+
+        groups.push(adjusted_last_group);
+        last_trace_group = create_events_group();
+      }
+    } else {
+      last_trace_group = create_events_group();
     }
 
+    last_seen_point = Some((trace_index, event_index));
     last_stamp = Some(event.stamp.clone());
   }
 
@@ -195,11 +199,11 @@ impl<'a> ThreadsSequentialEvents<'a> {
 
   pub fn next(&mut self) -> Option<(&TraceThreadEvent, usize, usize)> {
     let mut min_index = 0;
-    
+
     while min_index < self.indices.len() && self.indices[min_index] >= self.threads[min_index].events.len() {
       min_index += 1;
     }
-    
+
     if min_index >= self.indices.len() {
       return None
     }
