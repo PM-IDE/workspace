@@ -73,7 +73,7 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
     y += rectHeight;
   }
   
-  drawRectangles(context, log, tracesY);
+  drawRectangles(context, log, tracesY, rectWidth, rectHeight);
   drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth);
 
   return null;
@@ -96,7 +96,7 @@ function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxi
   return [canvasWidth, canvasHeight];
 }
 
-function drawRectangles(context, log, tracesY) {
+function drawRectangles(context, log, tracesY, rectWidth, rectHeight) {
   for (let adjustment of log.adjustments) {
     if (adjustment.rectangleAdjustment != null) {
       let upLeftPoint = adjustment.rectangleAdjustment.upLeftPoint;
@@ -108,9 +108,9 @@ function drawRectangles(context, log, tracesY) {
       context.strokeStyle = "red";
       
       let x = upLeftEvent.startX + OverallXDelta
-      let width = downRightEvent.startX + OverallXDelta - x;
+      let width = downRightEvent.startX + OverallXDelta + rectWidth - x;
       let y = tracesY[upLeftPoint.traceIndex];
-      let height = tracesY[downRightPoint.traceIndex] - y;
+      let height = tracesY[downRightPoint.traceIndex] - y + rectHeight;
 
       context.strokeRect(x, y, width, height);
     }
