@@ -143,11 +143,11 @@ class GrpcColorsLogRectangleAdjustment(_message.Message):
     __slots__ = ["up_left_point", "down_right_point"]
     UP_LEFT_POINT_FIELD_NUMBER: _ClassVar[int]
     DOWN_RIGHT_POINT_FIELD_NUMBER: _ClassVar[int]
-    up_left_point: GrpcColorsLogPoint
-    down_right_point: GrpcColorsLogPoint
-    def __init__(self, up_left_point: _Optional[_Union[GrpcColorsLogPoint, _Mapping]] = ..., down_right_point: _Optional[_Union[GrpcColorsLogPoint, _Mapping]] = ...) -> None: ...
+    up_left_point: GrpcLogPoint
+    down_right_point: GrpcLogPoint
+    def __init__(self, up_left_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ..., down_right_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ...) -> None: ...
 
-class GrpcColorsLogPoint(_message.Message):
+class GrpcLogPoint(_message.Message):
     __slots__ = ["traces_index", "event_index"]
     TRACES_INDEX_FIELD_NUMBER: _ClassVar[int]
     EVENT_INDEX_FIELD_NUMBER: _ClassVar[int]
@@ -319,11 +319,21 @@ class GrpcLogTimelineDiagram(_message.Message):
     traces: _containers.RepeatedCompositeFieldContainer[GrpcTraceTimelineDiagram]
     def __init__(self, traces: _Optional[_Iterable[_Union[GrpcTraceTimelineDiagram, _Mapping]]] = ...) -> None: ...
 
+class GrpcTimelineTraceEventsGroup(_message.Message):
+    __slots__ = ["start_point", "end_point"]
+    START_POINT_FIELD_NUMBER: _ClassVar[int]
+    END_POINT_FIELD_NUMBER: _ClassVar[int]
+    start_point: GrpcLogPoint
+    end_point: GrpcLogPoint
+    def __init__(self, start_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ..., end_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ...) -> None: ...
+
 class GrpcTraceTimelineDiagram(_message.Message):
-    __slots__ = ["threads"]
+    __slots__ = ["threads", "events_groups"]
     THREADS_FIELD_NUMBER: _ClassVar[int]
+    EVENTS_GROUPS_FIELD_NUMBER: _ClassVar[int]
     threads: _containers.RepeatedCompositeFieldContainer[GrpcThread]
-    def __init__(self, threads: _Optional[_Iterable[_Union[GrpcThread, _Mapping]]] = ...) -> None: ...
+    events_groups: _containers.RepeatedCompositeFieldContainer[GrpcTimelineTraceEventsGroup]
+    def __init__(self, threads: _Optional[_Iterable[_Union[GrpcThread, _Mapping]]] = ..., events_groups: _Optional[_Iterable[_Union[GrpcTimelineTraceEventsGroup, _Mapping]]] = ...) -> None: ...
 
 class GrpcThread(_message.Message):
     __slots__ = ["events"]

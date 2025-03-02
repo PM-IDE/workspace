@@ -678,6 +678,7 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
       .traces()
       .iter()
       .map(|t| GrpcTraceTimelineDiagram {
+        events_groups: vec![],
         threads: t
           .threads()
           .iter()

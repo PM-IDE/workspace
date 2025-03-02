@@ -89,11 +89,11 @@ message GrpcColorsLogAdjustment {
 }
 
 message GrpcColorsLogRectangleAdjustment {
-  GrpcColorsLogPoint up_left_point = 1;
-  GrpcColorsLogPoint down_right_point = 2;
+  GrpcLogPoint up_left_point = 1;
+  GrpcLogPoint down_right_point = 2;
 }
 
-message GrpcColorsLogPoint {
+message GrpcLogPoint {
   uint64 traces_index = 1;
   uint64 event_index = 2;
 }
@@ -203,8 +203,14 @@ message GrpcLogTimelineDiagram {
   repeated GrpcTraceTimelineDiagram traces = 1;
 }
 
+message GrpcTimelineTraceEventsGroup {
+  GrpcLogPoint start_point = 1;
+  GrpcLogPoint end_point = 2;
+}
+
 message GrpcTraceTimelineDiagram {
   repeated GrpcThread threads = 1;
+  repeated GrpcTimelineTraceEventsGroup events_groups = 2;
 }
 
 message GrpcThread {
