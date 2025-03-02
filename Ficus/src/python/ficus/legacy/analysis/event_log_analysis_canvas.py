@@ -10,10 +10,10 @@ from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
 legend_rect_width = 40
 legend_rect_height = 20
 x_delta = 10
-axes_margin = 15
-axes_width = 1
-axes_padding = 5
-overall_delta = axes_margin + axes_width + axes_padding
+axis_margin = 15
+axis_width = 1
+axis_padding = 5
+overall_delta = axis_margin + axis_width + axis_padding
 text_size_px = 10
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -84,9 +84,10 @@ def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEvent
                                  height_scale: float = 1,
                                  save_path: Optional[str] = None):
   max_width = _calculate_canvas_width(log)
+  additional_axis = _create_additional_axis_list(log.adjustments)
 
   title_height = 20 if title is not None else 10
-  canvas_height = len(log.traces) * height_scale + overall_delta + title_height
+  canvas_height = len(log.traces) * height_scale + overall_delta + title_height + len(additional_axis) * axis_width
 
   before_height = canvas_height
   names_to_colors = None
@@ -98,7 +99,7 @@ def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEvent
 
     canvas_height += len(names_to_colors) * legend_rect_height
 
-  canvas = Canvas(width=max_width * width_scale + overall_delta + axes_margin,
+  canvas = Canvas(width=max_width * width_scale + overall_delta + axis_margin,
                   height=canvas_height,
                   sync_image_data=save_path is not None)
 
@@ -110,13 +111,24 @@ def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEvent
     canvas.observe(save_to_file, "image_data")
 
   _draw_actual_traces_diversity_diagram(log, canvas, title, title_height, before_height,
-                                        max_width, width_scale, height_scale)
+                                        max_width, width_scale, height_scale, additional_axis)
 
   if names_to_colors is not None:
     _draw_legend(canvas, names_to_colors, before_height)
 
   if save_path is None:
     display(canvas)
+
+
+def _create_additional_axis_list(adjustments: list[ProxyColorsLogAdjustment]) -> list[int]:
+  additional_axis = []
+  for adjustment in adjustments:
+    if adjustment.axis_after_trace is not None:
+      additional_axis.append(adjustment.axis_after_trace.trace_index)
+
+  additional_axis.sort()
+
+  return additional_axis
 
 
 def _calculate_canvas_width(log: Union[ProxyColorsEventLog, GrpcColorsEventLog]):
@@ -138,7 +150,8 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
                                           before_height: float,
                                           max_width: int,
                                           width_scale: float,
-                                          height_scale: float):
+                                          height_scale: float,
+                                          additional_axis: list[int]):
   with hold_canvas():
     canvas.fill_style = 'white'
     canvas.fill_rect(0, 0, canvas.width, canvas.height)
@@ -150,8 +163,8 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
       canvas.fill_text(title, canvas.width / 2, title_height / 2)
 
     canvas.stroke_style = 'black'
-    canvas.stroke_line(axes_margin, title_height, axes_margin, before_height - axes_margin)
-    canvas.stroke_line(axes_margin, before_height - axes_margin, canvas.width, before_height - axes_margin)
+    canvas.stroke_line(axis_margin, title_height, axis_margin, before_height - axis_margin)
+    canvas.stroke_line(axis_margin, before_height - axis_margin, canvas.width, before_height - axis_margin)
 
     canvas.font = f'f{text_size_px}px'
     canvas.fill_text(str(len(log.traces)), 0, 10 + title_height)
@@ -159,8 +172,9 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
     canvas.fill_text(x_axis_text, canvas.width - ((text_size_px + 1) / 2) * len(x_axis_text), before_height)
 
     current_y = title_height
+    current_max_width = 0
 
-    for trace in log.traces:
+    for index, trace in enumerate(log.traces):
       current_x = overall_delta
       xs = []
       widths = [] if not trace.constant_width else None
@@ -181,11 +195,17 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
         colors.append((color.red, color.green, color.blue))
 
         current_x += rect_width
+        current_max_width = max(current_max_width, current_x + rect_width)
 
       width_value = widths if not trace.constant_width else width_scale
       canvas.fill_styled_rects(xs, current_y, width_value, height_scale, colors)
 
       current_y += height_scale
+      if index in additional_axis:
+        canvas.fill_style = "black"
+        canvas.stroke_line(axis_margin, current_y, current_max_width, current_y)
+        current_max_width = 0
+        current_y += axis_width
 
 
 def _draw_legend(canvas: Canvas, names_to_colors: dict[str, str], before_height: float):
