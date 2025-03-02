@@ -51,8 +51,9 @@
     var (colors, mappings) = InitState();
     var scale = myScaleInput?.CurrentValue ?? 1;
     var adjustments = new List<GrpcColorsLogAdjustment>();
-
+    var traceDelta = 0ul;
     var colorsLog = new List<GrpcColorsTrace>();
+
     foreach (var traceDiagram in TimelineDiagram.Traces)
     {
       foreach (var thread in traceDiagram.Threads)
@@ -83,17 +84,19 @@
             DownRightPoint = new GrpcLogPoint
             {
               EventIndex = eventGroup.EndPoint.EventIndex,
-              TraceIndex = eventGroup.EndPoint.TraceIndex
+              TraceIndex = eventGroup.EndPoint.TraceIndex + traceDelta
             },
             UpLeftPoint = new GrpcLogPoint
             {
               EventIndex = eventGroup.StartPoint.EventIndex,
-              TraceIndex = eventGroup.StartPoint.TraceIndex
+              TraceIndex = eventGroup.StartPoint.TraceIndex + traceDelta
             },
             ExtendToNearestVerticalBorders = true
           }
         });
       }
+
+      traceDelta = (ulong)colorsLog.Count;
 
       adjustments.Add(new GrpcColorsLogAdjustment
       {

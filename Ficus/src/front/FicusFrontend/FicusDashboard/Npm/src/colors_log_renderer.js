@@ -105,9 +105,14 @@ function drawRectangles(context, log, tracesY) {
       let upLeftEvent = log.traces[upLeftPoint.traceIndex].eventColors[upLeftPoint.eventIndex];
       let downRightEvent = log.traces[downRightPoint.traceIndex].eventColors[downRightPoint.eventIndex];
       
-      context.fillStyle = "red";
-      context.fillRect(upLeftEvent.startX + OverallXDelta, tracesY[upLeftPoint.traceIndex], 
-                   downRightEvent.startX + OverallXDelta, tracesY[downRightPoint.traceIndex])
+      context.strokeStyle = "red";
+      
+      let x = upLeftEvent.startX + OverallXDelta
+      let width = downRightEvent.startX + OverallXDelta - x;
+      let y = tracesY[upLeftPoint.traceIndex];
+      let height = tracesY[downRightPoint.traceIndex] - y;
+
+      context.strokeRect(x, y, width, height);
     }
   }
 }
