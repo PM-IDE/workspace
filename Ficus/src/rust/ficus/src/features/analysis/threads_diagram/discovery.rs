@@ -182,7 +182,7 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
 
 struct ThreadsSequentialEvents<'a> {
   threads: &'a Vec<&'a TraceThread>,
-  indices: Vec<usize>
+  indices: Vec<usize>,
 }
 
 impl<'a> ThreadsSequentialEvents<'a> {
@@ -194,17 +194,23 @@ impl<'a> ThreadsSequentialEvents<'a> {
   }
 
   pub fn next(&mut self) -> Option<(&TraceThreadEvent, usize, usize)> {
-    let mut min_stamp = 0;
     let mut min_index = 0;
+    
+    while min_index < self.indices.len() && self.indices[min_index] >= self.threads[min_index].events.len() {
+      min_index += 1;
+    }
+    
+    if min_index >= self.indices.len() {
+      return None
+    }
 
-    for i in 1..self.indices.len() {
+    for i in (min_index + 1)..self.indices.len() {
       if self.indices[i] >= self.threads[i].events.len() {
         continue;
       }
 
       let stamp = self.get_stamp(i);
-      if stamp < min_stamp {
-        min_stamp = stamp;
+      if stamp < self.get_stamp(min_index) {
         min_index = i;
       }
     }
