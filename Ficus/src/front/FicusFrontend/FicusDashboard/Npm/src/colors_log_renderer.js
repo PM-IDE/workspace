@@ -48,12 +48,13 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let maxWidth = 0;
   let additionalAxisWithWidth = [];
   let tracesY = [];
+  let traceGroupLastY = y;
+  let lastTraceGroupIndex = 0;
 
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
     var x = OverallXDelta;
     
-    tracesY.push(y);
     for (let rect of trace.eventColors) {
       context.fillStyle = rgbToHex(log.mapping[rect.colorIndex].color);
       
@@ -67,10 +68,20 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
     if (additionalAxis.indexOf(i) !== -1) {
       additionalAxisWithWidth.push([i, maxWidth]);
       maxWidth = 0;
+      for (let j = lastTraceGroupIndex; j <= i; ++j) {
+        tracesY.push([traceGroupLastY, y]);
+      }
+
+      lastTraceGroupIndex = i + 1;
       y += AxisWidth;
+      traceGroupLastY = y;
     }
 
     y += rectHeight;
+  }
+
+  for (let j = lastTraceGroupIndex; j <= log.traces.length; ++j) {
+    tracesY.push([traceGroupLastY, canvasHeight - AxisDelta - AxisWidth - AxisTextHeight]);
   }
   
   drawRectangles(context, log, tracesY, rectWidth, rectHeight);
@@ -109,8 +120,8 @@ function drawRectangles(context, log, tracesY, rectWidth, rectHeight) {
       
       let x = upLeftEvent.startX + OverallXDelta
       let width = downRightEvent.startX + OverallXDelta + rectWidth - x;
-      let y = tracesY[upLeftPoint.traceIndex];
-      let height = tracesY[downRightPoint.traceIndex] - y + rectHeight;
+      let y = tracesY[upLeftPoint.traceIndex][0];
+      let height = tracesY[downRightPoint.traceIndex][1] - y;
 
       context.strokeRect(x, y, width, height);
     }
