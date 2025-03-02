@@ -23,10 +23,25 @@ pub struct LogPoint {
   event_index: usize
 }
 
+impl LogPoint {
+  pub fn trace_index(&self) -> usize { self.trace_index }
+  pub fn event_index(&self) -> usize { self.event_index }
+}
+
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
   start_point: LogPoint,
   end_point: LogPoint
+}
+
+impl TraceEventsGroup {
+  pub fn start_point(&self) -> &LogPoint {
+    &self.start_point
+  }
+  
+  pub fn end_point(&self) -> &LogPoint {
+    &self.end_point
+  }
 }
 
 #[derive(Debug, Clone)]
@@ -39,6 +54,8 @@ impl TraceTimelineDiagram {
   pub fn threads(&self) -> &Vec<TraceThread> {
     &self.threads
   }
+  
+  pub fn events_groups(&self) -> &Vec<TraceEventsGroup> { &self.events_groups }
 }
 
 #[derive(Debug, Clone)]
