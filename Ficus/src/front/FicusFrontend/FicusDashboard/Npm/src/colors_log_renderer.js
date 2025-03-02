@@ -97,18 +97,17 @@ function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxi
 }
 
 function drawRectangles(context, log, tracesY) {
-  console.log(log.adjustments)
-  for (let adjustment in log.adjustments) {
+  for (let adjustment of log.adjustments) {
     if (adjustment.rectangleAdjustment != null) {
       let upLeftPoint = adjustment.rectangleAdjustment.upLeftPoint;
-      let dowRightPoint = adjustment.rectangleAdjustment.downRightPoint;
+      let downRightPoint = adjustment.rectangleAdjustment.downRightPoint;
       
       let upLeftEvent = log.traces[upLeftPoint.traceIndex].eventColors[upLeftPoint.eventIndex];
-      let downRightEvent = log.traces[dowRightPoint.traceIndex].eventColors[dowRightPoint.eventIndex];
+      let downRightEvent = log.traces[downRightPoint.traceIndex].eventColors[downRightPoint.eventIndex];
       
       context.fillStyle = "red";
       context.fillRect(upLeftEvent.startX + OverallXDelta, tracesY[upLeftPoint.traceIndex], 
-                   downRightEvent.startX + OverallXDelta, tracesY[dowRightPoint.traceIndex])
+                   downRightEvent.startX + OverallXDelta, tracesY[downRightPoint.traceIndex])
     }
   }
 }

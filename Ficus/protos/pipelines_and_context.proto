@@ -95,7 +95,7 @@ message GrpcColorsLogRectangleAdjustment {
 }
 
 message GrpcLogPoint {
-  uint64 traces_index = 1;
+  uint64 trace_index = 1;
   uint64 event_index = 2;
 }
 

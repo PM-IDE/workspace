@@ -140,20 +140,22 @@ class GrpcColorsLogAdjustment(_message.Message):
     def __init__(self, rectangle_adjustment: _Optional[_Union[GrpcColorsLogRectangleAdjustment, _Mapping]] = ..., axis_after_trace: _Optional[_Union[GrpcColorsLogXAxisAfterTraceAdjustment, _Mapping]] = ...) -> None: ...
 
 class GrpcColorsLogRectangleAdjustment(_message.Message):
-    __slots__ = ["up_left_point", "down_right_point"]
+    __slots__ = ["up_left_point", "down_right_point", "extend_to_nearest_vertical_borders"]
     UP_LEFT_POINT_FIELD_NUMBER: _ClassVar[int]
     DOWN_RIGHT_POINT_FIELD_NUMBER: _ClassVar[int]
+    EXTEND_TO_NEAREST_VERTICAL_BORDERS_FIELD_NUMBER: _ClassVar[int]
     up_left_point: GrpcLogPoint
     down_right_point: GrpcLogPoint
-    def __init__(self, up_left_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ..., down_right_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ...) -> None: ...
+    extend_to_nearest_vertical_borders: bool
+    def __init__(self, up_left_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ..., down_right_point: _Optional[_Union[GrpcLogPoint, _Mapping]] = ..., extend_to_nearest_vertical_borders: bool = ...) -> None: ...
 
 class GrpcLogPoint(_message.Message):
-    __slots__ = ["traces_index", "event_index"]
-    TRACES_INDEX_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["trace_index", "event_index"]
+    TRACE_INDEX_FIELD_NUMBER: _ClassVar[int]
     EVENT_INDEX_FIELD_NUMBER: _ClassVar[int]
-    traces_index: int
+    trace_index: int
     event_index: int
-    def __init__(self, traces_index: _Optional[int] = ..., event_index: _Optional[int] = ...) -> None: ...
+    def __init__(self, trace_index: _Optional[int] = ..., event_index: _Optional[int] = ...) -> None: ...
 
 class GrpcColorsLogXAxisAfterTraceAdjustment(_message.Message):
     __slots__ = ["trace_index"]
