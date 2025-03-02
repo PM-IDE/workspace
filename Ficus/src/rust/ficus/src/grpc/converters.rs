@@ -675,7 +675,7 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
         events_groups: t.events_groups().iter().map(|g| GrpcTimelineTraceEventsGroup {
           start_point: Some(GrpcLogPoint {
             trace_index: g.start_point().trace_index() as u64,
-            event_index: g.end_point().event_index() as u64
+            event_index: g.start_point().event_index() as u64
           }),
           end_point: Some(GrpcLogPoint {
             trace_index: g.end_point().trace_index() as u64,
