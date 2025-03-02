@@ -219,6 +219,7 @@ impl PipelineParts {
           Err(_) => None,
           Ok(time_attribute) => Some(time_attribute.as_str()),
         },
+        10
       );
 
       match diagram {
