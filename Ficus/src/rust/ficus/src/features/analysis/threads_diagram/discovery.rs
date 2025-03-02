@@ -131,8 +131,8 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
   let mut events = ThreadsSequentialEvents::new(threads);
 
   while let Some((event, trace_index, event_index)) = events.next() {
-    if let Some(last_stamp) = last_stamp {
-      if event.stamp - last_stamp > event_group_delta {
+    if last_stamp.is_some() {
+      if event.stamp - last_stamp.unwrap() > event_group_delta {
         let mut adjusted_last_group = last_trace_group.unwrap().clone();
         adjusted_last_group.end_point = LogPoint {
           event_index,
@@ -140,7 +140,9 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
         };
 
         groups.push(adjusted_last_group);
-        last_trace_group = None
+        last_trace_group = None;
+        last_stamp = None;
+        continue;
       }
     } else {
       last_trace_group = Some(TraceEventsGroup {
@@ -195,7 +197,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
     } else {
       self.indices[min_index] += 1;
       Some((
-        self.threads.get(min_index).unwrap().events.get(self.indices[min_index]).as_ref().unwrap(),
+        self.threads.get(min_index).unwrap().events.get(self.indices[min_index] - 1).as_ref().unwrap(),
         min_index,
         self.indices[min_index] - 1
       ))
