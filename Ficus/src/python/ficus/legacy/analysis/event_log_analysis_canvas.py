@@ -94,7 +94,7 @@ def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEvent
                                  width_scale: float = 1,
                                  height_scale: float = 1,
                                  save_path: Optional[str] = None):
-  max_width = _calculate_canvas_width(log)
+  max_width = _calculate_canvas_width(log, width_scale)
   additional_axis = _create_additional_axis_list(log.adjustments)
 
   title_height = 20 if title is not None else 10
@@ -142,14 +142,11 @@ def _create_additional_axis_list(adjustments: list[ProxyColorsLogAdjustment]) ->
   return additional_axis
 
 
-def _calculate_canvas_width(log: Union[ProxyColorsEventLog, GrpcColorsEventLog]):
+def _calculate_canvas_width(log: Union[ProxyColorsEventLog, GrpcColorsEventLog], rect_width):
   max_width = 0
   for trace in log.traces:
-    width = 0
-    for event in trace.event_colors:
-      width += event.length
-
-    max_width = max(max_width, width)
+    last = trace.event_colors[-1]
+    max_width = max(max_width, last.start_x + last.length * rect_width)
 
   return max_width
 
