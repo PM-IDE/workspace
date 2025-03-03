@@ -39,7 +39,6 @@ def draw_log_timeline_diagram_canvas(diagram: GrpcLogTimelineDiagram,
   for trace_diagram in diagram.traces:
     for thread in trace_diagram.threads:
       colors_trace = []
-      last_x = 0
       for event in thread.events:
         if event.name not in colors:
           c = provider.next()
@@ -47,11 +46,7 @@ def draw_log_timeline_diagram_canvas(diagram: GrpcLogTimelineDiagram,
           colors[event.name] = len(colors)
 
         rect_x = event.stamp * distance_scale
-        if last_x != rect_x:
-          colors_trace.append(ProxyColorRectangle(colors[background_key], last_x, rect_x - last_x))
-
         colors_trace.append(ProxyColorRectangle(colors[event.name], rect_x, rect_width))
-        last_x = rect_x + rect_width
 
       colors_log.append(ProxyColorsTrace(colors_trace, False))
 
@@ -180,7 +175,6 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
     draw_axis(canvas, log, title, before_height, title_height, max_width)
 
     for index, trace in enumerate(log.traces):
-      current_x = overall_delta
       xs = []
       widths = [] if not trace.constant_width else None
       colors = []
@@ -192,26 +186,22 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
         color = log.mapping[rect.color_index].color
         rect_width = rect.length * width_scale
 
-        xs.append(current_x)
+        xs.append(rect.start_x + overall_delta)
 
         if not trace.constant_width:
           widths.append(rect_width)
 
         colors.append((color.red, color.green, color.blue))
-
-        current_x += rect_width
-        current_max_width = max(current_max_width, current_x + rect_width)
+        current_max_width = max(current_max_width, rect.start_x + overall_delta + rect_width)
 
       width_value = widths if not trace.constant_width else width_scale
       canvas.fill_styled_rects(xs, current_y, width_value, height_scale, colors)
 
       traces_ys.append(current_y)
 
-      current_y += height_scale
-
       if index in additional_axis:
         for _ in range(traces_count_before_axis):
-          traces_extended_ys.append((traces_group_last_y, current_y - height_scale))
+          traces_extended_ys.append((traces_group_last_y, current_y))
 
         canvas.fill_style = "black"
         canvas.stroke_line(axis_margin, current_y, current_max_width, current_y)
@@ -220,10 +210,11 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
         traces_group_last_y = current_y
         traces_count_before_axis = 0
 
+      current_y += height_scale
       traces_count_before_axis += 1
 
     for _ in range(len(traces_extended_ys), len(log.traces)):
-      traces_extended_ys.append((traces_group_last_y, current_y - height_scale))
+      traces_extended_ys.append((traces_group_last_y, current_y))
 
     draw_rectangles(log, canvas, traces_ys, traces_extended_ys, width_scale, height_scale)
 
