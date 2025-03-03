@@ -49,7 +49,7 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let additionalAxisWithWidth = [];
   let tracesY = [];
   let traceGroupLastY = y;
-  let lastTraceGroupIndex = 0;
+  let tracesCountBeforeAxis  = 0;
 
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
@@ -68,23 +68,24 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
     if (additionalAxis.indexOf(i) !== -1) {
       additionalAxisWithWidth.push([i, maxWidth]);
       maxWidth = 0;
-      for (let j = lastTraceGroupIndex; j <= i; ++j) {
+      for (let j = 0; j < tracesCountBeforeAxis; ++j) {
         tracesY.push([traceGroupLastY, y]);
       }
 
-      lastTraceGroupIndex = i + 1;
+      tracesCountBeforeAxis = 0;
       y += AxisWidth;
       traceGroupLastY = y;
     }
 
+    tracesCountBeforeAxis += 1;
     y += rectHeight;
   }
 
-  for (let j = lastTraceGroupIndex; j <= log.traces.length; ++j) {
+  for (let j = tracesY.length; j < log.traces.length; ++j) {
     tracesY.push([traceGroupLastY, canvasHeight - AxisDelta - AxisWidth - AxisTextHeight]);
   }
   
-  drawRectangles(context, log, tracesY, rectWidth, rectHeight);
+  drawRectangles(context, log, tracesY, rectWidth);
   drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth);
 
   return null;
@@ -107,7 +108,7 @@ function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxi
   return [canvasWidth, canvasHeight];
 }
 
-function drawRectangles(context, log, tracesY, rectWidth, rectHeight) {
+function drawRectangles(context, log, tracesY, rectWidth) {
   for (let adjustment of log.adjustments) {
     if (adjustment.rectangleAdjustment != null) {
       let upLeftPoint = adjustment.rectangleAdjustment.upLeftPoint;
