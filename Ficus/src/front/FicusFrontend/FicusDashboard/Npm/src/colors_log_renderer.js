@@ -121,7 +121,7 @@ function drawRectangles(context, log, tracesExtendedY, tracesY, rectWidth, rectH
       let downRightEvent = log.traces[downRightPoint.traceIndex].eventColors[downRightPoint.eventIndex];
 
       let x = upLeftEvent.startX + OverallXDelta
-      let width = downRightEvent.startX + OverallXDelta + rectWidth - x;
+      let width = downRightEvent.startX + OverallXDelta + downRightEvent.length * rectWidth - x;
 
       let y, height;      
       if (adjustment.rectangleAdjustment.extendToNearestVerticalBorders === true) {
