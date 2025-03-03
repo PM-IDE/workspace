@@ -18,7 +18,7 @@ export function setDrawColorsLog() {
 
 function calculateCanvasArea(log, widthScale, heightScale) {
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
-  return calculateCanvasWidthAndHeight(log, rectWidth, rectHeight);
+  return calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight);
 }
 
 function getRectDimensions(widthScale, heightScale) {
@@ -31,7 +31,7 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
   let additionalAxis = createAdditionalAxisList(log.adjustments);
-  let canvasDimensions = calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxis.length);
+  let canvasDimensions = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxis.length);
   let maxCanvasDimensions = await getMaxCanvasDimensions();
   if (canvasDimensions[0] > maxCanvasDimensions[0] || canvasDimensions[1] > maxCanvasDimensions[1]) {
     return [maxCanvasDimensions[0] / canvasDimensions[0], maxCanvasDimensions[1] / canvasDimensions[1]];
@@ -54,12 +54,11 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
 
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
-    var x = OverallXDelta;
     
     for (let rect of trace.eventColors) {
       context.fillStyle = rgbToHex(log.mapping[rect.colorIndex].color);
       
-      let currentX = x + rect.startX;
+      let currentX = OverallXDelta + rect.startX * widthScale;
       let currentWidth = rectWidth * rect.length;
 
       context.fillRect(currentX, current_y, currentWidth, rectHeight);
@@ -98,20 +97,20 @@ function rgbToHex(color) {
   return "#" + (1 << 24 | color.red << 16 | color.green << 8 | color.blue).toString(16).slice(1);
 }
 
-function calculateCanvasWidthAndHeight(log, rectWidth, rectHeight, additionalAxisCount) {
+function calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxisCount) {
   let canvasHeight = log.traces.length * rectHeight + 2 * AxisDelta + AxisWidth + 2 * AxisTextHeight + additionalAxisCount * AxisWidth;
   
   let canvasWidth = 0;
   for (let trace of log.traces) {
     let last = trace.eventColors[trace.eventColors.length - 1];
-    let traceLength = last.startX + rectWidth * last.length;
+    let traceLength = last.startX * widthScale + rectWidth * last.length;
     canvasWidth = Math.max(canvasWidth, traceLength);
   }
 
   return [canvasWidth, canvasHeight];
 }
 
-function drawRectangles(context, log, tracesExtendedY, tracesY, rectWidth, rectHeight) {
+function drawRectangles(context, log, tracesExtendedY, tracesY, widthScale, rectWidth, rectHeight) {
   for (let adjustment of log.adjustments) {
     if (adjustment.rectangleAdjustment != null) {
       let upLeftPoint = adjustment.rectangleAdjustment.upLeftPoint;
@@ -120,8 +119,8 @@ function drawRectangles(context, log, tracesExtendedY, tracesY, rectWidth, rectH
       let upLeftEvent = log.traces[upLeftPoint.traceIndex].eventColors[upLeftPoint.eventIndex];
       let downRightEvent = log.traces[downRightPoint.traceIndex].eventColors[downRightPoint.eventIndex];
 
-      let x = upLeftEvent.startX + OverallXDelta
-      let width = downRightEvent.startX + OverallXDelta + downRightEvent.length * rectWidth - x;
+      let x = upLeftEvent.startX * widthScale + OverallXDelta
+      let width = downRightEvent.startX * widthScale + OverallXDelta + downRightEvent.length * rectWidth - x;
 
       let y, height;      
       if (adjustment.rectangleAdjustment.extendToNearestVerticalBorders === true) {
