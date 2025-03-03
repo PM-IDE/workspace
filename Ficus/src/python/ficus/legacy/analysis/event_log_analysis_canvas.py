@@ -110,7 +110,7 @@ def draw_colors_event_log_canvas(log: Union[ProxyColorsEventLog, GrpcColorsEvent
 
     canvas_height += len(names_to_colors) * legend_rect_height
 
-  canvas = Canvas(width=max_width * width_scale + overall_delta + axis_margin,
+  canvas = Canvas(width=max_width + overall_delta + axis_margin,
                   height=canvas_height,
                   sync_image_data=save_path is not None)
 
@@ -142,11 +142,11 @@ def _create_additional_axis_list(adjustments: list[ProxyColorsLogAdjustment]) ->
   return additional_axis
 
 
-def _calculate_canvas_width(log: Union[ProxyColorsEventLog, GrpcColorsEventLog], rect_width):
+def _calculate_canvas_width(log: Union[ProxyColorsEventLog, GrpcColorsEventLog], width_scale):
   max_width = 0
   for trace in log.traces:
     last = trace.event_colors[-1]
-    max_width = max(max_width, last.start_x + last.length * rect_width)
+    max_width = max(max_width, last.start_x * width_scale + last.length * width_scale)
 
   return max_width
 
@@ -183,13 +183,14 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
         color = log.mapping[rect.color_index].color
         rect_width = rect.length * width_scale
 
-        xs.append(rect.start_x + overall_delta)
+        xs.append(rect.start_x * width_scale + overall_delta)
 
         if not trace.constant_width:
           widths.append(rect_width)
 
         colors.append((color.red, color.green, color.blue))
-        current_max_width = max(current_max_width, rect.start_x + overall_delta + rect_width)
+
+      current_max_width = max(current_max_width, trace.event_colors[-1].start_x * width_scale + overall_delta + rect_width)
 
       width_value = widths if not trace.constant_width else width_scale
       canvas.fill_styled_rects(xs, current_y, width_value, height_scale, colors)
@@ -215,7 +216,7 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
 
     draw_rectangles(log, canvas, traces_ys, traces_extended_ys, width_scale, height_scale)
 
-def draw_rectangles(log, canvas, traces_ys, traces_extended_ys, rect_width, rect_height):
+def draw_rectangles(log, canvas, traces_ys, traces_extended_ys, width_scale, height_scale):
   for adjustment in log.adjustments:
     if adjustment.rectangle_adjustment is not None:
       up_left_point = adjustment.rectangle_adjustment.up_left_point
@@ -224,15 +225,15 @@ def draw_rectangles(log, canvas, traces_ys, traces_extended_ys, rect_width, rect
       up_left_event = log.traces[up_left_point.trace_index].event_colors[up_left_point.event_index]
       down_right_event = log.traces[down_right_point.trace_index].event_colors[down_right_point.event_index]
 
-      x = up_left_event.start_x + overall_delta
-      width = down_right_event.start_x + overall_delta + down_right_event.length * rect_width - x
+      x = up_left_event.start_x * width_scale + overall_delta
+      width = down_right_event.start_x * width_scale + overall_delta + down_right_event.length * width_scale - x
 
       if adjustment.rectangle_adjustment.extend_to_nearest_vertical_borders:
         y = traces_extended_ys[up_left_point.trace_index][0]
         height = traces_extended_ys[down_right_point.trace_index][1] - y
       else:
         y = traces_ys[up_left_point.trace_index]
-        height = traces_ys[down_right_point.trace_index] - y + rect_height
+        height = traces_ys[down_right_point.trace_index] - y + height_scale
 
       canvas.stroke_style = "red"
       canvas.stroke_rect(x, y, width, height)
