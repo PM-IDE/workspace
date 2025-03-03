@@ -154,6 +154,7 @@ class ProxyColorsLogPoint:
 class ProxyRectangleAdjustment:
   up_left_point: ProxyColorsLogPoint
   down_right_point: ProxyColorsLogPoint
+  extend_to_nearest_vertical_borders: bool
 
 @dataclass
 class AxisAfterTraceAdjustment:
@@ -164,11 +165,14 @@ class ProxyColorsLogAdjustment:
   rectangle_adjustment: Optional[ProxyRectangleAdjustment]
   axis_after_trace: Optional[AxisAfterTraceAdjustment]
 
-def create_rectangle_adjustment(up_left_point: ProxyColorsLogPoint, down_right_point: ProxyColorsLogPoint) -> ProxyColorsLogAdjustment:
+def create_rectangle_adjustment(up_left_point: ProxyColorsLogPoint,
+                                down_right_point: ProxyColorsLogPoint,
+                                extend_to_nearest_vertical_borders: bool) -> ProxyColorsLogAdjustment:
   return ProxyColorsLogAdjustment(
     ProxyRectangleAdjustment(
       up_left_point,
-      down_right_point
+      down_right_point,
+      extend_to_nearest_vertical_borders
     ),
     None,
   )

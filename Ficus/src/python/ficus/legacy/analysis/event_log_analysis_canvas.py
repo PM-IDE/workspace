@@ -34,6 +34,7 @@ def draw_log_timeline_diagram_canvas(diagram: GrpcLogTimelineDiagram,
   rect_width = rect_width_scale
   colors_log = []
   adjustments = []
+  rectangle_adjustment_trace_index_delta = 0
 
   for trace_diagram in diagram.traces:
     for thread in trace_diagram.threads:
@@ -55,6 +56,21 @@ def draw_log_timeline_diagram_canvas(diagram: GrpcLogTimelineDiagram,
       colors_log.append(ProxyColorsTrace(colors_trace, False))
 
     adjustments.append(create_axis_after_trace_adjustment(len(colors_log)))
+
+    for event_group in trace_diagram.events_groups:
+      adjustments.append(create_rectangle_adjustment(
+        ProxyColorsLogPoint(
+          event_group.start_point.trace_index + rectangle_adjustment_trace_index_delta,
+          event_group.start_point.event_index
+        ),
+        ProxyColorsLogPoint(
+          event_group.end_point.trace_index + rectangle_adjustment_trace_index_delta,
+          event_group.end_point.event_index
+        ),
+        True
+      ))
+
+    rectangle_adjustment_trace_index_delta += len(trace_diagram.threads)
 
   draw_colors_event_log_canvas(ProxyColorsEventLog(mappings, colors_log, adjustments),
                                title=title,
@@ -153,26 +169,15 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
                                           height_scale: float,
                                           additional_axis: list[int]):
   with hold_canvas():
-    canvas.fill_style = 'white'
-    canvas.fill_rect(0, 0, canvas.width, canvas.height)
-
-    canvas.fill_style = 'black'
-
-    if title is not None:
-      canvas.font = f'{text_size_px}px'
-      canvas.fill_text(title, canvas.width / 2, title_height / 2)
-
-    canvas.stroke_style = 'black'
-    canvas.stroke_line(axis_margin, title_height, axis_margin, before_height - axis_margin)
-    canvas.stroke_line(axis_margin, before_height - axis_margin, canvas.width, before_height - axis_margin)
-
-    canvas.font = f'f{text_size_px}px'
-    canvas.fill_text(str(len(log.traces)), 0, 10 + title_height)
-    x_axis_text = str(max_width)
-    canvas.fill_text(x_axis_text, canvas.width - ((text_size_px + 1) / 2) * len(x_axis_text), before_height)
-
     current_y = title_height
     current_max_width = 0
+    traces_extended_ys = []
+    traces_ys = []
+    traces_count_before_axis = 0
+    traces_group_last_y = current_y
+
+    clear_canvas(canvas)
+    draw_axis(canvas, log, title, before_height, title_height, max_width)
 
     for index, trace in enumerate(log.traces):
       current_x = overall_delta
@@ -200,12 +205,71 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
       width_value = widths if not trace.constant_width else width_scale
       canvas.fill_styled_rects(xs, current_y, width_value, height_scale, colors)
 
+      traces_ys.append(current_y)
+
       current_y += height_scale
+
       if index in additional_axis:
+        for _ in range(traces_count_before_axis):
+          traces_extended_ys.append((traces_group_last_y, current_y - height_scale))
+
         canvas.fill_style = "black"
         canvas.stroke_line(axis_margin, current_y, current_max_width, current_y)
         current_max_width = 0
         current_y += axis_width
+        traces_group_last_y = current_y
+        traces_count_before_axis = 0
+
+      traces_count_before_axis += 1
+
+    for _ in range(len(traces_extended_ys), len(log.traces)):
+      traces_extended_ys.append((traces_group_last_y, current_y - height_scale))
+
+    draw_rectangles(log, canvas, traces_ys, traces_extended_ys, width_scale, height_scale)
+
+def draw_rectangles(log, canvas, traces_ys, traces_extended_ys, rect_width, rect_height):
+  for adjustment in log.adjustments:
+    if adjustment.rectangle_adjustment is not None:
+      up_left_point = adjustment.rectangle_adjustment.up_left_point
+      down_right_point = adjustment.rectangle_adjustment.down_right_point
+
+      up_left_event = log.traces[up_left_point.trace_index].event_colors[up_left_point.event_index]
+      down_right_event = log.traces[down_right_point.trace_index].event_colors[down_right_point.event_index]
+
+      x = up_left_event.start_x + overall_delta
+      width = down_right_event.start_x + overall_delta + down_right_event.length * rect_width - x
+
+      if adjustment.rectangle_adjustment.extend_to_nearest_vertical_borders:
+        y = traces_extended_ys[up_left_point.trace_index][0]
+        height = traces_extended_ys[down_right_point.trace_index][1] - y
+      else:
+        y = traces_ys[up_left_point.trace_index]
+        height = traces_ys[down_right_point.trace_index] - y + rect_height
+
+      canvas.stroke_style = "red"
+      canvas.stroke_rect(x, y, width, height)
+
+
+def clear_canvas(canvas: Canvas):
+  canvas.fill_style = 'white'
+  canvas.fill_rect(0, 0, canvas.width, canvas.height)
+
+
+def draw_axis(canvas: Canvas, log, title: Optional[str], before_height: float, title_height: float, max_width: int):
+  canvas.fill_style = 'black'
+
+  if title is not None:
+    canvas.font = f'{text_size_px}px'
+    canvas.fill_text(title, canvas.width / 2, title_height / 2)
+
+  canvas.stroke_style = 'black'
+  canvas.stroke_line(axis_margin, title_height, axis_margin, before_height - axis_margin)
+  canvas.stroke_line(axis_margin, before_height - axis_margin, canvas.width, before_height - axis_margin)
+
+  canvas.font = f'f{text_size_px}px'
+  canvas.fill_text(str(len(log.traces)), 0, 10 + title_height)
+  x_axis_text = str(max_width)
+  canvas.fill_text(x_axis_text, canvas.width - ((text_size_px + 1) / 2) * len(x_axis_text), before_height)
 
 
 def _draw_legend(canvas: Canvas, names_to_colors: dict[str, str], before_height: float):
