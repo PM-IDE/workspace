@@ -20,7 +20,7 @@ impl LogTimelineDiagram {
 #[derive(Debug, Clone)]
 pub struct LogPoint {
   trace_index: usize,
-  event_index: usize
+  event_index: usize,
 }
 
 impl LogPoint {
@@ -31,14 +31,14 @@ impl LogPoint {
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
   start_point: LogPoint,
-  end_point: LogPoint
+  end_point: LogPoint,
 }
 
 impl TraceEventsGroup {
   pub fn start_point(&self) -> &LogPoint {
     &self.start_point
   }
-  
+
   pub fn end_point(&self) -> &LogPoint {
     &self.end_point
   }
@@ -47,14 +47,14 @@ impl TraceEventsGroup {
 #[derive(Debug, Clone)]
 pub struct TraceTimelineDiagram {
   threads: Vec<TraceThread>,
-  events_groups: Vec<TraceEventsGroup>
+  events_groups: Vec<TraceEventsGroup>,
 }
 
 impl TraceTimelineDiagram {
   pub fn threads(&self) -> &Vec<TraceThread> {
     &self.threads
   }
-  
+
   pub fn events_groups(&self) -> &Vec<TraceEventsGroup> { &self.events_groups }
 }
 
@@ -93,7 +93,7 @@ pub fn discover_timeline_diagram(
   log: &XesEventLogImpl,
   thread_attribute: &str,
   time_attribute: Option<&String>,
-  event_group_delta: Option<u64>
+  event_group_delta: Option<u64>,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut traces = vec![];
 
@@ -137,7 +137,7 @@ pub fn discover_timeline_diagram(
 
     traces.push(TraceTimelineDiagram {
       threads: threads.into_iter().map(|(_, v)| v).collect(),
-      events_groups
+      events_groups,
     })
   }
 
@@ -168,12 +168,12 @@ fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -
       Some(TraceEventsGroup {
         start_point: LogPoint {
           event_index,
-          trace_index
+          trace_index,
         },
         end_point: LogPoint {
           event_index,
-          trace_index
-        }
+          trace_index,
+        },
       })
     };
 
@@ -204,7 +204,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
   pub fn new(threads: &'a Vec<&'a TraceThread>) -> Self {
     Self {
       threads,
-      indices: vec![0; threads.len()]
+      indices: vec![0; threads.len()],
     }
   }
 
@@ -216,7 +216,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
     }
 
     if min_index >= self.indices.len() {
-      return None
+      return None;
     }
 
     for i in (min_index + 1)..self.indices.len() {

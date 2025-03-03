@@ -214,7 +214,7 @@ impl PipelineParts {
         match event_group_delta {
           None => None,
           Some(delta) => Some(*delta as u64)
-        }
+        },
       );
 
       match diagram {
@@ -229,10 +229,10 @@ impl PipelineParts {
       Ok(())
     })
   }
-  
+
   pub(super) fn create_threads_log() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::CREATE_THREADS_LOG, &|context, _, config| {
-      let log =  Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
       context.put_concrete(EVENT_LOG_KEY.key(), create_threads_log_by_attribute(log, thread_attribute));
 
