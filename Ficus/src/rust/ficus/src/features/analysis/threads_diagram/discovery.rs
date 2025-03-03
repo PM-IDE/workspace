@@ -92,8 +92,8 @@ pub enum LogThreadsDiagramError {
 pub fn discover_timeline_diagram(
   log: &XesEventLogImpl,
   thread_attribute: &str,
-  time_attribute: Option<&str>,
-  event_group_delta: u64
+  time_attribute: Option<&String>,
+  event_group_delta: Option<u64>
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut traces = vec![];
 
@@ -129,7 +129,12 @@ pub fn discover_timeline_diagram(
       }
     }
 
-    let events_groups = discover_events_groups(&threads.values().collect(), event_group_delta);
+    let events_groups = if let Some(event_group_delta) = event_group_delta {
+      discover_events_groups(&threads.values().collect(), event_group_delta)
+    } else {
+      vec![]
+    };
+
     traces.push(TraceTimelineDiagram {
       threads: threads.into_iter().map(|(_, v)| v).collect(),
       events_groups
@@ -258,7 +263,7 @@ pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) 
   }
 }
 
-fn get_stamp(event: &XesEventImpl, attribute: Option<&str>) -> Result<u64, LogThreadsDiagramError> {
+fn get_stamp(event: &XesEventImpl, attribute: Option<&String>) -> Result<u64, LogThreadsDiagramError> {
   if let Some(attribute) = attribute {
     if let Some(map) = event.payload_map() {
       if let Some(value) = map.get(attribute) {

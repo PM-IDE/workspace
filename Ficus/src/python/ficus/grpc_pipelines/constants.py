@@ -65,6 +65,7 @@ const_paths = 'paths'
 const_log_timeline_diagram = 'log_threads_diagram'
 const_thread_attribute = 'thread_attribute'
 const_time_attribute = 'time_attribute'
+const_time_delta_attribute = 'time_delta'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'

@@ -117,6 +117,7 @@ pub const PATHS: &'static str = "paths";
 pub const LOG_THREADS_DIAGRAM: &'static str = "log_threads_diagram";
 pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
 pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
+pub const TIME_DELTA: &'static str = "time_delta";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -208,6 +209,7 @@ lazy_static!(
      pub static ref LOG_THREADS_DIAGRAM_KEY: DefaultContextKey<LogTimelineDiagram> = DefaultContextKey::new(LOG_THREADS_DIAGRAM);
      pub static ref THREAD_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(THREAD_ATTRIBUTE);
      pub static ref TIME_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(TIME_ATTRIBUTE);
+     pub static ref TIME_DELTA_KEY: DefaultContextKey<u32> = DefaultContextKey::new(TIME_DELTA);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -289,6 +291,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     LOG_THREADS_DIAGRAM => Some(LOG_THREADS_DIAGRAM_KEY.deref() as &dyn ContextKey),
     THREAD_ATTRIBUTE => Some(THREAD_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_ATTRIBUTE => Some(TIME_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
+    TIME_DELTA => Some(TIME_DELTA_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

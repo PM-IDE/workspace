@@ -211,7 +211,6 @@ def append_context_value(config: GrpcPipelinePartConfiguration, key: str, value:
 def append_uint32_value(config: GrpcPipelinePartConfiguration, key: str, value: int):
   append_context_value(config, key, Uint32ContextValue(value))
 
-
 def append_bool_value(config: GrpcPipelinePartConfiguration, key: str, value: bool):
   append_context_value(config, key, BoolContextValue(value))
 
