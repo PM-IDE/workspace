@@ -15,13 +15,7 @@ use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
-use crate::ficus_proto::{
-  GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation,
-  GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode,
-  GrpcLabeledDataset, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking,
-  GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
-  GrpcTimeSpan, GrpcTraceTimelineDiagram,
-};
+use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{
@@ -402,6 +396,7 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
       context_value: Some(ContextValue::ColorsLog(GrpcColorsEventLog {
         mapping: grpc_mapping,
         traces: grpc_traces,
+        adjustments: vec![],
       })),
     })
   }
@@ -677,6 +672,16 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
       .traces()
       .iter()
       .map(|t| GrpcTraceTimelineDiagram {
+        events_groups: t.events_groups().iter().map(|g| GrpcTimelineTraceEventsGroup {
+          start_point: Some(GrpcLogPoint {
+            trace_index: g.start_point().trace_index() as u64,
+            event_index: g.start_point().event_index() as u64,
+          }),
+          end_point: Some(GrpcLogPoint {
+            trace_index: g.end_point().trace_index() as u64,
+            event_index: g.end_point().event_index() as u64,
+          }),
+        }).collect(),
         threads: t
           .threads()
           .iter()

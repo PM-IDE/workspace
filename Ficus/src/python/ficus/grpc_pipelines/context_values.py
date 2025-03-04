@@ -145,11 +145,51 @@ class ProxyColorsTrace:
   event_colors: list[ProxyColorRectangle]
   constant_width: bool
 
+@dataclass
+class ProxyColorsLogPoint:
+  trace_index: int
+  event_index: int
+
+@dataclass
+class ProxyRectangleAdjustment:
+  up_left_point: ProxyColorsLogPoint
+  down_right_point: ProxyColorsLogPoint
+  extend_to_nearest_vertical_borders: bool
+
+@dataclass
+class AxisAfterTraceAdjustment:
+  trace_index: int
+
+@dataclass
+class ProxyColorsLogAdjustment:
+  rectangle_adjustment: Optional[ProxyRectangleAdjustment]
+  axis_after_trace: Optional[AxisAfterTraceAdjustment]
+
+def create_rectangle_adjustment(up_left_point: ProxyColorsLogPoint,
+                                down_right_point: ProxyColorsLogPoint,
+                                extend_to_nearest_vertical_borders: bool) -> ProxyColorsLogAdjustment:
+  return ProxyColorsLogAdjustment(
+    ProxyRectangleAdjustment(
+      up_left_point,
+      down_right_point,
+      extend_to_nearest_vertical_borders
+    ),
+    None,
+  )
+
+def create_axis_after_trace_adjustment(trace_index) -> ProxyColorsLogAdjustment:
+  return ProxyColorsLogAdjustment(
+    None,
+    AxisAfterTraceAdjustment(
+      trace_index
+    )
+  )
 
 @dataclass
 class ProxyColorsEventLog(ContextValue):
   mapping: list[ProxyColorMapping]
   traces: list[ProxyColorsTrace]
+  adjustments: list[ProxyColorsLogAdjustment]
 
   def to_grpc_context_value(self) -> GrpcContextValue:
     pass

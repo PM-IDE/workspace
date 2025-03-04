@@ -252,7 +252,8 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
 class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
   def __init__(self,
                thread_attribute: str,
-               time_attribute: Optional[str],
+               time_attribute: Optional[str] = None,
+               event_group_delta: Optional[int] = None,
                title: Optional[str] = None,
                save_path: Optional[str] = None,
                plot_legend: bool = False,
@@ -263,6 +264,7 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
     super().__init__()
     self.thread_attribute = thread_attribute
     self.time_attribute = time_attribute
+    self.event_group_delta = event_group_delta
     self.title = title
     self.save_path = save_path
     self.plot_legend = plot_legend
@@ -277,6 +279,9 @@ class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
 
     if self.time_attribute is not None:
       append_string_value(config, const_time_attribute, self.time_attribute)
+
+    if self.event_group_delta is not None:
+      append_uint32_value(config, const_time_delta_attribute, self.event_group_delta)
 
     part = create_complex_get_context_part(self.uuid,
                                            self.__class__.__name__,
