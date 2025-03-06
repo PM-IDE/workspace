@@ -135,6 +135,7 @@ const_merge_xes_logs_from_path = 'MergeXesLogsFromPaths'
 const_discover_directly_follows_graph_stream = 'DiscoverDirectlyFollowsGraphStream'
 const_discover_log_timeline_diagram = 'DiscoverLogTimelineDiagram'
 const_create_threads_log = 'CreateThreadsLog'
+const_abstract_timeline_diagram = 'AbstractTimelineDiagram'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

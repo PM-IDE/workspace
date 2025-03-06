@@ -239,4 +239,10 @@ impl PipelineParts {
       Ok(())
     })
   }
+
+  pub(super) fn abstract_timeline_diagram() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::ABSTRACT_TIMELINE_DIAGRAM, &|context, _, _| {
+      Ok(())
+    })
+  }
 }
