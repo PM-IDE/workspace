@@ -1,7 +1,7 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
 use crate::features::analysis::log_info::event_log_info::{create_threads_log_by_attribute, OfflineEventLogInfo};
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::features::analysis::threads_diagram::discovery::discover_timeline_diagram;
+use crate::features::discovery::threads_diagram::discovery::discover_timeline_diagram;
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use crate::features::discovery::alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;

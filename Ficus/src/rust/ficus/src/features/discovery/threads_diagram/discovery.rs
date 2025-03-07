@@ -2,18 +2,18 @@ use std::cell::RefCell;
 use crate::{
   event_log::core::event_log::EventLog,
   event_log::core::trace::trace::Trace,
-  event_log::xes::xes_event_log::XesEventLogImpl,
-  features::analysis::threads_diagram::events_groups::{discover_events_groups, TraceEventsGroup},
-  features::analysis::threads_diagram::utils::{extract_thread_id, get_stamp},
-  event_log::xes::xes_event::XesEventImpl
+  event_log::xes::xes_event::XesEventImpl,
+  event_log::xes::xes_event_log::XesEventLogImpl
 };
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
+use crate::features::discovery::threads_diagram::events_groups::{discover_events_groups, TraceEventsGroup};
+use crate::features::discovery::threads_diagram::utils::{extract_thread_id, get_stamp};
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {
-  pub(super) traces: Vec<TraceTimelineDiagram>,
+  pub(in crate::features) traces: Vec<TraceTimelineDiagram>,
 }
 
 impl LogTimelineDiagram {
@@ -24,8 +24,8 @@ impl LogTimelineDiagram {
 
 #[derive(Debug, Clone)]
 pub struct LogPoint {
-  pub(super) trace_index: usize,
-  pub(super) event_index: usize,
+  pub(in crate::features) trace_index: usize,
+  pub(in crate::features) event_index: usize,
 }
 
 impl LogPoint {
@@ -35,8 +35,8 @@ impl LogPoint {
 
 #[derive(Debug, Clone)]
 pub struct TraceTimelineDiagram {
-  pub(super) threads: Vec<TraceThread>,
-  pub(super) events_groups: Vec<TraceEventsGroup>,
+  pub(in crate::features) threads: Vec<TraceThread>,
+  pub(in crate::features) events_groups: Vec<TraceEventsGroup>,
 }
 
 impl TraceTimelineDiagram {
@@ -49,7 +49,7 @@ impl TraceTimelineDiagram {
 
 #[derive(Debug, Clone)]
 pub struct TraceThread {
-  pub(super) events: Vec<TraceThreadEvent>,
+  pub(in crate::features) events: Vec<TraceThreadEvent>,
 }
 
 impl TraceThread {
@@ -60,8 +60,8 @@ impl TraceThread {
 
 #[derive(Debug, Clone)]
 pub struct TraceThreadEvent {
-  pub(super) original_event: Rc<RefCell<XesEventImpl>>,
-  pub(super) stamp: u64,
+  pub(in crate::features) original_event: Rc<RefCell<XesEventImpl>>,
+  pub(in crate::features) stamp: u64,
 }
 
 impl TraceThreadEvent {
