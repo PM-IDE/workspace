@@ -51,6 +51,7 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use crate::event_log::core::event::event::Event;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -690,7 +691,7 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
               .events()
               .iter()
               .map(|e| GrpcThreadEvent {
-                name: e.name().to_owned(),
+                name: e.original_event().borrow().name().to_owned(),
                 stamp: e.stamp(),
               })
               .collect(),

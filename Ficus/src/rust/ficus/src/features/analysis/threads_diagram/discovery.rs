@@ -1,11 +1,15 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::analysis::threads_diagram::events_groups::{discover_events_groups, TraceEventsGroup};
-use crate::features::analysis::threads_diagram::utils::{extract_thread_id, get_stamp};
+use std::cell::RefCell;
+use crate::{
+  event_log::core::event_log::EventLog,
+  event_log::core::trace::trace::Trace,
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::analysis::threads_diagram::events_groups::{discover_events_groups, TraceEventsGroup},
+  features::analysis::threads_diagram::utils::{extract_thread_id, get_stamp},
+  event_log::xes::xes_event::XesEventImpl
+};
 use std::collections::HashMap;
 use std::ops::Deref;
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {
@@ -56,13 +60,13 @@ impl TraceThread {
 
 #[derive(Debug, Clone)]
 pub struct TraceThreadEvent {
-  pub(super) name: String,
+  pub(super) original_event: Rc<RefCell<XesEventImpl>>,
   pub(super) stamp: u64,
 }
 
 impl TraceThreadEvent {
-  pub fn name(&self) -> &str {
-    self.name.as_str()
+  pub fn original_event(&self) -> &Rc<RefCell<XesEventImpl>> {
+    &self.original_event
   }
 
   pub fn stamp(&self) -> u64 {
@@ -93,13 +97,11 @@ pub fn discover_timeline_diagram(
 
     for i in 0..trace.events().len() {
       let event = trace.events().get(i).expect("Must be in range");
-      let event = event.borrow();
-
-      let thread_id = extract_thread_id(event.deref(), thread_attribute);
+      let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
 
       let thread_event = TraceThreadEvent {
-        name: event.name().to_owned(),
-        stamp: get_stamp(&event, time_attribute)? - min_stamp,
+        original_event: event.clone(),
+        stamp: get_stamp(&event.borrow(), time_attribute)? - min_stamp,
       };
 
       if let Some(thread) = threads.get_mut(&thread_id) {
