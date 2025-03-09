@@ -1,4 +1,4 @@
-use crate::features::discovery::threads_diagram::discovery::{LogPoint, TraceThread, TraceThreadEvent};
+use crate::features::discovery::timeline::discovery::{LogPoint, TraceThread, TraceThreadEvent};
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {

@@ -8,8 +8,8 @@ use crate::{
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::features::discovery::threads_diagram::events_groups::{discover_events_groups, TraceEventsGroup};
-use crate::features::discovery::threads_diagram::utils::{extract_thread_id, get_stamp};
+use crate::features::discovery::timeline::events_groups::{discover_events_groups, TraceEventsGroup};
+use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {

@@ -5,7 +5,7 @@ use bxes::models::system_models::SystemMetadata;
 
 use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use ficus::features::discovery::threads_diagram::discovery::LogTimelineDiagram;
+use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;

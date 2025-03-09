@@ -4,7 +4,7 @@ use std::{any::Any, str::FromStr};
 
 use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::discovery::threads_diagram::discovery::{LogPoint, LogTimelineDiagram};
+use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
