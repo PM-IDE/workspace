@@ -1,4 +1,7 @@
-use crate::features::discovery::timeline::discovery::{LogPoint, TraceThread, TraceThreadEvent};
+use std::cell::RefCell;
+use std::rc::Rc;
+use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
@@ -121,4 +124,39 @@ impl<'a> ThreadsSequentialEvents<'a> {
   fn get_trace_event(&self, index: usize) -> &TraceThreadEvent {
     self.threads.get(index).unwrap().events.get(self.indices[index]).as_ref().unwrap()
   }
+}
+
+pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>> {
+  let mut result = vec![];
+
+  for trace_diagram in log.traces() {
+    let mut group_index = 0;
+    let threads_refs: Vec<&TraceThread> = trace_diagram.threads().iter().map(|x| x).collect();
+    let get_stamp = |point: &LogPoint| {
+      threads_refs.get(point.trace_index).unwrap().events.get(point.event_index).unwrap().stamp
+    };
+
+    let mut events = ThreadsSequentialEvents::new(&threads_refs);
+
+    let mut events_groups = trace_diagram.events_groups.clone();
+    events_groups.sort_by(|f, s| get_stamp(f.start_point()).cmp(&get_stamp(s.start_point())));
+
+    let mut trace_groups = vec![];
+    let mut current_group = vec![];
+    while let Some((event, trace_index, event_index)) = events.next() {
+      let current_group_info = events_groups.get(group_index).unwrap();
+
+      current_group.push(event.original_event().clone());
+
+      if trace_index == current_group_info.end_point.trace_index && event_index == current_group_info.end_point.event_index {
+        trace_groups.push(current_group.clone());
+        current_group = vec![];
+        group_index += 1;
+      }
+    }
+
+    result.push(trace_groups);
+  }
+
+  result
 }
