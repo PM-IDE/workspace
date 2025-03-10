@@ -6,7 +6,7 @@ use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineE
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::arc::Arc;
 use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
@@ -99,6 +99,8 @@ pub(super) fn put_into_user_data(
         parse_grpc_enum::<LogSerializationFormat>(user_data, key, &grpc_enum.value);
       } else if enum_name == name_of_type!(TimeAnnotationKind) {
         parse_grpc_enum::<TimeAnnotationKind>(user_data, key, &grpc_enum.value);
+      } else if enum_name == name_of_type!(FeatureCountKind) {
+        parse_grpc_enum::<FeatureCountKind>(user_data, key, &grpc_enum.value);
       }
     }
     ContextValue::EventLogInfo(_) => todo!(),

@@ -5,7 +5,7 @@ use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::grpc::events::events_handler::CaseName;
@@ -118,6 +118,7 @@ pub const LOG_THREADS_DIAGRAM: &'static str = "log_threads_diagram";
 pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
 pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
 pub const TIME_DELTA: &'static str = "time_delta";
+pub const FEATURE_COUNT_KIND: &'static str = "feature_kind_count";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -210,6 +211,7 @@ lazy_static!(
      pub static ref THREAD_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(THREAD_ATTRIBUTE);
      pub static ref TIME_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(TIME_ATTRIBUTE);
      pub static ref TIME_DELTA_KEY: DefaultContextKey<u32> = DefaultContextKey::new(TIME_DELTA);
+     pub static ref FEATURE_COUNT_KIND_KEY: DefaultContextKey<FeatureCountKind> = DefaultContextKey::new(FEATURE_COUNT_KIND);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -292,6 +294,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     THREAD_ATTRIBUTE => Some(THREAD_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_ATTRIBUTE => Some(TIME_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_DELTA => Some(TIME_DELTA_KEY.deref() as &dyn ContextKey),
+    FEATURE_COUNT_KIND => Some(FEATURE_COUNT_KIND_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

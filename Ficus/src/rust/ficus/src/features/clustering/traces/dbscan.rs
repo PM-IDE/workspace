@@ -28,14 +28,20 @@ use crate::{
   },
 };
 
-use super::traces_params::{TracesClusteringParams, TracesRepresentationSource};
+use super::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
 
 pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
   min_points: usize,
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   let class_extractor = params.vis_params.class_extractor.as_ref();
-  let traces_dataset = create_traces_dataset(params.vis_params.log, &params.distance, class_extractor, &params.repr_source);
+  let traces_dataset = create_traces_dataset(
+    params.vis_params.log,
+    &params.distance,
+    class_extractor,
+    params.feature_count_kind,
+    &params.repr_source,
+  );
 
   let (dataset, objects, features) = traces_dataset?;
   let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), KdTree)
@@ -74,11 +80,12 @@ fn create_traces_dataset<TLog: EventLog>(
   log: &TLog,
   distance: &FicusDistance,
   class_extractor: Option<&String>,
+  feature_count_kind: FeatureCountKind,
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
   match distance {
     FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 => {
-      create_traces_dataset_default(log, class_extractor, trace_repr_source)
+      create_traces_dataset_default(log, class_extractor, feature_count_kind, trace_repr_source)
     }
     FicusDistance::Levenshtein => create_traces_dataset_levenshtein(log, class_extractor, trace_repr_source),
   }
@@ -87,9 +94,10 @@ fn create_traces_dataset<TLog: EventLog>(
 fn create_traces_dataset_default<TLog: EventLog>(
   log: &TLog,
   class_extractor: Option<&String>,
+  feature_count_kind: FeatureCountKind,
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
-  create_traces_dataset_default_internal(log, class_extractor, |trace| {
+  create_traces_dataset_default_internal(log, class_extractor, feature_count_kind, |trace| {
     create_trace_representation::<TLog>(trace, trace_repr_source)
   })
 }
@@ -126,6 +134,7 @@ fn create_trace_representation<TLog: EventLog>(
 fn create_traces_dataset_default_internal<TLog: EventLog>(
   log: &TLog,
   class_extractor: Option<&String>,
+  feature_count_kind: FeatureCountKind,
   trace_repr_creator: impl Fn(&TLog::TTrace) -> Vec<Rc<RefCell<TLog::TEvent>>>,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
   let regex_hasher = match class_extractor.as_ref() {
@@ -170,7 +179,14 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
     }
 
     for class in &all_event_classes {
-      raw_dataset.push(if let Some(count) = events_counts.get(class) { *count } else { 0 } as f64);
+      raw_dataset.push(if let Some(count) = events_counts.get(class) {
+        match feature_count_kind {
+          FeatureCountKind::One => 1,
+          FeatureCountKind::Count => *count,
+        }
+      } else {
+        0
+      } as f64);
     }
   }
 

@@ -7,7 +7,7 @@ use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
+use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
@@ -117,6 +117,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_existence::<String>(&THREAD_ATTRIBUTE, &mut used);
     assert_existence::<u32>(&TIME_DELTA, &mut used);
+    assert_existence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -211,7 +212,8 @@ fn get_all_keys_names() -> Vec<String> {
         "log_threads_diagram",
         "thread_attribute",
         "time_attribute",
-        "time_delta"
+        "time_delta",
+        "feature_kind_count"
     ]
 }
 
@@ -307,6 +309,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_keys_equivalence::<String>(&THREAD_ATTRIBUTE, &mut used);
     assert_keys_equivalence::<u32>(&TIME_DELTA, &mut used);
+    assert_keys_equivalence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
