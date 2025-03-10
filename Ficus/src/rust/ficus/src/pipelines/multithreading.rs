@@ -16,6 +16,27 @@ use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::str::FromStr;
+
+#[derive(Copy, Clone)]
+pub enum FeatureCountKindDto {
+  One,
+  Count,
+  OneIfMoreThanMaxFromAllFeatures
+}
+
+impl FromStr for FeatureCountKindDto {
+  type Err = ();
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "One" => Ok(Self::One),
+      "Count" => Ok(Self::Count),
+      "OneIfMoreThanMaxFromAllFeatures" => Ok(Self::OneIfMoreThanMaxFromAllFeatures),
+      _ => Err(()),
+    }
+  }
+}
 
 impl PipelineParts {
   pub(super) fn discover_log_threads_diagram() -> (String, PipelinePartFactory) {

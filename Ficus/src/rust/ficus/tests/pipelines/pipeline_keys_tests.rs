@@ -118,6 +118,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<String>(&THREAD_ATTRIBUTE, &mut used);
     assert_existence::<u32>(&TIME_DELTA, &mut used);
     assert_existence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
+    assert_existence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -213,7 +214,8 @@ fn get_all_keys_names() -> Vec<String> {
         "thread_attribute",
         "time_attribute",
         "time_delta",
-        "feature_kind_count"
+        "feature_count_kind",
+        "percent_from_max_value"
     ]
 }
 
@@ -310,6 +312,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<String>(&THREAD_ATTRIBUTE, &mut used);
     assert_keys_equivalence::<u32>(&TIME_DELTA, &mut used);
     assert_keys_equivalence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
+    assert_keys_equivalence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

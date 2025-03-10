@@ -538,7 +538,8 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
                legend_cols: int = 2,
                traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
                class_extractor: Optional[str] = None,
-               feature_count_kind: FeatureCountKind = FeatureCountKind.Count):
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count,
+               percentage_from_max_value: float = 0):
     super().__init__(show_visualization, fig_size, view_params, font_size,
                      save_path, n_components, visualization_method, legend_cols,
                      const_labeled_log_traces_dataset)
@@ -551,6 +552,7 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
     self.traces_repr_source = traces_repr_source
     self.class_extractor = class_extractor
     self.feature_count_kind = feature_count_kind
+    self.percentage_from_max_value = percentage_from_max_value
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
@@ -571,6 +573,7 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
                       const_feature_count_kind_enum_name,
                       self.feature_count_kind.name)
 
+    append_float_value(config, const_percentage_from_max_value, self.percentage_from_max_value)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
     if self.after_clusterization_pipeline is not None:
@@ -610,7 +613,8 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesDbscanBase):
                legend_cols: int = 2,
                traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
                class_extractor: Optional[str] = None,
-               feature_count_kind: FeatureCountKind = FeatureCountKind.Count):
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count,
+               percentage_from_max_value: float = 0):
     super().__init__(const_clusterize_log_traces,
                      after_clusterization_pipeline,
                      min_events_count_in_cluster,
@@ -626,7 +630,8 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesDbscanBase):
                      legend_cols,
                      traces_repr_source,
                      class_extractor,
-                     feature_count_kind)
+                     feature_count_kind,
+                     percentage_from_max_value)
 
 
 class SerializeActivitiesLogs(PipelinePart):

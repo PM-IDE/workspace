@@ -52,6 +52,7 @@ use crate::{
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
 use crate::event_log::core::event::event::Event;
+use crate::pipelines::multithreading::FeatureCountKindDto;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -99,8 +100,8 @@ pub(super) fn put_into_user_data(
         parse_grpc_enum::<LogSerializationFormat>(user_data, key, &grpc_enum.value);
       } else if enum_name == name_of_type!(TimeAnnotationKind) {
         parse_grpc_enum::<TimeAnnotationKind>(user_data, key, &grpc_enum.value);
-      } else if enum_name == name_of_type!(FeatureCountKind) {
-        parse_grpc_enum::<FeatureCountKind>(user_data, key, &grpc_enum.value);
+      } else if enum_name == name_of_type!(FeatureCountKindDto) {
+        parse_grpc_enum::<FeatureCountKindDto>(user_data, key, &grpc_enum.value);
       }
     }
     ContextValue::EventLogInfo(_) => todo!(),

@@ -183,11 +183,19 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
       *events_counts.entry(processed_event_name).or_default() += 1;
     }
 
+    let max_count = *events_counts.values().max().unwrap() as f64;
     for class in &all_event_classes {
       raw_dataset.push(if let Some(count) = events_counts.get(class) {
         match feature_count_kind {
           FeatureCountKind::One => 1,
           FeatureCountKind::Count => *count,
+          FeatureCountKind::OneIfMoreThanMaxFromAllFeatures(percent_from_max) => {
+            if *count as f64 > percent_from_max * max_count {
+              1
+            } else {
+              0
+            }
+          },
         }
       } else {
         0

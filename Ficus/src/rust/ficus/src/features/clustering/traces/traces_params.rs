@@ -38,17 +38,6 @@ impl FromStr for TracesRepresentationSource {
 #[derive(Copy, Clone)]
 pub enum FeatureCountKind {
   One,
-  Count
-}
-
-impl FromStr for FeatureCountKind {
-  type Err = ();
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "One" => Ok(Self::One),
-      "Count" => Ok(Self::Count),
-      _ => Err(()),
-    }
-  }
+  Count,
+  OneIfMoreThanMaxFromAllFeatures(f64)
 }

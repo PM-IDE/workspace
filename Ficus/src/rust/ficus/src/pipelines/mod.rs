@@ -1,7 +1,7 @@
 pub mod activities_parts;
 pub mod aliases;
 pub mod annotations_parts;
-mod cases;
+pub mod cases;
 pub mod context;
 pub mod discovery_parts;
 pub mod drawing_parts;
@@ -15,4 +15,4 @@ pub mod pipeline_parts;
 pub mod pipelines;
 pub mod util_parts;
 pub mod xes_parts;
-mod multithreading;
+pub mod multithreading;

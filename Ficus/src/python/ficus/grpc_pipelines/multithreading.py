@@ -86,7 +86,8 @@ class AbstractTimelineDiagram(ClusterizeLogTracesDbscanBase):
                traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
                class_extractor: Optional[str] = None,
                feature_count_kind: FeatureCountKind = FeatureCountKind.Count,
-               after_clusterization_pipeline: Optional[Pipeline] = None):
+               after_clusterization_pipeline: Optional[Pipeline] = None,
+               percent_from_max_value: float = 0):
     super().__init__(const_abstract_timeline_diagram,
                      after_clusterization_pipeline,
                      min_events_count_in_cluster,
@@ -102,4 +103,5 @@ class AbstractTimelineDiagram(ClusterizeLogTracesDbscanBase):
                      legend_cols,
                      traces_repr_source,
                      class_extractor,
-                     feature_count_kind)
+                     feature_count_kind,
+                     percent_from_max_value)

@@ -58,3 +58,4 @@ class LogSerializationFormat(Enum):
 class FeatureCountKind(Enum):
   One = 0
   Count = 1
+  OneIfMoreThanMaxFromAllFeatures = 2

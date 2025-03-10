@@ -31,6 +31,7 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
+use crate::pipelines::multithreading::FeatureCountKindDto;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
@@ -119,6 +120,7 @@ pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
 pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
 pub const TIME_DELTA: &'static str = "time_delta";
 pub const FEATURE_COUNT_KIND: &'static str = "feature_count_kind";
+pub const PERCENT_FROM_MAX_VALUE: &'static str = "percent_from_max_value";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -211,7 +213,8 @@ lazy_static!(
      pub static ref THREAD_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(THREAD_ATTRIBUTE);
      pub static ref TIME_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(TIME_ATTRIBUTE);
      pub static ref TIME_DELTA_KEY: DefaultContextKey<u32> = DefaultContextKey::new(TIME_DELTA);
-     pub static ref FEATURE_COUNT_KIND_KEY: DefaultContextKey<FeatureCountKind> = DefaultContextKey::new(FEATURE_COUNT_KIND);
+     pub static ref FEATURE_COUNT_KIND_KEY: DefaultContextKey<FeatureCountKindDto> = DefaultContextKey::new(FEATURE_COUNT_KIND);
+     pub static ref PERCENT_FROM_MAX_VALUE_KEY: DefaultContextKey<f64> = DefaultContextKey::new(PERCENT_FROM_MAX_VALUE);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -295,6 +298,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     TIME_ATTRIBUTE => Some(TIME_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_DELTA => Some(TIME_DELTA_KEY.deref() as &dyn ContextKey),
     FEATURE_COUNT_KIND => Some(FEATURE_COUNT_KIND_KEY.deref() as &dyn ContextKey),
+    PERCENT_FROM_MAX_VALUE => Some(PERCENT_FROM_MAX_VALUE_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }
