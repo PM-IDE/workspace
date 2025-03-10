@@ -142,15 +142,27 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCel
     events_groups.sort_by(|f, s| get_stamp(f.start_point()).cmp(&get_stamp(s.start_point())));
 
     let mut trace_groups = vec![];
-    let mut current_group = vec![];
+    let mut current_group = None;
     while let Some((event, trace_index, event_index)) = events.next() {
-      let current_group_info = events_groups.get(group_index).unwrap();
+      if group_index >= events_groups.len() {
+        break;
+      }
 
-      current_group.push(event.original_event().clone());
+      let current_group_info = events_groups.get(group_index).unwrap();
+      if trace_index == current_group_info.start_point().trace_index && event_index == current_group_info.start_point().event_index {
+        current_group = Some(vec![]);
+      }
+
+      if let Some(current_group) = current_group.as_mut() {
+        current_group.push(event.original_event().clone());
+      }
 
       if trace_index == current_group_info.end_point.trace_index && event_index == current_group_info.end_point.event_index {
-        trace_groups.push(current_group.clone());
-        current_group = vec![];
+        if let Some(current_group) = current_group {
+          trace_groups.push(current_group.clone());
+        }
+
+        current_group = None;
         group_index += 1;
       }
     }
