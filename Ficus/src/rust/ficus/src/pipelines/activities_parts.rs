@@ -618,7 +618,7 @@ impl PipelineParts {
     })
   }
 
-  fn create_traces_clustering_params<'a>(
+  pub(crate) fn create_traces_clustering_params<'a>(
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
   ) -> Result<TracesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
