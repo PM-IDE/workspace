@@ -7,7 +7,7 @@ use std::{
 use linfa::{traits::Transformer, DatasetBase};
 use linfa_clustering::Dbscan;
 use linfa_nn::KdTree;
-use ndarray::Array2;
+use ndarray::{Array1, Array2};
 
 use crate::{
   event_log::core::{
@@ -44,10 +44,15 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   );
 
   let (dataset, objects, features) = traces_dataset?;
+
   let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), KdTree)
     .tolerance(params.tolerance)
-    .transform(dataset.records())
-    .unwrap();
+    .transform(dataset.records());
+
+  let clusters = match clusters {
+    Ok(clusters) => clusters,
+    Err(err) => return Err(ClusteringError::RawError(err.to_string()))
+  };
 
   let ficus_dataset = transform_to_ficus_dataset(&dataset, objects, features);
 
