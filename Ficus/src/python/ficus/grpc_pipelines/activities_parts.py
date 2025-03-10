@@ -581,7 +581,9 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
 
   def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
     super().append_parts_with_callbacks(parts)
-    append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
+
+    if self.after_clusterization_pipeline is not None:
+      append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
 
 
 class ClusterizeLogTracesDbscan(ClusterizeLogTracesDbscanBase):
