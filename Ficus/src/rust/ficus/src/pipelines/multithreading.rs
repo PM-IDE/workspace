@@ -1,3 +1,4 @@
+use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
@@ -7,10 +8,11 @@ use crate::features::analysis::log_info::event_log_info::create_threads_log_by_a
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
 use crate::features::discovery::timeline::discovery::discover_timeline_diagram;
 use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
+use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY};
+use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::PipelinePartFactory;
+use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -57,7 +59,7 @@ impl PipelineParts {
   }
 
   pub(super) fn abstract_timeline_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ABSTRACT_TIMELINE_DIAGRAM, &|context, _, config| {
+    Self::create_pipeline_part(Self::ABSTRACT_TIMELINE_DIAGRAM, &|context, infra, config| {
       let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
 
@@ -70,6 +72,14 @@ impl PipelineParts {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };
+
+      if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
+        let abstracted_log = Self::create_simple_abstracted_log(events_groups, labeled_dataset.labels());
+        let mut new_context = PipelineContext::empty();
+        new_context.put_concrete(EVENT_LOG_KEY.key(), abstracted_log);
+
+        after_clusterization_pipeline.execute(&mut new_context, infra)?;
+      }
 
       context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), labeled_dataset);
 
@@ -93,5 +103,23 @@ impl PipelineParts {
     }
 
     log
+  }
+  
+  fn create_simple_abstracted_log(event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>, labels: &Vec<usize>) -> XesEventLogImpl {
+    let mut current_label_index = 0;
+    let mut abstracted_log = XesEventLogImpl::empty();
+
+    for trace_groups in event_groups {
+      let mut abstracted_trace = XesTraceImpl::empty();
+      for _ in trace_groups {
+        let label_name = labels.get(current_label_index).unwrap().to_string();
+        abstracted_trace.push(Rc::new(RefCell::new(XesEventImpl::new_with_min_date(label_name))));
+        current_label_index += 1;
+      }
+
+      abstracted_log.push(Rc::new(RefCell::new(abstracted_trace)));
+    }
+    
+    abstracted_log
   }
 }
