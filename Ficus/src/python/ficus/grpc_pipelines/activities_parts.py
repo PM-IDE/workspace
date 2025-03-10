@@ -1,4 +1,5 @@
-from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat
+from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat, \
+  FeatureCountKind
 from .entry_points.default_pipeline import *
 from .entry_points.default_pipeline import create_default_pipeline_part, create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
@@ -536,7 +537,8 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
                visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
                legend_cols: int = 2,
                traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
-               class_extractor: Optional[str] = None):
+               class_extractor: Optional[str] = None,
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count):
     super().__init__(show_visualization, fig_size, view_params, font_size,
                      save_path, n_components, visualization_method, legend_cols,
                      const_labeled_log_traces_dataset)
@@ -548,6 +550,7 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
     self.distance = distance
     self.traces_repr_source = traces_repr_source
     self.class_extractor = class_extractor
+    self.feature_count_kind = feature_count_kind
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
@@ -562,6 +565,11 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
                       const_traces_repr_source,
                       const_traces_repr_source_enum_name,
                       self.traces_repr_source.name)
+
+    append_enum_value(config,
+                      const_feature_count_kind,
+                      const_feature_count_kind_enum_name,
+                      self.feature_count_kind.name)
 
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
@@ -601,7 +609,8 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesDbscanBase):
                visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
                legend_cols: int = 2,
                traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
-               class_extractor: Optional[str] = None):
+               class_extractor: Optional[str] = None,
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count):
     super().__init__(const_clusterize_log_traces,
                      after_clusterization_pipeline,
                      min_events_count_in_cluster,
@@ -616,7 +625,8 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesDbscanBase):
                      visualization_method,
                      legend_cols,
                      traces_repr_source,
-                     class_extractor)
+                     class_extractor,
+                     feature_count_kind)
 
 
 class SerializeActivitiesLogs(PipelinePart):

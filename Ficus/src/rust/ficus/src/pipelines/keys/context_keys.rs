@@ -118,7 +118,7 @@ pub const LOG_THREADS_DIAGRAM: &'static str = "log_threads_diagram";
 pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
 pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
 pub const TIME_DELTA: &'static str = "time_delta";
-pub const FEATURE_COUNT_KIND: &'static str = "feature_kind_count";
+pub const FEATURE_COUNT_KIND: &'static str = "feature_count_kind";
 
 #[rustfmt::skip]
 lazy_static!(

@@ -1,4 +1,4 @@
-from .data_models import Distance, TracesRepresentationSource
+from .data_models import Distance, TracesRepresentationSource, FeatureCountKind
 from ..legacy.analysis.event_log_analysis import *
 from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import *
@@ -84,7 +84,8 @@ class AbstractTimelineDiagram(ClusterizeLogTracesDbscanBase):
                visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
                legend_cols: int = 2,
                traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
-               class_extractor: Optional[str] = None):
+               class_extractor: Optional[str] = None,
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count):
     super().__init__(const_abstract_timeline_diagram,
                      None,
                      min_events_count_in_cluster,
@@ -99,4 +100,5 @@ class AbstractTimelineDiagram(ClusterizeLogTracesDbscanBase):
                      visualization_method,
                      legend_cols,
                      traces_repr_source,
-                     class_extractor)
+                     class_extractor,
+                     feature_count_kind)

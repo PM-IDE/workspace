@@ -3,7 +3,6 @@ use std::str::FromStr;
 use crate::{
   event_log::core::event_log::EventLog, features::clustering::common::CommonVisualizationParams, utils::distance::distance::FicusDistance,
 };
-use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 
 pub struct TracesClusteringParams<'a, TLog>
 where
