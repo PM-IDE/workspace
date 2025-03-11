@@ -7,7 +7,7 @@ use std::{
 use linfa::{traits::Transformer, DatasetBase};
 use linfa_clustering::Dbscan;
 use linfa_nn::KdTree;
-use ndarray::{Array1, Array2};
+use ndarray::Array2;
 
 use crate::{
   event_log::core::{
@@ -195,7 +195,7 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
             } else {
               0
             }
-          },
+          }
         }
       } else {
         0

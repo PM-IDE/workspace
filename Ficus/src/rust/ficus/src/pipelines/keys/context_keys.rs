@@ -3,14 +3,15 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
+use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
+use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
+use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -31,7 +32,6 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
-use crate::pipelines::multithreading::FeatureCountKindDto;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";

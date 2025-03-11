@@ -1,7 +1,7 @@
 use crate::grpc::events::events_handler::CaseName;
 use crate::grpc::kafka::models::{
   KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
-  KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME, KAFKA_TRACE_ID,
+  KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
 };
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;

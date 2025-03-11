@@ -1,11 +1,9 @@
-use chrono::format::Numeric::Second;
-use chrono::{DateTime, Days, Duration, SecondsFormat, Utc};
+use chrono::{DateTime, Duration, Utc};
 use ficus::event_log::core::event::event::Event;
 use ficus::event_log::core::event_log::EventLog;
 use ficus::event_log::core::trace::trace::Trace;
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
-use rand::distributions::Alphanumeric;
-use rand::{Rng, RngCore};
+use rand::Rng;
 use std::iter;
 use std::ops::Add;
 

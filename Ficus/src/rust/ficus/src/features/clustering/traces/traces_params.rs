@@ -39,5 +39,5 @@ impl FromStr for TracesRepresentationSource {
 pub enum FeatureCountKind {
   One,
   Count,
-  OneIfMoreThanMaxFromAllFeatures(f64)
+  OneIfMoreThanMaxFromAllFeatures(f64),
 }

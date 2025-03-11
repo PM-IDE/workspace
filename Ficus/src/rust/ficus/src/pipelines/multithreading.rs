@@ -21,7 +21,7 @@ use std::str::FromStr;
 pub enum FeatureCountKindDto {
   One,
   Count,
-  OneIfMoreThanMaxFromAllFeatures
+  OneIfMoreThanMaxFromAllFeatures,
 }
 
 impl FromStr for FeatureCountKindDto {

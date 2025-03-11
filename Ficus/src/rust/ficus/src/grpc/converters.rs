@@ -2,17 +2,18 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::{any::Any, str::FromStr};
 
+use crate::event_log::core::event::event::Event;
 use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
+use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::arc::Arc;
 use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
+use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram};
@@ -24,6 +25,7 @@ use crate::pipelines::keys::context_keys::{
   NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
   PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
 };
+use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -51,8 +53,6 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
-use crate::event_log::core::event::event::Event;
-use crate::pipelines::multithreading::FeatureCountKindDto;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
