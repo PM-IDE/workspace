@@ -46,8 +46,8 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   let (dataset, objects, features) = traces_dataset?;
 
   let nn_search_algorithm = match params.distance {
-    FicusDistance::Levenshtein | FicusDistance::Length => LinearSearch,
-    _ => KdTree,
+    FicusDistance::Levenshtein | FicusDistance::Length | FicusDistance::LCS => LinearSearch,
+    FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 => KdTree
   };
 
   let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), nn_search_algorithm)

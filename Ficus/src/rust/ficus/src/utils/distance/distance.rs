@@ -171,7 +171,7 @@ impl Distance<f64> for LCSDistance {
     let mut dp = vec![vec![-1; b_len + 1]; a_len + 1];
     let lcp = find_longest_common_subsequence_length(&a_vec, &b_vec, a_len, b_len, &mut dp) as f64;
 
-    2. * lcp / (a_len + b_len) as f64
+    1. - 2. * lcp / (a_len + b_len) as f64
   }
 }
 
