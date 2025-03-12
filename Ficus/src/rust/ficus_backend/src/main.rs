@@ -6,7 +6,7 @@ use ficus::{
   ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer,
   grpc::backend_service::FicusService,
 };
-use log::{debug, LevelFilter};
+use log::LevelFilter;
 use std::sync::{Arc, Mutex};
 use tonic::transport::Server;
 

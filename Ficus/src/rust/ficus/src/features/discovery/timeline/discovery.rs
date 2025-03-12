@@ -1,15 +1,15 @@
-use std::cell::RefCell;
+use crate::features::discovery::timeline::events_groups::{discover_events_groups, TraceEventsGroup};
+use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::{
   event_log::core::event_log::EventLog,
   event_log::core::trace::trace::Trace,
   event_log::xes::xes_event::XesEventImpl,
-  event_log::xes::xes_event_log::XesEventLogImpl
+  event_log::xes::xes_event_log::XesEventLogImpl,
 };
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::features::discovery::timeline::events_groups::{discover_events_groups, TraceEventsGroup};
-use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {

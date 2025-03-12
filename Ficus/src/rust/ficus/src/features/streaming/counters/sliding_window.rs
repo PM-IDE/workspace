@@ -1,6 +1,5 @@
 use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry, ValueUpdateKind};
 use chrono::{DateTime, Utc};
-use num_traits::Num;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::ops::Add;

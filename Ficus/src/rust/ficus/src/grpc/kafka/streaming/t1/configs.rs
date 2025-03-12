@@ -1,5 +1,5 @@
 use crate::ficus_proto::grpc_t1_streaming_configuration::Configuration;
-use crate::ficus_proto::{GrpcT1EventsTimeBasedCaching, GrpcT1StreamingConfiguration, GrpcT1TraceTimeBasedCaching};
+use crate::ficus_proto::GrpcT1StreamingConfiguration;
 use crate::grpc::kafka::streaming::t1::filterers::{
   EventsTimeoutFiltererImpl, T1LogFilterer, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl,
 };
