@@ -4,9 +4,9 @@ use std::{any::Any, str::FromStr};
 
 use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::analysis::threads_diagram::discovery::LogTimelineDiagram;
+use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::arc::Arc;
 use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
@@ -51,6 +51,8 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use crate::event_log::core::event::event::Event;
+use crate::pipelines::multithreading::FeatureCountKindDto;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -98,6 +100,8 @@ pub(super) fn put_into_user_data(
         parse_grpc_enum::<LogSerializationFormat>(user_data, key, &grpc_enum.value);
       } else if enum_name == name_of_type!(TimeAnnotationKind) {
         parse_grpc_enum::<TimeAnnotationKind>(user_data, key, &grpc_enum.value);
+      } else if enum_name == name_of_type!(FeatureCountKindDto) {
+        parse_grpc_enum::<FeatureCountKindDto>(user_data, key, &grpc_enum.value);
       }
     }
     ContextValue::EventLogInfo(_) => todo!(),
@@ -673,14 +677,8 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
       .iter()
       .map(|t| GrpcTraceTimelineDiagram {
         events_groups: t.events_groups().iter().map(|g| GrpcTimelineTraceEventsGroup {
-          start_point: Some(GrpcLogPoint {
-            trace_index: g.start_point().trace_index() as u64,
-            event_index: g.start_point().event_index() as u64,
-          }),
-          end_point: Some(GrpcLogPoint {
-            trace_index: g.end_point().trace_index() as u64,
-            event_index: g.end_point().event_index() as u64,
-          }),
+          start_point: Some(convert_to_grpc_log_point(g.start_point())),
+          end_point: Some(convert_to_grpc_log_point(g.end_point())),
         }).collect(),
         threads: t
           .threads()
@@ -690,7 +688,7 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
               .events()
               .iter()
               .map(|e| GrpcThreadEvent {
-                name: e.name().to_owned(),
+                name: e.original_event().borrow().name().to_owned(),
                 stamp: e.stamp(),
               })
               .collect(),
@@ -698,5 +696,12 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
           .collect(),
       })
       .collect(),
+  }
+}
+
+fn convert_to_grpc_log_point(point: &LogPoint) -> GrpcLogPoint {
+  GrpcLogPoint {
+    trace_index: point.trace_index() as u64,
+    event_index: point.event_index() as u64,
   }
 }

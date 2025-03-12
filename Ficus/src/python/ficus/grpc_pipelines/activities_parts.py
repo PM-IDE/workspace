@@ -1,4 +1,5 @@
-from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat
+from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat, \
+  FeatureCountKind
 from .entry_points.default_pipeline import *
 from .entry_points.default_pipeline import create_default_pipeline_part, create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
@@ -520,9 +521,10 @@ class VisualizeTracesActivities(PipelinePartWithCallback):
              self.font_size, self.legend_cols, self.save_path, None)
 
 
-class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
+class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
   def __init__(self,
-               after_clusterization_pipeline: Pipeline,
+               pipeline_part_name: str,
+               after_clusterization_pipeline: Optional[Pipeline] = None,
                min_events_count_in_cluster: int = 1,
                tolerance: float = 1e-5,
                show_visualization: bool = True,
@@ -535,17 +537,22 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
                visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
                legend_cols: int = 2,
                traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
-               class_extractor: Optional[str] = None):
+               class_extractor: Optional[str] = None,
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count,
+               percentage_from_max_value: float = 0):
     super().__init__(show_visualization, fig_size, view_params, font_size,
                      save_path, n_components, visualization_method, legend_cols,
                      const_labeled_log_traces_dataset)
 
+    self.pipeline_part_name = pipeline_part_name
     self.after_clusterization_pipeline = after_clusterization_pipeline
     self.min_events_count_in_cluster = min_events_count_in_cluster
     self.tolerance = tolerance
     self.distance = distance
     self.traces_repr_source = traces_repr_source
     self.class_extractor = class_extractor
+    self.feature_count_kind = feature_count_kind
+    self.percentage_from_max_value = percentage_from_max_value
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
@@ -561,8 +568,16 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
                       const_traces_repr_source_enum_name,
                       self.traces_repr_source.name)
 
+    append_enum_value(config,
+                      const_feature_count_kind,
+                      const_feature_count_kind_enum_name,
+                      self.feature_count_kind.name)
+
+    append_float_value(config, const_percentage_from_max_value, self.percentage_from_max_value)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
-    append_pipeline_value(config, const_pipeline, self.after_clusterization_pipeline)
+
+    if self.after_clusterization_pipeline is not None:
+      append_pipeline_value(config, const_pipeline, self.after_clusterization_pipeline)
 
     if self.class_extractor is not None:
       append_string_value(config, const_event_class_regex, self.class_extractor)
@@ -570,14 +585,53 @@ class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
     part = create_complex_get_context_part(self.uuid,
                                            self.__class__.__name__,
                                            [const_labeled_log_traces_dataset],
-                                           const_clusterize_log_traces,
+                                           self.pipeline_part_name,
                                            config)
 
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
   def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
     super().append_parts_with_callbacks(parts)
-    append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
+
+    if self.after_clusterization_pipeline is not None:
+      append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
+
+
+class ClusterizeLogTracesDbscan(ClusterizeLogTracesDbscanBase):
+  def __init__(self,
+               after_clusterization_pipeline: Pipeline,
+               min_events_count_in_cluster: int = 1,
+               tolerance: float = 1e-5,
+               show_visualization: bool = True,
+               fig_size: (int, int) = (7, 9),
+               view_params: (int, int) = (-140, 60),
+               font_size: int = 14,
+               save_path: Optional[str] = None,
+               distance: Distance = Distance.Cosine,
+               n_components: NComponents = NComponents.Three,
+               visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
+               legend_cols: int = 2,
+               traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
+               class_extractor: Optional[str] = None,
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count,
+               percentage_from_max_value: float = 0):
+    super().__init__(const_clusterize_log_traces,
+                     after_clusterization_pipeline,
+                     min_events_count_in_cluster,
+                     tolerance,
+                     show_visualization,
+                     fig_size,
+                     view_params,
+                     font_size,
+                     save_path,
+                     distance,
+                     n_components,
+                     visualization_method,
+                     legend_cols,
+                     traces_repr_source,
+                     class_extractor,
+                     feature_count_kind,
+                     percentage_from_max_value)
 
 
 class SerializeActivitiesLogs(PipelinePart):

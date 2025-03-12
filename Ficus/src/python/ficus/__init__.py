@@ -15,3 +15,4 @@ from .grpc_pipelines.entry_points.util import *
 from .grpc_pipelines.entry_points.sreaming_configuration import *
 from .grpc_pipelines.cases_parts import *
 from .grpc_pipelines.annotations import *
+from .grpc_pipelines.multithreading import *

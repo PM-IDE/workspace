@@ -3,9 +3,9 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::analysis::threads_diagram::discovery::LogTimelineDiagram;
+use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::grpc::events::events_handler::CaseName;
@@ -31,6 +31,7 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
+use crate::pipelines::multithreading::FeatureCountKindDto;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
@@ -118,6 +119,8 @@ pub const LOG_THREADS_DIAGRAM: &'static str = "log_threads_diagram";
 pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
 pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
 pub const TIME_DELTA: &'static str = "time_delta";
+pub const FEATURE_COUNT_KIND: &'static str = "feature_count_kind";
+pub const PERCENT_FROM_MAX_VALUE: &'static str = "percent_from_max_value";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -210,6 +213,8 @@ lazy_static!(
      pub static ref THREAD_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(THREAD_ATTRIBUTE);
      pub static ref TIME_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(TIME_ATTRIBUTE);
      pub static ref TIME_DELTA_KEY: DefaultContextKey<u32> = DefaultContextKey::new(TIME_DELTA);
+     pub static ref FEATURE_COUNT_KIND_KEY: DefaultContextKey<FeatureCountKindDto> = DefaultContextKey::new(FEATURE_COUNT_KIND);
+     pub static ref PERCENT_FROM_MAX_VALUE_KEY: DefaultContextKey<f64> = DefaultContextKey::new(PERCENT_FROM_MAX_VALUE);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -292,6 +297,8 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     THREAD_ATTRIBUTE => Some(THREAD_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_ATTRIBUTE => Some(TIME_ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_DELTA => Some(TIME_DELTA_KEY.deref() as &dyn ContextKey),
+    FEATURE_COUNT_KIND => Some(FEATURE_COUNT_KIND_KEY.deref() as &dyn ContextKey),
+    PERCENT_FROM_MAX_VALUE => Some(PERCENT_FROM_MAX_VALUE_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

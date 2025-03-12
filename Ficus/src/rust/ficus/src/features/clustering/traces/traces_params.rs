@@ -12,6 +12,7 @@ where
   pub tolerance: f64,
   pub distance: FicusDistance,
   pub repr_source: TracesRepresentationSource,
+  pub feature_count_kind: FeatureCountKind,
 }
 
 #[derive(Copy, Clone)]
@@ -32,4 +33,11 @@ impl FromStr for TracesRepresentationSource {
       _ => Err(()),
     }
   }
+}
+
+#[derive(Copy, Clone)]
+pub enum FeatureCountKind {
+  One,
+  Count,
+  OneIfMoreThanMaxFromAllFeatures(f64)
 }

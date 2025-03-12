@@ -53,3 +53,9 @@ class TracesRepresentationSource(Enum):
 class LogSerializationFormat(Enum):
   Xes = 0
   Bxes = 1
+
+
+class FeatureCountKind(Enum):
+  One = 0
+  Count = 1
+  OneIfMoreThanMaxFromAllFeatures = 2
