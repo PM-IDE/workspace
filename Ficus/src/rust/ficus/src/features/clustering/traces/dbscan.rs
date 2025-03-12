@@ -94,10 +94,12 @@ fn create_traces_dataset<TLog: EventLog>(
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
   match distance {
-    FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 | FicusDistance::Length => {
+    FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 => {
       create_traces_dataset_default(log, class_extractor, feature_count_kind, trace_repr_source)
     }
-    FicusDistance::Levenshtein => create_traces_dataset_levenshtein(log, class_extractor, trace_repr_source),
+    FicusDistance::Levenshtein | FicusDistance::Length => {
+      create_traces_dataset_levenshtein(log, class_extractor, trace_repr_source)
+    },
   }
 }
 

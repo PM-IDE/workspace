@@ -1,3 +1,4 @@
+use std::slice::Iter;
 use std::str::FromStr;
 
 use linfa_nn::distance::{Distance, L1Dist, L2Dist};
@@ -130,11 +131,12 @@ impl Distance<f64> for LevenshteinDistance {
 
 impl LevenshteinDistance {
   fn get_levenshtein_matrix_dimension_length(vec: &Vec<f64>) -> usize {
-    match vec.iter().position(|x| x.is_zero()) {
-      None => vec.len() + 1,
-      Some(pos) => pos + 2
-    }
+    find_first_zero_index(vec) + 2
   }
+}
+
+fn find_first_zero_index(vec: &Vec<f64>) -> usize {
+  vec.iter().position(|x| x.is_zero()).unwrap_or(vec.len() - 1)
 }
 
 #[derive(Clone, Debug)]
@@ -142,6 +144,10 @@ pub struct LengthDistance;
 
 impl Distance<f64> for LengthDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
-    (a.len().max(b.len()) - a.len().min(b.len())) as f64
+    let a_len = find_first_zero_index(&a.into_iter().map(|x| * x).collect());
+    let b_len = find_first_zero_index(&b.into_iter().map(|x| * x).collect());
+
+    println!("{}, {}", a_len, b_len);
+    (a_len.max(b_len) - a_len.min(b_len)) as f64
   }
 }
