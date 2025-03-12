@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use linfa_nn::distance::{Distance, L1Dist, L2Dist};
 use ndarray::{ArrayView, Dimension};
+use num_traits::Zero;
 
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum FicusDistance {
@@ -91,8 +92,11 @@ pub struct LevenshteinDistance {}
 
 impl Distance<f64> for LevenshteinDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
-    let a_len = a.len() + 1;
-    let b_len = b.len() + 1;
+    let a_vec = a.iter().map(|x| *x).collect::<Vec<f64>>();
+    let b_vec = b.iter().map(|x| *x).collect::<Vec<f64>>();
+    
+    let a_len = Self::get_levenshtein_matrix_dimension_length(&a_vec);
+    let b_len = Self::get_levenshtein_matrix_dimension_length(&b_vec);
 
     let mut matrix = vec![vec![0f64]];
     for i in 0..a_len {
@@ -102,9 +106,6 @@ impl Distance<f64> for LevenshteinDistance {
     for i in 1..b_len {
       matrix.push(vec![i as f64]);
     }
-
-    let a_vec = a.iter().map(|x| *x).collect::<Vec<f64>>();
-    let b_vec = b.iter().map(|x| *x).collect::<Vec<f64>>();
 
     for j in 1..b_len {
       for i in 1..a_len {
@@ -118,6 +119,15 @@ impl Distance<f64> for LevenshteinDistance {
       }
     }
 
-    matrix[a_len - 1][b_len - 1]
+    matrix[b_len - 1][a_len - 1]
+  }
+}
+
+impl LevenshteinDistance {
+  fn get_levenshtein_matrix_dimension_length(vec: &Vec<f64>) -> usize {
+    match vec.iter().position(|x| x.is_zero()) {
+      None => vec.len() + 1,
+      Some(pos) => pos + 2
+    }
   }
 }
