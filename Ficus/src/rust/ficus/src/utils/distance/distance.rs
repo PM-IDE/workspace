@@ -1,4 +1,4 @@
-use std::slice::Iter;
+use std::cmp::max;
 use std::str::FromStr;
 
 use linfa_nn::distance::{Distance, L1Dist, L2Dist};
@@ -12,6 +12,7 @@ pub enum FicusDistance {
   L2,
   Levenshtein,
   Length,
+  LCS
 }
 
 impl FromStr for FicusDistance {
@@ -24,6 +25,7 @@ impl FromStr for FicusDistance {
       "L2" => Ok(Self::L2),
       "Levenshtein" => Ok(Self::Levenshtein),
       "Length" => Ok(Self::Length),
+      "LCS" => Ok(Self::LCS),
       _ => Err(()),
     }
   }
@@ -35,7 +37,8 @@ pub enum DistanceWrapper {
   L1(L1Dist),
   L2(L2Dist),
   Levenshtein(LevenshteinDistance),
-  Length(LengthDistance)
+  Length(LengthDistance),
+  LCS(LCSDistance)
 }
 
 impl DistanceWrapper {
@@ -46,6 +49,7 @@ impl DistanceWrapper {
       FicusDistance::L2 => DistanceWrapper::L2(L2Dist),
       FicusDistance::Levenshtein => DistanceWrapper::Levenshtein(LevenshteinDistance),
       FicusDistance::Length => DistanceWrapper::Length(LengthDistance),
+      FicusDistance::LCS => DistanceWrapper::LCS(LCSDistance),
     }
   }
 }
@@ -57,7 +61,8 @@ impl Distance<f64> for DistanceWrapper {
       DistanceWrapper::L1(d) => d.distance(a, b),
       DistanceWrapper::L2(d) => d.distance(a, b),
       DistanceWrapper::Levenshtein(d) => d.distance(a, b),
-      DistanceWrapper::Length(d) => d.distance(a, b)
+      DistanceWrapper::Length(d) => d.distance(a, b),
+      DistanceWrapper::LCS(d) => d.distance(a, b)
     }
   }
 
@@ -150,4 +155,41 @@ impl Distance<f64> for LengthDistance {
     println!("{}, {}", a_len, b_len);
     (a_len.max(b_len) - a_len.min(b_len)) as f64
   }
+}
+
+#[derive(Clone)]
+pub struct LCSDistance;
+
+impl Distance<f64> for LCSDistance {
+  fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
+    let a_vec = a.iter().map(|x| *x).collect::<Vec<f64>>();
+    let b_vec = b.iter().map(|x| *x).collect::<Vec<f64>>();
+
+    let a_len = find_first_zero_index(&a_vec) + 1;
+    let b_len = find_first_zero_index(&b_vec) + 1;
+
+    let mut dp = vec![vec![-1; b_len + 1]; a_len + 1];
+    let lcp = find_longest_common_subsequence_length(&a_vec, &b_vec, a_len, b_len, &mut dp) as f64;
+
+    2. * lcp / (a_len + b_len) as f64
+  }
+}
+
+fn find_longest_common_subsequence_length<T: PartialEq>(
+  first: &Vec<T>,
+  second: &Vec<T>,
+  n: usize,
+  m: usize,
+  dp: &mut Vec<Vec<i64>>
+) -> i64 {
+  for i in 0..m + 1 { dp[0][i] = 0; }
+  for i in 0..n + 1 { dp[i][0] = 0; }
+
+  for i in 1..n + 1 {
+    for j in 1..m + 1 {
+      if first[i - 1] == second[j - 1] { dp[i][j] = 1 + dp[i - 1][j - 1]; } else { dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]); }
+    }
+  }
+
+  dp[n][m]
 }

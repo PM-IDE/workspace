@@ -97,7 +97,7 @@ fn create_traces_dataset<TLog: EventLog>(
     FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 => {
       create_traces_dataset_default(log, class_extractor, feature_count_kind, trace_repr_source)
     }
-    FicusDistance::Levenshtein | FicusDistance::Length => {
+    FicusDistance::Levenshtein | FicusDistance::Length | FicusDistance::LCS => {
       create_traces_dataset_levenshtein(log, class_extractor, trace_repr_source)
     },
   }
