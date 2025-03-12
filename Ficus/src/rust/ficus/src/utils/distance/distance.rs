@@ -10,6 +10,7 @@ pub enum FicusDistance {
   L1,
   L2,
   Levenshtein,
+  Length,
 }
 
 impl FromStr for FicusDistance {
@@ -21,6 +22,7 @@ impl FromStr for FicusDistance {
       "L1" => Ok(Self::L1),
       "L2" => Ok(Self::L2),
       "Levenshtein" => Ok(Self::Levenshtein),
+      "Length" => Ok(Self::Length),
       _ => Err(()),
     }
   }
@@ -32,15 +34,17 @@ pub enum DistanceWrapper {
   L1(L1Dist),
   L2(L2Dist),
   Levenshtein(LevenshteinDistance),
+  Length(LengthDistance)
 }
 
 impl DistanceWrapper {
   pub fn new(ficus_distance: FicusDistance) -> DistanceWrapper {
     match ficus_distance {
-      FicusDistance::Cosine => DistanceWrapper::Cosine(CosineDistance {}),
-      FicusDistance::L1 => DistanceWrapper::L1(L1Dist {}),
-      FicusDistance::L2 => DistanceWrapper::L2(L2Dist {}),
-      FicusDistance::Levenshtein => DistanceWrapper::Levenshtein(LevenshteinDistance {}),
+      FicusDistance::Cosine => DistanceWrapper::Cosine(CosineDistance),
+      FicusDistance::L1 => DistanceWrapper::L1(L1Dist),
+      FicusDistance::L2 => DistanceWrapper::L2(L2Dist),
+      FicusDistance::Levenshtein => DistanceWrapper::Levenshtein(LevenshteinDistance),
+      FicusDistance::Length => DistanceWrapper::Length(LengthDistance),
     }
   }
 }
@@ -52,6 +56,7 @@ impl Distance<f64> for DistanceWrapper {
       DistanceWrapper::L1(d) => d.distance(a, b),
       DistanceWrapper::L2(d) => d.distance(a, b),
       DistanceWrapper::Levenshtein(d) => d.distance(a, b),
+      DistanceWrapper::Length(d) => d.distance(a, b)
     }
   }
 
@@ -69,7 +74,7 @@ impl Distance<f64> for DistanceWrapper {
 }
 
 #[derive(Clone)]
-pub struct CosineDistance {}
+pub struct CosineDistance;
 
 impl Distance<f64> for CosineDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
@@ -88,7 +93,7 @@ impl Distance<f64> for CosineDistance {
 }
 
 #[derive(Clone)]
-pub struct LevenshteinDistance {}
+pub struct LevenshteinDistance;
 
 impl Distance<f64> for LevenshteinDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
@@ -129,5 +134,14 @@ impl LevenshteinDistance {
       None => vec.len() + 1,
       Some(pos) => pos + 2
     }
+  }
+}
+
+#[derive(Clone, Debug)]
+pub struct LengthDistance;
+
+impl Distance<f64> for LengthDistance {
+  fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
+    (a.len().max(b.len()) - a.len().min(b.len())) as f64
   }
 }

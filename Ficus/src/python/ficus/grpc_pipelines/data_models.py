@@ -42,6 +42,7 @@ class Distance(Enum):
   L1 = 1
   L2 = 2
   Levenshtein = 3
+  Length = 4
 
 
 class TracesRepresentationSource(Enum):

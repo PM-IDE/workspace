@@ -46,7 +46,7 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   let (dataset, objects, features) = traces_dataset?;
 
   let nn_search_algorithm = match params.distance {
-    FicusDistance::Levenshtein => LinearSearch,
+    FicusDistance::Levenshtein | FicusDistance::Length => LinearSearch,
     _ => KdTree,
   };
 
@@ -94,7 +94,7 @@ fn create_traces_dataset<TLog: EventLog>(
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
   match distance {
-    FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 => {
+    FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 | FicusDistance::Length => {
       create_traces_dataset_default(log, class_extractor, feature_count_kind, trace_repr_source)
     }
     FicusDistance::Levenshtein => create_traces_dataset_levenshtein(log, class_extractor, trace_repr_source),
