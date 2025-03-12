@@ -6,7 +6,7 @@ use std::{
 
 use linfa::{traits::Transformer, DatasetBase};
 use linfa_clustering::Dbscan;
-use linfa_nn::KdTree;
+use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
 use ndarray::Array2;
 
 use crate::{
@@ -45,7 +45,12 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
 
   let (dataset, objects, features) = traces_dataset?;
 
-  let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), KdTree)
+  let nn_search_algorithm = match params.distance {
+    FicusDistance::Levenshtein => LinearSearch,
+    _ => KdTree,
+  };
+
+  let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), nn_search_algorithm)
     .tolerance(params.tolerance)
     .transform(dataset.records());
 
