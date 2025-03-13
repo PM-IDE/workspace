@@ -5,11 +5,12 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::create_threads_log_by_attribute;
-use crate::features::clustering::traces::dbscan::{clusterize_log_by_traces_dbscan, clusterize_log_by_traces_kmeans_grid_search};
+use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
+use crate::features::clustering::traces::k_means::clusterize_log_by_traces_kmeans_grid_search;
 use crate::features::discovery::timeline::discovery::discover_timeline_diagram;
 use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY};
+use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
@@ -142,7 +143,7 @@ impl PipelineParts {
 
     abstracted_log
   }
-  
+
   pub fn clusterize_log_by_traces_k_means_grid_search() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_K_MEANS_GRID_SEARCH, &|context, infra, config| {
       let mut params = Self::create_traces_clustering_params(context, config)?;
@@ -158,7 +159,7 @@ impl PipelineParts {
           let mut new_context = context.clone();
           new_context.put_concrete(EVENT_LOG_KEY.key(), log);
 
-          after_clusterization_pipeline.execute(&mut new_context, infra)?; 
+          after_clusterization_pipeline.execute(&mut new_context, infra)?;
         }
       }
 

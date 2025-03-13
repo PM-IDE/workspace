@@ -555,8 +555,6 @@ dependencies = [
  "quick-xml",
  "rand 0.8.5",
  "rdkafka",
- "regex",
- "rustc-serialize",
  "stopwatch",
  "tokio",
  "tokio-stream",

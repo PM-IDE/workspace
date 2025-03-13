@@ -1,0 +1,51 @@
+use std::collections::HashMap;
+
+pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize) -> f64) -> f64 {
+  let mut clusters_to_indices: HashMap<usize, Vec<usize>> = HashMap::new();
+  for i in 0..labels.len() {
+    let label = *labels.get(i).unwrap();
+    if let Some(indices) = clusters_to_indices.get_mut(&label) {
+      indices.push(i);
+    } else {
+      clusters_to_indices.insert(label, vec![i]);
+    }
+  }
+
+  let mut score = 0.;
+  for (current_cluster_index, current_cluster_indices) in &clusters_to_indices {
+    for current_label in current_cluster_indices {
+      let mut a_x = 0.;
+      for other_index_from_this_cluster in current_cluster_indices {
+        a_x += distance_func(*current_label, *other_index_from_this_cluster);
+      }
+
+      a_x /= current_cluster_indices.len() as f64;
+
+      let mut b_x = None;
+
+      for (other_cluster_index, other_cluster_indices) in &clusters_to_indices {
+        if *other_cluster_index == *current_cluster_index {
+          continue;
+        }
+
+        let mut current_b_x = 0.;
+        for other_label_from_other_cluster in other_cluster_indices {
+          current_b_x += distance_func(*current_label, *other_label_from_other_cluster);
+        }
+
+        current_b_x /= other_cluster_indices.len() as f64;
+
+        b_x = Some(if b_x.is_none() {
+          current_b_x
+        } else {
+          current_b_x.min(b_x.unwrap())
+        })
+      }
+
+      let b_x = b_x.unwrap_or_else(|| 0.);
+      score += (b_x - a_x) / a_x.max(b_x);
+    }
+  }
+
+  score / labels.len() as f64
+}
