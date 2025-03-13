@@ -1,6 +1,7 @@
 from ...ficus.legacy.analysis.event_log_analysis import DatasetVisualizationMethod, NComponents
-from ...ficus.grpc_pipelines.activities_parts import ClusterizeLogTracesDbscan, DiscoverActivitiesFromPatterns, \
-  DiscoverActivitiesInstances, ClusterizeActivitiesFromTracesDbscan, DiscoverActivitiesForSeveralLevels
+from ...ficus.grpc_pipelines.activities_parts import DiscoverActivitiesFromPatterns, \
+  DiscoverActivitiesInstances, DiscoverActivitiesForSeveralLevels
+from ...ficus.grpc_pipelines.clustering import *
 from ...ficus.grpc_pipelines.constants import const_labeled_log_traces_dataset, const_cluster_labels, \
   const_labeled_traces_activities_dataset
 from ...ficus.grpc_pipelines.context_values import from_grpc_labeled_dataset
@@ -194,7 +195,7 @@ def test_traces_dataset_8():
     ],
     ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline(),
                               min_events_count_in_cluster=2,
-                              tolerance=5,
+                              tolerance=6,
                               class_extractor=r'^(.*?)(?=\.)',
                               distance=Distance.Levenshtein,
                               show_visualization=False),
