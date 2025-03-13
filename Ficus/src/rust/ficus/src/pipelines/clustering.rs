@@ -9,7 +9,7 @@ use crate::features::clustering::traces::k_means::clusterize_log_by_traces_kmean
 use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY, PIPELINE_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY};
+use crate::pipelines::keys::context_keys::{ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY, PIPELINE_KEY, TOLERANCE, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY};
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
@@ -117,8 +117,9 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_K_MEANS_GRID_SEARCH, &|context, infra, config| {
       let mut params = Self::create_traces_clustering_params(context, config)?;
       let learning_iterations_count = *Self::get_user_data(config, &LEARNING_ITERATIONS_COUNT_KEY)? as u64;
+      let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
 
-      let (logs, labeled_dataset) = match clusterize_log_by_traces_kmeans_grid_search(&mut params, learning_iterations_count) {
+      let (logs, labeled_dataset) = match clusterize_log_by_traces_kmeans_grid_search(&mut params, learning_iterations_count, tolerance) {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };
@@ -159,7 +160,6 @@ impl PipelineParts {
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
   ) -> Result<TracesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
-    let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
     let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
     let repr_source = *Self::get_user_data(config, &TRACES_REPRESENTATION_SOURCE_KEY)?;
     let feature_count_kind = *Self::get_user_data(config, &FEATURE_COUNT_KIND_KEY)?;
@@ -176,7 +176,6 @@ impl PipelineParts {
     Ok(TracesClusteringParams {
       vis_params: Self::create_common_vis_params(context, config)?,
       distance,
-      tolerance,
       repr_source,
       feature_count_kind,
     })
@@ -187,8 +186,9 @@ impl PipelineParts {
       let mut params = Self::create_traces_clustering_params(context, config)?;
       let after_clusterization_pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
+      let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
 
-      let new_logs = match clusterize_log_by_traces_dbscan(&mut params, min_points_in_cluster) {
+      let new_logs = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster) {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };
@@ -209,7 +209,7 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_DBSCAN_GRID_SEARCH, &|context, infra, config| {
       let mut params = Self::create_traces_clustering_params(context, config)?;
       let after_clusterization_pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
-      
+
       let min_points = Self::get_user_data(config, &MIN_POINTS_IN_CLUSTER_ARRAY_KEY)?;
       let min_points = min_points.iter().map(|x| *x as usize).collect();
 

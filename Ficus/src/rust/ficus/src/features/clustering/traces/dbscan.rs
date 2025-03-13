@@ -14,11 +14,12 @@ use crate::utils::silhouette::silhouette_score;
 
 pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
+  tolerance: f64,
   min_points: usize,
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   do_clusterize_log_by_traces(params, |params, nn_search_algorithm, dataset| {
     let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), nn_search_algorithm)
-      .tolerance(params.tolerance)
+      .tolerance(tolerance)
       .transform(dataset.records());
 
     match clusters {
