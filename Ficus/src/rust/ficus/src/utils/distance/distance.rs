@@ -152,7 +152,6 @@ impl Distance<f64> for LengthDistance {
     let a_len = find_first_zero_index(&a.into_iter().map(|x| * x).collect());
     let b_len = find_first_zero_index(&b.into_iter().map(|x| * x).collect());
 
-    println!("{}, {}", a_len, b_len);
     (a_len.max(b_len) - a_len.min(b_len)) as f64
   }
 }
