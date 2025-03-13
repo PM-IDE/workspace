@@ -381,7 +381,7 @@ class ClusterizeLogTracesKMeansGridSearch(ClusterizeLogTracesBase):
 class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
   def __init__(self,
                after_clusterization_pipeline: Pipeline,
-               min_events_count_vec: list[int] = [1],
+               min_points_in_cluster_vec: list[int] = [1],
                tolerances: list[float] = [1e-5],
                show_visualization: bool = True,
                fig_size: (int, int) = (7, 9),
@@ -413,11 +413,11 @@ class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
                      percentage_from_max_value)
 
     self.tolerances = tolerances
-    self.min_events_count_vec = min_events_count_vec
+    self.min_points_in_cluster_vec = min_points_in_cluster_vec
 
   def fill_config_values(self, config):
     append_float_array_value(config, const_tolerances, self.tolerances)
-    append_uint_array_value(config, const_min_events_in_cluster_array, self.min_events_count_vec)
+    append_uint_array_value(config, const_min_points_in_cluster_array, self.min_points_in_cluster_vec)
 
 
 class AbstractTimelineDiagram(ClusterizeLogTracesBase):

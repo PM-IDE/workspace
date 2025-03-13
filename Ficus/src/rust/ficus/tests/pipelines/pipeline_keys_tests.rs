@@ -119,6 +119,8 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<u32>(&TIME_DELTA, &mut used);
     assert_existence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
     assert_existence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
+    assert_existence::<Vec<f64>>(&TOLERANCES, &mut used);
+    assert_existence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -215,7 +217,9 @@ fn get_all_keys_names() -> Vec<String> {
         "time_attribute",
         "time_delta",
         "feature_count_kind",
-        "percent_from_max_value"
+        "percent_from_max_value",
+        "tolerances",
+        "min_points_in_cluster_array"
     ]
 }
 
@@ -313,6 +317,8 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<u32>(&TIME_DELTA, &mut used);
     assert_keys_equivalence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
     assert_keys_equivalence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
+    assert_keys_equivalence::<Vec<f64>>(&TOLERANCES, &mut used);
+    assert_keys_equivalence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

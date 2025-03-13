@@ -69,7 +69,7 @@ const_time_delta_attribute = 'time_delta'
 const_feature_count_kind = 'feature_count_kind'
 const_percentage_from_max_value = 'percent_from_max_value'
 const_tolerances = 'tolerances'
-const_min_events_in_cluster_array = 'min_events_in_cluster_array'
+const_min_points_in_cluster_array = 'min_points_in_cluster_array'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'
