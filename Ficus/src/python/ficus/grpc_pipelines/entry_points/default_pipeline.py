@@ -201,6 +201,18 @@ def append_float_value(config: GrpcPipelinePartConfiguration, key: str, value: f
   append_context_value(config, key, FloatContextValue(value))
 
 
+def append_float_array_value(config: GrpcPipelinePartConfiguration, key: str, value: list[float]):
+  append_context_value(config, key, FloatArrayContextValue(value))
+
+
+def append_int_array_value(config: GrpcPipelinePartConfiguration, key: str, value: list[int]):
+  append_context_value(config, key, IntArrayContextValue(value))
+
+
+def append_uint_array_value(config: GrpcPipelinePartConfiguration, key: str, value: list[int]):
+  append_context_value(config, key, UintArrayContextValue(value))
+
+
 def append_context_value(config: GrpcPipelinePartConfiguration, key: str, value: ContextValue):
   config.configurationParameters.append(GrpcContextKeyValue(
     key=GrpcContextKey(name=key),

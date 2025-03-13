@@ -49,6 +49,29 @@ class BoolContextValue(ContextValue):
   def to_grpc_context_value(self) -> GrpcContextValue:
     return GrpcContextValue(bool=self.value)
 
+@dataclass
+class FloatArrayContextValue(ContextValue):
+  value: list[float]
+
+  def to_grpc_context_value(self) -> GrpcContextValue:
+    return GrpcContextValue(float_array=GrpcFloatArray(items=self.value))
+
+
+@dataclass
+class IntArrayContextValue(ContextValue):
+  value: list[int]
+
+  def to_grpc_context_value(self) -> GrpcContextValue:
+    return GrpcContextValue(int_array=GrpcIntArray(items=self.value))
+
+
+@dataclass
+class UintArrayContextValue(ContextValue):
+  value: list[int]
+
+  def to_grpc_context_value(self) -> GrpcContextValue:
+    return GrpcContextValue(uint_array=GrpcUintArray(items=self.value))
+
 
 @dataclass
 class HashesLogContextValue(ContextValue):
