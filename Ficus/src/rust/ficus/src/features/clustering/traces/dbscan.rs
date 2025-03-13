@@ -12,8 +12,9 @@ use linfa::metrics::SilhouetteScore;
 use linfa_clustering::Dbscan;
 use linfa_nn::CommonNearestNeighbour;
 use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
+use linfa_nn::distance::Distance;
 use ndarray::{Array1, Array2};
-
+use prost::bytes::BufMut;
 use crate::{
   event_log::core::{
     event::{event::Event, event_hasher::RegexEventHasher},
@@ -36,14 +37,14 @@ use crate::{
 use super::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
 
 pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
-  params: &mut TracesClusteringParams<TLog>, 
+  params: &mut TracesClusteringParams<TLog>,
   max_iterations_count: u64
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   do_clusterize_log_by_traces(params, |params, _, dataset| {
     let mut best_score = -1.;
     let mut best_labels = None;
 
-    for clusters_count in 2..dataset.targets.len() - 1 {
+    for clusters_count in 2..dataset.targets().len() - 1 {
       let model = KMeans::params_with(clusters_count, rand::thread_rng(), DistanceWrapper::new(params.distance))
         .max_n_iterations(max_iterations_count)
         .tolerance(params.tolerance)
@@ -51,13 +52,16 @@ pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
         .expect("KMeans fitted");
 
       let clustered_dataset = model.predict(dataset.clone());
-      let score = match clustered_dataset.silhouette_score() {
-        Ok(score) => score,
-        Err(_) => return Err(ClusteringError::FailedToCalculateSilhouetteScore),
-      };
+      let score = silhouette_score(clustered_dataset.targets().to_vec(), |first, second| {
+        let first_record = dataset.records.row(first);
+        let second_record = dataset.records.row(second);
+
+        let distance_wrapper = DistanceWrapper::new(params.distance);
+        distance_wrapper.distance(first_record, second_record)
+      });
 
       if score > best_score {
-        best_labels = Some(clustered_dataset.targets);
+        best_labels = Some(clustered_dataset.targets.clone());
         best_score = score;
       }
     }
@@ -66,8 +70,58 @@ pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
   })
 }
 
+fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize) -> f64) -> f64 {
+  let mut clusters_to_indices: HashMap<usize, Vec<usize>> = HashMap::new();
+  for i in 0..labels.len() {
+    let label = *labels.get(i).unwrap();
+    if let Some(indices) = clusters_to_indices.get_mut(&label) {
+      indices.push(i);
+    } else {
+      clusters_to_indices.insert(label, vec![i]);
+    }
+  }
+
+  let mut score = 0.;
+  for (current_cluster_index, current_cluster_indices) in &clusters_to_indices {
+    for current_label in current_cluster_indices {
+      let mut a_x = 0.;
+      for other_index_from_this_cluster in current_cluster_indices {
+        a_x += distance_func(*current_label, *other_index_from_this_cluster);
+      }
+
+      a_x /= current_cluster_indices.len() as f64;
+
+      let mut b_x = None;
+
+      for (other_cluster_index, other_cluster_indices) in &clusters_to_indices {
+        if *other_cluster_index == *current_cluster_index {
+          continue;
+        }
+
+        let mut current_b_x = 0.;
+        for other_label_from_other_cluster in other_cluster_indices {
+          current_b_x += distance_func(*current_label, *other_label_from_other_cluster);
+        }
+
+        current_b_x /= other_cluster_indices.len() as f64;
+
+        b_x = Some(if b_x.is_none() {
+          current_b_x
+        } else {
+          current_b_x.min(b_x.unwrap())
+        })
+      }
+
+      let b_x = b_x.unwrap_or_else(|| 0.);
+      score += (b_x - a_x) / a_x.max(b_x);
+    }
+  }
+
+  score / labels.len() as f64
+}
+
 fn do_clusterize_log_by_traces<TLog: EventLog>(
-  params: &mut TracesClusteringParams<TLog>, 
+  params: &mut TracesClusteringParams<TLog>,
   clustering_func: impl Fn(&mut TracesClusteringParams<TLog>, CommonNearestNeighbour, &MyDataset) -> Result<Array1<Option<usize>>, ClusteringError>
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   let class_extractor = params.vis_params.class_extractor.as_ref();
