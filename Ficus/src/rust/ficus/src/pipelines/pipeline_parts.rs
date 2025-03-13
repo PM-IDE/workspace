@@ -96,7 +96,8 @@ impl PipelineParts {
       Self::discover_log_threads_diagram(),
       Self::create_threads_log(),
       Self::abstract_timeline_diagram(),
-      Self::clusterize_log_by_traces_k_means_grid_search()
+      Self::clusterize_log_by_traces_k_means_grid_search(),
+      Self::clusterize_log_traces_dbscan_grid_search()
     ];
 
     let mut names_to_parts = HashMap::new();

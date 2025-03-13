@@ -376,6 +376,44 @@ class ClusterizeLogTracesKMeansGridSearch(ClusterizeLogTracesBase):
     append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
     return part
 
+
+class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
+  def __init__(self,
+               after_clusterization_pipeline: Pipeline,
+               min_events_count_in_cluster: int = 1,
+               tolerance: float = 1e-5,
+               show_visualization: bool = True,
+               fig_size: (int, int) = (7, 9),
+               view_params: (int, int) = (-140, 60),
+               font_size: int = 14,
+               save_path: Optional[str] = None,
+               distance: Distance = Distance.Cosine,
+               n_components: NComponents = NComponents.Three,
+               visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
+               legend_cols: int = 2,
+               traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
+               class_extractor: Optional[str] = None,
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count,
+               percentage_from_max_value: float = 0):
+    super().__init__(const_clusterize_traces_dbscan_grid_search,
+                     after_clusterization_pipeline,
+                     min_events_count_in_cluster,
+                     tolerance,
+                     show_visualization,
+                     fig_size,
+                     view_params,
+                     font_size,
+                     save_path,
+                     distance,
+                     n_components,
+                     visualization_method,
+                     legend_cols,
+                     traces_repr_source,
+                     class_extractor,
+                     feature_count_kind,
+                     percentage_from_max_value)
+
+
 class AbstractTimelineDiagram(ClusterizeLogTracesBase):
   def __init__(self,
                min_events_count_in_cluster: int = 1,

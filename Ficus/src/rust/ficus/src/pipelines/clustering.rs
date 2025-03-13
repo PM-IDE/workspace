@@ -4,7 +4,7 @@ use crate::features::clustering::activities::activities_params::{ActivitiesClust
 use crate::features::clustering::activities::dbscan::clusterize_activities_dbscan;
 use crate::features::clustering::activities::k_means::{clusterize_activities_k_means, clusterize_activities_k_means_grid_search};
 use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisualizationParams};
-use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
+use crate::features::clustering::traces::dbscan::{clusterize_log_by_traces_dbscan, clusterize_log_by_traces_dbscan_grid_search};
 use crate::features::clustering::traces::k_means::clusterize_log_by_traces_kmeans_grid_search;
 use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams};
 use crate::pipelines::context::PipelineContext;
@@ -189,6 +189,30 @@ impl PipelineParts {
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
 
       let new_logs = match clusterize_log_by_traces_dbscan(&mut params, min_points_in_cluster) {
+        Ok(new_logs) => new_logs,
+        Err(error) => return Err(error.into()),
+      };
+
+      context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), new_logs.1);
+      for log in new_logs.0 {
+        let mut new_context = context.clone();
+        new_context.put_concrete(EVENT_LOG_KEY.key(), log);
+
+        after_clusterization_pipeline.execute(&mut new_context, infra)?;
+      }
+
+      Ok(())
+    })
+  }
+
+  pub(super) fn clusterize_log_traces_dbscan_grid_search() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_DBSCAN_GRID_SEARCH, &|context, infra, config| {
+      let mut params = Self::create_traces_clustering_params(context, config)?;
+      let after_clusterization_pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
+
+      let min_points = (2..10).into_iter().collect();
+      let tolerances = vec![0.1, 0.2, 0.3, 0.4, 0.5];
+      let new_logs = match clusterize_log_by_traces_dbscan_grid_search(&mut params, &min_points, &tolerances) {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };

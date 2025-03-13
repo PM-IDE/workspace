@@ -3,7 +3,7 @@ use linfa_clustering::KMeans;
 use linfa_nn::distance::Distance;
 use crate::event_log::core::event_log::EventLog;
 use crate::features::clustering::error::ClusteringError;
-use crate::features::clustering::traces::common::do_clusterize_log_by_traces;
+use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces};
 use crate::features::clustering::traces::traces_params::TracesClusteringParams;
 use crate::utils::dataset::dataset::LabeledDataset;
 use crate::utils::distance::distance::DistanceWrapper;
@@ -26,11 +26,7 @@ pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
 
       let clustered_dataset = model.predict(dataset.clone());
       let score = silhouette_score(clustered_dataset.targets().to_vec(), |first, second| {
-        let first_record = dataset.records.row(first);
-        let second_record = dataset.records.row(second);
-
-        let distance_wrapper = DistanceWrapper::new(params.distance);
-        distance_wrapper.distance(first_record, second_record)
+        calculate_distance(params.distance, dataset, first, second)
       });
 
       if score > best_score {

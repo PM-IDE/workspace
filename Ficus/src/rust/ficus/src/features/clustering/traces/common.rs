@@ -7,7 +7,7 @@ use crate::features::clustering::common::{create_colors_vector, scale_raw_datase
 use crate::features::clustering::error::ClusteringError;
 use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
 use crate::utils::dataset::dataset::LabeledDataset;
-use crate::utils::distance::distance::FicusDistance;
+use crate::utils::distance::distance::{DistanceWrapper, FicusDistance};
 use linfa::DatasetBase;
 use linfa_nn::CommonNearestNeighbour;
 use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
@@ -15,6 +15,7 @@ use ndarray::{Array1, Array2};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
+use linfa_nn::distance::Distance;
 
 pub fn do_clusterize_log_by_traces<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
@@ -277,4 +278,12 @@ fn create_traces_dataset_levenshtein_internal<TLog: EventLog>(
     (0..processed_traces.len()).into_iter().map(|x| format!("Trace_{}", x)).collect(),
     (0..max_length).into_iter().map(|x| format!("Symbol_{}", x)).collect(),
   ))
+}
+
+pub fn calculate_distance(distance: FicusDistance, dataset: &MyDataset, first: usize, second: usize) -> f64 {
+  let first_record = dataset.records.row(first);
+  let second_record = dataset.records.row(second);
+
+  let distance_wrapper = DistanceWrapper::new(distance);
+  distance_wrapper.distance(first_record, second_record)
 }

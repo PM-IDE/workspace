@@ -71,6 +71,7 @@ impl PipelineParts {
   pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_DBSCAN: &'static str = "ClusterizeActivitiesFromTracesDbscan";
   pub const CREATE_TRACES_ACTIVITIES_DATASET: &'static str = "CreateTracesActivitiesDataset";
   pub const CLUSTERIZE_LOG_TRACES: &'static str = "ClusterizeLogTraces";
+  pub const CLUSTERIZE_LOG_TRACES_DBSCAN_GRID_SEARCH: &'static str = "ClusterizeLogTracesDbscanGridSearch";
   pub const SERIALIZE_ACTIVITIES_LOGS: &'static str = "SerializeActivitiesLogs";
   pub const REVERSE_HIERARCHY_INDICES: &'static str = "ReverseHierarchyIndices";
 
