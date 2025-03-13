@@ -53,6 +53,7 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use tokio_stream::iter;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -118,6 +119,9 @@ pub(super) fn put_into_user_data(
     ContextValue::LabeledDataset(_) => todo!(),
     ContextValue::Bytes(grpc_bytes) => user_data.put_any::<Vec<u8>>(key, grpc_bytes.bytes.clone()),
     ContextValue::LogTimelineDiagram(_) => todo!(),
+    ContextValue::FloatArray(float_array) => user_data.put_any::<Vec<f64>>(key, float_array.items.clone()),
+    ContextValue::IntArray(int_array) => user_data.put_any::<Vec<i64>>(key, int_array.items.clone()),
+    ContextValue::UintArray(uint_array) => user_data.put_any::<Vec<u64>>(key, uint_array.items.clone()),
   }
 }
 

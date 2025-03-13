@@ -37,7 +37,22 @@ message GrpcContextValue {
     GrpcLabeledDataset labeled_dataset = 19;
     GrpcBytes bytes = 20;
     GrpcLogTimelineDiagram logTimelineDiagram = 21;
+    GrpcFloatArray float_array = 22;
+    GrpcIntArray int_array = 23;
+    GrpcUintArray uint_array = 24;
   }
+}
+
+message GrpcFloatArray {
+  repeated double items = 1;
+}
+
+message GrpcIntArray {
+  repeated int64 items = 1;
+}
+
+message GrpcUintArray {
+  repeated uint64 items = 1;
 }
 
 message GrpcContextKeyValue {
