@@ -521,7 +521,7 @@ class VisualizeTracesActivities(PipelinePartWithCallback):
              self.font_size, self.legend_cols, self.save_path, None)
 
 
-class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
+class ClusterizeLogTracesBase(ClusterizationPartWithVisualization):
   def __init__(self,
                pipeline_part_name: str,
                after_clusterization_pipeline: Optional[Pipeline] = None,
@@ -597,7 +597,7 @@ class ClusterizeLogTracesDbscanBase(ClusterizationPartWithVisualization):
       append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
 
 
-class ClusterizeLogTracesDbscan(ClusterizeLogTracesDbscanBase):
+class ClusterizeLogTracesDbscan(ClusterizeLogTracesBase):
   def __init__(self,
                after_clusterization_pipeline: Pipeline,
                min_events_count_in_cluster: int = 1,

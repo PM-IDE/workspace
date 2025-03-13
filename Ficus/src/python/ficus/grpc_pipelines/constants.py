@@ -138,6 +138,7 @@ const_discover_directly_follows_graph_stream = 'DiscoverDirectlyFollowsGraphStre
 const_discover_log_timeline_diagram = 'DiscoverLogTimelineDiagram'
 const_create_threads_log = 'CreateThreadsLog'
 const_abstract_timeline_diagram = 'AbstractTimelineDiagram'
+const_clusterize_traces_k_means_grid_search = 'ClusterizeLogTracesKMeansGridSearch'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'
