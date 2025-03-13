@@ -74,7 +74,8 @@ fn get_test_parts_names() -> Vec<String> {
         "DiscoverPetriNetAlphaStream",
         "DiscoverLogTimelineDiagram",
         "CreateThreadsLog",
-        "AbstractTimelineDiagram"
+        "AbstractTimelineDiagram",
+        "ClusterizeLogTracesKMeansGridSearch"
     ]
 }
 

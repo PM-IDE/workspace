@@ -65,6 +65,7 @@ impl PipelineParts {
   pub const ENSURE_INITIAL_MARKING: &'static str = "EnsureInitialMarking";
   pub const DISCOVER_LOG_TIMELINE_DIAGRAM: &'static str = "DiscoverLogTimelineDiagram";
 
+  pub const CLUSTERIZE_LOG_TRACES_K_MEANS_GRID_SEARCH: &'static str = "ClusterizeLogTracesKMeansGridSearch";
   pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS: &'static str = "ClusterizeActivitiesFromTracesKMeans";
   pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS_GRID_SEARCH: &'static str = "ClusterizeActivitiesFromTracesKMeansGridSearch";
   pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_DBSCAN: &'static str = "ClusterizeActivitiesFromTracesDbscan";

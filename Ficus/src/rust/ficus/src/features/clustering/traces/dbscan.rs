@@ -1,3 +1,6 @@
+use linfa::prelude::Predict;
+use linfa::prelude::Fit;
+use linfa_clustering::KMeans;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
@@ -5,9 +8,11 @@ use std::{
 };
 
 use linfa::{traits::Transformer, DatasetBase};
+use linfa::metrics::SilhouetteScore;
 use linfa_clustering::Dbscan;
+use linfa_nn::CommonNearestNeighbour;
 use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
-use ndarray::Array2;
+use ndarray::{Array1, Array2};
 
 use crate::{
   event_log::core::{
@@ -30,9 +35,41 @@ use crate::{
 
 use super::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
 
-pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
-  params: &mut TracesClusteringParams<TLog>,
-  min_points: usize,
+pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
+  params: &mut TracesClusteringParams<TLog>, 
+  max_iterations_count: u64
+) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
+  do_clusterize_log_by_traces(params, |params, _, dataset| {
+    
+    let mut best_score = -1.;
+    let mut best_labels = None;
+
+    for clusters_count in 2..dataset.records.len() - 1 {
+      let model = KMeans::params_with(clusters_count, rand::thread_rng(), DistanceWrapper::new(params.distance))
+        .max_n_iterations(max_iterations_count)
+        .tolerance(params.tolerance)
+        .fit(&dataset)
+        .expect("KMeans fitted");
+
+      let clustered_dataset = model.predict(dataset.clone());
+      let score = match clustered_dataset.silhouette_score() {
+        Ok(score) => score,
+        Err(_) => return Err(ClusteringError::FailedToCalculateSilhouetteScore),
+      };
+
+      if score > best_score {
+        best_labels = Some(clustered_dataset.targets);
+        best_score = score;
+      }
+    }
+
+    Ok(best_labels.unwrap().iter().map(|l| Some(*l)).collect())
+  })
+}
+
+fn do_clusterize_log_by_traces<TLog: EventLog>(
+  params: &mut TracesClusteringParams<TLog>, 
+  clustering_func: impl Fn(&mut TracesClusteringParams<TLog>, CommonNearestNeighbour, &MyDataset) -> Result<Array1<Option<usize>>, ClusteringError>
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   let class_extractor = params.vis_params.class_extractor.as_ref();
   let traces_dataset = create_traces_dataset(
@@ -50,14 +87,7 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
     FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 => KdTree
   };
 
-  let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), nn_search_algorithm)
-    .tolerance(params.tolerance)
-    .transform(dataset.records());
-
-  let clusters = match clusters {
-    Ok(clusters) => clusters,
-    Err(err) => return Err(ClusteringError::RawError(err.to_string()))
-  };
+  let clusters = clustering_func(params, nn_search_algorithm, &dataset)?;
 
   let ficus_dataset = transform_to_ficus_dataset(&dataset, objects, features);
 
@@ -84,6 +114,22 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   let colors = create_colors_vector(&labels, &mut params.vis_params.colors_holder);
 
   Ok((new_logs, LabeledDataset::new(ficus_dataset, labels, colors)))
+}
+
+pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
+  params: &mut TracesClusteringParams<TLog>,
+  min_points: usize,
+) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
+  do_clusterize_log_by_traces(params, |params, nn_search_algorithm, dataset| {
+    let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), nn_search_algorithm)
+      .tolerance(params.tolerance)
+      .transform(dataset.records());
+
+    match clusters {
+      Ok(clusters) => Ok(clusters),
+      Err(err) => Err(ClusteringError::RawError(err.to_string()))
+    }
+  })
 }
 
 fn create_traces_dataset<TLog: EventLog>(
