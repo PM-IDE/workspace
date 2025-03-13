@@ -221,8 +221,6 @@ class ClusterizeLogTracesBase(ClusterizationPartWithVisualization):
   def __init__(self,
                pipeline_part_name: str,
                after_clusterization_pipeline: Optional[Pipeline] = None,
-               min_events_count_in_cluster: int = 1,
-               tolerance: float = 1e-5,
                show_visualization: bool = True,
                fig_size: (int, int) = (7, 9),
                view_params: (int, int) = (-140, 60),
@@ -242,17 +240,18 @@ class ClusterizeLogTracesBase(ClusterizationPartWithVisualization):
 
     self.pipeline_part_name = pipeline_part_name
     self.after_clusterization_pipeline = after_clusterization_pipeline
-    self.min_events_count_in_cluster = min_events_count_in_cluster
-    self.tolerance = tolerance
     self.distance = distance
     self.traces_repr_source = traces_repr_source
     self.class_extractor = class_extractor
     self.feature_count_kind = feature_count_kind
     self.percentage_from_max_value = percentage_from_max_value
 
+  def fill_config_values(self, config):
+    pass
+
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
-    append_float_value(config, const_tolerance, self.tolerance)
+    self.fill_config_values(config)
 
     append_enum_value(config,
                       const_distance,
@@ -270,7 +269,6 @@ class ClusterizeLogTracesBase(ClusterizationPartWithVisualization):
                       self.feature_count_kind.name)
 
     append_float_value(config, const_percentage_from_max_value, self.percentage_from_max_value)
-    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
     if self.after_clusterization_pipeline is not None:
       append_pipeline_value(config, const_pipeline, self.after_clusterization_pipeline)
@@ -313,8 +311,6 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesBase):
                percentage_from_max_value: float = 0):
     super().__init__(const_clusterize_log_traces,
                      after_clusterization_pipeline,
-                     min_events_count_in_cluster,
-                     tolerance,
                      show_visualization,
                      fig_size,
                      view_params,
@@ -328,6 +324,13 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesBase):
                      class_extractor,
                      feature_count_kind,
                      percentage_from_max_value)
+
+    self.min_events_count_in_cluster = min_events_count_in_cluster
+    self.tolerance = tolerance
+
+  def fill_config_values(self, config):
+    append_float_value(config, const_tolerance, self.tolerance)
+    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
 
 class ClusterizeLogTracesKMeansGridSearch(ClusterizeLogTracesBase):
@@ -351,8 +354,6 @@ class ClusterizeLogTracesKMeansGridSearch(ClusterizeLogTracesBase):
                percentage_from_max_value: float = 0):
     super().__init__(const_clusterize_traces_k_means_grid_search,
                      after_clusterization_pipeline,
-                     min_events_count_in_cluster,
-                     tolerance,
                      show_visualization,
                      fig_size,
                      view_params,
@@ -367,14 +368,14 @@ class ClusterizeLogTracesKMeansGridSearch(ClusterizeLogTracesBase):
                      feature_count_kind,
                      percentage_from_max_value)
 
+    self.tolerance = tolerance
+    self.min_events_count_in_cluster = min_events_count_in_cluster
     self.learning_iterations_count = learning_iterations_count
 
-  def to_grpc_part(self) -> GrpcPipelinePartBase:
-    part = super().to_grpc_part()
-    config = part.complexContextRequestPart.beforePipelinePart.configuration
-
+  def fill_config_values(self, config):
     append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
-    return part
+    append_float_value(config, const_tolerance, self.tolerance)
+    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
 
 class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
@@ -397,8 +398,6 @@ class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
                percentage_from_max_value: float = 0):
     super().__init__(const_clusterize_traces_dbscan_grid_search,
                      after_clusterization_pipeline,
-                     min_events_count_in_cluster,
-                     tolerance,
                      show_visualization,
                      fig_size,
                      view_params,
@@ -412,6 +411,13 @@ class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
                      class_extractor,
                      feature_count_kind,
                      percentage_from_max_value)
+
+    self.tolerance = tolerance
+    self.min_events_count_in_cluster = min_events_count_in_cluster
+
+  def fill_config_values(self, config):
+    append_float_value(config, const_tolerance, self.tolerance)
+    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
 
 
 class AbstractTimelineDiagram(ClusterizeLogTracesBase):
@@ -434,8 +440,6 @@ class AbstractTimelineDiagram(ClusterizeLogTracesBase):
                percent_from_max_value: float = 0):
     super().__init__(const_abstract_timeline_diagram,
                      after_clusterization_pipeline,
-                     min_events_count_in_cluster,
-                     tolerance,
                      show_visualization,
                      fig_size,
                      view_params,
@@ -449,3 +453,10 @@ class AbstractTimelineDiagram(ClusterizeLogTracesBase):
                      class_extractor,
                      feature_count_kind,
                      percent_from_max_value)
+
+    self.tolerance = tolerance
+    self.min_events_count_in_cluster = min_events_count_in_cluster
+
+  def fill_config_values(self, config):
+    append_float_value(config, const_tolerance, self.tolerance)
+    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
