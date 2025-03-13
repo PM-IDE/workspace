@@ -10,7 +10,6 @@ use crate::{
 };
 use linfa::traits::Transformer;
 use linfa_clustering::Dbscan;
-use linfa_nn::distance::Distance;
 use crate::utils::silhouette::silhouette_score;
 
 pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
