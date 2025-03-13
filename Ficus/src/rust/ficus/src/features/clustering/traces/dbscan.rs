@@ -1,5 +1,5 @@
-use linfa::prelude::Predict;
 use linfa::prelude::Fit;
+use linfa::prelude::Predict;
 use linfa_clustering::KMeans;
 use std::{
   cell::RefCell,
@@ -7,14 +7,6 @@ use std::{
   rc::Rc,
 };
 
-use linfa::{traits::Transformer, DatasetBase};
-use linfa::metrics::SilhouetteScore;
-use linfa_clustering::Dbscan;
-use linfa_nn::CommonNearestNeighbour;
-use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
-use linfa_nn::distance::Distance;
-use ndarray::{Array1, Array2};
-use prost::bytes::BufMut;
 use crate::{
   event_log::core::{
     event::{event::Event, event_hasher::RegexEventHasher},
@@ -33,6 +25,12 @@ use crate::{
     distance::distance::{DistanceWrapper, FicusDistance},
   },
 };
+use linfa::{traits::Transformer, DatasetBase};
+use linfa_clustering::Dbscan;
+use linfa_nn::distance::Distance;
+use linfa_nn::CommonNearestNeighbour;
+use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
+use ndarray::{Array1, Array2};
 
 use super::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
 

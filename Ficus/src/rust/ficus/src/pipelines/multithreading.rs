@@ -144,14 +144,23 @@ impl PipelineParts {
   }
   
   pub fn clusterize_log_by_traces_k_means_grid_search() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_K_MEANS_GRID_SEARCH, &|context, _, config| {
+    Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_K_MEANS_GRID_SEARCH, &|context, infra, config| {
       let mut params = Self::create_traces_clustering_params(context, config)?;
       let learning_iterations_count = *Self::get_user_data(config, &LEARNING_ITERATIONS_COUNT_KEY)? as u64;
 
-      let (_, labeled_dataset) = match clusterize_log_by_traces_kmeans_grid_search(&mut params, learning_iterations_count) {
+      let (logs, labeled_dataset) = match clusterize_log_by_traces_kmeans_grid_search(&mut params, learning_iterations_count) {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };
+
+      if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
+        for log in logs {
+          let mut new_context = context.clone();
+          new_context.put_concrete(EVENT_LOG_KEY.key(), log);
+
+          after_clusterization_pipeline.execute(&mut new_context, infra)?; 
+        }
+      }
 
       context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), labeled_dataset);
 
