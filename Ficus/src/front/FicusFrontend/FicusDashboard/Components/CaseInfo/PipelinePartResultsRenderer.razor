@@ -1,0 +1,159 @@
+@using Ficus
+@using FicusDashboard.Services.Cases
+@using FicusDashboard.Utils
+@using FicusDashboard.Components.CaseInfo.ContextValues.LogTimeline
+@using FicusDashboard.Components.CaseInfo.ContextValues.EventLogInfo
+@using FicusDashboard.Components.CaseInfo.ContextValues.ColorsLog
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.PetriNet
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph
+@using FicusDashboard.Components.CaseInfo.ContextValues
+@using FicusDashboard.Layout.Models
+
+@inject ILogger<CaseInfo> Logger
+
+<div class="pipeline-parts-context-values-inner-container">
+  @foreach (var result in Results.Results)
+  {
+    <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(result)">
+      <div class="pipeline-part-name-index">
+        @(Index + 1)
+      </div>
+      <div class="pipeline-part-name-icon">
+        <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
+      </div>
+      <div class="pipeline-part-name">
+        @Results.PipelinePartName
+      </div>
+    </div>
+
+    var expanded = IsExpanded(result);
+
+    string GetClass(string baseClass, string expandedClass)
+    {
+      return $"{baseClass} {(expanded ? expandedClass : string.Empty)}";
+    }
+
+    var outerContainerClass = GetClass("pipeline-part-context-values-outer-container", "outer-container-checked");
+    var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
+
+    <div class="@outerContainerClass">
+      <div class="@innerContainerClass">
+        @{
+          var contextValues = result.ContextValues;
+        }
+
+        <div class="pipeline-part-context-values-margin-container">
+          @foreach (var fragment in CreateRenderersFor(Results.PipelinePartName, contextValues))
+          {
+            <div>
+              @fragment
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
+
+
+  [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
+  [Parameter] public required int Index { get; init; }
+  [Parameter] public required PipelinePartExecutionResults Results { get; init; }
+
+
+  private bool IsExpanded(PipelinePartExecutionResult result)
+  {
+    return result.UserData.GetOrCreate(ourExpandedKey, static () => true);
+  }
+
+  private void HandleExecutionResultTitleClicked(PipelinePartExecutionResult result)
+  {
+    result.UserData.PutData(ourExpandedKey, !result.UserData.GetOrCreate(ourExpandedKey, static () => true));
+    StateHasChanged();
+  }
+  
+  private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<ContextValueWrapper> contextValues)
+  {
+    return contextValues switch
+    {
+      [var singleValue] => [FindRendererFor(singleValue)],
+      _ => FindRenderersFor(pipelinePartName, contextValues)
+    };
+  }
+
+  private RenderFragment FindRendererFor(ContextValueWrapper wrapper)
+  {
+    var contextValue = wrapper.Value.Value;
+
+    return contextValue.ContextValueCase switch
+    {
+      GrpcContextValue.ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer @key="wrapper.Id"
+                                                                                         TimelineDiagram="contextValue.LogTimelineDiagram"/>,
+      GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer
+                                                               EventLogInfo="contextValue.EventLogInfo"/>,
+      GrpcContextValue.ContextValueOneofCase.ColorsLog => @<DefaultColorsLogRenderer @key="wrapper.Id"
+                                                                                     Log="contextValue.ColorsLog"/>,
+      GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
+                                                                            PetriNet="contextValue.PetriNet"/>,
+      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id" Graph="contextValue.Graph"
+                                                                      ProcessCaseData="ProcessCaseData"/>,
+
+      _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
+    };
+  }
+
+  private IEnumerable<RenderFragment> FindRenderersFor(string pipelinePartName, List<ContextValueWrapper> contextValues)
+  {
+    if (PipelinePartsGroups.GraphAnnotationParts.Contains(pipelinePartName) &&
+        CreateAnnotatedGraphRenderer(pipelinePartName, contextValues) is { } graphRenderer)
+    {
+      return [graphRenderer];
+    }
+
+    if (PipelinePartsGroups.PetriNetsAnnotationParts.Contains(pipelinePartName) &&
+        CreateAnnotatedPetriNetRenderer(pipelinePartName, contextValues) is { } petriNetRenderer)
+    {
+      return [petriNetRenderer];
+    }
+
+    return [];
+  }
+
+  private RenderFragment? CreateAnnotatedGraphRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
+  {
+    var graphPair = Logger.TryGetContextValue(pipelinePartName, contextValues, GrpcContextValue.ContextValueOneofCase.Graph, c => c.Graph);
+    var annotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, GrpcContextValue.ContextValueOneofCase.Annotation, c => c.Annotation);
+
+    if (graphPair is not var (graphId, graph)) return null;
+
+    var componentId = CreateEntityAnnotationId(graphId, annotationPair);
+
+    return @<GraphRenderer @key="componentId" Graph="graph" ProcessCaseData="ProcessCaseData"
+                           Annotation="annotationPair?.Item2"/>;
+  }
+
+  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair)
+  {
+    return annotationPair switch
+    {
+      var (annotationId, _) => id.ToString() + annotationId,
+      null => id.ToString()
+    };
+  }
+
+  private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
+  {
+    var petriNetPair = Logger.TryGetContextValue(pipelinePartName, contextValues, GrpcContextValue.ContextValueOneofCase.PetriNet, c => c.PetriNet);
+    var annotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, GrpcContextValue.ContextValueOneofCase.Annotation, c => c.Annotation);
+
+    if (petriNetPair is not var (petriNetId, petriNet)) return null;
+
+    var componentId = CreateEntityAnnotationId(petriNetId, annotationPair);
+
+    return @<PetriNetRenderer @key="componentId" PetriNet="petriNet" Annotation="annotationPair?.Item2"/>;
+  }
+
+}

@@ -1,21 +1,11 @@
-﻿@using Ficus
-@using FicusDashboard.Layout.Models
+﻿@using FicusDashboard.Layout.Models
 @using FicusDashboard.Services.Cases
 @using FicusDashboard.Utils
-@using FicusDashboard.Components.CaseInfo.ContextValues
 @using JetBrains.Lifetimes
-@using static Ficus.GrpcContextValue;
-@using FicusDashboard.Components.CaseInfo.ContextValues.EventLogInfo
-@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.PetriNet
-@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph
-@using FicusDashboard.Components.CaseInfo.ContextValues.LogTimeline
-@using FicusDashboard.Components.CaseInfo.ContextValues.ColorsLog
-@using Radzen
 
 @inherits ComponentBase
 
-@inject ISubscriptionsService ISubscriptionService
-@inject ILogger<CaseInfo> Logger
+@inject ISubscriptionsService SubscriptionService
 
 @{
   var title = myProcessCaseData switch
@@ -50,56 +40,12 @@
 <div class="pipeline-parts-context-values-outer-container">
   @foreach (var ((_, results), index) in myPipelinePartsExecutionResults.OrderBy(x => x.Value.Order).Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
   {
-    <div class="pipeline-parts-context-values-inner-container">
-      @foreach (var result in results.Results)
-      {
-        <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(result)">
-          <div class="pipeline-part-name-index">
-            @(index + 1)
-          </div>
-          <div class="pipeline-part-name-icon">
-            <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
-          </div>
-          <div class="pipeline-part-name">
-            @results.PipelinePartName
-          </div>
-        </div>
-        
-        var expanded = IsExpanded(result);
-
-        string GetClass(string baseClass, string expandedClass)
-        {
-          return $"{baseClass} {(expanded ? expandedClass : string.Empty)}";
-        }
-
-        var outerContainerClass = GetClass("pipeline-part-context-values-outer-container", "outer-container-checked");
-        var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
-
-        <div class="@outerContainerClass">
-          <div class="@innerContainerClass">
-            @{
-              var contextValues = result.ContextValues;
-            }
-
-            <div class="pipeline-part-context-values-margin-container">
-              @foreach (var fragment in CreateRenderersFor(results.PipelinePartName, contextValues))
-              {
-                <div>
-                  @fragment
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      }
-    </div>
+    <PipelinePartResultsRenderer Results="results" Index="index" ProcessCaseData="myProcessCaseData" />
   }
 </div>
 
 @code
 {
-  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
-
   private readonly Dictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
@@ -117,97 +63,5 @@
 
     var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].PipelineExecutionResults;
     values.Results.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
-  }
-
-  private bool IsExpanded(PipelinePartExecutionResult result)
-  {
-    return result.UserData.GetOrCreate(ourExpandedKey, static () => true);
-  }
-
-  private void HandleExecutionResultTitleClicked(PipelinePartExecutionResult result)
-  {
-    result.UserData.PutData(ourExpandedKey, !result.UserData.GetOrCreate(ourExpandedKey, static () => true));
-    StateHasChanged();
-  }
-
-  private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<ContextValueWrapper> contextValues)
-  {
-    return contextValues switch
-    {
-      [var singleValue] => [FindRendererFor(singleValue)],
-      _ => FindRenderersFor(pipelinePartName, contextValues)
-    };
-  }
-
-  private RenderFragment FindRendererFor(ContextValueWrapper wrapper)
-  {
-    var contextValue = wrapper.Value.Value;
-
-    return contextValue.ContextValueCase switch
-    {
-      ContextValueOneofCase.LogTimelineDiagram => @<LogTimelineRenderer @key="wrapper.Id" TimelineDiagram="contextValue.LogTimelineDiagram" />,
-      ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer EventLogInfo="contextValue.EventLogInfo"/>,
-      ContextValueOneofCase.ColorsLog => @<DefaultColorsLogRenderer @key="wrapper.Id"
-                                                                    Log="contextValue.ColorsLog"/>,
-
-      ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
-                                                           PetriNet="contextValue.PetriNet"/>,
-
-      ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id" Graph="contextValue.Graph"
-                                                     ProcessCaseData="myProcessCaseData"/>,
-
-      _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
-    };
-  }
-
-  private IEnumerable<RenderFragment> FindRenderersFor(string pipelinePartName, List<ContextValueWrapper> contextValues)
-  {
-    if (PipelinePartsGroups.GraphAnnotationParts.Contains(pipelinePartName) &&
-        CreateAnnotatedGraphRenderer(pipelinePartName, contextValues) is { } graphRenderer)
-    {
-      return [graphRenderer];
-    }
-
-    if (PipelinePartsGroups.PetriNetsAnnotationParts.Contains(pipelinePartName) &&
-        CreateAnnotatedPetriNetRenderer(pipelinePartName, contextValues) is { } petriNetRenderer)
-    {
-      return [petriNetRenderer];
-    }
-
-    return [];
-  }
-
-  private RenderFragment? CreateAnnotatedGraphRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
-  {
-    var graphPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Graph, c => c.Graph);
-    var annotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
-
-    if (graphPair is not var (graphId, graph)) return null;
-
-    var componentId = CreateEntityAnnotationId(graphId, annotationPair);
-
-    return @<GraphRenderer @key="componentId" Graph="graph" ProcessCaseData="myProcessCaseData"
-                           Annotation="annotationPair?.Item2"/>;
-  }
-
-  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair)
-  {
-    return annotationPair switch
-    {
-      var (annotationId, _) => id.ToString() + annotationId,
-      null => id.ToString()
-    };
-  }
-
-  private RenderFragment? CreateAnnotatedPetriNetRenderer(string pipelinePartName, List<ContextValueWrapper> contextValues)
-  {
-    var petriNetPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.PetriNet, c => c.PetriNet);
-    var annotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, ContextValueOneofCase.Annotation, c => c.Annotation);
-
-    if (petriNetPair is not var (petriNetId, petriNet)) return null;
-
-    var componentId = CreateEntityAnnotationId(petriNetId, annotationPair);
-
-    return @<PetriNetRenderer @key="componentId" PetriNet="petriNet" Annotation="annotationPair?.Item2"/>;
   }
 }
