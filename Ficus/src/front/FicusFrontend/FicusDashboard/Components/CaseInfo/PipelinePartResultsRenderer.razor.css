@@ -67,3 +67,25 @@
 .inner-container-checked {
   visibility: visible;
 }
+
+.pipeline-part-result-selection-buttons-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background: var(--cv-section-content-color);
+}
+
+.pipeline-part-result-selection-button {
+  height: 35px;
+  width: 35px;
+  background: var(--cv-section-header-color);
+  
+  color: var(--cv-section-header-text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pipeline-part-result-selection-button:hover {
+  background-color: var(--cv-section-header-color-hovered);
+}

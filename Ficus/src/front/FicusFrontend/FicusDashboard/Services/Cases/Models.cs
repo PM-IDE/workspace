@@ -49,7 +49,7 @@ public class PipelinePartsExecutionResults
   public required IViewableMap<Guid, PipelinePartExecutionResults> Results { get; init; }
 }
 
-public class PipelinePartExecutionResults
+public class PipelinePartExecutionResults : FrontModelBase
 {
   public required uint Order { get; init; }
   public required string PipelinePartName { get; init; }
