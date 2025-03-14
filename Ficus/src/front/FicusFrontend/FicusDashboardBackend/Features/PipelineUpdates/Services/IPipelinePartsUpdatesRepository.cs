@@ -18,14 +18,19 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 {
   private class PipelinePartExecutionResult
   {
-    public required string PipelinePartName { get; init; }
     public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
+  }
+
+  private class PipelinePartExecutionResults
+  {
+    public required string PipelinePartName { get; init; }
+    public required List<PipelinePartExecutionResult> Results { get; init; }
   }
 
   private class PipelinePartsExecutionResults
   {
     public required Guid ExecutionId { get; set; }
-    public required Dictionary<Guid, List<PipelinePartExecutionResult>> PipelinePartsResults { get; init; }
+    public required Dictionary<Guid, PipelinePartExecutionResults> PipelinePartsResults { get; init; }
   }
 
   private class CaseData
@@ -175,15 +180,18 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       if (!caseData.ExecutionResults.PipelinePartsResults.TryGetValue(guid, out var pipelinePartResults))
       {
         logger.LogInformation("Creating new cases context values");
-        pipelinePartResults = [];
+        pipelinePartResults = new PipelinePartExecutionResults
+        {
+          PipelinePartName = update.PipelinePartInfo.Name,
+          Results = []
+        };
 
         caseData.ExecutionResults.PipelinePartsResults[guid] = pipelinePartResults;
       }
 
-      pipelinePartResults.Add(new PipelinePartExecutionResult
+      pipelinePartResults.Results.Add(new PipelinePartExecutionResult
       {
         ContextValues = update.ContextValues.ToList(),
-        PipelinePartName = update.PipelinePartInfo.Name
       });
 
       foreach (var (id, chanel) in myChannels)
@@ -231,7 +239,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
             Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
             ExecutionResults =
             {
-              x.Value.Select(e => new GrpcCasePipelinePartExecutionResult
+              x.Value.Results.Select(e => new GrpcCasePipelinePartExecutionResult
               {
                 ContextValues = { e.ContextValues }
               })
@@ -239,7 +247,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
             PipelinePartInfo = new GrpcPipelinePartInfo
             {
               ExecutionId = @case.ExecutionResults.ExecutionId.ToGrpcGuid(),
-              Name = @case.PipelineName,
+              Name = x.Value.PipelinePartName,
               Id = x.Key.ToGrpcGuid()
             }
           })
