@@ -123,6 +123,7 @@ pub const FEATURE_COUNT_KIND: &'static str = "feature_count_kind";
 pub const PERCENT_FROM_MAX_VALUE: &'static str = "percent_from_max_value";
 pub const TOLERANCES: &'static str = "tolerances";
 pub const MIN_POINTS_IN_CLUSTER_ARRAY: &'static str = "min_points_in_cluster_array";
+pub const EXECUTION_ID: &'static str = "execution_id";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -219,6 +220,7 @@ lazy_static!(
      pub static ref PERCENT_FROM_MAX_VALUE_KEY: DefaultContextKey<f64> = DefaultContextKey::new(PERCENT_FROM_MAX_VALUE);
      pub static ref TOLERANCES_KEY: DefaultContextKey<Vec<f64>> = DefaultContextKey::new(TOLERANCES);
      pub static ref MIN_POINTS_IN_CLUSTER_ARRAY_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new(MIN_POINTS_IN_CLUSTER_ARRAY);
+     pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -305,6 +307,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     PERCENT_FROM_MAX_VALUE => Some(PERCENT_FROM_MAX_VALUE_KEY.deref() as &dyn ContextKey),
     TOLERANCES => Some(TOLERANCES_KEY.deref() as &dyn ContextKey),
     MIN_POINTS_IN_CLUSTER_ARRAY => Some(MIN_POINTS_IN_CLUSTER_ARRAY_KEY.deref() as &dyn ContextKey),
+    EXECUTION_ID => Some(EXECUTION_ID_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

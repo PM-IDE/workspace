@@ -36,12 +36,17 @@ public class Case : FrontModelBase
   public required string FullName { get; init; }
   public required string DisplayName { get; init; }
   public required DateTime CreatedAt { get; init; }
-  public required IViewableMap<Guid, List<PipelinePartExecutionResult>> ExecutionResults { get; init; }
-
+  public required PipelinePartExecutionResults PipelineExecutionResults { get; init; }
 
   public override int GetHashCode() => FullName.GetHashCode();
 
   public override bool Equals(object? obj) => obj is Case { FullName: var fullName } && fullName == FullName;
+}
+
+public class PipelinePartExecutionResults
+{
+  public required Guid ExecutionId { get; set; }
+  public required IViewableMap<Guid, List<PipelinePartExecutionResult>> Results { get; init; }
 }
 
 public class PipelinePartExecutionResult : FrontModelBase

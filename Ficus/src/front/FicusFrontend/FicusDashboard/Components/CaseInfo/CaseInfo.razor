@@ -115,8 +115,8 @@
 
     myProcessCaseData = ProcessCaseData;
 
-    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].ExecutionResults;
-    values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
+    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].PipelineExecutionResults;
+    values.Results.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
   }
 
   private bool IsExpanded(PipelinePartExecutionResult result)

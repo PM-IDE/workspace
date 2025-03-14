@@ -28,7 +28,8 @@ impl PipelineEventsHandler for EmptyPipelineEventsHandler {
 pub struct GetContextValuesEvent<'a> {
   pub process_case_metadata: ProcessCaseMetadata,
   pub pipeline_part_name: String,
-  pub uuid: Uuid,
+  pub pipeline_part_id: Uuid,
+  pub execution_id: Uuid,
   pub key_values: Vec<(&'a dyn ContextKey, &'a dyn Any)>,
 }
 

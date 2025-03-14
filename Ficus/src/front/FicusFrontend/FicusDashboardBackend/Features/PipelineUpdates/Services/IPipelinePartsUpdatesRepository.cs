@@ -22,9 +22,15 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
     public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
   }
 
+  private class PipelinePartsExecutionResults
+  {
+    public required Guid ExecutionId { get; set; }
+    public required Dictionary<Guid, List<PipelinePartExecutionResult>> PipelinePartsResults { get; init; }
+  }
+
   private class CaseData
   {
-    public required Dictionary<Guid, List<PipelinePartExecutionResult>> PipelinePartsResults { get; init; }
+    public required PipelinePartsExecutionResults ExecutionResults { get; init; }
     public required List<KeyValuePair<string, string>> Metadata { get; init; }
 
     public required string PipelineName { get; init; }
@@ -137,6 +143,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         )
       );
 
+      var currentExecutionId = update.PipelinePartInfo.ExecutionId.ToGuid();
       if (!myCases.TryGetValue(caseKey, out var caseData))
       {
         logger.LogInformation("Creating new process data for update");
@@ -144,7 +151,11 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         caseData = new CaseData
         {
           Metadata = update.ProcessCaseMetadata.Metadata.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value)).ToList(),
-          PipelinePartsResults = [],
+          ExecutionResults = new PipelinePartsExecutionResults
+          {
+            ExecutionId = currentExecutionId,
+            PipelinePartsResults = []
+          },
           PipelineName = update.ProcessCaseMetadata.PipelineName,
           SubscriptionName = update.ProcessCaseMetadata.SubscriptionName
         };
@@ -154,12 +165,18 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
       var guid = Guid.Parse(update.PipelinePartInfo.Id.Guid);
 
-      if (!caseData.PipelinePartsResults.TryGetValue(guid, out var pipelinePartResults))
+      if (caseData.ExecutionResults.ExecutionId != currentExecutionId)
+      {
+        caseData.ExecutionResults.ExecutionId = currentExecutionId;
+        caseData.ExecutionResults.PipelinePartsResults.Clear();
+      }
+
+      if (!caseData.ExecutionResults.PipelinePartsResults.TryGetValue(guid, out var pipelinePartResults))
       {
         logger.LogInformation("Creating new cases context values");
         pipelinePartResults = [];
 
-        caseData.PipelinePartsResults[guid] = pipelinePartResults;
+        caseData.ExecutionResults.PipelinePartsResults[guid] = pipelinePartResults;
       }
 
       pipelinePartResults.Add(new PipelinePartExecutionResult
@@ -208,15 +225,19 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         },
         ContextValues =
         {
-          @case.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
+          @case.ExecutionResults.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
           {
             Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
-            ExecutionResults = { x.Value.Select(e => new GrpcCasePipelinePartExecutionResult
+            ExecutionResults =
             {
-              ContextValues = { e.ContextValues }
-            })},
+              x.Value.Select(e => new GrpcCasePipelinePartExecutionResult
+              {
+                ContextValues = { e.ContextValues }
+              })
+            },
             PipelinePartInfo = new GrpcPipelinePartInfo
             {
+              ExecutionId = @case.ExecutionResults.ExecutionId.ToGrpcGuid(),
               Name = @case.PipelineName,
               Id = x.Key.ToGrpcGuid()
             }

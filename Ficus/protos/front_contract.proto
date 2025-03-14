@@ -61,4 +61,5 @@ message GrpcCasePipelinePartExecutionResult {
 message GrpcPipelinePartInfo {
   string name = 1;
   GrpcGuid id = 2;
+  GrpcGuid execution_id = 3;
 }
