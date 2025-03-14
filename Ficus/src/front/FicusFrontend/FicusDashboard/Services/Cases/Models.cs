@@ -36,7 +36,7 @@ public class Case : FrontModelBase
   public required string FullName { get; init; }
   public required string DisplayName { get; init; }
   public required DateTime CreatedAt { get; init; }
-  public required IViewableMap<Guid, PipelinePartExecutionResult> ContextValues { get; init; }
+  public required IViewableMap<Guid, List<PipelinePartExecutionResult>> ExecutionResults { get; init; }
 
 
   public override int GetHashCode() => FullName.GetHashCode();

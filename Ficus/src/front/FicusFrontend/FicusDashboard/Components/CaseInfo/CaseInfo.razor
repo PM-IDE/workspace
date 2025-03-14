@@ -10,6 +10,7 @@
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph
 @using FicusDashboard.Components.CaseInfo.ContextValues.LogTimeline
 @using FicusDashboard.Components.CaseInfo.ContextValues.ColorsLog
+@using Radzen
 
 @inherits ComponentBase
 
@@ -47,23 +48,24 @@
 </div>
 
 <div class="pipeline-parts-context-values-outer-container">
-  @foreach (var (result, index) in myPipelinePartsExecutionResults.Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
+  @foreach (var ((_, results), index) in myPipelinePartsExecutionResults.Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
   {
     <div class="pipeline-parts-context-values-inner-container">
-      <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(result.Value)">
-        <div class="pipeline-part-name-index">
-          @(index + 1)
+      @foreach (var result in results)
+      {
+        <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(result)">
+          <div class="pipeline-part-name-index">
+            @(index + 1)
+          </div>
+          <div class="pipeline-part-name-icon">
+            <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
+          </div>
+          <div class="pipeline-part-name">
+            @result.PipelinePartName
+          </div>
         </div>
-        <div class="pipeline-part-name-icon">
-          <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
-        </div>
-        <div class="pipeline-part-name">
-          @result.Value.PipelinePartName
-        </div>
-      </div>
-
-      @{
-        var expanded = IsExpanded(result.Value);
+        
+        var expanded = IsExpanded(result);
 
         string GetClass(string baseClass, string expandedClass)
         {
@@ -72,24 +74,24 @@
 
         var outerContainerClass = GetClass("pipeline-part-context-values-outer-container", "outer-container-checked");
         var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
-      }
 
-      <div class="@outerContainerClass">
-        <div class="@innerContainerClass">
-          @{
-            var contextValues = result.Value.ContextValues;
-          }
-
-          <div class="pipeline-part-context-values-margin-container">
-            @foreach (var fragment in CreateRenderersFor(result.Value.PipelinePartName, contextValues))
-            {
-              <div>
-                @fragment
-              </div>
+        <div class="@outerContainerClass">
+          <div class="@innerContainerClass">
+            @{
+              var contextValues = result.ContextValues;
             }
+
+            <div class="pipeline-part-context-values-margin-container">
+              @foreach (var fragment in CreateRenderersFor(result.PipelinePartName, contextValues))
+              {
+                <div>
+                  @fragment
+                </div>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
   }
 </div>
@@ -98,7 +100,7 @@
 {
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
-  private readonly Dictionary<Guid, PipelinePartExecutionResult> myPipelinePartsExecutionResults = [];
+  private readonly Dictionary<Guid, List<PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
   private ProcessCaseData? myProcessCaseData;
@@ -113,7 +115,7 @@
 
     myProcessCaseData = ProcessCaseData;
 
-    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].ContextValues;
+    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].ExecutionResults;
     values.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
   }
 

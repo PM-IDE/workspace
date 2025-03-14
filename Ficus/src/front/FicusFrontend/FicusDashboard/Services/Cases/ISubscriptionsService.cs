@@ -53,11 +53,11 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
         .Select(v =>
         {
           var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
-          return (id, new PipelinePartExecutionResult
+          return (id, v.ExecutionResults.Select(e => new PipelinePartExecutionResult
           {
-            ContextValues = v.ContextValues.Select(c => new ContextValueWrapper(c)).ToList(),
+            ContextValues = e.ContextValues.Select(c => new ContextValueWrapper(c)).ToList(),
             PipelinePartName = v.PipelinePartInfo.Name
-          });
+          }).ToList());
         })
         .ToDictionary();
 
@@ -70,7 +70,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
         DisplayName = @case.ProcessCaseMetadata.CaseName.DisplayName,
         FullName = CreateFullCaseName(@case.ProcessCaseMetadata.CaseName),
         CreatedAt = DateTime.Now,
-        ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>(initialState)
+        ExecutionResults = new ViewableMap<Guid, List<PipelinePartExecutionResult>>(initialState)
       };
 
       processData.ProcessCases[caseModel.FullName] = caseModel;
@@ -147,7 +147,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
       NameParts = caseName.FullNameParts.ToList(),
       FullName = fullCaseName,
       CreatedAt = DateTime.Now,
-      ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>()
+      ExecutionResults = new ViewableMap<Guid, List<PipelinePartExecutionResult>>()
     };
 
     processData.ProcessCases[fullCaseName] = @case;
@@ -165,10 +165,16 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     var caseData = GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName);
 
     var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
-    caseData.ContextValues[partId] = new PipelinePartExecutionResult
+
+    if (!caseData.ExecutionResults.ContainsKey(partId))
+    {
+      caseData.ExecutionResults[partId] = [];
+    }
+
+    caseData.ExecutionResults[partId].Add(new PipelinePartExecutionResult
     {
       PipelinePartName = delta.PipelinePartInfo.Name,
       ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
-    };
+    });
   }
 }

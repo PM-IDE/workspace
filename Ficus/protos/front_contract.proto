@@ -51,6 +51,10 @@ message GrpcCase {
 message GrpcPipelinePartContextValues {
   GrpcPipelinePartInfo pipelinePartInfo = 1;
   google.protobuf.Timestamp stamp = 2;
+  repeated GrpcCasePipelinePartExecutionResult execution_results = 3;
+}
+
+message GrpcCasePipelinePartExecutionResult {
   repeated GrpcContextValueWithKeyName contextValues = 3;
 }
 

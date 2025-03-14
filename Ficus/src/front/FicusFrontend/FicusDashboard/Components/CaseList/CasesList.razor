@@ -92,7 +92,7 @@
 
         var processLifetime = myProcessesLifetimes.Get(caseModel.ParentProcess.ProcessName);
         var caseLifetime = myCasesLifetimes.CreateNested(caseKey, processLifetime);
-        caseModel.ContextValues.Change.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
+        caseModel.ExecutionResults.Change.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
 
         break;
       }
