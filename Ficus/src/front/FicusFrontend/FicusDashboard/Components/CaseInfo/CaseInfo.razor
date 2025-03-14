@@ -48,10 +48,10 @@
 </div>
 
 <div class="pipeline-parts-context-values-outer-container">
-  @foreach (var ((_, results), index) in myPipelinePartsExecutionResults.Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
+  @foreach (var ((_, results), index) in myPipelinePartsExecutionResults.OrderBy(x => x.Value.Order).Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
   {
     <div class="pipeline-parts-context-values-inner-container">
-      @foreach (var result in results)
+      @foreach (var result in results.Results)
       {
         <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(result)">
           <div class="pipeline-part-name-index">
@@ -61,7 +61,7 @@
             <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
           </div>
           <div class="pipeline-part-name">
-            @result.PipelinePartName
+            @results.PipelinePartName
           </div>
         </div>
         
@@ -82,7 +82,7 @@
             }
 
             <div class="pipeline-part-context-values-margin-container">
-              @foreach (var fragment in CreateRenderersFor(result.PipelinePartName, contextValues))
+              @foreach (var fragment in CreateRenderersFor(results.PipelinePartName, contextValues))
               {
                 <div>
                   @fragment
@@ -100,7 +100,7 @@
 {
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
-  private readonly Dictionary<Guid, List<PipelinePartExecutionResult>> myPipelinePartsExecutionResults = [];
+  private readonly Dictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
   private ProcessCaseData? myProcessCaseData;
