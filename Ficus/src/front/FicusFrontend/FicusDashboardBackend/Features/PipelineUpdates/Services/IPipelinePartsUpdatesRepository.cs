@@ -167,6 +167,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
       if (caseData.ExecutionResults.ExecutionId != currentExecutionId)
       {
+        logger.LogInformation("Resetting all execution results after execution id changed");
         caseData.ExecutionResults.ExecutionId = currentExecutionId;
         caseData.ExecutionResults.PipelinePartsResults.Clear();
       }
