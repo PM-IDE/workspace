@@ -73,17 +73,23 @@
   flex-direction: row;
   width: 100%;
   background: var(--cv-section-content-color);
+  overflow-x: scroll;
 }
 
 .pipeline-part-result-selection-button {
   height: 35px;
-  width: 35px;
+  min-width: 35px;
+  flex-grow: 1;
   background: var(--cv-section-header-color);
   
   color: var(--cv-section-header-text-color);
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.pipeline-part-result-selection-button-selected {
+  background: var(--cv-section-header-color-hovered);
 }
 
 .pipeline-part-result-selection-button:hover {

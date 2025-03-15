@@ -31,8 +31,10 @@
       @for (var index = 0; index < Results.Results.Count; ++index)
       {
         var currentIndex = index;
+        var selectedClass = mySelectedExecutionResultIndex == index ? "pipeline-part-result-selection-button-selected" : string.Empty;
+        var buttonClass = "pipeline-part-result-selection-button " + selectedClass;
 
-        <div class="pipeline-part-result-selection-button" @onclick="@(e => HandleIndexSelection(currentIndex))">
+        <div class="@buttonClass" @onclick="@(e => HandleIndexSelection(currentIndex))">
           @index
         </div>
       }
@@ -127,7 +129,8 @@
                                                                                      Log="contextValue.ColorsLog"/>,
       GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
                                                                             PetriNet="contextValue.PetriNet"/>,
-      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id" Graph="contextValue.Graph"
+      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id" 
+                                                                      Graph="contextValue.Graph"
                                                                       ProcessCaseData="ProcessCaseData"/>,
 
       _ => @<RendererNotFoundComponent ContextValueType="@contextValue.ContextValueCase.ToString()"/>
