@@ -53,12 +53,11 @@ public class PipelinePartExecutionResults : FrontModelBase
 {
   public required uint Order { get; init; }
   public required string PipelinePartName { get; init; }
-  public required List<PipelinePartExecutionResult> Results { get; init; }
+  public required IViewableList<PipelinePartExecutionResult> Results { get; init; }
 }
 
 public class PipelinePartExecutionResult : FrontModelBase
 {
-
   public required List<ContextValueWrapper> ContextValues { get; init; }
 }
 

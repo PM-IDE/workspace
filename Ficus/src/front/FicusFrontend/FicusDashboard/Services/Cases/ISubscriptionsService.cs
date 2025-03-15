@@ -53,14 +53,16 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
         .Select((v, order) =>
         {
           var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
+          var results = v.ExecutionResults.Select(r => new PipelinePartExecutionResult
+          {
+            ContextValues = r.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
+          }).ToList();
+
           var partResults = new PipelinePartExecutionResults
           {
             PipelinePartName = v.PipelinePartInfo.Name,
             Order = (uint)order,
-            Results = v.ExecutionResults.Select(r => new PipelinePartExecutionResult
-            {
-              ContextValues = r.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
-            }).ToList()
+            Results = new ViewableList<PipelinePartExecutionResult>(results)
           };
 
           return (id, partResults);
@@ -197,7 +199,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
       {
         Order = (uint)caseData.PipelineExecutionResults.Results.Count,
         PipelinePartName = delta.PipelinePartInfo.Name,
-        Results = [result]
+        Results = new ViewableList<PipelinePartExecutionResult> { result }
       };
     }
     else

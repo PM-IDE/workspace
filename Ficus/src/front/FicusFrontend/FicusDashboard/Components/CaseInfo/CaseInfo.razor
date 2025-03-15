@@ -40,7 +40,10 @@
 <div class="pipeline-parts-context-values-outer-container">
   @foreach (var ((_, results), index) in myPipelinePartsExecutionResults.OrderBy(x => x.Value.Order).Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
   {
-    <PipelinePartResultsRenderer Results="results" Index="index" ProcessCaseData="myProcessCaseData" />
+    <PipelinePartResultsRenderer Results="results"
+                                 Lifetime="myCurrentLifetime"
+                                 Index="index" 
+                                 ProcessCaseData="myProcessCaseData" />
   }
 </div>
 
@@ -49,6 +52,7 @@
   private readonly Dictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
+  private Lifetime myCurrentLifetime;
   private ProcessCaseData? myProcessCaseData;
 
   [Parameter] public required ProcessCaseData ProcessCaseData { get; set; }
@@ -60,8 +64,9 @@
     if (ReferenceEquals(ProcessCaseData, myProcessCaseData)) return;
 
     myProcessCaseData = ProcessCaseData;
+    myCurrentLifetime = myLifetimes.Next();
 
     var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].PipelineExecutionResults;
-    values.Results.FlowIntoWithCallback(myLifetimes.Next(), myPipelinePartsExecutionResults, StateHasChanged);
+    values.Results.FlowIntoWithCallback(myCurrentLifetime, myPipelinePartsExecutionResults, StateHasChanged);
   }
 }

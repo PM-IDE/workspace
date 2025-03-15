@@ -8,6 +8,7 @@
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph
 @using FicusDashboard.Components.CaseInfo.ContextValues
 @using FicusDashboard.Layout.Models
+@using JetBrains.Lifetimes
 
 @inject ILogger<CaseInfo> Logger
 
@@ -71,13 +72,20 @@
 @code {
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
-  private int mySelectedExecutionResultIndex = 0;
+  private int mySelectedExecutionResultIndex;
 
 
+  [Parameter] public required Lifetime Lifetime { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
   [Parameter] public required int Index { get; init; }
   [Parameter] public required PipelinePartExecutionResults Results { get; init; }
 
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+    Results.Results.Change.Advise(Lifetime, _ => StateHasChanged());
+  }
 
   private void HandleIndexSelection(int index)
   {
