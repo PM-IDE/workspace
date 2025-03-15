@@ -397,7 +397,7 @@ impl PipelineParts {
       let activities_to_logs = Self::create_activities_to_logs(context, config)?;
 
       for (activity_name, activity_log) in activities_to_logs {
-        let mut temp_context = PipelineContext::empty_from(context);
+        let mut temp_context = context.clone();
         temp_context.put_concrete(&EVENT_LOG_KEY.key(), activity_log.borrow().clone());
         temp_context.put_concrete(&ACTIVITY_NAME_KEY.key(), activity_name.clone());
 
