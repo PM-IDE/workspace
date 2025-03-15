@@ -1,6 +1,23 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 
-pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize) -> f64) -> f64 {
+pub enum SilhouetteScoreError {
+  NotEnoughSamples
+}
+
+impl Display for SilhouetteScoreError {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      SilhouetteScoreError::NotEnoughSamples => f.write_str("Not enough samples for silhouette score")
+    }
+  }
+}
+
+pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize) -> f64) -> Result<f64, SilhouetteScoreError> {
+  if labels.is_empty() {
+    return Err(SilhouetteScoreError::NotEnoughSamples);
+  }
+
   let mut clusters_to_indices: HashMap<usize, Vec<usize>> = HashMap::new();
   for i in 0..labels.len() {
     let label = *labels.get(i).unwrap();
@@ -9,6 +26,10 @@ pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize)
     } else {
       clusters_to_indices.insert(label, vec![i]);
     }
+  }
+
+  if clusters_to_indices.len() == 1 {
+    return Ok(1.);
   }
 
   let mut score = 0.;
@@ -21,7 +42,7 @@ pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize)
 
       a_x = match current_cluster_indices.len() {
         1 => 0.,
-        len => a_x / (len - 1)  as f64
+        len => a_x / (len - 1) as f64
       };
 
       let mut b_x = None;
@@ -50,5 +71,5 @@ pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize)
     }
   }
 
-  score / labels.len() as f64
+  Ok(score / labels.len() as f64)
 }

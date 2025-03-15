@@ -50,9 +50,12 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
         };
 
         let labels = clusters.iter().map(|l| if l.is_none() { 0 } else { l.unwrap() + 1 }).collect();
-        let score = silhouette_score(labels, |first, second| {
+        let score = match silhouette_score(labels, |first, second| {
           calculate_distance(params.distance, dataset, first, second)
-        });
+        }) {
+          Ok(score) => score,
+          Err(err) => return Err(ClusteringError::RawError(err.to_string()))
+        };
 
         if score > best_score {
           best_labels = Some(clusters.clone());

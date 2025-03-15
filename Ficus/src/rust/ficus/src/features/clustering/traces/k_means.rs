@@ -26,9 +26,12 @@ pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
         .expect("KMeans fitted");
 
       let clustered_dataset = model.predict(dataset.clone());
-      let score = silhouette_score(clustered_dataset.targets().to_vec(), |first, second| {
+      let score = match silhouette_score(clustered_dataset.targets().to_vec(), |first, second| {
         calculate_distance(params.distance, dataset, first, second)
-      });
+      }) {
+        Ok(score) => score,
+        Err(err) => return Err(ClusteringError::RawError(err.to_string()))
+      };
 
       if score > best_score {
         best_labels = Some(clustered_dataset.targets.clone());
