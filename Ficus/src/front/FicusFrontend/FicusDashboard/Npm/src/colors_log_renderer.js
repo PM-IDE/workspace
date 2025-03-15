@@ -27,6 +27,10 @@ function getRectDimensions(widthScale, heightScale) {
 
 async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let canvas = document.getElementById(canvasId);
+  if (canvas == null) {
+    return;
+  }
+
   let context = canvas.getContext("2d");
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
