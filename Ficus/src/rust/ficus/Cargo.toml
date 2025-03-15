@@ -31,6 +31,7 @@ lazy_static = "1.4.0"
 rdkafka = { version = "0.36.2", features = ["cmake-build"] }
 log = "0.4.25"
 num-traits = "0.2"
+approx = "0.5.1"
 
 [dependencies.uuid]
 version = "1.4.1"
