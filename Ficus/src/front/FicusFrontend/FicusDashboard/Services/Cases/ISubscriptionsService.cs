@@ -186,19 +186,23 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     }
 
     var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
+    var result = new PipelinePartExecutionResult
+    {
+      ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
+    };
+
     if (!caseData.PipelineExecutionResults.Results.ContainsKey(partId))
     {
       caseData.PipelineExecutionResults.Results[partId] = new PipelinePartExecutionResults
       {
         Order = (uint)caseData.PipelineExecutionResults.Results.Count,
         PipelinePartName = delta.PipelinePartInfo.Name,
-        Results = []
+        Results = [result]
       };
     }
-
-    caseData.PipelineExecutionResults.Results[partId].Results.Add(new PipelinePartExecutionResult
+    else
     {
-      ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
-    });
+      caseData.PipelineExecutionResults.Results[partId].Results.Add(result);
+    }
   }
 }
