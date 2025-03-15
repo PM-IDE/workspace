@@ -72,7 +72,7 @@
   display: flex;
   flex-direction: row;
   width: 100%;
-  background: var(--cv-section-content-color);
+  background: var(--cv-section-results-selection-buttons-background-color);
   overflow-x: scroll;
 }
 
@@ -80,7 +80,7 @@
   height: 35px;
   min-width: 35px;
   flex-grow: 1;
-  background: var(--cv-section-header-color);
+  background: var(--cv-section-results-selection-button-background-color);
   
   color: var(--cv-section-header-text-color);
   display: flex;
@@ -89,9 +89,9 @@
 }
 
 .pipeline-part-result-selection-button-selected {
-  background: var(--cv-section-header-color-hovered);
+  background: var(--cv-section-results-selection-button-selected-background-color);
 }
 
 .pipeline-part-result-selection-button:hover {
-  background-color: var(--cv-section-header-color-hovered);
+  background-color: var(--cv-section-results-selection-button-selected-background-color);
 }
