@@ -19,7 +19,10 @@ pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize)
         a_x += distance_func(*current_label, *other_index_from_this_cluster);
       }
 
-      a_x /= current_cluster_indices.len() as f64;
+      a_x = match current_cluster_indices.len() {
+        1 => 0.,
+        len => a_x / (len - 1)  as f64
+      };
 
       let mut b_x = None;
 
