@@ -1,5 +1,6 @@
 import pm_models_pb2 as _pm_models_pb2
 import util_pb2 as _util_pb2
+from google.protobuf import empty_pb2 as _empty_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -312,12 +313,62 @@ class GrpcGraph(_message.Message):
     def __init__(self, nodes: _Optional[_Iterable[_Union[GrpcGraphNode, _Mapping]]] = ..., edges: _Optional[_Iterable[_Union[GrpcGraphEdge, _Mapping]]] = ...) -> None: ...
 
 class GrpcGraphNode(_message.Message):
-    __slots__ = ["id", "data"]
+    __slots__ = ["id", "data", "additional_data"]
     ID_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
+    ADDITIONAL_DATA_FIELD_NUMBER: _ClassVar[int]
     id: int
     data: str
-    def __init__(self, id: _Optional[int] = ..., data: _Optional[str] = ...) -> None: ...
+    additional_data: GrpcNodeAdditionalData
+    def __init__(self, id: _Optional[int] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Union[GrpcNodeAdditionalData, _Mapping]] = ...) -> None: ...
+
+class GrpcNodeAdditionalData(_message.Message):
+    __slots__ = ["none", "software_data"]
+    NONE_FIELD_NUMBER: _ClassVar[int]
+    SOFTWARE_DATA_FIELD_NUMBER: _ClassVar[int]
+    none: _empty_pb2.Empty
+    software_data: GrpcSoftwareData
+    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ...) -> None: ...
+
+class GrpcSoftwareData(_message.Message):
+    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info"]
+    HISTOGRAM_FIELD_NUMBER: _ClassVar[int]
+    TIMELINE_DIAGRAM_FRAGMENT_FIELD_NUMBER: _ClassVar[int]
+    ALLOCATIONS_INFO_FIELD_NUMBER: _ClassVar[int]
+    histogram: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
+    timeline_diagram_fragment: GrpcTimelineDiagramFragment
+    allocations_info: GrpcAllocationsInfo
+    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Union[GrpcAllocationsInfo, _Mapping]] = ...) -> None: ...
+
+class GrpcHistogramEntry(_message.Message):
+    __slots__ = ["name", "count"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    COUNT_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    count: int
+    def __init__(self, name: _Optional[str] = ..., count: _Optional[int] = ...) -> None: ...
+
+class GrpcTimelineDiagramFragment(_message.Message):
+    __slots__ = ["threads"]
+    THREADS_FIELD_NUMBER: _ClassVar[int]
+    threads: _containers.RepeatedCompositeFieldContainer[GrpcThread]
+    def __init__(self, threads: _Optional[_Iterable[_Union[GrpcThread, _Mapping]]] = ...) -> None: ...
+
+class GrpcAllocationsInfo(_message.Message):
+    __slots__ = ["allocations"]
+    ALLOCATIONS_FIELD_NUMBER: _ClassVar[int]
+    allocations: _containers.RepeatedCompositeFieldContainer[GrpcAllocationsInfo]
+    def __init__(self, allocations: _Optional[_Iterable[_Union[GrpcAllocationsInfo, _Mapping]]] = ...) -> None: ...
+
+class GrpcAllocationInfo(_message.Message):
+    __slots__ = ["type_name", "allocated_objects_count", "allocated_bytes"]
+    TYPE_NAME_FIELD_NUMBER: _ClassVar[int]
+    ALLOCATED_OBJECTS_COUNT_FIELD_NUMBER: _ClassVar[int]
+    ALLOCATED_BYTES_FIELD_NUMBER: _ClassVar[int]
+    type_name: str
+    allocated_objects_count: int
+    allocated_bytes: int
+    def __init__(self, type_name: _Optional[str] = ..., allocated_objects_count: _Optional[int] = ..., allocated_bytes: _Optional[int] = ...) -> None: ...
 
 class GrpcGraphEdge(_message.Message):
     __slots__ = ["id", "from_node", "to_node", "weight", "data"]
