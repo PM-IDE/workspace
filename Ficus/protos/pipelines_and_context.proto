@@ -4,6 +4,7 @@ package ficus;
 
 import "pm_models.proto";
 import "util.proto";
+import "google/protobuf/empty.proto";
 
 message GrpcContextKey {
   string name = 1;
@@ -201,6 +202,39 @@ message GrpcGraph {
 message GrpcGraphNode {
   uint64 id = 1;
   string data = 2;
+  GrpcNodeAdditionalData additional_data = 3;
+}
+
+message GrpcNodeAdditionalData {
+  oneof data {
+    google.protobuf.Empty none = 1;
+    GrpcSoftwareData software_data = 2;
+  }
+}
+
+message GrpcSoftwareData {
+  repeated GrpcHistogramEntry histogram = 1;
+  GrpcTimelineDiagramFragment timeline_diagram_fragment = 2;
+  GrpcAllocationsInfo allocations_info = 3;
+}
+
+message GrpcHistogramEntry {
+  string name = 1;
+  uint64 count = 2;
+}
+
+message GrpcTimelineDiagramFragment {
+  repeated GrpcThread threads = 1;
+}
+
+message GrpcAllocationsInfo {
+  repeated GrpcAllocationsInfo allocations = 1;
+}
+
+message GrpcAllocationInfo {
+  string type_name = 1;
+  uint64 allocated_objects_count = 2;
+  uint64 allocated_bytes = 3;
 }
 
 message GrpcGraphEdge {
