@@ -35,8 +35,8 @@ pub fn find_longest_common_subsequence<T: PartialEq + Clone>(first: &Vec<T>, sec
   let mut lcp = vec![];
   let (mut i, mut j) = (first_len, second_len);
   while i > 0 && j > 0 {
-    if first[i].eq(&second[j]) {
-      lcp.push(first[i].clone());
+    if first[i - 1].eq(&second[j - 1]) {
+      lcp.push(first[i - 1].clone());
       i -= 1;
       j -= 1;
     } else if dp[i - 1][j] > dp[i][j - 1] {
