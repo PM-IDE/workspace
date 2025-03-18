@@ -29,11 +29,11 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
   let mut graph = DefaultGraph::empty();
 
   let lcs = discover_lcs(log);
-  let indices = vec![1; log.traces().len()];
+  let mut indices = vec![1; log.traces().len()];
 
   let mut last_lcs_node_id = graph.add_node(Some(HeapedOrOwned::Owned(ARTIFICIAL_START_EVENT_NAME.to_string())));
 
-  for event in lcs {
+  for event in lcs.iter().skip(1) {
     let mut events_before = vec![];
 
     for (index, trace) in log.traces().iter().enumerate() {
@@ -42,12 +42,14 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
 
       let mut current_events_before = vec![];
       let mut trace_index = indices[index];
-      
+
       while trace_index < events.len() && !events[trace_index].borrow().eq(&event.borrow()) {
         current_events_before.push(events[trace_index].clone());
         trace_index += 1;
       }
-      
+
+      indices[index] = trace_index + 1;
+
       events_before.push(current_events_before);
     }
 
@@ -60,13 +62,13 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
         graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::empty());
         prev_node_id = node_id;
       }
-      
+
       graph.connect_nodes(&prev_node_id, &current_lcs_node_id, NodesConnectionData::empty());
     }
 
     last_lcs_node_id = current_lcs_node_id;
   }
-  
+
   Ok(graph)
 }
 
@@ -84,7 +86,7 @@ fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> 
       return Err(DiscoverLCSGraphError::NoArtificialStartEndEvents);
     }
   }
-  
+
   Ok(())
 }
 
@@ -102,6 +104,6 @@ fn discover_lcs(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>>> {
       .map(|e| (*e).clone())
       .collect();
   }
-  
+
   current_lcs
 }
