@@ -27,5 +27,10 @@ pub fn test_lcs_5() {
 
 fn execute_lcs_test(first: &str, second: &str, lcs: &str) {
   let found_lcs = find_longest_common_subsequence(&first.as_bytes().to_vec(), &second.as_bytes().to_vec(), first.len(), second.len());
-  assert_eq!(found_lcs, lcs.as_bytes().to_vec());
+  assert_eq!(found_lcs.lcs().to_owned(), lcs.as_bytes().to_vec());
+
+  assert_eq!(found_lcs.first_indices().len(), found_lcs.second_indices().len());
+  for (first_index, second_index) in found_lcs.first_indices().iter().zip(found_lcs.second_indices()) {
+    assert_eq!(first.as_bytes().get(*first_index).unwrap(), second.as_bytes().get(*second_index).unwrap()) 
+  }
 }
