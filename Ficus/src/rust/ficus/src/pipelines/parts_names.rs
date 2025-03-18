@@ -55,6 +55,7 @@ impl PipelineParts {
   pub const DISCOVER_DFG_STREAM: &'static str = "DiscoverDirectlyFollowsGraphStream";
   pub const CREATE_THREADS_LOG: &'static str = "CreateThreadsLog";
   pub const ABSTRACT_TIMELINE_DIAGRAM: &'static str = "AbstractTimelineDiagram";
+  pub const DISCOVER_LCS_GRAPH: &'static str = "DiscoverLCSGraph";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";

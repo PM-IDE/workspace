@@ -1,1 +1,1 @@
-mod discovery;
+ pub mod discovery;

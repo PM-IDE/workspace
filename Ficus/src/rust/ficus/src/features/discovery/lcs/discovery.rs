@@ -8,10 +8,19 @@ use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
 use std::cell::RefCell;
+use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
-enum DiscoverLCSGraphError {
+pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
+}
+
+impl Display for DiscoverLCSGraphError {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      DiscoverLCSGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events")
+    }
+  }
 }
 
 pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, DiscoverLCSGraphError> {

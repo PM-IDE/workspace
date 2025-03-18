@@ -7,6 +7,7 @@ use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlus
 use crate::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use crate::features::discovery::fuzzy::fuzzy_miner::discover_graph_fuzzy;
 use crate::features::discovery::heuristic::heuristic_miner::discover_petri_net_heuristic;
+use crate::features::discovery::lcs::discovery::discover_lcs_graph;
 use crate::features::discovery::petri_net::marking::ensure_initial_marking;
 use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml_file;
 use crate::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
@@ -196,6 +197,19 @@ impl PipelineParts {
       ensure_initial_marking(log, petri_net);
 
       Ok(())
+    })
+  }
+
+  pub(super) fn discover_lcs_graph() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::DISCOVER_LCS_GRAPH, &|context, _, _| {
+      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      match discover_lcs_graph(log) {
+        Ok(graph) =>{
+          context.put_concrete(GRAPH_KEY.key(), graph);
+          Ok(())
+        } 
+        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
+      }
     })
   }
 }
