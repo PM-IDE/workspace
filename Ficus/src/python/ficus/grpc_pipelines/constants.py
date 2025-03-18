@@ -142,6 +142,7 @@ const_create_threads_log = 'CreateThreadsLog'
 const_abstract_timeline_diagram = 'AbstractTimelineDiagram'
 const_clusterize_traces_k_means_grid_search = 'ClusterizeLogTracesKMeansGridSearch'
 const_clusterize_traces_dbscan_grid_search = 'ClusterizeLogTracesDbscanGridSearch'
+const_discover_lcs_graph = 'DiscoverLCSGraph'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

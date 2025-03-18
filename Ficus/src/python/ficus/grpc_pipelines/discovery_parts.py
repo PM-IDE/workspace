@@ -246,3 +246,7 @@ class EnsureInitialMarking(PipelinePart):
 class DiscoverDirectlyFollowsGraphStream(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return _create_default_discovery_part(const_discover_directly_follows_graph_stream)
+
+class DiscoverLCSGraph(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return _create_default_discovery_part(const_discover_lcs_graph)
