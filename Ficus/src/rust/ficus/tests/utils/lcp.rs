@@ -1,4 +1,4 @@
-use ficus::utils::lcp::find_longest_common_subsequence;
+use ficus::utils::lcs::find_longest_common_subsequence;
 
 #[test]
 pub fn test_lcs_1() {

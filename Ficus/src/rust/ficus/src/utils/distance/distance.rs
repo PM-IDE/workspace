@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::utils::lcp::find_longest_common_subsequence_length;
+use crate::utils::lcs::find_longest_common_subsequence_length;
 use linfa_nn::distance::{Distance, L1Dist, L2Dist};
 use ndarray::{ArrayView, Dimension};
 use num_traits::Zero;
