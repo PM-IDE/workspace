@@ -1,6 +1,6 @@
-use std::cmp::max;
 use std::str::FromStr;
 
+use crate::utils::lcp::find_longest_common_subsequence_length;
 use linfa_nn::distance::{Distance, L1Dist, L2Dist};
 use ndarray::{ArrayView, Dimension};
 use num_traits::Zero;
@@ -12,7 +12,7 @@ pub enum FicusDistance {
   L2,
   Levenshtein,
   Length,
-  LCS
+  LCS,
 }
 
 impl FromStr for FicusDistance {
@@ -38,7 +38,7 @@ pub enum DistanceWrapper {
   L2(L2Dist),
   Levenshtein(LevenshteinDistance),
   Length(LengthDistance),
-  LCS(LCSDistance)
+  LCS(LCSDistance),
 }
 
 impl DistanceWrapper {
@@ -105,7 +105,7 @@ impl Distance<f64> for LevenshteinDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
     let a_vec = a.iter().map(|x| *x).collect::<Vec<f64>>();
     let b_vec = b.iter().map(|x| *x).collect::<Vec<f64>>();
-    
+
     let a_len = Self::get_levenshtein_matrix_dimension_length(&a_vec);
     let b_len = Self::get_levenshtein_matrix_dimension_length(&b_vec);
 
@@ -149,8 +149,8 @@ pub struct LengthDistance;
 
 impl Distance<f64> for LengthDistance {
   fn distance<D: Dimension>(&self, a: ArrayView<f64, D>, b: ArrayView<f64, D>) -> f64 {
-    let a_len = find_first_zero_index(&a.into_iter().map(|x| * x).collect());
-    let b_len = find_first_zero_index(&b.into_iter().map(|x| * x).collect());
+    let a_len = find_first_zero_index(&a.into_iter().map(|x| *x).collect());
+    let b_len = find_first_zero_index(&b.into_iter().map(|x| *x).collect());
 
     (a_len.max(b_len) - a_len.min(b_len)) as f64
   }
@@ -167,28 +167,8 @@ impl Distance<f64> for LCSDistance {
     let a_len = find_first_zero_index(&a_vec) + 1;
     let b_len = find_first_zero_index(&b_vec) + 1;
 
-    let mut dp = vec![vec![-1; b_len + 1]; a_len + 1];
-    let lcp = find_longest_common_subsequence_length(&a_vec, &b_vec, a_len, b_len, &mut dp) as f64;
+    let lcp = find_longest_common_subsequence_length(&a_vec, &b_vec, a_len, b_len) as f64;
 
     1. - 2. * lcp / (a_len + b_len) as f64
   }
-}
-
-fn find_longest_common_subsequence_length<T: PartialEq>(
-  first: &Vec<T>,
-  second: &Vec<T>,
-  n: usize,
-  m: usize,
-  dp: &mut Vec<Vec<i64>>
-) -> i64 {
-  for i in 0..m + 1 { dp[0][i] = 0; }
-  for i in 0..n + 1 { dp[i][0] = 0; }
-
-  for i in 1..n + 1 {
-    for j in 1..m + 1 {
-      if first[i - 1] == second[j - 1] { dp[i][j] = 1 + dp[i - 1][j - 1]; } else { dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]); }
-    }
-  }
-
-  dp[n][m]
 }

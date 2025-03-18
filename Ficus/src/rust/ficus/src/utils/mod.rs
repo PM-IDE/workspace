@@ -17,3 +17,4 @@ pub mod user_data;
 pub mod vec_utils;
 pub mod xml_utils;
 pub mod silhouette;
+pub mod lcp;
