@@ -25,6 +25,12 @@ impl XesEventImpl {
   }
 }
 
+impl PartialEq<Self> for XesEventImpl {
+  fn eq(&self, other: &Self) -> bool {
+    self.name().eq(other.name())
+  }
+}
+
 impl Event for XesEventImpl {
   fn name(&self) -> &String {
     &self.event_base.name
