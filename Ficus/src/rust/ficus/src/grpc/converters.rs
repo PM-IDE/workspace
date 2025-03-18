@@ -563,6 +563,7 @@ where
       None => "".to_string(),
       Some(data) => data.to_string(),
     },
+    additional_data: None
   }
 }
 
