@@ -3,12 +3,14 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
 use std::cell::RefCell;
 use std::fmt::{Display, Formatter};
+use std::ops::Deref;
 use std::rc::Rc;
 
 pub enum DiscoverLCSGraphError {
@@ -74,20 +76,18 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
 
 fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> Result<(), DiscoverLCSGraphError> {
   for trace in log.traces().iter().map(|t| t.borrow()) {
-    if trace.events().len() == 0 {
-      continue;
-    }
-
-    if trace.events().first().unwrap().borrow().name().as_str() != ARTIFICIAL_START_EVENT_NAME {
-      return Err(DiscoverLCSGraphError::NoArtificialStartEndEvents);
-    }
-
-    if trace.events().last().unwrap().borrow().name().as_str() != ARTIFICIAL_END_EVENT_NAME {
-      return Err(DiscoverLCSGraphError::NoArtificialStartEndEvents);
+    if !check_trace_have_artificial_start_end_events(trace.deref()) {
+      return Err(DiscoverLCSGraphError::NoArtificialStartEndEvents)
     }
   }
 
   Ok(())
+}
+
+fn check_trace_have_artificial_start_end_events(trace: &XesTraceImpl) -> bool {
+  trace.events().len() >= 2 &&
+    trace.events().first().unwrap().borrow().name().as_str() == ARTIFICIAL_START_EVENT_NAME &&
+    trace.events().last().unwrap().borrow().name().as_str() == ARTIFICIAL_END_EVENT_NAME
 }
 
 fn discover_lcs(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>>> {
