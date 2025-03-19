@@ -5,8 +5,9 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
+use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
-use crate::utils::lcs::find_longest_common_subsequence;
+use crate::utils::lcs::find_longest_common_subsequence_length;
 use crate::utils::references::HeapedOrOwned;
 use std::cell::RefCell;
 use std::fmt::{Display, Formatter};
@@ -30,7 +31,7 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
 
   let mut graph = DefaultGraph::empty();
 
-  let lcs = discover_lcs(log);
+  let lcs = discover_root_sequence(log);
   let mut indices = vec![1; log.traces().len()];
 
   let mut last_lcs_node_id = graph.add_node(Some(HeapedOrOwned::Owned(ARTIFICIAL_START_EVENT_NAME.to_string())));
@@ -77,7 +78,7 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
 fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> Result<(), DiscoverLCSGraphError> {
   for trace in log.traces().iter().map(|t| t.borrow()) {
     if !check_trace_have_artificial_start_end_events(trace.deref()) {
-      return Err(DiscoverLCSGraphError::NoArtificialStartEndEvents)
+      return Err(DiscoverLCSGraphError::NoArtificialStartEndEvents);
     }
   }
 
@@ -90,20 +91,30 @@ fn check_trace_have_artificial_start_end_events(trace: &XesTraceImpl) -> bool {
     trace.events().last().unwrap().borrow().name().as_str() == ARTIFICIAL_END_EVENT_NAME
 }
 
-fn discover_lcs(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>>> {
+fn discover_root_sequence(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>>> {
   if log.traces().is_empty() {
     return vec![];
   }
 
-  let mut current_lcs: Vec<Rc<RefCell<XesEventImpl>>> = log.traces().first().unwrap().borrow().events().iter().map(|e| e.clone()).collect();
-  for trace in log.traces().iter().skip(1) {
-    let trace_events = trace.borrow().events().iter().map(|e| e.clone()).collect();
-    current_lcs = find_longest_common_subsequence(&current_lcs, &trace_events, current_lcs.len(), trace_events.len())
-      .lcs()
-      .iter()
-      .map(|e| (*e).clone())
-      .collect();
+  let mut root_trace_index = 0;
+  let mut root_distance = f64::MAX;
+  for (index, trace) in log.traces().iter().map(|t| t.borrow()).enumerate() {
+    let trace_events = trace.events();
+
+    let mut summed_distance = 0.;
+    for trace in log.traces().iter().map(|t| t.borrow()) {
+      let other_trace_events = trace.events();
+      let lcs = find_longest_common_subsequence_length(trace_events, other_trace_events, trace_events.len(), other_trace_events.len());
+      let distance = calculate_lcs_distance(lcs, trace_events.len(), other_trace_events.len());
+
+      summed_distance += distance;
+    }
+
+    if summed_distance < root_distance {
+      root_distance = summed_distance;
+      root_trace_index = index;
+    }
   }
 
-  current_lcs
+  log.traces().get(root_trace_index).unwrap().borrow().events().iter().map(|c| c.clone()).collect()
 }
