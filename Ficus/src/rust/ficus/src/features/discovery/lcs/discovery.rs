@@ -9,11 +9,11 @@ use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
+use log::error;
 use std::cell::RefCell;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
-use log::error;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -32,12 +32,28 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
 
   let mut graph = DefaultGraph::empty();
 
-  let lcs = discover_root_sequence(log);
+  let root_sequence = discover_root_sequence(log);
+  let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
+
+  let lcs_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, name_extractor);
+
+  for trace in log.traces().iter().map(|t| t.borrow()) {
+    adjust_lcs_graph_with_new_trace(trace.events(), &root_sequence, &lcs_node_ids, &mut graph, name_extractor);
+  }
+
+  Ok(graph)
+}
+
+pub fn initialize_lcs_graph_with_root_sequence<T>(
+  root_sequence: &Vec<T>,
+  graph: &mut DefaultGraph,
+  name_extractor: impl Fn(&T) -> HeapedOrOwned<String>,
+) -> Vec<u64> {
   let mut prev_node_id = None;
   let mut lcs_node_ids = vec![];
 
-  for event in &lcs {
-    let node_id = graph.add_node(Some(HeapedOrOwned::Heaped(event.borrow().name_pointer().clone())));
+  for event in root_sequence {
+    let node_id = graph.add_node(Some(name_extractor(event)));
     lcs_node_ids.push(node_id);
 
     if let Some(prev_node_id) = prev_node_id.as_ref() {
@@ -47,62 +63,68 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
     prev_node_id = Some(node_id);
   }
 
-  for trace in log.traces().iter().map(|t| t.borrow()) {
-    let trace_lcs = find_longest_common_subsequence(trace.events(), &lcs, trace.events().len(), lcs.len());
+  lcs_node_ids
+}
 
-    let mut lcs_index = 0;
-    let mut index = 0;
+pub fn adjust_lcs_graph_with_new_trace<T: PartialEq + Clone>(
+  trace: &Vec<T>,
+  lcs: &Vec<T>,
+  lcs_node_ids: &Vec<u64>,
+  graph: &mut DefaultGraph,
+  name_extractor: impl Fn(&T) -> HeapedOrOwned<String>,
+) {
+  let trace_lcs = find_longest_common_subsequence(trace, &lcs, trace.len(), lcs.len());
 
-    while index < trace.events().len() {
-      if index == trace_lcs.first_indices()[lcs_index] {
-        let second_indices = trace_lcs.second_indices();
-        if lcs_index >= 1 && second_indices[lcs_index - 1] + 1 != second_indices[lcs_index] {
-          graph.connect_nodes(&lcs_node_ids[second_indices[lcs_index - 1]], &lcs_node_ids[second_indices[lcs_index]], NodesConnectionData::empty());
-        }
+  let mut lcs_index = 0;
+  let mut index = 0;
 
-        lcs_index += 1;
-        index += 1;
-        continue;
+  while index < trace.len() {
+    if index == trace_lcs.first_indices()[lcs_index] {
+      let second_indices = trace_lcs.second_indices();
+      if lcs_index >= 1 && second_indices[lcs_index - 1] + 1 != second_indices[lcs_index] {
+        graph.connect_nodes(&lcs_node_ids[second_indices[lcs_index - 1]], &lcs_node_ids[second_indices[lcs_index]], NodesConnectionData::empty());
       }
 
-      let mut current_node_id = lcs_node_ids[lcs_index];
-      while index < trace.events().len() && index != trace_lcs.first_indices()[lcs_index] {
-        let event = trace.events().get(index).unwrap();
+      lcs_index += 1;
+      index += 1;
+      continue;
+    }
 
-        let connected_node_ids = graph.outgoing_nodes(&current_node_id);
-        let mut found_existing_node = false;
+    let mut current_node_id = lcs_node_ids[lcs_index];
+    while index < trace.len() && index != trace_lcs.first_indices()[lcs_index] {
+      let event = trace.get(index).unwrap();
 
-        for id in connected_node_ids {
-          let node = graph.node(id).unwrap();
-          if let Some(data) = node.data.as_ref() {
-            if data.eq(&HeapedOrOwned::Heaped(event.borrow().name_pointer().clone())) {
-              current_node_id = *node.id();
-              found_existing_node = true;
-            }
+      let connected_node_ids = graph.outgoing_nodes(&current_node_id);
+      let mut found_existing_node = false;
+
+      for id in connected_node_ids {
+        let node = graph.node(id).unwrap();
+        if let Some(data) = node.data.as_ref() {
+          if data.eq(&name_extractor(&event)) {
+            current_node_id = *node.id();
+            found_existing_node = true;
           }
         }
-
-        if !found_existing_node {
-          let added_node_id = graph.add_node(Some(HeapedOrOwned::Heaped(event.borrow().name_pointer().clone())));
-          graph.connect_nodes(&current_node_id, &added_node_id, NodesConnectionData::empty());
-          current_node_id = added_node_id;
-        }
-
-        index += 1;
       }
 
-      if lcs_index + 1 < lcs_node_ids.len() {
-        graph.connect_nodes(&current_node_id, &lcs_node_ids[lcs_index + 1], NodesConnectionData::empty());
-      } else {
-        error!("Can not connect new path to next LCS node");
+      if !found_existing_node {
+        let added_node_id = graph.add_node(Some(name_extractor(&event)));
+        graph.connect_nodes(&current_node_id, &added_node_id, NodesConnectionData::empty());
+        current_node_id = added_node_id;
       }
 
       index += 1;
-      lcs_index += 1;
     }
-  }
 
-  Ok(graph)
+    if lcs_index + 1 < lcs_node_ids.len() {
+      graph.connect_nodes(&current_node_id, &lcs_node_ids[lcs_index + 1], NodesConnectionData::empty());
+    } else {
+      error!("Can not connect new path to next LCS node");
+    }
+
+    index += 1;
+    lcs_index += 1;
+  }
 }
 
 fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> Result<(), DiscoverLCSGraphError> {
