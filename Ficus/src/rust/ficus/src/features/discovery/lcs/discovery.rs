@@ -46,20 +46,25 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
 
     prev_node_id = Some(node_id);
   }
-  
+
   for trace in log.traces().iter().map(|t| t.borrow()) {
     let trace_lcs = find_longest_common_subsequence(trace.events(), &lcs, trace.events().len(), lcs.len());
-    
+
     let mut lcs_index = 0;
     let mut index = 0;
 
     while index < trace.events().len() {
       if index == trace_lcs.first_indices()[lcs_index] {
+        let second_indices = trace_lcs.second_indices();
+        if lcs_index >= 1 && second_indices[lcs_index - 1] + 1 != second_indices[lcs_index] {
+          graph.connect_nodes(&lcs_node_ids[second_indices[lcs_index - 1]], &lcs_node_ids[second_indices[lcs_index]], NodesConnectionData::empty());
+        }
+
         lcs_index += 1;
         index += 1;
         continue;
       }
-      
+
       let mut current_node_id = lcs_node_ids[lcs_index];
       while index < trace.events().len() && index != trace_lcs.first_indices()[lcs_index] {
         let event = trace.events().get(index).unwrap();
@@ -87,7 +92,7 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
       }
 
       if lcs_index + 1 < lcs_node_ids.len() {
-        graph.connect_nodes(&current_node_id, &lcs_node_ids[lcs_index + 1], NodesConnectionData::empty()); 
+        graph.connect_nodes(&current_node_id, &lcs_node_ids[lcs_index + 1], NodesConnectionData::empty());
       } else {
         error!("Can not connect new path to next LCS node");
       }
