@@ -7,7 +7,7 @@ use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
-use crate::utils::lcs::find_longest_common_subsequence_length;
+use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
 use std::cell::RefCell;
 use std::fmt::{Display, Formatter};
@@ -116,5 +116,39 @@ fn discover_root_sequence(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>
     }
   }
 
-  log.traces().get(root_trace_index).unwrap().borrow().events().iter().map(|c| c.clone()).collect()
+  let mut root_lcs_distance = f64::MAX;
+  let mut indices = (0, 0);
+  for (first_index, first_trace) in log.traces().iter().map(|t| t.borrow()).enumerate() {
+    for (second_index, second_trace) in log.traces().iter().map(|t| t.borrow()).enumerate() {
+      let lcs = find_longest_common_subsequence(first_trace.events(), second_trace.events(), first_trace.events().len(), second_trace.events().len())
+        .lcs().into_iter().map(|c| (*c).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
+
+      let mut distance = 0.;
+      for trace in log.traces().iter().map(|t| t.borrow()) {
+        let lcs_length = find_longest_common_subsequence_length(&lcs, trace.events(), lcs.len(), trace.events().len());
+        distance += calculate_lcs_distance(lcs_length, lcs.len(), trace.events().len());
+      }
+
+      if distance < root_lcs_distance {
+        root_lcs_distance = distance;
+        indices = (first_index, second_index);
+      }
+    }
+  }
+
+  if root_distance <= root_lcs_distance {
+    log.traces().get(root_trace_index).unwrap().borrow().events().iter().map(|c| c.clone()).collect()
+  } else {
+    let first_trace = log.traces().get(indices.0).unwrap();
+    let second_trace = log.traces().get(indices.1).unwrap();
+
+    let first_trace_len = first_trace.borrow().events().len();
+    let second_trace_len = second_trace.borrow().events().len();
+
+    find_longest_common_subsequence(first_trace.borrow().events(), second_trace.borrow().events(), first_trace_len, second_trace_len)
+      .lcs()
+      .into_iter()
+      .map(|c| (*c).clone())
+      .collect::<Vec<Rc<RefCell<XesEventImpl>>>>()
+  }
 }
