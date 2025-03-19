@@ -73,6 +73,16 @@ where
 
     edges
   }
+  
+  pub fn edge(&self, first_node_id: &u64, second_node_id: &u64) -> Option<&GraphEdge<TEdgeData>> {
+    if let Some(connections) = self.connections.get(first_node_id) {
+      if let Some(edge) = connections.get(second_node_id) {
+        return Some(edge);
+      }
+    }
+    
+    None
+  }
 
   pub fn add_node(&mut self, node_data: Option<TNodeData>) -> u64 {
     let new_node = GraphNode::new(node_data);

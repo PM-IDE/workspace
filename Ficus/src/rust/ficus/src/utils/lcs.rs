@@ -43,8 +43,8 @@ impl<'a, T> LCSSearchResult<'a, T> {
 }
 
 pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
-  first: &'a Vec<T>, 
-  second: &'a Vec<T>, 
+  first: &'a Vec<T>,
+  second: &'a Vec<T>,
   first_len: usize, 
   second_len: usize
 ) -> LCSSearchResult<'a, T> {
@@ -72,7 +72,7 @@ pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
 
   LCSSearchResult {
    lcs: lcs.into_iter().rev().collect(),
-    indices_in_first_sequence,
-    indices_in_second_sequence
+    indices_in_first_sequence: indices_in_first_sequence.into_iter().rev().collect(),
+    indices_in_second_sequence: indices_in_second_sequence.into_iter().rev().collect()
   }
 }
