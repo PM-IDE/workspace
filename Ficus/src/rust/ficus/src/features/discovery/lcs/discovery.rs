@@ -49,6 +49,23 @@ fn discover_lcs_graph_internal<T: PartialEq + Clone + Debug>(
   let mut graph = DefaultGraph::empty();
 
   let root_sequence = discover_root_sequence(log);
+  if root_sequence.len() == 2 {
+    let start_node = graph.add_node(Some(name_extractor(root_sequence.first().unwrap())));
+    let end_node = graph.add_node(Some(name_extractor(root_sequence.last().unwrap())));
+
+    for trace in log {
+      let mut prev_node_id = start_node;
+      for event in trace.iter().skip(1).take(trace.len() - 2) {
+        let node_id = graph.add_node(Some(name_extractor(event)));
+        graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::empty());
+        prev_node_id = node_id;
+      }
+      
+      graph.connect_nodes(&prev_node_id, &end_node, NodesConnectionData::empty());
+    }
+    
+    return graph
+  }
 
   let lcs_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &name_extractor);
   adjust_lcs_graph_with_traces(log, &root_sequence, &lcs_node_ids, &mut graph, &name_extractor, artificial_start_end_events_factory);
