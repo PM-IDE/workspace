@@ -19,8 +19,13 @@ fn execute_lcs_discovery_test(traces: Vec<Vec<String>>, root_sequence: Vec<Strin
   let mut graph = DefaultGraph::empty();
   let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
 
-  let root_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, name_extractor);
-  adjust_lcs_graph_with_traces(&traces, &root_sequence, &root_node_ids, &mut graph, name_extractor);
+  let root_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &name_extractor);
+  let factory = || (
+    "START".to_string(),
+    "END".to_string()
+  );
+
+  adjust_lcs_graph_with_traces(&traces, &root_sequence, &root_node_ids, &mut graph, &name_extractor, &factory);
 
   let mut tgraph = DirectedGraph::new();
   tgraph.add_nodes(graph.all_nodes().into_iter().map(|n| (*n.id(), n.data().unwrap().as_str().to_owned())));

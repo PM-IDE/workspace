@@ -10,7 +10,8 @@ use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
 use std::cell::RefCell;
-use std::fmt::{Display, Formatter};
+use std::collections::HashMap;
+use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 
@@ -30,18 +31,27 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
   assert_all_traces_have_artificial_start_end_events(log)?;
   let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
+  let artificial_start_end_events_factory = || (
+    Rc::new(RefCell::new(XesEventImpl::new_with_min_date(ARTIFICIAL_START_EVENT_NAME.to_string()))),
+    Rc::new(RefCell::new(XesEventImpl::new_with_min_date(ARTIFICIAL_END_EVENT_NAME.to_string()))),
+  );
+
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
 
-  Ok(discover_lcs_graph_internal(&log, &name_extractor))
+  Ok(discover_lcs_graph_internal(&log, &name_extractor, &artificial_start_end_events_factory))
 }
 
-fn discover_lcs_graph_internal<T: PartialEq + Clone>(log: &Vec<Vec<T>>, name_extractor: &impl Fn(&T) -> HeapedOrOwned<String>) -> DefaultGraph {
+fn discover_lcs_graph_internal<T: PartialEq + Clone + Debug>(
+  log: &Vec<Vec<T>>,
+  name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
+  artificial_start_end_events_factory: &dyn Fn() -> (T, T),
+) -> DefaultGraph {
   let mut graph = DefaultGraph::empty();
 
   let root_sequence = discover_root_sequence(log);
 
-  let lcs_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, name_extractor);
-  adjust_lcs_graph_with_traces(log, &root_sequence, &lcs_node_ids, &mut graph, name_extractor);
+  let lcs_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &name_extractor);
+  adjust_lcs_graph_with_traces(log, &root_sequence, &lcs_node_ids, &mut graph, &name_extractor, artificial_start_end_events_factory);
 
   graph
 }
@@ -49,7 +59,7 @@ fn discover_lcs_graph_internal<T: PartialEq + Clone>(log: &Vec<Vec<T>>, name_ext
 pub fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   root_sequence: &Vec<T>,
   graph: &mut DefaultGraph,
-  name_extractor: impl Fn(&T) -> HeapedOrOwned<String>,
+  name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
 ) -> Vec<u64> {
   let mut prev_node_id = None;
   let mut lcs_node_ids = vec![];
@@ -68,12 +78,13 @@ pub fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   lcs_node_ids
 }
 
-pub fn adjust_lcs_graph_with_traces<T: PartialEq + Clone>(
+pub fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<T>>,
   lcs: &Vec<T>,
   lcs_node_ids: &Vec<u64>,
   graph: &mut DefaultGraph,
-  name_extractor: impl Fn(&T) -> HeapedOrOwned<String>,
+  name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
+  artificial_start_end_events_factory: &dyn Fn() -> (T, T),
 ) {
   let mut adjustments = vec![vec![]; lcs_node_ids.len()];
   for trace in traces {
@@ -107,41 +118,67 @@ pub fn adjust_lcs_graph_with_traces<T: PartialEq + Clone>(
     }
   }
 
-  add_adjustments_to_graph(adjustments, graph, lcs_node_ids, name_extractor);
+  add_adjustments_to_graph(adjustments, graph, lcs_node_ids, name_extractor, artificial_start_end_events_factory);
 }
 
-fn add_adjustments_to_graph<T: PartialEq + Clone>(
+fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
   adjustments: Vec<Vec<Vec<T>>>,
   graph: &mut DefaultGraph,
   lcs_node_ids: &Vec<u64>,
-  name_extractor: impl Fn(&T) -> HeapedOrOwned<String>,
+  name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
+  artificial_start_end_events_factory: impl Fn() -> (T, T),
 ) {
   for (index, adjustment) in adjustments.into_iter().enumerate() {
-    for events in adjustment {
-      let mut current_node_id = lcs_node_ids[index];
-
+    let mut adjustment_log = vec![];
+    for events in &adjustment {
+      let (art_start, art_end) = artificial_start_end_events_factory();
+      let mut adjustment_trace = vec![art_start];
       for event in events {
-        let connected_node_ids = graph.outgoing_nodes(&current_node_id);
-        let mut found_existing_node = false;
-
-        for id in connected_node_ids {
-          let node = graph.node(id).unwrap();
-          if let Some(data) = node.data.as_ref() {
-            if data.eq(&name_extractor(&event)) {
-              current_node_id = *node.id();
-              found_existing_node = true;
-            }
-          }
-        }
-
-        if !found_existing_node {
-          let added_node_id = graph.add_node(Some(name_extractor(&event)));
-          graph.connect_nodes(&current_node_id, &added_node_id, NodesConnectionData::empty());
-          current_node_id = added_node_id;
-        }
+        adjustment_trace.push(event.clone());
       }
 
-      graph.connect_nodes(&current_node_id, &lcs_node_ids[index + 1], NodesConnectionData::empty());
+      adjustment_trace.push(art_end);
+      adjustment_log.push(adjustment_trace);
+    }
+
+    let sub_graph = discover_lcs_graph_internal(&adjustment_log, &name_extractor, &artificial_start_end_events_factory);
+
+    let mut sub_graph_nodes_to_nodes = HashMap::new();
+    let (mut start_node_id, mut end_node_id) = (0, 0);
+    let (art_start, art_end) = artificial_start_end_events_factory();
+
+    for node in sub_graph.all_nodes() {
+      if let Some(data) = node.data() {
+        if data.as_str().eq(name_extractor(&art_start).as_str()) {
+          start_node_id = *node.id();
+        }
+
+        if data.as_str().eq(name_extractor(&art_end).as_str()) {
+          end_node_id = *node.id();
+        }
+      }
+    }
+
+    for node in sub_graph.all_nodes() {
+      if *node.id() != start_node_id && *node.id() != end_node_id {
+        sub_graph_nodes_to_nodes.insert(node.id(), graph.add_node(node.data.clone()));
+      }
+    }
+
+    for edge in sub_graph.all_edges() {
+      let from_node = if *edge.from_node() == start_node_id {
+        lcs_node_ids[index]
+      } else {
+        sub_graph_nodes_to_nodes[edge.from_node()]
+      };
+
+      let to_node = if *edge.to_node() == end_node_id {
+        lcs_node_ids[index + 1]
+      } else {
+        sub_graph_nodes_to_nodes[edge.to_node()]
+      };
+
+      graph.connect_nodes(&from_node, &to_node, NodesConnectionData::empty());
     }
   }
 }

@@ -1,5 +1,5 @@
 use std::{collections::HashMap, rc::Rc};
-
+use std::fmt::{Debug, Formatter};
 use chrono::{DateTime, Utc};
 
 use crate::{
@@ -10,10 +10,15 @@ use crate::{
   utils::{user_data::user_data::UserDataImpl, vec_utils},
 };
 
-#[derive(Debug)]
 pub struct XesEventImpl {
   event_base: EventBase,
   payload: Option<HashMap<String, EventPayloadValue>>,
+}
+
+impl Debug for XesEventImpl {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    f.write_str(self.name_pointer().as_str())
+  }
 }
 
 impl XesEventImpl {
