@@ -242,6 +242,10 @@ fn discover_root_sequence<T: PartialEq + Clone>(log: &Vec<Vec<T>>) -> Vec<T> {
   let mut indices = (0, 0);
   for (first_index, first_trace) in log.iter().enumerate() {
     for (second_index, second_trace) in log.iter().enumerate() {
+      if first_index == second_index {
+        continue;
+      }
+
       let lcs = find_longest_common_subsequence(first_trace, second_trace, first_trace.len(), second_trace.len())
         .lcs().into_iter().map(|c| (*c).clone()).collect::<Vec<T>>();
 
