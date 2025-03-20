@@ -9,7 +9,6 @@ use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
-use log::error;
 use std::cell::RefCell;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -90,7 +89,7 @@ pub fn adjust_lcs_graph_with_new_trace<T: PartialEq + Clone>(
       continue;
     }
 
-    let mut current_node_id = lcs_node_ids[lcs_index];
+    let mut current_node_id = lcs_node_ids[lcs_index - 1];
     while index < trace.len() && index != trace_lcs.first_indices()[lcs_index] {
       let event = trace.get(index).unwrap();
 
@@ -116,11 +115,7 @@ pub fn adjust_lcs_graph_with_new_trace<T: PartialEq + Clone>(
       index += 1;
     }
 
-    if lcs_index + 1 < lcs_node_ids.len() {
-      graph.connect_nodes(&current_node_id, &lcs_node_ids[lcs_index + 1], NodesConnectionData::empty());
-    } else {
-      error!("Can not connect new path to next LCS node");
-    }
+    graph.connect_nodes(&current_node_id, &lcs_node_ids[lcs_index], NodesConnectionData::empty());
 
     index += 1;
     lcs_index += 1;
