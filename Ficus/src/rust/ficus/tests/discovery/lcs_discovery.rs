@@ -27,5 +27,6 @@ fn execute_lcs_discovery_test(traces: Vec<Vec<String>>, root_sequence: Vec<Strin
   tgraph.add_edges(graph.all_edges().into_iter().map(|e| (*e.from_node(), *e.to_node())));
 
   let tconfig = Config::new(ValueFormatter::new(), 10).default_colors();
+
   termgraph::display(&tgraph, &tconfig);
 }

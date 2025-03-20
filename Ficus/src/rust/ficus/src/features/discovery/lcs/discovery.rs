@@ -28,21 +28,25 @@ impl Display for DiscoverLCSGraphError {
 
 pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, DiscoverLCSGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
+  let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
+  let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
+
+  Ok(discover_lcs_graph_internal(&log, &name_extractor))
+}
+
+fn discover_lcs_graph_internal<T: PartialEq + Clone>(log: &Vec<Vec<T>>, name_extractor: &impl Fn(&T) -> HeapedOrOwned<String>) -> DefaultGraph {
   let mut graph = DefaultGraph::empty();
 
   let root_sequence = discover_root_sequence(log);
-  let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
   let lcs_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, name_extractor);
+  adjust_lcs_graph_with_traces(log, &root_sequence, &lcs_node_ids, &mut graph, name_extractor);
 
-  let events = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
-  adjust_lcs_graph_with_traces(&events, &root_sequence, &lcs_node_ids, &mut graph, name_extractor);
-
-  Ok(graph)
+  graph
 }
 
-pub fn initialize_lcs_graph_with_root_sequence<T>(
+pub fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   root_sequence: &Vec<T>,
   graph: &mut DefaultGraph,
   name_extractor: impl Fn(&T) -> HeapedOrOwned<String>,
@@ -106,7 +110,7 @@ pub fn adjust_lcs_graph_with_traces<T: PartialEq + Clone>(
   add_adjustments_to_graph(adjustments, graph, lcs_node_ids, name_extractor);
 }
 
-fn add_adjustments_to_graph<T>(
+fn add_adjustments_to_graph<T: PartialEq + Clone>(
   adjustments: Vec<Vec<Vec<T>>>,
   graph: &mut DefaultGraph,
   lcs_node_ids: &Vec<u64>,
@@ -158,19 +162,16 @@ fn check_trace_have_artificial_start_end_events(trace: &XesTraceImpl) -> bool {
     trace.events().last().unwrap().borrow().name().as_str() == ARTIFICIAL_END_EVENT_NAME
 }
 
-fn discover_root_sequence(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>>> {
-  if log.traces().is_empty() {
+fn discover_root_sequence<T: PartialEq + Clone>(log: &Vec<Vec<T>>) -> Vec<T> {
+  if log.is_empty() {
     return vec![];
   }
 
   let mut root_trace_index = 0;
   let mut root_distance = f64::MAX;
-  for (index, trace) in log.traces().iter().map(|t| t.borrow()).enumerate() {
-    let trace_events = trace.events();
-
+  for (index, trace_events) in log.iter().enumerate() {
     let mut summed_distance = 0.;
-    for trace in log.traces().iter().map(|t| t.borrow()) {
-      let other_trace_events = trace.events();
+    for other_trace_events in log.iter() {
       let lcs = find_longest_common_subsequence_length(trace_events, other_trace_events, trace_events.len(), other_trace_events.len());
       let distance = calculate_lcs_distance(lcs, trace_events.len(), other_trace_events.len());
 
@@ -185,15 +186,15 @@ fn discover_root_sequence(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>
 
   let mut root_lcs_distance = f64::MAX;
   let mut indices = (0, 0);
-  for (first_index, first_trace) in log.traces().iter().map(|t| t.borrow()).enumerate() {
-    for (second_index, second_trace) in log.traces().iter().map(|t| t.borrow()).enumerate() {
-      let lcs = find_longest_common_subsequence(first_trace.events(), second_trace.events(), first_trace.events().len(), second_trace.events().len())
-        .lcs().into_iter().map(|c| (*c).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
+  for (first_index, first_trace) in log.iter().enumerate() {
+    for (second_index, second_trace) in log.iter().enumerate() {
+      let lcs = find_longest_common_subsequence(first_trace, second_trace, first_trace.len(), second_trace.len())
+        .lcs().into_iter().map(|c| (*c).clone()).collect::<Vec<T>>();
 
       let mut distance = 0.;
-      for trace in log.traces().iter().map(|t| t.borrow()) {
-        let lcs_length = find_longest_common_subsequence_length(&lcs, trace.events(), lcs.len(), trace.events().len());
-        distance += calculate_lcs_distance(lcs_length, lcs.len(), trace.events().len());
+      for trace in log.iter() {
+        let lcs_length = find_longest_common_subsequence_length(&lcs, trace, lcs.len(), trace.len());
+        distance += calculate_lcs_distance(lcs_length, lcs.len(), trace.len());
       }
 
       if distance < root_lcs_distance {
@@ -204,18 +205,18 @@ fn discover_root_sequence(log: &XesEventLogImpl) -> Vec<Rc<RefCell<XesEventImpl>
   }
 
   if root_distance <= root_lcs_distance {
-    log.traces().get(root_trace_index).unwrap().borrow().events().iter().map(|c| c.clone()).collect()
+    log.get(root_trace_index).unwrap().iter().map(|c| c.clone()).collect()
   } else {
-    let first_trace = log.traces().get(indices.0).unwrap();
-    let second_trace = log.traces().get(indices.1).unwrap();
+    let first_trace = log.get(indices.0).unwrap();
+    let second_trace = log.get(indices.1).unwrap();
 
-    let first_trace_len = first_trace.borrow().events().len();
-    let second_trace_len = second_trace.borrow().events().len();
+    let first_trace_len = first_trace.len();
+    let second_trace_len = second_trace.len();
 
-    find_longest_common_subsequence(first_trace.borrow().events(), second_trace.borrow().events(), first_trace_len, second_trace_len)
+    find_longest_common_subsequence(first_trace, second_trace, first_trace_len, second_trace_len)
       .lcs()
       .into_iter()
       .map(|c| (*c).clone())
-      .collect::<Vec<Rc<RefCell<XesEventImpl>>>>()
+      .collect::<Vec<T>>()
   }
 }
