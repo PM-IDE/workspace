@@ -1,4 +1,4 @@
-use ficus::features::discovery::lcs::discovery::{adjust_lcs_graph_with_new_trace, initialize_lcs_graph_with_root_sequence};
+use ficus::features::discovery::lcs::discovery::{adjust_lcs_graph_with_traces, initialize_lcs_graph_with_root_sequence};
 use ficus::utils::graph::graph::DefaultGraph;
 use ficus::utils::references::HeapedOrOwned;
 use ficus::vecs;
@@ -20,9 +20,7 @@ fn execute_lcs_discovery_test(traces: Vec<Vec<String>>, root_sequence: Vec<Strin
   let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
 
   let root_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, name_extractor);
-  for trace in &traces {
-    adjust_lcs_graph_with_new_trace(trace, &root_sequence, &root_node_ids, &mut graph, name_extractor);
-  }
+  adjust_lcs_graph_with_traces(&traces, &root_sequence, &root_node_ids, &mut graph, name_extractor);
 
   let mut tgraph = DirectedGraph::new();
   tgraph.add_nodes(graph.all_nodes().into_iter().map(|n| (*n.id(), n.data().unwrap().as_str().to_owned())));
