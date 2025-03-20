@@ -27,7 +27,7 @@ impl Display for DiscoverLCSGraphError {
   }
 }
 
-pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, DiscoverLCSGraphError> {
+pub fn discover_lcs_graph_from_event_log(log: &XesEventLogImpl) -> Result<DefaultGraph, DiscoverLCSGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
   let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
@@ -38,10 +38,10 @@ pub fn discover_lcs_graph(log: &XesEventLogImpl) -> Result<DefaultGraph, Discove
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
 
-  Ok(discover_lcs_graph_internal(&log, &name_extractor, &artificial_start_end_events_factory))
+  Ok(discover_lcs_graph(&log, &name_extractor, &artificial_start_end_events_factory))
 }
 
-fn discover_lcs_graph_internal<T: PartialEq + Clone + Debug>(
+pub fn discover_lcs_graph<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
@@ -73,7 +73,7 @@ fn discover_lcs_graph_internal<T: PartialEq + Clone + Debug>(
   graph
 }
 
-pub fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
+fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   root_sequence: &Vec<T>,
   graph: &mut DefaultGraph,
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
@@ -95,7 +95,7 @@ pub fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   lcs_node_ids
 }
 
-pub fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
+fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<T>>,
   lcs: &Vec<T>,
   lcs_node_ids: &Vec<u64>,
@@ -158,7 +158,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
       adjustment_log.push(adjustment_trace);
     }
 
-    let sub_graph = discover_lcs_graph_internal(&adjustment_log, &name_extractor, &artificial_start_end_events_factory);
+    let sub_graph = discover_lcs_graph(&adjustment_log, &name_extractor, &artificial_start_end_events_factory);
 
     let mut sub_graph_nodes_to_nodes = HashMap::new();
     let (mut start_node_id, mut end_node_id) = (0, 0);
