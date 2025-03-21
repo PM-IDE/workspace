@@ -88,11 +88,11 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
 ) -> Vec<u64> {
   let mut prev_node_id = None;
-  let mut lcs_node_ids = vec![];
+  let mut root_sequence_node_ids = vec![];
 
   for event in root_sequence {
     let node_id = graph.add_node(Some(name_extractor(event)));
-    lcs_node_ids.push(node_id);
+    root_sequence_node_ids.push(node_id);
 
     if let Some(prev_node_id) = prev_node_id.as_ref() {
       graph.connect_nodes(prev_node_id, &node_id, NodesConnectionData::empty());
@@ -101,29 +101,29 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
     prev_node_id = Some(node_id);
   }
 
-  lcs_node_ids
+  root_sequence_node_ids
 }
 
 fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<T>>,
   lcs: &Vec<T>,
-  lcs_node_ids: &Vec<u64>,
+  root_sequence_node_ids: &Vec<u64>,
   graph: &mut DefaultGraph,
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
 ) {
-  let mut adjustments = vec![vec![]; lcs_node_ids.len()];
+  let mut adjustments = HashMap::new();
   for trace in traces {
     let trace_lcs = find_longest_common_subsequence(trace, &lcs, trace.len(), lcs.len());
+    let second_indices = trace_lcs.second_indices();
 
     let mut lcs_index = 0;
     let mut index = 0;
 
     while index < trace.len() {
       if index == trace_lcs.first_indices()[lcs_index] {
-        let second_indices = trace_lcs.second_indices();
         if lcs_index >= 1 && second_indices[lcs_index - 1] + 1 != second_indices[lcs_index] {
-          graph.connect_nodes(&lcs_node_ids[second_indices[lcs_index - 1]], &lcs_node_ids[second_indices[lcs_index]], NodesConnectionData::empty());
+          graph.connect_nodes(&root_sequence_node_ids[second_indices[lcs_index - 1]], &root_sequence_node_ids[second_indices[lcs_index]], NodesConnectionData::empty());
         }
 
         lcs_index += 1;
@@ -131,35 +131,35 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
         continue;
       }
 
-      let mut current_adjustments = vec![];
+      let mut adjustment_events = vec![];
       while index < trace.len() && index != trace_lcs.first_indices()[lcs_index] {
-        current_adjustments.push(trace.get(index).unwrap().clone());
+        adjustment_events.push(trace.get(index).unwrap().clone());
         index += 1;
       }
 
-      adjustments.get_mut(lcs_index - 1).unwrap().push(current_adjustments);
+      let key = (root_sequence_node_ids[second_indices[lcs_index - 1]], root_sequence_node_ids[second_indices[lcs_index]]);
+      
+      adjustments.entry(key).or_insert(vec![]).push(adjustment_events);
 
       index += 1;
       lcs_index += 1;
     }
   }
 
-  add_adjustments_to_graph(adjustments, graph, lcs_node_ids, name_extractor, artificial_start_end_events_factory);
+  add_adjustments_to_graph(&adjustments, graph, name_extractor, artificial_start_end_events_factory);
 }
 
 fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
-  adjustments: Vec<Vec<Vec<T>>>,
+  adjustments: &HashMap<(u64, u64), Vec<Vec<T>>>,
   graph: &mut DefaultGraph,
-  lcs_node_ids: &Vec<u64>,
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
 ) {
-  for (lcs_node_index, adjustments) in adjustments.into_iter().enumerate() {
+  for ((start_root_node_id, end_root_node_id), adjustments) in adjustments {
     let adjustment_log = create_log_from_adjustments(&adjustments, artificial_start_end_events_factory);
     let sub_graph = discover_lcs_graph(&adjustment_log, &name_extractor, &artificial_start_end_events_factory);
-    let (start_node_id, end_node_id) = find_start_end_node_ids(&sub_graph, name_extractor, artificial_start_end_events_factory);
 
-    merge_subgraph_into_model(graph, &sub_graph, start_node_id, end_node_id, lcs_node_ids, lcs_node_index);
+    merge_subgraph_into_model(graph, &sub_graph, *start_root_node_id, *end_root_node_id, name_extractor, artificial_start_end_events_factory);
   }
 }
 
@@ -168,10 +168,10 @@ fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
   artificial_start_end_events_factory: impl Fn() -> (T, T),
 ) -> Vec<Vec<T>> {
   let mut adjustment_log = vec![];
-  for events in adjustments {
+  for adjustment in adjustments {
     let (art_start, art_end) = artificial_start_end_events_factory();
     let mut adjustment_trace = vec![art_start];
-    for event in events {
+    for event in adjustment {
       adjustment_trace.push(event.clone());
     }
 
@@ -206,14 +206,15 @@ fn find_start_end_node_ids<T: PartialEq + Clone + Debug>(
   (start_node_id, end_node_id)
 }
 
-fn merge_subgraph_into_model(
+fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
   graph: &mut DefaultGraph,
   sub_graph: &DefaultGraph,
-  start_node_id: u64,
-  end_node_id: u64,
-  lcs_node_ids: &Vec<u64>,
-  lcs_node_index: usize,
+  start_graph_node_id: u64,
+  end_graph_node_id: u64,
+  name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
+  artificial_start_end_events_factory: &dyn Fn() -> (T, T),
 ) {
+  let (start_node_id, end_node_id) = find_start_end_node_ids(&sub_graph, name_extractor, artificial_start_end_events_factory);
   let mut sub_graph_nodes_to_nodes = HashMap::new();
 
   for node in sub_graph.all_nodes() {
@@ -224,13 +225,13 @@ fn merge_subgraph_into_model(
 
   for edge in sub_graph.all_edges() {
     let from_node = if *edge.from_node() == start_node_id {
-      lcs_node_ids[lcs_node_index]
+      start_graph_node_id
     } else {
       sub_graph_nodes_to_nodes[edge.from_node()]
     };
 
     let to_node = if *edge.to_node() == end_node_id {
-      lcs_node_ids[lcs_node_index + 1]
+      end_graph_node_id
     } else {
       sub_graph_nodes_to_nodes[edge.to_node()]
     };
