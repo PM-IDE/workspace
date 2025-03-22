@@ -158,4 +158,23 @@ where
 
     result
   }
+  
+  pub fn serialize_deterministic(&self) -> String {
+    let get_node_repr = |id| {
+      match self.node(id).as_ref().unwrap().data.as_ref() {
+        None => "None".to_string(),
+        Some(data) => data.to_string()
+      }
+    };
+
+    let mut serialized_connection = vec![];
+    for (from_node, to_nodes) in &self.connections {
+      for (to_node, _) in to_nodes { 
+        serialized_connection.push(format!("[{}]--[{}]", get_node_repr(from_node), get_node_repr(to_node)));
+      }
+    }
+
+    serialized_connection.sort();
+    serialized_connection.join("\n")
+  }
 }

@@ -1,5 +1,4 @@
-use ficus::features::discovery::lcs::discovery::{discover_lcs_graph};
-use ficus::utils::graph::graph::DefaultGraph;
+use ficus::features::discovery::lcs::discovery::discover_lcs_graph;
 use ficus::utils::references::HeapedOrOwned;
 use ficus::vecs;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
@@ -11,6 +10,15 @@ pub fn test_lcs_graph_1() {
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "B", "D", "E"]
     ],
+    vec![
+      "[A]--[B]",
+      "[B]--[C]",
+      "[B]--[D]",
+      "[C]--[D]",
+      "[D]--[E]",
+      "[E]--[END]",
+      "[START]--[A]"
+    ]
   );
 }
 
@@ -21,10 +29,21 @@ pub fn test_lcs_graph_2() {
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "Y", "E"]
     ],
+    vec![
+      "[A]--[B]",
+      "[A]--[X]",
+      "[B]--[C]",
+      "[C]--[D]",
+      "[D]--[E]",
+      "[E]--[END]",
+      "[START]--[A]",
+      "[X]--[Y]",
+      "[Y]--[E]"
+    ]
   );
 }
 
-fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>) {
+fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold: Vec<&str>) {
   let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
 
   let factory = || (
@@ -39,12 +58,25 @@ fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>) {
   }
 
   let graph = discover_lcs_graph(&traces, &name_extractor, &factory);
+  let test_result = graph.serialize_deterministic();
 
-  let mut tgraph = DirectedGraph::new();
-  tgraph.add_nodes(graph.all_nodes().into_iter().map(|n| (*n.id(), n.data().unwrap().as_str().to_owned())));
-  tgraph.add_edges(graph.all_edges().into_iter().map(|e| (*e.from_node(), *e.to_node())));
+  let gold = gold.join("\n");
 
-  let tconfig = Config::new(ValueFormatter::new(), 10).default_colors();
+  if test_result != gold {
+    let mut tgraph = DirectedGraph::new();
+    tgraph.add_nodes(graph.all_nodes().into_iter().map(|n| (*n.id(), n.data().unwrap().as_str().to_owned())));
+    tgraph.add_edges(graph.all_edges().into_iter().map(|e| (*e.from_node(), *e.to_node())));
 
-  termgraph::display(&tgraph, &tconfig);
+    let tconfig = Config::new(ValueFormatter::new(), 10).default_colors();
+
+    termgraph::display(&tgraph, &tconfig);
+    
+    println!("GOLD:");
+    println!("{}", gold);
+    
+    println!("TEST RESULT:");
+    println!("{}", test_result);
+    
+    assert!(false);
+  }
 }
