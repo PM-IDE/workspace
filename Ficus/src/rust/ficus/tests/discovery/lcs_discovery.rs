@@ -43,6 +43,110 @@ pub fn test_lcs_graph_2() {
   );
 }
 
+#[test]
+pub fn test_lcs_graph_3() {
+  execute_lcs_discovery_test(
+    vec![
+      vecs!["A"],
+      vecs!["B"],
+      vecs!["C"],
+      vecs!["D"],
+      vecs!["E"],
+    ],
+    vec![
+      "[A]--[END]",
+      "[B]--[END]",
+      "[C]--[END]",
+      "[D]--[END]",
+      "[E]--[END]",
+      "[START]--[A]",
+      "[START]--[B]",
+      "[START]--[C]",
+      "[START]--[D]",
+      "[START]--[E]",
+    ]
+  )
+}
+
+#[test]
+pub fn test_lcs_graph_4() {
+  execute_lcs_discovery_test(
+    vec![],
+    vec![]
+  )
+}
+
+#[test]
+pub fn test_lcs_graph_5() {
+  execute_lcs_discovery_test(
+    vec![
+      vecs![]
+    ],
+    vec![
+      "[START]--[END]"
+    ]
+  )
+}
+
+#[test]
+pub fn test_lcs_graph_6() {
+  execute_lcs_discovery_test(
+    vec![
+      vecs!["A", "X", "B", "Y", "C", "Z", "D", "W", "E"],
+      vecs!["X", "A", "Y", "B", "Z", "C", "W", "D"],
+    ],
+    vec![
+      "[A]--[X]",
+      "[A]--[Y]",
+      "[B]--[Y]",
+      "[B]--[Z]",
+      "[C]--[W]",
+      "[C]--[Z]",
+      "[D]--[END]",
+      "[D]--[W]",
+      "[E]--[END]",
+      "[START]--[A]",
+      "[START]--[X]",
+      "[W]--[D]",
+      "[W]--[E]",
+      "[X]--[A]",
+      "[X]--[B]",
+      "[Y]--[B]",
+      "[Y]--[C]",
+      "[Z]--[C]",
+      "[Z]--[D]",
+    ]
+  )
+}
+
+#[test]
+pub fn test_lcs_graph_7() {
+  execute_lcs_discovery_test(
+    vec![
+      vecs!["X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E"],
+      vecs!["A", "B", "C", "D", "E"]
+    ],
+    vec![
+      "[A]--[B]",
+      "[A]--[Y]",
+      "[B]--[C]",
+      "[B]--[Z]",
+      "[C]--[D]",
+      "[C]--[W]",
+      "[D]--[E]",
+      "[D]--[Z]",
+      "[E]--[END]",
+      "[START]--[A]",
+      "[START]--[X]",
+      "[W]--[D]",
+      "[X]--[A]",
+      "[Y]--[B]",
+      "[Z]--[C]",
+      "[Z]--[E]",
+    ]
+  );
+}
+
 fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold: Vec<&str>) {
   let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
 
