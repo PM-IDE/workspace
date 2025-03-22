@@ -5,8 +5,8 @@ pub fn find_longest_common_subsequence_length<T: PartialEq>(
   second: &Vec<T>,
   first_len: usize,
   second_len: usize,
-) -> i64 {
-  build_longest_common_subsequence_matrix(first, second, first_len, second_len)[first_len][second_len]
+) -> usize {
+  build_longest_common_subsequence_matrix(first, second, first_len, second_len)[first_len][second_len] as usize
 }
 
 pub fn build_longest_common_subsequence_matrix<T: PartialEq>(

@@ -256,18 +256,22 @@ fn check_trace_have_artificial_start_end_events(trace: &XesTraceImpl) -> bool {
     trace.events().last().unwrap().borrow().name().as_str() == ARTIFICIAL_END_EVENT_NAME
 }
 
-fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>) -> Vec<T> {
+pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>) -> Vec<T> {
   if log.is_empty() {
     return vec![];
   }
 
   let (root_trace_index, root_distance) = find_trace_candidate_for_root_sequence(log);
-  let (indices, root_lcs_distance) = find_lcs_candidate_for_root_sequence(log);
+  let (indices, root_pair_wise_lcs_distance) = find_traces_pairwise_lcs_candidate_for_root_sequence(log);
+  let (lcs, root_lcs_distance) = find_lcs_candidate_for_root_sequence(log);
 
-  if root_distance <= root_lcs_distance {
+  let min_distance = root_distance.min(root_pair_wise_lcs_distance).min(root_lcs_distance);
+  if root_distance == min_distance {
     log.get(root_trace_index).unwrap().iter().map(|c| c.clone()).collect()
-  } else {
+  } else if root_pair_wise_lcs_distance == min_distance {
     create_root_sequence_from_lcs(log, indices)
+  } else {
+    lcs
   }
 }
 
@@ -292,7 +296,7 @@ fn find_trace_candidate_for_root_sequence<T: PartialEq + Clone + Debug>(log: &Ve
   (root_trace_index, root_distance)
 }
 
-fn find_lcs_candidate_for_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>) -> ((usize, usize), f64) {
+fn find_traces_pairwise_lcs_candidate_for_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>) -> ((usize, usize), f64) {
   let mut root_lcs_distance = f64::MAX;
   let mut indices = (0, 0);
   for (first_index, first_trace) in log.iter().enumerate() {
@@ -318,6 +322,21 @@ fn find_lcs_candidate_for_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<
   }
 
   (indices, root_lcs_distance)
+}
+
+fn find_lcs_candidate_for_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>) -> (Vec<T>, f64) {
+  let mut lcs = log.first().unwrap().into_iter().map(|e| (*e).clone()).collect();
+
+  for trace in log.iter().skip(1) {
+    lcs = find_longest_common_subsequence(&lcs, trace, lcs.len(), trace.len()).lcs().into_iter().map(|e| (*e).clone()).collect();
+  }
+
+  let mut distance = 0.;
+  for trace in log {
+    distance += calculate_lcs_distance(lcs.len(), lcs.len(), trace.len());
+  }
+
+  (lcs, distance)
 }
 
 fn create_root_sequence_from_lcs<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>, indices: (usize, usize)) -> Vec<T> {

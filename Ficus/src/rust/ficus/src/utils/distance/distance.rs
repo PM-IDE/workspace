@@ -4,7 +4,6 @@ use crate::utils::lcs::find_longest_common_subsequence_length;
 use linfa_nn::distance::{Distance, L1Dist, L2Dist};
 use ndarray::{ArrayView, Dimension};
 use num_traits::Zero;
-use crate::features::clustering::traces::common::calculate_distance;
 
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum FicusDistance {
@@ -174,6 +173,6 @@ impl Distance<f64> for LCSDistance {
   }
 }
 
-pub fn calculate_lcs_distance(lcs: i64, first_len: usize, second_len: usize) -> f64 {
+pub fn calculate_lcs_distance(lcs: usize, first_len: usize, second_len: usize) -> f64 {
   1. - 2. * lcs as f64 / (first_len + second_len) as f64
 }
