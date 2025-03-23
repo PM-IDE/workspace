@@ -1,4 +1,4 @@
-use ficus::features::discovery::lcs::discovery::discover_lcs_graph;
+use ficus::features::discovery::lcs::discovery::{discover_lcs_graph, discover_root_sequence};
 use ficus::utils::references::HeapedOrOwned;
 use ficus::vecs;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
@@ -10,6 +10,7 @@ pub fn test_lcs_graph_1() {
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "B", "D", "E"]
     ],
+    vecs!["START", "A", "B", "C", "D", "E", "END"],
     vec![
       "[A]--[B]",
       "[B]--[C]",
@@ -18,7 +19,7 @@ pub fn test_lcs_graph_1() {
       "[D]--[E]",
       "[E]--[END]",
       "[START]--[A]"
-    ]
+    ],
   );
 }
 
@@ -29,6 +30,7 @@ pub fn test_lcs_graph_2() {
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "Y", "E"]
     ],
+    vecs!["START", "A", "B", "C", "D", "E", "END"],
     vec![
       "[A]--[B]",
       "[A]--[X]",
@@ -39,7 +41,7 @@ pub fn test_lcs_graph_2() {
       "[START]--[A]",
       "[X]--[Y]",
       "[Y]--[E]"
-    ]
+    ],
   );
 }
 
@@ -53,6 +55,7 @@ pub fn test_lcs_graph_3() {
       vecs!["D"],
       vecs!["E"],
     ],
+    vecs!["START", "END"],
     vec![
       "[A]--[END]",
       "[B]--[END]",
@@ -64,7 +67,7 @@ pub fn test_lcs_graph_3() {
       "[START]--[C]",
       "[START]--[D]",
       "[START]--[E]",
-    ]
+    ],
   )
 }
 
@@ -72,7 +75,8 @@ pub fn test_lcs_graph_3() {
 pub fn test_lcs_graph_4() {
   execute_lcs_discovery_test(
     vec![],
-    vec![]
+    vec![],
+    vec![],
   )
 }
 
@@ -82,9 +86,10 @@ pub fn test_lcs_graph_5() {
     vec![
       vecs![]
     ],
+    vecs!["START", "END"],
     vec![
       "[START]--[END]"
-    ]
+    ],
   )
 }
 
@@ -95,6 +100,7 @@ pub fn test_lcs_graph_6() {
       vecs!["A", "X", "B", "Y", "C", "Z", "D", "W", "E"],
       vecs!["X", "A", "Y", "B", "Z", "C", "W", "D"],
     ],
+    vecs!["START", "A", "X", "B", "Y", "C", "Z", "D", "W", "E", "END"],
     vec![
       "[A]--[X]",
       "[A]--[Y]",
@@ -115,7 +121,7 @@ pub fn test_lcs_graph_6() {
       "[Y]--[C]",
       "[Z]--[C]",
       "[Z]--[D]",
-    ]
+    ],
   )
 }
 
@@ -126,6 +132,7 @@ pub fn test_lcs_graph_7() {
       vecs!["X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E"],
       vecs!["A", "B", "C", "D", "E"]
     ],
+    vecs!["START", "X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E", "END"],
     vec![
       "[A]--[B]",
       "[A]--[Y]",
@@ -143,7 +150,7 @@ pub fn test_lcs_graph_7() {
       "[Y]--[B]",
       "[Z]--[C]",
       "[Z]--[E]",
-    ]
+    ],
   );
 }
 
@@ -156,6 +163,7 @@ pub fn test_lcs_graph_8() {
       vecs!["A", "X", "C", "D", "E"],
       vecs!["A", "X", "D", "E"],
     ],
+    vecs!["START", "A", "X", "B", "C", "D", "E", "END"],
     vec![
       "[A]--[B]",
       "[A]--[X]",
@@ -167,7 +175,7 @@ pub fn test_lcs_graph_8() {
       "[X]--[B]",
       "[X]--[C]",
       "[X]--[D]",
-    ]
+    ],
   );
 }
 
@@ -181,11 +189,28 @@ pub fn test_lcs_graph_9() {
       vecs!["A", "Z", "W", "B", "C", "D", "E"],
       vecs!["A", "X", "B", "C", "D", "E"],
     ],
-    vec![]
+    vecs!["START", "A", "Z", "W", "B", "C", "D", "E", "END"],
+    vec![
+      "[A]--[B]",
+      "[A]--[X]",
+      "[A]--[X]",
+      "[A]--[Y]",
+      "[A]--[Z]",
+      "[B]--[C]",
+      "[C]--[D]",
+      "[D]--[E]",
+      "[E]--[END]",
+      "[START]--[A]",
+      "[W]--[B]",
+      "[X]--[B]",
+      "[X]--[Y]",
+      "[Y]--[Z]",
+      "[Z]--[W]",
+    ],
   )
 }
 
-fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold: Vec<&str>) {
+fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
   let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
 
   let factory = || (
@@ -199,10 +224,13 @@ fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold: Vec<&str>) {
     trace.insert(0, art_start);
   }
 
+  let root_sequence = discover_root_sequence(&traces);
+  assert_eq!(root_sequence, gold_root_sequence);
+
   let graph = discover_lcs_graph(&traces, &name_extractor, &factory);
   let test_result = graph.serialize_deterministic();
 
-  let gold = gold.join("\n");
+  let gold = gold_graph_edges.join("\n");
 
   if test_result != gold {
     let mut tgraph = DirectedGraph::new();
@@ -212,13 +240,13 @@ fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold: Vec<&str>) {
     let tconfig = Config::new(ValueFormatter::new(), 10).default_colors();
 
     termgraph::display(&tgraph, &tconfig);
-    
+
     println!("GOLD:");
     println!("{}", gold);
-    
+
     println!("TEST RESULT:");
     println!("{}", test_result);
-    
+
     assert!(false);
   }
 }
