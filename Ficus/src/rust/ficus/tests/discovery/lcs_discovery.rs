@@ -1,4 +1,4 @@
-use ficus::features::discovery::lcs::discovery::{discover_lcs_graph, discover_root_sequence};
+use ficus::features::discovery::lcs::discovery::{discover_lcs_graph, discover_root_sequence, RootSequenceKind};
 use ficus::utils::references::HeapedOrOwned;
 use ficus::vecs;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
@@ -256,10 +256,11 @@ fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: 
     trace.insert(0, art_start);
   }
 
-  let root_sequence = discover_root_sequence(&traces);
+  let root_sequence_kind = RootSequenceKind::FindBest;
+  let root_sequence = discover_root_sequence(&traces, root_sequence_kind);
   assert_eq!(root_sequence, gold_root_sequence);
 
-  let graph = discover_lcs_graph(&traces, &name_extractor, &factory);
+  let graph = discover_lcs_graph(&traces, &name_extractor, &factory, root_sequence_kind);
   let test_result = graph.serialize_edges_deterministic();
 
   let gold = gold_graph_edges.join("\n");

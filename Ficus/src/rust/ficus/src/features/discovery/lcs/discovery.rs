@@ -14,9 +14,32 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
+use std::str::FromStr;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
+}
+
+#[derive(Clone, Copy)]
+pub enum RootSequenceKind {
+  FindBest,
+  LCS,
+  PairwiseLCS,
+  Trace,
+}
+
+impl FromStr for RootSequenceKind {
+  type Err = ();
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "FindBest" => Ok(Self::FindBest),
+      "LCS" => Ok(Self::LCS),
+      "PairwiseLCS" => Ok(Self::PairwiseLCS),
+      "Trace" => Ok(Self::Trace),
+      _ => Err(())
+    }
+  }
 }
 
 impl Display for DiscoverLCSGraphError {
@@ -27,7 +50,7 @@ impl Display for DiscoverLCSGraphError {
   }
 }
 
-pub fn discover_lcs_graph_from_event_log(log: &XesEventLogImpl) -> Result<DefaultGraph, DiscoverLCSGraphError> {
+pub fn discover_lcs_graph_from_event_log(log: &XesEventLogImpl, root_sequence_kind: RootSequenceKind) -> Result<DefaultGraph, DiscoverLCSGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
   let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
@@ -38,15 +61,16 @@ pub fn discover_lcs_graph_from_event_log(log: &XesEventLogImpl) -> Result<Defaul
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
 
-  Ok(discover_lcs_graph(&log, &name_extractor, &artificial_start_end_events_factory))
+  Ok(discover_lcs_graph(&log, &name_extractor, &artificial_start_end_events_factory, root_sequence_kind))
 }
 
 pub fn discover_lcs_graph<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
+  root_sequence_kind: RootSequenceKind,
 ) -> DefaultGraph {
-  let root_sequence = discover_root_sequence(log);
+  let root_sequence = discover_root_sequence(log, root_sequence_kind);
 
   if root_sequence.len() == 2 {
     return handle_recursion_exit_case(log, &root_sequence, name_extractor);
@@ -54,7 +78,9 @@ pub fn discover_lcs_graph<T: PartialEq + Clone + Debug>(
 
   let mut graph = DefaultGraph::empty();
   let lcs_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &name_extractor);
-  adjust_lcs_graph_with_traces(log, &root_sequence, &lcs_node_ids, &mut graph, &name_extractor, artificial_start_end_events_factory);
+
+  adjust_lcs_graph_with_traces(log, &root_sequence, &lcs_node_ids, &mut graph,
+                               &name_extractor, artificial_start_end_events_factory, root_sequence_kind);
 
   graph
 }
@@ -111,6 +137,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   graph: &mut DefaultGraph,
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
+  root_sequence_kind: RootSequenceKind,
 ) {
   let mut adjustments = HashMap::new();
   for trace in traces {
@@ -146,7 +173,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
     }
   }
 
-  add_adjustments_to_graph(&adjustments, graph, name_extractor, artificial_start_end_events_factory);
+  add_adjustments_to_graph(&adjustments, graph, name_extractor, artificial_start_end_events_factory, root_sequence_kind);
 }
 
 fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
@@ -154,10 +181,11 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
   graph: &mut DefaultGraph,
   name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
+  root_sequence_kind: RootSequenceKind,
 ) {
   for ((start_root_node_id, end_root_node_id), adjustments) in adjustments {
     let adjustment_log = create_log_from_adjustments(&adjustments, artificial_start_end_events_factory);
-    let sub_graph = discover_lcs_graph(&adjustment_log, &name_extractor, &artificial_start_end_events_factory);
+    let sub_graph = discover_lcs_graph(&adjustment_log, &name_extractor, &artificial_start_end_events_factory, root_sequence_kind);
 
     merge_subgraph_into_model(graph, &sub_graph, *start_root_node_id, *end_root_node_id, name_extractor, artificial_start_end_events_factory);
   }
@@ -256,22 +284,29 @@ fn check_trace_have_artificial_start_end_events(trace: &XesTraceImpl) -> bool {
     trace.events().last().unwrap().borrow().name().as_str() == ARTIFICIAL_END_EVENT_NAME
 }
 
-pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>) -> Vec<T> {
+pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>, root_sequence_kind: RootSequenceKind) -> Vec<T> {
   if log.is_empty() {
     return vec![];
   }
 
-  let (root_trace_index, root_distance) = find_trace_candidate_for_root_sequence(log);
-  let (indices, root_pair_wise_lcs_distance) = find_traces_pairwise_lcs_candidate_for_root_sequence(log);
-  let (lcs, root_lcs_distance) = find_lcs_candidate_for_root_sequence(log);
+  match root_sequence_kind {
+    RootSequenceKind::FindBest => {
+      let (root_trace_index, root_distance) = find_trace_candidate_for_root_sequence(log);
+      let (indices, root_pair_wise_lcs_distance) = find_traces_pairwise_lcs_candidate_for_root_sequence(log);
+      let (lcs, root_lcs_distance) = find_lcs_candidate_for_root_sequence(log);
 
-  let min_distance = root_distance.min(root_pair_wise_lcs_distance).min(root_lcs_distance);
-  if root_distance == min_distance {
-    log.get(root_trace_index).unwrap().iter().map(|c| c.clone()).collect()
-  } else if root_pair_wise_lcs_distance == min_distance {
-    create_root_sequence_from_lcs(log, indices)
-  } else {
-    lcs
+      let min_distance = root_distance.min(root_pair_wise_lcs_distance).min(root_lcs_distance);
+      if root_distance == min_distance {
+        log.get(root_trace_index).unwrap().iter().map(|c| c.clone()).collect()
+      } else if root_pair_wise_lcs_distance == min_distance {
+        create_root_sequence_from_lcs(log, indices)
+      } else {
+        lcs
+      }
+    }
+    RootSequenceKind::LCS => find_lcs_candidate_for_root_sequence(log).0,
+    RootSequenceKind::PairwiseLCS => create_root_sequence_from_lcs(log, find_traces_pairwise_lcs_candidate_for_root_sequence(log).0),
+    RootSequenceKind::Trace => log.get(find_trace_candidate_for_root_sequence(log).0).unwrap().iter().map(|c| c.clone()).collect()
   }
 }
 

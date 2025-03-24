@@ -32,6 +32,7 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
+use crate::features::discovery::lcs::discovery::RootSequenceKind;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
@@ -124,6 +125,7 @@ pub const PERCENT_FROM_MAX_VALUE: &'static str = "percent_from_max_value";
 pub const TOLERANCES: &'static str = "tolerances";
 pub const MIN_POINTS_IN_CLUSTER_ARRAY: &'static str = "min_points_in_cluster_array";
 pub const EXECUTION_ID: &'static str = "execution_id";
+pub const ROOT_SEQUENCE_KIND: &'static str = "root_sequence_kind";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -221,6 +223,7 @@ lazy_static!(
      pub static ref TOLERANCES_KEY: DefaultContextKey<Vec<f64>> = DefaultContextKey::new(TOLERANCES);
      pub static ref MIN_POINTS_IN_CLUSTER_ARRAY_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new(MIN_POINTS_IN_CLUSTER_ARRAY);
      pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
+     pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -308,6 +311,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     TOLERANCES => Some(TOLERANCES_KEY.deref() as &dyn ContextKey),
     MIN_POINTS_IN_CLUSTER_ARRAY => Some(MIN_POINTS_IN_CLUSTER_ARRAY_KEY.deref() as &dyn ContextKey),
     EXECUTION_ID => Some(EXECUTION_ID_KEY.deref() as &dyn ContextKey),
+    ROOT_SEQUENCE_KIND => Some(ROOT_SEQUENCE_KIND_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

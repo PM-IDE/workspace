@@ -31,6 +31,7 @@ use ficus::{
     },
     vecs,
 };
+use ficus::features::discovery::lcs::discovery::RootSequenceKind;
 
 #[test]
 #[rustfmt::skip]
@@ -121,6 +122,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
     assert_existence::<Vec<f64>>(&TOLERANCES, &mut used);
     assert_existence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
+    assert_existence::<RootSequenceKind>(&ROOT_SEQUENCE_KIND, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -219,7 +221,8 @@ fn get_all_keys_names() -> Vec<String> {
         "feature_count_kind",
         "percent_from_max_value",
         "tolerances",
-        "min_points_in_cluster_array"
+        "min_points_in_cluster_array",
+        "root_sequence_kind"
     ]
 }
 
@@ -319,6 +322,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
     assert_keys_equivalence::<Vec<f64>>(&TOLERANCES, &mut used);
     assert_keys_equivalence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
+    assert_keys_equivalence::<RootSequenceKind>(&ROOT_SEQUENCE_KIND, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
