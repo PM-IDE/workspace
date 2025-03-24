@@ -1,5 +1,6 @@
 from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import *
+from .data_models import RootSequenceKind
 from ..legacy.discovery.graph import draw_graph
 from ..legacy.discovery.petri_net import draw_petri_net
 
@@ -248,5 +249,12 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
     return _create_default_discovery_part(const_discover_directly_follows_graph_stream)
 
 class DiscoverLCSGraph(PipelinePart):
+  def __init__(self, root_sequence_kind: RootSequenceKind = RootSequenceKind.FindBest):
+    super().__init__()
+    self.root_sequence_kind = root_sequence_kind
+
   def to_grpc_part(self) -> GrpcPipelinePartBase:
-    return _create_default_discovery_part(const_discover_lcs_graph)
+    config = GrpcPipelinePartConfiguration()
+    append_root_sequence_kind(config, const_root_sequence_kind, self.root_sequence_kind)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_lcs_graph, config))
