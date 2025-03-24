@@ -67,9 +67,11 @@ impl Event for XesEventImpl {
     }
   }
 
-  fn user_data(&mut self) -> &mut UserDataImpl {
-    self.event_base.user_data_holder.get_mut()
+  fn user_data_mut(&mut self) -> &mut UserDataImpl {
+    &mut self.event_base.user_data
   }
+
+  fn user_data(&self) -> &UserDataImpl { &self.event_base.user_data }
 
   fn set_name(&mut self, new_name: String) {
     self.event_base.name = Rc::new(Box::new(new_name));

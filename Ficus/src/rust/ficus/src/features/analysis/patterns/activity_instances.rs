@@ -415,7 +415,7 @@ where
       }
 
       let mut event = ptr.borrow_mut();
-      let user_data = event.user_data();
+      let user_data = event.user_data_mut();
 
       for event in &underlying_events {
         execute_with_underlying_events::<TLog>(event, &mut |event| {
@@ -514,7 +514,7 @@ fn create_activities_logs_from_log<TLog: EventLog>(log: &TLog) -> HashMap<String
 
   for trace in log.traces() {
     for event in trace.borrow().events() {
-      if event.borrow_mut().user_data().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key).is_some() {
+      if event.borrow_mut().user_data_mut().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key).is_some() {
         let name = event.borrow().name().to_owned();
         let mut new_trace = TLog::TTrace::empty();
         substitute_underlying_events::<TLog>(event, &mut new_trace);
@@ -645,7 +645,7 @@ where
 {
   let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TEvent>() };
 
-  if let Some(underlying_events) = event.user_data().concrete_mut(&key) {
+  if let Some(underlying_events) = event.user_data_mut().concrete_mut(&key) {
     let mut result = 0usize;
     for underlying_event in underlying_events {
       result += count_underlying_events_for_event(underlying_event.borrow_mut().deref_mut())
@@ -688,7 +688,7 @@ where
   let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
 
   let mut event = event.borrow_mut();
-  if let Some(underlying_events) = event.user_data().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
+  if let Some(underlying_events) = event.user_data_mut().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
     for underlying_event in underlying_events {
       execute_with_underlying_events::<TLog>(underlying_event, action);
     }
@@ -703,7 +703,7 @@ where
 {
   let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
 
-  if let Some(underlying_events) = event.borrow_mut().user_data().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
+  if let Some(underlying_events) = event.borrow_mut().user_data_mut().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
     for underlying_event in underlying_events {
       substitute_underlying_events::<TLog>(underlying_event, trace);
     }
@@ -725,7 +725,7 @@ fn create_vector_of_underlying_events_intenral<TLog: EventLog>(
 ) {
   let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
 
-  if let Some(underlying_events) = event.borrow_mut().user_data().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
+  if let Some(underlying_events) = event.borrow_mut().user_data_mut().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
     for underlying_event in underlying_events {
       create_vector_of_underlying_events_intenral::<TLog>(underlying_event, result);
     }
@@ -738,7 +738,7 @@ pub fn create_vector_of_immediate_underlying_events<TLog: EventLog>(event: &Rc<R
   let mut events = vec![];
 
   let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
-  if let Some(underlying_events) = event.borrow_mut().user_data().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
+  if let Some(underlying_events) = event.borrow_mut().user_data_mut().get::<Vec<Rc<RefCell<TLog::TEvent>>>>(&key) {
     for underlying_event in underlying_events {
       events.push(underlying_event.clone());
     }

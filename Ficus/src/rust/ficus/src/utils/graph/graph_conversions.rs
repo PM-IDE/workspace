@@ -28,6 +28,7 @@ where
                         None => None,
                         Some(data) => Some(HeapedOrOwned::Owned(data.to_string())),
                     },
+                    user_data: pair.1.user_data.clone()
                 },
             )
         }).collect()

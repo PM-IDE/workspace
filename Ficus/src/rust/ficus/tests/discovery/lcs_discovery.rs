@@ -1,5 +1,6 @@
-use ficus::features::discovery::lcs::discovery::{discover_lcs_graph, discover_root_sequence, RootSequenceKind};
+use ficus::features::discovery::lcs::discovery::{discover_lcs_graph, discover_root_sequence, DiscoveryContext, RootSequenceKind};
 use ficus::utils::references::HeapedOrOwned;
+use ficus::utils::user_data::user_data::UserDataImpl;
 use ficus::vecs;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
 
@@ -243,8 +244,6 @@ pub fn test_lcs_graph_10() {
 }
 
 fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
-  let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
-
   let factory = || (
     "START".to_string(),
     "END".to_string()
@@ -260,7 +259,13 @@ fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: 
   let root_sequence = discover_root_sequence(&traces, root_sequence_kind);
   assert_eq!(root_sequence, gold_root_sequence);
 
-  let graph = discover_lcs_graph(&traces, &name_extractor, &factory, root_sequence_kind);
+  let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
+
+  let to_node_data_transfer = |_: &String, _: &mut UserDataImpl| {};
+
+  let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer);
+
+  let graph = discover_lcs_graph(&traces, &context);
   let test_result = graph.serialize_edges_deterministic();
 
   let gold = gold_graph_edges.join("\n");
