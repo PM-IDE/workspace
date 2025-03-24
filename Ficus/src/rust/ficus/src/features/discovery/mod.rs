@@ -4,4 +4,4 @@ pub mod heuristic;
 pub mod petri_net;
 pub mod relations;
 pub mod timeline;
-pub mod lcs;
+pub mod root_sequence;

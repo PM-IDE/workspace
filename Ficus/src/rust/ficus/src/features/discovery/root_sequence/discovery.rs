@@ -75,7 +75,7 @@ impl<'a, T> DiscoveryContext<'a, T> {
   }
 }
 
-pub fn discover_lcs_graph_from_event_log(log: &XesEventLogImpl, root_sequence_kind: RootSequenceKind) -> Result<DefaultGraph, DiscoverLCSGraphError> {
+pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_sequence_kind: RootSequenceKind) -> Result<DefaultGraph, DiscoverLCSGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
   let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
@@ -98,10 +98,10 @@ pub fn discover_lcs_graph_from_event_log(log: &XesEventLogImpl, root_sequence_ki
   };
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
-  Ok(discover_lcs_graph(&log, &context))
+  Ok(discover_root_sequence_graph(&log, &context))
 }
 
-pub fn discover_lcs_graph<T: PartialEq + Clone + Debug>(
+pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
 ) -> DefaultGraph {
@@ -227,7 +227,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
 ) {
   for ((start_root_node_id, end_root_node_id), adjustments) in adjustments {
     let adjustment_log = create_log_from_adjustments(&adjustments, context.artificial_start_end_events_factory);
-    let sub_graph = discover_lcs_graph(&adjustment_log, context);
+    let sub_graph = discover_root_sequence_graph(&adjustment_log, context);
 
     merge_subgraph_into_model(graph, sub_graph, *start_root_node_id, *end_root_node_id, context);
   }

@@ -48,7 +48,7 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
-use crate::features::discovery::lcs::discovery::RootSequenceKind;
+use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)

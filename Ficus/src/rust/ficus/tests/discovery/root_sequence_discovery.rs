@@ -1,12 +1,12 @@
-use ficus::features::discovery::lcs::discovery::{discover_lcs_graph, discover_root_sequence, DiscoveryContext, RootSequenceKind};
+use ficus::features::discovery::root_sequence::discovery::{discover_root_sequence_graph, discover_root_sequence, DiscoveryContext, RootSequenceKind};
 use ficus::utils::references::HeapedOrOwned;
 use ficus::utils::user_data::user_data::UserDataImpl;
 use ficus::vecs;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 #[test]
-pub fn test_lcs_graph_1() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_1() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "B", "D", "E"]
@@ -25,8 +25,8 @@ pub fn test_lcs_graph_1() {
 }
 
 #[test]
-pub fn test_lcs_graph_2() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_2() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "Y", "E"]
@@ -47,8 +47,8 @@ pub fn test_lcs_graph_2() {
 }
 
 #[test]
-pub fn test_lcs_graph_3() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_3() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["A"],
       vecs!["B"],
@@ -73,8 +73,8 @@ pub fn test_lcs_graph_3() {
 }
 
 #[test]
-pub fn test_lcs_graph_4() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_4() {
+  execute_root_sequence_discovery_test(
     vec![],
     vec![],
     vec![],
@@ -82,8 +82,8 @@ pub fn test_lcs_graph_4() {
 }
 
 #[test]
-pub fn test_lcs_graph_5() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_5() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs![]
     ],
@@ -95,8 +95,8 @@ pub fn test_lcs_graph_5() {
 }
 
 #[test]
-pub fn test_lcs_graph_6() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_6() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["A", "X", "B", "Y", "C", "Z", "D", "W", "E"],
       vecs!["X", "A", "Y", "B", "Z", "C", "W", "D"],
@@ -127,8 +127,8 @@ pub fn test_lcs_graph_6() {
 }
 
 #[test]
-pub fn test_lcs_graph_7() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_7() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E"],
       vecs!["A", "B", "C", "D", "E"]
@@ -156,8 +156,8 @@ pub fn test_lcs_graph_7() {
 }
 
 #[test]
-pub fn test_lcs_graph_8() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_8() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "B", "C", "D", "E"],
@@ -181,8 +181,8 @@ pub fn test_lcs_graph_8() {
 }
 
 #[test]
-pub fn test_lcs_graph_9() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_9() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "Y", "Z", "W", "B", "C", "D", "E"],
@@ -212,8 +212,8 @@ pub fn test_lcs_graph_9() {
 }
 
 #[test]
-pub fn test_lcs_graph_10() {
-  execute_lcs_discovery_test(
+pub fn test_root_sequence_graph_10() {
+  execute_root_sequence_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "Y", "Z", "W", "B", "C", "D", "E"],
@@ -243,7 +243,7 @@ pub fn test_lcs_graph_10() {
   )
 }
 
-fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
+fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
   let factory = || (
     "START".to_string(),
     "END".to_string()
@@ -265,7 +265,7 @@ fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: 
 
   let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer);
 
-  let graph = discover_lcs_graph(&traces, &context);
+  let graph = discover_root_sequence_graph(&traces, &context);
   let test_result = graph.serialize_edges_deterministic();
 
   let gold = gold_graph_edges.join("\n");

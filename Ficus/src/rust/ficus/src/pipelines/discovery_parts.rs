@@ -7,7 +7,7 @@ use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlus
 use crate::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use crate::features::discovery::fuzzy::fuzzy_miner::discover_graph_fuzzy;
 use crate::features::discovery::heuristic::heuristic_miner::discover_petri_net_heuristic;
-use crate::features::discovery::lcs::discovery::discover_lcs_graph_from_event_log;
+use crate::features::discovery::root_sequence::discovery::discover_root_sequence_graph_from_event_log;
 use crate::features::discovery::petri_net::marking::ensure_initial_marking;
 use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml_file;
 use crate::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
@@ -200,12 +200,12 @@ impl PipelineParts {
     })
   }
 
-  pub(super) fn discover_lcs_graph() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_LCS_GRAPH, &|context, _, config| {
+  pub(super) fn discover_root_sequence_graph() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::DISCOVER_ROOT_SEQUENCE_GRAPH, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let root_sequence_kind = Self::get_user_data(config, &ROOT_SEQUENCE_KIND_KEY)?;
 
-      match discover_lcs_graph_from_event_log(log, *root_sequence_kind) {
+      match discover_root_sequence_graph_from_event_log(log, *root_sequence_kind) {
         Ok(graph) => {
           context.put_concrete(GRAPH_KEY.key(), graph);
           Ok(())

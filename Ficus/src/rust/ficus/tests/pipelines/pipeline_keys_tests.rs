@@ -7,7 +7,7 @@ use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
-use ficus::features::discovery::lcs::discovery::RootSequenceKind;
+use ficus::features::discovery::root_sequence::discovery::RootSequenceKind;
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;

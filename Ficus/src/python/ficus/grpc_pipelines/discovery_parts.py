@@ -248,7 +248,7 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return _create_default_discovery_part(const_discover_directly_follows_graph_stream)
 
-class DiscoverLCSGraph(PipelinePart):
+class DiscoverRootSequenceGraph(PipelinePart):
   def __init__(self, root_sequence_kind: RootSequenceKind = RootSequenceKind.FindBest):
     super().__init__()
     self.root_sequence_kind = root_sequence_kind
@@ -257,4 +257,4 @@ class DiscoverLCSGraph(PipelinePart):
     config = GrpcPipelinePartConfiguration()
     append_root_sequence_kind(config, const_root_sequence_kind, self.root_sequence_kind)
 
-    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_lcs_graph, config))
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_root_sequence_graph, config))
