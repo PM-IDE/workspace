@@ -138,7 +138,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
       }
 
       let key = (root_sequence_node_ids[second_indices[lcs_index - 1]], root_sequence_node_ids[second_indices[lcs_index]]);
-      
+
       adjustments.entry(key).or_insert(vec![]).push(adjustment_events);
 
       index += 1;

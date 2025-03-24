@@ -34,6 +34,6 @@ fn execute_lcs_test(first: &str, second: &str, lcs: &str) {
 
   assert_eq!(found_lcs.first_indices().len(), found_lcs.second_indices().len());
   for (first_index, second_index) in found_lcs.first_indices().iter().zip(found_lcs.second_indices()) {
-    assert_eq!(first.as_bytes().get(*first_index).unwrap(), second.as_bytes().get(*second_index).unwrap()) 
+    assert_eq!(first.as_bytes().get(*first_index).unwrap(), second.as_bytes().get(*second_index).unwrap())
   }
 }

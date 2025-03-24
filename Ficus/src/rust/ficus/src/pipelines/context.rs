@@ -1,11 +1,11 @@
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::performance::performance_cookie::PerformanceLogger;
-use std::{any::Any, sync::Arc};
-use uuid::Uuid;
 use crate::utils::user_data::{
   keys::{DefaultKey, Key},
   user_data::{UserData, UserDataImpl},
 };
+use std::{any::Any, sync::Arc};
+use uuid::Uuid;
 
 use super::errors::pipeline_errors::PipelinePartExecutionError;
 
@@ -27,9 +27,9 @@ impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
 
 impl PipelineInfrastructure {
   pub fn new(log_message_handler: Option<Arc<Box<dyn LogMessageHandler>>>) -> Self {
-    Self { 
+    Self {
       log_message_handler,
-      execution_id: Uuid::new_v4()
+      execution_id: Uuid::new_v4(),
     }
   }
 

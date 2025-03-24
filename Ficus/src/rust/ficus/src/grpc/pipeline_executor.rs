@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use super::events::events_handler::PipelineEventsHandler;
 use crate::ficus_proto::grpc_pipeline_part_base::Part;
 use crate::ficus_proto::{GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart};

@@ -1,6 +1,6 @@
-use std::{collections::HashMap, rc::Rc};
-use std::fmt::{Debug, Formatter};
 use chrono::{DateTime, Utc};
+use std::fmt::{Debug, Formatter};
+use std::{collections::HashMap, rc::Rc};
 
 use crate::{
   event_log::core::event::{

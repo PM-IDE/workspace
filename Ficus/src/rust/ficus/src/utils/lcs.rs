@@ -13,7 +13,7 @@ pub fn build_longest_common_subsequence_matrix<T: PartialEq>(
   first: &Vec<T>,
   second: &Vec<T>,
   first_len: usize,
-  second_len: usize
+  second_len: usize,
 ) -> Vec<Vec<i64>> {
   let mut dp = vec![vec![-1; second_len + 1]; first_len + 1];
 
@@ -32,7 +32,7 @@ pub fn build_longest_common_subsequence_matrix<T: PartialEq>(
 pub struct LCSSearchResult<'a, T> {
   lcs: Vec<&'a T>,
   indices_in_first_sequence: Vec<usize>,
-  indices_in_second_sequence: Vec<usize>
+  indices_in_second_sequence: Vec<usize>,
 }
 
 impl<'a, T> LCSSearchResult<'a, T> {
@@ -45,8 +45,8 @@ impl<'a, T> LCSSearchResult<'a, T> {
 pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
   first: &'a Vec<T>,
   second: &'a Vec<T>,
-  first_len: usize, 
-  second_len: usize
+  first_len: usize,
+  second_len: usize,
 ) -> LCSSearchResult<'a, T> {
   let dp = build_longest_common_subsequence_matrix(first, second, first_len, second_len);
 
@@ -71,8 +71,8 @@ pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
   }
 
   LCSSearchResult {
-   lcs: lcs.into_iter().rev().collect(),
+    lcs: lcs.into_iter().rev().collect(),
     indices_in_first_sequence: indices_in_first_sequence.into_iter().rev().collect(),
-    indices_in_second_sequence: indices_in_second_sequence.into_iter().rev().collect()
+    indices_in_second_sequence: indices_in_second_sequence.into_iter().rev().collect(),
   }
 }

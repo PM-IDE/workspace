@@ -73,14 +73,14 @@ where
 
     edges
   }
-  
+
   pub fn edge(&self, first_node_id: &u64, second_node_id: &u64) -> Option<&GraphEdge<TEdgeData>> {
     if let Some(connections) = self.connections.get(first_node_id) {
       if let Some(edge) = connections.get(second_node_id) {
         return Some(edge);
       }
     }
-    
+
     None
   }
 
@@ -158,8 +158,8 @@ where
 
     result
   }
-  
-  pub fn serialize_deterministic(&self) -> String {
+
+  pub fn serialize_edges_deterministic(&self) -> String {
     let get_node_repr = |id| {
       match self.node(id).as_ref().unwrap().data.as_ref() {
         None => "None".to_string(),
@@ -169,7 +169,7 @@ where
 
     let mut serialized_connection = vec![];
     for (from_node, to_nodes) in &self.connections {
-      for (to_node, _) in to_nodes { 
+      for (to_node, _) in to_nodes {
         serialized_connection.push(format!("[{}]--[{}]", get_node_repr(from_node), get_node_repr(to_node)));
       }
     }

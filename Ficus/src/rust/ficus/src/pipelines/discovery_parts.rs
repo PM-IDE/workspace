@@ -204,10 +204,10 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::DISCOVER_LCS_GRAPH, &|context, _, _| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       match discover_lcs_graph_from_event_log(log) {
-        Ok(graph) =>{
+        Ok(graph) => {
           context.put_concrete(GRAPH_KEY.key(), graph);
           Ok(())
-        } 
+        }
         Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
       }
     })

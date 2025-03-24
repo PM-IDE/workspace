@@ -1,6 +1,3 @@
-use linfa::prelude::{Fit, Predict};
-use linfa_clustering::KMeans;
-use linfa_nn::distance::Distance;
 use crate::event_log::core::event_log::EventLog;
 use crate::features::clustering::error::ClusteringError;
 use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces};
@@ -8,6 +5,9 @@ use crate::features::clustering::traces::traces_params::TracesClusteringParams;
 use crate::utils::dataset::dataset::LabeledDataset;
 use crate::utils::distance::distance::DistanceWrapper;
 use crate::utils::silhouette::silhouette_score;
+use linfa::prelude::{Fit, Predict};
+use linfa_clustering::KMeans;
+use linfa_nn::distance::Distance;
 
 pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,

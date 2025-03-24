@@ -53,7 +53,6 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
-use tokio_stream::iter;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -563,7 +562,7 @@ where
       None => "".to_string(),
       Some(data) => data.to_string(),
     },
-    additional_data: None
+    additional_data: None,
   }
 }
 

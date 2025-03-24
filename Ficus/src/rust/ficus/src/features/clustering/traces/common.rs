@@ -9,13 +9,13 @@ use crate::features::clustering::traces::traces_params::{FeatureCountKind, Trace
 use crate::utils::dataset::dataset::LabeledDataset;
 use crate::utils::distance::distance::{DistanceWrapper, FicusDistance};
 use linfa::DatasetBase;
+use linfa_nn::distance::Distance;
 use linfa_nn::CommonNearestNeighbour;
 use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
 use ndarray::{Array1, Array2};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use linfa_nn::distance::Distance;
 
 pub fn do_clusterize_log_by_traces<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,

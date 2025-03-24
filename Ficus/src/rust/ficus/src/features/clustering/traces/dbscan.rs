@@ -1,5 +1,6 @@
 use super::traces_params::TracesClusteringParams;
 use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces};
+use crate::utils::silhouette::silhouette_score;
 use crate::{
   event_log::core::event_log::EventLog,
   features::clustering::error::ClusteringError,
@@ -10,7 +11,6 @@ use crate::{
 };
 use linfa::traits::Transformer;
 use linfa_clustering::Dbscan;
-use crate::utils::silhouette::silhouette_score;
 
 pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
@@ -32,7 +32,7 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
 pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
   min_points_vec: &Vec<usize>,
-  tolerances: &Vec<f64>
+  tolerances: &Vec<f64>,
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   do_clusterize_log_by_traces(params, |params, nn_algo, dataset| {
     let mut best_score = -1.;

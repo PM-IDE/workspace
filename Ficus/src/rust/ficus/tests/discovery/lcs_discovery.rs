@@ -228,7 +228,7 @@ fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: 
   assert_eq!(root_sequence, gold_root_sequence);
 
   let graph = discover_lcs_graph(&traces, &name_extractor, &factory);
-  let test_result = graph.serialize_deterministic();
+  let test_result = graph.serialize_edges_deterministic();
 
   let gold = gold_graph_edges.join("\n");
 
