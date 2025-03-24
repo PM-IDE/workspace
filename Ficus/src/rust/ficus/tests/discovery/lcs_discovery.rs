@@ -210,6 +210,38 @@ pub fn test_lcs_graph_9() {
   )
 }
 
+#[test]
+pub fn test_lcs_graph_10() {
+  execute_lcs_discovery_test(
+    vec![
+      vecs!["A", "B", "C", "D", "E"],
+      vecs!["A", "X", "Y", "Z", "W", "B", "C", "D", "E"],
+      vecs!["A", "y", "z", "w", "B", "C", "D", "E"],
+      vecs!["A", "V", "B", "C", "D", "E"],
+    ],
+    vecs!["START", "A", "B", "C", "D", "E", "END"],
+    vec![
+      "[A]--[B]",
+      "[A]--[V]",
+      "[A]--[X]",
+      "[A]--[y]",
+      "[B]--[C]",
+      "[C]--[D]",
+      "[D]--[E]",
+      "[E]--[END]",
+      "[START]--[A]",
+      "[V]--[B]",
+      "[W]--[B]",
+      "[X]--[Y]",
+      "[Y]--[Z]",
+      "[Z]--[W]",
+      "[w]--[B]",
+      "[y]--[z]",
+      "[z]--[w]",
+    ],
+  )
+}
+
 fn execute_lcs_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
   let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
 
