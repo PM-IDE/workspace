@@ -26,12 +26,6 @@ pub enum FeatureCountKindDto {
   OneIfMoreThanMaxFromAllFeatures,
 }
 
-#[derive(Clone, Debug)]
-pub struct SoftwareData {
-  event_classes: HashMap<String, usize>,
-  thread_diagram_fragment: Vec<TraceThread>,
-}
-
 impl FromStr for FeatureCountKindDto {
   type Err = ();
 
@@ -42,6 +36,18 @@ impl FromStr for FeatureCountKindDto {
       "OneIfMoreThanMaxFromAllFeatures" => Ok(Self::OneIfMoreThanMaxFromAllFeatures),
       _ => Err(()),
     }
+  }
+}
+
+#[derive(Clone, Debug)]
+pub struct SoftwareData {
+  event_classes: HashMap<String, usize>,
+  thread_diagram_fragment: Vec<TraceThread>,
+}
+
+impl SoftwareData {
+  pub fn event_classes(&self) -> &HashMap<String, usize> {
+    &self.event_classes
   }
 }
 
