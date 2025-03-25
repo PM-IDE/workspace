@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
-import {darkTheme, graphColors, lightTheme, performanceColors} from "./colors";
-import {calculateGradient, createBreadthFirstLayout, rgbToHex} from "./utils";
+import {darkTheme, graphColors, performanceColors} from "./colors";
+import {calculateGradient, createBreadthFirstLayout, generateRandomColor} from "./utils";
 import dagre from 'cytoscape-dagre';
 import nodeHtmlLabel from 'cytoscape-node-html-label'
 
@@ -21,6 +21,15 @@ function setDrawGraph() {
   }
 }
 
+let colorsCache = {};
+function getOrCreateColor(name) {
+  if (!(name in colorsCache)) {
+    colorsCache[name] = generateRandomColor();
+  }
+
+  return colorsCache[name];
+}
+
 function setNodeRenderer(cy) {
   cy.nodeHtmlLabel([
     {
@@ -29,15 +38,28 @@ function setNodeRenderer(cy) {
       valign: 'center',
       halignBox: 'center',
       valignBox: 'center',
-      tpl: function(data) {
+      tpl: function (data) {
         if (data.softwareData == null) {
           return null;
         }
 
+        let nodeWidth = 100;
+        let nodeHeight = 100;
+
+        let summedCount = Math.max(...data.softwareData.histogram.map(entry => entry.count));
+        let histogramDivs = data.softwareData.histogram.map((entry) => {
+            let divWidth = nodeWidth * (entry.count / summedCount);
+            return `<div style="width: ${divWidth}px; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
+          }
+        )
+
         return `
-            <div style="width: 100px; height: 100px; background: ${graphColor.nodeBackground}">
+            <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${graphColor.nodeBackground}">
                 <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
                     ${data.label}
+                </div>
+                <div style="width: 100%; display: flex; flex-direction: row;">
+                    ${histogramDivs.join('\n')}
                 </div>
             </div>
           `;
