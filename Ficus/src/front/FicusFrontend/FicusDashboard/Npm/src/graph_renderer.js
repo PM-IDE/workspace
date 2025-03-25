@@ -40,24 +40,31 @@ function setNodeRenderer(cy) {
       halignBox: 'center',
       valignBox: 'center',
       tpl: function (data) {
-        let softwareData = data.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
-        if (softwareData == null) {
-          return null;
-        }
+        return create_html_label(data);
+      }
+    }
+  ]);
+}
 
-        let nodeWidth = 100;
-        let nodeHeight = 100;
+function create_html_label(data) {
+  let softwareData = data.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
+  if (softwareData == null) {
+    return null;
+  }
 
-        let summedCount = Math.max(...softwareData.histogram.map(entry => entry.count));
-        let histogramDivs = softwareData.histogram.toSorted((f, s) => s.count - f.count).map((entry) => {
-            let divWidth = nodeWidth * (entry.count / summedCount);
-            return `<div style="width: ${divWidth}px; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
-          }
-        );
+  let nodeWidth = 100;
+  let nodeHeight = 100;
 
-        let nodeColor = softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+  let summedCount = Math.max(...softwareData.histogram.map(entry => entry.count));
+  let histogramDivs = softwareData.histogram.toSorted((f, s) => s.count - f.count).map((entry) => {
+      let divWidth = nodeWidth * (entry.count / summedCount);
+      return `<div style="width: ${divWidth}px; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
+    }
+  );
 
-        return `
+  let nodeColor = softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+
+  return `
           <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${nodeColor}">
               <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
                   ${data.label}
@@ -67,9 +74,6 @@ function setNodeRenderer(cy) {
               </div>
           </div>
         `;
-      }
-    }
-  ]);
 }
 
 function createCytoscapeOptions(id, graph, annotation) {
