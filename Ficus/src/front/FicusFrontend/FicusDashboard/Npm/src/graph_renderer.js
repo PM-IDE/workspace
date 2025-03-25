@@ -22,6 +22,7 @@ function setDrawGraph() {
 }
 
 let colorsCache = {};
+
 function getOrCreateColor(name) {
   if (!(name in colorsCache)) {
     colorsCache[name] = generateRandomColor();
@@ -47,11 +48,11 @@ function setNodeRenderer(cy) {
         let nodeHeight = 100;
 
         let summedCount = Math.max(...data.softwareData.histogram.map(entry => entry.count));
-        let histogramDivs = data.softwareData.histogram.map((entry) => {
+        let histogramDivs = data.softwareData.histogram.toSorted((f, s) => s.count - f.count).map((entry) => {
             let divWidth = nodeWidth * (entry.count / summedCount);
             return `<div style="width: ${divWidth}px; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
           }
-        )
+        );
 
         return `
             <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${graphColor.nodeBackground}">
