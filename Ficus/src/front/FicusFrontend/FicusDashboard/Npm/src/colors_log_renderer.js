@@ -107,7 +107,7 @@ function calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, a
   let canvasWidth = 0;
   for (let trace of log.traces) {
     let last = trace.eventColors[trace.eventColors.length - 1];
-    let traceLength = last.startX * widthScale + rectWidth * last.length;
+    let traceLength = OverallXDelta + last.startX * widthScale + widthScale * last.length;
     canvasWidth = Math.max(canvasWidth, traceLength);
   }
 
