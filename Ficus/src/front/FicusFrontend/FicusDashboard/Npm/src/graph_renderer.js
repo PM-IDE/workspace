@@ -2,6 +2,7 @@ import cytoscape from 'cytoscape';
 import {darkTheme, graphColors, lightTheme, performanceColors} from "./colors";
 import {calculateGradient, createBreadthFirstLayout, rgbToHex} from "./utils";
 import dagre from 'cytoscape-dagre';
+import nodeHtmlLabel from 'cytoscape-node-html-label'
 
 export default setDrawGraph;
 
@@ -11,8 +12,38 @@ const performanceColor = performanceColors(darkTheme);
 function setDrawGraph() {
   window.drawGraph = function (id, graph, annotation) {
     cytoscape.use(dagre);
-    return cytoscape(createCytoscapeOptions(id, graph, annotation));
+    nodeHtmlLabel(cytoscape);
+
+    let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
+    setNodeRenderer(cy);
+
+    return cy;
   }
+}
+
+function setNodeRenderer(cy) {
+  cy.nodeHtmlLabel([
+    {
+      query: 'node',
+      halign: 'center',
+      valign: 'center',
+      halignBox: 'center',
+      valignBox: 'center',
+      tpl: function(data) {
+        if (data.softwareData == null) {
+          return null;
+        }
+
+        return `
+            <div style="width: 100px; height: 100px; background: ${graphColor.nodeBackground}">
+                <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
+                    ${data.label}
+                </div>
+            </div>
+          `;
+      }
+    }
+  ]);
 }
 
 function createCytoscapeOptions(id, graph, annotation) {
@@ -64,6 +95,7 @@ function createGraphElements(graph, annotation) {
       data: {
         label: node.data,
         id: node.id.toString(),
+        softwareData: node.additionalData?.softwareData
       }
     })
   }

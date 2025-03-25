@@ -38,7 +38,7 @@
 </div>
 
 <div class="pipeline-parts-context-values-outer-container">
-  @foreach (var ((_, results), index) in myPipelinePartsExecutionResults.OrderBy(x => x.Value.Order).Zip(Enumerable.Range(0, myPipelinePartsExecutionResults.Count)))
+  @foreach (var (index, (_, results)) in myPipelinePartsExecutionResults.OrderBy(x => x.Value.Order).Index())
   {
     <PipelinePartResultsRenderer Results="results"
                                  Lifetime="myCurrentLifetime"

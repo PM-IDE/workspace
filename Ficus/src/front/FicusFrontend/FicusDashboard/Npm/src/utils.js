@@ -7,9 +7,10 @@ cytoscape.use(svg);
 export function createBreadthFirstLayout() {
   return {
     name: 'dagre',
-    rankDir: 'TB',
+    rankDir: 'LR',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
+    spacingFactor: 2
   }
 }
 

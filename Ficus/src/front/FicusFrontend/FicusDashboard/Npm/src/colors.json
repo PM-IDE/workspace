@@ -1,14 +1,14 @@
 {
   "dark": {
     "petriNet": {
-      "transitionBackground": "#7d80f0",
+      "transitionBackground": "#707070",
       "placeBackground": "#696bc3",
       "borderLine": "#9496f3",
       "arcLine": "#b8b8b8",
       "labelColor": "#b8b8b8"
     },
     "graph": {
-      "nodeBackground": "#7d80f0",
+      "nodeBackground": "#707070",
       "labelColor": "#b8b8b8",
       "redMin": 42,
       "redMax": 88,
