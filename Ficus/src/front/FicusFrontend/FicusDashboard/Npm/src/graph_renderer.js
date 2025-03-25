@@ -40,32 +40,33 @@ function setNodeRenderer(cy) {
       halignBox: 'center',
       valignBox: 'center',
       tpl: function (data) {
-        if (data.softwareData == null) {
+        let softwareData = data.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
+        if (softwareData == null) {
           return null;
         }
 
         let nodeWidth = 100;
         let nodeHeight = 100;
 
-        let summedCount = Math.max(...data.softwareData.histogram.map(entry => entry.count));
-        let histogramDivs = data.softwareData.histogram.toSorted((f, s) => s.count - f.count).map((entry) => {
+        let summedCount = Math.max(...softwareData.histogram.map(entry => entry.count));
+        let histogramDivs = softwareData.histogram.toSorted((f, s) => s.count - f.count).map((entry) => {
             let divWidth = nodeWidth * (entry.count / summedCount);
             return `<div style="width: ${divWidth}px; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
           }
         );
 
-        let nodeColor = data.softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+        let nodeColor = softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
 
         return `
-            <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${nodeColor}">
-                <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
-                    ${data.label}
-                </div>
-                <div style="width: 100%; display: flex; flex-direction: row;">
-                    ${histogramDivs.join('\n')}
-                </div>
-            </div>
-          `;
+          <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${nodeColor}">
+              <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
+                  ${data.label}
+              </div>
+              <div style="width: 100%; display: flex; flex-direction: row;">
+                  ${histogramDivs.join('\n')}
+              </div>
+          </div>
+        `;
       }
     }
   ]);
@@ -120,7 +121,7 @@ function createGraphElements(graph, annotation) {
       data: {
         label: node.data,
         id: node.id.toString(),
-        softwareData: node.additionalData?.softwareData
+        additionalData: node.additionalData
       }
     })
   }
