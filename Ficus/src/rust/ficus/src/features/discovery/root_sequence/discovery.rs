@@ -4,6 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
+use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_keys::SOFTWARE_DATA_KEY;
 use crate::utils::distance::distance::calculate_lcs_distance;
@@ -57,6 +58,7 @@ pub struct DiscoveryContext<'a, T> {
   artificial_start_end_events_factory: &'a dyn Fn() -> (T, T),
   root_sequence_kind: RootSequenceKind,
   event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl, bool) -> (),
+  underlying_events_extractor: &'a dyn Fn(&T) -> Option<Vec<T>>
 }
 
 impl<'a, T> DiscoveryContext<'a, T> {
@@ -65,12 +67,14 @@ impl<'a, T> DiscoveryContext<'a, T> {
     artificial_start_end_events_factory: &'a dyn Fn() -> (T, T),
     root_sequence_kind: RootSequenceKind,
     event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl, bool) -> (),
+    underlying_events_extractor: &'a dyn Fn(&T) -> Option<Vec<T>>
   ) -> Self {
     Self {
       name_extractor,
       artificial_start_end_events_factory,
       root_sequence_kind,
       event_to_graph_node_info_transfer,
+      underlying_events_extractor
     }
   }
 }
@@ -93,11 +97,20 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
     }
   };
 
+  let underlying_events_extractor = |event: &Rc<RefCell<XesEventImpl>>| {
+    let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
+    match underlying_events.is_empty() {
+      true => None,
+      false => Some(underlying_events)
+    }
+  };
+
   let context = DiscoveryContext {
     name_extractor: &name_extractor,
     artificial_start_end_events_factory: &artificial_start_end_events_factory,
     root_sequence_kind,
     event_to_graph_node_info_transfer: &event_to_graph_node_info_transfer,
+    underlying_events_extractor: &underlying_events_extractor
   };
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
@@ -126,8 +139,48 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &context, first_iteration);
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context);
+  
+  if first_iteration {
+    adjust_weights_and_connections(context, log, &mut graph);
+  }
 
   graph
+}
+
+fn adjust_weights_and_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {
+  let name_extractor = context.name_extractor;
+  let mut df_relations = HashMap::new();
+
+  for trace in log {
+    for i in 0..trace.len() - 1 {
+      let first_name = name_extractor(&trace[i]);
+      let second_name = name_extractor(&trace[i + 1]);
+
+      *df_relations.entry((Some(first_name), Some(second_name))).or_insert(0) += 1usize;
+    }
+  }
+
+  let mut new_edges_weights = HashMap::new();
+  let mut nodes_to_disconnect = vec![];
+  for edge in graph.all_edges() {
+    let from_name = graph.node(edge.from_node()).unwrap().data().cloned();
+    let to_name = graph.node(edge.to_node()).unwrap().data().cloned();
+
+    let edge_key = (*edge.from_node(), *edge.to_node());
+    if let Some(df_count) = df_relations.get(&(from_name, to_name)) {
+      new_edges_weights.insert(edge_key, *df_count as f64);
+    } else {
+      nodes_to_disconnect.push(edge_key)
+    }
+  }
+
+  for (edge_key, new_weight) in new_edges_weights {
+    graph.edge_mut(&edge_key.0, &edge_key.1).unwrap().weight = new_weight;
+  }
+
+  for (from_node, to_node) in &nodes_to_disconnect {
+    graph.disconnect_nodes(from_node, to_node);
+  }
 }
 
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
