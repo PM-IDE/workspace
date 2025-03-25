@@ -50,6 +50,7 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use crate::utils::user_data::user_data::UserDataImpl;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -561,11 +562,7 @@ where
       None => "".to_string(),
       Some(data) => data.to_string(),
     },
-    additional_data: if let Some(software_data) = node.user_data.concrete(SOFTWARE_DATA_KEY.key()) {
-      Some(convert_to_grpc_graph_node_additional_data(software_data))
-    } else {
-      None
-    },
+    additional_data: convert_to_grpc_graph_node_additional_data(node.user_data()),
     inner_graph: if let Some(inner_graph) = node.user_data.concrete(INNER_GRAPH_KEY.key()) {
       Some(convert_to_grpc_graph(inner_graph))
     } else {
@@ -574,7 +571,16 @@ where
   }
 }
 
-fn convert_to_grpc_graph_node_additional_data(software_data: &SoftwareData) -> GrpcNodeAdditionalData {
+fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<GrpcNodeAdditionalData> {
+  let mut additional_data = vec![];
+  if let Some(software_data) = user_data.concrete(SOFTWARE_DATA_KEY.key()) {
+    additional_data.push(convert_to_grpc_graph_node_software_data(software_data));
+  }
+  
+  additional_data
+}
+
+fn convert_to_grpc_graph_node_software_data(software_data: &SoftwareData) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
     data: Some(Data::SoftwareData(GrpcSoftwareData {
       belongs_to_root_sequence: software_data.belongs_to_root_sequence(),

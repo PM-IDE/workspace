@@ -88,6 +88,16 @@ where
 
     None
   }
+  
+  pub fn edge_mut(&mut self, first_node_id: &u64, second_node_id: &u64) -> Option<&mut GraphEdge<TEdgeData>> {
+    if let Some(connections) = self.connections.get_mut(first_node_id) {
+      if let Some(edge) = connections.get_mut(second_node_id) {
+        return Some(edge);
+      }
+    }
+
+    None
+  }
 
   pub fn add_node(&mut self, node_data: Option<TNodeData>) -> u64 {
     self.add_node_internal(GraphNode::new(node_data))
