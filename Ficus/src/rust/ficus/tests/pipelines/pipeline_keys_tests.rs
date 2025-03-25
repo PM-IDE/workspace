@@ -125,6 +125,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
     assert_existence::<RootSequenceKind>(&ROOT_SEQUENCE_KIND, &mut used);
     assert_existence::<SoftwareData>(&SOFTWARE_DATA, &mut used);
+    assert_existence::<DefaultGraph>(&INNER_GRAPH, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -225,7 +226,8 @@ fn get_all_keys_names() -> Vec<String> {
         "tolerances",
         "min_points_in_cluster_array",
         "root_sequence_kind",
-        "software_data"
+        "software_data",
+        "inner_graph"
     ]
 }
 
@@ -327,6 +329,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
     assert_keys_equivalence::<RootSequenceKind>(&ROOT_SEQUENCE_KIND, &mut used);
     assert_keys_equivalence::<SoftwareData>(&SOFTWARE_DATA, &mut used);
+    assert_keys_equivalence::<DefaultGraph>(&INNER_GRAPH, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

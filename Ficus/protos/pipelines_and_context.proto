@@ -203,6 +203,7 @@ message GrpcGraphNode {
   uint64 id = 1;
   string data = 2;
   GrpcNodeAdditionalData additional_data = 3;
+  GrpcGraph inner_graph = 4;
 }
 
 message GrpcNodeAdditionalData {
