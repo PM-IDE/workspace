@@ -8,7 +8,8 @@
       "labelColor": "#b8b8b8"
     },
     "graph": {
-      "nodeBackground": "#707070",
+      "nodeBackground": "#353535",
+      "rootSequenceColor": "#707070",
       "labelColor": "#b8b8b8",
       "redMin": 42,
       "redMax": 88,

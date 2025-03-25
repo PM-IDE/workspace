@@ -564,6 +564,7 @@ where
     additional_data: if let Some(software_data) = node.user_data.concrete(SOFTWARE_DATA_KEY.key()) {
       Some(GrpcNodeAdditionalData {
         data: Some(Data::SoftwareData(GrpcSoftwareData {
+          belongs_to_root_sequence: software_data.belongs_to_root_sequence(),
           allocations_info: None,
           timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
             threads: convert_to_grpc_threads(software_data.thread_diagram_fragment())

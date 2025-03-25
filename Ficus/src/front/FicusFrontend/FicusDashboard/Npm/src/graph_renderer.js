@@ -54,8 +54,10 @@ function setNodeRenderer(cy) {
           }
         );
 
+        let nodeColor = data.softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+
         return `
-            <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${graphColor.nodeBackground}">
+            <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${nodeColor}">
                 <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
                     ${data.label}
                 </div>

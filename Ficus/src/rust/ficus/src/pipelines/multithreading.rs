@@ -45,16 +45,23 @@ impl FromStr for FeatureCountKindDto {
 pub struct SoftwareData {
   event_classes: HashMap<String, usize>,
   thread_diagram_fragment: Vec<TraceThread>,
+  belongs_to_root_sequence: bool,
 }
 
 impl SoftwareData {
   pub fn event_classes(&self) -> &HashMap<String, usize> {
     &self.event_classes
   }
-  
+
   pub fn thread_diagram_fragment(&self) -> &Vec<TraceThread> {
     &self.thread_diagram_fragment
   }
+
+  pub fn belongs_to_root_sequence(&self) -> bool {
+    self.belongs_to_root_sequence
+  }
+
+  pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
 }
 
 impl PipelineParts {
@@ -209,7 +216,8 @@ impl PipelineParts {
 
     let software_data = SoftwareData {
       event_classes,
-      thread_diagram_fragment: threads.into_values().collect()
+      thread_diagram_fragment: threads.into_values().collect(),
+      belongs_to_root_sequence: false,
     };
 
     let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);

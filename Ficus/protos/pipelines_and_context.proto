@@ -216,6 +216,7 @@ message GrpcSoftwareData {
   repeated GrpcHistogramEntry histogram = 1;
   GrpcTimelineDiagramFragment timeline_diagram_fragment = 2;
   GrpcAllocationsInfo allocations_info = 3;
+  bool belongs_to_root_sequence = 4;
 }
 
 message GrpcHistogramEntry {

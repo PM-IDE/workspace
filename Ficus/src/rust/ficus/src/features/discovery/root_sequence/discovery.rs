@@ -56,7 +56,7 @@ pub struct DiscoveryContext<'a, T> {
   name_extractor: &'a dyn Fn(&T) -> HeapedOrOwned<String>,
   artificial_start_end_events_factory: &'a dyn Fn() -> (T, T),
   root_sequence_kind: RootSequenceKind,
-  event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl) -> (),
+  event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl, bool) -> (),
 }
 
 impl<'a, T> DiscoveryContext<'a, T> {
@@ -64,7 +64,7 @@ impl<'a, T> DiscoveryContext<'a, T> {
     name_extractor: &'a dyn Fn(&T) -> HeapedOrOwned<String>,
     artificial_start_end_events_factory: &'a dyn Fn() -> (T, T),
     root_sequence_kind: RootSequenceKind,
-    event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl) -> (),
+    event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl, bool) -> (),
   ) -> Self {
     Self {
       name_extractor,
@@ -84,9 +84,12 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
     Rc::new(RefCell::new(XesEventImpl::new_with_min_date(ARTIFICIAL_END_EVENT_NAME.to_string()))),
   );
 
-  let event_to_graph_node_info_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl| {
+  let event_to_graph_node_info_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
     if let Some(software_data) = event.borrow().user_data().concrete(SOFTWARE_DATA_KEY.key()) {
-      user_data_impl.put_concrete(SOFTWARE_DATA_KEY.key(), software_data.clone());
+      let mut software_data = software_data.clone();
+      software_data.set_belongs_to_root_sequence(belongs_to_root_sequence);
+
+      user_data_impl.put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
     }
   };
 
@@ -105,6 +108,14 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
 ) -> DefaultGraph {
+  discover_root_sequence_graph_internal(log, context, true)
+}
+
+fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
+  log: &Vec<Vec<T>>,
+  context: &DiscoveryContext<T>,
+  first_iteration: bool
+) -> DefaultGraph {
   let root_sequence = discover_root_sequence(log, context.root_sequence_kind);
 
   if root_sequence.len() == 2 {
@@ -112,9 +123,9 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   }
 
   let mut graph = DefaultGraph::empty();
-  let lcs_node_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &context);
+  let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &context, first_iteration);
 
-  adjust_lcs_graph_with_traces(log, &root_sequence, &lcs_node_ids, &mut graph, context);
+  adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context);
 
   graph
 }
@@ -132,7 +143,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   for trace in log {
     let mut prev_node_id = start_node;
     for event in trace.iter().skip(1).take(trace.len() - 2) {
-      let node_id = create_new_graph_node(&mut graph, event, context);
+      let node_id = create_new_graph_node(&mut graph, event, false, context);
       graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::empty());
       prev_node_id = node_id;
     }
@@ -143,13 +154,13 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   graph
 }
 
-fn create_new_graph_node<T>(graph: &mut DefaultGraph, event: &T, context: &DiscoveryContext<T>) -> u64 {
+fn create_new_graph_node<T>(graph: &mut DefaultGraph, event: &T, is_root_sequence: bool, context: &DiscoveryContext<T>) -> u64 {
   let name_extractor = context.name_extractor;
   let node_id = graph.add_node(Some(name_extractor(event)));
 
   let node = graph.node_mut(&node_id).unwrap();
   let transfer = context.event_to_graph_node_info_transfer;
-  transfer(event, node.user_data_mut());
+  transfer(event, node.user_data_mut(), is_root_sequence);
 
   node_id
 }
@@ -158,12 +169,13 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   root_sequence: &Vec<T>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
+  is_first_iteration_root_sequence: bool
 ) -> Vec<u64> {
   let mut prev_node_id = None;
   let mut root_sequence_node_ids = vec![];
 
   for event in root_sequence {
-    let node_id = create_new_graph_node(graph, event, context);
+    let node_id = create_new_graph_node(graph, event, is_first_iteration_root_sequence, context);
     root_sequence_node_ids.push(node_id);
 
     if let Some(prev_node_id) = prev_node_id.as_ref() {
@@ -227,7 +239,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
 ) {
   for ((start_root_node_id, end_root_node_id), adjustments) in adjustments {
     let adjustment_log = create_log_from_adjustments(&adjustments, context.artificial_start_end_events_factory);
-    let sub_graph = discover_root_sequence_graph(&adjustment_log, context);
+    let sub_graph = discover_root_sequence_graph_internal(&adjustment_log, context, false);
 
     merge_subgraph_into_model(graph, sub_graph, *start_root_node_id, *end_root_node_id, context);
   }
