@@ -1,6 +1,6 @@
-use std::{collections::HashMap, rc::Rc};
-
 use chrono::{DateTime, Utc};
+use std::fmt::{Debug, Formatter};
+use std::{collections::HashMap, rc::Rc};
 
 use crate::{
   event_log::core::event::{
@@ -10,10 +10,15 @@ use crate::{
   utils::{user_data::user_data::UserDataImpl, vec_utils},
 };
 
-#[derive(Debug)]
 pub struct XesEventImpl {
   event_base: EventBase,
   payload: Option<HashMap<String, EventPayloadValue>>,
+}
+
+impl Debug for XesEventImpl {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    f.write_str(self.name_pointer().as_str())
+  }
 }
 
 impl XesEventImpl {
@@ -22,6 +27,12 @@ impl XesEventImpl {
       event_base: EventBase::new(name, timestamp),
       payload,
     }
+  }
+}
+
+impl PartialEq<Self> for XesEventImpl {
+  fn eq(&self, other: &Self) -> bool {
+    self.name().eq(other.name())
   }
 }
 
@@ -56,9 +67,11 @@ impl Event for XesEventImpl {
     }
   }
 
-  fn user_data(&mut self) -> &mut UserDataImpl {
-    self.event_base.user_data_holder.get_mut()
+  fn user_data_mut(&mut self) -> &mut UserDataImpl {
+    &mut self.event_base.user_data
   }
+
+  fn user_data(&self) -> &UserDataImpl { &self.event_base.user_data }
 
   fn set_name(&mut self, new_name: String) {
     self.event_base.name = Rc::new(Box::new(new_name));

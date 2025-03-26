@@ -5,13 +5,14 @@ use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
-use crate::pipelines::multithreading::FeatureCountKindDto;
+use crate::pipelines::multithreading::{FeatureCountKindDto, SoftwareData};
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -121,6 +122,12 @@ pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
 pub const TIME_DELTA: &'static str = "time_delta";
 pub const FEATURE_COUNT_KIND: &'static str = "feature_count_kind";
 pub const PERCENT_FROM_MAX_VALUE: &'static str = "percent_from_max_value";
+pub const TOLERANCES: &'static str = "tolerances";
+pub const MIN_POINTS_IN_CLUSTER_ARRAY: &'static str = "min_points_in_cluster_array";
+pub const EXECUTION_ID: &'static str = "execution_id";
+pub const ROOT_SEQUENCE_KIND: &'static str = "root_sequence_kind";
+pub const SOFTWARE_DATA: &'static str = "software_data";
+pub const INNER_GRAPH: &'static str = "inner_graph";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -215,6 +222,12 @@ lazy_static!(
      pub static ref TIME_DELTA_KEY: DefaultContextKey<u32> = DefaultContextKey::new(TIME_DELTA);
      pub static ref FEATURE_COUNT_KIND_KEY: DefaultContextKey<FeatureCountKindDto> = DefaultContextKey::new(FEATURE_COUNT_KIND);
      pub static ref PERCENT_FROM_MAX_VALUE_KEY: DefaultContextKey<f64> = DefaultContextKey::new(PERCENT_FROM_MAX_VALUE);
+     pub static ref TOLERANCES_KEY: DefaultContextKey<Vec<f64>> = DefaultContextKey::new(TOLERANCES);
+     pub static ref MIN_POINTS_IN_CLUSTER_ARRAY_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new(MIN_POINTS_IN_CLUSTER_ARRAY);
+     pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
+     pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
+     pub static ref SOFTWARE_DATA_KEY: DefaultContextKey<SoftwareData> = DefaultContextKey::new(SOFTWARE_DATA);
+     pub static ref INNER_GRAPH_KEY: DefaultContextKey<DefaultGraph> = DefaultContextKey::new(SOFTWARE_DATA);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -299,6 +312,12 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     TIME_DELTA => Some(TIME_DELTA_KEY.deref() as &dyn ContextKey),
     FEATURE_COUNT_KIND => Some(FEATURE_COUNT_KIND_KEY.deref() as &dyn ContextKey),
     PERCENT_FROM_MAX_VALUE => Some(PERCENT_FROM_MAX_VALUE_KEY.deref() as &dyn ContextKey),
+    TOLERANCES => Some(TOLERANCES_KEY.deref() as &dyn ContextKey),
+    MIN_POINTS_IN_CLUSTER_ARRAY => Some(MIN_POINTS_IN_CLUSTER_ARRAY_KEY.deref() as &dyn ContextKey),
+    EXECUTION_ID => Some(EXECUTION_ID_KEY.deref() as &dyn ContextKey),
+    ROOT_SEQUENCE_KIND => Some(ROOT_SEQUENCE_KIND_KEY.deref() as &dyn ContextKey),
+    SOFTWARE_DATA => Some(SOFTWARE_DATA_KEY.deref() as &dyn ContextKey),
+    INNER_GRAPH => Some(INNER_GRAPH_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

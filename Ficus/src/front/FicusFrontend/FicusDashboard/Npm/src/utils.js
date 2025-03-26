@@ -7,9 +7,10 @@ cytoscape.use(svg);
 export function createBreadthFirstLayout() {
   return {
     name: 'dagre',
-    rankDir: 'TB',
+    rankDir: 'LR',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
+    spacingFactor: 2
   }
 }
 
@@ -45,4 +46,14 @@ function exportCytoscapeToSvg(cy, fileName) {
   let blob = new Blob([svgContent], {type: "image/svg+xml;charset=utf-8"});
 
   saveAs(blob, fileName);
+}
+
+export function generateRandomColor() {
+  let letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+
+  return color;
 }

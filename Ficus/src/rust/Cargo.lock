@@ -118,6 +118,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "approx"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cab112f0a86d568ea0e627cc1d6be74a1e9cd55214684db5561995f6dad897c6"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "async-trait"
 version = "0.1.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -535,6 +544,7 @@ checksum = "486f806e73c5707928240ddc295403b1b93c96a02038563881c4a2fd84b81ac4"
 name = "ficus"
 version = "0.1.0"
 dependencies = [
+ "approx 0.5.1",
  "bxes",
  "bxes_kafka",
  "chrono",
@@ -555,9 +565,8 @@ dependencies = [
  "quick-xml",
  "rand 0.8.5",
  "rdkafka",
- "regex",
- "rustc-serialize",
  "stopwatch",
+ "termgraph",
  "tokio",
  "tokio-stream",
  "tonic",
@@ -1005,7 +1014,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1cab423110bc374e4cfa915da88952e2c6a4a5a6300ac0a0e68022bff2ace0b3"
 dependencies = [
- "approx",
+ "approx 0.4.0",
  "ndarray 0.15.6",
  "num-traits",
  "rand 0.8.5",
@@ -1138,7 +1147,7 @@ version = "0.15.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adb12d4e967ec485a5f71c6311fe28158e9d6f4bc4a447b474184d0f91a8fa32"
 dependencies = [
- "approx",
+ "approx 0.4.0",
  "matrixmultiply",
  "num-complex 0.4.6",
  "num-integer",
@@ -1953,6 +1962,12 @@ dependencies = [
  "rustix",
  "windows-sys 0.59.0",
 ]
+
+[[package]]
+name = "termgraph"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f78f23e6418b6ca453bf772e03567961c181230eb5bab587c7e3b186ae6fb42"
 
 [[package]]
 name = "thiserror"

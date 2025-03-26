@@ -50,14 +50,22 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     foreach (var @case in initialCases.Cases)
     {
       var initialState = @case.ContextValues
-        .Select(v =>
+        .Select((v, order) =>
         {
           var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
-          return (id, new PipelinePartExecutionResult
+          var results = v.ExecutionResults.Select(r => new PipelinePartExecutionResult
           {
-            ContextValues = v.ContextValues.Select(c => new ContextValueWrapper(c)).ToList(),
-            PipelinePartName = v.PipelinePartInfo.Name
-          });
+            ContextValues = r.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
+          }).ToList();
+
+          var partResults = new PipelinePartExecutionResults
+          {
+            PipelinePartName = v.PipelinePartInfo.Name,
+            Order = (uint)order,
+            Results = new ViewableList<PipelinePartExecutionResult>(results)
+          };
+
+          return (id, partResults);
         })
         .ToDictionary();
 
@@ -70,7 +78,11 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
         DisplayName = @case.ProcessCaseMetadata.CaseName.DisplayName,
         FullName = CreateFullCaseName(@case.ProcessCaseMetadata.CaseName),
         CreatedAt = DateTime.Now,
-        ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>(initialState)
+        PipelineExecutionResults = new PipelinePartsExecutionResults
+        {
+          Results = new ViewableMap<Guid, PipelinePartExecutionResults>(initialState),
+          ExecutionId = @case.ContextValues.FirstOrDefault()?.PipelinePartInfo.ExecutionId.ToGuid() ?? Guid.Empty
+        }
       };
 
       processData.ProcessCases[caseModel.FullName] = caseModel;
@@ -147,7 +159,11 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
       NameParts = caseName.FullNameParts.ToList(),
       FullName = fullCaseName,
       CreatedAt = DateTime.Now,
-      ContextValues = new ViewableMap<Guid, PipelinePartExecutionResult>()
+      PipelineExecutionResults = new PipelinePartsExecutionResults
+      {
+        ExecutionId = Guid.Empty,
+        Results = new ViewableMap<Guid, PipelinePartExecutionResults>()
+      }
     };
 
     processData.ProcessCases[fullCaseName] = @case;
@@ -164,11 +180,31 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     var processData = GetOrCreateProcessData(delta.ProcessCaseMetadata);
     var caseData = GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName);
 
-    var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
-    caseData.ContextValues[partId] = new PipelinePartExecutionResult
+    var executionId = delta.PipelinePartInfo.ExecutionId.ToGuid();
+    if (caseData.PipelineExecutionResults.ExecutionId != executionId)
     {
-      PipelinePartName = delta.PipelinePartInfo.Name,
+      caseData.PipelineExecutionResults.ExecutionId = executionId;
+      caseData.PipelineExecutionResults.Results.Clear();
+    }
+
+    var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
+    var result = new PipelinePartExecutionResult
+    {
       ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
     };
+
+    if (!caseData.PipelineExecutionResults.Results.ContainsKey(partId))
+    {
+      caseData.PipelineExecutionResults.Results[partId] = new PipelinePartExecutionResults
+      {
+        Order = (uint)caseData.PipelineExecutionResults.Results.Count,
+        PipelinePartName = delta.PipelinePartInfo.Name,
+        Results = new ViewableList<PipelinePartExecutionResult> { result }
+      };
+    }
+    else
+    {
+      caseData.PipelineExecutionResults.Results[partId].Results.Add(result);
+    }
   }
 }

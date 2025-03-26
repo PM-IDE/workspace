@@ -13,19 +13,16 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram};
+use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
+use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
-use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram};
+use crate::ficus_proto::grpc_node_additional_data::Data;
+use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcNodeAdditionalData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_keys::{
-  BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
-  LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY,
-  NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
-  PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-};
-use crate::pipelines::multithreading::FeatureCountKindDto;
+use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, INNER_GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_KEY, TRACES_ACTIVITIES_DATASET_KEY};
+use crate::pipelines::multithreading::{FeatureCountKindDto, SoftwareData};
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -53,6 +50,7 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use crate::utils::user_data::user_data::UserDataImpl;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -102,6 +100,8 @@ pub(super) fn put_into_user_data(
         parse_grpc_enum::<TimeAnnotationKind>(user_data, key, &grpc_enum.value);
       } else if enum_name == name_of_type!(FeatureCountKindDto) {
         parse_grpc_enum::<FeatureCountKindDto>(user_data, key, &grpc_enum.value);
+      } else if enum_name == name_of_type!(RootSequenceKind) {
+        parse_grpc_enum::<RootSequenceKind>(user_data, key, &grpc_enum.value);
       }
     }
     ContextValue::EventLogInfo(_) => todo!(),
@@ -118,6 +118,9 @@ pub(super) fn put_into_user_data(
     ContextValue::LabeledDataset(_) => todo!(),
     ContextValue::Bytes(grpc_bytes) => user_data.put_any::<Vec<u8>>(key, grpc_bytes.bytes.clone()),
     ContextValue::LogTimelineDiagram(_) => todo!(),
+    ContextValue::FloatArray(float_array) => user_data.put_any::<Vec<f64>>(key, float_array.items.clone()),
+    ContextValue::IntArray(int_array) => user_data.put_any::<Vec<i64>>(key, int_array.items.clone()),
+    ContextValue::UintArray(uint_array) => user_data.put_any::<Vec<u64>>(key, uint_array.items.clone()),
   }
 }
 
@@ -559,6 +562,39 @@ where
       None => "".to_string(),
       Some(data) => data.to_string(),
     },
+    additional_data: convert_to_grpc_graph_node_additional_data(node.user_data()),
+    inner_graph: if let Some(inner_graph) = node.user_data.concrete(INNER_GRAPH_KEY.key()) {
+      Some(convert_to_grpc_graph(inner_graph))
+    } else {
+      None
+    }
+  }
+}
+
+fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<GrpcNodeAdditionalData> {
+  let mut additional_data = vec![];
+  if let Some(software_data) = user_data.concrete(SOFTWARE_DATA_KEY.key()) {
+    additional_data.push(convert_to_grpc_graph_node_software_data(software_data));
+  }
+  
+  additional_data
+}
+
+fn convert_to_grpc_graph_node_software_data(software_data: &SoftwareData) -> GrpcNodeAdditionalData {
+  GrpcNodeAdditionalData {
+    data: Some(Data::SoftwareData(GrpcSoftwareData {
+      belongs_to_root_sequence: software_data.belongs_to_root_sequence(),
+      allocations_info: None,
+      timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
+        threads: convert_to_grpc_threads(software_data.thread_diagram_fragment())
+      }),
+      histogram: software_data.event_classes().iter().map(|(key, value)| {
+        GrpcHistogramEntry {
+          name: key.to_owned(),
+          count: *value as u64,
+        }
+      }).collect(),
+    }))
   }
 }
 
@@ -680,23 +716,26 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
           start_point: Some(convert_to_grpc_log_point(g.start_point())),
           end_point: Some(convert_to_grpc_log_point(g.end_point())),
         }).collect(),
-        threads: t
-          .threads()
-          .iter()
-          .map(|t| GrpcThread {
-            events: t
-              .events()
-              .iter()
-              .map(|e| GrpcThreadEvent {
-                name: e.original_event().borrow().name().to_owned(),
-                stamp: e.stamp(),
-              })
-              .collect(),
-          })
-          .collect(),
+        threads: convert_to_grpc_threads(t.threads())
       })
       .collect(),
   }
+}
+
+fn convert_to_grpc_threads(threads: &Vec<TraceThread>) -> Vec<GrpcThread> {
+  threads
+    .iter()
+    .map(|t| GrpcThread {
+      events: t
+        .events()
+        .iter()
+        .map(|e| GrpcThreadEvent {
+          name: e.original_event().borrow().name().to_owned(),
+          stamp: e.stamp(),
+        })
+        .collect(),
+    })
+    .collect()
 }
 
 fn convert_to_grpc_log_point(point: &LogPoint) -> GrpcLogPoint {

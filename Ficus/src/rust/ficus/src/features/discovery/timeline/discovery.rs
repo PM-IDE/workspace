@@ -13,6 +13,8 @@ use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {
+  pub(in crate::features) thread_attribute: String,
+  pub(in crate::features) time_attribute: Option<String>,
   pub(in crate::features) traces: Vec<TraceTimelineDiagram>,
 }
 
@@ -20,6 +22,8 @@ impl LogTimelineDiagram {
   pub fn traces(&self) -> &Vec<TraceTimelineDiagram> {
     &self.traces
   }
+  pub fn thread_attribute(&self) -> &str { self.thread_attribute.as_str() }
+  pub fn time_attribute(&self) -> Option<&String> { self.time_attribute.as_ref() }
 }
 
 #[derive(Debug, Clone)]
@@ -53,9 +57,16 @@ pub struct TraceThread {
 }
 
 impl TraceThread {
+  pub fn empty() -> Self {
+    Self {
+      events: vec![]
+    }
+  }
+
   pub fn events(&self) -> &Vec<TraceThreadEvent> {
     &self.events
   }
+  pub fn events_mut(&mut self) -> &mut Vec<TraceThreadEvent> { &mut self.events }
 }
 
 #[derive(Debug, Clone)]
@@ -65,6 +76,13 @@ pub struct TraceThreadEvent {
 }
 
 impl TraceThreadEvent {
+  pub fn new(original_event: Rc<RefCell<XesEventImpl>>, stamp: u64) -> Self {
+    Self {
+      original_event,
+      stamp,
+    }
+  }
+
   pub fn original_event(&self) -> &Rc<RefCell<XesEventImpl>> {
     &self.original_event
   }
@@ -128,5 +146,12 @@ pub fn discover_timeline_diagram(
     })
   }
 
-  Ok(LogTimelineDiagram { traces })
+  Ok(LogTimelineDiagram {
+    thread_attribute: thread_attribute.to_string(),
+    time_attribute: match time_attribute {
+      None => None,
+      Some(s) => Some(s.to_owned()),
+    },
+    traces,
+  })
 }

@@ -1,6 +1,7 @@
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
+use crate::utils::user_data::user_data::UserDataImpl;
 use std::fmt::Display;
 use std::{collections::HashMap, sync::atomic::AtomicU64};
 
@@ -59,6 +60,10 @@ where
     self.nodes.get(id)
   }
 
+  pub fn node_mut(&mut self, id: &u64) -> Option<&mut GraphNode<TNodeData>> {
+    self.nodes.get_mut(id)
+  }
+
   pub fn all_nodes(&self) -> Vec<&GraphNode<TNodeData>> {
     (&self.nodes).values().into_iter().collect()
   }
@@ -74,12 +79,39 @@ where
     edges
   }
 
+  pub fn edge(&self, first_node_id: &u64, second_node_id: &u64) -> Option<&GraphEdge<TEdgeData>> {
+    if let Some(connections) = self.connections.get(first_node_id) {
+      if let Some(edge) = connections.get(second_node_id) {
+        return Some(edge);
+      }
+    }
+
+    None
+  }
+  
+  pub fn edge_mut(&mut self, first_node_id: &u64, second_node_id: &u64) -> Option<&mut GraphEdge<TEdgeData>> {
+    if let Some(connections) = self.connections.get_mut(first_node_id) {
+      if let Some(edge) = connections.get_mut(second_node_id) {
+        return Some(edge);
+      }
+    }
+
+    None
+  }
+
   pub fn add_node(&mut self, node_data: Option<TNodeData>) -> u64 {
-    let new_node = GraphNode::new(node_data);
+    self.add_node_internal(GraphNode::new(node_data))
+  }
+
+  fn add_node_internal(&mut self, new_node: GraphNode<TNodeData>) -> u64 {
     let id = *new_node.id();
     self.nodes.insert(*new_node.id(), new_node);
 
     id
+  }
+
+  pub fn add_node_with_user_data(&mut self, node_data: Option<TNodeData>, user_data: UserDataImpl) -> u64 {
+    self.add_node_internal(GraphNode::new_with_user_data(node_data, user_data))
   }
 
   pub fn connect_nodes(&mut self, first_node_id: &u64, second_node_id: &u64, connection_data: NodesConnectionData<TEdgeData>) {
@@ -147,5 +179,24 @@ where
     }
 
     result
+  }
+
+  pub fn serialize_edges_deterministic(&self) -> String {
+    let get_node_repr = |id| {
+      match self.node(id).as_ref().unwrap().data.as_ref() {
+        None => "None".to_string(),
+        Some(data) => data.to_string()
+      }
+    };
+
+    let mut serialized_connection = vec![];
+    for (from_node, to_nodes) in &self.connections {
+      for (to_node, _) in to_nodes {
+        serialized_connection.push(format!("[{}]--[{}]", get_node_repr(from_node), get_node_repr(to_node)));
+      }
+    }
+
+    serialized_connection.sort();
+    serialized_connection.join("\n")
   }
 }

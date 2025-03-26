@@ -15,7 +15,7 @@ def generate_models():
 
     os.mkdir(models_dir)
 
-    python = 'python'
+    python = '/usr/local/bin/python3'
     os.popen(f'{python} -m pip install grpcio-tools').read()
     packages = []
 

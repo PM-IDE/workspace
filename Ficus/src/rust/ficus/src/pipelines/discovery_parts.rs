@@ -7,12 +7,13 @@ use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlus
 use crate::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
 use crate::features::discovery::fuzzy::fuzzy_miner::discover_graph_fuzzy;
 use crate::features::discovery::heuristic::heuristic_miner::discover_petri_net_heuristic;
+use crate::features::discovery::root_sequence::discovery::discover_root_sequence_graph_from_event_log;
 use crate::features::discovery::petri_net::marking::ensure_initial_marking;
 use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml_file;
 use crate::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, THREAD_ATTRIBUTE_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY};
+use crate::pipelines::keys::context_keys::{AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, ROOT_SEQUENCE_KIND_KEY, THREAD_ATTRIBUTE_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 use crate::utils::user_data::user_data::UserData;
@@ -196,6 +197,21 @@ impl PipelineParts {
       ensure_initial_marking(log, petri_net);
 
       Ok(())
+    })
+  }
+
+  pub(super) fn discover_root_sequence_graph() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::DISCOVER_ROOT_SEQUENCE_GRAPH, &|context, _, config| {
+      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      let root_sequence_kind = Self::get_user_data(config, &ROOT_SEQUENCE_KIND_KEY)?;
+
+      match discover_root_sequence_graph_from_event_log(log, *root_sequence_kind) {
+        Ok(graph) => {
+          context.put_concrete(GRAPH_KEY.key(), graph);
+          Ok(())
+        }
+        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
+      }
     })
   }
 }

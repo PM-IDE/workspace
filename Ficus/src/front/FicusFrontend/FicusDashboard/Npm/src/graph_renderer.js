@@ -1,7 +1,8 @@
 import cytoscape from 'cytoscape';
-import {darkTheme, graphColors, lightTheme, performanceColors} from "./colors";
-import {calculateGradient, createBreadthFirstLayout, rgbToHex} from "./utils";
+import {darkTheme, graphColors, performanceColors} from "./colors";
+import {calculateGradient, createBreadthFirstLayout, generateRandomColor} from "./utils";
 import dagre from 'cytoscape-dagre';
+import nodeHtmlLabel from 'cytoscape-node-html-label'
 
 export default setDrawGraph;
 
@@ -11,8 +12,68 @@ const performanceColor = performanceColors(darkTheme);
 function setDrawGraph() {
   window.drawGraph = function (id, graph, annotation) {
     cytoscape.use(dagre);
-    return cytoscape(createCytoscapeOptions(id, graph, annotation));
+    nodeHtmlLabel(cytoscape);
+
+    let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
+    setNodeRenderer(cy);
+
+    return cy;
   }
+}
+
+let colorsCache = {};
+
+function getOrCreateColor(name) {
+  if (!(name in colorsCache)) {
+    colorsCache[name] = generateRandomColor();
+  }
+
+  return colorsCache[name];
+}
+
+function setNodeRenderer(cy) {
+  cy.nodeHtmlLabel([
+    {
+      query: 'node',
+      halign: 'center',
+      valign: 'center',
+      halignBox: 'center',
+      valignBox: 'center',
+      tpl: function (data) {
+        return create_html_label(data);
+      }
+    }
+  ]);
+}
+
+function create_html_label(data) {
+  let softwareData = data.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
+  if (softwareData == null) {
+    return null;
+  }
+
+  let nodeWidth = 100;
+  let nodeHeight = 100;
+
+  let summedCount = Math.max(...softwareData.histogram.map(entry => entry.count));
+  let histogramDivs = softwareData.histogram.toSorted((f, s) => s.count - f.count).map((entry) => {
+      let divWidth = nodeWidth * (entry.count / summedCount);
+      return `<div style="width: ${divWidth}px; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
+    }
+  );
+
+  let nodeColor = softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+
+  return `
+          <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${nodeColor}">
+              <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
+                  ${data.label}
+              </div>
+              <div style="width: 100%; display: flex; flex-direction: row;">
+                  ${histogramDivs.join('\n')}
+              </div>
+          </div>
+        `;
 }
 
 function createCytoscapeOptions(id, graph, annotation) {
@@ -64,6 +125,7 @@ function createGraphElements(graph, annotation) {
       data: {
         label: node.data,
         id: node.id.toString(),
+        additionalData: node.additionalData
       }
     })
   }

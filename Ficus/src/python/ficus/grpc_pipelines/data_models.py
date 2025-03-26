@@ -42,6 +42,8 @@ class Distance(Enum):
   L1 = 1
   L2 = 2
   Levenshtein = 3
+  Length = 4
+  LCS = 5
 
 
 class TracesRepresentationSource(Enum):
@@ -59,3 +61,10 @@ class FeatureCountKind(Enum):
   One = 0
   Count = 1
   OneIfMoreThanMaxFromAllFeatures = 2
+
+
+class RootSequenceKind(Enum):
+  FindBest = 0
+  LCS = 1
+  PairwiseLCS = 2
+  Trace = 3

@@ -10,6 +10,10 @@ html, body {
   --cv-section-header-index-background: #3c3c3c;
   --cv-border-radius: 10px;
 
+  --cv-section-results-selection-buttons-background-color: #343434;
+  --cv-section-results-selection-button-background-color: #343434;
+  --cv-section-results-selection-button-selected-background-color: #252525;
+
   --processes-section-title-background: #262929;
   --processes-section-process-name-background: #242929;
   --processes-section-cases-background: #2c3131;

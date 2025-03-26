@@ -4,6 +4,7 @@ package ficus;
 
 import "pm_models.proto";
 import "util.proto";
+import "google/protobuf/empty.proto";
 
 message GrpcContextKey {
   string name = 1;
@@ -37,7 +38,22 @@ message GrpcContextValue {
     GrpcLabeledDataset labeled_dataset = 19;
     GrpcBytes bytes = 20;
     GrpcLogTimelineDiagram logTimelineDiagram = 21;
+    GrpcFloatArray float_array = 22;
+    GrpcIntArray int_array = 23;
+    GrpcUintArray uint_array = 24;
   }
+}
+
+message GrpcFloatArray {
+  repeated double items = 1;
+}
+
+message GrpcIntArray {
+  repeated int64 items = 1;
+}
+
+message GrpcUintArray {
+  repeated uint64 items = 1;
 }
 
 message GrpcContextKeyValue {
@@ -186,6 +202,47 @@ message GrpcGraph {
 message GrpcGraphNode {
   uint64 id = 1;
   string data = 2;
+  repeated GrpcNodeAdditionalData additional_data = 3;
+  GrpcGraph inner_graph = 4;
+}
+
+message GrpcNodeAdditionalData {
+  oneof data {
+    google.protobuf.Empty none = 1;
+    GrpcSoftwareData software_data = 2;
+    GrpcUnderlyingPatternInfo pattern_info = 3;
+  }
+}
+
+message GrpcSoftwareData {
+  repeated GrpcHistogramEntry histogram = 1;
+  GrpcTimelineDiagramFragment timeline_diagram_fragment = 2;
+  GrpcAllocationsInfo allocations_info = 3;
+  bool belongs_to_root_sequence = 4;
+}
+
+message GrpcHistogramEntry {
+  string name = 1;
+  uint64 count = 2;
+}
+
+message GrpcTimelineDiagramFragment {
+  repeated GrpcThread threads = 1;
+}
+
+message GrpcAllocationsInfo {
+  repeated GrpcAllocationsInfo allocations = 1;
+}
+
+message GrpcAllocationInfo {
+  string type_name = 1;
+  uint64 allocated_objects_count = 2;
+  uint64 allocated_bytes = 3;
+}
+
+message GrpcUnderlyingPatternInfo {
+  string pattern_type = 1;
+  repeated GrpcSimpleTrace underlying_traces = 2;
 }
 
 message GrpcGraphEdge {

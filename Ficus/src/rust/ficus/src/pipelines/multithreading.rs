@@ -6,14 +6,18 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::create_threads_log_by_attribute;
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
-use crate::features::discovery::timeline::discovery::discover_timeline_diagram;
+use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, TraceThread, TraceThreadEvent};
 use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
+use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY};
+use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
+use log::error;
 use std::cell::RefCell;
+use std::collections::HashMap;
+use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
 
@@ -35,6 +39,29 @@ impl FromStr for FeatureCountKindDto {
       _ => Err(()),
     }
   }
+}
+
+#[derive(Clone, Debug)]
+pub struct SoftwareData {
+  event_classes: HashMap<String, usize>,
+  thread_diagram_fragment: Vec<TraceThread>,
+  belongs_to_root_sequence: bool,
+}
+
+impl SoftwareData {
+  pub fn event_classes(&self) -> &HashMap<String, usize> {
+    &self.event_classes
+  }
+
+  pub fn thread_diagram_fragment(&self) -> &Vec<TraceThread> {
+    &self.thread_diagram_fragment
+  }
+
+  pub fn belongs_to_root_sequence(&self) -> bool {
+    self.belongs_to_root_sequence
+  }
+
+  pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
 }
 
 impl PipelineParts {
@@ -81,20 +108,25 @@ impl PipelineParts {
   pub(super) fn abstract_timeline_diagram() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::ABSTRACT_TIMELINE_DIAGRAM, &|context, infra, config| {
       let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
+      let thread_attribute = timeline.thread_attribute().to_string();
+      let time_attribute = timeline.time_attribute().cloned();
+
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
+      let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
 
       let events_groups = enumerate_event_groups(timeline);
       let events_groups_log = Self::create_groups_event_log(&events_groups);
       let mut params = Self::create_traces_clustering_params(context, config)?;
       params.vis_params.log = &events_groups_log;
 
-      let (_, labeled_dataset) = match clusterize_log_by_traces_dbscan(&mut params, min_points_in_cluster) {
+      let (_, labeled_dataset) = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster) {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };
 
       if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
-        let abstracted_log = Self::create_simple_abstracted_log(events_groups, labeled_dataset.labels());
+        let abstracted_log = Self::create_simple_abstracted_log(events_groups, labeled_dataset.labels(), thread_attribute, time_attribute)?;
+
         let mut new_context = context.clone();
         new_context.put_concrete(EVENT_LOG_KEY.key(), abstracted_log);
 
@@ -125,21 +157,72 @@ impl PipelineParts {
     log
   }
 
-  fn create_simple_abstracted_log(event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>, labels: &Vec<usize>) -> XesEventLogImpl {
+  fn create_simple_abstracted_log(
+    event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,
+    labels: &Vec<usize>,
+    thread_attribute: String,
+    time_attribute: Option<String>,
+  ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
     let mut current_label_index = 0;
     let mut abstracted_log = XesEventLogImpl::empty();
 
     for trace_groups in event_groups {
       let mut abstracted_trace = XesTraceImpl::empty();
-      for _ in trace_groups {
-        let label_name = labels.get(current_label_index).unwrap().to_string();
-        abstracted_trace.push(Rc::new(RefCell::new(XesEventImpl::new_with_min_date(label_name))));
+      for event_group in trace_groups {
+        if event_group.is_empty() {
+          error!("Encountered empty event group");
+          continue;
+        }
+
+        let group_label = *labels.get(current_label_index).as_ref().unwrap();
+        let abstracted_event = Self::create_abstracted_event(&event_group, group_label, thread_attribute.as_str(), time_attribute.as_ref())?;
+
+        abstracted_trace.push(abstracted_event);
         current_label_index += 1;
       }
 
       abstracted_log.push(Rc::new(RefCell::new(abstracted_trace)));
     }
 
-    abstracted_log
+    Ok(abstracted_log)
+  }
+
+  fn create_abstracted_event(
+    event_group: &Vec<Rc<RefCell<XesEventImpl>>>,
+    label: &usize,
+    thread_attribute: &str,
+    time_attribute: Option<&String>,
+  ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
+    let first_stamp = event_group.first().unwrap().borrow().timestamp().clone();
+    let abstracted_event_stamp = *event_group.last().unwrap().borrow().timestamp() - first_stamp;
+    let abstracted_event_stamp = first_stamp + abstracted_event_stamp;
+
+    let label_name = Rc::new(Box::new(label.to_string()));
+
+    let mut event_classes = HashMap::new();
+    let mut threads = HashMap::new();
+
+    for event in event_group {
+      *event_classes.entry(event.borrow().name().clone()).or_insert(0) += 1;
+
+      let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
+      let stamp = match get_stamp(event.borrow().deref(), time_attribute) {
+        Ok(stamp) => stamp,
+        Err(_) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Failed to get stamp".to_string())))
+      };
+
+      threads.entry(thread_id).or_insert(TraceThread::empty()).events_mut().push(TraceThreadEvent::new(event.clone(), stamp))
+    }
+
+    let software_data = SoftwareData {
+      event_classes,
+      thread_diagram_fragment: threads.into_values().collect(),
+      belongs_to_root_sequence: false,
+    };
+
+    let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
+    event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
+
+    Ok(Rc::new(RefCell::new(event)))
   }
 }

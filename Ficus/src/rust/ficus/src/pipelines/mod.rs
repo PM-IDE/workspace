@@ -16,3 +16,4 @@ pub mod pipelines;
 pub mod util_parts;
 pub mod xes_parts;
 pub mod multithreading;
+pub mod clustering;

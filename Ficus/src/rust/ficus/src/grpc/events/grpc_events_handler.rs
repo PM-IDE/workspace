@@ -59,7 +59,7 @@ impl GrpcPipelineEventsHandler {
     GrpcPipelinePartExecutionResult {
       result: Some(GrpcResult::PipelinePartResult(GrpcPipelinePartResult {
         uuid: Some(GrpcUuid {
-          uuid: event.uuid.to_string(),
+          uuid: event.pipeline_part_id.to_string(),
         }),
         context_values: create_grpc_context_values(&event.key_values),
       })),
