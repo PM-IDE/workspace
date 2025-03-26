@@ -63,6 +63,7 @@
 
     if (ReferenceEquals(ProcessCaseData, myProcessCaseData)) return;
 
+    myPipelinePartsExecutionResults.Clear();
     myProcessCaseData = ProcessCaseData;
     myCurrentLifetime = myLifetimes.Next();
 
