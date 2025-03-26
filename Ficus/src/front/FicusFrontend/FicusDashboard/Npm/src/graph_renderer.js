@@ -32,19 +32,23 @@ function getOrCreateColor(name) {
 }
 
 function setNodeRenderer(cy) {
-  cy.nodeHtmlLabel([
-    {
-      query: 'node',
-      halign: 'center',
-      valign: 'center',
-      halignBox: 'center',
-      valignBox: 'center',
-      tpl: function (data) {
-        return create_html_label(data);
+  cy.nodeHtmlLabel(
+    [
+      {
+        query: 'node',
+        tpl: function (data) {
+          return create_html_label(data);
+        }
       }
+    ],
+    {
+        enablePointerEvents: true
     }
-  ]);
+  );
 }
+
+const nodeWidthPx = 100;
+const nodeHeightPx = 100;
 
 function create_html_label(data) {
   let softwareData = data.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
@@ -52,12 +56,9 @@ function create_html_label(data) {
     return null;
   }
 
-  let nodeWidth = 100;
-  let nodeHeight = 100;
-
   let summedCount = Math.max(...softwareData.histogram.map(entry => entry.count));
   let histogramDivs = softwareData.histogram.toSorted((f, s) => s.count - f.count).map((entry) => {
-      let divWidth = nodeWidth * (entry.count / summedCount);
+      let divWidth = nodeWidthPx * (entry.count / summedCount);
       return `<div style="width: ${divWidth}px; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
     }
   );
@@ -65,7 +66,7 @@ function create_html_label(data) {
   let nodeColor = softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
 
   return `
-          <div style="width: ${nodeWidth}px; height: ${nodeHeight}px; background: ${nodeColor}">
+          <div style="width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; background: ${nodeColor}">
               <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
                   ${data.label}
               </div>
@@ -93,10 +94,11 @@ function createNodeStyle() {
     selector: 'node',
     style: {
       'background-color': graphColor.nodeBackground,
-      'label': 'data(label)',
       'text-valign': 'center',
       'text-halign': 'right',
       'shape': 'round-rectangle',
+      'width': `${nodeWidthPx}px`,
+      'height': `${nodeHeightPx}px`,
       'color': graphColor.labelColor
     }
   }
