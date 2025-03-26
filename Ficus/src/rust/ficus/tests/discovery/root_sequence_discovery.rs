@@ -263,7 +263,7 @@ fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_
 
   let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
 
-  let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer);
+  let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer, &|_| { None });
 
   let graph = discover_root_sequence_graph(&traces, &context);
   let test_result = graph.serialize_edges_deterministic();

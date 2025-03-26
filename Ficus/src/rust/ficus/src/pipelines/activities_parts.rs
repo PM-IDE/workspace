@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::str::FromStr;
 use std::{cell::RefCell, rc::Rc};
-
+use chrono::TimeDelta;
 use super::errors::pipeline_errors::RawPartExecutionError;
 use super::{
   aliases::TracesActivities,
@@ -157,9 +157,19 @@ impl PipelineParts {
       UndefActivityHandlingStrategyDto::InsertAllEvents => UndefActivityHandlingStrategy::InsertAllEvents,
     };
 
-    let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info| {
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(
+    let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info, events| {
+      let stamp = if events.len() == 1 {
+        events.first().unwrap().borrow().timestamp().clone()
+      } else {
+        let first_stamp = events.first().unwrap().borrow().timestamp().clone();
+        let delta: TimeDelta = events.iter().skip(1).map(|e| e.borrow().timestamp().clone() - first_stamp).sum();
+
+        first_stamp + delta / (events.len() as i32 - 1)
+      };
+
+      Rc::new(RefCell::new(XesEventImpl::new(
         info.node.borrow().name().as_ref().as_ref().clone(),
+        stamp
       )))
     });
 

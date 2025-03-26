@@ -114,7 +114,7 @@ fn execute_activities_discovery_test(
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
   );
 
-  let context = ActivitiesInstancesDiscoveryContext::new(context, strategy, |info| {
+  let context = ActivitiesInstancesDiscoveryContext::new(context, strategy, |info, _| {
     Rc::new(RefCell::new(XesEventImpl::new_with_min_date(info.node.borrow().name().to_string())))
   });
 

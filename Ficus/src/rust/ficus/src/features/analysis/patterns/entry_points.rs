@@ -89,7 +89,7 @@ where
   TLog::TEvent: 'static,
   TClassExtractor: Fn(&TLog::TEvent) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
 {
   let activity_instances = discover_activities_instances(&context.activities_context);
 

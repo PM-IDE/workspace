@@ -120,7 +120,7 @@ where
   TLog: EventLog,
   TClassExtractor: Fn(&TLog::TEvent) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
 {
   pub activities_context: ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,
   pub undef_events_handling_strategy: UndefActivityHandlingStrategy<TLog::TEvent>,
@@ -132,7 +132,7 @@ where
   TLog: EventLog,
   TClassExtractor: Fn(&TLog::TEvent) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
 {
   pub fn new(
     activities_context: ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,

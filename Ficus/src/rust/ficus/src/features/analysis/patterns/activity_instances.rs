@@ -382,7 +382,7 @@ pub fn create_new_log_from_activities_instances<TLog, TEventFactory>(
 where
   TLog: EventLog,
   TLog::TEvent: 'static,
-  TEventFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
+  TEventFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
 {
   let level = log.user_data().get(HIERARCHY_LEVEL.key()).unwrap_or(&0usize);
   let mut new_log = TLog::empty();
@@ -405,7 +405,9 @@ where
     };
 
     let activity_func = |activity: &ActivityInTraceInfo| {
-      let ptr = event_from_activity_factory(activity);
+      let instance_events = &trace.events()[activity.start_pos..activity.start_pos + activity.length];
+
+      let ptr = event_from_activity_factory(activity, instance_events);
 
       new_trace_ptr.borrow_mut().push(Rc::clone(&ptr));
 
