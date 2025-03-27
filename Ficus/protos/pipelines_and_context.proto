@@ -219,6 +219,7 @@ message GrpcSoftwareData {
   GrpcTimelineDiagramFragment timeline_diagram_fragment = 2;
   GrpcAllocationsInfo allocations_info = 3;
   bool belongs_to_root_sequence = 4;
+  uint64 trace_id = 5;
 }
 
 message GrpcHistogramEntry {
