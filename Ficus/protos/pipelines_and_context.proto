@@ -220,6 +220,7 @@ message GrpcSoftwareData {
   GrpcAllocationsInfo allocations_info = 3;
   bool belongs_to_root_sequence = 4;
   uint64 trace_id = 5;
+  uint64 event_index = 6;
 }
 
 message GrpcHistogramEntry {

@@ -576,7 +576,7 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
   if let Some(software_data) = user_data.concrete(SOFTWARE_DATA_KEY.key()) {
     additional_data.push(convert_to_grpc_graph_node_software_data(software_data));
   }
-  
+
   additional_data
 }
 
@@ -584,6 +584,7 @@ fn convert_to_grpc_graph_node_software_data(software_data: &SoftwareData) -> Grp
   GrpcNodeAdditionalData {
     data: Some(Data::SoftwareData(GrpcSoftwareData {
       trace_id: software_data.trace_id(),
+      event_index: software_data.event_index(),
       belongs_to_root_sequence: software_data.belongs_to_root_sequence(),
       allocations_info: None,
       timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {

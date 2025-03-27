@@ -47,6 +47,7 @@ pub struct SoftwareData {
   thread_diagram_fragment: Vec<TraceThread>,
   belongs_to_root_sequence: bool,
   trace_id: u64,
+  event_index: u64,
 }
 
 impl SoftwareData {
@@ -63,10 +64,14 @@ impl SoftwareData {
   }
 
   pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
-  
+
   pub fn trace_id(&self) -> u64 {
     self.trace_id
-  } 
+  }
+
+  pub fn event_index(&self) -> u64 {
+    self.event_index
+  }
 }
 
 impl PipelineParts {
@@ -171,16 +176,23 @@ impl PipelineParts {
     let mut current_label_index = 0;
     let mut abstracted_log = XesEventLogImpl::empty();
 
-    for (index, trace_groups) in event_groups.iter().enumerate() {
+    for (trace_index, trace_groups) in event_groups.iter().enumerate() {
       let mut abstracted_trace = XesTraceImpl::empty();
-      for event_group in trace_groups {
+      for (event_index, event_group) in trace_groups.iter().enumerate() {
         if event_group.is_empty() {
           error!("Encountered empty event group");
           continue;
         }
 
         let group_label = *labels.get(current_label_index).as_ref().unwrap();
-        let abstracted_event = Self::create_abstracted_event(&event_group, group_label, thread_attribute.as_str(), time_attribute.as_ref(), index)?;
+        let abstracted_event = Self::create_abstracted_event(
+          &event_group,
+          group_label,
+          thread_attribute.as_str(),
+          time_attribute.as_ref(),
+          trace_index,
+          event_index,
+        )?;
 
         abstracted_trace.push(abstracted_event);
         current_label_index += 1;
@@ -198,6 +210,7 @@ impl PipelineParts {
     thread_attribute: &str,
     time_attribute: Option<&String>,
     trace_index: usize,
+    event_index: usize,
   ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
     let first_stamp = event_group.first().unwrap().borrow().timestamp().clone();
     let abstracted_event_stamp = *event_group.last().unwrap().borrow().timestamp() - first_stamp;
@@ -224,7 +237,8 @@ impl PipelineParts {
       event_classes,
       thread_diagram_fragment: threads.into_values().collect(),
       belongs_to_root_sequence: false,
-      trace_id: trace_index as u64
+      trace_id: trace_index as u64,
+      event_index: event_index as u64,
     };
 
     let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
