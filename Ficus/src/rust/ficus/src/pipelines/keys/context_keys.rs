@@ -5,7 +5,7 @@ use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
-use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
+use crate::features::discovery::root_sequence::discovery::{CorrespondingTraceData, RootSequenceKind};
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
@@ -127,6 +127,7 @@ pub const MIN_POINTS_IN_CLUSTER_ARRAY: &'static str = "min_points_in_cluster_arr
 pub const EXECUTION_ID: &'static str = "execution_id";
 pub const ROOT_SEQUENCE_KIND: &'static str = "root_sequence_kind";
 pub const SOFTWARE_DATA: &'static str = "software_data";
+pub const CORRESPONDING_TRACE_DATA: &'static str = "corresponding_trace_data";
 pub const INNER_GRAPH: &'static str = "inner_graph";
 
 #[rustfmt::skip]
@@ -227,6 +228,7 @@ lazy_static!(
      pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
      pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
      pub static ref SOFTWARE_DATA_KEY: DefaultContextKey<SoftwareData> = DefaultContextKey::new(SOFTWARE_DATA);
+     pub static ref CORRESPONDING_TRACE_DATA_KEY: DefaultContextKey<CorrespondingTraceData> = DefaultContextKey::new(CORRESPONDING_TRACE_DATA);
      pub static ref INNER_GRAPH_KEY: DefaultContextKey<DefaultGraph> = DefaultContextKey::new(SOFTWARE_DATA);
 );
 
@@ -317,6 +319,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     EXECUTION_ID => Some(EXECUTION_ID_KEY.deref() as &dyn ContextKey),
     ROOT_SEQUENCE_KIND => Some(ROOT_SEQUENCE_KIND_KEY.deref() as &dyn ContextKey),
     SOFTWARE_DATA => Some(SOFTWARE_DATA_KEY.deref() as &dyn ContextKey),
+    CORRESPONDING_TRACE_DATA => Some(CORRESPONDING_TRACE_DATA_KEY.deref() as &dyn ContextKey),
     INNER_GRAPH => Some(INNER_GRAPH_KEY.deref() as &dyn ContextKey),
     _ => None,
   }

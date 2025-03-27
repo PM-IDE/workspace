@@ -202,7 +202,7 @@ impl PipelineParts {
 
   pub(super) fn discover_root_sequence_graph() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::DISCOVER_ROOT_SEQUENCE_GRAPH, &|context, _, config| {
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
       let root_sequence_kind = Self::get_user_data(config, &ROOT_SEQUENCE_KIND_KEY)?;
 
       match discover_root_sequence_graph_from_event_log(log, *root_sequence_kind) {

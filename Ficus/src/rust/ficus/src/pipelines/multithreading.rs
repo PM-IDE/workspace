@@ -10,7 +10,7 @@ use crate::features::discovery::timeline::discovery::{discover_timeline_diagram,
 use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
@@ -45,9 +45,6 @@ impl FromStr for FeatureCountKindDto {
 pub struct SoftwareData {
   event_classes: HashMap<String, usize>,
   thread_diagram_fragment: Vec<TraceThread>,
-  belongs_to_root_sequence: bool,
-  trace_id: u64,
-  event_index: u64,
 }
 
 impl SoftwareData {
@@ -57,20 +54,6 @@ impl SoftwareData {
 
   pub fn thread_diagram_fragment(&self) -> &Vec<TraceThread> {
     &self.thread_diagram_fragment
-  }
-
-  pub fn belongs_to_root_sequence(&self) -> bool {
-    self.belongs_to_root_sequence
-  }
-
-  pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
-
-  pub fn trace_id(&self) -> u64 {
-    self.trace_id
-  }
-
-  pub fn event_index(&self) -> u64 {
-    self.event_index
   }
 }
 
@@ -236,11 +219,8 @@ impl PipelineParts {
     let software_data = SoftwareData {
       event_classes,
       thread_diagram_fragment: threads.into_values().collect(),
-      belongs_to_root_sequence: false,
-      trace_id: trace_index as u64,
-      event_index: event_index as u64,
     };
-
+    
     let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
     event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
 

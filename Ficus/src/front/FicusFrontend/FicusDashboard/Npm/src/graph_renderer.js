@@ -50,8 +50,8 @@ function setNodeRenderer(cy) {
 const nodeWidthPx = 100;
 const nodeHeightPx = 100;
 
-function createHtmlLabel(data) {
-  let softwareData = getSoftwareDataOrNull(data);
+function createHtmlLabel(node) {
+  let softwareData = getSoftwareDataOrNull(node);
   if (softwareData == null) {
     return null;
   }
@@ -63,12 +63,12 @@ function createHtmlLabel(data) {
     }
   );
 
-  let nodeColor = softwareData.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+  let nodeColor = getTraceDataOrNull(node).belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
 
   return `
           <div style="width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; background: ${nodeColor}">
               <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
-                  ${data.label}
+                  ${node.label}
               </div>
               <div style="width: 100%; display: flex; flex-direction: row;">
                   ${histogramDivs.join('\n')}
@@ -122,11 +122,11 @@ function createEdgeStyle() {
 function createGraphElements(graph, annotation) {
   let elements = [];
 
-  let nonRootSequenceNodes = graph.nodes.filter(n => getSoftwareDataOrNull(n) != null && getSoftwareDataOrNull(n).belongsToRootSequence === false);
+  let nonRootSequenceNodes = graph.nodes.filter(n => getTraceDataOrNull(n).belongsToRootSequence === false);
   let nonRootNodesByTraces = new Map();
 
   for (let node of nonRootSequenceNodes) {
-    let traceId = getSoftwareDataOrNull(node).traceId;
+    let traceId = getTraceDataOrNull(node).traceId;
     if (nonRootNodesByTraces.has(traceId)) {
       nonRootNodesByTraces.get(traceId).push(node);
     } else {
@@ -135,9 +135,9 @@ function createGraphElements(graph, annotation) {
   }
 
   let rootNodesY = Math.ceil(nonRootNodesByTraces.size / 2) * nodeHeightPx;
-  let rootSequenceNodes = graph.nodes.filter(n => getSoftwareDataOrNull(n) == null || getSoftwareDataOrNull(n).belongsToRootSequence === true);
+  let rootSequenceNodes = graph.nodes.filter(n => getTraceDataOrNull(n).belongsToRootSequence === true);
 
-  for (let [index, node] of rootSequenceNodes.entries()) {
+  for (let [index, node] of sortNodesByEventIndex(rootSequenceNodes).entries()) {
     elements.push({
       renderedPosition: {
         x: index * nodeWidthPx + 20,
@@ -150,8 +150,7 @@ function createGraphElements(graph, annotation) {
   let traceIndex = 0;
 
   for (let [traceId, nodes] of nonRootNodesByTraces) {
-    console.log(nodes);
-    for (let [index, node] of nodes.entries()) {
+    for (let [index, node] of sortNodesByEventIndex(nodes).entries()) {
       elements.push({
         renderedPosition: {
           x: index * nodeWidthPx + 20,
@@ -169,6 +168,12 @@ function createGraphElements(graph, annotation) {
   return elements;
 }
 
+function sortNodesByEventIndex(nodes) {
+  return nodes.toSorted((f, s) => {
+    return getTraceDataOrNull(f).eventIndex - getTraceDataOrNull(s).eventIndex;
+  });
+}
+
 function createNodeData(node) {
   return {
     label: node.data,
@@ -180,6 +185,10 @@ function createNodeData(node) {
 function getSoftwareDataOrNull(node) {
   return node.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
 }
+
+function getTraceDataOrNull(node) {
+  return node.additionalData.find((d, _) => d.traceData != null)?.traceData;
+} 
 
 function createGraphEdgesElements(edges, annotation) {
   let edgesMap = {};

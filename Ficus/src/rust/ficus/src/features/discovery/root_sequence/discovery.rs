@@ -6,7 +6,7 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
-use crate::pipelines::keys::context_keys::SOFTWARE_DATA_KEY;
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY};
 use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
@@ -81,6 +81,8 @@ impl<'a, T> DiscoveryContext<'a, T> {
 
 pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_sequence_kind: RootSequenceKind) -> Result<DefaultGraph, DiscoverLCSGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
+  set_corresponding_trace_data(log);
+
   let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
   let artificial_start_end_events_factory = || (
@@ -90,10 +92,14 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
 
   let event_to_graph_node_info_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
     if let Some(software_data) = event.borrow().user_data().concrete(SOFTWARE_DATA_KEY.key()) {
-      let mut software_data = software_data.clone();
-      software_data.set_belongs_to_root_sequence(belongs_to_root_sequence);
+      user_data_impl.put_concrete(SOFTWARE_DATA_KEY.key(), software_data.clone());
+    }
 
-      user_data_impl.put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
+    if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
+      let mut corresponding_trace_data = corresponding_trace_data.clone();
+      corresponding_trace_data.set_belongs_to_root_sequence(belongs_to_root_sequence);
+
+      user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), corresponding_trace_data);
     }
   };
 
@@ -115,6 +121,41 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
   Ok(discover_root_sequence_graph(&log, &context))
+}
+
+#[derive(Clone, Debug)]
+pub struct CorrespondingTraceData {
+  trace_id: u64,
+  event_index: u64,
+  belongs_to_root_sequence: bool
+}
+
+impl CorrespondingTraceData {
+  pub fn belongs_to_root_sequence(&self) -> bool {
+    self.belongs_to_root_sequence
+  }
+
+  pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
+
+  pub fn trace_id(&self) -> u64 {
+    self.trace_id
+  }
+
+  pub fn event_index(&self) -> u64 {
+    self.event_index
+  }
+}
+
+fn set_corresponding_trace_data(log: &XesEventLogImpl) {
+  for (trace_index, trace) in log.traces().iter().enumerate() {
+    for (event_index, event) in trace.borrow().events().iter().enumerate() {
+      event.borrow_mut().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), CorrespondingTraceData {
+        belongs_to_root_sequence: false,
+        trace_id: trace_index as u64,
+        event_index: event_index as u64,
+      })
+    }
+  }
 }
 
 pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
@@ -139,7 +180,7 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &context, first_iteration);
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context);
-  
+
   if first_iteration {
     adjust_weights_and_connections(context, log, &mut graph);
   }
