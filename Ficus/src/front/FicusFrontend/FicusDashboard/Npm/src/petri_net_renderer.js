@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import {petriNetColors, lightTheme, darkTheme} from "./colors";
-import {createBreadthFirstLayout} from "./utils";
+import {createDagreLayout} from "./utils";
 import dagre from 'cytoscape-dagre';
 
 export default setDrawPetriNet;
@@ -22,7 +22,7 @@ function createCytoscapeOptions(id, net, annotation) {
     container: document.getElementById(id),
     elements: createElementsFromNet(net, annotation),
     style: createStylesList(),
-    layout: createBreadthFirstLayout()
+    layout: createDagreLayout()
   }
 }
 

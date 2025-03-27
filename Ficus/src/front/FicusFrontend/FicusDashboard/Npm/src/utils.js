@@ -4,7 +4,7 @@ import {saveAs} from 'file-saver'
 
 cytoscape.use(svg);
 
-export function createBreadthFirstLayout() {
+export function createDagreLayout() {
   return {
     name: 'dagre',
     rankDir: 'LR',

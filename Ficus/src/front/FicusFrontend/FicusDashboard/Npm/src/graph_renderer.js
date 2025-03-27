@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import {darkTheme, graphColors, performanceColors} from "./colors";
-import {calculateGradient, createBreadthFirstLayout, generateRandomColor} from "./utils";
+import {calculateGradient, createDagreLayout, generateRandomColor} from "./utils";
 import dagre from 'cytoscape-dagre';
 import nodeHtmlLabel from 'cytoscape-node-html-label'
 
@@ -81,7 +81,7 @@ function createCytoscapeOptions(id, graph, annotation) {
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph, annotation),
-    layout: createBreadthFirstLayout(),
+    layout: createDagreLayout(),
     style: [
       createNodeStyle(),
       createEdgeStyle(),
