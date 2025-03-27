@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import {darkTheme, graphColors, performanceColors} from "./colors";
-import {calculateGradient, createDagreLayout, generateRandomColor} from "./utils";
+import {calculateGradient, createDagreLayout, createPresetLayout, generateRandomColor} from "./utils";
 import dagre from 'cytoscape-dagre';
 import nodeHtmlLabel from 'cytoscape-node-html-label'
 
@@ -37,7 +37,7 @@ function setNodeRenderer(cy) {
       {
         query: 'node',
         tpl: function (data) {
-          return create_html_label(data);
+          return createHtmlLabel(data);
         }
       }
     ],
@@ -50,8 +50,8 @@ function setNodeRenderer(cy) {
 const nodeWidthPx = 100;
 const nodeHeightPx = 100;
 
-function create_html_label(data) {
-  let softwareData = data.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
+function createHtmlLabel(data) {
+  let softwareData = getSoftwareDataOrNull(data);
   if (softwareData == null) {
     return null;
   }
@@ -81,7 +81,7 @@ function createCytoscapeOptions(id, graph, annotation) {
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph, annotation),
-    layout: createDagreLayout(),
+    layout: createPresetLayout(),
     style: [
       createNodeStyle(),
       createEdgeStyle(),
@@ -122,19 +122,63 @@ function createEdgeStyle() {
 function createGraphElements(graph, annotation) {
   let elements = [];
 
-  for (let node of graph.nodes) {
+  let nonRootSequenceNodes = graph.nodes.filter(n => getSoftwareDataOrNull(n) != null && getSoftwareDataOrNull(n).belongsToRootSequence === false);
+  let nonRootNodesByTraces = new Map();
+
+  for (let node of nonRootSequenceNodes) {
+    let traceId = getSoftwareDataOrNull(node).traceId;
+    if (nonRootNodesByTraces.has(traceId)) {
+      nonRootNodesByTraces.get(traceId).push(node);
+    } else {
+      nonRootNodesByTraces.set(traceId, [node]);
+    }
+  }
+
+  let rootNodesY = Math.ceil(nonRootNodesByTraces.size / 2) * nodeHeightPx;
+  let rootSequenceNodes = graph.nodes.filter(n => getSoftwareDataOrNull(n) == null || getSoftwareDataOrNull(n).belongsToRootSequence === true);
+
+  for (let [index, node] of rootSequenceNodes.entries()) {
     elements.push({
-      data: {
-        label: node.data,
-        id: node.id.toString(),
-        additionalData: node.additionalData
-      }
-    })
+      renderedPosition: {
+        x: index * nodeWidthPx + 20,
+        y: rootNodesY,
+      },
+      data: createNodeData(node)
+    });
+  }
+
+  let traceIndex = 0;
+
+  for (let [traceId, nodes] of nonRootNodesByTraces) {
+    console.log(nodes);
+    for (let [index, node] of nodes.entries()) {
+      elements.push({
+        renderedPosition: {
+          x: index * nodeWidthPx + 20,
+          y: (traceIndex > (nonRootNodesByTraces.size / 2) ? traceIndex + 1 : traceIndex) * nodeHeightPx
+        },
+        data: createNodeData(node)
+      }) 
+    }
+    
+    traceIndex += 1;
   }
 
   elements.push(...createGraphEdgesElements(graph.edges, annotation));
 
   return elements;
+}
+
+function createNodeData(node) {
+  return {
+    label: node.data,
+    id: node.id.toString(),
+    additionalData: node.additionalData
+  };
+}
+
+function getSoftwareDataOrNull(node) {
+  return node.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
 }
 
 function createGraphEdgesElements(edges, annotation) {
