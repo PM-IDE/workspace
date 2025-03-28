@@ -42,7 +42,7 @@ function setNodeRenderer(cy) {
       }
     ],
     {
-        enablePointerEvents: true
+      enablePointerEvents: true
     }
   );
 }
@@ -119,6 +119,9 @@ function createEdgeStyle() {
   }
 }
 
+const nodeXDelta = 100;
+const nodeYDelta = 100;
+
 function createGraphElements(graph, annotation) {
   let elements = [];
 
@@ -134,13 +137,13 @@ function createGraphElements(graph, annotation) {
     }
   }
 
-  let rootNodesY = Math.ceil(nonRootNodesByTraces.size / 2) * nodeHeightPx;
+  let rootNodesY = Math.ceil(nonRootNodesByTraces.size / 2) * (nodeHeightPx + nodeYDelta);
   let rootSequenceNodes = graph.nodes.filter(n => getTraceDataOrNull(n).belongsToRootSequence === true);
 
   for (let [index, node] of sortNodesByEventIndex(rootSequenceNodes).entries()) {
     elements.push({
       renderedPosition: {
-        x: index * nodeWidthPx + 20,
+        x: index * (nodeWidthPx + nodeXDelta),
         y: rootNodesY,
       },
       data: createNodeData(node)
@@ -153,13 +156,13 @@ function createGraphElements(graph, annotation) {
     for (let [index, node] of sortNodesByEventIndex(nodes).entries()) {
       elements.push({
         renderedPosition: {
-          x: index * nodeWidthPx + 20,
-          y: (traceIndex > (nonRootNodesByTraces.size / 2) ? traceIndex + 1 : traceIndex) * nodeHeightPx
+          x: index * (nodeWidthPx + nodeXDelta),
+          y: (traceIndex > (nonRootNodesByTraces.size / 2) ? traceIndex + 1 : traceIndex) * (nodeHeightPx + nodeYDelta)
         },
         data: createNodeData(node)
-      }) 
+      });
     }
-    
+
     traceIndex += 1;
   }
 
@@ -188,7 +191,7 @@ function getSoftwareDataOrNull(node) {
 
 function getTraceDataOrNull(node) {
   return node.additionalData.find((d, _) => d.traceData != null)?.traceData;
-} 
+}
 
 function createGraphEdgesElements(edges, annotation) {
   let edgesMap = {};
