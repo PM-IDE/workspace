@@ -63,7 +63,7 @@ function createHtmlLabel(node) {
     }
   );
 
-  let nodeColor = getTraceDataOrNull(node).belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+  let nodeColor = getTraceDataOrNull(node)?.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
 
   return `
           <div style="width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; background: ${nodeColor}">
