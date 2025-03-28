@@ -63,7 +63,7 @@ function createHtmlLabel(node) {
     }
   );
 
-  let nodeColor = getTraceDataOrNull(node)?.belongsToRootSequence ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+  let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
 
   return `
           <div style="width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; background: ${nodeColor}">
@@ -143,7 +143,7 @@ const nodeYDelta = 100;
 function createGraphElementsForPresetLayout(graph, annotation) {
   let elements = [];
 
-  let nonRootSequenceNodes = graph.nodes.filter(n => getTraceDataOrNull(n).belongsToRootSequence === false);
+  let nonRootSequenceNodes = graph.nodes.filter(n => !belongsToRootSequence(n));
   let nonRootNodesByTraces = new Map();
 
   for (let node of nonRootSequenceNodes) {
@@ -156,7 +156,7 @@ function createGraphElementsForPresetLayout(graph, annotation) {
   }
 
   let rootNodesY = Math.ceil(nonRootNodesByTraces.size / 2) * (nodeHeightPx + nodeYDelta);
-  let rootSequenceNodes = graph.nodes.filter(n => getTraceDataOrNull(n).belongsToRootSequence === true);
+  let rootSequenceNodes = graph.nodes.filter(n => belongsToRootSequence(n));
 
   for (let [index, node] of sortNodesByEventIndex(rootSequenceNodes).entries()) {
     elements.push({
@@ -204,11 +204,44 @@ function createNodeData(node) {
 }
 
 function getSoftwareDataOrNull(node) {
-  return node.additionalData.find((d, _) => d.softwareData != null)?.softwareData;
+  let mergedSoftwareData = {
+    histogram: new Map(),
+    timelineDiagramFragment: []
+  };
+
+  for (let data of node.additionalData) {
+    if (data.softwareData != null) {
+      for (let [name, count] of data.softwareData.histogram.map(entry => [entry.name, entry.count])) {
+        if (mergedSoftwareData.histogram.has(name)) {
+          mergedSoftwareData.histogram.set(name, mergedSoftwareData.histogram.get(name) + count);
+        } else {
+          mergedSoftwareData.histogram.set(name, count);
+        }
+      }
+
+      mergedSoftwareData.timelineDiagramFragment.push(data.softwareData.timelineDiagramFragment);
+    }
+  }
+  
+  mergedSoftwareData.histogram = mergedSoftwareData.histogram.entries().map(e => {
+      return {
+        name: e[0],
+        count: e[1]
+      }
+    }
+  ).toArray();
+
+  return mergedSoftwareData;
 }
 
-function getTraceDataOrNull(node) {
-  return node.additionalData.find((d, _) => d.traceData != null)?.traceData;
+function belongsToRootSequence(node) {
+  for (let data of node.additionalData.filter((d, _) => d.traceData != null)) {
+    if (data.traceData.belongsToRootSequence === true) {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 function createGraphEdgesElements(edges, annotation) {

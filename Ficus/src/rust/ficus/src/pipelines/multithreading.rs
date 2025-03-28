@@ -62,12 +62,6 @@ impl SoftwareData {
   pub fn thread_diagram_fragment(&self) -> &Vec<TraceThread> {
     &self.thread_diagram_fragment
   }
-  
-  pub fn absorb(&mut self, other: &SoftwareData) {
-    for (class, count) in other.event_classes() {
-      *self.event_classes.entry(class.to_string()).or_insert(0) += count;
-    }
-  }
 }
 
 impl PipelineParts {
@@ -233,9 +227,9 @@ impl PipelineParts {
       event_classes,
       thread_diagram_fragment: threads.into_values().collect(),
     };
-    
+
     let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
-    event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
+    event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
     Ok(Rc::new(RefCell::new(event)))
   }

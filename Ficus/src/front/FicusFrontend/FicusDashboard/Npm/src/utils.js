@@ -7,7 +7,7 @@ cytoscape.use(svg);
 export function createDagreLayout() {
   return {
     name: 'dagre',
-    rankDir: 'LR',
+    rankDir: 'TB',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
     spacingFactor: 2

@@ -7,18 +7,19 @@ use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY};
+use crate::pipelines::multithreading::SoftwareData;
 use crate::utils::distance::distance::calculate_lcs_distance;
-use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
+use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
-use crate::pipelines::multithreading::SoftwareData;
+use crate::pipelines::keys::context_key::DefaultContextKey;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -97,10 +98,11 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
     }
 
     if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
-      let mut corresponding_trace_data = corresponding_trace_data.clone();
-      corresponding_trace_data.set_belongs_to_root_sequence(belongs_to_root_sequence);
-
-      user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), corresponding_trace_data);
+      user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), corresponding_trace_data.iter().map(|mut d| {
+        let mut data = d.clone();
+        data.set_belongs_to_root_sequence(belongs_to_root_sequence);
+        data
+      }).collect());
     }
   };
 
@@ -150,11 +152,13 @@ impl CorrespondingTraceData {
 fn set_corresponding_trace_data(log: &XesEventLogImpl) {
   for (trace_index, trace) in log.traces().iter().enumerate() {
     for (event_index, event) in trace.borrow().events().iter().enumerate() {
-      event.borrow_mut().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), CorrespondingTraceData {
-        belongs_to_root_sequence: false,
-        trace_id: trace_index as u64,
-        event_index: event_index as u64,
-      })
+      event.borrow_mut().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), vec![
+        CorrespondingTraceData {
+          belongs_to_root_sequence: false,
+          trace_id: trace_index as u64,
+          event_index: event_index as u64,
+        }
+      ])
     }
   }
 }
@@ -248,8 +252,11 @@ fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
     let label = current_sequence.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
     let added_node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
 
-    let added_node_software_data = merge_software_data(&current_sequence, &graph);
-    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), added_node_software_data);
+    let software_data = extract_user_data_from(&current_sequence, &graph, &SOFTWARE_DATA_KEY);
+    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
+
+    let trace_data = extract_user_data_from(&current_sequence, &graph, &CORRESPONDING_TRACE_DATA_KEY);
+    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
 
     graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::empty());
     graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::empty());
@@ -262,15 +269,15 @@ fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
   }
 }
 
-fn merge_software_data(nodes: &Vec<u64>, graph: &DefaultGraph) -> SoftwareData {
-  let mut new_software_data = SoftwareData::empty();
+fn extract_user_data_from<T: Clone>(nodes: &Vec<u64>, graph: &DefaultGraph, key: &DefaultContextKey<Vec<T>>) -> Vec<T> {
+  let mut result = vec![];
   for node in nodes {
-    if let Some(node_software_data) = graph.node(node).unwrap().user_data().concrete(SOFTWARE_DATA_KEY.key()) {
-      new_software_data.absorb(node_software_data);
+    if let Some(data) = graph.node(node).unwrap().user_data().concrete(key.key()) {
+      result.extend_from_slice(data.iter().map(|s| (*s).clone()).collect::<Vec<T>>().as_slice())
     }
   }
-  
-  new_software_data
+
+  result
 }
 
 fn adjust_weights_and_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {

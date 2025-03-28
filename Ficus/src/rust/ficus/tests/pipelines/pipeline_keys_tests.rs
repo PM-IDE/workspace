@@ -123,8 +123,8 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
     assert_existence::<Vec<f64>>(&TOLERANCES, &mut used);
     assert_existence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
-    assert_existence::<RootSequenceKind>(&ROOT_SEQUENCE_KIND, &mut used);
-    assert_existence::<SoftwareData>(&SOFTWARE_DATA, &mut used);
+    assert_existence::<Vec<RootSequenceKind>>(&ROOT_SEQUENCE_KIND, &mut used);
+    assert_existence::<Vec<SoftwareData>>(&SOFTWARE_DATA, &mut used);
     assert_existence::<DefaultGraph>(&INNER_GRAPH, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
@@ -327,8 +327,8 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
     assert_keys_equivalence::<Vec<f64>>(&TOLERANCES, &mut used);
     assert_keys_equivalence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
-    assert_keys_equivalence::<RootSequenceKind>(&ROOT_SEQUENCE_KIND, &mut used);
-    assert_keys_equivalence::<SoftwareData>(&SOFTWARE_DATA, &mut used);
+    assert_keys_equivalence::<Vec<RootSequenceKind>>(&ROOT_SEQUENCE_KIND, &mut used);
+    assert_keys_equivalence::<Vec<SoftwareData>>(&SOFTWARE_DATA, &mut used);
     assert_keys_equivalence::<DefaultGraph>(&INNER_GRAPH, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())

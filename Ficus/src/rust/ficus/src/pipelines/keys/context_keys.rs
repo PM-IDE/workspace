@@ -227,8 +227,8 @@ lazy_static!(
      pub static ref MIN_POINTS_IN_CLUSTER_ARRAY_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new(MIN_POINTS_IN_CLUSTER_ARRAY);
      pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
      pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
-     pub static ref SOFTWARE_DATA_KEY: DefaultContextKey<SoftwareData> = DefaultContextKey::new(SOFTWARE_DATA);
-     pub static ref CORRESPONDING_TRACE_DATA_KEY: DefaultContextKey<CorrespondingTraceData> = DefaultContextKey::new(CORRESPONDING_TRACE_DATA);
+     pub static ref SOFTWARE_DATA_KEY: DefaultContextKey<Vec<SoftwareData>> = DefaultContextKey::new(SOFTWARE_DATA);
+     pub static ref CORRESPONDING_TRACE_DATA_KEY: DefaultContextKey<Vec<CorrespondingTraceData>> = DefaultContextKey::new(CORRESPONDING_TRACE_DATA);
      pub static ref INNER_GRAPH_KEY: DefaultContextKey<DefaultGraph> = DefaultContextKey::new(SOFTWARE_DATA);
 );
 

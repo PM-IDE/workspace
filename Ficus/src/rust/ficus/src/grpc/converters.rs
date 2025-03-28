@@ -14,7 +14,7 @@ use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::features::discovery::root_sequence::discovery::{CorrespondingTraceData, RootSequenceKind};
-use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
+use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_node_additional_data::Data;
@@ -31,6 +31,7 @@ use crate::utils::graph::graph::{DefaultGraph, Graph};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::log_serialization_format::LogSerializationFormat;
+use crate::utils::user_data::user_data::UserDataImpl;
 use crate::{
   features::analysis::patterns::{
     activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
@@ -50,7 +51,6 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
-use crate::utils::user_data::user_data::UserDataImpl;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -567,18 +567,18 @@ where
       Some(convert_to_grpc_graph(inner_graph))
     } else {
       None
-    }
+    },
   }
 }
 
 fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<GrpcNodeAdditionalData> {
   let mut additional_data = vec![];
   if let Some(software_data) = user_data.concrete(SOFTWARE_DATA_KEY.key()) {
-    additional_data.push(convert_to_grpc_graph_node_software_data(software_data));
+    additional_data.extend(software_data.iter().map(|s| convert_to_grpc_graph_node_software_data(s)));
   }
-  
+
   if let Some(trace_data) = user_data.concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
-    additional_data.push(convert_to_grpc_corresponding_trace_data(trace_data));
+    additional_data.extend(trace_data.iter().map(|t| convert_to_grpc_corresponding_trace_data(t)));
   }
 
   additional_data
@@ -729,7 +729,7 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
           start_point: Some(convert_to_grpc_log_point(g.start_point())),
           end_point: Some(convert_to_grpc_log_point(g.end_point())),
         }).collect(),
-        threads: convert_to_grpc_threads(t.threads())
+        threads: convert_to_grpc_threads(t.threads()),
       })
       .collect(),
   }
