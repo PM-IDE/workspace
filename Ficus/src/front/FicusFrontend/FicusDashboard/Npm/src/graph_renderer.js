@@ -80,13 +80,31 @@ function createHtmlLabel(node) {
 function createCytoscapeOptions(id, graph, annotation) {
   return {
     container: document.getElementById(id),
-    elements: createGraphElements(graph, annotation),
-    layout: createPresetLayout(),
+    elements: createGraphElementForDagre(graph, annotation),
+    layout: createDagreLayout(),
     style: [
       createNodeStyle(),
       createEdgeStyle(),
     ]
   }
+}
+
+function createGraphElementForDagre(graph, annotation) {
+  let elements = [];
+
+  for (let node of graph.nodes) {
+    elements.push({
+      data: {
+        label: node.data,
+        id: node.id.toString(),
+        additionalData: node.additionalData
+      }
+    })
+  }
+
+  elements.push(...createGraphEdgesElements(graph.edges, annotation));
+
+  return elements;
 }
 
 function createNodeStyle() {
@@ -122,7 +140,7 @@ function createEdgeStyle() {
 const nodeXDelta = 100;
 const nodeYDelta = 100;
 
-function createGraphElements(graph, annotation) {
+function createGraphElementsForPresetLayout(graph, annotation) {
   let elements = [];
 
   let nonRootSequenceNodes = graph.nodes.filter(n => getTraceDataOrNull(n).belongsToRootSequence === false);
@@ -200,7 +218,7 @@ function createGraphEdgesElements(edges, annotation) {
     edgesMap[edge.id] = {};
   }
 
-  processEdgesWidths(edges, edgesMap);
+  processEdgesWeights(edges, edgesMap);
 
   if (annotation !== null && annotation.timeAnnotation !== null) {
     processTimeAnnotation(annotation.timeAnnotation, edges, edgesMap);
@@ -223,7 +241,7 @@ function createGraphEdgesElements(edges, annotation) {
   return elements;
 }
 
-function processEdgesWidths(edges, edgesMap) {
+function processEdgesWeights(edges, edgesMap) {
   const minWidth = 1;
   const maxWidth = 15;
   let maxWeight = Math.max(...edges.map(e => e.weight));
