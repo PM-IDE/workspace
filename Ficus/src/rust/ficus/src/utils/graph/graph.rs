@@ -103,6 +103,10 @@ where
     self.add_node_internal(GraphNode::new(node_data))
   }
 
+  pub fn delete_node(&mut self, id: &u64) -> bool {
+    self.nodes.remove(id).is_some()
+  }
+
   fn add_node_internal(&mut self, new_node: GraphNode<TNodeData>) -> u64 {
     let id = *new_node.id();
     self.nodes.insert(*new_node.id(), new_node);
