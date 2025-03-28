@@ -8,16 +8,17 @@ use crate::features::analysis::patterns::activity_instances::create_vector_of_un
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY};
 use crate::utils::distance::distance::calculate_lcs_distance;
-use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
+use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
+use crate::pipelines::multithreading::SoftwareData;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -244,18 +245,32 @@ fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
     graph.disconnect_nodes(&start_node, current_sequence.first().unwrap());
     graph.disconnect_nodes(current_sequence.last().unwrap(), &end_node);
 
+    let label = current_sequence.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
+    let added_node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
+
+    let added_node_software_data = merge_software_data(&current_sequence, &graph);
+    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), added_node_software_data);
+
+    graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::empty());
+    graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::empty());
+
     for i in 0..current_sequence.len() - 1 {
       graph.disconnect_nodes(&current_sequence[i], &current_sequence[i + 1]);
       graph.delete_node(&current_sequence[i]);
       graph.delete_node(&current_sequence[i + 1]);
     }
-
-    let label = current_sequence.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
-    let added_node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
-
-    graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::empty());
-    graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::empty());
   }
+}
+
+fn merge_software_data(nodes: &Vec<u64>, graph: &DefaultGraph) -> SoftwareData {
+  let mut new_software_data = SoftwareData::empty();
+  for node in nodes {
+    if let Some(node_software_data) = graph.node(node).unwrap().user_data().concrete(SOFTWARE_DATA_KEY.key()) {
+      new_software_data.absorb(node_software_data);
+    }
+  }
+  
+  new_software_data
 }
 
 fn adjust_weights_and_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {

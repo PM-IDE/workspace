@@ -48,12 +48,25 @@ pub struct SoftwareData {
 }
 
 impl SoftwareData {
+  pub fn empty() -> Self {
+    Self {
+      event_classes: HashMap::new(),
+      thread_diagram_fragment: vec![]
+    }
+  }
+
   pub fn event_classes(&self) -> &HashMap<String, usize> {
     &self.event_classes
   }
 
   pub fn thread_diagram_fragment(&self) -> &Vec<TraceThread> {
     &self.thread_diagram_fragment
+  }
+  
+  pub fn absorb(&mut self, other: &SoftwareData) {
+    for (class, count) in other.event_classes() {
+      *self.event_classes.entry(class.to_string()).or_insert(0) += count;
+    }
   }
 }
 
