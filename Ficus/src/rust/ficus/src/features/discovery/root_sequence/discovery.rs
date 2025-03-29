@@ -6,8 +6,8 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY};
-use crate::pipelines::multithreading::SoftwareData;
+use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
@@ -19,7 +19,6 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
-use crate::pipelines::keys::context_key::DefaultContextKey;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -104,6 +103,10 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
         data
       }).collect());
     }
+
+    if let Some(start_end_activity_time) = event.borrow().user_data().concrete(START_END_ACTIVITY_TIME_KEY.key()) {
+      user_data_impl.put_concrete(START_END_ACTIVITY_TIME_KEY.key(), start_end_activity_time.clone())
+    }
   };
 
   let underlying_events_extractor = |event: &Rc<RefCell<XesEventImpl>>| {
@@ -124,6 +127,29 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
   Ok(discover_root_sequence_graph(&log, &context))
+}
+
+#[derive(Clone)]
+pub struct ActivityStartEndTimeData {
+  start_time: u64,
+  end_time: u64,
+}
+
+impl ActivityStartEndTimeData {
+  pub fn new(start_time: u64, end_time: u64) -> Self {
+    Self {
+      start_time,
+      end_time
+    }
+  }
+  
+  pub fn start_time(&self) -> u64 {
+    self.start_time
+  }
+
+  pub fn end_time(&self) -> u64 {
+    self.end_time
+  }
 }
 
 #[derive(Clone, Debug)]
@@ -258,6 +284,9 @@ fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
     let trace_data = extract_user_data_from(&current_sequence, &graph, &CORRESPONDING_TRACE_DATA_KEY);
     graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
 
+    let activities_times = collect_start_end_time_activities_data(&current_sequence, graph);
+    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
+
     graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::empty());
     graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::empty());
 
@@ -278,6 +307,17 @@ fn extract_user_data_from<T: Clone>(nodes: &Vec<u64>, graph: &DefaultGraph, key:
   }
 
   result
+}
+
+fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph) -> Vec<ActivityStartEndTimeData> {
+  let mut times = vec![];
+  for node in nodes {
+    if let Some(data) = graph.node(node).unwrap().user_data().concrete(START_END_ACTIVITY_TIME_KEY.key()) {
+      times.push(data.clone());
+    }
+  }
+  
+  times
 }
 
 fn adjust_weights_and_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {

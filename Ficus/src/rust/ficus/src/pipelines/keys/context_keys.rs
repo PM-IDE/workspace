@@ -5,7 +5,7 @@ use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
-use crate::features::discovery::root_sequence::discovery::{CorrespondingTraceData, RootSequenceKind};
+use crate::features::discovery::root_sequence::discovery::{ActivityStartEndTimeData, CorrespondingTraceData, RootSequenceKind};
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
@@ -129,6 +129,8 @@ pub const ROOT_SEQUENCE_KIND: &'static str = "root_sequence_kind";
 pub const SOFTWARE_DATA: &'static str = "software_data";
 pub const CORRESPONDING_TRACE_DATA: &'static str = "corresponding_trace_data";
 pub const INNER_GRAPH: &'static str = "inner_graph";
+pub const START_END_ACTIVITY_TIME: &'static str = "start_end_activity_time";
+pub const START_END_ACTIVITIES_TIMES: &'static str = "start_end_activities_times";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -230,6 +232,8 @@ lazy_static!(
      pub static ref SOFTWARE_DATA_KEY: DefaultContextKey<Vec<SoftwareData>> = DefaultContextKey::new(SOFTWARE_DATA);
      pub static ref CORRESPONDING_TRACE_DATA_KEY: DefaultContextKey<Vec<CorrespondingTraceData>> = DefaultContextKey::new(CORRESPONDING_TRACE_DATA);
      pub static ref INNER_GRAPH_KEY: DefaultContextKey<DefaultGraph> = DefaultContextKey::new(SOFTWARE_DATA);
+     pub static ref START_END_ACTIVITY_TIME_KEY: DefaultContextKey<ActivityStartEndTimeData> = DefaultContextKey::new(START_END_ACTIVITY_TIME);
+     pub static ref START_END_ACTIVITIES_TIMES_KEY: DefaultContextKey<Vec<ActivityStartEndTimeData>> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -321,6 +325,8 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     SOFTWARE_DATA => Some(SOFTWARE_DATA_KEY.deref() as &dyn ContextKey),
     CORRESPONDING_TRACE_DATA => Some(CORRESPONDING_TRACE_DATA_KEY.deref() as &dyn ContextKey),
     INNER_GRAPH => Some(INNER_GRAPH_KEY.deref() as &dyn ContextKey),
+    START_END_ACTIVITY_TIME => Some(START_END_ACTIVITY_TIME_KEY.deref() as &dyn ContextKey),
+    START_END_ACTIVITIES_TIMES => Some(START_END_ACTIVITIES_TIMES_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

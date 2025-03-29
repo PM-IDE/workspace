@@ -8,8 +8,13 @@ use crate::{
 };
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::error::Error;
+use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
+use nameof::name_of;
+use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
+use crate::pipelines::keys::context_keys::LOG_THREADS_DIAGRAM_KEY;
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {
@@ -94,6 +99,28 @@ impl TraceThreadEvent {
 
 pub enum LogThreadsDiagramError {
   NotSupportedEventStamp,
+}
+
+impl Debug for LogThreadsDiagramError {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    Display::fmt(self, f)
+  }
+}
+
+impl Display for LogThreadsDiagramError {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      LogThreadsDiagramError::NotSupportedEventStamp => f.write_str("NotSupportedEventStamp")
+    }
+  }
+}
+
+impl Error for LogThreadsDiagramError {}
+
+impl Into<PipelinePartExecutionError> for LogThreadsDiagramError {
+  fn into(self) -> PipelinePartExecutionError {
+    PipelinePartExecutionError::Raw(RawPartExecutionError::new(self.to_string()))
+  }
 }
 
 pub fn discover_timeline_diagram(
