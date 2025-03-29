@@ -212,7 +212,13 @@ message GrpcNodeAdditionalData {
     GrpcSoftwareData software_data = 2;
     GrpcUnderlyingPatternInfo pattern_info = 3;
     GrpcNodeCorrespondingTraceData trace_data = 4;
+    GrpcNodeTimeActivityStartEndData time_data = 5;
   }
+}
+
+message GrpcNodeTimeActivityStartEndData {
+  uint64 start_time = 1;
+  uint64 end_time = 2;
 }
 
 message GrpcNodeCorrespondingTraceData {
