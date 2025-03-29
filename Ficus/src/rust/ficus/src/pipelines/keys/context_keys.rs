@@ -131,6 +131,7 @@ pub const CORRESPONDING_TRACE_DATA: &'static str = "corresponding_trace_data";
 pub const INNER_GRAPH: &'static str = "inner_graph";
 pub const START_END_ACTIVITY_TIME: &'static str = "start_end_activity_time";
 pub const START_END_ACTIVITIES_TIMES: &'static str = "start_end_activities_times";
+pub const MERGE_SEQUENCES_OF_EVENTS: &'static str = "merge_sequences_of_events";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -234,6 +235,7 @@ lazy_static!(
      pub static ref INNER_GRAPH_KEY: DefaultContextKey<DefaultGraph> = DefaultContextKey::new(SOFTWARE_DATA);
      pub static ref START_END_ACTIVITY_TIME_KEY: DefaultContextKey<ActivityStartEndTimeData> = DefaultContextKey::new(START_END_ACTIVITY_TIME);
      pub static ref START_END_ACTIVITIES_TIMES_KEY: DefaultContextKey<Vec<ActivityStartEndTimeData>> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
+     pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -327,6 +329,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     INNER_GRAPH => Some(INNER_GRAPH_KEY.deref() as &dyn ContextKey),
     START_END_ACTIVITY_TIME => Some(START_END_ACTIVITY_TIME_KEY.deref() as &dyn ContextKey),
     START_END_ACTIVITIES_TIMES => Some(START_END_ACTIVITIES_TIMES_KEY.deref() as &dyn ContextKey),
+    MERGE_SEQUENCES_OF_EVENTS => Some(MERGE_SEQUENCES_OF_EVENTS_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

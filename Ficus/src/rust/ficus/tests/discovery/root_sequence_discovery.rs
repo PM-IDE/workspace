@@ -265,7 +265,7 @@ fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_
 
   let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer, &|_| { None });
 
-  let graph = discover_root_sequence_graph(&traces, &context);
+  let graph = discover_root_sequence_graph(&traces, &context, false);
   let test_result = graph.serialize_edges_deterministic();
 
   let gold = gold_graph_edges.join("\n");

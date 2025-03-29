@@ -71,6 +71,7 @@ const_percentage_from_max_value = 'percent_from_max_value'
 const_tolerances = 'tolerances'
 const_min_points_in_cluster_array = 'min_points_in_cluster_array'
 const_root_sequence_kind = 'root_sequence_kind'
+const_merge_sequences_of_events = 'merge_sequences_of_events'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'

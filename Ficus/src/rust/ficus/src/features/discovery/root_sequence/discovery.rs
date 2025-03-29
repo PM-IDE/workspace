@@ -7,7 +7,7 @@ use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME, START_END_ACTIVITY_TIME_KEY};
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
@@ -80,7 +80,11 @@ impl<'a, T> DiscoveryContext<'a, T> {
   }
 }
 
-pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_sequence_kind: RootSequenceKind) -> Result<DefaultGraph, DiscoverLCSGraphError> {
+pub fn discover_root_sequence_graph_from_event_log(
+  log: &XesEventLogImpl,
+  root_sequence_kind: RootSequenceKind,
+  merge_sequences_of_events: bool,
+) -> Result<DefaultGraph, DiscoverLCSGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
   set_corresponding_trace_data(log);
 
@@ -126,7 +130,7 @@ pub fn discover_root_sequence_graph_from_event_log(log: &XesEventLogImpl, root_s
   };
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
-  Ok(discover_root_sequence_graph(&log, &context))
+  Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events))
 }
 
 #[derive(Clone)]
@@ -139,10 +143,10 @@ impl ActivityStartEndTimeData {
   pub fn new(start_time: u64, end_time: u64) -> Self {
     Self {
       start_time,
-      end_time
+      end_time,
     }
   }
-  
+
   pub fn start_time(&self) -> u64 {
     self.start_time
   }
@@ -192,8 +196,17 @@ fn set_corresponding_trace_data(log: &XesEventLogImpl) {
 pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
+  merge_sequences_of_events: bool,
 ) -> DefaultGraph {
-  discover_root_sequence_graph_internal(log, context, true)
+  let mut graph = discover_root_sequence_graph_internal(log, context, true);
+
+  adjust_weights_and_connections(context, log, &mut graph);
+
+  if merge_sequences_of_events {
+    merge_sequences_of_nodes(&mut graph);
+  }
+
+  graph
 }
 
 fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
@@ -211,11 +224,6 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &context, first_iteration);
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context);
-
-  if first_iteration {
-    adjust_weights_and_connections(context, log, &mut graph);
-    merge_sequences_of_nodes(&mut graph);
-  }
 
   graph
 }
@@ -316,7 +324,7 @@ fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph
       times.push(data.clone());
     }
   }
-  
+
   times
 }
 
