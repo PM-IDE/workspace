@@ -6,7 +6,6 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::create_threads_log_by_attribute;
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
-use crate::features::discovery::root_sequence::discovery::ActivityStartEndTimeData;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, TraceThread, TraceThreadEvent};
 use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
@@ -21,6 +20,7 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
+use crate::features::discovery::root_sequence::models::ActivityStartEndTimeData;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {

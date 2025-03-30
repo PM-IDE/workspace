@@ -13,7 +13,7 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::root_sequence::discovery::{ActivityStartEndTimeData, CorrespondingTraceData, RootSequenceKind};
+use crate::features::discovery::root_sequence::discovery::{RootSequenceKind};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
@@ -51,6 +51,7 @@ use crate::{
 };
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData};
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)

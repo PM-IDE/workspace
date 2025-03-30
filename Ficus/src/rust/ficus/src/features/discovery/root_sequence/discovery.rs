@@ -5,16 +5,18 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
+use crate::features::discovery::root_sequence::adjustments::{adjust_weights_and_connections, merge_sequences_of_nodes};
+use crate::features::discovery::root_sequence::context::DiscoveryContext;
+use crate::features::discovery::root_sequence::models::CorrespondingTraceData;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
-use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
@@ -50,32 +52,6 @@ impl Display for DiscoverLCSGraphError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
       DiscoverLCSGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events")
-    }
-  }
-}
-
-pub struct DiscoveryContext<'a, T> {
-  name_extractor: &'a dyn Fn(&T) -> HeapedOrOwned<String>,
-  artificial_start_end_events_factory: &'a dyn Fn() -> (T, T),
-  root_sequence_kind: RootSequenceKind,
-  event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl, bool) -> (),
-  underlying_events_extractor: &'a dyn Fn(&T) -> Option<Vec<T>>,
-}
-
-impl<'a, T> DiscoveryContext<'a, T> {
-  pub fn new(
-    name_extractor: &'a dyn Fn(&T) -> HeapedOrOwned<String>,
-    artificial_start_end_events_factory: &'a dyn Fn() -> (T, T),
-    root_sequence_kind: RootSequenceKind,
-    event_to_graph_node_info_transfer: &'a dyn Fn(&T, &mut UserDataImpl, bool) -> (),
-    underlying_events_extractor: &'a dyn Fn(&T) -> Option<Vec<T>>,
-  ) -> Self {
-    Self {
-      name_extractor,
-      artificial_start_end_events_factory,
-      root_sequence_kind,
-      event_to_graph_node_info_transfer,
-      underlying_events_extractor,
     }
   }
 }
@@ -121,73 +97,23 @@ pub fn discover_root_sequence_graph_from_event_log(
     }
   };
 
-  let context = DiscoveryContext {
-    name_extractor: &name_extractor,
-    artificial_start_end_events_factory: &artificial_start_end_events_factory,
-    root_sequence_kind,
-    event_to_graph_node_info_transfer: &event_to_graph_node_info_transfer,
-    underlying_events_extractor: &underlying_events_extractor,
-  };
+  let context = DiscoveryContext::new(
+    &name_extractor, 
+    &artificial_start_end_events_factory, 
+    root_sequence_kind, 
+    &event_to_graph_node_info_transfer,
+    &underlying_events_extractor
+  );
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
   Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events))
-}
-
-#[derive(Clone)]
-pub struct ActivityStartEndTimeData {
-  start_time: u64,
-  end_time: u64,
-}
-
-impl ActivityStartEndTimeData {
-  pub fn new(start_time: u64, end_time: u64) -> Self {
-    Self {
-      start_time,
-      end_time,
-    }
-  }
-
-  pub fn start_time(&self) -> u64 {
-    self.start_time
-  }
-
-  pub fn end_time(&self) -> u64 {
-    self.end_time
-  }
-}
-
-#[derive(Clone, Debug)]
-pub struct CorrespondingTraceData {
-  trace_id: u64,
-  event_index: u64,
-  belongs_to_root_sequence: bool,
-}
-
-impl CorrespondingTraceData {
-  pub fn belongs_to_root_sequence(&self) -> bool {
-    self.belongs_to_root_sequence
-  }
-
-  pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
-
-  pub fn trace_id(&self) -> u64 {
-    self.trace_id
-  }
-
-  pub fn event_index(&self) -> u64 {
-    self.event_index
-  }
 }
 
 fn set_corresponding_trace_data(log: &XesEventLogImpl) {
   for (trace_index, trace) in log.traces().iter().enumerate() {
     for (event_index, event) in trace.borrow().events().iter().enumerate() {
       event.borrow_mut().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), vec![
-        CorrespondingTraceData {
-          belongs_to_root_sequence: false,
-          trace_id: trace_index as u64,
-          event_index: event_index as u64,
-        }
+        CorrespondingTraceData::new(trace_index as u64, event_index as u64, false)
       ])
     }
   }
@@ -214,7 +140,7 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   context: &DiscoveryContext<T>,
   first_iteration: bool,
 ) -> DefaultGraph {
-  let root_sequence = discover_root_sequence(log, context.root_sequence_kind);
+  let root_sequence = discover_root_sequence(log, context.root_sequence_kind());
 
   if root_sequence.len() == 2 {
     return handle_recursion_exit_case(log, &root_sequence, context);
@@ -228,149 +154,13 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   graph
 }
 
-fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
-  let mut processed_nodes = HashSet::new();
-  let mut sequences = vec![];
-
-  let check_node = |node_id| {
-    graph.incoming_edges(node_id).len() == 1 && graph.outgoing_nodes(node_id).len() == 1
-  };
-
-  for node in graph.all_nodes() {
-    if processed_nodes.contains(node.id()) || !check_node(node.id()) {
-      continue;
-    }
-
-    let mut current_sequence = vec![*node.id()];
-    let mut current_node_id = node.id();
-
-    loop {
-      let prev_node = *graph.incoming_edges(current_node_id).first().unwrap();
-      if !check_node(prev_node) {
-        break;
-      }
-
-      current_sequence.push(*prev_node);
-      current_node_id = prev_node;
-    }
-
-    current_sequence.reverse();
-    current_node_id = node.id();
-
-    loop {
-      let next_node = *graph.outgoing_nodes(current_node_id).first().unwrap();
-      if !check_node(next_node) {
-        break;
-      }
-
-      current_sequence.push(*next_node);
-      current_node_id = next_node;
-    }
-
-    for node in &current_sequence {
-      processed_nodes.insert(*node);
-    }
-
-    if current_sequence.len() > 1 {
-      sequences.push(current_sequence);
-    }
-  }
-
-  for current_sequence in sequences {
-    let start_node = **graph.incoming_edges(current_sequence.first().unwrap()).first().unwrap();
-    let end_node = **graph.outgoing_nodes(current_sequence.last().unwrap()).first().unwrap();
-
-    graph.disconnect_nodes(&start_node, current_sequence.first().unwrap());
-    graph.disconnect_nodes(current_sequence.last().unwrap(), &end_node);
-
-    let label = current_sequence.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
-    let added_node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
-
-    let software_data = extract_user_data_from(&current_sequence, &graph, &SOFTWARE_DATA_KEY);
-    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
-
-    let trace_data = extract_user_data_from(&current_sequence, &graph, &CORRESPONDING_TRACE_DATA_KEY);
-    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
-
-    let activities_times = collect_start_end_time_activities_data(&current_sequence, graph);
-    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
-
-    graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::empty());
-    graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::empty());
-
-    for i in 0..current_sequence.len() - 1 {
-      graph.disconnect_nodes(&current_sequence[i], &current_sequence[i + 1]);
-      graph.delete_node(&current_sequence[i]);
-      graph.delete_node(&current_sequence[i + 1]);
-    }
-  }
-}
-
-fn extract_user_data_from<T: Clone>(nodes: &Vec<u64>, graph: &DefaultGraph, key: &DefaultContextKey<Vec<T>>) -> Vec<T> {
-  let mut result = vec![];
-  for node in nodes {
-    if let Some(data) = graph.node(node).unwrap().user_data().concrete(key.key()) {
-      result.extend_from_slice(data.iter().map(|s| (*s).clone()).collect::<Vec<T>>().as_slice())
-    }
-  }
-
-  result
-}
-
-fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph) -> Vec<ActivityStartEndTimeData> {
-  let mut times = vec![];
-  for node in nodes {
-    if let Some(data) = graph.node(node).unwrap().user_data().concrete(START_END_ACTIVITY_TIME_KEY.key()) {
-      times.push(data.clone());
-    }
-  }
-
-  times
-}
-
-fn adjust_weights_and_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {
-  let name_extractor = context.name_extractor;
-  let mut df_relations = HashMap::new();
-
-  for trace in log {
-    for i in 0..trace.len() - 1 {
-      let first_name = name_extractor(&trace[i]);
-      let second_name = name_extractor(&trace[i + 1]);
-
-      *df_relations.entry((Some(first_name), Some(second_name))).or_insert(0) += 1usize;
-    }
-  }
-
-  let mut new_edges_weights = HashMap::new();
-  let mut nodes_to_disconnect = vec![];
-  for edge in graph.all_edges() {
-    let from_name = graph.node(edge.from_node()).unwrap().data().cloned();
-    let to_name = graph.node(edge.to_node()).unwrap().data().cloned();
-
-    let edge_key = (*edge.from_node(), *edge.to_node());
-    if let Some(df_count) = df_relations.get(&(from_name, to_name)) {
-      new_edges_weights.insert(edge_key, *df_count as f64);
-    } else {
-      nodes_to_disconnect.push(edge_key)
-    }
-  }
-
-  for (edge_key, new_weight) in new_edges_weights {
-    graph.edge_mut(&edge_key.0, &edge_key.1).unwrap().weight = new_weight;
-  }
-
-  for (from_node, to_node) in &nodes_to_disconnect {
-    graph.disconnect_nodes(from_node, to_node);
-  }
-}
-
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   root_sequence: &Vec<T>,
   context: &DiscoveryContext<T>,
 ) -> DefaultGraph {
   let mut graph = DefaultGraph::empty();
-  let name_extractor = context.name_extractor;
+  let name_extractor = context.name_extractor();
   let start_node = graph.add_node(Some(name_extractor(root_sequence.first().unwrap())));
   let end_node = graph.add_node(Some(name_extractor(root_sequence.last().unwrap())));
 
@@ -389,11 +179,11 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
 }
 
 fn create_new_graph_node<T>(graph: &mut DefaultGraph, event: &T, is_root_sequence: bool, context: &DiscoveryContext<T>) -> u64 {
-  let name_extractor = context.name_extractor;
+  let name_extractor = context.name_extractor();
   let node_id = graph.add_node(Some(name_extractor(event)));
 
   let node = graph.node_mut(&node_id).unwrap();
-  let transfer = context.event_to_graph_node_info_transfer;
+  let transfer = context.event_to_graph_node_info_transfer();
   transfer(event, node.user_data_mut(), is_root_sequence);
 
   node_id
@@ -472,7 +262,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
   context: &DiscoveryContext<T>,
 ) {
   for ((start_root_node_id, end_root_node_id), adjustments) in adjustments {
-    let adjustment_log = create_log_from_adjustments(&adjustments, context.artificial_start_end_events_factory);
+    let adjustment_log = create_log_from_adjustments(&adjustments, context.artificial_start_end_events_factory());
     let sub_graph = discover_root_sequence_graph_internal(&adjustment_log, context, false);
 
     merge_subgraph_into_model(graph, sub_graph, *start_root_node_id, *end_root_node_id, context);
@@ -529,7 +319,7 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
   end_graph_node_id: u64,
   context: &DiscoveryContext<T>,
 ) {
-  let (start_node_id, end_node_id) = find_start_end_node_ids(&sub_graph, context.name_extractor, context.artificial_start_end_events_factory);
+  let (start_node_id, end_node_id) = find_start_end_node_ids(&sub_graph, context.name_extractor(), context.artificial_start_end_events_factory());
   let mut sub_graph_nodes_to_nodes = HashMap::new();
 
   for node in sub_graph.all_nodes() {

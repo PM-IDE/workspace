@@ -1,8 +1,9 @@
-use ficus::features::discovery::root_sequence::discovery::{discover_root_sequence_graph, discover_root_sequence, DiscoveryContext, RootSequenceKind};
+use ficus::features::discovery::root_sequence::discovery::{discover_root_sequence_graph, discover_root_sequence, RootSequenceKind};
 use ficus::utils::references::HeapedOrOwned;
 use ficus::utils::user_data::user_data::UserDataImpl;
 use ficus::vecs;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
+use ficus::features::discovery::root_sequence::context::DiscoveryContext;
 
 #[test]
 pub fn test_root_sequence_graph_1() {
