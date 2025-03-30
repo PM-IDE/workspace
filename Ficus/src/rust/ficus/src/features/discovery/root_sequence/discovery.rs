@@ -21,6 +21,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
+use crate::features::discovery::petri_net::annotations::{create_performance_map, PerformanceMap};
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -105,8 +106,11 @@ pub fn discover_root_sequence_graph_from_event_log(
     &underlying_events_extractor
   );
 
+  let performance_map = create_performance_map(log);
+
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
-  Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events))
+
+  Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map)))
 }
 
 fn set_corresponding_trace_data(log: &XesEventLogImpl) {
@@ -123,13 +127,14 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
   merge_sequences_of_events: bool,
+  performance_map: Option<PerformanceMap>
 ) -> DefaultGraph {
   let mut graph = discover_root_sequence_graph_internal(log, context, true);
 
   adjust_weights_and_connections(context, log, &mut graph);
 
   if merge_sequences_of_events {
-    merge_sequences_of_nodes(&mut graph);
+    merge_sequences_of_nodes(&mut graph, performance_map);
   }
 
   graph

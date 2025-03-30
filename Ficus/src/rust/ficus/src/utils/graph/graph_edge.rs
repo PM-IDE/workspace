@@ -1,5 +1,6 @@
 use crate::utils::graph::graph::NEXT_ID;
 use std::sync::atomic::Ordering;
+use crate::utils::user_data::user_data::UserDataImpl;
 
 pub struct GraphEdge<TEdgeData>
 where
@@ -10,6 +11,7 @@ where
   pub(crate) second_node_id: u64,
   pub(crate) data: Option<TEdgeData>,
   pub(crate) weight: f64,
+  pub(crate) user_data: UserDataImpl
 }
 
 impl<TEdgeData> GraphEdge<TEdgeData>
@@ -23,6 +25,7 @@ where
       id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
       data,
       weight,
+      user_data: UserDataImpl::new()
     }
   }
 
@@ -44,5 +47,13 @@ where
 
   pub fn weight(&self) -> f64 {
     self.weight
+  }
+  
+  pub fn user_data(&self) -> &UserDataImpl {
+    &self.user_data
+  }
+
+  pub fn user_data_mut(&mut self) -> &mut UserDataImpl {
+    &mut self.user_data
   }
 }

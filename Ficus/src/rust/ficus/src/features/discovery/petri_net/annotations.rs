@@ -7,6 +7,9 @@ use crate::utils::references::HeapedOrOwned;
 use log::error;
 use std::collections::HashMap;
 use std::str::FromStr;
+use lazy_static::lazy_static;
+use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::user_data::user_data::UserData;
 
 pub fn annotate_with_counts(
   log: &impl EventLog,
@@ -93,11 +96,18 @@ impl FromStr for TimeAnnotationKind {
   }
 }
 
-pub fn annotate_with_time_performance(
-  log: &impl EventLog,
-  graph: &DefaultGraph,
-  annotation_kind: TimeAnnotationKind,
-) -> Option<HashMap<u64, f64>> {
+pub enum PerformanceAnnotationInfo {
+  Default(Vec<f64>),
+  SumAndCount(f64, usize)
+}
+
+lazy_static!(
+  pub static ref PERFORMANCE_ANNOTATION_INFO_KEY: DefaultContextKey<PerformanceAnnotationInfo> = DefaultContextKey::new("PERFORMANCE_ANNOTATION_INFO");
+);
+
+pub type PerformanceMap = HashMap<(HeapedOrOwned<String>, HeapedOrOwned<String>), (f64, usize)>;
+
+pub fn create_performance_map(log: &impl EventLog) -> PerformanceMap {
   let mut performance_map = HashMap::new();
   for trace in log.traces() {
     let trace = trace.borrow();
@@ -125,10 +135,20 @@ pub fn annotate_with_time_performance(
       if let Some((existing_time_diff, count)) = performance_map.get(&key) {
         *performance_map.get_mut(&key).expect("Must exist") = (*existing_time_diff + time_diff, *count + 1);
       } else {
-        performance_map.insert(key, (time_diff, 1i64));
+        performance_map.insert(key, (time_diff, 1usize));
       }
     }
   }
+  
+  performance_map
+}
+
+pub fn annotate_with_time_performance(
+  log: &impl EventLog,
+  graph: &DefaultGraph,
+  annotation_kind: TimeAnnotationKind,
+) -> Option<HashMap<u64, f64>> {
+  let performance_map = create_performance_map(log);
 
   let mut time_annotations = HashMap::new();
   for edge in graph.all_edges() {
@@ -140,13 +160,28 @@ pub fn annotate_with_time_performance(
       second_node.data.as_ref().unwrap().clone(),
     );
 
-    if let Some(time_annotation) = performance_map.get(&key) {
-      let time_annotation = match annotation_kind {
+    let annotation = if let Some(time_annotation) = performance_map.get(&key) {
+      Some(match annotation_kind {
         TimeAnnotationKind::SummedTime => time_annotation.0,
         TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
-      };
+      })
+    } else if let Some(performance_data) = edge.user_data().concrete(PERFORMANCE_ANNOTATION_INFO_KEY.key()) {
+      Some(match performance_data {
+        PerformanceAnnotationInfo::Default(data) => match annotation_kind {
+          TimeAnnotationKind::SummedTime => data.iter().sum(),
+          TimeAnnotationKind::Mean => data.iter().sum::<f64>() / data.len() as f64
+        },
+        PerformanceAnnotationInfo::SumAndCount(sum, count) => match annotation_kind {
+          TimeAnnotationKind::SummedTime => *sum,
+          TimeAnnotationKind::Mean => *sum / (*count as f64)
+        }
+      })
+    } else {
+      None
+    };
 
-      time_annotations.insert(*edge.id(), time_annotation);
+    if let Some(annotation) = annotation {
+      time_annotations.insert(*edge.id(), annotation); 
     }
   }
 

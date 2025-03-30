@@ -1,5 +1,4 @@
-use std::collections::{HashMap, HashSet};
-use std::fmt::Debug;
+use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::ActivityStartEndTimeData;
 use crate::pipelines::keys::context_key::DefaultContextKey;
@@ -7,8 +6,10 @@ use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWAR
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
+use std::collections::{HashMap, HashSet};
+use std::fmt::Debug;
 
-pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
+pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
   let mut processed_nodes = HashSet::new();
   let mut sequences = vec![];
 
@@ -84,11 +85,26 @@ pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
     graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::new(None, start_node_edge_weight));
     graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::new(None, end_node_edge_weight));
 
+    if let Some(performance_map) = performance_map.as_ref() {
+      put_performance_annotation_info(&start_node, first_node, (&start_node, &added_node_id), performance_map, graph);
+      put_performance_annotation_info(last_node, &end_node, (&added_node_id, &end_node), performance_map, graph);
+    }
+
     for i in 0..current_sequence.len() - 1 {
       graph.disconnect_nodes(&current_sequence[i], &current_sequence[i + 1]);
       graph.delete_node(&current_sequence[i]);
       graph.delete_node(&current_sequence[i + 1]);
     }
+  }
+}
+
+fn put_performance_annotation_info(first_node: &u64, second_node: &u64, edge: (&u64, &u64), performance_map: &PerformanceMap, graph: &mut DefaultGraph) {
+  let last_node_name = graph.node(first_node).unwrap().data().unwrap().clone();
+  let end_node_name = graph.node(second_node).unwrap().data().unwrap().clone();
+
+  if let Some((sum, count)) = performance_map.get(&(last_node_name, end_node_name)) {
+    let performance_info = PerformanceAnnotationInfo::SumAndCount(*sum, *count);
+    graph.edge_mut(edge.0, edge.1).unwrap().user_data_mut().put_concrete(PERFORMANCE_ANNOTATION_INFO_KEY.key(), performance_info);
   }
 }
 
