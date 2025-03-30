@@ -41,4 +41,8 @@ where
   pub fn to_node(&self) -> &u64 {
     &self.second_node_id
   }
+
+  pub fn weight(&self) -> f64 {
+    self.weight
+  }
 }

@@ -57,11 +57,17 @@ pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
   }
 
   for current_sequence in sequences {
-    let start_node = **graph.incoming_edges(current_sequence.first().unwrap()).first().unwrap();
-    let end_node = **graph.outgoing_nodes(current_sequence.last().unwrap()).first().unwrap();
+    let first_node = current_sequence.first().unwrap();
+    let last_node = current_sequence.last().unwrap();
 
-    graph.disconnect_nodes(&start_node, current_sequence.first().unwrap());
-    graph.disconnect_nodes(current_sequence.last().unwrap(), &end_node);
+    let start_node = **graph.incoming_edges(first_node).first().unwrap();
+    let end_node = **graph.outgoing_nodes(last_node).first().unwrap();
+
+    let start_node_edge_weight = graph.edge(&start_node, first_node).unwrap().weight();
+    let end_node_edge_weight = graph.edge(last_node, &end_node).unwrap().weight();
+
+    graph.disconnect_nodes(&start_node, first_node);
+    graph.disconnect_nodes(last_node, &end_node);
 
     let label = current_sequence.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
     let added_node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
@@ -75,8 +81,8 @@ pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph) {
     let activities_times = collect_start_end_time_activities_data(&current_sequence, graph);
     graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
 
-    graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::empty());
-    graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::empty());
+    graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::new(None, start_node_edge_weight));
+    graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::new(None, end_node_edge_weight));
 
     for i in 0..current_sequence.len() - 1 {
       graph.disconnect_nodes(&current_sequence[i], &current_sequence[i + 1]);
