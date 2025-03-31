@@ -58,43 +58,91 @@ pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Optio
   }
 
   for current_sequence in sequences {
-    let first_node = current_sequence.first().unwrap();
-    let last_node = current_sequence.last().unwrap();
+    let nodes_ids = NeededNodesIds::new(graph, &current_sequence);
 
-    let start_node = **graph.incoming_edges(first_node).first().unwrap();
-    let end_node = **graph.outgoing_nodes(last_node).first().unwrap();
+    let added_node_id = create_merged_node(&current_sequence, graph);
 
-    let start_node_edge_weight = graph.edge(&start_node, first_node).unwrap().weight();
-    let end_node_edge_weight = graph.edge(last_node, &end_node).unwrap().weight();
+    put_activities_times(&added_node_id, &current_sequence, graph);
+    put_trace_data(&added_node_id, &current_sequence, graph);
+    put_software_data(&added_node_id, &current_sequence, graph);
 
-    graph.disconnect_nodes(&start_node, first_node);
-    graph.disconnect_nodes(last_node, &end_node);
+    connect_added_merged_node_to_graph(&nodes_ids, &added_node_id, graph);
 
-    let label = current_sequence.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
-    let added_node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
+    put_performance_additional_infos(&nodes_ids, &added_node_id, performance_map.as_ref(), graph);
 
-    let software_data = extract_user_data_from(&current_sequence, &graph, &SOFTWARE_DATA_KEY);
-    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
+    disconnect_start_end_nodes(&nodes_ids, graph);
+    disconnect_and_delete_nodes(&current_sequence, graph);
+  }
+}
 
-    let trace_data = extract_user_data_from(&current_sequence, &graph, &CORRESPONDING_TRACE_DATA_KEY);
-    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
+struct NeededNodesIds {
+  pub first_node: u64,
+  pub last_node: u64,
+  pub start_node: u64,
+  pub end_node: u64,
+}
 
-    let activities_times = collect_start_end_time_activities_data(&current_sequence, graph);
-    graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
+impl NeededNodesIds {
+  pub fn new(graph: &DefaultGraph, sequence: &Vec<u64>) -> Self {
+    let first_node = *sequence.first().unwrap();
+    let last_node = *sequence.last().unwrap();
 
-    graph.connect_nodes(&start_node, &added_node_id, NodesConnectionData::new(None, start_node_edge_weight));
-    graph.connect_nodes(&added_node_id, &end_node, NodesConnectionData::new(None, end_node_edge_weight));
+    let start_node = **graph.incoming_edges(&first_node).first().unwrap();
+    let end_node = **graph.outgoing_nodes(&last_node).first().unwrap();
 
-    if let Some(performance_map) = performance_map.as_ref() {
-      put_performance_annotation_info(&start_node, first_node, (&start_node, &added_node_id), performance_map, graph);
-      put_performance_annotation_info(last_node, &end_node, (&added_node_id, &end_node), performance_map, graph);
+    Self {
+      first_node,
+      last_node,
+      start_node,
+      end_node,
     }
+  }
+}
 
-    for i in 0..current_sequence.len() - 1 {
-      graph.disconnect_nodes(&current_sequence[i], &current_sequence[i + 1]);
-      graph.delete_node(&current_sequence[i]);
-      graph.delete_node(&current_sequence[i + 1]);
-    }
+fn disconnect_start_end_nodes(nodes_ids: &NeededNodesIds, graph: &mut DefaultGraph) {
+  graph.disconnect_nodes(&nodes_ids.start_node, &nodes_ids.first_node);
+  graph.disconnect_nodes(&nodes_ids.last_node, &nodes_ids.end_node);
+}
+
+fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u64, graph: &mut DefaultGraph) {
+  let start_node_edge_weight = graph.edge(&nodes_ids.start_node, &nodes_ids.first_node).unwrap().weight();
+  let end_node_edge_weight = graph.edge(&nodes_ids.last_node, &nodes_ids.end_node).unwrap().weight();
+  graph.connect_nodes(&nodes_ids.start_node, &added_node, NodesConnectionData::new(None, start_node_edge_weight));
+  graph.connect_nodes(&added_node, &nodes_ids.end_node, NodesConnectionData::new(None, end_node_edge_weight));
+}
+
+fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
+  let label = nodes.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
+  graph.add_node(Some(HeapedOrOwned::Owned(label)))
+}
+
+fn put_activities_times(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
+  let activities_times = collect_start_end_time_activities_data(nodes, graph);
+  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
+}
+
+fn put_trace_data(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
+  let trace_data = extract_user_data_from(nodes, &graph, &CORRESPONDING_TRACE_DATA_KEY);
+  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
+}
+
+fn put_software_data(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
+  let software_data = extract_user_data_from(nodes, &graph, &SOFTWARE_DATA_KEY);
+  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
+}
+
+fn disconnect_and_delete_nodes(nodes: &Vec<u64>, graph: &mut DefaultGraph) {
+  for i in 0..nodes.len() - 1 {
+    graph.disconnect_nodes(&nodes[i], &nodes[i + 1]);
+    graph.delete_node(&nodes[i]);
+    graph.delete_node(&nodes[i + 1]);
+  }
+}
+
+fn put_performance_additional_infos(nodes_ids: &NeededNodesIds, added_node_id: &u64, performance_map: Option<&PerformanceMap>, graph: &mut DefaultGraph) {
+  if let Some(performance_map) = performance_map.as_ref() {
+    put_performance_annotation_info(&nodes_ids.start_node, &nodes_ids.first_node, (&nodes_ids.start_node, &added_node_id), performance_map, graph);
+    put_performance_annotation_info(&nodes_ids.last_node, &nodes_ids.end_node, (&added_node_id, &nodes_ids.end_node), performance_map, graph);
   }
 }
 
