@@ -10,11 +10,38 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 
 pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
+  for current_sequence in discover_sequences_to_merge(graph) {
+    merge_nodes_sequence(current_sequence, performance_map.as_ref(), graph);
+  }
+}
+
+fn discover_sequences_to_merge(graph: &DefaultGraph) -> Vec<Vec<u64>> {
   let mut processed_nodes = HashSet::new();
   let mut sequences = vec![];
 
   let check_node = |node_id| {
     graph.incoming_edges(node_id).len() == 1 && graph.outgoing_nodes(node_id).len() == 1
+  };
+  
+  enum EnumerationDirection {
+    Left,
+    Right
+  }
+  
+  let iterate_nodes = |mut node_id: u64, left: EnumerationDirection, current_sequence: &mut Vec<u64>| {
+    loop {
+      let next_node = match left {
+        EnumerationDirection::Left => *graph.incoming_edges(&node_id).first().unwrap(),
+        EnumerationDirection::Right => *graph.outgoing_nodes(&node_id).first().unwrap()
+      };
+
+      if !check_node(next_node) {
+        return;
+      }
+
+      current_sequence.push(*next_node);
+      node_id = *next_node; 
+    }
   };
 
   for node in graph.all_nodes() {
@@ -23,30 +50,12 @@ pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Optio
     }
 
     let mut current_sequence = vec![*node.id()];
-    let mut current_node_id = node.id();
 
-    loop {
-      let prev_node = *graph.incoming_edges(current_node_id).first().unwrap();
-      if !check_node(prev_node) {
-        break;
-      }
-
-      current_sequence.push(*prev_node);
-      current_node_id = prev_node;
-    }
+    iterate_nodes(*node.id(), EnumerationDirection::Left, &mut current_sequence);
 
     current_sequence.reverse();
-    current_node_id = node.id();
 
-    loop {
-      let next_node = *graph.outgoing_nodes(current_node_id).first().unwrap();
-      if !check_node(next_node) {
-        break;
-      }
-
-      current_sequence.push(*next_node);
-      current_node_id = next_node;
-    }
+    iterate_nodes(*node.id(), EnumerationDirection::Right, &mut current_sequence);
 
     for node in &current_sequence {
       processed_nodes.insert(*node);
@@ -56,23 +65,25 @@ pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Optio
       sequences.push(current_sequence);
     }
   }
+  
+  sequences
+}
 
-  for current_sequence in sequences {
-    let nodes_ids = NeededNodesIds::new(graph, &current_sequence);
+fn merge_nodes_sequence(nodes: Vec<u64>, performance_map: Option<&PerformanceMap>, graph: &mut DefaultGraph) {
+  let nodes_ids = NeededNodesIds::new(graph, &nodes);
 
-    let added_node_id = create_merged_node(&current_sequence, graph);
+  let added_node_id = create_merged_node(&nodes, graph);
 
-    put_activities_times(&added_node_id, &current_sequence, graph);
-    put_trace_data(&added_node_id, &current_sequence, graph);
-    put_software_data(&added_node_id, &current_sequence, graph);
+  put_activities_times(&added_node_id, &nodes, graph);
+  put_trace_data(&added_node_id, &nodes, graph);
+  put_software_data(&added_node_id, &nodes, graph);
 
-    connect_added_merged_node_to_graph(&nodes_ids, &added_node_id, graph);
+  connect_added_merged_node_to_graph(&nodes_ids, &added_node_id, graph);
 
-    put_performance_additional_infos(&nodes_ids, &added_node_id, performance_map.as_ref(), graph);
+  put_performance_additional_infos(&nodes_ids, &added_node_id, performance_map, graph);
 
-    disconnect_start_end_nodes(&nodes_ids, graph);
-    disconnect_and_delete_nodes(&current_sequence, graph);
-  }
+  disconnect_start_end_nodes(&nodes_ids, graph);
+  disconnect_and_delete_nodes(&nodes, graph);
 }
 
 struct NeededNodesIds {
