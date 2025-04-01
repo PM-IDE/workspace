@@ -4,6 +4,7 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo;
 use crate::features::analysis::patterns::repeat_sets::ActivityNode;
+use crate::features::analysis::patterns::tandem_arrays::find_maximal_tandem_arrays_with_length;
 use crate::pipelines::keys::context_keys::{ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, TANDEM_ARRAY_LENGTH_KEY, TRACE_ACTIVITIES_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
@@ -14,11 +15,11 @@ use crate::{
   },
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
+use itertools::Itertools;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
 use std::str::FromStr;
-use crate::features::analysis::patterns::tandem_arrays::find_maximal_tandem_arrays_with_length;
 
 #[derive(Clone, Copy)]
 pub enum PatternsKindDto {
@@ -143,34 +144,65 @@ impl PipelineParts {
       let instances = find_maximal_tandem_arrays_with_length(&hashed_log, *max_array_length as usize)
         .into_iter()
         .enumerate()
-        .map(|(trace_index, trace_arrays)| trace_arrays.into_iter().map(|array| {
-          let repeat_count = *array.get_repeat_count();
-          let array = array.get_sub_array_info();
-
-          let mut name = log.traces().get(trace_index).unwrap().borrow().events()[array.start_index..array.start_index + array.length]
-            .iter()
-            .map(|e| e.borrow().name().clone())
-            .collect::<HashSet<String>>()
+        .map(|(trace_index, trace_arrays)|
+          trace_arrays
             .into_iter()
-            .collect::<Vec<String>>();
+            .map(|array| {
+              let repeat_count = *array.get_repeat_count();
+              let array = array.get_sub_array_info();
 
-          name.sort();
+              let mut name = log.traces().get(trace_index).unwrap().borrow().events()[array.start_index..array.start_index + array.length]
+                .iter()
+                .map(|e| e.borrow().name().clone())
+                .collect::<HashSet<String>>()
+                .into_iter()
+                .collect::<Vec<String>>();
 
-          ActivityInTraceInfo {
-            start_pos: array.start_index,
-            length: array.length * repeat_count,
-            node: Rc::new(RefCell::new(ActivityNode::new(
-              None,
-              HashSet::from_iter(hashed_log.get(trace_index.clone()).unwrap()[array.start_index..array.start_index + array.length].iter().map(|x| *x)),
-              vec![],
-              0,
-              Rc::new(Box::new(format!("Loop[{}]", name.join("::")))),
-            ))),
+              name.sort();
+
+              ActivityInTraceInfo {
+                start_pos: array.start_index,
+                length: array.length * repeat_count,
+                node: Rc::new(RefCell::new(ActivityNode::new(
+                  None,
+                  HashSet::from_iter(hashed_log.get(trace_index.clone()).unwrap()[array.start_index..array.start_index + array.length].iter().map(|x| *x)),
+                  vec![],
+                  0,
+                  Rc::new(Box::new(format!("Loop[{}]", name.join("::")))),
+                ))),
+              }
+            })
+            .into_group_map_by(|activity| activity.start_pos)
+            .into_iter()
+            .map(|(_, activities_by_start_pos)| {
+              activities_by_start_pos.into_iter().max_by(|f, s| f.length.cmp(&s.length)).unwrap()
+            })
+            .collect()
+        )
+        .collect::<Vec<Vec<ActivityInTraceInfo>>>();
+
+      let mut filtered_instances = vec![];
+      for trace_instances in instances {
+        let mut filtered_trace_instances = vec![];
+        let mut covered_range = None;
+
+        for activity in trace_instances {
+          match covered_range {
+            Some(to_index) => if activity.start_pos >= to_index {
+              covered_range = Some(activity.start_pos + activity.length);
+              filtered_trace_instances.push(activity);
+            },
+            None => {
+              covered_range = Some(activity.start_pos + activity.length);
+              filtered_trace_instances.push(activity);
+            }
           }
-        }).collect())
-        .collect();
+        }
 
-      context.put_concrete(TRACE_ACTIVITIES_KEY.key(), instances);
+        filtered_instances.push(filtered_trace_instances);
+      }
+      
+      context.put_concrete(TRACE_ACTIVITIES_KEY.key(), filtered_instances);
 
       Ok(())
     })
