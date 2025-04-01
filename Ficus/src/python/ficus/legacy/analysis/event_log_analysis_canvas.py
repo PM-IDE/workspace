@@ -192,7 +192,7 @@ def _draw_actual_traces_diversity_diagram(log: Union[ProxyColorsEventLog, GrpcCo
 
       current_max_width = max(current_max_width, trace.event_colors[-1].start_x * width_scale + overall_delta + rect_width)
 
-      width_value = widths if not trace.constant_width else width_scale
+      width_value = widths if not trace.constant_width else width_scale * trace.event_colors[0].length
       canvas.fill_styled_rects(xs, current_y, width_value, height_scale, colors)
 
       traces_ys.append(current_y)
