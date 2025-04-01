@@ -141,7 +141,7 @@ impl PipelineParts {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let hashed_log = Self::create_hashed_event_log(config, log);
 
-      let instances = find_maximal_tandem_arrays_with_length(&hashed_log, *max_array_length as usize, true)
+      let mut instances = find_maximal_tandem_arrays_with_length(&hashed_log, *max_array_length as usize, true)
         .into_iter()
         .enumerate()
         .map(|(trace_index, trace_arrays)|
@@ -180,6 +180,8 @@ impl PipelineParts {
             .collect()
         )
         .collect::<Vec<Vec<ActivityInTraceInfo>>>();
+
+      instances.iter_mut().for_each(|trace| trace.sort_by(|first, second| first.start_pos.cmp(&second.start_pos)));
 
       let mut filtered_instances = vec![];
       for trace_instances in instances {
