@@ -1,5 +1,6 @@
 use crate::features::discovery::timeline::events_groups::{discover_events_groups, TraceEventsGroup};
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
+use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::{
   event_log::core::event_log::EventLog,
   event_log::core::trace::trace::Trace,
@@ -12,9 +13,6 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
-use nameof::name_of;
-use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::LOG_THREADS_DIAGRAM_KEY;
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {

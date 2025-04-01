@@ -1,6 +1,14 @@
-use std::{cell::RefCell, collections::HashSet, rc::Rc};
-
+use crate::event_log::core::event::event::Event;
+use crate::event_log::core::event_log::EventLog;
+use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo;
+use crate::features::analysis::patterns::repeat_sets::ActivityNode;
 use crate::utils::hash_utils::calculate_poly_hash_for_collection;
+use itertools::Itertools;
+use std::{cell::RefCell, collections::HashSet, rc::Rc};
+use std::ptr::hash;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 
 #[derive(Debug, Clone, Copy)]
 pub struct SubArrayInTraceInfo {
@@ -57,7 +65,7 @@ pub fn find_primitive_tandem_arrays(log: &Vec<Vec<u64>>, max_tandem_array_length
 pub fn find_primitive_tandem_arrays_with_length(
   log: &Vec<Vec<u64>>,
   max_tandem_array_length: usize,
-  include_length_one: bool
+  include_length_one: bool,
 ) -> Rc<RefCell<Vec<Vec<TandemArrayInfo>>>> {
   let maximal_arrays = find_maximal_tandem_arrays_with_length(log, max_tandem_array_length, include_length_one);
   let primitive_arrays_ptr = Rc::new(RefCell::new(vec![]));
@@ -95,7 +103,7 @@ pub fn find_maximal_tandem_arrays(log: &Vec<Vec<u64>>, max_tandem_array_length: 
 pub fn find_maximal_tandem_arrays_with_length(
   log: &Vec<Vec<u64>>,
   max_tandem_array_length: usize,
-  include_length_one: bool
+  include_length_one: bool,
 ) -> Vec<Vec<TandemArrayInfo>> {
   let mut result = vec![];
   let mut visited = HashSet::new();

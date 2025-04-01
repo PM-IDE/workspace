@@ -20,6 +20,7 @@ use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
 use std::str::FromStr;
+use crate::features::analysis::patterns::strict_loops::find_loops_strict;
 
 #[derive(Clone, Copy)]
 pub enum PatternsKindDto {
@@ -141,70 +142,7 @@ impl PipelineParts {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let hashed_log = Self::create_hashed_event_log(config, log);
 
-      let mut instances = find_maximal_tandem_arrays_with_length(&hashed_log, *max_array_length as usize, true)
-        .into_iter()
-        .enumerate()
-        .map(|(trace_index, trace_arrays)|
-          trace_arrays
-            .into_iter()
-            .map(|array| {
-              let repeat_count = *array.get_repeat_count();
-              let array = array.get_sub_array_info();
-
-              let mut name = log.traces().get(trace_index).unwrap().borrow().events()[array.start_index..array.start_index + array.length]
-                .iter()
-                .map(|e| e.borrow().name().clone())
-                .collect::<HashSet<String>>()
-                .into_iter()
-                .collect::<Vec<String>>();
-
-              name.sort();
-
-              ActivityInTraceInfo {
-                start_pos: array.start_index,
-                length: array.length * repeat_count,
-                node: Rc::new(RefCell::new(ActivityNode::new(
-                  None,
-                  HashSet::from_iter(hashed_log.get(trace_index.clone()).unwrap()[array.start_index..array.start_index + array.length].iter().map(|x| *x)),
-                  vec![],
-                  0,
-                  Rc::new(Box::new(format!("Loop[{}]", name.join("::")))),
-                ))),
-              }
-            })
-            .into_group_map_by(|activity| activity.start_pos)
-            .into_iter()
-            .map(|(_, activities_by_start_pos)| {
-              activities_by_start_pos.into_iter().max_by(|f, s| f.length.cmp(&s.length)).unwrap()
-            })
-            .collect()
-        )
-        .collect::<Vec<Vec<ActivityInTraceInfo>>>();
-
-      instances.iter_mut().for_each(|trace| trace.sort_by(|first, second| first.start_pos.cmp(&second.start_pos)));
-
-      let mut filtered_instances = vec![];
-      for trace_instances in instances {
-        let mut filtered_trace_instances = vec![];
-        let mut covered_range = None;
-
-        for activity in trace_instances {
-          match covered_range {
-            Some(to_index) => if activity.start_pos >= to_index {
-              covered_range = Some(activity.start_pos + activity.length);
-              filtered_trace_instances.push(activity);
-            },
-            None => {
-              covered_range = Some(activity.start_pos + activity.length);
-              filtered_trace_instances.push(activity);
-            }
-          }
-        }
-
-        filtered_instances.push(filtered_trace_instances);
-      }
-
-      context.put_concrete(TRACE_ACTIVITIES_KEY.key(), filtered_instances);
+      context.put_concrete(TRACE_ACTIVITIES_KEY.key(), find_loops_strict(log, &hashed_log, *max_array_length as usize));
 
       Ok(())
     })
