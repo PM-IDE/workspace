@@ -80,14 +80,14 @@ impl PipelineParts {
   pub(super) fn find_tandem_arrays_and_put_to_context(
     context: &mut PipelineContext,
     config: &UserDataImpl,
-    patterns_finder: impl Fn(&Vec<Vec<u64>>, usize) -> Vec<Vec<SubArrayInTraceInfo>>,
+    patterns_finder: impl Fn(&Vec<Vec<u64>>, usize, bool) -> Vec<Vec<SubArrayInTraceInfo>>,
   ) -> Result<(), PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let array_length = *config.concrete(TANDEM_ARRAY_LENGTH_KEY.key()).unwrap() as usize;
 
     let hashed_log = Self::create_hashed_event_log(config, log);
 
-    let arrays = patterns_finder(&hashed_log, array_length);
+    let arrays = patterns_finder(&hashed_log, array_length, false);
 
     context.put_concrete(HASHES_EVENT_LOG_KEY.key(), hashed_log);
     context.put_concrete(PATTERNS_KEY.key(), arrays);
@@ -141,7 +141,7 @@ impl PipelineParts {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let hashed_log = Self::create_hashed_event_log(config, log);
 
-      let instances = find_maximal_tandem_arrays_with_length(&hashed_log, *max_array_length as usize)
+      let instances = find_maximal_tandem_arrays_with_length(&hashed_log, *max_array_length as usize, true)
         .into_iter()
         .enumerate()
         .map(|(trace_index, trace_arrays)|
@@ -201,7 +201,7 @@ impl PipelineParts {
 
         filtered_instances.push(filtered_trace_instances);
       }
-      
+
       context.put_concrete(TRACE_ACTIVITIES_KEY.key(), filtered_instances);
 
       Ok(())

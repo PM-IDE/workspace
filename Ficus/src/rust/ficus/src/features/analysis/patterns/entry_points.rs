@@ -31,8 +31,8 @@ where
     PatternsKind::MaximalRepeats => find_maximal_repeats(log, &context.strategy),
     PatternsKind::SuperMaximalRepeats => find_super_maximal_repeats(log, &context.strategy),
     PatternsKind::NearSuperMaximalRepeats => find_near_super_maximal_repeats(log, &context.strategy),
-    PatternsKind::PrimitiveTandemArrays(length) => find_primitive_tandem_arrays(log, *length),
-    PatternsKind::MaximalTandemArrays(length) => find_maximal_tandem_arrays(log, *length),
+    PatternsKind::PrimitiveTandemArrays(length) => find_primitive_tandem_arrays(log, *length, false),
+    PatternsKind::MaximalTandemArrays(length) => find_maximal_tandem_arrays(log, *length, false),
   }
 }
 
