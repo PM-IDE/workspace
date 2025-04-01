@@ -25,6 +25,9 @@ function getRectDimensions(widthScale, heightScale) {
   return [widthScale * DefaultRectWidth,  heightScale * DefaultRectHeight];
 }
 
+const minCanvasWidth = 500;
+const minCanvasHeight = 500;
+
 async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let canvas = document.getElementById(canvasId);
   if (canvas == null) {
@@ -35,15 +38,24 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
   let additionalAxis = createAdditionalAxisList(log.adjustments);
-  let canvasDimensions = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxis.length);
-  let maxCanvasDimensions = await getMaxCanvasDimensions();
-  if (canvasDimensions[0] > maxCanvasDimensions[0] || canvasDimensions[1] > maxCanvasDimensions[1]) {
-    return [maxCanvasDimensions[0] / canvasDimensions[0], maxCanvasDimensions[1] / canvasDimensions[1]];
+  
+  let [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxis.length);
+  let [maxCanvasWidth, maxCanvasHeight] = await getMaxCanvasDimensions();
+  if (canvasWidth > maxCanvasWidth || canvasHeight > maxCanvasHeight) {
+    return [maxCanvasWidth / canvasWidth, maxCanvasHeight / canvasHeight];
   }
 
-  let canvasWidth = canvasDimensions[0];
-  let canvasHeight = canvasDimensions[1];
-  
+  if (canvasWidth < minCanvasWidth) {
+    widthScale = minCanvasWidth / canvasWidth;
+  }
+
+  if (canvasHeight < minCanvasHeight) {
+    heightScale = minCanvasHeight / canvasHeight;
+  }
+
+  [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
+  [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxis.length);
+
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
   context.clearRect(0, 0, canvasWidth, canvasHeight);
