@@ -342,3 +342,15 @@ class SerializeActivitiesLogs(PipelinePart):
 class ReverseHierarchyIndices(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_reverse_hierarchy_indices))
+
+
+class DiscoverLoopsStrict(PipelinePart):
+  def __init__(self, max_loop_length = 20):
+    super().__init__()
+    self.max_loop_length = max_loop_length
+
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    append_uint32_value(config, const_tandem_array_length, self.max_loop_length)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_loops_strict, config))

@@ -1,9 +1,7 @@
-use std::str::FromStr;
-
-use crate::pipelines::keys::context_keys::{
-  ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY,
-  TANDEM_ARRAY_LENGTH_KEY,
-};
+use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
+use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo;
+use crate::features::analysis::patterns::repeat_sets::ActivityNode;
+use crate::pipelines::keys::context_keys::{ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, TANDEM_ARRAY_LENGTH_KEY, TRACE_ACTIVITIES_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
   features::analysis::patterns::{
@@ -13,8 +11,10 @@ use crate::{
   },
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
-
-use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
+use std::cell::RefCell;
+use std::collections::HashSet;
+use std::rc::Rc;
+use std::str::FromStr;
 
 #[derive(Clone, Copy)]
 pub enum PatternsKindDto {
@@ -128,5 +128,35 @@ impl PipelineParts {
     Self::do_discover_activities(context, *activity_level, config)?;
 
     Ok(())
+  }
+
+  pub(super) fn discover_loops_strict() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::DISCOVER_LOOPS_STRICT, &|context, _, config| {
+      let max_array_length = Self::get_user_data(config, &TANDEM_ARRAY_LENGTH_KEY)?;
+      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      let hashed_log = Self::create_hashed_event_log(config, log);
+
+      let instances = find_maximal_tandem_arrays(&hashed_log, *max_array_length as usize)
+        .into_iter()
+        .enumerate()
+        .map(|(trace_index, trace_arrays)| trace_arrays.into_iter().map(|array| {
+          ActivityInTraceInfo {
+            start_pos: array.start_index,
+            length: array.length,
+            node: Rc::new(RefCell::new(ActivityNode::new(
+              None,
+              HashSet::from_iter(hashed_log.get(trace_index.clone()).unwrap()[array.start_index..array.start_index + array.length].iter().map(|x| *x)),
+              vec![],
+              0,
+              Rc::new(Box::new(format!("{}::({}, {})", trace_index.clone(), array.start_index, array.length))),
+            ))),
+          }
+        }).collect())
+        .collect();
+
+      context.put_concrete(TRACE_ACTIVITIES_KEY.key(), instances);
+
+      Ok(())
+    })
   }
 }

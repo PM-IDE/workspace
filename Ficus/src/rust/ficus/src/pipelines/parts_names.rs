@@ -56,6 +56,7 @@ impl PipelineParts {
   pub const CREATE_THREADS_LOG: &'static str = "CreateThreadsLog";
   pub const ABSTRACT_TIMELINE_DIAGRAM: &'static str = "AbstractTimelineDiagram";
   pub const DISCOVER_ROOT_SEQUENCE_GRAPH: &'static str = "DiscoverRootSequenceGraph";
+  pub const DISCOVER_LOOPS_STRICT: &'static str = "DiscoverLoopsStrict";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";
