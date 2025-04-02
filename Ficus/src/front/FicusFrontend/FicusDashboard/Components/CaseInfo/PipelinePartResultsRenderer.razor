@@ -10,19 +10,34 @@
 @using FicusDashboard.Layout.Models
 @using JetBrains.Lifetimes
 
+@inject IJSRuntime Js
 @inject ILogger<CaseInfo> Logger
 
-<div class="pipeline-parts-context-values-inner-container">
-  <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(Results)">
-    <div class="pipeline-part-name-index">
-      @(Index + 1)
+<div id="@myContainerId" class="@ContainerClass">
+  <div class="pipeline-part-name-outer-container">
+    <div class="pipeline-part-name-container" @onclick="_ => HandleExecutionResultTitleClicked(Results)">
+      <div class="pipeline-part-name-index">
+        @(Index + 1)
+      </div>
+      <div class="pipeline-part-name-icon">
+        <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
+      </div>
+      <div class="pipeline-part-name">
+        @Results.PipelinePartName
+      </div>
     </div>
-    <div class="pipeline-part-name-icon">
-      <img src="images/pipeline_part.svg" alt="Pipeline part icon"/>
-    </div>
-    <div class="pipeline-part-name">
-      @Results.PipelinePartName
-    </div>
+    @if (myIsFullScreen)
+    {
+      <div class="pipeline-part-result-button" @onclick="ExitFullScreen">
+        Exit
+      </div>
+    }
+    else
+    {
+      <div class="pipeline-part-result-button" @onclick="OpenElementInFullscreen">
+        Full Screen
+      </div>
+    }
   </div>
 
   @if (Results.Results.Count > 1)
@@ -74,7 +89,16 @@
 @code {
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
+
+  private readonly Guid myContainerId = Guid.NewGuid();
+
+
+  private bool myIsFullScreen;
   private int mySelectedExecutionResultIndex;
+
+
+  private string ContainerClass =>
+    myIsFullScreen ? "pipeline-parts-context-values-inner-container-fullscreen" : "pipeline-parts-context-values-inner-container";
 
 
   [Parameter] public required Lifetime Lifetime { get; init; }
@@ -186,5 +210,19 @@
     var componentId = CreateEntityAnnotationId(petriNetId, annotationPair);
 
     return @<PetriNetRenderer @key="componentId" PetriNet="petriNet" Annotation="annotationPair?.Item2"/>;
+  }
+
+  private async Task OpenElementInFullscreen()
+  {
+    await Js.InvokeVoidAsync("openFullScreen", myContainerId);
+    myIsFullScreen = true;
+    StateHasChanged();
+  }
+
+  private async Task ExitFullScreen()
+  {
+    await Js.InvokeVoidAsync("exitFullScreen");
+    myIsFullScreen = false;
+    StateHasChanged();
   }
 }

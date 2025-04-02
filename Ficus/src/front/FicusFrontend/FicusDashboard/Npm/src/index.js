@@ -4,7 +4,9 @@ import {setUtilitiesFunctions} from "./utils";
 import {setCssLoaderFunctions} from "./css_loader";
 import {setDrawColorsLog} from "./colors_log_renderer";
 import {setCanvasSizeFunctions} from "./canvas_size";
+import {setFullscreenFunctions} from "./full_screen";
 
+setFullscreenFunctions();
 setDrawPetriNet();
 setDrawGraph();
 setUtilitiesFunctions();
