@@ -12,7 +12,7 @@ use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
-use crate::pipelines::multithreading::{FeatureCountKindDto, SoftwareData};
+use crate::pipelines::multithreading::{FeatureCountKindDto};
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -34,6 +34,7 @@ use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData};
+use crate::features::discovery::timeline::abstraction::SoftwareData;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
