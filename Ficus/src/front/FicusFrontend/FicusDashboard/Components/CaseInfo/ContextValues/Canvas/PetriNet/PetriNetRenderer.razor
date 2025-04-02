@@ -1,10 +1,11 @@
 @using Ficus
 @inject IJSRuntime Js
 
-<CanvasComponent RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
+<CanvasComponent IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
 
 @code
 {
+  [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcPetriNet PetriNet { get; init; }
   [Parameter] public required GrpcAnnotation? Annotation { get; init; }
 

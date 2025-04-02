@@ -2,8 +2,8 @@
 
 @inject IJSRuntime Js
 
-<div class="canvas-container">
-  <div id="@myCytoscapeContainerId" class="cytoscape-canvas"></div>
+<div class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">
+  <div id="@myCytoscapeContainerId" class="@(IsFullScreen ? "canvas-container-fullscreen" : "cytoscape-canvas")"></div>
 
   <div class="canvas-export-button" @onclick="ExportGraph">
     Export to SVG
@@ -16,6 +16,7 @@
 
   private IJSObjectReference? myCytoscapeReference;
 
+  [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required Func<string, Task<IJSObjectReference>> RenderingFunc { get; init; }
   [Parameter] public required Func<string> FileNameCreator { get; init; }
 

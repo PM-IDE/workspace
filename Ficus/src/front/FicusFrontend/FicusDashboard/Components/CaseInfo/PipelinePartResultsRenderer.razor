@@ -68,20 +68,16 @@
     var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
   }
 
-  <div class="@outerContainerClass">
-    <div class="@innerContainerClass">
+  <div class="@outerContainerClass @(myIsFullScreen ? "container-fullscreen" : string.Empty)">
+    <div class="@innerContainerClass @(myIsFullScreen ? "container-fullscreen" : string.Empty)">
       @{
         var contextValues = Results.Results[mySelectedExecutionResultIndex].ContextValues;
       }
 
-      <div class="pipeline-part-context-values-margin-container">
-        @foreach (var fragment in CreateRenderersFor(Results.PipelinePartName, contextValues))
-        {
-          <div>
-            @fragment
-          </div>
-        }
-      </div>
+      @foreach (var fragment in CreateRenderersFor(Results.PipelinePartName, contextValues))
+      {
+        @fragment
+      }
     </div>
   </div>
 </div>
@@ -98,7 +94,7 @@
 
 
   private string ContainerClass =>
-    myIsFullScreen ? "pipeline-parts-context-values-inner-container-fullscreen" : "pipeline-parts-context-values-inner-container";
+    myIsFullScreen ? "container-fullscreen" : "pipeline-parts-context-values-inner-container";
 
 
   [Parameter] public required Lifetime Lifetime { get; init; }
@@ -152,8 +148,10 @@
       GrpcContextValue.ContextValueOneofCase.ColorsLog => @<DefaultColorsLogRenderer @key="wrapper.Id"
                                                                                      Log="contextValue.ColorsLog"/>,
       GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
+                                                                            IsFullScreen="@myIsFullScreen"
                                                                             PetriNet="contextValue.PetriNet"/>,
       GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id" 
+                                                                      IsFullScreen="@myIsFullScreen"
                                                                       Graph="contextValue.Graph"
                                                                       ProcessCaseData="ProcessCaseData"/>,
 
@@ -187,7 +185,10 @@
 
     var componentId = CreateEntityAnnotationId(graphId, annotationPair);
 
-    return @<GraphRenderer @key="componentId" Graph="graph" ProcessCaseData="ProcessCaseData"
+    return @<GraphRenderer @key="componentId"
+                           IsFullScreen="@myIsFullScreen"
+                           Graph="graph" 
+                           ProcessCaseData="ProcessCaseData"
                            Annotation="annotationPair?.Item2"/>;
   }
 
@@ -209,7 +210,7 @@
 
     var componentId = CreateEntityAnnotationId(petriNetId, annotationPair);
 
-    return @<PetriNetRenderer @key="componentId" PetriNet="petriNet" Annotation="annotationPair?.Item2"/>;
+    return @<PetriNetRenderer @key="componentId" IsFullScreen="@myIsFullScreen" PetriNet="petriNet" Annotation="annotationPair?.Item2"/>;
   }
 
   private async Task OpenElementInFullscreen()
