@@ -23,9 +23,11 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    if (!firstRender) return;
-
-    myCytoscapeReference = await RenderingFunc(myCytoscapeContainerId.ToString());
+    //some hacks in order to make it work after changing to full screen from JS side
+    Task.Delay(100).ContinueWith(async _ =>
+    {
+      await InvokeAsync(async () => myCytoscapeReference = await RenderingFunc(myCytoscapeContainerId.ToString()));
+    });
   }
 
   private async Task ExportGraph()
