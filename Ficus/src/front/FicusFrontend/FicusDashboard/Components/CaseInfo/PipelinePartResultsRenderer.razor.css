@@ -107,17 +107,17 @@
   background-color: var(--cv-section-results-selection-button-selected-background-color);
 }
 
-.pipeline-part-result-button {
+.pipeline-part-result-fullscreen-button {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100px;
   height: 35px;
-  background-color: var(--cv-section-header-color);
+  background-color: var(--cv-section-fullscreen-button-background);
   color: var(--cv-section-header-text-color);
   border-top-right-radius: var(--cv-border-radius);
 }
 
-.pipeline-part-result-button:hover {
-  background-color: var(--cv-section-header-color-hovered);
+.pipeline-part-result-fullscreen-button:hover {
+  background-color: var(--cv-section-fullscreen-button-background-hovered);
 }

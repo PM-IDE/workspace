@@ -9,6 +9,8 @@ html, body {
   --cv-section-content-text-color: #b5b5b5;
   --cv-section-header-index-background: #3c3c3c;
   --cv-border-radius: 10px;
+  --cv-section-fullscreen-button-background: #474747;
+  --cv-section-fullscreen-button-background-hovered: #525252;
 
   --cv-section-results-selection-buttons-background-color: #343434;
   --cv-section-results-selection-button-background-color: #343434;
