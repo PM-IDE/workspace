@@ -1,6 +1,6 @@
 use ficus::features::discovery::root_sequence::discovery::{discover_root_sequence_graph, discover_root_sequence, RootSequenceKind};
 use ficus::utils::references::HeapedOrOwned;
-use ficus::utils::user_data::user_data::UserDataImpl;
+use ficus::utils::user_data::user_data::{ExecuteWithUserData, UserData, UserDataImpl};
 use ficus::vecs;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
 use ficus::features::discovery::root_sequence::context::DiscoveryContext;
@@ -244,26 +244,61 @@ pub fn test_root_sequence_graph_10() {
   )
 }
 
+#[derive(Clone, Debug)]
+struct StringWithUserData {
+  value: String,
+  user_data: UserDataImpl
+}
+
+impl StringWithUserData {
+  pub fn new(value: String) -> Self {
+    Self {
+      value,
+      user_data: UserDataImpl::new()
+    }
+  }
+}
+
+impl PartialEq for StringWithUserData {
+  fn eq(&self, other: &Self) -> bool {
+    self.value.eq(&other.value)
+  }
+}
+
+impl ExecuteWithUserData for StringWithUserData {
+  fn execute_with_user_data(&self, func: &mut dyn FnMut(&UserDataImpl) -> ()) {
+    func(&self.user_data)
+  }
+
+  fn execute_with_user_data_mut(&mut self, func: &mut dyn FnMut(&mut UserDataImpl)) {
+    func(&mut self.user_data)
+  }
+}
+
 fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
-  let factory = || (
-    "START".to_string(),
-    "END".to_string()
-  );
+  const START: &'static str = "START";
+  const END: &'static str = "END";
 
   for trace in &mut traces {
-    let (art_start, art_end) = factory();
-    trace.push(art_end);
-    trace.insert(0, art_start);
+    trace.push(END.to_string());
+    trace.insert(0, START.to_string());
   }
+  
+  let traces = traces.into_iter().map(|t| t.into_iter().map(|e| StringWithUserData::new(e)).collect()).collect();
 
   let root_sequence_kind = RootSequenceKind::FindBest;
   let root_sequence = discover_root_sequence(&traces, root_sequence_kind);
-  assert_eq!(root_sequence, gold_root_sequence);
+  assert_eq!(root_sequence.into_iter().map(|e| e.value).collect::<Vec<String>>(), gold_root_sequence);
 
-  let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_string());
+  let name_extractor = |s: &StringWithUserData| HeapedOrOwned::Owned(s.value.to_string());
 
-  let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
+  let to_node_data_transfer = |_: &StringWithUserData, _: &mut UserDataImpl, _| {};
 
+  let factory = || (
+    StringWithUserData::new(START.to_string()),
+    StringWithUserData::new(END.to_string())
+  );
+  
   let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer, &|_| { None });
 
   let graph = discover_root_sequence_graph(&traces, &context, false, None);
