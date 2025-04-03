@@ -121,6 +121,48 @@ impl Into<PipelinePartExecutionError> for LogThreadsDiagramError {
   }
 }
 
+pub fn discover_traces_timeline_diagram(
+  log: &XesEventLogImpl,
+  time_attribute: Option<&String>,
+  event_group_delta: Option<u64>
+) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
+  let mut threads = vec![];
+
+  for trace in log.traces().iter().map(|t| t.borrow()) {
+    let mut thread_events = vec![];
+    let min_stamp = get_stamp(&trace.events().first().unwrap().borrow(), time_attribute)?;
+
+    for event in trace.events() {
+      thread_events.push(TraceThreadEvent {
+        original_event: event.clone(),
+        stamp: get_stamp(&event.borrow(), time_attribute)? - min_stamp
+      })
+    }
+    
+    threads.push(TraceThread {
+      events: thread_events
+    });
+  }
+
+  let events_groups = if let Some(event_group_delta) = event_group_delta {
+    discover_events_groups(&threads.iter().collect(), event_group_delta)
+  } else {
+    vec![]
+  };
+
+  Ok(LogTimelineDiagram {
+    thread_attribute: "Trace".to_string(),
+    time_attribute: match time_attribute {
+      None => None,
+      Some(s) => Some(s.to_owned()),
+    },
+    traces: vec![TraceTimelineDiagram {
+      threads,
+      events_groups
+    }],
+  })
+}
+
 pub fn discover_timeline_diagram(
   log: &XesEventLogImpl,
   thread_attribute: &str,
