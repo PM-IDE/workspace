@@ -14,14 +14,16 @@ use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
+use crate::utils::user_data::user_data::{ExecuteWithUserData, UserData, UserDataImpl, UserDataOwner};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
+use lazy_static::lazy_static;
 use crate::features::discovery::petri_net::annotations::{create_performance_map, PerformanceMap};
+use crate::pipelines::keys::context_key::DefaultContextKey;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -113,6 +115,16 @@ pub fn discover_root_sequence_graph_from_event_log(
   Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map)))
 }
 
+impl ExecuteWithUserData for Rc<RefCell<XesEventImpl>> {
+  fn execute_with_user_data(&self, func: &mut dyn FnMut(&UserDataImpl) -> ()) {
+    func(self.borrow().user_data());
+  }
+
+  fn execute_with_user_data_mut(&mut self, func: &mut dyn FnMut(&mut UserDataImpl)) {
+    func(self.borrow_mut().user_data_mut());
+  }
+}
+
 fn set_corresponding_trace_data(log: &XesEventLogImpl) {
   for (trace_index, trace) in log.traces().iter().enumerate() {
     for (event_index, event) in trace.borrow().events().iter().enumerate() {
@@ -123,7 +135,7 @@ fn set_corresponding_trace_data(log: &XesEventLogImpl) {
   }
 }
 
-pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
+pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
   merge_sequences_of_events: bool,
@@ -140,7 +152,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   graph
 }
 
-fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
+fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
   first_iteration: bool,
@@ -159,7 +171,7 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   graph
 }
 
-fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
+fn handle_recursion_exit_case<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
   log: &Vec<Vec<T>>,
   root_sequence: &Vec<T>,
   context: &DiscoveryContext<T>,
@@ -183,7 +195,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   graph
 }
 
-fn create_new_graph_node<T>(graph: &mut DefaultGraph, event: &T, is_root_sequence: bool, context: &DiscoveryContext<T>) -> u64 {
+fn create_new_graph_node<T: ExecuteWithUserData>(graph: &mut DefaultGraph, event: &T, is_root_sequence: bool, context: &DiscoveryContext<T>) -> u64 {
   let name_extractor = context.name_extractor();
   let node_id = graph.add_node(Some(name_extractor(event)));
 
@@ -191,10 +203,16 @@ fn create_new_graph_node<T>(graph: &mut DefaultGraph, event: &T, is_root_sequenc
   let transfer = context.event_to_graph_node_info_transfer();
   transfer(event, node.user_data_mut(), is_root_sequence);
 
+  event.execute_with_user_data(&mut |user_data| {
+    if let Some(end_node_id) = user_data.concrete(ROOT_SEQUENCE_END_NODE_ID_KEY.key()) {
+      node.user_data_mut().put_concrete(ROOT_SEQUENCE_END_NODE_ID_KEY.key(), *end_node_id)
+    }
+  });
+
   node_id
 }
 
-fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
+fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + ExecuteWithUserData>(
   root_sequence: &Vec<T>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
@@ -217,7 +235,7 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   root_sequence_node_ids
 }
 
-fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
+fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
   traces: &Vec<Vec<T>>,
   lcs: &Vec<T>,
   root_sequence_node_ids: &Vec<u64>,
@@ -249,9 +267,10 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
         index += 1;
       }
 
-      let key = (root_sequence_node_ids[second_indices[lcs_index - 1]], root_sequence_node_ids[second_indices[lcs_index]]);
+      let from_node_id = root_sequence_node_ids[second_indices[lcs_index - 1]];
+      let to_node_id = root_sequence_node_ids[second_indices[lcs_index]];
 
-      adjustments.entry(key).or_insert(vec![]).push(adjustment_events);
+      adjustments.entry(from_node_id).or_insert(HashMap::new()).entry(to_node_id).or_insert(vec![]).push(adjustment_events);
 
       index += 1;
       lcs_index += 1;
@@ -261,33 +280,48 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   add_adjustments_to_graph(&adjustments, graph, context);
 }
 
-fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
-  adjustments: &HashMap<(u64, u64), Vec<Vec<T>>>,
+fn add_adjustments_to_graph<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+  adjustments: &HashMap<u64, HashMap<u64, Vec<Vec<T>>>>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
 ) {
-  for ((start_root_node_id, end_root_node_id), adjustments) in adjustments {
-    let adjustment_log = create_log_from_adjustments(&adjustments, context.artificial_start_end_events_factory());
+  for (start_root_node_id, adjustments) in adjustments {
+    let adjustment_log = create_log_from_adjustments(adjustments.iter().collect(), context.artificial_start_end_events_factory());
     let sub_graph = discover_root_sequence_graph_internal(&adjustment_log, context, false);
 
-    merge_subgraph_into_model(graph, sub_graph, *start_root_node_id, *end_root_node_id, context);
+    merge_subgraph_into_model(graph, sub_graph, *start_root_node_id, context);
   }
 }
 
-fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
-  adjustments: &Vec<Vec<T>>,
+lazy_static!(
+  static ref ROOT_SEQUENCE_END_NODE_ID_KEY: DefaultContextKey<u64> = DefaultContextKey::new("ROOT_SEQUENCE_END_NODE_ID");
+);
+
+fn create_log_from_adjustments<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+  end_root_sequence_nodes_to_adjustments: Vec<(&u64, &Vec<Vec<T>>)>,
   artificial_start_end_events_factory: impl Fn() -> (T, T),
 ) -> Vec<Vec<T>> {
   let mut adjustment_log = vec![];
-  for adjustment in adjustments {
-    let (art_start, art_end) = artificial_start_end_events_factory();
-    let mut adjustment_trace = vec![art_start];
-    for event in adjustment {
-      adjustment_trace.push(event.clone());
-    }
 
-    adjustment_trace.push(art_end);
-    adjustment_log.push(adjustment_trace);
+  for (to_root_sequence_node_id, adjustments) in end_root_sequence_nodes_to_adjustments {
+    for adjustment in adjustments {
+      if adjustment.is_empty() {
+        continue;
+      }
+
+      let (art_start, art_end) = artificial_start_end_events_factory();
+      let mut adjustment_trace = vec![art_start];
+      for event in adjustment {
+        adjustment_trace.push(event.clone());
+      }
+
+      adjustment_trace.last_mut().unwrap().execute_with_user_data_mut(&mut |user_data| {
+        user_data.put_concrete(ROOT_SEQUENCE_END_NODE_ID_KEY.key(), *to_root_sequence_node_id);
+      });
+
+      adjustment_trace.push(art_end);
+      adjustment_log.push(adjustment_trace);
+    } 
   }
 
   adjustment_log
@@ -321,7 +355,6 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
   graph: &mut DefaultGraph,
   sub_graph: DefaultGraph,
   start_graph_node_id: u64,
-  end_graph_node_id: u64,
   context: &DiscoveryContext<T>,
 ) {
   let (start_node_id, end_node_id) = find_start_end_node_ids(&sub_graph, context.name_extractor(), context.artificial_start_end_events_factory());
@@ -341,7 +374,7 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
     };
 
     let to_node = if *edge.to_node() == end_node_id {
-      end_graph_node_id
+      *sub_graph.node(edge.from_node()).unwrap().user_data().concrete(ROOT_SEQUENCE_END_NODE_ID_KEY.key()).unwrap()
     } else {
       sub_graph_nodes_to_nodes[edge.to_node()]
     };
