@@ -15,7 +15,7 @@ use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWAR
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::{ExecuteWithUserData, UserData, UserDataImpl, UserDataOwner};
+use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
@@ -113,16 +113,6 @@ pub fn discover_root_sequence_graph_from_event_log(
   Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map)))
 }
 
-impl ExecuteWithUserData for Rc<RefCell<XesEventImpl>> {
-  fn execute_with_user_data(&self, func: &mut dyn FnMut(&UserDataImpl) -> ()) {
-    func(self.borrow().user_data());
-  }
-
-  fn execute_with_user_data_mut(&mut self, func: &mut dyn FnMut(&mut UserDataImpl)) {
-    func(self.borrow_mut().user_data_mut());
-  }
-}
-
 fn set_corresponding_trace_data(log: &XesEventLogImpl) {
   for (trace_index, trace) in log.traces().iter().enumerate() {
     for (event_index, event) in trace.borrow().events().iter().enumerate() {
@@ -133,7 +123,7 @@ fn set_corresponding_trace_data(log: &XesEventLogImpl) {
   }
 }
 
-pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
   merge_sequences_of_events: bool,
@@ -150,7 +140,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug + ExecuteWithUs
   graph
 }
 
-fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
   first_iteration: bool,
@@ -169,7 +159,7 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug + ExecuteW
   graph
 }
 
-fn handle_recursion_exit_case<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   root_sequence: &Vec<T>,
   context: &DiscoveryContext<T>,
@@ -193,7 +183,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug + ExecuteWithUserData
   graph
 }
 
-fn create_new_graph_node<T: ExecuteWithUserData>(graph: &mut DefaultGraph, event: &T, is_root_sequence: bool, context: &DiscoveryContext<T>) -> u64 {
+fn create_new_graph_node<T>(graph: &mut DefaultGraph, event: &T, is_root_sequence: bool, context: &DiscoveryContext<T>) -> u64 {
   let name_extractor = context.name_extractor();
   let node_id = graph.add_node(Some(name_extractor(event)));
 
@@ -204,7 +194,7 @@ fn create_new_graph_node<T: ExecuteWithUserData>(graph: &mut DefaultGraph, event
   node_id
 }
 
-fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + ExecuteWithUserData>(
+fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   root_sequence: &Vec<T>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
@@ -227,7 +217,7 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + ExecuteWithUse
   root_sequence_node_ids
 }
 
-fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<T>>,
   lcs: &Vec<T>,
   root_sequence_node_ids: &Vec<u64>,
@@ -272,7 +262,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug + ExecuteWithUserDa
   add_adjustments_to_graph(&adjustments, graph, context);
 }
 
-fn add_adjustments_to_graph<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
   adjustments: &HashMap<u64, HashMap<u64, Vec<Vec<T>>>>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
@@ -285,7 +275,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
   }
 }
 
-fn create_log_from_adjustments<T: PartialEq + Clone + Debug + ExecuteWithUserData>(
+fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
   end_root_sequence_nodes_to_adjustments: Vec<(&u64, &Vec<Vec<T>>)>,
   artificial_start_end_events_factory: impl Fn() -> (T, T),
 ) -> Vec<Vec<T>> {
