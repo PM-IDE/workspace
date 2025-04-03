@@ -129,4 +129,10 @@ impl PipelineParts {
 
     log
   }
+
+  pub(super) fn discover_traces_timeline_diagram() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::DISCOVER_TRACES_TIMELINE_DIAGRAM, &|context, _, _| {
+      Ok(())
+    })
+  }
 }

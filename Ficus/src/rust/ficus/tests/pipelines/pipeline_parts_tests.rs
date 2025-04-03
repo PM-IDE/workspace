@@ -78,7 +78,8 @@ fn get_test_parts_names() -> Vec<String> {
         "ClusterizeLogTracesKMeansGridSearch",
         "ClusterizeLogTracesDbscanGridSearch",
         "DiscoverRootSequenceGraph",
-        "DiscoverLoopsStrict"
+        "DiscoverLoopsStrict",
+        "DiscoverTracesTimelineDiagram"
     ]
 }
 

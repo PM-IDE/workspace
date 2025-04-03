@@ -99,7 +99,8 @@ impl PipelineParts {
       Self::clusterize_log_by_traces_k_means_grid_search(),
       Self::clusterize_log_traces_dbscan_grid_search(),
       Self::discover_root_sequence_graph(),
-      Self::discover_loops_strict()
+      Self::discover_loops_strict(),
+      Self::discover_traces_timeline_diagram()
     ];
 
     let mut names_to_parts = HashMap::new();

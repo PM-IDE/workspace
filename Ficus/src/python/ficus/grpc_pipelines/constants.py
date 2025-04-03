@@ -146,6 +146,7 @@ const_clusterize_traces_k_means_grid_search = 'ClusterizeLogTracesKMeansGridSear
 const_clusterize_traces_dbscan_grid_search = 'ClusterizeLogTracesDbscanGridSearch'
 const_discover_root_sequence_graph = 'DiscoverRootSequenceGraph'
 const_discover_loops_strict = 'DiscoverLoopsStrict'
+const_discover_traces_timeline_diagram = 'DiscoverTracesTimelineDiagram'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

@@ -65,3 +65,8 @@ class CreateThreadsLog(PipelinePart):
     append_string_value(config, const_thread_attribute, self.thread_attribute)
 
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_create_threads_log, config))
+
+
+class DiscoverTracesTimelineDiagram(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_traces_timeline_diagram))
