@@ -1,4 +1,4 @@
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::utils::user_data::user_data::{UserDataImpl, UserDataOwner};
 
 use super::lifecycle::xes_lifecycle::Lifecycle;
 use crate::utils::references::HeapedOrOwned;
@@ -84,7 +84,7 @@ impl EventPayloadValue {
   }
 }
 
-pub trait Event: Clone + Debug {
+pub trait Event: Clone + Debug + UserDataOwner {
   fn new(name: String, stamp: DateTime<Utc>) -> Self;
   fn new_with_min_date(name: String) -> Self;
   fn new_with_max_date(name: String) -> Self;
@@ -96,8 +96,6 @@ pub trait Event: Clone + Debug {
   fn payload_map(&self) -> Option<&HashMap<String, EventPayloadValue>>;
   fn payload_map_mut(&mut self) -> Option<&mut HashMap<String, EventPayloadValue>>;
   fn ordered_payload(&self) -> Vec<(&String, &EventPayloadValue)>;
-  fn user_data_mut(&mut self) -> &mut UserDataImpl;
-  fn user_data(&self) -> &UserDataImpl;
 
   fn set_name(&mut self, new_name: String);
   fn set_timestamp(&mut self, new_timestamp: DateTime<Utc>);

@@ -14,7 +14,7 @@ use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::{UserData, UserDataImpl};
+use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};

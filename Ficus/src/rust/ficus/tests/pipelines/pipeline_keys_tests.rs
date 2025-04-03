@@ -7,13 +7,14 @@ use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
-use ficus::features::discovery::root_sequence::discovery::{RootSequenceKind};
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
+use ficus::features::discovery::root_sequence::discovery::RootSequenceKind;
+use ficus::features::discovery::root_sequence::models::ActivityStartEndTimeData;
+use ficus::features::discovery::timeline::abstraction::SoftwareData;
 use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus::pipelines::keys::context_keys::*;
-use ficus::pipelines::multithreading::SoftwareData;
 use ficus::pipelines::patterns_parts::PatternsKindDto;
 use ficus::utils::colors::ColorsEventLog;
 use ficus::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -21,19 +22,18 @@ use ficus::utils::distance::distance::FicusDistance;
 use ficus::utils::graph::graph::DefaultGraph;
 use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
-  event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
-  features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
-  pipelines::{
-    aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
-    pipelines::Pipeline,
-  },
-  utils::{
-    colors::ColorsHolder,
-    user_data::{keys::Key, user_data::UserData},
-  },
-  vecs,
+    event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
+    features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
+    pipelines::{
+        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
+        pipelines::Pipeline,
+    },
+    utils::{
+        colors::ColorsHolder,
+        user_data::{keys::Key, user_data::UserData},
+    },
+    vecs,
 };
-use ficus::features::discovery::root_sequence::models::ActivityStartEndTimeData;
 
 #[test]
 #[rustfmt::skip]

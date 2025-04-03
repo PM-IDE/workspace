@@ -9,6 +9,7 @@ use crate::{
   },
   utils::{user_data::user_data::UserDataImpl, vec_utils},
 };
+use crate::utils::user_data::user_data::UserDataOwner;
 
 pub struct XesEventImpl {
   event_base: EventBase,
@@ -36,8 +37,37 @@ impl PartialEq<Self> for XesEventImpl {
   }
 }
 
+impl UserDataOwner for XesEventImpl {
+  fn user_data(&self) -> &UserDataImpl {
+    &self.event_base.user_data
+  }
+
+  fn user_data_mut(&mut self) -> &mut UserDataImpl {
+    &mut self.event_base.user_data
+  }
+}
+
 impl Event for XesEventImpl {
+  fn new(name: String, timestamp: DateTime<Utc>) -> Self {
+    Self {
+      event_base: EventBase::new(Rc::new(Box::new(name)), timestamp),
+      payload: None,
+    }
+  }
+
+  fn new_with_min_date(name: String) -> Self {
+    Self::new(name, DateTime::<Utc>::MIN_UTC)
+  }
+
+  fn new_with_max_date(name: String) -> Self {
+    Self::new(name, DateTime::<Utc>::MAX_UTC)
+  }
+
   fn name(&self) -> &String {
+    &self.event_base.name
+  }
+
+  fn name_pointer(&self) -> &Rc<Box<String>> {
     &self.event_base.name
   }
 
@@ -67,12 +97,6 @@ impl Event for XesEventImpl {
     }
   }
 
-  fn user_data_mut(&mut self) -> &mut UserDataImpl {
-    &mut self.event_base.user_data
-  }
-
-  fn user_data(&self) -> &UserDataImpl { &self.event_base.user_data }
-
   fn set_name(&mut self, new_name: String) {
     self.event_base.name = Rc::new(Box::new(new_name));
   }
@@ -87,25 +111,6 @@ impl Event for XesEventImpl {
     }
 
     self.payload.as_mut().unwrap().insert(key, value);
-  }
-
-  fn new(name: String, timestamp: DateTime<Utc>) -> Self {
-    Self {
-      event_base: EventBase::new(Rc::new(Box::new(name)), timestamp),
-      payload: None,
-    }
-  }
-
-  fn new_with_min_date(name: String) -> Self {
-    Self::new(name, DateTime::<Utc>::MIN_UTC)
-  }
-
-  fn new_with_max_date(name: String) -> Self {
-    Self::new(name, DateTime::<Utc>::MAX_UTC)
-  }
-
-  fn name_pointer(&self) -> &Rc<Box<String>> {
-    &self.event_base.name
   }
 }
 

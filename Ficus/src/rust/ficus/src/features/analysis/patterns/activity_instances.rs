@@ -19,6 +19,7 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
+use crate::utils::user_data::user_data::UserDataOwner;
 
 #[derive(Debug, Clone)]
 pub struct ActivityInTraceInfo {

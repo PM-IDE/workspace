@@ -14,7 +14,7 @@ use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEv
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITY_TIME_KEY};
-use crate::utils::user_data::user_data::UserData;
+use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,
