@@ -195,7 +195,6 @@ pub fn test_root_sequence_graph_9() {
     vec![
       "[A]--[B]",
       "[A]--[X]",
-      "[A]--[X]",
       "[A]--[Y]",
       "[A]--[Z]",
       "[B]--[C]",
