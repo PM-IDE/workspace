@@ -75,30 +75,13 @@ pub fn discover_root_sequence_graph_from_event_log(
   );
 
   let event_to_graph_node_info_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
-    transfer_vector_like_user_data(event, &SOFTWARE_DATA_KEY, user_data_impl);
-    transfer_vector_like_user_data(event, &START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
-    transfer_vector_like_user_data(event, &UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
-
-    if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
-      let new_trace_data = corresponding_trace_data.iter().map(|d| {
-        let mut data = d.clone();
-        data.value_mut().set_belongs_to_root_sequence(belongs_to_root_sequence);
-        data
-      }).collect();
-
-      if let Some(existing_trace_data) = user_data_impl.concrete_mut(CORRESPONDING_TRACE_DATA_KEY.key()) {
-        existing_trace_data.extend(new_trace_data);
-      } else {
-        user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), new_trace_data);
-      }
-    }
-  };
-
-  let underlying_events_extractor = |event: &Rc<RefCell<XesEventImpl>>| {
     let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
-    match underlying_events.is_empty() {
-      true => None,
-      false => Some(underlying_events)
+    if !underlying_events.is_empty() {
+      for event in underlying_events {
+        transfer_data_from_event_to_user_data(&event, user_data_impl, belongs_to_root_sequence);
+      }
+    } else {
+      transfer_data_from_event_to_user_data(event, user_data_impl, belongs_to_root_sequence);
     }
   };
 
@@ -107,7 +90,6 @@ pub fn discover_root_sequence_graph_from_event_log(
     &artificial_start_end_events_factory,
     root_sequence_kind,
     &event_to_graph_node_info_transfer,
-    &underlying_events_extractor,
   );
 
   let performance_map = create_performance_map(log);
@@ -116,6 +98,26 @@ pub fn discover_root_sequence_graph_from_event_log(
   initialize_patterns_infos(&log);
 
   Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map)))
+}
+
+fn transfer_data_from_event_to_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool) {
+  transfer_vector_like_user_data(event, &SOFTWARE_DATA_KEY, user_data_impl);
+  transfer_vector_like_user_data(event, &START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
+  transfer_vector_like_user_data(event, &UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
+
+  if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
+    let new_trace_data = corresponding_trace_data.iter().map(|d| {
+      let mut data = d.clone();
+      data.value_mut().set_belongs_to_root_sequence(belongs_to_root_sequence);
+      data
+    }).collect();
+
+    if let Some(existing_trace_data) = user_data_impl.concrete_mut(CORRESPONDING_TRACE_DATA_KEY.key()) {
+      existing_trace_data.extend(new_trace_data);
+    } else {
+      user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), new_trace_data);
+    }
+  }
 }
 
 fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
