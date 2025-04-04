@@ -13,7 +13,7 @@ use crate::features::discovery::root_sequence::models::ActivityStartEndTimeData;
 use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITY_TIME_KEY};
+use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 
 pub fn abstract_event_groups(
@@ -112,7 +112,7 @@ fn create_abstracted_event(
   let first_stamp = get_stamp(&event_group.first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
   let last_stamp = get_stamp(&event_group.last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
 
-  event.user_data_mut().put_concrete(START_END_ACTIVITY_TIME_KEY.key(), ActivityStartEndTimeData::new(first_stamp, last_stamp));
+  event.user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), vec![ActivityStartEndTimeData::new(first_stamp, last_stamp)]);
 
   Ok(Rc::new(RefCell::new(event)))
 }

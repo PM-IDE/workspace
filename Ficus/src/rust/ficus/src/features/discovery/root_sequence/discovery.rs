@@ -11,7 +11,8 @@ use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::CorrespondingTraceData;
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITY_TIME_KEY};
+use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
@@ -73,20 +74,21 @@ pub fn discover_root_sequence_graph_from_event_log(
   );
 
   let event_to_graph_node_info_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
-    if let Some(software_data) = event.borrow().user_data().concrete(SOFTWARE_DATA_KEY.key()) {
-      user_data_impl.put_concrete(SOFTWARE_DATA_KEY.key(), software_data.clone());
-    }
+    transfer_vector_like_user_data(event, &SOFTWARE_DATA_KEY, user_data_impl);
+    transfer_vector_like_user_data(event, &START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
 
     if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
-      user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), corresponding_trace_data.iter().map(|mut d| {
+      let new_trace_data = corresponding_trace_data.iter().map(|d| {
         let mut data = d.clone();
         data.set_belongs_to_root_sequence(belongs_to_root_sequence);
         data
-      }).collect());
-    }
+      }).collect();
 
-    if let Some(start_end_activity_time) = event.borrow().user_data().concrete(START_END_ACTIVITY_TIME_KEY.key()) {
-      user_data_impl.put_concrete(START_END_ACTIVITY_TIME_KEY.key(), start_end_activity_time.clone())
+      if let Some(existing_trace_data) = user_data_impl.concrete_mut(CORRESPONDING_TRACE_DATA_KEY.key()) {
+        existing_trace_data.extend(new_trace_data);
+      } else {
+        user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), new_trace_data); 
+      }
     }
   };
 
@@ -111,6 +113,16 @@ pub fn discover_root_sequence_graph_from_event_log(
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
 
   Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map)))
+}
+
+fn transfer_vector_like_user_data<T: Clone>(event: &Rc<RefCell<XesEventImpl>>, key: &DefaultContextKey<Vec<T>>, user_data_impl: &mut UserDataImpl) {
+  if let Some(data) = event.borrow().user_data().concrete(key.key()) {
+    if let Some(existing_data) = user_data_impl.concrete_mut(key.key()) {
+      existing_data.extend(data.clone().into_iter());
+    } else {
+      user_data_impl.put_concrete(key.key(), data.clone());
+    }
+  }
 }
 
 fn set_corresponding_trace_data(log: &XesEventLogImpl) {
@@ -152,7 +164,7 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   }
 
   let mut graph = DefaultGraph::empty();
-  let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(&root_sequence, &mut graph, &context, first_iteration);
+  let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(log, &root_sequence, &mut graph, &context, first_iteration);
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context);
 
@@ -172,7 +184,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   for trace in log {
     let mut prev_node_id = start_node;
     for event in trace.iter().skip(1).take(trace.len() - 2) {
-      let node_id = create_new_graph_node(&mut graph, event, false, context);
+      let node_id = create_new_graph_node(&mut graph, event, false, context, true);
       graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::empty());
       prev_node_id = node_id;
     }
@@ -183,18 +195,31 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   graph
 }
 
-fn create_new_graph_node<T>(graph: &mut DefaultGraph, event: &T, is_root_sequence: bool, context: &DiscoveryContext<T>) -> u64 {
+fn create_new_graph_node<T>(
+  graph: &mut DefaultGraph,
+  event: &T,
+  is_root_sequence: bool,
+  context: &DiscoveryContext<T>,
+  transfer_context_values: bool
+) -> u64 {
   let name_extractor = context.name_extractor();
   let node_id = graph.add_node(Some(name_extractor(event)));
 
-  let node = graph.node_mut(&node_id).unwrap();
-  let transfer = context.event_to_graph_node_info_transfer();
-  transfer(event, node.user_data_mut(), is_root_sequence);
+  if transfer_context_values {
+    transfer_user_data(graph, event, node_id, is_root_sequence, context);
+  }
 
   node_id
 }
 
+fn transfer_user_data<T>(graph: &mut DefaultGraph, event: &T, node_id: u64, is_root_sequence: bool, context: &DiscoveryContext<T>) {
+  let node = graph.node_mut(&node_id).unwrap();
+  let transfer = context.event_to_graph_node_info_transfer();
+  transfer(event, node.user_data_mut(), is_root_sequence);
+}
+
 fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
+  log: &Vec<Vec<T>>,
   root_sequence: &Vec<T>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
@@ -204,7 +229,7 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
   let mut root_sequence_node_ids = vec![];
 
   for event in root_sequence {
-    let node_id = create_new_graph_node(graph, event, is_first_iteration_root_sequence, context);
+    let node_id = create_new_graph_node(graph, event, is_first_iteration_root_sequence, context, false);
     root_sequence_node_ids.push(node_id);
 
     if let Some(prev_node_id) = prev_node_id.as_ref() {
@@ -212,6 +237,14 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
     }
 
     prev_node_id = Some(node_id);
+  }
+
+  for trace in log {
+    let lcs = find_longest_common_subsequence(trace, root_sequence, trace.len(), root_sequence.len());
+    for (index, node_id) in lcs.first_indices().iter().zip(&root_sequence_node_ids) {
+      let event = trace.get(*index).unwrap();
+      transfer_user_data(graph, event, *node_id, is_first_iteration_root_sequence, context);
+    }
   }
 
   root_sequence_node_ids
