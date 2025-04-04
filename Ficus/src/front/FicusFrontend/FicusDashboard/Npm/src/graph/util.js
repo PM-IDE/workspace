@@ -1,4 +1,5 @@
 import {generateRandomColor} from "../utils";
+import {darkTheme, performanceColors} from "../colors";
 
 export function createDagreLayout() {
   return {
@@ -89,4 +90,11 @@ export function getOrCreateColor(name) {
   }
 
   return colorsCache[name];
+}
+
+const performanceColor = performanceColors(darkTheme);
+
+export function getTimeAnnotationColor(relativeExecutionTime) {
+  let colorName = `color${(Math.floor(relativeExecutionTime * 10) % 100).toString()}`;
+  return performanceColor[colorName];
 }

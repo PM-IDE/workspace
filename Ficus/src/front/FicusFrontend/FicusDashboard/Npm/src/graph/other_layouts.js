@@ -1,9 +1,8 @@
 import {calculateGradient} from "../utils";
 import {darkTheme, graphColors, performanceColors} from "../colors";
-import {calculateOverallExecutionTime} from "./util";
+import {calculateOverallExecutionTime, getTimeAnnotationColor} from "./util";
 
 const graphColor = graphColors(darkTheme);
-const performanceColor = performanceColors(darkTheme);
 
 export function createGraphElementForDagre(graph, annotation) {
   let elements = [];
@@ -17,7 +16,7 @@ export function createGraphElementForDagre(graph, annotation) {
         id: node.id.toString(),
         additionalData: node.additionalData,
         executionTime: nodesMap[node.id].executionTime,
-        relativeExecutionTime: nodesMap[node.id].relativeExecutionTime
+        relativeExecutionTime: nodesMap[node.id].relativeExecutionTime,
       }
     })
   }
@@ -124,9 +123,8 @@ function processTimeAnnotation(annotation, edges, edgesMap) {
 
   for (let edge of edges) {
     let timeAnnotation = (idsToTime[edge.id] - minTime) / (maxTime - minTime);
-    edgesMap[edge.id].timeAnnotation = timeAnnotation;
 
-    let colorName = `color${(Math.floor(timeAnnotation * 10) % 100).toString()}`;
-    edgesMap[edge.id].color = performanceColor[colorName];
+    edgesMap[edge.id].timeAnnotation = timeAnnotation;
+    edgesMap[edge.id].color = getTimeAnnotationColor(timeAnnotation);
   }
 }

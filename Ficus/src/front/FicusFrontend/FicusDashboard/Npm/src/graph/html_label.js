@@ -1,4 +1,4 @@
-import {belongsToRootSequence, getOrCreateColor, getSoftwareDataOrNull} from "./util";
+import {belongsToRootSequence, getOrCreateColor, getSoftwareDataOrNull, getTimeAnnotationColor} from "./util";
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
 
@@ -12,14 +12,12 @@ export function createHtmlLabel(node) {
 
   let sortedHistogramEntries = softwareData.histogram.toSorted((f, s) => s.count - f.count);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
+  let timeAnnotationColor = getTimeAnnotationColor(node.relativeExecutionTime);
 
   return `
           <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; min-height: ${nodeHeightPx}px">
-              <div>
-                ${node.relativeExecutionTime}
-              </div>
-              <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}">
-                  ${node.label}
+              <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
+                  ${node.label} [${node.executionTime}]
               </div>
               <div style="width: 100%; display: flex; flex-direction: row;">
                   ${createHistogram(sortedHistogramEntries).join('\n')}
