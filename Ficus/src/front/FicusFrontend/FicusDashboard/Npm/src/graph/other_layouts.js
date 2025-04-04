@@ -1,5 +1,6 @@
 import {calculateGradient} from "../utils";
 import {darkTheme, graphColors, performanceColors} from "../colors";
+import {calculateOverallExecutionTime} from "./util";
 
 const graphColor = graphColors(darkTheme);
 const performanceColor = performanceColors(darkTheme);
@@ -7,12 +8,16 @@ const performanceColor = performanceColors(darkTheme);
 export function createGraphElementForDagre(graph, annotation) {
   let elements = [];
 
+  let nodesMap = processNodes(graph.nodes);
+
   for (let node of graph.nodes) {
     elements.push({
       data: {
         label: node.data,
         id: node.id.toString(),
-        additionalData: node.additionalData
+        additionalData: node.additionalData,
+        executionTime: nodesMap[node.id].executionTime,
+        relativeExecutionTime: nodesMap[node.id].relativeExecutionTime
       }
     })
   }
@@ -20,6 +25,25 @@ export function createGraphElementForDagre(graph, annotation) {
   elements.push(...createGraphEdgesElements(graph.edges, annotation));
 
   return elements;
+}
+
+function processNodes(nodes) {
+  let nodesMap = {};
+  for (let node of nodes) {
+    nodesMap[node.id] = {};
+  }
+
+  let executionTimes = nodes.map(n => calculateOverallExecutionTime(n));
+  console.log(executionTimes);
+  let maxTime = Math.max(...executionTimes);
+  let minTime = Math.min(...executionTimes);
+
+  for (let i = 0; i < nodes.length; ++i) {
+    nodesMap[nodes[i].id].executionTime = executionTimes[i];
+    nodesMap[nodes[i].id].relativeExecutionTime = (executionTimes[i] - minTime) / (maxTime - minTime);
+  }
+  
+  return nodesMap;
 }
 
 export function createGraphEdgesElements(edges, annotation) {
