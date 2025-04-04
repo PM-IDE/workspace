@@ -74,6 +74,7 @@ pub(super) fn merge_activities(
       vec![],
       cluster_activities[0].borrow().level(),
       Rc::new(Box::new(new_activity_name)),
+      cluster_activities.first().unwrap().borrow().underlying_pattern_kind().clone()
     );
 
     new_cluster_activities.insert(*cluster, Rc::new(RefCell::new(new_node)));

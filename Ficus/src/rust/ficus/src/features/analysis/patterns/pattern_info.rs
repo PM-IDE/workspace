@@ -1,0 +1,56 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+use lazy_static::lazy_static;
+use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::features::analysis::patterns::entry_points::PatternsKind;
+use crate::pipelines::keys::context_key::DefaultContextKey;
+
+lazy_static!(
+  pub static ref UNDERLYING_PATTERN_INFO: DefaultContextKey<UnderlyingPatternInfo> = DefaultContextKey::new("UNDERLYING_PATTERN_INFO");
+  pub static ref UNDERLYING_PATTERN_KIND: DefaultContextKey<UnderlyingPatternKind> = DefaultContextKey::new("UNDERLYING_PATTERN_KIND");
+);
+
+#[derive(Debug, Clone, Copy)]
+pub enum UnderlyingPatternKind {
+  StrictLoop,
+  PrimitiveTandemArray,
+  MaximalTandemArray,
+  MaximalRepeat,
+  SuperMaximalRepeat,
+  NearSuperMaximalRepeat,
+  Unknown
+}
+
+impl From<PatternsKind> for UnderlyingPatternKind {
+  fn from(value: PatternsKind) -> Self {
+    match value {
+      PatternsKind::PrimitiveTandemArrays(_) => Self::PrimitiveTandemArray,
+      PatternsKind::MaximalTandemArrays(_) => Self::MaximalTandemArray,
+      PatternsKind::MaximalRepeats => Self::MaximalRepeat,
+      PatternsKind::SuperMaximalRepeats => Self::SuperMaximalRepeat,
+      PatternsKind::NearSuperMaximalRepeats => Self::NearSuperMaximalRepeat
+    }
+  }
+}
+
+pub struct UnderlyingPatternInfo {
+  pattern_kind: UnderlyingPatternKind,
+  underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>
+}
+
+impl UnderlyingPatternInfo {
+  pub fn new(pattern_kind: UnderlyingPatternKind, underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>) -> Self {
+    Self {
+      pattern_kind,
+      underlying_sequence
+    }
+  }
+  
+  pub fn pattern_kind(&self) -> &UnderlyingPatternKind {
+    &self.pattern_kind
+  }
+
+  pub fn underlying_sequence(&self) -> &Vec<Rc<RefCell<XesEventImpl>>> {
+    &self.underlying_sequence
+  }
+}

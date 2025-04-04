@@ -1,14 +1,5 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo;
-use crate::features::analysis::patterns::repeat_sets::ActivityNode;
 use crate::utils::hash_utils::calculate_poly_hash_for_collection;
-use itertools::Itertools;
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
-use std::ptr::hash;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
 
 #[derive(Debug, Clone, Copy)]
 pub struct SubArrayInTraceInfo {

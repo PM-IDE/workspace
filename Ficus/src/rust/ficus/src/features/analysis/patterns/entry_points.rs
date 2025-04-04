@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::event_log::core::event_log::EventLog;
 use crate::features::analysis::patterns::activity_instances::ActivitiesLogSource;
-
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 use super::{
   activity_instances::{self, create_new_log_from_activities_instances, extract_activities_instances, ActivityInTraceInfo},
   contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext},
@@ -58,7 +58,8 @@ where
     activities_context.patterns_context.get_processed_log(),
     &repeats,
     activities_context.activity_level,
-    &activities_context.name_creator,
+    UnderlyingPatternKind::from(activities_context.patterns_context.pattern_kind),
+    &activities_context.name_creator
   )
 }
 

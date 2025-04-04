@@ -1,6 +1,7 @@
 use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
 use crate::event_log::core::event::event::EventPayloadValue;
-use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
+use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
   pipelines::aliases::TracesActivities,
@@ -19,7 +20,6 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
-use crate::utils::user_data::user_data::UserDataOwner;
 
 #[derive(Debug, Clone)]
 pub struct ActivityInTraceInfo {

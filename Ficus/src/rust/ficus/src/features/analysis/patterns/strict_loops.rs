@@ -10,6 +10,7 @@ use itertools::Itertools;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
   let instances = find_max_loops(log, hashed_log, max_array_length);
@@ -92,6 +93,7 @@ fn create_strict_loop_activity_instance(
       vec![],
       0,
       Rc::new(Box::new(format!("Loop[{}]", name.join("::")))),
+      UnderlyingPatternKind::StrictLoop,
     ))),
   }
 }

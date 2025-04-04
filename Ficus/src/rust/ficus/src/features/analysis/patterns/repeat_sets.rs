@@ -4,7 +4,8 @@ use std::{
   collections::{HashMap, HashSet},
   rc::Rc,
 };
-
+use crate::features::analysis::patterns::entry_points::PatternsKind;
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 use crate::utils::hash_utils::calculate_poly_hash_for_collection;
 
 use super::tandem_arrays::SubArrayInTraceInfo;
@@ -83,6 +84,7 @@ pub struct ActivityNode {
   children: Vec<Rc<RefCell<ActivityNode>>>,
   level: usize,
   name: Rc<Box<String>>,
+  pattern_kind: UnderlyingPatternKind,
 }
 
 impl ActivityNode {
@@ -92,6 +94,7 @@ impl ActivityNode {
     children: Vec<Rc<RefCell<ActivityNode>>>,
     level: usize,
     name: Rc<Box<String>>,
+    pattern_kind: UnderlyingPatternKind,
   ) -> Self {
     static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
@@ -102,6 +105,7 @@ impl ActivityNode {
       children,
       level,
       name,
+      pattern_kind
     }
   }
 
@@ -136,12 +140,17 @@ impl ActivityNode {
   pub fn id(&self) -> &Rc<Box<String>> {
     &self.id
   }
+
+  pub fn underlying_pattern_kind(&self) -> &UnderlyingPatternKind {
+    &self.pattern_kind
+  }
 }
 
 pub fn build_repeat_set_tree_from_repeats<TNameCreator>(
   log: &Vec<Vec<u64>>,
   repeats: &Vec<SubArrayWithTraceIndex>,
   activity_level: usize,
+  pattern_kind: UnderlyingPatternKind,
   name_creator: TNameCreator,
 ) -> Vec<Rc<RefCell<ActivityNode>>>
 where
@@ -170,6 +179,7 @@ where
       vec![],
       activity_level,
       Rc::new(Box::new(name_creator(repeat_set))),
+      pattern_kind,
     )))
   };
 
