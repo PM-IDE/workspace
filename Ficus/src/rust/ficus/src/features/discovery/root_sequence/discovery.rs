@@ -12,7 +12,7 @@ use crate::features::discovery::root_sequence::models::CorrespondingTraceData;
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY};
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, UNDERLYING_PATTERNS_INFOS_KEY};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
@@ -23,6 +23,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
+use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -76,6 +77,7 @@ pub fn discover_root_sequence_graph_from_event_log(
   let event_to_graph_node_info_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
     transfer_vector_like_user_data(event, &SOFTWARE_DATA_KEY, user_data_impl);
     transfer_vector_like_user_data(event, &START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
+    transfer_vector_like_user_data(event, &UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
 
     if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
       let new_trace_data = corresponding_trace_data.iter().map(|d| {
@@ -111,8 +113,21 @@ pub fn discover_root_sequence_graph_from_event_log(
   let performance_map = create_performance_map(log);
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
+  initialize_patterns_infos(&log);
 
   Ok(discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map)))
+}
+
+fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
+  for trace in log {
+    for event in trace {
+      let pattern_kind = event.borrow().user_data().concrete(UNDERLYING_PATTERN_KIND_KEY.key()).cloned();
+      if let Some(pattern_kind) = pattern_kind {
+        let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
+        event.borrow_mut().user_data_mut().put_concrete(UNDERLYING_PATTERNS_INFOS_KEY.key(), vec![UnderlyingPatternInfo::new(pattern_kind, underlying_events)]);
+      }
+    }
+  }
 }
 
 fn transfer_vector_like_user_data<T: Clone>(event: &Rc<RefCell<XesEventImpl>>, key: &DefaultContextKey<Vec<T>>, user_data_impl: &mut UserDataImpl) {

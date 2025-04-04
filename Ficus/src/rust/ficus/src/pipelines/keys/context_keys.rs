@@ -33,6 +33,7 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternInfo;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData};
 use crate::features::discovery::timeline::abstraction::SoftwareData;
 
@@ -134,6 +135,7 @@ pub const INNER_GRAPH: &'static str = "inner_graph";
 pub const START_END_ACTIVITY_TIME: &'static str = "start_end_activity_time";
 pub const START_END_ACTIVITIES_TIMES: &'static str = "start_end_activities_times";
 pub const MERGE_SEQUENCES_OF_EVENTS: &'static str = "merge_sequences_of_events";
+pub const UNDERLYING_PATTERNS_INFOS: &'static str = "underlying_patterns_infos";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -238,6 +240,7 @@ lazy_static!(
      pub static ref START_END_ACTIVITY_TIME_KEY: DefaultContextKey<ActivityStartEndTimeData> = DefaultContextKey::new(START_END_ACTIVITY_TIME);
      pub static ref START_END_ACTIVITIES_TIMES_KEY: DefaultContextKey<Vec<ActivityStartEndTimeData>> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
      pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
+     pub static ref UNDERLYING_PATTERNS_INFOS_KEY: DefaultContextKey<Vec<UnderlyingPatternInfo>> = DefaultContextKey::new(UNDERLYING_PATTERNS_INFOS);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -332,6 +335,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     START_END_ACTIVITY_TIME => Some(START_END_ACTIVITY_TIME_KEY.deref() as &dyn ContextKey),
     START_END_ACTIVITIES_TIMES => Some(START_END_ACTIVITIES_TIMES_KEY.deref() as &dyn ContextKey),
     MERGE_SEQUENCES_OF_EVENTS => Some(MERGE_SEQUENCES_OF_EVENTS_KEY.deref() as &dyn ContextKey),
+    UNDERLYING_PATTERNS_INFOS => Some(UNDERLYING_PATTERNS_INFOS_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

@@ -20,6 +20,7 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
+use crate::features::analysis::patterns::pattern_info::UNDERLYING_PATTERN_KIND_KEY;
 
 #[derive(Debug, Clone)]
 pub struct ActivityInTraceInfo {
@@ -427,6 +428,8 @@ where
           event.add_or_update_payload(key, payload_value);
         })
       }
+
+      user_data.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), *activity.node.borrow().underlying_pattern_kind());
 
       unsafe {
         user_data.put_any(&KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>(), underlying_events);

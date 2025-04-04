@@ -252,9 +252,19 @@ message GrpcAllocationInfo {
   uint64 allocated_bytes = 3;
 }
 
+enum GrpcUnderlyingPatternKind {
+  StrictLoop = 0;
+  PrimitiveTandemArray = 1;
+  MaximalTandemArray = 2;
+  MaximalRepeat = 3;
+  SuperMaximalRepeat = 4;
+  NearSuperMaximalRepeat = 5;
+  Unknown = 6;
+}
+
 message GrpcUnderlyingPatternInfo {
-  string pattern_type = 1;
-  repeated GrpcSimpleTrace underlying_traces = 2;
+  GrpcUnderlyingPatternKind pattern_kind = 1;
+  GrpcSimpleTrace underlying_trace = 2;
 }
 
 message GrpcGraphEdge {

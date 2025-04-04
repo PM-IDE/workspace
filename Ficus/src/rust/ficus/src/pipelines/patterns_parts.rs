@@ -1,5 +1,5 @@
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
-use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND};
+use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::analysis::patterns::strict_loops::find_loops_strict;
 use crate::pipelines::keys::context_keys::{ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, TANDEM_ARRAY_LENGTH_KEY, TRACE_ACTIVITIES_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
@@ -94,7 +94,7 @@ impl PipelineParts {
 
     let arrays = patterns_finder(&hashed_log, array_length, false);
 
-    context.put_concrete(UNDERLYING_PATTERN_KIND.key(), underlying_pattern_kind);
+    context.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), underlying_pattern_kind);
     context.put_concrete(HASHES_EVENT_LOG_KEY.key(), hashed_log);
     context.put_concrete(PATTERNS_KEY.key(), arrays);
 
@@ -114,7 +114,7 @@ impl PipelineParts {
 
     let repeats = patterns_finder(&hashed_log, &strategy);
 
-    context.put_concrete(UNDERLYING_PATTERN_KIND.key(), underlying_pattern_kind);
+    context.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), underlying_pattern_kind);
     context.put_concrete(HASHES_EVENT_LOG_KEY.key(), hashed_log);
     context.put_concrete(PATTERNS_KEY.key(), repeats);
 
@@ -151,7 +151,7 @@ impl PipelineParts {
       let hashed_log = Self::create_hashed_event_log(config, log);
 
       context.put_concrete(TRACE_ACTIVITIES_KEY.key(), find_loops_strict(log, &hashed_log, *max_array_length as usize));
-      context.put_concrete(UNDERLYING_PATTERN_KIND.key(), UnderlyingPatternKind::StrictLoop);
+      context.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), UnderlyingPatternKind::StrictLoop);
 
       Ok(())
     })

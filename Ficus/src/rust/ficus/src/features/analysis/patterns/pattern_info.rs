@@ -6,8 +6,8 @@ use crate::features::analysis::patterns::entry_points::PatternsKind;
 use crate::pipelines::keys::context_key::DefaultContextKey;
 
 lazy_static!(
-  pub static ref UNDERLYING_PATTERN_INFO: DefaultContextKey<UnderlyingPatternInfo> = DefaultContextKey::new("UNDERLYING_PATTERN_INFO");
-  pub static ref UNDERLYING_PATTERN_KIND: DefaultContextKey<UnderlyingPatternKind> = DefaultContextKey::new("UNDERLYING_PATTERN_KIND");
+  pub static ref UNDERLYING_PATTERN_INFO_KEY: DefaultContextKey<UnderlyingPatternInfo> = DefaultContextKey::new("UNDERLYING_PATTERN_INFO");
+  pub static ref UNDERLYING_PATTERN_KIND_KEY: DefaultContextKey<UnderlyingPatternKind> = DefaultContextKey::new("UNDERLYING_PATTERN_KIND");
 );
 
 #[derive(Debug, Clone, Copy)]
@@ -33,6 +33,7 @@ impl From<PatternsKind> for UnderlyingPatternKind {
   }
 }
 
+#[derive(Clone, Debug)]
 pub struct UnderlyingPatternInfo {
   pattern_kind: UnderlyingPatternKind,
   underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>
@@ -45,7 +46,7 @@ impl UnderlyingPatternInfo {
       underlying_sequence
     }
   }
-  
+
   pub fn pattern_kind(&self) -> &UnderlyingPatternKind {
     &self.pattern_kind
   }
