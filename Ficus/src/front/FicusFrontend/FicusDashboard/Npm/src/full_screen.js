@@ -10,7 +10,6 @@ export function setFullscreenFunctions() {
 
 function openFullScreen(id) {
   let element = document.getElementById(id);
-  console.log(element);
 
   if (element.requestFullscreen) {
     element.requestFullscreen();

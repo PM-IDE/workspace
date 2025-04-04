@@ -29,7 +29,6 @@ let findStylesheet = (head, fileName) => {
   for (let i = head.children.length - 1; i > -1; --i) {
     let element = head.children[i];
 
-    console.log(element.rel, element.type, element.href);
     if (element.rel === Stylesheet && element.type === Type && element.href.endsWith(getStyleFilePath(fileName))) {
       return element;
     }
@@ -46,6 +45,5 @@ function unloadCssStyle(fileName) {
     return;
   }
 
-  console.log(styleSheet);
   head.removeChild(styleSheet);
 }

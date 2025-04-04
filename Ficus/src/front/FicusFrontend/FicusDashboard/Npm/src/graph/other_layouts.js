@@ -33,7 +33,6 @@ function processNodes(nodes) {
   }
 
   let executionTimes = nodes.map(n => calculateOverallExecutionTime(n));
-  console.log(executionTimes);
   let maxTime = Math.max(...executionTimes);
   let minTime = Math.min(...executionTimes);
 
