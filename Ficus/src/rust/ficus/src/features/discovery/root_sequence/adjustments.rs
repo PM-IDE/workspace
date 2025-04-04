@@ -1,6 +1,6 @@
 use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::models::ActivityStartEndTimeData;
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, NodeAdditionalDataContainer};
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
@@ -178,7 +178,7 @@ fn extract_user_data_from<T: Clone>(nodes: &Vec<u64>, graph: &DefaultGraph, key:
   result
 }
 
-fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph) -> Vec<ActivityStartEndTimeData> {
+fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph) -> Vec<NodeAdditionalDataContainer<ActivityStartEndTimeData>> {
   let mut times = vec![];
   for node in nodes {
     if let Some(data) = graph.node(node).unwrap().user_data().concrete(START_END_ACTIVITY_TIME_KEY.key()) {

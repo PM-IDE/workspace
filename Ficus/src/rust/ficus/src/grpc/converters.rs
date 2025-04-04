@@ -1,11 +1,8 @@
-use std::collections::HashMap;
-use std::fmt::Display;
-use std::{any::Any, str::FromStr};
-use std::cell::{Ref, RefCell};
-use std::rc::Rc;
 use crate::event_log::core::event::event::Event;
+use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
+use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternInfo, UnderlyingPatternKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
@@ -14,16 +11,19 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::root_sequence::discovery::{RootSequenceKind};
+use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EventCoordinates, NodeAdditionalDataContainer};
+use crate::features::discovery::timeline::abstraction::SoftwareData;
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
+use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcNodeTimeActivityStartEndData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleContextRequestPipelinePart, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcNodeTimeActivityStartEndData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, CORRESPONDING_TRACE_DATA_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, INNER_GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY, TRACES_ACTIVITIES_DATASET_KEY, UNDERLYING_PATTERNS_INFOS_KEY};
-use crate::pipelines::multithreading::{FeatureCountKindDto};
+use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
@@ -53,11 +53,11 @@ use crate::{
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
 use prost_types::Timestamp;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternInfo, UnderlyingPatternKind};
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData};
-use crate::features::discovery::timeline::abstraction::SoftwareData;
-use crate::ficus_proto::grpc_event_stamp::Stamp;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::fmt::Display;
+use std::rc::Rc;
+use std::{any::Any, str::FromStr};
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -603,9 +603,10 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
   additional_data
 }
 
-fn convert_to_grpc_underlying_pattern_info_additional_data(info: &UnderlyingPatternInfo) -> GrpcNodeAdditionalData {
+fn convert_to_grpc_underlying_pattern_info_additional_data(info: &NodeAdditionalDataContainer<UnderlyingPatternInfo>) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
-    data: Some(Data::PatternInfo(convert_to_grpc_underlying_pattern_info(info)))
+    original_event_coordinates: Some(convert_to_event_coordinates(info.original_event_coordinates())),
+    data: Some(Data::PatternInfo(convert_to_grpc_underlying_pattern_info(info.value()))),
   }
 }
 
@@ -620,7 +621,7 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternInfo) -> Grpc
       UnderlyingPatternKind::NearSuperMaximalRepeat => GrpcUnderlyingPatternKind::NearSuperMaximalRepeat,
       UnderlyingPatternKind::Unknown => GrpcUnderlyingPatternKind::Unknown,
     }).into(),
-    underlying_trace: Some(convert_to_grpc_simple_trace(info.underlying_sequence()))
+    underlying_trace: Some(convert_to_grpc_simple_trace(info.underlying_sequence())),
   }
 }
 
@@ -635,33 +636,43 @@ fn convert_to_grpc_simple_trace(trace: &Vec<Rc<RefCell<XesEventImpl>>>) -> GrpcS
   }
 }
 
-fn convert_to_grpc_node_activity_start_end_data(data: &ActivityStartEndTimeData) -> GrpcNodeAdditionalData {
+fn convert_to_event_coordinates(event_coordinates: &EventCoordinates) -> GrpcEventCoordinates {
+  GrpcEventCoordinates {
+    trace_id: event_coordinates.trace_id(),
+    event_index: event_coordinates.event_index()
+  }
+}
+
+fn convert_to_grpc_node_activity_start_end_data(data: &NodeAdditionalDataContainer<ActivityStartEndTimeData>) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
+    original_event_coordinates: Some(convert_to_event_coordinates(data.original_event_coordinates())),
     data: Some(Data::TimeData(GrpcNodeTimeActivityStartEndData {
-      start_time: data.start_time(),
-      end_time: data.end_time(),
+      start_time: data.value().start_time(),
+      end_time: data.value().end_time(),
     }))
   }
 }
 
-fn convert_to_grpc_corresponding_trace_data(corresponding_trace_data: &CorrespondingTraceData) -> GrpcNodeAdditionalData {
+fn convert_to_grpc_corresponding_trace_data(corresponding_trace_data: &NodeAdditionalDataContainer<CorrespondingTraceData>) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
-    data: Some(Data::TraceData(GrpcNodeCorrespondingTraceData {
-      trace_id: corresponding_trace_data.trace_id(),
-      event_index: corresponding_trace_data.event_index(),
-      belongs_to_root_sequence: corresponding_trace_data.belongs_to_root_sequence(),
-    }))
+    original_event_coordinates: Some(convert_to_event_coordinates(corresponding_trace_data.original_event_coordinates())),
+    data: Some(Data::TraceData(
+      GrpcNodeCorrespondingTraceData {
+        belongs_to_root_sequence: corresponding_trace_data.value().belongs_to_root_sequence(),
+      }
+    ))
   }
 }
 
-fn convert_to_grpc_graph_node_software_data(software_data: &SoftwareData) -> GrpcNodeAdditionalData {
+fn convert_to_grpc_graph_node_software_data(software_data: &NodeAdditionalDataContainer<SoftwareData>) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
+    original_event_coordinates: Some(convert_to_event_coordinates(software_data.original_event_coordinates())),
     data: Some(Data::SoftwareData(GrpcSoftwareData {
       allocations_info: None,
       timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
-        threads: convert_to_grpc_threads(software_data.thread_diagram_fragment())
+        threads: convert_to_grpc_threads(software_data.value().thread_diagram_fragment())
       }),
-      histogram: software_data.event_classes().iter().map(|(key, value)| {
+      histogram: software_data.value().event_classes().iter().map(|(key, value)| {
         GrpcHistogramEntry {
           name: key.to_owned(),
           count: *value as u64,

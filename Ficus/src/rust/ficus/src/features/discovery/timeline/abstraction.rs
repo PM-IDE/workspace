@@ -9,11 +9,11 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::root_sequence::models::ActivityStartEndTimeData;
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
+use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY};
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 
 pub fn abstract_event_groups(
@@ -25,9 +25,9 @@ pub fn abstract_event_groups(
   let mut current_label_index = 0;
   let mut abstracted_log = XesEventLogImpl::empty();
 
-  for trace_groups in event_groups.iter() {
+  for (trace_id, trace_groups) in event_groups.iter().enumerate() {
     let mut abstracted_trace = XesTraceImpl::empty();
-    for event_group in trace_groups.iter() {
+    for (event_index, event_group) in trace_groups.iter().enumerate() {
       if event_group.is_empty() {
         error!("Encountered empty event group");
         continue;
@@ -39,6 +39,7 @@ pub fn abstract_event_groups(
         group_label,
         thread_attribute.as_str(),
         time_attribute.as_ref(),
+        EventCoordinates::new(trace_id as u64, event_index as u64)
       )?;
 
       abstracted_trace.push(abstracted_event);
@@ -79,6 +80,7 @@ fn create_abstracted_event(
   label: &usize,
   thread_attribute: &str,
   time_attribute: Option<&String>,
+  event_coordinates: EventCoordinates
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
   let mut event_classes = HashMap::new();
   let mut threads = HashMap::new();
@@ -107,12 +109,16 @@ fn create_abstracted_event(
   let label_name = Rc::new(Box::new(label.to_string()));
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
+  
+  let software_data = NodeAdditionalDataContainer::new(software_data, event_coordinates);
   event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
   let first_stamp = get_stamp(&event_group.first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
   let last_stamp = get_stamp(&event_group.last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
 
-  event.user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), vec![ActivityStartEndTimeData::new(first_stamp, last_stamp)]);
+  let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
+  let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
+  event.user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
 
   Ok(Rc::new(RefCell::new(event)))
 }

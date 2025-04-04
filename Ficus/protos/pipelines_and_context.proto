@@ -214,6 +214,9 @@ message GrpcNodeAdditionalData {
     GrpcNodeCorrespondingTraceData trace_data = 4;
     GrpcNodeTimeActivityStartEndData time_data = 5;
   }
+
+  //we need to understand from where the node data came from the original event log
+  GrpcEventCoordinates original_event_coordinates = 6;
 }
 
 message GrpcNodeTimeActivityStartEndData {
@@ -221,10 +224,13 @@ message GrpcNodeTimeActivityStartEndData {
   uint64 end_time = 2;
 }
 
-message GrpcNodeCorrespondingTraceData {
-  bool belongs_to_root_sequence = 1;
+message GrpcEventCoordinates {
   uint64 trace_id = 2;
   uint64 event_index = 3;
+}
+
+message GrpcNodeCorrespondingTraceData {
+  bool belongs_to_root_sequence = 1;
 }
 
 message GrpcSoftwareData {

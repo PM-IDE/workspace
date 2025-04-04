@@ -5,10 +5,11 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
+use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::discovery::petri_net::annotations::{create_performance_map, PerformanceMap};
 use crate::features::discovery::root_sequence::adjustments::{adjust_weights_and_connections, merge_sequences_of_nodes};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::models::CorrespondingTraceData;
+use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_key::DefaultContextKey;
@@ -23,7 +24,6 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
-use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -82,14 +82,14 @@ pub fn discover_root_sequence_graph_from_event_log(
     if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
       let new_trace_data = corresponding_trace_data.iter().map(|d| {
         let mut data = d.clone();
-        data.set_belongs_to_root_sequence(belongs_to_root_sequence);
+        data.value_mut().set_belongs_to_root_sequence(belongs_to_root_sequence);
         data
       }).collect();
 
       if let Some(existing_trace_data) = user_data_impl.concrete_mut(CORRESPONDING_TRACE_DATA_KEY.key()) {
         existing_trace_data.extend(new_trace_data);
       } else {
-        user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), new_trace_data); 
+        user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), new_trace_data);
       }
     }
   };
@@ -119,18 +119,26 @@ pub fn discover_root_sequence_graph_from_event_log(
 }
 
 fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
-  for trace in log {
-    for event in trace {
+  for (trace_id, trace) in log.iter().enumerate() {
+    for (event_index, event) in trace.iter().enumerate() {
       let pattern_kind = event.borrow().user_data().concrete(UNDERLYING_PATTERN_KIND_KEY.key()).cloned();
       if let Some(pattern_kind) = pattern_kind {
         let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
-        event.borrow_mut().user_data_mut().put_concrete(UNDERLYING_PATTERNS_INFOS_KEY.key(), vec![UnderlyingPatternInfo::new(pattern_kind, underlying_events)]);
+        let pattern_info = UnderlyingPatternInfo::new(pattern_kind, underlying_events);
+        let event_coordinates = EventCoordinates::new(trace_id as u64, event_index as u64);
+        let patterns = vec![NodeAdditionalDataContainer::new(pattern_info, event_coordinates)];
+
+        event.borrow_mut().user_data_mut().put_concrete(UNDERLYING_PATTERNS_INFOS_KEY.key(), patterns);
       }
     }
   }
 }
 
-fn transfer_vector_like_user_data<T: Clone>(event: &Rc<RefCell<XesEventImpl>>, key: &DefaultContextKey<Vec<T>>, user_data_impl: &mut UserDataImpl) {
+fn transfer_vector_like_user_data<T: Clone + Debug>(
+  event: &Rc<RefCell<XesEventImpl>>,
+  key: &DefaultContextKey<Vec<NodeAdditionalDataContainer<T>>>,
+  user_data_impl: &mut UserDataImpl,
+) {
   if let Some(data) = event.borrow().user_data().concrete(key.key()) {
     if let Some(existing_data) = user_data_impl.concrete_mut(key.key()) {
       existing_data.extend(data.clone().into_iter());
@@ -144,7 +152,7 @@ fn set_corresponding_trace_data(log: &XesEventLogImpl) {
   for (trace_index, trace) in log.traces().iter().enumerate() {
     for (event_index, event) in trace.borrow().events().iter().enumerate() {
       event.borrow_mut().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), vec![
-        CorrespondingTraceData::new(trace_index as u64, event_index as u64, false)
+        NodeAdditionalDataContainer::new(CorrespondingTraceData::new(false), EventCoordinates::new(trace_index as u64, event_index as u64))
       ])
     }
   }
@@ -215,7 +223,7 @@ fn create_new_graph_node<T>(
   event: &T,
   is_root_sequence: bool,
   context: &DiscoveryContext<T>,
-  transfer_context_values: bool
+  transfer_context_values: bool,
 ) -> u64 {
   let name_extractor = context.name_extractor();
   let node_id = graph.add_node(Some(name_extractor(event)));
