@@ -71,7 +71,11 @@
   <div class="@outerContainerClass @(myIsFullScreen ? "container-fullscreen" : string.Empty)">
     <div class="@innerContainerClass @(myIsFullScreen ? "container-fullscreen" : string.Empty)">
       @{
-        var contextValues = Results.Results[mySelectedExecutionResultIndex].ContextValues;
+        var contextValues = (mySelectedExecutionResultIndex < Results.Results.Count) switch
+        {
+          true => Results.Results[mySelectedExecutionResultIndex].ContextValues,
+          false => []
+        };
       }
 
       @foreach (var fragment in CreateRenderersFor(Results.PipelinePartName, contextValues))
@@ -106,8 +110,21 @@
   protected override void OnParametersSet()
   {
     base.OnParametersSet();
-    mySelectedExecutionResultIndex = 0;
-    Results.Results.Change.Advise(Lifetime, _ => StateHasChanged());
+    ResetSelectedIndex();
+
+    Results.Results.Change.Advise(Lifetime, _ =>
+    {
+      ResetSelectedIndex();
+      StateHasChanged();
+    });
+  }
+
+  private void ResetSelectedIndex()
+  {
+    if (mySelectedExecutionResultIndex >= Results.Results.Count)
+    {
+      mySelectedExecutionResultIndex = 0;
+    }
   }
 
   private void HandleIndexSelection(int index)
