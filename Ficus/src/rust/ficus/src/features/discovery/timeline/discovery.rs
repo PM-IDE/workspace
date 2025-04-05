@@ -124,7 +124,8 @@ impl Into<PipelinePartExecutionError> for LogThreadsDiagramError {
 pub fn discover_traces_timeline_diagram(
   log: &XesEventLogImpl,
   time_attribute: Option<&String>,
-  event_group_delta: Option<u64>
+  event_group_delta: Option<u64>,
+  discover_event_groups_in_each_trace: bool
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut threads = vec![];
 
@@ -143,11 +144,27 @@ pub fn discover_traces_timeline_diagram(
       events: thread_events
     });
   }
-
-  let events_groups = if let Some(event_group_delta) = event_group_delta {
-    discover_events_groups(&threads.iter().collect(), event_group_delta)
-  } else {
-    vec![]
+  
+  let timeline_fragments = match discover_event_groups_in_each_trace {
+    true => {
+      let mut fragments = vec![];
+      for thread in threads {
+        let events_groups = discover_events_groups_internal(&vec![&thread], event_group_delta);
+        fragments.push(TraceTimelineDiagram {
+          threads: vec![thread],
+          events_groups,
+        });
+      }
+      
+      fragments
+    },
+    false => {
+      let events_groups = discover_events_groups_internal(&threads.iter().collect(), event_group_delta);
+      vec![TraceTimelineDiagram {
+        threads,
+        events_groups,
+      }]
+    },
   };
 
   Ok(LogTimelineDiagram {
@@ -156,11 +173,16 @@ pub fn discover_traces_timeline_diagram(
       None => None,
       Some(s) => Some(s.to_owned()),
     },
-    traces: vec![TraceTimelineDiagram {
-      threads,
-      events_groups
-    }],
+    traces: timeline_fragments,
   })
+}
+
+fn discover_events_groups_internal(threads: &Vec<&TraceThread>, event_group_delta: Option<u64>) -> Vec<TraceEventsGroup> {
+  if let Some(event_group_delta) = event_group_delta {
+    discover_events_groups(threads, event_group_delta)
+  } else {
+    vec![]
+  }
 }
 
 pub fn discover_timeline_diagram(

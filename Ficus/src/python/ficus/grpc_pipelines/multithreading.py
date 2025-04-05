@@ -92,6 +92,7 @@ class CreateThreadsLog(PipelinePart):
 
 class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
   def __init__(self,
+               discover_events_groups_in_each_trace: bool,
                time_attribute: Optional[str] = None,
                event_group_delta: Optional[int] = None,
                title: Optional[str] = None,
@@ -109,8 +110,12 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
                      distance_scale,
                      rect_width_scale)
 
+    self.discover_events_groups_in_each_trace = discover_events_groups_in_each_trace
     self.time_attribute = time_attribute
     self.event_group_delta = event_group_delta
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
-    return _create_discover_log_timeline_diagram_grpc_part(self, GrpcPipelinePartConfiguration(), const_discover_traces_timeline_diagram)
+    config = GrpcPipelinePartConfiguration()
+    append_bool_value(config, const_discover_events_groups_in_each_trace, self.discover_events_groups_in_each_trace)
+
+    return _create_discover_log_timeline_diagram_grpc_part(self, config, const_discover_traces_timeline_diagram)

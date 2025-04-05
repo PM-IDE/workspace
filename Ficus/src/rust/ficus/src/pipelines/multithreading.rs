@@ -8,7 +8,7 @@ use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan
 use crate::features::discovery::timeline::abstraction::abstract_event_groups;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, discover_traces_timeline_diagram};
 use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
-use crate::pipelines::keys::context_keys::{EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
@@ -129,6 +129,7 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::DISCOVER_TRACES_TIMELINE_DIAGRAM, &|context, _, config| {
       let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok();
       let event_group_delta = Self::get_user_data(config, &TIME_DELTA_KEY).ok();
+      let discover_events_groups_in_each_trace = Self::get_user_data(config, &DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY)?;
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
 
       let diagram = discover_traces_timeline_diagram(
@@ -138,6 +139,7 @@ impl PipelineParts {
           None => None,
           Some(delta) => Some(*delta as u64)
         },
+        *discover_events_groups_in_each_trace
       );
 
       match diagram {

@@ -129,6 +129,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<DefaultGraph>(&INNER_GRAPH, &mut used);
     assert_existence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
     assert_existence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
+    assert_existence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -232,7 +233,8 @@ fn get_all_keys_names() -> Vec<String> {
         "software_data",
         "inner_graph",
         "start_end_activity_time",
-        "start_end_activities_times"
+        "start_end_activities_times",
+        "discover_events_groups_in_each_trace"
     ]
 }
 
@@ -337,6 +339,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<DefaultGraph>(&INNER_GRAPH, &mut used);
     assert_keys_equivalence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
     assert_keys_equivalence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
+    assert_keys_equivalence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

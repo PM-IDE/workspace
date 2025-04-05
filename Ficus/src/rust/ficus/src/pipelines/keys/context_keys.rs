@@ -136,6 +136,7 @@ pub const START_END_ACTIVITY_TIME: &'static str = "start_end_activity_time";
 pub const START_END_ACTIVITIES_TIMES: &'static str = "start_end_activities_times";
 pub const MERGE_SEQUENCES_OF_EVENTS: &'static str = "merge_sequences_of_events";
 pub const UNDERLYING_PATTERNS_INFOS: &'static str = "underlying_patterns_infos";
+pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &'static str = "discover_events_groups_in_each_trace";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -235,6 +236,7 @@ lazy_static!(
      pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
      pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
      pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
+     pub static ref DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE);
 );
 
 lazy_static!(
@@ -339,6 +341,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     START_END_ACTIVITIES_TIMES => Some(START_END_ACTIVITIES_TIMES_KEY.deref() as &dyn ContextKey),
     MERGE_SEQUENCES_OF_EVENTS => Some(MERGE_SEQUENCES_OF_EVENTS_KEY.deref() as &dyn ContextKey),
     UNDERLYING_PATTERNS_INFOS => Some(UNDERLYING_PATTERNS_INFOS_KEY.deref() as &dyn ContextKey),
+    DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE => Some(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }
