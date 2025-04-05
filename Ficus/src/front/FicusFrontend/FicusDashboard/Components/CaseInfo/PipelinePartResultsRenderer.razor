@@ -106,6 +106,7 @@
   protected override void OnParametersSet()
   {
     base.OnParametersSet();
+    mySelectedExecutionResultIndex = 0;
     Results.Results.Change.Advise(Lifetime, _ => StateHasChanged());
   }
 
