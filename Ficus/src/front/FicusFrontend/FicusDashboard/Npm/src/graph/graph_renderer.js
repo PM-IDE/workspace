@@ -76,7 +76,7 @@ function createEdgeStyle() {
       'line-color': 'data(color)',
       'target-arrow-color': 'data(color)',
       'target-arrow-shape': 'triangle',
-      'curve-style': 'bezier'
+      'curve-style': 'round-taxi',
     }
   }
 }
