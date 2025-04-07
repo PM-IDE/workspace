@@ -17,10 +17,23 @@ export function createPresetLayout() {
   }
 }
 
+export function findAllRelatedTraceIds(node) {
+  let traceIds = new Set();
+  for (let data of node.additionalData) {
+    traceIds.add(getTraceId(data));
+  }
+  
+  return traceIds;
+}
+
+export function getTraceId(additionalData) {
+  return additionalData.originalEventCoordinates.traceId;
+}
+
 export function getSoftwareDataOrNull(node) {
   let mergedSoftwareData = {
     histogram: new Map(),
-    timelineDiagramFragment: []
+    timelineDiagramFragments: []
   };
 
   for (let data of node.additionalData) {
@@ -33,7 +46,7 @@ export function getSoftwareDataOrNull(node) {
         }
       }
 
-      mergedSoftwareData.timelineDiagramFragment.push(data.softwareData.timelineDiagramFragment);
+      mergedSoftwareData.timelineDiagramFragments.push(data.softwareData.timelineDiagramFragment);
     }
   }
 
