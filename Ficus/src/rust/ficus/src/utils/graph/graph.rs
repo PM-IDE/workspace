@@ -35,6 +35,7 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
   }
 }
 
+#[derive(Debug)]
 pub struct Graph<TNodeData, TEdgeData>
 where
   TNodeData: ToString,
@@ -65,7 +66,11 @@ where
   }
 
   pub fn all_nodes(&self) -> Vec<&GraphNode<TNodeData>> {
-    (&self.nodes).values().into_iter().collect()
+    self.nodes.values().into_iter().collect()
+  }
+
+  pub fn all_nodes_mut(&mut self) -> Vec<&mut GraphNode<TNodeData>> {
+    self.nodes.values_mut().into_iter().collect()
   }
 
   pub fn all_edges(&self) -> Vec<&GraphEdge<TEdgeData>> {

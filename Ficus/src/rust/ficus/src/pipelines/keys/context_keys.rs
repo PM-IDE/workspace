@@ -3,7 +3,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::analysis::patterns::pattern_info::UnderlyingPatternInfo;
+use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
@@ -137,6 +137,7 @@ pub const START_END_ACTIVITIES_TIMES: &'static str = "start_end_activities_times
 pub const MERGE_SEQUENCES_OF_EVENTS: &'static str = "merge_sequences_of_events";
 pub const UNDERLYING_PATTERNS_INFOS: &'static str = "underlying_patterns_infos";
 pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &'static str = "discover_events_groups_in_each_trace";
+pub const UNDERLYING_PATTERNS_GRAPHS_INFO: &'static str = "underlying_patterns_graphs_infos";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -246,6 +247,7 @@ lazy_static!(
      pub static ref START_END_ACTIVITY_TIME_KEY: DefaultContextKey<NodeAdditionalDataContainer<ActivityStartEndTimeData>> = DefaultContextKey::new(START_END_ACTIVITY_TIME);
      pub static ref START_END_ACTIVITIES_TIMES_KEY: DefaultContextKey<Vec<NodeAdditionalDataContainer<ActivityStartEndTimeData>>> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
      pub static ref UNDERLYING_PATTERNS_INFOS_KEY: DefaultContextKey<Vec<NodeAdditionalDataContainer<UnderlyingPatternInfo>>> = DefaultContextKey::new(UNDERLYING_PATTERNS_INFOS);
+     pub static ref UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY: DefaultContextKey<Vec<NodeAdditionalDataContainer<UnderlyingPatternGraphInfo>>> = DefaultContextKey::new(UNDERLYING_PATTERNS_GRAPHS_INFO);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {

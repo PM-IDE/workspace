@@ -2,6 +2,7 @@ use crate::utils::graph::graph::NEXT_ID;
 use std::sync::atomic::Ordering;
 use crate::utils::user_data::user_data::UserDataImpl;
 
+#[derive(Debug)]
 pub struct GraphEdge<TEdgeData>
 where
   TEdgeData: ToString,

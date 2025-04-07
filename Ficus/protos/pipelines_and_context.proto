@@ -270,7 +270,8 @@ enum GrpcUnderlyingPatternKind {
 
 message GrpcUnderlyingPatternInfo {
   GrpcUnderlyingPatternKind pattern_kind = 1;
-  GrpcSimpleTrace underlying_trace = 2;
+  repeated string base_sequence = 2;
+  GrpcGraph graph = 3;
 }
 
 message GrpcGraphEdge {

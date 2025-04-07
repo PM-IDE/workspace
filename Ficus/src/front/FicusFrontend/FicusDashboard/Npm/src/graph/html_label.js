@@ -39,9 +39,11 @@ export function createHtmlLabel(node) {
 
 addEventListener("mouseover", event => {
   let element = event.target;
-  let data = JSON.parse(element.dataset.histogramTooltip);
+  let data = element.dataset.histogramTooltip;
 
   if (data != null) {
+    data = JSON.parse(data);
+
     tippy(element, {
       content: `
                 <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
