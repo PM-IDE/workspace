@@ -48,6 +48,10 @@ impl<T: Clone + Debug> NodeAdditionalDataContainer<T> {
   pub fn original_event_coordinates(&self) -> &EventCoordinates {
     &self.original_event_coordinates
   }
+
+  pub fn set_new_event_coordinates(&mut self, new_coords: EventCoordinates) {
+    self.original_event_coordinates = new_coords;
+  }
 }
 
 #[derive(Clone, Debug)]

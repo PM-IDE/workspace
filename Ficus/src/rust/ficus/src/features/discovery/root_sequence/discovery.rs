@@ -65,7 +65,7 @@ pub fn discover_root_sequence_graph_from_event_log(
   merge_sequences_of_events: bool,
 ) -> Result<DefaultGraph, DiscoverLCSGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
-  set_corresponding_trace_data(log);
+  adjust_log_user_data(log);
 
   let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
 
@@ -150,12 +150,28 @@ fn transfer_vector_like_user_data<T: Clone + Debug>(
   }
 }
 
-fn set_corresponding_trace_data(log: &XesEventLogImpl) {
+fn adjust_log_user_data(log: &XesEventLogImpl) {
   for (trace_index, trace) in log.traces().iter().enumerate() {
     for (event_index, event) in trace.borrow().events().iter().enumerate() {
+      let coordinates = EventCoordinates::new(trace_index as u64, event_index as u64);
       event.borrow_mut().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), vec![
-        NodeAdditionalDataContainer::new(CorrespondingTraceData::new(false), EventCoordinates::new(trace_index as u64, event_index as u64))
-      ])
+        NodeAdditionalDataContainer::new(CorrespondingTraceData::new(false), coordinates)
+      ]);
+
+      adjust_event_coordinates(event, coordinates, &SOFTWARE_DATA_KEY);
+      adjust_event_coordinates(event, coordinates, &START_END_ACTIVITIES_TIMES_KEY);
+    }
+  }
+}
+
+fn adjust_event_coordinates<T: Clone + Debug>(
+  event: &Rc<RefCell<XesEventImpl>>,
+  event_coordinates: EventCoordinates,
+  key: &DefaultContextKey<Vec<NodeAdditionalDataContainer<T>>>
+) {
+  if let Some(data) = event.borrow_mut().user_data_mut().concrete_mut(key.key()) {
+    for data in data {
+      data.set_new_event_coordinates(event_coordinates);
     }
   }
 }
