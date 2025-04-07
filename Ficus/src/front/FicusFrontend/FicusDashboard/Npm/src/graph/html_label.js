@@ -7,6 +7,7 @@ import {
 } from "./util";
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
+import tippy from "tippy.js";
 
 const graphColor = graphColors(darkTheme);
 
@@ -19,7 +20,6 @@ export function createHtmlLabel(node) {
   let sortedHistogramEntries = softwareData.histogram.toSorted((f, s) => s.count - f.count);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
   let timeAnnotationColor = getTimeAnnotationColor(node.relativeExecutionTime);
-  console.log(node);
   let allTraceIds = findAllRelatedTraceIds(node);
 
   return `
@@ -37,12 +37,36 @@ export function createHtmlLabel(node) {
         `;
 }
 
+addEventListener("mouseover", event => {
+  let element = event.target;
+  let data = JSON.parse(element.dataset.histogramTooltip);
+
+  if (data != null) {
+    tippy(element, {
+      content: `
+                <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
+                    ${data.name}
+                </div>
+               `,
+      allowHTML: true,
+      zIndex: Number.MAX_VALUE,
+      duration: 0,
+      arrow: true,
+    });
+  }
+});
+
 function createHistogram(sortedHistogramEntries) {
   let summedCount = Math.max(...sortedHistogramEntries.map(entry => entry.count));
 
   return sortedHistogramEntries.map((entry) => {
     let divWidth = (entry.count / summedCount) * 100;
-    return `<div style="width: ${divWidth}%; height: 10px; background-color: ${getOrCreateColor(entry.name)}"></div>`;
+    return `
+        <div class="graph-histogram-entry" 
+             style="width: ${divWidth}%; height: 10px; background-color: ${getOrCreateColor(entry.name)}" 
+             data-histogram-tooltip='${JSON.stringify(entry)}'>
+        </div>
+      `;
   });
 }
 

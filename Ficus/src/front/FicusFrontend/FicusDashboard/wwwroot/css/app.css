@@ -161,3 +161,9 @@ a, .btn-link {
 code {
   color: #c02d76;
 }
+
+.graph-histogram-entry:hover {
+  border-width: 1px;
+  border-color: white;
+  border-style: solid;
+}
