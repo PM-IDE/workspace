@@ -1,4 +1,6 @@
-﻿const AxisDelta = 5;
+﻿import {getOrCreateColor} from "./utils";
+
+const AxisDelta = 5;
 const AxisWidth = 2;
 
 const DefaultRectWidth = 1;
@@ -72,8 +74,8 @@ async function drawColorsLog(log, widthScale, heightScale, canvasId, colors) {
     let trace = log.traces[i];
     
     for (let rect of trace.eventColors) {
-      context.fillStyle = rgbToHex(log.mapping[rect.colorIndex].color);
-      
+      context.fillStyle = getOrCreateColor(log.mapping[rect.colorIndex].name);
+
       let currentX = OverallXDelta + rect.startX * widthScale;
       let currentWidth = rectWidth * rect.length;
 

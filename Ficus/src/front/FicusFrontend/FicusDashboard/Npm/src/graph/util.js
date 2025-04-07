@@ -95,16 +95,6 @@ export function belongsToRootSequence(node) {
   return false;
 }
 
-let colorsCache = {};
-
-export function getOrCreateColor(name) {
-  if (!(name in colorsCache)) {
-    colorsCache[name] = generateRandomColor();
-  }
-
-  return colorsCache[name];
-}
-
 const performanceColor = performanceColors(darkTheme);
 
 export function getTimeAnnotationColor(relativeExecutionTime) {

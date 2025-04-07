@@ -1,13 +1,13 @@
 import {
   belongsToRootSequence,
   findAllRelatedTraceIds,
-  getOrCreateColor,
   getSoftwareDataOrNull,
   getTimeAnnotationColor
 } from "./util";
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
 import tippy from "tippy.js";
+import {getOrCreateColor} from "../utils";
 
 const graphColor = graphColors(darkTheme);
 
@@ -65,7 +65,7 @@ function createHistogram(sortedHistogramEntries) {
   return sortedHistogramEntries.map((entry) => {
     let divWidth = (entry.count / summedCount) * 100;
     return `
-        <div class="graph-histogram-entry" 
+        <div class="graph-histogram-entry"
              style="width: ${divWidth}%; height: 10px; background-color: ${getOrCreateColor(entry.name)}" 
              data-histogram-tooltip='${JSON.stringify(entry)}'>
         </div>

@@ -47,3 +47,14 @@ export function generateRandomColor() {
 
   return color;
 }
+
+
+let colorsCache = {};
+
+export function getOrCreateColor(name) {
+  if (!(name in colorsCache)) {
+    colorsCache[name] = generateRandomColor();
+  }
+
+  return colorsCache[name];
+}
