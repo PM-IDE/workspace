@@ -2,7 +2,7 @@ use crate::utils::graph::graph::{Graph, NEXT_ID};
 use crate::utils::user_data::user_data::UserDataImpl;
 use std::sync::atomic::Ordering;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GraphNode<TNodeData>
 where
   TNodeData: ToString,

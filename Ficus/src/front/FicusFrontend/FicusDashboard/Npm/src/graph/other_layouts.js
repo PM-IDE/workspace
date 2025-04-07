@@ -15,6 +15,7 @@ export function createGraphElementForDagre(graph, annotation) {
         label: node.data,
         id: node.id.toString(),
         additionalData: node.additionalData,
+        innerGraph: node.innerGraph,
         executionTime: nodesMap[node.id].executionTime,
         relativeExecutionTime: nodesMap[node.id].relativeExecutionTime,
       }

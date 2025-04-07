@@ -209,3 +209,13 @@ where
     serialized_connection.join("\n")
   }
 }
+
+impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
+where
+  TNodeData: ToString + Clone,
+  TEdgeData: ToString + Display 
+{
+  pub fn add_node_from_another_node(&mut self, other_node: &GraphNode<TNodeData>) -> u64 {
+    self.add_node_internal(GraphNode::new_with_user_data(other_node.data.clone(), other_node.user_data.clone()))
+  }
+}

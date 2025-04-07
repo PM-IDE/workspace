@@ -2,7 +2,7 @@ use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationIn
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, NodeAdditionalDataContainer};
 use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
+use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, INNER_GRAPH_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
@@ -124,7 +124,27 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
 
 fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
   let label = nodes.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
-  graph.add_node(Some(HeapedOrOwned::Owned(label)))
+  let node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
+
+  let mut inner_graph = DefaultGraph::empty();
+  let mut prev_added_node_id = None;
+
+  for node in nodes {
+    let added_node_id = inner_graph.add_node_from_another_node(graph.node(node).unwrap());
+
+    if let Some((prev_added_node_id, prev_node_id)) = prev_added_node_id {
+      let edge = graph.edge(&prev_node_id, node).unwrap();
+      let connection_data = NodesConnectionData::new(edge.data().cloned(), edge.weight()); 
+      inner_graph.connect_nodes(&prev_added_node_id, &added_node_id, connection_data);
+    }
+    
+    prev_added_node_id = Some((added_node_id, *node));
+  }
+
+  graph.node_mut(&node_id).unwrap().user_data_mut().put_concrete(INNER_GRAPH_KEY.key(), inner_graph);
+  
+  
+  node_id
 }
 
 fn put_activities_times(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
