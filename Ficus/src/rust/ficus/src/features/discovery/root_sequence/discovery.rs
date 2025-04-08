@@ -215,7 +215,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   performance_map: Option<PerformanceMap>,
 ) -> DefaultGraph {
   let (start_node_id, mut graph) = discover_root_sequence_graph_internal(log, context, true);
-  
+
   adjust_connections(context, log, &mut graph);
   adjust_weights(context, log, &mut graph, start_node_id);
 
@@ -242,7 +242,7 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context);
 
-  (*root_sequence_nodes_ids.first().unwrap(), graph) 
+  (*root_sequence_nodes_ids.first().unwrap(), graph)
 }
 
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
@@ -366,16 +366,26 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
     }
   }
 
+  let mut adjustments: Vec<(u64, Vec<(u64, Vec<Vec<T>>)>)> = adjustments
+    .into_iter()
+    .map(|(k, v)| {
+      let mut values: Vec<(u64, Vec<Vec<T>>)> = v.into_iter().collect();
+      values.sort_by(|f, s| f.0.cmp(&s.0));
+      (k, values)
+    }).collect();
+  
+  adjustments.sort_by(|f, s| f.0.cmp(&s.0));
+
   add_adjustments_to_graph(&adjustments, graph, context);
 }
 
 fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
-  adjustments: &HashMap<u64, HashMap<u64, Vec<Vec<T>>>>,
+  adjustments: &Vec<(u64, Vec<(u64, Vec<Vec<T>>)>)>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
 ) {
   for (start_root_node_id, adjustments) in adjustments {
-    let adjustment_log = create_log_from_adjustments(adjustments.iter().collect(), context.artificial_start_end_events_factory());
+    let adjustment_log = create_log_from_adjustments(adjustments, context.artificial_start_end_events_factory());
     let (_, sub_graph) = discover_root_sequence_graph_internal(&adjustment_log, context, false);
 
     merge_subgraph_into_model(adjustments, graph, sub_graph, *start_root_node_id, context);
@@ -383,7 +393,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
 }
 
 fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
-  end_root_sequence_nodes_to_adjustments: Vec<(&u64, &Vec<Vec<T>>)>,
+  end_root_sequence_nodes_to_adjustments: &Vec<(u64, Vec<Vec<T>>)>,
   artificial_start_end_events_factory: impl Fn() -> (T, T),
 ) -> Vec<Vec<T>> {
   let mut adjustment_log = vec![];
@@ -433,7 +443,7 @@ fn find_start_end_node_ids<T: PartialEq + Clone + Debug>(
 }
 
 fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
-  adjustments: &HashMap<u64, Vec<Vec<T>>>,
+  adjustments: &Vec<(u64, Vec<Vec<T>>)>,
   graph: &mut DefaultGraph,
   sub_graph: DefaultGraph,
   start_graph_node_id: u64,

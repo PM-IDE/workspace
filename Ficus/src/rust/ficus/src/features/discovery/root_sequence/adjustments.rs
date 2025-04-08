@@ -146,7 +146,6 @@ fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
 
   graph.node_mut(&node_id).unwrap().user_data_mut().put_concrete(INNER_GRAPH_KEY.key(), inner_graph);
   
-  
   node_id
 }
 
@@ -248,7 +247,7 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T
     for event in trace.iter().skip(1) {
       let event_name = context.name_extractor()(event);
       let next_nodes = find_next_nodes(graph, current_node, &event_name);
-      
+
       if next_nodes.len() != 1 {
         error!("Several candidates for next node, BROKEN GRAPH");
         return;
@@ -259,7 +258,7 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T
       current_node = *next_node;
     }
   }
-  
+
   for ((from_node, to_node), weight) in edges_weights {
     graph.edge_mut(&from_node, &to_node).unwrap().weight = weight;
   }
