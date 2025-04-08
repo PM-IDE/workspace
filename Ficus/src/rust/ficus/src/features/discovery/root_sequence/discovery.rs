@@ -1,13 +1,12 @@
 use crate::features::discovery::petri_net::annotations::{PerformanceMap};
 use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_weights, find_next_nodes, merge_sequences_of_nodes};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::models::{RootSequenceKind};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
 use log::error;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::fmt::Debug;
 
 pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
@@ -274,20 +273,34 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
 
   for (end_node_id, log) in adjustments {
     for trace in log {
-      let mut current_node = start_graph_node_id;
-      for event in trace.iter() {
-        let event_name = context.name_extractor()(event);
-        let next_nodes = find_next_nodes(graph, current_node, &event_name);
-
-        if next_nodes.len() != 1 {
-          error!("BROKEN GRAPH");
-          break;
+      match replay_sequence(context, graph, start_graph_node_id, trace.as_slice()) {
+        None => {
+          error!("BROKEN GRAPH CAN NOT REPLAY TRACE GG WP")
         }
+        Some(final_node) => {
+          graph.connect_nodes(&final_node, end_node_id, NodesConnectionData::empty());  
+        }
+      };
+    }
+  }
+}
 
-        current_node = *next_nodes.first().unwrap();
-      }
+fn replay_sequence<T>(context: &DiscoveryContext<T>, graph: &DefaultGraph, start_node_id: u64, sequence: &[T]) -> Option<u64> {
+  let mut replay_states = VecDeque::from_iter([(start_node_id, 0usize)]);
 
-      graph.connect_nodes(&current_node, end_node_id, NodesConnectionData::empty());
+  loop {
+    if replay_states.is_empty() {
+      return None;
+    }
+
+    let (current_node_id, event_index) = replay_states.pop_back().unwrap();
+    if event_index == sequence.len() {
+      return Some(current_node_id);
+    }
+
+    let outgoing_nodes = find_next_nodes(graph, current_node_id, &context.name_extractor()(&sequence[event_index]));
+    for next_node in outgoing_nodes {
+      replay_states.push_back((next_node, event_index + 1));
     }
   }
 }
