@@ -244,6 +244,25 @@ pub fn test_root_sequence_graph_10() {
   )
 }
 
+#[test]
+pub fn test_root_sequence_graph_11() {
+  execute_root_sequence_discovery_test(
+    vec![
+      vecs!["5", "6", "7", "8", "0"], 
+      vecs!["13", "1", "0", "9", "14"],
+      vecs!["13", "Loop[6]", "Loop[7]", "8", "Loop[15]", "18", "19", "20", "21", "17", "22", "Loop[23]", "Loop[24]", "8", "Loop[16]", "14"],
+      vecs!["13", "Loop[6]", "Loop[7]", "9", "Loop[26]", "23", "Loop[24]", "27", "8", "14"],
+      vecs!["5", "7", "0", "28", "26", "Loop[23]", "Loop[24]", "8", "16", "0", "28", "20", "21", "10"],
+      vecs!["5", "Loop[6]", "29", "7", "8", "Loop[17]", "11", "28", "8", "Loop[16]", "10"],
+      vecs!["5", "Loop[7]", "8", "0", "20", "21", "18", "19", "20", "21", "Loop[17]", "22", "Loop[26]", "8", "Loop[16]", "10"],
+      vecs!["13", "Loop[6]", "29", "Loop[7]", "8", "15", "30", "Loop[26]", "Loop[23]", "Loop[24]", "Loop[27]", "8", "Loop[0]", "28", "20", "21", "16", "14"],
+      vecs!["5", "7", "31", "15", "18", "19", "20", "21", "Loop[17]", "11", "28", "Loop[26]", "23", "8", "Loop[16]", "10"]
+    ],
+    vecs!["START", "5", "Loop[7]", "8", "0", "20", "21", "18", "19", "20", "21", "Loop[17]", "22", "Loop[26]", "8", "Loop[16]", "10", "END"],
+    vec![]
+  )
+}
+
 fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
   const START: &'static str = "START";
   const END: &'static str = "END";
