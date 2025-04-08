@@ -30,6 +30,10 @@
     <ProjectReference Include="..\GrpcModels\GrpcModels.csproj"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Npm\src\protos\" />
+  </ItemGroup>
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="npm install" WorkingDirectory="Npm"/>
     <Exec Command="npm run build" WorkingDirectory="Npm"/>

@@ -5,22 +5,32 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack ./src/index.js --output-path ../wwwroot/js --output-filename index.bundle.js"
+    "build": "webpack -c ./webpack.config.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/canvas-size": "^1.2.2",
+    "@types/cytoscape-dagre": "^2.3.3",
+    "@types/file-saver": "^2.0.7",
+    "@types/google-protobuf": "^3.15.12",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.13.2",
+    "@grpc/proto-loader": "^0.7.13",
     "canvas-size": "^2.0.0",
     "cytoscape": "^3.30.2",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-node-html-label": "^1.2.2",
     "cytoscape-svg": "^0.4.0",
     "file-saver": "^2.0.5",
-    "tippy.js": "^6.3.7"
+    "google-protobuf": "^3.21.4",
+    "tippy.js": "^6.3.7",
+    "ts-protoc-gen": "^0.15.0"
   }
 }
