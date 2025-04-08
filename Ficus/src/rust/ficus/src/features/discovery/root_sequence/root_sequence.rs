@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
+use crate::features::discovery::root_sequence::models::RootSequenceKind;
 use crate::utils::distance::distance::calculate_lcs_distance;
 use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
 

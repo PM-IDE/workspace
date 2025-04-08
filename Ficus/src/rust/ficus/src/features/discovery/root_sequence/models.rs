@@ -1,4 +1,39 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display, Formatter};
+use std::str::FromStr;
+
+pub enum DiscoverLCSGraphError {
+  NoArtificialStartEndEvents
+}
+
+#[derive(Clone, Copy)]
+pub enum RootSequenceKind {
+  FindBest,
+  LCS,
+  PairwiseLCS,
+  Trace,
+}
+
+impl FromStr for RootSequenceKind {
+  type Err = ();
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "FindBest" => Ok(Self::FindBest),
+      "LCS" => Ok(Self::LCS),
+      "PairwiseLCS" => Ok(Self::PairwiseLCS),
+      "Trace" => Ok(Self::Trace),
+      _ => Err(())
+    }
+  }
+}
+
+impl Display for DiscoverLCSGraphError {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self {
+      DiscoverLCSGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events")
+    }
+  }
+}
 
 #[derive(Clone, Debug, Copy)]
 pub struct EventCoordinates {

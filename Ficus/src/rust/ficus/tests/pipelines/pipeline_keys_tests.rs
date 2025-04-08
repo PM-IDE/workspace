@@ -9,8 +9,7 @@ use ficus::features::clustering::activities::activities_params::ActivityRepresen
 use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use ficus::features::discovery::root_sequence::discovery::RootSequenceKind;
-use ficus::features::discovery::root_sequence::models::ActivityStartEndTimeData;
+use ficus::features::discovery::root_sequence::models::{ActivityStartEndTimeData, RootSequenceKind};
 use ficus::features::discovery::timeline::abstraction::SoftwareData;
 use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};

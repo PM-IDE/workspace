@@ -1,4 +1,4 @@
-use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
+use crate::features::discovery::root_sequence::models::RootSequenceKind;
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserDataImpl;
 

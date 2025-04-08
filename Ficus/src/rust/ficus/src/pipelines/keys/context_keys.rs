@@ -8,8 +8,7 @@ use crate::features::clustering::activities::activities_params::ActivityRepresen
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::root_sequence::discovery::RootSequenceKind;
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, NodeAdditionalDataContainer};
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::discovery::timeline::abstraction::SoftwareData;
 use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::grpc::events::events_handler::CaseName;
