@@ -7,7 +7,7 @@ use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::discovery::petri_net::annotations::{create_performance_map, PerformanceMap};
-use crate::features::discovery::root_sequence::adjustments::{adjust_weights_and_connections, merge_sequences_of_nodes};
+use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_weights, find_next_nodes, merge_sequences_of_nodes};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
@@ -24,6 +24,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
+use log::error;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents
@@ -213,9 +214,10 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   merge_sequences_of_events: bool,
   performance_map: Option<PerformanceMap>,
 ) -> DefaultGraph {
-  let mut graph = discover_root_sequence_graph_internal(log, context, true);
-
-  adjust_weights_and_connections(context, log, &mut graph);
+  let (start_node_id, mut graph) = discover_root_sequence_graph_internal(log, context, true);
+  
+  adjust_connections(context, log, &mut graph);
+  adjust_weights(context, log, &mut graph, start_node_id);
 
   if merge_sequences_of_events {
     merge_sequences_of_nodes(&mut graph, performance_map);
@@ -228,7 +230,7 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   context: &DiscoveryContext<T>,
   first_iteration: bool,
-) -> DefaultGraph {
+) -> (u64, DefaultGraph) {
   let root_sequence = discover_root_sequence(log, context.root_sequence_kind());
 
   if root_sequence.len() == 2 {
@@ -240,14 +242,14 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context);
 
-  graph
+  (*root_sequence_nodes_ids.first().unwrap(), graph) 
 }
 
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<T>>,
   root_sequence: &Vec<T>,
   context: &DiscoveryContext<T>,
-) -> DefaultGraph {
+) -> (u64, DefaultGraph) {
   let mut graph = DefaultGraph::empty();
   let name_extractor = context.name_extractor();
   let start_node = graph.add_node(Some(name_extractor(root_sequence.first().unwrap())));
@@ -264,7 +266,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
     graph.connect_nodes(&prev_node_id, &end_node, NodesConnectionData::empty());
   }
 
-  graph
+  (start_node, graph)
 }
 
 fn create_new_graph_node<T>(
@@ -374,7 +376,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
 ) {
   for (start_root_node_id, adjustments) in adjustments {
     let adjustment_log = create_log_from_adjustments(adjustments.iter().collect(), context.artificial_start_end_events_factory());
-    let sub_graph = discover_root_sequence_graph_internal(&adjustment_log, context, false);
+    let (_, sub_graph) = discover_root_sequence_graph_internal(&adjustment_log, context, false);
 
     merge_subgraph_into_model(adjustments, graph, sub_graph, *start_root_node_id, context);
   }
@@ -442,7 +444,7 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
 
   for node in sub_graph.all_nodes() {
     if *node.id() != start_node_id && *node.id() != end_node_id {
-      sub_graph_nodes_to_nodes.insert(node.id(), graph.add_node_with_user_data(node.data.clone(), node.user_data().clone()));
+      sub_graph_nodes_to_nodes.insert(*node.id(), graph.add_node_with_user_data(node.data.clone(), node.user_data().clone()));
     }
   }
 
@@ -463,12 +465,13 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
       let mut current_node = start_graph_node_id;
       for event in trace.iter() {
         let event_name = context.name_extractor()(event);
-        for outgoing_node in graph.outgoing_nodes(&current_node) {
-          let node_data = graph.node(outgoing_node).unwrap().data().unwrap();
-          if node_data == &event_name {
-            current_node = *outgoing_node
-          }
+        let next_nodes = find_next_nodes(graph, current_node, &event_name);
+
+        if next_nodes.len() != 1 {
+          error!("BROKEN GRAPH");
         }
+
+        current_node = *next_nodes.first().unwrap();
       }
 
       graph.connect_nodes(&current_node, end_node_id, NodesConnectionData::empty());

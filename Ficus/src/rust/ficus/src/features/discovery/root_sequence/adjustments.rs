@@ -3,11 +3,14 @@ use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, NodeAdditionalDataContainer};
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, INNER_GRAPH_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
-use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
+use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
+use std::ops::Deref;
+use log::error;
+use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
   for current_sequence in discover_sequences_to_merge(graph) {
@@ -209,7 +212,7 @@ fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph
   times
 }
 
-pub fn adjust_weights_and_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {
+pub fn adjust_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {
   let name_extractor = context.name_extractor();
   let mut df_relations = HashMap::new();
 
@@ -222,25 +225,52 @@ pub fn adjust_weights_and_connections<T: PartialEq + Clone + Debug>(context: &Di
     }
   }
 
-  let mut new_edges_weights = HashMap::new();
   let mut nodes_to_disconnect = vec![];
   for edge in graph.all_edges() {
     let from_name = graph.node(edge.from_node()).unwrap().data().cloned();
     let to_name = graph.node(edge.to_node()).unwrap().data().cloned();
 
     let edge_key = (*edge.from_node(), *edge.to_node());
-    if let Some(df_count) = df_relations.get(&(from_name, to_name)) {
-      new_edges_weights.insert(edge_key, *df_count as f64);
-    } else {
+    if df_relations.get(&(from_name, to_name)).is_none() {
       nodes_to_disconnect.push(edge_key)
     }
-  }
-
-  for (edge_key, new_weight) in new_edges_weights {
-    graph.edge_mut(&edge_key.0, &edge_key.1).unwrap().weight = new_weight;
   }
 
   for (from_node, to_node) in &nodes_to_disconnect {
     graph.disconnect_nodes(from_node, to_node);
   }
+}
+
+pub fn adjust_weights<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph, start_node_id: u64) {
+  let mut edges_weights = HashMap::new();
+  for trace in log {
+    let mut current_node = start_node_id;
+    for event in trace.iter().skip(1) {
+      let event_name = context.name_extractor()(event);
+      let next_nodes = find_next_nodes(graph, current_node, &event_name);
+      
+      if next_nodes.len() != 1 {
+        error!("Several candidates for next node, BROKEN GRAPH");
+        return;
+      }
+
+      let next_node = next_nodes.first().unwrap();
+      *edges_weights.entry((current_node, *next_node)).or_insert(0.) += 1.;
+      current_node = *next_node;
+    }
+  }
+  
+  for ((from_node, to_node), weight) in edges_weights {
+    graph.edge_mut(&from_node, &to_node).unwrap().weight = weight;
+  }
+}
+
+pub fn find_next_nodes(graph: &DefaultGraph, current_node: u64, name: &HeapedOrOwned<String>) -> Vec<u64> {
+  graph.outgoing_nodes(&current_node)
+    .into_iter()
+    .filter_map(|n| match graph.node(n).unwrap().data().unwrap().eq(name) {
+      true => Some(*n),
+      false => None
+    })
+    .collect::<Vec<u64>>()
 }
