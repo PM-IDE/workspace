@@ -2,7 +2,8 @@ use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 pub enum DiscoverLCSGraphError {
-  NoArtificialStartEndEvents
+  NoArtificialStartEndEvents,
+  FailedToReplaySequence
 }
 
 #[derive(Clone, Copy)]
@@ -30,7 +31,8 @@ impl FromStr for RootSequenceKind {
 impl Display for DiscoverLCSGraphError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      DiscoverLCSGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events")
+      DiscoverLCSGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events"),
+      DiscoverLCSGraphError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
     }
   }
 }

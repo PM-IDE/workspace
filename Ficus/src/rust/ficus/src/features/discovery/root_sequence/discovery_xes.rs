@@ -52,7 +52,7 @@ pub fn discover_root_sequence_graph_from_event_log(
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
   initialize_patterns_infos(&log);
 
-  let mut graph = discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map));
+  let mut graph = discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map))?;
   discover_graphs_for_patterns(&mut graph, &context);
 
   Ok(graph)
