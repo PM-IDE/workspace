@@ -7,6 +7,7 @@ use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
 use std::collections::{HashMap, VecDeque};
 use std::fmt::Debug;
+use log::error;
 use crate::features::discovery::root_sequence::models::DiscoverLCSGraphError;
 
 pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
@@ -18,7 +19,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   let (start_node_id, mut graph) = discover_root_sequence_graph_internal(log, context, true)?;
 
   adjust_connections(context, log, &mut graph);
-  adjust_weights(context, log, &mut graph, start_node_id);
+  adjust_weights(context, log, &mut graph, start_node_id)?;
 
   if merge_sequences_of_events {
     merge_sequences_of_nodes(&mut graph, performance_map);
@@ -299,6 +300,59 @@ fn replay_sequence<T>(context: &DiscoveryContext<T>, graph: &DefaultGraph, start
     let outgoing_nodes = find_next_nodes(graph, current_node_id, &context.name_extractor()(&sequence[event_index]));
     for next_node in outgoing_nodes {
       replay_states.push_back((next_node, event_index + 1));
+    }
+  }
+}
+
+struct ReplayHistoryEntry {
+  pub node_id: u64,
+  pub parent: Option<usize>
+}
+
+impl ReplayHistoryEntry {
+  pub fn new(node_id: u64, parent: Option<usize>) -> Self {
+    Self {
+      node_id,
+      parent
+    }
+  }
+}
+
+pub(super) fn replay_sequence_with_history<T>(
+  context: &DiscoveryContext<T>, 
+  graph: &DefaultGraph, 
+  start_node_id: u64, sequence: &[T]
+) -> Result<Vec<u64>, DiscoverLCSGraphError> {
+  let mut replay_states = VecDeque::from_iter([(start_node_id, 0usize, 0usize)]);
+  let mut replay_history = vec![ReplayHistoryEntry::new(start_node_id, None)];
+
+  loop {
+    if replay_states.is_empty() {
+      return Err(DiscoverLCSGraphError::FailedToReplaySequence);
+    }
+
+    let (current_node_id, event_index, history_end_index) = replay_states.pop_back().unwrap();
+    if event_index == sequence.len() {
+      let mut history = vec![];
+      let mut current_history_index = Some(history_end_index);
+      loop {
+        if current_history_index.is_none() {
+          break;
+        }
+
+        history.push(replay_history[current_history_index.unwrap()].node_id);
+        current_history_index = replay_history[current_history_index.unwrap()].parent;
+      }
+
+      history.reverse();
+
+      return Ok(history);
+    }
+
+    let outgoing_nodes = find_next_nodes(graph, current_node_id, &context.name_extractor()(&sequence[event_index]));
+    for next_node in outgoing_nodes {
+      replay_history.push(ReplayHistoryEntry::new(next_node, Some(history_end_index)));
+      replay_states.push_back((next_node, event_index + 1, replay_history.len() - 1));
     }
   }
 }

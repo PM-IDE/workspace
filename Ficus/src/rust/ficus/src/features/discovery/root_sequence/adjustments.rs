@@ -1,16 +1,14 @@
 use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, NodeAdditionalDataContainer};
+use crate::features::discovery::root_sequence::discovery::replay_sequence_with_history;
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverLCSGraphError, NodeAdditionalDataContainer};
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, INNER_GRAPH_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
-use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
+use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
-use std::ops::Deref;
-use log::error;
-use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
   for current_sequence in discover_sequences_to_merge(graph) {
@@ -25,12 +23,12 @@ fn discover_sequences_to_merge(graph: &DefaultGraph) -> Vec<Vec<u64>> {
   let check_node = |node_id| {
     graph.incoming_edges(node_id).len() == 1 && graph.outgoing_nodes(node_id).len() == 1
   };
-  
+
   enum EnumerationDirection {
     Left,
-    Right
+    Right,
   }
-  
+
   let iterate_nodes = |mut node_id: u64, left: EnumerationDirection, current_sequence: &mut Vec<u64>| {
     loop {
       let next_node = match left {
@@ -43,7 +41,7 @@ fn discover_sequences_to_merge(graph: &DefaultGraph) -> Vec<Vec<u64>> {
       }
 
       current_sequence.push(*next_node);
-      node_id = *next_node; 
+      node_id = *next_node;
     }
   };
 
@@ -68,7 +66,7 @@ fn discover_sequences_to_merge(graph: &DefaultGraph) -> Vec<Vec<u64>> {
       sequences.push(current_sequence);
     }
   }
-  
+
   sequences
 }
 
@@ -137,15 +135,15 @@ fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
 
     if let Some((prev_added_node_id, prev_node_id)) = prev_added_node_id {
       let edge = graph.edge(&prev_node_id, node).unwrap();
-      let connection_data = NodesConnectionData::new(edge.data().cloned(), edge.weight()); 
+      let connection_data = NodesConnectionData::new(edge.data().cloned(), edge.weight());
       inner_graph.connect_nodes(&prev_added_node_id, &added_node_id, connection_data);
     }
-    
+
     prev_added_node_id = Some((added_node_id, *node));
   }
 
   graph.node_mut(&node_id).unwrap().user_data_mut().put_concrete(INNER_GRAPH_KEY.key(), inner_graph);
-  
+
   node_id
 }
 
@@ -240,28 +238,23 @@ pub fn adjust_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryConte
   }
 }
 
-pub fn adjust_weights<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph, start_node_id: u64) {
+pub fn adjust_weights<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph, start_node_id: u64) -> Result<(), DiscoverLCSGraphError> {
   let mut edges_weights = HashMap::new();
   for trace in log {
-    let mut current_node = start_node_id;
-    for event in trace.iter().skip(1) {
-      let event_name = context.name_extractor()(event);
-      let next_nodes = find_next_nodes(graph, current_node, &event_name);
+    let replay_history = replay_sequence_with_history(context, graph, start_node_id, &trace[1..])?;
+    for i in 0..replay_history.len() - 1 {
+      let from_node = replay_history[i];
+      let to_node = replay_history[i + 1];
 
-      if next_nodes.len() != 1 {
-        error!("Several candidates for next node, BROKEN GRAPH");
-        return;
-      }
-
-      let next_node = next_nodes.first().unwrap();
-      *edges_weights.entry((current_node, *next_node)).or_insert(0.) += 1.;
-      current_node = *next_node;
+      *edges_weights.entry((from_node, to_node)).or_insert(0.) += 1.;
     }
   }
 
   for ((from_node, to_node), weight) in edges_weights {
     graph.edge_mut(&from_node, &to_node).unwrap().weight = weight;
   }
+
+  Ok(())
 }
 
 pub fn find_next_nodes(graph: &DefaultGraph, current_node: u64, name: &HeapedOrOwned<String>) -> Vec<u64> {
