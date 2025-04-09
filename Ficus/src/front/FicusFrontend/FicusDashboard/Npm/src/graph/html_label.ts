@@ -46,6 +46,7 @@ addEventListener("mouseover", event => {
       let data: [string, number] = JSON.parse(rawData);
 
       tippy(element, {
+        appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
         content: `
                 <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
                     ${data[0]}

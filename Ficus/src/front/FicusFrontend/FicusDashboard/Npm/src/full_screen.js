@@ -1,6 +1,6 @@
 export function setFullscreenFunctions() {
-  window.openFullScreen = function(id) {
-    openFullScreen(id);
+  window.openFullScreen = function(id, calledDotnetObject) {
+    openFullScreen(id, calledDotnetObject);
   }
 
   window.exitFullScreen = function () {
@@ -8,8 +8,13 @@ export function setFullscreenFunctions() {
   }
 }
 
-function openFullScreen(id) {
+let currentFullScreenElementId = null;
+let currentDotnetReference = null;
+
+function openFullScreen(id, calledDotnetObject) {
   let element = document.getElementById(id);
+  currentFullScreenElementId = id;
+  currentDotnetReference = calledDotnetObject;
 
   if (element.requestFullscreen) {
     element.requestFullscreen();
@@ -23,6 +28,9 @@ function openFullScreen(id) {
 }
 
 function exitFullScreen() {
+  currentDotnetReference = null;
+  currentFullScreenElementId = null;
+
   if (document.exitFullscreen) {
     document.exitFullscreen();
   } else if (document.mozCancelFullScreen) { /* Firefox */
@@ -33,3 +41,11 @@ function exitFullScreen() {
     document.msExitFullscreen();
   }
 }
+
+addEventListener("fullscreenchange", async (event) => {
+  if (currentFullScreenElementId !== null && currentFullScreenElementId === event.target.id && currentDotnetReference !== null && !document.fullscreenElement) {
+    await currentDotnetReference.invokeMethodAsync("HandleFullScreenExit");
+    currentDotnetReference = null;
+    currentFullScreenElementId = null;
+  }
+});

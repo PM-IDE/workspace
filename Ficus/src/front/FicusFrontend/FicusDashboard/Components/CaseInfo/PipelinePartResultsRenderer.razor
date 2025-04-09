@@ -233,7 +233,7 @@
 
   private async Task OpenElementInFullscreen()
   {
-    await Js.InvokeVoidAsync("openFullScreen", myContainerId);
+    await Js.InvokeVoidAsync("openFullScreen", myContainerId, DotNetObjectReference.Create(this));
     myIsFullScreen = true;
     StateHasChanged();
   }
@@ -241,6 +241,12 @@
   private async Task ExitFullScreen()
   {
     await Js.InvokeVoidAsync("exitFullScreen");
+    HandleFullScreenExit();
+  }
+
+  [JSInvokable]
+  public void HandleFullScreenExit()
+  {
     myIsFullScreen = false;
     StateHasChanged();
   }
