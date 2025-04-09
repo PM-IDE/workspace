@@ -620,7 +620,10 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternGraphInfo) ->
       UnderlyingPatternKind::NearSuperMaximalRepeat => GrpcUnderlyingPatternKind::NearSuperMaximalRepeat,
       UnderlyingPatternKind::Unknown => GrpcUnderlyingPatternKind::Unknown,
     }).into(),
-    base_sequence: info.base_sequence().clone(),
+    base_sequence: match info.base_pattern() {
+      None => vec![],
+      Some(base_pattern) => base_pattern.clone()
+    },
     graph: Some(convert_to_grpc_graph(info.graph().as_ref()))
   }
 }

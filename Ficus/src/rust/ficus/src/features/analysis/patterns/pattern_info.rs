@@ -36,14 +36,20 @@ impl From<PatternsKind> for UnderlyingPatternKind {
 #[derive(Clone, Debug)]
 pub struct UnderlyingPatternInfo {
   pattern_kind: UnderlyingPatternKind,
-  underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>
+  underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>,
+  base_pattern: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
 }
 
 impl UnderlyingPatternInfo {
-  pub fn new(pattern_kind: UnderlyingPatternKind, underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>) -> Self {
+  pub fn new(
+    pattern_kind: UnderlyingPatternKind,
+    underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>, 
+    base_pattern: Option<Vec<Rc<RefCell<XesEventImpl>>>>
+  ) -> Self {
     Self {
       pattern_kind,
-      underlying_sequence
+      underlying_sequence,
+      base_pattern
     }
   }
 
@@ -54,30 +60,34 @@ impl UnderlyingPatternInfo {
   pub fn underlying_sequence(&self) -> &Vec<Rc<RefCell<XesEventImpl>>> {
     &self.underlying_sequence
   }
+  
+  pub fn base_pattern(&self) -> Option<&Vec<Rc<RefCell<XesEventImpl>>>> {
+    self.base_pattern.as_ref()
+  }
 }
 
 #[derive(Clone, Debug)]
 pub struct UnderlyingPatternGraphInfo {
   pattern_kind: UnderlyingPatternKind,
-  base_sequence: Vec<String>,
+  base_pattern: Option<Vec<String>>,
   graph: Rc<Box<DefaultGraph>>,
 }
 
 impl UnderlyingPatternGraphInfo {
-  pub fn new(pattern_kind: UnderlyingPatternKind, base_sequence: Vec<String>, graph: Rc<Box<DefaultGraph>>) -> Self {
+  pub fn new(pattern_kind: UnderlyingPatternKind, base_pattern: Option<Vec<String>>, graph: Rc<Box<DefaultGraph>>) -> Self {
     Self {
       pattern_kind,
-      base_sequence,
+      base_pattern,
       graph
     }
   }
-  
+
   pub fn pattern_kind(&self) -> UnderlyingPatternKind {
     self.pattern_kind
   }
-  
-  pub fn base_sequence(&self) -> &Vec<String> {
-    &self.base_sequence
+
+  pub fn base_pattern(&self) -> Option<&Vec<String>> {
+    self.base_pattern.as_ref()
   }
 
   pub fn graph(&self) -> Rc<Box<DefaultGraph>> {

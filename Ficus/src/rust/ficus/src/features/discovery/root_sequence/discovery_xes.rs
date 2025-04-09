@@ -4,7 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::patterns::activity_instances::create_vector_of_underlying_events;
+use crate::features::analysis::patterns::activity_instances::{create_vector_of_underlying_events, try_get_base_pattern};
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::discovery::petri_net::annotations::create_performance_map;
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
@@ -20,6 +20,7 @@ use std::cell::RefCell;
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::rc::Rc;
+use num_traits::real::Real;
 
 pub fn discover_root_sequence_graph_from_event_log(
   log: &XesEventLogImpl,
@@ -84,8 +85,12 @@ fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
       let pattern_kind = event.borrow().user_data().concrete(UNDERLYING_PATTERN_KIND_KEY.key()).cloned();
       if let Some(pattern_kind) = pattern_kind {
         let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
-        let pattern_info = UnderlyingPatternInfo::new(pattern_kind, underlying_events);
+        let base_pattern = try_get_base_pattern::<XesEventLogImpl>(event);
+
+        let pattern_info = UnderlyingPatternInfo::new(pattern_kind, underlying_events, base_pattern);
+
         let event_coordinates = EventCoordinates::new(trace_id as u64, event_index as u64);
+
         let patterns = vec![NodeAdditionalDataContainer::new(pattern_info, event_coordinates)];
 
         event.borrow_mut().user_data_mut().put_concrete(UNDERLYING_PATTERNS_INFOS_KEY.key(), patterns);
@@ -118,7 +123,13 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
         }
 
         let graph = Rc::new(Box::new(graph));
-        let pattern_graph_info = UnderlyingPatternGraphInfo::new(pattern.value().pattern_kind().clone(), vec![], graph);
+
+        let base_sequence = match pattern.value().base_pattern() {
+          None => None,
+          Some(base_pattern) => Some(base_pattern.iter().map(|e| e.borrow().name().to_owned()).collect())
+        };
+
+        let pattern_graph_info = UnderlyingPatternGraphInfo::new(pattern.value().pattern_kind().clone(), base_sequence, graph);
         let pattern_graph_info = NodeAdditionalDataContainer::new(pattern_graph_info, pattern.original_event_coordinates().clone());
 
         pattern_graph_infos.push(pattern_graph_info);
