@@ -52,10 +52,10 @@ pub fn discover_root_sequence_graph_from_event_log(
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
   initialize_patterns_infos(&log);
 
-  let mut graph = discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map))?;
-  discover_graphs_for_patterns(&mut graph, &context);
+  let mut result = discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map))?;
+  discover_graphs_for_patterns(result.graph_mut(), &context);
 
-  Ok(graph)
+  Ok(result.graph_move())
 }
 
 fn transfer_data_from_event_to_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool) {
