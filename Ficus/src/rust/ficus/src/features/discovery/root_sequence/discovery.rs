@@ -155,9 +155,9 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
 
   for trace in log {
     let lcs = find_longest_common_subsequence(trace, root_sequence, trace.len(), root_sequence.len());
-    for (index, node_id) in lcs.first_indices().iter().zip(&root_sequence_node_ids) {
-      let event = trace.get(*index).unwrap();
-      transfer_user_data(graph, event, *node_id, is_first_iteration_root_sequence, context);
+    for (trace_index, root_sequence_index) in lcs.first_indices().iter().zip(lcs.second_indices().iter()) {
+      let event = trace.get(*trace_index).unwrap();
+      transfer_user_data(graph, event, root_sequence_node_ids[*root_sequence_index], is_first_iteration_root_sequence, context);
     }
   }
 
