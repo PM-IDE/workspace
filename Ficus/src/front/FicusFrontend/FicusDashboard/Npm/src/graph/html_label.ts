@@ -25,15 +25,12 @@ export function createHtmlLabel(node: GraphNode) {
   allTraceIds.sort((f, s) => f - s);
 
   return `
-          <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; min-height: ${nodeHeightPx}px">
+          <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; height: ${nodeHeightPx}px">
               <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
                   ${node.label} [${node.executionTime}] ${createTracesDescription(allTraceIds)}
               </div>
               <div style="width: 100%; display: flex; flex-direction: row;">
                   ${createHistogram(sortedHistogramEntries).join('\n')}
-              </div>
-              <div style="width: 100%; display: flex; flex-direction: column;">
-                  ${createEventClassesDescription(sortedHistogramEntries).join('\n')}
               </div>
           </div>
         `;
@@ -46,12 +43,12 @@ addEventListener("mouseover", event => {
     let rawData = element.dataset.histogramTooltip;
 
     if (rawData != null) {
-      let data = JSON.parse(rawData);
+      let data: [string, number] = JSON.parse(rawData);
 
       tippy(element, {
         content: `
                 <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
-                    ${data.name}
+                    ${data[0]}
                 </div>
                `,
         allowHTML: true,

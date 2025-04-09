@@ -80,7 +80,7 @@ function createEdgeStyle(): cytoscape.Stylesheet {
       'line-color': 'data(color)',
       'target-arrow-color': 'data(color)',
       'target-arrow-shape': 'triangle',
-      'curve-style': 'taxi',
+      'curve-style': 'straight',
     }
   }
 }
