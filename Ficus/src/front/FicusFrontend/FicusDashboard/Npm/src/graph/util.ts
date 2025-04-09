@@ -1,4 +1,8 @@
 import {darkTheme, performanceColors} from "../colors";
+import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
+import {GraphNode} from "./types";
+import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
+import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 
 export function createDagreLayout() {
   return {
@@ -16,28 +20,36 @@ export function createPresetLayout() {
   }
 }
 
-export function findAllRelatedTraceIds(node) {
-  let traceIds = new Set();
+
+export function findAllRelatedTraceIds(node: GraphNode): Set<number> {
+  let traceIds = new Set<number>();
   for (let data of node.additionalData) {
     traceIds.add(getTraceId(data));
   }
-  
+
   return traceIds;
 }
 
-export function getTraceId(additionalData) {
+export function getTraceId(additionalData: GrpcNodeAdditionalData): number {
   return additionalData.originalEventCoordinates.traceId;
 }
 
-export function getSoftwareDataOrNull(node) {
-  let mergedSoftwareData = {
+interface MergedSoftwareData {
+  histogram: Map<string, number>,
+  timelineDiagramFragments: GrpcTimelineDiagramFragment[]
+}
+
+export function getSoftwareDataOrNull(node: GraphNode): MergedSoftwareData {
+  let mergedSoftwareData: MergedSoftwareData = {
     histogram: new Map(),
     timelineDiagramFragments: []
   };
 
   for (let data of node.additionalData) {
     if (data.softwareData != null) {
-      for (let [name, count] of data.softwareData.histogram.map(entry => [entry.name, entry.count])) {
+      for (let entry of data.softwareData.histogram) {
+        let [name, count] = [entry.name, entry.count];
+
         if (mergedSoftwareData.histogram.has(name)) {
           mergedSoftwareData.histogram.set(name, mergedSoftwareData.histogram.get(name) + count);
         } else {
@@ -49,18 +61,10 @@ export function getSoftwareDataOrNull(node) {
     }
   }
 
-  mergedSoftwareData.histogram = mergedSoftwareData.histogram.entries().map(e => {
-      return {
-        name: e[0],
-        count: e[1]
-      }
-    }
-  ).toArray();
-
   return mergedSoftwareData;
 }
 
-export function calculateOverallExecutionTime(node) {
+export function calculateOverallExecutionTime(node: GrpcGraphNode) {
   let timeData = getTimeData(node);
   let minTime = Math.min(...timeData.map(t => t.startTime));
   let maxTime = Math.max(...timeData.map(t => t.endTime));
@@ -73,7 +77,7 @@ export function calculateOverallExecutionTime(node) {
   return overallExecutionTime;
 }
 
-export function getTimeData(node) {
+export function getTimeData(node: GrpcGraphNode) {
   let result = [];
   for (let data of node.additionalData) {
     if (data.timeData != null) {
@@ -84,7 +88,7 @@ export function getTimeData(node) {
   return result;
 }
 
-export function belongsToRootSequence(node) {
+export function belongsToRootSequence(node: GraphNode) {
   for (let data of node.additionalData.filter((d, _) => d.traceData != null)) {
     if (data.traceData.belongsToRootSequence === true) {
       return true;
@@ -96,7 +100,7 @@ export function belongsToRootSequence(node) {
 
 const performanceColor = performanceColors(darkTheme);
 
-export function getTimeAnnotationColor(relativeExecutionTime) {
+export function getTimeAnnotationColor(relativeExecutionTime: number) {
   let colorName = `color${(Math.floor(relativeExecutionTime * 10) % 100).toString()}`;
   return performanceColor[colorName];
 }

@@ -7,17 +7,18 @@ import {
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
 import tippy from "tippy.js";
-import {getOrCreateColor} from "../utils.ts";
+import {getOrCreateColor} from "../utils";
+import {GraphNode} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
-export function createHtmlLabel(node) {
+export function createHtmlLabel(node: GraphNode) {
   let softwareData = getSoftwareDataOrNull(node);
   if (softwareData == null) {
     return null;
   }
 
-  let sortedHistogramEntries = softwareData.histogram.toSorted((f, s) => s.count - f.count);
+  let sortedHistogramEntries = [...softwareData.histogram.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
   let timeAnnotationColor = getTimeAnnotationColor(node.relativeExecutionTime);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
@@ -40,51 +41,54 @@ export function createHtmlLabel(node) {
 
 addEventListener("mouseover", event => {
   let element = event.target;
-  let data = element.dataset.histogramTooltip;
 
-  if (data != null) {
-    data = JSON.parse(data);
+  if (element instanceof HTMLElement) {
+    let rawData = element.dataset.histogramTooltip;
 
-    tippy(element, {
-      content: `
+    if (rawData != null) {
+      let data = JSON.parse(rawData);
+
+      tippy(element, {
+        content: `
                 <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
                     ${data.name}
                 </div>
                `,
-      allowHTML: true,
-      zIndex: Number.MAX_VALUE,
-      duration: 0,
-      arrow: true,
-    });
+        allowHTML: true,
+        zIndex: Number.MAX_VALUE,
+        duration: 0,
+        arrow: true,
+      });
+    } 
   }
 });
 
-function createHistogram(sortedHistogramEntries) {
-  let summedCount = Math.max(...sortedHistogramEntries.map(entry => entry.count));
+function createHistogram(sortedHistogramEntries: [string, number][]) {
+  let summedCount = Math.max(...sortedHistogramEntries.map(entry => entry[1]));
 
   return sortedHistogramEntries.map((entry) => {
-    let divWidth = (entry.count / summedCount) * 100;
+    let divWidth = (entry[1] / summedCount) * 100;
     return `
         <div class="graph-histogram-entry"
-             style="width: ${divWidth}%; height: 10px; background-color: ${getOrCreateColor(entry.name)}" 
+             style="width: ${divWidth}%; height: 10px; background-color: ${getOrCreateColor(entry[0])}" 
              data-histogram-tooltip='${JSON.stringify(entry)}'>
         </div>
       `;
   });
 }
 
-function createEventClassesDescription(sortedHistogramEntries) {
+function createEventClassesDescription(sortedHistogramEntries: [string, number][]) {
   return sortedHistogramEntries.map((entry) => {
     return `
         <div style="display: flex; flex-direction: row; height: 20px; align-items: center">
-            <div style="width: 15px; height: 15px; background-color: ${getOrCreateColor(entry.name)}"></div>
-            <div>${entry.name}</div>
+            <div style="width: 15px; height: 15px; background-color: ${getOrCreateColor(entry[0])}"></div>
+            <div>${entry[0]}</div>
         </div>
       `;
   });
 }
 
-function createTracesDescription(tracesIds) {
+function createTracesDescription(tracesIds: number[]) {
   let result = "";
   let index = 0;
   let groupStartIndex = 0;

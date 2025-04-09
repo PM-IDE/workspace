@@ -1,12 +1,13 @@
 ﻿import canvasSize from 'canvas-size'
 
 export function setCanvasSizeFunctions() {
-  (<any>window).getMaxCanvasDimensions = async function () {
-    return await getMaxCanvasDimensions();
+  (<any>window).getMaxCanvasDimensions = async function (): Promise<[number, number]> {
+    return getMaxCanvasDimensions();
   }
 }
 
-async function getMaxCanvasDimensions() {
-  const { _, width, height } = await canvasSize.maxArea();
+export async function getMaxCanvasDimensions(): Promise<[number, number]> {
+  const { width, height } = await canvasSize.maxArea({usePromise: true});
+
   return [width, height];
 }

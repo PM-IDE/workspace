@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
+    "lib": ["ESNext.Array", "DOM", "ESNext"],
     "outDir": "./dist/",
     "noImplicitAny": true,
-    "module": "es2017",
-    "target": "es2017",
+    "module": "es2022",
+    "target": "es2022",
     "allowJs": true,
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true
   }
 }

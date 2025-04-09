@@ -27,7 +27,7 @@ function createCytoscapeOptions(id: string, net: GrpcPetriNet, annotation: Recor
   }
 }
 
-function createElementsFromNet(net: GrpcPetriNet, annotation: Record<number, number>) {
+function createElementsFromNet(net: GrpcPetriNet, annotation: Record<number, number>): cytoscape.ElementDefinition[] {
   let maxAnnotation = findMaxAnnotation(annotation);
   const elements = [];
 

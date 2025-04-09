@@ -1,5 +1,8 @@
 ﻿import {getOrCreateColor} from "./utils";
 import {GrpcColorsEventLog} from "./protos/ficus/GrpcColorsEventLog";
+import {GrpcColor} from "./protos/ficus/GrpcColor";
+import {getMaxCanvasDimensions} from "./canvas_size";
+import {GrpcColorsLogAdjustment} from "./protos/ficus/GrpcColorsLogAdjustment";
 
 const AxisDelta = 5;
 const AxisWidth = 2;
@@ -7,25 +10,16 @@ const AxisWidth = 2;
 const DefaultRectWidth = 1;
 const DefaultRectHeight = 1;
 const AxisTextHeight = 14;
-const OverallXDelta =  AxisDelta + AxisWidth + AxisDelta;
+const OverallXDelta = AxisDelta + AxisWidth + AxisDelta;
 
 export function setDrawColorsLog() {
   (<any>window).drawColorsLog = async function (log: GrpcColorsEventLog, widthScale: number, heightScale: number, canvasId: string, colors: any) {
     return await drawColorsLog(log, widthScale, heightScale, canvasId, colors);
   };
-
-  (<any>window).calculateCanvasArea = function (log: GrpcColorsEventLog, widthScale: number, heightScale: number) {
-    return calculateCanvasArea(log, widthScale, heightScale);
-  }
-}
-
-function calculateCanvasArea(log: GrpcColorsEventLog, widthScale: number, heightScale: number) {
-  let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
-  return calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight);
 }
 
 function getRectDimensions(widthScale: number, heightScale: number) {
-  return [widthScale * DefaultRectWidth,  heightScale * DefaultRectHeight];
+  return [widthScale * DefaultRectWidth, heightScale * DefaultRectHeight];
 }
 
 const minCanvasWidth = 500;
@@ -33,7 +27,7 @@ const minCanvasHeight = 500;
 
 async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, heightScale: number, canvasId: string, colors: any) {
   let canvas = document.getElementById(canvasId);
-  if (canvas == null) {
+  if (canvas == null || !(canvas instanceof HTMLCanvasElement)) {
     return;
   }
 
@@ -41,7 +35,7 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
   let additionalAxis = createAdditionalAxisList(log.adjustments);
-  
+
   let [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxis.length);
   let [maxCanvasWidth, maxCanvasHeight] = await getMaxCanvasDimensions();
   if (canvasWidth > maxCanvasWidth || canvasHeight > maxCanvasHeight) {
@@ -69,11 +63,11 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
   let tracesY = [];
   let tracesExtendedY = [];
   let traceGroupLastY = current_y;
-  let tracesCountBeforeAxis  = 0;
+  let tracesCountBeforeAxis = 0;
 
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
-    
+
     for (let rect of trace.eventColors) {
       context.fillStyle = getOrCreateColor(log.mapping[rect.colorIndex].name);
 
@@ -106,7 +100,7 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
     tracesExtendedY.push([traceGroupLastY, canvasHeight - AxisDelta - AxisWidth - AxisTextHeight]);
   }
 
-  drawRectangles(context, log, tracesExtendedY, tracesY, rectWidth, rectWidth, rectHeight);
+  drawRectangles(context, log, tracesExtendedY, tracesY, widthScale, rectWidth, rectHeight);
   drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth);
 
   return null;
@@ -116,9 +110,9 @@ function rgbToHex(color: GrpcColor) {
   return "#" + (1 << 24 | color.red << 16 | color.green << 8 | color.blue).toString(16).slice(1);
 }
 
-function calculateCanvasWidthAndHeight(log: GrpcColorsEventLog, widthScale: number, rectWidth: number, rectHeight: number, additionalAxisCount: number) {
+function calculateCanvasWidthAndHeight(log: GrpcColorsEventLog, widthScale: number, rectWidth: number, rectHeight: number, additionalAxisCount: number): [number, number] {
   let canvasHeight = log.traces.length * rectHeight + 2 * AxisDelta + AxisWidth + 2 * AxisTextHeight + additionalAxisCount * AxisWidth;
-  
+
   let canvasWidth = 0;
   for (let trace of log.traces) {
     let last = trace.eventColors[trace.eventColors.length - 1];
@@ -129,19 +123,25 @@ function calculateCanvasWidthAndHeight(log: GrpcColorsEventLog, widthScale: numb
   return [canvasWidth, canvasHeight];
 }
 
-function drawRectangles(context, log: GrpcColorsEventLog, tracesExtendedY: number[][], tracesY: number[], widthScale: number, rectWidth: number, rectHeight: number) {
+function drawRectangles(context: CanvasRenderingContext2D,
+                        log: GrpcColorsEventLog,
+                        tracesExtendedY: number[][],
+                        tracesY: number[],
+                        widthScale: number,
+                        rectWidth: number,
+                        rectHeight: number) {
   for (let adjustment of log.adjustments) {
     if (adjustment.rectangleAdjustment != null) {
       let upLeftPoint = adjustment.rectangleAdjustment.upLeftPoint;
       let downRightPoint = adjustment.rectangleAdjustment.downRightPoint;
-      
+
       let upLeftEvent = log.traces[upLeftPoint.traceIndex].eventColors[upLeftPoint.eventIndex];
       let downRightEvent = log.traces[downRightPoint.traceIndex].eventColors[downRightPoint.eventIndex];
 
       let x = upLeftEvent.startX * widthScale + OverallXDelta
       let width = downRightEvent.startX * widthScale + OverallXDelta + downRightEvent.length * rectWidth - x;
 
-      let y, height;      
+      let y, height;
       if (adjustment.rectangleAdjustment.extendToNearestVerticalBorders === true) {
         y = tracesExtendedY[upLeftPoint.traceIndex][0];
         height = tracesExtendedY[downRightPoint.traceIndex][1] - y;
@@ -156,8 +156,8 @@ function drawRectangles(context, log: GrpcColorsEventLog, tracesExtendedY: numbe
   }
 }
 
-function createAdditionalAxisList(adjustments) {
-  let additionalAxis = [];
+function createAdditionalAxisList(adjustments: GrpcColorsLogAdjustment[]): number[] {
+  let additionalAxis: number[] = [];
 
   if (adjustments === null) {
     return additionalAxis;
@@ -174,18 +174,24 @@ function createAdditionalAxisList(adjustments) {
   return additionalAxis;
 }
 
-function drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth) {
+function drawAxis(context: CanvasRenderingContext2D, 
+                  log: GrpcColorsEventLog, 
+                  rectHeight: number, 
+                  canvasWidth: number, 
+                  canvasHeight: number, 
+                  colors: any, 
+                  additionalAxisWithWidth: number[][]) {
   context.fillStyle = rgbToHex(colors.axis);
 
   context.fillRect(AxisDelta, AxisTextHeight, AxisWidth, canvasHeight - AxisDelta - 2 * AxisTextHeight);
-  
+
   let horizontalAxisY = canvasHeight - AxisDelta - AxisWidth - AxisTextHeight;
   context.fillRect(AxisDelta, horizontalAxisY, canvasWidth, AxisWidth);
 
   context.font = "10px serif";
   context.textAlign = "center";
   context.fillText(log.traces.length.toString(), AxisDelta, AxisTextHeight);
-  
+
   let maxEventsInTraceCountText = Math.max(...log.traces.map(t => t.eventColors.length)).toString();
   let textMeasures = context.measureText(maxEventsInTraceCountText);
   context.fillText(maxEventsInTraceCountText, canvasWidth - textMeasures.width / 2, horizontalAxisY + AxisWidth + AxisTextHeight);

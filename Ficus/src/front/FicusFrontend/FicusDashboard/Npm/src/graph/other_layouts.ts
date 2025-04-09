@@ -6,11 +6,12 @@ import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import {GrpcTimePerformanceAnnotation} from "../protos/ficus/GrpcTimePerformanceAnnotation";
+import cytoscape, {ElementDefinition} from "cytoscape";
 
 const graphColor = graphColors(darkTheme);
 
-export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnnotation) {
-  let elements = [];
+export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnnotation): cytoscape.ElementDefinition[] {
+  let elements: cytoscape.ElementDefinition[] = [];
 
   let nodesMap = processNodes(graph.nodes);
 
@@ -50,7 +51,7 @@ function processNodes(nodes: GrpcGraphNode[]): Record<number, any> {
   return nodesMap;
 }
 
-export function createGraphEdgesElements(edges: GrpcGraphEdge[], annotation: GrpcAnnotation) {
+export function createGraphEdgesElements(edges: GrpcGraphEdge[], annotation: GrpcAnnotation): cytoscape.ElementDefinition[] {
   let edgesMap: Record<number, any> = {};
 
   for (let edge of edges) {
@@ -63,14 +64,14 @@ export function createGraphEdgesElements(edges: GrpcGraphEdge[], annotation: Grp
     processTimeAnnotation(annotation.timeAnnotation, edges, edgesMap);
   }
 
-  let elements = [];
+  let elements: cytoscape.ElementDefinition[] = [];
   for (let edge of edges) {
     elements.push({
       data: {
         color: edgesMap[edge.id].color,
         width: edgesMap[edge.id].width,
         label: edge.data,
-        id: edge.id,
+        id: edge.id.toString(),
         source: edge.fromNode.toString(),
         target: edge.toNode.toString(),
       }

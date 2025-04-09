@@ -27,7 +27,7 @@ let getStyleFilePath = (fileName: string) => `css/${fileName}`;
 
 let findStylesheet = (head: HTMLElement, fileName: string) => {
   for (let i = head.children.length - 1; i > -1; --i) {
-    let element = head.children[i];
+    let element: any = head.children[i];
 
     if (element.rel === Stylesheet && element.type === Type && element.href.endsWith(getStyleFilePath(fileName))) {
       return element;

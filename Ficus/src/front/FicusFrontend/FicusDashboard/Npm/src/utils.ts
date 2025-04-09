@@ -1,7 +1,7 @@
-import svg from 'cytoscape-svg';
 import cytoscape from "cytoscape";
 import {saveAs} from 'file-saver'
 
+const svg = require('cytoscape-svg');
 cytoscape.use(svg);
 
 export function rgbToHex(r: number, g: number, b: number) {
@@ -32,7 +32,7 @@ export function setUtilitiesFunctions() {
 }
 
 function exportCytoscapeToSvg(cy: cytoscape.Core, fileName: string) {
-  let svgContent = cy.svg({full: false});
+  let svgContent = (<any>cy).svg({full: false});
   let blob = new Blob([svgContent], {type: "image/svg+xml;charset=utf-8"});
 
   saveAs(blob, fileName);
