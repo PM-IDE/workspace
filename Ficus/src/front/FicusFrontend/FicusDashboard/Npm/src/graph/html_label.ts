@@ -26,8 +26,8 @@ export function createHtmlLabel(node: GraphNode) {
 
   return `
           <div>
-            <div style="width: 100%; font-size: 30px; text-align: left; color: ${graphColor.labelColor}; background-color: transparent">
-                ${node.label}
+            <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
+                ${createNodeDisplayName(node, sortedHistogramEntries)}
             </div>
             <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor}">
@@ -41,7 +41,7 @@ export function createHtmlLabel(node: GraphNode) {
                 </div>
             </div>
           </div>
-        `;
+         `;
 }
 
 addEventListener("mouseover", event => {
@@ -68,6 +68,23 @@ addEventListener("mouseover", event => {
     } 
   }
 });
+
+function createNodeDisplayName(node: GraphNode, sortedHistogramEntries: [string, number][]) {
+  let nodeNameParts: string[] = [];
+  for (let i = 0; i < Math.min(3, sortedHistogramEntries.length); ++i) {
+    nodeNameParts.push(`
+      <div style="max-width: ${nodeWidthPx}px; text-overflow: ellipsis;">
+        ${sortedHistogramEntries[i][0]}
+      </div>
+    `);
+  }
+
+  if (nodeNameParts.length == 0) {
+    nodeNameParts.push(`<div>${node.label}</div>`)
+  }
+  
+  return nodeNameParts.join("\n");
+}
 
 function createHistogram(sortedHistogramEntries: [string, number][]) {
   let summedCount = sortedHistogramEntries.map(entry => entry[1]).reduce((a, b) => a + b, 0);
