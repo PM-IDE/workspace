@@ -6,8 +6,9 @@ export function setCanvasSizeFunctions() {
   }
 }
 
-export async function getMaxCanvasDimensions(): Promise<[number, number]> {
-  const { width, height } = await canvasSize.maxArea({usePromise: true});
+const { width, height } = await canvasSize.maxArea({usePromise: true});
+let maxDimensions: [number, number] = [width, height];
 
-  return [width, height];
+export async function getMaxCanvasDimensions(): Promise<[number, number]> {
+  return maxDimensions;
 }
