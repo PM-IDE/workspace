@@ -1,17 +1,18 @@
-﻿import {getOrCreateColor} from "./utils";
-import {GrpcColorsEventLog} from "./protos/ficus/GrpcColorsEventLog";
-import {GrpcColor} from "./protos/ficus/GrpcColor";
-import {getMaxCanvasDimensions} from "./canvas_size";
-import {GrpcColorsLogAdjustment} from "./protos/ficus/GrpcColorsLogAdjustment";
-import tippy from "tippy.js";
-
-const AxisDelta = 5;
-const AxisWidth = 2;
-
-const DefaultRectWidth = 1;
-const DefaultRectHeight = 1;
-const AxisTextHeight = 14;
-const OverallXDelta = AxisDelta + AxisWidth + AxisDelta;
+﻿import {getOrCreateColor} from "../utils";
+import {GrpcColorsEventLog} from "../protos/ficus/GrpcColorsEventLog";
+import {GrpcColor} from "../protos/ficus/GrpcColor";
+import {getMaxCanvasDimensions} from "../canvas_size";
+import {GrpcColorsLogAdjustment} from "../protos/ficus/GrpcColorsLogAdjustment";
+import {addColorsLogCanvasMouseMoveHandler, CanvasEventCoordinate} from "./event_handlers";
+import {
+  AxisDelta,
+  AxisTextHeight,
+  AxisWidth,
+  DefaultRectHeight,
+  DefaultRectWidth, MinCanvasHeight,
+  MinCanvasWidth,
+  OverallXDelta
+} from "./constants";
 
 export function setDrawColorsLog() {
   (<any>window).drawColorsLog = async function (log: GrpcColorsEventLog, widthScale: number, heightScale: number, canvasId: string, colors: any) {
@@ -23,74 +24,76 @@ function getRectDimensions(widthScale: number, heightScale: number) {
   return [widthScale * DefaultRectWidth, heightScale * DefaultRectHeight];
 }
 
-const minCanvasWidth = 500;
-const minCanvasHeight = 500;
-
-let pivot: HTMLElement = null;
-
 async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, heightScale: number, canvasId: string, colors: any) {
   let canvas = document.getElementById(canvasId);
   if (canvas == null || !(canvas instanceof HTMLCanvasElement)) {
     return;
   }
 
-  let context = canvas.getContext("2d");
-  let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
-
   let additionalAxis = createAdditionalAxisList(log.adjustments);
+  let result = await calculateCanvasSize(log, widthScale, heightScale, additionalAxis.length);
 
-  let [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxis.length);
-  let [maxCanvasWidth, maxCanvasHeight] = await getMaxCanvasDimensions();
-  if (canvasWidth > maxCanvasWidth || canvasHeight > maxCanvasHeight) {
-    return [maxCanvasWidth / canvasWidth, maxCanvasHeight / canvasHeight];
+  if ('widthAdjustment' in result) {
+    let adjustments = <TooBigCanvas>result;
+    return [adjustments.widthAdjustment, adjustments.heightAdjustment];
   }
 
-  if (canvasWidth < minCanvasWidth) {
-    widthScale = minCanvasWidth / canvasWidth;
-  }
+  let sizes = <CanvasDimensions>result;
 
-  if (canvasHeight < minCanvasHeight) {
-    heightScale = minCanvasHeight / canvasHeight;
-  }
+  canvas.width = sizes.canvasWidth;
+  canvas.height = sizes.canvasHeight;
 
-  [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
-  [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxis.length);
+  let context = canvas.getContext('2d');
 
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
+  let drawResult = drawColorsLogInternal(context, log, sizes, additionalAxis);
+  drawRectangles(context, log, drawResult.tracesExtendedY, drawResult.tracesY, widthScale, sizes.rectWidth, sizes.rectHeight);
+  drawAxis(context, log, sizes.rectHeight, sizes.canvasWidth, sizes.canvasHeight, colors, drawResult.additionalAxisWithWidth);
+  addColorsLogCanvasMouseMoveHandler(canvas, log, drawResult.tracesEventsCoordinates);
+
+  return null;
+}
+
+interface ColorsLogDrawResult {
+  tracesY: number[],
+  tracesExtendedY: [number, number][],
+  tracesEventsCoordinates: CanvasEventCoordinate[][],
+  additionalAxisWithWidth: [number, number][]
+}
+
+function drawColorsLogInternal(context: CanvasRenderingContext2D, log: GrpcColorsEventLog, sizes: CanvasDimensions, additionalAxis: number[]): ColorsLogDrawResult {
+  context.clearRect(0, 0, sizes.canvasWidth, sizes.canvasHeight);
 
   let currentY = AxisTextHeight;
   let maxWidth = 0;
-  let additionalAxisWithWidth = [];
+  let additionalAxisWithWidth: [number, number][] = [];
   let tracesY = [];
-  let tracesExtendedY = [];
+  let tracesExtendedY: [number, number][] = [];
   let traceGroupLastY = currentY;
   let tracesCountBeforeAxis = 0;
-  let tracesEventsCoordinates = [];
+  let tracesEventsCoordinates: CanvasEventCoordinate[][] = [];
 
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
 
-    let eventsCoordinates = [];
+    let eventsCoordinates: CanvasEventCoordinate[] = [];
     for (let rect of trace.eventColors) {
       context.fillStyle = getOrCreateColor(log.mapping[rect.colorIndex].name);
 
-      let currentX = OverallXDelta + rect.startX * widthScale;
-      let currentWidth = rectWidth * rect.length;
+      let currentX = OverallXDelta + rect.startX * sizes.widthScale;
+      let currentWidth = sizes.rectWidth * rect.length;
 
-      context.fillRect(currentX, currentY, currentWidth, rectHeight);
+      context.fillRect(currentX, currentY, currentWidth, sizes.rectHeight);
       eventsCoordinates.push({
         x: currentX,
         y: currentY,
         width: currentWidth,
-        height: rectHeight,
+        height: sizes.rectHeight,
         colorIndex: rect.colorIndex
       });
 
       maxWidth = Math.max(maxWidth, currentX + currentWidth);
     }
-    
+
     tracesEventsCoordinates.push(eventsCoordinates);
 
     tracesY.push(currentY);
@@ -108,84 +111,69 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
     }
 
     tracesCountBeforeAxis += 1;
-    currentY += rectHeight;
+    currentY += sizes.rectHeight;
   }
 
   for (let j = tracesExtendedY.length; j < log.traces.length; ++j) {
-    tracesExtendedY.push([traceGroupLastY, canvasHeight - AxisDelta - AxisWidth - AxisTextHeight]);
+    tracesExtendedY.push([traceGroupLastY, sizes.canvasHeight - AxisDelta - AxisWidth - AxisTextHeight]);
   }
 
-  drawRectangles(context, log, tracesExtendedY, tracesY, widthScale, rectWidth, rectHeight);
-  drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth);
-  
-  canvas.addEventListener("mousemove", mouseEvent => {
-    const rect = canvas.getBoundingClientRect()
-    const x = mouseEvent.clientX - rect.left
-    const y = mouseEvent.clientY - rect.top
+  return {
+    tracesY: tracesY,
+    tracesExtendedY: tracesExtendedY,
+    tracesEventsCoordinates: tracesEventsCoordinates,
+    additionalAxisWithWidth: additionalAxisWithWidth
+  }
+}
 
-    for (let trace of tracesEventsCoordinates) {
-      if (trace.length == 0) {
-        continue;
-      }
-      
-      if (y >= trace[0].y && y <= trace[0].y + trace[0].height) {
-        for (let event of trace) {
-          if (x >= event.x && x <= event.x + event.width) {
-            if (pivot != null) {
-              pivot.parentNode.removeChild(pivot);
-            }
+interface TooBigCanvas {
+  widthAdjustment: number,
+  heightAdjustment: number
+}
 
-            pivot = document.createElement('div');
-            let style = <any>pivot.style;
+interface CanvasDimensions {
+  widthScale: number,
+  heightScale: number,
+  rectWidth: number,
+  rectHeight: number,
+  canvasWidth: number,
+  canvasHeight: number
+}
 
-            style.position = 'absolute';
+async function calculateCanvasSize(log: GrpcColorsEventLog, 
+                                   widthScale: number, 
+                                   heightScale: number, 
+                                   additionalAxisCount: number): Promise<CanvasDimensions | TooBigCanvas> {
+  let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
-            let borderDeltaPx = 1;
-            let transform = "translate(" + (event.x - borderDeltaPx) + "px," + (event.y - AxisDelta - AxisWidth - canvas.height) + "px)";
-            style.webkitTransform = transform;
-            style.msTransform = transform;
-            style.transform = transform;
+  let [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxisCount);
+  let [maxCanvasWidth, maxCanvasHeight] = await getMaxCanvasDimensions();
+  if (canvasWidth > maxCanvasWidth || canvasHeight > maxCanvasHeight) {
+    return {
+      widthAdjustment: maxCanvasWidth / canvasWidth,
+      heightAdjustment: maxCanvasHeight / canvasHeight
+    };
+  }
 
-            let origin = "top left";
-            style.webkitTransformOrigin = origin;
-            style.msTransformOrigin = origin;
-            style.transformOrigin = origin;
+  if (canvasWidth < MinCanvasWidth) {
+    widthScale = MinCanvasWidth / canvasWidth;
+  }
 
-            style['z-index'] = Number.MAX_VALUE;
+  if (canvasHeight < MinCanvasHeight) {
+    heightScale = MinCanvasHeight / canvasHeight;
+  }
 
-            style.width = `${event.width + borderDeltaPx}px`;
-            style.height = `${event.height + borderDeltaPx}px`;
-            style.background = 'transparent';
+  [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
+  [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxisCount);
 
-            style.margin = '0px';
-            style.padding = '0px';
-            style.border = `${borderDeltaPx}px`;
-            style.borderStyle = 'solid';
-            style.borderColor = 'white';
-            style.outline = '0px';
-            style.outline = '0px';
-
-            canvas.parentNode.appendChild(pivot);
-            
-            tippy(pivot, {
-              appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
-              content: `
-                <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
-                    ${log.mapping[event.colorIndex].name}
-                </div>
-               `,
-              allowHTML: true,
-              zIndex: Number.MAX_VALUE,
-              duration: 0,
-              arrow: true,
-            });
-          }
-        }
-      }
-    }
-  });
-
-  return null;
+  return {
+    widthScale: widthScale,
+    heightScale: heightScale,
+    rectWidth: rectWidth,
+    rectHeight: rectHeight,
+    canvasWidth: canvasWidth,
+    canvasHeight: canvasHeight
+  }
 }
 
 function rgbToHex(color: GrpcColor) {
@@ -256,12 +244,12 @@ function createAdditionalAxisList(adjustments: GrpcColorsLogAdjustment[]): numbe
   return additionalAxis;
 }
 
-function drawAxis(context: CanvasRenderingContext2D, 
-                  log: GrpcColorsEventLog, 
-                  rectHeight: number, 
-                  canvasWidth: number, 
-                  canvasHeight: number, 
-                  colors: any, 
+function drawAxis(context: CanvasRenderingContext2D,
+                  log: GrpcColorsEventLog,
+                  rectHeight: number,
+                  canvasWidth: number,
+                  canvasHeight: number,
+                  colors: any,
                   additionalAxisWithWidth: number[][]) {
   context.fillStyle = rgbToHex(colors.axis);
 
