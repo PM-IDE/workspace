@@ -3,6 +3,7 @@ import {GrpcColorsEventLog} from "./protos/ficus/GrpcColorsEventLog";
 import {GrpcColor} from "./protos/ficus/GrpcColor";
 import {getMaxCanvasDimensions} from "./canvas_size";
 import {GrpcColorsLogAdjustment} from "./protos/ficus/GrpcColorsLogAdjustment";
+import tippy from "tippy.js";
 
 const AxisDelta = 5;
 const AxisWidth = 2;
@@ -24,6 +25,8 @@ function getRectDimensions(widthScale: number, heightScale: number) {
 
 const minCanvasWidth = 500;
 const minCanvasHeight = 500;
+
+let pivot: HTMLElement = null;
 
 async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, heightScale: number, canvasId: string, colors: any) {
   let canvas = document.getElementById(canvasId);
@@ -57,43 +60,55 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
   canvas.height = canvasHeight;
   context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-  let current_y = AxisTextHeight;
+  let currentY = AxisTextHeight;
   let maxWidth = 0;
   let additionalAxisWithWidth = [];
   let tracesY = [];
   let tracesExtendedY = [];
-  let traceGroupLastY = current_y;
+  let traceGroupLastY = currentY;
   let tracesCountBeforeAxis = 0;
+  let tracesEventsCoordinates = [];
 
   for (let i = 0; i < log.traces.length; ++i) {
     let trace = log.traces[i];
 
+    let eventsCoordinates = [];
     for (let rect of trace.eventColors) {
       context.fillStyle = getOrCreateColor(log.mapping[rect.colorIndex].name);
 
       let currentX = OverallXDelta + rect.startX * widthScale;
       let currentWidth = rectWidth * rect.length;
 
-      context.fillRect(currentX, current_y, currentWidth, rectHeight);
+      context.fillRect(currentX, currentY, currentWidth, rectHeight);
+      eventsCoordinates.push({
+        x: currentX,
+        y: currentY,
+        width: currentWidth,
+        height: rectHeight,
+        colorIndex: rect.colorIndex
+      });
+
       maxWidth = Math.max(maxWidth, currentX + currentWidth);
     }
+    
+    tracesEventsCoordinates.push(eventsCoordinates);
 
-    tracesY.push(current_y);
+    tracesY.push(currentY);
 
     if (additionalAxis.indexOf(i) !== -1) {
       additionalAxisWithWidth.push([i, maxWidth]);
       maxWidth = 0;
       for (let j = 0; j < tracesCountBeforeAxis; ++j) {
-        tracesExtendedY.push([traceGroupLastY, current_y]);
+        tracesExtendedY.push([traceGroupLastY, currentY]);
       }
 
       tracesCountBeforeAxis = 0;
-      current_y += AxisWidth;
-      traceGroupLastY = current_y;
+      currentY += AxisWidth;
+      traceGroupLastY = currentY;
     }
 
     tracesCountBeforeAxis += 1;
-    current_y += rectHeight;
+    currentY += rectHeight;
   }
 
   for (let j = tracesExtendedY.length; j < log.traces.length; ++j) {
@@ -102,6 +117,73 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
 
   drawRectangles(context, log, tracesExtendedY, tracesY, widthScale, rectWidth, rectHeight);
   drawAxis(context, log, rectHeight, canvasWidth, canvasHeight, colors, additionalAxisWithWidth);
+  
+  canvas.addEventListener("mousemove", mouseEvent => {
+    const rect = canvas.getBoundingClientRect()
+    const x = mouseEvent.clientX - rect.left
+    const y = mouseEvent.clientY - rect.top
+
+    for (let trace of tracesEventsCoordinates) {
+      if (trace.length == 0) {
+        continue;
+      }
+      
+      if (y >= trace[0].y && y <= trace[0].y + trace[0].height) {
+        for (let event of trace) {
+          if (x >= event.x && x <= event.x + event.width) {
+            if (pivot != null) {
+              pivot.parentNode.removeChild(pivot);
+            }
+
+            pivot = document.createElement('div');
+            let style = <any>pivot.style;
+
+            style.position = 'absolute';
+
+            let borderDeltaPx = 1;
+            let transform = "translate(" + (event.x - borderDeltaPx) + "px," + (event.y - AxisDelta - AxisWidth - canvas.height) + "px)";
+            style.webkitTransform = transform;
+            style.msTransform = transform;
+            style.transform = transform;
+
+            let origin = "top left";
+            style.webkitTransformOrigin = origin;
+            style.msTransformOrigin = origin;
+            style.transformOrigin = origin;
+
+            style['z-index'] = Number.MAX_VALUE;
+
+            style.width = `${event.width + borderDeltaPx}px`;
+            style.height = `${event.height + borderDeltaPx}px`;
+            style.background = 'transparent';
+
+            style.margin = '0px';
+            style.padding = '0px';
+            style.border = `${borderDeltaPx}px`;
+            style.borderStyle = 'solid';
+            style.borderColor = 'white';
+            style.outline = '0px';
+            style.outline = '0px';
+
+            canvas.parentNode.appendChild(pivot);
+            
+            tippy(pivot, {
+              appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
+              content: `
+                <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
+                    ${log.mapping[event.colorIndex].name}
+                </div>
+               `,
+              allowHTML: true,
+              zIndex: Number.MAX_VALUE,
+              duration: 0,
+              arrow: true,
+            });
+          }
+        }
+      }
+    }
+  });
 
   return null;
 }
