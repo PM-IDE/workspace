@@ -25,7 +25,8 @@ export function createHtmlLabel(node: GraphNode) {
   allTraceIds.sort((f, s) => f - s);
 
   return `
-          <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; height: ${nodeHeightPx}px">
+          <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; border-width: 5px; 
+                      border-style: solid; border-color: ${timeAnnotationColor}">
               <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
                   ${node.label} [${node.executionTime}] ${createTracesDescription(allTraceIds)}
               </div>
