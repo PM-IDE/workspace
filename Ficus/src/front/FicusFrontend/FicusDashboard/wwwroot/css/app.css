@@ -162,10 +162,14 @@ code {
   color: #c02d76;
 }
 
-.graph-node-histogram:hover {
+.graph-node-histogram {
   border-width: 3px;
-  border-color: white;
   border-style: solid;
+  border-color: transparent;
+}
+
+.graph-node-histogram:hover {
+  border-color: white;
 }
 
 svg-pie-chart svg {
