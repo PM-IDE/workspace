@@ -26,10 +26,12 @@ export function createHtmlLabel(node: GraphNode) {
 
   return `
           <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; height: ${nodeHeightPx}px">
-              <div style="width: 100%; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
+              <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
                   ${node.label} [${node.executionTime}] ${createTracesDescription(allTraceIds)}
               </div>
-              <div style="width: 100%; display: flex; flex-direction: row;">
+              <div style="width: 100%; display: flex; flex-direction: row;"
+                   class="graph-node-histogram"
+                   data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
                   ${createHistogram(sortedHistogramEntries).join('\n')}
               </div>
           </div>
@@ -43,13 +45,13 @@ addEventListener("mouseover", event => {
     let rawData = element.dataset.histogramTooltip;
 
     if (rawData != null) {
-      let data: [string, number] = JSON.parse(rawData);
+      let histogramEntries: [string, number][] = JSON.parse(rawData);
 
       tippy(element, {
         appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
         content: `
                 <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
-                    ${data[0]}
+                    ${createEventClassesDescription(histogramEntries).join('\n')}
                 </div>
                `,
         allowHTML: true,
@@ -62,14 +64,13 @@ addEventListener("mouseover", event => {
 });
 
 function createHistogram(sortedHistogramEntries: [string, number][]) {
-  let summedCount = Math.max(...sortedHistogramEntries.map(entry => entry[1]));
+  let summedCount = sortedHistogramEntries.map(entry => entry[1]).reduce((a, b) => a + b, 0);
 
   return sortedHistogramEntries.map((entry) => {
     let divWidth = (entry[1] / summedCount) * 100;
     return `
         <div class="graph-histogram-entry"
-             style="width: ${divWidth}%; height: 10px; background-color: ${getOrCreateColor(entry[0])}" 
-             data-histogram-tooltip='${JSON.stringify(entry)}'>
+             style="width: ${divWidth}%; height: 25px; background-color: ${getOrCreateColor(entry[0])}; pointer-events: none">
         </div>
       `;
   });
@@ -80,7 +81,8 @@ function createEventClassesDescription(sortedHistogramEntries: [string, number][
     return `
         <div style="display: flex; flex-direction: row; height: 20px; align-items: center">
             <div style="width: 15px; height: 15px; background-color: ${getOrCreateColor(entry[0])}"></div>
-            <div>${entry[0]}</div>
+            <div style="margin-left: 5px;">${entry[0]}</div>
+            <div style="margin-left: 5px;">${entry[1]}</div>
         </div>
       `;
   });

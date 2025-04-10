@@ -162,8 +162,8 @@ code {
   color: #c02d76;
 }
 
-.graph-histogram-entry:hover {
-  border-width: 1px;
+.graph-node-histogram:hover {
+  border-width: 3px;
   border-color: white;
   border-style: solid;
 }
