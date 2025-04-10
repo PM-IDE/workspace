@@ -5,6 +5,7 @@ import {setCssLoaderFunctions} from "./css_loader";
 import {setDrawColorsLog} from "./colors_log/colors_log_renderer";
 import {setCanvasSizeFunctions} from "./canvas_size";
 import {setFullscreenFunctions} from "./full_screen";
+import {addPieChartCustomElements} from "./piechart";
 
 setFullscreenFunctions();
 setDrawPetriNet();
@@ -13,3 +14,5 @@ setUtilitiesFunctions();
 setCssLoaderFunctions();
 setDrawColorsLog();
 setCanvasSizeFunctions();
+
+addPieChartCustomElements();

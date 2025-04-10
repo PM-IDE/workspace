@@ -167,3 +167,7 @@ code {
   border-color: white;
   border-style: solid;
 }
+
+svg-pie-chart svg {
+  width: 60px;
+}

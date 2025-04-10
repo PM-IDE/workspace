@@ -34,10 +34,14 @@ export function createHtmlLabel(node: GraphNode) {
                 <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
                     [${node.executionTime}] ${createTracesDescription(allTraceIds)}
                 </div>
-                <div style="width: 100%; display: flex; flex-direction: row;"
-                     class="graph-node-histogram"
-                     data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
-                    ${createHistogram(sortedHistogramEntries).join('\n')}
+                <div style="display: flex; flex-direction: row;">
+                   <div style='width: 65px; height: 65px; margin-left: 10px; margin-top: 10px;'
+                        class="graph-node-histogram"
+                        data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
+                      <svg-pie-chart>
+                        ${createHistogram(sortedHistogramEntries).join('\n')}
+                      </svg-pie-chart>
+                   </div>
                 </div>
             </div>
           </div>
@@ -65,7 +69,7 @@ addEventListener("mouseover", event => {
         duration: 0,
         arrow: true,
       });
-    } 
+    }
   }
 });
 
@@ -82,7 +86,7 @@ function createNodeDisplayName(node: GraphNode, sortedHistogramEntries: [string,
   if (nodeNameParts.length == 0) {
     nodeNameParts.push(`<div>${node.label}</div>`)
   }
-  
+
   return nodeNameParts.join("\n");
 }
 
@@ -92,9 +96,7 @@ function createHistogram(sortedHistogramEntries: [string, number][]) {
   return sortedHistogramEntries.map((entry) => {
     let divWidth = (entry[1] / summedCount) * 100;
     return `
-        <div class="graph-histogram-entry"
-             style="width: ${divWidth}%; height: 25px; background-color: ${getOrCreateColor(entry[0])}; pointer-events: none">
-        </div>
+        <segment percent="${divWidth}" stroke="${getOrCreateColor(entry[0])}" />
       `;
   });
 }
@@ -130,7 +132,7 @@ function createTracesDescription(tracesIds: number[]) {
 
     index += 1;
   }
-  
+
   if (result.length < 2) {
     return "No traces";
   }
