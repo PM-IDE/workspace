@@ -59,7 +59,8 @@ function createNodeStyle(): cytoscape.Stylesheet {
   return {
     selector: 'node',
     style: {
-      'background-color': graphColor.nodeBackground,
+      "background-color": 'transparent',
+      "background-opacity": 0,
       'text-valign': 'center',
       'text-halign': 'right',
       'shape': 'round-rectangle',

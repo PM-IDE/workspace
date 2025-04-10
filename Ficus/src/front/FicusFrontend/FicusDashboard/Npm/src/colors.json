@@ -10,7 +10,7 @@
     "graph": {
       "nodeBackground": "#353535",
       "rootSequenceColor": "#707070",
-      "labelColor": "#b8b8b8",
+      "labelColor": "#FFFFFF",
       "redMin": 42,
       "redMax": 88,
       "greenMin": 46,
