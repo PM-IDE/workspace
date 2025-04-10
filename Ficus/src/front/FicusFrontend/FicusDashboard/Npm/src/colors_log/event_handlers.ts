@@ -1,4 +1,4 @@
-import tippy from "tippy.js";
+import tippy, {followCursor} from "tippy.js";
 import {GrpcColorsEventLog} from "../protos/ficus/GrpcColorsEventLog";
 import {AxisDelta, AxisWidth} from "./constants";
 
@@ -66,7 +66,7 @@ function createPivotElement(event: CanvasEventCoordinate, canvas: HTMLCanvasElem
   style.position = 'absolute';
 
   let borderDeltaPx = 1;
-  let transform = "translate(" + (event.x - borderDeltaPx) + "px," + (event.y - AxisDelta - AxisWidth - canvas.height) + "px)";
+  let transform = "translate(" + event.x + "px," + (event.y - AxisDelta - AxisWidth - canvas.height) + "px)";
   style.webkitTransform = transform;
   style.msTransform = transform;
   style.transform = transform;
@@ -78,8 +78,8 @@ function createPivotElement(event: CanvasEventCoordinate, canvas: HTMLCanvasElem
 
   style['z-index'] = Number.MAX_VALUE;
 
-  style.width = `${event.width + borderDeltaPx}px`;
-  style.height = `${event.height + borderDeltaPx}px`;
+  style.width = `${Math.max(event.width + borderDeltaPx, 3)}px`;
+  style.height = `${Math.max(event.height + borderDeltaPx, 3)}px`;
   style.background = 'transparent';
 
   style.margin = '0px';
