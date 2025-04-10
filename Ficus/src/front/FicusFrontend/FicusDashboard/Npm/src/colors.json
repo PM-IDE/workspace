@@ -19,17 +19,17 @@
       "blueMax": 170
     },
     "performanceColors": {
-      "color0": "#0cf03f",
-      "color1": "#0cf00c",
-      "color2": "#43f00c",
-      "color3": "#8ef00c",
-      "color4": "#bef00c",
-      "color5": "#e3f00c",
-      "color6": "#f0dd0c",
-      "color7": "#f0b40c",
-      "color8": "#f09d0c",
-      "color9": "#f0580c",
-      "color10": "#f00c0c"
+      "color0": "#209e06",
+      "color1": "#3e9e06",
+      "color2": "#559e06",
+      "color3": "#669e06",
+      "color4": "#859e06",
+      "color5": "#999e06",
+      "color6": "#9e9106",
+      "color7": "#9e7b06",
+      "color8": "#9e6606",
+      "color9": "#9e4006",
+      "color10": "#9e1506"
     }
   }
 }
