@@ -175,3 +175,8 @@ code {
 svg-pie-chart svg {
   width: 60px;
 }
+
+.graph-node-trace-id-container {
+  padding: 5px;
+  background: transparent;
+}

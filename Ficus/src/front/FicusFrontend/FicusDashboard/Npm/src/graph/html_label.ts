@@ -30,9 +30,10 @@ export function createHtmlLabel(node: GraphNode) {
                 ${createNodeDisplayName(node, sortedHistogramEntries)}
             </div>
             <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; border-width: 5px; 
-                        border-style: solid; border-color: ${timeAnnotationColor}">
+                        border-style: solid; border-color: ${timeAnnotationColor}; 
+                        position: relative;">
                 <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
-                    [${node.executionTime}] ${createTracesDescription(allTraceIds)}
+                    ${node.executionTime}
                 </div>
                 <div style="display: flex; flex-direction: row;">
                    <div style='width: 65px; height: 65px; margin-left: 10px; margin-top: 10px;'
@@ -42,6 +43,9 @@ export function createHtmlLabel(node: GraphNode) {
                         ${createHistogram(sortedHistogramEntries).join('\n')}
                       </svg-pie-chart>
                    </div>
+                </div>
+                <div style="display: flex; flex-direction: row; position: absolute; bottom: 0;">
+                    ${createTracesDescription(allTraceIds).join("\n")}
                 </div>
             </div>
           </div>
@@ -113,8 +117,8 @@ function createEventClassesDescription(sortedHistogramEntries: [string, number][
   });
 }
 
-function createTracesDescription(tracesIds: number[]) {
-  let result = "";
+function createTracesDescription(tracesIds: number[]): string[] {
+  let result = [];
   let index = 0;
   let groupStartIndex = 0;
 
@@ -125,17 +129,13 @@ function createTracesDescription(tracesIds: number[]) {
     }
 
     if (groupStartIndex === index) {
-      result += `${tracesIds[groupStartIndex]}, `;
+      result.push(`<div class="graph-node-trace-id-container">${tracesIds[groupStartIndex]}</div>`)
     } else {
-      result += `${tracesIds[groupStartIndex]}..${tracesIds[index]}, `;
+      result.push(`<div class="graph-node-trace-id-container">${tracesIds[groupStartIndex]}..${tracesIds[index]}</div>`)
     }
 
     index += 1;
   }
 
-  if (result.length < 2) {
-    return "No traces";
-  }
-
-  return result.substring(0, result.length - 2);
+  return result;
 }
