@@ -132,6 +132,10 @@ function createEventClassesDescription(sortedHistogramEntries: [string, number][
 }
 
 function createTracesDescription(tracesIds: number[]): string[] {
+  return createTracesStringDescription(tracesIds).map(t => `<div class="graph-node-trace-id-container">${t}</div>`)
+}
+
+function createTracesStringDescription(tracesIds: number[]) {
   let result = [];
   let index = 0;
   let groupStartIndex = 0;
@@ -143,9 +147,9 @@ function createTracesDescription(tracesIds: number[]): string[] {
     }
 
     if (groupStartIndex === index) {
-      result.push(`<div class="graph-node-trace-id-container">${tracesIds[groupStartIndex]}</div>`)
+      result.push(`${tracesIds[groupStartIndex]}`)
     } else {
-      result.push(`<div class="graph-node-trace-id-container">${tracesIds[groupStartIndex]}..${tracesIds[index]}</div>`)
+      result.push(`${tracesIds[groupStartIndex]}..${tracesIds[index]}`)
     }
 
     index += 1;
@@ -160,24 +164,67 @@ function isPatternNode(node: GraphNode): boolean {
 
 function createPatternInformation(node: GraphNode): string {
   let patterns: string[] = [];
+  
+  let patternInfos = extractPatternsInfo(node);
+  for (let [_, info] of patternInfos) {
+    let baseSequence = info.baseSequence.map((c, index) => `
+        <div style="width: 20px; height: 20px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 0 : 1}px;"></div>
+    `);
 
-  for (let data of node.additionalData) {
-    if (data.patternInfo != null) {
-      let baseSequence = data.patternInfo.baseSequence.map((c, index) => `
-        <div style="width: 20px; height: 20px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 5 : 0}px;"></div>
-      `);
-      
-      patterns.push(`
-        <div style="display: flex; flex-direction: row;">
-            ${baseSequence.join("\n")}
+    let tracesIds = info.traces.map(t => t.traceId);
+    tracesIds.sort((f, s) => f - s);
+
+    patterns.push(`
+        <div style="display: flex; flex-direction: row; height: 20px; align-items: center; margin-top: 5px;">
+            <div style="display: flex; flex-direction: row;">
+                ${baseSequence.join("\n")}
+            </div>
+            <div style="margin-left: 10px;">
+                at ${createTracesStringDescription(tracesIds)}
+            </div>
         </div>
       `);
-    }
   }
 
   return `
-    <div style="margin-top: 5px;">
-      ${patterns.join("\n")}
+    <div style="margin-top: 5px; margin-left: 5px;">
+      <div>
+        Pattern type: ${node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind}
+      </div>
+      <div>
+        ${patterns.join("\n")}
+      </div>
     </div>
   `
+}
+
+interface TracePatternInfo {
+  traceId: number,
+  repeatCount: number
+}
+
+interface GroupedPatternInfo {
+  baseSequence: string[]
+  traces: TracePatternInfo[]
+}
+
+function extractPatternsInfo(node: GraphNode): [string, GroupedPatternInfo][] {
+  let result = new Map<string, GroupedPatternInfo>();
+
+  for (let data of node.additionalData) {
+    if (data.patternInfo != null) {
+      let baseSequenceKey = data.patternInfo.baseSequence.join();
+      if (!result.has(baseSequenceKey)) {
+        result.set(baseSequenceKey, { traces: [], baseSequence: data.patternInfo.baseSequence });
+      }
+      
+      let info = result.get(baseSequenceKey);
+      info.traces.push({
+        traceId: data.originalEventCoordinates.traceId,
+        repeatCount: data.patternInfo.graph.nodes.length / data.patternInfo.baseSequence.length
+      });
+    }
+  }
+
+  return [...result.entries()];
 }
