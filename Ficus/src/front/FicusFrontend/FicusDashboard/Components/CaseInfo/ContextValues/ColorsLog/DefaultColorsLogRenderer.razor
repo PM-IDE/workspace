@@ -1,7 +1,7 @@
 ﻿@using Ficus
 @using Radzen.Blazor
 
-<div style="margin: 10px;">
+<div style="margin: 10px; width: 100%; height: 100%;">
   <div style="display: flex; flex-direction: row; column-gap: 10px;">
     <WidthAndHeightScale @ref="myWidthAndHeightScale"
                          WidthScaleInitialValue="1"
@@ -12,9 +12,10 @@
     <RadzenButton Text="Rerender" Click="RedrawCanvas"></RadzenButton>
   </div>
 
-  <div style="margin-top: 10px">
+  <div style="margin-top: 10px; width: 100%; height: 100%;">
     <ColorsEventLogRenderer @ref="myRenderer"
                             Log="Log"
+                            IsFullScreen="IsFullScreen"
                             WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
                             HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)"/>
   </div>
@@ -24,7 +25,8 @@
   private ColorsEventLogRenderer? myRenderer;
   private WidthAndHeightScale? myWidthAndHeightScale;
 
-  
+
+  [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcColorsEventLog Log { get; init; }
 
   private void RedrawCanvas() => myRenderer?.RedrawCanvas();

@@ -31,7 +31,7 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
   }
 
   let additionalAxis = createAdditionalAxisList(log.adjustments);
-  let result = await calculateCanvasSize(log, widthScale, heightScale, additionalAxis.length);
+  let result = await calculateCanvasSize(canvas, log, widthScale, heightScale, additionalAxis.length);
 
   if ('widthAdjustment' in result) {
     let adjustments = <TooBigCanvas>result;
@@ -140,13 +140,15 @@ interface CanvasDimensions {
   canvasHeight: number
 }
 
-async function calculateCanvasSize(log: GrpcColorsEventLog, 
+async function calculateCanvasSize(canvas: HTMLCanvasElement,
+                                   log: GrpcColorsEventLog, 
                                    widthScale: number, 
                                    heightScale: number, 
                                    additionalAxisCount: number): Promise<CanvasDimensions | TooBigCanvas> {
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 
   let [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxisCount);
+
   let [maxCanvasWidth, maxCanvasHeight] = await getMaxCanvasDimensions();
   if (canvasWidth > maxCanvasWidth || canvasHeight > maxCanvasHeight) {
     return {
@@ -155,12 +157,18 @@ async function calculateCanvasSize(log: GrpcColorsEventLog,
     };
   }
 
-  if (canvasWidth < MinCanvasWidth) {
-    widthScale = MinCanvasWidth / canvasWidth;
+  let parentRect = canvas.parentElement.getBoundingClientRect();
+  let [parentWidth, parentHeight] = [parentRect.width, parentRect.height];
+
+  let minCanvasWidth = Math.max(MinCanvasWidth, parentWidth);
+  let minCanvasHeight = Math.max(MinCanvasHeight, parentHeight);
+
+  if (canvasWidth < minCanvasWidth) {
+    widthScale = minCanvasWidth / canvasWidth;
   }
 
-  if (canvasHeight < MinCanvasHeight) {
-    heightScale = MinCanvasHeight / canvasHeight;
+  if (canvasHeight < minCanvasHeight) {
+    heightScale = minCanvasHeight / canvasHeight;
   }
 
   [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
@@ -186,7 +194,7 @@ function calculateCanvasWidthAndHeight(log: GrpcColorsEventLog, widthScale: numb
   let canvasWidth = 0;
   for (let trace of log.traces) {
     let last = trace.eventColors[trace.eventColors.length - 1];
-    let traceLength = OverallXDelta + last.startX * widthScale + widthScale * last.length;
+    let traceLength = OverallXDelta + last.startX * widthScale + rectWidth * last.length;
     canvasWidth = Math.max(canvasWidth, traceLength);
   }
 

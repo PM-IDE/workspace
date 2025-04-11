@@ -164,6 +164,7 @@
       GrpcContextValue.ContextValueOneofCase.EventLogInfo => @<EventLogInfoRenderer
                                                                EventLogInfo="contextValue.EventLogInfo"/>,
       GrpcContextValue.ContextValueOneofCase.ColorsLog => @<DefaultColorsLogRenderer @key="wrapper.Id"
+                                                                                     IsFullScreen="myIsFullScreen"
                                                                                      Log="contextValue.ColorsLog"/>,
       GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
                                                                             IsFullScreen="@myIsFullScreen"

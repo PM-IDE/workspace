@@ -10,7 +10,6 @@
   <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
 }
 
-
 @if (mySuggestedAdjustment is var (suggestedWidthScale, suggestedHeightScale))
 {
   <div>
@@ -26,15 +25,19 @@
 {
   private readonly Guid myCanvasId = Guid.NewGuid();
 
+  private bool myFullScreen;
   private bool myFinishedCanvasDrawings = false;
   private (double X, double Y)? mySuggestedAdjustment = null;
+
 
   private string CanvasContainerClass => "colors-log-canvas-container " + (myFinishedCanvasDrawings && mySuggestedAdjustment is null) switch
   {
     true => string.Empty,
     false => "invisible-canvas"
-  };
+  } + (myFullScreen ? string.Empty : "colors-log-canvas-not-full-screen");
 
+
+  [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcColorsEventLog Log { get; init; }
   [Parameter] public double? WidthScale { get; init; }
   [Parameter] public double? HeightScale { get; init; }
@@ -43,8 +46,9 @@
 
   protected override Task OnAfterRenderAsync(bool firstRender)
   {
-    if (!firstRender) return Task.CompletedTask;
+    if (!firstRender && myFullScreen == IsFullScreen) return Task.CompletedTask;
 
+    myFullScreen = IsFullScreen;
     RedrawCanvas();
 
     return Task.CompletedTask;
@@ -55,7 +59,7 @@
     myFinishedCanvasDrawings = false;
     StateHasChanged();
 
-    Task.Run(async () =>
+    Task.Delay(100).ContinueWith(async _ =>
     {
       var renderResult = await Js.InvokeAsync<List<double>?>(
         "drawColorsLog", Log, WidthScale ?? 1, HeightScale ?? 1, myCanvasId.ToString(), CanvasColors.Instance);
@@ -76,6 +80,6 @@
       {
         CanvasDimensionsTooLargeHandler?.Invoke(widthScale, heightScale);
       }
-    }).NoAwait();
+    });
   }
 }
