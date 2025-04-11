@@ -35,21 +35,35 @@ export function createHtmlLabel(node: GraphNode) {
                 <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
                     ${node.executionTime}
                 </div>
-                <div style="display: flex; flex-direction: row;">
-                   <div style='width: 65px; height: 65px; margin-left: 10px; margin-top: 10px;'
-                        class="graph-node-histogram"
-                        data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
-                      <svg-pie-chart style="pointer-events: none">
-                        ${createHistogram(sortedHistogramEntries).join('\n')}
-                      </svg-pie-chart>
-                   </div>
-                </div>
+                ${createNodeBody(node, sortedHistogramEntries)}
                 <div style="display: flex; flex-direction: row; position: absolute; bottom: 0;">
                     ${createTracesDescription(allTraceIds).join("\n")}
                 </div>
             </div>
           </div>
          `;
+}
+
+function createNodeBody(node: GraphNode, sortedHistogramEntries: [string, number][]): string {
+  if (isPatternNode(node)) {
+    return createPatternInformation(node);
+  }
+
+  return createDefaultNodeBody(sortedHistogramEntries);
+}
+
+function createDefaultNodeBody(sortedHistogramEntries: [string, number][]): string {
+  return `
+    <div style="display: flex; flex-direction: row;">
+       <div style='width: 65px; height: 65px; margin-left: 10px; margin-top: 10px;'
+            class="graph-node-histogram"
+            data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
+          <svg-pie-chart style="pointer-events: none">
+            ${createHistogram(sortedHistogramEntries).join('\n')}
+          </svg-pie-chart>
+       </div>
+    </div>
+  `
 }
 
 addEventListener("mouseover", event => {
@@ -138,4 +152,32 @@ function createTracesDescription(tracesIds: number[]): string[] {
   }
 
   return result;
+}
+
+function isPatternNode(node: GraphNode): boolean {
+  return node.additionalData.find(d => d.patternInfo != null) != null;
+}
+
+function createPatternInformation(node: GraphNode): string {
+  let patterns: string[] = [];
+
+  for (let data of node.additionalData) {
+    if (data.patternInfo != null) {
+      let baseSequence = data.patternInfo.baseSequence.map((c, index) => `
+        <div style="width: 20px; height: 20px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 5 : 0}px;"></div>
+      `);
+      
+      patterns.push(`
+        <div style="display: flex; flex-direction: row;">
+            ${baseSequence.join("\n")}
+        </div>
+      `);
+    }
+  }
+
+  return `
+    <div style="margin-top: 5px;">
+      ${patterns.join("\n")}
+    </div>
+  `
 }

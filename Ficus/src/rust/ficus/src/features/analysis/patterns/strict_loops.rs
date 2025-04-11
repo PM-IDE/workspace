@@ -4,13 +4,13 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo;
-use crate::features::analysis::patterns::repeat_sets::ActivityNode;
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
+use crate::features::analysis::patterns::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
 use crate::features::analysis::patterns::tandem_arrays::{find_maximal_tandem_arrays_with_length, TandemArrayInfo};
 use itertools::Itertools;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
-use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
   let instances = find_max_loops(log, hashed_log, max_array_length);
@@ -28,7 +28,7 @@ fn find_max_loops(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_l
           let trace = log.traces().get(trace_index).unwrap();
           let hashed_trace = hashed_log.get(trace_index).unwrap();
 
-          create_strict_loop_activity_instance(&array, &trace.borrow(), hashed_trace)
+          create_strict_loop_activity_instance(&array, trace_index, &trace.borrow(), hashed_trace)
         })
         .into_group_map_by(|activity| activity.start_pos)
         .into_iter()
@@ -69,6 +69,7 @@ fn remove_overlapping_loops(mut instances: Vec<Vec<ActivityInTraceInfo>>) -> Vec
 
 fn create_strict_loop_activity_instance(
   array: &TandemArrayInfo,
+  trace_index: usize,
   trace: &XesTraceImpl,
   hashed_trace: &Vec<u64>
 ) -> ActivityInTraceInfo {
@@ -88,7 +89,7 @@ fn create_strict_loop_activity_instance(
     start_pos: array.start_index,
     length: array.length * repeat_count,
     node: Rc::new(RefCell::new(ActivityNode::new(
-      None,
+      Some(SubArrayWithTraceIndex::new(array.clone(), trace_index)),
       HashSet::from_iter(hashed_trace[array.start_index..array.start_index + array.length].iter().map(|x| *x)),
       vec![],
       0,
