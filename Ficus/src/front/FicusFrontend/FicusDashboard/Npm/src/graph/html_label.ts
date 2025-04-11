@@ -39,7 +39,7 @@ export function createHtmlLabel(node: GraphNode) {
                    <div style='width: 65px; height: 65px; margin-left: 10px; margin-top: 10px;'
                         class="graph-node-histogram"
                         data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
-                      <svg-pie-chart>
+                      <svg-pie-chart style="pointer-events: none">
                         ${createHistogram(sortedHistogramEntries).join('\n')}
                       </svg-pie-chart>
                    </div>
