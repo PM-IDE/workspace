@@ -29,27 +29,22 @@ export function createHtmlLabel(node: GraphNode) {
             <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
                 ${createNodeDisplayName(node, sortedHistogramEntries)}
             </div>
-            <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; border-width: 5px; 
-                        border-style: solid; border-color: ${timeAnnotationColor}; 
-                        position: relative;">
+            <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; border-width: 5px; 
+                        border-style: solid; border-color: ${timeAnnotationColor};">
                 <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
                     ${node.executionTime}
                 </div>
-                ${createNodeBody(node, sortedHistogramEntries)}
-                <div style="display: flex; flex-direction: row; position: absolute; bottom: 0;">
+
+                ${createDefaultNodeBody(sortedHistogramEntries)}
+
+                ${isPatternNode(node) ? createPatternInformation(node) : ""}
+
+                <div style="display: flex; flex-direction: row;">
                     ${createTracesDescription(allTraceIds).join("\n")}
                 </div>
             </div>
           </div>
          `;
-}
-
-function createNodeBody(node: GraphNode, sortedHistogramEntries: [string, number][]): string {
-  if (isPatternNode(node)) {
-    return createPatternInformation(node);
-  }
-
-  return createDefaultNodeBody(sortedHistogramEntries);
 }
 
 function createDefaultNodeBody(sortedHistogramEntries: [string, number][]): string {
@@ -164,7 +159,7 @@ function isPatternNode(node: GraphNode): boolean {
 
 function createPatternInformation(node: GraphNode): string {
   let patterns: string[] = [];
-  
+
   let patternInfos = extractPatternsInfo(node);
   for (let [_, info] of patternInfos) {
     let baseSequence = info.baseSequence.map((c, index) => `
@@ -215,9 +210,9 @@ function extractPatternsInfo(node: GraphNode): [string, GroupedPatternInfo][] {
     if (data.patternInfo != null) {
       let baseSequenceKey = data.patternInfo.baseSequence.join();
       if (!result.has(baseSequenceKey)) {
-        result.set(baseSequenceKey, { traces: [], baseSequence: data.patternInfo.baseSequence });
+        result.set(baseSequenceKey, {traces: [], baseSequence: data.patternInfo.baseSequence});
       }
-      
+
       let info = result.get(baseSequenceKey);
       info.traces.push({
         traceId: data.originalEventCoordinates.traceId,

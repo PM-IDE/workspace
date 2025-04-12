@@ -39,7 +39,7 @@ interface MergedSoftwareData {
   timelineDiagramFragments: GrpcTimelineDiagramFragment[]
 }
 
-export function getSoftwareDataOrNull(node: GraphNode): MergedSoftwareData {
+export function getSoftwareDataOrNull(node: GraphNode | GrpcGraphNode): MergedSoftwareData {
   let mergedSoftwareData: MergedSoftwareData = {
     histogram: new Map(),
     timelineDiagramFragments: []
@@ -59,9 +59,33 @@ export function getSoftwareDataOrNull(node: GraphNode): MergedSoftwareData {
 
       mergedSoftwareData.timelineDiagramFragments.push(data.softwareData.timelineDiagramFragment);
     }
+    
+    if (data.patternInfo?.graph != null) {
+      for (let node of data.patternInfo.graph.nodes) {
+        let mergedData = getSoftwareDataOrNull(node);
+
+        if (mergedData != null) {
+          mergeSoftwareData(mergedSoftwareData, mergedData);
+        }
+      }
+    }
   }
 
   return mergedSoftwareData;
+}
+
+function mergeSoftwareData(to: MergedSoftwareData, from: MergedSoftwareData) {
+  for (let [name, count] of from.histogram) {
+    if (to.histogram.has(name)) {
+      to.histogram.set(name, to.histogram.get(name) + count);
+    } else {
+      to.histogram.set(name, count);
+    }
+  }
+
+  for (let fragment of from.timelineDiagramFragments) {
+    to.timelineDiagramFragments.push(fragment);
+  }
 }
 
 export function calculateOverallExecutionTime(node: GrpcGraphNode) {
