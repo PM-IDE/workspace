@@ -237,6 +237,87 @@ message GrpcSoftwareData {
   repeated GrpcHistogramEntry histogram = 1;
   GrpcTimelineDiagramFragment timeline_diagram_fragment = 2;
   GrpcAllocationsInfo allocations_info = 3;
+
+  repeated GrpcExecutionSuspensionInfo execution_suspension_info = 4;
+  repeated GrpcThreadEventInfo thread_events = 5;
+  repeated GrpcMethodInliningEvent methods_inlining_events = 6;
+  repeated GrpcArrayPoolEvent array_pool_events = 7;
+  repeated GrpcExceptionEvent exception_events = 8;
+  repeated GrpcHTTPEvent http_events = 9;
+  repeated GrpcContentionEvent contention_events = 10;
+  repeated GrpcSocketEvent socket_event = 11;
+}
+
+message GrpcExecutionSuspensionInfo {
+  string reason = 1;
+  uint64 start_time = 2;
+  uint64 end_time = 3;
+}
+
+message GrpcMethodInliningEvent {
+  string method_name = 1;
+  
+  oneof event {
+    google.protobuf.Empty succeeded = 2;
+    GrpcMethodInliningFailedEvent failed = 3;
+  }
+}
+
+message GrpcMethodInliningFailedEvent {
+  string reason = 1;
+}
+
+enum GrpcThreadEventKind {
+  Created = 0;
+  Terminated = 1;
+}
+
+message GrpcThreadEventInfo {
+  uint64 thread_id = 1;
+  GrpcThreadEventKind event_kind = 2;
+}
+
+enum GrpcAssemblyEventKind {
+  Loaded = 0;
+  Unloaded = 1;
+}
+
+message GrpcAssemblyEventInfo {
+  string assembly_name = 1;
+  GrpcAssemblyEventKind event_kind = 2;
+}
+
+enum GrpcArrayPoolEventKind {
+  Allocated = 0;
+  Rented = 1;
+  Returned = 2;
+  Trimmed = 3;
+}
+
+message GrpcArrayPoolEvent {
+  uint64 buffer_id = 1;
+  GrpcArrayPoolEventKind event_kind = 2;
+}
+
+message GrpcExceptionEvent {
+  string exception_type = 1;
+}
+
+message GrpcHTTPEvent {
+  string host = 1;
+  string port = 2;
+  string scheme = 3;
+  string path = 4;
+  string query = 5;
+}
+
+message GrpcContentionEvent {
+  uint64 start_time = 1;
+  uint64 end_time = 2;
+}
+
+message GrpcSocketEvent {
+  string address = 1;
 }
 
 message GrpcHistogramEntry {
