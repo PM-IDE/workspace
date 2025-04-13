@@ -8,8 +8,11 @@ use crate::features::clustering::activities::activities_params::ActivityRepresen
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, NodeAdditionalDataContainer, RootSequenceKind};
+use crate::features::discovery::root_sequence::models::{
+  ActivityStartEndTimeData, CorrespondingTraceData, NodeAdditionalDataContainer, RootSequenceKind,
+};
 use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
@@ -34,7 +37,6 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";
@@ -137,6 +139,7 @@ pub const MERGE_SEQUENCES_OF_EVENTS: &'static str = "merge_sequences_of_events";
 pub const UNDERLYING_PATTERNS_INFOS: &'static str = "underlying_patterns_infos";
 pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &'static str = "discover_events_groups_in_each_trace";
 pub const UNDERLYING_PATTERNS_GRAPHS_INFO: &'static str = "underlying_patterns_graphs_infos";
+pub const SOFTWARE_DATA_EXTRACTION_CONFIG: &'static str = "software_data_extraction_config";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -237,6 +240,7 @@ lazy_static!(
      pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
      pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
      pub static ref DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE);
+     pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<String> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
 );
 
 lazy_static!(
@@ -343,6 +347,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     MERGE_SEQUENCES_OF_EVENTS => Some(MERGE_SEQUENCES_OF_EVENTS_KEY.deref() as &dyn ContextKey),
     UNDERLYING_PATTERNS_INFOS => Some(UNDERLYING_PATTERNS_INFOS_KEY.deref() as &dyn ContextKey),
     DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE => Some(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY.deref() as &dyn ContextKey),
+    SOFTWARE_DATA_EXTRACTION_CONFIG => Some(SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

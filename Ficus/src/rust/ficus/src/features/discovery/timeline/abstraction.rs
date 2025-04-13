@@ -15,6 +15,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
+use crate::features::discovery::timeline::software_data::extraction::SoftwareDataExtractionInfo;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 
 pub fn abstract_event_groups(
@@ -22,6 +23,7 @@ pub fn abstract_event_groups(
   labels: &Vec<usize>,
   thread_attribute: String,
   time_attribute: Option<String>,
+  config: &SoftwareDataExtractionInfo,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let mut current_label_index = 0;
   let mut abstracted_log = XesEventLogImpl::empty();
@@ -41,6 +43,7 @@ pub fn abstract_event_groups(
         thread_attribute.as_str(),
         time_attribute.as_ref(),
         EventCoordinates::new(trace_id as u64, event_index as u64),
+        config
       )?;
 
       abstracted_trace.push(abstracted_event);
@@ -59,6 +62,7 @@ fn create_abstracted_event(
   thread_attribute: &str,
   time_attribute: Option<&String>,
   event_coordinates: EventCoordinates,
+  config: &SoftwareDataExtractionInfo,
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
   let mut event_classes = HashMap::new();
   let mut threads = HashMap::new();

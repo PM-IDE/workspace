@@ -11,6 +11,7 @@ use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::features::discovery::root_sequence::models::{ActivityStartEndTimeData, RootSequenceKind};
 use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
+use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus::pipelines::keys::context_keys::*;
 use ficus::pipelines::patterns_parts::PatternsKindDto;
@@ -20,19 +21,15 @@ use ficus::utils::distance::distance::FicusDistance;
 use ficus::utils::graph::graph::DefaultGraph;
 use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
-    event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
+    event_log::xes::xes_event_log::XesEventLogImpl,
     features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
     pipelines::{
         aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
         pipelines::Pipeline,
     },
-    utils::{
-        colors::ColorsHolder,
-        user_data::{keys::Key, user_data::UserData},
-    },
+    utils::colors::ColorsHolder,
     vecs,
 };
-use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 
 #[test]
 #[rustfmt::skip]
@@ -129,6 +126,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
     assert_existence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
     assert_existence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
+    assert_existence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -233,7 +231,8 @@ fn get_all_keys_names() -> Vec<String> {
         "inner_graph",
         "start_end_activity_time",
         "start_end_activities_times",
-        "discover_events_groups_in_each_trace"
+        "discover_events_groups_in_each_trace",
+        "software_data_extraction_config"
     ]
 }
 
@@ -339,6 +338,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
     assert_keys_equivalence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
     assert_keys_equivalence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
+    assert_keys_equivalence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
