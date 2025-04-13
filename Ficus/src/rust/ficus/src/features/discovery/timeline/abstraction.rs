@@ -57,7 +57,7 @@ pub fn abstract_event_groups(
 pub struct SoftwareData {
   #[getset(get="pub")] event_classes: HashMap<String, usize>,
   #[getset(get="pub")] thread_diagram_fragment: Vec<TraceThread>,
-  #[getset(get="pub")] suspensions: Vec<ExecutionSuspension>,
+  #[getset(get="pub")] suspensions: Vec<ExecutionSuspensionEvent>,
   #[getset(get="pub")] method_events: Vec<MethodEvent>,
   #[getset(get="pub")] thread_events: Vec<ThreadEvent>,
   #[getset(get="pub")] http_events: Vec<HTTPEvent>,
@@ -68,13 +68,13 @@ pub struct SoftwareData {
 }
 
 #[derive(Clone, Debug, Getters)]
-pub struct ExecutionSuspension {
+pub struct ExecutionSuspensionEvent {
   #[getset(get="pub")] start_time: u64,
   #[getset(get="pub")] end_time: u64,
   #[getset(get="pub")] reason: String,
 }
 
-impl ExecutionSuspension {
+impl ExecutionSuspensionEvent {
   pub fn new(start_time: u64, end_time: u64, reason: String) -> Self {
     Self {
       start_time,
