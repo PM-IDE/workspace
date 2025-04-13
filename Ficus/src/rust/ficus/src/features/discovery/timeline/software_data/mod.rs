@@ -1,2 +1,2 @@
 pub mod models;
-mod extraction;
+pub mod extraction;
