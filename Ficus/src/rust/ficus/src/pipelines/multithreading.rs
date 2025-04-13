@@ -118,8 +118,8 @@ impl PipelineParts {
   
   fn get_software_data_extraction_config(config: &UserDataImpl) -> SoftwareDataExtractionInfo {
     match Self::get_user_data(config, &SOFTWARE_DATA_EXTRACTION_CONFIG_KEY) {
-      Ok(config) => serde_json::from_str::<SoftwareDataExtractionInfo>(config.as_str()).unwrap_or_else(|_| {
-        error!("Failed to parse software data extraction config");
+      Ok(config) => serde_json::from_str::<SoftwareDataExtractionInfo>(config.as_str()).unwrap_or_else(|err| {
+        error!("Failed to parse software data extraction config: {}", err.to_string());
         SoftwareDataExtractionInfo::empty()
       }),
       Err(_) => SoftwareDataExtractionInfo::empty(),
