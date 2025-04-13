@@ -10,7 +10,6 @@ use ficus::features::clustering::traces::traces_params::{FeatureCountKind, Trace
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::features::discovery::root_sequence::models::{ActivityStartEndTimeData, RootSequenceKind};
-use ficus::features::discovery::timeline::abstraction::SoftwareData;
 use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus::pipelines::keys::context_keys::*;
@@ -33,6 +32,7 @@ use ficus::{
     },
     vecs,
 };
+use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 
 #[test]
 #[rustfmt::skip]
