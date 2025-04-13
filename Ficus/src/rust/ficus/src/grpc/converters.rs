@@ -12,13 +12,13 @@ use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind};
-use crate::features::discovery::timeline::abstraction::SoftwareData;
+use crate::features::discovery::timeline::abstraction::{ArrayPoolEventKind, MethodEvent, SoftwareData, ThreadEvent};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcNodeTimeActivityStartEndData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{grpc_method_inlining_event, GrpcAnnotation, GrpcArrayPoolEvent, GrpcArrayPoolEventKind, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcNodeTimeActivityStartEndData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, CORRESPONDING_TRACE_DATA_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, INNER_GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY, TRACES_ACTIVITIES_DATASET_KEY, UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY};
@@ -57,6 +57,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::rc::Rc;
 use std::{any::Any, str::FromStr};
+use rdkafka::bindings::{rd_kafka_AdminOptions_set_opaque, rd_kafka_AlterUserScramCredentials_result_response_error};
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -680,6 +681,61 @@ fn convert_to_grpc_graph_node_software_data(software_data: &NodeAdditionalDataCo
           name: key.to_owned(),
           count: *value as u64,
         }
+      }).collect(),
+      contention_events: software_data.value().contention_events().iter().map(|c| GrpcContentionEvent {
+        start_time: c.start_time().clone(),
+        end_time: c.end_time().clone(),
+      }).collect(),
+      exception_events: software_data.value().exception_events().iter().map(|c| GrpcExceptionEvent {
+        exception_type: c.exception_type().to_owned()
+      }).collect(),
+      execution_suspension_info: software_data.value().suspensions().iter().map(|e| GrpcExecutionSuspensionInfo {
+        start_time: e.start_time().clone(),
+        end_time: e.end_time().clone(),
+        reason: e.reason().to_owned(),
+      }).collect(),
+      thread_events: software_data.value().thread_events().iter().map(|t| match t {
+        ThreadEvent::Created(id) => GrpcThreadEventInfo {
+          thread_id: id.clone(),
+          event_kind: GrpcThreadEventKind::Created as i32,
+        },
+        ThreadEvent::Terminated(id) => GrpcThreadEventInfo {
+          thread_id: id.clone(),
+          event_kind: GrpcThreadEventKind::Terminated as i32,
+        }
+      }).collect(),
+      methods_inlining_events: software_data.value().method_events().iter().map(|m| match m {
+        MethodEvent::Success(name) => GrpcMethodInliningEvent {
+          method_name: name.to_owned(),
+          event: Some(grpc_method_inlining_event::Event::Succeeded(())),
+        },
+        MethodEvent::Failed(name, reason) => GrpcMethodInliningEvent {
+          method_name: name.to_owned(),
+          event: Some(grpc_method_inlining_event::Event::Failed(GrpcMethodInliningFailedEvent {
+            reason: reason.clone()
+          })),
+        },
+        MethodEvent::Load(name) => todo!(),
+        MethodEvent::Unload(name) => todo!()
+      }).collect(),
+      array_pool_events: software_data.value().pool_events().iter().map(|a| GrpcArrayPoolEvent {
+        buffer_id: a.buffer_id().clone(),
+        event_kind: match a.event_kind() {
+          ArrayPoolEventKind::Created => GrpcArrayPoolEventKind::Allocated,
+          ArrayPoolEventKind::Rented => GrpcArrayPoolEventKind::Rented,
+          ArrayPoolEventKind::Returned => GrpcArrayPoolEventKind::Returned,
+          ArrayPoolEventKind::Trimmed => GrpcArrayPoolEventKind::Trimmed,
+        } as i32,
+      }).collect(),
+      http_events: software_data.value().http_events().iter().map(|h| GrpcHttpEvent {
+        host: h.host().to_owned(),
+        port: h.port().to_owned(),
+        scheme: h.scheme().to_owned(),
+        path: h.path().to_owned(),
+        query: h.query().to_owned(),
+      }).collect(),
+      socket_event: software_data.value().socket_events().iter().map(|s| GrpcSocketEvent {
+        address: s.address().to_owned()
       }).collect(),
     }))
   }

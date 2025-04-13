@@ -1,8 +1,3 @@
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::ops::Deref;
-use std::rc::Rc;
-use log::error;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
@@ -15,6 +10,12 @@ use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY};
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
+use getset::Getters;
+use log::error;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::ops::Deref;
+use std::rc::Rc;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,
@@ -39,7 +40,7 @@ pub fn abstract_event_groups(
         group_label,
         thread_attribute.as_str(),
         time_attribute.as_ref(),
-        EventCoordinates::new(trace_id as u64, event_index as u64)
+        EventCoordinates::new(trace_id as u64, event_index as u64),
       )?;
 
       abstracted_trace.push(abstracted_event);
@@ -52,10 +53,115 @@ pub fn abstract_event_groups(
   Ok(abstracted_log)
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Getters)]
 pub struct SoftwareData {
-  event_classes: HashMap<String, usize>,
-  thread_diagram_fragment: Vec<TraceThread>,
+  #[getset(get="pub")] event_classes: HashMap<String, usize>,
+  #[getset(get="pub")] thread_diagram_fragment: Vec<TraceThread>,
+  #[getset(get="pub")] suspensions: Vec<ExecutionSuspension>,
+  #[getset(get="pub")] method_events: Vec<MethodEvent>,
+  #[getset(get="pub")] thread_events: Vec<ThreadEvent>,
+  #[getset(get="pub")] http_events: Vec<HTTPEvent>,
+  #[getset(get="pub")] contention_events: Vec<ContentionEvent>,
+  #[getset(get="pub")] exception_events: Vec<ExceptionEvent>,
+  #[getset(get="pub")] pool_events: Vec<ArrayPoolEvent>,
+  #[getset(get="pub")] socket_events: Vec<SocketEvent>,
+}
+
+#[derive(Clone, Debug, Getters)]
+pub struct ExecutionSuspension {
+  #[getset(get="pub")] start_time: u64,
+  #[getset(get="pub")] end_time: u64,
+  #[getset(get="pub")] reason: String,
+}
+
+impl ExecutionSuspension {
+  pub fn new(start_time: u64, end_time: u64, reason: String) -> Self {
+    Self {
+      start_time,
+      end_time,
+      reason,
+    }
+  }
+}
+
+#[derive(Clone, Debug)]
+pub enum MethodEvent {
+  Success(String),
+  Failed(String, String),
+  Load(String),
+  Unload(String),
+}
+
+#[derive(Clone, Debug)]
+pub enum ThreadEvent {
+  Created(u64),
+  Terminated(u64),
+}
+
+#[derive(Clone, Debug)]
+pub enum AssemblyEvent {
+  Load(String),
+  Unload(String),
+}
+
+#[derive(Clone, Debug, Getters)]
+pub struct ArrayPoolEvent {
+  #[getset(get="pub")] buffer_id: u64,
+  #[getset(get="pub")] event_kind: ArrayPoolEventKind,
+}
+
+#[derive(Clone, Debug)]
+pub enum ArrayPoolEventKind {
+  Created,
+  Rented,
+  Returned,
+  Trimmed,
+}
+
+#[derive(Clone, Debug, Getters)]
+pub struct ExceptionEvent {
+  #[getset(get="pub")] exception_type: String,
+}
+
+#[derive(Clone, Debug, Getters)]
+pub struct HTTPEvent {
+  #[getset(get="pub")] host: String,
+  #[getset(get="pub")] port: String,
+  #[getset(get="pub")] scheme: String,
+  #[getset(get="pub")] path: String,
+  #[getset(get="pub")] query: String,
+}
+
+impl HTTPEvent {
+  pub fn new(host: String, port: String, scheme: String, path: String, query: String) -> Self {
+    Self {
+      host,
+      port,
+      scheme,
+      path,
+      query,
+    }
+  }
+}
+
+#[derive(Clone, Debug, Getters)]
+pub struct ContentionEvent {
+  #[getset(get="pub")] start_time: u64,
+  #[getset(get="pub")] end_time: u64,
+}
+
+impl ContentionEvent {
+  pub fn new(start_time: u64, end_time: u64) -> Self {
+    Self {
+      start_time,
+      end_time,
+    }
+  }
+}
+
+#[derive(Clone, Debug, Getters)]
+pub struct SocketEvent {
+  #[getset(get="pub")] address: String,
 }
 
 impl SoftwareData {
@@ -63,15 +169,15 @@ impl SoftwareData {
     Self {
       event_classes: HashMap::new(),
       thread_diagram_fragment: vec![],
+      suspensions: vec![],
+      exception_events: vec![],
+      http_events: vec![],
+      thread_events: vec![],
+      method_events: vec![],
+      contention_events: vec![],
+      pool_events: vec![],
+      socket_events: vec![],
     }
-  }
-
-  pub fn event_classes(&self) -> &HashMap<String, usize> {
-    &self.event_classes
-  }
-
-  pub fn thread_diagram_fragment(&self) -> &Vec<TraceThread> {
-    &self.thread_diagram_fragment
   }
 }
 
@@ -80,7 +186,7 @@ fn create_abstracted_event(
   label: &usize,
   thread_attribute: &str,
   time_attribute: Option<&String>,
-  event_coordinates: EventCoordinates
+  event_coordinates: EventCoordinates,
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
   let mut event_classes = HashMap::new();
   let mut threads = HashMap::new();
@@ -100,6 +206,14 @@ fn create_abstracted_event(
   let software_data = SoftwareData {
     event_classes,
     thread_diagram_fragment: threads.into_values().collect(),
+    suspensions: vec![],
+    exception_events: vec![],
+    http_events: vec![],
+    thread_events: vec![],
+    method_events: vec![],
+    contention_events: vec![],
+    pool_events: vec![],
+    socket_events: vec![],
   };
 
   let first_stamp = event_group.first().unwrap().borrow().timestamp().clone();
@@ -109,7 +223,7 @@ fn create_abstracted_event(
   let label_name = Rc::new(Box::new(label.to_string()));
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
-  
+
   let software_data = NodeAdditionalDataContainer::new(software_data, event_coordinates);
   event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), vec![software_data]);
 

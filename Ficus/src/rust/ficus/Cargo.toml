@@ -34,6 +34,7 @@ num-traits = "0.2"
 approx = "0.5.1"
 termgraph = "0.4.0"
 itertools = "0.14.0"
+getset = "0.1.5"
 
 [dependencies.uuid]
 version = "1.4.1"
