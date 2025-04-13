@@ -15,7 +15,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::features::discovery::timeline::software_data_models::SoftwareData;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,

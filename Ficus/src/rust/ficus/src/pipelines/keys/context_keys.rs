@@ -34,7 +34,7 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
-use crate::features::discovery::timeline::software_data_models::SoftwareData;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";

@@ -51,7 +51,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::rc::Rc;
 use std::{any::Any, str::FromStr};
-use crate::features::discovery::timeline::software_data_models::{ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodEvent, SocketEvent, SoftwareData, ThreadEvent};
+use crate::features::discovery::timeline::software_data::models::{ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodEvent, SocketEvent, SoftwareData, ThreadEvent};
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
