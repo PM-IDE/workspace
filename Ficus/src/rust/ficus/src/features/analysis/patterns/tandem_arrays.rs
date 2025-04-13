@@ -125,7 +125,7 @@ pub fn find_maximal_tandem_arrays_with_length(
   result
 }
 
-fn try_extract_tandem_array(trace: &Vec<u64>, start_index: usize, length: usize) -> Option<TandemArrayInfo> {
+pub(super) fn try_extract_tandem_array(trace: &Vec<u64>, start_index: usize, length: usize) -> Option<TandemArrayInfo> {
   let mut current_index = start_index + length;
   let mut repeat_count = 1;
 

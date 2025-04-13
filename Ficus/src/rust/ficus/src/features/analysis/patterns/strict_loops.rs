@@ -6,19 +6,13 @@ use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo;
 use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 use crate::features::analysis::patterns::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
-use crate::features::analysis::patterns::tandem_arrays::{find_maximal_tandem_arrays_with_length, TandemArrayInfo};
-use itertools::Itertools;
+use crate::features::analysis::patterns::tandem_arrays::{try_extract_tandem_array, TandemArrayInfo};
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
-  let instances = find_max_loops(log, hashed_log, max_array_length);
-  remove_overlapping_loops(instances)
-}
-
-fn find_max_loops(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
-  find_maximal_tandem_arrays_with_length(&hashed_log, max_array_length, true)
+  find_tandem_arrays_strict(&hashed_log, max_array_length)
     .into_iter()
     .enumerate()
     .map(|(trace_index, trace_arrays)|
@@ -30,48 +24,48 @@ fn find_max_loops(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_l
 
           create_strict_loop_activity_instance(&array, trace_index, &trace.borrow(), hashed_trace)
         })
-        .into_group_map_by(|activity| activity.start_pos)
-        .into_iter()
-        .map(|(_, activities_by_start_pos)| {
-          activities_by_start_pos.into_iter().max_by(|f, s| f.length.cmp(&s.length)).unwrap()
-        })
         .collect()
     )
     .collect()
 }
 
-fn remove_overlapping_loops(mut instances: Vec<Vec<ActivityInTraceInfo>>) -> Vec<Vec<ActivityInTraceInfo>> {
-  instances.iter_mut().for_each(|trace| trace.sort_by(|first, second| first.start_pos.cmp(&second.start_pos)));
 
-  let mut filtered_instances = vec![];
-  for trace_instances in instances {
-    let mut filtered_trace_instances = vec![];
-    let mut covered_range = None;
+fn find_tandem_arrays_strict(hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<TandemArrayInfo>> {
+  let mut result = vec![];
+  for trace in hashed_log {
+    let mut index = 0;
+    let mut trace_arrays = vec![];
+    loop {
+      if index >= trace.len() {
+        break;
+      }
 
-    for activity in trace_instances {
-      match covered_range {
-        Some(to_index) => if activity.start_pos >= to_index {
-          covered_range = Some(activity.start_pos + activity.length);
-          filtered_trace_instances.push(activity);
-        },
-        None => {
-          covered_range = Some(activity.start_pos + activity.length);
-          filtered_trace_instances.push(activity);
+      for length in (1..max_array_length).rev() {
+        if index + length >= trace.len() {
+          continue;
+        }
+
+        if let Some(array) = try_extract_tandem_array(trace, index, length) {
+          trace_arrays.push(array);
+          index += *array.get_repeat_count() * array.get_sub_array_info().length;
+          break;
         }
       }
+
+      index += 1;
     }
 
-    filtered_instances.push(filtered_trace_instances);
+    result.push(trace_arrays);
   }
-  
-  filtered_instances
+
+  result
 }
 
 fn create_strict_loop_activity_instance(
   array: &TandemArrayInfo,
   trace_index: usize,
   trace: &XesTraceImpl,
-  hashed_trace: &Vec<u64>
+  hashed_trace: &Vec<u64>,
 ) -> ActivityInTraceInfo {
   let repeat_count = *array.get_repeat_count();
   let array = array.get_sub_array_info();
