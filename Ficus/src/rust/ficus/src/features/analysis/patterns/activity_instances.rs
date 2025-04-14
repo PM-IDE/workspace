@@ -23,7 +23,6 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
-use std::arch::aarch64::veor3q_s8;
 
 #[derive(Debug, Clone, Getters, MutGetters, new)]
 pub struct ActivityInTraceInfo {

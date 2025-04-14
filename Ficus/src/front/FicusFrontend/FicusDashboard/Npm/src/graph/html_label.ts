@@ -29,7 +29,7 @@ export function createHtmlLabel(node: GraphNode) {
             <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
                 ${createNodeDisplayName(node, sortedHistogramEntries)}
             </div>
-            <div style="background: ${nodeColor}; width: ${nodeWidthPx}px; border-width: 5px; 
+            <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
                 <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
                     ${node.executionTime}
@@ -170,12 +170,12 @@ function createPatternInformation(node: GraphNode): string {
     tracesIds.sort((f, s) => f - s);
 
     patterns.push(`
-        <div style="display: flex; flex-direction: row; height: 20px; align-items: center; margin-top: 5px;">
+        <div style="display: flex; flex-direction: column; margin-top: 5px;">
+            <div>
+                At ${createTracesStringDescription(tracesIds)}:
+            </div>
             <div style="display: flex; flex-direction: row;">
                 ${baseSequence.join("\n")}
-            </div>
-            <div style="margin-left: 10px;">
-                at ${createTracesStringDescription(tracesIds)}
             </div>
         </div>
       `);
