@@ -72,9 +72,9 @@ pub(super) fn merge_activities(
       None,
       new_event_classes_set,
       vec![],
-      cluster_activities[0].borrow().level(),
+      *cluster_activities[0].borrow().level(),
       Rc::new(Box::new(new_activity_name)),
-      cluster_activities.first().unwrap().borrow().underlying_pattern_kind().clone()
+      cluster_activities.first().unwrap().borrow().pattern_kind().clone(),
     );
 
     new_cluster_activities.insert(*cluster, Rc::new(RefCell::new(new_node)));
@@ -83,19 +83,19 @@ pub(super) fn merge_activities(
   for trace_activities in traces_activities.iter_mut() {
     for i in 0..trace_activities.len() {
       let activity = trace_activities.get(i).unwrap();
-      if !activity_names_to_clusters.contains_key(activity.node.borrow().name()) {
+      if !activity_names_to_clusters.contains_key(activity.node().borrow().name()) {
         continue;
       }
 
-      let cluster_label = activity_names_to_clusters.get(activity.node.borrow().name()).unwrap();
+      let cluster_label = activity_names_to_clusters.get(activity.node().borrow().name()).unwrap();
       if let Some(new_activity_node) = new_cluster_activities.get(cluster_label) {
         let current_activity_in_trace = trace_activities.get(i).unwrap();
 
-        *trace_activities.get_mut(i).unwrap() = ActivityInTraceInfo {
-          node: new_activity_node.clone(),
-          start_pos: current_activity_in_trace.start_pos,
-          length: current_activity_in_trace.length,
-        };
+        *trace_activities.get_mut(i).unwrap() = ActivityInTraceInfo::new(
+          new_activity_node.clone(),
+          *current_activity_in_trace.start_pos(),
+          *current_activity_in_trace.length(),
+        );
       }
     }
   }
@@ -106,24 +106,24 @@ pub(super) fn merge_activities(
     }
 
     let mut index = 1;
-    let mut last_seen_activity = trace_activities.first().unwrap().node.borrow().name().to_owned();
+    let mut last_seen_activity = trace_activities.first().unwrap().node().borrow().name().to_owned();
 
     loop {
       if index >= trace_activities.len() {
         break;
       }
 
-      let activity_name = trace_activities.get(index).unwrap().node.borrow().name().to_owned();
+      let activity_name = trace_activities.get(index).unwrap().node().borrow().name().to_owned();
       if last_seen_activity == activity_name {
-        let start_index = trace_activities.get(index).unwrap().start_pos;
-        let length = trace_activities.get(index).unwrap().length;
-        let prev_start_pos = trace_activities.get(index - 1).unwrap().start_pos;
-        let prev_length = trace_activities.get(index - 1).unwrap().length;
+        let start_index = *trace_activities.get(index).unwrap().start_pos();
+        let length = *trace_activities.get(index).unwrap().length();
+        let prev_start_pos = *trace_activities.get(index - 1).unwrap().start_pos();
+        let prev_length = *trace_activities.get(index - 1).unwrap().length();
 
         if prev_start_pos + prev_length == start_index {
           trace_activities.remove(index);
           let prev_activity = trace_activities.get_mut(index - 1).unwrap();
-          prev_activity.length += length;
+          *prev_activity.length_mut() += length;
         } else {
           index += 1;
         }

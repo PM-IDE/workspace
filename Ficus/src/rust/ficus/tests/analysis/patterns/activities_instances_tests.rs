@@ -115,7 +115,7 @@ fn execute_activities_discovery_test(
   );
 
   let context = ActivitiesInstancesDiscoveryContext::new(context, strategy, |info, _| {
-    Rc::new(RefCell::new(XesEventImpl::new_with_min_date(info.node.borrow().name().to_string())))
+    Rc::new(RefCell::new(XesEventImpl::new_with_min_date(info.node().borrow().name().to_string())))
   });
 
   let new_log = discover_activities_and_create_new_log(&context);

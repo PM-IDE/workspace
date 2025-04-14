@@ -177,7 +177,7 @@ impl PipelineParts {
       };
 
       Rc::new(RefCell::new(XesEventImpl::new(
-        info.node.borrow().name().as_ref().as_ref().clone(),
+        info.node().borrow().name().as_ref().as_ref().clone(),
         stamp,
       )))
     });
@@ -341,12 +341,12 @@ impl PipelineParts {
   ) -> Result<(), PipelinePartExecutionError> {
     let mut index = 0usize;
     for activity in activities {
-      if activity.start_pos > index {
-        handler(SubTraceKind::Unattached(index, activity.start_pos - index));
+      if *activity.start_pos() > index {
+        handler(SubTraceKind::Unattached(index, activity.start_pos() - index));
       }
 
       handler(SubTraceKind::Attached(&activity));
-      index = activity.start_pos + activity.length;
+      index = *activity.start_pos() + *activity.length();
     }
 
     if index < trace_len {
@@ -388,7 +388,7 @@ impl PipelineParts {
         let mut executed_pipeline = false;
         if let Ok(pipeline) = after_activities_extraction_pipeline {
           let should_execute = if execute_only_after_last_extraction {
-            activities_instances.iter().all(|x| x.iter().all(|y| y.length == 1))
+            activities_instances.iter().all(|x| x.iter().all(|y| *y.length() == 1))
           } else {
             true
           };

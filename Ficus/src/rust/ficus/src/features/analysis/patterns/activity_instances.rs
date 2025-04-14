@@ -8,7 +8,9 @@ use crate::{
   pipelines::aliases::TracesActivities,
   utils::user_data::{keys::DefaultKey, user_data::UserData},
 };
+use derive_new::new;
 use fancy_regex::Regex;
+use getset::{Getters, MutGetters};
 use lazy_static::lazy_static;
 use once_cell::unsync::Lazy;
 use std::any::{Any, TypeId};
@@ -21,13 +23,12 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource::UnderlyingEvents;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters, MutGetters, new)]
 pub struct ActivityInTraceInfo {
-  pub node: Rc<RefCell<ActivityNode>>,
-  pub start_pos: usize,
-  pub length: usize,
+  #[getset(get = "pub")] node: Rc<RefCell<ActivityNode>>,
+  #[getset(get = "pub")] start_pos: usize,
+  #[getset(get = "pub", get_mut = "pub")] length: usize,
 }
 
 pub const UNATTACHED_SUB_TRACE_NAME: &str = "UndefinedActivity";
@@ -452,7 +453,7 @@ where
         })
       }
 
-      user_data.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), *activity.node.borrow().underlying_pattern_kind());
+      user_data.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), *activity.node.borrow().pattern_kind());
 
       unsafe {
         let base_pattern = if let Some(repeat_set) = activity.node.borrow().repeat_set() {
@@ -580,7 +581,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
   let mut activities_to_logs: HashMap<String, Rc<RefCell<TLog>>> = HashMap::new();
   for (trace_activities, trace) in activities.iter().zip(log.traces()) {
     let activity_handler = |activity_info: &ActivityInTraceInfo| {
-      if activity_level != activity_info.node.borrow().level() {
+      if activity_level != *activity_info.node.borrow().level() {
         return;
       }
 

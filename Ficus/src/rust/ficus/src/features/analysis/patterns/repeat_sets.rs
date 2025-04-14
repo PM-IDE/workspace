@@ -1,12 +1,12 @@
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
+use crate::utils::hash_utils::calculate_poly_hash_for_collection;
+use getset::Getters;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
 };
-use crate::features::analysis::patterns::entry_points::PatternsKind;
-use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
-use crate::utils::hash_utils::calculate_poly_hash_for_collection;
 
 use super::tandem_arrays::SubArrayInTraceInfo;
 
@@ -76,15 +76,15 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
   result
 }
 
-#[derive(Debug)]
+#[derive(Debug, Getters)]
 pub struct ActivityNode {
-  id: Rc<Box<String>>,
-  repeat_set: Option<SubArrayWithTraceIndex>,
-  event_classes: HashSet<u64>,
-  children: Vec<Rc<RefCell<ActivityNode>>>,
-  level: usize,
-  name: Rc<Box<String>>,
-  pattern_kind: UnderlyingPatternKind,
+  #[getset(get = "pub")] id: Rc<Box<String>>,
+  #[getset(get = "pub")] repeat_set: Option<SubArrayWithTraceIndex>,
+  #[getset(get = "pub")] event_classes: HashSet<u64>,
+  #[getset(get = "pub")] children: Vec<Rc<RefCell<ActivityNode>>>,
+  #[getset(get = "pub")] level: usize,
+  #[getset(get = "pub")] name: Rc<Box<String>>,
+  #[getset(get = "pub")] pattern_kind: UnderlyingPatternKind,
 }
 
 impl ActivityNode {
@@ -105,7 +105,7 @@ impl ActivityNode {
       children,
       level,
       name,
-      pattern_kind
+      pattern_kind,
     }
   }
 
@@ -115,34 +115,6 @@ impl ActivityNode {
 
   fn contains_other(&self, other_node: &ActivityNode) -> bool {
     self.event_classes.is_superset(&other_node.event_classes)
-  }
-
-  pub fn repeat_set(&self) -> Option<&SubArrayWithTraceIndex> {
-    self.repeat_set.as_ref()
-  }
-
-  pub fn event_classes(&self) -> &HashSet<u64> {
-    &self.event_classes
-  }
-
-  pub fn children(&self) -> &Vec<Rc<RefCell<ActivityNode>>> {
-    &self.children
-  }
-
-  pub fn level(&self) -> usize {
-    self.level
-  }
-
-  pub fn name(&self) -> &Rc<Box<String>> {
-    &self.name
-  }
-
-  pub fn id(&self) -> &Rc<Box<String>> {
-    &self.id
-  }
-
-  pub fn underlying_pattern_kind(&self) -> &UnderlyingPatternKind {
-    &self.pattern_kind
   }
 }
 

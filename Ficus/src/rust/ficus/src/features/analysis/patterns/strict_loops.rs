@@ -79,10 +79,8 @@ fn create_strict_loop_activity_instance(
 
   name.sort();
 
-  ActivityInTraceInfo {
-    start_pos: array.start_index,
-    length: array.length * repeat_count,
-    node: Rc::new(RefCell::new(ActivityNode::new(
+  ActivityInTraceInfo::new(
+    Rc::new(RefCell::new(ActivityNode::new(
       Some(SubArrayWithTraceIndex::new(array.clone(), trace_index)),
       HashSet::from_iter(hashed_trace[array.start_index..array.start_index + array.length].iter().map(|x| *x)),
       vec![],
@@ -90,5 +88,7 @@ fn create_strict_loop_activity_instance(
       Rc::new(Box::new(format!("Loop[{}]", name.join("::")))),
       UnderlyingPatternKind::StrictLoop,
     ))),
-  }
+    array.start_index,
+    array.length * repeat_count,
+  )
 }
