@@ -23,6 +23,7 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
+use std::arch::aarch64::veor3q_s8;
 
 #[derive(Debug, Clone, Getters, MutGetters, new)]
 pub struct ActivityInTraceInfo {
@@ -87,10 +88,10 @@ impl ActivityInTraceInfo {
 pub fn extract_activities_instances_strict(log: &Vec<Vec<u64>>, activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<Vec<ActivityInTraceInfo>> {
   let mut result = vec![];
 
-  let mut suitable_activities = activities.iter().filter_map(|a| match a.borrow().repeat_set() {
+  let mut suitable_activities = get_all_child_activities(activities).into_iter().filter_map(|a| match a.borrow().repeat_set() {
     None => None,
-    Some(_) => Some(a)
-  }).collect::<Vec<&Rc<RefCell<ActivityNode>>>>();
+    Some(_) => Some(a.clone())
+  }).collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
   suitable_activities.sort_by(|f, s| s.borrow().repeat_set().unwrap().len().cmp(&f.borrow().repeat_set().unwrap().len()));
 
@@ -135,6 +136,23 @@ pub fn extract_activities_instances_strict(log: &Vec<Vec<u64>>, activities: &Vec
     result.push(trace_instances);
   }
 
+  result
+}
+
+fn get_all_child_activities(activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<Rc<RefCell<ActivityNode>>> {
+  let mut result = vec![];
+  
+  let mut queue = VecDeque::from_iter(activities.iter().map(|a| a.clone()));
+  while !queue.is_empty() {
+    let current = queue.pop_front().unwrap();
+
+    for child in current.borrow().children() {
+      queue.push_back(child.clone());
+    }
+
+    result.push(current);
+  }
+  
   result
 }
 
