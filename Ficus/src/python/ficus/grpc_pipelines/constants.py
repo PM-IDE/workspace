@@ -74,6 +74,7 @@ const_root_sequence_kind = 'root_sequence_kind'
 const_merge_sequences_of_events = 'merge_sequences_of_events'
 const_discover_events_groups_in_each_trace = 'discover_events_groups_in_each_trace'
 const_software_data_extraction_config = 'software_data_extraction_config'
+const_discover_activities_instances_strict = 'discover_activity_instances_strict'
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'

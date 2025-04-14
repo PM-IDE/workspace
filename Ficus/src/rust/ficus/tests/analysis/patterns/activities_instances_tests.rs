@@ -32,6 +32,7 @@ fn test_activity_instances() {
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false,
   );
 
   let activities = discover_activities_instances(&context);
@@ -65,6 +66,7 @@ fn test_activity_instances1() {
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false
   );
 
   let activities = discover_activities_instances(&context);
@@ -112,6 +114,7 @@ fn execute_activities_discovery_test(
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false,
   );
 
   let context = ActivitiesInstancesDiscoveryContext::new(context, strategy, |info, _| {
@@ -261,6 +264,7 @@ fn execute_activities_logs_creation_test(log: XesEventLogImpl, pattern_kind: Pat
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false
   );
 
   let activities_logs = create_logs_for_activities(&context, 0);

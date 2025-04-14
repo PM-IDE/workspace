@@ -84,6 +84,60 @@ impl ActivityInTraceInfo {
   }
 }
 
+pub fn extract_activities_instances_strict(log: &Vec<Vec<u64>>, activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<Vec<ActivityInTraceInfo>> {
+  let mut result = vec![];
+
+  let mut suitable_activities = activities.iter().filter_map(|a| match a.borrow().repeat_set() {
+    None => None,
+    Some(_) => Some(a)
+  }).collect::<Vec<&Rc<RefCell<ActivityNode>>>>();
+
+  suitable_activities.sort_by(|f, s| s.borrow().repeat_set().unwrap().len().cmp(&f.borrow().repeat_set().unwrap().len()));
+
+  for trace in log {
+    let mut index = 0;
+    let mut trace_instances = vec![];
+
+    'this_loop: loop {
+      if index >= trace.len() {
+        break;
+      }
+
+      for suitable_activity in &suitable_activities {
+        let activity = suitable_activity.borrow();
+        let repeat_set = activity.repeat_set().as_ref().unwrap();
+        let sub_array = repeat_set.sub_array;
+        
+        if index + sub_array.length >= trace.len() {
+          continue;
+        }
+        
+        let repeat_set_slice = &log[repeat_set.trace_index][sub_array.start_index..sub_array.start_index + sub_array.length];
+
+        let mut found_pattern = true;
+        for i in 0..repeat_set_slice.len() {
+          if repeat_set_slice[i] != trace[index + i] {
+            found_pattern = false;
+            break;
+          }
+        }
+
+        if found_pattern {
+          trace_instances.push(ActivityInTraceInfo::new((*suitable_activity).clone(), index, repeat_set_slice.len()));
+          index += repeat_set_slice.len();
+          continue 'this_loop;
+        }
+      }
+
+      index += 1;
+    }
+
+    result.push(trace_instances);
+  }
+
+  result
+}
+
 pub fn extract_activities_instances(
   log: &Vec<Vec<u64>>,
   activities: &mut Vec<Rc<RefCell<ActivityNode>>>,

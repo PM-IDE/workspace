@@ -12,10 +12,10 @@ use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::count_events;
 use crate::features::analysis::patterns::activity_instances;
-use crate::features::analysis::patterns::activity_instances::{substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME};
+use crate::features::analysis::patterns::activity_instances::{extract_activities_instances_strict, substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME};
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY};
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, EVENTS_COUNT_KEY, EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY};
+use crate::pipelines::keys::context_keys::{ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY, EVENTS_COUNT_KEY, EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
@@ -130,14 +130,18 @@ impl PipelineParts {
     let hashed_log = Self::get_user_data(context, &HASHES_EVENT_LOG_KEY)?;
     let min_events_in_activity = *Self::get_user_data(config, &MIN_ACTIVITY_LENGTH_KEY)?;
     let activity_filter_kind = Self::get_user_data(config, &ACTIVITY_IN_TRACE_FILTER_KIND_KEY)?;
+    let discover_activities_instances_strict = Self::get_user_data(config, &DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY)?;
 
-    let instances = extract_activities_instances(
-      &hashed_log,
-      &mut tree,
-      narrow,
-      min_events_in_activity as usize,
-      activity_filter_kind,
-    );
+    let instances = match discover_activities_instances_strict {
+      true => extract_activities_instances_strict(&hashed_log, &tree),
+      false => extract_activities_instances(
+        &hashed_log,
+        &mut tree,
+        narrow,
+        min_events_in_activity as usize,
+        activity_filter_kind,
+      )
+    };
 
     context.put_concrete(TRACE_ACTIVITIES_KEY.key(), instances);
     Ok(())

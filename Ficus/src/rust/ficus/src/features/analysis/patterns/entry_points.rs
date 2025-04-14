@@ -8,7 +8,7 @@ use super::{
   tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
 };
 use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::patterns::activity_instances::ActivitiesLogSource;
+use crate::features::analysis::patterns::activity_instances::{extract_activities_instances_strict, ActivitiesLogSource};
 use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 
 #[derive(Clone, Copy)]
@@ -73,13 +73,16 @@ where
 {
   let mut repeat_set_tree = build_repeat_set_tree(activities_context);
 
-  extract_activities_instances(
-    activities_context.patterns_context.get_processed_log(),
-    &mut repeat_set_tree,
-    &activities_context.narrow_kind,
-    activities_context.min_events_in_activity,
-    &activities_context.activity_filter_kind,
-  )
+  match activities_context.extract_activities_strict {
+    true => extract_activities_instances_strict(activities_context.patterns_context.get_processed_log(), &repeat_set_tree),
+    false => extract_activities_instances(
+      activities_context.patterns_context.get_processed_log(),
+      &mut repeat_set_tree,
+      &activities_context.narrow_kind,
+      activities_context.min_events_in_activity,
+      &activities_context.activity_filter_kind,
+    )
+  }
 }
 
 pub fn discover_activities_and_create_new_log<TClassExtractor, TLog, TNameCreator, TEvtFactory>(

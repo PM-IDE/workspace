@@ -24,6 +24,10 @@ impl SubArrayWithTraceIndex {
   pub fn dump(&self) -> (usize, usize, usize) {
     (self.sub_array.start_index, self.sub_array.length, self.trace_index)
   }
+  
+  pub fn len(&self) -> usize {
+    self.sub_array.length
+  }
 }
 
 pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTraceInfo>>) -> Vec<SubArrayWithTraceIndex> {

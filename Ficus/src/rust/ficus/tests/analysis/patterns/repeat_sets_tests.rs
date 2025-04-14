@@ -105,6 +105,7 @@ fn test_repeat_set_tree() {
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false
   );
 
   let repeats = build_repeat_set_tree(&context);
@@ -143,6 +144,7 @@ fn test_repeat_set_tree2() {
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false
   );
 
   let repeats = build_repeat_set_tree(&context);
@@ -170,6 +172,7 @@ fn test_repeat_set_tree3() {
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false
   );
   let repeats = build_repeat_set_tree(&context);
 
@@ -199,6 +202,7 @@ fn test_repeat_set_tree4() {
     ActivityNarrowingKind::NarrowDown,
     ActivityInTraceFilterKind::DefaultFilter,
     |sub_array| create_activity_name(log.borrow().deref(), sub_array, None),
+    false,
   );
 
   let repeats = build_repeat_set_tree(&context);

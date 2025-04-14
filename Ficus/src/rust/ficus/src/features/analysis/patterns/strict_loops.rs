@@ -35,7 +35,7 @@ fn find_tandem_arrays_strict(hashed_log: &Vec<Vec<u64>>, max_array_length: usize
   for trace in hashed_log {
     let mut index = 0;
     let mut trace_arrays = vec![];
-    loop {
+    'this_loop: loop {
       if index >= trace.len() {
         break;
       }
@@ -48,7 +48,7 @@ fn find_tandem_arrays_strict(hashed_log: &Vec<Vec<u64>>, max_array_length: usize
         if let Some(array) = try_extract_tandem_array(trace, index, length) {
           trace_arrays.push(array);
           index += *array.get_repeat_count() * array.get_sub_array_info().length;
-          break;
+          continue 'this_loop;
         }
       }
 

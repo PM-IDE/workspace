@@ -140,6 +140,7 @@ pub const UNDERLYING_PATTERNS_INFOS: &'static str = "underlying_patterns_infos";
 pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &'static str = "discover_events_groups_in_each_trace";
 pub const UNDERLYING_PATTERNS_GRAPHS_INFO: &'static str = "underlying_patterns_graphs_infos";
 pub const SOFTWARE_DATA_EXTRACTION_CONFIG: &'static str = "software_data_extraction_config";
+pub const DISCOVER_ACTIVITY_INSTANCES_STRICT: &'static str = "discover_activity_instances_strict";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -241,6 +242,7 @@ lazy_static!(
      pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
      pub static ref DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE);
      pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<String> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
+     pub static ref DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_ACTIVITY_INSTANCES_STRICT);
 );
 
 lazy_static!(
@@ -348,6 +350,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     UNDERLYING_PATTERNS_INFOS => Some(UNDERLYING_PATTERNS_INFOS_KEY.deref() as &dyn ContextKey),
     DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE => Some(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY.deref() as &dyn ContextKey),
     SOFTWARE_DATA_EXTRACTION_CONFIG => Some(SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.deref() as &dyn ContextKey),
+    DISCOVER_ACTIVITY_INSTANCES_STRICT => Some(DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }
