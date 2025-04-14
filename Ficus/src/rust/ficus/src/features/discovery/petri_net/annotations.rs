@@ -2,14 +2,14 @@ use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
+use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::references::HeapedOrOwned;
+use crate::utils::user_data::user_data::UserData;
+use lazy_static::lazy_static;
 use log::error;
 use std::collections::HashMap;
 use std::str::FromStr;
-use lazy_static::lazy_static;
-use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::utils::user_data::user_data::UserData;
 
 pub fn annotate_with_counts(
   log: &impl EventLog,
@@ -98,7 +98,7 @@ impl FromStr for TimeAnnotationKind {
 
 pub enum PerformanceAnnotationInfo {
   Default(Vec<f64>),
-  SumAndCount(f64, usize)
+  SumAndCount(f64, usize),
 }
 
 lazy_static!(
@@ -139,7 +139,7 @@ pub fn create_performance_map(log: &impl EventLog) -> PerformanceMap {
       }
     }
   }
-  
+
   performance_map
 }
 
@@ -181,7 +181,7 @@ pub fn annotate_with_time_performance(
     };
 
     if let Some(annotation) = annotation {
-      time_annotations.insert(*edge.id(), annotation); 
+      time_annotations.insert(*edge.id(), annotation);
     }
   }
 

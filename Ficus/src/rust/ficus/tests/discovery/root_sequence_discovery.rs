@@ -1,11 +1,11 @@
-use ficus::features::discovery::root_sequence::discovery::{discover_root_sequence_graph};
-use ficus::utils::references::HeapedOrOwned;
-use ficus::utils::user_data::user_data::{ExecuteWithUserData, UserData, UserDataImpl};
-use ficus::vecs;
-use termgraph::{Config, DirectedGraph, ValueFormatter};
 use ficus::features::discovery::root_sequence::context::DiscoveryContext;
+use ficus::features::discovery::root_sequence::discovery::discover_root_sequence_graph;
 use ficus::features::discovery::root_sequence::models::RootSequenceKind;
 use ficus::features::discovery::root_sequence::root_sequence::discover_root_sequence;
+use ficus::utils::references::HeapedOrOwned;
+use ficus::utils::user_data::user_data::UserDataImpl;
+use ficus::vecs;
+use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 #[test]
 pub fn test_root_sequence_graph_1() {
@@ -249,7 +249,7 @@ pub fn test_root_sequence_graph_10() {
 pub fn test_root_sequence_graph_11() {
   execute_root_sequence_discovery_test(
     vec![
-      vecs!["5", "6", "7", "8", "0"], 
+      vecs!["5", "6", "7", "8", "0"],
       vecs!["13", "1", "0", "9", "14"],
       vecs!["13", "Loop[6]", "Loop[7]", "8", "Loop[15]", "18", "19", "20", "21", "17", "22", "Loop[23]", "Loop[24]", "8", "Loop[16]", "14"],
       vecs!["13", "Loop[6]", "Loop[7]", "9", "Loop[26]", "23", "Loop[24]", "27", "8", "14"],
@@ -347,7 +347,7 @@ pub fn test_root_sequence_graph_11() {
       "[Loop[7]]--[9]",
       "[START]--[13]",
       "[START]--[5]",
-    ]
+    ],
   )
 }
 

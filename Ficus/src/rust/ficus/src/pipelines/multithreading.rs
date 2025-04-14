@@ -8,15 +8,15 @@ use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan
 use crate::features::discovery::timeline::abstraction::abstract_event_groups;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, discover_traces_timeline_diagram};
 use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
+use crate::features::discovery::timeline::software_data::extraction::SoftwareDataExtractionInfo;
 use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
+use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::str::FromStr;
-use log::error;
-use crate::features::discovery::timeline::software_data::extraction::SoftwareDataExtractionInfo;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -97,11 +97,11 @@ impl PipelineParts {
 
       if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
         let abstracted_log = abstract_event_groups(
-          events_groups, 
-          labeled_dataset.labels(), 
-          thread_attribute, 
-          time_attribute, 
-          &extraction_config
+          events_groups,
+          labeled_dataset.labels(),
+          thread_attribute,
+          time_attribute,
+          &extraction_config,
         )?;
 
         let mut new_context = context.clone();
@@ -115,7 +115,7 @@ impl PipelineParts {
       Ok(())
     })
   }
-  
+
   fn get_software_data_extraction_config(config: &UserDataImpl) -> SoftwareDataExtractionInfo {
     match Self::get_user_data(config, &SOFTWARE_DATA_EXTRACTION_CONFIG_KEY) {
       Ok(config) => serde_json::from_str::<SoftwareDataExtractionInfo>(config.as_str()).unwrap_or_else(|err| {
@@ -158,7 +158,7 @@ impl PipelineParts {
           None => None,
           Some(delta) => Some(*delta as u64)
         },
-        *discover_events_groups_in_each_trace
+        *discover_events_groups_in_each_trace,
       );
 
       match diagram {

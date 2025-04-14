@@ -125,7 +125,7 @@ pub fn discover_traces_timeline_diagram(
   log: &XesEventLogImpl,
   time_attribute: Option<&String>,
   event_group_delta: Option<u64>,
-  discover_event_groups_in_each_trace: bool
+  discover_event_groups_in_each_trace: bool,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut threads = vec![];
 
@@ -136,15 +136,15 @@ pub fn discover_traces_timeline_diagram(
     for event in trace.events() {
       thread_events.push(TraceThreadEvent {
         original_event: event.clone(),
-        stamp: get_stamp(&event.borrow(), time_attribute)? - min_stamp
+        stamp: get_stamp(&event.borrow(), time_attribute)? - min_stamp,
       })
     }
-    
+
     threads.push(TraceThread {
       events: thread_events
     });
   }
-  
+
   let timeline_fragments = match discover_event_groups_in_each_trace {
     true => {
       let mut fragments = vec![];
@@ -155,16 +155,16 @@ pub fn discover_traces_timeline_diagram(
           events_groups,
         });
       }
-      
+
       fragments
-    },
+    }
     false => {
       let events_groups = discover_events_groups_internal(&threads.iter().collect(), event_group_delta);
       vec![TraceTimelineDiagram {
         threads,
         events_groups,
       }]
-    },
+    }
   };
 
   Ok(LogTimelineDiagram {

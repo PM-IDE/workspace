@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents,
-  FailedToReplaySequence
+  FailedToReplaySequence,
 }
 
 #[derive(Clone, Copy)]

@@ -1,4 +1,4 @@
-use crate::utils::user_data::user_data::{UserDataImpl, UserDataOwner};
+use crate::utils::user_data::user_data::UserDataOwner;
 
 use super::lifecycle::xes_lifecycle::Lifecycle;
 use crate::utils::references::HeapedOrOwned;

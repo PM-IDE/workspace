@@ -20,7 +20,6 @@ use std::cell::RefCell;
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::rc::Rc;
-use num_traits::real::Real;
 
 pub fn discover_root_sequence_graph_from_event_log(
   log: &XesEventLogImpl,

@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use std::fmt::{Debug, Formatter};
 use std::{collections::HashMap, rc::Rc};
 
+use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
   event_log::core::event::{
     event::{Event, EventPayloadValue},
@@ -9,7 +10,6 @@ use crate::{
   },
   utils::{user_data::user_data::UserDataImpl, vec_utils},
 };
-use crate::utils::user_data::user_data::UserDataOwner;
 
 pub struct XesEventImpl {
   event_base: EventBase,

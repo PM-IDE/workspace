@@ -6,6 +6,8 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
+use crate::features::discovery::timeline::software_data::extraction::SoftwareDataExtractionInfo;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY};
@@ -15,8 +17,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::features::discovery::timeline::software_data::extraction::SoftwareDataExtractionInfo;
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,
@@ -43,7 +43,7 @@ pub fn abstract_event_groups(
         thread_attribute.as_str(),
         time_attribute.as_ref(),
         EventCoordinates::new(trace_id as u64, event_index as u64),
-        config
+        config,
       )?;
 
       abstracted_trace.push(abstracted_event);
@@ -81,7 +81,7 @@ fn create_abstracted_event(
 
   let mut software_data = SoftwareData::empty();
   software_data.thread_diagram_fragment_mut().extend(threads.into_values());
-  
+
   for (key, value) in event_classes {
     software_data.event_classes_mut().insert(key, value);
   }

@@ -1,10 +1,10 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use lazy_static::lazy_static;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::analysis::patterns::entry_points::PatternsKind;
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
+use lazy_static::lazy_static;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 lazy_static!(
   pub static ref UNDERLYING_PATTERN_KIND_KEY: DefaultContextKey<UnderlyingPatternKind> = DefaultContextKey::new("UNDERLYING_PATTERN_KIND");
@@ -18,7 +18,7 @@ pub enum UnderlyingPatternKind {
   MaximalRepeat,
   SuperMaximalRepeat,
   NearSuperMaximalRepeat,
-  Unknown
+  Unknown,
 }
 
 impl From<PatternsKind> for UnderlyingPatternKind {
@@ -43,13 +43,13 @@ pub struct UnderlyingPatternInfo {
 impl UnderlyingPatternInfo {
   pub fn new(
     pattern_kind: UnderlyingPatternKind,
-    underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>, 
-    base_pattern: Option<Vec<Rc<RefCell<XesEventImpl>>>>
+    underlying_sequence: Vec<Rc<RefCell<XesEventImpl>>>,
+    base_pattern: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
   ) -> Self {
     Self {
       pattern_kind,
       underlying_sequence,
-      base_pattern
+      base_pattern,
     }
   }
 
@@ -60,7 +60,7 @@ impl UnderlyingPatternInfo {
   pub fn underlying_sequence(&self) -> &Vec<Rc<RefCell<XesEventImpl>>> {
     &self.underlying_sequence
   }
-  
+
   pub fn base_pattern(&self) -> Option<&Vec<Rc<RefCell<XesEventImpl>>>> {
     self.base_pattern.as_ref()
   }
@@ -78,7 +78,7 @@ impl UnderlyingPatternGraphInfo {
     Self {
       pattern_kind,
       base_pattern,
-      graph
+      graph,
     }
   }
 

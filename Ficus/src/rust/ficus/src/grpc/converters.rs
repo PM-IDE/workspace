@@ -13,6 +13,7 @@ use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
+use crate::features::discovery::timeline::software_data::models::{ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodEvent, SocketEvent, SoftwareData, ThreadEvent};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
@@ -42,7 +43,7 @@ use crate::{features::analysis::patterns::{
 }, pipelines::{keys::context_key::ContextKey, pipelines::Pipeline}, utils::{
   colors::{Color, ColoredRectangle},
   user_data::{keys::Key, user_data::UserData},
-}, vecs};
+}};
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
 use prost_types::Timestamp;
@@ -51,7 +52,6 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::rc::Rc;
 use std::{any::Any, str::FromStr};
-use crate::features::discovery::timeline::software_data::models::{ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodEvent, SocketEvent, SoftwareData, ThreadEvent};
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)

@@ -1,8 +1,5 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::patterns::activity_instances::ActivitiesLogSource;
-use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 use super::{
   activity_instances::{self, create_new_log_from_activities_instances, extract_activities_instances, ActivityInTraceInfo},
   contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext},
@@ -10,6 +7,9 @@ use super::{
   repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
   tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
 };
+use crate::event_log::core::event_log::EventLog;
+use crate::features::analysis::patterns::activity_instances::ActivitiesLogSource;
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 
 #[derive(Clone, Copy)]
 pub enum PatternsKind {
@@ -59,7 +59,7 @@ where
     &repeats,
     activities_context.activity_level,
     UnderlyingPatternKind::from(activities_context.patterns_context.pattern_kind),
-    &activities_context.name_creator
+    &activities_context.name_creator,
   )
 }
 

@@ -93,7 +93,7 @@ where
 
     None
   }
-  
+
   pub fn edge_mut(&mut self, first_node_id: &u64, second_node_id: &u64) -> Option<&mut GraphEdge<TEdgeData>> {
     if let Some(connections) = self.connections.get_mut(first_node_id) {
       if let Some(edge) = connections.get_mut(second_node_id) {
@@ -213,7 +213,7 @@ where
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
   TNodeData: ToString + Clone,
-  TEdgeData: ToString + Display 
+  TEdgeData: ToString + Display,
 {
   pub fn add_node_from_another_node(&mut self, other_node: &GraphNode<TNodeData>) -> u64 {
     self.add_node_internal(GraphNode::new_with_user_data(other_node.data.clone(), other_node.user_data.clone()))

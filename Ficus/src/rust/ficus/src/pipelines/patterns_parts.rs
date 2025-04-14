@@ -85,7 +85,7 @@ impl PipelineParts {
     context: &mut PipelineContext,
     config: &UserDataImpl,
     patterns_finder: impl Fn(&Vec<Vec<u64>>, usize, bool) -> Vec<Vec<SubArrayInTraceInfo>>,
-    underlying_pattern_kind: UnderlyingPatternKind
+    underlying_pattern_kind: UnderlyingPatternKind,
   ) -> Result<(), PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let array_length = *config.concrete(TANDEM_ARRAY_LENGTH_KEY.key()).unwrap() as usize;
@@ -105,7 +105,7 @@ impl PipelineParts {
     context: &mut PipelineContext,
     config: &UserDataImpl,
     patterns_finder: impl Fn(&Vec<Vec<u64>>, &PatternsDiscoveryStrategy) -> Vec<Vec<SubArrayInTraceInfo>>,
-    underlying_pattern_kind: UnderlyingPatternKind
+    underlying_pattern_kind: UnderlyingPatternKind,
   ) -> Result<(), PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let strategy = Self::get_user_data(config, &PATTERNS_DISCOVERY_STRATEGY_KEY)?;

@@ -107,7 +107,7 @@ impl PipelineParts {
       underlying_patterns_kind.clone(),
       |sub_array| {
         create_activity_name(log, sub_array, event_class_regex)
-      }
+      },
     );
 
     context.put_concrete(ACTIVITIES_KEY.key(), tree);

@@ -350,7 +350,7 @@ impl<T> UnderlyingEventsInfo<T> {
   pub fn new(base_pattern: Option<Vec<Rc<RefCell<T>>>>, underlying_events: Vec<Rc<RefCell<T>>>) -> Self {
     Self {
       underlying_events,
-      base_pattern
+      base_pattern,
     }
   }
 
@@ -463,7 +463,7 @@ where
         } else {
           None
         };
-        
+
         let info = UnderlyingEventsInfo::new(base_pattern, underlying_events);
 
         user_data.put_concrete(&KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>(), info);
@@ -763,7 +763,7 @@ pub fn try_get_base_pattern<TLog: EventLog>(event: &Rc<RefCell<TLog::TEvent>>) -
   let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
   if let Some(info) = event.borrow().user_data().concrete(&key) {
     info.base_pattern().cloned()
-  } else { 
+  } else {
     None
   }
 }
