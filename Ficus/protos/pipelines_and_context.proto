@@ -236,8 +236,8 @@ message GrpcNodeCorrespondingTraceData {
 message GrpcSoftwareData {
   repeated GrpcHistogramEntry histogram = 1;
   GrpcTimelineDiagramFragment timeline_diagram_fragment = 2;
-  GrpcAllocationsInfo allocations_info = 3;
-
+  
+  repeated GrpcAllocationInfo allocations_info = 3;
   repeated GrpcExecutionSuspensionInfo execution_suspension_info = 4;
   repeated GrpcThreadEventInfo thread_events = 5;
   repeated GrpcMethodInliningEvent methods_inlining_events = 6;
@@ -327,10 +327,6 @@ message GrpcHistogramEntry {
 
 message GrpcTimelineDiagramFragment {
   repeated GrpcThread threads = 1;
-}
-
-message GrpcAllocationsInfo {
-  repeated GrpcAllocationsInfo allocations = 1;
 }
 
 message GrpcAllocationInfo {
