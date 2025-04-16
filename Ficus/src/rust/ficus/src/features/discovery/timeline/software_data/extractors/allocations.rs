@@ -1,13 +1,11 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use derive_new::new;
-use fancy_regex::Regex;
 use log::warn;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, SoftwareDataExtractor};
-use crate::features::discovery::timeline::software_data::extractors::event_classes::parse_or_err;
+use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{AllocationEvent, SoftwareData};
 
 #[derive(Debug, Clone, new)]
@@ -18,10 +16,7 @@ pub struct AllocationDataExtractor<'a> {
 impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
   fn extract(&self, software_data: &mut SoftwareData, event_group: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
     if let Some(config) = self.config.allocation() {
-      let regex = match Regex::new(config.event_class_regex()) {
-        Ok(regex) => regex,
-        Err(_) => return Err(SoftwareDataExtractionError::FailedToParseRegex(config.event_class_regex().to_owned()))
-      };
+      let regex = regex_or_err(config.event_class_regex())?;
 
       for event in event_group {
         if regex.is_match(event.borrow().name()).unwrap_or(false) {

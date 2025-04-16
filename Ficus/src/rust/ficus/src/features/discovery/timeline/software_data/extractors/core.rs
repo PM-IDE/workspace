@@ -1,9 +1,14 @@
 use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
+use crate::features::discovery::timeline::software_data::models::{MethodEvent, SoftwareData};
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::rc::Rc;
+use std::str::FromStr;
+use fancy_regex::Regex;
+use log::warn;
+use crate::event_log::core::event::event::EventPayloadValue;
 
 #[derive(Debug)]
 pub enum SoftwareDataExtractionError {
@@ -26,4 +31,37 @@ impl Error for SoftwareDataExtractionError {}
 
 pub trait SoftwareDataExtractor {
   fn extract(&self, software_data: &mut SoftwareData, event_group: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError>;
+}
+
+pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {
+  match value.parse::<ToType>() {
+    Ok(value) => Ok(value),
+    Err(_) => Err(SoftwareDataExtractionError::FailedToParseValue(format!("Failed to parse value: {}", value)))
+  }
+}
+
+pub(super) fn regex_or_err(regex_str: &str) -> Result<Regex, SoftwareDataExtractionError> {
+  match Regex::new(regex_str) {
+    Ok(regex) => Ok(regex),
+    Err(_) => Err(SoftwareDataExtractionError::FailedToParseRegex(regex_str.to_owned()))
+  }
+}
+
+pub(super) fn regex_option_or_err(regex_str: Option<&String>) -> Result<Option<Regex>, SoftwareDataExtractionError> {
+  match regex_str {
+    None => Ok(None),
+    Some(regex_str) => match regex_or_err(regex_str.as_str()) {
+      Ok(regex) => Ok(Some(regex)),
+      Err(err) => Err(err)
+    }
+  }
+}
+
+pub(super) fn payload_value_or_none(payload: &HashMap<String, EventPayloadValue>, attribute_name: &str) -> Option<String> {
+  if let Some(value) = payload.get(attribute_name) {
+    Some(value.to_string_repr().to_string())
+  } else {
+    warn!("Failed to get value for attribute {}", attribute_name);
+    None
+  }
 }

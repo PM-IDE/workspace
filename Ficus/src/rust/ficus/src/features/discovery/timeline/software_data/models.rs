@@ -52,8 +52,8 @@ pub struct ExecutionSuspensionEvent {
 
 #[derive(Clone, Debug)]
 pub enum MethodEvent {
-  Success(String),
-  Failed(String, String),
+  InliningSuccess(String),
+  InliningFailed(String, String),
   Load(String),
   Unload(String),
 }

@@ -9,8 +9,8 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] exceptions: Option<ExtractionConfig<ExceptionExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] http: Option<ExtractionConfig<HTTPExtractionConfig>>,
 
-  #[getset(get = "pub", set = "pub")] method_inlining_success: Option<ExtractionConfig<()>>,
-  #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")] method_inlining_success: Option<ExtractionConfig<MethodInliningSucceededConfig>>,
+  #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedConfig>>,
 
   #[getset(get = "pub", set = "pub")] contention: Option<ExtractionConfig<ContentionExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] socket: Option<ExtractionConfig<SocketExtractionConfig>>,
@@ -79,7 +79,13 @@ pub struct HTTPExtractionConfig {
 pub struct MethodInliningSuccessExtractionConfig {}
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
-pub struct MethodInliningFailedExtractionConfig {
+pub struct MethodInliningSucceededConfig {
+  #[getset(get = "pub")] method_name_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct MethodInliningFailedConfig {
+  #[getset(get = "pub")] method_name_attr: String,
   #[getset(get = "pub")] reason_attr: String,
 }
 

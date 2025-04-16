@@ -9,7 +9,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
-use std::str::FromStr;
 
 #[derive(Debug, Clone, new)]
 pub struct EventClassesDataExtractor<'a> {
@@ -36,12 +35,5 @@ impl<'a> SoftwareDataExtractor for EventClassesDataExtractor<'a> {
     software_data.thread_diagram_fragment_mut().extend(threads.into_values());
 
     Ok(())
-  }
-}
-
-pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {
-  match value.parse::<ToType>() {
-    Ok(value) => Ok(value),
-    Err(_) => Err(SoftwareDataExtractionError::FailedToParseValue(format!("Failed to parse value: {}", value)))
   }
 }

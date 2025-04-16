@@ -721,11 +721,11 @@ fn convert_to_grpc_array_pool_event(events: &Vec<ArrayPoolEvent>) -> Vec<GrpcArr
 
 fn convert_to_grpc_methods_events(events: &Vec<MethodEvent>) -> Vec<GrpcMethodInliningEvent> {
   events.iter().map(|m| match m {
-    MethodEvent::Success(name) => GrpcMethodInliningEvent {
+    MethodEvent::InliningSuccess(name) => GrpcMethodInliningEvent {
       method_name: name.to_owned(),
       event: Some(grpc_method_inlining_event::Event::Succeeded(())),
     },
-    MethodEvent::Failed(name, reason) => GrpcMethodInliningEvent {
+    MethodEvent::InliningFailed(name, reason) => GrpcMethodInliningEvent {
       method_name: name.to_owned(),
       event: Some(grpc_method_inlining_event::Event::Failed(GrpcMethodInliningFailedEvent {
         reason: reason.clone()

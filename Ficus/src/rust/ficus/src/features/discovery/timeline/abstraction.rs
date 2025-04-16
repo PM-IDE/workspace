@@ -18,6 +18,7 @@ use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::features::discovery::timeline::software_data::extractors::methods::MethodsDataExtractor;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,
@@ -95,7 +96,8 @@ fn extract_software_data(
 ) -> Result<SoftwareData, PipelinePartExecutionError> {
   let extractors: Vec<Box<dyn SoftwareDataExtractor>> = vec![
     Box::new(AllocationDataExtractor::new(config)),
-    Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))
+    Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute)),
+    Box::new(MethodsDataExtractor::new(config))
   ];
 
   let mut software_data = SoftwareData::empty();
