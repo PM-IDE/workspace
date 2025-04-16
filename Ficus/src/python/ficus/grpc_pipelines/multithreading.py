@@ -36,6 +36,7 @@ class DiscoverLogTimelineDiagram(DiscoverTimelineDiagramBase):
                thread_attribute: str,
                time_attribute: Optional[str] = None,
                event_group_delta: Optional[int] = None,
+               regex: Optional[str] = None,
                title: Optional[str] = None,
                save_path: Optional[str] = None,
                plot_legend: bool = False,
@@ -54,10 +55,14 @@ class DiscoverLogTimelineDiagram(DiscoverTimelineDiagramBase):
     self.thread_attribute = thread_attribute
     self.time_attribute = time_attribute
     self.event_group_delta = event_group_delta
+    self.regex = regex
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    if self.regex is not None:
+      append_string_value(config, const_regex, self.regex)
 
     return _create_discover_log_timeline_diagram_grpc_part(self, config, const_discover_log_timeline_diagram)
 
@@ -95,6 +100,7 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
                discover_events_groups_in_each_trace: bool,
                time_attribute: Optional[str] = None,
                event_group_delta: Optional[int] = None,
+               regex: Optional[str] = None,
                title: Optional[str] = None,
                save_path: Optional[str] = None,
                plot_legend: bool = False,
@@ -113,9 +119,13 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
     self.discover_events_groups_in_each_trace = discover_events_groups_in_each_trace
     self.time_attribute = time_attribute
     self.event_group_delta = event_group_delta
+    self.regex = regex
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_bool_value(config, const_discover_events_groups_in_each_trace, self.discover_events_groups_in_each_trace)
+
+    if self.regex is not None:
+      append_string_value(config, const_regex, self.regex)
 
     return _create_discover_log_timeline_diagram_grpc_part(self, config, const_discover_traces_timeline_diagram)

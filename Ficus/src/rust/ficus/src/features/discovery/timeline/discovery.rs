@@ -13,6 +13,7 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
+use fancy_regex::Regex;
 
 #[derive(Debug, Clone)]
 pub struct LogTimelineDiagram {
@@ -126,6 +127,7 @@ pub fn discover_traces_timeline_diagram(
   time_attribute: Option<&String>,
   event_group_delta: Option<u64>,
   discover_event_groups_in_each_trace: bool,
+  regex: Option<&Regex>,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut threads = vec![];
 
@@ -149,7 +151,7 @@ pub fn discover_traces_timeline_diagram(
     true => {
       let mut fragments = vec![];
       for thread in threads {
-        let events_groups = discover_events_groups_internal(&vec![&thread], event_group_delta);
+        let events_groups = discover_events_groups_internal(&vec![&thread], event_group_delta, regex);
         fragments.push(TraceTimelineDiagram {
           threads: vec![thread],
           events_groups,
@@ -159,7 +161,7 @@ pub fn discover_traces_timeline_diagram(
       fragments
     }
     false => {
-      let events_groups = discover_events_groups_internal(&threads.iter().collect(), event_group_delta);
+      let events_groups = discover_events_groups_internal(&threads.iter().collect(), event_group_delta, regex);
       vec![TraceTimelineDiagram {
         threads,
         events_groups,
@@ -177,9 +179,9 @@ pub fn discover_traces_timeline_diagram(
   })
 }
 
-fn discover_events_groups_internal(threads: &Vec<&TraceThread>, event_group_delta: Option<u64>) -> Vec<TraceEventsGroup> {
+fn discover_events_groups_internal(threads: &Vec<&TraceThread>, event_group_delta: Option<u64>, regex: Option<&Regex>) -> Vec<TraceEventsGroup> {
   if let Some(event_group_delta) = event_group_delta {
-    discover_events_groups(threads, event_group_delta)
+    discover_events_groups(threads, event_group_delta, regex)
   } else {
     vec![]
   }
@@ -190,6 +192,7 @@ pub fn discover_timeline_diagram(
   thread_attribute: &str,
   time_attribute: Option<&String>,
   event_group_delta: Option<u64>,
+  regex: Option<&Regex>,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut traces = vec![];
 
@@ -224,7 +227,7 @@ pub fn discover_timeline_diagram(
     }
 
     let events_groups = if let Some(event_group_delta) = event_group_delta {
-      discover_events_groups(&threads.values().collect(), event_group_delta)
+      discover_events_groups(&threads.values().collect(), event_group_delta, regex)
     } else {
       vec![]
     };

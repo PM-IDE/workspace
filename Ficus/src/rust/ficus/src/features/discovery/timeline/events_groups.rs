@@ -2,6 +2,8 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
 use std::cell::RefCell;
 use std::rc::Rc;
+use fancy_regex::Regex;
+use crate::event_log::core::event::event::Event;
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
@@ -19,7 +21,7 @@ impl TraceEventsGroup {
   }
 }
 
-pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64) -> Vec<TraceEventsGroup> {
+pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64, regex: Option<&Regex>) -> Vec<TraceEventsGroup> {
   let mut groups = vec![];
 
   let mut last_stamp: Option<u64> = None;
@@ -39,6 +41,12 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
   };
 
   while let Some((event, trace_index, event_index)) = events.next() {
+    if let Some(regex) = regex {
+      if !regex.is_match(event.original_event.borrow().name()).unwrap_or(false) {
+        continue;
+      }
+    }
+
     let create_events_group = || {
       Some(TraceEventsGroup {
         start_point: LogPoint {
