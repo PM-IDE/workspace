@@ -1,6 +1,7 @@
 use crate::features::discovery::timeline::discovery::TraceThread;
 use getset::{Getters, MutGetters};
 use std::collections::HashMap;
+use derive_new::new;
 
 #[derive(Clone, Debug, Getters, MutGetters)]
 pub struct SoftwareData {
@@ -14,6 +15,7 @@ pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")] exception_events: Vec<ExceptionEvent>,
   #[getset(get = "pub", get_mut = "pub")] pool_events: Vec<ArrayPoolEvent>,
   #[getset(get = "pub", get_mut = "pub")] socket_events: Vec<SocketEvent>,
+  #[getset(get = "pub", get_mut = "pub")] allocation_events: Vec<AllocationEvent>
 }
 
 impl SoftwareData {
@@ -29,25 +31,23 @@ impl SoftwareData {
       contention_events: vec![],
       pool_events: vec![],
       socket_events: vec![],
+      allocation_events: vec![]
     }
   }
 }
 
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug, Getters, new)]
+pub struct AllocationEvent {
+  #[getset(get = "pub")] type_name: String,
+  #[getset(get = "pub")] objects_count: usize,
+  #[getset(get = "pub")] allocated_bytes: usize,
+}
+
+#[derive(Clone, Debug, Getters, new)]
 pub struct ExecutionSuspensionEvent {
   #[getset(get = "pub")] start_time: u64,
   #[getset(get = "pub")] end_time: u64,
   #[getset(get = "pub")] reason: String,
-}
-
-impl ExecutionSuspensionEvent {
-  pub fn new(start_time: u64, end_time: u64, reason: String) -> Self {
-    Self {
-      start_time,
-      end_time,
-      reason,
-    }
-  }
 }
 
 #[derive(Clone, Debug)]
@@ -70,7 +70,7 @@ pub enum AssemblyEvent {
   Unload(String),
 }
 
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug, Getters, new)]
 pub struct ArrayPoolEvent {
   #[getset(get = "pub")] buffer_id: u64,
   #[getset(get = "pub")] event_kind: ArrayPoolEventKind,
@@ -84,12 +84,12 @@ pub enum ArrayPoolEventKind {
   Trimmed,
 }
 
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug, Getters, new)]
 pub struct ExceptionEvent {
   #[getset(get = "pub")] exception_type: String,
 }
 
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug, Getters, new)]
 pub struct HTTPEvent {
   #[getset(get = "pub")] host: String,
   #[getset(get = "pub")] port: String,
@@ -98,34 +98,13 @@ pub struct HTTPEvent {
   #[getset(get = "pub")] query: String,
 }
 
-impl HTTPEvent {
-  pub fn new(host: String, port: String, scheme: String, path: String, query: String) -> Self {
-    Self {
-      host,
-      port,
-      scheme,
-      path,
-      query,
-    }
-  }
-}
-
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug, Getters, new)]
 pub struct ContentionEvent {
   #[getset(get = "pub")] start_time: u64,
   #[getset(get = "pub")] end_time: u64,
 }
 
-impl ContentionEvent {
-  pub fn new(start_time: u64, end_time: u64) -> Self {
-    Self {
-      start_time,
-      end_time,
-    }
-  }
-}
-
-#[derive(Clone, Debug, Getters)]
+#[derive(Clone, Debug, Getters, new)]
 pub struct SocketEvent {
   #[getset(get = "pub")] address: String,
 }

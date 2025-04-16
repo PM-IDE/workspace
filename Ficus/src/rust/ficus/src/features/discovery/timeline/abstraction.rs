@@ -101,7 +101,9 @@ fn extract_software_data(
   let mut software_data = SoftwareData::empty();
 
   for extractor in extractors {
-    extractor.extract(&mut software_data, event_group)?
+    extractor
+      .extract(&mut software_data, event_group)
+      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
   }
 
   Ok(software_data)
