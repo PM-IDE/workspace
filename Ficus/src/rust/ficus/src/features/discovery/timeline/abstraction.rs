@@ -5,20 +5,20 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
-use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::methods::MethodsDataExtractor;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
-use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
+use crate::features::discovery::timeline::utils::get_stamp;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY};
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::features::discovery::timeline::software_data::extractors::methods::MethodsDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,
@@ -97,7 +97,8 @@ fn extract_software_data(
   let extractors: Vec<Box<dyn SoftwareDataExtractor>> = vec![
     Box::new(AllocationDataExtractor::new(config)),
     Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute)),
-    Box::new(MethodsDataExtractor::new(config))
+    Box::new(MethodsDataExtractor::new(config)),
+    Box::new(ExceptionDataExtractor::new(config)),
   ];
 
   let mut software_data = SoftwareData::empty();
