@@ -4,46 +4,29 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
-pub struct SoftwareDataExtractionInfo {
+pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] allocation: Option<ExtractionInfo<AllocationExtractionInfo>>,
   #[getset(get = "pub", set = "pub")] exceptions: Option<ExtractionInfo<ExceptionExtractionInfo>>,
   #[getset(get = "pub", set = "pub")] http: Option<ExtractionInfo<HTTPExtractionInfo>>,
 
   #[getset(get = "pub", set = "pub")] method_inlining_success: Option<ExtractionInfo<()>>,
-  #[getset(
-    get = "pub",
-    set = "pub"
-  )] method_inlining_failed: Option<ExtractionInfo<MethodInliningFailedExtractionInfo>>,
+  #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionInfo<MethodInliningFailedExtractionInfo>>,
 
   #[getset(get = "pub", set = "pub")] contention: Option<ExtractionInfo<ContentionExtractionInfo>>,
   #[getset(get = "pub", set = "pub")] socket: Option<ExtractionInfo<SocketExtractionInfo>>,
   #[getset(get = "pub", set = "pub")] thread: Option<ExtractionInfo<ThreadExtractionInfo>>,
 
-  #[getset(
-    get = "pub",
-    set = "pub"
-  )] array_pool_array_created: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
-  #[getset(
-    get = "pub",
-    set = "pub"
-  )] array_pool_array_rented: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
-  #[getset(
-    get = "pub",
-    set = "pub"
-  )] array_pool_array_returned: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
-  #[getset(
-    get = "pub",
-    set = "pub"
-  )] array_pool_array_trimmed: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
+  #[getset(get = "pub", set = "pub")] array_pool_array_created: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
+  #[getset(get = "pub", set = "pub")] array_pool_array_rented: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
+  #[getset(get = "pub", set = "pub")] array_pool_array_returned: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
+
+  #[getset(get = "pub", set = "pub")] array_pool_array_trimmed: Option<ExtractionInfo<ArrayPoolExtractionInfo>>,
 
   #[getset(get = "pub", set = "pub")] assembly_load: Option<ExtractionInfo<AssemblyExtractionInfo>>,
-  #[getset(
-    get = "pub",
-    set = "pub"
-  )] assembly_unload: Option<ExtractionInfo<AssemblyExtractionInfo>>,
+  #[getset(get = "pub", set = "pub")] assembly_unload: Option<ExtractionInfo<AssemblyExtractionInfo>>,
 }
 
-impl SoftwareDataExtractionInfo {
+impl SoftwareDataExtractionConfig {
   pub fn empty() -> Self {
     Self {
       allocation: None,

@@ -6,7 +6,10 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
-use crate::features::discovery::timeline::software_data::extraction::SoftwareDataExtractionInfo;
+use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
+use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
@@ -14,8 +17,6 @@ use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITI
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
-use std::collections::HashMap;
-use std::ops::Deref;
 use std::rc::Rc;
 
 pub fn abstract_event_groups(
@@ -23,7 +24,7 @@ pub fn abstract_event_groups(
   labels: &Vec<usize>,
   thread_attribute: String,
   time_attribute: Option<String>,
-  config: &SoftwareDataExtractionInfo,
+  config: &SoftwareDataExtractionConfig,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let mut current_label_index = 0;
   let mut abstracted_log = XesEventLogImpl::empty();
@@ -62,30 +63,8 @@ fn create_abstracted_event(
   thread_attribute: &str,
   time_attribute: Option<&String>,
   event_coordinates: EventCoordinates,
-  config: &SoftwareDataExtractionInfo,
+  config: &SoftwareDataExtractionConfig,
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
-  let mut event_classes = HashMap::new();
-  let mut threads = HashMap::new();
-
-  for event in event_group {
-    *event_classes.entry(event.borrow().name().clone()).or_insert(0) += 1;
-
-    let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
-    let stamp = match get_stamp(event.borrow().deref(), time_attribute) {
-      Ok(stamp) => stamp,
-      Err(_) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Failed to get stamp".to_string())))
-    };
-
-    threads.entry(thread_id).or_insert(TraceThread::empty()).events_mut().push(TraceThreadEvent::new(event.clone(), stamp))
-  }
-
-  let mut software_data = SoftwareData::empty();
-  software_data.thread_diagram_fragment_mut().extend(threads.into_values());
-
-  for (key, value) in event_classes {
-    software_data.event_classes_mut().insert(key, value);
-  }
-
   let first_stamp = event_group.first().unwrap().borrow().timestamp().clone();
   let abstracted_event_stamp = *event_group.last().unwrap().borrow().timestamp() - first_stamp;
   let abstracted_event_stamp = first_stamp + abstracted_event_stamp;
@@ -94,6 +73,7 @@ fn create_abstracted_event(
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
 
+  let software_data = extract_software_data(config, event_group, thread_attribute, time_attribute)?;
   let software_data = NodeAdditionalDataContainer::new(software_data, event_coordinates);
   event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
@@ -105,4 +85,24 @@ fn create_abstracted_event(
   event.user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
 
   Ok(Rc::new(RefCell::new(event)))
+}
+
+fn extract_software_data(
+  config: &SoftwareDataExtractionConfig,
+  event_group: &Vec<Rc<RefCell<XesEventImpl>>>,
+  thread_attribute: &str,
+  time_attribute: Option<&String>,
+) -> Result<SoftwareData, PipelinePartExecutionError> {
+  let extractors: Vec<Box<dyn SoftwareDataExtractor>> = vec![
+    Box::new(AllocationDataExtractor::new(config)),
+    Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))
+  ];
+
+  let mut software_data = SoftwareData::empty();
+
+  for extractor in extractors {
+    extractor.extract(&mut software_data, event_group)?
+  }
+
+  Ok(software_data)
 }
