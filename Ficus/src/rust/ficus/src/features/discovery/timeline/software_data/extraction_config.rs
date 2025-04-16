@@ -57,7 +57,8 @@ pub struct ExtractionConfig<TConcreteInfo: Clone + Debug> {
 pub struct AllocationExtractionConfig {
   #[getset(get = "pub")] type_name_attr: String,
   #[getset(get = "pub")] allocated_count_attr: String,
-  #[getset(get = "pub")] object_size_attr: String,
+  #[getset(get = "pub")] object_size_bytes_attr: Option<String>,
+  #[getset(get = "pub")] total_allocated_bytes_attr: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

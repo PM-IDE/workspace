@@ -28,17 +28,27 @@ impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
           if let Some(payload) = event.borrow().payload_map() {
             let type_name = payload.get(config.info().type_name_attr());
             let allocated_count = payload.get(config.info().allocated_count_attr());
-            let object_size = payload.get(config.info().object_size_attr());
-            
-            if type_name.is_none() || allocated_count.is_none() || object_size.is_none() {
-              warn!("Failed to get all needed attributes for object allocation event, skipping it");
+
+            if type_name.is_none() || allocated_count.is_none() {
+              warn!("Failed to get type_name or allocated_count attributes for object allocation event, skipping this event");
               continue;
             }
 
+            let allocated_objects_count = parse_or_err(allocated_count.unwrap().to_string_repr().as_str())?;
+
+            let allocated_bytes = if let Some(object_size_attr) = config.info().object_size_bytes_attr() {
+              allocated_objects_count * parse_or_err::<usize>(object_size_attr.as_str())?
+            } else if let Some(total_allocated_bytes) = config.info().total_allocated_bytes_attr() {
+              parse_or_err(total_allocated_bytes)?
+            } else {
+              warn!("Failed to get object_size_attr or total_allocated_bytes attributes, skipping this event");
+              continue;
+            };
+
             software_data.allocation_events_mut().push(AllocationEvent::new(
               type_name.unwrap().to_string_repr().to_string(),
-              parse_or_err(allocated_count.unwrap().to_string_repr().as_str())?,
-              parse_or_err(object_size.unwrap().to_string_repr().as_str())?,
+              allocated_objects_count,
+              allocated_bytes
             ))
           }
         }
