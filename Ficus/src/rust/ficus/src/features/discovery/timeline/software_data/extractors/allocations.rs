@@ -4,7 +4,7 @@ use crate::features::discovery::timeline::software_data::extraction_config::Soft
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{AllocationEvent, SoftwareData};
 use derive_new::new;
-use log::warn;
+use log::{error, warn};
 
 #[derive(Debug, Clone, new)]
 pub struct AllocationDataExtractor<'a> {
@@ -30,11 +30,21 @@ impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
             let allocated_objects_count = parse_or_err(allocated_count.unwrap().to_string_repr().as_str())?;
 
             let allocated_bytes = if let Some(object_size_attr) = config.info().object_size_bytes_attr() {
-              allocated_objects_count * parse_or_err::<usize>(object_size_attr.as_str())?
-            } else if let Some(total_allocated_bytes) = config.info().total_allocated_bytes_attr() {
-              parse_or_err(total_allocated_bytes)?
+              if let Some(object_size) = payload.get(object_size_attr) {
+                allocated_objects_count * parse_or_err::<usize>(object_size.to_string_repr().as_str())? 
+              } else {
+                warn!("Failed to get object_size_attr attribute, skipping this event");
+                continue;
+              }
+            } else if let Some(total_allocated_bytes_attr) = config.info().total_allocated_bytes_attr() {
+              if let Some(total_allocated_bytes) = payload.get(total_allocated_bytes_attr) {
+                parse_or_err(total_allocated_bytes.to_string_repr().as_str())? 
+              } else {
+                warn!("Failed to get total_allocated_bytes attribute, skipping this event");
+                continue
+              }
             } else {
-              warn!("Failed to get object_size_attr or total_allocated_bytes attributes, skipping this event");
+              error!("No allocation size attributes were present in the event, skipping this event");
               continue;
             };
 
