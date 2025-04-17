@@ -43,8 +43,8 @@ where
                     (
                         *pair.0,
                         GraphEdge::new(
-                            pair.1.first_node_id, 
-                            pair.1.second_node_id,
+                            pair.1.from_node, 
+                            pair.1.to_node,
                             pair.1.weight,
                             match pair.1.data() {
                                 None => None,

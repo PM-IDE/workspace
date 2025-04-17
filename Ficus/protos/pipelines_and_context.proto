@@ -357,6 +357,8 @@ message GrpcGraphEdge {
   uint64 to_node = 3;
   double weight = 4;
   string data = 5;
+
+  repeated GrpcNodeAdditionalData additional_data = 6;
 }
 
 message GrpcBytes {

@@ -788,6 +788,7 @@ where
     from_node: *edge.from_node(),
     to_node: *edge.to_node(),
     weight: edge.weight,
+    additional_data: convert_to_grpc_graph_node_additional_data(edge.user_data()),
     data: match edge.data() {
       None => "".to_string(),
       Some(data) => data.to_string(),

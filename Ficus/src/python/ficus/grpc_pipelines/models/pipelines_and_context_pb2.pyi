@@ -550,18 +550,20 @@ class GrpcUnderlyingPatternInfo(_message.Message):
     def __init__(self, pattern_kind: _Optional[_Union[GrpcUnderlyingPatternKind, str]] = ..., base_sequence: _Optional[_Iterable[str]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ...) -> None: ...
 
 class GrpcGraphEdge(_message.Message):
-    __slots__ = ["id", "from_node", "to_node", "weight", "data"]
+    __slots__ = ["id", "from_node", "to_node", "weight", "data", "additional_data"]
     ID_FIELD_NUMBER: _ClassVar[int]
     FROM_NODE_FIELD_NUMBER: _ClassVar[int]
     TO_NODE_FIELD_NUMBER: _ClassVar[int]
     WEIGHT_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
+    ADDITIONAL_DATA_FIELD_NUMBER: _ClassVar[int]
     id: int
     from_node: int
     to_node: int
     weight: float
     data: str
-    def __init__(self, id: _Optional[int] = ..., from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ...) -> None: ...
+    additional_data: _containers.RepeatedCompositeFieldContainer[GrpcNodeAdditionalData]
+    def __init__(self, id: _Optional[int] = ..., from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Iterable[_Union[GrpcNodeAdditionalData, _Mapping]]] = ...) -> None: ...
 
 class GrpcBytes(_message.Message):
     __slots__ = ["bytes"]

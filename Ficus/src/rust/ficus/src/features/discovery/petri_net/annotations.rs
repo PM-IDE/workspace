@@ -152,8 +152,8 @@ pub fn annotate_with_time_performance(
 
   let mut time_annotations = HashMap::new();
   for edge in graph.all_edges() {
-    let first_node = graph.node(&edge.first_node_id).expect("Must contain first node");
-    let second_node = graph.node(&edge.second_node_id).expect("Must contain second node");
+    let first_node = graph.node(&edge.from_node).expect("Must contain first node");
+    let second_node = graph.node(&edge.to_node).expect("Must contain second node");
 
     let key = (
       first_node.data.as_ref().unwrap().clone(),
