@@ -1,7 +1,7 @@
 use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY};
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverLCSGraphError, EventWithUniqueId, NodeAdditionalDataContainer};
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventWithUniqueId, NodeAdditionalDataContainer};
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, INNER_GRAPH_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
@@ -247,7 +247,7 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   graph: &mut DefaultGraph,
   start_node_id: u64,
-) -> Result<(), DiscoverLCSGraphError> {
+) -> Result<(), DiscoverRootSequenceGraphError> {
   let mut edges_weights = HashMap::new();
   for trace in log {
     let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
@@ -266,12 +266,18 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(
   Ok(())
 }
 
-pub fn find_next_nodes(graph: &DefaultGraph, current_node: u64, next_event_id: u64) -> Vec<u64> {
-  graph.outgoing_nodes(&current_node)
+pub fn find_next_node(graph: &DefaultGraph, current_node: u64, next_event_id: u64) -> Result<u64, DiscoverRootSequenceGraphError> {
+  let next_nodes = graph.outgoing_nodes(&current_node)
     .into_iter()
     .filter_map(|n| match graph.node(n).unwrap().user_data().get(EVENT_UNIQUE_ID_KEY.key()).unwrap_or(&vec![]).contains(&next_event_id) {
       true => Some(*n),
       false => None
     })
-    .collect::<Vec<u64>>()
+    .collect::<Vec<u64>>();
+
+  if next_nodes.len() != 1 {
+    Err(DiscoverRootSequenceGraphError::NotSingleCandidateForNextNode)
+  } else {
+    Ok(*next_nodes.first().unwrap())
+  }
 }

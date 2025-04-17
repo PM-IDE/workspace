@@ -1,12 +1,13 @@
 use getset::Getters;
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::{Debug, Display, Formatter, Write};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 #[derive(Debug)]
-pub enum DiscoverLCSGraphError {
+pub enum DiscoverRootSequenceGraphError {
   NoArtificialStartEndEvents,
   FailedToReplaySequence,
+  NotSingleCandidateForNextNode,
 }
 
 #[derive(Clone, Copy)]
@@ -31,11 +32,12 @@ impl FromStr for RootSequenceKind {
   }
 }
 
-impl Display for DiscoverLCSGraphError {
+impl Display for DiscoverRootSequenceGraphError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      DiscoverLCSGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events"),
-      DiscoverLCSGraphError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
+      DiscoverRootSequenceGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events"),
+      DiscoverRootSequenceGraphError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
+      DiscoverRootSequenceGraphError::NotSingleCandidateForNextNode => f.write_str("There were several or zero candidates for next node during replay")
     }
   }
 }

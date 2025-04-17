@@ -9,7 +9,7 @@ use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphIn
 use crate::features::discovery::petri_net::annotations::create_performance_map;
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
-use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverLCSGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind};
+use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, UNDERLYING_PATTERNS_INFOS_KEY};
@@ -25,7 +25,7 @@ pub fn discover_root_sequence_graph_from_event_log(
   log: &XesEventLogImpl,
   root_sequence_kind: RootSequenceKind,
   merge_sequences_of_events: bool,
-) -> Result<DefaultGraph, DiscoverLCSGraphError> {
+) -> Result<DefaultGraph, DiscoverRootSequenceGraphError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
   adjust_log_user_data(log);
 
@@ -181,10 +181,10 @@ fn adjust_event_coordinates<T: Clone + Debug>(
   }
 }
 
-fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> Result<(), DiscoverLCSGraphError> {
+fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> Result<(), DiscoverRootSequenceGraphError> {
   for trace in log.traces().iter().map(|t| t.borrow()) {
     if !check_trace_have_artificial_start_end_events(trace.deref()) {
-      return Err(DiscoverLCSGraphError::NoArtificialStartEndEvents);
+      return Err(DiscoverRootSequenceGraphError::NoArtificialStartEndEvents);
     }
   }
 
