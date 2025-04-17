@@ -30,7 +30,7 @@ impl LogTimelineDiagram {
     if let Some(regex) = self.control_flow_events_regex.as_ref() {
       regex.is_match(event_class).unwrap_or(false)
     } else {
-      false
+      true
     }
   }
 }

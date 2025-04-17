@@ -171,7 +171,7 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
       *events_counts.entry(processed_event_name).or_default() += 1;
     }
 
-    let max_count = *events_counts.values().max().unwrap() as f64;
+    let max_count = *events_counts.values().max().unwrap_or(&0) as f64;
     for class in &all_event_classes {
       raw_dataset.push(if let Some(count) = events_counts.get(class) {
         match feature_count_kind {

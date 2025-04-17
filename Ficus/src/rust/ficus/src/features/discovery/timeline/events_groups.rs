@@ -202,7 +202,7 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> 
 
       if trace_index == *current_group_info.end_point.trace_index() && event_index == *current_group_info.end_point.event_index() {
         if let Some(current_group) = current_group {
-          trace_groups.push(current_group.clone());
+          trace_groups.push(current_group);
         }
 
         current_group = None;
