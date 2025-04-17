@@ -93,7 +93,7 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::ABSTRACT_TIMELINE_DIAGRAM, &|context, infra, config| {
       let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
       let thread_attribute = timeline.thread_attribute().to_string();
-      let time_attribute = timeline.time_attribute().cloned();
+      let time_attribute = timeline.time_attribute().as_ref().cloned();
       let extraction_config = Self::get_software_data_extraction_config(config);
 
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;

@@ -13,51 +13,33 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
+use derive_new::new;
 use fancy_regex::Regex;
+use getset::{Getters, MutGetters};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {
-  pub(in crate::features) thread_attribute: String,
-  pub(in crate::features) time_attribute: Option<String>,
-  pub(in crate::features) traces: Vec<TraceTimelineDiagram>,
+  #[getset(get = "pub")] thread_attribute: String,
+  #[getset(get = "pub")] time_attribute: Option<String>,
+  #[getset(get = "pub")] control_flow_events_regex: Option<Regex>,
+  #[getset(get = "pub")] traces: Vec<TraceTimelineDiagram>,
 }
 
-impl LogTimelineDiagram {
-  pub fn traces(&self) -> &Vec<TraceTimelineDiagram> {
-    &self.traces
-  }
-  pub fn thread_attribute(&self) -> &str { self.thread_attribute.as_str() }
-  pub fn time_attribute(&self) -> Option<&String> { self.time_attribute.as_ref() }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters, new)]
 pub struct LogPoint {
-  pub(in crate::features) trace_index: usize,
-  pub(in crate::features) event_index: usize,
+  #[getset(get = "pub")] trace_index: usize,
+  #[getset(get = "pub")] event_index: usize,
 }
 
-impl LogPoint {
-  pub fn trace_index(&self) -> usize { self.trace_index }
-  pub fn event_index(&self) -> usize { self.event_index }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters, new)]
 pub struct TraceTimelineDiagram {
-  pub(in crate::features) threads: Vec<TraceThread>,
-  pub(in crate::features) events_groups: Vec<TraceEventsGroup>,
+  #[getset(get = "pub")] threads: Vec<TraceThread>,
+  #[getset(get = "pub")] events_groups: Vec<TraceEventsGroup>,
 }
 
-impl TraceTimelineDiagram {
-  pub fn threads(&self) -> &Vec<TraceThread> {
-    &self.threads
-  }
-
-  pub fn events_groups(&self) -> &Vec<TraceEventsGroup> { &self.events_groups }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters, MutGetters)]
 pub struct TraceThread {
-  pub(in crate::features) events: Vec<TraceThreadEvent>,
+  #[getset(get = "pub", get_mut = "pub")] events: Vec<TraceThreadEvent>,
 }
 
 impl TraceThread {
@@ -66,34 +48,12 @@ impl TraceThread {
       events: vec![]
     }
   }
-
-  pub fn events(&self) -> &Vec<TraceThreadEvent> {
-    &self.events
-  }
-  pub fn events_mut(&mut self) -> &mut Vec<TraceThreadEvent> { &mut self.events }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters, new)]
 pub struct TraceThreadEvent {
-  pub(in crate::features) original_event: Rc<RefCell<XesEventImpl>>,
-  pub(in crate::features) stamp: u64,
-}
-
-impl TraceThreadEvent {
-  pub fn new(original_event: Rc<RefCell<XesEventImpl>>, stamp: u64) -> Self {
-    Self {
-      original_event,
-      stamp,
-    }
-  }
-
-  pub fn original_event(&self) -> &Rc<RefCell<XesEventImpl>> {
-    &self.original_event
-  }
-
-  pub fn stamp(&self) -> u64 {
-    self.stamp
-  }
+  #[getset(get = "pub")] original_event: Rc<RefCell<XesEventImpl>>,
+  #[getset(get = "pub")] stamp: u64,
 }
 
 pub enum LogThreadsDiagramError {
@@ -170,12 +130,13 @@ pub fn discover_traces_timeline_diagram(
   };
 
   Ok(LogTimelineDiagram {
+    control_flow_events_regex: regex.cloned(),
     thread_attribute: "Trace".to_string(),
+    traces: timeline_fragments,
     time_attribute: match time_attribute {
       None => None,
       Some(s) => Some(s.to_owned()),
     },
-    traces: timeline_fragments,
   })
 }
 
@@ -226,11 +187,7 @@ pub fn discover_timeline_diagram(
       }
     }
 
-    let events_groups = if let Some(event_group_delta) = event_group_delta {
-      discover_events_groups(&threads.values().collect(), event_group_delta, regex)
-    } else {
-      vec![]
-    };
+    let events_groups = discover_events_groups_internal(&threads.values().collect(), event_group_delta, regex);
 
     traces.push(TraceTimelineDiagram {
       threads: threads.into_iter().map(|(_, v)| v).collect(),
@@ -239,6 +196,7 @@ pub fn discover_timeline_diagram(
   }
 
   Ok(LogTimelineDiagram {
+    control_flow_events_regex: regex.cloned(),
     thread_attribute: thread_attribute.to_string(),
     time_attribute: match time_attribute {
       None => None,

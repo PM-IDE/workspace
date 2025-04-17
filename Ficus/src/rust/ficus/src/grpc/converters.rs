@@ -912,7 +912,7 @@ fn convert_to_grpc_threads(threads: &Vec<TraceThread>) -> Vec<GrpcThread> {
         .iter()
         .map(|e| GrpcThreadEvent {
           name: e.original_event().borrow().name().to_owned(),
-          stamp: e.stamp(),
+          stamp: e.stamp().clone(),
         })
         .collect(),
     })
@@ -921,7 +921,7 @@ fn convert_to_grpc_threads(threads: &Vec<TraceThread>) -> Vec<GrpcThread> {
 
 fn convert_to_grpc_log_point(point: &LogPoint) -> GrpcLogPoint {
   GrpcLogPoint {
-    trace_index: point.trace_index() as u64,
-    event_index: point.event_index() as u64,
+    trace_index: point.trace_index().clone() as u64,
+    event_index: point.event_index().clone() as u64,
   }
 }

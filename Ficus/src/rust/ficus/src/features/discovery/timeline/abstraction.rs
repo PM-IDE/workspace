@@ -18,7 +18,6 @@ use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
-use fancy_regex::Regex;
 use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 
 pub fn abstract_event_groups(

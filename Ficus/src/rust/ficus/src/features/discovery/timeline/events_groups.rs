@@ -32,36 +32,27 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
 
   let mut add_to_groups = |last_trace_group: Option<TraceEventsGroup>, last_seen_point: Option<(usize, usize)>| {
     let mut adjusted_last_group = last_trace_group.unwrap().clone();
-    adjusted_last_group.end_point = LogPoint {
-      trace_index: last_seen_point.unwrap().0,
-      event_index: last_seen_point.unwrap().1,
-    };
+    adjusted_last_group.end_point = LogPoint::new(last_seen_point.unwrap().0, last_seen_point.unwrap().1);
 
     groups.push(adjusted_last_group);
   };
 
   while let Some((event, trace_index, event_index)) = events.next() {
     if let Some(regex) = regex {
-      if !regex.is_match(event.original_event.borrow().name()).unwrap_or(false) {
+      if !regex.is_match(event.original_event().borrow().name()).unwrap_or(false) {
         continue;
       }
     }
 
     let create_events_group = || {
       Some(TraceEventsGroup {
-        start_point: LogPoint {
-          event_index,
-          trace_index,
-        },
-        end_point: LogPoint {
-          event_index,
-          trace_index,
-        },
+        start_point: LogPoint::new(event_index, trace_index),
+        end_point: LogPoint::new(event_index, trace_index),
       })
     };
 
     if last_stamp.is_some() {
-      if event.stamp - last_stamp.unwrap() > event_group_delta {
+      if *event.stamp() - last_stamp.unwrap() > event_group_delta {
         add_to_groups(last_trace_group.clone(), last_seen_point.clone());
         last_trace_group = create_events_group();
       }
@@ -70,7 +61,7 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
     }
 
     last_seen_point = Some((trace_index, event_index));
-    last_stamp = Some(event.stamp.clone());
+    last_stamp = Some(event.stamp().clone());
   }
 
   add_to_groups(last_trace_group.clone(), last_seen_point.clone());
@@ -94,7 +85,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
   pub fn next(&mut self) -> Option<(&TraceThreadEvent, usize, usize)> {
     let mut min_index = 0;
 
-    while min_index < self.indices.len() && self.indices[min_index] >= self.threads[min_index].events.len() {
+    while min_index < self.indices.len() && self.indices[min_index] >= self.threads[min_index].events().len() {
       min_index += 1;
     }
 
@@ -103,7 +94,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
     }
 
     for i in (min_index + 1)..self.indices.len() {
-      if self.indices[i] >= self.threads[i].events.len() {
+      if self.indices[i] >= self.threads[i].events().len() {
         continue;
       }
 
@@ -113,12 +104,12 @@ impl<'a> ThreadsSequentialEvents<'a> {
       }
     }
 
-    if self.indices[min_index] >= self.threads[min_index].events.len() {
+    if self.indices[min_index] >= self.threads[min_index].events().len() {
       None
     } else {
       self.indices[min_index] += 1;
       Some((
-        self.threads.get(min_index).unwrap().events.get(self.indices[min_index] - 1).as_ref().unwrap(),
+        self.threads.get(min_index).unwrap().events().get(self.indices[min_index] - 1).as_ref().unwrap(),
         min_index,
         self.indices[min_index] - 1
       ))
@@ -126,12 +117,18 @@ impl<'a> ThreadsSequentialEvents<'a> {
   }
 
   fn get_stamp(&self, index: usize) -> u64 {
-    self.get_trace_event(index).stamp
+    *self.get_trace_event(index).stamp()
   }
 
   fn get_trace_event(&self, index: usize) -> &TraceThreadEvent {
-    self.threads.get(index).unwrap().events.get(self.indices[index]).as_ref().unwrap()
+    self.threads.get(index).unwrap().events().get(self.indices[index]).as_ref().unwrap()
   }
+}
+
+pub struct EventGroup {
+  control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
+  statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
+  before_groups_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>
 }
 
 pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>> {
@@ -141,12 +138,12 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCel
     let mut group_index = 0;
     let threads_refs: Vec<&TraceThread> = trace_diagram.threads().iter().map(|x| x).collect();
     let get_stamp = |point: &LogPoint| {
-      threads_refs.get(point.trace_index).unwrap().events.get(point.event_index).unwrap().stamp
+      threads_refs.get(*point.trace_index()).unwrap().events().get(*point.event_index()).unwrap().stamp()
     };
 
     let mut events = ThreadsSequentialEvents::new(&threads_refs);
 
-    let mut events_groups = trace_diagram.events_groups.clone();
+    let mut events_groups = trace_diagram.events_groups().clone();
     events_groups.sort_by(|f, s| get_stamp(f.start_point()).cmp(&get_stamp(s.start_point())));
 
     let mut trace_groups = vec![];
@@ -157,7 +154,7 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCel
       }
 
       let current_group_info = events_groups.get(group_index).unwrap();
-      if trace_index == current_group_info.start_point().trace_index && event_index == current_group_info.start_point().event_index {
+      if trace_index == *current_group_info.start_point().trace_index() && event_index == *current_group_info.start_point().event_index() {
         current_group = Some(vec![]);
       }
 
@@ -165,7 +162,7 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCel
         current_group.push(event.original_event().clone());
       }
 
-      if trace_index == current_group_info.end_point.trace_index && event_index == current_group_info.end_point.event_index {
+      if trace_index == *current_group_info.end_point.trace_index() && event_index == *current_group_info.end_point.event_index() {
         if let Some(current_group) = current_group {
           trace_groups.push(current_group.clone());
         }
