@@ -1,6 +1,6 @@
 use ficus::features::discovery::root_sequence::context::DiscoveryContext;
 use ficus::features::discovery::root_sequence::discovery::discover_root_sequence_graph;
-use ficus::features::discovery::root_sequence::models::RootSequenceKind;
+use ficus::features::discovery::root_sequence::models::{EventWithUniqueId, RootSequenceKind};
 use ficus::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use ficus::utils::references::HeapedOrOwned;
 use ficus::utils::user_data::user_data::UserDataImpl;
@@ -375,6 +375,7 @@ fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_
 
   let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer);
 
+  let traces = traces.into_iter().map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect()).collect();
   let graph = discover_root_sequence_graph(&traces, &context, false, None).ok().unwrap().graph_move();
   let test_result = graph.serialize_edges_deterministic();
 

@@ -1,14 +1,23 @@
 use crate::features::discovery::petri_net::annotations::PerformanceMap;
 use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_weights, find_next_nodes, merge_sequences_of_nodes};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::models::DiscoverLCSGraphError;
+use crate::features::discovery::root_sequence::models::{DiscoverLCSGraphError, EventWithUniqueId};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
+use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
+use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
+use crate::utils::user_data::user_data::UserData;
+use lazy_static::lazy_static;
 use std::collections::{HashMap, VecDeque};
 use std::fmt::Debug;
 
+lazy_static!(
+   pub(super) static ref EVENT_UNIQUE_ID_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new("EVENT_UNIQUE_ID");
+);
+
+#[derive(Debug)]
 pub struct RootSequenceGraphDiscoveryResult {
   graph: DefaultGraph,
   start_node_id: Option<u64>,
@@ -46,7 +55,7 @@ impl RootSequenceGraphDiscoveryResult {
 }
 
 pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
-  log: &Vec<Vec<T>>,
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
   context: &DiscoveryContext<T>,
   merge_sequences_of_events: bool,
   performance_map: Option<PerformanceMap>,
@@ -56,7 +65,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   adjust_connections(context, log, &mut result.graph);
 
   if let Some(start_node_id) = result.start_node_id {
-    adjust_weights(context, log, &mut result.graph, start_node_id)?;
+    adjust_weights(log, &mut result.graph, start_node_id)?;
   }
 
   if merge_sequences_of_events {
@@ -67,7 +76,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
 }
 
 fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
-  log: &Vec<Vec<T>>,
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
   context: &DiscoveryContext<T>,
   first_iteration: bool,
 ) -> Result<RootSequenceGraphDiscoveryResult, DiscoverLCSGraphError> {
@@ -86,14 +95,19 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
 }
 
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
-  log: &Vec<Vec<T>>,
-  root_sequence: &Vec<T>,
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
+  root_sequence: &Vec<EventWithUniqueId<T>>,
   context: &DiscoveryContext<T>,
 ) -> RootSequenceGraphDiscoveryResult {
   let mut graph = DefaultGraph::empty();
-  let name_extractor = context.name_extractor();
-  let start_node = graph.add_node(Some(name_extractor(root_sequence.first().unwrap())));
-  let end_node = graph.add_node(Some(name_extractor(root_sequence.last().unwrap())));
+
+  let start_node = create_new_graph_node(&mut graph, root_sequence.first().unwrap(), false, context, false);
+  let end_node = create_new_graph_node(&mut graph, root_sequence.last().unwrap(), false, context, false);
+
+  for trace in log {
+    transfer_unique_event_id(graph.node_mut(&start_node).unwrap(), trace.first().unwrap());
+    transfer_unique_event_id(graph.node_mut(&end_node).unwrap(), trace.last().unwrap());
+  }
 
   for trace in log {
     let mut prev_node_id = start_node;
@@ -109,15 +123,15 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   RootSequenceGraphDiscoveryResult::new(graph, Some(start_node), Some(end_node))
 }
 
-pub(super) fn create_new_graph_node<T>(
+pub(super) fn create_new_graph_node<T: PartialEq + Clone + Debug>(
   graph: &mut DefaultGraph,
-  event: &T,
+  event: &EventWithUniqueId<T>,
   is_root_sequence: bool,
   context: &DiscoveryContext<T>,
   transfer_context_values: bool,
 ) -> u64 {
   let name_extractor = context.name_extractor();
-  let node_id = graph.add_node(Some(name_extractor(event)));
+  let node_id = graph.add_node(Some(name_extractor(event.event())));
 
   if transfer_context_values {
     transfer_user_data(graph, event, node_id, is_root_sequence, context);
@@ -126,15 +140,31 @@ pub(super) fn create_new_graph_node<T>(
   node_id
 }
 
-fn transfer_user_data<T>(graph: &mut DefaultGraph, event: &T, node_id: u64, is_root_sequence: bool, context: &DiscoveryContext<T>) {
-  let node = graph.node_mut(&node_id).unwrap();
+fn transfer_user_data<T: PartialEq + Clone + Debug>(
+  graph: &mut DefaultGraph,
+  event: &EventWithUniqueId<T>,
+  node_id: u64,
+  is_root_sequence: bool,
+  context: &DiscoveryContext<T>,
+) {
+  let mut node = graph.node_mut(&node_id).unwrap();
   let transfer = context.event_to_graph_node_info_transfer();
-  transfer(event, node.user_data_mut(), is_root_sequence);
+  transfer(event.event(), node.user_data_mut(), is_root_sequence);
+
+  transfer_unique_event_id(&mut node, event);
 }
 
-fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
-  log: &Vec<Vec<T>>,
-  root_sequence: &Vec<T>,
+fn transfer_unique_event_id<T: PartialEq + Clone + Debug>(node: &mut GraphNode<HeapedOrOwned<String>>, event: &EventWithUniqueId<T>) {
+  if let Some(node_ids) = node.user_data_mut().concrete_mut(EVENT_UNIQUE_ID_KEY.key()) {
+    node_ids.push(*event.id());
+  } else {
+    node.user_data_mut().put_concrete(EVENT_UNIQUE_ID_KEY.key(), vec![*event.id()]);
+  }
+}
+
+fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
+  root_sequence: &Vec<EventWithUniqueId<T>>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
   is_first_iteration_root_sequence: bool,
@@ -165,8 +195,8 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone>(
 }
 
 fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
-  traces: &Vec<Vec<T>>,
-  lcs: &Vec<T>,
+  traces: &Vec<Vec<EventWithUniqueId<T>>>,
+  lcs: &Vec<EventWithUniqueId<T>>,
   root_sequence_node_ids: &Vec<u64>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
@@ -206,10 +236,10 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
     }
   }
 
-  let mut adjustments: Vec<(u64, Vec<(u64, Vec<Vec<T>>)>)> = adjustments
+  let mut adjustments: Vec<(u64, Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)>)> = adjustments
     .into_iter()
     .map(|(k, v)| {
-      let mut values: Vec<(u64, Vec<Vec<T>>)> = v.into_iter().collect();
+      let mut values: Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)> = v.into_iter().collect();
       values.sort_by(|f, s| f.0.cmp(&s.0));
       (k, values)
     }).collect();
@@ -220,7 +250,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
 }
 
 fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
-  adjustments: &Vec<(u64, Vec<(u64, Vec<Vec<T>>)>)>,
+  adjustments: &Vec<(u64, Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)>)>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
 ) -> Result<(), DiscoverLCSGraphError> {
@@ -235,9 +265,9 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
 }
 
 fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
-  end_root_sequence_nodes_to_adjustments: &Vec<(u64, Vec<Vec<T>>)>,
+  end_root_sequence_nodes_to_adjustments: &Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)>,
   artificial_start_end_events_factory: impl Fn() -> (T, T),
-) -> Vec<Vec<T>> {
+) -> Vec<Vec<EventWithUniqueId<T>>> {
   let mut adjustment_log = vec![];
 
   for (_, adjustments) in end_root_sequence_nodes_to_adjustments {
@@ -247,12 +277,12 @@ fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
       }
 
       let (art_start, art_end) = artificial_start_end_events_factory();
-      let mut adjustment_trace = vec![art_start];
+      let mut adjustment_trace = vec![EventWithUniqueId::new(art_start)];
       for event in adjustment {
         adjustment_trace.push(event.clone());
       }
 
-      adjustment_trace.push(art_end);
+      adjustment_trace.push(EventWithUniqueId::new(art_end));
       adjustment_log.push(adjustment_trace);
     }
   }
@@ -285,7 +315,7 @@ fn find_start_end_node_ids<T: PartialEq + Clone + Debug>(
 }
 
 fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
-  adjustments: &Vec<(u64, Vec<Vec<T>>)>,
+  adjustments: &Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)>,
   graph: &mut DefaultGraph,
   sub_graph: DefaultGraph,
   start_graph_node_id: u64,
@@ -314,7 +344,7 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
 
   for (end_node_id, log) in adjustments {
     for trace in log {
-      let final_node = replay_sequence(context, graph, start_graph_node_id, trace.as_slice())?;
+      let final_node = replay_sequence(graph, start_graph_node_id, trace.as_slice())?;
       graph.connect_nodes(&final_node, end_node_id, NodesConnectionData::empty());
     }
   }
@@ -322,7 +352,11 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
   Ok(())
 }
 
-fn replay_sequence<T>(context: &DiscoveryContext<T>, graph: &DefaultGraph, start_node_id: u64, sequence: &[T]) -> Result<u64, DiscoverLCSGraphError> {
+fn replay_sequence<T: PartialEq + Clone + Debug>(
+  graph: &DefaultGraph,
+  start_node_id: u64,
+  sequence: &[EventWithUniqueId<T>],
+) -> Result<u64, DiscoverLCSGraphError> {
   let mut replay_states = VecDeque::from_iter([(start_node_id, 0usize)]);
 
   loop {
@@ -335,7 +369,7 @@ fn replay_sequence<T>(context: &DiscoveryContext<T>, graph: &DefaultGraph, start
       return Ok(current_node_id);
     }
 
-    let outgoing_nodes = find_next_nodes(graph, current_node_id, &context.name_extractor()(&sequence[event_index]));
+    let outgoing_nodes = find_next_nodes(graph, current_node_id, *sequence[event_index].id());
     for next_node in outgoing_nodes {
       replay_states.push_back((next_node, event_index + 1));
     }
@@ -356,10 +390,10 @@ impl ReplayHistoryEntry {
   }
 }
 
-pub(super) fn replay_sequence_with_history<T>(
-  context: &DiscoveryContext<T>,
+pub(super) fn replay_sequence_with_history<T: PartialEq + Clone + Debug>(
   graph: &DefaultGraph,
-  start_node_id: u64, sequence: &[T],
+  start_node_id: u64,
+  sequence: &[EventWithUniqueId<T>],
 ) -> Result<Vec<u64>, DiscoverLCSGraphError> {
   let mut replay_states = VecDeque::from_iter([(start_node_id, 0usize, 0usize)]);
   let mut replay_history = vec![ReplayHistoryEntry::new(start_node_id, None)];
@@ -387,7 +421,7 @@ pub(super) fn replay_sequence_with_history<T>(
       return Ok(history);
     }
 
-    let outgoing_nodes = find_next_nodes(graph, current_node_id, &context.name_extractor()(&sequence[event_index]));
+    let outgoing_nodes = find_next_nodes(graph, current_node_id, *sequence[event_index].id());
     for next_node in outgoing_nodes {
       replay_history.push(ReplayHistoryEntry::new(next_node, Some(history_end_index)));
       replay_states.push_back((next_node, event_index + 1, replay_history.len() - 1));

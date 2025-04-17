@@ -9,7 +9,7 @@ use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphIn
 use crate::features::discovery::petri_net::annotations::create_performance_map;
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
-use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverLCSGraphError, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind};
+use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverLCSGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, UNDERLYING_PATTERNS_INFOS_KEY};
@@ -51,6 +51,8 @@ pub fn discover_root_sequence_graph_from_event_log(
 
   let log = log.traces().iter().map(|t| t.borrow().events().clone()).collect();
   initialize_patterns_infos(&log);
+
+  let log = log.into_iter().map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect()).collect();
 
   let mut result = discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map))?;
   discover_graphs_for_patterns(result.graph_mut(), &context);
@@ -113,7 +115,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
         let mut prev_node_id = None;
 
         for event in pattern.value().underlying_sequence() {
-          let current_node_id = create_new_graph_node(&mut graph, event, false, context, true);
+          let current_node_id = create_new_graph_node(&mut graph, &EventWithUniqueId::new(event.clone()), false, context, true);
           if let Some(prev_node) = prev_node_id {
             graph.connect_nodes(&prev_node, &current_node_id, NodesConnectionData::empty());
           }

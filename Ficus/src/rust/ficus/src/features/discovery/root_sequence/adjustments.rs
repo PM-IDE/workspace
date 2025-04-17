@@ -1,7 +1,7 @@
 use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::discovery::replay_sequence_with_history;
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverLCSGraphError, NodeAdditionalDataContainer};
+use crate::features::discovery::root_sequence::discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY};
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverLCSGraphError, EventWithUniqueId, NodeAdditionalDataContainer};
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, INNER_GRAPH_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
@@ -210,14 +210,18 @@ fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph
   times
 }
 
-pub fn adjust_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph) {
+pub fn adjust_connections<T: PartialEq + Clone + Debug>(
+  context: &DiscoveryContext<T>,
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
+  graph: &mut DefaultGraph,
+) {
   let name_extractor = context.name_extractor();
   let mut df_relations = HashMap::new();
 
   for trace in log {
     for i in 0..trace.len() - 1 {
-      let first_name = name_extractor(&trace[i]);
-      let second_name = name_extractor(&trace[i + 1]);
+      let first_name = name_extractor(&trace[i].event());
+      let second_name = name_extractor(&trace[i + 1].event());
 
       *df_relations.entry((Some(first_name), Some(second_name))).or_insert(0) += 1usize;
     }
@@ -239,10 +243,14 @@ pub fn adjust_connections<T: PartialEq + Clone + Debug>(context: &DiscoveryConte
   }
 }
 
-pub fn adjust_weights<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T>, log: &Vec<Vec<T>>, graph: &mut DefaultGraph, start_node_id: u64) -> Result<(), DiscoverLCSGraphError> {
+pub fn adjust_weights<T: PartialEq + Clone + Debug>(
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
+  graph: &mut DefaultGraph,
+  start_node_id: u64,
+) -> Result<(), DiscoverLCSGraphError> {
   let mut edges_weights = HashMap::new();
   for trace in log {
-    let replay_history = replay_sequence_with_history(context, graph, start_node_id, &trace[1..])?;
+    let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
     for i in 0..replay_history.len() - 1 {
       let from_node = replay_history[i];
       let to_node = replay_history[i + 1];
@@ -258,10 +266,10 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(context: &DiscoveryContext<T
   Ok(())
 }
 
-pub fn find_next_nodes(graph: &DefaultGraph, current_node: u64, name: &HeapedOrOwned<String>) -> Vec<u64> {
+pub fn find_next_nodes(graph: &DefaultGraph, current_node: u64, next_event_id: u64) -> Vec<u64> {
   graph.outgoing_nodes(&current_node)
     .into_iter()
-    .filter_map(|n| match graph.node(n).unwrap().data().unwrap().eq(name) {
+    .filter_map(|n| match graph.node(n).unwrap().user_data().get(EVENT_UNIQUE_ID_KEY.key()).unwrap_or(&vec![]).contains(&next_event_id) {
       true => Some(*n),
       false => None
     })

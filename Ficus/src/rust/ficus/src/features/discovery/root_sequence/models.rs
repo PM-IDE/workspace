@@ -1,6 +1,9 @@
+use getset::Getters;
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
+use std::sync::atomic::{AtomicU64, Ordering};
 
+#[derive(Debug)]
 pub enum DiscoverLCSGraphError {
   NoArtificialStartEndEvents,
   FailedToReplaySequence,
@@ -131,4 +134,27 @@ impl CorrespondingTraceData {
   }
 
   pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
+}
+
+#[derive(Clone, Debug, Getters)]
+pub struct EventWithUniqueId<T: PartialEq + Clone> {
+  #[getset(get = "pub")] event: T,
+  #[getset(get = "pub")] id: u64,
+}
+
+impl<T: PartialEq + Clone> EventWithUniqueId<T> {
+  pub fn new(event: T) -> Self {
+    static NEXT_ID: AtomicU64 = AtomicU64::new(0);
+
+    Self {
+      event,
+      id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
+    }
+  }
+}
+
+impl<T: PartialEq + Clone> PartialEq for EventWithUniqueId<T> {
+  fn eq(&self, other: &Self) -> bool {
+    self.event().eq(other.event())
+  }
 }
