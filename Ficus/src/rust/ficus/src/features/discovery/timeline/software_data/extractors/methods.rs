@@ -1,11 +1,9 @@
 use crate::event_log::core::event::event::Event;
-use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::core::{payload_value_or_none, regex_option_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{MethodEvent, SoftwareData};
 use derive_new::new;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 #[derive(Debug, Clone, new)]
 pub struct MethodsDataExtractor<'a> {
@@ -13,11 +11,11 @@ pub struct MethodsDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for MethodsDataExtractor<'a> {
-  fn extract(&self, software_data: &mut SoftwareData, event_group: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
     let inlining_succeeded_regex = regex_option_or_err(self.config.method_inlining_success().as_ref().map(|c| c.event_class_regex()))?;
     let inlining_failed_regex = regex_option_or_err(self.config.method_inlining_failed().as_ref().map(|c| c.event_class_regex()))?;
 
-    for event in event_group {
+    for event in event_group.all_events() {
       if let Some(payload) = event.borrow().payload_map() {
         if let Some(inlining_succeeded_regex) = inlining_succeeded_regex.as_ref() {
           if inlining_succeeded_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {

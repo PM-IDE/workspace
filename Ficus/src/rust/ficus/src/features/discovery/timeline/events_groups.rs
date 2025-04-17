@@ -1,9 +1,10 @@
+use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
+use fancy_regex::Regex;
+use getset::{Getters, MutGetters};
 use std::cell::RefCell;
 use std::rc::Rc;
-use fancy_regex::Regex;
-use crate::event_log::core::event::event::Event;
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
@@ -125,13 +126,28 @@ impl<'a> ThreadsSequentialEvents<'a> {
   }
 }
 
+#[derive(Clone, Debug, Getters, MutGetters)]
 pub struct EventGroup {
-  control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
-  statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
-  before_groups_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>
+  #[getset(get = "pub", get_mut = "pub")] control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
+  #[getset(get = "pub", get_mut = "pub")] statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
+  #[getset(get = "pub", get_mut = "pub")] before_groups_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
 }
 
-pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>> {
+impl EventGroup {
+  pub fn empty() -> Self {
+    Self {
+      control_flow_events: vec![],
+      statistic_events: vec![],
+      before_groups_events: None,
+    }
+  }
+
+  pub fn all_events(&self) -> Vec<&Rc<RefCell<XesEventImpl>>> {
+    self.control_flow_events.iter().chain(&self.statistic_events).collect()
+  }
+}
+
+pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> {
   let mut result = vec![];
 
   for trace_diagram in log.traces() {
@@ -155,11 +171,15 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<Vec<Rc<RefCel
 
       let current_group_info = events_groups.get(group_index).unwrap();
       if trace_index == *current_group_info.start_point().trace_index() && event_index == *current_group_info.start_point().event_index() {
-        current_group = Some(vec![]);
+        current_group = Some(EventGroup::empty());
       }
 
       if let Some(current_group) = current_group.as_mut() {
-        current_group.push(event.original_event().clone());
+        if log.is_control_flow_event(event.original_event().borrow().name().as_str()) {
+          current_group.control_flow_events_mut().push(event.original_event().clone());
+        } else {
+          current_group.statistic_events_mut().push(event.original_event().clone());
+        }
       }
 
       if trace_index == *current_group_info.end_point.trace_index() && event_index == *current_group_info.end_point.event_index() {

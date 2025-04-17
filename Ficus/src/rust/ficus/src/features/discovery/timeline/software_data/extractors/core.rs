@@ -1,14 +1,12 @@
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::models::{MethodEvent, SoftwareData};
-use std::cell::RefCell;
+use crate::event_log::core::event::event::EventPayloadValue;
+use crate::features::discovery::timeline::events_groups::EventGroup;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
+use fancy_regex::Regex;
+use log::warn;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
-use std::rc::Rc;
 use std::str::FromStr;
-use fancy_regex::Regex;
-use log::warn;
-use crate::event_log::core::event::event::EventPayloadValue;
 
 #[derive(Debug)]
 pub enum SoftwareDataExtractionError {
@@ -30,7 +28,7 @@ impl Display for SoftwareDataExtractionError {
 impl Error for SoftwareDataExtractionError {}
 
 pub trait SoftwareDataExtractor {
-  fn extract(&self, software_data: &mut SoftwareData, event_group: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError>;
+  fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError>;
 }
 
 pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {

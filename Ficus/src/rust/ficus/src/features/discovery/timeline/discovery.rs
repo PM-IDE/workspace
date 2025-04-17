@@ -7,15 +7,15 @@ use crate::{
   event_log::xes::xes_event::XesEventImpl,
   event_log::xes::xes_event_log::XesEventLogImpl,
 };
+use derive_new::new;
+use fancy_regex::Regex;
+use getset::{Getters, MutGetters};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
-use derive_new::new;
-use fancy_regex::Regex;
-use getset::{Getters, MutGetters};
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {
@@ -23,6 +23,16 @@ pub struct LogTimelineDiagram {
   #[getset(get = "pub")] time_attribute: Option<String>,
   #[getset(get = "pub")] control_flow_events_regex: Option<Regex>,
   #[getset(get = "pub")] traces: Vec<TraceTimelineDiagram>,
+}
+
+impl LogTimelineDiagram {
+  pub fn is_control_flow_event(&self, event_class: &str) -> bool {
+    if let Some(regex) = self.control_flow_events_regex.as_ref() {
+      regex.is_match(event_class).unwrap_or(false)
+    } else {
+      false
+    }
+  }
 }
 
 #[derive(Debug, Clone, Getters, new)]

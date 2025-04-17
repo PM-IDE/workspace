@@ -5,10 +5,12 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
+use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::methods::MethodsDataExtractor;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::get_stamp;
@@ -18,10 +20,9 @@ use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 
 pub fn abstract_event_groups(
-  event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>,
+  event_groups: Vec<Vec<EventGroup>>,
   labels: &Vec<usize>,
   thread_attribute: String,
   time_attribute: Option<String>,
@@ -33,7 +34,7 @@ pub fn abstract_event_groups(
   for (trace_id, trace_groups) in event_groups.iter().enumerate() {
     let mut abstracted_trace = XesTraceImpl::empty();
     for (event_index, event_group) in trace_groups.iter().enumerate() {
-      if event_group.is_empty() {
+      if event_group.control_flow_events().is_empty() {
         error!("Encountered empty event group");
         continue;
       }
@@ -59,15 +60,15 @@ pub fn abstract_event_groups(
 }
 
 fn create_abstracted_event(
-  event_group: &Vec<Rc<RefCell<XesEventImpl>>>,
+  event_group: &EventGroup,
   label: &usize,
   thread_attribute: &str,
   time_attribute: Option<&String>,
   event_coordinates: EventCoordinates,
   config: &SoftwareDataExtractionConfig,
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
-  let first_stamp = event_group.first().unwrap().borrow().timestamp().clone();
-  let abstracted_event_stamp = *event_group.last().unwrap().borrow().timestamp() - first_stamp;
+  let first_stamp = event_group.control_flow_events().first().unwrap().borrow().timestamp().clone();
+  let abstracted_event_stamp = *event_group.control_flow_events().last().unwrap().borrow().timestamp() - first_stamp;
   let abstracted_event_stamp = first_stamp + abstracted_event_stamp;
 
   let label_name = Rc::new(Box::new(label.to_string()));
@@ -78,8 +79,8 @@ fn create_abstracted_event(
   let software_data = NodeAdditionalDataContainer::new(software_data, event_coordinates);
   event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
-  let first_stamp = get_stamp(&event_group.first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
-  let last_stamp = get_stamp(&event_group.last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
+  let first_stamp = get_stamp(&event_group.control_flow_events().first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
+  let last_stamp = get_stamp(&event_group.control_flow_events().last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
 
   let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
@@ -90,7 +91,7 @@ fn create_abstracted_event(
 
 fn extract_software_data(
   config: &SoftwareDataExtractionConfig,
-  event_group: &Vec<Rc<RefCell<XesEventImpl>>>,
+  event_group: &EventGroup,
   thread_attribute: &str,
   time_attribute: Option<&String>,
 ) -> Result<SoftwareData, PipelinePartExecutionError> {

@@ -1,24 +1,23 @@
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::create_threads_log_by_attribute;
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
 use crate::features::discovery::timeline::abstraction::abstract_event_groups;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, discover_traces_timeline_diagram};
-use crate::features::discovery::timeline::events_groups::enumerate_event_groups;
+use crate::features::discovery::timeline::events_groups::{enumerate_event_groups, EventGroup};
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
+use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, REGEX, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
+use fancy_regex::Regex;
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::str::FromStr;
-use fancy_regex::Regex;
-use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -57,7 +56,7 @@ impl PipelineParts {
           None => None,
           Some(delta) => Some(*delta as u64)
         },
-        regex.as_ref()
+        regex.as_ref(),
       );
 
       match diagram {
@@ -140,14 +139,14 @@ impl PipelineParts {
     }
   }
 
-  fn create_groups_event_log(events_groups: &Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>) -> XesEventLogImpl {
+  fn create_groups_event_log(events_groups: &Vec<Vec<EventGroup>>) -> XesEventLogImpl {
     let mut log = XesEventLogImpl::empty();
 
     for trace in events_groups {
       for group in trace {
         let mut new_trace = XesTraceImpl::empty();
 
-        for event in group {
+        for event in group.control_flow_events() {
           new_trace.push(event.clone());
         }
 
@@ -174,7 +173,7 @@ impl PipelineParts {
           Some(delta) => Some(*delta as u64)
         },
         *discover_events_groups_in_each_trace,
-        regex.as_ref()
+        regex.as_ref(),
       );
 
       match diagram {

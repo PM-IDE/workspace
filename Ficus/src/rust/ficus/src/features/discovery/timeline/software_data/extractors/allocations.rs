@@ -1,12 +1,10 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use derive_new::new;
-use log::warn;
 use crate::event_log::core::event::event::Event;
-use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{AllocationEvent, SoftwareData};
+use derive_new::new;
+use log::warn;
 
 #[derive(Debug, Clone, new)]
 pub struct AllocationDataExtractor<'a> {
@@ -14,11 +12,11 @@ pub struct AllocationDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
-  fn extract(&self, software_data: &mut SoftwareData, event_group: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
     if let Some(config) = self.config.allocation() {
       let regex = regex_or_err(config.event_class_regex())?;
 
-      for event in event_group {
+      for event in event_group.all_events() {
         if regex.is_match(event.borrow().name()).unwrap_or(false) {
           if let Some(payload) = event.borrow().payload_map() {
             let type_name = payload.get(config.info().type_name_attr());
