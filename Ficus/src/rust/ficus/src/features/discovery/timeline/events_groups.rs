@@ -47,8 +47,8 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
 
     let create_events_group = || {
       Some(TraceEventsGroup {
-        start_point: LogPoint::new(event_index, trace_index),
-        end_point: LogPoint::new(event_index, trace_index),
+        start_point: LogPoint::new(trace_index, event_index),
+        end_point: LogPoint::new(trace_index, event_index),
       })
     };
 
