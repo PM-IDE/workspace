@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
 use fancy_regex::Regex;
-use getset::{Getters, MutGetters};
+use getset::{Getters, MutGetters, Setters};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -126,11 +126,11 @@ impl<'a> ThreadsSequentialEvents<'a> {
   }
 }
 
-#[derive(Clone, Debug, Getters, MutGetters)]
+#[derive(Clone, Debug, Getters, MutGetters, Setters)]
 pub struct EventGroup {
   #[getset(get = "pub", get_mut = "pub")] control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
   #[getset(get = "pub", get_mut = "pub")] statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
-  #[getset(get = "pub", get_mut = "pub")] before_groups_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
+  #[getset(get = "pub", get_mut = "pub", set = "pub")] after_group_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
 }
 
 impl EventGroup {
@@ -138,7 +138,7 @@ impl EventGroup {
     Self {
       control_flow_events: vec![],
       statistic_events: vec![],
-      before_groups_events: None,
+      after_group_events: None,
     }
   }
 
@@ -162,16 +162,34 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> 
     let mut events_groups = trace_diagram.events_groups().clone();
     events_groups.sort_by(|f, s| get_stamp(f.start_point()).cmp(&get_stamp(s.start_point())));
 
-    let mut trace_groups = vec![];
+    let mut trace_groups: Vec<EventGroup> = vec![];
     let mut current_group = None;
+
+    let try_put_after_event_to_last_group = |event: Rc<RefCell<XesEventImpl>>, trace_groups: &mut Vec<EventGroup>| {
+      if trace_groups.is_empty() {
+        return;
+      }
+
+      if let Some(after_events) = trace_groups.last_mut().unwrap().after_group_events_mut() {
+        after_events.push(event);
+      } else {
+        trace_groups.last_mut().unwrap().set_after_group_events(Some(vec![event]));
+      }
+    };
+
     while let Some((event, trace_index, event_index)) = events.next() {
       if group_index >= events_groups.len() {
-        break;
+        try_put_after_event_to_last_group(event.original_event().clone(), &mut trace_groups);
+        continue;
       }
 
       let current_group_info = events_groups.get(group_index).unwrap();
-      if trace_index == *current_group_info.start_point().trace_index() && event_index == *current_group_info.start_point().event_index() {
+      let start_point = current_group_info.start_point();
+
+      if trace_index == *start_point.trace_index() && event_index == *start_point.event_index() {
         current_group = Some(EventGroup::empty());
+      } else if current_group.is_none() {
+        try_put_after_event_to_last_group(event.original_event().clone(), &mut trace_groups);
       }
 
       if let Some(current_group) = current_group.as_mut() {
