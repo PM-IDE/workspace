@@ -2,11 +2,54 @@ import pm_models_pb2 as _pm_models_pb2
 import util_pb2 as _util_pb2
 from google.protobuf import empty_pb2 as _empty_pb2
 from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
+
+class GrpcThreadEventKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    Created: _ClassVar[GrpcThreadEventKind]
+    Terminated: _ClassVar[GrpcThreadEventKind]
+
+class GrpcAssemblyEventKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    Loaded: _ClassVar[GrpcAssemblyEventKind]
+    Unloaded: _ClassVar[GrpcAssemblyEventKind]
+
+class GrpcArrayPoolEventKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    Allocated: _ClassVar[GrpcArrayPoolEventKind]
+    Rented: _ClassVar[GrpcArrayPoolEventKind]
+    Returned: _ClassVar[GrpcArrayPoolEventKind]
+    Trimmed: _ClassVar[GrpcArrayPoolEventKind]
+
+class GrpcUnderlyingPatternKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    StrictLoop: _ClassVar[GrpcUnderlyingPatternKind]
+    PrimitiveTandemArray: _ClassVar[GrpcUnderlyingPatternKind]
+    MaximalTandemArray: _ClassVar[GrpcUnderlyingPatternKind]
+    MaximalRepeat: _ClassVar[GrpcUnderlyingPatternKind]
+    SuperMaximalRepeat: _ClassVar[GrpcUnderlyingPatternKind]
+    NearSuperMaximalRepeat: _ClassVar[GrpcUnderlyingPatternKind]
+    Unknown: _ClassVar[GrpcUnderlyingPatternKind]
+Created: GrpcThreadEventKind
+Terminated: GrpcThreadEventKind
+Loaded: GrpcAssemblyEventKind
+Unloaded: GrpcAssemblyEventKind
+Allocated: GrpcArrayPoolEventKind
+Rented: GrpcArrayPoolEventKind
+Returned: GrpcArrayPoolEventKind
+Trimmed: GrpcArrayPoolEventKind
+StrictLoop: GrpcUnderlyingPatternKind
+PrimitiveTandemArray: GrpcUnderlyingPatternKind
+MaximalTandemArray: GrpcUnderlyingPatternKind
+MaximalRepeat: GrpcUnderlyingPatternKind
+SuperMaximalRepeat: GrpcUnderlyingPatternKind
+NearSuperMaximalRepeat: GrpcUnderlyingPatternKind
+Unknown: GrpcUnderlyingPatternKind
 
 class GrpcContextKey(_message.Message):
     __slots__ = ["name"]
@@ -313,32 +356,164 @@ class GrpcGraph(_message.Message):
     def __init__(self, nodes: _Optional[_Iterable[_Union[GrpcGraphNode, _Mapping]]] = ..., edges: _Optional[_Iterable[_Union[GrpcGraphEdge, _Mapping]]] = ...) -> None: ...
 
 class GrpcGraphNode(_message.Message):
-    __slots__ = ["id", "data", "additional_data"]
+    __slots__ = ["id", "data", "additional_data", "inner_graph"]
     ID_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     ADDITIONAL_DATA_FIELD_NUMBER: _ClassVar[int]
+    INNER_GRAPH_FIELD_NUMBER: _ClassVar[int]
     id: int
     data: str
-    additional_data: GrpcNodeAdditionalData
-    def __init__(self, id: _Optional[int] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Union[GrpcNodeAdditionalData, _Mapping]] = ...) -> None: ...
+    additional_data: _containers.RepeatedCompositeFieldContainer[GrpcNodeAdditionalData]
+    inner_graph: GrpcGraph
+    def __init__(self, id: _Optional[int] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Iterable[_Union[GrpcNodeAdditionalData, _Mapping]]] = ..., inner_graph: _Optional[_Union[GrpcGraph, _Mapping]] = ...) -> None: ...
 
 class GrpcNodeAdditionalData(_message.Message):
-    __slots__ = ["none", "software_data"]
+    __slots__ = ["none", "software_data", "pattern_info", "trace_data", "time_data", "original_event_coordinates"]
     NONE_FIELD_NUMBER: _ClassVar[int]
     SOFTWARE_DATA_FIELD_NUMBER: _ClassVar[int]
+    PATTERN_INFO_FIELD_NUMBER: _ClassVar[int]
+    TRACE_DATA_FIELD_NUMBER: _ClassVar[int]
+    TIME_DATA_FIELD_NUMBER: _ClassVar[int]
+    ORIGINAL_EVENT_COORDINATES_FIELD_NUMBER: _ClassVar[int]
     none: _empty_pb2.Empty
     software_data: GrpcSoftwareData
-    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ...) -> None: ...
+    pattern_info: GrpcUnderlyingPatternInfo
+    trace_data: GrpcNodeCorrespondingTraceData
+    time_data: GrpcNodeTimeActivityStartEndData
+    original_event_coordinates: GrpcEventCoordinates
+    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ..., pattern_info: _Optional[_Union[GrpcUnderlyingPatternInfo, _Mapping]] = ..., trace_data: _Optional[_Union[GrpcNodeCorrespondingTraceData, _Mapping]] = ..., time_data: _Optional[_Union[GrpcNodeTimeActivityStartEndData, _Mapping]] = ..., original_event_coordinates: _Optional[_Union[GrpcEventCoordinates, _Mapping]] = ...) -> None: ...
+
+class GrpcNodeTimeActivityStartEndData(_message.Message):
+    __slots__ = ["start_time", "end_time"]
+    START_TIME_FIELD_NUMBER: _ClassVar[int]
+    END_TIME_FIELD_NUMBER: _ClassVar[int]
+    start_time: int
+    end_time: int
+    def __init__(self, start_time: _Optional[int] = ..., end_time: _Optional[int] = ...) -> None: ...
+
+class GrpcEventCoordinates(_message.Message):
+    __slots__ = ["trace_id", "event_index"]
+    TRACE_ID_FIELD_NUMBER: _ClassVar[int]
+    EVENT_INDEX_FIELD_NUMBER: _ClassVar[int]
+    trace_id: int
+    event_index: int
+    def __init__(self, trace_id: _Optional[int] = ..., event_index: _Optional[int] = ...) -> None: ...
+
+class GrpcNodeCorrespondingTraceData(_message.Message):
+    __slots__ = ["belongs_to_root_sequence"]
+    BELONGS_TO_ROOT_SEQUENCE_FIELD_NUMBER: _ClassVar[int]
+    belongs_to_root_sequence: bool
+    def __init__(self, belongs_to_root_sequence: bool = ...) -> None: ...
 
 class GrpcSoftwareData(_message.Message):
-    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info"]
+    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info", "execution_suspension_info", "thread_events", "methods_inlining_events", "array_pool_events", "exception_events", "http_events", "contention_events", "socket_event"]
     HISTOGRAM_FIELD_NUMBER: _ClassVar[int]
     TIMELINE_DIAGRAM_FRAGMENT_FIELD_NUMBER: _ClassVar[int]
     ALLOCATIONS_INFO_FIELD_NUMBER: _ClassVar[int]
+    EXECUTION_SUSPENSION_INFO_FIELD_NUMBER: _ClassVar[int]
+    THREAD_EVENTS_FIELD_NUMBER: _ClassVar[int]
+    METHODS_INLINING_EVENTS_FIELD_NUMBER: _ClassVar[int]
+    ARRAY_POOL_EVENTS_FIELD_NUMBER: _ClassVar[int]
+    EXCEPTION_EVENTS_FIELD_NUMBER: _ClassVar[int]
+    HTTP_EVENTS_FIELD_NUMBER: _ClassVar[int]
+    CONTENTION_EVENTS_FIELD_NUMBER: _ClassVar[int]
+    SOCKET_EVENT_FIELD_NUMBER: _ClassVar[int]
     histogram: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
     timeline_diagram_fragment: GrpcTimelineDiagramFragment
-    allocations_info: GrpcAllocationsInfo
-    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Union[GrpcAllocationsInfo, _Mapping]] = ...) -> None: ...
+    allocations_info: _containers.RepeatedCompositeFieldContainer[GrpcAllocationInfo]
+    execution_suspension_info: _containers.RepeatedCompositeFieldContainer[GrpcExecutionSuspensionInfo]
+    thread_events: _containers.RepeatedCompositeFieldContainer[GrpcThreadEventInfo]
+    methods_inlining_events: _containers.RepeatedCompositeFieldContainer[GrpcMethodInliningEvent]
+    array_pool_events: _containers.RepeatedCompositeFieldContainer[GrpcArrayPoolEvent]
+    exception_events: _containers.RepeatedCompositeFieldContainer[GrpcExceptionEvent]
+    http_events: _containers.RepeatedCompositeFieldContainer[GrpcHTTPEvent]
+    contention_events: _containers.RepeatedCompositeFieldContainer[GrpcContentionEvent]
+    socket_event: _containers.RepeatedCompositeFieldContainer[GrpcSocketEvent]
+    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Iterable[_Union[GrpcAllocationInfo, _Mapping]]] = ..., execution_suspension_info: _Optional[_Iterable[_Union[GrpcExecutionSuspensionInfo, _Mapping]]] = ..., thread_events: _Optional[_Iterable[_Union[GrpcThreadEventInfo, _Mapping]]] = ..., methods_inlining_events: _Optional[_Iterable[_Union[GrpcMethodInliningEvent, _Mapping]]] = ..., array_pool_events: _Optional[_Iterable[_Union[GrpcArrayPoolEvent, _Mapping]]] = ..., exception_events: _Optional[_Iterable[_Union[GrpcExceptionEvent, _Mapping]]] = ..., http_events: _Optional[_Iterable[_Union[GrpcHTTPEvent, _Mapping]]] = ..., contention_events: _Optional[_Iterable[_Union[GrpcContentionEvent, _Mapping]]] = ..., socket_event: _Optional[_Iterable[_Union[GrpcSocketEvent, _Mapping]]] = ...) -> None: ...
+
+class GrpcExecutionSuspensionInfo(_message.Message):
+    __slots__ = ["reason", "start_time", "end_time"]
+    REASON_FIELD_NUMBER: _ClassVar[int]
+    START_TIME_FIELD_NUMBER: _ClassVar[int]
+    END_TIME_FIELD_NUMBER: _ClassVar[int]
+    reason: str
+    start_time: int
+    end_time: int
+    def __init__(self, reason: _Optional[str] = ..., start_time: _Optional[int] = ..., end_time: _Optional[int] = ...) -> None: ...
+
+class GrpcMethodInliningEvent(_message.Message):
+    __slots__ = ["method_name", "succeeded", "failed"]
+    METHOD_NAME_FIELD_NUMBER: _ClassVar[int]
+    SUCCEEDED_FIELD_NUMBER: _ClassVar[int]
+    FAILED_FIELD_NUMBER: _ClassVar[int]
+    method_name: str
+    succeeded: _empty_pb2.Empty
+    failed: GrpcMethodInliningFailedEvent
+    def __init__(self, method_name: _Optional[str] = ..., succeeded: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., failed: _Optional[_Union[GrpcMethodInliningFailedEvent, _Mapping]] = ...) -> None: ...
+
+class GrpcMethodInliningFailedEvent(_message.Message):
+    __slots__ = ["reason"]
+    REASON_FIELD_NUMBER: _ClassVar[int]
+    reason: str
+    def __init__(self, reason: _Optional[str] = ...) -> None: ...
+
+class GrpcThreadEventInfo(_message.Message):
+    __slots__ = ["thread_id", "event_kind"]
+    THREAD_ID_FIELD_NUMBER: _ClassVar[int]
+    EVENT_KIND_FIELD_NUMBER: _ClassVar[int]
+    thread_id: int
+    event_kind: GrpcThreadEventKind
+    def __init__(self, thread_id: _Optional[int] = ..., event_kind: _Optional[_Union[GrpcThreadEventKind, str]] = ...) -> None: ...
+
+class GrpcAssemblyEventInfo(_message.Message):
+    __slots__ = ["assembly_name", "event_kind"]
+    ASSEMBLY_NAME_FIELD_NUMBER: _ClassVar[int]
+    EVENT_KIND_FIELD_NUMBER: _ClassVar[int]
+    assembly_name: str
+    event_kind: GrpcAssemblyEventKind
+    def __init__(self, assembly_name: _Optional[str] = ..., event_kind: _Optional[_Union[GrpcAssemblyEventKind, str]] = ...) -> None: ...
+
+class GrpcArrayPoolEvent(_message.Message):
+    __slots__ = ["buffer_id", "event_kind"]
+    BUFFER_ID_FIELD_NUMBER: _ClassVar[int]
+    EVENT_KIND_FIELD_NUMBER: _ClassVar[int]
+    buffer_id: int
+    event_kind: GrpcArrayPoolEventKind
+    def __init__(self, buffer_id: _Optional[int] = ..., event_kind: _Optional[_Union[GrpcArrayPoolEventKind, str]] = ...) -> None: ...
+
+class GrpcExceptionEvent(_message.Message):
+    __slots__ = ["exception_type"]
+    EXCEPTION_TYPE_FIELD_NUMBER: _ClassVar[int]
+    exception_type: str
+    def __init__(self, exception_type: _Optional[str] = ...) -> None: ...
+
+class GrpcHTTPEvent(_message.Message):
+    __slots__ = ["host", "port", "scheme", "path", "query"]
+    HOST_FIELD_NUMBER: _ClassVar[int]
+    PORT_FIELD_NUMBER: _ClassVar[int]
+    SCHEME_FIELD_NUMBER: _ClassVar[int]
+    PATH_FIELD_NUMBER: _ClassVar[int]
+    QUERY_FIELD_NUMBER: _ClassVar[int]
+    host: str
+    port: str
+    scheme: str
+    path: str
+    query: str
+    def __init__(self, host: _Optional[str] = ..., port: _Optional[str] = ..., scheme: _Optional[str] = ..., path: _Optional[str] = ..., query: _Optional[str] = ...) -> None: ...
+
+class GrpcContentionEvent(_message.Message):
+    __slots__ = ["start_time", "end_time"]
+    START_TIME_FIELD_NUMBER: _ClassVar[int]
+    END_TIME_FIELD_NUMBER: _ClassVar[int]
+    start_time: int
+    end_time: int
+    def __init__(self, start_time: _Optional[int] = ..., end_time: _Optional[int] = ...) -> None: ...
+
+class GrpcSocketEvent(_message.Message):
+    __slots__ = ["address"]
+    ADDRESS_FIELD_NUMBER: _ClassVar[int]
+    address: str
+    def __init__(self, address: _Optional[str] = ...) -> None: ...
 
 class GrpcHistogramEntry(_message.Message):
     __slots__ = ["name", "count"]
@@ -354,12 +529,6 @@ class GrpcTimelineDiagramFragment(_message.Message):
     threads: _containers.RepeatedCompositeFieldContainer[GrpcThread]
     def __init__(self, threads: _Optional[_Iterable[_Union[GrpcThread, _Mapping]]] = ...) -> None: ...
 
-class GrpcAllocationsInfo(_message.Message):
-    __slots__ = ["allocations"]
-    ALLOCATIONS_FIELD_NUMBER: _ClassVar[int]
-    allocations: _containers.RepeatedCompositeFieldContainer[GrpcAllocationsInfo]
-    def __init__(self, allocations: _Optional[_Iterable[_Union[GrpcAllocationsInfo, _Mapping]]] = ...) -> None: ...
-
 class GrpcAllocationInfo(_message.Message):
     __slots__ = ["type_name", "allocated_objects_count", "allocated_bytes"]
     TYPE_NAME_FIELD_NUMBER: _ClassVar[int]
@@ -369,6 +538,16 @@ class GrpcAllocationInfo(_message.Message):
     allocated_objects_count: int
     allocated_bytes: int
     def __init__(self, type_name: _Optional[str] = ..., allocated_objects_count: _Optional[int] = ..., allocated_bytes: _Optional[int] = ...) -> None: ...
+
+class GrpcUnderlyingPatternInfo(_message.Message):
+    __slots__ = ["pattern_kind", "base_sequence", "graph"]
+    PATTERN_KIND_FIELD_NUMBER: _ClassVar[int]
+    BASE_SEQUENCE_FIELD_NUMBER: _ClassVar[int]
+    GRAPH_FIELD_NUMBER: _ClassVar[int]
+    pattern_kind: GrpcUnderlyingPatternKind
+    base_sequence: _containers.RepeatedScalarFieldContainer[str]
+    graph: GrpcGraph
+    def __init__(self, pattern_kind: _Optional[_Union[GrpcUnderlyingPatternKind, str]] = ..., base_sequence: _Optional[_Iterable[str]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ...) -> None: ...
 
 class GrpcGraphEdge(_message.Message):
     __slots__ = ["id", "from_node", "to_node", "weight", "data"]
