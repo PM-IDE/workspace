@@ -88,7 +88,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         
       - name: Run Online Procfiler Tests
-        run: docker compose -f ./Procfiler/docker/docker-compose.tests.yml up --force-recreate --build
+        run: docker compose -f ./Procfiler/docker/docker-compose.tests.yml up --force-recreate --build --exit-code-from online-procfiler-tests
   
   ficus-kafka-integration-tests:
     runs-on: ubuntu-latest
