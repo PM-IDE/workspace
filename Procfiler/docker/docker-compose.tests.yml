@@ -32,7 +32,6 @@
     entrypoint: [ "/bin/sh", "-c" ]
     command: |
       "
-      sleep 10000
       cd /opt/kafka/bin
       echo -e 'Starting initializing of kafka'
       ./kafka-topics.sh --bootstrap-server broker:29092 --list
