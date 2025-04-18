@@ -1,8 +1,5 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::patterns::activity_instances::ActivitiesLogSource;
-
 use super::{
   activity_instances::{self, create_new_log_from_activities_instances, extract_activities_instances, ActivityInTraceInfo},
   contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext},
@@ -10,6 +7,9 @@ use super::{
   repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
   tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
 };
+use crate::event_log::core::event_log::EventLog;
+use crate::features::analysis::patterns::activity_instances::{extract_activities_instances_strict, ActivitiesLogSource};
+use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 
 #[derive(Clone, Copy)]
 pub enum PatternsKind {
@@ -31,8 +31,8 @@ where
     PatternsKind::MaximalRepeats => find_maximal_repeats(log, &context.strategy),
     PatternsKind::SuperMaximalRepeats => find_super_maximal_repeats(log, &context.strategy),
     PatternsKind::NearSuperMaximalRepeats => find_near_super_maximal_repeats(log, &context.strategy),
-    PatternsKind::PrimitiveTandemArrays(length) => find_primitive_tandem_arrays(log, *length),
-    PatternsKind::MaximalTandemArrays(length) => find_maximal_tandem_arrays(log, *length),
+    PatternsKind::PrimitiveTandemArrays(length) => find_primitive_tandem_arrays(log, *length, false),
+    PatternsKind::MaximalTandemArrays(length) => find_maximal_tandem_arrays(log, *length, false),
   }
 }
 
@@ -58,6 +58,7 @@ where
     activities_context.patterns_context.get_processed_log(),
     &repeats,
     activities_context.activity_level,
+    UnderlyingPatternKind::from(activities_context.patterns_context.pattern_kind),
     &activities_context.name_creator,
   )
 }
@@ -72,13 +73,16 @@ where
 {
   let mut repeat_set_tree = build_repeat_set_tree(activities_context);
 
-  extract_activities_instances(
-    activities_context.patterns_context.get_processed_log(),
-    &mut repeat_set_tree,
-    &activities_context.narrow_kind,
-    activities_context.min_events_in_activity,
-    &activities_context.activity_filter_kind,
-  )
+  match activities_context.extract_activities_strict {
+    true => extract_activities_instances_strict(activities_context.patterns_context.get_processed_log(), &repeat_set_tree),
+    false => extract_activities_instances(
+      activities_context.patterns_context.get_processed_log(),
+      &mut repeat_set_tree,
+      &activities_context.narrow_kind,
+      activities_context.min_events_in_activity,
+      &activities_context.activity_filter_kind,
+    )
+  }
 }
 
 pub fn discover_activities_and_create_new_log<TClassExtractor, TLog, TNameCreator, TEvtFactory>(
@@ -89,7 +93,7 @@ where
   TLog::TEvent: 'static,
   TClassExtractor: Fn(&TLog::TEvent) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
 {
   let activity_instances = discover_activities_instances(&context.activities_context);
 

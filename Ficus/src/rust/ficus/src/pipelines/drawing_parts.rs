@@ -140,14 +140,14 @@ impl PipelineParts {
 
         Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| match sub_trace {
           SubTraceKind::Attached(activity) => {
-            let color = colors_holder.get_or_create(activity.node.borrow().name());
-            let name = activity.node.borrow().name().clone();
+            let color = colors_holder.get_or_create(activity.node().borrow().name());
+            let name = activity.node().borrow().name().clone();
             if !mapping.contains_key(name.as_ref().as_ref()) {
               mapping.insert(name.as_ref().as_ref().to_owned(), color);
             }
 
             let name = HeapedOrOwned::Heaped(name);
-            colors_trace.push(ColoredRectangle::new(name, activity.start_pos as f64, activity.length as f64));
+            colors_trace.push(ColoredRectangle::new(name, *activity.start_pos() as f64, *activity.length() as f64));
           }
           SubTraceKind::Unattached(start_pos, length) => {
             colors_trace.push(ColoredRectangle::new(
@@ -184,11 +184,11 @@ impl PipelineParts {
         Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| {
           match sub_trace {
             SubTraceKind::Attached(activity) => {
-              let color = colors_holder.get_or_create(activity.node.borrow().name());
-              let name = activity.node.borrow().name().to_owned();
+              let color = colors_holder.get_or_create(activity.node().borrow().name());
+              let name = activity.node().borrow().name().to_owned();
 
-              if !mapping.contains_key(activity.node.borrow().name().as_ref().as_ref()) {
-                mapping.insert(activity.node.borrow().name().as_ref().as_ref().to_owned(), color);
+              if !mapping.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
+                mapping.insert(activity.node().borrow().name().as_ref().as_ref().to_owned(), color);
               }
 
               let name = HeapedOrOwned::Heaped(name);

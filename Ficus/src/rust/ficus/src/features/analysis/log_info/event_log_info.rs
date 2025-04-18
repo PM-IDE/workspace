@@ -3,8 +3,12 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::features::analysis::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME};
 use crate::features::analysis::log_info::dfg_info::{DfgInfo, OfflineDfgInfo};
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
+use crate::features::discovery::timeline::utils::extract_thread_id;
 use crate::{event_log::core::event::event::Event, utils::hash_map_utils::increase_in_map};
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::ops::Deref;
+use std::rc::Rc;
 
 pub trait EventLogCounts {
   fn traces_count(&self) -> usize;
@@ -84,15 +88,19 @@ impl OfflineEventLogInfo {
     }
   }
 
-  pub fn create_from<TLog>(creation_dto: EventLogInfoCreationDto<TLog>) -> OfflineEventLogInfo
-  where
-    TLog: EventLog,
-  {
+  pub fn create_from<TLog: EventLog>(creation_dto: EventLogInfoCreationDto<TLog>) -> OfflineEventLogInfo {
     let EventLogInfoCreationDto {
-      log,
+      mut log,
       add_fake_start_end_events,
       ignored_events,
+      thread_attribute,
     } = creation_dto;
+
+    let mut new_log = None;
+    if let Some(thread_attribute) = thread_attribute {
+      new_log = Some(create_threads_log_by_attribute::<TLog>(log, thread_attribute.as_str()));
+      log = new_log.as_ref().unwrap();
+    }
 
     let mut dfg_pairs: HashMap<String, HashMap<String, usize>> = HashMap::new();
     let mut events_count = 0;
@@ -192,6 +200,33 @@ impl OfflineEventLogInfo {
       end_event_classes,
     }
   }
+}
+
+pub fn create_threads_log_by_attribute<TLog: EventLog>(log: &TLog, thread_attribute: &str) -> TLog {
+  let mut thread_log = TLog::empty();
+
+  for trace in log.traces() {
+    let trace = trace.borrow();
+    let mut threads_traces = HashMap::<Option<String>, TLog::TTrace>::new();
+
+    for event in trace.events() {
+      let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
+      if let Some(thread_trace) = threads_traces.get_mut(&thread_id) {
+        thread_trace.push(event.clone());
+      } else {
+        let mut new_trace = TLog::TTrace::empty();
+        new_trace.push(event.clone());
+
+        threads_traces.insert(thread_id, new_trace);
+      }
+    }
+
+    for thread_trace in threads_traces.into_iter() {
+      thread_log.push(Rc::new(RefCell::new(thread_trace.1)));
+    }
+  }
+
+  thread_log
 }
 
 impl EventLogInfo for OfflineEventLogInfo {

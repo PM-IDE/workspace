@@ -94,6 +94,13 @@ impl PipelineParts {
       Self::discover_directly_follows_graph_stream(),
       Self::discover_petri_net_alpha_stream(),
       Self::discover_log_threads_diagram(),
+      Self::create_threads_log(),
+      Self::abstract_timeline_diagram(),
+      Self::clusterize_log_by_traces_k_means_grid_search(),
+      Self::clusterize_log_traces_dbscan_grid_search(),
+      Self::discover_root_sequence_graph(),
+      Self::discover_loops_strict(),
+      Self::discover_traces_timeline_diagram()
     ];
 
     let mut names_to_parts = HashMap::new();

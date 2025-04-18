@@ -114,17 +114,17 @@ fn create_activities_repr_from_subtraces<TLog: EventLog>(
   let mut processed = HashMap::new();
   for trace_activities in traces_activities.iter() {
     for activity in trace_activities {
-      if processed.contains_key(activity.node.borrow().name()) {
+      if processed.contains_key(activity.node().borrow().name()) {
         continue;
       }
 
-      if activity.node.borrow().level() != params.activity_level {
+      if *activity.node().borrow().level() != params.activity_level {
         continue;
       }
 
-      let node = activity.node.borrow();
+      let node = activity.node().borrow();
       if !processed.contains_key(node.name()) {
-        processed.insert(node.name().to_owned(), (activity.node.clone(), HashMap::new()));
+        processed.insert(node.name().to_owned(), (activity.node().clone(), HashMap::new()));
       }
 
       let map: &mut HashMap<String, usize> = &mut processed.get_mut(node.name()).unwrap().1;
@@ -214,15 +214,15 @@ pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
       let mut processed = HashMap::new();
       for trace_activities in traces_activities.iter() {
         for activity in trace_activities {
-          if processed.contains_key(activity.node.borrow().name().as_ref().as_ref()) {
+          if processed.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
             continue;
           }
 
-          if activity.node.borrow().level() != params.activity_level {
+          if *activity.node().borrow().level() != params.activity_level {
             continue;
           }
 
-          let activity_event_classes = if let Some(repeat_set) = activity.node.borrow().repeat_set().as_ref() {
+          let activity_event_classes = if let Some(repeat_set) = activity.node().borrow().repeat_set().as_ref() {
             let trace = params.common_vis_params.log.traces().get(repeat_set.trace_index).unwrap();
             let trace = trace.borrow();
             let events = trace.events();
@@ -250,8 +250,8 @@ pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
           };
 
           processed.insert(
-            activity.node.borrow().name().as_ref().as_ref().to_owned(),
-            (activity.node.clone(), activity_event_classes.into_iter().map(|x| (x, 1)).collect()),
+            activity.node().borrow().name().as_ref().as_ref().to_owned(),
+            (activity.node().clone(), activity_event_classes.into_iter().map(|x| (x, 1)).collect()),
           );
         }
       }

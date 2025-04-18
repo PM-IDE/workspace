@@ -1,0 +1,73 @@
+﻿@using FicusDashboard.Layout.Models
+@using FicusDashboard.Services.Cases
+@using FicusDashboard.Utils
+@using JetBrains.Lifetimes
+
+@inherits ComponentBase
+
+@inject ISubscriptionsService SubscriptionService
+
+@{
+  var title = myProcessCaseData switch
+  {
+    { } => myProcessCaseData.ProcessData.ProcessName + " " + myProcessCaseData.Case.DisplayName,
+    _ => "The case was not yet selected."
+  };
+}
+
+<PageTitle>@title</PageTitle>
+
+<div class="case-info-header-container">
+  <div class="case-info-header-first-line">
+    <div>
+      <img src="images/case.svg" alt="List"/>
+    </div>
+    <div class="case-info-header-first-line-case">
+      Case:
+    </div>
+  </div>
+  <div class="case-info-header centered-text">
+    @title
+  </div>
+  <div class="case-info-header-hierarchy-container">
+    @if (myProcessCaseData is { Case.NameParts: var nameParts })
+    {
+      <CaseNameHierarchy NameParts="nameParts" FontSize="14" Expanded="true"/>
+    }
+  </div>
+</div>
+
+<div class="pipeline-parts-context-values-outer-container">
+  @foreach (var (index, (_, results)) in myPipelinePartsExecutionResults.OrderBy(x => x.Value.Order).Index())
+  {
+    <PipelinePartResultsRenderer Results="results"
+                                 Lifetime="myCurrentLifetime"
+                                 Index="index" 
+                                 ProcessCaseData="myProcessCaseData" />
+  }
+</div>
+
+@code
+{
+  private readonly Dictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = [];
+  private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
+
+  private Lifetime myCurrentLifetime;
+  private ProcessCaseData? myProcessCaseData;
+
+  [Parameter] public required ProcessCaseData ProcessCaseData { get; set; }
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+
+    if (ReferenceEquals(ProcessCaseData, myProcessCaseData)) return;
+
+    myPipelinePartsExecutionResults.Clear();
+    myProcessCaseData = ProcessCaseData;
+    myCurrentLifetime = myLifetimes.Next();
+
+    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].PipelineExecutionResults;
+    values.Results.FlowIntoWithCallback(myCurrentLifetime, myPipelinePartsExecutionResults, StateHasChanged);
+  }
+}

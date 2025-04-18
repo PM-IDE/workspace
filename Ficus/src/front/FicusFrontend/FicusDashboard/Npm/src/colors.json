@@ -1,0 +1,35 @@
+{
+  "dark": {
+    "petriNet": {
+      "transitionBackground": "#707070",
+      "placeBackground": "#696bc3",
+      "borderLine": "#9496f3",
+      "arcLine": "#b8b8b8",
+      "labelColor": "#b8b8b8"
+    },
+    "graph": {
+      "nodeBackground": "#353535",
+      "rootSequenceColor": "#707070",
+      "labelColor": "#FFFFFF",
+      "redMin": 42,
+      "redMax": 88,
+      "greenMin": 46,
+      "greenMax": 90,
+      "blueMin": 171,
+      "blueMax": 170
+    },
+    "performanceColors": {
+      "color0": "#209e06",
+      "color1": "#3e9e06",
+      "color2": "#559e06",
+      "color3": "#669e06",
+      "color4": "#859e06",
+      "color5": "#999e06",
+      "color6": "#9e9106",
+      "color7": "#9e7b06",
+      "color8": "#9e6606",
+      "color9": "#9e4006",
+      "color10": "#9e1506"
+    }
+  }
+}

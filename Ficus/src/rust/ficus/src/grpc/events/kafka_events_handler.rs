@@ -104,7 +104,10 @@ impl GetContextValuesEvent<'_> {
       process_case_metadata: Some(self.process_case_metadata.to_grpc_process_case_metadata()),
       pipeline_part_info: Some(GrpcPipelinePartInfo {
         id: Some(GrpcGuid {
-          guid: self.uuid.to_string(),
+          guid: self.pipeline_part_id.to_string(),
+        }),
+        execution_id: Some(GrpcGuid {
+          guid: self.execution_id.to_string(),
         }),
         name: self.pipeline_part_name.clone(),
       }),

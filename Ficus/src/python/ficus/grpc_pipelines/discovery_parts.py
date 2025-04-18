@@ -1,6 +1,6 @@
 from .entry_points.default_pipeline import *
 from .models.pipelines_and_context_pb2 import *
-from ..legacy.analysis.event_log_analysis_canvas import draw_log_timeline_diagram_canvas
+from .data_models import RootSequenceKind
 from ..legacy.discovery.graph import draw_graph
 from ..legacy.discovery.petri_net import draw_petri_net
 
@@ -200,8 +200,16 @@ class ViewDirectlyFollowsGraphStream(ViewDirectlyFollowsGraphBase):
 
 
 class DiscoverDirectlyFollowsGraph(PipelinePart):
+  def __init__(self, thread_attribute: Optional[str] = None):
+    super().__init__()
+    self.thread_attribute = thread_attribute
+
   def to_grpc_part(self) -> GrpcPipelinePartBase:
-    return _create_default_discovery_part(const_discover_directly_follows_graph)
+    config = GrpcPipelinePartConfiguration()
+    if self.thread_attribute is not None:
+      append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_directly_follows_graph, config))
 
 
 class DiscoverDirectlyFollowsGraphByAttribute(PipelinePart):
@@ -240,50 +248,17 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return _create_default_discovery_part(const_discover_directly_follows_graph_stream)
 
-
-class DiscoverLogTimelineDiagram(PipelinePartWithCallback):
+class DiscoverRootSequenceGraph(PipelinePart):
   def __init__(self,
-               thread_attribute: str,
-               time_attribute: Optional[str],
-               title: Optional[str] = None,
-               save_path: Optional[str] = None,
-               plot_legend: bool = False,
-               height_scale: float = 1,
-               width_scale: float = 1,
-               distance_scale: float = 1,
-               rect_width_scale: int = 1):
+               root_sequence_kind: RootSequenceKind = RootSequenceKind.FindBest,
+               merge_sequences_of_events: bool = True):
     super().__init__()
-    self.thread_attribute = thread_attribute
-    self.time_attribute = time_attribute
-    self.title = title
-    self.save_path = save_path
-    self.plot_legend = plot_legend
-    self.height_scale = height_scale
-    self.width_scale = width_scale
-    self.distance_scale = distance_scale
-    self.rect_width_scale = rect_width_scale
+    self.root_sequence_kind = root_sequence_kind
+    self.merge_sequences_of_events = merge_sequences_of_events
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
-    append_string_value(config, const_thread_attribute, self.thread_attribute)
+    append_root_sequence_kind(config, const_root_sequence_kind, self.root_sequence_kind)
+    append_bool_value(config, const_merge_sequences_of_events, self.merge_sequences_of_events)
 
-    if self.time_attribute is not None:
-      append_string_value(config, const_time_attribute, self.time_attribute)
-
-    part = create_complex_get_context_part(self.uuid,
-                                           self.__class__.__name__,
-                                           [const_log_timeline_diagram],
-                                           const_discover_log_timeline_diagram,
-                                           config)
-
-    return GrpcPipelinePartBase(complexContextRequestPart=part)
-
-  def execute_callback(self, values: dict[str, GrpcContextValue]):
-    draw_log_timeline_diagram_canvas(values[const_log_timeline_diagram].logTimelineDiagram,
-                                     self.rect_width_scale,
-                                     self.distance_scale,
-                                     self.title,
-                                     self.save_path,
-                                     self.plot_legend,
-                                     self.width_scale,
-                                     self.height_scale)
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_root_sequence_graph, config))

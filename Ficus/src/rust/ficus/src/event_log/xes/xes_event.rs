@@ -1,7 +1,8 @@
+use chrono::{DateTime, Utc};
+use std::fmt::{Debug, Formatter};
 use std::{collections::HashMap, rc::Rc};
 
-use chrono::{DateTime, Utc};
-
+use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
   event_log::core::event::{
     event::{Event, EventPayloadValue},
@@ -10,10 +11,15 @@ use crate::{
   utils::{user_data::user_data::UserDataImpl, vec_utils},
 };
 
-#[derive(Debug)]
 pub struct XesEventImpl {
   event_base: EventBase,
   payload: Option<HashMap<String, EventPayloadValue>>,
+}
+
+impl Debug for XesEventImpl {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    f.write_str(self.name_pointer().as_str())
+  }
 }
 
 impl XesEventImpl {
@@ -25,8 +31,43 @@ impl XesEventImpl {
   }
 }
 
+impl PartialEq<Self> for XesEventImpl {
+  fn eq(&self, other: &Self) -> bool {
+    self.name().eq(other.name())
+  }
+}
+
+impl UserDataOwner for XesEventImpl {
+  fn user_data(&self) -> &UserDataImpl {
+    &self.event_base.user_data
+  }
+
+  fn user_data_mut(&mut self) -> &mut UserDataImpl {
+    &mut self.event_base.user_data
+  }
+}
+
 impl Event for XesEventImpl {
+  fn new(name: String, timestamp: DateTime<Utc>) -> Self {
+    Self {
+      event_base: EventBase::new(Rc::new(Box::new(name)), timestamp),
+      payload: None,
+    }
+  }
+
+  fn new_with_min_date(name: String) -> Self {
+    Self::new(name, DateTime::<Utc>::MIN_UTC)
+  }
+
+  fn new_with_max_date(name: String) -> Self {
+    Self::new(name, DateTime::<Utc>::MAX_UTC)
+  }
+
   fn name(&self) -> &String {
+    &self.event_base.name
+  }
+
+  fn name_pointer(&self) -> &Rc<Box<String>> {
     &self.event_base.name
   }
 
@@ -56,10 +97,6 @@ impl Event for XesEventImpl {
     }
   }
 
-  fn user_data(&mut self) -> &mut UserDataImpl {
-    self.event_base.user_data_holder.get_mut()
-  }
-
   fn set_name(&mut self, new_name: String) {
     self.event_base.name = Rc::new(Box::new(new_name));
   }
@@ -74,25 +111,6 @@ impl Event for XesEventImpl {
     }
 
     self.payload.as_mut().unwrap().insert(key, value);
-  }
-
-  fn new(name: String, timestamp: DateTime<Utc>) -> Self {
-    Self {
-      event_base: EventBase::new(Rc::new(Box::new(name)), timestamp),
-      payload: None,
-    }
-  }
-
-  fn new_with_min_date(name: String) -> Self {
-    Self::new(name, DateTime::<Utc>::MIN_UTC)
-  }
-
-  fn new_with_max_date(name: String) -> Self {
-    Self::new(name, DateTime::<Utc>::MAX_UTC)
-  }
-
-  fn name_pointer(&self) -> &Rc<Box<String>> {
-    &self.event_base.name
   }
 }
 

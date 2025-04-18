@@ -72,7 +72,14 @@ fn get_test_parts_names() -> Vec<String> {
         "MergeXesLogsFromPaths",
         "DiscoverDirectlyFollowsGraphStream",
         "DiscoverPetriNetAlphaStream",
-        "DiscoverLogTimelineDiagram"
+        "DiscoverLogTimelineDiagram",
+        "CreateThreadsLog",
+        "AbstractTimelineDiagram",
+        "ClusterizeLogTracesKMeansGridSearch",
+        "ClusterizeLogTracesDbscanGridSearch",
+        "DiscoverRootSequenceGraph",
+        "DiscoverLoopsStrict",
+        "DiscoverTracesTimelineDiagram"
     ]
 }
 

@@ -53,6 +53,11 @@ impl PipelineParts {
   pub const DISCOVER_DFG_BY_ATTRIBUTE: &'static str = "DiscoverDirectlyFollowsGraphByAttribute";
   pub const APPEND_ATTRIBUTES_TO_NAME: &'static str = "AppendAttributesToName";
   pub const DISCOVER_DFG_STREAM: &'static str = "DiscoverDirectlyFollowsGraphStream";
+  pub const CREATE_THREADS_LOG: &'static str = "CreateThreadsLog";
+  pub const ABSTRACT_TIMELINE_DIAGRAM: &'static str = "AbstractTimelineDiagram";
+  pub const DISCOVER_ROOT_SEQUENCE_GRAPH: &'static str = "DiscoverRootSequenceGraph";
+  pub const DISCOVER_LOOPS_STRICT: &'static str = "DiscoverLoopsStrict";
+  pub const DISCOVER_TRACES_TIMELINE_DIAGRAM: &'static str = "DiscoverTracesTimelineDiagram";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";
@@ -63,11 +68,13 @@ impl PipelineParts {
   pub const ENSURE_INITIAL_MARKING: &'static str = "EnsureInitialMarking";
   pub const DISCOVER_LOG_TIMELINE_DIAGRAM: &'static str = "DiscoverLogTimelineDiagram";
 
+  pub const CLUSTERIZE_LOG_TRACES_K_MEANS_GRID_SEARCH: &'static str = "ClusterizeLogTracesKMeansGridSearch";
   pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS: &'static str = "ClusterizeActivitiesFromTracesKMeans";
   pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS_GRID_SEARCH: &'static str = "ClusterizeActivitiesFromTracesKMeansGridSearch";
   pub const CLUSTERIZE_ACTIVITIES_FROM_TRACES_DBSCAN: &'static str = "ClusterizeActivitiesFromTracesDbscan";
   pub const CREATE_TRACES_ACTIVITIES_DATASET: &'static str = "CreateTracesActivitiesDataset";
   pub const CLUSTERIZE_LOG_TRACES: &'static str = "ClusterizeLogTraces";
+  pub const CLUSTERIZE_LOG_TRACES_DBSCAN_GRID_SEARCH: &'static str = "ClusterizeLogTracesDbscanGridSearch";
   pub const SERIALIZE_ACTIVITIES_LOGS: &'static str = "SerializeActivitiesLogs";
   pub const REVERSE_HIERARCHY_INDICES: &'static str = "ReverseHierarchyIndices";
 

@@ -1,15 +1,19 @@
 use crate::utils::graph::graph::NEXT_ID;
+use crate::utils::user_data::user_data::UserDataImpl;
 use std::sync::atomic::Ordering;
+use getset::{Getters, MutGetters};
 
+#[derive(Debug, Getters, MutGetters)]
 pub struct GraphEdge<TEdgeData>
 where
   TEdgeData: ToString,
 {
-  pub(crate) id: u64,
-  pub(crate) first_node_id: u64,
-  pub(crate) second_node_id: u64,
-  pub(crate) data: Option<TEdgeData>,
-  pub(crate) weight: f64,
+  #[getset(get = "pub")] pub(crate) id: u64,
+  #[getset(get = "pub")] pub(crate) from_node: u64,
+  #[getset(get = "pub")] pub(crate) to_node: u64,
+  #[getset(get = "pub")] pub(crate) data: Option<TEdgeData>,
+  #[getset(get = "pub")] pub(crate) weight: f64,
+  #[getset(get = "pub", get_mut = "pub")] pub(crate) user_data: UserDataImpl,
 }
 
 impl<TEdgeData> GraphEdge<TEdgeData>
@@ -18,27 +22,12 @@ where
 {
   pub fn new(first_node_id: u64, second_node_id: u64, weight: f64, data: Option<TEdgeData>) -> Self {
     Self {
-      first_node_id,
-      second_node_id,
+      from_node: first_node_id,
+      to_node: second_node_id,
       id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
       data,
       weight,
+      user_data: UserDataImpl::new(),
     }
-  }
-
-  pub fn data(&self) -> Option<&TEdgeData> {
-    self.data.as_ref()
-  }
-
-  pub fn id(&self) -> &u64 {
-    &self.id
-  }
-
-  pub fn from_node(&self) -> &u64 {
-    &self.first_node_id
-  }
-
-  pub fn to_node(&self) -> &u64 {
-    &self.second_node_id
   }
 }

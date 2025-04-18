@@ -1,0 +1,30 @@
+﻿.canvas-container {
+  min-width: 800px;
+  min-height: 650px;
+  background-color: var(--cv-section-content-color);
+  padding: 15px;
+}
+
+.canvas-container-fullscreen {
+  width: 100%;
+  height: 95%;
+}
+
+.cytoscape-canvas {
+  min-width: 800px;
+  min-height: 590px;
+}
+
+.canvas-export-button {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+  width: 150px;
+  height: 30px;
+  background-color: var(--cv-section-header-color);
+  color: var(--cv-section-header-text-color);
+}
+
+.canvas-export-button:hover {
+  background-color: var(--cv-section-header-color-hovered);
+}

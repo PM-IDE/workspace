@@ -24,7 +24,7 @@ use ficus::{
 fn test_tandem_arrays_from_paper() {
   execute_test_with_positions(
     create_log_from_taxonomy_of_patterns,
-    |log| get_first_trace_tuples(&find_maximal_tandem_arrays_with_length(log, 10).borrow()),
+    |log| get_first_trace_tuples(&find_maximal_tandem_arrays_with_length(log, 10, false)),
     &[(2, 3, 4), (3, 3, 4), (4, 3, 3), (2, 6, 2), (3, 6, 2)],
   );
 }
@@ -49,7 +49,7 @@ fn execute_test_with_positions<TLogCreator, TPatternsFinder, TValue>(
 fn test_tandem_arrays_from_paper_string() {
   execute_test_with_string_dump(
     create_log_from_taxonomy_of_patterns,
-    |log| to_sub_arrays(&find_maximal_tandem_arrays_with_length(log, 10).borrow()),
+    |log| to_sub_arrays(&find_maximal_tandem_arrays_with_length(log, 10, false)),
     &["abc", "abcabc", "bca", "bcabca", "cab"],
   );
 }
@@ -87,16 +87,16 @@ fn get_first_trace_tuples(tandem_arrays: &Vec<Vec<TandemArrayInfo>>) -> Vec<(usi
 fn test_no_tandem_arrays() {
   let log = create_no_tandem_array_log();
   let hashes = log.to_hashes_event_log(&NameEventHasher::new());
-  let tandem_arrays = find_maximal_tandem_arrays_with_length(&hashes, 10);
+  let tandem_arrays = find_maximal_tandem_arrays_with_length(&hashes, 10, false);
 
-  assert_eq!(get_first_trace_tuples(&tandem_arrays.borrow()), []);
+  assert_eq!(get_first_trace_tuples(&tandem_arrays), []);
 }
 
 #[test]
 fn test_no_tandem_arrays_string() {
   execute_test_with_string_dump(
     create_no_tandem_array_log,
-    |log| to_sub_arrays(&find_maximal_tandem_arrays_with_length(log, 10).borrow()),
+    |log| to_sub_arrays(&find_maximal_tandem_arrays_with_length(log, 10, false)),
     Vec::<&str>::new().as_slice(),
   );
 }
@@ -105,7 +105,7 @@ fn test_no_tandem_arrays_string() {
 fn test_one_tandem_array() {
   execute_test_with_positions(
     create_one_tandem_array_log,
-    |log| get_first_trace_tuples(&find_maximal_tandem_arrays_with_length(log, 10).borrow()),
+    |log| get_first_trace_tuples(&find_maximal_tandem_arrays_with_length(log, 10, false)),
     &[(0, 2, 2)],
   );
 }
@@ -114,7 +114,7 @@ fn test_one_tandem_array() {
 fn test_one_tandem_array_string() {
   execute_test_with_string_dump(
     create_one_tandem_array_log,
-    |log| to_sub_arrays(&find_maximal_tandem_arrays_with_length(log, 10).borrow()),
+    |log| to_sub_arrays(&find_maximal_tandem_arrays_with_length(log, 10, false)),
     &["ab"],
   );
 }
@@ -123,7 +123,7 @@ fn test_one_tandem_array_string() {
 fn test_tandem_arrays2() {
   execute_test_with_positions(
     create_log_for_max_repeats2,
-    |log| get_first_trace_tuples(&find_primitive_tandem_arrays_with_length(log, 10).borrow()),
+    |log| get_first_trace_tuples(&find_primitive_tandem_arrays_with_length(log, 10, false).borrow()),
     &[(0, 4, 2)],
   );
 }
@@ -133,7 +133,7 @@ fn test_tandem_arrays2_string() {
   let log = create_log_for_max_repeats2();
   let hashes = log.to_hashes_event_log(&NameEventHasher::new());
 
-  let tandem_arrays = find_primitive_tandem_arrays_with_length(&hashes, 10);
+  let tandem_arrays = find_primitive_tandem_arrays_with_length(&hashes, 10, false);
 
   assert_eq!(dump_repeats_to_string(&to_sub_arrays(&tandem_arrays.borrow()), &log), ["dabc"]);
 }

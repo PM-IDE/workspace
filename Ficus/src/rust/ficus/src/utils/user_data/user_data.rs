@@ -7,6 +7,11 @@ pub trait UserDataOwner {
   fn user_data_mut(&mut self) -> &mut UserDataImpl;
 }
 
+pub trait ExecuteWithUserData {
+  fn execute_with_user_data(&self, func: &mut dyn FnMut(&UserDataImpl) -> ());
+  fn execute_with_user_data_mut(&mut self, func: &mut dyn FnMut(&mut UserDataImpl));
+}
+
 #[derive(Debug)]
 pub struct UserDataImpl {
   values_map: Option<HashMap<u64, Rc<RefCell<dyn Any>>>>,

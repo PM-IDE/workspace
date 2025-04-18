@@ -1,8 +1,10 @@
-use std::collections::HashMap;
-use std::path::Path;
-use std::str::FromStr;
-use std::{cell::RefCell, rc::Rc};
-
+use super::errors::pipeline_errors::RawPartExecutionError;
+use super::{
+  aliases::TracesActivities,
+  context::PipelineContext,
+  errors::pipeline_errors::PipelinePartExecutionError,
+  pipelines::{DefaultPipelinePart, PipelinePart, PipelinePartFactory},
+};
 use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::trace::trace::Trace;
@@ -10,24 +12,10 @@ use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::count_events;
 use crate::features::analysis::patterns::activity_instances;
-use crate::features::analysis::patterns::activity_instances::{substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME};
-use crate::features::clustering::activities::activities_common::create_dataset;
-use crate::features::clustering::activities::activities_params::{ActivitiesClusteringParams, ActivitiesVisualizationParams};
-use crate::features::clustering::activities::dbscan::clusterize_activities_dbscan;
-use crate::features::clustering::activities::k_means::{clusterize_activities_k_means, clusterize_activities_k_means_grid_search};
-use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisualizationParams};
-use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
-use crate::features::clustering::traces::traces_params::TracesClusteringParams;
+use crate::features::analysis::patterns::activity_instances::{extract_activities_instances_strict, substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME};
+use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY};
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{
-  ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY,
-  ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENTS_COUNT_KEY,
-  EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY,
-  LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, LOG_SERIALIZATION_FORMAT_KEY,
-  MIN_ACTIVITY_LENGTH_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY,
-  PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-  TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
-};
+use crate::pipelines::keys::context_keys::{ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY, EVENTS_COUNT_KEY, EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
@@ -45,14 +33,11 @@ use crate::{
   },
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
-
-use super::errors::pipeline_errors::RawPartExecutionError;
-use super::{
-  aliases::TracesActivities,
-  context::PipelineContext,
-  errors::pipeline_errors::PipelinePartExecutionError,
-  pipelines::{DefaultPipelinePart, PipelinePart, PipelinePartFactory},
-};
+use chrono::TimeDelta;
+use std::collections::HashMap;
+use std::path::Path;
+use std::str::FromStr;
+use std::{cell::RefCell, rc::Rc};
 
 pub enum UndefActivityHandlingStrategyDto {
   DontInsert,
@@ -113,9 +98,17 @@ impl PipelineParts {
 
     let repeat_sets = build_repeat_sets(&hashed_log, patterns);
 
-    let tree = build_repeat_set_tree_from_repeats(&hashed_log, &repeat_sets, activity_level as usize, |sub_array| {
-      create_activity_name(log, sub_array, event_class_regex)
-    });
+    let underlying_patterns_kind = Self::get_user_data(context, &UNDERLYING_PATTERN_KIND_KEY).unwrap_or(&UnderlyingPatternKind::Unknown);
+
+    let tree = build_repeat_set_tree_from_repeats(
+      &hashed_log,
+      &repeat_sets,
+      activity_level as usize,
+      underlying_patterns_kind.clone(),
+      |sub_array| {
+        create_activity_name(log, sub_array, event_class_regex)
+      },
+    );
 
     context.put_concrete(ACTIVITIES_KEY.key(), tree);
     Ok(())
@@ -137,14 +130,18 @@ impl PipelineParts {
     let hashed_log = Self::get_user_data(context, &HASHES_EVENT_LOG_KEY)?;
     let min_events_in_activity = *Self::get_user_data(config, &MIN_ACTIVITY_LENGTH_KEY)?;
     let activity_filter_kind = Self::get_user_data(config, &ACTIVITY_IN_TRACE_FILTER_KIND_KEY)?;
+    let discover_activities_instances_strict = Self::get_user_data(config, &DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY)?;
 
-    let instances = extract_activities_instances(
-      &hashed_log,
-      &mut tree,
-      narrow,
-      min_events_in_activity as usize,
-      activity_filter_kind,
-    );
+    let instances = match discover_activities_instances_strict {
+      true => extract_activities_instances_strict(&hashed_log, &tree),
+      false => extract_activities_instances(
+        &hashed_log,
+        &mut tree,
+        narrow,
+        min_events_in_activity as usize,
+        activity_filter_kind,
+      )
+    };
 
     context.put_concrete(TRACE_ACTIVITIES_KEY.key(), instances);
     Ok(())
@@ -173,9 +170,19 @@ impl PipelineParts {
       UndefActivityHandlingStrategyDto::InsertAllEvents => UndefActivityHandlingStrategy::InsertAllEvents,
     };
 
-    let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info| {
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(
-        info.node.borrow().name().as_ref().as_ref().clone(),
+    let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info, events| {
+      let stamp = if events.len() == 1 {
+        events.first().unwrap().borrow().timestamp().clone()
+      } else {
+        let first_stamp = events.first().unwrap().borrow().timestamp().clone();
+        let delta: TimeDelta = events.iter().skip(1).map(|e| e.borrow().timestamp().clone() - first_stamp).sum();
+
+        first_stamp + delta / (events.len() as i32 - 1)
+      };
+
+      Rc::new(RefCell::new(XesEventImpl::new(
+        info.node().borrow().name().as_ref().as_ref().clone(),
+        stamp,
       )))
     });
 
@@ -338,12 +345,12 @@ impl PipelineParts {
   ) -> Result<(), PipelinePartExecutionError> {
     let mut index = 0usize;
     for activity in activities {
-      if activity.start_pos > index {
-        handler(SubTraceKind::Unattached(index, activity.start_pos - index));
+      if *activity.start_pos() > index {
+        handler(SubTraceKind::Unattached(index, activity.start_pos() - index));
       }
 
       handler(SubTraceKind::Attached(&activity));
-      index = activity.start_pos + activity.length;
+      index = *activity.start_pos() + *activity.length();
     }
 
     if index < trace_len {
@@ -385,7 +392,7 @@ impl PipelineParts {
         let mut executed_pipeline = false;
         if let Ok(pipeline) = after_activities_extraction_pipeline {
           let should_execute = if execute_only_after_last_extraction {
-            activities_instances.iter().all(|x| x.iter().all(|y| y.length == 1))
+            activities_instances.iter().all(|x| x.iter().all(|y| *y.length() == 1))
           } else {
             true
           };
@@ -413,7 +420,7 @@ impl PipelineParts {
       let activities_to_logs = Self::create_activities_to_logs(context, config)?;
 
       for (activity_name, activity_log) in activities_to_logs {
-        let mut temp_context = PipelineContext::empty_from(context);
+        let mut temp_context = context.clone();
         temp_context.put_concrete(&EVENT_LOG_KEY.key(), activity_log.borrow().clone());
         temp_context.put_concrete(&ACTIVITY_NAME_KEY.key(), activity_name.clone());
 
@@ -498,159 +505,6 @@ impl PipelineParts {
             event.borrow_mut().set_name(new_name);
           }
         }
-      }
-
-      Ok(())
-    })
-  }
-
-  pub(super) fn clusterize_activities_from_traces_k_means() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS, &|context, _, config| {
-      let mut params = Self::create_activities_clustering_params(context, config)?;
-      let clusters_count = *Self::get_user_data(config, &CLUSTERS_COUNT_KEY)? as usize;
-      let learning_iterations_count = *Self::get_user_data(config, &LEARNING_ITERATIONS_COUNT_KEY)? as usize;
-
-      let labeled_dataset = match clusterize_activities_k_means(&mut params, clusters_count, learning_iterations_count) {
-        Ok(labeled_dataset) => labeled_dataset,
-        Err(error) => return Err(error.into()),
-      };
-
-      context.put_concrete(LABELED_TRACES_ACTIVITIES_DATASET_KEY.key(), labeled_dataset);
-      Ok(())
-    })
-  }
-
-  fn create_common_vis_params<'a>(
-    context: &'a PipelineContext,
-    config: &'a UserDataImpl,
-  ) -> Result<CommonVisualizationParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
-    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-    let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
-    let class_extractor = match Self::get_user_data(config, &EVENT_CLASS_REGEX_KEY) {
-      Ok(extractor) => Some(extractor.to_owned()),
-      Err(_) => None,
-    };
-
-    Ok(CommonVisualizationParams {
-      log,
-      colors_holder,
-      class_extractor,
-    })
-  }
-
-  fn create_activities_visualization_params<'a>(
-    context: &'a mut PipelineContext,
-    config: &'a UserDataImpl,
-  ) -> Result<ActivitiesVisualizationParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
-    let common_vis_params = Self::create_common_vis_params(context, config)?;
-    let traces_activities = Self::get_user_data_mut(context, &TRACE_ACTIVITIES_KEY)?;
-    let activity_level = *Self::get_user_data(config, &ACTIVITY_LEVEL_KEY)? as usize;
-    let activities_repr_source = *Self::get_user_data(config, &ACTIVITIES_REPR_SOURCE_KEY)?;
-
-    Ok(ActivitiesVisualizationParams {
-      common_vis_params,
-      traces_activities,
-      activity_level,
-      activities_repr_source,
-    })
-  }
-
-  fn create_activities_clustering_params<'a>(
-    context: &'a mut PipelineContext,
-    config: &'a UserDataImpl,
-  ) -> Result<ActivitiesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
-    let vis_params = Self::create_activities_visualization_params(context, config)?;
-    let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
-    let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
-
-    if let Some(params) = ActivitiesClusteringParams::new(vis_params, tolerance, distance) {
-      Ok(params)
-    } else {
-      let message = "Failed to create activities clustering params".to_owned();
-      Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
-    }
-  }
-
-  pub(super) fn clusterize_activities_from_traces_k_means_grid_search() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS_GRID_SEARCH, &|context, _, config| {
-      let learning_iterations_count = *Self::get_user_data(config, &LEARNING_ITERATIONS_COUNT_KEY)? as usize;
-      let mut params = Self::create_activities_clustering_params(context, config)?;
-
-      let labeled_dataset = match clusterize_activities_k_means_grid_search(&mut params, learning_iterations_count) {
-        Ok(labeled_dataset) => labeled_dataset,
-        Err(error) => return Err(error.into()),
-      };
-
-      context.put_concrete(LABELED_TRACES_ACTIVITIES_DATASET_KEY.key(), labeled_dataset);
-      Ok(())
-    })
-  }
-
-  pub(super) fn clusterize_activities_from_traces_dbscan() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_ACTIVITIES_FROM_TRACES_DBSCAN, &|context, _, config| {
-      let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
-      let mut params = Self::create_activities_clustering_params(context, config)?;
-
-      let labeled_dataset = match clusterize_activities_dbscan(&mut params, min_points_in_cluster) {
-        Ok(labeled_dataset) => labeled_dataset,
-        Err(error) => return Err(error.into()),
-      };
-
-      context.put_concrete(LABELED_TRACES_ACTIVITIES_DATASET_KEY.key(), labeled_dataset);
-      Ok(())
-    })
-  }
-
-  pub(super) fn create_traces_activities_dataset() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CREATE_TRACES_ACTIVITIES_DATASET, &|context, _, config| {
-      let params = Self::create_activities_visualization_params(context, config)?;
-
-      let (dataset, processed, classes) = match create_dataset(&params) {
-        Ok((dataset, processed, classes)) => (dataset, processed, classes),
-        Err(error) => return Err(error.into()),
-      };
-
-      let processed = processed.iter().map(|x| x.0.borrow().name().as_ref().as_ref().to_owned()).collect();
-      let ficus_dataset = transform_to_ficus_dataset(&dataset, processed, classes);
-
-      context.put_concrete(TRACES_ACTIVITIES_DATASET_KEY.key(), ficus_dataset);
-      Ok(())
-    })
-  }
-
-  fn create_traces_clustering_params<'a>(
-    context: &'a mut PipelineContext,
-    config: &'a UserDataImpl,
-  ) -> Result<TracesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
-    let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
-    let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
-    let repr_source = *Self::get_user_data(config, &TRACES_REPRESENTATION_SOURCE_KEY)?;
-
-    Ok(TracesClusteringParams {
-      vis_params: Self::create_common_vis_params(context, config)?,
-      distance,
-      tolerance,
-      repr_source,
-    })
-  }
-
-  pub(super) fn clusterize_log_traces() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES, &|context, infra, config| {
-      let mut params = Self::create_traces_clustering_params(context, config)?;
-      let after_clusterization_pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
-      let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
-
-      let new_logs = match clusterize_log_by_traces_dbscan(&mut params, min_points_in_cluster) {
-        Ok(new_logs) => new_logs,
-        Err(error) => return Err(error.into()),
-      };
-
-      context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), new_logs.1);
-      for log in new_logs.0 {
-        let mut new_context = context.clone();
-        new_context.put_concrete(EVENT_LOG_KEY.key(), log);
-
-        after_clusterization_pipeline.execute(&mut new_context, infra)?;
       }
 
       Ok(())

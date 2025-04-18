@@ -1,0 +1,39 @@
+﻿@inherits ComponentBase
+
+@inject IJSRuntime Js
+
+<div class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">
+  <div id="@myCytoscapeContainerId" class="@(IsFullScreen ? "canvas-container-fullscreen" : "cytoscape-canvas")"></div>
+
+  <div class="canvas-export-button" @onclick="ExportGraph">
+    Export to SVG
+  </div>
+</div>
+
+
+@code {
+  private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
+
+  private IJSObjectReference? myCytoscapeReference;
+
+  [Parameter] public required bool IsFullScreen { get; init; }
+  [Parameter] public required Func<string, Task<IJSObjectReference>> RenderingFunc { get; init; }
+  [Parameter] public required Func<string> FileNameCreator { get; init; }
+
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    //some hacks in order to make it work after changing to full screen from JS side
+    Task.Delay(100).ContinueWith(async _ =>
+    {
+      await InvokeAsync(async () => myCytoscapeReference = await RenderingFunc(myCytoscapeContainerId.ToString()));
+    });
+
+    return Task.CompletedTask;
+  }
+
+  private async Task ExportGraph()
+  {
+    await Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, FileNameCreator());
+  }
+}

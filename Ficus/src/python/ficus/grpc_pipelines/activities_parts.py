@@ -1,12 +1,12 @@
-from .data_models import ActivitiesRepresentationSource, Distance, TracesRepresentationSource, LogSerializationFormat
+from .clustering import get_visualization_function
+from .data_models import ActivitiesRepresentationSource, LogSerializationFormat
 from .entry_points.default_pipeline import *
 from .entry_points.default_pipeline import create_default_pipeline_part, create_complex_get_context_part
 from .models.pipelines_and_context_pb2 import GrpcPipelinePartBase, GrpcPipelinePartConfiguration, \
   GrpcContextValue
 from .patterns_parts import FindMaximalRepeats, \
   FindSuperMaximalRepeats, FindNearSuperMaximalRepeats, FindPrimitiveTandemArrays, FindMaximalTandemArrays
-from ..legacy.analysis.event_log_analysis import NComponents, visualize_dataset_pca, \
-  visualize_dataset_isomap, DatasetVisualizationMethod, visualize_dataset_mds, visualize_dataset_tsne
+from ..legacy.analysis.event_log_analysis import NComponents, DatasetVisualizationMethod
 from ..legacy.pipelines.analysis.patterns.models import AdjustingMode
 
 
@@ -25,17 +25,20 @@ class DiscoverActivitiesInstances(PipelinePart):
   def __init__(self,
                narrow_activities: NarrowActivityKind = NarrowActivityKind.NarrowDown,
                min_events_in_activity: int = 0,
-               activity_filter_kind: ActivityFilterKind = ActivityFilterKind.DefaultFilter):
+               activity_filter_kind: ActivityFilterKind = ActivityFilterKind.DefaultFilter,
+               discover_activity_instances_strict: bool = False):
     super().__init__()
     self.narrow_activities = narrow_activities
     self.min_events_in_activity = min_events_in_activity
     self.activity_filter_kind = activity_filter_kind
+    self.discover_activity_instances_strict = discover_activity_instances_strict
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_narrow_kind(config, const_narrow_activities, self.narrow_activities)
     append_uint32_value(config, const_min_events_in_activity, self.min_events_in_activity)
     append_activity_filter_kind(config, const_activity_filter_kind, self.activity_filter_kind)
+    append_bool_value(config, const_discover_activities_instances_strict, self.discover_activity_instances_strict)
 
     return GrpcPipelinePartBase(
       defaultPart=create_default_pipeline_part(const_discover_activities_instances, config))
@@ -150,7 +153,8 @@ class DiscoverActivitiesUntilNoMore(PipelinePart):
                min_events_in_activity_count: int = 0,
                activity_filter_kind: ActivityFilterKind = ActivityFilterKind.DefaultFilter,
                after_activities_extraction_pipeline: Optional[Pipeline] = None,
-               execute_only_on_last_extraction: bool = False):
+               execute_only_on_last_extraction: bool = False,
+               discover_activity_instances_strict: bool = False):
     super().__init__()
     self.event_class = event_class
     self.narrow_activities = narrow_activities
@@ -165,6 +169,7 @@ class DiscoverActivitiesUntilNoMore(PipelinePart):
     self.activity_filter_kind = activity_filter_kind
     self.after_activities_extraction_pipeline = after_activities_extraction_pipeline
     self.execute_only_on_last_extraction = execute_only_on_last_extraction
+    self.discover_activity_instances_strict = discover_activity_instances_strict
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
@@ -179,6 +184,7 @@ class DiscoverActivitiesUntilNoMore(PipelinePart):
     append_undef_activity_handling_strat(config, const_undef_activity_handling_strategy, self.undef_strategy)
     append_activity_filter_kind(config, const_activity_filter_kind, self.activity_filter_kind)
     append_bool_value(config, const_execute_only_on_last_extraction, self.execute_only_on_last_extraction)
+    append_bool_value(config, const_discover_activities_instances_strict, self.discover_activity_instances_strict)
 
     if self.event_class is not None:
       append_string_value(config, const_event_class_regex, self.event_class)
@@ -256,217 +262,6 @@ class ApplyClassExtractor(PipelinePart):
     part = create_default_pipeline_part(const_apply_class_extractor, config)
     return GrpcPipelinePartBase(defaultPart=part)
 
-
-class ClusterizationPartWithVisualization(PipelinePartWithCallback):
-  def __init__(self,
-               show_visualization: bool,
-               fig_size: (int, int),
-               view_params: (int, int),
-               font_size: int,
-               save_path: Optional[str],
-               n_components: NComponents,
-               visualization_method: DatasetVisualizationMethod,
-               legend_cols: int,
-               labeled_dataset_key: str):
-    super().__init__()
-    self.show_visualization = show_visualization
-    self.fig_size = fig_size
-    self.view_params = view_params
-    self.font_size = font_size
-    self.save_path = save_path
-    self.n_components = n_components
-    self.n_components = n_components
-    self.visualization_method = visualization_method
-    self.legend_cols = legend_cols
-    self.labeled_dataset_key = labeled_dataset_key
-
-  def execute_callback(self, values: dict[str, GrpcContextValue]):
-    if not self.show_visualization:
-      return
-
-    dataset = values[self.labeled_dataset_key].labeled_dataset
-    df = from_grpc_labeled_dataset(dataset)
-
-    colors = dict()
-    for label, color in zip(dataset.labels, dataset.labelsColors):
-      colors[label] = from_grpc_color(color)
-
-    vis_func = get_visualization_function(self.visualization_method)
-    vis_func(df, self.n_components, colors, self.fig_size, self.view_params,
-             self.font_size, self.legend_cols, self.save_path, const_cluster_labels)
-
-
-def get_visualization_function(method: DatasetVisualizationMethod):
-  if method == DatasetVisualizationMethod.Pca:
-    return visualize_dataset_pca
-
-  if method == DatasetVisualizationMethod.Isomap:
-    return visualize_dataset_isomap
-
-  if method == DatasetVisualizationMethod.MDS:
-    return visualize_dataset_mds
-
-  if method == DatasetVisualizationMethod.TSNE:
-    return visualize_dataset_tsne
-
-  raise KeyError()
-
-
-class ClusterizationPart(ClusterizationPartWithVisualization):
-  def __init__(self,
-               activity_level: int,
-               tolerance: float,
-               class_extractor: Optional[str],
-               show_visualization: bool,
-               fig_size: (int, int),
-               view_params: (int, int),
-               font_size: int,
-               save_path: Optional[str],
-               activities_repr_source: ActivitiesRepresentationSource,
-               distance: Distance,
-               n_components: NComponents,
-               visualization_method: DatasetVisualizationMethod,
-               legend_cols: int):
-    super().__init__(show_visualization, fig_size, view_params, font_size,
-                     save_path, n_components, visualization_method, legend_cols,
-                     const_labeled_traces_activities_dataset)
-
-    self.tolerance = tolerance
-    self.activity_level = activity_level
-    self.class_extractor = class_extractor
-    self.activities_repr_source = activities_repr_source
-    self.distance = distance
-
-  def create_common_config(self) -> GrpcPipelinePartConfiguration:
-    config = GrpcPipelinePartConfiguration()
-    append_uint32_value(config, const_activity_level, self.activity_level)
-    append_float_value(config, const_tolerance, self.tolerance)
-
-    append_enum_value(config,
-                      const_activities_representation_source,
-                      const_activities_repr_source_enum_name,
-                      self.activities_repr_source.name)
-
-    append_enum_value(config,
-                      const_distance,
-                      const_distance_enum_name,
-                      self.distance.name)
-
-    if self.class_extractor is not None:
-      append_string_value(config, const_event_class_regex, self.class_extractor)
-
-    return config
-
-
-class ClusterizeActivitiesFromTracesKMeans(ClusterizationPart):
-  def __init__(self,
-               activity_level: int = 0,
-               clusters_count: int = 10,
-               learning_iterations_count: int = 200,
-               tolerance: float = 1e-5,
-               class_extractor: Optional[str] = None,
-               show_visualization: bool = True,
-               fig_size: (int, int) = (7, 9),
-               view_params: (int, int) = (-140, 60),
-               font_size: int = 14,
-               save_path: Optional[str] = None,
-               activities_repr_source: ActivitiesRepresentationSource = ActivitiesRepresentationSource.EventClasses,
-               distance: Distance = Distance.Cosine,
-               n_components: NComponents = NComponents.Three,
-               visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
-               legend_cols: int = 2):
-    super().__init__(activity_level, tolerance, class_extractor, show_visualization,
-                     fig_size, view_params, font_size, save_path, activities_repr_source, distance, n_components,
-                     visualization_method, legend_cols)
-
-    self.clusters_count = clusters_count
-    self.learning_iterations_count = learning_iterations_count
-
-  def to_grpc_part(self) -> GrpcPipelinePartBase:
-    config = self.create_common_config()
-    append_uint32_value(config, const_clusters_count, self.clusters_count)
-    append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
-
-    part = create_complex_get_context_part(self.uuid,
-                                           self.__class__.__name__,
-                                           [const_labeled_traces_activities_dataset],
-                                           const_clusterize_activities_from_traces_k_means,
-                                           config)
-
-    return GrpcPipelinePartBase(complexContextRequestPart=part)
-
-
-class ClusterizeActivitiesFromTracesKMeansGridSearch(ClusterizationPart):
-  def __init__(self,
-               activity_level: int = 0,
-               learning_iterations_count: int = 200,
-               tolerance: float = 1e-5,
-               class_extractor: Optional[str] = None,
-               show_visualization: bool = True,
-               fig_size: (int, int) = (7, 9),
-               view_params: (int, int) = (-140, 60),
-               font_size: int = 14,
-               activities_repr_source: ActivitiesRepresentationSource = ActivitiesRepresentationSource.EventClasses,
-               save_path: Optional[str] = None,
-               distance: Distance = Distance.Cosine,
-               n_components: NComponents = NComponents.Three,
-               visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
-               legend_cols: int = 2):
-    super().__init__(activity_level, tolerance, class_extractor, show_visualization,
-                     fig_size, view_params, font_size, save_path, activities_repr_source, distance, n_components,
-                     visualization_method, legend_cols)
-
-    self.learning_iterations_count = learning_iterations_count
-
-  def to_grpc_part(self) -> GrpcPipelinePartBase:
-    config = self.create_common_config()
-    append_uint32_value(config, const_learning_iterations_count, self.learning_iterations_count)
-
-    part = create_complex_get_context_part(self.uuid,
-                                           self.__class__.__name__,
-                                           [const_labeled_traces_activities_dataset],
-                                           const_clusterize_activities_from_traces_k_means_grid_search,
-                                           config)
-
-    return GrpcPipelinePartBase(complexContextRequestPart=part)
-
-
-class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart):
-  def __init__(self,
-               activity_level: int = 0,
-               min_events_count_in_cluster: int = 1,
-               tolerance: float = 1e-5,
-               class_extractor: Optional[str] = None,
-               show_visualization: bool = True,
-               fig_size: (int, int) = (7, 9),
-               view_params: (int, int) = (-140, 60),
-               font_size: int = 14,
-               activities_repr_source: ActivitiesRepresentationSource = ActivitiesRepresentationSource.EventClasses,
-               save_path: Optional[str] = None,
-               distance: Distance = Distance.Cosine,
-               n_components: NComponents = NComponents.Three,
-               visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
-               legend_cols: int = 2):
-    super().__init__(activity_level, tolerance, class_extractor, show_visualization,
-                     fig_size, view_params, font_size, save_path, activities_repr_source, distance, n_components,
-                     visualization_method, legend_cols)
-
-    self.min_events_count_in_cluster = min_events_count_in_cluster
-
-  def to_grpc_part(self) -> GrpcPipelinePartBase:
-    config = self.create_common_config()
-
-    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
-
-    part = create_complex_get_context_part(self.uuid,
-                                           self.__class__.__name__,
-                                           [const_labeled_traces_activities_dataset],
-                                           const_clusterize_activities_from_traces_dbscan,
-                                           config)
-
-    return GrpcPipelinePartBase(complexContextRequestPart=part)
-
-
 class VisualizeTracesActivities(PipelinePartWithCallback):
   def __init__(self,
                activity_level: int = 0,
@@ -520,66 +315,6 @@ class VisualizeTracesActivities(PipelinePartWithCallback):
              self.font_size, self.legend_cols, self.save_path, None)
 
 
-class ClusterizeLogTracesDbscan(ClusterizationPartWithVisualization):
-  def __init__(self,
-               after_clusterization_pipeline: Pipeline,
-               min_events_count_in_cluster: int = 1,
-               tolerance: float = 1e-5,
-               show_visualization: bool = True,
-               fig_size: (int, int) = (7, 9),
-               view_params: (int, int) = (-140, 60),
-               font_size: int = 14,
-               save_path: Optional[str] = None,
-               distance: Distance = Distance.Cosine,
-               n_components: NComponents = NComponents.Three,
-               visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
-               legend_cols: int = 2,
-               traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
-               class_extractor: Optional[str] = None):
-    super().__init__(show_visualization, fig_size, view_params, font_size,
-                     save_path, n_components, visualization_method, legend_cols,
-                     const_labeled_log_traces_dataset)
-
-    self.after_clusterization_pipeline = after_clusterization_pipeline
-    self.min_events_count_in_cluster = min_events_count_in_cluster
-    self.tolerance = tolerance
-    self.distance = distance
-    self.traces_repr_source = traces_repr_source
-    self.class_extractor = class_extractor
-
-  def to_grpc_part(self) -> GrpcPipelinePartBase:
-    config = GrpcPipelinePartConfiguration()
-    append_float_value(config, const_tolerance, self.tolerance)
-
-    append_enum_value(config,
-                      const_distance,
-                      const_distance_enum_name,
-                      self.distance.name)
-
-    append_enum_value(config,
-                      const_traces_repr_source,
-                      const_traces_repr_source_enum_name,
-                      self.traces_repr_source.name)
-
-    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
-    append_pipeline_value(config, const_pipeline, self.after_clusterization_pipeline)
-
-    if self.class_extractor is not None:
-      append_string_value(config, const_event_class_regex, self.class_extractor)
-
-    part = create_complex_get_context_part(self.uuid,
-                                           self.__class__.__name__,
-                                           [const_labeled_log_traces_dataset],
-                                           const_clusterize_log_traces,
-                                           config)
-
-    return GrpcPipelinePartBase(complexContextRequestPart=part)
-
-  def append_parts_with_callbacks(self, parts: list['PipelinePartWithCallback']):
-    super().append_parts_with_callbacks(parts)
-    append_parts_with_callbacks(self.after_clusterization_pipeline.parts, parts)
-
-
 class SerializeActivitiesLogs(PipelinePart):
   def __init__(self,
                directory_path: str,
@@ -613,3 +348,15 @@ class SerializeActivitiesLogs(PipelinePart):
 class ReverseHierarchyIndices(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_reverse_hierarchy_indices))
+
+
+class DiscoverLoopsStrict(PipelinePart):
+  def __init__(self, max_loop_length = 20):
+    super().__init__()
+    self.max_loop_length = max_loop_length
+
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    append_uint32_value(config, const_tandem_array_length, self.max_loop_length)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_loops_strict, config))

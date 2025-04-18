@@ -88,6 +88,7 @@ where
   pub min_events_in_activity: usize,
   pub narrow_kind: ActivityNarrowingKind,
   pub activity_filter_kind: ActivityInTraceFilterKind,
+  pub extract_activities_strict: bool
 }
 
 impl<TClassExtractor, TLog, TNameCreator> ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>
@@ -103,6 +104,7 @@ where
     narrow_kind: ActivityNarrowingKind,
     activity_filter_kind: ActivityInTraceFilterKind,
     name_creator: TNameCreator,
+    extract_activities_strict: bool
   ) -> Self {
     Self {
       patterns_context,
@@ -111,6 +113,7 @@ where
       min_events_in_activity,
       narrow_kind,
       activity_filter_kind,
+      extract_activities_strict
     }
   }
 }
@@ -120,7 +123,7 @@ where
   TLog: EventLog,
   TClassExtractor: Fn(&TLog::TEvent) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
 {
   pub activities_context: ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,
   pub undef_events_handling_strategy: UndefActivityHandlingStrategy<TLog::TEvent>,
@@ -132,7 +135,7 @@ where
   TLog: EventLog,
   TClassExtractor: Fn(&TLog::TEvent) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
 {
   pub fn new(
     activities_context: ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,

@@ -5,11 +5,13 @@ use bxes::models::system_models::SystemMetadata;
 
 use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use ficus::features::analysis::threads_diagram::discovery::LogTimelineDiagram;
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use ficus::features::clustering::traces::traces_params::TracesRepresentationSource;
+use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
+use ficus::features::discovery::root_sequence::models::{ActivityStartEndTimeData, RootSequenceKind};
+use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
+use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus::pipelines::keys::context_keys::*;
 use ficus::pipelines::patterns_parts::PatternsKindDto;
@@ -19,17 +21,14 @@ use ficus::utils::distance::distance::FicusDistance;
 use ficus::utils::graph::graph::DefaultGraph;
 use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
-  event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
-  features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
-  pipelines::{
-    aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
-    pipelines::Pipeline,
-  },
-  utils::{
-    colors::ColorsHolder,
-    user_data::{keys::Key, user_data::UserData},
-  },
-  vecs,
+    event_log::xes::xes_event_log::XesEventLogImpl,
+    features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
+    pipelines::{
+        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
+        pipelines::Pipeline,
+    },
+    utils::colors::ColorsHolder,
+    vecs,
 };
 
 #[test]
@@ -113,9 +112,23 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_existence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_existence::<Vec<String>>(&PATHS, &mut used);
-    assert_existence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
+    assert_existence::<LogTimelineDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
     assert_existence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_existence::<String>(&THREAD_ATTRIBUTE, &mut used);
+    assert_existence::<u32>(&TIME_DELTA, &mut used);
+    assert_existence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
+    assert_existence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
+    assert_existence::<Vec<f64>>(&TOLERANCES, &mut used);
+    assert_existence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
+    assert_existence::<Vec<RootSequenceKind>>(&ROOT_SEQUENCE_KIND, &mut used);
+    assert_existence::<Vec<SoftwareData>>(&SOFTWARE_DATA, &mut used);
+    assert_existence::<DefaultGraph>(&INNER_GRAPH, &mut used);
+    assert_existence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
+    assert_existence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
+    assert_existence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
+    assert_existence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
+    assert_existence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
+    assert_existence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -209,7 +222,21 @@ fn get_all_keys_names() -> Vec<String> {
         "paths",
         "log_threads_diagram",
         "thread_attribute",
-        "time_attribute"
+        "time_attribute",
+        "time_delta",
+        "feature_count_kind",
+        "percent_from_max_value",
+        "tolerances",
+        "min_points_in_cluster_array",
+        "root_sequence_kind",
+        "software_data",
+        "inner_graph",
+        "start_end_activity_time",
+        "start_end_activities_times",
+        "discover_events_groups_in_each_trace",
+        "software_data_extraction_config",
+        "discover_activity_instances_strict",
+        "merge_sequences_of_events"
     ]
 }
 
@@ -301,9 +328,23 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<TimeAnnotationKind>(&TIME_ANNOTATION_KIND, &mut used);
     assert_keys_equivalence::<Vec<String>>(&ATTRIBUTES, &mut used);
     assert_keys_equivalence::<Vec<String>>(&PATHS, &mut used);
-    assert_keys_equivalence::<LogTimelineDiagram>(&LOG_TIMELINE_DIAGRAM, &mut used);
+    assert_keys_equivalence::<LogTimelineDiagram>(&LOG_THREADS_DIAGRAM, &mut used);
     assert_keys_equivalence::<String>(&TIME_ATTRIBUTE, &mut used);
     assert_keys_equivalence::<String>(&THREAD_ATTRIBUTE, &mut used);
+    assert_keys_equivalence::<u32>(&TIME_DELTA, &mut used);
+    assert_keys_equivalence::<FeatureCountKind>(&FEATURE_COUNT_KIND, &mut used);
+    assert_keys_equivalence::<f64>(&PERCENT_FROM_MAX_VALUE, &mut used);
+    assert_keys_equivalence::<Vec<f64>>(&TOLERANCES, &mut used);
+    assert_keys_equivalence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
+    assert_keys_equivalence::<Vec<RootSequenceKind>>(&ROOT_SEQUENCE_KIND, &mut used);
+    assert_keys_equivalence::<Vec<SoftwareData>>(&SOFTWARE_DATA, &mut used);
+    assert_keys_equivalence::<DefaultGraph>(&INNER_GRAPH, &mut used);
+    assert_keys_equivalence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
+    assert_keys_equivalence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
+    assert_keys_equivalence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
+    assert_keys_equivalence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
+    assert_keys_equivalence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
+    assert_keys_equivalence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

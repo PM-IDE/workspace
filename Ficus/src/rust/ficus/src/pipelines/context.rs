@@ -1,11 +1,11 @@
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::performance::performance_cookie::PerformanceLogger;
-use std::{any::Any, sync::Arc};
-
 use crate::utils::user_data::{
   keys::{DefaultKey, Key},
   user_data::{UserData, UserDataImpl},
 };
+use std::{any::Any, sync::Arc};
+use uuid::Uuid;
 
 use super::errors::pipeline_errors::PipelinePartExecutionError;
 
@@ -15,6 +15,7 @@ pub trait LogMessageHandler: Send + Sync {
 
 pub struct PipelineInfrastructure {
   log_message_handler: Option<Arc<Box<dyn LogMessageHandler>>>,
+  execution_id: Uuid,
 }
 
 impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
@@ -26,7 +27,10 @@ impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
 
 impl PipelineInfrastructure {
   pub fn new(log_message_handler: Option<Arc<Box<dyn LogMessageHandler>>>) -> Self {
-    Self { log_message_handler }
+    Self {
+      log_message_handler,
+      execution_id: Uuid::new_v4(),
+    }
   }
 
   pub fn log(&self, message: &str) -> Result<(), PipelinePartExecutionError> {

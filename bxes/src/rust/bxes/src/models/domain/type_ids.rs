@@ -1,3 +1,4 @@
+use num_derive::{FromPrimitive, ToPrimitive};
 use crate::models::domain::bxes_value::BxesValue;
 use variant_count::VariantCount;
 

@@ -4,7 +4,7 @@ from ...grpc_pipelines.constants import *
 from ...grpc_pipelines.context_values import *
 from ...grpc_pipelines.data_models import PatternsDiscoveryStrategy, PatternsKind, NarrowActivityKind, \
   ActivityFilterKind, \
-  ActivitiesLogsSource
+  ActivitiesLogsSource, RootSequenceKind
 from ...grpc_pipelines.models.backend_service_pb2 import *
 from ...grpc_pipelines.models.pipelines_and_context_pb2 import *
 from ...legacy.analysis.event_log_analysis import draw_colors_event_log
@@ -201,6 +201,18 @@ def append_float_value(config: GrpcPipelinePartConfiguration, key: str, value: f
   append_context_value(config, key, FloatContextValue(value))
 
 
+def append_float_array_value(config: GrpcPipelinePartConfiguration, key: str, value: list[float]):
+  append_context_value(config, key, FloatArrayContextValue(value))
+
+
+def append_int_array_value(config: GrpcPipelinePartConfiguration, key: str, value: list[int]):
+  append_context_value(config, key, IntArrayContextValue(value))
+
+
+def append_uint_array_value(config: GrpcPipelinePartConfiguration, key: str, value: list[int]):
+  append_context_value(config, key, UintArrayContextValue(value))
+
+
 def append_context_value(config: GrpcPipelinePartConfiguration, key: str, value: ContextValue):
   config.configurationParameters.append(GrpcContextKeyValue(
     key=GrpcContextKey(name=key),
@@ -211,13 +223,16 @@ def append_context_value(config: GrpcPipelinePartConfiguration, key: str, value:
 def append_uint32_value(config: GrpcPipelinePartConfiguration, key: str, value: int):
   append_context_value(config, key, Uint32ContextValue(value))
 
-
 def append_bool_value(config: GrpcPipelinePartConfiguration, key: str, value: bool):
   append_context_value(config, key, BoolContextValue(value))
 
 
 def append_enum_value(config: GrpcPipelinePartConfiguration, key: str, enum_name: str, value: str):
   append_context_value(config, key, EnumContextValue(enum_name, value))
+
+
+def append_root_sequence_kind(config: GrpcPipelinePartConfiguration, key: str, value: RootSequenceKind):
+  append_enum_value(config, key, const_root_sequence_kind_enum_name, value.name)
 
 
 def append_patterns_discovery_strategy(config: GrpcPipelinePartConfiguration, key: str,

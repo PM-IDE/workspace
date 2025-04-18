@@ -1,7 +1,6 @@
 use crate::features::analysis::directly_follows_graph::{construct_dfg, construct_dfg_by_attribute};
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::features::analysis::threads_diagram::discovery::discover_timeline_diagram;
 use crate::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
 use crate::features::discovery::alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc;
 use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
@@ -11,15 +10,10 @@ use crate::features::discovery::heuristic::heuristic_miner::discover_petri_net_h
 use crate::features::discovery::petri_net::marking::ensure_initial_marking;
 use crate::features::discovery::petri_net::pnml_serialization::serialize_to_pnml_file;
 use crate::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
+use crate::features::discovery::root_sequence::discovery_xes::discover_root_sequence_graph_from_event_log;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{
-  AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY,
-  EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TIMELINE_DIAGRAM, LOOP_LENGTH_TWO_THRESHOLD_KEY,
-  NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY,
-  PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE, TIME_ATTRIBUTE_KEY,
-  UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
-};
+use crate::pipelines::keys::context_keys::{AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, MERGE_SEQUENCES_OF_EVENTS_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, ROOT_SEQUENCE_KIND_KEY, THREAD_ATTRIBUTE_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 use crate::utils::user_data::user_data::UserData;
@@ -106,10 +100,14 @@ impl PipelineParts {
   }
 
   pub(super) fn discover_directly_follows_graph() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, _| {
+    Self::create_pipeline_part(Self::DISCOVER_DFG, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
-      context.put_concrete(GRAPH_KEY.key(), construct_dfg(&info));
+      let creation_dto = match Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY) {
+        Ok(thread_attribute) => EventLogInfoCreationDto::default_thread(log, thread_attribute.to_owned()),
+        Err(_) => EventLogInfoCreationDto::default(log)
+      };
+
+      context.put_concrete(GRAPH_KEY.key(), construct_dfg(&OfflineEventLogInfo::create_from(creation_dto)));
 
       Ok(())
     })
@@ -202,31 +200,19 @@ impl PipelineParts {
     })
   }
 
-  pub(super) fn discover_log_threads_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_LOG_TIMELINE_DIAGRAM, &|context, _, config| {
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
-      let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY);
+  pub(super) fn discover_root_sequence_graph() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::DISCOVER_ROOT_SEQUENCE_GRAPH, &|context, _, config| {
+      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+      let root_sequence_kind = Self::get_user_data(config, &ROOT_SEQUENCE_KIND_KEY)?;
+      let merge_sequences_of_events = Self::get_user_data(config, &MERGE_SEQUENCES_OF_EVENTS_KEY)?;
 
-      let diagram = discover_timeline_diagram(
-        log,
-        thread_attribute.as_str(),
-        match time_attribute {
-          Err(_) => None,
-          Ok(time_attribute) => Some(time_attribute.as_str()),
-        },
-      );
-
-      match diagram {
-        Err(_) => {
-          return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
-            "Failed to build diagram".to_string(),
-          )))
+      match discover_root_sequence_graph_from_event_log(log, *root_sequence_kind, *merge_sequences_of_events) {
+        Ok(graph) => {
+          context.put_concrete(GRAPH_KEY.key(), graph);
+          Ok(())
         }
-        Ok(diagram) => context.put_concrete(LOG_THREADS_DIAGRAM_KEY.key(), diagram),
+        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
       }
-
-      Ok(())
     })
   }
 }

@@ -68,19 +68,27 @@ class GrpcCase(_message.Message):
     def __init__(self, processCaseMetadata: _Optional[_Union[GrpcProcessCaseMetadata, _Mapping]] = ..., contextValues: _Optional[_Iterable[_Union[GrpcPipelinePartContextValues, _Mapping]]] = ...) -> None: ...
 
 class GrpcPipelinePartContextValues(_message.Message):
-    __slots__ = ["pipelinePartInfo", "stamp", "contextValues"]
+    __slots__ = ["pipelinePartInfo", "stamp", "execution_results"]
     PIPELINEPARTINFO_FIELD_NUMBER: _ClassVar[int]
     STAMP_FIELD_NUMBER: _ClassVar[int]
-    CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
+    EXECUTION_RESULTS_FIELD_NUMBER: _ClassVar[int]
     pipelinePartInfo: GrpcPipelinePartInfo
     stamp: _timestamp_pb2.Timestamp
+    execution_results: _containers.RepeatedCompositeFieldContainer[GrpcCasePipelinePartExecutionResult]
+    def __init__(self, pipelinePartInfo: _Optional[_Union[GrpcPipelinePartInfo, _Mapping]] = ..., stamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., execution_results: _Optional[_Iterable[_Union[GrpcCasePipelinePartExecutionResult, _Mapping]]] = ...) -> None: ...
+
+class GrpcCasePipelinePartExecutionResult(_message.Message):
+    __slots__ = ["contextValues"]
+    CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
     contextValues: _containers.RepeatedCompositeFieldContainer[_pipelines_and_context_pb2.GrpcContextValueWithKeyName]
-    def __init__(self, pipelinePartInfo: _Optional[_Union[GrpcPipelinePartInfo, _Mapping]] = ..., stamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
+    def __init__(self, contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
 
 class GrpcPipelinePartInfo(_message.Message):
-    __slots__ = ["name", "id"]
+    __slots__ = ["name", "id", "execution_id"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
+    EXECUTION_ID_FIELD_NUMBER: _ClassVar[int]
     name: str
     id: _util_pb2.GrpcGuid
-    def __init__(self, name: _Optional[str] = ..., id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
+    execution_id: _util_pb2.GrpcGuid
+    def __init__(self, name: _Optional[str] = ..., id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., execution_id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...

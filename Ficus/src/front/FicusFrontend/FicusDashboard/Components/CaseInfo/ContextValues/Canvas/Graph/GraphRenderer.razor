@@ -1,0 +1,24 @@
+@using Ficus
+@using FicusDashboard.Layout.Models
+@inject IJSRuntime Js
+
+<CanvasComponent IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
+
+@code
+{
+  [Parameter] public required bool IsFullScreen { get; init; }
+  [Parameter] public required GrpcGraph Graph { get; init; }
+  [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
+  [Parameter] public GrpcAnnotation? Annotation { get; set; }
+
+
+  private async Task<IJSObjectReference> RenderCanvas(string canvasId)
+  {
+    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation);
+  }
+
+  private string CreateExportFileName()
+  {
+    return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
+  }
+}
