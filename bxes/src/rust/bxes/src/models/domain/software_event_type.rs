@@ -1,3 +1,4 @@
+use num_derive::{FromPrimitive, ToPrimitive};
 use variant_count::VariantCount;
 
 #[derive(FromPrimitive, ToPrimitive, VariantCount, Clone, Debug, Hash, PartialEq, Eq)]

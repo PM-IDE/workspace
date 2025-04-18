@@ -1,7 +1,7 @@
 use std::hash::Hash;
 use std::rc::Rc;
 
-use num_derive::FromPrimitive;
+use num_derive::{FromPrimitive, ToPrimitive};
 use variant_count::VariantCount;
 
 use crate::models::domain::bxes_value::BxesValue;
