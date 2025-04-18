@@ -239,7 +239,7 @@ lazy_static!(
      pub static ref MIN_POINTS_IN_CLUSTER_ARRAY_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new(MIN_POINTS_IN_CLUSTER_ARRAY);
      pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
      pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
-     pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(START_END_ACTIVITIES_TIMES);
+     pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(MERGE_SEQUENCES_OF_EVENTS);
      pub static ref DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE);
      pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<String> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
      pub static ref DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_ACTIVITY_INSTANCES_STRICT);
@@ -347,7 +347,6 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     START_END_ACTIVITY_TIME => Some(START_END_ACTIVITY_TIME_KEY.deref() as &dyn ContextKey),
     START_END_ACTIVITIES_TIMES => Some(START_END_ACTIVITIES_TIMES_KEY.deref() as &dyn ContextKey),
     MERGE_SEQUENCES_OF_EVENTS => Some(MERGE_SEQUENCES_OF_EVENTS_KEY.deref() as &dyn ContextKey),
-    UNDERLYING_PATTERNS_INFOS => Some(UNDERLYING_PATTERNS_INFOS_KEY.deref() as &dyn ContextKey),
     DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE => Some(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY.deref() as &dyn ContextKey),
     SOFTWARE_DATA_EXTRACTION_CONFIG => Some(SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.deref() as &dyn ContextKey),
     DISCOVER_ACTIVITY_INSTANCES_STRICT => Some(DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY.deref() as &dyn ContextKey),

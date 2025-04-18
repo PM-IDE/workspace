@@ -127,6 +127,8 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
     assert_existence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
     assert_existence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
+    assert_existence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
+    assert_existence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -232,7 +234,9 @@ fn get_all_keys_names() -> Vec<String> {
         "start_end_activity_time",
         "start_end_activities_times",
         "discover_events_groups_in_each_trace",
-        "software_data_extraction_config"
+        "software_data_extraction_config",
+        "discover_activity_instances_strict",
+        "merge_sequences_of_events"
     ]
 }
 
@@ -339,6 +343,8 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
     assert_keys_equivalence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
     assert_keys_equivalence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
+    assert_keys_equivalence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
+    assert_keys_equivalence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
