@@ -20,6 +20,12 @@ use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
+use lazy_static::lazy_static;
+use crate::pipelines::keys::context_key::DefaultContextKey;
+
+lazy_static!(
+  pub static ref AFTER_EVENTS_KEY: DefaultContextKey<Option<Vec<Rc<RefCell<XesEventImpl>>>>> = DefaultContextKey::new("AFTER_EVENTS");
+);
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -85,6 +91,11 @@ fn create_abstracted_event(
   let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
   event.user_data_mut().put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
+
+  event.user_data_mut().put_concrete(AFTER_EVENTS_KEY.key(), match event_group.after_group_events() {
+    None => None,
+    Some(events) => Some(events.clone())
+  });
 
   Ok(Rc::new(RefCell::new(event)))
 }
