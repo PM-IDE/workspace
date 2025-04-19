@@ -370,7 +370,7 @@ message GrpcGraphEdgeAdditionalData {
 }
 
 message GrpcEdgeExecutionInfo {
-  repeated uint64 tracesIds = 1;
+  uint64 traceId = 1;
 }
 
 message GrpcBytes {

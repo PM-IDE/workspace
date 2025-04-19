@@ -1,5 +1,5 @@
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo};
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, NodeAdditionalDataContainer};
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::pipelines::keys::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
@@ -25,8 +25,10 @@ lazy_static!(
 
 pub const EDGE_SOFTWARE_DATA: &'static str = "edge_software_data";
 pub const EDGE_START_END_ACTIVITIES_TIMES: &'static str = "edge_start_end_activities_times";
+pub const EDGE_TRACE_EXECUTION_INFO: &'static str = "edge_trace_execution_info";
 
 lazy_static!(
      pub static ref EDGE_SOFTWARE_DATA_KEY: DefaultContextKey<Vec<SoftwareData>> = DefaultContextKey::new(EDGE_SOFTWARE_DATA);
-     pub static ref EDGE_START_END_ACTIVITIES_TIMES_KEY:  DefaultContextKey<Vec<ActivityStartEndTimeData>> = DefaultContextKey::new(EDGE_START_END_ACTIVITIES_TIMES);
+     pub static ref EDGE_START_END_ACTIVITIES_TIMES_KEY: DefaultContextKey<Vec<ActivityStartEndTimeData>> = DefaultContextKey::new(EDGE_START_END_ACTIVITIES_TIMES);
+     pub static ref EDGE_TRACE_EXECUTION_INFO_KEY: DefaultContextKey<Vec<EdgeTraceExecutionInfo>> = DefaultContextKey::new(EDGE_TRACE_EXECUTION_INFO);
 );

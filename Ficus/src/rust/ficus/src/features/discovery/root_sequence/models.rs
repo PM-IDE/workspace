@@ -1,3 +1,4 @@
+use derive_new::new;
 use getset::Getters;
 use std::fmt::{Debug, Display, Formatter, Write};
 use std::str::FromStr;
@@ -159,4 +160,9 @@ impl<T: PartialEq + Clone> PartialEq for EventWithUniqueId<T> {
   fn eq(&self, other: &Self) -> bool {
     self.event().eq(other.event())
   }
+}
+
+#[derive(Clone, Debug, Getters, new)]
+pub struct EdgeTraceExecutionInfo {
+  #[getset(get = "pub")] trace_id: u64,
 }
