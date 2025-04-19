@@ -281,3 +281,21 @@ pub fn find_next_node(graph: &DefaultGraph, current_node: u64, next_event_id: u6
     Ok(*next_nodes.first().unwrap())
   }
 }
+
+pub fn adjust_edges_data<T: PartialEq + Clone + Debug>(
+  context: &DiscoveryContext<T>,
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
+  graph: &mut DefaultGraph,
+  start_node_id: u64
+) -> Result<(), DiscoverRootSequenceGraphError> {
+  for trace in log {
+    let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
+
+    for i in 0..replay_history.len() - 1 {
+      let edge = graph.edge_mut(&replay_history[i], &replay_history[i + 1]).unwrap();
+      context.event_to_edge_data_transfer()(trace[i].event(), edge.user_data_mut())
+    }
+  }
+
+  Ok(())
+}

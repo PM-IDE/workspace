@@ -367,13 +367,14 @@ fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_
   let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_owned());
 
   let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
+  let to_edge_data_transfer = |_: &String, _: &mut UserDataImpl| {};
 
   let factory = || (
     START.to_string(),
     END.to_string()
   );
 
-  let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer);
+  let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer, &to_edge_data_transfer);
 
   let traces = traces.into_iter().map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect()).collect();
   let graph = discover_root_sequence_graph(&traces, &context, false, None).ok().unwrap().graph_move();

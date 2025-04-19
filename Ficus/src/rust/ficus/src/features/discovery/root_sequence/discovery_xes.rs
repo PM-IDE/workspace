@@ -8,7 +8,7 @@ use crate::features::analysis::patterns::activity_instances::{create_vector_of_u
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::discovery::petri_net::annotations::create_performance_map;
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::context_keys::{NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY};
+use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY};
 use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
 use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
@@ -36,15 +36,20 @@ pub fn discover_root_sequence_graph_from_event_log(
     Rc::new(RefCell::new(XesEventImpl::new_with_min_date(ARTIFICIAL_END_EVENT_NAME.to_string()))),
   );
 
-  let event_to_graph_node_info_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
-    transfer_data_from_event_to_user_data(event, user_data_impl, belongs_to_root_sequence);
+  let event_to_node_data_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool| {
+    transfer_data_from_event_to_node_user_data(event, user_data_impl, belongs_to_root_sequence);
+  };
+
+  let event_to_edge_data_transfer = |event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl| {
+    transfer_data_from_event_to_edge_user_data(event, user_data_impl);
   };
 
   let context = DiscoveryContext::new(
     &name_extractor,
     &artificial_start_end_events_factory,
     root_sequence_kind,
-    &event_to_graph_node_info_transfer,
+    &event_to_node_data_transfer,
+    &event_to_edge_data_transfer
   );
 
   let performance_map = create_performance_map(log);
@@ -60,7 +65,13 @@ pub fn discover_root_sequence_graph_from_event_log(
   Ok(result.graph_move())
 }
 
-fn transfer_data_from_event_to_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool) {
+fn transfer_data_from_event_to_edge_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data: &mut UserDataImpl) {
+  transfer_vector_like_user_data(event, &EDGE_SOFTWARE_DATA_KEY, user_data);
+  transfer_vector_like_user_data(event, &EDGE_TRACE_EXECUTION_INFO_KEY, user_data);
+  transfer_vector_like_user_data(event, &EDGE_START_END_ACTIVITIES_TIMES_KEY, user_data);
+}
+
+fn transfer_data_from_event_to_node_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool) {
   transfer_vector_like_user_data(event, &NODE_SOFTWARE_DATA_KEY, user_data_impl);
   transfer_vector_like_user_data(event, &NODE_START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
   transfer_vector_like_user_data(event, &NODE_UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
@@ -143,7 +154,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
 
 fn transfer_vector_like_user_data<T: Clone + Debug>(
   event: &Rc<RefCell<XesEventImpl>>,
-  key: &DefaultContextKey<Vec<NodeAdditionalDataContainer<T>>>,
+  key: &DefaultContextKey<Vec<T>>,
   user_data_impl: &mut UserDataImpl,
 ) {
   if let Some(data) = event.borrow().user_data().concrete(key.key()) {

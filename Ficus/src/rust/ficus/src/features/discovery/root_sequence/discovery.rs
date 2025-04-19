@@ -1,5 +1,5 @@
 use crate::features::discovery::petri_net::annotations::PerformanceMap;
-use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_weights, find_next_node, merge_sequences_of_nodes};
+use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
@@ -66,6 +66,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
 
   if let Some(start_node_id) = result.start_node_id {
     adjust_weights(log, &mut result.graph, start_node_id)?;
+    adjust_edges_data(context, log, &mut result.graph, start_node_id)?;
   }
 
   if merge_sequences_of_events {
