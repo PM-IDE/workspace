@@ -1,10 +1,12 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use crate::event_log::core::event::event::Event;
-use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{AllocationEvent, SoftwareData};
 use derive_new::new;
 use log::{error, warn};
+use crate::event_log::xes::xes_event::XesEventImpl;
 
 #[derive(Debug, Clone, new)]
 pub struct AllocationDataExtractor<'a> {
@@ -12,11 +14,11 @@ pub struct AllocationDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
-  fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
     if let Some(config) = self.config.allocation() {
       let regex = regex_or_err(config.event_class_regex())?;
 
-      for event in event_group.all_events() {
+      for event in events {
         if regex.is_match(event.borrow().name()).unwrap_or(false) {
           if let Some(payload) = event.borrow().payload_map() {
             let type_name = payload.get(config.info().type_name_attr());
@@ -31,14 +33,14 @@ impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
 
             let allocated_bytes = if let Some(object_size_attr) = config.info().object_size_bytes_attr() {
               if let Some(object_size) = payload.get(object_size_attr) {
-                allocated_objects_count * parse_or_err::<usize>(object_size.to_string_repr().as_str())? 
+                allocated_objects_count * parse_or_err::<usize>(object_size.to_string_repr().as_str())?
               } else {
                 warn!("Failed to get object_size_attr attribute, skipping this event");
                 continue;
               }
             } else if let Some(total_allocated_bytes_attr) = config.info().total_allocated_bytes_attr() {
               if let Some(total_allocated_bytes) = payload.get(total_allocated_bytes_attr) {
-                parse_or_err(total_allocated_bytes.to_string_repr().as_str())? 
+                parse_or_err(total_allocated_bytes.to_string_repr().as_str())?
               } else {
                 warn!("Failed to get total_allocated_bytes attribute, skipping this event");
                 continue
@@ -57,7 +59,7 @@ impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
         }
       }
     }
-
+    
     Ok(())
   }
 }

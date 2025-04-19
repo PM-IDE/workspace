@@ -13,7 +13,6 @@ use crate::features::discovery::timeline::software_data::extractors::core::Softw
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::methods::MethodsDataExtractor;
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::get_stamp;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
@@ -21,6 +20,7 @@ use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use lazy_static::lazy_static;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::pipelines::keys::context_key::DefaultContextKey;
 
 lazy_static!(
@@ -113,13 +113,20 @@ fn extract_software_data(
     Box::new(ExceptionDataExtractor::new(config)),
   ];
 
-  let mut software_data = SoftwareData::empty();
+  let mut node_software_data = SoftwareData::empty();
+  let mut edge_software_data = SoftwareData::empty();
 
   for extractor in extractors {
     extractor
-      .extract(&mut software_data, event_group)
-      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
+      .extract(&mut node_software_data, event_group)
+      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
+
+    if let Some(after_group_events) = event_group.after_group_events() {
+      extractor
+        .extract_from_events(&mut edge_software_data, after_group_events)
+        .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))? 
+    }
   }
 
-  Ok(software_data)
+  Ok(node_software_data)
 }
