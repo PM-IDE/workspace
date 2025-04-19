@@ -8,11 +8,11 @@ use crate::features::analysis::patterns::activity_instances::{create_vector_of_u
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::discovery::petri_net::annotations::create_performance_map;
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
+use crate::features::discovery::root_sequence::context_keys::{NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY};
 use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
 use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, UNDERLYING_PATTERNS_INFOS_KEY};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
@@ -61,21 +61,21 @@ pub fn discover_root_sequence_graph_from_event_log(
 }
 
 fn transfer_data_from_event_to_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data_impl: &mut UserDataImpl, belongs_to_root_sequence: bool) {
-  transfer_vector_like_user_data(event, &SOFTWARE_DATA_KEY, user_data_impl);
-  transfer_vector_like_user_data(event, &START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
-  transfer_vector_like_user_data(event, &UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
+  transfer_vector_like_user_data(event, &NODE_SOFTWARE_DATA_KEY, user_data_impl);
+  transfer_vector_like_user_data(event, &NODE_START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
+  transfer_vector_like_user_data(event, &NODE_UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
 
-  if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(CORRESPONDING_TRACE_DATA_KEY.key()) {
+  if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key()) {
     let new_trace_data = corresponding_trace_data.iter().map(|d| {
       let mut data = d.clone();
       data.value_mut().set_belongs_to_root_sequence(belongs_to_root_sequence);
       data
     }).collect();
 
-    if let Some(existing_trace_data) = user_data_impl.concrete_mut(CORRESPONDING_TRACE_DATA_KEY.key()) {
+    if let Some(existing_trace_data) = user_data_impl.concrete_mut(NODE_CORRESPONDING_TRACE_DATA_KEY.key()) {
       existing_trace_data.extend(new_trace_data);
     } else {
-      user_data_impl.put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), new_trace_data);
+      user_data_impl.put_concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key(), new_trace_data);
     }
   }
 }
@@ -94,7 +94,7 @@ fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
 
         let patterns = vec![NodeAdditionalDataContainer::new(pattern_info, event_coordinates)];
 
-        event.borrow_mut().user_data_mut().put_concrete(UNDERLYING_PATTERNS_INFOS_KEY.key(), patterns);
+        event.borrow_mut().user_data_mut().put_concrete(NODE_UNDERLYING_PATTERNS_INFOS_KEY.key(), patterns);
       }
     }
   }
@@ -105,7 +105,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
     let user_data = node.user_data_mut();
 
     let mut pattern_graph_infos = vec![];
-    if let Some(patterns) = user_data.concrete(UNDERLYING_PATTERNS_INFOS_KEY.key()).cloned() {
+    if let Some(patterns) = user_data.concrete(NODE_UNDERLYING_PATTERNS_INFOS_KEY.key()).cloned() {
       if patterns.len() == 0 {
         continue;
       }
@@ -136,7 +136,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
         pattern_graph_infos.push(pattern_graph_info);
       }
 
-      user_data.put_concrete(UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY.key(), pattern_graph_infos);
+      user_data.put_concrete(NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY.key(), pattern_graph_infos);
     }
   }
 }
@@ -159,12 +159,12 @@ fn adjust_log_user_data(log: &XesEventLogImpl) {
   for (trace_index, trace) in log.traces().iter().enumerate() {
     for (event_index, event) in trace.borrow().events().iter().enumerate() {
       let coordinates = EventCoordinates::new(trace_index as u64, event_index as u64);
-      event.borrow_mut().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), vec![
+      event.borrow_mut().user_data_mut().put_concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key(), vec![
         NodeAdditionalDataContainer::new(CorrespondingTraceData::new(false), coordinates)
       ]);
 
-      adjust_event_coordinates(event, coordinates, &SOFTWARE_DATA_KEY);
-      adjust_event_coordinates(event, coordinates, &START_END_ACTIVITIES_TIMES_KEY);
+      adjust_event_coordinates(event, coordinates, &NODE_SOFTWARE_DATA_KEY);
+      adjust_event_coordinates(event, coordinates, &NODE_START_END_ACTIVITIES_TIMES_KEY);
     }
   }
 }

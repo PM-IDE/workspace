@@ -4,6 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
+use crate::features::discovery::root_sequence::context_keys::{NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
@@ -15,7 +16,6 @@ use crate::features::discovery::timeline::software_data::extractors::methods::Me
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::get_stamp;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY};
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
@@ -77,14 +77,14 @@ fn create_abstracted_event(
 
   let software_data = extract_software_data(config, event_group, thread_attribute, time_attribute)?;
   let software_data = NodeAdditionalDataContainer::new(software_data, event_coordinates);
-  event.user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), vec![software_data]);
+  event.user_data_mut().put_concrete(NODE_SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
   let first_stamp = get_stamp(&event_group.control_flow_events().first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
   let last_stamp = get_stamp(&event_group.control_flow_events().last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
 
   let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
-  event.user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
+  event.user_data_mut().put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
 
   Ok(Rc::new(RefCell::new(event)))
 }

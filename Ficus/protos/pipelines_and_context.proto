@@ -212,14 +212,14 @@ message GrpcNodeAdditionalData {
     GrpcSoftwareData software_data = 2;
     GrpcUnderlyingPatternInfo pattern_info = 3;
     GrpcNodeCorrespondingTraceData trace_data = 4;
-    GrpcNodeTimeActivityStartEndData time_data = 5;
+    GrpcActivityStartEndData time_data = 5;
   }
 
   //we need to understand from where the node data came from the original event log
   GrpcEventCoordinates original_event_coordinates = 6;
 }
 
-message GrpcNodeTimeActivityStartEndData {
+message GrpcActivityStartEndData {
   uint64 start_time = 1;
   uint64 end_time = 2;
 }
@@ -358,7 +358,19 @@ message GrpcGraphEdge {
   double weight = 4;
   string data = 5;
 
-  repeated GrpcNodeAdditionalData additional_data = 6;
+  repeated GrpcGraphEdgeAdditionalData additional_data = 6;
+}
+
+message GrpcGraphEdgeAdditionalData {
+  oneof data {
+    GrpcSoftwareData software_data = 1;
+    GrpcEdgeExecutionInfo execution_info = 2;
+    GrpcActivityStartEndData time_data = 3;
+  }
+}
+
+message GrpcEdgeExecutionInfo {
+  repeated uint64 tracesIds = 1;
 }
 
 message GrpcBytes {
