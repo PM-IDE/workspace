@@ -4,7 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::root_sequence::context_keys::{NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY};
+use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
@@ -13,19 +13,13 @@ use crate::features::discovery::timeline::software_data::extractors::core::Softw
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::methods::MethodsDataExtractor;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::get_stamp;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
-use lazy_static::lazy_static;
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
-use crate::pipelines::keys::context_key::DefaultContextKey;
-
-lazy_static!(
-  pub static ref AFTER_EVENTS_KEY: DefaultContextKey<Option<Vec<Rc<RefCell<XesEventImpl>>>>> = DefaultContextKey::new("AFTER_EVENTS");
-);
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -81,8 +75,25 @@ fn create_abstracted_event(
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
 
-  let software_data = extract_software_data(config, event_group, thread_attribute, time_attribute)?;
-  let software_data = NodeAdditionalDataContainer::new(software_data, event_coordinates);
+  let (node_software_data, edge_software_data) = extract_software_data(config, event_group, thread_attribute, time_attribute)?;
+
+  put_node_user_data(&mut event, node_software_data, event_coordinates, event_group, time_attribute)?;
+
+  if let Some(after_group_events) = event_group.after_group_events() {
+    put_edge_user_data(&mut event, edge_software_data, after_group_events, time_attribute)?; 
+  }
+
+  Ok(Rc::new(RefCell::new(event)))
+}
+
+fn put_node_user_data(
+  event: &mut XesEventImpl,
+  node_software_data: SoftwareData,
+  event_coordinates: EventCoordinates,
+  event_group: &EventGroup,
+  time_attribute: Option<&String>,
+) -> Result<(), PipelinePartExecutionError> {
+  let software_data = NodeAdditionalDataContainer::new(node_software_data, event_coordinates);
   event.user_data_mut().put_concrete(NODE_SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
   let first_stamp = get_stamp(&event_group.control_flow_events().first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
@@ -92,12 +103,24 @@ fn create_abstracted_event(
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
   event.user_data_mut().put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
 
-  event.user_data_mut().put_concrete(AFTER_EVENTS_KEY.key(), match event_group.after_group_events() {
-    None => None,
-    Some(events) => Some(events.clone())
-  });
+  Ok(())
+}
 
-  Ok(Rc::new(RefCell::new(event)))
+fn put_edge_user_data(
+  event: &mut XesEventImpl,
+  edge_software_data: SoftwareData,
+  after_group_events: &Vec<Rc<RefCell<XesEventImpl>>>,
+  time_attribute: Option<&String>,
+) -> Result<(), PipelinePartExecutionError> {
+  event.user_data_mut().put_concrete(EDGE_SOFTWARE_DATA_KEY.key(), vec![edge_software_data]);
+
+  let first_stamp = get_stamp(&after_group_events.first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
+  let last_stamp = get_stamp(&after_group_events.last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
+
+  let edge_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
+  event.user_data_mut().put_concrete(EDGE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![edge_start_end_time]);
+
+  Ok(())
 }
 
 fn extract_software_data(
@@ -105,7 +128,7 @@ fn extract_software_data(
   event_group: &EventGroup,
   thread_attribute: &str,
   time_attribute: Option<&String>,
-) -> Result<SoftwareData, PipelinePartExecutionError> {
+) -> Result<(SoftwareData, SoftwareData), PipelinePartExecutionError> {
   let extractors: Vec<Box<dyn SoftwareDataExtractor>> = vec![
     Box::new(AllocationDataExtractor::new(config)),
     Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute)),
@@ -128,5 +151,5 @@ fn extract_software_data(
     }
   }
 
-  Ok(node_software_data)
+  Ok((node_software_data, edge_software_data))
 }
