@@ -60,10 +60,16 @@ pub enum MethodEvent {
   Unload(String),
 }
 
+#[derive(Clone, Debug, Getters, new)]
+pub struct ThreadEvent {
+  #[getset(get = "pub")] thread_id: u64,
+  #[getset(get = "pub")] kind: ThreadEventKind
+}
+
 #[derive(Clone, Debug)]
-pub enum ThreadEvent {
-  Created(u64),
-  Terminated(u64),
+pub enum ThreadEventKind {
+  Created,
+  Terminated,
 }
 
 #[derive(Clone, Debug)]

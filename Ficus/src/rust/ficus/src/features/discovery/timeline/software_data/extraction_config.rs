@@ -12,9 +12,10 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] method_inlining_success: Option<ExtractionConfig<MethodInliningSucceededConfig>>,
   #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedConfig>>,
 
-  #[getset(get = "pub", set = "pub")] contention: Option<ExtractionConfig<ContentionExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] sockets: Option<ExtractionConfig<SocketExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] thread: Option<ExtractionConfig<ThreadExtractionConfig>>,
+
+  #[getset(get = "pub", set = "pub")] thread_created: Option<ExtractionConfig<ThreadExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")] thread_terminated: Option<ExtractionConfig<ThreadExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")] array_pool_array_created: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] array_pool_array_rented: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
@@ -33,9 +34,9 @@ impl SoftwareDataExtractionConfig {
       http: None,
       method_inlining_success: None,
       method_inlining_failed: None,
-      contention: None,
       sockets: None,
-      thread: None,
+      thread_created: None,
+      thread_terminated: None,
       array_pool_array_created: None,
       array_pool_array_rented: None,
       array_pool_array_returned: None,
@@ -87,9 +88,6 @@ pub struct MethodInliningFailedConfig {
   #[getset(get = "pub")] method_name_attr: String,
   #[getset(get = "pub")] reason_attr: String,
 }
-
-#[derive(Clone, Debug, Serialize, Deserialize, new)]
-pub struct ContentionExtractionConfig {}
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SocketExtractionConfig {

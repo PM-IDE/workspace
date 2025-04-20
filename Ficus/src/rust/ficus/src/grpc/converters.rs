@@ -14,7 +14,7 @@ use crate::features::discovery::petri_net::transition::Transition;
 use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
-use crate::features::discovery::timeline::software_data::models::{AllocationEvent, ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodEvent, SocketEvent, SoftwareData, ThreadEvent};
+use crate::features::discovery::timeline::software_data::models::{AllocationEvent, ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodEvent, SocketEvent, SoftwareData, ThreadEvent, ThreadEventKind};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
@@ -746,14 +746,11 @@ fn convert_to_grpc_methods_events(events: &Vec<MethodEvent>) -> Vec<GrpcMethodIn
 }
 
 fn convert_to_grpc_threads_events(events: &Vec<ThreadEvent>) -> Vec<GrpcThreadEventInfo> {
-  events.iter().map(|t| match t {
-    ThreadEvent::Created(id) => GrpcThreadEventInfo {
-      thread_id: id.clone(),
-      event_kind: GrpcThreadEventKind::Created as i32,
-    },
-    ThreadEvent::Terminated(id) => GrpcThreadEventInfo {
-      thread_id: id.clone(),
-      event_kind: GrpcThreadEventKind::Terminated as i32,
+  events.iter().map(|t| GrpcThreadEventInfo {
+    thread_id: t.thread_id().clone(),
+    event_kind: match t.kind() {
+      ThreadEventKind::Created => GrpcThreadEventKind::Created as i32,
+      ThreadEventKind::Terminated => GrpcThreadEventKind::Terminated as i32,
     }
   }).collect()
 }
