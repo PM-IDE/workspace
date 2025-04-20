@@ -136,6 +136,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
           let current_node_id = create_new_graph_node(&mut graph, &EventWithUniqueId::new(event.clone()), false, context, true);
           if let Some(prev_node) = prev_node_id {
             graph.connect_nodes(&prev_node, &current_node_id, NodesConnectionData::empty());
+            transfer_data_from_event_to_edge_user_data(event, graph.edge_mut(&prev_node, &current_node_id).unwrap().user_data_mut());
           }
 
           prev_node_id = Some(current_node_id);
