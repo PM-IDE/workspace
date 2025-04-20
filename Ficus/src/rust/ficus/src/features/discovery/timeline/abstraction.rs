@@ -4,8 +4,8 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY};
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EventCoordinates, NodeAdditionalDataContainer};
+use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY};
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
@@ -80,7 +80,7 @@ fn create_abstracted_event(
   put_node_user_data(&mut event, node_software_data, event_coordinates, event_group, time_attribute)?;
 
   if let Some(after_group_events) = event_group.after_group_events() {
-    put_edge_user_data(&mut event, edge_software_data, after_group_events, time_attribute)?; 
+    put_edge_user_data(&mut event, edge_software_data, event_coordinates, after_group_events, time_attribute)?; 
   }
 
   Ok(Rc::new(RefCell::new(event)))
@@ -109,6 +109,7 @@ fn put_node_user_data(
 fn put_edge_user_data(
   event: &mut XesEventImpl,
   edge_software_data: SoftwareData,
+  event_coordinates: EventCoordinates,
   after_group_events: &Vec<Rc<RefCell<XesEventImpl>>>,
   time_attribute: Option<&String>,
 ) -> Result<(), PipelinePartExecutionError> {
@@ -118,7 +119,9 @@ fn put_edge_user_data(
   let last_stamp = get_stamp(&after_group_events.last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
 
   let edge_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
+
   event.user_data_mut().put_concrete(EDGE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![edge_start_end_time]);
+  event.user_data_mut().put_concrete(EDGE_TRACE_EXECUTION_INFO_KEY.key(), vec![EdgeTraceExecutionInfo::new(event_coordinates.trace_id())]);
 
   Ok(())
 }
