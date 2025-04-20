@@ -1,7 +1,7 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::{ArrayPoolExtractionConfig, SoftwareDataExtractionConfig};
-use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, prepare_configs, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{ArrayPoolEvent, ArrayPoolEventKind, SoftwareData};
 use derive_new::new;
 use fancy_regex::Regex;
@@ -22,12 +22,7 @@ impl<'a> SoftwareDataExtractor for ArrayPoolDataExtractor<'a> {
       (self.config.array_pool_array_returned(), ArrayPoolEventKind::Returned),
     ];
 
-    let mut processed_configs = vec![];
-    for config in configs {
-      if let Some(extraction_config) = config.0 {
-        processed_configs.push((regex_or_err(extraction_config.event_class_regex().as_str())?, extraction_config.info(), config.1.clone())); 
-      }
-    }
+    let processed_configs = prepare_configs(&configs)?;
 
     for event in events {
       for config in &processed_configs {

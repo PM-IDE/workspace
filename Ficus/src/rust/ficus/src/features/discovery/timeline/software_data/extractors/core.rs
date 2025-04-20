@@ -10,6 +10,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::rc::Rc;
 use std::str::FromStr;
 use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::features::discovery::timeline::software_data::extraction_config::ExtractionConfig;
 
 #[derive(Debug)]
 pub enum SoftwareDataExtractionError {
@@ -69,4 +70,18 @@ pub(super) fn payload_value_or_none(payload: &HashMap<String, EventPayloadValue>
     warn!("Failed to get value for attribute {}", attribute_name);
     None
   }
+}
+
+pub(super) fn prepare_configs<'a, TConfig: Clone + Debug, TEnum: Clone>(
+  configs: &'a [(&Option<ExtractionConfig<TConfig>>, TEnum)]
+) -> Result<Vec<(Regex, &'a TConfig, TEnum)>, SoftwareDataExtractionError> {
+  let mut result = vec![];
+
+  for config in configs {
+    if let Some(extraction_config) = config.0 {
+      result.push((regex_or_err(extraction_config.event_class_regex().as_str())?, extraction_config.info(), config.1.clone()))
+    }
+  }
+  
+  Ok(result)
 }

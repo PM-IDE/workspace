@@ -108,5 +108,5 @@ pub struct ArrayPoolExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct AssemblyExtractionConfig {
-  name_attr: String,
+  #[getset(get = "pub")] name_attr: String,
 }

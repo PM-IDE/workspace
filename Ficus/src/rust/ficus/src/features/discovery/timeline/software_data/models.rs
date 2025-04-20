@@ -15,7 +15,8 @@ pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")] exception_events: Vec<ExceptionEvent>,
   #[getset(get = "pub", get_mut = "pub")] pool_events: Vec<ArrayPoolEvent>,
   #[getset(get = "pub", get_mut = "pub")] socket_events: Vec<SocketEvent>,
-  #[getset(get = "pub", get_mut = "pub")] allocation_events: Vec<AllocationEvent>
+  #[getset(get = "pub", get_mut = "pub")] allocation_events: Vec<AllocationEvent>,
+  #[getset(get = "pub", get_mut = "pub")] assembly_events: Vec<AssemblyEvent>,
 }
 
 impl SoftwareData {
@@ -31,7 +32,8 @@ impl SoftwareData {
       contention_events: vec![],
       pool_events: vec![],
       socket_events: vec![],
-      allocation_events: vec![]
+      allocation_events: vec![],
+      assembly_events: vec![],
     }
   }
 }
@@ -65,9 +67,15 @@ pub enum ThreadEvent {
 }
 
 #[derive(Clone, Debug)]
-pub enum AssemblyEvent {
-  Load(String),
-  Unload(String),
+pub enum AssemblyEventKind {
+  Load,
+  Unload,
+}
+
+#[derive(Clone, Debug, Getters, new)]
+pub struct AssemblyEvent {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] kind: AssemblyEventKind
 }
 
 #[derive(Clone, Debug, Getters, new)]

@@ -21,6 +21,7 @@ use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -138,7 +139,8 @@ fn extract_software_data(
     Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute)),
     Box::new(MethodsDataExtractor::new(config)),
     Box::new(ExceptionDataExtractor::new(config)),
-    Box::new(ArrayPoolDataExtractor::new(config))
+    Box::new(ArrayPoolDataExtractor::new(config)),
+    Box::new(AssemblySoftwareDataExtractor::new(config))
   ];
 
   let mut node_software_data = SoftwareData::empty();
