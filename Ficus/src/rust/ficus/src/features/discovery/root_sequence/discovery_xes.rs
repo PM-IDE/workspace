@@ -66,6 +66,13 @@ pub fn discover_root_sequence_graph_from_event_log(
 }
 
 fn transfer_data_from_event_to_edge_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data: &mut UserDataImpl) {
+  let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
+  let event = if underlying_events.is_empty() {
+    event
+  } else {
+    underlying_events.last().unwrap()
+  };
+
   transfer_vector_like_user_data(event, &EDGE_SOFTWARE_DATA_KEY, user_data);
   transfer_vector_like_user_data(event, &EDGE_TRACE_EXECUTION_INFO_KEY, user_data);
   transfer_vector_like_user_data(event, &EDGE_START_END_ACTIVITIES_TIMES_KEY, user_data);
