@@ -9,6 +9,7 @@ use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
@@ -137,6 +138,7 @@ fn extract_software_data(
     Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute)),
     Box::new(MethodsDataExtractor::new(config)),
     Box::new(ExceptionDataExtractor::new(config)),
+    Box::new(ArrayPoolDataExtractor::new(config))
   ];
 
   let mut node_software_data = SoftwareData::empty();

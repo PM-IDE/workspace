@@ -19,7 +19,6 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] array_pool_array_created: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] array_pool_array_rented: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] array_pool_array_returned: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
-
   #[getset(get = "pub", set = "pub")] array_pool_array_trimmed: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")] assembly_load: Option<ExtractionConfig<AssemblyExtractionConfig>>,
