@@ -20,6 +20,10 @@ impl<'a> SoftwareDataExtractor for AssemblySoftwareDataExtractor<'a> {
     ];
 
     let configs = prepare_configs(&configs)?;
+    if configs.is_empty() {
+      return Ok(());
+    }
+
     for event in events {
       for (regex, info, kind) in &configs {
         if regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
@@ -30,9 +34,9 @@ impl<'a> SoftwareDataExtractor for AssemblySoftwareDataExtractor<'a> {
             }
           }
         }
-      } 
+      }
     }
-    
+
     Ok(())
   }
-} 
+}

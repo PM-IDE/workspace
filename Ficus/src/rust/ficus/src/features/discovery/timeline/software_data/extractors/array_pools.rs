@@ -23,6 +23,9 @@ impl<'a> SoftwareDataExtractor for ArrayPoolDataExtractor<'a> {
     ];
 
     let processed_configs = prepare_configs(&configs)?;
+    if processed_configs.is_empty() {
+      return Ok(());
+    }
 
     for event in events {
       for config in &processed_configs {
@@ -40,14 +43,14 @@ impl<'a> ArrayPoolDataExtractor<'a> {
   fn extract_array_pool_event(
     event: &Rc<RefCell<XesEventImpl>>,
     regex: &Regex,
-    config: &ArrayPoolExtractionConfig, 
+    config: &ArrayPoolExtractionConfig,
     event_kind: ArrayPoolEventKind
   ) -> Result<Option<ArrayPoolEvent>, SoftwareDataExtractionError> {
     if regex.is_match(event.borrow().name()).unwrap_or(false) {
       if let Some(payload) = event.borrow().payload_map() {
         if let Some(buffer_id) = payload.get(config.buffer_id().as_str()) {
           let buffer_id = parse_or_err(buffer_id.to_string_repr().as_str())?;
-          return Ok(Some(ArrayPoolEvent::new(buffer_id, event_kind))); 
+          return Ok(Some(ArrayPoolEvent::new(buffer_id, event_kind)));
         }
       }
     }

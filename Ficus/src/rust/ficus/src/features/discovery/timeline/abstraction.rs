@@ -22,6 +22,7 @@ use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::http::HTTPSoftwareDataExtractor;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -82,7 +83,7 @@ fn create_abstracted_event(
   put_node_user_data(&mut event, node_software_data, event_coordinates, event_group, time_attribute)?;
 
   if let Some(after_group_events) = event_group.after_group_events() {
-    put_edge_user_data(&mut event, edge_software_data, event_coordinates, after_group_events, time_attribute)?; 
+    put_edge_user_data(&mut event, edge_software_data, event_coordinates, after_group_events, time_attribute)?;
   }
 
   Ok(Rc::new(RefCell::new(event)))
@@ -140,7 +141,8 @@ fn extract_software_data(
     Box::new(MethodsDataExtractor::new(config)),
     Box::new(ExceptionDataExtractor::new(config)),
     Box::new(ArrayPoolDataExtractor::new(config)),
-    Box::new(AssemblySoftwareDataExtractor::new(config))
+    Box::new(AssemblySoftwareDataExtractor::new(config)),
+    Box::new(HTTPSoftwareDataExtractor::new(config)),
   ];
 
   let mut node_software_data = SoftwareData::empty();
@@ -154,7 +156,7 @@ fn extract_software_data(
     if let Some(after_group_events) = event_group.after_group_events() {
       extractor
         .extract_from_events(&mut edge_software_data, after_group_events)
-        .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))? 
+        .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
     }
   }
 
