@@ -23,6 +23,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::http::HTTPSoftwareDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::sockets::SocketsDataExtractor;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -143,6 +144,7 @@ fn extract_software_data(
     Box::new(ArrayPoolDataExtractor::new(config)),
     Box::new(AssemblySoftwareDataExtractor::new(config)),
     Box::new(HTTPSoftwareDataExtractor::new(config)),
+    Box::new(SocketsDataExtractor::new(config)),
   ];
 
   let mut node_software_data = SoftwareData::empty();

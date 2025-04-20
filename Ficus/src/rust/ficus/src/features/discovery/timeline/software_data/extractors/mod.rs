@@ -6,3 +6,4 @@ pub mod exceptions;
 pub mod array_pools;
 pub mod assemblies;
 pub mod http;
+pub mod sockets;

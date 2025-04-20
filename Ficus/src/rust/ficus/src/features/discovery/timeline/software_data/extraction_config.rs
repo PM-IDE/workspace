@@ -13,7 +13,7 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedConfig>>,
 
   #[getset(get = "pub", set = "pub")] contention: Option<ExtractionConfig<ContentionExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] socket: Option<ExtractionConfig<SocketExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")] sockets: Option<ExtractionConfig<SocketExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] thread: Option<ExtractionConfig<ThreadExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")] array_pool_array_created: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
@@ -34,7 +34,7 @@ impl SoftwareDataExtractionConfig {
       method_inlining_success: None,
       method_inlining_failed: None,
       contention: None,
-      socket: None,
+      sockets: None,
       thread: None,
       array_pool_array_created: None,
       array_pool_array_rented: None,
