@@ -2,7 +2,7 @@ import {
   belongsToRootSequence,
   findAllRelatedTraceIds,
   getSoftwareDataOrNull,
-  getTimeAnnotationColor
+  getTimeAnnotationColor, MergedSoftwareData
 } from "./util";
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
@@ -18,7 +18,7 @@ export function createHtmlLabel(node: GraphNode) {
     return null;
   }
 
-  let sortedHistogramEntries = [...softwareData.histogram.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
+  let sortedHistogramEntries = toSortedArray(softwareData.histogram);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
   let timeAnnotationColor = getTimeAnnotationColor(node.relativeExecutionTime);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
@@ -35,7 +35,14 @@ export function createHtmlLabel(node: GraphNode) {
                     ${node.executionTime}
                 </div>
 
-                ${createDefaultNodeBody(sortedHistogramEntries)}
+                <div style="display: flex; flex-direction: row; margin-top: 10px;">
+                    <div>
+                        ${createHistogram(sortedHistogramEntries)}
+                    </div>
+                    <div style="margin-left: 10px;">
+                        ${createAllocationsHistogram(softwareData)}
+                    </div>
+                </div>
 
                 ${isPatternNode(node) ? createPatternInformation(node) : ""}
 
@@ -47,19 +54,32 @@ export function createHtmlLabel(node: GraphNode) {
          `;
 }
 
-function createDefaultNodeBody(sortedHistogramEntries: [string, number][]): string {
+function createAllocationsHistogram(softwareData: MergedSoftwareData) {
+  if (softwareData.allocations.size > 0) {
+    return createHistogram(toSortedArray(softwareData.allocations));
+  }
+  
+  return "";
+}
+
+function toSortedArray(map: Map<string, number>): [string, number][] {
+  return [...map.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
+}
+
+function createHistogram(sortedHistogramEntries: [string, number][]): string {
   return `
     <div style="display: flex; flex-direction: row;">
-       <div style='width: 65px; height: 65px; margin-left: 10px; margin-top: 10px;'
+       <div style='width: 65px; height: 65px;'
             class="graph-node-histogram"
             data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
           <svg-pie-chart style="pointer-events: none">
-            ${createHistogram(sortedHistogramEntries).join('\n')}
+            ${createHistogramEntries(sortedHistogramEntries).join('\n')}
           </svg-pie-chart>
        </div>
     </div>
   `
 }
+
 
 addEventListener("mouseover", event => {
   let element = event.target;
@@ -103,7 +123,7 @@ function createNodeDisplayName(node: GraphNode, sortedHistogramEntries: [string,
   return nodeNameParts.join("\n");
 }
 
-function createHistogram(sortedHistogramEntries: [string, number][]) {
+function createHistogramEntries(sortedHistogramEntries: [string, number][]) {
   let summedCount = sortedHistogramEntries.map(entry => entry[1]).reduce((a, b) => a + b, 0);
 
   return sortedHistogramEntries.map((entry) => {

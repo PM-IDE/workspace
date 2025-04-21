@@ -6,7 +6,6 @@ import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
 import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
-import {GrpcActivityStartEndData} from "../protos/ficus/GrpcActivityStartEndData";
 
 export function createDagreLayout() {
   return {
@@ -38,32 +37,42 @@ export function getTraceId(additionalData: GrpcNodeAdditionalData): number {
   return additionalData.originalEventCoordinates.traceId;
 }
 
-interface MergedSoftwareData {
+export interface MergedSoftwareData {
   histogram: Map<string, number>,
-  timelineDiagramFragments: GrpcTimelineDiagramFragment[]
+  timelineDiagramFragments: GrpcTimelineDiagramFragment[],
+  allocations: Map<string, number>,
 }
 
 export function getSoftwareDataOrNull(node: GraphNode | GrpcGraphNode): MergedSoftwareData {
   let mergedSoftwareData: MergedSoftwareData = {
     histogram: new Map(),
-    timelineDiagramFragments: []
+    timelineDiagramFragments: [],
+    allocations: new Map(),
   };
 
   for (let softwareData of extractAllSoftwareData(node)) {
     for (let entry of softwareData.histogram) {
       let [name, count] = [entry.name, entry.count];
-
-      if (mergedSoftwareData.histogram.has(name)) {
-        mergedSoftwareData.histogram.set(name, mergedSoftwareData.histogram.get(name) + count);
-      } else {
-        mergedSoftwareData.histogram.set(name, count);
-      }
+      increment(mergedSoftwareData.histogram, name, count);
     }
 
     mergedSoftwareData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
+    
+    for (let alloc of softwareData.allocationsInfo) {
+      let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
+      increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);
+    }
   }
 
   return mergedSoftwareData;
+}
+
+function increment(map: Map<string, number>, key: string, value: number) {
+  if (!map.has(key)) {
+    map.set(key, value);
+  } else {
+    map.set(key, map.get(key) + value);
+  }
 }
 
 export function executeWithAdditionalData(node : GraphNode | GrpcGraphNode, handler: Function) {
