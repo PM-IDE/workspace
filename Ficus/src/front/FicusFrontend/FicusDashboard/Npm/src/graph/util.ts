@@ -126,28 +126,15 @@ export function extractAllSoftwareData(node : GraphNode | GrpcGraphNode): GrpcSo
 }
 
 export function calculateOverallExecutionTime(node: GrpcGraphNode) {
-  let timeData = getTimeData(node);
-  let minTime = Math.min(...timeData.map(t => t.startTime));
-  let maxTime = Math.max(...timeData.map(t => t.endTime));
-
-  let overallExecutionTime = maxTime - minTime;
-  if (!isFinite(overallExecutionTime) || isNaN(overallExecutionTime)) {
-    return 0;
-  }
-
-  return overallExecutionTime;
-}
-
-export function getTimeData(node: GrpcGraphNode): GrpcActivityStartEndData[] {
-  let result: GrpcActivityStartEndData[] = [];
+  let overallExecutionTime = 0;
 
   executeWithAdditionalData(node, (data: GrpcGraphEdgeAdditionalData | GrpcNodeAdditionalData) => {
     if (data.timeData != null) {
-      result.push(data.timeData);
+      overallExecutionTime += data.timeData.endTime - data.timeData.startTime;
     }
   });
 
-  return result;
+  return overallExecutionTime;
 }
 
 export function belongsToRootSequence(node: GraphNode) {
