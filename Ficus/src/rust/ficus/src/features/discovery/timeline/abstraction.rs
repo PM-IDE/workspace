@@ -146,30 +146,34 @@ fn extract_software_data(
   thread_attribute: &str,
   time_attribute: Option<&String>,
 ) -> Result<(SoftwareData, SoftwareData), PipelinePartExecutionError> {
-  let extractors: Vec<Box<dyn SoftwareDataExtractor>> = vec![
-    Box::new(AllocationDataExtractor::new(config)),
-    Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute)),
-    Box::new(MethodsDataExtractor::new(config)),
-    Box::new(ExceptionDataExtractor::new(config)),
-    Box::new(ArrayPoolDataExtractor::new(config)),
-    Box::new(AssemblySoftwareDataExtractor::new(config)),
-    Box::new(HTTPSoftwareDataExtractor::new(config)),
-    Box::new(SocketsDataExtractor::new(config)),
-    Box::new(ThreadDataExtractor::new(config)),
+  let edge_extractors: Vec<Rc<Box<dyn SoftwareDataExtractor>>> = vec![
+    Rc::new(Box::new(AllocationDataExtractor::new(config))),
+    Rc::new(Box::new(MethodsDataExtractor::new(config))),
+    Rc::new(Box::new(ExceptionDataExtractor::new(config))),
+    Rc::new(Box::new(ArrayPoolDataExtractor::new(config))),
+    Rc::new(Box::new(AssemblySoftwareDataExtractor::new(config))),
+    Rc::new(Box::new(HTTPSoftwareDataExtractor::new(config))),
+    Rc::new(Box::new(SocketsDataExtractor::new(config))),
+    Rc::new(Box::new(ThreadDataExtractor::new(config))),
   ];
+
+  let mut node_extractors = edge_extractors.clone();
+  node_extractors.push(Rc::new(Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))));
 
   let mut node_software_data = SoftwareData::empty();
   let mut edge_software_data = SoftwareData::empty();
 
-  for extractor in extractors {
+  for extractor in node_extractors {
     extractor
       .extract(&mut node_software_data, event_group)
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
+  }
 
-    if let Some(after_group_events) = event_group.after_group_events() {
+  if let Some(after_group_events) = event_group.after_group_events() {
+    for extractor in edge_extractors {
       extractor
         .extract_from_events(&mut edge_software_data, after_group_events)
-        .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
+        .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))? 
     }
   }
 
