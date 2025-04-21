@@ -10,6 +10,7 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   ficus: {
+    GrpcActivityStartEndData: MessageTypeDefinition
     GrpcAddPipelineRequest: MessageTypeDefinition
     GrpcAddPipelineStreamRequest: MessageTypeDefinition
     GrpcAllocationInfo: MessageTypeDefinition
@@ -37,6 +38,7 @@ export interface ProtoGrpcType {
     GrpcCountAnnotation: MessageTypeDefinition
     GrpcDataset: MessageTypeDefinition
     GrpcDateTime: MessageTypeDefinition
+    GrpcEdgeExecutionInfo: MessageTypeDefinition
     GrpcEntityCountAnnotation: MessageTypeDefinition
     GrpcEntityFrequencyAnnotation: MessageTypeDefinition
     GrpcEntityTimeAnnotation: MessageTypeDefinition
@@ -56,6 +58,7 @@ export interface ProtoGrpcType {
     GrpcGetContextValueResult: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
+    GrpcGraphEdgeAdditionalData: MessageTypeDefinition
     GrpcGraphNode: MessageTypeDefinition
     GrpcGuid: MessageTypeDefinition
     GrpcHTTPEvent: MessageTypeDefinition
@@ -85,7 +88,6 @@ export interface ProtoGrpcType {
     GrpcNamesTrace: MessageTypeDefinition
     GrpcNodeAdditionalData: MessageTypeDefinition
     GrpcNodeCorrespondingTraceData: MessageTypeDefinition
-    GrpcNodeTimeActivityStartEndData: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition
