@@ -25,6 +25,7 @@
     "@grpc/proto-loader": "^0.7.13",
     "canvas-size": "^2.0.0",
     "cytoscape-dagre": "^2.5.0",
+    "cytoscape-html-label": "^1.1.7",
     "cytoscape-node-html-label": "^1.2.2",
     "cytoscape-svg": "^0.4.0",
     "file-saver": "^2.0.5",

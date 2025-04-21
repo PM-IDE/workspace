@@ -6,7 +6,7 @@ import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import {GrpcTimePerformanceAnnotation} from "../protos/ficus/GrpcTimePerformanceAnnotation";
-import cytoscape, {ElementDefinition} from "cytoscape";
+import cytoscape from "cytoscape";
 
 const graphColor = graphColors(darkTheme);
 
@@ -74,6 +74,7 @@ export function createGraphEdgesElements(edges: GrpcGraphEdge[], annotation: Grp
         id: edge.id.toString(),
         source: edge.fromNode.toString(),
         target: edge.toNode.toString(),
+        additionalData: edge.additionalData
       }
     })
   }

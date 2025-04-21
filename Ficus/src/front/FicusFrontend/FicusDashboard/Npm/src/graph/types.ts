@@ -9,3 +9,7 @@ export interface GraphNode {
   executionTime: number,
   relativeExecutionTime: number,
 }
+
+export interface GraphEdge {
+  additionalData: GrpcNodeAdditionalData[]
+}

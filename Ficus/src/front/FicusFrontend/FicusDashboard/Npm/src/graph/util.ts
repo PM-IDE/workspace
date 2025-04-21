@@ -1,11 +1,12 @@
 import {darkTheme, performanceColors} from "../colors";
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
-import {GraphNode} from "./types";
+import {GraphEdge, GraphNode} from "./types";
 import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
 import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
+import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 
 export function createDagreLayout() {
   return {
@@ -43,21 +44,34 @@ export interface MergedSoftwareData {
   allocations: Map<string, number>,
 }
 
-export function getSoftwareDataOrNull(node: GraphNode | GrpcGraphNode): MergedSoftwareData {
+export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge): MergedSoftwareData {
+  let softwareData = edge.additionalData.filter(e => e.softwareData != null).map(e => e.softwareData);
+  return createMergedSoftwareData(softwareData);
+}
+
+export function getNodeSoftwareDataOrNull(node: GraphNode | GrpcGraphNode): MergedSoftwareData {
+  return createMergedSoftwareData(extractAllSoftwareData(node));
+}
+
+function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): MergedSoftwareData {
+  if (originalSoftwareData.length == 0) {
+    return null;
+  }
+
   let mergedSoftwareData: MergedSoftwareData = {
     histogram: new Map(),
     timelineDiagramFragments: [],
     allocations: new Map(),
   };
 
-  for (let softwareData of extractAllSoftwareData(node)) {
+  for (let softwareData of originalSoftwareData) {
     for (let entry of softwareData.histogram) {
       let [name, count] = [entry.name, entry.count];
       increment(mergedSoftwareData.histogram, name, count);
     }
 
     mergedSoftwareData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
-    
+
     for (let alloc of softwareData.allocationsInfo) {
       let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
       increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);

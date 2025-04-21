@@ -1,21 +1,39 @@
 import {
   belongsToRootSequence,
   findAllRelatedTraceIds,
-  getSoftwareDataOrNull,
+  getEdgeSoftwareDataOrNull, getNodeSoftwareDataOrNull,
   getTimeAnnotationColor, MergedSoftwareData
 } from "./util";
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
 import tippy from "tippy.js";
 import {getOrCreateColor} from "../utils";
-import {GraphNode} from "./types";
+import {GraphEdge, GraphNode} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
-export function createHtmlLabel(node: GraphNode) {
-  let softwareData = getSoftwareDataOrNull(node);
+export function createEdgeHtmlLabel(edge: GraphEdge) {
+  let softwareData = getEdgeSoftwareDataOrNull(edge);
   if (softwareData == null) {
-    return null;
+    return "";
+  }
+
+  return `
+      <div>
+        ${createHistogram(toSortedArray(softwareData.allocations))}
+      </div>
+    `;
+}
+
+export function createNodeHtmlLabel(node: GraphNode) {
+  let softwareData = getNodeSoftwareDataOrNull(node);
+  if (softwareData == null) {
+    return `
+        <div style='width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; 
+                    background-color: ${graphColor.rootSequenceColor}'>
+            ${createNodeDisplayName(node, node.label)}
+        </div>
+    `;
   }
 
   let sortedHistogramEntries = toSortedArray(softwareData.histogram);
@@ -26,9 +44,7 @@ export function createHtmlLabel(node: GraphNode) {
 
   return `
           <div>
-            <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
-                ${createNodeDisplayName(node, sortedHistogramEntries)}
-            </div>
+            ${createNodeDisplayName(node, createNodeDisplayNameString(node, sortedHistogramEntries))}
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
                 <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
@@ -54,7 +70,15 @@ export function createHtmlLabel(node: GraphNode) {
          `;
 }
 
-function createAllocationsHistogram(softwareData: MergedSoftwareData) {
+function createNodeDisplayName(node: GraphNode, name: string): string {
+  return `
+      <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
+          ${name}
+      </div>
+    `; 
+}
+
+function createAllocationsHistogram(softwareData: MergedSoftwareData): string {
   if (softwareData.allocations.size > 0) {
     return createHistogram(toSortedArray(softwareData.allocations));
   }
@@ -106,7 +130,7 @@ addEventListener("mouseover", event => {
   }
 });
 
-function createNodeDisplayName(node: GraphNode, sortedHistogramEntries: [string, number][]) {
+function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [string, number][]): string {
   let nodeNameParts: string[] = [];
   for (let i = 0; i < Math.min(3, sortedHistogramEntries.length); ++i) {
     nodeNameParts.push(`

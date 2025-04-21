@@ -1,7 +1,7 @@
 import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
 import dagre from 'cytoscape-dagre';
-import {createHtmlLabel} from "./html_label";
+import {createEdgeHtmlLabel, createNodeHtmlLabel} from "./html_label";
 import {createGraphElementForDagre} from "./other_layouts";
 import {createDagreLayout} from "./util";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
@@ -20,6 +20,9 @@ function setDrawGraph() {
     let nodeHtmlLabel = require('cytoscape-node-html-label');
     nodeHtmlLabel(cytoscape);
 
+    var htmlLabel = require('cytoscape-html-label');
+    htmlLabel( cytoscape );
+
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
     setNodeRenderer(cy);
 
@@ -29,11 +32,25 @@ function setDrawGraph() {
 
 function setNodeRenderer(cy: cytoscape.Core) {
   (<any>cy).nodeHtmlLabel(
+      [
+        {
+          query: 'node',
+          tpl: function (data: GraphNode) {
+            return createNodeHtmlLabel(data);
+          }
+        }
+      ],
+      {
+        enablePointerEvents: true
+      }
+  );
+
+  (<any>cy).htmlLabel(
     [
       {
-        query: 'node',
+        query: 'edge',
         tpl: function (data: GraphNode) {
-          return createHtmlLabel(data);
+          return createEdgeHtmlLabel(data);
         }
       }
     ],
