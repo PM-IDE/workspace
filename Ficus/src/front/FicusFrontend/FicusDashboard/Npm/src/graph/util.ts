@@ -4,8 +4,9 @@ import {GraphNode} from "./types";
 import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
-import {GrpcNodeTimeActivityStartEndData} from "../protos/ficus/GrpcNodeTimeActivityStartEndData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
+import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
+import {GrpcActivityStartEndData} from "../protos/ficus/GrpcActivityStartEndData";
 
 export function createDagreLayout() {
   return {
@@ -65,71 +66,63 @@ export function getSoftwareDataOrNull(node: GraphNode | GrpcGraphNode): MergedSo
   return mergedSoftwareData;
 }
 
-export function extractAllSoftwareData(node : GraphNode | GrpcGraphNode): GrpcSoftwareData[] {
+export function executeWithAdditionalData(node : GraphNode | GrpcGraphNode, handler: Function) {
   let result: GrpcSoftwareData[] = [];
 
   if (node.innerGraph != null) {
     for (let innerNode of node.innerGraph.nodes) {
-      result.push(...extractAllSoftwareData(innerNode));
+      result.push(...executeWithAdditionalData(innerNode, handler));
     }
 
     for (let edge of node.innerGraph.edges) {
       for (let data of edge.additionalData) {
-        if (data.softwareData != null) {
-          result.push(data.softwareData);
-        }
+        handler(data);
       }
     }
 
     return result;
   }
-  
+
   let patterns: GrpcUnderlyingPatternInfo[] = [];
   for (let data of node.additionalData) {
     if (data.patternInfo != null) {
       patterns.push(data.patternInfo);
     }
   }
-  
+
   if (patterns.length > 0) {
     for (let pattern of patterns) {
       for (let patternNode of pattern.graph.nodes) {
-        result.push(...extractAllSoftwareData(patternNode));
+        result.push(...executeWithAdditionalData(patternNode, handler));
       }
-      
+
       for (let edge of pattern.graph.edges) {
         for (let data of edge.additionalData) {
-          if (data.softwareData != null) {
-            result.push(data.softwareData);
-          }
+          handler(data);
         }
       }
     }
 
     return result;
   }
-  
+
   for (let data of node.additionalData) {
-    if (data.softwareData != null) {
-      result.push(data.softwareData);
-    }
+    handler(data);
   }
 
   return result;
 }
 
-function mergeSoftwareData(to: MergedSoftwareData, from: MergedSoftwareData) {
-  for (let [name, count] of from.histogram) {
-    if (to.histogram.has(name)) {
-      to.histogram.set(name, to.histogram.get(name) + count);
-    } else {
-      to.histogram.set(name, count);
-    }
-  }
+export function extractAllSoftwareData(node : GraphNode | GrpcGraphNode): GrpcSoftwareData[] {
+  let result: GrpcSoftwareData[] = [];
 
-  for (let fragment of from.timelineDiagramFragments) {
-    to.timelineDiagramFragments.push(fragment);
-  }
+  executeWithAdditionalData(node, (data: GrpcNodeAdditionalData | GrpcGraphEdgeAdditionalData) => {
+    if (data.softwareData != null) {
+      result.push(data.softwareData); 
+    }
+  });
+  
+  return result;
 }
 
 export function calculateOverallExecutionTime(node: GrpcGraphNode) {
@@ -145,14 +138,15 @@ export function calculateOverallExecutionTime(node: GrpcGraphNode) {
   return overallExecutionTime;
 }
 
-export function getTimeData(node: GrpcGraphNode) {
-  let result = [];
-  for (let data of node.additionalData) {
+export function getTimeData(node: GrpcGraphNode): GrpcActivityStartEndData[] {
+  let result: GrpcActivityStartEndData[] = [];
+
+  executeWithAdditionalData(node, (data: GrpcGraphEdgeAdditionalData | GrpcNodeAdditionalData) => {
     if (data.timeData != null) {
       result.push(data.timeData);
     }
-  }
-  
+  });
+
   return result;
 }
 
