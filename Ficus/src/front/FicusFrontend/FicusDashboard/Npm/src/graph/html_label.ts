@@ -1,14 +1,14 @@
 import {
   belongsToRootSequence,
   findAllRelatedTraceIds,
-  getTimeAnnotationColor, 
+  getPerformanceAnnotationColor, 
   MergedSoftwareData
 } from "./util";
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
 import tippy from "tippy.js";
 import {getOrCreateColor} from "../utils";
-import {GraphEdge, GraphNode} from "./types";
+import {AggregatedData, GraphEdge, GraphNode} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
@@ -20,7 +20,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge) {
 
   return `
       <div>
-        ${createRectangleHistogram(toSortedArray(softwareData.allocations))}
+        ${createRectangleHistogram(toSortedArray(softwareData.allocations), edge.aggregatedData)}
       </div>
     `;
 }
@@ -38,7 +38,7 @@ export function createNodeHtmlLabel(node: GraphNode) {
 
   let sortedHistogramEntries = toSortedArray(softwareData.histogram);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
-  let timeAnnotationColor = getTimeAnnotationColor(node.relativeExecutionTime);
+  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.maxNodeExecutionTime);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
   allTraceIds.sort((f, s) => f - s);
 
@@ -104,7 +104,7 @@ function createPieChart(sortedHistogramEntries: [string, number][]): string {
   `
 }
 
-function createRectangleHistogram(sortedHistogramEntries: [string, number][]): string {
+function createRectangleHistogram(sortedHistogramEntries: [string, number][], aggregatedData: AggregatedData): string {
   let valuesSum: number = sortedHistogramEntries.map(x => x[1]).reduce((a, b) => a + b, 0);
   let divs: string[] = [];
 
@@ -117,8 +117,14 @@ function createRectangleHistogram(sortedHistogramEntries: [string, number][]): s
     `);
   }
 
+  let relativeAllocations: number = valuesSum / aggregatedData.totalAllocatedBytes;
+  let borderColor = getPerformanceAnnotationColor(relativeAllocations);
+
+  let borderWidthPx = 3;
+
   return `
-    <div style="width: 100px; height: ${heightPx}px; display: flex; flex-direction: row;">
+    <div style="width: 100px; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;
+                border-style: solid; border-width: ${borderWidthPx}px; border-color: ${borderColor}">
         ${divs.join("\n")}
     </div>
   `

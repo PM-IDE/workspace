@@ -4,7 +4,7 @@ import {
   calculateOverallExecutionTime,
   getEdgeSoftwareDataOrNull,
   getNodeSoftwareDataOrNull,
-  getTimeAnnotationColor, MergedSoftwareData
+  getPerformanceAnnotationColor, MergedSoftwareData
 } from "./util";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
@@ -20,14 +20,15 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
   let elements: cytoscape.ElementDefinition[] = [];
 
   let aggregatedData: AggregatedData = {
-    totalAllocatedBytes: 0
+    totalAllocatedBytes: 0,
+    maxNodeExecutionTime: Number.MIN_VALUE
   };
 
   elements.push(...createGraphNodesElements(graph.nodes, aggregatedData))
   elements.push(...createGraphEdgesElements(graph.edges, annotation, aggregatedData));
 
   for (let element of elements) {
-    (<any>element).aggregatedData = aggregatedData;
+    (<any>element).data.aggregatedData = aggregatedData;
   }
 
   return elements;
@@ -35,11 +36,13 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
 
 function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: AggregatedData): cytoscape.ElementDefinition[] {
   let elements = [];
-  let nodesMap = processNodes(nodes);
 
   for (let node of nodes) {
     let softwareData = getNodeSoftwareDataOrNull(node);
     updateAggregatedData(aggregatedData, softwareData);
+
+    let executionTime = calculateOverallExecutionTime(node);
+    aggregatedData.maxNodeExecutionTime = Math.max(executionTime, aggregatedData.maxNodeExecutionTime);
 
     elements.push({
       data: {
@@ -47,9 +50,8 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: Aggreg
         id: node.id.toString(),
         additionalData: node.additionalData,
         innerGraph: node.innerGraph,
-        executionTime: nodesMap[node.id].executionTime,
-        relativeExecutionTime: nodesMap[node.id].relativeExecutionTime,
-        softwareData: softwareData
+        executionTime: executionTime,
+        softwareData: softwareData,
       }
     })
   }
@@ -61,24 +63,6 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
   if (softwareData != null) {
     aggregatedData.totalAllocatedBytes += softwareData.allocations.values().reduce((a, b) => a + b, 0);
   }
-}
-
-function processNodes(nodes: GrpcGraphNode[]): Record<number, any> {
-  let nodesMap: Record<number, any> = {};
-  for (let node of nodes) {
-    nodesMap[node.id] = {};
-  }
-
-  let executionTimes = nodes.map(n => calculateOverallExecutionTime(n));
-  let maxTime = Math.max(...executionTimes);
-  let minTime = Math.min(...executionTimes);
-
-  for (let i = 0; i < nodes.length; ++i) {
-    nodesMap[nodes[i].id].executionTime = executionTimes[i];
-    nodesMap[nodes[i].id].relativeExecutionTime = (executionTimes[i] - minTime) / (maxTime - minTime);
-  }
-
-  return nodesMap;
 }
 
 export function createGraphEdgesElements(
@@ -170,6 +154,6 @@ function processTimeAnnotation(annotation: GrpcTimePerformanceAnnotation, edges:
     let timeAnnotation = (idsToTime[edge.id] - minTime) / (maxTime - minTime);
 
     edgesMap[edge.id].timeAnnotation = timeAnnotation;
-    edgesMap[edge.id].color = getTimeAnnotationColor(timeAnnotation);
+    edgesMap[edge.id].color = getPerformanceAnnotationColor(timeAnnotation);
   }
 }
