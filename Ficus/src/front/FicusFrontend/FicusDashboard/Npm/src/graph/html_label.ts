@@ -53,10 +53,10 @@ export function createNodeHtmlLabel(node: GraphNode) {
 
                 <div style="display: flex; flex-direction: row; margin-top: 10px;">
                     <div>
-                        ${createPieChart(sortedHistogramEntries)}
+                        ${createPieChart(sortedHistogramEntries, null)}
                     </div>
                     <div style="margin-left: 10px;">
-                        ${createAllocationsHistogram(softwareData)}
+                        ${createAllocationsHistogram(softwareData, node.aggregatedData)}
                     </div>
                 </div>
 
@@ -78,9 +78,12 @@ function createNodeDisplayName(node: GraphNode, name: string): string {
     `; 
 }
 
-function createAllocationsHistogram(softwareData: MergedSoftwareData): string {
+function createAllocationsHistogram(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
   if (softwareData.allocations.size > 0) {
-    return createPieChart(toSortedArray(softwareData.allocations));
+    let relativeAllocatedBytes = softwareData.allocations.values().reduce((a, b) => a + b, 0) / aggregatedData.totalAllocatedBytes;
+    let color = getPerformanceAnnotationColor(relativeAllocatedBytes);
+
+    return createPieChart(toSortedArray(softwareData.allocations), color);
   }
   
   return "";
@@ -90,15 +93,18 @@ function toSortedArray(map: Map<string, number>): [string, number][] {
   return [...map.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
 }
 
-function createPieChart(sortedHistogramEntries: [string, number][]): string {
+function createPieChart(sortedHistogramEntries: [string, number][], performanceColor: string): string {
   return `
     <div style="display: flex; flex-direction: row;">
-       <div style='width: 65px; height: 65px;'
+       <div style='width: 64px; height: 64px;'
             class="graph-node-histogram"
             data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
-          <svg-pie-chart style="pointer-events: none">
-            ${createPieChartEntries(sortedHistogramEntries).join('\n')}
-          </svg-pie-chart>
+          <div style="width: 100%; height: 100%; border-style: solid; 
+                      border-width: 10px; border-color: ${performanceColor}; border-radius: 32px;">
+            <svg-pie-chart style="pointer-events: none">
+                ${createPieChartEntries(sortedHistogramEntries).join('\n')}
+            </svg-pie-chart>
+          </div>
        </div>
     </div>
   `
@@ -120,7 +126,7 @@ function createRectangleHistogram(sortedHistogramEntries: [string, number][], ag
   let relativeAllocations: number = valuesSum / aggregatedData.totalAllocatedBytes;
   let borderColor = getPerformanceAnnotationColor(relativeAllocations);
 
-  let borderWidthPx = 3;
+  let borderWidthPx = 10;
 
   return `
     <div style="width: 100px; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;
