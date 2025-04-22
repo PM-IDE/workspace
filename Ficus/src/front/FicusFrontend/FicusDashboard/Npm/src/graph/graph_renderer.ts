@@ -49,6 +49,10 @@ function setNodeRenderer(cy: cytoscape.Core) {
     [
       {
         query: 'edge',
+        ealign: 'midpoint',
+        autorotate: true,
+        valignBox: 'center',
+
         tpl: function (data: GraphNode) {
           return createEdgeHtmlLabel(data);
         }

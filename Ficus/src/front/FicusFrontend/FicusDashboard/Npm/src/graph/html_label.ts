@@ -20,7 +20,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge) {
 
   return `
       <div>
-        ${createHistogram(toSortedArray(softwareData.allocations))}
+        ${createRectangleHistogram(toSortedArray(softwareData.allocations))}
       </div>
     `;
 }
@@ -53,7 +53,7 @@ export function createNodeHtmlLabel(node: GraphNode) {
 
                 <div style="display: flex; flex-direction: row; margin-top: 10px;">
                     <div>
-                        ${createHistogram(sortedHistogramEntries)}
+                        ${createPieChart(sortedHistogramEntries)}
                     </div>
                     <div style="margin-left: 10px;">
                         ${createAllocationsHistogram(softwareData)}
@@ -80,7 +80,7 @@ function createNodeDisplayName(node: GraphNode, name: string): string {
 
 function createAllocationsHistogram(softwareData: MergedSoftwareData): string {
   if (softwareData.allocations.size > 0) {
-    return createHistogram(toSortedArray(softwareData.allocations));
+    return createPieChart(toSortedArray(softwareData.allocations));
   }
   
   return "";
@@ -90,20 +90,39 @@ function toSortedArray(map: Map<string, number>): [string, number][] {
   return [...map.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
 }
 
-function createHistogram(sortedHistogramEntries: [string, number][]): string {
+function createPieChart(sortedHistogramEntries: [string, number][]): string {
   return `
     <div style="display: flex; flex-direction: row;">
        <div style='width: 65px; height: 65px;'
             class="graph-node-histogram"
             data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
           <svg-pie-chart style="pointer-events: none">
-            ${createHistogramEntries(sortedHistogramEntries).join('\n')}
+            ${createPieChartEntries(sortedHistogramEntries).join('\n')}
           </svg-pie-chart>
        </div>
     </div>
   `
 }
 
+function createRectangleHistogram(sortedHistogramEntries: [string, number][]): string {
+  let valuesSum: number = sortedHistogramEntries.map(x => x[1]).reduce((a, b) => a + b, 0);
+  let divs: string[] = [];
+
+  let heightPx = 35;
+  
+  for (let [type, count] of sortedHistogramEntries) {
+    divs.push(`
+      <div style="height: ${heightPx}px; width: ${(count / valuesSum) * 100}%; background-color: ${getOrCreateColor(type)};">
+      </div>
+    `);
+  }
+
+  return `
+    <div style="width: 100px; height: ${heightPx}px; display: flex; flex-direction: row;">
+        ${divs.join("\n")}
+    </div>
+  `
+}
 
 addEventListener("mouseover", event => {
   let element = event.target;
@@ -147,7 +166,7 @@ function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [s
   return nodeNameParts.join("\n");
 }
 
-function createHistogramEntries(sortedHistogramEntries: [string, number][]) {
+function createPieChartEntries(sortedHistogramEntries: [string, number][]) {
   let summedCount = sortedHistogramEntries.map(entry => entry[1]).reduce((a, b) => a + b, 0);
 
   return sortedHistogramEntries.map((entry) => {
