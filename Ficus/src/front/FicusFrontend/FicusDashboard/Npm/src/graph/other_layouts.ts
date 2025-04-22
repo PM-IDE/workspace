@@ -1,21 +1,46 @@
 import {calculateGradient} from "../utils";
 import {darkTheme, graphColors} from "../colors";
-import {calculateOverallExecutionTime, getTimeAnnotationColor} from "./util";
+import {
+  calculateOverallExecutionTime,
+  getEdgeSoftwareDataOrNull,
+  getNodeSoftwareDataOrNull,
+  getTimeAnnotationColor, MergedSoftwareData
+} from "./util";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import {GrpcTimePerformanceAnnotation} from "../protos/ficus/GrpcTimePerformanceAnnotation";
 import cytoscape from "cytoscape";
+import {AggregatedData} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
 export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnnotation): cytoscape.ElementDefinition[] {
   let elements: cytoscape.ElementDefinition[] = [];
 
-  let nodesMap = processNodes(graph.nodes);
+  let aggregatedData: AggregatedData = {
+    totalAllocatedBytes: 0
+  };
 
-  for (let node of graph.nodes) {
+  elements.push(...createGraphNodesElements(graph.nodes, aggregatedData))
+  elements.push(...createGraphEdgesElements(graph.edges, annotation, aggregatedData));
+
+  for (let element of elements) {
+    (<any>element).aggregatedData = aggregatedData;
+  }
+
+  return elements;
+}
+
+function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: AggregatedData): cytoscape.ElementDefinition[] {
+  let elements = [];
+  let nodesMap = processNodes(nodes);
+
+  for (let node of nodes) {
+    let softwareData = getNodeSoftwareDataOrNull(node);
+    updateAggregatedData(aggregatedData, softwareData);
+
     elements.push({
       data: {
         label: node.data,
@@ -24,13 +49,18 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
         innerGraph: node.innerGraph,
         executionTime: nodesMap[node.id].executionTime,
         relativeExecutionTime: nodesMap[node.id].relativeExecutionTime,
+        softwareData: softwareData
       }
     })
   }
 
-  elements.push(...createGraphEdgesElements(graph.edges, annotation));
-
   return elements;
+}
+
+function updateAggregatedData(aggregatedData: AggregatedData, softwareData: MergedSoftwareData) {
+  if (softwareData != null) {
+    aggregatedData.totalAllocatedBytes += softwareData.allocations.values().reduce((a, b) => a + b, 0);
+  }
 }
 
 function processNodes(nodes: GrpcGraphNode[]): Record<number, any> {
@@ -47,11 +77,15 @@ function processNodes(nodes: GrpcGraphNode[]): Record<number, any> {
     nodesMap[nodes[i].id].executionTime = executionTimes[i];
     nodesMap[nodes[i].id].relativeExecutionTime = (executionTimes[i] - minTime) / (maxTime - minTime);
   }
-  
+
   return nodesMap;
 }
 
-export function createGraphEdgesElements(edges: GrpcGraphEdge[], annotation: GrpcAnnotation): cytoscape.ElementDefinition[] {
+export function createGraphEdgesElements(
+  edges: GrpcGraphEdge[],
+  annotation: GrpcAnnotation,
+  aggregatedData: AggregatedData
+): cytoscape.ElementDefinition[] {
   let edgesMap: Record<number, any> = {};
 
   for (let edge of edges) {
@@ -66,6 +100,9 @@ export function createGraphEdgesElements(edges: GrpcGraphEdge[], annotation: Grp
 
   let elements: cytoscape.ElementDefinition[] = [];
   for (let edge of edges) {
+    let softwareData = getEdgeSoftwareDataOrNull(edge);
+    updateAggregatedData(aggregatedData, softwareData);
+
     elements.push({
       data: {
         color: edgesMap[edge.id].color,
@@ -74,7 +111,8 @@ export function createGraphEdgesElements(edges: GrpcGraphEdge[], annotation: Grp
         id: edge.id.toString(),
         source: edge.fromNode.toString(),
         target: edge.toNode.toString(),
-        additionalData: edge.additionalData
+        additionalData: edge.additionalData,
+        softwareData: softwareData
       }
     })
   }

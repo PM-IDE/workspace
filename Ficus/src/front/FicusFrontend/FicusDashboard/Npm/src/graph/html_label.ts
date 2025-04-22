@@ -1,8 +1,8 @@
 import {
   belongsToRootSequence,
   findAllRelatedTraceIds,
-  getEdgeSoftwareDataOrNull, getNodeSoftwareDataOrNull,
-  getTimeAnnotationColor, MergedSoftwareData
+  getTimeAnnotationColor, 
+  MergedSoftwareData
 } from "./util";
 import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
@@ -13,7 +13,7 @@ import {GraphEdge, GraphNode} from "./types";
 const graphColor = graphColors(darkTheme);
 
 export function createEdgeHtmlLabel(edge: GraphEdge) {
-  let softwareData = getEdgeSoftwareDataOrNull(edge);
+  let softwareData = edge.softwareData;
   if (softwareData == null) {
     return "";
   }
@@ -26,7 +26,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge) {
 }
 
 export function createNodeHtmlLabel(node: GraphNode) {
-  let softwareData = getNodeSoftwareDataOrNull(node);
+  let softwareData = node.softwareData;
   if (softwareData == null) {
     return `
         <div style='width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; 

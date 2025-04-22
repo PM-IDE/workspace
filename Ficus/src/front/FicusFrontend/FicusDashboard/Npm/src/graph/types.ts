@@ -1,15 +1,24 @@
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
+import {MergedSoftwareData} from "./util";
 
 export interface GraphNode {
   label: string,
   id: string,
-  additionalData: GrpcNodeAdditionalData[],
   innerGraph?: GrpcGraph,
   executionTime: number,
   relativeExecutionTime: number,
+  additionalData: GrpcNodeAdditionalData[],
+  softwareData: MergedSoftwareData,
+  aggregatedData: AggregatedData,
 }
 
 export interface GraphEdge {
   additionalData: GrpcNodeAdditionalData[]
+  softwareData: MergedSoftwareData,
+  aggregatedData: AggregatedData
+}
+
+export interface AggregatedData {
+  totalAllocatedBytes: number
 }
