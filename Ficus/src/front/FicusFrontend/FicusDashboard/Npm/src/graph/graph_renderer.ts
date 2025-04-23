@@ -17,11 +17,8 @@ function setDrawGraph() {
   (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation) {
     cytoscape.use(dagre);
 
-    let nodeHtmlLabel = require('cytoscape-node-html-label');
-    nodeHtmlLabel(cytoscape);
-
-    var htmlLabel = require('cytoscape-html-label');
-    htmlLabel( cytoscape );
+    let htmlLabel = require('../html-label/html_label');
+    htmlLabel(cytoscape);
 
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
     setNodeRenderer(cy);
@@ -31,22 +28,14 @@ function setDrawGraph() {
 }
 
 function setNodeRenderer(cy: cytoscape.Core) {
-  (<any>cy).nodeHtmlLabel(
-      [
-        {
-          query: 'node',
-          tpl: function (data: GraphNode) {
-            return createNodeHtmlLabel(data);
-          }
-        }
-      ],
-      {
-        enablePointerEvents: true
-      }
-  );
-
   (<any>cy).htmlLabel(
     [
+      {
+        query: 'node',
+        tpl: function (data: GraphNode) {
+          return createNodeHtmlLabel(data);
+        }
+      },
       {
         query: 'edge',
         ealign: 'midpoint',
