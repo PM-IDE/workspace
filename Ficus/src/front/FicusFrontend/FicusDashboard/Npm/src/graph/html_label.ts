@@ -130,7 +130,9 @@ function createRectangleHistogram(sortedHistogramEntries: [string, number][], ag
 
   return `
     <div style="width: 100px; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;
-                border-style: solid; border-width: ${borderWidthPx}px; border-color: ${borderColor}">
+                border-style: solid; border-width: ${borderWidthPx}px; border-color: ${borderColor}"
+         class="graph-edge-histogram"
+         data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
         ${divs.join("\n")}
     </div>
   `

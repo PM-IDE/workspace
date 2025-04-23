@@ -172,6 +172,10 @@ code {
   border-color: white;
 }
 
+.graph-edge-histogram:hover {
+  border-color: white !important;
+}
+
 svg-pie-chart svg {
   width: 38px;
 }
