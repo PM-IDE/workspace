@@ -13,8 +13,18 @@ export default setDrawGraph;
 
 const graphColor = graphColors(darkTheme);
 
+type SoftwareEnhancementKind =
+  "Allocations" |
+  "Exceptions" |
+  "Methods" |
+  "ArrayPools" |
+  "Http" |
+  "Sockets" |
+  "Threads";
+
 function setDrawGraph() {
-  (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation) {
+  (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation, enhancement: SoftwareEnhancementKind) {
+    console.log(enhancement);
     cytoscape.use(dagre);
 
     let htmlLabel = require('../html-label/html_label');

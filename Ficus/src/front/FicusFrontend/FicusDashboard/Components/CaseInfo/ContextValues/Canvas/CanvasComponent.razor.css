@@ -14,17 +14,3 @@
   min-width: 800px;
   min-height: 590px;
 }
-
-.canvas-export-button {
-  display: table-cell;
-  text-align: center;
-  vertical-align: middle;
-  width: 150px;
-  height: 30px;
-  background-color: var(--cv-section-header-color);
-  color: var(--cv-section-header-text-color);
-}
-
-.canvas-export-button:hover {
-  background-color: var(--cv-section-header-color-hovered);
-}

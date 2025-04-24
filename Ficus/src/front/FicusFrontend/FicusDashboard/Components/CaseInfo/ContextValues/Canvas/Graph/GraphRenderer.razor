@@ -1,24 +1,69 @@
 @using Ficus
 @using FicusDashboard.Layout.Models
+@using BlazorBootstrap;
 @inject IJSRuntime Js
 
-<CanvasComponent IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
+<div style="margin-top: 10px; margin-left: 15px;">
+  <Dropdown Color="DropdownColor.Primary">
+    <DropdownToggleButton>@mySelectedEnhancementKind.ToString()</DropdownToggleButton>
+
+    <DropdownMenu>
+      @foreach (var kind in Enum.GetValues<SoftwareGraphEnhancementKind>())
+      {
+        <DropdownItem Type="DropdownItemType.Button" @onclick="() => HandleEnhancementSelection(kind)">@kind.ToString()</DropdownItem>
+      }
+    </DropdownMenu>
+  </Dropdown>
+</div>
+
+<CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
+
+<div style="margin-left: 15px; margin-bottom: 5px;">
+  <Button Outline="false" Color="ButtonColor.Primary" Active="true" @onclick="RerenderGraph">Rerender</Button>
+</div>
 
 @code
 {
+  private enum SoftwareGraphEnhancementKind
+  {
+    Allocations,
+    Exceptions,
+    Methods,
+    ArrayPools,
+    Http,
+    Sockets,
+    Threads
+  }
+  
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
+  private CanvasComponent? myCanvasComponent;
+  private SoftwareGraphEnhancementKind mySelectedEnhancementKind = SoftwareGraphEnhancementKind.Allocations;
+
+
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
-    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation);
+    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, mySelectedEnhancementKind.ToString());
   }
 
   private string CreateExportFileName()
   {
     return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
+  }
+
+  private void RerenderGraph()
+  {
+    StateHasChanged();
+    myCanvasComponent?.ReRenderCanvas();
+  }
+
+  private void HandleEnhancementSelection(SoftwareGraphEnhancementKind kind)
+  {
+    mySelectedEnhancementKind = kind;
+    StateHasChanged();
   }
 }
