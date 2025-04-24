@@ -9,6 +9,7 @@ import {nodeWidthPx, nodeHeightPx} from "./constants";
 import tippy from "tippy.js";
 import {getOrCreateColor} from "../utils";
 import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
+import {GrpcUnderlyingPatternKind} from "../protos/ficus/GrpcUnderlyingPatternKind";
 
 const graphColor = graphColors(darkTheme);
 
@@ -282,10 +283,12 @@ function createPatternInformation(node: GraphNode): string {
       `);
   }
 
+  let propertyIndex = <number><unknown>node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind;
+
   return `
     <div style="margin-top: 5px; margin-left: 5px;">
       <div>
-        Pattern type: ${node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind}
+        Pattern type: ${Object.values(GrpcUnderlyingPatternKind)[propertyIndex]}
       </div>
       <div>
         ${patterns.join("\n")}
