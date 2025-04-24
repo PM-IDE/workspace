@@ -8,24 +8,33 @@ import {darkTheme, graphColors} from "../colors";
 import {nodeWidthPx, nodeHeightPx} from "./constants";
 import tippy from "tippy.js";
 import {getOrCreateColor} from "../utils";
-import {AggregatedData, GraphEdge, GraphNode} from "./types";
+import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
-export function createEdgeHtmlLabel(edge: GraphEdge) {
+export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhancementKind): string {
   let softwareData = edge.softwareData;
   if (softwareData == null) {
     return "";
   }
 
-  return `
-      <div>
-        ${createRectangleHistogram(toSortedArray(softwareData.allocations), edge.aggregatedData)}
-      </div>
-    `;
+  switch (enhancement) {
+    case "Allocations":
+      return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);
+    default:
+      return "";
+  }
 }
 
-export function createNodeHtmlLabel(node: GraphNode) {
+function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+  return `
+      <div>
+        ${createRectangleHistogram(toSortedArray(softwareData.allocations), aggregatedData)}
+      </div>
+    `
+}
+
+export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhancementKind) {
   let softwareData = node.softwareData;
   if (softwareData == null) {
     return `
@@ -55,9 +64,7 @@ export function createNodeHtmlLabel(node: GraphNode) {
                     <div>
                         ${createPieChart(sortedHistogramEntries, null)}
                     </div>
-                    <div style="margin-left: 10px;">
-                        ${createAllocationsHistogram(softwareData, node.aggregatedData)}
-                    </div>
+                    ${createNodeEnhancement(softwareData, node.aggregatedData, enhancement)}
                 </div>
 
                 ${isPatternNode(node) ? createPatternInformation(node) : ""}
@@ -68,6 +75,23 @@ export function createNodeHtmlLabel(node: GraphNode) {
             </div>
           </div>
          `;
+}
+
+function createNodeEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
+  switch (enhancement) {
+    case "Allocations":
+      return createNodeAllocationsEnhancement(softwareData, aggregatedData);
+    default:
+      return "";
+  }
+}
+
+function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+  return `
+    <div style="margin-left: 10px;">
+        ${createAllocationsHistogram(softwareData, aggregatedData)}
+    </div>
+  `
 }
 
 function createNodeDisplayName(node: GraphNode, name: string): string {

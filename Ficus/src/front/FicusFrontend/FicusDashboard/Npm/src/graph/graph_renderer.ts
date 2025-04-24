@@ -7,20 +7,11 @@ import {createDagreLayout} from "./util";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
-import {GraphNode} from "./types";
+import {GraphNode, SoftwareEnhancementKind} from "./types";
 
 export default setDrawGraph;
 
 const graphColor = graphColors(darkTheme);
-
-type SoftwareEnhancementKind =
-  "Allocations" |
-  "Exceptions" |
-  "Methods" |
-  "ArrayPools" |
-  "Http" |
-  "Sockets" |
-  "Threads";
 
 function setDrawGraph() {
   (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation, enhancement: SoftwareEnhancementKind) {
@@ -31,19 +22,19 @@ function setDrawGraph() {
     htmlLabel(cytoscape);
 
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
-    setNodeRenderer(cy);
+    setNodeRenderer(cy, enhancement);
 
     return cy;
   }
 }
 
-function setNodeRenderer(cy: cytoscape.Core) {
+function setNodeRenderer(cy: cytoscape.Core, enhancement: SoftwareEnhancementKind) {
   (<any>cy).htmlLabel(
     [
       {
         query: 'node',
         tpl: function (data: GraphNode) {
-          return createNodeHtmlLabel(data);
+          return createNodeHtmlLabel(data, enhancement);
         }
       },
       {
@@ -53,7 +44,7 @@ function setNodeRenderer(cy: cytoscape.Core) {
         valignBox: 'center',
 
         tpl: function (data: GraphNode) {
-          return createEdgeHtmlLabel(data);
+          return createEdgeHtmlLabel(data, enhancement);
         }
       }
     ],

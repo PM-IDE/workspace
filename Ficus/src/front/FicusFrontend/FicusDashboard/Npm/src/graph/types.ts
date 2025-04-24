@@ -22,3 +22,12 @@ export interface AggregatedData {
   totalAllocatedBytes: number,
   maxNodeExecutionTime: number
 }
+
+export type SoftwareEnhancementKind =
+  "Allocations" |
+  "Exceptions" |
+  "Methods" |
+  "ArrayPools" |
+  "Http" |
+  "Sockets" |
+  "Threads";

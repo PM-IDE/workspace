@@ -16,11 +16,7 @@
   </Dropdown>
 </div>
 
-<CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
-
-<div style="margin-left: 15px; margin-bottom: 5px;">
-  <Button Outline="false" Color="ButtonColor.Primary" Active="true" @onclick="RerenderGraph">Rerender</Button>
-</div>
+<CanvasComponent IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
 
 @code
 {
@@ -41,7 +37,6 @@
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
-  private CanvasComponent? myCanvasComponent;
   private SoftwareGraphEnhancementKind mySelectedEnhancementKind = SoftwareGraphEnhancementKind.Allocations;
 
 
@@ -53,12 +48,6 @@
   private string CreateExportFileName()
   {
     return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
-  }
-
-  private void RerenderGraph()
-  {
-    StateHasChanged();
-    myCanvasComponent?.ReRenderCanvas();
   }
 
   private void HandleEnhancementSelection(SoftwareGraphEnhancementKind kind)
