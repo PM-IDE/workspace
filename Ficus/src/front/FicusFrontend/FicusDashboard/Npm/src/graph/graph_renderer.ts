@@ -14,15 +14,14 @@ export default setDrawGraph;
 const graphColor = graphColors(darkTheme);
 
 function setDrawGraph() {
-  (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation, enhancement: SoftwareEnhancementKind) {
-    console.log(enhancement);
+  (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation, enhancement: keyof typeof SoftwareEnhancementKind) {
     cytoscape.use(dagre);
 
     let htmlLabel = require('../html-label/html_label');
     htmlLabel(cytoscape);
 
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
-    setNodeRenderer(cy, enhancement);
+    setNodeRenderer(cy, SoftwareEnhancementKind[enhancement]);
 
     return cy;
   }

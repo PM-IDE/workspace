@@ -23,11 +23,12 @@ export interface AggregatedData {
   maxNodeExecutionTime: number
 }
 
-export type SoftwareEnhancementKind =
-  "Allocations" |
-  "Exceptions" |
-  "Methods" |
-  "ArrayPools" |
-  "Http" |
-  "Sockets" |
-  "Threads";
+export enum SoftwareEnhancementKind {
+  Allocations,
+  Exceptions,
+  Methods,
+  ArrayPools,
+  Http,
+  Sockets,
+  Threads
+}

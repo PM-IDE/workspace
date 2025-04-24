@@ -1,11 +1,6 @@
-import {
-  belongsToRootSequence,
-  findAllRelatedTraceIds,
-  getPerformanceAnnotationColor, 
-  MergedSoftwareData
-} from "./util";
+import {belongsToRootSequence, findAllRelatedTraceIds, getPerformanceAnnotationColor, MergedSoftwareData} from "./util";
 import {darkTheme, graphColors} from "../colors";
-import {nodeWidthPx, nodeHeightPx} from "./constants";
+import {nodeHeightPx, nodeWidthPx} from "./constants";
 import tippy from "tippy.js";
 import {getOrCreateColor} from "../utils";
 import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
@@ -20,7 +15,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhanc
   }
 
   switch (enhancement) {
-    case "Allocations":
+    case SoftwareEnhancementKind.Allocations:
       return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);
     default:
       return "";
@@ -80,7 +75,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
 
 function createNodeEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
   switch (enhancement) {
-    case "Allocations":
+    case SoftwareEnhancementKind.Allocations:
       return createNodeAllocationsEnhancement(softwareData, aggregatedData);
     default:
       return "";
