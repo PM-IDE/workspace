@@ -6,12 +6,10 @@ execute_pipeline(
     'Pipeline',
     [
         PrintEventLogInfo(),
-        RemainEventsByRegex('(Procfiler|Business)'),
         PrintEventLogInfo(),
         AddStartEndArtificialEvents(),
-        DiscoverFuzzyGraph(),
-        ViewGraph(),
-        DiscoverPetriNetHeuristic(),
-        ViewPetriNet(),
+        DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
+                                  merge_sequences_of_events=False),
+        AnnotateGraphWithTime(TimeAnnotationKind.Mean),
     ]
 )

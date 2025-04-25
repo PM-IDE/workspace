@@ -22,6 +22,7 @@ execute_pipeline(
         FilterEventsByRegex('Bulk'),
         FilterEventsByRegex('Mark'),
         AddStartEndArtificialEvents(),
-        ViewDirectlyFollowsGraph(),
+        DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
+                                  merge_sequences_of_events=True),
     ]
 )

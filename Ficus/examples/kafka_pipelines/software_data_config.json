@@ -1,0 +1,13 @@
+{
+  "allocation": {
+    "event_class_regex": "GC\/SampledObject",
+    "info": {
+      "type_name_attr": "TypeName",
+      "allocated_count_attr": "ObjectCountForTypeSample",
+      "total_allocated_bytes_attr": "TotalSizeForTypeSample"
+    }
+  },
+  "raw_control_flow_regexes": [
+    "Procfiler"
+  ]
+}
