@@ -16,7 +16,7 @@
   </Dropdown>
 </div>
 
-<CanvasComponent IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
+<CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
 
 @code
 {
@@ -37,6 +37,7 @@
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
+  private CanvasComponent? myCanvasComponent;
   private SoftwareGraphEnhancementKind mySelectedEnhancementKind = SoftwareGraphEnhancementKind.Allocations;
 
 
@@ -54,5 +55,6 @@
   {
     mySelectedEnhancementKind = kind;
     StateHasChanged();
+    myCanvasComponent?.ReRenderCanvas();
   }
 }
