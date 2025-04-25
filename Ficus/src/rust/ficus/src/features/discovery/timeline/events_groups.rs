@@ -22,7 +22,7 @@ impl TraceEventsGroup {
   }
 }
 
-pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64, regex: Option<&Regex>) -> Vec<TraceEventsGroup> {
+pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64, control_flow_regexes: Option<&Vec<Regex>>) -> Vec<TraceEventsGroup> {
   let mut groups = vec![];
 
   let mut last_stamp: Option<u64> = None;
@@ -39,8 +39,8 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
   };
 
   while let Some((event, trace_index, event_index)) = events.next() {
-    if let Some(regex) = regex {
-      if !regex.is_match(event.original_event().borrow().name()).unwrap_or(false) {
+    if let Some(control_flow_regexes) = control_flow_regexes {
+      if !control_flow_regexes.iter().any(|regex| regex.is_match(event.original_event().borrow().name()).unwrap_or(false)) {
         continue;
       }
     }

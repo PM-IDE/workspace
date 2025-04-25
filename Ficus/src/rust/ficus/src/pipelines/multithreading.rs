@@ -9,15 +9,15 @@ use crate::features::discovery::timeline::discovery::{discover_timeline_diagram,
 use crate::features::discovery::timeline::events_groups::{enumerate_event_groups, EventGroup};
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, REGEX, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 use fancy_regex::Regex;
-use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::str::FromStr;
+use crate::pipelines::context::PipelineContext;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -46,7 +46,7 @@ impl PipelineParts {
       let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
       let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok();
       let event_group_delta = Self::get_user_data(config, &TIME_DELTA_KEY).ok();
-      let regex = Self::get_regex(config)?;
+      let software_data_extraction_config = Self::get_software_data_extraction_config(context);
 
       let diagram = discover_timeline_diagram(
         log,
@@ -56,7 +56,7 @@ impl PipelineParts {
           None => None,
           Some(delta) => Some(*delta as u64)
         },
-        regex.as_ref(),
+        Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref()
       );
 
       match diagram {
@@ -68,14 +68,8 @@ impl PipelineParts {
     })
   }
 
-  fn get_regex(config: &UserDataImpl) -> Result<Option<Regex>, PipelinePartExecutionError> {
-    match Self::get_user_data(config, &REGEX_KEY) {
-      Ok(regex) => match Regex::new(regex) {
-        Ok(regex) => Ok(Some(regex)),
-        Err(_) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Failed to parse regex".to_string())))
-      },
-      Err(_) => Ok(None)
-    }
+  fn get_control_flow_regexes(config: &SoftwareDataExtractionConfig) -> Result<Option<Vec<Regex>>, PipelinePartExecutionError> {
+    config.control_flow_regexes().map_err(|message| PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
   }
 
   pub(super) fn create_threads_log() -> (String, PipelinePartFactory) {
@@ -93,7 +87,7 @@ impl PipelineParts {
       let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
       let thread_attribute = timeline.thread_attribute().to_string();
       let time_attribute = timeline.time_attribute().as_ref().cloned();
-      let extraction_config = Self::get_software_data_extraction_config(config);
+      let extraction_config = Self::get_software_data_extraction_config(context);
 
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
       let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
@@ -129,12 +123,9 @@ impl PipelineParts {
     })
   }
 
-  fn get_software_data_extraction_config(config: &UserDataImpl) -> SoftwareDataExtractionConfig {
-    match Self::get_user_data(config, &SOFTWARE_DATA_EXTRACTION_CONFIG_KEY) {
-      Ok(config) => serde_json::from_str::<SoftwareDataExtractionConfig>(config.as_str()).unwrap_or_else(|err| {
-        error!("Failed to parse software data extraction config: {}", err.to_string());
-        SoftwareDataExtractionConfig::empty()
-      }),
+  fn get_software_data_extraction_config(context: &PipelineContext) -> SoftwareDataExtractionConfig {
+    match Self::get_user_data(context, &SOFTWARE_DATA_EXTRACTION_CONFIG_KEY) {
+      Ok(config) => config.clone(),
       Err(_) => SoftwareDataExtractionConfig::empty(),
     }
   }
@@ -163,7 +154,7 @@ impl PipelineParts {
       let event_group_delta = Self::get_user_data(config, &TIME_DELTA_KEY).ok();
       let discover_events_groups_in_each_trace = Self::get_user_data(config, &DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY)?;
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let regex = Self::get_regex(config)?;
+      let software_data_extraction_config = Self::get_software_data_extraction_config(context);
 
       let diagram = discover_traces_timeline_diagram(
         log,
@@ -173,7 +164,7 @@ impl PipelineParts {
           Some(delta) => Some(*delta as u64)
         },
         *discover_events_groups_in_each_trace,
-        regex.as_ref(),
+        Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref()
       );
 
       match diagram {

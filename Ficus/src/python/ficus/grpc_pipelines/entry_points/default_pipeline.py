@@ -272,3 +272,9 @@ def append_activity_filter_kind(config: GrpcPipelinePartConfiguration, key: str,
 
 def append_activities_logs_source(config: GrpcPipelinePartConfiguration, key: str, source: ActivitiesLogsSource):
   append_enum_value(config, key, const_activities_logs_source_enum_name, source.name)
+
+def append_json_value(config: GrpcPipelinePartConfiguration, key: str, json_string: str):
+  config.configurationParameters.append(GrpcContextKeyValue(
+    key=GrpcContextKey(name=key),
+    value=GrpcContextValue(json=json_string)
+  ))

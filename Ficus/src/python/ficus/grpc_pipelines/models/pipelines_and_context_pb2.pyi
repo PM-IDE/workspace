@@ -66,7 +66,7 @@ class GrpcContextValueWithKeyName(_message.Message):
     def __init__(self, key_name: _Optional[str] = ..., value: _Optional[_Union[GrpcContextValue, _Mapping]] = ...) -> None: ...
 
 class GrpcContextValue(_message.Message):
-    __slots__ = ["string", "hashes_log", "names_log", "uint32", "traces_sub_arrays", "trace_index_sub_arrays", "bool", "xes_event_log", "colors_log", "enum", "event_log_info", "strings", "pipeline", "petriNet", "graph", "float", "annotation", "dataset", "labeled_dataset", "bytes", "logTimelineDiagram", "float_array", "int_array", "uint_array"]
+    __slots__ = ["string", "hashes_log", "names_log", "uint32", "traces_sub_arrays", "trace_index_sub_arrays", "bool", "xes_event_log", "colors_log", "enum", "event_log_info", "strings", "pipeline", "petriNet", "graph", "float", "annotation", "dataset", "labeled_dataset", "bytes", "logTimelineDiagram", "float_array", "int_array", "uint_array", "json"]
     STRING_FIELD_NUMBER: _ClassVar[int]
     HASHES_LOG_FIELD_NUMBER: _ClassVar[int]
     NAMES_LOG_FIELD_NUMBER: _ClassVar[int]
@@ -91,6 +91,7 @@ class GrpcContextValue(_message.Message):
     FLOAT_ARRAY_FIELD_NUMBER: _ClassVar[int]
     INT_ARRAY_FIELD_NUMBER: _ClassVar[int]
     UINT_ARRAY_FIELD_NUMBER: _ClassVar[int]
+    JSON_FIELD_NUMBER: _ClassVar[int]
     string: str
     hashes_log: GrpcHashesEventLogContextValue
     names_log: GrpcNamesEventLogContextValue
@@ -115,7 +116,8 @@ class GrpcContextValue(_message.Message):
     float_array: GrpcFloatArray
     int_array: GrpcIntArray
     uint_array: GrpcUintArray
-    def __init__(self, string: _Optional[str] = ..., hashes_log: _Optional[_Union[GrpcHashesEventLogContextValue, _Mapping]] = ..., names_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., uint32: _Optional[int] = ..., traces_sub_arrays: _Optional[_Union[GrpcEventLogTraceSubArraysContextValue, _Mapping]] = ..., trace_index_sub_arrays: _Optional[_Union[GrpcSubArraysWithTraceIndexContextValue, _Mapping]] = ..., bool: bool = ..., xes_event_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., colors_log: _Optional[_Union[GrpcColorsEventLog, _Mapping]] = ..., enum: _Optional[_Union[GrpcEnum, _Mapping]] = ..., event_log_info: _Optional[_Union[GrpcEventLogInfo, _Mapping]] = ..., strings: _Optional[_Union[GrpcStrings, _Mapping]] = ..., pipeline: _Optional[_Union[GrpcPipeline, _Mapping]] = ..., petriNet: _Optional[_Union[_pm_models_pb2.GrpcPetriNet, _Mapping]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ..., float: _Optional[float] = ..., annotation: _Optional[_Union[_pm_models_pb2.GrpcAnnotation, _Mapping]] = ..., dataset: _Optional[_Union[_pm_models_pb2.GrpcDataset, _Mapping]] = ..., labeled_dataset: _Optional[_Union[_pm_models_pb2.GrpcLabeledDataset, _Mapping]] = ..., bytes: _Optional[_Union[GrpcBytes, _Mapping]] = ..., logTimelineDiagram: _Optional[_Union[GrpcLogTimelineDiagram, _Mapping]] = ..., float_array: _Optional[_Union[GrpcFloatArray, _Mapping]] = ..., int_array: _Optional[_Union[GrpcIntArray, _Mapping]] = ..., uint_array: _Optional[_Union[GrpcUintArray, _Mapping]] = ...) -> None: ...
+    json: str
+    def __init__(self, string: _Optional[str] = ..., hashes_log: _Optional[_Union[GrpcHashesEventLogContextValue, _Mapping]] = ..., names_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., uint32: _Optional[int] = ..., traces_sub_arrays: _Optional[_Union[GrpcEventLogTraceSubArraysContextValue, _Mapping]] = ..., trace_index_sub_arrays: _Optional[_Union[GrpcSubArraysWithTraceIndexContextValue, _Mapping]] = ..., bool: bool = ..., xes_event_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., colors_log: _Optional[_Union[GrpcColorsEventLog, _Mapping]] = ..., enum: _Optional[_Union[GrpcEnum, _Mapping]] = ..., event_log_info: _Optional[_Union[GrpcEventLogInfo, _Mapping]] = ..., strings: _Optional[_Union[GrpcStrings, _Mapping]] = ..., pipeline: _Optional[_Union[GrpcPipeline, _Mapping]] = ..., petriNet: _Optional[_Union[_pm_models_pb2.GrpcPetriNet, _Mapping]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ..., float: _Optional[float] = ..., annotation: _Optional[_Union[_pm_models_pb2.GrpcAnnotation, _Mapping]] = ..., dataset: _Optional[_Union[_pm_models_pb2.GrpcDataset, _Mapping]] = ..., labeled_dataset: _Optional[_Union[_pm_models_pb2.GrpcLabeledDataset, _Mapping]] = ..., bytes: _Optional[_Union[GrpcBytes, _Mapping]] = ..., logTimelineDiagram: _Optional[_Union[GrpcLogTimelineDiagram, _Mapping]] = ..., float_array: _Optional[_Union[GrpcFloatArray, _Mapping]] = ..., int_array: _Optional[_Union[GrpcIntArray, _Mapping]] = ..., uint_array: _Optional[_Union[GrpcUintArray, _Mapping]] = ..., json: _Optional[str] = ...) -> None: ...
 
 class GrpcFloatArray(_message.Message):
     __slots__ = ["items"]
@@ -379,11 +381,11 @@ class GrpcNodeAdditionalData(_message.Message):
     software_data: GrpcSoftwareData
     pattern_info: GrpcUnderlyingPatternInfo
     trace_data: GrpcNodeCorrespondingTraceData
-    time_data: GrpcNodeTimeActivityStartEndData
+    time_data: GrpcActivityStartEndData
     original_event_coordinates: GrpcEventCoordinates
-    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ..., pattern_info: _Optional[_Union[GrpcUnderlyingPatternInfo, _Mapping]] = ..., trace_data: _Optional[_Union[GrpcNodeCorrespondingTraceData, _Mapping]] = ..., time_data: _Optional[_Union[GrpcNodeTimeActivityStartEndData, _Mapping]] = ..., original_event_coordinates: _Optional[_Union[GrpcEventCoordinates, _Mapping]] = ...) -> None: ...
+    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ..., pattern_info: _Optional[_Union[GrpcUnderlyingPatternInfo, _Mapping]] = ..., trace_data: _Optional[_Union[GrpcNodeCorrespondingTraceData, _Mapping]] = ..., time_data: _Optional[_Union[GrpcActivityStartEndData, _Mapping]] = ..., original_event_coordinates: _Optional[_Union[GrpcEventCoordinates, _Mapping]] = ...) -> None: ...
 
-class GrpcNodeTimeActivityStartEndData(_message.Message):
+class GrpcActivityStartEndData(_message.Message):
     __slots__ = ["start_time", "end_time"]
     START_TIME_FIELD_NUMBER: _ClassVar[int]
     END_TIME_FIELD_NUMBER: _ClassVar[int]
@@ -562,8 +564,24 @@ class GrpcGraphEdge(_message.Message):
     to_node: int
     weight: float
     data: str
-    additional_data: _containers.RepeatedCompositeFieldContainer[GrpcNodeAdditionalData]
-    def __init__(self, id: _Optional[int] = ..., from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Iterable[_Union[GrpcNodeAdditionalData, _Mapping]]] = ...) -> None: ...
+    additional_data: _containers.RepeatedCompositeFieldContainer[GrpcGraphEdgeAdditionalData]
+    def __init__(self, id: _Optional[int] = ..., from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Iterable[_Union[GrpcGraphEdgeAdditionalData, _Mapping]]] = ...) -> None: ...
+
+class GrpcGraphEdgeAdditionalData(_message.Message):
+    __slots__ = ["software_data", "execution_info", "time_data"]
+    SOFTWARE_DATA_FIELD_NUMBER: _ClassVar[int]
+    EXECUTION_INFO_FIELD_NUMBER: _ClassVar[int]
+    TIME_DATA_FIELD_NUMBER: _ClassVar[int]
+    software_data: GrpcSoftwareData
+    execution_info: GrpcEdgeExecutionInfo
+    time_data: GrpcActivityStartEndData
+    def __init__(self, software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ..., execution_info: _Optional[_Union[GrpcEdgeExecutionInfo, _Mapping]] = ..., time_data: _Optional[_Union[GrpcActivityStartEndData, _Mapping]] = ...) -> None: ...
+
+class GrpcEdgeExecutionInfo(_message.Message):
+    __slots__ = ["traceId"]
+    TRACEID_FIELD_NUMBER: _ClassVar[int]
+    traceId: int
+    def __init__(self, traceId: _Optional[int] = ...) -> None: ...
 
 class GrpcBytes(_message.Message):
     __slots__ = ["bytes"]

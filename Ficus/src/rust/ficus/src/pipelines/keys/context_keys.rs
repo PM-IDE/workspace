@@ -9,6 +9,7 @@ use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::root_sequence::models::RootSequenceKind;
 use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
+use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
@@ -230,7 +231,7 @@ lazy_static!(
      pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
      pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(MERGE_SEQUENCES_OF_EVENTS);
      pub static ref DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE);
-     pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<String> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
+     pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<SoftwareDataExtractionConfig> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
      pub static ref DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_ACTIVITY_INSTANCES_STRICT);
 );
 

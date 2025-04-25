@@ -422,7 +422,6 @@ class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
 
 class AbstractTimelineDiagram(ClusterizeLogTracesBase):
   def __init__(self,
-               software_data_extraction_config: Optional[str] = None,
                min_events_count_in_cluster: int = 1,
                tolerance: float = 1e-5,
                show_visualization: bool = True,
@@ -455,13 +454,9 @@ class AbstractTimelineDiagram(ClusterizeLogTracesBase):
                      feature_count_kind,
                      percent_from_max_value)
 
-    self.software_data_extraction_config = software_data_extraction_config
     self.tolerance = tolerance
     self.min_events_count_in_cluster = min_events_count_in_cluster
 
   def fill_config_values(self, config):
     append_float_value(config, const_tolerance, self.tolerance)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
-
-    if self.software_data_extraction_config is not None:
-      append_string_value(config, const_software_data_extraction_config, self.software_data_extraction_config)

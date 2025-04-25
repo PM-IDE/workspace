@@ -41,6 +41,7 @@ message GrpcContextValue {
     GrpcFloatArray float_array = 22;
     GrpcIntArray int_array = 23;
     GrpcUintArray uint_array = 24;
+    string json = 25;
   }
 }
 

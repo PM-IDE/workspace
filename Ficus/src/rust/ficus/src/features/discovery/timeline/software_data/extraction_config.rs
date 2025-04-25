@@ -1,4 +1,5 @@
 use derive_new::new;
+use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -24,6 +25,8 @@ pub struct SoftwareDataExtractionConfig {
 
   #[getset(get = "pub", set = "pub")] assembly_load: Option<ExtractionConfig<AssemblyExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] assembly_unload: Option<ExtractionConfig<AssemblyExtractionConfig>>,
+
+  #[getset(get = "pub", set = "pub")] raw_control_flow_regexes: Vec<String>,
 }
 
 impl SoftwareDataExtractionConfig {
@@ -43,7 +46,26 @@ impl SoftwareDataExtractionConfig {
       array_pool_array_trimmed: None,
       assembly_load: None,
       assembly_unload: None,
+      raw_control_flow_regexes: vec![]
     }
+  }
+  
+  pub fn control_flow_regexes(&self) -> Result<Option<Vec<Regex>>, String> {
+    if self.raw_control_flow_regexes.is_empty() {
+      return Ok(None);
+    }
+
+    let mut result = vec![];
+    for regex in &self.raw_control_flow_regexes {
+      match Regex::new(regex) {
+        Ok(regex) => result.push(regex),
+        Err(err) => {
+          return Err(format!("Failed to parse regex: error {}, raw regex {}", err.to_string(), regex));
+        }
+      }
+    }
+    
+    Ok(Some(result))
   }
 }
 
