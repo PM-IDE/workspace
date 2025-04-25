@@ -14,7 +14,7 @@ pub struct ArrayPoolDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for ArrayPoolDataExtractor<'a> {
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     let configs = [
       (self.config.array_pool_array_created(), ArrayPoolEventKind::Created),
       (self.config.array_pool_array_rented(), ArrayPoolEventKind::Rented),

@@ -18,7 +18,7 @@ use crate::features::discovery::timeline::software_data::extraction_config::Soft
 use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::http::HTTPSoftwareDataExtractor;
@@ -146,36 +146,56 @@ fn extract_software_data(
   thread_attribute: &str,
   time_attribute: Option<&String>,
 ) -> Result<(SoftwareData, SoftwareData), PipelinePartExecutionError> {
-  let edge_extractors: Vec<Rc<Box<dyn SoftwareDataExtractor>>> = vec![
-    Rc::new(Box::new(AllocationDataExtractor::new(config))),
-    Rc::new(Box::new(MethodsDataExtractor::new(config))),
-    Rc::new(Box::new(ExceptionDataExtractor::new(config))),
-    Rc::new(Box::new(ArrayPoolDataExtractor::new(config))),
-    Rc::new(Box::new(AssemblySoftwareDataExtractor::new(config))),
-    Rc::new(Box::new(HTTPSoftwareDataExtractor::new(config))),
-    Rc::new(Box::new(SocketsDataExtractor::new(config))),
-    Rc::new(Box::new(ThreadDataExtractor::new(config))),
-  ];
+  let edge_extractors: Vec<Rc<Box<dyn SoftwareDataExtractor>>> = create_edge_software_data_extractors(config);
 
   let mut node_extractors = edge_extractors.clone();
   node_extractors.push(Rc::new(Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))));
 
   let mut node_software_data = SoftwareData::empty();
-  let mut edge_software_data = SoftwareData::empty();
 
   for extractor in node_extractors {
     extractor
       .extract(&mut node_software_data, event_group)
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
   }
+  
+  let edge_software_data = if let Some(after_group_events) = event_group.after_group_events() {
+    extract_edge_software_data(config, after_group_events.as_slice())
+      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
+      .unwrap_or_else(|| SoftwareData::empty())
+  } else {
+    SoftwareData::empty()
+  };
+  
+  Ok((node_software_data, edge_software_data))
+}
 
-  if let Some(after_group_events) = event_group.after_group_events() {
-    for extractor in edge_extractors {
-      extractor
-        .extract_from_events(&mut edge_software_data, after_group_events)
-        .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))? 
-    }
+pub fn extract_edge_software_data(
+  config: &SoftwareDataExtractionConfig, 
+  events: &[Rc<RefCell<XesEventImpl>>]
+) -> Result<Option<SoftwareData>, SoftwareDataExtractionError> {
+  if events.is_empty() {
+    return Ok(None);
   }
 
-  Ok((node_software_data, edge_software_data))
+  let mut edge_software_data = SoftwareData::empty();
+  
+  for extractor in create_edge_software_data_extractors(config) {
+    extractor.extract_from_events(&mut edge_software_data, events)?
+  }
+  
+  Ok(Some(edge_software_data))
+}
+
+fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Rc<Box<dyn SoftwareDataExtractor + 'a>>> {
+  vec![
+    Rc::new(Box::new(AllocationDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(MethodsDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(ExceptionDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(ArrayPoolDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(AssemblySoftwareDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(HTTPSoftwareDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(SocketsDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(ThreadDataExtractor::<'a>::new(config))),
+  ]
 }

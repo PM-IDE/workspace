@@ -14,7 +14,7 @@ pub struct MethodsDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for MethodsDataExtractor<'a> {
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     let inlining_succeeded_regex = regex_option_or_err(self.config.method_inlining_success().as_ref().map(|c| c.event_class_regex()))?;
     let inlining_failed_regex = regex_option_or_err(self.config.method_inlining_failed().as_ref().map(|c| c.event_class_regex()))?;
 

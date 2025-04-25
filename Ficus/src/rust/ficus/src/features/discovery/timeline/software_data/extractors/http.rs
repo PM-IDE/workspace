@@ -14,7 +14,7 @@ pub struct HTTPSoftwareDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for HTTPSoftwareDataExtractor<'a> {
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     if let Some(config) = self.config.http() {
       let regex = regex_or_err(config.event_class_regex().as_str())?;
       

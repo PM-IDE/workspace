@@ -22,7 +22,7 @@ impl<'a> SoftwareDataExtractor for EventClassesDataExtractor<'a> {
     self.extract_from_events(software_data, event_group.control_flow_events())
   }
 
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     let mut threads = HashMap::new();
 
     for event in events {

@@ -1,16 +1,16 @@
-use std::cell::RefCell;
 use crate::event_log::core::event::event::EventPayloadValue;
+use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
+use crate::features::discovery::timeline::software_data::extraction_config::ExtractionConfig;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use fancy_regex::Regex;
 use log::warn;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::rc::Rc;
 use std::str::FromStr;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::extraction_config::ExtractionConfig;
 
 #[derive(Debug)]
 pub enum SoftwareDataExtractionError {
@@ -33,10 +33,15 @@ impl Error for SoftwareDataExtractionError {}
 
 pub trait SoftwareDataExtractor {
   fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
-    self.extract_from_events(software_data, &event_group.all_events().into_iter().map(|c| c.clone()).collect())
+    let events = event_group.all_events()
+      .into_iter()
+      .map(|c| c.clone())
+      .collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
+
+    self.extract_from_events(software_data, events.as_slice())
   }
 
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError>;
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError>;
 }
 
 pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {

@@ -14,7 +14,7 @@ pub struct AllocationDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     if let Some(config) = self.config.allocation() {
       let regex = regex_or_err(config.event_class_regex())?;
 

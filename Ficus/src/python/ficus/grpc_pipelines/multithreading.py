@@ -119,3 +119,8 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
     append_bool_value(config, const_discover_events_groups_in_each_trace, self.discover_events_groups_in_each_trace)
 
     return _create_discover_log_timeline_diagram_grpc_part(self, config, const_discover_traces_timeline_diagram)
+
+
+class PrepareSoftwareLog(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_prepare_software_log))

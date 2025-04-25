@@ -58,6 +58,7 @@ impl PipelineParts {
   pub const DISCOVER_ROOT_SEQUENCE_GRAPH: &'static str = "DiscoverRootSequenceGraph";
   pub const DISCOVER_LOOPS_STRICT: &'static str = "DiscoverLoopsStrict";
   pub const DISCOVER_TRACES_TIMELINE_DIAGRAM: &'static str = "DiscoverTracesTimelineDiagram";
+  pub const PREPARE_SOFTWARE_EVENT_LOG: &'static str = "PrepareSoftwareEventLog";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";

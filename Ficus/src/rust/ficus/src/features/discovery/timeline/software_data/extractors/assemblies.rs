@@ -13,7 +13,7 @@ pub struct AssemblySoftwareDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for AssemblySoftwareDataExtractor<'a> {
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     let configs = [
       (self.config.assembly_load(), AssemblyEventKind::Load),
       (self.config.assembly_unload(), AssemblyEventKind::Unload)

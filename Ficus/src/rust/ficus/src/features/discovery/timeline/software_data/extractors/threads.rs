@@ -13,7 +13,7 @@ pub struct ThreadDataExtractor<'a> {
 }
 
 impl<'a> SoftwareDataExtractor for ThreadDataExtractor<'a> {
-  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &Vec<Rc<RefCell<XesEventImpl>>>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     let configs = [
       (self.config.thread_created(), ThreadEventKind::Created),
       (self.config.thread_created(), ThreadEventKind::Created),
