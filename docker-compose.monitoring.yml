@@ -1,6 +1,7 @@
 services:
   kafka:
     image: apache/kafka:latest
+    platform: linux/amd64
     hostname: kafka
     container_name: kafka
     ports:
@@ -33,6 +34,7 @@ services:
 
   init-kafka:
     image: apache/kafka:latest
+    platform: linux/amd64
     depends_on:
       - kafka
     entrypoint: [ "/bin/sh", "-c" ]
