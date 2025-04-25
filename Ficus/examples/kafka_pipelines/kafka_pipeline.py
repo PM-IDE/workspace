@@ -7,7 +7,10 @@ execute_pipeline(
     [
         PrintEventLogInfo(),
         PrintEventLogInfo(),
+        PrepareSoftwareLog(),
         AddStartEndArtificialEvents(),
+        DiscoverLoopsStrict(),
+        CreateLogFromActivitiesInstances(strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
         DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
                                   merge_sequences_of_events=False),
         AnnotateGraphWithTime(TimeAnnotationKind.Mean),
