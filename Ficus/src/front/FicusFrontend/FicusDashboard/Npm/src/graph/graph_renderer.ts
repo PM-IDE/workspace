@@ -76,7 +76,8 @@ function createNodeStyle(): cytoscape.Stylesheet {
       'shape': 'round-rectangle',
       'width': `${nodeWidthPx}px`,
       'height': `${nodeHeightPx}px`,
-      'color': graphColor.labelColor
+      'color': graphColor.labelColor,
+      'events': 'no'
     }
   }
 }
