@@ -3,6 +3,7 @@ use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
@@ -64,7 +65,10 @@ impl SoftwareDataExtractionConfig {
         }
       }
     }
-    
+
+    result.push(Regex::new(ARTIFICIAL_START_EVENT_NAME).unwrap());
+    result.push(Regex::new(ARTIFICIAL_END_EVENT_NAME).unwrap());
+
     Ok(Some(result))
   }
 }
