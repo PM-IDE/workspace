@@ -162,7 +162,7 @@ function createRectangleHistogram(sortedHistogramEntries: [string, number][], ag
   `
 }
 
-addEventListener("mousedown", event => {
+addEventListener("click", event => {
   let element = event.target;
 
   if (element instanceof HTMLElement) {

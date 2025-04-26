@@ -190,11 +190,15 @@ interface CytoscapeContainerParams {
       this._elements = <HashTableElements>{};
     }
 
-    addOrUpdateElem(id: string, param: CytoscapeHtmlParams, payload: { data?: any, position?: ICytoscapeHtmlPosition } = {}) {
+    addOrUpdateElem(id: string, param: CytoscapeHtmlParams, updateData: boolean, payload: { data?: any, position?: ICytoscapeHtmlPosition } = {}) {
       let cur = this._elements[id];
       if (cur) {
         cur.updateParams(param);
-        cur.updateData(payload.data);
+        
+        if (updateData) {
+          cur.updateData(payload.data);
+        }
+
         cur.updatePosition(payload.position);
       } else {
         const nodeElem = document.createElement("div");
@@ -250,8 +254,8 @@ interface CytoscapeContainerParams {
     _cy.on("add", addCyHandler);
     _cy.on("layoutstop", layoutstopHandler);
     _cy.on("remove", removeCyHandler);
-    _cy.on("data", updateDataOrStyleCyHandler);
-    _cy.on("style", updateDataOrStyleCyHandler);
+    _cy.on("data", (e: ICyEventObject) => updateDataOrStyleCyHandler(e, true));
+    _cy.on("style", (e: ICyEventObject) => updateDataOrStyleCyHandler(e, false));
     _cy.on("pan zoom", wrapCyHandler);
     _cy.on("position bounds", moveCyHandler); // "bounds" - not documented event
 
@@ -289,7 +293,7 @@ interface CytoscapeContainerParams {
     function createCyHandler({cy}: ICyEventObject) {
       _params.forEach(x => {
         cy.elements(x.query).forEach((d: any) => {
-          _lc.addOrUpdateElem(d.id(), x, {
+          _lc.addOrUpdateElem(d.id(), x, true, {
             position: getPosition(d),
             data: d.data()
           });
@@ -301,7 +305,7 @@ interface CytoscapeContainerParams {
       const target = ev.target;
       const param = $$find(_params.slice().reverse(), x => target.is(x.query));
       if (param) {
-        _lc.addOrUpdateElem(target.id(), param, {
+        _lc.addOrUpdateElem(target.id(), param, true, {
           position: getPosition(target),
           data: target.data()
         });
@@ -330,12 +334,12 @@ interface CytoscapeContainerParams {
       }
     }
 
-    function updateDataOrStyleCyHandler(ev: ICyEventObject) {
+    function updateDataOrStyleCyHandler(ev: ICyEventObject, updateData: boolean) {
       setTimeout(() => {
         const target = ev.target;
         const param = $$find(_params.slice().reverse(), x => target.is(x.query));
         if (param && !target.removed()) {
-          _lc.addOrUpdateElem(target.id(), param, {
+          _lc.addOrUpdateElem(target.id(), param, updateData, {
             position: getPosition(target),
             data: target.data()
           });

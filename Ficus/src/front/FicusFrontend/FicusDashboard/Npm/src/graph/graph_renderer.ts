@@ -77,7 +77,6 @@ function createNodeStyle(): cytoscape.Stylesheet {
       'width': `${nodeWidthPx}px`,
       'height': `${nodeHeightPx}px`,
       'color': graphColor.labelColor,
-      'events': 'no'
     }
   }
 }
@@ -93,7 +92,6 @@ function createEdgeStyle(): cytoscape.Stylesheet {
       'target-arrow-color': 'data(color)',
       'target-arrow-shape': 'triangle',
       'curve-style': 'straight',
-      'events': 'no'
     }
   }
 }
