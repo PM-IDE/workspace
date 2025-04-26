@@ -8,7 +8,7 @@ public record EventSessionInfo(IEnumerable<IEventsCollection> Events, SessionGlo
 
 public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, long qpcFreq, DateTime utcSyncTime) : IGlobalDataWithStacks
 {
-  private readonly Dictionary<long, string> myMethodIdToFqn = new();
+  private readonly Dictionary<long, ExtendedMethodInfo> myMethodIdToMethodInfo = new();
   private readonly Dictionary<long, string> myTypeIdsToNames = new();
 
 
@@ -19,7 +19,7 @@ public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, lon
 
 
   public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
-  public string? FindMethodName(long methodId) => myMethodIdToFqn.GetValueOrDefault(methodId);
+  public ExtendedMethodInfo? FindMethodDetails(long methodId) => myMethodIdToMethodInfo.GetValueOrDefault(methodId);
 
   public void AddInfoFrom(EventWithGlobalDataUpdate update)
   {
@@ -32,11 +32,11 @@ public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, lon
     }
   }
 
-  private void AddMethodIdWithName(MethodIdToFqn? updateMethodIdToFqn)
+  private void AddMethodIdWithName(MethodIdToMethodInfo? updateMethodIdToFqn)
   {
     if (updateMethodIdToFqn is { })
     {
-      myMethodIdToFqn[updateMethodIdToFqn.Value.Id] = updateMethodIdToFqn.Value.Fqn;
+      myMethodIdToMethodInfo[updateMethodIdToFqn.Value.Id] = updateMethodIdToFqn.Value.Info;
     }
   }
 
@@ -51,6 +51,6 @@ public class SessionGlobalData(IShadowStacks shadowStacks, long qpcSyncTime, lon
   public void MergeWith(SessionGlobalData other)
   {
     myTypeIdsToNames.MergeOrThrow(other.myTypeIdsToNames);
-    myMethodIdToFqn.MergeOrThrow(other.myMethodIdToFqn);
+    myMethodIdToMethodInfo.MergeOrThrow(other.myMethodIdToMethodInfo);
   }
 }

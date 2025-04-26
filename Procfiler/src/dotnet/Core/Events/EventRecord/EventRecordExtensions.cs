@@ -6,7 +6,7 @@ using Microsoft.Diagnostics.Tracing;
 
 namespace Core.Events.EventRecord;
 
-public readonly record struct MethodIdToFqn(long Id, string Fqn);
+public readonly record struct MethodIdToMethodInfo(long Id, ExtendedMethodInfo Info);
 
 public record ExtendedMethodInfo(string Name, string Namespace, string Signature)
 {
@@ -112,7 +112,7 @@ public static class EventRecordExtensions
   public static bool IsMethodStartEndProvider(this EventRecordWithMetadata eventRecord) =>
     eventRecord.EventClass is not (TraceEventsConstants.GcSetGcHandle or TraceEventsConstants.GcDestroyGcHandle);
 
-  public static MethodIdToFqn? TryGetMethodInfo(this EventRecordWithMetadata eventRecord)
+  public static MethodIdToMethodInfo? TryGetMethodInfo(this EventRecordWithMetadata eventRecord)
   {
     if (eventRecord.EventName is not TraceEventsConstants.MethodLoadVerbose) return null;
 
@@ -121,8 +121,7 @@ public static class EventRecordExtensions
 
     if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
     {
-      var mergedName = MethodsUtil.ConcatenateMethodDetails(name, methodNamespace, signature);
-      return new MethodIdToFqn(methodId.ParseId(), mergedName);
+      return new MethodIdToMethodInfo(methodId.ParseId(), new ExtendedMethodInfo(name, methodNamespace, signature));
     }
 
     return null;

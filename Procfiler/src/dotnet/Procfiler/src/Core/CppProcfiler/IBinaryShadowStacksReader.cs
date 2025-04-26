@@ -15,7 +15,7 @@ public class FrameInfo
 
   public string Serialize(SessionGlobalData? globalData)
   {
-    var fqnOrId = globalData?.FindMethodName(FunctionId) switch
+    var fqnOrId = globalData?.FindMethodDetails(FunctionId)?.Fqn switch
     {
       { } fqn => fqn,
       _ => FunctionId.ToString()

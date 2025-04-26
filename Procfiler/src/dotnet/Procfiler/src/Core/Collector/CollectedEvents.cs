@@ -13,7 +13,7 @@ public readonly record struct EventWithGlobalDataUpdate(
   TraceEvent OriginalEvent,
   EventRecordWithMetadata Event,
   TypeIdToName? TypeIdToName,
-  MethodIdToFqn? MethodIdToFqn
+  MethodIdToMethodInfo? MethodIdToFqn
 );
 
 public readonly record struct CreatingEventContext(MutableTraceEventStackSource Source, TraceLog Log);

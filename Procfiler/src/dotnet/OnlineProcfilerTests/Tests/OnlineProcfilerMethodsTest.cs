@@ -39,13 +39,13 @@ public static class OnlineProcfilerMethodsUtil
     {
       if (e.TryGetMethodDetails() is var (_, methodId))
       {
-        return sharedData.FindMethodName(methodId)!;
+        return sharedData.FindMethodDetails(methodId)!.Fqn;
       }
 
       return null;
     }, trace => ProgramMethodCallTreeDumper.CreateDump(trace, filter.ToString(), e => e.TryGetMethodDetails() switch
     {
-      var (_, id) => (sharedData.FindMethodName(id)!, e.GetMethodEventKind() == MethodKind.Begin),
+      var (_, id) => (sharedData.FindMethodDetails(id)!.Fqn, e.GetMethodEventKind() == MethodKind.Begin),
       _ => null
     }));
   }

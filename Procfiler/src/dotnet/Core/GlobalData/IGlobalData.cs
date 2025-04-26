@@ -1,4 +1,6 @@
-﻿namespace Core.GlobalData;
+﻿using Core.Events.EventRecord;
+
+namespace Core.GlobalData;
 
 public interface IGlobalData
 {
@@ -6,7 +8,6 @@ public interface IGlobalData
   long QpcFreq { get; }
   DateTime UtcSyncTime { get; }
 
-
   string? FindTypeName(long typeId);
-  string? FindMethodName(long methodId);
+  ExtendedMethodInfo? FindMethodDetails(long methodId);
 }
