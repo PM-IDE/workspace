@@ -227,7 +227,7 @@ function createPieChartEntries(sortedHistogramEntries: [string, number][]) {
 function createEventClassesDescription(sortedHistogramEntries: [string, number][]) {
   return sortedHistogramEntries.map((entry) => {
     return `
-        <div style="display: flex; flex-direction: row; height: 20px; align-items: center">
+        <div style="display: flex; flex-direction: row; width: fit-content; height: 20px; align-items: center">
             <div style="width: 15px; height: 15px; background-color: ${getOrCreateColor(entry[0])}"></div>
             <div style="margin-left: 5px;">${entry[0]}</div>
             <div style="margin-left: 5px;">${entry[1]}</div>
