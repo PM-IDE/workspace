@@ -17,8 +17,11 @@ use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
 use fancy_regex::Regex;
 use std::cell::RefCell;
+use std::fmt::format;
 use std::rc::Rc;
 use std::str::FromStr;
+use ndarray::AssignElem;
+use crate::event_log::core::event::event::{Event, EventPayloadValue};
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -188,6 +191,78 @@ impl PipelineParts {
       };
 
       context.put_concrete(EVENT_LOG_KEY.key(), prepared_log);
+
+      Ok(())
+    })
+  }
+
+  pub(super) fn shorten_allocation_types() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::SHORTEN_ALLOCATION_TYPE, &|context, _, config| {
+      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+      let software_data_extraction_config = Self::get_software_data_extraction_config(context);
+      if let Some(config) = software_data_extraction_config.allocation() {
+        let alloc_regex = config.event_class_regex();
+        let alloc_regex = match Regex::new(alloc_regex) {
+          Ok(regex) => regex,
+          Err(err) => return Err(PipelinePartExecutionError::Raw(
+            RawPartExecutionError::new(format!("Failed to create regex from {}, error: {}", alloc_regex, err.to_string()))
+          ))
+        };
+
+        for trace in log.traces() {
+          let trace = trace.borrow_mut();
+          for event in trace.events() {
+            if alloc_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+              let mut event = event.borrow_mut();
+              if let Some(map) = event.payload_map_mut() {
+                if let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str()) {
+                  let string = type_name.to_string_repr().to_string();
+
+                  let mut result = String::new();
+                  let mut chars = string.chars();
+                  let mut last_seen_word = String::new();
+
+                  'main_loop: while let Some(char) = chars.next() {
+                    if char == '`' {
+                      result.push_str(last_seen_word.as_str());
+                      last_seen_word.clear();
+                      
+                      while let Some(char) = chars.next() {
+                        if char == '[' {
+                          result.push('[');
+                          continue 'main_loop;
+                        }
+                      }
+                    }
+                    
+                    if char == '.' {
+                      result.push(last_seen_word.chars().next().unwrap());
+                      result.push(char);
+                      last_seen_word.clear();
+                      continue;
+                    }
+
+                    if char == ',' || char == ']' || char == '[' {
+                      result.push_str(last_seen_word.as_str());
+                      last_seen_word.clear();
+                      result.push(char);
+                      continue;
+                    }
+
+                    last_seen_word.push(char);
+                  }
+                  
+                  if !last_seen_word.is_empty() {
+                    result.push_str(last_seen_word.as_str());
+                  }
+
+                  *type_name = EventPayloadValue::String(Rc::new(Box::new(result)));
+                }
+              }
+            }
+          }
+        }
+      }
 
       Ok(())
     })

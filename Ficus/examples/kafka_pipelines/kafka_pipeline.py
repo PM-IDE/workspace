@@ -7,6 +7,7 @@ execute_pipeline(
     [
         PrintEventLogInfo(),
         PrintEventLogInfo(),
+        ShortenAllocationType(),
         PrepareSoftwareLog(),
         AddStartEndArtificialEvents(),
         DiscoverLoopsStrict(),

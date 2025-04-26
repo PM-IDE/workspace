@@ -124,3 +124,8 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
 class PrepareSoftwareLog(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_prepare_software_log))
+
+
+class ShortenAllocationType(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_shorten_allocation_type))
