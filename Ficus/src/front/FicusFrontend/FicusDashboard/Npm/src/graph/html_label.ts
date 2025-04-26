@@ -171,7 +171,7 @@ addEventListener("click", event => {
     if (rawData != null) {
       let histogramEntries: [string, number][] = JSON.parse(rawData);
 
-      tippy(element, {
+      let tooltip = tippy(element, {
         appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
         content: `
                 <div style="padding: 10px; background: black; color: white; border-radius: 5px; max-height: 300px; overflow: auto"
@@ -183,9 +183,11 @@ addEventListener("click", event => {
         zIndex: Number.MAX_VALUE,
         duration: 0,
         arrow: true,
-        trigger: 'click',
+        trigger: 'manual',
         interactive: true,
       });
+
+      tooltip.show();
     }
   }
 });
