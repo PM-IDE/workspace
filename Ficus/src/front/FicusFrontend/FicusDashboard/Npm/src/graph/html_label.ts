@@ -23,6 +23,10 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhanc
 }
 
 function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+  if (softwareData.allocations.size == 0) {
+    return "";
+  }
+
   return `
       <div>
         ${createRectangleHistogram(toSortedArray(softwareData.allocations), aggregatedData)}
@@ -116,11 +120,10 @@ function toSortedArray(map: Map<string, number>): [string, number][] {
 function createPieChart(sortedHistogramEntries: [string, number][], performanceColor: string): string {
   return `
     <div style="display: flex; flex-direction: row;">
-       <div style='width: 64px; height: 64px;'
-            class="graph-node-histogram"
-            data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
+       <div style='width: 64px; height: 64px;' class="graph-node-histogram">
           <div style="width: 100%; height: 100%; border-style: solid; 
-                      border-width: 10px; border-color: ${performanceColor}; border-radius: 32px;">
+                      border-width: 10px; border-color: ${performanceColor}; border-radius: 32px;"
+               data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
             <svg-pie-chart style="pointer-events: none">
                 ${createPieChartEntries(sortedHistogramEntries).join('\n')}
             </svg-pie-chart>
@@ -138,7 +141,8 @@ function createRectangleHistogram(sortedHistogramEntries: [string, number][], ag
   
   for (let [type, count] of sortedHistogramEntries) {
     divs.push(`
-      <div style="height: ${heightPx}px; width: ${(count / valuesSum) * 100}%; background-color: ${getOrCreateColor(type)};">
+      <div style="height: ${heightPx}px; width: ${(count / valuesSum) * 100}%; background-color: ${getOrCreateColor(type)};
+                  pointer-events: none;">
       </div>
     `);
   }
@@ -158,7 +162,7 @@ function createRectangleHistogram(sortedHistogramEntries: [string, number][], ag
   `
 }
 
-addEventListener("mouseover", event => {
+addEventListener("click", event => {
   let element = event.target;
 
   if (element instanceof HTMLElement) {
@@ -170,7 +174,8 @@ addEventListener("mouseover", event => {
       tippy(element, {
         appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
         content: `
-                <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
+                <div style="padding: 10px; background: black; color: white; border-radius: 5px; max-height: 300px; overflow: auto"
+                     class="visible-scroll">
                     ${createEventClassesDescription(histogramEntries).join('\n')}
                 </div>
                `,
@@ -178,6 +183,8 @@ addEventListener("mouseover", event => {
         zIndex: Number.MAX_VALUE,
         duration: 0,
         arrow: true,
+        trigger: 'click',
+        interactive: true,
       });
     }
   }

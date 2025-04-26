@@ -92,6 +92,7 @@ function createEdgeStyle(): cytoscape.Stylesheet {
       'target-arrow-color': 'data(color)',
       'target-arrow-shape': 'triangle',
       'curve-style': 'straight',
+      'events': 'no'
     }
   }
 }
