@@ -1,7 +1,7 @@
 import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
 import dagre from 'cytoscape-dagre';
-import {createEdgeHtmlLabel, createNodeHtmlLabel} from "./html_label";
+import {createEdgeHtmlLabel, createNodeHtmlLabel, createNodeHtmlLabelId} from "./html_label";
 import {createGraphElementForDagre} from "./other_layouts";
 import {createDagreLayout} from "./util";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
@@ -22,9 +22,22 @@ function setDrawGraph() {
 
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
     setNodeRenderer(cy, SoftwareEnhancementKind[enhancement]);
+    
+    cy.ready(() => setTimeout(() => updateNodesDimensions(cy), 0));
 
     return cy;
   }
+}
+
+function updateNodesDimensions(cy: cytoscape.Core) {
+  cy.nodes().forEach(node => {
+    let element = document.getElementById(createNodeHtmlLabelId(node.data().frontendId));
+    if (element != null) {
+      let rect = element.getBoundingClientRect();
+      node.style('width', `${rect.width / cy.zoom()}px`);
+      node.style('height', `${rect.height / cy.zoom()}px`);
+    }
+  });
 }
 
 function setNodeRenderer(cy: cytoscape.Core, enhancement: SoftwareEnhancementKind) {

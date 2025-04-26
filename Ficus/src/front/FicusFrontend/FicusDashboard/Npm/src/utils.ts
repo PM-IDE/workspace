@@ -58,3 +58,10 @@ export function getOrCreateColor(name: string) {
 
   return colorsCache.get(name);
 }
+
+let nextId = 0;
+
+export function createNextFrontendUniqueId(): number {
+  nextId += 1;
+  return nextId;
+}

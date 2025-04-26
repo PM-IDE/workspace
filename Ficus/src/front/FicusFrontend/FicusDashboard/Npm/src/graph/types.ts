@@ -3,6 +3,7 @@ import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {MergedSoftwareData} from "./util";
 
 export interface GraphNode {
+  frontendId: number,
   label: string,
   id: string,
   innerGraph?: GrpcGraph,
@@ -13,6 +14,7 @@ export interface GraphNode {
 }
 
 export interface GraphEdge {
+  frontendId: number,
   additionalData: GrpcNodeAdditionalData[]
   softwareData: MergedSoftwareData,
   aggregatedData: AggregatedData

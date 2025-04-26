@@ -1,4 +1,4 @@
-import {calculateGradient} from "../utils";
+import {calculateGradient, createNextFrontendUniqueId} from "../utils";
 import {darkTheme, graphColors} from "../colors";
 import {
   calculateOverallExecutionTime,
@@ -46,6 +46,7 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: Aggreg
 
     elements.push({
       data: {
+        frontendId: createNextFrontendUniqueId(),
         label: node.data,
         id: node.id.toString(),
         additionalData: node.additionalData,
@@ -89,6 +90,7 @@ export function createGraphEdgesElements(
 
     elements.push({
       data: {
+        frontendId: createNextFrontendUniqueId(),
         color: edgesMap[edge.id].color,
         width: edgesMap[edge.id].width,
         label: edge.data,

@@ -34,6 +34,10 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
     `
 }
 
+export function createNodeHtmlLabelId(frontendId: number): string {
+  return `node-html-label-${frontendId}`;
+}
+
 export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhancementKind) {
   let softwareData = node.softwareData;
   if (softwareData == null) {
@@ -52,7 +56,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
   allTraceIds.sort((f, s) => f - s);
 
   return `
-          <div>
+          <div id="${createNodeHtmlLabelId(node.frontendId)}">
             ${createNodeDisplayName(node, createNodeDisplayNameString(node, sortedHistogramEntries))}
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
