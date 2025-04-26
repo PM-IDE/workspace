@@ -27,6 +27,12 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] assembly_load: Option<ExtractionConfig<AssemblyExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] assembly_unload: Option<ExtractionConfig<AssemblyExtractionConfig>>,
 
+  #[getset(get = "pub", set = "pub")] suspend_ee: Option<ExtractionConfig<SuspendEEConfig>>,
+  #[getset(get = "pub", set = "pub")] restart_ee: Option<ExtractionConfig<RestartEEConfig>>,
+
+  #[getset(get = "pub", set = "pub")] method_start: Option<ExtractionConfig<MethodStartEndConfig>>,
+  #[getset(get = "pub", set = "pub")] method_end: Option<ExtractionConfig<MethodStartEndConfig>>,
+
   #[getset(get = "pub", set = "pub")] raw_control_flow_regexes: Vec<String>,
 }
 
@@ -47,6 +53,10 @@ impl SoftwareDataExtractionConfig {
       array_pool_array_trimmed: None,
       assembly_load: None,
       assembly_unload: None,
+      suspend_ee: None,
+      restart_ee: None,
+      method_start: None,
+      method_end: None,
       raw_control_flow_regexes: vec![]
     }
   }
@@ -72,6 +82,22 @@ impl SoftwareDataExtractionConfig {
     Ok(Some(result))
   }
 }
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct MethodStartEndConfig {
+  fqn: String,
+  short_name: String,
+  namespace: String,
+  signature: String
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct SuspendEEConfig {
+  #[getset(get = "pub")] reason: String
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct RestartEEConfig {}
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ExtractionConfig<TConcreteInfo: Clone + Debug> {
