@@ -7,6 +7,24 @@
       "total_allocated_bytes_attr": "TotalSizeForTypeSample"
     }
   },
+  "method_start": {
+    "event_class_regex": "ProcfilerMethod/Begin",
+    "info": {
+      "fqn": "",
+      "name_attr": "MethodName",
+      "namespace_attr": "MethodNamespace",
+      "signature_attr": "MethodSignature"
+    }
+  },
+  "method_end": {
+    "event_class_regex": "ProcfilerMethod/End",
+    "info": {
+      "fqn": "",
+      "name_attr": "MethodName",
+      "namespace_attr": "MethodNamespace",
+      "signature_attr": "MethodSignature"
+    }
+  },
   "raw_control_flow_regexes": [
     "Procfiler"
   ]

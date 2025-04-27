@@ -1,3 +1,4 @@
+use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
@@ -8,7 +9,7 @@ use crate::features::discovery::root_sequence::log_prepare::prepare_software_log
 use crate::features::discovery::timeline::abstraction::abstract_event_groups;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, discover_traces_timeline_diagram};
 use crate::features::discovery::timeline::events_groups::{enumerate_event_groups, EventGroup};
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
+use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
@@ -17,11 +18,9 @@ use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
 use fancy_regex::Regex;
 use std::cell::RefCell;
-use std::fmt::format;
 use std::rc::Rc;
 use std::str::FromStr;
-use ndarray::AssignElem;
-use crate::event_log::core::event::event::{Event, EventPayloadValue};
+use crate::event_log::xes::xes_event::XesEventImpl;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -217,46 +216,7 @@ impl PipelineParts {
               if let Some(map) = event.payload_map_mut() {
                 if let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str()) {
                   let string = type_name.to_string_repr().to_string();
-
-                  let mut result = String::new();
-                  let mut chars = string.chars();
-                  let mut last_seen_word = String::new();
-
-                  'main_loop: while let Some(char) = chars.next() {
-                    if char == '`' {
-                      result.push_str(last_seen_word.as_str());
-                      last_seen_word.clear();
-                      
-                      while let Some(char) = chars.next() {
-                        if char == '[' {
-                          result.push('[');
-                          continue 'main_loop;
-                        }
-                      }
-                    }
-                    
-                    if char == '.' {
-                      result.push(last_seen_word.chars().next().unwrap());
-                      result.push(char);
-                      last_seen_word.clear();
-                      continue;
-                    }
-
-                    if char == ',' || char == ']' || char == '[' {
-                      result.push_str(last_seen_word.as_str());
-                      last_seen_word.clear();
-                      result.push(char);
-                      continue;
-                    }
-
-                    last_seen_word.push(char);
-                  }
-                  
-                  if !last_seen_word.is_empty() {
-                    result.push_str(last_seen_word.as_str());
-                  }
-
-                  *type_name = EventPayloadValue::String(Rc::new(Box::new(result)));
+                  *type_name = EventPayloadValue::String(Rc::new(Box::new(Self::shorten_type_or_method_name(string))));
                 }
               }
             }
@@ -267,4 +227,122 @@ impl PipelineParts {
       Ok(())
     })
   }
+  
+  fn shorten_type_or_method_name(name: String) -> String {
+    let mut result = String::new();
+    let mut chars = name.chars();
+    let mut last_seen_word = String::new();
+
+    'main_loop: while let Some(char) = chars.next() {
+      if char == '`' {
+        result.push_str(last_seen_word.as_str());
+        last_seen_word.clear();
+
+        while let Some(char) = chars.next() {
+          if char == '[' {
+            result.push('[');
+            continue 'main_loop;
+          }
+        }
+      }
+
+      if char == '.' {
+        if !last_seen_word.is_empty() {
+          result.push(last_seen_word.chars().next().unwrap());
+        }
+
+        result.push(char);
+        last_seen_word.clear();
+        continue;
+      }
+
+      if char == ',' || char == ']' || char == '[' {
+        result.push_str(last_seen_word.as_str());
+        last_seen_word.clear();
+        result.push(char);
+        continue;
+      }
+
+      last_seen_word.push(char);
+    }
+
+    if !last_seen_word.is_empty() {
+      result.push_str(last_seen_word.as_str());
+    }
+
+    result
+  }
+  
+  pub(super) fn shorten_methods_names() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::SHORTEN_METHOD_NAMES, &|context, _, _| {
+      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+      let software_data_extraction_config = Self::get_software_data_extraction_config(context);
+      
+      let mut configs = vec![];
+
+      Self::try_add_processed_config(software_data_extraction_config.method_start().as_ref(), &mut configs);
+      Self::try_add_processed_config(software_data_extraction_config.method_end().as_ref(), &mut configs);
+
+      if configs.is_empty() {
+        return Ok(());
+      }
+
+      for trace in log.traces() {
+        let trace = trace.borrow_mut();
+        for event in trace.events() {
+          for config in &configs {
+            Self::shorten_method_name(config, &mut event.borrow_mut());
+          }
+        }
+      }
+      
+      Ok(())
+    })
+  }
+
+  fn try_add_processed_config(config: Option<&ExtractionConfig<MethodStartEndConfig>>, processed_configs: &mut Vec<ProcessedMethodStartEndConfig>) {
+    if let Ok(Some(processed_config)) = Self::create_method_extraction_info(config) {
+      processed_configs.push(processed_config)
+    }
+  }
+
+  fn create_method_extraction_info(config: Option<&ExtractionConfig<MethodStartEndConfig>>) -> Result<Option<ProcessedMethodStartEndConfig>, PipelinePartExecutionError> {
+    if let Some(config) = config {
+      let regex = Regex::new(config.event_class_regex()).map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
+
+      Ok(Some(ProcessedMethodStartEndConfig {
+        event_regex: regex,
+        name_attr: config.info().name_attr().to_owned(),
+        signature_attr: config.info().signature_attr().to_owned(),
+        namespace_attr: config.info().namespace_attr().to_owned(),
+      }))
+    } else {
+      Ok(None)
+    }
+  }
+
+  fn shorten_method_name(config: &ProcessedMethodStartEndConfig, event: &mut XesEventImpl) {
+    let shortened_name = if let Some(payload) = event.payload_map() {
+      let namespace = payload.get(config.namespace_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
+      let name = payload.get(config.name_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
+      let signature = payload.get(config.signature_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
+      
+      if namespace.is_none() || name.is_none() || signature.is_none() {
+        return;
+      }
+      
+      Self::shorten_type_or_method_name(namespace.unwrap() + "." + name.unwrap().as_str() + signature.unwrap().as_str())
+    } else {
+      return;
+    };
+    
+    event.set_name(shortened_name);
+  }
+}
+
+struct ProcessedMethodStartEndConfig {
+  event_regex: Regex,
+  namespace_attr: String,
+  name_attr: String,
+  signature_attr: String
 }

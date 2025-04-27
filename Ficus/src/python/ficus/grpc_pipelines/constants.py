@@ -152,6 +152,7 @@ const_discover_loops_strict = 'DiscoverLoopsStrict'
 const_discover_traces_timeline_diagram = 'DiscoverTracesTimelineDiagram'
 const_prepare_software_log = 'PrepareSoftwareEventLog'
 const_shorten_allocation_type = 'ShortenAllocationType'
+const_shorten_method_names = 'ShortenMethodNames'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

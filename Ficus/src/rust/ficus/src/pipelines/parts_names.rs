@@ -61,6 +61,7 @@ impl PipelineParts {
 
   pub const PREPARE_SOFTWARE_EVENT_LOG: &'static str = "PrepareSoftwareEventLog";
   pub const SHORTEN_ALLOCATION_TYPE: &'static str = "ShortenAllocationType";
+  pub const SHORTEN_METHOD_NAMES: &'static str = "ShortenMethodNames";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";

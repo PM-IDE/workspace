@@ -129,3 +129,8 @@ class PrepareSoftwareLog(PipelinePart):
 class ShortenAllocationType(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_shorten_allocation_type))
+
+
+class ShortenMethodNames(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_shorten_method_names))
