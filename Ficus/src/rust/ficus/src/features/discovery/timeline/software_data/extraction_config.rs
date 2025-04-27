@@ -85,10 +85,10 @@ impl SoftwareDataExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodStartEndConfig {
-  #[getset(get = "pub")] fqn: String,
   #[getset(get = "pub")] name_attr: String,
   #[getset(get = "pub")] namespace_attr: String,
-  #[getset(get = "pub")] signature_attr: String
+  #[getset(get = "pub")] signature_attr: String,
+  #[getset(get = "pub")] prefix: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

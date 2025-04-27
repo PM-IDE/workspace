@@ -13,7 +13,8 @@
       "fqn": "",
       "name_attr": "MethodName",
       "namespace_attr": "MethodNamespace",
-      "signature_attr": "MethodSignature"
+      "signature_attr": "MethodSignature",
+      "prefix": "MethodStart_"
     }
   },
   "method_end": {
@@ -22,10 +23,12 @@
       "fqn": "",
       "name_attr": "MethodName",
       "namespace_attr": "MethodNamespace",
-      "signature_attr": "MethodSignature"
+      "signature_attr": "MethodSignature",
+      "prefix": "MethodEnd_"
     }
   },
   "raw_control_flow_regexes": [
-    "Procfiler"
+    "MethodEnd_",
+    "MethodStart_"
   ]
 }

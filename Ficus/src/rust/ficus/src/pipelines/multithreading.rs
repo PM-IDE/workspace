@@ -291,7 +291,9 @@ impl PipelineParts {
         let trace = trace.borrow_mut();
         for event in trace.events() {
           for config in &configs {
-            Self::shorten_method_name(config, &mut event.borrow_mut());
+            if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+              Self::shorten_method_name(config, &mut event.borrow_mut());
+            }
           }
         }
       }
@@ -315,6 +317,7 @@ impl PipelineParts {
         name_attr: config.info().name_attr().to_owned(),
         signature_attr: config.info().signature_attr().to_owned(),
         namespace_attr: config.info().namespace_attr().to_owned(),
+        prefix: config.info().prefix().as_ref().cloned()
       }))
     } else {
       Ok(None)
@@ -326,16 +329,21 @@ impl PipelineParts {
       let namespace = payload.get(config.namespace_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
       let name = payload.get(config.name_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
       let signature = payload.get(config.signature_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
-      
+
       if namespace.is_none() || name.is_none() || signature.is_none() {
         return;
       }
-      
-      Self::shorten_type_or_method_name(namespace.unwrap() + "." + name.unwrap().as_str() + signature.unwrap().as_str())
+
+      let shortened_name = Self::shorten_type_or_method_name(namespace.unwrap() + "." + name.unwrap().as_str() + signature.unwrap().as_str());
+      if let Some(prefix) = config.prefix.as_ref().cloned() {
+        prefix + shortened_name.as_str()
+      } else {
+        shortened_name
+      }
     } else {
       return;
     };
-    
+
     event.set_name(shortened_name);
   }
 }
@@ -344,5 +352,6 @@ struct ProcessedMethodStartEndConfig {
   event_regex: Regex,
   namespace_attr: String,
   name_attr: String,
-  signature_attr: String
+  signature_attr: String,
+  prefix: Option<String>
 }
