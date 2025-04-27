@@ -55,6 +55,8 @@ pub fn prepare_software_log(
 
         new_trace.push(Rc::new(RefCell::new(new_event)));
         index = next_control_flow_event_index;
+      } else { 
+        index += 1;
       }
     }
     
