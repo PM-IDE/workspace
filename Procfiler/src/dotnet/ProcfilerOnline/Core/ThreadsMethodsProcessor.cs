@@ -101,9 +101,9 @@ public class ThreadsMethodsProcessor(
       targetFrame.InnerEvents.Add(eventRecord);
     }
 
-    ProcessMethodStartEndEvent(context);
-
     eventProcessingEntryPoint.Process(context);
+
+    ProcessMethodStartEndEvent(context);
   }
 
   private void ProcessMethodStartEndEvent(EventProcessingContext context)
