@@ -38,6 +38,8 @@ function updateNodesDimensions(cy: cytoscape.Core) {
       node.style('height', `${rect.height / cy.zoom()}px`);
     }
   });
+  
+  cy.layout(createDagreLayout()).run();
 }
 
 function setNodeRenderer(cy: cytoscape.Core, enhancement: SoftwareEnhancementKind) {
