@@ -1,4 +1,9 @@
-import {belongsToRootSequence, findAllRelatedTraceIds, getPerformanceAnnotationColor, MergedSoftwareData} from "../util";
+import {
+  belongsToRootSequence,
+  findAllRelatedTraceIds,
+  getPerformanceAnnotationColor,
+  MergedSoftwareData
+} from "../util";
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
 import tippy, {Instance, Props, Tippy} from "tippy.js";
@@ -82,7 +87,7 @@ function createNodeDisplayName(node: GraphNode, name: string): string {
       <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
           ${name}
       </div>
-    `; 
+    `;
 }
 
 function createAllocationsHistogram(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
@@ -92,7 +97,7 @@ function createAllocationsHistogram(softwareData: MergedSoftwareData, aggregated
 
     return createPieChart(toSortedArray(softwareData.allocations), color);
   }
-  
+
   return "";
 }
 
@@ -212,9 +217,11 @@ function createPatternInformation(node: GraphNode): string {
   let patternInfos = extractPatternsInfo(node);
   for (let [_, info] of patternInfos) {
     let baseSequence = info.baseSequence.map((c, index) => `
-        <div style="width: 20px; height: 20px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 0 : 1}px;"
+        <div style="width: 18px; height: 18px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 0 : 1}px;
+                    border-style: solid; border-width: 1px; border-color: ${getOrCreateColor(c)}"
+             class="graph-tooltip-hover"
              data-histogram-tooltip='${JSON.stringify([[c, 1]])}'
-             data-tooltip-event-type='mouseover'>     
+             data-tooltip-event-type='mouseover'>
         </div>
     `);
 

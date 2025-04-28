@@ -172,11 +172,7 @@ code {
   border-color: transparent;
 }
 
-.graph-node-histogram:hover {
-  border-color: white;
-}
-
-.graph-edge-histogram:hover {
+.graph-tooltip-hover:hover {
   border-color: white !important;
 }
 
