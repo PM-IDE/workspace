@@ -1,7 +1,7 @@
 import {belongsToRootSequence, findAllRelatedTraceIds, getPerformanceAnnotationColor, MergedSoftwareData} from "../util";
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
-import tippy from "tippy.js";
+import tippy, {Instance, Props, Tippy} from "tippy.js";
 import {getOrCreateColor} from "../../utils";
 import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
@@ -96,35 +96,55 @@ function createAllocationsHistogram(softwareData: MergedSoftwareData, aggregated
   return "";
 }
 
+addEventListener("mouseover", event => {
+  executeIfHasTooltip(event, (entries, element) => {
+    createTooltip(element, entries, undefined, false);
+  })
+})
+
 addEventListener("click", event => {
+  executeIfHasTooltip(event, (entries, element) => {
+    let tooltip = createTooltip(element, entries, "manual", true);
+    tooltip.show();
+  })
+});
+
+function executeIfHasTooltip(event: MouseEvent, handler: (entries: [string, number][], element: HTMLElement) => void) {
   let element = event.target;
 
   if (element instanceof HTMLElement) {
     let rawData = element.dataset.histogramTooltip;
 
-    if (rawData != null) {
+    if (rawData != null && event.type === element.dataset.tooltipEventType) {
       let histogramEntries: [string, number][] = JSON.parse(rawData);
+      handler(histogramEntries, element);
+    }
+  }
+}
 
-      let tooltip = tippy(element, {
-        appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
-        content: `
+function createTooltip(element: HTMLElement, histogramEntries: [string, number][], trigger: string, interactive: boolean): Instance {
+  let props = createTooltipBaseProps(histogramEntries);
+  props.trigger = trigger;
+  props.interactive = interactive;
+
+  return tippy(element, props);
+}
+
+function createTooltipBaseProps(histogramEntries: [string, number][]): Partial<Props> {
+  return {
+    appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
+    content: `
                 <div style="padding: 10px; background: black; color: white; border-radius: 5px; max-height: 300px; overflow: auto"
                      class="visible-scroll">
                     ${createEventClassesDescription(histogramEntries).join('\n')}
                 </div>
                `,
-        allowHTML: true,
-        zIndex: Number.MAX_VALUE,
-        duration: 0,
-        arrow: true,
-        trigger: 'manual',
-        interactive: true,
-      });
-
-      tooltip.show();
-    }
+    allowHTML: true,
+    zIndex: Number.MAX_VALUE,
+    duration: 0,
+    arrow: true,
   }
-});
+}
 
 function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [string, number][]): string {
   let nodeNameParts: string[] = [];
@@ -192,7 +212,10 @@ function createPatternInformation(node: GraphNode): string {
   let patternInfos = extractPatternsInfo(node);
   for (let [_, info] of patternInfos) {
     let baseSequence = info.baseSequence.map((c, index) => `
-        <div style="width: 20px; height: 20px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 0 : 1}px;"></div>
+        <div style="width: 20px; height: 20px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 0 : 1}px;"
+             data-histogram-tooltip='${JSON.stringify([[c, 1]])}'
+             data-tooltip-event-type='mouseover'>     
+        </div>
     `);
 
     let tracesIds = info.traces.map(t => t.traceId);

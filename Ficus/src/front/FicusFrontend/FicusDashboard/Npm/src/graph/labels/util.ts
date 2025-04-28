@@ -8,7 +8,8 @@ export function createPieChart(sortedHistogramEntries: [string, number][], perfo
        <div style='width: 64px; height: 64px;' class="graph-node-histogram">
           <div style="width: 100%; height: 100%; border-style: solid; 
                       border-width: 10px; border-color: ${performanceColor}; border-radius: 32px;"
-               data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
+               data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'
+               data-tooltip-event-type='click'>
             <svg-pie-chart style="pointer-events: none">
                 ${createPieChartEntries(sortedHistogramEntries).join('\n')}
             </svg-pie-chart>
@@ -52,7 +53,8 @@ export function createRectangleHistogram(sortedHistogramEntries: [string, number
     <div style="width: 100px; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;
                 border-style: solid; border-width: ${borderWidthPx}px; border-color: ${borderColor}"
          class="graph-edge-histogram"
-         data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
+         data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'
+         data-tooltip-event-type='click'>
         ${divs.join("\n")}
     </div>
   `
