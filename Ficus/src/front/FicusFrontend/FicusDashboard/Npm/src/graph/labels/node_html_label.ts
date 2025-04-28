@@ -1,38 +1,13 @@
-import {belongsToRootSequence, findAllRelatedTraceIds, getPerformanceAnnotationColor, MergedSoftwareData} from "./util";
-import {darkTheme, graphColors} from "../colors";
-import {nodeHeightPx, nodeWidthPx} from "./constants";
+import {belongsToRootSequence, findAllRelatedTraceIds, getPerformanceAnnotationColor, MergedSoftwareData} from "../util";
+import {darkTheme, graphColors} from "../../colors";
+import {nodeHeightPx, nodeWidthPx} from "../constants";
 import tippy from "tippy.js";
-import {getOrCreateColor} from "../utils";
-import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
-import {GrpcUnderlyingPatternKind} from "../protos/ficus/GrpcUnderlyingPatternKind";
+import {getOrCreateColor} from "../../utils";
+import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
+import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
+import {createPieChart, toSortedArray} from "./util";
 
 const graphColor = graphColors(darkTheme);
-
-export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhancementKind): string {
-  let softwareData = edge.softwareData;
-  if (softwareData == null) {
-    return "";
-  }
-
-  switch (enhancement) {
-    case SoftwareEnhancementKind.Allocations:
-      return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);
-    default:
-      return "";
-  }
-}
-
-function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  if (softwareData.allocations.size == 0) {
-    return "";
-  }
-
-  return `
-      <div>
-        ${createRectangleHistogram(toSortedArray(softwareData.allocations), aggregatedData)}
-      </div>
-    `
-}
 
 export function createNodeHtmlLabelId(frontendId: number): string {
   return `node-html-label-${frontendId}`;
@@ -40,11 +15,15 @@ export function createNodeHtmlLabelId(frontendId: number): string {
 
 export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhancementKind) {
   let softwareData = node.softwareData;
+  let label_id = createNodeHtmlLabelId(node.frontendId);
+
   if (softwareData == null) {
     return `
-        <div style='width: ${nodeWidthPx}px; height: ${nodeHeightPx}px; 
-                    background-color: ${graphColor.rootSequenceColor}'>
+        <div id="${label_id}">
             ${createNodeDisplayName(node, node.label)}
+            <div style='min-width: ${nodeWidthPx}px; min-height: ${nodeHeightPx}px;
+                background-color: ${graphColor.rootSequenceColor}'>
+            </div>
         </div>
     `;
   }
@@ -56,7 +35,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
   allTraceIds.sort((f, s) => f - s);
 
   return `
-          <div id="${createNodeHtmlLabelId(node.frontendId)}">
+          <div id="${label_id}">
             ${createNodeDisplayName(node, createNodeDisplayNameString(node, sortedHistogramEntries))}
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
@@ -117,55 +96,6 @@ function createAllocationsHistogram(softwareData: MergedSoftwareData, aggregated
   return "";
 }
 
-function toSortedArray(map: Map<string, number>): [string, number][] {
-  return [...map.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
-}
-
-function createPieChart(sortedHistogramEntries: [string, number][], performanceColor: string): string {
-  return `
-    <div style="display: flex; flex-direction: row;">
-       <div style='width: 64px; height: 64px;' class="graph-node-histogram">
-          <div style="width: 100%; height: 100%; border-style: solid; 
-                      border-width: 10px; border-color: ${performanceColor}; border-radius: 32px;"
-               data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
-            <svg-pie-chart style="pointer-events: none">
-                ${createPieChartEntries(sortedHistogramEntries).join('\n')}
-            </svg-pie-chart>
-          </div>
-       </div>
-    </div>
-  `
-}
-
-function createRectangleHistogram(sortedHistogramEntries: [string, number][], aggregatedData: AggregatedData): string {
-  let valuesSum: number = sortedHistogramEntries.map(x => x[1]).reduce((a, b) => a + b, 0);
-  let divs: string[] = [];
-
-  let heightPx = 35;
-  
-  for (let [type, count] of sortedHistogramEntries) {
-    divs.push(`
-      <div style="height: ${heightPx}px; width: ${(count / valuesSum) * 100}%; background-color: ${getOrCreateColor(type)};
-                  pointer-events: none;">
-      </div>
-    `);
-  }
-
-  let relativeAllocations: number = valuesSum / aggregatedData.totalAllocatedBytes;
-  let borderColor = getPerformanceAnnotationColor(relativeAllocations);
-
-  let borderWidthPx = 10;
-
-  return `
-    <div style="width: 100px; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;
-                border-style: solid; border-width: ${borderWidthPx}px; border-color: ${borderColor}"
-         class="graph-edge-histogram"
-         data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'>
-        ${divs.join("\n")}
-    </div>
-  `
-}
-
 addEventListener("click", event => {
   let element = event.target;
 
@@ -211,17 +141,6 @@ function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [s
   }
 
   return nodeNameParts.join("\n");
-}
-
-function createPieChartEntries(sortedHistogramEntries: [string, number][]) {
-  let summedCount = sortedHistogramEntries.map(entry => entry[1]).reduce((a, b) => a + b, 0);
-
-  return sortedHistogramEntries.map((entry) => {
-    let divWidth = (entry[1] / summedCount) * 100;
-    return `
-        <segment percent="${divWidth}" stroke="${getOrCreateColor(entry[0])}" />
-      `;
-  });
 }
 
 function createEventClassesDescription(sortedHistogramEntries: [string, number][]) {

@@ -1,7 +1,8 @@
 import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
 import dagre from 'cytoscape-dagre';
-import {createEdgeHtmlLabel, createNodeHtmlLabel, createNodeHtmlLabelId} from "./html_label";
+import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
+import {createEdgeHtmlLabel} from "./labels/edge_html_label";
 import {createGraphElementForDagre} from "./other_layouts";
 import {createDagreLayout} from "./util";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
@@ -38,7 +39,7 @@ function updateNodesDimensions(cy: cytoscape.Core) {
       node.style('height', `${rect.height / cy.zoom()}px`);
     }
   });
-  
+
   cy.layout(createDagreLayout()).run();
 }
 
