@@ -14,7 +14,13 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] method_inlining_success: Option<ExtractionConfig<MethodInliningSucceededConfig>>,
   #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedConfig>>,
 
-  #[getset(get = "pub", set = "pub")] sockets: Option<ExtractionConfig<SocketExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")] socket_connect_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
+  #[getset(get = "pub", set = "pub")] socket_connect_stop: Option<ExtractionConfig<()>>,
+  #[getset(get = "pub", set = "pub")] socket_accept_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
+  #[getset(get = "pub", set = "pub")] socket_accept_stop: Option<ExtractionConfig<()>>,
+
+  #[getset(get = "pub", set = "pub")] socket_connect_failed: Option<ExtractionConfig<SocketAcceptConnectFailedConfig>>,
+  #[getset(get = "pub", set = "pub")] socket_accept_failed: Option<ExtractionConfig<SocketAcceptConnectFailedConfig>>,
 
   #[getset(get = "pub", set = "pub")] thread_created: Option<ExtractionConfig<ThreadExtractionConfig>>,
 
@@ -43,7 +49,12 @@ impl SoftwareDataExtractionConfig {
       http: None,
       method_inlining_success: None,
       method_inlining_failed: None,
-      sockets: None,
+      socket_connect_start: None,
+      socket_connect_stop: None,
+      socket_accept_start: None,
+      socket_accept_stop: None,
+      socket_connect_failed: None,
+      socket_accept_failed: None,
       thread_created: None,
       array_pool_array_created: None,
       array_pool_array_rented: None,
@@ -147,8 +158,14 @@ pub struct MethodInliningFailedConfig {
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
-pub struct SocketExtractionConfig {
+pub struct SocketConnectAcceptStartConfig {
   #[getset(get = "pub")] address_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct SocketAcceptConnectFailedConfig {
+  #[getset(get = "pub")] error_code_attr: String,
+  #[getset(get = "pub")] error_message_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

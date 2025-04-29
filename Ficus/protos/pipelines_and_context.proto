@@ -318,7 +318,38 @@ message GrpcContentionEvent {
 }
 
 message GrpcSocketEvent {
+  oneof event {
+    GrpcSocketConnectStart connect_start = 1; 
+    GrpcSocketAcceptStart accept_start = 2;
+    
+    GrpcSocketConnectStop connect_stop = 3;
+    GrpcSocketAcceptStop accept_stop = 4;
+    
+    GrpcSocketConnectFailed connect_failed = 5;
+    GrpcSocketAcceptFailed accept_failed = 6;
+  }
+}
+
+message GrpcSocketAcceptStart {
   string address = 1;
+}
+
+message GrpcSocketConnectStart {
+  string address = 1;
+}
+
+message GrpcSocketConnectStop {}
+
+message GrpcSocketAcceptStop {}
+
+message GrpcSocketConnectFailed {
+  string error_code = 1;
+  string error_message = 2;
+}
+
+message GrpcSocketAcceptFailed {
+  string error_code = 1;
+  string error_message = 2;
 }
 
 message GrpcHistogramEntry {

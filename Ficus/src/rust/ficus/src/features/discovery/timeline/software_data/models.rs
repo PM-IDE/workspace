@@ -118,7 +118,23 @@ pub struct ContentionEvent {
   #[getset(get = "pub")] end_time: u64,
 }
 
+#[derive(Clone, Debug)]
+pub enum SocketEvent {
+  ConnectStart(SocketConnectAcceptStartMetadata),
+  ConnectStop,
+  AcceptStart(SocketConnectAcceptStartMetadata),
+  AcceptStop,
+  ConnectFailed(SocketConnectAcceptFailedMetadata),
+  AcceptFailed(SocketConnectAcceptFailedMetadata)
+}
+
 #[derive(Clone, Debug, Getters, new)]
-pub struct SocketEvent {
+pub struct SocketConnectAcceptStartMetadata {
   #[getset(get = "pub")] address: String,
+}
+
+#[derive(Clone, Debug, Getters, new)]
+pub struct SocketConnectAcceptFailedMetadata {
+  #[getset(get = "pub")] error_code: String,
+  #[getset(get = "pub")] error_message: String
 }

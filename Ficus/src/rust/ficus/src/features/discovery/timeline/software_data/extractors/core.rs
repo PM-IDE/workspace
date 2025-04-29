@@ -90,3 +90,17 @@ pub(super) fn prepare_configs<'a, TConfig: Clone + Debug, TEnum: Clone>(
   
   Ok(result)
 }
+
+pub(super) fn prepare_functional_configs<TData: Clone>(
+  configs: &[(Option<&String>, TData)]
+) -> Result<Vec<(Regex, TData)>, SoftwareDataExtractionError> {
+  let mut result = vec![];
+
+  for config in configs {
+    if let Some(regex) = regex_option_or_err(config.0)? {
+      result.push((regex, config.1.clone()))
+    }
+  }
+
+  Ok(result)
+}
