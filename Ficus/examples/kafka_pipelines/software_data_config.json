@@ -10,22 +10,113 @@
   "method_start": {
     "event_class_regex": "ProcfilerMethod/Begin",
     "info": {
-      "fqn": "",
-      "name_attr": "MethodName",
-      "namespace_attr": "MethodNamespace",
-      "signature_attr": "MethodSignature",
+      "method_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      },
       "prefix": "MethodStart_"
     }
   },
   "method_end": {
     "event_class_regex": "ProcfilerMethod/End",
     "info": {
-      "fqn": "",
-      "name_attr": "MethodName",
-      "namespace_attr": "MethodNamespace",
-      "signature_attr": "MethodSignature",
+      "method_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      },
       "prefix": "MethodEnd_"
     }
+  },
+  "method_inlining_success": {
+    "event_class_regex": "Method/InliningSucceeded",
+    "info": {
+      "inlinee_method_attrs": {
+        "name_attr": "InlineeName",
+        "namespace_attr": "InlineeNamespace",
+        "signature_attr": "InlineeSignature"
+      },
+      "inliner_method_attrs": {
+        "name_attr": "InlinerName",
+        "namespace_attr": "InlinerNamespace",
+        "signature_attr": "InlinerSignature"
+      }
+    }
+  },
+  "method_inlining_failed": {
+    "event_class_regex": "Method/InliningFailed",
+    "info": {
+      "inlinee_method_attrs": {
+        "name_attr": "InlineeName",
+        "namespace_attr": "InlineeNamespace",
+        "signature_attr": "InlineeSignature"
+      },
+      "inliner_method_attrs": {
+        "name_attr": "InlinerName",
+        "namespace_attr": "InlinerNamespace",
+        "signature_attr": "InlinerSignature"
+      },
+      "fail_reason_attr": "FailReason"
+    }
+  },
+  "sockets": {
+    "event_class_regex": "ProcfilerMethod/Begin",
+    "info": {
+      "address_attr": "Address"
+    }
+  },
+  "thread_created": {
+    "event_class_regex": "AppDomainResourceManagement/ThreadCreated",
+    "info": {
+      "thread_id_attr": "NativeThreadId"
+    }
+  },
+  "array_pool_array_created": {
+    "event_class_regex": "Buffer/Allocated",
+    "info": {
+      "buffer_id_attr": "bufferId"
+    }
+  },
+  "array_pool_array_rented": {
+    "event_class_regex": "Buffer/Rented",
+    "info": {
+      "buffer_id_attr": "bufferId"
+    }
+  },
+  "array_pool_array_returned": {
+    "event_class_regex": "Buffer/Returned",
+    "info": {
+      "buffer_id_attr": "bufferId"
+    }
+  },
+  "array_pool_array_trimmed": {
+    "event_class_regex": "Buffer/Trimmed",
+    "info": {
+      "buffer_id_attr": "bufferId"
+    }
+  },
+  "assembly_load": {
+    "event_class_regex": "Loader/AssemblyLoad",
+    "info": {
+      "assembly_name_attr": "FullyQualifiedAssemblyName"
+    }
+  },
+  "assembly_unload": {
+    "event_class_regex": "Loader/AssemblyUnload",
+    "info": {
+      "assembly_name_attr": "FullyQualifiedAssemblyName"
+    }
+  },
+  "suspend_ee": {
+    "event_class_regex": "GC/SuspendEE",
+    "info": {
+      "reason_attr": "Reason"
+    }
+  },
+  "restart_ee": {
+    "event_class_regex": "GC/RestartEE",
+    "info": {}
   },
   "raw_control_flow_regexes": [
     "MethodEnd_",
