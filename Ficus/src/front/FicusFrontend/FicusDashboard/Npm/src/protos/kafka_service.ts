@@ -83,6 +83,8 @@ export interface ProtoGrpcType {
     GrpcMatrixRow: MessageTypeDefinition
     GrpcMethodInliningEvent: MessageTypeDefinition
     GrpcMethodInliningFailedEvent: MessageTypeDefinition
+    GrpcMethodInliningInfo: MessageTypeDefinition
+    GrpcMethodNameParts: MessageTypeDefinition
     GrpcNamesEventLog: MessageTypeDefinition
     GrpcNamesEventLogContextValue: MessageTypeDefinition
     GrpcNamesTrace: MessageTypeDefinition
@@ -114,6 +116,12 @@ export interface ProtoGrpcType {
     GrpcSimpleContextRequestPipelinePart: MessageTypeDefinition
     GrpcSimpleEventLog: MessageTypeDefinition
     GrpcSimpleTrace: MessageTypeDefinition
+    GrpcSocketAcceptFailed: MessageTypeDefinition
+    GrpcSocketAcceptStart: MessageTypeDefinition
+    GrpcSocketAcceptStop: MessageTypeDefinition
+    GrpcSocketConnectFailed: MessageTypeDefinition
+    GrpcSocketConnectStart: MessageTypeDefinition
+    GrpcSocketConnectStop: MessageTypeDefinition
     GrpcSocketEvent: MessageTypeDefinition
     GrpcSoftwareData: MessageTypeDefinition
     GrpcStringKeyValue: MessageTypeDefinition

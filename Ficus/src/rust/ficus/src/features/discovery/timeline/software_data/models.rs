@@ -54,10 +54,23 @@ pub struct ExecutionSuspensionEvent {
 
 #[derive(Clone, Debug)]
 pub enum MethodEvent {
-  InliningSuccess(String),
-  InliningFailed(String, String),
+  InliningSuccess(MethodInliningData),
+  InliningFailed(MethodInliningData, String),
   Load(String),
   Unload(String),
+}
+
+#[derive(Clone, Debug, Getters, new)]
+pub struct MethodInliningData {
+  #[getset(get = "pub")] inlinee_info: MethodNameParts,
+  #[getset(get = "pub")] inliner_info: MethodNameParts,
+}
+
+#[derive(Clone, Debug, Getters, new)]
+pub struct MethodNameParts {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] namespace: String,
+  #[getset(get = "pub")] signature: String,
 }
 
 #[derive(Clone, Debug, Getters, new)]

@@ -143,14 +143,18 @@ pub struct MethodInliningSuccessExtractionConfig {}
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodInliningSucceededConfig {
+  #[getset(get = "pub")] inlining_config: MethodInliningConfig
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct MethodInliningConfig {
   #[getset(get = "pub")] inlinee_method_attrs: MethodCommonAttributes,
   #[getset(get = "pub")] inliner_method_attrs: MethodCommonAttributes,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodInliningFailedConfig {
-  #[getset(get = "pub")] inlinee_method_attrs: MethodCommonAttributes,
-  #[getset(get = "pub")] inliner_method_attrs: MethodCommonAttributes,
+  #[getset(get = "pub")] inlining_config: MethodInliningConfig,
   #[getset(get = "pub")] fail_reason_attr: String,
 }
 
