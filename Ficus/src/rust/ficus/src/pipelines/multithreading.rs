@@ -314,9 +314,9 @@ impl PipelineParts {
 
       Ok(Some(ProcessedMethodStartEndConfig {
         event_regex: regex,
-        name_attr: config.info().name_attr().to_owned(),
-        signature_attr: config.info().signature_attr().to_owned(),
-        namespace_attr: config.info().namespace_attr().to_owned(),
+        name_attr: config.info().method_attrs().name_attr().to_owned(),
+        signature_attr: config.info().method_attrs().signature_attr().to_owned(),
+        namespace_attr: config.info().method_attrs().namespace_attr().to_owned(),
         prefix: config.info().prefix().as_ref().cloned()
       }))
     } else {
@@ -334,7 +334,7 @@ impl PipelineParts {
         return;
       }
 
-      let shortened_name = Self::shorten_type_or_method_name(namespace.unwrap() + "." + name.unwrap().as_str() + signature.unwrap().as_str());
+      let shortened_name = Self::shorten_type_or_method_name(namespace.unwrap() + "." + name.unwrap().as_str()) + signature.unwrap().as_str();
       if let Some(prefix) = config.prefix.as_ref().cloned() {
         prefix + shortened_name.as_str()
       } else {

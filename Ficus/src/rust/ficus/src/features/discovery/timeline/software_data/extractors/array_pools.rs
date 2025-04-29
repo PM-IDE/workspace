@@ -48,7 +48,7 @@ impl<'a> ArrayPoolDataExtractor<'a> {
   ) -> Result<Option<ArrayPoolEvent>, SoftwareDataExtractionError> {
     if regex.is_match(event.borrow().name()).unwrap_or(false) {
       if let Some(payload) = event.borrow().payload_map() {
-        if let Some(buffer_id) = payload.get(config.buffer_id().as_str()) {
+        if let Some(buffer_id) = payload.get(config.buffer_id_attr().as_str()) {
           let buffer_id = parse_or_err(buffer_id.to_string_repr().as_str())?;
           return Ok(Some(ArrayPoolEvent::new(buffer_id, event_kind)));
         }

@@ -17,7 +17,6 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] sockets: Option<ExtractionConfig<SocketExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")] thread_created: Option<ExtractionConfig<ThreadExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] thread_terminated: Option<ExtractionConfig<ThreadExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")] array_pool_array_created: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] array_pool_array_rented: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
@@ -46,7 +45,6 @@ impl SoftwareDataExtractionConfig {
       method_inlining_failed: None,
       sockets: None,
       thread_created: None,
-      thread_terminated: None,
       array_pool_array_created: None,
       array_pool_array_rented: None,
       array_pool_array_returned: None,
@@ -85,15 +83,20 @@ impl SoftwareDataExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodStartEndConfig {
-  #[getset(get = "pub")] name_attr: String,
-  #[getset(get = "pub")] namespace_attr: String,
-  #[getset(get = "pub")] signature_attr: String,
+  #[getset(get = "pub")] method_attrs: MethodCommonAttributes,
   #[getset(get = "pub")] prefix: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct MethodCommonAttributes {
+  #[getset(get = "pub")] name_attr: String,
+  #[getset(get = "pub")] namespace_attr: String,
+  #[getset(get = "pub")] signature_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SuspendEEConfig {
-  #[getset(get = "pub")] reason: String
+  #[getset(get = "pub")] reason_attr: String
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -132,13 +135,15 @@ pub struct MethodInliningSuccessExtractionConfig {}
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodInliningSucceededConfig {
-  #[getset(get = "pub")] method_name_attr: String,
+  #[getset(get = "pub")] inlinee_method_attrs: MethodCommonAttributes,
+  #[getset(get = "pub")] inliner_method_attrs: MethodCommonAttributes,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodInliningFailedConfig {
-  #[getset(get = "pub")] method_name_attr: String,
-  #[getset(get = "pub")] reason_attr: String,
+  #[getset(get = "pub")] inlinee_method_attrs: MethodCommonAttributes,
+  #[getset(get = "pub")] inliner_method_attrs: MethodCommonAttributes,
+  #[getset(get = "pub")] fail_reason_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -153,10 +158,10 @@ pub struct ThreadExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ArrayPoolExtractionConfig {
-  #[getset(get = "pub")] buffer_id: String,
+  #[getset(get = "pub")] buffer_id_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct AssemblyExtractionConfig {
-  #[getset(get = "pub")] name_attr: String,
+  #[getset(get = "pub")] asembly_name_attr: String,
 }

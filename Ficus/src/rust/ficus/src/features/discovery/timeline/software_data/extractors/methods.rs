@@ -22,7 +22,7 @@ impl<'a> SoftwareDataExtractor for MethodsDataExtractor<'a> {
       if let Some(payload) = event.borrow().payload_map() {
         if let Some(inlining_succeeded_regex) = inlining_succeeded_regex.as_ref() {
           if inlining_succeeded_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
-            let method_name_attr = self.config.method_inlining_success().as_ref().unwrap().info().method_name_attr();
+            let method_name_attr = self.config.method_inlining_success().as_ref().unwrap().info().inlinee_method_attrs().name_attr();
             if let Some(method_name) = payload_value_or_none(payload, method_name_attr) {
               software_data.method_events_mut().push(MethodEvent::InliningSuccess(method_name));
             }
@@ -33,8 +33,8 @@ impl<'a> SoftwareDataExtractor for MethodsDataExtractor<'a> {
 
         if let Some(inlining_failed_regex) = inlining_failed_regex.as_ref() {
           if inlining_failed_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
-            let method_name_attr = self.config.method_inlining_failed().as_ref().unwrap().info().method_name_attr();
-            let failed_reason_attr = self.config.method_inlining_failed().as_ref().unwrap().info().reason_attr();
+            let method_name_attr = self.config.method_inlining_failed().as_ref().unwrap().info().inlinee_method_attrs().name_attr();
+            let failed_reason_attr = self.config.method_inlining_failed().as_ref().unwrap().info().fail_reason_attr();
 
             let method_name = payload_value_or_none(payload, method_name_attr);
             let failed_reason = payload_value_or_none(payload, failed_reason_attr);
