@@ -68,17 +68,17 @@
   },
   "socket_connect_stop": {
     "event_class_regex": "Connect/Stop",
+    "info": null
+  },
+  "socket_accept_start": {
+    "event_class_regex": "Accept/Start",
     "info": {
       "address_attr": "address"
     }
   },
-  "socket_accept_start": {
-    "event_class_regex": "Accept/Start",
-    "info": {}
-  },
   "socket_accept_stop": {
     "event_class_regex": "Accept/Stop",
-    "info": {}
+    "info": null
   },
   "socket_connect_failed": {
     "event_class_regex": "ConnectFailed",
@@ -144,7 +144,7 @@
   },
   "restart_ee": {
     "event_class_regex": "GC/RestartEE",
-    "info": {}
+    "info": null
   },
   "raw_control_flow_regexes": [
     "MethodEnd_",

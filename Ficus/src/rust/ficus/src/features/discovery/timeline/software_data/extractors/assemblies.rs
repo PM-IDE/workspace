@@ -28,7 +28,7 @@ impl<'a> SoftwareDataExtractor for AssemblySoftwareDataExtractor<'a> {
       for (regex, info, kind) in &configs {
         if regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
           if let Some(payload) = event.borrow().payload_map() {
-            if let Some(assembly_name) = payload.get(info.asembly_name_attr()) {
+            if let Some(assembly_name) = payload.get(info.assembly_name_attr()) {
               let event = AssemblyEvent::new(assembly_name.to_string_repr().as_str().to_owned(), kind.clone());
               software_data.assembly_events_mut().push(event);
             }

@@ -33,7 +33,7 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] assembly_unload: Option<ExtractionConfig<AssemblyExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")] suspend_ee: Option<ExtractionConfig<SuspendEEConfig>>,
-  #[getset(get = "pub", set = "pub")] restart_ee: Option<ExtractionConfig<RestartEEConfig>>,
+  #[getset(get = "pub", set = "pub")] restart_ee: Option<ExtractionConfig<()>>,
 
   #[getset(get = "pub", set = "pub")] method_start: Option<ExtractionConfig<MethodStartEndConfig>>,
   #[getset(get = "pub", set = "pub")] method_end: Option<ExtractionConfig<MethodStartEndConfig>>,
@@ -111,9 +111,6 @@ pub struct SuspendEEConfig {
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
-pub struct RestartEEConfig {}
-
-#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ExtractionConfig<TConcreteInfo: Clone + Debug> {
   #[getset(get = "pub")] event_class_regex: String,
   #[getset(get = "pub")] info: TConcreteInfo,
@@ -180,5 +177,5 @@ pub struct ArrayPoolExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct AssemblyExtractionConfig {
-  #[getset(get = "pub")] asembly_name_attr: String,
+  #[getset(get = "pub")] assembly_name_attr: String,
 }
