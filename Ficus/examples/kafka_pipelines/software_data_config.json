@@ -60,10 +60,38 @@
       "fail_reason_attr": "FailReason"
     }
   },
-  "sockets": {
-    "event_class_regex": "ProcfilerMethod/Begin",
+  "socket_connect_start": {
+    "event_class_regex": "Connect/Start",
     "info": {
-      "address_attr": "Address"
+      "address_attr": "address"
+    }
+  },
+  "socket_connect_stop": {
+    "event_class_regex": "Connect/Stop",
+    "info": {
+      "address_attr": "address"
+    }
+  },
+  "socket_accept_start": {
+    "event_class_regex": "Accept/Start",
+    "info": {}
+  },
+  "socket_accept_stop": {
+    "event_class_regex": "Accept/Stop",
+    "info": {}
+  },
+  "socket_connect_failed": {
+    "event_class_regex": "ConnectFailed",
+    "info": {
+      "error_code_attr": "error",
+      "error_message_attr": "exceptionMessage"
+    }
+  },
+  "socket_accept_failed": {
+    "event_class_regex": "AcceptFailed",
+    "info": {
+      "error_code_attr": "error",
+      "error_message_attr": "exceptionMessage"
     }
   },
   "thread_created": {
