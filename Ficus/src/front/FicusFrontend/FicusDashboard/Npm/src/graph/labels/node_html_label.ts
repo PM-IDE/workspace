@@ -49,15 +49,14 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
               </div>
 
               <div style="padding-left: 10px;">
-                <div style="display: flex; flex-direction: column; margin-top: 10px;">
+                <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
                   ${createEventClassesPieChart(softwareData.histogram)}
                   ${createNodeEnhancement(enhancement, softwareData, node.aggregatedData)}
+                  ${isPatternNode(node) ? createPatternInformation(node) : ""}
                 </div>
 
-                ${isPatternNode(node) ? createPatternInformation(node) : ""}
-
                 <div style="display: flex; flex-direction: row;">
-                    ${createTracesDescription(allTraceIds).join("\n")}
+                  ${createTracesDescription(allTraceIds).join("\n")}
                 </div>
               </div>
             </div>
@@ -106,6 +105,10 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
 }
 
 function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.inliningSucceeded.size == 0 && softwareData.inliningFailed.size == 0 && softwareData.inliningFailedReasons.size == 0) {
+    return "";
+  }
+
   return `
     <div style="display: flex; flex-direction: row;">
       ${createSoftwareEnhancementHistogram("Succeeded", softwareData.inliningSucceeded)} 
@@ -297,7 +300,7 @@ function createPatternInformation(node: GraphNode): string {
   let propertyIndex = <number><unknown>node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind;
 
   return `
-    <div style="margin-top: 10px;" class="graph-content-container">
+    <div class="graph-content-container">
       <div style="display: flex; flex-direction: row;" class="graph-title-label">
         <div>Pattern type:</div>
         <div style="margin-left: 5px;">${Object.values(GrpcUnderlyingPatternKind)[propertyIndex]}</div>
