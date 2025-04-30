@@ -32,30 +32,34 @@
   "method_inlining_success": {
     "event_class_regex": "Method/InliningSucceeded",
     "info": {
-      "inlinee_method_attrs": {
-        "name_attr": "InlineeName",
-        "namespace_attr": "InlineeNamespace",
-        "signature_attr": "InlineeSignature"
-      },
-      "inliner_method_attrs": {
-        "name_attr": "InlinerName",
-        "namespace_attr": "InlinerNamespace",
-        "signature_attr": "InlinerSignature"
+      "inlining_config": {
+        "inlinee_method_attrs": {
+          "name_attr": "InlineeName",
+          "namespace_attr": "InlineeNamespace",
+          "signature_attr": "InlineeSignature"
+        },
+        "inliner_method_attrs": {
+          "name_attr": "InlinerName",
+          "namespace_attr": "InlinerNamespace",
+          "signature_attr": "InlinerSignature"
+        }
       }
     }
   },
   "method_inlining_failed": {
     "event_class_regex": "Method/InliningFailed",
     "info": {
-      "inlinee_method_attrs": {
-        "name_attr": "InlineeName",
-        "namespace_attr": "InlineeNamespace",
-        "signature_attr": "InlineeSignature"
-      },
-      "inliner_method_attrs": {
-        "name_attr": "InlinerName",
-        "namespace_attr": "InlinerNamespace",
-        "signature_attr": "InlinerSignature"
+      "inlining_config": {
+        "inlinee_method_attrs": {
+          "name_attr": "InlineeName",
+          "namespace_attr": "InlineeNamespace",
+          "signature_attr": "InlineeSignature"
+        },
+        "inliner_method_attrs": {
+          "name_attr": "InlinerName",
+          "namespace_attr": "InlinerNamespace",
+          "signature_attr": "InlinerSignature"
+        }
       },
       "fail_reason_attr": "FailReason"
     }
