@@ -71,7 +71,7 @@ function createEventClassesPieChart(data: Map<string, number>) {
   }
 
   return `
-    <div>
+    <div class="graph-title-label">
       Event classes:
     </div>
     <div>
@@ -87,8 +87,10 @@ function createNodeEnhancement(enhancement: SoftwareEnhancementKind, softwareDat
   }
 
   return `
-    <div>${SoftwareEnhancementKind[enhancement]}:</div>
-    ${enhancementHtml}
+    <div class="graph-content-container">
+      <div class="graph-title-label" style="margin-bottom: 5px;">${SoftwareEnhancementKind[enhancement]}:</div>
+      ${enhancementHtml}
+    </div>
   `;
 }
 
@@ -120,7 +122,7 @@ function createSoftwareEnhancementHistogram(title: string, data: Map<string, num
 
   return `
       <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div>${title}</div>
+        <div class="graph-title-label graph-title-label-lighter">${title}</div>
         ${createPieChart(toSortedArray(data), null)}
       </div>
   `;
@@ -295,9 +297,10 @@ function createPatternInformation(node: GraphNode): string {
   let propertyIndex = <number><unknown>node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind;
 
   return `
-    <div style="margin-top: 5px;">
-      <div>
-        Pattern type: ${Object.values(GrpcUnderlyingPatternKind)[propertyIndex]}
+    <div style="margin-top: 10px;" class="graph-content-container">
+      <div style="display: flex; flex-direction: row;" class="graph-title-label">
+        <div>Pattern type:</div>
+        <div style="margin-left: 5px;">${Object.values(GrpcUnderlyingPatternKind)[propertyIndex]}</div>
       </div>
       <div>
         ${patterns.join("\n")}

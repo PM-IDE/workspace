@@ -184,3 +184,27 @@ svg-pie-chart svg {
   padding: 5px;
   background: transparent;
 }
+
+.graph-title-label {
+  background: #3b3b3b;
+  border-radius: 5px;
+  height: 30px;
+  width: fit-content;
+  color: white;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.graph-title-label-lighter {
+  background: #5d5d5d;
+}
+
+.graph-content-container {
+  background: #5d5d5d;
+  width: fit-content;
+  height: fit-content;
+  padding: 5px;
+  border-radius: 5px;
+}

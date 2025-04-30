@@ -32,10 +32,10 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
 
 function createMethodsInliningEnhancements(softwareData: MergedSoftwareData): string {
   return `
-    <div style="display: flex; flex-direction: row;">
+    <div style="display: flex; flex-direction: row; margin-top: -30px;">
       ${createSoftwareEnhancementPart("Succeeded", softwareData.inliningSucceeded)} 
       ${createSoftwareEnhancementPart("Failed", softwareData.inliningFailed)} 
-      ${createSoftwareEnhancementPart("Failed Reasons", softwareData.inliningFailedReasons)} 
+      ${createSoftwareEnhancementPart("Reasons", softwareData.inliningFailedReasons)} 
     </div>
   `
 }
@@ -47,8 +47,8 @@ function createSoftwareEnhancementPart(title: string, data: Map<string, number>)
 
   return `
     <div>
-      <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div>${title}</div>
+      <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div class="graph-title-label">${title}</div>
         ${createRectangleHistogram(toSortedArray(data), null)}
       </div>
     </div>
