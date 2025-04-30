@@ -36,12 +36,12 @@
         "inlinee_method_attrs": {
           "name_attr": "InlineeName",
           "namespace_attr": "InlineeNamespace",
-          "signature_attr": "InlineeSignature"
+          "signature_attr": "InlineeNameSignature"
         },
         "inliner_method_attrs": {
           "name_attr": "InlinerName",
           "namespace_attr": "InlinerNamespace",
-          "signature_attr": "InlinerSignature"
+          "signature_attr": "InlinerNameSignature"
         }
       }
     }
@@ -53,12 +53,12 @@
         "inlinee_method_attrs": {
           "name_attr": "InlineeName",
           "namespace_attr": "InlineeNamespace",
-          "signature_attr": "InlineeSignature"
+          "signature_attr": "InlineeNameSignature"
         },
         "inliner_method_attrs": {
           "name_attr": "InlinerName",
           "namespace_attr": "InlinerNamespace",
-          "signature_attr": "InlinerSignature"
+          "signature_attr": "InlinerNameSignature"
         }
       },
       "fail_reason_attr": "FailReason"

@@ -72,7 +72,6 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
   };
 
   for (let softwareData of originalSoftwareData) {
-    console.log(softwareData.methodsInliningEvents);
     for (let entry of softwareData.histogram) {
       let [name, count] = [entry.name, entry.count];
       increment(mergedSoftwareData.histogram, name, count);
@@ -86,15 +85,11 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     }
 
     for (let inliningEvent of softwareData.methodsInliningEvents) {
-      switch (inliningEvent.event) {
-        case "succeeded":
-          increment(mergedSoftwareData.inliningSucceeded, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
-          break;
-        case "failed":
-          increment(mergedSoftwareData.inliningFailed, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
-          increment(mergedSoftwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
-          break;
-
+      if (inliningEvent.failed != null) {
+        increment(mergedSoftwareData.inliningFailed, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
+        increment(mergedSoftwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
+      } else if (inliningEvent.succeeded != null) {
+        increment(mergedSoftwareData.inliningSucceeded, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
       }
     }
   }
