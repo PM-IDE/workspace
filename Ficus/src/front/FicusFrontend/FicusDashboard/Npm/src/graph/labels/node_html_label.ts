@@ -6,7 +6,7 @@ import {
 } from "../util";
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
-import tippy, {Instance, Props, Tippy} from "tippy.js";
+import tippy, {Instance, Props} from "tippy.js";
 import {getOrCreateColor} from "../../utils";
 import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
@@ -48,10 +48,11 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
                     ${node.executionTime}
                 </div>
 
-                <div style="display: flex; flex-direction: row; margin-top: 10px;">
+                <div style="display: flex; flex-direction: column; margin-top: 10px;">
                     <div>
                         ${createPieChart(sortedHistogramEntries, null)}
                     </div>
+                    <div>${SoftwareEnhancementKind[enhancement]}</div>
                     ${createNodeEnhancement(softwareData, node.aggregatedData, enhancement)}
                 </div>
 
@@ -69,14 +70,39 @@ function createNodeEnhancement(softwareData: MergedSoftwareData, aggregatedData:
   switch (enhancement) {
     case SoftwareEnhancementKind.Allocations:
       return createNodeAllocationsEnhancement(softwareData, aggregatedData);
+    case SoftwareEnhancementKind.MethodsInlinings:
+      return createMethodsInliningEnhancement(softwareData);
     default:
       return "";
   }
 }
 
+function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): string {
+  return `
+    <div style="display: flex; flex-direction: row;">
+      ${createSoftwareEnhancementHistogram("Succeeded", softwareData.inliningSucceeded)} 
+      ${createSoftwareEnhancementHistogram("Failed", softwareData.inliningFailed)} 
+      ${createSoftwareEnhancementHistogram("Failed Reasons", softwareData.inliningFailedReasons)} 
+    </div>
+  `;
+}
+
+function createSoftwareEnhancementHistogram(title: string, data: Map<string, number>) {
+  if (data.size == 0) {
+    return "";
+  }
+
+  return `
+      <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div>${title}</div>
+        ${createPieChart(toSortedArray(data), null)}
+      </div>
+  `;
+}
+
 function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
   return `
-    <div style="margin-left: 10px;">
+    <div>
         ${createAllocationsHistogram(softwareData, aggregatedData)}
     </div>
   `

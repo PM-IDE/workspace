@@ -1,4 +1,3 @@
-import {AggregatedData} from "../types";
 import {getOrCreateColor} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
 
@@ -30,7 +29,7 @@ function createPieChartEntries(sortedHistogramEntries: [string, number][]) {
   });
 }
 
-export function createRectangleHistogram(sortedHistogramEntries: [string, number][], aggregatedData: AggregatedData): string {
+export function createRectangleHistogram(sortedHistogramEntries: [string, number][], totalSum: number | null): string {
   let valuesSum: number = sortedHistogramEntries.map(x => x[1]).reduce((a, b) => a + b, 0);
   let divs: string[] = [];
 
@@ -44,8 +43,12 @@ export function createRectangleHistogram(sortedHistogramEntries: [string, number
     `);
   }
 
-  let relativeAllocations: number = valuesSum / aggregatedData.totalAllocatedBytes;
-  let borderColor = getPerformanceAnnotationColor(relativeAllocations);
+  let borderColor = null;
+
+  if (totalSum != null) {
+    let relativeAllocations: number = valuesSum / totalSum;
+    borderColor = getPerformanceAnnotationColor(relativeAllocations);
+  }
 
   let borderWidthPx = 10;
 
