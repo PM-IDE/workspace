@@ -7,6 +7,7 @@ import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
 import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
+import {GrpcMethodNameParts} from "../protos/ficus/GrpcMethodNameParts";
 
 export function createDagreLayout() {
   return {
@@ -42,6 +43,9 @@ export interface MergedSoftwareData {
   histogram: Map<string, number>,
   timelineDiagramFragments: GrpcTimelineDiagramFragment[],
   allocations: Map<string, number>,
+  inliningFailed: Map<string, number>,
+  inliningSucceeded: Map<string, number>,
+  inliningFailedReasons: Map<string, number>,
 }
 
 export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge): MergedSoftwareData {
@@ -62,9 +66,13 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     histogram: new Map(),
     timelineDiagramFragments: [],
     allocations: new Map(),
+    inliningFailed: new Map(),
+    inliningSucceeded: new Map(),
+    inliningFailedReasons: new Map(),
   };
 
   for (let softwareData of originalSoftwareData) {
+    console.log(softwareData.methodsInliningEvents);
     for (let entry of softwareData.histogram) {
       let [name, count] = [entry.name, entry.count];
       increment(mergedSoftwareData.histogram, name, count);
@@ -76,9 +84,26 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
       let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
       increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);
     }
+
+    for (let inliningEvent of softwareData.methodsInliningEvents) {
+      switch (inliningEvent.event) {
+        case "succeeded":
+          increment(mergedSoftwareData.inliningSucceeded, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
+          break;
+        case "failed":
+          increment(mergedSoftwareData.inliningFailed, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
+          increment(mergedSoftwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
+          break;
+
+      }
+    }
   }
 
   return mergedSoftwareData;
+}
+
+function restoreFqn(data: GrpcMethodNameParts) {
+  return data.namespace + "." + data.name + "[" + data.signature + "]";
 }
 
 function increment(map: Map<string, number>, key: string, value: number) {

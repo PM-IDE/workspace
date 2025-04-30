@@ -28,7 +28,8 @@ export interface AggregatedData {
 export enum SoftwareEnhancementKind {
   Allocations,
   Exceptions,
-  Methods,
+  MethodsLoadUnload,
+  MethodsInlinings,
   ArrayPools,
   Http,
   Sockets,

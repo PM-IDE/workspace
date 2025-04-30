@@ -10,13 +10,15 @@
     <DropdownMenu>
       @foreach (var kind in Enum.GetValues<SoftwareGraphEnhancementKind>())
       {
-        <DropdownItem Type="DropdownItemType.Button" @onclick="() => HandleEnhancementSelection(kind)">@kind.ToString()</DropdownItem>
+        <DropdownItem Type="DropdownItemType.Button"
+                      @onclick="() => HandleEnhancementSelection(kind)">@kind.ToString()</DropdownItem>
       }
     </DropdownMenu>
   </Dropdown>
 </div>
 
-<CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas" FileNameCreator="CreateExportFileName"/>
+<CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"
+                 FileNameCreator="CreateExportFileName"/>
 
 @code
 {
@@ -24,13 +26,14 @@
   {
     Allocations,
     Exceptions,
-    Methods,
+    MethodsLoadUnload,
+    MethodsInlinings,
     ArrayPools,
     Http,
     Sockets,
     Threads
   }
-  
+
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
