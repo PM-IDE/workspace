@@ -44,16 +44,14 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
             ${createNodeDisplayName(node, createNodeDisplayNameString(node, sortedHistogramEntries))}
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
-                <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
-                    ${node.executionTime}
-                </div>
+              <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
+                  ${node.executionTime}
+              </div>
 
+              <div style="padding-left: 10px;">
                 <div style="display: flex; flex-direction: column; margin-top: 10px;">
-                    <div>
-                        ${createPieChart(sortedHistogramEntries, null)}
-                    </div>
-                    <div>${SoftwareEnhancementKind[enhancement]}</div>
-                    ${createNodeEnhancement(softwareData, node.aggregatedData, enhancement)}
+                  ${createEventClassesPieChart(softwareData.histogram)}
+                  ${createNodeEnhancement(enhancement, softwareData, node.aggregatedData)}
                 </div>
 
                 ${isPatternNode(node) ? createPatternInformation(node) : ""}
@@ -61,12 +59,40 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
                 <div style="display: flex; flex-direction: row;">
                     ${createTracesDescription(allTraceIds).join("\n")}
                 </div>
+              </div>
             </div>
           </div>
          `;
 }
 
-function createNodeEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
+function createEventClassesPieChart(data: Map<string, number>) {
+  if (data.size == 0) {
+    return "";
+  }
+
+  return `
+    <div>
+      Event classes:
+    </div>
+    <div>
+      ${createPieChart(toSortedArray(data), null)}
+    </div>
+  `;
+}
+
+function createNodeEnhancement(enhancement: SoftwareEnhancementKind, softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+  let enhancementHtml = createNodeEnhancementContent(softwareData, aggregatedData, enhancement);
+  if (enhancementHtml.length == 0) {
+    return "";
+  }
+
+  return `
+    <div>${SoftwareEnhancementKind[enhancement]}:</div>
+    ${enhancementHtml}
+  `;
+}
+
+function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
   switch (enhancement) {
     case SoftwareEnhancementKind.Allocations:
       return createNodeAllocationsEnhancement(softwareData, aggregatedData);
@@ -269,7 +295,7 @@ function createPatternInformation(node: GraphNode): string {
   let propertyIndex = <number><unknown>node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind;
 
   return `
-    <div style="margin-top: 5px; margin-left: 5px;">
+    <div style="margin-top: 5px;">
       <div>
         Pattern type: ${Object.values(GrpcUnderlyingPatternKind)[propertyIndex]}
       </div>
