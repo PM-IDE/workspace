@@ -70,11 +70,13 @@ function createEventClassesPieChart(data: Map<string, number>) {
   }
 
   return `
-    <div class="graph-title-label">
-      Event classes:
-    </div>
-    <div>
-      ${createPieChart(toSortedArray(data), null)}
+    <div class="graph-content-container" style="display: flex; flex-direction: column">
+      <div class="graph-title-label">
+        Event classes:
+      </div>
+      <div style="margin-top: 5px;">
+        ${createPieChart(toSortedArray(data), null)}
+      </div>
     </div>
   `;
 }
@@ -87,7 +89,7 @@ function createNodeEnhancement(enhancement: SoftwareEnhancementKind, softwareDat
 
   return `
     <div class="graph-content-container">
-      <div class="graph-title-label" style="margin-bottom: 5px;">${SoftwareEnhancementKind[enhancement]}:</div>
+      <div class="graph-title-label" style="margin-bottom: 5px;">${SoftwareEnhancementKind[enhancement]}</div>
       ${enhancementHtml}
     </div>
   `;
@@ -131,14 +133,6 @@ function createSoftwareEnhancementHistogram(title: string, data: Map<string, num
   `;
 }
 
-function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  return `
-    <div>
-        ${createAllocationsHistogram(softwareData, aggregatedData)}
-    </div>
-  `
-}
-
 function createNodeDisplayName(node: GraphNode, name: string): string {
   return `
       <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
@@ -147,12 +141,16 @@ function createNodeDisplayName(node: GraphNode, name: string): string {
     `;
 }
 
-function createAllocationsHistogram(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
   if (softwareData.allocations.size > 0) {
     let relativeAllocatedBytes = softwareData.allocations.values().reduce((a, b) => a + b, 0) / aggregatedData.totalAllocatedBytes;
     let color = getPerformanceAnnotationColor(relativeAllocatedBytes);
 
-    return createPieChart(toSortedArray(softwareData.allocations), color);
+    return `
+        <div>
+          ${createPieChart(toSortedArray(softwareData.allocations), color)}
+        </div>
+      `
   }
 
   return "";
