@@ -101,9 +101,24 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
       return createNodeAllocationsEnhancement(softwareData, aggregatedData);
     case SoftwareEnhancementKind.MethodsInlinings:
       return createMethodsInliningEnhancement(softwareData);
+    case SoftwareEnhancementKind.MethodsLoadUnload:
+      return createMethodsLoadUnloadEnhancement(softwareData);
     default:
       return "";
   }
+}
+
+function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.methodsUnloads.size == 0 && softwareData.methodsLoads.size == 0) {
+    return "";
+  }
+  
+  return `
+    <div style="display: flex; flex-direction: row;">
+      ${createSoftwareEnhancementHistogram("Load", softwareData.methodsLoads)} 
+      ${createSoftwareEnhancementHistogram("Unload", softwareData.methodsUnloads)}
+    </div> 
+  `;
 }
 
 function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): string {

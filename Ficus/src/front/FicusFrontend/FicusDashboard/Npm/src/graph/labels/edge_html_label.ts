@@ -13,9 +13,20 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhanc
       return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);
     case SoftwareEnhancementKind.MethodsInlinings:
       return createMethodsInliningEnhancements(softwareData);
+    case SoftwareEnhancementKind.MethodsLoadUnload:
+      return createMethodsLoadUnloadEnhancement(softwareData);
     default:
       return "";
   }
+}
+
+function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
+  return `
+    <div style="display: flex; flex-direction: row; margin-top: -30px;">
+      ${createSoftwareEnhancementPart("Load", softwareData.methodsLoads)}
+      ${createSoftwareEnhancementPart("Unload", softwareData.methodsUnloads)}
+    </div>
+  `;
 }
 
 function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
@@ -27,15 +38,15 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
       <div>
         ${createRectangleHistogram(toSortedArray(softwareData.allocations), aggregatedData.totalAllocatedBytes)}
       </div>
-    `
+    `;
 }
 
 function createMethodsInliningEnhancements(softwareData: MergedSoftwareData): string {
   return `
     <div style="display: flex; flex-direction: row; margin-top: -30px;">
-      ${createSoftwareEnhancementPart("Succeeded", softwareData.inliningSucceeded)} 
-      ${createSoftwareEnhancementPart("Failed", softwareData.inliningFailed)} 
-      ${createSoftwareEnhancementPart("Reasons", softwareData.inliningFailedReasons)} 
+      ${createSoftwareEnhancementPart("Succeeded", softwareData.inliningSucceeded)}
+      ${createSoftwareEnhancementPart("Failed", softwareData.inliningFailed)}
+      ${createSoftwareEnhancementPart("Reasons", softwareData.inliningFailedReasons)}
     </div>
   `
 }

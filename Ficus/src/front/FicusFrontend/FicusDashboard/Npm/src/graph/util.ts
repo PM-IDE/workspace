@@ -8,6 +8,10 @@ import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternIn
 import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import {GrpcMethodNameParts} from "../protos/ficus/GrpcMethodNameParts";
+import {
+  GrpcMethodLoadUnloadEventKind,
+  GrpcMethodLoadUnloadEventKind_DONTUSE
+} from "../protos/ficus/GrpcMethodLoadUnloadEventKind";
 
 export function createDagreLayout() {
   return {
@@ -46,6 +50,8 @@ export interface MergedSoftwareData {
   inliningFailed: Map<string, number>,
   inliningSucceeded: Map<string, number>,
   inliningFailedReasons: Map<string, number>,
+  methodsLoads: Map<string, number>,
+  methodsUnloads: Map<string, number>
 }
 
 export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge): MergedSoftwareData {
@@ -69,6 +75,8 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     inliningFailed: new Map(),
     inliningSucceeded: new Map(),
     inliningFailedReasons: new Map(),
+    methodsUnloads: new Map(),
+    methodsLoads: new Map(),
   };
 
   for (let softwareData of originalSoftwareData) {
@@ -90,6 +98,15 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
         increment(mergedSoftwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
       } else if (inliningEvent.succeeded != null) {
         increment(mergedSoftwareData.inliningSucceeded, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
+      }
+    }
+
+    for (let loadUnloadEvent of softwareData.methodsLoadUnloadEvents) {
+      let fqn = restoreFqn(loadUnloadEvent.methodNameParts);
+      if (loadUnloadEvent.load != null) {
+        increment(mergedSoftwareData.methodsLoads, fqn, 1);
+      } else if (loadUnloadEvent.unload != null) {
+        increment(mergedSoftwareData.methodsUnloads, fqn, 1);
       }
     }
   }

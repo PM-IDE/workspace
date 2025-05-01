@@ -85,7 +85,6 @@ export interface ProtoGrpcType {
     GrpcMethodInliningFailedEvent: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodLoadUnloadEvent: MessageTypeDefinition
-    GrpcMethodLoadUnloadEventKind: EnumTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
     GrpcNamesEventLog: MessageTypeDefinition
     GrpcNamesEventLogContextValue: MessageTypeDefinition
