@@ -10,7 +10,7 @@ import tippy, {Instance, Props} from "tippy.js";
 import {getOrCreateColor} from "../../utils";
 import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
-import {createPieChart, toSortedArray} from "./util";
+import {createArrayPoolEnhancement, createPieChart, toSortedArray} from "./util";
 
 const graphColor = graphColors(darkTheme);
 
@@ -116,7 +116,7 @@ function createExceptionEnhancement(softwareData: MergedSoftwareData): string {
   if (softwareData.exceptions.size == 0) {
     return "";
   }
-  
+
   return `
     <div>
       ${createSoftwareEnhancementHistogram("Exceptions", softwareData.methodsLoads, getPerformanceAnnotationColor(1))}
@@ -124,36 +124,11 @@ function createExceptionEnhancement(softwareData: MergedSoftwareData): string {
   `
 }
 
-function createArrayPoolEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  if (softwareData.bufferRentedBytes.count == 0 && softwareData.bufferAllocatedBytes.count == 0 && softwareData.bufferReturnedBytes.count == 0) {
-    return "";
-  }
-
-  return `
-    <div>
-      ${createNumberInformation("Allocated", softwareData.bufferAllocatedBytes.sum, aggregatedData.totalBufferAllocatedBytes)}
-      ${createNumberInformation("Rented", softwareData.bufferRentedBytes.sum, aggregatedData.totalBufferRentedBytes)}
-      ${createNumberInformation("Returned", softwareData.bufferReturnedBytes.sum, aggregatedData.totalBufferReturnedBytes)}
-    </div>
-  `;
-}
-
-function createNumberInformation(category: string, value: number, totalValue: number | null): string {
-  return `
-    <div style="display: flex; flex-direction: row; margin-top: 3px;">
-      <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
-        ${category} ${value} bytes
-      </div>
-    </div>
-  `;
-}
-
-
 function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
   if (softwareData.methodsUnloads.size == 0 && softwareData.methodsLoads.size == 0) {
     return "";
   }
-  
+
   return `
     <div style="display: flex; flex-direction: row;">
       ${createSoftwareEnhancementHistogram("Load", softwareData.methodsLoads, null)} 

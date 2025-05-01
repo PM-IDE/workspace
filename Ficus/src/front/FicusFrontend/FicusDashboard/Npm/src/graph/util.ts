@@ -145,8 +145,6 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
       increment(mergedSoftwareData.exceptions, exception.exceptionType, 1);
     }
   }
-  
-  console.log(mergedSoftwareData.exceptions);
 
   return mergedSoftwareData;
 }

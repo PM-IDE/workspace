@@ -1,6 +1,6 @@
 import {AggregatedData, GraphEdge, SoftwareEnhancementKind} from "../types";
 import {MergedSoftwareData} from "../util";
-import {createRectangleHistogram, toSortedArray} from "./util";
+import {createArrayPoolEnhancement, createRectangleHistogram, toSortedArray} from "./util";
 
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhancementKind): string {
   let softwareData = edge.softwareData;
@@ -17,6 +17,8 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhanc
       return createMethodsLoadUnloadEnhancement(softwareData);
     case SoftwareEnhancementKind.Exceptions:
       return createExceptionsEnhancement(softwareData);
+    case SoftwareEnhancementKind.ArrayPools:
+      return createArrayPoolEnhancement(softwareData, edge.aggregatedData);
     default:
       return "";
   }

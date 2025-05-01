@@ -1,5 +1,6 @@
 import {getOrCreateColor} from "../../utils";
-import {getPerformanceAnnotationColor} from "../util";
+import {getPerformanceAnnotationColor, MergedSoftwareData} from "../util";
+import {AggregatedData} from "../types";
 
 export function createPieChart(sortedHistogramEntries: [string, number][], performanceColor: string | null): string {
   return `
@@ -65,4 +66,29 @@ export function createRectangleHistogram(sortedHistogramEntries: [string, number
 
 export function toSortedArray(map: Map<string, number>): [string, number][] {
   return [...map.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
+}
+
+export function createArrayPoolEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+  if (softwareData.bufferRentedBytes.count == 0 && softwareData.bufferAllocatedBytes.count == 0 && softwareData.bufferReturnedBytes.count == 0) {
+    return "";
+  }
+
+  return `
+    <div>
+      ${createNumberInformation("Allocated", softwareData.bufferAllocatedBytes.sum, aggregatedData.totalBufferAllocatedBytes)}
+      ${createNumberInformation("Rented", softwareData.bufferRentedBytes.sum, aggregatedData.totalBufferRentedBytes)}
+      ${createNumberInformation("Returned", softwareData.bufferReturnedBytes.sum, aggregatedData.totalBufferReturnedBytes)}
+    </div>
+  `;
+}
+
+
+function createNumberInformation(category: string, value: number, totalValue: number | null): string {
+  return `
+    <div style="display: flex; flex-direction: row; margin-top: 3px;">
+      <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
+        ${category} ${value} bytes
+      </div>
+    </div>
+  `;
 }
