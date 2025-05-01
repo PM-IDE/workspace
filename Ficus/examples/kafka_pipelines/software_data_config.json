@@ -64,6 +64,26 @@
       "fail_reason_attr": "FailReason"
     }
   },
+  "method_load": {
+    "event_class_regex": "Method/LoadVerbose",
+    "info": {
+      "common_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      }
+    }
+  },
+  "method_unload": {
+    "event_class_regex": "Method/UnloadVerbose",
+    "info": {
+      "common_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      }
+    }
+  },
   "socket_connect_start": {
     "event_class_regex": "Connect/Start",
     "info": {
