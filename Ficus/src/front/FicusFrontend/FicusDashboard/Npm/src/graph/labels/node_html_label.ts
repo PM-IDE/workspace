@@ -126,12 +126,9 @@ function createArrayPoolEnhancements(softwareData: MergedSoftwareData, aggregate
 
 function createNumberInformation(category: string, value: number, totalValue: number | null): string {
   return `
-    <div style="display: flex; flex-direction: row;">
-      <div class="graph-content-container">
-        ${category}
-      </div>
+    <div style="display: flex; flex-direction: row; margin-top: 3px;">
       <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
-        ${value} bytes
+        ${category} ${value} bytes
       </div>
     </div>
   `;
