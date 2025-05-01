@@ -1,14 +1,14 @@
 use crate::features::discovery::timeline::discovery::TraceThread;
+use derive_new::new;
 use getset::{Getters, MutGetters};
 use std::collections::HashMap;
-use derive_new::new;
 
 #[derive(Clone, Debug, Getters, MutGetters)]
 pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")] event_classes: HashMap<String, usize>,
   #[getset(get = "pub", get_mut = "pub")] thread_diagram_fragment: Vec<TraceThread>,
   #[getset(get = "pub", get_mut = "pub")] suspensions: Vec<ExecutionSuspensionEvent>,
-  #[getset(get = "pub", get_mut = "pub")] method_events: Vec<MethodEvent>,
+  #[getset(get = "pub", get_mut = "pub")] method_inlinings_events: Vec<MethodInliningEvent>,
   #[getset(get = "pub", get_mut = "pub")] thread_events: Vec<ThreadEvent>,
   #[getset(get = "pub", get_mut = "pub")] http_events: Vec<HTTPEvent>,
   #[getset(get = "pub", get_mut = "pub")] contention_events: Vec<ContentionEvent>,
@@ -17,6 +17,7 @@ pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")] socket_events: Vec<SocketEvent>,
   #[getset(get = "pub", get_mut = "pub")] allocation_events: Vec<AllocationEvent>,
   #[getset(get = "pub", get_mut = "pub")] assembly_events: Vec<AssemblyEvent>,
+  #[getset(get = "pub", get_mut = "pub")] method_load_unload_events: Vec<MethodLoadUnloadEvent>
 }
 
 impl SoftwareData {
@@ -28,12 +29,13 @@ impl SoftwareData {
       exception_events: vec![],
       http_events: vec![],
       thread_events: vec![],
-      method_events: vec![],
+      method_inlinings_events: vec![],
       contention_events: vec![],
       pool_events: vec![],
       socket_events: vec![],
       allocation_events: vec![],
       assembly_events: vec![],
+      method_load_unload_events: vec![],
     }
   }
 }
@@ -53,11 +55,15 @@ pub struct ExecutionSuspensionEvent {
 }
 
 #[derive(Clone, Debug)]
-pub enum MethodEvent {
+pub enum MethodInliningEvent {
   InliningSuccess(MethodInliningData),
   InliningFailed(MethodInliningData, String),
-  Load(String),
-  Unload(String),
+}
+
+#[derive(Clone, Debug)]
+pub enum MethodLoadUnloadEvent {
+  Load(MethodNameParts),
+  Unload(MethodNameParts)
 }
 
 #[derive(Clone, Debug, Getters, new)]

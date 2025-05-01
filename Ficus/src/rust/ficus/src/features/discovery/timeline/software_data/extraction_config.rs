@@ -14,6 +14,9 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] method_inlining_success: Option<ExtractionConfig<MethodInliningSucceededConfig>>,
   #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedConfig>>,
 
+  #[getset(get = "pub", set = "pub")] method_load: Option<ExtractionConfig<MethodLoadUnloadConfig>>,
+  #[getset(get = "pub", set = "pub")] method_unload: Option<ExtractionConfig<MethodLoadUnloadConfig>>,
+
   #[getset(get = "pub", set = "pub")] socket_connect_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
   #[getset(get = "pub", set = "pub")] socket_connect_stop: Option<ExtractionConfig<()>>,
   #[getset(get = "pub", set = "pub")] socket_accept_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
@@ -49,6 +52,8 @@ impl SoftwareDataExtractionConfig {
       http: None,
       method_inlining_success: None,
       method_inlining_failed: None,
+      method_load: None,
+      method_unload: None,
       socket_connect_start: None,
       socket_connect_stop: None,
       socket_accept_start: None,
@@ -93,13 +98,18 @@ impl SoftwareDataExtractionConfig {
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct MethodLoadUnloadConfig {
+  #[getset(get = "pub")] common_attrs: MethodCommonAttributesConfig
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodStartEndConfig {
-  #[getset(get = "pub")] method_attrs: MethodCommonAttributes,
+  #[getset(get = "pub")] method_attrs: MethodCommonAttributesConfig,
   #[getset(get = "pub")] prefix: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
-pub struct MethodCommonAttributes {
+pub struct MethodCommonAttributesConfig {
   #[getset(get = "pub")] name_attr: String,
   #[getset(get = "pub")] namespace_attr: String,
   #[getset(get = "pub")] signature_attr: String,
@@ -148,8 +158,8 @@ pub struct MethodInliningSucceededConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodInliningConfig {
-  #[getset(get = "pub")] inlinee_method_attrs: MethodCommonAttributes,
-  #[getset(get = "pub")] inliner_method_attrs: MethodCommonAttributes,
+  #[getset(get = "pub")] inlinee_method_attrs: MethodCommonAttributesConfig,
+  #[getset(get = "pub")] inliner_method_attrs: MethodCommonAttributesConfig,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

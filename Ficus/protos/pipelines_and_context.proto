@@ -247,6 +247,17 @@ message GrpcSoftwareData {
   repeated GrpcHTTPEvent http_events = 9;
   repeated GrpcContentionEvent contention_events = 10;
   repeated GrpcSocketEvent socket_event = 11;
+  repeated GrpcMethodLoadUnloadEvent methods_load_unload_events = 12;
+}
+
+enum GrpcMethodLoadUnloadEventKind {
+  Load = 0;
+  Unload = 1;
+}
+
+message GrpcMethodLoadUnloadEvent {
+  GrpcMethodNameParts method_name_parts = 1;
+  GrpcMethodLoadUnloadEventKind event_kind = 2;
 }
 
 message GrpcExecutionSuspensionInfo {

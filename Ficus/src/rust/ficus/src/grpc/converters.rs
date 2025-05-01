@@ -14,12 +14,12 @@ use crate::features::discovery::petri_net::transition::Transition;
 use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
-use crate::features::discovery::timeline::software_data::models::{AllocationEvent, ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodEvent, MethodInliningData, MethodNameParts, SocketEvent, SoftwareData, ThreadEvent, ThreadEventKind};
+use crate::features::discovery::timeline::software_data::models::{AllocationEvent, ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodInliningEvent, MethodInliningData, MethodNameParts, SocketEvent, SoftwareData, ThreadEvent, ThreadEventKind, MethodLoadUnloadEvent};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_graph_edge_additional_data, grpc_method_inlining_event, grpc_socket_event, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcArrayPoolEvent, GrpcArrayPoolEventKind, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSocketAcceptFailed, GrpcSocketAcceptStart, GrpcSocketAcceptStop, GrpcSocketConnectFailed, GrpcSocketConnectStart, GrpcSocketConnectStop, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{grpc_graph_edge_additional_data, grpc_method_inlining_event, grpc_socket_event, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcArrayPoolEvent, GrpcArrayPoolEventKind, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcMethodInliningInfo, GrpcMethodLoadUnloadEvent, GrpcMethodLoadUnloadEventKind, GrpcMethodNameParts, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSocketAcceptFailed, GrpcSocketAcceptStart, GrpcSocketAcceptStop, GrpcSocketConnectFailed, GrpcSocketConnectStart, GrpcSocketConnectStop, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
@@ -44,7 +44,7 @@ use crate::{features::analysis::patterns::{
 }, pipelines::{keys::context_key::ContextKey, pipelines::Pipeline}, utils::{
   colors::{Color, ColoredRectangle},
   user_data::{keys::Key, user_data::UserData},
-}};
+}, vecs};
 use log::error;
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
@@ -694,14 +694,28 @@ fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareDa
     exception_events: convert_to_grpc_exception_events(software_data.exception_events()),
     execution_suspension_info: convert_to_grpc_suspensions(software_data.suspensions()),
     thread_events: convert_to_grpc_threads_events(software_data.thread_events()),
-    methods_inlining_events: convert_to_grpc_methods_events(software_data.method_events()),
+    methods_inlining_events: convert_to_grpc_methods_events(software_data.method_inlinings_events()),
     array_pool_events: convert_to_grpc_array_pool_event(software_data.pool_events()),
     http_events: convert_to_grpc_http_events(software_data.http_events()),
     socket_event: convert_to_grpc_socket_events(software_data.socket_events()),
     timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
       threads: convert_to_grpc_threads(software_data.thread_diagram_fragment())
     }),
+    methods_load_unload_events: convert_to_grpc_method_load_unload_events(software_data.method_load_unload_events())
   }
+}
+
+fn convert_to_grpc_method_load_unload_events(events: &Vec<MethodLoadUnloadEvent>) -> Vec<GrpcMethodLoadUnloadEvent> {
+  events.iter().map(|e| match e {
+    MethodLoadUnloadEvent::Load(load) => GrpcMethodLoadUnloadEvent {
+      method_name_parts: Some(convert_to_grpc_method_name_parts(load)),
+      event_kind: GrpcMethodLoadUnloadEventKind::Load as i32,
+    },
+    MethodLoadUnloadEvent::Unload(load) => GrpcMethodLoadUnloadEvent {
+      method_name_parts: Some(convert_to_grpc_method_name_parts(load)),
+      event_kind: GrpcMethodLoadUnloadEventKind::Load as i32,
+    }
+  }).collect()
 }
 
 fn convert_to_grpc_allocation(allocations: &Vec<AllocationEvent>) -> Vec<GrpcAllocationInfo> {
@@ -757,20 +771,18 @@ fn convert_to_grpc_array_pool_event(events: &Vec<ArrayPoolEvent>) -> Vec<GrpcArr
   }).collect()
 }
 
-fn convert_to_grpc_methods_events(events: &Vec<MethodEvent>) -> Vec<GrpcMethodInliningEvent> {
+fn convert_to_grpc_methods_events(events: &Vec<MethodInliningEvent>) -> Vec<GrpcMethodInliningEvent> {
   events.iter().map(|m| match m {
-    MethodEvent::InliningSuccess(method) => GrpcMethodInliningEvent {
+    MethodInliningEvent::InliningSuccess(method) => GrpcMethodInliningEvent {
       inlining_info: Some(convert_to_grpc_inlining_info(method)),
       event: Some(grpc_method_inlining_event::Event::Succeeded(())),
     },
-    MethodEvent::InliningFailed(method, reason) => GrpcMethodInliningEvent {
+    MethodInliningEvent::InliningFailed(method, reason) => GrpcMethodInliningEvent {
       inlining_info: Some(convert_to_grpc_inlining_info(method)),
       event: Some(grpc_method_inlining_event::Event::Failed(GrpcMethodInliningFailedEvent {
         reason: reason.clone()
       })),
-    },
-    MethodEvent::Load(name) => todo!(),
-    MethodEvent::Unload(name) => todo!()
+    }
   }).collect()
 }
 
