@@ -63,6 +63,8 @@ export interface MergedSoftwareData {
   bufferAllocatedBytes: CountAndSum,
   bufferRentedBytes: CountAndSum,
   bufferReturnedBytes: CountAndSum,
+  
+  exceptions: Map<string, number>
 }
 
 export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge): MergedSoftwareData {
@@ -94,6 +96,8 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     bufferAllocatedBytes: {count: 0, sum: 0},
     bufferRentedBytes: {count: 0, sum: 0},
     bufferReturnedBytes: {count: 0, sum: 0},
+    
+    exceptions: new Map()
   };
 
   for (let softwareData of originalSoftwareData) {
@@ -136,7 +140,13 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
         incrementCountAndSum(mergedSoftwareData.bufferRentedBytes, arrayPoolEvent.bufferSizeBytes);
       }
     }
+
+    for (let exception of softwareData.exceptionEvents) {
+      increment(mergedSoftwareData.exceptions, exception.exceptionType, 1);
+    }
   }
+  
+  console.log(mergedSoftwareData.exceptions);
 
   return mergedSoftwareData;
 }

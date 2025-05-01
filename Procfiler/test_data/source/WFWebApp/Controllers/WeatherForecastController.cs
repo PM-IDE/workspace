@@ -23,8 +23,15 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     {
       var array = ArrayPool<byte[]>.Shared.Rent(Random.Shared.Next(2000));
 
-      forecast.TemperatureC = Random.Shared.Next(1, 20);
-      forecast.Summary = $"{forecast.TemperatureC}C";
+      try
+      {
+        forecast.TemperatureC = Random.Shared.Next(1, 20);
+        forecast.Summary = $"{forecast.TemperatureC}C";
+      }
+      catch (Exception ex)
+      {
+        logger.LogError(ex, "Failed to update forecast");
+      }
 
       ArrayPool<byte[]>.Shared.Return(array);
     }

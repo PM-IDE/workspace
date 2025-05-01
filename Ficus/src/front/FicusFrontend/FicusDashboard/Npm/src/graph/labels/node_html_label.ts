@@ -104,13 +104,27 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
     case SoftwareEnhancementKind.MethodsLoadUnload:
       return createMethodsLoadUnloadEnhancement(softwareData);
     case SoftwareEnhancementKind.ArrayPools:
-      return createArrayPoolEnhancements(softwareData, aggregatedData);
+      return createArrayPoolEnhancement(softwareData, aggregatedData);
+    case SoftwareEnhancementKind.Exceptions:
+      return createExceptionEnhancement(softwareData);
     default:
       return "";
   }
 }
 
-function createArrayPoolEnhancements(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+function createExceptionEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.exceptions.size == 0) {
+    return "";
+  }
+  
+  return `
+    <div>
+      ${createSoftwareEnhancementHistogram("Exceptions", softwareData.methodsLoads, getPerformanceAnnotationColor(1))}
+    </div>
+  `
+}
+
+function createArrayPoolEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
   if (softwareData.bufferRentedBytes.count == 0 && softwareData.bufferAllocatedBytes.count == 0 && softwareData.bufferReturnedBytes.count == 0) {
     return "";
   }
@@ -142,8 +156,8 @@ function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): s
   
   return `
     <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementHistogram("Load", softwareData.methodsLoads)} 
-      ${createSoftwareEnhancementHistogram("Unload", softwareData.methodsUnloads)}
+      ${createSoftwareEnhancementHistogram("Load", softwareData.methodsLoads, null)} 
+      ${createSoftwareEnhancementHistogram("Unload", softwareData.methodsUnloads, null)}
     </div> 
   `;
 }
@@ -155,14 +169,14 @@ function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): str
 
   return `
     <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementHistogram("Succeeded", softwareData.inliningSucceeded)} 
-      ${createSoftwareEnhancementHistogram("Failed", softwareData.inliningFailed)} 
-      ${createSoftwareEnhancementHistogram("Failed Reasons", softwareData.inliningFailedReasons)} 
+      ${createSoftwareEnhancementHistogram("Succeeded", softwareData.inliningSucceeded, null)} 
+      ${createSoftwareEnhancementHistogram("Failed", softwareData.inliningFailed, null)} 
+      ${createSoftwareEnhancementHistogram("Failed Reasons", softwareData.inliningFailedReasons, null)} 
     </div>
   `;
 }
 
-function createSoftwareEnhancementHistogram(title: string, data: Map<string, number>) {
+function createSoftwareEnhancementHistogram(title: string, data: Map<string, number>, perfColor: null | string) {
   if (data.size == 0) {
     return "";
   }
@@ -170,7 +184,7 @@ function createSoftwareEnhancementHistogram(title: string, data: Map<string, num
   return `
       <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label graph-title-label-lighter">${title}</div>
-        ${createPieChart(toSortedArray(data), null)}
+        ${createPieChart(toSortedArray(data), perfColor)}
       </div>
   `;
 }

@@ -1,7 +1,7 @@
 import {getOrCreateColor} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
 
-export function createPieChart(sortedHistogramEntries: [string, number][], performanceColor: string): string {
+export function createPieChart(sortedHistogramEntries: [string, number][], performanceColor: string | null): string {
   return `
     <div style="display: flex; flex-direction: row;">
        <div style='width: 64px; height: 64px;' class="graph-node-histogram graph-tooltip-hover">

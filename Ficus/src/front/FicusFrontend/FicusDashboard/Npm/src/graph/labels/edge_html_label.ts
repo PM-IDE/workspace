@@ -15,9 +15,23 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhanc
       return createMethodsInliningEnhancements(softwareData);
     case SoftwareEnhancementKind.MethodsLoadUnload:
       return createMethodsLoadUnloadEnhancement(softwareData);
+    case SoftwareEnhancementKind.Exceptions:
+      return createExceptionsEnhancement(softwareData);
     default:
       return "";
   }
+}
+
+function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.exceptions.size == 0) {
+    return "";
+  }
+  
+  return `
+    <div>
+      ${createRectangleHistogram(toSortedArray(softwareData.exceptions), null)}
+    </div>
+  `
 }
 
 function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
