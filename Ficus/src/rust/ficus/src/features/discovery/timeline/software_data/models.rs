@@ -106,6 +106,7 @@ pub struct AssemblyEvent {
 #[derive(Clone, Debug, Getters, new)]
 pub struct ArrayPoolEvent {
   #[getset(get = "pub")] buffer_id: u64,
+  #[getset(get = "pub")] buffer_size_bytes: u64,
   #[getset(get = "pub")] event_kind: ArrayPoolEventKind,
 }
 

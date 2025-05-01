@@ -309,16 +309,16 @@ message GrpcAssemblyEventInfo {
   GrpcAssemblyEventKind event_kind = 2;
 }
 
-enum GrpcArrayPoolEventKind {
-  Allocated = 0;
-  Rented = 1;
-  Returned = 2;
-  Trimmed = 3;
-}
-
 message GrpcArrayPoolEvent {
   uint64 buffer_id = 1;
-  GrpcArrayPoolEventKind event_kind = 2;
+  uint64 buffer_size_bytes = 2;
+
+  oneof event {
+    google.protobuf.Empty buffer_allocated = 3;
+    google.protobuf.Empty buffer_rented = 4;
+    google.protobuf.Empty buffer_returned = 5;
+    google.protobuf.Empty buffer_trimmed = 6;
+  }
 }
 
 message GrpcExceptionEvent {

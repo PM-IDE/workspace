@@ -48,10 +48,17 @@ impl<'a> ArrayPoolDataExtractor<'a> {
   ) -> Result<Option<ArrayPoolEvent>, SoftwareDataExtractionError> {
     if regex.is_match(event.borrow().name()).unwrap_or(false) {
       if let Some(payload) = event.borrow().payload_map() {
-        if let Some(buffer_id) = payload.get(config.buffer_id_attr().as_str()) {
-          let buffer_id = parse_or_err(buffer_id.to_string_repr().as_str())?;
-          return Ok(Some(ArrayPoolEvent::new(buffer_id, event_kind)));
+        let buffer_id = payload.get(config.buffer_id_attr().as_str());
+        let buffer_size = payload.get(config.buffer_size_attr().as_str());
+
+        if buffer_id.is_none() || buffer_size.is_none() {
+          return Ok(None);
         }
+
+        let buffer_id = parse_or_err(buffer_id.unwrap().to_string_repr().as_str())?;
+        let buffer_size_bytes = parse_or_err(buffer_size.unwrap().to_string_repr().as_str())?;
+
+        return Ok(Some(ArrayPoolEvent::new(buffer_id, buffer_size_bytes, event_kind)));
       }
     }
 

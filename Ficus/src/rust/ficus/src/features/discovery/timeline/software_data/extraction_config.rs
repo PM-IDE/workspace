@@ -187,6 +187,7 @@ pub struct ThreadExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ArrayPoolExtractionConfig {
   #[getset(get = "pub")] buffer_id_attr: String,
+  #[getset(get = "pub")] buffer_size_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

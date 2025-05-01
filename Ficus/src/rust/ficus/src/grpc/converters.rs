@@ -19,7 +19,7 @@ use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, Frequency
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_graph_edge_additional_data, grpc_method_inlining_event, grpc_method_load_unload_event, grpc_socket_event, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcArrayPoolEvent, GrpcArrayPoolEventKind, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcMethodInliningInfo, GrpcMethodLoadUnloadEvent, GrpcMethodNameParts, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSocketAcceptFailed, GrpcSocketAcceptStart, GrpcSocketAcceptStop, GrpcSocketConnectFailed, GrpcSocketConnectStart, GrpcSocketConnectStop, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{grpc_array_pool_event, grpc_graph_edge_additional_data, grpc_method_inlining_event, grpc_method_load_unload_event, grpc_socket_event, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcArrayPoolEvent, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcMethodInliningInfo, GrpcMethodLoadUnloadEvent, GrpcMethodNameParts, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSocketAcceptFailed, GrpcSocketAcceptStart, GrpcSocketAcceptStop, GrpcSocketConnectFailed, GrpcSocketConnectStart, GrpcSocketConnectStop, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
@@ -762,12 +762,13 @@ fn convert_to_grpc_http_events(events: &Vec<HTTPEvent>) -> Vec<GrpcHttpEvent> {
 fn convert_to_grpc_array_pool_event(events: &Vec<ArrayPoolEvent>) -> Vec<GrpcArrayPoolEvent> {
   events.iter().map(|a| GrpcArrayPoolEvent {
     buffer_id: a.buffer_id().clone(),
-    event_kind: match a.event_kind() {
-      ArrayPoolEventKind::Created => GrpcArrayPoolEventKind::Allocated,
-      ArrayPoolEventKind::Rented => GrpcArrayPoolEventKind::Rented,
-      ArrayPoolEventKind::Returned => GrpcArrayPoolEventKind::Returned,
-      ArrayPoolEventKind::Trimmed => GrpcArrayPoolEventKind::Trimmed,
-    } as i32,
+    buffer_size_bytes: a.buffer_size_bytes().clone(),
+    event: Some(match a.event_kind() {
+      ArrayPoolEventKind::Created => grpc_array_pool_event::Event::BufferAllocated(()),
+      ArrayPoolEventKind::Rented => grpc_array_pool_event::Event::BufferRented(()),
+      ArrayPoolEventKind::Returned => grpc_array_pool_event::Event::BufferReturned(()),
+      ArrayPoolEventKind::Trimmed => grpc_array_pool_event::Event::BufferTrimmed(()),
+    }),
   }).collect()
 }
 

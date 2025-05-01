@@ -43,15 +43,26 @@ export function getTraceId(additionalData: GrpcNodeAdditionalData): number {
   return additionalData.originalEventCoordinates.traceId;
 }
 
+export interface CountAndSum {
+  count: number,
+  sum: number
+}
+
 export interface MergedSoftwareData {
   histogram: Map<string, number>,
   timelineDiagramFragments: GrpcTimelineDiagramFragment[],
   allocations: Map<string, number>,
+
   inliningFailed: Map<string, number>,
   inliningSucceeded: Map<string, number>,
   inliningFailedReasons: Map<string, number>,
+
   methodsLoads: Map<string, number>,
-  methodsUnloads: Map<string, number>
+  methodsUnloads: Map<string, number>,
+
+  bufferAllocatedBytes: CountAndSum,
+  bufferRentedBytes: CountAndSum,
+  bufferReturnedBytes: CountAndSum,
 }
 
 export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge): MergedSoftwareData {
@@ -72,11 +83,17 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     histogram: new Map(),
     timelineDiagramFragments: [],
     allocations: new Map(),
+
     inliningFailed: new Map(),
     inliningSucceeded: new Map(),
     inliningFailedReasons: new Map(),
+
     methodsUnloads: new Map(),
     methodsLoads: new Map(),
+
+    bufferAllocatedBytes: {count: 0, sum: 0},
+    bufferRentedBytes: {count: 0, sum: 0},
+    bufferReturnedBytes: {count: 0, sum: 0},
   };
 
   for (let softwareData of originalSoftwareData) {
@@ -109,6 +126,16 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
         increment(mergedSoftwareData.methodsUnloads, fqn, 1);
       }
     }
+    
+    for (let arrayPoolEvent of softwareData.arrayPoolEvents) {
+      if (arrayPoolEvent.bufferAllocated != null) {
+        incrementCountAndSum(mergedSoftwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
+      } else if (arrayPoolEvent.bufferReturned != null) {
+        incrementCountAndSum(mergedSoftwareData.bufferReturnedBytes, arrayPoolEvent.bufferSizeBytes);
+      } else if (arrayPoolEvent.bufferRented != null) {
+        incrementCountAndSum(mergedSoftwareData.bufferRentedBytes, arrayPoolEvent.bufferSizeBytes);
+      }
+    }
   }
 
   return mergedSoftwareData;
@@ -116,6 +143,11 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
 
 function restoreFqn(data: GrpcMethodNameParts) {
   return data.namespace + "." + data.name + "[" + data.signature + "]";
+}
+
+function incrementCountAndSum(countAndSum : CountAndSum, value: number) {
+  countAndSum.sum += value;
+  countAndSum.count += 1;
 }
 
 function increment(map: Map<string, number>, key: string, value: number) {

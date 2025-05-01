@@ -13,7 +13,6 @@ export interface ProtoGrpcType {
     GrpcAllocationInfo: MessageTypeDefinition
     GrpcAnnotation: MessageTypeDefinition
     GrpcArrayPoolEvent: MessageTypeDefinition
-    GrpcArrayPoolEventKind: EnumTypeDefinition
     GrpcAssemblyEventInfo: MessageTypeDefinition
     GrpcAssemblyEventKind: EnumTypeDefinition
     GrpcBytes: MessageTypeDefinition

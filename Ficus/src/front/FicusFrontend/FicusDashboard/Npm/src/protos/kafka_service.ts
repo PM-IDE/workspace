@@ -16,7 +16,6 @@ export interface ProtoGrpcType {
     GrpcAllocationInfo: MessageTypeDefinition
     GrpcAnnotation: MessageTypeDefinition
     GrpcArrayPoolEvent: MessageTypeDefinition
-    GrpcArrayPoolEventKind: EnumTypeDefinition
     GrpcAssemblyEventInfo: MessageTypeDefinition
     GrpcAssemblyEventKind: EnumTypeDefinition
     GrpcBackendService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcBackendServiceClient> & { service: _ficus_GrpcBackendServiceDefinition }
