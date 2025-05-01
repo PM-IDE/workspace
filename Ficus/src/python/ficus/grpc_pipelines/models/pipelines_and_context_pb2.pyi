@@ -9,6 +9,11 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class GrpcMethodLoadUnloadEventKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    Load: _ClassVar[GrpcMethodLoadUnloadEventKind]
+    Unload: _ClassVar[GrpcMethodLoadUnloadEventKind]
+
 class GrpcThreadEventKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
     Created: _ClassVar[GrpcThreadEventKind]
@@ -35,6 +40,8 @@ class GrpcUnderlyingPatternKind(int, metaclass=_enum_type_wrapper.EnumTypeWrappe
     SuperMaximalRepeat: _ClassVar[GrpcUnderlyingPatternKind]
     NearSuperMaximalRepeat: _ClassVar[GrpcUnderlyingPatternKind]
     Unknown: _ClassVar[GrpcUnderlyingPatternKind]
+Load: GrpcMethodLoadUnloadEventKind
+Unload: GrpcMethodLoadUnloadEventKind
 Created: GrpcThreadEventKind
 Terminated: GrpcThreadEventKind
 Loaded: GrpcAssemblyEventKind
@@ -408,7 +415,7 @@ class GrpcNodeCorrespondingTraceData(_message.Message):
     def __init__(self, belongs_to_root_sequence: bool = ...) -> None: ...
 
 class GrpcSoftwareData(_message.Message):
-    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info", "execution_suspension_info", "thread_events", "methods_inlining_events", "array_pool_events", "exception_events", "http_events", "contention_events", "socket_event"]
+    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info", "execution_suspension_info", "thread_events", "methods_inlining_events", "array_pool_events", "exception_events", "http_events", "contention_events", "socket_event", "methods_load_unload_events"]
     HISTOGRAM_FIELD_NUMBER: _ClassVar[int]
     TIMELINE_DIAGRAM_FRAGMENT_FIELD_NUMBER: _ClassVar[int]
     ALLOCATIONS_INFO_FIELD_NUMBER: _ClassVar[int]
@@ -420,6 +427,7 @@ class GrpcSoftwareData(_message.Message):
     HTTP_EVENTS_FIELD_NUMBER: _ClassVar[int]
     CONTENTION_EVENTS_FIELD_NUMBER: _ClassVar[int]
     SOCKET_EVENT_FIELD_NUMBER: _ClassVar[int]
+    METHODS_LOAD_UNLOAD_EVENTS_FIELD_NUMBER: _ClassVar[int]
     histogram: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
     timeline_diagram_fragment: GrpcTimelineDiagramFragment
     allocations_info: _containers.RepeatedCompositeFieldContainer[GrpcAllocationInfo]
@@ -431,7 +439,16 @@ class GrpcSoftwareData(_message.Message):
     http_events: _containers.RepeatedCompositeFieldContainer[GrpcHTTPEvent]
     contention_events: _containers.RepeatedCompositeFieldContainer[GrpcContentionEvent]
     socket_event: _containers.RepeatedCompositeFieldContainer[GrpcSocketEvent]
-    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Iterable[_Union[GrpcAllocationInfo, _Mapping]]] = ..., execution_suspension_info: _Optional[_Iterable[_Union[GrpcExecutionSuspensionInfo, _Mapping]]] = ..., thread_events: _Optional[_Iterable[_Union[GrpcThreadEventInfo, _Mapping]]] = ..., methods_inlining_events: _Optional[_Iterable[_Union[GrpcMethodInliningEvent, _Mapping]]] = ..., array_pool_events: _Optional[_Iterable[_Union[GrpcArrayPoolEvent, _Mapping]]] = ..., exception_events: _Optional[_Iterable[_Union[GrpcExceptionEvent, _Mapping]]] = ..., http_events: _Optional[_Iterable[_Union[GrpcHTTPEvent, _Mapping]]] = ..., contention_events: _Optional[_Iterable[_Union[GrpcContentionEvent, _Mapping]]] = ..., socket_event: _Optional[_Iterable[_Union[GrpcSocketEvent, _Mapping]]] = ...) -> None: ...
+    methods_load_unload_events: _containers.RepeatedCompositeFieldContainer[GrpcMethodLoadUnloadEvent]
+    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Iterable[_Union[GrpcAllocationInfo, _Mapping]]] = ..., execution_suspension_info: _Optional[_Iterable[_Union[GrpcExecutionSuspensionInfo, _Mapping]]] = ..., thread_events: _Optional[_Iterable[_Union[GrpcThreadEventInfo, _Mapping]]] = ..., methods_inlining_events: _Optional[_Iterable[_Union[GrpcMethodInliningEvent, _Mapping]]] = ..., array_pool_events: _Optional[_Iterable[_Union[GrpcArrayPoolEvent, _Mapping]]] = ..., exception_events: _Optional[_Iterable[_Union[GrpcExceptionEvent, _Mapping]]] = ..., http_events: _Optional[_Iterable[_Union[GrpcHTTPEvent, _Mapping]]] = ..., contention_events: _Optional[_Iterable[_Union[GrpcContentionEvent, _Mapping]]] = ..., socket_event: _Optional[_Iterable[_Union[GrpcSocketEvent, _Mapping]]] = ..., methods_load_unload_events: _Optional[_Iterable[_Union[GrpcMethodLoadUnloadEvent, _Mapping]]] = ...) -> None: ...
+
+class GrpcMethodLoadUnloadEvent(_message.Message):
+    __slots__ = ["method_name_parts", "event_kind"]
+    METHOD_NAME_PARTS_FIELD_NUMBER: _ClassVar[int]
+    EVENT_KIND_FIELD_NUMBER: _ClassVar[int]
+    method_name_parts: GrpcMethodNameParts
+    event_kind: GrpcMethodLoadUnloadEventKind
+    def __init__(self, method_name_parts: _Optional[_Union[GrpcMethodNameParts, _Mapping]] = ..., event_kind: _Optional[_Union[GrpcMethodLoadUnloadEventKind, str]] = ...) -> None: ...
 
 class GrpcExecutionSuspensionInfo(_message.Message):
     __slots__ = ["reason", "start_time", "end_time"]
@@ -444,14 +461,32 @@ class GrpcExecutionSuspensionInfo(_message.Message):
     def __init__(self, reason: _Optional[str] = ..., start_time: _Optional[int] = ..., end_time: _Optional[int] = ...) -> None: ...
 
 class GrpcMethodInliningEvent(_message.Message):
-    __slots__ = ["method_name", "succeeded", "failed"]
-    METHOD_NAME_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["inlining_info", "succeeded", "failed"]
+    INLINING_INFO_FIELD_NUMBER: _ClassVar[int]
     SUCCEEDED_FIELD_NUMBER: _ClassVar[int]
     FAILED_FIELD_NUMBER: _ClassVar[int]
-    method_name: str
+    inlining_info: GrpcMethodInliningInfo
     succeeded: _empty_pb2.Empty
     failed: GrpcMethodInliningFailedEvent
-    def __init__(self, method_name: _Optional[str] = ..., succeeded: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., failed: _Optional[_Union[GrpcMethodInliningFailedEvent, _Mapping]] = ...) -> None: ...
+    def __init__(self, inlining_info: _Optional[_Union[GrpcMethodInliningInfo, _Mapping]] = ..., succeeded: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., failed: _Optional[_Union[GrpcMethodInliningFailedEvent, _Mapping]] = ...) -> None: ...
+
+class GrpcMethodInliningInfo(_message.Message):
+    __slots__ = ["inlinee_info", "inliner_info"]
+    INLINEE_INFO_FIELD_NUMBER: _ClassVar[int]
+    INLINER_INFO_FIELD_NUMBER: _ClassVar[int]
+    inlinee_info: GrpcMethodNameParts
+    inliner_info: GrpcMethodNameParts
+    def __init__(self, inlinee_info: _Optional[_Union[GrpcMethodNameParts, _Mapping]] = ..., inliner_info: _Optional[_Union[GrpcMethodNameParts, _Mapping]] = ...) -> None: ...
+
+class GrpcMethodNameParts(_message.Message):
+    __slots__ = ["name", "namespace", "signature"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    NAMESPACE_FIELD_NUMBER: _ClassVar[int]
+    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    namespace: str
+    signature: str
+    def __init__(self, name: _Optional[str] = ..., namespace: _Optional[str] = ..., signature: _Optional[str] = ...) -> None: ...
 
 class GrpcMethodInliningFailedEvent(_message.Message):
     __slots__ = ["reason"]
@@ -512,10 +547,56 @@ class GrpcContentionEvent(_message.Message):
     def __init__(self, start_time: _Optional[int] = ..., end_time: _Optional[int] = ...) -> None: ...
 
 class GrpcSocketEvent(_message.Message):
+    __slots__ = ["connect_start", "accept_start", "connect_stop", "accept_stop", "connect_failed", "accept_failed"]
+    CONNECT_START_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_START_FIELD_NUMBER: _ClassVar[int]
+    CONNECT_STOP_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_STOP_FIELD_NUMBER: _ClassVar[int]
+    CONNECT_FAILED_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_FAILED_FIELD_NUMBER: _ClassVar[int]
+    connect_start: GrpcSocketConnectStart
+    accept_start: GrpcSocketAcceptStart
+    connect_stop: GrpcSocketConnectStop
+    accept_stop: GrpcSocketAcceptStop
+    connect_failed: GrpcSocketConnectFailed
+    accept_failed: GrpcSocketAcceptFailed
+    def __init__(self, connect_start: _Optional[_Union[GrpcSocketConnectStart, _Mapping]] = ..., accept_start: _Optional[_Union[GrpcSocketAcceptStart, _Mapping]] = ..., connect_stop: _Optional[_Union[GrpcSocketConnectStop, _Mapping]] = ..., accept_stop: _Optional[_Union[GrpcSocketAcceptStop, _Mapping]] = ..., connect_failed: _Optional[_Union[GrpcSocketConnectFailed, _Mapping]] = ..., accept_failed: _Optional[_Union[GrpcSocketAcceptFailed, _Mapping]] = ...) -> None: ...
+
+class GrpcSocketAcceptStart(_message.Message):
     __slots__ = ["address"]
     ADDRESS_FIELD_NUMBER: _ClassVar[int]
     address: str
     def __init__(self, address: _Optional[str] = ...) -> None: ...
+
+class GrpcSocketConnectStart(_message.Message):
+    __slots__ = ["address"]
+    ADDRESS_FIELD_NUMBER: _ClassVar[int]
+    address: str
+    def __init__(self, address: _Optional[str] = ...) -> None: ...
+
+class GrpcSocketConnectStop(_message.Message):
+    __slots__ = []
+    def __init__(self) -> None: ...
+
+class GrpcSocketAcceptStop(_message.Message):
+    __slots__ = []
+    def __init__(self) -> None: ...
+
+class GrpcSocketConnectFailed(_message.Message):
+    __slots__ = ["error_code", "error_message"]
+    ERROR_CODE_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    error_code: str
+    error_message: str
+    def __init__(self, error_code: _Optional[str] = ..., error_message: _Optional[str] = ...) -> None: ...
+
+class GrpcSocketAcceptFailed(_message.Message):
+    __slots__ = ["error_code", "error_message"]
+    ERROR_CODE_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    error_code: str
+    error_message: str
+    def __init__(self, error_code: _Optional[str] = ..., error_message: _Optional[str] = ...) -> None: ...
 
 class GrpcHistogramEntry(_message.Message):
     __slots__ = ["name", "count"]
