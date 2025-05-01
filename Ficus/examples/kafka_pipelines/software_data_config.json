@@ -127,25 +127,29 @@
   "array_pool_array_created": {
     "event_class_regex": "Buffer/Allocated",
     "info": {
-      "buffer_id_attr": "bufferId"
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
     }
   },
   "array_pool_array_rented": {
     "event_class_regex": "Buffer/Rented",
     "info": {
-      "buffer_id_attr": "bufferId"
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
     }
   },
   "array_pool_array_returned": {
     "event_class_regex": "Buffer/Returned",
     "info": {
-      "buffer_id_attr": "bufferId"
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
     }
   },
   "array_pool_array_trimmed": {
     "event_class_regex": "Buffer/Trimmed",
     "info": {
-      "buffer_id_attr": "bufferId"
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
     }
   },
   "assembly_load": {
