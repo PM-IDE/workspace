@@ -22,7 +22,11 @@ export interface GraphEdge {
 
 export interface AggregatedData {
   totalAllocatedBytes: number,
-  maxNodeExecutionTime: number
+  maxNodeExecutionTime: number,
+
+  totalBufferAllocatedBytes: number,
+  totalBufferRentedBytes: number,
+  totalBufferReturnedBytes: number,
 }
 
 export enum SoftwareEnhancementKind {

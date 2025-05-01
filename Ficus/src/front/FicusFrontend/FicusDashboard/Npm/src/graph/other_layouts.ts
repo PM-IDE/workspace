@@ -21,7 +21,10 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
 
   let aggregatedData: AggregatedData = {
     totalAllocatedBytes: 0,
-    maxNodeExecutionTime: Number.MIN_VALUE
+    maxNodeExecutionTime: Number.MIN_VALUE,
+    totalBufferReturnedBytes: 0,
+    totalBufferAllocatedBytes: 0,
+    totalBufferRentedBytes: 0
   };
 
   elements.push(...createGraphNodesElements(graph.nodes, aggregatedData))
@@ -63,6 +66,10 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: Aggreg
 function updateAggregatedData(aggregatedData: AggregatedData, softwareData: MergedSoftwareData) {
   if (softwareData != null) {
     aggregatedData.totalAllocatedBytes += softwareData.allocations.values().reduce((a, b) => a + b, 0);
+
+    aggregatedData.totalBufferAllocatedBytes += softwareData.bufferAllocatedBytes.sum;
+    aggregatedData.totalBufferRentedBytes += softwareData.bufferRentedBytes.sum;
+    aggregatedData.totalBufferReturnedBytes += softwareData.bufferReturnedBytes.sum;
   }
 }
 

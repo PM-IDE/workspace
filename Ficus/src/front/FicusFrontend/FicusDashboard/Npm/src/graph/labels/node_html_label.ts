@@ -103,10 +103,40 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
       return createMethodsInliningEnhancement(softwareData);
     case SoftwareEnhancementKind.MethodsLoadUnload:
       return createMethodsLoadUnloadEnhancement(softwareData);
+    case SoftwareEnhancementKind.ArrayPools:
+      return createArrayPoolEnhancements(softwareData, aggregatedData);
     default:
       return "";
   }
 }
+
+function createArrayPoolEnhancements(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+  if (softwareData.bufferRentedBytes.count == 0 && softwareData.bufferAllocatedBytes.count == 0 && softwareData.bufferReturnedBytes.count == 0) {
+    return "";
+  }
+
+  return `
+    <div>
+      ${createNumberInformation("Allocated", softwareData.bufferAllocatedBytes.sum, aggregatedData.totalBufferAllocatedBytes)}
+      ${createNumberInformation("Rented", softwareData.bufferRentedBytes.sum, aggregatedData.totalBufferRentedBytes)}
+      ${createNumberInformation("Returned", softwareData.bufferReturnedBytes.sum, aggregatedData.totalBufferReturnedBytes)}
+    </div>
+  `;
+}
+
+function createNumberInformation(category: string, value: number, totalValue: number | null): string {
+  return `
+    <div style="display: flex; flex-direction: row;">
+      <div class="graph-content-container">
+        ${category}
+      </div>
+      <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
+        ${value} bytes
+      </div>
+    </div>
+  `;
+}
+
 
 function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
   if (softwareData.methodsUnloads.size == 0 && softwareData.methodsLoads.size == 0) {
