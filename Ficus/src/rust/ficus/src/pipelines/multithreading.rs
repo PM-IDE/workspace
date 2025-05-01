@@ -18,6 +18,7 @@ use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
 use fancy_regex::Regex;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
 use crate::event_log::xes::xes_event::XesEventImpl;
@@ -286,16 +287,46 @@ impl PipelineParts {
       if configs.is_empty() {
         return Ok(());
       }
+      
+      let methods_id_factories: Vec<&dyn Fn(&String, &String, &String) -> String> = vec![
+        &|_, name, _| name.to_owned(),
+        &|_, name, signature| name.to_owned() + signature,
+        &|namespace, name, _| namespace.to_string() + name,
+      ];
 
-      for trace in log.traces() {
-        let trace = trace.borrow_mut();
-        for event in trace.events() {
-          for config in &configs {
+      for config in &configs {
+        for method_id_factory in &methods_id_factories {
+          if Self::check_if_can_use_method_id(log, config, method_id_factory) {
+            for trace in log.traces() {
+              let trace = trace.borrow_mut();
+              for event in trace.events() {
+                let mut event = event.borrow_mut();
+                let name = if let Some(payload) = event.payload_map() {
+                  if let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config) {
+                    method_id_factory(&namespace, &name, &signature)
+                  } else {
+                    continue;
+                  }
+                } else {
+                  continue;
+                };
+
+                event.set_name(name);
+              }
+            }
+            
+            return Ok(())
+          }
+        }
+        
+        for trace in log.traces() {
+          let trace = trace.borrow_mut();
+          for event in trace.events() {
             if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
               Self::shorten_method_name(config, &mut event.borrow_mut());
             }
           }
-        }
+        } 
       }
       
       Ok(())
@@ -326,25 +357,62 @@ impl PipelineParts {
 
   fn shorten_method_name(config: &ProcessedMethodStartEndConfig, event: &mut XesEventImpl) {
     let shortened_name = if let Some(payload) = event.payload_map() {
-      let namespace = payload.get(config.namespace_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
-      let name = payload.get(config.name_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
-      let signature = payload.get(config.signature_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned());
-
-      if namespace.is_none() || name.is_none() || signature.is_none() {
-        return;
-      }
-
-      let shortened_name = Self::shorten_type_or_method_name(namespace.unwrap() + "." + name.unwrap().as_str()) + signature.unwrap().as_str();
-      if let Some(prefix) = config.prefix.as_ref().cloned() {
-        prefix + shortened_name.as_str()
+      if let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config) {
+        let shortened_name = Self::shorten_type_or_method_name(namespace + "." + name.as_str()) + signature.as_str();
+        if let Some(prefix) = config.prefix.as_ref().cloned() {
+          prefix + shortened_name.as_str()
+        } else {
+          shortened_name
+        } 
       } else {
-        shortened_name
+        return;
       }
     } else {
       return;
     };
 
     event.set_name(shortened_name);
+  }
+
+  fn extract_method_name_parts(payload: &HashMap<String, EventPayloadValue>, config: &ProcessedMethodStartEndConfig) -> Option<(String, String, String)> {
+    let namespace = payload.get(config.namespace_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
+    let name = payload.get(config.name_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
+    let signature = payload.get(config.signature_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
+    
+    Some((namespace, name, signature))
+  }
+
+  fn check_if_can_use_method_id(
+    log: &XesEventLogImpl, 
+    config: &ProcessedMethodStartEndConfig, 
+    method_id_factory: impl Fn(&String, &String, &String) -> String
+  ) -> bool {
+    let mut map = HashMap::new();
+    
+    for trace in log.traces().iter().map(|t| t.borrow()) {
+      for event in trace.events().iter().map(|e| e.borrow()) {
+        if config.event_regex.is_match(event.name().as_str()).unwrap_or(false) {
+          continue;
+        }
+
+        if let Some(payload) = event.payload_map() {
+          if let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config) {
+            let id = method_id_factory(&namespace, &name, &signature);
+            let fqn = namespace + name.as_str() + signature.as_str();
+
+            if let Some(entry) = map.get(&id) {
+              if !fqn.eq(entry) {
+                return false;
+              }
+            } else {
+              map.insert(id, fqn);
+            }
+          }
+        }
+      }
+    }
+    
+    true
   }
 }
 
