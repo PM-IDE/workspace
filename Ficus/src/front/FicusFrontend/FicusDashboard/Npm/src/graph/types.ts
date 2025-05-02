@@ -17,12 +17,14 @@ export interface GraphEdge {
   frontendId: number,
   additionalData: GrpcNodeAdditionalData[]
   softwareData: MergedSoftwareData,
-  aggregatedData: AggregatedData
+  aggregatedData: AggregatedData,
+  executionTime: number,
 }
 
 export interface AggregatedData {
   totalAllocatedBytes: number,
-  maxNodeExecutionTime: number,
+  totalExecutionTime: number,
+  maxExecutionTime: number,
 
   totalBufferAllocatedBytes: number,
   totalBufferRentedBytes: number,

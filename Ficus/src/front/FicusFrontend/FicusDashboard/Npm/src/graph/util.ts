@@ -166,12 +166,24 @@ function increment(map: Map<string, number>, key: string, value: number) {
   }
 }
 
-export function executeWithAdditionalData(node : GraphNode | GrpcGraphNode, handler: Function) {
+export function calculateEdgeExecutionTime(edge: GraphEdge | GrpcGraphEdge): number {
+  let executionTime = 0;
+
+  for (let data of edge.additionalData) {
+    if (data.timeData != null) {
+      executionTime += data.timeData.endTime - data.timeData.startTime;
+    }
+  }
+  
+  return executionTime;
+}
+
+export function executeWithNodeAdditionalData(node : GraphNode | GrpcGraphNode, handler: Function) {
   let result: GrpcSoftwareData[] = [];
 
   if (node.innerGraph != null) {
     for (let innerNode of node.innerGraph.nodes) {
-      result.push(...executeWithAdditionalData(innerNode, handler));
+      result.push(...executeWithNodeAdditionalData(innerNode, handler));
     }
 
     for (let edge of node.innerGraph.edges) {
@@ -193,7 +205,7 @@ export function executeWithAdditionalData(node : GraphNode | GrpcGraphNode, hand
   if (patterns.length > 0) {
     for (let pattern of patterns) {
       for (let patternNode of pattern.graph.nodes) {
-        result.push(...executeWithAdditionalData(patternNode, handler));
+        result.push(...executeWithNodeAdditionalData(patternNode, handler));
       }
 
       for (let edge of pattern.graph.edges) {
@@ -216,7 +228,7 @@ export function executeWithAdditionalData(node : GraphNode | GrpcGraphNode, hand
 export function extractAllSoftwareData(node : GraphNode | GrpcGraphNode): GrpcSoftwareData[] {
   let result: GrpcSoftwareData[] = [];
 
-  executeWithAdditionalData(node, (data: GrpcNodeAdditionalData | GrpcGraphEdgeAdditionalData) => {
+  executeWithNodeAdditionalData(node, (data: GrpcNodeAdditionalData | GrpcGraphEdgeAdditionalData) => {
     if (data.softwareData != null) {
       result.push(data.softwareData); 
     }
@@ -228,7 +240,7 @@ export function extractAllSoftwareData(node : GraphNode | GrpcGraphNode): GrpcSo
 export function calculateOverallExecutionTime(node: GrpcGraphNode) {
   let overallExecutionTime = 0;
 
-  executeWithAdditionalData(node, (data: GrpcGraphEdgeAdditionalData | GrpcNodeAdditionalData) => {
+  executeWithNodeAdditionalData(node, (data: GrpcGraphEdgeAdditionalData | GrpcNodeAdditionalData) => {
     if (data.timeData != null) {
       overallExecutionTime += data.timeData.endTime - data.timeData.startTime;
     }

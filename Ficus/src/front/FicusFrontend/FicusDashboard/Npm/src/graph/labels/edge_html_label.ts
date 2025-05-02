@@ -9,8 +9,13 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   }
 
   return `
-    <div style="display: flex; flex-direction: row; align-items: center;">
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <div style="display: flex; flex-direction: row; align-items: center;">
         ${enhancements.map(e => createEdgeEnhancement(softwareData, edge, e)).join("\n")}
+      </div>
+      <div style="width: 100%; height: 100%; display: flex; flex-direction: row; justify-content: center;">
+        Execution time: ${edge.executionTime}
+      </div>
     </div>
   `
 }
@@ -40,7 +45,7 @@ function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
   let totalSum = softwareData.exceptions.values().reduce((a, b) => a + b, 0);
 
   return `
-    <div style="margin-top: -30px;">
+    <div>
       ${createEdgeSoftwareEnhancementPart("Exceptions", softwareData.exceptions, totalSum)}
     </div>
   `
@@ -48,7 +53,7 @@ function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
 
 function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
   return `
-    <div style="display: flex; flex-direction: row; margin-top: -30px;">
+    <div style="display: flex; flex-direction: row;">
       ${createEdgeSoftwareEnhancementPart("Load", softwareData.methodsLoads, null)}
       ${createEdgeSoftwareEnhancementPart("Unload", softwareData.methodsUnloads, null)}
     </div>
@@ -61,7 +66,7 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
   }
 
   return `
-      <div style="margin-top: -30px;">
+      <div>
         ${createEdgeSoftwareEnhancementPart("Allocations", softwareData.allocations, aggregatedData.totalAllocatedBytes)}
       </div>
     `;
@@ -69,7 +74,7 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
 
 function createMethodsInliningEnhancements(softwareData: MergedSoftwareData): string {
   return `
-    <div style="display: flex; flex-direction: row; margin-top: -30px;">
+    <div style="display: flex; flex-direction: row;">
       ${createEdgeSoftwareEnhancementPart("Succeeded", softwareData.inliningSucceeded, null)}
       ${createEdgeSoftwareEnhancementPart("Failed", softwareData.inliningFailed, null)}
       ${createEdgeSoftwareEnhancementPart("Reasons", softwareData.inliningFailedReasons, null)}

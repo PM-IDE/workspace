@@ -35,7 +35,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
 
   let sortedHistogramEntries = toSortedArray(softwareData.histogram);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
-  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.maxNodeExecutionTime);
+  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.maxExecutionTime);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
   allTraceIds.sort((f, s) => f - s);
 

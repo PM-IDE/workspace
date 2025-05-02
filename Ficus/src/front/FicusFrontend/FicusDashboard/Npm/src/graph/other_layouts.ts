@@ -1,6 +1,7 @@
 import {calculateGradient, createNextFrontendUniqueId} from "../utils";
 import {darkTheme, graphColors} from "../colors";
 import {
+  calculateEdgeExecutionTime,
   calculateOverallExecutionTime,
   getEdgeSoftwareDataOrNull,
   getNodeSoftwareDataOrNull,
@@ -21,7 +22,8 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
 
   let aggregatedData: AggregatedData = {
     totalAllocatedBytes: 0,
-    maxNodeExecutionTime: Number.MIN_VALUE,
+    totalExecutionTime: 0,
+    maxExecutionTime: Number.MIN_VALUE,
     totalBufferReturnedBytes: 0,
     totalBufferAllocatedBytes: 0,
     totalBufferRentedBytes: 0
@@ -45,7 +47,8 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: Aggreg
     updateAggregatedData(aggregatedData, softwareData);
 
     let executionTime = calculateOverallExecutionTime(node);
-    aggregatedData.maxNodeExecutionTime = Math.max(executionTime, aggregatedData.maxNodeExecutionTime);
+    aggregatedData.totalExecutionTime += executionTime;
+    aggregatedData.maxExecutionTime = Math.max(aggregatedData.maxExecutionTime, executionTime);
 
     elements.push({
       data: {
@@ -95,6 +98,10 @@ export function createGraphEdgesElements(
     let softwareData = getEdgeSoftwareDataOrNull(edge);
     updateAggregatedData(aggregatedData, softwareData);
 
+    let executionTime = calculateEdgeExecutionTime(edge);
+    aggregatedData.totalExecutionTime += executionTime;
+    aggregatedData.maxExecutionTime = Math.max(executionTime, aggregatedData.maxExecutionTime);
+
     elements.push({
       data: {
         frontendId: createNextFrontendUniqueId(),
@@ -105,7 +112,8 @@ export function createGraphEdgesElements(
         source: edge.fromNode.toString(),
         target: edge.toNode.toString(),
         additionalData: edge.additionalData,
-        softwareData: softwareData
+        softwareData: softwareData,
+        executionTime: executionTime
       }
     })
   }
