@@ -1,24 +1,23 @@
 @using Ficus
 @using FicusDashboard.Layout.Models
-@using BlazorBootstrap;
+@using Radzen.Blazor
 @inject IJSRuntime Js
 
-<div style="margin-top: 10px; margin-left: 15px;">
-  <Dropdown Color="DropdownColor.Primary">
-    <DropdownToggleButton>@mySelectedEnhancementKind.ToString()</DropdownToggleButton>
 
-    <DropdownMenu>
-      @foreach (var kind in Enum.GetValues<SoftwareGraphEnhancementKind>())
-      {
-        <DropdownItem Type="DropdownItemType.Button"
-                      @onclick="() => HandleEnhancementSelection(kind)">@kind.ToString()</DropdownItem>
-      }
-    </DropdownMenu>
-  </Dropdown>
+<div style="display: flex; flex-direction: row; width: 100%; height: 100%;">
+  <div style="display: flex; flex-direction: column;">
+    @foreach (var kind in Enum.GetValues<SoftwareGraphEnhancementKind>())
+    {
+      <div style="display: flex; flex-direction: row; align-items: center;">
+        <RadzenCheckBox TValue="bool" ValueChanged="@(v => HandleSelectionChange(v, kind))"/>
+        <div>@kind.ToString()</div>
+      </div>
+    }
+  </div>
+
+  <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"
+                   FileNameCreator="CreateExportFileName"/>
 </div>
-
-<CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"
-                 FileNameCreator="CreateExportFileName"/>
 
 @code
 {
@@ -41,12 +40,12 @@
 
 
   private CanvasComponent? myCanvasComponent;
-  private SoftwareGraphEnhancementKind mySelectedEnhancementKind = SoftwareGraphEnhancementKind.Allocations;
+  private HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = [];
 
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
-    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, mySelectedEnhancementKind.ToString());
+    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, mySelectedEnhancements.Select(e => e.ToString()).ToList());
   }
 
   private string CreateExportFileName()
@@ -54,9 +53,17 @@
     return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
   }
 
-  private void HandleEnhancementSelection(SoftwareGraphEnhancementKind kind)
+  private void HandleSelectionChange(bool selected, SoftwareGraphEnhancementKind enhancement)
   {
-    mySelectedEnhancementKind = kind;
+    if (selected)
+    {
+      mySelectedEnhancements.Add(enhancement);
+    }
+    else
+    {
+      mySelectedEnhancements.Remove(enhancement);
+    }
+
     StateHasChanged();
     myCanvasComponent?.ReRenderCanvas();
   }

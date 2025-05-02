@@ -15,14 +15,14 @@ export default setDrawGraph;
 const graphColor = graphColors(darkTheme);
 
 function setDrawGraph() {
-  (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation, enhancement: keyof typeof SoftwareEnhancementKind) {
+  (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation, enhancements: (keyof typeof SoftwareEnhancementKind)[]) {
     cytoscape.use(dagre);
 
     let htmlLabel = require('../html-label/html_label');
     htmlLabel(cytoscape);
 
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
-    setNodeRenderer(cy, SoftwareEnhancementKind[enhancement]);
+    setNodeRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
     
     cy.ready(() => setTimeout(() => updateNodesDimensions(cy), 0));
 
@@ -43,13 +43,13 @@ function updateNodesDimensions(cy: cytoscape.Core) {
   cy.layout(createDagreLayout()).run();
 }
 
-function setNodeRenderer(cy: cytoscape.Core, enhancement: SoftwareEnhancementKind) {
+function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
   (<any>cy).htmlLabel(
     [
       {
         query: 'node',
         tpl: function (data: GraphNode) {
-          return createNodeHtmlLabel(data, enhancement);
+          return createNodeHtmlLabel(data, enhancements);
         }
       },
       {
@@ -59,7 +59,7 @@ function setNodeRenderer(cy: cytoscape.Core, enhancement: SoftwareEnhancementKin
         valignBox: 'center',
 
         tpl: function (data: GraphNode) {
-          return createEdgeHtmlLabel(data, enhancement);
+          return createEdgeHtmlLabel(data, enhancements);
         }
       }
     ],

@@ -2,12 +2,20 @@ import {AggregatedData, GraphEdge, SoftwareEnhancementKind} from "../types";
 import {MergedSoftwareData} from "../util";
 import {createArrayPoolEnhancement, createRectangleHistogram, toSortedArray} from "./util";
 
-export function createEdgeHtmlLabel(edge: GraphEdge, enhancement: SoftwareEnhancementKind): string {
+export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
   let softwareData = edge.softwareData;
   if (softwareData == null) {
     return "";
   }
 
+  return `
+    <div style="display: flex; flex-direction: row; align-items: center;">
+        ${enhancements.map(e => createEdgeEnhancement(softwareData, edge, e)).join("\n")}
+    </div>
+  `
+}
+
+function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge, enhancement: SoftwareEnhancementKind) {
   switch (enhancement) {
     case SoftwareEnhancementKind.Allocations:
       return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);

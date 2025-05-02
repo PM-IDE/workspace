@@ -18,7 +18,7 @@ export function createNodeHtmlLabelId(frontendId: number): string {
   return `node-html-label-${frontendId}`;
 }
 
-export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhancementKind) {
+export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhancementKind[]) {
   let softwareData = node.softwareData;
   let label_id = createNodeHtmlLabelId(node.frontendId);
 
@@ -51,7 +51,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancement: SoftwareEnhanc
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
                   ${createEventClassesPieChart(softwareData.histogram)}
-                  ${createNodeEnhancement(enhancement, softwareData, node.aggregatedData)}
+                  ${createNodeEnhancements(enhancements, softwareData, node.aggregatedData)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                 </div>
 
@@ -81,18 +81,24 @@ function createEventClassesPieChart(data: Map<string, number>) {
   `;
 }
 
-function createNodeEnhancement(enhancement: SoftwareEnhancementKind, softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  let enhancementHtml = createNodeEnhancementContent(softwareData, aggregatedData, enhancement);
-  if (enhancementHtml.length == 0) {
+function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+  // @ts-ignore
+  let enhancementsHtmls: [SoftwareEnhancementKind, string][] = enhancements
+    .map(e => [e, createNodeEnhancementContent(softwareData, aggregatedData, e)])
+    .filter(res => (<any>res[1]).length > 0);
+
+  if (enhancementsHtmls.length == 0) {
     return "";
   }
 
-  return `
-    <div class="graph-content-container">
-      <div class="graph-title-label" style="margin-bottom: 5px;">${SoftwareEnhancementKind[enhancement]}</div>
-      ${enhancementHtml}
-    </div>
-  `;
+  return enhancementsHtmls
+    .map(([e, html]) => `
+      <div class="graph-content-container">
+        <div class="graph-title-label" style="margin-bottom: 5px;">${SoftwareEnhancementKind[e]}</div>
+        ${html}
+      </div>
+    `)
+    .join("\n");
 }
 
 function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
