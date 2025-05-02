@@ -9,7 +9,7 @@
     @foreach (var kind in Enum.GetValues<SoftwareGraphEnhancementKind>())
     {
       <div style="display: flex; flex-direction: row; align-items: center;">
-        <RadzenCheckBox TValue="bool" ValueChanged="@(v => HandleSelectionChange(v, kind))"/>
+        <RadzenCheckBox TValue="bool" ValueChanged="@(v => HandleSelectionChange(v, kind))" Value="true"/>
         <div style="margin-left: 5px;">@kind.ToString()</div>
       </div>
     }
@@ -46,7 +46,7 @@
 
   private string? myFilterValue;
   private CanvasComponent? myCanvasComponent;
-  private HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = [];
+  private HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = Enum.GetValues<SoftwareGraphEnhancementKind>().ToHashSet();
 
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
