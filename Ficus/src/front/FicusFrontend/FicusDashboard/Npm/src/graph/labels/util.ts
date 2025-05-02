@@ -2,16 +2,20 @@ import {getOrCreateColor} from "../../utils";
 import {getPerformanceAnnotationColor, MergedSoftwareData} from "../util";
 import {AggregatedData} from "../types";
 
+export let fallBackPerformanceColor = "#3d3d3d";
+
 export function createPieChart(sortedHistogramEntries: [string, number][], performanceColor: string | null): string {
+  performanceColor = performanceColor == null ? fallBackPerformanceColor : performanceColor;
+
   return `
     <div style="display: flex; flex-direction: row;">
        <div style='width: 64px; height: 64px;' class="graph-node-histogram graph-tooltip-hover">
-          <div style="width: 100%; height: 100%; border-style: solid; 
-                      border-width: 10px; border-color: ${performanceColor}; border-radius: 32px;"
+          <div style="width: 100%; height: 100%; border-style: solid;
+                      border-width: 6px; border-color: ${performanceColor}; border-radius: 32px;"
                data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'
                data-tooltip-event-type='click'>
             <svg-pie-chart style="pointer-events: none">
-                ${createPieChartEntries(sortedHistogramEntries).join('\n')}
+              ${createPieChartEntries(sortedHistogramEntries).join('\n')}
             </svg-pie-chart>
           </div>
        </div>
@@ -44,14 +48,14 @@ export function createRectangleHistogram(sortedHistogramEntries: [string, number
     `);
   }
 
-  let borderColor = null;
+  let borderColor = fallBackPerformanceColor;
 
   if (totalSum != null) {
     let relativeAllocations: number = valuesSum / totalSum;
     borderColor = getPerformanceAnnotationColor(relativeAllocations);
   }
 
-  let borderWidthPx = 10;
+  let borderWidthPx = 6;
 
   return `
     <div style="width: 70px; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;

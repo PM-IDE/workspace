@@ -164,8 +164,17 @@ function createSoftwareEnhancementHistogram(title: string, data: Map<string, num
 
   return `
       <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div class="graph-title-label graph-title-label-lighter">${title}</div>
-        ${createPieChart(toSortedArray(data), perfColor)}
+        <div class="graph-title-label graph-title-label-lighter" style="display: flex; flex-direction: column;">
+          <div>
+            ${title}
+          </div>
+          <div>
+            (${data.values().reduce((a, b) => a + b, 0)})
+          </div>
+          <div>
+            ${createPieChart(toSortedArray(data), perfColor)}
+          </div>
+        </div>
       </div>
   `;
 }

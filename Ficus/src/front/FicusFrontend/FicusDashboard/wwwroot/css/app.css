@@ -177,7 +177,7 @@ code {
 }
 
 svg-pie-chart svg {
-  width: 38px;
+  width: 46px;
 }
 
 .graph-node-trace-id-container {
@@ -187,18 +187,17 @@ svg-pie-chart svg {
 
 .graph-title-label {
   background: #3b3b3b;
-  border-radius: 5px;
-  height: 30px;
+  border-radius: 3px;
   width: fit-content;
   color: white;
-  padding: 5px;
+  padding: 2px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .graph-title-label-lighter {
-  background: #5d5d5d;
+  background: #4a4a4a;
 }
 
 .graph-content-container {
