@@ -45,7 +45,8 @@
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
-    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, mySelectedEnhancements.Select(e => e.ToString()).ToList());
+    var enhancements = mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
+    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, enhancements);
   }
 
   private string CreateExportFileName()

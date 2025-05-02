@@ -36,10 +36,12 @@ function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
   if (softwareData.exceptions.size == 0) {
     return "";
   }
-  
+
+  let totalSum = softwareData.exceptions.values().reduce((a, b) => a + b, 0);
+
   return `
-    <div>
-      ${createRectangleHistogram(toSortedArray(softwareData.exceptions), null)}
+    <div style="margin-top: -30px;">
+      ${createEdgeSoftwareEnhancementPart("Exceptions", softwareData.exceptions, totalSum)}
     </div>
   `
 }
@@ -47,8 +49,8 @@ function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
 function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
   return `
     <div style="display: flex; flex-direction: row; margin-top: -30px;">
-      ${createSoftwareEnhancementPart("Load", softwareData.methodsLoads)}
-      ${createSoftwareEnhancementPart("Unload", softwareData.methodsUnloads)}
+      ${createEdgeSoftwareEnhancementPart("Load", softwareData.methodsLoads, null)}
+      ${createEdgeSoftwareEnhancementPart("Unload", softwareData.methodsUnloads, null)}
     </div>
   `;
 }
@@ -59,8 +61,8 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
   }
 
   return `
-      <div>
-        ${createRectangleHistogram(toSortedArray(softwareData.allocations), aggregatedData.totalAllocatedBytes)}
+      <div style="margin-top: -30px;">
+        ${createEdgeSoftwareEnhancementPart("Allocations", softwareData.allocations, aggregatedData.totalAllocatedBytes)}
       </div>
     `;
 }
@@ -68,14 +70,14 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
 function createMethodsInliningEnhancements(softwareData: MergedSoftwareData): string {
   return `
     <div style="display: flex; flex-direction: row; margin-top: -30px;">
-      ${createSoftwareEnhancementPart("Succeeded", softwareData.inliningSucceeded)}
-      ${createSoftwareEnhancementPart("Failed", softwareData.inliningFailed)}
-      ${createSoftwareEnhancementPart("Reasons", softwareData.inliningFailedReasons)}
+      ${createEdgeSoftwareEnhancementPart("Succeeded", softwareData.inliningSucceeded, null)}
+      ${createEdgeSoftwareEnhancementPart("Failed", softwareData.inliningFailed, null)}
+      ${createEdgeSoftwareEnhancementPart("Reasons", softwareData.inliningFailedReasons, null)}
     </div>
   `
 }
 
-function createSoftwareEnhancementPart(title: string, data: Map<string, number>) {
+function createEdgeSoftwareEnhancementPart(title: string, data: Map<string, number>, totalSum: number | null) {
   if (data.size == 0) {
     return '';
   }
@@ -84,7 +86,7 @@ function createSoftwareEnhancementPart(title: string, data: Map<string, number>)
     <div>
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label">${title}</div>
-        ${createRectangleHistogram(toSortedArray(data), null)}
+        ${createRectangleHistogram(toSortedArray(data), totalSum)}
       </div>
     </div>
   `
