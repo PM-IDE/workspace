@@ -67,16 +67,16 @@ export interface MergedSoftwareData {
   exceptions: Map<string, number>
 }
 
-export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge): MergedSoftwareData {
+export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedSoftwareData {
   let softwareData = edge.additionalData.filter(e => e.softwareData != null).map(e => e.softwareData);
-  return createMergedSoftwareData(softwareData);
+  return createMergedSoftwareData(softwareData, filter);
 }
 
-export function getNodeSoftwareDataOrNull(node: GraphNode | GrpcGraphNode): MergedSoftwareData {
-  return createMergedSoftwareData(extractAllSoftwareData(node));
+export function getNodeSoftwareDataOrNull(node: GraphNode | GrpcGraphNode, filter: RegExp | null): MergedSoftwareData {
+  return createMergedSoftwareData(extractAllSoftwareData(node), filter);
 }
 
-function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): MergedSoftwareData {
+function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filter: RegExp | null): MergedSoftwareData {
   if (originalSoftwareData.length == 0) {
     return null;
   }
@@ -99,31 +99,54 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     
     exceptions: new Map()
   };
+  
+  let matchesFilter = (value: string) => {
+    if (filter != null) {
+      return filter.test(value);
+    }
+    
+    return true;
+  }
 
   for (let softwareData of originalSoftwareData) {
     for (let entry of softwareData.histogram) {
       let [name, count] = [entry.name, entry.count];
-      increment(mergedSoftwareData.histogram, name, count);
+      
+      if (matchesFilter(name)) {
+        increment(mergedSoftwareData.histogram, name, count); 
+      }
     }
 
     mergedSoftwareData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
 
     for (let alloc of softwareData.allocationsInfo) {
       let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
-      increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);
+      
+      if (matchesFilter(alloc.typeName)) {
+        increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);
+      }
     }
 
     for (let inliningEvent of softwareData.methodsInliningEvents) {
+      let fqn = restoreFqn(inliningEvent.inliningInfo.inlineeInfo);
+      if (!matchesFilter(fqn)) {
+        continue;
+      }
+
       if (inliningEvent.failed != null) {
-        increment(mergedSoftwareData.inliningFailed, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
+        increment(mergedSoftwareData.inliningFailed, fqn, 1);
         increment(mergedSoftwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
       } else if (inliningEvent.succeeded != null) {
-        increment(mergedSoftwareData.inliningSucceeded, restoreFqn(inliningEvent.inliningInfo.inlineeInfo), 1);
+        increment(mergedSoftwareData.inliningSucceeded, fqn, 1);
       }
     }
 
     for (let loadUnloadEvent of softwareData.methodsLoadUnloadEvents) {
       let fqn = restoreFqn(loadUnloadEvent.methodNameParts);
+      if (!matchesFilter(fqn)) {
+        continue;
+      }
+
       if (loadUnloadEvent.load != null) {
         increment(mergedSoftwareData.methodsLoads, fqn, 1);
       } else if (loadUnloadEvent.unload != null) {
@@ -132,6 +155,10 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     }
     
     for (let arrayPoolEvent of softwareData.arrayPoolEvents) {
+      if (!matchesFilter(arrayPoolEvent.bufferId.toString())) {
+        continue;
+      }
+      
       if (arrayPoolEvent.bufferAllocated != null) {
         incrementCountAndSum(mergedSoftwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
       } else if (arrayPoolEvent.bufferReturned != null) {
@@ -142,7 +169,9 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[]): Mer
     }
 
     for (let exception of softwareData.exceptionEvents) {
-      increment(mergedSoftwareData.exceptions, exception.exceptionType, 1);
+      if (matchesFilter(exception.exceptionType)) {
+        increment(mergedSoftwareData.exceptions, exception.exceptionType, 1);
+      }
     }
   }
 

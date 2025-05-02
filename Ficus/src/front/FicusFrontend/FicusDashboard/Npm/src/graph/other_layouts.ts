@@ -17,7 +17,7 @@ import {AggregatedData} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
-export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnnotation): cytoscape.ElementDefinition[] {
+export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.ElementDefinition[] {
   let elements: cytoscape.ElementDefinition[] = [];
 
   let aggregatedData: AggregatedData = {
@@ -29,8 +29,8 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
     totalBufferRentedBytes: 0
   };
 
-  elements.push(...createGraphNodesElements(graph.nodes, aggregatedData))
-  elements.push(...createGraphEdgesElements(graph.edges, annotation, aggregatedData));
+  elements.push(...createGraphNodesElements(graph.nodes, aggregatedData, filter))
+  elements.push(...createGraphEdgesElements(graph.edges, annotation, aggregatedData, filter));
 
   for (let element of elements) {
     (<any>element).data.aggregatedData = aggregatedData;
@@ -39,11 +39,11 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
   return elements;
 }
 
-function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: AggregatedData): cytoscape.ElementDefinition[] {
+function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null): cytoscape.ElementDefinition[] {
   let elements = [];
 
   for (let node of nodes) {
-    let softwareData = getNodeSoftwareDataOrNull(node);
+    let softwareData = getNodeSoftwareDataOrNull(node, filter);
     updateAggregatedData(aggregatedData, softwareData);
 
     let executionTime = calculateOverallExecutionTime(node);
@@ -79,7 +79,8 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
 export function createGraphEdgesElements(
   edges: GrpcGraphEdge[],
   annotation: GrpcAnnotation,
-  aggregatedData: AggregatedData
+  aggregatedData: AggregatedData,
+  filter: RegExp | null
 ): cytoscape.ElementDefinition[] {
   let edgesMap: Record<number, any> = {};
 
@@ -95,7 +96,7 @@ export function createGraphEdgesElements(
 
   let elements: cytoscape.ElementDefinition[] = [];
   for (let edge of edges) {
-    let softwareData = getEdgeSoftwareDataOrNull(edge);
+    let softwareData = getEdgeSoftwareDataOrNull(edge, filter);
     updateAggregatedData(aggregatedData, softwareData);
 
     let executionTime = calculateEdgeExecutionTime(edge);

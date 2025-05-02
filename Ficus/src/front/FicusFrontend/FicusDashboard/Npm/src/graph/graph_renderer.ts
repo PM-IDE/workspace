@@ -29,7 +29,8 @@ function drawGraph(
   enhancements: (keyof typeof SoftwareEnhancementKind)[],
   filter: string | null
 ) {
-  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
+  let regex = filter == null ? null : new RegExp(filter);
+  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex));
   setNodeRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
 
   cy.ready(() => setTimeout(() => updateNodesDimensions(cy), 0));
@@ -76,10 +77,10 @@ function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKi
   );
 }
 
-function createCytoscapeOptions(id: string, graph: GrpcGraph, annotation: GrpcAnnotation): cytoscape.CytoscapeOptions {
+function createCytoscapeOptions(id: string, graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.CytoscapeOptions {
   return {
     container: document.getElementById(id),
-    elements: createGraphElementForDagre(graph, annotation),
+    elements: createGraphElementForDagre(graph, annotation, filter),
     layout: createDagreLayout(),
     style: [
       createNodeStyle(),
