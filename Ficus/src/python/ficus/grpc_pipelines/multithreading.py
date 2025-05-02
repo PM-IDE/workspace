@@ -122,8 +122,15 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
 
 
 class PrepareSoftwareLog(PipelinePart):
+  def __init__(self, time_attribute: Optional[str]):
+    super().__init__()
+    self.time_attribute = time_attribute
+
   def to_grpc_part(self) -> GrpcPipelinePartBase:
-    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_prepare_software_log))
+    config = GrpcPipelinePartConfiguration()
+    append_string_value(config, const_time_attribute, self.time_attribute)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_prepare_software_log, config))
 
 
 class ShortenAllocationType(PipelinePart):

@@ -12,7 +12,7 @@ use crate::features::discovery::timeline::events_groups::{enumerate_event_groups
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;
@@ -184,8 +184,9 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::PREPARE_SOFTWARE_EVENT_LOG, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let software_data_extraction_config = Self::get_software_data_extraction_config(context);
+      let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok();
 
-      let prepared_log = match prepare_software_log(log, &software_data_extraction_config) {
+      let prepared_log = match prepare_software_log(log, &software_data_extraction_config, time_attribute) {
         Ok(log) => log,
         Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err)))
       };

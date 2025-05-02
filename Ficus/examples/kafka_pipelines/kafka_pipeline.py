@@ -9,7 +9,7 @@ execute_pipeline(
         PrintEventLogInfo(),
         ShortenAllocationType(),
         ShortenMethodNames(),
-        PrepareSoftwareLog(),
+        PrepareSoftwareLog(time_attribute = 'QpcStamp'),
         AddStartEndArtificialEvents(),
         DiscoverLoopsStrict(),
         CreateLogFromActivitiesInstances(strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
