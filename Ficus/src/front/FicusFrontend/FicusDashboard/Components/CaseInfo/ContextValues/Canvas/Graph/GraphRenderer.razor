@@ -6,10 +6,13 @@
 
 <div style="display: flex; flex-direction: row; width: 100%; height: 100%;">
   <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
-    @foreach (var kind in Enum.GetValues<SoftwareGraphEnhancementKind>())
+    @foreach (var (index, kind) in Enum.GetValues<SoftwareGraphEnhancementKind>().Index())
     {
       <div style="display: flex; flex-direction: row; align-items: center;">
-        <RadzenCheckBox TValue="bool" ValueChanged="@(v => HandleSelectionChange(v, kind))" Value="true"/>
+        <RadzenCheckBox @ref="@myCheckBoxes[index]"
+                        TValue="bool" 
+                        ValueChanged="@(v => HandleSelectionChange(index, v, kind))" />
+
         <div style="margin-left: 5px;">@kind.ToString()</div>
       </div>
     }
@@ -46,8 +49,21 @@
 
   private string? myFilterValue;
   private CanvasComponent? myCanvasComponent;
+  private RadzenCheckBox<bool>[] myCheckBoxes = new RadzenCheckBox<bool>[Enum.GetValues<SoftwareGraphEnhancementKind>().Length];
   private HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = Enum.GetValues<SoftwareGraphEnhancementKind>().ToHashSet();
 
+
+  protected override void OnAfterRender(bool firstRender)
+  {
+    if (!firstRender) return;
+
+    foreach (var checkBox in myCheckBoxes)
+    {
+      checkBox.Value = true;
+    }
+
+    StateHasChanged();
+  }
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
@@ -60,7 +76,7 @@
     return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
   }
 
-  private void HandleSelectionChange(bool selected, SoftwareGraphEnhancementKind enhancement)
+  private void HandleSelectionChange(int index, bool selected, SoftwareGraphEnhancementKind enhancement)
   {
     if (selected)
     {
