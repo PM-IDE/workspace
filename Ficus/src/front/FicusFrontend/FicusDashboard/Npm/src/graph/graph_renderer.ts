@@ -11,23 +11,30 @@ import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GraphNode, SoftwareEnhancementKind} from "./types";
 
 export default setDrawGraph;
+cytoscape.use(dagre);
+
+let htmlLabel = require('../html-label/html_label');
+htmlLabel(cytoscape);
 
 const graphColor = graphColors(darkTheme);
 
 function setDrawGraph() {
-  (<any>window).drawGraph = function (id: string, graph: GrpcGraph, annotation: GrpcAnnotation, enhancements: (keyof typeof SoftwareEnhancementKind)[]) {
-    cytoscape.use(dagre);
+  (<any>window).drawGraph = drawGraph;
+}
 
-    let htmlLabel = require('../html-label/html_label');
-    htmlLabel(cytoscape);
+function drawGraph(
+  id: string, 
+  graph: GrpcGraph, 
+  annotation: GrpcAnnotation, 
+  enhancements: (keyof typeof SoftwareEnhancementKind)[],
+  filter: string | null
+) {
+  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
+  setNodeRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
 
-    let cy = cytoscape(createCytoscapeOptions(id, graph, annotation));
-    setNodeRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
-    
-    cy.ready(() => setTimeout(() => updateNodesDimensions(cy), 0));
+  cy.ready(() => setTimeout(() => updateNodesDimensions(cy), 0));
 
-    return cy;
-  }
+  return cy;
 }
 
 function updateNodesDimensions(cy: cytoscape.Core) {

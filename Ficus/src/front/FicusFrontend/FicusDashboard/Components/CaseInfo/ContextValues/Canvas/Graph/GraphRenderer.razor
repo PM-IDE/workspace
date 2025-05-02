@@ -5,14 +5,19 @@
 
 
 <div style="display: flex; flex-direction: row; width: 100%; height: 100%;">
-  <div style="display: flex; flex-direction: column;">
+  <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
     @foreach (var kind in Enum.GetValues<SoftwareGraphEnhancementKind>())
     {
       <div style="display: flex; flex-direction: row; align-items: center;">
         <RadzenCheckBox TValue="bool" ValueChanged="@(v => HandleSelectionChange(v, kind))"/>
-        <div>@kind.ToString()</div>
+        <div style="margin-left: 5px;">@kind.ToString()</div>
       </div>
     }
+
+    <div style="margin-top: 5px;">Filter:</div>
+    <input type="text" @bind="myFilterValue" style="width: 120px;" />
+
+    <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
   </div>
 
   <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"
@@ -39,6 +44,7 @@
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
+  private string? myFilterValue;
   private CanvasComponent? myCanvasComponent;
   private HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = [];
 
@@ -46,7 +52,7 @@
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
     var enhancements = mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
-    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, enhancements);
+    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue);
   }
 
   private string CreateExportFileName()
@@ -64,8 +70,10 @@
     {
       mySelectedEnhancements.Remove(enhancement);
     }
+  }
 
-    StateHasChanged();
+  private void ReRenderCanvas()
+  {
     myCanvasComponent?.ReRenderCanvas();
   }
 }

@@ -33,7 +33,7 @@
 
   protected override Task OnAfterRenderAsync(bool firstRender)
   {
-    if (firstRender || myIsFullScreen != IsFullScreen || myRequestedToRerender)
+    if ((firstRender || myIsFullScreen != IsFullScreen || myRequestedToRerender) && !myIsDrawing)
     {
       myIsFullScreen = IsFullScreen;
       myRequestedToRerender = false;
