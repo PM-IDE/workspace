@@ -96,3 +96,11 @@ function createNumberInformation(category: string, value: number, totalValue: nu
     </div>
   `;
 }
+
+export function getPercentExecutionTime(executionTime: number, totalExecutionTime: number): string {
+  if (totalExecutionTime == 0) {
+    return "0";
+  }
+
+  return ((executionTime / totalExecutionTime) * 100).toFixed(3);
+}

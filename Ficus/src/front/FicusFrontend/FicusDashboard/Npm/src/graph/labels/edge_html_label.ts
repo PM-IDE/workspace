@@ -1,6 +1,6 @@
 import {AggregatedData, GraphEdge, SoftwareEnhancementKind} from "../types";
 import {MergedSoftwareData} from "../util";
-import {createArrayPoolEnhancement, createRectangleHistogram, toSortedArray} from "./util";
+import {createArrayPoolEnhancement, createRectangleHistogram, getPercentExecutionTime, toSortedArray} from "./util";
 
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
   let softwareData = edge.softwareData;
@@ -25,7 +25,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
 function createEdgeExecutionInfo(edge: GraphEdge): string {
   return `
     <div style="font-size: 17px;">
-      Execution time: ${edge.executionTime}
+      Exec. time: ${edge.executionTime} (${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%)
     </div>
     <div style="font-size: 17px;">
       Executed ${edge.weight} times

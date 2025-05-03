@@ -10,7 +10,7 @@ import tippy, {Instance, Props} from "tippy.js";
 import {getOrCreateColor} from "../../utils";
 import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
-import {createArrayPoolEnhancement, createPieChart, toSortedArray} from "./util";
+import {createArrayPoolEnhancement, createPieChart, getPercentExecutionTime, toSortedArray} from "./util";
 
 const graphColor = graphColors(darkTheme);
 
@@ -35,7 +35,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
 
   let sortedHistogramEntries = toSortedArray(softwareData.histogram);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
-  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.maxExecutionTime);
+  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.totalExecutionTime);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
   allTraceIds.sort((f, s) => f - s);
 
@@ -45,7 +45,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
               <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
-                  ${node.executionTime}
+                  Exec. time: ${node.executionTime} (${getPercentExecutionTime(node.executionTime, node.aggregatedData.totalExecutionTime)}%)
               </div>
 
               <div style="padding-left: 10px;">
