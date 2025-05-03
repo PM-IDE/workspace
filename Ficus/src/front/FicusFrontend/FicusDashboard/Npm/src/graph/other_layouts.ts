@@ -29,7 +29,7 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
     totalBufferRentedBytes: 0
   };
 
-  elements.push(...createGraphNodesElements(graph.nodes, aggregatedData, filter))
+  elements.push(...createGraphNodesElements(graph.nodes, aggregatedData, filter));
   elements.push(...createGraphEdgesElements(graph.edges, annotation, aggregatedData, filter));
 
   for (let element of elements) {
@@ -82,18 +82,6 @@ export function createGraphEdgesElements(
   aggregatedData: AggregatedData,
   filter: RegExp | null
 ): cytoscape.ElementDefinition[] {
-  let edgesMap: Record<number, any> = {};
-
-  for (let edge of edges) {
-    edgesMap[edge.id] = {};
-  }
-
-  processEdgesWeights(edges, edgesMap);
-
-  if (annotation !== null && annotation.timeAnnotation !== null) {
-    processTimeAnnotation(annotation.timeAnnotation, edges, edgesMap);
-  }
-
   let elements: cytoscape.ElementDefinition[] = [];
   for (let edge of edges) {
     let softwareData = getEdgeSoftwareDataOrNull(edge, filter);
@@ -106,8 +94,6 @@ export function createGraphEdgesElements(
     elements.push({
       data: {
         frontendId: createNextFrontendUniqueId(),
-        color: edgesMap[edge.id].color,
-        width: edgesMap[edge.id].width,
         label: edge.data,
         id: edge.id.toString(),
         source: edge.fromNode.toString(),
@@ -117,6 +103,22 @@ export function createGraphEdgesElements(
         executionTime: executionTime
       }
     })
+  }
+
+  let edgesMap: Record<number, any> = {};
+
+  for (let edge of edges) {
+    edgesMap[edge.id] = {};
+  }
+
+  processEdgesWeights(edges, edgesMap);
+  if (annotation !== null && annotation.timeAnnotation !== null) {
+    processTimeAnnotation(annotation.timeAnnotation, edges, edgesMap, aggregatedData);
+  }
+
+  for (let element of elements) {
+    element.data.color = edgesMap[parseInt(element.data.id)].color;
+    element.data.width = edgesMap[parseInt(element.data.id)].width;
   }
 
   return elements;
@@ -150,26 +152,20 @@ function processEdgesWeights(edges: GrpcGraphEdge[], edgesMap: Record<number, an
   }
 }
 
-function processTimeAnnotation(annotation: GrpcTimePerformanceAnnotation, edges: GrpcGraphEdge[], edgesMap: Record<number, any>) {
-  let minTime = null;
-  let maxTime = null;
+function processTimeAnnotation(
+  annotation: GrpcTimePerformanceAnnotation,
+  edges: GrpcGraphEdge[],
+  edgesMap: Record<number, any>,
+  aggregatedData: AggregatedData
+) {
   let idsToTime: Record<number, any> = {};
 
   for (let timeAnnotation of annotation.annotations) {
-    let time = timeAnnotation.interval.nanoseconds;
-    if (minTime === null || time < minTime) {
-      minTime = time;
-    }
-
-    if (maxTime == null || time > maxTime) {
-      maxTime = time;
-    }
-
-    idsToTime[timeAnnotation.entityId] = time;
+    idsToTime[timeAnnotation.entityId] = timeAnnotation.interval.nanoseconds;
   }
 
   for (let edge of edges) {
-    let timeAnnotation = (idsToTime[edge.id] - minTime) / (maxTime - minTime);
+    let timeAnnotation = idsToTime[edge.id] / aggregatedData.totalExecutionTime;
 
     edgesMap[edge.id].timeAnnotation = timeAnnotation;
     edgesMap[edge.id].color = getPerformanceAnnotationColor(timeAnnotation);
