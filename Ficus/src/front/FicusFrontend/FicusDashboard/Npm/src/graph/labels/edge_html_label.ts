@@ -5,7 +5,11 @@ import {createArrayPoolEnhancement, createRectangleHistogram, toSortedArray} fro
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
   let softwareData = edge.softwareData;
   if (softwareData == null) {
-    return "";
+    return `
+      <div style="margin-top: 65px;">
+        ${createEdgeExecutionInfo(edge)}
+      </div>
+    `;
   }
 
   return `
@@ -13,14 +17,20 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
       <div style="display: flex; flex-direction: row; align-items: center;">
         ${enhancements.map(e => createEdgeEnhancement(softwareData, edge, e)).join("\n")}
       </div>
-      <div>
-        Execution time: ${edge.executionTime}
-      </div>
-      <div>
-        Executed ${edge.weight} times
-      </div>
+      ${createEdgeExecutionInfo(edge)}
     </div>
   `
+}
+
+function createEdgeExecutionInfo(edge: GraphEdge): string {
+  return `
+    <div style="font-size: 17px;">
+      Execution time: ${edge.executionTime}
+    </div>
+    <div style="font-size: 17px;">
+      Executed ${edge.weight} times
+    </div>
+  `;
 }
 
 function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge, enhancement: SoftwareEnhancementKind) {
