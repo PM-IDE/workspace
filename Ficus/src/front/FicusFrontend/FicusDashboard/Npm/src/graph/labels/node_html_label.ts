@@ -274,8 +274,8 @@ function createEventClassesDescription(sortedHistogramEntries: [string, number][
     return `
         <div style="display: flex; flex-direction: row; width: fit-content; height: fit-content; align-items: center">
             <div style="width: 15px; height: 15px; background-color: ${getOrCreateColor(entry[0])}"></div>
-            <div style="margin-left: 5px;">${entry[0]}</div>
-            <div style="margin-left: 5px;">${entry[1]}</div>
+            <div style="margin-left: 5px; width: fit-content; white-space: nowrap">(${entry[1]})</div>
+            <div style="margin-left: 5px; width: fit-content; white-space: nowrap">${entry[0]}</div>
         </div>
       `;
   });
