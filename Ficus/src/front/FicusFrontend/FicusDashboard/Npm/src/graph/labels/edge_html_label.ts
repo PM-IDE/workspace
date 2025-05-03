@@ -9,12 +9,15 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   }
 
   return `
-    <div style="display: flex; flex-direction: column; align-items: center;">
+    <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
         ${enhancements.map(e => createEdgeEnhancement(softwareData, edge, e)).join("\n")}
       </div>
-      <div style="width: 100%; height: 100%; display: flex; flex-direction: row; justify-content: center;">
+      <div>
         Execution time: ${edge.executionTime}
+      </div>
+      <div>
+        Executed ${edge.weight} times
       </div>
     </div>
   `

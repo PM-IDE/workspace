@@ -19,6 +19,7 @@ export interface GraphEdge {
   softwareData: MergedSoftwareData,
   aggregatedData: AggregatedData,
   executionTime: number,
+  weight: number
 }
 
 export interface AggregatedData {

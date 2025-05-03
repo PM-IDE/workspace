@@ -8,7 +8,7 @@ import {createDagreLayout} from "./util";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
-import {GraphNode, SoftwareEnhancementKind} from "./types";
+import {GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
 
 export default setDrawGraph;
 cytoscape.use(dagre);
@@ -66,7 +66,7 @@ function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKi
         autorotate: true,
         valignBox: 'center',
 
-        tpl: function (data: GraphNode) {
+        tpl: function (data: GraphEdge) {
           return createEdgeHtmlLabel(data, enhancements);
         }
       }

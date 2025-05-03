@@ -100,7 +100,8 @@ export function createGraphEdgesElements(
         target: edge.toNode.toString(),
         additionalData: edge.additionalData,
         softwareData: softwareData,
-        executionTime: executionTime
+        executionTime: executionTime,
+        weight: edge.weight
       }
     })
   }
