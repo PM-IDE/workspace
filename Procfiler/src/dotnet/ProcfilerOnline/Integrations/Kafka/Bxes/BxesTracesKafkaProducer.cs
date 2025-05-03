@@ -43,7 +43,8 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
     settings.Value.KafkaSettings.TopicName,
     new ProducerConfig
     {
-      BootstrapServers = settings.Value.KafkaSettings.BootstrapServers
+      BootstrapServers = settings.Value.KafkaSettings.BootstrapServers,
+      MessageMaxBytes = 1_000_000_000
     });
 
 
@@ -53,7 +54,7 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
     [
       new(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(trace.CaseName.DisplayName)),
       new(new BxesStringValue(FicusKafkaKeys.CaseNameParts),
-        new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
+      new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
       new(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(trace.ProcessName)),
       new(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(trace.CaseId))
     ];

@@ -48,7 +48,8 @@ public class JsonMethodsKafkaProducer(
         new ProducerConfig
         {
           BootstrapServers = settings.Value.KafkaSettings.BootstrapServers,
-          Acks = Acks.All
+          Acks = Acks.All,
+          MessageMaxBytes = 1_000_000_000
         }
       )
       .SetKeySerializer(GuidSerializer.Instance)
