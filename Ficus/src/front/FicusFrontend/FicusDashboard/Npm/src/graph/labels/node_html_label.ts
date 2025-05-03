@@ -125,7 +125,7 @@ function createExceptionEnhancement(softwareData: MergedSoftwareData): string {
 
   return `
     <div>
-      ${createSoftwareEnhancementHistogram("Exceptions", softwareData.methodsLoads, getPerformanceAnnotationColor(1))}
+      ${createSoftwareEnhancementHistogram("Exceptions", softwareData.exceptions, getPerformanceAnnotationColor(1))}
     </div>
   `
 }
