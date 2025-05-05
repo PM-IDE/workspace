@@ -22,17 +22,16 @@ impl<'a> SoftwareDataExtractor for HTTPSoftwareDataExtractor<'a> {
         if regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
           if let Some(payload) = event.borrow().payload_map() {
             let host = payload.get(config.info().host_attr()).map(|v| v.to_string_repr().as_str().to_owned());
-            let path = payload.get(config.info().path_attr()).map(|v| v.to_string_repr().as_str().to_owned());
+            let path_and_query = payload.get(config.info().path_and_query_attr()).map(|v| v.to_string_repr().as_str().to_owned());
             let port = payload.get(config.info().port_attr()).map(|v| v.to_string_repr().as_str().to_owned());
-            let query = payload.get(config.info().query_attr()).map(|v| v.to_string_repr().as_str().to_owned());
             let scheme = payload.get(config.info().scheme_attr()).map(|v| v.to_string_repr().as_str().to_owned());
-
-            if host.is_none() || path.is_none() || port.is_none() || query.is_none() || scheme.is_none() {
+            
+            if host.is_none() || path_and_query.is_none() || port.is_none() || scheme.is_none() {
               warn!("Some attributes of HTTP event were not specified, skipping this event");
               continue;
             }
 
-            software_data.http_events_mut().push(HTTPEvent::new(host.unwrap(), port.unwrap(), scheme.unwrap(), path.unwrap(), query.unwrap()));
+            software_data.http_events_mut().push(HTTPEvent::new(host.unwrap(), port.unwrap(), scheme.unwrap(), path_and_query.unwrap()));
           } 
         }
       }

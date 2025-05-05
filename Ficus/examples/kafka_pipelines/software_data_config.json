@@ -180,6 +180,15 @@
       "type_name_attr": "ExceptionType"
     }
   },
+  "http": {
+    "event_class_regex": "Request/Start",
+    "info": {
+      "host_attr": "host",
+      "port_attr": "port",
+      "scheme_attr": "scheme",
+      "path_and_query_attr": "pathAndQuery"
+    }
+  },
   "raw_control_flow_regexes": [
     "\\[Start\\]",
     "\\[End\\]"

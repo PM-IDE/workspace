@@ -333,8 +333,7 @@ message GrpcHTTPEvent {
   string host = 1;
   string port = 2;
   string scheme = 3;
-  string path = 4;
-  string query = 5;
+  string path_and_query = 4;
 }
 
 message GrpcContentionEvent {

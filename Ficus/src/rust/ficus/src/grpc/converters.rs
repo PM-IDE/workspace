@@ -754,8 +754,7 @@ fn convert_to_grpc_http_events(events: &Vec<HTTPEvent>) -> Vec<GrpcHttpEvent> {
     host: h.host().to_owned(),
     port: h.port().to_owned(),
     scheme: h.scheme().to_owned(),
-    path: h.path().to_owned(),
-    query: h.query().to_owned(),
+    path_and_query: h.path_and_query().to_owned(),
   }).collect()
 }
 

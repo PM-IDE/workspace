@@ -22,6 +22,10 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     CreateThread();
     foreach (var forecast in weatherForecast)
     {
+      var client = new HttpClient();
+      await client.GetAsync("https://google.com");
+      await client.GetAsync("https://ya.ru");
+
       CreateThread();
 
       var array = ArrayPool<byte[]>.Shared.Rent(Random.Shared.Next(2000));

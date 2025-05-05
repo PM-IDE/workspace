@@ -128,8 +128,7 @@ pub struct HTTPEvent {
   #[getset(get = "pub")] host: String,
   #[getset(get = "pub")] port: String,
   #[getset(get = "pub")] scheme: String,
-  #[getset(get = "pub")] path: String,
-  #[getset(get = "pub")] query: String,
+  #[getset(get = "pub")] path_and_query: String,
 }
 
 #[derive(Clone, Debug, Getters, new)]

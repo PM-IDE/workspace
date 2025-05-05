@@ -144,8 +144,7 @@ pub struct HTTPExtractionConfig {
   #[getset(get = "pub")] host_attr: String,
   #[getset(get = "pub")] port_attr: String,
   #[getset(get = "pub")] scheme_attr: String,
-  #[getset(get = "pub")] path_attr: String,
-  #[getset(get = "pub")] query_attr: String,
+  #[getset(get = "pub")] path_and_query_attr: String
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
