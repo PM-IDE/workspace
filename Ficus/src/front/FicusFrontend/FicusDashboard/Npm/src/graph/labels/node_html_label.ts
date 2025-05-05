@@ -11,7 +11,8 @@ import {getOrCreateColor} from "../../utils";
 import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
-  createArrayPoolEnhancement, createEnhancementContainer,
+  createArrayPoolEnhancement,
+  createEnhancementContainer,
   createPieChart,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -116,9 +117,23 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
       return createExceptionEnhancement(softwareData);
     case SoftwareEnhancementKind.Threads:
       return createThreadsEnhancement(softwareData);
+    case SoftwareEnhancementKind.Http:
+      return createHttpEnhancement(softwareData);
     default:
       return "";
   }
+}
+
+function createHttpEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.httpRequests.size == 0) {
+    return "";
+  }
+  
+  return `
+    <div>
+      ${createSoftwareEnhancementHistogram("Requests", softwareData.httpRequests, null)}
+    </div>
+  `
 }
 
 function createExceptionEnhancement(softwareData: MergedSoftwareData): string {

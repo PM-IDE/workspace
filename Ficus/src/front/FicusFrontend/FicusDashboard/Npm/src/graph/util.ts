@@ -8,10 +8,6 @@ import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternIn
 import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import {GrpcMethodNameParts} from "../protos/ficus/GrpcMethodNameParts";
-import {
-  GrpcMethodLoadUnloadEventKind,
-  GrpcMethodLoadUnloadEventKind_DONTUSE
-} from "../protos/ficus/GrpcMethodLoadUnloadEventKind";
 
 export function createDagreLayout() {
   return {
@@ -68,6 +64,8 @@ export interface MergedSoftwareData {
   
   createdThreads: Set<number>,
   terminatedThreads: Set<number>,
+
+  httpRequests: Map<string, number>
 }
 
 export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedSoftwareData {
@@ -104,6 +102,8 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     
     createdThreads: new Set(),
     terminatedThreads: new Set(),
+
+    httpRequests: new Map(),
   };
   
   let matchesFilter = (value: string) => {
@@ -190,6 +190,11 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       } else if (threadEvent.terminated != null) {
         mergedSoftwareData.terminatedThreads.add(threadEvent.threadId);
       }
+    }
+
+    for (let httpEvent of softwareData.httpEvents) {
+      let requestUrl = httpEvent.scheme + "://" + httpEvent.host + ":" + httpEvent.port + httpEvent.pathAndQuery;
+      increment(mergedSoftwareData.httpRequests, requestUrl, 1);
     }
   }
 

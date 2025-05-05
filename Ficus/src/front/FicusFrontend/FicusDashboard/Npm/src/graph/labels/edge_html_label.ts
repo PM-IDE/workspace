@@ -1,7 +1,8 @@
 import {AggregatedData, GraphEdge, SoftwareEnhancementKind} from "../types";
 import {MergedSoftwareData} from "../util";
 import {
-  createArrayPoolEnhancement, createEnhancementContainer,
+  createArrayPoolEnhancement,
+  createEnhancementContainer,
   createRectangleHistogram,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -53,9 +54,19 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       return createEnhancementContainer("ArrayPools", createArrayPoolEnhancement(softwareData, edge.aggregatedData));
     case SoftwareEnhancementKind.Threads:
       return createEnhancementContainer("Threads", createThreadsEnhancement(softwareData));
+    case SoftwareEnhancementKind.Http:
+      return createHttpEnhancement(softwareData);
     default:
       return "";
   }
+}
+
+function createHttpEnhancement(softwareData: MergedSoftwareData): string {
+  return `
+    <div>
+        ${createEdgeSoftwareEnhancementPart("HTTP", softwareData.httpRequests, null)}
+    </div>
+  `;
 }
 
 function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
