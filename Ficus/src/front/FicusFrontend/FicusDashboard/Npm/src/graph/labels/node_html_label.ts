@@ -11,7 +11,7 @@ import {getOrCreateColor} from "../../utils";
 import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
-  createArrayPoolEnhancement,
+  createArrayPoolEnhancement, createEnhancementContainer,
   createPieChart,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -98,12 +98,7 @@ function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], softwar
   }
 
   return enhancementsHtmls
-    .map(([e, html]) => `
-      <div class="graph-content-container">
-        <div class="graph-title-label" style="margin-bottom: 5px;">${SoftwareEnhancementKind[e]}</div>
-        ${html}
-      </div>
-    `)
+    .map(([e, html]) => createEnhancementContainer(SoftwareEnhancementKind[e].toString(), html))
     .join("\n");
 }
 

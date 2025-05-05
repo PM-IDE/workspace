@@ -23,6 +23,19 @@ export function createPieChart(sortedHistogramEntries: [string, number][], perfo
   `
 }
 
+export function createEnhancementContainer(title: string, content: string): string {
+  if (content.length == 0) {
+    return "";
+  }
+
+  return `
+    <div class="graph-content-container">
+      <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
+      ${content}
+    </div>
+  `
+}
+
 function createPieChartEntries(sortedHistogramEntries: [string, number][]) {
   let summedCount = sortedHistogramEntries.map(entry => entry[1]).reduce((a, b) => a + b, 0);
 

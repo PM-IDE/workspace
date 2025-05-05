@@ -19,7 +19,7 @@ export function createDagreLayout() {
     rankDir: 'LR',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
-    spacingFactor: 1.5
+    spacingFactor: 2
   }
 }
 

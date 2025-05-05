@@ -1,7 +1,7 @@
 import {AggregatedData, GraphEdge, SoftwareEnhancementKind} from "../types";
 import {MergedSoftwareData} from "../util";
 import {
-  createArrayPoolEnhancement,
+  createArrayPoolEnhancement, createEnhancementContainer,
   createRectangleHistogram,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -50,9 +50,9 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
     case SoftwareEnhancementKind.Exceptions:
       return createExceptionsEnhancement(softwareData);
     case SoftwareEnhancementKind.ArrayPools:
-      return createArrayPoolEnhancement(softwareData, edge.aggregatedData);
+      return createEnhancementContainer("ArrayPools", createArrayPoolEnhancement(softwareData, edge.aggregatedData));
     case SoftwareEnhancementKind.Threads:
-      return createThreadsEnhancement(softwareData);
+      return createEnhancementContainer("Threads", createThreadsEnhancement(softwareData));
     default:
       return "";
   }
