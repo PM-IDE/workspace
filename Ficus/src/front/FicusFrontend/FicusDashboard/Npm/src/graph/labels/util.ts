@@ -101,8 +101,11 @@ export function createThreadsEnhancement(softwareData: MergedSoftwareData): stri
   `;
 }
 
+function createNumberInformation(category: string, units: string, value: number, totalValue: number | null): string {
+  if (value == 0) {
+    return "";
+  }
 
-function createNumberInformation(category: string, units: string,  value: number, totalValue: number | null): string {
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
       <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
