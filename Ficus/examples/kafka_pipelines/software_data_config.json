@@ -119,9 +119,9 @@
     }
   },
   "thread_created": {
-    "event_class_regex": "AppDomainResourceManagement/ThreadCreated",
+    "event_class_regex": "Thread/Creating",
     "info": {
-      "thread_id_attr": "NativeThreadId"
+      "thread_id_attr": "ID"
     }
   },
   "array_pool_array_created": {
