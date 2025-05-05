@@ -100,10 +100,16 @@ function createEdgeSoftwareEnhancementPart(title: string, data: Map<string, numb
     return '';
   }
 
+  let valuesSum = data.values().reduce((a, b) => a + b, 0);
+  let percent = totalSum != null ? ((valuesSum / totalSum) * 100).toFixed(2) : null;
+
   return `
     <div>
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div class="graph-title-label">${title}</div>
+        <div class="graph-title-label" style="display: flex; flex-direction: column;">
+          <div>${title}</div>
+          <div>${valuesSum} ${percent != null ? `(${percent}%)` : ""}</div>
+        </div>
         ${createRectangleHistogram(toSortedArray(data), totalSum)}
       </div>
     </div>

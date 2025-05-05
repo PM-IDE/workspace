@@ -191,8 +191,13 @@ function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
   if (softwareData.allocations.size > 0) {
     let relativeAllocatedBytes = softwareData.allocations.values().reduce((a, b) => a + b, 0) / aggregatedData.totalAllocatedBytes;
     let color = getPerformanceAnnotationColor(relativeAllocatedBytes);
+    let totalAlloc = softwareData.allocations.values().reduce((a, b) => a + b, 0);
+    let percent = ((totalAlloc / aggregatedData.totalAllocatedBytes) * 100).toFixed(2);
 
     return `
+        <div>
+          ${totalAlloc} (${percent}%)
+        </div>
         <div>
           ${createPieChart(toSortedArray(softwareData.allocations), color)}
         </div>
