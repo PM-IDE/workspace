@@ -10,7 +10,13 @@ import tippy, {Instance, Props} from "tippy.js";
 import {getOrCreateColor} from "../../utils";
 import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
-import {createArrayPoolEnhancement, createPieChart, getPercentExecutionTime, toSortedArray} from "./util";
+import {
+  createArrayPoolEnhancement,
+  createPieChart,
+  createThreadsEnhancement,
+  getPercentExecutionTime,
+  toSortedArray
+} from "./util";
 
 const graphColor = graphColors(darkTheme);
 
@@ -113,6 +119,8 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
       return createArrayPoolEnhancement(softwareData, aggregatedData);
     case SoftwareEnhancementKind.Exceptions:
       return createExceptionEnhancement(softwareData);
+    case SoftwareEnhancementKind.Threads:
+      return createThreadsEnhancement(softwareData);
     default:
       return "";
   }

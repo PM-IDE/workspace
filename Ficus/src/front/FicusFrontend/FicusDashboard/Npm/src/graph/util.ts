@@ -64,7 +64,10 @@ export interface MergedSoftwareData {
   bufferRentedBytes: CountAndSum,
   bufferReturnedBytes: CountAndSum,
   
-  exceptions: Map<string, number>
+  exceptions: Map<string, number>,
+  
+  createdThreads: Set<number>,
+  terminatedThreads: Set<number>,
 }
 
 export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedSoftwareData {
@@ -97,7 +100,10 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     bufferRentedBytes: {count: 0, sum: 0},
     bufferReturnedBytes: {count: 0, sum: 0},
     
-    exceptions: new Map()
+    exceptions: new Map(),
+    
+    createdThreads: new Set(),
+    terminatedThreads: new Set(),
   };
   
   let matchesFilter = (value: string) => {
@@ -171,6 +177,18 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     for (let exception of softwareData.exceptionEvents) {
       if (matchesFilter(exception.exceptionType)) {
         increment(mergedSoftwareData.exceptions, exception.exceptionType, 1);
+      }
+    }
+
+    for (let threadEvent of softwareData.threadEvents) {
+      if (!matchesFilter(threadEvent.threadId.toString())) {
+        continue;
+      }
+
+      if (threadEvent.created != null) {
+        mergedSoftwareData.createdThreads.add(threadEvent.threadId);
+      } else if (threadEvent.terminated != null) {
+        mergedSoftwareData.terminatedThreads.add(threadEvent.threadId);
       }
     }
   }

@@ -77,21 +77,36 @@ export function createArrayPoolEnhancement(softwareData: MergedSoftwareData, agg
     return "";
   }
 
+  const units = "bytes";
   return `
     <div>
-      ${createNumberInformation("Allocated", softwareData.bufferAllocatedBytes.sum, aggregatedData.totalBufferAllocatedBytes)}
-      ${createNumberInformation("Rented", softwareData.bufferRentedBytes.sum, aggregatedData.totalBufferRentedBytes)}
-      ${createNumberInformation("Returned", softwareData.bufferReturnedBytes.sum, aggregatedData.totalBufferReturnedBytes)}
+      ${createNumberInformation("Allocated", units, softwareData.bufferAllocatedBytes.sum, aggregatedData.totalBufferAllocatedBytes)}
+      ${createNumberInformation("Rented", units, softwareData.bufferRentedBytes.sum, aggregatedData.totalBufferRentedBytes)}
+      ${createNumberInformation("Returned", units, softwareData.bufferReturnedBytes.sum, aggregatedData.totalBufferReturnedBytes)}
+    </div>
+  `;
+}
+
+export function createThreadsEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.createdThreads.size == 0 && softwareData.terminatedThreads.size == 0) {
+    return "";
+  }
+
+  const units = "threads";
+  return `
+    <div>
+      ${createNumberInformation("Created", units, softwareData.createdThreads.size, null)}
+      ${createNumberInformation("Terminated", units, softwareData.terminatedThreads.size, null)}
     </div>
   `;
 }
 
 
-function createNumberInformation(category: string, value: number, totalValue: number | null): string {
+function createNumberInformation(category: string, units: string,  value: number, totalValue: number | null): string {
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
       <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
-        ${category} ${value} bytes
+        ${category} ${value} ${units}
       </div>
     </div>
   `;

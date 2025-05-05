@@ -296,7 +296,11 @@ enum GrpcThreadEventKind {
 
 message GrpcThreadEventInfo {
   uint64 thread_id = 1;
-  GrpcThreadEventKind event_kind = 2;
+
+  oneof event {
+    google.protobuf.Empty created = 2;
+    google.protobuf.Empty terminated = 3;
+  }
 }
 
 enum GrpcAssemblyEventKind {

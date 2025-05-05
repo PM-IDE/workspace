@@ -19,8 +19,11 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     logger.LogInformation("Received a new weather forecast request");
     var weatherForecast = await weatherService.GetWeather();
 
+    CreateThread();
     foreach (var forecast in weatherForecast)
     {
+      CreateThread();
+
       var array = ArrayPool<byte[]>.Shared.Rent(Random.Shared.Next(2000));
 
       try
@@ -37,5 +40,12 @@ public class WeatherForecastController(ILogger<WeatherForecastController> logger
     }
 
     return weatherForecast;
+  }
+
+  private void CreateThread()
+  {
+    var thread = new Thread(() => { logger.LogInformation("xd"); });
+    thread.Start();
+    thread.Join();
   }
 }
