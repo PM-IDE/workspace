@@ -15,7 +15,7 @@
         "namespace_attr": "MethodNamespace",
         "signature_attr": "MethodSignature"
       },
-      "prefix": "MethodStart_"
+      "prefix": "[Start]"
     }
   },
   "method_end": {
@@ -26,7 +26,7 @@
         "namespace_attr": "MethodNamespace",
         "signature_attr": "MethodSignature"
       },
-      "prefix": "MethodEnd_"
+      "prefix": "[End]"
     }
   },
   "method_inlining_success": {
@@ -181,7 +181,7 @@
     }
   },
   "raw_control_flow_regexes": [
-    "MethodEnd_",
-    "MethodStart_"
+    "\\[Start\\]",
+    "\\[End\\]"
   ]
 }
