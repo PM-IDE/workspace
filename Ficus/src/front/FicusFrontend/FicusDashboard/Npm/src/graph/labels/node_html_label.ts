@@ -198,7 +198,8 @@ function createSoftwareEnhancementHistogram(title: string, data: Map<string, num
 
 function createNodeDisplayName(node: GraphNode, name: string): string {
   return `
-      <div style="width: 100%; font-size: 22px; background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
+      <div style="max-width: 200px; font-size: 60px; font-weight: 900; 
+                  background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
           ${name}
       </div>
     `;
