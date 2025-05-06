@@ -6,6 +6,7 @@ import {setDrawColorsLog} from "./colors_log/colors_log_renderer";
 import {setCanvasSizeFunctions} from "./canvas_size";
 import {setFullscreenFunctions} from "./full_screen";
 import {addPieChartCustomElements} from "./piechart";
+import {setGraphEventListeners} from "./graph/event_listeners";
 
 setFullscreenFunctions();
 setDrawPetriNet();
@@ -16,3 +17,5 @@ setDrawColorsLog();
 setCanvasSizeFunctions();
 
 addPieChartCustomElements();
+
+setGraphEventListeners();
