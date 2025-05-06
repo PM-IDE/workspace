@@ -1,7 +1,7 @@
 use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
 use crate::event_log::core::event::event::EventPayloadValue;
 use crate::features::analysis::patterns::pattern_info::UNDERLYING_PATTERN_KIND_KEY;
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},

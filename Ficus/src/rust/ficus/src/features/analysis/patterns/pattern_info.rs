@@ -1,6 +1,6 @@
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::analysis::patterns::entry_points::PatternsKind;
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
 use lazy_static::lazy_static;
 use std::cell::RefCell;

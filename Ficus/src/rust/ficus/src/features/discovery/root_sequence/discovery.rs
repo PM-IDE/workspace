@@ -3,7 +3,7 @@ use crate::features::discovery::root_sequence::adjustments::{adjust_connections,
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::lcs::find_longest_common_subsequence;

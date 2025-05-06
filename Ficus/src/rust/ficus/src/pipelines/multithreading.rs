@@ -22,7 +22,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
 use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::root_sequence::discovery_xes::DISPLAY_NAME_KEY;
+use crate::utils::display_name::DISPLAY_NAME_KEY;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {

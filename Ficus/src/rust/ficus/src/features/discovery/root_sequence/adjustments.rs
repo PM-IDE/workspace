@@ -3,7 +3,7 @@ use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::context_keys::{NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY};
 use crate::features::discovery::root_sequence::discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventWithUniqueId, NodeAdditionalDataContainer};
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;

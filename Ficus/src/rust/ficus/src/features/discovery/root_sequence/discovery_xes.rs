@@ -12,7 +12,7 @@ use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA
 use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
 use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
@@ -21,10 +21,7 @@ use std::fmt::Debug;
 use std::ops::Deref;
 use std::rc::Rc;
 use lazy_static::lazy_static;
-
-lazy_static!(
-   pub static ref DISPLAY_NAME_KEY: DefaultContextKey<String> = DefaultContextKey::new("DISPLAY_NAME");
-);
+use crate::utils::display_name::get_display_name;
 
 pub fn discover_root_sequence_graph_from_event_log(
   log: &XesEventLogImpl,
@@ -34,10 +31,7 @@ pub fn discover_root_sequence_graph_from_event_log(
   assert_all_traces_have_artificial_start_end_events(log)?;
   adjust_log_user_data(log);
 
-  let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| match e.borrow().user_data().concrete(DISPLAY_NAME_KEY.key()) {
-    None => HeapedOrOwned::Heaped(e.borrow().name_pointer().clone()),
-    Some(name) => HeapedOrOwned::Owned(name.clone())
-  };
+  let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| get_display_name(&e.borrow());
 
   let artificial_start_end_events_factory = || (
     Rc::new(RefCell::new(XesEventImpl::new_with_min_date(ARTIFICIAL_START_EVENT_NAME.to_string()))),

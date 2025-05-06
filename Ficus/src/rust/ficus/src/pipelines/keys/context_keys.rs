@@ -12,7 +12,7 @@ use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::grpc::events::events_handler::CaseName;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_key::{ContextKey, DefaultContextKey};
+use crate::utils::context_key::{ContextKey, DefaultContextKey};
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;

@@ -2,7 +2,7 @@ use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;

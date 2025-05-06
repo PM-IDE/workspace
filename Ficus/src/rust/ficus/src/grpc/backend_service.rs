@@ -22,9 +22,10 @@ use crate::{
     grpc_backend_service_server::GrpcBackendService, GrpcGetContextValueRequest, GrpcGetContextValueResult, GrpcGuid,
     GrpcPipelinePartExecutionResult,
   },
-  pipelines::{keys::context_key::ContextKey, pipeline_parts::PipelineParts},
+  pipelines::pipeline_parts::PipelineParts,
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
+use crate::utils::context_key::ContextKey;
 
 pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_result::Result;
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;
