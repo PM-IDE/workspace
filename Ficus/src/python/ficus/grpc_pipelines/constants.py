@@ -150,10 +150,13 @@ const_clusterize_traces_dbscan_grid_search = 'ClusterizeLogTracesDbscanGridSearc
 const_discover_root_sequence_graph = 'DiscoverRootSequenceGraph'
 const_discover_loops_strict = 'DiscoverLoopsStrict'
 const_discover_traces_timeline_diagram = 'DiscoverTracesTimelineDiagram'
+
 const_prepare_software_log = 'PrepareSoftwareEventLog'
 const_shorten_allocation_type = 'ShortenAllocationType'
 const_shorten_method_names = 'ShortenMethodNames'
 const_set_methods_display_name = 'SetMethodsDisplayName'
+const_remain_only_method_start_events = 'RemainOnlyMethodStartEvents'
+const_remain_only_method_end_events = 'RemainOnlyMethodEndEvents'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

@@ -1,6 +1,7 @@
 use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::create_threads_log_by_attribute;
@@ -12,17 +13,16 @@ use crate::features::discovery::timeline::events_groups::{enumerate_event_groups
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
+use crate::utils::display_name::DISPLAY_NAME_KEY;
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use fancy_regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::utils::display_name::DISPLAY_NAME_KEY;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -452,6 +452,36 @@ impl PipelineParts {
       }
 
       Ok(())
+    })
+  }
+
+  pub(super) fn remain_only_method_start_events() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::REMAIN_ONLY_METHOD_START_EVENTS, &|context, _, _| {
+      Self::remain_only_method_start_or_end_events(context, true)
+    })
+  }
+
+  fn remain_only_method_start_or_end_events(
+    context: &PipelineContext,
+    remain_start_events: bool,
+  ) -> Result<(), PipelinePartExecutionError> {
+    let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+    let config = Self::get_software_data_extraction_config(context);
+    let config = match remain_start_events {
+      true => config.method_end(),
+      false => config.method_start()
+    };
+
+    if let Some(config) = Self::create_method_extraction_info(config.as_ref())? {
+      log.filter_events_by(|e| config.event_regex.is_match(e.name().as_str()).unwrap_or(false));
+    }
+
+    Ok(())
+  }
+
+  pub(super) fn remain_only_method_end_events() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::REMAIN_ONLY_METHOD_END_EVENTS, &|context, _, _| {
+      Self::remain_only_method_start_or_end_events(context, false)
     })
   }
 }

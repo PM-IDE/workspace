@@ -63,6 +63,8 @@ impl PipelineParts {
   pub const SHORTEN_ALLOCATION_TYPE: &'static str = "ShortenAllocationType";
   pub const SHORTEN_METHOD_NAMES: &'static str = "ShortenMethodNames";
   pub const SET_METHODS_DISPLAY_NAME: &'static str = "SetMethodsDisplayName";
+  pub const REMAIN_ONLY_METHOD_START_EVENTS: &'static str = "RemainOnlyMethodStartEvents";
+  pub const REMAIN_ONLY_METHOD_END_EVENTS: &'static str = "RemainOnlyMethodEndEvents";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";

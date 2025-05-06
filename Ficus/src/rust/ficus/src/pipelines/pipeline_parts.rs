@@ -104,7 +104,9 @@ impl PipelineParts {
       Self::prepare_software_log(),
       Self::shorten_allocation_types(),
       Self::shorten_methods_names(),
-      Self::set_methods_display_name()
+      Self::set_methods_display_name(),
+      Self::remain_only_method_start_events(),
+      Self::remain_only_method_end_events()
     ];
 
     let mut names_to_parts = HashMap::new();

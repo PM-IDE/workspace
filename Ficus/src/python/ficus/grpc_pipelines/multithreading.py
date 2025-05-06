@@ -146,3 +146,13 @@ class ShortenMethodNames(PipelinePart):
 class SetMethodsDisplayName(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_set_methods_display_name))
+
+
+class RemainOnlyMethodStartEvents(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_remain_only_method_start_events))
+
+
+class RemainOnlyMethodEndEvents(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_remain_only_method_end_events))

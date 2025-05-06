@@ -7,6 +7,7 @@ execute_pipeline(
     [
         PrintEventLogInfo(),
         TracesDiversityDiagramCanvas(),
+        RemainOnlyMethodStartEvents(),
         SetMethodsDisplayName(),
         ShortenAllocationType(),
         ShortenMethodNames(),
