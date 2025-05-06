@@ -436,7 +436,10 @@ impl PipelineParts {
             for config in &configs {
               if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
                 if let Some((_, name, _)) = Self::extract_method_name_parts(payload, config) {
-                  display_name = Some(name);
+                  display_name = Some(match config.prefix.as_ref() {
+                    None => name,
+                    Some(prefix) => prefix.to_string() + name.as_str()
+                  });
                 }
               }
             }
