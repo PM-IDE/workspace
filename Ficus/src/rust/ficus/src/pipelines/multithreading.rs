@@ -15,13 +15,14 @@ use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawP
 use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
-use crate::utils::user_data::user_data::UserData;
+use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use fancy_regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
 use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::features::discovery::root_sequence::discovery_xes::DISPLAY_NAME_KEY;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -278,22 +279,17 @@ impl PipelineParts {
   pub(super) fn shorten_methods_names() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::SHORTEN_METHOD_NAMES, &|context, _, _| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-      let software_data_extraction_config = Self::get_software_data_extraction_config(context);
-      
-      let mut configs = vec![];
 
-      Self::try_add_processed_config(software_data_extraction_config.method_start().as_ref(), &mut configs);
-      Self::try_add_processed_config(software_data_extraction_config.method_end().as_ref(), &mut configs);
-
-      if configs.is_empty() {
-        return Ok(());
-      }
-      
       let methods_id_factories: Vec<&dyn Fn(&String, &String, &String) -> String> = vec![
         &|_, name, _| name.to_owned(),
         &|_, name, signature| name.to_owned() + signature,
         &|namespace, name, _| namespace.to_string() + name,
       ];
+
+      let configs = Self::create_processed_method_extraction_configs(context);
+      if configs.is_empty() {
+        return Ok(());
+      }
 
       for config in &configs {
         for method_id_factory in &methods_id_factories {
@@ -332,6 +328,17 @@ impl PipelineParts {
       
       Ok(())
     })
+  }
+  
+  fn create_processed_method_extraction_configs(context: &PipelineContext) -> Vec<ProcessedMethodStartEndConfig> {
+    let software_data_extraction_config = Self::get_software_data_extraction_config(context);
+
+    let mut configs = vec![];
+
+    Self::try_add_processed_config(software_data_extraction_config.method_start().as_ref(), &mut configs);
+    Self::try_add_processed_config(software_data_extraction_config.method_end().as_ref(), &mut configs);
+
+    configs
   }
 
   fn try_add_processed_config(config: Option<&ExtractionConfig<MethodStartEndConfig>>, processed_configs: &mut Vec<ProcessedMethodStartEndConfig>) {
@@ -414,6 +421,35 @@ impl PipelineParts {
     }
     
     true
+  }
+  
+  pub(super) fn set_methods_display_name() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::SET_METHODS_DISPLAY_NAME, &|context, _, _| {
+      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+      let configs = Self::create_processed_method_extraction_configs(context);
+
+      for trace in log.traces() {
+        let trace = trace.borrow();
+        for event in trace.events() {
+          let mut display_name = None;
+          if let Some(payload) = event.borrow().payload_map() {
+            for config in &configs {
+              if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+                if let Some((_, name, _)) = Self::extract_method_name_parts(payload, config) {
+                  display_name = Some(name);
+                }
+              }
+            }
+          }
+
+          if let Some(display_name) = display_name {
+            event.borrow_mut().user_data_mut().put_concrete(DISPLAY_NAME_KEY.key(), display_name);
+          }
+        }
+      }
+
+      Ok(())
+    })
   }
 }
 

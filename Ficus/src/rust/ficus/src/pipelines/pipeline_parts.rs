@@ -103,7 +103,8 @@ impl PipelineParts {
       Self::discover_traces_timeline_diagram(),
       Self::prepare_software_log(),
       Self::shorten_allocation_types(),
-      Self::shorten_methods_names()
+      Self::shorten_methods_names(),
+      Self::set_methods_display_name()
     ];
 
     let mut names_to_parts = HashMap::new();

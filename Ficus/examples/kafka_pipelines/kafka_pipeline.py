@@ -7,6 +7,7 @@ execute_pipeline(
     [
         PrintEventLogInfo(),
         TracesDiversityDiagramCanvas(),
+        SetMethodsDisplayName(),
         ShortenAllocationType(),
         ShortenMethodNames(),
         PrepareSoftwareLog(time_attribute = 'QpcStamp'),

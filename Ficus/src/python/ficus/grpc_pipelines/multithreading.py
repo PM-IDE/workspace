@@ -141,3 +141,8 @@ class ShortenAllocationType(PipelinePart):
 class ShortenMethodNames(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_shorten_method_names))
+
+
+class SetMethodsDisplayName(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_set_methods_display_name))

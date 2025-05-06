@@ -20,6 +20,11 @@ use std::cell::RefCell;
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::rc::Rc;
+use lazy_static::lazy_static;
+
+lazy_static!(
+   pub static ref DISPLAY_NAME_KEY: DefaultContextKey<String> = DefaultContextKey::new("DISPLAY_NAME");
+);
 
 pub fn discover_root_sequence_graph_from_event_log(
   log: &XesEventLogImpl,
@@ -29,7 +34,10 @@ pub fn discover_root_sequence_graph_from_event_log(
   assert_all_traces_have_artificial_start_end_events(log)?;
   adjust_log_user_data(log);
 
-  let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| HeapedOrOwned::Heaped(e.borrow().name_pointer().clone());
+  let name_extractor = |e: &Rc<RefCell<XesEventImpl>>| match e.borrow().user_data().concrete(DISPLAY_NAME_KEY.key()) {
+    None => HeapedOrOwned::Heaped(e.borrow().name_pointer().clone()),
+    Some(name) => HeapedOrOwned::Owned(name.clone())
+  };
 
   let artificial_start_end_events_factory = || (
     Rc::new(RefCell::new(XesEventImpl::new_with_min_date(ARTIFICIAL_START_EVENT_NAME.to_string()))),
