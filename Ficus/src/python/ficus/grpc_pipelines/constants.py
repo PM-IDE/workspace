@@ -157,6 +157,7 @@ const_shorten_method_names = 'ShortenMethodNames'
 const_set_methods_display_name = 'SetMethodsDisplayName'
 const_remain_only_method_start_events = 'RemainOnlyMethodStartEvents'
 const_remain_only_method_end_events = 'RemainOnlyMethodEndEvents'
+const_discover_multithreaded_dfg = 'DiscoverMultithreadedDfg'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

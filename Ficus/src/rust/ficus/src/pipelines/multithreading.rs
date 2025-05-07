@@ -13,7 +13,7 @@ use crate::features::discovery::timeline::events_groups::{enumerate_event_groups
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::display_name::DISPLAY_NAME_KEY;
@@ -23,6 +23,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
+use crate::features::discovery::multithreading_dfg::dfg::discover_multithreaded_dfg;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -323,7 +324,7 @@ impl PipelineParts {
               Self::shorten_method_name(config, &mut event.borrow_mut());
             }
           }
-        } 
+        }
       }
       
       Ok(())
@@ -482,6 +483,18 @@ impl PipelineParts {
   pub(super) fn remain_only_method_end_events() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::REMAIN_ONLY_METHOD_END_EVENTS, &|context, _, _| {
       Self::remain_only_method_start_or_end_events(context, false)
+    })
+  }
+
+  pub(super) fn discover_multithreaded_dfg() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::DISCOVER_MULTITHREADED_DFG, &|context, _, config| {
+      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
+
+      let dfg = discover_multithreaded_dfg(log, thread_attribute.as_str());
+      context.put_concrete(GRAPH_KEY.key(), dfg);
+
+      Ok(())
     })
   }
 }

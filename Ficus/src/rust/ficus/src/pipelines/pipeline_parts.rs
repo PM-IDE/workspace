@@ -106,7 +106,8 @@ impl PipelineParts {
       Self::shorten_methods_names(),
       Self::set_methods_display_name(),
       Self::remain_only_method_start_events(),
-      Self::remain_only_method_end_events()
+      Self::remain_only_method_end_events(),
+      Self::discover_multithreaded_dfg()
     ];
 
     let mut names_to_parts = HashMap::new();

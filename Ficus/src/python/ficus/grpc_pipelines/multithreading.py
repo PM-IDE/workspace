@@ -156,3 +156,15 @@ class RemainOnlyMethodStartEvents(PipelinePart):
 class RemainOnlyMethodEndEvents(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_remain_only_method_end_events))
+
+
+class DiscoverMultithreadedDfg(PipelinePart):
+  def __init__(self, thread_attribute: str):
+    super().__init__()
+    self.thread_attribute = thread_attribute
+
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_multithreaded_dfg, config))
