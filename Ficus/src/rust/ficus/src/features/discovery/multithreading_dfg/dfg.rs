@@ -5,9 +5,11 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::timeline::utils::extract_thread_id;
-use std::collections::{HashMap, HashSet};
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
 
 pub fn discover_multithreaded_dfg(log: &XesEventLogImpl, thread_attribute: &str) -> DefaultGraph {
   let mut dfg = HashMap::new();
@@ -46,7 +48,101 @@ enum TracePart {
   Sequential(usize),
 }
 
+impl TracePart {
+  pub fn length(&self) -> usize {
+    match self {
+      TracePart::Multithreaded(length) => *length,
+      TracePart::Sequential(length) => *length
+    }
+  }
+
+  pub fn process(
+    &self,
+    trace: &XesTraceImpl,
+    thread_attribute: &str,
+    last_event_classes: &mut HashSet<String>,
+    dfg: &mut HashMap<(String, String), usize>,
+    index: usize,
+  ) {
+    match self {
+      TracePart::Multithreaded(_) => self.process_multithreaded_part(trace, thread_attribute, last_event_classes, dfg, index),
+      TracePart::Sequential(_) => self.process_sequential_part(trace, last_event_classes, dfg, index)
+    }
+  }
+
+  fn process_multithreaded_part(
+    &self,
+    trace: &XesTraceImpl,
+    thread_attribute: &str,
+    last_event_classes: &mut HashSet<String>,
+    dfg: &mut HashMap<(String, String), usize>,
+    index: usize,
+  ) {
+    let events = &trace.events()[index..index + self.length()];
+    let mut events_by_threads = HashMap::new();
+
+    for event in events {
+      let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
+      events_by_threads.entry(thread_id).or_insert(vec![]).push(event.clone());
+    }
+
+    for last_seen_class in last_event_classes.iter() {
+      for first_event in events_by_threads.values().map(|es| es.first().unwrap()) {
+        *dfg.entry((last_seen_class.to_owned(), first_event.borrow().name().to_owned())).or_insert(0) += 1;
+      }
+    }
+
+    last_event_classes.clear();
+    for last_event in events_by_threads.values().map(|es| es.last().unwrap()) {
+      last_event_classes.insert(last_event.borrow().name().to_string());
+    }
+
+    for events in events_by_threads.values() {
+      Self::add_dfg_relations_from_trace(events, dfg);
+    }
+  }
+
+  fn process_sequential_part(
+    &self,
+    trace: &XesTraceImpl,
+    last_event_classes: &mut HashSet<String>,
+    dfg: &mut HashMap<(String, String), usize>,
+    index: usize,
+  ) {
+    let events = &trace.events()[index..index + self.length()];
+    for last_seen_class in last_event_classes.iter() {
+      *dfg.entry((last_seen_class.to_owned(), events.first().unwrap().borrow().name().to_owned())).or_insert(0) += 1;
+    }
+
+    last_event_classes.clear();
+    last_event_classes.insert(events.last().unwrap().borrow().name().to_string());
+
+    Self::add_dfg_relations_from_trace(trace.events(), dfg);
+  }
+
+  fn add_dfg_relations_from_trace(events: &Vec<Rc<RefCell<XesEventImpl>>>, dfg: &mut HashMap<(String, String), usize>) {
+    for i in 0..events.len() - 1 {
+      *dfg.entry((events[i].borrow().name().to_owned(), events[i + 1].borrow().name().to_owned())).or_insert(0) += 1;
+    }
+  }
+}
+
 fn discover_multithreading_dfg_for_trace(trace: &XesTraceImpl, thread_attribute: &str) -> HashMap<(String, String), usize> {
+  let trace_parts = create_trace_parts(trace, thread_attribute);
+
+  let mut index = 0;
+  let mut last_event_classes = HashSet::new();
+  let mut dfg = HashMap::new();
+
+  for part in trace_parts {
+    part.process(trace, thread_attribute, &mut last_event_classes, &mut dfg, index);
+    index += part.length();
+  }
+
+  dfg
+}
+
+fn create_trace_parts(trace: &XesTraceImpl, thread_attribute: &str) -> Vec<TracePart> {
   let mut events_threads = HashMap::new();
   for event in trace.events() {
     let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
@@ -82,63 +178,5 @@ fn discover_multithreading_dfg_for_trace(trace: &XesTraceImpl, thread_attribute:
     index = group_current_index;
   }
 
-  index = 0;
-  let mut last_event_classes = HashSet::new();
-  let mut dfg = HashMap::new();
-  let mut increment = |first: &String, second: &String| {
-    *dfg.entry((first.to_owned(), second.to_owned())).or_insert(0) += 1;
-  };
-
-  for part in trace_parts {
-    let length = match part {
-      TracePart::Multithreaded(length) => length,
-      TracePart::Sequential(length) => length
-    };
-
-    match part {
-      TracePart::Multithreaded(_) => {
-        let events = &trace.events()[index..index + length];
-        let mut events_by_threads = HashMap::new();
-
-        for event in events {
-          let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
-          events_by_threads.entry(thread_id).or_insert(vec![]).push(event.clone());
-        }
-
-        for last_seen_class in &last_event_classes {
-          for first_event in events_by_threads.values().map(|es| es.first().unwrap()) {
-            increment(last_seen_class, first_event.borrow().name());
-          }
-        }
-
-        last_event_classes.clear();
-        for last_event in events_by_threads.values().map(|es| es.last().unwrap()) {
-          last_event_classes.insert(last_event.borrow().name().to_string());
-        }
-
-        for events in events_by_threads.values() {
-          for i in 0..events.len() - 1 {
-            increment(events[i].borrow().name(), events[i + 1].borrow().name());
-          }
-        }
-      }
-      TracePart::Sequential(_) => {
-        let events = &trace.events()[index..index + length];
-        for last_seen_class in &last_event_classes {
-          increment(last_seen_class, events.first().unwrap().borrow().name())
-        }
-
-        last_event_classes.clear();
-        last_event_classes.insert(events.last().unwrap().borrow().name().to_string());
-
-        for i in 0..events.len() - 1 {
-          increment(events[i].borrow().name(), events[i + 1].borrow().name());
-        }
-      }
-    }
-    
-    index += length;
-  }
-
-  dfg
+  trace_parts
 }
