@@ -159,12 +159,16 @@ class RemainOnlyMethodEndEvents(PipelinePart):
 
 
 class DiscoverMultithreadedDfg(PipelinePart):
-  def __init__(self, thread_attribute: str):
+  def __init__(self, thread_attribute: str, sequential_regexes: Optional[list[str]] = None):
     super().__init__()
     self.thread_attribute = thread_attribute
+    self.sequential_regexes = sequential_regexes
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    if self.sequential_regexes is not None:
+      append_strings_context_value(config, const_regexes, self.sequential_regexes)
 
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_multithreaded_dfg, config))

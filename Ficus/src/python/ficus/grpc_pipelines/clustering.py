@@ -466,6 +466,7 @@ class AbstractMultithreadedEventsGroups(ClusterizeLogTracesBase):
   def __init__(self,
                thread_attribute: str,
                time_attribute: Optional[str],
+               sequential_regexes: Optional[list[str]] = None,
                min_events_count_in_cluster: int = 1,
                tolerance: float = 1e-5,
                show_visualization: bool = True,
@@ -502,11 +503,15 @@ class AbstractMultithreadedEventsGroups(ClusterizeLogTracesBase):
     self.time_attribute = time_attribute
     self.tolerance = tolerance
     self.min_events_count_in_cluster = min_events_count_in_cluster
+    self.sequential_regexes = sequential_regexes
 
   def fill_config_values(self, config: GrpcPipelinePartConfiguration):
     append_float_value(config, const_tolerance, self.tolerance)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
     append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    if self.sequential_regexes is not None:
+      append_strings_context_value(config, const_regexes, self.sequential_regexes)
 
     if self.time_attribute is not None:
       append_string_value(config, const_time_attribute, self.time_attribute)
