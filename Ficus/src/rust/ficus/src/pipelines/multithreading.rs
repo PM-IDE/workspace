@@ -11,13 +11,13 @@ use crate::features::discovery::timeline::abstraction::abstract_event_groups;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, discover_traces_timeline_diagram};
 use crate::features::discovery::timeline::events_groups::{enumerate_event_groups, EventGroup};
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
-use crate::pipelines::context::PipelineContext;
+use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::display_name::DISPLAY_NAME_KEY;
-use crate::utils::user_data::user_data::{UserData, UserDataOwner};
+use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
 use fancy_regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -90,43 +90,68 @@ impl PipelineParts {
 
   pub(super) fn abstract_timeline_diagram() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::ABSTRACT_TIMELINE_DIAGRAM, &|context, infra, config| {
-      let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
-      let thread_attribute = timeline.thread_attribute().to_string();
-      let time_attribute = timeline.time_attribute().as_ref().cloned();
-      let extraction_config = Self::get_software_data_extraction_config(context);
+      let (thread_attribute, time_attribute) = Self::extract_thread_and_time_attribute(context)?;
 
-      let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
-      let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
-
-      let events_groups = enumerate_event_groups(timeline);
-      let events_groups_log = Self::create_groups_event_log(&events_groups);
-      let mut params = Self::create_traces_clustering_params(context, config)?;
-      params.vis_params.log = &events_groups_log;
-
-      let (_, labeled_dataset) = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster) {
-        Ok(new_logs) => new_logs,
-        Err(error) => return Err(error.into()),
-      };
-
-      if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
-        let abstracted_log = abstract_event_groups(
-          events_groups,
-          labeled_dataset.labels(),
-          thread_attribute,
-          time_attribute,
-          &extraction_config,
-        )?;
-
-        let mut new_context = context.clone();
-        new_context.put_concrete(EVENT_LOG_KEY.key(), abstracted_log);
-
-        after_clusterization_pipeline.execute(&mut new_context, infra)?;
-      }
-
-      context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), labeled_dataset);
-
-      Ok(())
+      Self::abstract_event_groups(
+        Self::create_event_groups_from_timeline(context)?,
+        context,
+        config,
+        infra,
+        thread_attribute,
+        time_attribute
+      )
     })
+  }
+
+  fn create_event_groups_from_timeline(context: &PipelineContext) -> Result<Vec<Vec<EventGroup>>, PipelinePartExecutionError> {
+    let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
+    Ok(enumerate_event_groups(timeline))
+  }
+
+  fn extract_thread_and_time_attribute(context: &PipelineContext) -> Result<(String, Option<String>), PipelinePartExecutionError> {
+    let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
+    Ok((timeline.thread_attribute().clone(), timeline.time_attribute().as_ref().cloned()))
+  }
+
+  fn abstract_event_groups(
+    events_groups: Vec<Vec<EventGroup>>, 
+    context: &mut PipelineContext, 
+    config: &UserDataImpl,
+    infra: &PipelineInfrastructure,
+    thread_attribute: String,
+    time_attribute: Option<String>
+  ) -> Result<(), PipelinePartExecutionError> {
+    let extraction_config = Self::get_software_data_extraction_config(context);
+    let events_groups_log = Self::create_groups_event_log(&events_groups);
+    let mut params = Self::create_traces_clustering_params(context, config)?;
+    params.vis_params.log = &events_groups_log;
+
+    let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
+    let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
+
+    let (_, labeled_dataset) = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster) {
+      Ok(new_logs) => new_logs,
+      Err(error) => return Err(error.into()),
+    };
+
+    if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
+      let abstracted_log = abstract_event_groups(
+        events_groups,
+        labeled_dataset.labels(),
+        thread_attribute,
+        time_attribute,
+        &extraction_config,
+      )?;
+
+      let mut new_context = context.clone();
+      new_context.put_concrete(EVENT_LOG_KEY.key(), abstracted_log);
+
+      after_clusterization_pipeline.execute(&mut new_context, infra)?;
+    }
+
+    context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), labeled_dataset);
+
+    Ok(())
   }
 
   fn get_software_data_extraction_config(context: &PipelineContext) -> SoftwareDataExtractionConfig {
