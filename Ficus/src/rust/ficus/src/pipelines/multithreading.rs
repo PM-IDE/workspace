@@ -13,7 +13,7 @@ use crate::features::discovery::timeline::events_groups::{enumerate_event_groups
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, REGEXES_KEY, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::display_name::DISPLAY_NAME_KEY;
@@ -24,7 +24,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
 use serde::__private::ser::constrain;
-use crate::features::discovery::multithreading_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups};
+use crate::features::discovery::multithreading_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy};
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -162,7 +162,9 @@ impl PipelineParts {
       let software_config = Self::get_software_data_extraction_config(context);
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
 
-      let groups = enumerate_multithreaded_events_groups(log, &software_config, thread_attribute.as_str())
+      let strategy = Self::create_multithreaded_trace_parts_creation_strategy(config)?;
+
+      let groups = enumerate_multithreaded_events_groups(log, &software_config, thread_attribute.as_str(), &strategy)
         .map_err(|e| PipelinePartExecutionError::new_raw(e))?;
 
       Self::abstract_event_groups(
@@ -537,12 +539,27 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::DISCOVER_MULTITHREADED_DFG, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
+      let strategy = Self::create_multithreaded_trace_parts_creation_strategy(config)?;
 
-      let dfg = discover_multithreaded_dfg(log, thread_attribute.as_str());
+      let dfg = discover_multithreaded_dfg(log, thread_attribute.as_str(), &strategy);
       context.put_concrete(GRAPH_KEY.key(), dfg);
 
       Ok(())
     })
+  }
+  
+  fn create_multithreaded_trace_parts_creation_strategy(config: &UserDataImpl) -> Result<MultithreadedTracePartsCreationStrategy, PipelinePartExecutionError> {
+    match Self::get_user_data(config, &REGEXES_KEY) {
+      Ok(regexes) => {
+        let mut result = vec![];
+        for r in regexes.iter().map(|r| Regex::new(r.as_str()).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string()))) {
+          result.push(r?);
+        }
+
+        Ok(MultithreadedTracePartsCreationStrategy::Regexes(result))
+      },
+      Err(_) => Ok(MultithreadedTracePartsCreationStrategy::Default)
+    }
   }
 }
 

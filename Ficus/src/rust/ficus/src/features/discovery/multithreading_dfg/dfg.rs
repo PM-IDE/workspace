@@ -12,19 +12,25 @@ use crate::utils::references::HeapedOrOwned;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
+use fancy_regex::Regex;
 
-pub fn discover_multithreaded_dfg(log: &XesEventLogImpl, thread_attribute: &str) -> DefaultGraph {
+pub enum MultithreadedTracePartsCreationStrategy {
+  Regexes(Vec<Regex>),
+  Default,
+}
+
+pub fn discover_multithreaded_dfg(log: &XesEventLogImpl, thread_attribute: &str, strategy: &MultithreadedTracePartsCreationStrategy) -> DefaultGraph {
   let mut dfg = HashMap::new();
   for trace in log.traces() {
-    let trace_dfg = discover_multithreading_dfg_for_trace(&trace.borrow(), thread_attribute);
+    let trace_dfg = discover_multithreading_dfg_for_trace(&trace.borrow(), thread_attribute, strategy);
     for ((first, second), count) in trace_dfg {
       *dfg.entry((first.to_owned(), second.to_owned())).or_insert(0) += count;
     }
   }
-  
+
   let mut graph = DefaultGraph::empty();
   let mut added_nodes = HashMap::new();
-  
+
   for ((first, second), count) in dfg {
     let first_node_id = add_node(first, &mut graph, &mut added_nodes);
     let second_node_id = add_node(second, &mut graph, &mut added_nodes);
@@ -36,9 +42,10 @@ pub fn discover_multithreaded_dfg(log: &XesEventLogImpl, thread_attribute: &str)
 }
 
 pub fn enumerate_multithreaded_events_groups(
-  log: &XesEventLogImpl, 
-  config: &SoftwareDataExtractionConfig, 
-  thread_attribute: &str
+  log: &XesEventLogImpl,
+  config: &SoftwareDataExtractionConfig,
+  thread_attribute: &str,
+  strategy: &MultithreadedTracePartsCreationStrategy
 ) -> Result<Vec<Vec<EventGroup>>, String> {
   let mut groups = vec![];
   let regexes = config.control_flow_regexes()?;
@@ -50,7 +57,7 @@ pub fn enumerate_multithreaded_events_groups(
 
   for trace in log.traces() {
     let trace = trace.borrow();
-    let parts = enumerate_trace_parts(&trace, thread_attribute);
+    let parts = enumerate_trace_parts(&trace, thread_attribute, strategy);
 
     let mut index = 0;
     let mut trace_groups = vec![];
@@ -65,14 +72,14 @@ pub fn enumerate_multithreaded_events_groups(
           group.statistic_events_mut().push(event.clone());
         }
       }
-      
+
       index += part.length();
       trace_groups.push(group);
     }
 
     groups.push(trace_groups);
   }
-  
+
   Ok(groups)
 }
 
@@ -171,8 +178,12 @@ impl TracePart {
   }
 }
 
-fn discover_multithreading_dfg_for_trace(trace: &XesTraceImpl, thread_attribute: &str) -> HashMap<(String, String), usize> {
-  let trace_parts = enumerate_trace_parts(trace, thread_attribute);
+fn discover_multithreading_dfg_for_trace(
+  trace: &XesTraceImpl,
+  thread_attribute: &str,
+  strategy: &MultithreadedTracePartsCreationStrategy,
+) -> HashMap<(String, String), usize> {
+  let trace_parts = enumerate_trace_parts(trace, thread_attribute, strategy);
 
   let mut index = 0;
   let mut last_event_classes = HashSet::new();
@@ -186,15 +197,31 @@ fn discover_multithreading_dfg_for_trace(trace: &XesTraceImpl, thread_attribute:
   dfg
 }
 
-fn enumerate_trace_parts(trace: &XesTraceImpl, thread_attribute: &str) -> Vec<TracePart> {
-  let mut events_threads = HashMap::new();
-  for event in trace.events() {
-    let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
-    events_threads.entry(event.borrow().name().as_str().to_string()).or_insert(HashSet::new()).insert(thread_id);
-  }
+fn enumerate_trace_parts(trace: &XesTraceImpl, thread_attribute: &str, strategy: &MultithreadedTracePartsCreationStrategy) -> Vec<TracePart> {
+  let events_threads = if let MultithreadedTracePartsCreationStrategy::Default = strategy {
+    let mut events_threads = HashMap::new();
+    for event in trace.events() {
+      let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
+      events_threads.entry(event.borrow().name().as_str().to_string()).or_insert(HashSet::new()).insert(thread_id);
+    }
+
+    Some(events_threads)
+  } else {
+    None
+  };
 
   let is_sequential = |index: usize| {
-    events_threads.get(trace.events().get(index).unwrap().borrow().name().as_str()).unwrap().len() == 1
+    let event = trace.events().get(index).unwrap().borrow();
+    let name = event.name().as_str();
+
+    match strategy {
+      MultithreadedTracePartsCreationStrategy::Regexes(regexes) => {
+        regexes.iter().any(|r| r.is_match(name).unwrap_or(false))
+      }
+      MultithreadedTracePartsCreationStrategy::Default => {
+        events_threads.as_ref().unwrap().get(name).unwrap().len() == 1
+      }
+    }
   };
 
   let mut trace_parts = vec![];

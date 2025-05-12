@@ -53,7 +53,7 @@ pub const OUTPUT_STRING: &'static str = "output_string";
 pub const EVENT_LOG_INFO: &'static str = "event_log_info";
 pub const UNDERLYING_EVENTS_COUNT: &'static str = "underlying_events_count";
 pub const EVENTS_COUNT: &'static str = "events_count";
-pub const EVENT_CLASSES_REGEXES: &'static str = "event_classes_regexes";
+pub const REGEXES: &'static str = "regexes";
 pub const ADJUSTING_MODE: &'static str = "adjusting_mode";
 pub const EVENT_CLASS_REGEX: &'static str = "event_class_regex";
 pub const PATTERNS_KIND: &'static str = "patterns_kind";
@@ -156,7 +156,7 @@ lazy_static!(
      pub static ref EVENT_LOG_INFO_KEY: DefaultContextKey<OfflineEventLogInfo> = DefaultContextKey::new(EVENT_LOG_INFO);
      pub static ref UNDERLYING_EVENTS_COUNT_KEY: DefaultContextKey<usize> = DefaultContextKey::new(UNDERLYING_EVENTS_COUNT);
      pub static ref EVENTS_COUNT_KEY: DefaultContextKey<u32> = DefaultContextKey::new(EVENTS_COUNT);
-     pub static ref EVENT_CLASSES_REGEXES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(EVENT_CLASSES_REGEXES);
+     pub static ref REGEXES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(REGEXES);
      pub static ref ADJUSTING_MODE_KEY: DefaultContextKey<AdjustingMode> = DefaultContextKey::new(ADJUSTING_MODE);
      pub static ref EVENT_CLASS_REGEX_KEY: DefaultContextKey<String> = DefaultContextKey::new(EVENT_CLASS_REGEX);
      pub static ref PATTERNS_KIND_KEY: DefaultContextKey<PatternsKindDto> = DefaultContextKey::new(PATTERNS_KIND);
@@ -248,7 +248,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     EVENT_LOG_INFO => Some(EVENT_LOG_INFO_KEY.deref() as &dyn ContextKey),
     UNDERLYING_EVENTS_COUNT => Some(UNDERLYING_EVENTS_COUNT_KEY.deref() as &dyn ContextKey),
     EVENTS_COUNT => Some(EVENTS_COUNT_KEY.deref() as &dyn ContextKey),
-    EVENT_CLASSES_REGEXES => Some(EVENT_CLASSES_REGEXES_KEY.deref() as &dyn ContextKey),
+    REGEXES => Some(REGEXES_KEY.deref() as &dyn ContextKey),
     ADJUSTING_MODE => Some(ADJUSTING_MODE_KEY.deref() as &dyn ContextKey),
     EVENT_CLASS_REGEX => Some(EVENT_CLASS_REGEX_KEY.deref() as &dyn ContextKey),
     PATTERNS_KIND => Some(PATTERNS_KIND_KEY.deref() as &dyn ContextKey),

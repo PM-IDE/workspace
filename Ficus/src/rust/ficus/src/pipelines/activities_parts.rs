@@ -15,7 +15,7 @@ use crate::features::analysis::patterns::activity_instances;
 use crate::features::analysis::patterns::activity_instances::{extract_activities_instances_strict, substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME};
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY};
 use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY, EVENTS_COUNT_KEY, EVENT_CLASSES_REGEXES_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY};
+use crate::pipelines::keys::context_keys::{ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY, DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY, EVENTS_COUNT_KEY, REGEXES, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEX_KEY, REPEAT_SETS_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY, REGEXES_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
@@ -192,7 +192,7 @@ impl PipelineParts {
 
   pub(super) fn discover_activities_instances_for_several_levels() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::DISCOVER_ACTIVITIES_FOR_SEVERAL_LEVEL, &|context, infra, config| {
-      let event_classes = Self::get_user_data(config, &EVENT_CLASSES_REGEXES_KEY)?;
+      let event_classes = Self::get_user_data(config, &REGEXES_KEY)?;
       let initial_activity_level = *Self::get_user_data(config, &ACTIVITY_LEVEL_KEY)?;
       let patterns_kind = Self::get_user_data(config, &PATTERNS_KIND_KEY)?;
       let adjusting_mode = Self::get_user_data(config, &ADJUSTING_MODE_KEY)?;

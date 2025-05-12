@@ -46,7 +46,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<OfflineEventLogInfo>(&EVENT_LOG_INFO, &mut used);
     assert_existence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
     assert_existence::<u32>(&EVENTS_COUNT, &mut used);
-    assert_existence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);
+    assert_existence::<Vec<String>>(&REGEXES, &mut used);
     assert_existence::<AdjustingMode>(&ADJUSTING_MODE, &mut used);
     assert_existence::<String>(&EVENT_CLASS_REGEX, &mut used);
     assert_existence::<PatternsKindDto>(&PATTERNS_KIND, &mut used);
@@ -151,7 +151,7 @@ fn get_all_keys_names() -> Vec<String> {
         "event_log_info",
         "underlying_events_count",
         "events_count",
-        "event_classes_regexes",
+        "regexes",
         "adjusting_mode",
         "event_class_regex",
         "patterns_kind",
@@ -256,7 +256,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<OfflineEventLogInfo>(&EVENT_LOG_INFO, &mut used);
     assert_keys_equivalence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
     assert_keys_equivalence::<u32>(&EVENTS_COUNT, &mut used);
-    assert_keys_equivalence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);
+    assert_keys_equivalence::<Vec<String>>(&REGEXES, &mut used);
     assert_keys_equivalence::<AdjustingMode>(&ADJUSTING_MODE, &mut used);
     assert_keys_equivalence::<String>(&EVENT_CLASS_REGEX, &mut used);
     assert_keys_equivalence::<PatternsKindDto>(&PATTERNS_KIND, &mut used);
