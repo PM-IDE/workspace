@@ -85,7 +85,9 @@ fn get_test_parts_names() -> Vec<String> {
         "ShortenMethodNames",
         "SetMethodsDisplayName",
         "RemainOnlyMethodStartEvents",
-        "RemainOnlyMethodEndEvents"
+        "RemainOnlyMethodEndEvents",
+        "DiscoverMultithreadedDfg",
+        "AbstractMultithreadedEventsGroups"
     ]
 }
 
