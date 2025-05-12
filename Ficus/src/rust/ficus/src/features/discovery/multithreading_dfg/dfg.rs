@@ -168,10 +168,10 @@ impl TracePart {
     last_event_classes.clear();
     last_event_classes.insert(events.last().unwrap().borrow().name().to_string());
 
-    Self::add_dfg_relations_from_trace(trace.events(), dfg);
+    Self::add_dfg_relations_from_trace(events, dfg);
   }
 
-  fn add_dfg_relations_from_trace(events: &Vec<Rc<RefCell<XesEventImpl>>>, dfg: &mut HashMap<(String, String), usize>) {
+  fn add_dfg_relations_from_trace(events: &[Rc<RefCell<XesEventImpl>>], dfg: &mut HashMap<(String, String), usize>) {
     for i in 0..events.len() - 1 {
       *dfg.entry((events[i].borrow().name().to_owned(), events[i + 1].borrow().name().to_owned())).or_insert(0) += 1;
     }
