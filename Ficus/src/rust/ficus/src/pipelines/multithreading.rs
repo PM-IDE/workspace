@@ -23,7 +23,8 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
-use crate::features::discovery::multithreading_dfg::dfg::discover_multithreaded_dfg;
+use serde::__private::ser::constrain;
+use crate::features::discovery::multithreading_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups};
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -62,7 +63,7 @@ impl PipelineParts {
           None => None,
           Some(delta) => Some(*delta as u64)
         },
-        Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref()
+        Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref(),
       );
 
       match diagram {
@@ -98,7 +99,7 @@ impl PipelineParts {
         config,
         infra,
         thread_attribute,
-        time_attribute
+        time_attribute,
       )
     })
   }
@@ -114,12 +115,12 @@ impl PipelineParts {
   }
 
   fn abstract_event_groups(
-    events_groups: Vec<Vec<EventGroup>>, 
-    context: &mut PipelineContext, 
+    events_groups: Vec<Vec<EventGroup>>,
+    context: &mut PipelineContext,
     config: &UserDataImpl,
     infra: &PipelineInfrastructure,
     thread_attribute: String,
-    time_attribute: Option<String>
+    time_attribute: Option<String>,
   ) -> Result<(), PipelinePartExecutionError> {
     let extraction_config = Self::get_software_data_extraction_config(context);
     let events_groups_log = Self::create_groups_event_log(&events_groups);
@@ -152,6 +153,27 @@ impl PipelineParts {
     context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), labeled_dataset);
 
     Ok(())
+  }
+
+  pub fn abstract_multithreaded_events_groups() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::ABSTRACT_MULTITHREADED_EVENTS_GROUPS, &|context, infra, config| {
+      let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?.to_owned();
+      let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok().cloned();
+      let software_config = Self::get_software_data_extraction_config(context);
+      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+
+      let groups = enumerate_multithreaded_events_groups(log, &software_config, thread_attribute.as_str())
+        .map_err(|e| PipelinePartExecutionError::new_raw(e))?;
+
+      Self::abstract_event_groups(
+        groups,
+        context,
+        config,
+        infra,
+        thread_attribute,
+        time_attribute,
+      )
+    })
   }
 
   fn get_software_data_extraction_config(context: &PipelineContext) -> SoftwareDataExtractionConfig {
@@ -195,7 +217,7 @@ impl PipelineParts {
           Some(delta) => Some(*delta as u64)
         },
         *discover_events_groups_in_each_trace,
-        Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref()
+        Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref(),
       );
 
       match diagram {
@@ -256,7 +278,7 @@ impl PipelineParts {
       Ok(())
     })
   }
-  
+
   fn shorten_type_or_method_name(name: String) -> String {
     let mut result = String::new();
     let mut chars = name.chars();
@@ -301,7 +323,7 @@ impl PipelineParts {
 
     result
   }
-  
+
   pub(super) fn shorten_methods_names() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::SHORTEN_METHOD_NAMES, &|context, _, _| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
@@ -337,11 +359,11 @@ impl PipelineParts {
                 event.set_name(name);
               }
             }
-            
-            return Ok(())
+
+            return Ok(());
           }
         }
-        
+
         for trace in log.traces() {
           let trace = trace.borrow_mut();
           for event in trace.events() {
@@ -351,11 +373,11 @@ impl PipelineParts {
           }
         }
       }
-      
+
       Ok(())
     })
   }
-  
+
   fn create_processed_method_extraction_configs(context: &PipelineContext) -> Vec<ProcessedMethodStartEndConfig> {
     let software_data_extraction_config = Self::get_software_data_extraction_config(context);
 
@@ -382,7 +404,7 @@ impl PipelineParts {
         name_attr: config.info().method_attrs().name_attr().to_owned(),
         signature_attr: config.info().method_attrs().signature_attr().to_owned(),
         namespace_attr: config.info().method_attrs().namespace_attr().to_owned(),
-        prefix: config.info().prefix().as_ref().cloned()
+        prefix: config.info().prefix().as_ref().cloned(),
       }))
     } else {
       Ok(None)
@@ -397,7 +419,7 @@ impl PipelineParts {
           prefix + shortened_name.as_str()
         } else {
           shortened_name
-        } 
+        }
       } else {
         return;
       }
@@ -412,17 +434,17 @@ impl PipelineParts {
     let namespace = payload.get(config.namespace_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
     let name = payload.get(config.name_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
     let signature = payload.get(config.signature_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
-    
+
     Some((namespace, name, signature))
   }
 
   fn check_if_can_use_method_id(
-    log: &XesEventLogImpl, 
-    config: &ProcessedMethodStartEndConfig, 
-    method_id_factory: impl Fn(&String, &String, &String) -> String
+    log: &XesEventLogImpl,
+    config: &ProcessedMethodStartEndConfig,
+    method_id_factory: impl Fn(&String, &String, &String) -> String,
   ) -> bool {
     let mut map = HashMap::new();
-    
+
     for trace in log.traces().iter().map(|t| t.borrow()) {
       for event in trace.events().iter().map(|e| e.borrow()) {
         if config.event_regex.is_match(event.name().as_str()).unwrap_or(false) {
@@ -445,10 +467,10 @@ impl PipelineParts {
         }
       }
     }
-    
+
     true
   }
-  
+
   pub(super) fn set_methods_display_name() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::SET_METHODS_DISPLAY_NAME, &|context, _, _| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
@@ -529,5 +551,5 @@ struct ProcessedMethodStartEndConfig {
   namespace_attr: String,
   name_attr: String,
   signature_attr: String,
-  prefix: Option<String>
+  prefix: Option<String>,
 }

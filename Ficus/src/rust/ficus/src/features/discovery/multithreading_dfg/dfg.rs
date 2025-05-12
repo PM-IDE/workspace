@@ -4,6 +4,8 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
+use crate::features::discovery::timeline::events_groups::EventGroup;
+use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::utils::extract_thread_id;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
@@ -33,6 +35,47 @@ pub fn discover_multithreaded_dfg(log: &XesEventLogImpl, thread_attribute: &str)
   graph
 }
 
+pub fn enumerate_multithreaded_events_groups(
+  log: &XesEventLogImpl, 
+  config: &SoftwareDataExtractionConfig, 
+  thread_attribute: &str
+) -> Result<Vec<Vec<EventGroup>>, String> {
+  let mut groups = vec![];
+  let regexes = config.control_flow_regexes()?;
+  let regexes = regexes.as_ref();
+
+  let is_control_flow_event = |event: &XesEventImpl| {
+    regexes.is_none() || regexes.unwrap().iter().any(|r| r.is_match(event.name()).unwrap_or(false))
+  };
+
+  for trace in log.traces() {
+    let trace = trace.borrow();
+    let parts = enumerate_trace_parts(&trace, thread_attribute);
+
+    let mut index = 0;
+    let mut trace_groups = vec![];
+
+    for part in parts {
+      let mut group = EventGroup::empty();
+
+      for event in &trace.events()[index..index + part.length()] {
+        if is_control_flow_event(&event.borrow()) {
+          group.control_flow_events_mut().push(event.clone());
+        } else {
+          group.statistic_events_mut().push(event.clone());
+        }
+      }
+      
+      index += part.length();
+      trace_groups.push(group);
+    }
+
+    groups.push(trace_groups);
+  }
+  
+  Ok(groups)
+}
+
 fn add_node(name: String, graph: &mut DefaultGraph, added_nodes: &mut HashMap<String, u64>) -> u64 {
   if let Some(node_id) = added_nodes.get(name.as_str()) {
     *node_id
@@ -43,6 +86,7 @@ fn add_node(name: String, graph: &mut DefaultGraph, added_nodes: &mut HashMap<St
   }
 }
 
+#[derive(Debug)]
 enum TracePart {
   Multithreaded(usize),
   Sequential(usize),
@@ -128,7 +172,7 @@ impl TracePart {
 }
 
 fn discover_multithreading_dfg_for_trace(trace: &XesTraceImpl, thread_attribute: &str) -> HashMap<(String, String), usize> {
-  let trace_parts = create_trace_parts(trace, thread_attribute);
+  let trace_parts = enumerate_trace_parts(trace, thread_attribute);
 
   let mut index = 0;
   let mut last_event_classes = HashSet::new();
@@ -142,7 +186,7 @@ fn discover_multithreading_dfg_for_trace(trace: &XesTraceImpl, thread_attribute:
   dfg
 }
 
-fn create_trace_parts(trace: &XesTraceImpl, thread_attribute: &str) -> Vec<TracePart> {
+fn enumerate_trace_parts(trace: &XesTraceImpl, thread_attribute: &str) -> Vec<TracePart> {
   let mut events_threads = HashMap::new();
   for event in trace.events() {
     let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);

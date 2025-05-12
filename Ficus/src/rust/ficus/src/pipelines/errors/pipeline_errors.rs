@@ -21,6 +21,12 @@ impl Display for PipelinePartExecutionError {
   }
 }
 
+impl PipelinePartExecutionError {
+  pub fn new_raw(error: String) -> Self {
+    PipelinePartExecutionError::Raw(RawPartExecutionError::new(error))
+  }
+}
+
 pub struct MissingContextError {
   context_key_name: String,
 }

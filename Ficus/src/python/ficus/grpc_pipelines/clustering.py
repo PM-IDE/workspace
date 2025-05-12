@@ -460,3 +460,53 @@ class AbstractTimelineDiagram(ClusterizeLogTracesBase):
   def fill_config_values(self, config):
     append_float_value(config, const_tolerance, self.tolerance)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
+
+
+class AbstractMultithreadedEventsGroups(ClusterizeLogTracesBase):
+  def __init__(self,
+               thread_attribute: str,
+               time_attribute: Optional[str],
+               min_events_count_in_cluster: int = 1,
+               tolerance: float = 1e-5,
+               show_visualization: bool = True,
+               fig_size: (int, int) = (7, 9),
+               view_params: (int, int) = (-140, 60),
+               font_size: int = 14,
+               save_path: Optional[str] = None,
+               distance: Distance = Distance.Cosine,
+               n_components: NComponents = NComponents.Three,
+               visualization_method: DatasetVisualizationMethod = DatasetVisualizationMethod.Pca,
+               legend_cols: int = 2,
+               traces_repr_source: TracesRepresentationSource = TracesRepresentationSource.Events,
+               class_extractor: Optional[str] = None,
+               feature_count_kind: FeatureCountKind = FeatureCountKind.Count,
+               after_clusterization_pipeline: Optional[Pipeline] = None,
+               percent_from_max_value: float = 0):
+    super().__init__(const_abstract_multithreaded_events_groups,
+                     after_clusterization_pipeline,
+                     show_visualization,
+                     fig_size,
+                     view_params,
+                     font_size,
+                     save_path,
+                     distance,
+                     n_components,
+                     visualization_method,
+                     legend_cols,
+                     traces_repr_source,
+                     class_extractor,
+                     feature_count_kind,
+                     percent_from_max_value)
+
+    self.thread_attribute = thread_attribute
+    self.time_attribute = time_attribute
+    self.tolerance = tolerance
+    self.min_events_count_in_cluster = min_events_count_in_cluster
+
+  def fill_config_values(self, config: GrpcPipelinePartConfiguration):
+    append_float_value(config, const_tolerance, self.tolerance)
+    append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
+    append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    if self.time_attribute is not None:
+      append_string_value(config, const_time_attribute, self.time_attribute)

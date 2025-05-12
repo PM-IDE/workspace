@@ -34,6 +34,8 @@ class Pipeline:
         if last_result.finalResult.HasField('success'):
           guid = last_result.finalResult.success
           stub.DropExecutionResult(guid)
+        elif last_result.finalResult.HasField('error'):
+          print(f'ERROR: {last_result.finalResult.error}')
 
         return last_result
 

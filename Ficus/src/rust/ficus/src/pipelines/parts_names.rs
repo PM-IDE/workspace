@@ -66,6 +66,7 @@ impl PipelineParts {
   pub const REMAIN_ONLY_METHOD_START_EVENTS: &'static str = "RemainOnlyMethodStartEvents";
   pub const REMAIN_ONLY_METHOD_END_EVENTS: &'static str = "RemainOnlyMethodEndEvents";
   pub const DISCOVER_MULTITHREADED_DFG: &'static str = "DiscoverMultithreadedDfg";
+  pub const ABSTRACT_MULTITHREADED_EVENTS_GROUPS: &'static str = "AbstractMultithreadedEventsGroups";
 
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";
