@@ -63,18 +63,43 @@ pub fn enumerate_multithreaded_events_groups(
     let mut trace_groups = vec![];
 
     for part in parts {
-      let mut group = EventGroup::empty();
+      match part {
+        TracePart::Multithreaded(_) => {
+          let mut group = EventGroup::empty();
+          for event in &trace.events()[index..index + part.length()] {
+            if is_control_flow_event(&event.borrow()) {
+              group.control_flow_events_mut().push(event.clone());
+            } else {
+              group.statistic_events_mut().push(event.clone());
+            }
+          }
 
-      for event in &trace.events()[index..index + part.length()] {
-        if is_control_flow_event(&event.borrow()) {
-          group.control_flow_events_mut().push(event.clone());
-        } else {
-          group.statistic_events_mut().push(event.clone());
+          trace_groups.push(group);
+        }
+        TracePart::Sequential(_) => {
+          let mut last_group = None;
+          for event in &trace.events()[index..index + part.length()] {
+            if is_control_flow_event(&event.borrow()) {
+              if let Some(group) = last_group {
+                trace_groups.push(group);
+              }
+
+              last_group = Some(EventGroup::empty());
+              last_group.as_mut().unwrap().control_flow_events_mut().push(event.clone());
+            } else {
+              if let Some(group) = last_group.as_mut() { 
+                group.statistic_events_mut().push(event.clone());
+              }
+            }
+          }
+          
+          if let Some(group) = last_group {
+            trace_groups.push(group);
+          }
         }
       }
 
       index += part.length();
-      trace_groups.push(group);
     }
 
     groups.push(trace_groups);
