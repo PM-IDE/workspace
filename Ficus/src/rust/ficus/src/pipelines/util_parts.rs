@@ -5,7 +5,7 @@ use chrono::{DateTime, Duration, Utc};
 use super::pipelines::PipelinePartFactory;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::pipelines::keys::context_keys::{EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY};
+use crate::pipelines::keys::context_keys::{EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH, GRAPHS, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePart;
 use crate::{
@@ -23,6 +23,7 @@ use crate::{
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
 use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
+use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::graph::graphs_merging::merge_graphs;
 
 impl PipelineParts {
@@ -122,10 +123,12 @@ impl PipelineParts {
 
   pub(super) fn add_graph_to_graphs() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::ADD_GRAPH_TO_GRAPHS, &|context, _, _| {
-      let graph = Self::get_user_data(context, &GRAPH_KEY)?;
-      let graphs = Self::get_user_data_mut(context, &GRAPHS_KEY)?;
+      let graph = Self::get_user_data(context, &GRAPH_KEY)?.clone();
 
-      graphs.push(graph.clone());
+      match Self::get_user_data_mut(context, &GRAPHS_KEY).ok() {
+        None => context.put_concrete(GRAPHS_KEY.key(), vec![graph]),
+        Some(graphs) => graphs.push(graph)
+      }
 
       Ok(())
     })
@@ -133,8 +136,9 @@ impl PipelineParts {
   
   pub(super) fn clear_graphs() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::CLEAR_GRAPHS, &|context, _, _| {
-      let graphs = Self::get_user_data_mut(context, &GRAPHS_KEY)?;
-      graphs.clear();
+      if let Some(graphs) = Self::get_user_data_mut(context, &GRAPHS_KEY).ok() {
+        graphs.clear();
+      }
 
       Ok(())
     })
