@@ -10,6 +10,7 @@ use lazy_static::lazy_static;
 use log::error;
 use std::collections::HashMap;
 use std::str::FromStr;
+use crate::utils::graph::graph_node::GraphNode;
 
 pub fn annotate_with_counts(
   log: &impl EventLog,
@@ -155,12 +156,7 @@ pub fn annotate_with_time_performance(
     let first_node = graph.node(&edge.from_node).expect("Must contain first node");
     let second_node = graph.node(&edge.to_node).expect("Must contain second node");
 
-    let key = (
-      first_node.data.as_ref().unwrap().clone(),
-      second_node.data.as_ref().unwrap().clone(),
-    );
-
-    let annotation = if let Some(time_annotation) = performance_map.get(&key) {
+    let annotation = if let Some(time_annotation) = try_get_time_annotation(&performance_map, first_node, second_node) {
       Some(match annotation_kind {
         TimeAnnotationKind::SummedTime => time_annotation.0,
         TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
@@ -186,4 +182,23 @@ pub fn annotate_with_time_performance(
   }
 
   Some(time_annotations)
+}
+
+fn try_get_time_annotation(
+  performance_map: &PerformanceMap, 
+  first_node: &GraphNode<HeapedOrOwned<String>>, 
+  second_node: &GraphNode<HeapedOrOwned<String>>
+) -> Option<(f64, usize)> {
+  if first_node.data.is_some() && second_node.data.is_some() {
+    let key = (
+      first_node.data.as_ref().unwrap().clone(),
+      second_node.data.as_ref().unwrap().clone(),
+    );
+    
+    if let Some(time_annotation) = performance_map.get(&key) {
+      return Some(time_annotation.clone())
+    }
+  }
+  
+  None
 }
