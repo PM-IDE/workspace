@@ -52,8 +52,8 @@ pub fn merge_graphs<TNodeData: Display + Clone, TEdgeData: Display + Clone>(
       merged_graph.connect_nodes(first_id, second_id, data);
     }
 
-    merged_graph.connect_nodes(&merged_start_node_id, &start_node_id, NodesConnectionData::empty());
-    merged_graph.connect_nodes(&end_node_id, &merged_end_node_id, NodesConnectionData::empty());
+    merged_graph.connect_nodes(&merged_start_node_id, &ids_map[&start_node_id], NodesConnectionData::empty());
+    merged_graph.connect_nodes(&ids_map[&end_node_id], &merged_end_node_id, NodesConnectionData::empty());
   }
 
   Ok(merged_graph)
