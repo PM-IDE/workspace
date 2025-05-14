@@ -87,7 +87,8 @@ fn get_test_parts_names() -> Vec<String> {
         "RemainOnlyMethodStartEvents",
         "RemainOnlyMethodEndEvents",
         "DiscoverMultithreadedDfg",
-        "AbstractMultithreadedEventsGroups"
+        "AbstractMultithreadedEventsGroups",
+        "MergeGraphs"
     ]
 }
 

@@ -85,6 +85,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<ColorsEventLog>(&COLORS_EVENT_LOG, &mut used);
     assert_existence::<ColorsHolder>(&COLORS_HOLDER, &mut used);
     assert_existence::<DefaultGraph>(&GRAPH, &mut used);
+    assert_existence::<Vec<DefaultGraph>>(&GRAPHS, &mut used);
 
     assert_existence::<HashMap<u64, usize>>(&PETRI_NET_COUNT_ANNOTATION, &mut used);
     assert_existence::<HashMap<u64, f64>>(&PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
@@ -190,6 +191,7 @@ fn get_all_keys_names() -> Vec<String> {
         "colors_event_log",
         "colors_holder",
         "graph",
+        "graphs",
         "petri_net_count_annotation",
         "petri_net_frequency_annotation",
         "petri_net_trace_frequency_annotation",
@@ -293,6 +295,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<RepeatSets>(&REPEAT_SETS, &mut used);
     assert_keys_equivalence::<TracesActivities>(&TRACE_ACTIVITIES, &mut used);
     assert_keys_equivalence::<DefaultGraph>(&GRAPH, &mut used);
+    assert_keys_equivalence::<Vec<DefaultGraph>>(&GRAPHS, &mut used);
 
     assert_keys_equivalence::<HashMap<u64, usize>>(&PETRI_NET_COUNT_ANNOTATION, &mut used);
     assert_keys_equivalence::<HashMap<u64, f64>>(&PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
