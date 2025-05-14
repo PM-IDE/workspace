@@ -47,6 +47,16 @@ where
   pub(crate) user_data: UserDataImpl
 }
 
+impl<TNodeData: Clone + ToString, TEdgeData: Clone + ToString> Clone for Graph<TNodeData, TEdgeData> {
+  fn clone(&self) -> Self {
+    Self {
+      nodes: self.nodes.clone(),
+      connections: self.connections.clone(),
+      user_data: self.user_data.clone()
+    }
+  }
+}
+
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
   TNodeData: ToString,

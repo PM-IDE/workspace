@@ -562,17 +562,6 @@ impl PipelineParts {
       Err(_) => Ok(MultithreadedTracePartsCreationStrategy::Default)
     }
   }
-
-  pub(super) fn merge_graphs() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::MERGE_GRAPHS, &|context, _, _| {
-      let graphs = Self::get_user_data(context, &GRAPHS_KEY)?;
-      
-      let graph = merge_graphs(graphs).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string()))?;
-      context.put_concrete(GRAPH_KEY.key(), graph);
-
-      Ok(())
-    })
-  }
 }
 
 struct ProcessedMethodStartEndConfig {

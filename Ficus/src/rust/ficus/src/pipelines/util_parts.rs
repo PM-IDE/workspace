@@ -5,9 +5,7 @@ use chrono::{DateTime, Duration, Utc};
 use super::pipelines::PipelinePartFactory;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::pipelines::keys::context_keys::{
-  EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY,
-};
+use crate::pipelines::keys::context_keys::{EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePart;
 use crate::{
@@ -24,6 +22,8 @@ use crate::{
   },
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
+use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
+use crate::utils::graph::graphs_merging::merge_graphs;
 
 impl PipelineParts {
   pub(super) fn create_hashed_event_log(config: &UserDataImpl, log: &XesEventLogImpl) -> Vec<Vec<u64>> {
@@ -104,6 +104,37 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::EXECUTE_FRONTEND_PIPELINE, &|context, infra, config| {
       let pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
       pipeline.execute(context, infra)?;
+
+      Ok(())
+    })
+  }
+
+  pub(super) fn merge_graphs() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::MERGE_GRAPHS, &|context, _, _| {
+      let graphs = Self::get_user_data(context, &GRAPHS_KEY)?;
+
+      let graph = merge_graphs(graphs).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string()))?;
+      context.put_concrete(GRAPH_KEY.key(), graph);
+
+      Ok(())
+    })
+  }
+
+  pub(super) fn add_graph_to_graphs() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::ADD_GRAPH_TO_GRAPHS, &|context, _, _| {
+      let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+      let graphs = Self::get_user_data_mut(context, &GRAPHS_KEY)?;
+
+      graphs.push(graph.clone());
+
+      Ok(())
+    })
+  }
+  
+  pub(super) fn clear_graphs() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::CLEAR_GRAPHS, &|context, _, _| {
+      let graphs = Self::get_user_data_mut(context, &GRAPHS_KEY)?;
+      graphs.clear();
 
       Ok(())
     })

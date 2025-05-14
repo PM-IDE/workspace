@@ -3,7 +3,7 @@ use crate::utils::user_data::user_data::UserDataImpl;
 use std::sync::atomic::Ordering;
 use getset::{Getters, MutGetters};
 
-#[derive(Debug, Getters, MutGetters)]
+#[derive(Debug, Getters, MutGetters, Clone)]
 pub struct GraphEdge<TEdgeData>
 where
   TEdgeData: ToString,
