@@ -68,6 +68,8 @@ impl PipelineParts {
   pub const DISCOVER_MULTITHREADED_DFG: &'static str = "DiscoverMultithreadedDfg";
   pub const ABSTRACT_MULTITHREADED_EVENTS_GROUPS: &'static str = "AbstractMultithreadedEventsGroups";
 
+  pub const MERGE_GRAPHS: &'static str = "MergeGraphs";
+
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";
   pub const ANNOTATE_PETRI_NET_TRACE_FREQUENCY: &'static str = "AnnotatePetriNetWithTraceFrequency";

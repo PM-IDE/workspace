@@ -13,7 +13,7 @@ use crate::features::discovery::timeline::events_groups::{enumerate_event_groups
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, REGEXES_KEY, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, REGEXES_KEY, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::display_name::DISPLAY_NAME_KEY;
@@ -25,6 +25,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 use serde::__private::ser::constrain;
 use crate::features::discovery::multithreading_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy};
+use crate::utils::graph::graphs_merging::merge_graphs;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -560,6 +561,17 @@ impl PipelineParts {
       },
       Err(_) => Ok(MultithreadedTracePartsCreationStrategy::Default)
     }
+  }
+
+  pub(super) fn merge_graphs() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::MERGE_GRAPHS, &|context, _, _| {
+      let graphs = Self::get_user_data(context, &GRAPHS_KEY)?;
+      
+      let graph = merge_graphs(graphs).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string()))?;
+      context.put_concrete(GRAPH_KEY.key(), graph);
+
+      Ok(())
+    })
   }
 }
 

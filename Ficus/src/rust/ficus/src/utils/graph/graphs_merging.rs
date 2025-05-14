@@ -1,10 +1,12 @@
-use std::collections::HashMap;
-use std::fmt::Display;
-use lazy_static::lazy_static;
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{Graph, NodesConnectionData};
 use crate::utils::user_data::user_data::UserData;
+use enum_display_derive::Display;
+use lazy_static::lazy_static;
+use std::collections::HashMap;
+use std::fmt::{Debug, Display};
 
+#[derive(Display)]
 pub enum GraphsMergingError {
   MissingStartNode,
   MissingEndNode,

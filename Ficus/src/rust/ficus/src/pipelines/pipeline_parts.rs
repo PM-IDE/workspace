@@ -108,7 +108,8 @@ impl PipelineParts {
       Self::remain_only_method_start_events(),
       Self::remain_only_method_end_events(),
       Self::discover_multithreaded_dfg(),
-      Self::abstract_multithreaded_events_groups()
+      Self::abstract_multithreaded_events_groups(),
+      Self::merge_graphs()
     ];
 
     let mut names_to_parts = HashMap::new();

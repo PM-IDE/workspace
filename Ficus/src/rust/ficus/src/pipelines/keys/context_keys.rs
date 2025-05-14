@@ -99,6 +99,7 @@ pub const NAMES_EVENT_LOG: &'static str = "names_event_log";
 pub const COLORS_EVENT_LOG: &'static str = "colors_event_log";
 pub const COLORS_HOLDER: &'static str = "colors_holder";
 pub const GRAPH: &'static str = "graph";
+pub const GRAPHS: &'static str = "graphs";
 pub const PETRI_NET_COUNT_ANNOTATION: &'static str = "petri_net_count_annotation";
 pub const PETRI_NET_FREQUENCY_ANNOTATION: &'static str = "petri_net_frequency_annotation";
 pub const PETRI_NET_TRACE_FREQUENCY_ANNOTATION: &'static str = "petri_net_trace_frequency_annotation";
@@ -167,6 +168,7 @@ lazy_static!(
      pub static ref ACTIVITIES_LOGS_SOURCE_KEY: DefaultContextKey<ActivitiesLogsSourceDto> = DefaultContextKey::new(ACTIVITIES_LOGS_SOURCE);
      pub static ref PNML_USE_NAMES_AS_IDS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(PNML_USE_NAMES_AS_IDS);
      pub static ref GRAPH_KEY: DefaultContextKey<DefaultGraph> = DefaultContextKey::new(GRAPH);
+     pub static ref GRAPHS_KEY: DefaultContextKey<Vec<DefaultGraph>> = DefaultContextKey::new(GRAPHS);
      pub static ref DEPENDENCY_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(DEPENDENCY_THRESHOLD);
      pub static ref POSITIVE_OBSERVATIONS_THRESHOLD_KEY: DefaultContextKey<u32> = DefaultContextKey::new(POSITIVE_OBSERVATIONS_THRESHOLD);
      pub static ref RELATIVE_TO_BEST_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(RELATIVE_TO_BEST_THRESHOLD);
@@ -290,6 +292,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     COLORS_EVENT_LOG => Some(COLORS_EVENT_LOG_KEY.deref() as &dyn ContextKey),
     COLORS_HOLDER => Some(COLORS_HOLDER_KEY.deref() as &dyn ContextKey),
     GRAPH => Some(GRAPH_KEY.deref() as &dyn ContextKey),
+    GRAPHS => Some(GRAPHS_KEY.deref() as &dyn ContextKey),
     PETRI_NET_COUNT_ANNOTATION => Some(PETRI_NET_COUNT_ANNOTATION_KEY.deref() as &dyn ContextKey),
     PETRI_NET_FREQUENCY_ANNOTATION => Some(PETRI_NET_FREQUENCY_ANNOTATION_KEY.deref() as &dyn ContextKey),
     PETRI_NET_TRACE_FREQUENCY_ANNOTATION => Some(PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY.deref() as &dyn ContextKey),
