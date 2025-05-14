@@ -23,7 +23,7 @@ pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
         if let Some(first_id) = classes_to_node_ids.get(class) {
           if let Some(second_id) = classes_to_node_ids.get(follower) {
             let data = Some(HeapedOrOwned::Owned(count.to_string()));
-            let connection_data = NodesConnectionData::new(data, *count as f64);
+            let connection_data = NodesConnectionData::new(data, *count as f64, None);
 
             graph.connect_nodes(first_id, second_id, connection_data);
           } else {
@@ -83,7 +83,7 @@ pub fn construct_dfg_by_attribute(log: &XesEventLogImpl, attribute: &str) -> Def
 
   for ((first_node_id, second_node_id), count) in dfg_map {
     let edge_data = Some(HeapedOrOwned::Owned(count.to_string()));
-    let connection_data = NodesConnectionData::new(edge_data, count as f64);
+    let connection_data = NodesConnectionData::new(edge_data, count as f64, None);
 
     graph.connect_nodes(&first_node_id, &second_node_id, connection_data);
   }

@@ -61,7 +61,7 @@ fn initialize_fuzzy_graph<TLog: EventLog>(
       if bin_freq_sig > binary_frequency_significance_threshold {
         let first_id = classes_to_ids.get(first_class).unwrap();
         let second_id = classes_to_ids.get(second_class).unwrap();
-        let connection_data = NodesConnectionData::new(Some(bin_freq_sig), bin_freq_sig);
+        let connection_data = NodesConnectionData::new(Some(bin_freq_sig), bin_freq_sig, None);
 
         graph.connect_nodes(first_id, second_id, connection_data);
       }
@@ -261,6 +261,7 @@ fn merge_nodes(graph: &mut FuzzyGraph, clusters: &ClustersMap) {
           NodesConnectionData::new(
             Some(*first.data().unwrap_or(&0.0) + second.data().unwrap_or(0.0)),
             first.weight() + second.weight,
+            None,
           )
         })
       },

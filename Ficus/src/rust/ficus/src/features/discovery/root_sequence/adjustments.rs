@@ -120,8 +120,8 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
   let start_node_edge_weight = *graph.edge(&nodes_ids.start_node, &nodes_ids.first_node).unwrap().weight();
   let end_node_edge_weight = *graph.edge(&nodes_ids.last_node, &nodes_ids.end_node).unwrap().weight();
 
-  graph.connect_nodes(&nodes_ids.start_node, &added_node, NodesConnectionData::new(None, start_node_edge_weight));
-  graph.connect_nodes(&added_node, &nodes_ids.end_node, NodesConnectionData::new(None, end_node_edge_weight));
+  graph.connect_nodes(&nodes_ids.start_node, &added_node, NodesConnectionData::new(None, start_node_edge_weight, None));
+  graph.connect_nodes(&added_node, &nodes_ids.end_node, NodesConnectionData::new(None, end_node_edge_weight, None));
 }
 
 fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
@@ -136,7 +136,7 @@ fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
 
     if let Some((prev_added_node_id, prev_node_id)) = prev_added_node_id {
       let edge = graph.edge(&prev_node_id, node).unwrap();
-      let connection_data = NodesConnectionData::new(edge.data().as_ref().cloned(), *edge.weight());
+      let connection_data = NodesConnectionData::new(edge.data().as_ref().cloned(), *edge.weight(), None);
       inner_graph.connect_nodes(&prev_added_node_id, &added_node_id, connection_data);
     }
 

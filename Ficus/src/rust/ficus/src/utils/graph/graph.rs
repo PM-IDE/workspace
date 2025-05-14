@@ -1,7 +1,7 @@
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 use std::fmt::Display;
 use std::{collections::HashMap, sync::atomic::AtomicU64};
 
@@ -11,19 +11,20 @@ pub type DefaultGraph = Graph<HeapedOrOwned<String>, HeapedOrOwned<String>>;
 pub struct NodesConnectionData<TEdgeData> {
   pub(super) data: Option<TEdgeData>,
   pub(super) weight: f64,
+  pub(super) user_data: Option<UserDataImpl>
 }
 
 impl<TEdgeData> NodesConnectionData<TEdgeData> {
-  pub fn new(data: Option<TEdgeData>, weight: f64) -> Self {
-    Self { data, weight }
+  pub fn new(data: Option<TEdgeData>, weight: f64, user_data: Option<UserDataImpl>) -> Self {
+    Self { data, weight, user_data }
   }
 
   pub fn zero_weight(data: Option<TEdgeData>) -> Self {
-    Self { data, weight: 0f64 }
+    Self { data, weight: 0f64, user_data: None }
   }
 
   pub fn empty() -> Self {
-    Self { data: None, weight: 0f64 }
+    Self { data: None, weight: 0f64, user_data: None }
   }
 
   pub fn data(&self) -> Option<&TEdgeData> {
@@ -43,6 +44,7 @@ where
 {
   pub(crate) nodes: HashMap<u64, GraphNode<TNodeData>>,
   pub(crate) connections: HashMap<u64, HashMap<u64, GraphEdge<TEdgeData>>>,
+  pub(crate) user_data: UserDataImpl
 }
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
@@ -54,6 +56,7 @@ where
     Self {
       connections: HashMap::new(),
       nodes: HashMap::new(),
+      user_data: UserDataImpl::new()
     }
   }
 
@@ -130,7 +133,7 @@ where
 
     if let Some(_) = self.nodes.get(first_node_id) {
       if let Some(_) = self.nodes.get(second_node_id) {
-        let edge = GraphEdge::new(*first_node_id, *second_node_id, connection_data.weight, connection_data.data);
+        let edge = GraphEdge::new(*first_node_id, *second_node_id, connection_data.weight, connection_data.data, connection_data.user_data);
         if let Some(connections) = self.connections.get_mut(first_node_id) {
           connections.insert(second_node_id.to_owned(), edge);
         } else {
@@ -207,6 +210,14 @@ where
 
     serialized_connection.sort();
     serialized_connection.join("\n")
+  }
+
+  pub fn user_data(&self) -> &UserDataImpl {
+    &self.user_data
+  }
+
+  pub fn user_data_mut(&mut self) -> &mut UserDataImpl {
+    &mut self.user_data
   }
 }
 
