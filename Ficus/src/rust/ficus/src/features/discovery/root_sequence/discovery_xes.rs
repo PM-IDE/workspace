@@ -8,20 +8,18 @@ use crate::features::analysis::patterns::activity_instances::{create_vector_of_u
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::discovery::petri_net::annotations::create_performance_map;
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY};
+use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY};
 use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
 use crate::features::discovery::root_sequence::models::{CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use crate::utils::context_key::DefaultContextKey;
+use crate::utils::display_name::get_display_name;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
-use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
 use std::cell::RefCell;
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::rc::Rc;
-use lazy_static::lazy_static;
-use crate::utils::display_name::get_display_name;
 
 pub fn discover_root_sequence_graph_from_event_log(
   log: &XesEventLogImpl,
@@ -84,6 +82,7 @@ fn transfer_data_from_event_to_node_user_data(event: &Rc<RefCell<XesEventImpl>>,
   transfer_vector_like_user_data(event, &NODE_SOFTWARE_DATA_KEY, user_data_impl);
   transfer_vector_like_user_data(event, &NODE_START_END_ACTIVITIES_TIMES_KEY, user_data_impl);
   transfer_vector_like_user_data(event, &NODE_UNDERLYING_PATTERNS_INFOS_KEY, user_data_impl);
+  transfer_vector_like_user_data(event, &NODE_MULTITHREADED_FRAGMENT_LOG_KEY, user_data_impl);
 
   if let Some(corresponding_trace_data) = event.borrow().user_data().concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key()) {
     let new_trace_data = corresponding_trace_data.iter().map(|d| {
@@ -162,7 +161,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
   }
 }
 
-fn transfer_vector_like_user_data<T: Clone + Debug>(
+fn transfer_vector_like_user_data<T: Clone>(
   event: &Rc<RefCell<XesEventImpl>>,
   key: &DefaultContextKey<Vec<T>>,
   user_data_impl: &mut UserDataImpl,

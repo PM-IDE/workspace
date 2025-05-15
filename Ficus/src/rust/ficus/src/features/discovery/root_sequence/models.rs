@@ -66,13 +66,13 @@ impl EventCoordinates {
   }
 }
 
-#[derive(Clone, Debug)]
-pub struct NodeAdditionalDataContainer<T: Clone + Debug> {
+#[derive(Clone)]
+pub struct NodeAdditionalDataContainer<T: Clone> {
   value: T,
   original_event_coordinates: EventCoordinates,
 }
 
-impl<T: Clone + Debug> NodeAdditionalDataContainer<T> {
+impl<T: Clone> NodeAdditionalDataContainer<T> {
   pub fn new(value: T, trace_data: EventCoordinates) -> Self {
     Self {
       value,

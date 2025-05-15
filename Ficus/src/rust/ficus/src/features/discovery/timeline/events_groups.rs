@@ -5,6 +5,7 @@ use fancy_regex::Regex;
 use getset::{Getters, MutGetters, Setters};
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::utils::user_data::user_data::UserDataImpl;
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
@@ -131,6 +132,7 @@ pub struct EventGroup {
   #[getset(get = "pub", get_mut = "pub")] control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
   #[getset(get = "pub", get_mut = "pub")] statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
   #[getset(get = "pub", get_mut = "pub", set = "pub")] after_group_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
+  #[getset(get = "pub", get_mut = "pub")] user_data: UserDataImpl
 }
 
 impl EventGroup {
@@ -139,6 +141,7 @@ impl EventGroup {
       control_flow_events: vec![],
       statistic_events: vec![],
       after_group_events: None,
+      user_data: UserDataImpl::new(),
     }
   }
 

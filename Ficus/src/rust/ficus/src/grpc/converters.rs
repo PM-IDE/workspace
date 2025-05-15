@@ -11,7 +11,7 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY};
+use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
 use crate::features::discovery::timeline::software_data::models::{AllocationEvent, ArrayPoolEvent, ArrayPoolEventKind, ContentionEvent, ExceptionEvent, ExecutionSuspensionEvent, HTTPEvent, MethodInliningData, MethodInliningEvent, MethodLoadUnloadEvent, MethodNameParts, SocketEvent, SoftwareData, ThreadEvent, ThreadEventKind};
@@ -19,7 +19,7 @@ use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, Frequency
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_array_pool_event, grpc_graph_edge_additional_data, grpc_method_inlining_event, grpc_method_load_unload_event, grpc_socket_event, grpc_thread_event_info, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcArrayPoolEvent, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcMethodInliningInfo, GrpcMethodLoadUnloadEvent, GrpcMethodNameParts, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleTrace, GrpcSocketAcceptFailed, GrpcSocketAcceptStart, GrpcSocketAcceptStop, GrpcSocketConnectFailed, GrpcSocketConnectStart, GrpcSocketConnectStop, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{grpc_array_pool_event, grpc_graph_edge_additional_data, grpc_method_inlining_event, grpc_method_load_unload_event, grpc_socket_event, grpc_thread_event_info, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcArrayPoolEvent, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcMethodInliningInfo, GrpcMethodLoadUnloadEvent, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSocketAcceptFailed, GrpcSocketAcceptStart, GrpcSocketAcceptStop, GrpcSocketConnectFailed, GrpcSocketConnectStart, GrpcSocketConnectStop, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
@@ -54,6 +54,9 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::rc::Rc;
 use std::{any::Any, str::FromStr};
+use crate::event_log::core::event_log::EventLog;
+use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::utils::context_key::ContextKey;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
@@ -608,7 +611,18 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
     additional_data.extend(underlying_patterns_infos.iter().map(|info| convert_to_grpc_underlying_pattern_info_additional_data(info)))
   }
 
+  if let Some(multithreaded_logs) = user_data.concrete(NODE_MULTITHREADED_FRAGMENT_LOG_KEY.key()) {
+    additional_data.extend(multithreaded_logs.iter().map(|info| convert_to_grpc_node_multithreaded_log_additional_data(info)))
+  }
+
   additional_data
+}
+
+fn convert_to_grpc_node_multithreaded_log_additional_data(info: &NodeAdditionalDataContainer<XesEventLogImpl>) -> GrpcNodeAdditionalData {
+  GrpcNodeAdditionalData {
+    original_event_coordinates: Some(convert_to_event_coordinates(info.original_event_coordinates())),
+    data: Some(Data::MultithreadedFragment(GrpcMultithreadedFragment { multithreaded_log: Some(convert_to_grpc_simple_log(info.value())) }))
+  }
 }
 
 fn convert_to_grpc_underlying_pattern_info_additional_data(info: &NodeAdditionalDataContainer<UnderlyingPatternGraphInfo>) -> GrpcNodeAdditionalData {
@@ -634,6 +648,12 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternGraphInfo) ->
       Some(base_pattern) => base_pattern.clone()
     },
     graph: Some(convert_to_grpc_graph(info.graph().as_ref())),
+  }
+}
+
+fn convert_to_grpc_simple_log(log: &XesEventLogImpl) -> GrpcSimpleEventLog {
+  GrpcSimpleEventLog {
+    traces: log.traces().iter().map(|t| convert_to_grpc_simple_trace(t.borrow().events())).collect()
   }
 }
 

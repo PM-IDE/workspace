@@ -4,7 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY;
+use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY};
 use crate::features::discovery::root_sequence::context_keys::EDGE_START_END_ACTIVITIES_TIMES_KEY;
 use crate::features::discovery::root_sequence::context_keys::EDGE_TRACE_EXECUTION_INFO_KEY;
 use crate::features::discovery::root_sequence::context_keys::NODE_SOFTWARE_DATA_KEY;
@@ -34,6 +34,8 @@ use crate::utils::user_data::user_data::UserDataOwner;
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
+use ndarray::AssignElem;
+use crate::features::discovery::multithreading_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -116,6 +118,12 @@ fn put_node_user_data(
   let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
   event.user_data_mut().put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
+
+  if let Some(multithreaded_log) = event_group.user_data().concrete(MULTITHREAD_FRAGMENT_KEY.key()) {
+    event.user_data_mut().put_concrete(NODE_MULTITHREADED_FRAGMENT_LOG_KEY.key(), vec![
+      NodeAdditionalDataContainer::new(multithreaded_log.clone(), event_coordinates)
+    ])
+  }
 
   Ok(())
 }

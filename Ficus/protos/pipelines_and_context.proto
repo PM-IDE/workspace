@@ -214,10 +214,15 @@ message GrpcNodeAdditionalData {
     GrpcUnderlyingPatternInfo pattern_info = 3;
     GrpcNodeCorrespondingTraceData trace_data = 4;
     GrpcActivityStartEndData time_data = 5;
+    GrpcMultithreadedFragment multithreaded_fragment = 7;
   }
 
   //we need to understand from where the node data came from the original event log
   GrpcEventCoordinates original_event_coordinates = 6;
+}
+
+message GrpcMultithreadedFragment {
+  GrpcSimpleEventLog multithreaded_log = 1;
 }
 
 message GrpcActivityStartEndData {

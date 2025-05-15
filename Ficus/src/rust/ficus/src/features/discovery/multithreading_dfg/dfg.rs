@@ -13,6 +13,15 @@ use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use fancy_regex::Regex;
+use lazy_static::lazy_static;
+use crate::utils::context_key::DefaultContextKey;
+use crate::utils::user_data::user_data::UserData;
+
+const MULTITHREADED_FRAGMENT: &'static str = "MULTITHREADED_FRAGMENT";
+
+lazy_static!(
+  pub static ref MULTITHREAD_FRAGMENT_KEY: DefaultContextKey<XesEventLogImpl> = DefaultContextKey::new(MULTITHREADED_FRAGMENT); 
+);
 
 pub enum MultithreadedTracePartsCreationStrategy {
   Regexes(Vec<Regex>),
@@ -66,13 +75,24 @@ pub fn enumerate_multithreaded_events_groups(
       match part {
         TracePart::Multithreaded(_) => {
           let mut group = EventGroup::empty();
+          let mut events_by_threads = HashMap::new();
           for event in &trace.events()[index..index + part.length()] {
+            let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
+            events_by_threads.entry(thread_id).or_insert(XesTraceImpl::empty()).push(Rc::new(RefCell::new(event.borrow().clone())));
+
             if is_control_flow_event(&event.borrow()) {
               group.control_flow_events_mut().push(event.clone());
             } else {
               group.statistic_events_mut().push(event.clone());
             }
           }
+
+          let mut multithreaded_fragment_log = XesEventLogImpl::empty();
+          for (_, trace) in events_by_threads {
+            multithreaded_fragment_log.push(Rc::new(RefCell::new(trace)));
+          }
+
+          group.user_data_mut().put_concrete(MULTITHREAD_FRAGMENT_KEY.key(), multithreaded_fragment_log);
 
           trace_groups.push(group);
         }
