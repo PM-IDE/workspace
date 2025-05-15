@@ -73,6 +73,7 @@ export interface ProtoGrpcType {
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodLoadUnloadEvent: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
+    GrpcMultithreadedFragment: MessageTypeDefinition
     GrpcNamesEventLog: MessageTypeDefinition
     GrpcNamesEventLogContextValue: MessageTypeDefinition
     GrpcNamesTrace: MessageTypeDefinition
