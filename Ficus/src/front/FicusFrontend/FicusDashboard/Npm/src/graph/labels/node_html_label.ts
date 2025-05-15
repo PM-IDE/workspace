@@ -362,8 +362,6 @@ function createPatternInformation(node: GraphNode): string {
   `
 }
 
-
-
 interface TracePatternInfo {
   traceId: number,
   repeatCount: number

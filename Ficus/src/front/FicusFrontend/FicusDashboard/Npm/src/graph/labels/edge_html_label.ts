@@ -13,7 +13,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   let softwareData = edge.softwareData;
   if (softwareData == null) {
     return `
-      <div style="margin-top: 65px;">
+      <div style="margin-top: 120px;">
         ${createEdgeExecutionInfo(edge)}
       </div>
     `;
