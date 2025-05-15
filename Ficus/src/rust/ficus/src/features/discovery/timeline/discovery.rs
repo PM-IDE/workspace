@@ -16,6 +16,7 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {
