@@ -156,12 +156,7 @@ pub fn annotate_with_time_performance(
     let first_node = graph.node(&edge.from_node).expect("Must contain first node");
     let second_node = graph.node(&edge.to_node).expect("Must contain second node");
 
-    let annotation = if let Some(time_annotation) = try_get_time_annotation(&performance_map, first_node, second_node) {
-      Some(match annotation_kind {
-        TimeAnnotationKind::SummedTime => time_annotation.0,
-        TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
-      })
-    } else if let Some(performance_data) = edge.user_data().concrete(PERFORMANCE_ANNOTATION_INFO_KEY.key()) {
+    let annotation = if let Some(performance_data) = edge.user_data().concrete(PERFORMANCE_ANNOTATION_INFO_KEY.key()) {
       Some(match performance_data {
         PerformanceAnnotationInfo::Default(data) => match annotation_kind {
           TimeAnnotationKind::SummedTime => data.iter().sum(),
@@ -171,6 +166,11 @@ pub fn annotate_with_time_performance(
           TimeAnnotationKind::SummedTime => *sum,
           TimeAnnotationKind::Mean => *sum / (*count as f64)
         }
+      })
+    } else if let Some(time_annotation) = try_get_time_annotation(&performance_map, first_node, second_node) {
+      Some(match annotation_kind {
+        TimeAnnotationKind::SummedTime => time_annotation.0,
+        TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
       })
     } else {
       None
