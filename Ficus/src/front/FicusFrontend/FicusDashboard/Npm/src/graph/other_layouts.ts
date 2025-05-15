@@ -126,8 +126,8 @@ export function createGraphEdgesElements(
 }
 
 function processEdgesWeights(edges: GrpcGraphEdge[], edgesMap: Record<number, any>) {
-  const minWidth = 1;
-  const maxWidth = 15;
+  const minWidth = 5;
+  const maxWidth = 20;
   let maxWeight = Math.max(...edges.map(e => e.weight));
 
   for (let edge of edges) {
@@ -166,7 +166,10 @@ function processTimeAnnotation(
   }
 
   for (let edge of edges) {
-    let timeAnnotation = idsToTime[edge.id] / aggregatedData.totalExecutionTime;
+    let time = idsToTime[edge.id] ?? 0;
+
+    let timeAnnotation = time / aggregatedData.totalExecutionTime;
+    console.log(time, aggregatedData.totalExecutionTime);
 
     edgesMap[edge.id].timeAnnotation = timeAnnotation;
     edgesMap[edge.id].color = getPerformanceAnnotationColor(timeAnnotation);
