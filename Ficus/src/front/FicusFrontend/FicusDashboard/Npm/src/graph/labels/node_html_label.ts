@@ -59,6 +59,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
                   ${createEventClassesPieChart(softwareData.histogram)}
                   ${createNodeEnhancements(enhancements, softwareData, node.aggregatedData)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
+                  ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
                 </div>
 
                 <div style="display: flex; flex-direction: row;">
@@ -269,8 +270,61 @@ function createTracesStringDescription(tracesIds: number[]) {
   return result;
 }
 
+function isMultithreadedNode(node: GraphNode): boolean {
+  return node.additionalData.find(d => d.multithreadedFragment != null) != null;
+}
+
 function isPatternNode(node: GraphNode): boolean {
   return node.additionalData.find(d => d.patternInfo != null) != null;
+}
+
+function createMultithreadedNodeInformation(node: GraphNode): string {
+  let multithreaded_logs_htmls = [];
+  for (let data of node.additionalData) {
+    if (data.multithreadedFragment != null) {
+      let log = data.multithreadedFragment.multithreadedLog.traces.map(t => t.events.map(e => e.name));
+      let patterns = log.map(t => createSimpleTraceView(t.map(((e, index) => createSimpleEventView(e, index != 0)))));
+
+      multithreaded_logs_htmls.push(`
+        <div style="display: flex; flex-direction: column; margin-top: 5px;">
+            <div>
+                At ${createTracesStringDescription([data.originalEventCoordinates.traceId])}:
+            </div>
+            ${patterns.join("\n")}
+        </div>
+      `);
+    }
+  }
+  
+  return `
+    <div class="graph-content-container">
+      <div style="display: flex; flex-direction: row;" class="graph-title-label">
+        <div>Multithreaded parts:</div>
+      </div>
+      <div>
+        ${multithreaded_logs_htmls.join("\n")}
+      </div>
+    </div>
+  `
+}
+
+function createSimpleEventView(name: string, addMargin: boolean): string {
+  return `
+    <div style="width: 18px; height: 18px; background-color: ${getOrCreateColor(name)}; margin-left: ${addMargin ? 1 : 0}px;
+                border-style: solid; border-width: 1px; border-color: ${getOrCreateColor(name)}"
+         class="graph-tooltip-hover"
+         data-histogram-tooltip='${JSON.stringify([[name, 1]])}'
+         data-tooltip-event-type='mouseover'>
+    </div>
+  `
+}
+
+function createSimpleTraceView(eventsHtmls: string[]): string {
+  return `
+    <div style="display: flex; flex-direction: row;">
+      ${eventsHtmls.join("\n")}
+    </div>
+  `
 }
 
 function createPatternInformation(node: GraphNode): string {
@@ -278,14 +332,7 @@ function createPatternInformation(node: GraphNode): string {
 
   let patternInfos = extractPatternsInfo(node);
   for (let [_, info] of patternInfos) {
-    let baseSequence = info.baseSequence.map((c, index) => `
-        <div style="width: 18px; height: 18px; background-color: ${getOrCreateColor(c)}; margin-left: ${index == 0 ? 0 : 1}px;
-                    border-style: solid; border-width: 1px; border-color: ${getOrCreateColor(c)}"
-             class="graph-tooltip-hover"
-             data-histogram-tooltip='${JSON.stringify([[c, 1]])}'
-             data-tooltip-event-type='mouseover'>
-        </div>
-    `);
+    let baseSequence = info.baseSequence.map((e, index) => createSimpleEventView(e, index != 0));
 
     let tracesIds = info.traces.map(t => t.traceId);
     tracesIds.sort((f, s) => f - s);
@@ -295,9 +342,7 @@ function createPatternInformation(node: GraphNode): string {
             <div>
                 At ${createTracesStringDescription(tracesIds)}:
             </div>
-            <div style="display: flex; flex-direction: row;">
-                ${baseSequence.join("\n")}
-            </div>
+            ${createSimpleTraceView(baseSequence)}
         </div>
       `);
   }
@@ -316,6 +361,8 @@ function createPatternInformation(node: GraphNode): string {
     </div>
   `
 }
+
+
 
 interface TracePatternInfo {
   traceId: number,
