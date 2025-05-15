@@ -15,16 +15,9 @@ export function createDagreLayout() {
     rankDir: 'LR',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
-    spacingFactor: 2
+    spacingFactor: 3
   }
 }
-
-export function createPresetLayout() {
-  return {
-    name: 'preset'
-  }
-}
-
 
 export function findAllRelatedTraceIds(node: GraphNode): Set<number> {
   let traceIds = new Set<number>();

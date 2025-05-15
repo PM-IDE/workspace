@@ -20,7 +20,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   }
 
   return `
-    <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
+    <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
         ${enhancements.map(e => createEdgeEnhancement(softwareData, edge, e)).join("\n")}
       </div>
@@ -31,11 +31,11 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
 
 function createEdgeExecutionInfo(edge: GraphEdge): string {
   return `
-    <div style="font-size: 17px;">
-      Exec. time: ${edge.executionTime} (${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%)
+    <div style="font-size: 45px; font-weight: 900;">
+      ${edge.weight} times
     </div>
-    <div style="font-size: 17px;">
-      Executed ${edge.weight} times
+    <div style="font-size: 45px; font-weight: 900;">
+      ${edge.executionTime} (${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%)
     </div>
   `;
 }
