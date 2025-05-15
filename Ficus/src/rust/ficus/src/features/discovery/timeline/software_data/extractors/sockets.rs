@@ -24,7 +24,7 @@ impl<'a> SoftwareDataExtractor for SocketsDataExtractor<'a> {
       }),
 
       (self.config.socket_accept_stop().as_ref().map(|c| c.event_class_regex()), &|_| { Ok(Some(SocketEvent::AcceptStop)) }),
-      (self.config.socket_connect_stop().as_ref().map(|c| c.event_class_regex()), &|_| { Ok(Some(SocketEvent::AcceptStop)) }),
+      (self.config.socket_connect_stop().as_ref().map(|c| c.event_class_regex()), &|_| { Ok(Some(SocketEvent::ConnectStop)) }),
 
       (self.config.socket_connect_failed().as_ref().map(|c| c.event_class_regex()), &|event| {
         create_connect_accept_failed(event, self.config.socket_connect_failed().as_ref().unwrap().info(), true)
