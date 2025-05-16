@@ -14,7 +14,7 @@ impl Display for SilhouetteScoreError {
   }
 }
 
-pub fn silhouette_score(labels: Vec<usize>, distance_func: impl Fn(usize, usize) -> f64) -> Result<f64, SilhouetteScoreError> {
+pub fn silhouette_score(labels: &Vec<usize>, distance_func: impl Fn(usize, usize) -> f64) -> Result<f64, SilhouetteScoreError> {
   if labels.is_empty() {
     return Err(SilhouetteScoreError::NotEnoughSamples);
   }

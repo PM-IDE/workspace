@@ -1,4 +1,5 @@
 use super::traces_params::TracesClusteringParams;
+use crate::features::clustering::common::adjust_dbscan_labels;
 use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces};
 use crate::utils::silhouette::silhouette_score;
 use crate::{
@@ -23,7 +24,7 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
       .transform(dataset.records());
 
     match clusters {
-      Ok(clusters) => Ok(clusters),
+      Ok(clusters) => Ok(adjust_dbscan_labels(clusters)),
       Err(err) => Err(ClusteringError::RawError(err.to_string()))
     }
   })
@@ -49,8 +50,8 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
           Err(err) => return Err(ClusteringError::RawError(err.to_string()))
         };
 
-        let labels = clusters.iter().map(|l| if l.is_none() { 0 } else { l.unwrap() + 1 }).collect();
-        let score = match silhouette_score(labels, |first, second| {
+        let labels = adjust_dbscan_labels(clusters.clone());
+        let score = match silhouette_score(&labels, |first, second| {
           calculate_distance(params.distance, dataset, first, second)
         }) {
           Ok(score) => score,
@@ -58,7 +59,7 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
         };
 
         if score > best_score {
-          best_labels = Some(clusters.clone());
+          best_labels = Some(labels.clone());
           best_score = score;
         }
       }

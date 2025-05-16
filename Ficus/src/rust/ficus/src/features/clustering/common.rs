@@ -66,3 +66,16 @@ pub fn scale_raw_dataset_min_max(vector: &mut Vec<f64>, objects_count: usize, fe
 pub fn create_cluster_name(cluster_index: usize) -> String {
   format!("CLUSTER_{}", cluster_index)
 }
+
+pub(super) fn adjust_dbscan_labels(clusters: Array1<Option<usize>>) -> Vec<usize> {
+  let mut next_label = clusters.iter().filter(|c| c.is_some()).map(|c| c.as_ref().unwrap().clone()).max().unwrap();
+
+  clusters
+    .into_raw_vec()
+    .iter()
+    .map(|x| if x.is_none() {
+      next_label += 1;
+      next_label
+    } else { x.unwrap() })
+    .collect()
+}
