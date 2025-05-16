@@ -68,7 +68,7 @@ pub fn create_cluster_name(cluster_index: usize) -> String {
 }
 
 pub(super) fn adjust_dbscan_labels(clusters: Array1<Option<usize>>) -> Vec<usize> {
-  let mut next_label = clusters.iter().filter(|c| c.is_some()).map(|c| c.as_ref().unwrap().clone()).max().unwrap();
+  let mut next_label = clusters.iter().filter(|c| c.is_some()).map(|c| c.as_ref().unwrap().clone()).max().unwrap_or(0);
 
   clusters
     .into_raw_vec()
