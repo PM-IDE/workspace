@@ -132,6 +132,7 @@ pub const MERGE_SEQUENCES_OF_EVENTS: &'static str = "merge_sequences_of_events";
 pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &'static str = "discover_events_groups_in_each_trace";
 pub const SOFTWARE_DATA_EXTRACTION_CONFIG: &'static str = "software_data_extraction_config";
 pub const DISCOVER_ACTIVITY_INSTANCES_STRICT: &'static str = "discover_activity_instances_strict";
+pub const PUT_NOISE_EVENTS_IN_ONE_CLUSTER: &'static str = "put_noise_events_in_one_cluster";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -235,6 +236,7 @@ lazy_static!(
      pub static ref DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE);
      pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<SoftwareDataExtractionConfig> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
      pub static ref DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_ACTIVITY_INSTANCES_STRICT);
+     pub static ref PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY: DefaultContextKey<bool> = DefaultContextKey::new(PUT_NOISE_EVENTS_IN_ONE_CLUSTER);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -328,6 +330,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE => Some(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY.deref() as &dyn ContextKey),
     SOFTWARE_DATA_EXTRACTION_CONFIG => Some(SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.deref() as &dyn ContextKey),
     DISCOVER_ACTIVITY_INSTANCES_STRICT => Some(DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY.deref() as &dyn ContextKey),
+    PUT_NOISE_EVENTS_IN_ONE_CLUSTER => Some(PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

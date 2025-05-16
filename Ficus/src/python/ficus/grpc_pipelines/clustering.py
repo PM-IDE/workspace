@@ -185,6 +185,7 @@ class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart):
   def __init__(self,
                activity_level: int = 0,
                min_events_count_in_cluster: int = 1,
+               put_noise_events_in_one_cluster: bool = True,
                tolerance: float = 1e-5,
                class_extractor: Optional[str] = None,
                show_visualization: bool = True,
@@ -202,11 +203,13 @@ class ClusterizeActivitiesFromTracesDbscan(ClusterizationPart):
                      visualization_method, legend_cols)
 
     self.min_events_count_in_cluster = min_events_count_in_cluster
+    self.put_noise_events_in_one_cluster = put_noise_events_in_one_cluster
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = self.create_common_config()
 
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
+    append_bool_value(config, const_put_noise_events_in_one_cluster, self.put_noise_events_in_one_cluster)
 
     part = create_complex_get_context_part(self.uuid,
                                            self.__class__.__name__,
@@ -295,6 +298,7 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesBase):
   def __init__(self,
                after_clusterization_pipeline: Pipeline,
                min_events_count_in_cluster: int = 1,
+               put_noise_events_in_one_cluster: bool = True,
                tolerance: float = 1e-5,
                show_visualization: bool = True,
                fig_size: (int, int) = (7, 9),
@@ -325,12 +329,14 @@ class ClusterizeLogTracesDbscan(ClusterizeLogTracesBase):
                      feature_count_kind,
                      percentage_from_max_value)
 
+    self.put_noise_events_in_one_cluster = put_noise_events_in_one_cluster
     self.min_events_count_in_cluster = min_events_count_in_cluster
     self.tolerance = tolerance
 
   def fill_config_values(self, config):
     append_float_value(config, const_tolerance, self.tolerance)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
+    append_bool_value(config, const_put_noise_events_in_one_cluster, self.put_noise_events_in_one_cluster)
 
 
 class ClusterizeLogTracesKMeansGridSearch(ClusterizeLogTracesBase):
@@ -383,6 +389,7 @@ class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
                after_clusterization_pipeline: Pipeline,
                min_points_in_cluster_vec: list[int] = [1],
                tolerances: list[float] = [1e-5],
+               put_noise_events_in_one_cluster: bool = True,
                show_visualization: bool = True,
                fig_size: (int, int) = (7, 9),
                view_params: (int, int) = (-140, 60),
@@ -414,15 +421,18 @@ class ClusterizeLogTracesDbscanGridSearch(ClusterizeLogTracesBase):
 
     self.tolerances = tolerances
     self.min_points_in_cluster_vec = min_points_in_cluster_vec
+    self.put_noise_events_in_one_cluster = put_noise_events_in_one_cluster
 
   def fill_config_values(self, config):
     append_float_array_value(config, const_tolerances, self.tolerances)
     append_uint_array_value(config, const_min_points_in_cluster_array, self.min_points_in_cluster_vec)
+    append_bool_value(config, const_put_noise_events_in_one_cluster, self.put_noise_events_in_one_cluster)
 
 
 class AbstractTimelineDiagram(ClusterizeLogTracesBase):
   def __init__(self,
                min_events_count_in_cluster: int = 1,
+               put_noise_events_in_one_cluster: bool = True,
                tolerance: float = 1e-5,
                show_visualization: bool = True,
                fig_size: (int, int) = (7, 9),
@@ -456,10 +466,12 @@ class AbstractTimelineDiagram(ClusterizeLogTracesBase):
 
     self.tolerance = tolerance
     self.min_events_count_in_cluster = min_events_count_in_cluster
+    self.put_noise_events_in_one_cluster = put_noise_events_in_one_cluster
 
   def fill_config_values(self, config):
     append_float_value(config, const_tolerance, self.tolerance)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
+    append_bool_value(config, const_put_noise_events_in_one_cluster, self.put_noise_events_in_one_cluster)
 
 
 class AbstractMultithreadedEventsGroups(ClusterizeLogTracesBase):
@@ -468,6 +480,7 @@ class AbstractMultithreadedEventsGroups(ClusterizeLogTracesBase):
                time_attribute: Optional[str],
                sequential_regexes: Optional[list[str]] = None,
                min_events_count_in_cluster: int = 1,
+               put_noise_events_in_one_cluster: bool = True,
                tolerance: float = 1e-5,
                show_visualization: bool = True,
                fig_size: (int, int) = (7, 9),
@@ -504,11 +517,13 @@ class AbstractMultithreadedEventsGroups(ClusterizeLogTracesBase):
     self.tolerance = tolerance
     self.min_events_count_in_cluster = min_events_count_in_cluster
     self.sequential_regexes = sequential_regexes
+    self.put_noise_events_in_one_cluster = put_noise_events_in_one_cluster
 
   def fill_config_values(self, config: GrpcPipelinePartConfiguration):
     append_float_value(config, const_tolerance, self.tolerance)
     append_uint32_value(config, const_min_events_in_cluster_count, self.min_events_count_in_cluster)
     append_string_value(config, const_thread_attribute, self.thread_attribute)
+    append_bool_value(config, const_put_noise_events_in_one_cluster, self.put_noise_events_in_one_cluster)
 
     if self.sequential_regexes is not None:
       append_strings_context_value(config, const_regexes, self.sequential_regexes)

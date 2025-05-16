@@ -13,7 +13,7 @@ use crate::features::discovery::timeline::events_groups::{enumerate_event_groups
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, REGEXES_KEY, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, REGEXES_KEY, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::display_name::DISPLAY_NAME_KEY;
@@ -130,8 +130,9 @@ impl PipelineParts {
 
     let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
     let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
+    let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
 
-    let (_, labeled_dataset) = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster) {
+    let (_, labeled_dataset) = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster, put_noise_events_in_one_cluster) {
       Ok(new_logs) => new_logs,
       Err(error) => return Err(error.into()),
     };

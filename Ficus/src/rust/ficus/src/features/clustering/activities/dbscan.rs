@@ -13,7 +13,11 @@ use crate::{
 use crate::features::clustering::common::adjust_dbscan_labels;
 use super::{activities_common::create_dataset, activities_params::ActivitiesClusteringParams, merging::merge_activities};
 
-pub fn clusterize_activities_dbscan<TLog: EventLog>(params: &mut ActivitiesClusteringParams<TLog>, min_points: usize) -> ClusteringResult {
+pub fn clusterize_activities_dbscan<TLog: EventLog>(
+  params: &mut ActivitiesClusteringParams<TLog>, 
+  min_points: usize,
+  put_noise_events_in_one_cluster: bool
+) -> ClusteringResult {
   let (dataset, processed, classes_names) = create_dataset(&params.vis_params)?;
   let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), KdTree)
     .tolerance(params.tolerance)
@@ -33,7 +37,7 @@ pub fn clusterize_activities_dbscan<TLog: EventLog>(params: &mut ActivitiesClust
     classes_names,
   );
 
-  let labels = adjust_dbscan_labels(clusters);
+  let labels = adjust_dbscan_labels(clusters, put_noise_events_in_one_cluster);
 
   let colors = create_colors_vector(&labels, params.vis_params.common_vis_params.colors_holder);
   Ok(LabeledDataset::new(ficus_dataset, labels, colors))
