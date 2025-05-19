@@ -11,7 +11,6 @@ import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
-import {GrpcTimePerformanceAnnotation} from "../protos/ficus/GrpcTimePerformanceAnnotation";
 import cytoscape from "cytoscape";
 import {AggregatedData} from "./types";
 
@@ -29,8 +28,13 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
     totalBufferRentedBytes: 0
   };
 
+  let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
+
+  processNodesAggregatedData(graph.nodes, aggregatedData, filter);
+  processEdgesAggregatedData(graph.edges, aggregatedData, performanceEdgesMap, filter);
+
   elements.push(...createGraphNodesElements(graph.nodes, aggregatedData, filter));
-  elements.push(...createGraphEdgesElements(graph.edges, annotation, aggregatedData, filter));
+  elements.push(...createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter));
 
   for (let element of elements) {
     (<any>element).data.aggregatedData = aggregatedData;
@@ -39,9 +43,7 @@ export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnn
   return elements;
 }
 
-function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null): cytoscape.ElementDefinition[] {
-  let elements = [];
-
+function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null) {
   for (let node of nodes) {
     let softwareData = getNodeSoftwareDataOrNull(node, filter);
     updateAggregatedData(aggregatedData, softwareData);
@@ -49,6 +51,41 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: Aggreg
     let executionTime = calculateOverallExecutionTime(node);
     aggregatedData.totalExecutionTime += executionTime;
     aggregatedData.maxExecutionTime = Math.max(aggregatedData.maxExecutionTime, executionTime);
+  }
+}
+
+function processEdgesAggregatedData(edges: GrpcGraphEdge[], aggregatedData: AggregatedData, performanceMap: Record<number, any>, filter: RegExp | null) {
+  for (let edge of edges) {
+    let softwareData = getEdgeSoftwareDataOrNull(edge, filter);
+    updateAggregatedData(aggregatedData, softwareData);
+
+    let executionTime = performanceMap[edge.id] ?? calculateEdgeExecutionTime(edge);
+
+    if (executionTime != null) {
+      aggregatedData.totalExecutionTime += executionTime;
+      aggregatedData.maxExecutionTime = Math.max(executionTime, aggregatedData.maxExecutionTime); 
+    }
+  }
+}
+
+function buildEdgesTimeAnnotationMap(annotation: GrpcAnnotation): Record<number, any> {
+  let idsToTime: Record<number, any> = {};
+
+  if (annotation?.timeAnnotation != null) {
+    for (let timeAnnotation of annotation.timeAnnotation.annotations) {
+      idsToTime[timeAnnotation.entityId] = timeAnnotation.interval.nanoseconds;
+    } 
+  }
+
+  return idsToTime;
+}
+
+function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null): cytoscape.ElementDefinition[] {
+  let elements = [];
+
+  for (let node of nodes) {
+    let executionTime = calculateOverallExecutionTime(node);
+    let softwareData = getNodeSoftwareDataOrNull(node, filter);
 
     elements.push({
       data: {
@@ -78,18 +115,40 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
 
 export function createGraphEdgesElements(
   edges: GrpcGraphEdge[],
-  annotation: GrpcAnnotation,
+  performanceMap: Record<number, any>,
   aggregatedData: AggregatedData,
   filter: RegExp | null
 ): cytoscape.ElementDefinition[] {
   let elements: cytoscape.ElementDefinition[] = [];
+
+  let maxWeight = Math.max(...edges.map(e => e.weight));
+  const minWidth = 5;
+  const maxWidth = 20;
+
   for (let edge of edges) {
     let softwareData = getEdgeSoftwareDataOrNull(edge, filter);
-    updateAggregatedData(aggregatedData, softwareData);
 
-    let executionTime = calculateEdgeExecutionTime(edge);
-    aggregatedData.totalExecutionTime += executionTime;
-    aggregatedData.maxExecutionTime = Math.max(executionTime, aggregatedData.maxExecutionTime);
+    let weightRatio = edge.weight / maxWeight
+    let width = minWidth + (maxWidth - minWidth) * weightRatio;
+
+    if (isNaN(width)) {
+      width = 1;
+    }
+
+    let blueMin = graphColor.blueMin;
+    let blueMax = graphColor.blueMax;
+
+    let greenMin = graphColor.greenMin;
+    let greenMax = graphColor.greenMax;
+
+    let redMin = graphColor.redMin;
+    let redMax = graphColor.redMax;
+
+    let executionTime = performanceMap[edge.id] ?? calculateEdgeExecutionTime(edge);
+
+    let color = executionTime == null ? 
+      calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio) : 
+      getPerformanceAnnotationColor(executionTime / aggregatedData.totalExecutionTime);
 
     elements.push({
       data: {
@@ -101,77 +160,12 @@ export function createGraphEdgesElements(
         additionalData: edge.additionalData,
         softwareData: softwareData,
         executionTime: executionTime,
-        weight: edge.weight
+        weight: edge.weight,
+        width: width,
+        color: color
       }
     })
   }
 
-  let edgesMap: Record<number, any> = {};
-
-  for (let edge of edges) {
-    edgesMap[edge.id] = {};
-  }
-
-  processEdgesWeights(edges, edgesMap);
-  if (annotation !== null && annotation.timeAnnotation !== null) {
-    processTimeAnnotation(annotation.timeAnnotation, edges, edgesMap, aggregatedData);
-  }
-
-  for (let element of elements) {
-    element.data.color = edgesMap[parseInt(element.data.id)].color;
-    element.data.width = edgesMap[parseInt(element.data.id)].width;
-  }
-
   return elements;
-}
-
-function processEdgesWeights(edges: GrpcGraphEdge[], edgesMap: Record<number, any>) {
-  const minWidth = 5;
-  const maxWidth = 20;
-  let maxWeight = Math.max(...edges.map(e => e.weight));
-
-  for (let edge of edges) {
-    let weightRatio = edge.weight / maxWeight
-    let width = minWidth + (maxWidth - minWidth) * weightRatio;
-
-    if (isNaN(width)) {
-      width = 1;
-    }
-
-    edgesMap[edge.id].width = width;
-
-    let blueMin = graphColor.blueMin;
-    let blueMax = graphColor.blueMax;
-
-    let greenMin = graphColor.greenMin;
-    let greenMax = graphColor.greenMax;
-
-    let redMin = graphColor.redMin;
-    let redMax = graphColor.redMax;
-
-    edgesMap[edge.id].color = calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio);
-  }
-}
-
-function processTimeAnnotation(
-  annotation: GrpcTimePerformanceAnnotation,
-  edges: GrpcGraphEdge[],
-  edgesMap: Record<number, any>,
-  aggregatedData: AggregatedData
-) {
-  let idsToTime: Record<number, any> = {};
-
-  for (let timeAnnotation of annotation.annotations) {
-    idsToTime[timeAnnotation.entityId] = timeAnnotation.interval.nanoseconds;
-  }
-
-  for (let edge of edges) {
-    let time = idsToTime[edge.id] ?? 0;
-
-    let timeAnnotation = time / aggregatedData.totalExecutionTime;
-    console.log(time, aggregatedData.totalExecutionTime);
-
-    edgesMap[edge.id].timeAnnotation = timeAnnotation;
-    edgesMap[edge.id].color = getPerformanceAnnotationColor(timeAnnotation);
-  }
 }

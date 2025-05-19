@@ -211,7 +211,7 @@ function increment(map: Map<string, number>, key: string, value: number) {
   }
 }
 
-export function calculateEdgeExecutionTime(edge: GraphEdge | GrpcGraphEdge): number {
+export function calculateEdgeExecutionTime(edge: GraphEdge | GrpcGraphEdge): number | null {
   let executionTime = 0;
 
   for (let data of edge.additionalData) {
@@ -219,8 +219,8 @@ export function calculateEdgeExecutionTime(edge: GraphEdge | GrpcGraphEdge): num
       executionTime += data.timeData.endTime - data.timeData.startTime;
     }
   }
-  
-  return executionTime;
+
+  return executionTime == 0 ? null : executionTime;
 }
 
 export function executeWithNodeAdditionalData(node : GraphNode | GrpcGraphNode, handler: Function) {
