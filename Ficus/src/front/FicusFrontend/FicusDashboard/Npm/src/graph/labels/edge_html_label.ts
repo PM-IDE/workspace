@@ -30,14 +30,21 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
 }
 
 function createEdgeExecutionInfo(edge: GraphEdge): string {
-  return `
+  let executionInfo = `
     <div style="font-size: 45px; font-weight: 900;">
       ${edge.weight} times
     </div>
-    <div style="font-size: 45px; font-weight: 900;">
-      ${edge.executionTime} (${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%)
-    </div>
   `;
+
+  if (edge.executionTime != null) {
+    executionInfo += `
+      <div style="font-size: 45px; font-weight: 900;">
+        ${edge.executionTime} (${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%)
+      </div>
+    `;
+  }
+
+  return executionInfo;
 }
 
 function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge, enhancement: SoftwareEnhancementKind) {
