@@ -1,4 +1,10 @@
-﻿<br />
+﻿[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+
+<br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
@@ -116,3 +122,14 @@ Email: aerooneQ@yandex.ru, Stepanov.E.V@hse.ru
 * [Perfview](https://github.com/Microsoft/perfview)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+[contributors-shield]: https://img.shields.io/github/contributors/PM-IDE/workspace.svg?style=for-the-badge
+[contributors-url]: https://github.com/PM-IDE/workspace/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/PM-IDE/workspace.svg?style=for-the-badge
+[forks-url]: https://github.com/PM-IDE/workspace/network/members
+[stars-shield]: https://img.shields.io/github/stars/PM-IDE/workspace.svg?style=for-the-badge
+[stars-url]: https://github.com/PM-IDE/workspace/stargazers
+[issues-shield]: https://img.shields.io/github/issues/PM-IDE/workspace.svg?style=for-the-badge
+[issues-url]: https://github.com/PM-IDE/workspace/issues
+[license-shield]: https://img.shields.io/github/license/PM-IDE/workspace.svg?style=for-the-badge
+[license-url]: https://github.com/PM-IDE/workspace/blob/master/LICENSE.txt
