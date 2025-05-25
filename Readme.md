@@ -7,7 +7,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/PM-IDE/workspace">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/FCS.svg" alt="Logo" width="80" height="80">
   </a>
 </div>
 
@@ -63,11 +63,11 @@ especially software event logs. The bXES supports converting XES event logs to b
 
 ### Built With
 
-* Rust
-* .NET
-* Typescript
-* Python
-* C++
+* [![Rust][https://shields.io/badge/-Rust-3776AB?style=flat&logo=rust]][https://www.rust-lang.org/]
+* [![.NET][https://img.shields.io/badge/.NET-5C2D91?style=badge&logo=.net&logoColor=white]][https://dotnet.microsoft.com/ru-ru/]
+* [![Typescript][https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat-square]][https://www.typescriptlang.org/]
+* [![Python][https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54]][https://www.python.org/]
+* [![C++][https://img.shields.io/badge/-C++-blue?logo=cplusplus]][https://en.cppreference.com/w/cpp/language]
 
 ## Usage
 
