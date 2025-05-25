@@ -38,6 +38,8 @@ The repository unites different projects for modern software process mining, bas
 Readme files in each project's subdirectory.
 
 
+
+
 ### Procfiler
 
 Procfiler is a tool which collects various events from .NET program execution and serializes
@@ -98,16 +100,9 @@ See readmes in each projects sub-directories.
   <img src="https://contrib.rocks/image?repo=PM-IDE/workspace" alt="contrib.rocks image" />
 </a>
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 ## Contact
@@ -116,9 +111,6 @@ TG: @AeroOne
 
 Email: aerooneQ@yandex.ru, Stepanov.E.V@hse.ru
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 ## Acknowledgments
 
 * [PAIS Lab](https://pais.hse.ru/lab/about)
@@ -126,8 +118,6 @@ Email: aerooneQ@yandex.ru, Stepanov.E.V@hse.ru
 * [.NET runtime tests](https://github.com/dotnet/runtime/tree/main/src/tests/profiler)
 * [.NET Profiling docs](https://github.com/dotnet/runtime/tree/main/docs/design/coreclr/profiling)
 * [Perfview](https://github.com/Microsoft/perfview)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 [contributors-shield]: https://img.shields.io/github/contributors/PM-IDE/workspace.svg?style=for-the-badge
 [contributors-url]: https://github.com/PM-IDE/workspace/graphs/contributors
