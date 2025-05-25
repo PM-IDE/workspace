@@ -9,7 +9,8 @@
   <a href="https://cs.hse.ru">
     <img src="images/FCS.svg" alt="Logo" width="80" height="80">
   </a>
-  <a href="https://pais.hse.ru" style="margin-left: 30px">
+  &nbsp;&nbsp;&nbsp;&nbsp
+  <a href="https://pais.hse.ru">
     <img src="images/pais.svg" alt="Logo" width="80" height="80">
   </a>
 </div>
