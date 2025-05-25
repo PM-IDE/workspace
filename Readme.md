@@ -63,11 +63,22 @@ especially software event logs. The bXES supports converting XES event logs to b
 
 ### Built With
 
-* [![Rust][https://shields.io/badge/-Rust-3776AB?style=flat&logo=rust][https://www.rust-lang.org/]
-* [![.NET][https://img.shields.io/badge/.NET-5C2D91?style=badge&logo=.net&logoColor=white][https://dotnet.microsoft.com/ru-ru/]
-* [![Typescript][https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat-square][https://www.typescriptlang.org/]
-* [![Python][https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54][https://www.python.org/]
-* [![C++][https://img.shields.io/badge/-C++-blue?logo=cplusplus][https://en.cppreference.com/w/cpp/language]
+* [![Rust][rust-shield]][rust-url]
+* [![.NET][net-shield]][net-url]
+* [![Typescript][typescript-shield]][typescript-url]
+* [![Python][python-shield]][python-url]
+* [![C++][cpp-shield]][cpp-url]
+
+[rust-shield]: https://shields.io/badge/-Rust-3776AB?style=flat&logo=rust
+[rust-url]: https://www.rust-lang.org/
+[net-shield]: https://img.shields.io/badge/.NET-5C2D91?style=badge&logo=.net&logoColor=white
+[net-url]: https://dotnet.microsoft.com/ru-ru/
+[typescript-shield]: https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat-square
+[typescript-url]: https://www.typescriptlang.org/
+[python-shield]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
+[python-url]: https://www.python.org/
+[cpp-shield]: https://img.shields.io/badge/-C++-blue?logo=cplusplus
+[cpp-url]: https://en.cppreference.com/w/cpp/language
 
 ## Usage
 
