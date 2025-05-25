@@ -17,6 +17,9 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
+        <li><a href="#procfiler">Procfiler</a></li>
+        <li><a href="#ficus">Ficus</a></li>
+        <li><a href="#bxes">bXES</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
@@ -28,14 +31,12 @@
   </ol>
 </details>
 
-
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
 The repository unites different projects for modern software process mining, based on
 .NET event logs. Detailed information about each project can be found in corresponding
 Readme files in each project's subdirectory.
+
 
 ### Procfiler
 
@@ -44,11 +45,13 @@ them either to XES format or bXES format. The event types include event types wh
 supported by the TraceEvent library and method start-end events which are collected
 through unmanaged profiler.
 
+
 ### Ficus
 
 Ficus is a tool for process mining with much attention put to performance. Ficus consists
 of Python client (`pip install ficus_pm`) and backend part written in Rust
 (`docker run -it aerooneqq/ficus:latest`).
+
 
 ### bXES
 
@@ -99,6 +102,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 
 TG: @AeroOne
+
 Email: aerooneQ@yandex.ru, Stepanov.E.V@hse.ru
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
