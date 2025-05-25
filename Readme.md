@@ -6,13 +6,9 @@
 
 <br />
 <div align="center">
-  <a href="https://cs.hse.ru">
-    <img src="images/FCS.svg" alt="Logo" width="80" height="80">
-  </a>
+  <img src="images/FCS.svg" alt="Logo" width="80" height="80">
   &nbsp;&nbsp;&nbsp;&nbsp
-  <a href="https://pais.hse.ru">
-    <img src="images/pais.svg" alt="Logo" width="80" height="80">
-  </a>
+  <img src="images/pais.svg" alt="Logo" width="80" height="80">
 </div>
 
 <details>
