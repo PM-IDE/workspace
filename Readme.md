@@ -75,7 +75,7 @@ especially software event logs. The bXES supports converting XES event logs to b
 [net-url]: https://dotnet.microsoft.com/ru-ru/
 [typescript-shield]: https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat-square
 [typescript-url]: https://www.typescriptlang.org/
-[python-shield]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
+[python-shield]: https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white
 [python-url]: https://www.python.org/
 [cpp-shield]: https://img.shields.io/badge/-C++-blue?logo=cplusplus
 [cpp-url]: https://en.cppreference.com/w/cpp/language
