@@ -37,8 +37,9 @@ The repository unites different projects for modern software process mining, bas
 .NET event logs. Detailed information about each project can be found in corresponding
 Readme files in each project's subdirectory.
 
+The system architecture is shown in the Figure:
 
-
+![System](./images/system.png)
 
 ### Procfiler
 
