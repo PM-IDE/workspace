@@ -114,7 +114,8 @@ Email: aerooneQ@yandex.ru, Stepanov.E.V@hse.ru
 
 ## Acknowledgments
 
-* [PAIS Lab](https://pais.hse.ru/lab/about)
+* [FCS](https://cs.hse.ru)
+* [PAIS Lab](https://pais.hse.ru)
 * [DotNetCoreProfiler](https://github.com/ABaboshin/DotNetCoreProfiler)
 * [.NET runtime tests](https://github.com/dotnet/runtime/tree/main/src/tests/profiler)
 * [.NET Profiling docs](https://github.com/dotnet/runtime/tree/main/docs/design/coreclr/profiling)
