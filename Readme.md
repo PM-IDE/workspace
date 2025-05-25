@@ -107,7 +107,7 @@ See readmes in each projects sub-directories.
 
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the Apache 2.0 License. See `LICENSE` for more information.
 
 
 ## Contact
@@ -133,4 +133,4 @@ Email: aerooneQ@yandex.ru, Stepanov.E.V@hse.ru
 [issues-shield]: https://img.shields.io/github/issues/PM-IDE/workspace.svg?style=for-the-badge
 [issues-url]: https://github.com/PM-IDE/workspace/issues
 [license-shield]: https://img.shields.io/github/license/PM-IDE/workspace.svg?style=for-the-badge
-[license-url]: https://github.com/PM-IDE/workspace/blob/master/LICENSE.txt
+[license-url]: https://github.com/PM-IDE/workspace/blob/main/LICENSE
