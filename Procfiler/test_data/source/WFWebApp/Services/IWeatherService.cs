@@ -23,19 +23,19 @@ public class WeatherRepository(ILogger<WeatherRepository> logger) : IWeatherRepo
   public async Task<IReadOnlyList<WeatherForecast>> GetWeather()
   {
     logger.LogInformation("Starting getting weather forecasts");
-    
+
     var result = new List<WeatherForecast>();
     for (var i = 0; i < 10; ++i)
     {
       var forecast = new WeatherForecast
       {
         Date = DateOnly.FromDateTime(DateTime.Now),
-        TemperatureC = 10,
+        TemperatureC = 1,
         Summary = "xd"
       };
 
       result.Add(forecast);
-      
+
       logger.LogInformation(
         "Adding new weatherforecast to the list, temperature: {TempC}, {TempF}", forecast.TemperatureC, forecast.TemperatureF);
     }

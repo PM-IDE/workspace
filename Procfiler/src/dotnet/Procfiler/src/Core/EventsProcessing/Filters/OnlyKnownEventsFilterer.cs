@@ -111,6 +111,9 @@ public class OnlyKnownEventsFilterer : IEventsFilter
     TraceEventsConstants.ThreadPoolEnqueueWork,
     TraceEventsConstants.ThreadPoolWorkerThreadWait,
 
+    TraceEventsConstants.ThreadCreating,
+    TraceEventsConstants.ThreadRunning,
+
     TraceEventsConstants.AppDomainResourceManagementThreadCreated,
 
     TraceEventsConstants.RequestStart,

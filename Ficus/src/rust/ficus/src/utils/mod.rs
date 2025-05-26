@@ -18,3 +18,5 @@ pub mod vec_utils;
 pub mod xml_utils;
 pub mod silhouette;
 pub mod lcs;
+pub mod display_name;
+pub mod context_key;

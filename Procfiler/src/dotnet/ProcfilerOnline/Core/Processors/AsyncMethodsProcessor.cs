@@ -29,7 +29,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
 
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
     {
-      if (context.SharedData.FindMethodName(methodId) is not { } fqn) return;
+      if (context.SharedData.FindMethodDetails(methodId) is not { Fqn: var fqn }) return;
 
       if (context.CommandContext.TargetMethodsRegex is null ||
           context.CommandContext.TargetMethodsRegex.IsMatch(fqn))

@@ -11,7 +11,7 @@ pub fn performance_cookie<TErr>(
 ) -> Result<(), TErr> {
   let mut stopwatch = Stopwatch::start_new();
   logger.log(format!("Started activity {}", activity_name).as_str())?;
-  (action)()?;
+  action()?;
 
   stopwatch.stop();
   let elapsed = stopwatch.elapsed_ms();

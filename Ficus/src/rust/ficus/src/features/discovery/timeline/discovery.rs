@@ -16,19 +16,20 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {
   #[getset(get = "pub")] thread_attribute: String,
   #[getset(get = "pub")] time_attribute: Option<String>,
-  #[getset(get = "pub")] control_flow_events_regex: Option<Regex>,
+  #[getset(get = "pub")] control_flow_regexes: Option<Vec<Regex>>,
   #[getset(get = "pub")] traces: Vec<TraceTimelineDiagram>,
 }
 
 impl LogTimelineDiagram {
   pub fn is_control_flow_event(&self, event_class: &str) -> bool {
-    if let Some(regex) = self.control_flow_events_regex.as_ref() {
-      regex.is_match(event_class).unwrap_or(false)
+    if let Some(regexes) = self.control_flow_regexes.as_ref() {
+      regexes.iter().any(|r| r.is_match(event_class).unwrap_or(false))
     } else {
       true
     }
@@ -97,7 +98,7 @@ pub fn discover_traces_timeline_diagram(
   time_attribute: Option<&String>,
   event_group_delta: Option<u64>,
   discover_event_groups_in_each_trace: bool,
-  regex: Option<&Regex>,
+  control_flow_regexes: Option<&Vec<Regex>>,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut threads = vec![];
 
@@ -121,7 +122,7 @@ pub fn discover_traces_timeline_diagram(
     true => {
       let mut fragments = vec![];
       for thread in threads {
-        let events_groups = discover_events_groups_internal(&vec![&thread], event_group_delta, regex);
+        let events_groups = discover_events_groups_internal(&vec![&thread], event_group_delta, control_flow_regexes);
         fragments.push(TraceTimelineDiagram {
           threads: vec![thread],
           events_groups,
@@ -131,7 +132,7 @@ pub fn discover_traces_timeline_diagram(
       fragments
     }
     false => {
-      let events_groups = discover_events_groups_internal(&threads.iter().collect(), event_group_delta, regex);
+      let events_groups = discover_events_groups_internal(&threads.iter().collect(), event_group_delta, control_flow_regexes);
       vec![TraceTimelineDiagram {
         threads,
         events_groups,
@@ -140,7 +141,7 @@ pub fn discover_traces_timeline_diagram(
   };
 
   Ok(LogTimelineDiagram {
-    control_flow_events_regex: regex.cloned(),
+    control_flow_regexes: control_flow_regexes.cloned(),
     thread_attribute: "Trace".to_string(),
     traces: timeline_fragments,
     time_attribute: match time_attribute {
@@ -150,9 +151,13 @@ pub fn discover_traces_timeline_diagram(
   })
 }
 
-fn discover_events_groups_internal(threads: &Vec<&TraceThread>, event_group_delta: Option<u64>, regex: Option<&Regex>) -> Vec<TraceEventsGroup> {
+fn discover_events_groups_internal(
+  threads: &Vec<&TraceThread>,
+  event_group_delta: Option<u64>,
+  control_flow_regexes: Option<&Vec<Regex>>
+) -> Vec<TraceEventsGroup> {
   if let Some(event_group_delta) = event_group_delta {
-    discover_events_groups(threads, event_group_delta, regex)
+    discover_events_groups(threads, event_group_delta, control_flow_regexes)
   } else {
     vec![]
   }
@@ -163,7 +168,7 @@ pub fn discover_timeline_diagram(
   thread_attribute: &str,
   time_attribute: Option<&String>,
   event_group_delta: Option<u64>,
-  regex: Option<&Regex>,
+  control_flow_regexes: Option<&Vec<Regex>>,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
   let mut traces = vec![];
 
@@ -197,7 +202,7 @@ pub fn discover_timeline_diagram(
       }
     }
 
-    let events_groups = discover_events_groups_internal(&threads.values().collect(), event_group_delta, regex);
+    let events_groups = discover_events_groups_internal(&threads.values().collect(), event_group_delta, control_flow_regexes);
 
     traces.push(TraceTimelineDiagram {
       threads: threads.into_iter().map(|(_, v)| v).collect(),
@@ -206,7 +211,7 @@ pub fn discover_timeline_diagram(
   }
 
   Ok(LogTimelineDiagram {
-    control_flow_events_regex: regex.cloned(),
+    control_flow_regexes: control_flow_regexes.cloned(),
     thread_attribute: thread_attribute.to_string(),
     time_attribute: match time_attribute {
       None => None,

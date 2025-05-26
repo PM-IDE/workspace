@@ -15,7 +15,7 @@ RUN python -m pip install --upgrade pip setuptools
 RUN python -m pip install -r requirements.txt
 RUN python -m pip install .
 
-WORKDIR /app
+WORKDIR /app/examples/kafka_pipelines/
 
 ENV SCRIPT_FILE_NAME_ENV=$SCRIPT_FILE_NAME
-ENTRYPOINT python /app/examples/kafka_pipelines/$SCRIPT_FILE_NAME_ENV
+ENTRYPOINT python $SCRIPT_FILE_NAME_ENV

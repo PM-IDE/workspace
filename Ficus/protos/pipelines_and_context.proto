@@ -41,6 +41,7 @@ message GrpcContextValue {
     GrpcFloatArray float_array = 22;
     GrpcIntArray int_array = 23;
     GrpcUintArray uint_array = 24;
+    string json = 25;
   }
 }
 
@@ -212,14 +213,19 @@ message GrpcNodeAdditionalData {
     GrpcSoftwareData software_data = 2;
     GrpcUnderlyingPatternInfo pattern_info = 3;
     GrpcNodeCorrespondingTraceData trace_data = 4;
-    GrpcNodeTimeActivityStartEndData time_data = 5;
+    GrpcActivityStartEndData time_data = 5;
+    GrpcMultithreadedFragment multithreaded_fragment = 7;
   }
 
   //we need to understand from where the node data came from the original event log
   GrpcEventCoordinates original_event_coordinates = 6;
 }
 
-message GrpcNodeTimeActivityStartEndData {
+message GrpcMultithreadedFragment {
+  GrpcSimpleEventLog multithreaded_log = 1;
+}
+
+message GrpcActivityStartEndData {
   uint64 start_time = 1;
   uint64 end_time = 2;
 }
@@ -246,6 +252,16 @@ message GrpcSoftwareData {
   repeated GrpcHTTPEvent http_events = 9;
   repeated GrpcContentionEvent contention_events = 10;
   repeated GrpcSocketEvent socket_event = 11;
+  repeated GrpcMethodLoadUnloadEvent methods_load_unload_events = 12;
+}
+
+message GrpcMethodLoadUnloadEvent {
+  GrpcMethodNameParts method_name_parts = 1;
+
+  oneof event {
+    google.protobuf.Empty load = 2;
+    google.protobuf.Empty unload = 3;
+  }
 }
 
 message GrpcExecutionSuspensionInfo {
@@ -255,12 +271,23 @@ message GrpcExecutionSuspensionInfo {
 }
 
 message GrpcMethodInliningEvent {
-  string method_name = 1;
-  
+  GrpcMethodInliningInfo inlining_info = 1;
+
   oneof event {
-    google.protobuf.Empty succeeded = 2;
-    GrpcMethodInliningFailedEvent failed = 3;
+    google.protobuf.Empty succeeded = 7;
+    GrpcMethodInliningFailedEvent failed = 8;
   }
+}
+
+message GrpcMethodInliningInfo {
+  GrpcMethodNameParts inlinee_info = 1;
+  GrpcMethodNameParts inliner_info = 2;
+}
+
+message GrpcMethodNameParts {
+  string name = 1;
+  string namespace = 2;
+  string signature = 3;
 }
 
 message GrpcMethodInliningFailedEvent {
@@ -274,7 +301,11 @@ enum GrpcThreadEventKind {
 
 message GrpcThreadEventInfo {
   uint64 thread_id = 1;
-  GrpcThreadEventKind event_kind = 2;
+
+  oneof event {
+    google.protobuf.Empty created = 2;
+    google.protobuf.Empty terminated = 3;
+  }
 }
 
 enum GrpcAssemblyEventKind {
@@ -287,16 +318,16 @@ message GrpcAssemblyEventInfo {
   GrpcAssemblyEventKind event_kind = 2;
 }
 
-enum GrpcArrayPoolEventKind {
-  Allocated = 0;
-  Rented = 1;
-  Returned = 2;
-  Trimmed = 3;
-}
-
 message GrpcArrayPoolEvent {
   uint64 buffer_id = 1;
-  GrpcArrayPoolEventKind event_kind = 2;
+  uint64 buffer_size_bytes = 2;
+
+  oneof event {
+    google.protobuf.Empty buffer_allocated = 3;
+    google.protobuf.Empty buffer_rented = 4;
+    google.protobuf.Empty buffer_returned = 5;
+    google.protobuf.Empty buffer_trimmed = 6;
+  }
 }
 
 message GrpcExceptionEvent {
@@ -307,8 +338,7 @@ message GrpcHTTPEvent {
   string host = 1;
   string port = 2;
   string scheme = 3;
-  string path = 4;
-  string query = 5;
+  string path_and_query = 4;
 }
 
 message GrpcContentionEvent {
@@ -317,7 +347,38 @@ message GrpcContentionEvent {
 }
 
 message GrpcSocketEvent {
+  oneof event {
+    GrpcSocketConnectStart connect_start = 1; 
+    GrpcSocketAcceptStart accept_start = 2;
+    
+    GrpcSocketConnectStop connect_stop = 3;
+    GrpcSocketAcceptStop accept_stop = 4;
+    
+    GrpcSocketConnectFailed connect_failed = 5;
+    GrpcSocketAcceptFailed accept_failed = 6;
+  }
+}
+
+message GrpcSocketAcceptStart {
   string address = 1;
+}
+
+message GrpcSocketConnectStart {
+  string address = 1;
+}
+
+message GrpcSocketConnectStop {}
+
+message GrpcSocketAcceptStop {}
+
+message GrpcSocketConnectFailed {
+  string error_code = 1;
+  string error_message = 2;
+}
+
+message GrpcSocketAcceptFailed {
+  string error_code = 1;
+  string error_message = 2;
 }
 
 message GrpcHistogramEntry {
@@ -358,7 +419,19 @@ message GrpcGraphEdge {
   double weight = 4;
   string data = 5;
 
-  repeated GrpcNodeAdditionalData additional_data = 6;
+  repeated GrpcGraphEdgeAdditionalData additional_data = 6;
+}
+
+message GrpcGraphEdgeAdditionalData {
+  oneof data {
+    GrpcSoftwareData software_data = 1;
+    GrpcEdgeExecutionInfo execution_info = 2;
+    GrpcActivityStartEndData time_data = 3;
+  }
+}
+
+message GrpcEdgeExecutionInfo {
+  uint64 traceId = 1;
 }
 
 message GrpcBytes {

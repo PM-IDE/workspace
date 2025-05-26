@@ -10,6 +10,7 @@ use crate::features::analysis::patterns::tandem_arrays::{try_extract_tandem_arra
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
+use crate::utils::display_name::get_display_name;
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
   find_tandem_arrays_strict(&hashed_log, max_array_length)
@@ -72,7 +73,7 @@ fn create_strict_loop_activity_instance(
 
   let mut name = trace.events()[array.start_index..array.start_index + array.length]
     .iter()
-    .map(|e| e.borrow().name().clone())
+    .map(|e| get_display_name(&e.borrow()).to_string())
     .collect::<HashSet<String>>()
     .into_iter()
     .collect::<Vec<String>>();

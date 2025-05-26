@@ -79,7 +79,18 @@ fn get_test_parts_names() -> Vec<String> {
         "ClusterizeLogTracesDbscanGridSearch",
         "DiscoverRootSequenceGraph",
         "DiscoverLoopsStrict",
-        "DiscoverTracesTimelineDiagram"
+        "DiscoverTracesTimelineDiagram",
+        "PrepareSoftwareEventLog",
+        "ShortenAllocationType",
+        "ShortenMethodNames",
+        "SetMethodsDisplayName",
+        "RemainOnlyMethodStartEvents",
+        "RemainOnlyMethodEndEvents",
+        "DiscoverMultithreadedDfg",
+        "AbstractMultithreadedEventsGroups",
+        "MergeGraphs",
+        "AddGraphToGraphs",
+        "ClearGraphs"
     ]
 }
 

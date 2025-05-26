@@ -12,10 +12,16 @@ export interface CanvasEventCoordinate {
   colorIndex: number
 }
 
+let canvasIdsToListeners = new Map();
+
 export function addColorsLogCanvasMouseMoveHandler(canvas: HTMLCanvasElement,
                                                    log: GrpcColorsEventLog,
                                                    tracesEventsCoordinates: CanvasEventCoordinate[][]) {
-  canvas.addEventListener("mousemove", mouseEvent => {
+  if (canvasIdsToListeners.has(canvas.id)) {
+    canvas.removeEventListener("mousemove", canvasIdsToListeners.get(canvas.id));
+  }
+
+  let listener = (mouseEvent: MouseEvent) => {
     let event = findSelectedEvent(mouseEvent, canvas, tracesEventsCoordinates);
     if (event == null) {
       return;
@@ -23,7 +29,10 @@ export function addColorsLogCanvasMouseMoveHandler(canvas: HTMLCanvasElement,
 
     updatePivotElement(event, canvas);
     showTooltip(log.mapping[event.colorIndex].name);
-  });
+  };
+  
+  canvasIdsToListeners.set(canvas.id, listener);
+  canvas.addEventListener("mousemove", listener);
 }
 
 function findSelectedEvent(mouseEvent: MouseEvent,

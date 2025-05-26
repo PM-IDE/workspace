@@ -1,21 +1,62 @@
 use crate::features::discovery::timeline::discovery::TraceThread;
+use derive_new::new;
 use getset::{Getters, MutGetters};
 use std::collections::HashMap;
-use derive_new::new;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Getters, MutGetters)]
+#[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
-  #[getset(get = "pub", get_mut = "pub")] event_classes: HashMap<String, usize>,
-  #[getset(get = "pub", get_mut = "pub")] thread_diagram_fragment: Vec<TraceThread>,
-  #[getset(get = "pub", get_mut = "pub")] suspensions: Vec<ExecutionSuspensionEvent>,
-  #[getset(get = "pub", get_mut = "pub")] method_events: Vec<MethodEvent>,
-  #[getset(get = "pub", get_mut = "pub")] thread_events: Vec<ThreadEvent>,
-  #[getset(get = "pub", get_mut = "pub")] http_events: Vec<HTTPEvent>,
-  #[getset(get = "pub", get_mut = "pub")] contention_events: Vec<ContentionEvent>,
-  #[getset(get = "pub", get_mut = "pub")] exception_events: Vec<ExceptionEvent>,
-  #[getset(get = "pub", get_mut = "pub")] pool_events: Vec<ArrayPoolEvent>,
-  #[getset(get = "pub", get_mut = "pub")] socket_events: Vec<SocketEvent>,
-  #[getset(get = "pub", get_mut = "pub")] allocation_events: Vec<AllocationEvent>
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "HashMap::is_empty")]
+  event_classes: HashMap<String, usize>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip)]
+  thread_diagram_fragment: Vec<TraceThread>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  suspensions: Vec<ExecutionSuspensionEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  method_inlinings_events: Vec<MethodInliningEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  thread_events: Vec<ThreadEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  http_events: Vec<HTTPEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  contention_events: Vec<ContentionEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  exception_events: Vec<ExceptionEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  pool_events: Vec<ArrayPoolEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  socket_events: Vec<SocketEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  allocation_events: Vec<AllocationEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  assembly_events: Vec<AssemblyEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  method_load_unload_events: Vec<MethodLoadUnloadEvent>
 }
 
 impl SoftwareData {
@@ -27,56 +68,88 @@ impl SoftwareData {
       exception_events: vec![],
       http_events: vec![],
       thread_events: vec![],
-      method_events: vec![],
+      method_inlinings_events: vec![],
       contention_events: vec![],
       pool_events: vec![],
       socket_events: vec![],
-      allocation_events: vec![]
+      allocation_events: vec![],
+      assembly_events: vec![],
+      method_load_unload_events: vec![],
     }
   }
 }
 
-#[derive(Clone, Debug, Getters, new)]
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct AllocationEvent {
   #[getset(get = "pub")] type_name: String,
   #[getset(get = "pub")] objects_count: usize,
   #[getset(get = "pub")] allocated_bytes: usize,
 }
 
-#[derive(Clone, Debug, Getters, new)]
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct ExecutionSuspensionEvent {
   #[getset(get = "pub")] start_time: u64,
   #[getset(get = "pub")] end_time: u64,
   #[getset(get = "pub")] reason: String,
 }
 
-#[derive(Clone, Debug)]
-pub enum MethodEvent {
-  InliningSuccess(String),
-  InliningFailed(String, String),
-  Load(String),
-  Unload(String),
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum MethodInliningEvent {
+  InliningSuccess(MethodInliningData),
+  InliningFailed(MethodInliningData, String),
 }
 
-#[derive(Clone, Debug)]
-pub enum ThreadEvent {
-  Created(u64),
-  Terminated(u64),
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum MethodLoadUnloadEvent {
+  Load(MethodNameParts),
+  Unload(MethodNameParts)
 }
 
-#[derive(Clone, Debug)]
-pub enum AssemblyEvent {
-  Load(String),
-  Unload(String),
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct MethodInliningData {
+  #[getset(get = "pub")] inlinee_info: MethodNameParts,
+  #[getset(get = "pub")] inliner_info: MethodNameParts,
 }
 
-#[derive(Clone, Debug, Getters, new)]
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct MethodNameParts {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] namespace: String,
+  #[getset(get = "pub")] signature: String,
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct ThreadEvent {
+  #[getset(get = "pub")] thread_id: u64,
+  #[getset(get = "pub")] kind: ThreadEventKind
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ThreadEventKind {
+  Created,
+  Terminated,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum AssemblyEventKind {
+  Load,
+  Unload,
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct AssemblyEvent {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] kind: AssemblyEventKind
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct ArrayPoolEvent {
   #[getset(get = "pub")] buffer_id: u64,
+  #[getset(get = "pub")] buffer_size_bytes: u64,
   #[getset(get = "pub")] event_kind: ArrayPoolEventKind,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ArrayPoolEventKind {
   Created,
   Rented,
@@ -84,27 +157,42 @@ pub enum ArrayPoolEventKind {
   Trimmed,
 }
 
-#[derive(Clone, Debug, Getters, new)]
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct ExceptionEvent {
   #[getset(get = "pub")] exception_type: String,
 }
 
-#[derive(Clone, Debug, Getters, new)]
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct HTTPEvent {
   #[getset(get = "pub")] host: String,
   #[getset(get = "pub")] port: String,
   #[getset(get = "pub")] scheme: String,
-  #[getset(get = "pub")] path: String,
-  #[getset(get = "pub")] query: String,
+  #[getset(get = "pub")] path_and_query: String,
 }
 
-#[derive(Clone, Debug, Getters, new)]
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct ContentionEvent {
   #[getset(get = "pub")] start_time: u64,
   #[getset(get = "pub")] end_time: u64,
 }
 
-#[derive(Clone, Debug, Getters, new)]
-pub struct SocketEvent {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SocketEvent {
+  ConnectStart(SocketConnectAcceptStartMetadata),
+  ConnectStop,
+  AcceptStart(SocketConnectAcceptStartMetadata),
+  AcceptStop,
+  ConnectFailed(SocketConnectAcceptFailedMetadata),
+  AcceptFailed(SocketConnectAcceptFailedMetadata)
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct SocketConnectAcceptStartMetadata {
   #[getset(get = "pub")] address: String,
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct SocketConnectAcceptFailedMetadata {
+  #[getset(get = "pub")] error_code: String,
+  #[getset(get = "pub")] error_message: String
 }

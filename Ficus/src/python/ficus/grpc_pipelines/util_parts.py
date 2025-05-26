@@ -44,3 +44,19 @@ class PrintEventlogInfoBeforeAfter(PipelinePart):
     append_pipeline_value(config, const_pipeline, pipeline)
 
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part())
+
+
+class MergeGraphs(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_merge_graphs))
+
+
+class AddGraphToGraphs(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_add_graph_to_graphs))
+
+
+class ClearGraphs(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_clear_graphs))
+

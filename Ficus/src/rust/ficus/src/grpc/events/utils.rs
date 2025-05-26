@@ -2,7 +2,7 @@ use crate::ficus_proto::GrpcContextValueWithKeyName;
 use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::pipelines::context::LogMessageHandler;
-use crate::pipelines::keys::context_key::ContextKey;
+use crate::utils::context_key::ContextKey;
 use std::any::Any;
 use tokio::sync::mpsc::Sender;
 use tonic::Status;

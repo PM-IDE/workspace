@@ -11,6 +11,7 @@ import type { GrpcExceptionEvent_DONTUSE as _ficus_GrpcExceptionEvent_DONTUSE, G
 import type { GrpcHTTPEvent_DONTUSE as _ficus_GrpcHTTPEvent_DONTUSE, GrpcHTTPEvent as _ficus_GrpcHTTPEvent } from '../ficus/GrpcHTTPEvent';
 import type { GrpcContentionEvent_DONTUSE as _ficus_GrpcContentionEvent_DONTUSE, GrpcContentionEvent as _ficus_GrpcContentionEvent } from '../ficus/GrpcContentionEvent';
 import type { GrpcSocketEvent_DONTUSE as _ficus_GrpcSocketEvent_DONTUSE, GrpcSocketEvent as _ficus_GrpcSocketEvent } from '../ficus/GrpcSocketEvent';
+import type { GrpcMethodLoadUnloadEvent_DONTUSE as _ficus_GrpcMethodLoadUnloadEvent_DONTUSE, GrpcMethodLoadUnloadEvent as _ficus_GrpcMethodLoadUnloadEvent } from '../ficus/GrpcMethodLoadUnloadEvent';
 
 export interface GrpcSoftwareData_DONTUSE {
   'histogram'?: (_ficus_GrpcHistogramEntry_DONTUSE)[];
@@ -24,6 +25,7 @@ export interface GrpcSoftwareData_DONTUSE {
   'httpEvents'?: (_ficus_GrpcHTTPEvent_DONTUSE)[];
   'contentionEvents'?: (_ficus_GrpcContentionEvent_DONTUSE)[];
   'socketEvent'?: (_ficus_GrpcSocketEvent_DONTUSE)[];
+  'methodsLoadUnloadEvents'?: (_ficus_GrpcMethodLoadUnloadEvent_DONTUSE)[];
 }
 
 export interface GrpcSoftwareData {
@@ -38,4 +40,5 @@ export interface GrpcSoftwareData {
   'httpEvents': (_ficus_GrpcHTTPEvent)[];
   'contentionEvents': (_ficus_GrpcContentionEvent)[];
   'socketEvent': (_ficus_GrpcSocketEvent)[];
+  'methodsLoadUnloadEvents': (_ficus_GrpcMethodLoadUnloadEvent)[];
 }

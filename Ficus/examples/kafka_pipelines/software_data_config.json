@@ -1,0 +1,196 @@
+{
+  "allocation": {
+    "event_class_regex": "GC\/SampledObject",
+    "info": {
+      "type_name_attr": "TypeName",
+      "allocated_count_attr": "ObjectCountForTypeSample",
+      "total_allocated_bytes_attr": "TotalSizeForTypeSample"
+    }
+  },
+  "method_start": {
+    "event_class_regex": "ProcfilerMethod/Begin",
+    "info": {
+      "method_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      },
+      "prefix": "[Start]"
+    }
+  },
+  "method_end": {
+    "event_class_regex": "ProcfilerMethod/End",
+    "info": {
+      "method_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      },
+      "prefix": "[End]"
+    }
+  },
+  "method_inlining_success": {
+    "event_class_regex": "Method/InliningSucceeded",
+    "info": {
+      "inlining_config": {
+        "inlinee_method_attrs": {
+          "name_attr": "InlineeName",
+          "namespace_attr": "InlineeNamespace",
+          "signature_attr": "InlineeNameSignature"
+        },
+        "inliner_method_attrs": {
+          "name_attr": "InlinerName",
+          "namespace_attr": "InlinerNamespace",
+          "signature_attr": "InlinerNameSignature"
+        }
+      }
+    }
+  },
+  "method_inlining_failed": {
+    "event_class_regex": "Method/InliningFailed",
+    "info": {
+      "inlining_config": {
+        "inlinee_method_attrs": {
+          "name_attr": "InlineeName",
+          "namespace_attr": "InlineeNamespace",
+          "signature_attr": "InlineeNameSignature"
+        },
+        "inliner_method_attrs": {
+          "name_attr": "InlinerName",
+          "namespace_attr": "InlinerNamespace",
+          "signature_attr": "InlinerNameSignature"
+        }
+      },
+      "fail_reason_attr": "FailReason"
+    }
+  },
+  "method_load": {
+    "event_class_regex": "Method/LoadVerbose",
+    "info": {
+      "common_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      }
+    }
+  },
+  "method_unload": {
+    "event_class_regex": "Method/UnloadVerbose",
+    "info": {
+      "common_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      }
+    }
+  },
+  "socket_connect_start": {
+    "event_class_regex": "Connect/Start",
+    "info": {
+      "address_attr": "address"
+    }
+  },
+  "socket_connect_stop": {
+    "event_class_regex": "Connect/Stop",
+    "info": null
+  },
+  "socket_accept_start": {
+    "event_class_regex": "Accept/Start",
+    "info": {
+      "address_attr": "address"
+    }
+  },
+  "socket_accept_stop": {
+    "event_class_regex": "Accept/Stop",
+    "info": null
+  },
+  "socket_connect_failed": {
+    "event_class_regex": "ConnectFailed",
+    "info": {
+      "error_code_attr": "error",
+      "error_message_attr": "exceptionMessage"
+    }
+  },
+  "socket_accept_failed": {
+    "event_class_regex": "AcceptFailed",
+    "info": {
+      "error_code_attr": "error",
+      "error_message_attr": "exceptionMessage"
+    }
+  },
+  "thread_created": {
+    "event_class_regex": "Thread/Creating",
+    "info": {
+      "thread_id_attr": "ID"
+    }
+  },
+  "array_pool_array_created": {
+    "event_class_regex": "Buffer/Allocated",
+    "info": {
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
+    }
+  },
+  "array_pool_array_rented": {
+    "event_class_regex": "Buffer/Rented",
+    "info": {
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
+    }
+  },
+  "array_pool_array_returned": {
+    "event_class_regex": "Buffer/Returned",
+    "info": {
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
+    }
+  },
+  "array_pool_array_trimmed": {
+    "event_class_regex": "Buffer/Trimmed",
+    "info": {
+      "buffer_id_attr": "bufferId",
+      "buffer_size_attr": "bufferSize"
+    }
+  },
+  "assembly_load": {
+    "event_class_regex": "Loader/AssemblyLoad",
+    "info": {
+      "assembly_name_attr": "FullyQualifiedAssemblyName"
+    }
+  },
+  "assembly_unload": {
+    "event_class_regex": "Loader/AssemblyUnload",
+    "info": {
+      "assembly_name_attr": "FullyQualifiedAssemblyName"
+    }
+  },
+  "suspend_ee": {
+    "event_class_regex": "GC/SuspendEE",
+    "info": {
+      "reason_attr": "Reason"
+    }
+  },
+  "restart_ee": {
+    "event_class_regex": "GC/RestartEE",
+    "info": null
+  },
+  "exceptions": {
+    "event_class_regex": "Exception/Start",
+    "info": {
+      "type_name_attr": "ExceptionType"
+    }
+  },
+  "http": {
+    "event_class_regex": "Request/Start",
+    "info": {
+      "host_attr": "host",
+      "port_attr": "port",
+      "scheme_attr": "scheme",
+      "path_and_query_attr": "pathAndQuery"
+    }
+  },
+  "raw_control_flow_regexes": [
+    "\\[Start\\]",
+    "\\[End\\]"
+  ]
+}

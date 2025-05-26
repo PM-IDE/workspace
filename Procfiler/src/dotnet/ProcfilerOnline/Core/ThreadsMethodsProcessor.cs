@@ -101,9 +101,9 @@ public class ThreadsMethodsProcessor(
       targetFrame.InnerEvents.Add(eventRecord);
     }
 
-    ProcessMethodStartEndEvent(context);
-
     eventProcessingEntryPoint.Process(context);
+
+    ProcessMethodStartEndEvent(context);
   }
 
   private void ProcessMethodStartEndEvent(EventProcessingContext context)
@@ -137,10 +137,10 @@ public class ThreadsMethodsProcessor(
 
           var frame = threadStack.Pop();
 
-          if (context.SharedData.FindMethodName(methodId) is not { } methodFqn) return;
+          if (context.SharedData.FindMethodDetails(methodId) is not { Fqn: var fqn }) return;
 
           if (context.CommandContext.TargetMethodsRegex is null ||
-              context.CommandContext.TargetMethodsRegex.IsMatch(methodFqn))
+              context.CommandContext.TargetMethodsRegex.IsMatch(fqn))
           {
             handler.Handle(new MethodExecutionEvent
             {
@@ -167,8 +167,8 @@ public class ThreadsMethodsProcessor(
 
   private bool IsTargetMethod(EventProcessingContext context, long methodId, Regex? targetMethodsRegex)
   {
-    if (context.SharedData.FindMethodName(methodId) is not { } methodFqn) return false;
+    if (context.SharedData.FindMethodDetails(methodId) is not { Fqn: var fqn }) return false;
 
-    return targetMethodsRegex is null || targetMethodsRegex.IsMatch(methodFqn);
+    return targetMethodsRegex is null || targetMethodsRegex.IsMatch(fqn);
   }
 }

@@ -11,7 +11,10 @@ builder.Services.AddHostedService<UpdatesConsumerJob>();
 var section = builder.Configuration.GetSection(nameof(PipelinePartsUpdateKafkaSettings));
 builder.Services.Configure<PipelinePartsUpdateKafkaSettings>(section);
 
-builder.Services.AddGrpc();
+builder.Services.AddGrpc(options =>
+{
+  options.MaxSendMessageSize = 512 * 1024 * 1024;
+});
 
 const string CorsPolicyName = nameof(CorsPolicyName);
 builder.Services.AddCors(options =>

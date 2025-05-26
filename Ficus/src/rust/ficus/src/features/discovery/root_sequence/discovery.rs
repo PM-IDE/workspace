@@ -1,9 +1,9 @@
 use crate::features::discovery::petri_net::annotations::PerformanceMap;
-use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_weights, find_next_node, merge_sequences_of_nodes};
+use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::lcs::find_longest_common_subsequence;
@@ -12,6 +12,7 @@ use crate::utils::user_data::user_data::UserData;
 use lazy_static::lazy_static;
 use std::collections::{HashMap, VecDeque};
 use std::fmt::Debug;
+use crate::utils::graph::graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY};
 
 lazy_static!(
    pub(super) static ref EVENT_UNIQUE_ID_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new("EVENT_UNIQUE_ID");
@@ -62,10 +63,12 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
 ) -> Result<RootSequenceGraphDiscoveryResult, DiscoverRootSequenceGraphError> {
   let mut result = discover_root_sequence_graph_internal(log, context, true)?;
 
+  add_start_end_nodes_ids_to_user_data(&mut result);
   adjust_connections(context, log, &mut result.graph);
 
   if let Some(start_node_id) = result.start_node_id {
     adjust_weights(log, &mut result.graph, start_node_id)?;
+    adjust_edges_data(context, log, &mut result.graph, start_node_id)?;
   }
 
   if merge_sequences_of_events {
@@ -73,6 +76,16 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   }
 
   Ok(result)
+}
+
+fn add_start_end_nodes_ids_to_user_data(result: &mut RootSequenceGraphDiscoveryResult) {
+  if let Some(start_node_id) = result.start_node_id() {
+    result.graph.user_data_mut().put_concrete(START_NODE_ID_KEY.key(), start_node_id);
+  }
+
+  if let Some(end_node_id) = result.end_node_id() {
+    result.graph.user_data_mut().put_concrete(END_NODE_ID_KEY.key(), end_node_id);
+  }
 }
 
 fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(

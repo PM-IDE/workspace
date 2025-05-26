@@ -4,6 +4,7 @@ use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
 use std::collections::HashMap;
 use std::fmt::Display;
+use crate::utils::user_data::user_data::UserDataImpl;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
@@ -14,6 +15,7 @@ where
     DefaultGraph {
       nodes: self.to_default_graph_nodes(),
       connections: self.to_default_graph_connections(),
+      user_data: UserDataImpl::new(),
     }
   }
 
@@ -49,7 +51,8 @@ where
                             match pair.1.data() {
                                 None => None,
                                 Some(data) => Some(HeapedOrOwned::Owned(data.to_string())),
-                            }
+                            },
+                            Some(pair.1.user_data.clone())
                         )
                     )
                 }).collect(),

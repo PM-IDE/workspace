@@ -45,6 +45,7 @@
 
     if (ReferenceEquals(mySelectedPipeline, SelectedPipeline)) return;
 
+    myProcesses.Clear();
     mySelectedPipeline = SelectedPipeline;
     myCurrentPipelineLifetime = mySequentialLifetimes.Next();
     mySelectedPipeline.Processes.AdviseAddRemove(myCurrentPipelineLifetime, HandleProcessAddRemove);

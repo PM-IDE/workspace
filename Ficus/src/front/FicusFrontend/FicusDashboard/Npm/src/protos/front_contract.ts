@@ -9,10 +9,10 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   ficus: {
+    GrpcActivityStartEndData: MessageTypeDefinition
     GrpcAllocationInfo: MessageTypeDefinition
     GrpcAnnotation: MessageTypeDefinition
     GrpcArrayPoolEvent: MessageTypeDefinition
-    GrpcArrayPoolEventKind: EnumTypeDefinition
     GrpcAssemblyEventInfo: MessageTypeDefinition
     GrpcAssemblyEventKind: EnumTypeDefinition
     GrpcBytes: MessageTypeDefinition
@@ -37,6 +37,7 @@ export interface ProtoGrpcType {
     GrpcCurrentCasesResponse: MessageTypeDefinition
     GrpcDataset: MessageTypeDefinition
     GrpcDateTime: MessageTypeDefinition
+    GrpcEdgeExecutionInfo: MessageTypeDefinition
     GrpcEntityCountAnnotation: MessageTypeDefinition
     GrpcEntityFrequencyAnnotation: MessageTypeDefinition
     GrpcEntityTimeAnnotation: MessageTypeDefinition
@@ -52,6 +53,7 @@ export interface ProtoGrpcType {
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
+    GrpcGraphEdgeAdditionalData: MessageTypeDefinition
     GrpcGraphNode: MessageTypeDefinition
     GrpcGuid: MessageTypeDefinition
     GrpcHTTPEvent: MessageTypeDefinition
@@ -68,12 +70,15 @@ export interface ProtoGrpcType {
     GrpcMatrixRow: MessageTypeDefinition
     GrpcMethodInliningEvent: MessageTypeDefinition
     GrpcMethodInliningFailedEvent: MessageTypeDefinition
+    GrpcMethodInliningInfo: MessageTypeDefinition
+    GrpcMethodLoadUnloadEvent: MessageTypeDefinition
+    GrpcMethodNameParts: MessageTypeDefinition
+    GrpcMultithreadedFragment: MessageTypeDefinition
     GrpcNamesEventLog: MessageTypeDefinition
     GrpcNamesEventLogContextValue: MessageTypeDefinition
     GrpcNamesTrace: MessageTypeDefinition
     GrpcNodeAdditionalData: MessageTypeDefinition
     GrpcNodeCorrespondingTraceData: MessageTypeDefinition
-    GrpcNodeTimeActivityStartEndData: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition
@@ -94,6 +99,12 @@ export interface ProtoGrpcType {
     GrpcSimpleContextRequestPipelinePart: MessageTypeDefinition
     GrpcSimpleEventLog: MessageTypeDefinition
     GrpcSimpleTrace: MessageTypeDefinition
+    GrpcSocketAcceptFailed: MessageTypeDefinition
+    GrpcSocketAcceptStart: MessageTypeDefinition
+    GrpcSocketAcceptStop: MessageTypeDefinition
+    GrpcSocketConnectFailed: MessageTypeDefinition
+    GrpcSocketConnectStart: MessageTypeDefinition
+    GrpcSocketConnectStop: MessageTypeDefinition
     GrpcSocketEvent: MessageTypeDefinition
     GrpcSoftwareData: MessageTypeDefinition
     GrpcStringKeyValue: MessageTypeDefinition

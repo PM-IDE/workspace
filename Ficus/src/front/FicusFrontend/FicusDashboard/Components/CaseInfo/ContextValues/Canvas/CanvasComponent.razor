@@ -1,19 +1,29 @@
-﻿@inherits ComponentBase
+﻿@using BlazorBootstrap;
+
+@inherits ComponentBase
 
 @inject IJSRuntime Js
 
-<div class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">
+@if (myIsDrawing)
+{
+  <Spinner Style="margin-top: 10px; margin-left: 10px;" Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+}
+
+<div style="visibility: @(myIsDrawing ? "collapse" : "visible")" class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">
   <div id="@myCytoscapeContainerId" class="@(IsFullScreen ? "canvas-container-fullscreen" : "cytoscape-canvas")"></div>
 
-  <div class="canvas-export-button" @onclick="ExportGraph">
+  <Button Color="ButtonColor.Primary" Active="true" @onclick="ExportGraph">
     Export to SVG
-  </div>
+  </Button>
 </div>
 
 
 @code {
   private readonly Guid myCytoscapeContainerId = Guid.NewGuid();
 
+  private bool myRequestedToRerender;
+  private bool myIsFullScreen;
+  private bool myIsDrawing;
   private IJSObjectReference? myCytoscapeReference;
 
   [Parameter] public required bool IsFullScreen { get; init; }
@@ -23,11 +33,12 @@
 
   protected override Task OnAfterRenderAsync(bool firstRender)
   {
-    //some hacks in order to make it work after changing to full screen from JS side
-    Task.Delay(100).ContinueWith(async _ =>
+    if ((firstRender || myIsFullScreen != IsFullScreen || myRequestedToRerender) && !myIsDrawing)
     {
-      await InvokeAsync(async () => myCytoscapeReference = await RenderingFunc(myCytoscapeContainerId.ToString()));
-    });
+      myIsFullScreen = IsFullScreen;
+      myRequestedToRerender = false;
+      ReRenderCanvasInternal();
+    }
 
     return Task.CompletedTask;
   }
@@ -35,5 +46,28 @@
   private async Task ExportGraph()
   {
     await Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, FileNameCreator());
+  }
+
+  private void ReRenderCanvasInternal()
+  {
+    myIsDrawing = true;
+    StateHasChanged();
+
+    //some hacks in order to make it work after changing to full screen from JS side
+    Task.Delay(100).ContinueWith(async _ =>
+    {
+      await InvokeAsync(async () =>
+      {
+        myCytoscapeReference = await RenderingFunc(myCytoscapeContainerId.ToString());
+        myIsDrawing = false;
+        StateHasChanged();
+      });
+    });
+  }
+
+  public void ReRenderCanvas()
+  {
+    myRequestedToRerender = true;
+    ReRenderCanvasInternal();
   }
 }

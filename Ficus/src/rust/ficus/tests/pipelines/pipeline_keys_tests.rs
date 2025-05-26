@@ -9,9 +9,8 @@ use ficus::features::clustering::activities::activities_params::ActivityRepresen
 use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use ficus::features::discovery::root_sequence::models::{ActivityStartEndTimeData, RootSequenceKind};
+use ficus::features::discovery::root_sequence::models::RootSequenceKind;
 use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
-use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use ficus::pipelines::keys::context_keys::*;
 use ficus::pipelines::patterns_parts::PatternsKindDto;
@@ -47,7 +46,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<OfflineEventLogInfo>(&EVENT_LOG_INFO, &mut used);
     assert_existence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
     assert_existence::<u32>(&EVENTS_COUNT, &mut used);
-    assert_existence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);
+    assert_existence::<Vec<String>>(&REGEXES, &mut used);
     assert_existence::<AdjustingMode>(&ADJUSTING_MODE, &mut used);
     assert_existence::<String>(&EVENT_CLASS_REGEX, &mut used);
     assert_existence::<PatternsKindDto>(&PATTERNS_KIND, &mut used);
@@ -86,6 +85,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<ColorsEventLog>(&COLORS_EVENT_LOG, &mut used);
     assert_existence::<ColorsHolder>(&COLORS_HOLDER, &mut used);
     assert_existence::<DefaultGraph>(&GRAPH, &mut used);
+    assert_existence::<Vec<DefaultGraph>>(&GRAPHS, &mut used);
 
     assert_existence::<HashMap<u64, usize>>(&PETRI_NET_COUNT_ANNOTATION, &mut used);
     assert_existence::<HashMap<u64, f64>>(&PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
@@ -121,10 +121,6 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<Vec<f64>>(&TOLERANCES, &mut used);
     assert_existence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
     assert_existence::<Vec<RootSequenceKind>>(&ROOT_SEQUENCE_KIND, &mut used);
-    assert_existence::<Vec<SoftwareData>>(&SOFTWARE_DATA, &mut used);
-    assert_existence::<DefaultGraph>(&INNER_GRAPH, &mut used);
-    assert_existence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
-    assert_existence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
     assert_existence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
     assert_existence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
     assert_existence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
@@ -156,7 +152,7 @@ fn get_all_keys_names() -> Vec<String> {
         "event_log_info",
         "underlying_events_count",
         "events_count",
-        "event_classes_regexes",
+        "regexes",
         "adjusting_mode",
         "event_class_regex",
         "patterns_kind",
@@ -195,6 +191,7 @@ fn get_all_keys_names() -> Vec<String> {
         "colors_event_log",
         "colors_holder",
         "graph",
+        "graphs",
         "petri_net_count_annotation",
         "petri_net_frequency_annotation",
         "petri_net_trace_frequency_annotation",
@@ -229,10 +226,6 @@ fn get_all_keys_names() -> Vec<String> {
         "tolerances",
         "min_points_in_cluster_array",
         "root_sequence_kind",
-        "software_data",
-        "inner_graph",
-        "start_end_activity_time",
-        "start_end_activities_times",
         "discover_events_groups_in_each_trace",
         "software_data_extraction_config",
         "discover_activity_instances_strict",
@@ -265,7 +258,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<OfflineEventLogInfo>(&EVENT_LOG_INFO, &mut used);
     assert_keys_equivalence::<usize>(&UNDERLYING_EVENTS_COUNT, &mut used);
     assert_keys_equivalence::<u32>(&EVENTS_COUNT, &mut used);
-    assert_keys_equivalence::<Vec<String>>(&EVENT_CLASSES_REGEXES, &mut used);
+    assert_keys_equivalence::<Vec<String>>(&REGEXES, &mut used);
     assert_keys_equivalence::<AdjustingMode>(&ADJUSTING_MODE, &mut used);
     assert_keys_equivalence::<String>(&EVENT_CLASS_REGEX, &mut used);
     assert_keys_equivalence::<PatternsKindDto>(&PATTERNS_KIND, &mut used);
@@ -302,6 +295,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<RepeatSets>(&REPEAT_SETS, &mut used);
     assert_keys_equivalence::<TracesActivities>(&TRACE_ACTIVITIES, &mut used);
     assert_keys_equivalence::<DefaultGraph>(&GRAPH, &mut used);
+    assert_keys_equivalence::<Vec<DefaultGraph>>(&GRAPHS, &mut used);
 
     assert_keys_equivalence::<HashMap<u64, usize>>(&PETRI_NET_COUNT_ANNOTATION, &mut used);
     assert_keys_equivalence::<HashMap<u64, f64>>(&PETRI_NET_FREQUENCY_ANNOTATION, &mut used);
@@ -337,10 +331,6 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<Vec<f64>>(&TOLERANCES, &mut used);
     assert_keys_equivalence::<Vec<u64>>(&MIN_POINTS_IN_CLUSTER_ARRAY, &mut used);
     assert_keys_equivalence::<Vec<RootSequenceKind>>(&ROOT_SEQUENCE_KIND, &mut used);
-    assert_keys_equivalence::<Vec<SoftwareData>>(&SOFTWARE_DATA, &mut used);
-    assert_keys_equivalence::<DefaultGraph>(&INNER_GRAPH, &mut used);
-    assert_keys_equivalence::<ActivityStartEndTimeData>(&START_END_ACTIVITY_TIME, &mut used);
-    assert_keys_equivalence::<Vec<ActivityStartEndTimeData>>(&START_END_ACTIVITIES_TIMES, &mut used);
     assert_keys_equivalence::<bool>(&DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, &mut used);
     assert_keys_equivalence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
     assert_keys_equivalence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);

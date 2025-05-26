@@ -8,13 +8,11 @@ public interface ISharedEventPipeStreamData : IGlobalData
   void UpdateMethodsInfo(ExtendedMethodIdToFqn methodIdToFqn);
   void UpdateTypeIdsToNames(long typeId, string typeName);
   void UpdateSyncTimes(long qpcSyncTime, long qpcFreq, DateTime utcSyncTime);
-
-  public ExtendedMethodInfo? FindMethodDetails(long methodId);
 }
 
 public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 {
-  private readonly Dictionary<long, ExtendedMethodInfo> myMethodIdsToFqns = new();
+  private readonly Dictionary<long, ExtendedMethodInfo> myMethodIdsToInfos = new();
   private readonly Dictionary<long, string> myTypeIdsToNames = new();
 
 
@@ -32,22 +30,17 @@ public class SharedEventPipeStreamData : ISharedEventPipeStreamData
 
 
   public string? FindTypeName(long typeId) => myTypeIdsToNames.GetValueOrDefault(typeId);
-  public string? FindMethodName(long methodId) => myMethodIdsToFqns.GetValueOrDefault(methodId)?.Fqn;
+  public string? FindMethodName(long methodId) => myMethodIdsToInfos.GetValueOrDefault(methodId)?.Fqn;
 
   public ExtendedMethodInfo? FindMethodDetails(long methodId)
   {
-    if (myMethodIdsToFqns.TryGetValue(methodId, out var methodDetails))
-    {
-      return methodDetails;
-    }
-
-    return null;
+    return myMethodIdsToInfos.GetValueOrDefault(methodId);
   }
 
   public void UpdateTypeIdsToNames(long typeId, string typeName) => myTypeIdsToNames[typeId] = typeName;
 
   public void UpdateMethodsInfo(ExtendedMethodIdToFqn methodIdToFqn)
   {
-    myMethodIdsToFqns[methodIdToFqn.Id] = methodIdToFqn.ExtendedMethodInfo;
+    myMethodIdsToInfos[methodIdToFqn.Id] = methodIdToFqn.ExtendedMethodInfo;
   }
 }

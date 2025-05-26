@@ -22,7 +22,11 @@ builder.Services.AddSingleton(services =>
   var settings = services.GetRequiredService<IOptions<ApplicationSettings>>().Value;
   var httpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler());
 
-  var channel = GrpcChannel.ForAddress(settings.BackendUrl, new GrpcChannelOptions { HttpHandler = httpHandler });
+  var channel = GrpcChannel.ForAddress(settings.BackendUrl, new GrpcChannelOptions
+  {
+    HttpHandler = httpHandler,
+    MaxReceiveMessageSize = 512 * 1024 * 1024
+  });
 
   return new GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient(channel);
 });

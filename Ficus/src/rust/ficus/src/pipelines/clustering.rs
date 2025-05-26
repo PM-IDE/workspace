@@ -7,12 +7,13 @@ use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisu
 use crate::features::clustering::traces::dbscan::{clusterize_log_by_traces_dbscan, clusterize_log_by_traces_dbscan_grid_search};
 use crate::features::clustering::traces::k_means::clusterize_log_by_traces_kmeans_grid_search;
 use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams};
-use crate::pipelines::context::PipelineContext;
+use crate::ficus_proto::grpc_context_value::ContextValue::EventLogInfo;
+use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY, PIPELINE_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY};
+use crate::pipelines::keys::context_keys::{ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY};
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
+use crate::pipelines::pipelines::{Pipeline, PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 
 impl PipelineParts {
@@ -101,9 +102,10 @@ impl PipelineParts {
   pub(super) fn clusterize_activities_from_traces_dbscan() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::CLUSTERIZE_ACTIVITIES_FROM_TRACES_DBSCAN, &|context, _, config| {
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
+      let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
       let mut params = Self::create_activities_clustering_params(context, config)?;
 
-      let labeled_dataset = match clusterize_activities_dbscan(&mut params, min_points_in_cluster) {
+      let labeled_dataset = match clusterize_activities_dbscan(&mut params, min_points_in_cluster, put_noise_events_in_one_cluster) {
         Ok(labeled_dataset) => labeled_dataset,
         Err(error) => return Err(error.into()),
       };
@@ -187,19 +189,16 @@ impl PipelineParts {
       let after_clusterization_pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
       let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
+      let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
 
-      let new_logs = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster) {
+      let new_logs = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster, put_noise_events_in_one_cluster) {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };
 
       context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), new_logs.1);
-      for log in new_logs.0 {
-        let mut new_context = context.clone();
-        new_context.put_concrete(EVENT_LOG_KEY.key(), log);
 
-        after_clusterization_pipeline.execute(&mut new_context, infra)?;
-      }
+      Self::execute_with_temp_event_logs(context, infra, new_logs.0, after_clusterization_pipeline)?;
 
       Ok(())
     })
@@ -214,21 +213,40 @@ impl PipelineParts {
       let min_points = min_points.iter().map(|x| *x as usize).collect();
 
       let tolerances = Self::get_user_data(config, &TOLERANCES_KEY)?;
+      let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
 
-      let new_logs = match clusterize_log_by_traces_dbscan_grid_search(&mut params, &min_points, tolerances) {
+      let new_logs = match clusterize_log_by_traces_dbscan_grid_search(&mut params, &min_points, tolerances, put_noise_events_in_one_cluster) {
         Ok(new_logs) => new_logs,
         Err(error) => return Err(error.into()),
       };
 
       context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), new_logs.1);
-      for log in new_logs.0 {
-        let mut new_context = context.clone();
-        new_context.put_concrete(EVENT_LOG_KEY.key(), log);
 
-        after_clusterization_pipeline.execute(&mut new_context, infra)?;
-      }
+      Self::execute_with_temp_event_logs(context, infra, new_logs.0, after_clusterization_pipeline)?;
 
       Ok(())
     })
+  }
+  
+  fn execute_with_temp_event_logs(
+    context: &mut PipelineContext, 
+    infra: &PipelineInfrastructure, 
+    logs: Vec<XesEventLogImpl>, 
+    pipeline: &Pipeline
+  ) -> Result<(), PipelinePartExecutionError> {
+    //todo: fix cloning by introducing multi-level pipeline context
+    let original_log = Self::get_user_data(context, &EVENT_LOG_KEY).ok().cloned();
+
+    for log in logs {
+      context.put_concrete(EVENT_LOG_KEY.key(), log);
+      pipeline.execute(context, infra)?;
+    }
+
+    match original_log {
+      None => {}
+      Some(log) => context.put_concrete(EVENT_LOG_KEY.key(), log)
+    };
+    
+    Ok(())
   }
 }

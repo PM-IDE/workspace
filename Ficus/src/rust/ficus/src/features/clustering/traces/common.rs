@@ -19,7 +19,7 @@ use std::rc::Rc;
 
 pub fn do_clusterize_log_by_traces<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
-  clustering_func: impl Fn(&mut TracesClusteringParams<TLog>, CommonNearestNeighbour, &MyDataset) -> Result<Array1<Option<usize>>, ClusteringError>,
+  clustering_func: impl Fn(&mut TracesClusteringParams<TLog>, CommonNearestNeighbour, &MyDataset) -> Result<Vec<usize>, ClusteringError>,
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   let class_extractor = params.vis_params.class_extractor.as_ref();
   let traces_dataset = create_traces_dataset(
@@ -37,15 +37,9 @@ pub fn do_clusterize_log_by_traces<TLog: EventLog>(
     FicusDistance::Cosine | FicusDistance::L1 | FicusDistance::L2 => KdTree
   };
 
-  let clusters = clustering_func(params, nn_search_algorithm, &dataset)?;
+  let labels = clustering_func(params, nn_search_algorithm, &dataset)?;
 
   let ficus_dataset = transform_to_ficus_dataset(&dataset, objects, features);
-
-  let labels = clusters
-    .into_raw_vec()
-    .iter()
-    .map(|x| if x.is_none() { 0 } else { x.unwrap() + 1 })
-    .collect();
 
   let mut new_logs: HashMap<usize, TLog> = HashMap::new();
   for (trace, label) in params.vis_params.log.traces().iter().zip(&labels) {

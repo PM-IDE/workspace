@@ -9,6 +9,11 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class GrpcMethodLoadUnloadEventKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = []
+    Load: _ClassVar[GrpcMethodLoadUnloadEventKind]
+    Unload: _ClassVar[GrpcMethodLoadUnloadEventKind]
+
 class GrpcThreadEventKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
     Created: _ClassVar[GrpcThreadEventKind]
@@ -35,6 +40,8 @@ class GrpcUnderlyingPatternKind(int, metaclass=_enum_type_wrapper.EnumTypeWrappe
     SuperMaximalRepeat: _ClassVar[GrpcUnderlyingPatternKind]
     NearSuperMaximalRepeat: _ClassVar[GrpcUnderlyingPatternKind]
     Unknown: _ClassVar[GrpcUnderlyingPatternKind]
+Load: GrpcMethodLoadUnloadEventKind
+Unload: GrpcMethodLoadUnloadEventKind
 Created: GrpcThreadEventKind
 Terminated: GrpcThreadEventKind
 Loaded: GrpcAssemblyEventKind
@@ -66,7 +73,7 @@ class GrpcContextValueWithKeyName(_message.Message):
     def __init__(self, key_name: _Optional[str] = ..., value: _Optional[_Union[GrpcContextValue, _Mapping]] = ...) -> None: ...
 
 class GrpcContextValue(_message.Message):
-    __slots__ = ["string", "hashes_log", "names_log", "uint32", "traces_sub_arrays", "trace_index_sub_arrays", "bool", "xes_event_log", "colors_log", "enum", "event_log_info", "strings", "pipeline", "petriNet", "graph", "float", "annotation", "dataset", "labeled_dataset", "bytes", "logTimelineDiagram", "float_array", "int_array", "uint_array"]
+    __slots__ = ["string", "hashes_log", "names_log", "uint32", "traces_sub_arrays", "trace_index_sub_arrays", "bool", "xes_event_log", "colors_log", "enum", "event_log_info", "strings", "pipeline", "petriNet", "graph", "float", "annotation", "dataset", "labeled_dataset", "bytes", "logTimelineDiagram", "float_array", "int_array", "uint_array", "json"]
     STRING_FIELD_NUMBER: _ClassVar[int]
     HASHES_LOG_FIELD_NUMBER: _ClassVar[int]
     NAMES_LOG_FIELD_NUMBER: _ClassVar[int]
@@ -91,6 +98,7 @@ class GrpcContextValue(_message.Message):
     FLOAT_ARRAY_FIELD_NUMBER: _ClassVar[int]
     INT_ARRAY_FIELD_NUMBER: _ClassVar[int]
     UINT_ARRAY_FIELD_NUMBER: _ClassVar[int]
+    JSON_FIELD_NUMBER: _ClassVar[int]
     string: str
     hashes_log: GrpcHashesEventLogContextValue
     names_log: GrpcNamesEventLogContextValue
@@ -115,7 +123,8 @@ class GrpcContextValue(_message.Message):
     float_array: GrpcFloatArray
     int_array: GrpcIntArray
     uint_array: GrpcUintArray
-    def __init__(self, string: _Optional[str] = ..., hashes_log: _Optional[_Union[GrpcHashesEventLogContextValue, _Mapping]] = ..., names_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., uint32: _Optional[int] = ..., traces_sub_arrays: _Optional[_Union[GrpcEventLogTraceSubArraysContextValue, _Mapping]] = ..., trace_index_sub_arrays: _Optional[_Union[GrpcSubArraysWithTraceIndexContextValue, _Mapping]] = ..., bool: bool = ..., xes_event_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., colors_log: _Optional[_Union[GrpcColorsEventLog, _Mapping]] = ..., enum: _Optional[_Union[GrpcEnum, _Mapping]] = ..., event_log_info: _Optional[_Union[GrpcEventLogInfo, _Mapping]] = ..., strings: _Optional[_Union[GrpcStrings, _Mapping]] = ..., pipeline: _Optional[_Union[GrpcPipeline, _Mapping]] = ..., petriNet: _Optional[_Union[_pm_models_pb2.GrpcPetriNet, _Mapping]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ..., float: _Optional[float] = ..., annotation: _Optional[_Union[_pm_models_pb2.GrpcAnnotation, _Mapping]] = ..., dataset: _Optional[_Union[_pm_models_pb2.GrpcDataset, _Mapping]] = ..., labeled_dataset: _Optional[_Union[_pm_models_pb2.GrpcLabeledDataset, _Mapping]] = ..., bytes: _Optional[_Union[GrpcBytes, _Mapping]] = ..., logTimelineDiagram: _Optional[_Union[GrpcLogTimelineDiagram, _Mapping]] = ..., float_array: _Optional[_Union[GrpcFloatArray, _Mapping]] = ..., int_array: _Optional[_Union[GrpcIntArray, _Mapping]] = ..., uint_array: _Optional[_Union[GrpcUintArray, _Mapping]] = ...) -> None: ...
+    json: str
+    def __init__(self, string: _Optional[str] = ..., hashes_log: _Optional[_Union[GrpcHashesEventLogContextValue, _Mapping]] = ..., names_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., uint32: _Optional[int] = ..., traces_sub_arrays: _Optional[_Union[GrpcEventLogTraceSubArraysContextValue, _Mapping]] = ..., trace_index_sub_arrays: _Optional[_Union[GrpcSubArraysWithTraceIndexContextValue, _Mapping]] = ..., bool: bool = ..., xes_event_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., colors_log: _Optional[_Union[GrpcColorsEventLog, _Mapping]] = ..., enum: _Optional[_Union[GrpcEnum, _Mapping]] = ..., event_log_info: _Optional[_Union[GrpcEventLogInfo, _Mapping]] = ..., strings: _Optional[_Union[GrpcStrings, _Mapping]] = ..., pipeline: _Optional[_Union[GrpcPipeline, _Mapping]] = ..., petriNet: _Optional[_Union[_pm_models_pb2.GrpcPetriNet, _Mapping]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ..., float: _Optional[float] = ..., annotation: _Optional[_Union[_pm_models_pb2.GrpcAnnotation, _Mapping]] = ..., dataset: _Optional[_Union[_pm_models_pb2.GrpcDataset, _Mapping]] = ..., labeled_dataset: _Optional[_Union[_pm_models_pb2.GrpcLabeledDataset, _Mapping]] = ..., bytes: _Optional[_Union[GrpcBytes, _Mapping]] = ..., logTimelineDiagram: _Optional[_Union[GrpcLogTimelineDiagram, _Mapping]] = ..., float_array: _Optional[_Union[GrpcFloatArray, _Mapping]] = ..., int_array: _Optional[_Union[GrpcIntArray, _Mapping]] = ..., uint_array: _Optional[_Union[GrpcUintArray, _Mapping]] = ..., json: _Optional[str] = ...) -> None: ...
 
 class GrpcFloatArray(_message.Message):
     __slots__ = ["items"]
@@ -379,11 +388,11 @@ class GrpcNodeAdditionalData(_message.Message):
     software_data: GrpcSoftwareData
     pattern_info: GrpcUnderlyingPatternInfo
     trace_data: GrpcNodeCorrespondingTraceData
-    time_data: GrpcNodeTimeActivityStartEndData
+    time_data: GrpcActivityStartEndData
     original_event_coordinates: GrpcEventCoordinates
-    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ..., pattern_info: _Optional[_Union[GrpcUnderlyingPatternInfo, _Mapping]] = ..., trace_data: _Optional[_Union[GrpcNodeCorrespondingTraceData, _Mapping]] = ..., time_data: _Optional[_Union[GrpcNodeTimeActivityStartEndData, _Mapping]] = ..., original_event_coordinates: _Optional[_Union[GrpcEventCoordinates, _Mapping]] = ...) -> None: ...
+    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ..., pattern_info: _Optional[_Union[GrpcUnderlyingPatternInfo, _Mapping]] = ..., trace_data: _Optional[_Union[GrpcNodeCorrespondingTraceData, _Mapping]] = ..., time_data: _Optional[_Union[GrpcActivityStartEndData, _Mapping]] = ..., original_event_coordinates: _Optional[_Union[GrpcEventCoordinates, _Mapping]] = ...) -> None: ...
 
-class GrpcNodeTimeActivityStartEndData(_message.Message):
+class GrpcActivityStartEndData(_message.Message):
     __slots__ = ["start_time", "end_time"]
     START_TIME_FIELD_NUMBER: _ClassVar[int]
     END_TIME_FIELD_NUMBER: _ClassVar[int]
@@ -406,7 +415,7 @@ class GrpcNodeCorrespondingTraceData(_message.Message):
     def __init__(self, belongs_to_root_sequence: bool = ...) -> None: ...
 
 class GrpcSoftwareData(_message.Message):
-    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info", "execution_suspension_info", "thread_events", "methods_inlining_events", "array_pool_events", "exception_events", "http_events", "contention_events", "socket_event"]
+    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info", "execution_suspension_info", "thread_events", "methods_inlining_events", "array_pool_events", "exception_events", "http_events", "contention_events", "socket_event", "methods_load_unload_events"]
     HISTOGRAM_FIELD_NUMBER: _ClassVar[int]
     TIMELINE_DIAGRAM_FRAGMENT_FIELD_NUMBER: _ClassVar[int]
     ALLOCATIONS_INFO_FIELD_NUMBER: _ClassVar[int]
@@ -418,6 +427,7 @@ class GrpcSoftwareData(_message.Message):
     HTTP_EVENTS_FIELD_NUMBER: _ClassVar[int]
     CONTENTION_EVENTS_FIELD_NUMBER: _ClassVar[int]
     SOCKET_EVENT_FIELD_NUMBER: _ClassVar[int]
+    METHODS_LOAD_UNLOAD_EVENTS_FIELD_NUMBER: _ClassVar[int]
     histogram: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
     timeline_diagram_fragment: GrpcTimelineDiagramFragment
     allocations_info: _containers.RepeatedCompositeFieldContainer[GrpcAllocationInfo]
@@ -429,7 +439,16 @@ class GrpcSoftwareData(_message.Message):
     http_events: _containers.RepeatedCompositeFieldContainer[GrpcHTTPEvent]
     contention_events: _containers.RepeatedCompositeFieldContainer[GrpcContentionEvent]
     socket_event: _containers.RepeatedCompositeFieldContainer[GrpcSocketEvent]
-    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Iterable[_Union[GrpcAllocationInfo, _Mapping]]] = ..., execution_suspension_info: _Optional[_Iterable[_Union[GrpcExecutionSuspensionInfo, _Mapping]]] = ..., thread_events: _Optional[_Iterable[_Union[GrpcThreadEventInfo, _Mapping]]] = ..., methods_inlining_events: _Optional[_Iterable[_Union[GrpcMethodInliningEvent, _Mapping]]] = ..., array_pool_events: _Optional[_Iterable[_Union[GrpcArrayPoolEvent, _Mapping]]] = ..., exception_events: _Optional[_Iterable[_Union[GrpcExceptionEvent, _Mapping]]] = ..., http_events: _Optional[_Iterable[_Union[GrpcHTTPEvent, _Mapping]]] = ..., contention_events: _Optional[_Iterable[_Union[GrpcContentionEvent, _Mapping]]] = ..., socket_event: _Optional[_Iterable[_Union[GrpcSocketEvent, _Mapping]]] = ...) -> None: ...
+    methods_load_unload_events: _containers.RepeatedCompositeFieldContainer[GrpcMethodLoadUnloadEvent]
+    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Iterable[_Union[GrpcAllocationInfo, _Mapping]]] = ..., execution_suspension_info: _Optional[_Iterable[_Union[GrpcExecutionSuspensionInfo, _Mapping]]] = ..., thread_events: _Optional[_Iterable[_Union[GrpcThreadEventInfo, _Mapping]]] = ..., methods_inlining_events: _Optional[_Iterable[_Union[GrpcMethodInliningEvent, _Mapping]]] = ..., array_pool_events: _Optional[_Iterable[_Union[GrpcArrayPoolEvent, _Mapping]]] = ..., exception_events: _Optional[_Iterable[_Union[GrpcExceptionEvent, _Mapping]]] = ..., http_events: _Optional[_Iterable[_Union[GrpcHTTPEvent, _Mapping]]] = ..., contention_events: _Optional[_Iterable[_Union[GrpcContentionEvent, _Mapping]]] = ..., socket_event: _Optional[_Iterable[_Union[GrpcSocketEvent, _Mapping]]] = ..., methods_load_unload_events: _Optional[_Iterable[_Union[GrpcMethodLoadUnloadEvent, _Mapping]]] = ...) -> None: ...
+
+class GrpcMethodLoadUnloadEvent(_message.Message):
+    __slots__ = ["method_name_parts", "event_kind"]
+    METHOD_NAME_PARTS_FIELD_NUMBER: _ClassVar[int]
+    EVENT_KIND_FIELD_NUMBER: _ClassVar[int]
+    method_name_parts: GrpcMethodNameParts
+    event_kind: GrpcMethodLoadUnloadEventKind
+    def __init__(self, method_name_parts: _Optional[_Union[GrpcMethodNameParts, _Mapping]] = ..., event_kind: _Optional[_Union[GrpcMethodLoadUnloadEventKind, str]] = ...) -> None: ...
 
 class GrpcExecutionSuspensionInfo(_message.Message):
     __slots__ = ["reason", "start_time", "end_time"]
@@ -442,14 +461,32 @@ class GrpcExecutionSuspensionInfo(_message.Message):
     def __init__(self, reason: _Optional[str] = ..., start_time: _Optional[int] = ..., end_time: _Optional[int] = ...) -> None: ...
 
 class GrpcMethodInliningEvent(_message.Message):
-    __slots__ = ["method_name", "succeeded", "failed"]
-    METHOD_NAME_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["inlining_info", "succeeded", "failed"]
+    INLINING_INFO_FIELD_NUMBER: _ClassVar[int]
     SUCCEEDED_FIELD_NUMBER: _ClassVar[int]
     FAILED_FIELD_NUMBER: _ClassVar[int]
-    method_name: str
+    inlining_info: GrpcMethodInliningInfo
     succeeded: _empty_pb2.Empty
     failed: GrpcMethodInliningFailedEvent
-    def __init__(self, method_name: _Optional[str] = ..., succeeded: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., failed: _Optional[_Union[GrpcMethodInliningFailedEvent, _Mapping]] = ...) -> None: ...
+    def __init__(self, inlining_info: _Optional[_Union[GrpcMethodInliningInfo, _Mapping]] = ..., succeeded: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., failed: _Optional[_Union[GrpcMethodInliningFailedEvent, _Mapping]] = ...) -> None: ...
+
+class GrpcMethodInliningInfo(_message.Message):
+    __slots__ = ["inlinee_info", "inliner_info"]
+    INLINEE_INFO_FIELD_NUMBER: _ClassVar[int]
+    INLINER_INFO_FIELD_NUMBER: _ClassVar[int]
+    inlinee_info: GrpcMethodNameParts
+    inliner_info: GrpcMethodNameParts
+    def __init__(self, inlinee_info: _Optional[_Union[GrpcMethodNameParts, _Mapping]] = ..., inliner_info: _Optional[_Union[GrpcMethodNameParts, _Mapping]] = ...) -> None: ...
+
+class GrpcMethodNameParts(_message.Message):
+    __slots__ = ["name", "namespace", "signature"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    NAMESPACE_FIELD_NUMBER: _ClassVar[int]
+    SIGNATURE_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    namespace: str
+    signature: str
+    def __init__(self, name: _Optional[str] = ..., namespace: _Optional[str] = ..., signature: _Optional[str] = ...) -> None: ...
 
 class GrpcMethodInliningFailedEvent(_message.Message):
     __slots__ = ["reason"]
@@ -510,10 +547,56 @@ class GrpcContentionEvent(_message.Message):
     def __init__(self, start_time: _Optional[int] = ..., end_time: _Optional[int] = ...) -> None: ...
 
 class GrpcSocketEvent(_message.Message):
+    __slots__ = ["connect_start", "accept_start", "connect_stop", "accept_stop", "connect_failed", "accept_failed"]
+    CONNECT_START_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_START_FIELD_NUMBER: _ClassVar[int]
+    CONNECT_STOP_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_STOP_FIELD_NUMBER: _ClassVar[int]
+    CONNECT_FAILED_FIELD_NUMBER: _ClassVar[int]
+    ACCEPT_FAILED_FIELD_NUMBER: _ClassVar[int]
+    connect_start: GrpcSocketConnectStart
+    accept_start: GrpcSocketAcceptStart
+    connect_stop: GrpcSocketConnectStop
+    accept_stop: GrpcSocketAcceptStop
+    connect_failed: GrpcSocketConnectFailed
+    accept_failed: GrpcSocketAcceptFailed
+    def __init__(self, connect_start: _Optional[_Union[GrpcSocketConnectStart, _Mapping]] = ..., accept_start: _Optional[_Union[GrpcSocketAcceptStart, _Mapping]] = ..., connect_stop: _Optional[_Union[GrpcSocketConnectStop, _Mapping]] = ..., accept_stop: _Optional[_Union[GrpcSocketAcceptStop, _Mapping]] = ..., connect_failed: _Optional[_Union[GrpcSocketConnectFailed, _Mapping]] = ..., accept_failed: _Optional[_Union[GrpcSocketAcceptFailed, _Mapping]] = ...) -> None: ...
+
+class GrpcSocketAcceptStart(_message.Message):
     __slots__ = ["address"]
     ADDRESS_FIELD_NUMBER: _ClassVar[int]
     address: str
     def __init__(self, address: _Optional[str] = ...) -> None: ...
+
+class GrpcSocketConnectStart(_message.Message):
+    __slots__ = ["address"]
+    ADDRESS_FIELD_NUMBER: _ClassVar[int]
+    address: str
+    def __init__(self, address: _Optional[str] = ...) -> None: ...
+
+class GrpcSocketConnectStop(_message.Message):
+    __slots__ = []
+    def __init__(self) -> None: ...
+
+class GrpcSocketAcceptStop(_message.Message):
+    __slots__ = []
+    def __init__(self) -> None: ...
+
+class GrpcSocketConnectFailed(_message.Message):
+    __slots__ = ["error_code", "error_message"]
+    ERROR_CODE_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    error_code: str
+    error_message: str
+    def __init__(self, error_code: _Optional[str] = ..., error_message: _Optional[str] = ...) -> None: ...
+
+class GrpcSocketAcceptFailed(_message.Message):
+    __slots__ = ["error_code", "error_message"]
+    ERROR_CODE_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    error_code: str
+    error_message: str
+    def __init__(self, error_code: _Optional[str] = ..., error_message: _Optional[str] = ...) -> None: ...
 
 class GrpcHistogramEntry(_message.Message):
     __slots__ = ["name", "count"]
@@ -562,8 +645,24 @@ class GrpcGraphEdge(_message.Message):
     to_node: int
     weight: float
     data: str
-    additional_data: _containers.RepeatedCompositeFieldContainer[GrpcNodeAdditionalData]
-    def __init__(self, id: _Optional[int] = ..., from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Iterable[_Union[GrpcNodeAdditionalData, _Mapping]]] = ...) -> None: ...
+    additional_data: _containers.RepeatedCompositeFieldContainer[GrpcGraphEdgeAdditionalData]
+    def __init__(self, id: _Optional[int] = ..., from_node: _Optional[int] = ..., to_node: _Optional[int] = ..., weight: _Optional[float] = ..., data: _Optional[str] = ..., additional_data: _Optional[_Iterable[_Union[GrpcGraphEdgeAdditionalData, _Mapping]]] = ...) -> None: ...
+
+class GrpcGraphEdgeAdditionalData(_message.Message):
+    __slots__ = ["software_data", "execution_info", "time_data"]
+    SOFTWARE_DATA_FIELD_NUMBER: _ClassVar[int]
+    EXECUTION_INFO_FIELD_NUMBER: _ClassVar[int]
+    TIME_DATA_FIELD_NUMBER: _ClassVar[int]
+    software_data: GrpcSoftwareData
+    execution_info: GrpcEdgeExecutionInfo
+    time_data: GrpcActivityStartEndData
+    def __init__(self, software_data: _Optional[_Union[GrpcSoftwareData, _Mapping]] = ..., execution_info: _Optional[_Union[GrpcEdgeExecutionInfo, _Mapping]] = ..., time_data: _Optional[_Union[GrpcActivityStartEndData, _Mapping]] = ...) -> None: ...
+
+class GrpcEdgeExecutionInfo(_message.Message):
+    __slots__ = ["traceId"]
+    TRACEID_FIELD_NUMBER: _ClassVar[int]
+    traceId: int
+    def __init__(self, traceId: _Optional[int] = ...) -> None: ...
 
 class GrpcBytes(_message.Message):
     __slots__ = ["bytes"]

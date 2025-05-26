@@ -36,7 +36,6 @@ class DiscoverLogTimelineDiagram(DiscoverTimelineDiagramBase):
                thread_attribute: str,
                time_attribute: Optional[str] = None,
                event_group_delta: Optional[int] = None,
-               regex: Optional[str] = None,
                title: Optional[str] = None,
                save_path: Optional[str] = None,
                plot_legend: bool = False,
@@ -55,14 +54,10 @@ class DiscoverLogTimelineDiagram(DiscoverTimelineDiagramBase):
     self.thread_attribute = thread_attribute
     self.time_attribute = time_attribute
     self.event_group_delta = event_group_delta
-    self.regex = regex
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_string_value(config, const_thread_attribute, self.thread_attribute)
-
-    if self.regex is not None:
-      append_string_value(config, const_regex, self.regex)
 
     return _create_discover_log_timeline_diagram_grpc_part(self, config, const_discover_log_timeline_diagram)
 
@@ -100,7 +95,6 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
                discover_events_groups_in_each_trace: bool,
                time_attribute: Optional[str] = None,
                event_group_delta: Optional[int] = None,
-               regex: Optional[str] = None,
                title: Optional[str] = None,
                save_path: Optional[str] = None,
                plot_legend: bool = False,
@@ -119,13 +113,62 @@ class DiscoverTracesTimelineDiagram(DiscoverTimelineDiagramBase):
     self.discover_events_groups_in_each_trace = discover_events_groups_in_each_trace
     self.time_attribute = time_attribute
     self.event_group_delta = event_group_delta
-    self.regex = regex
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_bool_value(config, const_discover_events_groups_in_each_trace, self.discover_events_groups_in_each_trace)
 
-    if self.regex is not None:
-      append_string_value(config, const_regex, self.regex)
-
     return _create_discover_log_timeline_diagram_grpc_part(self, config, const_discover_traces_timeline_diagram)
+
+
+class PrepareSoftwareLog(PipelinePart):
+  def __init__(self, time_attribute: Optional[str]):
+    super().__init__()
+    self.time_attribute = time_attribute
+
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    append_string_value(config, const_time_attribute, self.time_attribute)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_prepare_software_log, config))
+
+
+class ShortenAllocationType(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_shorten_allocation_type))
+
+
+class ShortenMethodNames(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_shorten_method_names))
+
+
+class SetMethodsDisplayName(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_set_methods_display_name))
+
+
+class RemainOnlyMethodStartEvents(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_remain_only_method_start_events))
+
+
+class RemainOnlyMethodEndEvents(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_remain_only_method_end_events))
+
+
+class DiscoverMultithreadedDfg(PipelinePart):
+  def __init__(self, thread_attribute: str, sequential_regexes: Optional[list[str]] = None):
+    super().__init__()
+    self.thread_attribute = thread_attribute
+    self.sequential_regexes = sequential_regexes
+
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    append_string_value(config, const_thread_attribute, self.thread_attribute)
+
+    if self.sequential_regexes is not None:
+      append_strings_context_value(config, const_regexes, self.sequential_regexes)
+
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_multithreaded_dfg, config))

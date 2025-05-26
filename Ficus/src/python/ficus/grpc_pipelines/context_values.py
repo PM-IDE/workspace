@@ -151,6 +151,14 @@ class EventLogInfo(ContextValue):
 
 
 @dataclass
+class JsonContextValue(ContextValue):
+  json_string: str
+
+  def to_grpc_context_value(self) -> GrpcContextValue:
+    return GrpcContextValue(json=self.json_string)
+
+
+@dataclass
 class ProxyColorRectangle:
   color_index: int
   start_x: float

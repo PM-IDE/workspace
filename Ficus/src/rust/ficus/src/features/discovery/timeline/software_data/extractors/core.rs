@@ -1,11 +1,15 @@
 use crate::event_log::core::event::event::EventPayloadValue;
+use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
+use crate::features::discovery::timeline::software_data::extraction_config::ExtractionConfig;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use fancy_regex::Regex;
 use log::warn;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
+use std::rc::Rc;
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -28,7 +32,16 @@ impl Display for SoftwareDataExtractionError {
 impl Error for SoftwareDataExtractionError {}
 
 pub trait SoftwareDataExtractor {
-  fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError>;
+  fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
+    let events = event_group.all_events()
+      .into_iter()
+      .map(|c| c.clone())
+      .collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
+
+    self.extract_from_events(software_data, events.as_slice())
+  }
+
+  fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError>;
 }
 
 pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {
@@ -62,4 +75,32 @@ pub(super) fn payload_value_or_none(payload: &HashMap<String, EventPayloadValue>
     warn!("Failed to get value for attribute {}", attribute_name);
     None
   }
+}
+
+pub(super) fn prepare_configs<'a, TConfig: Clone + Debug, TEnum: Clone>(
+  configs: &'a [(&Option<ExtractionConfig<TConfig>>, TEnum)]
+) -> Result<Vec<(Regex, &'a TConfig, TEnum)>, SoftwareDataExtractionError> {
+  let mut result = vec![];
+
+  for config in configs {
+    if let Some(extraction_config) = config.0 {
+      result.push((regex_or_err(extraction_config.event_class_regex().as_str())?, extraction_config.info(), config.1.clone()))
+    }
+  }
+  
+  Ok(result)
+}
+
+pub(super) fn prepare_functional_configs<TData: Clone>(
+  configs: &[(Option<&String>, TData)]
+) -> Result<Vec<(Regex, TData)>, SoftwareDataExtractionError> {
+  let mut result = vec![];
+
+  for config in configs {
+    if let Some(regex) = regex_option_or_err(config.0)? {
+      result.push((regex, config.1.clone()))
+    }
+  }
+
+  Ok(result)
 }

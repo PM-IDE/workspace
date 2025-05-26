@@ -36,13 +36,18 @@ def execute_pipeline(sub_name: str, pipeline_name: str, pipeline_parts: list[Pip
     if subscription_id is None:
         return
 
+    with open(os.path.join(os.path.abspath(os.curdir), 'software_data_config.json'), "r") as f:
+        software_data_config = f.read()
+
     KafkaPipeline(
         pipeline_parts
     ).execute(ficus_backend, 
               subscription_id, 
               pipeline_name, 
               kafka_producer_metadata, 
-              initial_context={}, 
+              initial_context={
+                'software_data_extraction_config': JsonContextValue(software_data_config)
+              },
               streaming_configuration=create_queue_traces_configuration(3))
 
     if env_or_default('SLEEP', None) is not None:

@@ -1,6 +1,6 @@
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::pipelines::pipelines::{DefaultPipelinePart, PipelinePartFactory};
 use crate::utils::performance::performance_cookie::performance_cookie;
 use crate::utils::user_data::keys::Key;
@@ -100,7 +100,18 @@ impl PipelineParts {
       Self::clusterize_log_traces_dbscan_grid_search(),
       Self::discover_root_sequence_graph(),
       Self::discover_loops_strict(),
-      Self::discover_traces_timeline_diagram()
+      Self::discover_traces_timeline_diagram(),
+      Self::prepare_software_log(),
+      Self::shorten_allocation_types(),
+      Self::shorten_methods_names(),
+      Self::set_methods_display_name(),
+      Self::remain_only_method_start_events(),
+      Self::remain_only_method_end_events(),
+      Self::discover_multithreaded_dfg(),
+      Self::abstract_multithreaded_events_groups(),
+      Self::merge_graphs(),
+      Self::add_graph_to_graphs(),
+      Self::clear_graphs(),
     ];
 
     let mut names_to_parts = HashMap::new();

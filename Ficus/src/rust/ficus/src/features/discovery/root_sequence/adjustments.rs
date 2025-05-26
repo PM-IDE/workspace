@@ -1,9 +1,9 @@
 use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
+use crate::features::discovery::root_sequence::context_keys::{NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY};
 use crate::features::discovery::root_sequence::discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventWithUniqueId, NodeAdditionalDataContainer};
-use crate::pipelines::keys::context_key::DefaultContextKey;
-use crate::pipelines::keys::context_keys::{CORRESPONDING_TRACE_DATA_KEY, INNER_GRAPH_KEY, SOFTWARE_DATA_KEY, START_END_ACTIVITIES_TIMES_KEY, START_END_ACTIVITY_TIME_KEY};
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
@@ -120,8 +120,8 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
   let start_node_edge_weight = *graph.edge(&nodes_ids.start_node, &nodes_ids.first_node).unwrap().weight();
   let end_node_edge_weight = *graph.edge(&nodes_ids.last_node, &nodes_ids.end_node).unwrap().weight();
 
-  graph.connect_nodes(&nodes_ids.start_node, &added_node, NodesConnectionData::new(None, start_node_edge_weight));
-  graph.connect_nodes(&added_node, &nodes_ids.end_node, NodesConnectionData::new(None, end_node_edge_weight));
+  graph.connect_nodes(&nodes_ids.start_node, &added_node, NodesConnectionData::new(None, start_node_edge_weight, None));
+  graph.connect_nodes(&added_node, &nodes_ids.end_node, NodesConnectionData::new(None, end_node_edge_weight, None));
 }
 
 fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
@@ -136,31 +136,31 @@ fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
 
     if let Some((prev_added_node_id, prev_node_id)) = prev_added_node_id {
       let edge = graph.edge(&prev_node_id, node).unwrap();
-      let connection_data = NodesConnectionData::new(edge.data().as_ref().cloned(), *edge.weight());
+      let connection_data = NodesConnectionData::new(edge.data().as_ref().cloned(), *edge.weight(), None);
       inner_graph.connect_nodes(&prev_added_node_id, &added_node_id, connection_data);
     }
 
     prev_added_node_id = Some((added_node_id, *node));
   }
 
-  graph.node_mut(&node_id).unwrap().user_data_mut().put_concrete(INNER_GRAPH_KEY.key(), inner_graph);
+  graph.node_mut(&node_id).unwrap().user_data_mut().put_concrete(NODE_INNER_GRAPH_KEY.key(), inner_graph);
 
   node_id
 }
 
 fn put_activities_times(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
   let activities_times = collect_start_end_time_activities_data(nodes, graph);
-  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
+  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
 }
 
 fn put_trace_data(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
-  let trace_data = extract_user_data_from(nodes, &graph, &CORRESPONDING_TRACE_DATA_KEY);
-  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
+  let trace_data = extract_user_data_from(nodes, &graph, &NODE_CORRESPONDING_TRACE_DATA_KEY);
+  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
 }
 
 fn put_software_data(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
-  let software_data = extract_user_data_from(nodes, &graph, &SOFTWARE_DATA_KEY);
-  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(SOFTWARE_DATA_KEY.key(), software_data);
+  let software_data = extract_user_data_from(nodes, &graph, &NODE_SOFTWARE_DATA_KEY);
+  graph.node_mut(&added_node_id).unwrap().user_data_mut().put_concrete(NODE_SOFTWARE_DATA_KEY.key(), software_data);
 }
 
 fn disconnect_and_delete_nodes(nodes: &Vec<u64>, graph: &mut DefaultGraph) {
@@ -202,7 +202,7 @@ fn extract_user_data_from<T: Clone>(nodes: &Vec<u64>, graph: &DefaultGraph, key:
 fn collect_start_end_time_activities_data(nodes: &Vec<u64>, graph: &DefaultGraph) -> Vec<NodeAdditionalDataContainer<ActivityStartEndTimeData>> {
   let mut times = vec![];
   for node in nodes {
-    if let Some(data) = graph.node(node).unwrap().user_data().concrete(START_END_ACTIVITY_TIME_KEY.key()) {
+    if let Some(data) = graph.node(node).unwrap().user_data().concrete(NODE_START_END_ACTIVITY_TIME_KEY.key()) {
       times.push(data.clone());
     }
   }
@@ -280,4 +280,22 @@ pub fn find_next_node(graph: &DefaultGraph, current_node: u64, next_event_id: u6
   } else {
     Ok(*next_nodes.first().unwrap())
   }
+}
+
+pub fn adjust_edges_data<T: PartialEq + Clone + Debug>(
+  context: &DiscoveryContext<T>,
+  log: &Vec<Vec<EventWithUniqueId<T>>>,
+  graph: &mut DefaultGraph,
+  start_node_id: u64
+) -> Result<(), DiscoverRootSequenceGraphError> {
+  for trace in log {
+    let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
+
+    for i in 0..replay_history.len() - 1 {
+      let edge = graph.edge_mut(&replay_history[i], &replay_history[i + 1]).unwrap();
+      context.event_to_edge_data_transfer()(trace[i].event(), edge.user_data_mut())
+    }
+  }
+
+  Ok(())
 }

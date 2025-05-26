@@ -2,7 +2,7 @@ use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::pipelines::keys::context_key::DefaultContextKey;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
@@ -10,6 +10,7 @@ use lazy_static::lazy_static;
 use log::error;
 use std::collections::HashMap;
 use std::str::FromStr;
+use crate::utils::graph::graph_node::GraphNode;
 
 pub fn annotate_with_counts(
   log: &impl EventLog,
@@ -155,17 +156,7 @@ pub fn annotate_with_time_performance(
     let first_node = graph.node(&edge.from_node).expect("Must contain first node");
     let second_node = graph.node(&edge.to_node).expect("Must contain second node");
 
-    let key = (
-      first_node.data.as_ref().unwrap().clone(),
-      second_node.data.as_ref().unwrap().clone(),
-    );
-
-    let annotation = if let Some(time_annotation) = performance_map.get(&key) {
-      Some(match annotation_kind {
-        TimeAnnotationKind::SummedTime => time_annotation.0,
-        TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
-      })
-    } else if let Some(performance_data) = edge.user_data().concrete(PERFORMANCE_ANNOTATION_INFO_KEY.key()) {
+    let annotation = if let Some(performance_data) = edge.user_data().concrete(PERFORMANCE_ANNOTATION_INFO_KEY.key()) {
       Some(match performance_data {
         PerformanceAnnotationInfo::Default(data) => match annotation_kind {
           TimeAnnotationKind::SummedTime => data.iter().sum(),
@@ -175,6 +166,11 @@ pub fn annotate_with_time_performance(
           TimeAnnotationKind::SummedTime => *sum,
           TimeAnnotationKind::Mean => *sum / (*count as f64)
         }
+      })
+    } else if let Some(time_annotation) = try_get_time_annotation(&performance_map, first_node, second_node) {
+      Some(match annotation_kind {
+        TimeAnnotationKind::SummedTime => time_annotation.0,
+        TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
       })
     } else {
       None
@@ -186,4 +182,23 @@ pub fn annotate_with_time_performance(
   }
 
   Some(time_annotations)
+}
+
+fn try_get_time_annotation(
+  performance_map: &PerformanceMap, 
+  first_node: &GraphNode<HeapedOrOwned<String>>, 
+  second_node: &GraphNode<HeapedOrOwned<String>>
+) -> Option<(f64, usize)> {
+  if first_node.data.is_some() && second_node.data.is_some() {
+    let key = (
+      first_node.data.as_ref().unwrap().clone(),
+      second_node.data.as_ref().unwrap().clone(),
+    );
+    
+    if let Some(time_annotation) = performance_map.get(&key) {
+      return Some(time_annotation.clone())
+    }
+  }
+  
+  None
 }

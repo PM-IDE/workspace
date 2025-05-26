@@ -17,12 +17,15 @@
     <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
+        <li><a href="#context-of-the-project">Context of the project</a></li>
+        <li><a href="#system-architecture">System architecture</a></li>
         <li><a href="#procfiler">Procfiler</a></li>
         <li><a href="#ficus">Ficus</a></li>
         <li><a href="#bxes">bXES</a></li>
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
+    <li><a href="#related-publications">Related publications</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -36,6 +39,14 @@
 The repository unites different projects for modern software process mining, based on
 .NET event logs. Detailed information about each project can be found in corresponding
 Readme files in each project's subdirectory.
+
+### Context of the project
+
+This software is developed as a part of the PhD project performed in 
+[PAIS Laboratory](https://pais.hse.ru) at the [Faculty of Computer Science](https://cs.hse.ru) 
+of [HSE University](https://www.hse.ru/)
+
+### System architecture
 
 The system architecture is shown in the Figure:
 
@@ -83,6 +94,12 @@ especially software event logs. The bXES supports converting XES event logs to b
 [cpp-shield]: https://img.shields.io/badge/-C++-blue?logo=cplusplus
 [cpp-url]: https://en.cppreference.com/w/cpp/language
 
+## Related publications
+
+* [Extracting high-level activities from low-level program execution logs](https://link.springer.com/article/10.1007/s10515-024-00441-0)
+* [bXES: a Binary Format For Storing and Transferring Software Event Logs](https://damdid2024.frccsc.ru/files/papers/DAMDID_2024_paper_31.pdf)
+
+
 ## Usage
 
 See readmes in each projects sub-directories.
@@ -114,8 +131,6 @@ Email: aerooneQ@yandex.ru, Stepanov.E.V@hse.ru
 
 ## Acknowledgments
 
-* [FCS](https://cs.hse.ru)
-* [PAIS Lab](https://pais.hse.ru)
 * [DotNetCoreProfiler](https://github.com/ABaboshin/DotNetCoreProfiler)
 * [.NET runtime tests](https://github.com/dotnet/runtime/tree/main/src/tests/profiler)
 * [.NET Profiling docs](https://github.com/dotnet/runtime/tree/main/docs/design/coreclr/profiling)

@@ -1,6 +1,7 @@
 services:
   kafka:
     image: apache/kafka:latest
+    platform: linux/amd64
     hostname: kafka
     container_name: kafka
     ports:
@@ -29,9 +30,11 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_MESSAGE_MAX_BYTES: 25728640
 
   init-kafka:
     image: apache/kafka:latest
+    platform: linux/amd64
     depends_on:
       - kafka
     entrypoint: [ "/bin/sh", "-c" ]
@@ -50,6 +53,9 @@ services:
       echo -e 'Created topic ficus-topic'
 
       ./kafka-topics.sh --bootstrap-server kafka:29092 --list
+
+      ./kafka-configs.sh --bootstrap-server kafka:29092 --alter --entity-type topics --entity-name ficus-topic --add-config max.message.bytes=25728640
+      ./kafka-configs.sh --bootstrap-server kafka:29092 --alter --entity-type topics --entity-name my-topic --add-config max.message.bytes=25728640
 
       sleep infinity
       "

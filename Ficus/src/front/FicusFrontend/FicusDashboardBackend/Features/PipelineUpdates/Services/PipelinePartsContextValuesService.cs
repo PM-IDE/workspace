@@ -21,9 +21,9 @@ public class PipelinePartsContextValuesService(
         await responseStream.WriteAsync(update);
       }
     }
-    catch (OperationCanceledException)
+    catch (OperationCanceledException ex)
     {
-      logger.LogInformation("The updates stream was cancelled");
+      logger.LogInformation(ex, "The updates stream was cancelled");
     }
     catch (Exception ex)
     {

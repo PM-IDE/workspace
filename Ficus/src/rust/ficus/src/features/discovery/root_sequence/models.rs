@@ -1,3 +1,4 @@
+use derive_new::new;
 use getset::Getters;
 use std::fmt::{Debug, Display, Formatter, Write};
 use std::str::FromStr;
@@ -65,13 +66,13 @@ impl EventCoordinates {
   }
 }
 
-#[derive(Clone, Debug)]
-pub struct NodeAdditionalDataContainer<T: Clone + Debug> {
+#[derive(Clone)]
+pub struct NodeAdditionalDataContainer<T: Clone> {
   value: T,
   original_event_coordinates: EventCoordinates,
 }
 
-impl<T: Clone + Debug> NodeAdditionalDataContainer<T> {
+impl<T: Clone> NodeAdditionalDataContainer<T> {
   pub fn new(value: T, trace_data: EventCoordinates) -> Self {
     Self {
       value,
@@ -159,4 +160,9 @@ impl<T: PartialEq + Clone> PartialEq for EventWithUniqueId<T> {
   fn eq(&self, other: &Self) -> bool {
     self.event().eq(other.event())
   }
+}
+
+#[derive(Clone, Debug, Getters, new)]
+pub struct EdgeTraceExecutionInfo {
+  #[getset(get = "pub")] trace_id: u64,
 }

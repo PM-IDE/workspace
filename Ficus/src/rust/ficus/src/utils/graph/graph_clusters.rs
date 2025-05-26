@@ -98,14 +98,14 @@ where
   ) {
     for new_edge in new_incoming_edges_merged {
       if let Some(connections) = self.connections.get_mut(&new_edge.0) {
-        let edge = GraphEdge::new(new_edge.0, new_node_id, new_edge.1.weight(), new_edge.1.data);
+        let edge = GraphEdge::new(new_edge.0, new_node_id, new_edge.1.weight(), new_edge.1.data, new_edge.1.user_data);
         connections.insert(new_node_id.clone(), edge);
       }
     }
 
     let mut new_node_connections = HashMap::new();
     for new_edge in new_outgoing_edges_merged {
-      let edge = GraphEdge::new(new_node_id, new_edge.0, new_edge.1.weight, new_edge.1.data);
+      let edge = GraphEdge::new(new_node_id, new_edge.0, new_edge.1.weight, new_edge.1.data, new_edge.1.user_data);
       new_node_connections.insert(new_edge.0, edge);
     }
 

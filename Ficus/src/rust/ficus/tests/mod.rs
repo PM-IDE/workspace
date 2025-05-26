@@ -12,3 +12,4 @@ pub mod suffix_tree;
 pub mod test_core;
 pub mod utils;
 pub mod clustering;
+pub mod software_data;

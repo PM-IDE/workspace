@@ -45,7 +45,8 @@ export interface GrpcContextValue_DONTUSE {
   'floatArray'?: (_ficus_GrpcFloatArray_DONTUSE | null);
   'intArray'?: (_ficus_GrpcIntArray_DONTUSE | null);
   'uintArray'?: (_ficus_GrpcUintArray_DONTUSE | null);
-  'contextValue'?: "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray";
+  'json'?: (string);
+  'contextValue'?: "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json";
 }
 
 export interface GrpcContextValue {
@@ -73,5 +74,6 @@ export interface GrpcContextValue {
   'floatArray'?: (_ficus_GrpcFloatArray | null);
   'intArray'?: (_ficus_GrpcIntArray | null);
   'uintArray'?: (_ficus_GrpcUintArray | null);
-  'contextValue': "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray";
+  'json'?: (string);
+  'contextValue': "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json";
 }

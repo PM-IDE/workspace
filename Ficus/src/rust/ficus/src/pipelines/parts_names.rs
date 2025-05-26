@@ -59,6 +59,19 @@ impl PipelineParts {
   pub const DISCOVER_LOOPS_STRICT: &'static str = "DiscoverLoopsStrict";
   pub const DISCOVER_TRACES_TIMELINE_DIAGRAM: &'static str = "DiscoverTracesTimelineDiagram";
 
+  pub const PREPARE_SOFTWARE_EVENT_LOG: &'static str = "PrepareSoftwareEventLog";
+  pub const SHORTEN_ALLOCATION_TYPE: &'static str = "ShortenAllocationType";
+  pub const SHORTEN_METHOD_NAMES: &'static str = "ShortenMethodNames";
+  pub const SET_METHODS_DISPLAY_NAME: &'static str = "SetMethodsDisplayName";
+  pub const REMAIN_ONLY_METHOD_START_EVENTS: &'static str = "RemainOnlyMethodStartEvents";
+  pub const REMAIN_ONLY_METHOD_END_EVENTS: &'static str = "RemainOnlyMethodEndEvents";
+  pub const DISCOVER_MULTITHREADED_DFG: &'static str = "DiscoverMultithreadedDfg";
+  pub const ABSTRACT_MULTITHREADED_EVENTS_GROUPS: &'static str = "AbstractMultithreadedEventsGroups";
+
+  pub const MERGE_GRAPHS: &'static str = "MergeGraphs";
+  pub const ADD_GRAPH_TO_GRAPHS: &'static str = "AddGraphToGraphs";
+  pub const CLEAR_GRAPHS: &'static str = "ClearGraphs";
+
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";
   pub const ANNOTATE_PETRI_NET_TRACE_FREQUENCY: &'static str = "AnnotatePetriNetWithTraceFrequency";

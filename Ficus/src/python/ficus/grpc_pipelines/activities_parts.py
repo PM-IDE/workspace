@@ -85,7 +85,7 @@ class DiscoverActivitiesForSeveralLevels(PipelinePart):
     config = GrpcPipelinePartConfiguration()
 
     append_narrow_kind(config, const_narrow_activities, self.narrow_activities)
-    append_strings_context_value(config, const_event_classes_regexes, self.event_classes)
+    append_strings_context_value(config, const_regexes, self.event_classes)
     append_adjusting_mode(config, const_adjusting_mode, self.adjusting_mode)
     append_uint32_value(config, const_activity_level, self.activity_level)
     append_uint32_value(config, const_events_count, self.min_events_in_unattached_subtrace_count)

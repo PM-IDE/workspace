@@ -5,6 +5,7 @@ use fancy_regex::Regex;
 use getset::{Getters, MutGetters, Setters};
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::utils::user_data::user_data::UserDataImpl;
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
@@ -22,7 +23,7 @@ impl TraceEventsGroup {
   }
 }
 
-pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64, regex: Option<&Regex>) -> Vec<TraceEventsGroup> {
+pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64, control_flow_regexes: Option<&Vec<Regex>>) -> Vec<TraceEventsGroup> {
   let mut groups = vec![];
 
   let mut last_stamp: Option<u64> = None;
@@ -39,8 +40,8 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
   };
 
   while let Some((event, trace_index, event_index)) = events.next() {
-    if let Some(regex) = regex {
-      if !regex.is_match(event.original_event().borrow().name()).unwrap_or(false) {
+    if let Some(control_flow_regexes) = control_flow_regexes {
+      if !control_flow_regexes.iter().any(|regex| regex.is_match(event.original_event().borrow().name()).unwrap_or(false)) {
         continue;
       }
     }
@@ -131,6 +132,7 @@ pub struct EventGroup {
   #[getset(get = "pub", get_mut = "pub")] control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
   #[getset(get = "pub", get_mut = "pub")] statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
   #[getset(get = "pub", get_mut = "pub", set = "pub")] after_group_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
+  #[getset(get = "pub", get_mut = "pub")] user_data: UserDataImpl
 }
 
 impl EventGroup {
@@ -139,6 +141,7 @@ impl EventGroup {
       control_flow_events: vec![],
       statistic_events: vec![],
       after_group_events: None,
+      user_data: UserDataImpl::new(),
     }
   }
 

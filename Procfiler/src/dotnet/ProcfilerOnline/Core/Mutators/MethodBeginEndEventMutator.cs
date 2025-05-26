@@ -1,4 +1,5 @@
-﻿using Core.Container;
+﻿using Core.Constants.TraceEvents;
+using Core.Container;
 using Core.Events.EventRecord;
 using Core.EventsProcessing.Mutators;
 using Core.EventsProcessing.Mutators.Core;
@@ -23,7 +24,8 @@ public class MethodBeginEndEventMutator : IMethodBeginEndSingleMutator
   {
     if (eventRecord.TryGetMethodDetails() is not var (_, methodId)) return;
 
-    var fqn = context.FindMethodName(methodId) ?? "UNRESOLVED";
+    var details = context.FindMethodDetails(methodId);
+    var fqn = details?.Fqn ?? TraceEventsConstants.Undefined;
 
     var fullNameFactory = () =>
       eventRecord.EventClass + "_{" + MutatorsUtil.TransformMethodLikeNameForEventNameConcatenation(fqn) + "}";
@@ -34,6 +36,10 @@ public class MethodBeginEndEventMutator : IMethodBeginEndSingleMutator
       MethodKind.End => myEndFullNamesCache.GetOrCreate(fqn, fullNameFactory),
       _ => throw new ArgumentOutOfRangeException()
     };
+
+    eventRecord.Metadata[TraceEventsConstants.MethodName] = details?.Name ?? TraceEventsConstants.Undefined;
+    eventRecord.Metadata[TraceEventsConstants.MethodNamespace] = details?.Namespace ?? TraceEventsConstants.Undefined;
+    eventRecord.Metadata[TraceEventsConstants.MethodSignature] = details?.Signature ?? TraceEventsConstants.Undefined;
 
     eventRecord.EventName = newName;
   }

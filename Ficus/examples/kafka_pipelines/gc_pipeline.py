@@ -21,7 +21,10 @@ execute_pipeline(
         FilterEventsByRegex('Heap'),
         FilterEventsByRegex('Bulk'),
         FilterEventsByRegex('Mark'),
+        ShortenAllocationType(),
+        ShortenMethodNames(),
         AddStartEndArtificialEvents(),
-        ViewDirectlyFollowsGraph(),
+        DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
+                                  merge_sequences_of_events=True),
     ]
 )
