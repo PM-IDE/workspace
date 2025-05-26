@@ -41,7 +41,7 @@ pub fn test_silhouette_score_single_cluster() {
 }
 
 pub fn test_silhouette_score_empty_labels() {
-  let result = silhouette_score(vec![], |first, second| 0.);
+  let result = silhouette_score(&vec![], |first, second| 0.);
   assert_eq!(result.err().unwrap(), SilhouetteScoreError::NotEnoughSamples)
 }
 
@@ -61,7 +61,7 @@ fn execute_silhouette_score_test(raw_dataset: Vec<Vec<f64>>) {
 
   let labels = labels.iter().map(|l| if l.is_none() { 0 } else { l.unwrap() + 1 }).collect::<Vec<usize>>();
 
-  let our_score = silhouette_score(labels.clone(), |first, second| calculate_distance(FicusDistance::L2, &dataset, first, second))
+  let our_score = silhouette_score(&labels.clone(), |first, second| calculate_distance(FicusDistance::L2, &dataset, first, second))
     .ok()
     .unwrap();
 
