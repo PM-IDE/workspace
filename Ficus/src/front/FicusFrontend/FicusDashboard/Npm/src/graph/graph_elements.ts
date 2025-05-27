@@ -5,18 +5,18 @@ import {
   calculateOverallExecutionTime,
   getEdgeSoftwareDataOrNull,
   getNodeSoftwareDataOrNull,
-  getPerformanceAnnotationColor, MergedSoftwareData
+  getPerformanceAnnotationColor,
 } from "./util";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import cytoscape from "cytoscape";
-import {AggregatedData} from "./types";
+import {AggregatedData, MergedSoftwareData} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
-export function createGraphElementForDagre(graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.ElementDefinition[] {
+export function createGraphElements(graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.ElementDefinition[] {
   let elements: cytoscape.ElementDefinition[] = [];
 
   let aggregatedData: AggregatedData = {

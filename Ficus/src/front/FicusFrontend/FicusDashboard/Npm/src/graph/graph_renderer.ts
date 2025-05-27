@@ -3,7 +3,7 @@ import {darkTheme, graphColors} from "../colors";
 import dagre from 'cytoscape-dagre';
 import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
 import {createEdgeHtmlLabel} from "./labels/edge_html_label";
-import {createGraphElementForDagre} from "./other_layouts";
+import {createGraphElements} from "./graph_elements";
 import {createDagreLayout} from "./util";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
@@ -80,7 +80,7 @@ function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKi
 function createCytoscapeOptions(id: string, graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.CytoscapeOptions {
   return {
     container: document.getElementById(id),
-    elements: createGraphElementForDagre(graph, annotation, filter),
+    elements: createGraphElements(graph, annotation, filter),
     layout: createDagreLayout(),
     style: [
       createNodeStyle(),

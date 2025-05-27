@@ -1,6 +1,6 @@
 import {darkTheme, performanceColors} from "../colors";
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
-import {GraphEdge, GraphNode} from "./types";
+import {CountAndSum, GraphEdge, GraphNode, MergedSoftwareData} from "./types";
 import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
@@ -30,35 +30,6 @@ export function findAllRelatedTraceIds(node: GraphNode): Set<number> {
 
 export function getTraceId(additionalData: GrpcNodeAdditionalData): number {
   return additionalData.originalEventCoordinates.traceId;
-}
-
-export interface CountAndSum {
-  count: number,
-  sum: number
-}
-
-export interface MergedSoftwareData {
-  histogram: Map<string, number>,
-  timelineDiagramFragments: GrpcTimelineDiagramFragment[],
-  allocations: Map<string, number>,
-
-  inliningFailed: Map<string, number>,
-  inliningSucceeded: Map<string, number>,
-  inliningFailedReasons: Map<string, number>,
-
-  methodsLoads: Map<string, number>,
-  methodsUnloads: Map<string, number>,
-
-  bufferAllocatedBytes: CountAndSum,
-  bufferRentedBytes: CountAndSum,
-  bufferReturnedBytes: CountAndSum,
-  
-  exceptions: Map<string, number>,
-  
-  createdThreads: Set<number>,
-  terminatedThreads: Set<number>,
-
-  httpRequests: Map<string, number>
 }
 
 export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedSoftwareData {
@@ -187,7 +158,9 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
 
     for (let httpEvent of softwareData.httpEvents) {
       let requestUrl = httpEvent.scheme + "://" + httpEvent.host + ":" + httpEvent.port + httpEvent.pathAndQuery;
-      increment(mergedSoftwareData.httpRequests, requestUrl, 1);
+      if (matchesFilter(requestUrl)) {
+        increment(mergedSoftwareData.httpRequests, requestUrl, 1);
+      }
     }
   }
 
