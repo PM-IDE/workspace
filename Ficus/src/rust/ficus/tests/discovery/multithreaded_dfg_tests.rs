@@ -26,6 +26,40 @@ fn test_multithreaded_dfg_discovery() {
   );
 }
 
+#[test]
+fn test_multithreaded_dfg_discovery_2() {
+  execute_multithreaded_dfg_discovery_test(
+    vec![
+      vec![
+        vec!["E"],
+        vec!["A", "B", "C", "D"],
+        vec!["A", "B", "C", "D"],
+        vec!["A", "B", "C", "D"],
+        vec!["A", "B", "C", "D"],
+        vec!["A", "B", "C", "D"]
+      ]
+    ],
+    vec!["[A]--[B]", "[B]--[C]", "[C]--[D]", "[E]--[A]"]
+  );
+}
+
+#[test]
+fn test_multithreaded_dfg_discovery_3() {
+  execute_multithreaded_dfg_discovery_test(
+    vec![
+      vec![
+        vec!["A", "B", "C", "D"],
+        vec!["A", "B", "C", "D"],
+        vec!["A", "B", "C", "D"],
+        vec!["E"],
+        vec!["A", "B", "C", "D"],
+        vec!["A", "B", "C", "D"]
+      ]
+    ],
+    vec!["[A]--[B]", "[B]--[C]", "[C]--[D]", "[D]--[E]", "[E]--[A]"]
+  );
+}
+
 fn execute_multithreaded_dfg_discovery_test(raw_log: Vec<Vec<Vec<&str>>>, gold: Vec<&str>) {
   let log = create_multithreaded_event_log(raw_log);
   let graph = discover_multithreaded_dfg(&log, TEST_THREAD_ID_ATTRIBUTE, &MultithreadedTracePartsCreationStrategy::Default);
