@@ -209,14 +209,14 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
 
 fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<EventWithUniqueId<T>>>,
-  lcs: &Vec<EventWithUniqueId<T>>,
+  root_sequence: &Vec<EventWithUniqueId<T>>,
   root_sequence_node_ids: &Vec<u64>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
 ) -> Result<(), DiscoverRootSequenceGraphError> {
   let mut adjustments = HashMap::new();
   for trace in traces {
-    let trace_lcs = find_longest_common_subsequence(trace, &lcs, trace.len(), lcs.len());
+    let trace_lcs = find_longest_common_subsequence(trace, &root_sequence, trace.len(), root_sequence.len());
     let second_indices = trace_lcs.second_indices();
 
     let mut lcs_index = 0;

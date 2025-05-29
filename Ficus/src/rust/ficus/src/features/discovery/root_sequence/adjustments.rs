@@ -29,9 +29,9 @@ fn discover_sequences_to_merge(graph: &DefaultGraph) -> Vec<Vec<u64>> {
     Right,
   }
 
-  let iterate_nodes = |mut node_id: u64, left: EnumerationDirection, current_sequence: &mut Vec<u64>| {
+  let iterate_nodes = |mut node_id: u64, direction: EnumerationDirection, current_sequence: &mut Vec<u64>| {
     loop {
-      let next_node = match left {
+      let next_node = match direction {
         EnumerationDirection::Left => *graph.incoming_edges(&node_id).first().unwrap(),
         EnumerationDirection::Right => *graph.outgoing_nodes(&node_id).first().unwrap()
       };
