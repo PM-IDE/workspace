@@ -7,7 +7,7 @@ use crate::utils::distance::distance::DistanceWrapper;
 use crate::utils::silhouette::silhouette_score;
 use linfa::prelude::{Fit, Predict};
 use linfa_clustering::KMeans;
-use linfa_nn::distance::Distance;
+use log::warn;
 
 pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
@@ -30,7 +30,10 @@ pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
         calculate_distance(params.distance, dataset, first, second)
       }) {
         Ok(score) => score,
-        Err(err) => return Err(ClusteringError::RawError(err.to_string()))
+        Err(err) => {
+          warn!("Failed to calculate silhouette score, skipping those labels, reason: {}", err.to_string());
+          continue
+        }
       };
 
       if score > best_score {

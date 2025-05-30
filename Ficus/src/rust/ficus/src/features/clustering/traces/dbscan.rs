@@ -12,6 +12,7 @@ use crate::{
 };
 use linfa::traits::Transformer;
 use linfa_clustering::Dbscan;
+use log::warn;
 
 pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
@@ -57,7 +58,10 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
           calculate_distance(params.distance, dataset, first, second)
         }) {
           Ok(score) => score,
-          Err(err) => return Err(ClusteringError::RawError(err.to_string()))
+          Err(err) => {
+            warn!("Failed to calculate silhouette score, skipping those labels, reason: {}", err.to_string());
+            continue
+          }
         };
 
         if score > best_score {
