@@ -33,6 +33,7 @@ class TestDatasetPipelinePart(PipelinePartWithCallback):
     dataset = values[self.labeled_dataset_key].labeled_dataset
     df = from_grpc_labeled_dataset(dataset)
 
+    print(df[const_cluster_labels].to_numpy().tolist())
     assert df.columns.tolist() == self.expected_columns
     assert df.index.tolist() == self.expected_rows
     assert df.drop([const_cluster_labels], axis=1).values.tolist() == self.expected_dataset

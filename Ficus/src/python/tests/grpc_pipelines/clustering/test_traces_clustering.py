@@ -201,3 +201,118 @@ def test_traces_dataset_8():
     ],
     [0, 0, 1, 1]
   )
+
+
+def test_traces_dataset_10():
+  execute_test_with_traces_dataset(
+    [
+      ['A'],
+      ['B'],
+      ['C'],
+      ['D'],
+      ['E'],
+    ],
+    ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline(),
+                              min_events_count_in_cluster=2,
+                              distance=Distance.LCS,
+                              show_visualization=False),
+    ['Symbol_0', 'Symbol_1', 'cluster_labels'],
+    ['Trace_0', 'Trace_1', 'Trace_2', 'Trace_3', 'Trace_4'],
+    [
+      [1.0, 0.0],
+      [2.0, 0.0],
+      [3.0, 0.0],
+      [4.0, 0.0],
+      [5.0, 0.0]
+    ],
+    [0, 0, 0, 0, 0]
+  )
+
+
+def test_traces_dataset_11():
+  execute_test_with_traces_dataset(
+    [
+      ['A'],
+      ['B'],
+      ['C'],
+      ['D'],
+      ['E'],
+    ],
+    ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline(),
+                              min_events_count_in_cluster=2,
+                              distance=Distance.LCS,
+                              show_visualization=False,
+                              put_noise_events_in_one_cluster=False),
+    ['Symbol_0', 'Symbol_1', 'cluster_labels'],
+    ['Trace_0', 'Trace_1', 'Trace_2', 'Trace_3', 'Trace_4'],
+    [
+      [1.0, 0.0],
+      [2.0, 0.0],
+      [3.0, 0.0],
+      [4.0, 0.0],
+      [5.0, 0.0]
+    ],
+    [1, 2, 3, 4, 5]
+  )
+
+
+def test_traces_dataset_12():
+  execute_test_with_traces_dataset(
+    [
+      ['A', 'B', 'C', 'D', 'E'],
+      ['A', 'B', 'B', 'C', 'D', 'E'],
+      ['A', 'B', 'C', 'C', 'D', 'E'],
+
+      ['X', 'D', 'C', 'B', 'Y'],
+      ['X', 'D', 'D', 'C', 'B', 'Y'],
+      ['X', 'D', 'C', 'B', 'B', 'Y'],
+    ],
+    ClusterizeLogTracesDbscan(after_clusterization_pipeline=Pipeline(),
+                              min_events_count_in_cluster=2,
+                              tolerance=0.2,
+                              distance=Distance.LCS,
+                              show_visualization=False,
+                              put_noise_events_in_one_cluster=True),
+    ['Symbol_0', 'Symbol_1', 'Symbol_2', 'Symbol_3', 'Symbol_4', 'Symbol_5', 'Symbol_6', 'cluster_labels'],
+    ['Trace_0', 'Trace_1', 'Trace_2', 'Trace_3', 'Trace_4', 'Trace_5'],
+    [
+      [1.0, 2.0, 3.0, 4.0, 5.0, 0.0, 0.0],
+      [1.0, 2.0, 2.0, 3.0, 4.0, 5.0, 0.0],
+      [1.0, 2.0, 3.0, 3.0, 4.0, 5.0, 0.0],
+      [6.0, 4.0, 3.0, 2.0, 7.0, 0.0, 0.0],
+      [6.0, 4.0, 4.0, 3.0, 2.0, 7.0, 0.0],
+      [6.0, 4.0, 3.0, 2.0, 2.0, 7.0, 0.0]
+    ],
+    [0, 0, 0, 1, 1, 1]
+  )
+
+
+def test_traces_dataset_13():
+  execute_test_with_traces_dataset(
+    [
+      ['A', 'B', 'C', 'D', 'E'],
+      ['A', 'B', 'B', 'C', 'D', 'E'],
+      ['A', 'B', 'C', 'C', 'D', 'E'],
+
+      ['X', 'D', 'C', 'B', 'Y'],
+      ['X', 'D', 'D', 'C', 'B', 'Y'],
+      ['X', 'D', 'C', 'B', 'B', 'Y'],
+    ],
+    ClusterizeLogTracesDbscanGridSearch(after_clusterization_pipeline=Pipeline(),
+                                        tolerances=[0.1, 0.2, 0.3, 0.4, 0.5],
+                                        min_points_in_cluster_vec=[2, 3, 4, 5],
+                                        distance=Distance.LCS,
+                                        show_visualization=False,
+                                        put_noise_events_in_one_cluster=True),
+    ['Symbol_0', 'Symbol_1', 'Symbol_2', 'Symbol_3', 'Symbol_4', 'Symbol_5', 'Symbol_6', 'cluster_labels'],
+    ['Trace_0', 'Trace_1', 'Trace_2', 'Trace_3', 'Trace_4', 'Trace_5'],
+    [
+      [1.0, 2.0, 3.0, 4.0, 5.0, 0.0, 0.0],
+      [1.0, 2.0, 2.0, 3.0, 4.0, 5.0, 0.0],
+      [1.0, 2.0, 3.0, 3.0, 4.0, 5.0, 0.0],
+      [6.0, 4.0, 3.0, 2.0, 7.0, 0.0, 0.0],
+      [6.0, 4.0, 4.0, 3.0, 2.0, 7.0, 0.0],
+      [6.0, 4.0, 3.0, 2.0, 2.0, 7.0, 0.0]
+    ],
+    [0, 0, 0, 1, 1, 1]
+  )
