@@ -1,5 +1,4 @@
-import {AggregatedData, GraphEdge, SoftwareEnhancementKind} from "../types";
-import {MergedSoftwareData} from "../util";
+import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createArrayPoolEnhancement,
   createEnhancementContainer,

@@ -1,13 +1,12 @@
 import {
   belongsToRootSequence,
   findAllRelatedTraceIds,
-  getPerformanceAnnotationColor,
-  MergedSoftwareData
+  getPerformanceAnnotationColor
 } from "../util";
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
 import {getOrCreateColor} from "../../utils";
-import {AggregatedData, GraphNode, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
   createArrayPoolEnhancement,
