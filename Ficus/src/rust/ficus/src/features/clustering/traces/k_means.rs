@@ -15,8 +15,8 @@ pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
   tolerance: f64,
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   do_clusterize_log_by_traces(params, |params, _, dataset| {
-    let mut best_score = -1.;
-    let mut best_labels = None;
+    let mut best_score = f64::MIN;
+    let mut best_labels = Some((0..dataset.targets().len()).into_iter().collect());
 
     for clusters_count in 2..dataset.targets().len() - 1 {
       let model = KMeans::params_with(clusters_count, rand::thread_rng(), DistanceWrapper::new(params.distance))

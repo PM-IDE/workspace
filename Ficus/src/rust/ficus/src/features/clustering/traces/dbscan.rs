@@ -39,8 +39,8 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
   put_noise_events_in_one_cluster: bool
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   do_clusterize_log_by_traces(params, |params, nn_algo, dataset| {
-    let mut best_score = -1.;
-    let mut best_labels = None;
+    let mut best_score = f64::MIN;
+    let mut best_labels = Some((0..dataset.targets().len()).into_iter().collect());
 
     for min_points in min_points_vec {
       for tolerance in tolerances {
