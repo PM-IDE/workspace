@@ -16,6 +16,9 @@ use ndarray::{Array1, Array2};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
+use getset::Getters;
+use log::warn;
+use crate::utils::silhouette::silhouette_score;
 
 pub fn do_clusterize_log_by_traces<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
@@ -280,4 +283,40 @@ pub fn calculate_distance(distance: FicusDistance, dataset: &MyDataset, first: u
 
   let distance_wrapper = DistanceWrapper::new(distance);
   distance_wrapper.distance(first_record, second_record)
+}
+
+#[derive(Getters)]
+pub(crate) struct BestSilhouetteLabels {
+  #[getset(get = "pub")] labels: Option<Vec<usize>>,
+  #[getset(get = "pub")] score: f64
+}
+
+impl BestSilhouetteLabels {
+  pub fn new() -> Self {
+    Self {
+      labels: None,
+      score: f64::MIN
+    }
+  }
+
+  pub fn process(&mut self, labels: Vec<usize>, distance_func: &dyn Fn(usize, usize) -> f64) {
+    let score = match silhouette_score(&labels, |first, second| {
+      distance_func(first, second)
+    }) {
+      Ok(score) => score,
+      Err(err) => {
+        warn!("Failed to calculate silhouette score, skipping those labels, reason: {}", err.to_string());
+        if self.labels.is_none() {
+          self.labels = Some(labels);
+        }
+
+        return
+      }
+    };
+
+    if score > self.score {
+      self.labels = Some(labels);
+      self.score = score;
+    }
+  }
 }

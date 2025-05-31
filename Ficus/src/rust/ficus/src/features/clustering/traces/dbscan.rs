@@ -1,6 +1,6 @@
 use super::traces_params::TracesClusteringParams;
 use crate::features::clustering::common::adjust_dbscan_labels;
-use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces};
+use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels};
 use crate::utils::silhouette::silhouette_score;
 use crate::{
   event_log::core::event_log::EventLog,
@@ -39,8 +39,7 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
   put_noise_events_in_one_cluster: bool
 ) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
   do_clusterize_log_by_traces(params, |params, nn_algo, dataset| {
-    let mut best_score = f64::MIN;
-    let mut best_labels = Some((0..dataset.targets().len()).into_iter().collect());
+    let mut best_labels = BestSilhouetteLabels::new();
 
     for min_points in min_points_vec {
       for tolerance in tolerances {
@@ -54,23 +53,13 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
         };
 
         let labels = adjust_dbscan_labels(clusters.clone(), put_noise_events_in_one_cluster);
-        let score = match silhouette_score(&labels, |first, second| {
-          calculate_distance(params.distance, dataset, first, second)
-        }) {
-          Ok(score) => score,
-          Err(err) => {
-            warn!("Failed to calculate silhouette score, skipping those labels, reason: {}", err.to_string());
-            continue
-          }
-        };
-
-        if score > best_score {
-          best_labels = Some(labels.clone());
-          best_score = score;
-        }
+        best_labels.process(labels, &|first, second| calculate_distance(params.distance, dataset, first, second));
       }
     }
 
-    Ok(best_labels.unwrap())
+    match best_labels.labels() {
+      None => Err(ClusteringError::RawError("Best labels were None".to_string())),
+      Some(labels) => Ok(labels.clone())
+    }
   })
 }
