@@ -6,7 +6,7 @@ use ficus::event_log::core::trace::trace::Trace;
 use ficus::event_log::xes::xes_event::XesEventImpl;
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus::event_log::xes::xes_trace::XesTraceImpl;
-use ficus::features::discovery::multithreading_dfg::dfg::{discover_multithreaded_dfg, MultithreadedTracePartsCreationStrategy};
+use ficus::features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, MultithreadedTracePartsCreationStrategy};
 
 const TEST_THREAD_ID_ATTRIBUTE: &'static str = "TestThreadId";
 

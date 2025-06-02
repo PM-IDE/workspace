@@ -44,7 +44,8 @@ pub fn discover_multithreaded_dfg(log: &XesEventLogImpl, thread_attribute: &str,
     let first_node_id = add_node(first, &mut graph, &mut added_nodes);
     let second_node_id = add_node(second, &mut graph, &mut added_nodes);
 
-    graph.connect_nodes(&first_node_id, &second_node_id, NodesConnectionData::new(None, count as f64, None));
+    let data = Some(HeapedOrOwned::Owned(count.to_string()));
+    graph.connect_nodes(&first_node_id, &second_node_id, NodesConnectionData::new(data, count as f64, None));
   }
 
   graph

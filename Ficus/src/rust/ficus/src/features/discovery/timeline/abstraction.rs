@@ -34,8 +34,7 @@ use crate::utils::user_data::user_data::UserDataOwner;
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
-use ndarray::AssignElem;
-use crate::features::discovery::multithreading_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
+use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,

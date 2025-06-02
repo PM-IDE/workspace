@@ -24,7 +24,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
 use serde::__private::ser::constrain;
-use crate::features::discovery::multithreading_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy};
+use crate::features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy};
 use crate::utils::graph::graphs_merging::merge_graphs;
 
 #[derive(Copy, Clone)]

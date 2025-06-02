@@ -100,7 +100,7 @@ impl DfgDataStructureBase {
     };
 
     debug!(
-            "Creating offline multithreading_dfg info from relations: {:?}, event classes count: {:?}",
+            "Creating offline multithreaded_dfg info from relations: {:?}, event classes count: {:?}",
             &relations, &event_classes_count
         );
 
