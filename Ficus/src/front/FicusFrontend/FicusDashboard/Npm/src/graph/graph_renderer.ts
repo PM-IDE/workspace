@@ -23,22 +23,23 @@ function setDrawGraph() {
 }
 
 function drawGraph(
-  id: string, 
-  graph: GrpcGraph, 
-  annotation: GrpcAnnotation, 
+  id: string,
+  graph: GrpcGraph,
+  annotation: GrpcAnnotation,
   enhancements: (keyof typeof SoftwareEnhancementKind)[],
-  filter: string | null
+  filter: string | null,
+  spacingFactor: number
 ) {
   let regex = filter == null ? null : new RegExp(filter);
-  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex));
+  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor));
   setNodeRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
 
-  cy.ready(() => setTimeout(() => updateNodesDimensions(cy), 0));
+  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, spacingFactor), 0));
 
   return cy;
 }
 
-function updateNodesDimensions(cy: cytoscape.Core) {
+function updateNodesDimensions(cy: cytoscape.Core, spacingFactor: number) {
   cy.nodes().forEach(node => {
     let element = document.getElementById(createNodeHtmlLabelId(node.data().frontendId));
     if (element != null) {
@@ -48,7 +49,7 @@ function updateNodesDimensions(cy: cytoscape.Core) {
     }
   });
 
-  cy.layout(createDagreLayout()).run();
+  cy.layout(createDagreLayout(spacingFactor)).run();
 }
 
 function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
@@ -77,11 +78,17 @@ function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKi
   );
 }
 
-function createCytoscapeOptions(id: string, graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.CytoscapeOptions {
+function createCytoscapeOptions(
+  id: string,
+  graph: GrpcGraph,
+  annotation: GrpcAnnotation,
+  filter: RegExp | null,
+  spacingFactor: number
+): cytoscape.CytoscapeOptions {
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph, annotation, filter),
-    layout: createDagreLayout(),
+    layout: createDagreLayout(spacingFactor),
     style: [
       createNodeStyle(),
       createEdgeStyle(),

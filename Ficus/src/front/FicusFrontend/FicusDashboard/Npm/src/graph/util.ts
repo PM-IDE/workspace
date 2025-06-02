@@ -9,13 +9,13 @@ import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAddition
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import {GrpcMethodNameParts} from "../protos/ficus/GrpcMethodNameParts";
 
-export function createDagreLayout() {
+export function createDagreLayout(spacingFactor: number = 1) {
   return {
     name: 'dagre',
     rankDir: 'LR',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
-    spacingFactor: 3
+    spacingFactor: spacingFactor
   }
 }
 

@@ -1,3 +1,4 @@
+@using System.Globalization
 @using Ficus
 @using FicusDashboard.Layout.Models
 @using Radzen.Blazor
@@ -10,15 +11,18 @@
     {
       <div style="display: flex; flex-direction: row; align-items: center;">
         <RadzenCheckBox @ref="@myCheckBoxes[index]"
-                        TValue="bool" 
-                        ValueChanged="@(v => HandleSelectionChange(index, v, kind))" />
+                        TValue="bool"
+                        ValueChanged="@(v => HandleSelectionChange(index, v, kind))"/>
 
         <div style="margin-left: 5px;">@kind.ToString()</div>
       </div>
     }
 
     <div style="margin-top: 5px;">Filter:</div>
-    <input type="text" @bind="myFilterValue" style="width: 120px;" />
+    <input type="text" @bind="myFilterValue" style="width: 120px;"/>
+
+    <div style="margin-top: 5px;">Spacing factor:</div>
+    <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
 
     <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
   </div>
@@ -48,9 +52,10 @@
 
 
   private string? myFilterValue;
+  private string? mySpacingFactor = "1";
   private CanvasComponent? myCanvasComponent;
-  private RadzenCheckBox<bool>[] myCheckBoxes = new RadzenCheckBox<bool>[Enum.GetValues<SoftwareGraphEnhancementKind>().Length];
-  private HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = Enum.GetValues<SoftwareGraphEnhancementKind>().ToHashSet();
+  private readonly RadzenCheckBox<bool>[] myCheckBoxes = new RadzenCheckBox<bool>[Enum.GetValues<SoftwareGraphEnhancementKind>().Length];
+  private readonly HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = Enum.GetValues<SoftwareGraphEnhancementKind>().ToHashSet();
 
 
   protected override void OnAfterRender(bool firstRender)
@@ -68,7 +73,14 @@
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
     var enhancements = mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
-    return await Js.InvokeAsync<IJSObjectReference>("drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue);
+    var spacingFactor = double.TryParse(mySpacingFactor, CultureInfo.InvariantCulture, out var factor) switch
+    {
+      true => factor,
+      false => 1
+    };
+
+    return await Js.InvokeAsync<IJSObjectReference>(
+      "drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue, spacingFactor);
   }
 
   private string CreateExportFileName()
