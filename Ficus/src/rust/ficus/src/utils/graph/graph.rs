@@ -4,6 +4,7 @@ use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 use std::fmt::Display;
 use std::{collections::HashMap, sync::atomic::AtomicU64};
+use getset::{Getters, Setters};
 
 pub(crate) static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 pub type DefaultGraph = Graph<HeapedOrOwned<String>, HeapedOrOwned<String>>;
@@ -36,7 +37,12 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub enum GraphKind {
+  Dag
+}
+
+#[derive(Debug, Getters, Setters)]
 pub struct Graph<TNodeData, TEdgeData>
 where
   TNodeData: ToString,
@@ -44,7 +50,8 @@ where
 {
   pub(crate) nodes: HashMap<u64, GraphNode<TNodeData>>,
   pub(crate) connections: HashMap<u64, HashMap<u64, GraphEdge<TEdgeData>>>,
-  pub(crate) user_data: UserDataImpl
+  pub(crate) user_data: UserDataImpl,
+  #[getset(get="pub", set="pub")] pub(crate) kind: Option<GraphKind>
 }
 
 impl<TNodeData: Clone + ToString, TEdgeData: Clone + ToString> Clone for Graph<TNodeData, TEdgeData> {
@@ -52,7 +59,8 @@ impl<TNodeData: Clone + ToString, TEdgeData: Clone + ToString> Clone for Graph<T
     Self {
       nodes: self.nodes.clone(),
       connections: self.connections.clone(),
-      user_data: self.user_data.clone()
+      user_data: self.user_data.clone(),
+      kind: self.kind.clone()
     }
   }
 }
@@ -66,7 +74,8 @@ where
     Self {
       connections: HashMap::new(),
       nodes: HashMap::new(),
-      user_data: UserDataImpl::new()
+      user_data: UserDataImpl::new(),
+      kind: None
     }
   }
 
