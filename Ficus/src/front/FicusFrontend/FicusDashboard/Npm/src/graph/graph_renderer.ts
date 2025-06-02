@@ -1,23 +1,21 @@
 import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
-import dagre from 'cytoscape-dagre';
 import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
 import {createEdgeHtmlLabel} from "./labels/edge_html_label";
 import {createGraphElements} from "./graph_elements";
-import {createDagreLayout} from "./util";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
-
-export default setDrawGraph;
-cytoscape.use(dagre);
+import {createLayout} from "./util";
+import {GrpcGraphKind} from "../protos/ficus/GrpcGraphKind";
 
 let htmlLabel = require('../html-label/html_label');
 htmlLabel(cytoscape);
 
 const graphColor = graphColors(darkTheme);
 
+export default setDrawGraph;
 function setDrawGraph() {
   (<any>window).drawGraph = drawGraph;
 }
@@ -34,12 +32,12 @@ function drawGraph(
   let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor));
   setNodeRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
 
-  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, spacingFactor), 0));
+  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor), 0));
 
   return cy;
 }
 
-function updateNodesDimensions(cy: cytoscape.Core, spacingFactor: number) {
+function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number) {
   cy.nodes().forEach(node => {
     let element = document.getElementById(createNodeHtmlLabelId(node.data().frontendId));
     if (element != null) {
@@ -49,7 +47,7 @@ function updateNodesDimensions(cy: cytoscape.Core, spacingFactor: number) {
     }
   });
 
-  cy.layout(createDagreLayout(spacingFactor)).run();
+  cy.layout(createLayout(kind, spacingFactor)).run();
 }
 
 function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
@@ -88,7 +86,7 @@ function createCytoscapeOptions(
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph, annotation, filter),
-    layout: createDagreLayout(spacingFactor),
+    layout: createLayout(graph.kind, spacingFactor),
     style: [
       createNodeStyle(),
       createEdgeStyle(),

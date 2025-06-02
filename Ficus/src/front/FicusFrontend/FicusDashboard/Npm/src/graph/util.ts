@@ -1,21 +1,45 @@
 import {darkTheme, performanceColors} from "../colors";
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
 import {CountAndSum, GraphEdge, GraphNode, MergedSoftwareData} from "./types";
-import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
 import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import {GrpcMethodNameParts} from "../protos/ficus/GrpcMethodNameParts";
+import {GrpcGraphKind} from "../protos/ficus/GrpcGraphKind";
+import cytoscape from "cytoscape";
+import dagre from 'cytoscape-dagre';
 
-export function createDagreLayout(spacingFactor: number = 1) {
+let elk = require('cytoscape-elk');
+cytoscape.use(elk);
+
+cytoscape.use(dagre);
+
+export function createLayout(kind: GrpcGraphKind, spacingFactor: number = 1) {
+  switch (kind) {
+    case GrpcGraphKind.None:
+      return createGridLayout(spacingFactor);
+    case GrpcGraphKind.DAG:
+      return createDagreLayout(spacingFactor);
+  }
+}
+
+function createDagreLayout(spacingFactor: number = 1) {
   return {
     name: 'dagre',
     rankDir: 'LR',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
     spacingFactor: spacingFactor
+  }
+}
+
+function createGridLayout(spacingFactor: number = 1) {
+  return {
+    name: 'elk',
+    spacingFactor: spacingFactor,
+    nodeDimensionsIncludeLabels: true
   }
 }
 
