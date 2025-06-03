@@ -7,19 +7,22 @@
 
 <div style="display: flex; flex-direction: row; width: 100%; height: 100%;">
   <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
-    @foreach (var (index, kind) in Enum.GetValues<SoftwareGraphEnhancementKind>().Index())
+    @if (IsRichUiGraph())
     {
-      <div style="display: flex; flex-direction: row; align-items: center;">
-        <RadzenCheckBox @ref="@myCheckBoxes[index]"
-                        TValue="bool"
-                        ValueChanged="@(v => HandleSelectionChange(index, v, kind))"/>
+      @foreach (var (index, kind) in Enum.GetValues<SoftwareGraphEnhancementKind>().Index())
+      {
+        <div style="display: flex; flex-direction: row; align-items: center;">
+          <RadzenCheckBox @ref="@myCheckBoxes[index]"
+                          TValue="bool"
+                          ValueChanged="@(v => HandleSelectionChange(index, v, kind))"/>
 
-        <div style="margin-left: 5px;">@kind.ToString()</div>
-      </div>
+          <div style="margin-left: 5px;">@kind.ToString()</div>
+        </div>
+      }
+
+      <div style="margin-top: 5px;">Filter:</div>
+      <input type="text" @bind="myFilterValue" style="width: 120px;"/> 
     }
-
-    <div style="margin-top: 5px;">Filter:</div>
-    <input type="text" @bind="myFilterValue" style="width: 120px;"/>
 
     <div style="margin-top: 5px;">Spacing factor:</div>
     <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
@@ -62,13 +65,23 @@
   {
     if (!firstRender) return;
 
+    SetInitialCheckBoxesValues();
+    StateHasChanged();
+  }
+
+  private void SetInitialCheckBoxesValues()
+  {
+    if (!IsRichUiGraph()) return;
+
     foreach (var checkBox in myCheckBoxes)
     {
       checkBox.Value = true;
     }
-
-    StateHasChanged();
   }
+
+  private bool IsRichUiGraph() =>
+    Graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
+    Graph.Nodes.Any(n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()));
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
@@ -80,7 +93,7 @@
     };
 
     return await Js.InvokeAsync<IJSObjectReference>(
-      "drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue, spacingFactor);
+      "drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue, spacingFactor, IsRichUiGraph());
   }
 
   private string CreateExportFileName()
