@@ -212,7 +212,7 @@ where
     result
   }
 
-  pub fn serialize_edges_deterministic(&self) -> String {
+  pub fn serialize_edges_deterministic(&self, add_weight: bool) -> String {
     let get_node_repr = |id| {
       match self.node(id).as_ref().unwrap().data.as_ref() {
         None => "None".to_string(),
@@ -222,8 +222,13 @@ where
 
     let mut serialized_connection = vec![];
     for (from_node, to_nodes) in &self.connections {
-      for (to_node, _) in to_nodes {
-        serialized_connection.push(format!("[{}]--[{}]", get_node_repr(from_node), get_node_repr(to_node)));
+      for (to_node, data) in to_nodes {
+        let mut edge = format!("[{}]--[{}]", get_node_repr(from_node), get_node_repr(to_node));
+        if add_weight {
+          edge += format!("({})", data.weight).as_str();
+        }
+
+        serialized_connection.push(edge);
       }
     }
 

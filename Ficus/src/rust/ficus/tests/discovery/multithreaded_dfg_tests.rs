@@ -22,7 +22,7 @@ fn test_multithreaded_dfg_discovery() {
         vec!["A", "B", "C", "D"]
       ]
     ],
-    vec!["[A]--[B]", "[B]--[C]", "[C]--[D]"]
+    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)"]
   );
 }
 
@@ -39,7 +39,7 @@ fn test_multithreaded_dfg_discovery_2() {
         vec!["A", "B", "C", "D"]
       ]
     ],
-    vec!["[A]--[B]", "[B]--[C]", "[C]--[D]", "[E]--[A]"]
+    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[E]--[A](5)"]
   );
 }
 
@@ -56,7 +56,7 @@ fn test_multithreaded_dfg_discovery_3() {
         vec!["A", "B", "C", "D"]
       ]
     ],
-    vec!["[A]--[B]", "[B]--[C]", "[C]--[D]", "[D]--[E]", "[E]--[A]"]
+    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[D]--[E](3)", "[E]--[A](2)"]
   );
 }
 
@@ -64,7 +64,7 @@ fn execute_multithreaded_dfg_discovery_test(raw_log: Vec<Vec<Vec<&str>>>, gold: 
   let log = create_multithreaded_event_log(raw_log);
   let graph = discover_multithreaded_dfg(&log, TEST_THREAD_ID_ATTRIBUTE, &MultithreadedTracePartsCreationStrategy::Default);
 
-  assert_eq!(gold.join("\n"), graph.serialize_edges_deterministic());
+  assert_eq!(gold.join("\n"), graph.serialize_edges_deterministic(true));
 }
 
 fn create_multithreaded_event_log(raw_traces: Vec<Vec<Vec<&str>>>) -> XesEventLogImpl {
