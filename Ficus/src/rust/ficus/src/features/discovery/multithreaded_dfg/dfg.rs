@@ -157,7 +157,7 @@ impl TracePart {
     &self,
     trace: &XesTraceImpl,
     thread_attribute: &str,
-    last_event_classes: &mut HashSet<String>,
+    last_event_classes: &mut Vec<String>,
     dfg: &mut HashMap<(String, String), usize>,
     index: usize,
   ) {
@@ -171,7 +171,7 @@ impl TracePart {
     &self,
     trace: &XesTraceImpl,
     thread_attribute: &str,
-    last_event_classes: &mut HashSet<String>,
+    last_event_classes: &mut Vec<String>,
     dfg: &mut HashMap<(String, String), usize>,
     index: usize,
   ) {
@@ -191,7 +191,7 @@ impl TracePart {
 
     last_event_classes.clear();
     for last_event in events_by_threads.values().map(|es| es.last().unwrap()) {
-      last_event_classes.insert(last_event.borrow().name().to_string());
+      last_event_classes.push(last_event.borrow().name().to_string());
     }
 
     for events in events_by_threads.values() {
@@ -202,7 +202,7 @@ impl TracePart {
   fn process_sequential_part(
     &self,
     trace: &XesTraceImpl,
-    last_event_classes: &mut HashSet<String>,
+    last_event_classes: &mut Vec<String>,
     dfg: &mut HashMap<(String, String), usize>,
     index: usize,
   ) {
@@ -212,7 +212,7 @@ impl TracePart {
     }
 
     last_event_classes.clear();
-    last_event_classes.insert(events.last().unwrap().borrow().name().to_string());
+    last_event_classes.push(events.last().unwrap().borrow().name().to_string());
 
     Self::add_dfg_relations_from_trace(events, dfg);
   }
@@ -232,7 +232,7 @@ fn discover_multithreading_dfg_for_trace(
   let trace_parts = enumerate_trace_parts(trace, thread_attribute, strategy);
 
   let mut index = 0;
-  let mut last_event_classes = HashSet::new();
+  let mut last_event_classes = Vec::new();
   let mut dfg = HashMap::new();
 
   for part in trace_parts {
