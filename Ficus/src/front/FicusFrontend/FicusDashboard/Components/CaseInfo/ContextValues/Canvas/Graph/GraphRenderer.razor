@@ -55,7 +55,7 @@
 
 
   private string? myFilterValue;
-  private string? mySpacingFactor = "1";
+  private string mySpacingFactor = "1.4";
   private CanvasComponent? myCanvasComponent;
   private readonly RadzenCheckBox<bool>[] myCheckBoxes = new RadzenCheckBox<bool>[Enum.GetValues<SoftwareGraphEnhancementKind>().Length];
   private readonly HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = Enum.GetValues<SoftwareGraphEnhancementKind>().ToHashSet();

@@ -198,7 +198,7 @@ function createSoftwareEnhancementHistogram(title: string, data: Map<string, num
 
 function createNodeDisplayName(node: GraphNode, name: string): string {
   return `
-      <div style="max-width: 200px; font-size: 60px; font-weight: 900; 
+      <div style="font-size: 60px; font-weight: 900; 
                   background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
           ${name}
       </div>
@@ -229,7 +229,7 @@ function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [s
   let nodeNameParts: string[] = [];
   for (let i = 0; i < Math.min(3, sortedHistogramEntries.length); ++i) {
     nodeNameParts.push(`
-      <div style="max-width: ${nodeWidthPx}px; text-overflow: ellipsis;">
+      <div style="width: fit-content; text-overflow: ellipsis;">
         ${sortedHistogramEntries[i][0]}
       </div>
     `);

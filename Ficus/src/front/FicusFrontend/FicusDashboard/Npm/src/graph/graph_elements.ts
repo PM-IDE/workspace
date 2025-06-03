@@ -33,7 +33,7 @@ export function createGraphElements(graph: GrpcGraph, annotation: GrpcAnnotation
   processNodesAggregatedData(graph.nodes, aggregatedData, filter);
   processEdgesAggregatedData(graph.edges, aggregatedData, performanceEdgesMap, filter);
 
-  elements.push(...createGraphNodesElements(graph.nodes, aggregatedData, filter));
+  elements.push(...createGraphNodesElements(graph.nodes, filter));
   elements.push(...createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter));
 
   for (let element of elements) {
@@ -80,7 +80,7 @@ function buildEdgesTimeAnnotationMap(annotation: GrpcAnnotation): Record<number,
   return idsToTime;
 }
 
-function createGraphNodesElements(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null): cytoscape.ElementDefinition[] {
+function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null): cytoscape.ElementDefinition[] {
   let elements = [];
 
   for (let node of nodes) {
