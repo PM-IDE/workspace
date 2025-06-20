@@ -63,7 +63,7 @@
 
     if (ReferenceEquals(ProcessCaseData, myProcessCaseData))
     {
-      Logger.LogInformation("Cached process data equals a new one, will not do anything");
+      Logger.LogDebug("Cached process data equals a new one, will not do anything");
       return;
     }
 
@@ -71,12 +71,12 @@
     myProcessCaseData = ProcessCaseData;
     myCurrentLifetime = myLifetimes.Next();
 
-    Logger.LogInformation("New process data differs from the cached one, reseted the state");
+    Logger.LogDebug("New process data differs from the cached one, reseted the state");
 
     var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].PipelineExecutionResults;
     values.Results.FlowIntoWithCallback(myCurrentLifetime, myPipelinePartsExecutionResults, () =>
     {
-      Logger.LogInformation("The results of the case {CaseName} have changed", myProcessCaseData.Case.FullName);
+      Logger.LogDebug("The results of the case {CaseName} have changed", myProcessCaseData.Case.FullName);
       StateHasChanged();
     });
   }

@@ -36,12 +36,12 @@ public class SubscriptionsService(
         {
           if (token.IsCancellationRequested)
           {
-            logger.LogInformation("The cancellation is requested, exiting updates processing routine");
+            logger.LogDebug("The cancellation is requested, exiting updates processing routine");
             return;
           }
 
           var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
-          logger.LogInformation("Started an updates stream");
+          logger.LogDebug("Started an updates stream");
 
           while (await reader.MoveNext(token))
           {
@@ -68,7 +68,7 @@ public class SubscriptionsService(
 
   private void ProcessInitialState(GrpcCurrentCasesResponse initialCases)
   {
-    logger.LogInformation("Started processing of the initial state");
+    logger.LogDebug("Started processing of the initial state");
 
     foreach (var @case in initialCases.Cases)
     {
@@ -109,7 +109,7 @@ public class SubscriptionsService(
       };
 
       var caseName = caseModel.FullName;
-      logger.LogInformation("Updating case {CaseName} with initial state", caseName);
+      logger.LogDebug("Updating case {CaseName} with initial state", caseName);
       processData.ProcessCases[caseName] = caseModel;
     }
   }
@@ -122,7 +122,7 @@ public class SubscriptionsService(
     var processName = metadata.ProcessName;
     if (pipeline.Processes.TryGetValue(processName, out var processData))
     {
-      logger.LogInformation("Process data for process {ProcessName} already exists", processName);
+      logger.LogDebug("Process data for process {ProcessName} already exists", processName);
       return processData;
     }
 
@@ -134,7 +134,7 @@ public class SubscriptionsService(
     };
 
     pipeline.Processes[processName] = processData;
-    logger.LogInformation("Added new process data for process {ProcessName}", processName);
+    logger.LogDebug("Added new process data for process {ProcessName}", processName);
 
     FirePipelineSubEntityUpdatedEvent(pipeline);
 
@@ -148,7 +148,7 @@ public class SubscriptionsService(
     var subscriptionId = metadata.SubscriptionId.ToGuid();
     if (mySubscriptions.TryGetValue(subscriptionId, out var subscription))
     {
-      logger.LogInformation("Subscription {SubscriptionId} already exists", subscriptionId);
+      logger.LogDebug("Subscription {SubscriptionId} already exists", subscriptionId);
       return subscription;
     }
 
@@ -160,7 +160,7 @@ public class SubscriptionsService(
     };
 
     mySubscriptions[subscriptionId] = subscription;
-    logger.LogInformation("Added new subscription {SubscriptionId}", subscriptionId);
+    logger.LogDebug("Added new subscription {SubscriptionId}", subscriptionId);
 
     return subscription;
   }
@@ -170,7 +170,7 @@ public class SubscriptionsService(
     var pipelineId = metadata.PipelineId.ToGuid();
     if (subscription.Pipelines.TryGetValue(pipelineId, out var pipeline))
     {
-      logger.LogInformation("Pipeline {PipelineId} already exists", pipelineId);
+      logger.LogDebug("Pipeline {PipelineId} already exists", pipelineId);
       return pipeline;
     }
 
@@ -183,7 +183,7 @@ public class SubscriptionsService(
     };
 
     subscription.Pipelines[pipelineId] = pipeline;
-    logger.LogInformation("Added new pipeline {PipelineId}", pipelineId);
+    logger.LogDebug("Added new pipeline {PipelineId}", pipelineId);
 
     return pipeline;
   }
@@ -193,7 +193,7 @@ public class SubscriptionsService(
     var fullCaseName = CreateFullCaseName(caseName);
     if (processData.ProcessCases.TryGetValue(fullCaseName, out var @case))
     {
-      logger.LogInformation("Case {CaseName} already exists", caseName);
+      logger.LogDebug("Case {CaseName} already exists", caseName);
       return @case;
     }
 
@@ -212,7 +212,7 @@ public class SubscriptionsService(
     };
 
     processData.ProcessCases[fullCaseName] = @case;
-    logger.LogInformation("Added case {CaseName}", caseName);
+    logger.LogDebug("Added case {CaseName}", caseName);
 
     FirePipelineSubEntityUpdatedEvent(@case.ParentProcess.ParentPipeline);
 
@@ -237,7 +237,7 @@ public class SubscriptionsService(
     {
       caseData.PipelineExecutionResults.ExecutionId = executionId;
       caseData.PipelineExecutionResults.Results.Clear();
-      logger.LogInformation("Execution ids are not equal, cleared all results");
+      logger.LogDebug("Execution ids are not equal, cleared all results");
     }
 
     var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
@@ -255,12 +255,12 @@ public class SubscriptionsService(
         Results = new ViewableList<PipelinePartExecutionResult> { result }
       };
 
-      logger.LogInformation("Added new pipeline part exec. results with id {PartId}", partId);
+      logger.LogDebug("Added new pipeline part exec. results with id {PartId}", partId);
     }
     else
     {
       caseData.PipelineExecutionResults.Results[partId].Results.Add(result);
-      logger.LogInformation("Added results to existing pipeline part exec. result with id {PartId}", partId);
+      logger.LogDebug("Added results to existing pipeline part exec. result with id {PartId}", partId);
     }
   }
 }

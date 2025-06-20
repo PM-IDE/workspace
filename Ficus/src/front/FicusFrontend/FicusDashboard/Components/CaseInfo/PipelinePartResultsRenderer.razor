@@ -114,7 +114,7 @@
 
     Results.Results.Change.Advise(Lifetime, _ =>
     {
-      Logger.LogInformation(
+      Logger.LogDebug(
         "Results have changed for process {ProcessName} case {CaseName}",
         ProcessCaseData.Case.FullName,
         ProcessCaseData.ProcessData.ProcessName
@@ -124,7 +124,7 @@
       StateHasChanged();
     });
 
-    Logger.LogInformation("Parameters have changed, advised to the results");
+    Logger.LogDebug("Parameters have changed, advised to the results");
   }
 
   private void ResetSelectedIndex()
