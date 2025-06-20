@@ -5,7 +5,7 @@
 
 @inherits ComponentBase
 
-@inject ISubscriptionsService SubscriptionService
+@inject ILogger<CaseInfo> Logger;
 
 @{
   var title = myProcessCaseData switch
@@ -42,8 +42,8 @@
   {
     <PipelinePartResultsRenderer Results="results"
                                  Lifetime="myCurrentLifetime"
-                                 Index="index" 
-                                 ProcessCaseData="myProcessCaseData" />
+                                 Index="index"
+                                 ProcessCaseData="myProcessCaseData"/>
   }
 </div>
 
@@ -61,13 +61,23 @@
   {
     base.OnParametersSet();
 
-    if (ReferenceEquals(ProcessCaseData, myProcessCaseData)) return;
+    if (ReferenceEquals(ProcessCaseData, myProcessCaseData))
+    {
+      Logger.LogInformation("Cached process data equals a new one, will not do anything");
+      return;
+    }
 
     myPipelinePartsExecutionResults.Clear();
     myProcessCaseData = ProcessCaseData;
     myCurrentLifetime = myLifetimes.Next();
 
+    Logger.LogInformation("New process data differs from the cached one, reseted the state");
+
     var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].PipelineExecutionResults;
-    values.Results.FlowIntoWithCallback(myCurrentLifetime, myPipelinePartsExecutionResults, StateHasChanged);
+    values.Results.FlowIntoWithCallback(myCurrentLifetime, myPipelinePartsExecutionResults, () =>
+    {
+      Logger.LogInformation("The results of the case {CaseName} have changed", myProcessCaseData.Case.FullName);
+      StateHasChanged();
+    });
   }
 }

@@ -11,7 +11,7 @@
 @using JetBrains.Lifetimes
 
 @inject IJSRuntime Js
-@inject ILogger<CaseInfo> Logger
+@inject ILogger<PipelinePartResultsRenderer> Logger
 
 <div id="@myContainerId" class="@ContainerClass">
   <div class="pipeline-part-name-outer-container">
@@ -53,7 +53,7 @@
           @index
         </div>
       }
-    </div> 
+    </div>
   }
 
   @{
@@ -114,9 +114,17 @@
 
     Results.Results.Change.Advise(Lifetime, _ =>
     {
+      Logger.LogInformation(
+        "Results have changed for process {ProcessName} case {CaseName}",
+        ProcessCaseData.Case.FullName,
+        ProcessCaseData.ProcessData.ProcessName
+      );
+
       ResetSelectedIndex();
       StateHasChanged();
     });
+
+    Logger.LogInformation("Parameters have changed, advised to the results");
   }
 
   private void ResetSelectedIndex()
@@ -143,7 +151,7 @@
     results.UserData.PutData(ourExpandedKey, !results.UserData.GetOrCreate(ourExpandedKey, static () => true));
     StateHasChanged();
   }
-  
+
   private IEnumerable<RenderFragment> CreateRenderersFor(string pipelinePartName, List<ContextValueWrapper> contextValues)
   {
     return contextValues switch
@@ -169,7 +177,7 @@
       GrpcContextValue.ContextValueOneofCase.PetriNet => @<PetriNetRenderer @key="wrapper.Id"
                                                                             IsFullScreen="@myIsFullScreen"
                                                                             PetriNet="contextValue.PetriNet"/>,
-      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id" 
+      GrpcContextValue.ContextValueOneofCase.Graph => @<GraphRenderer @key="wrapper.Id"
                                                                       IsFullScreen="@myIsFullScreen"
                                                                       Graph="contextValue.Graph"
                                                                       ProcessCaseData="ProcessCaseData"/>,
@@ -206,7 +214,7 @@
 
     return @<GraphRenderer @key="componentId"
                            IsFullScreen="@myIsFullScreen"
-                           Graph="graph" 
+                           Graph="graph"
                            ProcessCaseData="ProcessCaseData"
                            Annotation="annotationPair?.Item2"/>;
   }
@@ -229,19 +237,20 @@
 
     var componentId = CreateEntityAnnotationId(petriNetId, annotationPair);
 
-    return @<PetriNetRenderer @key="componentId" IsFullScreen="@myIsFullScreen" PetriNet="petriNet" Annotation="annotationPair?.Item2"/>;
+    return @<PetriNetRenderer @key="componentId" IsFullScreen="@myIsFullScreen" PetriNet="petriNet"
+                              Annotation="annotationPair?.Item2"/>;
   }
 
   private async Task OpenElementInFullscreen()
   {
-    await Js.InvokeVoidAsync("openFullScreen", myContainerId, DotNetObjectReference.Create(this));
+    await Js.InvokeVoidAsync("openFullScreen", Lifetime, myContainerId, DotNetObjectReference.Create(this));
     myIsFullScreen = true;
     StateHasChanged();
   }
 
   private async Task ExitFullScreen()
   {
-    await Js.InvokeVoidAsync("exitFullScreen");
+    await Js.InvokeVoidAsync("exitFullScreen", Lifetime);
     HandleFullScreenExit();
   }
 
@@ -251,4 +260,5 @@
     myIsFullScreen = false;
     StateHasChanged();
   }
+
 }
