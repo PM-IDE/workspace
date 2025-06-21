@@ -18,4 +18,7 @@ public static partial class TraceEventsConstants
   public const string CommonTypeId = "TypeID";
   public const string CommonObjectId = "ObjectID";
   public const string CommonHandleId = "HandleID";
+
+  public const string BusinessEvent = "BusinessEvent";
+  public const string BusinessEventMessage = "message";
 }
