@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using Core.Container;
 using Core.Events.EventRecord;
+using Core.Utils;
+using Microsoft.Extensions.Logging;
 using ProcfilerOnline.Core.Features;
 using ProcfilerOnline.Integrations.Kafka.Bxes;
 using ProcfilerOnline.Integrations.Kafka.Json;
@@ -18,13 +20,17 @@ public class CompletedAsyncMethodEvent : IEventPipeStreamEvent
 
 [AppComponent]
 public class CompletedAsyncMethodHandler(
+  IProcfilerLogger logger,
   IComponentContext container
 ) : IEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent eventPipeStreamEvent)
   {
-    if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
     if (eventPipeStreamEvent is not CompletedAsyncMethodEvent completedAsyncMethodEvent) return;
+
+    logger.LogDebug("Processing state machine {StateMachine}", completedAsyncMethodEvent.StateMachineName);
+
+    if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
 
     if (ProcfilerOnlineFeatures.ProduceBxesKafkaEvents.IsEnabled())
     {
