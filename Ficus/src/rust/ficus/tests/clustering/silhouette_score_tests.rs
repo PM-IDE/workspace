@@ -28,18 +28,18 @@ pub fn test_silhouette_score() {
 }
 
 #[test]
-pub fn test_silhouette_score_single_cluster() {
-  execute_silhouette_score_test(vec![
-    vec![0., 1., 1., 1., 1., 0., 0., 0., 0., 1., 0., 1., 0.],
-    vec![0., 1., 1., 1., 1., 0., 0., 0., 0., 1., 0., 1., 0.],
-    vec![0., 1., 1., 1., 1., 0., 0., 0., 0., 1., 0., 1., 0.],
-    vec![0., 1., 1., 1., 1., 0., 0., 0., 0., 1., 0., 1., 0.],
-    vec![0., 1., 1., 1., 1., 0., 0., 0., 0., 1., 0., 1., 0.],
-    vec![0., 1., 1., 1., 1., 0., 0., 0., 0., 1., 0., 1., 0.],
-    vec![0., 1., 1., 1., 1., 0., 0., 0., 0., 1., 0., 1., 0.],
-  ])
+pub fn test_single_label() {
+  let labels = vec![0; 123];
+  assert_eq!(silhouette_score(&labels, |first, second| 0.).err().unwrap(), SilhouetteScoreError::InappropriateLabelsCount)
 }
 
+#[test]
+pub fn test_all_different_labels() {
+  let labels = (0..123).into_iter().collect();
+  assert_eq!(silhouette_score(&labels, |first, second| 0.).err().unwrap(), SilhouetteScoreError::InappropriateLabelsCount)
+}
+
+#[test]
 pub fn test_silhouette_score_empty_labels() {
   let result = silhouette_score(&vec![], |first, second| 0.);
   assert_eq!(result.err().unwrap(), SilhouetteScoreError::NotEnoughSamples)

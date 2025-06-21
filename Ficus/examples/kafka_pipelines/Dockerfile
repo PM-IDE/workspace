@@ -12,7 +12,7 @@ COPY ./Ficus/ ./
 
 WORKDIR /app/src/python
 RUN python -m pip install --upgrade pip setuptools
-RUN python -m pip install -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip python -m pip install -r requirements.txt
 RUN python -m pip install .
 
 WORKDIR /app/examples/kafka_pipelines/

@@ -6,6 +6,7 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::create_threads_log_by_attribute;
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
+use crate::features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy};
 use crate::features::discovery::root_sequence::log_prepare::prepare_software_log;
 use crate::features::discovery::timeline::abstraction::abstract_event_groups;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, discover_traces_timeline_diagram};
@@ -13,7 +14,7 @@ use crate::features::discovery::timeline::events_groups::{enumerate_event_groups
 use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, REGEXES_KEY, REGEX_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, REGEXES_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::display_name::DISPLAY_NAME_KEY;
@@ -23,9 +24,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::str::FromStr;
-use serde::__private::ser::constrain;
-use crate::features::discovery::multithreading_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy};
-use crate::utils::graph::graphs_merging::merge_graphs;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {

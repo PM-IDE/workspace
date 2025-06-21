@@ -1,8 +1,8 @@
 // Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 export const GrpcThreadEventKind = {
-  Created: 'Created',
-  Terminated: 'Terminated',
+  Created: 0,
+  Terminated: 1,
 } as const;
 
 export type GrpcThreadEventKind_DONTUSE =

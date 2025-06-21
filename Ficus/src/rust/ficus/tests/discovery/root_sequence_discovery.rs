@@ -378,7 +378,7 @@ fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_
 
   let traces = traces.into_iter().map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect()).collect();
   let graph = discover_root_sequence_graph(&traces, &context, false, None).ok().unwrap().graph_move();
-  let test_result = graph.serialize_edges_deterministic();
+  let test_result = graph.serialize_edges_deterministic(false);
 
   let gold = gold_graph_edges.join("\n");
 

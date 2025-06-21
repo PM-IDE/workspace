@@ -1,15 +1,15 @@
 import os
 import tempfile
 
-from ...ficus.grpc_pipelines.discovery_parts import SerializePetriNetToPNML, ViewPetriNet
-from ...ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline
+from ....ficus.grpc_pipelines.discovery_parts import SerializePetriNetToPNML, ViewPetriNet
+from ....ficus.grpc_pipelines.entry_points.default_pipeline import Pipeline
 
-from ...ficus.grpc_pipelines.mutation_parts import AddStartEndArtificialEvents
-from ...ficus.grpc_pipelines.util_parts import UseNamesEventLog
-from ..core.gold_based_test import execute_test_with_gold
+from ....ficus.grpc_pipelines.mutation_parts import AddStartEndArtificialEvents
+from ....ficus.grpc_pipelines.util_parts import UseNamesEventLog
+from ...core.gold_based_test import execute_test_with_gold
 
-from ..grpc_pipelines.test_grpc_pipelines import _execute_test_with_names_log
-from ..test_data_provider import petri_net_test_gold_dir
+from ...grpc_pipelines.test_grpc_pipelines import _execute_test_with_names_log
+from ...test_data_provider import petri_net_test_gold_dir
 
 
 def _execute_discovery_test(test_name: str, names_log: list[list[str]], discovery_part):

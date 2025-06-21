@@ -1,4 +1,4 @@
-from ...ficus.grpc_pipelines.discovery_parts import DiscoverPetriNetHeuristic
+from ....ficus.grpc_pipelines.discovery_parts import DiscoverPetriNetHeuristic
 from .discovery_test_core import _execute_discovery_test
 
 

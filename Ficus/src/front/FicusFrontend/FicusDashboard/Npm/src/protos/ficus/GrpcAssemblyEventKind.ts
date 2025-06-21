@@ -1,8 +1,8 @@
 // Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 export const GrpcAssemblyEventKind = {
-  Loaded: 'Loaded',
-  Unloaded: 'Unloaded',
+  Loaded: 0,
+  Unloaded: 1,
 } as const;
 
 export type GrpcAssemblyEventKind_DONTUSE =

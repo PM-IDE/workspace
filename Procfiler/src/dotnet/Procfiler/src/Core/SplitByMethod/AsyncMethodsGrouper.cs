@@ -13,7 +13,9 @@ public interface IAsyncMethodsGrouper
 
 
   IDictionary<string, List<List<EventRecordWithMetadata>>> GroupAsyncMethods(
-    IDictionary<long, IEventsCollection> managedThreadsEvents);
+    IDictionary<long, IEventsCollection> managedThreadsEvents,
+    bool removeFirstMoveNextCalls
+  );
 }
 
 [AppComponent]
@@ -23,11 +25,29 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
 
 
   public IDictionary<string, List<List<EventRecordWithMetadata>>> GroupAsyncMethods(
-    IDictionary<long, IEventsCollection> managedThreadsEvents)
+    IDictionary<long, IEventsCollection> managedThreadsEvents,
+    bool removeFirstMoveNextCalls
+  )
   {
     var result = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
-    var onlineGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(logger, AsyncMethodsPrefix,
-      (method, traces) => { result.GetOrCreate(method, static () => []).AddRange(traces); });
+    var onlineGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(
+      logger,
+      AsyncMethodsPrefix,
+      (method, traces) =>
+      {
+        if (removeFirstMoveNextCalls)
+        {
+          foreach (var trace in traces.Where(trace => trace.Count > 2))
+          {
+            result.GetOrCreate(method, static () => []).Add(trace[1..^1]);
+          }
+
+          return;
+        }
+
+        result.GetOrCreate(method, static () => []).AddRange(traces);
+      }
+    );
 
     foreach (var (_, events) in managedThreadsEvents)
     {
