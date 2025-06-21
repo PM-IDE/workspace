@@ -67,7 +67,7 @@ pub fn enumerate_multithreaded_events_groups(
 
   for trace in log.traces() {
     let trace = trace.borrow();
-    let parts = enumerate_trace_parts(&trace, thread_attribute, strategy);
+    let parts = enumerate_trace_parts(&trace, thread_attribute, strategy, regexes);
 
     let mut index = 0;
     let mut trace_groups = vec![];
@@ -78,10 +78,10 @@ pub fn enumerate_multithreaded_events_groups(
           let mut group = EventGroup::empty();
           let mut events_by_threads = HashMap::new();
           for event in &trace.events()[index..index + part.length()] {
-            let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
-            events_by_threads.entry(thread_id).or_insert(XesTraceImpl::empty()).push(Rc::new(RefCell::new(event.borrow().clone())));
-
             if is_control_flow_event(&event.borrow()) {
+              let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
+              events_by_threads.entry(thread_id).or_insert(XesTraceImpl::empty()).push(Rc::new(RefCell::new(event.borrow().clone())));
+
               group.control_flow_events_mut().push(event.clone());
             } else {
               group.statistic_events_mut().push(event.clone());
@@ -229,7 +229,7 @@ fn discover_multithreading_dfg_for_trace(
   thread_attribute: &str,
   strategy: &MultithreadedTracePartsCreationStrategy,
 ) -> HashMap<(String, String), usize> {
-  let trace_parts = enumerate_trace_parts(trace, thread_attribute, strategy);
+  let trace_parts = enumerate_trace_parts(trace, thread_attribute, strategy, None);
 
   let mut index = 0;
   let mut last_event_classes = Vec::new();
@@ -243,7 +243,12 @@ fn discover_multithreading_dfg_for_trace(
   dfg
 }
 
-fn enumerate_trace_parts(trace: &XesTraceImpl, thread_attribute: &str, strategy: &MultithreadedTracePartsCreationStrategy) -> Vec<TracePart> {
+fn enumerate_trace_parts(
+  trace: &XesTraceImpl,
+  thread_attribute: &str,
+  strategy: &MultithreadedTracePartsCreationStrategy,
+  control_flow_regexes: Option<&Vec<Regex>>,
+) -> Vec<TracePart> {
   let events_threads = if let MultithreadedTracePartsCreationStrategy::Default = strategy {
     let mut events_threads = HashMap::new();
     for event in trace.events() {
@@ -254,6 +259,23 @@ fn enumerate_trace_parts(trace: &XesTraceImpl, thread_attribute: &str, strategy:
     Some(events_threads)
   } else {
     None
+  };
+
+  let is_control_flow = |index: usize| {
+    if let Some(regexes) = control_flow_regexes {
+      let event = trace.events().get(index).unwrap().borrow();
+      let name = event.name().as_str();
+
+      for regex in regexes {
+        if regex.is_match(name).unwrap_or(false) {
+          return true
+        }
+      }
+
+      false
+    } else {
+      true
+    }
   };
 
   let is_sequential = |index: usize| {
@@ -282,7 +304,11 @@ fn enumerate_trace_parts(trace: &XesTraceImpl, thread_attribute: &str, strategy:
     let group_start_index = index;
     let mut group_current_index = index + 1;
 
-    while group_current_index < trace.events().len() && !(first_group_event_sequential ^ is_sequential(group_current_index)) {
+    let should_prolong_group = |group_current_index: usize| {
+      group_current_index < trace.events().len() && (!is_control_flow(group_current_index) || !(first_group_event_sequential ^ is_sequential(group_current_index)))
+    };
+
+    while should_prolong_group(group_current_index) {
       group_current_index += 1;
     }
 
