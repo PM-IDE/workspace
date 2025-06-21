@@ -56,7 +56,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
     myHandler.Handle(new CompletedAsyncMethodEvent
     {
       ApplicationName = myApplicationName ?? "UNDEF_APPLICATION",
-      MethodTraces = traces,
+      MethodTraces = traces.Select(t => t.Skip(1).Take(t.Count - 2).ToList()).Where(t => t.Count > 0).ToList(),
       StateMachineName = stateMachineName,
       MethodInfo = methodInfo,
       AsyncMethodCaseId = Guid.NewGuid()
