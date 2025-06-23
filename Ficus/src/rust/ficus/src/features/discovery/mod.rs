@@ -5,4 +5,4 @@ pub mod petri_net;
 pub mod relations;
 pub mod timeline;
 pub mod root_sequence;
-pub mod multithreading_dfg;
+pub mod multithreaded_dfg;

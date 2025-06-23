@@ -1,8 +1,9 @@
 import cytoscape, {Stylesheet} from 'cytoscape';
 import {petriNetColors, darkTheme} from "./colors";
 import dagre from 'cytoscape-dagre';
-import {createDagreLayout} from "./graph/util";
 import {GrpcPetriNet} from "./protos/ficus/GrpcPetriNet";
+import {createLayout} from "./graph/util";
+import {GrpcGraphKind} from "./protos/ficus/GrpcGraphKind";
 
 export default setDrawPetriNet;
 
@@ -23,7 +24,7 @@ function createCytoscapeOptions(id: string, net: GrpcPetriNet, annotation: Recor
     container: document.getElementById(id),
     elements: createElementsFromNet(net, annotation),
     style: createStylesList(),
-    layout: createDagreLayout()
+    layout: createLayout(GrpcGraphKind.None)
   }
 }
 

@@ -13,8 +13,8 @@ internal class ProcfilerLogger(IOptionsMonitor<ProcfilerLoggerConfiguration> con
 
     var attributes = state switch
     {
-      IEnumerable<KeyValuePair<string, object>> e => string.Join(";",
-        e.SelectMany(p => { return new[] { p.Key, p.Value.ToString() }; })),
+      IEnumerable<KeyValuePair<string, object>> e =>
+        string.Join(";", e.SelectMany(p => { return new[] { p.Key, p.Value.ToString() }; })),
       _ => string.Empty
     };
 
@@ -25,7 +25,7 @@ internal class ProcfilerLogger(IOptionsMonitor<ProcfilerLoggerConfiguration> con
   {
     if (level == LogLevel.None) return false;
 
-    return level <= configuration.CurrentValue.LogLevel;
+    return level >= configuration.CurrentValue.LogLevel;
   }
 
   public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default;

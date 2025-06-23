@@ -13,7 +13,10 @@ public interface ISubscriptionsService
   void StartUpdatesStream(CancellationToken token);
 }
 
-public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client)
+public class SubscriptionsService(
+  GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient client,
+  ILogger<SubscriptionsService> logger
+)
   : ISubscriptionsService
 {
   private readonly ViewableMap<Guid, Subscription> mySubscriptions = [];
@@ -27,19 +30,37 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
   {
     Task.Factory.StartNew(async () =>
     {
-      var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
-      while (await reader.MoveNext(token))
+      while (true)
       {
-        switch (reader.Current.UpdateCase)
+        try
         {
-          case GrpcPipelinePartUpdate.UpdateOneofCase.CurrentCases:
-            ProcessInitialState(reader.Current.CurrentCases);
-            break;
-          case GrpcPipelinePartUpdate.UpdateOneofCase.Delta:
-            HandleCaseUpdate(reader.Current.Delta);
-            break;
-          default:
-            throw new ArgumentOutOfRangeException();
+          if (token.IsCancellationRequested)
+          {
+            logger.LogDebug("The cancellation is requested, exiting updates processing routine");
+            return;
+          }
+
+          var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
+          logger.LogDebug("Started an updates stream");
+
+          while (await reader.MoveNext(token))
+          {
+            switch (reader.Current.UpdateCase)
+            {
+              case GrpcPipelinePartUpdate.UpdateOneofCase.CurrentCases:
+                ProcessInitialState(reader.Current.CurrentCases);
+                break;
+              case GrpcPipelinePartUpdate.UpdateOneofCase.Delta:
+                HandleCaseUpdate(reader.Current.Delta);
+                break;
+              default:
+                throw new ArgumentOutOfRangeException();
+            }
+          }
+        }
+        catch (Exception ex)
+        {
+          logger.LogError(ex, "Error when processing update, will reopen an updates stream");
         }
       }
     }, token);
@@ -47,6 +68,8 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
 
   private void ProcessInitialState(GrpcCurrentCasesResponse initialCases)
   {
+    logger.LogDebug("Started processing of the initial state");
+
     foreach (var @case in initialCases.Cases)
     {
       var initialState = @case.ContextValues
@@ -85,7 +108,9 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
         }
       };
 
-      processData.ProcessCases[caseModel.FullName] = caseModel;
+      var caseName = caseModel.FullName;
+      logger.LogDebug("Updating case {CaseName} with initial state", caseName);
+      processData.ProcessCases[caseName] = caseModel;
     }
   }
 
@@ -95,7 +120,11 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     var pipeline = GetOrCreatePipeline(subscription, metadata);
 
     var processName = metadata.ProcessName;
-    if (pipeline.Processes.TryGetValue(processName, out var processData)) return processData;
+    if (pipeline.Processes.TryGetValue(processName, out var processData))
+    {
+      logger.LogDebug("Process data for process {ProcessName} already exists", processName);
+      return processData;
+    }
 
     processData = new ProcessData
     {
@@ -105,6 +134,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     };
 
     pipeline.Processes[processName] = processData;
+    logger.LogDebug("Added new process data for process {ProcessName}", processName);
 
     FirePipelineSubEntityUpdatedEvent(pipeline);
 
@@ -116,7 +146,11 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
   private Subscription GetOrCreateSubscription(GrpcProcessCaseMetadata metadata)
   {
     var subscriptionId = metadata.SubscriptionId.ToGuid();
-    if (mySubscriptions.TryGetValue(subscriptionId, out var subscription)) return subscription;
+    if (mySubscriptions.TryGetValue(subscriptionId, out var subscription))
+    {
+      logger.LogDebug("Subscription {SubscriptionId} already exists", subscriptionId);
+      return subscription;
+    }
 
     subscription = new Subscription
     {
@@ -126,13 +160,19 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     };
 
     mySubscriptions[subscriptionId] = subscription;
+    logger.LogDebug("Added new subscription {SubscriptionId}", subscriptionId);
+
     return subscription;
   }
 
   private Pipeline GetOrCreatePipeline(Subscription subscription, GrpcProcessCaseMetadata metadata)
   {
     var pipelineId = metadata.PipelineId.ToGuid();
-    if (subscription.Pipelines.TryGetValue(pipelineId, out var pipeline)) return pipeline;
+    if (subscription.Pipelines.TryGetValue(pipelineId, out var pipeline))
+    {
+      logger.LogDebug("Pipeline {PipelineId} already exists", pipelineId);
+      return pipeline;
+    }
 
     pipeline = new Pipeline
     {
@@ -143,6 +183,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     };
 
     subscription.Pipelines[pipelineId] = pipeline;
+    logger.LogDebug("Added new pipeline {PipelineId}", pipelineId);
 
     return pipeline;
   }
@@ -150,7 +191,11 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
   private Case GetOrCreateCaseData(ProcessData processData, GrpcCaseName caseName)
   {
     var fullCaseName = CreateFullCaseName(caseName);
-    if (processData.ProcessCases.TryGetValue(fullCaseName, out var @case)) return @case;
+    if (processData.ProcessCases.TryGetValue(fullCaseName, out var @case))
+    {
+      logger.LogDebug("Case {CaseName} already exists", caseName);
+      return @case;
+    }
 
     @case = new Case
     {
@@ -167,6 +212,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     };
 
     processData.ProcessCases[fullCaseName] = @case;
+    logger.LogDebug("Added case {CaseName}", caseName);
 
     FirePipelineSubEntityUpdatedEvent(@case.ParentProcess.ParentPipeline);
 
@@ -177,6 +223,12 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
 
   private void HandleCaseUpdate(GrpcKafkaUpdate delta)
   {
+    using var _ = logger.BeginScope(
+      "Started processing of the case update, process {ProcessName}, case {CaseName}",
+      delta.ProcessCaseMetadata.ProcessName,
+      delta.ProcessCaseMetadata.CaseName
+    );
+
     var processData = GetOrCreateProcessData(delta.ProcessCaseMetadata);
     var caseData = GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName);
 
@@ -185,6 +237,7 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
     {
       caseData.PipelineExecutionResults.ExecutionId = executionId;
       caseData.PipelineExecutionResults.Results.Clear();
+      logger.LogDebug("Execution ids are not equal, cleared all results");
     }
 
     var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
@@ -201,10 +254,13 @@ public class SubscriptionsService(GrpcPipelinePartsContextValuesService.GrpcPipe
         PipelinePartName = delta.PipelinePartInfo.Name,
         Results = new ViewableList<PipelinePartExecutionResult> { result }
       };
+
+      logger.LogDebug("Added new pipeline part exec. results with id {PartId}", partId);
     }
     else
     {
       caseData.PipelineExecutionResults.Results[partId].Results.Add(result);
+      logger.LogDebug("Added results to existing pipeline part exec. result with id {PartId}", partId);
     }
   }
 }

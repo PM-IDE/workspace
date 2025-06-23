@@ -54,6 +54,7 @@ export interface ProtoGrpcType {
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition
+    GrpcGraphKind: EnumTypeDefinition
     GrpcGraphNode: MessageTypeDefinition
     GrpcGuid: MessageTypeDefinition
     GrpcHTTPEvent: MessageTypeDefinition

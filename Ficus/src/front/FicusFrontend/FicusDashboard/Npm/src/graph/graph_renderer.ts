@@ -1,44 +1,48 @@
 import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
-import dagre from 'cytoscape-dagre';
 import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
 import {createEdgeHtmlLabel} from "./labels/edge_html_label";
-import {createGraphElementForDagre} from "./other_layouts";
-import {createDagreLayout} from "./util";
-import {nodeHeightPx, nodeWidthPx} from "./constants";
+import {createGraphElements} from "./graph_elements";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
-
-export default setDrawGraph;
-cytoscape.use(dagre);
+import {createLayout} from "./util";
+import {GrpcGraphKind} from "../protos/ficus/GrpcGraphKind";
+import {nodeHeightPx, nodeWidthPx} from "./constants";
 
 let htmlLabel = require('../html-label/html_label');
 htmlLabel(cytoscape);
 
 const graphColor = graphColors(darkTheme);
 
+export default setDrawGraph;
+
 function setDrawGraph() {
   (<any>window).drawGraph = drawGraph;
 }
 
 function drawGraph(
-  id: string, 
-  graph: GrpcGraph, 
-  annotation: GrpcAnnotation, 
+  id: string,
+  graph: GrpcGraph,
+  annotation: GrpcAnnotation,
   enhancements: (keyof typeof SoftwareEnhancementKind)[],
-  filter: string | null
+  filter: string | null,
+  spacingFactor: number,
+  isRichUiGraph: boolean
 ) {
   let regex = filter == null ? null : new RegExp(filter);
-  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex));
-  setNodeRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
+  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor, isRichUiGraph));
 
-  cy.ready(() => setTimeout(() => updateNodesDimensions(cy), 0));
+  if (isRichUiGraph) {
+    setNodeEdgeHtmlRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
+  }
+
+  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor), 0));
 
   return cy;
 }
 
-function updateNodesDimensions(cy: cytoscape.Core) {
+function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number) {
   cy.nodes().forEach(node => {
     let element = document.getElementById(createNodeHtmlLabelId(node.data().frontendId));
     if (element != null) {
@@ -48,10 +52,10 @@ function updateNodesDimensions(cy: cytoscape.Core) {
     }
   });
 
-  cy.layout(createDagreLayout()).run();
+  cy.layout(createLayout(kind, spacingFactor)).run();
 }
 
-function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
+function setNodeEdgeHtmlRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
   (<any>cy).htmlLabel(
     [
       {
@@ -77,32 +81,55 @@ function setNodeRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKi
   );
 }
 
-function createCytoscapeOptions(id: string, graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.CytoscapeOptions {
+function createCytoscapeOptions(
+  id: string,
+  graph: GrpcGraph,
+  annotation: GrpcAnnotation,
+  filter: RegExp | null,
+  spacingFactor: number,
+  addLabel: boolean
+): cytoscape.CytoscapeOptions {
   return {
     container: document.getElementById(id),
-    elements: createGraphElementForDagre(graph, annotation, filter),
-    layout: createDagreLayout(),
+    elements: createGraphElements(graph, annotation, filter),
+    layout: createLayout(graph.kind, spacingFactor),
     style: [
-      createNodeStyle(),
+      createNodeStyle(addLabel),
       createEdgeStyle(),
     ]
   }
 }
 
-function createNodeStyle(): cytoscape.Stylesheet {
+function createNodeStyle(isRichUi: boolean): cytoscape.Stylesheet {
+  if (isRichUi) {
+    return {
+      selector: 'node',
+      style: {
+        "background-color": 'transparent',
+        "background-opacity": 0,
+        'text-valign': 'center',
+        'text-halign': 'right',
+        'shape': 'round-rectangle',
+        'width': `${nodeWidthPx}px`,
+        'height': `${nodeHeightPx}px`,
+        'color': graphColor.labelColor,
+      }
+    }
+  }
+
   return {
     selector: 'node',
     style: {
-      "background-color": 'transparent',
-      "background-opacity": 0,
-      'text-valign': 'center',
-      'text-halign': 'right',
+      'label': "data(label)",
+      'background-color': graphColor.nodeBackground,
+      'text-valign': 'top',
+      'text-halign': 'center',
       'shape': 'round-rectangle',
-      'width': `${nodeWidthPx}px`,
-      'height': `${nodeHeightPx}px`,
+      'width': `40px`,
+      'height': `40px`,
       'color': graphColor.labelColor,
     }
-  }
+  };
 }
 
 function createEdgeStyle(): cytoscape.Stylesheet {

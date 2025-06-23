@@ -45,7 +45,10 @@ public class SplitEventsByMethodCommand(
     new("--inline", static () => InlineMode.NotInline, "Should we inline inner methods calls to all previous traces");
 
   private Option<string?> TargetMethodsRegex { get; } =
-    new("--target-methods-regex", static () => null, "Target methods regex ");
+    new("--target-methods-regex", static () => null, "Target methods regex");
+
+  private Option<bool> RemoveFirstMoveNextFrames { get; } =
+    new("--remove-first-move-next-frames", static () => true, "Remove first MoveNext frames from async methods traces");
 
 
   public override void Execute(CollectClrEventsContext context)
@@ -68,8 +71,11 @@ public class SplitEventsByMethodCommand(
       var filterPattern = GetFilterPattern(context.CommonContext);
       var inlineInnerCalls = parseResult.TryGetOptionValue(InlineInnerMethodsCalls);
       var addAsyncMethods = parseResult.TryGetOptionValue(GroupAsyncMethods);
+      var removeMoveNextFrames = parseResult.TryGetOptionValue(RemoveFirstMoveNextFrames);
 
-      var splitContext = new SplitContext(events, filterPattern, inlineInnerCalls, mergeUndefinedThreadEvents, addAsyncMethods);
+      var splitContext = new SplitContext(
+        events, filterPattern, inlineInnerCalls, mergeUndefinedThreadEvents, addAsyncMethods, removeMoveNextFrames);
+
       // ReSharper disable once AccessToDisposedClosure
       var asyncMethods = splitter.SplitNonAlloc(onlineSerializer, splitContext);
 

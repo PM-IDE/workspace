@@ -1,5 +1,4 @@
-import {AggregatedData, GraphEdge, SoftwareEnhancementKind} from "../types";
-import {MergedSoftwareData} from "../util";
+import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createArrayPoolEnhancement,
   createEnhancementContainer,
@@ -13,7 +12,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   let softwareData = edge.softwareData;
   if (softwareData == null) {
     return `
-      <div style="margin-top: 120px;">
+      <div style="margin-top: 140px;">
         ${createEdgeExecutionInfo(edge)}
       </div>
     `;
@@ -39,7 +38,7 @@ function createEdgeExecutionInfo(edge: GraphEdge): string {
   if (edge.executionTime != null) {
     executionInfo += `
       <div style="font-size: 45px; font-weight: 900;">
-        ${edge.executionTime} (${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%)
+        ${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%
       </div>
     `;
   }

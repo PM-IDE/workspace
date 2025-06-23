@@ -14,7 +14,8 @@ public record CollectEventsOnlineContext(
   Regex? TargetMethodsRegex,
   Regex? MethodsFilterRegex,
   ProvidersCategoryKind Providers,
-  ulong EventsFlushThreshold
+  ulong EventsFlushThreshold,
+  bool RemoveFirstMoveNextFrames
 )
 {
   public string ApplicationName { get; } = Path.GetFileNameWithoutExtension(DllFilePath);
@@ -38,6 +39,9 @@ public class CollectEventsOnlineCommand(
   private static Option<ulong> EventsFlushThreshold { get; } =
     new("--flush-threshold", static () => 10_000, "After this number of events stored in the trace it will be flushed");
 
+  private static Option<bool> RemoveFirstMoveNextFrames { get; } =
+    new("--remove-first-move-next-frames", static () => true, "Remove first MoveNext frames from async methods traces");
+
 
   public void Execute(CollectEventsOnlineContext context)
   {
@@ -54,7 +58,8 @@ public class CollectEventsOnlineCommand(
         CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
         CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex)),
         parseResult.GetValueForOption(ProvidersOption),
-        parseResult.GetValueForOption(EventsFlushThreshold)
+        parseResult.GetValueForOption(EventsFlushThreshold),
+        parseResult.GetValueForOption(RemoveFirstMoveNextFrames)
       );
     });
 

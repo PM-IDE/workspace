@@ -16,6 +16,7 @@ where
       nodes: self.to_default_graph_nodes(),
       connections: self.to_default_graph_connections(),
       user_data: UserDataImpl::new(),
+      kind: self.kind().clone()
     }
   }
 

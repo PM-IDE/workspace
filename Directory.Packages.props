@@ -34,8 +34,8 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.0"/>
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0"/>
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.0"/>
-    <PackageVersion Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.553101"/>
-    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.17"/>
+    <PackageVersion Include="Microsoft.Diagnostics.NETCore.Client" Version="0.2.621003"/>
+    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.22"/>
     <PackageVersion Include="Microsoft.Build.Framework" Version="17.12.6"/>
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.12.6"/>
     <PackageVersion Include="Autofac" Version="6.4.0"/>

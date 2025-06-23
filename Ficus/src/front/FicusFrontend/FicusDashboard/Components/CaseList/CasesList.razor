@@ -5,8 +5,6 @@
 @using JetBrains.Lifetimes
 @inherits ComponentBase;
 
-@inject ISubscriptionsService ISubscriptionService;
-
 <SidebarList TItem="ProcessData"
              TInnerItem="Case"
              TId="string"
@@ -114,10 +112,9 @@
   private void HandleCaseContextValuesChange(string caseKey, Case caseModel)
   {
     if (ReferenceEquals(caseModel, mySelectedCase)) return;
+    if (!myProcesses.TryGetValue(caseModel.ParentProcess.ProcessName, out var collectionItemInfo)) return;
 
-    var collectionItemInfo = myProcesses[caseModel.FullName];
     collectionItemInfo.InnerItems[caseKey].InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
-
     StateHasChanged();
   }
 

@@ -195,9 +195,15 @@ message GrpcComplexContextRequestPipelinePart {
   string frontendPipelinePartName = 4;
 }
 
+enum GrpcGraphKind {
+  None = 0;
+  DAG = 1;
+}
+
 message GrpcGraph {
   repeated GrpcGraphNode nodes = 1;
   repeated GrpcGraphEdge edges = 2;
+  GrpcGraphKind kind = 3;
 }
 
 message GrpcGraphNode {

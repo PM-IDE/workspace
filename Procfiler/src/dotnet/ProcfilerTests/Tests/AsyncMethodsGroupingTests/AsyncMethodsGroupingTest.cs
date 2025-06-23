@@ -46,7 +46,7 @@ public class AsyncMethodsGroupingTest : GoldProcessBasedTest
 
     var splitter = Container.Resolve<IByMethodsSplitter>();
 
-    var splitContext = new SplitContext(events, string.Empty, InlineMode.EventsAndMethodsEvents, false, true);
+    var splitContext = new SplitContext(events, string.Empty, InlineMode.EventsAndMethodsEvents, false, true, false);
     var methods = splitter.Split(splitContext);
     var asyncMethodsPrefix = Container.Resolve<IAsyncMethodsGrouper>().AsyncMethodsPrefix;
     var filter = new Regex(knownSolution.NamespaceFilterPattern);

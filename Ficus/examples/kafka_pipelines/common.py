@@ -16,7 +16,8 @@ def execute_pipeline(sub_name: str, pipeline_name: str, pipeline_parts: list[Pip
         kafka_consumer_configuration={
             'bootstrap.servers': consumer_servers,
             'group.id': consumer_group,
-            'auto.offset.reset': 'earliest'
+            'auto.offset.reset': 'earliest',
+            'message.max.bytes': '25728640',
         }
     )
 
@@ -26,7 +27,8 @@ def execute_pipeline(sub_name: str, pipeline_name: str, pipeline_parts: list[Pip
     kafka_producer_metadata = KafkaPipelineMetadata(
         topic_name=producer_topic,
         kafka_consumer_configuration={
-            'bootstrap.servers': producer_servers
+            'bootstrap.servers': producer_servers,
+            'message.max.bytes': '25728640',
         }
     )
 

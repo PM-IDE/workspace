@@ -4,7 +4,7 @@ use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use crate::utils::context_key::DefaultContextKey;
-use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
+use crate::utils::graph::graph::{DefaultGraph, GraphKind, NodesConnectionData};
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
@@ -62,6 +62,8 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
   performance_map: Option<PerformanceMap>,
 ) -> Result<RootSequenceGraphDiscoveryResult, DiscoverRootSequenceGraphError> {
   let mut result = discover_root_sequence_graph_internal(log, context, true)?;
+
+  result.graph_mut().set_kind(Some(GraphKind::Dag));
 
   add_start_end_nodes_ids_to_user_data(&mut result);
   adjust_connections(context, log, &mut result.graph);
@@ -209,14 +211,14 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
 
 fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<EventWithUniqueId<T>>>,
-  lcs: &Vec<EventWithUniqueId<T>>,
+  root_sequence: &Vec<EventWithUniqueId<T>>,
   root_sequence_node_ids: &Vec<u64>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
 ) -> Result<(), DiscoverRootSequenceGraphError> {
   let mut adjustments = HashMap::new();
   for trace in traces {
-    let trace_lcs = find_longest_common_subsequence(trace, &lcs, trace.len(), lcs.len());
+    let trace_lcs = find_longest_common_subsequence(trace, &root_sequence, trace.len(), root_sequence.len());
     let second_indices = trace_lcs.second_indices();
 
     let mut lcs_index = 0;
