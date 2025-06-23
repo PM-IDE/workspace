@@ -13,6 +13,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
   private readonly OnlineAsyncMethodsGrouper<EventRecordWithMetadata> myGrouper;
 
   private string? myApplicationName;
+  private bool myRemoveFirstMoveNextFrames;
 
 
   public AsyncMethodsProcessor(IProcfilerLogger logger, ICompositeEventPipeStreamEventHandler handler)
@@ -25,6 +26,8 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
   public void Process(EventProcessingContext context)
   {
     myApplicationName = context.CommandContext.ApplicationName;
+    myRemoveFirstMoveNextFrames = context.CommandContext.RemoveFirstMoveNextFrames;
+
     var threadId = context.Event.NativeThreadId;
 
     if (context.Event.TryGetMethodDetails() is var (_, methodId))
@@ -53,10 +56,16 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
 
     var methodInfo = traces.First().First().TryGetExtendedMethodInfo()?.ExtendedMethodInfo;
 
+    var processedTraces = myRemoveFirstMoveNextFrames switch
+    {
+      true => traces.Select(t => t.Skip(1).Take(t.Count - 2).ToList()).Where(t => t.Count > 0).ToList(),
+      false => traces
+    };
+
     myHandler.Handle(new CompletedAsyncMethodEvent
     {
       ApplicationName = myApplicationName ?? "UNDEF_APPLICATION",
-      MethodTraces = traces.Select(t => t.Skip(1).Take(t.Count - 2).ToList()).Where(t => t.Count > 0).ToList(),
+      MethodTraces = processedTraces,
       StateMachineName = stateMachineName,
       MethodInfo = methodInfo,
       AsyncMethodCaseId = Guid.NewGuid()

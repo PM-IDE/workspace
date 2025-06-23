@@ -15,7 +15,8 @@ public record struct SplitContext(
   string FilterPattern,
   InlineMode InlineMode,
   bool MergeUndefinedThreadEvents,
-  bool AddAsyncMethods
+  bool AddAsyncMethods,
+  bool RemoveFirstMoveNextCalls
 );
 
 public interface IByMethodsSplitter
@@ -39,7 +40,7 @@ public class ByMethodsSplitterImpl(
   public Dictionary<string, List<List<EventRecordWithMetadata>>>? SplitNonAlloc(
     IOnlineMethodsSerializer serializer, SplitContext context)
   {
-    var (events, filterPattern, inlineMode, mergeUndefinedThreadEvents, addAsyncMethods) = context;
+    var (events, filterPattern, inlineMode, mergeUndefinedThreadEvents, addAsyncMethods, removeFirstMoveNextCalls) = context;
     SplitEventsByThreads(events, out var eventsByManagedThreads, out var undefinedThreadEvents);
 
     foreach (var (key, threadEvents) in eventsByManagedThreads)
@@ -60,7 +61,7 @@ public class ByMethodsSplitterImpl(
     if (addAsyncMethods)
     {
       var result = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
-      AddAsyncMethods(result, eventsByManagedThreads);
+      AddAsyncMethods(result, eventsByManagedThreads, removeFirstMoveNextCalls);
 
       return result;
     }
@@ -70,7 +71,7 @@ public class ByMethodsSplitterImpl(
 
   public Dictionary<string, List<List<EventRecordWithMetadata>>> Split(SplitContext context)
   {
-    var (events, filterPattern, inlineMode, mergeUndefinedThreadEvents, addAsyncMethods) = context;
+    var (events, filterPattern, inlineMode, mergeUndefinedThreadEvents, addAsyncMethods, removeFirstMoveNextCalls) = context;
     SplitEventsByThreads(events, out var eventsByManagedThreads, out var undefinedThreadEvents);
 
     var tracesByMethods = new Dictionary<string, List<List<EventRecordWithMetadata>>>();
@@ -98,7 +99,7 @@ public class ByMethodsSplitterImpl(
 
     if (addAsyncMethods)
     {
-      AddAsyncMethods(tracesByMethods, eventsByManagedThreads);
+      AddAsyncMethods(tracesByMethods, eventsByManagedThreads, removeFirstMoveNextCalls);
     }
 
     return tracesByMethods;
@@ -106,9 +107,10 @@ public class ByMethodsSplitterImpl(
 
   private void AddAsyncMethods(
     Dictionary<string, List<List<EventRecordWithMetadata>>> tracesByMethods,
-    Dictionary<long, IEventsCollection> eventsByManagedThreads)
+    Dictionary<long, IEventsCollection> eventsByManagedThreads,
+    bool removeFirstMoveNextCalls)
   {
-    var asyncMethodsTraces = asyncMethodsGrouper.GroupAsyncMethods(eventsByManagedThreads, true);
+    var asyncMethodsTraces = asyncMethodsGrouper.GroupAsyncMethods(eventsByManagedThreads, removeFirstMoveNextCalls);
     foreach (var (asyncMethodName, collection) in asyncMethodsTraces)
     {
       var traces = new List<List<EventRecordWithMetadata>>();
