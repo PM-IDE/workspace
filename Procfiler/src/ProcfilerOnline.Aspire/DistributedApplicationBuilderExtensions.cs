@@ -14,7 +14,8 @@ public static class DistributedApplicationBuilderExtensions
     var projectPath = new TProject().ProjectPath;
     var projectName = Path.GetFileName(projectPath);
 
-    return builder.AddExecutable(
+    var projectResource = builder.AddProject<TProject>(name);
+    var executableResource = builder.AddExecutable(
       $"procfiler-{name}",
       localProcfilerExecutablePath,
       Path.GetDirectoryName(projectPath)!,
@@ -26,5 +27,14 @@ public static class DistributedApplicationBuilderExtensions
       "--methods-filter-regex",
       projectName
     );
+
+    foreach (var resourceAnnotation in projectResource.Resource.Annotations)
+    {
+      executableResource.WithAnnotation(resourceAnnotation);
+    }
+
+    builder.Resources.Remove(projectResource.Resource);
+
+    return executableResource;
   }
 }

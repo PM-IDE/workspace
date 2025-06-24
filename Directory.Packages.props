@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting" Version="9.3.2" />
+    <PackageVersion Include="Aspire.Hosting" Version="9.3.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Configuration" Version="9.0.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="Confluent.Kafka" Version="2.5.2" />
