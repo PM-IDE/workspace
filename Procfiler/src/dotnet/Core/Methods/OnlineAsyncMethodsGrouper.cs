@@ -148,6 +148,7 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
   private void DiscoverLogicalExecutions(string stateMachineName)
   {
+    logger.LogDebug("Discovering logical executions for {StateMachine}", stateMachineName);
     DiscoverLogicalExecutions(stateMachineName, myAsyncMethodsToTraces[stateMachineName]);
   }
 
