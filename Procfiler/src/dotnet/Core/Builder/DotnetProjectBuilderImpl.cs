@@ -47,22 +47,26 @@ public class DotnetProjectBuilderImpl(
 
   private BuildResult? TryBuildDotnetProjectInternal(ProjectBuildInfo projectBuildInfo)
   {
-    var (pathToCsproj, tfm, configuration, _, removeTempPath, tempPath, selfContained, args) = projectBuildInfo;
+    var (pathToCsproj, tfm, configuration, _, removeTempPath, tempPath, _, _) = projectBuildInfo;
     var projectName = Path.GetFileNameWithoutExtension(pathToCsproj);
     using var _ = new PerformanceCookie($"Building::{projectName}", logger);
 
     var projectDirectory = Path.GetDirectoryName(pathToCsproj);
     Debug.Assert(projectDirectory is { });
 
+    if (tempPath is DefaultNetFolder && tfm is null)
+    {
+      logger.LogWarning("TFM should be specified when building project into default .NET output directory");
+    }
+
     var artifactsFolderCookie = tempPath switch
     {
-      DefaultNetFolder => new TempFolderCookie(logger, Path.Combine(projectDirectory, "bin", configuration.ToString(), tfm)),
+      DefaultNetFolder => new TempFolderCookie(logger, Path.Combine(projectDirectory, "bin", configuration.ToString(), tfm ?? string.Empty)),
       RandomTempPath => CreateTempArtifactsPath(),
       SpecifiedTempPath { TempFolderPath: var tempFolderPath } => new TempFolderCookie(logger, tempFolderPath),
       _ => throw new ArgumentOutOfRangeException(nameof(tempPath))
     };
 
-    var buildConfig = BuildConfigurationExtensions.ToString(configuration);
     var startInfo = new ProcessStartInfo
     {
       FileName = "dotnet",
@@ -73,8 +77,7 @@ public class DotnetProjectBuilderImpl(
       {
         [DotNetEnvs.DefaultDiagnosticPortSuspend] = EnvVarsConstants.False
       },
-      Arguments =
-        $"build {pathToCsproj} -c {buildConfig} -f {tfm} -o {artifactsFolderCookie.FolderPath} --self-contained {selfContained} {args}"
+      Arguments = BuildArguments(projectBuildInfo, artifactsFolderCookie)
     };
 
     var process = new Process
@@ -91,7 +94,7 @@ public class DotnetProjectBuilderImpl(
     }
 
     var outputSb = new StringBuilder();
-    process.OutputDataReceived += (_, args) => { outputSb.Append(args.Data); };
+    process.OutputDataReceived += (_, args) => outputSb.Append(args.Data);
 
     try
     {
@@ -131,6 +134,24 @@ public class DotnetProjectBuilderImpl(
     {
       BuiltDllPath = pathToDll
     };
+  }
+
+  private static string BuildArguments(ProjectBuildInfo projectBuildInfo, in TempFolderCookie artifactsFolderCookie)
+  {
+    var buildConfig = BuildConfigurationExtensions.ToString(projectBuildInfo.Configuration);
+
+    var sb = new StringBuilder();
+    sb.Append($"build {projectBuildInfo.CsprojPath} ")
+      .Append($"-c {buildConfig} ")
+      .Append($"-o {artifactsFolderCookie.FolderPath} ")
+      .Append($"--self-contained {projectBuildInfo.SelfContained} {projectBuildInfo.AdditionalBuildArgs} ");
+
+    if (projectBuildInfo.Tfm is { } tfm)
+    {
+      sb.Append($"-f {tfm}");
+    }
+
+    return sb.ToString();
   }
 
   private TempFolderCookie CreateTempArtifactsPath() => new(logger);
