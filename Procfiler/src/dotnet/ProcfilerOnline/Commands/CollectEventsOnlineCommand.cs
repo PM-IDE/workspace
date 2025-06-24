@@ -9,8 +9,7 @@ using ProcfilerOnline.Core;
 
 namespace ProcfilerOnline.Commands;
 
-public record CollectEventsOnlineContext(
-  string DllFilePath,
+public abstract record CollectEventsOnlineBaseContext(
   Regex? TargetMethodsRegex,
   Regex? MethodsFilterRegex,
   ProvidersCategoryKind Providers,
@@ -18,15 +17,40 @@ public record CollectEventsOnlineContext(
   bool RemoveFirstMoveNextFrames
 )
 {
-  public string ApplicationName { get; } = Path.GetFileNameWithoutExtension(DllFilePath);
+  public abstract string ApplicationName { get; }
+}
+
+public sealed record CollectEventsOnlineFromDllContext(
+  string DllFilePath,
+  Regex? TargetMethodsRegex,
+  Regex? MethodsFilterRegex,
+  ProvidersCategoryKind Providers,
+  ulong EventsFlushThreshold,
+  bool RemoveFirstMoveNextFrames
+) : CollectEventsOnlineBaseContext(TargetMethodsRegex, MethodsFilterRegex, Providers, EventsFlushThreshold, RemoveFirstMoveNextFrames)
+{
+  public override string ApplicationName { get; } = Path.GetFileNameWithoutExtension(DllFilePath);
+}
+
+public sealed record CollectEventsOnlineFromCsprojContext(
+  string CsprojPath,
+  Regex? TargetMethodsRegex,
+  Regex? MethodsFilterRegex,
+  ProvidersCategoryKind Providers,
+  ulong EventsFlushThreshold,
+  bool RemoveFirstMoveNextFrames
+) : CollectEventsOnlineBaseContext(TargetMethodsRegex, MethodsFilterRegex, Providers, EventsFlushThreshold, RemoveFirstMoveNextFrames)
+{
+  public override string ApplicationName { get; } = Path.GetFileNameWithoutExtension(CsprojPath);
 }
 
 [AppComponent]
 public class CollectEventsOnlineCommand(
   IProcfilerLogger logger,
-  IClrOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineContext>
+  IClrOnlineEventsProcessor processor) : ICommandWithContext<CollectEventsOnlineBaseContext>
 {
   private static Option<string> DllPathOption { get; } = new("-dll-path", "The path to dll to profile");
+  private static Option<string> CsprojOption { get; } = new("-csproj", "The project to execute");
 
   private static Option<string> TargetMethodsRegex { get; } =
     new("--target-methods-regex", "The regular expression which specified target methods");
@@ -43,7 +67,7 @@ public class CollectEventsOnlineCommand(
     new("--remove-first-move-next-frames", static () => true, "Remove first MoveNext frames from async methods traces");
 
 
-  public void Execute(CollectEventsOnlineContext context)
+  public void Execute(CollectEventsOnlineBaseContext context)
   {
     processor.StartProfiling(context);
   }
@@ -51,16 +75,29 @@ public class CollectEventsOnlineCommand(
   public int Invoke(InvocationContext context) =>
     CommandLineUtils.TransformAndExecute(context, logger, Execute, parseResult =>
     {
-      parseResult.AssertAllOptionsArePresent([DllPathOption]);
+      var dllPath = parseResult.GetValueForOption(DllPathOption);
+      var csprojPath = parseResult.GetValueForOption(CsprojOption);
 
-      return new CollectEventsOnlineContext(
-        parseResult.GetValueForOption(DllPathOption)!,
-        CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
-        CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex)),
-        parseResult.GetValueForOption(ProvidersOption),
-        parseResult.GetValueForOption(EventsFlushThreshold),
-        parseResult.GetValueForOption(RemoveFirstMoveNextFrames)
-      );
+      return (CollectEventsOnlineBaseContext)((dllPath, command: csprojPath) switch
+      {
+        ({ }, null) => new CollectEventsOnlineFromDllContext(
+          dllPath,
+          CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
+          CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex)),
+          parseResult.GetValueForOption(ProvidersOption),
+          parseResult.GetValueForOption(EventsFlushThreshold),
+          parseResult.GetValueForOption(RemoveFirstMoveNextFrames)
+        ),
+        (null, { }) => new CollectEventsOnlineFromCsprojContext(
+          csprojPath,
+          CreateRegex(parseResult.GetValueForOption(TargetMethodsRegex)),
+          CreateRegex(parseResult.GetValueForOption(MethodsFilterRegex)),
+          parseResult.GetValueForOption(ProvidersOption),
+          parseResult.GetValueForOption(EventsFlushThreshold),
+          parseResult.GetValueForOption(RemoveFirstMoveNextFrames)
+        ),
+        _ => throw new OneOfFollowingOptionsMustBeSpecifiedException([DllPathOption, CsprojOption])
+      });
     });
 
   private static Regex? CreateRegex(string? stringRegex) => stringRegex is { } ? new Regex(stringRegex) : null;
@@ -71,6 +108,7 @@ public class CollectEventsOnlineCommand(
   {
     var command = new Command("collect-online", "Collect events online from launched .NET dll");
     command.AddOption(DllPathOption);
+    command.AddOption(CsprojOption);
     command.AddOption(TargetMethodsRegex);
     command.AddOption(MethodsFilterRegex);
     command.AddOption(ProvidersOption);
