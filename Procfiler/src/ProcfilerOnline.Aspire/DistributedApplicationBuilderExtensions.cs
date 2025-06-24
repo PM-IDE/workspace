@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Aspire.Hosting;
+﻿using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 
 namespace ProcfilerOnline.Aspire;
@@ -13,17 +12,19 @@ public static class DistributedApplicationBuilderExtensions
   ) where TProject : IProjectMetadata, new()
   {
     var projectPath = new TProject().ProjectPath;
-    var projectDir = Path.GetDirectoryName(projectPath)!;
+    var projectName = Path.GetFileName(projectPath);
 
     return builder.AddExecutable(
       $"procfiler-{name}",
       localProcfilerExecutablePath,
-      projectDir,
+      Path.GetDirectoryName(projectPath)!,
       "collect-online",
-      "-command",
-      $"""
-      "dotnet run {projectDir}"
-      """
+      "-csproj",
+      projectPath,
+      "--target-methods-regex",
+      projectName,
+      "--methods-filter-regex",
+      projectName
     );
   }
 }
