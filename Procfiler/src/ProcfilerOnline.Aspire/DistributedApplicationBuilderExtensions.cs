@@ -8,7 +8,9 @@ public static class DistributedApplicationBuilderExtensions
   public static IResourceBuilder<ExecutableResource> AddLocalProcfilerExecutable<TProject>(
     this IDistributedApplicationBuilder builder,
     string name,
-    string localProcfilerExecutablePath
+    string localProcfilerExecutablePath,
+    string? targetMethodsRegex = null,
+    string? methodsFilterRegex = null
   ) where TProject : IProjectMetadata, new()
   {
     var projectPath = new TProject().ProjectPath;
@@ -25,9 +27,9 @@ public static class DistributedApplicationBuilderExtensions
         "-csproj",
         projectPath,
         "--target-methods-regex",
-        projectName,
+        targetMethodsRegex ?? projectName,
         "--methods-filter-regex",
-        projectName
+        methodsFilterRegex ?? projectName
       )
       .WithEnvironment("ProduceEventsToKafka", "true")
       .WithEnvironment("ProduceBxesKafkaEvents", "true")
