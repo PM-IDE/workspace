@@ -5,7 +5,10 @@ namespace ProcfilerOnline.Aspire;
 
 public static class DistributedApplicationBuilderExtensions
 {
-  public static IResourceBuilder<ExecutableResource> AddLocalProcfilerExecutable<TProject>(
+  public class ProcfilerExecutableResource(string name, string command, string workingDirectory)
+    : ExecutableResource(name, command, workingDirectory), IResourceWithServiceDiscovery;
+
+  public static IResourceBuilder<ProcfilerExecutableResource> AddLocalProcfilerExecutable<TProject>(
     this IDistributedApplicationBuilder builder,
     string name,
     string localProcfilerExecutablePath,
@@ -16,13 +19,20 @@ public static class DistributedApplicationBuilderExtensions
     var projectPath = new TProject().ProjectPath;
     var projectName = Path.GetFileNameWithoutExtension(projectPath);
 
-    var projectResource = builder.AddProject<TProject>(name);
+    var projectResource = builder
+      .AddProject<TProject>(name)
+      .WithEnvironment("ProduceEventsToKafka", "true")
+      .WithEnvironment("ProduceBxesKafkaEvents", "true")
+      .WithEnvironment("ProduceGcEvents", "false")
+      .WithEnvironment("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic")
+      .WithEnvironment("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
 
-    var executableResource = builder
-      .AddExecutable(
-        $"procfiler-{name}",
-        localProcfilerExecutablePath,
-        Path.GetDirectoryName(projectPath)!,
+    var procfilerExecutableResource = new ProcfilerExecutableResource(
+      $"procfiler-{name}", localProcfilerExecutablePath, Path.GetDirectoryName(projectPath)!);
+
+    var resourceBuilder = builder
+      .AddResource(procfilerExecutableResource)
+      .WithArgs(context => context.Args.AddRange([
         "collect-online",
         "-csproj",
         projectPath,
@@ -30,20 +40,26 @@ public static class DistributedApplicationBuilderExtensions
         targetMethodsRegex ?? projectName,
         "--methods-filter-regex",
         methodsFilterRegex ?? projectName
-      )
-      .WithEnvironment("ProduceEventsToKafka", "true")
-      .WithEnvironment("ProduceBxesKafkaEvents", "true")
-      .WithEnvironment("ProduceGcEvents", "false")
-      .WithEnvironment("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic")
-      .WithEnvironment("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
+      ]));
 
     foreach (var resourceAnnotation in projectResource.Resource.Annotations)
     {
-      executableResource.WithAnnotation(resourceAnnotation);
+      resourceBuilder.WithAnnotation(resourceAnnotation);
     }
 
     builder.Resources.Remove(projectResource.Resource);
 
-    return executableResource;
+    return resourceBuilder;
+  }
+}
+
+file static class ExtensionsForIList
+{
+  public static void AddRange<T>(this IList<T> list, IEnumerable<T> items)
+  {
+    foreach (var item in items)
+    {
+      list.Add(item);
+    }
   }
 }
