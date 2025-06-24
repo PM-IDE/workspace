@@ -27,8 +27,10 @@ public static class DistributedApplicationBuilderExtensions
       .WithEnvironment("OnlineProcfilerSettings__KafkaSettings__TopicName", "my-topic")
       .WithEnvironment("OnlineProcfilerSettings__KafkaSettings__BootstrapServers", "localhost:9092");
 
+    builder.Resources.Remove(projectResource.Resource);
+
     var procfilerExecutableResource = new ProcfilerExecutableResource(
-      $"procfiler-{name}", localProcfilerExecutablePath, Path.GetDirectoryName(projectPath)!);
+      name, localProcfilerExecutablePath, Path.GetDirectoryName(projectPath)!);
 
     var resourceBuilder = builder
       .AddResource(procfilerExecutableResource)
@@ -46,8 +48,6 @@ public static class DistributedApplicationBuilderExtensions
     {
       resourceBuilder.WithAnnotation(resourceAnnotation);
     }
-
-    builder.Resources.Remove(projectResource.Resource);
 
     return resourceBuilder;
   }
