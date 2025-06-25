@@ -288,7 +288,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
     trace.Completed &&
     (
       trace.BeforeTaskEvent is not { TaskId: var id } ||
-      !myTasksToTracesIds.ContainsKey(id)
+      !myTasksToTracesIds.ContainsKey(id) ||
+      myTracesToTasksIds.Values.All(queuedTaskId => queuedTaskId != id)
     );
 
   private void UpdateAsyncMethodsToTypeNames(string fullMethodName)
