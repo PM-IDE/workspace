@@ -49,23 +49,21 @@ public class AsyncMethodsGrouper(IProcfilerLogger logger) : IAsyncMethodsGrouper
       }
     );
 
-    foreach (var (_, events) in managedThreadsEvents)
+    foreach (var eventRecordWithPointer in new OrderedEventsEnumerator(managedThreadsEvents.Values))
     {
-      foreach (var (_, eventRecord) in events)
+      var eventRecord = eventRecordWithPointer.Event;
+      var threadId = eventRecord.ManagedThreadId;
+      if (eventRecord.ToTaskEvent() is { } taskEvent)
       {
-        var threadId = eventRecord.ManagedThreadId;
-        if (eventRecord.ToTaskEvent() is { } taskEvent)
-        {
-          onlineGrouper.ProcessTaskEvent(taskEvent, threadId);
-        }
-        else if (eventRecord.TryGetMethodStartEndEventInfo() is { IsStart: var isStart, Frame: var frame })
-        {
-          onlineGrouper.ProcessMethodStartEndEvent(eventRecord.DeepClone(), frame, isStart, threadId);
-        }
-        else
-        {
-          onlineGrouper.ProcessNormalEvent(eventRecord, threadId);
-        }
+        onlineGrouper.ProcessTaskEvent(taskEvent, threadId);
+      }
+      else if (eventRecord.TryGetMethodStartEndEventInfo() is { IsStart: var isStart, Frame: var frame })
+      {
+        onlineGrouper.ProcessMethodStartEndEvent(eventRecord.DeepClone(), frame, isStart, threadId);
+      }
+      else
+      {
+        onlineGrouper.ProcessNormalEvent(eventRecord, threadId);
       }
     }
 
