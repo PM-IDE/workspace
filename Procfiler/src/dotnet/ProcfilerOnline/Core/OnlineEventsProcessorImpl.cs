@@ -67,9 +67,9 @@ public class OnlineEventsProcessorImpl(
       CommandContext = new CommandContext
       {
         ApplicationName = commandContext.ApplicationName,
-        TargetMethodsRegex = commandContext.TargetMethodsRegex,
-        EventsFlushThreshold = commandContext.EventsFlushThreshold,
-        RemoveFirstMoveNextFrames = commandContext.RemoveFirstMoveNextFrames
+        TargetMethodsRegex = commandContext.Base.TargetMethodsRegex,
+        EventsFlushThreshold = commandContext.Base.EventsFlushThreshold,
+        RemoveFirstMoveNextFrames = commandContext.Base.RemoveFirstMoveNextFrames
       }
     };
 
@@ -96,9 +96,9 @@ public class OnlineEventsProcessorImpl(
           CommandContext = new CommandContext
           {
             ApplicationName = commandContext.ApplicationName,
-            TargetMethodsRegex = commandContext.TargetMethodsRegex,
-            EventsFlushThreshold = commandContext.EventsFlushThreshold,
-            RemoveFirstMoveNextFrames = commandContext.RemoveFirstMoveNextFrames,
+            TargetMethodsRegex = commandContext.Base.TargetMethodsRegex,
+            EventsFlushThreshold = commandContext.Base.EventsFlushThreshold,
+            RemoveFirstMoveNextFrames = commandContext.Base.RemoveFirstMoveNextFrames,
           }
         };
 
