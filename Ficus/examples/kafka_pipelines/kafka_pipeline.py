@@ -10,7 +10,6 @@ execute_pipeline(
         RemainOnlyMethodStartEvents(),
         SetMethodsDisplayName(),
         ShortenAllocationType(),
-        ShortenMethodNames(),
         PrepareSoftwareLog(time_attribute = 'QpcStamp'),
         AddStartEndArtificialEvents(),
         TracesDiversityDiagramCanvas(),

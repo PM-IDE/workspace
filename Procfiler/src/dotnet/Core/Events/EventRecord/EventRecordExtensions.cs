@@ -20,8 +20,7 @@ public readonly record struct TypeIdToName(long Id, string Name);
 public static class EventRecordExtensions
 {
   public static bool IsTaskRelatedEvent(this EventRecordWithMetadata eventRecord) =>
-    eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix) ||
-    eventRecord.EventClass.StartsWith(TraceEventsConstants.AwaitCommonPrefix);
+    eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix);
 
   public static bool IsTaskExecutionEvent(this EventRecordWithMetadata eventRecord) =>
     eventRecord.EventClass is TraceEventsConstants.TaskExecuteStart or TraceEventsConstants.TaskExecuteStop;

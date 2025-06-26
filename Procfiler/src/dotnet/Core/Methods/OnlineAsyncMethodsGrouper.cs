@@ -22,28 +22,13 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
   public void ProcessTaskEvent(TaskEvent taskEvent, long managedThreadId)
   {
-    switch (taskEvent)
-    {
-      case TaskWaitEvent taskWaitEvent:
-        ProcessTaskWaitEvent(taskWaitEvent, managedThreadId);
-        break;
-      case TaskExecuteEvent taskExecuteEvent:
-        ProcessTaskExecuteEvent(taskExecuteEvent, managedThreadId);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException($"Unknown task event {taskEvent.GetType().Name}");
-    }
-  }
-
-  private void ProcessTaskWaitEvent(TaskWaitEvent taskEvent, long managedThreadId)
-  {
     logger.LogDebug("[{ThreadId}]: {TaskEvent}", managedThreadId, taskEvent);
-    GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent;
-  }
 
-  private void ProcessTaskExecuteEvent(TaskExecuteEvent taskExecuteEvent, long managedThreadId)
-  {
-    logger.LogDebug("[{ThreadId}]: {TaskEvent}", managedThreadId, taskExecuteEvent);
+    GetThreadData(managedThreadId).LastSeenTaskEvent = taskEvent switch
+    {
+      TaskWaitEvent taskWaitEvent => taskWaitEvent,
+      _ => null
+    };
   }
 
   public void ProcessMethodStartEndEvent(TEvent @event, string fullMethodName, bool isStart, long managedThreadId)
@@ -148,6 +133,7 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
   private void DiscoverLogicalExecutions(string stateMachineName)
   {
+    logger.LogDebug("Discovering logical executions for {StateMachine}", stateMachineName);
     DiscoverLogicalExecutions(stateMachineName, myAsyncMethodsToTraces[stateMachineName]);
   }
 
@@ -287,7 +273,8 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
     trace.Completed &&
     (
       trace.BeforeTaskEvent is not { TaskId: var id } ||
-      !myTasksToTracesIds.ContainsKey(id)
+      !myTasksToTracesIds.ContainsKey(id) ||
+      myTracesToTasksIds.Values.All(queuedTaskId => queuedTaskId != id)
     );
 
   private void UpdateAsyncMethodsToTypeNames(string fullMethodName)

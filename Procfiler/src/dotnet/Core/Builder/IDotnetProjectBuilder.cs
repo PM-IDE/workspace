@@ -13,7 +13,7 @@ public readonly struct BuildResult(TempFolderCookie tempFolderCookie)
 
 public record struct ProjectBuildInfo(
   string CsprojPath,
-  string Tfm,
+  string? Tfm,
   BuildConfiguration Configuration,
   InstrumentationKind InstrumentationKind,
   bool ClearArtifacts,

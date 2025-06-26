@@ -12,7 +12,7 @@ namespace ProcfilerOnline.Core;
 
 public interface IOnlineEventsProcessor
 {
-  ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineContext commandContext);
+  ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineBaseContext commandContext);
 }
 
 [AppComponent]
@@ -23,7 +23,7 @@ public class OnlineEventsProcessorImpl(
   IMethodBeginEndSingleMutator methodBeginEndSingleMutator
 ) : IOnlineEventsProcessor
 {
-  public ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineContext commandContext)
+  public ISharedEventPipeStreamData Process(Stream eventPipeStream, CollectEventsOnlineBaseContext commandContext)
   {
     using var source = new EventPipeEventSource(eventPipeStream);
 
@@ -48,14 +48,14 @@ public class OnlineEventsProcessorImpl(
   }
 
   private void SubscribeToEventSource(
-    ISharedEventPipeStreamData globalData, CollectEventsOnlineContext commandContext, EventPipeEventSource source)
+    ISharedEventPipeStreamData globalData, CollectEventsOnlineBaseContext commandContext, EventPipeEventSource source)
   {
     new TplEtwProviderTraceEventParser(source).All += e => ProcessEvent(e, globalData, commandContext);
     source.Clr.All += e => ProcessEvent(e, globalData, commandContext);
     source.Dynamic.All += e => ProcessEvent(e, globalData, commandContext);
   }
 
-  private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData, CollectEventsOnlineContext commandContext)
+  private void ProcessEvent(TraceEvent traceEvent, ISharedEventPipeStreamData globalData, CollectEventsOnlineBaseContext commandContext)
   {
     var eventRecord = new EventRecordWithMetadata(traceEvent, -1, traceEvent.ThreadID, -1);
 
@@ -67,9 +67,9 @@ public class OnlineEventsProcessorImpl(
       CommandContext = new CommandContext
       {
         ApplicationName = commandContext.ApplicationName,
-        TargetMethodsRegex = commandContext.TargetMethodsRegex,
-        EventsFlushThreshold = commandContext.EventsFlushThreshold,
-        RemoveFirstMoveNextFrames = commandContext.RemoveFirstMoveNextFrames
+        TargetMethodsRegex = commandContext.Base.TargetMethodsRegex,
+        EventsFlushThreshold = commandContext.Base.EventsFlushThreshold,
+        RemoveFirstMoveNextFrames = commandContext.Base.RemoveFirstMoveNextFrames
       }
     };
 
@@ -78,7 +78,7 @@ public class OnlineEventsProcessorImpl(
 
   private void ProcessEventInternal(EventProcessingContext context) => methodsProcessor.Process(context);
 
-  private void ProcessNotClosedMethods(ISharedEventPipeStreamData globalData, CollectEventsOnlineContext commandContext)
+  private void ProcessNotClosedMethods(ISharedEventPipeStreamData globalData, CollectEventsOnlineBaseContext commandContext)
   {
     foreach (var (threadId, methodEvents) in methodsProcessor.ReclaimNotClosedMethods())
     {
@@ -96,9 +96,9 @@ public class OnlineEventsProcessorImpl(
           CommandContext = new CommandContext
           {
             ApplicationName = commandContext.ApplicationName,
-            TargetMethodsRegex = commandContext.TargetMethodsRegex,
-            EventsFlushThreshold = commandContext.EventsFlushThreshold,
-            RemoveFirstMoveNextFrames = commandContext.RemoveFirstMoveNextFrames,
+            TargetMethodsRegex = commandContext.Base.TargetMethodsRegex,
+            EventsFlushThreshold = commandContext.Base.EventsFlushThreshold,
+            RemoveFirstMoveNextFrames = commandContext.Base.RemoveFirstMoveNextFrames,
           }
         };
 

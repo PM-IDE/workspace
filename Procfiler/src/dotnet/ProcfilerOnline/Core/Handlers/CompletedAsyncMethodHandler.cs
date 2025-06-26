@@ -28,7 +28,7 @@ public class CompletedAsyncMethodHandler(
   {
     if (eventPipeStreamEvent is not CompletedAsyncMethodEvent completedAsyncMethodEvent) return;
 
-    logger.LogDebug("Processing state machine {StateMachine}", completedAsyncMethodEvent.StateMachineName);
+    logger.LogInformation("Processing state machine {StateMachine}", completedAsyncMethodEvent.StateMachineName);
 
     if (!ProcfilerOnlineFeatures.ProduceEventsToKafka.IsEnabled()) return;
 

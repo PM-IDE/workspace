@@ -190,7 +190,6 @@
     }
   },
   "raw_control_flow_regexes": [
-    "\\[Start\\]",
-    "\\[End\\]"
+    "ProcfilerMethod"
   ]
 }
