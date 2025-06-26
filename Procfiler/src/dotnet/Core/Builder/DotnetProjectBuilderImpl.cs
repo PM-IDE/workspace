@@ -15,7 +15,7 @@ public class DotnetProjectBuilderImpl(
 {
   public BuildResult? TryBuildDotnetProject(ProjectBuildInfo projectBuildInfo)
   {
-    var resultNullable = TryBuildDotnetProjectInternal(projectBuildInfo);
+    var resultNullable = TryBuildDotnetProjectWithRetry(projectBuildInfo);
     if (resultNullable is not { } result) return null;
 
     if (projectBuildInfo.InstrumentationKind is not InstrumentationKind.None)
@@ -43,6 +43,31 @@ public class DotnetProjectBuilderImpl(
     }
 
     return result;
+  }
+
+  private BuildResult? TryBuildDotnetProjectWithRetry(ProjectBuildInfo projectBuildInfo, uint retriesCount = 10)
+  {
+    for (var i = 0; i < retriesCount; ++i)
+    {
+      if (TryBuildDotnetProjectInternal(projectBuildInfo) is { } buildResult)
+      {
+        return buildResult;
+      }
+
+      var secondsUntilNextRetry = Random.Shared.Next(1, 10);
+
+      logger.LogWarning(
+        "Failed to build dotnet project {Project}, retrying in {Seconds} secs",
+        projectBuildInfo.CsprojPath,
+        secondsUntilNextRetry
+      );
+
+      Thread.Sleep(TimeSpan.FromSeconds(secondsUntilNextRetry));
+    }
+
+    logger.LogError("Failed to build project after {RetriesCount} attempts", retriesCount);
+
+    return null;
   }
 
   private BuildResult? TryBuildDotnetProjectInternal(ProjectBuildInfo projectBuildInfo)
