@@ -10,6 +10,8 @@ public abstract class TaskEvent
   public override string ToString() => $"{GetType().Name} TaskId: {TaskId}, OriginatingTaskId: {OriginatingTaskId}";
 }
 
+public sealed class UnknownTaskEvent : TaskEvent;
+
 public abstract class TaskWaitEvent : TaskEvent;
 
 public sealed class TaskWaitSendEvent : TaskWaitEvent
@@ -33,10 +35,9 @@ public static class TaskEventExtensions
 {
   public static TaskEvent? ToTaskEvent(this EventRecordWithMetadata eventRecord)
   {
-    TaskEvent? taskEvent = null;
     if (eventRecord.IsTaskWaitSendEvent() is { } taskData)
     {
-      taskEvent = new TaskWaitSendEvent
+      return new TaskWaitSendEvent
       {
         TaskId = taskData.TaskId,
         OriginatingTaskId = taskData.OriginatingTaskId,
@@ -47,12 +48,12 @@ public static class TaskEventExtensions
 
     if (eventRecord.IsTaskWaitStopEvent(out var taskId, out var originatingTaskId))
     {
-      taskEvent = new TaskWaitStopEvent { TaskId = taskId, OriginatingTaskId = originatingTaskId };
+      return new TaskWaitStopEvent { TaskId = taskId, OriginatingTaskId = originatingTaskId };
     }
 
     if (eventRecord.IsTaskExecuteStartEvent(out taskId, out originatingTaskId))
     {
-      taskEvent = new TaskExecuteStartEvent
+      return new TaskExecuteStartEvent
       {
         TaskId = taskId,
         OriginatingTaskId = originatingTaskId
@@ -61,13 +62,22 @@ public static class TaskEventExtensions
 
     if (eventRecord.IsTaskExecuteStopEvent(out taskId, out originatingTaskId))
     {
-      taskEvent = new TaskExecuteStopEvent
+      return new TaskExecuteStopEvent
       {
         TaskId = taskId,
         OriginatingTaskId = originatingTaskId
       };
     }
 
-    return taskEvent;
+    if (eventRecord.IsTaskRelatedEvent())
+    {
+      return new UnknownTaskEvent
+      {
+        TaskId = 0,
+        OriginatingTaskId = 0
+      };
+    }
+
+    return null;
   }
 }
