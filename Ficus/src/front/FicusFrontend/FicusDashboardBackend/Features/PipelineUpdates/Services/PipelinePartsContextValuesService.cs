@@ -18,7 +18,7 @@ public class PipelinePartsContextValuesService(
       await foreach (var update in repository.StartUpdatesStream(context.CancellationToken))
       {
         logger.LogInformation("Sending update to client");
-        await responseStream.WriteAsync(update);
+        await responseStream.WriteAsync(update, context.CancellationToken);
       }
     }
     catch (OperationCanceledException ex)
@@ -28,6 +28,10 @@ public class PipelinePartsContextValuesService(
     catch (Exception ex)
     {
       logger.LogError(ex, "The stream ended with error");
+    }
+    finally
+    {
+      logger.LogInformation("Session ended");
     }
   }
 }
