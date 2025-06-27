@@ -7,7 +7,7 @@
 
 <div style="display: flex; flex-direction: row; width: 100%; height: 100%;">
   <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
-    @if (IsRichUiGraph())
+    @if (IsRichUiGraph(Graph))
     {
       @foreach (var (index, kind) in Enum.GetValues<SoftwareGraphEnhancementKind>().Index())
       {
@@ -71,7 +71,7 @@
 
   private void SetInitialCheckBoxesValues()
   {
-    if (!IsRichUiGraph()) return;
+    if (!IsRichUiGraph(Graph)) return;
 
     foreach (var checkBox in myCheckBoxes)
     {
@@ -79,9 +79,12 @@
     }
   }
 
-  private bool IsRichUiGraph() =>
-    Graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
-    Graph.Nodes.Any(n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()));
+  private static bool IsRichUiGraph(GrpcGraph graph) =>
+    graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
+    graph.Nodes.Any(
+      n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()) ||
+           (n.InnerGraph is { } innerGraph && IsRichUiGraph(innerGraph))
+    );
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
@@ -93,7 +96,7 @@
     };
 
     return await Js.InvokeAsync<IJSObjectReference>(
-      "drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue, spacingFactor, IsRichUiGraph());
+      "drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue, spacingFactor, IsRichUiGraph(Graph));
   }
 
   private string CreateExportFileName()
