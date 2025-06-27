@@ -143,4 +143,15 @@ impl PipelineParts {
       Ok(())
     })
   }
+
+  pub(super) fn terminate_if_empty_log() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::TERMINATE_IF_EMPTY_LOG, &|context, _, _| {
+      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+      if log.traces().iter().map(|t| t.borrow().events().len()).sum::<usize>() == 0 {
+        return Err(PipelinePartExecutionError::new_raw("Empty log".to_string()))
+      }
+
+      Ok(())
+    })
+  }
 }

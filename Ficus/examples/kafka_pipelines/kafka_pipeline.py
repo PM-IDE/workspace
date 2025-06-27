@@ -11,6 +11,7 @@ execute_pipeline(
         SetMethodsDisplayName(),
         ShortenAllocationType(),
         PrepareSoftwareLog(time_attribute = 'QpcStamp'),
+        TerminateIfEmptyLog(),
         AddStartEndArtificialEvents(),
         TracesDiversityDiagramCanvas(),
         DiscoverLoopsStrict(),
