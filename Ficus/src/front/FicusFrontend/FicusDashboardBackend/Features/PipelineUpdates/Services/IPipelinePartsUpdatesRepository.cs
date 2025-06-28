@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Threading.Channels;
-using Ficus;
+﻿using Ficus;
 using FicusDashboardBackend.Utils;
 using Google.Protobuf.WellKnownTypes;
 using GrpcModels;
@@ -70,7 +68,6 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
   private readonly SemaphoreSlim myLock = new(1);
   private readonly Dictionary<CaseKey, CaseData> myCases = [];
-  private readonly ConcurrentDictionary<Guid, Channel<GrpcKafkaUpdate>> myChannels = [];
 
 
   public Task<GrpcSubscriptionAndPipelinesStateResponse> GetCurrentState()
@@ -159,7 +156,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
   public Task ProcessUpdate(GrpcKafkaUpdate update)
   {
-    return myLock.Execute(async () =>
+    return myLock.Execute(() =>
     {
       var updateProcessingId = Guid.NewGuid();
       using var _ = logger.BeginScope(new Dictionary<string, object>
@@ -227,14 +224,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       });
 
       caseData.ExecutionResults.Stamp++;
-
-      foreach (var (id, chanel) in myChannels)
-      {
-        logger.LogInformation("Started writing update to channel {Id}", id);
-        await chanel.Writer.WriteAsync(update);
-
-        logger.LogInformation("Finished writing update to channel {Id}", id);
-      }
+      return Task.CompletedTask;
     });
   }
 }
