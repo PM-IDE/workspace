@@ -6,12 +6,13 @@
 @using JetBrains.Lifetimes
 @inherits ComponentBase;
 
-<div style="width: 250px; height: 100%; overflow: auto; background: var(--processes-section-cases-collapsed-bakground-darker)">
+<div
+  style="width: 250px; height: 100%; overflow: auto; background: var(--processes-section-cases-collapsed-bakground-darker)">
   <div style="width: fit-content">
     @if (myRootItem is { })
     {
       <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
-                TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView> 
+                TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView>
     }
   </div>
 </div>
@@ -19,7 +20,7 @@
 @code
 {
   private static Key<Case> LeafTreeItemCase { get; } = new Key<Case>(nameof(LeafTreeItemCase));
-  
+
   private readonly LifetimeDefinitionsByKey<string> myProcessesLifetimes = new();
   private readonly LifetimeDefinitionsByKey<string> myCasesLifetimes = new();
   private readonly SequentialLifetimes mySequentialLifetimes = new(Lifetime.Eternal);
@@ -121,15 +122,15 @@
   private static void AddCaseNamePart(TreeViewItem item, CaseNamePart part)
   {
     if (item.InnerItems.TryGetValue(part.NamePart, out var treeItemChild))
-    { 
+    {
       foreach (var (_, caseNamePart) in part.Children)
-      { 
+      {
         AddCaseNamePart(treeItemChild, caseNamePart);
       }
 
       return;
     }
-    
+
     var newTreeViewItem = new TreeViewItem
     {
       InnerItems = [],
@@ -143,17 +144,17 @@
     {
       newTreeViewItem.UserData.PutData(LeafTreeItemCase, @case);
     }
-    
+
     newTreeViewItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.New);
-    
+
     foreach (var (_, child) in part.Children)
     {
       AddCaseNamePart(newTreeViewItem, child);
     }
-    
+
     item.InnerItems[part.NamePart] = newTreeViewItem;
   }
-  
+
   private void HandleProcessAddRemove(AddRemove addRemove, string key, ProcessData? process)
   {
     if (process is null) return;
@@ -197,14 +198,15 @@
         {
           var rootPart = new CaseNamePart("root");
           AddCaseNamePartForProcess(rootPart, caseModel.ParentProcess);
-          AddCaseNamePart(myRootItem, rootPart.Children.Values.First()); 
+          AddCaseNamePart(myRootItem, rootPart.Children.Values.First());
         }
-        
+
         break;
       }
       case AddRemove.Remove:
       {
         myCasesLifetimes.TerminateAndRemove(caseKey);
+        RemoveCase(caseModel);
 
         break;
       }
@@ -215,11 +217,41 @@
     StateHasChanged();
   }
 
+  private void RemoveCase(Case caseModel)
+  {
+    if (myRootItem is null) return;
+    
+    var processItem = myRootItem.InnerItems[caseModel.ParentProcess.ProcessName];
+
+    var currentItem = processItem;
+    foreach (var namePart in caseModel.NameParts)
+    {
+      currentItem = currentItem.InnerItems[namePart];
+    }
+
+    var namePartIndex = caseModel.NameParts.Count - 1;
+    currentItem.Parent?.InnerItems.Remove(caseModel.NameParts[namePartIndex]);
+    namePartIndex--;
+    currentItem = currentItem.Parent;
+
+    while (currentItem is { } && namePartIndex >= 0 && currentItem.InnerItems.Count == 0)
+    {
+      currentItem.Parent?.InnerItems.Remove(caseModel.NameParts[namePartIndex]);
+      namePartIndex--;
+      currentItem = currentItem.Parent;
+    }
+
+    if (processItem.InnerItems.Count == 0)
+    {
+      myRootItem.InnerItems.Remove(processItem.Id);
+    }
+  }
+
   private void HandleCaseContextValuesChange(string caseKey, Case caseModel)
   {
     if (ReferenceEquals(caseModel, mySelectedCase)) return;
     //if (!myProcesses.TryGetValue(caseModel.ParentProcess.ProcessName, out var collectionItemInfo)) return;
-    
+
     //collectionItemInfo.InnerItems[caseKey].InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
     StateHasChanged();
   }
