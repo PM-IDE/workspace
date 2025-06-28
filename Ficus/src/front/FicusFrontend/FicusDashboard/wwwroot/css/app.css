@@ -207,3 +207,15 @@ svg-pie-chart svg {
   padding: 5px;
   border-radius: 5px;
 }
+
+.update-notification {
+  background-color: yellow;
+}
+
+.new-notification {
+  background-color: greenyellow;
+}
+
+.seen-notification {
+  visibility: hidden;
+}

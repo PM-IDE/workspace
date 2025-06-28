@@ -1,14 +1,15 @@
-﻿@using FicusDashboard.Components.TreeView
+﻿@using FicusDashboard.Components.SidebarList
+@using FicusDashboard.Components.TreeView
 @using FicusDashboard.Services.Cases
 @using FicusDashboard.Utils
 @using JetBrains.Collections.Viewable
 @using JetBrains.Lifetimes
 @inherits ComponentBase;
 
-<div style="width: 250px; height: 100%; overflow: auto;">
+<div style="width: 250px; height: 100%; overflow: auto; background: var(--processes-section-cases-collapsed-bakground-darker)">
   <div style="width: fit-content">
     <TreeView Items="@myItems"
-              HandleTreeViewItemClicked="@HandleTreeViewItemClicked"></TreeView>
+              TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView>
   </div>
 </div>
 
@@ -106,7 +107,7 @@
       AddCaseNamePart(rootItem, caseNamePart);
     }
 
-    return [rootItem];
+    return rootItem.InnerItems.Values.ToList();
   }
 
   private static void AddCaseNamePart(TreeViewItem item, CaseNamePart part)
@@ -124,6 +125,8 @@
     {
       newTreeViewItem.UserData.PutData(LeafTreeItemCase, @case);
     }
+    
+    newTreeViewItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.New);
     
     foreach (var (_, child) in part.Children)
     {

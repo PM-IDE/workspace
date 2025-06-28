@@ -31,3 +31,14 @@ public enum ItemProcessingState
   Updated,
   Seen
 }
+
+public static class ItemProcessingStateExtensions
+{
+  public static string GetNotificationClass(this ItemProcessingState state) => state switch
+  {
+    ItemProcessingState.New => "new-notification",
+    ItemProcessingState.Updated => "update-notification",
+    ItemProcessingState.Seen => "seen-notification",
+    _ => throw new ArgumentOutOfRangeException()
+  };
+}

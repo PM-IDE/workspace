@@ -1,16 +1,32 @@
+@using FicusDashboard.Components.SidebarList
 @foreach (var item in Items)
 {
   <div>
-    <div style="text-wrap: nowrap; color: white"
-         @onclick="_ => HandleTreeViewItemClicked(item)">
-      @item.DisplayName
+    <div style="display: flex; flex-direction: row; align-items: center">
+      @if (item.InnerItems.Count == 0)
+      {
+        <div style="height: 8px; width: 8px; border-radius: 4px;"
+             class="@GetNotificationClass(item)">
+        </div>
+      }
+      else
+      {
+        <div class="@(item.IsExpanded ? "arrow-up" : "arrow-down")"
+             @onclick="_ => HandleSquareClicked(item)">
+        </div>
+      }
+
+      <div style="text-wrap: nowrap; color: white; margin-left: 5px;"
+           @onclick="_ => HandleTreeViewItemClicked(item)">
+        @item.DisplayName
+      </div>
     </div>
 
-    @if (item.InnerItems.Count > 0)
+    @if (item.InnerItems.Count > 0 && item.IsExpanded)
     {
       <div style="margin-left: 10px;">
         <TreeView Items="@item.InnerItems.Values.ToList()"
-                  HandleTreeViewItemClicked="HandleTreeViewItemClicked"/>
+                  TreeViewItemClickHandler="TreeViewItemClickHandler"/>
       </div>
     }
   </div>
@@ -18,5 +34,29 @@
 
 @code {
   [Parameter] public required List<TreeViewItem> Items { get; init; }
-  [Parameter] public required Action<TreeViewItem> HandleTreeViewItemClicked { get; init; }
+  [Parameter] public required Action<TreeViewItem> TreeViewItemClickHandler { get; init; }
+
+  private void HandleSquareClicked(TreeViewItem item)
+  {
+    item.IsExpanded = !item.IsExpanded;
+    StateHasChanged();
+  }
+
+  private static string GetNotificationClass(TreeViewItem item)
+  {
+    if (!item.UserData.TryGetData(ComponentsKeys.ProcessingStateKey, out var state))
+    {
+      state = ItemProcessingState.Seen;
+    }
+
+    return state.GetNotificationClass();
+  }
+
+  private void HandleTreeViewItemClicked(TreeViewItem item)
+  {
+    item.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Seen);
+    StateHasChanged();
+
+    TreeViewItemClickHandler(item);
+  }
 }

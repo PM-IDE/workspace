@@ -40,18 +40,6 @@
   right: 5px;
 }
 
-.case-update-notification {
-  background-color: yellow;
-}
-
-.case-new-notification {
-  background-color: greenyellow;
-}
-
-.case-seen-notification {
-  visibility: hidden;
-}
-
 .case-list-item-tooltip-container {
   display: flex;
   flex-direction: row;
