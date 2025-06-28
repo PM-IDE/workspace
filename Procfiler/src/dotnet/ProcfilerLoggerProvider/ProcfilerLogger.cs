@@ -13,8 +13,8 @@ internal class ProcfilerLogger(IOptionsMonitor<ProcfilerLoggerConfiguration> con
 
     var attributes = state switch
     {
-      IEnumerable<KeyValuePair<string, object>> e =>
-        string.Join(";", e.SelectMany(p => { return new[] { p.Key, p.Value.ToString() }; })),
+      IEnumerable<KeyValuePair<string, object?>> e =>
+        string.Join(";", e.SelectMany(p => { return new[] { p.Key, p.Value?.ToString() }; })),
       _ => string.Empty
     };
 
