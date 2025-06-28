@@ -32,6 +32,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
   private class PipelinePartsExecutionResults
   {
     public required Guid ExecutionId { get; set; }
+    public required ulong Stamp { get; set; }
     public required Dictionary<Guid, PipelinePartExecutionResults> PipelinePartsResults { get; init; }
   }
 
@@ -80,26 +81,30 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       var response = new GrpcSubscriptionAndPipelinesStateResponse();
       foreach (var (caseKey, @case) in myCases)
       {
-        response.Cases.Add(new GrpcProcessCaseMetadata
+        response.Cases.Add(new GrpcProcessCaseMetadataWithStamp()
         {
-          ProcessName = caseKey.ProcessName,
-          CaseName = new GrpcCaseName
+          Stamp = @case.ExecutionResults.Stamp,
+          Metadata = new GrpcProcessCaseMetadata
           {
-            DisplayName = caseKey.CaseName.DisplayName,
-            FullNameParts = { caseKey.CaseName.NameParts }
-          },
-          PipelineId = caseKey.PipelineId.ToGrpcGuid(),
-          SubscriptionId = caseKey.SubscriptionId.ToGrpcGuid(),
-          PipelineName = @case.PipelineName,
-          SubscriptionName = @case.SubscriptionName,
-          Metadata =
-          {
-            @case.Metadata.Select(pair => new GrpcStringKeyValue
+            ProcessName = caseKey.ProcessName,
+            CaseName = new GrpcCaseName
             {
-              Key = pair.Key,
-              Value = pair.Value
-            })
-          }
+              DisplayName = caseKey.CaseName.DisplayName,
+              FullNameParts = { caseKey.CaseName.NameParts }
+            },
+            PipelineId = caseKey.PipelineId.ToGrpcGuid(),
+            SubscriptionId = caseKey.SubscriptionId.ToGrpcGuid(),
+            PipelineName = @case.PipelineName,
+            SubscriptionName = @case.SubscriptionName,
+            Metadata =
+            {
+              @case.Metadata.Select(pair => new GrpcStringKeyValue
+              {
+                Key = pair.Key,
+                Value = pair.Value
+              })
+            }
+          },
         });
       }
 
@@ -128,6 +133,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
       return Task.FromResult(new GrpcCaseContextValues
       {
+        Stamp = caseData.ExecutionResults.Stamp,
         ContextValues =
         {
           caseData.ExecutionResults.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
@@ -185,7 +191,8 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
           ExecutionResults = new PipelinePartsExecutionResults
           {
             ExecutionId = currentExecutionId,
-            PipelinePartsResults = []
+            PipelinePartsResults = [],
+            Stamp = 0
           },
           PipelineName = update.ProcessCaseMetadata.PipelineName,
           SubscriptionName = update.ProcessCaseMetadata.SubscriptionName
@@ -219,6 +226,8 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       {
         ContextValues = update.ContextValues.ToList(),
       });
+
+      caseData.ExecutionResults.Stamp++;
 
       foreach (var (id, chanel) in myChannels)
       {

@@ -13,7 +13,12 @@ service GrpcPipelinePartsContextValuesService {
 }
 
 message GrpcSubscriptionAndPipelinesStateResponse {
-  repeated GrpcProcessCaseMetadata cases = 1;
+  repeated GrpcProcessCaseMetadataWithStamp cases = 1;
+}
+
+message GrpcProcessCaseMetadataWithStamp {
+  uint64 stamp = 1;
+  GrpcProcessCaseMetadata metadata = 2;
 }
 
 message GrpcGetPipelineCaseContextValuesRequest {
@@ -46,6 +51,7 @@ message GrpcCaseName {
 
 message GrpcCaseContextValues {
   repeated GrpcPipelinePartContextValues contextValues = 1;
+  uint64 stamp = 2;
 }
 
 message GrpcPipelinePartContextValues {
