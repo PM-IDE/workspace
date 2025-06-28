@@ -1,4 +1,5 @@
-﻿@using FicusDashboard.Components.SidebarList
+﻿@using System.Diagnostics
+@using FicusDashboard.Components.SidebarList
 @using FicusDashboard.Components.TreeView
 @using FicusDashboard.Services.Cases
 @using FicusDashboard.Utils
@@ -192,7 +193,7 @@
       {
         var processLifetime = myProcessesLifetimes.Get(caseModel.ParentProcess.ProcessName);
         var caseLifetime = myCasesLifetimes.CreateNested(caseKey, processLifetime);
-        caseModel.ExecutionResultsChanged.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
+        caseModel.ExecutionResultsChanged.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseModel));
 
         if (myRootItem is { })
         {
@@ -220,14 +221,8 @@
   private void RemoveCase(Case caseModel)
   {
     if (myRootItem is null) return;
-    
-    var processItem = myRootItem.InnerItems[caseModel.ParentProcess.ProcessName];
 
-    var currentItem = processItem;
-    foreach (var namePart in caseModel.NameParts)
-    {
-      currentItem = currentItem.InnerItems[namePart];
-    }
+    var currentItem = FindCaseItem(caseModel);
 
     var namePartIndex = caseModel.NameParts.Count - 1;
     currentItem.Parent?.InnerItems.Remove(caseModel.NameParts[namePartIndex]);
@@ -241,18 +236,36 @@
       currentItem = currentItem.Parent;
     }
 
+    var processItem = myRootItem.InnerItems[caseModel.ParentProcess.ProcessName];
     if (processItem.InnerItems.Count == 0)
     {
       myRootItem.InnerItems.Remove(processItem.Id);
     }
   }
 
-  private void HandleCaseContextValuesChange(string caseKey, Case caseModel)
+  private TreeViewItem FindCaseItem(Case caseModel)
   {
-    if (ReferenceEquals(caseModel, mySelectedCase)) return;
-    //if (!myProcesses.TryGetValue(caseModel.ParentProcess.ProcessName, out var collectionItemInfo)) return;
+    Debug.Assert(myRootItem is { });
 
-    //collectionItemInfo.InnerItems[caseKey].InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
+    var processItem = myRootItem.InnerItems[caseModel.ParentProcess.ProcessName];
+
+    var currentItem = processItem;
+    foreach (var namePart in caseModel.NameParts)
+    {
+      currentItem = currentItem.InnerItems[namePart];
+    }
+
+    return currentItem;
+  }
+
+  private void HandleCaseContextValuesChange(Case caseModel)
+  {
+    if (myRootItem is null) return;
+    if (ReferenceEquals(caseModel, mySelectedCase)) return;
+
+    var item = FindCaseItem(caseModel);
+    item.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
+
     StateHasChanged();
   }
 }
