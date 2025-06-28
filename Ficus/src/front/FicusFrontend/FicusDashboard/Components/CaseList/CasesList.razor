@@ -8,8 +8,11 @@
 
 <div style="width: 250px; height: 100%; overflow: auto; background: var(--processes-section-cases-collapsed-bakground-darker)">
   <div style="width: fit-content">
-    <TreeView Items="@myItems"
-              TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView>
+    @if (myRootItem is { })
+    {
+      <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
+                TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView> 
+    }
   </div>
 </div>
 
@@ -21,7 +24,7 @@
   private readonly LifetimeDefinitionsByKey<string> myCasesLifetimes = new();
   private readonly SequentialLifetimes mySequentialLifetimes = new(Lifetime.Eternal);
 
-  private List<TreeViewItem> myItems = [];
+  private TreeViewItem? myRootItem;
   private Pipeline? mySelectedPipeline;
   private Lifetime myCurrentPipelineLifetime;
   private Case? mySelectedCase;
@@ -45,7 +48,7 @@
 
     if (ReferenceEquals(mySelectedPipeline, SelectedPipeline)) return;
 
-    myItems = ConstructTreeViewItems();
+    myRootItem = ConstructTreeViewRootItem();
     mySelectedPipeline = SelectedPipeline;
     myCurrentPipelineLifetime = mySequentialLifetimes.Next();
     mySelectedPipeline.Processes.AdviseAddRemove(myCurrentPipelineLifetime, HandleProcessAddRemove);
@@ -74,23 +77,12 @@
     }
   }
 
-  private List<TreeViewItem> ConstructTreeViewItems()
+  private TreeViewItem ConstructTreeViewRootItem()
   {
     var rootPart = new CaseNamePart("root");
     foreach (var (_, process) in SelectedPipeline.Processes)
     {
-      var processPart = rootPart.GetOrAdd(process.ProcessName);
-
-      foreach (var (_, currentCase) in process.ProcessCases)
-      {
-        var currentPart = processPart;
-        foreach (var namePart in currentCase.NameParts)
-        {
-          currentPart = currentPart.GetOrAdd(namePart);
-        }
-
-        currentPart.Case = currentCase;
-      }
+      AddCaseNamePartForProcess(rootPart, process);
     }
 
     var rootItem = new TreeViewItem
@@ -107,11 +99,37 @@
       AddCaseNamePart(rootItem, caseNamePart);
     }
 
-    return rootItem.InnerItems.Values.ToList();
+    return rootItem;
+  }
+
+  private static void AddCaseNamePartForProcess(CaseNamePart rootPart, ProcessData process)
+  {
+    var processPart = rootPart.GetOrAdd(process.ProcessName);
+
+    foreach (var (_, currentCase) in process.ProcessCases)
+    {
+      var currentPart = processPart;
+      foreach (var namePart in currentCase.NameParts)
+      {
+        currentPart = currentPart.GetOrAdd(namePart);
+      }
+
+      currentPart.Case = currentCase;
+    }
   }
 
   private static void AddCaseNamePart(TreeViewItem item, CaseNamePart part)
   {
+    if (item.InnerItems.TryGetValue(part.NamePart, out var treeItemChild))
+    { 
+      foreach (var (_, caseNamePart) in part.Children)
+      { 
+        AddCaseNamePart(treeItemChild, caseNamePart);
+      }
+
+      return;
+    }
+    
     var newTreeViewItem = new TreeViewItem
     {
       InnerItems = [],
@@ -138,12 +156,12 @@
   
   private void HandleProcessAddRemove(AddRemove addRemove, string key, ProcessData? process)
   {
+    if (process is null) return;
+
     switch (addRemove)
     {
       case AddRemove.Add:
       {
-        if (process is null) return;
-
         var processLifetime = myProcessesLifetimes.CreateNested(key, myCurrentPipelineLifetime);
         process.ProcessCases.AdviseAddRemove(processLifetime, HandleCaseAddRemove);
 
@@ -152,6 +170,8 @@
       case AddRemove.Remove:
       {
         myProcessesLifetimes.TerminateAndRemove(key);
+        myRootItem?.InnerItems.Remove(process.ProcessName);
+
         break;
       }
       default:
@@ -173,6 +193,13 @@
         var caseLifetime = myCasesLifetimes.CreateNested(caseKey, processLifetime);
         caseModel.ExecutionResultsChanged.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
 
+        if (myRootItem is { })
+        {
+          var rootPart = new CaseNamePart("root");
+          AddCaseNamePartForProcess(rootPart, caseModel.ParentProcess);
+          AddCaseNamePart(myRootItem, rootPart.Children.Values.First()); 
+        }
+        
         break;
       }
       case AddRemove.Remove:
