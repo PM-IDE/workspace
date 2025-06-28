@@ -9,29 +9,15 @@ public class PipelinePartsContextValuesService(
   ILogger<PipelinePartsContextValuesService> logger
 ) : GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceBase
 {
-  public override async Task StartUpdatesStream(
-    Empty request, IServerStreamWriter<GrpcPipelinePartUpdate> responseStream, ServerCallContext context)
+  public override Task<GrpcCaseContextValues> GetPipelineCaseContextValue(
+    GrpcGetPipelineCaseContextValuesRequest request, ServerCallContext context)
   {
-    try
-    {
-      logger.LogInformation("Received a new updates stream request");
-      await foreach (var update in repository.StartUpdatesStream(context.CancellationToken))
-      {
-        logger.LogInformation("Sending update to client");
-        await responseStream.WriteAsync(update, context.CancellationToken);
-      }
-    }
-    catch (OperationCanceledException ex)
-    {
-      logger.LogInformation(ex, "The updates stream was cancelled");
-    }
-    catch (Exception ex)
-    {
-      logger.LogError(ex, "The stream ended with error");
-    }
-    finally
-    {
-      logger.LogInformation("Session ended");
-    }
+    return repository.GetCaseContextValues(request);
+  }
+
+  public override Task<GrpcSubscriptionAndPipelinesStateResponse> GetSubscriptionAndPipelinesState(
+    Empty request, ServerCallContext context)
+  {
+    return repository.GetCurrentState();
   }
 }
