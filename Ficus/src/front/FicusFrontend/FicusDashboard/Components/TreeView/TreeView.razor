@@ -1,0 +1,22 @@
+@foreach (var item in Items)
+{
+  <div>
+    <div style="text-wrap: nowrap; color: white"
+         @onclick="_ => HandleTreeViewItemClicked(item)">
+      @item.DisplayName
+    </div>
+
+    @if (item.InnerItems.Count > 0)
+    {
+      <div style="margin-left: 10px;">
+        <TreeView Items="@item.InnerItems.Values.ToList()"
+                  HandleTreeViewItemClicked="HandleTreeViewItemClicked"/>
+      </div>
+    }
+  </div>
+}
+
+@code {
+  [Parameter] public required List<TreeViewItem> Items { get; init; }
+  [Parameter] public required Action<TreeViewItem> HandleTreeViewItemClicked { get; init; }
+}
