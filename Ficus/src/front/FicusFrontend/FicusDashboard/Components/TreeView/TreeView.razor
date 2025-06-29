@@ -18,7 +18,8 @@
         }
       </div>
 
-      <div style="width: fit-content; text-wrap: nowrap; color: white; margin-left: 5px; margin-right: 5px;"
+      <div style="width: fit-content; text-wrap: nowrap; color: white; 
+                  margin-left: 5px; margin-right: 5px; font-size: 12px;"
            @onclick="_ => HandleTreeViewItemClicked(item)">
         @item.DisplayName
       </div>
@@ -26,7 +27,7 @@
 
     @if (item.InnerItems.Count > 0 && item.IsExpanded)
     {
-      <div style="margin-left: 20px; height: fit-content">
+      <div style="margin-left: 10px; height: fit-content">
         <TreeView Items="@item.InnerItems.Values.ToList()"
                   TreeViewItemClickHandler="TreeViewItemClickHandler"/>
       </div>
@@ -67,5 +68,4 @@
 
     TreeViewItemClickHandler(item);
   }
-
 }

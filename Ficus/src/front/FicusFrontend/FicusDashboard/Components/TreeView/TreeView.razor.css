@@ -17,7 +17,7 @@
 }
 
 .tree-view-item-container {
-  margin-bottom: 3px;
+  margin-bottom: 1px;
 
   width: fit-content;
   display: flex; 
@@ -26,7 +26,7 @@
   border-radius: 5px;
   background: #1a1a1a;
   
-  height: 25px;
+  height: 18px;
 }
 
 .tree-view-item-notification {

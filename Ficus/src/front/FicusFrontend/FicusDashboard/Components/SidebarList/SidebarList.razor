@@ -6,6 +6,7 @@
 
 
 <SidebarListContainer ComponentStyle="@ComponentStyle"
+                      WidthPx="WidthPx"
                       Title="@Title">
   @foreach (var item in Items)
   {
@@ -13,7 +14,9 @@
       <div class="sidebar-list-item-title-container centered-text"
            @onclick="@(_ => HandleItemTitleClicked(item.Item))">
         <div class="sidebar-list-item-title">
-          @ItemType @item.Name
+          <div>
+            @item.Name
+          </div>
         </div>
       </div>
 
@@ -45,6 +48,7 @@
   [Parameter] public required string ItemType { get; set; }
   [Parameter] public required List<CollectionItemInfo<TItem, TInnerItem, TId>> Items { get; set; }
 
+  [Parameter] public double WidthPx { get; set; } = 250;
   [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
 
 
@@ -62,7 +66,7 @@
 
     StateHasChanged();
   }
-  
+
   private void HandleItemTitleClicked(TItem item)
   {
     var expanded = item.UserData.GetOrCreate(ourExpandedKey, static () => true);

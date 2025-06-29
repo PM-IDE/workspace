@@ -8,11 +8,14 @@
 @inherits ComponentBase;
 
 <SidebarListContainer Title="Processes"
+                      WidthPx="350"
                       ComponentStyle="SidebarListContainer.Style.Darker">
   @if (myRootItem is { })
   {
-    <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
-              TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView>
+    <div style="padding-top: 5px; padding-left: 5px; padding-bottom: 5px;">
+      <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
+                TreeViewItemClickHandler="@HandleTreeViewItemClicked" />
+    </div>
   }
 </SidebarListContainer>
 

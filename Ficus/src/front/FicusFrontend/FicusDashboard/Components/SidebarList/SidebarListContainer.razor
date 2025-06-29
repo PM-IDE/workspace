@@ -12,7 +12,8 @@
   }
   else
   {
-    <div class="sidebar-list-outer-container side-list-outer-container-background">
+    <div class="sidebar-list-outer-container side-list-outer-container-background"
+         style="width: @(WidthPx)px">
       <div class="sidebar-list-title-container sidebar-list-title-container-background"
            @onclick="HandleListTitleClicked">
         <div class="sidebar-list-title-icon-container">
@@ -45,7 +46,9 @@
 
   [Parameter] public required string Title { get; init; }
   [Parameter] public required Style ComponentStyle { get; init; }
+  
   [Parameter] public RenderFragment? ChildContent { get; init; }
+  [Parameter] public double WidthPx { get; set; } = 250;
 
 
   private string GetScopeClass()
