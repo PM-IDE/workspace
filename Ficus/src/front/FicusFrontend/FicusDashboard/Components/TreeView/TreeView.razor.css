@@ -4,7 +4,7 @@
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
 
-  border-top: 5px solid gray;
+  border-top: 5px solid var(--seen-notification-color);
 }
 
 .arrow-up {
@@ -13,7 +13,7 @@
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
 
-  border-bottom: 5px solid gray;
+  border-bottom: 5px solid var(--seen-notification-color);
 }
 
 .tree-view-item-container {
@@ -24,7 +24,7 @@
   flex-direction: row;
   
   border-radius: 5px;
-  background: #1a1a1a;
+  background: transparent;
   
   height: 18px;
 }
@@ -32,10 +32,9 @@
 .tree-view-item-notification {
   width: 20px;
   height: 100%;
-  background: black;
+  background: var(--tree-view-notification-container-color);
   
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
+  border-radius: 5px;
   
   flex-wrap: wrap;
   display: flex;

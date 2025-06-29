@@ -32,7 +32,13 @@ html, body {
   
   --input-background: #323232;
   --input-foreground: #ffffff;
-  --input-border-color: #191919;
+  --input-border-color: #101010;
+  
+  --tree-view-notification-container-color: #151515;
+  
+  --new-notification-color: greenyellow;
+  --updated--notification-color: yellow;
+  --seen-notification-color: grey;
 
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer */
@@ -209,13 +215,13 @@ svg-pie-chart svg {
 }
 
 .update-notification {
-  background-color: yellow;
+  background-color: var(--updated--notification-color);
 }
 
 .new-notification {
-  background-color: greenyellow;
+  background-color: var(--new-notification-color);
 }
 
 .seen-notification {
-  background-color: grey;
+  background-color: var(--seen-notification-color);
 }

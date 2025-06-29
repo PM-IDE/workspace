@@ -2,7 +2,8 @@
 @foreach (var item in Items.OrderByDescending(i => i.InnerItems.Count))
 {
   <div style="height: fit-content">
-    <div class="tree-view-item-container">
+    <div class="tree-view-item-container"
+         @onclick="_ => HandleTreeViewItemClicked(item)">
       <div class="tree-view-item-notification">
         @if (item.InnerItems.Count == 0)
         {
@@ -12,15 +13,12 @@
         }
         else
         {
-          <div class="@(item.IsExpanded ? "arrow-up" : "arrow-down")"
-               @onclick="_ => CollapseOrExpandItem(item)">
-          </div>
+          <div class="@(item.IsExpanded ? "arrow-up" : "arrow-down")"></div>
         }
       </div>
 
       <div style="width: fit-content; text-wrap: nowrap; color: white; 
-                  margin-left: 5px; margin-right: 5px; font-size: 12px;"
-           @onclick="_ => HandleTreeViewItemClicked(item)">
+                  margin-left: 5px; margin-right: 5px; font-size: 12px;">
         @item.DisplayName
       </div>
     </div>
