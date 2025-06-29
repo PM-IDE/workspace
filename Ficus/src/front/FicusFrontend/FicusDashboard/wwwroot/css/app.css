@@ -21,14 +21,14 @@ html, body {
   --processes-section-cases-background: #2c3131;
   --processes-section-case-background: #363d3d;
   --processes-section-case-background-hovered: #404747;
-  --processes-section-cases-collapsed-bakground: #464e4e;
+  --processes-section-cases-collapsed-bakground: #383e3e;
 
   --processes-section-title-background-darker: #1a1c1c;
   --processes-section-process-name-background-darker: #1f2222;
   --processes-section-cases-background-darker: #272b2b;
   --processes-section-case-background-darker: #2e3333;
   --processes-section-case-background-hovered-darker: #383e3e;
-  --processes-section-cases-collapsed-bakground-darker: #3e4545;
+  --processes-section-cases-collapsed-bakground-darker: #272b2b;
   
   --input-background: #323232;
   --input-foreground: #ffffff;
