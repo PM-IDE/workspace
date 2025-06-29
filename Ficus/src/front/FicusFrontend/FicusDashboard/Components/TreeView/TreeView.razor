@@ -1,21 +1,23 @@
 @using FicusDashboard.Components.SidebarList
 @foreach (var item in Items)
 {
-  <div style="display: flex; flex-direction: row; align-items: center">
-    @if (item.InnerItems.Count == 0)
-    {
-      <div style="height: 8px; width: 8px; border-radius: 4px;"
-           class="@GetNotificationClass(item)">
-      </div>
-    }
-    else
-    {
-      <div class="@(item.IsExpanded ? "arrow-up" : "arrow-down")"
-           @onclick="_ => CollapseOrExpandItem(item)">
-      </div>
-    }
+  <div class="tree-view-item-container">
+    <div class="tree-view-item-notification">
+      @if (item.InnerItems.Count == 0)
+      {
+        <div style="height: 8px; width: 8px; border-radius: 4px;"
+             class="@GetNotificationClass(item)">
+        </div>
+      }
+      else
+      {
+        <div class="@(item.IsExpanded ? "arrow-up" : "arrow-down")"
+             @onclick="_ => CollapseOrExpandItem(item)">
+        </div>
+      }
+    </div>
 
-    <div style="text-wrap: nowrap; color: white; margin-left: 5px;"
+    <div style="width: fit-content; text-wrap: nowrap; color: white; margin-left: 5px; margin-right: 5px;"
          @onclick="_ => HandleTreeViewItemClicked(item)">
       @item.DisplayName
     </div>
@@ -23,7 +25,7 @@
 
   @if (item.InnerItems.Count > 0 && item.IsExpanded)
   {
-    <div style="margin-left: 10px;">
+    <div style="margin-left: 20px; height: fit-content">
       <TreeView Items="@item.InnerItems.Values.ToList()"
                 TreeViewItemClickHandler="TreeViewItemClickHandler"/>
     </div>
@@ -57,7 +59,7 @@
       CollapseOrExpandItem(item);
       return;
     }
-    
+
     item.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Seen);
     StateHasChanged();
 

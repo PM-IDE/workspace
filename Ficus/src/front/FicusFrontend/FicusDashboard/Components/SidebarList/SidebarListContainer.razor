@@ -13,17 +13,17 @@
   else
   {
     <div class="sidebar-list-outer-container side-list-outer-container-background">
-      <div class="scrollable">
-        <div class="sidebar-list-title-container sidebar-list-title-container-background"
-             @onclick="HandleListTitleClicked">
-          <div class="sidebar-list-title-icon-container">
-            <img src="images/list.svg" alt="List"/>
-          </div>
-          <div class="sidebar-list-title">
-            @Title
-          </div>
+      <div class="sidebar-list-title-container sidebar-list-title-container-background"
+           @onclick="HandleListTitleClicked">
+        <div class="sidebar-list-title-icon-container">
+          <img src="images/list.svg" alt="List"/>
         </div>
-
+        <div class="sidebar-list-title">
+          @Title
+        </div>
+      </div>
+      
+      <div class="scrollable">
         <div class="sidebar-list">
           @ChildContent
         </div>
@@ -63,4 +63,5 @@
     myIsCollapsed = !myIsCollapsed;
     StateHasChanged();
   }
+
 }

@@ -15,3 +15,31 @@
 
   border-bottom: 5px solid gray;
 }
+
+.tree-view-item-container {
+  margin-bottom: 3px;
+
+  width: fit-content;
+  display: flex; 
+  flex-direction: row;
+  
+  border-radius: 5px;
+  background: #1a1a1a;
+  
+  height: 25px;
+}
+
+.tree-view-item-notification {
+  width: 20px;
+  height: 100%;
+  background: black;
+  
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  
+  flex-wrap: wrap;
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
+}

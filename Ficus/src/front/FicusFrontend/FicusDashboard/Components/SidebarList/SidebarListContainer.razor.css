@@ -53,7 +53,9 @@
 }
 
 .sidebar-list {
-  width: 100%;
+  min-width: 100%;
+  width: fit-content;
+  
 }
 
 .scrollable {
