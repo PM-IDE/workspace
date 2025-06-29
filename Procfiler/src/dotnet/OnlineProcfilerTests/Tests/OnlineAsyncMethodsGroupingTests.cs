@@ -32,7 +32,7 @@ public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerMethodsTest
     myHandler
   ];
 
-  protected override string? Prefix => "ASYNC_";
+  protected override string? Prefix => null;
 
 
   [Test]

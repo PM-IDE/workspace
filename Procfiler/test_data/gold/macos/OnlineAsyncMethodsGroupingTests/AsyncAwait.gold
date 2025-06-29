@@ -1,4 +1,4 @@
-ASYNC_AsyncAwait.Program+<Main>d__0
+AsyncAwait.Program+<Main>d__0
 Trace:
 	[start] AsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
 		[start] AsyncAwait.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
@@ -110,7 +110,7 @@ Trace:
 	[ end ] AsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
 
 
-ASYNC_AsyncAwait.Program+<Method1>d__1
+AsyncAwait.Program+<Method1>d__1
 Trace:
 	[start] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
 		[start] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
@@ -154,37 +154,7 @@ Trace:
 	[ end ] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
 
 
-ASYNC_AsyncAwait.Program+<Method2>d__2
-Trace:
-	[start] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
-		[start] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
-			[start] AsyncAwait.Method2..ctor[instance.void..()]
-			[ end ] AsyncAwait.Method2..ctor[instance.void..()]
-		[ end ] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
-		[start] AsyncAwait.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
-			[start] AsyncAwait.Program+<Method1>d__1..ctor[instance.void..()]
-			[ end ] AsyncAwait.Program+<Method1>d__1..ctor[instance.void..()]
-			[start] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
-				[start] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
-					[start] AsyncAwait.Method1..ctor[instance.void..()]
-					[ end ] AsyncAwait.Method1..ctor[instance.void..()]
-				[ end ] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
-			[ end ] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
-			[start] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
-				[start] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
-					[start] AsyncAwait.Method1..ctor[instance.void..()]
-					[ end ] AsyncAwait.Method1..ctor[instance.void..()]
-				[ end ] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
-			[ end ] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
-		[ end ] AsyncAwait.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
-	[ end ] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
-	[start] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
-		[start] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
-			[start] AsyncAwait.Method2..ctor[instance.void..()]
-			[ end ] AsyncAwait.Method2..ctor[instance.void..()]
-		[ end ] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
-	[ end ] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
-
+AsyncAwait.Program+<Method2>d__2
 Trace:
 	[start] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
 		[start] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
@@ -215,8 +185,38 @@ Trace:
 		[ end ] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
 	[ end ] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
 
+Trace:
+	[start] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
+		[start] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
+			[start] AsyncAwait.Method2..ctor[instance.void..()]
+			[ end ] AsyncAwait.Method2..ctor[instance.void..()]
+		[ end ] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
+		[start] AsyncAwait.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+			[start] AsyncAwait.Program+<Method1>d__1..ctor[instance.void..()]
+			[ end ] AsyncAwait.Program+<Method1>d__1..ctor[instance.void..()]
+			[start] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
+				[start] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
+					[start] AsyncAwait.Method1..ctor[instance.void..()]
+					[ end ] AsyncAwait.Method1..ctor[instance.void..()]
+				[ end ] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
+			[ end ] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
+			[start] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
+				[start] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
+					[start] AsyncAwait.Method1..ctor[instance.void..()]
+					[ end ] AsyncAwait.Method1..ctor[instance.void..()]
+				[ end ] AsyncAwait.Program.Allocate1[class.AsyncAwait.Method1..()]
+			[ end ] AsyncAwait.Program+<Method1>d__1.MoveNext[instance.void..()]
+		[ end ] AsyncAwait.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
+	[ end ] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
+	[start] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
+		[start] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
+			[start] AsyncAwait.Method2..ctor[instance.void..()]
+			[ end ] AsyncAwait.Method2..ctor[instance.void..()]
+		[ end ] AsyncAwait.Program.Allocate2[class.AsyncAwait.Method2..()]
+	[ end ] AsyncAwait.Program+<Method2>d__2.MoveNext[instance.void..()]
 
-ASYNC_AsyncAwait.Program+<Method3>d__3
+
+AsyncAwait.Program+<Method3>d__3
 Trace:
 	[start] AsyncAwait.Program+<Method3>d__3.MoveNext[instance.void..()]
 		[start] AsyncAwait.Program.Allocate3[class.AsyncAwait.Method3..()]
