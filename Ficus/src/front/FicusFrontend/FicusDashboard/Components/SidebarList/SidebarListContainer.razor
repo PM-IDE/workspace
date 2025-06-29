@@ -1,0 +1,66 @@
+<div class="height-100-percent @GetScopeClass()">
+  @if (myIsCollapsed)
+  {
+    <div class="sidebar-list-collapsed-outer-container side-list-outer-container-background">
+      <div class="sidebar-list-collapsed-title-container sidebar-list-title-container-background"
+           @onclick="HandleListTitleClicked">
+        <div class="sidebar-list-title-icon-container">
+          <img src="images/list.svg" alt="List"/>
+        </div>
+      </div>
+    </div>
+  }
+  else
+  {
+    <div class="sidebar-list-outer-container side-list-outer-container-background">
+      <div class="scrollable">
+        <div class="sidebar-list-title-container sidebar-list-title-container-background"
+             @onclick="HandleListTitleClicked">
+          <div class="sidebar-list-title-icon-container">
+            <img src="images/list.svg" alt="List"/>
+          </div>
+          <div class="sidebar-list-title">
+            @Title
+          </div>
+        </div>
+
+        <div class="sidebar-list">
+          @ChildContent
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+  public enum Style
+  {
+    Dark,
+    Darker
+  }
+
+
+  private bool myIsCollapsed;
+
+
+  [Parameter] public required string Title { get; init; }
+  [Parameter] public required Style ComponentStyle { get; init; }
+  [Parameter] public RenderFragment? ChildContent { get; init; }
+
+
+  private string GetScopeClass()
+  {
+    return ComponentStyle switch
+    {
+      Style.Dark => "dark-sidebar-list",
+      Style.Darker => "darker-sidebar-list",
+      _ => throw new ArgumentOutOfRangeException()
+    };
+  }
+
+  private void HandleListTitleClicked()
+  {
+    myIsCollapsed = !myIsCollapsed;
+    StateHasChanged();
+  }
+}

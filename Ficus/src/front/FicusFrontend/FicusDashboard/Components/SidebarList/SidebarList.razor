@@ -4,95 +4,49 @@
 @using FicusDashboard.Utils
 @inherits ComponentBase;
 
-<div class="height-100-percent @GetScopeClass()">
-  @if (myIsCollapsed)
+
+<SidebarListContainer ComponentStyle="@ComponentStyle"
+                      Title="@Title">
+  @foreach (var item in Items)
   {
-    <div class="sidebar-list-collapsed-outer-container side-list-outer-container-background">
-      <div class="sidebar-list-collapsed-title-container sidebar-list-title-container-background"
-           @onclick="HandleListTitleClicked">
-        <div class="sidebar-list-title-icon-container">
-          <img src="images/list.svg" alt="List"/>
+    <div class="sidebar-list-item">
+      <div class="sidebar-list-item-title-container centered-text"
+           @onclick="@(_ => HandleItemTitleClicked(item.Item))">
+        <div class="sidebar-list-item-title">
+          @ItemType @item.Name
         </div>
       </div>
-    </div>
-  }
-  else
-  {
-    <div class="sidebar-list-outer-container side-list-outer-container-background">
-      <div class="scrollable">
-        <div class="sidebar-list-title-container sidebar-list-title-container-background"
-             @onclick="HandleListTitleClicked">
-          <div class="sidebar-list-title-icon-container">
-            <img src="images/list.svg" alt="List"/>
-          </div>
-          <div class="sidebar-list-title">
-            @Title
-          </div>
-        </div>
 
-        <div class="sidebar-list">
-          @foreach (var item in Items)
+      @if (IsExpanded(item.Item))
+      {
+        <div>
+          @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
           {
-            <div class="sidebar-list-item">
-              <div class="sidebar-list-item-title-container centered-text"
-                   @onclick="@(_ => HandleItemTitleClicked(item.Item))">
-                <div class="sidebar-list-item-title">
-                  @ItemType @item.Name
-                </div>
-              </div>
-
-              @if (IsExpanded(item.Item))
-              {
-                <div>
-                  @foreach (var (_, innerItem) in item.InnerItems.OrderBy(p => p.Key))
-                  {
-                    <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
-                      <SidebarListItem ListItemInfo="innerItem.ListItemInfo"
-                                       Icon="@ListItemIcon"
-                                       ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
-                    </div>
-                  }
-                </div>
-              }
+            <div @onclick="@(_ => HandleInnerItemSelected(item, innerItem))">
+              <SidebarListItem ListItemInfo="innerItem.ListItemInfo"
+                               Icon="@ListItemIcon"
+                               ProcessingState="innerItem.InnerItem.UserData.GetOrThrow(ComponentsKeys.ProcessingStateKey)"/>
             </div>
           }
         </div>
-      </div>
+      }
     </div>
   }
-</div>
+</SidebarListContainer>
 
 @code
 {
-  public enum Style
-  {
-    Dark,
-    Darker
-  }
-
   private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
 
 
-  private bool myIsCollapsed;
-
   [Parameter] public string? ListItemIcon { get; set; }
-  [Parameter] public required Style ComponentStyle { get; set; }
+  [Parameter] public required SidebarListContainer.Style ComponentStyle { get; set; }
   [Parameter] public required string Title { get; set; }
   [Parameter] public required string ItemType { get; set; }
   [Parameter] public required List<CollectionItemInfo<TItem, TInnerItem, TId>> Items { get; set; }
 
   [Parameter] public Action<TItem, TInnerItem>? InnerItemSelected { get; set; }
 
-
-  private string GetScopeClass()
-  {
-    return ComponentStyle switch
-    {
-      Style.Dark => "dark-sidebar-list",
-      Style.Darker => "darker-sidebar-list",
-      _ => throw new ArgumentOutOfRangeException()
-    };
-  }
 
   private bool IsExpanded(TItem item)
   {
@@ -108,18 +62,12 @@
 
     StateHasChanged();
   }
-
+  
   private void HandleItemTitleClicked(TItem item)
   {
     var expanded = item.UserData.GetOrCreate(ourExpandedKey, static () => true);
     item.UserData.PutData(ourExpandedKey, !expanded);
 
-    StateHasChanged();
-  }
-
-  private void HandleListTitleClicked()
-  {
-    myIsCollapsed = !myIsCollapsed;
     StateHasChanged();
   }
 }
