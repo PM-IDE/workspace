@@ -217,5 +217,5 @@ svg-pie-chart svg {
 }
 
 .seen-notification {
-  visibility: hidden;
+  background-color: grey;
 }
