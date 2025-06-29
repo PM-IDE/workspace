@@ -7,16 +7,14 @@
 @using JetBrains.Lifetimes
 @inherits ComponentBase;
 
-<div
-  style="width: 250px; height: 100%; overflow: auto; background: var(--processes-section-cases-collapsed-bakground-darker)">
-  <div style="width: fit-content">
-    @if (myRootItem is { })
-    {
-      <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
-                TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView>
-    }
-  </div>
-</div>
+<SidebarListContainer Title="Processes"
+                      ComponentStyle="SidebarListContainer.Style.Darker">
+  @if (myRootItem is { })
+  {
+    <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
+              TreeViewItemClickHandler="@HandleTreeViewItemClicked"></TreeView>
+  }
+</SidebarListContainer>
 
 @code
 {
