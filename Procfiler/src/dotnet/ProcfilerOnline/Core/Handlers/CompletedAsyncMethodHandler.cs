@@ -50,11 +50,7 @@ public class CompletedAsyncMethodHandler(
       var message = new BxesKafkaTrace
       {
         ProcessName = completedAsyncMethodEvent.ApplicationName,
-        CaseName = new BxesKafkaCaseName
-        {
-          DisplayName = completedAsyncMethodEvent.StateMachineName,
-          NameParts = [completedAsyncMethodEvent.StateMachineName]
-        },
+        CaseName = CreateAsyncMethodCaseName(completedAsyncMethodEvent),
         Trace = methodTrace,
         CaseId = completedAsyncMethodEvent.AsyncMethodCaseId
       };
@@ -63,6 +59,18 @@ public class CompletedAsyncMethodHandler(
 
       producer.Produce(Guid.NewGuid(), message);
     }
+  }
+
+  private static BxesKafkaCaseName CreateAsyncMethodCaseName(CompletedAsyncMethodEvent asyncMethodEvent)
+  {
+    var parts = asyncMethodEvent.StateMachineName.Split('.', '+');
+    parts[^1] = "async_" + parts[^1];
+
+    return new BxesKafkaCaseName
+    {
+      DisplayName = string.Join('.', parts),
+      NameParts = parts.ToList()
+    };
   }
 
   private void ProduceJsonKafkaMessage(CompletedAsyncMethodEvent completedAsyncMethodEvent)
