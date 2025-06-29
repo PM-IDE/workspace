@@ -11,7 +11,7 @@
     else
     {
       <div class="@(item.IsExpanded ? "arrow-up" : "arrow-down")"
-           @onclick="_ => HandleSquareClicked(item)">
+           @onclick="_ => CollapseOrExpandItem(item)">
       </div>
     }
 
@@ -34,7 +34,7 @@
   [Parameter] public required List<TreeViewItem> Items { get; init; }
   [Parameter] public required Action<TreeViewItem> TreeViewItemClickHandler { get; init; }
 
-  private void HandleSquareClicked(TreeViewItem item)
+  private void CollapseOrExpandItem(TreeViewItem item)
   {
     item.IsExpanded = !item.IsExpanded;
     StateHasChanged();
@@ -52,6 +52,12 @@
 
   private void HandleTreeViewItemClicked(TreeViewItem item)
   {
+    if (item.InnerItems.Count != 0)
+    {
+      CollapseOrExpandItem(item);
+      return;
+    }
+    
     item.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Seen);
     StateHasChanged();
 
