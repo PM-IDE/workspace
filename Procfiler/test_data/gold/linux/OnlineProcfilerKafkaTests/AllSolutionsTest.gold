@@ -90,12 +90,6 @@ Trace:
 	[ end ] ExceptionTryCatchFinally.Program.Main[void..(class.System.String[])]
 
 
-ASYNC_FileWriteProject.Program+<Main>d__0
-Trace:
-	[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
-	[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
-
-
 FileWriteProject Program <Main> void  (class System.String[])
 Trace:
 	[start] FileWriteProject.Program.<Main>[void..(class.System.String[])]
@@ -106,6 +100,12 @@ Trace:
 			[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
 		[ end ] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
 	[ end ] FileWriteProject.Program.<Main>[void..(class.System.String[])]
+
+
+FileWriteProject Program async_<Main>d__0
+Trace:
+	[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
 
 
 FileWriteProject Program Main class System.Threading.Tasks.Task  (class System.String[])
