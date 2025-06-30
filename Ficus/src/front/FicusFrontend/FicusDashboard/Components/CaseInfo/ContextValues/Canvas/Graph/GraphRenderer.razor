@@ -1,7 +1,10 @@
 @using System.Globalization
+@using BlazorBootstrap
 @using Ficus
 @using FicusDashboard.Layout.Models
+@using Radzen
 @using Radzen.Blazor
+@using Orientation = Radzen.Orientation
 @inject IJSRuntime Js
 
 
@@ -14,7 +17,7 @@
         <div style="display: flex; flex-direction: row; align-items: center;">
           <RadzenCheckBox @ref="@myCheckBoxes[index]"
                           TValue="bool"
-                          ValueChanged="@(v => HandleSelectionChange(index, v, kind))"/>
+                          ValueChanged="@(v => HandleSelectionChange(v, kind))"/>
 
           <div style="margin-left: 5px;">@kind.ToString()</div>
         </div>
@@ -22,10 +25,20 @@
 
       <div style="margin-top: 5px;">Filter:</div>
       <input type="text" @bind="myFilterValue" style="width: 120px;"/> 
+      
     }
 
     <div style="margin-top: 5px;">Spacing factor:</div>
     <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
+
+    <RadzenStack Orientation="Orientation.Horizontal" 
+                 AlignItems="AlignItems.Center" 
+                 Gap="0.5rem" 
+                 Style="margin-top: 5px;">
+      <RadzenLabel Text="TB" />
+      <RadzenSwitch Name="Orientation" @bind-Value=@myUseLROrientation />
+      <RadzenLabel Text="LR" />
+    </RadzenStack>
 
     <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
   </div>
@@ -54,6 +67,7 @@
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
+  private bool myUseLROrientation = true;
   private string? myFilterValue;
   private string mySpacingFactor = "1.4";
   private CanvasComponent? myCanvasComponent;
@@ -96,7 +110,16 @@
     };
 
     return await Js.InvokeAsync<IJSObjectReference>(
-      "drawGraph", canvasId, Graph, Annotation, enhancements, myFilterValue, spacingFactor, IsRichUiGraph(Graph));
+      "drawGraph", 
+      canvasId, 
+      Graph, 
+      Annotation, 
+      enhancements, 
+      myFilterValue, 
+      spacingFactor, 
+      IsRichUiGraph(Graph),
+      myUseLROrientation
+    );
   }
 
   private string CreateExportFileName()
@@ -104,7 +127,7 @@
     return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
   }
 
-  private void HandleSelectionChange(int index, bool selected, SoftwareGraphEnhancementKind enhancement)
+  private void HandleSelectionChange(bool selected, SoftwareGraphEnhancementKind enhancement)
   {
     if (selected)
     {

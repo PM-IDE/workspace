@@ -47,11 +47,6 @@ public class Case : FrontModelBase
   public override bool Equals(object? obj) => obj is Case { FullName: var fullName } && fullName == FullName;
 }
 
-public class PipelinePartsExecutionResults
-{
-  public required IViewableMap<Guid, PipelinePartExecutionResults> Results { get; init; }
-}
-
 public class PipelinePartExecutionResults : FrontModelBase
 {
   public required uint Order { get; init; }

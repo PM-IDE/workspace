@@ -28,21 +28,22 @@ function drawGraph(
   enhancements: (keyof typeof SoftwareEnhancementKind)[],
   filter: string | null,
   spacingFactor: number,
-  isRichUiGraph: boolean
+  isRichUiGraph: boolean,
+  useLROrientation: boolean
 ) {
   let regex = filter == null ? null : new RegExp(filter);
-  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor, isRichUiGraph));
+  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor, isRichUiGraph, useLROrientation));
 
   if (isRichUiGraph) {
     setNodeEdgeHtmlRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
   }
 
-  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor), 0));
+  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
 
   return cy;
 }
 
-function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number) {
+function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number, useLROrientation: boolean) {
   cy.nodes().forEach(node => {
     let element = document.getElementById(createNodeHtmlLabelId(node.data().frontendId));
     if (element != null) {
@@ -52,7 +53,7 @@ function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingF
     }
   });
 
-  cy.layout(createLayout(kind, spacingFactor)).run();
+  cy.layout(createLayout(kind, spacingFactor, useLROrientation)).run();
 }
 
 function setNodeEdgeHtmlRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
@@ -87,12 +88,14 @@ function createCytoscapeOptions(
   annotation: GrpcAnnotation,
   filter: RegExp | null,
   spacingFactor: number,
-  addLabel: boolean
+  addLabel: boolean,
+  useLROrientation: boolean
 ): cytoscape.CytoscapeOptions {
+  console.log(useLROrientation)
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph, annotation, filter),
-    layout: createLayout(graph.kind, spacingFactor),
+    layout: createLayout(graph.kind, spacingFactor, useLROrientation),
     style: [
       createNodeStyle(addLabel),
       createEdgeStyle(),
