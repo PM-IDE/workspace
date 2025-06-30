@@ -1,4 +1,4 @@
-ASYNC_AwaitForeach.Program+<Allocate>d__2
+AwaitForeach.Program+<Allocate>d__2
 Trace:
 	[start] AwaitForeach.Program+<Allocate>d__2.MoveNext[instance.void..()]
 	[ end ] AwaitForeach.Program+<Allocate>d__2.MoveNext[instance.void..()]
@@ -40,7 +40,7 @@ Trace:
 	[ end ] AwaitForeach.Program+<Allocate>d__2.MoveNext[instance.void..()]
 
 
-ASYNC_AwaitForeach.Program+<EnumerateAsync>d__1
+AwaitForeach.Program+<EnumerateAsync>d__1
 Trace:
 	[start] AwaitForeach.Program+<EnumerateAsync>d__1.MoveNext[instance.void..()]
 		[start] AwaitForeach.Program.Allocate[class.System.Threading.Tasks.Task`1<class.System.Object>..()]
@@ -146,7 +146,7 @@ Trace:
 	[ end ] AwaitForeach.Program+<EnumerateAsync>d__1.MoveNext[instance.void..()]
 
 
-ASYNC_AwaitForeach.Program+<Main>d__0
+AwaitForeach.Program+<Main>d__0
 Trace:
 	[start] AwaitForeach.Program+<Main>d__0.MoveNext[instance.void..()]
 		[start] AwaitForeach.Program.EnumerateAsync[class.System.Collections.Generic.IAsyncEnumerable`1<class.System.Object>..()]

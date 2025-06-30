@@ -1,10 +1,10 @@
-ASYNC_SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d
+SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d
 Trace:
 	[start] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
 	[ end ] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
 
 
-ASYNC_SimpleAsyncAwait.Program+<Main>d__0
+SimpleAsyncAwait.Program+<Main>d__0
 Trace:
 	[start] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
 		[start] SimpleAsyncAwait.Program.Allocate1[class.SimpleAsyncAwait.Class1..()]

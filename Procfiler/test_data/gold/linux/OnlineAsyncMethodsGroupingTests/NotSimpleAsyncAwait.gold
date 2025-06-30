@@ -1,4 +1,4 @@
-ASYNC_NotSimpleAsyncAwait.Program+<>c__DisplayClass0_0+<<Main>b__0>d
+NotSimpleAsyncAwait.Program+<>c__DisplayClass0_0+<<Main>b__0>d
 Trace:
 	[start] NotSimpleAsyncAwait.Program+<>c__DisplayClass0_0+<<Main>b__0>d.MoveNext[instance.void..()]
 		[start] NotSimpleAsyncAwait.Program.Allocate[class.System.Object..(int32)]
@@ -224,7 +224,7 @@ Trace:
 	[ end ] NotSimpleAsyncAwait.Program+<>c__DisplayClass0_0+<<Main>b__0>d.MoveNext[instance.void..()]
 
 
-ASYNC_NotSimpleAsyncAwait.Program+<Main>d__0
+NotSimpleAsyncAwait.Program+<Main>d__0
 Trace:
 	[start] NotSimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
 		[start] NotSimpleAsyncAwait.Program+<>c__DisplayClass0_0..ctor[instance.void..()]
