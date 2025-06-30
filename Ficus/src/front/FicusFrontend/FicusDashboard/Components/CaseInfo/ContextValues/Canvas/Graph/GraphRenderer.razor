@@ -1,5 +1,4 @@
 @using System.Globalization
-@using BlazorBootstrap
 @using Ficus
 @using FicusDashboard.Layout.Models
 @using Radzen
@@ -36,15 +35,15 @@
                  Gap="0.5rem" 
                  Style="margin-top: 5px;">
       <RadzenLabel Text="TB" />
-      <RadzenSwitch Name="Orientation" @bind-Value=@myUseLROrientation />
+      <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation" />
       <RadzenLabel Text="LR" />
     </RadzenStack>
 
     <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
+    <RadzenButton Click="ExportGraph" Style="width: 120px; margin-top: 30px;">Export to SVG</RadzenButton>
   </div>
 
-  <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"
-                   FileNameCreator="CreateExportFileName"/>
+  <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
 </div>
 
 @code
@@ -143,4 +142,7 @@
   {
     myCanvasComponent?.ReRenderCanvas();
   }
+
+  private Task ExportGraph() => 
+    myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;
 }

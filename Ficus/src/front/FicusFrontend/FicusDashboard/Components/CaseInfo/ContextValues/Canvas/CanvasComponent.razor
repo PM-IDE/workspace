@@ -10,11 +10,8 @@
 }
 
 <div style="visibility: @(myIsDrawing ? "collapse" : "visible")" class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">
-  <div id="@myCytoscapeContainerId" class="@(IsFullScreen ? "canvas-container-fullscreen" : "cytoscape-canvas")"></div>
-
-  <Button Color="ButtonColor.Primary" Active="true" @onclick="ExportGraph">
-    Export to SVG
-  </Button>
+  <div id="@myCytoscapeContainerId" class="@(IsFullScreen ? "canvas-container-fullscreen" : "cytoscape-canvas")">
+  </div>
 </div>
 
 
@@ -28,7 +25,6 @@
 
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required Func<string, Task<IJSObjectReference>> RenderingFunc { get; init; }
-  [Parameter] public required Func<string> FileNameCreator { get; init; }
 
 
   protected override Task OnAfterRenderAsync(bool firstRender)
@@ -43,10 +39,8 @@
     return Task.CompletedTask;
   }
 
-  private async Task ExportGraph()
-  {
-    await Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, FileNameCreator());
-  }
+  public Task ExportGraph(string fileName) => 
+    Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, fileName).AsTask();
 
   private void ReRenderCanvasInternal()
   {
