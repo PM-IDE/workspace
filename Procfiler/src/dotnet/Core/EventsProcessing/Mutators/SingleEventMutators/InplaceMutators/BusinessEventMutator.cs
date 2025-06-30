@@ -18,7 +18,6 @@ public class BusinessEventMutator(IProcfilerLogger logger) : SingleEventMutatorB
 
   protected override void ProcessInternal(EventRecordWithMetadata eventRecord, IGlobalData context)
   {
-    const string KeyAttribute = TraceEventsConstants.BusinessEventOriginalFormat;
     const string AttributesSeparator = ";";
 
     if (eventRecord.Metadata.TryGetValue(TraceEventsConstants.BusinessEventAttributes, out var attributesString))
@@ -37,6 +36,7 @@ public class BusinessEventMutator(IProcfilerLogger logger) : SingleEventMutatorB
       }
     }
 
+    const string KeyAttribute = TraceEventsConstants.BusinessEventMessage;
     if (eventRecord.Metadata.TryGetValue(KeyAttribute, out var message))
     {
       eventRecord.EventName = $"{TraceEventsConstants.BusinessEvent}[{message}]";
