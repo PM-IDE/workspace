@@ -1,4 +1,5 @@
 ﻿using Ficus;
+using FicusDashboard.Layout.Models;
 using Google.Protobuf.WellKnownTypes;
 using GrpcModels;
 using JetBrains.Collections.Viewable;
@@ -10,7 +11,8 @@ public interface ISubscriptionsService
   IViewableMap<Guid, Subscription> Subscriptions { get; }
   ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; }
 
-  void StartUpdatesStream(CancellationToken token);
+  void StartUpdatesRequestingRoutine(CancellationToken token);
+  Task<IReadOnlyDictionary<Guid, PipelinePartExecutionResults>> GetCaseExecutionResult(ProcessCaseData data);
 }
 
 public class SubscriptionsService(
@@ -26,7 +28,7 @@ public class SubscriptionsService(
   public ISignal<Pipeline> AnyPipelineSubEntityUpdated { get; } = new Signal<Pipeline>();
 
 
-  public void StartUpdatesStream(CancellationToken token)
+  public void StartUpdatesRequestingRoutine(CancellationToken token)
   {
     Task.Factory.StartNew(async () =>
     {
@@ -40,23 +42,9 @@ public class SubscriptionsService(
             return;
           }
 
-          var reader = client.StartUpdatesStream(new Empty(), cancellationToken: token).ResponseStream;
-          logger.LogDebug("Started an updates stream");
+          ProcessState(await client.GetSubscriptionAndPipelinesStateAsync(new Empty()));
 
-          while (await reader.MoveNext(token))
-          {
-            switch (reader.Current.UpdateCase)
-            {
-              case GrpcPipelinePartUpdate.UpdateOneofCase.CurrentCases:
-                ProcessInitialState(reader.Current.CurrentCases);
-                break;
-              case GrpcPipelinePartUpdate.UpdateOneofCase.Delta:
-                HandleCaseUpdate(reader.Current.Delta);
-                break;
-              default:
-                throw new ArgumentOutOfRangeException();
-            }
-          }
+          await Task.Delay(1_000, token);
         }
         catch (Exception ex)
         {
@@ -66,51 +54,71 @@ public class SubscriptionsService(
     }, token);
   }
 
-  private void ProcessInitialState(GrpcCurrentCasesResponse initialCases)
+  public async Task<IReadOnlyDictionary<Guid, PipelinePartExecutionResults>> GetCaseExecutionResult(ProcessCaseData data)
+  {
+    var result = await client.GetPipelineCaseContextValueAsync(new GrpcGetPipelineCaseContextValuesRequest
+    {
+      CaseName = new GrpcCaseName
+      {
+        DisplayName = data.Case.DisplayName,
+        FullNameParts = { data.Case.NameParts }
+      },
+      SubscriptionId = data.ProcessData.ParentPipeline.ParentSubscription.Id.ToGrpcGuid(),
+      PipelineId = data.ProcessData.ParentPipeline.Id.ToGrpcGuid(),
+      ProcessName = data.ProcessData.ProcessName
+    });
+
+    return result.ContextValues.Select((value, order) =>
+    {
+      var id = value.PipelinePartInfo.Id.ToGuid();
+
+      var results = value.ExecutionResults.Select(r => new PipelinePartExecutionResult
+      {
+        ContextValues = r.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
+      }).ToList();
+
+      var partResults = new PipelinePartExecutionResults
+      {
+        PipelinePartName = value.PipelinePartInfo.Name,
+        Order = (uint)order,
+        Results = new ViewableList<PipelinePartExecutionResult>(results)
+      };
+
+      return (id, partResults);
+    }).ToDictionary();
+  }
+
+  private void ProcessState(GrpcSubscriptionAndPipelinesStateResponse reponse)
   {
     logger.LogDebug("Started processing of the initial state");
 
-    foreach (var @case in initialCases.Cases)
+    foreach (var @case in reponse.Cases)
     {
-      var initialState = @case.ContextValues
-        .Select((v, order) =>
-        {
-          var id = Guid.Parse(v.PipelinePartInfo.Id.Guid);
-          var results = v.ExecutionResults.Select(r => new PipelinePartExecutionResult
-          {
-            ContextValues = r.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
-          }).ToList();
+      var processData = GetOrCreateProcessData(@case.Metadata);
+      var fullCaseName = CreateFullCaseName(@case.Metadata.CaseName);
 
-          var partResults = new PipelinePartExecutionResults
-          {
-            PipelinePartName = v.PipelinePartInfo.Name,
-            Order = (uint)order,
-            Results = new ViewableList<PipelinePartExecutionResult>(results)
-          };
-
-          return (id, partResults);
-        })
-        .ToDictionary();
-
-      var processData = GetOrCreateProcessData(@case.ProcessCaseMetadata);
-
-      var caseModel = new Case
+      if (!processData.ProcessCases.TryGetValue(fullCaseName, out var existingCase))
       {
-        NameParts = @case.ProcessCaseMetadata.CaseName.FullNameParts.ToList(),
-        ParentProcess = processData,
-        DisplayName = @case.ProcessCaseMetadata.CaseName.DisplayName,
-        FullName = CreateFullCaseName(@case.ProcessCaseMetadata.CaseName),
-        CreatedAt = DateTime.Now,
-        PipelineExecutionResults = new PipelinePartsExecutionResults
+        var caseModel = new Case
         {
-          Results = new ViewableMap<Guid, PipelinePartExecutionResults>(initialState),
-          ExecutionId = @case.ContextValues.FirstOrDefault()?.PipelinePartInfo.ExecutionId.ToGuid() ?? Guid.Empty
-        }
-      };
+          NameParts = @case.Metadata.CaseName.FullNameParts.ToList(),
+          ParentProcess = processData,
+          DisplayName = @case.Metadata.CaseName.DisplayName,
+          FullName = CreateFullCaseName(@case.Metadata.CaseName),
+          CreatedAt = DateTime.Now,
+          ExecutionResultsStamp = @case.Stamp
+        };
 
-      var caseName = caseModel.FullName;
-      logger.LogDebug("Updating case {CaseName} with initial state", caseName);
-      processData.ProcessCases[caseName] = caseModel;
+        var caseName = caseModel.FullName;
+        logger.LogDebug("Updating case {CaseName} with initial state", caseName);
+        processData.ProcessCases[caseName] = caseModel;
+        FirePipelineSubEntityUpdatedEvent(processData.ParentPipeline);
+      }
+      else if (existingCase.ExecutionResultsStamp != @case.Stamp)
+      {
+        existingCase.ExecutionResultsStamp = @case.Stamp;
+        existingCase.ExecutionResultsChanged.Fire();
+      }
     }
   }
 
@@ -188,79 +196,5 @@ public class SubscriptionsService(
     return pipeline;
   }
 
-  private Case GetOrCreateCaseData(ProcessData processData, GrpcCaseName caseName)
-  {
-    var fullCaseName = CreateFullCaseName(caseName);
-    if (processData.ProcessCases.TryGetValue(fullCaseName, out var @case))
-    {
-      logger.LogDebug("Case {CaseName} already exists", caseName);
-      return @case;
-    }
-
-    @case = new Case
-    {
-      ParentProcess = processData,
-      DisplayName = caseName.DisplayName,
-      NameParts = caseName.FullNameParts.ToList(),
-      FullName = fullCaseName,
-      CreatedAt = DateTime.Now,
-      PipelineExecutionResults = new PipelinePartsExecutionResults
-      {
-        ExecutionId = Guid.Empty,
-        Results = new ViewableMap<Guid, PipelinePartExecutionResults>()
-      }
-    };
-
-    processData.ProcessCases[fullCaseName] = @case;
-    logger.LogDebug("Added case {CaseName}", caseName);
-
-    FirePipelineSubEntityUpdatedEvent(@case.ParentProcess.ParentPipeline);
-
-    return @case;
-  }
-
   private static string CreateFullCaseName(GrpcCaseName caseName) => string.Join(string.Empty, caseName.FullNameParts);
-
-  private void HandleCaseUpdate(GrpcKafkaUpdate delta)
-  {
-    using var _ = logger.BeginScope(
-      "Started processing of the case update, process {ProcessName}, case {CaseName}",
-      delta.ProcessCaseMetadata.ProcessName,
-      delta.ProcessCaseMetadata.CaseName
-    );
-
-    var processData = GetOrCreateProcessData(delta.ProcessCaseMetadata);
-    var caseData = GetOrCreateCaseData(processData, delta.ProcessCaseMetadata.CaseName);
-
-    var executionId = delta.PipelinePartInfo.ExecutionId.ToGuid();
-    if (caseData.PipelineExecutionResults.ExecutionId != executionId)
-    {
-      caseData.PipelineExecutionResults.ExecutionId = executionId;
-      caseData.PipelineExecutionResults.Results.Clear();
-      logger.LogDebug("Execution ids are not equal, cleared all results");
-    }
-
-    var partId = Guid.Parse(delta.PipelinePartInfo.Id.Guid);
-    var result = new PipelinePartExecutionResult
-    {
-      ContextValues = delta.ContextValues.Select(c => new ContextValueWrapper(c)).ToList()
-    };
-
-    if (!caseData.PipelineExecutionResults.Results.ContainsKey(partId))
-    {
-      caseData.PipelineExecutionResults.Results[partId] = new PipelinePartExecutionResults
-      {
-        Order = (uint)caseData.PipelineExecutionResults.Results.Count,
-        PipelinePartName = delta.PipelinePartInfo.Name,
-        Results = new ViewableList<PipelinePartExecutionResult> { result }
-      };
-
-      logger.LogDebug("Added new pipeline part exec. results with id {PartId}", partId);
-    }
-    else
-    {
-      caseData.PipelineExecutionResults.Results[partId].Results.Add(result);
-      logger.LogDebug("Added results to existing pipeline part exec. result with id {PartId}", partId);
-    }
-  }
 }

@@ -27,13 +27,7 @@
 
 @code
 {
-  private string CaseNotificationClass => "case-notification " + ProcessingState switch
-  {
-    ItemProcessingState.New => "case-new-notification",
-    ItemProcessingState.Updated => "case-update-notification",
-    ItemProcessingState.Seen => "case-seen-notification",
-    _ => throw new ArgumentOutOfRangeException()
-  };
+  private string CaseNotificationClass => "case-notification " + ProcessingState.GetNotificationClass();
 
   [Parameter] public string? Icon { get; set; }
   [Parameter] public required ListItemInfo ListItemInfo { get; set; }

@@ -190,6 +190,6 @@
     }
   },
   "raw_control_flow_regexes": [
-    "ProcfilerMethod"
+    "BusinessEvent"
   ]
 }

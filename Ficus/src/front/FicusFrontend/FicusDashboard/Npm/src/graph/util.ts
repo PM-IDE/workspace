@@ -16,30 +16,31 @@ cytoscape.use(elk);
 
 cytoscape.use(dagre);
 
-export function createLayout(kind: GrpcGraphKind, spacingFactor: number = 1) {
+export function createLayout(kind: GrpcGraphKind, spacingFactor: number = 1, useLROrientation: boolean = true) {
   switch (kind) {
     case GrpcGraphKind.None:
-      return createGridLayout(spacingFactor);
+      return createGridLayout(spacingFactor, useLROrientation);
     case GrpcGraphKind.DAG:
-      return createDagreLayout(spacingFactor);
+      return createDagreLayout(spacingFactor, useLROrientation);
   }
 }
 
-function createDagreLayout(spacingFactor: number = 1) {
+function createDagreLayout(spacingFactor: number = 1, useLROrientation: boolean = true) {
   return {
     name: 'dagre',
-    rankDir: 'LR',
+    rankDir: useLROrientation ? 'LR' : 'TB',
     nodeDimensionsIncludeLabels: true,
     ranker: 'tight-tree',
     spacingFactor: spacingFactor
   }
 }
 
-function createGridLayout(spacingFactor: number = 1) {
+function createGridLayout(spacingFactor: number = 1, useLROrientation: boolean = true) {
   return {
     name: 'elk',
     spacingFactor: spacingFactor,
-    nodeDimensionsIncludeLabels: true
+    nodeDimensionsIncludeLabels: true,
+    rankDir: useLROrientation ? 'LR' : 'TB',
   }
 }
 

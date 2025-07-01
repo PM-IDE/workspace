@@ -1,27 +1,40 @@
-﻿@using FicusDashboard.Components.SidebarList
+﻿@using System.Diagnostics
+@using FicusDashboard.Components.SidebarList
+@using FicusDashboard.Components.TreeView
 @using FicusDashboard.Services.Cases
 @using FicusDashboard.Utils
 @using JetBrains.Collections.Viewable
 @using JetBrains.Lifetimes
 @inherits ComponentBase;
 
-<SidebarList TItem="ProcessData"
-             TInnerItem="Case"
-             TId="string"
-             ComponentStyle="SidebarList<ProcessData, Case, string>.Style.Darker"
-             ItemType="Process"
-             ListItemIcon="images/case_20.svg"
-             Title="Processes"
-             Items="myProcesses.Values.OrderBy(p => p.Id).ToList()"
-             InnerItemSelected="HandleCaseSelection"/>
+<SidebarListContainer Title="Processes"
+                      WidthPx="350"
+                      ComponentStyle="SidebarListContainer.Style.Darker">
+  @if (myRootItem is { })
+  {
+    <div style="width: 350px; display: flex; flex-direction: row; justify-content: center">
+      <InputText @bind-Value="mySearchQuery"
+                 style="width: 90%; height: 36px; margin-bottom: 5px; margin-top: 5px;"
+                 @onkeyup="HandleFilterInputKeyDown"/>
+    </div>
+
+    <div style="padding: 5px;">
+      <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
+                TreeViewItemClickHandler="@HandleTreeViewItemClicked"/>
+    </div>
+  }
+</SidebarListContainer>
 
 @code
 {
-  private readonly Dictionary<string, CollectionItemInfo<ProcessData, Case, string>> myProcesses = [];
+  private static Key<Case> LeafTreeItemCase { get; } = new(nameof(LeafTreeItemCase));
+
   private readonly LifetimeDefinitionsByKey<string> myProcessesLifetimes = new();
   private readonly LifetimeDefinitionsByKey<string> myCasesLifetimes = new();
   private readonly SequentialLifetimes mySequentialLifetimes = new(Lifetime.Eternal);
 
+  private string? mySearchQuery;
+  private TreeViewItem? myRootItem;
   private Pipeline? mySelectedPipeline;
   private Lifetime myCurrentPipelineLifetime;
   private Case? mySelectedCase;
@@ -31,10 +44,20 @@
   [Parameter] public required Pipeline SelectedPipeline { get; set; }
 
 
-  private void HandleCaseSelection(ProcessData process, Case @case)
+  private void HandleFilterInputKeyDown(KeyboardEventArgs obj)
   {
+    if (obj.Key != "Enter") return;
+
+    myRootItem = ConstructTreeViewRootItem(mySearchQuery);
+    StateHasChanged();
+  }
+
+  private void HandleTreeViewItemClicked(TreeViewItem obj)
+  {
+    if (!obj.UserData.TryGetData(LeafTreeItemCase, out var @case)) return;
+
     mySelectedCase = @case;
-    CaseSelected(process, @case);
+    CaseSelected(@case.ParentProcess, @case);
   }
 
   protected override void OnParametersSet()
@@ -43,7 +66,7 @@
 
     if (ReferenceEquals(mySelectedPipeline, SelectedPipeline)) return;
 
-    myProcesses.Clear();
+    myRootItem = ConstructTreeViewRootItem(null);
     mySelectedPipeline = SelectedPipeline;
     myCurrentPipelineLifetime = mySequentialLifetimes.Next();
     mySelectedPipeline.Processes.AdviseAddRemove(myCurrentPipelineLifetime, HandleProcessAddRemove);
@@ -51,17 +74,127 @@
     StateHasChanged();
   }
 
+  private class CaseNamePart(string namePart)
+  {
+    public string NamePart { get; } = namePart;
+    public Case? Case { get; set; }
+
+    public Dictionary<string, CaseNamePart> Children { get; } = [];
+
+
+    public CaseNamePart GetOrAdd(string name)
+    {
+      if (Children.TryGetValue(name, out var nextNamePart))
+      {
+        return nextNamePart;
+      }
+
+      var newNamePart = new CaseNamePart(name);
+      Children[name] = newNamePart;
+      return newNamePart;
+    }
+  }
+
+  private TreeViewItem ConstructTreeViewRootItem(string? filter)
+  {
+    var rootPart = new CaseNamePart("root");
+    foreach (var (_, process) in SelectedPipeline.Processes)
+    {
+      AddCaseNamePartForProcess(rootPart, process, filter);
+    }
+
+    var rootItem = new TreeViewItem
+    {
+      InnerItems = [],
+      Parent = null,
+      DisplayName = "Processes",
+      Id = "Processes",
+      IsExpanded = true
+    };
+
+    foreach (var (_, caseNamePart) in rootPart.Children)
+    {
+      AddCaseNamePart(rootItem, caseNamePart);
+    }
+
+    return rootItem;
+  }
+
+  private static void AddCaseNamePartForProcess(CaseNamePart rootPart, ProcessData process, string? filter)
+  {
+    var processPart = rootPart.GetOrAdd(process.ProcessName);
+
+    foreach (var (_, currentCase) in process.ProcessCases)
+    {
+      if (!DoesCaseMatchFilter(currentCase, filter)) continue;
+
+      var currentPart = processPart;
+      foreach (var namePart in currentCase.NameParts)
+      {
+        currentPart = currentPart.GetOrAdd(namePart);
+      }
+
+      currentPart.Case = currentCase;
+    }
+
+    if (rootPart.Children[process.ProcessName].Children.Count == 0)
+    {
+      rootPart.Children.Remove(process.ProcessName);
+    }
+  }
+
+  private static bool DoesCaseMatchFilter(Case @case, string? filter) =>
+    string.IsNullOrWhiteSpace(filter) ||
+    DoesNameMatchesFilter(@case.ParentProcess.ProcessName, filter) ||
+    @case.NameParts.Any(p => DoesNameMatchesFilter(p, filter));
+
+  private static bool DoesNameMatchesFilter(string name, string filter) =>
+    name.Contains(filter, StringComparison.CurrentCultureIgnoreCase);
+
+  private static void AddCaseNamePart(TreeViewItem item, CaseNamePart part)
+  {
+    if (item.InnerItems.TryGetValue(part.NamePart, out var treeItemChild))
+    {
+      foreach (var (_, caseNamePart) in part.Children)
+      {
+        AddCaseNamePart(treeItemChild, caseNamePart);
+      }
+
+      return;
+    }
+
+    var newTreeViewItem = new TreeViewItem
+    {
+      InnerItems = [],
+      Parent = item,
+      DisplayName = part.NamePart,
+      Id = part.NamePart,
+      IsExpanded = true
+    };
+
+    if (part.Case is { } @case)
+    {
+      newTreeViewItem.UserData.PutData(LeafTreeItemCase, @case);
+    }
+
+    newTreeViewItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.New);
+
+    foreach (var (_, child) in part.Children)
+    {
+      AddCaseNamePart(newTreeViewItem, child);
+    }
+
+    item.InnerItems[part.NamePart] = newTreeViewItem;
+  }
+
   private void HandleProcessAddRemove(AddRemove addRemove, string key, ProcessData? process)
   {
+    if (process is null) return;
+
     switch (addRemove)
     {
       case AddRemove.Add:
       {
-        if (process is null) return;
-
-        var processCollectionItemInfo = CreateItemInfoFromProcess(process);
-        myProcesses[key] = processCollectionItemInfo;
-
         var processLifetime = myProcessesLifetimes.CreateNested(key, myCurrentPipelineLifetime);
         process.ProcessCases.AdviseAddRemove(processLifetime, HandleCaseAddRemove);
 
@@ -70,13 +203,15 @@
       case AddRemove.Remove:
       {
         myProcessesLifetimes.TerminateAndRemove(key);
-        myProcesses.Remove(key);
+        myRootItem?.InnerItems.Remove(process.ProcessName);
 
         break;
       }
       default:
         throw new ArgumentOutOfRangeException(nameof(addRemove), addRemove, null);
     }
+
+    StateHasChanged();
   }
 
   private void HandleCaseAddRemove(AddRemove caseAddRemove, string caseKey, Case? caseModel)
@@ -87,18 +222,23 @@
     {
       case AddRemove.Add:
       {
-        myProcesses[caseModel.ParentProcess.ProcessName].InnerItems[caseKey] = CreateInnerCollectionItemFrom(caseModel);
-
         var processLifetime = myProcessesLifetimes.Get(caseModel.ParentProcess.ProcessName);
         var caseLifetime = myCasesLifetimes.CreateNested(caseKey, processLifetime);
-        caseModel.PipelineExecutionResults.Results.Change.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseKey, caseModel));
+        caseModel.ExecutionResultsChanged.Advise(caseLifetime, _ => HandleCaseContextValuesChange(caseModel));
+
+        if (myRootItem is { })
+        {
+          var rootPart = new CaseNamePart("root");
+          AddCaseNamePartForProcess(rootPart, caseModel.ParentProcess, mySearchQuery);
+          AddCaseNamePart(myRootItem, rootPart.Children.Values.First());
+        }
 
         break;
       }
       case AddRemove.Remove:
       {
-        myProcesses[caseModel.ParentProcess.ProcessName].InnerItems.Remove(caseKey);
         myCasesLifetimes.TerminateAndRemove(caseKey);
+        RemoveCase(caseModel);
 
         break;
       }
@@ -109,42 +249,54 @@
     StateHasChanged();
   }
 
-  private void HandleCaseContextValuesChange(string caseKey, Case caseModel)
+  private void RemoveCase(Case caseModel)
   {
+    if (myRootItem is null) return;
+
+    var currentItem = FindCaseItem(caseModel);
+
+    var namePartIndex = caseModel.NameParts.Count - 1;
+    currentItem.Parent?.InnerItems.Remove(caseModel.NameParts[namePartIndex]);
+    namePartIndex--;
+    currentItem = currentItem.Parent;
+
+    while (currentItem is { } && namePartIndex >= 0 && currentItem.InnerItems.Count == 0)
+    {
+      currentItem.Parent?.InnerItems.Remove(caseModel.NameParts[namePartIndex]);
+      namePartIndex--;
+      currentItem = currentItem.Parent;
+    }
+
+    var processItem = myRootItem.InnerItems[caseModel.ParentProcess.ProcessName];
+    if (processItem.InnerItems.Count == 0)
+    {
+      myRootItem.InnerItems.Remove(processItem.Id);
+    }
+  }
+
+  private TreeViewItem FindCaseItem(Case caseModel)
+  {
+    Debug.Assert(myRootItem is { });
+
+    var processItem = myRootItem.InnerItems[caseModel.ParentProcess.ProcessName];
+
+    var currentItem = processItem;
+    foreach (var namePart in caseModel.NameParts)
+    {
+      currentItem = currentItem.InnerItems[namePart];
+    }
+
+    return currentItem;
+  }
+
+  private void HandleCaseContextValuesChange(Case caseModel)
+  {
+    if (myRootItem is null) return;
     if (ReferenceEquals(caseModel, mySelectedCase)) return;
-    if (!myProcesses.TryGetValue(caseModel.ParentProcess.ProcessName, out var collectionItemInfo)) return;
 
-    collectionItemInfo.InnerItems[caseKey].InnerItem.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
+    var item = FindCaseItem(caseModel);
+    item.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
+
     StateHasChanged();
-  }
-
-  private CollectionItemInfo<ProcessData, Case, string> CreateItemInfoFromProcess(ProcessData process)
-  {
-    return new CollectionItemInfo<ProcessData, Case, string>
-    {
-      Id = process.ProcessName,
-      Name = process.ProcessName,
-      Item = process,
-      InnerItems = process.ProcessCases.Values.Select(CreateInnerCollectionItemFrom).ToDictionary(c => c.Id, c => c)
-    };
-  }
-
-  private InnerCollectionItemInfo<Case, string> CreateInnerCollectionItemFrom(Case @case)
-  {
-    var innerItem = new InnerCollectionItemInfo<Case, string>
-    {
-      Id = @case.FullName,
-      InnerItem = @case,
-      ListItemInfo = new ListItemInfo
-      {
-        Name = @case.DisplayName,
-        UpdatedAt = @case.CreatedAt,
-        NameParts = @case.NameParts
-      }
-    };
-
-    innerItem.InnerItem.UserData.GetOrCreate(ComponentsKeys.ProcessingStateKey, static () => ItemProcessingState.New);
-
-    return innerItem;
   }
 }

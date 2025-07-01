@@ -60,3 +60,7 @@ class ClearGraphs(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_clear_graphs))
 
+
+class TerminateIfEmptyLog(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_terminate_if_empty_log))

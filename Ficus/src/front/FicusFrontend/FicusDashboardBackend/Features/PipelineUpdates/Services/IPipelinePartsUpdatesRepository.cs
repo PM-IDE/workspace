@@ -1,7 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
-using System.Threading.Channels;
-using Ficus;
+﻿using Ficus;
 using FicusDashboardBackend.Utils;
 using Google.Protobuf.WellKnownTypes;
 using GrpcModels;
@@ -10,7 +7,9 @@ namespace FicusDashboardBackend.Features.PipelineUpdates.Services;
 
 public interface IPipelinePartsUpdatesRepository
 {
-  IAsyncEnumerable<GrpcPipelinePartUpdate> StartUpdatesStream(CancellationToken token);
+  Task<GrpcSubscriptionAndPipelinesStateResponse> GetCurrentState();
+  Task<GrpcCaseContextValues> GetCaseContextValues(GrpcGetPipelineCaseContextValuesRequest request);
+
   Task ProcessUpdate(GrpcKafkaUpdate update);
 }
 
@@ -30,6 +29,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
   private class PipelinePartsExecutionResults
   {
     public required Guid ExecutionId { get; set; }
+    public required ulong Stamp { get; set; }
     public required Dictionary<Guid, PipelinePartExecutionResults> PipelinePartsResults { get; init; }
   }
 
@@ -68,67 +68,95 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
 
   private readonly SemaphoreSlim myLock = new(1);
   private readonly Dictionary<CaseKey, CaseData> myCases = [];
-  private readonly ConcurrentDictionary<Guid, Channel<GrpcKafkaUpdate>> myChannels = [];
 
 
-  public async IAsyncEnumerable<GrpcPipelinePartUpdate> StartUpdatesStream([EnumeratorCancellation] CancellationToken token)
+  public Task<GrpcSubscriptionAndPipelinesStateResponse> GetCurrentState()
   {
-    var updatesStreamId = Guid.NewGuid();
-
-    using var _ = logger.BeginScope(new Dictionary<string, object>
+    return myLock.Execute(() =>
     {
-      ["UpdateStreamId"] = updatesStreamId
-    });
-
-    logger.LogInformation("Starting a new update stream");
-    var (sessionGuid, channel, currentState) = await myLock.Execute(() =>
-    {
-      var state = GetCurrentState();
-      var channel = Channel.CreateBounded<GrpcKafkaUpdate>(new BoundedChannelOptions(10)
+      var response = new GrpcSubscriptionAndPipelinesStateResponse();
+      foreach (var (caseKey, @case) in myCases)
       {
-        FullMode = BoundedChannelFullMode.Wait,
-        SingleReader = false,
-        SingleWriter = true
-      });
-
-      var sessionGuid = Guid.NewGuid();
-      myChannels[sessionGuid] = channel;
-      return Task.FromResult((sessionGuid, channel, state));
-    });
-
-    logger.LogInformation("Created an initial state");
-
-    try
-    {
-      yield return new GrpcPipelinePartUpdate
-      {
-        CurrentCases = currentState
-      };
-
-      while (true)
-      {
-        if (token.IsCancellationRequested) yield break;
-
-        var delta = await channel.Reader.ReadAsync(token);
-
-        var processMetadata = delta.ProcessCaseMetadata;
-        logger.LogInformation("Received delta: {ProcessName}, {CaseName}", processMetadata.CaseName, processMetadata.ProcessName);
-
-        yield return new GrpcPipelinePartUpdate
+        response.Cases.Add(new GrpcProcessCaseMetadataWithStamp()
         {
-          Delta = delta
-        };
+          Stamp = @case.ExecutionResults.Stamp,
+          Metadata = new GrpcProcessCaseMetadata
+          {
+            ProcessName = caseKey.ProcessName,
+            CaseName = new GrpcCaseName
+            {
+              DisplayName = caseKey.CaseName.DisplayName,
+              FullNameParts = { caseKey.CaseName.NameParts }
+            },
+            PipelineId = caseKey.PipelineId.ToGrpcGuid(),
+            SubscriptionId = caseKey.SubscriptionId.ToGrpcGuid(),
+            PipelineName = @case.PipelineName,
+            SubscriptionName = @case.SubscriptionName,
+            Metadata =
+            {
+              @case.Metadata.Select(pair => new GrpcStringKeyValue
+              {
+                Key = pair.Key,
+                Value = pair.Value
+              })
+            }
+          },
+        });
       }
-    }
-    finally
+
+      return Task.FromResult(response);
+    });
+  }
+
+  public Task<GrpcCaseContextValues> GetCaseContextValues(GrpcGetPipelineCaseContextValuesRequest request)
+  {
+    var key = new CaseKey(
+      request.SubscriptionId.ToGuid(),
+      request.PipelineId.ToGuid(),
+      request.ProcessName,
+      new CaseName(
+        request.CaseName.DisplayName,
+        request.CaseName.FullNameParts.ToList()
+      )
+    );
+
+    return myLock.Execute(() =>
     {
-      myChannels.Remove(sessionGuid, out var __);
-    }
+      if (!myCases.TryGetValue(key, out var caseData))
+      {
+        throw new KeyNotFoundException();
+      }
+
+      return Task.FromResult(new GrpcCaseContextValues
+      {
+        Stamp = caseData.ExecutionResults.Stamp,
+        ContextValues =
+        {
+          caseData.ExecutionResults.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
+          {
+            Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
+            ExecutionResults =
+            {
+              x.Value.Results.Select(e => new GrpcCasePipelinePartExecutionResult
+              {
+                ContextValues = { e.ContextValues }
+              })
+            },
+            PipelinePartInfo = new GrpcPipelinePartInfo
+            {
+              ExecutionId = caseData.ExecutionResults.ExecutionId.ToGrpcGuid(),
+              Name = x.Value.PipelinePartName,
+              Id = x.Key.ToGrpcGuid()
+            }
+          })
+        }
+      });
+    });
   }
 
   public Task ProcessUpdate(GrpcKafkaUpdate update)
   {
-    return myLock.Execute(async () =>
+    return myLock.Execute(() =>
     {
       var updateProcessingId = Guid.NewGuid();
       using var _ = logger.BeginScope(new Dictionary<string, object>
@@ -139,8 +167,8 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       logger.LogInformation("Processing update: {Update}", update.GetType());
 
       var caseKey = new CaseKey(
-        Guid.Parse(update.ProcessCaseMetadata.SubscriptionId.Guid),
-        Guid.Parse(update.ProcessCaseMetadata.PipelineId.Guid),
+        update.ProcessCaseMetadata.SubscriptionId.ToGuid(),
+        update.ProcessCaseMetadata.PipelineId.ToGuid(),
         update.ProcessCaseMetadata.ProcessName,
         new CaseName(
           update.ProcessCaseMetadata.CaseName.DisplayName,
@@ -159,7 +187,8 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
           ExecutionResults = new PipelinePartsExecutionResults
           {
             ExecutionId = currentExecutionId,
-            PipelinePartsResults = []
+            PipelinePartsResults = [],
+            Stamp = 0
           },
           PipelineName = update.ProcessCaseMetadata.PipelineName,
           SubscriptionName = update.ProcessCaseMetadata.SubscriptionName
@@ -194,67 +223,8 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         ContextValues = update.ContextValues.ToList(),
       });
 
-      foreach (var (id, chanel) in myChannels)
-      {
-        logger.LogInformation("Started writing update to channel {Id}", id);
-        await chanel.Writer.WriteAsync(update);
-
-        logger.LogInformation("Finished writing update to channel {Id}", id);
-      }
+      caseData.ExecutionResults.Stamp++;
+      return Task.CompletedTask;
     });
-  }
-
-  private GrpcCurrentCasesResponse GetCurrentState()
-  {
-    var response = new GrpcCurrentCasesResponse();
-    foreach (var (caseKey, @case) in myCases)
-    {
-      response.Cases.Add(new GrpcCase
-      {
-        ProcessCaseMetadata = new GrpcProcessCaseMetadata
-        {
-          ProcessName = caseKey.ProcessName,
-          CaseName = new GrpcCaseName
-          {
-            DisplayName = caseKey.CaseName.DisplayName,
-            FullNameParts = { caseKey.CaseName.NameParts }
-          },
-          PipelineId = caseKey.PipelineId.ToGrpcGuid(),
-          SubscriptionId = caseKey.SubscriptionId.ToGrpcGuid(),
-          PipelineName = @case.PipelineName,
-          SubscriptionName = @case.SubscriptionName,
-          Metadata =
-          {
-            @case.Metadata.Select(pair => new GrpcStringKeyValue
-            {
-              Key = pair.Key,
-              Value = pair.Value
-            })
-          }
-        },
-        ContextValues =
-        {
-          @case.ExecutionResults.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
-          {
-            Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
-            ExecutionResults =
-            {
-              x.Value.Results.Select(e => new GrpcCasePipelinePartExecutionResult
-              {
-                ContextValues = { e.ContextValues }
-              })
-            },
-            PipelinePartInfo = new GrpcPipelinePartInfo
-            {
-              ExecutionId = @case.ExecutionResults.ExecutionId.ToGrpcGuid(),
-              Name = x.Value.PipelinePartName,
-              Id = x.Key.ToGrpcGuid()
-            }
-          })
-        }
-      });
-    }
-
-    return response;
   }
 }

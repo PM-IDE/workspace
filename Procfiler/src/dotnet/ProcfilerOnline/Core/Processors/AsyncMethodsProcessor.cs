@@ -19,7 +19,7 @@ public class AsyncMethodsProcessor : ITraceEventProcessor
   public AsyncMethodsProcessor(IProcfilerLogger logger, ICompositeEventPipeStreamEventHandler handler)
   {
     myHandler = handler;
-    myGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(logger, "ASYNC_", HandleAsyncMethod);
+    myGrouper = new OnlineAsyncMethodsGrouper<EventRecordWithMetadata>(logger, string.Empty, HandleAsyncMethod);
   }
 
 

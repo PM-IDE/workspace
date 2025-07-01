@@ -52,6 +52,11 @@ The system architecture is shown in the Figure:
 
 ![System](./images/system.png)
 
+Dashboard demo:
+
+![Dashboard Demo](./images/demo.png)
+
+
 ### Procfiler
 
 Procfiler is a tool which collects various events from .NET program execution and serializes

@@ -1,0 +1,69 @@
+@using FicusDashboard.Components.SidebarList
+@foreach (var item in Items.OrderByDescending(i => i.InnerItems.Count))
+{
+  <div style="height: fit-content">
+    <div class="tree-view-item-container"
+         @onclick="_ => HandleTreeViewItemClicked(item)">
+      <div class="tree-view-item-notification">
+        @if (item.InnerItems.Count == 0)
+        {
+          <div style="height: 8px; width: 8px; border-radius: 4px;"
+               class="@GetNotificationClass(item)">
+          </div>
+        }
+        else
+        {
+          <div class="@(item.IsExpanded ? "arrow-up" : "arrow-down")"></div>
+        }
+      </div>
+
+      <div style="width: fit-content; text-wrap: nowrap; color: white; 
+                  margin-left: 5px; margin-right: 5px; font-size: 12px;">
+        @item.DisplayName
+      </div>
+    </div>
+
+    @if (item.InnerItems.Count > 0 && item.IsExpanded)
+    {
+      <div style="margin-left: 10px; height: fit-content">
+        <TreeView Items="@item.InnerItems.Values.ToList()"
+                  TreeViewItemClickHandler="TreeViewItemClickHandler"/>
+      </div>
+    }
+  </div>
+}
+
+@code {
+  [Parameter] public required List<TreeViewItem> Items { get; init; }
+  [Parameter] public required Action<TreeViewItem> TreeViewItemClickHandler { get; init; }
+
+  private void CollapseOrExpandItem(TreeViewItem item)
+  {
+    item.IsExpanded = !item.IsExpanded;
+    StateHasChanged();
+  }
+
+  private static string GetNotificationClass(TreeViewItem item)
+  {
+    if (!item.UserData.TryGetData(ComponentsKeys.ProcessingStateKey, out var state))
+    {
+      state = ItemProcessingState.Seen;
+    }
+
+    return state.GetNotificationClass();
+  }
+
+  private void HandleTreeViewItemClicked(TreeViewItem item)
+  {
+    if (item.InnerItems.Count != 0)
+    {
+      CollapseOrExpandItem(item);
+      return;
+    }
+
+    item.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Seen);
+    StateHasChanged();
+
+    TreeViewItemClickHandler(item);
+  }
+}

@@ -14,7 +14,7 @@ public static class Program
       var xd = Allocate2();
       await Task.Delay(100);
     });
-    
+
     await Task.Factory.StartNew(() =>
     {
       var xd = Allocate3();

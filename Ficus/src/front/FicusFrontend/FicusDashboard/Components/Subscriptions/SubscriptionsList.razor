@@ -3,13 +3,14 @@
 @using FicusDashboard.Utils
 @using JetBrains.Collections.Viewable
 @using JetBrains.Lifetimes
-@inject ISubscriptionsService ISubscriptionService;
+@inject ISubscriptionsService SubscriptionService;
 
 
 <SidebarList TItem="Subscription"
              TInnerItem="Pipeline"
              TId="Guid"
-             ComponentStyle="SidebarList<Subscription, Pipeline, Guid>.Style.Dark"
+             WidthPx="200"
+             ComponentStyle="SidebarListContainer.Style.Dark"
              ListItemIcon="images/pipeline.svg"
              ItemType="Subscription"
              Title="Subscriptions"
@@ -31,8 +32,8 @@
   {
     base.OnInitialized();
 
-    ISubscriptionService.Subscriptions.AdviseAddRemove(Lifetime.Eternal, HandleSubscriptionAddRemove);
-    ISubscriptionService.AnyPipelineSubEntityUpdated.Advise(Lifetime.Eternal, HandleAnyPipelineSubEntityUpdated);
+    SubscriptionService.Subscriptions.AdviseAddRemove(Lifetime.Eternal, HandleSubscriptionAddRemove);
+    SubscriptionService.AnyPipelineSubEntityUpdated.Advise(Lifetime.Eternal, HandleAnyPipelineSubEntityUpdated);
   }
 
   private void HandleSubscriptionAddRemove(AddRemove addRemove, Guid id, Subscription? subscription)

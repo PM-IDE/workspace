@@ -1,11 +1,12 @@
-﻿@using FicusDashboard.Layout.Models
+﻿@using System.Collections.ObjectModel
+@using FicusDashboard.Layout.Models
 @using FicusDashboard.Services.Cases
-@using FicusDashboard.Utils
 @using JetBrains.Lifetimes
 
 @inherits ComponentBase
 
 @inject ILogger<CaseInfo> Logger;
+@inject ISubscriptionsService SubscriptionsService;
 
 @{
   var title = myProcessCaseData switch
@@ -49,17 +50,19 @@
 
 @code
 {
-  private readonly Dictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = [];
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
 
+  private IReadOnlyDictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = 
+    new Dictionary<Guid, PipelinePartExecutionResults>();
+  
   private Lifetime myCurrentLifetime;
   private ProcessCaseData? myProcessCaseData;
 
   [Parameter] public required ProcessCaseData ProcessCaseData { get; set; }
 
-  protected override void OnParametersSet()
+  protected override async Task OnParametersSetAsync()
   {
-    base.OnParametersSet();
+    await base.OnParametersSetAsync();
 
     if (ReferenceEquals(ProcessCaseData, myProcessCaseData))
     {
@@ -67,17 +70,10 @@
       return;
     }
 
-    myPipelinePartsExecutionResults.Clear();
     myProcessCaseData = ProcessCaseData;
     myCurrentLifetime = myLifetimes.Next();
+    myPipelinePartsExecutionResults = await SubscriptionsService.GetCaseExecutionResult(myProcessCaseData);
 
-    Logger.LogDebug("New process data differs from the cached one, reseted the state");
-
-    var values = myProcessCaseData.ProcessData.ProcessCases[myProcessCaseData.Case.FullName].PipelineExecutionResults;
-    values.Results.FlowIntoWithCallback(myCurrentLifetime, myPipelinePartsExecutionResults, () =>
-    {
-      Logger.LogDebug("The results of the case {CaseName} have changed", myProcessCaseData.Case.FullName);
-      StateHasChanged();
-    });
+    StateHasChanged();
   }
 }

@@ -37,7 +37,7 @@ using var source = new CancellationTokenSource();
 
 try
 {
-  app.Services.GetRequiredService<ISubscriptionsService>().StartUpdatesStream(source.Token);
+  app.Services.GetRequiredService<ISubscriptionsService>().StartUpdatesRequestingRoutine(source.Token);
   await app.RunAsync();
 }
 finally

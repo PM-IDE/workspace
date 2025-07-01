@@ -1,4 +1,4 @@
-ASYNC_AsyncDisposable.Program+<Main>d__0
+AsyncDisposable.Program+<Main>d__0
 Trace:
 	[start] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
 		[start] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]
@@ -36,7 +36,7 @@ Trace:
 	[ end ] AsyncDisposable.Program+<Main>d__0.MoveNext[instance.void..()]
 
 
-ASYNC_AsyncDisposable.Program+<Method1>d__1
+AsyncDisposable.Program+<Method1>d__1
 Trace:
 	[start] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
 	[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
@@ -50,7 +50,7 @@ Trace:
 	[ end ] AsyncDisposable.Program+<Method1>d__1.MoveNext[instance.void..()]
 
 
-ASYNC_AsyncDisposable.Program+Nested1+Nested2+Nested3+AsyncDisposable+<DisposeAsync>d__0
+AsyncDisposable.Program+Nested1+Nested2+Nested3+AsyncDisposable+<DisposeAsync>d__0
 Trace:
 	[start] AsyncDisposable.Program+Nested1+Nested2+Nested3+AsyncDisposable+<DisposeAsync>d__0.MoveNext[instance.void..()]
 		[start] AsyncDisposable.Program.Method1[class.System.Threading.Tasks.Task`1<int32>..()]

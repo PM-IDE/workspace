@@ -8,14 +8,24 @@ import "google/protobuf/timestamp.proto";
 package ficus;
 
 service GrpcPipelinePartsContextValuesService {
-  rpc StartUpdatesStream(google.protobuf.Empty) returns (stream GrpcPipelinePartUpdate);
+  rpc GetSubscriptionAndPipelinesState(google.protobuf.Empty) returns (GrpcSubscriptionAndPipelinesStateResponse);
+  rpc GetPipelineCaseContextValue(GrpcGetPipelineCaseContextValuesRequest) returns (GrpcCaseContextValues);
 }
 
-message GrpcPipelinePartUpdate {
-  oneof update {
-    GrpcCurrentCasesResponse current_cases = 1;
-    GrpcKafkaUpdate delta = 2;
-  }
+message GrpcSubscriptionAndPipelinesStateResponse {
+  repeated GrpcProcessCaseMetadataWithStamp cases = 1;
+}
+
+message GrpcProcessCaseMetadataWithStamp {
+  uint64 stamp = 1;
+  GrpcProcessCaseMetadata metadata = 2;
+}
+
+message GrpcGetPipelineCaseContextValuesRequest {
+  GrpcGuid subscriptionId = 1;
+  GrpcGuid pipelineId = 2;
+  string processName = 3;
+  GrpcCaseName caseName = 4;
 }
 
 message GrpcKafkaUpdate {
@@ -39,13 +49,9 @@ message GrpcCaseName {
   repeated string fullNameParts = 2;
 }
 
-message GrpcCurrentCasesResponse {
-  repeated GrpcCase cases = 1;
-}
-
-message GrpcCase {
-  GrpcProcessCaseMetadata processCaseMetadata = 1;
-  repeated GrpcPipelinePartContextValues contextValues = 2;
+message GrpcCaseContextValues {
+  repeated GrpcPipelinePartContextValues contextValues = 1;
+  uint64 stamp = 2;
 }
 
 message GrpcPipelinePartContextValues {

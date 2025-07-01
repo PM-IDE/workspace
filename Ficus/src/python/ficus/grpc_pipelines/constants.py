@@ -164,6 +164,7 @@ const_abstract_multithreaded_events_groups = 'AbstractMultithreadedEventsGroups'
 const_merge_graphs = 'MergeGraphs'
 const_add_graph_to_graphs = 'AddGraphToGraphs'
 const_clear_graphs = 'ClearGraphs'
+const_terminate_if_empty_log = 'TerminateIfEmptyLog'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

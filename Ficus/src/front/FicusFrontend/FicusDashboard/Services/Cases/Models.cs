@@ -1,6 +1,7 @@
 ﻿using Ficus;
 using FicusDashboard.Utils;
 using JetBrains.Collections.Viewable;
+using JetBrains.Core;
 
 namespace FicusDashboard.Services.Cases;
 
@@ -36,17 +37,14 @@ public class Case : FrontModelBase
   public required string FullName { get; init; }
   public required string DisplayName { get; init; }
   public required DateTime CreatedAt { get; init; }
-  public required PipelinePartsExecutionResults PipelineExecutionResults { get; init; }
+  public required ulong ExecutionResultsStamp { get; set; }
+
+
+  public ISignal<Unit> ExecutionResultsChanged { get; } = new Signal<Unit>();
+
 
   public override int GetHashCode() => FullName.GetHashCode();
-
   public override bool Equals(object? obj) => obj is Case { FullName: var fullName } && fullName == FullName;
-}
-
-public class PipelinePartsExecutionResults
-{
-  public required Guid ExecutionId { get; set; }
-  public required IViewableMap<Guid, PipelinePartExecutionResults> Results { get; init; }
 }
 
 public class PipelinePartExecutionResults : FrontModelBase
