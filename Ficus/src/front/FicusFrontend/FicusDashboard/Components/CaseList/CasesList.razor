@@ -12,21 +12,28 @@
                       ComponentStyle="SidebarListContainer.Style.Darker">
   @if (myRootItem is { })
   {
-    <div style="padding-top: 5px; padding-left: 5px; padding-bottom: 5px;">
+    <div style="width: 350px; display: flex; flex-direction: row; justify-content: center">
+      <InputText @bind-Value="mySearchQuery"
+                 style="width: 90%; height: 36px; margin-bottom: 5px; margin-top: 5px;"
+                 @onkeyup="HandleFilterInputKeyDown"/>
+    </div>
+
+    <div style="padding: 5px;">
       <TreeView Items="@myRootItem.InnerItems.Values.ToList()"
-                TreeViewItemClickHandler="@HandleTreeViewItemClicked" />
+                TreeViewItemClickHandler="@HandleTreeViewItemClicked"/>
     </div>
   }
 </SidebarListContainer>
 
 @code
 {
-  private static Key<Case> LeafTreeItemCase { get; } = new Key<Case>(nameof(LeafTreeItemCase));
+  private static Key<Case> LeafTreeItemCase { get; } = new(nameof(LeafTreeItemCase));
 
   private readonly LifetimeDefinitionsByKey<string> myProcessesLifetimes = new();
   private readonly LifetimeDefinitionsByKey<string> myCasesLifetimes = new();
   private readonly SequentialLifetimes mySequentialLifetimes = new(Lifetime.Eternal);
 
+  private string? mySearchQuery;
   private TreeViewItem? myRootItem;
   private Pipeline? mySelectedPipeline;
   private Lifetime myCurrentPipelineLifetime;
@@ -36,6 +43,14 @@
   [Parameter] public required Action<ProcessData, Case> CaseSelected { get; set; }
   [Parameter] public required Pipeline SelectedPipeline { get; set; }
 
+
+  private void HandleFilterInputKeyDown(KeyboardEventArgs obj)
+  {
+    if (obj.Key != "Enter") return;
+
+    myRootItem = ConstructTreeViewRootItem(mySearchQuery);
+    StateHasChanged();
+  }
 
   private void HandleTreeViewItemClicked(TreeViewItem obj)
   {
@@ -51,7 +66,7 @@
 
     if (ReferenceEquals(mySelectedPipeline, SelectedPipeline)) return;
 
-    myRootItem = ConstructTreeViewRootItem();
+    myRootItem = ConstructTreeViewRootItem(null);
     mySelectedPipeline = SelectedPipeline;
     myCurrentPipelineLifetime = mySequentialLifetimes.Next();
     mySelectedPipeline.Processes.AdviseAddRemove(myCurrentPipelineLifetime, HandleProcessAddRemove);
@@ -80,12 +95,12 @@
     }
   }
 
-  private TreeViewItem ConstructTreeViewRootItem()
+  private TreeViewItem ConstructTreeViewRootItem(string? filter)
   {
     var rootPart = new CaseNamePart("root");
     foreach (var (_, process) in SelectedPipeline.Processes)
     {
-      AddCaseNamePartForProcess(rootPart, process);
+      AddCaseNamePartForProcess(rootPart, process, filter);
     }
 
     var rootItem = new TreeViewItem
@@ -105,12 +120,14 @@
     return rootItem;
   }
 
-  private static void AddCaseNamePartForProcess(CaseNamePart rootPart, ProcessData process)
+  private static void AddCaseNamePartForProcess(CaseNamePart rootPart, ProcessData process, string? filter)
   {
     var processPart = rootPart.GetOrAdd(process.ProcessName);
 
     foreach (var (_, currentCase) in process.ProcessCases)
     {
+      if (!DoesCaseMatchFilter(currentCase, filter)) continue;
+
       var currentPart = processPart;
       foreach (var namePart in currentCase.NameParts)
       {
@@ -119,7 +136,20 @@
 
       currentPart.Case = currentCase;
     }
+
+    if (rootPart.Children[process.ProcessName].Children.Count == 0)
+    {
+      rootPart.Children.Remove(process.ProcessName);
+    }
   }
+
+  private static bool DoesCaseMatchFilter(Case @case, string? filter) =>
+    string.IsNullOrWhiteSpace(filter) ||
+    DoesNameMatchesFilter(@case.ParentProcess.ProcessName, filter) ||
+    @case.NameParts.Any(p => DoesNameMatchesFilter(p, filter));
+
+  private static bool DoesNameMatchesFilter(string name, string filter) =>
+    name.Contains(filter, StringComparison.CurrentCultureIgnoreCase);
 
   private static void AddCaseNamePart(TreeViewItem item, CaseNamePart part)
   {
@@ -199,7 +229,7 @@
         if (myRootItem is { })
         {
           var rootPart = new CaseNamePart("root");
-          AddCaseNamePartForProcess(rootPart, caseModel.ParentProcess);
+          AddCaseNamePartForProcess(rootPart, caseModel.ParentProcess, mySearchQuery);
           AddCaseNamePart(myRootItem, rootPart.Children.Values.First());
         }
 
