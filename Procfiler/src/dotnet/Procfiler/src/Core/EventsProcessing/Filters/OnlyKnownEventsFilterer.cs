@@ -136,7 +136,13 @@ public class OnlyKnownEventsFilterer : IEventsFilter
     TraceEventsConstants.ConnectFailed,
     TraceEventsConstants.AcceptStart,
     TraceEventsConstants.AcceptStop,
-    TraceEventsConstants.AcceptFailed
+    TraceEventsConstants.AcceptFailed,
+
+    TraceEventsConstants.BusinessEvent,
+
+    TraceEventsConstants.OcelObjectEvent,
+    TraceEventsConstants.OcelActivityStart,
+    TraceEventsConstants.OcelActivityEnd,
   ];
 
 
