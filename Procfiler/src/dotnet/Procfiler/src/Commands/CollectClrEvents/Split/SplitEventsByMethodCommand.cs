@@ -115,7 +115,7 @@ public class SplitEventsByMethodCommand(
 
     foreach (var (index, trace) in methodTraces.Index())
     {
-      var outputFileName = Path.Combine(ocelOutputDir, $"{index}_name.csv");
+      var outputFileName = Path.Combine(ocelOutputDir, $"{index}_{name}.csv");
       var stack = new List<(Guid Id, string Name, Dictionary<string, List<int>> Events)>();
 
       using var fs = File.OpenWrite(outputFileName);
@@ -135,7 +135,7 @@ public class SplitEventsByMethodCommand(
 
       foreach (var evt in trace)
       {
-        if (evt.IsOcelActivityStart(out var activityId, out var activityName))
+        if (evt.IsOcelActivityBegin(out var activityId, out var activityName))
         {
           stack.Add((activityId, activityName, []));
         }
@@ -149,6 +149,8 @@ public class SplitEventsByMethodCommand(
             {
               sb.Append($"[{string.Join(',', entry.Events.GetValueOrDefault(category, []))}];");
             }
+
+            sw.WriteLine(sb);
 
             stack.RemoveAt(entryIndex);
           }

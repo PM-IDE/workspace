@@ -23,7 +23,7 @@ public class OcelEventsSource : EventSource
     WriteEvent(OcelEventId, objectId, objectCategory, attributes);
 
   [Event(OcelActivityStartId, Level = EventLevel.LogAlways)]
-  public void OcelActivityStart(Guid activityId, string activity) => WriteEvent(OcelActivityStartId, activityId, activity);
+  public void OcelActivityBegin(Guid activityId, string activity) => WriteEvent(OcelActivityStartId, activityId, activity);
 
   [Event(OcelActivityEndId, Level = EventLevel.LogAlways)]
   public void OcelActivityEnd(Guid activityId, string activity) => WriteEvent(OcelActivityEndId, activityId, activity);

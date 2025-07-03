@@ -22,7 +22,7 @@ public static class OcelLogger
   public static OcelActivityCookie StartOcelActivity(string name)
   {
     var activityId = Guid.NewGuid();
-    OcelEventsSource.Instance.OcelActivityStart(activityId, name);
+    OcelEventsSource.Instance.OcelActivityBegin(activityId, name);
     return new OcelActivityCookie(name, activityId);
   }
 }

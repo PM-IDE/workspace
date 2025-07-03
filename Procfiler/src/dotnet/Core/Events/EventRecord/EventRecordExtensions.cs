@@ -174,8 +174,8 @@ public static class EventRecordExtensions
     RelativeStampMSec = traceEvent.TimeStampRelativeMSec
   };
 
-  public static bool IsOcelActivityStart(this EventRecordWithMetadata evt, out Guid id, out string name) =>
-    evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityStart, out id, out name);
+  public static bool IsOcelActivityBegin(this EventRecordWithMetadata evt, out Guid id, out string name) =>
+    evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityBegin, out id, out name);
 
   private static bool IsActivityStartOrEnd(this EventRecordWithMetadata evt, string eventClass, out Guid id, out string name)
   {

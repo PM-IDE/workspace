@@ -141,8 +141,8 @@ public class OnlyKnownEventsFilterer : IEventsFilter
     TraceEventsConstants.BusinessEvent,
 
     TraceEventsConstants.OcelObjectEvent,
-    TraceEventsConstants.OcelActivityStart,
-    TraceEventsConstants.OcelActivityEnd,
+    TraceEventsConstants.OcelActivityBegin,
+    TraceEventsConstants.OcelActivityEnd
   ];
 
 
