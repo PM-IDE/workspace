@@ -116,7 +116,7 @@ public class SplitEventsByMethodCommand(
     foreach (var (index, trace) in methodTraces.Index())
     {
       var outputFileName = Path.Combine(ocelOutputDir, $"{index}_{name}.csv");
-      var stack = new List<(Guid Id, string Name, Dictionary<string, List<int>> Events)>();
+      var stack = new List<(Guid Id, string Name, DateTimeOffset StartTime, Dictionary<string, List<int>> Events)>();
 
       using var fs = File.OpenWrite(outputFileName);
       using var sw = new StreamWriter(fs);
@@ -137,14 +137,14 @@ public class SplitEventsByMethodCommand(
       {
         if (evt.IsOcelActivityBegin(out var activityId, out var activityName))
         {
-          stack.Add((activityId, activityName, []));
+          stack.Add((activityId, activityName, evt.Time.LoggedAt.ToUniversalTime(), []));
         }
         else if (evt.IsOcelActivityEnd(out activityId, out activityName))
         {
           if (stack.FindIndex(e => e.Id == activityId) is var entryIndex and >= 0)
           {
             var entry = stack[entryIndex];
-            var sb = new StringBuilder($"{entry.Name};0;0;");
+            var sb = new StringBuilder($"{entry.Name};{entry.StartTime:O};{evt.Time.LoggedAt.ToUniversalTime():O};");
             foreach (var category in orderedCategories)
             {
               sb.Append($"[{string.Join(',', entry.Events.GetValueOrDefault(category, []))}];");
