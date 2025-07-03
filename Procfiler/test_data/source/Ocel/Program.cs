@@ -10,57 +10,77 @@ public static class Program
   public static async Task Main()
   {
     await Task.Delay(1);
-    var objects = Enumerable.Range(0, 1000).Select(_ => new MyObject()).ToList();
-    var categoryName = nameof(MyObject);
+    var objects = Enumerable.Range(0, 1000).Select(_ => (Animal)(Random.Shared.Next(3) switch
+    {
+      0 => new Dog(),
+      1 => new Cat(),
+      2 => new Sheep(),
+      _ => throw new Exception()
+    })).ToList();
 
     using (OcelLogger.StartOcelActivity("Initializing"))
     {
       foreach (var myObject in objects)
       {
-        OcelLogger.LogObject(myObject, categoryName);
+        OcelLogger.LogObject(myObject, myObject.GetType().Name);
         myObject.Name = "xd";
       }
     }
 
-    Method1(objects.Where((_, i) => i % 2 == 0).ToList());
-    Method2(objects.Where((_, i) => i % 3 == 0).ToList());
-    Method3(objects.Where((_, i) => i % 4 == 0).ToList());
-    Method1(objects.Where((_, i) => i % 5 == 0).ToList());
-    Method3(objects.Where((_, i) => i % 6 == 0).ToList());
+    Cleaning(objects.Where((_, i) => i % 2 == 0).ToList());
+    VetClinic(objects.Where((_, i) => i % 3 == 0).ToList());
+    Playground(objects.Where((_, i) => i % 4 == 0).ToList());
+    Cleaning(objects.Where((_, i) => i % 5 == 0).ToList());
+    Farm(objects.Where((_, i) => i % 6 == 0).ToList());
 
-    void Method1(List<MyObject> objects)
+    void Cleaning(List<Animal> objects)
     {
-      using var _ = OcelLogger.StartOcelActivity(nameof(Method1));
+      using var _ = OcelLogger.StartOcelActivity(nameof(Cleaning));
       foreach (var obj in objects)
       {
-        OcelLogger.LogObject(obj, categoryName);
+        OcelLogger.LogObject(obj, obj.GetType().Name);
       }
     }
 
-    void Method2(List<MyObject> objects)
+    void VetClinic(List<Animal> objects)
     {
-      using var _ = OcelLogger.StartOcelActivity(nameof(Method2));
+      using var _ = OcelLogger.StartOcelActivity(nameof(VetClinic));
       foreach (var obj in objects)
       {
-        OcelLogger.LogObject(obj, categoryName);
+        OcelLogger.LogObject(obj, obj.GetType().Name);
       }
     }
 
-    void Method3(List<MyObject> objects)
+    void Playground(List<Animal> objects)
     {
-      using var _ = OcelLogger.StartOcelActivity(nameof(Method3));
+      using var _ = OcelLogger.StartOcelActivity(nameof(Playground));
       foreach (var obj in objects)
       {
-        OcelLogger.LogObject(obj, categoryName);
+        OcelLogger.LogObject(obj, obj.GetType().Name);
+      }
+    }
+
+    void Farm(List<Animal> objects)
+    {
+      using var _ = OcelLogger.StartOcelActivity(nameof(Farm));
+      foreach (var obj in objects)
+      {
+        OcelLogger.LogObject(obj, obj.GetType().Name);
       }
     }
   }
 }
 
-class MyObject
+class Animal
 {
   public string Name { get; set; }
 }
+
+class Dog : Animal;
+
+class Cat : Animal;
+
+class Sheep : Animal;
 
 
 class MyOptionsMonitor(ProcfilerLoggerConfiguration configuration) : IOptionsMonitor<ProcfilerLoggerConfiguration>

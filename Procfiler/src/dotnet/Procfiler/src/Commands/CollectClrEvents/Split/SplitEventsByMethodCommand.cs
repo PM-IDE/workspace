@@ -150,6 +150,7 @@ public class SplitEventsByMethodCommand(
               sb.Append($"[{string.Join(',', entry.Events.GetValueOrDefault(category, []))}];");
             }
 
+            sb.Remove(sb.Length - 1, 1);
             sw.WriteLine(sb);
 
             stack.RemoveAt(entryIndex);
