@@ -50,6 +50,8 @@ public class SplitEventsByMethodCommand(
   private Option<bool> RemoveFirstMoveNextFrames { get; } =
     new("--remove-first-move-next-frames", static () => true, "Remove first MoveNext frames from async methods traces");
 
+  private Option<bool> ExtractOcelLogs { get; } = new("--extract-ocel-logs", static () => true, "Extract OCEL logs");
+
 
   public override void Execute(CollectClrEventsContext context)
   {
@@ -77,23 +79,93 @@ public class SplitEventsByMethodCommand(
         events, filterPattern, inlineInnerCalls, mergeUndefinedThreadEvents, addAsyncMethods, removeMoveNextFrames);
 
       // ReSharper disable once AccessToDisposedClosure
-      var asyncMethods = splitter.SplitNonAlloc(onlineSerializer, splitContext);
+      if (splitter.SplitNonAlloc(onlineSerializer, splitContext) is not { } methods) return;
 
-      if (asyncMethods is { })
+      foreach (var (methodName, traces) in methods)
       {
-        foreach (var (methodName, traces) in asyncMethods)
-        {
-          var eventsByMethodsInvocation = PrepareEventSessionInfo(traces, globalData);
-          var filePath = GetFileNameForMethod(directory, methodName);
+        var eventsByMethodsInvocation = PrepareEventSessionInfo(traces, globalData);
+        var filePath = GetFileNameForMethod(directory, methodName);
 
-          foreach (var (_, sessionInfo) in eventsByMethodsInvocation)
+        foreach (var (_, sessionInfo) in eventsByMethodsInvocation)
+        {
+          // ReSharper disable once AccessToDisposedClosure
+          notStoringSerializer.WriteTrace(filePath, sessionInfo);
+        }
+      }
+
+      if (parseResult.TryGetOptionValue(ExtractOcelLogs))
+      {
+        WriteOcelLogs(methods, directory);
+      }
+    });
+  }
+
+  private void WriteOcelLogs(IDictionary<string, List<List<EventRecordWithMetadata>>> methods, string outputDir)
+  {
+    foreach (var (name, traces) in methods)
+    {
+      WriteOcelLog(name, traces, outputDir);
+    }
+  }
+
+  private void WriteOcelLog(string name, List<List<EventRecordWithMetadata>> methodTraces, string outputDir)
+  {
+    var ocelOutputDir = Path.Combine(outputDir, "OCEL");
+    Directory.CreateDirectory(ocelOutputDir);
+
+    foreach (var (index, trace) in methodTraces.Index())
+    {
+      var outputFileName = Path.Combine(ocelOutputDir, $"{index}_name.csv");
+      var stack = new List<(Guid Id, string Name, Dictionary<string, List<int>> Events)>();
+
+      using var fs = File.OpenWrite(outputFileName);
+      using var sw = new StreamWriter(fs);
+
+      var categories = new HashSet<string>();
+      foreach (var evt in trace)
+      {
+        if (evt.IsOcelObjectEvent(out var _, out var category))
+        {
+          categories.Add(category ?? string.Empty);
+        }
+      }
+
+      var orderedCategories = categories.Order().ToList();
+      sw.WriteLine("event_activity;start;end;" + string.Join(';', orderedCategories));
+
+      foreach (var evt in trace)
+      {
+        if (evt.IsOcelActivityStart(out var activityId, out var activityName))
+        {
+          stack.Add((activityId, activityName, []));
+        }
+        else if (evt.IsOcelActivityEnd(out activityId, out activityName))
+        {
+          if (stack.FindIndex(e => e.Id == activityId) is var entryIndex and >= 0)
           {
-            // ReSharper disable once AccessToDisposedClosure
-            notStoringSerializer.WriteTrace(filePath, sessionInfo);
+            var entry = stack[entryIndex];
+            var sb = new StringBuilder($"{entry.Name};0;0;");
+            foreach (var category in orderedCategories)
+            {
+              sb.Append($"[{string.Join(',', entry.Events.GetValueOrDefault(category, []))}];");
+            }
+
+            stack.RemoveAt(entryIndex);
+          }
+          else
+          {
+            Logger.LogWarning("Failed to find activity with ID {Id}", activityId);
+          }
+        }
+        else if (evt.IsOcelObjectEvent(out var objectId, out var category))
+        {
+          foreach (var entry in stack)
+          {
+            entry.Events.GetOrCreate(category ?? string.Empty, static () => []).Add(objectId);
           }
         }
       }
-    });
+    }
   }
 
   private INotStoringMergingTraceSerializer CreateNotStoringSerializer(CollectClrEventsContext context)
@@ -167,6 +239,7 @@ public class SplitEventsByMethodCommand(
     splitByMethodsCommand.AddOption(InlineInnerMethodsCalls);
     splitByMethodsCommand.AddOption(GroupAsyncMethods);
     splitByMethodsCommand.AddOption(TargetMethodsRegex);
+    splitByMethodsCommand.AddOption(ExtractOcelLogs);
 
     return splitByMethodsCommand;
   }
