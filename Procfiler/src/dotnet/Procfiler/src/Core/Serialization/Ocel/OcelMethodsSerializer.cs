@@ -17,12 +17,25 @@ public class OcelMethodsSerializer(IProcfilerLogger logger, string outputDirecto
 
   private readonly List<OcelMethodWriteState> myStates = [];
   private readonly Dictionary<string, int> mySeenMethods = [];
+  private int myCounter;
+  private OcelMethodWriteState? myCurrentState;
 
 
   public object? CreateState(EventRecordWithMetadata eventRecord)
   {
-    if (eventRecord.TryGetMethodStartEndEventInfo() is not { Frame: var fqn }) return null;
+    if (eventRecord.TryGetMethodStartEndEventInfo() is not { Frame: var fqn })
+    {
+      logger.LogDebug("Will not process ");
+      return null;
+    }
 
+    if (myCounter != 0)
+    {
+      logger.LogDebug("Will not create new writer for method {Fqn} as counter is {Counter}", fqn, myCounter);
+      return myCurrentState;
+    }
+
+    logger.LogInformation("Created new state for {Fqn}", fqn);
     fqn = beautifier.Beautify(fqn);
 
     var index = mySeenMethods.GetOrCreate(fqn, static () => 0);
@@ -32,6 +45,7 @@ public class OcelMethodsSerializer(IProcfilerLogger logger, string outputDirecto
 
     var state = new OcelMethodWriteState(new MethodOcelLogWriter(outputFileName, logger));
 
+    myCurrentState = state;
     myStates.Add(state);
 
     return state;
@@ -41,9 +55,17 @@ public class OcelMethodsSerializer(IProcfilerLogger logger, string outputDirecto
   {
     if (update.FrameInfo.State is not OcelMethodWriteState state) return;
 
-    if (update is NormalEventUpdate { Event: var eventRecord })
+    switch (update)
     {
-      state.Writer.Process(eventRecord);
+      case MethodStartedUpdate:
+        myCounter++;
+        break;
+      case MethodFinishedUpdate:
+        myCounter--;
+        break;
+      case NormalEventUpdate { Event: var eventRecord }:
+        state.Writer.Process(eventRecord);
+        break;
     }
   }
 

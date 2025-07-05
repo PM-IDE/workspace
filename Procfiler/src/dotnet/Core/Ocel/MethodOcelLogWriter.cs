@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Core.Ocel;
 
-public class MethodOcelLogWriter(string outputFileName, IProcfilerLogger logger)
+public class MethodOcelLogWriter(string outputFilePath, IProcfilerLogger logger)
 {
   private class State(Guid id, string name, DateTimeOffset startTime)
   {
@@ -54,7 +54,15 @@ public class MethodOcelLogWriter(string outputFileName, IProcfilerLogger logger)
     var categories = myOutput.SelectMany(s => s.Events.Keys).ToHashSet().ToList();
     if (categories.Count == 0) return;
 
-    using var fs = File.OpenWrite(outputFileName);
+    if (Path.GetDirectoryName(outputFilePath) is not { } directory)
+    {
+      logger.LogError("Cant get output directory for path {FilePath}", outputFilePath);
+      return;
+    }
+
+    PathUtils.EnsureEmptyDirectory(directory, logger);
+
+    using var fs = File.OpenWrite(outputFilePath);
     using var sw = new StreamWriter(fs);
 
     sw.WriteLine("event_activity;start;end;" + string.Join(';', categories));

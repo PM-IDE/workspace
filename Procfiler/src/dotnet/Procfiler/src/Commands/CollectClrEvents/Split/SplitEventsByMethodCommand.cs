@@ -67,7 +67,7 @@ public class SplitEventsByMethodCommand(
     using var notStoringSerializer = CreateNotStoringSerializer(context);
 
     var ocelOutputDir = Path.Combine(directory, "OCEL");
-    using var ocelSerializer = new OcelMethodsSerializer(Logger, directory, methodNameBeautifier);
+    using var ocelSerializer = new OcelMethodsSerializer(Logger, ocelOutputDir, methodNameBeautifier);
 
     ExecuteCommand(context, events =>
     {
@@ -115,8 +115,6 @@ public class SplitEventsByMethodCommand(
 
   private void WriteOcelLog(string name, List<List<EventRecordWithMetadata>> methodTraces, string ocelOutputDir)
   {
-    Directory.CreateDirectory(ocelOutputDir);
-
     foreach (var (index, trace) in methodTraces.Index())
     {
       var beautifiedName = methodNameBeautifier.Beautify(name);
