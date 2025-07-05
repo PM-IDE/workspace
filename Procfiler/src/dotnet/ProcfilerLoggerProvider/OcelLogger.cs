@@ -32,6 +32,11 @@ public static class OcelLogger
     OcelEventsSource.Instance.OcelAttachedToActivityEvent(RuntimeHelpers.GetHashCode(obj), activityName, category, string.Empty);
   }
 
+  public static void LogGloballyAttachedObject<T>(T obj, string activityName, string? category = null) where T : class
+  {
+    OcelEventsSource.Instance.OcelGloballyAttachedEvent(RuntimeHelpers.GetHashCode(obj), activityName, category, string.Empty);
+  }
+
   public static OcelActivityCookie StartOcelActivity(string name)
   {
     var activityId = Guid.NewGuid();
