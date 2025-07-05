@@ -5,6 +5,7 @@ public partial class TraceEventsConstants
   public const string OcelObjectEvent = "OcelEvent";
   public const string OcelActivityBegin = "OcelActivityBegin";
   public const string OcelActivityEnd = "OcelActivityEnd";
+  public const string OcelGlobalObjectEvent = "OcelGloballyAttachedEvent";
 
   public const string OcelObjectId = "objectId";
   public const string OcelObjectCategory = "objectCategory";

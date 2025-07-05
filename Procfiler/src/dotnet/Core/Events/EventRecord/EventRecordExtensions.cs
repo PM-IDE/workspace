@@ -204,4 +204,20 @@ public static class EventRecordExtensions
     category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
     return true;
   }
+
+  public static bool IsOcelGlobalEvent(
+    this EventRecordWithMetadata evt, out int objectId, out string activityName, out string? category)
+  {
+    objectId = -1;
+    activityName = null;
+    category = null;
+
+    if (evt.EventClass is not TraceEventsConstants.OcelGlobalObjectEvent) return false;
+
+    objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
+    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
+    activityName = evt.Metadata[TraceEventsConstants.OcelActivityName];
+
+    return true;
+  }
 }
