@@ -55,7 +55,8 @@ public class ByMethodsSplitterImpl(
         false => threadEvents
       };
 
-      serializer.SerializeThreadEvents(mergedEvents, filterPattern, inlineMode);
+      var callbackSplitter = new CallbackBasedSplitter(logger, mergedEvents, filterPattern, inlineMode, serializer);
+      callbackSplitter.Split();
     }
 
     if (addAsyncMethods)

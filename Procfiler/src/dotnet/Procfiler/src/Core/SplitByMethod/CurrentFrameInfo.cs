@@ -3,19 +3,19 @@ using Procfiler.Core.EventRecord;
 
 namespace Procfiler.Core.SplitByMethod;
 
-public readonly record struct CurrentFrameInfo<T>(
+public readonly record struct CurrentFrameInfo(
   string Frame,
   bool ShouldProcess,
   EventRecordTime OriginalEventTime,
   long ManagedThreadId,
   long NativeThreadId,
-  T? State
+  object? State
 );
 
 public static class CurrentFrameInfoUtil
 {
-  public static EventRecordWithMetadata CreateMethodExecutionEvent<T>(
-    CurrentFrameInfo<T> frameInfo, IProcfilerEventsFactory factory, string methodName, EventRecordWithMetadata? contextEvent)
+  public static EventRecordWithMetadata CreateMethodExecutionEvent(
+    CurrentFrameInfo frameInfo, IProcfilerEventsFactory factory, string methodName, EventRecordWithMetadata? contextEvent)
   {
     var startEventCtx = contextEvent switch
     {

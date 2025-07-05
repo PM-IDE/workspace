@@ -44,30 +44,29 @@ public class OnlineBxesMethodsSerializer(
     });
   }
 
-  protected override void HandleUpdate(EventUpdateBase<BxesWriteStateWithLastEvent> update)
+  public override void HandleUpdate(EventUpdateBase update)
   {
-    if (update.FrameInfo.State is null) return;
+    if (update.FrameInfo.State is not BxesWriteStateWithLastEvent state) return;
 
     switch (update)
     {
-      case MethodExecutionUpdate<BxesWriteStateWithLastEvent> methodExecutionUpdate:
-        var state = update.FrameInfo.State;
+      case MethodExecutionUpdate methodExecutionUpdate:
         var executionEvent = CurrentFrameInfoUtil.CreateMethodExecutionEvent(
           methodExecutionUpdate.FrameInfo,
           Factory,
           methodExecutionUpdate.MethodName,
-          update.FrameInfo.State!.LastWrittenEvent
+          state.LastWrittenEvent
         );
 
         WriteEvent(state, executionEvent);
         break;
-      case MethodFinishedUpdate<BxesWriteStateWithLastEvent>:
+      case MethodFinishedUpdate:
         break;
-      case MethodStartedUpdate<BxesWriteStateWithLastEvent>:
-        update.FrameInfo.State.Writer.HandleEvent(new BxesTraceVariantStartEvent(1, ImmutableList<AttributeKeyValue>.Empty));
+      case MethodStartedUpdate:
+        state.Writer.HandleEvent(new BxesTraceVariantStartEvent(1, ImmutableList<AttributeKeyValue>.Empty));
         break;
-      case NormalEventUpdate<BxesWriteStateWithLastEvent> normalEventUpdate:
-        WriteEvent(update.FrameInfo.State, normalEventUpdate.Event);
+      case NormalEventUpdate normalEventUpdate:
+        WriteEvent(state, normalEventUpdate.Event);
         break;
       default:
         throw new ArgumentOutOfRangeException(nameof(update));

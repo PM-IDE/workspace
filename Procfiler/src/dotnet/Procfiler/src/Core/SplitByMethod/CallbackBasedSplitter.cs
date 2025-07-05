@@ -3,20 +3,19 @@ using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
+using Procfiler.Core.Serialization.Core;
 
 namespace Procfiler.Core.SplitByMethod;
 
-public abstract record EventUpdateBase<T>(CurrentFrameInfo<T> FrameInfo);
+public abstract record EventUpdateBase(CurrentFrameInfo FrameInfo);
 
-public sealed record MethodStartedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event)
-  : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodStartedUpdate(CurrentFrameInfo FrameInfo) : EventUpdateBase(FrameInfo);
 
-public sealed record MethodFinishedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event)
-  : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodFinishedUpdate(CurrentFrameInfo FrameInfo) : EventUpdateBase(FrameInfo);
 
-public sealed record MethodExecutionUpdate<T>(CurrentFrameInfo<T> FrameInfo, string MethodName) : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodExecutionUpdate(CurrentFrameInfo FrameInfo, string MethodName) : EventUpdateBase(FrameInfo);
 
-public sealed record NormalEventUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event) : EventUpdateBase<T>(FrameInfo);
+public sealed record NormalEventUpdate(CurrentFrameInfo FrameInfo, EventRecordWithMetadata Event) : EventUpdateBase(FrameInfo);
 
 public enum EventKind
 {
@@ -26,15 +25,15 @@ public enum EventKind
   Normal
 }
 
-public class CallbackBasedSplitter<T>(
+public class CallbackBasedSplitter(
   IProcfilerLogger logger,
   IEnumerable<EventRecordWithPointer> events,
   string filterPattern,
   InlineMode inlineMode,
-  Func<EventRecordWithMetadata, T?> stateFactory,
-  Action<EventUpdateBase<T>> callback)
+  IOnlineMethodsSerializer serializer
+)
 {
-  private readonly Stack<CurrentFrameInfo<T>> myFramesStack = new();
+  private readonly Stack<CurrentFrameInfo> myFramesStack = new();
   private readonly Regex myFilterRegex = new(filterPattern);
 
   public void Split()
@@ -59,14 +58,14 @@ public class CallbackBasedSplitter<T>(
 
   private void ProcessStartOfMethod(string frame, EventRecordWithMetadata eventRecord)
   {
-    var state = stateFactory(eventRecord);
+    var state = serializer.CreateState(eventRecord);
     var shouldProcess = ShouldProcess(frame);
 
-    var frameInfo = new CurrentFrameInfo<T>(
+    var frameInfo = new CurrentFrameInfo(
       frame, shouldProcess, eventRecord.Time, eventRecord.ManagedThreadId, eventRecord.NativeThreadId, state);
 
-    callback(new MethodStartedUpdate<T>(frameInfo, eventRecord));
-    callback(new NormalEventUpdate<T>(frameInfo, eventRecord));
+    serializer.HandleUpdate(new MethodStartedUpdate(frameInfo));
+    serializer.HandleUpdate(new NormalEventUpdate(frameInfo, eventRecord));
 
     if (ShouldInline(frame))
     {
@@ -93,8 +92,8 @@ public class CallbackBasedSplitter<T>(
     var topOfStack = myFramesStack.Pop();
     if (!topOfStack.ShouldProcess) return;
 
-    callback(new NormalEventUpdate<T>(topOfStack, methodEndEvent));
-    callback(new MethodFinishedUpdate<T>(topOfStack, methodEndEvent));
+    serializer.HandleUpdate(new NormalEventUpdate(topOfStack, methodEndEvent));
+    serializer.HandleUpdate(new MethodFinishedUpdate(topOfStack));
 
     if (ShouldInline(frame))
     {
@@ -104,7 +103,7 @@ public class CallbackBasedSplitter<T>(
 
     if (myFramesStack.Count <= 0) return;
 
-    callback(new MethodExecutionUpdate<T>(myFramesStack.Peek(), topOfStack.Frame));
+    serializer.HandleUpdate(new MethodExecutionUpdate(myFramesStack.Peek(), topOfStack.Frame));
   }
 
   private void ExecuteCallbackForAllFrames(EventKind eventKind, EventRecordWithMetadata eventRecord)
@@ -113,15 +112,15 @@ public class CallbackBasedSplitter<T>(
     {
       if (frameInfo.ShouldProcess)
       {
-        EventUpdateBase<T> update = eventKind switch
+        EventUpdateBase update = eventKind switch
         {
-          EventKind.MethodStarted => new MethodStartedUpdate<T>(frameInfo, eventRecord),
-          EventKind.MethodFinished => new MethodFinishedUpdate<T>(frameInfo, eventRecord),
-          EventKind.Normal => new NormalEventUpdate<T>(frameInfo, eventRecord),
+          EventKind.MethodStarted => new MethodStartedUpdate(frameInfo),
+          EventKind.MethodFinished => new MethodFinishedUpdate(frameInfo),
+          EventKind.Normal => new NormalEventUpdate(frameInfo, eventRecord),
           _ => throw new ArgumentOutOfRangeException(nameof(eventKind), eventKind, null)
         };
 
-        callback(update);
+        serializer.HandleUpdate(update);
       }
     }
   }
@@ -139,7 +138,7 @@ public class CallbackBasedSplitter<T>(
       var topmostFrame = myFramesStack.Peek();
       if (topmostFrame.ShouldProcess)
       {
-        callback(new NormalEventUpdate<T>(topmostFrame, eventRecord));
+        serializer.HandleUpdate(new NormalEventUpdate(topmostFrame, eventRecord));
       }
     }
   }

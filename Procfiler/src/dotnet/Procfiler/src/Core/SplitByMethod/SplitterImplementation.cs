@@ -3,6 +3,7 @@ using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
+using Procfiler.Core.Serialization.Core;
 
 namespace Procfiler.Core.SplitByMethod;
 
@@ -12,39 +13,42 @@ public class SplitterImplementation(
   IEnumerable<EventRecordWithPointer> events,
   string filterPattern,
   InlineMode inlineMode
-)
+) : IOnlineMethodsSerializer
 {
   private readonly Dictionary<string, List<List<EventRecordWithMetadata>>> myResult = new();
 
 
   public IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> Split()
   {
-    var splitter = new CallbackBasedSplitter<List<EventRecordWithMetadata>>(
-      logger, events, filterPattern, inlineMode, static _ => [], HandleUpdate);
+    var splitter = new CallbackBasedSplitter(logger, events, filterPattern, inlineMode, this);
 
     splitter.Split();
     return myResult;
   }
 
-  private void HandleUpdate(EventUpdateBase<List<EventRecordWithMetadata>> update)
+  public object? CreateState(EventRecordWithMetadata eventRecord) => new List<EventRecordWithMetadata>();
+
+  public void HandleUpdate(EventUpdateBase update)
   {
+    if (update.FrameInfo.State is not List<EventRecordWithMetadata> state) return;
+
     switch (update)
     {
-      case MethodStartedUpdate<List<EventRecordWithMetadata>> methodStartedUpdate:
+      case MethodStartedUpdate:
         break;
-      case NormalEventUpdate<List<EventRecordWithMetadata>> normalEventUpdate:
+      case NormalEventUpdate normalEventUpdate:
       {
-        HandleNormalUpdate(normalEventUpdate);
+        HandleNormalUpdate(normalEventUpdate, state);
         return;
       }
-      case MethodFinishedUpdate<List<EventRecordWithMetadata>> methodFinishedUpdate:
+      case MethodFinishedUpdate methodFinishedUpdate:
       {
-        HandleMethodFinishedUpdate(methodFinishedUpdate);
+        HandleMethodFinishedUpdate(methodFinishedUpdate, state);
         return;
       }
-      case MethodExecutionUpdate<List<EventRecordWithMetadata>> methodExecutionUpdate:
+      case MethodExecutionUpdate methodExecutionUpdate:
       {
-        HandleMethodExecutionUpdate(methodExecutionUpdate);
+        HandleMethodExecutionUpdate(methodExecutionUpdate, state);
         return;
       }
       default:
@@ -52,35 +56,35 @@ public class SplitterImplementation(
     }
   }
 
-  private static void HandleNormalUpdate(NormalEventUpdate<List<EventRecordWithMetadata>> normalEventUpdate)
+  private static void HandleNormalUpdate(NormalEventUpdate normalEventUpdate, List<EventRecordWithMetadata> state)
   {
-    normalEventUpdate.FrameInfo.State!.Add(normalEventUpdate.Event.DeepClone());
+    state.Add(normalEventUpdate.Event.DeepClone());
   }
 
-  private void HandleMethodFinishedUpdate(MethodFinishedUpdate<List<EventRecordWithMetadata>> methodFinishedUpdate)
+  private void HandleMethodFinishedUpdate(MethodFinishedUpdate methodFinishedUpdate, List<EventRecordWithMetadata> state)
   {
-    var stateEvents = methodFinishedUpdate.FrameInfo.State!;
+    if (state.Count <= 0) return;
 
-    if (stateEvents.Count <= 0) return;
+    var existingValue = myResult.GetOrCreate(methodFinishedUpdate.FrameInfo.Frame, static () => []);
 
-    var existingValue =
-      myResult.GetOrCreate(methodFinishedUpdate.FrameInfo.Frame, static () => []);
-
-    existingValue.Add(stateEvents);
+    existingValue.Add(state);
   }
 
-  private void HandleMethodExecutionUpdate(MethodExecutionUpdate<List<EventRecordWithMetadata>> methodExecutionUpdate)
+  private void HandleMethodExecutionUpdate(MethodExecutionUpdate methodExecutionUpdate, List<EventRecordWithMetadata> state)
   {
-    var currentTopmost = methodExecutionUpdate.FrameInfo;
-    var contextEvent = currentTopmost.State!.Count switch
+    var contextEvent = state.Count switch
     {
-      > 0 => currentTopmost.State[^1],
+      > 0 => state[^1],
       _ => null
     };
 
     var executionEvent = CurrentFrameInfoUtil.CreateMethodExecutionEvent(
-      currentTopmost, eventsFactory, methodExecutionUpdate.MethodName, contextEvent);
+      methodExecutionUpdate.FrameInfo, eventsFactory, methodExecutionUpdate.MethodName, contextEvent);
 
-    currentTopmost.State.Add(executionEvent);
+    state.Add(executionEvent);
+  }
+
+  public void Dispose()
+  {
   }
 }
