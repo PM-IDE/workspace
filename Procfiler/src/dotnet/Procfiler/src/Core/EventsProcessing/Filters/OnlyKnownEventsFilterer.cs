@@ -2,6 +2,7 @@ using Core.Constants.TraceEvents;
 using Core.Container;
 using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing.Filters.Core;
+using ProcfilerLoggerProvider;
 
 namespace Procfiler.Core.EventsProcessing.Filters;
 
@@ -142,7 +143,8 @@ public class OnlyKnownEventsFilterer : IEventsFilter
 
     TraceEventsConstants.OcelObjectEvent,
     TraceEventsConstants.OcelActivityBegin,
-    TraceEventsConstants.OcelActivityEnd
+    TraceEventsConstants.OcelActivityEnd,
+    TraceEventsConstants.OcelGlobalObjectEvent,
   ];
 
 
@@ -150,12 +152,13 @@ public class OnlyKnownEventsFilterer : IEventsFilter
 
   public void Filter(IEventsCollection events)
   {
+    using var _ = OcelLogger.StartOcelActivity("FilteringOut");
     foreach (var (ptr, eventRecord) in events)
     {
-      if (!ourAllowedEvents.Contains(eventRecord.EventClass))
-      {
-        events.Remove(ptr);
-      }
+      if (ourAllowedEvents.Contains(eventRecord.EventClass)) continue;
+
+      OcelLogger.LogObject(eventRecord, eventRecord.EventClass);
+      events.Remove(ptr);
     }
   }
 }
