@@ -7,9 +7,8 @@ namespace Ocel;
 
 public static class Program
 {
-  public static async Task Main()
+  public static void Main()
   {
-    await Task.Delay(1);
     var objects = Enumerable.Range(0, 1000).Select(_ => (Animal)(Random.Shared.Next(3) switch
     {
       0 => new Dog(),
@@ -20,8 +19,13 @@ public static class Program
 
     using (OcelLogger.StartOcelActivity("Initializing"))
     {
-      foreach (var myObject in objects)
+      foreach (var (index, myObject) in objects.Index())
       {
+        if (index % 3 == 0)
+        {
+          OcelLogger.LogGloballyAttachedObject(myObject, "GlobalInitializing", myObject.GetType().Name);
+        }
+
         OcelLogger.LogObject(myObject, myObject.GetType().Name);
         myObject.Name = "xd";
       }
