@@ -113,13 +113,11 @@ public class UnitedEventsProcessorImpl : IUnitedEventsProcessor
     {
       foreach (var singleEventMutator in singleMutators)
       {
-        OcelLogger.LogGloballyAttachedObject(eventRecord, singleEventMutator.GetType().Name, eventRecord.EventClass);
         singleEventMutator.Process(eventRecord, globalData);
       }
 
       foreach (var (mutatorWithState, state) in statefulMutators.Zip(states))
       {
-        OcelLogger.LogGloballyAttachedObject(eventRecord, mutatorWithState.GetType().Name, eventRecord.EventClass);
         mutatorWithState.Process(eventRecord, globalData, state);
       }
     }

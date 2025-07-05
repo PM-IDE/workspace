@@ -3,11 +3,13 @@ using Core.Utils;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.SplitByMethod;
+using ProcfilerLoggerProvider;
 
 namespace Procfiler.Core.Serialization.Xes;
 
 public class PathWriterStateWithLastEvent : PathWriteState
 {
+  public required string FileName { get; init; }
   public EventRecordWithMetadata? LastWrittenEvent { get; set; }
 }
 
@@ -44,7 +46,12 @@ public class OnlineMethodsXesSerializer(
       });
 
       sessionSerializer.WriteHeader(writer);
-      return new PathWriterStateWithLastEvent { Writer = writer };
+
+      return new PathWriterStateWithLastEvent
+      {
+        FileName = Path.GetFileNameWithoutExtension(filePath),
+        Writer = writer
+      };
     });
   }
 
@@ -79,6 +86,8 @@ public class OnlineMethodsXesSerializer(
 
   private void WriteEvent(PathWriterStateWithLastEvent state, EventRecordWithMetadata eventRecord)
   {
+    OcelLogger.LogGloballyAttachedObject(eventRecord, $"XES_{state.FileName}", eventRecord.EventClass);
+
     state.LastWrittenEvent = eventRecord;
     sessionSerializer.WriteEvent(eventRecord, state.Writer, WriteAllEventMetadata);
   }

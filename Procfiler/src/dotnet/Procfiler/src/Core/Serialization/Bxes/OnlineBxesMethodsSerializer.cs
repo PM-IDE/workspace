@@ -7,11 +7,13 @@ using Core.Utils;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.SplitByMethod;
+using ProcfilerLoggerProvider;
 
 namespace Procfiler.Core.Serialization.Bxes;
 
 public class BxesWriteStateWithLastEvent : BxesWriteState
 {
+  public required string FileName { get; init; }
   public EventRecordWithMetadata? LastWrittenEvent { get; set; }
 }
 
@@ -40,6 +42,7 @@ public class OnlineBxesMethodsSerializer(
 
     return States.GetOrCreate(filePath, () => new BxesWriteStateWithLastEvent
     {
+      FileName = Path.GetFileNameWithoutExtension(filePath),
       Writer = new SingleFileBxesStreamWriterImpl<BxesEvent>(filePath, 1, BxesUtil.CreateSystemMetadata())
     });
   }
@@ -75,6 +78,8 @@ public class OnlineBxesMethodsSerializer(
 
   private void WriteEvent(BxesWriteStateWithLastEvent state, EventRecordWithMetadata eventRecord)
   {
+    OcelLogger.LogGloballyAttachedObject(eventRecord, $"BXES_{state.FileName}", eventRecord.EventClass);
+
     state.LastWrittenEvent = eventRecord;
     state.Writer.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, WriteAllEventMetadata)));
   }
