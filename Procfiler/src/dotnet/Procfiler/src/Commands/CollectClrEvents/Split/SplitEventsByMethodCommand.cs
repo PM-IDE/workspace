@@ -11,6 +11,7 @@ using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.Serialization.Bxes;
 using Procfiler.Core.Serialization.Core;
+using Procfiler.Core.Serialization.Ocel;
 using Procfiler.Core.Serialization.Xes;
 using Procfiler.Core.SplitByMethod;
 using Procfiler.Utils;
@@ -65,6 +66,9 @@ public class SplitEventsByMethodCommand(
     using var onlineSerializer = CreateOnlineSerializer(context);
     using var notStoringSerializer = CreateNotStoringSerializer(context);
 
+    var ocelOutputDir = Path.Combine(directory, "OCEL");
+    using var ocelSerializer = new OcelMethodsSerializer(Logger, directory, methodNameBeautifier);
+
     ExecuteCommand(context, events =>
     {
       var (allEvents, globalData) = events;
@@ -80,7 +84,7 @@ public class SplitEventsByMethodCommand(
         events, filterPattern, inlineInnerCalls, mergeUndefinedThreadEvents, addAsyncMethods, removeMoveNextFrames);
 
       // ReSharper disable once AccessToDisposedClosure
-      if (splitter.SplitNonAlloc(onlineSerializer, splitContext) is not { } methods) return;
+      if (splitter.SplitNonAlloc([onlineSerializer, ocelSerializer], splitContext) is not { } methods) return;
 
       foreach (var (methodName, traces) in methods)
       {
@@ -96,22 +100,21 @@ public class SplitEventsByMethodCommand(
 
       if (parseResult.TryGetOptionValue(ExtractOcelLogs))
       {
-        WriteOcelLogs(methods, directory);
+        WriteOcelLogs(methods, ocelOutputDir);
       }
     });
   }
 
-  private void WriteOcelLogs(IDictionary<string, List<List<EventRecordWithMetadata>>> methods, string outputDir)
+  private void WriteOcelLogs(IDictionary<string, List<List<EventRecordWithMetadata>>> methods, string ocelOutputDir)
   {
     foreach (var (name, traces) in methods)
     {
-      WriteOcelLog(name, traces, outputDir);
+      WriteOcelLog(name, traces, ocelOutputDir);
     }
   }
 
-  private void WriteOcelLog(string name, List<List<EventRecordWithMetadata>> methodTraces, string outputDir)
+  private void WriteOcelLog(string name, List<List<EventRecordWithMetadata>> methodTraces, string ocelOutputDir)
   {
-    var ocelOutputDir = Path.Combine(outputDir, "OCEL");
     Directory.CreateDirectory(ocelOutputDir);
 
     foreach (var (index, trace) in methodTraces.Index())
