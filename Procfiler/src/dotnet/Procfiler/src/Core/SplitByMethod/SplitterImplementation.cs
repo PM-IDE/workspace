@@ -20,7 +20,7 @@ public class SplitterImplementation(
 
   public IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> Split()
   {
-    var splitter = new CallbackBasedSplitter(logger, events, filterPattern, inlineMode, this);
+    var splitter = new CallbackBasedSplitter(logger, events, filterPattern, inlineMode, [this]);
 
     splitter.Split();
     return myResult;
@@ -65,7 +65,7 @@ public class SplitterImplementation(
   {
     if (state.Count <= 0) return;
 
-    var existingValue = myResult.GetOrCreate(methodFinishedUpdate.FrameInfo.Frame, static () => []);
+    var existingValue = myResult.GetOrCreate(methodFinishedUpdate.FrameInfo.Frame.Frame, static () => []);
 
     existingValue.Add(state);
   }
@@ -79,7 +79,7 @@ public class SplitterImplementation(
     };
 
     var executionEvent = CurrentFrameInfoUtil.CreateMethodExecutionEvent(
-      methodExecutionUpdate.FrameInfo, eventsFactory, methodExecutionUpdate.MethodName, contextEvent);
+      methodExecutionUpdate.FrameInfo.Frame, eventsFactory, methodExecutionUpdate.MethodName, contextEvent);
 
     state.Add(executionEvent);
   }

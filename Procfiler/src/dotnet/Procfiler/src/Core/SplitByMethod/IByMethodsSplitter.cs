@@ -21,9 +21,7 @@ public record struct SplitContext(
 
 public interface IByMethodsSplitter
 {
-  Dictionary<string, List<List<EventRecordWithMetadata>>>? SplitNonAlloc(IOnlineMethodsSerializer serializer,
-    SplitContext context);
-
+  Dictionary<string, List<List<EventRecordWithMetadata>>>? SplitNonAlloc(IOnlineMethodsSerializer serializer, SplitContext context);
   Dictionary<string, List<List<EventRecordWithMetadata>>> Split(SplitContext context);
 }
 
@@ -55,7 +53,7 @@ public class ByMethodsSplitterImpl(
         false => threadEvents
       };
 
-      var callbackSplitter = new CallbackBasedSplitter(logger, mergedEvents, filterPattern, inlineMode, serializer);
+      var callbackSplitter = new CallbackBasedSplitter(logger, mergedEvents, filterPattern, inlineMode, [serializer]);
       callbackSplitter.Split();
     }
 

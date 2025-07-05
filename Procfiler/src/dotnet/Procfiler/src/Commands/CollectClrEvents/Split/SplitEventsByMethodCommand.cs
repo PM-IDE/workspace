@@ -14,7 +14,6 @@ using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.Serialization.Xes;
 using Procfiler.Core.SplitByMethod;
 using Procfiler.Utils;
-using Serilog;
 
 namespace Procfiler.Commands.CollectClrEvents.Split;
 

@@ -8,7 +8,11 @@ public readonly record struct CurrentFrameInfo(
   bool ShouldProcess,
   EventRecordTime OriginalEventTime,
   long ManagedThreadId,
-  long NativeThreadId,
+  long NativeThreadId
+);
+
+public readonly record struct CurrentFrameInfoWithState(
+  CurrentFrameInfo Frame,
   object? State
 );
 

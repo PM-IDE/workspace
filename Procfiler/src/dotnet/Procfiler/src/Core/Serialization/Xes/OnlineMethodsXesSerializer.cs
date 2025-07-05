@@ -93,10 +93,11 @@ public class OnlineMethodsXesSerializer(
     var state = (PathWriterStateWithLastEvent)methodExecutionUpdate.FrameInfo.State!;
 
     var executionEvent = CurrentFrameInfoUtil.CreateMethodExecutionEvent(
-      methodExecutionUpdate.FrameInfo,
+      methodExecutionUpdate.FrameInfo.Frame,
       Factory,
       methodExecutionUpdate.MethodName,
-      state.LastWrittenEvent);
+      state.LastWrittenEvent
+    );
 
     WriteEvent(state, executionEvent);
   }

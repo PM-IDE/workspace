@@ -52,7 +52,7 @@ public class OnlineBxesMethodsSerializer(
     {
       case MethodExecutionUpdate methodExecutionUpdate:
         var executionEvent = CurrentFrameInfoUtil.CreateMethodExecutionEvent(
-          methodExecutionUpdate.FrameInfo,
+          methodExecutionUpdate.FrameInfo.Frame,
           Factory,
           methodExecutionUpdate.MethodName,
           state.LastWrittenEvent
