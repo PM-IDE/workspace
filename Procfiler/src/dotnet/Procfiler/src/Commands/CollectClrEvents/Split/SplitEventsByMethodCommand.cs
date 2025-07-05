@@ -117,10 +117,15 @@ public class SplitEventsByMethodCommand(
 
     foreach (var (index, trace) in methodTraces.Index())
     {
-      var outputFileName = Path.Combine(ocelOutputDir, $"{index}_{name}.csv");
-      var writer = new MethodOcelLogWriter(outputFileName, Logger);
+      var beautifiedName = methodNameBeautifier.Beautify(name);
+      var writer = new MethodOcelLogWriter(Path.Combine(ocelOutputDir, $"{index}_{beautifiedName}.csv"), Logger);
 
-      writer.Process(trace);
+      foreach (var evt in trace)
+      {
+        writer.Process(evt);
+      }
+
+      writer.Flush();
     }
   }
 
