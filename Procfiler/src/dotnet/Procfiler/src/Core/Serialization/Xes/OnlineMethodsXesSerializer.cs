@@ -75,7 +75,6 @@ public class OnlineMethodsXesSerializer(
   {
     var state = methodStartedUpdate.FrameInfo.State!;
 
-    MethodNames.Add(methodStartedUpdate.FrameInfo.Frame);
     sessionSerializer.WriteTraceStart(state.Writer, state.TracesCount);
     state.TracesCount++;
   }
