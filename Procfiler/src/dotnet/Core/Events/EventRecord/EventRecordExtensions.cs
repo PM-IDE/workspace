@@ -193,7 +193,7 @@ public static class EventRecordExtensions
   public static bool IsOcelActivityEnd(this EventRecordWithMetadata evt, out Guid id, out string name) =>
     evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityEnd, out id, out name);
 
-  public static bool IsOcelObjectEvent(this EventRecordWithMetadata evt, out int objectId, out string? category)
+  public static bool IsOcelObjectEvent(this EventRecordWithMetadata evt, out long objectId, out string? category)
   {
     objectId = -1;
     category = null;
@@ -206,7 +206,7 @@ public static class EventRecordExtensions
   }
 
   public static bool IsOcelGlobalEvent(
-    this EventRecordWithMetadata evt, out int objectId, out string activityName, out string? category)
+    this EventRecordWithMetadata evt, out long objectId, out string activityName, out string? category)
   {
     objectId = -1;
     activityName = null;

@@ -23,7 +23,7 @@ public class OcelEventsSource : EventSource
 
 
   [Event(OcelEventId, Level = EventLevel.LogAlways)]
-  public void OcelEvent(int objectId, string? objectCategory, string attributes) =>
+  public void OcelEvent(long objectId, string? objectCategory, string attributes) =>
     WriteEvent(OcelEventId, objectId, objectCategory, attributes);
 
   [Event(OcelActivityBeginId, Level = EventLevel.LogAlways)]
@@ -39,10 +39,10 @@ public class OcelEventsSource : EventSource
   public void OcelActivitiesEnd(Guid activitiesBatchId, string names) => WriteEvent(OcelActivitiesEndId, activitiesBatchId, names);
 
   [Event(OcelAttachedToActivityEventId, Level = EventLevel.LogAlways)]
-  public void OcelAttachedToActivityEvent(int objectId, string activity, string? objectCategory, string attributes) =>
+  public void OcelAttachedToActivityEvent(long objectId, string activity, string? objectCategory, string attributes) =>
     WriteEvent(OcelAttachedToActivityEventId, objectId, activity, objectCategory, attributes);
 
   [Event(OcelGloballyAttachedEventId, Level = EventLevel.LogAlways)]
-  public void OcelGloballyAttachedEvent(int objectId, string activity, string? objectCategory, string attributes) =>
+  public void OcelGloballyAttachedEvent(long objectId, string activity, string? objectCategory, string attributes) =>
     WriteEvent(OcelGloballyAttachedEventId, objectId, activity, objectCategory, attributes);
 }

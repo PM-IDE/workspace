@@ -3,6 +3,19 @@ using ProcfilerEventSources;
 
 namespace ProcfilerLoggerProvider;
 
+public abstract class OcelObjectBase
+{
+  private static long ourNextId;
+
+  internal long Id { get; }
+
+
+  protected OcelObjectBase()
+  {
+    Id = Interlocked.Increment(ref ourNextId);
+  }
+}
+
 public static class OcelLogger
 {
   public readonly struct OcelActivityCookie(string name, Guid activityId) : IDisposable
@@ -26,8 +39,14 @@ public static class OcelLogger
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.OcelEvent(RuntimeHelpers.GetHashCode(obj), category, string.Empty);
+    OcelEventsSource.Instance.OcelEvent(GetObjectId(obj), category, string.Empty);
   }
+
+  private static long GetObjectId<T>(T obj) => obj switch
+  {
+    OcelObjectBase @base => @base.Id,
+    _ => RuntimeHelpers.GetHashCode(obj)
+  };
 
   private static bool IsEnabled() => OcelEventsSource.Instance.IsEnabled();
 
@@ -35,14 +54,14 @@ public static class OcelLogger
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.OcelAttachedToActivityEvent(RuntimeHelpers.GetHashCode(obj), activityName, category, string.Empty);
+    OcelEventsSource.Instance.OcelAttachedToActivityEvent(GetObjectId(obj), activityName, category, string.Empty);
   }
 
   public static void LogGloballyAttachedObject<T>(T obj, string activityName, string? category = null) where T : class
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.OcelGloballyAttachedEvent(RuntimeHelpers.GetHashCode(obj), activityName, category, string.Empty);
+    OcelEventsSource.Instance.OcelGloballyAttachedEvent(GetObjectId(obj), activityName, category, string.Empty);
   }
 
   public static OcelActivityCookie StartOcelActivity(string name)

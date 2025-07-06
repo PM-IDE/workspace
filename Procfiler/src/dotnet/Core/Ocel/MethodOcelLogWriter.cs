@@ -18,7 +18,7 @@ public class MethodOcelLogWriter(string outputFilePath, IProcfilerLogger logger)
   private class ActivityInfo(DateTimeOffset startDate)
   {
     public DateTimeOffset StartDate { get; } = startDate;
-    public Dictionary<string, List<int>> Events { get; } = [];
+    public Dictionary<string, List<long>> Events { get; } = [];
 
     public DateTimeOffset EndDate { get; set; } = startDate;
   }
