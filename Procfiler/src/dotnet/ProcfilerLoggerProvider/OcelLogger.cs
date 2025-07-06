@@ -24,16 +24,24 @@ public static class OcelLogger
 
   public static void LogObject<T>(T obj, string? category = null) where T : class
   {
+    if (!IsEnabled()) return;
+
     OcelEventsSource.Instance.OcelEvent(RuntimeHelpers.GetHashCode(obj), category, string.Empty);
   }
 
+  private static bool IsEnabled() => OcelEventsSource.Instance.IsEnabled();
+
   public static void LogAttachedObject<T>(T obj, string activityName, string? category = null) where T : class
   {
+    if (!IsEnabled()) return;
+
     OcelEventsSource.Instance.OcelAttachedToActivityEvent(RuntimeHelpers.GetHashCode(obj), activityName, category, string.Empty);
   }
 
   public static void LogGloballyAttachedObject<T>(T obj, string activityName, string? category = null) where T : class
   {
+    if (!IsEnabled()) return;
+
     OcelEventsSource.Instance.OcelGloballyAttachedEvent(RuntimeHelpers.GetHashCode(obj), activityName, category, string.Empty);
   }
 
