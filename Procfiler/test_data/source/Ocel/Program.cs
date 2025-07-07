@@ -9,7 +9,7 @@ public static class Program
 {
   public static void Main()
   {
-    var objects = Enumerable.Range(0, 1000).Select(_ => (Animal)(Random.Shared.Next(3) switch
+    var objects = Enumerable.Range(0, 1000).Select(idx => (Animal)((idx % 3) switch
     {
       0 => new Dog(),
       1 => new Cat(),
@@ -75,7 +75,7 @@ public static class Program
   }
 }
 
-class Animal
+class Animal : OcelObjectBase
 {
   public string Name { get; set; }
 }
