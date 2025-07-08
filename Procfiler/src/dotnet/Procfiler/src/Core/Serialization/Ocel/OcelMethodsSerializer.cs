@@ -25,7 +25,7 @@ public class OcelMethodsSerializer(IProcfilerLogger logger, string outputDirecto
   {
     if (eventRecord.TryGetMethodStartEndEventInfo() is not { Frame: var fqn })
     {
-      logger.LogDebug("Will not process ");
+      logger.LogError("The context event is not method-related event");
       return null;
     }
 
