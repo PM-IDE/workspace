@@ -7,6 +7,7 @@ using Procfiler.Core.Collector.CustomTraceEvents;
 using Procfiler.Core.CppProcfiler;
 using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Utils;
+using ProcfilerLoggerProvider;
 
 namespace Procfiler.Core.Collector;
 
@@ -152,6 +153,9 @@ public class ClrEventsCollector(
       foreach (var traceEvent in traceLog.Events)
       {
         var record = CreateEventWithMetadataFromClrEvent(traceEvent, context, ref statistics);
+
+        OcelLogger.LogGloballyAttachedObject(record.Event, "CreatedFromNetTrace", record.Event.EventClass);
+
         events[index++] = record.Event;
 
         globalData.AddInfoFrom(record);

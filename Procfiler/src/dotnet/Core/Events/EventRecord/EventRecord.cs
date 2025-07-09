@@ -1,5 +1,6 @@
 using Core.Constants.TraceEvents;
 using Microsoft.Diagnostics.Tracing;
+using ProcfilerLoggerProvider;
 
 namespace Core.Events.EventRecord;
 
@@ -18,7 +19,7 @@ public struct EventRecordTime
   public double? RelativeStampMSec { get; init; }
 }
 
-public class EventRecord
+public class EventRecord : OcelObjectBase
 {
   public EventRecordTime Time { get; private set; }
   public string EventClass { get; set; }

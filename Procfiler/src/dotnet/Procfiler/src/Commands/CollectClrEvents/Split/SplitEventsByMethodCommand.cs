@@ -1,6 +1,7 @@
 using Core.CommandLine;
 using Core.Container;
 using Core.Events.EventRecord;
+using Core.Ocel;
 using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Base;
 using Procfiler.Commands.CollectClrEvents.Context;
@@ -10,6 +11,7 @@ using Procfiler.Core.EventRecord.EventsCollection;
 using Procfiler.Core.EventsProcessing;
 using Procfiler.Core.Serialization.Bxes;
 using Procfiler.Core.Serialization.Core;
+using Procfiler.Core.Serialization.Ocel;
 using Procfiler.Core.Serialization.Xes;
 using Procfiler.Core.SplitByMethod;
 using Procfiler.Utils;
@@ -50,6 +52,8 @@ public class SplitEventsByMethodCommand(
   private Option<bool> RemoveFirstMoveNextFrames { get; } =
     new("--remove-first-move-next-frames", static () => true, "Remove first MoveNext frames from async methods traces");
 
+  private Option<bool> ExtractOcelLogs { get; } = new("--extract-ocel-logs", static () => true, "Extract OCEL logs");
+
 
   public override void Execute(CollectClrEventsContext context)
   {
@@ -61,6 +65,9 @@ public class SplitEventsByMethodCommand(
 
     using var onlineSerializer = CreateOnlineSerializer(context);
     using var notStoringSerializer = CreateNotStoringSerializer(context);
+
+    var ocelOutputDir = Path.Combine(directory, "OCEL");
+    using var ocelSerializer = new OcelMethodsSerializer(Logger, ocelOutputDir, methodNameBeautifier);
 
     ExecuteCommand(context, events =>
     {
@@ -77,23 +84,49 @@ public class SplitEventsByMethodCommand(
         events, filterPattern, inlineInnerCalls, mergeUndefinedThreadEvents, addAsyncMethods, removeMoveNextFrames);
 
       // ReSharper disable once AccessToDisposedClosure
-      var asyncMethods = splitter.SplitNonAlloc(onlineSerializer, splitContext);
+      if (splitter.SplitNonAlloc([onlineSerializer, ocelSerializer], splitContext) is not { } methods) return;
 
-      if (asyncMethods is { })
+      foreach (var (methodName, traces) in methods)
       {
-        foreach (var (methodName, traces) in asyncMethods)
-        {
-          var eventsByMethodsInvocation = PrepareEventSessionInfo(traces, globalData);
-          var filePath = GetFileNameForMethod(directory, methodName);
+        var eventsByMethodsInvocation = PrepareEventSessionInfo(traces, globalData);
+        var filePath = GetFileNameForMethod(directory, methodName);
 
-          foreach (var (_, sessionInfo) in eventsByMethodsInvocation)
-          {
-            // ReSharper disable once AccessToDisposedClosure
-            notStoringSerializer.WriteTrace(filePath, sessionInfo);
-          }
+        foreach (var (_, sessionInfo) in eventsByMethodsInvocation)
+        {
+          // ReSharper disable once AccessToDisposedClosure
+          notStoringSerializer.WriteTrace(filePath, sessionInfo);
         }
       }
+
+      if (parseResult.TryGetOptionValue(ExtractOcelLogs))
+      {
+        WriteOcelLogs(methods, ocelOutputDir);
+      }
     });
+  }
+
+  private void WriteOcelLogs(IDictionary<string, List<List<EventRecordWithMetadata>>> methods, string ocelOutputDir)
+  {
+    foreach (var (name, traces) in methods)
+    {
+      WriteOcelLog(name, traces, ocelOutputDir);
+    }
+  }
+
+  private void WriteOcelLog(string name, List<List<EventRecordWithMetadata>> methodTraces, string ocelOutputDir)
+  {
+    foreach (var (index, trace) in methodTraces.Index())
+    {
+      var beautifiedName = methodNameBeautifier.Beautify(name);
+      var writer = new MethodOcelLogWriter(Path.Combine(ocelOutputDir, $"{index}_{beautifiedName}.csv"), Logger);
+
+      foreach (var evt in trace)
+      {
+        writer.Process(evt);
+      }
+
+      writer.Flush();
+    }
   }
 
   private INotStoringMergingTraceSerializer CreateNotStoringSerializer(CollectClrEventsContext context)
@@ -167,6 +200,7 @@ public class SplitEventsByMethodCommand(
     splitByMethodsCommand.AddOption(InlineInnerMethodsCalls);
     splitByMethodsCommand.AddOption(GroupAsyncMethods);
     splitByMethodsCommand.AddOption(TargetMethodsRegex);
+    splitByMethodsCommand.AddOption(ExtractOcelLogs);
 
     return splitByMethodsCommand;
   }

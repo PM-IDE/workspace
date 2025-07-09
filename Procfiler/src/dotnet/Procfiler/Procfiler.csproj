@@ -40,6 +40,7 @@
     <ProjectReference Include="..\..\..\..\bxes\src\csharp\Bxes\Bxes.csproj"/>
     <ProjectReference Include="..\Core\Core.csproj"/>
     <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
+    <ProjectReference Include="..\ProcfilerLoggerProvider\ProcfilerLoggerProvider.csproj" />
   </ItemGroup>
 
   <Target Name="BuildCppProcfiler" AfterTargets="Build">

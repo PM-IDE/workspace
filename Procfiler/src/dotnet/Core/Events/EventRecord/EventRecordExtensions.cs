@@ -173,4 +173,51 @@ public static class EventRecordExtensions
     QpcStamp = traceEvent.TimeStampQPC,
     RelativeStampMSec = traceEvent.TimeStampRelativeMSec
   };
+
+  public static bool IsOcelActivityBegin(this EventRecordWithMetadata evt, out Guid id, out string name) =>
+    evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityBegin, out id, out name);
+
+  private static bool IsActivityStartOrEnd(this EventRecordWithMetadata evt, string eventClass, out Guid id, out string name)
+  {
+    id = Guid.Empty;
+    name = string.Empty;
+
+    if (evt.EventClass != eventClass) return false;
+
+    id = Guid.Parse(evt.Metadata[TraceEventsConstants.OcelActivityId]);
+    name = evt.Metadata[TraceEventsConstants.OcelActivityName];
+
+    return true;
+  }
+
+  public static bool IsOcelActivityEnd(this EventRecordWithMetadata evt, out Guid id, out string name) =>
+    evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityEnd, out id, out name);
+
+  public static bool IsOcelObjectEvent(this EventRecordWithMetadata evt, out long objectId, out string? category)
+  {
+    objectId = -1;
+    category = null;
+
+    if (evt.EventClass is not TraceEventsConstants.OcelObjectEvent) return false;
+
+    objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
+    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
+    return true;
+  }
+
+  public static bool IsOcelGlobalEvent(
+    this EventRecordWithMetadata evt, out long objectId, out string activityName, out string? category)
+  {
+    objectId = -1;
+    activityName = null;
+    category = null;
+
+    if (evt.EventClass is not TraceEventsConstants.OcelGlobalObjectEvent) return false;
+
+    objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
+    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
+    activityName = evt.Metadata[TraceEventsConstants.OcelActivityName];
+
+    return true;
+  }
 }

@@ -3,20 +3,19 @@ using Core.Utils;
 using Procfiler.Commands.CollectClrEvents.Split;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.EventRecord.EventsCollection;
+using Procfiler.Core.Serialization.Core;
 
 namespace Procfiler.Core.SplitByMethod;
 
-public abstract record EventUpdateBase<T>(CurrentFrameInfo<T> FrameInfo);
+public abstract record EventUpdateBase(CurrentFrameInfoWithState FrameInfo);
 
-public sealed record MethodStartedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event)
-  : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodStartedUpdate(CurrentFrameInfoWithState FrameInfo) : EventUpdateBase(FrameInfo);
 
-public sealed record MethodFinishedUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event)
-  : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodFinishedUpdate(CurrentFrameInfoWithState FrameInfo) : EventUpdateBase(FrameInfo);
 
-public sealed record MethodExecutionUpdate<T>(CurrentFrameInfo<T> FrameInfo, string MethodName) : EventUpdateBase<T>(FrameInfo);
+public sealed record MethodExecutionUpdate(CurrentFrameInfoWithState FrameInfo, string MethodName) : EventUpdateBase(FrameInfo);
 
-public sealed record NormalEventUpdate<T>(CurrentFrameInfo<T> FrameInfo, EventRecordWithMetadata Event) : EventUpdateBase<T>(FrameInfo);
+public sealed record NormalEventUpdate(CurrentFrameInfoWithState FrameInfo, EventRecordWithMetadata Event) : EventUpdateBase(FrameInfo);
 
 public enum EventKind
 {
@@ -26,15 +25,15 @@ public enum EventKind
   Normal
 }
 
-public class CallbackBasedSplitter<T>(
+public class CallbackBasedSplitter(
   IProcfilerLogger logger,
   IEnumerable<EventRecordWithPointer> events,
   string filterPattern,
   InlineMode inlineMode,
-  Func<EventRecordWithMetadata, T?> stateFactory,
-  Action<EventUpdateBase<T>> callback)
+  List<IOnlineMethodsSerializer> serializers
+)
 {
-  private readonly Stack<CurrentFrameInfo<T>> myFramesStack = new();
+  private readonly Stack<(CurrentFrameInfo Frame, List<object?> States)> myFramesStack = new();
   private readonly Regex myFilterRegex = new(filterPattern);
 
   public void Split()
@@ -59,21 +58,25 @@ public class CallbackBasedSplitter<T>(
 
   private void ProcessStartOfMethod(string frame, EventRecordWithMetadata eventRecord)
   {
-    var state = stateFactory(eventRecord);
+    var states = serializers.Select(s => s.CreateState(eventRecord)).ToList();
     var shouldProcess = ShouldProcess(frame);
 
-    var frameInfo = new CurrentFrameInfo<T>(
-      frame, shouldProcess, eventRecord.Time, eventRecord.ManagedThreadId, eventRecord.NativeThreadId, state);
+    var frameInfo = new CurrentFrameInfo(
+      frame, shouldProcess, eventRecord.Time, eventRecord.ManagedThreadId, eventRecord.NativeThreadId);
 
-    callback(new MethodStartedUpdate<T>(frameInfo, eventRecord));
-    callback(new NormalEventUpdate<T>(frameInfo, eventRecord));
+    foreach (var (serializer, state) in serializers.Zip(states))
+    {
+      var info = new CurrentFrameInfoWithState(frameInfo, state);
+      serializer.HandleUpdate(new MethodStartedUpdate(info));
+      serializer.HandleUpdate(new NormalEventUpdate(info, eventRecord));
+    }
 
     if (ShouldInline(frame))
     {
       ExecuteCallbackForAllFrames(EventKind.Normal, eventRecord);
     }
 
-    myFramesStack.Push(frameInfo);
+    myFramesStack.Push((frameInfo, states));
   }
 
   private bool ShouldInline(string frame) =>
@@ -90,11 +93,15 @@ public class CallbackBasedSplitter<T>(
       return;
     }
 
-    var topOfStack = myFramesStack.Pop();
+    var (topOfStack, states) = myFramesStack.Pop();
     if (!topOfStack.ShouldProcess) return;
 
-    callback(new NormalEventUpdate<T>(topOfStack, methodEndEvent));
-    callback(new MethodFinishedUpdate<T>(topOfStack, methodEndEvent));
+    foreach (var (serializer, state) in serializers.Zip(states))
+    {
+      var info = new CurrentFrameInfoWithState(topOfStack, state);
+      serializer.HandleUpdate(new NormalEventUpdate(info, methodEndEvent));
+      serializer.HandleUpdate(new MethodFinishedUpdate(info));
+    }
 
     if (ShouldInline(frame))
     {
@@ -104,24 +111,31 @@ public class CallbackBasedSplitter<T>(
 
     if (myFramesStack.Count <= 0) return;
 
-    callback(new MethodExecutionUpdate<T>(myFramesStack.Peek(), topOfStack.Frame));
+    (topOfStack, states) = myFramesStack.Peek();
+    foreach (var (serializer, state) in serializers.Zip(states))
+    {
+      serializer.HandleUpdate(new MethodExecutionUpdate(new CurrentFrameInfoWithState(topOfStack, state), topOfStack.Frame));
+    }
   }
 
   private void ExecuteCallbackForAllFrames(EventKind eventKind, EventRecordWithMetadata eventRecord)
   {
-    foreach (var frameInfo in myFramesStack)
+    foreach (var (frameInfo, states) in myFramesStack)
     {
-      if (frameInfo.ShouldProcess)
+      if (!frameInfo.ShouldProcess) continue;
+
+      foreach (var (serializer, state) in serializers.Zip(states))
       {
-        EventUpdateBase<T> update = eventKind switch
+        var info = new CurrentFrameInfoWithState(frameInfo, state);
+        EventUpdateBase update = eventKind switch
         {
-          EventKind.MethodStarted => new MethodStartedUpdate<T>(frameInfo, eventRecord),
-          EventKind.MethodFinished => new MethodFinishedUpdate<T>(frameInfo, eventRecord),
-          EventKind.Normal => new NormalEventUpdate<T>(frameInfo, eventRecord),
+          EventKind.MethodStarted => new MethodStartedUpdate(info),
+          EventKind.MethodFinished => new MethodFinishedUpdate(info),
+          EventKind.Normal => new NormalEventUpdate(info, eventRecord),
           _ => throw new ArgumentOutOfRangeException(nameof(eventKind), eventKind, null)
         };
 
-        callback(update);
+        serializer.HandleUpdate(update);
       }
     }
   }
@@ -136,10 +150,13 @@ public class CallbackBasedSplitter<T>(
     }
     else
     {
-      var topmostFrame = myFramesStack.Peek();
+      var (topmostFrame, states) = myFramesStack.Peek();
       if (topmostFrame.ShouldProcess)
       {
-        callback(new NormalEventUpdate<T>(topmostFrame, eventRecord));
+        foreach (var (serializer, state) in serializers.Zip(states))
+        {
+          serializer.HandleUpdate(new NormalEventUpdate(new CurrentFrameInfoWithState(topmostFrame, state), eventRecord));
+        }
       }
     }
   }
