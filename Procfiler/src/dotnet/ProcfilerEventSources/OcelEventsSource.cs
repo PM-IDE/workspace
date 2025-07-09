@@ -2,7 +2,7 @@ using System.Diagnostics.Tracing;
 
 namespace ProcfilerEventSources;
 
-[EventSource(Name = $"{nameof(OcelEventsSource)}")]
+[EventSource(Name = nameof(OcelEventsSource))]
 public class OcelEventsSource : EventSource
 {
   private const int OcelEventId = 7000;
