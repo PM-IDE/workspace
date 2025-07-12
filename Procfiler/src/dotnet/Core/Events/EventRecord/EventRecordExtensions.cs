@@ -220,4 +220,38 @@ public static class EventRecordExtensions
 
     return true;
   }
+
+  public static bool IsOcelActivitiesBatchBegin(this EventRecordWithMetadata evt, out Guid batchId, out string[] names) =>
+    IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesBegin, out batchId, out names);
+
+  private static bool IsOcelActivitiesBatchEvent(this EventRecordWithMetadata evt, string eventClass, out Guid batchId, out string[] names)
+  {
+    batchId = Guid.Empty;
+    names = null!;
+
+    if (evt.EventClass != eventClass) return false;
+
+    batchId = Guid.Parse(evt.Metadata[TraceEventsConstants.OcelActivitiesBatchId]);
+    names = evt.Metadata[TraceEventsConstants.OcelActivitiesBatchNames].Split(';');
+
+    return true;
+  }
+
+  public static bool IsOcelActivitiesBatchEnd(this EventRecordWithMetadata evt, out Guid batchId, out string[] names) =>
+    IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesEnd, out batchId, out names);
+
+  public static bool IsOcelBatchAttachedEvent(this EventRecordWithMetadata evt, out long objectId, out string activity, out string? category)
+  {
+    objectId = 0;
+    activity = null;
+    category = null;
+
+    if (evt.EventClass is not TraceEventsConstants.OcelBatchObjectEvent) return false;
+
+    objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
+    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
+    activity = evt.Metadata[TraceEventsConstants.OcelActivityName];
+
+    return true;
+  }
 }
