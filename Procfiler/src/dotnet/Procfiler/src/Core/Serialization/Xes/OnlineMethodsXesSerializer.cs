@@ -3,11 +3,13 @@ using Core.Utils;
 using Procfiler.Core.EventRecord;
 using Procfiler.Core.Serialization.Core;
 using Procfiler.Core.SplitByMethod;
+using ProcfilerLoggerProvider;
 
 namespace Procfiler.Core.Serialization.Xes;
 
 public class PathWriterStateWithLastEvent : PathWriteState
 {
+  public required string FileName { get; init; }
   public EventRecordWithMetadata? LastWrittenEvent { get; set; }
 }
 
@@ -44,69 +46,74 @@ public class OnlineMethodsXesSerializer(
       });
 
       sessionSerializer.WriteHeader(writer);
-      return new PathWriterStateWithLastEvent { Writer = writer };
+
+      return new PathWriterStateWithLastEvent
+      {
+        FileName = Path.GetFileNameWithoutExtension(filePath),
+        Writer = writer
+      };
     });
   }
 
-  protected override void HandleUpdate(EventUpdateBase<PathWriterStateWithLastEvent> update)
+  public override void HandleUpdate(EventUpdateBase update)
   {
-    if (update.FrameInfo.State is null) return;
+    if (update.FrameInfo.State is not PathWriterStateWithLastEvent state) return;
 
     switch (update)
     {
-      case MethodExecutionUpdate<PathWriterStateWithLastEvent> methodExecutionUpdate:
+      case MethodExecutionUpdate methodExecutionUpdate:
         HandleMethodExecutionEvent(methodExecutionUpdate);
         break;
-      case MethodFinishedUpdate<PathWriterStateWithLastEvent> methodFinishedUpdate:
-        HandleMethodFinishedEvent(methodFinishedUpdate);
+      case MethodFinishedUpdate:
+        HandleMethodFinishedEvent(state);
         break;
-      case MethodStartedUpdate<PathWriterStateWithLastEvent> methodStartedUpdate:
-        HandleMethodStartEvent(methodStartedUpdate);
+      case MethodStartedUpdate:
+        HandleMethodStartEvent(state);
         break;
-      case NormalEventUpdate<PathWriterStateWithLastEvent> normalEventUpdate:
-        HandleNormalEvent(normalEventUpdate);
+      case NormalEventUpdate normalEventUpdate:
+        HandleNormalEvent(state, normalEventUpdate.Event);
         break;
       default:
         throw new ArgumentOutOfRangeException(nameof(update));
     }
   }
 
-  private void HandleMethodStartEvent(MethodStartedUpdate<PathWriterStateWithLastEvent> methodStartedUpdate)
+  private void HandleMethodStartEvent(PathWriterStateWithLastEvent state)
   {
-    var state = methodStartedUpdate.FrameInfo.State!;
-
-    MethodNames.Add(methodStartedUpdate.FrameInfo.Frame);
     sessionSerializer.WriteTraceStart(state.Writer, state.TracesCount);
     state.TracesCount++;
   }
 
   private void WriteEvent(PathWriterStateWithLastEvent state, EventRecordWithMetadata eventRecord)
   {
+    OcelLogger.LogGloballyAttachedObject(eventRecord, $"XES_{state.FileName}", eventRecord.EventClass);
+
     state.LastWrittenEvent = eventRecord;
     sessionSerializer.WriteEvent(eventRecord, state.Writer, WriteAllEventMetadata);
   }
 
-  private void HandleMethodFinishedEvent(MethodFinishedUpdate<PathWriterStateWithLastEvent> methodFinishedUpdate)
+  private static void HandleMethodFinishedEvent(PathWriterStateWithLastEvent state)
   {
-    var state = methodFinishedUpdate.FrameInfo.State!;
     state.Writer.WriteEndElement();
   }
 
-  private void HandleMethodExecutionEvent(MethodExecutionUpdate<PathWriterStateWithLastEvent> methodExecutionUpdate)
+  private void HandleMethodExecutionEvent(MethodExecutionUpdate methodExecutionUpdate)
   {
-    var state = methodExecutionUpdate.FrameInfo.State;
+    var state = (PathWriterStateWithLastEvent)methodExecutionUpdate.FrameInfo.State!;
+
     var executionEvent = CurrentFrameInfoUtil.CreateMethodExecutionEvent(
-      methodExecutionUpdate.FrameInfo,
+      methodExecutionUpdate.FrameInfo.Frame,
       Factory,
       methodExecutionUpdate.MethodName,
-      state!.LastWrittenEvent);
+      state.LastWrittenEvent
+    );
 
     WriteEvent(state, executionEvent);
   }
 
-  private void HandleNormalEvent(NormalEventUpdate<PathWriterStateWithLastEvent> normalEventUpdate)
+  private void HandleNormalEvent(PathWriterStateWithLastEvent state, EventRecordWithMetadata @event)
   {
-    WriteEvent(normalEventUpdate.FrameInfo.State!, normalEventUpdate.Event);
+    WriteEvent(state, @event);
   }
 
   public override void Dispose()

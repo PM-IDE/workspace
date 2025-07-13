@@ -51,7 +51,8 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
         new EventPipeProvider(EventPipeProvidersNames.ArrayPoolSource, EventLevel.Verbose),
         new EventPipeProvider(nameof(MethodStartEndEventSource), EventLevel.LogAlways),
         new EventPipeProvider(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways),
-        new EventPipeProvider(nameof(ProcfilerBusinessEventsSource), EventLevel.LogAlways)
+        new EventPipeProvider(nameof(ProcfilerBusinessEventsSource), EventLevel.LogAlways),
+        new EventPipeProvider(nameof(OcelEventsSource), EventLevel.LogAlways)
       ],
       [ProvidersCategoryKind.Gc] =
       [

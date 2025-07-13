@@ -6,6 +6,7 @@ using Core.Exceptions;
 using Core.GlobalData;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
+using ProcfilerLoggerProvider;
 
 namespace Core.EventsProcessing.Mutators.SingleEventMutators.StatefulMutators.Activities;
 
@@ -109,6 +110,8 @@ public abstract class EventsLifecycleMutatorBase : ISingleEventsLifecycleMutator
     {
       throw new NotExpectedStateException(StateType, mutatorState.GetType());
     }
+
+    OcelLogger.LogGloballyAttachedObject(eventRecord, GetType().Name, eventRecord.EventClass);
 
     var activityId = IdCreationStrategy.CreateId(eventRecord);
     if (!statesByActivities.StatesByActivities.TryGetValue(activityId, out var state))

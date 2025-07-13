@@ -2,11 +2,11 @@
 
 namespace ProcfilerEventSources;
 
-[EventSource(Name = $"{nameof(MethodStartEndEventSource)}")]
+[EventSource(Name = nameof(MethodStartEndEventSource))]
 public class MethodStartEndEventSource : EventSource
 {
-  public const int MethodStartedId = 5000;
-  public const int MethodFinishedId = 5001;
+  private const int MethodStartedId = 5000;
+  private const int MethodFinishedId = 5001;
 
   public static MethodStartEndEventSource Log { get; } = new();
 

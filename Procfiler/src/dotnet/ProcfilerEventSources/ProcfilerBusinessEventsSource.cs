@@ -2,7 +2,7 @@
 
 namespace ProcfilerEventSources;
 
-[EventSource(Name = $"{nameof(ProcfilerBusinessEventsSource)}")]
+[EventSource(Name = nameof(ProcfilerBusinessEventsSource))]
 public class ProcfilerBusinessEventsSource : EventSource
 {
   private const int ProcfilerBusinessEventId = 6000;
