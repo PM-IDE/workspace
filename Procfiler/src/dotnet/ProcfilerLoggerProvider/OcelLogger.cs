@@ -34,6 +34,13 @@ public static class OcelLogger
     OcelEventsSource.Instance.OcelEvent(GetObjectId(obj), category, string.Empty);
   }
 
+  public static void LogObject(long objectId, string? category = null)
+  {
+    if (!IsEnabled()) return;
+
+    OcelEventsSource.Instance.OcelEvent(objectId, category, string.Empty);
+  }
+
   private static long GetObjectId<T>(T obj) => obj switch
   {
     OcelObjectBase @base => @base.Id,

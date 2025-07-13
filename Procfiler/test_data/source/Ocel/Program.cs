@@ -26,6 +26,7 @@ public static class Program
           OcelLogger.LogGloballyAttachedObject(myObject, "GlobalInitializing", myObject.GetType().Name);
         }
 
+        OcelLogger.LogObject(1234, "test");
         OcelLogger.LogObject(myObject, myObject.GetType().Name);
         myObject.Name = "xd";
       }
@@ -85,7 +86,6 @@ class Dog : Animal;
 class Cat : Animal;
 
 class Sheep : Animal;
-
 
 class MyOptionsMonitor(ProcfilerLoggerConfiguration configuration) : IOptionsMonitor<ProcfilerLoggerConfiguration>
 {
