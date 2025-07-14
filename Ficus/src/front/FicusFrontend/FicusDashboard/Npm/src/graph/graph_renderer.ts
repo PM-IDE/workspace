@@ -91,7 +91,6 @@ function createCytoscapeOptions(
   addLabel: boolean,
   useLROrientation: boolean
 ): cytoscape.CytoscapeOptions {
-  console.log(useLROrientation)
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph, annotation, filter),
