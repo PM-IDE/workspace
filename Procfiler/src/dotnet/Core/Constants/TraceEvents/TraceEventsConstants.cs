@@ -22,5 +22,4 @@ public static partial class TraceEventsConstants
   public const string BusinessEvent = "BusinessEvent";
   public const string BusinessEventMessage = "message";
   public const string BusinessEventAttributes = "attributes";
-  public const string BusinessEventOriginalFormat = "{OriginalFormat}";
 }
