@@ -105,10 +105,8 @@ public class DotnetProjectBuilderImpl(
       Arguments = BuildArguments(projectBuildInfo, artifactsFolderCookie)
     };
 
-    var process = new Process
-    {
-      StartInfo = startInfo
-    };
+    using var process = new Process();
+    process.StartInfo = startInfo;
 
     void RemoveArtifactsFolderIfNeeded()
     {

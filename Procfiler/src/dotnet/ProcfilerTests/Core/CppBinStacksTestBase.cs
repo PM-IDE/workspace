@@ -24,12 +24,15 @@ public abstract class CppBinStacksTestBase : ProcessTestBase
       context.CommonContext, result!.Value, locator, binStacksSavePathCreator);
 
     var launcher = Container.Resolve<IDotnetProcessLauncher>();
-    var process = launcher.TryStartDotnetProcess(dto with { DefaultDiagnosticPortSuspend = false });
-    Assert.That(process, Is.Not.Null);
-    process!.WaitForExit();
 
-    var binStacksPath = binStacksSavePathCreator.CreateSavePath(result.Value, context.CommonContext.CppProfilerMode);
-    testAction(binStacksPath, context.CommonContext.CppProfilerMode);
+    launcher.TryStartDotnetProcess(dto with { DefaultDiagnosticPortSuspend = false }, process =>
+    {
+      Assert.That(process, Is.Not.Null);
+      process.WaitForExit();
+
+      var binStacksPath = binStacksSavePathCreator.CreateSavePath(result.Value, context.CommonContext.CppProfilerMode);
+      testAction(binStacksPath, context.CommonContext.CppProfilerMode);
+    });
   }
 
   protected void DoTestWithCollectedEvents(CollectClrEventsFromExeContext context, Action<CollectedEvents> testAction) =>
