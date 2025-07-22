@@ -9,13 +9,31 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class GrpcPipelinePartUpdate(_message.Message):
-    __slots__ = ["current_cases", "delta"]
-    CURRENT_CASES_FIELD_NUMBER: _ClassVar[int]
-    DELTA_FIELD_NUMBER: _ClassVar[int]
-    current_cases: GrpcCurrentCasesResponse
-    delta: GrpcKafkaUpdate
-    def __init__(self, current_cases: _Optional[_Union[GrpcCurrentCasesResponse, _Mapping]] = ..., delta: _Optional[_Union[GrpcKafkaUpdate, _Mapping]] = ...) -> None: ...
+class GrpcSubscriptionAndPipelinesStateResponse(_message.Message):
+    __slots__ = ["cases"]
+    CASES_FIELD_NUMBER: _ClassVar[int]
+    cases: _containers.RepeatedCompositeFieldContainer[GrpcProcessCaseMetadataWithStamp]
+    def __init__(self, cases: _Optional[_Iterable[_Union[GrpcProcessCaseMetadataWithStamp, _Mapping]]] = ...) -> None: ...
+
+class GrpcProcessCaseMetadataWithStamp(_message.Message):
+    __slots__ = ["stamp", "metadata"]
+    STAMP_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    stamp: int
+    metadata: GrpcProcessCaseMetadata
+    def __init__(self, stamp: _Optional[int] = ..., metadata: _Optional[_Union[GrpcProcessCaseMetadata, _Mapping]] = ...) -> None: ...
+
+class GrpcGetPipelineCaseContextValuesRequest(_message.Message):
+    __slots__ = ["subscriptionId", "pipelineId", "processName", "caseName"]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEID_FIELD_NUMBER: _ClassVar[int]
+    PROCESSNAME_FIELD_NUMBER: _ClassVar[int]
+    CASENAME_FIELD_NUMBER: _ClassVar[int]
+    subscriptionId: _util_pb2.GrpcGuid
+    pipelineId: _util_pb2.GrpcGuid
+    processName: str
+    caseName: GrpcCaseName
+    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., processName: _Optional[str] = ..., caseName: _Optional[_Union[GrpcCaseName, _Mapping]] = ...) -> None: ...
 
 class GrpcKafkaUpdate(_message.Message):
     __slots__ = ["processCaseMetadata", "pipelinePartInfo", "contextValues"]
@@ -53,19 +71,13 @@ class GrpcCaseName(_message.Message):
     fullNameParts: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, displayName: _Optional[str] = ..., fullNameParts: _Optional[_Iterable[str]] = ...) -> None: ...
 
-class GrpcCurrentCasesResponse(_message.Message):
-    __slots__ = ["cases"]
-    CASES_FIELD_NUMBER: _ClassVar[int]
-    cases: _containers.RepeatedCompositeFieldContainer[GrpcCase]
-    def __init__(self, cases: _Optional[_Iterable[_Union[GrpcCase, _Mapping]]] = ...) -> None: ...
-
-class GrpcCase(_message.Message):
-    __slots__ = ["processCaseMetadata", "contextValues"]
-    PROCESSCASEMETADATA_FIELD_NUMBER: _ClassVar[int]
+class GrpcCaseContextValues(_message.Message):
+    __slots__ = ["contextValues", "stamp"]
     CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
-    processCaseMetadata: GrpcProcessCaseMetadata
+    STAMP_FIELD_NUMBER: _ClassVar[int]
     contextValues: _containers.RepeatedCompositeFieldContainer[GrpcPipelinePartContextValues]
-    def __init__(self, processCaseMetadata: _Optional[_Union[GrpcProcessCaseMetadata, _Mapping]] = ..., contextValues: _Optional[_Iterable[_Union[GrpcPipelinePartContextValues, _Mapping]]] = ...) -> None: ...
+    stamp: int
+    def __init__(self, contextValues: _Optional[_Iterable[_Union[GrpcPipelinePartContextValues, _Mapping]]] = ..., stamp: _Optional[int] = ...) -> None: ...
 
 class GrpcPipelinePartContextValues(_message.Message):
     __slots__ = ["pipelinePartInfo", "stamp", "execution_results"]
