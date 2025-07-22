@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
-use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SimpleCounterData, SimpleCounterDataEntry, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SimpleCounterData, SoftwareData};
 use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
@@ -89,48 +89,18 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
       .map(|c|
         (
           Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
-          c.info().name(),
-          c.info().count_attr().as_ref(),
-          c.info().category_attr().as_ref()
+          c.info().name()
         )
       )
-      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String, Option<&String>, Option<&String>)>>();
+      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String)>>();
 
     let mut result = HashMap::new();
     for event in events {
-      for (regex, name, count_attr, category_attr) in &regexes {
+      for (regex, name) in &regexes {
         match regex {
           Ok(regex) => {
             if regex.is_match(event.borrow().name()).unwrap_or(false) {
-              let count = if let Some(count_attr) = count_attr {
-                if let Some(payload) = event.borrow().payload_map() {
-                  if let Some(count_value) = payload.get(*count_attr) {
-                    parse_or_err::<f64>(count_value.to_string_repr().as_str())?
-                  } else {
-                    continue;
-                  }
-                } else {
-                  continue;
-                }
-              } else {
-                1.
-              };
-
-              let category = if let Some(category_attr) = category_attr {
-                if let Some(payload) = event.borrow().payload_map() {
-                  if let Some(category_value) = payload.get(*category_attr) {
-                    category_value.to_string_repr().to_string()
-                  } else {
-                    continue;
-                  }
-                } else {
-                  continue;
-                }
-              } else {
-                event.borrow().name().to_string()
-              };
-
-              *result.entry(name.to_string()).or_insert(HashMap::new()).entry(category).or_insert(0.) += count;
+              *result.entry(name.to_string()).or_insert(0.) += 1.;
             }
           }
           Err(err) => return Err(err.clone())
@@ -138,11 +108,8 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
       }
     }
 
-    for (name, counts) in result {
-      software_data.simple_counters_mut().push(SimpleCounterData::new(
-        name,
-        counts.into_iter().map(|(k, v)| SimpleCounterDataEntry::new(k, v)).collect()
-      ));
+    for (name, count) in result {
+      software_data.simple_counters_mut().push(SimpleCounterData::new(name, count));
     }
 
     Ok(())

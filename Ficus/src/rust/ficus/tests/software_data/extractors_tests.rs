@@ -559,7 +559,7 @@ fn test_general_histogram() {
 #[test]
 fn test_simple_counter() {
   execute_test_with_software_data(
-    r#"{"simple_counters":[{"name":"counter1","entries":[{"name":"type1","value":246.0},{"name":"type2","value":123.0}]},{"name":"counter2","entries":[{"name":"type1","value":123.0},{"name":"type2","value":123.0}]},{"name":"counter3","entries":[{"name":"hst_event","value":2.0}]},{"name":"counter4","entries":[{"name":"histogram_event","value":3.0}]}]}"#,
+    r#"{"simple_counters":[{"name":"counter1","value":3.0},{"name":"counter2","value":2.0}]}"#,
     || {
       let events = [
         create_event_with_attributes(
@@ -615,20 +615,12 @@ fn test_simple_counter() {
       config.set_simple_counter_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          SimpleCountExtractionConfig::new("counter1".to_string(), Some("count".to_string()), Some("type".to_string()))
+          SimpleCountExtractionConfig::new("counter1".to_string())
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()), Some("type".to_string()))
+          SimpleCountExtractionConfig::new("counter2".to_string())
         ),
-        ExtractionConfig::new(
-          "hst_event".to_string(),
-          SimpleCountExtractionConfig::new("counter3".to_string(), None, None),
-        ),
-        ExtractionConfig::new(
-          "histogram_event".to_string(),
-          SimpleCountExtractionConfig::new("counter4".to_string(), None, None),
-        )
       ]);
 
       let extractor = SimpleCounterExtractor::new(&config);
@@ -636,8 +628,6 @@ fn test_simple_counter() {
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
 
       software_data.simple_counters_mut().sort_by(|f, s| f.name().cmp(s.name()));
-      software_data.simple_counters_mut().iter_mut().for_each(|counts| counts.entries_mut().sort_by(|f, s| f.name().cmp(s.name())));
-
       software_data
     },
   )
