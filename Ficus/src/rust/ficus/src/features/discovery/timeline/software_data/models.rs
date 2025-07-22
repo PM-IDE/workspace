@@ -207,20 +207,20 @@ pub struct SocketConnectAcceptFailedMetadata {
   #[getset(get = "pub")] error_message: String
 }
 
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct HistogramData {
   #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] entries: Vec<HistogramEntry>
+  #[getset(get = "pub", get_mut = "pub")] entries: Vec<HistogramEntry>
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct HistogramEntry {
   #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] count: usize
+  #[getset(get = "pub")] value: f64
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct SimpleCounterData {
   #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] count: usize,
+  #[getset(get = "pub")] value: f64,
 }
