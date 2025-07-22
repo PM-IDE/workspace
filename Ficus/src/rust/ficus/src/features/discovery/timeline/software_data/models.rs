@@ -219,8 +219,14 @@ pub struct HistogramEntry {
   #[getset(get = "pub")] value: f64
 }
 
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct SimpleCounterData {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub", get_mut = "pub")] entries: Vec<SimpleCounterDataEntry>
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct SimpleCounterDataEntry {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] value: f64,
 }

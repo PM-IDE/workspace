@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
-use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SimpleCounterData, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SimpleCounterData, SimpleCounterDataEntry, SoftwareData};
 use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
@@ -89,15 +89,16 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
       .map(|c|
         (
           Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
+          c.info().name(),
           c.info().count_attr().as_ref(),
           c.info().category_attr().as_ref()
         )
       )
-      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, Option<&String>, Option<&String>)>>();
+      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String, Option<&String>, Option<&String>)>>();
 
     let mut result = HashMap::new();
     for event in events {
-      for (regex, count_attr, category_attr) in &regexes {
+      for (regex, name, count_attr, category_attr) in &regexes {
         match regex {
           Ok(regex) => {
             if regex.is_match(event.borrow().name()).unwrap_or(false) {
@@ -129,7 +130,7 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
                 event.borrow().name().to_string()
               };
 
-              *result.entry(category).or_insert(0.) += count;
+              *result.entry(name.to_string()).or_insert(HashMap::new()).entry(category).or_insert(0.) += count;
             }
           }
           Err(err) => return Err(err.clone())
@@ -137,8 +138,11 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
       }
     }
 
-    for (name, count) in result {
-      software_data.simple_counters_mut().push(SimpleCounterData::new(name, count));
+    for (name, counts) in result {
+      software_data.simple_counters_mut().push(SimpleCounterData::new(
+        name,
+        counts.into_iter().map(|(k, v)| SimpleCounterDataEntry::new(k, v)).collect()
+      ));
     }
 
     Ok(())

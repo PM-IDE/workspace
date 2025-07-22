@@ -208,6 +208,7 @@ pub struct HistogramExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SimpleCountExtractionConfig {
+  #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] count_attr: Option<String>,
   #[getset(get = "pub")] category_attr: Option<String>
 }
