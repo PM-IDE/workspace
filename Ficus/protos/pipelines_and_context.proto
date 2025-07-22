@@ -259,6 +259,24 @@ message GrpcSoftwareData {
   repeated GrpcContentionEvent contention_events = 10;
   repeated GrpcSocketEvent socket_event = 11;
   repeated GrpcMethodLoadUnloadEvent methods_load_unload_events = 12;
+  
+  repeated GrpcGeneralHistogramData histogram_data = 13;
+  repeated GrpcSimpleCounterData simple_counter_data = 14;
+}
+
+message GrpcGeneralHistogramData {
+  string name = 1;
+  repeated GrpcGeneralHistogramEntry entries = 2;
+}
+
+message GrpcGeneralHistogramEntry {
+  string name = 1;
+  double count = 2;
+}
+
+message GrpcSimpleCounterData {
+  string name = 1;
+  double count = 2;
 }
 
 message GrpcMethodLoadUnloadEvent {
