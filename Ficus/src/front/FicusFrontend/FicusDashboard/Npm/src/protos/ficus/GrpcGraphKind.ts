@@ -1,8 +1,8 @@
 // Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 export const GrpcGraphKind = {
-  None: 'None',
-  DAG: 'DAG',
+  None: 0,
+  DAG: 1,
 } as const;
 
 export type GrpcGraphKind_DONTUSE =
