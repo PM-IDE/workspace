@@ -189,6 +189,8 @@
       "path_and_query_attr": "pathAndQuery"
     }
   },
+  "histogram_extraction_configs": [],
+  "simple_counter_configs": [],
   "raw_control_flow_regexes": [
     "BusinessEvent"
   ]
