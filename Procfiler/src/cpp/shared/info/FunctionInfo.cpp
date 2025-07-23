@@ -3,7 +3,7 @@
 #include <vector>
 
 
-FunctionInfo FunctionInfo::GetFunctionInfo(ICorProfilerInfo12* info, FunctionID funcId) {
+FunctionInfo FunctionInfo::GetFunctionInfo(ICorProfilerInfo15* info, FunctionID funcId) {
     mdToken functionToken;
     ClassID classId;
     ModuleID moduleId;

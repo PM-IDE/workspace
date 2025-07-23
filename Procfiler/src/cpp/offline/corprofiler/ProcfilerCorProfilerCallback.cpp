@@ -11,24 +11,16 @@ ProcfilerCorProfilerCallback* GetCallbackInstance() {
     return ourCallback;
 }
 
-void StaticHandleFunctionEnter2(FunctionID funcId,
-                                UINT_PTR clientData,
-                                COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) {
-    GetCallbackInstance()->HandleFunctionEnter2(funcId, clientData, func, argumentInfo);
+void StaticHandleFunctionEnter2(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
+    GetCallbackInstance()->HandleFunctionEnter2(functionId.functionID);
 }
 
-void StaticHandleFunctionLeave2(FunctionID funcId,
-                                UINT_PTR clientData,
-                                COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange) {
-    GetCallbackInstance()->HandleFunctionLeave2(funcId, clientData, func, retvalRange);
+void StaticHandleFunctionLeave2(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
+    GetCallbackInstance()->HandleFunctionLeave2(functionId.functionID);
 }
 
-void StaticHandleFunctionTailCall(FunctionID funcId,
-                                  UINT_PTR clientData,
-                                  COR_PRF_FRAME_INFO func) {
-    GetCallbackInstance()->HandleFunctionTailCall(funcId, clientData, func);
+void StaticHandleFunctionTailCall(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
+    GetCallbackInstance()->HandleFunctionTailCall(functionId.functionID);
 }
 
 int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() {
@@ -42,30 +34,22 @@ int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() {
     return value.QuadPart;
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
-                                                        UINT_PTR clientData,
-                                                        COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) {
+void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId) {
     auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionEnter(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionLeave2(FunctionID funcId,
-                                                        UINT_PTR clientData,
-                                                        COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange) {
+void ProcfilerCorProfilerCallback::HandleFunctionLeave2(FunctionID funcId) {
     auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionFinished(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionTailCall(FunctionID funcId,
-                                                          UINT_PTR clientData,
-                                                          COR_PRF_FRAME_INFO func) {
+void ProcfilerCorProfilerCallback::HandleFunctionTailCall(FunctionID funcId) {
     auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionFinished(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-ICorProfilerInfo12* ProcfilerCorProfilerCallback::GetProfilerInfo() {
+ICorProfilerInfo15* ProcfilerCorProfilerCallback::GetProfilerInfo() {
     return myProfilerInfo;
 }
 
@@ -73,7 +57,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk)
     myLogger->LogInformation("Started initializing CorProfiler callback");
     void** ptr = reinterpret_cast<void**>(&this->myProfilerInfo);
 
-    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
+    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo15, ptr);
     if (FAILED(result)) {
         myLogger->LogInformation("Failed to query interface: " + std::to_string(result));
         return E_FAIL;
@@ -82,15 +66,17 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk)
     InitializeShadowStack();
 
     DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
-    result = myProfilerInfo->SetEventMask(eventMask);
+    result = myProfilerInfo->SetEventMask2(eventMask, 0);
     if (FAILED(result)) {
         myLogger->LogInformation("Failed to set event mask: " + std::to_string(result));
         return E_FAIL;
     }
 
-    result = myProfilerInfo->SetEnterLeaveFunctionHooks2(StaticHandleFunctionEnter2,
-                                                         StaticHandleFunctionLeave2,
-                                                         StaticHandleFunctionTailCall);
+    result = myProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(
+        StaticHandleFunctionEnter2,
+        StaticHandleFunctionLeave2,
+        StaticHandleFunctionTailCall
+    );
 
     if (FAILED(result)) {
         myLogger->LogInformation("Failed to set enter-leave hooks: " + std::to_string(result));

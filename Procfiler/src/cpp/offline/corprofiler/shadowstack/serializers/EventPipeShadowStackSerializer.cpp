@@ -1,6 +1,6 @@
 #include "EventPipeShadowStackSerializer.h"
 
-EventPipeShadowStackSerializer::EventPipeShadowStackSerializer(ICorProfilerInfo12* profilerInfo,
+EventPipeShadowStackSerializer::EventPipeShadowStackSerializer(ICorProfilerInfo15* profilerInfo,
                                                                ProcfilerLogger* logger) {
     myLogger = logger;
     myProfilerInfo = profilerInfo;
@@ -88,7 +88,7 @@ HRESULT EventPipeShadowStackSerializer::DefineProcfilerEventPipeProvider() {
 HRESULT EventPipeShadowStackSerializer::DefineMethodStartOrEndEventInternal(const wstring& eventName,
                                                                             EVENTPIPE_PROVIDER provider,
                                                                             EVENTPIPE_EVENT* outEventId,
-                                                                            ICorProfilerInfo12* profilerInfo,
+                                                                            ICorProfilerInfo15* profilerInfo,
                                                                             UINT32 eventId) {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
             {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("Timestamp").c_str()},

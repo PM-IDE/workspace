@@ -2,7 +2,7 @@
 #include "../util/const.h"
 
 
-AssemblyInfo AssemblyInfo::GetAssemblyInfo(ICorProfilerInfo12* info, AssemblyID assemblyId) {
+AssemblyInfo AssemblyInfo::GetAssemblyInfo(ICorProfilerInfo15* info, AssemblyID assemblyId) {
     std::vector<WCHAR> assemblyName(MAX_CLASS_NAME, (WCHAR)0);
     DWORD assemblyNameLength = 0;
     AppDomainID appDomainId;

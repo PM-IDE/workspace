@@ -2,7 +2,7 @@
 #include "AssemblyInfo.h"
 
 
-ModuleInfo ModuleInfo::GetModuleInfo(ICorProfilerInfo12* info, ModuleID moduleId) {
+ModuleInfo ModuleInfo::GetModuleInfo(ICorProfilerInfo15* info, ModuleID moduleId) {
     std::vector<WCHAR> modulePath(MAX_CLASS_NAME, (WCHAR) 0);
     DWORD length = 0;
     LPCBYTE baseLoadAddress;

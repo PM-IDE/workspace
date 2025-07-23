@@ -4,7 +4,7 @@
 #include <regex>
 #include <set>
 
-BinaryShadowStackSerializer::BinaryShadowStackSerializer(ICorProfilerInfo12* profilerInfo,
+BinaryShadowStackSerializer::BinaryShadowStackSerializer(ICorProfilerInfo15* profilerInfo,
                                                          ProcfilerLogger* logger) {
     myProfilerInfo = profilerInfo;
     myLogger = logger;

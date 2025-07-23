@@ -45,7 +45,7 @@ class EventPipeWriter {
     std::regex* myMethodsFilterRegex{nullptr};
 
     ProcfilerLogger* myLogger;
-    ICorProfilerInfo12 *myProfilerInfo;
+    ICorProfilerInfo15 *myProfilerInfo;
 
     EVENTPIPE_PROVIDER myEventPipeProvider{};
     EVENTPIPE_EVENT myMethodStartEvent{};
@@ -68,14 +68,14 @@ class EventPipeWriter {
     HRESULT DefineMethodStartOrEndEventInternal(const wstring& eventName,
                                                 EVENTPIPE_PROVIDER provider,
                                                 EVENTPIPE_EVENT *ourEventId,
-                                                ICorProfilerInfo12 *profilerInfo,
+                                                ICorProfilerInfo15 *profilerInfo,
                                                 UINT32 eventId) const;
 
     void InitMethodsFilterRegex();
     bool ShouldLogFunc(FunctionID functionId) const;
 
 public:
-    explicit EventPipeWriter(ICorProfilerInfo12 *profilerInfo);
+    explicit EventPipeWriter(ICorProfilerInfo15 *profilerInfo);
 
     ~EventPipeWriter() = default;
 

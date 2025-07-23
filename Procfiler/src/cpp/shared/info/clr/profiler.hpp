@@ -10,7 +10,7 @@
 #define LONG_LENGTH   1024
 
 // copy-paste from https://github.com/dotnet/runtime/tree/main/src/tests/profiler/native
-inline String GetClassIdName(const ClassID classId, ICorProfilerInfo12 *info) {
+inline String GetClassIdName(const ClassID classId, ICorProfilerInfo15 *info) {
     if (classId == NULL) {
         return WCHAR("");
     }
@@ -118,7 +118,7 @@ inline String GetClassIdName(const ClassID classId, ICorProfilerInfo12 *info) {
     return name;
 }
 
-inline String GetFunctionIdName(const FunctionID funcId, ICorProfilerInfo12 *info) {
+inline String GetFunctionIdName(const FunctionID funcId, ICorProfilerInfo15 *info) {
     // If the FunctionID is 0, we could be dealing with a native function.
     if (funcId == 0) {
         return WCHAR("");
@@ -182,7 +182,7 @@ inline String GetFunctionIdName(const FunctionID funcId, ICorProfilerInfo12 *inf
     return name;
 }
 
-inline String GetModuleIDName(const ModuleID modId, ICorProfilerInfo12 *info) {
+inline String GetModuleIDName(const ModuleID modId, ICorProfilerInfo15 *info) {
     WCHAR moduleName[STR_LENGTH];
     ULONG nameLength = 0;
     AssemblyID assemID;
@@ -199,7 +199,7 @@ inline String GetModuleIDName(const ModuleID modId, ICorProfilerInfo12 *info) {
     return moduleName;
 }
 
-inline wstring GetFullFunctionName(const FunctionID functionId, ICorProfilerInfo12* info) {
+inline wstring GetFullFunctionName(const FunctionID functionId, ICorProfilerInfo15* info) {
     mdToken functionToken;
     ClassID classId;
     ModuleID moduleId;
