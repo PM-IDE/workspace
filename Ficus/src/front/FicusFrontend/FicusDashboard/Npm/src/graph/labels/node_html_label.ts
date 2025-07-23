@@ -98,25 +98,25 @@ function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], softwar
   }
 
   return enhancementsHtmls
-    .map(([e, html]) => createEnhancementContainer(SoftwareEnhancementKind[e].toString(), html))
+    .map(([e, html]) => createEnhancementContainer(e, html))
     .join("\n");
 }
 
 function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
   switch (enhancement) {
-    case SoftwareEnhancementKind.Allocations:
+    case "Allocations":
       return createNodeAllocationsEnhancement(softwareData, aggregatedData);
-    case SoftwareEnhancementKind.MethodsInlinings:
+    case "MethodsInlinings":
       return createMethodsInliningEnhancement(softwareData);
-    case SoftwareEnhancementKind.MethodsLoadUnload:
+    case "MethodsLoadUnload":
       return createMethodsLoadUnloadEnhancement(softwareData);
-    case SoftwareEnhancementKind.ArrayPools:
+    case "ArrayPools":
       return createArrayPoolEnhancement(softwareData, aggregatedData);
-    case SoftwareEnhancementKind.Exceptions:
+    case "Exceptions":
       return createExceptionEnhancement(softwareData);
-    case SoftwareEnhancementKind.Threads:
+    case "Threads":
       return createThreadsEnhancement(softwareData);
-    case SoftwareEnhancementKind.Http:
+    case "Http":
       return createHttpEnhancement(softwareData);
     default:
       return "";

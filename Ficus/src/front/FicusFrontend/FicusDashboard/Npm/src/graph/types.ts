@@ -32,16 +32,16 @@ export interface AggregatedData {
   totalBufferReturnedBytes: number,
 }
 
-export enum SoftwareEnhancementKind {
-  Allocations,
-  Exceptions,
-  MethodsLoadUnload,
-  MethodsInlinings,
-  ArrayPools,
-  Http,
-  Sockets,
-  Threads
-}
+export type SoftwareEnhancementKind =
+  "Allocations" |
+  "Exceptions" |
+  "MethodsLoadUnload" |
+  "MethodsInlinings" |
+  "ArrayPools" |
+  "Http" |
+  "Sockets" |
+  "Threads" |
+  string
 
 export interface CountAndSum {
   count: number,
