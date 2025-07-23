@@ -11,16 +11,16 @@ ProcfilerCorProfilerCallback* GetCallbackInstance() {
     return ourCallback;
 }
 
-void StaticHandleFunctionEnter2(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
-    GetCallbackInstance()->HandleFunctionEnter2(functionId.functionID);
+void StaticHandleFunctionEnter2(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionEnter2(functionId);
 }
 
-void StaticHandleFunctionLeave2(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
-    GetCallbackInstance()->HandleFunctionLeave2(functionId.functionID);
+void StaticHandleFunctionLeave2(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionLeave2(functionId);
 }
 
-void StaticHandleFunctionTailCall(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
-    GetCallbackInstance()->HandleFunctionTailCall(functionId.functionID);
+void StaticHandleFunctionTailCall(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionTailCall(functionId);
 }
 
 int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() {
@@ -66,13 +66,13 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk)
     InitializeShadowStack();
 
     DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
-    result = myProfilerInfo->SetEventMask2(eventMask, 0);
+    result = myProfilerInfo->SetEventMask(eventMask);
     if (FAILED(result)) {
         myLogger->LogInformation("Failed to set event mask: " + std::to_string(result));
         return E_FAIL;
     }
 
-    result = myProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(
+    result = myProfilerInfo->SetEnterLeaveFunctionHooks(
         StaticHandleFunctionEnter2,
         StaticHandleFunctionLeave2,
         StaticHandleFunctionTailCall

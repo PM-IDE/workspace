@@ -15,16 +15,16 @@ ProcfilerCorProfilerCallback *GetCallbackInstance() {
     return ourCallback;
 }
 
-void StaticHandleFunctionEnter2(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
-    GetCallbackInstance()->HandleFunctionEnter2(functionId.functionID);
+void StaticHandleFunctionEnter2(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionEnter2(functionId);
 }
 
-void StaticHandleFunctionLeave2(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
-    GetCallbackInstance()->HandleFunctionLeave2(functionId.functionID);
+void StaticHandleFunctionLeave2(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionLeave2(functionId);
 }
 
-void StaticHandleFunctionTailCall(FunctionIDOrClientID functionId, COR_PRF_ELT_INFO eltInfo) {
-    GetCallbackInstance()->HandleFunctionTailCall(functionId.functionID);
+void StaticHandleFunctionTailCall(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionTailCall(functionId);
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId) const {
@@ -33,12 +33,10 @@ void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId)
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId) const {
-    SHUTDOWNGUARD_RETVOID();
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
 void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId) const {
-    SHUTDOWNGUARD_RETVOID();
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
@@ -56,7 +54,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
     }
 
     constexpr DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
-    result = myProfilerInfo->SetEventMask2(eventMask, 0);
+    result = myProfilerInfo->SetEventMask(eventMask);
     if (FAILED(result)) {
         myLogger->LogError("Failed to set event mask");
         return E_FAIL;
@@ -65,7 +63,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
     myWriter = new EventPipeWriter(myProfilerInfo);
     myWriter->Init();
 
-    result = myProfilerInfo->SetEnterLeaveFunctionHooks3WithInfo(
+    result = myProfilerInfo->SetEnterLeaveFunctionHooks(
         StaticHandleFunctionEnter2,
         StaticHandleFunctionLeave2,
         StaticHandleFunctionTailCall
