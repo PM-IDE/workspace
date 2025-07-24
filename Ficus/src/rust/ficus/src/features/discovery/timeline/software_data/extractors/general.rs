@@ -89,18 +89,33 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
       .map(|c|
         (
           Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
-          c.info().name()
+          c.info().name(),
+          c.info().count_attribute().as_ref()
         )
       )
-      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String)>>();
+      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String, Option<&String>)>>();
 
     let mut result = HashMap::new();
     for event in events {
-      for (regex, name) in &regexes {
+      for (regex, name, count_attribute) in &regexes {
         match regex {
           Ok(regex) => {
             if regex.is_match(event.borrow().name()).unwrap_or(false) {
-              *result.entry(name.to_string()).or_insert(0.) += 1.;
+              let count = if let Some(count_attribute) = count_attribute {
+                if let Some(payload) = event.borrow().payload_map() {
+                  if let Some(count_value) = payload.get(*count_attribute) {
+                    parse_or_err::<f64>(count_value.to_string_repr().as_str())?
+                  } else {
+                    continue;
+                  }
+                } else {
+                  continue;
+                }
+              } else {
+                1.
+              };
+
+              *result.entry(name.to_string()).or_insert(0.) += count;
             }
           }
           Err(err) => return Err(err.clone())

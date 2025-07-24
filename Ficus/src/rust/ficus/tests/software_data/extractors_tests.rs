@@ -559,7 +559,7 @@ fn test_general_histogram() {
 #[test]
 fn test_simple_counter() {
   execute_test_with_software_data(
-    r#"{"simple_counters":[{"name":"counter1","value":3.0},{"name":"counter2","value":2.0}]}"#,
+    r#"{"simple_counters":[{"name":"counter1","value":3.0},{"name":"counter2","value":246.0}]}"#,
     || {
       let events = [
         create_event_with_attributes(
@@ -615,11 +615,11 @@ fn test_simple_counter() {
       config.set_simple_counter_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          SimpleCountExtractionConfig::new("counter1".to_string())
+          SimpleCountExtractionConfig::new("counter1".to_string(), None)
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          SimpleCountExtractionConfig::new("counter2".to_string())
+          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()))
         ),
       ]);
 
