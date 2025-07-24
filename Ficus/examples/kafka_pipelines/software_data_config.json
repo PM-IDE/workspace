@@ -189,7 +189,16 @@
       "path_and_query_attr": "pathAndQuery"
     }
   },
-  "histogram_extraction_configs": [],
+  "histogram_extraction_configs": [
+    {
+      "event_class_regex": "GC\/SampledObject",
+      "info": {
+        "name": "Allocations 2",
+        "count_attr": "TotalSizeForTypeSample",
+        "grouping_attr": "TypeName"
+      }
+    }
+  ],
   "simple_counter_configs": [
     {
       "event_class_regex": "Thread/Creating",
