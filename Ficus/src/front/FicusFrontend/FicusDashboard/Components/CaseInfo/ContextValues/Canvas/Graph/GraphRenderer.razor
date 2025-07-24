@@ -11,15 +11,18 @@
   <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
     @if (IsRichUiGraph(Graph))
     {
-      @foreach (var (index, kind) in ourPredefinedEnhancements.Index())
+      @if (myEnhancements is { })
       {
-        <div style="display: flex; flex-direction: row; align-items: center;">
-          <RadzenCheckBox @ref="@myCheckBoxes[index]"
-                          TValue="bool"
-                          ValueChanged="@(v => HandleSelectionChange(v, kind))"/>
+        @foreach (var (index, enhancement) in myEnhancements.Index())
+        {
+          <div style="display: flex; flex-direction: row; align-items: center;">
+            <RadzenCheckBox TValue="bool"
+                            @ref="@myCheckBoxes[index]"
+                            ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
 
-          <div style="margin-left: 5px;">@kind.ToString()</div>
-        </div>
+            <div style="margin-left: 5px;">@enhancement</div>
+          </div>
+        }
       }
 
       <div style="margin-top: 5px;">Filter:</div>
@@ -62,10 +65,52 @@
   private bool myUseLROrientation = true;
   private string? myFilterValue;
   private string mySpacingFactor = "1.4";
-  private CanvasComponent? myCanvasComponent;
-  private readonly RadzenCheckBox<bool>[] myCheckBoxes = new RadzenCheckBox<bool>[ourPredefinedEnhancements.Length];
-  private readonly HashSet<string> mySelectedEnhancements = ourPredefinedEnhancements.ToHashSet();
 
+  private CanvasComponent? myCanvasComponent;
+
+  private List<string>? myEnhancements;
+  private HashSet<string> mySelectedEnhancements = null!;
+  private RadzenCheckBox<bool>[] myCheckBoxes = null!;
+
+
+  protected override void OnParametersSet()
+  {
+    myEnhancements = FindAllEnhancements(Graph);
+    mySelectedEnhancements = myEnhancements.ToHashSet();
+    myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
+  }
+
+  private static List<string> FindAllEnhancements(GrpcGraph graph)
+  {
+    var enhancements = new List<string>(ourPredefinedEnhancements);
+
+    var customEnhancements = graph.Edges
+      .SelectMany(e => e.AdditionalData)
+      .SelectMany(d => ExtractCustomEnhancements(d.SoftwareData))
+      .ToHashSet();
+
+    AddNodesCustomEnhancements(graph, customEnhancements);
+
+    enhancements.AddRange(customEnhancements.Order());
+
+    return enhancements;
+  }
+
+  private static void AddNodesCustomEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  {
+    foreach (var node in graph.Nodes)
+    {
+      foreach (var enhancement in node.AdditionalData.SelectMany(d => ExtractCustomEnhancements(d.SoftwareData)))
+      {
+        enhancements.Add(enhancement);
+      }
+
+      if (node.InnerGraph is { } innerGraph)
+      {
+        AddNodesCustomEnhancements(innerGraph, enhancements);
+      }
+    }
+  }
 
   protected override void OnAfterRender(bool firstRender)
   {
@@ -85,11 +130,16 @@
     }
   }
 
+  private static IEnumerable<string> ExtractCustomEnhancements(GrpcSoftwareData data) => data switch
+  {
+    null => [],
+    { } => data.HistogramData.Select(h => h.Name).Concat(data.SimpleCounterData.Select(c => c.Name))
+  };
+
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
-    graph.Nodes.Any(
-      n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()) ||
-           n.InnerGraph is { } innerGraph && IsRichUiGraph(innerGraph)
+    graph.Nodes.Any(n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()) ||
+                         n.InnerGraph is { } innerGraph && IsRichUiGraph(innerGraph)
     );
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
