@@ -196,6 +196,13 @@
       "info": {
         "name": "Threads Created"
       }
+    },
+    {
+      "event_class_regex": "Buffer\/Allocated",
+      "info": {
+        "name": "Buffer Allocated 2",
+        "count_attr": "bufferSize"
+      }
     }
   ],
   "raw_control_flow_regexes": [

@@ -90,7 +90,7 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
         (
           Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
           c.info().name(),
-          c.info().count_attribute().as_ref()
+          c.info().count_attr().as_ref()
         )
       )
       .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String, Option<&String>)>>();
