@@ -222,7 +222,7 @@ function incrementCountAndSum(countAndSum: CountAndSum, value: number) {
   countAndSum.count += 1;
 }
 
-function increment(map: Map<string, number>, key: string, value: number) {
+export function increment(map: Map<string, number>, key: string, value: number) {
   if (!map.has(key)) {
     map.set(key, value);
   } else {

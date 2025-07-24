@@ -118,16 +118,25 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
       return createThreadsEnhancement(softwareData);
     case "Http":
       return createHttpEnhancement(softwareData);
-    default:
-    {
+    default: {
       if (softwareData.histograms.has(enhancement)) {
-        return createSoftwareEnhancementHistogram(enhancement, softwareData.histograms.get(enhancement), null);
+        let sum = softwareData.histograms.get(enhancement).values().reduce((a, b) => a + b, 0);
+        return createSoftwareEnhancementHistogram(
+          enhancement,
+          softwareData.histograms.get(enhancement),
+          getPerformanceAnnotationColor(sum / aggregatedData.totalHistogramsCount.get(enhancement))
+        );
       }
 
       if (softwareData.counters.has(enhancement)) {
-        return createNumberInformation("", "", softwareData.counters.get(enhancement), null);
+        return createNumberInformation(
+          "",
+          "",
+          softwareData.counters.get(enhancement),
+          aggregatedData.totalCountersCount.get(enhancement)
+        );
       }
-      
+
       return "";
     }
   }
@@ -137,7 +146,7 @@ function createHttpEnhancement(softwareData: MergedSoftwareData): string {
   if (softwareData.httpRequests.size == 0) {
     return "";
   }
-  
+
   return `
     <div>
       ${createSoftwareEnhancementHistogram("Requests", softwareData.httpRequests, null)}
@@ -304,7 +313,7 @@ function createMultithreadedNodeInformation(node: GraphNode): string {
       `);
     }
   }
-  
+
   return `
     <div class="graph-content-container">
       <div style="display: flex; flex-direction: row;" class="graph-title-label">

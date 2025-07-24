@@ -64,13 +64,22 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       return createHttpEnhancement(softwareData);
     default: {
       if (softwareData.histograms.has(enhancement)) {
-        return createEdgeSoftwareEnhancementPart(enhancement, softwareData.histograms.get(enhancement), null);
+        return createEdgeSoftwareEnhancementPart(
+          enhancement,
+          softwareData.histograms.get(enhancement),
+          edge.aggregatedData.totalHistogramsCount.get(enhancement)
+        );
       }
 
       if (softwareData.counters.has(enhancement)) {
         return createEnhancementContainer(
           enhancement,
-          createNumberInformation("", "", softwareData.counters.get(enhancement), null)
+          createNumberInformation(
+            "",
+            "",
+            softwareData.counters.get(enhancement),
+            edge.aggregatedData.totalCountersCount.get(enhancement)
+          )
         );
       }
 
