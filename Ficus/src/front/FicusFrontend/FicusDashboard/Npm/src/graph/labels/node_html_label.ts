@@ -125,7 +125,7 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
       }
 
       if (softwareData.counters.has(enhancement)) {
-        return createNumberInformation(enhancement, "units", softwareData.counters.get(enhancement), null);
+        return createNumberInformation("", "", softwareData.counters.get(enhancement), null);
       }
       
       return "";

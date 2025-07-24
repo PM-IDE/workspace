@@ -62,14 +62,16 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       return createEnhancementContainer("Threads", createThreadsEnhancement(softwareData));
     case "Http":
       return createHttpEnhancement(softwareData);
-    default:
-    {
+    default: {
       if (softwareData.histograms.has(enhancement)) {
         return createEdgeSoftwareEnhancementPart(enhancement, softwareData.histograms.get(enhancement), null);
       }
 
       if (softwareData.counters.has(enhancement)) {
-        return createNumberInformation(enhancement, "units", softwareData.counters.get(enhancement), null);
+        return createEnhancementContainer(
+          enhancement,
+          createNumberInformation("", "", softwareData.counters.get(enhancement), null)
+        );
       }
 
       return "";
