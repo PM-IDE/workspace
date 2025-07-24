@@ -266,12 +266,7 @@ message GrpcSoftwareData {
 
 message GrpcGeneralHistogramData {
   string name = 1;
-  repeated GrpcGeneralHistogramEntry entries = 2;
-}
-
-message GrpcGeneralHistogramEntry {
-  string name = 1;
-  double count = 2;
+  repeated GrpcHistogramEntry entries = 2;
 }
 
 message GrpcSimpleCounterData {
@@ -407,7 +402,7 @@ message GrpcSocketAcceptFailed {
 
 message GrpcHistogramEntry {
   string name = 1;
-  uint64 count = 2;
+  double count = 2;
 }
 
 message GrpcTimelineDiagramFragment {
