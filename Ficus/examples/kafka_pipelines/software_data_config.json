@@ -190,7 +190,14 @@
     }
   },
   "histogram_extraction_configs": [],
-  "simple_counter_configs": [],
+  "simple_counter_configs": [
+    {
+      "event_class_regex": "Thread/Creating",
+      "info": {
+        "name": "Threads Created"
+      }
+    }
+  ],
   "raw_control_flow_regexes": [
     "BusinessEvent"
   ]
