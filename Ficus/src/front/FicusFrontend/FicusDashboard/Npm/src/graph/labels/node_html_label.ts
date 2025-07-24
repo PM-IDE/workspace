@@ -10,7 +10,7 @@ import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} 
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
   createArrayPoolEnhancement,
-  createEnhancementContainer,
+  createEnhancementContainer, createNumberInformation,
   createPieChart,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -119,7 +119,17 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
     case "Http":
       return createHttpEnhancement(softwareData);
     default:
+    {
+      if (softwareData.histograms.has(enhancement)) {
+        return createSoftwareEnhancementHistogram(enhancement, softwareData.histograms.get(enhancement), null);
+      }
+
+      if (softwareData.counters.has(enhancement)) {
+        return createNumberInformation(enhancement, "units", softwareData.counters.get(enhancement), null);
+      }
+      
       return "";
+    }
   }
 }
 

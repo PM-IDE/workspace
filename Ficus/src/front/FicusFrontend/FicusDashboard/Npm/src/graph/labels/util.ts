@@ -114,7 +114,7 @@ export function createThreadsEnhancement(softwareData: MergedSoftwareData): stri
   `;
 }
 
-function createNumberInformation(category: string, units: string, value: number, totalValue: number | null): string {
+export function createNumberInformation(category: string, units: string, value: number, totalValue: number | null): string {
   if (value == 0) {
     return "";
   }

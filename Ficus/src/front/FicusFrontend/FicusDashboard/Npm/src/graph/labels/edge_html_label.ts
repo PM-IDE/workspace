@@ -1,7 +1,7 @@
 import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createArrayPoolEnhancement,
-  createEnhancementContainer,
+  createEnhancementContainer, createNumberInformation,
   createRectangleHistogram,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -63,7 +63,17 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
     case "Http":
       return createHttpEnhancement(softwareData);
     default:
+    {
+      if (softwareData.histograms.has(enhancement)) {
+        return createEdgeSoftwareEnhancementPart(enhancement, softwareData.histograms.get(enhancement), null);
+      }
+
+      if (softwareData.counters.has(enhancement)) {
+        return createNumberInformation(enhancement, "units", softwareData.counters.get(enhancement), null);
+      }
+
       return "";
+    }
   }
 }
 

@@ -69,5 +69,8 @@ export interface MergedSoftwareData {
   createdThreads: Set<number>,
   terminatedThreads: Set<number>,
 
-  httpRequests: Map<string, number>
+  httpRequests: Map<string, number>,
+  
+  histograms: Map<string, Map<string, number>>,
+  counters: Map<string, number>
 }

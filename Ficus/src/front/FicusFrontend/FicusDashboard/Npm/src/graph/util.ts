@@ -93,6 +93,9 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     terminatedThreads: new Set(),
 
     httpRequests: new Map(),
+    
+    histograms: new Map(),
+    counters: new Map()
   };
   
   let matchesFilter = (value: string) => {
@@ -186,6 +189,19 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       if (matchesFilter(requestUrl)) {
         increment(mergedSoftwareData.httpRequests, requestUrl, 1);
       }
+    }
+    
+    for (let histogram of softwareData.histogramData) {
+      let histogramMap = new Map();
+      for (let data of histogram.entries) {
+        histogramMap.set(data.name, data.count);
+      }
+
+      mergedSoftwareData.histograms.set(histogram.name, histogramMap);
+    }
+
+    for (let counter of softwareData.simpleCounterData) {
+      mergedSoftwareData.counters.set(counter.name, counter.count);
     }
   }
 
