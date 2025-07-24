@@ -34,7 +34,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bpipelines_and_context.proto\x12\x05\x66icus\x1a\x0fpm_models.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1e\n\x0eGrpcContextKey\x12\x0c\n\x04name\x18\x01 \x01(\t\"W\n\x1bGrpcContextValueWithKeyName\x12\x10\n\x08key_name\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"\xdb\x08\n\x10GrpcContextValue\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12;\n\nhashes_log\x18\x02 \x01(\x0b\x32%.ficus.GrpcHashesEventLogContextValueH\x00\x12\x39\n\tnames_log\x18\x03 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12\x10\n\x06uint32\x18\x04 \x01(\rH\x00\x12J\n\x11traces_sub_arrays\x18\x05 \x01(\x0b\x32-.ficus.GrpcEventLogTraceSubArraysContextValueH\x00\x12P\n\x16trace_index_sub_arrays\x18\x06 \x01(\x0b\x32..ficus.GrpcSubArraysWithTraceIndexContextValueH\x00\x12\x0e\n\x04\x62ool\x18\x07 \x01(\x08H\x00\x12=\n\rxes_event_log\x18\x08 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12/\n\ncolors_log\x18\t \x01(\x0b\x32\x19.ficus.GrpcColorsEventLogH\x00\x12\x1f\n\x04\x65num\x18\n \x01(\x0b\x32\x0f.ficus.GrpcEnumH\x00\x12\x31\n\x0e\x65vent_log_info\x18\x0b \x01(\x0b\x32\x17.ficus.GrpcEventLogInfoH\x00\x12%\n\x07strings\x18\x0c \x01(\x0b\x32\x12.ficus.GrpcStringsH\x00\x12\'\n\x08pipeline\x18\r \x01(\x0b\x32\x13.ficus.GrpcPipelineH\x00\x12\'\n\x08petriNet\x18\x0e \x01(\x0b\x32\x13.ficus.GrpcPetriNetH\x00\x12!\n\x05graph\x18\x0f \x01(\x0b\x32\x10.ficus.GrpcGraphH\x00\x12\x0f\n\x05\x66loat\x18\x10 \x01(\x02H\x00\x12+\n\nannotation\x18\x11 \x01(\x0b\x32\x15.ficus.GrpcAnnotationH\x00\x12%\n\x07\x64\x61taset\x18\x12 \x01(\x0b\x32\x12.ficus.GrpcDatasetH\x00\x12\x34\n\x0flabeled_dataset\x18\x13 \x01(\x0b\x32\x19.ficus.GrpcLabeledDatasetH\x00\x12!\n\x05\x62ytes\x18\x14 \x01(\x0b\x32\x10.ficus.GrpcBytesH\x00\x12;\n\x12logTimelineDiagram\x18\x15 \x01(\x0b\x32\x1d.ficus.GrpcLogTimelineDiagramH\x00\x12,\n\x0b\x66loat_array\x18\x16 \x01(\x0b\x32\x15.ficus.GrpcFloatArrayH\x00\x12(\n\tint_array\x18\x17 \x01(\x0b\x32\x13.ficus.GrpcIntArrayH\x00\x12*\n\nuint_array\x18\x18 \x01(\x0b\x32\x14.ficus.GrpcUintArrayH\x00\x12\x0e\n\x04json\x18\x19 \x01(\tH\x00\x42\x0e\n\x0c\x63ontextValue\"\x1f\n\x0eGrpcFloatArray\x12\r\n\x05items\x18\x01 \x03(\x01\"\x1d\n\x0cGrpcIntArray\x12\r\n\x05items\x18\x01 \x03(\x03\"\x1e\n\rGrpcUintArray\x12\r\n\x05items\x18\x01 \x03(\x04\"a\n\x13GrpcContextKeyValue\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"H\n\x1eGrpcHashesEventLogContextValue\x12&\n\x03log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcHashesEventLog\"F\n\x1dGrpcNamesEventLogContextValue\x12%\n\x03log\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcNamesEventLog\"^\n&GrpcEventLogTraceSubArraysContextValue\x12\x34\n\x11traces_sub_arrays\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcTraceSubArrays\"/\n\x11GrpcTraceSubArray\x12\r\n\x05start\x18\x01 \x01(\r\x12\x0b\n\x03\x65nd\x18\x02 \x01(\r\"B\n\x12GrpcTraceSubArrays\x12,\n\nsub_arrays\x18\x01 \x03(\x0b\x32\x18.ficus.GrpcTraceSubArray\"^\n\x1aGrpcSubArrayWithTraceIndex\x12+\n\tsub_array\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcTraceSubArray\x12\x13\n\x0btrace_index\x18\x02 \x01(\r\"`\n\'GrpcSubArraysWithTraceIndexContextValue\x12\x35\n\nsub_arrays\x18\x01 \x03(\x0b\x32!.ficus.GrpcSubArrayWithTraceIndex\"\xa4\x01\n\x12GrpcColorsEventLog\x12\x31\n\x07mapping\x18\x01 \x03(\x0b\x32 .ficus.GrpcColorsEventLogMapping\x12&\n\x06traces\x18\x02 \x03(\x0b\x32\x16.ficus.GrpcColorsTrace\x12\x33\n\x0b\x61\x64justments\x18\x03 \x03(\x0b\x32\x1e.ficus.GrpcColorsLogAdjustment\"\xba\x01\n\x17GrpcColorsLogAdjustment\x12G\n\x14rectangle_adjustment\x18\x01 \x01(\x0b\x32\'.ficus.GrpcColorsLogRectangleAdjustmentH\x00\x12I\n\x10\x61xis_after_trace\x18\x02 \x01(\x0b\x32-.ficus.GrpcColorsLogXAxisAfterTraceAdjustmentH\x00\x42\x0b\n\tselection\"\xa9\x01\n GrpcColorsLogRectangleAdjustment\x12*\n\rup_left_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12-\n\x10\x64own_right_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12*\n\"extend_to_nearest_vertical_borders\x18\x03 \x01(\x08\"8\n\x0cGrpcLogPoint\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x02 \x01(\x04\"=\n&GrpcColorsLogXAxisAfterTraceAdjustment\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\"J\n\x19GrpcColorsEventLogMapping\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1f\n\x05\x63olor\x18\x02 \x01(\x0b\x32\x10.ficus.GrpcColor\"\\\n\x0fGrpcColorsTrace\x12\x31\n\x0c\x65vent_colors\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcColoredRectangle\x12\x16\n\x0e\x63onstant_width\x18\x02 \x01(\x08\"L\n\x14GrpcColoredRectangle\x12\x13\n\x0b\x63olor_index\x18\x01 \x01(\r\x12\x0f\n\x07start_x\x18\x02 \x01(\x01\x12\x0e\n\x06length\x18\x03 \x01(\x01\"+\n\x08GrpcEnum\x12\x10\n\x08\x65numType\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"[\n\x10GrpcEventLogInfo\x12\x14\n\x0c\x65vents_count\x18\x01 \x01(\r\x12\x14\n\x0ctraces_count\x18\x02 \x01(\r\x12\x1b\n\x13\x65vent_classes_count\x18\x03 \x01(\r\"\x1e\n\x0bGrpcStrings\x12\x0f\n\x07strings\x18\x01 \x03(\t\":\n\x0cGrpcPipeline\x12*\n\x05parts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"\xab\x02\n\x14GrpcPipelinePartBase\x12.\n\x0b\x64\x65\x66\x61ultPart\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcPipelinePartH\x00\x12\x37\n\x0cparallelPart\x18\x02 \x01(\x0b\x32\x1f.ficus.GrpcParallelPipelinePartH\x00\x12O\n\x18simpleContextRequestPart\x18\x03 \x01(\x0b\x32+.ficus.GrpcSimpleContextRequestPipelinePartH\x00\x12Q\n\x19\x63omplexContextRequestPart\x18\x04 \x01(\x0b\x32,.ficus.GrpcComplexContextRequestPipelinePartH\x00\x42\x06\n\x04part\"]\n\x10GrpcPipelinePart\x12\x0c\n\x04name\x18\x01 \x01(\t\x12;\n\rconfiguration\x18\x02 \x01(\x0b\x32$.ficus.GrpcPipelinePartConfiguration\"\\\n\x1dGrpcPipelinePartConfiguration\x12;\n\x17\x63onfigurationParameters\x18\x01 \x03(\x0b\x32\x1a.ficus.GrpcContextKeyValue\"N\n\x18GrpcParallelPipelinePart\x12\x32\n\rpipelineParts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"N\n\x19GrpcParallelPipelineParts\x12\x31\n\x08pipeline\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcParallelPipelinePart\"\x97\x01\n$GrpcSimpleContextRequestPipelinePart\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12)\n\x10\x66rontendPartUuid\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcUuid\x12 \n\x18\x66rontendPipelinePartName\x18\x03 \x01(\t\"\xce\x01\n%GrpcComplexContextRequestPipelinePart\x12#\n\x04keys\x18\x01 \x03(\x0b\x32\x15.ficus.GrpcContextKey\x12\x33\n\x12\x62\x65\x66orePipelinePart\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcPipelinePart\x12)\n\x10\x66rontendPartUuid\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcUuid\x12 \n\x18\x66rontendPipelinePartName\x18\x04 \x01(\t\"y\n\tGrpcGraph\x12#\n\x05nodes\x18\x01 \x03(\x0b\x32\x14.ficus.GrpcGraphNode\x12#\n\x05\x65\x64ges\x18\x02 \x03(\x0b\x32\x14.ficus.GrpcGraphEdge\x12\"\n\x04kind\x18\x03 \x01(\x0e\x32\x14.ficus.GrpcGraphKind\"\x88\x01\n\rGrpcGraphNode\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\x12\x36\n\x0f\x61\x64\x64itional_data\x18\x03 \x03(\x0b\x32\x1d.ficus.GrpcNodeAdditionalData\x12%\n\x0binner_graph\x18\x04 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\xac\x03\n\x16GrpcNodeAdditionalData\x12&\n\x04none\x18\x01 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x30\n\rsoftware_data\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x38\n\x0cpattern_info\x18\x03 \x01(\x0b\x32 .ficus.GrpcUnderlyingPatternInfoH\x00\x12;\n\ntrace_data\x18\x04 \x01(\x0b\x32%.ficus.GrpcNodeCorrespondingTraceDataH\x00\x12\x34\n\ttime_data\x18\x05 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x12\x42\n\x16multithreaded_fragment\x18\x07 \x01(\x0b\x32 .ficus.GrpcMultithreadedFragmentH\x00\x12?\n\x1aoriginal_event_coordinates\x18\x06 \x01(\x0b\x32\x1b.ficus.GrpcEventCoordinatesB\x06\n\x04\x64\x61ta\"Q\n\x19GrpcMultithreadedFragment\x12\x34\n\x11multithreaded_log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcSimpleEventLog\"@\n\x18GrpcActivityStartEndData\x12\x12\n\nstart_time\x18\x01 \x01(\x04\x12\x10\n\x08\x65nd_time\x18\x02 \x01(\x04\"=\n\x14GrpcEventCoordinates\x12\x10\n\x08trace_id\x18\x02 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x03 \x01(\x04\"B\n\x1eGrpcNodeCorrespondingTraceData\x12 \n\x18\x62\x65longs_to_root_sequence\x18\x01 \x01(\x08\"\xac\x06\n\x10GrpcSoftwareData\x12,\n\thistogram\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcHistogramEntry\x12\x45\n\x19timeline_diagram_fragment\x18\x02 \x01(\x0b\x32\".ficus.GrpcTimelineDiagramFragment\x12\x33\n\x10\x61llocations_info\x18\x03 \x03(\x0b\x32\x19.ficus.GrpcAllocationInfo\x12\x45\n\x19\x65xecution_suspension_info\x18\x04 \x03(\x0b\x32\".ficus.GrpcExecutionSuspensionInfo\x12\x31\n\rthread_events\x18\x05 \x03(\x0b\x32\x1a.ficus.GrpcThreadEventInfo\x12?\n\x17methods_inlining_events\x18\x06 \x03(\x0b\x32\x1e.ficus.GrpcMethodInliningEvent\x12\x34\n\x11\x61rray_pool_events\x18\x07 \x03(\x0b\x32\x19.ficus.GrpcArrayPoolEvent\x12\x33\n\x10\x65xception_events\x18\x08 \x03(\x0b\x32\x19.ficus.GrpcExceptionEvent\x12)\n\x0bhttp_events\x18\t \x03(\x0b\x32\x14.ficus.GrpcHTTPEvent\x12\x35\n\x11\x63ontention_events\x18\n \x03(\x0b\x32\x1a.ficus.GrpcContentionEvent\x12,\n\x0csocket_event\x18\x0b \x03(\x0b\x32\x16.ficus.GrpcSocketEvent\x12\x44\n\x1amethods_load_unload_events\x18\x0c \x03(\x0b\x32 .ficus.GrpcMethodLoadUnloadEvent\x12\x37\n\x0ehistogram_data\x18\r \x03(\x0b\x32\x1f.ficus.GrpcGeneralHistogramData\x12\x39\n\x13simple_counter_data\x18\x0e \x03(\x0b\x32\x1c.ficus.GrpcSimpleCounterData\"[\n\x18GrpcGeneralHistogramData\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x31\n\x07\x65ntries\x18\x02 \x03(\x0b\x32 .ficus.GrpcGeneralHistogramEntry\"8\n\x19GrpcGeneralHistogramEntry\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"4\n\x15GrpcSimpleCounterData\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"\xad\x01\n\x19GrpcMethodLoadUnloadEvent\x12\x35\n\x11method_name_parts\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\x12&\n\x04load\x18\x02 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12(\n\x06unload\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x42\x07\n\x05\x65vent\"S\n\x1bGrpcExecutionSuspensionInfo\x12\x0e\n\x06reason\x18\x01 \x01(\t\x12\x12\n\nstart_time\x18\x02 \x01(\x04\x12\x10\n\x08\x65nd_time\x18\x03 \x01(\x04\"\xbd\x01\n\x17GrpcMethodInliningEvent\x12\x34\n\rinlining_info\x18\x01 \x01(\x0b\x32\x1d.ficus.GrpcMethodInliningInfo\x12+\n\tsucceeded\x18\x07 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x36\n\x06\x66\x61iled\x18\x08 \x01(\x0b\x32$.ficus.GrpcMethodInliningFailedEventH\x00\x42\x07\n\x05\x65vent\"|\n\x16GrpcMethodInliningInfo\x12\x30\n\x0cinlinee_info\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\x12\x30\n\x0cinliner_info\x18\x02 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\"I\n\x13GrpcMethodNameParts\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tsignature\x18\x03 \x01(\t\"/\n\x1dGrpcMethodInliningFailedEvent\x12\x0e\n\x06reason\x18\x01 \x01(\t\"\x8a\x01\n\x13GrpcThreadEventInfo\x12\x11\n\tthread_id\x18\x01 \x01(\x04\x12)\n\x07\x63reated\x18\x02 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12,\n\nterminated\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x42\x07\n\x05\x65vent\"`\n\x15GrpcAssemblyEventInfo\x12\x15\n\rassembly_name\x18\x01 \x01(\t\x12\x30\n\nevent_kind\x18\x02 \x01(\x0e\x32\x1c.ficus.GrpcAssemblyEventKind\"\x95\x02\n\x12GrpcArrayPoolEvent\x12\x11\n\tbuffer_id\x18\x01 \x01(\x04\x12\x19\n\x11\x62uffer_size_bytes\x18\x02 \x01(\x04\x12\x32\n\x10\x62uffer_allocated\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12/\n\rbuffer_rented\x18\x04 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x31\n\x0f\x62uffer_returned\x18\x05 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x30\n\x0e\x62uffer_trimmed\x18\x06 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x42\x07\n\x05\x65vent\",\n\x12GrpcExceptionEvent\x12\x16\n\x0e\x65xception_type\x18\x01 \x01(\t\"S\n\rGrpcHTTPEvent\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\t\x12\x0e\n\x06scheme\x18\x03 \x01(\t\x12\x16\n\x0epath_and_query\x18\x04 \x01(\t\";\n\x13GrpcContentionEvent\x12\x12\n\nstart_time\x18\x01 \x01(\x04\x12\x10\n\x08\x65nd_time\x18\x02 \x01(\x04\"\xe4\x02\n\x0fGrpcSocketEvent\x12\x36\n\rconnect_start\x18\x01 \x01(\x0b\x32\x1d.ficus.GrpcSocketConnectStartH\x00\x12\x34\n\x0c\x61\x63\x63\x65pt_start\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcSocketAcceptStartH\x00\x12\x34\n\x0c\x63onnect_stop\x18\x03 \x01(\x0b\x32\x1c.ficus.GrpcSocketConnectStopH\x00\x12\x32\n\x0b\x61\x63\x63\x65pt_stop\x18\x04 \x01(\x0b\x32\x1b.ficus.GrpcSocketAcceptStopH\x00\x12\x38\n\x0e\x63onnect_failed\x18\x05 \x01(\x0b\x32\x1e.ficus.GrpcSocketConnectFailedH\x00\x12\x36\n\raccept_failed\x18\x06 \x01(\x0b\x32\x1d.ficus.GrpcSocketAcceptFailedH\x00\x42\x07\n\x05\x65vent\"(\n\x15GrpcSocketAcceptStart\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\t\")\n\x16GrpcSocketConnectStart\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\t\"\x17\n\x15GrpcSocketConnectStop\"\x16\n\x14GrpcSocketAcceptStop\"D\n\x17GrpcSocketConnectFailed\x12\x12\n\nerror_code\x18\x01 \x01(\t\x12\x15\n\rerror_message\x18\x02 \x01(\t\"C\n\x16GrpcSocketAcceptFailed\x12\x12\n\nerror_code\x18\x01 \x01(\t\x12\x15\n\rerror_message\x18\x02 \x01(\t\"1\n\x12GrpcHistogramEntry\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x04\"A\n\x1bGrpcTimelineDiagramFragment\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\"a\n\x12GrpcAllocationInfo\x12\x11\n\ttype_name\x18\x01 \x01(\t\x12\x1f\n\x17\x61llocated_objects_count\x18\x02 \x01(\x04\x12\x17\n\x0f\x61llocated_bytes\x18\x03 \x01(\x04\"\x8b\x01\n\x19GrpcUnderlyingPatternInfo\x12\x36\n\x0cpattern_kind\x18\x01 \x01(\x0e\x32 .ficus.GrpcUnderlyingPatternKind\x12\x15\n\rbase_sequence\x18\x02 \x03(\t\x12\x1f\n\x05graph\x18\x03 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\x9a\x01\n\rGrpcGraphEdge\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x11\n\tfrom_node\x18\x02 \x01(\x04\x12\x0f\n\x07to_node\x18\x03 \x01(\x04\x12\x0e\n\x06weight\x18\x04 \x01(\x01\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\x12;\n\x0f\x61\x64\x64itional_data\x18\x06 \x03(\x0b\x32\".ficus.GrpcGraphEdgeAdditionalData\"\xc5\x01\n\x1bGrpcGraphEdgeAdditionalData\x12\x30\n\rsoftware_data\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x36\n\x0e\x65xecution_info\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcEdgeExecutionInfoH\x00\x12\x34\n\ttime_data\x18\x03 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x42\x06\n\x04\x64\x61ta\"(\n\x15GrpcEdgeExecutionInfo\x12\x0f\n\x07traceId\x18\x01 \x01(\x04\"\x1a\n\tGrpcBytes\x12\r\n\x05\x62ytes\x18\x01 \x01(\x0c\"I\n\x16GrpcLogTimelineDiagram\x12/\n\x06traces\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcTraceTimelineDiagram\"p\n\x1cGrpcTimelineTraceEventsGroup\x12(\n\x0bstart_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12&\n\tend_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\"z\n\x18GrpcTraceTimelineDiagram\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\x12:\n\revents_groups\x18\x02 \x03(\x0b\x32#.ficus.GrpcTimelineTraceEventsGroup\"4\n\nGrpcThread\x12&\n\x06\x65vents\x18\x01 \x03(\x0b\x32\x16.ficus.GrpcThreadEvent\".\n\x0fGrpcThreadEvent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05stamp\x18\x02 \x01(\x04*\"\n\rGrpcGraphKind\x12\x08\n\x04None\x10\x00\x12\x07\n\x03\x44\x41G\x10\x01*2\n\x13GrpcThreadEventKind\x12\x0b\n\x07\x43reated\x10\x00\x12\x0e\n\nTerminated\x10\x01*1\n\x15GrpcAssemblyEventKind\x12\n\n\x06Loaded\x10\x00\x12\x0c\n\x08Unloaded\x10\x01*\xb1\x01\n\x19GrpcUnderlyingPatternKind\x12\x0e\n\nStrictLoop\x10\x00\x12\x18\n\x14PrimitiveTandemArray\x10\x01\x12\x16\n\x12MaximalTandemArray\x10\x02\x12\x11\n\rMaximalRepeat\x10\x03\x12\x16\n\x12SuperMaximalRepeat\x10\x04\x12\x1a\n\x16NearSuperMaximalRepeat\x10\x05\x12\x0b\n\x07Unknown\x10\x06\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bpipelines_and_context.proto\x12\x05\x66icus\x1a\x0fpm_models.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1e\n\x0eGrpcContextKey\x12\x0c\n\x04name\x18\x01 \x01(\t\"W\n\x1bGrpcContextValueWithKeyName\x12\x10\n\x08key_name\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"\xdb\x08\n\x10GrpcContextValue\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12;\n\nhashes_log\x18\x02 \x01(\x0b\x32%.ficus.GrpcHashesEventLogContextValueH\x00\x12\x39\n\tnames_log\x18\x03 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12\x10\n\x06uint32\x18\x04 \x01(\rH\x00\x12J\n\x11traces_sub_arrays\x18\x05 \x01(\x0b\x32-.ficus.GrpcEventLogTraceSubArraysContextValueH\x00\x12P\n\x16trace_index_sub_arrays\x18\x06 \x01(\x0b\x32..ficus.GrpcSubArraysWithTraceIndexContextValueH\x00\x12\x0e\n\x04\x62ool\x18\x07 \x01(\x08H\x00\x12=\n\rxes_event_log\x18\x08 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12/\n\ncolors_log\x18\t \x01(\x0b\x32\x19.ficus.GrpcColorsEventLogH\x00\x12\x1f\n\x04\x65num\x18\n \x01(\x0b\x32\x0f.ficus.GrpcEnumH\x00\x12\x31\n\x0e\x65vent_log_info\x18\x0b \x01(\x0b\x32\x17.ficus.GrpcEventLogInfoH\x00\x12%\n\x07strings\x18\x0c \x01(\x0b\x32\x12.ficus.GrpcStringsH\x00\x12\'\n\x08pipeline\x18\r \x01(\x0b\x32\x13.ficus.GrpcPipelineH\x00\x12\'\n\x08petriNet\x18\x0e \x01(\x0b\x32\x13.ficus.GrpcPetriNetH\x00\x12!\n\x05graph\x18\x0f \x01(\x0b\x32\x10.ficus.GrpcGraphH\x00\x12\x0f\n\x05\x66loat\x18\x10 \x01(\x02H\x00\x12+\n\nannotation\x18\x11 \x01(\x0b\x32\x15.ficus.GrpcAnnotationH\x00\x12%\n\x07\x64\x61taset\x18\x12 \x01(\x0b\x32\x12.ficus.GrpcDatasetH\x00\x12\x34\n\x0flabeled_dataset\x18\x13 \x01(\x0b\x32\x19.ficus.GrpcLabeledDatasetH\x00\x12!\n\x05\x62ytes\x18\x14 \x01(\x0b\x32\x10.ficus.GrpcBytesH\x00\x12;\n\x12logTimelineDiagram\x18\x15 \x01(\x0b\x32\x1d.ficus.GrpcLogTimelineDiagramH\x00\x12,\n\x0b\x66loat_array\x18\x16 \x01(\x0b\x32\x15.ficus.GrpcFloatArrayH\x00\x12(\n\tint_array\x18\x17 \x01(\x0b\x32\x13.ficus.GrpcIntArrayH\x00\x12*\n\nuint_array\x18\x18 \x01(\x0b\x32\x14.ficus.GrpcUintArrayH\x00\x12\x0e\n\x04json\x18\x19 \x01(\tH\x00\x42\x0e\n\x0c\x63ontextValue\"\x1f\n\x0eGrpcFloatArray\x12\r\n\x05items\x18\x01 \x03(\x01\"\x1d\n\x0cGrpcIntArray\x12\r\n\x05items\x18\x01 \x03(\x03\"\x1e\n\rGrpcUintArray\x12\r\n\x05items\x18\x01 \x03(\x04\"a\n\x13GrpcContextKeyValue\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"H\n\x1eGrpcHashesEventLogContextValue\x12&\n\x03log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcHashesEventLog\"F\n\x1dGrpcNamesEventLogContextValue\x12%\n\x03log\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcNamesEventLog\"^\n&GrpcEventLogTraceSubArraysContextValue\x12\x34\n\x11traces_sub_arrays\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcTraceSubArrays\"/\n\x11GrpcTraceSubArray\x12\r\n\x05start\x18\x01 \x01(\r\x12\x0b\n\x03\x65nd\x18\x02 \x01(\r\"B\n\x12GrpcTraceSubArrays\x12,\n\nsub_arrays\x18\x01 \x03(\x0b\x32\x18.ficus.GrpcTraceSubArray\"^\n\x1aGrpcSubArrayWithTraceIndex\x12+\n\tsub_array\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcTraceSubArray\x12\x13\n\x0btrace_index\x18\x02 \x01(\r\"`\n\'GrpcSubArraysWithTraceIndexContextValue\x12\x35\n\nsub_arrays\x18\x01 \x03(\x0b\x32!.ficus.GrpcSubArrayWithTraceIndex\"\xa4\x01\n\x12GrpcColorsEventLog\x12\x31\n\x07mapping\x18\x01 \x03(\x0b\x32 .ficus.GrpcColorsEventLogMapping\x12&\n\x06traces\x18\x02 \x03(\x0b\x32\x16.ficus.GrpcColorsTrace\x12\x33\n\x0b\x61\x64justments\x18\x03 \x03(\x0b\x32\x1e.ficus.GrpcColorsLogAdjustment\"\xba\x01\n\x17GrpcColorsLogAdjustment\x12G\n\x14rectangle_adjustment\x18\x01 \x01(\x0b\x32\'.ficus.GrpcColorsLogRectangleAdjustmentH\x00\x12I\n\x10\x61xis_after_trace\x18\x02 \x01(\x0b\x32-.ficus.GrpcColorsLogXAxisAfterTraceAdjustmentH\x00\x42\x0b\n\tselection\"\xa9\x01\n GrpcColorsLogRectangleAdjustment\x12*\n\rup_left_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12-\n\x10\x64own_right_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12*\n\"extend_to_nearest_vertical_borders\x18\x03 \x01(\x08\"8\n\x0cGrpcLogPoint\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x02 \x01(\x04\"=\n&GrpcColorsLogXAxisAfterTraceAdjustment\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\"J\n\x19GrpcColorsEventLogMapping\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1f\n\x05\x63olor\x18\x02 \x01(\x0b\x32\x10.ficus.GrpcColor\"\\\n\x0fGrpcColorsTrace\x12\x31\n\x0c\x65vent_colors\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcColoredRectangle\x12\x16\n\x0e\x63onstant_width\x18\x02 \x01(\x08\"L\n\x14GrpcColoredRectangle\x12\x13\n\x0b\x63olor_index\x18\x01 \x01(\r\x12\x0f\n\x07start_x\x18\x02 \x01(\x01\x12\x0e\n\x06length\x18\x03 \x01(\x01\"+\n\x08GrpcEnum\x12\x10\n\x08\x65numType\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"[\n\x10GrpcEventLogInfo\x12\x14\n\x0c\x65vents_count\x18\x01 \x01(\r\x12\x14\n\x0ctraces_count\x18\x02 \x01(\r\x12\x1b\n\x13\x65vent_classes_count\x18\x03 \x01(\r\"\x1e\n\x0bGrpcStrings\x12\x0f\n\x07strings\x18\x01 \x03(\t\":\n\x0cGrpcPipeline\x12*\n\x05parts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"\xab\x02\n\x14GrpcPipelinePartBase\x12.\n\x0b\x64\x65\x66\x61ultPart\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcPipelinePartH\x00\x12\x37\n\x0cparallelPart\x18\x02 \x01(\x0b\x32\x1f.ficus.GrpcParallelPipelinePartH\x00\x12O\n\x18simpleContextRequestPart\x18\x03 \x01(\x0b\x32+.ficus.GrpcSimpleContextRequestPipelinePartH\x00\x12Q\n\x19\x63omplexContextRequestPart\x18\x04 \x01(\x0b\x32,.ficus.GrpcComplexContextRequestPipelinePartH\x00\x42\x06\n\x04part\"]\n\x10GrpcPipelinePart\x12\x0c\n\x04name\x18\x01 \x01(\t\x12;\n\rconfiguration\x18\x02 \x01(\x0b\x32$.ficus.GrpcPipelinePartConfiguration\"\\\n\x1dGrpcPipelinePartConfiguration\x12;\n\x17\x63onfigurationParameters\x18\x01 \x03(\x0b\x32\x1a.ficus.GrpcContextKeyValue\"N\n\x18GrpcParallelPipelinePart\x12\x32\n\rpipelineParts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"N\n\x19GrpcParallelPipelineParts\x12\x31\n\x08pipeline\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcParallelPipelinePart\"\x97\x01\n$GrpcSimpleContextRequestPipelinePart\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12)\n\x10\x66rontendPartUuid\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcUuid\x12 \n\x18\x66rontendPipelinePartName\x18\x03 \x01(\t\"\xce\x01\n%GrpcComplexContextRequestPipelinePart\x12#\n\x04keys\x18\x01 \x03(\x0b\x32\x15.ficus.GrpcContextKey\x12\x33\n\x12\x62\x65\x66orePipelinePart\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcPipelinePart\x12)\n\x10\x66rontendPartUuid\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcUuid\x12 \n\x18\x66rontendPipelinePartName\x18\x04 \x01(\t\"y\n\tGrpcGraph\x12#\n\x05nodes\x18\x01 \x03(\x0b\x32\x14.ficus.GrpcGraphNode\x12#\n\x05\x65\x64ges\x18\x02 \x03(\x0b\x32\x14.ficus.GrpcGraphEdge\x12\"\n\x04kind\x18\x03 \x01(\x0e\x32\x14.ficus.GrpcGraphKind\"\x88\x01\n\rGrpcGraphNode\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\x12\x36\n\x0f\x61\x64\x64itional_data\x18\x03 \x03(\x0b\x32\x1d.ficus.GrpcNodeAdditionalData\x12%\n\x0binner_graph\x18\x04 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\xac\x03\n\x16GrpcNodeAdditionalData\x12&\n\x04none\x18\x01 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x30\n\rsoftware_data\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x38\n\x0cpattern_info\x18\x03 \x01(\x0b\x32 .ficus.GrpcUnderlyingPatternInfoH\x00\x12;\n\ntrace_data\x18\x04 \x01(\x0b\x32%.ficus.GrpcNodeCorrespondingTraceDataH\x00\x12\x34\n\ttime_data\x18\x05 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x12\x42\n\x16multithreaded_fragment\x18\x07 \x01(\x0b\x32 .ficus.GrpcMultithreadedFragmentH\x00\x12?\n\x1aoriginal_event_coordinates\x18\x06 \x01(\x0b\x32\x1b.ficus.GrpcEventCoordinatesB\x06\n\x04\x64\x61ta\"Q\n\x19GrpcMultithreadedFragment\x12\x34\n\x11multithreaded_log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcSimpleEventLog\"@\n\x18GrpcActivityStartEndData\x12\x12\n\nstart_time\x18\x01 \x01(\x04\x12\x10\n\x08\x65nd_time\x18\x02 \x01(\x04\"=\n\x14GrpcEventCoordinates\x12\x10\n\x08trace_id\x18\x02 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x03 \x01(\x04\"B\n\x1eGrpcNodeCorrespondingTraceData\x12 \n\x18\x62\x65longs_to_root_sequence\x18\x01 \x01(\x08\"\xac\x06\n\x10GrpcSoftwareData\x12,\n\thistogram\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcHistogramEntry\x12\x45\n\x19timeline_diagram_fragment\x18\x02 \x01(\x0b\x32\".ficus.GrpcTimelineDiagramFragment\x12\x33\n\x10\x61llocations_info\x18\x03 \x03(\x0b\x32\x19.ficus.GrpcAllocationInfo\x12\x45\n\x19\x65xecution_suspension_info\x18\x04 \x03(\x0b\x32\".ficus.GrpcExecutionSuspensionInfo\x12\x31\n\rthread_events\x18\x05 \x03(\x0b\x32\x1a.ficus.GrpcThreadEventInfo\x12?\n\x17methods_inlining_events\x18\x06 \x03(\x0b\x32\x1e.ficus.GrpcMethodInliningEvent\x12\x34\n\x11\x61rray_pool_events\x18\x07 \x03(\x0b\x32\x19.ficus.GrpcArrayPoolEvent\x12\x33\n\x10\x65xception_events\x18\x08 \x03(\x0b\x32\x19.ficus.GrpcExceptionEvent\x12)\n\x0bhttp_events\x18\t \x03(\x0b\x32\x14.ficus.GrpcHTTPEvent\x12\x35\n\x11\x63ontention_events\x18\n \x03(\x0b\x32\x1a.ficus.GrpcContentionEvent\x12,\n\x0csocket_event\x18\x0b \x03(\x0b\x32\x16.ficus.GrpcSocketEvent\x12\x44\n\x1amethods_load_unload_events\x18\x0c \x03(\x0b\x32 .ficus.GrpcMethodLoadUnloadEvent\x12\x37\n\x0ehistogram_data\x18\r \x03(\x0b\x32\x1f.ficus.GrpcGeneralHistogramData\x12\x39\n\x13simple_counter_data\x18\x0e \x03(\x0b\x32\x1c.ficus.GrpcSimpleCounterData\"T\n\x18GrpcGeneralHistogramData\x12\x0c\n\x04name\x18\x01 \x01(\t\x12*\n\x07\x65ntries\x18\x02 \x03(\x0b\x32\x19.ficus.GrpcHistogramEntry\"4\n\x15GrpcSimpleCounterData\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"\xad\x01\n\x19GrpcMethodLoadUnloadEvent\x12\x35\n\x11method_name_parts\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\x12&\n\x04load\x18\x02 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12(\n\x06unload\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x42\x07\n\x05\x65vent\"S\n\x1bGrpcExecutionSuspensionInfo\x12\x0e\n\x06reason\x18\x01 \x01(\t\x12\x12\n\nstart_time\x18\x02 \x01(\x04\x12\x10\n\x08\x65nd_time\x18\x03 \x01(\x04\"\xbd\x01\n\x17GrpcMethodInliningEvent\x12\x34\n\rinlining_info\x18\x01 \x01(\x0b\x32\x1d.ficus.GrpcMethodInliningInfo\x12+\n\tsucceeded\x18\x07 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x36\n\x06\x66\x61iled\x18\x08 \x01(\x0b\x32$.ficus.GrpcMethodInliningFailedEventH\x00\x42\x07\n\x05\x65vent\"|\n\x16GrpcMethodInliningInfo\x12\x30\n\x0cinlinee_info\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\x12\x30\n\x0cinliner_info\x18\x02 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\"I\n\x13GrpcMethodNameParts\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tsignature\x18\x03 \x01(\t\"/\n\x1dGrpcMethodInliningFailedEvent\x12\x0e\n\x06reason\x18\x01 \x01(\t\"\x8a\x01\n\x13GrpcThreadEventInfo\x12\x11\n\tthread_id\x18\x01 \x01(\x04\x12)\n\x07\x63reated\x18\x02 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12,\n\nterminated\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x42\x07\n\x05\x65vent\"`\n\x15GrpcAssemblyEventInfo\x12\x15\n\rassembly_name\x18\x01 \x01(\t\x12\x30\n\nevent_kind\x18\x02 \x01(\x0e\x32\x1c.ficus.GrpcAssemblyEventKind\"\x95\x02\n\x12GrpcArrayPoolEvent\x12\x11\n\tbuffer_id\x18\x01 \x01(\x04\x12\x19\n\x11\x62uffer_size_bytes\x18\x02 \x01(\x04\x12\x32\n\x10\x62uffer_allocated\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12/\n\rbuffer_rented\x18\x04 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x31\n\x0f\x62uffer_returned\x18\x05 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x30\n\x0e\x62uffer_trimmed\x18\x06 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x42\x07\n\x05\x65vent\",\n\x12GrpcExceptionEvent\x12\x16\n\x0e\x65xception_type\x18\x01 \x01(\t\"S\n\rGrpcHTTPEvent\x12\x0c\n\x04host\x18\x01 \x01(\t\x12\x0c\n\x04port\x18\x02 \x01(\t\x12\x0e\n\x06scheme\x18\x03 \x01(\t\x12\x16\n\x0epath_and_query\x18\x04 \x01(\t\";\n\x13GrpcContentionEvent\x12\x12\n\nstart_time\x18\x01 \x01(\x04\x12\x10\n\x08\x65nd_time\x18\x02 \x01(\x04\"\xe4\x02\n\x0fGrpcSocketEvent\x12\x36\n\rconnect_start\x18\x01 \x01(\x0b\x32\x1d.ficus.GrpcSocketConnectStartH\x00\x12\x34\n\x0c\x61\x63\x63\x65pt_start\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcSocketAcceptStartH\x00\x12\x34\n\x0c\x63onnect_stop\x18\x03 \x01(\x0b\x32\x1c.ficus.GrpcSocketConnectStopH\x00\x12\x32\n\x0b\x61\x63\x63\x65pt_stop\x18\x04 \x01(\x0b\x32\x1b.ficus.GrpcSocketAcceptStopH\x00\x12\x38\n\x0e\x63onnect_failed\x18\x05 \x01(\x0b\x32\x1e.ficus.GrpcSocketConnectFailedH\x00\x12\x36\n\raccept_failed\x18\x06 \x01(\x0b\x32\x1d.ficus.GrpcSocketAcceptFailedH\x00\x42\x07\n\x05\x65vent\"(\n\x15GrpcSocketAcceptStart\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\t\")\n\x16GrpcSocketConnectStart\x12\x0f\n\x07\x61\x64\x64ress\x18\x01 \x01(\t\"\x17\n\x15GrpcSocketConnectStop\"\x16\n\x14GrpcSocketAcceptStop\"D\n\x17GrpcSocketConnectFailed\x12\x12\n\nerror_code\x18\x01 \x01(\t\x12\x15\n\rerror_message\x18\x02 \x01(\t\"C\n\x16GrpcSocketAcceptFailed\x12\x12\n\nerror_code\x18\x01 \x01(\t\x12\x15\n\rerror_message\x18\x02 \x01(\t\"1\n\x12GrpcHistogramEntry\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"A\n\x1bGrpcTimelineDiagramFragment\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\"a\n\x12GrpcAllocationInfo\x12\x11\n\ttype_name\x18\x01 \x01(\t\x12\x1f\n\x17\x61llocated_objects_count\x18\x02 \x01(\x04\x12\x17\n\x0f\x61llocated_bytes\x18\x03 \x01(\x04\"\x8b\x01\n\x19GrpcUnderlyingPatternInfo\x12\x36\n\x0cpattern_kind\x18\x01 \x01(\x0e\x32 .ficus.GrpcUnderlyingPatternKind\x12\x15\n\rbase_sequence\x18\x02 \x03(\t\x12\x1f\n\x05graph\x18\x03 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\x9a\x01\n\rGrpcGraphEdge\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x11\n\tfrom_node\x18\x02 \x01(\x04\x12\x0f\n\x07to_node\x18\x03 \x01(\x04\x12\x0e\n\x06weight\x18\x04 \x01(\x01\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\x12;\n\x0f\x61\x64\x64itional_data\x18\x06 \x03(\x0b\x32\".ficus.GrpcGraphEdgeAdditionalData\"\xc5\x01\n\x1bGrpcGraphEdgeAdditionalData\x12\x30\n\rsoftware_data\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x36\n\x0e\x65xecution_info\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcEdgeExecutionInfoH\x00\x12\x34\n\ttime_data\x18\x03 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x42\x06\n\x04\x64\x61ta\"(\n\x15GrpcEdgeExecutionInfo\x12\x0f\n\x07traceId\x18\x01 \x01(\x04\"\x1a\n\tGrpcBytes\x12\r\n\x05\x62ytes\x18\x01 \x01(\x0c\"I\n\x16GrpcLogTimelineDiagram\x12/\n\x06traces\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcTraceTimelineDiagram\"p\n\x1cGrpcTimelineTraceEventsGroup\x12(\n\x0bstart_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12&\n\tend_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\"z\n\x18GrpcTraceTimelineDiagram\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\x12:\n\revents_groups\x18\x02 \x03(\x0b\x32#.ficus.GrpcTimelineTraceEventsGroup\"4\n\nGrpcThread\x12&\n\x06\x65vents\x18\x01 \x03(\x0b\x32\x16.ficus.GrpcThreadEvent\".\n\x0fGrpcThreadEvent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05stamp\x18\x02 \x01(\x04*\"\n\rGrpcGraphKind\x12\x08\n\x04None\x10\x00\x12\x07\n\x03\x44\x41G\x10\x01*2\n\x13GrpcThreadEventKind\x12\x0b\n\x07\x43reated\x10\x00\x12\x0e\n\nTerminated\x10\x01*1\n\x15GrpcAssemblyEventKind\x12\n\n\x06Loaded\x10\x00\x12\x0c\n\x08Unloaded\x10\x01*\xb1\x01\n\x19GrpcUnderlyingPatternKind\x12\x0e\n\nStrictLoop\x10\x00\x12\x18\n\x14PrimitiveTandemArray\x10\x01\x12\x16\n\x12MaximalTandemArray\x10\x02\x12\x11\n\rMaximalRepeat\x10\x03\x12\x16\n\x12SuperMaximalRepeat\x10\x04\x12\x1a\n\x16NearSuperMaximalRepeat\x10\x05\x12\x0b\n\x07Unknown\x10\x06\x62\x06proto3')
 
 
 
@@ -48,21 +48,21 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
 
-  _globals['_GRPCGRAPHKIND']._serialized_start=9464
+  _globals['_GRPCGRAPHKIND']._serialized_start=9399
 
-  _globals['_GRPCGRAPHKIND']._serialized_end=9498
+  _globals['_GRPCGRAPHKIND']._serialized_end=9433
 
-  _globals['_GRPCTHREADEVENTKIND']._serialized_start=9500
+  _globals['_GRPCTHREADEVENTKIND']._serialized_start=9435
 
-  _globals['_GRPCTHREADEVENTKIND']._serialized_end=9550
+  _globals['_GRPCTHREADEVENTKIND']._serialized_end=9485
 
-  _globals['_GRPCASSEMBLYEVENTKIND']._serialized_start=9552
+  _globals['_GRPCASSEMBLYEVENTKIND']._serialized_start=9487
 
-  _globals['_GRPCASSEMBLYEVENTKIND']._serialized_end=9601
+  _globals['_GRPCASSEMBLYEVENTKIND']._serialized_end=9536
 
-  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_start=9604
+  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_start=9539
 
-  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_end=9781
+  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_end=9716
 
   _globals['_GRPCCONTEXTKEY']._serialized_start=96
 
@@ -230,142 +230,138 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   _globals['_GRPCGENERALHISTOGRAMDATA']._serialized_start=6012
 
-  _globals['_GRPCGENERALHISTOGRAMDATA']._serialized_end=6103
+  _globals['_GRPCGENERALHISTOGRAMDATA']._serialized_end=6096
 
-  _globals['_GRPCGENERALHISTOGRAMENTRY']._serialized_start=6105
+  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_start=6098
 
-  _globals['_GRPCGENERALHISTOGRAMENTRY']._serialized_end=6161
+  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_end=6150
 
-  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_start=6163
+  _globals['_GRPCMETHODLOADUNLOADEVENT']._serialized_start=6153
 
-  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_end=6215
+  _globals['_GRPCMETHODLOADUNLOADEVENT']._serialized_end=6326
 
-  _globals['_GRPCMETHODLOADUNLOADEVENT']._serialized_start=6218
+  _globals['_GRPCEXECUTIONSUSPENSIONINFO']._serialized_start=6328
 
-  _globals['_GRPCMETHODLOADUNLOADEVENT']._serialized_end=6391
+  _globals['_GRPCEXECUTIONSUSPENSIONINFO']._serialized_end=6411
 
-  _globals['_GRPCEXECUTIONSUSPENSIONINFO']._serialized_start=6393
+  _globals['_GRPCMETHODINLININGEVENT']._serialized_start=6414
 
-  _globals['_GRPCEXECUTIONSUSPENSIONINFO']._serialized_end=6476
+  _globals['_GRPCMETHODINLININGEVENT']._serialized_end=6603
 
-  _globals['_GRPCMETHODINLININGEVENT']._serialized_start=6479
+  _globals['_GRPCMETHODINLININGINFO']._serialized_start=6605
 
-  _globals['_GRPCMETHODINLININGEVENT']._serialized_end=6668
+  _globals['_GRPCMETHODINLININGINFO']._serialized_end=6729
 
-  _globals['_GRPCMETHODINLININGINFO']._serialized_start=6670
+  _globals['_GRPCMETHODNAMEPARTS']._serialized_start=6731
 
-  _globals['_GRPCMETHODINLININGINFO']._serialized_end=6794
+  _globals['_GRPCMETHODNAMEPARTS']._serialized_end=6804
 
-  _globals['_GRPCMETHODNAMEPARTS']._serialized_start=6796
+  _globals['_GRPCMETHODINLININGFAILEDEVENT']._serialized_start=6806
 
-  _globals['_GRPCMETHODNAMEPARTS']._serialized_end=6869
+  _globals['_GRPCMETHODINLININGFAILEDEVENT']._serialized_end=6853
 
-  _globals['_GRPCMETHODINLININGFAILEDEVENT']._serialized_start=6871
+  _globals['_GRPCTHREADEVENTINFO']._serialized_start=6856
 
-  _globals['_GRPCMETHODINLININGFAILEDEVENT']._serialized_end=6918
+  _globals['_GRPCTHREADEVENTINFO']._serialized_end=6994
 
-  _globals['_GRPCTHREADEVENTINFO']._serialized_start=6921
+  _globals['_GRPCASSEMBLYEVENTINFO']._serialized_start=6996
 
-  _globals['_GRPCTHREADEVENTINFO']._serialized_end=7059
+  _globals['_GRPCASSEMBLYEVENTINFO']._serialized_end=7092
 
-  _globals['_GRPCASSEMBLYEVENTINFO']._serialized_start=7061
+  _globals['_GRPCARRAYPOOLEVENT']._serialized_start=7095
 
-  _globals['_GRPCASSEMBLYEVENTINFO']._serialized_end=7157
+  _globals['_GRPCARRAYPOOLEVENT']._serialized_end=7372
 
-  _globals['_GRPCARRAYPOOLEVENT']._serialized_start=7160
+  _globals['_GRPCEXCEPTIONEVENT']._serialized_start=7374
 
-  _globals['_GRPCARRAYPOOLEVENT']._serialized_end=7437
+  _globals['_GRPCEXCEPTIONEVENT']._serialized_end=7418
 
-  _globals['_GRPCEXCEPTIONEVENT']._serialized_start=7439
+  _globals['_GRPCHTTPEVENT']._serialized_start=7420
 
-  _globals['_GRPCEXCEPTIONEVENT']._serialized_end=7483
+  _globals['_GRPCHTTPEVENT']._serialized_end=7503
 
-  _globals['_GRPCHTTPEVENT']._serialized_start=7485
+  _globals['_GRPCCONTENTIONEVENT']._serialized_start=7505
 
-  _globals['_GRPCHTTPEVENT']._serialized_end=7568
+  _globals['_GRPCCONTENTIONEVENT']._serialized_end=7564
 
-  _globals['_GRPCCONTENTIONEVENT']._serialized_start=7570
+  _globals['_GRPCSOCKETEVENT']._serialized_start=7567
 
-  _globals['_GRPCCONTENTIONEVENT']._serialized_end=7629
+  _globals['_GRPCSOCKETEVENT']._serialized_end=7923
 
-  _globals['_GRPCSOCKETEVENT']._serialized_start=7632
+  _globals['_GRPCSOCKETACCEPTSTART']._serialized_start=7925
 
-  _globals['_GRPCSOCKETEVENT']._serialized_end=7988
+  _globals['_GRPCSOCKETACCEPTSTART']._serialized_end=7965
 
-  _globals['_GRPCSOCKETACCEPTSTART']._serialized_start=7990
+  _globals['_GRPCSOCKETCONNECTSTART']._serialized_start=7967
 
-  _globals['_GRPCSOCKETACCEPTSTART']._serialized_end=8030
+  _globals['_GRPCSOCKETCONNECTSTART']._serialized_end=8008
 
-  _globals['_GRPCSOCKETCONNECTSTART']._serialized_start=8032
+  _globals['_GRPCSOCKETCONNECTSTOP']._serialized_start=8010
 
-  _globals['_GRPCSOCKETCONNECTSTART']._serialized_end=8073
+  _globals['_GRPCSOCKETCONNECTSTOP']._serialized_end=8033
 
-  _globals['_GRPCSOCKETCONNECTSTOP']._serialized_start=8075
+  _globals['_GRPCSOCKETACCEPTSTOP']._serialized_start=8035
 
-  _globals['_GRPCSOCKETCONNECTSTOP']._serialized_end=8098
+  _globals['_GRPCSOCKETACCEPTSTOP']._serialized_end=8057
 
-  _globals['_GRPCSOCKETACCEPTSTOP']._serialized_start=8100
+  _globals['_GRPCSOCKETCONNECTFAILED']._serialized_start=8059
 
-  _globals['_GRPCSOCKETACCEPTSTOP']._serialized_end=8122
+  _globals['_GRPCSOCKETCONNECTFAILED']._serialized_end=8127
 
-  _globals['_GRPCSOCKETCONNECTFAILED']._serialized_start=8124
+  _globals['_GRPCSOCKETACCEPTFAILED']._serialized_start=8129
 
-  _globals['_GRPCSOCKETCONNECTFAILED']._serialized_end=8192
+  _globals['_GRPCSOCKETACCEPTFAILED']._serialized_end=8196
 
-  _globals['_GRPCSOCKETACCEPTFAILED']._serialized_start=8194
+  _globals['_GRPCHISTOGRAMENTRY']._serialized_start=8198
 
-  _globals['_GRPCSOCKETACCEPTFAILED']._serialized_end=8261
+  _globals['_GRPCHISTOGRAMENTRY']._serialized_end=8247
 
-  _globals['_GRPCHISTOGRAMENTRY']._serialized_start=8263
+  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_start=8249
 
-  _globals['_GRPCHISTOGRAMENTRY']._serialized_end=8312
+  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_end=8314
 
-  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_start=8314
+  _globals['_GRPCALLOCATIONINFO']._serialized_start=8316
 
-  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_end=8379
+  _globals['_GRPCALLOCATIONINFO']._serialized_end=8413
 
-  _globals['_GRPCALLOCATIONINFO']._serialized_start=8381
+  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_start=8416
 
-  _globals['_GRPCALLOCATIONINFO']._serialized_end=8478
+  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_end=8555
 
-  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_start=8481
+  _globals['_GRPCGRAPHEDGE']._serialized_start=8558
 
-  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_end=8620
+  _globals['_GRPCGRAPHEDGE']._serialized_end=8712
 
-  _globals['_GRPCGRAPHEDGE']._serialized_start=8623
+  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_start=8715
 
-  _globals['_GRPCGRAPHEDGE']._serialized_end=8777
+  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_end=8912
 
-  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_start=8780
+  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_start=8914
 
-  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_end=8977
+  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_end=8954
 
-  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_start=8979
+  _globals['_GRPCBYTES']._serialized_start=8956
 
-  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_end=9019
+  _globals['_GRPCBYTES']._serialized_end=8982
 
-  _globals['_GRPCBYTES']._serialized_start=9021
+  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_start=8984
 
-  _globals['_GRPCBYTES']._serialized_end=9047
+  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_end=9057
 
-  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_start=9049
+  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_start=9059
 
-  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_end=9122
+  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_end=9171
 
-  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_start=9124
+  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_start=9173
 
-  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_end=9236
+  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_end=9295
 
-  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_start=9238
+  _globals['_GRPCTHREAD']._serialized_start=9297
 
-  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_end=9360
+  _globals['_GRPCTHREAD']._serialized_end=9349
 
-  _globals['_GRPCTHREAD']._serialized_start=9362
+  _globals['_GRPCTHREADEVENT']._serialized_start=9351
 
-  _globals['_GRPCTHREAD']._serialized_end=9414
-
-  _globals['_GRPCTHREADEVENT']._serialized_start=9416
-
-  _globals['_GRPCTHREADEVENT']._serialized_end=9462
+  _globals['_GRPCTHREADEVENT']._serialized_end=9397
 
 # @@protoc_insertion_point(module_scope)

@@ -53,7 +53,6 @@ export interface ProtoGrpcType {
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGeneralHistogramData: MessageTypeDefinition
-    GrpcGeneralHistogramEntry: MessageTypeDefinition
     GrpcGetAllSubscriptionsAndPipelinesResponse: MessageTypeDefinition
     GrpcGetContextValueRequest: MessageTypeDefinition
     GrpcGetContextValueResult: MessageTypeDefinition

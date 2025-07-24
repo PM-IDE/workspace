@@ -51,7 +51,6 @@ export interface ProtoGrpcType {
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGeneralHistogramData: MessageTypeDefinition
-    GrpcGeneralHistogramEntry: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition

@@ -450,16 +450,8 @@ class GrpcGeneralHistogramData(_message.Message):
     NAME_FIELD_NUMBER: _ClassVar[int]
     ENTRIES_FIELD_NUMBER: _ClassVar[int]
     name: str
-    entries: _containers.RepeatedCompositeFieldContainer[GrpcGeneralHistogramEntry]
-    def __init__(self, name: _Optional[str] = ..., entries: _Optional[_Iterable[_Union[GrpcGeneralHistogramEntry, _Mapping]]] = ...) -> None: ...
-
-class GrpcGeneralHistogramEntry(_message.Message):
-    __slots__ = ["name", "count"]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    COUNT_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    count: float
-    def __init__(self, name: _Optional[str] = ..., count: _Optional[float] = ...) -> None: ...
+    entries: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
+    def __init__(self, name: _Optional[str] = ..., entries: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ...) -> None: ...
 
 class GrpcSimpleCounterData(_message.Message):
     __slots__ = ["name", "count"]
@@ -640,8 +632,8 @@ class GrpcHistogramEntry(_message.Message):
     NAME_FIELD_NUMBER: _ClassVar[int]
     COUNT_FIELD_NUMBER: _ClassVar[int]
     name: str
-    count: int
-    def __init__(self, name: _Optional[str] = ..., count: _Optional[int] = ...) -> None: ...
+    count: float
+    def __init__(self, name: _Optional[str] = ..., count: _Optional[float] = ...) -> None: ...
 
 class GrpcTimelineDiagramFragment(_message.Message):
     __slots__ = ["threads"]
