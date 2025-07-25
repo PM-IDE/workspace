@@ -267,11 +267,13 @@ message GrpcSoftwareData {
 message GrpcGeneralHistogramData {
   string name = 1;
   repeated GrpcHistogramEntry entries = 2;
+  string units = 3;
 }
 
 message GrpcSimpleCounterData {
   string name = 1;
   double count = 2;
+  string units = 3;
 }
 
 message GrpcMethodLoadUnloadEvent {

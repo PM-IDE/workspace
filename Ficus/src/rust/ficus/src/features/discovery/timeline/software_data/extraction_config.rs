@@ -203,11 +203,13 @@ pub struct AssemblyExtractionConfig {
 pub struct HistogramExtractionConfig {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] grouping_attr: String,
-  #[getset(get = "pub")] count_attr: String
+  #[getset(get = "pub")] count_attr: String,
+  #[getset(get = "pub")] units: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SimpleCountExtractionConfig {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] count_attr: Option<String>,
+  #[getset(get = "pub")] units: String,
 }

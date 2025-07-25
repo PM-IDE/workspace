@@ -1,6 +1,6 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
+use crate::features::discovery::timeline::software_data::extraction_config::{HistogramExtractionConfig, SimpleCountExtractionConfig, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SimpleCounterData, SoftwareData};
 use derive_new::new;
@@ -26,33 +26,31 @@ impl<'a> SoftwareDataExtractor for GeneralHistogramExtractor<'a> {
       .map(|c|
         (
           Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
-          c.info().name(),
-          c.info().count_attr(),
-          c.info().grouping_attr()
+          c.info()
         )
       )
-      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String, &String, &String)>>();
+      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &HistogramExtractionConfig)>>();
 
     let mut result = HashMap::new();
     for event in events {
       if let Some(payload) = event.borrow().payload_map() {
-        for (regex, name, count_attr, grouping_attr) in &regexes {
+        for (regex, config) in &regexes {
           match regex {
             Ok(regex) => {
               if regex.is_match(event.borrow().name()).unwrap_or(false) {
-                let count = if let Some(count) = payload.get(*count_attr) {
+                let count = if let Some(count) = payload.get(config.count_attr()) {
                   parse_or_err::<f64>(count.to_string_repr().as_str())?
                 } else {
                   continue
                 };
 
-                let grouping_value = if let Some(grouping_value) = payload.get(*grouping_attr) {
+                let grouping_value = if let Some(grouping_value) = payload.get(config.grouping_attr()) {
                   grouping_value.to_string_repr()
                 } else {
                   continue
                 };
 
-                *result.entry(name).or_insert(HashMap::new()).entry(grouping_value.to_string()).or_insert(0.) += count;
+                *result.entry(config.name()).or_insert((config.units(), HashMap::new())).1.entry(grouping_value.to_string()).or_insert(0.) += count;
               }
             }
             Err(err) => return Err(err.clone())
@@ -61,9 +59,10 @@ impl<'a> SoftwareDataExtractor for GeneralHistogramExtractor<'a> {
       }
     }
 
-    for (name, counts) in result {
+    for (name, (units, counts)) in result {
       software_data.histograms_mut().push(HistogramData::new(
         name.to_string(),
+        units.to_owned(),
         counts.into_iter().map(|(k, v)| HistogramEntry::new(k, v)).collect(),
       ))
     }
@@ -89,21 +88,20 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
       .map(|c|
         (
           Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
-          c.info().name(),
-          c.info().count_attr().as_ref()
+          c.info()
         )
       )
-      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &String, Option<&String>)>>();
+      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &SimpleCountExtractionConfig)>>();
 
     let mut result = HashMap::new();
     for event in events {
-      for (regex, name, count_attribute) in &regexes {
+      for (regex, config) in &regexes {
         match regex {
           Ok(regex) => {
             if regex.is_match(event.borrow().name()).unwrap_or(false) {
-              let count = if let Some(count_attribute) = count_attribute {
+              let count = if let Some(count_attribute) = config.count_attr().as_ref() {
                 if let Some(payload) = event.borrow().payload_map() {
-                  if let Some(count_value) = payload.get(*count_attribute) {
+                  if let Some(count_value) = payload.get(count_attribute) {
                     parse_or_err::<f64>(count_value.to_string_repr().as_str())?
                   } else {
                     continue;
@@ -115,7 +113,7 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
                 1.
               };
 
-              *result.entry(name.to_string()).or_insert(0.) += count;
+              (*result.entry(config.name().to_string()).or_insert((config.units(), 0.))).1 += count;
             }
           }
           Err(err) => return Err(err.clone())
@@ -123,8 +121,8 @@ impl<'a> SoftwareDataExtractor for SimpleCounterExtractor<'a> {
       }
     }
 
-    for (name, count) in result {
-      software_data.simple_counters_mut().push(SimpleCounterData::new(name, count));
+    for (name, (units, count)) in result {
+      software_data.simple_counters_mut().push(SimpleCounterData::new(name, count, units.to_owned()));
     }
 
     Ok(())

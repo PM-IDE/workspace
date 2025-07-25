@@ -536,11 +536,11 @@ fn test_general_histogram() {
       config.set_histogram_extraction_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          HistogramExtractionConfig::new("g1".to_string(), "type".to_string(), "count".to_string())
+          HistogramExtractionConfig::new("g1".to_string(), "type".to_string(), "count".to_string(), "".to_string())
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          HistogramExtractionConfig::new("g2".to_string(), "type".to_string(), "count".to_string())
+          HistogramExtractionConfig::new("g2".to_string(), "type".to_string(), "count".to_string(), "".to_string())
         )
       ]);
 
@@ -615,11 +615,11 @@ fn test_simple_counter() {
       config.set_simple_counter_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          SimpleCountExtractionConfig::new("counter1".to_string(), None)
+          SimpleCountExtractionConfig::new("counter1".to_string(), None, "".to_string())
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()))
+          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()), "".to_string())
         ),
       ]);
 

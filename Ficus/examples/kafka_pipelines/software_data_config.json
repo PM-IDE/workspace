@@ -192,6 +192,7 @@
   "histogram_extraction_configs": [
     {
       "event_class_regex": "GC\/SampledObject",
+      "units": "bytes",
       "info": {
         "name": "Allocations 2",
         "count_attr": "TotalSizeForTypeSample",
@@ -203,14 +204,16 @@
     {
       "event_class_regex": "Thread/Creating",
       "info": {
-        "name": "Threads Created"
+        "name": "Threads Created",
+        "units": "threads",
       }
     },
     {
       "event_class_regex": "Buffer\/Allocated",
       "info": {
         "name": "Buffer Allocated 2",
-        "count_attr": "bufferSize"
+        "count_attr": "bufferSize",
+        "units": "bytes"
       }
     }
   ],

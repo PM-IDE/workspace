@@ -741,6 +741,7 @@ fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareDa
 fn convert_to_grpc_histogram_data(data: &HistogramData) -> GrpcGeneralHistogramData {
   GrpcGeneralHistogramData {
     name: data.name().to_string(),
+    units: data.units().to_owned(),
     entries: data.entries().iter().map(|e| GrpcHistogramEntry {
       name: e.name().to_string(),
       count: *e.value(),
@@ -752,6 +753,7 @@ fn convert_to_grpc_simple_counter_data(data: &SimpleCounterData) -> GrpcSimpleCo
   GrpcSimpleCounterData {
     name: data.name().to_string(),
     count: *data.value(),
+    units: data.units().to_owned(),
   }
 }
 
