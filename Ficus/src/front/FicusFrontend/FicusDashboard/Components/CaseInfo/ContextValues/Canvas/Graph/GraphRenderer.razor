@@ -50,6 +50,21 @@
 
 @code
 {
+  private class AggregatedData
+  {
+    public double TotalAllocatedBytes { get; set; }
+    public double TotalExecutionTime { get; set; }
+    public double MaxExecutionTime { get; set; }
+
+    public double TotalBufferAllocatedBytes { get; set; }
+    public double TotalBufferRentedBytes { get; set; }
+    public double TotalBufferReturnedBytes { get; set; }
+
+    public Dictionary<string, double> TotalCountersCount { get; set; }
+    public Dictionary<string, double> TotalHistogramsCount { get; set; }
+  }
+
+
   private static string[] ourPredefinedEnhancements =
   [
     "Allocations", "Exceptions", "MethodsLoadUnload", "MethodsInlinings", "ArrayPools", "Http", "Sockets", "Threads"
@@ -71,6 +86,8 @@
   private List<string>? myEnhancements;
   private HashSet<string> mySelectedEnhancements = null!;
   private RadzenCheckBox<bool>[] myCheckBoxes = null!;
+
+  private AggregatedData myAggregatedData;
 
 
   protected override void OnParametersSet()
@@ -150,6 +167,8 @@
       true => factor,
       false => 1
     };
+
+    myAggregatedData = await Js.InvokeAsync<AggregatedData>("createAggregatedData", Graph, Annotation, myFilterValue);
 
     return await Js.InvokeAsync<IJSObjectReference>(
       "drawGraph",

@@ -19,6 +19,20 @@ const graphColor = graphColors(darkTheme);
 export function createGraphElements(graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.ElementDefinition[] {
   let elements: cytoscape.ElementDefinition[] = [];
 
+  let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
+  let aggregatedData = createAggregatedDataInternal(graph, performanceEdgesMap, filter);
+
+  elements.push(...createGraphNodesElements(graph.nodes, filter));
+  elements.push(...createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter));
+
+  for (let element of elements) {
+    (<any>element).data.aggregatedData = aggregatedData;
+  }
+
+  return elements;
+}
+
+function createAggregatedDataInternal(graph: GrpcGraph, performanceMap: Record<number, any>, filter: RegExp | null) {
   let aggregatedData: AggregatedData = {
     totalAllocatedBytes: 0,
     totalExecutionTime: 0,
@@ -31,19 +45,17 @@ export function createGraphElements(graph: GrpcGraph, annotation: GrpcAnnotation
     totalHistogramsCount: new Map()
   };
 
-  let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
-
   processNodesAggregatedData(graph.nodes, aggregatedData, filter);
-  processEdgesAggregatedData(graph.edges, aggregatedData, performanceEdgesMap, filter);
+  processEdgesAggregatedData(graph.edges, aggregatedData, performanceMap, filter);
 
-  elements.push(...createGraphNodesElements(graph.nodes, filter));
-  elements.push(...createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter));
+  return aggregatedData;
+}
 
-  for (let element of elements) {
-    (<any>element).data.aggregatedData = aggregatedData;
-  }
+export function createAggregatedData(graph: GrpcGraph, annotation: GrpcAnnotation, filter: string | null) {
+  let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
+  let regex = filter == null ? null : new RegExp(filter);
 
-  return elements;
+  return createAggregatedDataInternal(graph, performanceEdgesMap, regex);
 }
 
 function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null) {
