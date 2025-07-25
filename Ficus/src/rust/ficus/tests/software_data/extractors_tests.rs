@@ -480,7 +480,7 @@ fn test_sockets_extraction() {
 #[test]
 fn test_general_histogram() {
   execute_test_with_software_data(
-    r#"{"histograms":[{"name":"g1","entries":[{"name":"type1","value":246.0},{"name":"type2","value":123.0}]},{"name":"g2","entries":[{"name":"type1","value":123.0},{"name":"type2","value":123.0}]}]}"#,
+    r#"{"histograms":[{"name":"g1","units":"units","entries":[{"name":"type1","value":246.0},{"name":"type2","value":123.0}]},{"name":"g2","units":"units","entries":[{"name":"type1","value":123.0},{"name":"type2","value":123.0}]}]}"#,
     || {
       let events = [
         create_event_with_attributes(
@@ -536,11 +536,11 @@ fn test_general_histogram() {
       config.set_histogram_extraction_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          HistogramExtractionConfig::new("g1".to_string(), "type".to_string(), "count".to_string(), "".to_string())
+          HistogramExtractionConfig::new("g1".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          HistogramExtractionConfig::new("g2".to_string(), "type".to_string(), "count".to_string(), "".to_string())
+          HistogramExtractionConfig::new("g2".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
         )
       ]);
 
@@ -559,7 +559,7 @@ fn test_general_histogram() {
 #[test]
 fn test_simple_counter() {
   execute_test_with_software_data(
-    r#"{"simple_counters":[{"name":"counter1","value":3.0},{"name":"counter2","value":246.0}]}"#,
+    r#"{"simple_counters":[{"name":"counter1","value":3.0,"units":"units"},{"name":"counter2","value":246.0,"units":"units"}]}"#,
     || {
       let events = [
         create_event_with_attributes(
@@ -615,11 +615,11 @@ fn test_simple_counter() {
       config.set_simple_counter_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          SimpleCountExtractionConfig::new("counter1".to_string(), None, "".to_string())
+          SimpleCountExtractionConfig::new("counter1".to_string(), None, "units".to_string())
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()), "".to_string())
+          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()), "units".to_string())
         ),
       ]);
 
