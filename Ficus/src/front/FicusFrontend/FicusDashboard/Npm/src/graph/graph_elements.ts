@@ -16,11 +16,15 @@ import {AggregatedData, MergedSoftwareData} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
-export function createGraphElements(graph: GrpcGraph, annotation: GrpcAnnotation, filter: RegExp | null): cytoscape.ElementDefinition[] {
+export function createGraphElements(
+  graph: GrpcGraph,
+  annotation: GrpcAnnotation,
+  aggregatedData: AggregatedData,
+  filter: RegExp | null
+): cytoscape.ElementDefinition[] {
   let elements: cytoscape.ElementDefinition[] = [];
 
   let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
-  let aggregatedData = createAggregatedDataInternal(graph, performanceEdgesMap, filter);
 
   elements.push(...createGraphNodesElements(graph.nodes, filter));
   elements.push(...createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter));

@@ -60,8 +60,8 @@
     public double TotalBufferRentedBytes { get; set; }
     public double TotalBufferReturnedBytes { get; set; }
 
-    public Dictionary<string, double> TotalCountersCount { get; set; }
-    public Dictionary<string, double> TotalHistogramsCount { get; set; }
+    public Dictionary<string, double> TotalCountersCount { get; set; } = new();
+    public Dictionary<string, double> TotalHistogramsCount { get; set; } = new();
   }
 
 
@@ -175,6 +175,7 @@
       canvasId,
       Graph,
       Annotation,
+      myAggregatedData,
       enhancements,
       myFilterValue,
       spacingFactor,

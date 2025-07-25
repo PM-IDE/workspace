@@ -5,7 +5,7 @@ import {createEdgeHtmlLabel} from "./labels/edge_html_label";
 import {createAggregatedData, createGraphElements} from "./graph_elements";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
-import {GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
+import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
 import {createLayout} from "./util";
 import {GrpcGraphKind} from "../protos/ficus/GrpcGraphKind";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
@@ -26,14 +26,19 @@ function drawGraph(
   id: string,
   graph: GrpcGraph,
   annotation: GrpcAnnotation,
+  aggregatedData: AggregatedData,
   enhancements: SoftwareEnhancementKind[],
   filter: string | null,
   spacingFactor: number,
   isRichUiGraph: boolean,
   useLROrientation: boolean
 ) {
+  //Dictionary from C# not eventually deserialized to Map in JS)
+  aggregatedData.totalHistogramsCount = new Map<string, number>(Object.entries(aggregatedData.totalHistogramsCount));
+  aggregatedData.totalCountersCount = new Map<string, number>(Object.entries(aggregatedData.totalCountersCount));
+
   let regex = filter == null ? null : new RegExp(filter);
-  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor, isRichUiGraph, useLROrientation));
+  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, aggregatedData, regex, spacingFactor, isRichUiGraph, useLROrientation));
 
   if (isRichUiGraph) {
     setNodeEdgeHtmlRenderer(cy, enhancements);
@@ -87,6 +92,7 @@ function createCytoscapeOptions(
   id: string,
   graph: GrpcGraph,
   annotation: GrpcAnnotation,
+  aggregatedData: AggregatedData,
   filter: RegExp | null,
   spacingFactor: number,
   addLabel: boolean,
@@ -94,7 +100,7 @@ function createCytoscapeOptions(
 ): cytoscape.CytoscapeOptions {
   return {
     container: document.getElementById(id),
-    elements: createGraphElements(graph, annotation, filter),
+    elements: createGraphElements(graph, annotation, aggregatedData, filter),
     layout: createLayout(graph.kind, spacingFactor, useLROrientation),
     style: [
       createNodeStyle(addLabel),
