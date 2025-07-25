@@ -51,6 +51,11 @@ export interface CountAndSum {
   sum: number
 }
 
+export interface ValueWithUnits<T> {
+  value: T
+  units: string
+}
+
 export interface MergedSoftwareData {
   histogram: Map<string, number>,
   timelineDiagramFragments: GrpcTimelineDiagramFragment[],
@@ -74,6 +79,6 @@ export interface MergedSoftwareData {
 
   httpRequests: Map<string, number>,
   
-  histograms: Map<string, Map<string, number>>,
-  counters: Map<string, number>
+  histograms: Map<string, ValueWithUnits<Map<string, number>>>,
+  counters: Map<string, ValueWithUnits<number>>
 }

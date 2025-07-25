@@ -115,11 +115,11 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
     aggregatedData.totalBufferReturnedBytes += softwareData.bufferReturnedBytes.sum;
 
     for (let [name, histogram] of softwareData.histograms.entries()) {
-      increment(aggregatedData.totalHistogramsCount, name, histogram.values().reduce((a, b) => a + b, 0));
+      increment(aggregatedData.totalHistogramsCount, name, histogram.value.values().reduce((a, b) => a + b, 0));
     }
 
     for (let [name, count] of softwareData.counters.entries()) {
-      increment(aggregatedData.totalCountersCount, name, count)
+      increment(aggregatedData.totalCountersCount, name, count.value)
     }
   }
 }

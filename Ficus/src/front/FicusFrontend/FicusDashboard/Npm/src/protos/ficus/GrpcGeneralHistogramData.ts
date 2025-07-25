@@ -5,9 +5,11 @@ import type { GrpcHistogramEntry_DONTUSE as _ficus_GrpcHistogramEntry_DONTUSE, G
 export interface GrpcGeneralHistogramData_DONTUSE {
   'name'?: (string);
   'entries'?: (_ficus_GrpcHistogramEntry_DONTUSE)[];
+  'units'?: (string);
 }
 
 export interface GrpcGeneralHistogramData {
   'name': (string);
   'entries': (_ficus_GrpcHistogramEntry)[];
+  'units': (string);
 }

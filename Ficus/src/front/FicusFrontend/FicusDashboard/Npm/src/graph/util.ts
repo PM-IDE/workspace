@@ -194,10 +194,13 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     for (let histogram of softwareData.histogramData) {
       let histogramMap;
       if (mergedSoftwareData.histograms.has(histogram.name)) {
-        histogramMap = mergedSoftwareData.histograms.get(histogram.name);
+        histogramMap = mergedSoftwareData.histograms.get(histogram.name).value;
       } else {
         histogramMap = new Map();
-        mergedSoftwareData.histograms.set(histogram.name, histogramMap);
+        mergedSoftwareData.histograms.set(histogram.name, {
+          value: histogramMap,
+          units: histogram.units
+        });
       }
 
       for (let data of histogram.entries) {
@@ -206,7 +209,14 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     }
 
     for (let counter of softwareData.simpleCounterData) {
-      increment(mergedSoftwareData.counters, counter.name, counter.count);
+      if (!mergedSoftwareData.counters.has(counter.name)) {
+        mergedSoftwareData.counters.set(counter.name, {
+          value: 0,
+          units: counter.units
+        });
+      }
+      
+      mergedSoftwareData.counters.get(counter.name).value += counter.count;
     }
   }
 

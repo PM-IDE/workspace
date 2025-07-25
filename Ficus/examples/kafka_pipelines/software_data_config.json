@@ -192,11 +192,11 @@
   "histogram_extraction_configs": [
     {
       "event_class_regex": "GC\/SampledObject",
-      "units": "bytes",
       "info": {
         "name": "Allocations 2",
         "count_attr": "TotalSizeForTypeSample",
-        "grouping_attr": "TypeName"
+        "grouping_attr": "TypeName",
+        "units": "bytes"
       }
     }
   ],
@@ -205,7 +205,7 @@
       "event_class_regex": "Thread/Creating",
       "info": {
         "name": "Threads Created",
-        "units": "threads",
+        "units": "threads"
       }
     },
     {

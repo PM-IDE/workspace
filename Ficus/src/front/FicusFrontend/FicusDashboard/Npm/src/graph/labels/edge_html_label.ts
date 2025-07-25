@@ -66,7 +66,7 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       if (softwareData.histograms.has(enhancement)) {
         return createEdgeSoftwareEnhancementPart(
           enhancement,
-          softwareData.histograms.get(enhancement),
+          softwareData.histograms.get(enhancement).value,
           edge.aggregatedData.totalHistogramsCount.get(enhancement)
         );
       }
@@ -76,8 +76,8 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
           enhancement,
           createNumberInformation(
             "",
-            "",
-            softwareData.counters.get(enhancement),
+            softwareData.counters.get(enhancement).units,
+            softwareData.counters.get(enhancement).value,
             edge.aggregatedData.totalCountersCount.get(enhancement)
           )
         );

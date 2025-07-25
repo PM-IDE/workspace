@@ -4,9 +4,11 @@
 export interface GrpcSimpleCounterData_DONTUSE {
   'name'?: (string);
   'count'?: (number | string);
+  'units'?: (string);
 }
 
 export interface GrpcSimpleCounterData {
   'name': (string);
   'count': (number);
+  'units': (string);
 }
