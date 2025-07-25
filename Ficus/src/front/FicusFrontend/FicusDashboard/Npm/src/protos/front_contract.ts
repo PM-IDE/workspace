@@ -16,7 +16,7 @@ export interface ProtoGrpcType {
     GrpcAssemblyEventInfo: MessageTypeDefinition
     GrpcAssemblyEventKind: EnumTypeDefinition
     GrpcBytes: MessageTypeDefinition
-    GrpcCase: MessageTypeDefinition
+    GrpcCaseContextValues: MessageTypeDefinition
     GrpcCaseName: MessageTypeDefinition
     GrpcCasePipelinePartExecutionResult: MessageTypeDefinition
     GrpcColor: MessageTypeDefinition
@@ -34,7 +34,6 @@ export interface ProtoGrpcType {
     GrpcContextValue: MessageTypeDefinition
     GrpcContextValueWithKeyName: MessageTypeDefinition
     GrpcCountAnnotation: MessageTypeDefinition
-    GrpcCurrentCasesResponse: MessageTypeDefinition
     GrpcDataset: MessageTypeDefinition
     GrpcDateTime: MessageTypeDefinition
     GrpcEdgeExecutionInfo: MessageTypeDefinition
@@ -51,6 +50,8 @@ export interface ProtoGrpcType {
     GrpcExecutionSuspensionInfo: MessageTypeDefinition
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
+    GrpcGeneralHistogramData: MessageTypeDefinition
+    GrpcGetPipelineCaseContextValuesRequest: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition
@@ -94,10 +95,11 @@ export interface ProtoGrpcType {
     GrpcPipelinePartConfiguration: MessageTypeDefinition
     GrpcPipelinePartContextValues: MessageTypeDefinition
     GrpcPipelinePartInfo: MessageTypeDefinition
-    GrpcPipelinePartUpdate: MessageTypeDefinition
     GrpcPipelinePartsContextValuesService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcPipelinePartsContextValuesServiceClient> & { service: _ficus_GrpcPipelinePartsContextValuesServiceDefinition }
     GrpcProcessCaseMetadata: MessageTypeDefinition
+    GrpcProcessCaseMetadataWithStamp: MessageTypeDefinition
     GrpcSimpleContextRequestPipelinePart: MessageTypeDefinition
+    GrpcSimpleCounterData: MessageTypeDefinition
     GrpcSimpleEventLog: MessageTypeDefinition
     GrpcSimpleTrace: MessageTypeDefinition
     GrpcSocketAcceptFailed: MessageTypeDefinition
@@ -112,6 +114,7 @@ export interface ProtoGrpcType {
     GrpcStrings: MessageTypeDefinition
     GrpcSubArrayWithTraceIndex: MessageTypeDefinition
     GrpcSubArraysWithTraceIndexContextValue: MessageTypeDefinition
+    GrpcSubscriptionAndPipelinesStateResponse: MessageTypeDefinition
     GrpcThread: MessageTypeDefinition
     GrpcThreadEvent: MessageTypeDefinition
     GrpcThreadEventInfo: MessageTypeDefinition

@@ -9,7 +9,7 @@ static thread_local EventsWithThreadId* ourEvents;
 static std::map<ThreadID, EventsWithThreadId*> ourEventsPerThreads;
 static std::mutex ourEventsPerThreadMutex;
 
-ShadowStack::ShadowStack(ICorProfilerInfo12* profilerInfo, ProcfilerLogger* logger, bool onlineSerialization) {
+ShadowStack::ShadowStack(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger, bool onlineSerialization) {
     myProfilerInfo = profilerInfo;
     myOnlineSerialization = onlineSerialization;
 

@@ -189,6 +189,34 @@
       "path_and_query_attr": "pathAndQuery"
     }
   },
+  "histogram_extraction_configs": [
+    {
+      "event_class_regex": "GC\/SampledObject",
+      "info": {
+        "name": "Allocations 2",
+        "count_attr": "TotalSizeForTypeSample",
+        "grouping_attr": "TypeName",
+        "units": "bytes"
+      }
+    }
+  ],
+  "simple_counter_configs": [
+    {
+      "event_class_regex": "Thread/Creating",
+      "info": {
+        "name": "Threads Created",
+        "units": "threads"
+      }
+    },
+    {
+      "event_class_regex": "Buffer\/Allocated",
+      "info": {
+        "name": "Buffer Allocated 2",
+        "count_attr": "bufferSize",
+        "units": "bytes"
+      }
+    }
+  ],
   "raw_control_flow_regexes": [
     "BusinessEvent"
   ]

@@ -9,7 +9,7 @@
 class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
 private:
     ProcfilerLogger* myLogger;
-    ICorProfilerInfo12* myProfilerInfo;
+    ICorProfilerInfo15* myProfilerInfo;
     std::atomic<int> myRefCount;
     EventPipeWriter* myWriter;
 
@@ -19,19 +19,11 @@ public:
     explicit ProcfilerCorProfilerCallback();
     ~ProcfilerCorProfilerCallback();
 
-    ICorProfilerInfo12* GetProfilerInfo() const;
+    ICorProfilerInfo15* GetProfilerInfo() const;
 
-    void HandleFunctionEnter2(FunctionID funcId,
-                              UINT_PTR clientData,
-                              COR_PRF_FRAME_INFO func,
-                              COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) const;
-
-    void HandleFunctionLeave2(FunctionID funcId,
-                              UINT_PTR clientData,
-                              COR_PRF_FRAME_INFO func,
-                              COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange) const;
-
-    void HandleFunctionTailCall(FunctionID funcId, UINT_PTR clientData, COR_PRF_FRAME_INFO func) const;
+    void HandleFunctionEnter2(FunctionID funcId) const;
+    void HandleFunctionLeave2(FunctionID funcId) const;
+    void HandleFunctionTailCall(FunctionID funcId) const;
 
     HRESULT STDMETHODCALLTYPE Initialize(IUnknown* pICorProfilerInfoUnk) override;
     HRESULT STDMETHODCALLTYPE Shutdown() override;

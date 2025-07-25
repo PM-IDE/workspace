@@ -7,13 +7,13 @@ namespace Procfiler.Core.Processes;
 
 public interface IDotnetProcessLauncher
 {
-  Process? TryStartDotnetProcess(DotnetProcessLauncherDto launcherDto);
+  void TryStartDotnetProcess(DotnetProcessLauncherDto launcherDto, Action<Process> actionWithProcess);
 }
 
 [AppComponent]
 public class DotnetProcessLauncher(IProcfilerLogger logger) : IDotnetProcessLauncher
 {
-  public Process? TryStartDotnetProcess(DotnetProcessLauncherDto launcherDto)
+  public void TryStartDotnetProcess(DotnetProcessLauncherDto launcherDto, Action<Process> actionWithProcess)
   {
     var startInfo = new ProcessStartInfo
     {
@@ -39,7 +39,7 @@ public class DotnetProcessLauncher(IProcfilerLogger logger) : IDotnetProcessLaun
       if (launcherDto.BinaryStacksSavePath is null)
       {
         logger.LogError("BinaryStacksSavePath was null even when UseCppProfiler was true");
-        return null;
+        return;
       }
 
       logger.LogInformation("Binary stack save path {Path}", launcherDto.BinaryStacksSavePath);
@@ -71,7 +71,7 @@ public class DotnetProcessLauncher(IProcfilerLogger logger) : IDotnetProcessLaun
       }
     }
 
-    var process = new Process
+    using var process = new Process
     {
       StartInfo = startInfo
     };
@@ -79,12 +79,12 @@ public class DotnetProcessLauncher(IProcfilerLogger logger) : IDotnetProcessLaun
     if (!process.Start())
     {
       logger.LogError("Failed to start process {Path}", launcherDto.PathToDotnetExecutable);
-      return null;
+      return;
     }
 
-    logger.LogInformation("Started process: {Id} {Path} {Arguments}", process.Id, launcherDto.PathToDotnetExecutable,
-      startInfo.Arguments);
+    logger.LogInformation(
+      "Started process: {Id} {Path} {Arguments}", process.Id, launcherDto.PathToDotnetExecutable, startInfo.Arguments);
 
-    return process;
+    actionWithProcess(process);
   }
 }

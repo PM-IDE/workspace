@@ -48,7 +48,7 @@ public:
 
 
     static FunctionInfo GetFunctionInfo(IMetaDataImport2* metadataImport, mdToken token);
-    static FunctionInfo GetFunctionInfo(ICorProfilerInfo12* info, FunctionID funcId);
+    static FunctionInfo GetFunctionInfo(ICorProfilerInfo15* info, FunctionID funcId);
 
     std::string GetFullName();
     mdToken GetId();

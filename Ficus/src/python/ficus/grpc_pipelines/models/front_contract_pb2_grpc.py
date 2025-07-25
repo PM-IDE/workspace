@@ -32,13 +32,23 @@ class GrpcPipelinePartsContextValuesServiceStub(object):
 
         """
 
-        self.StartUpdatesStream = channel.unary_stream(
+        self.GetSubscriptionAndPipelinesState = channel.unary_unary(
 
-                '/ficus.GrpcPipelinePartsContextValuesService/StartUpdatesStream',
+                '/ficus.GrpcPipelinePartsContextValuesService/GetSubscriptionAndPipelinesState',
 
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
 
-                response_deserializer=front__contract__pb2.GrpcPipelinePartUpdate.FromString,
+                response_deserializer=front__contract__pb2.GrpcSubscriptionAndPipelinesStateResponse.FromString,
+
+                )
+
+        self.GetPipelineCaseContextValue = channel.unary_unary(
+
+                '/ficus.GrpcPipelinePartsContextValuesService/GetPipelineCaseContextValue',
+
+                request_serializer=front__contract__pb2.GrpcGetPipelineCaseContextValuesRequest.SerializeToString,
+
+                response_deserializer=front__contract__pb2.GrpcCaseContextValues.FromString,
 
                 )
 
@@ -52,7 +62,19 @@ class GrpcPipelinePartsContextValuesServiceServicer(object):
 
 
 
-    def StartUpdatesStream(self, request, context):
+    def GetSubscriptionAndPipelinesState(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def GetPipelineCaseContextValue(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -70,13 +92,23 @@ def add_GrpcPipelinePartsContextValuesServiceServicer_to_server(servicer, server
 
     rpc_method_handlers = {
 
-            'StartUpdatesStream': grpc.unary_stream_rpc_method_handler(
+            'GetSubscriptionAndPipelinesState': grpc.unary_unary_rpc_method_handler(
 
-                    servicer.StartUpdatesStream,
+                    servicer.GetSubscriptionAndPipelinesState,
 
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
 
-                    response_serializer=front__contract__pb2.GrpcPipelinePartUpdate.SerializeToString,
+                    response_serializer=front__contract__pb2.GrpcSubscriptionAndPipelinesStateResponse.SerializeToString,
+
+            ),
+
+            'GetPipelineCaseContextValue': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.GetPipelineCaseContextValue,
+
+                    request_deserializer=front__contract__pb2.GrpcGetPipelineCaseContextValuesRequest.FromString,
+
+                    response_serializer=front__contract__pb2.GrpcCaseContextValues.SerializeToString,
 
             ),
 
@@ -102,7 +134,7 @@ class GrpcPipelinePartsContextValuesService(object):
 
     @staticmethod
 
-    def StartUpdatesStream(request,
+    def GetSubscriptionAndPipelinesState(request,
 
             target,
 
@@ -122,11 +154,45 @@ class GrpcPipelinePartsContextValuesService(object):
 
             metadata=None):
 
-        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcPipelinePartsContextValuesService/StartUpdatesStream',
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcPipelinePartsContextValuesService/GetSubscriptionAndPipelinesState',
 
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
 
-            front__contract__pb2.GrpcPipelinePartUpdate.FromString,
+            front__contract__pb2.GrpcSubscriptionAndPipelinesStateResponse.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def GetPipelineCaseContextValue(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcPipelinePartsContextValuesService/GetPipelineCaseContextValue',
+
+            front__contract__pb2.GrpcGetPipelineCaseContextValuesRequest.SerializeToString,
+
+            front__contract__pb2.GrpcCaseContextValues.FromString,
 
             options, channel_credentials,
 

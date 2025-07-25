@@ -48,6 +48,7 @@ export interface ProtoGrpcType {
     GrpcExecutionSuspensionInfo: MessageTypeDefinition
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
+    GrpcGeneralHistogramData: MessageTypeDefinition
     GrpcGetContextValueRequest: MessageTypeDefinition
     GrpcGetContextValueResult: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
@@ -97,6 +98,7 @@ export interface ProtoGrpcType {
     GrpcPipelinePartResult: MessageTypeDefinition
     GrpcProxyPipelineExecutionRequest: MessageTypeDefinition
     GrpcSimpleContextRequestPipelinePart: MessageTypeDefinition
+    GrpcSimpleCounterData: MessageTypeDefinition
     GrpcSimpleEventLog: MessageTypeDefinition
     GrpcSimpleTrace: MessageTypeDefinition
     GrpcSocketAcceptFailed: MessageTypeDefinition

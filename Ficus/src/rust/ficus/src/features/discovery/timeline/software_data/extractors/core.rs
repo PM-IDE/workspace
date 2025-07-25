@@ -12,7 +12,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::rc::Rc;
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SoftwareDataExtractionError {
   FailedToParseRegex(String),
   FailedToParseValue(String),

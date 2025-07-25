@@ -1,9 +1,9 @@
+use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
@@ -42,6 +42,9 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")] method_end: Option<ExtractionConfig<MethodStartEndConfig>>,
 
   #[getset(get = "pub", set = "pub")] raw_control_flow_regexes: Vec<String>,
+
+  #[getset(get = "pub", set = "pub")] histogram_extraction_configs: Vec<ExtractionConfig<HistogramExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")] simple_counter_configs: Vec<ExtractionConfig<SimpleCountExtractionConfig>>,
 }
 
 impl SoftwareDataExtractionConfig {
@@ -71,7 +74,9 @@ impl SoftwareDataExtractionConfig {
       restart_ee: None,
       method_start: None,
       method_end: None,
-      raw_control_flow_regexes: vec![]
+      raw_control_flow_regexes: vec![],
+      histogram_extraction_configs: vec![],
+      simple_counter_configs: vec![]
     }
   }
   
@@ -192,4 +197,19 @@ pub struct ArrayPoolExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct AssemblyExtractionConfig {
   #[getset(get = "pub")] assembly_name_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct HistogramExtractionConfig {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] grouping_attr: String,
+  #[getset(get = "pub")] count_attr: String,
+  #[getset(get = "pub")] units: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct SimpleCountExtractionConfig {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] count_attr: Option<String>,
+  #[getset(get = "pub")] units: String,
 }

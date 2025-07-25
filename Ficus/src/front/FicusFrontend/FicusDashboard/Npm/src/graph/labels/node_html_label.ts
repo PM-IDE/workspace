@@ -10,7 +10,7 @@ import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} 
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
   createArrayPoolEnhancement,
-  createEnhancementContainer,
+  createEnhancementContainer, createNumberInformation,
   createPieChart,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -98,28 +98,47 @@ function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], softwar
   }
 
   return enhancementsHtmls
-    .map(([e, html]) => createEnhancementContainer(SoftwareEnhancementKind[e].toString(), html))
+    .map(([e, html]) => createEnhancementContainer(e, html))
     .join("\n");
 }
 
 function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
   switch (enhancement) {
-    case SoftwareEnhancementKind.Allocations:
+    case "Allocations":
       return createNodeAllocationsEnhancement(softwareData, aggregatedData);
-    case SoftwareEnhancementKind.MethodsInlinings:
+    case "MethodsInlinings":
       return createMethodsInliningEnhancement(softwareData);
-    case SoftwareEnhancementKind.MethodsLoadUnload:
+    case "MethodsLoadUnload":
       return createMethodsLoadUnloadEnhancement(softwareData);
-    case SoftwareEnhancementKind.ArrayPools:
+    case "ArrayPools":
       return createArrayPoolEnhancement(softwareData, aggregatedData);
-    case SoftwareEnhancementKind.Exceptions:
+    case "Exceptions":
       return createExceptionEnhancement(softwareData);
-    case SoftwareEnhancementKind.Threads:
+    case "Threads":
       return createThreadsEnhancement(softwareData);
-    case SoftwareEnhancementKind.Http:
+    case "Http":
       return createHttpEnhancement(softwareData);
-    default:
+    default: {
+      if (softwareData.histograms.has(enhancement)) {
+        let sum = softwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+        return createSoftwareEnhancementHistogram(
+          enhancement,
+          softwareData.histograms.get(enhancement).value,
+          getPerformanceAnnotationColor(sum / aggregatedData.totalHistogramsCount.get(enhancement))
+        );
+      }
+
+      if (softwareData.counters.has(enhancement)) {
+        return createNumberInformation(
+          "",
+          softwareData.counters.get(enhancement).units,
+          softwareData.counters.get(enhancement).value,
+          aggregatedData.totalCountersCount.get(enhancement)
+        );
+      }
+
       return "";
+    }
   }
 }
 
@@ -127,7 +146,7 @@ function createHttpEnhancement(softwareData: MergedSoftwareData): string {
   if (softwareData.httpRequests.size == 0) {
     return "";
   }
-  
+
   return `
     <div>
       ${createSoftwareEnhancementHistogram("Requests", softwareData.httpRequests, null)}
@@ -294,7 +313,7 @@ function createMultithreadedNodeInformation(node: GraphNode): string {
       `);
     }
   }
-  
+
   return `
     <div class="graph-content-container">
       <div style="display: flex; flex-direction: row;" class="graph-title-label">

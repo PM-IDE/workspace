@@ -12,6 +12,8 @@ import type { GrpcHTTPEvent_DONTUSE as _ficus_GrpcHTTPEvent_DONTUSE, GrpcHTTPEve
 import type { GrpcContentionEvent_DONTUSE as _ficus_GrpcContentionEvent_DONTUSE, GrpcContentionEvent as _ficus_GrpcContentionEvent } from '../ficus/GrpcContentionEvent';
 import type { GrpcSocketEvent_DONTUSE as _ficus_GrpcSocketEvent_DONTUSE, GrpcSocketEvent as _ficus_GrpcSocketEvent } from '../ficus/GrpcSocketEvent';
 import type { GrpcMethodLoadUnloadEvent_DONTUSE as _ficus_GrpcMethodLoadUnloadEvent_DONTUSE, GrpcMethodLoadUnloadEvent as _ficus_GrpcMethodLoadUnloadEvent } from '../ficus/GrpcMethodLoadUnloadEvent';
+import type { GrpcGeneralHistogramData_DONTUSE as _ficus_GrpcGeneralHistogramData_DONTUSE, GrpcGeneralHistogramData as _ficus_GrpcGeneralHistogramData } from '../ficus/GrpcGeneralHistogramData';
+import type { GrpcSimpleCounterData_DONTUSE as _ficus_GrpcSimpleCounterData_DONTUSE, GrpcSimpleCounterData as _ficus_GrpcSimpleCounterData } from '../ficus/GrpcSimpleCounterData';
 
 export interface GrpcSoftwareData_DONTUSE {
   'histogram'?: (_ficus_GrpcHistogramEntry_DONTUSE)[];
@@ -26,6 +28,8 @@ export interface GrpcSoftwareData_DONTUSE {
   'contentionEvents'?: (_ficus_GrpcContentionEvent_DONTUSE)[];
   'socketEvent'?: (_ficus_GrpcSocketEvent_DONTUSE)[];
   'methodsLoadUnloadEvents'?: (_ficus_GrpcMethodLoadUnloadEvent_DONTUSE)[];
+  'histogramData'?: (_ficus_GrpcGeneralHistogramData_DONTUSE)[];
+  'simpleCounterData'?: (_ficus_GrpcSimpleCounterData_DONTUSE)[];
 }
 
 export interface GrpcSoftwareData {
@@ -41,4 +45,6 @@ export interface GrpcSoftwareData {
   'contentionEvents': (_ficus_GrpcContentionEvent)[];
   'socketEvent': (_ficus_GrpcSocketEvent)[];
   'methodsLoadUnloadEvents': (_ficus_GrpcMethodLoadUnloadEvent)[];
+  'histogramData': (_ficus_GrpcGeneralHistogramData)[];
+  'simpleCounterData': (_ficus_GrpcSimpleCounterData)[];
 }

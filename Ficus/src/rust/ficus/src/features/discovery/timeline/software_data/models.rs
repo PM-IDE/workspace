@@ -56,7 +56,15 @@ pub struct SoftwareData {
 
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
-  method_load_unload_events: Vec<MethodLoadUnloadEvent>
+  method_load_unload_events: Vec<MethodLoadUnloadEvent>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  histograms: Vec<HistogramData>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  simple_counters: Vec<SimpleCounterData>,
 }
 
 impl SoftwareData {
@@ -75,6 +83,8 @@ impl SoftwareData {
       allocation_events: vec![],
       assembly_events: vec![],
       method_load_unload_events: vec![],
+      histograms: vec![],
+      simple_counters: vec![],
     }
   }
 }
@@ -195,4 +205,24 @@ pub struct SocketConnectAcceptStartMetadata {
 pub struct SocketConnectAcceptFailedMetadata {
   #[getset(get = "pub")] error_code: String,
   #[getset(get = "pub")] error_message: String
+}
+
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
+pub struct HistogramData {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] units: String,
+  #[getset(get = "pub", get_mut = "pub")] entries: Vec<HistogramEntry>
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct HistogramEntry {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] value: f64,
+}
+
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
+pub struct SimpleCounterData {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] value: f64,
+  #[getset(get = "pub")] units: String,
 }

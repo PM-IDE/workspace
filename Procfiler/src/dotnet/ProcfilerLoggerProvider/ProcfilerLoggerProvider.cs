@@ -7,9 +7,16 @@ using Microsoft.Extensions.Options;
 
 namespace ProcfilerLoggerProvider;
 
+public enum MessageLogKind
+{
+  Message,
+  OriginalFormat
+}
+
 public class ProcfilerLoggerConfiguration
 {
   public LogLevel LogLevel { get; set; }
+  public MessageLogKind MessageLogKind { get; set; }
 }
 
 public static class ServiceCollectionsExtensions

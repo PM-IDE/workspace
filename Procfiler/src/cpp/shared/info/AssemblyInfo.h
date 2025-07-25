@@ -25,7 +25,7 @@ public:
           myAppDomainId(appDomainId),
           myAppDomainName(std::move(appDomainName)) {}
 
-    static AssemblyInfo GetAssemblyInfo(ICorProfilerInfo12* info, AssemblyID assemblyId);
+    static AssemblyInfo GetAssemblyInfo(ICorProfilerInfo15* info, AssemblyID assemblyId);
 
     AssemblyID GetAssemblyId();
     wstring GetName();

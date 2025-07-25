@@ -66,8 +66,10 @@ public class SplitEventsByMethodCommand(
     using var onlineSerializer = CreateOnlineSerializer(context);
     using var notStoringSerializer = CreateNotStoringSerializer(context);
 
+    var extractOcelLogs = parseResult.TryGetOptionValue(ExtractOcelLogs);
     var ocelOutputDir = Path.Combine(directory, "OCEL");
-    using var ocelSerializer = new OcelMethodsSerializer(Logger, ocelOutputDir, methodNameBeautifier);
+
+    using var ocelSerializer = extractOcelLogs ? new OcelMethodsSerializer(Logger, ocelOutputDir, methodNameBeautifier) : null;
 
     ExecuteCommand(context, events =>
     {
@@ -83,8 +85,15 @@ public class SplitEventsByMethodCommand(
       var splitContext = new SplitContext(
         events, filterPattern, inlineInnerCalls, mergeUndefinedThreadEvents, addAsyncMethods, removeMoveNextFrames);
 
+      List<IOnlineMethodsSerializer> serializers = [onlineSerializer];
+
+      if (ocelSerializer is { })
+      {
+        serializers.Add(ocelSerializer);
+      }
+
       // ReSharper disable once AccessToDisposedClosure
-      if (splitter.SplitNonAlloc([onlineSerializer, ocelSerializer], splitContext) is not { } methods) return;
+      if (splitter.SplitNonAlloc(serializers, splitContext) is not { } methods) return;
 
       foreach (var (methodName, traces) in methods)
       {
@@ -98,7 +107,7 @@ public class SplitEventsByMethodCommand(
         }
       }
 
-      if (parseResult.TryGetOptionValue(ExtractOcelLogs))
+      if (extractOcelLogs)
       {
         WriteOcelLogs(methods, ocelOutputDir);
       }

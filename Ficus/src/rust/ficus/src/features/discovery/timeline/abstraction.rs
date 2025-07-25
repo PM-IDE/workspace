@@ -35,6 +35,7 @@ use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
+use crate::features::discovery::timeline::software_data::extractors::general::{GeneralHistogramExtractor, SimpleCounterExtractor};
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -204,5 +205,7 @@ fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionCo
     Rc::new(Box::new(HTTPSoftwareDataExtractor::<'a>::new(config))),
     Rc::new(Box::new(SocketsDataExtractor::<'a>::new(config))),
     Rc::new(Box::new(ThreadDataExtractor::<'a>::new(config))),
+    Rc::new(Box::new(GeneralHistogramExtractor::<'a>::new(config))),
+    Rc::new(Box::new(SimpleCounterExtractor::<'a>::new(config))),
   ]
 }

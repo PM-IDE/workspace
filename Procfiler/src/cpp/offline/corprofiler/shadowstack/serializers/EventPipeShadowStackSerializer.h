@@ -14,7 +14,7 @@ private:
     const wstring ourMethodInfoEventName = ToWString("ProcfilerMethodInfo");
     const wstring ourEventPipeProviderName = ToWString("ProcfilerCppEventPipeProvider");
 
-    ICorProfilerInfo12* myProfilerInfo;
+    ICorProfilerInfo15* myProfilerInfo;
     ProcfilerLogger* myLogger;
 
     EVENTPIPE_PROVIDER myEventPipeProvider{};
@@ -39,11 +39,11 @@ private:
     static HRESULT DefineMethodStartOrEndEventInternal(const wstring& eventName,
                                                        EVENTPIPE_PROVIDER provider,
                                                        EVENTPIPE_EVENT* ourEventId,
-                                                       ICorProfilerInfo12* profilerInfo,
+                                                       ICorProfilerInfo15* profilerInfo,
                                                        UINT32 eventId);
 
 public:
-    explicit EventPipeShadowStackSerializer(ICorProfilerInfo12* profilerInfo, ProcfilerLogger* logger);
+    explicit EventPipeShadowStackSerializer(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger);
     ~EventPipeShadowStackSerializer() override = default;
 
     void Init() override;

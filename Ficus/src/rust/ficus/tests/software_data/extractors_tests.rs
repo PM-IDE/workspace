@@ -1,7 +1,7 @@
 use chrono::Utc;
 use ficus::event_log::core::event::event::EventPayloadValue;
 use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::features::discovery::timeline::software_data::extraction_config::{AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, HTTPExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig};
+use ficus::features::discovery::timeline::software_data::extraction_config::{AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, HTTPExtractionConfig, HistogramExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, SimpleCountExtractionConfig, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig};
 use ficus::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
@@ -13,6 +13,7 @@ use ficus::features::discovery::timeline::software_data::extractors::threads::Th
 use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use std::cell::RefCell;
 use std::rc::Rc;
+use ficus::features::discovery::timeline::software_data::extractors::general::{GeneralHistogramExtractor, SimpleCounterExtractor};
 use ficus::features::discovery::timeline::software_data::extractors::sockets::SocketsDataExtractor;
 
 #[test]
@@ -471,6 +472,162 @@ fn test_sockets_extraction() {
       let mut software_data = SoftwareData::empty();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
 
+      software_data
+    },
+  )
+}
+
+#[test]
+fn test_general_histogram() {
+  execute_test_with_software_data(
+    r#"{"histograms":[{"name":"g1","units":"units","entries":[{"name":"type1","value":246.0},{"name":"type2","value":123.0}]},{"name":"g2","units":"units","entries":[{"name":"type1","value":123.0},{"name":"type2","value":123.0}]}]}"#,
+    || {
+      let events = [
+        create_event_with_attributes(
+          "histogram_event".to_string(), 
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Float64(123.)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "histogram_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
+            ("count".to_string(), EventPayloadValue::Float32(123.)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "histogram_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Uint64(123)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "unknown".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Uint32(123)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "hst_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Int64(123)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "hst_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
+            ("count".to_string(), EventPayloadValue::Int32(123)),
+          ]
+        ),
+      ];
+
+      let mut config = SoftwareDataExtractionConfig::empty();
+      config.set_histogram_extraction_configs(vec![
+        ExtractionConfig::new(
+          "histogram_event".to_string(),
+          HistogramExtractionConfig::new("g1".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
+        ),
+        ExtractionConfig::new(
+          "hst_event".to_string(),
+          HistogramExtractionConfig::new("g2".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
+        )
+      ]);
+
+      let extractor = GeneralHistogramExtractor::new(&config);
+      let mut software_data = SoftwareData::empty();
+      extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
+      
+      software_data.histograms_mut().sort_by(|f, s| f.name().cmp(s.name()));
+      software_data.histograms_mut().iter_mut().for_each(|counts| counts.entries_mut().sort_by(|f, s| f.name().cmp(s.name())));
+
+      software_data
+    },
+  )
+}
+
+#[test]
+fn test_simple_counter() {
+  execute_test_with_software_data(
+    r#"{"simple_counters":[{"name":"counter1","value":3.0,"units":"units"},{"name":"counter2","value":246.0,"units":"units"}]}"#,
+    || {
+      let events = [
+        create_event_with_attributes(
+          "histogram_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Float64(123.)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "histogram_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
+            ("count".to_string(), EventPayloadValue::Float32(123.)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "histogram_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Uint64(123)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "unknown".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Uint32(123)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "hst_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
+            ("count".to_string(), EventPayloadValue::Int64(123)),
+          ]
+        ),
+
+        create_event_with_attributes(
+          "hst_event".to_string(),
+          vec![
+            ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
+            ("count".to_string(), EventPayloadValue::Int32(123)),
+          ]
+        ),
+      ];
+
+      let mut config = SoftwareDataExtractionConfig::empty();
+      config.set_simple_counter_configs(vec![
+        ExtractionConfig::new(
+          "histogram_event".to_string(),
+          SimpleCountExtractionConfig::new("counter1".to_string(), None, "units".to_string())
+        ),
+        ExtractionConfig::new(
+          "hst_event".to_string(),
+          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()), "units".to_string())
+        ),
+      ]);
+
+      let extractor = SimpleCounterExtractor::new(&config);
+      let mut software_data = SoftwareData::empty();
+      extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
+
+      software_data.simple_counters_mut().sort_by(|f, s| f.name().cmp(s.name()));
       software_data
     },
   )

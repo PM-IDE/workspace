@@ -15,60 +15,41 @@ ProcfilerCorProfilerCallback *GetCallbackInstance() {
     return ourCallback;
 }
 
-void StaticHandleFunctionEnter2(const FunctionID funcId,
-                                const UINT_PTR clientData,
-                                const COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
-    GetCallbackInstance()->HandleFunctionEnter2(funcId, clientData, func, argumentInfo);
+void StaticHandleFunctionEnter2(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionEnter2(functionId);
 }
 
-void StaticHandleFunctionLeave2(const FunctionID funcId,
-                                const UINT_PTR clientData,
-                                const COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
-    GetCallbackInstance()->HandleFunctionLeave2(funcId, clientData, func, retvalRange);
+void StaticHandleFunctionLeave2(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionLeave2(functionId);
 }
 
-void StaticHandleFunctionTailCall(const FunctionID funcId,
-                                  const UINT_PTR clientData,
-                                  const COR_PRF_FRAME_INFO func) {
-    GetCallbackInstance()->HandleFunctionTailCall(funcId, clientData, func);
+void StaticHandleFunctionTailCall(FunctionID functionId) {
+    GetCallbackInstance()->HandleFunctionTailCall(functionId);
 }
 
-
-void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId,
-                                                        UINT_PTR clientData,
-                                                        COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) const {
+void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId) const {
     SHUTDOWNGUARD_RETVOID();
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Started, GetCurrentTimestamp()));
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId,
-                                                        UINT_PTR clientData,
-                                                        COR_PRF_FRAME_INFO func,
-                                                        COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) const {
-    SHUTDOWNGUARD_RETVOID();
+void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId) const {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId,
-                                                          UINT_PTR clientData,
-                                                          COR_PRF_FRAME_INFO func) const {
-    SHUTDOWNGUARD_RETVOID();
+void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId) const {
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
-ICorProfilerInfo12 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
+ICorProfilerInfo15 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
     return myProfilerInfo;
 }
 
 HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk) {
     const auto ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
 
-    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
+    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo15, ptr);
     if (FAILED(result)) {
-        myLogger->LogError("Failed to get IID_ICorProfilerInfo12 interface");
+        myLogger->LogError("Failed to get IID_ICorProfilerInfo15 interface");
         return E_FAIL;
     }
 
@@ -82,12 +63,14 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
     myWriter = new EventPipeWriter(myProfilerInfo);
     myWriter->Init();
 
-    result = myProfilerInfo->SetEnterLeaveFunctionHooks2(StaticHandleFunctionEnter2,
-                                                         StaticHandleFunctionLeave2,
-                                                         StaticHandleFunctionTailCall);
+    result = myProfilerInfo->SetEnterLeaveFunctionHooks(
+        StaticHandleFunctionEnter2,
+        StaticHandleFunctionLeave2,
+        StaticHandleFunctionTailCall
+    );
 
     if (FAILED(result)) {
-        myLogger->LogError("Failed tp set enter leave hooks");
+        myLogger->LogError("Failed to set enter leave hooks");
         return E_FAIL;
     }
 

@@ -5,7 +5,7 @@ import {
   calculateOverallExecutionTime,
   getEdgeSoftwareDataOrNull,
   getNodeSoftwareDataOrNull,
-  getPerformanceAnnotationColor,
+  getPerformanceAnnotationColor, increment,
 } from "./util";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
@@ -25,7 +25,10 @@ export function createGraphElements(graph: GrpcGraph, annotation: GrpcAnnotation
     maxExecutionTime: Number.MIN_VALUE,
     totalBufferReturnedBytes: 0,
     totalBufferAllocatedBytes: 0,
-    totalBufferRentedBytes: 0
+    totalBufferRentedBytes: 0,
+
+    totalCountersCount: new Map(),
+    totalHistogramsCount: new Map()
   };
 
   let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
@@ -63,7 +66,7 @@ function processEdgesAggregatedData(edges: GrpcGraphEdge[], aggregatedData: Aggr
 
     if (executionTime != null) {
       aggregatedData.totalExecutionTime += executionTime;
-      aggregatedData.maxExecutionTime = Math.max(executionTime, aggregatedData.maxExecutionTime); 
+      aggregatedData.maxExecutionTime = Math.max(executionTime, aggregatedData.maxExecutionTime);
     }
   }
 }
@@ -74,7 +77,7 @@ function buildEdgesTimeAnnotationMap(annotation: GrpcAnnotation): Record<number,
   if (annotation?.timeAnnotation != null) {
     for (let timeAnnotation of annotation.timeAnnotation.annotations) {
       idsToTime[timeAnnotation.entityId] = timeAnnotation.interval.nanoseconds;
-    } 
+    }
   }
 
   return idsToTime;
@@ -110,6 +113,14 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
     aggregatedData.totalBufferAllocatedBytes += softwareData.bufferAllocatedBytes.sum;
     aggregatedData.totalBufferRentedBytes += softwareData.bufferRentedBytes.sum;
     aggregatedData.totalBufferReturnedBytes += softwareData.bufferReturnedBytes.sum;
+
+    for (let [name, histogram] of softwareData.histograms.entries()) {
+      increment(aggregatedData.totalHistogramsCount, name, histogram.value.values().reduce((a, b) => a + b, 0));
+    }
+
+    for (let [name, count] of softwareData.counters.entries()) {
+      increment(aggregatedData.totalCountersCount, name, count.value)
+    }
   }
 }
 
@@ -146,8 +157,8 @@ export function createGraphEdgesElements(
 
     let executionTime = performanceMap[edge.id] ?? calculateEdgeExecutionTime(edge);
 
-    let color = executionTime == null ? 
-      calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio) : 
+    let color = executionTime == null ?
+      calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio) :
       getPerformanceAnnotationColor(executionTime / aggregatedData.totalExecutionTime);
 
     elements.push({

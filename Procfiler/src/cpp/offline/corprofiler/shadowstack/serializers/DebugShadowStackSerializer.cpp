@@ -2,7 +2,7 @@
 #include "DebugShadowStackSerializer.h"
 #include <env_constants.h>
 
-DebugShadowStackSerializer::DebugShadowStackSerializer(ICorProfilerInfo12* profilerInfo, ProcfilerLogger* logger) {
+DebugShadowStackSerializer::DebugShadowStackSerializer(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger) {
     myProfilerInfo = profilerInfo;
     myLogger = logger;
 }

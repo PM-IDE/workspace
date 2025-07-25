@@ -1,7 +1,7 @@
 import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createArrayPoolEnhancement,
-  createEnhancementContainer,
+  createEnhancementContainer, createNumberInformation,
   createRectangleHistogram,
   createThreadsEnhancement,
   getPercentExecutionTime,
@@ -48,22 +48,43 @@ function createEdgeExecutionInfo(edge: GraphEdge): string {
 
 function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge, enhancement: SoftwareEnhancementKind) {
   switch (enhancement) {
-    case SoftwareEnhancementKind.Allocations:
+    case "Allocations":
       return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);
-    case SoftwareEnhancementKind.MethodsInlinings:
+    case "MethodsInlinings":
       return createMethodsInliningEnhancements(softwareData);
-    case SoftwareEnhancementKind.MethodsLoadUnload:
+    case "MethodsLoadUnload":
       return createMethodsLoadUnloadEnhancement(softwareData);
-    case SoftwareEnhancementKind.Exceptions:
+    case "Exceptions":
       return createExceptionsEnhancement(softwareData);
-    case SoftwareEnhancementKind.ArrayPools:
+    case "ArrayPools":
       return createEnhancementContainer("ArrayPools", createArrayPoolEnhancement(softwareData, edge.aggregatedData));
-    case SoftwareEnhancementKind.Threads:
+    case "Threads":
       return createEnhancementContainer("Threads", createThreadsEnhancement(softwareData));
-    case SoftwareEnhancementKind.Http:
+    case "Http":
       return createHttpEnhancement(softwareData);
-    default:
+    default: {
+      if (softwareData.histograms.has(enhancement)) {
+        return createEdgeSoftwareEnhancementPart(
+          enhancement,
+          softwareData.histograms.get(enhancement).value,
+          edge.aggregatedData.totalHistogramsCount.get(enhancement)
+        );
+      }
+
+      if (softwareData.counters.has(enhancement)) {
+        return createEnhancementContainer(
+          enhancement,
+          createNumberInformation(
+            "",
+            softwareData.counters.get(enhancement).units,
+            softwareData.counters.get(enhancement).value,
+            edge.aggregatedData.totalCountersCount.get(enhancement)
+          )
+        );
+      }
+
       return "";
+    }
   }
 }
 

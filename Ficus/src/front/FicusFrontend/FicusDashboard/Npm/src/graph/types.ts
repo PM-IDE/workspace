@@ -30,22 +30,30 @@ export interface AggregatedData {
   totalBufferAllocatedBytes: number,
   totalBufferRentedBytes: number,
   totalBufferReturnedBytes: number,
+  
+  totalCountersCount: Map<string, number>,
+  totalHistogramsCount: Map<string, number>
 }
 
-export enum SoftwareEnhancementKind {
-  Allocations,
-  Exceptions,
-  MethodsLoadUnload,
-  MethodsInlinings,
-  ArrayPools,
-  Http,
-  Sockets,
-  Threads
-}
+export type SoftwareEnhancementKind =
+  "Allocations" |
+  "Exceptions" |
+  "MethodsLoadUnload" |
+  "MethodsInlinings" |
+  "ArrayPools" |
+  "Http" |
+  "Sockets" |
+  "Threads" |
+  string
 
 export interface CountAndSum {
   count: number,
   sum: number
+}
+
+export interface ValueWithUnits<T> {
+  value: T
+  units: string
 }
 
 export interface MergedSoftwareData {
@@ -69,5 +77,8 @@ export interface MergedSoftwareData {
   createdThreads: Set<number>,
   terminatedThreads: Set<number>,
 
-  httpRequests: Map<string, number>
+  httpRequests: Map<string, number>,
+  
+  histograms: Map<string, ValueWithUnits<Map<string, number>>>,
+  counters: Map<string, ValueWithUnits<number>>
 }

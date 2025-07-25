@@ -8,7 +8,7 @@
 class BinaryShadowStackSerializer : public ShadowStackSerializer {
 private:
     std::string mySavePath;
-    ICorProfilerInfo12* myProfilerInfo;
+    ICorProfilerInfo15* myProfilerInfo;
     ProcfilerLogger* myLogger;
     bool myUseSeparateBinstacksFiles{false};
 
@@ -23,7 +23,7 @@ private:
 
     std::regex* TryCreateMethodsFilterRegex();
 public:
-    explicit BinaryShadowStackSerializer(ICorProfilerInfo12* profilerInfo, ProcfilerLogger* logger);
+    explicit BinaryShadowStackSerializer(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger);
     ~BinaryShadowStackSerializer() override = default;
 
     void Init() override;

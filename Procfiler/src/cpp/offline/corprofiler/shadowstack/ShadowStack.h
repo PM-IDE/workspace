@@ -31,7 +31,7 @@ private:
     std::regex* myFilterRegex{nullptr};
 
     bool myOnlineSerialization{false};
-    ICorProfilerInfo12* myProfilerInfo;
+    ICorProfilerInfo15* myProfilerInfo;
     ProcfilerLogger* myLogger;
     std::atomic<int> myCurrentAddition{0};
     std::atomic<bool> myCanProcessFunctionEvents{true};
@@ -39,7 +39,7 @@ private:
     bool CanProcessFunctionEvents();
     bool ShouldAddFunc(FunctionID& id, DWORD threadId);
 public:
-    explicit ShadowStack(ICorProfilerInfo12* profilerInfo, ProcfilerLogger* logger, bool onlineSerialization);
+    explicit ShadowStack(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger, bool onlineSerialization);
 
     ~ShadowStack();
     void AddFunctionEnter(FunctionID id, DWORD threadId, int64_t timestamp);

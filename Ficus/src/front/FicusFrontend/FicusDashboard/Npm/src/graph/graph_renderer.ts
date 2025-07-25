@@ -25,7 +25,7 @@ function drawGraph(
   id: string,
   graph: GrpcGraph,
   annotation: GrpcAnnotation,
-  enhancements: (keyof typeof SoftwareEnhancementKind)[],
+  enhancements: SoftwareEnhancementKind[],
   filter: string | null,
   spacingFactor: number,
   isRichUiGraph: boolean,
@@ -35,7 +35,7 @@ function drawGraph(
   let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor, isRichUiGraph, useLROrientation));
 
   if (isRichUiGraph) {
-    setNodeEdgeHtmlRenderer(cy, enhancements.map(e => SoftwareEnhancementKind[e]));
+    setNodeEdgeHtmlRenderer(cy, enhancements);
   }
 
   cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
@@ -91,7 +91,6 @@ function createCytoscapeOptions(
   addLabel: boolean,
   useLROrientation: boolean
 ): cytoscape.CytoscapeOptions {
-  console.log(useLROrientation)
   return {
     container: document.getElementById(id),
     elements: createGraphElements(graph, annotation, filter),

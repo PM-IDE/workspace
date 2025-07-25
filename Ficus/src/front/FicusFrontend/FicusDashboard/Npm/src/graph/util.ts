@@ -86,29 +86,32 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     bufferAllocatedBytes: {count: 0, sum: 0},
     bufferRentedBytes: {count: 0, sum: 0},
     bufferReturnedBytes: {count: 0, sum: 0},
-    
+
     exceptions: new Map(),
-    
+
     createdThreads: new Set(),
     terminatedThreads: new Set(),
 
     httpRequests: new Map(),
+
+    histograms: new Map(),
+    counters: new Map()
   };
-  
+
   let matchesFilter = (value: string) => {
     if (filter != null) {
       return filter.test(value);
     }
-    
+
     return true;
   }
 
   for (let softwareData of originalSoftwareData) {
     for (let entry of softwareData.histogram) {
       let [name, count] = [entry.name, entry.count];
-      
+
       if (matchesFilter(name)) {
-        increment(mergedSoftwareData.histogram, name, count); 
+        increment(mergedSoftwareData.histogram, name, count);
       }
     }
 
@@ -116,7 +119,7 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
 
     for (let alloc of softwareData.allocationsInfo) {
       let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
-      
+
       if (matchesFilter(alloc.typeName)) {
         increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);
       }
@@ -148,12 +151,12 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
         increment(mergedSoftwareData.methodsUnloads, fqn, 1);
       }
     }
-    
+
     for (let arrayPoolEvent of softwareData.arrayPoolEvents) {
       if (!matchesFilter(arrayPoolEvent.bufferId.toString())) {
         continue;
       }
-      
+
       if (arrayPoolEvent.bufferAllocated != null) {
         incrementCountAndSum(mergedSoftwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
       } else if (arrayPoolEvent.bufferReturned != null) {
@@ -187,6 +190,34 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
         increment(mergedSoftwareData.httpRequests, requestUrl, 1);
       }
     }
+
+    for (let histogram of softwareData.histogramData) {
+      let histogramMap;
+      if (mergedSoftwareData.histograms.has(histogram.name)) {
+        histogramMap = mergedSoftwareData.histograms.get(histogram.name).value;
+      } else {
+        histogramMap = new Map();
+        mergedSoftwareData.histograms.set(histogram.name, {
+          value: histogramMap,
+          units: histogram.units
+        });
+      }
+
+      for (let data of histogram.entries) {
+        increment(histogramMap, data.name, data.count);
+      }
+    }
+
+    for (let counter of softwareData.simpleCounterData) {
+      if (!mergedSoftwareData.counters.has(counter.name)) {
+        mergedSoftwareData.counters.set(counter.name, {
+          value: 0,
+          units: counter.units
+        });
+      }
+      
+      mergedSoftwareData.counters.get(counter.name).value += counter.count;
+    }
   }
 
   return mergedSoftwareData;
@@ -196,12 +227,12 @@ function restoreFqn(data: GrpcMethodNameParts) {
   return data.namespace + "." + data.name + "[" + data.signature + "]";
 }
 
-function incrementCountAndSum(countAndSum : CountAndSum, value: number) {
+function incrementCountAndSum(countAndSum: CountAndSum, value: number) {
   countAndSum.sum += value;
   countAndSum.count += 1;
 }
 
-function increment(map: Map<string, number>, key: string, value: number) {
+export function increment(map: Map<string, number>, key: string, value: number) {
   if (!map.has(key)) {
     map.set(key, value);
   } else {
@@ -221,7 +252,7 @@ export function calculateEdgeExecutionTime(edge: GraphEdge | GrpcGraphEdge): num
   return executionTime == 0 ? null : executionTime;
 }
 
-export function executeWithNodeAdditionalData(node : GraphNode | GrpcGraphNode, handler: Function) {
+export function executeWithNodeAdditionalData(node: GraphNode | GrpcGraphNode, handler: Function) {
   let result: GrpcSoftwareData[] = [];
 
   if (node.innerGraph != null) {
@@ -268,15 +299,15 @@ export function executeWithNodeAdditionalData(node : GraphNode | GrpcGraphNode, 
   return result;
 }
 
-export function extractAllSoftwareData(node : GraphNode | GrpcGraphNode): GrpcSoftwareData[] {
+export function extractAllSoftwareData(node: GraphNode | GrpcGraphNode): GrpcSoftwareData[] {
   let result: GrpcSoftwareData[] = [];
 
   executeWithNodeAdditionalData(node, (data: GrpcNodeAdditionalData | GrpcGraphEdgeAdditionalData) => {
     if (data.softwareData != null) {
-      result.push(data.softwareData); 
+      result.push(data.softwareData);
     }
   });
-  
+
   return result;
 }
 

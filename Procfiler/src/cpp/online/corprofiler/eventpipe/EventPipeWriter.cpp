@@ -9,7 +9,7 @@
 
 #include "FunctionEvent.h"
 
-EventPipeWriter::EventPipeWriter(ICorProfilerInfo12 *profilerInfo) {
+EventPipeWriter::EventPipeWriter(ICorProfilerInfo15 *profilerInfo) {
     myLogger = new ProcfilerLogger();
     myProfilerInfo = profilerInfo;
 }
@@ -102,7 +102,7 @@ HRESULT EventPipeWriter::DefineProcfilerEventPipeProvider() {
 HRESULT EventPipeWriter::DefineMethodStartOrEndEventInternal(const wstring &eventName,
                                                              const EVENTPIPE_PROVIDER provider,
                                                              EVENTPIPE_EVENT *eventPipeEventId,
-                                                             ICorProfilerInfo12 *profilerInfo,
+                                                             ICorProfilerInfo15 *profilerInfo,
                                                              const UINT32 eventId) const {
     COR_PRF_EVENTPIPE_PARAM_DESC eventParameters[] = {
         {COR_PRF_EVENTPIPE_INT64, 0, ourTimestampMetadataKey.c_str()},

@@ -11,31 +11,34 @@
   <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
     @if (IsRichUiGraph(Graph))
     {
-      @foreach (var (index, kind) in Enum.GetValues<SoftwareGraphEnhancementKind>().Index())
+      @if (myEnhancements is { })
       {
-        <div style="display: flex; flex-direction: row; align-items: center;">
-          <RadzenCheckBox @ref="@myCheckBoxes[index]"
-                          TValue="bool"
-                          ValueChanged="@(v => HandleSelectionChange(v, kind))"/>
+        @foreach (var (index, enhancement) in myEnhancements.Index())
+        {
+          <div style="display: flex; flex-direction: row; align-items: center;">
+            <RadzenCheckBox TValue="bool"
+                            @ref="@myCheckBoxes[index]"
+                            ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
 
-          <div style="margin-left: 5px;">@kind.ToString()</div>
-        </div>
+            <div style="margin-left: 5px;">@enhancement</div>
+          </div>
+        }
       }
 
       <div style="margin-top: 5px;">Filter:</div>
-      <input type="text" @bind="myFilterValue" style="width: 120px;"/> 
+      <input type="text" @bind="myFilterValue" style="width: 120px;"/>
     }
 
     <div style="margin-top: 5px;">Spacing factor:</div>
     <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
 
-    <RadzenStack Orientation="Orientation.Horizontal" 
-                 AlignItems="AlignItems.Center" 
-                 Gap="0.5rem" 
+    <RadzenStack Orientation="Orientation.Horizontal"
+                 AlignItems="AlignItems.Center"
+                 Gap="0.5rem"
                  Style="margin-top: 5px;">
-      <RadzenLabel Text="TB" />
-      <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation" />
-      <RadzenLabel Text="LR" />
+      <RadzenLabel Text="TB"/>
+      <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
+      <RadzenLabel Text="LR"/>
     </RadzenStack>
 
     <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
@@ -47,17 +50,11 @@
 
 @code
 {
-  private enum SoftwareGraphEnhancementKind
-  {
-    Allocations,
-    Exceptions,
-    MethodsLoadUnload,
-    MethodsInlinings,
-    ArrayPools,
-    Http,
-    Sockets,
-    Threads
-  }
+  private static string[] ourPredefinedEnhancements =
+  [
+    "Allocations", "Exceptions", "MethodsLoadUnload", "MethodsInlinings", "ArrayPools", "Http", "Sockets", "Threads"
+  ];
+
 
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcGraph Graph { get; init; }
@@ -68,10 +65,52 @@
   private bool myUseLROrientation = true;
   private string? myFilterValue;
   private string mySpacingFactor = "1.4";
-  private CanvasComponent? myCanvasComponent;
-  private readonly RadzenCheckBox<bool>[] myCheckBoxes = new RadzenCheckBox<bool>[Enum.GetValues<SoftwareGraphEnhancementKind>().Length];
-  private readonly HashSet<SoftwareGraphEnhancementKind> mySelectedEnhancements = Enum.GetValues<SoftwareGraphEnhancementKind>().ToHashSet();
 
+  private CanvasComponent? myCanvasComponent;
+
+  private List<string>? myEnhancements;
+  private HashSet<string> mySelectedEnhancements = null!;
+  private RadzenCheckBox<bool>[] myCheckBoxes = null!;
+
+
+  protected override void OnParametersSet()
+  {
+    myEnhancements = FindAllEnhancements(Graph);
+    mySelectedEnhancements = myEnhancements.ToHashSet();
+    myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
+  }
+
+  private static List<string> FindAllEnhancements(GrpcGraph graph)
+  {
+    var enhancements = new List<string>(ourPredefinedEnhancements);
+
+    var customEnhancements = graph.Edges
+      .SelectMany(e => e.AdditionalData)
+      .SelectMany(d => ExtractCustomEnhancements(d.SoftwareData))
+      .ToHashSet();
+
+    AddNodesCustomEnhancements(graph, customEnhancements);
+
+    enhancements.AddRange(customEnhancements.Order());
+
+    return enhancements;
+  }
+
+  private static void AddNodesCustomEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  {
+    foreach (var node in graph.Nodes)
+    {
+      foreach (var enhancement in node.AdditionalData.SelectMany(d => ExtractCustomEnhancements(d.SoftwareData)))
+      {
+        enhancements.Add(enhancement);
+      }
+
+      if (node.InnerGraph is { } innerGraph)
+      {
+        AddNodesCustomEnhancements(innerGraph, enhancements);
+      }
+    }
+  }
 
   protected override void OnAfterRender(bool firstRender)
   {
@@ -91,11 +130,16 @@
     }
   }
 
+  private static IEnumerable<string> ExtractCustomEnhancements(GrpcSoftwareData data) => data switch
+  {
+    null => [],
+    { } => data.HistogramData.Select(h => h.Name).Concat(data.SimpleCounterData.Select(c => c.Name))
+  };
+
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
-    graph.Nodes.Any(
-      n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()) ||
-           (n.InnerGraph is { } innerGraph && IsRichUiGraph(innerGraph))
+    graph.Nodes.Any(n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()) ||
+                         n.InnerGraph is { } innerGraph && IsRichUiGraph(innerGraph)
     );
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
@@ -108,13 +152,13 @@
     };
 
     return await Js.InvokeAsync<IJSObjectReference>(
-      "drawGraph", 
-      canvasId, 
-      Graph, 
-      Annotation, 
-      enhancements, 
-      myFilterValue, 
-      spacingFactor, 
+      "drawGraph",
+      canvasId,
+      Graph,
+      Annotation,
+      enhancements,
+      myFilterValue,
+      spacingFactor,
       IsRichUiGraph(Graph),
       myUseLROrientation
     );
@@ -125,7 +169,7 @@
     return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
   }
 
-  private void HandleSelectionChange(bool selected, SoftwareGraphEnhancementKind enhancement)
+  private void HandleSelectionChange(bool selected, string enhancement)
   {
     if (selected)
     {
@@ -142,6 +186,6 @@
     myCanvasComponent?.ReRenderCanvas();
   }
 
-  private Task ExportGraph() => 
+  private Task ExportGraph() =>
     myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;
 }
