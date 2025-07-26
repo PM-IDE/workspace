@@ -24,10 +24,10 @@ export function createNodeHtmlLabelId(frontendId: number): string {
 }
 
 export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhancementKind[]) {
-  let softwareData = node.enhancementData;
+  let enhancementData = node.enhancementData;
   let label_id = createNodeHtmlLabelId(node.frontendId);
 
-  if (softwareData == null) {
+  if (enhancementData == null) {
     return `
         <div id="${label_id}">
             ${createNodeDisplayName(node, node.label)}
@@ -38,7 +38,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
     `;
   }
 
-  let sortedHistogramEntries = toSortedArray(softwareData.eventClasses);
+  let sortedHistogramEntries = toSortedArray(enhancementData.eventClasses);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
   let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.totalExecutionTime);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
@@ -55,8 +55,8 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
 
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
-                  ${createEventClassesPieChart(softwareData.eventClasses)}
-                  ${createNodeEnhancements(enhancements, softwareData, node.aggregatedData)}
+                  ${createEventClassesPieChart(enhancementData.eventClasses)}
+                  ${createNodeEnhancements(enhancements, enhancementData, node.aggregatedData)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                   ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
                 </div>

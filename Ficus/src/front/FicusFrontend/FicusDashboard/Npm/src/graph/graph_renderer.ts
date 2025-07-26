@@ -33,20 +33,24 @@ function drawGraph(
   isRichUiGraph: boolean,
   useLROrientation: boolean
 ) {
-  //Dictionary from C# not eventually deserialized to Map in JS)
-  aggregatedData.totalHistogramsCount = new Map<string, number>(Object.entries(aggregatedData.totalHistogramsCount));
-  aggregatedData.totalCountersCount = new Map<string, number>(Object.entries(aggregatedData.totalCountersCount));
+  try {
+    //Dictionary from C# not eventually deserialized to Map in JS)
+    aggregatedData.totalHistogramsCount = new Map<string, number>(Object.entries(aggregatedData.totalHistogramsCount));
+    aggregatedData.totalCountersCount = new Map<string, number>(Object.entries(aggregatedData.totalCountersCount));
 
-  let regex = filter == null ? null : new RegExp(filter);
-  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, aggregatedData, regex, spacingFactor, isRichUiGraph, useLROrientation));
+    let regex = filter == null ? null : new RegExp(filter);
+    let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, aggregatedData, regex, spacingFactor, isRichUiGraph, useLROrientation));
 
-  if (isRichUiGraph) {
-    setNodeEdgeHtmlRenderer(cy, enhancements);
+    if (isRichUiGraph) {
+      setNodeEdgeHtmlRenderer(cy, enhancements);
+    }
+
+    cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
+
+    return cy;
+  } catch (e) {
+    console.error(e);
   }
-
-  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
-
-  return cy;
 }
 
 function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number, useLROrientation: boolean) {
