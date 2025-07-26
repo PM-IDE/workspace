@@ -28,11 +28,11 @@
         }
 
         <div style="margin-top: 5px;">Filter:</div>
-        <input type="text" @bind="myFilterValue" style="width: 120px;"/>
+        <input type="text" @bind="myFilterValue" style="width: 90%"/>
       }
 
       <div style="margin-top: 5px;">Spacing factor:</div>
-      <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
+      <input type="text" @bind="mySpacingFactor" style="width: 90%"/>
 
       <RadzenStack Orientation="Orientation.Horizontal"
                    AlignItems="AlignItems.Center"
@@ -43,8 +43,8 @@
         <RadzenLabel Text="LR"/>
       </RadzenStack>
 
-      <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
-      <RadzenButton Click="ExportGraph" Style="width: 120px; margin-top: 5px;">Export to SVG</RadzenButton>
+      <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
+      <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
     </div>
 
     <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
