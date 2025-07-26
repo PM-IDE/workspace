@@ -121,10 +121,11 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
     default: {
       if (softwareData.histograms.has(enhancement)) {
         let sum = softwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+        let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
         return createSoftwareEnhancementHistogram(
           enhancement,
           softwareData.histograms.get(enhancement).value,
-          getPerformanceAnnotationColor(sum / aggregatedData.totalHistogramsCount.get(enhancement))
+          getPerformanceAnnotationColor(sum / globalSum)
         );
       }
 
@@ -133,7 +134,7 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
           "",
           softwareData.counters.get(enhancement).units,
           softwareData.counters.get(enhancement).value,
-          aggregatedData.totalCountersCount.get(enhancement)
+          aggregatedData.globalSoftwareData.counters.get(enhancement).value
         );
       }
 

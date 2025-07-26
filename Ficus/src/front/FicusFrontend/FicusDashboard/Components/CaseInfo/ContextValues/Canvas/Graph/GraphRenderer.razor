@@ -58,20 +58,35 @@
           Aggregated Data
         </div>
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
-          <AggregatedStatInfo Title="Allocated" Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
-          <AggregatedStatInfo Title="Execution Time" Value="@data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture)" Units="QPC"/>
-          <AggregatedStatInfo Title="Buffer Allocated" Value="@data.TotalBufferAllocatedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
-          <AggregatedStatInfo Title="Buffer Rented" Value="@data.TotalBufferRentedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
-          <AggregatedStatInfo Title="Buffer Returned" Value="@data.TotalBufferReturnedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
-          
-          @foreach (var counter in data.TotalCountersCount)
+          <AggregatedStatInfo Title="Allocated" Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)"
+                              Units="bytes"/>
+
+          <AggregatedStatInfo Title="Execution Time"
+                              Value="@data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture)" Units="QPC"/>
+
+          <AggregatedStatInfo Title="Buffer Allocated"
+                              Value="@data.TotalBufferAllocatedBytes.ToString(CultureInfo.InvariantCulture)"
+                              Units="bytes"/>
+
+          <AggregatedStatInfo Title="Buffer Rented"
+                              Value="@data.TotalBufferRentedBytes.ToString(CultureInfo.InvariantCulture)"
+                              Units="bytes"/>
+
+          <AggregatedStatInfo Title="Buffer Returned"
+                              Value="@data.TotalBufferReturnedBytes.ToString(CultureInfo.InvariantCulture)"
+                              Units="bytes"/>
+
+          @foreach (var counter in data.GlobalSoftwareData.Counters)
           {
-            <AggregatedStatInfo Title=@counter.Key Value="@counter.Value.ToString(CultureInfo.InvariantCulture)" Units=@string.Empty/>
+            <AggregatedStatInfo Title=@counter.Key Value="@counter.Value.Value.ToString(CultureInfo.InvariantCulture)"
+                                Units=@string.Empty/>
           }
-          
-          @foreach (var histogram in data.TotalHistogramsCount)
+
+          @foreach (var histogram in data.GlobalSoftwareData.Histograms)
           {
-            <AggregatedStatInfo Title=@histogram.Key Value="@histogram.Value.ToString(CultureInfo.InvariantCulture)" Units=@string.Empty/>
+            <AggregatedStatInfo Title=@histogram.Key
+                                Value="@histogram.Value.Value.Values.Sum().ToString(CultureInfo.InvariantCulture)"
+                                Units=@string.Empty/>
           }
         </div>
       </div>
@@ -91,8 +106,45 @@
     public double TotalBufferRentedBytes { get; set; }
     public double TotalBufferReturnedBytes { get; set; }
 
-    public Dictionary<string, double> TotalCountersCount { get; set; } = new();
-    public Dictionary<string, double> TotalHistogramsCount { get; set; } = new();
+    public MergedSoftwareData GlobalSoftwareData { get; set; } = new();
+  }
+
+  private class MergedSoftwareData
+  {
+    public Dictionary<string, double> Allocations { get; set; } = new();
+
+    public Dictionary<string, double> InliningFailed { get; set; } = new();
+    public Dictionary<string, double> InliningSucceeded { get; set; } = new();
+    public Dictionary<string, double> InliningFailedReasons { get; set; } = new();
+
+    public Dictionary<string, double> MethodsLoads { get; set; } = new();
+    public Dictionary<string, double> MethodsUnloads { get; set; } = new();
+
+    public CountAndSum BufferAllocatedBytes { get; set; } = new();
+    public CountAndSum BufferRentedBytes { get; set; } = new();
+    public CountAndSum BufferReturnedBytes { get; set; } = new();
+
+    public Dictionary<string, double> Exceptions { get; set; } = new();
+
+    public HashSet<double> CreatedThreads { get; set; } = [];
+    public HashSet<double> TerminatedThreads { get; set; } = [];
+
+    public Dictionary<string, double> HttpRequests { get; set; } = new();
+
+    public Dictionary<string, ValueWithUnits<Dictionary<string, double>>> Histograms { get; set; } = new();
+    public Dictionary<string, ValueWithUnits<double>> Counters { get; set; } = new();
+  }
+
+  private class CountAndSum
+  {
+    public double Count { get; set; }
+    public double Sum { get; set; }
+  }
+
+  private class ValueWithUnits<T>
+  {
+    public string Units { get; set; }
+    public T Value { get; set; }
   }
 
 

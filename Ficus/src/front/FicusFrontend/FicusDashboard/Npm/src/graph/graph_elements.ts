@@ -2,7 +2,7 @@ import {calculateGradient, createNextFrontendUniqueId} from "../utils";
 import {darkTheme, graphColors} from "../colors";
 import {
   calculateEdgeExecutionTime,
-  calculateOverallExecutionTime,
+  calculateOverallExecutionTime, createEmptySoftwareData,
   getEdgeEnhancementDataOrNull,
   getNodeEnhancementDataOrNull,
   getPerformanceAnnotationColor, increment,
@@ -12,7 +12,7 @@ import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import cytoscape from "cytoscape";
-import {AggregatedData, MergedEnhancementData, MergedSoftwareData} from "./types";
+import {AggregatedData, CountAndSum, MergedEnhancementData, MergedSoftwareData} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
@@ -45,8 +45,7 @@ function createAggregatedDataInternal(graph: GrpcGraph, performanceMap: Record<n
     totalBufferAllocatedBytes: 0,
     totalBufferRentedBytes: 0,
 
-    totalCountersCount: new Map(),
-    totalHistogramsCount: new Map()
+    globalSoftwareData: createEmptySoftwareData()
   };
 
   processNodesAggregatedData(graph.nodes, aggregatedData, filter);
@@ -60,19 +59,45 @@ export function createAggregatedData(graph: GrpcGraph, annotation: GrpcAnnotatio
     let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
     let regex = filter == null ? null : new RegExp(filter);
 
-    let data = createAggregatedDataInternal(graph, performanceEdgesMap, regex);
-
-    //JS Map can not be converted to C# Dictionary
-    // @ts-ignore
-    data.totalCountersCount = Object.fromEntries(data.totalCountersCount);
-    // @ts-ignore
-    data.totalHistogramsCount = Object.fromEntries(data.totalHistogramsCount);
-
-    return data;
+    return preprocessForCSharpInterop(createAggregatedDataInternal(graph, performanceEdgesMap, regex));
   } catch (e) {
     console.error(e);
     return null;
   }
+}
+
+function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
+  //JS Map can not be converted to C# Dictionary
+  data.globalSoftwareData.httpRequests = toObjectCsharpInterop(data.globalSoftwareData.httpRequests);
+  data.globalSoftwareData.allocations = toObjectCsharpInterop(data.globalSoftwareData.allocations);
+  data.globalSoftwareData.inliningSucceeded = toObjectCsharpInterop(data.globalSoftwareData.inliningSucceeded);
+  data.globalSoftwareData.inliningFailed = toObjectCsharpInterop(data.globalSoftwareData.inliningFailed);
+  data.globalSoftwareData.inliningFailedReasons = toObjectCsharpInterop(data.globalSoftwareData.inliningFailedReasons);
+  data.globalSoftwareData.methodsLoads = toObjectCsharpInterop(data.globalSoftwareData.methodsLoads);
+  data.globalSoftwareData.methodsUnloads = toObjectCsharpInterop(data.globalSoftwareData.methodsUnloads);
+  data.globalSoftwareData.exceptions = toObjectCsharpInterop(data.globalSoftwareData.exceptions);
+  data.globalSoftwareData.counters = toObjectCsharpInterop(data.globalSoftwareData.counters);
+
+  // @ts-ignore
+  data.globalSoftwareData.createdThreads = data.globalSoftwareData.createdThreads.values().toArray();
+  // @ts-ignore
+  data.globalSoftwareData.terminatedThreads = data.globalSoftwareData.terminatedThreads.values().toArray();
+
+  for (let [key, map] of data.globalSoftwareData.histograms) {
+    data.globalSoftwareData.histograms.set(key, {
+      units: map.units,
+      value: toObjectCsharpInterop(map.value)
+    });
+  }
+
+  data.globalSoftwareData.histograms = toObjectCsharpInterop(data.globalSoftwareData.histograms);
+  
+  return data;
+}
+
+function toObjectCsharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
+  // @ts-ignore
+  return Object.fromEntries(map);
 }
 
 function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null) {
@@ -140,14 +165,61 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
     aggregatedData.totalBufferRentedBytes += softwareData.bufferRentedBytes.sum;
     aggregatedData.totalBufferReturnedBytes += softwareData.bufferReturnedBytes.sum;
 
+    mergeMaps(aggregatedData.globalSoftwareData.allocations, softwareData.allocations);
+    mergeMaps(aggregatedData.globalSoftwareData.inliningFailed, softwareData.inliningFailed);
+    mergeMaps(aggregatedData.globalSoftwareData.inliningFailedReasons, softwareData.inliningFailedReasons);
+    mergeMaps(aggregatedData.globalSoftwareData.inliningSucceeded, softwareData.inliningSucceeded);
+    mergeMaps(aggregatedData.globalSoftwareData.methodsUnloads, softwareData.methodsUnloads);
+    mergeMaps(aggregatedData.globalSoftwareData.methodsLoads, softwareData.methodsLoads);
+    mergeMaps(aggregatedData.globalSoftwareData.httpRequests, softwareData.httpRequests);
+    mergeMaps(aggregatedData.globalSoftwareData.exceptions, softwareData.exceptions);
+
+    mergeSets(aggregatedData.globalSoftwareData.terminatedThreads, softwareData.terminatedThreads);
+    mergeSets(aggregatedData.globalSoftwareData.createdThreads, softwareData.createdThreads);
+
+    mergeCountAndSum(aggregatedData.globalSoftwareData.bufferAllocatedBytes, softwareData.bufferAllocatedBytes);
+    mergeCountAndSum(aggregatedData.globalSoftwareData.bufferRentedBytes, softwareData.bufferRentedBytes);
+    mergeCountAndSum(aggregatedData.globalSoftwareData.bufferReturnedBytes, softwareData.bufferReturnedBytes);
+
     for (let [name, histogram] of softwareData.histograms.entries()) {
-      increment(aggregatedData.totalHistogramsCount, name, histogram.value.values().reduce((a, b) => a + b, 0));
+      if (!aggregatedData.globalSoftwareData.histograms.has(name)) {
+        aggregatedData.globalSoftwareData.histograms.set(name, {
+          units: histogram.units,
+          value: new Map<string, number>()
+        })
+      }
+
+      mergeMaps(aggregatedData.globalSoftwareData.histograms.get(name).value, histogram.value);
     }
 
-    for (let [name, count] of softwareData.counters.entries()) {
-      increment(aggregatedData.totalCountersCount, name, count.value)
+    for (let [name, counter] of softwareData.counters.entries()) {
+      if (!aggregatedData.globalSoftwareData.counters.has(name)) {
+        aggregatedData.globalSoftwareData.counters.set(name, {
+          units: counter.units,
+          value: 0
+        })
+      }
+
+      aggregatedData.globalSoftwareData.counters.get(name).value += counter.value;
     }
   }
+}
+
+function mergeMaps(first: Map<string, number>, second: Map<string, number>) {
+  for (let [key, value] of second.entries()) {
+    increment(first, key, value);
+  }
+}
+
+function mergeSets(first: Set<number>, second: Set<number>) {
+  for (let element of second) {
+    first.add(element);
+  }
+}
+
+function mergeCountAndSum(first: CountAndSum, second: CountAndSum) {
+  first.count += second.count;
+  first.sum += second.sum;
 }
 
 export function createGraphEdgesElements(

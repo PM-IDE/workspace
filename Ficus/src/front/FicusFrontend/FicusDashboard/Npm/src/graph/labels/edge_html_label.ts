@@ -64,10 +64,11 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       return createHttpEnhancement(softwareData);
     default: {
       if (softwareData.histograms.has(enhancement)) {
+        let globalSum = edge.aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
         return createEdgeSoftwareEnhancementPart(
           enhancement,
           softwareData.histograms.get(enhancement).value,
-          edge.aggregatedData.totalHistogramsCount.get(enhancement)
+          globalSum
         );
       }
 
@@ -78,7 +79,7 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
             "",
             softwareData.counters.get(enhancement).units,
             softwareData.counters.get(enhancement).value,
-            edge.aggregatedData.totalCountersCount.get(enhancement)
+            edge.aggregatedData.globalSoftwareData.counters.get(enhancement).value
           )
         );
       }

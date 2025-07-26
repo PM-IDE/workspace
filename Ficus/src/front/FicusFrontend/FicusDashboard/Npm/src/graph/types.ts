@@ -31,8 +31,7 @@ export interface AggregatedData {
   totalBufferRentedBytes: number,
   totalBufferReturnedBytes: number,
   
-  totalCountersCount: Map<string, number>,
-  totalHistogramsCount: Map<string, number>
+  globalSoftwareData: MergedSoftwareData
 }
 
 export type SoftwareEnhancementKind =

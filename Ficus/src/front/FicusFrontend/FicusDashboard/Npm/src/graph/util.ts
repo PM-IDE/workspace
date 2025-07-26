@@ -1,6 +1,6 @@
 import {darkTheme, performanceColors} from "../colors";
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
-import {CountAndSum, GraphEdge, GraphNode, MergedEnhancementData} from "./types";
+import {CountAndSum, GraphEdge, GraphNode, MergedEnhancementData, MergedSoftwareData} from "./types";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
@@ -66,6 +66,33 @@ export function getNodeEnhancementDataOrNull(node: GraphNode | GrpcGraphNode, fi
   return createMergedEnhancementData(extractAllSoftwareData(node), filter);
 }
 
+export function createEmptySoftwareData(): MergedSoftwareData {
+  return {
+    allocations: new Map(),
+
+    inliningFailed: new Map(),
+    inliningSucceeded: new Map(),
+    inliningFailedReasons: new Map(),
+
+    methodsUnloads: new Map(),
+    methodsLoads: new Map(),
+
+    bufferAllocatedBytes: {count: 0, sum: 0},
+    bufferRentedBytes: {count: 0, sum: 0},
+    bufferReturnedBytes: {count: 0, sum: 0},
+
+    exceptions: new Map(),
+
+    createdThreads: new Set(),
+    terminatedThreads: new Set(),
+
+    httpRequests: new Map(),
+
+    histograms: new Map(),
+    counters: new Map()
+  };
+}
+
 function createMergedEnhancementData(originalSoftwareData: GrpcSoftwareData[], filter: RegExp | null): MergedEnhancementData {
   if (originalSoftwareData.length == 0) {
     return null;
@@ -74,30 +101,7 @@ function createMergedEnhancementData(originalSoftwareData: GrpcSoftwareData[], f
   let enhancementData: MergedEnhancementData = {
     eventClasses: new Map(),
     timelineDiagramFragments: [],
-    softwareData: {
-      allocations: new Map(),
-
-      inliningFailed: new Map(),
-      inliningSucceeded: new Map(),
-      inliningFailedReasons: new Map(),
-
-      methodsUnloads: new Map(),
-      methodsLoads: new Map(),
-
-      bufferAllocatedBytes: {count: 0, sum: 0},
-      bufferRentedBytes: {count: 0, sum: 0},
-      bufferReturnedBytes: {count: 0, sum: 0},
-
-      exceptions: new Map(),
-
-      createdThreads: new Set(),
-      terminatedThreads: new Set(),
-
-      httpRequests: new Map(),
-
-      histograms: new Map(),
-      counters: new Map()
-    }
+    softwareData: createEmptySoftwareData()
   };
 
   let matchesFilter = (value: string) => {

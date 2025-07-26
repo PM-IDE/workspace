@@ -26,7 +26,7 @@ function drawGraph(
   id: string,
   graph: GrpcGraph,
   annotation: GrpcAnnotation,
-  aggregatedData: AggregatedData,
+  data: AggregatedData,
   enhancements: SoftwareEnhancementKind[],
   filter: string | null,
   spacingFactor: number,
@@ -34,12 +34,10 @@ function drawGraph(
   useLROrientation: boolean
 ) {
   try {
-    //Dictionary from C# not eventually deserialized to Map in JS)
-    aggregatedData.totalHistogramsCount = new Map<string, number>(Object.entries(aggregatedData.totalHistogramsCount));
-    aggregatedData.totalCountersCount = new Map<string, number>(Object.entries(aggregatedData.totalCountersCount));
+    data = preprocessFromCSharpInterop(data);
 
     let regex = filter == null ? null : new RegExp(filter);
-    let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, aggregatedData, regex, spacingFactor, isRichUiGraph, useLROrientation));
+    let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, data, regex, spacingFactor, isRichUiGraph, useLROrientation));
 
     if (isRichUiGraph) {
       setNodeEdgeHtmlRenderer(cy, enhancements);
@@ -52,6 +50,37 @@ function drawGraph(
     console.error(e);
     return null;
   }
+}
+
+function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
+  data.globalSoftwareData.httpRequests = toMapCSharpInterop(data.globalSoftwareData.httpRequests);
+  data.globalSoftwareData.allocations = toMapCSharpInterop(data.globalSoftwareData.allocations);
+  data.globalSoftwareData.inliningSucceeded = toMapCSharpInterop(data.globalSoftwareData.inliningSucceeded);
+  data.globalSoftwareData.inliningFailed = toMapCSharpInterop(data.globalSoftwareData.inliningFailed);
+  data.globalSoftwareData.inliningFailedReasons = toMapCSharpInterop(data.globalSoftwareData.inliningFailedReasons);
+  data.globalSoftwareData.methodsLoads = toMapCSharpInterop(data.globalSoftwareData.methodsLoads);
+  data.globalSoftwareData.methodsUnloads = toMapCSharpInterop(data.globalSoftwareData.methodsUnloads);
+  data.globalSoftwareData.exceptions = toMapCSharpInterop(data.globalSoftwareData.exceptions);
+  data.globalSoftwareData.counters = toMapCSharpInterop(data.globalSoftwareData.counters);
+
+  data.globalSoftwareData.createdThreads = new Set(data.globalSoftwareData.createdThreads);
+  data.globalSoftwareData.terminatedThreads = new Set(data.globalSoftwareData.terminatedThreads);
+
+  data.globalSoftwareData.histograms = toMapCSharpInterop(data.globalSoftwareData.histograms);
+
+  for (let [key, map] of data.globalSoftwareData.histograms) {
+    data.globalSoftwareData.histograms.set(key, {
+      units: map.units,
+      value: toMapCSharpInterop(map.value)
+    });
+  }
+
+  return data;
+}
+
+function toMapCSharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
+  // @ts-ignore
+  return new Map(Object.entries(map));
 }
 
 function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number, useLROrientation: boolean) {
