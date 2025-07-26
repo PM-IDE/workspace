@@ -59,10 +59,20 @@
         </div>
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
           <AggregatedStatInfo Title="Allocated" Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
-          <AggregatedStatInfo Title="Execution Time" Value="@data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
+          <AggregatedStatInfo Title="Execution Time" Value="@data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture)" Units="QPC"/>
           <AggregatedStatInfo Title="Buffer Allocated" Value="@data.TotalBufferAllocatedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
           <AggregatedStatInfo Title="Buffer Rented" Value="@data.TotalBufferRentedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
           <AggregatedStatInfo Title="Buffer Returned" Value="@data.TotalBufferReturnedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
+          
+          @foreach (var counter in data.TotalCountersCount)
+          {
+            <AggregatedStatInfo Title=@counter.Key Value="@counter.Value.ToString(CultureInfo.InvariantCulture)" Units=@string.Empty/>
+          }
+          
+          @foreach (var histogram in data.TotalHistogramsCount)
+          {
+            <AggregatedStatInfo Title=@histogram.Key Value="@histogram.Value.ToString(CultureInfo.InvariantCulture)" Units=@string.Empty/>
+          }
         </div>
       </div>
     }
@@ -108,7 +118,7 @@
   private HashSet<string> mySelectedEnhancements = null!;
   private RadzenCheckBox<bool>[] myCheckBoxes = null!;
 
-  private AggregatedData myAggregatedData;
+  private AggregatedData? myAggregatedData;
 
 
   protected override void OnParametersSet()

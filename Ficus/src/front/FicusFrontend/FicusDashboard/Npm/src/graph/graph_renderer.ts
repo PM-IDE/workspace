@@ -50,6 +50,7 @@ function drawGraph(
     return cy;
   } catch (e) {
     console.error(e);
+    return null;
   }
 }
 

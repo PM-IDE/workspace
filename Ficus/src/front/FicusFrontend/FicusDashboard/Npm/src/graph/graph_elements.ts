@@ -60,9 +60,18 @@ export function createAggregatedData(graph: GrpcGraph, annotation: GrpcAnnotatio
     let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
     let regex = filter == null ? null : new RegExp(filter);
 
-    return createAggregatedDataInternal(graph, performanceEdgesMap, regex);
+    let data = createAggregatedDataInternal(graph, performanceEdgesMap, regex);
+
+    //JS Map can not be converted to C# Dictionary
+    // @ts-ignore
+    data.totalCountersCount = Object.fromEntries(data.totalCountersCount);
+    // @ts-ignore
+    data.totalHistogramsCount = Object.fromEntries(data.totalHistogramsCount);
+
+    return data;
   } catch (e) {
     console.error(e);
+    return null;
   }
 }
 
