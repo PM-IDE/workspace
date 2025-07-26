@@ -7,45 +7,66 @@
 @inject IJSRuntime Js
 
 
-<div style="display: flex; flex-direction: row; width: 100%; height: 100%;">
-  <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
-    @if (IsRichUiGraph(Graph))
-    {
-      @if (myEnhancements is { })
+<div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
+  <div style="display: flex; flex-direction: row; flex-grow: 1;">
+    <div style="display: flex; flex-direction: column; 
+                background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
+      @if (IsRichUiGraph(Graph))
       {
-        @foreach (var (index, enhancement) in myEnhancements.Index())
+        @if (myEnhancements is { })
         {
-          <div style="display: flex; flex-direction: row; align-items: center;">
-            <RadzenCheckBox TValue="bool"
-                            @ref="@myCheckBoxes[index]"
-                            ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
+          @foreach (var (index, enhancement) in myEnhancements.Index())
+          {
+            <div style="display: flex; flex-direction: row; align-items: center;">
+              <RadzenCheckBox TValue="bool"
+                              @ref="@myCheckBoxes[index]"
+                              ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
 
-            <div style="margin-left: 5px;">@enhancement</div>
-          </div>
+              <div style="margin-left: 5px;">@enhancement</div>
+            </div>
+          }
         }
+
+        <div style="margin-top: 5px;">Filter:</div>
+        <input type="text" @bind="myFilterValue" style="width: 120px;"/>
       }
 
-      <div style="margin-top: 5px;">Filter:</div>
-      <input type="text" @bind="myFilterValue" style="width: 120px;"/>
-    }
+      <div style="margin-top: 5px;">Spacing factor:</div>
+      <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
 
-    <div style="margin-top: 5px;">Spacing factor:</div>
-    <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
+      <RadzenStack Orientation="Orientation.Horizontal"
+                   AlignItems="AlignItems.Center"
+                   Gap="0.5rem"
+                   Style="margin-top: 5px;">
+        <RadzenLabel Text="TB"/>
+        <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
+        <RadzenLabel Text="LR"/>
+      </RadzenStack>
 
-    <RadzenStack Orientation="Orientation.Horizontal"
-                 AlignItems="AlignItems.Center"
-                 Gap="0.5rem"
-                 Style="margin-top: 5px;">
-      <RadzenLabel Text="TB"/>
-      <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
-      <RadzenLabel Text="LR"/>
-    </RadzenStack>
+      <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
+      <RadzenButton Click="ExportGraph" Style="width: 120px; margin-top: 5px;">Export to SVG</RadzenButton>
+    </div>
 
-    <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
-    <RadzenButton Click="ExportGraph" Style="width: 120px; margin-top: 30px;">Export to SVG</RadzenButton>
+    <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
   </div>
 
-  <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
+  <div style="margin-top: 5px;">
+    @if (myAggregatedData is { } data)
+    {
+      <div style="background: var(--aggregated-data-background); border-radius: 5px; padding: 10px;">
+        <div>
+          Aggregated Data
+        </div>
+        <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
+          <AggregatedStatInfo Title="Allocated" Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
+          <AggregatedStatInfo Title="Execution Time" Value="@data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
+          <AggregatedStatInfo Title="Buffer Allocated" Value="@data.TotalBufferAllocatedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
+          <AggregatedStatInfo Title="Buffer Rented" Value="@data.TotalBufferRentedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
+          <AggregatedStatInfo Title="Buffer Returned" Value="@data.TotalBufferReturnedBytes.ToString(CultureInfo.InvariantCulture)" Units="bytes"/>
+        </div>
+      </div>
+    }
+  </div>
 </div>
 
 @code
@@ -169,6 +190,7 @@
     };
 
     myAggregatedData = await Js.InvokeAsync<AggregatedData>("createAggregatedData", Graph, Annotation, myFilterValue);
+    StateHasChanged();
 
     return await Js.InvokeAsync<IJSObjectReference>(
       "drawGraph",

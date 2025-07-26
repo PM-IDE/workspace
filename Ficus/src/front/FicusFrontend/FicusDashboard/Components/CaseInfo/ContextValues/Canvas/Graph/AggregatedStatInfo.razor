@@ -1,0 +1,12 @@
+﻿<div style="display: flex; flex-direction: row; border-radius: 5px; background: var(--aggregated-stat-item-background); gap: 5px; padding: 5px;
+            justify-content: center; align-items: center">
+  <div>@Title</div>
+  <div style="border-radius: 5px; background: var(--aggregated-stat-item-value-background); padding: 2px;">@Value</div>
+  <div>@Units</div>
+</div>
+
+@code {
+  [Parameter] public required string Title { get; init; }
+  [Parameter] public required string Units { get; init; }
+  [Parameter] public required string Value { get; init; }
+}
