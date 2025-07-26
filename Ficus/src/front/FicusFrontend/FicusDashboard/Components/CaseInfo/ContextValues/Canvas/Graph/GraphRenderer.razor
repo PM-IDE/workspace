@@ -58,8 +58,10 @@
           Aggregated Data
         </div>
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
-          <AggregatedStatInfo Title="Allocated" Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)"
-                              Units="bytes"/>
+          <AggregatedStatInfo Title="Allocated" 
+                              Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)"
+                              Units="bytes"
+                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.Allocations)"/>
 
           <AggregatedStatInfo Title="Execution Time"
                               Value="@data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture)" Units="QPC"/>
@@ -86,7 +88,8 @@
           {
             <AggregatedStatInfo Title=@histogram.Key
                                 Value="@histogram.Value.Value.Values.Sum().ToString(CultureInfo.InvariantCulture)"
-                                Units=@string.Empty/>
+                                Units=@string.Empty
+                                Histogram="@PrepareHistogram(histogram.Value.Value)"/>
           }
         </div>
       </div>
@@ -268,10 +271,8 @@
     );
   }
 
-  private string CreateExportFileName()
-  {
-    return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
-  }
+  private string CreateExportFileName() => 
+    ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
 
   private void HandleSelectionChange(bool selected, string enhancement)
   {
@@ -285,11 +286,11 @@
     }
   }
 
-  private void ReRenderCanvas()
-  {
-    myCanvasComponent?.ReRenderCanvas();
-  }
+  private void ReRenderCanvas() => myCanvasComponent?.ReRenderCanvas();
 
   private Task ExportGraph() =>
     myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;
+
+  private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) => 
+    map.OrderBy(p => p.Value).Select(p => (p.Key, p.Value)).ToArray();
 }

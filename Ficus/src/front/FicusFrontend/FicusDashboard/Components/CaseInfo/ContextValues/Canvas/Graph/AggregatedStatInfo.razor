@@ -1,12 +1,20 @@
-﻿<div style="display: flex; flex-direction: row; border-radius: 5px; background: var(--aggregated-stat-item-background); gap: 5px; padding: 5px;
-            justify-content: center; align-items: center">
-  <div>@Title</div>
-  <div style="border-radius: 5px; background: var(--aggregated-stat-item-value-background); padding: 2px;">@Value</div>
-  <div>@Units</div>
+﻿<div style="display: flex; flex-direction: column; padding: 5px; border-radius: 5px; background: var(--aggregated-stat-item-background);">
+  <div style="display: flex; flex-direction: row; gap: 5px; justify-content: center; align-items: center; margin-bottom: 5px;">
+    <div>@Title</div>
+    <div style="border-radius: 5px; background: var(--aggregated-stat-item-value-background); padding: 2px;">@Value</div>
+    <div>@Units</div>
+  </div>
+
+  @if (Histogram is { })
+  {
+    <LineHistogram Entries="@Histogram" />
+  }
 </div>
 
 @code {
   [Parameter] public required string Title { get; init; }
   [Parameter] public required string Units { get; init; }
   [Parameter] public required string Value { get; init; }
+
+  [Parameter] public (string, double)[]? Histogram { get; init; }
 }

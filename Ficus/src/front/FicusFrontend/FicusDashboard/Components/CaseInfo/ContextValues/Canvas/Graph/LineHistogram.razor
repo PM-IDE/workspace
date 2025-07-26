@@ -1,0 +1,37 @@
+﻿@using System.Globalization
+
+<div style="width: 100%; height: 10px; display: flex; flex-direction: row;">
+  @{
+    var sum = Entries.Select(e => e.Value).Sum();
+  }
+
+  @foreach (var entry in Entries)
+  {
+    <div style="width: @Math.Ceiling(entry.Value / sum * 100).ToString(CultureInfo.InvariantCulture)%; 
+                height: 100%; 
+                background: @NextColor()">
+    </div>
+  }
+</div>
+
+@code {
+  private readonly HashSet<string> myUsedColors = [];
+  
+  [Parameter] public required (string Key, double Value)[] Entries { get; init; }
+
+  private string NextColor()
+  {
+    var color = GenerateRandomColor();
+
+    while (myUsedColors.Contains(color))
+    {
+      color = GenerateRandomColor();
+    }
+
+    myUsedColors.Add(color);
+    return color;
+  }
+  
+  private static string GenerateRandomColor() => $"#{Random.Shared.Next(0x1000000):X6}";
+
+}
