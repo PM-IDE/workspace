@@ -3,8 +3,8 @@ import {darkTheme, graphColors} from "../colors";
 import {
   calculateEdgeExecutionTime,
   calculateOverallExecutionTime,
-  getEdgeSoftwareDataOrNull,
-  getNodeSoftwareDataOrNull,
+  getEdgeEnhancementDataOrNull,
+  getNodeEnhancementDataOrNull,
   getPerformanceAnnotationColor, increment,
 } from "./util";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
@@ -12,7 +12,7 @@ import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import cytoscape from "cytoscape";
-import {AggregatedData, MergedSoftwareData} from "./types";
+import {AggregatedData, MergedEnhancementData, MergedSoftwareData} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
@@ -64,8 +64,8 @@ export function createAggregatedData(graph: GrpcGraph, annotation: GrpcAnnotatio
 
 function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null) {
   for (let node of nodes) {
-    let softwareData = getNodeSoftwareDataOrNull(node, filter);
-    updateAggregatedData(aggregatedData, softwareData);
+    let enhancementData = getNodeEnhancementDataOrNull(node, filter);
+    updateAggregatedData(aggregatedData, enhancementData.softwareData);
 
     let executionTime = calculateOverallExecutionTime(node);
     aggregatedData.totalExecutionTime += executionTime;
@@ -75,8 +75,8 @@ function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: Aggr
 
 function processEdgesAggregatedData(edges: GrpcGraphEdge[], aggregatedData: AggregatedData, performanceMap: Record<number, any>, filter: RegExp | null) {
   for (let edge of edges) {
-    let softwareData = getEdgeSoftwareDataOrNull(edge, filter);
-    updateAggregatedData(aggregatedData, softwareData);
+    let enhancementData = getEdgeEnhancementDataOrNull(edge, filter);
+    updateAggregatedData(aggregatedData, enhancementData.softwareData);
 
     let executionTime = performanceMap[edge.id] ?? calculateEdgeExecutionTime(edge);
 
@@ -104,7 +104,7 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null)
 
   for (let node of nodes) {
     let executionTime = calculateOverallExecutionTime(node);
-    let softwareData = getNodeSoftwareDataOrNull(node, filter);
+    let softwareData = getNodeEnhancementDataOrNull(node, filter);
 
     elements.push({
       data: {
@@ -153,7 +153,7 @@ export function createGraphEdgesElements(
   const maxWidth = 20;
 
   for (let edge of edges) {
-    let softwareData = getEdgeSoftwareDataOrNull(edge, filter);
+    let softwareData = getEdgeEnhancementDataOrNull(edge, filter);
 
     let weightRatio = edge.weight / maxWeight
     let width = minWidth + (maxWidth - minWidth) * weightRatio;

@@ -9,14 +9,14 @@ export interface GraphNode {
   innerGraph?: GrpcGraph,
   executionTime: number,
   additionalData: GrpcNodeAdditionalData[],
-  softwareData: MergedSoftwareData,
+  enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
 }
 
 export interface GraphEdge {
   frontendId: number,
   additionalData: GrpcNodeAdditionalData[]
-  softwareData: MergedSoftwareData,
+  enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
   executionTime: number,
   weight: number
@@ -57,8 +57,6 @@ export interface ValueWithUnits<T> {
 }
 
 export interface MergedSoftwareData {
-  histogram: Map<string, number>,
-  timelineDiagramFragments: GrpcTimelineDiagramFragment[],
   allocations: Map<string, number>,
 
   inliningFailed: Map<string, number>,
@@ -78,7 +76,13 @@ export interface MergedSoftwareData {
   terminatedThreads: Set<number>,
 
   httpRequests: Map<string, number>,
-  
+
   histograms: Map<string, ValueWithUnits<Map<string, number>>>,
   counters: Map<string, ValueWithUnits<number>>
 }
+
+export interface MergedEnhancementData {
+  eventClasses: Map<string, number>,
+  timelineDiagramFragments: GrpcTimelineDiagramFragment[],
+  softwareData: MergedSoftwareData
+} 

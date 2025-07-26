@@ -1,6 +1,6 @@
 import {darkTheme, performanceColors} from "../colors";
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
-import {CountAndSum, GraphEdge, GraphNode, MergedSoftwareData} from "./types";
+import {CountAndSum, GraphEdge, GraphNode, MergedEnhancementData} from "./types";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
@@ -57,45 +57,47 @@ export function getTraceId(additionalData: GrpcNodeAdditionalData): number {
   return additionalData.originalEventCoordinates.traceId;
 }
 
-export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedSoftwareData {
+export function getEdgeEnhancementDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedEnhancementData {
   let softwareData = edge.additionalData.filter(e => e.softwareData != null).map(e => e.softwareData);
-  return createMergedSoftwareData(softwareData, filter);
+  return createMergedEnhancementData(softwareData, filter);
 }
 
-export function getNodeSoftwareDataOrNull(node: GraphNode | GrpcGraphNode, filter: RegExp | null): MergedSoftwareData {
-  return createMergedSoftwareData(extractAllSoftwareData(node), filter);
+export function getNodeEnhancementDataOrNull(node: GraphNode | GrpcGraphNode, filter: RegExp | null): MergedEnhancementData {
+  return createMergedEnhancementData(extractAllSoftwareData(node), filter);
 }
 
-function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filter: RegExp | null): MergedSoftwareData {
+function createMergedEnhancementData(originalSoftwareData: GrpcSoftwareData[], filter: RegExp | null): MergedEnhancementData {
   if (originalSoftwareData.length == 0) {
     return null;
   }
 
-  let mergedSoftwareData: MergedSoftwareData = {
-    histogram: new Map(),
+  let enhancementData: MergedEnhancementData = {
+    eventClasses: new Map(),
     timelineDiagramFragments: [],
-    allocations: new Map(),
+    softwareData: {
+      allocations: new Map(),
 
-    inliningFailed: new Map(),
-    inliningSucceeded: new Map(),
-    inliningFailedReasons: new Map(),
+      inliningFailed: new Map(),
+      inliningSucceeded: new Map(),
+      inliningFailedReasons: new Map(),
 
-    methodsUnloads: new Map(),
-    methodsLoads: new Map(),
+      methodsUnloads: new Map(),
+      methodsLoads: new Map(),
 
-    bufferAllocatedBytes: {count: 0, sum: 0},
-    bufferRentedBytes: {count: 0, sum: 0},
-    bufferReturnedBytes: {count: 0, sum: 0},
+      bufferAllocatedBytes: {count: 0, sum: 0},
+      bufferRentedBytes: {count: 0, sum: 0},
+      bufferReturnedBytes: {count: 0, sum: 0},
 
-    exceptions: new Map(),
+      exceptions: new Map(),
 
-    createdThreads: new Set(),
-    terminatedThreads: new Set(),
+      createdThreads: new Set(),
+      terminatedThreads: new Set(),
 
-    httpRequests: new Map(),
+      httpRequests: new Map(),
 
-    histograms: new Map(),
-    counters: new Map()
+      histograms: new Map(),
+      counters: new Map()
+    }
   };
 
   let matchesFilter = (value: string) => {
@@ -111,17 +113,17 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       let [name, count] = [entry.name, entry.count];
 
       if (matchesFilter(name)) {
-        increment(mergedSoftwareData.histogram, name, count);
+        increment(enhancementData.eventClasses, name, count);
       }
     }
 
-    mergedSoftwareData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
+    enhancementData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
 
     for (let alloc of softwareData.allocationsInfo) {
       let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
 
       if (matchesFilter(alloc.typeName)) {
-        increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);
+        increment(enhancementData.softwareData.allocations, alloc.typeName, allocBytes);
       }
     }
 
@@ -132,10 +134,10 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (inliningEvent.failed != null) {
-        increment(mergedSoftwareData.inliningFailed, fqn, 1);
-        increment(mergedSoftwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
+        increment(enhancementData.softwareData.inliningFailed, fqn, 1);
+        increment(enhancementData.softwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
       } else if (inliningEvent.succeeded != null) {
-        increment(mergedSoftwareData.inliningSucceeded, fqn, 1);
+        increment(enhancementData.softwareData.inliningSucceeded, fqn, 1);
       }
     }
 
@@ -146,9 +148,9 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (loadUnloadEvent.load != null) {
-        increment(mergedSoftwareData.methodsLoads, fqn, 1);
+        increment(enhancementData.softwareData.methodsLoads, fqn, 1);
       } else if (loadUnloadEvent.unload != null) {
-        increment(mergedSoftwareData.methodsUnloads, fqn, 1);
+        increment(enhancementData.softwareData.methodsUnloads, fqn, 1);
       }
     }
 
@@ -158,17 +160,17 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (arrayPoolEvent.bufferAllocated != null) {
-        incrementCountAndSum(mergedSoftwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
+        incrementCountAndSum(enhancementData.softwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
       } else if (arrayPoolEvent.bufferReturned != null) {
-        incrementCountAndSum(mergedSoftwareData.bufferReturnedBytes, arrayPoolEvent.bufferSizeBytes);
+        incrementCountAndSum(enhancementData.softwareData.bufferReturnedBytes, arrayPoolEvent.bufferSizeBytes);
       } else if (arrayPoolEvent.bufferRented != null) {
-        incrementCountAndSum(mergedSoftwareData.bufferRentedBytes, arrayPoolEvent.bufferSizeBytes);
+        incrementCountAndSum(enhancementData.softwareData.bufferRentedBytes, arrayPoolEvent.bufferSizeBytes);
       }
     }
 
     for (let exception of softwareData.exceptionEvents) {
       if (matchesFilter(exception.exceptionType)) {
-        increment(mergedSoftwareData.exceptions, exception.exceptionType, 1);
+        increment(enhancementData.softwareData.exceptions, exception.exceptionType, 1);
       }
     }
 
@@ -178,26 +180,26 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (threadEvent.created != null) {
-        mergedSoftwareData.createdThreads.add(threadEvent.threadId);
+        enhancementData.softwareData.createdThreads.add(threadEvent.threadId);
       } else if (threadEvent.terminated != null) {
-        mergedSoftwareData.terminatedThreads.add(threadEvent.threadId);
+        enhancementData.softwareData.terminatedThreads.add(threadEvent.threadId);
       }
     }
 
     for (let httpEvent of softwareData.httpEvents) {
       let requestUrl = httpEvent.scheme + "://" + httpEvent.host + ":" + httpEvent.port + httpEvent.pathAndQuery;
       if (matchesFilter(requestUrl)) {
-        increment(mergedSoftwareData.httpRequests, requestUrl, 1);
+        increment(enhancementData.softwareData.httpRequests, requestUrl, 1);
       }
     }
 
     for (let histogram of softwareData.histogramData) {
       let histogramMap;
-      if (mergedSoftwareData.histograms.has(histogram.name)) {
-        histogramMap = mergedSoftwareData.histograms.get(histogram.name).value;
+      if (enhancementData.softwareData.histograms.has(histogram.name)) {
+        histogramMap = enhancementData.softwareData.histograms.get(histogram.name).value;
       } else {
         histogramMap = new Map();
-        mergedSoftwareData.histograms.set(histogram.name, {
+        enhancementData.softwareData.histograms.set(histogram.name, {
           value: histogramMap,
           units: histogram.units
         });
@@ -209,18 +211,18 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     }
 
     for (let counter of softwareData.simpleCounterData) {
-      if (!mergedSoftwareData.counters.has(counter.name)) {
-        mergedSoftwareData.counters.set(counter.name, {
+      if (!enhancementData.softwareData.counters.has(counter.name)) {
+        enhancementData.softwareData.counters.set(counter.name, {
           value: 0,
           units: counter.units
         });
       }
-      
-      mergedSoftwareData.counters.get(counter.name).value += counter.count;
+
+      enhancementData.softwareData.counters.get(counter.name).value += counter.count;
     }
   }
 
-  return mergedSoftwareData;
+  return enhancementData;
 }
 
 function restoreFqn(data: GrpcMethodNameParts) {

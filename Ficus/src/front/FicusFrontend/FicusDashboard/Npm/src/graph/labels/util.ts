@@ -1,6 +1,6 @@
 import {getOrCreateColor} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
-import {AggregatedData, MergedSoftwareData} from "../types";
+import {AggregatedData, MergedEnhancementData, MergedSoftwareData} from "../types";
 
 export let fallBackPerformanceColor = "#3d3d3d";
 

@@ -6,7 +6,7 @@ import {
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
 import {getOrCreateColor} from "../../utils";
-import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphNode, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
   createArrayPoolEnhancement,
@@ -24,7 +24,7 @@ export function createNodeHtmlLabelId(frontendId: number): string {
 }
 
 export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhancementKind[]) {
-  let softwareData = node.softwareData;
+  let softwareData = node.enhancementData;
   let label_id = createNodeHtmlLabelId(node.frontendId);
 
   if (softwareData == null) {
@@ -38,7 +38,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
     `;
   }
 
-  let sortedHistogramEntries = toSortedArray(softwareData.histogram);
+  let sortedHistogramEntries = toSortedArray(softwareData.eventClasses);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
   let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.totalExecutionTime);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
@@ -55,7 +55,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
 
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
-                  ${createEventClassesPieChart(softwareData.histogram)}
+                  ${createEventClassesPieChart(softwareData.eventClasses)}
                   ${createNodeEnhancements(enhancements, softwareData, node.aggregatedData)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                   ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
@@ -87,10 +87,10 @@ function createEventClassesPieChart(data: Map<string, number>) {
   `;
 }
 
-function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
+function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], enhancementData: MergedEnhancementData, aggregatedData: AggregatedData): string {
   // @ts-ignore
   let enhancementsHtmls: [SoftwareEnhancementKind, string][] = enhancements
-    .map(e => [e, createNodeEnhancementContent(softwareData, aggregatedData, e)])
+    .map(e => [e, createNodeEnhancementContent(enhancementData.softwareData, aggregatedData, e)])
     .filter(res => (<any>res[1]).length > 0);
 
   if (enhancementsHtmls.length == 0) {

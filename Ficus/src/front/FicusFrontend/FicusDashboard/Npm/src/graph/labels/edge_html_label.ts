@@ -1,4 +1,4 @@
-import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createArrayPoolEnhancement,
   createEnhancementContainer, createNumberInformation,
@@ -9,8 +9,8 @@ import {
 } from "./util";
 
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
-  let softwareData = edge.softwareData;
-  if (softwareData == null) {
+  let enhancementData = edge.enhancementData;
+  if (enhancementData == null) {
     return `
       <div style="margin-top: 140px;">
         ${createEdgeExecutionInfo(edge)}
@@ -21,7 +21,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${enhancements.map(e => createEdgeEnhancement(softwareData, edge, e)).join("\n")}
+        ${enhancements.map(e => createEdgeEnhancement(enhancementData.softwareData, edge, e)).join("\n")}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>
