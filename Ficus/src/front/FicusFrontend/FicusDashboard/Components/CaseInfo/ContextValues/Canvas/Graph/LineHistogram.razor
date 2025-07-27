@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using BlazorBootstrap
 
 <div style="width: 100%; height: 10px; display: flex; flex-direction: row;">
   @{
@@ -7,31 +8,45 @@
 
   @foreach (var entry in Entries)
   {
-    <div style="width: @Math.Ceiling(entry.Value / sum * 100).ToString(CultureInfo.InvariantCulture)%; 
-                height: 100%; 
-                background: @NextColor()">
-    </div>
+    var percents = Math.Ceiling(entry.Value / sum * 100).ToString(CultureInfo.InvariantCulture);
+    var style = $"width: {percents}%; height: 100%;";
+    var tooltip = $"{entry.Key}, ({entry.Value}, {percents}%)";
+
+    <Tooltip Title="@tooltip"
+             Placement="TooltipPlacement.Top"
+             Style="@style">
+      <div style="width: 100%; height: 100%; background: @NextColor(entry.Key)"
+           class="line-histogram-entry">
+      </div>
+    </Tooltip>
   }
 </div>
 
 @code {
   private readonly HashSet<string> myUsedColors = [];
-  
+  private readonly Dictionary<string, string> myNamesToColors = [];
+
   [Parameter] public required (string Key, double Value)[] Entries { get; init; }
 
-  private string NextColor()
+  private string NextColor(string key)
   {
-    var color = GenerateRandomColor();
+    if (myNamesToColors.TryGetValue(key, out var color))
+    {
+      return color;
+    }
+
+    color = GenerateRandomColor();
 
     while (myUsedColors.Contains(color))
     {
       color = GenerateRandomColor();
     }
 
+    myNamesToColors[key] = color;
     myUsedColors.Add(color);
+
     return color;
   }
-  
-  private static string GenerateRandomColor() => $"#{Random.Shared.Next(0x1000000):X6}";
 
+  private static string GenerateRandomColor() => $"#{Random.Shared.Next(0x1000000):X6}";
 }
