@@ -58,7 +58,7 @@
           Aggregated Data
         </div>
         <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
-          <AggregatedStatInfo Title="Allocated" 
+          <AggregatedStatInfo Title="Allocated"
                               Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)"
                               Units="bytes"
                               Histogram="@PrepareHistogram(data.GlobalSoftwareData.Allocations)"/>
@@ -77,6 +77,30 @@
           <AggregatedStatInfo Title="Buffer Returned"
                               Value="@data.TotalBufferReturnedBytes.ToString(CultureInfo.InvariantCulture)"
                               Units="bytes"/>
+
+          <AggregatedStatInfo Title="Exceptions"
+                              Value="@CalculateTotal(data.GlobalSoftwareData.Exceptions)"
+                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.Exceptions)"/>
+
+          <AggregatedStatInfo Title="Inlinings Failed"
+                              Value="@CalculateTotal(data.GlobalSoftwareData.InliningFailed)"
+                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.InliningFailed)"/>
+
+          <AggregatedStatInfo Title="Inlinings Succeeded"
+                              Value="@CalculateTotal(data.GlobalSoftwareData.InliningSucceeded)"
+                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.InliningSucceeded)"/>
+
+          <AggregatedStatInfo Title="Inlinings Fail Reason"
+                              Value="@CalculateTotal(data.GlobalSoftwareData.InliningFailedReasons)"
+                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.InliningFailedReasons)"/>
+
+          <AggregatedStatInfo Title="Method Loads"
+                              Value="@CalculateTotal(data.GlobalSoftwareData.MethodsLoads)"
+                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.MethodsLoads)"/>
+
+          <AggregatedStatInfo Title="Method Unloads"
+                              Value="@CalculateTotal(data.GlobalSoftwareData.MethodsUnloads)"
+                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.MethodsUnloads)"/>
 
           @foreach (var counter in data.GlobalSoftwareData.Counters)
           {
@@ -271,7 +295,7 @@
     );
   }
 
-  private string CreateExportFileName() => 
+  private string CreateExportFileName() =>
     ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
 
   private void HandleSelectionChange(bool selected, string enhancement)
@@ -291,6 +315,9 @@
   private Task ExportGraph() =>
     myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;
 
-  private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) => 
+  private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) =>
     map.OrderBy(p => p.Value).Select(p => (p.Key, p.Value)).ToArray();
+
+  private static string NumberToString(double number) => number.ToString(CultureInfo.InvariantCulture);
+  private static string CalculateTotal(Dictionary<string, double> map) => NumberToString(map.Values.Sum());
 }
