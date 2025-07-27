@@ -133,7 +133,7 @@
       "path_and_query_attr": "pathAndQuery"
     }
   },
-  "histogram_extraction_configs": [
+  "pie_chart_extraction_configs": [
     {
       "event_class_regex": "GC\/SampledObject",
       "info": {

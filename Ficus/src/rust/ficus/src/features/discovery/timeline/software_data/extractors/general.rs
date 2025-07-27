@@ -1,6 +1,6 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::extraction_config::{HistogramExtractionConfig, SimpleCountExtractionConfig, SoftwareDataExtractionConfig};
+use crate::features::discovery::timeline::software_data::extraction_config::{PieChartExtractionConfig, SimpleCountExtractionConfig, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SimpleCounterData, SoftwareData};
 use derive_new::new;
@@ -10,18 +10,18 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 #[derive(Clone, Debug, new)]
-pub struct GeneralHistogramExtractor<'a> {
+pub struct PieChartExtractor<'a> {
   config: &'a SoftwareDataExtractionConfig,
 }
 
-impl<'a> SoftwareDataExtractor for GeneralHistogramExtractor<'a> {
+impl<'a> SoftwareDataExtractor for PieChartExtractor<'a> {
   fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
-    if self.config.histogram_extraction_configs().is_empty() {
+    if self.config.pie_chart_extraction_configs().is_empty() {
       return Ok(());
     }
 
     let regexes = self.config
-      .histogram_extraction_configs()
+      .pie_chart_extraction_configs()
       .iter()
       .map(|c|
         (
@@ -29,7 +29,7 @@ impl<'a> SoftwareDataExtractor for GeneralHistogramExtractor<'a> {
           c.info()
         )
       )
-      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &HistogramExtractionConfig)>>();
+      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &PieChartExtractionConfig)>>();
 
     let mut result = HashMap::new();
     for event in events {
