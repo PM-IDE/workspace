@@ -122,9 +122,11 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
       if (softwareData.histograms.has(enhancement)) {
         let sum = softwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
         let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
-        return createSoftwareEnhancementHistogram(
+
+        return createSoftwareEnhancementPieChart(
           enhancement,
           softwareData.histograms.get(enhancement).value,
+          (sum / globalSum) * 100,
           getPerformanceAnnotationColor(sum / globalSum)
         );
       }
@@ -150,7 +152,7 @@ function createHttpEnhancement(softwareData: MergedSoftwareData): string {
 
   return `
     <div>
-      ${createSoftwareEnhancementHistogram("Requests", softwareData.httpRequests, null)}
+      ${createSoftwareEnhancementPieChart("Requests", softwareData.httpRequests, null, null)}
     </div>
   `
 }
@@ -162,7 +164,7 @@ function createExceptionEnhancement(softwareData: MergedSoftwareData): string {
 
   return `
     <div>
-      ${createSoftwareEnhancementHistogram("Exceptions", softwareData.exceptions, getPerformanceAnnotationColor(1))}
+      ${createSoftwareEnhancementPieChart("Exceptions", softwareData.exceptions, null, getPerformanceAnnotationColor(1))}
     </div>
   `
 }
@@ -174,8 +176,8 @@ function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): s
 
   return `
     <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementHistogram("Load", softwareData.methodsLoads, null)} 
-      ${createSoftwareEnhancementHistogram("Unload", softwareData.methodsUnloads, null)}
+      ${createSoftwareEnhancementPieChart("Load", softwareData.methodsLoads, null, null)} 
+      ${createSoftwareEnhancementPieChart("Unload", softwareData.methodsUnloads, null, null)}
     </div> 
   `;
 }
@@ -187,17 +189,19 @@ function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): str
 
   return `
     <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementHistogram("Succeeded", softwareData.inliningSucceeded, null)} 
-      ${createSoftwareEnhancementHistogram("Failed", softwareData.inliningFailed, null)} 
-      ${createSoftwareEnhancementHistogram("Failed Reasons", softwareData.inliningFailedReasons, null)} 
+      ${createSoftwareEnhancementPieChart("Succeeded", softwareData.inliningSucceeded, null, null)} 
+      ${createSoftwareEnhancementPieChart("Failed", softwareData.inliningFailed, null, null)} 
+      ${createSoftwareEnhancementPieChart("Failed Reasons", softwareData.inliningFailedReasons, null, null)} 
     </div>
   `;
 }
 
-function createSoftwareEnhancementHistogram(title: string, data: Map<string, number>, perfColor: null | string) {
+function createSoftwareEnhancementPieChart(title: string, data: Map<string, number>, percent: number | null, perfColor: null | string) {
   if (data.size == 0) {
     return "";
   }
+
+  let percentString = percent == null ? "" : `, ${percent.toFixed(2)}%`;
 
   return `
       <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -206,7 +210,7 @@ function createSoftwareEnhancementHistogram(title: string, data: Map<string, num
             ${title}
           </div>
           <div>
-            (${data.values().reduce((a, b) => a + b, 0)})
+            ${data.values().reduce((a, b) => a + b, 0)}${percentString}
           </div>
           <div>
             ${createPieChart(toSortedArray(data), perfColor)}
