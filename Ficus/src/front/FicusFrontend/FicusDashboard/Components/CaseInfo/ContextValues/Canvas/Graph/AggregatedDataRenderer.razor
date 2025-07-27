@@ -48,14 +48,14 @@
   {
     Title = counter.Key,
     Value = counter.Value.Value,
-    Units = string.Empty
+    Units = counter.Value.Units,
   }).ToArray();
 
   private AggregatedStatDto[] CreateHistogramsDto() => Data.GlobalSoftwareData.Histograms.Select(histogram => new AggregatedStatDto
   {
     Title = histogram.Key,
     Value = histogram.Value.Value.Values.Sum(),
-    Units = string.Empty,
+    Units = histogram.Value.Units,
     Histogram = PrepareHistogram(histogram.Value.Value),
   }).ToArray();
 

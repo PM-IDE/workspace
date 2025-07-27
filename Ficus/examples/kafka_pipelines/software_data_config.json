@@ -147,14 +147,14 @@
       "event_class_regex": "Method/LoadVerbose",
       "info": {
         "name": "Method Loads",
-        "units": "bytes"
+        "units": "methods"
       }
     },
     {
       "event_class_regex": "Method/UnloadVerbose",
       "info": {
         "name": "Method Unloads",
-        "units": "bytes"
+        "units": "methods"
       }
     }
   ],
