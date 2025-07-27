@@ -53,128 +53,13 @@
   <div style="margin-top: 5px;">
     @if (myAggregatedData is { } data)
     {
-      <div style="background: var(--aggregated-data-background); border-radius: 5px; padding: 10px;">
-        <div>
-          Aggregated Data
-        </div>
-        <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
-          <AggregatedStatInfo Title="Allocated"
-                              Value="@data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture)"
-                              Units="bytes"
-                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.Allocations)"/>
-
-          <AggregatedStatInfo Title="Execution Time"
-                              Value="@data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture)" Units="QPC"/>
-
-          <AggregatedStatInfo Title="Buffer Allocated"
-                              Value="@data.TotalBufferAllocatedBytes.ToString(CultureInfo.InvariantCulture)"
-                              Units="bytes"/>
-
-          <AggregatedStatInfo Title="Buffer Rented"
-                              Value="@data.TotalBufferRentedBytes.ToString(CultureInfo.InvariantCulture)"
-                              Units="bytes"/>
-
-          <AggregatedStatInfo Title="Buffer Returned"
-                              Value="@data.TotalBufferReturnedBytes.ToString(CultureInfo.InvariantCulture)"
-                              Units="bytes"/>
-
-          <AggregatedStatInfo Title="Exceptions"
-                              Value="@CalculateTotal(data.GlobalSoftwareData.Exceptions)"
-                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.Exceptions)"/>
-
-          <AggregatedStatInfo Title="Inlinings Failed"
-                              Value="@CalculateTotal(data.GlobalSoftwareData.InliningFailed)"
-                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.InliningFailed)"/>
-
-          <AggregatedStatInfo Title="Inlinings Succeeded"
-                              Value="@CalculateTotal(data.GlobalSoftwareData.InliningSucceeded)"
-                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.InliningSucceeded)"/>
-
-          <AggregatedStatInfo Title="Inlinings Fail Reason"
-                              Value="@CalculateTotal(data.GlobalSoftwareData.InliningFailedReasons)"
-                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.InliningFailedReasons)"/>
-
-          <AggregatedStatInfo Title="Method Loads"
-                              Value="@CalculateTotal(data.GlobalSoftwareData.MethodsLoads)"
-                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.MethodsLoads)"/>
-
-          <AggregatedStatInfo Title="Method Unloads"
-                              Value="@CalculateTotal(data.GlobalSoftwareData.MethodsUnloads)"
-                              Histogram="@PrepareHistogram(data.GlobalSoftwareData.MethodsUnloads)"/>
-
-          @foreach (var counter in data.GlobalSoftwareData.Counters)
-          {
-            <AggregatedStatInfo Title=@counter.Key Value="@counter.Value.Value.ToString(CultureInfo.InvariantCulture)"
-                                Units=@string.Empty/>
-          }
-
-          @foreach (var histogram in data.GlobalSoftwareData.Histograms)
-          {
-            <AggregatedStatInfo Title=@histogram.Key
-                                Value="@histogram.Value.Value.Values.Sum().ToString(CultureInfo.InvariantCulture)"
-                                Units=@string.Empty
-                                Histogram="@PrepareHistogram(histogram.Value.Value)"/>
-          }
-        </div>
-      </div>
+      <AggregatedDataRenderer Data="@data"/>
     }
   </div>
 </div>
 
 @code
 {
-  private class AggregatedData
-  {
-    public double TotalAllocatedBytes { get; set; }
-    public double TotalExecutionTime { get; set; }
-    public double MaxExecutionTime { get; set; }
-
-    public double TotalBufferAllocatedBytes { get; set; }
-    public double TotalBufferRentedBytes { get; set; }
-    public double TotalBufferReturnedBytes { get; set; }
-
-    public MergedSoftwareData GlobalSoftwareData { get; set; } = new();
-  }
-
-  private class MergedSoftwareData
-  {
-    public Dictionary<string, double> Allocations { get; set; } = new();
-
-    public Dictionary<string, double> InliningFailed { get; set; } = new();
-    public Dictionary<string, double> InliningSucceeded { get; set; } = new();
-    public Dictionary<string, double> InliningFailedReasons { get; set; } = new();
-
-    public Dictionary<string, double> MethodsLoads { get; set; } = new();
-    public Dictionary<string, double> MethodsUnloads { get; set; } = new();
-
-    public CountAndSum BufferAllocatedBytes { get; set; } = new();
-    public CountAndSum BufferRentedBytes { get; set; } = new();
-    public CountAndSum BufferReturnedBytes { get; set; } = new();
-
-    public Dictionary<string, double> Exceptions { get; set; } = new();
-
-    public HashSet<double> CreatedThreads { get; set; } = [];
-    public HashSet<double> TerminatedThreads { get; set; } = [];
-
-    public Dictionary<string, double> HttpRequests { get; set; } = new();
-
-    public Dictionary<string, ValueWithUnits<Dictionary<string, double>>> Histograms { get; set; } = new();
-    public Dictionary<string, ValueWithUnits<double>> Counters { get; set; } = new();
-  }
-
-  private class CountAndSum
-  {
-    public double Count { get; set; }
-    public double Sum { get; set; }
-  }
-
-  private class ValueWithUnits<T>
-  {
-    public string Units { get; set; }
-    public T Value { get; set; }
-  }
-
-
   private static string[] ourPredefinedEnhancements =
   [
     "Allocations", "Exceptions", "MethodsLoadUnload", "MethodsInlinings", "ArrayPools", "Http", "Sockets", "Threads"
@@ -314,10 +199,4 @@
 
   private Task ExportGraph() =>
     myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;
-
-  private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) =>
-    map.OrderBy(p => p.Value).Select(p => (p.Key, p.Value)).ToArray();
-
-  private static string NumberToString(double number) => number.ToString(CultureInfo.InvariantCulture);
-  private static string CalculateTotal(Dictionary<string, double> map) => NumberToString(map.Values.Sum());
 }

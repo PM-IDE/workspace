@@ -1,0 +1,125 @@
+﻿@using System.Globalization
+
+<div style="background: var(--aggregated-data-background); border-radius: 5px; padding: 10px;">
+  <div>
+    Aggregated Data
+  </div>
+  <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
+    @foreach (var info in CreateInfos())
+    {
+      <AggregatedStatInfo Title=@info.Title Histogram=@info.Histogram Value=@info.Value Units=@info.Units/>
+    }
+  </div>
+</div>
+
+@code {
+  [Parameter] public required AggregatedData Data { get; init; }
+
+
+  private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) =>
+    map.OrderBy(p => p.Value).Select(p => (p.Key, p.Value)).ToArray();
+
+  private static string NumberToString(double number) => number.ToString(CultureInfo.InvariantCulture);
+  private static string CalculateTotal(Dictionary<string, double> map) => NumberToString(map.Values.Sum());
+
+  private AggregatedStatInfo[] CreateInfos()
+  {
+    List<AggregatedStatInfo> infos =
+    [
+      new()
+      {
+        Title = "Allocated",
+        Value = Data.TotalAllocatedBytes.ToString(CultureInfo.InvariantCulture),
+        Units = "bytes",
+        Histogram = PrepareHistogram(Data.GlobalSoftwareData.Allocations),
+      },
+      new()
+      {
+        Title = "Execution Time",
+        Value = Data.TotalExecutionTime.ToString(CultureInfo.InvariantCulture),
+        Units = "QPC"
+      },
+
+      new()
+      {
+        Title = "Buffer Allocated",
+        Value = Data.TotalBufferAllocatedBytes.ToString(CultureInfo.InvariantCulture),
+        Units = "bytes",
+      },
+
+      new()
+      {
+        Title = "Buffer Rented",
+        Value = Data.TotalBufferRentedBytes.ToString(CultureInfo.InvariantCulture),
+        Units = "bytes"
+      },
+
+      new()
+      {
+        Title = "Buffer Returned",
+        Value = Data.TotalBufferReturnedBytes.ToString(CultureInfo.InvariantCulture),
+        Units = "bytes",
+      },
+
+      new()
+      {
+        Title = "Exceptions",
+        Value = CalculateTotal(Data.GlobalSoftwareData.Exceptions),
+        Histogram = PrepareHistogram(Data.GlobalSoftwareData.Exceptions),
+      },
+
+      new()
+      {
+        Title = "Inlinings Failed",
+        Value = CalculateTotal(Data.GlobalSoftwareData.InliningFailed),
+        Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningFailed)
+      },
+
+      new()
+      {
+        Title = "Inlinings Succeeded",
+        Value = CalculateTotal(Data.GlobalSoftwareData.InliningSucceeded),
+        Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningSucceeded),
+      },
+
+      new()
+      {
+        Title = "Inlinings Fail Reason",
+        Value = CalculateTotal(Data.GlobalSoftwareData.InliningFailedReasons),
+        Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningFailedReasons),
+      },
+
+      new()
+      {
+        Title = "Method Loads",
+        Value = CalculateTotal(Data.GlobalSoftwareData.MethodsLoads),
+        Histogram = PrepareHistogram(Data.GlobalSoftwareData.MethodsLoads),
+      },
+
+      new()
+      {
+        Title = "Method Unloads",
+        Value = CalculateTotal(Data.GlobalSoftwareData.MethodsUnloads),
+        Histogram = PrepareHistogram(Data.GlobalSoftwareData.MethodsUnloads),
+      }
+    ];
+
+    infos.AddRange(Data.GlobalSoftwareData.Counters.Select(counter => new AggregatedStatInfo
+    {
+      Title = counter.Key,
+      Value = counter.Value.Value.ToString(CultureInfo.InvariantCulture),
+      Units = string.Empty
+    }));
+
+    infos.AddRange(Data.GlobalSoftwareData.Histograms.Select(histogram => new AggregatedStatInfo
+    {
+      Title = histogram.Key,
+      Value = histogram.Value.Value.Values.Sum().ToString(CultureInfo.InvariantCulture),
+      Units = string.Empty,
+      Histogram = PrepareHistogram(histogram.Value.Value),
+    }));
+
+    return infos.OrderByDescending(i => i.Histogram?.Length ?? -1).ToArray();
+  }
+
+}
