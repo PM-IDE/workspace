@@ -536,11 +536,11 @@ fn test_general_histogram() {
       config.set_histogram_extraction_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          HistogramExtractionConfig::new("g1".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
+          HistogramExtractionConfig::new("g1".to_string(), Some("type".to_string()), Some("count".to_string()), "units".to_string())
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          HistogramExtractionConfig::new("g2".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
+          HistogramExtractionConfig::new("g2".to_string(), Some("type".to_string()), Some("count".to_string()), "units".to_string())
         )
       ]);
 

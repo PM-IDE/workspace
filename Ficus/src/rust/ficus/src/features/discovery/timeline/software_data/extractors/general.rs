@@ -38,19 +38,27 @@ impl<'a> SoftwareDataExtractor for GeneralHistogramExtractor<'a> {
           match regex {
             Ok(regex) => {
               if regex.is_match(event.borrow().name()).unwrap_or(false) {
-                let count = if let Some(count) = payload.get(config.count_attr()) {
-                  parse_or_err::<f64>(count.to_string_repr().as_str())?
+                let count = if let Some(count_attr) = config.count_attr() {
+                  if let Some(count) = payload.get(count_attr) {
+                    parse_or_err::<f64>(count.to_string_repr().as_str())?
+                  } else {
+                    continue
+                  }
                 } else {
-                  continue
+                  1.
                 };
 
-                let grouping_value = if let Some(grouping_value) = payload.get(config.grouping_attr()) {
-                  grouping_value.to_string_repr()
+                let grouping_value = if let Some(grouping_attr) = config.grouping_attr() {
+                  if let Some(grouping_value) = payload.get(grouping_attr) {
+                    grouping_value.to_string_repr().to_string()
+                  } else {
+                    continue
+                  }
                 } else {
-                  continue
+                  event.borrow().name().to_string()
                 };
 
-                *result.entry(config.name()).or_insert((config.units(), HashMap::new())).1.entry(grouping_value.to_string()).or_insert(0.) += count;
+                *result.entry(config.name()).or_insert((config.units(), HashMap::new())).1.entry(grouping_value).or_insert(0.) += count;
               }
             }
             Err(err) => return Err(err.clone())
