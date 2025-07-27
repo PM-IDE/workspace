@@ -1,12 +1,4 @@
 {
-  "allocation": {
-    "event_class_regex": "GC\/SampledObject",
-    "info": {
-      "type_name_attr": "TypeName",
-      "allocated_count_attr": "ObjectCountForTypeSample",
-      "total_allocated_bytes_attr": "TotalSizeForTypeSample"
-    }
-  },
   "method_start": {
     "event_class_regex": "ProcfilerMethod/Begin",
     "info": {
@@ -64,26 +56,6 @@
       "fail_reason_attr": "FailReason"
     }
   },
-  "method_load": {
-    "event_class_regex": "Method/LoadVerbose",
-    "info": {
-      "common_attrs": {
-        "name_attr": "MethodName",
-        "namespace_attr": "MethodNamespace",
-        "signature_attr": "MethodSignature"
-      }
-    }
-  },
-  "method_unload": {
-    "event_class_regex": "Method/UnloadVerbose",
-    "info": {
-      "common_attrs": {
-        "name_attr": "MethodName",
-        "namespace_attr": "MethodNamespace",
-        "signature_attr": "MethodSignature"
-      }
-    }
-  },
   "socket_connect_start": {
     "event_class_regex": "Connect/Start",
     "info": {
@@ -124,34 +96,6 @@
       "thread_id_attr": "ID"
     }
   },
-  "array_pool_array_created": {
-    "event_class_regex": "Buffer/Allocated",
-    "info": {
-      "buffer_id_attr": "bufferId",
-      "buffer_size_attr": "bufferSize"
-    }
-  },
-  "array_pool_array_rented": {
-    "event_class_regex": "Buffer/Rented",
-    "info": {
-      "buffer_id_attr": "bufferId",
-      "buffer_size_attr": "bufferSize"
-    }
-  },
-  "array_pool_array_returned": {
-    "event_class_regex": "Buffer/Returned",
-    "info": {
-      "buffer_id_attr": "bufferId",
-      "buffer_size_attr": "bufferSize"
-    }
-  },
-  "array_pool_array_trimmed": {
-    "event_class_regex": "Buffer/Trimmed",
-    "info": {
-      "buffer_id_attr": "bufferId",
-      "buffer_size_attr": "bufferSize"
-    }
-  },
   "assembly_load": {
     "event_class_regex": "Loader/AssemblyLoad",
     "info": {
@@ -189,9 +133,66 @@
       "path_and_query_attr": "pathAndQuery"
     }
   },
-  "histogram_extraction_configs": [],
-  "simple_counter_configs": [],
+  "histogram_extraction_configs": [
+    {
+      "event_class_regex": "GC\/SampledObject",
+      "info": {
+        "name": "Object Allocations",
+        "count_attr": "TotalSizeForTypeSample",
+        "grouping_attr": "TypeName",
+        "units": "bytes"
+      }
+    },
+    {
+      "event_class_regex": "Method/LoadVerbose",
+      "info": {
+        "name": "Method Loads",
+        "units": "bytes"
+      }
+    },
+    {
+      "event_class_regex": "Method/UnloadVerbose",
+      "info": {
+        "name": "Method Unloads",
+        "units": "bytes"
+      }
+    }
+  ],
+  "simple_counter_configs": [
+    {
+      "event_class_regex": "Buffer/Rented",
+      "info": {
+        "name": "Buffer Rented",
+        "count_attr": "bufferSize",
+        "units": "bytes"
+      }
+    },
+    {
+      "event_class_regex": "Buffer/Returned",
+      "info": {
+        "name": "Buffer Returned",
+        "count_attr": "bufferSize",
+        "units": "bytes"
+      }
+    },
+    {
+      "event_class_regex": "Buffer/Trimmed",
+      "info": {
+        "name": "Buffer Trimmed",
+        "count_attr": "bufferSize",
+        "units": "bytes"
+      }
+    },
+    {
+      "event_class_regex": "Buffer/Allocated",
+      "info": {
+        "name": "Buffer Allocated",
+        "count_attr": "bufferSize",
+        "units": "bytes"
+      }
+    }
+  ],
   "raw_control_flow_regexes": [
-    "BusinessEvent"
+    "ProcfilerMethod"
   ]
 }
