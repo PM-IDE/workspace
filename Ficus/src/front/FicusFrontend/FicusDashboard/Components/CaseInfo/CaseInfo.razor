@@ -1,4 +1,4 @@
-﻿@using System.Collections.ObjectModel
+﻿@using BlazorBootstrap
 @using FicusDashboard.Layout.Models
 @using FicusDashboard.Services.Cases
 @using JetBrains.Lifetimes
@@ -17,6 +17,15 @@
 }
 
 <PageTitle>@title</PageTitle>
+
+@if (myIsLoading)
+{
+  <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+    <Spinner Type="SpinnerType.Dots" />
+  </div>
+
+  return;
+}
 
 <div class="case-info-header-container">
   <div class="case-info-header-first-line">
@@ -51,9 +60,10 @@
 @code
 {
   private readonly SequentialLifetimes myLifetimes = new(Lifetime.Eternal);
-
   private IReadOnlyDictionary<Guid, PipelinePartExecutionResults> myPipelinePartsExecutionResults = 
     new Dictionary<Guid, PipelinePartExecutionResults>();
+
+  private bool myIsLoading;
   
   private Lifetime myCurrentLifetime;
   private ProcessCaseData? myProcessCaseData;
@@ -72,8 +82,13 @@
 
     myProcessCaseData = ProcessCaseData;
     myCurrentLifetime = myLifetimes.Next();
+
+    myIsLoading = true;
+    StateHasChanged();
+
     myPipelinePartsExecutionResults = await SubscriptionsService.GetCaseExecutionResult(myProcessCaseData);
 
+    myIsLoading = false;
     StateHasChanged();
   }
 }
