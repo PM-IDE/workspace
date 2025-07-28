@@ -211,10 +211,10 @@
       false => 1
     };
 
-    myAggregatedData = await Js.InvokeAsync<AggregatedData>("createAggregatedData", Graph, Annotation, myFilterValue);
-    StateHasChanged();
+    var changeState = myAggregatedData is null;
+    myAggregatedData ??= await Js.InvokeAsync<AggregatedData>("createAggregatedData", Graph, Annotation, myFilterValue);
 
-    return await Js.InvokeAsync<IJSObjectReference>(
+    var reference = await Js.InvokeAsync<IJSObjectReference>(
       "drawGraph",
       canvasId,
       Graph,
@@ -226,6 +226,13 @@
       IsRichUiGraph(Graph),
       myUseLROrientation
     );
+
+    if (changeState)
+    {
+      StateHasChanged();
+    }
+
+    return reference;
   }
 
   private string CreateExportFileName() =>
