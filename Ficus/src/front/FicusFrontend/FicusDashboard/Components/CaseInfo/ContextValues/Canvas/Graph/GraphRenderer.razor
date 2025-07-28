@@ -60,12 +60,6 @@
 
 @code
 {
-  private static string[] ourPredefinedEnhancements =
-  [
-    "Allocations", "Exceptions", "MethodsLoadUnload", "MethodsInlinings", "ArrayPools", "Http", "Sockets", "Threads"
-  ];
-
-
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
@@ -92,35 +86,77 @@
     myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
   }
 
-  private static List<string> FindAllEnhancements(GrpcGraph graph)
+  private List<string> FindAllEnhancements(GrpcGraph graph)
   {
-    var enhancements = new List<string>(ourPredefinedEnhancements);
+    var enhancements = new HashSet<string>();
+    
+    AddGraphEnhancements(graph, enhancements);
 
-    var customEnhancements = graph.Edges
-      .SelectMany(e => e.AdditionalData)
-      .SelectMany(d => ExtractCustomEnhancements(d.SoftwareData))
-      .ToHashSet();
-
-    AddNodesCustomEnhancements(graph, customEnhancements);
-
-    enhancements.AddRange(customEnhancements.Order());
-
-    return enhancements;
+    return enhancements.Order().ToList();
   }
 
-  private static void AddNodesCustomEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddGraphEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  {
+    AddEdgeEnhancements(graph, enhancements);
+    AddNodesEnhancements(graph, enhancements);
+  }
+
+  private void AddEdgeEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  {
+    foreach (var additionalData in graph.Edges.SelectMany(e => e.AdditionalData))
+    {
+      AddEnhancements(additionalData.SoftwareData, enhancements);
+    }
+  }
+
+  private void AddNodesEnhancements(GrpcGraph graph, HashSet<string> enhancements)
   {
     foreach (var node in graph.Nodes)
     {
-      foreach (var enhancement in node.AdditionalData.SelectMany(d => ExtractCustomEnhancements(d.SoftwareData)))
+      foreach (var additionalData in node.AdditionalData)
       {
-        enhancements.Add(enhancement);
+        AddEnhancements(additionalData.SoftwareData, enhancements);
       }
 
       if (node.InnerGraph is { } innerGraph)
       {
-        AddNodesCustomEnhancements(innerGraph, enhancements);
+        AddGraphEnhancements(innerGraph, enhancements);
       }
+    }
+  }
+
+  private void AddEnhancements(GrpcSoftwareData data, HashSet<string> enhancements)
+  {
+    AddPredefinedEnhancements(data, enhancements);
+    AddCustomEnhancements(data, enhancements);
+  }
+
+  private static void AddPredefinedEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  {
+    if (data is null) return;
+    
+    if (data.AllocationsInfo.Count > 0) enhancements.Add("Allocations");
+    if (data.ExceptionEvents.Count > 0) enhancements.Add("Exceptions");
+    if (data.MethodsLoadUnloadEvents.Count > 0) enhancements.Add("MethodsLoadUnload");
+    if (data.MethodsInliningEvents.Count > 0) enhancements.Add("MethodsInlinings");
+    if (data.ArrayPoolEvents.Count > 0) enhancements.Add("ArrayPools");
+    if (data.HttpEvents.Count > 0) enhancements.Add("Http");
+    if (data.SocketEvent.Count > 0) enhancements.Add("Sockets");
+    if (data.ThreadEvents.Count > 0) enhancements.Add("Threads");
+  }
+
+  private void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  {
+    if (data is null) return;
+
+    foreach (var name in data.HistogramData.Select(e => e.Name))
+    {
+      enhancements.Add(name);
+    }
+
+    foreach (var name in data.SimpleCounterData.Select(e => e.Name))
+    {
+      enhancements.Add(name);
     }
   }
 
@@ -141,12 +177,6 @@
       checkBox.Value = true;
     }
   }
-
-  private static IEnumerable<string> ExtractCustomEnhancements(GrpcSoftwareData data) => data switch
-  {
-    null => [],
-    { } => data.HistogramData.Select(h => h.Name).Concat(data.SimpleCounterData.Select(c => c.Name))
-  };
 
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
