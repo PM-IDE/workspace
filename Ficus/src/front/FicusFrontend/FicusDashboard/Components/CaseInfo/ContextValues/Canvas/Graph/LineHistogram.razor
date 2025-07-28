@@ -1,5 +1,9 @@
 ﻿@using System.Globalization
 @using BlazorBootstrap
+@using FicusDashboard.Services
+
+@inject IEntitiesColors EntitiesColors;
+
 
 <div style="width: 100%; height: 10px; display: flex; flex-direction: row;">
   @{
@@ -15,38 +19,14 @@
     <Tooltip Title="@tooltip"
              Placement="TooltipPlacement.Top"
              Style="@style">
-      <div style="width: 100%; height: 100%; background: @NextColor(entry.Key)"
+      <div style="width: 100%; height: 100%; background: @EntitiesColors.GetOrCreateColor(entry.Key)"
            class="line-histogram-entry">
       </div>
     </Tooltip>
   }
 </div>
 
+
 @code {
-  private readonly HashSet<string> myUsedColors = [];
-  private readonly Dictionary<string, string> myNamesToColors = [];
-
   [Parameter] public required (string Key, double Value)[] Entries { get; init; }
-
-  private string NextColor(string key)
-  {
-    if (myNamesToColors.TryGetValue(key, out var color))
-    {
-      return color;
-    }
-
-    color = GenerateRandomColor();
-
-    while (myUsedColors.Contains(color))
-    {
-      color = GenerateRandomColor();
-    }
-
-    myNamesToColors[key] = color;
-    myUsedColors.Add(color);
-
-    return color;
-  }
-
-  private static string GenerateRandomColor() => $"#{Random.Shared.Next(0x1000000):X6}";
 }
