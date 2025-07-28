@@ -47,7 +47,9 @@
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
     </div>
 
-    <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
+    <div style="height: 100%; flex-grow: 1;">
+      <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
+    </div>
   </div>
 
   <div style="margin-top: 5px;">
