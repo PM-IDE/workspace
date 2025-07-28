@@ -1,51 +1,16 @@
 @using System.Globalization
 @using Ficus
 @using FicusDashboard.Layout.Models
-@using Radzen
 @using Radzen.Blazor
-@using Orientation = Radzen.Orientation
 @inject IJSRuntime Js
 
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
   <div style="display: flex; flex-direction: row; flex-grow: 1;">
-    <div style="display: flex; flex-direction: column; 
-                background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
-      @if (IsRichUiGraph(Graph))
-      {
-        @if (myEnhancements is { })
-        {
-          @foreach (var (index, enhancement) in myEnhancements.Index())
-          {
-            <div style="display: flex; flex-direction: row; align-items: center;">
-              <RadzenCheckBox TValue="bool"
-                              @ref="@myCheckBoxes[index]"
-                              ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
-
-              <div style="margin-left: 5px;">@enhancement</div>
-            </div>
-          }
-        }
-
-        <div style="margin-top: 5px;">Filter:</div>
-        <input type="text" @bind="myFilterValue" style="width: 90%"/>
-      }
-
-      <div style="margin-top: 5px;">Spacing factor:</div>
-      <input type="text" @bind="mySpacingFactor" style="width: 90%"/>
-
-      <RadzenStack Orientation="Orientation.Horizontal"
-                   AlignItems="AlignItems.Center"
-                   Gap="0.5rem"
-                   Style="margin-top: 5px;">
-        <RadzenLabel Text="TB"/>
-        <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
-        <RadzenLabel Text="LR"/>
-      </RadzenStack>
-
+    <EnhancementsSettings @ref="@mySettings" Enhancements="@myEnhancements">
       <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
-    </div>
+    </EnhancementsSettings>
 
     <div style="height: 100%; flex-grow: 1;">
       <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
@@ -68,24 +33,15 @@
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
-  private bool myUseLROrientation = true;
-  private string? myFilterValue;
-  private string mySpacingFactor = "1.4";
-
-  private CanvasComponent? myCanvasComponent;
-
+  private EnhancementsSettings mySettings = null!;
   private List<string>? myEnhancements;
-  private HashSet<string> mySelectedEnhancements = null!;
-  private RadzenCheckBox<bool>[] myCheckBoxes = null!;
-
+  private CanvasComponent? myCanvasComponent;
   private AggregatedData? myAggregatedData;
 
 
   protected override void OnParametersSet()
   {
     myEnhancements = FindAllEnhancements(Graph);
-    mySelectedEnhancements = myEnhancements.ToHashSet();
-    myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
   }
 
   private List<string> FindAllEnhancements(GrpcGraph graph)
@@ -178,24 +134,6 @@
     }
   }
 
-  protected override void OnAfterRender(bool firstRender)
-  {
-    if (!firstRender) return;
-
-    SetInitialCheckBoxesValues();
-    StateHasChanged();
-  }
-
-  private void SetInitialCheckBoxesValues()
-  {
-    if (!IsRichUiGraph(Graph)) return;
-
-    foreach (var checkBox in myCheckBoxes)
-    {
-      checkBox.Value = true;
-    }
-  }
-
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
     graph.Nodes.Any(n => n.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData()) ||
@@ -204,15 +142,15 @@
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
-    var enhancements = mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
-    var spacingFactor = double.TryParse(mySpacingFactor, CultureInfo.InvariantCulture, out var factor) switch
+    var enhancements = mySettings.SelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
+    var spacingFactor = double.TryParse(mySettings.SpacingFactor, CultureInfo.InvariantCulture, out var factor) switch
     {
       true => factor,
       false => 1
     };
 
     var changeState = myAggregatedData is null;
-    myAggregatedData ??= await Js.InvokeAsync<AggregatedData>("createAggregatedData", Graph, Annotation, myFilterValue);
+    myAggregatedData ??= await Js.InvokeAsync<AggregatedData>("createAggregatedData", Graph, Annotation, mySettings.Filter);
 
     var reference = await Js.InvokeAsync<IJSObjectReference>(
       "drawGraph",
@@ -221,10 +159,10 @@
       Annotation,
       myAggregatedData,
       enhancements,
-      myFilterValue,
+      mySettings.Filter,
       spacingFactor,
       IsRichUiGraph(Graph),
-      myUseLROrientation
+      mySettings.UseLROrientation
     );
 
     if (changeState)
@@ -237,18 +175,6 @@
 
   private string CreateExportFileName() =>
     ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
-
-  private void HandleSelectionChange(bool selected, string enhancement)
-  {
-    if (selected)
-    {
-      mySelectedEnhancements.Add(enhancement);
-    }
-    else
-    {
-      mySelectedEnhancements.Remove(enhancement);
-    }
-  }
 
   private void ReRenderCanvas() => myCanvasComponent?.ReRenderCanvas();
 
