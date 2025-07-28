@@ -3,9 +3,9 @@
 
 <div style="display: flex; flex-direction: column; 
             background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
-  @if (Enhancements is { })
+  @if (myEnhancements is { })
   {
-    @foreach (var (index, enhancement) in Enhancements.Index())
+    @foreach (var (index, enhancement) in myEnhancements.Index())
     {
       <div style="display: flex; flex-direction: row; align-items: center;">
         <RadzenCheckBox TValue="bool"
@@ -31,15 +31,16 @@
     <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
     <RadzenLabel Text="LR"/>
   </RadzenStack>
-  
+
   @ChildContent
 </div>
 
 @code {
   [Parameter] public required List<string>? Enhancements { get; init; }
-  [Parameter] public RenderFragment ChildContent { get; init; }
+  [Parameter] public RenderFragment? ChildContent { get; init; }
 
 
+  private List<string>? myEnhancements;
   private string? myFilterValue;
   private bool myUseLROrientation = true;
   private string mySpacingFactor = "1.4";
@@ -50,20 +51,24 @@
   public string? Filter => myFilterValue;
   public bool UseLROrientation => myUseLROrientation;
   public string SpacingFactor => mySpacingFactor;
-  public HashSet<string> SelectedEnhancements => mySelectedEnhancements;
+  public List<string> SelectedEnhancements => mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
 
 
   protected override void OnParametersSet()
   {
-    if (Enhancements is not { }) return;
+    if (ReferenceEquals(Enhancements, myEnhancements)) return;
 
-    mySelectedEnhancements = Enhancements.ToHashSet();
-    myCheckBoxes = new RadzenCheckBox<bool>[Enhancements.Count];
+    myEnhancements = Enhancements;
+
+    if (myEnhancements is not { }) return;
+    
+    mySelectedEnhancements = myEnhancements.ToHashSet();
+    myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
   }
 
   protected override void OnAfterRender(bool firstRender)
   {
-    if (!firstRender || Enhancements is not { Count: > 0 }) return;
+    if (!firstRender || myEnhancements is not { Count: > 0 }) return;
 
     foreach (var checkBox in myCheckBoxes)
     {

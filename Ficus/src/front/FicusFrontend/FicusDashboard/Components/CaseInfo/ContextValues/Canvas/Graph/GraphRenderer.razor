@@ -142,7 +142,7 @@
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
-    var enhancements = mySettings.SelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
+    var enhancements = mySettings.SelectedEnhancements;
     var spacingFactor = double.TryParse(mySettings.SpacingFactor, CultureInfo.InvariantCulture, out var factor) switch
     {
       true => factor,
