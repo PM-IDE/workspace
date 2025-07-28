@@ -35,11 +35,10 @@
       ..CreateBufferDtos(),
       ..CreateMethodInliningsDtos(),
       ..CreateMethodLoadsDtos(),
-      ..CreateOtherDtos()
+      ..CreateOtherDtos(),
+      ..CreateCountersDtos(),
+      ..CreateHistogramsDto()
     ];
-
-    infos.AddRange(CreateCountersDtos());
-    infos.AddRange(CreateHistogramsDto());
 
     return infos.Where(i => i.Value > 0).OrderByDescending(i => i.Histogram?.Length ?? -1).ToArray();
   }
