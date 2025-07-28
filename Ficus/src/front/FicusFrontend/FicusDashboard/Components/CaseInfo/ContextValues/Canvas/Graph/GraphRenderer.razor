@@ -116,6 +116,10 @@
       foreach (var additionalData in node.AdditionalData)
       {
         AddEnhancements(additionalData.SoftwareData, enhancements);
+        if (additionalData.PatternInfo is { Graph: var patternGraph })
+        {
+          AddGraphEnhancements(patternGraph, enhancements);
+        }
       }
 
       if (node.InnerGraph is { } innerGraph)
