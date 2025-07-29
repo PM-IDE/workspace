@@ -1,140 +1,138 @@
 @using System.Globalization
 @using Ficus
 @using FicusDashboard.Layout.Models
-@using Radzen
 @using Radzen.Blazor
-@using Orientation = Radzen.Orientation
 @inject IJSRuntime Js
 
 
-<div style="display: flex; flex-direction: row; width: 100%; height: 100%;">
-  <div style="display: flex; flex-direction: column; margin-top: 5px; margin-left: 5px;">
-    @if (IsRichUiGraph(Graph))
-    {
-      @if (myEnhancements is { })
-      {
-        @foreach (var (index, enhancement) in myEnhancements.Index())
-        {
-          <div style="display: flex; flex-direction: row; align-items: center;">
-            <RadzenCheckBox TValue="bool"
-                            @ref="@myCheckBoxes[index]"
-                            ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
+<div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
+  <div style="display: flex; flex-direction: row; flex-grow: 1;">
+    <EnhancementsSettings @ref="@mySettings" Enhancements="@myEnhancements">
+      <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
+      <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
+    </EnhancementsSettings>
 
-            <div style="margin-left: 5px;">@enhancement</div>
-          </div>
-        }
-      }
-
-      <div style="margin-top: 5px;">Filter:</div>
-      <input type="text" @bind="myFilterValue" style="width: 120px;"/>
-    }
-
-    <div style="margin-top: 5px;">Spacing factor:</div>
-    <input type="text" @bind="mySpacingFactor" style="width: 120px;"/>
-
-    <RadzenStack Orientation="Orientation.Horizontal"
-                 AlignItems="AlignItems.Center"
-                 Gap="0.5rem"
-                 Style="margin-top: 5px;">
-      <RadzenLabel Text="TB"/>
-      <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
-      <RadzenLabel Text="LR"/>
-    </RadzenStack>
-
-    <RadzenButton Click="ReRenderCanvas" Style="width: 120px; margin-top: 5px;">Rerender</RadzenButton>
-    <RadzenButton Click="ExportGraph" Style="width: 120px; margin-top: 30px;">Export to SVG</RadzenButton>
+    <div style="height: 100%; flex-grow: 1;">
+      <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
+    </div>
   </div>
 
-  <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
+  <div style="margin-top: 5px;">
+    @if (myAggregatedData is { } data)
+    {
+      <AggregatedDataRenderer Data="@data"/>
+    }
+  </div>
 </div>
 
 @code
 {
-  private static string[] ourPredefinedEnhancements =
-  [
-    "Allocations", "Exceptions", "MethodsLoadUnload", "MethodsInlinings", "ArrayPools", "Http", "Sockets", "Threads"
-  ];
-
-
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
-  private bool myUseLROrientation = true;
-  private string? myFilterValue;
-  private string mySpacingFactor = "1.4";
-
-  private CanvasComponent? myCanvasComponent;
-
+  private EnhancementsSettings mySettings = null!;
   private List<string>? myEnhancements;
-  private HashSet<string> mySelectedEnhancements = null!;
-  private RadzenCheckBox<bool>[] myCheckBoxes = null!;
+  private CanvasComponent? myCanvasComponent;
+  private AggregatedData? myAggregatedData;
 
 
   protected override void OnParametersSet()
   {
     myEnhancements = FindAllEnhancements(Graph);
-    mySelectedEnhancements = myEnhancements.ToHashSet();
-    myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
   }
 
-  private static List<string> FindAllEnhancements(GrpcGraph graph)
+  private List<string> FindAllEnhancements(GrpcGraph graph)
   {
-    var enhancements = new List<string>(ourPredefinedEnhancements);
+    var enhancements = new HashSet<string>();
 
-    var customEnhancements = graph.Edges
-      .SelectMany(e => e.AdditionalData)
-      .SelectMany(d => ExtractCustomEnhancements(d.SoftwareData))
-      .ToHashSet();
+    AddGraphEnhancements(graph, enhancements);
 
-    AddNodesCustomEnhancements(graph, customEnhancements);
-
-    enhancements.AddRange(customEnhancements.Order());
-
-    return enhancements;
+    return enhancements.Order().ToList();
   }
 
-  private static void AddNodesCustomEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddGraphEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  {
+    AddEdgeEnhancements(graph, enhancements);
+    AddNodesEnhancements(graph, enhancements);
+  }
+
+  private void AddEdgeEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  {
+    foreach (var additionalData in graph.Edges.SelectMany(e => e.AdditionalData))
+    {
+      AddEnhancements(additionalData.SoftwareData, enhancements);
+    }
+  }
+
+  private void AddNodesEnhancements(GrpcGraph graph, HashSet<string> enhancements)
   {
     foreach (var node in graph.Nodes)
     {
-      foreach (var enhancement in node.AdditionalData.SelectMany(d => ExtractCustomEnhancements(d.SoftwareData)))
+      foreach (var additionalData in node.AdditionalData)
       {
-        enhancements.Add(enhancement);
+        AddEnhancements(additionalData.SoftwareData, enhancements);
+        if (additionalData.PatternInfo is { Graph: var patternGraph })
+        {
+          AddGraphEnhancements(patternGraph, enhancements);
+        }
       }
 
       if (node.InnerGraph is { } innerGraph)
       {
-        AddNodesCustomEnhancements(innerGraph, enhancements);
+        AddGraphEnhancements(innerGraph, enhancements);
       }
     }
   }
 
-  protected override void OnAfterRender(bool firstRender)
+  private void AddEnhancements(GrpcSoftwareData data, HashSet<string> enhancements)
   {
-    if (!firstRender) return;
-
-    SetInitialCheckBoxesValues();
-    StateHasChanged();
+    AddPredefinedEnhancements(data, enhancements);
+    AddCustomEnhancements(data, enhancements);
   }
 
-  private void SetInitialCheckBoxesValues()
+  private static class PredefinedEnhancements
   {
-    if (!IsRichUiGraph(Graph)) return;
+    public const string Allocations = "Allocations";
+    public const string Exceptions = "Exceptions";
+    public const string MethodsLoadUnload = "MethodsLoadUnload";
+    public const string MethodsInlinings = "MethodsInlinings";
+    public const string ArrayPools = "ArrayPools";
+    public const string Http = "Http";
+    public const string Sockets = "Sockets";
+    public const string Threads = "Threads";
+  }
 
-    foreach (var checkBox in myCheckBoxes)
+  private static void AddPredefinedEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  {
+    if (data is null) return;
+
+    if (data.AllocationsInfo.Count > 0) enhancements.Add(PredefinedEnhancements.Allocations);
+    if (data.ExceptionEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Exceptions);
+    if (data.MethodsLoadUnloadEvents.Count > 0) enhancements.Add(PredefinedEnhancements.MethodsLoadUnload);
+    if (data.MethodsInliningEvents.Count > 0) enhancements.Add(PredefinedEnhancements.MethodsInlinings);
+    if (data.ArrayPoolEvents.Count > 0) enhancements.Add(PredefinedEnhancements.ArrayPools);
+    if (data.HttpEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Http);
+    if (data.SocketEvent.Count > 0) enhancements.Add(PredefinedEnhancements.Sockets);
+    if (data.ThreadEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Threads);
+  }
+
+  private void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  {
+    if (data is null) return;
+
+    foreach (var name in data.HistogramData.Select(e => e.Name))
     {
-      checkBox.Value = true;
+      enhancements.Add(name);
+    }
+
+    foreach (var name in data.SimpleCounterData.Select(e => e.Name))
+    {
+      enhancements.Add(name);
     }
   }
-
-  private static IEnumerable<string> ExtractCustomEnhancements(GrpcSoftwareData data) => data switch
-  {
-    null => [],
-    { } => data.HistogramData.Select(h => h.Name).Concat(data.SimpleCounterData.Select(c => c.Name))
-  };
 
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
@@ -144,47 +142,41 @@
 
   private async Task<IJSObjectReference> RenderCanvas(string canvasId)
   {
-    var enhancements = mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
-    var spacingFactor = double.TryParse(mySpacingFactor, CultureInfo.InvariantCulture, out var factor) switch
+    var enhancements = mySettings.SelectedEnhancements;
+    var spacingFactor = double.TryParse(mySettings.SpacingFactor, CultureInfo.InvariantCulture, out var factor) switch
     {
       true => factor,
       false => 1
     };
 
-    return await Js.InvokeAsync<IJSObjectReference>(
+    var changeState = myAggregatedData is null;
+    myAggregatedData ??= await Js.InvokeAsync<AggregatedData>("createAggregatedData", Graph, Annotation, mySettings.Filter);
+
+    var reference = await Js.InvokeAsync<IJSObjectReference>(
       "drawGraph",
       canvasId,
       Graph,
       Annotation,
+      myAggregatedData,
       enhancements,
-      myFilterValue,
+      mySettings.Filter,
       spacingFactor,
       IsRichUiGraph(Graph),
-      myUseLROrientation
+      mySettings.UseLROrientation
     );
-  }
 
-  private string CreateExportFileName()
-  {
-    return ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
-  }
-
-  private void HandleSelectionChange(bool selected, string enhancement)
-  {
-    if (selected)
+    if (changeState)
     {
-      mySelectedEnhancements.Add(enhancement);
+      StateHasChanged();
     }
-    else
-    {
-      mySelectedEnhancements.Remove(enhancement);
-    }
+
+    return reference;
   }
 
-  private void ReRenderCanvas()
-  {
-    myCanvasComponent?.ReRenderCanvas();
-  }
+  private string CreateExportFileName() =>
+    ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
+
+  private void ReRenderCanvas() => myCanvasComponent?.ReRenderCanvas();
 
   private Task ExportGraph() =>
     myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;

@@ -1,0 +1,147 @@
+﻿@using System.Globalization
+
+<div style="background: var(--aggregated-data-background); border-radius: 5px; padding: 10px;">
+  <div>
+    Aggregated Data
+  </div>
+  <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
+    @foreach (var info in CreateInfos())
+    {
+      <AggregatedStatInfo Title=@info.Title
+                          Histogram=@info.Histogram
+                          Value=@info.Value.ToString(CultureInfo.InvariantCulture)
+                          Units=@info.Units/>
+    }
+  </div>
+</div>
+
+@code {
+  [Parameter] public required AggregatedData Data { get; init; }
+
+
+  private class AggregatedStatDto
+  {
+    public required string Title { get; init; }
+    public required double Value { get; init; }
+
+    public string? Units { get; init; }
+    public (string, double)[]? Histogram { get; init; }
+  }
+
+  private AggregatedStatDto[] CreateInfos()
+  {
+    List<AggregatedStatDto> infos =
+    [
+      ..CreateBufferDtos(),
+      ..CreateMethodInliningsDtos(),
+      ..CreateMethodLoadsDtos(),
+      ..CreateOtherDtos(),
+      ..CreateCountersDtos(),
+      ..CreateHistogramsDto()
+    ];
+
+    return infos.Where(i => i.Value > 0).OrderByDescending(i => i.Histogram?.Length ?? -1).ToArray();
+  }
+
+  private AggregatedStatDto[] CreateCountersDtos() => Data.GlobalSoftwareData.Counters.Select(counter => new AggregatedStatDto
+  {
+    Title = counter.Key,
+    Value = counter.Value.Value,
+    Units = counter.Value.Units,
+  }).ToArray();
+
+  private AggregatedStatDto[] CreateHistogramsDto() => Data.GlobalSoftwareData.Histograms.Select(histogram => new AggregatedStatDto
+  {
+    Title = histogram.Key,
+    Value = histogram.Value.Value.Values.Sum(),
+    Units = histogram.Value.Units,
+    Histogram = PrepareHistogram(histogram.Value.Value),
+  }).ToArray();
+
+  private AggregatedStatDto[] CreateBufferDtos() =>
+  [
+    new()
+    {
+      Title = "Buffer Allocated",
+      Value = Data.TotalBufferAllocatedBytes,
+      Units = "bytes",
+    },
+    new()
+    {
+      Title = "Buffer Rented",
+      Value = Data.TotalBufferRentedBytes,
+      Units = "bytes"
+    },
+    new()
+    {
+      Title = "Buffer Returned",
+      Value = Data.TotalBufferReturnedBytes,
+      Units = "bytes",
+    },
+  ];
+
+  private AggregatedStatDto[] CreateMethodInliningsDtos() =>
+  [
+    new()
+    {
+      Title = "Inlinings Failed",
+      Value = Data.GlobalSoftwareData.InliningFailed.Values.Sum(),
+      Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningFailed)
+    },
+    new()
+    {
+      Title = "Inlinings Succeeded",
+      Value = Data.GlobalSoftwareData.InliningSucceeded.Values.Sum(),
+      Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningSucceeded),
+    },
+    new()
+    {
+      Title = "Inlinings Fail Reason",
+      Value = Data.GlobalSoftwareData.InliningFailedReasons.Values.Sum(),
+      Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningFailedReasons),
+    }
+  ];
+
+  private AggregatedStatDto[] CreateMethodLoadsDtos() =>
+  [
+    new()
+    {
+      Title = "Method Loads",
+      Value = Data.GlobalSoftwareData.MethodsLoads.Values.Sum(),
+      Histogram = PrepareHistogram(Data.GlobalSoftwareData.MethodsLoads),
+    },
+    new()
+    {
+      Title = "Method Unloads",
+      Value = Data.GlobalSoftwareData.MethodsUnloads.Values.Sum(),
+      Histogram = PrepareHistogram(Data.GlobalSoftwareData.MethodsUnloads),
+    }
+  ];
+
+  private AggregatedStatDto[] CreateOtherDtos() =>
+  [
+    new()
+    {
+      Title = "Allocated",
+      Value = Data.TotalAllocatedBytes,
+      Units = "bytes",
+      Histogram = PrepareHistogram(Data.GlobalSoftwareData.Allocations),
+    },
+    new()
+    {
+      Title = "Execution Time",
+      Value = Data.TotalExecutionTime,
+      Units = "QPC"
+    },
+    new()
+    {
+      Title = "Exceptions",
+      Value = Data.GlobalSoftwareData.Exceptions.Values.Sum(),
+      Histogram = PrepareHistogram(Data.GlobalSoftwareData.Exceptions),
+    },
+  ];
+
+  private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) =>
+    map.OrderBy(p => p.Value).Select(p => (p.Key, p.Value)).ToArray();
+
+}

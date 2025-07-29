@@ -1,7 +1,7 @@
 use chrono::Utc;
 use ficus::event_log::core::event::event::EventPayloadValue;
 use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::features::discovery::timeline::software_data::extraction_config::{AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, HTTPExtractionConfig, HistogramExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, SimpleCountExtractionConfig, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig};
+use ficus::features::discovery::timeline::software_data::extraction_config::{AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, HTTPExtractionConfig, PieChartExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, SimpleCountExtractionConfig, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig};
 use ficus::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
@@ -13,7 +13,7 @@ use ficus::features::discovery::timeline::software_data::extractors::threads::Th
 use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use std::cell::RefCell;
 use std::rc::Rc;
-use ficus::features::discovery::timeline::software_data::extractors::general::{GeneralHistogramExtractor, SimpleCounterExtractor};
+use ficus::features::discovery::timeline::software_data::extractors::general::{PieChartExtractor, SimpleCounterExtractor};
 use ficus::features::discovery::timeline::software_data::extractors::sockets::SocketsDataExtractor;
 
 #[test]
@@ -533,18 +533,18 @@ fn test_general_histogram() {
       ];
 
       let mut config = SoftwareDataExtractionConfig::empty();
-      config.set_histogram_extraction_configs(vec![
+      config.set_pie_chart_extraction_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          HistogramExtractionConfig::new("g1".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
+          PieChartExtractionConfig::new("g1".to_string(), Some("type".to_string()), Some("count".to_string()), "units".to_string())
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          HistogramExtractionConfig::new("g2".to_string(), "type".to_string(), "count".to_string(), "units".to_string())
+          PieChartExtractionConfig::new("g2".to_string(), Some("type".to_string()), Some("count".to_string()), "units".to_string())
         )
       ]);
 
-      let extractor = GeneralHistogramExtractor::new(&config);
+      let extractor = PieChartExtractor::new(&config);
       let mut software_data = SoftwareData::empty();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
       

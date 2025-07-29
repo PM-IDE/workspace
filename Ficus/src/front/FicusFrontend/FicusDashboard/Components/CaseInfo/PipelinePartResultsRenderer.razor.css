@@ -7,6 +7,12 @@
 .container-fullscreen {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
 }
 
 .pipeline-part-name-outer-container {

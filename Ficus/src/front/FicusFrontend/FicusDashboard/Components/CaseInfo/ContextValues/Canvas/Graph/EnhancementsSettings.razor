@@ -1,0 +1,90 @@
+﻿@using Radzen
+@using Radzen.Blazor
+
+<div style="display: flex; flex-direction: column; 
+            background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
+  @if (myEnhancements is { })
+  {
+    @foreach (var (index, enhancement) in myEnhancements.Index())
+    {
+      <div style="display: flex; flex-direction: row; align-items: center;">
+        <RadzenCheckBox TValue="bool"
+                        @ref="@myCheckBoxes[index]"
+                        ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
+
+        <div style="margin-left: 5px;">@enhancement</div>
+      </div>
+    }
+
+    <div style="margin-top: 5px;">Filter:</div>
+    <input type="text" @bind="myFilterValue" style="width: 90%"/>
+  }
+
+  <div style="margin-top: 5px;">Spacing factor:</div>
+  <input type="text" @bind="mySpacingFactor" style="width: 90%"/>
+
+  <RadzenStack Orientation="Orientation.Horizontal"
+               AlignItems="AlignItems.Center"
+               Gap="0.5rem"
+               Style="margin-top: 5px;">
+    <RadzenLabel Text="TB"/>
+    <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
+    <RadzenLabel Text="LR"/>
+  </RadzenStack>
+
+  @ChildContent
+</div>
+
+@code {
+  [Parameter] public required List<string>? Enhancements { get; init; }
+  [Parameter] public RenderFragment? ChildContent { get; init; }
+
+
+  private List<string>? myEnhancements;
+  private string? myFilterValue;
+  private bool myUseLROrientation = true;
+  private string mySpacingFactor = "1.4";
+  private HashSet<string> mySelectedEnhancements = null!;
+  private RadzenCheckBox<bool>[] myCheckBoxes = null!;
+
+
+  public string? Filter => myFilterValue;
+  public bool UseLROrientation => myUseLROrientation;
+  public string SpacingFactor => mySpacingFactor;
+  public List<string> SelectedEnhancements => mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
+
+
+  protected override void OnParametersSet()
+  {
+    if (ReferenceEquals(Enhancements, myEnhancements)) return;
+
+    myEnhancements = Enhancements;
+
+    if (myEnhancements is not { }) return;
+    
+    mySelectedEnhancements = myEnhancements.ToHashSet();
+    myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
+  }
+
+  protected override void OnAfterRender(bool firstRender)
+  {
+    if (!firstRender || myEnhancements is not { Count: > 0 }) return;
+
+    foreach (var checkBox in myCheckBoxes)
+    {
+      checkBox.Value = true;
+    }
+  }
+
+  private void HandleSelectionChange(bool selected, string enhancement)
+  {
+    if (selected)
+    {
+      mySelectedEnhancements.Add(enhancement);
+    }
+    else
+    {
+      mySelectedEnhancements.Remove(enhancement);
+    }
+  }
+}

@@ -2,10 +2,10 @@ import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
 import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
 import {createEdgeHtmlLabel} from "./labels/edge_html_label";
-import {createGraphElements} from "./graph_elements";
+import {createAggregatedData, createGraphElements} from "./graph_elements";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
-import {GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
+import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
 import {createLayout} from "./util";
 import {GrpcGraphKind} from "../protos/ficus/GrpcGraphKind";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
@@ -19,28 +19,68 @@ export default setDrawGraph;
 
 function setDrawGraph() {
   (<any>window).drawGraph = drawGraph;
+  (<any>window).createAggregatedData = createAggregatedData;
 }
 
 function drawGraph(
   id: string,
   graph: GrpcGraph,
   annotation: GrpcAnnotation,
+  data: AggregatedData,
   enhancements: SoftwareEnhancementKind[],
   filter: string | null,
   spacingFactor: number,
   isRichUiGraph: boolean,
   useLROrientation: boolean
 ) {
-  let regex = filter == null ? null : new RegExp(filter);
-  let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, regex, spacingFactor, isRichUiGraph, useLROrientation));
+  try {
+    data = preprocessFromCSharpInterop(data);
 
-  if (isRichUiGraph) {
-    setNodeEdgeHtmlRenderer(cy, enhancements);
+    let regex = filter == null ? null : new RegExp(filter);
+    let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, data, regex, spacingFactor, isRichUiGraph, useLROrientation));
+
+    if (isRichUiGraph) {
+      setNodeEdgeHtmlRenderer(cy, enhancements);
+    }
+
+    cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
+
+    return cy;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
+  data.globalSoftwareData.httpRequests = toMapCSharpInterop(data.globalSoftwareData.httpRequests);
+  data.globalSoftwareData.allocations = toMapCSharpInterop(data.globalSoftwareData.allocations);
+  data.globalSoftwareData.inliningSucceeded = toMapCSharpInterop(data.globalSoftwareData.inliningSucceeded);
+  data.globalSoftwareData.inliningFailed = toMapCSharpInterop(data.globalSoftwareData.inliningFailed);
+  data.globalSoftwareData.inliningFailedReasons = toMapCSharpInterop(data.globalSoftwareData.inliningFailedReasons);
+  data.globalSoftwareData.methodsLoads = toMapCSharpInterop(data.globalSoftwareData.methodsLoads);
+  data.globalSoftwareData.methodsUnloads = toMapCSharpInterop(data.globalSoftwareData.methodsUnloads);
+  data.globalSoftwareData.exceptions = toMapCSharpInterop(data.globalSoftwareData.exceptions);
+  data.globalSoftwareData.counters = toMapCSharpInterop(data.globalSoftwareData.counters);
+
+  data.globalSoftwareData.createdThreads = new Set(data.globalSoftwareData.createdThreads);
+  data.globalSoftwareData.terminatedThreads = new Set(data.globalSoftwareData.terminatedThreads);
+
+  data.globalSoftwareData.histograms = toMapCSharpInterop(data.globalSoftwareData.histograms);
+
+  for (let [key, map] of data.globalSoftwareData.histograms) {
+    data.globalSoftwareData.histograms.set(key, {
+      units: map.units,
+      value: toMapCSharpInterop(map.value)
+    });
   }
 
-  cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
+  return data;
+}
 
-  return cy;
+function toMapCSharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
+  // @ts-ignore
+  return new Map(Object.entries(map));
 }
 
 function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number, useLROrientation: boolean) {
@@ -86,6 +126,7 @@ function createCytoscapeOptions(
   id: string,
   graph: GrpcGraph,
   annotation: GrpcAnnotation,
+  aggregatedData: AggregatedData,
   filter: RegExp | null,
   spacingFactor: number,
   addLabel: boolean,
@@ -93,7 +134,7 @@ function createCytoscapeOptions(
 ): cytoscape.CytoscapeOptions {
   return {
     container: document.getElementById(id),
-    elements: createGraphElements(graph, annotation, filter),
+    elements: createGraphElements(graph, annotation, aggregatedData, filter),
     layout: createLayout(graph.kind, spacingFactor, useLROrientation),
     style: [
       createNodeStyle(addLabel),

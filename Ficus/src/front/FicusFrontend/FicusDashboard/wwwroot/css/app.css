@@ -34,6 +34,10 @@ html, body {
   --input-foreground: #ffffff;
   --input-border-color: #101010;
   
+  --aggregated-data-background: #202020;
+  --aggregated-stat-item-background: #404040;
+  --aggregated-stat-item-value-background: #303030;
+  
   --tree-view-notification-container-color: #151515;
   
   --new-notification-color: greenyellow;

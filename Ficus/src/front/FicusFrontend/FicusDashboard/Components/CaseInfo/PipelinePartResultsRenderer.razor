@@ -68,8 +68,8 @@
     var innerContainerClass = GetClass("pipeline-part-context-values-inner-container", "inner-container-checked");
   }
 
-  <div class="@outerContainerClass @(myIsFullScreen ? "container-fullscreen" : string.Empty)">
-    <div class="@innerContainerClass @(myIsFullScreen ? "container-fullscreen" : string.Empty)">
+  <div class="@outerContainerClass @(myIsFullScreen ? "flex-grow-1" : string.Empty)">
+    <div class="@innerContainerClass @(myIsFullScreen ? "flex-grow-1" : string.Empty)" style="height: 100%">
       @{
         var contextValues = (mySelectedExecutionResultIndex < Results.Results.Count) switch
         {

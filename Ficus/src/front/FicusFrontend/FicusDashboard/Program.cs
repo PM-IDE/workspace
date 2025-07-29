@@ -1,5 +1,6 @@
 using Ficus;
 using FicusDashboard;
+using FicusDashboard.Services;
 using FicusDashboard.Services.Cases;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
@@ -12,24 +13,25 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton<ISubscriptionsService, SubscriptionsService>();
-builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection(nameof(ApplicationSettings)));
-builder.Services.AddBlazorBootstrap();
-builder.Services.AddRadzenComponents();
-
-builder.Services.AddSingleton(services =>
-{
-  var settings = services.GetRequiredService<IOptions<ApplicationSettings>>().Value;
-  var httpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler());
-
-  var channel = GrpcChannel.ForAddress(settings.BackendUrl, new GrpcChannelOptions
+builder.Services
+  .AddSingleton<ISubscriptionsService, SubscriptionsService>()
+  .AddSingleton<IEntitiesColors, EntitiesColors>()
+  .Configure<ApplicationSettings>(builder.Configuration.GetSection(nameof(ApplicationSettings)))
+  .AddBlazorBootstrap()
+  .AddRadzenComponents()
+  .AddSingleton(services =>
   {
-    HttpHandler = httpHandler,
-    MaxReceiveMessageSize = 512 * 1024 * 1024
-  });
+    var settings = services.GetRequiredService<IOptions<ApplicationSettings>>().Value;
+    var httpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler());
 
-  return new GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient(channel);
-});
+    var channel = GrpcChannel.ForAddress(settings.BackendUrl, new GrpcChannelOptions
+    {
+      HttpHandler = httpHandler,
+      MaxReceiveMessageSize = 512 * 1024 * 1024
+    });
+
+    return new GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceClient(channel);
+  });
 
 var app = builder.Build();
 

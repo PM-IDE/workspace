@@ -43,7 +43,7 @@ pub struct SoftwareDataExtractionConfig {
 
   #[getset(get = "pub", set = "pub")] raw_control_flow_regexes: Vec<String>,
 
-  #[getset(get = "pub", set = "pub")] histogram_extraction_configs: Vec<ExtractionConfig<HistogramExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")] pie_chart_extraction_configs: Vec<ExtractionConfig<PieChartExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] simple_counter_configs: Vec<ExtractionConfig<SimpleCountExtractionConfig>>,
 }
 
@@ -75,7 +75,7 @@ impl SoftwareDataExtractionConfig {
       method_start: None,
       method_end: None,
       raw_control_flow_regexes: vec![],
-      histogram_extraction_configs: vec![],
+      pie_chart_extraction_configs: vec![],
       simple_counter_configs: vec![]
     }
   }
@@ -200,10 +200,10 @@ pub struct AssemblyExtractionConfig {
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
-pub struct HistogramExtractionConfig {
+pub struct PieChartExtractionConfig {
   #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] grouping_attr: String,
-  #[getset(get = "pub")] count_attr: String,
+  #[getset(get = "pub")] grouping_attr: Option<String>,
+  #[getset(get = "pub")] count_attr: Option<String>,
   #[getset(get = "pub")] units: String,
 }
 

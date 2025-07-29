@@ -1,4 +1,4 @@
-import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createArrayPoolEnhancement,
   createEnhancementContainer, createNumberInformation,
@@ -9,8 +9,8 @@ import {
 } from "./util";
 
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
-  let softwareData = edge.softwareData;
-  if (softwareData == null) {
+  let enhancementData = edge.enhancementData;
+  if (enhancementData == null) {
     return `
       <div style="margin-top: 140px;">
         ${createEdgeExecutionInfo(edge)}
@@ -21,7 +21,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${enhancements.map(e => createEdgeEnhancement(softwareData, edge, e)).join("\n")}
+        ${enhancements.map(e => createEdgeEnhancement(enhancementData.softwareData, edge, e)).join("\n")}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>
@@ -64,10 +64,11 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       return createHttpEnhancement(softwareData);
     default: {
       if (softwareData.histograms.has(enhancement)) {
+        let globalSum = edge.aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
         return createEdgeSoftwareEnhancementPart(
           enhancement,
           softwareData.histograms.get(enhancement).value,
-          edge.aggregatedData.totalHistogramsCount.get(enhancement)
+          globalSum
         );
       }
 
@@ -78,7 +79,7 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
             "",
             softwareData.counters.get(enhancement).units,
             softwareData.counters.get(enhancement).value,
-            edge.aggregatedData.totalCountersCount.get(enhancement)
+            edge.aggregatedData.globalSoftwareData.counters.get(enhancement).value
           )
         );
       }

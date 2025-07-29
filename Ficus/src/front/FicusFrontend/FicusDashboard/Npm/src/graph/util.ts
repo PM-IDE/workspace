@@ -1,6 +1,6 @@
 import {darkTheme, performanceColors} from "../colors";
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
-import {CountAndSum, GraphEdge, GraphNode, MergedSoftwareData} from "./types";
+import {CountAndSum, GraphEdge, GraphNode, MergedEnhancementData, MergedSoftwareData} from "./types";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
@@ -57,23 +57,26 @@ export function getTraceId(additionalData: GrpcNodeAdditionalData): number {
   return additionalData.originalEventCoordinates.traceId;
 }
 
-export function getEdgeSoftwareDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedSoftwareData {
-  let softwareData = edge.additionalData.filter(e => e.softwareData != null).map(e => e.softwareData);
-  return createMergedSoftwareData(softwareData, filter);
+export function getEdgeEnhancementDataOrNull(edge: GraphEdge | GrpcGraphEdge, filter: RegExp | null): MergedEnhancementData {
+  return createMergedEnhancementData((action: (data: GrpcSoftwareData) => void) => {
+    for (let data of edge.additionalData.filter(e => e.softwareData != null).map(e => e.softwareData)) {
+      action(data);
+    }
+  }, filter);
 }
 
-export function getNodeSoftwareDataOrNull(node: GraphNode | GrpcGraphNode, filter: RegExp | null): MergedSoftwareData {
-  return createMergedSoftwareData(extractAllSoftwareData(node), filter);
+export function getNodeEnhancementDataOrNull(node: GraphNode | GrpcGraphNode, filter: RegExp | null): MergedEnhancementData {
+  return createMergedEnhancementData((action: (data: GrpcSoftwareData) => void) => {
+    executeWithNodeAdditionalData(node, (data) => {
+      if (data.softwareData != null) {
+        action(data.softwareData)
+      }
+    });
+  }, filter);
 }
 
-function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filter: RegExp | null): MergedSoftwareData {
-  if (originalSoftwareData.length == 0) {
-    return null;
-  }
-
-  let mergedSoftwareData: MergedSoftwareData = {
-    histogram: new Map(),
-    timelineDiagramFragments: [],
+export function createEmptySoftwareData(): MergedSoftwareData {
+  return {
     allocations: new Map(),
 
     inliningFailed: new Map(),
@@ -97,6 +100,17 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     histograms: new Map(),
     counters: new Map()
   };
+}
+
+function createMergedEnhancementData(
+  softwareDataEnumerator: (data: ((softwareData: GrpcSoftwareData) => void)) => void,
+  filter: RegExp | null
+): MergedEnhancementData {
+  let enhancementData: MergedEnhancementData = {
+    eventClasses: new Map(),
+    timelineDiagramFragments: [],
+    softwareData: createEmptySoftwareData()
+  };
 
   let matchesFilter = (value: string) => {
     if (filter != null) {
@@ -106,22 +120,22 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     return true;
   }
 
-  for (let softwareData of originalSoftwareData) {
+  softwareDataEnumerator((softwareData: GrpcSoftwareData) => {
     for (let entry of softwareData.histogram) {
       let [name, count] = [entry.name, entry.count];
 
       if (matchesFilter(name)) {
-        increment(mergedSoftwareData.histogram, name, count);
+        increment(enhancementData.eventClasses, name, count);
       }
     }
 
-    mergedSoftwareData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
+    enhancementData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
 
     for (let alloc of softwareData.allocationsInfo) {
       let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
 
       if (matchesFilter(alloc.typeName)) {
-        increment(mergedSoftwareData.allocations, alloc.typeName, allocBytes);
+        increment(enhancementData.softwareData.allocations, alloc.typeName, allocBytes);
       }
     }
 
@@ -132,10 +146,10 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (inliningEvent.failed != null) {
-        increment(mergedSoftwareData.inliningFailed, fqn, 1);
-        increment(mergedSoftwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
+        increment(enhancementData.softwareData.inliningFailed, fqn, 1);
+        increment(enhancementData.softwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
       } else if (inliningEvent.succeeded != null) {
-        increment(mergedSoftwareData.inliningSucceeded, fqn, 1);
+        increment(enhancementData.softwareData.inliningSucceeded, fqn, 1);
       }
     }
 
@@ -146,9 +160,9 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (loadUnloadEvent.load != null) {
-        increment(mergedSoftwareData.methodsLoads, fqn, 1);
+        increment(enhancementData.softwareData.methodsLoads, fqn, 1);
       } else if (loadUnloadEvent.unload != null) {
-        increment(mergedSoftwareData.methodsUnloads, fqn, 1);
+        increment(enhancementData.softwareData.methodsUnloads, fqn, 1);
       }
     }
 
@@ -158,17 +172,17 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (arrayPoolEvent.bufferAllocated != null) {
-        incrementCountAndSum(mergedSoftwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
+        incrementCountAndSum(enhancementData.softwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
       } else if (arrayPoolEvent.bufferReturned != null) {
-        incrementCountAndSum(mergedSoftwareData.bufferReturnedBytes, arrayPoolEvent.bufferSizeBytes);
+        incrementCountAndSum(enhancementData.softwareData.bufferReturnedBytes, arrayPoolEvent.bufferSizeBytes);
       } else if (arrayPoolEvent.bufferRented != null) {
-        incrementCountAndSum(mergedSoftwareData.bufferRentedBytes, arrayPoolEvent.bufferSizeBytes);
+        incrementCountAndSum(enhancementData.softwareData.bufferRentedBytes, arrayPoolEvent.bufferSizeBytes);
       }
     }
 
     for (let exception of softwareData.exceptionEvents) {
       if (matchesFilter(exception.exceptionType)) {
-        increment(mergedSoftwareData.exceptions, exception.exceptionType, 1);
+        increment(enhancementData.softwareData.exceptions, exception.exceptionType, 1);
       }
     }
 
@@ -178,26 +192,26 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
       }
 
       if (threadEvent.created != null) {
-        mergedSoftwareData.createdThreads.add(threadEvent.threadId);
+        enhancementData.softwareData.createdThreads.add(threadEvent.threadId);
       } else if (threadEvent.terminated != null) {
-        mergedSoftwareData.terminatedThreads.add(threadEvent.threadId);
+        enhancementData.softwareData.terminatedThreads.add(threadEvent.threadId);
       }
     }
 
     for (let httpEvent of softwareData.httpEvents) {
       let requestUrl = httpEvent.scheme + "://" + httpEvent.host + ":" + httpEvent.port + httpEvent.pathAndQuery;
       if (matchesFilter(requestUrl)) {
-        increment(mergedSoftwareData.httpRequests, requestUrl, 1);
+        increment(enhancementData.softwareData.httpRequests, requestUrl, 1);
       }
     }
 
     for (let histogram of softwareData.histogramData) {
       let histogramMap;
-      if (mergedSoftwareData.histograms.has(histogram.name)) {
-        histogramMap = mergedSoftwareData.histograms.get(histogram.name).value;
+      if (enhancementData.softwareData.histograms.has(histogram.name)) {
+        histogramMap = enhancementData.softwareData.histograms.get(histogram.name).value;
       } else {
         histogramMap = new Map();
-        mergedSoftwareData.histograms.set(histogram.name, {
+        enhancementData.softwareData.histograms.set(histogram.name, {
           value: histogramMap,
           units: histogram.units
         });
@@ -209,18 +223,18 @@ function createMergedSoftwareData(originalSoftwareData: GrpcSoftwareData[], filt
     }
 
     for (let counter of softwareData.simpleCounterData) {
-      if (!mergedSoftwareData.counters.has(counter.name)) {
-        mergedSoftwareData.counters.set(counter.name, {
+      if (!enhancementData.softwareData.counters.has(counter.name)) {
+        enhancementData.softwareData.counters.set(counter.name, {
           value: 0,
           units: counter.units
         });
       }
-      
-      mergedSoftwareData.counters.get(counter.name).value += counter.count;
-    }
-  }
 
-  return mergedSoftwareData;
+      enhancementData.softwareData.counters.get(counter.name).value += counter.count;
+    }
+  });
+
+  return enhancementData;
 }
 
 function restoreFqn(data: GrpcMethodNameParts) {
@@ -252,12 +266,13 @@ export function calculateEdgeExecutionTime(edge: GraphEdge | GrpcGraphEdge): num
   return executionTime == 0 ? null : executionTime;
 }
 
-export function executeWithNodeAdditionalData(node: GraphNode | GrpcGraphNode, handler: Function) {
-  let result: GrpcSoftwareData[] = [];
-
+export function executeWithNodeAdditionalData(
+  node: GraphNode | GrpcGraphNode,
+  handler: (data: GrpcNodeAdditionalData | GrpcGraphEdgeAdditionalData) => void
+) {
   if (node.innerGraph != null) {
     for (let innerNode of node.innerGraph.nodes) {
-      result.push(...executeWithNodeAdditionalData(innerNode, handler));
+      executeWithNodeAdditionalData(innerNode, handler);
     }
 
     for (let edge of node.innerGraph.edges) {
@@ -266,7 +281,7 @@ export function executeWithNodeAdditionalData(node: GraphNode | GrpcGraphNode, h
       }
     }
 
-    return result;
+    return;
   }
 
   let patterns: GrpcUnderlyingPatternInfo[] = [];
@@ -279,7 +294,7 @@ export function executeWithNodeAdditionalData(node: GraphNode | GrpcGraphNode, h
   if (patterns.length > 0) {
     for (let pattern of patterns) {
       for (let patternNode of pattern.graph.nodes) {
-        result.push(...executeWithNodeAdditionalData(patternNode, handler));
+        executeWithNodeAdditionalData(patternNode, handler);
       }
 
       for (let edge of pattern.graph.edges) {
@@ -289,27 +304,14 @@ export function executeWithNodeAdditionalData(node: GraphNode | GrpcGraphNode, h
       }
     }
 
-    return result;
+    return;
   }
 
   for (let data of node.additionalData) {
     handler(data);
   }
-
-  return result;
 }
 
-export function extractAllSoftwareData(node: GraphNode | GrpcGraphNode): GrpcSoftwareData[] {
-  let result: GrpcSoftwareData[] = [];
-
-  executeWithNodeAdditionalData(node, (data: GrpcNodeAdditionalData | GrpcGraphEdgeAdditionalData) => {
-    if (data.softwareData != null) {
-      result.push(data.softwareData);
-    }
-  });
-
-  return result;
-}
 
 export function calculateOverallExecutionTime(node: GrpcGraphNode) {
   let overallExecutionTime = 0;
