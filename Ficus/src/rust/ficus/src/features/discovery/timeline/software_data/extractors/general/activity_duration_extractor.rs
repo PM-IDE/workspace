@@ -7,6 +7,7 @@ use crate::features::discovery::timeline::software_data::models::{ActivityDurati
 use crate::features::discovery::timeline::utils::get_stamp;
 use derive_new::new;
 use fancy_regex::Regex;
+use getset::Getters;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -16,9 +17,31 @@ pub struct ActivityDurationExtractor<'a> {
   config: &'a SoftwareDataExtractionConfig,
 }
 
+#[derive(Getters, new)]
+struct StackEntry {
+  #[getset(get = "pub")] id: Option<String>,
+  #[getset(get = "pub")] event: LastSeenEvent,
+}
+
 pub enum LastSeenEvent {
   Start(Rc<RefCell<XesEventImpl>>),
   End(Rc<RefCell<XesEventImpl>>),
+}
+
+impl LastSeenEvent {
+  fn is_start(&self) -> bool {
+    match self {
+      LastSeenEvent::Start(_) => true,
+      LastSeenEvent::End(_) => false
+    }
+  }
+
+  fn event(&self) -> &Rc<RefCell<XesEventImpl>> {
+    match self {
+      LastSeenEvent::Start(e) => e,
+      LastSeenEvent::End(e) => e
+    }
+  }
 }
 
 impl<'a> SoftwareDataExtractor for ActivityDurationExtractor<'a> {
@@ -35,12 +58,24 @@ impl<'a> SoftwareDataExtractor for ActivityDurationExtractor<'a> {
           Regex::new(c.info().start_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
           Regex::new(c.info().end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
           c.info(),
-          None
+          Vec::new()
         )
       )
-      .collect::<Vec<(RegexParingResult, RegexParingResult, &ActivityDurationExtractionConfig, Option<LastSeenEvent>)>>();
+      .collect::<Vec<(RegexParingResult, RegexParingResult, &ActivityDurationExtractionConfig, Vec<StackEntry>)>>();
 
     let mut durations: HashMap<String, (u64, String)> = HashMap::new();
+
+    let mut add_duration = |
+      start_event: &Rc<RefCell<XesEventImpl>>,
+      end_event: &Rc<RefCell<XesEventImpl>>,
+      info: &ActivityDurationExtractionConfig
+    | -> Result<(), SoftwareDataExtractionError> {
+      let duration = get_duration(&start_event.borrow(), &end_event.borrow(), info.time_attribute().as_ref())?;
+      (*durations.entry(info.name().to_string()).or_insert((0u64, info.units().to_string()))).0 += duration;
+
+      Ok(())
+    };
+
     for event in events {
       for (start_regex, end_regex, info, state) in configs.iter_mut() {
         let start_regex = match start_regex {
@@ -53,30 +88,26 @@ impl<'a> SoftwareDataExtractor for ActivityDurationExtractor<'a> {
           Err(err) => return Err(err.clone())
         };
 
-        if start_regex.is_match(event.borrow().name()).unwrap_or(false) {
-          match state {
-            None => {
-              let duration = get_duration(&events.first().unwrap().borrow(), &event.borrow(), info.time_attribute().as_ref())?;
-              (*durations.entry(info.name().to_string()).or_insert((0u64, info.units().to_string()))).0 += duration;
-            }
-            Some(_) => {}
-          };
+        let id = if let Some(strategy) = info.activity_id_attr() {
+          Some(strategy.create(&event.borrow()))
+        } else {
+          None
+        };
 
-          *state = Some(LastSeenEvent::Start(event.clone()));
+        if start_regex.is_match(event.borrow().name()).unwrap_or(false) {
+          state.push(StackEntry::new(id, LastSeenEvent::Start(event.clone())));
+          continue;
         }
 
         if end_regex.is_match(event.borrow().name()).unwrap_or(false) {
-          match state {
-            None => {}
-            Some(state) => {
-              if let LastSeenEvent::Start(start_event) = state {
-                let duration = get_duration(&start_event.borrow(), &event.borrow(), info.time_attribute().as_ref())?;
-                (*durations.entry(info.name().to_string()).or_insert((0u64, info.units().to_string()))).0 += duration;
-              }
-            }
-          };
+          if let Some(pos) = state.iter().rposition(|e| e.event().is_start() && e.id().eq(&id)) {
+            let start_event = state[pos].event().event();
+            add_duration(start_event, event, info)?;
 
-          *state = Some(LastSeenEvent::End(event.clone()));
+            state.remove(pos);
+          } else {
+            add_duration(events.first().unwrap(), event, info)?;
+          }
         }
       }
     }

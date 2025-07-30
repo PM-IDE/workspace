@@ -309,4 +309,5 @@ pub struct ActivityDurationExtractionConfig {
   #[getset(get = "pub")] end_event_regex: String,
   #[getset(get = "pub")] time_attribute: Option<String>,
   #[getset(get = "pub")] units: String,
+  #[getset(get = "pub")] activity_id_attr: Option<NameCreationStrategy>
 }
