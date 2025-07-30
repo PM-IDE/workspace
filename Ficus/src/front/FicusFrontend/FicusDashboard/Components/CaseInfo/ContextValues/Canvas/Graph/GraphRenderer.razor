@@ -18,7 +18,7 @@
   </div>
 
   <div style="margin-top: 5px;">
-    @if (myAggregatedData is { } data)
+    @if (myAggregatedData is { IsEmpty: false } data)
     {
       <AggregatedDataRenderer Data="@data"/>
     }
