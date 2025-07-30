@@ -140,7 +140,7 @@
         "name": "Object Allocations",
         "count_attr": "TotalSizeForTypeSample",
         "grouping_attr": {
-          "SingleAttribute": {
+          "single_attribute": {
             "name": "TypeName",
             "fallback_value": "UNRESOLVED"
           }

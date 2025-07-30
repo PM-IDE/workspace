@@ -208,6 +208,7 @@ pub struct PieChartExtractionConfig {
   #[getset(get = "pub")] units: String,
 }
 
+#[serde(rename_all = "snake_case")]
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
 pub enum NameCreationStrategy {
   SingleAttribute(SingleAttribute),
