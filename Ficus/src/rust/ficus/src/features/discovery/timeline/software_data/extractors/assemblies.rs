@@ -1,15 +1,15 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use derive_new::new;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::core::{prepare_configs, prepare_functional_configs, SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{prepare_configs, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{AssemblyEvent, AssemblyEventKind, SoftwareData};
+use derive_new::new;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Clone, Debug, new)]
 pub struct AssemblySoftwareDataExtractor<'a> {
-  config: &'a SoftwareDataExtractionConfig
+  config: &'a SoftwareDataExtractionConfig,
 }
 
 impl<'a> SoftwareDataExtractor for AssemblySoftwareDataExtractor<'a> {

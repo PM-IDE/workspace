@@ -87,7 +87,7 @@ pub(super) fn prepare_configs<'a, TConfig: Clone + Debug, TEnum: Clone>(
       result.push((regex_or_err(extraction_config.event_class_regex().as_str())?, extraction_config.info(), config.1.clone()))
     }
   }
-  
+
   Ok(result)
 }
 

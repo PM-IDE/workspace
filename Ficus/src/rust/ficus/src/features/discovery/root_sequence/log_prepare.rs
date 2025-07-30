@@ -8,10 +8,10 @@ use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA
 use crate::features::discovery::root_sequence::models::ActivityStartEndTimeData;
 use crate::features::discovery::timeline::abstraction::extract_edge_software_data;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
+use crate::features::discovery::timeline::utils::get_stamp;
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::features::discovery::timeline::utils::get_stamp;
 
 pub fn prepare_software_log(
   log: &XesEventLogImpl,
@@ -20,7 +20,7 @@ pub fn prepare_software_log(
 ) -> Result<XesEventLogImpl, String> {
   let control_flow_regexes = config.control_flow_regexes()?;
   if control_flow_regexes.is_none() {
-    return Ok(log.clone())
+    return Ok(log.clone());
   }
 
   let is_control_flow = |event: &Rc<RefCell<XesEventImpl>>| {
@@ -72,11 +72,11 @@ pub fn prepare_software_log(
 
         new_trace.push(Rc::new(RefCell::new(new_event)));
         index = next_control_flow_event_index;
-      } else { 
+      } else {
         index += 1;
       }
     }
-    
+
     new_log.push(Rc::new(RefCell::new(new_trace)));
   }
 

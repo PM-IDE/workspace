@@ -1,20 +1,20 @@
-use std::cell::RefCell;
 use crate::event_log::core::event::event::Event;
+use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use derive_new::new;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::event_log::xes::xes_event::XesEventImpl;
 
 #[derive(Debug, Clone, new)]
 pub struct EventClassesDataExtractor<'a> {
   thread_attribute: &'a str,
-  time_attribute: Option<&'a String>
+  time_attribute: Option<&'a String>,
 }
 
 impl<'a> SoftwareDataExtractor for EventClassesDataExtractor<'a> {

@@ -547,7 +547,7 @@ impl PipelineParts {
       Ok(())
     })
   }
-  
+
   fn create_multithreaded_trace_parts_creation_strategy(config: &UserDataImpl) -> Result<MultithreadedTracePartsCreationStrategy, PipelinePartExecutionError> {
     match Self::get_user_data(config, &REGEXES_KEY) {
       Ok(regexes) => {
@@ -557,7 +557,7 @@ impl PipelineParts {
         }
 
         Ok(MultithreadedTracePartsCreationStrategy::Regexes(result))
-      },
+      }
       Err(_) => Ok(MultithreadedTracePartsCreationStrategy::Default)
     }
   }

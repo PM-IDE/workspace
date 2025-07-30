@@ -32,7 +32,7 @@ pub fn silhouette_score(labels: &Vec<usize>, distance_func: impl Fn(usize, usize
   }
 
   if clusters_to_indices.len() < 2 || clusters_to_indices.len() > labels.len() - 1 {
-    return Err(SilhouetteScoreError::InappropriateLabelsCount)
+    return Err(SilhouetteScoreError::InappropriateLabelsCount);
   }
 
   let mut score = 0.;

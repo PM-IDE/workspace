@@ -1,11 +1,11 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use derive_new::new;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, prepare_configs, prepare_functional_configs, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, prepare_configs, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{SoftwareData, ThreadEvent, ThreadEventKind};
+use derive_new::new;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Clone, Debug, new)]
 pub struct ThreadDataExtractor<'a> {
@@ -32,7 +32,7 @@ impl<'a> SoftwareDataExtractor for ThreadDataExtractor<'a> {
               software_data.thread_events_mut().push(ThreadEvent::new(thread_id, kind.clone()));
             }
           }
-        } 
+        }
       }
     }
 

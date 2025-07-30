@@ -12,7 +12,7 @@ pub struct DiscoveryContext<'a, T> {
   artificial_start_end_events_factory: ArtificialStartEnd<'a, T>,
   root_sequence_kind: RootSequenceKind,
   event_to_node_info_transfer: NodeDataTransfer<'a, T>,
-  event_to_edge_data_transfer: EdgeDataTransfer<'a, T>
+  event_to_edge_data_transfer: EdgeDataTransfer<'a, T>,
 }
 
 impl<'a, T> DiscoveryContext<'a, T> {
@@ -21,14 +21,14 @@ impl<'a, T> DiscoveryContext<'a, T> {
     artificial_start_end_events_factory: ArtificialStartEnd<'a, T>,
     root_sequence_kind: RootSequenceKind,
     event_to_node_info_transfer: NodeDataTransfer<'a, T>,
-    event_to_edge_data_transfer: EdgeDataTransfer<'a, T>
+    event_to_edge_data_transfer: EdgeDataTransfer<'a, T>,
   ) -> Self {
     Self {
       name_extractor,
       artificial_start_end_events_factory,
       root_sequence_kind,
       event_to_node_info_transfer,
-      event_to_edge_data_transfer
+      event_to_edge_data_transfer,
     }
   }
 

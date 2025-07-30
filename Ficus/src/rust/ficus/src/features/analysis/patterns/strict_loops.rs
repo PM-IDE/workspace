@@ -7,10 +7,10 @@ use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo
 use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 use crate::features::analysis::patterns::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
 use crate::features::analysis::patterns::tandem_arrays::{try_extract_tandem_array, TandemArrayInfo};
+use crate::utils::display_name::get_display_name;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::rc::Rc;
-use crate::utils::display_name::get_display_name;
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
   find_tandem_arrays_strict(&hashed_log, max_array_length)

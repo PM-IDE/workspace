@@ -2,6 +2,8 @@ use linfa::traits::Transformer;
 use linfa_clustering::Dbscan;
 use linfa_nn::KdTree;
 
+use super::{activities_common::create_dataset, activities_params::ActivitiesClusteringParams, merging::merge_activities};
+use crate::features::clustering::common::adjust_dbscan_labels;
 use crate::{
   event_log::core::event_log::EventLog,
   features::clustering::{
@@ -10,13 +12,11 @@ use crate::{
   },
   utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
 };
-use crate::features::clustering::common::adjust_dbscan_labels;
-use super::{activities_common::create_dataset, activities_params::ActivitiesClusteringParams, merging::merge_activities};
 
 pub fn clusterize_activities_dbscan<TLog: EventLog>(
-  params: &mut ActivitiesClusteringParams<TLog>, 
+  params: &mut ActivitiesClusteringParams<TLog>,
   min_points: usize,
-  put_noise_events_in_one_cluster: bool
+  put_noise_events_in_one_cluster: bool,
 ) -> ClusteringResult {
   let (dataset, processed, classes_names) = create_dataset(&params.vis_params)?;
   let clusters = Dbscan::params_with(min_points, DistanceWrapper::new(params.distance), KdTree)

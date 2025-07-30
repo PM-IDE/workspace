@@ -107,11 +107,11 @@ pub fn extract_activities_instances_strict(log: &Vec<Vec<u64>>, activities: &Vec
         let activity = suitable_activity.borrow();
         let repeat_set = activity.repeat_set().as_ref().unwrap();
         let sub_array = repeat_set.sub_array;
-        
+
         if index + sub_array.length >= trace.len() {
           continue;
         }
-        
+
         let repeat_set_slice = &log[repeat_set.trace_index][sub_array.start_index..sub_array.start_index + sub_array.length];
 
         let mut found_pattern = true;
@@ -140,7 +140,7 @@ pub fn extract_activities_instances_strict(log: &Vec<Vec<u64>>, activities: &Vec
 
 fn get_all_child_activities(activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<Rc<RefCell<ActivityNode>>> {
   let mut result = vec![];
-  
+
   let mut queue = VecDeque::from_iter(activities.iter().map(|a| a.clone()));
   while !queue.is_empty() {
     let current = queue.pop_front().unwrap();
@@ -151,7 +151,7 @@ fn get_all_child_activities(activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<
 
     result.push(current);
   }
-  
+
   result
 }
 

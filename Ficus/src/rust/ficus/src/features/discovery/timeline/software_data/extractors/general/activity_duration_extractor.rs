@@ -5,11 +5,11 @@ use crate::features::discovery::timeline::software_data::extractors::core::{Soft
 use crate::features::discovery::timeline::software_data::extractors::general::utils::RegexParingResult;
 use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, SoftwareData};
 use crate::features::discovery::timeline::utils::get_stamp;
+use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use derive_new::new;
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {

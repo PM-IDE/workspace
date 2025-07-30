@@ -20,14 +20,14 @@ use ficus::utils::distance::distance::FicusDistance;
 use ficus::utils::graph::graph::DefaultGraph;
 use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
-    event_log::xes::xes_event_log::XesEventLogImpl,
-    features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
-    pipelines::{
-        aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
-        pipelines::Pipeline,
-    },
-    utils::colors::ColorsHolder,
-    vecs,
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
+  pipelines::{
+    aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
+    pipelines::Pipeline,
+  },
+  utils::colors::ColorsHolder,
+  vecs,
 };
 
 #[test]

@@ -9,7 +9,7 @@ use std::rc::Rc;
 
 #[derive(Clone, Debug, new)]
 pub struct ExceptionDataExtractor<'a> {
-  config: &'a SoftwareDataExtractionConfig
+  config: &'a SoftwareDataExtractionConfig,
 }
 
 impl<'a> SoftwareDataExtractor for ExceptionDataExtractor<'a> {

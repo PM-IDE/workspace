@@ -9,34 +9,30 @@ use std::rc::Rc;
 
 #[derive(Clone, Debug, new)]
 pub struct SocketsDataExtractor<'a> {
-  config: &'a SoftwareDataExtractionConfig
+  config: &'a SoftwareDataExtractionConfig,
 }
 
 impl<'a> SoftwareDataExtractor for SocketsDataExtractor<'a> {
   fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     let configs: &[(Option<&String>, &dyn Fn(&XesEventImpl) -> Result<Option<SocketEvent>, SoftwareDataExtractionError>)] = &[
-      (self.config.socket_connect_start().as_ref().map(|c| c.event_class_regex()), &|event| { 
-        create_connect_accept_start(event, self.config.socket_connect_start().as_ref().unwrap().info(), true) 
+      (self.config.socket_connect_start().as_ref().map(|c| c.event_class_regex()), &|event| {
+        create_connect_accept_start(event, self.config.socket_connect_start().as_ref().unwrap().info(), true)
       }),
-
       (self.config.socket_accept_start().as_ref().map(|c| c.event_class_regex()), &|event| {
         create_connect_accept_start(event, self.config.socket_accept_start().as_ref().unwrap().info(), false)
       }),
-
       (self.config.socket_accept_stop().as_ref().map(|c| c.event_class_regex()), &|_| { Ok(Some(SocketEvent::AcceptStop)) }),
       (self.config.socket_connect_stop().as_ref().map(|c| c.event_class_regex()), &|_| { Ok(Some(SocketEvent::ConnectStop)) }),
-
       (self.config.socket_connect_failed().as_ref().map(|c| c.event_class_regex()), &|event| {
         create_connect_accept_failed(event, self.config.socket_connect_failed().as_ref().unwrap().info(), true)
       }),
-
       (self.config.socket_accept_failed().as_ref().map(|c| c.event_class_regex()), &|event| {
         create_connect_accept_failed(event, self.config.socket_accept_failed().as_ref().unwrap().info(), false)
       })
     ];
-    
+
     let configs = prepare_functional_configs(&configs)?;
-    
+
     for event in events {
       for (regex, factory) in &configs {
         if regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
@@ -46,7 +42,7 @@ impl<'a> SoftwareDataExtractor for SocketsDataExtractor<'a> {
         }
       }
     }
-    
+
     Ok(())
   }
 }

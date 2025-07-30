@@ -75,7 +75,7 @@ pub(super) fn adjust_dbscan_labels(clusters: Array1<Option<usize>>, put_noise_ev
     .iter()
     .map(|x| if x.is_none() {
       if !put_noise_events_in_one_cluster {
-        next_label += 1; 
+        next_label += 1;
       }
 
       next_label

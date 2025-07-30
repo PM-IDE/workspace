@@ -7,15 +7,15 @@ use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::utils::extract_thread_id;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
+use crate::utils::user_data::user_data::UserData;
+use fancy_regex::Regex;
+use lazy_static::lazy_static;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use fancy_regex::Regex;
-use lazy_static::lazy_static;
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::user_data::user_data::UserData;
 
 const MULTITHREADED_FRAGMENT: &'static str = "MULTITHREADED_FRAGMENT";
 
@@ -55,7 +55,7 @@ pub fn enumerate_multithreaded_events_groups(
   log: &XesEventLogImpl,
   config: &SoftwareDataExtractionConfig,
   thread_attribute: &str,
-  strategy: &MultithreadedTracePartsCreationStrategy
+  strategy: &MultithreadedTracePartsCreationStrategy,
 ) -> Result<Vec<Vec<EventGroup>>, String> {
   let mut groups = vec![];
   let regexes = config.control_flow_regexes()?;
@@ -108,12 +108,12 @@ pub fn enumerate_multithreaded_events_groups(
               last_group = Some(EventGroup::empty());
               last_group.as_mut().unwrap().control_flow_events_mut().push(event.clone());
             } else {
-              if let Some(group) = last_group.as_mut() { 
+              if let Some(group) = last_group.as_mut() {
                 group.statistic_events_mut().push(event.clone());
               }
             }
           }
-          
+
           if let Some(group) = last_group {
             trace_groups.push(group);
           }
@@ -268,7 +268,7 @@ fn enumerate_trace_parts(
 
       for regex in regexes {
         if regex.is_match(name).unwrap_or(false) {
-          return true
+          return true;
         }
       }
 
