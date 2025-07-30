@@ -4,6 +4,7 @@ use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+use crate::features::discovery::petri_net::annotations::PERFORMANCE_ANNOTATION_INFO_KEY;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
@@ -202,9 +203,28 @@ pub struct AssemblyExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct PieChartExtractionConfig {
   #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] grouping_attr: Option<String>,
+  #[getset(get = "pub")] grouping_attr: Option<NameCreationStrategy>,
   #[getset(get = "pub")] count_attr: Option<String>,
   #[getset(get = "pub")] units: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, new)]
+pub enum NameCreationStrategy {
+  SingleAttribute(SingleAttribute),
+  ManyAttributes(ManyAttributes)
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct SingleAttribute {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] fallback_value: String
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct ManyAttributes {
+  #[getset(get = "pub")] attributes: Vec<String>,
+  #[getset(get = "pub")] separator: String,
+  #[getset(get = "pub")] fallback_value: String
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

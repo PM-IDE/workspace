@@ -1,6 +1,6 @@
-use crate::event_log::core::event::event::Event;
+use crate::event_log::core::event::event::{Event, EventPayloadArtifact, EventPayloadValue};
 use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::extraction_config::{PieChartExtractionConfig, SimpleCountExtractionConfig, SoftwareDataExtractionConfig};
+use crate::features::discovery::timeline::software_data::extraction_config::{NameCreationStrategy, PieChartExtractionConfig, SimpleCountExtractionConfig, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SimpleCounterData, SoftwareData};
 use derive_new::new;
@@ -48,12 +48,8 @@ impl<'a> SoftwareDataExtractor for PieChartExtractor<'a> {
                   1.
                 };
 
-                let grouping_value = if let Some(grouping_attr) = config.grouping_attr() {
-                  if let Some(grouping_value) = payload.get(grouping_attr) {
-                    grouping_value.to_string_repr().to_string()
-                  } else {
-                    continue
-                  }
+                let grouping_value = if let Some(strategy) = config.grouping_attr() {
+                  strategy.create(&event.borrow())
                 } else {
                   event.borrow().name().to_string()
                 };
@@ -76,6 +72,49 @@ impl<'a> SoftwareDataExtractor for PieChartExtractor<'a> {
     }
 
     Ok(())
+  }
+}
+
+impl NameCreationStrategy {
+  pub fn create(&self, event: &XesEventImpl) -> String {
+    if let Some(map) = event.payload_map() {
+      match self {
+        NameCreationStrategy::SingleAttribute(single_attribute) => {
+          self.value_or_fallback(single_attribute.name(), map)
+        },
+        NameCreationStrategy::ManyAttributes(many_attributes) => {
+          let mut result = String::new();
+          for attr in many_attributes.attributes() {
+            result.push_str(self.value_or_fallback(attr, map).as_str());
+            result.push_str(many_attributes.separator());
+            
+          }
+          
+          if many_attributes.attributes().len() > 0 {
+            result.remove(result.len() - 1);
+          }
+
+          result
+        }
+      }
+    } else {
+      self.fallback_value()
+    }
+  }
+  
+  fn value_or_fallback(&self, attr: &String, payload: &HashMap<String, EventPayloadValue>) -> String {
+    if let Some(attr_value) = payload.get(attr) {
+      attr_value.to_string_repr().to_string()
+    } else {
+      self.fallback_value()
+    }
+  }
+  
+  pub fn fallback_value(&self) -> String {
+    match self {
+      NameCreationStrategy::SingleAttribute(s) => s.fallback_value().to_string(),
+      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().to_string()
+    }
   }
 }
 

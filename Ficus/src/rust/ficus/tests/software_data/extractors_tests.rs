@@ -1,7 +1,7 @@
 use chrono::Utc;
 use ficus::event_log::core::event::event::EventPayloadValue;
 use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::features::discovery::timeline::software_data::extraction_config::{AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, HTTPExtractionConfig, PieChartExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, SimpleCountExtractionConfig, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig};
+use ficus::features::discovery::timeline::software_data::extraction_config::{AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, HTTPExtractionConfig, PieChartExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, SimpleCountExtractionConfig, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig, NameCreationStrategy, SingleAttribute};
 use ficus::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
@@ -484,51 +484,46 @@ fn test_general_histogram() {
     || {
       let events = [
         create_event_with_attributes(
-          "histogram_event".to_string(), 
+          "histogram_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Float64(123.)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
             ("count".to_string(), EventPayloadValue::Float32(123.)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Uint64(123)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "unknown".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Uint32(123)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Int64(123)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
             ("count".to_string(), EventPayloadValue::Int32(123)),
-          ]
+          ],
         ),
       ];
 
@@ -536,18 +531,28 @@ fn test_general_histogram() {
       config.set_pie_chart_extraction_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          PieChartExtractionConfig::new("g1".to_string(), Some("type".to_string()), Some("count".to_string()), "units".to_string())
+          PieChartExtractionConfig::new(
+            "g1".to_string(),
+            Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new("type".to_string(), "xd".to_string()))),
+            Some("count".to_string()),
+            "units".to_string()
+          )
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          PieChartExtractionConfig::new("g2".to_string(), Some("type".to_string()), Some("count".to_string()), "units".to_string())
+          PieChartExtractionConfig::new(
+            "g2".to_string(),
+            Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new("type".to_string(), "xd".to_string()))),
+            Some("count".to_string()),
+            "units".to_string()
+          )
         )
       ]);
 
       let extractor = PieChartExtractor::new(&config);
       let mut software_data = SoftwareData::empty();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
-      
+
       software_data.histograms_mut().sort_by(|f, s| f.name().cmp(s.name()));
       software_data.histograms_mut().iter_mut().for_each(|counts| counts.entries_mut().sort_by(|f, s| f.name().cmp(s.name())));
 
@@ -567,47 +572,42 @@ fn test_simple_counter() {
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Float64(123.)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
             ("count".to_string(), EventPayloadValue::Float32(123.)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Uint64(123)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "unknown".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Uint32(123)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type1".to_string())))),
             ("count".to_string(), EventPayloadValue::Int64(123)),
-          ]
+          ],
         ),
-
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
             ("type".to_string(), EventPayloadValue::String(Rc::new(Box::new("type2".to_string())))),
             ("count".to_string(), EventPayloadValue::Int32(123)),
-          ]
+          ],
         ),
       ];
 
