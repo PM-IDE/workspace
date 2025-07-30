@@ -82,7 +82,7 @@ impl<'a> SoftwareDataExtractor for ActivityDurationExtractor<'a> {
     }
 
     for (name, (value, units)) in durations {
-      software_data.activities_duration_mut().push(ActivityDurationData::new(name, value as f64, units));
+      software_data.activities_durations_mut().push(ActivityDurationData::new(name, value as f64, units));
     }
 
     Ok(())

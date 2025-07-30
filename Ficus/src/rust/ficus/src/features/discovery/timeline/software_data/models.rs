@@ -68,7 +68,7 @@ pub struct SoftwareData {
 
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
-  activities_duration: Vec<ActivityDurationData>,
+  activities_durations: Vec<ActivityDurationData>,
 }
 
 impl SoftwareData {
@@ -89,7 +89,7 @@ impl SoftwareData {
       method_load_unload_events: vec![],
       histograms: vec![],
       simple_counters: vec![],
-      activities_duration: vec![],
+      activities_durations: vec![],
     }
   }
 }
