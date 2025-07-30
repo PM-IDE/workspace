@@ -4,7 +4,6 @@ use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use crate::features::discovery::petri_net::annotations::PERFORMANCE_ANNOTATION_INFO_KEY;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
@@ -46,6 +45,7 @@ pub struct SoftwareDataExtractionConfig {
 
   #[getset(get = "pub", set = "pub")] pie_chart_extraction_configs: Vec<ExtractionConfig<PieChartExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] simple_counter_configs: Vec<ExtractionConfig<SimpleCountExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")] activities_duration_configs: Vec<ExtractionConfig<ActivityDurationExtractionConfig>>,
 }
 
 impl SoftwareDataExtractionConfig {
@@ -77,7 +77,8 @@ impl SoftwareDataExtractionConfig {
       method_end: None,
       raw_control_flow_regexes: vec![],
       pie_chart_extraction_configs: vec![],
-      simple_counter_configs: vec![]
+      simple_counter_configs: vec![],
+      activities_duration_configs: vec![]
     }
   }
   
@@ -215,6 +216,15 @@ pub enum NameCreationStrategy {
   ManyAttributes(ManyAttributes)
 }
 
+impl NameCreationStrategy {
+  pub fn fallback_value(&self) -> String {
+    match self {
+      NameCreationStrategy::SingleAttribute(s) => s.fallback_value().to_string(),
+      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().to_string()
+    }
+  }
+}
+
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SingleAttribute {
   #[getset(get = "pub")] name: String,
@@ -233,4 +243,12 @@ pub struct SimpleCountExtractionConfig {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] count_attr: Option<String>,
   #[getset(get = "pub")] units: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct ActivityDurationExtractionConfig {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] start_event_regex: String,
+  #[getset(get = "pub")] end_event_regex: String,
+  #[getset(get = "pub")] time_attribute: String
 }

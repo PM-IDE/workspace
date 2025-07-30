@@ -13,7 +13,8 @@ use ficus::features::discovery::timeline::software_data::extractors::threads::Th
 use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use std::cell::RefCell;
 use std::rc::Rc;
-use ficus::features::discovery::timeline::software_data::extractors::general::{PieChartExtractor, SimpleCounterExtractor};
+use ficus::features::discovery::timeline::software_data::extractors::general::pie_chart_extractor::PieChartExtractor;
+use ficus::features::discovery::timeline::software_data::extractors::general::simple_counter::SimpleCounterExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::sockets::SocketsDataExtractor;
 
 #[test]

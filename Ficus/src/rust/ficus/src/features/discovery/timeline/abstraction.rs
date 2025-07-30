@@ -35,7 +35,8 @@ use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
-use crate::features::discovery::timeline::software_data::extractors::general::{PieChartExtractor, SimpleCounterExtractor};
+use crate::features::discovery::timeline::software_data::extractors::general::pie_chart_extractor::PieChartExtractor;
+use crate::features::discovery::timeline::software_data::extractors::general::simple_counter::SimpleCounterExtractor;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
