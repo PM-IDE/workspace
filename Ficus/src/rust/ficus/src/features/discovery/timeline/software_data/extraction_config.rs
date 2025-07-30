@@ -250,5 +250,6 @@ pub struct ActivityDurationExtractionConfig {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] start_event_regex: String,
   #[getset(get = "pub")] end_event_regex: String,
-  #[getset(get = "pub")] time_attribute: String
+  #[getset(get = "pub")] time_attribute: Option<String>,
+  #[getset(get = "pub")] units: String,
 }

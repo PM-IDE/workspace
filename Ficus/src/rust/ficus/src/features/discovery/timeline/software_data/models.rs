@@ -65,6 +65,10 @@ pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
   simple_counters: Vec<SimpleCounterData>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  activities_duration: Vec<ActivityDurationData>,
 }
 
 impl SoftwareData {
@@ -85,6 +89,7 @@ impl SoftwareData {
       method_load_unload_events: vec![],
       histograms: vec![],
       simple_counters: vec![],
+      activities_duration: vec![]
     }
   }
 }
@@ -224,5 +229,12 @@ pub struct HistogramEntry {
 pub struct SimpleCounterData {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] value: f64,
+  #[getset(get = "pub")] units: String,
+}
+
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
+pub struct ActivityDurationData {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] duration: f64,
   #[getset(get = "pub")] units: String,
 }

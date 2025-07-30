@@ -2,7 +2,10 @@ use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::NameCreationStrategy;
 use std::collections::HashMap;
+use fancy_regex::Regex;
+use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractionError;
 
+pub type RegexParingResult = Result<Regex, SoftwareDataExtractionError>;
 
 impl NameCreationStrategy {
   pub(super) fn create(&self, event: &XesEventImpl) -> String {

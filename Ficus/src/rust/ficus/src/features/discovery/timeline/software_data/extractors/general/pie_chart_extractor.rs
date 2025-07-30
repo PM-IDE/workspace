@@ -7,6 +7,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::{PieChartExtractionConfig, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::general::utils::RegexParingResult;
 use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SoftwareData};
 
 #[derive(Clone, Debug, new)]
@@ -29,7 +30,7 @@ impl<'a> SoftwareDataExtractor for PieChartExtractor<'a> {
           c.info()
         )
       )
-      .collect::<Vec<(Result<Regex, SoftwareDataExtractionError>, &PieChartExtractionConfig)>>();
+      .collect::<Vec<(RegexParingResult, &PieChartExtractionConfig)>>();
 
     let mut result = HashMap::new();
     for event in events {

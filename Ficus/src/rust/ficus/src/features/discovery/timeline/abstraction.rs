@@ -35,6 +35,7 @@ use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
+use crate::features::discovery::timeline::software_data::extractors::general::activity_duration_extractor::ActivityDurationExtractor;
 use crate::features::discovery::timeline::software_data::extractors::general::pie_chart_extractor::PieChartExtractor;
 use crate::features::discovery::timeline::software_data::extractors::general::simple_counter::SimpleCounterExtractor;
 
@@ -167,7 +168,7 @@ fn extract_software_data(
       .extract(&mut node_software_data, event_group)
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
   }
-  
+
   let edge_software_data = if let Some(after_group_events) = event_group.after_group_events() {
     extract_edge_software_data(config, after_group_events.as_slice())
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
@@ -175,24 +176,24 @@ fn extract_software_data(
   } else {
     SoftwareData::empty()
   };
-  
+
   Ok((node_software_data, edge_software_data))
 }
 
 pub fn extract_edge_software_data(
-  config: &SoftwareDataExtractionConfig, 
-  events: &[Rc<RefCell<XesEventImpl>>]
+  config: &SoftwareDataExtractionConfig,
+  events: &[Rc<RefCell<XesEventImpl>>],
 ) -> Result<Option<SoftwareData>, SoftwareDataExtractionError> {
   if events.is_empty() {
     return Ok(None);
   }
 
   let mut edge_software_data = SoftwareData::empty();
-  
+
   for extractor in create_edge_software_data_extractors(config) {
     extractor.extract_from_events(&mut edge_software_data, events)?
   }
-  
+
   Ok(Some(edge_software_data))
 }
 
@@ -208,5 +209,6 @@ fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionCo
     Rc::new(Box::new(ThreadDataExtractor::<'a>::new(config))),
     Rc::new(Box::new(PieChartExtractor::<'a>::new(config))),
     Rc::new(Box::new(SimpleCounterExtractor::<'a>::new(config))),
+    Rc::new(Box::new(ActivityDurationExtractor::<'a>::new(config))),
   ]
 }
