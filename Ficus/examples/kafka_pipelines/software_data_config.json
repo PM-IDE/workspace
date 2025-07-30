@@ -197,6 +197,21 @@
       }
     }
   ],
+  "activities_duration_configs": [
+    {
+      "name": "Runtime Suspensions",
+      "start_event_regex": "GC/SuspendEEStop",
+      "end_event_regex": "GC/RestartEEStop",
+      "time_attribute": "QpcStamp",
+      "units": "QPC",
+      "activity_id_attr": {
+        "single_attribute": {
+          "name": "XesActivityId",
+          "fallback_value": ""
+        }
+      }
+    }
+  ],
   "raw_control_flow_regexes": [
     "ProcfilerMethod"
   ]

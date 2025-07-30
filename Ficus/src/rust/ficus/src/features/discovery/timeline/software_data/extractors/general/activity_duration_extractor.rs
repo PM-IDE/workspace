@@ -55,9 +55,9 @@ impl<'a> SoftwareDataExtractor for ActivityDurationExtractor<'a> {
       .iter()
       .map(|c|
         (
-          Regex::new(c.info().start_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
-          Regex::new(c.info().end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
-          c.info(),
+          Regex::new(c.start_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.start_event_regex().to_string())),
+          Regex::new(c.end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.end_event_regex().to_string())),
+          c,
           Vec::new()
         )
       )

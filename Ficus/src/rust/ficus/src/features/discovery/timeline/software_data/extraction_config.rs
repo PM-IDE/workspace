@@ -102,7 +102,7 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(
     get = "pub",
     set = "pub"
-  )] activities_duration_configs: Vec<ExtractionConfig<ActivityDurationExtractionConfig>>,
+  )] activities_duration_configs: Vec<ActivityDurationExtractionConfig>,
 }
 
 impl SoftwareDataExtractionConfig {
