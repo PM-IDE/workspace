@@ -139,7 +139,12 @@
       "info": {
         "name": "Object Allocations",
         "count_attr": "TotalSizeForTypeSample",
-        "grouping_attr": "TypeName",
+        "grouping_attr": {
+          "SingleAttribute": {
+            "name": "TypeName",
+            "fallback_value": "UNRESOLVED"
+          }
+        },
         "units": "bytes"
       }
     },
