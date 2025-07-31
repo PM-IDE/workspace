@@ -31,7 +31,7 @@ use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
 use crate::pipelines::errors::pipeline_errors::RawPartExecutionError;
 use crate::utils::user_data::user_data::UserData;
 use crate::utils::user_data::user_data::UserDataOwner;
-use log::error;
+use log::{error};
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
@@ -52,7 +52,13 @@ pub fn abstract_event_groups(
   for (trace_id, trace_groups) in event_groups.iter().enumerate() {
     let mut abstracted_trace = XesTraceImpl::empty();
 
-    for (event_index, event_group) in trace_groups.iter().enumerate() {
+    let mut software_data = trace_groups.iter().map(|_| (SoftwareData::empty(), SoftwareData::empty())).collect::<Vec<(SoftwareData, SoftwareData)>>();
+
+    for extractor in create_trace_extractors(config) {
+      extractor.extract(trace_groups, &mut software_data).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string()))?;
+    }
+
+    for ((event_index, event_group), (node_data, edge_data)) in trace_groups.iter().enumerate().zip(software_data) {
       if event_group.control_flow_events().is_empty() {
         error!("Encountered empty event group");
         continue;
@@ -66,6 +72,8 @@ pub fn abstract_event_groups(
         time_attribute.as_ref(),
         EventCoordinates::new(trace_id as u64, event_index as u64),
         config,
+        node_data,
+        edge_data
       )?;
 
       abstracted_trace.push(abstracted_event);
@@ -85,6 +93,8 @@ fn create_abstracted_event(
   time_attribute: Option<&String>,
   event_coordinates: EventCoordinates,
   config: &SoftwareDataExtractionConfig,
+  mut node_software_data: SoftwareData,
+  mut edge_software_data: SoftwareData
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
   let first_stamp = event_group.control_flow_events().first().unwrap().borrow().timestamp().clone();
   let abstracted_event_stamp = *event_group.control_flow_events().last().unwrap().borrow().timestamp() - first_stamp;
@@ -94,7 +104,7 @@ fn create_abstracted_event(
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
 
-  let (node_software_data, edge_software_data) = extract_software_data(config, event_group, thread_attribute, time_attribute)?;
+  extract_software_data(config, event_group, thread_attribute, time_attribute, &mut node_software_data, &mut edge_software_data)?;
 
   put_node_user_data(&mut event, node_software_data, event_coordinates, event_group, time_attribute)?;
 
@@ -156,46 +166,42 @@ fn extract_software_data(
   event_group: &EventGroup,
   thread_attribute: &str,
   time_attribute: Option<&String>,
-) -> Result<(SoftwareData, SoftwareData), PipelinePartExecutionError> {
+  node_software_data: &mut SoftwareData,
+  edge_software_data: &mut SoftwareData
+) -> Result<(), PipelinePartExecutionError> {
   let edge_extractors: Vec<Rc<Box<dyn EventGroupSoftwareDataExtractor>>> = create_edge_software_data_extractors(config);
 
   let mut node_extractors = edge_extractors.clone();
   node_extractors.push(Rc::new(Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))));
 
-  let mut node_software_data = SoftwareData::empty();
-
   for extractor in node_extractors {
     extractor
-      .extract(&mut node_software_data, event_group)
+      .extract(node_software_data, event_group)
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
   }
 
-  let edge_software_data = if let Some(after_group_events) = event_group.after_group_events() {
-    extract_edge_software_data(config, after_group_events.as_slice())
-      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
-      .unwrap_or_else(|| SoftwareData::empty())
-  } else {
-    SoftwareData::empty()
-  };
+  if let Some(after_group_events) = event_group.after_group_events() {
+    extract_edge_software_data(config, after_group_events.as_slice(), edge_software_data)
+      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
+  }
 
-  Ok((node_software_data, edge_software_data))
+  Ok(())
 }
 
 pub fn extract_edge_software_data(
   config: &SoftwareDataExtractionConfig,
   events: &[Rc<RefCell<XesEventImpl>>],
-) -> Result<Option<SoftwareData>, SoftwareDataExtractionError> {
+  edge_software_data: &mut SoftwareData
+) -> Result<(), SoftwareDataExtractionError> {
   if events.is_empty() {
-    return Ok(None);
+    return Ok(());
   }
-
-  let mut edge_software_data = SoftwareData::empty();
 
   for extractor in create_edge_software_data_extractors(config) {
-    extractor.extract_from_events(&mut edge_software_data, events)?
+    extractor.extract_from_events(edge_software_data, events)?
   }
 
-  Ok(Some(edge_software_data))
+  Ok(())
 }
 
 fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Rc<Box<dyn EventGroupSoftwareDataExtractor + 'a>>> {

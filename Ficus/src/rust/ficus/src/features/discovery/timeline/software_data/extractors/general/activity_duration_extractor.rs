@@ -26,9 +26,9 @@ struct StackActivityStartEntry {
 }
 
 impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> {
-  fn extract(&self, trace: &mut Vec<EventGroup>) -> Result<Vec<(SoftwareData, SoftwareData)>, SoftwareDataExtractionError> {
+  fn extract(&self, trace: &Vec<EventGroup>, software_data: &mut Vec<(SoftwareData, SoftwareData)>) -> Result<(), SoftwareDataExtractionError> {
     if self.config.activities_duration_configs().len() == 0 {
-      return Ok(vec![]);
+      return Ok(());
     }
 
     let mut configs = self.config
@@ -77,16 +77,14 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
       }
     }
 
-    let mut result = trace.iter().map(|_| (SoftwareData::empty(), SoftwareData::empty())).collect::<Vec<(SoftwareData, SoftwareData)>>();
-
     for (_, _, _, _, data) in configs.iter_mut() {
-      if data.len() != result.len() * 2 {
+      if data.len() != software_data.len() * 2 {
         error!("data.len() != result.len() * 2");
         continue;
       }
 
       let mut index = 0;
-      for (node_data, edge_data) in result.iter_mut() {
+      for (node_data, edge_data) in software_data.iter_mut() {
         for (name, (value, units)) in data[index].as_ref().unwrap().map.iter() {
           node_data.activities_durations_mut().push(ActivityDurationData::new(name.to_string(), *value as f64, units.to_string()));
         }
@@ -99,7 +97,7 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
       }
     }
 
-    Ok(result)
+    Ok(())
   }
 }
 

@@ -12,6 +12,7 @@ use crate::features::discovery::timeline::utils::get_stamp;
 use crate::utils::user_data::user_data::{UserData, UserDataOwner};
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::features::discovery::timeline::software_data::models::SoftwareData;
 
 pub fn prepare_software_log(
   log: &XesEventLogImpl,
@@ -60,14 +61,13 @@ pub fn prepare_software_log(
           let end_event = &trace.events()[last_stamp_index];
           let end_stamp = get_stamp(&end_event.borrow(), time_attribute).map_err(|_| "Failed to get stamp of first control flow event")?;
 
-          let edge_data = extract_edge_software_data(config, &trace.events()[index + 1..next_control_flow_event_index]).map_err(|e| e.to_string())?;
+          let mut edge_data = SoftwareData::empty();
+          extract_edge_software_data(config, &trace.events()[index + 1..next_control_flow_event_index], &mut edge_data).map_err(|e| e.to_string())?;
 
-          if let Some(edge_data) = edge_data {
-            new_event.user_data_mut().put_concrete(EDGE_SOFTWARE_DATA_KEY.key(), vec![edge_data]);
-            new_event.user_data_mut().put_concrete(EDGE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![
-              ActivityStartEndTimeData::new(start_stamp, end_stamp)
-            ]);
-          }
+          new_event.user_data_mut().put_concrete(EDGE_SOFTWARE_DATA_KEY.key(), vec![edge_data]);
+          new_event.user_data_mut().put_concrete(EDGE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![
+            ActivityStartEndTimeData::new(start_stamp, end_stamp)
+          ]);
         }
 
         new_trace.push(Rc::new(RefCell::new(new_event)));

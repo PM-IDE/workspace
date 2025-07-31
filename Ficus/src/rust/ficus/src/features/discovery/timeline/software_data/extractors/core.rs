@@ -45,7 +45,11 @@ pub trait EventGroupSoftwareDataExtractor {
 }
 
 pub trait EventGroupTraceSoftwareDataExtractor {
-  fn extract(&self, trace: &mut Vec<EventGroup>) -> Result<Vec<(SoftwareData, SoftwareData)>, SoftwareDataExtractionError>;
+  fn extract(
+    &self,
+    trace: &Vec<EventGroup>,
+    data: &mut Vec<(SoftwareData, SoftwareData)>,
+  ) -> Result<(), SoftwareDataExtractionError>;
 }
 
 pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {
