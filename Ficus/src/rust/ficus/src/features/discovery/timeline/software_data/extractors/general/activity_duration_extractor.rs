@@ -112,6 +112,14 @@ impl<'a> SoftwareDataExtractor for ActivityDurationExtractor<'a> {
       }
     }
 
+    for (_, _, info, state) in configs.iter() {
+      for event in state {
+        if event.event().is_start() {
+          add_duration(event.event().event(), events.last().unwrap(), info)?;
+        }
+      }
+    }
+
     for (name, (value, units)) in durations {
       software_data.activities_durations_mut().push(ActivityDurationData::new(name, value as f64, units));
     }
