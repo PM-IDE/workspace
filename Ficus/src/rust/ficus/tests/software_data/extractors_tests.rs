@@ -16,6 +16,7 @@ use ficus::features::discovery::timeline::software_data::extractors::threads::Th
 use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use std::cell::RefCell;
 use std::rc::Rc;
+use ficus::features::discovery::timeline::events_groups::EventGroup;
 use ficus::features::discovery::timeline::software_data::extractors::general::activity_duration_extractor::ActivityDurationExtractor;
 
 #[test]
@@ -633,6 +634,69 @@ fn test_simple_counter() {
       software_data
     },
   )
+}
+
+#[test]
+fn test_activities_duration() {
+  let raw_event_groups = [
+    vec![
+      vec![
+        create_event_with_attributes(
+          "event_start".to_string(),
+          vec![
+            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
+            ("stamp".to_string(), EventPayloadValue::Int64(100)),
+          ],
+        ),
+        create_event_with_attributes(
+          "event_end".to_string(),
+          vec![
+            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
+            ("stamp".to_string(), EventPayloadValue::Int64(200)),
+          ],
+        ),
+      ],
+      vec![
+        create_event_with_attributes(
+          "event_end".to_string(),
+          vec![
+            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("2".to_string())))),
+            ("stamp".to_string(), EventPayloadValue::Int64(300)),
+          ],
+        )
+      ],
+    ],
+  ];
+
+  let mut config = SoftwareDataExtractionConfig::empty();
+  config.set_activities_duration_configs(vec![
+    ActivityDurationExtractionConfig::new(
+      "activity".to_string(),
+      "event_start".to_string(),
+      "event_end".to_string(),
+      Some("stamp".to_string()),
+      "units".to_string(),
+      Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new("activity_id".to_string(), "xd".to_string()))),
+    )
+  ]);
+
+  let event_groups: Vec<EventGroup> = raw_event_groups.into_iter().map(|x| {
+    let mut group = EventGroup::empty();
+
+    group.statistic_events_mut().extend(x[0].clone());
+    group.set_after_group_events(Some(x[1].clone()));
+
+    group
+  }).collect();
+
+  let extractor = ActivityDurationExtractor::new(&config);
+  let mut software_data = event_groups.iter().map(|_| (SoftwareData::empty(), SoftwareData::empty())).collect();
+  extractor.extract(&event_groups, &mut software_data).ok().unwrap();
+
+  assert_eq!(
+    serde_json::to_string(&software_data).unwrap(),
+    r#"[[{"activities_durations":[{"name":"activity","duration":200.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":0.0,"units":"units"}]}]]"#
+  );
 }
 
 fn create_event_with_attributes(name: String, attributes: Vec<(String, EventPayloadValue)>) -> Rc<RefCell<XesEventImpl>> {
