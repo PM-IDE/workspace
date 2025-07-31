@@ -13,6 +13,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use log::error;
+use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
@@ -117,6 +118,28 @@ struct DurationMapInfo {
   map: DurationsMap,
 }
 
+trait DurationsMapExtensions {
+  fn add_raw_duration(&mut self, duration: u64, info: &ActivityDurationExtractionConfig);
+
+  fn add_duration(
+    &mut self,
+    start_event: &Rc<RefCell<XesEventImpl>>,
+    end_event: &Rc<RefCell<XesEventImpl>>,
+    info: &ActivityDurationExtractionConfig,
+  ) -> Result<(), SoftwareDataExtractionError> {
+    let duration = get_duration(&start_event.borrow(), &end_event.borrow(), info.time_attribute().as_ref())?;
+    self.add_raw_duration(duration, info);
+
+    Ok(())
+  }
+}
+
+impl DurationsMapExtensions for DurationsMap {
+  fn add_raw_duration(&mut self, duration: u64, info: &ActivityDurationExtractionConfig) {
+    (*self.entry(info.name().to_string()).or_insert((0u64, info.units().to_string()))).0 += duration;
+  }
+}
+
 fn process_events(
   events: &[Rc<RefCell<XesEventImpl>>],
   start_regex: &RegexParingResult,
@@ -126,16 +149,6 @@ fn process_events(
   previous_data: &mut Vec<Option<DurationMapInfo>>,
 ) -> Result<DurationsMap, SoftwareDataExtractionError> {
   let mut durations: DurationsMap = HashMap::new();
-
-  let mut add_duration = |start_event: &Rc<RefCell<XesEventImpl>>,
-                          end_event: &Rc<RefCell<XesEventImpl>>,
-                          info: &ActivityDurationExtractionConfig| -> Result<(), SoftwareDataExtractionError> {
-    let duration = get_duration(&start_event.borrow(), &end_event.borrow(), info.time_attribute().as_ref())?;
-    (*durations.entry(info.name().to_string()).or_insert((0u64, info.units().to_string()))).0 += duration;
-
-    Ok(())
-  };
-
   let mut local_state = vec![];
 
   for event in events {
@@ -163,7 +176,7 @@ fn process_events(
     if end_regex.is_match(event.borrow().name()).unwrap_or(false) {
       if let Some(pos) = local_state.iter().rposition(|e| e.id().eq(&id)) {
         let start_event = local_state[pos].event();
-        add_duration(start_event, event, info)?;
+        durations.add_duration(start_event, event, info)?;
 
         local_state.remove(pos);
       } else {
@@ -178,13 +191,20 @@ fn process_events(
           }
         }
 
-        add_duration(events.first().unwrap(), event, info)?;
+        match previous_data.last() {
+          None => durations.add_duration(events.first().unwrap(), event, info)?,
+          Some(Some(last_data)) => {
+            let stamp = get_stamp_or_err(&event.borrow(), info.time_attribute().as_ref())?;
+            durations.add_raw_duration(stamp - last_data.end_time, info);
+          }
+          _ => {}
+        };
       }
     }
   }
 
   for _ in global_state.iter() {
-    add_duration(events.first().unwrap(), events.last().unwrap(), info)?;
+    durations.add_duration(events.first().unwrap(), events.last().unwrap(), info)?;
   }
 
   global_state.extend(local_state);

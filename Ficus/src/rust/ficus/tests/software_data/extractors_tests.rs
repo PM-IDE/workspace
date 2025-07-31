@@ -695,7 +695,7 @@ fn test_activities_duration() {
 
   assert_eq!(
     serde_json::to_string(&software_data).unwrap(),
-    r#"[[{"activities_durations":[{"name":"activity","duration":200.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":0.0,"units":"units"}]}]]"#
+    r#"[[{"activities_durations":[{"name":"activity","duration":200.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":100.0,"units":"units"}]}]]"#
   );
 }
 
