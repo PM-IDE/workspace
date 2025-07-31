@@ -1,7 +1,7 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, EventGroupSoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{AllocationEvent, SoftwareData};
 use derive_new::new;
 use log::{error, warn};
@@ -13,7 +13,7 @@ pub struct AllocationDataExtractor<'a> {
   config: &'a SoftwareDataExtractionConfig,
 }
 
-impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
+impl<'a> EventGroupSoftwareDataExtractor for AllocationDataExtractor<'a> {
   fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     if let Some(config) = self.config.allocation() {
       let regex = regex_or_err(config.event_class_regex())?;

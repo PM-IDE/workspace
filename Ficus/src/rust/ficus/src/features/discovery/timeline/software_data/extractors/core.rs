@@ -31,7 +31,7 @@ impl Display for SoftwareDataExtractionError {
 
 impl Error for SoftwareDataExtractionError {}
 
-pub trait SoftwareDataExtractor {
+pub trait EventGroupSoftwareDataExtractor {
   fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
     let events = event_group.all_events()
       .into_iter()
@@ -42,6 +42,10 @@ pub trait SoftwareDataExtractor {
   }
 
   fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError>;
+}
+
+pub trait EventGroupTraceSoftwareDataExtractor {
+  fn extract(&self, trace: &mut Vec<EventGroup>) -> Result<Vec<(SoftwareData, SoftwareData)>, SoftwareDataExtractionError>;
 }
 
 pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {

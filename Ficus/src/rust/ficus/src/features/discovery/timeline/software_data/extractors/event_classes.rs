@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
 use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, EventGroupSoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use derive_new::new;
@@ -17,7 +17,7 @@ pub struct EventClassesDataExtractor<'a> {
   time_attribute: Option<&'a String>,
 }
 
-impl<'a> SoftwareDataExtractor for EventClassesDataExtractor<'a> {
+impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
   fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
     self.extract_from_events(software_data, event_group.control_flow_events())
   }

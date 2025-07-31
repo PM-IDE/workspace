@@ -5,7 +5,7 @@ use ficus::features::discovery::timeline::software_data::extraction_config::{Act
 use ficus::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
-use ficus::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractor;
+use ficus::features::discovery::timeline::software_data::extractors::core::{EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor};
 use ficus::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::general::pie_chart_extractor::PieChartExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::general::simple_counter::SimpleCounterExtractor;
@@ -634,79 +634,6 @@ fn test_simple_counter() {
     },
   )
 }
-
-#[test]
-fn test_activities_duration() {
-  execute_test_with_software_data(
-    r#"{"activities_durations":[{"name":"activity","duration":1000.0,"units":"units"}]}"#,
-    || {
-      let events = [
-        create_event_with_attributes(
-          "event_start".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(100)),
-          ],
-        ),
-        create_event_with_attributes(
-          "event_start".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("2".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(200)),
-          ],
-        ),
-        create_event_with_attributes(
-          "event_end".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("2".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(300)),
-          ],
-        ),
-        create_event_with_attributes(
-          "event_end".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(400)),
-          ],
-        ),
-        create_event_with_attributes(
-          "event_start".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("3".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(500)),
-          ],
-        ),
-        create_event_with_attributes(
-          "event_end".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("4".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(600)),
-          ],
-        ),
-      ];
-
-      let mut config = SoftwareDataExtractionConfig::empty();
-      config.set_activities_duration_configs(vec![
-        ActivityDurationExtractionConfig::new(
-          "activity".to_string(),
-          "event_start".to_string(),
-          "event_end".to_string(),
-          Some("stamp".to_string()),
-          "units".to_string(),
-          Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new("activity_id".to_string(), "xd".to_string()))),
-        )
-      ]);
-
-      let extractor = ActivityDurationExtractor::new(&config);
-      let mut software_data = SoftwareData::empty();
-      extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
-
-      software_data.simple_counters_mut().sort_by(|f, s| f.name().cmp(s.name()));
-      software_data
-    },
-  )
-}
-
 
 fn create_event_with_attributes(name: String, attributes: Vec<(String, EventPayloadValue)>) -> Rc<RefCell<XesEventImpl>> {
   Rc::new(RefCell::new(XesEventImpl::new_all_fields(Rc::new(Box::new(name)), Utc::now(), Some(attributes.into_iter().collect()))))

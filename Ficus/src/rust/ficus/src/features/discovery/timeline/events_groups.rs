@@ -131,11 +131,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
 pub struct EventGroup {
   #[getset(get = "pub", get_mut = "pub")] control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
   #[getset(get = "pub", get_mut = "pub")] statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
-  #[getset(
-    get = "pub",
-    get_mut = "pub",
-    set = "pub"
-  )] after_group_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
+  #[getset(get = "pub", get_mut = "pub", set = "pub")] after_group_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
   #[getset(get = "pub", get_mut = "pub")] user_data: UserDataImpl,
 }
 

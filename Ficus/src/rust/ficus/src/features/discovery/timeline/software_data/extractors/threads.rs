@@ -1,7 +1,7 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, prepare_configs, SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, prepare_configs, SoftwareDataExtractionError, EventGroupSoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{SoftwareData, ThreadEvent, ThreadEventKind};
 use derive_new::new;
 use std::cell::RefCell;
@@ -12,7 +12,7 @@ pub struct ThreadDataExtractor<'a> {
   config: &'a SoftwareDataExtractionConfig,
 }
 
-impl<'a> SoftwareDataExtractor for ThreadDataExtractor<'a> {
+impl<'a> EventGroupSoftwareDataExtractor for ThreadDataExtractor<'a> {
   fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     let configs = [
       (self.config.thread_created(), ThreadEventKind::Created),
