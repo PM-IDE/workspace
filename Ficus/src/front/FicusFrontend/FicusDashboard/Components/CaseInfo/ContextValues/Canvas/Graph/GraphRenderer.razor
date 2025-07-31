@@ -132,6 +132,11 @@
     {
       enhancements.Add(name);
     }
+
+    foreach (var name in data.ActivitiesDurationsData.Select(e => e.Name))
+    {
+      enhancements.Add(name);
+    }
   }
 
   private static bool IsRichUiGraph(GrpcGraph graph) =>

@@ -12,7 +12,7 @@ import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import cytoscape from "cytoscape";
-import {AggregatedData, CountAndSum, MergedEnhancementData, MergedSoftwareData} from "./types";
+import {AggregatedData, CountAndSum, MergedSoftwareData, ValueWithUnits} from "./types";
 
 const graphColor = graphColors(darkTheme);
 
@@ -77,6 +77,7 @@ function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
   data.globalSoftwareData.methodsUnloads = toObjectCsharpInterop(data.globalSoftwareData.methodsUnloads);
   data.globalSoftwareData.exceptions = toObjectCsharpInterop(data.globalSoftwareData.exceptions);
   data.globalSoftwareData.counters = toObjectCsharpInterop(data.globalSoftwareData.counters);
+  data.globalSoftwareData.activitiesDurations = toObjectCsharpInterop(data.globalSoftwareData.activitiesDurations);
 
   // @ts-ignore
   data.globalSoftwareData.createdThreads = data.globalSoftwareData.createdThreads.values().toArray();
@@ -192,16 +193,21 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
       mergeMaps(aggregatedData.globalSoftwareData.histograms.get(name).value, histogram.value);
     }
 
-    for (let [name, counter] of softwareData.counters.entries()) {
-      if (!aggregatedData.globalSoftwareData.counters.has(name)) {
-        aggregatedData.globalSoftwareData.counters.set(name, {
-          units: counter.units,
-          value: 0
-        })
-      }
+    mergeSimpleMap(aggregatedData.globalSoftwareData.counters, softwareData.counters);
+    mergeSimpleMap(aggregatedData.globalSoftwareData.activitiesDurations, softwareData.activitiesDurations);
+  }
+}
 
-      aggregatedData.globalSoftwareData.counters.get(name).value += counter.value;
+function mergeSimpleMap(to: Map<string, ValueWithUnits<number>>, from: Map<string, ValueWithUnits<number>>) {
+  for (let [name, counter] of from.entries()) {
+    if (!to.has(name)) {
+      to.set(name, {
+        units: counter.units,
+        value: 0
+      })
     }
+
+    to.get(name).value += counter.value;
   }
 }
 

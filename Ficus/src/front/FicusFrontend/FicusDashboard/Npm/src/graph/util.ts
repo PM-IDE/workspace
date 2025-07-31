@@ -98,7 +98,8 @@ export function createEmptySoftwareData(): MergedSoftwareData {
     httpRequests: new Map(),
 
     histograms: new Map(),
-    counters: new Map()
+    counters: new Map(),
+    activitiesDurations: new Map()
   };
 }
 
@@ -231,6 +232,17 @@ function createMergedEnhancementData(
       }
 
       enhancementData.softwareData.counters.get(counter.name).value += counter.count;
+    }
+
+    for (let activityDuration of softwareData.activitiesDurationsData) {
+      if (!enhancementData.softwareData.activitiesDurations.has(activityDuration.name)) {
+        enhancementData.softwareData.activitiesDurations.set(activityDuration.name, {
+          value: 0,
+          units: activityDuration.units
+        });
+      }
+
+      enhancementData.softwareData.activitiesDurations.get(activityDuration.name).value += activityDuration.duration;
     }
   });
 

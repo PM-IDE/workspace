@@ -140,6 +140,15 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
         );
       }
 
+      if (softwareData.activitiesDurations.has(enhancement)) {
+        return createNumberInformation(
+          "",
+          softwareData.activitiesDurations.get(enhancement).units,
+          softwareData.activitiesDurations.get(enhancement).value,
+          aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
+        );
+      }
+
       return "";
     }
   }

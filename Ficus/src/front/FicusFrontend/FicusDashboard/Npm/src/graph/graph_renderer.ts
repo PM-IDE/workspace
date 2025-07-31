@@ -62,6 +62,7 @@ function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
   data.globalSoftwareData.methodsUnloads = toMapCSharpInterop(data.globalSoftwareData.methodsUnloads);
   data.globalSoftwareData.exceptions = toMapCSharpInterop(data.globalSoftwareData.exceptions);
   data.globalSoftwareData.counters = toMapCSharpInterop(data.globalSoftwareData.counters);
+  data.globalSoftwareData.activitiesDurations = toMapCSharpInterop(data.globalSoftwareData.activitiesDurations);
 
   data.globalSoftwareData.createdThreads = new Set(data.globalSoftwareData.createdThreads);
   data.globalSoftwareData.terminatedThreads = new Set(data.globalSoftwareData.terminatedThreads);

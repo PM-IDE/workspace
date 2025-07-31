@@ -46,6 +46,7 @@ public class MergedSoftwareData
 
   public Dictionary<string, ValueWithUnits<Dictionary<string, double>>> Histograms { get; set; } = new();
   public Dictionary<string, ValueWithUnits<double>> Counters { get; set; } = new();
+  public Dictionary<string, ValueWithUnits<double>> ActivitiesDurations { get; set; } = new();
 
 
   public bool IsEmpty =>
@@ -63,7 +64,8 @@ public class MergedSoftwareData
     TerminatedThreads.Count == 0 &&
     HttpRequests.Count == 0 &&
     Histograms.Count == 0 &&
-    Counters.Count == 0;
+    Counters.Count == 0 &&
+    ActivitiesDurations.Count == 0;
 }
 
 public class CountAndSum
