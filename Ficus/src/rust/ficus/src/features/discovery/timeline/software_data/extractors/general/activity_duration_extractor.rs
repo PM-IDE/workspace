@@ -47,7 +47,7 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
 
 
     for group in trace.iter() {
-      let events = group.all_events().iter().map(|e| (*e).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
+      let events = group.statistic_events().iter().map(|e| (*e).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
 
       for (start_regex, end_regex, info, global_state, data) in configs.iter_mut() {
         let node_durations = process_events(events.as_slice(), start_regex, end_regex, info, global_state, data)?;
