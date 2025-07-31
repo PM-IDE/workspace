@@ -42,7 +42,7 @@ use crate::features::discovery::timeline::software_data::extractors::general::si
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
   labels: &Vec<usize>,
-  thread_attribute: String,
+  thread_attribute: Option<String>,
   time_attribute: Option<String>,
   config: &SoftwareDataExtractionConfig,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
@@ -68,7 +68,7 @@ pub fn abstract_event_groups(
       let abstracted_event = create_abstracted_event(
         &event_group,
         group_label,
-        thread_attribute.as_str(),
+        thread_attribute.as_ref(),
         time_attribute.as_ref(),
         EventCoordinates::new(trace_id as u64, event_index as u64),
         config,
@@ -89,7 +89,7 @@ pub fn abstract_event_groups(
 fn create_abstracted_event(
   event_group: &EventGroup,
   label: &usize,
-  thread_attribute: &str,
+  thread_attribute: Option<&String>,
   time_attribute: Option<&String>,
   event_coordinates: EventCoordinates,
   config: &SoftwareDataExtractionConfig,
@@ -164,7 +164,7 @@ fn put_edge_user_data(
 fn extract_software_data(
   config: &SoftwareDataExtractionConfig,
   event_group: &EventGroup,
-  thread_attribute: &str,
+  thread_attribute: Option<&String>,
   time_attribute: Option<&String>,
   node_software_data: &mut SoftwareData,
   edge_software_data: &mut SoftwareData

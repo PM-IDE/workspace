@@ -139,7 +139,7 @@ impl PipelineParts {
       let abstracted_log = abstract_event_groups(
         events_groups,
         labeled_dataset.labels(),
-        thread_attribute,
+        Some(thread_attribute),
         time_attribute,
         &extraction_config,
       )?;
@@ -239,7 +239,7 @@ impl PipelineParts {
 
       let prepared_log = match prepare_software_log(log, &software_data_extraction_config, time_attribute) {
         Ok(log) => log,
-        Err(err) => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err)))
+        Err(err) => return Err(err)
       };
 
       context.put_concrete(EVENT_LOG_KEY.key(), prepared_log);

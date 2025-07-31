@@ -85,12 +85,12 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
 
       let mut index = 0;
       for (node_data, edge_data) in software_data.iter_mut() {
-        for (name, (value, units)) in data[index].as_ref().unwrap().map.iter() {
-          node_data.activities_durations_mut().push(ActivityDurationData::new(name.to_string(), *value as f64, units.to_string()));
+        if let Some(data) = data[index].as_ref() {
+          add_software_activities_durations(node_data, data);
         }
 
-        for (name, (value, units)) in data[index + 1].as_ref().unwrap().map.iter() {
-          edge_data.activities_durations_mut().push(ActivityDurationData::new(name.to_string(), *value as f64, units.to_string()));
+        if let Some(data) = data[index + 1].as_ref() {
+          add_software_activities_durations(edge_data, data);
         }
 
         index += 2;
@@ -99,6 +99,14 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
 
     Ok(())
   }
+}
+
+fn add_software_activities_durations(software_data: &mut SoftwareData, data: &DurationMapInfo) {
+  software_data.activities_durations_mut().extend(
+    data.map
+      .iter()
+      .map(|(name, (value, units))| ActivityDurationData::new(name.to_string(), *value as f64, units.to_string()))
+  );
 }
 
 type DurationsMap = HashMap<String, (u64, String)>;

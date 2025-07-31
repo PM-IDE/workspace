@@ -13,7 +13,7 @@ use std::rc::Rc;
 
 #[derive(Debug, Clone, new)]
 pub struct EventClassesDataExtractor<'a> {
-  thread_attribute: &'a str,
+  thread_attribute: Option<&'a String>,
   time_attribute: Option<&'a String>,
 }
 
@@ -28,16 +28,20 @@ impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
     for event in events {
       *software_data.event_classes_mut().entry(event.borrow().name().clone()).or_insert(0) += 1;
 
-      let thread_id = extract_thread_id(event.borrow().deref(), self.thread_attribute);
-      let stamp = match get_stamp(event.borrow().deref(), self.time_attribute) {
-        Ok(stamp) => stamp,
-        Err(_) => return Err(SoftwareDataExtractionError::FailedToGetStamp)
-      };
+      if let Some(thread_attribute) = self.thread_attribute {
+        let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
+        let stamp = match get_stamp(event.borrow().deref(), self.time_attribute) {
+          Ok(stamp) => stamp,
+          Err(_) => return Err(SoftwareDataExtractionError::FailedToGetStamp)
+        };
 
-      threads.entry(thread_id).or_insert(TraceThread::empty()).events_mut().push(TraceThreadEvent::new(event.clone(), stamp))
+        threads.entry(thread_id).or_insert(TraceThread::empty()).events_mut().push(TraceThreadEvent::new(event.clone(), stamp));
+      }
     }
 
-    software_data.thread_diagram_fragment_mut().extend(threads.into_values());
+    if !threads.is_empty() {
+      software_data.thread_diagram_fragment_mut().extend(threads.into_values());
+    }
 
     Ok(())
   }
