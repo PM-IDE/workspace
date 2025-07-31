@@ -85,11 +85,14 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       }
 
       if (softwareData.activitiesDurations.has(enhancement)) {
-        return createNumberInformation(
-          "",
-          softwareData.activitiesDurations.get(enhancement).units,
-          softwareData.activitiesDurations.get(enhancement).value,
-          edge.aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
+        return createEnhancementContainer(
+          enhancement,
+          createNumberInformation(
+            "",
+            softwareData.activitiesDurations.get(enhancement).units,
+            softwareData.activitiesDurations.get(enhancement).value,
+            edge.aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
+          )
         );
       }
 
