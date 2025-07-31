@@ -69,7 +69,7 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
           Some(DurationMapInfo {
             map,
             start_time: get_stamp_or_err(&edge_events.as_ref().unwrap().first().unwrap().borrow(), info.time_attribute().as_ref())?,
-            end_time: get_stamp_or_err(&edge_events.as_ref().unwrap().first().unwrap().borrow(), info.time_attribute().as_ref())?,
+            end_time: get_stamp_or_err(&edge_events.as_ref().unwrap().last().unwrap().borrow(), info.time_attribute().as_ref())?,
           })
         } else {
           None
