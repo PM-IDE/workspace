@@ -51,9 +51,8 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
       for (start_regex, end_regex, info, global_state, data) in configs.iter_mut() {
         let time_attr = info.time_attribute().as_ref();
 
-        let node_durations = process_events(events.as_slice(), start_regex, end_regex, info, global_state, data)?;
-
         let (start_time, end_time) = get_event_group_node_start_end_stamp(index, trace, time_attr)?;
+        let node_durations = process_events(events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?;
 
         data.push(Some(DurationMapInfo {
           map: node_durations,
@@ -63,7 +62,8 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
 
         let edge_events = group.after_group_events();
         let edges_durations = if let Some(edge_events) = edge_events.as_ref() {
-          Some(process_events(edge_events.as_slice(), start_regex, end_regex, info, global_state, data)?)
+          let (start_time, end_time) = get_event_group_edge_start_end_stamp(index, trace, time_attr)?;
+          Some(process_events(edge_events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?)
         } else {
           None
         };
@@ -165,12 +165,18 @@ trait DurationsMapExtensions {
 
 impl DurationsMapExtensions for DurationsMap {
   fn add_raw_duration(&mut self, duration: u64, info: &ActivityDurationExtractionConfig) {
+    if duration == 0 {
+      return;
+    }
+
     (*self.entry(info.name().to_string()).or_insert((0u64, info.units().to_string()))).0 += duration;
   }
 }
 
 fn process_events(
   events: &[Rc<RefCell<XesEventImpl>>],
+  start_time: u64,
+  end_time: u64,
   start_regex: &RegexParingResult,
   end_regex: &RegexParingResult,
   info: &ActivityDurationExtractionConfig,
@@ -178,6 +184,7 @@ fn process_events(
   previous_data: &mut Vec<Option<DurationMapInfo>>,
 ) -> Result<DurationsMap, SoftwareDataExtractionError> {
   let mut durations: DurationsMap = HashMap::new();
+
   let mut local_state = vec![];
 
   for event in events {
@@ -232,8 +239,12 @@ fn process_events(
     }
   }
 
+  for state in local_state.iter() {
+    durations.add_raw_duration(end_time - get_stamp_or_err(state.event(), info.time_attribute().as_ref())?, info);
+  }
+
   for _ in global_state.iter() {
-    durations.add_duration(events.first().unwrap(), events.last().unwrap(), info)?;
+    durations.add_raw_duration(end_time - start_time, info);
   }
 
   global_state.extend(local_state);
