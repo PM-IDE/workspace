@@ -19,11 +19,7 @@ pub struct ActivityDurationExtractor<'a> {
   config: &'a SoftwareDataExtractionConfig,
 }
 
-#[derive(Getters, new)]
-struct StackActivityStartEntry {
-  #[getset(get = "pub")] id: Option<String>,
-  #[getset(get = "pub")] event: Rc<RefCell<XesEventImpl>>,
-}
+type Configs<'a> = Vec<(RegexParingResult, RegexParingResult, &'a ActivityDurationExtractionConfig, Vec<StackActivityStartEntry>, Vec<Option<DurationMapInfo>>)>;
 
 impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> {
   fn extract(&self, trace: &Vec<EventGroup>, software_data: &mut Vec<(SoftwareData, SoftwareData)>) -> Result<(), SoftwareDataExtractionError> {
@@ -31,81 +27,93 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
       return Ok(());
     }
 
-    let mut configs = self.config
-      .activities_duration_configs()
-      .iter()
-      .map(|info|
-        (
-          Regex::new(info.start_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.start_event_regex().to_string())),
-          Regex::new(info.end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.end_event_regex().to_string())),
-          info,
-          Vec::new(),
-          Vec::new()
-        )
-      )
-      .collect::<Vec<(RegexParingResult, RegexParingResult, &ActivityDurationExtractionConfig, Vec<StackActivityStartEntry>, Vec<Option<DurationMapInfo>>)>>();
-
-    for (index, group) in trace.iter().enumerate() {
-      let events = group.statistic_events().iter().map(|e| (*e).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
-
-      for (start_regex, end_regex, info, global_state, data) in configs.iter_mut() {
-        let time_attr = info.time_attribute().as_ref();
-
-        let (start_time, end_time) = get_event_group_node_start_end_stamp(index, trace, time_attr)?;
-        let node_durations = process_events(events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?;
-
-        data.push(Some(DurationMapInfo {
-          map: node_durations,
-          start_time,
-          end_time,
-        }));
-
-        let edge_events = group.after_group_events();
-        let edges_durations = if let Some(edge_events) = edge_events.as_ref() {
-          let (start_time, end_time) = get_event_group_edge_start_end_stamp(index, trace, time_attr)?;
-          Some(process_events(edge_events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?)
-        } else {
-          None
-        };
-
-        data.push(if let Some(map) = edges_durations {
-          let (start_time, end_time) = get_event_group_edge_start_end_stamp(index, trace, time_attr)?;
-          Some(DurationMapInfo {
-            map,
-            start_time,
-            end_time,
-          })
-        } else {
-          None
-        });
-      }
-    }
-
-    for (_, _, _, _, data) in configs.iter_mut() {
-      if data.len() != software_data.len() * 2 {
-        error!("data.len() != result.len() * 2");
-        continue;
-      }
-
-      let mut index = 0;
-      for (node_data, edge_data) in software_data.iter_mut() {
-        if let Some(data) = data[index].as_ref() {
-          add_software_activities_durations(node_data, data);
-        }
-
-        if let Some(data) = data[index + 1].as_ref() {
-          add_software_activities_durations(edge_data, data);
-        }
-
-        index += 2;
-      }
-    }
+    let mut configs = create_configs(self.config);
+    process_events_groups(trace, &mut configs)?;
+    add_durations_to_software_data(&configs, software_data);
 
     Ok(())
   }
 }
 
-fn get_event_group_node_start_end_stamp(
+fn create_configs(config: &SoftwareDataExtractionConfig) -> Configs {
+  config
+    .activities_duration_configs()
+    .iter()
+    .map(|info|
+      (
+        Regex::new(info.start_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.start_event_regex().to_string())),
+        Regex::new(info.end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.end_event_regex().to_string())),
+        info,
+        Vec::new(),
+        Vec::new()
+      )
+    )
+    .collect::<Configs>()
+}
+
+fn process_events_groups(trace: &Vec<EventGroup>, configs: &mut Configs) -> Result<(), SoftwareDataExtractionError> {
+  for (index, group) in trace.iter().enumerate() {
+    let events = group.statistic_events().iter().map(|e| (*e).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
+
+    for (start_regex, end_regex, info, global_state, data) in configs.iter_mut() {
+      let time_attr = info.time_attribute().as_ref();
+
+      let (start_time, end_time) = get_event_group_node_start_end_stamps(index, trace, time_attr)?;
+      let node_durations = process_events(events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?;
+
+      data.push(Some(DurationMapInfo {
+        map: node_durations,
+        start_time,
+        end_time,
+      }));
+
+      let edge_events = group.after_group_events();
+      let edges_durations = if let Some(edge_events) = edge_events.as_ref() {
+        let (start_time, end_time) = get_event_group_edge_start_end_stamps(index, trace, time_attr)?;
+        Some(process_events(edge_events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?)
+      } else {
+        None
+      };
+
+      data.push(if let Some(map) = edges_durations {
+        let (start_time, end_time) = get_event_group_edge_start_end_stamps(index, trace, time_attr)?;
+        Some(DurationMapInfo {
+          map,
+          start_time,
+          end_time,
+        })
+      } else {
+        None
+      });
+    }
+  }
+  
+  Ok(())
+}
+
+fn add_durations_to_software_data(configs: &Configs, software_data: &mut Vec<(SoftwareData, SoftwareData)>) {
+  for (_, _, _, _, data) in configs {
+    if data.len() != software_data.len() * 2 {
+      error!("data.len() != result.len() * 2");
+      continue;
+    }
+
+    let mut index = 0;
+    for (node_data, edge_data) in software_data.iter_mut() {
+      if let Some(data) = data[index].as_ref() {
+        add_software_activities_durations(node_data, data);
+      }
+
+      if let Some(data) = data[index + 1].as_ref() {
+        add_software_activities_durations(edge_data, data);
+      }
+
+      index += 2;
+    }
+  }
+}
+
+fn get_event_group_node_start_end_stamps(
   index: usize,
   groups: &Vec<EventGroup>,
   time_attr: Option<&String>,
@@ -116,7 +124,7 @@ fn get_event_group_node_start_end_stamp(
   ))
 }
 
-fn get_event_group_edge_start_end_stamp(
+fn get_event_group_edge_start_end_stamps(
   index: usize,
   groups: &Vec<EventGroup>,
   time_attr: Option<&String>,
@@ -171,6 +179,12 @@ impl DurationsMapExtensions for DurationsMap {
 
     (*self.entry(info.name().to_string()).or_insert((0u64, info.units().to_string()))).0 += duration;
   }
+}
+
+#[derive(Getters, new)]
+struct StackActivityStartEntry {
+  #[getset(get = "pub")] id: Option<String>,
+  #[getset(get = "pub")] event: Rc<RefCell<XesEventImpl>>,
 }
 
 fn process_events(
