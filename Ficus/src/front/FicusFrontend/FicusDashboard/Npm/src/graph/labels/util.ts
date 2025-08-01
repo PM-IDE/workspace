@@ -119,10 +119,13 @@ export function createNumberInformation(category: string, units: string, value: 
     return "";
   }
 
+  let percentString = getPercentExecutionTime(value, totalValue);
+  percentString = percentString.length > 0 ? `, ${percentString}%` : percentString;
+
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
       <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
-        ${category} ${value} ${units}
+        ${category} ${value} ${units}${percentString}
       </div>
     </div>
   `;
@@ -133,5 +136,7 @@ export function getPercentExecutionTime(executionTime: number, totalExecutionTim
     return "0";
   }
 
-  return ((executionTime / totalExecutionTime) * 100).toFixed(3);
+  let percent = (executionTime / totalExecutionTime) * 100;
+
+  return Number.isFinite(percent) ? percent.toFixed(2) : "";
 }
