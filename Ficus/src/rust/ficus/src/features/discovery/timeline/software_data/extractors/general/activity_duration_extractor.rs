@@ -13,6 +13,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use log::error;
+use crate::utils::vec_utils::VectorOptionExtensions;
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
@@ -67,8 +68,7 @@ fn process_events_groups(trace: &Vec<EventGroup>, configs: &mut Configs) -> Resu
         end_time,
       }));
 
-      let edge_events = group.after_group_events();
-      let edges_durations = if let Some(edge_events) = edge_events.as_ref() {
+      let edges_durations = if let Some(edge_events) = group.after_group_events().is_non_empty() {
         let (start_time, end_time) = get_event_group_edge_start_end_stamps(index, trace, time_attr)?;
         Some(process_events(edge_events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?)
       } else {

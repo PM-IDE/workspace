@@ -56,7 +56,9 @@ pub fn prepare_software_log(
             next_control_flow_event_index
           };
 
-          group.set_after_group_events(Some(trace.events()[index + 1..last_stamp_index].iter().map(|e| e.clone()).collect()));
+          if index + 1 < last_stamp_index {
+            group.set_after_group_events(Some(trace.events()[index + 1..last_stamp_index].iter().map(|e| e.clone()).collect()));
+          }
         }
 
         trace_groups.push(group);

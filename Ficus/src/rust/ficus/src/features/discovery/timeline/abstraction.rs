@@ -39,6 +39,7 @@ use crate::features::discovery::timeline::software_data::extractors::general::ac
 use crate::features::discovery::timeline::software_data::extractors::general::pie_chart_extractor::PieChartExtractor;
 use crate::features::discovery::timeline::software_data::extractors::general::simple_counter::SimpleCounterExtractor;
 use crate::utils::display_name::DISPLAY_NAME_KEY;
+use crate::utils::vec_utils::VectorOptionExtensions;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -109,7 +110,7 @@ fn create_abstracted_event(
 
   put_node_user_data(&mut event, node_software_data, event_coordinates, event_group, time_attribute)?;
 
-  if let Some(after_group_events) = event_group.after_group_events() {
+  if let Some(after_group_events) = event_group.after_group_events().is_non_empty() {
     put_edge_user_data(&mut event, edge_software_data, event_coordinates, after_group_events, time_attribute)?;
   }
 
@@ -187,7 +188,7 @@ fn extract_software_data(
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
   }
 
-  if let Some(after_group_events) = event_group.after_group_events() {
+  if let Some(after_group_events) = event_group.after_group_events().is_non_empty() {
     extract_edge_software_data(config, after_group_events.as_slice(), edge_software_data)
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
   }
