@@ -638,52 +638,55 @@ fn test_simple_counter() {
 
 #[test]
 fn test_activities_duration() {
-  let raw_event_groups = [
+  execute_test_with_activities_durations(
+    r#"[[{"activities_durations":[{"name":"activity","duration":300.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":50.0,"units":"units"}]}]]"#,
     vec![
       vec![
-        create_event_with_attributes(
-          "event_start".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(50)),
-          ],
-        ),
-        create_event_with_attributes(
-          "event_end".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(250)),
-          ],
-        ),
-      ],
-      vec![
-        create_event_with_attributes(
-          "event_start".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(100)),
-          ],
-        ),
-        create_event_with_attributes(
-          "event_end".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(200)),
-          ],
-        ),
-      ],
-      vec![
-        create_event_with_attributes(
-          "event_end".to_string(),
-          vec![
-            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("2".to_string())))),
-            ("stamp".to_string(), EventPayloadValue::Int64(300)),
-          ],
-        )
+        vec![
+          create_event_with_attributes(
+            "some_event".to_string(),
+            vec![
+              ("stamp".to_string(), EventPayloadValue::Int64(50)),
+            ],
+          ),
+          create_event_with_attributes(
+            "some_event".to_string(),
+            vec![
+              ("stamp".to_string(), EventPayloadValue::Int64(250)),
+            ],
+          ),
+        ],
+        vec![
+          create_event_with_attributes(
+            "event_start".to_string(),
+            vec![
+              ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
+              ("stamp".to_string(), EventPayloadValue::Int64(100)),
+            ],
+          ),
+          create_event_with_attributes(
+            "event_end".to_string(),
+            vec![
+              ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
+              ("stamp".to_string(), EventPayloadValue::Int64(200)),
+            ],
+          ),
+        ],
+        vec![
+          create_event_with_attributes(
+            "event_end".to_string(),
+            vec![
+              ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("2".to_string())))),
+              ("stamp".to_string(), EventPayloadValue::Int64(300)),
+            ],
+          )
+        ],
       ],
     ],
-  ];
+  );
+}
 
+fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>) {
   let mut config = SoftwareDataExtractionConfig::empty();
   config.set_activities_duration_configs(vec![
     ActivityDurationExtractionConfig::new(
@@ -701,7 +704,7 @@ fn test_activities_duration() {
 
     group.control_flow_events_mut().extend(x[0].clone());
     group.statistic_events_mut().extend(x[1].clone());
-    group.set_after_group_events(Some(x[2].clone()));
+    group.set_after_group_events(if x[2].is_empty() { None } else { Some(x[2].clone()) });
 
     group
   }).collect();
@@ -712,7 +715,67 @@ fn test_activities_duration() {
 
   assert_eq!(
     serde_json::to_string(&software_data).unwrap(),
-    r#"[[{"activities_durations":[{"name":"activity","duration":300.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":50.0,"units":"units"}]}]]"#
+    gold
+  );
+}
+
+#[test]
+fn test_activities_duration_2() {
+  execute_test_with_activities_durations(
+    r#"[[{"activities_durations":[{"name":"activity","duration":50.0,"units":"units"}]},{}],[{"activities_durations":[{"name":"activity","duration":100.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":300.0,"units":"units"}]}]]"#,
+    vec![
+      vec![
+        vec![
+          create_event_with_attributes(
+            "some_event".to_string(),
+            vec![
+              ("stamp".to_string(), EventPayloadValue::Int64(50)),
+            ],
+          ),
+          create_event_with_attributes(
+            "some_event".to_string(),
+            vec![
+              ("stamp".to_string(), EventPayloadValue::Int64(100)),
+            ],
+          ),
+        ],
+        vec![
+          create_event_with_attributes(
+            "event_start".to_string(),
+            vec![
+              ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("2".to_string())))),
+              ("stamp".to_string(), EventPayloadValue::Int64(50)),
+            ],
+          ),
+        ],
+        vec![],
+      ],
+      vec![
+        vec![
+          create_event_with_attributes(
+            "some_event".to_string(),
+            vec![
+              ("stamp".to_string(), EventPayloadValue::Int64(100)),
+            ],
+          ),
+          create_event_with_attributes(
+            "some_event".to_string(),
+            vec![
+              ("stamp".to_string(), EventPayloadValue::Int64(200)),
+            ],
+          ),
+        ],
+        vec![],
+        vec![
+          create_event_with_attributes(
+            "some_event".to_string(),
+            vec![
+              ("stamp".to_string(), EventPayloadValue::Int64(500)),
+            ],
+          )
+        ],
+      ],
+    ],
   );
 }
 
