@@ -68,6 +68,7 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
         return createEdgeSoftwareEnhancementPart(
           enhancement,
           softwareData.histograms.get(enhancement).value,
+          softwareData.histograms.get(enhancement).units,
           globalSum
         );
       }
@@ -118,7 +119,7 @@ function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
 
   return `
     <div>
-      ${createEdgeSoftwareEnhancementPart("Exceptions", softwareData.exceptions, totalSum)}
+      ${createEdgeSoftwareEnhancementPart("Exceptions", softwareData.exceptions, null, totalSum)}
     </div>
   `
 }
@@ -139,7 +140,7 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
 
   return `
       <div>
-        ${createEdgeSoftwareEnhancementPart("Allocations", softwareData.allocations, aggregatedData.totalAllocatedBytes)}
+        ${createEdgeSoftwareEnhancementPart("Allocations", softwareData.allocations, "bytes", aggregatedData.totalAllocatedBytes)}
       </div>
     `;
 }
@@ -154,7 +155,12 @@ function createMethodsInliningEnhancements(softwareData: MergedSoftwareData): st
   `
 }
 
-function createEdgeSoftwareEnhancementPart(title: string, data: Map<string, number>, totalSum: number | null) {
+function createEdgeSoftwareEnhancementPart(
+  title: string,
+  data: Map<string, number>,
+  units: string | null = null,
+  totalSum: number | null = null
+) {
   if (data.size == 0) {
     return '';
   }
@@ -167,7 +173,7 @@ function createEdgeSoftwareEnhancementPart(title: string, data: Map<string, numb
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label" style="display: flex; flex-direction: column;">
           <div>${title}</div>
-          <div>${valuesSum} ${percent != null ? `(${percent}%)` : ""}</div>
+          <div>${valuesSum}${units != null ? ` ${units}` : ""} ${percent != null ? `(${percent}%)` : ""}</div>
         </div>
         ${createRectangleHistogram(toSortedArray(data), totalSum)}
       </div>

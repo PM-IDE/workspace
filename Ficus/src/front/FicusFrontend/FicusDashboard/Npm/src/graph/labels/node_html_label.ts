@@ -124,10 +124,11 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
         let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
 
         return createSoftwareEnhancementPieChart(
-          enhancement,
+          null,
           softwareData.histograms.get(enhancement).value,
           (sum / globalSum) * 100,
-          getPerformanceAnnotationColor(sum / globalSum)
+          getPerformanceAnnotationColor(sum / globalSum),
+          softwareData.histograms.get(enhancement).units
         );
       }
 
@@ -161,7 +162,7 @@ function createHttpEnhancement(softwareData: MergedSoftwareData): string {
 
   return `
     <div>
-      ${createSoftwareEnhancementPieChart("Requests", softwareData.httpRequests, null, null)}
+      ${createSoftwareEnhancementPieChart("Requests", softwareData.httpRequests)}
     </div>
   `
 }
@@ -185,8 +186,8 @@ function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): s
 
   return `
     <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementPieChart("Load", softwareData.methodsLoads, null, null)} 
-      ${createSoftwareEnhancementPieChart("Unload", softwareData.methodsUnloads, null, null)}
+      ${createSoftwareEnhancementPieChart("Load", softwareData.methodsLoads)} 
+      ${createSoftwareEnhancementPieChart("Unload", softwareData.methodsUnloads)}
     </div> 
   `;
 }
@@ -198,28 +199,35 @@ function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): str
 
   return `
     <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementPieChart("Succeeded", softwareData.inliningSucceeded, null, null)} 
-      ${createSoftwareEnhancementPieChart("Failed", softwareData.inliningFailed, null, null)} 
-      ${createSoftwareEnhancementPieChart("Failed Reasons", softwareData.inliningFailedReasons, null, null)} 
+      ${createSoftwareEnhancementPieChart("Succeeded", softwareData.inliningSucceeded)} 
+      ${createSoftwareEnhancementPieChart("Failed", softwareData.inliningFailed)} 
+      ${createSoftwareEnhancementPieChart("Failed Reasons", softwareData.inliningFailedReasons)} 
     </div>
   `;
 }
 
-function createSoftwareEnhancementPieChart(title: string, data: Map<string, number>, percent: number | null, perfColor: null | string) {
+function createSoftwareEnhancementPieChart(
+  title: string | null,
+  data: Map<string, number>,
+  percent: number | null = null,
+  perfColor: null | string = null,
+  units: null | string = null
+) {
   if (data.size == 0) {
     return "";
   }
 
   let percentString = percent == null ? "" : `, ${percent.toFixed(2)}%`;
+  let unitsString = units != null ? ` ${units}` : "";
 
   return `
       <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label graph-title-label-lighter" style="display: flex; flex-direction: column;">
           <div>
-            ${title}
+            ${title ?? ""}
           </div>
           <div>
-            ${data.values().reduce((a, b) => a + b, 0)}${percentString}
+            ${data.values().reduce((a, b) => a + b, 0)}${unitsString}${percentString}
           </div>
           <div>
             ${createPieChart(toSortedArray(data), perfColor)}
