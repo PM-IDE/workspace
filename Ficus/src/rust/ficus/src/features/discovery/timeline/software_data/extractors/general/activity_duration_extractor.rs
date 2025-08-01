@@ -13,7 +13,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use log::error;
-use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
@@ -46,17 +45,20 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
       )
       .collect::<Vec<(RegexParingResult, RegexParingResult, &ActivityDurationExtractionConfig, Vec<StackActivityStartEntry>, Vec<Option<DurationMapInfo>>)>>();
 
-
-    for group in trace.iter() {
+    for (index, group) in trace.iter().enumerate() {
       let events = group.statistic_events().iter().map(|e| (*e).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
 
       for (start_regex, end_regex, info, global_state, data) in configs.iter_mut() {
+        let time_attr = info.time_attribute().as_ref();
+
         let node_durations = process_events(events.as_slice(), start_regex, end_regex, info, global_state, data)?;
+
+        let (start_time, end_time) = get_event_group_node_start_end_stamp(index, trace, time_attr)?;
 
         data.push(Some(DurationMapInfo {
           map: node_durations,
-          start_time: get_stamp_or_err(&events.first().unwrap().borrow(), info.time_attribute().as_ref())?,
-          end_time: get_stamp_or_err(&events.last().unwrap().borrow(), info.time_attribute().as_ref())?,
+          start_time,
+          end_time,
         }));
 
         let edge_events = group.after_group_events();
@@ -67,10 +69,11 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
         };
 
         data.push(if let Some(map) = edges_durations {
+          let (start_time, end_time) = get_event_group_edge_start_end_stamp(index, trace, time_attr)?;
           Some(DurationMapInfo {
             map,
-            start_time: get_stamp_or_err(&edge_events.as_ref().unwrap().first().unwrap().borrow(), info.time_attribute().as_ref())?,
-            end_time: get_stamp_or_err(&edge_events.as_ref().unwrap().last().unwrap().borrow(), info.time_attribute().as_ref())?,
+            start_time,
+            end_time,
           })
         } else {
           None
@@ -102,6 +105,32 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
   }
 }
 
+fn get_event_group_node_start_end_stamp(
+  index: usize,
+  groups: &Vec<EventGroup>,
+  time_attr: Option<&String>,
+) -> Result<(u64, u64), SoftwareDataExtractionError> {
+  Ok((
+    get_stamp_or_err(groups[index].control_flow_events().first().as_ref().unwrap(), time_attr)?,
+    get_stamp_or_err(groups[index].control_flow_events().last().as_ref().unwrap(), time_attr)?,
+  ))
+}
+
+fn get_event_group_edge_start_end_stamp(
+  index: usize,
+  groups: &Vec<EventGroup>,
+  time_attr: Option<&String>,
+) -> Result<(u64, u64), SoftwareDataExtractionError> {
+  Ok((
+    get_stamp_or_err(groups[index].control_flow_events().last().as_ref().unwrap(), time_attr)?,
+    if index + 1 < groups.len() {
+      get_stamp_or_err(groups[index + 1].control_flow_events().first().as_ref().unwrap(), time_attr)?
+    } else {
+      get_stamp_or_err(groups[index].after_group_events().as_ref().expect("Must be set").last().as_ref().unwrap(), time_attr)?
+    }
+  ))
+}
+
 fn add_software_activities_durations(software_data: &mut SoftwareData, data: &DurationMapInfo) {
   software_data.activities_durations_mut().extend(
     data.map
@@ -127,7 +156,7 @@ trait DurationsMapExtensions {
     end_event: &Rc<RefCell<XesEventImpl>>,
     info: &ActivityDurationExtractionConfig,
   ) -> Result<(), SoftwareDataExtractionError> {
-    let duration = get_duration(&start_event.borrow(), &end_event.borrow(), info.time_attribute().as_ref())?;
+    let duration = get_duration(start_event, end_event, info.time_attribute().as_ref())?;
     self.add_raw_duration(duration, info);
 
     Ok(())
@@ -194,7 +223,7 @@ fn process_events(
         match previous_data.last() {
           None => durations.add_duration(events.first().unwrap(), event, info)?,
           Some(Some(last_data)) => {
-            let stamp = get_stamp_or_err(&event.borrow(), info.time_attribute().as_ref())?;
+            let stamp = get_stamp_or_err(event, info.time_attribute().as_ref())?;
             durations.add_raw_duration(stamp - last_data.end_time, info);
           }
           _ => {}
@@ -212,10 +241,10 @@ fn process_events(
   Ok(durations)
 }
 
-fn get_duration(first: &XesEventImpl, second: &XesEventImpl, attribute: Option<&String>) -> Result<u64, SoftwareDataExtractionError> {
+fn get_duration(first: &Rc<RefCell<XesEventImpl>>, second: &Rc<RefCell<XesEventImpl>>, attribute: Option<&String>) -> Result<u64, SoftwareDataExtractionError> {
   Ok(get_stamp_or_err(second, attribute)? - get_stamp_or_err(first, attribute)?)
 }
 
-fn get_stamp_or_err(event: &XesEventImpl, attribute: Option<&String>) -> Result<u64, SoftwareDataExtractionError> {
-  get_stamp(event, attribute).map_err(|_| SoftwareDataExtractionError::FailedToGetStamp)
+fn get_stamp_or_err(event: &Rc<RefCell<XesEventImpl>>, attribute: Option<&String>) -> Result<u64, SoftwareDataExtractionError> {
+  get_stamp(&event.borrow(), attribute).map_err(|_| SoftwareDataExtractionError::FailedToGetStamp)
 }

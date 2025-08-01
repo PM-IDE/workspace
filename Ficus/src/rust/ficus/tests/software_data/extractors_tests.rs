@@ -645,6 +645,22 @@ fn test_activities_duration() {
           "event_start".to_string(),
           vec![
             ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
+            ("stamp".to_string(), EventPayloadValue::Int64(50)),
+          ],
+        ),
+        create_event_with_attributes(
+          "event_end".to_string(),
+          vec![
+            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
+            ("stamp".to_string(), EventPayloadValue::Int64(250)),
+          ],
+        ),
+      ],
+      vec![
+        create_event_with_attributes(
+          "event_start".to_string(),
+          vec![
+            ("activity_id".to_string(), EventPayloadValue::String(Rc::new(Box::new("1".to_string())))),
             ("stamp".to_string(), EventPayloadValue::Int64(100)),
           ],
         ),
@@ -683,8 +699,9 @@ fn test_activities_duration() {
   let event_groups: Vec<EventGroup> = raw_event_groups.into_iter().map(|x| {
     let mut group = EventGroup::empty();
 
-    group.statistic_events_mut().extend(x[0].clone());
-    group.set_after_group_events(Some(x[1].clone()));
+    group.control_flow_events_mut().extend(x[0].clone());
+    group.statistic_events_mut().extend(x[1].clone());
+    group.set_after_group_events(Some(x[2].clone()));
 
     group
   }).collect();
@@ -695,7 +712,7 @@ fn test_activities_duration() {
 
   assert_eq!(
     serde_json::to_string(&software_data).unwrap(),
-    r#"[[{"activities_durations":[{"name":"activity","duration":200.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":100.0,"units":"units"}]}]]"#
+    r#"[[{"activities_durations":[{"name":"activity","duration":300.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":50.0,"units":"units"}]}]]"#
   );
 }
 
