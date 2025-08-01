@@ -259,20 +259,7 @@ function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
 }
 
 function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [string, number][]): string {
-  let nodeNameParts: string[] = [];
-  for (let i = 0; i < Math.min(3, sortedHistogramEntries.length); ++i) {
-    nodeNameParts.push(`
-      <div style="width: fit-content; text-overflow: ellipsis;">
-        ${sortedHistogramEntries[i][0]}
-      </div>
-    `);
-  }
-
-  if (nodeNameParts.length == 0) {
-    nodeNameParts.push(`<div>${node.label}</div>`)
-  }
-
-  return nodeNameParts.join("\n");
+  return node.label;
 }
 
 function createTracesDescription(tracesIds: number[]): string[] {
