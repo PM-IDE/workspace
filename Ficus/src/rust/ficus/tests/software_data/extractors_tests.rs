@@ -1,7 +1,7 @@
 use chrono::Utc;
 use ficus::event_log::core::event::event::EventPayloadValue;
 use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, HTTPExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, NameCreationStrategy, PieChartExtractionConfig, SimpleCountExtractionConfig, SingleAttribute, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig};
+use ficus::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, AllocationExtractionConfig, ArrayPoolExtractionConfig, AssemblyExtractionConfig, ExceptionExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, HTTPExtractionConfig, MethodCommonAttributesConfig, MethodInliningConfig, MethodInliningFailedConfig, MethodInliningSucceededConfig, MethodLoadUnloadConfig, NameCreationStrategy, PieChartExtractionConfig, SimpleCountExtractionConfig, SingleAttribute, SocketAcceptConnectFailedConfig, SocketConnectAcceptStartConfig, SoftwareDataExtractionConfig, ThreadExtractionConfig};
 use ficus::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
@@ -535,19 +535,17 @@ fn test_general_histogram() {
         ExtractionConfig::new(
           "histogram_event".to_string(),
           PieChartExtractionConfig::new(
-            "g1".to_string(),
+            GenericExtractionConfigBase::new("g1".to_string(), "units".to_string(), None),
             Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new("type".to_string(), "xd".to_string()))),
             Some("count".to_string()),
-            "units".to_string()
           )
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
           PieChartExtractionConfig::new(
-            "g2".to_string(),
+            GenericExtractionConfigBase::new("g2".to_string(), "units".to_string(), None),
             Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new("type".to_string(), "xd".to_string()))),
             Some("count".to_string()),
-            "units".to_string()
           )
         )
       ]);
@@ -618,11 +616,17 @@ fn test_simple_counter() {
       config.set_simple_counter_configs(vec![
         ExtractionConfig::new(
           "histogram_event".to_string(),
-          SimpleCountExtractionConfig::new("counter1".to_string(), None, "units".to_string())
+          SimpleCountExtractionConfig::new(
+            GenericExtractionConfigBase::new("counter1".to_string(), "units".to_string(), None),
+            None
+          )
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
-          SimpleCountExtractionConfig::new("counter2".to_string(), Some("count".to_string()), "units".to_string())
+          SimpleCountExtractionConfig::new(
+            GenericExtractionConfigBase::new("counter2".to_string(), "units".to_string(), None),
+            Some("count".to_string()),
+          )
         ),
       ]);
 
@@ -690,11 +694,10 @@ fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<
   let mut config = SoftwareDataExtractionConfig::empty();
   config.set_activities_duration_configs(vec![
     ActivityDurationExtractionConfig::new(
-      "activity".to_string(),
+      GenericExtractionConfigBase::new("activity".to_string(), "units".to_string(), None),
       "event_start".to_string(),
       "event_end".to_string(),
       Some("stamp".to_string()),
-      "units".to_string(),
       Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new("activity_id".to_string(), "xd".to_string()))),
     )
   ]);

@@ -55,7 +55,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
                   event.borrow().name().to_string()
                 };
 
-                *result.entry(config.name()).or_insert((config.units(), HashMap::new())).1.entry(grouping_value).or_insert(0.) += count;
+                *result.entry(config.base().name()).or_insert((config.base().units(), HashMap::new())).1.entry(grouping_value).or_insert(0.) += count;
               }
             }
             Err(err) => return Err(err.clone())

@@ -260,10 +260,16 @@ pub struct AssemblyExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct PieChartExtractionConfig {
-  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] base: GenericExtractionConfigBase,
   #[getset(get = "pub")] grouping_attr: Option<NameCreationStrategy>,
   #[getset(get = "pub")] count_attr: Option<String>,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct GenericExtractionConfigBase {
+  #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] units: String,
+  #[getset(get = "pub")] group: Option<String>,
 }
 
 #[serde(rename_all = "snake_case")]
@@ -297,17 +303,15 @@ pub struct ManyAttributes {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SimpleCountExtractionConfig {
-  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] base: GenericExtractionConfigBase,
   #[getset(get = "pub")] count_attr: Option<String>,
-  #[getset(get = "pub")] units: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ActivityDurationExtractionConfig {
-  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] base: GenericExtractionConfigBase,
   #[getset(get = "pub")] start_event_regex: String,
   #[getset(get = "pub")] end_event_regex: String,
   #[getset(get = "pub")] time_attribute: Option<String>,
-  #[getset(get = "pub")] units: String,
-  #[getset(get = "pub")] activity_id_attr: Option<NameCreationStrategy>
+  #[getset(get = "pub")] activity_id_attr: Option<NameCreationStrategy>,
 }
