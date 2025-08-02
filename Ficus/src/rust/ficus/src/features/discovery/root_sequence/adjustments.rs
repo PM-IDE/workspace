@@ -1,8 +1,8 @@
 use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA, EDGE_SOFTWARE_DATA_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY};
+use crate::features::discovery::root_sequence::context_keys::{NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY};
 use crate::features::discovery::root_sequence::discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY};
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer};
+use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventWithUniqueId, NodeAdditionalDataContainer};
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
@@ -286,7 +286,7 @@ pub fn adjust_edges_data<T: PartialEq + Clone + Debug>(
   context: &DiscoveryContext<T>,
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   graph: &mut DefaultGraph,
-  start_node_id: u64
+  start_node_id: u64,
 ) -> Result<(), DiscoverRootSequenceGraphError> {
   for trace in log {
     let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;

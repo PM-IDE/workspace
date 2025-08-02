@@ -49,7 +49,7 @@ pub fn discover_root_sequence_graph_from_event_log(
     &artificial_start_end_events_factory,
     root_sequence_kind,
     &event_to_node_data_transfer,
-    &event_to_edge_data_transfer
+    &event_to_edge_data_transfer,
   );
 
   let performance_map = create_performance_map(log);

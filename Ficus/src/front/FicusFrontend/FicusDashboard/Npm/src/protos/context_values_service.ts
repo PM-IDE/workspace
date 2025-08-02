@@ -9,6 +9,7 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   ficus: {
+    GrpcActivityDurationData: MessageTypeDefinition
     GrpcActivityStartEndData: MessageTypeDefinition
     GrpcAllocationInfo: MessageTypeDefinition
     GrpcAnnotation: MessageTypeDefinition

@@ -3,7 +3,7 @@
 
 <div style="display: flex; flex-direction: column; 
             background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
-  @if (myEnhancements is { })
+  @if (myEnhancements is { Count: > 0 })
   {
     @foreach (var (index, enhancement) in myEnhancements.Index())
     {
@@ -20,7 +20,11 @@
     <input type="text" @bind="myFilterValue" style="width: 90%"/>
   }
 
-  <div style="margin-top: 5px;">Spacing factor:</div>
+  @{
+    var margin = myEnhancements is { Count: > 0 } ? 5 : 0;
+  }
+
+  <div style="margin-top: @(margin)px;">Spacing factor:</div>
   <input type="text" @bind="mySpacingFactor" style="width: 90%"/>
 
   <RadzenStack Orientation="Orientation.Horizontal"

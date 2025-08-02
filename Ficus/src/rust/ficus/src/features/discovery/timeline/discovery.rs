@@ -16,7 +16,6 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {
@@ -154,7 +153,7 @@ pub fn discover_traces_timeline_diagram(
 fn discover_events_groups_internal(
   threads: &Vec<&TraceThread>,
   event_group_delta: Option<u64>,
-  control_flow_regexes: Option<&Vec<Regex>>
+  control_flow_regexes: Option<&Vec<Regex>>,
 ) -> Vec<TraceEventsGroup> {
   if let Some(event_group_delta) = event_group_delta {
     discover_events_groups(threads, event_group_delta, control_flow_regexes)

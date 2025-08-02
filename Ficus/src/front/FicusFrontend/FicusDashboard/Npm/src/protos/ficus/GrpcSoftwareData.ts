@@ -14,6 +14,7 @@ import type { GrpcSocketEvent_DONTUSE as _ficus_GrpcSocketEvent_DONTUSE, GrpcSoc
 import type { GrpcMethodLoadUnloadEvent_DONTUSE as _ficus_GrpcMethodLoadUnloadEvent_DONTUSE, GrpcMethodLoadUnloadEvent as _ficus_GrpcMethodLoadUnloadEvent } from '../ficus/GrpcMethodLoadUnloadEvent';
 import type { GrpcGeneralHistogramData_DONTUSE as _ficus_GrpcGeneralHistogramData_DONTUSE, GrpcGeneralHistogramData as _ficus_GrpcGeneralHistogramData } from '../ficus/GrpcGeneralHistogramData';
 import type { GrpcSimpleCounterData_DONTUSE as _ficus_GrpcSimpleCounterData_DONTUSE, GrpcSimpleCounterData as _ficus_GrpcSimpleCounterData } from '../ficus/GrpcSimpleCounterData';
+import type { GrpcActivityDurationData_DONTUSE as _ficus_GrpcActivityDurationData_DONTUSE, GrpcActivityDurationData as _ficus_GrpcActivityDurationData } from '../ficus/GrpcActivityDurationData';
 
 export interface GrpcSoftwareData_DONTUSE {
   'histogram'?: (_ficus_GrpcHistogramEntry_DONTUSE)[];
@@ -30,6 +31,7 @@ export interface GrpcSoftwareData_DONTUSE {
   'methodsLoadUnloadEvents'?: (_ficus_GrpcMethodLoadUnloadEvent_DONTUSE)[];
   'histogramData'?: (_ficus_GrpcGeneralHistogramData_DONTUSE)[];
   'simpleCounterData'?: (_ficus_GrpcSimpleCounterData_DONTUSE)[];
+  'activitiesDurationsData'?: (_ficus_GrpcActivityDurationData_DONTUSE)[];
 }
 
 export interface GrpcSoftwareData {
@@ -47,4 +49,5 @@ export interface GrpcSoftwareData {
   'methodsLoadUnloadEvents': (_ficus_GrpcMethodLoadUnloadEvent)[];
   'histogramData': (_ficus_GrpcGeneralHistogramData)[];
   'simpleCounterData': (_ficus_GrpcSimpleCounterData)[];
+  'activitiesDurationsData': (_ficus_GrpcActivityDurationData)[];
 }

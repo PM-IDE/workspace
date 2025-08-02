@@ -18,7 +18,7 @@ use crate::features::discovery::timeline::software_data::extraction_config::Soft
 use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::http::HTTPSoftwareDataExtractor;
@@ -31,16 +31,20 @@ use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
 use crate::pipelines::errors::pipeline_errors::RawPartExecutionError;
 use crate::utils::user_data::user_data::UserData;
 use crate::utils::user_data::user_data::UserDataOwner;
-use log::error;
+use log::{error};
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
-use crate::features::discovery::timeline::software_data::extractors::general::{PieChartExtractor, SimpleCounterExtractor};
+use crate::features::discovery::timeline::software_data::extractors::general::activity_duration_extractor::ActivityDurationExtractor;
+use crate::features::discovery::timeline::software_data::extractors::general::pie_chart_extractor::PieChartExtractor;
+use crate::features::discovery::timeline::software_data::extractors::general::simple_counter::SimpleCounterExtractor;
+use crate::utils::display_name::DISPLAY_NAME_KEY;
+use crate::utils::vec_utils::VectorOptionExtensions;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
   labels: &Vec<usize>,
-  thread_attribute: String,
+  thread_attribute: Option<String>,
   time_attribute: Option<String>,
   config: &SoftwareDataExtractionConfig,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
@@ -49,7 +53,14 @@ pub fn abstract_event_groups(
 
   for (trace_id, trace_groups) in event_groups.iter().enumerate() {
     let mut abstracted_trace = XesTraceImpl::empty();
-    for (event_index, event_group) in trace_groups.iter().enumerate() {
+
+    let mut software_data = trace_groups.iter().map(|_| (SoftwareData::empty(), SoftwareData::empty())).collect::<Vec<(SoftwareData, SoftwareData)>>();
+
+    for extractor in create_trace_extractors(config) {
+      extractor.extract(trace_groups, &mut software_data).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string()))?;
+    }
+
+    for ((event_index, event_group), (node_data, edge_data)) in trace_groups.iter().enumerate().zip(software_data) {
       if event_group.control_flow_events().is_empty() {
         error!("Encountered empty event group");
         continue;
@@ -59,10 +70,12 @@ pub fn abstract_event_groups(
       let abstracted_event = create_abstracted_event(
         &event_group,
         group_label,
-        thread_attribute.as_str(),
+        thread_attribute.as_ref(),
         time_attribute.as_ref(),
         EventCoordinates::new(trace_id as u64, event_index as u64),
         config,
+        node_data,
+        edge_data,
       )?;
 
       abstracted_trace.push(abstracted_event);
@@ -78,10 +91,12 @@ pub fn abstract_event_groups(
 fn create_abstracted_event(
   event_group: &EventGroup,
   label: &usize,
-  thread_attribute: &str,
+  thread_attribute: Option<&String>,
   time_attribute: Option<&String>,
   event_coordinates: EventCoordinates,
   config: &SoftwareDataExtractionConfig,
+  mut node_software_data: SoftwareData,
+  mut edge_software_data: SoftwareData,
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
   let first_stamp = event_group.control_flow_events().first().unwrap().borrow().timestamp().clone();
   let abstracted_event_stamp = *event_group.control_flow_events().last().unwrap().borrow().timestamp() - first_stamp;
@@ -91,12 +106,18 @@ fn create_abstracted_event(
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
 
-  let (node_software_data, edge_software_data) = extract_software_data(config, event_group, thread_attribute, time_attribute)?;
+  extract_software_data(config, event_group, thread_attribute, time_attribute, &mut node_software_data, &mut edge_software_data)?;
 
   put_node_user_data(&mut event, node_software_data, event_coordinates, event_group, time_attribute)?;
 
-  if let Some(after_group_events) = event_group.after_group_events() {
+  if let Some(after_group_events) = event_group.after_group_events().is_non_empty() {
     put_edge_user_data(&mut event, edge_software_data, event_coordinates, after_group_events, time_attribute)?;
+  }
+
+  if let Some(cf_event) = event_group.control_flow_events().first().as_ref() {
+    if let Some(display_name) = cf_event.borrow().user_data().concrete(DISPLAY_NAME_KEY.key()) {
+      event.user_data_mut().put_concrete(DISPLAY_NAME_KEY.key(), display_name.clone());
+    }
   }
 
   Ok(Rc::new(RefCell::new(event)))
@@ -151,51 +172,47 @@ fn put_edge_user_data(
 fn extract_software_data(
   config: &SoftwareDataExtractionConfig,
   event_group: &EventGroup,
-  thread_attribute: &str,
+  thread_attribute: Option<&String>,
   time_attribute: Option<&String>,
-) -> Result<(SoftwareData, SoftwareData), PipelinePartExecutionError> {
-  let edge_extractors: Vec<Rc<Box<dyn SoftwareDataExtractor>>> = create_edge_software_data_extractors(config);
+  node_software_data: &mut SoftwareData,
+  edge_software_data: &mut SoftwareData,
+) -> Result<(), PipelinePartExecutionError> {
+  let edge_extractors: Vec<Rc<Box<dyn EventGroupSoftwareDataExtractor>>> = create_edge_software_data_extractors(config);
 
   let mut node_extractors = edge_extractors.clone();
   node_extractors.push(Rc::new(Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))));
 
-  let mut node_software_data = SoftwareData::empty();
-
   for extractor in node_extractors {
     extractor
-      .extract(&mut node_software_data, event_group)
+      .extract(node_software_data, event_group)
       .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
   }
-  
-  let edge_software_data = if let Some(after_group_events) = event_group.after_group_events() {
-    extract_edge_software_data(config, after_group_events.as_slice())
-      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?
-      .unwrap_or_else(|| SoftwareData::empty())
-  } else {
-    SoftwareData::empty()
-  };
-  
-  Ok((node_software_data, edge_software_data))
+
+  if let Some(after_group_events) = event_group.after_group_events().is_non_empty() {
+    extract_edge_software_data(config, after_group_events.as_slice(), edge_software_data)
+      .map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
+  }
+
+  Ok(())
 }
 
 pub fn extract_edge_software_data(
-  config: &SoftwareDataExtractionConfig, 
-  events: &[Rc<RefCell<XesEventImpl>>]
-) -> Result<Option<SoftwareData>, SoftwareDataExtractionError> {
+  config: &SoftwareDataExtractionConfig,
+  events: &[Rc<RefCell<XesEventImpl>>],
+  edge_software_data: &mut SoftwareData,
+) -> Result<(), SoftwareDataExtractionError> {
   if events.is_empty() {
-    return Ok(None);
+    return Ok(());
   }
 
-  let mut edge_software_data = SoftwareData::empty();
-  
   for extractor in create_edge_software_data_extractors(config) {
-    extractor.extract_from_events(&mut edge_software_data, events)?
+    extractor.extract_from_events(edge_software_data, events)?
   }
-  
-  Ok(Some(edge_software_data))
+
+  Ok(())
 }
 
-fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Rc<Box<dyn SoftwareDataExtractor + 'a>>> {
+fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Rc<Box<dyn EventGroupSoftwareDataExtractor + 'a>>> {
   vec![
     Rc::new(Box::new(AllocationDataExtractor::<'a>::new(config))),
     Rc::new(Box::new(MethodsDataExtractor::<'a>::new(config))),
@@ -207,5 +224,11 @@ fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionCo
     Rc::new(Box::new(ThreadDataExtractor::<'a>::new(config))),
     Rc::new(Box::new(PieChartExtractor::<'a>::new(config))),
     Rc::new(Box::new(SimpleCounterExtractor::<'a>::new(config))),
+  ]
+}
+
+fn create_trace_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Rc<Box<dyn EventGroupTraceSoftwareDataExtractor + 'a>>> {
+  vec![
+    Rc::new(Box::new(ActivityDurationExtractor::<'a>::new(config))),
   ]
 }

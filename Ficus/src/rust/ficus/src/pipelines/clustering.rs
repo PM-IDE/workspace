@@ -7,7 +7,6 @@ use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisu
 use crate::features::clustering::traces::dbscan::{clusterize_log_by_traces_dbscan, clusterize_log_by_traces_dbscan_grid_search};
 use crate::features::clustering::traces::k_means::clusterize_log_by_traces_kmeans_grid_search;
 use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams};
-use crate::ficus_proto::grpc_context_value::ContextValue::EventLogInfo;
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY};
@@ -227,12 +226,12 @@ impl PipelineParts {
       Ok(())
     })
   }
-  
+
   fn execute_with_temp_event_logs(
-    context: &mut PipelineContext, 
-    infra: &PipelineInfrastructure, 
-    logs: Vec<XesEventLogImpl>, 
-    pipeline: &Pipeline
+    context: &mut PipelineContext,
+    infra: &PipelineInfrastructure,
+    logs: Vec<XesEventLogImpl>,
+    pipeline: &Pipeline,
   ) -> Result<(), PipelinePartExecutionError> {
     //todo: fix cloning by introducing multi-level pipeline context
     let original_log = Self::get_user_data(context, &EVENT_LOG_KEY).ok().cloned();
@@ -246,7 +245,7 @@ impl PipelineParts {
       None => {}
       Some(log) => context.put_concrete(EVENT_LOG_KEY.key(), log)
     };
-    
+
     Ok(())
   }
 }

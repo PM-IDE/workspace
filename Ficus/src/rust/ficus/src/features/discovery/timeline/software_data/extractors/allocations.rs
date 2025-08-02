@@ -1,19 +1,19 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use crate::event_log::core::event::event::Event;
+use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, SoftwareDataExtractor};
+use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, regex_or_err, SoftwareDataExtractionError, EventGroupSoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::models::{AllocationEvent, SoftwareData};
 use derive_new::new;
 use log::{error, warn};
-use crate::event_log::xes::xes_event::XesEventImpl;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Debug, Clone, new)]
 pub struct AllocationDataExtractor<'a> {
-  config: &'a SoftwareDataExtractionConfig
+  config: &'a SoftwareDataExtractionConfig,
 }
 
-impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
+impl<'a> EventGroupSoftwareDataExtractor for AllocationDataExtractor<'a> {
   fn extract_from_events(&self, software_data: &mut SoftwareData, events: &[Rc<RefCell<XesEventImpl>>]) -> Result<(), SoftwareDataExtractionError> {
     if let Some(config) = self.config.allocation() {
       let regex = regex_or_err(config.event_class_regex())?;
@@ -43,7 +43,7 @@ impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
                 parse_or_err(total_allocated_bytes.to_string_repr().as_str())?
               } else {
                 warn!("Failed to get total_allocated_bytes attribute, skipping this event");
-                continue
+                continue;
               }
             } else {
               error!("No allocation size attributes were present in the event, skipping this event");
@@ -53,13 +53,13 @@ impl<'a> SoftwareDataExtractor for AllocationDataExtractor<'a> {
             software_data.allocation_events_mut().push(AllocationEvent::new(
               type_name.unwrap().to_string_repr().to_string(),
               allocated_objects_count,
-              allocated_bytes
+              allocated_bytes,
             ))
           }
         }
       }
     }
-    
+
     Ok(())
   }
 }

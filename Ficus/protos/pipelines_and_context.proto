@@ -262,6 +262,13 @@ message GrpcSoftwareData {
   
   repeated GrpcGeneralHistogramData histogram_data = 13;
   repeated GrpcSimpleCounterData simple_counter_data = 14;
+  repeated GrpcActivityDurationData activities_durations_data = 15;
+}
+
+message GrpcActivityDurationData {
+  string name = 1;
+  double duration = 2;
+  string units = 3;
 }
 
 message GrpcGeneralHistogramData {

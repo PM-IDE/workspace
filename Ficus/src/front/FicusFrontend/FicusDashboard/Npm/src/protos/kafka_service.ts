@@ -10,6 +10,7 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 
 export interface ProtoGrpcType {
   ficus: {
+    GrpcActivityDurationData: MessageTypeDefinition
     GrpcActivityStartEndData: MessageTypeDefinition
     GrpcAddPipelineRequest: MessageTypeDefinition
     GrpcAddPipelineStreamRequest: MessageTypeDefinition

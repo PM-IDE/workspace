@@ -2,9 +2,9 @@ use crate::utils::graph::graph::{DefaultGraph, Graph};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
+use crate::utils::user_data::user_data::UserDataImpl;
 use std::collections::HashMap;
 use std::fmt::Display;
-use crate::utils::user_data::user_data::UserDataImpl;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
@@ -16,7 +16,7 @@ where
       nodes: self.to_default_graph_nodes(),
       connections: self.to_default_graph_connections(),
       user_data: UserDataImpl::new(),
-      kind: self.kind().clone()
+      kind: self.kind().clone(),
     }
   }
 

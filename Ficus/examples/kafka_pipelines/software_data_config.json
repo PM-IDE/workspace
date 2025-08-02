@@ -139,7 +139,12 @@
       "info": {
         "name": "Object Allocations",
         "count_attr": "TotalSizeForTypeSample",
-        "grouping_attr": "TypeName",
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "TypeName",
+            "fallback_value": "UNRESOLVED"
+          }
+        },
         "units": "bytes"
       }
     },
@@ -189,6 +194,21 @@
         "name": "Buffer Allocated",
         "count_attr": "bufferSize",
         "units": "bytes"
+      }
+    }
+  ],
+  "activities_duration_configs": [
+    {
+      "name": "Runtime Suspensions",
+      "start_event_regex": "GC/SuspendEEStop",
+      "end_event_regex": "GC/RestartEEStop",
+      "time_attribute": "QpcStamp",
+      "units": "QPC",
+      "activity_id_attr": {
+        "single_attribute": {
+          "name": "XesActivityId",
+          "fallback_value": ""
+        }
       }
     }
   ],

@@ -65,6 +65,10 @@ pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
   simple_counters: Vec<SimpleCounterData>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  activities_durations: Vec<ActivityDurationData>,
 }
 
 impl SoftwareData {
@@ -85,6 +89,7 @@ impl SoftwareData {
       method_load_unload_events: vec![],
       histograms: vec![],
       simple_counters: vec![],
+      activities_durations: vec![],
     }
   }
 }
@@ -112,7 +117,7 @@ pub enum MethodInliningEvent {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum MethodLoadUnloadEvent {
   Load(MethodNameParts),
-  Unload(MethodNameParts)
+  Unload(MethodNameParts),
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
@@ -131,7 +136,7 @@ pub struct MethodNameParts {
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct ThreadEvent {
   #[getset(get = "pub")] thread_id: u64,
-  #[getset(get = "pub")] kind: ThreadEventKind
+  #[getset(get = "pub")] kind: ThreadEventKind,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -149,7 +154,7 @@ pub enum AssemblyEventKind {
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct AssemblyEvent {
   #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] kind: AssemblyEventKind
+  #[getset(get = "pub")] kind: AssemblyEventKind,
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
@@ -193,7 +198,7 @@ pub enum SocketEvent {
   AcceptStart(SocketConnectAcceptStartMetadata),
   AcceptStop,
   ConnectFailed(SocketConnectAcceptFailedMetadata),
-  AcceptFailed(SocketConnectAcceptFailedMetadata)
+  AcceptFailed(SocketConnectAcceptFailedMetadata),
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
@@ -204,14 +209,14 @@ pub struct SocketConnectAcceptStartMetadata {
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct SocketConnectAcceptFailedMetadata {
   #[getset(get = "pub")] error_code: String,
-  #[getset(get = "pub")] error_message: String
+  #[getset(get = "pub")] error_message: String,
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct HistogramData {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] units: String,
-  #[getset(get = "pub", get_mut = "pub")] entries: Vec<HistogramEntry>
+  #[getset(get = "pub", get_mut = "pub")] entries: Vec<HistogramEntry>,
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
@@ -224,5 +229,12 @@ pub struct HistogramEntry {
 pub struct SimpleCounterData {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] value: f64,
+  #[getset(get = "pub")] units: String,
+}
+
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
+pub struct ActivityDurationData {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] duration: f64,
   #[getset(get = "pub")] units: String,
 }

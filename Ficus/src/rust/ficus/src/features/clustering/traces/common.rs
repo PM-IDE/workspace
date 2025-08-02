@@ -8,17 +8,17 @@ use crate::features::clustering::error::ClusteringError;
 use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
 use crate::utils::dataset::dataset::LabeledDataset;
 use crate::utils::distance::distance::{DistanceWrapper, FicusDistance};
+use crate::utils::silhouette::silhouette_score;
+use getset::Getters;
 use linfa::DatasetBase;
 use linfa_nn::distance::Distance;
 use linfa_nn::CommonNearestNeighbour;
 use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
+use log::warn;
 use ndarray::{Array1, Array2};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use getset::Getters;
-use log::warn;
-use crate::utils::silhouette::silhouette_score;
 
 pub fn do_clusterize_log_by_traces<TLog: EventLog>(
   params: &mut TracesClusteringParams<TLog>,
@@ -288,14 +288,14 @@ pub fn calculate_distance(distance: FicusDistance, dataset: &MyDataset, first: u
 #[derive(Getters)]
 pub(crate) struct BestSilhouetteLabels {
   #[getset(get = "pub")] labels: Option<Vec<usize>>,
-  #[getset(get = "pub")] score: f64
+  #[getset(get = "pub")] score: f64,
 }
 
 impl BestSilhouetteLabels {
   pub fn new() -> Self {
     Self {
       labels: None,
-      score: f64::MIN
+      score: f64::MIN,
     }
   }
 
@@ -310,7 +310,7 @@ impl BestSilhouetteLabels {
           self.labels = Some(labels);
         }
 
-        return
+        return;
       }
     };
 

@@ -1,10 +1,10 @@
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo};
 use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, NodeAdditionalDataContainer};
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
 use lazy_static::lazy_static;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 
 pub const NODE_SOFTWARE_DATA: &'static str = "node_software_data";
 pub const NODE_CORRESPONDING_TRACE_DATA: &'static str = "node_corresponding_trace_data";

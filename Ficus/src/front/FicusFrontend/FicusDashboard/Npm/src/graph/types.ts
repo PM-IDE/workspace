@@ -77,7 +77,8 @@ export interface MergedSoftwareData {
   httpRequests: Map<string, number>,
 
   histograms: Map<string, ValueWithUnits<Map<string, number>>>,
-  counters: Map<string, ValueWithUnits<number>>
+  counters: Map<string, ValueWithUnits<number>>,
+  activitiesDurations: Map<string, ValueWithUnits<number>>
 }
 
 export interface MergedEnhancementData {

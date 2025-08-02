@@ -414,7 +414,7 @@ class GrpcNodeCorrespondingTraceData(_message.Message):
     def __init__(self, belongs_to_root_sequence: bool = ...) -> None: ...
 
 class GrpcSoftwareData(_message.Message):
-    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info", "execution_suspension_info", "thread_events", "methods_inlining_events", "array_pool_events", "exception_events", "http_events", "contention_events", "socket_event", "methods_load_unload_events", "histogram_data", "simple_counter_data"]
+    __slots__ = ["histogram", "timeline_diagram_fragment", "allocations_info", "execution_suspension_info", "thread_events", "methods_inlining_events", "array_pool_events", "exception_events", "http_events", "contention_events", "socket_event", "methods_load_unload_events", "histogram_data", "simple_counter_data", "activities_durations_data"]
     HISTOGRAM_FIELD_NUMBER: _ClassVar[int]
     TIMELINE_DIAGRAM_FRAGMENT_FIELD_NUMBER: _ClassVar[int]
     ALLOCATIONS_INFO_FIELD_NUMBER: _ClassVar[int]
@@ -429,6 +429,7 @@ class GrpcSoftwareData(_message.Message):
     METHODS_LOAD_UNLOAD_EVENTS_FIELD_NUMBER: _ClassVar[int]
     HISTOGRAM_DATA_FIELD_NUMBER: _ClassVar[int]
     SIMPLE_COUNTER_DATA_FIELD_NUMBER: _ClassVar[int]
+    ACTIVITIES_DURATIONS_DATA_FIELD_NUMBER: _ClassVar[int]
     histogram: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
     timeline_diagram_fragment: GrpcTimelineDiagramFragment
     allocations_info: _containers.RepeatedCompositeFieldContainer[GrpcAllocationInfo]
@@ -443,23 +444,38 @@ class GrpcSoftwareData(_message.Message):
     methods_load_unload_events: _containers.RepeatedCompositeFieldContainer[GrpcMethodLoadUnloadEvent]
     histogram_data: _containers.RepeatedCompositeFieldContainer[GrpcGeneralHistogramData]
     simple_counter_data: _containers.RepeatedCompositeFieldContainer[GrpcSimpleCounterData]
-    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Iterable[_Union[GrpcAllocationInfo, _Mapping]]] = ..., execution_suspension_info: _Optional[_Iterable[_Union[GrpcExecutionSuspensionInfo, _Mapping]]] = ..., thread_events: _Optional[_Iterable[_Union[GrpcThreadEventInfo, _Mapping]]] = ..., methods_inlining_events: _Optional[_Iterable[_Union[GrpcMethodInliningEvent, _Mapping]]] = ..., array_pool_events: _Optional[_Iterable[_Union[GrpcArrayPoolEvent, _Mapping]]] = ..., exception_events: _Optional[_Iterable[_Union[GrpcExceptionEvent, _Mapping]]] = ..., http_events: _Optional[_Iterable[_Union[GrpcHTTPEvent, _Mapping]]] = ..., contention_events: _Optional[_Iterable[_Union[GrpcContentionEvent, _Mapping]]] = ..., socket_event: _Optional[_Iterable[_Union[GrpcSocketEvent, _Mapping]]] = ..., methods_load_unload_events: _Optional[_Iterable[_Union[GrpcMethodLoadUnloadEvent, _Mapping]]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ...) -> None: ...
+    activities_durations_data: _containers.RepeatedCompositeFieldContainer[GrpcActivityDurationData]
+    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., allocations_info: _Optional[_Iterable[_Union[GrpcAllocationInfo, _Mapping]]] = ..., execution_suspension_info: _Optional[_Iterable[_Union[GrpcExecutionSuspensionInfo, _Mapping]]] = ..., thread_events: _Optional[_Iterable[_Union[GrpcThreadEventInfo, _Mapping]]] = ..., methods_inlining_events: _Optional[_Iterable[_Union[GrpcMethodInliningEvent, _Mapping]]] = ..., array_pool_events: _Optional[_Iterable[_Union[GrpcArrayPoolEvent, _Mapping]]] = ..., exception_events: _Optional[_Iterable[_Union[GrpcExceptionEvent, _Mapping]]] = ..., http_events: _Optional[_Iterable[_Union[GrpcHTTPEvent, _Mapping]]] = ..., contention_events: _Optional[_Iterable[_Union[GrpcContentionEvent, _Mapping]]] = ..., socket_event: _Optional[_Iterable[_Union[GrpcSocketEvent, _Mapping]]] = ..., methods_load_unload_events: _Optional[_Iterable[_Union[GrpcMethodLoadUnloadEvent, _Mapping]]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ..., activities_durations_data: _Optional[_Iterable[_Union[GrpcActivityDurationData, _Mapping]]] = ...) -> None: ...
+
+class GrpcActivityDurationData(_message.Message):
+    __slots__ = ["name", "duration", "units"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    DURATION_FIELD_NUMBER: _ClassVar[int]
+    UNITS_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    duration: float
+    units: str
+    def __init__(self, name: _Optional[str] = ..., duration: _Optional[float] = ..., units: _Optional[str] = ...) -> None: ...
 
 class GrpcGeneralHistogramData(_message.Message):
-    __slots__ = ["name", "entries"]
+    __slots__ = ["name", "entries", "units"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     ENTRIES_FIELD_NUMBER: _ClassVar[int]
+    UNITS_FIELD_NUMBER: _ClassVar[int]
     name: str
     entries: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
-    def __init__(self, name: _Optional[str] = ..., entries: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ...) -> None: ...
+    units: str
+    def __init__(self, name: _Optional[str] = ..., entries: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., units: _Optional[str] = ...) -> None: ...
 
 class GrpcSimpleCounterData(_message.Message):
-    __slots__ = ["name", "count"]
+    __slots__ = ["name", "count", "units"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     COUNT_FIELD_NUMBER: _ClassVar[int]
+    UNITS_FIELD_NUMBER: _ClassVar[int]
     name: str
     count: float
-    def __init__(self, name: _Optional[str] = ..., count: _Optional[float] = ...) -> None: ...
+    units: str
+    def __init__(self, name: _Optional[str] = ..., count: _Optional[float] = ..., units: _Optional[str] = ...) -> None: ...
 
 class GrpcMethodLoadUnloadEvent(_message.Message):
     __slots__ = ["method_name_parts", "load", "unload"]

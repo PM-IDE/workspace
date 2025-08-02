@@ -37,26 +37,37 @@
       ..CreateMethodLoadsDtos(),
       ..CreateOtherDtos(),
       ..CreateCountersDtos(),
-      ..CreateHistogramsDto()
+      ..CreateHistogramsDtos(),
+      ..CreateActivitiesDurationsDtos()
     ];
 
     return infos.Where(i => i.Value > 0).OrderByDescending(i => i.Histogram?.Length ?? -1).ToArray();
   }
 
-  private AggregatedStatDto[] CreateCountersDtos() => Data.GlobalSoftwareData.Counters.Select(counter => new AggregatedStatDto
-  {
-    Title = counter.Key,
-    Value = counter.Value.Value,
-    Units = counter.Value.Units,
-  }).ToArray();
+  private AggregatedStatDto[] CreateCountersDtos() =>
+    Data.GlobalSoftwareData.Counters.Select(counter => new AggregatedStatDto
+    {
+      Title = counter.Key,
+      Value = counter.Value.Value,
+      Units = counter.Value.Units,
+    }).ToArray();
 
-  private AggregatedStatDto[] CreateHistogramsDto() => Data.GlobalSoftwareData.Histograms.Select(histogram => new AggregatedStatDto
-  {
-    Title = histogram.Key,
-    Value = histogram.Value.Value.Values.Sum(),
-    Units = histogram.Value.Units,
-    Histogram = PrepareHistogram(histogram.Value.Value),
-  }).ToArray();
+  private AggregatedStatDto[] CreateHistogramsDtos() =>
+    Data.GlobalSoftwareData.Histograms.Select(histogram => new AggregatedStatDto
+    {
+      Title = histogram.Key,
+      Value = histogram.Value.Value.Values.Sum(),
+      Units = histogram.Value.Units,
+      Histogram = PrepareHistogram(histogram.Value.Value),
+    }).ToArray();
+
+  private AggregatedStatDto[] CreateActivitiesDurationsDtos() =>
+    Data.GlobalSoftwareData.ActivitiesDurations.Select(duration => new AggregatedStatDto
+    {
+      Title = duration.Key,
+      Value = duration.Value.Value,
+      Units = duration.Value.Units
+    }).ToArray();
 
   private AggregatedStatDto[] CreateBufferDtos() =>
   [

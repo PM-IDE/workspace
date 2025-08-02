@@ -6,13 +6,13 @@ use crate::features::discovery::root_sequence::root_sequence::discover_root_sequ
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, GraphKind, NodesConnectionData};
 use crate::utils::graph::graph_node::GraphNode;
+use crate::utils::graph::graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
 use lazy_static::lazy_static;
 use std::collections::{HashMap, VecDeque};
 use std::fmt::Debug;
-use crate::utils::graph::graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY};
 
 lazy_static!(
    pub(super) static ref EVENT_UNIQUE_ID_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new("EVENT_UNIQUE_ID");

@@ -5,9 +5,11 @@ use chrono::{DateTime, Duration, Utc};
 use super::pipelines::PipelinePartFactory;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::pipelines::keys::context_keys::{EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH, GRAPHS, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY};
+use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
+use crate::pipelines::keys::context_keys::{EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePart;
+use crate::utils::graph::graphs_merging::merge_graphs;
 use crate::{
   event_log::{
     core::{
@@ -22,9 +24,6 @@ use crate::{
   },
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::utils::graph::graph::DefaultGraph;
-use crate::utils::graph::graphs_merging::merge_graphs;
 
 impl PipelineParts {
   pub(super) fn create_hashed_event_log(config: &UserDataImpl, log: &XesEventLogImpl) -> Vec<Vec<u64>> {
@@ -133,7 +132,7 @@ impl PipelineParts {
       Ok(())
     })
   }
-  
+
   pub(super) fn clear_graphs() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::CLEAR_GRAPHS, &|context, _, _| {
       if let Some(graphs) = Self::get_user_data_mut(context, &GRAPHS_KEY).ok() {
@@ -148,7 +147,7 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::TERMINATE_IF_EMPTY_LOG, &|context, _, _| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       if log.traces().iter().map(|t| t.borrow().events().len()).sum::<usize>() == 0 {
-        return Err(PipelinePartExecutionError::new_raw("Empty log".to_string()))
+        return Err(PipelinePartExecutionError::new_raw("Empty log".to_string()));
       }
 
       Ok(())

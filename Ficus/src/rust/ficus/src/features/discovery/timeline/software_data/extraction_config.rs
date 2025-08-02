@@ -7,33 +7,81 @@ use std::fmt::Debug;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
-  #[getset(get = "pub", set = "pub")] allocation: Option<ExtractionConfig<AllocationExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] exceptions: Option<ExtractionConfig<ExceptionExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] allocation: Option<ExtractionConfig<AllocationExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] exceptions: Option<ExtractionConfig<ExceptionExtractionConfig>>,
   #[getset(get = "pub", set = "pub")] http: Option<ExtractionConfig<HTTPExtractionConfig>>,
 
-  #[getset(get = "pub", set = "pub")] method_inlining_success: Option<ExtractionConfig<MethodInliningSucceededConfig>>,
-  #[getset(get = "pub", set = "pub")] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] method_inlining_success: Option<ExtractionConfig<MethodInliningSucceededConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] method_inlining_failed: Option<ExtractionConfig<MethodInliningFailedConfig>>,
 
   #[getset(get = "pub", set = "pub")] method_load: Option<ExtractionConfig<MethodLoadUnloadConfig>>,
-  #[getset(get = "pub", set = "pub")] method_unload: Option<ExtractionConfig<MethodLoadUnloadConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] method_unload: Option<ExtractionConfig<MethodLoadUnloadConfig>>,
 
-  #[getset(get = "pub", set = "pub")] socket_connect_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] socket_connect_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
   #[getset(get = "pub", set = "pub")] socket_connect_stop: Option<ExtractionConfig<()>>,
-  #[getset(get = "pub", set = "pub")] socket_accept_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] socket_accept_start: Option<ExtractionConfig<SocketConnectAcceptStartConfig>>,
   #[getset(get = "pub", set = "pub")] socket_accept_stop: Option<ExtractionConfig<()>>,
 
-  #[getset(get = "pub", set = "pub")] socket_connect_failed: Option<ExtractionConfig<SocketAcceptConnectFailedConfig>>,
-  #[getset(get = "pub", set = "pub")] socket_accept_failed: Option<ExtractionConfig<SocketAcceptConnectFailedConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] socket_connect_failed: Option<ExtractionConfig<SocketAcceptConnectFailedConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] socket_accept_failed: Option<ExtractionConfig<SocketAcceptConnectFailedConfig>>,
 
-  #[getset(get = "pub", set = "pub")] thread_created: Option<ExtractionConfig<ThreadExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] thread_created: Option<ExtractionConfig<ThreadExtractionConfig>>,
 
-  #[getset(get = "pub", set = "pub")] array_pool_array_created: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] array_pool_array_rented: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] array_pool_array_returned: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] array_pool_array_trimmed: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] array_pool_array_created: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] array_pool_array_rented: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] array_pool_array_returned: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] array_pool_array_trimmed: Option<ExtractionConfig<ArrayPoolExtractionConfig>>,
 
-  #[getset(get = "pub", set = "pub")] assembly_load: Option<ExtractionConfig<AssemblyExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] assembly_unload: Option<ExtractionConfig<AssemblyExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] assembly_load: Option<ExtractionConfig<AssemblyExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] assembly_unload: Option<ExtractionConfig<AssemblyExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")] suspend_ee: Option<ExtractionConfig<SuspendEEConfig>>,
   #[getset(get = "pub", set = "pub")] restart_ee: Option<ExtractionConfig<()>>,
@@ -43,8 +91,18 @@ pub struct SoftwareDataExtractionConfig {
 
   #[getset(get = "pub", set = "pub")] raw_control_flow_regexes: Vec<String>,
 
-  #[getset(get = "pub", set = "pub")] pie_chart_extraction_configs: Vec<ExtractionConfig<PieChartExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] simple_counter_configs: Vec<ExtractionConfig<SimpleCountExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] pie_chart_extraction_configs: Vec<ExtractionConfig<PieChartExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] simple_counter_configs: Vec<ExtractionConfig<SimpleCountExtractionConfig>>,
+  #[getset(
+    get = "pub",
+    set = "pub"
+  )] activities_duration_configs: Vec<ActivityDurationExtractionConfig>,
 }
 
 impl SoftwareDataExtractionConfig {
@@ -76,10 +134,11 @@ impl SoftwareDataExtractionConfig {
       method_end: None,
       raw_control_flow_regexes: vec![],
       pie_chart_extraction_configs: vec![],
-      simple_counter_configs: vec![]
+      simple_counter_configs: vec![],
+      activities_duration_configs: vec![],
     }
   }
-  
+
   pub fn control_flow_regexes(&self) -> Result<Option<Vec<Regex>>, String> {
     if self.raw_control_flow_regexes.is_empty() {
       return Ok(None);
@@ -104,7 +163,7 @@ impl SoftwareDataExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodLoadUnloadConfig {
-  #[getset(get = "pub")] common_attrs: MethodCommonAttributesConfig
+  #[getset(get = "pub")] common_attrs: MethodCommonAttributesConfig,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -122,7 +181,7 @@ pub struct MethodCommonAttributesConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SuspendEEConfig {
-  #[getset(get = "pub")] reason_attr: String
+  #[getset(get = "pub")] reason_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -149,7 +208,7 @@ pub struct HTTPExtractionConfig {
   #[getset(get = "pub")] host_attr: String,
   #[getset(get = "pub")] port_attr: String,
   #[getset(get = "pub")] scheme_attr: String,
-  #[getset(get = "pub")] path_and_query_attr: String
+  #[getset(get = "pub")] path_and_query_attr: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
@@ -157,7 +216,7 @@ pub struct MethodInliningSuccessExtractionConfig {}
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodInliningSucceededConfig {
-  #[getset(get = "pub")] inlining_config: MethodInliningConfig
+  #[getset(get = "pub")] inlining_config: MethodInliningConfig,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -202,9 +261,38 @@ pub struct AssemblyExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct PieChartExtractionConfig {
   #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] grouping_attr: Option<String>,
+  #[getset(get = "pub")] grouping_attr: Option<NameCreationStrategy>,
   #[getset(get = "pub")] count_attr: Option<String>,
   #[getset(get = "pub")] units: String,
+}
+
+#[serde(rename_all = "snake_case")]
+#[derive(Clone, Debug, Serialize, Deserialize, new)]
+pub enum NameCreationStrategy {
+  SingleAttribute(SingleAttribute),
+  ManyAttributes(ManyAttributes),
+}
+
+impl NameCreationStrategy {
+  pub fn fallback_value(&self) -> String {
+    match self {
+      NameCreationStrategy::SingleAttribute(s) => s.fallback_value().to_string(),
+      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().to_string()
+    }
+  }
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct SingleAttribute {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] fallback_value: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct ManyAttributes {
+  #[getset(get = "pub")] attributes: Vec<String>,
+  #[getset(get = "pub")] separator: String,
+  #[getset(get = "pub")] fallback_value: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -212,4 +300,14 @@ pub struct SimpleCountExtractionConfig {
   #[getset(get = "pub")] name: String,
   #[getset(get = "pub")] count_attr: Option<String>,
   #[getset(get = "pub")] units: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct ActivityDurationExtractionConfig {
+  #[getset(get = "pub")] name: String,
+  #[getset(get = "pub")] start_event_regex: String,
+  #[getset(get = "pub")] end_event_regex: String,
+  #[getset(get = "pub")] time_attribute: Option<String>,
+  #[getset(get = "pub")] units: String,
+  #[getset(get = "pub")] activity_id_attr: Option<NameCreationStrategy>
 }
