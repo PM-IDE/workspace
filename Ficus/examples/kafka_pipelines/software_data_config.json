@@ -137,29 +137,35 @@
     {
       "event_class_regex": "GC\/SampledObject",
       "info": {
-        "name": "Object Allocations",
+        "base": {
+          "name": "Object Allocations",
+          "units": "bytes"
+        },
         "count_attr": "TotalSizeForTypeSample",
         "grouping_attr": {
           "single_attribute": {
             "name": "TypeName",
             "fallback_value": "UNRESOLVED"
           }
-        },
-        "units": "bytes"
+        }
       }
     },
     {
       "event_class_regex": "Method/LoadVerbose",
       "info": {
-        "name": "Method Loads",
-        "units": "methods"
+        "base": {
+          "name": "Method Loads",
+          "units": "methods"
+        }
       }
     },
     {
       "event_class_regex": "Method/UnloadVerbose",
       "info": {
-        "name": "Method Unloads",
-        "units": "methods"
+        "base": {
+          "name": "Method Unloads",
+          "units": "methods"
+        }
       }
     }
   ],
@@ -167,43 +173,53 @@
     {
       "event_class_regex": "Buffer/Rented",
       "info": {
-        "name": "Buffer Rented",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Buffer Rented",
+          "units": "bytes"
+        },
+        "count_attr": "bufferSize"
       }
     },
     {
       "event_class_regex": "Buffer/Returned",
       "info": {
-        "name": "Buffer Returned",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Buffer Returned",
+          "units": "bytes"
+        },
+        "count_attr": "bufferSize"
       }
     },
     {
       "event_class_regex": "Buffer/Trimmed",
       "info": {
-        "name": "Buffer Trimmed",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Buffer Trimmed",
+          "units": "bytes"
+        },
+        "count_attr": "bufferSize"
       }
     },
     {
       "event_class_regex": "Buffer/Allocated",
       "info": {
-        "name": "Buffer Allocated",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Buffer Allocated",
+          "units": "bytes"
+        },
+        "count_attr": "bufferSize"
       }
     }
   ],
   "activities_duration_configs": [
     {
-      "name": "Runtime Suspensions",
+      "base": {
+        "name": "Runtime Suspensions",
+        "units": "QPC"
+      },
       "start_event_regex": "GC/SuspendEEStop",
       "end_event_regex": "GC/RestartEEStop",
       "time_attribute": "QpcStamp",
-      "units": "QPC",
       "activity_id_attr": {
         "single_attribute": {
           "name": "XesActivityId",
