@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pm_models.proto
+// Original file: ../../../../../protos/pm_models.proto
 
 import type { GrpcEventStamp_DONTUSE as _ficus_GrpcEventStamp_DONTUSE, GrpcEventStamp as _ficus_GrpcEventStamp } from '../ficus/GrpcEventStamp';
 

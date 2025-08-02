@@ -483,7 +483,7 @@ fn test_sockets_extraction() {
 #[test]
 fn test_general_histogram() {
   execute_test_with_software_data(
-    r#"{"histograms":[{"name":"g1","units":"units","entries":[{"name":"type1","value":246.0},{"name":"type2","value":123.0}]},{"name":"g2","units":"units","entries":[{"name":"type1","value":123.0},{"name":"type2","value":123.0}]}]}"#,
+    r#"{"histograms":[{"base":{"name":"g1","units":"units","group":null},"entries":[{"name":"type1","value":246.0},{"name":"type2","value":123.0}]},{"base":{"name":"g2","units":"units","group":null},"entries":[{"name":"type1","value":123.0},{"name":"type2","value":123.0}]}]}"#,
     || {
       let events = [
         create_event_with_attributes(
@@ -554,7 +554,7 @@ fn test_general_histogram() {
       let mut software_data = SoftwareData::empty();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
 
-      software_data.histograms_mut().sort_by(|f, s| f.name().cmp(s.name()));
+      software_data.histograms_mut().sort_by(|f, s| f.base().name().cmp(s.base().name()));
       software_data.histograms_mut().iter_mut().for_each(|counts| counts.entries_mut().sort_by(|f, s| f.name().cmp(s.name())));
 
       software_data
@@ -565,7 +565,7 @@ fn test_general_histogram() {
 #[test]
 fn test_simple_counter() {
   execute_test_with_software_data(
-    r#"{"simple_counters":[{"name":"counter1","value":3.0,"units":"units"},{"name":"counter2","value":246.0,"units":"units"}]}"#,
+    r#"{"simple_counters":[{"base":{"name":"counter1","units":"units","group":null},"value":3.0},{"base":{"name":"counter2","units":"units","group":null},"value":246.0}]}"#,
     || {
       let events = [
         create_event_with_attributes(
@@ -634,7 +634,7 @@ fn test_simple_counter() {
       let mut software_data = SoftwareData::empty();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
 
-      software_data.simple_counters_mut().sort_by(|f, s| f.name().cmp(s.name()));
+      software_data.simple_counters_mut().sort_by(|f, s| f.base().name().cmp(s.base().name()));
       software_data
     },
   )
@@ -643,7 +643,7 @@ fn test_simple_counter() {
 #[test]
 fn test_activities_duration() {
   execute_test_with_activities_durations(
-    r#"[[{"activities_durations":[{"name":"activity","duration":300.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":50.0,"units":"units"}]}]]"#,
+    r#"[[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":300.0}]},{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":50.0}]}]]"#,
     vec![
       vec![
         vec![
@@ -725,7 +725,7 @@ fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<
 #[test]
 fn test_activities_duration_2() {
   execute_test_with_activities_durations(
-    r#"[[{"activities_durations":[{"name":"activity","duration":50.0,"units":"units"}]},{}],[{"activities_durations":[{"name":"activity","duration":100.0,"units":"units"}]},{"activities_durations":[{"name":"activity","duration":300.0,"units":"units"}]}]]"#,
+    r#"[[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":50.0}]},{}],[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":100.0}]},{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":300.0}]}]]"#,
     vec![
       vec![
         vec![

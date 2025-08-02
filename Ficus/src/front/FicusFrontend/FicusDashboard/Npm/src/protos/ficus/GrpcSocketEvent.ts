@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcSocketConnectStart_DONTUSE as _ficus_GrpcSocketConnectStart_DONTUSE, GrpcSocketConnectStart as _ficus_GrpcSocketConnectStart } from '../ficus/GrpcSocketConnectStart';
 import type { GrpcSocketAcceptStart_DONTUSE as _ficus_GrpcSocketAcceptStart_DONTUSE, GrpcSocketAcceptStart as _ficus_GrpcSocketAcceptStart } from '../ficus/GrpcSocketAcceptStart';

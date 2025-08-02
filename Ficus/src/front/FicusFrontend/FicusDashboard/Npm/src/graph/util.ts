@@ -208,13 +208,13 @@ function createMergedEnhancementData(
 
     for (let histogram of softwareData.histogramData) {
       let histogramMap;
-      if (enhancementData.softwareData.histograms.has(histogram.name)) {
-        histogramMap = enhancementData.softwareData.histograms.get(histogram.name).value;
+      if (enhancementData.softwareData.histograms.has(histogram.base.name)) {
+        histogramMap = enhancementData.softwareData.histograms.get(histogram.base.name).value;
       } else {
         histogramMap = new Map();
-        enhancementData.softwareData.histograms.set(histogram.name, {
+        enhancementData.softwareData.histograms.set(histogram.base.name, {
           value: histogramMap,
-          units: histogram.units
+          units: histogram.base.units
         });
       }
 
@@ -224,25 +224,25 @@ function createMergedEnhancementData(
     }
 
     for (let counter of softwareData.simpleCounterData) {
-      if (!enhancementData.softwareData.counters.has(counter.name)) {
-        enhancementData.softwareData.counters.set(counter.name, {
+      if (!enhancementData.softwareData.counters.has(counter.base.name)) {
+        enhancementData.softwareData.counters.set(counter.base.name, {
           value: 0,
-          units: counter.units
+          units: counter.base.units
         });
       }
 
-      enhancementData.softwareData.counters.get(counter.name).value += counter.count;
+      enhancementData.softwareData.counters.get(counter.base.name).value += counter.count;
     }
 
     for (let activityDuration of softwareData.activitiesDurationsData) {
-      if (!enhancementData.softwareData.activitiesDurations.has(activityDuration.name)) {
-        enhancementData.softwareData.activitiesDurations.set(activityDuration.name, {
+      if (!enhancementData.softwareData.activitiesDurations.has(activityDuration.base.name)) {
+        enhancementData.softwareData.activitiesDurations.set(activityDuration.base.name, {
           value: 0,
-          units: activityDuration.units
+          units: activityDuration.base.units
         });
       }
 
-      enhancementData.softwareData.activitiesDurations.get(activityDuration.name).value += activityDuration.duration;
+      enhancementData.softwareData.activitiesDurations.get(activityDuration.base.name).value += activityDuration.duration;
     }
   });
 

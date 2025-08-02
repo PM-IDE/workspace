@@ -1,10 +1,10 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, SoftwareDataExtractionConfig};
+use crate::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, GenericExtractionConfigBase, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError};
 use crate::features::discovery::timeline::software_data::extractors::general::utils::RegexParingResult;
-use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, GenericEnhancementBase, SoftwareData};
 use crate::features::discovery::timeline::utils::get_stamp;
 use derive_new::new;
 use fancy_regex::Regex;
@@ -87,7 +87,7 @@ fn process_events_groups(trace: &Vec<EventGroup>, configs: &mut Configs) -> Resu
       });
     }
   }
-  
+
   Ok(())
 }
 
@@ -143,11 +143,14 @@ fn add_software_activities_durations(software_data: &mut SoftwareData, data: &Du
   software_data.activities_durations_mut().extend(
     data.map
       .iter()
-      .map(|(name, (value, units))| ActivityDurationData::new(name.to_string(), *value as f64, units.to_string()))
+      .map(|(_, (value, base))| ActivityDurationData::new(
+        GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
+        *value as f64,
+      ))
   );
 }
 
-type DurationsMap = HashMap<String, (u64, String)>;
+type DurationsMap = HashMap<String, (u64, GenericExtractionConfigBase)>;
 
 struct DurationMapInfo {
   start_time: u64,
@@ -177,7 +180,7 @@ impl DurationsMapExtensions for DurationsMap {
       return;
     }
 
-    (*self.entry(info.base().name().to_string()).or_insert((0u64, info.base().units().to_string()))).0 += duration;
+    (*self.entry(info.base().name().to_string()).or_insert((0u64, info.base().clone()))).0 += duration;
   }
 }
 
@@ -236,7 +239,7 @@ fn process_events(
           for prev_data in previous_data.iter_mut() {
             if let Some(prev_data) = prev_data.as_mut() {
               let duration = prev_data.end_time - prev_data.start_time;
-              (*prev_data.map.entry(info.base().name().to_string()).or_insert((0u64, info.base().units().to_string()))).0 += duration;
+              (*prev_data.map.entry(info.base().name().to_string()).or_insert((0u64, info.base().clone()))).0 += duration;
             }
           }
         }

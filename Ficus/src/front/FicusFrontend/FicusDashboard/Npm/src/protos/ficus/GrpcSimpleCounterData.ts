@@ -1,14 +1,13 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
+import type { GrpcGenericEnhancementBase_DONTUSE as _ficus_GrpcGenericEnhancementBase_DONTUSE, GrpcGenericEnhancementBase as _ficus_GrpcGenericEnhancementBase } from '../ficus/GrpcGenericEnhancementBase';
 
 export interface GrpcSimpleCounterData_DONTUSE {
-  'name'?: (string);
+  'base'?: (_ficus_GrpcGenericEnhancementBase_DONTUSE | null);
   'count'?: (number | string);
-  'units'?: (string);
 }
 
 export interface GrpcSimpleCounterData {
-  'name': (string);
+  'base': (_ficus_GrpcGenericEnhancementBase | null);
   'count': (number);
-  'units': (string);
 }

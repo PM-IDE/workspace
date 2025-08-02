@@ -266,21 +266,24 @@ message GrpcSoftwareData {
 }
 
 message GrpcActivityDurationData {
-  string name = 1;
+  GrpcGenericEnhancementBase base = 1;
   double duration = 2;
-  string units = 3;
+}
+
+message GrpcGenericEnhancementBase {
+  string name = 1;
+  string units = 2;
+  optional string group = 3;
 }
 
 message GrpcGeneralHistogramData {
-  string name = 1;
+  GrpcGenericEnhancementBase base = 1;
   repeated GrpcHistogramEntry entries = 2;
-  string units = 3;
 }
 
 message GrpcSimpleCounterData {
-  string name = 1;
+  GrpcGenericEnhancementBase base = 1;
   double count = 2;
-  string units = 3;
 }
 
 message GrpcMethodLoadUnloadEvent {

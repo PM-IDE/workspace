@@ -3,7 +3,7 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::{SimpleCountExtractionConfig, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, EventGroupSoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::extractors::general::utils::RegexParingResult;
-use crate::features::discovery::timeline::software_data::models::{SimpleCounterData, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{GenericEnhancementBase, SimpleCounterData, SoftwareData};
 use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
@@ -52,7 +52,7 @@ impl<'a> EventGroupSoftwareDataExtractor for SimpleCounterExtractor<'a> {
                 1.
               };
 
-              (*result.entry(config.base().name().to_string()).or_insert((config.base().units(), 0.))).1 += count;
+              (*result.entry(config.base().name().to_string()).or_insert((config.base(), 0.))).1 += count;
             }
           }
           Err(err) => return Err(err.clone())
@@ -60,8 +60,11 @@ impl<'a> EventGroupSoftwareDataExtractor for SimpleCounterExtractor<'a> {
       }
     }
 
-    for (name, (units, count)) in result {
-      software_data.simple_counters_mut().push(SimpleCounterData::new(name, count, units.to_owned()));
+    for (_, (base, count)) in result {
+      software_data.simple_counters_mut().push(SimpleCounterData::new(
+        GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
+        count,
+      ));
     }
 
     Ok(())

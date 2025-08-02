@@ -3,7 +3,7 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::{PieChartExtractionConfig, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, EventGroupSoftwareDataExtractor};
 use crate::features::discovery::timeline::software_data::extractors::general::utils::RegexParingResult;
-use crate::features::discovery::timeline::software_data::models::{HistogramData, HistogramEntry, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{GenericEnhancementBase, HistogramData, HistogramEntry, SoftwareData};
 use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
@@ -55,7 +55,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
                   event.borrow().name().to_string()
                 };
 
-                *result.entry(config.base().name()).or_insert((config.base().units(), HashMap::new())).1.entry(grouping_value).or_insert(0.) += count;
+                *result.entry(config.base().name()).or_insert((config.base(), HashMap::new())).1.entry(grouping_value).or_insert(0.) += count;
               }
             }
             Err(err) => return Err(err.clone())
@@ -64,10 +64,9 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
       }
     }
 
-    for (name, (units, counts)) in result {
+    for (_, (base, counts)) in result {
       software_data.histograms_mut().push(HistogramData::new(
-        name.to_string(),
-        units.to_owned(),
+        GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
         counts.into_iter().map(|(k, v)| HistogramEntry::new(k, v)).collect(),
       ))
     }

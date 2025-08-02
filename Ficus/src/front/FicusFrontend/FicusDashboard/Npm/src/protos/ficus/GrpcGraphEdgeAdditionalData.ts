@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcSoftwareData_DONTUSE as _ficus_GrpcSoftwareData_DONTUSE, GrpcSoftwareData as _ficus_GrpcSoftwareData } from '../ficus/GrpcSoftwareData';
 import type { GrpcEdgeExecutionInfo_DONTUSE as _ficus_GrpcEdgeExecutionInfo_DONTUSE, GrpcEdgeExecutionInfo as _ficus_GrpcEdgeExecutionInfo } from '../ficus/GrpcEdgeExecutionInfo';

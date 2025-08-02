@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pm_models.proto
+// Original file: ../../../../../protos/pm_models.proto
 
 import type { Long } from '@grpc/proto-loader';
 

@@ -123,17 +123,17 @@
   {
     if (data is null) return;
 
-    foreach (var name in data.HistogramData.Select(e => e.Name))
+    foreach (var name in data.HistogramData.Select(e => e.Base.Name))
     {
       enhancements.Add(name);
     }
 
-    foreach (var name in data.SimpleCounterData.Select(e => e.Name))
+    foreach (var name in data.SimpleCounterData.Select(e => e.Base.Name))
     {
       enhancements.Add(name);
     }
 
-    foreach (var name in data.ActivitiesDurationsData.Select(e => e.Name))
+    foreach (var name in data.ActivitiesDurationsData.Select(e => e.Base.Name))
     {
       enhancements.Add(name);
     }

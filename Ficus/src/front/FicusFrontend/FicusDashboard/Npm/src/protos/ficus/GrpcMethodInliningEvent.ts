@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcMethodInliningInfo_DONTUSE as _ficus_GrpcMethodInliningInfo_DONTUSE, GrpcMethodInliningInfo as _ficus_GrpcMethodInliningInfo } from '../ficus/GrpcMethodInliningInfo';
 import type { Empty_DONTUSE as _google_protobuf_Empty_DONTUSE, Empty as _google_protobuf_Empty } from '../google/protobuf/Empty';
