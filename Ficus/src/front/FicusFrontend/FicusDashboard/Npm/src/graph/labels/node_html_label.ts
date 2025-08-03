@@ -10,7 +10,7 @@ import {AggregatedData, GraphNode, MergedEnhancementData, MergedSoftwareData, So
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
   createArrayPoolEnhancement,
-  createEnhancementContainer, createNumberInformation,
+  createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
   createPieChart,
   createThreadsEnhancement, EnhancementCreationResult,
   getPercentExecutionTime,
@@ -56,7 +56,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
                   ${createEventClassesPieChart(enhancementData.eventClasses)}
-                  ${createNodeEnhancements(enhancements, enhancementData, node.aggregatedData)}
+                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, createNodeEnhancement)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                   ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
                 </div>
@@ -87,22 +87,11 @@ function createEventClassesPieChart(data: Map<string, number>) {
   `;
 }
 
-function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], enhancementData: MergedEnhancementData, aggregatedData: AggregatedData): string {
-  // @ts-ignore
-  let enhancementsHtmls: [SoftwareEnhancementKind, string][] = enhancements
-    .map(e => [e, createNodeEnhancementContent(enhancementData.softwareData, aggregatedData, e).html])
-    .filter(res => (<any>res[1]).length > 0);
-
-  if (enhancementsHtmls.length == 0) {
-    return "";
-  }
-
-  return enhancementsHtmls
-    .map(([e, html]) => createEnhancementContainer(e, html))
-    .join("\n");
-}
-
-function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): EnhancementCreationResult {
+function createNodeEnhancement(
+  softwareData: MergedSoftwareData,
+  aggregatedData: AggregatedData,
+  enhancement: SoftwareEnhancementKind
+): EnhancementCreationResult {
   switch (enhancement) {
     case "Allocations":
       return new EnhancementCreationResult(createNodeAllocationsEnhancement(softwareData, aggregatedData), null);
@@ -125,7 +114,7 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
         let histogram = softwareData.histograms.get(enhancement);
 
         let html = createSoftwareEnhancementPieChart(
-          null,
+          histogram.group != null ? enhancement : null,
           histogram.value,
           (sum / globalSum) * 100,
           getPerformanceAnnotationColor(sum / globalSum),
@@ -139,7 +128,7 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
         let counter = softwareData.counters.get(enhancement);
 
         let html = createNumberInformation(
-          "",
+          counter.group != null ? enhancement : "",
           counter.units,
           counter.value,
           aggregatedData.globalSoftwareData.counters.get(enhancement).value
@@ -152,7 +141,7 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
         let duration = softwareData.activitiesDurations.get(enhancement);
 
         let html = createNumberInformation(
-          "",
+          duration.group != null ? enhancement : "",
           duration.units,
           duration.value,
           aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value

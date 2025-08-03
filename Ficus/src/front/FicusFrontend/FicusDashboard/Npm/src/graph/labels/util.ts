@@ -1,6 +1,6 @@
 import {getOrCreateColor} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
-import {AggregatedData, MergedEnhancementData, MergedSoftwareData} from "../types";
+import {AggregatedData, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 
 export let fallBackPerformanceColor = "#3d3d3d";
 
@@ -149,4 +149,40 @@ export class EnhancementCreationResult {
     this.html = html;
     this.group = group;
   }
+}
+
+export function createGroupedEnhancements(
+  enhancements: SoftwareEnhancementKind[],
+  enhancementData: MergedEnhancementData,
+  aggregatedData: AggregatedData,
+  enhancementFactory: (softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: string) => EnhancementCreationResult
+): string {
+  // @ts-ignore
+  let enhancementsHtmls: [SoftwareEnhancementKind, EnhancementCreationResult][] = enhancements
+    .map(e => [e, enhancementFactory(enhancementData.softwareData, aggregatedData, e)])
+    .filter(res => (<EnhancementCreationResult>res[1]).html.length > 0);
+
+  if (enhancementsHtmls.length == 0) {
+    return "";
+  }
+
+  let groups = new Map();
+  let uniqueEnhancements: [SoftwareEnhancementKind, string][] = [];
+  for (let [e, result] of enhancementsHtmls) {
+    if (result.group == null) {
+      uniqueEnhancements.push([e, result.html]);
+      continue;
+    }
+
+    if (!groups.has(result.group)) {
+      groups.set(result.group, []);
+    }
+
+    groups.get(result.group).push(result.html);
+  }
+  
+  return uniqueEnhancements
+    .map(([e, html]) => createEnhancementContainer(e, html))
+    .concat(...groups.entries().map(kv => createEnhancementContainer(kv[0], kv[1].join("\n"))))
+    .join("\n");
 }

@@ -1,7 +1,7 @@
 import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createArrayPoolEnhancement,
-  createEnhancementContainer, createNumberInformation,
+  createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
   createRectangleHistogram,
   createThreadsEnhancement, EnhancementCreationResult,
   getPercentExecutionTime,
@@ -21,7 +21,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${enhancements.map(e => createEdgeEnhancement(enhancementData.softwareData, edge, e).html).join("\n")}
+        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, createEdgeEnhancement)}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>
@@ -46,10 +46,14 @@ function createEdgeExecutionInfo(edge: GraphEdge): string {
   return executionInfo;
 }
 
-function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge, enhancement: SoftwareEnhancementKind): EnhancementCreationResult {
+function createEdgeEnhancement(
+  softwareData: MergedSoftwareData,
+  aggregatedData: AggregatedData,
+  enhancement: SoftwareEnhancementKind
+): EnhancementCreationResult {
   switch (enhancement) {
     case "Allocations":
-      return new EnhancementCreationResult(createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData), null);
+      return new EnhancementCreationResult(createEdgeAllocationsEnhancement(softwareData, aggregatedData), null);
     case "Methods Inlinings":
       return new EnhancementCreationResult(createMethodsInliningEnhancements(softwareData), null);
     case "Methods (Un)Loads":
@@ -57,7 +61,7 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
     case "Exceptions":
       return new EnhancementCreationResult(createExceptionsEnhancement(softwareData), null);
     case "ArrayPools":
-      return new EnhancementCreationResult(createEnhancementContainer("ArrayPools", createArrayPoolEnhancement(softwareData, edge.aggregatedData)), null);
+      return new EnhancementCreationResult(createEnhancementContainer("ArrayPools", createArrayPoolEnhancement(softwareData, aggregatedData)), null);
     case "Threads":
       return new EnhancementCreationResult(createEnhancementContainer("Threads", createThreadsEnhancement(softwareData)), null);
     case "Http":
@@ -65,7 +69,7 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
     default: {
       if (softwareData.histograms.has(enhancement)) {
         let histogram = softwareData.histograms.get(enhancement);
-        let globalSum = edge.aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+        let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
 
         let html = createEdgeSoftwareEnhancementPart(
           enhancement,
@@ -80,10 +84,10 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
       if (softwareData.counters.has(enhancement)) {
         let counter = softwareData.counters.get(enhancement);
         let html = createNumberInformation(
-          "",
+          counter.group != null ? enhancement : "",
           counter.units,
           counter.value,
-          edge.aggregatedData.globalSoftwareData.counters.get(enhancement).value
+          aggregatedData.globalSoftwareData.counters.get(enhancement).value
         );
 
         if (counter.group == null) {
@@ -97,10 +101,10 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
         let duration = softwareData.activitiesDurations.get(enhancement);
 
         let html = createNumberInformation(
-          "",
+          duration.group != null ? enhancement : "",
           duration.units,
           duration.value,
-          edge.aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
+          aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
         );
 
         if (duration.group == null) {
