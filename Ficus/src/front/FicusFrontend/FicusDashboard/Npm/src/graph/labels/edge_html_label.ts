@@ -7,6 +7,7 @@ import {
   getPercentExecutionTime,
   toSortedArray
 } from "./util";
+import {isNullOrEmpty} from "../../utils";
 
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
   let enhancementData = edge.enhancementData;
@@ -72,7 +73,7 @@ function createEdgeEnhancement(
         let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
 
         let html = createEdgeSoftwareEnhancementPart(
-          enhancement,
+          !isNullOrEmpty(histogram.group) ? enhancement : "",
           histogram.value,
           histogram.units,
           globalSum
@@ -84,7 +85,7 @@ function createEdgeEnhancement(
       if (softwareData.counters.has(enhancement)) {
         let counter = softwareData.counters.get(enhancement);
         let html = createNumberInformation(
-          counter.group != null ? enhancement : "",
+          !isNullOrEmpty(counter.group) ? enhancement : "",
           counter.units,
           counter.value,
           aggregatedData.globalSoftwareData.counters.get(enhancement).value
@@ -101,7 +102,7 @@ function createEdgeEnhancement(
         let duration = softwareData.activitiesDurations.get(enhancement);
 
         let html = createNumberInformation(
-          duration.group != null ? enhancement : "",
+          !isNullOrEmpty(duration.group) ? enhancement : "",
           duration.units,
           duration.value,
           aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value

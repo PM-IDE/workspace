@@ -5,7 +5,7 @@ import {
 } from "../util";
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
-import {getOrCreateColor} from "../../utils";
+import {getOrCreateColor, isNullOrEmpty} from "../../utils";
 import {AggregatedData, GraphNode, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
@@ -114,7 +114,7 @@ function createNodeEnhancement(
         let histogram = softwareData.histograms.get(enhancement);
 
         let html = createSoftwareEnhancementPieChart(
-          histogram.group != null ? enhancement : null,
+          !isNullOrEmpty(histogram.group) ? enhancement : null,
           histogram.value,
           (sum / globalSum) * 100,
           getPerformanceAnnotationColor(sum / globalSum),
@@ -128,7 +128,7 @@ function createNodeEnhancement(
         let counter = softwareData.counters.get(enhancement);
 
         let html = createNumberInformation(
-          counter.group != null ? enhancement : "",
+          !isNullOrEmpty(counter.group) ? enhancement : "",
           counter.units,
           counter.value,
           aggregatedData.globalSoftwareData.counters.get(enhancement).value
@@ -141,7 +141,7 @@ function createNodeEnhancement(
         let duration = softwareData.activitiesDurations.get(enhancement);
 
         let html = createNumberInformation(
-          duration.group != null ? enhancement : "",
+          !isNullOrEmpty(duration.group) ? enhancement : "",
           duration.units,
           duration.value,
           aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value

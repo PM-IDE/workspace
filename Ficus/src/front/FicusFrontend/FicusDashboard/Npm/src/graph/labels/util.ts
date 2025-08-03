@@ -1,4 +1,4 @@
-import {getOrCreateColor} from "../../utils";
+import {getOrCreateColor, isNullOrEmpty} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
 import {AggregatedData, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 
@@ -169,7 +169,7 @@ export function createGroupedEnhancements(
   let groups = new Map();
   let uniqueEnhancements: [SoftwareEnhancementKind, string][] = [];
   for (let [e, result] of enhancementsHtmls) {
-    if (result.group == null) {
+    if (isNullOrEmpty(result.group)) {
       uniqueEnhancements.push([e, result.html]);
       continue;
     }
@@ -180,7 +180,7 @@ export function createGroupedEnhancements(
 
     groups.get(result.group).push(result.html);
   }
-  
+
   return uniqueEnhancements
     .map(([e, html]) => createEnhancementContainer(e, html))
     .concat(...groups.entries().map(kv => createEnhancementContainer(kv[0], kv[1].join("\n"))))

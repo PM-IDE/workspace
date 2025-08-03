@@ -65,3 +65,7 @@ export function createNextFrontendUniqueId(): number {
   nextId += 1;
   return nextId;
 }
+
+export function isNullOrEmpty(str: string | null) {
+  return str == null || str.length == 0;
+}
