@@ -131,7 +131,7 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
           getPerformanceAnnotationColor(sum / globalSum),
           histogram.units
         );
-        
+
         return new EnhancementCreationResult(html, histogram.group);
       }
 

@@ -37,8 +37,8 @@ export interface AggregatedData {
 export type SoftwareEnhancementKind =
   "Allocations" |
   "Exceptions" |
-  "MethodsLoadUnload" |
-  "MethodsInlinings" |
+  "Methods (Un)Loads" |
+  "Methods Inlinings" |
   "ArrayPools" |
   "Http" |
   "Sockets" |
