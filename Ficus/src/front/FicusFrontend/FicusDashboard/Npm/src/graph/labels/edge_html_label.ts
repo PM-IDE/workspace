@@ -120,6 +120,10 @@ function createEdgeEnhancement(
 }
 
 function createHttpEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.httpRequests.size == 0) {
+    return "";
+  }
+
   return `
     <div>
         ${createEdgeSoftwareEnhancementPart("HTTP", softwareData.httpRequests, null)}
@@ -142,6 +146,10 @@ function createExceptionsEnhancement(softwareData: MergedSoftwareData): string {
 }
 
 function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
+  if (softwareData.methodsLoads.size == 0 && softwareData.methodsUnloads.size == 0) {
+    return "";
+  }
+
   return `
     <div style="display: flex; flex-direction: row;">
       ${createEdgeSoftwareEnhancementPart("Load", softwareData.methodsLoads, null)}
@@ -163,6 +171,10 @@ function createEdgeAllocationsEnhancement(softwareData: MergedSoftwareData, aggr
 }
 
 function createMethodsInliningEnhancements(softwareData: MergedSoftwareData): string {
+  if (softwareData.inliningSucceeded.size == 0 && softwareData.inliningFailed.size == 0 && softwareData.inliningFailedReasons.size == 0) {
+    return "";
+  }
+
   return `
     <div style="display: flex; flex-direction: row;">
       ${createEdgeSoftwareEnhancementPart("Succeeded", softwareData.inliningSucceeded, null)}
