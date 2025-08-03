@@ -140,3 +140,13 @@ export function getPercentExecutionTime(executionTime: number, totalExecutionTim
 
   return Number.isFinite(percent) ? percent.toFixed(2) : "";
 }
+
+export class EnhancementCreationResult {
+  html: string
+  group: string | null = null
+
+  constructor(html: string, group: string | null = null) {
+    this.html = html;
+    this.group = group;
+  }
+}

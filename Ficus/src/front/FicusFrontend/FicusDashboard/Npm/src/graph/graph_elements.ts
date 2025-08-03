@@ -87,7 +87,8 @@ function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
   for (let [key, map] of data.globalSoftwareData.histograms) {
     data.globalSoftwareData.histograms.set(key, {
       units: map.units,
-      value: toObjectCsharpInterop(map.value)
+      value: toObjectCsharpInterop(map.value),
+      group: map.group
     });
   }
 
@@ -186,7 +187,8 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
       if (!aggregatedData.globalSoftwareData.histograms.has(name)) {
         aggregatedData.globalSoftwareData.histograms.set(name, {
           units: histogram.units,
-          value: new Map<string, number>()
+          value: new Map<string, number>(),
+          group: histogram.group,
         })
       }
 
@@ -203,7 +205,8 @@ function mergeSimpleMap(to: Map<string, ValueWithUnits<number>>, from: Map<strin
     if (!to.has(name)) {
       to.set(name, {
         units: counter.units,
-        value: 0
+        value: 0,
+        group: counter.group,
       })
     }
 

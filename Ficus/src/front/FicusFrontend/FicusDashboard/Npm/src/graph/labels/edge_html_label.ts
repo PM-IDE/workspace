@@ -3,7 +3,7 @@ import {
   createArrayPoolEnhancement,
   createEnhancementContainer, createNumberInformation,
   createRectangleHistogram,
-  createThreadsEnhancement,
+  createThreadsEnhancement, EnhancementCreationResult,
   getPercentExecutionTime,
   toSortedArray
 } from "./util";
@@ -21,7 +21,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${enhancements.map(e => createEdgeEnhancement(enhancementData.softwareData, edge, e)).join("\n")}
+        ${enhancements.map(e => createEdgeEnhancement(enhancementData.softwareData, edge, e).html).join("\n")}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>
@@ -46,58 +46,71 @@ function createEdgeExecutionInfo(edge: GraphEdge): string {
   return executionInfo;
 }
 
-function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge, enhancement: SoftwareEnhancementKind) {
+function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge, enhancement: SoftwareEnhancementKind): EnhancementCreationResult {
   switch (enhancement) {
     case "Allocations":
-      return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);
+      return new EnhancementCreationResult(createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData), null);
     case "Methods Inlinings":
-      return createMethodsInliningEnhancements(softwareData);
+      return new EnhancementCreationResult(createMethodsInliningEnhancements(softwareData), null);
     case "Methods (Un)Loads":
-      return createMethodsLoadUnloadEnhancement(softwareData);
+      return new EnhancementCreationResult(createMethodsLoadUnloadEnhancement(softwareData), null);
     case "Exceptions":
-      return createExceptionsEnhancement(softwareData);
+      return new EnhancementCreationResult(createExceptionsEnhancement(softwareData), null);
     case "ArrayPools":
-      return createEnhancementContainer("ArrayPools", createArrayPoolEnhancement(softwareData, edge.aggregatedData));
+      return new EnhancementCreationResult(createEnhancementContainer("ArrayPools", createArrayPoolEnhancement(softwareData, edge.aggregatedData)), null);
     case "Threads":
-      return createEnhancementContainer("Threads", createThreadsEnhancement(softwareData));
+      return new EnhancementCreationResult(createEnhancementContainer("Threads", createThreadsEnhancement(softwareData)), null);
     case "Http":
-      return createHttpEnhancement(softwareData);
+      return new EnhancementCreationResult(createHttpEnhancement(softwareData), null);
     default: {
       if (softwareData.histograms.has(enhancement)) {
+        let histogram = softwareData.histograms.get(enhancement);
         let globalSum = edge.aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
-        return createEdgeSoftwareEnhancementPart(
+
+        let html = createEdgeSoftwareEnhancementPart(
           enhancement,
-          softwareData.histograms.get(enhancement).value,
-          softwareData.histograms.get(enhancement).units,
+          histogram.value,
+          histogram.units,
           globalSum
         );
+
+        return new EnhancementCreationResult(html, histogram.group);
       }
 
       if (softwareData.counters.has(enhancement)) {
-        return createEnhancementContainer(
-          enhancement,
-          createNumberInformation(
-            "",
-            softwareData.counters.get(enhancement).units,
-            softwareData.counters.get(enhancement).value,
-            edge.aggregatedData.globalSoftwareData.counters.get(enhancement).value
-          )
+        let counter = softwareData.counters.get(enhancement);
+        let html = createNumberInformation(
+          "",
+          counter.units,
+          counter.value,
+          edge.aggregatedData.globalSoftwareData.counters.get(enhancement).value
         );
+
+        if (counter.group == null) {
+          html = createEnhancementContainer(enhancement, html);
+        }
+
+        return new EnhancementCreationResult(html, counter.group);
       }
 
       if (softwareData.activitiesDurations.has(enhancement)) {
-        return createEnhancementContainer(
-          enhancement,
-          createNumberInformation(
-            "",
-            softwareData.activitiesDurations.get(enhancement).units,
-            softwareData.activitiesDurations.get(enhancement).value,
-            edge.aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
-          )
+        let duration = softwareData.activitiesDurations.get(enhancement);
+
+        let html = createNumberInformation(
+          "",
+          duration.units,
+          duration.value,
+          edge.aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
         );
+
+        if (duration.group == null) {
+          html = createEnhancementContainer(enhancement, html);
+        }
+
+        return new EnhancementCreationResult(html, duration.group);
       }
 
-      return "";
+      return new EnhancementCreationResult("", null);
     }
   }
 }

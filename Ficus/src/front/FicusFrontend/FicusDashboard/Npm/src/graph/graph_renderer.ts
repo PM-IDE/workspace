@@ -72,7 +72,8 @@ function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
   for (let [key, map] of data.globalSoftwareData.histograms) {
     data.globalSoftwareData.histograms.set(key, {
       units: map.units,
-      value: toMapCSharpInterop(map.value)
+      value: toMapCSharpInterop(map.value),
+      group: map.group
     });
   }
 

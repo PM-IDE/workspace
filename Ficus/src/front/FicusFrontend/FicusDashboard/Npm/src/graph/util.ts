@@ -214,7 +214,8 @@ function createMergedEnhancementData(
         histogramMap = new Map();
         enhancementData.softwareData.histograms.set(histogram.base.name, {
           value: histogramMap,
-          units: histogram.base.units
+          units: histogram.base.units,
+          group: histogram.base.group,
         });
       }
 
@@ -227,7 +228,8 @@ function createMergedEnhancementData(
       if (!enhancementData.softwareData.counters.has(counter.base.name)) {
         enhancementData.softwareData.counters.set(counter.base.name, {
           value: 0,
-          units: counter.base.units
+          units: counter.base.units,
+          group: counter.base.group,
         });
       }
 
@@ -238,7 +240,8 @@ function createMergedEnhancementData(
       if (!enhancementData.softwareData.activitiesDurations.has(activityDuration.base.name)) {
         enhancementData.softwareData.activitiesDurations.set(activityDuration.base.name, {
           value: 0,
-          units: activityDuration.base.units
+          units: activityDuration.base.units,
+          group: activityDuration.base.group,
         });
       }
 

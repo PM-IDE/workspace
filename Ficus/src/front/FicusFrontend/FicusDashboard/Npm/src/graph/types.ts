@@ -52,7 +52,8 @@ export interface CountAndSum {
 
 export interface ValueWithUnits<T> {
   value: T
-  units: string
+  units: string,
+  group: string | null
 }
 
 export interface MergedSoftwareData {
