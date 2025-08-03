@@ -106,9 +106,9 @@ function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregat
   switch (enhancement) {
     case "Allocations":
       return createNodeAllocationsEnhancement(softwareData, aggregatedData);
-    case "MethodsInlinings":
+    case "Methods Inlinings":
       return createMethodsInliningEnhancement(softwareData);
-    case "MethodsLoadUnload":
+    case "Methods (Un)Loads":
       return createMethodsLoadUnloadEnhancement(softwareData);
     case "ArrayPools":
       return createArrayPoolEnhancement(softwareData, aggregatedData);

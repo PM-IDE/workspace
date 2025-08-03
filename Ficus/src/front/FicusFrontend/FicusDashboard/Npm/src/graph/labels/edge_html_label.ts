@@ -50,9 +50,9 @@ function createEdgeEnhancement(softwareData: MergedSoftwareData, edge: GraphEdge
   switch (enhancement) {
     case "Allocations":
       return createEdgeAllocationsEnhancement(softwareData, edge.aggregatedData);
-    case "MethodsInlinings":
+    case "Methods Inlinings":
       return createMethodsInliningEnhancements(softwareData);
-    case "MethodsLoadUnload":
+    case "Methods (Un)Loads":
       return createMethodsLoadUnloadEnhancement(softwareData);
     case "Exceptions":
       return createExceptionsEnhancement(softwareData);
