@@ -1,79 +1,45 @@
-﻿@using Radzen
-@using Radzen.Blazor
-
-<div style="display: flex; flex-direction: column; 
-            background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
-  @if (myEnhancements is { Count: > 0 })
+﻿@if (myEnhancements is { })
+{
+  @foreach (var group in myEnhancements.GroupBy(e => e.Group).OrderBy(e => e.Key))
   {
-    @foreach (var (index, enhancement) in myEnhancements.Index())
-    {
-      <div style="display: flex; flex-direction: row; align-items: center;">
-        <RadzenCheckBox TValue="bool"
-                        @ref="@myCheckBoxes[index]"
-                        ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
-
-        <div style="margin-left: 5px;">@enhancement.DisplayName</div>
+    <div style="margin-bottom: 10px;">
+      <div>
+        @(string.IsNullOrWhiteSpace(group.Key) ? "Ungrouped" : group.Key)
       </div>
-    }
 
-    <div style="margin-top: 5px;">Filter:</div>
-    <input type="text" @bind="myFilterValue" style="width: 90%"/>
+      @foreach (var enhancement in group)
+      {
+        <div style="display: flex; flex-direction: row; align-items: center;">
+          <input type="checkbox"
+                 checked="checked"
+                 @onchange="@(args => HandleSelectionChange(args.Value is true, enhancement))"/>
+
+          <div style="margin-left: 5px;">@enhancement.DisplayName</div>
+        </div>
+      }
+    </div>
   }
+}
 
-  @{
-    var margin = myEnhancements is { Count: > 0 } ? 5 : 0;
-  }
-
-  <div style="margin-top: @(margin)px;">Spacing factor:</div>
-  <input type="text" @bind="mySpacingFactor" style="width: 90%"/>
-
-  <div style="display: flex; flex-direction: row; align-items: center; margin-top: 10px;">
-    <RadzenCheckBox TValue="bool"
-                    ValueChanged="@(newValue => myUseEventClassesAsLabels = newValue)"/>
-
-    <div style="margin-left: 5px;">Event Classes as Name</div>
-  </div>
-
-
-  <RadzenStack Orientation="Orientation.Horizontal"
-               AlignItems="AlignItems.Center"
-               Gap="0.5rem"
-               Style="margin-top: 5px;">
-    <RadzenLabel Text="TB"/>
-    <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
-    <RadzenLabel Text="LR"/>
-  </RadzenStack>
-
-  @ChildContent
-</div>
 
 @code {
 
-  public record EnhancementName(string Name, string DisplayName)
+  public record EnhancementName(string Name, string DisplayName, string? Group)
   {
-    public EnhancementName(string commonName) : this(commonName, commonName)
+    public EnhancementName(string commonName, string? group = null) : this(commonName, commonName, group)
     {
     }
   }
 
+
   [Parameter] public required List<EnhancementName>? Enhancements { get; init; }
-  [Parameter] public RenderFragment? ChildContent { get; init; }
 
 
-  private List<EnhancementName>? myEnhancements;
-  private string? myFilterValue;
-  private bool myUseLROrientation = true;
-  private string mySpacingFactor = "1.4";
-  private HashSet<EnhancementName> mySelectedEnhancements = null!;
-  private RadzenCheckBox<bool>[] myCheckBoxes = null!;
-  private bool myUseEventClassesAsLabels;
+  private List<EnhancementsSettings.EnhancementName>? myEnhancements;
+  private HashSet<EnhancementsSettings.EnhancementName> mySelectedEnhancements = null!;
 
 
-  public string? Filter => myFilterValue;
-  public bool UseLROrientation => myUseLROrientation;
-  public string SpacingFactor => mySpacingFactor;
   public List<string> SelectedEnhancements => mySelectedEnhancements.Select(e => e.Name).OrderDescending().ToList();
-  public bool UseEventClassesAsLabels => myUseEventClassesAsLabels;
 
 
   protected override void OnParametersSet()
@@ -85,20 +51,9 @@
     if (myEnhancements is not { }) return;
 
     mySelectedEnhancements = myEnhancements.ToHashSet();
-    myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
   }
 
-  protected override void OnAfterRender(bool firstRender)
-  {
-    if (!firstRender || myEnhancements is not { Count: > 0 }) return;
-
-    foreach (var checkBox in myCheckBoxes)
-    {
-      checkBox.Value = true;
-    }
-  }
-
-  private void HandleSelectionChange(bool selected, EnhancementName enhancement)
+  private void HandleSelectionChange(bool selected, EnhancementsSettings.EnhancementName enhancement)
   {
     if (selected)
     {

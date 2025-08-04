@@ -7,10 +7,10 @@
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
   <div style="display: flex; flex-direction: row; flex-grow: 1;">
-    <EnhancementsSettings @ref="@mySettings" Enhancements="@myEnhancements">
+    <GraphLikeEntitySettings @ref="@mySettings" Enhancements="@myEnhancements">
       <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
-    </EnhancementsSettings>
+    </GraphLikeEntitySettings>
 
     <div style="height: 100%; flex-grow: 1;">
       <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
@@ -33,7 +33,7 @@
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
-  private EnhancementsSettings mySettings = null!;
+  private GraphLikeEntitySettings mySettings = null!;
   private List<EnhancementsSettings.EnhancementName>? myEnhancements;
   private CanvasComponent? myCanvasComponent;
   private AggregatedData? myAggregatedData;
@@ -133,14 +133,13 @@
     HashSet<EnhancementsSettings.EnhancementName> enhancements
   )
   {
-    foreach (var (name, displayName) in bases.Select(b => (b.Name, CreateCustomEnhancementName(b))))
+    foreach (var (name, displayName, group) in bases.Select(b => (b.Name, CreateCustomEnhancementName(b), b.Group)))
     {
-      enhancements.Add(new EnhancementsSettings.EnhancementName(name, displayName));
+      enhancements.Add(new EnhancementsSettings.EnhancementName(name, displayName, string.IsNullOrWhiteSpace(group) ? null : group));
     }
   }
 
-  private static string CreateCustomEnhancementName(GrpcGenericEnhancementBase @base) =>
-    @base.HasGroup ? @base.Group + "::" + @base.Name : @base.Name;
+  private static string CreateCustomEnhancementName(GrpcGenericEnhancementBase @base) => @base.Name;
 
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||

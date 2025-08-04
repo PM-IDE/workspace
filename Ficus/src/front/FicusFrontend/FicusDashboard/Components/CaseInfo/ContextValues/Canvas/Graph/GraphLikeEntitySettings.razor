@@ -1,0 +1,56 @@
+﻿@using Radzen
+@using Radzen.Blazor
+
+<div style="display: flex; flex-direction: column; 
+            background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
+  @if (Enhancements is { Count: > 0 })
+  {
+    <EnhancementsSettings @ref="myEnhancementsSettings" Enhancements="Enhancements"/>
+
+    <div style="margin-top: 5px;">Filter:</div>
+    <input type="text" @bind="myFilterValue" style="width: 90%"/>
+  }
+
+  @{
+    var margin = Enhancements is { Count: > 0 } ? 5 : 0;
+  }
+
+  <div style="margin-top: @(margin)px;">Spacing factor:</div>
+  <input type="text" @bind="mySpacingFactor" style="width: 90%"/>
+
+  <div style="display: flex; flex-direction: row; align-items: center; margin-top: 10px;">
+    <RadzenCheckBox TValue="bool"
+                    ValueChanged="@(newValue => myUseEventClassesAsLabels = newValue)"/>
+
+    <div style="margin-left: 5px;">Event Classes as Name</div>
+  </div>
+
+
+  <RadzenStack Orientation="Orientation.Horizontal"
+               AlignItems="AlignItems.Center"
+               Gap="0.5rem"
+               Style="margin-top: 5px;">
+    <RadzenLabel Text="TB"/>
+    <RadzenSwitch Name="Orientation" @bind-Value="@myUseLROrientation"/>
+    <RadzenLabel Text="LR"/>
+  </RadzenStack>
+
+  @ChildContent
+</div>
+
+@code {
+  [Parameter] public required List<EnhancementsSettings.EnhancementName>? Enhancements { get; init; }
+  [Parameter] public RenderFragment? ChildContent { get; init; }
+
+  private string? myFilterValue;
+  private bool myUseLROrientation = true;
+  private string mySpacingFactor = "1.4";
+  private bool myUseEventClassesAsLabels;
+  private EnhancementsSettings? myEnhancementsSettings;
+
+  public string? Filter => myFilterValue;
+  public bool UseLROrientation => myUseLROrientation;
+  public string SpacingFactor => mySpacingFactor;
+  public bool UseEventClassesAsLabels => myUseEventClassesAsLabels;
+  public List<string> SelectedEnhancements => myEnhancementsSettings?.SelectedEnhancements ?? [];
+}
