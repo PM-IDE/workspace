@@ -21,41 +21,6 @@
       "prefix": "[End]"
     }
   },
-  "method_inlining_success": {
-    "event_class_regex": "Method/InliningSucceeded",
-    "info": {
-      "inlining_config": {
-        "inlinee_method_attrs": {
-          "name_attr": "InlineeName",
-          "namespace_attr": "InlineeNamespace",
-          "signature_attr": "InlineeNameSignature"
-        },
-        "inliner_method_attrs": {
-          "name_attr": "InlinerName",
-          "namespace_attr": "InlinerNamespace",
-          "signature_attr": "InlinerNameSignature"
-        }
-      }
-    }
-  },
-  "method_inlining_failed": {
-    "event_class_regex": "Method/InliningFailed",
-    "info": {
-      "inlining_config": {
-        "inlinee_method_attrs": {
-          "name_attr": "InlineeName",
-          "namespace_attr": "InlineeNamespace",
-          "signature_attr": "InlineeNameSignature"
-        },
-        "inliner_method_attrs": {
-          "name_attr": "InlinerName",
-          "namespace_attr": "InlinerNamespace",
-          "signature_attr": "InlinerNameSignature"
-        }
-      },
-      "fail_reason_attr": "FailReason"
-    }
-  },
   "socket_connect_start": {
     "event_class_regex": "Connect/Start",
     "info": {
@@ -169,6 +134,64 @@
           "group": "Methods"
         }
       }
+    },
+    {
+      "event_class_regex": "Method/InliningFailed",
+      "info": {
+        "base": {
+          "name": "Failed",
+          "units": "methods",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "InlineeNamespace",
+              "InlineeName",
+              "InlineeNameSignature"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningFailed",
+      "info": {
+        "base": {
+          "name": "Fail Reasons",
+          "units": "units",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FailReason",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningSucceeded",
+      "info": {
+        "base": {
+          "name": "Succeeded",
+          "units": "methods",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "InlineeNamespace",
+              "InlineeName",
+              "InlineeNameSignature"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
     }
   ],
   "simple_counter_configs": [
@@ -176,7 +199,7 @@
       "event_class_regex": "Buffer/Rented",
       "info": {
         "base": {
-          "name": "Buffer Rented",
+          "name": "Rented",
           "units": "bytes",
           "group": "Array Pools"
         },
@@ -187,7 +210,7 @@
       "event_class_regex": "Buffer/Returned",
       "info": {
         "base": {
-          "name": "Buffer Returned",
+          "name": "Returned",
           "units": "bytes",
           "group": "Array Pools"
         },
@@ -198,7 +221,7 @@
       "event_class_regex": "Buffer/Trimmed",
       "info": {
         "base": {
-          "name": "Buffer Trimmed",
+          "name": "Trimmed",
           "units": "bytes",
           "group": "Array Pools"
         },
@@ -209,7 +232,7 @@
       "event_class_regex": "Buffer/Allocated",
       "info": {
         "base": {
-          "name": "Buffer Allocated",
+          "name": "Allocated",
           "units": "bytes",
           "group": "Array Pools"
         },
