@@ -55,40 +55,6 @@
       "error_message_attr": "exceptionMessage"
     }
   },
-  "thread_created": {
-    "event_class_regex": "Thread/Creating",
-    "info": {
-      "thread_id_attr": "ID"
-    }
-  },
-  "assembly_load": {
-    "event_class_regex": "Loader/AssemblyLoad",
-    "info": {
-      "assembly_name_attr": "FullyQualifiedAssemblyName"
-    }
-  },
-  "assembly_unload": {
-    "event_class_regex": "Loader/AssemblyUnload",
-    "info": {
-      "assembly_name_attr": "FullyQualifiedAssemblyName"
-    }
-  },
-  "suspend_ee": {
-    "event_class_regex": "GC/SuspendEE",
-    "info": {
-      "reason_attr": "Reason"
-    }
-  },
-  "restart_ee": {
-    "event_class_regex": "GC/RestartEE",
-    "info": null
-  },
-  "exceptions": {
-    "event_class_regex": "Exception/Start",
-    "info": {
-      "type_name_attr": "ExceptionType"
-    }
-  },
   "http": {
     "event_class_regex": "Request/Start",
     "info": {
@@ -99,6 +65,53 @@
     }
   },
   "pie_chart_extraction_configs": [
+    {
+      "event_class_regex": "Loader/AssemblyLoad",
+      "info": {
+        "base": {
+          "name": "Load",
+          "units": "asms",
+          "group": "Assemblies"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FullyQualifiedAssemblyName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Loader/AssemblyLoad",
+      "info": {
+        "base": {
+          "name": "Unload",
+          "units": "asms",
+          "group": "Assemblies"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FullyQualifiedAssemblyName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Exception/Start",
+      "info": {
+        "base": {
+          "name": "Errors",
+          "units": "exceptions"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "ExceptionType",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
     {
       "event_class_regex": "GC\/SampledObject",
       "info": {
@@ -195,6 +208,16 @@
     }
   ],
   "simple_counter_configs": [
+    {
+      "event_class_regex": "Thread/Creating",
+      "info": {
+        "base": {
+          "name": "Threads",
+          "units": "threads",
+          "group": "Created"
+        }
+      }
+    },
     {
       "event_class_regex": "Buffer/Rented",
       "info": {
