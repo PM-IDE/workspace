@@ -31,7 +31,8 @@ function drawGraph(
   filter: string | null,
   spacingFactor: number,
   isRichUiGraph: boolean,
-  useLROrientation: boolean
+  useLROrientation: boolean,
+  useEventClassesAsLabels: boolean
 ) {
   try {
     data = preprocessFromCSharpInterop(data);
@@ -40,7 +41,7 @@ function drawGraph(
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, data, regex, spacingFactor, isRichUiGraph, useLROrientation));
 
     if (isRichUiGraph) {
-      setNodeEdgeHtmlRenderer(cy, enhancements);
+      setNodeEdgeHtmlRenderer(cy, enhancements, useEventClassesAsLabels);
     }
 
     cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
@@ -98,13 +99,17 @@ function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingF
   cy.layout(createLayout(kind, spacingFactor, useLROrientation)).run();
 }
 
-function setNodeEdgeHtmlRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
+function setNodeEdgeHtmlRenderer(
+  cy: cytoscape.Core,
+  enhancements: SoftwareEnhancementKind[],
+  useEventClassesAsLabels: boolean
+) {
   (<any>cy).htmlLabel(
     [
       {
         query: 'node',
         tpl: function (data: GraphNode) {
-          return createNodeHtmlLabel(data, enhancements);
+          return createNodeHtmlLabel(data, enhancements, useEventClassesAsLabels);
         }
       },
       {

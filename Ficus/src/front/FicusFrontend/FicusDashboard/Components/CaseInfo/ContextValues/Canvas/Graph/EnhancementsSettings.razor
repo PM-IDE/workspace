@@ -27,6 +27,14 @@
   <div style="margin-top: @(margin)px;">Spacing factor:</div>
   <input type="text" @bind="mySpacingFactor" style="width: 90%"/>
 
+  <div style="display: flex; flex-direction: row; align-items: center; margin-top: 10px;">
+    <RadzenCheckBox TValue="bool"
+                    ValueChanged="@(newValue => myUseEventClassesAsLabels = newValue)"/>
+
+    <div style="margin-left: 5px;">Event Classes as Name</div>
+  </div>
+
+
   <RadzenStack Orientation="Orientation.Horizontal"
                AlignItems="AlignItems.Center"
                Gap="0.5rem"
@@ -50,12 +58,14 @@
   private string mySpacingFactor = "1.4";
   private HashSet<string> mySelectedEnhancements = null!;
   private RadzenCheckBox<bool>[] myCheckBoxes = null!;
+  private bool myUseEventClassesAsLabels;
 
 
   public string? Filter => myFilterValue;
   public bool UseLROrientation => myUseLROrientation;
   public string SpacingFactor => mySpacingFactor;
   public List<string> SelectedEnhancements => mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
+  public bool UseEventClassesAsLabels => myUseEventClassesAsLabels;
 
 
   protected override void OnParametersSet()
@@ -65,7 +75,7 @@
     myEnhancements = Enhancements;
 
     if (myEnhancements is not { }) return;
-    
+
     mySelectedEnhancements = myEnhancements.ToHashSet();
     myCheckBoxes = new RadzenCheckBox<bool>[myEnhancements.Count];
   }
@@ -91,4 +101,5 @@
       mySelectedEnhancements.Remove(enhancement);
     }
   }
+
 }

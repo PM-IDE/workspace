@@ -23,14 +23,14 @@ export function createNodeHtmlLabelId(frontendId: number): string {
   return `node-html-label-${frontendId}`;
 }
 
-export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhancementKind[]) {
+export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhancementKind[], useEventClassesAsLabels: boolean) {
   let enhancementData = node.enhancementData;
   let label_id = createNodeHtmlLabelId(node.frontendId);
 
   if (enhancementData == null) {
     return `
         <div id="${label_id}">
-            ${createNodeDisplayName(node, node.label)}
+            ${createNodeDisplayName(node.label)}
             <div style='min-width: ${nodeWidthPx}px; min-height: ${nodeHeightPx}px;
                 background-color: ${graphColor.rootSequenceColor}'>
             </div>
@@ -44,9 +44,11 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
   allTraceIds.sort((f, s) => f - s);
 
+  let nodeName = useEventClassesAsLabels ? createNodeDisplayNameString(node, sortedHistogramEntries) : node.label;
+
   return `
           <div id="${label_id}">
-            ${createNodeDisplayName(node, createNodeDisplayNameString(node, sortedHistogramEntries))}
+            ${createNodeDisplayName(nodeName)}
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
               <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
@@ -237,7 +239,7 @@ function createSoftwareEnhancementPieChart(
   `;
 }
 
-function createNodeDisplayName(node: GraphNode, name: string): string {
+function createNodeDisplayName(name: string): string {
   return `
       <div style="font-size: 60px; font-weight: 900; 
                   background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
