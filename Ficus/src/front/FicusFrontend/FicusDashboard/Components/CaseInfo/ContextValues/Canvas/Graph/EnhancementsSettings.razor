@@ -12,7 +12,7 @@
                         @ref="@myCheckBoxes[index]"
                         ValueChanged="@(v => HandleSelectionChange(v, enhancement))"/>
 
-        <div style="margin-left: 5px;">@enhancement</div>
+        <div style="margin-left: 5px;">@enhancement.DisplayName</div>
       </div>
     }
 
@@ -48,15 +48,23 @@
 </div>
 
 @code {
-  [Parameter] public required List<string>? Enhancements { get; init; }
+
+  public record EnhancementName(string Name, string DisplayName)
+  {
+    public EnhancementName(string commonName) : this(commonName, commonName)
+    {
+    }
+  }
+
+  [Parameter] public required List<EnhancementName>? Enhancements { get; init; }
   [Parameter] public RenderFragment? ChildContent { get; init; }
 
 
-  private List<string>? myEnhancements;
+  private List<EnhancementName>? myEnhancements;
   private string? myFilterValue;
   private bool myUseLROrientation = true;
   private string mySpacingFactor = "1.4";
-  private HashSet<string> mySelectedEnhancements = null!;
+  private HashSet<EnhancementName> mySelectedEnhancements = null!;
   private RadzenCheckBox<bool>[] myCheckBoxes = null!;
   private bool myUseEventClassesAsLabels;
 
@@ -64,7 +72,7 @@
   public string? Filter => myFilterValue;
   public bool UseLROrientation => myUseLROrientation;
   public string SpacingFactor => mySpacingFactor;
-  public List<string> SelectedEnhancements => mySelectedEnhancements.Select(e => e.ToString()).OrderDescending().ToList();
+  public List<string> SelectedEnhancements => mySelectedEnhancements.Select(e => e.Name).OrderDescending().ToList();
   public bool UseEventClassesAsLabels => myUseEventClassesAsLabels;
 
 
@@ -90,7 +98,7 @@
     }
   }
 
-  private void HandleSelectionChange(bool selected, string enhancement)
+  private void HandleSelectionChange(bool selected, EnhancementName enhancement)
   {
     if (selected)
     {

@@ -34,7 +34,7 @@
 
 
   private EnhancementsSettings mySettings = null!;
-  private List<string>? myEnhancements;
+  private List<EnhancementsSettings.EnhancementName>? myEnhancements;
   private CanvasComponent? myCanvasComponent;
   private AggregatedData? myAggregatedData;
 
@@ -44,22 +44,22 @@
     myEnhancements = FindAllEnhancements(Graph);
   }
 
-  private List<string> FindAllEnhancements(GrpcGraph graph)
+  private List<EnhancementsSettings.EnhancementName> FindAllEnhancements(GrpcGraph graph)
   {
-    var enhancements = new HashSet<string>();
+    var enhancements = new HashSet<EnhancementsSettings.EnhancementName>();
 
     AddGraphEnhancements(graph, enhancements);
 
-    return enhancements.Order().ToList();
+    return enhancements.OrderBy(e => e.DisplayName).ToList();
   }
 
-  private void AddGraphEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddGraphEnhancements(GrpcGraph graph, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     AddEdgeEnhancements(graph, enhancements);
     AddNodesEnhancements(graph, enhancements);
   }
 
-  private void AddEdgeEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddEdgeEnhancements(GrpcGraph graph, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     foreach (var additionalData in graph.Edges.SelectMany(e => e.AdditionalData))
     {
@@ -67,7 +67,7 @@
     }
   }
 
-  private void AddNodesEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddNodesEnhancements(GrpcGraph graph, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     foreach (var node in graph.Nodes)
     {
@@ -87,7 +87,7 @@
     }
   }
 
-  private void AddEnhancements(GrpcSoftwareData data, HashSet<string> enhancements)
+  private void AddEnhancements(GrpcSoftwareData data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     AddPredefinedEnhancements(data, enhancements);
     AddCustomEnhancements(data, enhancements);
@@ -95,17 +95,17 @@
 
   private static class PredefinedEnhancements
   {
-    public const string Allocations = "Allocations";
-    public const string Exceptions = "Exceptions";
-    public const string MethodsLoadUnload = "Methods (Un)Loads";
-    public const string MethodsInlinings = "Methods Inlinings";
-    public const string ArrayPools = "Array Pools";
-    public const string Http = "Http";
-    public const string Sockets = "Sockets";
-    public const string Threads = "Threads";
+    public static EnhancementsSettings.EnhancementName Allocations { get; } = new("Allocations");
+    public static EnhancementsSettings.EnhancementName Exceptions { get; } = new("Exceptions");
+    public static EnhancementsSettings.EnhancementName MethodsLoadUnload { get; } = new("Methods (Un)Loads");
+    public static EnhancementsSettings.EnhancementName MethodsInlinings { get; } = new("Methods Inlinings");
+    public static EnhancementsSettings.EnhancementName ArrayPools { get; } = new("Array Pools");
+    public static EnhancementsSettings.EnhancementName Http { get; } = new("Http");
+    public static EnhancementsSettings.EnhancementName Sockets { get; } = new("Sockets");
+    public static EnhancementsSettings.EnhancementName Threads { get; } = new("Threads");
   }
 
-  private static void AddPredefinedEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  private static void AddPredefinedEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     if (data is null) return;
 
@@ -119,25 +119,28 @@
     if (data.ThreadEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Threads);
   }
 
-  private void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  private void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     if (data is null) return;
 
-    foreach (var name in data.HistogramData.Select(e => e.Base.Name))
-    {
-      enhancements.Add(name);
-    }
+    AddCustomEnhancementsNames(data.HistogramData.Select(h => h.Base), enhancements);
+    AddCustomEnhancementsNames(data.SimpleCounterData.Select(c => c.Base), enhancements);
+    AddCustomEnhancementsNames(data.ActivitiesDurationsData.Select(d => d.Base), enhancements);
+  }
 
-    foreach (var name in data.SimpleCounterData.Select(e => e.Base.Name))
+  private static void AddCustomEnhancementsNames(
+    IEnumerable<GrpcGenericEnhancementBase> bases,
+    HashSet<EnhancementsSettings.EnhancementName> enhancements
+  )
+  {
+    foreach (var (name, displayName) in bases.Select(b => (b.Name, CreateCustomEnhancementName(b))))
     {
-      enhancements.Add(name);
-    }
-
-    foreach (var name in data.ActivitiesDurationsData.Select(e => e.Base.Name))
-    {
-      enhancements.Add(name);
+      enhancements.Add(new EnhancementsSettings.EnhancementName(name, displayName));
     }
   }
+
+  private static string CreateCustomEnhancementName(GrpcGenericEnhancementBase @base) =>
+    @base.HasGroup ? @base.Group + "::" + @base.Name : @base.Name;
 
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
