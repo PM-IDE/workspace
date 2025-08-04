@@ -136,7 +136,7 @@ function createNodeEnhancement(
           aggregatedData.globalSoftwareData.counters.get(enhancement).value
         );
 
-        return new EnhancementCreationResult(html, counter.group);
+        return new EnhancementCreationResult(html, counter.group, false);
       }
 
       if (softwareData.activitiesDurations.has(enhancement)) {
@@ -149,7 +149,7 @@ function createNodeEnhancement(
           aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
         );
 
-        return new EnhancementCreationResult(html, duration.group);
+        return new EnhancementCreationResult(html, duration.group, false);
       }
 
       return new EnhancementCreationResult("", null);

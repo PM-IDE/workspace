@@ -91,11 +91,11 @@ function createEdgeEnhancement(
           aggregatedData.globalSoftwareData.counters.get(enhancement).value
         );
 
-        if (counter.group == null) {
+        if (isNullOrEmpty(counter.group)) {
           html = createEnhancementContainer(enhancement, html);
         }
 
-        return new EnhancementCreationResult(html, counter.group);
+        return new EnhancementCreationResult(html, counter.group, false);
       }
 
       if (softwareData.activitiesDurations.has(enhancement)) {
@@ -108,11 +108,11 @@ function createEdgeEnhancement(
           aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
         );
 
-        if (duration.group == null) {
+        if (isNullOrEmpty(duration.group)) {
           html = createEnhancementContainer(enhancement, html);
         }
 
-        return new EnhancementCreationResult(html, duration.group);
+        return new EnhancementCreationResult(html, duration.group, false);
       }
 
       return new EnhancementCreationResult("", null);

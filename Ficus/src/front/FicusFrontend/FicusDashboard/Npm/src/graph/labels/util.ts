@@ -24,7 +24,7 @@ export function createPieChart(sortedHistogramEntries: [string, number][], perfo
   `
 }
 
-export function createEnhancementContainer(title: string, content: string): string {
+export function createEnhancementContainer(title: string, content: string, horizontal: boolean = true): string {
   if (content.length == 0) {
     return "";
   }
@@ -32,7 +32,9 @@ export function createEnhancementContainer(title: string, content: string): stri
   return `
     <div class="graph-content-container">
       <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
-      ${content}
+      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"};">
+        ${content}
+      </div>
     </div>
   `
 }
@@ -145,10 +147,12 @@ export function getPercentExecutionTime(executionTime: number, totalExecutionTim
 export class EnhancementCreationResult {
   html: string
   group: string | null = null
+  horizontal: boolean
 
-  constructor(html: string, group: string | null = null) {
+  constructor(html: string, group: string | null = null, horizontal: boolean = true) {
     this.html = html;
     this.group = group;
+    this.horizontal = horizontal;
   }
 }
 
@@ -180,11 +184,22 @@ export function createGroupedEnhancements(
       groups.set(result.group, []);
     }
 
-    groups.get(result.group).push(result.html);
+    groups.get(result.group).push(result);
   }
 
+  let groupedEnhancements = groups
+    .entries()
+    .map(kv => {
+      if (kv[1].length == 0) {
+        return "";
+      }
+
+      let html = kv[1].map((r: EnhancementCreationResult) => r.html).join("\n");
+      return createContainer ? createEnhancementContainer(kv[0], html, kv[1][0].horizontal) : html;
+    });
+
   return uniqueEnhancements
-    .map(([e, html]) => createContainer ? createEnhancementContainer(e, html) : html)
-    .concat(...groups.entries().map(kv => createContainer ? createEnhancementContainer(kv[0], kv[1].join("\n")) : kv[1].join("\n")))
+    .map(([e, html]) => createContainer ? createEnhancementContainer(e, html, false) : html)
+    .concat(...groupedEnhancements)
     .join("\n");
 }
