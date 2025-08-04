@@ -1,6 +1,7 @@
 import {getOrCreateColor, isNullOrEmpty} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
 import {AggregatedData, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {createNodeHtmlLabel} from "./node_html_label";
 
 export let fallBackPerformanceColor = "#3d3d3d";
 
@@ -155,6 +156,7 @@ export function createGroupedEnhancements(
   enhancements: SoftwareEnhancementKind[],
   enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
+  createContainer: boolean,
   enhancementFactory: (softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: string) => EnhancementCreationResult
 ): string {
   // @ts-ignore
@@ -182,7 +184,7 @@ export function createGroupedEnhancements(
   }
 
   return uniqueEnhancements
-    .map(([e, html]) => createEnhancementContainer(e, html))
-    .concat(...groups.entries().map(kv => createEnhancementContainer(kv[0], kv[1].join("\n"))))
+    .map(([e, html]) => createContainer ? createEnhancementContainer(e, html) : html)
+    .concat(...groups.entries().map(kv => createContainer ? createEnhancementContainer(kv[0], kv[1].join("\n")) : kv[1].join("\n")))
     .join("\n");
 }

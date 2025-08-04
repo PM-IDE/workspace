@@ -22,7 +22,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, createEdgeEnhancement)}
+        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, false, createEdgeEnhancement)}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>

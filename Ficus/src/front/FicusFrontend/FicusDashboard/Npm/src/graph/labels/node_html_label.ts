@@ -58,7 +58,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
                   ${createEventClassesPieChart(enhancementData.eventClasses)}
-                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, createNodeEnhancement)}
+                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, true, createNodeEnhancement)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                   ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
                 </div>
