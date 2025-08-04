@@ -119,7 +119,7 @@
       "event_class_regex": "Method/LoadVerbose",
       "info": {
         "base": {
-          "name": "Method Loads",
+          "name": "Loads",
           "units": "methods",
           "group": "Methods"
         }
@@ -129,7 +129,7 @@
       "event_class_regex": "Method/UnloadVerbose",
       "info": {
         "base": {
-          "name": "Method Unloads",
+          "name": "Unloads",
           "units": "methods",
           "group": "Methods"
         }
