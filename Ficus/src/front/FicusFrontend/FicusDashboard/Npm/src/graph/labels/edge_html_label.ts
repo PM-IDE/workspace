@@ -73,7 +73,7 @@ function createEdgeEnhancement(
         let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
 
         let html = createEdgeSoftwareEnhancementPart(
-          !isNullOrEmpty(histogram.group) ? enhancement : "",
+          enhancement,
           histogram.value,
           histogram.units,
           globalSum
@@ -85,7 +85,7 @@ function createEdgeEnhancement(
       if (softwareData.counters.has(enhancement)) {
         let counter = softwareData.counters.get(enhancement);
         let html = createNumberInformation(
-          !isNullOrEmpty(counter.group) ? enhancement : "",
+          enhancement,
           counter.units,
           counter.value,
           aggregatedData.globalSoftwareData.counters.get(enhancement).value
@@ -102,7 +102,7 @@ function createEdgeEnhancement(
         let duration = softwareData.activitiesDurations.get(enhancement);
 
         let html = createNumberInformation(
-          !isNullOrEmpty(duration.group) ? enhancement : "",
+          enhancement,
           duration.units,
           duration.value,
           aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
@@ -201,9 +201,14 @@ function createEdgeSoftwareEnhancementPart(
   return `
     <div>
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div class="graph-title-label" style="display: flex; flex-direction: column;">
+        <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
           <div>${title}</div>
-          <div>${valuesSum}${units != null ? ` ${units}` : ""} ${percent != null ? `(${percent}%)` : ""}</div>
+          <div>
+            ${valuesSum}${units != null ? ` ${units}` : ""}
+          </div>
+          <div>
+            ${percent != null ? `${percent}%` : ""}
+          </div>
         </div>
         ${createRectangleHistogram(toSortedArray(data), totalSum)}
       </div>
