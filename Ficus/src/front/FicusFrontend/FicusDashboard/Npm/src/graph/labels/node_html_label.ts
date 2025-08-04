@@ -389,19 +389,41 @@ function createPatternInformation(node: GraphNode): string {
       `);
   }
 
-  let propertyIndex = <number><unknown>node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind;
+  let patternName = getPatternName(node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind);
 
   return `
     <div class="graph-content-container">
       <div style="display: flex; flex-direction: row;" class="graph-title-label">
         <div>Pattern type:</div>
-        <div style="margin-left: 5px;">${Object.values(GrpcUnderlyingPatternKind)[propertyIndex]}</div>
+        <div style="margin-left: 5px;">${patternName}</div>
       </div>
       <div>
         ${patterns.join("\n")}
       </div>
     </div>
   `
+}
+
+function getPatternName(kind: GrpcUnderlyingPatternKind): string {
+  switch (kind) {
+    case GrpcUnderlyingPatternKind.MaximalRepeat:
+      return "Maximal Repeat";
+    case GrpcUnderlyingPatternKind.MaximalTandemArray:
+      return "Maximal Tandem Array";
+    case GrpcUnderlyingPatternKind.NearSuperMaximalRepeat:
+      return "Near Super Maximal Repeat";
+    case GrpcUnderlyingPatternKind.Unknown:
+      return "Unknown";
+    case GrpcUnderlyingPatternKind.StrictLoop:
+      return "Strict Loop";
+    case GrpcUnderlyingPatternKind.PrimitiveTandemArray:
+      return "Primitive Tandem Array";
+    case GrpcUnderlyingPatternKind.SuperMaximalRepeat:
+      return "Super Maximal Repeat";
+    default:
+      console.error("Unhandled pattern type");
+      return "Unknown";
+  }
 }
 
 interface TracePatternInfo {
