@@ -21,50 +21,109 @@
       "prefix": "[End]"
     }
   },
-  "socket_connect_start": {
-    "event_class_regex": "Connect/Start",
-    "info": {
-      "address_attr": "address"
-    }
-  },
-  "socket_connect_stop": {
-    "event_class_regex": "Connect/Stop",
-    "info": null
-  },
-  "socket_accept_start": {
-    "event_class_regex": "Accept/Start",
-    "info": {
-      "address_attr": "address"
-    }
-  },
-  "socket_accept_stop": {
-    "event_class_regex": "Accept/Stop",
-    "info": null
-  },
-  "socket_connect_failed": {
-    "event_class_regex": "ConnectFailed",
-    "info": {
-      "error_code_attr": "error",
-      "error_message_attr": "exceptionMessage"
-    }
-  },
-  "socket_accept_failed": {
-    "event_class_regex": "AcceptFailed",
-    "info": {
-      "error_code_attr": "error",
-      "error_message_attr": "exceptionMessage"
-    }
-  },
-  "http": {
-    "event_class_regex": "Request/Start",
-    "info": {
-      "host_attr": "host",
-      "port_attr": "port",
-      "scheme_attr": "scheme",
-      "path_and_query_attr": "pathAndQuery"
-    }
-  },
   "pie_chart_extraction_configs": [
+    {
+      "event_class_regex": "Request/Start",
+      "info": {
+        "base": {
+          "name": "Accept Stop",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "host",
+              "port",
+              "scheme",
+              "pathAndQuery"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Connect/Start",
+      "info": {
+        "base": {
+          "name": "Connect Start",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Connect/Stop",
+      "info": {
+        "base": {
+          "name": "Connect Stop",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Accept/Start",
+      "info": {
+        "base": {
+          "name": "Accept Stop",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "ConnectFailed",
+      "info": {
+        "base": {
+          "name": "Connect Failed",
+          "units": "fails",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "error",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "AcceptFailed",
+      "info": {
+        "base": {
+          "name": "Accept Failed",
+          "units": "fails",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "error",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
     {
       "event_class_regex": "Loader/AssemblyLoad",
       "info": {
