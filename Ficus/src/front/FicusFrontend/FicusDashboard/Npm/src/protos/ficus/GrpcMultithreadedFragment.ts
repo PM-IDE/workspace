@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pipelines_and_context.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 import type { GrpcSimpleEventLog_DONTUSE as _ficus_GrpcSimpleEventLog_DONTUSE, GrpcSimpleEventLog as _ficus_GrpcSimpleEventLog } from '../ficus/GrpcSimpleEventLog';
 

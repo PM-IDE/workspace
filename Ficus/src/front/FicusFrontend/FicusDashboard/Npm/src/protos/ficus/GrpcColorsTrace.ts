@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pipelines_and_context.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 import type { GrpcColoredRectangle_DONTUSE as _ficus_GrpcColoredRectangle_DONTUSE, GrpcColoredRectangle as _ficus_GrpcColoredRectangle } from '../ficus/GrpcColoredRectangle';
 

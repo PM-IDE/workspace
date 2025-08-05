@@ -54,20 +54,8 @@ function drawGraph(
 }
 
 function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
-  data.globalSoftwareData.httpRequests = toMapCSharpInterop(data.globalSoftwareData.httpRequests);
-  data.globalSoftwareData.allocations = toMapCSharpInterop(data.globalSoftwareData.allocations);
-  data.globalSoftwareData.inliningSucceeded = toMapCSharpInterop(data.globalSoftwareData.inliningSucceeded);
-  data.globalSoftwareData.inliningFailed = toMapCSharpInterop(data.globalSoftwareData.inliningFailed);
-  data.globalSoftwareData.inliningFailedReasons = toMapCSharpInterop(data.globalSoftwareData.inliningFailedReasons);
-  data.globalSoftwareData.methodsLoads = toMapCSharpInterop(data.globalSoftwareData.methodsLoads);
-  data.globalSoftwareData.methodsUnloads = toMapCSharpInterop(data.globalSoftwareData.methodsUnloads);
-  data.globalSoftwareData.exceptions = toMapCSharpInterop(data.globalSoftwareData.exceptions);
   data.globalSoftwareData.counters = toMapCSharpInterop(data.globalSoftwareData.counters);
   data.globalSoftwareData.activitiesDurations = toMapCSharpInterop(data.globalSoftwareData.activitiesDurations);
-
-  data.globalSoftwareData.createdThreads = new Set(data.globalSoftwareData.createdThreads);
-  data.globalSoftwareData.terminatedThreads = new Set(data.globalSoftwareData.terminatedThreads);
-
   data.globalSoftwareData.histograms = toMapCSharpInterop(data.globalSoftwareData.histograms);
 
   for (let [key, map] of data.globalSoftwareData.histograms) {

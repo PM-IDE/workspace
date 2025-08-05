@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pipelines_and_context.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 import type { GrpcHashesEventLogContextValue_DONTUSE as _ficus_GrpcHashesEventLogContextValue_DONTUSE, GrpcHashesEventLogContextValue as _ficus_GrpcHashesEventLogContextValue } from '../ficus/GrpcHashesEventLogContextValue';
 import type { GrpcNamesEventLogContextValue_DONTUSE as _ficus_GrpcNamesEventLogContextValue_DONTUSE, GrpcNamesEventLogContextValue as _ficus_GrpcNamesEventLogContextValue } from '../ficus/GrpcNamesEventLogContextValue';

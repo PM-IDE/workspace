@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pm_models.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pm_models.proto
 
 import type { GrpcHashesLogTrace_DONTUSE as _ficus_GrpcHashesLogTrace_DONTUSE, GrpcHashesLogTrace as _ficus_GrpcHashesLogTrace } from '../ficus/GrpcHashesLogTrace';
 

@@ -16,9 +16,6 @@ export interface ProtoGrpcType {
     GrpcAddPipelineStreamRequest: MessageTypeDefinition
     GrpcAllocationInfo: MessageTypeDefinition
     GrpcAnnotation: MessageTypeDefinition
-    GrpcArrayPoolEvent: MessageTypeDefinition
-    GrpcAssemblyEventInfo: MessageTypeDefinition
-    GrpcAssemblyEventKind: EnumTypeDefinition
     GrpcBackendService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcBackendServiceClient> & { service: _ficus_GrpcBackendServiceDefinition }
     GrpcBytes: MessageTypeDefinition
     GrpcColor: MessageTypeDefinition
@@ -30,7 +27,6 @@ export interface ProtoGrpcType {
     GrpcColorsLogXAxisAfterTraceAdjustment: MessageTypeDefinition
     GrpcColorsTrace: MessageTypeDefinition
     GrpcComplexContextRequestPipelinePart: MessageTypeDefinition
-    GrpcContentionEvent: MessageTypeDefinition
     GrpcContextKey: MessageTypeDefinition
     GrpcContextKeyValue: MessageTypeDefinition
     GrpcContextValue: MessageTypeDefinition
@@ -48,12 +44,11 @@ export interface ProtoGrpcType {
     GrpcEventLogInfo: MessageTypeDefinition
     GrpcEventLogTraceSubArraysContextValue: MessageTypeDefinition
     GrpcEventStamp: MessageTypeDefinition
-    GrpcExceptionEvent: MessageTypeDefinition
     GrpcExecutePipelineAndProduceKafkaRequest: MessageTypeDefinition
-    GrpcExecutionSuspensionInfo: MessageTypeDefinition
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGeneralHistogramData: MessageTypeDefinition
+    GrpcGenericEnhancementBase: MessageTypeDefinition
     GrpcGetAllSubscriptionsAndPipelinesResponse: MessageTypeDefinition
     GrpcGetContextValueRequest: MessageTypeDefinition
     GrpcGetContextValueResult: MessageTypeDefinition
@@ -63,7 +58,6 @@ export interface ProtoGrpcType {
     GrpcGraphKind: EnumTypeDefinition
     GrpcGraphNode: MessageTypeDefinition
     GrpcGuid: MessageTypeDefinition
-    GrpcHTTPEvent: MessageTypeDefinition
     GrpcHashesEventLog: MessageTypeDefinition
     GrpcHashesEventLogContextValue: MessageTypeDefinition
     GrpcHashesLogTrace: MessageTypeDefinition
@@ -83,10 +77,7 @@ export interface ProtoGrpcType {
     GrpcLogTimelineDiagram: MessageTypeDefinition
     GrpcMatrix: MessageTypeDefinition
     GrpcMatrixRow: MessageTypeDefinition
-    GrpcMethodInliningEvent: MessageTypeDefinition
-    GrpcMethodInliningFailedEvent: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
-    GrpcMethodLoadUnloadEvent: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
     GrpcMultithreadedFragment: MessageTypeDefinition
     GrpcNamesEventLog: MessageTypeDefinition
@@ -121,13 +112,6 @@ export interface ProtoGrpcType {
     GrpcSimpleCounterData: MessageTypeDefinition
     GrpcSimpleEventLog: MessageTypeDefinition
     GrpcSimpleTrace: MessageTypeDefinition
-    GrpcSocketAcceptFailed: MessageTypeDefinition
-    GrpcSocketAcceptStart: MessageTypeDefinition
-    GrpcSocketAcceptStop: MessageTypeDefinition
-    GrpcSocketConnectFailed: MessageTypeDefinition
-    GrpcSocketConnectStart: MessageTypeDefinition
-    GrpcSocketConnectStop: MessageTypeDefinition
-    GrpcSocketEvent: MessageTypeDefinition
     GrpcSoftwareData: MessageTypeDefinition
     GrpcStringKeyValue: MessageTypeDefinition
     GrpcStrings: MessageTypeDefinition
@@ -144,8 +128,6 @@ export interface ProtoGrpcType {
     GrpcT2TimedSlidingWindowConfiguration: MessageTypeDefinition
     GrpcThread: MessageTypeDefinition
     GrpcThreadEvent: MessageTypeDefinition
-    GrpcThreadEventInfo: MessageTypeDefinition
-    GrpcThreadEventKind: EnumTypeDefinition
     GrpcTimePerformanceAnnotation: MessageTypeDefinition
     GrpcTimeSpan: MessageTypeDefinition
     GrpcTimelineDiagramFragment: MessageTypeDefinition

@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pipelines_and_context.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 import type { GrpcMethodNameParts_DONTUSE as _ficus_GrpcMethodNameParts_DONTUSE, GrpcMethodNameParts as _ficus_GrpcMethodNameParts } from '../ficus/GrpcMethodNameParts';
 

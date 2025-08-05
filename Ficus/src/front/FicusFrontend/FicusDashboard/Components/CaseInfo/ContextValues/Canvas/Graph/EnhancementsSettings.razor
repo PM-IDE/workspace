@@ -35,8 +35,8 @@
   [Parameter] public required List<EnhancementName>? Enhancements { get; init; }
 
 
-  private List<EnhancementsSettings.EnhancementName>? myEnhancements;
-  private HashSet<EnhancementsSettings.EnhancementName> mySelectedEnhancements = null!;
+  private List<EnhancementName>? myEnhancements;
+  private HashSet<EnhancementName> mySelectedEnhancements = null!;
 
 
   public List<string> SelectedEnhancements => mySelectedEnhancements.Select(e => e.Name).OrderDescending().ToList();
@@ -53,7 +53,7 @@
     mySelectedEnhancements = myEnhancements.ToHashSet();
   }
 
-  private void HandleSelectionChange(bool selected, EnhancementsSettings.EnhancementName enhancement)
+  private void HandleSelectionChange(bool selected, EnhancementName enhancement)
   {
     if (selected)
     {

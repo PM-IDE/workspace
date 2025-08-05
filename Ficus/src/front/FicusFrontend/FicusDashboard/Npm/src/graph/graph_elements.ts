@@ -38,12 +38,8 @@ export function createGraphElements(
 
 function createAggregatedDataInternal(graph: GrpcGraph, performanceMap: Record<number, any>, filter: RegExp | null) {
   let aggregatedData: AggregatedData = {
-    totalAllocatedBytes: 0,
     totalExecutionTime: 0,
     maxExecutionTime: Number.MIN_VALUE,
-    totalBufferReturnedBytes: 0,
-    totalBufferAllocatedBytes: 0,
-    totalBufferRentedBytes: 0,
 
     globalSoftwareData: createEmptySoftwareData()
   };
@@ -68,21 +64,8 @@ export function createAggregatedData(graph: GrpcGraph, annotation: GrpcAnnotatio
 
 function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
   //JS Map can not be converted to C# Dictionary
-  data.globalSoftwareData.httpRequests = toObjectCsharpInterop(data.globalSoftwareData.httpRequests);
-  data.globalSoftwareData.allocations = toObjectCsharpInterop(data.globalSoftwareData.allocations);
-  data.globalSoftwareData.inliningSucceeded = toObjectCsharpInterop(data.globalSoftwareData.inliningSucceeded);
-  data.globalSoftwareData.inliningFailed = toObjectCsharpInterop(data.globalSoftwareData.inliningFailed);
-  data.globalSoftwareData.inliningFailedReasons = toObjectCsharpInterop(data.globalSoftwareData.inliningFailedReasons);
-  data.globalSoftwareData.methodsLoads = toObjectCsharpInterop(data.globalSoftwareData.methodsLoads);
-  data.globalSoftwareData.methodsUnloads = toObjectCsharpInterop(data.globalSoftwareData.methodsUnloads);
-  data.globalSoftwareData.exceptions = toObjectCsharpInterop(data.globalSoftwareData.exceptions);
   data.globalSoftwareData.counters = toObjectCsharpInterop(data.globalSoftwareData.counters);
   data.globalSoftwareData.activitiesDurations = toObjectCsharpInterop(data.globalSoftwareData.activitiesDurations);
-
-  // @ts-ignore
-  data.globalSoftwareData.createdThreads = data.globalSoftwareData.createdThreads.values().toArray();
-  // @ts-ignore
-  data.globalSoftwareData.terminatedThreads = data.globalSoftwareData.terminatedThreads.values().toArray();
 
   for (let [key, map] of data.globalSoftwareData.histograms) {
     data.globalSoftwareData.histograms.set(key, {
@@ -161,28 +144,6 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null)
 
 function updateAggregatedData(aggregatedData: AggregatedData, softwareData: MergedSoftwareData) {
   if (softwareData != null) {
-    aggregatedData.totalAllocatedBytes += softwareData.allocations.values().reduce((a, b) => a + b, 0);
-
-    aggregatedData.totalBufferAllocatedBytes += softwareData.bufferAllocatedBytes.sum;
-    aggregatedData.totalBufferRentedBytes += softwareData.bufferRentedBytes.sum;
-    aggregatedData.totalBufferReturnedBytes += softwareData.bufferReturnedBytes.sum;
-
-    mergeMaps(aggregatedData.globalSoftwareData.allocations, softwareData.allocations);
-    mergeMaps(aggregatedData.globalSoftwareData.inliningFailed, softwareData.inliningFailed);
-    mergeMaps(aggregatedData.globalSoftwareData.inliningFailedReasons, softwareData.inliningFailedReasons);
-    mergeMaps(aggregatedData.globalSoftwareData.inliningSucceeded, softwareData.inliningSucceeded);
-    mergeMaps(aggregatedData.globalSoftwareData.methodsUnloads, softwareData.methodsUnloads);
-    mergeMaps(aggregatedData.globalSoftwareData.methodsLoads, softwareData.methodsLoads);
-    mergeMaps(aggregatedData.globalSoftwareData.httpRequests, softwareData.httpRequests);
-    mergeMaps(aggregatedData.globalSoftwareData.exceptions, softwareData.exceptions);
-
-    mergeSets(aggregatedData.globalSoftwareData.terminatedThreads, softwareData.terminatedThreads);
-    mergeSets(aggregatedData.globalSoftwareData.createdThreads, softwareData.createdThreads);
-
-    mergeCountAndSum(aggregatedData.globalSoftwareData.bufferAllocatedBytes, softwareData.bufferAllocatedBytes);
-    mergeCountAndSum(aggregatedData.globalSoftwareData.bufferRentedBytes, softwareData.bufferRentedBytes);
-    mergeCountAndSum(aggregatedData.globalSoftwareData.bufferReturnedBytes, softwareData.bufferReturnedBytes);
-
     for (let [name, histogram] of softwareData.histograms.entries()) {
       if (!aggregatedData.globalSoftwareData.histograms.has(name)) {
         aggregatedData.globalSoftwareData.histograms.set(name, {

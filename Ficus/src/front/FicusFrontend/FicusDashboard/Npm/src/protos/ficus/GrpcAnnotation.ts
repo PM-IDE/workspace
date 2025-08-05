@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pm_models.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pm_models.proto
 
 import type { GrpcCountAnnotation_DONTUSE as _ficus_GrpcCountAnnotation_DONTUSE, GrpcCountAnnotation as _ficus_GrpcCountAnnotation } from '../ficus/GrpcCountAnnotation';
 import type { GrpcFrequenciesAnnotation_DONTUSE as _ficus_GrpcFrequenciesAnnotation_DONTUSE, GrpcFrequenciesAnnotation as _ficus_GrpcFrequenciesAnnotation } from '../ficus/GrpcFrequenciesAnnotation';

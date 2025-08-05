@@ -1,7 +1,6 @@
 import {getOrCreateColor, isNullOrEmpty} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
 import {AggregatedData, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
-import {createNodeHtmlLabel} from "./node_html_label";
 
 export let fallBackPerformanceColor = "#3d3d3d";
 
@@ -86,35 +85,6 @@ export function createRectangleHistogram(sortedHistogramEntries: [string, number
 
 export function toSortedArray(map: Map<string, number>): [string, number][] {
   return [...map.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
-}
-
-export function createArrayPoolEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  if (softwareData.bufferRentedBytes.count == 0 && softwareData.bufferAllocatedBytes.count == 0 && softwareData.bufferReturnedBytes.count == 0) {
-    return "";
-  }
-
-  const units = "bytes";
-  return `
-    <div>
-      ${createNumberInformation("Allocated", units, softwareData.bufferAllocatedBytes.sum, aggregatedData.totalBufferAllocatedBytes)}
-      ${createNumberInformation("Rented", units, softwareData.bufferRentedBytes.sum, aggregatedData.totalBufferRentedBytes)}
-      ${createNumberInformation("Returned", units, softwareData.bufferReturnedBytes.sum, aggregatedData.totalBufferReturnedBytes)}
-    </div>
-  `;
-}
-
-export function createThreadsEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.createdThreads.size == 0 && softwareData.terminatedThreads.size == 0) {
-    return "";
-  }
-
-  const units = "threads";
-  return `
-    <div>
-      ${createNumberInformation("Created", units, softwareData.createdThreads.size, null)}
-      ${createNumberInformation("Terminated", units, softwareData.terminatedThreads.size, null)}
-    </div>
-  `;
 }
 
 export function createNumberInformation(category: string, units: string, value: number, totalValue: number | null): string {

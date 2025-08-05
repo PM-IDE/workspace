@@ -32,13 +32,10 @@
   {
     List<AggregatedStatDto> infos =
     [
-      ..CreateBufferDtos(),
-      ..CreateMethodInliningsDtos(),
-      ..CreateMethodLoadsDtos(),
-      ..CreateOtherDtos(),
       ..CreateCountersDtos(),
       ..CreateHistogramsDtos(),
-      ..CreateActivitiesDurationsDtos()
+      ..CreateActivitiesDurationsDtos(),
+      ..CreateOtherDtos()
     ];
 
     return infos.Where(i => i.Value > 0).OrderByDescending(i => i.Histogram?.Length ?? -1).ToArray();
@@ -69,90 +66,16 @@
       Units = duration.Value.Units
     }).ToArray();
 
-  private AggregatedStatDto[] CreateBufferDtos() =>
-  [
-    new()
-    {
-      Title = "Buffer Allocated",
-      Value = Data.TotalBufferAllocatedBytes,
-      Units = "bytes",
-    },
-    new()
-    {
-      Title = "Buffer Rented",
-      Value = Data.TotalBufferRentedBytes,
-      Units = "bytes"
-    },
-    new()
-    {
-      Title = "Buffer Returned",
-      Value = Data.TotalBufferReturnedBytes,
-      Units = "bytes",
-    },
-  ];
-
-  private AggregatedStatDto[] CreateMethodInliningsDtos() =>
-  [
-    new()
-    {
-      Title = "Inlinings Failed",
-      Value = Data.GlobalSoftwareData.InliningFailed.Values.Sum(),
-      Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningFailed)
-    },
-    new()
-    {
-      Title = "Inlinings Succeeded",
-      Value = Data.GlobalSoftwareData.InliningSucceeded.Values.Sum(),
-      Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningSucceeded),
-    },
-    new()
-    {
-      Title = "Inlinings Fail Reason",
-      Value = Data.GlobalSoftwareData.InliningFailedReasons.Values.Sum(),
-      Histogram = PrepareHistogram(Data.GlobalSoftwareData.InliningFailedReasons),
-    }
-  ];
-
-  private AggregatedStatDto[] CreateMethodLoadsDtos() =>
-  [
-    new()
-    {
-      Title = "Method Loads",
-      Value = Data.GlobalSoftwareData.MethodsLoads.Values.Sum(),
-      Histogram = PrepareHistogram(Data.GlobalSoftwareData.MethodsLoads),
-    },
-    new()
-    {
-      Title = "Method Unloads",
-      Value = Data.GlobalSoftwareData.MethodsUnloads.Values.Sum(),
-      Histogram = PrepareHistogram(Data.GlobalSoftwareData.MethodsUnloads),
-    }
-  ];
-
   private AggregatedStatDto[] CreateOtherDtos() =>
   [
-    new()
-    {
-      Title = "Allocated",
-      Value = Data.TotalAllocatedBytes,
-      Units = "bytes",
-      Histogram = PrepareHistogram(Data.GlobalSoftwareData.Allocations),
-    },
     new()
     {
       Title = "Execution Time",
       Value = Data.TotalExecutionTime,
       Units = "QPC"
-    },
-    new()
-    {
-      Title = "Exceptions",
-      Value = Data.GlobalSoftwareData.Exceptions.Values.Sum(),
-      Histogram = PrepareHistogram(Data.GlobalSoftwareData.Exceptions),
-    },
+    }
   ];
-
+  
   private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) =>
     map.OrderBy(p => p.Value).Select(p => (p.Key, p.Value)).ToArray();
-
 }

@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pipelines_and_context.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 import type { GrpcGraphEdgeAdditionalData_DONTUSE as _ficus_GrpcGraphEdgeAdditionalData_DONTUSE, GrpcGraphEdgeAdditionalData as _ficus_GrpcGraphEdgeAdditionalData } from '../ficus/GrpcGraphEdgeAdditionalData';
 import type { Long } from '@grpc/proto-loader';

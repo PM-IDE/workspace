@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pipelines_and_context.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
 
 import type { GrpcColor_DONTUSE as _ficus_GrpcColor_DONTUSE, GrpcColor as _ficus_GrpcColor } from '../ficus/GrpcColor';
 

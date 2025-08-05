@@ -87,39 +87,12 @@
     }
   }
 
-  private void AddEnhancements(GrpcSoftwareData data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
+  private static void AddEnhancements(GrpcSoftwareData data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
-    AddPredefinedEnhancements(data, enhancements);
     AddCustomEnhancements(data, enhancements);
   }
-
-  private static class PredefinedEnhancements
-  {
-    public static EnhancementsSettings.EnhancementName Allocations { get; } = new("Allocations");
-    public static EnhancementsSettings.EnhancementName Exceptions { get; } = new("Exceptions");
-    public static EnhancementsSettings.EnhancementName MethodsLoadUnload { get; } = new("Methods (Un)Loads");
-    public static EnhancementsSettings.EnhancementName MethodsInlinings { get; } = new("Methods Inlinings");
-    public static EnhancementsSettings.EnhancementName ArrayPools { get; } = new("Array Pools");
-    public static EnhancementsSettings.EnhancementName Http { get; } = new("Http");
-    public static EnhancementsSettings.EnhancementName Sockets { get; } = new("Sockets");
-    public static EnhancementsSettings.EnhancementName Threads { get; } = new("Threads");
-  }
-
-  private static void AddPredefinedEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
-  {
-    if (data is null) return;
-
-    if (data.AllocationsInfo.Count > 0) enhancements.Add(PredefinedEnhancements.Allocations);
-    if (data.ExceptionEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Exceptions);
-    if (data.MethodsLoadUnloadEvents.Count > 0) enhancements.Add(PredefinedEnhancements.MethodsLoadUnload);
-    if (data.MethodsInliningEvents.Count > 0) enhancements.Add(PredefinedEnhancements.MethodsInlinings);
-    if (data.ArrayPoolEvents.Count > 0) enhancements.Add(PredefinedEnhancements.ArrayPools);
-    if (data.HttpEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Http);
-    if (data.SocketEvent.Count > 0) enhancements.Add(PredefinedEnhancements.Sockets);
-    if (data.ThreadEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Threads);
-  }
-
-  private void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
+  
+  private static void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     if (data is null) return;
 

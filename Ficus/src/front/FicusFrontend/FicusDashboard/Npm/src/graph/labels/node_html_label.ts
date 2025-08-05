@@ -6,13 +6,12 @@ import {
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
 import {getOrCreateColor, isNullOrEmpty} from "../../utils";
-import {AggregatedData, GraphNode, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
-  createArrayPoolEnhancement,
-  createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
+  createGroupedEnhancements, createNumberInformation,
   createPieChart,
-  createThreadsEnhancement, EnhancementCreationResult,
+  EnhancementCreationResult,
   getPercentExecutionTime,
   toSortedArray
 } from "./util";
@@ -94,118 +93,49 @@ function createNodeEnhancement(
   aggregatedData: AggregatedData,
   enhancement: SoftwareEnhancementKind
 ): EnhancementCreationResult {
-  switch (enhancement) {
-    case "Allocations":
-      return new EnhancementCreationResult(createNodeAllocationsEnhancement(softwareData, aggregatedData), null);
-    case "Methods Inlinings":
-      return new EnhancementCreationResult(createMethodsInliningEnhancement(softwareData), null);
-    case "Methods (Un)Loads":
-      return new EnhancementCreationResult(createMethodsLoadUnloadEnhancement(softwareData), null);
-    case "ArrayPools":
-      return new EnhancementCreationResult(createArrayPoolEnhancement(softwareData, aggregatedData), null);
-    case "Exceptions":
-      return new EnhancementCreationResult(createExceptionEnhancement(softwareData), null);
-    case "Threads":
-      return new EnhancementCreationResult(createThreadsEnhancement(softwareData), null);
-    case "Http":
-      return new EnhancementCreationResult(createHttpEnhancement(softwareData), null);
-    default: {
-      if (softwareData.histograms.has(enhancement)) {
-        let sum = softwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
-        let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
-        let histogram = softwareData.histograms.get(enhancement);
+  if (softwareData.histograms.has(enhancement)) {
+    let sum = softwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+    let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+    let histogram = softwareData.histograms.get(enhancement);
 
-        let html = createSoftwareEnhancementPieChart(
-          !isNullOrEmpty(histogram.group) ? enhancement : null,
-          histogram.value,
-          (sum / globalSum) * 100,
-          getPerformanceAnnotationColor(sum / globalSum),
-          histogram.units
-        );
+    let html = createSoftwareEnhancementPieChart(
+      !isNullOrEmpty(histogram.group) ? enhancement : null,
+      histogram.value,
+      (sum / globalSum) * 100,
+      getPerformanceAnnotationColor(sum / globalSum),
+      histogram.units
+    );
 
-        return new EnhancementCreationResult(html, histogram.group);
-      }
-
-      if (softwareData.counters.has(enhancement)) {
-        let counter = softwareData.counters.get(enhancement);
-
-        let html = createNumberInformation(
-          !isNullOrEmpty(counter.group) ? enhancement : "",
-          counter.units,
-          counter.value,
-          aggregatedData.globalSoftwareData.counters.get(enhancement).value
-        );
-
-        return new EnhancementCreationResult(html, counter.group, false);
-      }
-
-      if (softwareData.activitiesDurations.has(enhancement)) {
-        let duration = softwareData.activitiesDurations.get(enhancement);
-
-        let html = createNumberInformation(
-          !isNullOrEmpty(duration.group) ? enhancement : "",
-          duration.units,
-          duration.value,
-          aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
-        );
-
-        return new EnhancementCreationResult(html, duration.group, false);
-      }
-
-      return new EnhancementCreationResult("", null);
-    }
-  }
-}
-
-function createHttpEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.httpRequests.size == 0) {
-    return "";
+    return new EnhancementCreationResult(html, histogram.group);
   }
 
-  return `
-    <div>
-      ${createSoftwareEnhancementPieChart("Requests", softwareData.httpRequests)}
-    </div>
-  `
-}
+  if (softwareData.counters.has(enhancement)) {
+    let counter = softwareData.counters.get(enhancement);
 
-function createExceptionEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.exceptions.size == 0) {
-    return "";
+    let html = createNumberInformation(
+      !isNullOrEmpty(counter.group) ? enhancement : "",
+      counter.units,
+      counter.value,
+      aggregatedData.globalSoftwareData.counters.get(enhancement).value
+    );
+
+    return new EnhancementCreationResult(html, counter.group, false);
   }
 
-  return `
-    <div>
-      ${createSoftwareEnhancementPieChart("Exceptions", softwareData.exceptions, null, getPerformanceAnnotationColor(1))}
-    </div>
-  `
-}
+  if (softwareData.activitiesDurations.has(enhancement)) {
+    let duration = softwareData.activitiesDurations.get(enhancement);
 
-function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.methodsUnloads.size == 0 && softwareData.methodsLoads.size == 0) {
-    return "";
+    let html = createNumberInformation(
+      !isNullOrEmpty(duration.group) ? enhancement : "",
+      duration.units,
+      duration.value,
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
+    );
+
+    return new EnhancementCreationResult(html, duration.group, false);
   }
 
-  return `
-    <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementPieChart("Load", softwareData.methodsLoads)} 
-      ${createSoftwareEnhancementPieChart("Unload", softwareData.methodsUnloads)}
-    </div> 
-  `;
-}
-
-function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.inliningSucceeded.size == 0 && softwareData.inliningFailed.size == 0 && softwareData.inliningFailedReasons.size == 0) {
-    return "";
-  }
-
-  return `
-    <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementPieChart("Succeeded", softwareData.inliningSucceeded)} 
-      ${createSoftwareEnhancementPieChart("Failed", softwareData.inliningFailed)} 
-      ${createSoftwareEnhancementPieChart("Failed Reasons", softwareData.inliningFailedReasons)} 
-    </div>
-  `;
+  return new EnhancementCreationResult("", null);
 }
 
 function createSoftwareEnhancementPieChart(
@@ -246,26 +176,6 @@ function createNodeDisplayName(name: string): string {
           ${name}
       </div>
     `;
-}
-
-function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  if (softwareData.allocations.size > 0) {
-    let relativeAllocatedBytes = softwareData.allocations.values().reduce((a, b) => a + b, 0) / aggregatedData.totalAllocatedBytes;
-    let color = getPerformanceAnnotationColor(relativeAllocatedBytes);
-    let totalAlloc = softwareData.allocations.values().reduce((a, b) => a + b, 0);
-    let percent = ((totalAlloc / aggregatedData.totalAllocatedBytes) * 100).toFixed(2);
-
-    return `
-        <div>
-          ${totalAlloc} (${percent}%)
-        </div>
-        <div>
-          ${createPieChart(toSortedArray(softwareData.allocations), color)}
-        </div>
-      `
-  }
-
-  return "";
 }
 
 function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [string, number][]): string {

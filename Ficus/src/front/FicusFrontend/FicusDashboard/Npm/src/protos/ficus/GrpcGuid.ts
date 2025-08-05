@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/util.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/util.proto
 
 
 export interface GrpcGuid_DONTUSE {

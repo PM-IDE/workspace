@@ -1,4 +1,4 @@
-// Original file: ../../../../../protos/pm_models.proto
+// Original file: /Users/aero/work/workspace/Ficus/protos/pm_models.proto
 
 import type { Timestamp_DONTUSE as _google_protobuf_Timestamp_DONTUSE, Timestamp as _google_protobuf_Timestamp } from '../google/protobuf/Timestamp';
 import type { Long } from '@grpc/proto-loader';
