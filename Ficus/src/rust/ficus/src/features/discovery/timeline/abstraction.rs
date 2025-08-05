@@ -15,16 +15,7 @@ use crate::features::discovery::root_sequence::models::EventCoordinates;
 use crate::features::discovery::root_sequence::models::NodeAdditionalDataContainer;
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::allocations::AllocationDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::array_pools::ArrayPoolDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::assemblies::AssemblySoftwareDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::core::{SoftwareDataExtractionError, EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor};
-use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::exceptions::ExceptionDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::http::HTTPSoftwareDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::methods::MethodsDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::sockets::SocketsDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::threads::ThreadDataExtractor;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::get_stamp;
 use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
@@ -35,9 +26,10 @@ use log::{error};
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
-use crate::features::discovery::timeline::software_data::extractors::general::activity_duration_extractor::ActivityDurationExtractor;
-use crate::features::discovery::timeline::software_data::extractors::general::pie_chart_extractor::PieChartExtractor;
-use crate::features::discovery::timeline::software_data::extractors::general::simple_counter::SimpleCounterExtractor;
+use crate::features::discovery::timeline::software_data::extractors::activity_duration_extractor::ActivityDurationExtractor;
+use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::pie_chart_extractor::PieChartExtractor;
+use crate::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
 use crate::utils::display_name::DISPLAY_NAME_KEY;
 use crate::utils::vec_utils::VectorOptionExtensions;
 
@@ -214,14 +206,6 @@ pub fn extract_edge_software_data(
 
 fn create_edge_software_data_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Rc<Box<dyn EventGroupSoftwareDataExtractor + 'a>>> {
   vec![
-    Rc::new(Box::new(AllocationDataExtractor::<'a>::new(config))),
-    Rc::new(Box::new(MethodsDataExtractor::<'a>::new(config))),
-    Rc::new(Box::new(ExceptionDataExtractor::<'a>::new(config))),
-    Rc::new(Box::new(ArrayPoolDataExtractor::<'a>::new(config))),
-    Rc::new(Box::new(AssemblySoftwareDataExtractor::<'a>::new(config))),
-    Rc::new(Box::new(HTTPSoftwareDataExtractor::<'a>::new(config))),
-    Rc::new(Box::new(SocketsDataExtractor::<'a>::new(config))),
-    Rc::new(Box::new(ThreadDataExtractor::<'a>::new(config))),
     Rc::new(Box::new(PieChartExtractor::<'a>::new(config))),
     Rc::new(Box::new(SimpleCounterExtractor::<'a>::new(config))),
   ]

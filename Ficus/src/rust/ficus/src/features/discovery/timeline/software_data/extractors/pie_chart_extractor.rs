@@ -1,14 +1,14 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::{PieChartExtractionConfig, SoftwareDataExtractionConfig};
-use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, SoftwareDataExtractionError, EventGroupSoftwareDataExtractor};
-use crate::features::discovery::timeline::software_data::extractors::general::utils::RegexParingResult;
 use crate::features::discovery::timeline::software_data::models::{GenericEnhancementBase, HistogramData, HistogramEntry, SoftwareData};
 use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use crate::features::discovery::timeline::software_data::extractors::core::{parse_or_err, EventGroupSoftwareDataExtractor, SoftwareDataExtractionError};
+use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
 
 #[derive(Clone, Debug, new)]
 pub struct PieChartExtractor<'a> {

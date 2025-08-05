@@ -3,7 +3,6 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, GenericExtractionConfigBase, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError};
-use crate::features::discovery::timeline::software_data::extractors::general::utils::RegexParingResult;
 use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, GenericEnhancementBase, SoftwareData};
 use crate::features::discovery::timeline::utils::get_stamp;
 use derive_new::new;
@@ -13,6 +12,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use log::error;
+use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
 use crate::utils::vec_utils::VectorOptionExtensions;
 
 #[derive(Clone, Debug, new)]

@@ -22,7 +22,7 @@ use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, Frequency
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_array_pool_event, grpc_graph_edge_additional_data, grpc_method_inlining_event, grpc_method_load_unload_event, grpc_socket_event, grpc_thread_event_info, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcArrayPoolEvent, GrpcBytes, GrpcColorsEventLogMapping, GrpcContentionEvent, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcExceptionEvent, GrpcExecutionSuspensionInfo, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcHistogramEntry, GrpcHttpEvent, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningEvent, GrpcMethodInliningFailedEvent, GrpcMethodInliningInfo, GrpcMethodLoadUnloadEvent, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSocketAcceptFailed, GrpcSocketAcceptStart, GrpcSocketAcceptStop, GrpcSocketConnectFailed, GrpcSocketConnectStart, GrpcSocketConnectStop, GrpcSocketEvent, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcThreadEventInfo, GrpcThreadEventKind, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
@@ -719,23 +719,13 @@ fn convert_to_grpc_graph_node_software_data(software_data: &NodeAdditionalDataCo
 
 fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareData {
   GrpcSoftwareData {
-    allocations_info: convert_to_grpc_allocation(software_data.allocation_events()),
     histogram: convert_to_grpc_histogram_entries(software_data.event_classes()),
-    contention_events: convert_to_grpc_contention_events(software_data.contention_events()),
-    exception_events: convert_to_grpc_exception_events(software_data.exception_events()),
-    execution_suspension_info: convert_to_grpc_suspensions(software_data.suspensions()),
-    thread_events: convert_to_grpc_threads_events(software_data.thread_events()),
-    methods_inlining_events: convert_to_grpc_methods_events(software_data.method_inlinings_events()),
-    array_pool_events: convert_to_grpc_array_pool_event(software_data.pool_events()),
-    http_events: convert_to_grpc_http_events(software_data.http_events()),
-    socket_event: convert_to_grpc_socket_events(software_data.socket_events()),
-    timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
-      threads: convert_to_grpc_threads(software_data.thread_diagram_fragment())
-    }),
-    methods_load_unload_events: convert_to_grpc_method_load_unload_events(software_data.method_load_unload_events()),
     histogram_data: software_data.histograms().iter().map(|h| convert_to_grpc_histogram_data(h)).collect(),
     simple_counter_data: software_data.simple_counters().iter().map(|c| convert_to_grpc_simple_counter_data(c)).collect(),
     activities_durations_data: software_data.activities_durations().iter().map(|c| convert_to_grpc_activity_duration(c)).collect(),
+    timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
+      threads: convert_to_grpc_threads(software_data.thread_diagram_fragment())
+    }),
   }
 }
 
@@ -769,133 +759,6 @@ fn convert_to_grpc_simple_counter_data(data: &SimpleCounterData) -> GrpcSimpleCo
     base: Some(convert_to_grpc_generic_enhancement_base(data.base())),
     count: *data.value(),
   }
-}
-
-fn convert_to_grpc_method_load_unload_events(events: &Vec<MethodLoadUnloadEvent>) -> Vec<GrpcMethodLoadUnloadEvent> {
-  events.iter().map(|e| match e {
-    MethodLoadUnloadEvent::Load(load) => GrpcMethodLoadUnloadEvent {
-      method_name_parts: Some(convert_to_grpc_method_name_parts(load)),
-      event: Some(grpc_method_load_unload_event::Event::Load(())),
-    },
-    MethodLoadUnloadEvent::Unload(load) => GrpcMethodLoadUnloadEvent {
-      method_name_parts: Some(convert_to_grpc_method_name_parts(load)),
-      event: Some(grpc_method_load_unload_event::Event::Unload(())),
-    }
-  }).collect()
-}
-
-fn convert_to_grpc_allocation(allocations: &Vec<AllocationEvent>) -> Vec<GrpcAllocationInfo> {
-  allocations.iter().map(|a| GrpcAllocationInfo {
-    type_name: a.type_name().to_owned(),
-    allocated_bytes: *a.allocated_bytes() as u64,
-    allocated_objects_count: *a.objects_count() as u64,
-  }).collect()
-}
-
-fn convert_to_grpc_socket_events(events: &Vec<SocketEvent>) -> Vec<GrpcSocketEvent> {
-  events.iter().map(|e| GrpcSocketEvent {
-    event: Some(match e {
-      SocketEvent::ConnectStart(e) => grpc_socket_event::Event::ConnectStart(GrpcSocketConnectStart {
-        address: e.address().to_owned()
-      }),
-      SocketEvent::ConnectStop => grpc_socket_event::Event::ConnectStop(GrpcSocketConnectStop {}),
-      SocketEvent::AcceptStart(e) => grpc_socket_event::Event::AcceptStart(GrpcSocketAcceptStart {
-        address: e.address().to_owned(),
-      }),
-      SocketEvent::AcceptStop => grpc_socket_event::Event::AcceptStop(GrpcSocketAcceptStop {}),
-      SocketEvent::ConnectFailed(e) => grpc_socket_event::Event::ConnectFailed(GrpcSocketConnectFailed {
-        error_code: e.error_code().to_owned(),
-        error_message: e.error_message().to_owned(),
-      }),
-      SocketEvent::AcceptFailed(e) => grpc_socket_event::Event::AcceptFailed(GrpcSocketAcceptFailed {
-        error_code: e.error_code().to_owned(),
-        error_message: e.error_message().to_owned(),
-      }),
-    })
-  }).collect()
-}
-
-fn convert_to_grpc_http_events(events: &Vec<HTTPEvent>) -> Vec<GrpcHttpEvent> {
-  events.iter().map(|h| GrpcHttpEvent {
-    host: h.host().to_owned(),
-    port: h.port().to_owned(),
-    scheme: h.scheme().to_owned(),
-    path_and_query: h.path_and_query().to_owned(),
-  }).collect()
-}
-
-fn convert_to_grpc_array_pool_event(events: &Vec<ArrayPoolEvent>) -> Vec<GrpcArrayPoolEvent> {
-  events.iter().map(|a| GrpcArrayPoolEvent {
-    buffer_id: a.buffer_id().clone(),
-    buffer_size_bytes: a.buffer_size_bytes().clone(),
-    event: Some(match a.event_kind() {
-      ArrayPoolEventKind::Created => grpc_array_pool_event::Event::BufferAllocated(()),
-      ArrayPoolEventKind::Rented => grpc_array_pool_event::Event::BufferRented(()),
-      ArrayPoolEventKind::Returned => grpc_array_pool_event::Event::BufferReturned(()),
-      ArrayPoolEventKind::Trimmed => grpc_array_pool_event::Event::BufferTrimmed(()),
-    }),
-  }).collect()
-}
-
-fn convert_to_grpc_methods_events(events: &Vec<MethodInliningEvent>) -> Vec<GrpcMethodInliningEvent> {
-  events.iter().map(|m| match m {
-    MethodInliningEvent::InliningSuccess(method) => GrpcMethodInliningEvent {
-      inlining_info: Some(convert_to_grpc_inlining_info(method)),
-      event: Some(grpc_method_inlining_event::Event::Succeeded(())),
-    },
-    MethodInliningEvent::InliningFailed(method, reason) => GrpcMethodInliningEvent {
-      inlining_info: Some(convert_to_grpc_inlining_info(method)),
-      event: Some(grpc_method_inlining_event::Event::Failed(GrpcMethodInliningFailedEvent {
-        reason: reason.clone()
-      })),
-    }
-  }).collect()
-}
-
-fn convert_to_grpc_inlining_info(method: &MethodInliningData) -> GrpcMethodInliningInfo {
-  GrpcMethodInliningInfo {
-    inlinee_info: Some(convert_to_grpc_method_name_parts(method.inlinee_info())),
-    inliner_info: Some(convert_to_grpc_method_name_parts(method.inliner_info())),
-  }
-}
-
-fn convert_to_grpc_method_name_parts(method: &MethodNameParts) -> GrpcMethodNameParts {
-  GrpcMethodNameParts {
-    name: method.name().to_owned(),
-    namespace: method.namespace().to_owned(),
-    signature: method.signature().to_owned(),
-  }
-}
-
-fn convert_to_grpc_threads_events(events: &Vec<ThreadEvent>) -> Vec<GrpcThreadEventInfo> {
-  events.iter().map(|t| GrpcThreadEventInfo {
-    thread_id: t.thread_id().clone(),
-    event: Some(match t.kind() {
-      ThreadEventKind::Created => grpc_thread_event_info::Event::Created(()),
-      ThreadEventKind::Terminated => grpc_thread_event_info::Event::Terminated(()),
-    }),
-  }).collect()
-}
-
-fn convert_to_grpc_suspensions(events: &Vec<ExecutionSuspensionEvent>) -> Vec<GrpcExecutionSuspensionInfo> {
-  events.iter().map(|e| GrpcExecutionSuspensionInfo {
-    start_time: e.start_time().clone(),
-    end_time: e.end_time().clone(),
-    reason: e.reason().to_owned(),
-  }).collect()
-}
-
-fn convert_to_grpc_exception_events(events: &Vec<ExceptionEvent>) -> Vec<GrpcExceptionEvent> {
-  events.iter().map(|c| GrpcExceptionEvent {
-    exception_type: c.exception_type().to_owned()
-  }).collect()
-}
-
-fn convert_to_grpc_contention_events(events: &Vec<ContentionEvent>) -> Vec<GrpcContentionEvent> {
-  events.iter().map(|c| GrpcContentionEvent {
-    start_time: c.start_time().clone(),
-    end_time: c.end_time().clone(),
-  }).collect()
 }
 
 fn convert_to_grpc_histogram_entries(histogram: &HashMap<String, usize>) -> Vec<GrpcHistogramEntry> {
