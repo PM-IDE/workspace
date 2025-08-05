@@ -26,9 +26,9 @@
       "event_class_regex": "Request/Start",
       "info": {
         "base": {
-          "name": "Accept Stop",
+          "name": "Request Start",
           "units": "reqs",
-          "group": "Sockets"
+          "group": "HTTP"
         },
         "grouping_attr": {
           "many_attributes": {
@@ -141,7 +141,7 @@
       }
     },
     {
-      "event_class_regex": "Loader/AssemblyLoad",
+      "event_class_regex": "Loader/AssemblyUnload",
       "info": {
         "base": {
           "name": "Unload",
