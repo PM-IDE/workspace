@@ -6,9 +6,9 @@ use lazy_static::lazy_static;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-lazy_static!(
+lazy_static! {
   pub static ref UNDERLYING_PATTERN_KIND_KEY: DefaultContextKey<UnderlyingPatternKind> = DefaultContextKey::new("UNDERLYING_PATTERN_KIND");
-);
+}
 
 #[derive(Debug, Clone, Copy)]
 pub enum UnderlyingPatternKind {
@@ -28,7 +28,7 @@ impl From<PatternsKind> for UnderlyingPatternKind {
       PatternsKind::MaximalTandemArrays(_) => Self::MaximalTandemArray,
       PatternsKind::MaximalRepeats => Self::MaximalRepeat,
       PatternsKind::SuperMaximalRepeats => Self::SuperMaximalRepeat,
-      PatternsKind::NearSuperMaximalRepeats => Self::NearSuperMaximalRepeat
+      PatternsKind::NearSuperMaximalRepeats => Self::NearSuperMaximalRepeat,
     }
   }
 }

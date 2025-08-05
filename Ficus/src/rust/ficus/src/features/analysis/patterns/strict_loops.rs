@@ -16,7 +16,7 @@ pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_
   find_tandem_arrays_strict(&hashed_log, max_array_length)
     .into_iter()
     .enumerate()
-    .map(|(trace_index, trace_arrays)|
+    .map(|(trace_index, trace_arrays)| {
       trace_arrays
         .into_iter()
         .map(|array| {
@@ -26,10 +26,9 @@ pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_
           create_strict_loop_activity_instance(&array, trace_index, &trace.borrow(), hashed_trace)
         })
         .collect()
-    )
+    })
     .collect()
 }
-
 
 fn find_tandem_arrays_strict(hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<TandemArrayInfo>> {
   let mut result = vec![];

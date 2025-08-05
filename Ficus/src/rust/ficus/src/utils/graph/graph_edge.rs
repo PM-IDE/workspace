@@ -8,12 +8,18 @@ pub struct GraphEdge<TEdgeData>
 where
   TEdgeData: ToString,
 {
-  #[getset(get = "pub")] pub(crate) id: u64,
-  #[getset(get = "pub")] pub(crate) from_node: u64,
-  #[getset(get = "pub")] pub(crate) to_node: u64,
-  #[getset(get = "pub")] pub(crate) data: Option<TEdgeData>,
-  #[getset(get = "pub")] pub(crate) weight: f64,
-  #[getset(get = "pub", get_mut = "pub")] pub(crate) user_data: UserDataImpl,
+  #[getset(get = "pub")]
+  pub(crate) id: u64,
+  #[getset(get = "pub")]
+  pub(crate) from_node: u64,
+  #[getset(get = "pub")]
+  pub(crate) to_node: u64,
+  #[getset(get = "pub")]
+  pub(crate) data: Option<TEdgeData>,
+  #[getset(get = "pub")]
+  pub(crate) weight: f64,
+  #[getset(get = "pub", get_mut = "pub")]
+  pub(crate) user_data: UserDataImpl,
 }
 
 impl<TEdgeData> GraphEdge<TEdgeData>

@@ -11,9 +11,7 @@ impl NameCreationStrategy {
   pub(super) fn create(&self, event: &XesEventImpl) -> String {
     if let Some(map) = event.payload_map() {
       match self {
-        NameCreationStrategy::SingleAttribute(single_attribute) => {
-          self.value_or_fallback(single_attribute.name(), map)
-        }
+        NameCreationStrategy::SingleAttribute(single_attribute) => self.value_or_fallback(single_attribute.name(), map),
         NameCreationStrategy::ManyAttributes(many_attributes) => {
           let mut result = String::new();
           for attr in many_attributes.attributes() {
@@ -41,4 +39,3 @@ impl NameCreationStrategy {
     }
   }
 }
-

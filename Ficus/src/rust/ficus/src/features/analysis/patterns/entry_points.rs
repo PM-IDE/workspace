@@ -81,7 +81,7 @@ where
       &activities_context.narrow_kind,
       activities_context.min_events_in_activity,
       &activities_context.activity_filter_kind,
-    )
+    ),
   }
 }
 

@@ -51,7 +51,8 @@ where
           children: HashMap::new(),
         });
 
-        self.nodes
+        self
+          .nodes
           .borrow_mut()
           .get_mut(mid)
           .unwrap()

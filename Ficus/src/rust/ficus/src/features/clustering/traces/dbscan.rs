@@ -4,10 +4,7 @@ use crate::features::clustering::traces::common::{calculate_distance, do_cluster
 use crate::{
   event_log::core::event_log::EventLog,
   features::clustering::error::ClusteringError,
-  utils::{
-    dataset::dataset::LabeledDataset,
-    distance::distance::DistanceWrapper,
-  },
+  utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
 };
 use linfa::traits::Transformer;
 use linfa_clustering::Dbscan;
@@ -25,7 +22,7 @@ pub fn clusterize_log_by_traces_dbscan<TLog: EventLog>(
 
     match clusters {
       Ok(clusters) => Ok(adjust_dbscan_labels(clusters, put_noise_events_in_one_cluster)),
-      Err(err) => Err(ClusteringError::RawError(err.to_string()))
+      Err(err) => Err(ClusteringError::RawError(err.to_string())),
     }
   })
 }
@@ -47,7 +44,7 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
 
         let clusters = match clusters {
           Ok(clusters) => clusters,
-          Err(err) => return Err(ClusteringError::RawError(err.to_string()))
+          Err(err) => return Err(ClusteringError::RawError(err.to_string())),
         };
 
         let labels = adjust_dbscan_labels(clusters.clone(), put_noise_events_in_one_cluster);
@@ -57,7 +54,7 @@ pub fn clusterize_log_by_traces_dbscan_grid_search<TLog: EventLog>(
 
     match best_labels.labels() {
       None => Err(ClusteringError::RawError("Best labels were None".to_string())),
-      Some(labels) => Ok(labels.clone())
+      Some(labels) => Ok(labels.clone()),
     }
   })
 }

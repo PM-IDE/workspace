@@ -7,15 +7,22 @@ use std::fmt::Debug;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
-  #[getset(get = "pub", set = "pub")] method_start: Option<ExtractionConfig<MethodStartEndConfig>>,
-  #[getset(get = "pub", set = "pub")] method_end: Option<ExtractionConfig<MethodStartEndConfig>>,
-  #[getset(get = "pub", set = "pub")] allocation: Option<ExtractionConfig<AllocationExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")]
+  method_start: Option<ExtractionConfig<MethodStartEndConfig>>,
+  #[getset(get = "pub", set = "pub")]
+  method_end: Option<ExtractionConfig<MethodStartEndConfig>>,
+  #[getset(get = "pub", set = "pub")]
+  allocation: Option<ExtractionConfig<AllocationExtractionConfig>>,
 
-  #[getset(get = "pub", set = "pub")] raw_control_flow_regexes: Vec<String>,
+  #[getset(get = "pub", set = "pub")]
+  raw_control_flow_regexes: Vec<String>,
 
-  #[getset(get = "pub", set = "pub")] pie_chart_extraction_configs: Vec<ExtractionConfig<PieChartExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] simple_counter_configs: Vec<ExtractionConfig<SimpleCountExtractionConfig>>,
-  #[getset(get = "pub", set = "pub")] activities_duration_configs: Vec<ActivityDurationExtractionConfig>,
+  #[getset(get = "pub", set = "pub")]
+  pie_chart_extraction_configs: Vec<ExtractionConfig<PieChartExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")]
+  simple_counter_configs: Vec<ExtractionConfig<SimpleCountExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")]
+  activities_duration_configs: Vec<ActivityDurationExtractionConfig>,
 }
 
 impl SoftwareDataExtractionConfig {
@@ -55,43 +62,60 @@ impl SoftwareDataExtractionConfig {
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct AllocationExtractionConfig {
-  #[getset(get = "pub")] type_name_attr: String,
-  #[getset(get = "pub")] allocated_count_attr: String,
-  #[getset(get = "pub")] object_size_bytes_attr: Option<String>,
-  #[getset(get = "pub")] total_allocated_bytes_attr: Option<String>,
+  #[getset(get = "pub")]
+  type_name_attr: String,
+  #[getset(get = "pub")]
+  allocated_count_attr: String,
+  #[getset(get = "pub")]
+  object_size_bytes_attr: Option<String>,
+  #[getset(get = "pub")]
+  total_allocated_bytes_attr: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodStartEndConfig {
-  #[getset(get = "pub")] method_attrs: MethodCommonAttributesConfig,
-  #[getset(get = "pub")] prefix: Option<String>,
+  #[getset(get = "pub")]
+  method_attrs: MethodCommonAttributesConfig,
+  #[getset(get = "pub")]
+  prefix: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodCommonAttributesConfig {
-  #[getset(get = "pub")] name_attr: String,
-  #[getset(get = "pub")] namespace_attr: String,
-  #[getset(get = "pub")] signature_attr: String,
+  #[getset(get = "pub")]
+  name_attr: String,
+  #[getset(get = "pub")]
+  namespace_attr: String,
+  #[getset(get = "pub")]
+  signature_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ExtractionConfig<TConcreteInfo: Clone + Debug> {
-  #[getset(get = "pub")] event_class_regex: String,
-  #[getset(get = "pub")] info: TConcreteInfo,
+  #[getset(get = "pub")]
+  event_class_regex: String,
+  #[getset(get = "pub")]
+  info: TConcreteInfo,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct PieChartExtractionConfig {
-  #[getset(get = "pub")] base: GenericExtractionConfigBase,
-  #[getset(get = "pub")] grouping_attr: Option<NameCreationStrategy>,
-  #[getset(get = "pub")] count_attr: Option<String>,
+  #[getset(get = "pub")]
+  base: GenericExtractionConfigBase,
+  #[getset(get = "pub")]
+  grouping_attr: Option<NameCreationStrategy>,
+  #[getset(get = "pub")]
+  count_attr: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct GenericExtractionConfigBase {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] units: String,
-  #[getset(get = "pub")] group: Option<String>,
+  #[getset(get = "pub")]
+  name: String,
+  #[getset(get = "pub")]
+  units: String,
+  #[getset(get = "pub")]
+  group: Option<String>,
 }
 
 #[serde(rename_all = "snake_case")]
@@ -105,35 +129,47 @@ impl NameCreationStrategy {
   pub fn fallback_value(&self) -> String {
     match self {
       NameCreationStrategy::SingleAttribute(s) => s.fallback_value().to_string(),
-      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().to_string()
+      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().to_string(),
     }
   }
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SingleAttribute {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] fallback_value: String,
+  #[getset(get = "pub")]
+  name: String,
+  #[getset(get = "pub")]
+  fallback_value: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ManyAttributes {
-  #[getset(get = "pub")] attributes: Vec<String>,
-  #[getset(get = "pub")] separator: String,
-  #[getset(get = "pub")] fallback_value: String,
+  #[getset(get = "pub")]
+  attributes: Vec<String>,
+  #[getset(get = "pub")]
+  separator: String,
+  #[getset(get = "pub")]
+  fallback_value: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SimpleCountExtractionConfig {
-  #[getset(get = "pub")] base: GenericExtractionConfigBase,
-  #[getset(get = "pub")] count_attr: Option<String>,
+  #[getset(get = "pub")]
+  base: GenericExtractionConfigBase,
+  #[getset(get = "pub")]
+  count_attr: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ActivityDurationExtractionConfig {
-  #[getset(get = "pub")] base: GenericExtractionConfigBase,
-  #[getset(get = "pub")] start_event_regex: String,
-  #[getset(get = "pub")] end_event_regex: String,
-  #[getset(get = "pub")] time_attribute: Option<String>,
-  #[getset(get = "pub")] activity_id_attr: Option<NameCreationStrategy>,
+  #[getset(get = "pub")]
+  base: GenericExtractionConfigBase,
+  #[getset(get = "pub")]
+  start_event_regex: String,
+  #[getset(get = "pub")]
+  end_event_regex: String,
+  #[getset(get = "pub")]
+  time_attribute: Option<String>,
+  #[getset(get = "pub")]
+  activity_id_attr: Option<NameCreationStrategy>,
 }

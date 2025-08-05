@@ -6,15 +6,23 @@ use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::create_threads_log_by_attribute;
 use crate::features::clustering::traces::dbscan::clusterize_log_by_traces_dbscan;
-use crate::features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy};
+use crate::features::discovery::multithreaded_dfg::dfg::{
+  discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy,
+};
 use crate::features::discovery::root_sequence::log_prepare::prepare_software_log;
 use crate::features::discovery::timeline::abstraction::abstract_event_groups;
 use crate::features::discovery::timeline::discovery::{discover_timeline_diagram, discover_traces_timeline_diagram};
 use crate::features::discovery::timeline::events_groups::{enumerate_event_groups, EventGroup};
-use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig};
+use crate::features::discovery::timeline::software_data::extraction_config::{
+  ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig,
+};
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, REGEXES_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY};
+use crate::pipelines::keys::context_keys::{
+  DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY, EVENT_LOG_KEY, GRAPH_KEY, LABELED_LOG_TRACES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY,
+  MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, REGEXES_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY,
+  THREAD_ATTRIBUTE_KEY, TIME_ATTRIBUTE_KEY, TIME_DELTA_KEY, TOLERANCE_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::display_name::DISPLAY_NAME_KEY;
@@ -60,7 +68,7 @@ impl PipelineParts {
         time_attribute,
         match event_group_delta {
           None => None,
-          Some(delta) => Some(*delta as u64)
+          Some(delta) => Some(*delta as u64),
         },
         Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref(),
       );
@@ -75,7 +83,9 @@ impl PipelineParts {
   }
 
   fn get_control_flow_regexes(config: &SoftwareDataExtractionConfig) -> Result<Option<Vec<Regex>>, PipelinePartExecutionError> {
-    config.control_flow_regexes().map_err(|message| PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
+    config
+      .control_flow_regexes()
+      .map_err(|message| PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
   }
 
   pub(super) fn create_threads_log() -> (String, PipelinePartFactory) {
@@ -130,10 +140,11 @@ impl PipelineParts {
     let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
     let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
 
-    let (_, labeled_dataset) = match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster, put_noise_events_in_one_cluster) {
-      Ok(new_logs) => new_logs,
-      Err(error) => return Err(error.into()),
-    };
+    let (_, labeled_dataset) =
+      match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster, put_noise_events_in_one_cluster) {
+        Ok(new_logs) => new_logs,
+        Err(error) => return Err(error.into()),
+      };
 
     if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
       let abstracted_log = abstract_event_groups(
@@ -167,14 +178,7 @@ impl PipelineParts {
       let groups = enumerate_multithreaded_events_groups(log, &software_config, thread_attribute.as_str(), &strategy)
         .map_err(|e| PipelinePartExecutionError::new_raw(e))?;
 
-      Self::abstract_event_groups(
-        groups,
-        context,
-        config,
-        infra,
-        thread_attribute,
-        time_attribute,
-      )
+      Self::abstract_event_groups(groups, context, config, infra, thread_attribute, time_attribute)
     })
   }
 
@@ -216,7 +220,7 @@ impl PipelineParts {
         time_attribute,
         match event_group_delta {
           None => None,
-          Some(delta) => Some(*delta as u64)
+          Some(delta) => Some(*delta as u64),
         },
         *discover_events_groups_in_each_trace,
         Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref(),
@@ -239,7 +243,7 @@ impl PipelineParts {
 
       let prepared_log = match prepare_software_log(log, &software_data_extraction_config, time_attribute) {
         Ok(log) => log,
-        Err(err) => return Err(err)
+        Err(err) => return Err(err),
       };
 
       context.put_concrete(EVENT_LOG_KEY.key(), prepared_log);
@@ -256,9 +260,13 @@ impl PipelineParts {
         let alloc_regex = config.event_class_regex();
         let alloc_regex = match Regex::new(alloc_regex) {
           Ok(regex) => regex,
-          Err(err) => return Err(PipelinePartExecutionError::Raw(
-            RawPartExecutionError::new(format!("Failed to create regex from {}, error: {}", alloc_regex, err.to_string()))
-          ))
+          Err(err) => {
+            return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(format!(
+              "Failed to create regex from {}, error: {}",
+              alloc_regex,
+              err.to_string()
+            ))))
+          }
         };
 
         for trace in log.traces() {
@@ -391,15 +399,21 @@ impl PipelineParts {
     configs
   }
 
-  fn try_add_processed_config(config: Option<&ExtractionConfig<MethodStartEndConfig>>, processed_configs: &mut Vec<ProcessedMethodStartEndConfig>) {
+  fn try_add_processed_config(
+    config: Option<&ExtractionConfig<MethodStartEndConfig>>,
+    processed_configs: &mut Vec<ProcessedMethodStartEndConfig>,
+  ) {
     if let Ok(Some(processed_config)) = Self::create_method_extraction_info(config) {
       processed_configs.push(processed_config)
     }
   }
 
-  fn create_method_extraction_info(config: Option<&ExtractionConfig<MethodStartEndConfig>>) -> Result<Option<ProcessedMethodStartEndConfig>, PipelinePartExecutionError> {
+  fn create_method_extraction_info(
+    config: Option<&ExtractionConfig<MethodStartEndConfig>>,
+  ) -> Result<Option<ProcessedMethodStartEndConfig>, PipelinePartExecutionError> {
     if let Some(config) = config {
-      let regex = Regex::new(config.event_class_regex()).map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
+      let regex =
+        Regex::new(config.event_class_regex()).map_err(|e| PipelinePartExecutionError::Raw(RawPartExecutionError::new(e.to_string())))?;
 
       Ok(Some(ProcessedMethodStartEndConfig {
         event_regex: regex,
@@ -432,10 +446,19 @@ impl PipelineParts {
     event.set_name(shortened_name);
   }
 
-  fn extract_method_name_parts(payload: &HashMap<String, EventPayloadValue>, config: &ProcessedMethodStartEndConfig) -> Option<(String, String, String)> {
-    let namespace = payload.get(config.namespace_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
-    let name = payload.get(config.name_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
-    let signature = payload.get(config.signature_attr.as_str()).map(|v| v.to_string_repr().as_str().to_owned())?;
+  fn extract_method_name_parts(
+    payload: &HashMap<String, EventPayloadValue>,
+    config: &ProcessedMethodStartEndConfig,
+  ) -> Option<(String, String, String)> {
+    let namespace = payload
+      .get(config.namespace_attr.as_str())
+      .map(|v| v.to_string_repr().as_str().to_owned())?;
+    let name = payload
+      .get(config.name_attr.as_str())
+      .map(|v| v.to_string_repr().as_str().to_owned())?;
+    let signature = payload
+      .get(config.signature_attr.as_str())
+      .map(|v| v.to_string_repr().as_str().to_owned())?;
 
     Some((namespace, name, signature))
   }
@@ -488,7 +511,7 @@ impl PipelineParts {
                 if let Some((_, name, _)) = Self::extract_method_name_parts(payload, config) {
                   display_name = Some(match config.prefix.as_ref() {
                     None => name,
-                    Some(prefix) => prefix.to_string() + name.as_str()
+                    Some(prefix) => prefix.to_string() + name.as_str(),
                   });
                 }
               }
@@ -496,7 +519,10 @@ impl PipelineParts {
           }
 
           if let Some(display_name) = display_name {
-            event.borrow_mut().user_data_mut().put_concrete(DISPLAY_NAME_KEY.key(), display_name);
+            event
+              .borrow_mut()
+              .user_data_mut()
+              .put_concrete(DISPLAY_NAME_KEY.key(), display_name);
           }
         }
       }
@@ -519,7 +545,7 @@ impl PipelineParts {
     let config = Self::get_software_data_extraction_config(context);
     let config = match remain_start_events {
       true => config.method_end(),
-      false => config.method_start()
+      false => config.method_start(),
     };
 
     if let Some(config) = Self::create_method_extraction_info(config.as_ref())? {
@@ -548,17 +574,22 @@ impl PipelineParts {
     })
   }
 
-  fn create_multithreaded_trace_parts_creation_strategy(config: &UserDataImpl) -> Result<MultithreadedTracePartsCreationStrategy, PipelinePartExecutionError> {
+  fn create_multithreaded_trace_parts_creation_strategy(
+    config: &UserDataImpl,
+  ) -> Result<MultithreadedTracePartsCreationStrategy, PipelinePartExecutionError> {
     match Self::get_user_data(config, &REGEXES_KEY) {
       Ok(regexes) => {
         let mut result = vec![];
-        for r in regexes.iter().map(|r| Regex::new(r.as_str()).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string()))) {
+        for r in regexes
+          .iter()
+          .map(|r| Regex::new(r.as_str()).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string())))
+        {
           result.push(r?);
         }
 
         Ok(MultithreadedTracePartsCreationStrategy::Regexes(result))
       }
-      Err(_) => Ok(MultithreadedTracePartsCreationStrategy::Default)
+      Err(_) => Ok(MultithreadedTracePartsCreationStrategy::Default),
     }
   }
 }

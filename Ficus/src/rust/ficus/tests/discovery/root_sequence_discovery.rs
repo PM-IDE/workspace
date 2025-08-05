@@ -10,10 +10,7 @@ use termgraph::{Config, DirectedGraph, ValueFormatter};
 #[test]
 pub fn test_root_sequence_graph_1() {
   execute_root_sequence_discovery_test(
-    vec![
-      vecs!["A", "B", "C", "D", "E"],
-      vecs!["A", "B", "D", "E"]
-    ],
+    vec![vecs!["A", "B", "C", "D", "E"], vecs!["A", "B", "D", "E"]],
     vecs!["START", "A", "B", "C", "D", "E", "END"],
     vec![
       "[A]--[B]",
@@ -22,7 +19,7 @@ pub fn test_root_sequence_graph_1() {
       "[C]--[D]",
       "[D]--[E]",
       "[E]--[END]",
-      "[START]--[A]"
+      "[START]--[A]",
     ],
   );
 }
@@ -30,10 +27,7 @@ pub fn test_root_sequence_graph_1() {
 #[test]
 pub fn test_root_sequence_graph_2() {
   execute_root_sequence_discovery_test(
-    vec![
-      vecs!["A", "B", "C", "D", "E"],
-      vecs!["A", "X", "Y", "E"]
-    ],
+    vec![vecs!["A", "B", "C", "D", "E"], vecs!["A", "X", "Y", "E"]],
     vecs!["START", "A", "B", "C", "D", "E", "END"],
     vec![
       "[A]--[B]",
@@ -44,7 +38,7 @@ pub fn test_root_sequence_graph_2() {
       "[E]--[END]",
       "[START]--[A]",
       "[X]--[Y]",
-      "[Y]--[E]"
+      "[Y]--[E]",
     ],
   );
 }
@@ -52,13 +46,7 @@ pub fn test_root_sequence_graph_2() {
 #[test]
 pub fn test_root_sequence_graph_3() {
   execute_root_sequence_discovery_test(
-    vec![
-      vecs!["A"],
-      vecs!["B"],
-      vecs!["C"],
-      vecs!["D"],
-      vecs!["E"],
-    ],
+    vec![vecs!["A"], vecs!["B"], vecs!["C"], vecs!["D"], vecs!["E"]],
     vecs!["START", "END"],
     vec![
       "[A]--[END]",
@@ -77,24 +65,12 @@ pub fn test_root_sequence_graph_3() {
 
 #[test]
 pub fn test_root_sequence_graph_4() {
-  execute_root_sequence_discovery_test(
-    vec![],
-    vec![],
-    vec![],
-  )
+  execute_root_sequence_discovery_test(vec![], vec![], vec![])
 }
 
 #[test]
 pub fn test_root_sequence_graph_5() {
-  execute_root_sequence_discovery_test(
-    vec![
-      vecs![]
-    ],
-    vecs!["START", "END"],
-    vec![
-      "[START]--[END]"
-    ],
-  )
+  execute_root_sequence_discovery_test(vec![vecs![]], vecs!["START", "END"], vec!["[START]--[END]"])
 }
 
 #[test]
@@ -134,7 +110,7 @@ pub fn test_root_sequence_graph_7() {
   execute_root_sequence_discovery_test(
     vec![
       vecs!["X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E"],
-      vecs!["A", "B", "C", "D", "E"]
+      vecs!["A", "B", "C", "D", "E"],
     ],
     vecs!["START", "X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E", "END"],
     vec![
@@ -256,10 +232,15 @@ pub fn test_root_sequence_graph_11() {
       vecs!["5", "7", "0", "28", "26", "Loop[23]", "Loop[24]", "8", "16", "0", "28", "20", "21", "10"],
       vecs!["5", "Loop[6]", "29", "7", "8", "Loop[17]", "11", "28", "8", "Loop[16]", "10"],
       vecs!["5", "Loop[7]", "8", "0", "20", "21", "18", "19", "20", "21", "Loop[17]", "22", "Loop[26]", "8", "Loop[16]", "10"],
-      vecs!["13", "Loop[6]", "29", "Loop[7]", "8", "15", "30", "Loop[26]", "Loop[23]", "Loop[24]", "Loop[27]", "8", "Loop[0]", "28", "20", "21", "16", "14"],
-      vecs!["5", "7", "31", "15", "18", "19", "20", "21", "Loop[17]", "11", "28", "Loop[26]", "23", "8", "Loop[16]", "10"]
+      vecs![
+        "13", "Loop[6]", "29", "Loop[7]", "8", "15", "30", "Loop[26]", "Loop[23]", "Loop[24]", "Loop[27]", "8", "Loop[0]", "28", "20",
+        "21", "16", "14"
+      ],
+      vecs!["5", "7", "31", "15", "18", "19", "20", "21", "Loop[17]", "11", "28", "Loop[26]", "23", "8", "Loop[16]", "10"],
     ],
-    vecs!["START", "5", "Loop[7]", "8", "0", "20", "21", "18", "19", "20", "21", "Loop[17]", "22", "Loop[26]", "8", "Loop[16]", "10", "END"],
+    vecs![
+      "START", "5", "Loop[7]", "8", "0", "20", "21", "18", "19", "20", "21", "Loop[17]", "22", "Loop[26]", "8", "Loop[16]", "10", "END"
+    ],
     vec![
       "[0]--[20]",
       "[0]--[28]",
@@ -369,22 +350,36 @@ fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_
   let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
   let to_edge_data_transfer = |_: &String, _: &mut UserDataImpl| {};
 
-  let factory = || (
-    START.to_string(),
-    END.to_string()
+  let factory = || (START.to_string(), END.to_string());
+
+  let context = DiscoveryContext::new(
+    &name_extractor,
+    &factory,
+    root_sequence_kind,
+    &to_node_data_transfer,
+    &to_edge_data_transfer,
   );
 
-  let context = DiscoveryContext::new(&name_extractor, &factory, root_sequence_kind, &to_node_data_transfer, &to_edge_data_transfer);
-
-  let traces = traces.into_iter().map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect()).collect();
-  let graph = discover_root_sequence_graph(&traces, &context, false, None).ok().unwrap().graph_move();
+  let traces = traces
+    .into_iter()
+    .map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect())
+    .collect();
+  let graph = discover_root_sequence_graph(&traces, &context, false, None)
+    .ok()
+    .unwrap()
+    .graph_move();
   let test_result = graph.serialize_edges_deterministic(false);
 
   let gold = gold_graph_edges.join("\n");
 
   if test_result != gold {
     let mut tgraph = DirectedGraph::new();
-    tgraph.add_nodes(graph.all_nodes().into_iter().map(|n| (*n.id(), n.data().unwrap().as_str().to_owned())));
+    tgraph.add_nodes(
+      graph
+        .all_nodes()
+        .into_iter()
+        .map(|n| (*n.id(), n.data().unwrap().as_str().to_owned())),
+    );
     tgraph.add_edges(graph.all_edges().into_iter().map(|e| (*e.from_node(), *e.to_node())));
 
     let tconfig = Config::new(ValueFormatter::new(), 10).default_colors();

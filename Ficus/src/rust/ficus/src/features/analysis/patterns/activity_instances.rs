@@ -26,9 +26,12 @@ use std::{
 
 #[derive(Debug, Clone, Getters, MutGetters, new)]
 pub struct ActivityInTraceInfo {
-  #[getset(get = "pub")] node: Rc<RefCell<ActivityNode>>,
-  #[getset(get = "pub")] start_pos: usize,
-  #[getset(get = "pub", get_mut = "pub")] length: usize,
+  #[getset(get = "pub")]
+  node: Rc<RefCell<ActivityNode>>,
+  #[getset(get = "pub")]
+  start_pos: usize,
+  #[getset(get = "pub", get_mut = "pub")]
+  length: usize,
 }
 
 pub const UNATTACHED_SUB_TRACE_NAME: &str = "UndefinedActivity";
@@ -84,13 +87,19 @@ impl ActivityInTraceInfo {
   }
 }
 
-pub fn extract_activities_instances_strict(log: &Vec<Vec<u64>>, activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<Vec<ActivityInTraceInfo>> {
+pub fn extract_activities_instances_strict(
+  log: &Vec<Vec<u64>>,
+  activities: &Vec<Rc<RefCell<ActivityNode>>>,
+) -> Vec<Vec<ActivityInTraceInfo>> {
   let mut result = vec![];
 
-  let mut suitable_activities = get_all_child_activities(activities).into_iter().filter_map(|a| match a.borrow().repeat_set() {
-    None => None,
-    Some(_) => Some(a.clone())
-  }).collect::<Vec<Rc<RefCell<ActivityNode>>>>();
+  let mut suitable_activities = get_all_child_activities(activities)
+    .into_iter()
+    .filter_map(|a| match a.borrow().repeat_set() {
+      None => None,
+      Some(_) => Some(a.clone()),
+    })
+    .collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
   suitable_activities.sort_by(|f, s| s.borrow().repeat_set().unwrap().len().cmp(&f.borrow().repeat_set().unwrap().len()));
 
@@ -123,7 +132,11 @@ pub fn extract_activities_instances_strict(log: &Vec<Vec<u64>>, activities: &Vec
         }
 
         if found_pattern {
-          trace_instances.push(ActivityInTraceInfo::new((*suitable_activity).clone(), index, repeat_set_slice.len()));
+          trace_instances.push(ActivityInTraceInfo::new(
+            (*suitable_activity).clone(),
+            index,
+            repeat_set_slice.len(),
+          ));
           index += repeat_set_slice.len();
           continue 'this_loop;
         }
@@ -455,7 +468,8 @@ impl ActivityInstancesKeys {
     } else {
       let key = DefaultKey::<UnderlyingEventsInfo<TEvent>>::new("UNDERLYING_EVENTS".to_owned());
       map.insert(type_id, Box::new(key) as Box<dyn Any>);
-      map.get(&type_id)
+      map
+        .get(&type_id)
         .unwrap()
         .downcast_ref::<DefaultKey<UnderlyingEventsInfo<TEvent>>>()
         .unwrap()
@@ -467,7 +481,7 @@ impl ActivityInstancesKeys {
 static mut KEYS: Mutex<Lazy<ActivityInstancesKeys>> = Mutex::new(Lazy::new(|| ActivityInstancesKeys::new()));
 
 lazy_static! {
-    pub static ref HIERARCHY_LEVEL: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
+  pub static ref HIERARCHY_LEVEL: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
 }
 
 pub fn create_new_log_from_activities_instances<TLog, TEventFactory>(
@@ -530,7 +544,12 @@ where
         let base_pattern = if let Some(repeat_set) = activity.node.borrow().repeat_set() {
           let trace = log.traces().get(repeat_set.trace_index).unwrap();
           let sub_array = repeat_set.sub_array;
-          Some(trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length].iter().map(|e| e.clone()).collect())
+          Some(
+            trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length]
+              .iter()
+              .map(|e| e.clone())
+              .collect(),
+          )
         } else {
           None
         };

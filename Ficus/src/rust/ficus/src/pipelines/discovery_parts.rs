@@ -13,7 +13,12 @@ use crate::features::discovery::relations::triangle_relation::OfflineTriangleRel
 use crate::features::discovery::root_sequence::discovery_xes::discover_root_sequence_graph_from_event_log;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, MERGE_SEQUENCES_OF_EVENTS_KEY, NODE_CUTOFF_THRESHOLD_KEY, PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY, RELATIVE_TO_BEST_THRESHOLD_KEY, ROOT_SEQUENCE_KIND_KEY, THREAD_ATTRIBUTE_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY};
+use crate::pipelines::keys::context_keys::{
+  AND_THRESHOLD_KEY, ATTRIBUTE_KEY, BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY, DEPENDENCY_THRESHOLD_KEY, EDGE_CUTOFF_THRESHOLD_KEY,
+  EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, LOOP_LENGTH_TWO_THRESHOLD_KEY, MERGE_SEQUENCES_OF_EVENTS_KEY, NODE_CUTOFF_THRESHOLD_KEY,
+  PATH_KEY, PETRI_NET_KEY, PNML_USE_NAMES_AS_IDS_KEY, POSITIVE_OBSERVATIONS_THRESHOLD_KEY, PRESERVE_THRESHOLD_KEY, RATIO_THRESHOLD_KEY,
+  RELATIVE_TO_BEST_THRESHOLD_KEY, ROOT_SEQUENCE_KIND_KEY, THREAD_ATTRIBUTE_KEY, UNARY_FREQUENCY_THRESHOLD_KEY, UTILITY_RATE_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
 use crate::utils::user_data::user_data::UserData;
@@ -104,7 +109,7 @@ impl PipelineParts {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let creation_dto = match Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY) {
         Ok(thread_attribute) => EventLogInfoCreationDto::default_thread(log, thread_attribute.to_owned()),
-        Err(_) => EventLogInfoCreationDto::default(log)
+        Err(_) => EventLogInfoCreationDto::default(log),
       };
 
       context.put_concrete(GRAPH_KEY.key(), construct_dfg(&OfflineEventLogInfo::create_from(creation_dto)));
@@ -211,7 +216,7 @@ impl PipelineParts {
           context.put_concrete(GRAPH_KEY.key(), graph);
           Ok(())
         }
-        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string())))
+        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
       }
     })
   }

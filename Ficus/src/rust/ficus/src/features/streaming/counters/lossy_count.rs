@@ -63,7 +63,8 @@ where
   }
 
   fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>> {
-    self.state
+    self
+      .state
       .iter()
       .filter(|s| s.1.freq as f64 >= (threshold - s.1.delta) * (self.observed_items_count as f64))
       .map(|s| self.to_streaming_counter_entry(s))

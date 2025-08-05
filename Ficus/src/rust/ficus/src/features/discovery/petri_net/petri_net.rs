@@ -73,13 +73,15 @@ where
   }
 
   pub fn connect_place_to_transition(&mut self, from_place_id: &u64, to_transition_index: &u64, arc_data: Option<TArcData>) {
-    self.transitions
+    self
+      .transitions
       .get_mut(&to_transition_index)
       .unwrap()
       .add_incoming_arc(from_place_id, arc_data);
 
     self.init_places_transitions(from_place_id);
-    self.places_to_transitions
+    self
+      .places_to_transitions
       .get_mut(from_place_id)
       .unwrap()
       .outgoing_transitions
@@ -93,13 +95,15 @@ where
   }
 
   pub fn connect_transition_to_place(&mut self, from_transition_id: &u64, to_place_id: &u64, arc_data: Option<TArcData>) {
-    self.transitions
+    self
+      .transitions
       .get_mut(&from_transition_id)
       .unwrap()
       .add_outgoing_arc(to_place_id, arc_data);
 
     self.init_places_transitions(to_place_id);
-    self.places_to_transitions
+    self
+      .places_to_transitions
       .get_mut(to_place_id)
       .unwrap()
       .incoming_transitions

@@ -86,7 +86,7 @@ impl XesEventLogImpl {
 impl XesEventLogImpl {
   pub fn new<'a, TLogReader>(event_log_reader: &'a mut TLogReader) -> Option<XesEventLogImpl>
   where
-    TLogReader: Iterator<Item=XesEventLogItem<'a>>,
+    TLogReader: Iterator<Item = XesEventLogItem<'a>>,
   {
     let mut extensions = Vec::new();
     let mut globals = HashMap::new();

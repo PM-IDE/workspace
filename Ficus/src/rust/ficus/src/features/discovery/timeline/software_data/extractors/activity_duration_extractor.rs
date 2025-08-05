@@ -1,29 +1,43 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, GenericExtractionConfigBase, SoftwareDataExtractionConfig};
-use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError};
+use crate::features::discovery::timeline::software_data::extraction_config::{
+  ActivityDurationExtractionConfig, GenericExtractionConfigBase, SoftwareDataExtractionConfig,
+};
+use crate::features::discovery::timeline::software_data::extractors::core::{
+  EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
+};
+use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
 use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, GenericEnhancementBase, SoftwareData};
 use crate::features::discovery::timeline::utils::get_stamp;
+use crate::utils::vec_utils::VectorOptionExtensions;
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::Getters;
+use log::error;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use log::error;
-use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
-use crate::utils::vec_utils::VectorOptionExtensions;
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
   config: &'a SoftwareDataExtractionConfig,
 }
 
-type Configs<'a> = Vec<(RegexParingResult, RegexParingResult, &'a ActivityDurationExtractionConfig, Vec<StackActivityStartEntry>, Vec<Option<DurationMapInfo>>)>;
+type Configs<'a> = Vec<(
+  RegexParingResult,
+  RegexParingResult,
+  &'a ActivityDurationExtractionConfig,
+  Vec<StackActivityStartEntry>,
+  Vec<Option<DurationMapInfo>>,
+)>;
 
 impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> {
-  fn extract(&self, trace: &Vec<EventGroup>, software_data: &mut Vec<(SoftwareData, SoftwareData)>) -> Result<(), SoftwareDataExtractionError> {
+  fn extract(
+    &self,
+    trace: &Vec<EventGroup>,
+    software_data: &mut Vec<(SoftwareData, SoftwareData)>,
+  ) -> Result<(), SoftwareDataExtractionError> {
     if self.config.activities_duration_configs().len() == 0 {
       return Ok(());
     }
@@ -40,27 +54,41 @@ fn create_configs(config: &SoftwareDataExtractionConfig) -> Configs {
   config
     .activities_duration_configs()
     .iter()
-    .map(|info|
+    .map(|info| {
       (
-        Regex::new(info.start_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.start_event_regex().to_string())),
+        Regex::new(info.start_event_regex())
+          .map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.start_event_regex().to_string())),
         Regex::new(info.end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.end_event_regex().to_string())),
         info,
         Vec::new(),
-        Vec::new()
+        Vec::new(),
       )
-    )
+    })
     .collect::<Configs>()
 }
 
 fn process_events_groups(trace: &Vec<EventGroup>, configs: &mut Configs) -> Result<(), SoftwareDataExtractionError> {
   for (index, group) in trace.iter().enumerate() {
-    let events = group.statistic_events().iter().map(|e| (*e).clone()).collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
+    let events = group
+      .statistic_events()
+      .iter()
+      .map(|e| (*e).clone())
+      .collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
 
     for (start_regex, end_regex, info, global_state, data) in configs.iter_mut() {
       let time_attr = info.time_attribute().as_ref();
 
       let (start_time, end_time) = get_event_group_node_start_end_stamps(index, trace, time_attr)?;
-      let node_durations = process_events(events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?;
+      let node_durations = process_events(
+        events.as_slice(),
+        start_time,
+        end_time,
+        start_regex,
+        end_regex,
+        info,
+        global_state,
+        data,
+      )?;
 
       data.push(Some(DurationMapInfo {
         map: node_durations,
@@ -70,18 +98,23 @@ fn process_events_groups(trace: &Vec<EventGroup>, configs: &mut Configs) -> Resu
 
       let edges_durations = if let Some(edge_events) = group.after_group_events().is_non_empty() {
         let (start_time, end_time) = get_event_group_edge_start_end_stamps(index, trace, time_attr)?;
-        Some(process_events(edge_events.as_slice(), start_time, end_time, start_regex, end_regex, info, global_state, data)?)
+        Some(process_events(
+          edge_events.as_slice(),
+          start_time,
+          end_time,
+          start_regex,
+          end_regex,
+          info,
+          global_state,
+          data,
+        )?)
       } else {
         None
       };
 
       data.push(if let Some(map) = edges_durations {
         let (start_time, end_time) = get_event_group_edge_start_end_stamps(index, trace, time_attr)?;
-        Some(DurationMapInfo {
-          map,
-          start_time,
-          end_time,
-        })
+        Some(DurationMapInfo { map, start_time, end_time })
       } else {
         None
       });
@@ -134,20 +167,29 @@ fn get_event_group_edge_start_end_stamps(
     if index + 1 < groups.len() {
       get_stamp_or_err(groups[index + 1].control_flow_events().first().as_ref().unwrap(), time_attr)?
     } else {
-      get_stamp_or_err(groups[index].after_group_events().as_ref().expect("Must be set").last().as_ref().unwrap(), time_attr)?
-    }
+      get_stamp_or_err(
+        groups[index]
+          .after_group_events()
+          .as_ref()
+          .expect("Must be set")
+          .last()
+          .as_ref()
+          .unwrap(),
+        time_attr,
+      )?
+    },
   ))
 }
 
 fn add_software_activities_durations(software_data: &mut SoftwareData, data: &DurationMapInfo) {
-  software_data.activities_durations_mut().extend(
-    data.map
-      .iter()
-      .map(|(_, (value, base))| ActivityDurationData::new(
+  software_data
+    .activities_durations_mut()
+    .extend(data.map.iter().map(|(_, (value, base))| {
+      ActivityDurationData::new(
         GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
         *value as f64,
-      ))
-  );
+      )
+    }));
 }
 
 type DurationsMap = HashMap<String, (u64, GenericExtractionConfigBase)>;
@@ -186,8 +228,10 @@ impl DurationsMapExtensions for DurationsMap {
 
 #[derive(Getters, new)]
 struct StackActivityStartEntry {
-  #[getset(get = "pub")] id: Option<String>,
-  #[getset(get = "pub")] event: Rc<RefCell<XesEventImpl>>,
+  #[getset(get = "pub")]
+  id: Option<String>,
+  #[getset(get = "pub")]
+  event: Rc<RefCell<XesEventImpl>>,
 }
 
 fn process_events(
@@ -207,12 +251,12 @@ fn process_events(
   for event in events {
     let start_regex = match start_regex {
       Ok(regex) => regex,
-      Err(err) => return Err(err.clone())
+      Err(err) => return Err(err.clone()),
     };
 
     let end_regex = match end_regex {
       Ok(regex) => regex,
-      Err(err) => return Err(err.clone())
+      Err(err) => return Err(err.clone()),
     };
 
     let id = if let Some(strategy) = info.activity_id_attr() {
@@ -239,7 +283,11 @@ fn process_events(
           for prev_data in previous_data.iter_mut() {
             if let Some(prev_data) = prev_data.as_mut() {
               let duration = prev_data.end_time - prev_data.start_time;
-              (*prev_data.map.entry(info.base().name().to_string()).or_insert((0u64, info.base().clone()))).0 += duration;
+              (*prev_data
+                .map
+                .entry(info.base().name().to_string())
+                .or_insert((0u64, info.base().clone())))
+              .0 += duration;
             }
           }
         }
@@ -269,7 +317,11 @@ fn process_events(
   Ok(durations)
 }
 
-fn get_duration(first: &Rc<RefCell<XesEventImpl>>, second: &Rc<RefCell<XesEventImpl>>, attribute: Option<&String>) -> Result<u64, SoftwareDataExtractionError> {
+fn get_duration(
+  first: &Rc<RefCell<XesEventImpl>>,
+  second: &Rc<RefCell<XesEventImpl>>,
+  attribute: Option<&String>,
+) -> Result<u64, SoftwareDataExtractionError> {
   Ok(get_stamp_or_err(second, attribute)? - get_stamp_or_err(first, attribute)?)
 }
 

@@ -43,8 +43,8 @@ where
 
     self.alpha_plus_provider.direct_relation(first, second)
       && (!self.alpha_plus_provider.direct_relation(second, first)
-      || self.triangle_relation(first, second)
-      || self.triangle_relation(second, first))
+        || self.triangle_relation(first, second)
+        || self.triangle_relation(second, first))
   }
 
   fn parallel_relation(&self, first: &str, second: &str) -> bool {

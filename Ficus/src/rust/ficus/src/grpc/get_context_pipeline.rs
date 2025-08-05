@@ -5,7 +5,10 @@ use uuid::Uuid;
 use super::events::events_handler::{CaseName, GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
 use crate::pipelines::context::PipelineInfrastructure;
 use crate::pipelines::errors::pipeline_errors::RawPartExecutionError;
-use crate::pipelines::keys::context_keys::{find_context_key, CASE_NAME, EXECUTION_ID_KEY, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME, UNSTRUCTURED_METADATA};
+use crate::pipelines::keys::context_keys::{
+  find_context_key, CASE_NAME, EXECUTION_ID_KEY, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME,
+  UNSTRUCTURED_METADATA,
+};
 use crate::utils::context_key::{ContextKey, DefaultContextKey};
 use crate::{
   pipelines::{
@@ -56,8 +59,12 @@ impl GetContextValuePipelinePart {
         let process_case_metadata = Self::create_process_case_metadata(context);
 
         let execution_id = match Self::value_or_none(context, &EXECUTION_ID_KEY) {
-          None => return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new("Execution ID is not supplied".to_string()))),
-          Some(execution_id) => execution_id
+          None => {
+            return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
+              "Execution ID is not supplied".to_string(),
+            )))
+          }
+          Some(execution_id) => execution_id,
         };
 
         sender.handle(&PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {

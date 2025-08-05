@@ -22,7 +22,11 @@ pub fn prepare_software_log(
   }
 
   let is_control_flow = |event: &Rc<RefCell<XesEventImpl>>| {
-    control_flow_regexes.as_ref().unwrap().iter().any(|r| r.is_match(event.borrow().name().as_str()).unwrap_or(false))
+    control_flow_regexes
+      .as_ref()
+      .unwrap()
+      .iter()
+      .any(|r| r.is_match(event.borrow().name().as_str()).unwrap_or(false))
   };
 
   let mut event_groups = vec![];
@@ -45,7 +49,9 @@ pub fn prepare_software_log(
 
         let mut next_control_flow_event_index = index + 1;
 
-        while next_control_flow_event_index < trace.events().len() && !is_control_flow(trace.events().get(next_control_flow_event_index).unwrap()) {
+        while next_control_flow_event_index < trace.events().len()
+          && !is_control_flow(trace.events().get(next_control_flow_event_index).unwrap())
+        {
           next_control_flow_event_index += 1;
         }
 
@@ -57,7 +63,9 @@ pub fn prepare_software_log(
           };
 
           if index + 1 < last_stamp_index {
-            group.set_after_group_events(Some(trace.events()[index + 1..last_stamp_index].iter().map(|e| e.clone()).collect()));
+            group.set_after_group_events(Some(
+              trace.events()[index + 1..last_stamp_index].iter().map(|e| e.clone()).collect(),
+            ));
           }
         }
 
@@ -88,7 +96,7 @@ pub fn prepare_software_log(
 
         label
       };
-      
+
       labels.push(label);
     }
   }

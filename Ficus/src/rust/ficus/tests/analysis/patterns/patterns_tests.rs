@@ -220,8 +220,8 @@ fn test_maximal_repeats_single_merged_trace3_string() {
     create_maximal_repeats_log,
     |log| find_maximal_repeats(&log, &PatternsDiscoveryStrategy::FromSingleMergedTrace).clone(),
     &[
-      "a", "aa", "aaa", "ab", "abc", "abcd", "ad", "b", "bb", "bbbc", "bbc", "bbcc", "bbcd", "bc", "bcc", "bcda", "bcdbb", "bd", "c",
-      "cb", "cc", "cd", "cdc", "d", "da", "dab", "dabc", "db", "dc", "e",
+      "a", "aa", "aaa", "ab", "abc", "abcd", "ad", "b", "bb", "bbbc", "bbc", "bbcc", "bbcd", "bc", "bcc", "bcda", "bcdbb", "bd", "c", "cb",
+      "cc", "cd", "cdc", "d", "da", "dab", "dabc", "db", "dc", "e",
     ],
   );
 }
@@ -300,8 +300,7 @@ fn test_near_super_maximal_repeats_single_merged_trace_string() {
     create_maximal_repeats_log,
     |log| find_near_super_maximal_repeats(&log, &PatternsDiscoveryStrategy::FromSingleMergedTrace).clone(),
     &[
-      "aa", "abcd", "ad", "bb", "bbbc", "bbcc", "bbcd", "bcc", "bcda", "bcdbb", "bd", "cb", "cc", "cdc", "dab", "dabc", "db", "dc",
-      "e",
+      "aa", "abcd", "ad", "bb", "bbbc", "bbcc", "bbcd", "bcc", "bcda", "bcdbb", "bd", "cb", "cc", "cdc", "dab", "dabc", "db", "dc", "e",
     ],
   );
 }

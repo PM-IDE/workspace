@@ -102,9 +102,10 @@ pub enum PerformanceAnnotationInfo {
   SumAndCount(f64, usize),
 }
 
-lazy_static!(
-  pub static ref PERFORMANCE_ANNOTATION_INFO_KEY: DefaultContextKey<PerformanceAnnotationInfo> = DefaultContextKey::new("PERFORMANCE_ANNOTATION_INFO");
-);
+lazy_static! {
+  pub static ref PERFORMANCE_ANNOTATION_INFO_KEY: DefaultContextKey<PerformanceAnnotationInfo> =
+    DefaultContextKey::new("PERFORMANCE_ANNOTATION_INFO");
+}
 
 pub type PerformanceMap = HashMap<(HeapedOrOwned<String>, HeapedOrOwned<String>), (f64, usize)>;
 
@@ -160,12 +161,12 @@ pub fn annotate_with_time_performance(
       Some(match performance_data {
         PerformanceAnnotationInfo::Default(data) => match annotation_kind {
           TimeAnnotationKind::SummedTime => data.iter().sum(),
-          TimeAnnotationKind::Mean => data.iter().sum::<f64>() / data.len() as f64
+          TimeAnnotationKind::Mean => data.iter().sum::<f64>() / data.len() as f64,
         },
         PerformanceAnnotationInfo::SumAndCount(sum, count) => match annotation_kind {
           TimeAnnotationKind::SummedTime => *sum,
-          TimeAnnotationKind::Mean => *sum / (*count as f64)
-        }
+          TimeAnnotationKind::Mean => *sum / (*count as f64),
+        },
       })
     } else if let Some(time_annotation) = try_get_time_annotation(&performance_map, first_node, second_node) {
       Some(match annotation_kind {

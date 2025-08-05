@@ -14,18 +14,42 @@ use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::petri_net::place::Place;
 use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY, NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY};
-use crate::features::discovery::root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind};
+use crate::features::discovery::root_sequence::context_keys::{
+  EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
+  NODE_INNER_GRAPH_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
+  NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY,
+};
+use crate::features::discovery::root_sequence::models::{
+  ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind,
+};
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
-use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, GenericEnhancementBase, HistogramData, SimpleCounterData, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{
+  ActivityDurationData, GenericEnhancementBase, HistogramData, SimpleCounterData, SoftwareData,
+};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{
+  grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes,
+  GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation,
+  GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation,
+  GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind,
+  GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow,
+  GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData,
+  GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
+  GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
+  GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo,
+  GrpcUnderlyingPatternKind,
+};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
+use crate::pipelines::keys::context_keys::{
+  BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
+  LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY,
+  NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
+  PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+};
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
@@ -37,18 +61,24 @@ use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::utils::user_data::user_data::UserDataImpl;
-use crate::{features::analysis::patterns::{
-  activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
-  tandem_arrays::SubArrayInTraceInfo,
-}, ficus_proto::{
-  grpc_context_value::ContextValue, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsTrace, GrpcContextValue,
-  GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace,
-  GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArrayWithTraceIndex,
-  GrpcSubArraysWithTraceIndexContextValue, GrpcTraceSubArray, GrpcTraceSubArrays,
-}, pipelines::pipelines::Pipeline, utils::{
-  colors::{Color, ColoredRectangle},
-  user_data::{keys::Key, user_data::UserData},
-}, vecs};
+use crate::{
+  features::analysis::patterns::{
+    activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
+    tandem_arrays::SubArrayInTraceInfo,
+  },
+  ficus_proto::{
+    grpc_context_value::ContextValue, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsTrace, GrpcContextValue,
+    GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace,
+    GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue,
+    GrpcTraceSubArray, GrpcTraceSubArrays,
+  },
+  pipelines::pipelines::Pipeline,
+  utils::{
+    colors::{Color, ColoredRectangle},
+    user_data::{keys::Key, user_data::UserData},
+  },
+  vecs,
+};
 use log::error;
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
@@ -130,13 +160,16 @@ pub(super) fn put_into_user_data(
     ContextValue::UintArray(uint_array) => user_data.put_any::<Vec<u64>>(key, uint_array.items.clone()),
     ContextValue::Json(json_string) => {
       if key.id() == SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.key().id() {
-        user_data.put_concrete(SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.key(), match serde_json::from_str(json_string) {
-          Ok(config) => config,
-          Err(err) => {
-            error!("Failed to deserialize, error: {}, string: {}", err.to_string(), json_string);
-            return;
-          }
-        })
+        user_data.put_concrete(
+          SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.key(),
+          match serde_json::from_str(json_string) {
+            Ok(config) => config,
+            Err(err) => {
+              error!("Failed to deserialize, error: {}, string: {}", err.to_string(), json_string);
+              return;
+            }
+          },
+        )
       }
     }
   }
@@ -568,15 +601,19 @@ where
   let edges: Vec<GrpcGraphEdge> = graph.all_edges().iter().map(|edge| convert_to_grpc_graph_edge(edge)).collect();
   let kind = convert_to_grpc_graph_kind(graph.kind().as_ref());
 
-  GrpcGraph { edges, nodes, kind: kind.into() }
+  GrpcGraph {
+    edges,
+    nodes,
+    kind: kind.into(),
+  }
 }
 
 fn convert_to_grpc_graph_kind(kind: Option<&GraphKind>) -> GrpcGraphKind {
   match kind {
     None => GrpcGraphKind::None,
     Some(kind) => match kind {
-      GraphKind::Dag => GrpcGraphKind::Dag
-    }
+      GraphKind::Dag => GrpcGraphKind::Dag,
+    },
   }
 }
 
@@ -614,15 +651,27 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
   }
 
   if let Some(activities_start_end_data) = user_data.concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key()) {
-    additional_data.extend(activities_start_end_data.iter().map(|d| convert_to_grpc_node_activity_start_end_data(d)))
+    additional_data.extend(
+      activities_start_end_data
+        .iter()
+        .map(|d| convert_to_grpc_node_activity_start_end_data(d)),
+    )
   }
 
   if let Some(underlying_patterns_infos) = user_data.concrete(NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY.key()) {
-    additional_data.extend(underlying_patterns_infos.iter().map(|info| convert_to_grpc_underlying_pattern_info_additional_data(info)))
+    additional_data.extend(
+      underlying_patterns_infos
+        .iter()
+        .map(|info| convert_to_grpc_underlying_pattern_info_additional_data(info)),
+    )
   }
 
   if let Some(multithreaded_logs) = user_data.concrete(NODE_MULTITHREADED_FRAGMENT_LOG_KEY.key()) {
-    additional_data.extend(multithreaded_logs.iter().map(|info| convert_to_grpc_node_multithreaded_log_additional_data(info)))
+    additional_data.extend(
+      multithreaded_logs
+        .iter()
+        .map(|info| convert_to_grpc_node_multithreaded_log_additional_data(info)),
+    )
   }
 
   additional_data
@@ -631,11 +680,15 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
 fn convert_to_grpc_node_multithreaded_log_additional_data(info: &NodeAdditionalDataContainer<XesEventLogImpl>) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
     original_event_coordinates: Some(convert_to_event_coordinates(info.original_event_coordinates())),
-    data: Some(Data::MultithreadedFragment(GrpcMultithreadedFragment { multithreaded_log: Some(convert_to_grpc_simple_log(info.value())) })),
+    data: Some(Data::MultithreadedFragment(GrpcMultithreadedFragment {
+      multithreaded_log: Some(convert_to_grpc_simple_log(info.value())),
+    })),
   }
 }
 
-fn convert_to_grpc_underlying_pattern_info_additional_data(info: &NodeAdditionalDataContainer<UnderlyingPatternGraphInfo>) -> GrpcNodeAdditionalData {
+fn convert_to_grpc_underlying_pattern_info_additional_data(
+  info: &NodeAdditionalDataContainer<UnderlyingPatternGraphInfo>,
+) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
     original_event_coordinates: Some(convert_to_event_coordinates(info.original_event_coordinates())),
     data: Some(Data::PatternInfo(convert_to_grpc_underlying_pattern_info(info.value()))),
@@ -652,10 +705,11 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternGraphInfo) ->
       UnderlyingPatternKind::SuperMaximalRepeat => GrpcUnderlyingPatternKind::SuperMaximalRepeat,
       UnderlyingPatternKind::NearSuperMaximalRepeat => GrpcUnderlyingPatternKind::NearSuperMaximalRepeat,
       UnderlyingPatternKind::Unknown => GrpcUnderlyingPatternKind::Unknown,
-    }).into(),
+    })
+    .into(),
     base_sequence: match info.base_pattern() {
       None => vec![],
-      Some(base_pattern) => base_pattern.clone()
+      Some(base_pattern) => base_pattern.clone(),
     },
     graph: Some(convert_to_grpc_graph(info.graph().as_ref())),
   }
@@ -663,18 +717,27 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternGraphInfo) ->
 
 fn convert_to_grpc_simple_log(log: &XesEventLogImpl) -> GrpcSimpleEventLog {
   GrpcSimpleEventLog {
-    traces: log.traces().iter().map(|t| convert_to_grpc_simple_trace(t.borrow().events())).collect()
+    traces: log
+      .traces()
+      .iter()
+      .map(|t| convert_to_grpc_simple_trace(t.borrow().events()))
+      .collect(),
   }
 }
 
 fn convert_to_grpc_simple_trace(trace: &Vec<Rc<RefCell<XesEventImpl>>>) -> GrpcSimpleTrace {
   GrpcSimpleTrace {
-    events: trace.iter().map(|e| GrpcEvent {
-      name: e.borrow().name().to_owned(),
-      stamp: Some(GrpcEventStamp {
-        stamp: Some(Stamp::Date(Timestamp::from_str(e.borrow().timestamp().to_rfc3339().as_str()).unwrap()))
-      }),
-    }).collect()
+    events: trace
+      .iter()
+      .map(|e| GrpcEvent {
+        name: e.borrow().name().to_owned(),
+        stamp: Some(GrpcEventStamp {
+          stamp: Some(Stamp::Date(
+            Timestamp::from_str(e.borrow().timestamp().to_rfc3339().as_str()).unwrap(),
+          )),
+        }),
+      })
+      .collect(),
   }
 }
 
@@ -699,14 +762,14 @@ fn convert_to_grpc_activity_start_end_data(data: &ActivityStartEndTimeData) -> G
   }
 }
 
-fn convert_to_grpc_corresponding_trace_data(corresponding_trace_data: &NodeAdditionalDataContainer<CorrespondingTraceData>) -> GrpcNodeAdditionalData {
+fn convert_to_grpc_corresponding_trace_data(
+  corresponding_trace_data: &NodeAdditionalDataContainer<CorrespondingTraceData>,
+) -> GrpcNodeAdditionalData {
   GrpcNodeAdditionalData {
     original_event_coordinates: Some(convert_to_event_coordinates(corresponding_trace_data.original_event_coordinates())),
-    data: Some(Data::TraceData(
-      GrpcNodeCorrespondingTraceData {
-        belongs_to_root_sequence: corresponding_trace_data.value().belongs_to_root_sequence(),
-      }
-    )),
+    data: Some(Data::TraceData(GrpcNodeCorrespondingTraceData {
+      belongs_to_root_sequence: corresponding_trace_data.value().belongs_to_root_sequence(),
+    })),
   }
 }
 
@@ -720,11 +783,23 @@ fn convert_to_grpc_graph_node_software_data(software_data: &NodeAdditionalDataCo
 fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareData {
   GrpcSoftwareData {
     histogram: convert_to_grpc_histogram_entries(software_data.event_classes()),
-    histogram_data: software_data.histograms().iter().map(|h| convert_to_grpc_histogram_data(h)).collect(),
-    simple_counter_data: software_data.simple_counters().iter().map(|c| convert_to_grpc_simple_counter_data(c)).collect(),
-    activities_durations_data: software_data.activities_durations().iter().map(|c| convert_to_grpc_activity_duration(c)).collect(),
+    histogram_data: software_data
+      .histograms()
+      .iter()
+      .map(|h| convert_to_grpc_histogram_data(h))
+      .collect(),
+    simple_counter_data: software_data
+      .simple_counters()
+      .iter()
+      .map(|c| convert_to_grpc_simple_counter_data(c))
+      .collect(),
+    activities_durations_data: software_data
+      .activities_durations()
+      .iter()
+      .map(|c| convert_to_grpc_activity_duration(c))
+      .collect(),
     timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
-      threads: convert_to_grpc_threads(software_data.thread_diagram_fragment())
+      threads: convert_to_grpc_threads(software_data.thread_diagram_fragment()),
     }),
   }
 }
@@ -740,17 +815,21 @@ fn convert_to_grpc_generic_enhancement_base(base: &GenericEnhancementBase) -> Gr
   GrpcGenericEnhancementBase {
     name: base.name().to_string(),
     units: base.units().to_string(),
-    group: base.group().clone()
+    group: base.group().clone(),
   }
 }
 
 fn convert_to_grpc_histogram_data(data: &HistogramData) -> GrpcGeneralHistogramData {
   GrpcGeneralHistogramData {
     base: Some(convert_to_grpc_generic_enhancement_base(data.base())),
-    entries: data.entries().iter().map(|e| GrpcHistogramEntry {
-      name: e.name().to_string(),
-      count: *e.value(),
-    }).collect(),
+    entries: data
+      .entries()
+      .iter()
+      .map(|e| GrpcHistogramEntry {
+        name: e.name().to_string(),
+        count: *e.value(),
+      })
+      .collect(),
   }
 }
 
@@ -762,12 +841,13 @@ fn convert_to_grpc_simple_counter_data(data: &SimpleCounterData) -> GrpcSimpleCo
 }
 
 fn convert_to_grpc_histogram_entries(histogram: &HashMap<String, usize>) -> Vec<GrpcHistogramEntry> {
-  histogram.iter().map(|(key, value)| {
-    GrpcHistogramEntry {
+  histogram
+    .iter()
+    .map(|(key, value)| GrpcHistogramEntry {
       name: key.to_owned(),
       count: *value as f64,
-    }
-  }).collect()
+    })
+    .collect()
 }
 
 fn convert_to_grpc_graph_edge<TEdgeData>(edge: &GraphEdge<TEdgeData>) -> GrpcGraphEdge
@@ -813,20 +893,24 @@ fn convert_to_grpc_edge_additional_data(user_data: &UserDataImpl) -> Vec<GrpcGra
 fn convert_to_grpc_edge_execution_info_additional_data(info: &EdgeTraceExecutionInfo) -> GrpcGraphEdgeAdditionalData {
   GrpcGraphEdgeAdditionalData {
     data: Some(grpc_graph_edge_additional_data::Data::ExecutionInfo(GrpcEdgeExecutionInfo {
-      trace_id: info.trace_id().clone()
-    }))
+      trace_id: info.trace_id().clone(),
+    })),
   }
 }
 
 fn convert_to_grpc_edge_software_additional_data(software_data: &SoftwareData) -> GrpcGraphEdgeAdditionalData {
   GrpcGraphEdgeAdditionalData {
-    data: Some(grpc_graph_edge_additional_data::Data::SoftwareData(convert_to_grpc_software_data(software_data)))
+    data: Some(grpc_graph_edge_additional_data::Data::SoftwareData(convert_to_grpc_software_data(
+      software_data,
+    ))),
   }
 }
 
 fn convert_grpc_edge_activity_start_end_time(activity_data: &ActivityStartEndTimeData) -> GrpcGraphEdgeAdditionalData {
   GrpcGraphEdgeAdditionalData {
-    data: Some(grpc_graph_edge_additional_data::Data::TimeData(convert_to_grpc_activity_start_end_data(activity_data)))
+    data: Some(grpc_graph_edge_additional_data::Data::TimeData(
+      convert_to_grpc_activity_start_end_data(activity_data),
+    )),
   }
 }
 
@@ -928,10 +1012,14 @@ fn convert_to_grpc_log_threads_diagram(diagram: &LogTimelineDiagram) -> GrpcLogT
       .traces()
       .iter()
       .map(|t| GrpcTraceTimelineDiagram {
-        events_groups: t.events_groups().iter().map(|g| GrpcTimelineTraceEventsGroup {
-          start_point: Some(convert_to_grpc_log_point(g.start_point())),
-          end_point: Some(convert_to_grpc_log_point(g.end_point())),
-        }).collect(),
+        events_groups: t
+          .events_groups()
+          .iter()
+          .map(|g| GrpcTimelineTraceEventsGroup {
+            start_point: Some(convert_to_grpc_log_point(g.start_point())),
+            end_point: Some(convert_to_grpc_log_point(g.end_point())),
+          })
+          .collect(),
         threads: convert_to_grpc_threads(t.threads()),
       })
       .collect(),

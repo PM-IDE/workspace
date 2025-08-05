@@ -3,8 +3,7 @@ use crate::test_core::{
 };
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus::features::discovery::{
-  alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc,
-  petri_net::pnml_serialization::serialize_to_pnml,
+  alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc, petri_net::pnml_serialization::serialize_to_pnml,
 };
 
 #[test]

@@ -59,7 +59,8 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
   fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>> {
     let all_count: u64 = self.counts_sum();
 
-    self.storage
+    self
+      .storage
       .iter()
       .filter(|(_, v)| v.count as f64 > threshold)
       .map(|(k, v)| StreamingCounterEntry::new(k.clone(), v.value.clone(), v.count as f64 / all_count as f64, v.count))
@@ -69,7 +70,8 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
   fn invalidate(&mut self) {
     let invalidator = self.invalidator.clone();
 
-    self.storage
+    self
+      .storage
       .retain(|_, value| invalidator(value.value.as_ref(), &value.timestamp) == InvalidationResult::Retain)
   }
 }

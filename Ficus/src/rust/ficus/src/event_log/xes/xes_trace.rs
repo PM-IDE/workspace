@@ -15,7 +15,7 @@ pub struct XesTraceImpl {
 impl XesTraceImpl {
   pub fn new<TTraceReader>(trace_reader: TTraceReader) -> Option<XesTraceImpl>
   where
-    TTraceReader: Iterator<Item=XesEventImpl>,
+    TTraceReader: Iterator<Item = XesEventImpl>,
   {
     let mut events: Vec<Rc<RefCell<XesEventImpl>>> = Vec::new();
     for event in trace_reader {

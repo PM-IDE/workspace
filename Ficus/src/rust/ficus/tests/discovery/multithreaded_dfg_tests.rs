@@ -1,4 +1,4 @@
-﻿use ficus::event_log::core::event::event::{Event, EventPayloadValue};
+use ficus::event_log::core::event::event::{Event, EventPayloadValue};
 use ficus::event_log::core::event_log::EventLog;
 use ficus::event_log::core::trace::trace::Trace;
 use ficus::event_log::xes::xes_event::XesEventImpl;
@@ -13,15 +13,13 @@ const TEST_THREAD_ID_ATTRIBUTE: &'static str = "TestThreadId";
 #[test]
 fn test_multithreaded_dfg_discovery() {
   execute_multithreaded_dfg_discovery_test(
-    vec![
-      vec![
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"]
-      ]
-    ],
+    vec![vec![
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+    ]],
     vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)"],
   );
 }
@@ -29,16 +27,14 @@ fn test_multithreaded_dfg_discovery() {
 #[test]
 fn test_multithreaded_dfg_discovery_2() {
   execute_multithreaded_dfg_discovery_test(
-    vec![
-      vec![
-        vec!["E"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"]
-      ]
-    ],
+    vec![vec![
+      vec!["E"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+    ]],
     vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[E]--[A](5)"],
   );
 }
@@ -46,16 +42,14 @@ fn test_multithreaded_dfg_discovery_2() {
 #[test]
 fn test_multithreaded_dfg_discovery_3() {
   execute_multithreaded_dfg_discovery_test(
-    vec![
-      vec![
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["E"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"]
-      ]
-    ],
+    vec![vec![
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["E"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+    ]],
     vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[D]--[E](3)", "[E]--[A](2)"],
   );
 }

@@ -68,17 +68,26 @@ pub fn create_cluster_name(cluster_index: usize) -> String {
 }
 
 pub(super) fn adjust_dbscan_labels(clusters: Array1<Option<usize>>, put_noise_events_in_one_cluster: bool) -> Vec<usize> {
-  let mut next_label = clusters.iter().filter(|c| c.is_some()).map(|c| c.as_ref().unwrap().clone()).max().unwrap_or(0);
+  let mut next_label = clusters
+    .iter()
+    .filter(|c| c.is_some())
+    .map(|c| c.as_ref().unwrap().clone())
+    .max()
+    .unwrap_or(0);
 
   clusters
     .into_raw_vec()
     .iter()
-    .map(|x| if x.is_none() {
-      if !put_noise_events_in_one_cluster {
-        next_label += 1;
-      }
+    .map(|x| {
+      if x.is_none() {
+        if !put_noise_events_in_one_cluster {
+          next_label += 1;
+        }
 
-      next_label
-    } else { x.unwrap() })
+        next_label
+      } else {
+        x.unwrap()
+      }
+    })
     .collect()
 }

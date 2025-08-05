@@ -11,7 +11,7 @@ impl Display for SilhouetteScoreError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
       SilhouetteScoreError::NotEnoughSamples => f.write_str("Not enough samples for silhouette score"),
-      &SilhouetteScoreError::InappropriateLabelsCount => f.write_str("Labels count should be 2 <= n_labels <= n_samples - 1")
+      &SilhouetteScoreError::InappropriateLabelsCount => f.write_str("Labels count should be 2 <= n_labels <= n_samples - 1"),
     }
   }
 }
@@ -45,7 +45,7 @@ pub fn silhouette_score(labels: &Vec<usize>, distance_func: impl Fn(usize, usize
 
       a_x = match current_cluster_indices.len() {
         1 => 0.,
-        len => a_x / (len - 1) as f64
+        len => a_x / (len - 1) as f64,
       };
 
       let mut b_x = None;

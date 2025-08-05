@@ -30,7 +30,8 @@ impl CasesDiscoveryState {
       self.depth = Some(depth_value + 1);
 
       if depth_value > 0 {
-        self.stack
+        self
+          .stack
           .back_mut()
           .expect("Must contain trace")
           .push(Rc::new(RefCell::new(event.clone())));
@@ -54,7 +55,8 @@ impl CasesDiscoveryState {
       self.depth = Some(depth_value - 1);
 
       if depth_value > 1 {
-        self.stack
+        self
+          .stack
           .back_mut()
           .expect("Must contain trace")
           .push(Rc::new(RefCell::new(event.clone())));
@@ -84,7 +86,8 @@ impl CasesDiscoveryState {
         break;
       }
 
-      self.log
+      self
+        .log
         .push(Rc::new(RefCell::new(self.stack.pop_back().expect("Can not be empty"))));
     }
   }

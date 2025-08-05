@@ -48,11 +48,12 @@ unsafe impl Sync for DfgDataStructureBase {}
 impl DfgDataStructureBase {
   pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
     debug!(
-            "Observing relation, process: {}, relation: ({}, {})",
-            process_name, &relation.0, &relation.1
-        );
+      "Observing relation, process: {}, relation: ({}, {})",
+      process_name, &relation.0, &relation.1
+    );
 
-    self.processes_dfg
+    self
+      .processes_dfg
       .entry(process_name.to_owned())
       .or_insert(self.factory.create())
       .borrow_mut()
@@ -62,7 +63,8 @@ impl DfgDataStructureBase {
   pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
     debug!("Observing event class, process: {}, event class: {}", process_name, event_class);
 
-    self.event_classes_count
+    self
+      .event_classes_count
       .entry(process_name.to_owned())
       .or_insert(self.factory.create())
       .borrow_mut()
@@ -71,12 +73,13 @@ impl DfgDataStructureBase {
 
   pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: String) {
     debug!(
-            "Observing last trace class, case id: {}, last class: {}",
-            &case_id,
-            last_class.as_str()
-        );
+      "Observing last trace class, case id: {}, last class: {}",
+      &case_id,
+      last_class.as_str()
+    );
 
-    self.traces_last_event_classes
+    self
+      .traces_last_event_classes
       .borrow_mut()
       .observe(case_id, ValueUpdateKind::Replace(last_class))
   }
@@ -100,9 +103,9 @@ impl DfgDataStructureBase {
     };
 
     debug!(
-            "Creating offline multithreaded_dfg info from relations: {:?}, event classes count: {:?}",
-            &relations, &event_classes_count
-        );
+      "Creating offline multithreaded_dfg info from relations: {:?}, event classes count: {:?}",
+      &relations, &event_classes_count
+    );
 
     Some(OfflineEventLogInfo::create_from_relations(&relations, &event_classes_count))
   }
@@ -184,7 +187,8 @@ impl DfgDataStructures {
     let new_trace_last_class = xes_trace.events().last().unwrap().borrow().name().to_owned();
 
     self.base.observe_event_class(process_name, new_trace_last_class.clone());
-    self.base
+    self
+      .base
       .observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
 
     match self.base.to_event_log_info(process_name) {

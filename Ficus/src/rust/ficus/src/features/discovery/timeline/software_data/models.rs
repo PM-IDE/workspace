@@ -1,8 +1,8 @@
 use crate::features::discovery::timeline::discovery::TraceThread;
 use derive_new::new;
 use getset::{Getters, MutGetters};
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
@@ -41,31 +41,42 @@ impl SoftwareData {
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct HistogramData {
-  #[getset(get = "pub")] base: GenericEnhancementBase,
-  #[getset(get = "pub", get_mut = "pub")] entries: Vec<HistogramEntry>,
+  #[getset(get = "pub")]
+  base: GenericEnhancementBase,
+  #[getset(get = "pub", get_mut = "pub")]
+  entries: Vec<HistogramEntry>,
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct GenericEnhancementBase {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] units: String,
-  #[getset(get = "pub")] group: Option<String>,
+  #[getset(get = "pub")]
+  name: String,
+  #[getset(get = "pub")]
+  units: String,
+  #[getset(get = "pub")]
+  group: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct HistogramEntry {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] value: f64,
+  #[getset(get = "pub")]
+  name: String,
+  #[getset(get = "pub")]
+  value: f64,
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct SimpleCounterData {
-  #[getset(get = "pub")] base: GenericEnhancementBase,
-  #[getset(get = "pub")] value: f64,
+  #[getset(get = "pub")]
+  base: GenericEnhancementBase,
+  #[getset(get = "pub")]
+  value: f64,
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct ActivityDurationData {
-  #[getset(get = "pub")] base: GenericEnhancementBase,
-  #[getset(get = "pub")] duration: f64,
+  #[getset(get = "pub")]
+  base: GenericEnhancementBase,
+  #[getset(get = "pub")]
+  duration: f64,
 }

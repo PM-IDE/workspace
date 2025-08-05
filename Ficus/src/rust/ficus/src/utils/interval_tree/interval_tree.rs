@@ -8,7 +8,7 @@ pub struct IntervalTree<TElement, TRangeCreator, TElementIterator, TData>
 where
   TElement: PartialEq + Ord + Copy + Hash,
   TRangeCreator: Fn(&TElement, &TElement) -> TElementIterator,
-  TElementIterator: Iterator<Item=TElement>,
+  TElementIterator: Iterator<Item = TElement>,
   TData: PartialEq + Eq + Copy,
 {
   nodes: Box<Vec<Node<TElement, TData>>>,
@@ -25,7 +25,7 @@ impl<TElement, TRangeCreator, TElementIterator, TData> IntervalTree<TElement, TR
 where
   TElement: PartialEq + Ord + Copy + Hash,
   TRangeCreator: Fn(&TElement, &TElement) -> TElementIterator,
-  TElementIterator: Iterator<Item=TElement>,
+  TElementIterator: Iterator<Item = TElement>,
   TData: PartialEq + Eq + Copy,
 {
   pub fn new(
@@ -126,7 +126,7 @@ where
 
   fn to_ordered_vec<TIterator>(set: TIterator) -> Vec<Interval<TElement, TData>>
   where
-    TIterator: IntoIterator<Item=Interval<TElement, TData>>,
+    TIterator: IntoIterator<Item = Interval<TElement, TData>>,
   {
     let mut result: Vec<Interval<TElement, TData>> = set.into_iter().collect();
     result.sort_by(|first, second| first.left.cmp(&second.left));

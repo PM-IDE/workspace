@@ -9,7 +9,13 @@ use crate::features::clustering::traces::k_means::clusterize_log_by_traces_kmean
 use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams};
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY, PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY};
+use crate::pipelines::keys::context_keys::{
+  ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY,
+  EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY,
+  LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY,
+  PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+  TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY,
+};
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{Pipeline, PipelinePart, PipelinePartFactory};
@@ -214,10 +220,11 @@ impl PipelineParts {
       let tolerances = Self::get_user_data(config, &TOLERANCES_KEY)?;
       let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
 
-      let new_logs = match clusterize_log_by_traces_dbscan_grid_search(&mut params, &min_points, tolerances, put_noise_events_in_one_cluster) {
-        Ok(new_logs) => new_logs,
-        Err(error) => return Err(error.into()),
-      };
+      let new_logs =
+        match clusterize_log_by_traces_dbscan_grid_search(&mut params, &min_points, tolerances, put_noise_events_in_one_cluster) {
+          Ok(new_logs) => new_logs,
+          Err(error) => return Err(error.into()),
+        };
 
       context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), new_logs.1);
 
@@ -243,7 +250,7 @@ impl PipelineParts {
 
     match original_log {
       None => {}
-      Some(log) => context.put_concrete(EVENT_LOG_KEY.key(), log)
+      Some(log) => context.put_concrete(EVENT_LOG_KEY.key(), log),
     };
 
     Ok(())

@@ -48,7 +48,7 @@ impl FicusService {
 
 #[tonic::async_trait]
 impl GrpcBackendService for FicusService {
-  type ExecutePipelineStream = Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  type ExecutePipelineStream = Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline(
     &self,

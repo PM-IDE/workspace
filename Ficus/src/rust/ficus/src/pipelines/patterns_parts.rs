@@ -1,7 +1,10 @@
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY};
 use crate::features::analysis::patterns::strict_loops::find_loops_strict;
-use crate::pipelines::keys::context_keys::{ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, TANDEM_ARRAY_LENGTH_KEY, TRACE_ACTIVITIES_KEY};
+use crate::pipelines::keys::context_keys::{
+  ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY,
+  TANDEM_ARRAY_LENGTH_KEY, TRACE_ACTIVITIES_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
   features::analysis::patterns::{
@@ -59,25 +62,45 @@ impl PipelineParts {
 
   pub(super) fn find_super_maximal_repeats() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::FIND_SUPER_MAXIMAL_REPEATS, &|context, _, config| {
-      Self::find_repeats_and_put_to_context(context, config, find_super_maximal_repeats, UnderlyingPatternKind::SuperMaximalRepeat)
+      Self::find_repeats_and_put_to_context(
+        context,
+        config,
+        find_super_maximal_repeats,
+        UnderlyingPatternKind::SuperMaximalRepeat,
+      )
     })
   }
 
   pub(super) fn find_near_super_maximal_repeats() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::FIND_NEAR_SUPER_MAXIMAL_REPEATS, &|context, _, config| {
-      Self::find_repeats_and_put_to_context(context, config, find_near_super_maximal_repeats, UnderlyingPatternKind::NearSuperMaximalRepeat)
+      Self::find_repeats_and_put_to_context(
+        context,
+        config,
+        find_near_super_maximal_repeats,
+        UnderlyingPatternKind::NearSuperMaximalRepeat,
+      )
     })
   }
 
   pub(super) fn find_primitive_tandem_arrays() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::FIND_PRIMITIVE_TANDEM_ARRAYS, &|context, _, config| {
-      Self::find_tandem_arrays_and_put_to_context(context, &config, find_primitive_tandem_arrays, UnderlyingPatternKind::PrimitiveTandemArray)
+      Self::find_tandem_arrays_and_put_to_context(
+        context,
+        &config,
+        find_primitive_tandem_arrays,
+        UnderlyingPatternKind::PrimitiveTandemArray,
+      )
     })
   }
 
   pub(super) fn find_maximal_tandem_arrays() -> (String, PipelinePartFactory) {
     Self::create_pipeline_part(Self::FIND_MAXIMAL_TANDEM_ARRAYS, &|context, _, config| {
-      Self::find_tandem_arrays_and_put_to_context(context, &config, find_maximal_tandem_arrays, UnderlyingPatternKind::MaximalTandemArray)
+      Self::find_tandem_arrays_and_put_to_context(
+        context,
+        &config,
+        find_maximal_tandem_arrays,
+        UnderlyingPatternKind::MaximalTandemArray,
+      )
     })
   }
 
@@ -131,8 +154,12 @@ impl PipelineParts {
       PatternsKindDto::MaximalTandemArrays => {
         Self::find_tandem_arrays_and_put_to_context(context, config, find_maximal_tandem_arrays, patterns_kind.into())?
       }
-      PatternsKindDto::MaximalRepeats => Self::find_repeats_and_put_to_context(context, config, find_maximal_repeats, patterns_kind.into())?,
-      PatternsKindDto::SuperMaximalRepeats => Self::find_repeats_and_put_to_context(context, config, find_super_maximal_repeats, patterns_kind.into())?,
+      PatternsKindDto::MaximalRepeats => {
+        Self::find_repeats_and_put_to_context(context, config, find_maximal_repeats, patterns_kind.into())?
+      }
+      PatternsKindDto::SuperMaximalRepeats => {
+        Self::find_repeats_and_put_to_context(context, config, find_super_maximal_repeats, patterns_kind.into())?
+      }
       PatternsKindDto::NearSuperMaximalRepeats => {
         Self::find_repeats_and_put_to_context(context, config, find_near_super_maximal_repeats, patterns_kind.into())?
       }
@@ -150,7 +177,10 @@ impl PipelineParts {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let hashed_log = Self::create_hashed_event_log(config, log);
 
-      context.put_concrete(TRACE_ACTIVITIES_KEY.key(), find_loops_strict(log, &hashed_log, *max_array_length as usize));
+      context.put_concrete(
+        TRACE_ACTIVITIES_KEY.key(),
+        find_loops_strict(log, &hashed_log, *max_array_length as usize),
+      );
       context.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), UnderlyingPatternKind::StrictLoop);
 
       Ok(())

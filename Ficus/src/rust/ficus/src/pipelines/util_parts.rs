@@ -6,7 +6,9 @@ use super::pipelines::PipelinePartFactory;
 use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::keys::context_keys::{EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY};
+use crate::pipelines::keys::context_keys::{
+  EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePart;
 use crate::utils::graph::graphs_merging::merge_graphs;
@@ -126,7 +128,7 @@ impl PipelineParts {
 
       match Self::get_user_data_mut(context, &GRAPHS_KEY).ok() {
         None => context.put_concrete(GRAPHS_KEY.key(), vec![graph]),
-        Some(graphs) => graphs.push(graph)
+        Some(graphs) => graphs.push(graph),
       }
 
       Ok(())

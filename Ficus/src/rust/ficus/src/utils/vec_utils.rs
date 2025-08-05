@@ -10,10 +10,12 @@ impl<T> VectorOptionExtensions<T> for Option<Vec<T>> {
   fn is_non_empty(&self) -> Option<&Vec<T>> {
     match self.as_ref() {
       None => None,
-      Some(v) => if !v.is_empty() {
-        self.as_ref()
-      } else {
-        None
+      Some(v) => {
+        if !v.is_empty() {
+          self.as_ref()
+        } else {
+          None
+        }
       }
     }
   }

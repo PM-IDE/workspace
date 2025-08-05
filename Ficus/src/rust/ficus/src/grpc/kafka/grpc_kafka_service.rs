@@ -74,14 +74,15 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let dto = request.get_ref().to_dto();
     let handler = KafkaService::create_kafka_events_handler(request.get_ref().producer_kafka_metadata.as_ref())?;
     let pipeline_id =
-      self.kafka_service
+      self
+        .kafka_service
         .add_execution_request(dto.subscription_id, handler, dto.request, dto.streaming_configuration, dto.name);
 
     Ok(Response::new(GrpcKafkaResult::success(pipeline_id)))
   }
 
   type AddPipelineToSubscriptionStreamStream =
-  Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+    Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn add_pipeline_to_subscription_stream(
     &self,
@@ -91,7 +92,8 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let (sender, receiver) = mpsc::channel(4);
     let handler = GrpcPipelineEventsHandler::new(sender);
 
-    self.kafka_service
+    self
+      .kafka_service
       .add_execution_request(dto.subscription_id, handler, dto.request, dto.streaming_configuration, dto.name);
 
     Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
@@ -161,7 +163,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
   }
 
   type ExecutePipelineAndProduceToKafkaStream =
-  Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+    Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline_and_produce_to_kafka(
     &self,
@@ -179,14 +181,13 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let mut cv_service = self.context_values_service.lock();
     let cv_service = cv_service.as_mut().expect("Must acquire lock");
 
-    let context_values =
-      match cv_service.reclaim_context_values(&request.get_ref().pipeline_request.as_ref().unwrap().context_values_ids) {
-        Ok(context_values) => context_values,
-        Err(not_found_id) => {
-          let message = format!("Failed to find context value for id {}", not_found_id);
-          return Err(Status::invalid_argument(message));
-        }
-      };
+    let context_values = match cv_service.reclaim_context_values(&request.get_ref().pipeline_request.as_ref().unwrap().context_values_ids) {
+      Ok(context_values) => context_values,
+      Err(not_found_id) => {
+        let message = format!("Failed to find context value for id {}", not_found_id);
+        return Err(Status::invalid_argument(message));
+      }
+    };
 
     tokio::task::spawn_blocking(move || {
       let pipeline = request
@@ -229,11 +230,13 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
       match execution_result {
         Ok((uuid, _)) => {
-          dto.events_handler
+          dto
+            .events_handler
             .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
         }
         Err(err) => {
-          dto.events_handler
+          dto
+            .events_handler
             .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
         }
       };
