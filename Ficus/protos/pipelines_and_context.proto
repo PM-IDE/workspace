@@ -232,8 +232,8 @@ message GrpcMultithreadedFragment {
 }
 
 message GrpcActivityStartEndData {
-  uint64 start_time = 1;
-  uint64 end_time = 2;
+  int64 start_time = 1;
+  int64 end_time = 2;
 }
 
 message GrpcEventCoordinates {
@@ -363,5 +363,5 @@ message GrpcThread {
 
 message GrpcThreadEvent {
   string name = 1;
-  uint64 stamp = 2;
+  int64 stamp = 2;
 }

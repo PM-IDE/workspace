@@ -150,7 +150,7 @@ fn get_event_group_node_start_end_stamps(
   index: usize,
   groups: &Vec<EventGroup>,
   time_attr: Option<&TimeAttributeConfig>,
-) -> Result<(u64, u64), SoftwareDataExtractionError> {
+) -> Result<(i64, i64), SoftwareDataExtractionError> {
   Ok((
     get_stamp_or_err(groups[index].control_flow_events().first().as_ref().unwrap(), time_attr)?,
     get_stamp_or_err(groups[index].control_flow_events().last().as_ref().unwrap(), time_attr)?,
@@ -161,7 +161,7 @@ fn get_event_group_edge_start_end_stamps(
   index: usize,
   groups: &Vec<EventGroup>,
   time_attr: Option<&TimeAttributeConfig>,
-) -> Result<(u64, u64), SoftwareDataExtractionError> {
+) -> Result<(i64, i64), SoftwareDataExtractionError> {
   Ok((
     get_stamp_or_err(groups[index].control_flow_events().last().as_ref().unwrap(), time_attr)?,
     if index + 1 < groups.len() {
@@ -195,8 +195,8 @@ fn add_software_activities_durations(software_data: &mut SoftwareData, data: &Du
 type DurationsMap = HashMap<String, (u64, GenericExtractionConfigBase)>;
 
 struct DurationMapInfo {
-  start_time: u64,
-  end_time: u64,
+  start_time: i64,
+  end_time: i64,
   map: DurationsMap,
 }
 
@@ -236,8 +236,8 @@ struct StackActivityStartEntry {
 
 fn process_events(
   events: &[Rc<RefCell<XesEventImpl>>],
-  start_time: u64,
-  end_time: u64,
+  start_time: i64,
+  end_time: i64,
   start_regex: &RegexParingResult,
   end_regex: &RegexParingResult,
   info: &ActivityDurationExtractionConfig,
@@ -282,12 +282,12 @@ fn process_events(
         } else {
           for prev_data in previous_data.iter_mut() {
             if let Some(prev_data) = prev_data.as_mut() {
-              let duration = prev_data.end_time - prev_data.start_time;
+              let duration = (prev_data.end_time - prev_data.start_time) as u64;
               (*prev_data
                 .map
                 .entry(info.base().name().to_string())
-                .or_insert((0u64, info.base().clone())))
-              .0 += duration;
+                .or_insert((0u64, info.base().clone()))
+              ).0 += duration;
             }
           }
         }
@@ -296,7 +296,7 @@ fn process_events(
           None => durations.add_duration(events.first().unwrap(), event, info)?,
           Some(Some(last_data)) => {
             let stamp = get_stamp_or_err(event, info.time_attribute().as_ref())?;
-            durations.add_raw_duration(stamp - last_data.end_time, info);
+            durations.add_raw_duration((stamp - last_data.end_time) as u64, info);
           }
           _ => {}
         };
@@ -305,11 +305,12 @@ fn process_events(
   }
 
   for state in local_state.iter() {
-    durations.add_raw_duration(end_time - get_stamp_or_err(state.event(), info.time_attribute().as_ref())?, info);
+    let duration = end_time - get_stamp_or_err(state.event(), info.time_attribute().as_ref())?;
+    durations.add_raw_duration(duration as u64, info);
   }
 
   for _ in global_state.iter() {
-    durations.add_raw_duration(end_time - start_time, info);
+    durations.add_raw_duration((end_time - start_time) as u64, info);
   }
 
   global_state.extend(local_state);
@@ -322,10 +323,10 @@ fn get_duration(
   second: &Rc<RefCell<XesEventImpl>>,
   attribute: Option<&TimeAttributeConfig>,
 ) -> Result<u64, SoftwareDataExtractionError> {
-  Ok(get_stamp_or_err(second, attribute)? - get_stamp_or_err(first, attribute)?)
+  Ok((get_stamp_or_err(second, attribute)? - get_stamp_or_err(first, attribute)?) as u64)
 }
 
-fn get_stamp_or_err(event: &Rc<RefCell<XesEventImpl>>, attribute: Option<&TimeAttributeConfig>) -> Result<u64, SoftwareDataExtractionError> {
+fn get_stamp_or_err(event: &Rc<RefCell<XesEventImpl>>, attribute: Option<&TimeAttributeConfig>) -> Result<i64, SoftwareDataExtractionError> {
   let attribute = attribute.map(|a| a.time_attribute());
   get_stamp(&event.borrow(), attribute).map_err(|_| SoftwareDataExtractionError::FailedToGetStamp)
 }

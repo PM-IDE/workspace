@@ -193,4 +193,6 @@ pub enum TimeKind {
   Minutes,
   Hours,
   Days,
+
+  UtcStamp
 }

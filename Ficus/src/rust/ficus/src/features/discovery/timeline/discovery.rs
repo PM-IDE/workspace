@@ -70,7 +70,7 @@ pub struct TraceThreadEvent {
   #[getset(get = "pub")]
   original_event: Rc<RefCell<XesEventImpl>>,
   #[getset(get = "pub")]
-  stamp: u64,
+  stamp: i64,
 }
 
 pub enum LogThreadsDiagramError {

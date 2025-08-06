@@ -1,5 +1,5 @@
 use derive_new::new;
-use getset::Getters;
+use getset::{Getters, Setters};
 use std::fmt::{Debug, Display, Formatter, Write};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -98,24 +98,10 @@ impl<T: Clone> NodeAdditionalDataContainer<T> {
   }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Getters, new)]
 pub struct ActivityStartEndTimeData {
-  start_time: u64,
-  end_time: u64,
-}
-
-impl ActivityStartEndTimeData {
-  pub fn new(start_time: u64, end_time: u64) -> Self {
-    Self { start_time, end_time }
-  }
-
-  pub fn start_time(&self) -> u64 {
-    self.start_time
-  }
-
-  pub fn end_time(&self) -> u64 {
-    self.end_time
-  }
+  #[getset(get = "pub")] start_time: i64,
+  #[getset(get = "pub")] end_time: i64,
 }
 
 #[derive(Clone, Debug)]

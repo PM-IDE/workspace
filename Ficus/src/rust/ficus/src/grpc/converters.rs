@@ -757,8 +757,8 @@ fn convert_to_grpc_node_activity_start_end_data(data: &NodeAdditionalDataContain
 
 fn convert_to_grpc_activity_start_end_data(data: &ActivityStartEndTimeData) -> GrpcActivityStartEndData {
   GrpcActivityStartEndData {
-    start_time: data.start_time(),
-    end_time: data.end_time(),
+    start_time: data.start_time().clone(),
+    end_time: data.end_time().clone(),
   }
 }
 

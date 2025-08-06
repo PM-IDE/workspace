@@ -30,7 +30,7 @@ pub fn discover_events_groups(
 ) -> Vec<TraceEventsGroup> {
   let mut groups = vec![];
 
-  let mut last_stamp: Option<u64> = None;
+  let mut last_stamp: Option<i64> = None;
   let mut last_trace_group: Option<TraceEventsGroup> = None;
 
   let mut events = ThreadsSequentialEvents::new(threads);
@@ -61,7 +61,7 @@ pub fn discover_events_groups(
     };
 
     if last_stamp.is_some() {
-      if *event.stamp() - last_stamp.unwrap() > event_group_delta {
+      if (*event.stamp() - last_stamp.unwrap()) as u64 > event_group_delta {
         add_to_groups(last_trace_group.clone(), last_seen_point.clone());
         last_trace_group = create_events_group();
       }
@@ -132,7 +132,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
     }
   }
 
-  fn get_stamp(&self, index: usize) -> u64 {
+  fn get_stamp(&self, index: usize) -> i64 {
     *self.get_trace_event(index).stamp()
   }
 
