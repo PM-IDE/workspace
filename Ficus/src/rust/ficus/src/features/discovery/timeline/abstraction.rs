@@ -16,12 +16,12 @@ use crate::features::discovery::root_sequence::models::EventCoordinates;
 use crate::features::discovery::root_sequence::models::NodeAdditionalDataContainer;
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::activity_duration_extractor::ActivityDurationExtractor;
+use crate::features::discovery::timeline::software_data::extractors::activities_durations::ActivityDurationExtractor;
 use crate::features::discovery::timeline::software_data::extractors::core::{
   EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
 };
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::pie_chart_extractor::PieChartExtractor;
+use crate::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
 use crate::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::get_stamp;

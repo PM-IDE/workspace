@@ -6,11 +6,11 @@ use ficus::features::discovery::timeline::software_data::extraction_config::{
   ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy, PieChartExtractionConfig,
   SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig, TimeKind,
 };
-use ficus::features::discovery::timeline::software_data::extractors::activity_duration_extractor::ActivityDurationExtractor;
+use ficus::features::discovery::timeline::software_data::extractors::activities_durations::ActivityDurationExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::core::{
   EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor,
 };
-use ficus::features::discovery::timeline::software_data::extractors::pie_chart_extractor::PieChartExtractor;
+use ficus::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
 use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use std::cell::RefCell;
