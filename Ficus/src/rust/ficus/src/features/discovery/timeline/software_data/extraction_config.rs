@@ -118,8 +118,8 @@ pub struct GenericExtractionConfigBase {
   group: Option<String>,
 }
 
-#[serde(rename_all = "snake_case")]
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
+#[serde(rename_all = "snake_case")]
 pub enum NameCreationStrategy {
   SingleAttribute(SingleAttribute),
   ManyAttributes(ManyAttributes),
