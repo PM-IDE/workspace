@@ -4,7 +4,7 @@ use ficus::event_log::xes::xes_event::XesEventImpl;
 use ficus::features::discovery::timeline::events_groups::EventGroup;
 use ficus::features::discovery::timeline::software_data::extraction_config::{
   ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy, PieChartExtractionConfig,
-  SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig,
+  SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig, TimeKind,
 };
 use ficus::features::discovery::timeline::software_data::extractors::activity_duration_extractor::ActivityDurationExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::core::{
@@ -274,7 +274,7 @@ fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<
     GenericExtractionConfigBase::new("activity".to_string(), "units".to_string(), None),
     "event_start".to_string(),
     "event_end".to_string(),
-    Some("stamp".to_string()),
+    Some(TimeAttributeConfig::new("stamp".to_string(), TimeKind::Unknown)),
     Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new(
       "activity_id".to_string(),
       "xd".to_string(),

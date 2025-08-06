@@ -330,7 +330,10 @@
       },
       "start_event_regex": "GC/SuspendEEStop",
       "end_event_regex": "GC/RestartEEStop",
-      "time_attribute": "QpcStamp",
+      "time_attribute": {
+        "time_attribute": "QpcStamp",
+        "kind": "Unknown"
+      },
       "activity_id_attr": {
         "single_attribute": {
           "name": "XesActivityId",

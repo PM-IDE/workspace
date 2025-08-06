@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::{
-  ActivityDurationExtractionConfig, GenericExtractionConfigBase, SoftwareDataExtractionConfig,
+  ActivityDurationExtractionConfig, GenericExtractionConfigBase, SoftwareDataExtractionConfig, TimeAttributeConfig,
 };
 use crate::features::discovery::timeline::software_data::extractors::core::{
   EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
@@ -149,7 +149,7 @@ fn add_durations_to_software_data(configs: &Configs, software_data: &mut Vec<(So
 fn get_event_group_node_start_end_stamps(
   index: usize,
   groups: &Vec<EventGroup>,
-  time_attr: Option<&String>,
+  time_attr: Option<&TimeAttributeConfig>,
 ) -> Result<(u64, u64), SoftwareDataExtractionError> {
   Ok((
     get_stamp_or_err(groups[index].control_flow_events().first().as_ref().unwrap(), time_attr)?,
@@ -160,7 +160,7 @@ fn get_event_group_node_start_end_stamps(
 fn get_event_group_edge_start_end_stamps(
   index: usize,
   groups: &Vec<EventGroup>,
-  time_attr: Option<&String>,
+  time_attr: Option<&TimeAttributeConfig>,
 ) -> Result<(u64, u64), SoftwareDataExtractionError> {
   Ok((
     get_stamp_or_err(groups[index].control_flow_events().last().as_ref().unwrap(), time_attr)?,
@@ -320,11 +320,12 @@ fn process_events(
 fn get_duration(
   first: &Rc<RefCell<XesEventImpl>>,
   second: &Rc<RefCell<XesEventImpl>>,
-  attribute: Option<&String>,
+  attribute: Option<&TimeAttributeConfig>,
 ) -> Result<u64, SoftwareDataExtractionError> {
   Ok(get_stamp_or_err(second, attribute)? - get_stamp_or_err(first, attribute)?)
 }
 
-fn get_stamp_or_err(event: &Rc<RefCell<XesEventImpl>>, attribute: Option<&String>) -> Result<u64, SoftwareDataExtractionError> {
+fn get_stamp_or_err(event: &Rc<RefCell<XesEventImpl>>, attribute: Option<&TimeAttributeConfig>) -> Result<u64, SoftwareDataExtractionError> {
+  let attribute = attribute.map(|a| a.time_attribute());
   get_stamp(&event.borrow(), attribute).map_err(|_| SoftwareDataExtractionError::FailedToGetStamp)
 }

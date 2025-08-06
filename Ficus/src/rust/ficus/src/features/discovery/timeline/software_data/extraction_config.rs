@@ -169,7 +169,28 @@ pub struct ActivityDurationExtractionConfig {
   #[getset(get = "pub")]
   end_event_regex: String,
   #[getset(get = "pub")]
-  time_attribute: Option<String>,
+  time_attribute: Option<TimeAttributeConfig>,
   #[getset(get = "pub")]
   activity_id_attr: Option<NameCreationStrategy>,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct TimeAttributeConfig {
+  #[getset(get = "pub")]
+  time_attribute: String,
+  #[getset(get = "pub")]
+  kind: TimeKind
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum TimeKind {
+  Unknown,
+
+  Nanos,
+  Micros,
+  Millis,
+  Seconds,
+  Minutes,
+  Hours,
+  Days,
 }
