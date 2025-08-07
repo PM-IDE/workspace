@@ -10,11 +10,12 @@ import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} 
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
   createGroupedEnhancements, createNumberInformation,
-  createPieChart,
+  createPieChart, createTimeSpanString,
   EnhancementCreationResult,
   getPercentExecutionTime,
   toSortedArray
 } from "./util";
+
 
 const graphColor = graphColors(darkTheme);
 
@@ -116,6 +117,7 @@ function createNodeEnhancement(
       !isNullOrEmpty(counter.group) ? enhancement : "",
       counter.units,
       counter.value,
+      counter.value.toString(),
       aggregatedData.globalSoftwareData.counters.get(enhancement).value
     );
 
@@ -128,8 +130,9 @@ function createNodeEnhancement(
     let html = createNumberInformation(
       !isNullOrEmpty(duration.group) ? enhancement : "",
       duration.units,
-      duration.value,
-      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
+      duration.value.value,
+      createTimeSpanString(duration.value.value, duration.value.kind),
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
     );
 
     return new EnhancementCreationResult(html, duration.group, false);

@@ -1,7 +1,7 @@
 import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
-  createRectangleHistogram,
+  createRectangleHistogram, createTimeSpanString,
   EnhancementCreationResult,
   getPercentExecutionTime,
   toSortedArray
@@ -71,6 +71,7 @@ function createEdgeEnhancement(
       enhancement,
       counter.units,
       counter.value,
+      counter.value.toString(),
       aggregatedData.globalSoftwareData.counters.get(enhancement).value
     );
 
@@ -87,8 +88,9 @@ function createEdgeEnhancement(
     let html = createNumberInformation(
       enhancement,
       duration.units,
-      duration.value,
-      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value
+      duration.value.value,
+      createTimeSpanString(duration.value.value, duration.value.kind),
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
     );
 
     if (isNullOrEmpty(duration.group)) {

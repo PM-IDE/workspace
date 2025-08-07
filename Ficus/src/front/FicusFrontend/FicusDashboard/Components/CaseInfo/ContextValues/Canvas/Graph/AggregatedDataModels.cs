@@ -15,7 +15,7 @@ public class MergedSoftwareData
 {
   public Dictionary<string, ValueWithUnits<Dictionary<string, double>>> Histograms { get; set; } = new();
   public Dictionary<string, ValueWithUnits<double>> Counters { get; set; } = new();
-  public Dictionary<string, ValueWithUnits<double>> ActivitiesDurations { get; set; } = new();
+  public Dictionary<string, ValueWithUnits<Duration>> ActivitiesDurations { get; set; } = new();
 
 
   public bool IsEmpty =>
@@ -34,4 +34,23 @@ public class ValueWithUnits<T>
 {
   public string Units { get; set; }
   public T Value { get; set; }
+}
+
+public class Duration
+{
+  public double Value { get; set; }
+  public DurationKind Kind { get; set; }
+}
+
+public enum DurationKind
+{
+  Unspecified,
+
+  Nanos,
+  Micros,
+  Millis,
+  Seconds,
+  Minutes,
+  Hours,
+  Days
 }

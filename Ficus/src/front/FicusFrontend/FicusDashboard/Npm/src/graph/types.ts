@@ -1,6 +1,7 @@
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
+import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
 
 export interface GraphNode {
   frontendId: number,
@@ -42,10 +43,15 @@ export interface ValueWithUnits<T> {
   group: string | null
 }
 
+export interface Duration {
+  value: number,
+  kind: GrpcDurationKind,
+}
+
 export interface MergedSoftwareData {
   histograms: Map<string, ValueWithUnits<Map<string, number>>>,
   counters: Map<string, ValueWithUnits<number>>,
-  activitiesDurations: Map<string, ValueWithUnits<number>>
+  activitiesDurations: Map<string, ValueWithUnits<Duration>>
 }
 
 export interface MergedEnhancementData {

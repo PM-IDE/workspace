@@ -62,7 +62,7 @@
     Data.GlobalSoftwareData.ActivitiesDurations.Select(duration => new AggregatedStatDto
     {
       Title = duration.Key,
-      Value = duration.Value.Value,
+      Value = duration.Value.Value.Value,
       Units = duration.Value.Units
     }).ToArray();
 

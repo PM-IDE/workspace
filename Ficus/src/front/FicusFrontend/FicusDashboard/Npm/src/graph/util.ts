@@ -145,13 +145,16 @@ function createMergedEnhancementData(
     for (let activityDuration of softwareData.activitiesDurationsData) {
       if (!enhancementData.softwareData.activitiesDurations.has(activityDuration.base.name)) {
         enhancementData.softwareData.activitiesDurations.set(activityDuration.base.name, {
-          value: 0,
+          value: {
+            value: activityDuration.duration,
+            kind: activityDuration.kind
+          },
           units: activityDuration.base.units,
           group: activityDuration.base.group,
         });
       }
 
-      enhancementData.softwareData.activitiesDurations.get(activityDuration.base.name).value += activityDuration.duration;
+      enhancementData.softwareData.activitiesDurations.get(activityDuration.base.name).value.value += activityDuration.duration;
     }
   });
 

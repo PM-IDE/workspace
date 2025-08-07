@@ -33,6 +33,7 @@ export interface ProtoGrpcType {
     GrpcDataset: MessageTypeDefinition
     GrpcDateTime: MessageTypeDefinition
     GrpcDropContextValuesRequest: MessageTypeDefinition
+    GrpcDurationKind: EnumTypeDefinition
     GrpcEdgeExecutionInfo: MessageTypeDefinition
     GrpcEntityCountAnnotation: MessageTypeDefinition
     GrpcEntityFrequencyAnnotation: MessageTypeDefinition

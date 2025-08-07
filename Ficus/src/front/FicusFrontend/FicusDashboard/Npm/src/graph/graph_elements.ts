@@ -76,7 +76,7 @@ function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
   }
 
   data.globalSoftwareData.histograms = toObjectCsharpInterop(data.globalSoftwareData.histograms);
-  
+
   return data;
 }
 
@@ -157,7 +157,21 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
     }
 
     mergeSimpleMap(aggregatedData.globalSoftwareData.counters, softwareData.counters);
-    mergeSimpleMap(aggregatedData.globalSoftwareData.activitiesDurations, softwareData.activitiesDurations);
+
+    for (let [name, duration] of softwareData.activitiesDurations.entries()) {
+      if (!aggregatedData.globalSoftwareData.activitiesDurations.has(name)) {
+        aggregatedData.globalSoftwareData.activitiesDurations.set(name, {
+          units: duration.units,
+          group: duration.group,
+          value: {
+            value: 0,
+            kind: duration.value.kind
+          }
+        })
+      }
+      
+      aggregatedData.globalSoftwareData.activitiesDurations.get(name).value.value += duration.value.value;
+    }
   }
 }
 
@@ -179,17 +193,6 @@ function mergeMaps(first: Map<string, number>, second: Map<string, number>) {
   for (let [key, value] of second.entries()) {
     increment(first, key, value);
   }
-}
-
-function mergeSets(first: Set<number>, second: Set<number>) {
-  for (let element of second) {
-    first.add(element);
-  }
-}
-
-function mergeCountAndSum(first: CountAndSum, second: CountAndSum) {
-  first.count += second.count;
-  first.sum += second.sum;
 }
 
 export function createGraphEdgesElements(
