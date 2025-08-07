@@ -2,6 +2,7 @@ import {getOrCreateColor, isNullOrEmpty} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
 import {AggregatedData, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {GrpcDurationKind} from "../../protos/ficus/GrpcDurationKind";
+import {TimeSpan} from "../../timespan";
 
 export let fallBackPerformanceColor = "#3d3d3d";
 
@@ -182,5 +183,22 @@ export function createGroupedEnhancements(
 }
 
 export function createTimeSpanString(value: number, kind: GrpcDurationKind): string {
-  return value.toString();
+  switch (kind) {
+    case GrpcDurationKind.Nanos:
+      return TimeSpan.fromNanoseconds(BigInt(value)).toString();
+    case GrpcDurationKind.Micros:
+      return TimeSpan.fromMicroseconds(value).toString();
+    case GrpcDurationKind.Millis:
+      return TimeSpan.fromMilliseconds(value).toString();
+    case GrpcDurationKind.Seconds:
+      return TimeSpan.fromSeconds(value).toString();
+    case GrpcDurationKind.Minutes:
+      return TimeSpan.fromMinutes(value).toString();
+    case GrpcDurationKind.Hours:
+      return TimeSpan.fromHours(value).toString();
+    case GrpcDurationKind.Days:
+      return TimeSpan.fromDays(value).toString();
+    case GrpcDurationKind.Unspecified:
+      return value.toString()
+  }
 }
