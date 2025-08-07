@@ -153,6 +153,12 @@ public class ThreadsMethodsProcessor(
       {
         if (isTargetMethod)
         {
+          if (threadStack.Count == 0)
+          {
+            logger.LogWarning("Encountered method end {Name} when stack is empty", context.Event.EventName);
+            return;
+          }
+
           if (methodId != threadStack.Peek().MethodId)
           {
             logger.LogWarning("The stack is corrupt for thread {ThreadId}", context.Event.NativeThreadId);
