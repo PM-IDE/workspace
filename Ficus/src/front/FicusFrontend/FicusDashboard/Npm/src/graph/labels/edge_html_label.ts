@@ -7,6 +7,7 @@ import {
   toSortedArray
 } from "./util";
 import {isNullOrEmpty} from "../../utils";
+import {TimeSpan} from "../../timespan";
 
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
   let enhancementData = edge.enhancementData;
@@ -30,14 +31,17 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
 
 function createEdgeExecutionInfo(edge: GraphEdge): string {
   let executionInfo = `
-    <div style="font-size: 45px; font-weight: 900;">
+    <div style="font-size: 25px; font-weight: 900;">
       ${edge.weight} times
     </div>
   `;
 
   if (edge.executionTime != null) {
     executionInfo += `
-      <div style="font-size: 45px; font-weight: 900;">
+      <div style="font-size: 25px; font-weight: 900;">
+        ${TimeSpan.fromNanoseconds(BigInt(edge.executionTime)).toString()}
+      </div>
+      <div style="font-size: 25px; font-weight: 900;">
         ${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%
       </div>
     `;

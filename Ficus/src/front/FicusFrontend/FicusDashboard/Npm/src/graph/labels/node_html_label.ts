@@ -15,6 +15,7 @@ import {
   getPercentExecutionTime,
   toSortedArray
 } from "./util";
+import {TimeSpan} from "../../timespan";
 
 
 const graphColor = graphColors(darkTheme);
@@ -23,7 +24,11 @@ export function createNodeHtmlLabelId(frontendId: number): string {
   return `node-html-label-${frontendId}`;
 }
 
-export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhancementKind[], useEventClassesAsLabels: boolean) {
+export function createNodeHtmlLabel(
+  node: GraphNode,
+  enhancements: SoftwareEnhancementKind[],
+  useEventClassesAsLabels: boolean
+) {
   let enhancementData = node.enhancementData;
   let label_id = createNodeHtmlLabelId(node.frontendId);
 
@@ -52,7 +57,7 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
               <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
-                  Exec. time: ${node.executionTime} (${getPercentExecutionTime(node.executionTime, node.aggregatedData.totalExecutionTime)}%)
+                  Exec. time: ${createNodeExecutionTimeString(node)} (${getPercentExecutionTime(node.executionTime, node.aggregatedData.totalExecutionTime)}%)
               </div>
 
               <div style="padding-left: 10px;">
@@ -70,6 +75,10 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
             </div>
           </div>
          `;
+}
+
+function createNodeExecutionTimeString(node: GraphNode) {
+  return TimeSpan.fromNanoseconds(BigInt(node.executionTime)).toString();
 }
 
 function createEventClassesPieChart(data: Map<string, number>) {
