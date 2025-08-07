@@ -226,7 +226,7 @@ fn test_simple_counter() {
 #[test]
 fn test_activities_duration() {
   execute_test_with_activities_durations(
-    r#"[[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":300.0}]},{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":50.0}]}]]"#,
+    r#"[[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":300,"kind":"Unknown"}]},{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":50,"kind":"Unknown"}]}]]"#,
     vec![vec![
       vec![
         create_event_with_attributes("some_event".to_string(), vec![("stamp".to_string(), EventPayloadValue::Int64(50))]),
@@ -299,15 +299,21 @@ fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<
     .iter()
     .map(|_| (SoftwareData::empty(), SoftwareData::empty()))
     .collect();
+
   extractor.extract(&event_groups, &mut software_data).ok().unwrap();
 
-  assert_eq!(serde_json::to_string(&software_data).unwrap(), gold);
+  let test = serde_json::to_string(&software_data).unwrap();
+
+  if gold != test {
+    println!("Test value: {}", test);
+    assert!(false);
+  }
 }
 
 #[test]
 fn test_activities_duration_2() {
   execute_test_with_activities_durations(
-    r#"[[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":50.0}]},{}],[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":100.0}]},{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":300.0}]}]]"#,
+    r#"[[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":50,"kind":"Unknown"}]},{}],[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":100,"kind":"Unknown"}]},{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":300,"kind":"Unknown"}]}]]"#,
     vec![
       vec![
         vec![
