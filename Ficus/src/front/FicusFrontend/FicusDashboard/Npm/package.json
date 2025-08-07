@@ -29,7 +29,6 @@
     "cytoscape-svg": "^0.4.0",
     "file-saver": "^2.0.5",
     "google-protobuf": "^3.21.4",
-    "timespan-ts": "^1.0.3",
     "tippy.js": "^6.3.7",
     "ts-protoc-gen": "^0.15.0"
   }

@@ -326,13 +326,13 @@
     {
       "base": {
         "name": "Runtime Suspensions",
-        "units": "QPC"
+        "units": "ns"
       },
       "start_event_regex": "GC/SuspendEEStop",
       "end_event_regex": "GC/RestartEEStop",
       "time_attribute": {
-        "time_attribute": "QpcStamp",
-        "kind": "Unknown"
+        "time_attribute": "time:timestamp",
+        "kind": "UtcStamp"
       },
       "activity_id_attr": {
         "single_attribute": {
