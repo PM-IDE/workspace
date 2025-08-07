@@ -3,6 +3,7 @@ use derive_new::new;
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use crate::features::discovery::timeline::software_data::extraction_config::TimeKind;
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
@@ -78,5 +79,36 @@ pub struct ActivityDurationData {
   #[getset(get = "pub")]
   base: GenericEnhancementBase,
   #[getset(get = "pub")]
-  duration: f64,
+  duration: u64,
+  #[getset(get = "pub")]
+  kind: DurationKind
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum DurationKind {
+  Unknown,
+
+  Nanos,
+  Micros,
+  Millis,
+  Seconds,
+  Minutes,
+  Hours,
+  Days,
+}
+
+impl From<&TimeKind> for DurationKind {
+  fn from(value: &TimeKind) -> Self {
+    match value {
+      TimeKind::Unknown => Self::Unknown,
+      TimeKind::Nanos => Self::Nanos,
+      TimeKind::Micros => Self::Micros,
+      TimeKind::Millis => Self::Millis,
+      TimeKind::Seconds => Self::Seconds,
+      TimeKind::Minutes => Self::Minutes,
+      TimeKind::Hours => Self::Hours,
+      TimeKind::Days => Self::Days,
+      TimeKind::UtcStamp => Self::Nanos
+    }
+  }
 }

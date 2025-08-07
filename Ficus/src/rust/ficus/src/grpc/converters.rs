@@ -23,25 +23,12 @@ use crate::features::discovery::root_sequence::models::{
   ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind,
 };
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
-use crate::features::discovery::timeline::software_data::models::{
-  ActivityDurationData, GenericEnhancementBase, HistogramData, SimpleCounterData, SoftwareData,
-};
+use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, DurationKind, GenericEnhancementBase, HistogramData, SimpleCounterData, SoftwareData};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{
-  grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes,
-  GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation,
-  GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation,
-  GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind,
-  GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow,
-  GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData,
-  GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition,
-  GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
-  GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo,
-  GrpcUnderlyingPatternKind,
-};
+use crate::ficus_proto::{grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{
@@ -807,7 +794,17 @@ fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareDa
 fn convert_to_grpc_activity_duration(data: &ActivityDurationData) -> GrpcActivityDurationData {
   GrpcActivityDurationData {
     base: Some(convert_to_grpc_generic_enhancement_base(data.base())),
-    duration: data.duration().clone(),
+    duration: *data.duration(),
+    kind: (match data.kind() {
+      DurationKind::Unknown => GrpcDurationKind::Unspecified,
+      DurationKind::Nanos => GrpcDurationKind::Nanos,
+      DurationKind::Micros => GrpcDurationKind::Micros,
+      DurationKind::Millis => GrpcDurationKind::Millis,
+      DurationKind::Seconds => GrpcDurationKind::Seconds,
+      DurationKind::Minutes => GrpcDurationKind::Minutes,
+      DurationKind::Hours => GrpcDurationKind::Hours,
+      DurationKind::Days => GrpcDurationKind::Days
+    }) as i32
   }
 }
 

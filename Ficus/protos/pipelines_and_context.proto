@@ -256,7 +256,20 @@ message GrpcSoftwareData {
 
 message GrpcActivityDurationData {
   GrpcGenericEnhancementBase base = 1;
-  double duration = 2;
+  uint64 duration = 2;
+  GrpcDurationKind kind = 3;
+}
+
+enum GrpcDurationKind {
+  Unspecified = 0;
+
+  Nanos = 1;
+  Micros = 2;
+  Millis = 3;
+  Seconds = 4;
+  Minutes = 5;
+  Hours = 6;
+  Days = 7;
 }
 
 message GrpcGenericEnhancementBase {

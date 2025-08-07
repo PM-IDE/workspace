@@ -8,7 +8,7 @@ use crate::features::discovery::timeline::software_data::extractors::core::{
   EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
 };
 use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
-use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, GenericEnhancementBase, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, DurationKind, GenericEnhancementBase, SoftwareData};
 use crate::features::discovery::timeline::utils::get_stamp;
 use crate::utils::vec_utils::VectorOptionExtensions;
 use derive_new::new;
@@ -184,15 +184,21 @@ fn get_event_group_edge_start_end_stamps(
 fn add_software_activities_durations(software_data: &mut SoftwareData, data: &DurationMapInfo) {
   software_data
     .activities_durations_mut()
-    .extend(data.map.iter().map(|(_, (value, base))| {
+    .extend(data.map.iter().map(|(_, (value, info))| {
+      let base = info.base();
+
       ActivityDurationData::new(
         GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
-        *value as f64,
+        *value,
+        match info.time_attribute() {
+          Some(attr) => DurationKind::from(attr.kind()),
+          None => DurationKind::Unknown
+        }
       )
     }));
 }
 
-type DurationsMap = HashMap<String, (u64, GenericExtractionConfigBase)>;
+type DurationsMap = HashMap<String, (u64, ActivityDurationExtractionConfig)>;
 
 struct DurationMapInfo {
   start_time: i64,
@@ -222,7 +228,7 @@ impl DurationsMapExtensions for DurationsMap {
       return;
     }
 
-    (*self.entry(info.base().name().to_string()).or_insert((0u64, info.base().clone()))).0 += duration;
+    (*self.entry(info.base().name().to_string()).or_insert((0u64, info.clone()))).0 += duration;
   }
 }
 
@@ -286,7 +292,7 @@ fn process_events(
               (*prev_data
                 .map
                 .entry(info.base().name().to_string())
-                .or_insert((0u64, info.base().clone()))
+                .or_insert((0u64, info.clone()))
               ).0 += duration;
             }
           }
