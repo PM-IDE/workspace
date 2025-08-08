@@ -2,9 +2,7 @@ use crate::features::discovery::timeline::events_groups::{discover_events_groups
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::{
-  event_log::core::event_log::EventLog,
-  event_log::core::trace::trace::Trace,
-  event_log::xes::xes_event::XesEventImpl,
+  event_log::core::event_log::EventLog, event_log::core::trace::trace::Trace, event_log::xes::xes_event::XesEventImpl,
   event_log::xes::xes_event_log::XesEventLogImpl,
 };
 use derive_new::new;
@@ -16,14 +14,17 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {
-  #[getset(get = "pub")] thread_attribute: String,
-  #[getset(get = "pub")] time_attribute: Option<String>,
-  #[getset(get = "pub")] control_flow_regexes: Option<Vec<Regex>>,
-  #[getset(get = "pub")] traces: Vec<TraceTimelineDiagram>,
+  #[getset(get = "pub")]
+  thread_attribute: String,
+  #[getset(get = "pub")]
+  time_attribute: Option<String>,
+  #[getset(get = "pub")]
+  control_flow_regexes: Option<Vec<Regex>>,
+  #[getset(get = "pub")]
+  traces: Vec<TraceTimelineDiagram>,
 }
 
 impl LogTimelineDiagram {
@@ -38,33 +39,38 @@ impl LogTimelineDiagram {
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogPoint {
-  #[getset(get = "pub")] trace_index: usize,
-  #[getset(get = "pub")] event_index: usize,
+  #[getset(get = "pub")]
+  trace_index: usize,
+  #[getset(get = "pub")]
+  event_index: usize,
 }
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct TraceTimelineDiagram {
-  #[getset(get = "pub")] threads: Vec<TraceThread>,
-  #[getset(get = "pub")] events_groups: Vec<TraceEventsGroup>,
+  #[getset(get = "pub")]
+  threads: Vec<TraceThread>,
+  #[getset(get = "pub")]
+  events_groups: Vec<TraceEventsGroup>,
 }
 
 #[derive(Debug, Clone, Getters, MutGetters)]
 pub struct TraceThread {
-  #[getset(get = "pub", get_mut = "pub")] events: Vec<TraceThreadEvent>,
+  #[getset(get = "pub", get_mut = "pub")]
+  events: Vec<TraceThreadEvent>,
 }
 
 impl TraceThread {
   pub fn empty() -> Self {
-    Self {
-      events: vec![]
-    }
+    Self { events: vec![] }
   }
 }
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct TraceThreadEvent {
-  #[getset(get = "pub")] original_event: Rc<RefCell<XesEventImpl>>,
-  #[getset(get = "pub")] stamp: u64,
+  #[getset(get = "pub")]
+  original_event: Rc<RefCell<XesEventImpl>>,
+  #[getset(get = "pub")]
+  stamp: i64,
 }
 
 pub enum LogThreadsDiagramError {
@@ -80,7 +86,7 @@ impl Debug for LogThreadsDiagramError {
 impl Display for LogThreadsDiagramError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      LogThreadsDiagramError::NotSupportedEventStamp => f.write_str("NotSupportedEventStamp")
+      LogThreadsDiagramError::NotSupportedEventStamp => f.write_str("NotSupportedEventStamp"),
     }
   }
 }
@@ -113,9 +119,7 @@ pub fn discover_traces_timeline_diagram(
       })
     }
 
-    threads.push(TraceThread {
-      events: thread_events
-    });
+    threads.push(TraceThread { events: thread_events });
   }
 
   let timeline_fragments = match discover_event_groups_in_each_trace {
@@ -133,10 +137,7 @@ pub fn discover_traces_timeline_diagram(
     }
     false => {
       let events_groups = discover_events_groups_internal(&threads.iter().collect(), event_group_delta, control_flow_regexes);
-      vec![TraceTimelineDiagram {
-        threads,
-        events_groups,
-      }]
+      vec![TraceTimelineDiagram { threads, events_groups }]
     }
   };
 
@@ -154,7 +155,7 @@ pub fn discover_traces_timeline_diagram(
 fn discover_events_groups_internal(
   threads: &Vec<&TraceThread>,
   event_group_delta: Option<u64>,
-  control_flow_regexes: Option<&Vec<Regex>>
+  control_flow_regexes: Option<&Vec<Regex>>,
 ) -> Vec<TraceEventsGroup> {
   if let Some(event_group_delta) = event_group_delta {
     discover_events_groups(threads, event_group_delta, control_flow_regexes)

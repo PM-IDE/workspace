@@ -2,49 +2,22 @@
 
 import type { GrpcHistogramEntry_DONTUSE as _ficus_GrpcHistogramEntry_DONTUSE, GrpcHistogramEntry as _ficus_GrpcHistogramEntry } from '../ficus/GrpcHistogramEntry';
 import type { GrpcTimelineDiagramFragment_DONTUSE as _ficus_GrpcTimelineDiagramFragment_DONTUSE, GrpcTimelineDiagramFragment as _ficus_GrpcTimelineDiagramFragment } from '../ficus/GrpcTimelineDiagramFragment';
-import type { GrpcAllocationInfo_DONTUSE as _ficus_GrpcAllocationInfo_DONTUSE, GrpcAllocationInfo as _ficus_GrpcAllocationInfo } from '../ficus/GrpcAllocationInfo';
-import type { GrpcExecutionSuspensionInfo_DONTUSE as _ficus_GrpcExecutionSuspensionInfo_DONTUSE, GrpcExecutionSuspensionInfo as _ficus_GrpcExecutionSuspensionInfo } from '../ficus/GrpcExecutionSuspensionInfo';
-import type { GrpcThreadEventInfo_DONTUSE as _ficus_GrpcThreadEventInfo_DONTUSE, GrpcThreadEventInfo as _ficus_GrpcThreadEventInfo } from '../ficus/GrpcThreadEventInfo';
-import type { GrpcMethodInliningEvent_DONTUSE as _ficus_GrpcMethodInliningEvent_DONTUSE, GrpcMethodInliningEvent as _ficus_GrpcMethodInliningEvent } from '../ficus/GrpcMethodInliningEvent';
-import type { GrpcArrayPoolEvent_DONTUSE as _ficus_GrpcArrayPoolEvent_DONTUSE, GrpcArrayPoolEvent as _ficus_GrpcArrayPoolEvent } from '../ficus/GrpcArrayPoolEvent';
-import type { GrpcExceptionEvent_DONTUSE as _ficus_GrpcExceptionEvent_DONTUSE, GrpcExceptionEvent as _ficus_GrpcExceptionEvent } from '../ficus/GrpcExceptionEvent';
-import type { GrpcHTTPEvent_DONTUSE as _ficus_GrpcHTTPEvent_DONTUSE, GrpcHTTPEvent as _ficus_GrpcHTTPEvent } from '../ficus/GrpcHTTPEvent';
-import type { GrpcContentionEvent_DONTUSE as _ficus_GrpcContentionEvent_DONTUSE, GrpcContentionEvent as _ficus_GrpcContentionEvent } from '../ficus/GrpcContentionEvent';
-import type { GrpcSocketEvent_DONTUSE as _ficus_GrpcSocketEvent_DONTUSE, GrpcSocketEvent as _ficus_GrpcSocketEvent } from '../ficus/GrpcSocketEvent';
-import type { GrpcMethodLoadUnloadEvent_DONTUSE as _ficus_GrpcMethodLoadUnloadEvent_DONTUSE, GrpcMethodLoadUnloadEvent as _ficus_GrpcMethodLoadUnloadEvent } from '../ficus/GrpcMethodLoadUnloadEvent';
 import type { GrpcGeneralHistogramData_DONTUSE as _ficus_GrpcGeneralHistogramData_DONTUSE, GrpcGeneralHistogramData as _ficus_GrpcGeneralHistogramData } from '../ficus/GrpcGeneralHistogramData';
 import type { GrpcSimpleCounterData_DONTUSE as _ficus_GrpcSimpleCounterData_DONTUSE, GrpcSimpleCounterData as _ficus_GrpcSimpleCounterData } from '../ficus/GrpcSimpleCounterData';
+import type { GrpcActivityDurationData_DONTUSE as _ficus_GrpcActivityDurationData_DONTUSE, GrpcActivityDurationData as _ficus_GrpcActivityDurationData } from '../ficus/GrpcActivityDurationData';
 
 export interface GrpcSoftwareData_DONTUSE {
   'histogram'?: (_ficus_GrpcHistogramEntry_DONTUSE)[];
   'timelineDiagramFragment'?: (_ficus_GrpcTimelineDiagramFragment_DONTUSE | null);
-  'allocationsInfo'?: (_ficus_GrpcAllocationInfo_DONTUSE)[];
-  'executionSuspensionInfo'?: (_ficus_GrpcExecutionSuspensionInfo_DONTUSE)[];
-  'threadEvents'?: (_ficus_GrpcThreadEventInfo_DONTUSE)[];
-  'methodsInliningEvents'?: (_ficus_GrpcMethodInliningEvent_DONTUSE)[];
-  'arrayPoolEvents'?: (_ficus_GrpcArrayPoolEvent_DONTUSE)[];
-  'exceptionEvents'?: (_ficus_GrpcExceptionEvent_DONTUSE)[];
-  'httpEvents'?: (_ficus_GrpcHTTPEvent_DONTUSE)[];
-  'contentionEvents'?: (_ficus_GrpcContentionEvent_DONTUSE)[];
-  'socketEvent'?: (_ficus_GrpcSocketEvent_DONTUSE)[];
-  'methodsLoadUnloadEvents'?: (_ficus_GrpcMethodLoadUnloadEvent_DONTUSE)[];
   'histogramData'?: (_ficus_GrpcGeneralHistogramData_DONTUSE)[];
   'simpleCounterData'?: (_ficus_GrpcSimpleCounterData_DONTUSE)[];
+  'activitiesDurationsData'?: (_ficus_GrpcActivityDurationData_DONTUSE)[];
 }
 
 export interface GrpcSoftwareData {
   'histogram': (_ficus_GrpcHistogramEntry)[];
   'timelineDiagramFragment': (_ficus_GrpcTimelineDiagramFragment | null);
-  'allocationsInfo': (_ficus_GrpcAllocationInfo)[];
-  'executionSuspensionInfo': (_ficus_GrpcExecutionSuspensionInfo)[];
-  'threadEvents': (_ficus_GrpcThreadEventInfo)[];
-  'methodsInliningEvents': (_ficus_GrpcMethodInliningEvent)[];
-  'arrayPoolEvents': (_ficus_GrpcArrayPoolEvent)[];
-  'exceptionEvents': (_ficus_GrpcExceptionEvent)[];
-  'httpEvents': (_ficus_GrpcHTTPEvent)[];
-  'contentionEvents': (_ficus_GrpcContentionEvent)[];
-  'socketEvent': (_ficus_GrpcSocketEvent)[];
-  'methodsLoadUnloadEvents': (_ficus_GrpcMethodLoadUnloadEvent)[];
   'histogramData': (_ficus_GrpcGeneralHistogramData)[];
   'simpleCounterData': (_ficus_GrpcSimpleCounterData)[];
+  'activitiesDurationsData': (_ficus_GrpcActivityDurationData)[];
 }

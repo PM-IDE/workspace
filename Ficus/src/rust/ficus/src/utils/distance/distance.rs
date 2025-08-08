@@ -62,7 +62,7 @@ impl Distance<f64> for DistanceWrapper {
       DistanceWrapper::L2(d) => d.distance(a, b),
       DistanceWrapper::Levenshtein(d) => d.distance(a, b),
       DistanceWrapper::Length(d) => d.distance(a, b),
-      DistanceWrapper::LCS(d) => d.distance(a, b)
+      DistanceWrapper::LCS(d) => d.distance(a, b),
     }
   }
 

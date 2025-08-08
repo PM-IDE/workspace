@@ -30,13 +30,19 @@ pub fn test_silhouette_score() {
 #[test]
 pub fn test_single_label() {
   let labels = vec![0; 123];
-  assert_eq!(silhouette_score(&labels, |first, second| 0.).err().unwrap(), SilhouetteScoreError::InappropriateLabelsCount)
+  assert_eq!(
+    silhouette_score(&labels, |first, second| 0.).err().unwrap(),
+    SilhouetteScoreError::InappropriateLabelsCount
+  )
 }
 
 #[test]
 pub fn test_all_different_labels() {
   let labels = (0..123).into_iter().collect();
-  assert_eq!(silhouette_score(&labels, |first, second| 0.).err().unwrap(), SilhouetteScoreError::InappropriateLabelsCount)
+  assert_eq!(
+    silhouette_score(&labels, |first, second| 0.).err().unwrap(),
+    SilhouetteScoreError::InappropriateLabelsCount
+  )
 }
 
 #[test]
@@ -59,11 +65,16 @@ fn execute_silhouette_score_test(raw_dataset: Vec<Vec<f64>>) {
     .transform(dataset.records())
     .unwrap();
 
-  let labels = labels.iter().map(|l| if l.is_none() { 0 } else { l.unwrap() + 1 }).collect::<Vec<usize>>();
+  let labels = labels
+    .iter()
+    .map(|l| if l.is_none() { 0 } else { l.unwrap() + 1 })
+    .collect::<Vec<usize>>();
 
-  let our_score = silhouette_score(&labels.clone(), |first, second| calculate_distance(FicusDistance::L2, &dataset, first, second))
-    .ok()
-    .unwrap();
+  let our_score = silhouette_score(&labels.clone(), |first, second| {
+    calculate_distance(FicusDistance::L2, &dataset, first, second)
+  })
+  .ok()
+  .unwrap();
 
   let dataset = dataset.with_targets(Array1::from_iter(labels));
   let expected_score = dataset.silhouette_score().unwrap();

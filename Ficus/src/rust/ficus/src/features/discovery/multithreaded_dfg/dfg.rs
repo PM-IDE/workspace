@@ -7,28 +7,32 @@ use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::utils::extract_thread_id;
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
 use crate::utils::references::HeapedOrOwned;
+use crate::utils::user_data::user_data::UserData;
+use fancy_regex::Regex;
+use lazy_static::lazy_static;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use fancy_regex::Regex;
-use lazy_static::lazy_static;
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::user_data::user_data::UserData;
 
 const MULTITHREADED_FRAGMENT: &'static str = "MULTITHREADED_FRAGMENT";
 
-lazy_static!(
-  pub static ref MULTITHREAD_FRAGMENT_KEY: DefaultContextKey<XesEventLogImpl> = DefaultContextKey::new(MULTITHREADED_FRAGMENT); 
-);
+lazy_static! {
+  pub static ref MULTITHREAD_FRAGMENT_KEY: DefaultContextKey<XesEventLogImpl> = DefaultContextKey::new(MULTITHREADED_FRAGMENT);
+}
 
 pub enum MultithreadedTracePartsCreationStrategy {
   Regexes(Vec<Regex>),
   Default,
 }
 
-pub fn discover_multithreaded_dfg(log: &XesEventLogImpl, thread_attribute: &str, strategy: &MultithreadedTracePartsCreationStrategy) -> DefaultGraph {
+pub fn discover_multithreaded_dfg(
+  log: &XesEventLogImpl,
+  thread_attribute: &str,
+  strategy: &MultithreadedTracePartsCreationStrategy,
+) -> DefaultGraph {
   let mut dfg = HashMap::new();
   for trace in log.traces() {
     let trace_dfg = discover_multithreading_dfg_for_trace(&trace.borrow(), thread_attribute, strategy);
@@ -55,15 +59,14 @@ pub fn enumerate_multithreaded_events_groups(
   log: &XesEventLogImpl,
   config: &SoftwareDataExtractionConfig,
   thread_attribute: &str,
-  strategy: &MultithreadedTracePartsCreationStrategy
+  strategy: &MultithreadedTracePartsCreationStrategy,
 ) -> Result<Vec<Vec<EventGroup>>, String> {
   let mut groups = vec![];
   let regexes = config.control_flow_regexes()?;
   let regexes = regexes.as_ref();
 
-  let is_control_flow_event = |event: &XesEventImpl| {
-    regexes.is_none() || regexes.unwrap().iter().any(|r| r.is_match(event.name()).unwrap_or(false))
-  };
+  let is_control_flow_event =
+    |event: &XesEventImpl| regexes.is_none() || regexes.unwrap().iter().any(|r| r.is_match(event.name()).unwrap_or(false));
 
   for trace in log.traces() {
     let trace = trace.borrow();
@@ -80,7 +83,10 @@ pub fn enumerate_multithreaded_events_groups(
           for event in &trace.events()[index..index + part.length()] {
             if is_control_flow_event(&event.borrow()) {
               let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
-              events_by_threads.entry(thread_id).or_insert(XesTraceImpl::empty()).push(Rc::new(RefCell::new(event.borrow().clone())));
+              events_by_threads
+                .entry(thread_id)
+                .or_insert(XesTraceImpl::empty())
+                .push(Rc::new(RefCell::new(event.borrow().clone())));
 
               group.control_flow_events_mut().push(event.clone());
             } else {
@@ -93,7 +99,9 @@ pub fn enumerate_multithreaded_events_groups(
             multithreaded_fragment_log.push(Rc::new(RefCell::new(trace)));
           }
 
-          group.user_data_mut().put_concrete(MULTITHREAD_FRAGMENT_KEY.key(), multithreaded_fragment_log);
+          group
+            .user_data_mut()
+            .put_concrete(MULTITHREAD_FRAGMENT_KEY.key(), multithreaded_fragment_log);
 
           trace_groups.push(group);
         }
@@ -108,12 +116,12 @@ pub fn enumerate_multithreaded_events_groups(
               last_group = Some(EventGroup::empty());
               last_group.as_mut().unwrap().control_flow_events_mut().push(event.clone());
             } else {
-              if let Some(group) = last_group.as_mut() { 
+              if let Some(group) = last_group.as_mut() {
                 group.statistic_events_mut().push(event.clone());
               }
             }
           }
-          
+
           if let Some(group) = last_group {
             trace_groups.push(group);
           }
@@ -149,7 +157,7 @@ impl TracePart {
   pub fn length(&self) -> usize {
     match self {
       TracePart::Multithreaded(length) => *length,
-      TracePart::Sequential(length) => *length
+      TracePart::Sequential(length) => *length,
     }
   }
 
@@ -163,7 +171,7 @@ impl TracePart {
   ) {
     match self {
       TracePart::Multithreaded(_) => self.process_multithreaded_part(trace, thread_attribute, last_event_classes, dfg, index),
-      TracePart::Sequential(_) => self.process_sequential_part(trace, last_event_classes, dfg, index)
+      TracePart::Sequential(_) => self.process_sequential_part(trace, last_event_classes, dfg, index),
     }
   }
 
@@ -185,7 +193,9 @@ impl TracePart {
 
     for last_seen_class in last_event_classes.iter() {
       for first_event in events_by_threads.values().map(|es| es.first().unwrap()) {
-        *dfg.entry((last_seen_class.to_owned(), first_event.borrow().name().to_owned())).or_insert(0) += 1;
+        *dfg
+          .entry((last_seen_class.to_owned(), first_event.borrow().name().to_owned()))
+          .or_insert(0) += 1;
       }
     }
 
@@ -208,7 +218,9 @@ impl TracePart {
   ) {
     let events = &trace.events()[index..index + self.length()];
     for last_seen_class in last_event_classes.iter() {
-      *dfg.entry((last_seen_class.to_owned(), events.first().unwrap().borrow().name().to_owned())).or_insert(0) += 1;
+      *dfg
+        .entry((last_seen_class.to_owned(), events.first().unwrap().borrow().name().to_owned()))
+        .or_insert(0) += 1;
     }
 
     last_event_classes.clear();
@@ -219,7 +231,9 @@ impl TracePart {
 
   fn add_dfg_relations_from_trace(events: &[Rc<RefCell<XesEventImpl>>], dfg: &mut HashMap<(String, String), usize>) {
     for i in 0..events.len() - 1 {
-      *dfg.entry((events[i].borrow().name().to_owned(), events[i + 1].borrow().name().to_owned())).or_insert(0) += 1;
+      *dfg
+        .entry((events[i].borrow().name().to_owned(), events[i + 1].borrow().name().to_owned()))
+        .or_insert(0) += 1;
     }
   }
 }
@@ -253,7 +267,10 @@ fn enumerate_trace_parts(
     let mut events_threads = HashMap::new();
     for event in trace.events() {
       let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
-      events_threads.entry(event.borrow().name().as_str().to_string()).or_insert(HashSet::new()).insert(thread_id);
+      events_threads
+        .entry(event.borrow().name().as_str().to_string())
+        .or_insert(HashSet::new())
+        .insert(thread_id);
     }
 
     Some(events_threads)
@@ -268,7 +285,7 @@ fn enumerate_trace_parts(
 
       for regex in regexes {
         if regex.is_match(name).unwrap_or(false) {
-          return true
+          return true;
         }
       }
 
@@ -283,12 +300,8 @@ fn enumerate_trace_parts(
     let name = event.name().as_str();
 
     match strategy {
-      MultithreadedTracePartsCreationStrategy::Regexes(regexes) => {
-        regexes.iter().any(|r| r.is_match(name).unwrap_or(false))
-      }
-      MultithreadedTracePartsCreationStrategy::Default => {
-        events_threads.as_ref().unwrap().get(name).unwrap().len() == 1
-      }
+      MultithreadedTracePartsCreationStrategy::Regexes(regexes) => regexes.iter().any(|r| r.is_match(name).unwrap_or(false)),
+      MultithreadedTracePartsCreationStrategy::Default => events_threads.as_ref().unwrap().get(name).unwrap().len() == 1,
     }
   };
 
@@ -305,7 +318,8 @@ fn enumerate_trace_parts(
     let mut group_current_index = index + 1;
 
     let should_prolong_group = |group_current_index: usize| {
-      group_current_index < trace.events().len() && (!is_control_flow(group_current_index) || !(first_group_event_sequential ^ is_sequential(group_current_index)))
+      group_current_index < trace.events().len()
+        && (!is_control_flow(group_current_index) || !(first_group_event_sequential ^ is_sequential(group_current_index)))
     };
 
     while should_prolong_group(group_current_index) {
@@ -315,7 +329,7 @@ fn enumerate_trace_parts(
     let length = group_current_index - group_start_index;
     trace_parts.push(match first_group_event_sequential {
       true => TracePart::Sequential(length),
-      false => TracePart::Multithreaded(length)
+      false => TracePart::Multithreaded(length),
     });
 
     index = group_current_index;

@@ -1,5 +1,5 @@
 use derive_new::new;
-use getset::Getters;
+use getset::{Getters, Setters};
 use std::fmt::{Debug, Display, Formatter, Write};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -28,7 +28,7 @@ impl FromStr for RootSequenceKind {
       "LCS" => Ok(Self::LCS),
       "PairwiseLCS" => Ok(Self::PairwiseLCS),
       "Trace" => Ok(Self::Trace),
-      _ => Err(())
+      _ => Err(()),
     }
   }
 }
@@ -36,9 +36,13 @@ impl FromStr for RootSequenceKind {
 impl Display for DiscoverRootSequenceGraphError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      DiscoverRootSequenceGraphError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events"),
+      DiscoverRootSequenceGraphError::NoArtificialStartEndEvents => {
+        f.write_str("All traces in event log must have artificial start-end events")
+      }
       DiscoverRootSequenceGraphError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
-      DiscoverRootSequenceGraphError::NotSingleCandidateForNextNode => f.write_str("There were several or zero candidates for next node during replay")
+      DiscoverRootSequenceGraphError::NotSingleCandidateForNextNode => {
+        f.write_str("There were several or zero candidates for next node during replay")
+      }
     }
   }
 }
@@ -51,10 +55,7 @@ pub struct EventCoordinates {
 
 impl EventCoordinates {
   pub fn new(trace_id: u64, event_index: u64) -> Self {
-    Self {
-      trace_id,
-      event_index,
-    }
+    Self { trace_id, event_index }
   }
 
   pub fn trace_id(&self) -> u64 {
@@ -97,27 +98,10 @@ impl<T: Clone> NodeAdditionalDataContainer<T> {
   }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Getters, new)]
 pub struct ActivityStartEndTimeData {
-  start_time: u64,
-  end_time: u64,
-}
-
-impl ActivityStartEndTimeData {
-  pub fn new(start_time: u64, end_time: u64) -> Self {
-    Self {
-      start_time,
-      end_time,
-    }
-  }
-
-  pub fn start_time(&self) -> u64 {
-    self.start_time
-  }
-
-  pub fn end_time(&self) -> u64 {
-    self.end_time
-  }
+  #[getset(get = "pub")] start_time: i64,
+  #[getset(get = "pub")] end_time: i64,
 }
 
 #[derive(Clone, Debug)]
@@ -127,22 +111,24 @@ pub struct CorrespondingTraceData {
 
 impl CorrespondingTraceData {
   pub fn new(belongs_to_root_sequence: bool) -> Self {
-    Self {
-      belongs_to_root_sequence,
-    }
+    Self { belongs_to_root_sequence }
   }
 
   pub fn belongs_to_root_sequence(&self) -> bool {
     self.belongs_to_root_sequence
   }
 
-  pub fn set_belongs_to_root_sequence(&mut self, value: bool) { self.belongs_to_root_sequence = value }
+  pub fn set_belongs_to_root_sequence(&mut self, value: bool) {
+    self.belongs_to_root_sequence = value
+  }
 }
 
 #[derive(Clone, Debug, Getters)]
 pub struct EventWithUniqueId<T: PartialEq + Clone> {
-  #[getset(get = "pub")] event: T,
-  #[getset(get = "pub")] id: u64,
+  #[getset(get = "pub")]
+  event: T,
+  #[getset(get = "pub")]
+  id: u64,
 }
 
 impl<T: PartialEq + Clone> EventWithUniqueId<T> {
@@ -164,5 +150,6 @@ impl<T: PartialEq + Clone> PartialEq for EventWithUniqueId<T> {
 
 #[derive(Clone, Debug, Getters, new)]
 pub struct EdgeTraceExecutionInfo {
-  #[getset(get = "pub")] trace_id: u64,
+  #[getset(get = "pub")]
+  trace_id: u64,
 }

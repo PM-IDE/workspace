@@ -31,7 +31,8 @@ function drawGraph(
   filter: string | null,
   spacingFactor: number,
   isRichUiGraph: boolean,
-  useLROrientation: boolean
+  useLROrientation: boolean,
+  useEventClassesAsLabels: boolean
 ) {
   try {
     data = preprocessFromCSharpInterop(data);
@@ -40,7 +41,7 @@ function drawGraph(
     let cy = cytoscape(createCytoscapeOptions(id, graph, annotation, data, regex, spacingFactor, isRichUiGraph, useLROrientation));
 
     if (isRichUiGraph) {
-      setNodeEdgeHtmlRenderer(cy, enhancements);
+      setNodeEdgeHtmlRenderer(cy, enhancements, useEventClassesAsLabels);
     }
 
     cy.ready(() => setTimeout(() => updateNodesDimensions(cy, graph.kind, spacingFactor, useLROrientation), 0));
@@ -53,25 +54,15 @@ function drawGraph(
 }
 
 function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
-  data.globalSoftwareData.httpRequests = toMapCSharpInterop(data.globalSoftwareData.httpRequests);
-  data.globalSoftwareData.allocations = toMapCSharpInterop(data.globalSoftwareData.allocations);
-  data.globalSoftwareData.inliningSucceeded = toMapCSharpInterop(data.globalSoftwareData.inliningSucceeded);
-  data.globalSoftwareData.inliningFailed = toMapCSharpInterop(data.globalSoftwareData.inliningFailed);
-  data.globalSoftwareData.inliningFailedReasons = toMapCSharpInterop(data.globalSoftwareData.inliningFailedReasons);
-  data.globalSoftwareData.methodsLoads = toMapCSharpInterop(data.globalSoftwareData.methodsLoads);
-  data.globalSoftwareData.methodsUnloads = toMapCSharpInterop(data.globalSoftwareData.methodsUnloads);
-  data.globalSoftwareData.exceptions = toMapCSharpInterop(data.globalSoftwareData.exceptions);
   data.globalSoftwareData.counters = toMapCSharpInterop(data.globalSoftwareData.counters);
-
-  data.globalSoftwareData.createdThreads = new Set(data.globalSoftwareData.createdThreads);
-  data.globalSoftwareData.terminatedThreads = new Set(data.globalSoftwareData.terminatedThreads);
-
+  data.globalSoftwareData.activitiesDurations = toMapCSharpInterop(data.globalSoftwareData.activitiesDurations);
   data.globalSoftwareData.histograms = toMapCSharpInterop(data.globalSoftwareData.histograms);
 
   for (let [key, map] of data.globalSoftwareData.histograms) {
     data.globalSoftwareData.histograms.set(key, {
       units: map.units,
-      value: toMapCSharpInterop(map.value)
+      value: toMapCSharpInterop(map.value),
+      group: map.group
     });
   }
 
@@ -96,13 +87,17 @@ function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingF
   cy.layout(createLayout(kind, spacingFactor, useLROrientation)).run();
 }
 
-function setNodeEdgeHtmlRenderer(cy: cytoscape.Core, enhancements: SoftwareEnhancementKind[]) {
+function setNodeEdgeHtmlRenderer(
+  cy: cytoscape.Core,
+  enhancements: SoftwareEnhancementKind[],
+  useEventClassesAsLabels: boolean
+) {
   (<any>cy).htmlLabel(
     [
       {
         query: 'node',
         tpl: function (data: GraphNode) {
-          return createNodeHtmlLabel(data, enhancements);
+          return createNodeHtmlLabel(data, enhancements, useEventClassesAsLabels);
         }
       },
       {

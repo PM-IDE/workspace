@@ -29,7 +29,7 @@ pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
 
     match best_labels.labels() {
       None => Err(ClusteringError::RawError("Best labels were None".to_string())),
-      Some(labels) => Ok(labels.clone())
+      Some(labels) => Ok(labels.clone()),
     }
   })
 }

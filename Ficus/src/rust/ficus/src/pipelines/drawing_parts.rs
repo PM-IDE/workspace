@@ -27,8 +27,7 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM, &|context, _, _| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
-      let colors_log =
-        Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
+      let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
 
       context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
 

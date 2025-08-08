@@ -2,9 +2,9 @@ use crate::utils::graph::graph::{DefaultGraph, Graph};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
+use crate::utils::user_data::user_data::UserDataImpl;
 use std::collections::HashMap;
 use std::fmt::Display;
-use crate::utils::user_data::user_data::UserDataImpl;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
@@ -16,12 +16,12 @@ where
       nodes: self.to_default_graph_nodes(),
       connections: self.to_default_graph_connections(),
       user_data: UserDataImpl::new(),
-      kind: self.kind().clone()
+      kind: self.kind().clone(),
     }
   }
 
   #[rustfmt::skip]
-    fn to_default_graph_nodes(&self) -> HashMap<u64, GraphNode<HeapedOrOwned<String>>> {
+  fn to_default_graph_nodes(&self) -> HashMap<u64, GraphNode<HeapedOrOwned<String>>> {
         self.nodes.iter().map(|pair| {
             (
                 *pair.0,
@@ -38,7 +38,7 @@ where
     }
 
   #[rustfmt::skip]
-    fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, GraphEdge<HeapedOrOwned<String>>>> {
+  fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, GraphEdge<HeapedOrOwned<String>>>> {
         self.connections.iter().map(|pair| {
             (
                 *pair.0,
@@ -46,7 +46,7 @@ where
                     (
                         *pair.0,
                         GraphEdge::new(
-                            pair.1.from_node, 
+                            pair.1.from_node,
                             pair.1.to_node,
                             pair.1.weight,
                             match pair.1.data() {

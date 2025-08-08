@@ -1,6 +1,8 @@
-import {getOrCreateColor} from "../../utils";
+import {getOrCreateColor, isNullOrEmpty} from "../../utils";
 import {getPerformanceAnnotationColor} from "../util";
-import {AggregatedData, MergedEnhancementData, MergedSoftwareData} from "../types";
+import {AggregatedData, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {GrpcDurationKind} from "../../protos/ficus/GrpcDurationKind";
+import {TimeSpan} from "../../timespan";
 
 export let fallBackPerformanceColor = "#3d3d3d";
 
@@ -23,7 +25,7 @@ export function createPieChart(sortedHistogramEntries: [string, number][], perfo
   `
 }
 
-export function createEnhancementContainer(title: string, content: string): string {
+export function createEnhancementContainer(title: string, content: string, horizontal: boolean = true): string {
   if (content.length == 0) {
     return "";
   }
@@ -31,7 +33,9 @@ export function createEnhancementContainer(title: string, content: string): stri
   return `
     <div class="graph-content-container">
       <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
-      ${content}
+      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"};">
+        ${content}
+      </div>
     </div>
   `
 }
@@ -85,44 +89,24 @@ export function toSortedArray(map: Map<string, number>): [string, number][] {
   return [...map.entries()].toSorted((f: [string, number], s: [string, number]) => s[1] - f[1]);
 }
 
-export function createArrayPoolEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  if (softwareData.bufferRentedBytes.count == 0 && softwareData.bufferAllocatedBytes.count == 0 && softwareData.bufferReturnedBytes.count == 0) {
-    return "";
-  }
-
-  const units = "bytes";
-  return `
-    <div>
-      ${createNumberInformation("Allocated", units, softwareData.bufferAllocatedBytes.sum, aggregatedData.totalBufferAllocatedBytes)}
-      ${createNumberInformation("Rented", units, softwareData.bufferRentedBytes.sum, aggregatedData.totalBufferRentedBytes)}
-      ${createNumberInformation("Returned", units, softwareData.bufferReturnedBytes.sum, aggregatedData.totalBufferReturnedBytes)}
-    </div>
-  `;
-}
-
-export function createThreadsEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.createdThreads.size == 0 && softwareData.terminatedThreads.size == 0) {
-    return "";
-  }
-
-  const units = "threads";
-  return `
-    <div>
-      ${createNumberInformation("Created", units, softwareData.createdThreads.size, null)}
-      ${createNumberInformation("Terminated", units, softwareData.terminatedThreads.size, null)}
-    </div>
-  `;
-}
-
-export function createNumberInformation(category: string, units: string, value: number, totalValue: number | null): string {
+export function createNumberInformation(
+  category: string,
+  units: string,
+  value: number,
+  displayValue: string,
+  totalValue: number | null
+): string {
   if (value == 0) {
     return "";
   }
 
+  let percentString = getPercentExecutionTime(value, totalValue);
+  percentString = percentString.length > 0 ? `, ${percentString}%` : percentString;
+
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
       <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
-        ${category} ${value} ${units}
+        ${category} ${displayValue} ${units}${percentString}
       </div>
     </div>
   `;
@@ -133,5 +117,108 @@ export function getPercentExecutionTime(executionTime: number, totalExecutionTim
     return "0";
   }
 
-  return ((executionTime / totalExecutionTime) * 100).toFixed(3);
+  let percent = (executionTime / totalExecutionTime) * 100;
+
+  return Number.isFinite(percent) ? percent.toFixed(2) : "";
+}
+
+export class EnhancementCreationResult {
+  html: string
+  group: string | null = null
+  horizontal: boolean
+
+  constructor(html: string, group: string | null = null, horizontal: boolean = true) {
+    this.html = html;
+    this.group = group;
+    this.horizontal = horizontal;
+  }
+}
+
+export function createGroupedEnhancements(
+  enhancements: SoftwareEnhancementKind[],
+  enhancementData: MergedEnhancementData,
+  aggregatedData: AggregatedData,
+  createContainer: boolean,
+  enhancementFactory: (softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: string) => EnhancementCreationResult
+): string {
+  // @ts-ignore
+  let enhancementsHtmls: [SoftwareEnhancementKind, EnhancementCreationResult][] = enhancements
+    .map(e => [e, enhancementFactory(enhancementData.softwareData, aggregatedData, e)])
+    .filter(res => (<EnhancementCreationResult>res[1]).html.length > 0);
+
+  if (enhancementsHtmls.length == 0) {
+    return "";
+  }
+
+  let groups = new Map();
+  let uniqueEnhancements: [SoftwareEnhancementKind, string][] = [];
+  for (let [e, result] of enhancementsHtmls) {
+    if (isNullOrEmpty(result.group)) {
+      uniqueEnhancements.push([e, result.html]);
+      continue;
+    }
+
+    if (!groups.has(result.group)) {
+      groups.set(result.group, []);
+    }
+
+    groups.get(result.group).push(result);
+  }
+
+  let groupedEnhancements = groups
+    .entries()
+    .map(kv => {
+      if (kv[1].length == 0) {
+        return "";
+      }
+
+      let html = kv[1].map((r: EnhancementCreationResult) => r.html).join("\n");
+      return createContainer ? createEnhancementContainer(kv[0], html, kv[1][0].horizontal) : html;
+    });
+
+  return uniqueEnhancements
+    .map(([e, html]) => createContainer ? createEnhancementContainer(e, html, false) : html)
+    .concat(...groupedEnhancements)
+    .join("\n");
+}
+
+export function createTimeSpanString(value: number, kind: GrpcDurationKind): string {
+  if (kind == GrpcDurationKind.Unspecified) {
+    return value.toString();
+  }
+  
+  return processTimeSpanString(createTimeSpanStringInternal(value, kind));
+}
+
+function processTimeSpanString(str: string): string {
+  while (str.indexOf("00:") > -1) {
+    str = str.replace("00:", "0:");
+  }
+  
+  while (str.indexOf("00.") > -1) {
+    str = str.replace("00.", "0.");
+  }
+
+  return str; 
+}
+
+function createTimeSpanStringInternal(value: number, kind: GrpcDurationKind) {
+  switch (kind) {
+    case GrpcDurationKind.Nanos:
+      return TimeSpan.fromNanoseconds(BigInt(value)).toString();
+    case GrpcDurationKind.Micros:
+      return TimeSpan.fromMicroseconds(value).toString();
+    case GrpcDurationKind.Millis:
+      return TimeSpan.fromMilliseconds(value).toString();
+    case GrpcDurationKind.Seconds:
+      return TimeSpan.fromSeconds(value).toString();
+    case GrpcDurationKind.Minutes:
+      return TimeSpan.fromMinutes(value).toString();
+    case GrpcDurationKind.Hours:
+      return TimeSpan.fromHours(value).toString();
+    case GrpcDurationKind.Days:
+      return TimeSpan.fromDays(value).toString();
+    default:
+      console.error("Not supported timespan ")
+  }
 }

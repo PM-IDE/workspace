@@ -15,13 +15,13 @@ pub enum GraphsMergingError {
 const START_NODE_ID: &'static str = "START_NODE_ID";
 const END_NODE_ID: &'static str = "END_NODE_ID";
 
-lazy_static!(
+lazy_static! {
   pub static ref START_NODE_ID_KEY: DefaultContextKey<u64> = DefaultContextKey::new(START_NODE_ID);
   pub static ref END_NODE_ID_KEY: DefaultContextKey<u64> = DefaultContextKey::new(END_NODE_ID);
-);
+}
 
 pub fn merge_graphs<TNodeData: Display + Clone, TEdgeData: Display + Clone>(
-  graphs: &Vec<Graph<TNodeData, TEdgeData>>
+  graphs: &Vec<Graph<TNodeData, TEdgeData>>,
 ) -> Result<Graph<TNodeData, TEdgeData>, GraphsMergingError> {
   let mut merged_graph = Graph::empty();
 
@@ -31,17 +31,20 @@ pub fn merge_graphs<TNodeData: Display + Clone, TEdgeData: Display + Clone>(
   for graph in graphs {
     let start_node_id = match graph.user_data().concrete(START_NODE_ID_KEY.key()) {
       None => return Err(GraphsMergingError::MissingStartNode),
-      Some(id) => *id
+      Some(id) => *id,
     };
 
     let end_node_id = match graph.user_data().concrete(END_NODE_ID_KEY.key()) {
       None => return Err(GraphsMergingError::MissingEndNode),
-      Some(id) => *id
+      Some(id) => *id,
     };
 
     let mut ids_map = HashMap::new();
     for node in graph.all_nodes() {
-      ids_map.insert(*node.id(), merged_graph.add_node_with_user_data(node.data().cloned(), node.user_data().clone()));
+      ids_map.insert(
+        *node.id(),
+        merged_graph.add_node_with_user_data(node.data().cloned(), node.user_data().clone()),
+      );
     }
 
     for edge in graph.all_edges() {

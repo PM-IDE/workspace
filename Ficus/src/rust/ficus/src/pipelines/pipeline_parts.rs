@@ -1,7 +1,7 @@
 use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
 use crate::pipelines::errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError};
-use crate::utils::context_key::DefaultContextKey;
 use crate::pipelines::pipelines::{DefaultPipelinePart, PipelinePartFactory};
+use crate::utils::context_key::DefaultContextKey;
 use crate::utils::performance::performance_cookie::performance_cookie;
 use crate::utils::user_data::keys::Key;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
@@ -112,7 +112,7 @@ impl PipelineParts {
       Self::merge_graphs(),
       Self::add_graph_to_graphs(),
       Self::clear_graphs(),
-      Self::terminate_if_empty_log()
+      Self::terminate_if_empty_log(),
     ];
 
     let mut names_to_parts = HashMap::new();
@@ -144,10 +144,7 @@ impl PipelineParts {
     )
   }
 
-  pub(super) fn get_user_data<'a, T>(
-    context: &'a impl UserData,
-    key: &DefaultContextKey<T>,
-  ) -> Result<&'a T, PipelinePartExecutionError> {
+  pub(super) fn get_user_data<'a, T>(context: &'a impl UserData, key: &DefaultContextKey<T>) -> Result<&'a T, PipelinePartExecutionError> {
     match context.concrete(key.key()) {
       Some(value) => Ok(value),
       None => Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(

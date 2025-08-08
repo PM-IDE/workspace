@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Core.Constants.TraceEvents;
 using Core.Container;
 using Core.Events.EventRecord;
 using Core.Utils;
@@ -32,6 +33,15 @@ public class ThreadsMethodsProcessor(
   IMethodBeginEndSingleMutator methodBeginEndSingleMutator
 ) : IThreadsMethodsProcessor
 {
+  private static readonly HashSet<string> ourInlineInAllThreadsEvents =
+  [
+    TraceEventsConstants.GcSuspendEeStop,
+    TraceEventsConstants.GcSuspendEeStart,
+    TraceEventsConstants.GcRestartEeStart,
+    TraceEventsConstants.GcRestartEeStop
+  ];
+
+
   private readonly Dictionary<long, Stack<TargetMethodFrame>> myStacksPerThreads = new();
 
 
@@ -101,6 +111,19 @@ public class ThreadsMethodsProcessor(
       targetFrame.InnerEvents.Add(eventRecord);
     }
 
+    if (ourInlineInAllThreadsEvents.Contains(eventRecord.EventClass))
+    {
+      foreach (var (stackThreadId, stack) in myStacksPerThreads)
+      {
+        if (stackThreadId == threadId) continue;
+
+        foreach (var frame in stack)
+        {
+          frame.InnerEvents.Add(eventRecord);
+        }
+      }
+    }
+
     eventProcessingEntryPoint.Process(context);
 
     ProcessMethodStartEndEvent(context);
@@ -130,6 +153,12 @@ public class ThreadsMethodsProcessor(
       {
         if (isTargetMethod)
         {
+          if (threadStack.Count == 0)
+          {
+            logger.LogWarning("Encountered method end {Name} when stack is empty", context.Event.EventName);
+            return;
+          }
+
           if (methodId != threadStack.Peek().MethodId)
           {
             logger.LogWarning("The stack is corrupt for thread {ThreadId}", context.Event.NativeThreadId);

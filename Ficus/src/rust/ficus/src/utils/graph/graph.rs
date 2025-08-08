@@ -1,10 +1,10 @@
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::{UserData, UserDataImpl};
+use crate::utils::user_data::user_data::UserDataImpl;
+use getset::{Getters, Setters};
 use std::fmt::Display;
 use std::{collections::HashMap, sync::atomic::AtomicU64};
-use getset::{Getters, Setters};
 
 pub(crate) static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 pub type DefaultGraph = Graph<HeapedOrOwned<String>, HeapedOrOwned<String>>;
@@ -12,7 +12,7 @@ pub type DefaultGraph = Graph<HeapedOrOwned<String>, HeapedOrOwned<String>>;
 pub struct NodesConnectionData<TEdgeData> {
   pub(super) data: Option<TEdgeData>,
   pub(super) weight: f64,
-  pub(super) user_data: Option<UserDataImpl>
+  pub(super) user_data: Option<UserDataImpl>,
 }
 
 impl<TEdgeData> NodesConnectionData<TEdgeData> {
@@ -21,11 +21,19 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
   }
 
   pub fn zero_weight(data: Option<TEdgeData>) -> Self {
-    Self { data, weight: 0f64, user_data: None }
+    Self {
+      data,
+      weight: 0f64,
+      user_data: None,
+    }
   }
 
   pub fn empty() -> Self {
-    Self { data: None, weight: 0f64, user_data: None }
+    Self {
+      data: None,
+      weight: 0f64,
+      user_data: None,
+    }
   }
 
   pub fn data(&self) -> Option<&TEdgeData> {
@@ -39,7 +47,7 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
 
 #[derive(Debug, Clone)]
 pub enum GraphKind {
-  Dag
+  Dag,
 }
 
 #[derive(Debug, Getters, Setters)]
@@ -51,7 +59,8 @@ where
   pub(crate) nodes: HashMap<u64, GraphNode<TNodeData>>,
   pub(crate) connections: HashMap<u64, HashMap<u64, GraphEdge<TEdgeData>>>,
   pub(crate) user_data: UserDataImpl,
-  #[getset(get="pub", set="pub")] pub(crate) kind: Option<GraphKind>
+  #[getset(get = "pub", set = "pub")]
+  pub(crate) kind: Option<GraphKind>,
 }
 
 impl<TNodeData: Clone + ToString, TEdgeData: Clone + ToString> Clone for Graph<TNodeData, TEdgeData> {
@@ -60,7 +69,7 @@ impl<TNodeData: Clone + ToString, TEdgeData: Clone + ToString> Clone for Graph<T
       nodes: self.nodes.clone(),
       connections: self.connections.clone(),
       user_data: self.user_data.clone(),
-      kind: self.kind.clone()
+      kind: self.kind.clone(),
     }
   }
 }
@@ -75,7 +84,7 @@ where
       connections: HashMap::new(),
       nodes: HashMap::new(),
       user_data: UserDataImpl::new(),
-      kind: None
+      kind: None,
     }
   }
 
@@ -152,7 +161,13 @@ where
 
     if let Some(_) = self.nodes.get(first_node_id) {
       if let Some(_) = self.nodes.get(second_node_id) {
-        let edge = GraphEdge::new(*first_node_id, *second_node_id, connection_data.weight, connection_data.data, connection_data.user_data);
+        let edge = GraphEdge::new(
+          *first_node_id,
+          *second_node_id,
+          connection_data.weight,
+          connection_data.data,
+          connection_data.user_data,
+        );
         if let Some(connections) = self.connections.get_mut(first_node_id) {
           connections.insert(second_node_id.to_owned(), edge);
         } else {
@@ -213,11 +228,9 @@ where
   }
 
   pub fn serialize_edges_deterministic(&self, add_weight: bool) -> String {
-    let get_node_repr = |id| {
-      match self.node(id).as_ref().unwrap().data.as_ref() {
-        None => "None".to_string(),
-        Some(data) => data.to_string()
-      }
+    let get_node_repr = |id| match self.node(id).as_ref().unwrap().data.as_ref() {
+      None => "None".to_string(),
+      Some(data) => data.to_string(),
     };
 
     let mut serialized_connection = vec![];

@@ -1,11 +1,11 @@
 use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
+use crate::utils::user_data::user_data::UserDataImpl;
 use fancy_regex::Regex;
 use getset::{Getters, MutGetters, Setters};
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::utils::user_data::user_data::UserDataImpl;
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {
@@ -23,10 +23,14 @@ impl TraceEventsGroup {
   }
 }
 
-pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u64, control_flow_regexes: Option<&Vec<Regex>>) -> Vec<TraceEventsGroup> {
+pub fn discover_events_groups(
+  threads: &Vec<&TraceThread>,
+  event_group_delta: u64,
+  control_flow_regexes: Option<&Vec<Regex>>,
+) -> Vec<TraceEventsGroup> {
   let mut groups = vec![];
 
-  let mut last_stamp: Option<u64> = None;
+  let mut last_stamp: Option<i64> = None;
   let mut last_trace_group: Option<TraceEventsGroup> = None;
 
   let mut events = ThreadsSequentialEvents::new(threads);
@@ -41,7 +45,10 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
 
   while let Some((event, trace_index, event_index)) = events.next() {
     if let Some(control_flow_regexes) = control_flow_regexes {
-      if !control_flow_regexes.iter().any(|regex| regex.is_match(event.original_event().borrow().name()).unwrap_or(false)) {
+      if !control_flow_regexes
+        .iter()
+        .any(|regex| regex.is_match(event.original_event().borrow().name()).unwrap_or(false))
+      {
         continue;
       }
     }
@@ -54,7 +61,7 @@ pub fn discover_events_groups(threads: &Vec<&TraceThread>, event_group_delta: u6
     };
 
     if last_stamp.is_some() {
-      if *event.stamp() - last_stamp.unwrap() > event_group_delta {
+      if (*event.stamp() - last_stamp.unwrap()) as u64 > event_group_delta {
         add_to_groups(last_trace_group.clone(), last_seen_point.clone());
         last_trace_group = create_events_group();
       }
@@ -111,14 +118,21 @@ impl<'a> ThreadsSequentialEvents<'a> {
     } else {
       self.indices[min_index] += 1;
       Some((
-        self.threads.get(min_index).unwrap().events().get(self.indices[min_index] - 1).as_ref().unwrap(),
+        self
+          .threads
+          .get(min_index)
+          .unwrap()
+          .events()
+          .get(self.indices[min_index] - 1)
+          .as_ref()
+          .unwrap(),
         min_index,
-        self.indices[min_index] - 1
+        self.indices[min_index] - 1,
       ))
     }
   }
 
-  fn get_stamp(&self, index: usize) -> u64 {
+  fn get_stamp(&self, index: usize) -> i64 {
     *self.get_trace_event(index).stamp()
   }
 
@@ -129,10 +143,14 @@ impl<'a> ThreadsSequentialEvents<'a> {
 
 #[derive(Clone, Debug, Getters, MutGetters, Setters)]
 pub struct EventGroup {
-  #[getset(get = "pub", get_mut = "pub")] control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
-  #[getset(get = "pub", get_mut = "pub")] statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
-  #[getset(get = "pub", get_mut = "pub", set = "pub")] after_group_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
-  #[getset(get = "pub", get_mut = "pub")] user_data: UserDataImpl
+  #[getset(get = "pub", get_mut = "pub")]
+  control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
+  #[getset(get = "pub", get_mut = "pub")]
+  statistic_events: Vec<Rc<RefCell<XesEventImpl>>>,
+  #[getset(get = "pub", get_mut = "pub", set = "pub")]
+  after_group_events: Option<Vec<Rc<RefCell<XesEventImpl>>>>,
+  #[getset(get = "pub", get_mut = "pub")]
+  user_data: UserDataImpl,
 }
 
 impl EventGroup {
@@ -157,7 +175,13 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> 
     let mut group_index = 0;
     let threads_refs: Vec<&TraceThread> = trace_diagram.threads().iter().map(|x| x).collect();
     let get_stamp = |point: &LogPoint| {
-      threads_refs.get(*point.trace_index()).unwrap().events().get(*point.event_index()).unwrap().stamp()
+      threads_refs
+        .get(*point.trace_index())
+        .unwrap()
+        .events()
+        .get(*point.event_index())
+        .unwrap()
+        .stamp()
     };
 
     let mut events = ThreadsSequentialEvents::new(&threads_refs);

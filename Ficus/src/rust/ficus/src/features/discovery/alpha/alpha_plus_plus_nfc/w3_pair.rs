@@ -30,11 +30,7 @@ impl<'a> W3Pair<'a> {
     }
   }
 
-  pub fn valid<TLog: EventLog>(
-    &self,
-    w3_relations: &HashSet<(&String, &String)>,
-    provider: &AlphaPlusNfcRelationsProvider<TLog>,
-  ) -> bool {
+  pub fn valid<TLog: EventLog>(&self, w3_relations: &HashSet<(&String, &String)>, provider: &AlphaPlusNfcRelationsProvider<TLog>) -> bool {
     for first in self.two_sets.first_set().iter() {
       for second in self.two_sets.second_set().iter() {
         if !(w3_relations.contains(&(first, second))) {

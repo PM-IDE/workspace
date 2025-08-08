@@ -1,15 +1,15 @@
 pub mod analysis;
 pub mod annotations;
 pub mod cases;
+pub mod clustering;
 pub mod discovery;
 pub mod interval_tree;
 pub mod mutations;
 pub mod other;
 pub mod petri_nets;
 pub mod pipelines;
+pub mod software_data;
 pub mod streaming;
 pub mod suffix_tree;
 pub mod test_core;
 pub mod utils;
-pub mod clustering;
-pub mod software_data;

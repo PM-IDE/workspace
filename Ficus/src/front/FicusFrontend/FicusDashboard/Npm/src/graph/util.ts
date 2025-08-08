@@ -77,28 +77,9 @@ export function getNodeEnhancementDataOrNull(node: GraphNode | GrpcGraphNode, fi
 
 export function createEmptySoftwareData(): MergedSoftwareData {
   return {
-    allocations: new Map(),
-
-    inliningFailed: new Map(),
-    inliningSucceeded: new Map(),
-    inliningFailedReasons: new Map(),
-
-    methodsUnloads: new Map(),
-    methodsLoads: new Map(),
-
-    bufferAllocatedBytes: {count: 0, sum: 0},
-    bufferRentedBytes: {count: 0, sum: 0},
-    bufferReturnedBytes: {count: 0, sum: 0},
-
-    exceptions: new Map(),
-
-    createdThreads: new Set(),
-    terminatedThreads: new Set(),
-
-    httpRequests: new Map(),
-
     histograms: new Map(),
-    counters: new Map()
+    counters: new Map(),
+    activitiesDurations: new Map()
   };
 }
 
@@ -131,89 +112,16 @@ function createMergedEnhancementData(
 
     enhancementData.timelineDiagramFragments.push(softwareData.timelineDiagramFragment);
 
-    for (let alloc of softwareData.allocationsInfo) {
-      let allocBytes = alloc.allocatedBytes * alloc.allocatedObjectsCount;
-
-      if (matchesFilter(alloc.typeName)) {
-        increment(enhancementData.softwareData.allocations, alloc.typeName, allocBytes);
-      }
-    }
-
-    for (let inliningEvent of softwareData.methodsInliningEvents) {
-      let fqn = restoreFqn(inliningEvent.inliningInfo.inlineeInfo);
-      if (!matchesFilter(fqn)) {
-        continue;
-      }
-
-      if (inliningEvent.failed != null) {
-        increment(enhancementData.softwareData.inliningFailed, fqn, 1);
-        increment(enhancementData.softwareData.inliningFailedReasons, inliningEvent.failed.reason, 1);
-      } else if (inliningEvent.succeeded != null) {
-        increment(enhancementData.softwareData.inliningSucceeded, fqn, 1);
-      }
-    }
-
-    for (let loadUnloadEvent of softwareData.methodsLoadUnloadEvents) {
-      let fqn = restoreFqn(loadUnloadEvent.methodNameParts);
-      if (!matchesFilter(fqn)) {
-        continue;
-      }
-
-      if (loadUnloadEvent.load != null) {
-        increment(enhancementData.softwareData.methodsLoads, fqn, 1);
-      } else if (loadUnloadEvent.unload != null) {
-        increment(enhancementData.softwareData.methodsUnloads, fqn, 1);
-      }
-    }
-
-    for (let arrayPoolEvent of softwareData.arrayPoolEvents) {
-      if (!matchesFilter(arrayPoolEvent.bufferId.toString())) {
-        continue;
-      }
-
-      if (arrayPoolEvent.bufferAllocated != null) {
-        incrementCountAndSum(enhancementData.softwareData.bufferAllocatedBytes, arrayPoolEvent.bufferSizeBytes);
-      } else if (arrayPoolEvent.bufferReturned != null) {
-        incrementCountAndSum(enhancementData.softwareData.bufferReturnedBytes, arrayPoolEvent.bufferSizeBytes);
-      } else if (arrayPoolEvent.bufferRented != null) {
-        incrementCountAndSum(enhancementData.softwareData.bufferRentedBytes, arrayPoolEvent.bufferSizeBytes);
-      }
-    }
-
-    for (let exception of softwareData.exceptionEvents) {
-      if (matchesFilter(exception.exceptionType)) {
-        increment(enhancementData.softwareData.exceptions, exception.exceptionType, 1);
-      }
-    }
-
-    for (let threadEvent of softwareData.threadEvents) {
-      if (!matchesFilter(threadEvent.threadId.toString())) {
-        continue;
-      }
-
-      if (threadEvent.created != null) {
-        enhancementData.softwareData.createdThreads.add(threadEvent.threadId);
-      } else if (threadEvent.terminated != null) {
-        enhancementData.softwareData.terminatedThreads.add(threadEvent.threadId);
-      }
-    }
-
-    for (let httpEvent of softwareData.httpEvents) {
-      let requestUrl = httpEvent.scheme + "://" + httpEvent.host + ":" + httpEvent.port + httpEvent.pathAndQuery;
-      if (matchesFilter(requestUrl)) {
-        increment(enhancementData.softwareData.httpRequests, requestUrl, 1);
-      }
-    }
-
     for (let histogram of softwareData.histogramData) {
       let histogramMap;
-      if (enhancementData.softwareData.histograms.has(histogram.name)) {
-        histogramMap = enhancementData.softwareData.histograms.get(histogram.name).value;
+      if (enhancementData.softwareData.histograms.has(histogram.base.name)) {
+        histogramMap = enhancementData.softwareData.histograms.get(histogram.base.name).value;
       } else {
         histogramMap = new Map();
-        enhancementData.softwareData.histograms.set(histogram.name, {
+        enhancementData.softwareData.histograms.set(histogram.base.name, {
           value: histogramMap,
-          units: histogram.units
+          units: histogram.base.units,
+          group: histogram.base.group,
         });
       }
 
@@ -223,27 +131,34 @@ function createMergedEnhancementData(
     }
 
     for (let counter of softwareData.simpleCounterData) {
-      if (!enhancementData.softwareData.counters.has(counter.name)) {
-        enhancementData.softwareData.counters.set(counter.name, {
+      if (!enhancementData.softwareData.counters.has(counter.base.name)) {
+        enhancementData.softwareData.counters.set(counter.base.name, {
           value: 0,
-          units: counter.units
+          units: counter.base.units,
+          group: counter.base.group,
         });
       }
 
-      enhancementData.softwareData.counters.get(counter.name).value += counter.count;
+      enhancementData.softwareData.counters.get(counter.base.name).value += counter.count;
+    }
+
+    for (let activityDuration of softwareData.activitiesDurationsData) {
+      if (!enhancementData.softwareData.activitiesDurations.has(activityDuration.base.name)) {
+        enhancementData.softwareData.activitiesDurations.set(activityDuration.base.name, {
+          value: {
+            value: activityDuration.duration,
+            kind: activityDuration.kind
+          },
+          units: activityDuration.base.units,
+          group: activityDuration.base.group,
+        });
+      }
+
+      enhancementData.softwareData.activitiesDurations.get(activityDuration.base.name).value.value += activityDuration.duration;
     }
   });
 
   return enhancementData;
-}
-
-function restoreFqn(data: GrpcMethodNameParts) {
-  return data.namespace + "." + data.name + "[" + data.signature + "]";
-}
-
-function incrementCountAndSum(countAndSum: CountAndSum, value: number) {
-  countAndSum.sum += value;
-  countAndSum.count += 1;
 }
 
 export function increment(map: Map<string, number>, key: string, value: number) {
@@ -311,7 +226,6 @@ export function executeWithNodeAdditionalData(
     handler(data);
   }
 }
-
 
 export function calculateOverallExecutionTime(node: GrpcGraphNode) {
   let overallExecutionTime = 0;

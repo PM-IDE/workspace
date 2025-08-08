@@ -1,22 +1,24 @@
 use crate::features::discovery::petri_net::annotations::PerformanceMap;
-use crate::features::discovery::root_sequence::adjustments::{adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes};
+use crate::features::discovery::root_sequence::adjustments::{
+  adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes,
+};
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, GraphKind, NodesConnectionData};
 use crate::utils::graph::graph_node::GraphNode;
+use crate::utils::graph::graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY};
 use crate::utils::lcs::find_longest_common_subsequence;
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
 use lazy_static::lazy_static;
 use std::collections::{HashMap, VecDeque};
 use std::fmt::Debug;
-use crate::utils::graph::graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY};
 
-lazy_static!(
-   pub(super) static ref EVENT_UNIQUE_ID_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new("EVENT_UNIQUE_ID");
-);
+lazy_static! {
+  pub(super) static ref EVENT_UNIQUE_ID_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new("EVENT_UNIQUE_ID");
+}
 
 #[derive(Debug)]
 pub struct RootSequenceGraphDiscoveryResult {
@@ -106,7 +108,11 @@ fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context)?;
 
-  Ok(RootSequenceGraphDiscoveryResult::new(graph, root_sequence_nodes_ids.first().cloned(), root_sequence_nodes_ids.last().cloned()))
+  Ok(RootSequenceGraphDiscoveryResult::new(
+    graph,
+    root_sequence_nodes_ids.first().cloned(),
+    root_sequence_nodes_ids.last().cloned(),
+  ))
 }
 
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
@@ -202,7 +208,13 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
     let lcs = find_longest_common_subsequence(trace, root_sequence, trace.len(), root_sequence.len());
     for (trace_index, root_sequence_index) in lcs.first_indices().iter().zip(lcs.second_indices().iter()) {
       let event = trace.get(*trace_index).unwrap();
-      transfer_user_data(graph, event, root_sequence_node_ids[*root_sequence_index], is_first_iteration_root_sequence, context);
+      transfer_user_data(
+        graph,
+        event,
+        root_sequence_node_ids[*root_sequence_index],
+        is_first_iteration_root_sequence,
+        context,
+      );
     }
   }
 
@@ -227,7 +239,11 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
     while index < trace.len() {
       if index == trace_lcs.first_indices()[lcs_index] {
         if lcs_index >= 1 && second_indices[lcs_index - 1] + 1 != second_indices[lcs_index] {
-          graph.connect_nodes(&root_sequence_node_ids[second_indices[lcs_index - 1]], &root_sequence_node_ids[second_indices[lcs_index]], NodesConnectionData::empty());
+          graph.connect_nodes(
+            &root_sequence_node_ids[second_indices[lcs_index - 1]],
+            &root_sequence_node_ids[second_indices[lcs_index]],
+            NodesConnectionData::empty(),
+          );
         }
 
         lcs_index += 1;
@@ -244,7 +260,12 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
       let from_node_id = root_sequence_node_ids[second_indices[lcs_index - 1]];
       let to_node_id = root_sequence_node_ids[second_indices[lcs_index]];
 
-      adjustments.entry(from_node_id).or_insert(HashMap::new()).entry(to_node_id).or_insert(vec![]).push(adjustment_events);
+      adjustments
+        .entry(from_node_id)
+        .or_insert(HashMap::new())
+        .entry(to_node_id)
+        .or_insert(vec![])
+        .push(adjustment_events);
 
       index += 1;
       lcs_index += 1;
@@ -257,7 +278,8 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
       let mut values: Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)> = v.into_iter().collect();
       values.sort_by(|f, s| f.0.cmp(&s.0));
       (k, values)
-    }).collect();
+    })
+    .collect();
 
   adjustments.sort_by(|f, s| f.0.cmp(&s.0));
 
@@ -336,12 +358,16 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
   start_graph_node_id: u64,
   context: &DiscoveryContext<T>,
 ) -> Result<(), DiscoverRootSequenceGraphError> {
-  let (start_node_id, end_node_id) = find_start_end_node_ids(&sub_graph, context.name_extractor(), context.artificial_start_end_events_factory());
+  let (start_node_id, end_node_id) =
+    find_start_end_node_ids(&sub_graph, context.name_extractor(), context.artificial_start_end_events_factory());
   let mut sub_graph_nodes_to_nodes = HashMap::new();
 
   for node in sub_graph.all_nodes() {
     if *node.id() != start_node_id && *node.id() != end_node_id {
-      sub_graph_nodes_to_nodes.insert(*node.id(), graph.add_node_with_user_data(node.data.clone(), node.user_data().clone()));
+      sub_graph_nodes_to_nodes.insert(
+        *node.id(),
+        graph.add_node_with_user_data(node.data.clone(), node.user_data().clone()),
+      );
     }
   }
 
@@ -396,10 +422,7 @@ struct ReplayHistoryEntry {
 
 impl ReplayHistoryEntry {
   pub fn new(node_id: u64, parent: Option<usize>) -> Self {
-    Self {
-      node_id,
-      parent,
-    }
+    Self { node_id, parent }
   }
 }
 

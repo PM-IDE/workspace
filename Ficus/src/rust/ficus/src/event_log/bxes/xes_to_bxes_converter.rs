@@ -72,7 +72,8 @@ fn create_bxes_write_data(log: &XesEventLogImpl, metadata: Option<&SystemMetadat
 }
 
 fn create_bxes_traces(log: &XesEventLogImpl) -> Vec<BxesTraceVariant> {
-  log.traces()
+  log
+    .traces()
     .iter()
     .map(|trace| BxesTraceVariant {
       traces_count: 1,
@@ -117,7 +118,8 @@ fn is_not_default_attribute(log: &XesEventLogImpl, kv: &(&String, &EventPayloadV
 }
 
 fn create_bxes_classifiers(log: &XesEventLogImpl) -> Vec<BxesClassifier> {
-  log.classifiers()
+  log
+    .classifiers()
     .iter()
     .map(|c| BxesClassifier {
       keys: c
@@ -162,7 +164,8 @@ fn convert_to_bxes_global_attribute(kv: &(&String, &EventPayloadValue)) -> (Rc<B
 }
 
 fn create_bxes_properties(log: &XesEventLogImpl) -> Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)> {
-  log.properties_map()
+  log
+    .properties_map()
     .iter()
     .map(|kv| kv_pair_to_bxes_pair(&(&kv.name, &kv.value)))
     .collect()

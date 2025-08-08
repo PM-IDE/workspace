@@ -1,6 +1,7 @@
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
+import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
 
 export interface GraphNode {
   frontendId: number,
@@ -23,27 +24,13 @@ export interface GraphEdge {
 }
 
 export interface AggregatedData {
-  totalAllocatedBytes: number,
   totalExecutionTime: number,
   maxExecutionTime: number,
 
-  totalBufferAllocatedBytes: number,
-  totalBufferRentedBytes: number,
-  totalBufferReturnedBytes: number,
-  
   globalSoftwareData: MergedSoftwareData
 }
 
-export type SoftwareEnhancementKind =
-  "Allocations" |
-  "Exceptions" |
-  "MethodsLoadUnload" |
-  "MethodsInlinings" |
-  "ArrayPools" |
-  "Http" |
-  "Sockets" |
-  "Threads" |
-  string
+export type SoftwareEnhancementKind = string
 
 export interface CountAndSum {
   count: number,
@@ -52,32 +39,19 @@ export interface CountAndSum {
 
 export interface ValueWithUnits<T> {
   value: T
-  units: string
+  units: string,
+  group: string | null
+}
+
+export interface Duration {
+  value: number,
+  kind: GrpcDurationKind,
 }
 
 export interface MergedSoftwareData {
-  allocations: Map<string, number>,
-
-  inliningFailed: Map<string, number>,
-  inliningSucceeded: Map<string, number>,
-  inliningFailedReasons: Map<string, number>,
-
-  methodsLoads: Map<string, number>,
-  methodsUnloads: Map<string, number>,
-
-  bufferAllocatedBytes: CountAndSum,
-  bufferRentedBytes: CountAndSum,
-  bufferReturnedBytes: CountAndSum,
-
-  exceptions: Map<string, number>,
-
-  createdThreads: Set<number>,
-  terminatedThreads: Set<number>,
-
-  httpRequests: Map<string, number>,
-
   histograms: Map<string, ValueWithUnits<Map<string, number>>>,
-  counters: Map<string, ValueWithUnits<number>>
+  counters: Map<string, ValueWithUnits<number>>,
+  activitiesDurations: Map<string, ValueWithUnits<Duration>>
 }
 
 export interface MergedEnhancementData {

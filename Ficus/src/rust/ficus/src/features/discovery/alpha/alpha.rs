@@ -142,7 +142,8 @@ fn do_discover_petri_net_alpha(provider: &impl AlphaRelationsProvider) -> Defaul
 fn create_initial_sets(provider: &impl AlphaRelationsProvider) -> HashSet<AlphaSet> {
   let info = provider.log_info();
 
-  info.all_event_classes()
+  info
+    .all_event_classes()
     .iter()
     .filter(|class| info.dfg_info().get_followed_events(class).is_some() && provider.unrelated_relation(class, class))
     .flat_map(|class| {

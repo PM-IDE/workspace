@@ -21,174 +21,324 @@
       "prefix": "[End]"
     }
   },
-  "method_inlining_success": {
-    "event_class_regex": "Method/InliningSucceeded",
-    "info": {
-      "inlining_config": {
-        "inlinee_method_attrs": {
-          "name_attr": "InlineeName",
-          "namespace_attr": "InlineeNamespace",
-          "signature_attr": "InlineeNameSignature"
+  "pie_chart_extraction_configs": [
+    {
+      "event_class_regex": "Request/Start",
+      "info": {
+        "base": {
+          "name": "Request Start",
+          "units": "reqs",
+          "group": "HTTP"
         },
-        "inliner_method_attrs": {
-          "name_attr": "InlinerName",
-          "namespace_attr": "InlinerNamespace",
-          "signature_attr": "InlinerNameSignature"
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "host",
+              "port",
+              "scheme",
+              "pathAndQuery"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
         }
       }
-    }
-  },
-  "method_inlining_failed": {
-    "event_class_regex": "Method/InliningFailed",
-    "info": {
-      "inlining_config": {
-        "inlinee_method_attrs": {
-          "name_attr": "InlineeName",
-          "namespace_attr": "InlineeNamespace",
-          "signature_attr": "InlineeNameSignature"
+    },
+    {
+      "event_class_regex": "Connect/Start",
+      "info": {
+        "base": {
+          "name": "Connect Start",
+          "units": "reqs",
+          "group": "Sockets"
         },
-        "inliner_method_attrs": {
-          "name_attr": "InlinerName",
-          "namespace_attr": "InlinerNamespace",
-          "signature_attr": "InlinerNameSignature"
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
         }
-      },
-      "fail_reason_attr": "FailReason"
-    }
-  },
-  "socket_connect_start": {
-    "event_class_regex": "Connect/Start",
-    "info": {
-      "address_attr": "address"
-    }
-  },
-  "socket_connect_stop": {
-    "event_class_regex": "Connect/Stop",
-    "info": null
-  },
-  "socket_accept_start": {
-    "event_class_regex": "Accept/Start",
-    "info": {
-      "address_attr": "address"
-    }
-  },
-  "socket_accept_stop": {
-    "event_class_regex": "Accept/Stop",
-    "info": null
-  },
-  "socket_connect_failed": {
-    "event_class_regex": "ConnectFailed",
-    "info": {
-      "error_code_attr": "error",
-      "error_message_attr": "exceptionMessage"
-    }
-  },
-  "socket_accept_failed": {
-    "event_class_regex": "AcceptFailed",
-    "info": {
-      "error_code_attr": "error",
-      "error_message_attr": "exceptionMessage"
-    }
-  },
-  "thread_created": {
-    "event_class_regex": "Thread/Creating",
-    "info": {
-      "thread_id_attr": "ID"
-    }
-  },
-  "assembly_load": {
-    "event_class_regex": "Loader/AssemblyLoad",
-    "info": {
-      "assembly_name_attr": "FullyQualifiedAssemblyName"
-    }
-  },
-  "assembly_unload": {
-    "event_class_regex": "Loader/AssemblyUnload",
-    "info": {
-      "assembly_name_attr": "FullyQualifiedAssemblyName"
-    }
-  },
-  "suspend_ee": {
-    "event_class_regex": "GC/SuspendEE",
-    "info": {
-      "reason_attr": "Reason"
-    }
-  },
-  "restart_ee": {
-    "event_class_regex": "GC/RestartEE",
-    "info": null
-  },
-  "exceptions": {
-    "event_class_regex": "Exception/Start",
-    "info": {
-      "type_name_attr": "ExceptionType"
-    }
-  },
-  "http": {
-    "event_class_regex": "Request/Start",
-    "info": {
-      "host_attr": "host",
-      "port_attr": "port",
-      "scheme_attr": "scheme",
-      "path_and_query_attr": "pathAndQuery"
-    }
-  },
-  "pie_chart_extraction_configs": [
+      }
+    },
+    {
+      "event_class_regex": "Connect/Stop",
+      "info": {
+        "base": {
+          "name": "Connect Stop",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Accept/Start",
+      "info": {
+        "base": {
+          "name": "Accept Stop",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "ConnectFailed",
+      "info": {
+        "base": {
+          "name": "Connect Failed",
+          "units": "fails",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "error",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "AcceptFailed",
+      "info": {
+        "base": {
+          "name": "Accept Failed",
+          "units": "fails",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "error",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Loader/AssemblyLoad",
+      "info": {
+        "base": {
+          "name": "Load",
+          "units": "asms",
+          "group": "Assemblies"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FullyQualifiedAssemblyName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Loader/AssemblyUnload",
+      "info": {
+        "base": {
+          "name": "Unload",
+          "units": "asms",
+          "group": "Assemblies"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FullyQualifiedAssemblyName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Exception/Start",
+      "info": {
+        "base": {
+          "name": "Errors",
+          "units": "exceptions"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "ExceptionType",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
     {
       "event_class_regex": "GC\/SampledObject",
       "info": {
-        "name": "Object Allocations",
+        "base": {
+          "name": "Object Allocations",
+          "units": "bytes"
+        },
         "count_attr": "TotalSizeForTypeSample",
-        "grouping_attr": "TypeName",
-        "units": "bytes"
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "TypeName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
       }
     },
     {
       "event_class_regex": "Method/LoadVerbose",
       "info": {
-        "name": "Method Loads",
-        "units": "methods"
+        "base": {
+          "name": "Loads",
+          "units": "methods",
+          "group": "Methods"
+        }
       }
     },
     {
       "event_class_regex": "Method/UnloadVerbose",
       "info": {
-        "name": "Method Unloads",
-        "units": "methods"
+        "base": {
+          "name": "Unloads",
+          "units": "methods",
+          "group": "Methods"
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningFailed",
+      "info": {
+        "base": {
+          "name": "Failed",
+          "units": "methods",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "InlineeNamespace",
+              "InlineeName",
+              "InlineeNameSignature"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningFailed",
+      "info": {
+        "base": {
+          "name": "Fail Reasons",
+          "units": "units",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FailReason",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningSucceeded",
+      "info": {
+        "base": {
+          "name": "Succeeded",
+          "units": "methods",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "InlineeNamespace",
+              "InlineeName",
+              "InlineeNameSignature"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
       }
     }
   ],
   "simple_counter_configs": [
     {
+      "event_class_regex": "Thread/Creating",
+      "info": {
+        "base": {
+          "name": "Threads",
+          "units": "threads",
+          "group": "Created"
+        }
+      }
+    },
+    {
       "event_class_regex": "Buffer/Rented",
       "info": {
-        "name": "Buffer Rented",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Rented",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
       }
     },
     {
       "event_class_regex": "Buffer/Returned",
       "info": {
-        "name": "Buffer Returned",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Returned",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
       }
     },
     {
       "event_class_regex": "Buffer/Trimmed",
       "info": {
-        "name": "Buffer Trimmed",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Trimmed",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
       }
     },
     {
       "event_class_regex": "Buffer/Allocated",
       "info": {
-        "name": "Buffer Allocated",
-        "count_attr": "bufferSize",
-        "units": "bytes"
+        "base": {
+          "name": "Allocated",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
+      }
+    }
+  ],
+  "activities_duration_configs": [
+    {
+      "base": {
+        "name": "Runtime Suspensions",
+        "units": "ns"
+      },
+      "start_event_regex": "GC/SuspendEEStop",
+      "end_event_regex": "GC/RestartEEStop",
+      "time_attribute": {
+        "time_attribute": "time:timestamp",
+        "kind": "UtcStamp"
+      },
+      "activity_id_attr": {
+        "single_attribute": {
+          "name": "XesActivityId",
+          "fallback_value": ""
+        }
       }
     }
   ],

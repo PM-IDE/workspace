@@ -64,7 +64,7 @@ impl PipelinePart for ParallelPipelinePart {
 }
 
 type PipelinePartExecutor =
-Box<dyn Fn(&mut PipelineContext, &PipelineInfrastructure, &UserDataImpl) -> Result<(), PipelinePartExecutionError>>;
+  Box<dyn Fn(&mut PipelineContext, &PipelineInfrastructure, &UserDataImpl) -> Result<(), PipelinePartExecutionError>>;
 
 pub struct DefaultPipelinePart {
   name: String,

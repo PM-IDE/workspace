@@ -1,8 +1,9 @@
 use crate::features::discovery::timeline::discovery::TraceThread;
 use derive_new::new;
 use getset::{Getters, MutGetters};
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use crate::features::discovery::timeline::software_data::extraction_config::TimeKind;
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
@@ -16,55 +17,15 @@ pub struct SoftwareData {
 
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
-  suspensions: Vec<ExecutionSuspensionEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  method_inlinings_events: Vec<MethodInliningEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  thread_events: Vec<ThreadEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  http_events: Vec<HTTPEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  contention_events: Vec<ContentionEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  exception_events: Vec<ExceptionEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  pool_events: Vec<ArrayPoolEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  socket_events: Vec<SocketEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  allocation_events: Vec<AllocationEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  assembly_events: Vec<AssemblyEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
-  method_load_unload_events: Vec<MethodLoadUnloadEvent>,
-
-  #[getset(get = "pub", get_mut = "pub")]
-  #[serde(skip_serializing_if = "Vec::is_empty")]
   histograms: Vec<HistogramData>,
 
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
   simple_counters: Vec<SimpleCounterData>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  activities_durations: Vec<ActivityDurationData>,
 }
 
 impl SoftwareData {
@@ -72,157 +33,82 @@ impl SoftwareData {
     Self {
       event_classes: HashMap::new(),
       thread_diagram_fragment: vec![],
-      suspensions: vec![],
-      exception_events: vec![],
-      http_events: vec![],
-      thread_events: vec![],
-      method_inlinings_events: vec![],
-      contention_events: vec![],
-      pool_events: vec![],
-      socket_events: vec![],
-      allocation_events: vec![],
-      assembly_events: vec![],
-      method_load_unload_events: vec![],
       histograms: vec![],
       simple_counters: vec![],
+      activities_durations: vec![],
     }
   }
 }
 
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct AllocationEvent {
-  #[getset(get = "pub")] type_name: String,
-  #[getset(get = "pub")] objects_count: usize,
-  #[getset(get = "pub")] allocated_bytes: usize,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct ExecutionSuspensionEvent {
-  #[getset(get = "pub")] start_time: u64,
-  #[getset(get = "pub")] end_time: u64,
-  #[getset(get = "pub")] reason: String,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum MethodInliningEvent {
-  InliningSuccess(MethodInliningData),
-  InliningFailed(MethodInliningData, String),
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum MethodLoadUnloadEvent {
-  Load(MethodNameParts),
-  Unload(MethodNameParts)
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct MethodInliningData {
-  #[getset(get = "pub")] inlinee_info: MethodNameParts,
-  #[getset(get = "pub")] inliner_info: MethodNameParts,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct MethodNameParts {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] namespace: String,
-  #[getset(get = "pub")] signature: String,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct ThreadEvent {
-  #[getset(get = "pub")] thread_id: u64,
-  #[getset(get = "pub")] kind: ThreadEventKind
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum ThreadEventKind {
-  Created,
-  Terminated,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum AssemblyEventKind {
-  Load,
-  Unload,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct AssemblyEvent {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] kind: AssemblyEventKind
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct ArrayPoolEvent {
-  #[getset(get = "pub")] buffer_id: u64,
-  #[getset(get = "pub")] buffer_size_bytes: u64,
-  #[getset(get = "pub")] event_kind: ArrayPoolEventKind,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum ArrayPoolEventKind {
-  Created,
-  Rented,
-  Returned,
-  Trimmed,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct ExceptionEvent {
-  #[getset(get = "pub")] exception_type: String,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct HTTPEvent {
-  #[getset(get = "pub")] host: String,
-  #[getset(get = "pub")] port: String,
-  #[getset(get = "pub")] scheme: String,
-  #[getset(get = "pub")] path_and_query: String,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct ContentionEvent {
-  #[getset(get = "pub")] start_time: u64,
-  #[getset(get = "pub")] end_time: u64,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum SocketEvent {
-  ConnectStart(SocketConnectAcceptStartMetadata),
-  ConnectStop,
-  AcceptStart(SocketConnectAcceptStartMetadata),
-  AcceptStop,
-  ConnectFailed(SocketConnectAcceptFailedMetadata),
-  AcceptFailed(SocketConnectAcceptFailedMetadata)
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct SocketConnectAcceptStartMetadata {
-  #[getset(get = "pub")] address: String,
-}
-
-#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
-pub struct SocketConnectAcceptFailedMetadata {
-  #[getset(get = "pub")] error_code: String,
-  #[getset(get = "pub")] error_message: String
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
+pub struct HistogramData {
+  #[getset(get = "pub")]
+  base: GenericEnhancementBase,
+  #[getset(get = "pub", get_mut = "pub")]
+  entries: Vec<HistogramEntry>,
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
-pub struct HistogramData {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] units: String,
-  #[getset(get = "pub", get_mut = "pub")] entries: Vec<HistogramEntry>
+pub struct GenericEnhancementBase {
+  #[getset(get = "pub")]
+  name: String,
+  #[getset(get = "pub")]
+  units: String,
+  #[getset(get = "pub")]
+  group: Option<String>,
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct HistogramEntry {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] value: f64,
+  #[getset(get = "pub")]
+  name: String,
+  #[getset(get = "pub")]
+  value: f64,
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct SimpleCounterData {
-  #[getset(get = "pub")] name: String,
-  #[getset(get = "pub")] value: f64,
-  #[getset(get = "pub")] units: String,
+  #[getset(get = "pub")]
+  base: GenericEnhancementBase,
+  #[getset(get = "pub")]
+  value: f64,
+}
+
+#[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
+pub struct ActivityDurationData {
+  #[getset(get = "pub")]
+  base: GenericEnhancementBase,
+  #[getset(get = "pub")]
+  duration: u64,
+  #[getset(get = "pub")]
+  kind: DurationKind
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum DurationKind {
+  Unknown,
+
+  Nanos,
+  Micros,
+  Millis,
+  Seconds,
+  Minutes,
+  Hours,
+  Days,
+}
+
+impl From<&TimeKind> for DurationKind {
+  fn from(value: &TimeKind) -> Self {
+    match value {
+      TimeKind::Unknown => Self::Unknown,
+      TimeKind::Nanos => Self::Nanos,
+      TimeKind::Micros => Self::Micros,
+      TimeKind::Millis => Self::Millis,
+      TimeKind::Seconds => Self::Seconds,
+      TimeKind::Minutes => Self::Minutes,
+      TimeKind::Hours => Self::Hours,
+      TimeKind::Days => Self::Days,
+      TimeKind::UtcStamp => Self::Nanos
+    }
+  }
 }

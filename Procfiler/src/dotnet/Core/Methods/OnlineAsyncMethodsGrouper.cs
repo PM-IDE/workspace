@@ -88,7 +88,11 @@ public partial class OnlineAsyncMethodsGrouper<TEvent>(
 
   private void ProcessMethodEnd(TEvent eventRecord, ThreadData threadData, string stateMachineName)
   {
-    Debug.Assert(threadData.AsyncMethodsStack.Count > 0);
+    if (threadData.AsyncMethodsStack.Count == 0)
+    {
+      logger.LogWarning("Received method end event {Name} when stack is empty, skipping it", stateMachineName);
+      return;
+    }
 
     var lastTrace = threadData.AsyncMethodsStack.Pop();
     lastTrace.Events.Add(new DefaultEvent(eventRecord));

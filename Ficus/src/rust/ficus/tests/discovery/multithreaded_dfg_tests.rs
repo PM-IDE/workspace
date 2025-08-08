@@ -1,5 +1,3 @@
-﻿use std::cell::RefCell;
-use std::rc::Rc;
 use ficus::event_log::core::event::event::{Event, EventPayloadValue};
 use ficus::event_log::core::event_log::EventLog;
 use ficus::event_log::core::trace::trace::Trace;
@@ -7,56 +5,52 @@ use ficus::event_log::xes::xes_event::XesEventImpl;
 use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus::event_log::xes::xes_trace::XesTraceImpl;
 use ficus::features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, MultithreadedTracePartsCreationStrategy};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 const TEST_THREAD_ID_ATTRIBUTE: &'static str = "TestThreadId";
 
 #[test]
 fn test_multithreaded_dfg_discovery() {
   execute_multithreaded_dfg_discovery_test(
-    vec![
-      vec![
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"]
-      ]
-    ],
-    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)"]
+    vec![vec![
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+    ]],
+    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)"],
   );
 }
 
 #[test]
 fn test_multithreaded_dfg_discovery_2() {
   execute_multithreaded_dfg_discovery_test(
-    vec![
-      vec![
-        vec!["E"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"]
-      ]
-    ],
-    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[E]--[A](5)"]
+    vec![vec![
+      vec!["E"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+    ]],
+    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[E]--[A](5)"],
   );
 }
 
 #[test]
 fn test_multithreaded_dfg_discovery_3() {
   execute_multithreaded_dfg_discovery_test(
-    vec![
-      vec![
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"],
-        vec!["E"],
-        vec!["A", "B", "C", "D"],
-        vec!["A", "B", "C", "D"]
-      ]
-    ],
-    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[D]--[E](3)", "[E]--[A](2)"]
+    vec![vec![
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+      vec!["E"],
+      vec!["A", "B", "C", "D"],
+      vec!["A", "B", "C", "D"],
+    ]],
+    vec!["[A]--[B](5)", "[B]--[C](5)", "[C]--[D](5)", "[D]--[E](3)", "[E]--[A](2)"],
   );
 }
 
@@ -80,7 +74,7 @@ fn create_multithreaded_event_log(raw_traces: Vec<Vec<Vec<&str>>>) -> XesEventLo
         xes_trace.push(Rc::new(RefCell::new(xes_event)));
       }
     }
-    
+
     log.push(Rc::new(RefCell::new(xes_trace)));
   }
 

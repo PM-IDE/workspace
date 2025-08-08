@@ -4,13 +4,13 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
+use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
 use lazy_static::lazy_static;
 use log::error;
 use std::collections::HashMap;
 use std::str::FromStr;
-use crate::utils::graph::graph_node::GraphNode;
 
 pub fn annotate_with_counts(
   log: &impl EventLog,
@@ -102,9 +102,10 @@ pub enum PerformanceAnnotationInfo {
   SumAndCount(f64, usize),
 }
 
-lazy_static!(
-  pub static ref PERFORMANCE_ANNOTATION_INFO_KEY: DefaultContextKey<PerformanceAnnotationInfo> = DefaultContextKey::new("PERFORMANCE_ANNOTATION_INFO");
-);
+lazy_static! {
+  pub static ref PERFORMANCE_ANNOTATION_INFO_KEY: DefaultContextKey<PerformanceAnnotationInfo> =
+    DefaultContextKey::new("PERFORMANCE_ANNOTATION_INFO");
+}
 
 pub type PerformanceMap = HashMap<(HeapedOrOwned<String>, HeapedOrOwned<String>), (f64, usize)>;
 
@@ -160,12 +161,12 @@ pub fn annotate_with_time_performance(
       Some(match performance_data {
         PerformanceAnnotationInfo::Default(data) => match annotation_kind {
           TimeAnnotationKind::SummedTime => data.iter().sum(),
-          TimeAnnotationKind::Mean => data.iter().sum::<f64>() / data.len() as f64
+          TimeAnnotationKind::Mean => data.iter().sum::<f64>() / data.len() as f64,
         },
         PerformanceAnnotationInfo::SumAndCount(sum, count) => match annotation_kind {
           TimeAnnotationKind::SummedTime => *sum,
-          TimeAnnotationKind::Mean => *sum / (*count as f64)
-        }
+          TimeAnnotationKind::Mean => *sum / (*count as f64),
+        },
       })
     } else if let Some(time_annotation) = try_get_time_annotation(&performance_map, first_node, second_node) {
       Some(match annotation_kind {
@@ -185,20 +186,20 @@ pub fn annotate_with_time_performance(
 }
 
 fn try_get_time_annotation(
-  performance_map: &PerformanceMap, 
-  first_node: &GraphNode<HeapedOrOwned<String>>, 
-  second_node: &GraphNode<HeapedOrOwned<String>>
+  performance_map: &PerformanceMap,
+  first_node: &GraphNode<HeapedOrOwned<String>>,
+  second_node: &GraphNode<HeapedOrOwned<String>>,
 ) -> Option<(f64, usize)> {
   if first_node.data.is_some() && second_node.data.is_some() {
     let key = (
       first_node.data.as_ref().unwrap().clone(),
       second_node.data.as_ref().unwrap().clone(),
     );
-    
+
     if let Some(time_annotation) = performance_map.get(&key) {
-      return Some(time_annotation.clone())
+      return Some(time_annotation.clone());
     }
   }
-  
+
   None
 }

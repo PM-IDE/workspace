@@ -47,5 +47,5 @@ fn interval_tree_test() {
     ]
   );
 
-  assert_eq!(tree.search_envelopes(1, 4), [Interval::new(1, 4), Interval::new(2, 3), ]);
+  assert_eq!(tree.search_envelopes(1, 4), [Interval::new(1, 4), Interval::new(2, 3),]);
 }

@@ -24,7 +24,7 @@ impl SubArrayWithTraceIndex {
   pub fn dump(&self) -> (usize, usize, usize) {
     (self.sub_array.start_index, self.sub_array.length, self.trace_index)
   }
-  
+
   pub fn len(&self) -> usize {
     self.sub_array.length
   }
@@ -82,13 +82,20 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
 
 #[derive(Debug, Getters)]
 pub struct ActivityNode {
-  #[getset(get = "pub")] id: Rc<Box<String>>,
-  #[getset(get = "pub")] repeat_set: Option<SubArrayWithTraceIndex>,
-  #[getset(get = "pub")] event_classes: HashSet<u64>,
-  #[getset(get = "pub")] children: Vec<Rc<RefCell<ActivityNode>>>,
-  #[getset(get = "pub")] level: usize,
-  #[getset(get = "pub")] name: Rc<Box<String>>,
-  #[getset(get = "pub")] pattern_kind: UnderlyingPatternKind,
+  #[getset(get = "pub")]
+  id: Rc<Box<String>>,
+  #[getset(get = "pub")]
+  repeat_set: Option<SubArrayWithTraceIndex>,
+  #[getset(get = "pub")]
+  event_classes: HashSet<u64>,
+  #[getset(get = "pub")]
+  children: Vec<Rc<RefCell<ActivityNode>>>,
+  #[getset(get = "pub")]
+  level: usize,
+  #[getset(get = "pub")]
+  name: Rc<Box<String>>,
+  #[getset(get = "pub")]
+  pattern_kind: UnderlyingPatternKind,
 }
 
 impl ActivityNode {

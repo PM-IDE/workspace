@@ -336,9 +336,7 @@ impl KafkaService {
     )
   }
 
-  pub(super) fn create_kafka_events_handler(
-    producer_metadata: Option<&GrpcKafkaConnectionMetadata>,
-  ) -> Result<KafkaEventsHandler, Status> {
+  pub(super) fn create_kafka_events_handler(producer_metadata: Option<&GrpcKafkaConnectionMetadata>) -> Result<KafkaEventsHandler, Status> {
     let producer_metadata = match producer_metadata.as_ref() {
       None => return Err(Status::invalid_argument("Producer metadata must be provided")),
       Some(metadata) => metadata,

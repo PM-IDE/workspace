@@ -146,7 +146,7 @@ fn create_activities_repr_from_subtraces<TLog: EventLog>(
     .map(|x| {
       (
         x.0.as_ref().as_ref().to_owned(),
-        (x.1.0, x.1.1.into_iter().map(|x| (x.0, x.1)).collect()),
+        (x.1 .0, x.1 .1.into_iter().map(|x| (x.0, x.1)).collect()),
       )
     })
     .collect()
@@ -251,7 +251,10 @@ pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
 
           processed.insert(
             activity.node().borrow().name().as_ref().as_ref().to_owned(),
-            (activity.node().clone(), activity_event_classes.into_iter().map(|x| (x, 1)).collect()),
+            (
+              activity.node().clone(),
+              activity_event_classes.into_iter().map(|x| (x, 1)).collect(),
+            ),
           );
         }
       }

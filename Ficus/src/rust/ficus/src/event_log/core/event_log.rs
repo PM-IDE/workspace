@@ -10,7 +10,7 @@ use crate::utils::user_data::user_data::UserDataOwner;
 pub trait EventLog: Clone + UserDataOwner {
   type TEvent: Event + 'static;
   type TTraceInfo: TraceInfo + 'static;
-  type TTrace: Trace<TEvent=Self::TEvent, TTraceInfo=Self::TTraceInfo> + 'static;
+  type TTrace: Trace<TEvent = Self::TEvent, TTraceInfo = Self::TTraceInfo> + 'static;
 
   fn empty() -> Self;
 

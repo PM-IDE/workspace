@@ -232,8 +232,8 @@ message GrpcMultithreadedFragment {
 }
 
 message GrpcActivityStartEndData {
-  uint64 start_time = 1;
-  uint64 end_time = 2;
+  int64 start_time = 1;
+  int64 end_time = 2;
 }
 
 message GrpcEventCoordinates {
@@ -248,56 +248,44 @@ message GrpcNodeCorrespondingTraceData {
 message GrpcSoftwareData {
   repeated GrpcHistogramEntry histogram = 1;
   GrpcTimelineDiagramFragment timeline_diagram_fragment = 2;
-  
-  repeated GrpcAllocationInfo allocations_info = 3;
-  repeated GrpcExecutionSuspensionInfo execution_suspension_info = 4;
-  repeated GrpcThreadEventInfo thread_events = 5;
-  repeated GrpcMethodInliningEvent methods_inlining_events = 6;
-  repeated GrpcArrayPoolEvent array_pool_events = 7;
-  repeated GrpcExceptionEvent exception_events = 8;
-  repeated GrpcHTTPEvent http_events = 9;
-  repeated GrpcContentionEvent contention_events = 10;
-  repeated GrpcSocketEvent socket_event = 11;
-  repeated GrpcMethodLoadUnloadEvent methods_load_unload_events = 12;
-  
+
   repeated GrpcGeneralHistogramData histogram_data = 13;
   repeated GrpcSimpleCounterData simple_counter_data = 14;
+  repeated GrpcActivityDurationData activities_durations_data = 15;
+}
+
+message GrpcActivityDurationData {
+  GrpcGenericEnhancementBase base = 1;
+  uint64 duration = 2;
+  GrpcDurationKind kind = 3;
+}
+
+enum GrpcDurationKind {
+  Unspecified = 0;
+
+  Nanos = 1;
+  Micros = 2;
+  Millis = 3;
+  Seconds = 4;
+  Minutes = 5;
+  Hours = 6;
+  Days = 7;
+}
+
+message GrpcGenericEnhancementBase {
+  string name = 1;
+  string units = 2;
+  optional string group = 3;
 }
 
 message GrpcGeneralHistogramData {
-  string name = 1;
+  GrpcGenericEnhancementBase base = 1;
   repeated GrpcHistogramEntry entries = 2;
-  string units = 3;
 }
 
 message GrpcSimpleCounterData {
-  string name = 1;
+  GrpcGenericEnhancementBase base = 1;
   double count = 2;
-  string units = 3;
-}
-
-message GrpcMethodLoadUnloadEvent {
-  GrpcMethodNameParts method_name_parts = 1;
-
-  oneof event {
-    google.protobuf.Empty load = 2;
-    google.protobuf.Empty unload = 3;
-  }
-}
-
-message GrpcExecutionSuspensionInfo {
-  string reason = 1;
-  uint64 start_time = 2;
-  uint64 end_time = 3;
-}
-
-message GrpcMethodInliningEvent {
-  GrpcMethodInliningInfo inlining_info = 1;
-
-  oneof event {
-    google.protobuf.Empty succeeded = 7;
-    GrpcMethodInliningFailedEvent failed = 8;
-  }
 }
 
 message GrpcMethodInliningInfo {
@@ -309,97 +297,6 @@ message GrpcMethodNameParts {
   string name = 1;
   string namespace = 2;
   string signature = 3;
-}
-
-message GrpcMethodInliningFailedEvent {
-  string reason = 1;
-}
-
-enum GrpcThreadEventKind {
-  Created = 0;
-  Terminated = 1;
-}
-
-message GrpcThreadEventInfo {
-  uint64 thread_id = 1;
-
-  oneof event {
-    google.protobuf.Empty created = 2;
-    google.protobuf.Empty terminated = 3;
-  }
-}
-
-enum GrpcAssemblyEventKind {
-  Loaded = 0;
-  Unloaded = 1;
-}
-
-message GrpcAssemblyEventInfo {
-  string assembly_name = 1;
-  GrpcAssemblyEventKind event_kind = 2;
-}
-
-message GrpcArrayPoolEvent {
-  uint64 buffer_id = 1;
-  uint64 buffer_size_bytes = 2;
-
-  oneof event {
-    google.protobuf.Empty buffer_allocated = 3;
-    google.protobuf.Empty buffer_rented = 4;
-    google.protobuf.Empty buffer_returned = 5;
-    google.protobuf.Empty buffer_trimmed = 6;
-  }
-}
-
-message GrpcExceptionEvent {
-  string exception_type = 1;
-}
-
-message GrpcHTTPEvent {
-  string host = 1;
-  string port = 2;
-  string scheme = 3;
-  string path_and_query = 4;
-}
-
-message GrpcContentionEvent {
-  uint64 start_time = 1;
-  uint64 end_time = 2;
-}
-
-message GrpcSocketEvent {
-  oneof event {
-    GrpcSocketConnectStart connect_start = 1; 
-    GrpcSocketAcceptStart accept_start = 2;
-    
-    GrpcSocketConnectStop connect_stop = 3;
-    GrpcSocketAcceptStop accept_stop = 4;
-    
-    GrpcSocketConnectFailed connect_failed = 5;
-    GrpcSocketAcceptFailed accept_failed = 6;
-  }
-}
-
-message GrpcSocketAcceptStart {
-  string address = 1;
-}
-
-message GrpcSocketConnectStart {
-  string address = 1;
-}
-
-message GrpcSocketConnectStop {}
-
-message GrpcSocketAcceptStop {}
-
-message GrpcSocketConnectFailed {
-  string error_code = 1;
-  string error_message = 2;
-}
-
-message GrpcSocketAcceptFailed {
-  string error_code = 1;
-  string error_message = 2;
 }
 
 message GrpcHistogramEntry {
@@ -479,5 +376,5 @@ message GrpcThread {
 
 message GrpcThreadEvent {
   string name = 1;
-  uint64 stamp = 2;
+  int64 stamp = 2;
 }

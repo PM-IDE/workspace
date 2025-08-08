@@ -48,9 +48,9 @@
     StateHasChanged();
 
     //some hacks in order to make it work after changing to full screen from JS side
-    Task.Delay(100).ContinueWith(async _ =>
+    Task.Delay(100).ContinueWith(_ =>
     {
-      await InvokeAsync(async () =>
+      InvokeAsync(async () =>
       {
         myCytoscapeReference = await RenderingFunc(myCytoscapeContainerId.ToString());
         myIsDrawing = false;
@@ -64,4 +64,5 @@
     myRequestedToRerender = true;
     ReRenderCanvasInternal();
   }
+
 }

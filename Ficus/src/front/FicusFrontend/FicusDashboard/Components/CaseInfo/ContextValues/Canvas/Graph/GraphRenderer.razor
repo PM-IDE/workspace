@@ -7,10 +7,10 @@
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
   <div style="display: flex; flex-direction: row; flex-grow: 1;">
-    <EnhancementsSettings @ref="@mySettings" Enhancements="@myEnhancements">
+    <GraphLikeEntitySettings @ref="@mySettings" Enhancements="@myEnhancements">
       <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
-    </EnhancementsSettings>
+    </GraphLikeEntitySettings>
 
     <div style="height: 100%; flex-grow: 1;">
       <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
@@ -18,7 +18,7 @@
   </div>
 
   <div style="margin-top: 5px;">
-    @if (myAggregatedData is { } data)
+    @if (myAggregatedData is { IsEmpty: false } data)
     {
       <AggregatedDataRenderer Data="@data"/>
     }
@@ -33,8 +33,8 @@
   [Parameter] public GrpcAnnotation? Annotation { get; set; }
 
 
-  private EnhancementsSettings mySettings = null!;
-  private List<string>? myEnhancements;
+  private GraphLikeEntitySettings mySettings = null!;
+  private List<EnhancementsSettings.EnhancementName>? myEnhancements;
   private CanvasComponent? myCanvasComponent;
   private AggregatedData? myAggregatedData;
 
@@ -44,22 +44,22 @@
     myEnhancements = FindAllEnhancements(Graph);
   }
 
-  private List<string> FindAllEnhancements(GrpcGraph graph)
+  private List<EnhancementsSettings.EnhancementName> FindAllEnhancements(GrpcGraph graph)
   {
-    var enhancements = new HashSet<string>();
+    var enhancements = new HashSet<EnhancementsSettings.EnhancementName>();
 
     AddGraphEnhancements(graph, enhancements);
 
-    return enhancements.Order().ToList();
+    return enhancements.OrderBy(e => e.DisplayName).ToList();
   }
 
-  private void AddGraphEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddGraphEnhancements(GrpcGraph graph, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     AddEdgeEnhancements(graph, enhancements);
     AddNodesEnhancements(graph, enhancements);
   }
 
-  private void AddEdgeEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddEdgeEnhancements(GrpcGraph graph, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     foreach (var additionalData in graph.Edges.SelectMany(e => e.AdditionalData))
     {
@@ -67,7 +67,7 @@
     }
   }
 
-  private void AddNodesEnhancements(GrpcGraph graph, HashSet<string> enhancements)
+  private void AddNodesEnhancements(GrpcGraph graph, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     foreach (var node in graph.Nodes)
     {
@@ -87,52 +87,32 @@
     }
   }
 
-  private void AddEnhancements(GrpcSoftwareData data, HashSet<string> enhancements)
+  private static void AddEnhancements(GrpcSoftwareData data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
-    AddPredefinedEnhancements(data, enhancements);
     AddCustomEnhancements(data, enhancements);
   }
-
-  private static class PredefinedEnhancements
-  {
-    public const string Allocations = "Allocations";
-    public const string Exceptions = "Exceptions";
-    public const string MethodsLoadUnload = "MethodsLoadUnload";
-    public const string MethodsInlinings = "MethodsInlinings";
-    public const string ArrayPools = "ArrayPools";
-    public const string Http = "Http";
-    public const string Sockets = "Sockets";
-    public const string Threads = "Threads";
-  }
-
-  private static void AddPredefinedEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  
+  private static void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     if (data is null) return;
 
-    if (data.AllocationsInfo.Count > 0) enhancements.Add(PredefinedEnhancements.Allocations);
-    if (data.ExceptionEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Exceptions);
-    if (data.MethodsLoadUnloadEvents.Count > 0) enhancements.Add(PredefinedEnhancements.MethodsLoadUnload);
-    if (data.MethodsInliningEvents.Count > 0) enhancements.Add(PredefinedEnhancements.MethodsInlinings);
-    if (data.ArrayPoolEvents.Count > 0) enhancements.Add(PredefinedEnhancements.ArrayPools);
-    if (data.HttpEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Http);
-    if (data.SocketEvent.Count > 0) enhancements.Add(PredefinedEnhancements.Sockets);
-    if (data.ThreadEvents.Count > 0) enhancements.Add(PredefinedEnhancements.Threads);
+    AddCustomEnhancementsNames(data.HistogramData.Select(h => h.Base), enhancements);
+    AddCustomEnhancementsNames(data.SimpleCounterData.Select(c => c.Base), enhancements);
+    AddCustomEnhancementsNames(data.ActivitiesDurationsData.Select(d => d.Base), enhancements);
   }
 
-  private void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<string> enhancements)
+  private static void AddCustomEnhancementsNames(
+    IEnumerable<GrpcGenericEnhancementBase> bases,
+    HashSet<EnhancementsSettings.EnhancementName> enhancements
+  )
   {
-    if (data is null) return;
-
-    foreach (var name in data.HistogramData.Select(e => e.Name))
+    foreach (var (name, displayName, group) in bases.Select(b => (b.Name, CreateCustomEnhancementName(b), b.Group)))
     {
-      enhancements.Add(name);
-    }
-
-    foreach (var name in data.SimpleCounterData.Select(e => e.Name))
-    {
-      enhancements.Add(name);
+      enhancements.Add(new EnhancementsSettings.EnhancementName(name, displayName, string.IsNullOrWhiteSpace(group) ? null : group));
     }
   }
+
+  private static string CreateCustomEnhancementName(GrpcGenericEnhancementBase @base) => @base.Name;
 
   private static bool IsRichUiGraph(GrpcGraph graph) =>
     graph.Edges.Any(e => e.AdditionalData.Any(d => d.DataCase.IsRichUiAdditionalData())) ||
@@ -162,7 +142,8 @@
       mySettings.Filter,
       spacingFactor,
       IsRichUiGraph(Graph),
-      mySettings.UseLROrientation
+      mySettings.UseLROrientation,
+      mySettings.UseEventClassesAsLabels
     );
 
     if (changeState)

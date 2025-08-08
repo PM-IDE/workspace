@@ -5,17 +5,18 @@ import {
 } from "../util";
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
-import {getOrCreateColor} from "../../utils";
-import {AggregatedData, GraphNode, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {getOrCreateColor, isNullOrEmpty} from "../../utils";
+import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
-  createArrayPoolEnhancement,
-  createEnhancementContainer, createNumberInformation,
-  createPieChart,
-  createThreadsEnhancement,
+  createGroupedEnhancements, createNumberInformation,
+  createPieChart, createTimeSpanString,
+  EnhancementCreationResult,
   getPercentExecutionTime,
   toSortedArray
 } from "./util";
+import {TimeSpan} from "../../timespan";
+
 
 const graphColor = graphColors(darkTheme);
 
@@ -23,14 +24,18 @@ export function createNodeHtmlLabelId(frontendId: number): string {
   return `node-html-label-${frontendId}`;
 }
 
-export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhancementKind[]) {
+export function createNodeHtmlLabel(
+  node: GraphNode,
+  enhancements: SoftwareEnhancementKind[],
+  useEventClassesAsLabels: boolean
+) {
   let enhancementData = node.enhancementData;
   let label_id = createNodeHtmlLabelId(node.frontendId);
 
   if (enhancementData == null) {
     return `
         <div id="${label_id}">
-            ${createNodeDisplayName(node, node.label)}
+            ${createNodeDisplayName(node.label)}
             <div style='min-width: ${nodeWidthPx}px; min-height: ${nodeHeightPx}px;
                 background-color: ${graphColor.rootSequenceColor}'>
             </div>
@@ -44,19 +49,21 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
   allTraceIds.sort((f, s) => f - s);
 
+  let nodeName = useEventClassesAsLabels ? createNodeDisplayNameString(node, sortedHistogramEntries) : node.label;
+
   return `
           <div id="${label_id}">
-            ${createNodeDisplayName(node, createNodeDisplayNameString(node, sortedHistogramEntries))}
+            ${createNodeDisplayName(nodeName)}
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
               <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
-                  Exec. time: ${node.executionTime} (${getPercentExecutionTime(node.executionTime, node.aggregatedData.totalExecutionTime)}%)
+                  Exec. time: ${createNodeExecutionTimeString(node)} (${getPercentExecutionTime(node.executionTime, node.aggregatedData.totalExecutionTime)}%)
               </div>
 
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
                   ${createEventClassesPieChart(enhancementData.eventClasses)}
-                  ${createNodeEnhancements(enhancements, enhancementData, node.aggregatedData)}
+                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, true, createNodeEnhancement)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                   ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
                 </div>
@@ -68,6 +75,10 @@ export function createNodeHtmlLabel(node: GraphNode, enhancements: SoftwareEnhan
             </div>
           </div>
          `;
+}
+
+function createNodeExecutionTimeString(node: GraphNode) {
+  return TimeSpan.fromNanoseconds(BigInt(node.executionTime)).toString();
 }
 
 function createEventClassesPieChart(data: Map<string, number>) {
@@ -87,130 +98,80 @@ function createEventClassesPieChart(data: Map<string, number>) {
   `;
 }
 
-function createNodeEnhancements(enhancements: SoftwareEnhancementKind[], enhancementData: MergedEnhancementData, aggregatedData: AggregatedData): string {
-  // @ts-ignore
-  let enhancementsHtmls: [SoftwareEnhancementKind, string][] = enhancements
-    .map(e => [e, createNodeEnhancementContent(enhancementData.softwareData, aggregatedData, e)])
-    .filter(res => (<any>res[1]).length > 0);
+function createNodeEnhancement(
+  softwareData: MergedSoftwareData,
+  aggregatedData: AggregatedData,
+  enhancement: SoftwareEnhancementKind
+): EnhancementCreationResult {
+  if (softwareData.histograms.has(enhancement)) {
+    let sum = softwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+    let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+    let histogram = softwareData.histograms.get(enhancement);
 
-  if (enhancementsHtmls.length == 0) {
-    return "";
+    let html = createSoftwareEnhancementPieChart(
+      !isNullOrEmpty(histogram.group) ? enhancement : null,
+      histogram.value,
+      (sum / globalSum) * 100,
+      getPerformanceAnnotationColor(sum / globalSum),
+      histogram.units
+    );
+
+    return new EnhancementCreationResult(html, histogram.group);
   }
 
-  return enhancementsHtmls
-    .map(([e, html]) => createEnhancementContainer(e, html))
-    .join("\n");
-}
+  if (softwareData.counters.has(enhancement)) {
+    let counter = softwareData.counters.get(enhancement);
 
-function createNodeEnhancementContent(softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: SoftwareEnhancementKind): string {
-  switch (enhancement) {
-    case "Allocations":
-      return createNodeAllocationsEnhancement(softwareData, aggregatedData);
-    case "MethodsInlinings":
-      return createMethodsInliningEnhancement(softwareData);
-    case "MethodsLoadUnload":
-      return createMethodsLoadUnloadEnhancement(softwareData);
-    case "ArrayPools":
-      return createArrayPoolEnhancement(softwareData, aggregatedData);
-    case "Exceptions":
-      return createExceptionEnhancement(softwareData);
-    case "Threads":
-      return createThreadsEnhancement(softwareData);
-    case "Http":
-      return createHttpEnhancement(softwareData);
-    default: {
-      if (softwareData.histograms.has(enhancement)) {
-        let sum = softwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
-        let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
+    let html = createNumberInformation(
+      !isNullOrEmpty(counter.group) ? enhancement : "",
+      counter.units,
+      counter.value,
+      counter.value.toString(),
+      aggregatedData.globalSoftwareData.counters.get(enhancement).value
+    );
 
-        return createSoftwareEnhancementPieChart(
-          enhancement,
-          softwareData.histograms.get(enhancement).value,
-          (sum / globalSum) * 100,
-          getPerformanceAnnotationColor(sum / globalSum)
-        );
-      }
-
-      if (softwareData.counters.has(enhancement)) {
-        return createNumberInformation(
-          "",
-          softwareData.counters.get(enhancement).units,
-          softwareData.counters.get(enhancement).value,
-          aggregatedData.globalSoftwareData.counters.get(enhancement).value
-        );
-      }
-
-      return "";
-    }
-  }
-}
-
-function createHttpEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.httpRequests.size == 0) {
-    return "";
+    return new EnhancementCreationResult(html, counter.group, false);
   }
 
-  return `
-    <div>
-      ${createSoftwareEnhancementPieChart("Requests", softwareData.httpRequests, null, null)}
-    </div>
-  `
-}
+  if (softwareData.activitiesDurations.has(enhancement)) {
+    let duration = softwareData.activitiesDurations.get(enhancement);
 
-function createExceptionEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.exceptions.size == 0) {
-    return "";
+    let html = createNumberInformation(
+      !isNullOrEmpty(duration.group) ? enhancement : "",
+      duration.units,
+      duration.value.value,
+      createTimeSpanString(duration.value.value, duration.value.kind),
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
+    );
+
+    return new EnhancementCreationResult(html, duration.group, false);
   }
 
-  return `
-    <div>
-      ${createSoftwareEnhancementPieChart("Exceptions", softwareData.exceptions, null, getPerformanceAnnotationColor(1))}
-    </div>
-  `
+  return new EnhancementCreationResult("", null);
 }
 
-function createMethodsLoadUnloadEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.methodsUnloads.size == 0 && softwareData.methodsLoads.size == 0) {
-    return "";
-  }
-
-  return `
-    <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementPieChart("Load", softwareData.methodsLoads, null, null)} 
-      ${createSoftwareEnhancementPieChart("Unload", softwareData.methodsUnloads, null, null)}
-    </div> 
-  `;
-}
-
-function createMethodsInliningEnhancement(softwareData: MergedSoftwareData): string {
-  if (softwareData.inliningSucceeded.size == 0 && softwareData.inliningFailed.size == 0 && softwareData.inliningFailedReasons.size == 0) {
-    return "";
-  }
-
-  return `
-    <div style="display: flex; flex-direction: row;">
-      ${createSoftwareEnhancementPieChart("Succeeded", softwareData.inliningSucceeded, null, null)} 
-      ${createSoftwareEnhancementPieChart("Failed", softwareData.inliningFailed, null, null)} 
-      ${createSoftwareEnhancementPieChart("Failed Reasons", softwareData.inliningFailedReasons, null, null)} 
-    </div>
-  `;
-}
-
-function createSoftwareEnhancementPieChart(title: string, data: Map<string, number>, percent: number | null, perfColor: null | string) {
+function createSoftwareEnhancementPieChart(
+  title: string | null,
+  data: Map<string, number>,
+  percent: number | null = null,
+  perfColor: null | string = null,
+  units: null | string = null
+) {
   if (data.size == 0) {
     return "";
   }
 
   let percentString = percent == null ? "" : `, ${percent.toFixed(2)}%`;
+  let unitsString = units != null ? ` ${units}` : "";
 
   return `
       <div style="width: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label graph-title-label-lighter" style="display: flex; flex-direction: column;">
           <div>
-            ${title}
+            ${title ?? ""}
           </div>
           <div>
-            ${data.values().reduce((a, b) => a + b, 0)}${percentString}
+            ${data.values().reduce((a, b) => a + b, 0)}${unitsString}${percentString}
           </div>
           <div>
             ${createPieChart(toSortedArray(data), perfColor)}
@@ -220,33 +181,13 @@ function createSoftwareEnhancementPieChart(title: string, data: Map<string, numb
   `;
 }
 
-function createNodeDisplayName(node: GraphNode, name: string): string {
+function createNodeDisplayName(name: string): string {
   return `
       <div style="font-size: 60px; font-weight: 900; 
                   background-color: transparent; color: ${graphColor.labelColor}; text-align: left;">
           ${name}
       </div>
     `;
-}
-
-function createNodeAllocationsEnhancement(softwareData: MergedSoftwareData, aggregatedData: AggregatedData): string {
-  if (softwareData.allocations.size > 0) {
-    let relativeAllocatedBytes = softwareData.allocations.values().reduce((a, b) => a + b, 0) / aggregatedData.totalAllocatedBytes;
-    let color = getPerformanceAnnotationColor(relativeAllocatedBytes);
-    let totalAlloc = softwareData.allocations.values().reduce((a, b) => a + b, 0);
-    let percent = ((totalAlloc / aggregatedData.totalAllocatedBytes) * 100).toFixed(2);
-
-    return `
-        <div>
-          ${totalAlloc} (${percent}%)
-        </div>
-        <div>
-          ${createPieChart(toSortedArray(softwareData.allocations), color)}
-        </div>
-      `
-  }
-
-  return "";
 }
 
 function createNodeDisplayNameString(node: GraphNode, sortedHistogramEntries: [string, number][]): string {
@@ -370,19 +311,41 @@ function createPatternInformation(node: GraphNode): string {
       `);
   }
 
-  let propertyIndex = <number><unknown>node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind;
+  let patternName = getPatternName(node.additionalData.find(d => d.patternInfo != null).patternInfo.patternKind);
 
   return `
     <div class="graph-content-container">
       <div style="display: flex; flex-direction: row;" class="graph-title-label">
         <div>Pattern type:</div>
-        <div style="margin-left: 5px;">${Object.values(GrpcUnderlyingPatternKind)[propertyIndex]}</div>
+        <div style="margin-left: 5px;">${patternName}</div>
       </div>
       <div>
         ${patterns.join("\n")}
       </div>
     </div>
   `
+}
+
+function getPatternName(kind: GrpcUnderlyingPatternKind): string {
+  switch (kind) {
+    case GrpcUnderlyingPatternKind.MaximalRepeat:
+      return "Maximal Repeat";
+    case GrpcUnderlyingPatternKind.MaximalTandemArray:
+      return "Maximal Tandem Array";
+    case GrpcUnderlyingPatternKind.NearSuperMaximalRepeat:
+      return "Near Super Maximal Repeat";
+    case GrpcUnderlyingPatternKind.Unknown:
+      return "Unknown";
+    case GrpcUnderlyingPatternKind.StrictLoop:
+      return "Strict Loop";
+    case GrpcUnderlyingPatternKind.PrimitiveTandemArray:
+      return "Primitive Tandem Array";
+    case GrpcUnderlyingPatternKind.SuperMaximalRepeat:
+      return "Super Maximal Repeat";
+    default:
+      console.error("Unhandled pattern type");
+      return "Unknown";
+  }
 }
 
 interface TracePatternInfo {
