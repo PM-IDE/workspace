@@ -6,6 +6,7 @@ execute_pipeline(
     'Pipeline',
     [
         RemainOnlyMethodStartEvents(),
+        TracesDiversityDiagramCanvas(),
         SetMethodsDisplayName(),
         ShortenAllocationType(),
         PrepareSoftwareLog(time_attribute = 'QpcStamp'),
