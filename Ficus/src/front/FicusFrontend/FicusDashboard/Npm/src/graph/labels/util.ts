@@ -183,6 +183,26 @@ export function createGroupedEnhancements(
 }
 
 export function createTimeSpanString(value: number, kind: GrpcDurationKind): string {
+  if (kind == GrpcDurationKind.Unspecified) {
+    return value.toString();
+  }
+  
+  return processTimeSpanString(createTimeSpanStringInternal(value, kind));
+}
+
+function processTimeSpanString(str: string): string {
+  while (str.indexOf("00:") > -1) {
+    str = str.replace("00:", "0:");
+  }
+  
+  while (str.indexOf("00.") > -1) {
+    str = str.replace("00.", "0.");
+  }
+
+  return str; 
+}
+
+function createTimeSpanStringInternal(value: number, kind: GrpcDurationKind) {
   switch (kind) {
     case GrpcDurationKind.Nanos:
       return TimeSpan.fromNanoseconds(BigInt(value)).toString();
@@ -198,7 +218,7 @@ export function createTimeSpanString(value: number, kind: GrpcDurationKind): str
       return TimeSpan.fromHours(value).toString();
     case GrpcDurationKind.Days:
       return TimeSpan.fromDays(value).toString();
-    case GrpcDurationKind.Unspecified:
-      return value.toString()
+    default:
+      console.error("Not supported timespan ")
   }
 }

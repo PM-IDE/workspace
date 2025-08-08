@@ -1,4 +1,4 @@
-import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
   createRectangleHistogram, createTimeSpanString,
@@ -7,7 +7,7 @@ import {
   toSortedArray
 } from "./util";
 import {isNullOrEmpty} from "../../utils";
-import {TimeSpan} from "../../timespan";
+import {GrpcDurationKind} from "../../protos/ficus/GrpcDurationKind";
 
 export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhancementKind[]): string {
   let enhancementData = edge.enhancementData;
@@ -39,7 +39,7 @@ function createEdgeExecutionInfo(edge: GraphEdge): string {
   if (edge.executionTime != null) {
     executionInfo += `
       <div style="font-size: 25px; font-weight: 900;">
-        ${TimeSpan.fromNanoseconds(BigInt(edge.executionTime)).toString()}
+        ${createTimeSpanString(edge.executionTime, GrpcDurationKind.Nanos)}
       </div>
       <div style="font-size: 25px; font-weight: 900;">
         ${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%
