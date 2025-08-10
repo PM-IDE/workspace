@@ -1,0 +1,22 @@
+<div style="max-width: 900px; max-height: 500px; overflow: auto;">
+  <div style="width: fit-content;">
+    @foreach (var entry in Entries.OrderByDescending(e => e.Count))
+    {
+      <div style="display: flex; flex-direction: row; align-items: center;">
+        @{
+          var style = $"width: 20px; height: 20px; background: {entry.Color}";
+        }
+
+        <div style="@style"></div>
+        <div style="margin-left: 5px; white-space: nowrap;">(@entry.Count) @entry.Class</div>
+      </div>
+    }
+  </div>
+</div>
+
+
+@code {
+  public record EventClassEntry(string Class, string Color, uint Count);
+
+  [Parameter] public required EventClassEntry[] Entries { get; init; }
+}

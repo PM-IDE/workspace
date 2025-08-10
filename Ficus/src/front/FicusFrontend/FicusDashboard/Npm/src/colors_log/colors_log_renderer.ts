@@ -13,9 +13,42 @@ import {
   MinCanvasWidth,
   OverallXDelta
 } from "./constants";
+import {increment} from "../graph/util";
 
 export function setDrawColorsLog() {
   (<any>window).drawColorsLog = drawColorsLog;
+  (<any>window).createEventClassesEntries = createEventClassesEntries;
+}
+
+interface EventClassEntry {
+  class: string;
+  color: string;
+  count: number;
+}
+
+function createEventClassesEntries(log: GrpcColorsEventLog): EventClassEntry[] {
+  let colors = new Map<string, string>();
+  let counts = new Map<string, number>();
+
+  for (let trace of log.traces) {
+    for (let event of trace.eventColors) {
+      let name = log.mapping[event.colorIndex].name;
+      colors.set(name, getOrCreateColor(name));
+
+      increment(counts, name, 1);
+    }
+  }
+
+  let eventClasses: EventClassEntry[] = [];
+  for (let [name, color] of colors.entries()) {
+    eventClasses.push({
+      class: name,
+      color: color,
+      count: counts.get(name)
+    });
+  }
+
+  return eventClasses;
 }
 
 function getRectDimensions(widthScale: number, heightScale: number) {

@@ -1,24 +1,28 @@
 ﻿@using BlazorBootstrap
 @using Ficus
-@using JetBrains.Threading
 
-@inject ILogger<ColorsEventLogRenderer> Logger
 @inject IJSRuntime Js;
 
-@if (!myFinishedCanvasDrawings)
-{
-  <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
-}
+<div style="width: 100%;">
+  @if (!myFinishedCanvasDrawings)
+  {
+    <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+  }
 
-@if (mySuggestedAdjustment is var (suggestedWidthScale, suggestedHeightScale))
-{
-  <div>
-    Rendered canvas is too big, suggested scale are (Width: @suggestedWidthScale, Height: @suggestedHeightScale)
+  @if (mySuggestedAdjustment is var (suggestedWidthScale, suggestedHeightScale))
+  {
+    <div>
+      Rendered canvas is too big, suggested scale are (Width: @suggestedWidthScale, Height: @suggestedHeightScale)
+    </div>
+  }
+
+  <div class="@CanvasContainerClass">
+    <canvas id="@myCanvasId.ToString()"></canvas>
   </div>
-}
 
-<div class="@CanvasContainerClass">
-  <canvas id="@myCanvasId.ToString()"></canvas>
+  <div style="margin-top: 5px;">
+    <ColorsLogEventClasses Entries="@myEventClassEntries"/>
+  </div>
 </div>
 
 @code
@@ -28,6 +32,7 @@
   private bool myFullScreen;
   private bool myFinishedCanvasDrawings;
   private (double X, double Y)? mySuggestedAdjustment;
+  private ColorsLogEventClasses.EventClassEntry[] myEventClassEntries = [];
 
 
   private string CanvasContainerClass => "colors-log-canvas-container " + (myFinishedCanvasDrawings && mySuggestedAdjustment is null) switch
@@ -54,6 +59,14 @@
 
     return Task.CompletedTask;
   }
+
+  protected override async Task OnParametersSetAsync()
+  {
+    myEventClassEntries = await GetEntries();
+  }
+
+  private async Task<ColorsLogEventClasses.EventClassEntry[]> GetEntries() =>
+    await Js.InvokeAsync<ColorsLogEventClasses.EventClassEntry[]>("createEventClassesEntries", Log);
 
   public void RedrawCanvas()
   {
