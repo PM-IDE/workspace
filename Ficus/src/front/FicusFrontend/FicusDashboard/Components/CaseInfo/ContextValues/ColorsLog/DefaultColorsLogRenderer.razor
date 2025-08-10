@@ -6,6 +6,15 @@
     <WidthAndHeightScale @ref="myWidthAndHeightScale"
                          WidthScaleInitialValue="1"
                          HeightScaleInitialValue="1"/>
+
+    <div>
+      <div>
+        Filter:
+      </div>
+      <div>
+        <input @bind="@myFilterValue" />
+      </div>
+    </div>
   </div>
 
   <div style="margin-top: 10px">
@@ -17,13 +26,15 @@
                             Log="Log"
                             IsFullScreen="IsFullScreen"
                             WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
-                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)"/>
+                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)"
+                            Filter="@myFilterValue" />
   </div>
 </div>
 
 @code {
   private ColorsEventLogRenderer? myRenderer;
   private WidthAndHeightScale? myWidthAndHeightScale;
+  private string? myFilterValue;
 
 
   [Parameter] public required bool IsFullScreen { get; init; }
