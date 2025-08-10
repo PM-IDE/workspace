@@ -13,6 +13,8 @@
     <WidthAndHeightScale @ref="myWidthAndHeightScale"
                          WidthScaleInitialValue="1"
                          HeightScaleInitialValue="1"/>
+
+    <TextInput @ref="myFilterInput" Title="Filter:"/>
   </div>
 
   <div class="rerender-button-container">
@@ -23,7 +25,8 @@
     <ColorsEventLogRenderer @ref="myRenderer"
                             Log="FromTimeline()"
                             WidthScale="@(myWidthAndHeightScale?.WidthScale ?? 1)"
-                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)"/>
+                            HeightScale="@(myWidthAndHeightScale?.HeightScale ?? 1)"
+                            Filter="@myFilterInput?.FilterValue"/>
   </div>
 </div>
 
@@ -31,10 +34,11 @@
   private const string BackgroundKey = nameof(BackgroundKey);
   private const string SeparatorKey = nameof(SeparatorKey);
   private const uint RectWidth = 1;
-  
+
   private ColorsEventLogRenderer? myRenderer;
   private DoubleInput? myScaleInput;
   private WidthAndHeightScale? myWidthAndHeightScale;
+  private TextInput? myFilterInput;
 
 
   [Parameter] public required GrpcLogTimelineDiagram TimelineDiagram { get; init; }
@@ -194,4 +198,5 @@
       return (Random.Shared.Next(0, 256), Random.Shared.Next(0, 256), Random.Shared.Next(0, 256));
     }
   }
+
 }
