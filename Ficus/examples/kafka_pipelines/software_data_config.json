@@ -233,7 +233,7 @@
       "info": {
         "base": {
           "name": "Fail Reasons",
-          "units": "units",
+          "units": "reasons",
           "group": "Inlinings"
         },
         "grouping_attr": {
