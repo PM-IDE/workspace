@@ -9,7 +9,7 @@
     {
       <AggregatedStatInfo Title=@info.Title
                           Histogram=@info.Histogram
-                          Value=@info.Value.ToString(CultureInfo.InvariantCulture)
+                          Value=@info.ValueStringRepresentation.ToString(CultureInfo.InvariantCulture)
                           Units=@info.Units/>
     }
   </div>
@@ -23,6 +23,7 @@
   {
     public required string Title { get; init; }
     public required double Value { get; init; }
+    public required string ValueStringRepresentation { get; init; }
 
     public string? Units { get; init; }
     public (string, double)[]? Histogram { get; init; }
@@ -38,35 +39,52 @@
       ..CreateOtherDtos()
     ];
 
-    return infos.Where(i => i.Value > 0).OrderByDescending(i => i.Histogram?.Length ?? -1).ToArray();
+    return infos.OrderByDescending(i => i.Histogram?.Length ?? -1).ToArray();
   }
 
   private AggregatedStatDto[] CreateCountersDtos() =>
-    Data.GlobalSoftwareData.Counters.Select(counter => new AggregatedStatDto
+    Data.GlobalSoftwareData.Counters.Select(counter =>
     {
-      Title = CreateAggregatedStatTitle(counter.Key, counter.Value),
-      Value = counter.Value.Value,
-      Units = counter.Value.Units,
+      var value = counter.Value.Value;
+
+      return new AggregatedStatDto
+      {
+        Value = value,
+        Title = CreateAggregatedStatTitle(counter.Key, counter.Value),
+        ValueStringRepresentation = value.ToString(CultureInfo.InvariantCulture),
+        Units = counter.Value.Units,
+      };
     }).ToArray();
 
-  private static string CreateAggregatedStatTitle<T>(string key, ValueWithUnits<T> value) => 
+  private static string CreateAggregatedStatTitle<T>(string key, ValueWithUnits<T> value) =>
     string.IsNullOrEmpty(value.Group) ? key : value.Group + " | " + key;
-  
+
   private AggregatedStatDto[] CreateHistogramsDtos() =>
-    Data.GlobalSoftwareData.Histograms.Select(histogram => new AggregatedStatDto
+    Data.GlobalSoftwareData.Histograms.Select(histogram =>
     {
-      Title = CreateAggregatedStatTitle(histogram.Key, histogram.Value),
-      Value = histogram.Value.Value.Values.Sum(),
-      Units = histogram.Value.Units,
-      Histogram = PrepareHistogram(histogram.Value.Value),
+      var value = histogram.Value.Value.Values.Sum();
+
+      return new AggregatedStatDto
+      {
+        Value = value,
+        Title = CreateAggregatedStatTitle(histogram.Key, histogram.Value),
+        ValueStringRepresentation = value.ToString(CultureInfo.InvariantCulture),
+        Units = histogram.Value.Units,
+        Histogram = PrepareHistogram(histogram.Value.Value),
+      };
     }).ToArray();
 
   private AggregatedStatDto[] CreateActivitiesDurationsDtos() =>
-    Data.GlobalSoftwareData.ActivitiesDurations.Select(duration => new AggregatedStatDto
+    Data.GlobalSoftwareData.ActivitiesDurations.Select(duration =>
     {
-      Title = CreateAggregatedStatTitle(duration.Key, duration.Value),
-      Value = duration.Value.Value.Value,
-      Units = duration.Value.Units
+      var value = duration.Value.Value.Value;
+      return new AggregatedStatDto
+      {
+        Value = value,
+        Title = CreateAggregatedStatTitle(duration.Key, duration.Value),
+        ValueStringRepresentation = value.ToString(CultureInfo.InvariantCulture),
+        Units = duration.Value.Units
+      };
     }).ToArray();
 
   private AggregatedStatDto[] CreateOtherDtos() =>
@@ -74,11 +92,13 @@
     new()
     {
       Title = "Execution Time",
-      Value = Data.TotalExecutionTime,
-      Units = "QPC"
+      Value = Data.TotalExecutionTimeNs,
+      ValueStringRepresentation = TimeSpan.FromTicks((long)Math.Ceiling(Data.TotalExecutionTimeNs / TimeSpan.NanosecondsPerTick)).ToString("c"),
+      Units = string.Empty
     }
   ];
-  
+
   private static (string, double)[] PrepareHistogram(Dictionary<string, double> map) =>
     map.OrderBy(p => p.Value).Select(p => (p.Key, p.Value)).ToArray();
+
 }

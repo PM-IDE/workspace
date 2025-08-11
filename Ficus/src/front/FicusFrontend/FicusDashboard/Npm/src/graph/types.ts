@@ -24,7 +24,7 @@ export interface GraphEdge {
 }
 
 export interface AggregatedData {
-  totalExecutionTime: number,
+  totalExecutionTimeNs: number,
   maxExecutionTime: number,
 
   globalSoftwareData: MergedSoftwareData

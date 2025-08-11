@@ -38,7 +38,7 @@ export function createGraphElements(
 
 function createAggregatedDataInternal(graph: GrpcGraph, performanceMap: Record<number, any>, filter: RegExp | null) {
   let aggregatedData: AggregatedData = {
-    totalExecutionTime: 0,
+    totalExecutionTimeNs: 0,
     maxExecutionTime: Number.MIN_VALUE,
 
     globalSoftwareData: createEmptySoftwareData()
@@ -91,7 +91,7 @@ function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: Aggr
     updateAggregatedData(aggregatedData, enhancementData?.softwareData);
 
     let executionTime = calculateOverallExecutionTime(node);
-    aggregatedData.totalExecutionTime += executionTime;
+    aggregatedData.totalExecutionTimeNs += executionTime;
     aggregatedData.maxExecutionTime = Math.max(aggregatedData.maxExecutionTime, executionTime);
   }
 }
@@ -104,7 +104,7 @@ function processEdgesAggregatedData(edges: GrpcGraphEdge[], aggregatedData: Aggr
     let executionTime = performanceMap[edge.id] ?? calculateEdgeExecutionTime(edge);
 
     if (executionTime != null) {
-      aggregatedData.totalExecutionTime += executionTime;
+      aggregatedData.totalExecutionTimeNs += executionTime;
       aggregatedData.maxExecutionTime = Math.max(executionTime, aggregatedData.maxExecutionTime);
     }
   }
@@ -228,7 +228,7 @@ export function createGraphEdgesElements(
 
     let color = executionTime == null ?
       calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio) :
-      getPerformanceAnnotationColor(executionTime / aggregatedData.totalExecutionTime);
+      getPerformanceAnnotationColor(executionTime / aggregatedData.totalExecutionTimeNs);
 
     elements.push({
       data: {

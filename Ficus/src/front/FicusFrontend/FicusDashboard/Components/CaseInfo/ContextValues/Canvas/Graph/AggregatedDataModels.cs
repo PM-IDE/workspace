@@ -2,7 +2,7 @@
 
 public class AggregatedData
 {
-  public double TotalExecutionTime { get; set; }
+  public double TotalExecutionTimeNs { get; set; }
   public double MaxExecutionTime { get; set; }
 
   public MergedSoftwareData GlobalSoftwareData { get; set; } = new();
