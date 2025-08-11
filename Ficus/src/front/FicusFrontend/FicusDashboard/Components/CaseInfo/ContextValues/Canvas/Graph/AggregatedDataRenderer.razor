@@ -44,15 +44,18 @@
   private AggregatedStatDto[] CreateCountersDtos() =>
     Data.GlobalSoftwareData.Counters.Select(counter => new AggregatedStatDto
     {
-      Title = counter.Key,
+      Title = CreateAggregatedStatTitle(counter.Key, counter.Value),
       Value = counter.Value.Value,
       Units = counter.Value.Units,
     }).ToArray();
 
+  private static string CreateAggregatedStatTitle<T>(string key, ValueWithUnits<T> value) => 
+    string.IsNullOrEmpty(value.Group) ? key : value.Group + " | " + key;
+  
   private AggregatedStatDto[] CreateHistogramsDtos() =>
     Data.GlobalSoftwareData.Histograms.Select(histogram => new AggregatedStatDto
     {
-      Title = histogram.Key,
+      Title = CreateAggregatedStatTitle(histogram.Key, histogram.Value),
       Value = histogram.Value.Value.Values.Sum(),
       Units = histogram.Value.Units,
       Histogram = PrepareHistogram(histogram.Value.Value),
@@ -61,7 +64,7 @@
   private AggregatedStatDto[] CreateActivitiesDurationsDtos() =>
     Data.GlobalSoftwareData.ActivitiesDurations.Select(duration => new AggregatedStatDto
     {
-      Title = duration.Key,
+      Title = CreateAggregatedStatTitle(duration.Key, duration.Value),
       Value = duration.Value.Value.Value,
       Units = duration.Value.Units
     }).ToArray();

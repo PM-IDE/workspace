@@ -24,15 +24,10 @@ public class MergedSoftwareData
     ActivitiesDurations.Count == 0;
 }
 
-public class CountAndSum
-{
-  public int Count { get; set; }
-  public double Sum { get; set; }
-}
-
 public class ValueWithUnits<T>
 {
-  public string Units { get; set; }
+  public string? Group { get; set; }
+  public string? Units { get; set; }
   public T Value { get; set; }
 }
 
