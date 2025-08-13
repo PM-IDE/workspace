@@ -326,7 +326,7 @@
     {
       "base": {
         "name": "Runtime Suspensions",
-        "units": "ns"
+        "units": ""
       },
       "start_event_regex": "GC/SuspendEEStop",
       "end_event_regex": "GC/RestartEEStop",
