@@ -22,7 +22,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, false, createEdgeEnhancement)}
+        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, true, createEdgeEnhancement)}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>
@@ -79,10 +79,6 @@ function createEdgeEnhancement(
       aggregatedData.globalSoftwareData.counters.get(enhancement).value
     );
 
-    if (isNullOrEmpty(counter.group)) {
-      html = createEnhancementContainer(enhancement, html);
-    }
-
     return new EnhancementCreationResult(html, counter.group, false);
   }
 
@@ -96,10 +92,6 @@ function createEdgeEnhancement(
       createTimeSpanString(duration.value.value, duration.value.kind),
       aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
     );
-
-    if (isNullOrEmpty(duration.group)) {
-      html = createEnhancementContainer(enhancement, html);
-    }
 
     return new EnhancementCreationResult(html, duration.group, false);
   }
@@ -124,7 +116,6 @@ function createEdgeSoftwareEnhancementPart(
     <div>
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-          <div>${title}</div>
           <div>
             ${valuesSum}${units != null ? ` ${units}` : ""}
           </div>
