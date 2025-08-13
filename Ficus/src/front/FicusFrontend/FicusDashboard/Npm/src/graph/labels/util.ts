@@ -101,7 +101,7 @@ export function createNumberInformation(
   }
 
   let percentString = getPercentExecutionTime(value, totalValue);
-  percentString = percentString.length > 0 ? `, ${percentString}%` : percentString;
+  percentString = percentString.length > 0 ? (isNullOrEmpty(units) ? "" : ", " + `${percentString}%`) : percentString;
 
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
