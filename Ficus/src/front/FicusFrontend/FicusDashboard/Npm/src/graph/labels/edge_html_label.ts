@@ -118,13 +118,13 @@ function createEdgeSoftwareEnhancementPart(
     <div>
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-          <div>
+          <div style="white-space: nowrap">
             ${title}
           </div>
-          <div>
+          <div style="white-space: nowrap">
             ${valuesSum}${units != null ? ` ${units}` : ""}
           </div>
-          <div>
+          <div style="white-space: nowrap">
             ${percent != null ? `${percent}%` : ""}
           </div>
         </div>
