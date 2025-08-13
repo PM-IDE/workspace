@@ -1,6 +1,7 @@
+@using System.Text.RegularExpressions
 <div style="max-width: 900px; max-height: 500px; overflow: auto;">
   <div style="width: fit-content;">
-    @foreach (var entry in Entries.OrderByDescending(e => e.Count))
+    @foreach (var entry in Entries.OrderByDescending(e => e.Count).Where(e => myFilterRegex?.IsMatch(e.Class) ?? true))
     {
       <div style="display: flex; flex-direction: row; align-items: center;">
         @{
@@ -18,5 +19,16 @@
 @code {
   public record EventClassEntry(string Class, string Color, uint Count);
 
+  private Regex? myFilterRegex;
+  
   [Parameter] public required EventClassEntry[] Entries { get; init; }
+  [Parameter] public string? Filter { get; init; }
+
+
+  protected override void OnParametersSet()
+  {
+    if (Filter is not { } filter) return;
+
+    myFilterRegex = new Regex(filter);
+  }
 }
