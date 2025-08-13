@@ -101,12 +101,18 @@ export function createNumberInformation(
   }
 
   let percentString = getPercentExecutionTime(value, totalValue);
-  percentString = percentString.length > 0 ? (isNullOrEmpty(units) ? "" : ", " + `${percentString}%`) : percentString;
+  percentString = percentString.length > 0 ? `${percentString}%` : percentString;
 
+  let style = "display: flex; align-content: center; justify-content: center; white-space: nowrap;";
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
-      <div class="graph-content-container" style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
-        ${category} ${displayValue} ${units}${percentString}
+      <div class="graph-content-container"
+           style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
+         <div style="width: fit-content">
+           <div style="${style}">${category}</div>
+           <div style="${style}">${displayValue} ${units}</div>
+           <div style="${style}">${percentString}</div>
+         </div>
       </div>
     </div>
   `;
@@ -186,7 +192,7 @@ export function createTimeSpanString(value: number, kind: GrpcDurationKind): str
   if (kind == GrpcDurationKind.Unspecified) {
     return value.toString();
   }
-  
+
   return processTimeSpanString(createTimeSpanStringInternal(value, kind));
 }
 
@@ -194,12 +200,12 @@ function processTimeSpanString(str: string): string {
   while (str.indexOf("00:") > -1) {
     str = str.replace("00:", "0:");
   }
-  
+
   while (str.indexOf("00.") > -1) {
     str = str.replace("00.", "0.");
   }
 
-  return str; 
+  return str;
 }
 
 function createTimeSpanStringInternal(value: number, kind: GrpcDurationKind) {
