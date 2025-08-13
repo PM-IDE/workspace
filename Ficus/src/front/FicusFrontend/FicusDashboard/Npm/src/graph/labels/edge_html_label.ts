@@ -60,7 +60,7 @@ function createEdgeEnhancement(
     let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
 
     let html = createEdgeSoftwareEnhancementPart(
-      enhancement,
+      isNullOrEmpty(histogram.group) ? "" : enhancement,
       histogram.value,
       histogram.units,
       globalSum
@@ -116,6 +116,9 @@ function createEdgeSoftwareEnhancementPart(
     <div>
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <div>
+            ${title}
+          </div>
           <div>
             ${valuesSum}${units != null ? ` ${units}` : ""}
           </div>
