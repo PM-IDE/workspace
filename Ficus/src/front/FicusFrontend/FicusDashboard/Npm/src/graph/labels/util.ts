@@ -33,7 +33,7 @@ export function createEnhancementContainer(title: string, content: string, horiz
   return `
     <div class="graph-content-container">
       <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
-      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"};">
+      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; justify-content: center; align-items: center;">
         ${content}
       </div>
     </div>
