@@ -25,15 +25,22 @@ export function createPieChart(sortedHistogramEntries: [string, number][], perfo
   `
 }
 
-export function createEnhancementContainer(title: string, content: string, horizontal: boolean = true): string {
+export function createEnhancementContainer(
+  title: string,
+  content: string,
+  horizontal: boolean = true,
+  centerItems: boolean = true
+): string {
   if (content.length == 0) {
     return "";
   }
 
+  let centerStyle = centerItems ? "justify-content: center; align-items: center;" : "";
+
   return `
     <div class="graph-content-container">
       <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
-      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; justify-content: center; align-items: center;">
+      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; ${centerStyle}">
         ${content}
       </div>
     </div>
@@ -94,28 +101,41 @@ export function createNumberInformation(
   units: string,
   value: number,
   displayValue: string,
-  totalValue: number | null
+  totalValue: number | null,
+  horizontal: boolean
 ): string {
   if (value == 0) {
     return "";
   }
 
   let percentString = getPercentExecutionTime(value, totalValue);
-  percentString = percentString.length > 0 ? `${percentString}%` : percentString;
 
-  let style = "display: flex; align-content: center; justify-content: center; white-space: nowrap;";
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
       <div class="graph-content-container"
            style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
-         <div style="width: fit-content">
-           <div style="${style}">${category}</div>
-           <div style="${style}">${displayValue} ${units}</div>
-           <div style="${style}">${percentString}</div>
+         <div style="width: fit-content; display: flex; flex-direction: ${horizontal ? "row" : "column"}; gap: 2px;">
+           ${createNumberInfoHtml(category, displayValue, units, percentString, horizontal)}
          </div>
       </div>
     </div>
   `;
+}
+
+function createNumberInfoHtml(category: string, displayValue: string, units: string, percentString: string, horizontal: boolean) {
+  if (horizontal) {
+    percentString = percentString.length > 0 ? (isNullOrEmpty(units) ? "" : ", " + `${percentString}%`) : percentString;
+    return `${category} ${displayValue} ${units}${percentString}`;
+  }
+
+  percentString = percentString.length > 0 ? `${percentString}%` : percentString;
+  let style = "display: flex; align-content: center; justify-content: center; white-space: nowrap;";
+
+  return `
+           <div style="${style}">${category}</div>
+           <div style="${style}">${displayValue} ${units}</div>
+           <div style="${style}">${percentString}</div>
+         `;
 }
 
 export function getPercentExecutionTime(executionTime: number, totalExecutionTime: number): string {
@@ -145,7 +165,8 @@ export function createGroupedEnhancements(
   enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
   createContainer: boolean,
-  enhancementFactory: (softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: string) => EnhancementCreationResult
+  enhancementFactory: (softwareData: MergedSoftwareData, aggregatedData: AggregatedData, enhancement: string) => EnhancementCreationResult,
+  centerEnhancementsItems: boolean
 ): string {
   // @ts-ignore
   let enhancementsHtmls: [SoftwareEnhancementKind, EnhancementCreationResult][] = enhancements
@@ -179,11 +200,11 @@ export function createGroupedEnhancements(
       }
 
       let html = kv[1].map((r: EnhancementCreationResult) => r.html).join("\n");
-      return createContainer ? createEnhancementContainer(kv[0], html, kv[1][0].horizontal) : html;
+      return createContainer ? createEnhancementContainer(kv[0], html, kv[1][0].horizontal, centerEnhancementsItems) : html;
     });
 
   return uniqueEnhancements
-    .map(([e, html]) => createContainer ? createEnhancementContainer(e, html, false) : html)
+    .map(([e, html]) => createContainer ? createEnhancementContainer(e, html, false, centerEnhancementsItems) : html)
     .concat(...groupedEnhancements)
     .join("\n");
 }

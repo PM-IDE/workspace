@@ -22,7 +22,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, true, createEdgeEnhancement)}
+        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, true, createEdgeEnhancement, true)}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>
@@ -76,7 +76,8 @@ function createEdgeEnhancement(
       counter.units,
       counter.value,
       counter.value.toString(),
-      aggregatedData.globalSoftwareData.counters.get(enhancement).value
+      aggregatedData.globalSoftwareData.counters.get(enhancement).value,
+      false,
     );
 
     return new EnhancementCreationResult(html, counter.group, false);
@@ -90,7 +91,8 @@ function createEdgeEnhancement(
       duration.units,
       duration.value.value,
       createTimeSpanString(duration.value.value, duration.value.kind),
-      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value,
+      false,
     );
 
     return new EnhancementCreationResult(html, duration.group, false);
