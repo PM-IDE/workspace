@@ -63,7 +63,7 @@ export function createNodeHtmlLabel(
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
                   ${createEventClassesPieChart(enhancementData.eventClasses)}
-                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, true, createNodeEnhancement)}
+                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, true, createNodeEnhancement, false)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                   ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
                 </div>
@@ -127,7 +127,8 @@ function createNodeEnhancement(
       counter.units,
       counter.value,
       counter.value.toString(),
-      aggregatedData.globalSoftwareData.counters.get(enhancement).value
+      aggregatedData.globalSoftwareData.counters.get(enhancement).value,
+      true,
     );
 
     return new EnhancementCreationResult(html, counter.group, false);
@@ -141,7 +142,8 @@ function createNodeEnhancement(
       duration.units,
       duration.value.value,
       createTimeSpanString(duration.value.value, duration.value.kind),
-      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value,
+      true
     );
 
     return new EnhancementCreationResult(html, duration.group, false);
