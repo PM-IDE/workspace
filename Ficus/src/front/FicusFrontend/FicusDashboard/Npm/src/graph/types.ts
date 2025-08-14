@@ -8,7 +8,7 @@ export interface GraphNode {
   label: string,
   id: string,
   innerGraph?: GrpcGraph,
-  executionTime: number,
+  executionTimeNs: number,
   additionalData: GrpcNodeAdditionalData[],
   enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
@@ -19,12 +19,12 @@ export interface GraphEdge {
   additionalData: GrpcNodeAdditionalData[]
   enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
-  executionTime: number,
+  executionTimeNs: number,
   weight: number
 }
 
 export interface AggregatedData {
-  totalExecutionTime: number,
+  totalExecutionTimeNs: number,
   maxExecutionTime: number,
 
   globalSoftwareData: MergedSoftwareData

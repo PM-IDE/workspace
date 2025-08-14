@@ -48,10 +48,13 @@ export function generateRandomColor() {
   return color;
 }
 
-
 let colorsCache: Map<string, string> = new Map<string, string>();
 
-export function getOrCreateColor(name: string) {
+export function getOrCreateColor(name: string, filter: RegExp | null = null): string {
+  if (filter != null && !filter.test(name)) {
+    return "#000000";
+  }
+
   if (!colorsCache.has(name)) {
     colorsCache.set(name, generateRandomColor());
   }

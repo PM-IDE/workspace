@@ -45,7 +45,7 @@ export function createNodeHtmlLabel(
 
   let sortedHistogramEntries = toSortedArray(enhancementData.eventClasses);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
-  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.totalExecutionTime);
+  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTimeNs / node.aggregatedData.totalExecutionTimeNs);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
   allTraceIds.sort((f, s) => f - s);
 
@@ -57,13 +57,13 @@ export function createNodeHtmlLabel(
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
               <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
-                  Exec. time: ${createNodeExecutionTimeString(node)} (${getPercentExecutionTime(node.executionTime, node.aggregatedData.totalExecutionTime)}%)
+                  Exec. time: ${createNodeExecutionTimeString(node)} (${getPercentExecutionTime(node.executionTimeNs, node.aggregatedData.totalExecutionTimeNs)}%)
               </div>
 
               <div style="padding-left: 10px;">
                 <div style="display: flex; flex-wrap: wrap; margin-top: 10px; gap: 10px;">
                   ${createEventClassesPieChart(enhancementData.eventClasses)}
-                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, true, createNodeEnhancement)}
+                  ${createGroupedEnhancements(enhancements, enhancementData, node.aggregatedData, true, createNodeEnhancement, false)}
                   ${isPatternNode(node) ? createPatternInformation(node) : ""}
                   ${isMultithreadedNode(node) ? createMultithreadedNodeInformation(node) : ""}
                 </div>
@@ -78,7 +78,7 @@ export function createNodeHtmlLabel(
 }
 
 function createNodeExecutionTimeString(node: GraphNode) {
-  return TimeSpan.fromNanoseconds(BigInt(node.executionTime)).toString();
+  return TimeSpan.fromNanoseconds(BigInt(node.executionTimeNs)).toString();
 }
 
 function createEventClassesPieChart(data: Map<string, number>) {
@@ -127,7 +127,8 @@ function createNodeEnhancement(
       counter.units,
       counter.value,
       counter.value.toString(),
-      aggregatedData.globalSoftwareData.counters.get(enhancement).value
+      aggregatedData.globalSoftwareData.counters.get(enhancement).value,
+      true,
     );
 
     return new EnhancementCreationResult(html, counter.group, false);
@@ -141,7 +142,8 @@ function createNodeEnhancement(
       duration.units,
       duration.value.value,
       createTimeSpanString(duration.value.value, duration.value.kind),
-      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value,
+      true
     );
 
     return new EnhancementCreationResult(html, duration.group, false);

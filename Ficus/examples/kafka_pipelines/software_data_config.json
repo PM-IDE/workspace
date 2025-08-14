@@ -233,7 +233,7 @@
       "info": {
         "base": {
           "name": "Fail Reasons",
-          "units": "units",
+          "units": "reasons",
           "group": "Inlinings"
         },
         "grouping_attr": {
@@ -326,7 +326,7 @@
     {
       "base": {
         "name": "Runtime Suspensions",
-        "units": "ns"
+        "units": ""
       },
       "start_event_regex": "GC/SuspendEEStop",
       "end_event_regex": "GC/RestartEEStop",
@@ -343,6 +343,6 @@
     }
   ],
   "raw_control_flow_regexes": [
-    "ProcfilerMethod"
+    "BusinessEvent"
   ]
 }

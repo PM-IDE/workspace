@@ -22,7 +22,7 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
       <div style="display: flex; flex-direction: row; align-items: center;">
-        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, false, createEdgeEnhancement)}
+        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, true, createEdgeEnhancement, true)}
       </div>
       ${createEdgeExecutionInfo(edge)}
     </div>
@@ -36,13 +36,13 @@ function createEdgeExecutionInfo(edge: GraphEdge): string {
     </div>
   `;
 
-  if (edge.executionTime != null) {
+  if (edge.executionTimeNs != null) {
     executionInfo += `
       <div style="font-size: 25px; font-weight: 900;">
-        ${createTimeSpanString(edge.executionTime, GrpcDurationKind.Nanos)}
+        ${createTimeSpanString(edge.executionTimeNs, GrpcDurationKind.Nanos)}
       </div>
       <div style="font-size: 25px; font-weight: 900;">
-        ${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTime)}%
+        ${getPercentExecutionTime(edge.executionTimeNs, edge.aggregatedData.totalExecutionTimeNs)}%
       </div>
     `;
   }
@@ -60,7 +60,7 @@ function createEdgeEnhancement(
     let globalSum = aggregatedData.globalSoftwareData.histograms.get(enhancement).value.values().reduce((a, b) => a + b, 0);
 
     let html = createEdgeSoftwareEnhancementPart(
-      enhancement,
+      isNullOrEmpty(histogram.group) ? "" : enhancement,
       histogram.value,
       histogram.units,
       globalSum
@@ -76,12 +76,9 @@ function createEdgeEnhancement(
       counter.units,
       counter.value,
       counter.value.toString(),
-      aggregatedData.globalSoftwareData.counters.get(enhancement).value
+      aggregatedData.globalSoftwareData.counters.get(enhancement).value,
+      false,
     );
-
-    if (isNullOrEmpty(counter.group)) {
-      html = createEnhancementContainer(enhancement, html);
-    }
 
     return new EnhancementCreationResult(html, counter.group, false);
   }
@@ -94,12 +91,9 @@ function createEdgeEnhancement(
       duration.units,
       duration.value.value,
       createTimeSpanString(duration.value.value, duration.value.kind),
-      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value
+      aggregatedData.globalSoftwareData.activitiesDurations.get(enhancement).value.value,
+      false,
     );
-
-    if (isNullOrEmpty(duration.group)) {
-      html = createEnhancementContainer(enhancement, html);
-    }
 
     return new EnhancementCreationResult(html, duration.group, false);
   }
@@ -124,11 +118,13 @@ function createEdgeSoftwareEnhancementPart(
     <div>
       <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-          <div>${title}</div>
-          <div>
+          <div style="white-space: nowrap">
+            ${title}
+          </div>
+          <div style="white-space: nowrap">
             ${valuesSum}${units != null ? ` ${units}` : ""}
           </div>
-          <div>
+          <div style="white-space: nowrap">
             ${percent != null ? `${percent}%` : ""}
           </div>
         </div>

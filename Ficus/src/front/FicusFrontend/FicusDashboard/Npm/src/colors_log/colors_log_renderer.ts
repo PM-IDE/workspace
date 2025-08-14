@@ -13,18 +13,56 @@ import {
   MinCanvasWidth,
   OverallXDelta
 } from "./constants";
+import {increment} from "../graph/util";
 
 export function setDrawColorsLog() {
-  (<any>window).drawColorsLog = async function (log: GrpcColorsEventLog, widthScale: number, heightScale: number, canvasId: string, colors: any) {
-    return await drawColorsLog(log, widthScale, heightScale, canvasId, colors);
-  };
+  (<any>window).drawColorsLog = drawColorsLog;
+  (<any>window).createEventClassesEntries = createEventClassesEntries;
+}
+
+interface EventClassEntry {
+  class: string;
+  color: string;
+  count: number;
+}
+
+function createEventClassesEntries(log: GrpcColorsEventLog): EventClassEntry[] {
+  let colors = new Map<string, string>();
+  let counts = new Map<string, number>();
+
+  for (let trace of log.traces) {
+    for (let event of trace.eventColors) {
+      let name = log.mapping[event.colorIndex].name;
+      colors.set(name, getOrCreateColor(name));
+
+      increment(counts, name, 1);
+    }
+  }
+
+  let eventClasses: EventClassEntry[] = [];
+  for (let [name, color] of colors.entries()) {
+    eventClasses.push({
+      class: name,
+      color: color,
+      count: counts.get(name)
+    });
+  }
+
+  return eventClasses;
 }
 
 function getRectDimensions(widthScale: number, heightScale: number) {
   return [widthScale * DefaultRectWidth, heightScale * DefaultRectHeight];
 }
 
-async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, heightScale: number, canvasId: string, colors: any) {
+async function drawColorsLog(
+  log: GrpcColorsEventLog,
+  widthScale: number,
+  heightScale: number,
+  canvasId: string,
+  colors: any,
+  filter: string
+) {
   let canvas = document.getElementById(canvasId);
   if (canvas == null || !(canvas instanceof HTMLCanvasElement)) {
     return;
@@ -45,7 +83,9 @@ async function drawColorsLog(log: GrpcColorsEventLog, widthScale: number, height
 
   let context = canvas.getContext('2d');
 
-  let drawResult = drawColorsLogInternal(context, log, sizes, additionalAxis);
+  let filterRegex = filter != null ? new RegExp(filter) : null;
+  let drawResult = drawColorsLogInternal(context, log, sizes, additionalAxis, filterRegex);
+
   drawRectangles(context, log, drawResult.tracesExtendedY, drawResult.tracesY, widthScale, sizes.rectWidth, sizes.rectHeight);
   drawAxis(context, log, sizes.rectHeight, sizes.canvasWidth, sizes.canvasHeight, colors, drawResult.additionalAxisWithWidth);
   addColorsLogCanvasMouseMoveHandler(canvas, log, drawResult.tracesEventsCoordinates);
@@ -60,7 +100,13 @@ interface ColorsLogDrawResult {
   additionalAxisWithWidth: [number, number][]
 }
 
-function drawColorsLogInternal(context: CanvasRenderingContext2D, log: GrpcColorsEventLog, sizes: CanvasDimensions, additionalAxis: number[]): ColorsLogDrawResult {
+function drawColorsLogInternal(
+  context: CanvasRenderingContext2D,
+  log: GrpcColorsEventLog,
+  sizes: CanvasDimensions,
+  additionalAxis: number[],
+  filterRegex: RegExp | null,
+): ColorsLogDrawResult {
   context.clearRect(0, 0, sizes.canvasWidth, sizes.canvasHeight);
 
   let currentY = AxisTextHeight;
@@ -77,7 +123,7 @@ function drawColorsLogInternal(context: CanvasRenderingContext2D, log: GrpcColor
 
     let eventsCoordinates: CanvasEventCoordinate[] = [];
     for (let rect of trace.eventColors) {
-      context.fillStyle = getOrCreateColor(log.mapping[rect.colorIndex].name);
+      context.fillStyle = getOrCreateColor(log.mapping[rect.colorIndex].name, filterRegex);
 
       let currentX = OverallXDelta + rect.startX * sizes.widthScale;
       let currentWidth = sizes.rectWidth * rect.length;
@@ -141,9 +187,9 @@ interface CanvasDimensions {
 }
 
 async function calculateCanvasSize(canvas: HTMLCanvasElement,
-                                   log: GrpcColorsEventLog, 
-                                   widthScale: number, 
-                                   heightScale: number, 
+                                   log: GrpcColorsEventLog,
+                                   widthScale: number,
+                                   heightScale: number,
                                    additionalAxisCount: number): Promise<CanvasDimensions | TooBigCanvas> {
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
 

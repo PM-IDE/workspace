@@ -1,0 +1,17 @@
+<div>
+  <div>
+    @Title
+  </div>
+
+  <div>
+    <input @bind="@myFilterValue" />
+  </div>
+</div>
+
+@code {
+  [Parameter] public required string Title { get; init; }
+  
+  private string? myFilterValue;
+
+  public string? FilterValue => myFilterValue;
+}
