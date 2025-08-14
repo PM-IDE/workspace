@@ -45,7 +45,7 @@ export function createNodeHtmlLabel(
 
   let sortedHistogramEntries = toSortedArray(enhancementData.eventClasses);
   let nodeColor = belongsToRootSequence(node) ? graphColor.rootSequenceColor : graphColor.nodeBackground;
-  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTime / node.aggregatedData.totalExecutionTimeNs);
+  let timeAnnotationColor = getPerformanceAnnotationColor(node.executionTimeNs / node.aggregatedData.totalExecutionTimeNs);
   let allTraceIds = [...findAllRelatedTraceIds(node).values()];
   allTraceIds.sort((f, s) => f - s);
 
@@ -57,7 +57,7 @@ export function createNodeHtmlLabel(
             <div style="background: ${nodeColor}; min-width: ${nodeWidthPx}px; border-width: 5px; 
                         border-style: solid; border-color: ${timeAnnotationColor};">
               <div style="width: 100%; height: 25px; text-align: center; color: ${graphColor.labelColor}; background-color: ${timeAnnotationColor}">
-                  Exec. time: ${createNodeExecutionTimeString(node)} (${getPercentExecutionTime(node.executionTime, node.aggregatedData.totalExecutionTimeNs)}%)
+                  Exec. time: ${createNodeExecutionTimeString(node)} (${getPercentExecutionTime(node.executionTimeNs, node.aggregatedData.totalExecutionTimeNs)}%)
               </div>
 
               <div style="padding-left: 10px;">
@@ -78,7 +78,7 @@ export function createNodeHtmlLabel(
 }
 
 function createNodeExecutionTimeString(node: GraphNode) {
-  return TimeSpan.fromNanoseconds(BigInt(node.executionTime)).toString();
+  return TimeSpan.fromNanoseconds(BigInt(node.executionTimeNs)).toString();
 }
 
 function createEventClassesPieChart(data: Map<string, number>) {

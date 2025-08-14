@@ -36,13 +36,13 @@ function createEdgeExecutionInfo(edge: GraphEdge): string {
     </div>
   `;
 
-  if (edge.executionTime != null) {
+  if (edge.executionTimeNs != null) {
     executionInfo += `
       <div style="font-size: 25px; font-weight: 900;">
-        ${createTimeSpanString(edge.executionTime, GrpcDurationKind.Nanos)}
+        ${createTimeSpanString(edge.executionTimeNs, GrpcDurationKind.Nanos)}
       </div>
       <div style="font-size: 25px; font-weight: 900;">
-        ${getPercentExecutionTime(edge.executionTime, edge.aggregatedData.totalExecutionTimeNs)}%
+        ${getPercentExecutionTime(edge.executionTimeNs, edge.aggregatedData.totalExecutionTimeNs)}%
       </div>
     `;
   }
