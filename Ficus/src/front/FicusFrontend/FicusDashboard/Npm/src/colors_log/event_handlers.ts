@@ -1,6 +1,7 @@
 import tippy, {followCursor} from "tippy.js";
 import {GrpcColorsEventLog} from "../protos/ficus/GrpcColorsEventLog";
 import {AxisDelta, AxisWidth} from "./constants";
+import bs from "binary-search";
 
 let pivot: HTMLElement = null;
 
@@ -48,10 +49,16 @@ function findSelectedEvent(mouseEvent: MouseEvent,
     }
 
     if (y >= trace[0].y && y <= trace[0].y + trace[0].height) {
-      for (let event of trace) {
+      let index = bs(trace, null, function (event, _) {
         if (x >= event.x && x <= event.x + event.width) {
-          return event;
+          return 0;
         }
+
+        return x - event.x;
+      });
+
+      if (index > -1 && index < trace.length) {
+        return trace[index];
       }
     }
   }
