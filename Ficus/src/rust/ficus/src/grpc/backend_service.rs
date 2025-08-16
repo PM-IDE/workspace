@@ -12,7 +12,7 @@ use tonic::{Request, Response, Status};
 use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::ficus_proto::grpc_get_context_value_result::ContextValueResult;
-use crate::ficus_proto::GrpcProxyPipelineExecutionRequest;
+use crate::ficus_proto::{GrpcFicusBackendInfo, GrpcPipelinePartDescriptor, GrpcProxyPipelineExecutionRequest};
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
@@ -48,7 +48,7 @@ impl FicusService {
 
 #[tonic::async_trait]
 impl GrpcBackendService for FicusService {
-  type ExecutePipelineStream = Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  type ExecutePipelineStream = Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline(
     &self,
@@ -127,6 +127,19 @@ impl GrpcBackendService for FicusService {
       None => Err(Status::not_found(format!("The session for {} does not exist", guid_str))),
       Some(_) => Ok(Response::new(())),
     }
+  }
+
+  async fn get_backend_info(&self, _: Request<()>) -> Result<Response<GrpcFicusBackendInfo>, Status> {
+    Ok(Response::new(GrpcFicusBackendInfo {
+      name: "RUST_FICUS_BACKEND".to_string(),
+      pipeline_parts: self.pipeline_parts
+        .pipeline_parts_descriptors()
+        .into_iter()
+        .map(|d| GrpcPipelinePartDescriptor {
+          name: d.name()
+        })
+        .collect(),
+    }))
   }
 }
 

@@ -10,6 +10,16 @@ service GrpcBackendService {
   rpc ExecutePipeline(GrpcProxyPipelineExecutionRequest) returns (stream GrpcPipelinePartExecutionResult);
   rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGetContextValueResult);
   rpc DropExecutionResult(GrpcGuid) returns (google.protobuf.Empty);
+  rpc GetBackendInfo(google.protobuf.Empty) returns (GrpcFicusBackendInfo);
+}
+
+message GrpcFicusBackendInfo {
+  string name = 1;
+  repeated GrpcPipelinePartDescriptor pipeline_parts = 2;
+}
+
+message GrpcPipelinePartDescriptor {
+  string name = 1;
 }
 
 message GrpcGetContextValueRequest {
