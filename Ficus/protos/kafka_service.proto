@@ -5,6 +5,8 @@ import "util.proto";
 import "backend_service.proto";
 import "google/protobuf/empty.proto";
 
+option go_package = "balancer.grpc.models";
+
 package ficus;
 
 service GrpcKafkaService {

@@ -4,6 +4,8 @@ import "pipelines_and_context.proto";
 import "util.proto";
 import "google/protobuf/empty.proto";
 
+option go_package = "balancer.grpc.models";
+
 package ficus;
 
 service GrpcBackendService {

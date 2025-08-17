@@ -3,6 +3,8 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "util.proto";
 
+option go_package = "balancer.grpc.models";
+
 package ficus;
 
 message GrpcSimpleEventLog {

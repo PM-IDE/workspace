@@ -6,6 +6,8 @@ import "pm_models.proto";
 import "util.proto";
 import "google/protobuf/empty.proto";
 
+option go_package = "balancer.grpc.models";
+
 message GrpcContextKey {
   string name = 1;
 }
