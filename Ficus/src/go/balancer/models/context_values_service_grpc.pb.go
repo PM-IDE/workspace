@@ -4,7 +4,7 @@
 // - protoc             v5.28.3
 // source: context_values_service.proto
 
-package balancer_grpc_models
+package grpc_models
 
 import (
 	context "context"
