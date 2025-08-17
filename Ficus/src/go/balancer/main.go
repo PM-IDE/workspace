@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	cmap "github.com/orcaman/concurrent-map/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -52,10 +53,9 @@ func NewBackendDescriptor(name string, pipelineParts []PipelinePartDescriptor) B
 }
 
 func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]BackendDescriptor {
-	descriptors := make(map[string]BackendDescriptor)
+	descriptors := cmap.New[BackendDescriptor]()
 
 	wg := sync.WaitGroup{}
-	mutex := sync.Mutex{}
 
 	for _, url := range urls {
 		wg.Go(func() {
@@ -65,17 +65,13 @@ func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]Backe
 				return
 			}
 
-			mutex.Lock()
-
-			descriptors[url] = desc
-
-			mutex.Unlock()
+			descriptors.Set(url, desc)
 		})
 	}
 
 	wg.Wait()
 
-	return descriptors
+	return descriptors.Items()
 }
 
 func materializeBackendPipelinePartsDescriptors(url string) (BackendDescriptor, error) {
