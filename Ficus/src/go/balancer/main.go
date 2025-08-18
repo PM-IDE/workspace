@@ -10,6 +10,7 @@ import (
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -61,7 +62,7 @@ func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]Backe
 		wg.Go(func() {
 			desc, err := materializeBackendPipelinePartsDescriptors(url)
 			if err != nil {
-				fmt.Printf("Failed to get descriptor for backend %s\n", url)
+				fmt.Printf("Failed to get descriptor for backend %s %s\n", url, err.Error())
 				return
 			}
 
@@ -75,7 +76,7 @@ func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]Backe
 }
 
 func materializeBackendPipelinePartsDescriptors(url string) (BackendDescriptor, error) {
-	conn, err := grpc.NewClient(url)
+	conn, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return BackendDescriptor{}, err
 	}
