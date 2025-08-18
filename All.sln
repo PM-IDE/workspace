@@ -71,6 +71,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "run", "run", "{2E5DC79D-CA6
 		Ficus\docker\run\Run.FicusFrontend.Dockerfile = Ficus\docker\run\Run.FicusDashboard.Dockerfile
 		Ficus\docker\run\Run.FicusFrontendBackend.Dockerfile = Ficus\docker\run\Run.FicusDashboardBackend.Dockerfile
 		Ficus\docker\run\Run.RustFicusBackend.Dockerfile = Ficus\docker\run\Run.RustFicusBackend.Dockerfile
+		Ficus\docker\run\Run.Balancer.Dockerfile = Ficus\docker\run\Run.Balancer.Dockerfile
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BDBD0D34-99B8-41E7-81B7-884757F3BA90}"

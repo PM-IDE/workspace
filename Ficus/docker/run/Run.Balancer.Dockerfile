@@ -1,6 +1,6 @@
 ﻿FROM golang
 
-COPY . ./
+COPY ./Ficus/src/go/balancer ./
 
 RUN go build
 
