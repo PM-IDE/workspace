@@ -7,12 +7,11 @@ import (
 )
 
 func main() {
-	res := backends.GetBackends()
-	if res.IsErr() {
-		fmt.Println(res.Err().Error())
+	urls := backends.GetBackendsUrls()
+	if urls.IsErr() {
+		fmt.Println(urls.Err().Error())
 		os.Exit(-1)
-		return
 	}
 
-	fmt.Println(res.Ok())
+	StartServer(*urls.Ok())
 }

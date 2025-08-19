@@ -1,12 +1,12 @@
 package main
 
 import (
+	"balancer/backends"
 	grpcmodels "balancer/models"
 	"balancer/result"
 	"balancer/void"
 	"context"
 	"fmt"
-	"log"
 	"net"
 
 	"google.golang.org/grpc"
@@ -15,33 +15,41 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func StartServer() result.Result[void.Void] {
+func StartServer(urls []string) result.Result[void.Void] {
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 8080))
 
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		fmt.Printf("failed to listen: %v\n", err)
+		return result.Err[void.Void](err)
 	}
 
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
-	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, &backendServiceServer{})
-	res := result.FromErr(grpcServer.Serve(lis))
 
-	if res.IsErr() {
-		return result.Err[void.Void](res.Err())
-	}
+	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, newBackendService(urls))
 
-	return result.Ok(void.Instance)
+	return result.FromErr(grpcServer.Serve(lis))
 }
 
 type backendServiceServer struct {
+	urls         []string
+	backendsInfo *backends.BackendsInfo
 	grpcmodels.UnsafeGrpcBackendServiceServer
+}
+
+func newBackendService(urls []string) *backendServiceServer {
+	return &backendServiceServer{urls: urls, backendsInfo: backends.NewBackendsInfo()}
 }
 
 func (this backendServiceServer) ExecutePipeline(
 	request *grpcmodels.GrpcProxyPipelineExecutionRequest,
 	server grpc.ServerStreamingServer[grpcmodels.GrpcPipelinePartExecutionResult],
 ) error {
+	res := this.backendsInfo.UpdateBackendsInfo(this.urls)
+	if res.IsErr() {
+		return status.Errorf(codes.Internal, "failed to update backends information: %s", res.Err().Error())
+	}
+
 	return status.Errorf(codes.Unimplemented, "method ExecutePipeline not implemented")
 }
 

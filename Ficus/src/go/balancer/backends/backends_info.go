@@ -1,10 +1,25 @@
 package backends
 
+import (
+	"balancer/result"
+	"balancer/void"
+)
+
 type BackendsInfo struct {
 	pipelinePartsToBackendUrls map[string][]string
 }
 
-func CreateBackendsInfo(urls []string) *BackendsInfo {
+func NewBackendsInfo() *BackendsInfo {
+	return &BackendsInfo{make(map[string][]string)}
+}
+
+func (this *BackendsInfo) GetPipelinePartsToBackendUrls() map[string][]string {
+	return this.pipelinePartsToBackendUrls
+}
+
+func (this *BackendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.Void] {
+	this.pipelinePartsToBackendUrls = make(map[string][]string)
+
 	descriptors := materializeBackendsPipelinePartsDescriptors(urls)
 	pipelinePartsToBackendUrls := make(map[string][]string)
 	for backendUrl, descriptor := range descriptors {
@@ -19,9 +34,5 @@ func CreateBackendsInfo(urls []string) *BackendsInfo {
 		}
 	}
 
-	return &BackendsInfo{pipelinePartsToBackendUrls}
-}
-
-func (this *BackendsInfo) GetPipelinePartsToBackendUrls() map[string][]string {
-	return this.pipelinePartsToBackendUrls
+	return result.Ok(void.Instance)
 }
