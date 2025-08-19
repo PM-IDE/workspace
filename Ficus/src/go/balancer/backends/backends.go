@@ -1,6 +1,7 @@
 package backends
 
 import (
+	"balancer/result"
 	"fmt"
 	"os"
 	"strings"
@@ -8,11 +9,11 @@ import (
 
 const backendsEnvVar = "BALANCER_BACKENDS"
 
-func GetBackends() (*BackendsInfo, error) {
+func GetBackends() result.Result[BackendsInfo] {
 	if rawBackends, ok := os.LookupEnv(backendsEnvVar); ok {
 		backends := strings.Split(rawBackends, ";")
-		return CreateBackendsInfo(backends), nil
+		return result.Ok(CreateBackendsInfo(backends))
 	} else {
-		return nil, fmt.Errorf("the %s environment variable is not set", backendsEnvVar)
+		return result.Err[BackendsInfo](fmt.Errorf("the %s environment variable is not set", backendsEnvVar))
 	}
 }

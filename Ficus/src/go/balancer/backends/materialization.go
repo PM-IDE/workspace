@@ -2,6 +2,7 @@ package backends
 
 import (
 	grpc_models "balancer/models"
+	"balancer/result"
 	"fmt"
 	"sync"
 
@@ -29,20 +30,20 @@ func NewBackendDescriptor(name string, pipelineParts []PipelinePartDescriptor) B
 	return BackendDescriptor{name, pipelineParts}
 }
 
-func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]BackendDescriptor {
-	descriptors := cmap.New[BackendDescriptor]()
+func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]*BackendDescriptor {
+	descriptors := cmap.New[*BackendDescriptor]()
 
 	wg := sync.WaitGroup{}
 
 	for _, url := range urls {
 		wg.Go(func() {
-			desc, err := materializeBackendPipelinePartsDescriptors(url)
-			if err != nil {
-				fmt.Printf("Failed to get descriptor for backend %s %s\n", url, err.Error())
+			res := materializeBackendPipelinePartsDescriptors(url)
+			if res.IsErr() {
+				fmt.Printf("Failed to get descriptor for backend %s %s\n", url, res.Err().Error())
 				return
 			}
 
-			descriptors.Set(url, desc)
+			descriptors.Set(url, res.Ok())
 		})
 	}
 
@@ -51,16 +52,16 @@ func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]Backe
 	return descriptors.Items()
 }
 
-func materializeBackendPipelinePartsDescriptors(url string) (BackendDescriptor, error) {
+func materializeBackendPipelinePartsDescriptors(url string) result.Result[BackendDescriptor] {
 	conn, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return BackendDescriptor{}, err
+		return result.Err[BackendDescriptor](err)
 	}
 
 	client := grpc_models.NewGrpcBackendServiceClient(conn)
 	info, err := client.GetBackendInfo(context.Background(), &emptypb.Empty{})
 	if err != nil {
-		return BackendDescriptor{}, err
+		return result.Err[BackendDescriptor](err)
 	}
 
 	pipelineParts := make([]PipelinePartDescriptor, 0, len(info.GetPipelineParts()))
@@ -72,8 +73,8 @@ func materializeBackendPipelinePartsDescriptors(url string) (BackendDescriptor, 
 	desc := NewBackendDescriptor(info.GetName(), pipelineParts)
 
 	if err = conn.Close(); err != nil {
-		return BackendDescriptor{}, err
+		return result.Err[BackendDescriptor](err)
 	}
 
-	return desc, nil
+	return result.Ok[BackendDescriptor](&desc)
 }

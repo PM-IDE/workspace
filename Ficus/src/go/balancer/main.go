@@ -7,12 +7,12 @@ import (
 )
 
 func main() {
-	backendsInfo, err := backends.GetBackends()
-	if err != nil {
-		fmt.Println(err.Error())
+	res := backends.GetBackends()
+	if res.IsErr() {
+		fmt.Println(res.Err().Error())
 		os.Exit(-1)
 		return
 	}
 
-	fmt.Println(backendsInfo)
+	fmt.Println(res.Ok())
 }
