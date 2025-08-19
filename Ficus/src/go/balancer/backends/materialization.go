@@ -1,7 +1,7 @@
 package backends
 
 import (
-	grpc_models "balancer/models"
+	grpcmodels "balancer/models"
 	"balancer/result"
 	"fmt"
 	"sync"
@@ -58,7 +58,7 @@ func materializeBackendPipelinePartsDescriptors(url string) result.Result[Backen
 		return result.Err[BackendDescriptor](err)
 	}
 
-	client := grpc_models.NewGrpcBackendServiceClient(conn)
+	client := grpcmodels.NewGrpcBackendServiceClient(conn)
 	info, err := client.GetBackendInfo(context.Background(), &emptypb.Empty{})
 	if err != nil {
 		return result.Err[BackendDescriptor](err)
