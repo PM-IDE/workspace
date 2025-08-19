@@ -1,5 +1,7 @@
 package result
 
+import "balancer/void"
+
 type Result[T any] struct {
 	value *T
 	error error
@@ -10,6 +12,10 @@ func Ok[T any](value *T) Result[T] {
 }
 
 func Err[T any](err error) Result[T] {
+	if err == nil {
+		panic("Trying to create Err result with nil error")
+	}
+
 	return Result[T]{nil, err}
 }
 
@@ -19,6 +25,14 @@ func From[T any](value *T, err error) Result[T] {
 	}
 
 	return Ok(value)
+}
+
+func FromErr(err error) Result[void.Void] {
+	if err != nil {
+		return Err[void.Void](err)
+	}
+
+	return Ok(void.Instance)
 }
 
 func (this *Result[T]) IsOk() bool {
@@ -43,4 +57,8 @@ func (this *Result[T]) Err() error {
 	}
 
 	return this.error
+}
+
+func (this *Result[T]) ToTuple() (*T, error) {
+	return this.value, this.error
 }
