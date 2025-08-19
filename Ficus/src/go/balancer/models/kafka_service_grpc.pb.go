@@ -4,7 +4,7 @@
 // - protoc             v5.28.3
 // source: kafka_service.proto
 
-package grpc_models
+package grpcmodels
 
 import (
 	context "context"

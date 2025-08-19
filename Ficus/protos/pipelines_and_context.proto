@@ -6,7 +6,7 @@ import "pm_models.proto";
 import "util.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "grpc.models";
+option go_package = "./;grpcmodels";
 
 message GrpcContextKey {
   string name = 1;

@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "util.proto";
 
-option go_package = "grpc.models";
+option go_package = "./;grpcmodels";
 
 package ficus;
 

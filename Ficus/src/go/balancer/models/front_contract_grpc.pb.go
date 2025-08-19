@@ -4,7 +4,7 @@
 // - protoc             v5.28.3
 // source: front_contract.proto
 
-package grpc_models
+package grpcmodels
 
 import (
 	context "context"

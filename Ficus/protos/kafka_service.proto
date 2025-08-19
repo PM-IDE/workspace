@@ -5,7 +5,7 @@ import "util.proto";
 import "backend_service.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "grpc.models";
+option go_package = "./;grpcmodels";
 
 package ficus;
 
