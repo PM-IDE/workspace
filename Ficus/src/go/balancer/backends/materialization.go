@@ -1,7 +1,7 @@
 package backends
 
 import (
-	grpcmodels "balancer/models"
+	"balancer/grpcmodels"
 	"balancer/result"
 	"fmt"
 	"sync"

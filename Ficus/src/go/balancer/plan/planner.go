@@ -2,7 +2,7 @@ package plan
 
 import (
 	"balancer/backends"
-	grpcmodels "balancer/models"
+	"balancer/grpcmodels"
 	"balancer/result"
 	"balancer/void"
 	"fmt"

@@ -2,7 +2,7 @@ package main
 
 import (
 	"balancer/backends"
-	grpcmodels "balancer/models"
+	"balancer/grpcmodels"
 	"balancer/result"
 	"balancer/void"
 	"context"
