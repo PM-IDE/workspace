@@ -4,6 +4,7 @@ import (
 	"balancer/backends"
 	grpcmodels "balancer/models"
 	"balancer/result"
+	"balancer/void"
 	"fmt"
 )
 
@@ -32,50 +33,69 @@ func (this *ExecutionPlanner) CreatePlan(request *grpcmodels.GrpcPipelineExecuti
 
 	for _, part := range pipeline.Parts {
 		if defaultPart := part.GetDefaultPart(); defaultPart != nil {
-			res := this.backendsInfo.GetBackends(defaultPart.GetName())
-			if res.IsErr() {
-				return result.Err[ExecutionPlan](res.Err())
-			}
-
-			partBackends := *res.Ok()
-
-			if len(partBackends) == 0 {
-				return result.Err[ExecutionPlan](fmt.Errorf("there are no backends for pipeline part %s", defaultPart.GetName()))
-			}
-
-			var selectedBackend string
-			if len(partBackends) == 1 {
-				selectedBackend = partBackends[0]
-			} else {
-				for _, candidateBackend := range partBackends {
-					if lastUsedBackend != nil && candidateBackend == *lastUsedBackend {
-						selectedBackend = *lastUsedBackend
-						break
-					}
-				}
-
-				selectedBackend = partBackends[0]
-			}
-
-			if lastUsedBackend != nil && selectedBackend == *lastUsedBackend {
-				if len(plan.nodes) == 0 {
-					return result.Err[ExecutionPlan](fmt.Errorf("plan should have nodes already"))
-				}
-
-				lastNodeParts := &plan.nodes[len(plan.nodes)-1].pipelineParts
-				*lastNodeParts = append(*lastNodeParts, part)
-			} else {
-				newNode := ExecutionPlanNode{
-					backend:       selectedBackend,
-					pipelineParts: []*grpcmodels.GrpcPipelinePartBase{part},
-				}
-
-				plan.nodes = append(plan.nodes, newNode)
-			}
-
-			lastUsedBackend = &selectedBackend
+			this.processDefaultPipelinePart(part, defaultPart, lastUsedBackend, &plan)
 		}
 	}
 
 	return result.Ok(&plan)
+}
+
+func (this *ExecutionPlanner) processDefaultPipelinePart(
+	basePart *grpcmodels.GrpcPipelinePartBase,
+	defaultPart *grpcmodels.GrpcPipelinePart,
+	lastUsedBackend *string,
+	plan *ExecutionPlan,
+) result.Result[void.Void] {
+	res := this.backendsInfo.GetBackends(defaultPart.GetName())
+	if res.IsErr() {
+		return result.Err[void.Void](res.Err())
+	}
+
+	selectedBackendRes := findBackendForPartName(defaultPart.GetName(), *res.Ok(), lastUsedBackend)
+	if selectedBackendRes.IsErr() {
+		return result.Err[void.Void](selectedBackendRes.Err())
+	}
+
+	selectedBackend := selectedBackendRes.Ok()
+	if lastUsedBackend != nil && *selectedBackend == *lastUsedBackend {
+		if len(plan.nodes) == 0 {
+			return result.Err[void.Void](fmt.Errorf("plan should have nodes already"))
+		}
+
+		lastNodeParts := &plan.nodes[len(plan.nodes)-1].pipelineParts
+		*lastNodeParts = append(*lastNodeParts, basePart)
+	} else {
+		newNode := ExecutionPlanNode{
+			backend:       *selectedBackend,
+			pipelineParts: []*grpcmodels.GrpcPipelinePartBase{basePart},
+		}
+
+		plan.nodes = append(plan.nodes, newNode)
+	}
+
+	lastUsedBackend = selectedBackend
+
+	return result.Ok(void.Instance)
+}
+
+func findBackendForPartName(partName string, backends []string, lastUsedBackend *string) result.Result[string] {
+	if len(backends) == 0 {
+		return result.Err[string](fmt.Errorf("there are no backends for pipeline part %s", partName))
+	}
+
+	var selectedBackend string
+	if len(backends) == 1 {
+		selectedBackend = backends[0]
+	} else {
+		for _, candidateBackend := range backends {
+			if lastUsedBackend != nil && candidateBackend == *lastUsedBackend {
+				selectedBackend = *lastUsedBackend
+				break
+			}
+		}
+
+		selectedBackend = backends[0]
+	}
+
+	return result.Ok(&selectedBackend)
 }
