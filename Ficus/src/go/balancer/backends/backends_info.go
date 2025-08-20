@@ -3,6 +3,7 @@ package backends
 import (
 	"balancer/result"
 	"balancer/void"
+	"fmt"
 )
 
 type BackendsInfo struct {
@@ -35,4 +36,12 @@ func (this *BackendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.V
 	}
 
 	return result.Ok(void.Instance)
+}
+
+func (this *BackendsInfo) GetBackends(partName string) result.Result[[]string] {
+	if backends, ok := this.pipelinePartsToBackendUrls[partName]; ok {
+		return result.Ok(&backends)
+	}
+
+	return result.Err[[]string](fmt.Errorf("the are no backends for pipeline part %s", partName))
 }
