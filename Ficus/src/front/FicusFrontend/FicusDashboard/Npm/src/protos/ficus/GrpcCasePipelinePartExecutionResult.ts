@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/front_contract.proto
+// Original file: ../../../../../protos/front_contract.proto
 
 import type { GrpcContextValueWithKeyName_DONTUSE as _ficus_GrpcContextValueWithKeyName_DONTUSE, GrpcContextValueWithKeyName as _ficus_GrpcContextValueWithKeyName } from '../ficus/GrpcContextValueWithKeyName';
 

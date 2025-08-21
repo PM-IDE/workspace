@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/kafka_service.proto
+// Original file: ../../../../../protos/kafka_service.proto
 
 import type { GrpcT1EventsTimeBasedCaching_DONTUSE as _ficus_GrpcT1EventsTimeBasedCaching_DONTUSE, GrpcT1EventsTimeBasedCaching as _ficus_GrpcT1EventsTimeBasedCaching } from '../ficus/GrpcT1EventsTimeBasedCaching';
 import type { GrpcT1TraceTimeBasedCaching_DONTUSE as _ficus_GrpcT1TraceTimeBasedCaching_DONTUSE, GrpcT1TraceTimeBasedCaching as _ficus_GrpcT1TraceTimeBasedCaching } from '../ficus/GrpcT1TraceTimeBasedCaching';

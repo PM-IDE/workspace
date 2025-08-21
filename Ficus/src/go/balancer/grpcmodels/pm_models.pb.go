@@ -9,6 +9,7 @@ package grpcmodels
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -113,7 +114,8 @@ func (x *GrpcSimpleTrace) GetEvents() []*GrpcEvent {
 type GrpcEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Stamp         *GrpcEventStamp        `protobuf:"bytes,2,opt,name=stamp,proto3" json:"stamp,omitempty"`
+	Stamp         *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=stamp,proto3" json:"stamp,omitempty"`
+	Attributes    []*GrpcEventAttribute  `protobuf:"bytes,3,rep,name=attributes,proto3" json:"attributes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -155,38 +157,52 @@ func (x *GrpcEvent) GetName() string {
 	return ""
 }
 
-func (x *GrpcEvent) GetStamp() *GrpcEventStamp {
+func (x *GrpcEvent) GetStamp() *timestamppb.Timestamp {
 	if x != nil {
 		return x.Stamp
 	}
 	return nil
 }
 
-type GrpcEventStamp struct {
+func (x *GrpcEvent) GetAttributes() []*GrpcEventAttribute {
+	if x != nil {
+		return x.Attributes
+	}
+	return nil
+}
+
+type GrpcEventAttribute struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Stamp:
+	Key   string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Types that are valid to be assigned to Value:
 	//
-	//	*GrpcEventStamp_Date
-	//	*GrpcEventStamp_Order
-	Stamp         isGrpcEventStamp_Stamp `protobuf_oneof:"stamp"`
+	//	*GrpcEventAttribute_Int
+	//	*GrpcEventAttribute_String_
+	//	*GrpcEventAttribute_Bool
+	//	*GrpcEventAttribute_Double
+	//	*GrpcEventAttribute_Guid
+	//	*GrpcEventAttribute_Null
+	//	*GrpcEventAttribute_Stamp
+	//	*GrpcEventAttribute_Uint
+	Value         isGrpcEventAttribute_Value `protobuf_oneof:"value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GrpcEventStamp) Reset() {
-	*x = GrpcEventStamp{}
+func (x *GrpcEventAttribute) Reset() {
+	*x = GrpcEventAttribute{}
 	mi := &file_pm_models_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GrpcEventStamp) String() string {
+func (x *GrpcEventAttribute) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GrpcEventStamp) ProtoMessage() {}
+func (*GrpcEventAttribute) ProtoMessage() {}
 
-func (x *GrpcEventStamp) ProtoReflect() protoreflect.Message {
+func (x *GrpcEventAttribute) ProtoReflect() protoreflect.Message {
 	mi := &file_pm_models_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -198,51 +214,148 @@ func (x *GrpcEventStamp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GrpcEventStamp.ProtoReflect.Descriptor instead.
-func (*GrpcEventStamp) Descriptor() ([]byte, []int) {
+// Deprecated: Use GrpcEventAttribute.ProtoReflect.Descriptor instead.
+func (*GrpcEventAttribute) Descriptor() ([]byte, []int) {
 	return file_pm_models_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GrpcEventStamp) GetStamp() isGrpcEventStamp_Stamp {
+func (x *GrpcEventAttribute) GetKey() string {
 	if x != nil {
-		return x.Stamp
+		return x.Key
+	}
+	return ""
+}
+
+func (x *GrpcEventAttribute) GetValue() isGrpcEventAttribute_Value {
+	if x != nil {
+		return x.Value
 	}
 	return nil
 }
 
-func (x *GrpcEventStamp) GetDate() *timestamppb.Timestamp {
+func (x *GrpcEventAttribute) GetInt() int64 {
 	if x != nil {
-		if x, ok := x.Stamp.(*GrpcEventStamp_Date); ok {
-			return x.Date
-		}
-	}
-	return nil
-}
-
-func (x *GrpcEventStamp) GetOrder() uint64 {
-	if x != nil {
-		if x, ok := x.Stamp.(*GrpcEventStamp_Order); ok {
-			return x.Order
+		if x, ok := x.Value.(*GrpcEventAttribute_Int); ok {
+			return x.Int
 		}
 	}
 	return 0
 }
 
-type isGrpcEventStamp_Stamp interface {
-	isGrpcEventStamp_Stamp()
+func (x *GrpcEventAttribute) GetString_() string {
+	if x != nil {
+		if x, ok := x.Value.(*GrpcEventAttribute_String_); ok {
+			return x.String_
+		}
+	}
+	return ""
 }
 
-type GrpcEventStamp_Date struct {
-	Date *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date,proto3,oneof"`
+func (x *GrpcEventAttribute) GetBool() bool {
+	if x != nil {
+		if x, ok := x.Value.(*GrpcEventAttribute_Bool); ok {
+			return x.Bool
+		}
+	}
+	return false
 }
 
-type GrpcEventStamp_Order struct {
-	Order uint64 `protobuf:"varint,2,opt,name=order,proto3,oneof"`
+func (x *GrpcEventAttribute) GetDouble() float64 {
+	if x != nil {
+		if x, ok := x.Value.(*GrpcEventAttribute_Double); ok {
+			return x.Double
+		}
+	}
+	return 0
 }
 
-func (*GrpcEventStamp_Date) isGrpcEventStamp_Stamp() {}
+func (x *GrpcEventAttribute) GetGuid() *GrpcGuid {
+	if x != nil {
+		if x, ok := x.Value.(*GrpcEventAttribute_Guid); ok {
+			return x.Guid
+		}
+	}
+	return nil
+}
 
-func (*GrpcEventStamp_Order) isGrpcEventStamp_Stamp() {}
+func (x *GrpcEventAttribute) GetNull() *emptypb.Empty {
+	if x != nil {
+		if x, ok := x.Value.(*GrpcEventAttribute_Null); ok {
+			return x.Null
+		}
+	}
+	return nil
+}
+
+func (x *GrpcEventAttribute) GetStamp() *timestamppb.Timestamp {
+	if x != nil {
+		if x, ok := x.Value.(*GrpcEventAttribute_Stamp); ok {
+			return x.Stamp
+		}
+	}
+	return nil
+}
+
+func (x *GrpcEventAttribute) GetUint() uint64 {
+	if x != nil {
+		if x, ok := x.Value.(*GrpcEventAttribute_Uint); ok {
+			return x.Uint
+		}
+	}
+	return 0
+}
+
+type isGrpcEventAttribute_Value interface {
+	isGrpcEventAttribute_Value()
+}
+
+type GrpcEventAttribute_Int struct {
+	Int int64 `protobuf:"varint,2,opt,name=int,proto3,oneof"`
+}
+
+type GrpcEventAttribute_String_ struct {
+	String_ string `protobuf:"bytes,3,opt,name=string,proto3,oneof"`
+}
+
+type GrpcEventAttribute_Bool struct {
+	Bool bool `protobuf:"varint,4,opt,name=bool,proto3,oneof"`
+}
+
+type GrpcEventAttribute_Double struct {
+	Double float64 `protobuf:"fixed64,5,opt,name=double,proto3,oneof"`
+}
+
+type GrpcEventAttribute_Guid struct {
+	Guid *GrpcGuid `protobuf:"bytes,6,opt,name=guid,proto3,oneof"`
+}
+
+type GrpcEventAttribute_Null struct {
+	Null *emptypb.Empty `protobuf:"bytes,7,opt,name=null,proto3,oneof"`
+}
+
+type GrpcEventAttribute_Stamp struct {
+	Stamp *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=stamp,proto3,oneof"`
+}
+
+type GrpcEventAttribute_Uint struct {
+	Uint uint64 `protobuf:"varint,9,opt,name=uint,proto3,oneof"`
+}
+
+func (*GrpcEventAttribute_Int) isGrpcEventAttribute_Value() {}
+
+func (*GrpcEventAttribute_String_) isGrpcEventAttribute_Value() {}
+
+func (*GrpcEventAttribute_Bool) isGrpcEventAttribute_Value() {}
+
+func (*GrpcEventAttribute_Double) isGrpcEventAttribute_Value() {}
+
+func (*GrpcEventAttribute_Guid) isGrpcEventAttribute_Value() {}
+
+func (*GrpcEventAttribute_Null) isGrpcEventAttribute_Value() {}
+
+func (*GrpcEventAttribute_Stamp) isGrpcEventAttribute_Value() {}
+
+func (*GrpcEventAttribute_Uint) isGrpcEventAttribute_Value() {}
 
 type GrpcHashesEventLog struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1362,19 +1475,29 @@ var File_pm_models_proto protoreflect.FileDescriptor
 
 const file_pm_models_proto_rawDesc = "" +
 	"\n" +
-	"\x0fpm_models.proto\x12\x05ficus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\n" +
+	"\x0fpm_models.proto\x12\x05ficus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
 	"util.proto\"D\n" +
 	"\x12GrpcSimpleEventLog\x12.\n" +
 	"\x06traces\x18\x01 \x03(\v2\x16.ficus.GrpcSimpleTraceR\x06traces\";\n" +
 	"\x0fGrpcSimpleTrace\x12(\n" +
-	"\x06events\x18\x01 \x03(\v2\x10.ficus.GrpcEventR\x06events\"L\n" +
+	"\x06events\x18\x01 \x03(\v2\x10.ficus.GrpcEventR\x06events\"\x8c\x01\n" +
 	"\tGrpcEvent\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12+\n" +
-	"\x05stamp\x18\x02 \x01(\v2\x15.ficus.GrpcEventStampR\x05stamp\"c\n" +
-	"\x0eGrpcEventStamp\x120\n" +
-	"\x04date\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x04date\x12\x16\n" +
-	"\x05order\x18\x02 \x01(\x04H\x00R\x05orderB\a\n" +
-	"\x05stamp\"G\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x120\n" +
+	"\x05stamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05stamp\x129\n" +
+	"\n" +
+	"attributes\x18\x03 \x03(\v2\x19.ficus.GrpcEventAttributeR\n" +
+	"attributes\"\xac\x02\n" +
+	"\x12GrpcEventAttribute\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x12\n" +
+	"\x03int\x18\x02 \x01(\x03H\x00R\x03int\x12\x18\n" +
+	"\x06string\x18\x03 \x01(\tH\x00R\x06string\x12\x14\n" +
+	"\x04bool\x18\x04 \x01(\bH\x00R\x04bool\x12\x18\n" +
+	"\x06double\x18\x05 \x01(\x01H\x00R\x06double\x12%\n" +
+	"\x04guid\x18\x06 \x01(\v2\x0f.ficus.GrpcGuidH\x00R\x04guid\x12,\n" +
+	"\x04null\x18\a \x01(\v2\x16.google.protobuf.EmptyH\x00R\x04null\x122\n" +
+	"\x05stamp\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x05stamp\x12\x14\n" +
+	"\x04uint\x18\t \x01(\x04H\x00R\x04uintB\a\n" +
+	"\x05value\"G\n" +
 	"\x12GrpcHashesEventLog\x121\n" +
 	"\x06traces\x18\x02 \x03(\v2\x19.ficus.GrpcHashesLogTraceR\x06traces\",\n" +
 	"\x12GrpcHashesLogTrace\x12\x16\n" +
@@ -1457,7 +1580,7 @@ var file_pm_models_proto_goTypes = []any{
 	(*GrpcSimpleEventLog)(nil),             // 0: ficus.GrpcSimpleEventLog
 	(*GrpcSimpleTrace)(nil),                // 1: ficus.GrpcSimpleTrace
 	(*GrpcEvent)(nil),                      // 2: ficus.GrpcEvent
-	(*GrpcEventStamp)(nil),                 // 3: ficus.GrpcEventStamp
+	(*GrpcEventAttribute)(nil),             // 3: ficus.GrpcEventAttribute
 	(*GrpcHashesEventLog)(nil),             // 4: ficus.GrpcHashesEventLog
 	(*GrpcHashesLogTrace)(nil),             // 5: ficus.GrpcHashesLogTrace
 	(*GrpcNamesEventLog)(nil),              // 6: ficus.GrpcNamesEventLog
@@ -1480,39 +1603,44 @@ var file_pm_models_proto_goTypes = []any{
 	(*GrpcDataset)(nil),                    // 23: ficus.GrpcDataset
 	(*GrpcLabeledDataset)(nil),             // 24: ficus.GrpcLabeledDataset
 	(*timestamppb.Timestamp)(nil),          // 25: google.protobuf.Timestamp
-	(*GrpcTimeSpan)(nil),                   // 26: ficus.GrpcTimeSpan
-	(*GrpcColor)(nil),                      // 27: ficus.GrpcColor
+	(*GrpcGuid)(nil),                       // 26: ficus.GrpcGuid
+	(*emptypb.Empty)(nil),                  // 27: google.protobuf.Empty
+	(*GrpcTimeSpan)(nil),                   // 28: ficus.GrpcTimeSpan
+	(*GrpcColor)(nil),                      // 29: ficus.GrpcColor
 }
 var file_pm_models_proto_depIdxs = []int32{
 	1,  // 0: ficus.GrpcSimpleEventLog.traces:type_name -> ficus.GrpcSimpleTrace
 	2,  // 1: ficus.GrpcSimpleTrace.events:type_name -> ficus.GrpcEvent
-	3,  // 2: ficus.GrpcEvent.stamp:type_name -> ficus.GrpcEventStamp
-	25, // 3: ficus.GrpcEventStamp.date:type_name -> google.protobuf.Timestamp
-	5,  // 4: ficus.GrpcHashesEventLog.traces:type_name -> ficus.GrpcHashesLogTrace
-	7,  // 5: ficus.GrpcNamesEventLog.traces:type_name -> ficus.GrpcNamesTrace
-	9,  // 6: ficus.GrpcPetriNet.places:type_name -> ficus.GrpcPetriNetPlace
-	10, // 7: ficus.GrpcPetriNet.transitions:type_name -> ficus.GrpcPetriNetTransition
-	12, // 8: ficus.GrpcPetriNet.initial_marking:type_name -> ficus.GrpcPetriNetMarking
-	12, // 9: ficus.GrpcPetriNet.final_marking:type_name -> ficus.GrpcPetriNetMarking
-	11, // 10: ficus.GrpcPetriNetTransition.incomingArcs:type_name -> ficus.GrpcPetriNetArc
-	11, // 11: ficus.GrpcPetriNetTransition.outgoingArcs:type_name -> ficus.GrpcPetriNetArc
-	13, // 12: ficus.GrpcPetriNetMarking.markings:type_name -> ficus.GrpcPetriNetSinglePlaceMarking
-	15, // 13: ficus.GrpcAnnotation.countAnnotation:type_name -> ficus.GrpcCountAnnotation
-	17, // 14: ficus.GrpcAnnotation.frequencyAnnotation:type_name -> ficus.GrpcFrequenciesAnnotation
-	19, // 15: ficus.GrpcAnnotation.timeAnnotation:type_name -> ficus.GrpcTimePerformanceAnnotation
-	16, // 16: ficus.GrpcCountAnnotation.annotations:type_name -> ficus.GrpcEntityCountAnnotation
-	18, // 17: ficus.GrpcFrequenciesAnnotation.annotations:type_name -> ficus.GrpcEntityFrequencyAnnotation
-	20, // 18: ficus.GrpcTimePerformanceAnnotation.annotations:type_name -> ficus.GrpcEntityTimeAnnotation
-	26, // 19: ficus.GrpcEntityTimeAnnotation.interval:type_name -> ficus.GrpcTimeSpan
-	22, // 20: ficus.GrpcMatrix.rows:type_name -> ficus.GrpcMatrixRow
-	21, // 21: ficus.GrpcDataset.matrix:type_name -> ficus.GrpcMatrix
-	23, // 22: ficus.GrpcLabeledDataset.dataset:type_name -> ficus.GrpcDataset
-	27, // 23: ficus.GrpcLabeledDataset.labelsColors:type_name -> ficus.GrpcColor
-	24, // [24:24] is the sub-list for method output_type
-	24, // [24:24] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	25, // 2: ficus.GrpcEvent.stamp:type_name -> google.protobuf.Timestamp
+	3,  // 3: ficus.GrpcEvent.attributes:type_name -> ficus.GrpcEventAttribute
+	26, // 4: ficus.GrpcEventAttribute.guid:type_name -> ficus.GrpcGuid
+	27, // 5: ficus.GrpcEventAttribute.null:type_name -> google.protobuf.Empty
+	25, // 6: ficus.GrpcEventAttribute.stamp:type_name -> google.protobuf.Timestamp
+	5,  // 7: ficus.GrpcHashesEventLog.traces:type_name -> ficus.GrpcHashesLogTrace
+	7,  // 8: ficus.GrpcNamesEventLog.traces:type_name -> ficus.GrpcNamesTrace
+	9,  // 9: ficus.GrpcPetriNet.places:type_name -> ficus.GrpcPetriNetPlace
+	10, // 10: ficus.GrpcPetriNet.transitions:type_name -> ficus.GrpcPetriNetTransition
+	12, // 11: ficus.GrpcPetriNet.initial_marking:type_name -> ficus.GrpcPetriNetMarking
+	12, // 12: ficus.GrpcPetriNet.final_marking:type_name -> ficus.GrpcPetriNetMarking
+	11, // 13: ficus.GrpcPetriNetTransition.incomingArcs:type_name -> ficus.GrpcPetriNetArc
+	11, // 14: ficus.GrpcPetriNetTransition.outgoingArcs:type_name -> ficus.GrpcPetriNetArc
+	13, // 15: ficus.GrpcPetriNetMarking.markings:type_name -> ficus.GrpcPetriNetSinglePlaceMarking
+	15, // 16: ficus.GrpcAnnotation.countAnnotation:type_name -> ficus.GrpcCountAnnotation
+	17, // 17: ficus.GrpcAnnotation.frequencyAnnotation:type_name -> ficus.GrpcFrequenciesAnnotation
+	19, // 18: ficus.GrpcAnnotation.timeAnnotation:type_name -> ficus.GrpcTimePerformanceAnnotation
+	16, // 19: ficus.GrpcCountAnnotation.annotations:type_name -> ficus.GrpcEntityCountAnnotation
+	18, // 20: ficus.GrpcFrequenciesAnnotation.annotations:type_name -> ficus.GrpcEntityFrequencyAnnotation
+	20, // 21: ficus.GrpcTimePerformanceAnnotation.annotations:type_name -> ficus.GrpcEntityTimeAnnotation
+	28, // 22: ficus.GrpcEntityTimeAnnotation.interval:type_name -> ficus.GrpcTimeSpan
+	22, // 23: ficus.GrpcMatrix.rows:type_name -> ficus.GrpcMatrixRow
+	21, // 24: ficus.GrpcDataset.matrix:type_name -> ficus.GrpcMatrix
+	23, // 25: ficus.GrpcLabeledDataset.dataset:type_name -> ficus.GrpcDataset
+	29, // 26: ficus.GrpcLabeledDataset.labelsColors:type_name -> ficus.GrpcColor
+	27, // [27:27] is the sub-list for method output_type
+	27, // [27:27] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_pm_models_proto_init() }
@@ -1522,8 +1650,14 @@ func file_pm_models_proto_init() {
 	}
 	file_util_proto_init()
 	file_pm_models_proto_msgTypes[3].OneofWrappers = []any{
-		(*GrpcEventStamp_Date)(nil),
-		(*GrpcEventStamp_Order)(nil),
+		(*GrpcEventAttribute_Int)(nil),
+		(*GrpcEventAttribute_String_)(nil),
+		(*GrpcEventAttribute_Bool)(nil),
+		(*GrpcEventAttribute_Double)(nil),
+		(*GrpcEventAttribute_Guid)(nil),
+		(*GrpcEventAttribute_Null)(nil),
+		(*GrpcEventAttribute_Stamp)(nil),
+		(*GrpcEventAttribute_Uint)(nil),
 	}
 	file_pm_models_proto_msgTypes[14].OneofWrappers = []any{
 		(*GrpcAnnotation_CountAnnotation)(nil),

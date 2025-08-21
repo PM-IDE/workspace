@@ -34,7 +34,7 @@ import ficus.grpc_pipelines.models.util_pb2 as util__pb2
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fpm_models.proto\x12\x05\x66icus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\nutil.proto\"<\n\x12GrpcSimpleEventLog\x12&\n\x06traces\x18\x01 \x03(\x0b\x32\x16.ficus.GrpcSimpleTrace\"3\n\x0fGrpcSimpleTrace\x12 \n\x06\x65vents\x18\x01 \x03(\x0b\x32\x10.ficus.GrpcEvent\"n\n\tGrpcEvent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12$\n\x05stamp\x18\x02 \x01(\x0b\x32\x15.ficus.GrpcEventStamp\x12-\n\nattributes\x18\x03 \x03(\x0b\x32\x19.ficus.GrpcEventAttribute\"V\n\x0eGrpcEventStamp\x12*\n\x04\x64\x61te\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12\x0f\n\x05order\x18\x02 \x01(\x04H\x00\x42\x07\n\x05stamp\"\xf3\x01\n\x12GrpcEventAttribute\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06string\x18\x03 \x01(\tH\x00\x12\x0e\n\x04\x62ool\x18\x04 \x01(\x08H\x00\x12\x10\n\x06\x64ouble\x18\x05 \x01(\x01H\x00\x12\x1f\n\x04guid\x18\x06 \x01(\x0b\x32\x0f.ficus.GrpcGuidH\x00\x12&\n\x04null\x18\x07 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12+\n\x05stamp\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12\x0e\n\x04uint\x18\t \x01(\x04H\x00\x42\x07\n\x05value\"?\n\x12GrpcHashesEventLog\x12)\n\x06traces\x18\x02 \x03(\x0b\x32\x19.ficus.GrpcHashesLogTrace\"$\n\x12GrpcHashesLogTrace\x12\x0e\n\x06\x65vents\x18\x01 \x03(\x04\":\n\x11GrpcNamesEventLog\x12%\n\x06traces\x18\x01 \x03(\x0b\x32\x15.ficus.GrpcNamesTrace\" \n\x0eGrpcNamesTrace\x12\x0e\n\x06\x65vents\x18\x01 \x03(\t\"\xd4\x01\n\x0cGrpcPetriNet\x12(\n\x06places\x18\x01 \x03(\x0b\x32\x18.ficus.GrpcPetriNetPlace\x12\x32\n\x0btransitions\x18\x02 \x03(\x0b\x32\x1d.ficus.GrpcPetriNetTransition\x12\x33\n\x0finitial_marking\x18\x03 \x01(\x0b\x32\x1a.ficus.GrpcPetriNetMarking\x12\x31\n\rfinal_marking\x18\x04 \x01(\x0b\x32\x1a.ficus.GrpcPetriNetMarking\"-\n\x11GrpcPetriNetPlace\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x8e\x01\n\x16GrpcPetriNetTransition\x12\n\n\x02id\x18\x01 \x01(\x03\x12,\n\x0cincomingArcs\x18\x02 \x03(\x0b\x32\x16.ficus.GrpcPetriNetArc\x12,\n\x0coutgoingArcs\x18\x03 \x03(\x0b\x32\x16.ficus.GrpcPetriNetArc\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\t\"D\n\x0fGrpcPetriNetArc\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0f\n\x07placeId\x18\x02 \x01(\x03\x12\x14\n\x0ctokens_count\x18\x03 \x01(\x03\"N\n\x13GrpcPetriNetMarking\x12\x37\n\x08markings\x18\x01 \x03(\x0b\x32%.ficus.GrpcPetriNetSinglePlaceMarking\"F\n\x1eGrpcPetriNetSinglePlaceMarking\x12\x0f\n\x07placeId\x18\x01 \x01(\x03\x12\x13\n\x0btokensCount\x18\x02 \x01(\x03\"\xd6\x01\n\x0eGrpcAnnotation\x12\x35\n\x0f\x63ountAnnotation\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcCountAnnotationH\x00\x12?\n\x13\x66requencyAnnotation\x18\x02 \x01(\x0b\x32 .ficus.GrpcFrequenciesAnnotationH\x00\x12>\n\x0etimeAnnotation\x18\x03 \x01(\x0b\x32$.ficus.GrpcTimePerformanceAnnotationH\x00\x42\x0c\n\nannotation\"L\n\x13GrpcCountAnnotation\x12\x35\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32 .ficus.GrpcEntityCountAnnotation\"<\n\x19GrpcEntityCountAnnotation\x12\x10\n\x08\x65ntityId\x18\x01 \x01(\x03\x12\r\n\x05\x63ount\x18\x02 \x01(\x03\"V\n\x19GrpcFrequenciesAnnotation\x12\x39\n\x0b\x61nnotations\x18\x02 \x03(\x0b\x32$.ficus.GrpcEntityFrequencyAnnotation\"D\n\x1dGrpcEntityFrequencyAnnotation\x12\x10\n\x08\x65ntityId\x18\x01 \x01(\x03\x12\x11\n\tfrequency\x18\x02 \x01(\x02\"U\n\x1dGrpcTimePerformanceAnnotation\x12\x34\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcEntityTimeAnnotation\"S\n\x18GrpcEntityTimeAnnotation\x12\x10\n\x08\x65ntityId\x18\x01 \x01(\x03\x12%\n\x08interval\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcTimeSpan\"0\n\nGrpcMatrix\x12\"\n\x04rows\x18\x01 \x03(\x0b\x32\x14.ficus.GrpcMatrixRow\"\x1f\n\rGrpcMatrixRow\x12\x0e\n\x06values\x18\x01 \x03(\x02\"X\n\x0bGrpcDataset\x12!\n\x06matrix\x18\x01 \x01(\x0b\x32\x11.ficus.GrpcMatrix\x12\x14\n\x0c\x63olumnsNames\x18\x02 \x03(\t\x12\x10\n\x08rowNames\x18\x03 \x03(\t\"q\n\x12GrpcLabeledDataset\x12#\n\x07\x64\x61taset\x18\x01 \x01(\x0b\x32\x12.ficus.GrpcDataset\x12\x0e\n\x06labels\x18\x02 \x03(\x05\x12&\n\x0clabelsColors\x18\x03 \x03(\x0b\x32\x10.ficus.GrpcColorB\x0fZ\r./;grpcmodelsb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fpm_models.proto\x12\x05\x66icus\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\nutil.proto\"<\n\x12GrpcSimpleEventLog\x12&\n\x06traces\x18\x01 \x03(\x0b\x32\x16.ficus.GrpcSimpleTrace\"3\n\x0fGrpcSimpleTrace\x12 \n\x06\x65vents\x18\x01 \x03(\x0b\x32\x10.ficus.GrpcEvent\"s\n\tGrpcEvent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12)\n\x05stamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12-\n\nattributes\x18\x03 \x03(\x0b\x32\x19.ficus.GrpcEventAttribute\"\xf3\x01\n\x12GrpcEventAttribute\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x03int\x18\x02 \x01(\x03H\x00\x12\x10\n\x06string\x18\x03 \x01(\tH\x00\x12\x0e\n\x04\x62ool\x18\x04 \x01(\x08H\x00\x12\x10\n\x06\x64ouble\x18\x05 \x01(\x01H\x00\x12\x1f\n\x04guid\x18\x06 \x01(\x0b\x32\x0f.ficus.GrpcGuidH\x00\x12&\n\x04null\x18\x07 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12+\n\x05stamp\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x12\x0e\n\x04uint\x18\t \x01(\x04H\x00\x42\x07\n\x05value\"?\n\x12GrpcHashesEventLog\x12)\n\x06traces\x18\x02 \x03(\x0b\x32\x19.ficus.GrpcHashesLogTrace\"$\n\x12GrpcHashesLogTrace\x12\x0e\n\x06\x65vents\x18\x01 \x03(\x04\":\n\x11GrpcNamesEventLog\x12%\n\x06traces\x18\x01 \x03(\x0b\x32\x15.ficus.GrpcNamesTrace\" \n\x0eGrpcNamesTrace\x12\x0e\n\x06\x65vents\x18\x01 \x03(\t\"\xd4\x01\n\x0cGrpcPetriNet\x12(\n\x06places\x18\x01 \x03(\x0b\x32\x18.ficus.GrpcPetriNetPlace\x12\x32\n\x0btransitions\x18\x02 \x03(\x0b\x32\x1d.ficus.GrpcPetriNetTransition\x12\x33\n\x0finitial_marking\x18\x03 \x01(\x0b\x32\x1a.ficus.GrpcPetriNetMarking\x12\x31\n\rfinal_marking\x18\x04 \x01(\x0b\x32\x1a.ficus.GrpcPetriNetMarking\"-\n\x11GrpcPetriNetPlace\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x8e\x01\n\x16GrpcPetriNetTransition\x12\n\n\x02id\x18\x01 \x01(\x03\x12,\n\x0cincomingArcs\x18\x02 \x03(\x0b\x32\x16.ficus.GrpcPetriNetArc\x12,\n\x0coutgoingArcs\x18\x03 \x03(\x0b\x32\x16.ficus.GrpcPetriNetArc\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\t\"D\n\x0fGrpcPetriNetArc\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0f\n\x07placeId\x18\x02 \x01(\x03\x12\x14\n\x0ctokens_count\x18\x03 \x01(\x03\"N\n\x13GrpcPetriNetMarking\x12\x37\n\x08markings\x18\x01 \x03(\x0b\x32%.ficus.GrpcPetriNetSinglePlaceMarking\"F\n\x1eGrpcPetriNetSinglePlaceMarking\x12\x0f\n\x07placeId\x18\x01 \x01(\x03\x12\x13\n\x0btokensCount\x18\x02 \x01(\x03\"\xd6\x01\n\x0eGrpcAnnotation\x12\x35\n\x0f\x63ountAnnotation\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcCountAnnotationH\x00\x12?\n\x13\x66requencyAnnotation\x18\x02 \x01(\x0b\x32 .ficus.GrpcFrequenciesAnnotationH\x00\x12>\n\x0etimeAnnotation\x18\x03 \x01(\x0b\x32$.ficus.GrpcTimePerformanceAnnotationH\x00\x42\x0c\n\nannotation\"L\n\x13GrpcCountAnnotation\x12\x35\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32 .ficus.GrpcEntityCountAnnotation\"<\n\x19GrpcEntityCountAnnotation\x12\x10\n\x08\x65ntityId\x18\x01 \x01(\x03\x12\r\n\x05\x63ount\x18\x02 \x01(\x03\"V\n\x19GrpcFrequenciesAnnotation\x12\x39\n\x0b\x61nnotations\x18\x02 \x03(\x0b\x32$.ficus.GrpcEntityFrequencyAnnotation\"D\n\x1dGrpcEntityFrequencyAnnotation\x12\x10\n\x08\x65ntityId\x18\x01 \x01(\x03\x12\x11\n\tfrequency\x18\x02 \x01(\x02\"U\n\x1dGrpcTimePerformanceAnnotation\x12\x34\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcEntityTimeAnnotation\"S\n\x18GrpcEntityTimeAnnotation\x12\x10\n\x08\x65ntityId\x18\x01 \x01(\x03\x12%\n\x08interval\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcTimeSpan\"0\n\nGrpcMatrix\x12\"\n\x04rows\x18\x01 \x03(\x0b\x32\x14.ficus.GrpcMatrixRow\"\x1f\n\rGrpcMatrixRow\x12\x0e\n\x06values\x18\x01 \x03(\x02\"X\n\x0bGrpcDataset\x12!\n\x06matrix\x18\x01 \x01(\x0b\x32\x11.ficus.GrpcMatrix\x12\x14\n\x0c\x63olumnsNames\x18\x02 \x03(\t\x12\x10\n\x08rowNames\x18\x03 \x03(\t\"q\n\x12GrpcLabeledDataset\x12#\n\x07\x64\x61taset\x18\x01 \x01(\x0b\x32\x12.ficus.GrpcDataset\x12\x0e\n\x06labels\x18\x02 \x03(\x05\x12&\n\x0clabelsColors\x18\x03 \x03(\x0b\x32\x10.ficus.GrpcColorB\x0fZ\r./;grpcmodelsb\x06proto3')
 
 
 
@@ -60,98 +60,94 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   _globals['_GRPCEVENT']._serialized_start=215
 
-  _globals['_GRPCEVENT']._serialized_end=325
+  _globals['_GRPCEVENT']._serialized_end=330
 
-  _globals['_GRPCEVENTSTAMP']._serialized_start=327
+  _globals['_GRPCEVENTATTRIBUTE']._serialized_start=333
 
-  _globals['_GRPCEVENTSTAMP']._serialized_end=413
+  _globals['_GRPCEVENTATTRIBUTE']._serialized_end=576
 
-  _globals['_GRPCEVENTATTRIBUTE']._serialized_start=416
+  _globals['_GRPCHASHESEVENTLOG']._serialized_start=578
 
-  _globals['_GRPCEVENTATTRIBUTE']._serialized_end=659
+  _globals['_GRPCHASHESEVENTLOG']._serialized_end=641
 
-  _globals['_GRPCHASHESEVENTLOG']._serialized_start=661
+  _globals['_GRPCHASHESLOGTRACE']._serialized_start=643
 
-  _globals['_GRPCHASHESEVENTLOG']._serialized_end=724
+  _globals['_GRPCHASHESLOGTRACE']._serialized_end=679
 
-  _globals['_GRPCHASHESLOGTRACE']._serialized_start=726
+  _globals['_GRPCNAMESEVENTLOG']._serialized_start=681
 
-  _globals['_GRPCHASHESLOGTRACE']._serialized_end=762
+  _globals['_GRPCNAMESEVENTLOG']._serialized_end=739
 
-  _globals['_GRPCNAMESEVENTLOG']._serialized_start=764
+  _globals['_GRPCNAMESTRACE']._serialized_start=741
 
-  _globals['_GRPCNAMESEVENTLOG']._serialized_end=822
+  _globals['_GRPCNAMESTRACE']._serialized_end=773
 
-  _globals['_GRPCNAMESTRACE']._serialized_start=824
+  _globals['_GRPCPETRINET']._serialized_start=776
 
-  _globals['_GRPCNAMESTRACE']._serialized_end=856
+  _globals['_GRPCPETRINET']._serialized_end=988
 
-  _globals['_GRPCPETRINET']._serialized_start=859
+  _globals['_GRPCPETRINETPLACE']._serialized_start=990
 
-  _globals['_GRPCPETRINET']._serialized_end=1071
+  _globals['_GRPCPETRINETPLACE']._serialized_end=1035
 
-  _globals['_GRPCPETRINETPLACE']._serialized_start=1073
+  _globals['_GRPCPETRINETTRANSITION']._serialized_start=1038
 
-  _globals['_GRPCPETRINETPLACE']._serialized_end=1118
+  _globals['_GRPCPETRINETTRANSITION']._serialized_end=1180
 
-  _globals['_GRPCPETRINETTRANSITION']._serialized_start=1121
+  _globals['_GRPCPETRINETARC']._serialized_start=1182
 
-  _globals['_GRPCPETRINETTRANSITION']._serialized_end=1263
+  _globals['_GRPCPETRINETARC']._serialized_end=1250
 
-  _globals['_GRPCPETRINETARC']._serialized_start=1265
+  _globals['_GRPCPETRINETMARKING']._serialized_start=1252
 
-  _globals['_GRPCPETRINETARC']._serialized_end=1333
+  _globals['_GRPCPETRINETMARKING']._serialized_end=1330
 
-  _globals['_GRPCPETRINETMARKING']._serialized_start=1335
+  _globals['_GRPCPETRINETSINGLEPLACEMARKING']._serialized_start=1332
 
-  _globals['_GRPCPETRINETMARKING']._serialized_end=1413
+  _globals['_GRPCPETRINETSINGLEPLACEMARKING']._serialized_end=1402
 
-  _globals['_GRPCPETRINETSINGLEPLACEMARKING']._serialized_start=1415
+  _globals['_GRPCANNOTATION']._serialized_start=1405
 
-  _globals['_GRPCPETRINETSINGLEPLACEMARKING']._serialized_end=1485
+  _globals['_GRPCANNOTATION']._serialized_end=1619
 
-  _globals['_GRPCANNOTATION']._serialized_start=1488
+  _globals['_GRPCCOUNTANNOTATION']._serialized_start=1621
 
-  _globals['_GRPCANNOTATION']._serialized_end=1702
+  _globals['_GRPCCOUNTANNOTATION']._serialized_end=1697
 
-  _globals['_GRPCCOUNTANNOTATION']._serialized_start=1704
+  _globals['_GRPCENTITYCOUNTANNOTATION']._serialized_start=1699
 
-  _globals['_GRPCCOUNTANNOTATION']._serialized_end=1780
+  _globals['_GRPCENTITYCOUNTANNOTATION']._serialized_end=1759
 
-  _globals['_GRPCENTITYCOUNTANNOTATION']._serialized_start=1782
+  _globals['_GRPCFREQUENCIESANNOTATION']._serialized_start=1761
 
-  _globals['_GRPCENTITYCOUNTANNOTATION']._serialized_end=1842
+  _globals['_GRPCFREQUENCIESANNOTATION']._serialized_end=1847
 
-  _globals['_GRPCFREQUENCIESANNOTATION']._serialized_start=1844
+  _globals['_GRPCENTITYFREQUENCYANNOTATION']._serialized_start=1849
 
-  _globals['_GRPCFREQUENCIESANNOTATION']._serialized_end=1930
+  _globals['_GRPCENTITYFREQUENCYANNOTATION']._serialized_end=1917
 
-  _globals['_GRPCENTITYFREQUENCYANNOTATION']._serialized_start=1932
+  _globals['_GRPCTIMEPERFORMANCEANNOTATION']._serialized_start=1919
 
-  _globals['_GRPCENTITYFREQUENCYANNOTATION']._serialized_end=2000
+  _globals['_GRPCTIMEPERFORMANCEANNOTATION']._serialized_end=2004
 
-  _globals['_GRPCTIMEPERFORMANCEANNOTATION']._serialized_start=2002
+  _globals['_GRPCENTITYTIMEANNOTATION']._serialized_start=2006
 
-  _globals['_GRPCTIMEPERFORMANCEANNOTATION']._serialized_end=2087
+  _globals['_GRPCENTITYTIMEANNOTATION']._serialized_end=2089
 
-  _globals['_GRPCENTITYTIMEANNOTATION']._serialized_start=2089
+  _globals['_GRPCMATRIX']._serialized_start=2091
 
-  _globals['_GRPCENTITYTIMEANNOTATION']._serialized_end=2172
+  _globals['_GRPCMATRIX']._serialized_end=2139
 
-  _globals['_GRPCMATRIX']._serialized_start=2174
+  _globals['_GRPCMATRIXROW']._serialized_start=2141
 
-  _globals['_GRPCMATRIX']._serialized_end=2222
+  _globals['_GRPCMATRIXROW']._serialized_end=2172
 
-  _globals['_GRPCMATRIXROW']._serialized_start=2224
+  _globals['_GRPCDATASET']._serialized_start=2174
 
-  _globals['_GRPCMATRIXROW']._serialized_end=2255
+  _globals['_GRPCDATASET']._serialized_end=2262
 
-  _globals['_GRPCDATASET']._serialized_start=2257
+  _globals['_GRPCLABELEDDATASET']._serialized_start=2264
 
-  _globals['_GRPCDATASET']._serialized_end=2345
-
-  _globals['_GRPCLABELEDDATASET']._serialized_start=2347
-
-  _globals['_GRPCLABELEDDATASET']._serialized_end=2460
+  _globals['_GRPCLABELEDDATASET']._serialized_end=2377
 
 # @@protoc_insertion_point(module_scope)

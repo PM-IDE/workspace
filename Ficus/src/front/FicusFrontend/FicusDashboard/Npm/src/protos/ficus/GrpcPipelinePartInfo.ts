@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/front_contract.proto
+// Original file: ../../../../../protos/front_contract.proto
 
 import type { GrpcGuid_DONTUSE as _ficus_GrpcGuid_DONTUSE, GrpcGuid as _ficus_GrpcGuid } from '../ficus/GrpcGuid';
 

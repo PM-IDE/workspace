@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/front_contract.proto
+// Original file: ../../../../../protos/front_contract.proto
 
 import type { GrpcPipelinePartInfo_DONTUSE as _ficus_GrpcPipelinePartInfo_DONTUSE, GrpcPipelinePartInfo as _ficus_GrpcPipelinePartInfo } from '../ficus/GrpcPipelinePartInfo';
 import type { Timestamp_DONTUSE as _google_protobuf_Timestamp_DONTUSE, Timestamp as _google_protobuf_Timestamp } from '../google/protobuf/Timestamp';

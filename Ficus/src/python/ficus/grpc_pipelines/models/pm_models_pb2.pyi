@@ -26,17 +26,9 @@ class GrpcEvent(_message.Message):
     STAMP_FIELD_NUMBER: _ClassVar[int]
     ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
     name: str
-    stamp: GrpcEventStamp
+    stamp: _timestamp_pb2.Timestamp
     attributes: _containers.RepeatedCompositeFieldContainer[GrpcEventAttribute]
-    def __init__(self, name: _Optional[str] = ..., stamp: _Optional[_Union[GrpcEventStamp, _Mapping]] = ..., attributes: _Optional[_Iterable[_Union[GrpcEventAttribute, _Mapping]]] = ...) -> None: ...
-
-class GrpcEventStamp(_message.Message):
-    __slots__ = ["date", "order"]
-    DATE_FIELD_NUMBER: _ClassVar[int]
-    ORDER_FIELD_NUMBER: _ClassVar[int]
-    date: _timestamp_pb2.Timestamp
-    order: int
-    def __init__(self, date: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., order: _Optional[int] = ...) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., stamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., attributes: _Optional[_Iterable[_Union[GrpcEventAttribute, _Mapping]]] = ...) -> None: ...
 
 class GrpcEventAttribute(_message.Message):
     __slots__ = ["key", "int", "string", "bool", "double", "guid", "null", "stamp", "uint"]

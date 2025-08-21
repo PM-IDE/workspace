@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/backend_service.proto
+// Original file: ../../../../../protos/backend_service.proto
 
 import type { GrpcPipelineFinalResult_DONTUSE as _ficus_GrpcPipelineFinalResult_DONTUSE, GrpcPipelineFinalResult as _ficus_GrpcPipelineFinalResult } from '../ficus/GrpcPipelineFinalResult';
 import type { GrpcPipelinePartResult_DONTUSE as _ficus_GrpcPipelinePartResult_DONTUSE, GrpcPipelinePartResult as _ficus_GrpcPipelinePartResult } from '../ficus/GrpcPipelinePartResult';

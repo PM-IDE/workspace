@@ -17,7 +17,7 @@ export interface ProtoGrpcType {
     GrpcEntityFrequencyAnnotation: MessageTypeDefinition
     GrpcEntityTimeAnnotation: MessageTypeDefinition
     GrpcEvent: MessageTypeDefinition
-    GrpcEventStamp: MessageTypeDefinition
+    GrpcEventAttribute: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGuid: MessageTypeDefinition
     GrpcHashesEventLog: MessageTypeDefinition
@@ -42,6 +42,7 @@ export interface ProtoGrpcType {
   }
   google: {
     protobuf: {
+      Empty: MessageTypeDefinition
       Timestamp: MessageTypeDefinition
     }
   }

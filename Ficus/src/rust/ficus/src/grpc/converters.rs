@@ -26,7 +26,6 @@ use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagr
 use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, DurationKind, GenericEnhancementBase, HistogramData, SimpleCounterData, SoftwareData};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
-use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
 use crate::ficus_proto::{grpc_event_attribute, grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
@@ -163,12 +162,9 @@ pub(super) fn put_into_user_data(
       for trace in &log.traces {
         let mut xes_trace = XesTraceImpl::empty();
         for event in &trace.events {
-          let date: DateTime<Utc> = match event.stamp.as_ref().unwrap().stamp.as_ref() {
-            None => Utc::now(),
-            Some(stamp) => match stamp {
-              Stamp::Date(stamp) => convert_timestamp_to_datetime(stamp),
-              Stamp::Order(_) => Utc::now(),
-            }
+          let date: DateTime<Utc> = match event.stamp.as_ref() {
+            None => DateTime::<Utc>::MIN_UTC,
+            Some(stamp) => convert_timestamp_to_datetime(stamp),
           };
 
           let mut xes_event = XesEventImpl::new(event.name.to_owned(), date);
@@ -780,9 +776,7 @@ fn convert_to_grpc_simple_trace(trace: &Vec<Rc<RefCell<XesEventImpl>>>) -> GrpcS
       .iter()
       .map(|e| GrpcEvent {
         name: e.borrow().name().to_owned(),
-        stamp: Some(GrpcEventStamp {
-          stamp: Some(Stamp::Date(convert_to_grpc_timestamp(e.borrow().timestamp()))),
-        }),
+        stamp: Some(convert_to_grpc_timestamp(e.borrow().timestamp())),
         attributes: if let Some(payload) = e.borrow().payload_map() {
           payload.iter().map(|(k, v)| {
             GrpcEventAttribute {

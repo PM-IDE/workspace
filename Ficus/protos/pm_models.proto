@@ -18,15 +18,8 @@ message GrpcSimpleTrace {
 
 message GrpcEvent {
   string name = 1;
-  GrpcEventStamp stamp = 2;
+  google.protobuf.Timestamp stamp = 2;
   repeated GrpcEventAttribute attributes = 3;
-}
-
-message GrpcEventStamp {
-  oneof stamp {
-    google.protobuf.Timestamp date = 1;
-    uint64 order = 2;
-  }
 }
 
 message GrpcEventAttribute {

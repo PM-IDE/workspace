@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcColorsLogRectangleAdjustment_DONTUSE as _ficus_GrpcColorsLogRectangleAdjustment_DONTUSE, GrpcColorsLogRectangleAdjustment as _ficus_GrpcColorsLogRectangleAdjustment } from '../ficus/GrpcColorsLogRectangleAdjustment';
 import type { GrpcColorsLogXAxisAfterTraceAdjustment_DONTUSE as _ficus_GrpcColorsLogXAxisAfterTraceAdjustment_DONTUSE, GrpcColorsLogXAxisAfterTraceAdjustment as _ficus_GrpcColorsLogXAxisAfterTraceAdjustment } from '../ficus/GrpcColorsLogXAxisAfterTraceAdjustment';

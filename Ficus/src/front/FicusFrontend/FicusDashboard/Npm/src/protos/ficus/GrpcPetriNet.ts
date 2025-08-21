@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pm_models.proto
+// Original file: ../../../../../protos/pm_models.proto
 
 import type { GrpcPetriNetPlace_DONTUSE as _ficus_GrpcPetriNetPlace_DONTUSE, GrpcPetriNetPlace as _ficus_GrpcPetriNetPlace } from '../ficus/GrpcPetriNetPlace';
 import type { GrpcPetriNetTransition_DONTUSE as _ficus_GrpcPetriNetTransition_DONTUSE, GrpcPetriNetTransition as _ficus_GrpcPetriNetTransition } from '../ficus/GrpcPetriNetTransition';

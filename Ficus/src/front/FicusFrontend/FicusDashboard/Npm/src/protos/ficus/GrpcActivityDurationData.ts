@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcGenericEnhancementBase_DONTUSE as _ficus_GrpcGenericEnhancementBase_DONTUSE, GrpcGenericEnhancementBase as _ficus_GrpcGenericEnhancementBase } from '../ficus/GrpcGenericEnhancementBase';
 import type { GrpcDurationKind_DONTUSE as _ficus_GrpcDurationKind_DONTUSE, GrpcDurationKind as _ficus_GrpcDurationKind } from '../ficus/GrpcDurationKind';

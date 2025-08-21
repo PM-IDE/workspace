@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/kafka_service.proto
+// Original file: ../../../../../protos/kafka_service.proto
 
 import type { GrpcKafkaSubscription_DONTUSE as _ficus_GrpcKafkaSubscription_DONTUSE, GrpcKafkaSubscription as _ficus_GrpcKafkaSubscription } from '../ficus/GrpcKafkaSubscription';
 
