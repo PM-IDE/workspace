@@ -17,7 +17,11 @@ func NewExecutionPlanner(info *backends.BackendsInfo) *ExecutionPlanner {
 }
 
 type ExecutionPlan struct {
-	nodes []ExecutionPlanNode
+	nodes []*ExecutionPlanNode
+}
+
+func (this *ExecutionPlan) GetNodes() []*ExecutionPlanNode {
+	return this.nodes
 }
 
 type ExecutionPlanNode struct {
@@ -25,11 +29,19 @@ type ExecutionPlanNode struct {
 	pipelineParts []*grpcmodels.GrpcPipelinePartBase
 }
 
+func (this *ExecutionPlanNode) GetBackend() string {
+	return this.backend
+}
+
+func (this *ExecutionPlanNode) GetPipelineParts() []*grpcmodels.GrpcPipelinePartBase {
+	return this.pipelineParts
+}
+
 func (this *ExecutionPlanner) CreatePlan(request *grpcmodels.GrpcPipelineExecutionRequest) result.Result[ExecutionPlan] {
 	pipeline := request.GetPipeline()
 
 	var lastUsedBackend *string = nil
-	plan := ExecutionPlan{[]ExecutionPlanNode{}}
+	plan := ExecutionPlan{[]*ExecutionPlanNode{}}
 
 	for _, part := range pipeline.Parts {
 		if defaultPart := part.GetDefaultPart(); defaultPart != nil {
@@ -65,12 +77,10 @@ func (this *ExecutionPlanner) processDefaultPipelinePart(
 		lastNodeParts := &plan.nodes[len(plan.nodes)-1].pipelineParts
 		*lastNodeParts = append(*lastNodeParts, basePart)
 	} else {
-		newNode := ExecutionPlanNode{
+		plan.nodes = append(plan.nodes, &ExecutionPlanNode{
 			backend:       *selectedBackend,
 			pipelineParts: []*grpcmodels.GrpcPipelinePartBase{basePart},
-		}
-
-		plan.nodes = append(plan.nodes, newNode)
+		})
 	}
 
 	lastUsedBackend = selectedBackend
