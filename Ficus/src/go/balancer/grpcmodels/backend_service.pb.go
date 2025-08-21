@@ -553,6 +553,7 @@ func (*GrpcPipelineFinalResult_Error) isGrpcPipelineFinalResult_ExecutionResult(
 
 type GrpcGetContextValueResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	Key   string                 `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
 	// Types that are valid to be assigned to ContextValueResult:
 	//
 	//	*GrpcGetContextValueResult_Value
@@ -590,6 +591,13 @@ func (x *GrpcGetContextValueResult) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GrpcGetContextValueResult.ProtoReflect.Descriptor instead.
 func (*GrpcGetContextValueResult) Descriptor() ([]byte, []int) {
 	return file_backend_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GrpcGetContextValueResult) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
 }
 
 func (x *GrpcGetContextValueResult) GetContextValueResult() isGrpcGetContextValueResult_ContextValueResult {
@@ -712,8 +720,9 @@ const file_backend_service_proto_rawDesc = "" +
 	"\x17GrpcPipelineFinalResult\x12+\n" +
 	"\asuccess\x18\x01 \x01(\v2\x0f.ficus.GrpcGuidH\x00R\asuccess\x12\x16\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05errorB\x11\n" +
-	"\x0fexecutionResult\"z\n" +
-	"\x19GrpcGetContextValueResult\x12/\n" +
+	"\x0fexecutionResult\"\x8c\x01\n" +
+	"\x19GrpcGetContextValueResult\x12\x10\n" +
+	"\x03key\x18\x03 \x01(\tR\x03key\x12/\n" +
 	"\x05value\x18\x01 \x01(\v2\x17.ficus.GrpcContextValueH\x00R\x05value\x12\x16\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05errorB\x14\n" +
 	"\x12contextValueResult\"h\n" +

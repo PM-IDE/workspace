@@ -96,17 +96,17 @@ impl GrpcBackendService for FicusService {
   async fn get_context_value(&self, request: Request<GrpcGetContextValueRequest>) -> Result<Response<GrpcGetContextValueResult>, Status> {
     let key_name = &request.get_ref().key.as_ref().unwrap().name;
     let result = match find_context_key(key_name) {
-      None => Self::create_get_context_value_error("Failed to find key for key name".to_string()),
+      None => Self::create_get_context_value_error(key_name, "Failed to find key for key name".to_string()),
       Some(key) => {
         let id = request.get_ref().execution_id.as_ref().unwrap();
         match self.contexts.lock().as_mut().unwrap().get_mut(&id.guid) {
-          None => Self::create_get_context_value_error("Failed to get context for guid".to_string()),
+          None => Self::create_get_context_value_error(key_name, "Failed to get context for guid".to_string()),
           Some(user_data) => match user_data.any(key.key()) {
             None => {
               if let Some(created_value) = user_data.any(key.key()) {
                 self.try_convert_context_value(key, created_value)
               } else {
-                Self::create_get_context_value_error("Failed to find context value for key".to_string())
+                Self::create_get_context_value_error(key_name, "Failed to find context value for key".to_string())
               }
             }
             Some(context_value) => self.try_convert_context_value(key, context_value),
@@ -163,8 +163,9 @@ impl GrpcBackendService for FicusService {
 }
 
 impl FicusService {
-  fn create_get_context_value_error(message: String) -> GrpcGetContextValueResult {
+  fn create_get_context_value_error(key: &str, message: String) -> GrpcGetContextValueResult {
     GrpcGetContextValueResult {
+      key: key.to_owned(),
       context_value_result: Some(ContextValueResult::Error(message)),
     }
   }
@@ -173,11 +174,12 @@ impl FicusService {
     let value = convert_to_grpc_context_value(key, context_value);
     if let Some(grpc_context_value) = value {
       GrpcGetContextValueResult {
+        key: key.key().name().to_owned(),
         context_value_result: Some(ContextValueResult::Value(grpc_context_value)),
       }
     } else {
       let msg = format!("Can not convert context value from key {} to grpc model", key.key().name());
-      Self::create_get_context_value_error(msg)
+      Self::create_get_context_value_error(key.key().name(), msg)
     }
   }
 }

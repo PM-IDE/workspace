@@ -68,6 +68,7 @@ message GrpcPipelineFinalResult {
 }
 
 message GrpcGetContextValueResult {
+  string key = 3;
   oneof contextValueResult {
     GrpcContextValue value = 1;
     string error = 2;
