@@ -12,12 +12,12 @@ use tonic::{Request, Response, Status};
 use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::ficus_proto::grpc_get_context_value_result::ContextValueResult;
-use crate::ficus_proto::{GrpcFicusBackendInfo, GrpcPipelinePartDescriptor, GrpcProxyPipelineExecutionRequest};
+use crate::ficus_proto::{GrpcFicusBackendInfo, GrpcGetAllContextValuesResult, GrpcPipelinePartDescriptor, GrpcProxyPipelineExecutionRequest};
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::keys::context_keys::find_context_key;
-use crate::utils::context_key::ContextKey;
+use crate::utils::context_key::{ContextKey, DefaultContextKey};
 use crate::{
   ficus_proto::{
     grpc_backend_service_server::GrpcBackendService, GrpcGetContextValueRequest, GrpcGetContextValueResult, GrpcGuid,
@@ -101,9 +101,9 @@ impl GrpcBackendService for FicusService {
         let id = request.get_ref().execution_id.as_ref().unwrap();
         match self.contexts.lock().as_mut().unwrap().get_mut(&id.guid) {
           None => Self::create_get_context_value_error("Failed to get context for guid".to_string()),
-          Some(value) => match value.any(key.key()) {
+          Some(user_data) => match user_data.any(key.key()) {
             None => {
-              if let Some(created_value) = value.any(key.key()) {
+              if let Some(created_value) = user_data.any(key.key()) {
                 self.try_convert_context_value(key, created_value)
               } else {
                 Self::create_get_context_value_error("Failed to find context value for key".to_string())
@@ -116,6 +116,25 @@ impl GrpcBackendService for FicusService {
     };
 
     Ok(Response::new(result))
+  }
+
+  async fn get_all_context_values(&self, request: Request<GrpcGuid>) -> Result<Response<GrpcGetAllContextValuesResult>, Status> {
+    let id = request.get_ref();
+    match self.contexts.lock().as_ref().unwrap().get(&id.guid) {
+      None => Err(Status::not_found("The context values for supplied execution id are not found")),
+      Some(user_data) => {
+        let context_values = if let Some(items) = user_data.items() {
+          items.iter().map(|(k, v)| {
+            let context_key = DefaultContextKey::<()>::existing(k.id(), k.name().to_owned());
+            self.try_convert_context_value(&context_key as &dyn ContextKey, *v)
+          }).collect()
+        } else {
+          vec![]
+        };
+
+        Ok(Response::new(GrpcGetAllContextValuesResult { context_values }))
+      },
+    }
   }
 
   async fn drop_execution_result(&self, request: Request<GrpcGuid>) -> Result<Response<()>, Status> {
