@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 import "util.proto";
 
 option go_package = "./;grpcmodels";
@@ -18,12 +19,27 @@ message GrpcSimpleTrace {
 message GrpcEvent {
   string name = 1;
   GrpcEventStamp stamp = 2;
+  repeated GrpcEventAttribute attributes = 3;
 }
 
 message GrpcEventStamp {
   oneof stamp {
     google.protobuf.Timestamp date = 1;
     uint64 order = 2;
+  }
+}
+
+message GrpcEventAttribute {
+  string key = 1;
+  oneof value {
+    int64 int = 2;
+    string string = 3;
+    bool bool = 4;
+    double double = 5;
+    GrpcGuid guid = 6;
+    google.protobuf.Empty null = 7;
+    google.protobuf.Timestamp stamp = 8;
+    uint64 uint = 9;
   }
 }
 

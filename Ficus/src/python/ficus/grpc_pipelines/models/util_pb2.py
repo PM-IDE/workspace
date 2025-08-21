@@ -28,7 +28,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nutil.proto\x12\x05\x66icus\"\x18\n\x08GrpcGuid\x12\x0c\n\x04guid\x18\x01 \x01(\t\"5\n\tGrpcColor\x12\x0b\n\x03red\x18\x01 \x01(\r\x12\r\n\x05green\x18\x02 \x01(\r\x12\x0c\n\x04\x62lue\x18\x03 \x01(\r\"\x18\n\x08GrpcUuid\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"0\n\x12GrpcStringKeyValue\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"#\n\x0cGrpcTimeSpan\x12\x13\n\x0bnanoseconds\x18\x01 \x01(\x04\"+\n\x0cGrpcDateTime\x12\x1b\n\x13nanosSinceUnixEpoch\x18\x01 \x01(\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nutil.proto\x12\x05\x66icus\"\x18\n\x08GrpcGuid\x12\x0c\n\x04guid\x18\x01 \x01(\t\"5\n\tGrpcColor\x12\x0b\n\x03red\x18\x01 \x01(\r\x12\r\n\x05green\x18\x02 \x01(\r\x12\x0c\n\x04\x62lue\x18\x03 \x01(\r\"\x18\n\x08GrpcUuid\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"0\n\x12GrpcStringKeyValue\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"#\n\x0cGrpcTimeSpan\x12\x13\n\x0bnanoseconds\x18\x01 \x01(\x04\"+\n\x0cGrpcDateTime\x12\x1b\n\x13nanosSinceUnixEpoch\x18\x01 \x01(\x04\x42\x0fZ\r./;grpcmodelsb\x06proto3')
 
 
 
@@ -41,6 +41,8 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'util_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
+
+  DESCRIPTOR._serialized_options = b'Z\r./;grpcmodels'
 
   _globals['_GRPCGUID']._serialized_start=21
 

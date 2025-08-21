@@ -1,4 +1,5 @@
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf import empty_pb2 as _empty_pb2
 import util_pb2 as _util_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
@@ -20,12 +21,14 @@ class GrpcSimpleTrace(_message.Message):
     def __init__(self, events: _Optional[_Iterable[_Union[GrpcEvent, _Mapping]]] = ...) -> None: ...
 
 class GrpcEvent(_message.Message):
-    __slots__ = ["name", "stamp"]
+    __slots__ = ["name", "stamp", "attributes"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     STAMP_FIELD_NUMBER: _ClassVar[int]
+    ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
     name: str
     stamp: GrpcEventStamp
-    def __init__(self, name: _Optional[str] = ..., stamp: _Optional[_Union[GrpcEventStamp, _Mapping]] = ...) -> None: ...
+    attributes: _containers.RepeatedCompositeFieldContainer[GrpcEventAttribute]
+    def __init__(self, name: _Optional[str] = ..., stamp: _Optional[_Union[GrpcEventStamp, _Mapping]] = ..., attributes: _Optional[_Iterable[_Union[GrpcEventAttribute, _Mapping]]] = ...) -> None: ...
 
 class GrpcEventStamp(_message.Message):
     __slots__ = ["date", "order"]
@@ -34,6 +37,28 @@ class GrpcEventStamp(_message.Message):
     date: _timestamp_pb2.Timestamp
     order: int
     def __init__(self, date: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., order: _Optional[int] = ...) -> None: ...
+
+class GrpcEventAttribute(_message.Message):
+    __slots__ = ["key", "int", "string", "bool", "double", "guid", "null", "stamp", "uint"]
+    KEY_FIELD_NUMBER: _ClassVar[int]
+    INT_FIELD_NUMBER: _ClassVar[int]
+    STRING_FIELD_NUMBER: _ClassVar[int]
+    BOOL_FIELD_NUMBER: _ClassVar[int]
+    DOUBLE_FIELD_NUMBER: _ClassVar[int]
+    GUID_FIELD_NUMBER: _ClassVar[int]
+    NULL_FIELD_NUMBER: _ClassVar[int]
+    STAMP_FIELD_NUMBER: _ClassVar[int]
+    UINT_FIELD_NUMBER: _ClassVar[int]
+    key: str
+    int: int
+    string: str
+    bool: bool
+    double: float
+    guid: _util_pb2.GrpcGuid
+    null: _empty_pb2.Empty
+    stamp: _timestamp_pb2.Timestamp
+    uint: int
+    def __init__(self, key: _Optional[str] = ..., int: _Optional[int] = ..., string: _Optional[str] = ..., bool: bool = ..., double: _Optional[float] = ..., guid: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., null: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., stamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., uint: _Optional[int] = ...) -> None: ...
 
 class GrpcHashesEventLog(_message.Message):
     __slots__ = ["traces"]

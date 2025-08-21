@@ -1,4 +1,4 @@
-use crate::event_log::core::event::event::Event;
+use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
@@ -28,15 +28,10 @@ use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, Frequency
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_event_stamp::Stamp;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{grpc_event_attribute, grpc_graph_edge_additional_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates, GrpcEventStamp, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_keys::{
-  BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
-  LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY,
-  NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
-  PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-};
+use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
@@ -75,6 +70,9 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::rc::Rc;
 use std::{any::Any, str::FromStr};
+use chrono::{DateTime, Utc};
+use uuid::Uuid;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -158,8 +156,59 @@ pub(super) fn put_into_user_data(
           },
         )
       }
+    },
+    ContextValue::EventLog(log) => {
+      let mut xes_log = XesEventLogImpl::empty();
+
+      for trace in &log.traces {
+        let mut xes_trace = XesTraceImpl::empty();
+        for event in &trace.events {
+          let date: DateTime<Utc> = match event.stamp.as_ref().unwrap().stamp.as_ref() {
+            None => Utc::now(),
+            Some(stamp) => match stamp {
+              Stamp::Date(stamp) => convert_timestamp_to_datetime(stamp),
+              Stamp::Order(_) => Utc::now(),
+            }
+          };
+
+          let mut xes_event = XesEventImpl::new(event.name.to_owned(), date);
+          for attribute in &event.attributes {
+            let payload_value = match attribute.value.as_ref() {
+              None => None,
+              Some(attribute_value) => Some(convert_grpc_event_attribute_to_xes_event_payload_value(attribute_value)),
+            };
+
+            if let Some(xes_attribute) = payload_value {
+              xes_event.add_or_update_payload(attribute.key.clone(), xes_attribute)
+            }
+          }
+
+          xes_trace.push(Rc::new(RefCell::new(xes_event)));
+        }
+
+        xes_log.push(Rc::new(RefCell::new(xes_trace)));
+      }
+
+      user_data.put_concrete(EVENT_LOG_KEY.key(), xes_log);
     }
   }
+}
+
+fn convert_grpc_event_attribute_to_xes_event_payload_value(attribute_value: &grpc_event_attribute::Value) -> EventPayloadValue {
+  match attribute_value {
+    grpc_event_attribute::Value::Int(v) => EventPayloadValue::Int64(*v),
+    grpc_event_attribute::Value::String(v) => EventPayloadValue::String(Rc::new(Box::new(v.to_owned()))),
+    grpc_event_attribute::Value::Bool(v) => EventPayloadValue::Boolean(*v),
+    grpc_event_attribute::Value::Double(v) => EventPayloadValue::Float64(*v),
+    grpc_event_attribute::Value::Guid(v) => EventPayloadValue::Guid(Uuid::parse_str(v.guid.as_str()).unwrap()),
+    grpc_event_attribute::Value::Null(v) => EventPayloadValue::Null,
+    grpc_event_attribute::Value::Stamp(v) => EventPayloadValue::Date(convert_timestamp_to_datetime(v)),
+    grpc_event_attribute::Value::Uint(v) => EventPayloadValue::Uint64(*v),
+  }
+}
+
+fn convert_timestamp_to_datetime(stamp: &Timestamp) -> DateTime<Utc> {
+  DateTime::from_timestamp(stamp.seconds, stamp.nanos as u32).unwrap()
 }
 
 fn parse_grpc_enum<TEnum: FromStr + 'static>(user_data: &mut impl UserData, key: &dyn Key, raw_enum: &str) {
@@ -222,6 +271,8 @@ pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> O
     try_convert_to_grpc_bytes(value)
   } else if LOG_THREADS_DIAGRAM_KEY.eq_other(key) {
     try_convert_to_grpc_log_threads_diagram(value)
+  } else if EVENT_LOG_KEY.eq_other(key) {
+    try_convert_to_grpc_simple_log(value)
   } else {
     None
   }
@@ -702,6 +753,17 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternGraphInfo) ->
   }
 }
 
+fn try_convert_to_grpc_simple_log(value: &dyn Any) -> Option<GrpcContextValue> {
+  if !value.is::<XesEventLogImpl>() {
+    None
+  } else {
+    let log = value.downcast_ref::<XesEventLogImpl>().unwrap();
+    Some(GrpcContextValue {
+      context_value: Some(ContextValue::EventLog(convert_to_grpc_simple_log(log))),
+    })
+  }
+}
+
 fn convert_to_grpc_simple_log(log: &XesEventLogImpl) -> GrpcSimpleEventLog {
   GrpcSimpleEventLog {
     traces: log
@@ -719,13 +781,46 @@ fn convert_to_grpc_simple_trace(trace: &Vec<Rc<RefCell<XesEventImpl>>>) -> GrpcS
       .map(|e| GrpcEvent {
         name: e.borrow().name().to_owned(),
         stamp: Some(GrpcEventStamp {
-          stamp: Some(Stamp::Date(
-            Timestamp::from_str(e.borrow().timestamp().to_rfc3339().as_str()).unwrap(),
-          )),
+          stamp: Some(Stamp::Date(convert_to_grpc_timestamp(e.borrow().timestamp()))),
         }),
+        attributes: if let Some(payload) = e.borrow().payload_map() {
+          payload.iter().map(|(k, v)| {
+            GrpcEventAttribute {
+              key: k.to_owned(),
+              value: convert_to_grpc_attribute_value(v),
+            }
+          }).collect()
+        } else {
+          vec![]
+        }
       })
       .collect(),
   }
+}
+
+fn convert_to_grpc_attribute_value(value: &EventPayloadValue) -> Option<grpc_event_attribute::Value> {
+  match value {
+    EventPayloadValue::Null => Some(grpc_event_attribute::Value::Null(())),
+    EventPayloadValue::Date(date) => Some(grpc_event_attribute::Value::Stamp(convert_to_grpc_timestamp(date))),
+    EventPayloadValue::String(string) => Some(grpc_event_attribute::Value::String(string.as_ref().as_ref().to_owned())),
+    EventPayloadValue::Boolean(bool) => Some(grpc_event_attribute::Value::Bool(bool.to_owned())),
+    EventPayloadValue::Int32(int) => Some(grpc_event_attribute::Value::Int(*int as i64)),
+    EventPayloadValue::Int64(int) => Some(grpc_event_attribute::Value::Int(*int)),
+    EventPayloadValue::Float32(float) => Some(grpc_event_attribute::Value::Double(*float as f64)),
+    EventPayloadValue::Float64(float) => Some(grpc_event_attribute::Value::Double(*float)),
+    EventPayloadValue::Uint32(uint) => Some(grpc_event_attribute::Value::Uint(*uint as u64)),
+    EventPayloadValue::Uint64(uint) => Some(grpc_event_attribute::Value::Uint(*uint)),
+    EventPayloadValue::Guid(guid) => Some(grpc_event_attribute::Value::Guid(GrpcGuid { guid: guid.to_string() })),
+    EventPayloadValue::Timestamp(_) => None,
+    EventPayloadValue::Lifecycle(_) => None,
+    EventPayloadValue::Artifact(_) => None,
+    EventPayloadValue::Drivers(_) => None,
+    EventPayloadValue::SoftwareEvent(_) => None,
+  }
+}
+
+fn convert_to_grpc_timestamp(stamp: &DateTime<Utc>) -> Timestamp {
+  prost_types::Timestamp::from_str(stamp.to_rfc3339().as_str()).unwrap()
 }
 
 fn convert_to_event_coordinates(event_coordinates: &EventCoordinates) -> GrpcEventCoordinates {

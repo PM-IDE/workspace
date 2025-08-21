@@ -8,6 +8,20 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class GrpcFicusBackendInfo(_message.Message):
+    __slots__ = ["name", "pipeline_parts"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PIPELINE_PARTS_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    pipeline_parts: _containers.RepeatedCompositeFieldContainer[GrpcPipelinePartDescriptor]
+    def __init__(self, name: _Optional[str] = ..., pipeline_parts: _Optional[_Iterable[_Union[GrpcPipelinePartDescriptor, _Mapping]]] = ...) -> None: ...
+
+class GrpcPipelinePartDescriptor(_message.Message):
+    __slots__ = ["name"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    def __init__(self, name: _Optional[str] = ...) -> None: ...
+
 class GrpcGetContextValueRequest(_message.Message):
     __slots__ = ["executionId", "key"]
     EXECUTIONID_FIELD_NUMBER: _ClassVar[int]
@@ -65,9 +79,17 @@ class GrpcPipelineFinalResult(_message.Message):
     def __init__(self, success: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., error: _Optional[str] = ...) -> None: ...
 
 class GrpcGetContextValueResult(_message.Message):
-    __slots__ = ["value", "error"]
+    __slots__ = ["key", "value", "error"]
+    KEY_FIELD_NUMBER: _ClassVar[int]
     VALUE_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
+    key: str
     value: _pipelines_and_context_pb2.GrpcContextValue
     error: str
-    def __init__(self, value: _Optional[_Union[_pipelines_and_context_pb2.GrpcContextValue, _Mapping]] = ..., error: _Optional[str] = ...) -> None: ...
+    def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_pipelines_and_context_pb2.GrpcContextValue, _Mapping]] = ..., error: _Optional[str] = ...) -> None: ...
+
+class GrpcGetAllContextValuesResult(_message.Message):
+    __slots__ = ["context_values"]
+    CONTEXT_VALUES_FIELD_NUMBER: _ClassVar[int]
+    context_values: _containers.RepeatedCompositeFieldContainer[GrpcGetContextValueResult]
+    def __init__(self, context_values: _Optional[_Iterable[_Union[GrpcGetContextValueResult, _Mapping]]] = ...) -> None: ...
