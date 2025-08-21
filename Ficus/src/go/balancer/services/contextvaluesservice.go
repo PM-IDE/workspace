@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"balancer/contextvalues"
@@ -14,16 +14,16 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type contextValuesService struct {
+type ContextValuesServiceServer struct {
 	storage *contextvalues.Storage
 	grpcmodels.UnsafeGrpcContextValuesServiceServer
 }
 
-func newContextValuesService() *contextValuesService {
-	return &contextValuesService{storage: contextvalues.NewContextValuesStorage()}
+func NewContextValuesServiceServer() *ContextValuesServiceServer {
+	return &ContextValuesServiceServer{storage: contextvalues.NewContextValuesStorage()}
 }
 
-func (this *contextValuesService) SetContextValue(
+func (this *ContextValuesServiceServer) SetContextValue(
 	stream grpc.ClientStreamingServer[grpcmodels.GrpcContextValuePart, grpcmodels.GrpcGuid],
 ) error {
 	cvId, err := uuid.NewV7()
@@ -59,7 +59,7 @@ func (this *contextValuesService) SetContextValue(
 	return nil
 }
 
-func (this *contextValuesService) DropContextValues(
+func (this *ContextValuesServiceServer) DropContextValues(
 	context context.Context,
 	request *grpcmodels.GrpcDropContextValuesRequest,
 ) (*emptypb.Empty, error) {

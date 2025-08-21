@@ -3,6 +3,7 @@ package main
 import (
 	"balancer/grpcmodels"
 	"balancer/result"
+	"balancer/services"
 	"balancer/void"
 	"fmt"
 	"net"
@@ -21,8 +22,8 @@ func StartServer(urls []string) result.Result[void.Void] {
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 
-	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, newBackendService(urls))
-	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, newContextValuesService())
+	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, services.NewBackendServiceServer(urls))
+	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, services.NewContextValuesServiceServer())
 
 	return result.FromErr(grpcServer.Serve(lis))
 }

@@ -3,13 +3,12 @@ package backends
 import (
 	"balancer/grpcmodels"
 	"balancer/result"
+	"balancer/utils"
 	"fmt"
 	"sync"
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -53,28 +52,22 @@ func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]*Back
 }
 
 func materializeBackendPipelinePartsDescriptors(url string) result.Result[BackendDescriptor] {
-	conn, err := grpc.NewClient(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return result.Err[BackendDescriptor](err)
-	}
+	return utils.ExecuteWithBackendClient[BackendDescriptor](
+		url,
+		func(client grpcmodels.GrpcBackendServiceClient) result.Result[BackendDescriptor] {
+			info, err := client.GetBackendInfo(context.Background(), &emptypb.Empty{})
+			if err != nil {
+				return result.Err[BackendDescriptor](err)
+			}
 
-	client := grpcmodels.NewGrpcBackendServiceClient(conn)
-	info, err := client.GetBackendInfo(context.Background(), &emptypb.Empty{})
-	if err != nil {
-		return result.Err[BackendDescriptor](err)
-	}
+			pipelineParts := make([]PipelinePartDescriptor, 0, len(info.GetPipelineParts()))
 
-	pipelineParts := make([]PipelinePartDescriptor, 0, len(info.GetPipelineParts()))
+			for _, descriptor := range info.GetPipelineParts() {
+				pipelineParts = append(pipelineParts, NewPipelinePartDescriptor(descriptor.GetName()))
+			}
 
-	for _, descriptor := range info.GetPipelineParts() {
-		pipelineParts = append(pipelineParts, NewPipelinePartDescriptor(descriptor.GetName()))
-	}
-
-	desc := NewBackendDescriptor(info.GetName(), pipelineParts)
-
-	if err = conn.Close(); err != nil {
-		return result.Err[BackendDescriptor](err)
-	}
-
-	return result.Ok[BackendDescriptor](&desc)
+			desc := NewBackendDescriptor(info.GetName(), pipelineParts)
+			return result.Ok[BackendDescriptor](&desc)
+		},
+	)
 }

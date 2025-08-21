@@ -1,4 +1,4 @@
-package main
+package services
 
 import (
 	"balancer/backends"
@@ -11,17 +11,17 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type backendServiceServer struct {
+type BackendServiceServer struct {
 	urls         []string
 	backendsInfo *backends.BackendsInfo
 	grpcmodels.UnsafeGrpcBackendServiceServer
 }
 
-func newBackendService(urls []string) *backendServiceServer {
-	return &backendServiceServer{urls: urls, backendsInfo: backends.NewBackendsInfo()}
+func NewBackendServiceServer(urls []string) *BackendServiceServer {
+	return &BackendServiceServer{urls: urls, backendsInfo: backends.NewBackendsInfo()}
 }
 
-func (this *backendServiceServer) ExecutePipeline(
+func (this *BackendServiceServer) ExecutePipeline(
 	request *grpcmodels.GrpcProxyPipelineExecutionRequest,
 	server grpc.ServerStreamingServer[grpcmodels.GrpcPipelinePartExecutionResult],
 ) error {
@@ -33,21 +33,21 @@ func (this *backendServiceServer) ExecutePipeline(
 	return status.Errorf(codes.Unimplemented, "method ExecutePipeline not implemented")
 }
 
-func (this *backendServiceServer) GetContextValue(
+func (this *BackendServiceServer) GetContextValue(
 	context context.Context,
 	request *grpcmodels.GrpcGetContextValueRequest,
 ) (*grpcmodels.GrpcGetContextValueResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContextValue not implemented")
 }
 
-func (this *backendServiceServer) DropExecutionResult(context context.Context, id *grpcmodels.GrpcGuid) (*emptypb.Empty, error) {
+func (this *BackendServiceServer) DropExecutionResult(context context.Context, id *grpcmodels.GrpcGuid) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropExecutionResult not implemented")
 }
 
-func (this *backendServiceServer) GetBackendInfo(context context.Context, empty *emptypb.Empty) (*grpcmodels.GrpcFicusBackendInfo, error) {
+func (this *BackendServiceServer) GetBackendInfo(context context.Context, empty *emptypb.Empty) (*grpcmodels.GrpcFicusBackendInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBackendInfo not implemented")
 }
 
-func (this *backendServiceServer) GetAllContextValues(context.Context, *grpcmodels.GrpcGuid) (*grpcmodels.GrpcGetAllContextValuesResult, error) {
+func (this *BackendServiceServer) GetAllContextValues(context.Context, *grpcmodels.GrpcGuid) (*grpcmodels.GrpcGetAllContextValuesResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllContextValues not implemented")
 }
