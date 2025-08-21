@@ -176,7 +176,7 @@ impl FicusService {
         context_value_result: Some(ContextValueResult::Value(grpc_context_value)),
       }
     } else {
-      let msg = "Can not convert context value to grpc model".to_string();
+      let msg = format!("Can not convert context value from key {} to grpc model", key.key().name());
       Self::create_get_context_value_error(msg)
     }
   }
