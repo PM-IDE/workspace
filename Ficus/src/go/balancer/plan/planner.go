@@ -37,9 +37,7 @@ func (this *ExecutionPlanNode) GetPipelineParts() []*grpcmodels.GrpcPipelinePart
 	return this.pipelineParts
 }
 
-func (this *ExecutionPlanner) CreatePlan(request *grpcmodels.GrpcPipelineExecutionRequest) result.Result[ExecutionPlan] {
-	pipeline := request.GetPipeline()
-
+func (this *ExecutionPlanner) CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan] {
 	var lastUsedBackend *string = nil
 	plan := ExecutionPlan{[]*ExecutionPlanNode{}}
 

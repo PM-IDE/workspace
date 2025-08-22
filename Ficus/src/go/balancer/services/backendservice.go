@@ -5,6 +5,7 @@ import (
 	"balancer/contextvalues"
 	"balancer/executor"
 	"balancer/grpcmodels"
+	"balancer/plan"
 	"balancer/result"
 	"context"
 	"maps"
@@ -20,6 +21,7 @@ type BackendServiceServer struct {
 	urls         []string
 	backendsInfo *backends.BackendsInfo
 	executor     *executor.PipelineExecutor
+	planner      *plan.ExecutionPlanner
 	grpcmodels.UnsafeGrpcBackendServiceServer
 }
 
@@ -37,7 +39,42 @@ func (this *BackendServiceServer) ExecutePipeline(
 		return status.Errorf(codes.Internal, "failed to update backends information: %s", res.Err().Error())
 	}
 
-	return status.Errorf(codes.Unimplemented, "method ExecutePipeline not implemented")
+	planRes := this.planner.CreatePlan(request.Pipeline)
+	if planRes.IsErr() {
+		return status.Errorf(codes.Internal, "failed to create an execution plan: %s", res.Err().Error())
+	}
+
+	var initialContextValuesIds []uuid.UUID
+	for _, id := range request.ContextValuesIds {
+		contextValueId, err := uuid.Parse(id.Guid)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "failed to parse uuid %s", id.Guid)
+		}
+
+		initialContextValuesIds = append(initialContextValuesIds, contextValueId)
+	}
+
+	pipelinePartsResultsChannel := make(chan *grpcmodels.GrpcPipelinePartExecutionResult, 100)
+	errorChannel := make(chan result.Result[uuid.UUID])
+
+	go func() {
+		errorChannel <- this.executor.Execute(planRes.Ok(), initialContextValuesIds, pipelinePartsResultsChannel)
+		close(errorChannel)
+	}()
+
+	for pipelineExecutionResult := range pipelinePartsResultsChannel {
+		err := server.Send(pipelineExecutionResult)
+		if err != nil {
+			return status.Errorf(codes.Internal, "error happened during sending pipeline part result: %s", err.Error())
+		}
+	}
+
+	executionResult := <-errorChannel
+	if executionResult.IsErr() {
+		return status.Errorf(codes.Internal, "error happened during pipeline execution %s", executionResult.Err())
+	}
+
+	return nil
 }
 
 func (this *BackendServiceServer) GetContextValue(
@@ -61,7 +98,7 @@ func (this *BackendServiceServer) GetContextValue(
 func (this *BackendServiceServer) getExecutionContextValues(id *grpcmodels.GrpcGuid) result.Result[map[string]uuid.UUID] {
 	executionId, err := uuid.Parse(id.Guid)
 	if err != nil {
-		err := status.Errorf(codes.InvalidArgument, "failed to parse uuis %s", id.Guid)
+		err := status.Errorf(codes.InvalidArgument, "failed to parse uuid %s", id.Guid)
 		return result.Err[map[string]uuid.UUID](err)
 	}
 
@@ -77,7 +114,7 @@ func (this *BackendServiceServer) getExecutionContextValues(id *grpcmodels.GrpcG
 func (this *BackendServiceServer) DropExecutionResult(context context.Context, id *grpcmodels.GrpcGuid) (*emptypb.Empty, error) {
 	executionId, err := uuid.Parse(id.Guid)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "failed to parse uuis %s", id.Guid)
+		return nil, status.Errorf(codes.InvalidArgument, "failed to parse uuid %s", id.Guid)
 	}
 
 	this.executor.DropExecutionResult(executionId)
