@@ -128,9 +128,10 @@ const file_context_values_service_proto_rawDesc = "" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x14\n" +
 	"\x05bytes\x18\x03 \x01(\fR\x05bytes\"A\n" +
 	"\x1cGrpcDropContextValuesRequest\x12!\n" +
-	"\x03ids\x18\x01 \x03(\v2\x0f.ficus.GrpcGuidR\x03ids2\xaf\x01\n" +
+	"\x03ids\x18\x01 \x03(\v2\x0f.ficus.GrpcGuidR\x03ids2\xf2\x01\n" +
 	"\x18GrpcContextValuesService\x12A\n" +
-	"\x0fSetContextValue\x12\x1b.ficus.GrpcContextValuePart\x1a\x0f.ficus.GrpcGuid(\x01\x12P\n" +
+	"\x0fSetContextValue\x12\x1b.ficus.GrpcContextValuePart\x1a\x0f.ficus.GrpcGuid(\x01\x12A\n" +
+	"\x0fGetContextValue\x12\x0f.ficus.GrpcGuid\x1a\x1b.ficus.GrpcContextValuePart0\x01\x12P\n" +
 	"\x11DropContextValues\x12#.ficus.GrpcDropContextValuesRequest\x1a\x16.google.protobuf.EmptyB\x0fZ\r./;grpcmodelsb\x06proto3"
 
 var (
@@ -155,11 +156,13 @@ var file_context_values_service_proto_goTypes = []any{
 var file_context_values_service_proto_depIdxs = []int32{
 	2, // 0: ficus.GrpcDropContextValuesRequest.ids:type_name -> ficus.GrpcGuid
 	0, // 1: ficus.GrpcContextValuesService.SetContextValue:input_type -> ficus.GrpcContextValuePart
-	1, // 2: ficus.GrpcContextValuesService.DropContextValues:input_type -> ficus.GrpcDropContextValuesRequest
-	2, // 3: ficus.GrpcContextValuesService.SetContextValue:output_type -> ficus.GrpcGuid
-	3, // 4: ficus.GrpcContextValuesService.DropContextValues:output_type -> google.protobuf.Empty
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
+	2, // 2: ficus.GrpcContextValuesService.GetContextValue:input_type -> ficus.GrpcGuid
+	1, // 3: ficus.GrpcContextValuesService.DropContextValues:input_type -> ficus.GrpcDropContextValuesRequest
+	2, // 4: ficus.GrpcContextValuesService.SetContextValue:output_type -> ficus.GrpcGuid
+	0, // 5: ficus.GrpcContextValuesService.GetContextValue:output_type -> ficus.GrpcContextValuePart
+	3, // 6: ficus.GrpcContextValuesService.DropContextValues:output_type -> google.protobuf.Empty
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name

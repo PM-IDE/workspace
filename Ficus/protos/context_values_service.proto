@@ -10,6 +10,7 @@ package ficus;
 
 service GrpcContextValuesService {
   rpc SetContextValue(stream GrpcContextValuePart) returns (GrpcGuid);
+  rpc GetContextValue(GrpcGuid) returns (stream GrpcContextValuePart);
   rpc DropContextValues(GrpcDropContextValuesRequest) returns (google.protobuf.Empty);
 }
 

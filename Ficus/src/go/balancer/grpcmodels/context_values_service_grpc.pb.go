@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	GrpcContextValuesService_SetContextValue_FullMethodName   = "/ficus.GrpcContextValuesService/SetContextValue"
+	GrpcContextValuesService_GetContextValue_FullMethodName   = "/ficus.GrpcContextValuesService/GetContextValue"
 	GrpcContextValuesService_DropContextValues_FullMethodName = "/ficus.GrpcContextValuesService/DropContextValues"
 )
 
@@ -29,6 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GrpcContextValuesServiceClient interface {
 	SetContextValue(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[GrpcContextValuePart, GrpcGuid], error)
+	GetContextValue(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcContextValuePart], error)
 	DropContextValues(ctx context.Context, in *GrpcDropContextValuesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -53,6 +55,25 @@ func (c *grpcContextValuesServiceClient) SetContextValue(ctx context.Context, op
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GrpcContextValuesService_SetContextValueClient = grpc.ClientStreamingClient[GrpcContextValuePart, GrpcGuid]
 
+func (c *grpcContextValuesServiceClient) GetContextValue(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcContextValuePart], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &GrpcContextValuesService_ServiceDesc.Streams[1], GrpcContextValuesService_GetContextValue_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[GrpcGuid, GrpcContextValuePart]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GrpcContextValuesService_GetContextValueClient = grpc.ServerStreamingClient[GrpcContextValuePart]
+
 func (c *grpcContextValuesServiceClient) DropContextValues(ctx context.Context, in *GrpcDropContextValuesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -68,6 +89,7 @@ func (c *grpcContextValuesServiceClient) DropContextValues(ctx context.Context, 
 // for forward compatibility.
 type GrpcContextValuesServiceServer interface {
 	SetContextValue(grpc.ClientStreamingServer[GrpcContextValuePart, GrpcGuid]) error
+	GetContextValue(*GrpcGuid, grpc.ServerStreamingServer[GrpcContextValuePart]) error
 	DropContextValues(context.Context, *GrpcDropContextValuesRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedGrpcContextValuesServiceServer()
 }
@@ -81,6 +103,9 @@ type UnimplementedGrpcContextValuesServiceServer struct{}
 
 func (UnimplementedGrpcContextValuesServiceServer) SetContextValue(grpc.ClientStreamingServer[GrpcContextValuePart, GrpcGuid]) error {
 	return status.Errorf(codes.Unimplemented, "method SetContextValue not implemented")
+}
+func (UnimplementedGrpcContextValuesServiceServer) GetContextValue(*GrpcGuid, grpc.ServerStreamingServer[GrpcContextValuePart]) error {
+	return status.Errorf(codes.Unimplemented, "method GetContextValue not implemented")
 }
 func (UnimplementedGrpcContextValuesServiceServer) DropContextValues(context.Context, *GrpcDropContextValuesRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropContextValues not implemented")
@@ -113,6 +138,17 @@ func _GrpcContextValuesService_SetContextValue_Handler(srv interface{}, stream g
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GrpcContextValuesService_SetContextValueServer = grpc.ClientStreamingServer[GrpcContextValuePart, GrpcGuid]
+
+func _GrpcContextValuesService_GetContextValue_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GrpcGuid)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(GrpcContextValuesServiceServer).GetContextValue(m, &grpc.GenericServerStream[GrpcGuid, GrpcContextValuePart]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GrpcContextValuesService_GetContextValueServer = grpc.ServerStreamingServer[GrpcContextValuePart]
 
 func _GrpcContextValuesService_DropContextValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GrpcDropContextValuesRequest)
@@ -149,6 +185,11 @@ var GrpcContextValuesService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "SetContextValue",
 			Handler:       _GrpcContextValuesService_SetContextValue_Handler,
 			ClientStreams: true,
+		},
+		{
+			StreamName:    "GetContextValue",
+			Handler:       _GrpcContextValuesService_GetContextValue_Handler,
+			ServerStreams: true,
 		},
 	},
 	Metadata: "context_values_service.proto",

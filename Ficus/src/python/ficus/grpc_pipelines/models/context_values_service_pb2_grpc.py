@@ -44,6 +44,16 @@ class GrpcContextValuesServiceStub(object):
 
                 )
 
+        self.GetContextValue = channel.unary_stream(
+
+                '/ficus.GrpcContextValuesService/GetContextValue',
+
+                request_serializer=util__pb2.GrpcGuid.SerializeToString,
+
+                response_deserializer=context__values__service__pb2.GrpcContextValuePart.FromString,
+
+                )
+
         self.DropContextValues = channel.unary_unary(
 
                 '/ficus.GrpcContextValuesService/DropContextValues',
@@ -65,6 +75,18 @@ class GrpcContextValuesServiceServicer(object):
 
 
     def SetContextValue(self, request_iterator, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def GetContextValue(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -101,6 +123,16 @@ def add_GrpcContextValuesServiceServicer_to_server(servicer, server):
                     request_deserializer=context__values__service__pb2.GrpcContextValuePart.FromString,
 
                     response_serializer=util__pb2.GrpcGuid.SerializeToString,
+
+            ),
+
+            'GetContextValue': grpc.unary_stream_rpc_method_handler(
+
+                    servicer.GetContextValue,
+
+                    request_deserializer=util__pb2.GrpcGuid.FromString,
+
+                    response_serializer=context__values__service__pb2.GrpcContextValuePart.SerializeToString,
 
             ),
 
@@ -161,6 +193,40 @@ class GrpcContextValuesService(object):
             context__values__service__pb2.GrpcContextValuePart.SerializeToString,
 
             util__pb2.GrpcGuid.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def GetContextValue(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcContextValuesService/GetContextValue',
+
+            util__pb2.GrpcGuid.SerializeToString,
+
+            context__values__service__pb2.GrpcContextValuePart.FromString,
 
             options, channel_credentials,
 
