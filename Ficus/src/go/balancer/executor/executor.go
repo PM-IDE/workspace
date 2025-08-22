@@ -26,6 +26,11 @@ func NewPipelineExecutor(backendsInfo *backends.BackendsInfo, storage *contextva
 	return &PipelineExecutor{backendsInfo, storage}
 }
 
+type contextValuesWithStorage struct {
+	values  []uuid.UUID
+	storage *contextvalues.Storage
+}
+
 func (this *PipelineExecutor) Execute(
 	plan *plan.ExecutionPlan,
 	initialContextValues []uuid.UUID,
@@ -35,110 +40,15 @@ func (this *PipelineExecutor) Execute(
 		return result.Ok(void.Instance)
 	}
 
-	currentContextValuesIds := struct {
-		values  []uuid.UUID
-		storage *contextvalues.Storage
-	}{}
+	currentContextValues := &contextValuesWithStorage{initialContextValues, this.contextValuesStorage}
 
 	for _, node := range plan.GetNodes() {
-		contextValuesIds := utils.ExecuteWithContextValuesClient[[]*grpcmodels.GrpcGuid](
-			node.GetBackend(),
-			func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[[]*grpcmodels.GrpcGuid] {
-				defer func() {
-					if currentContextValuesIds.storage != this.contextValuesStorage {
-						currentContextValuesIds.storage.Clear()
-					}
-				}()
+		contextValuesIdsRes := this.setContextValues(node.GetBackend(), currentContextValues)
+		if contextValuesIdsRes.IsErr() {
+			return result.FromErr(contextValuesIdsRes.Err())
+		}
 
-				var contextValuesIds []*grpcmodels.GrpcGuid
-				for _, cvId := range currentContextValuesIds.values {
-					stream, err := client.SetContextValue(context.Background())
-					if err != nil {
-						return result.Err[[]*grpcmodels.GrpcGuid](err)
-					}
-
-					cv, ok := currentContextValuesIds.storage.GetContextValue(cvId)
-					if ok {
-						cvBytes, err := proto.Marshal(cv.Value)
-						if err != nil {
-							return result.Err[[]*grpcmodels.GrpcGuid](err)
-						}
-
-						for chunk := range slices.Chunk(cvBytes, 1024) {
-							err = stream.Send(&grpcmodels.GrpcContextValuePart{
-								Key:   cv.Key.Name,
-								Bytes: chunk,
-							})
-
-							if err != nil {
-								return result.Err[[]*grpcmodels.GrpcGuid](err)
-							}
-						}
-
-						reply, err := stream.CloseAndRecv()
-						if err != nil {
-							return result.Err[[]*grpcmodels.GrpcGuid](err)
-						}
-
-						contextValuesIds = append(contextValuesIds, reply)
-					}
-				}
-
-				return result.Ok(&contextValuesIds)
-			},
-		)
-
-		newContextValuesRes := utils.ExecuteWithBackendClient[grpcmodels.GrpcGetAllContextValuesResult](
-			node.GetBackend(),
-			func(client grpcmodels.GrpcBackendServiceClient) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
-				newPipeline := &grpcmodels.GrpcPipeline{
-					Parts: node.GetPipelineParts(),
-				}
-
-				request := &grpcmodels.GrpcProxyPipelineExecutionRequest{
-					ContextValuesIds: *contextValuesIds.Ok(),
-					Pipeline:         newPipeline,
-				}
-
-				resultsStream, err := client.ExecutePipeline(context.Background(), request)
-
-				if err != nil {
-					return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
-				}
-
-				var execId *grpcmodels.GrpcGuid
-				for {
-					execResult, err := resultsStream.Recv()
-					if err == io.EOF {
-						break
-					}
-
-					if err != nil {
-						return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
-					}
-
-					if finalResult := execResult.GetFinalResult(); finalResult != nil {
-						if success := finalResult.GetSuccess(); success != nil {
-							execId = success
-						} else {
-							outputChannel <- execResult
-							err = fmt.Errorf("the final result is error: %s", finalResult.GetError())
-							return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
-						}
-					}
-
-					outputChannel <- execResult
-				}
-
-				newContextValues, err := client.GetAllContextValues(context.Background(), execId)
-				if err != nil {
-					return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
-				}
-
-				return result.Ok(newContextValues)
-			},
-		)
-
+		newContextValuesRes := this.executePipeline(node.GetBackend(), node.GetPipelineParts(), *contextValuesIdsRes.Ok(), outputChannel)
 		if newContextValuesRes.IsErr() {
 			return result.Err[void.Void](newContextValuesRes.Err())
 		}
@@ -157,9 +67,119 @@ func (this *PipelineExecutor) Execute(
 			}
 		}
 
-		currentContextValuesIds.values = newContextValuesIds
-		currentContextValuesIds.storage = newStorage
+		currentContextValues.values = newContextValuesIds
+		currentContextValues.storage = newStorage
 	}
 
 	return result.Ok(void.Instance)
+}
+
+func (this *PipelineExecutor) setContextValues(
+	backend string,
+	currentContextValues *contextValuesWithStorage,
+) result.Result[[]*grpcmodels.GrpcGuid] {
+	return utils.ExecuteWithContextValuesClient[[]*grpcmodels.GrpcGuid](
+		backend,
+		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[[]*grpcmodels.GrpcGuid] {
+			defer func() {
+				if currentContextValues.storage != this.contextValuesStorage {
+					currentContextValues.storage.Clear()
+				}
+			}()
+
+			var contextValuesIds []*grpcmodels.GrpcGuid
+			for _, cvId := range currentContextValues.values {
+				stream, err := client.SetContextValue(context.Background())
+				if err != nil {
+					return result.Err[[]*grpcmodels.GrpcGuid](err)
+				}
+
+				cv, ok := currentContextValues.storage.GetContextValue(cvId)
+				if ok {
+					cvBytes, err := proto.Marshal(cv.Value)
+					if err != nil {
+						return result.Err[[]*grpcmodels.GrpcGuid](err)
+					}
+
+					for chunk := range slices.Chunk(cvBytes, 1024) {
+						err = stream.Send(&grpcmodels.GrpcContextValuePart{
+							Key:   cv.Key.Name,
+							Bytes: chunk,
+						})
+
+						if err != nil {
+							return result.Err[[]*grpcmodels.GrpcGuid](err)
+						}
+					}
+
+					reply, err := stream.CloseAndRecv()
+					if err != nil {
+						return result.Err[[]*grpcmodels.GrpcGuid](err)
+					}
+
+					contextValuesIds = append(contextValuesIds, reply)
+				}
+			}
+
+			return result.Ok(&contextValuesIds)
+		},
+	)
+}
+
+func (this *PipelineExecutor) executePipeline(
+	backend string,
+	pipelineParts []*grpcmodels.GrpcPipelinePartBase,
+	contextValuesIds []*grpcmodels.GrpcGuid,
+	outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
+) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
+	return utils.ExecuteWithBackendClient[grpcmodels.GrpcGetAllContextValuesResult](
+		backend,
+		func(client grpcmodels.GrpcBackendServiceClient) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
+			newPipeline := &grpcmodels.GrpcPipeline{
+				Parts: pipelineParts,
+			}
+
+			request := &grpcmodels.GrpcProxyPipelineExecutionRequest{
+				ContextValuesIds: contextValuesIds,
+				Pipeline:         newPipeline,
+			}
+
+			resultsStream, err := client.ExecutePipeline(context.Background(), request)
+
+			if err != nil {
+				return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
+			}
+
+			var execId *grpcmodels.GrpcGuid
+			for {
+				execResult, err := resultsStream.Recv()
+				if err == io.EOF {
+					break
+				}
+
+				if err != nil {
+					return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
+				}
+
+				if finalResult := execResult.GetFinalResult(); finalResult != nil {
+					if success := finalResult.GetSuccess(); success != nil {
+						execId = success
+					} else {
+						outputChannel <- execResult
+						err = fmt.Errorf("the final result is error: %s", finalResult.GetError())
+						return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
+					}
+				}
+
+				outputChannel <- execResult
+			}
+
+			newContextValues, err := client.GetAllContextValues(context.Background(), execId)
+			if err != nil {
+				return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
+			}
+
+			return result.Ok(newContextValues)
+		},
+	)
 }
