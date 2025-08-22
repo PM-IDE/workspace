@@ -32,7 +32,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GrpcBackendServiceClient interface {
 	ExecutePipeline(ctx context.Context, in *GrpcProxyPipelineExecutionRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult], error)
-	GetContextValue(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGetContextValueResult, error)
+	GetContextValue(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGuid, error)
 	GetAllContextValues(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*GrpcGetAllContextValuesResult, error)
 	DropExecutionResult(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetBackendInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GrpcFicusBackendInfo, error)
@@ -65,9 +65,9 @@ func (c *grpcBackendServiceClient) ExecutePipeline(ctx context.Context, in *Grpc
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GrpcBackendService_ExecutePipelineClient = grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult]
 
-func (c *grpcBackendServiceClient) GetContextValue(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGetContextValueResult, error) {
+func (c *grpcBackendServiceClient) GetContextValue(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGuid, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GrpcGetContextValueResult)
+	out := new(GrpcGuid)
 	err := c.cc.Invoke(ctx, GrpcBackendService_GetContextValue_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func (c *grpcBackendServiceClient) GetBackendInfo(ctx context.Context, in *empty
 // for forward compatibility.
 type GrpcBackendServiceServer interface {
 	ExecutePipeline(*GrpcProxyPipelineExecutionRequest, grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]) error
-	GetContextValue(context.Context, *GrpcGetContextValueRequest) (*GrpcGetContextValueResult, error)
+	GetContextValue(context.Context, *GrpcGetContextValueRequest) (*GrpcGuid, error)
 	GetAllContextValues(context.Context, *GrpcGuid) (*GrpcGetAllContextValuesResult, error)
 	DropExecutionResult(context.Context, *GrpcGuid) (*emptypb.Empty, error)
 	GetBackendInfo(context.Context, *emptypb.Empty) (*GrpcFicusBackendInfo, error)
@@ -127,7 +127,7 @@ type UnimplementedGrpcBackendServiceServer struct{}
 func (UnimplementedGrpcBackendServiceServer) ExecutePipeline(*GrpcProxyPipelineExecutionRequest, grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]) error {
 	return status.Errorf(codes.Unimplemented, "method ExecutePipeline not implemented")
 }
-func (UnimplementedGrpcBackendServiceServer) GetContextValue(context.Context, *GrpcGetContextValueRequest) (*GrpcGetContextValueResult, error) {
+func (UnimplementedGrpcBackendServiceServer) GetContextValue(context.Context, *GrpcGetContextValueRequest) (*GrpcGuid, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContextValue not implemented")
 }
 func (UnimplementedGrpcBackendServiceServer) GetAllContextValues(context.Context, *GrpcGuid) (*GrpcGetAllContextValuesResult, error) {

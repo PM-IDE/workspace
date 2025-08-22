@@ -49,7 +49,6 @@ export interface ProtoGrpcType {
     GrpcGenericEnhancementBase: MessageTypeDefinition
     GrpcGetAllContextValuesResult: MessageTypeDefinition
     GrpcGetContextValueRequest: MessageTypeDefinition
-    GrpcGetContextValueResult: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition

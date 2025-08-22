@@ -54,7 +54,6 @@ export interface ProtoGrpcType {
     GrpcGetAllContextValuesResult: MessageTypeDefinition
     GrpcGetAllSubscriptionsAndPipelinesResponse: MessageTypeDefinition
     GrpcGetContextValueRequest: MessageTypeDefinition
-    GrpcGetContextValueResult: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition

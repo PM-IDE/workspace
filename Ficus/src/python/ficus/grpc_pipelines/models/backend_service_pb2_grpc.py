@@ -50,7 +50,7 @@ class GrpcBackendServiceStub(object):
 
                 request_serializer=backend__service__pb2.GrpcGetContextValueRequest.SerializeToString,
 
-                response_deserializer=backend__service__pb2.GrpcGetContextValueResult.FromString,
+                response_deserializer=util__pb2.GrpcGuid.FromString,
 
                 )
 
@@ -176,7 +176,7 @@ def add_GrpcBackendServiceServicer_to_server(servicer, server):
 
                     request_deserializer=backend__service__pb2.GrpcGetContextValueRequest.FromString,
 
-                    response_serializer=backend__service__pb2.GrpcGetContextValueResult.SerializeToString,
+                    response_serializer=util__pb2.GrpcGuid.SerializeToString,
 
             ),
 
@@ -290,7 +290,7 @@ class GrpcBackendService(object):
 
             backend__service__pb2.GrpcGetContextValueRequest.SerializeToString,
 
-            backend__service__pb2.GrpcGetContextValueResult.FromString,
+            util__pb2.GrpcGuid.FromString,
 
             options, channel_credentials,
 

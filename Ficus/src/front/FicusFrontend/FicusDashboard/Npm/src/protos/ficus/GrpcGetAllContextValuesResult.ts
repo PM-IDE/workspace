@@ -1,11 +1,11 @@
 // Original file: ../../../../../protos/backend_service.proto
 
-import type { GrpcGetContextValueResult_DONTUSE as _ficus_GrpcGetContextValueResult_DONTUSE, GrpcGetContextValueResult as _ficus_GrpcGetContextValueResult } from '../ficus/GrpcGetContextValueResult';
+import type { GrpcGuid_DONTUSE as _ficus_GrpcGuid_DONTUSE, GrpcGuid as _ficus_GrpcGuid } from '../ficus/GrpcGuid';
 
 export interface GrpcGetAllContextValuesResult_DONTUSE {
-  'contextValues'?: (_ficus_GrpcGetContextValueResult_DONTUSE)[];
+  'contextValues'?: (_ficus_GrpcGuid_DONTUSE)[];
 }
 
 export interface GrpcGetAllContextValuesResult {
-  'contextValues': (_ficus_GrpcGetContextValueResult)[];
+  'contextValues': (_ficus_GrpcGuid)[];
 }

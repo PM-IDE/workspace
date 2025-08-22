@@ -11,7 +11,7 @@ use tonic::transport::Server;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
   colog::basic_builder().filter_level(LevelFilter::Info).init();
 
-  let cv_service = Arc::new(Mutex::new(ContextValueService::new()));
+  let cv_service = Arc::new(ContextValueService::new());
   let grpc_cv_service = GrpcContextValuesServiceServer::new(GrpcContextValueService::new(cv_service.clone()));
 
   let backend_service = GrpcBackendServiceServer::new(FicusService::new(cv_service.clone()));

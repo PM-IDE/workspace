@@ -11,7 +11,7 @@ package ficus;
 service GrpcBackendService {
   rpc ExecutePipeline(GrpcProxyPipelineExecutionRequest) returns (stream GrpcPipelinePartExecutionResult);
   
-  rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGetContextValueResult);
+  rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGuid);
   rpc GetAllContextValues(GrpcGuid) returns (GrpcGetAllContextValuesResult);
   
   rpc DropExecutionResult(GrpcGuid) returns (google.protobuf.Empty);
@@ -67,14 +67,6 @@ message GrpcPipelineFinalResult {
   }
 }
 
-message GrpcGetContextValueResult {
-  string key = 3;
-  oneof contextValueResult {
-    GrpcContextValue value = 1;
-    string error = 2;
-  }
-}
-
 message GrpcGetAllContextValuesResult {
-  repeated GrpcGetContextValueResult context_values = 1;
+  repeated GrpcGuid context_values = 1;
 }
