@@ -37,7 +37,7 @@ func (this *ContextValuesServiceServer) SetContextValue(
 
 	this.storage.AddContextValue(cvId, cvRes.Ok().Key, cvRes.Ok().Value)
 
-	return nil
+	return stream.SendAndClose(&grpcmodels.GrpcGuid{Guid: cvId.String()})
 }
 
 func (this *ContextValuesServiceServer) DropContextValues(

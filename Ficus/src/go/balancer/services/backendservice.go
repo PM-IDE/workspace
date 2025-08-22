@@ -27,7 +27,12 @@ type BackendServiceServer struct {
 
 func NewBackendServiceServer(urls []string, storage *contextvalues.Storage) *BackendServiceServer {
 	backendsInfo := backends.NewBackendsInfo()
-	return &BackendServiceServer{urls: urls, backendsInfo: backendsInfo, executor: executor.NewPipelineExecutor(backendsInfo, storage)}
+	return &BackendServiceServer{
+		urls:         urls,
+		backendsInfo: backendsInfo,
+		executor:     executor.NewPipelineExecutor(backendsInfo, storage),
+		planner:      plan.NewExecutionPlanner(backendsInfo),
+	}
 }
 
 func (this *BackendServiceServer) ExecutePipeline(

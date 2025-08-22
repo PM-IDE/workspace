@@ -13,7 +13,7 @@ import (
 )
 
 func StartServer(urls []string) result.Result[void.Void] {
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 8080))
+	lis, err := net.Listen("tcp", ":8080")
 
 	if err != nil {
 		fmt.Printf("failed to listen: %v\n", err)

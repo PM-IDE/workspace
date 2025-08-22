@@ -101,7 +101,7 @@ services:
     depends_on:
       - ficus-backend
     ports:
-      - "5333:8080"
+      - "5123:8080"
     build:
       context: .
       dockerfile: ./Ficus/docker/run/Run.Balancer.Dockerfile

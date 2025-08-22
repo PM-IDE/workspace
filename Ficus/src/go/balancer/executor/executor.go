@@ -66,7 +66,16 @@ func (this *PipelineExecutor) Execute(
 			return result.Err[uuid.UUID](contextValuesIdsRes.Err())
 		}
 
-		newContextValuesIdsRes := this.executePipeline(node.GetBackend(), node.GetPipelineParts(), *contextValuesIdsRes.Ok(), outputChannel)
+		lastParts := index == len(plan.GetNodes())-1
+		newContextValuesIdsRes := this.executePipelineParts(
+			node.GetBackend(),
+			node.GetPipelineParts(),
+			*contextValuesIdsRes.Ok(),
+			outputChannel,
+			lastParts,
+			executionId,
+		)
+
 		if newContextValuesIdsRes.IsErr() {
 			return result.Err[uuid.UUID](newContextValuesIdsRes.Err())
 		}
@@ -77,7 +86,7 @@ func (this *PipelineExecutor) Execute(
 		}
 
 		var newStorage *contextvalues.Storage
-		if index == len(plan.GetNodes())-1 {
+		if lastParts {
 			newStorage = this.contextValuesStorage
 		} else {
 			newStorage = contextvalues.NewContextValuesStorage()
@@ -95,7 +104,7 @@ func (this *PipelineExecutor) Execute(
 			newContextValuesIds = append(newContextValuesIds, cvId)
 		}
 
-		if index == len(plan.GetNodes())-1 {
+		if lastParts {
 			executionResultContextValues := make(map[string]uuid.UUID)
 			for _, id := range newContextValuesIds {
 				cv, ok := newStorage.GetContextValue(id)
@@ -183,11 +192,13 @@ func getContextValues(backend string, contextValuesIds []*grpcmodels.GrpcGuid) r
 	)
 }
 
-func (this *PipelineExecutor) executePipeline(
+func (this *PipelineExecutor) executePipelineParts(
 	backend string,
 	pipelineParts []*grpcmodels.GrpcPipelinePartBase,
 	contextValuesIds []*grpcmodels.GrpcGuid,
 	outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
+	lastParts bool,
+	executionId uuid.UUID,
 ) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
 	return utils.ExecuteWithBackendClient[grpcmodels.GrpcGetAllContextValuesResult](
 		backend,
@@ -219,12 +230,22 @@ func (this *PipelineExecutor) executePipeline(
 				}
 
 				if finalResult := execResult.GetFinalResult(); finalResult != nil {
-					outputChannel <- execResult
-
 					if success := finalResult.GetSuccess(); success != nil {
+						patchedResult := &grpcmodels.GrpcPipelinePartExecutionResult{Result: &grpcmodels.GrpcPipelinePartExecutionResult_FinalResult{
+							FinalResult: &grpcmodels.GrpcPipelineFinalResult{
+								ExecutionResult: &grpcmodels.GrpcPipelineFinalResult_Success{
+									Success: &grpcmodels.GrpcGuid{
+										Guid: executionId.String(),
+									},
+								},
+							},
+						}}
+
+						outputChannel <- patchedResult
 						execId = success
 						break
 					} else {
+						outputChannel <- execResult
 						err = fmt.Errorf("the final result is error: %s", finalResult.GetError())
 						return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
 					}
