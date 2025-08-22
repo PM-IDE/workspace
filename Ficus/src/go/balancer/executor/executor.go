@@ -48,23 +48,26 @@ func (this *PipelineExecutor) Execute(
 			return result.FromErr(contextValuesIdsRes.Err())
 		}
 
-		newContextValuesRes := this.executePipeline(node.GetBackend(), node.GetPipelineParts(), *contextValuesIdsRes.Ok(), outputChannel)
+		newContextValuesIdsRes := this.executePipeline(node.GetBackend(), node.GetPipelineParts(), *contextValuesIdsRes.Ok(), outputChannel)
+		if newContextValuesIdsRes.IsErr() {
+			return result.Err[void.Void](newContextValuesIdsRes.Err())
+		}
+
+		newContextValuesRes := getContextValues(node.GetBackend(), newContextValuesIdsRes.Ok().GetContextValues())
 		if newContextValuesRes.IsErr() {
 			return result.Err[void.Void](newContextValuesRes.Err())
 		}
 
 		newStorage := contextvalues.NewContextValuesStorage()
 		var newContextValuesIds []uuid.UUID
-		for _, newContextValue := range newContextValuesRes.Ok().GetContextValues() {
-			if value := newContextValue.GetValue(); value != nil {
-				cvId, err := uuid.NewV7()
-				if err != nil {
-					return result.Err[void.Void](err)
-				}
-
-				newStorage.AddContextValue(cvId, newContextValue.Key, value)
-				newContextValuesIds = append(newContextValuesIds, cvId)
+		for _, newContextValue := range *newContextValuesRes.Ok() {
+			cvId, err := uuid.NewV7()
+			if err != nil {
+				return result.Err[void.Void](err)
 			}
+
+			newStorage.AddContextValue(cvId, newContextValue.Key, newContextValue.Value)
+			newContextValuesIds = append(newContextValuesIds, cvId)
 		}
 
 		currentContextValues.values = newContextValuesIds
@@ -122,6 +125,31 @@ func (this *PipelineExecutor) setContextValues(
 			}
 
 			return result.Ok(&contextValuesIds)
+		},
+	)
+}
+
+func getContextValues(backend string, contextValuesIds []*grpcmodels.GrpcGuid) result.Result[[]*utils.ContextValueWithKey] {
+	return utils.ExecuteWithContextValuesClient[[]*utils.ContextValueWithKey](
+		backend,
+		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[[]*utils.ContextValueWithKey] {
+			var contextValues []*utils.ContextValueWithKey
+
+			for _, cvId := range contextValuesIds {
+				stream, err := client.GetContextValue(context.Background(), cvId)
+				if err != nil {
+					return result.Err[[]*utils.ContextValueWithKey](err)
+				}
+
+				cvRes := utils.UnmarshallContextValue(stream)
+				if cvRes.IsErr() {
+					return result.Err[[]*utils.ContextValueWithKey](cvRes.Err())
+				}
+
+				contextValues = append(contextValues, cvRes.Ok())
+			}
+
+			return result.Ok(&contextValues)
 		},
 	)
 }

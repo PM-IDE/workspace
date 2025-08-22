@@ -3,9 +3,11 @@ package utils
 import (
 	"balancer/grpcmodels"
 	"balancer/result"
+	"io"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/proto"
 )
 
 func ExecuteWithBackendClient[T any](
@@ -69,4 +71,40 @@ func CreateNewGrpcServiceClient[TClient any](
 
 	client := factory(conn)
 	return result.Ok(&clientWithConnection[TClient]{client, conn})
+}
+
+type ContextValueWithKey struct {
+	Key   string
+	Value *grpcmodels.GrpcContextValue
+}
+
+type InputStream[T any] interface {
+	Recv() (*T, error)
+}
+
+func UnmarshallContextValue(stream InputStream[grpcmodels.GrpcContextValuePart]) result.Result[ContextValueWithKey] {
+	var buffer []byte
+	var key string
+
+	for {
+		msg, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return result.Err[ContextValueWithKey](err)
+		}
+
+		key = msg.Key
+		buffer = append(buffer, msg.Bytes...)
+	}
+
+	cv := &grpcmodels.GrpcContextValue{}
+	err := proto.Unmarshal(buffer, cv)
+	if err != nil {
+		return result.Err[ContextValueWithKey](err)
+	}
+
+	return result.Ok(&ContextValueWithKey{key, cv})
 }

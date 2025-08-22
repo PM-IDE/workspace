@@ -40,7 +40,7 @@ func (this *BackendServiceServer) ExecutePipeline(
 func (this *BackendServiceServer) GetContextValue(
 	context context.Context,
 	request *grpcmodels.GrpcGetContextValueRequest,
-) (*grpcmodels.GrpcGetContextValueResult, error) {
+) (*grpcmodels.GrpcGuid, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContextValue not implemented")
 }
 
