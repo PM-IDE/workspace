@@ -19,8 +19,6 @@ func (this *BackendsInfo) GetPipelinePartsToBackendUrls() map[string][]string {
 }
 
 func (this *BackendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.Void] {
-	this.pipelinePartsToBackendUrls = make(map[string][]string)
-
 	descriptors := materializeBackendsPipelinePartsDescriptors(urls)
 	pipelinePartsToBackendUrls := make(map[string][]string)
 	for backendUrl, descriptor := range descriptors {
@@ -34,6 +32,8 @@ func (this *BackendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.V
 			pipelinePartsToBackendUrls[part.name] = append(backends, backendUrl)
 		}
 	}
+
+	this.pipelinePartsToBackendUrls = pipelinePartsToBackendUrls
 
 	return result.Ok(void.Instance)
 }

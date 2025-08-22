@@ -38,12 +38,12 @@ func (this *ExecutionPlanNode) GetPipelineParts() []*grpcmodels.GrpcPipelinePart
 }
 
 func (this *ExecutionPlanner) CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan] {
-	var lastUsedBackend *string = nil
+	var lastUsedBackend = ""
 	plan := ExecutionPlan{[]*ExecutionPlanNode{}}
 
 	for _, part := range pipeline.Parts {
 		if defaultPart := part.GetDefaultPart(); defaultPart != nil {
-			this.processDefaultPipelinePart(part, defaultPart, lastUsedBackend, &plan)
+			this.processDefaultPipelinePart(part, defaultPart, &lastUsedBackend, &plan)
 		}
 	}
 
@@ -67,7 +67,7 @@ func (this *ExecutionPlanner) processDefaultPipelinePart(
 	}
 
 	selectedBackend := selectedBackendRes.Ok()
-	if lastUsedBackend != nil && *selectedBackend == *lastUsedBackend {
+	if *selectedBackend == *lastUsedBackend {
 		if len(plan.nodes) == 0 {
 			return result.Err[void.Void](fmt.Errorf("plan should have nodes already"))
 		}
@@ -81,7 +81,7 @@ func (this *ExecutionPlanner) processDefaultPipelinePart(
 		})
 	}
 
-	lastUsedBackend = selectedBackend
+	*lastUsedBackend = *selectedBackend
 
 	return result.Ok(void.Instance)
 }
