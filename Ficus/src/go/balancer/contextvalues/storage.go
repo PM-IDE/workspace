@@ -21,3 +21,7 @@ func (this *Storage) AddContextValue(id uuid.UUID, key string, value *grpcmodels
 		Value: value,
 	})
 }
+
+func (this *Storage) GetContextValue(id uuid.UUID) (grpcmodels.GrpcContextKeyValue, bool) {
+	return this.storage.Get(id)
+}
