@@ -7,21 +7,26 @@ import (
 	"balancer/plan"
 	"balancer/result"
 	"balancer/utils"
-	"balancer/void"
 	"context"
 	"fmt"
 	"io"
 
 	"github.com/google/uuid"
+	cmap "github.com/orcaman/concurrent-map/v2"
 )
 
 type PipelineExecutor struct {
 	backendsInfo         *backends.BackendsInfo
 	contextValuesStorage *contextvalues.Storage
+	executions           cmap.ConcurrentMap[uuid.UUID, map[string]uuid.UUID]
 }
 
 func NewPipelineExecutor(backendsInfo *backends.BackendsInfo, storage *contextvalues.Storage) *PipelineExecutor {
-	return &PipelineExecutor{backendsInfo, storage}
+	return &PipelineExecutor{
+		backendsInfo,
+		storage,
+		cmap.NewStringer[uuid.UUID, map[string]uuid.UUID](),
+	}
 }
 
 type contextValuesWithStorage struct {
@@ -29,50 +34,87 @@ type contextValuesWithStorage struct {
 	storage *contextvalues.Storage
 }
 
+func (this *PipelineExecutor) GetContextValues(executionId uuid.UUID) (map[string]uuid.UUID, bool) {
+	return this.executions.Get(executionId)
+}
+
+func (this *PipelineExecutor) DropExecutionResult(id uuid.UUID) {
+	this.executions.Remove(id)
+}
+
 func (this *PipelineExecutor) Execute(
 	plan *plan.ExecutionPlan,
 	initialContextValues []uuid.UUID,
 	outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
-) result.Result[void.Void] {
+) result.Result[uuid.UUID] {
+	defer close(outputChannel)
+
 	if len(plan.GetNodes()) == 0 {
-		return result.Ok(void.Instance)
+		return result.Ok(&uuid.Nil)
+	}
+
+	executionId, err := uuid.NewV7()
+	if err != nil {
+		return result.Err[uuid.UUID](err)
 	}
 
 	currentContextValues := &contextValuesWithStorage{initialContextValues, this.contextValuesStorage}
 
-	for _, node := range plan.GetNodes() {
+	for index, node := range plan.GetNodes() {
 		contextValuesIdsRes := this.setContextValues(node.GetBackend(), currentContextValues)
 		if contextValuesIdsRes.IsErr() {
-			return result.FromErr(contextValuesIdsRes.Err())
+			return result.Err[uuid.UUID](contextValuesIdsRes.Err())
 		}
 
 		newContextValuesIdsRes := this.executePipeline(node.GetBackend(), node.GetPipelineParts(), *contextValuesIdsRes.Ok(), outputChannel)
 		if newContextValuesIdsRes.IsErr() {
-			return result.Err[void.Void](newContextValuesIdsRes.Err())
+			return result.Err[uuid.UUID](newContextValuesIdsRes.Err())
 		}
 
 		newContextValuesRes := getContextValues(node.GetBackend(), newContextValuesIdsRes.Ok().GetContextValues())
 		if newContextValuesRes.IsErr() {
-			return result.Err[void.Void](newContextValuesRes.Err())
+			return result.Err[uuid.UUID](newContextValuesRes.Err())
 		}
 
-		newStorage := contextvalues.NewContextValuesStorage()
+		var newStorage *contextvalues.Storage
+		if index == len(plan.GetNodes())-1 {
+			newStorage = this.contextValuesStorage
+		} else {
+			newStorage = contextvalues.NewContextValuesStorage()
+		}
+
 		var newContextValuesIds []uuid.UUID
+
 		for _, newContextValue := range *newContextValuesRes.Ok() {
 			cvId, err := uuid.NewV7()
 			if err != nil {
-				return result.Err[void.Void](err)
+				return result.Err[uuid.UUID](err)
 			}
 
 			newStorage.AddContextValue(cvId, newContextValue.Key, newContextValue.Value)
 			newContextValuesIds = append(newContextValuesIds, cvId)
 		}
 
-		currentContextValues.values = newContextValuesIds
-		currentContextValues.storage = newStorage
+		if index == len(plan.GetNodes())-1 {
+			executionResultContextValues := make(map[string]uuid.UUID)
+			for _, id := range newContextValuesIds {
+				cv, ok := newStorage.GetContextValue(id)
+				if !ok {
+					return result.Err[uuid.UUID](fmt.Errorf("execution result context value is not found for id %w", id))
+				}
+
+				executionResultContextValues[cv.Key.Name] = id
+			}
+
+			this.executions.Set(executionId, executionResultContextValues)
+			break
+		} else {
+			currentContextValues.values = newContextValuesIds
+			currentContextValues.storage = newStorage
+		}
 	}
 
-	return result.Ok(void.Instance)
+	return result.Ok(&executionId)
 }
 
 func (this *PipelineExecutor) setContextValues(
@@ -177,10 +219,12 @@ func (this *PipelineExecutor) executePipeline(
 				}
 
 				if finalResult := execResult.GetFinalResult(); finalResult != nil {
+					outputChannel <- execResult
+
 					if success := finalResult.GetSuccess(); success != nil {
 						execId = success
+						break
 					} else {
-						outputChannel <- execResult
 						err = fmt.Errorf("the final result is error: %s", finalResult.GetError())
 						return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
 					}
