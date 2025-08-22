@@ -44,12 +44,36 @@ func (this *ContextValuesServiceServer) DropContextValues(
 	context context.Context,
 	request *grpcmodels.GrpcDropContextValuesRequest,
 ) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "")
+	for _, id := range request.Ids {
+		parsedId, err := uuid.Parse(id.GetGuid())
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "provided id is invalid %s", id.GetGuid())
+		}
+
+		this.storage.Remove(parsedId)
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (this *ContextValuesServiceServer) GetContextValue(
 	id *grpcmodels.GrpcGuid,
 	stream grpc.ServerStreamingServer[grpcmodels.GrpcContextValuePart],
 ) error {
-	return status.Errorf(codes.Unimplemented, "method GetContextValue not implemented")
+	parsedId, err := uuid.Parse(id.GetGuid())
+	if err != nil {
+		return status.Errorf(codes.InvalidArgument, "provided id is invalid %s", id.GetGuid())
+	}
+
+	cv, ok := this.storage.GetContextValue(parsedId)
+	if !ok {
+		return status.Errorf(codes.NotFound, "failed to find context value for %s", id.GetGuid())
+	}
+
+	res := utils.MarshallContextValue(utils.ContextValueWithKey{Key: cv.Key.Name, Value: cv.Value}, stream)
+	if res.IsErr() {
+		return status.Errorf(codes.Internal, res.Err().Error())
+	}
+
+	return nil
 }

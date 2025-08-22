@@ -29,3 +29,7 @@ func (this *Storage) GetContextValue(id uuid.UUID) (grpcmodels.GrpcContextKeyVal
 func (this *Storage) Clear() {
 	this.storage.Clear()
 }
+
+func (this *Storage) Remove(id uuid.UUID) {
+	this.storage.Remove(id)
+}
