@@ -35,19 +35,29 @@ func (this *PipelineExecutor) Execute(
 		return result.Ok(void.Instance)
 	}
 
-	currentContextValuesIds := initialContextValues
+	currentContextValuesIds := struct {
+		values  []uuid.UUID
+		storage *contextvalues.Storage
+	}{}
+
 	for _, node := range plan.GetNodes() {
 		contextValuesIds := utils.ExecuteWithContextValuesClient[[]*grpcmodels.GrpcGuid](
 			node.GetBackend(),
 			func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[[]*grpcmodels.GrpcGuid] {
+				defer func() {
+					if currentContextValuesIds.storage != this.contextValuesStorage {
+						currentContextValuesIds.storage.Clear()
+					}
+				}()
+
 				var contextValuesIds []*grpcmodels.GrpcGuid
-				for _, cvId := range currentContextValuesIds {
+				for _, cvId := range currentContextValuesIds.values {
 					stream, err := client.SetContextValue(context.Background())
 					if err != nil {
 						return result.Err[[]*grpcmodels.GrpcGuid](err)
 					}
 
-					cv, ok := this.contextValuesStorage.GetContextValue(cvId)
+					cv, ok := currentContextValuesIds.storage.GetContextValue(cvId)
 					if ok {
 						cvBytes, err := proto.Marshal(cv.Value)
 						if err != nil {
@@ -133,6 +143,7 @@ func (this *PipelineExecutor) Execute(
 			return result.Err[void.Void](newContextValuesRes.Err())
 		}
 
+		newStorage := contextvalues.NewContextValuesStorage()
 		var newContextValuesIds []uuid.UUID
 		for _, newContextValue := range newContextValuesRes.Ok().GetContextValues() {
 			if value := newContextValue.GetValue(); value != nil {
@@ -141,12 +152,13 @@ func (this *PipelineExecutor) Execute(
 					return result.Err[void.Void](err)
 				}
 
-				this.contextValuesStorage.AddContextValue(cvId, newContextValue.Key, value)
+				newStorage.AddContextValue(cvId, newContextValue.Key, value)
 				newContextValuesIds = append(newContextValuesIds, cvId)
 			}
 		}
 
-		currentContextValuesIds = newContextValuesIds
+		currentContextValuesIds.values = newContextValuesIds
+		currentContextValuesIds.storage = newStorage
 	}
 
 	return result.Ok(void.Instance)
