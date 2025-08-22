@@ -7,6 +7,7 @@ import (
 	"balancer/grpcmodels"
 	"balancer/result"
 	"context"
+	"maps"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -40,7 +41,7 @@ func (this *BackendServiceServer) ExecutePipeline(
 }
 
 func (this *BackendServiceServer) GetContextValue(
-	context context.Context,
+	_ context.Context,
 	request *grpcmodels.GrpcGetContextValueRequest,
 ) (*grpcmodels.GrpcGuid, error) {
 	executionContextValues := this.getExecutionContextValues(request.ExecutionId)
@@ -84,12 +85,18 @@ func (this *BackendServiceServer) DropExecutionResult(context context.Context, i
 	return &emptypb.Empty{}, nil
 }
 
-func (this *BackendServiceServer) GetBackendInfo(context context.Context, empty *emptypb.Empty) (*grpcmodels.GrpcFicusBackendInfo, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetBackendInfo not implemented")
+func (this *BackendServiceServer) GetBackendInfo(context.Context, *emptypb.Empty) (*grpcmodels.GrpcFicusBackendInfo, error) {
+	var pipelineParts []*grpcmodels.GrpcPipelinePartDescriptor
+
+	for partName := range maps.Keys(this.backendsInfo.GetPipelinePartsToBackendUrls()) {
+		pipelineParts = append(pipelineParts, &grpcmodels.GrpcPipelinePartDescriptor{Name: partName})
+	}
+
+	return &grpcmodels.GrpcFicusBackendInfo{Name: "GO_BALANCER", PipelineParts: pipelineParts}, nil
 }
 
 func (this *BackendServiceServer) GetAllContextValues(
-	context context.Context,
+	_ context.Context,
 	id *grpcmodels.GrpcGuid,
 ) (*grpcmodels.GrpcGetAllContextValuesResult, error) {
 	executionContextValues := this.getExecutionContextValues(id)
