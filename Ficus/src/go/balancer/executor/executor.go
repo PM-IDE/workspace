@@ -11,10 +11,8 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"slices"
 
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/proto"
 )
 
 type PipelineExecutor struct {
@@ -99,20 +97,9 @@ func (this *PipelineExecutor) setContextValues(
 
 				cv, ok := currentContextValues.storage.GetContextValue(cvId)
 				if ok {
-					cvBytes, err := proto.Marshal(cv.Value)
-					if err != nil {
+					res := utils.MarshallContextValue(utils.ContextValueWithKey{Key: cv.Key.Name, Value: cv.Value}, stream)
+					if res.IsErr() {
 						return result.Err[[]*grpcmodels.GrpcGuid](err)
-					}
-
-					for chunk := range slices.Chunk(cvBytes, 1024) {
-						err = stream.Send(&grpcmodels.GrpcContextValuePart{
-							Key:   cv.Key.Name,
-							Bytes: chunk,
-						})
-
-						if err != nil {
-							return result.Err[[]*grpcmodels.GrpcGuid](err)
-						}
 					}
 
 					reply, err := stream.CloseAndRecv()

@@ -3,7 +3,9 @@ package utils
 import (
 	"balancer/grpcmodels"
 	"balancer/result"
+	"balancer/void"
 	"io"
+	"slices"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -107,4 +109,31 @@ func UnmarshallContextValue(stream InputStream[grpcmodels.GrpcContextValuePart])
 	}
 
 	return result.Ok(&ContextValueWithKey{key, cv})
+}
+
+type OutputStream[T any] interface {
+	Send(*T) error
+}
+
+func MarshallContextValue(
+	cv ContextValueWithKey,
+	stream OutputStream[grpcmodels.GrpcContextValuePart],
+) result.Result[void.Void] {
+	cvBytes, err := proto.Marshal(cv.Value)
+	if err != nil {
+		return result.Err[void.Void](err)
+	}
+
+	for chunk := range slices.Chunk(cvBytes, 1024) {
+		err = stream.Send(&grpcmodels.GrpcContextValuePart{
+			Key:   cv.Key,
+			Bytes: chunk,
+		})
+
+		if err != nil {
+			return result.Err[void.Void](err)
+		}
+	}
+
+	return result.Ok(void.Instance)
 }
