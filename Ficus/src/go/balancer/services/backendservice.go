@@ -2,6 +2,8 @@ package services
 
 import (
 	"balancer/backends"
+	"balancer/contextvalues"
+	"balancer/executor"
 	"balancer/grpcmodels"
 	"context"
 
@@ -14,11 +16,13 @@ import (
 type BackendServiceServer struct {
 	urls         []string
 	backendsInfo *backends.BackendsInfo
+	executor     *executor.PipelineExecutor
 	grpcmodels.UnsafeGrpcBackendServiceServer
 }
 
-func NewBackendServiceServer(urls []string) *BackendServiceServer {
-	return &BackendServiceServer{urls: urls, backendsInfo: backends.NewBackendsInfo()}
+func NewBackendServiceServer(urls []string, storage *contextvalues.Storage) *BackendServiceServer {
+	backendsInfo := backends.NewBackendsInfo()
+	return &BackendServiceServer{urls: urls, backendsInfo: backendsInfo, executor: executor.NewPipelineExecutor(backendsInfo, storage)}
 }
 
 func (this *BackendServiceServer) ExecutePipeline(

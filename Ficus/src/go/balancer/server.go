@@ -1,6 +1,7 @@
 package main
 
 import (
+	"balancer/contextvalues"
 	"balancer/grpcmodels"
 	"balancer/result"
 	"balancer/services"
@@ -22,8 +23,9 @@ func StartServer(urls []string) result.Result[void.Void] {
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 
-	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, services.NewBackendServiceServer(urls))
-	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, services.NewContextValuesServiceServer())
+	storage := contextvalues.NewContextValuesStorage()
+	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, services.NewBackendServiceServer(urls, storage))
+	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, services.NewContextValuesServiceServer(storage))
 
 	return result.FromErr(grpcServer.Serve(lis))
 }

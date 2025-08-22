@@ -19,8 +19,8 @@ type ContextValuesServiceServer struct {
 	grpcmodels.UnsafeGrpcContextValuesServiceServer
 }
 
-func NewContextValuesServiceServer() *ContextValuesServiceServer {
-	return &ContextValuesServiceServer{storage: contextvalues.NewContextValuesStorage()}
+func NewContextValuesServiceServer(storage *contextvalues.Storage) *ContextValuesServiceServer {
+	return &ContextValuesServiceServer{storage: storage}
 }
 
 func (this *ContextValuesServiceServer) SetContextValue(
