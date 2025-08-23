@@ -7,6 +7,8 @@ import (
 	"io"
 	"slices"
 
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
@@ -136,4 +138,13 @@ func MarshallContextValue(
 	}
 
 	return result.Ok(void.Instance)
+}
+
+func CreateLoggerAttachedToActivity(originalLogger *zap.SugaredLogger) result.Result[zap.SugaredLogger] {
+	id, err := uuid.NewV7()
+	if err != nil {
+		return result.Err[zap.SugaredLogger](err)
+	}
+
+	return result.Ok(originalLogger.With("activity_id", id))
 }

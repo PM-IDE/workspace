@@ -12,6 +12,7 @@ import (
 	"balancer/executor"
 	"balancer/plan"
 	"balancer/services"
+	"go.uber.org/zap"
 )
 
 // Injectors from wire.go:
@@ -21,9 +22,10 @@ func BuildContainer() *Container {
 	storage := contextvalues.NewContextValuesStorage()
 	pipelineExecutor := executor.NewPipelineExecutor(backendsInfo, storage)
 	executionPlanner := plan.NewExecutionPlanner(backendsInfo)
-	backendServiceServer := services.NewBackendServiceServer(backendsInfo, pipelineExecutor, executionPlanner)
-	contextValuesServiceServer := services.NewContextValuesServiceServer(storage)
-	container := NewContainer(backendServiceServer, contextValuesServiceServer)
+	sugaredLogger := NewLogger()
+	backendServiceServer := services.NewBackendServiceServer(backendsInfo, pipelineExecutor, executionPlanner, sugaredLogger)
+	contextValuesServiceServer := services.NewContextValuesServiceServer(storage, sugaredLogger)
+	container := NewContainer(backendServiceServer, contextValuesServiceServer, sugaredLogger)
 	return container
 }
 
@@ -32,11 +34,22 @@ func BuildContainer() *Container {
 type Container struct {
 	BackendService       *services.BackendServiceServer
 	ContextValuesService *services.ContextValuesServiceServer
+	Logger               *zap.SugaredLogger
 }
 
-func NewContainer(backendService *services.BackendServiceServer, contextValueService *services.ContextValuesServiceServer) *Container {
+func NewContainer(
+	backendService *services.BackendServiceServer,
+	contextValueService *services.ContextValuesServiceServer,
+	logger *zap.SugaredLogger,
+) *Container {
 	return &Container{
 		BackendService:       backendService,
 		ContextValuesService: contextValueService,
+		Logger:               logger,
 	}
+}
+
+func NewLogger() *zap.SugaredLogger {
+	logger, _ := zap.NewProduction()
+	return logger.Sugar()
 }

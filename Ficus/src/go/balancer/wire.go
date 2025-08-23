@@ -11,18 +11,30 @@ import (
 	"balancer/services"
 
 	"github.com/google/wire"
+	"go.uber.org/zap"
 )
 
 type Container struct {
 	BackendService       *services.BackendServiceServer
 	ContextValuesService *services.ContextValuesServiceServer
+	Logger               *zap.SugaredLogger
 }
 
-func NewContainer(backendService *services.BackendServiceServer, contextValueService *services.ContextValuesServiceServer) *Container {
+func NewContainer(
+	backendService *services.BackendServiceServer,
+	contextValueService *services.ContextValuesServiceServer,
+	logger *zap.SugaredLogger,
+) *Container {
 	return &Container{
 		BackendService:       backendService,
 		ContextValuesService: contextValueService,
+		Logger:               logger,
 	}
+}
+
+func NewLogger() *zap.SugaredLogger {
+	logger, _ := zap.NewProduction()
+	return logger.Sugar()
 }
 
 func BuildContainer() *Container {
@@ -34,6 +46,7 @@ func BuildContainer() *Container {
 		executor.NewPipelineExecutor,
 		backends.NewBackendsInfo,
 		contextvalues.NewContextValuesStorage,
+		NewLogger,
 	)
 
 	return &Container{}

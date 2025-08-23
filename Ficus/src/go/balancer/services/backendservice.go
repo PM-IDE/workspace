@@ -6,10 +6,12 @@ import (
 	"balancer/grpcmodels"
 	"balancer/plan"
 	"balancer/result"
+	"balancer/utils"
 	"context"
 	"maps"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,17 +23,20 @@ type BackendServiceServer struct {
 	executor     *executor.PipelineExecutor
 	planner      *plan.ExecutionPlanner
 	grpcmodels.UnsafeGrpcBackendServiceServer
+	logger *zap.SugaredLogger
 }
 
 func NewBackendServiceServer(
 	backendsInfo *backends.BackendsInfo,
 	executor *executor.PipelineExecutor,
 	planner *plan.ExecutionPlanner,
+	logger *zap.SugaredLogger,
 ) *BackendServiceServer {
 	return &BackendServiceServer{
 		backendsInfo: backendsInfo,
 		executor:     executor,
 		planner:      planner,
+		logger:       logger,
 	}
 }
 
@@ -39,6 +44,13 @@ func (this *BackendServiceServer) ExecutePipeline(
 	request *grpcmodels.GrpcProxyPipelineExecutionRequest,
 	server grpc.ServerStreamingServer[grpcmodels.GrpcPipelinePartExecutionResult],
 ) error {
+	loggerRes := utils.CreateLoggerAttachedToActivity(this.logger)
+	if loggerRes.IsErr() {
+		return loggerRes.Err()
+	}
+
+	logger := loggerRes.Ok()
+
 	urlsRes := backends.GetBackendsUrls()
 	if urlsRes.IsErr() {
 		return urlsRes.Err()
@@ -49,10 +61,14 @@ func (this *BackendServiceServer) ExecutePipeline(
 		return status.Errorf(codes.Internal, "failed to update backends information: %s", res.Err().Error())
 	}
 
+	logger.Infow("Update backends info", "backends", res.Ok())
+
 	planRes := this.planner.CreatePlan(request.Pipeline)
 	if planRes.IsErr() {
 		return status.Errorf(codes.Internal, "failed to create an execution plan: %s", res.Err().Error())
 	}
+
+	logger.Infow("Created an execution plan")
 
 	var initialContextValuesIds []uuid.UUID
 	for _, id := range request.ContextValuesIds {
@@ -63,6 +79,8 @@ func (this *BackendServiceServer) ExecutePipeline(
 
 		initialContextValuesIds = append(initialContextValuesIds, contextValueId)
 	}
+
+	logger.Infow("Initial context values", "context_values", initialContextValuesIds)
 
 	pipelinePartsResultsChannel := make(chan *grpcmodels.GrpcPipelinePartExecutionResult, 100)
 	errorChannel := make(chan result.Result[uuid.UUID])
@@ -76,6 +94,8 @@ func (this *BackendServiceServer) ExecutePipeline(
 		err := server.Send(pipelineExecutionResult)
 		if err != nil {
 			return status.Errorf(codes.Internal, "error happened during sending pipeline part result: %s", err.Error())
+		} else {
+			logger.Infow("Sent a pipeline execution result")
 		}
 	}
 
@@ -83,6 +103,8 @@ func (this *BackendServiceServer) ExecutePipeline(
 	if executionResult.IsErr() {
 		return status.Errorf(codes.Internal, "error happened during pipeline execution %s", executionResult.Err())
 	}
+
+	logger.Infow("Finished execution")
 
 	return nil
 }
@@ -128,6 +150,7 @@ func (this *BackendServiceServer) DropExecutionResult(context context.Context, i
 	}
 
 	this.executor.DropExecutionResult(executionId)
+	this.logger.Infow("Dropped execution id", "execution_id", executionId)
 
 	return &emptypb.Empty{}, nil
 }

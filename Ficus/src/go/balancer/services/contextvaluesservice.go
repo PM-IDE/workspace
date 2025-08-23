@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,11 +16,12 @@ import (
 
 type ContextValuesServiceServer struct {
 	storage *contextvalues.Storage
+	logger  *zap.SugaredLogger
 	grpcmodels.UnsafeGrpcContextValuesServiceServer
 }
 
-func NewContextValuesServiceServer(storage *contextvalues.Storage) *ContextValuesServiceServer {
-	return &ContextValuesServiceServer{storage: storage}
+func NewContextValuesServiceServer(storage *contextvalues.Storage, logger *zap.SugaredLogger) *ContextValuesServiceServer {
+	return &ContextValuesServiceServer{storage: storage, logger: logger}
 }
 
 func (this *ContextValuesServiceServer) SetContextValue(
@@ -37,6 +39,8 @@ func (this *ContextValuesServiceServer) SetContextValue(
 
 	this.storage.AddContextValue(cvId, cvRes.Ok().Key, cvRes.Ok().Value)
 
+	this.logger.Infow("Added context value with id", "context_value_id", cvId)
+
 	return stream.SendAndClose(&grpcmodels.GrpcGuid{Guid: cvId.String()})
 }
 
@@ -50,6 +54,7 @@ func (this *ContextValuesServiceServer) DropContextValues(
 			return nil, status.Errorf(codes.InvalidArgument, "provided id is invalid %s", id.GetGuid())
 		}
 
+		this.logger.Infow("Removed context value with id", "context_value_id", parsedId)
 		this.storage.Remove(parsedId)
 	}
 
@@ -74,6 +79,8 @@ func (this *ContextValuesServiceServer) GetContextValue(
 	if res.IsErr() {
 		return status.Errorf(codes.Internal, res.Err().Error())
 	}
+
+	this.logger.Infow("Returned context value with id", "context_value_id", parsedId)
 
 	return nil
 }

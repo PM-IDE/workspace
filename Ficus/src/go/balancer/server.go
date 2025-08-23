@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func StartServer(urls []string) result.Result[void.Void] {
+func StartServer() result.Result[void.Void] {
 	lis, err := net.Listen("tcp", ":8081")
 
 	if err != nil {
@@ -22,6 +22,13 @@ func StartServer(urls []string) result.Result[void.Void] {
 	grpcServer := grpc.NewServer(opts...)
 
 	container := BuildContainer()
+	defer func() {
+		err := container.Logger.Sync()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}()
+
 	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, container.BackendService)
 	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, container.ContextValuesService)
 
