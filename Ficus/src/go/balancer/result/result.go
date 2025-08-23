@@ -20,6 +20,14 @@ func Err[T any](err error) Result[T] {
 }
 
 func From[T any](value *T, err error) Result[T] {
+	if err != nil && value != nil {
+		panic("Can not create a result with both err and value are not nil")
+	}
+
+	if err == nil && value == nil {
+		panic("Can not create a result with both err and value are nil")
+	}
+
 	if err != nil {
 		return Err[T](err)
 	}
