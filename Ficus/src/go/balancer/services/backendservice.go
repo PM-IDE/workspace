@@ -61,14 +61,14 @@ func (this *BackendServiceServer) ExecutePipeline(
 		return status.Errorf(codes.Internal, "failed to update backends information: %s", res.Err().Error())
 	}
 
-	logger.Infow("Update backends info", "backends", res.Ok())
+	logger.Infow("Update backends info", "backends", this.backendsInfo.GetPipelinePartsToBackendUrls())
 
 	planRes := this.planner.CreatePlan(request.Pipeline)
 	if planRes.IsErr() {
 		return status.Errorf(codes.Internal, "failed to create an execution plan: %s", res.Err().Error())
 	}
 
-	logger.Infow("Created an execution plan")
+	logger.Infow("Created an execution plan", "plan", planRes.Ok().String())
 
 	var initialContextValuesIds []uuid.UUID
 	for _, id := range request.ContextValuesIds {
@@ -104,7 +104,7 @@ func (this *BackendServiceServer) ExecutePipeline(
 		return status.Errorf(codes.Internal, "error happened during pipeline execution %s", executionResult.Err())
 	}
 
-	logger.Infow("Finished execution")
+	logger.Infow("Finished execution", "execution_id", executionResult.Ok())
 
 	return nil
 }

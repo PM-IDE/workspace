@@ -6,6 +6,7 @@ import (
 	"balancer/result"
 	"balancer/void"
 	"fmt"
+	"strings"
 )
 
 type ExecutionPlanner struct {
@@ -18,6 +19,43 @@ func NewExecutionPlanner(info *backends.BackendsInfo) *ExecutionPlanner {
 
 type ExecutionPlan struct {
 	nodes []*ExecutionPlanNode
+}
+
+func (this *ExecutionPlan) String() string {
+	var sb strings.Builder
+
+	for nodeIndex, node := range this.GetNodes() {
+		sb.WriteString(fmt.Sprintf("(%s)", node.GetBackend()))
+		sb.WriteRune('[')
+
+		for partIndex, part := range node.GetPipelineParts() {
+			if name := getPartNameOrNil(part); name != nil {
+				sb.WriteString(*name)
+			} else {
+				sb.WriteString("UNRESOLVED")
+			}
+
+			if partIndex < len(node.GetPipelineParts())-1 {
+				sb.WriteString(", ")
+			}
+		}
+
+		sb.WriteRune(']')
+
+		if nodeIndex < len(this.GetNodes())-1 {
+			sb.WriteString(", ")
+		}
+	}
+
+	return sb.String()
+}
+
+func getPartNameOrNil(part *grpcmodels.GrpcPipelinePartBase) *string {
+	if defaultPart := part.GetDefaultPart(); defaultPart != nil {
+		return &defaultPart.Name
+	}
+
+	return nil
 }
 
 func (this *ExecutionPlan) GetNodes() []*ExecutionPlanNode {
