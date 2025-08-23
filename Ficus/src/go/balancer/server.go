@@ -1,10 +1,8 @@
 package main
 
 import (
-	"balancer/contextvalues"
 	"balancer/grpcmodels"
 	"balancer/result"
-	"balancer/services"
 	"balancer/void"
 	"fmt"
 	"net"
@@ -13,7 +11,7 @@ import (
 )
 
 func StartServer(urls []string) result.Result[void.Void] {
-	lis, err := net.Listen("tcp", ":8080")
+	lis, err := net.Listen("tcp", ":8081")
 
 	if err != nil {
 		fmt.Printf("failed to listen: %v\n", err)
@@ -23,9 +21,9 @@ func StartServer(urls []string) result.Result[void.Void] {
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 
-	storage := contextvalues.NewContextValuesStorage()
-	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, services.NewBackendServiceServer(urls, storage))
-	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, services.NewContextValuesServiceServer(storage))
+	container := BuildContainer()
+	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, container.BackendService)
+	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, container.ContextValuesService)
 
 	return result.FromErr(grpcServer.Serve(lis))
 }

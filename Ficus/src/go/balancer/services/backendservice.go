@@ -2,7 +2,6 @@ package services
 
 import (
 	"balancer/backends"
-	"balancer/contextvalues"
 	"balancer/executor"
 	"balancer/grpcmodels"
 	"balancer/plan"
@@ -18,20 +17,21 @@ import (
 )
 
 type BackendServiceServer struct {
-	urls         []string
 	backendsInfo *backends.BackendsInfo
 	executor     *executor.PipelineExecutor
 	planner      *plan.ExecutionPlanner
 	grpcmodels.UnsafeGrpcBackendServiceServer
 }
 
-func NewBackendServiceServer(urls []string, storage *contextvalues.Storage) *BackendServiceServer {
-	backendsInfo := backends.NewBackendsInfo()
+func NewBackendServiceServer(
+	backendsInfo *backends.BackendsInfo,
+	executor *executor.PipelineExecutor,
+	planner *plan.ExecutionPlanner,
+) *BackendServiceServer {
 	return &BackendServiceServer{
-		urls:         urls,
 		backendsInfo: backendsInfo,
-		executor:     executor.NewPipelineExecutor(backendsInfo, storage),
-		planner:      plan.NewExecutionPlanner(backendsInfo),
+		executor:     executor,
+		planner:      planner,
 	}
 }
 
@@ -39,7 +39,12 @@ func (this *BackendServiceServer) ExecutePipeline(
 	request *grpcmodels.GrpcProxyPipelineExecutionRequest,
 	server grpc.ServerStreamingServer[grpcmodels.GrpcPipelinePartExecutionResult],
 ) error {
-	res := this.backendsInfo.UpdateBackendsInfo(this.urls)
+	urlsRes := backends.GetBackendsUrls()
+	if urlsRes.IsErr() {
+		return urlsRes.Err()
+	}
+
+	res := this.backendsInfo.UpdateBackendsInfo(*urlsRes.Ok())
 	if res.IsErr() {
 		return status.Errorf(codes.Internal, "failed to update backends information: %s", res.Err().Error())
 	}
