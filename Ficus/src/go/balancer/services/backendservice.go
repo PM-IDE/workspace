@@ -19,17 +19,17 @@ import (
 )
 
 type BackendServiceServer struct {
-	backendsInfo *backends.BackendsInfo
-	executor     *executor.PipelineExecutor
-	planner      *plan.ExecutionPlanner
+	backendsInfo backends.BackendsInfo
+	executor     executor.PipelineExecutor
+	planner      plan.ExecutionPlanner
 	grpcmodels.UnsafeGrpcBackendServiceServer
 	logger *zap.SugaredLogger
 }
 
 func NewBackendServiceServer(
-	backendsInfo *backends.BackendsInfo,
-	executor *executor.PipelineExecutor,
-	planner *plan.ExecutionPlanner,
+	backendsInfo backends.BackendsInfo,
+	executor executor.PipelineExecutor,
+	planner plan.ExecutionPlanner,
 	logger *zap.SugaredLogger,
 ) *BackendServiceServer {
 	return &BackendServiceServer{

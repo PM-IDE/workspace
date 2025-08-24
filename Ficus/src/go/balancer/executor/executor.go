@@ -15,14 +15,25 @@ import (
 	cmap "github.com/orcaman/concurrent-map/v2"
 )
 
-type PipelineExecutor struct {
-	backendsInfo         *backends.BackendsInfo
-	contextValuesStorage *contextvalues.Storage
+type PipelineExecutor interface {
+	GetContextValues(executionId uuid.UUID) (map[string]uuid.UUID, bool)
+	DropExecutionResult(id uuid.UUID)
+
+	Execute(
+		plan *plan.ExecutionPlan,
+		initialContextValues []uuid.UUID,
+		outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
+	) result.Result[uuid.UUID]
+}
+
+type pipelineExecutor struct {
+	backendsInfo         backends.BackendsInfo
+	contextValuesStorage contextvalues.Storage
 	executions           cmap.ConcurrentMap[uuid.UUID, map[string]uuid.UUID]
 }
 
-func NewPipelineExecutor(backendsInfo *backends.BackendsInfo, storage *contextvalues.Storage) *PipelineExecutor {
-	return &PipelineExecutor{
+func NewPipelineExecutor(backendsInfo backends.BackendsInfo, storage contextvalues.Storage) PipelineExecutor {
+	return &pipelineExecutor{
 		backendsInfo,
 		storage,
 		cmap.NewStringer[uuid.UUID, map[string]uuid.UUID](),
@@ -31,18 +42,18 @@ func NewPipelineExecutor(backendsInfo *backends.BackendsInfo, storage *contextva
 
 type contextValuesWithStorage struct {
 	values  []uuid.UUID
-	storage *contextvalues.Storage
+	storage contextvalues.Storage
 }
 
-func (this *PipelineExecutor) GetContextValues(executionId uuid.UUID) (map[string]uuid.UUID, bool) {
+func (this *pipelineExecutor) GetContextValues(executionId uuid.UUID) (map[string]uuid.UUID, bool) {
 	return this.executions.Get(executionId)
 }
 
-func (this *PipelineExecutor) DropExecutionResult(id uuid.UUID) {
+func (this *pipelineExecutor) DropExecutionResult(id uuid.UUID) {
 	this.executions.Remove(id)
 }
 
-func (this *PipelineExecutor) Execute(
+func (this *pipelineExecutor) Execute(
 	plan *plan.ExecutionPlan,
 	initialContextValues []uuid.UUID,
 	outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
@@ -85,7 +96,7 @@ func (this *PipelineExecutor) Execute(
 			return result.Err[uuid.UUID](newContextValuesRes.Err())
 		}
 
-		var newStorage *contextvalues.Storage
+		var newStorage contextvalues.Storage
 		if lastParts {
 			newStorage = this.contextValuesStorage
 		} else {
@@ -126,7 +137,7 @@ func (this *PipelineExecutor) Execute(
 	return result.Ok(&executionId)
 }
 
-func (this *PipelineExecutor) setContextValues(
+func (this *pipelineExecutor) setContextValues(
 	backend string,
 	currentContextValues *contextValuesWithStorage,
 ) result.Result[[]*grpcmodels.GrpcGuid] {
@@ -192,7 +203,7 @@ func getContextValues(backend string, contextValuesIds []*grpcmodels.GrpcGuid) r
 	)
 }
 
-func (this *PipelineExecutor) executePipelineParts(
+func (this *pipelineExecutor) executePipelineParts(
 	backend string,
 	pipelineParts []*grpcmodels.GrpcPipelinePartBase,
 	contextValuesIds []*grpcmodels.GrpcGuid,

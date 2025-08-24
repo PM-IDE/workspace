@@ -9,12 +9,16 @@ import (
 	"strings"
 )
 
-type ExecutionPlanner struct {
-	backendsInfo *backends.BackendsInfo
+type ExecutionPlanner interface {
+	CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan]
 }
 
-func NewExecutionPlanner(info *backends.BackendsInfo) *ExecutionPlanner {
-	return &ExecutionPlanner{info}
+type executionPlannerImpl struct {
+	backendsInfo backends.BackendsInfo
+}
+
+func NewExecutionPlanner(info backends.BackendsInfo) ExecutionPlanner {
+	return &executionPlannerImpl{info}
 }
 
 type ExecutionPlan struct {
@@ -75,7 +79,7 @@ func (this *ExecutionPlanNode) GetPipelineParts() []*grpcmodels.GrpcPipelinePart
 	return this.pipelineParts
 }
 
-func (this *ExecutionPlanner) CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan] {
+func (this *executionPlannerImpl) CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan] {
 	var lastUsedBackend *string = nil
 	plan := ExecutionPlan{[]*ExecutionPlanNode{}}
 
@@ -88,7 +92,7 @@ func (this *ExecutionPlanner) CreatePlan(pipeline *grpcmodels.GrpcPipeline) resu
 	return result.Ok(&plan)
 }
 
-func (this *ExecutionPlanner) processDefaultPipelinePart(
+func (this *executionPlannerImpl) processDefaultPipelinePart(
 	basePart *grpcmodels.GrpcPipelinePartBase,
 	defaultPart *grpcmodels.GrpcPipelinePart,
 	lastUsedBackend **string,

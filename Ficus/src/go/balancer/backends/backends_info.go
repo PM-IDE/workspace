@@ -6,19 +6,25 @@ import (
 	"fmt"
 )
 
-type BackendsInfo struct {
+type BackendsInfo interface {
+	UpdateBackendsInfo(urls []string) result.Result[void.Void]
+	GetBackends(partName string) result.Result[[]string]
+	GetPipelinePartsToBackendUrls() map[string][]string
+}
+
+type backendsInfo struct {
 	pipelinePartsToBackendUrls map[string][]string
 }
 
-func NewBackendsInfo() *BackendsInfo {
-	return &BackendsInfo{make(map[string][]string)}
+func NewBackendsInfo() BackendsInfo {
+	return &backendsInfo{make(map[string][]string)}
 }
 
-func (this *BackendsInfo) GetPipelinePartsToBackendUrls() map[string][]string {
+func (this *backendsInfo) GetPipelinePartsToBackendUrls() map[string][]string {
 	return this.pipelinePartsToBackendUrls
 }
 
-func (this *BackendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.Void] {
+func (this *backendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.Void] {
 	descriptors := materializeBackendsPipelinePartsDescriptors(urls)
 	pipelinePartsToBackendUrls := make(map[string][]string)
 	for backendUrl, descriptor := range descriptors {
@@ -38,7 +44,7 @@ func (this *BackendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.V
 	return result.Ok(void.Instance)
 }
 
-func (this *BackendsInfo) GetBackends(partName string) result.Result[[]string] {
+func (this *backendsInfo) GetBackends(partName string) result.Result[[]string] {
 	if backends, ok := this.pipelinePartsToBackendUrls[partName]; ok {
 		return result.Ok(&backends)
 	}

@@ -15,12 +15,12 @@ import (
 )
 
 type ContextValuesServiceServer struct {
-	storage *contextvalues.Storage
+	storage contextvalues.Storage
 	logger  *zap.SugaredLogger
 	grpcmodels.UnsafeGrpcContextValuesServiceServer
 }
 
-func NewContextValuesServiceServer(storage *contextvalues.Storage, logger *zap.SugaredLogger) *ContextValuesServiceServer {
+func NewContextValuesServiceServer(storage contextvalues.Storage, logger *zap.SugaredLogger) *ContextValuesServiceServer {
 	return &ContextValuesServiceServer{storage: storage, logger: logger}
 }
 
