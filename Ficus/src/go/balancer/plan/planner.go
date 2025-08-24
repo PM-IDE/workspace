@@ -85,7 +85,10 @@ func (this *executionPlannerImpl) CreatePlan(pipeline *grpcmodels.GrpcPipeline) 
 
 	for _, part := range pipeline.Parts {
 		if defaultPart := part.GetDefaultPart(); defaultPart != nil {
-			this.processDefaultPipelinePart(part, defaultPart, &lastUsedBackend, &plan)
+			res := this.processDefaultPipelinePart(part, defaultPart, &lastUsedBackend, &plan)
+			if res.IsErr() {
+				return result.Err[ExecutionPlan](res.Err())
+			}
 		}
 	}
 

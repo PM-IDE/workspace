@@ -20,6 +20,10 @@ func NewBackendsInfo() BackendsInfo {
 	return &backendsInfo{make(map[string][]string)}
 }
 
+func NewBackendsInfoWithPredefinedParts(pipelinePartsToBackendUrls map[string][]string) BackendsInfo {
+	return &backendsInfo{pipelinePartsToBackendUrls}
+}
+
 func (this *backendsInfo) GetPipelinePartsToBackendUrls() map[string][]string {
 	return this.pipelinePartsToBackendUrls
 }
