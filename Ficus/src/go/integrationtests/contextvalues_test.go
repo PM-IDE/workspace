@@ -1,0 +1,55 @@
+package integrationtests
+
+import (
+	"balancer/result"
+	"balancer/utils"
+	"balancer/void"
+	"context"
+	"grpcmodels"
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestSetContextValues(t *testing.T) {
+	backend, ok := os.LookupEnv("BALANCER_BACKEND")
+	if !ok {
+		assert.Fail(t, "balancer backend is not specified")
+	}
+
+	res := utils.ExecuteWithContextValuesClient(
+		backend,
+		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[void.Void] {
+			outputStream, err := client.SetContextValue(context.Background())
+			assert.NotNil(t, err)
+
+			rawStringValue := "asdasdasd"
+			contextValue := &grpcmodels.GrpcContextValue{
+				ContextValue: &grpcmodels.GrpcContextValue_String_{
+					String_: rawStringValue,
+				},
+			}
+
+			rawKey := "key"
+			res := utils.MarshallContextValue(utils.ContextValueWithKey{Key: rawKey, Value: contextValue}, outputStream)
+			assert.True(t, res.IsOk())
+
+			cvId, err := outputStream.CloseAndRecv()
+			assert.NotNil(t, err)
+
+			inputStream, err := client.GetContextValue(context.Background(), cvId)
+			assert.NotNil(t, err)
+
+			cvRes := utils.UnmarshallContextValue(inputStream)
+			assert.True(t, cvRes.IsOk())
+
+			assert.Equal(t, cvRes.Ok().Key, rawKey)
+			assert.Equal(t, cvRes.Ok().Value.GetString_(), rawStringValue)
+
+			return result.Ok(void.Instance)
+		},
+	)
+
+	assert.True(t, res.IsOk())
+}

@@ -77,13 +77,11 @@ func (this *pipelineExecutor) Execute(
 			return result.Err[uuid.UUID](contextValuesIdsRes.Err())
 		}
 
-		lastParts := index == len(plan.GetNodes())-1
 		newContextValuesIdsRes := this.executePipelineParts(
 			node.GetBackend(),
 			node.GetPipelineParts(),
 			*contextValuesIdsRes.Ok(),
 			outputChannel,
-			lastParts,
 			executionId,
 		)
 
@@ -95,6 +93,8 @@ func (this *pipelineExecutor) Execute(
 		if newContextValuesRes.IsErr() {
 			return result.Err[uuid.UUID](newContextValuesRes.Err())
 		}
+
+		lastParts := index == len(plan.GetNodes())-1
 
 		var newStorage contextvalues.Storage
 		if lastParts {
@@ -208,7 +208,6 @@ func (this *pipelineExecutor) executePipelineParts(
 	pipelineParts []*grpcmodels.GrpcPipelinePartBase,
 	contextValuesIds []*grpcmodels.GrpcGuid,
 	outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
-	lastParts bool,
 	executionId uuid.UUID,
 ) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
 	return utils.ExecuteWithBackendClient[grpcmodels.GrpcGetAllContextValuesResult](
