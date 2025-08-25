@@ -1,8 +1,8 @@
 package main
 
 import (
-	"balancer/grpcmodels"
 	"fmt"
+	"grpcmodels"
 	"net"
 
 	"google.golang.org/grpc"

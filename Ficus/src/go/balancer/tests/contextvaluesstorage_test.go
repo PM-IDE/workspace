@@ -2,7 +2,7 @@ package tests
 
 import (
 	"balancer/contextvalues"
-	"balancer/grpcmodels"
+	"grpcmodels"
 	"testing"
 
 	"github.com/google/uuid"

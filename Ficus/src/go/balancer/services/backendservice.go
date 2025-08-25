@@ -3,11 +3,11 @@ package services
 import (
 	"balancer/backends"
 	"balancer/executor"
-	"balancer/grpcmodels"
 	"balancer/plan"
 	"balancer/result"
 	"balancer/utils"
 	"context"
+	"grpcmodels"
 	"maps"
 
 	"github.com/google/uuid"

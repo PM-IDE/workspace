@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"balancer/grpcmodels"
 	"balancer/result"
 	"balancer/void"
+	"grpcmodels"
 	"io"
 	"slices"
 

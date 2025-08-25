@@ -2,8 +2,8 @@ package tests
 
 import (
 	"balancer/backends"
-	"balancer/grpcmodels"
 	"balancer/plan"
+	"grpcmodels"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

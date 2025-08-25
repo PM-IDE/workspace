@@ -1,7 +1,7 @@
 package contextvalues
 
 import (
-	"balancer/grpcmodels"
+	"grpcmodels"
 
 	"github.com/google/uuid"
 	cmap "github.com/orcaman/concurrent-map/v2"

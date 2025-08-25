@@ -1,10 +1,10 @@
 package backends
 
 import (
-	"balancer/grpcmodels"
 	"balancer/result"
 	"balancer/utils"
 	"fmt"
+	"grpcmodels"
 	"sync"
 
 	cmap "github.com/orcaman/concurrent-map/v2"

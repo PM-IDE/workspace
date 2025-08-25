@@ -3,12 +3,12 @@ package executor
 import (
 	"balancer/backends"
 	"balancer/contextvalues"
-	"balancer/grpcmodels"
 	"balancer/plan"
 	"balancer/result"
 	"balancer/utils"
 	"context"
 	"fmt"
+	"grpcmodels"
 	"io"
 
 	"github.com/google/uuid"

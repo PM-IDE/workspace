@@ -2,9 +2,9 @@ package services
 
 import (
 	"balancer/contextvalues"
-	"balancer/grpcmodels"
 	"balancer/utils"
 	"context"
+	"grpcmodels"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
