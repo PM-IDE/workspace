@@ -29,15 +29,16 @@ func TestPlannerErrNonExistingPart(t *testing.T) {
 
 func createTestPlanner() plan.ExecutionPlanner {
 	return plan.NewExecutionPlanner(backends.NewBackendsInfoWithPredefinedParts(map[string][]string{
-		"Part1": {"backend-1"},
-		"Part2": {"backend-1"},
-		"Part3": {"backend-1"},
-		"Part4": {"backend-2"},
-		"Part5": {"backend-2"},
-		"Part6": {"backend-2"},
-		"Part7": {"backend-3"},
-		"Part8": {"backend-3"},
-		"Part9": {"backend-3"},
+		"Part1":  {"backend-1"},
+		"Part2":  {"backend-1"},
+		"Part3":  {"backend-1"},
+		"Part4":  {"backend-2"},
+		"Part5":  {"backend-2"},
+		"Part6":  {"backend-2"},
+		"Part7":  {"backend-3"},
+		"Part8":  {"backend-3"},
+		"Part9":  {"backend-3"},
+		"Part10": {"backend-3", "backend-1"},
 	}))
 }
 
@@ -50,6 +51,13 @@ func TestPlannerOk(t *testing.T) {
 				Part: &grpcmodels.GrpcPipelinePartBase_DefaultPart{
 					DefaultPart: &grpcmodels.GrpcPipelinePart{
 						Name: "Part1",
+					},
+				},
+			},
+			{
+				Part: &grpcmodels.GrpcPipelinePartBase_DefaultPart{
+					DefaultPart: &grpcmodels.GrpcPipelinePart{
+						Name: "Part10",
 					},
 				},
 			},
@@ -87,7 +95,7 @@ func TestPlannerOk(t *testing.T) {
 	assert.True(t, planRes.IsOk())
 	assert.Equal(
 		t,
+		"(backend-1)[Part1, Part10], (backend-2)[Part4], (backend-3)[Part7], (backend-1)[Part2, Part3]",
 		planRes.Ok().String(),
-		"(backend-1)[Part1], (backend-2)[Part4], (backend-3)[Part7], (backend-1)[Part2, Part3]",
 	)
 }

@@ -136,18 +136,15 @@ func findBackendForPartName(partName string, backends []string, lastUsedBackend 
 		return result.Err[string](fmt.Errorf("there are no backends for pipeline part %s", partName))
 	}
 
-	var selectedBackend string
-	if len(backends) == 1 {
-		selectedBackend = backends[0]
-	} else {
+	selectedBackend := backends[0]
+
+	if len(backends) > 1 {
 		for _, candidateBackend := range backends {
 			if lastUsedBackend != nil && candidateBackend == *lastUsedBackend {
 				selectedBackend = *lastUsedBackend
 				break
 			}
 		}
-
-		selectedBackend = backends[0]
 	}
 
 	return result.Ok(&selectedBackend)
