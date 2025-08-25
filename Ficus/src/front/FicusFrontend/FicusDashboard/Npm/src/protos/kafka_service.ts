@@ -41,18 +41,19 @@ export interface ProtoGrpcType {
     GrpcEntityTimeAnnotation: MessageTypeDefinition
     GrpcEnum: MessageTypeDefinition
     GrpcEvent: MessageTypeDefinition
+    GrpcEventAttribute: MessageTypeDefinition
     GrpcEventCoordinates: MessageTypeDefinition
     GrpcEventLogInfo: MessageTypeDefinition
     GrpcEventLogTraceSubArraysContextValue: MessageTypeDefinition
-    GrpcEventStamp: MessageTypeDefinition
     GrpcExecutePipelineAndProduceKafkaRequest: MessageTypeDefinition
+    GrpcFicusBackendInfo: MessageTypeDefinition
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGeneralHistogramData: MessageTypeDefinition
     GrpcGenericEnhancementBase: MessageTypeDefinition
+    GrpcGetAllContextValuesResult: MessageTypeDefinition
     GrpcGetAllSubscriptionsAndPipelinesResponse: MessageTypeDefinition
     GrpcGetContextValueRequest: MessageTypeDefinition
-    GrpcGetContextValueResult: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition
@@ -101,6 +102,7 @@ export interface ProtoGrpcType {
     GrpcPipelinePart: MessageTypeDefinition
     GrpcPipelinePartBase: MessageTypeDefinition
     GrpcPipelinePartConfiguration: MessageTypeDefinition
+    GrpcPipelinePartDescriptor: MessageTypeDefinition
     GrpcPipelinePartExecutionResult: MessageTypeDefinition
     GrpcPipelinePartLogMessage: MessageTypeDefinition
     GrpcPipelinePartResult: MessageTypeDefinition

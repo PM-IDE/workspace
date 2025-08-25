@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcColorsEventLogMapping_DONTUSE as _ficus_GrpcColorsEventLogMapping_DONTUSE, GrpcColorsEventLogMapping as _ficus_GrpcColorsEventLogMapping } from '../ficus/GrpcColorsEventLogMapping';
 import type { GrpcColorsTrace_DONTUSE as _ficus_GrpcColorsTrace_DONTUSE, GrpcColorsTrace as _ficus_GrpcColorsTrace } from '../ficus/GrpcColorsTrace';

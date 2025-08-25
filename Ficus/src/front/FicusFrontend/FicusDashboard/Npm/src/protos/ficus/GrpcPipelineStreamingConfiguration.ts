@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/kafka_service.proto
+// Original file: ../../../../../protos/kafka_service.proto
 
 import type { Empty_DONTUSE as _google_protobuf_Empty_DONTUSE, Empty as _google_protobuf_Empty } from '../google/protobuf/Empty';
 import type { GrpcT1StreamingConfiguration_DONTUSE as _ficus_GrpcT1StreamingConfiguration_DONTUSE, GrpcT1StreamingConfiguration as _ficus_GrpcT1StreamingConfiguration } from '../ficus/GrpcT1StreamingConfiguration';

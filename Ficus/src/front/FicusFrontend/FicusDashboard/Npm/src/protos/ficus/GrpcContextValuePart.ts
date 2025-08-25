@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/context_values_service.proto
+// Original file: ../../../../../protos/context_values_service.proto
 
 
 export interface GrpcContextValuePart_DONTUSE {

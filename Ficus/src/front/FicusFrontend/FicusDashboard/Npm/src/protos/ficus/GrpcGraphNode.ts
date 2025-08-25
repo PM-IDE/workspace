@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcNodeAdditionalData_DONTUSE as _ficus_GrpcNodeAdditionalData_DONTUSE, GrpcNodeAdditionalData as _ficus_GrpcNodeAdditionalData } from '../ficus/GrpcNodeAdditionalData';
 import type { GrpcGraph_DONTUSE as _ficus_GrpcGraph_DONTUSE, GrpcGraph as _ficus_GrpcGraph } from '../ficus/GrpcGraph';

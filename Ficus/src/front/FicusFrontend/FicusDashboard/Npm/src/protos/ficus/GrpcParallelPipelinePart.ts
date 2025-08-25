@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcPipelinePartBase_DONTUSE as _ficus_GrpcPipelinePartBase_DONTUSE, GrpcPipelinePartBase as _ficus_GrpcPipelinePartBase } from '../ficus/GrpcPipelinePartBase';
 

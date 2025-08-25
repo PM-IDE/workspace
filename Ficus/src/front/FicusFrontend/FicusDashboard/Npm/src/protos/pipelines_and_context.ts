@@ -36,10 +36,10 @@ export interface ProtoGrpcType {
     GrpcEntityTimeAnnotation: MessageTypeDefinition
     GrpcEnum: MessageTypeDefinition
     GrpcEvent: MessageTypeDefinition
+    GrpcEventAttribute: MessageTypeDefinition
     GrpcEventCoordinates: MessageTypeDefinition
     GrpcEventLogInfo: MessageTypeDefinition
     GrpcEventLogTraceSubArraysContextValue: MessageTypeDefinition
-    GrpcEventStamp: MessageTypeDefinition
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGeneralHistogramData: MessageTypeDefinition

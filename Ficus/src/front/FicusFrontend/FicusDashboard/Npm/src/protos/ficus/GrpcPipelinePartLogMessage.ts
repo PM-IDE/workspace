@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/backend_service.proto
+// Original file: ../../../../../protos/backend_service.proto
 
 
 export interface GrpcPipelinePartLogMessage_DONTUSE {

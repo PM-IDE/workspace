@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcContextKey_DONTUSE as _ficus_GrpcContextKey_DONTUSE, GrpcContextKey as _ficus_GrpcContextKey } from '../ficus/GrpcContextKey';
 import type { GrpcPipelinePart_DONTUSE as _ficus_GrpcPipelinePart_DONTUSE, GrpcPipelinePart as _ficus_GrpcPipelinePart } from '../ficus/GrpcPipelinePart';

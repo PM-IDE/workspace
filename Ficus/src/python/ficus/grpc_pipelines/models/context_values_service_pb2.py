@@ -34,7 +34,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x63ontext_values_service.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"2\n\x14GrpcContextValuePart\x12\x0b\n\x03key\x18\x02 \x01(\t\x12\r\n\x05\x62ytes\x18\x03 \x01(\x0c\"<\n\x1cGrpcDropContextValuesRequest\x12\x1c\n\x03ids\x18\x01 \x03(\x0b\x32\x0f.ficus.GrpcGuid2\xaf\x01\n\x18GrpcContextValuesService\x12\x41\n\x0fSetContextValue\x12\x1b.ficus.GrpcContextValuePart\x1a\x0f.ficus.GrpcGuid(\x01\x12P\n\x11\x44ropContextValues\x12#.ficus.GrpcDropContextValuesRequest\x1a\x16.google.protobuf.Emptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x63ontext_values_service.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"2\n\x14GrpcContextValuePart\x12\x0b\n\x03key\x18\x02 \x01(\t\x12\r\n\x05\x62ytes\x18\x03 \x01(\x0c\"<\n\x1cGrpcDropContextValuesRequest\x12\x1c\n\x03ids\x18\x01 \x03(\x0b\x32\x0f.ficus.GrpcGuid2\xf2\x01\n\x18GrpcContextValuesService\x12\x41\n\x0fSetContextValue\x12\x1b.ficus.GrpcContextValuePart\x1a\x0f.ficus.GrpcGuid(\x01\x12\x41\n\x0fGetContextValue\x12\x0f.ficus.GrpcGuid\x1a\x1b.ficus.GrpcContextValuePart0\x01\x12P\n\x11\x44ropContextValues\x12#.ficus.GrpcDropContextValuesRequest\x1a\x16.google.protobuf.EmptyB\x0fZ\r./;grpcmodelsb\x06proto3')
 
 
 
@@ -48,6 +48,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
 
+  DESCRIPTOR._serialized_options = b'Z\r./;grpcmodels'
+
   _globals['_GRPCCONTEXTVALUEPART']._serialized_start=109
 
   _globals['_GRPCCONTEXTVALUEPART']._serialized_end=159
@@ -58,6 +60,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   _globals['_GRPCCONTEXTVALUESSERVICE']._serialized_start=224
 
-  _globals['_GRPCCONTEXTVALUESSERVICE']._serialized_end=399
+  _globals['_GRPCCONTEXTVALUESSERVICE']._serialized_end=466
 
 # @@protoc_insertion_point(module_scope)

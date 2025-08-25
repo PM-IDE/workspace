@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/kafka_service.proto
+// Original file: ../../../../../protos/kafka_service.proto
 
 import type { GrpcKafkaPipelineExecutionRequest_DONTUSE as _ficus_GrpcKafkaPipelineExecutionRequest_DONTUSE, GrpcKafkaPipelineExecutionRequest as _ficus_GrpcKafkaPipelineExecutionRequest } from '../ficus/GrpcKafkaPipelineExecutionRequest';
 

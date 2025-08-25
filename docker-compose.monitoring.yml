@@ -97,6 +97,17 @@ services:
       PipelinePartsUpdateKafkaSettings__BootstrapServers: kafka:29092
       PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
 
+  balancer:
+    depends_on:
+      - ficus-backend
+    ports:
+      - "5123:8080"
+    build:
+      context: .
+      dockerfile: ./Ficus/docker/run/Run.Balancer.Dockerfile
+    environment:
+      BALANCER_BACKENDS: ficus-backend:8080
+
   dashboard:
     depends_on:
       - backend

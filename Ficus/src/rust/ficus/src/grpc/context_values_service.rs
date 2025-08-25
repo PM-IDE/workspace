@@ -1,9 +1,14 @@
 use crate::ficus_proto::grpc_context_values_service_server::GrpcContextValuesService;
-use crate::ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid};
+use crate::ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcContextValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid};
 use crate::grpc::converters::context_value_from_bytes;
 use std::collections::HashMap;
+use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use tonic::{Request, Response, Status, Streaming};
+use prost::Message;
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
+use tonic::{Code, Request, Response, Status, Streaming};
+use tonic::codegen::futures_core::Stream;
 use uuid::Uuid;
 
 pub struct ContextValueService {
@@ -49,14 +54,24 @@ impl ContextValueService {
       context_values.remove(&id.guid);
     }
   }
+
+  pub fn get_context_value_bytes(&self, key: &str) -> Option<(String, Vec<u8>)> {
+    let context_values = self.context_values.lock();
+    let context_values = context_values.as_ref().expect("Must acquire lock");
+
+    match context_values.get(key) {
+      None => None,
+      Some(value) => Some((value.key.as_ref().unwrap().name.clone(), value.encode_to_vec()))
+    }
+  }
 }
 
 pub struct GrpcContextValueService {
-  cv_service: Arc<Mutex<ContextValueService>>,
+  cv_service: Arc<ContextValueService>,
 }
 
 impl GrpcContextValueService {
-  pub fn new(cv_service: Arc<Mutex<ContextValueService>>) -> Self {
+  pub fn new(cv_service: Arc<ContextValueService>) -> Self {
     Self { cv_service }
   }
 }
@@ -79,10 +94,7 @@ impl GrpcContextValuesService for GrpcContextValueService {
       Err(_) => return Err(Status::invalid_argument("Failed to deserialize context value from bytes")),
     };
 
-    let mut cv_service = self.cv_service.lock();
-    let cv_service = cv_service.as_mut().expect("Should acquire mut lock");
-
-    cv_service.put_context_value(
+    self.cv_service.put_context_value(
       context_value_id.to_string(),
       GrpcContextKeyValue {
         key: Some(GrpcContextKey { name: key.unwrap() }),
@@ -95,11 +107,39 @@ impl GrpcContextValuesService for GrpcContextValueService {
     }))
   }
 
-  async fn drop_context_values(&self, request: Request<GrpcDropContextValuesRequest>) -> Result<Response<()>, Status> {
-    let cv_service = self.cv_service.lock();
-    let cv_service = cv_service.as_ref().expect("Should acquire mut lock");
+  type GetContextValueStream = Pin<Box<dyn Stream<Item=Result<GrpcContextValuePart, Status>> + Send + 'static>>;
 
-    cv_service.prune_context_values(&request.get_ref().ids);
+  async fn get_context_value(&self, request: Request<GrpcGuid>) -> Result<Response<Self::GetContextValueStream>, Status> {
+    let (sender, receiver) = mpsc::channel(4);
+
+    let id = request.get_ref().guid.as_str();
+    match self.cv_service.get_context_value_bytes(id) {
+      None => Err(Status::new(Code::NotFound, format!("Context value for id {} is not found", id))),
+      Some((key, bytes)) => {
+        tokio::spawn(async move {
+          for chunk in bytes.chunks(1024) {
+            let part = GrpcContextValuePart {
+              key: key.clone(),
+              bytes: chunk.to_vec(),
+            };
+
+            match sender.send(Ok(part)).await {
+              Ok(_) => {},
+              Err(err) => {
+                log::error!("Failed to send context value part {}, error {}", key, err.to_string());
+                break
+              }
+            }
+          }
+        });
+
+        Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
+      }
+    }
+  }
+
+  async fn drop_context_values(&self, request: Request<GrpcDropContextValuesRequest>) -> Result<Response<()>, Status> {
+    self.cv_service.prune_context_values(&request.get_ref().ids);
 
     Ok(Response::new(()))
   }

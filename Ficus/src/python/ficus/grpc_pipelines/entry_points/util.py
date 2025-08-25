@@ -36,6 +36,9 @@ def process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream
   for part_result in stream:
     last_result = part_result
 
+    if last_result is None:
+      continue
+
     if last_result.HasField('finalResult'):
       break
 
