@@ -13,12 +13,12 @@ type ExecutionPlanner interface {
 	CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan]
 }
 
-type executionPlannerImpl struct {
+type executionPlanner struct {
 	backendsInfo backends.BackendsInfo
 }
 
 func NewExecutionPlanner(info backends.BackendsInfo) ExecutionPlanner {
-	return &executionPlannerImpl{info}
+	return &executionPlanner{info}
 }
 
 type ExecutionPlan struct {
@@ -79,7 +79,7 @@ func (this *ExecutionPlanNode) GetPipelineParts() []*grpcmodels.GrpcPipelinePart
 	return this.pipelineParts
 }
 
-func (this *executionPlannerImpl) CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan] {
+func (this *executionPlanner) CreatePlan(pipeline *grpcmodels.GrpcPipeline) result.Result[ExecutionPlan] {
 	var lastUsedBackend *string = nil
 	plan := ExecutionPlan{[]*ExecutionPlanNode{}}
 
@@ -95,7 +95,7 @@ func (this *executionPlannerImpl) CreatePlan(pipeline *grpcmodels.GrpcPipeline) 
 	return result.Ok(&plan)
 }
 
-func (this *executionPlannerImpl) processDefaultPipelinePart(
+func (this *executionPlanner) processDefaultPipelinePart(
 	basePart *grpcmodels.GrpcPipelinePartBase,
 	defaultPart *grpcmodels.GrpcPipelinePart,
 	lastUsedBackend **string,

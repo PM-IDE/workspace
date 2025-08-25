@@ -15,3 +15,8 @@ func CreateLoggerAttachedToActivity(originalLogger *zap.SugaredLogger) result.Re
 
 	return result.Ok(originalLogger.With("activity_id", id))
 }
+
+func NewLogger() *zap.SugaredLogger {
+	logger, _ := zap.NewProduction()
+	return logger.Sugar()
+}

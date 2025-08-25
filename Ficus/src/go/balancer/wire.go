@@ -9,6 +9,7 @@ import (
 	"balancer/executor"
 	"balancer/plan"
 	"balancer/services"
+	"balancer/utils"
 
 	"github.com/google/wire"
 	"go.uber.org/zap"
@@ -32,11 +33,6 @@ func NewContainer(
 	}
 }
 
-func NewLogger() *zap.SugaredLogger {
-	logger, _ := zap.NewProduction()
-	return logger.Sugar()
-}
-
 func BuildContainer() *Container {
 	wire.Build(
 		NewContainer,
@@ -46,7 +42,7 @@ func BuildContainer() *Container {
 		executor.NewPipelineExecutor,
 		backends.NewBackendsInfo,
 		contextvalues.NewContextValuesStorage,
-		NewLogger,
+		utils.NewLogger,
 	)
 
 	return &Container{}
