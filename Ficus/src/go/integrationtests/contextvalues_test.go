@@ -16,13 +16,14 @@ func TestSetContextValues(t *testing.T) {
 	backend, ok := os.LookupEnv("BALANCER_BACKEND")
 	if !ok {
 		assert.Fail(t, "balancer backend is not specified")
+		return
 	}
 
 	res := utils.ExecuteWithContextValuesClient(
 		backend,
 		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[void.Void] {
 			outputStream, err := client.SetContextValue(context.Background())
-			assert.NotNil(t, err)
+			assert.Nil(t, err)
 
 			rawStringValue := "asdasdasd"
 			contextValue := &grpcmodels.GrpcContextValue{
@@ -36,10 +37,10 @@ func TestSetContextValues(t *testing.T) {
 			assert.True(t, res.IsOk())
 
 			cvId, err := outputStream.CloseAndRecv()
-			assert.NotNil(t, err)
+			assert.Nil(t, err)
 
 			inputStream, err := client.GetContextValue(context.Background(), cvId)
-			assert.NotNil(t, err)
+			assert.Nil(t, err)
 
 			cvRes := utils.UnmarshallContextValue(inputStream)
 			assert.True(t, cvRes.IsOk())
