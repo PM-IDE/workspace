@@ -81,6 +81,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BDBD0D34
 		Ficus\docker\tests\Tests.Python.Dockercompose = Ficus\docker\tests\Tests.Python.Dockercompose
 		Ficus\docker\tests\Tests.Python.Dockerfile = Ficus\docker\tests\Tests.Python.Dockerfile
 		Ficus\docker\tests\Tests.Rust.Dockerfile = Ficus\docker\tests\Tests.Rust.Dockerfile
+		Ficus\docker\tests\Tests.Balancer.Dockerfile = Ficus\docker\tests\Tests.Balancer.Dockerfile
+		Ficus\docker\tests\Tests.Balancer.Dockercompose = Ficus\docker\tests\Tests.Balancer.Dockercompose
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{998F74B8-31F9-44E3-B190-F1BCAF8D3C4C}"

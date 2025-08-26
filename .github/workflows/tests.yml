@@ -117,5 +117,18 @@ jobs:
           go-version: '1.25'
       - name: Install dependencies
         run: go get .
-      - name: Test with the Go CLI
+      - name: Test
         run: go test -v ./tests
+  
+  go-balancer-integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup docker
+        uses: docker/setup-qemu-action@v3
+
+      - name: Run Go Balancer Integration Tests
+        run: docker compose -f ./Ficus/docker/tests/Tests.Balancer.Dockercompose up --force-recreate --build --exit-code-from balancer-tests
+
