@@ -48,6 +48,20 @@ func TestSetContextValues(t *testing.T) {
 			assert.Equal(t, cvRes.Ok().Key, rawKey)
 			assert.Equal(t, cvRes.Ok().Value.GetString_(), rawStringValue)
 
+			_, err = client.DropContextValues(context.Background(), &grpcmodels.GrpcDropContextValuesRequest{
+				Ids: []*grpcmodels.GrpcGuid{
+					cvId,
+				},
+			})
+
+			assert.Nil(t, err)
+
+			inputStream, err = client.GetContextValue(context.Background(), cvId)
+			assert.Nil(t, err)
+
+			cvRes = utils.UnmarshallContextValue(inputStream)
+			assert.True(t, cvRes.IsErr())
+
 			return result.Ok(void.Instance)
 		},
 	)
