@@ -59,6 +59,10 @@ func getPartNameOrNil(part *grpcmodels.GrpcPipelinePartBase) *string {
 		return &defaultPart.Name
 	}
 
+	if complexCvPart := part.GetComplexContextRequestPart(); complexCvPart != nil {
+		return &complexCvPart.BeforePipelinePart.Name
+	}
+
 	return nil
 }
 
@@ -84,29 +88,51 @@ func (this *executionPlanner) CreatePlan(pipeline *grpcmodels.GrpcPipeline) resu
 	plan := ExecutionPlan{[]*ExecutionPlanNode{}}
 
 	for _, part := range pipeline.Parts {
-		if defaultPart := part.GetDefaultPart(); defaultPart != nil {
-			res := this.processDefaultPipelinePart(part, defaultPart, &lastUsedBackend, &plan)
+		partName := getPartNameOrNil(part)
+
+		if partName != nil {
+			res := this.processNamedPipelinePart(part, *partName, &lastUsedBackend, &plan)
 			if res.IsErr() {
 				return result.Err[ExecutionPlan](res.Err())
 			}
+
+			continue
+		}
+
+		if simpleCvPart := part.GetSimpleContextRequestPart(); simpleCvPart != nil {
+			this.addGetContextValuePipelinePart(part, &plan)
 		}
 	}
 
 	return result.Ok(&plan)
 }
 
-func (this *executionPlanner) processDefaultPipelinePart(
+func (this *executionPlanner) addGetContextValuePipelinePart(
 	basePart *grpcmodels.GrpcPipelinePartBase,
-	defaultPart *grpcmodels.GrpcPipelinePart,
+	plan *ExecutionPlan,
+) result.Result[void.Void] {
+	if len(plan.GetNodes()) == 0 {
+		return result.Err[void.Void](fmt.Errorf("there should be already nodes in the execution plan"))
+	}
+
+	lastNode := plan.nodes[len(plan.nodes)-1]
+	lastNode.pipelineParts = append(lastNode.pipelineParts, basePart)
+
+	return result.Ok(void.Instance)
+}
+
+func (this *executionPlanner) processNamedPipelinePart(
+	basePart *grpcmodels.GrpcPipelinePartBase,
+	partName string,
 	lastUsedBackend **string,
 	plan *ExecutionPlan,
 ) result.Result[void.Void] {
-	res := this.backendsInfo.GetBackends(defaultPart.GetName())
+	res := this.backendsInfo.GetBackends(partName)
 	if res.IsErr() {
 		return result.Err[void.Void](res.Err())
 	}
 
-	selectedBackendRes := findBackendForPartName(defaultPart.GetName(), *res.Ok(), *lastUsedBackend)
+	selectedBackendRes := findBackendForPartName(partName, *res.Ok(), *lastUsedBackend)
 	if selectedBackendRes.IsErr() {
 		return result.Err[void.Void](selectedBackendRes.Err())
 	}

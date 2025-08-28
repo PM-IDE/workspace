@@ -11,6 +11,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -56,6 +57,7 @@ func TestPipelineExecution(t *testing.T) {
 	backendRes := utils.ExecuteWithBackendClient(
 		backend,
 		func(client grpcmodels.GrpcBackendServiceClient) result.Result[void.Void] {
+			id, _ := uuid.NewV7()
 			request := &grpcmodels.GrpcProxyPipelineExecutionRequest{
 				ContextValuesIds: []*grpcmodels.GrpcGuid{res.Ok()},
 				Pipeline: &grpcmodels.GrpcPipeline{
@@ -65,6 +67,19 @@ func TestPipelineExecution(t *testing.T) {
 								DefaultPart: &grpcmodels.GrpcPipelinePart{
 									Name:          "UseNamesEventLog",
 									Configuration: &grpcmodels.GrpcPipelinePartConfiguration{},
+								},
+							},
+						},
+						{
+							Part: &grpcmodels.GrpcPipelinePartBase_ComplexContextRequestPart{
+								ComplexContextRequestPart: &grpcmodels.GrpcComplexContextRequestPipelinePart{
+									Keys: []*grpcmodels.GrpcContextKey{{Name: "names_event_log"}},
+									BeforePipelinePart: &grpcmodels.GrpcPipelinePart{
+										Name:          "GetNamesEventLog",
+										Configuration: &grpcmodels.GrpcPipelinePartConfiguration{},
+									},
+									FrontendPartUuid:         &grpcmodels.GrpcUuid{Uuid: id.String()},
+									FrontendPipelinePartName: "PrintEventLog",
 								},
 							},
 						},
@@ -91,7 +106,7 @@ func TestPipelineExecution(t *testing.T) {
 				results = append(results, res)
 			}
 
-			assert.Len(t, results, 3)
+			assert.Len(t, results, 6)
 
 			lastResult := results[len(results)-1]
 			assert.NotNil(t, lastResult.GetFinalResult())
