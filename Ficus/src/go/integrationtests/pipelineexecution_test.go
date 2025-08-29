@@ -73,13 +73,22 @@ func TestPipelineExecution(t *testing.T) {
 						{
 							Part: &grpcmodels.GrpcPipelinePartBase_ComplexContextRequestPart{
 								ComplexContextRequestPart: &grpcmodels.GrpcComplexContextRequestPipelinePart{
-									Keys: []*grpcmodels.GrpcContextKey{{Name: "names_event_log"}},
+									Keys:                     []*grpcmodels.GrpcContextKey{{Name: "names_event_log"}},
+									FrontendPartUuid:         &grpcmodels.GrpcUuid{Uuid: id.String()},
+									FrontendPipelinePartName: "PrintEventLog",
 									BeforePipelinePart: &grpcmodels.GrpcPipelinePart{
 										Name:          "GetNamesEventLog",
 										Configuration: &grpcmodels.GrpcPipelinePartConfiguration{},
 									},
+								},
+							},
+						},
+						{
+							Part: &grpcmodels.GrpcPipelinePartBase_SimpleContextRequestPart{
+								SimpleContextRequestPart: &grpcmodels.GrpcSimpleContextRequestPipelinePart{
+									FrontendPipelinePartName: "xd",
+									Key:                      &grpcmodels.GrpcContextKey{Name: "names_event_log"},
 									FrontendPartUuid:         &grpcmodels.GrpcUuid{Uuid: id.String()},
-									FrontendPipelinePartName: "PrintEventLog",
 								},
 							},
 						},
@@ -106,7 +115,7 @@ func TestPipelineExecution(t *testing.T) {
 				results = append(results, res)
 			}
 
-			assert.Len(t, results, 6)
+			assert.Len(t, results, 7)
 
 			lastResult := results[len(results)-1]
 			assert.NotNil(t, lastResult.GetFinalResult())
