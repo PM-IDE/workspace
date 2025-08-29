@@ -20,6 +20,109 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	GrpcBackendBalancerService_SetPipelinePartsToBackendsMap_FullMethodName = "/ficus.GrpcBackendBalancerService/SetPipelinePartsToBackendsMap"
+)
+
+// GrpcBackendBalancerServiceClient is the client API for GrpcBackendBalancerService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type GrpcBackendBalancerServiceClient interface {
+	SetPipelinePartsToBackendsMap(ctx context.Context, in *GrpcPredefinedPipelinePartsToBackendsMap, opts ...grpc.CallOption) (*emptypb.Empty, error)
+}
+
+type grpcBackendBalancerServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewGrpcBackendBalancerServiceClient(cc grpc.ClientConnInterface) GrpcBackendBalancerServiceClient {
+	return &grpcBackendBalancerServiceClient{cc}
+}
+
+func (c *grpcBackendBalancerServiceClient) SetPipelinePartsToBackendsMap(ctx context.Context, in *GrpcPredefinedPipelinePartsToBackendsMap, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, GrpcBackendBalancerService_SetPipelinePartsToBackendsMap_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GrpcBackendBalancerServiceServer is the server API for GrpcBackendBalancerService service.
+// All implementations must embed UnimplementedGrpcBackendBalancerServiceServer
+// for forward compatibility.
+type GrpcBackendBalancerServiceServer interface {
+	SetPipelinePartsToBackendsMap(context.Context, *GrpcPredefinedPipelinePartsToBackendsMap) (*emptypb.Empty, error)
+	mustEmbedUnimplementedGrpcBackendBalancerServiceServer()
+}
+
+// UnimplementedGrpcBackendBalancerServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedGrpcBackendBalancerServiceServer struct{}
+
+func (UnimplementedGrpcBackendBalancerServiceServer) SetPipelinePartsToBackendsMap(context.Context, *GrpcPredefinedPipelinePartsToBackendsMap) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPipelinePartsToBackendsMap not implemented")
+}
+func (UnimplementedGrpcBackendBalancerServiceServer) mustEmbedUnimplementedGrpcBackendBalancerServiceServer() {
+}
+func (UnimplementedGrpcBackendBalancerServiceServer) testEmbeddedByValue() {}
+
+// UnsafeGrpcBackendBalancerServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GrpcBackendBalancerServiceServer will
+// result in compilation errors.
+type UnsafeGrpcBackendBalancerServiceServer interface {
+	mustEmbedUnimplementedGrpcBackendBalancerServiceServer()
+}
+
+func RegisterGrpcBackendBalancerServiceServer(s grpc.ServiceRegistrar, srv GrpcBackendBalancerServiceServer) {
+	// If the following call pancis, it indicates UnimplementedGrpcBackendBalancerServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&GrpcBackendBalancerService_ServiceDesc, srv)
+}
+
+func _GrpcBackendBalancerService_SetPipelinePartsToBackendsMap_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GrpcPredefinedPipelinePartsToBackendsMap)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrpcBackendBalancerServiceServer).SetPipelinePartsToBackendsMap(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrpcBackendBalancerService_SetPipelinePartsToBackendsMap_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrpcBackendBalancerServiceServer).SetPipelinePartsToBackendsMap(ctx, req.(*GrpcPredefinedPipelinePartsToBackendsMap))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// GrpcBackendBalancerService_ServiceDesc is the grpc.ServiceDesc for GrpcBackendBalancerService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var GrpcBackendBalancerService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ficus.GrpcBackendBalancerService",
+	HandlerType: (*GrpcBackendBalancerServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SetPipelinePartsToBackendsMap",
+			Handler:    _GrpcBackendBalancerService_SetPipelinePartsToBackendsMap_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "backend_service.proto",
+}
+
+const (
 	GrpcBackendService_ExecutePipeline_FullMethodName     = "/ficus.GrpcBackendService/ExecutePipeline"
 	GrpcBackendService_GetContextValue_FullMethodName     = "/ficus.GrpcBackendService/GetContextValue"
 	GrpcBackendService_GetAllContextValues_FullMethodName = "/ficus.GrpcBackendService/GetAllContextValues"

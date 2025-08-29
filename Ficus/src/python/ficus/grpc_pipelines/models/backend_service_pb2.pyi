@@ -8,6 +8,20 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class GrpcPredefinedPipelinePartsToBackendsMap(_message.Message):
+    __slots__ = ["parts_to_backends"]
+    PARTS_TO_BACKENDS_FIELD_NUMBER: _ClassVar[int]
+    parts_to_backends: _containers.RepeatedCompositeFieldContainer[GrpcPipelinePartToBackends]
+    def __init__(self, parts_to_backends: _Optional[_Iterable[_Union[GrpcPipelinePartToBackends, _Mapping]]] = ...) -> None: ...
+
+class GrpcPipelinePartToBackends(_message.Message):
+    __slots__ = ["part_name", "backends"]
+    PART_NAME_FIELD_NUMBER: _ClassVar[int]
+    BACKENDS_FIELD_NUMBER: _ClassVar[int]
+    part_name: str
+    backends: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, part_name: _Optional[str] = ..., backends: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class GrpcFicusBackendInfo(_message.Message):
     __slots__ = ["name", "pipeline_parts"]
     NAME_FIELD_NUMBER: _ClassVar[int]

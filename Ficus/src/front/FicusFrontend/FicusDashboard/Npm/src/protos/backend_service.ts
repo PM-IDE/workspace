@@ -1,6 +1,7 @@
 import type * as grpc from '@grpc/grpc-js';
 import type { EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
 
+import type { GrpcBackendBalancerServiceClient as _ficus_GrpcBackendBalancerServiceClient, GrpcBackendBalancerServiceDefinition as _ficus_GrpcBackendBalancerServiceDefinition } from './ficus/GrpcBackendBalancerService';
 import type { GrpcBackendServiceClient as _ficus_GrpcBackendServiceClient, GrpcBackendServiceDefinition as _ficus_GrpcBackendServiceDefinition } from './ficus/GrpcBackendService';
 
 type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> = {
@@ -13,6 +14,7 @@ export interface ProtoGrpcType {
     GrpcActivityStartEndData: MessageTypeDefinition
     GrpcAllocationInfo: MessageTypeDefinition
     GrpcAnnotation: MessageTypeDefinition
+    GrpcBackendBalancerService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcBackendBalancerServiceClient> & { service: _ficus_GrpcBackendBalancerServiceDefinition }
     GrpcBackendService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcBackendServiceClient> & { service: _ficus_GrpcBackendServiceDefinition }
     GrpcBytes: MessageTypeDefinition
     GrpcColor: MessageTypeDefinition
@@ -91,6 +93,8 @@ export interface ProtoGrpcType {
     GrpcPipelinePartExecutionResult: MessageTypeDefinition
     GrpcPipelinePartLogMessage: MessageTypeDefinition
     GrpcPipelinePartResult: MessageTypeDefinition
+    GrpcPipelinePartToBackends: MessageTypeDefinition
+    GrpcPredefinedPipelinePartsToBackendsMap: MessageTypeDefinition
     GrpcProxyPipelineExecutionRequest: MessageTypeDefinition
     GrpcSimpleContextRequestPipelinePart: MessageTypeDefinition
     GrpcSimpleCounterData: MessageTypeDefinition
