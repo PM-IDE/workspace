@@ -8,14 +8,27 @@ option go_package = "./;grpcmodels";
 
 package ficus;
 
+service GrpcBackendBalancerService {
+  rpc SetPipelinePartsToBackendsMap(GrpcPredefinedPipelinePartsToBackendsMap) returns (google.protobuf.Empty);
+}
+
+message GrpcPredefinedPipelinePartsToBackendsMap {
+  repeated GrpcPipelinePartToBackends parts_to_backends = 1;
+}
+
+message GrpcPipelinePartToBackends {
+  string part_name = 1;
+  repeated string backends = 2;
+}
+
 service GrpcBackendService {
   rpc ExecutePipeline(GrpcProxyPipelineExecutionRequest) returns (stream GrpcPipelinePartExecutionResult);
-  
+
   rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGuid);
   rpc GetAllContextValues(GrpcGuid) returns (GrpcGetAllContextValuesResult);
-  
+
   rpc DropExecutionResult(GrpcGuid) returns (google.protobuf.Empty);
-  
+
   rpc GetBackendInfo(google.protobuf.Empty) returns (GrpcFicusBackendInfo);
 }
 
