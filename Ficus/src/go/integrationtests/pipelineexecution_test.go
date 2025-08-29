@@ -5,12 +5,14 @@ import (
 	"balancer/utils"
 	"balancer/void"
 	"context"
+	"encoding/json"
 	"errors"
 	"grpcmodels"
 	"io"
 	"os"
 	"testing"
 
+	"github.com/gkampitakis/go-snaps/snaps"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -99,7 +101,8 @@ func TestPipelineExecution(t *testing.T) {
 			outputStream, err := client.ExecutePipeline(context.Background(), request)
 			assert.Nil(t, err)
 
-			results := make([]*grpcmodels.GrpcPipelinePartExecutionResult, 0, 3)
+			allResults := make([]*grpcmodels.GrpcPipelinePartExecutionResult, 0)
+			pipelinePartsResults := make([][]*grpcmodels.GrpcContextValueWithKeyName, 0)
 
 			for {
 				res, err := outputStream.Recv()
@@ -112,15 +115,22 @@ func TestPipelineExecution(t *testing.T) {
 					panic(err.Error())
 				}
 
-				results = append(results, res)
+				if partResult := res.GetPipelinePartResult(); partResult != nil {
+					pipelinePartsResults = append(pipelinePartsResults, partResult.ContextValues)
+				}
+
+				allResults = append(allResults, res)
 			}
 
-			assert.Len(t, results, 7)
-
-			lastResult := results[len(results)-1]
+			lastResult := allResults[len(allResults)-1]
 			assert.NotNil(t, lastResult.GetFinalResult())
 			assert.NotNil(t, lastResult.GetFinalResult().GetSuccess())
 			assert.NotEmpty(t, lastResult.GetFinalResult().GetSuccess().Guid)
+
+			jsonResults, err := json.MarshalIndent(pipelinePartsResults, "", "  ")
+			assert.Nil(t, err)
+
+			snaps.MatchSnapshot(t, string(jsonResults))
 
 			return result.Ok(void.Instance)
 		},
