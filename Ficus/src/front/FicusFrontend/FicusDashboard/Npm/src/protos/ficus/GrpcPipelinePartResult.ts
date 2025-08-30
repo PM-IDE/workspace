@@ -5,10 +5,10 @@ import type { GrpcGuid_DONTUSE as _ficus_GrpcGuid_DONTUSE, GrpcGuid as _ficus_Gr
 
 export interface GrpcPipelinePartResult_DONTUSE {
   'contextValues'?: (_ficus_GrpcContextValueWithKeyName_DONTUSE)[];
-  'uuid'?: (_ficus_GrpcGuid_DONTUSE | null);
+  'guid'?: (_ficus_GrpcGuid_DONTUSE | null);
 }
 
 export interface GrpcPipelinePartResult {
   'contextValues': (_ficus_GrpcContextValueWithKeyName)[];
-  'uuid': (_ficus_GrpcGuid | null);
+  'guid': (_ficus_GrpcGuid | null);
 }

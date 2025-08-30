@@ -77,12 +77,12 @@ class GrpcPipelinePartLogMessage(_message.Message):
     def __init__(self, message: _Optional[str] = ...) -> None: ...
 
 class GrpcPipelinePartResult(_message.Message):
-    __slots__ = ["contextValues", "uuid"]
+    __slots__ = ["contextValues", "guid"]
     CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
-    UUID_FIELD_NUMBER: _ClassVar[int]
+    GUID_FIELD_NUMBER: _ClassVar[int]
     contextValues: _containers.RepeatedCompositeFieldContainer[_pipelines_and_context_pb2.GrpcContextValueWithKeyName]
-    uuid: _util_pb2.GrpcGuid
-    def __init__(self, contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ..., uuid: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
+    guid: _util_pb2.GrpcGuid
+    def __init__(self, contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ..., guid: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
 
 class GrpcPipelineFinalResult(_message.Message):
     __slots__ = ["success", "error"]

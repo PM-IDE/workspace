@@ -516,7 +516,7 @@ func (x *GrpcPipelinePartLogMessage) GetMessage() string {
 type GrpcPipelinePartResult struct {
 	state         protoimpl.MessageState         `protogen:"open.v1"`
 	ContextValues []*GrpcContextValueWithKeyName `protobuf:"bytes,1,rep,name=contextValues,proto3" json:"contextValues,omitempty"`
-	Uuid          *GrpcGuid                      `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	Guid          *GrpcGuid                      `protobuf:"bytes,2,opt,name=guid,proto3" json:"guid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -558,9 +558,9 @@ func (x *GrpcPipelinePartResult) GetContextValues() []*GrpcContextValueWithKeyNa
 	return nil
 }
 
-func (x *GrpcPipelinePartResult) GetUuid() *GrpcGuid {
+func (x *GrpcPipelinePartResult) GetGuid() *GrpcGuid {
 	if x != nil {
-		return x.Uuid
+		return x.Guid
 	}
 	return nil
 }
@@ -727,7 +727,7 @@ const file_backend_service_proto_rawDesc = "" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x87\x01\n" +
 	"\x16GrpcPipelinePartResult\x12H\n" +
 	"\rcontextValues\x18\x01 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues\x12#\n" +
-	"\x04uuid\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x04uuid\"q\n" +
+	"\x04guid\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x04guid\"q\n" +
 	"\x17GrpcPipelineFinalResult\x12+\n" +
 	"\asuccess\x18\x01 \x01(\v2\x0f.ficus.GrpcGuidH\x00R\asuccess\x12\x16\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05errorB\x11\n" +
@@ -789,7 +789,7 @@ var file_backend_service_proto_depIdxs = []int32{
 	9,  // 9: ficus.GrpcPipelinePartExecutionResult.pipelinePartResult:type_name -> ficus.GrpcPipelinePartResult
 	8,  // 10: ficus.GrpcPipelinePartExecutionResult.logMessage:type_name -> ficus.GrpcPipelinePartLogMessage
 	16, // 11: ficus.GrpcPipelinePartResult.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
-	12, // 12: ficus.GrpcPipelinePartResult.uuid:type_name -> ficus.GrpcGuid
+	12, // 12: ficus.GrpcPipelinePartResult.guid:type_name -> ficus.GrpcGuid
 	12, // 13: ficus.GrpcPipelineFinalResult.success:type_name -> ficus.GrpcGuid
 	12, // 14: ficus.GrpcGetAllContextValuesResult.context_values:type_name -> ficus.GrpcGuid
 	0,  // 15: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:input_type -> ficus.GrpcPredefinedPipelinePartsToBackendsMap
