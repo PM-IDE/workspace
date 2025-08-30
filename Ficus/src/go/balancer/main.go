@@ -29,6 +29,7 @@ func main() {
 
 	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, container.BackendService)
 	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, container.ContextValuesService)
+	grpcmodels.RegisterGrpcBackendBalancerServiceServer(grpcServer, container.BalancerService)
 
 	err = grpcServer.Serve(lis)
 	if err != nil {

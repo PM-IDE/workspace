@@ -18,17 +18,20 @@ import (
 type Container struct {
 	BackendService       *services.BackendServiceServer
 	ContextValuesService *services.ContextValuesServiceServer
+	BalancerService      *services.BalancerServiceServer
 	Logger               *zap.SugaredLogger
 }
 
 func NewContainer(
 	backendService *services.BackendServiceServer,
 	contextValueService *services.ContextValuesServiceServer,
+	balancerService *services.BalancerServiceServer,
 	logger *zap.SugaredLogger,
 ) *Container {
 	return &Container{
 		BackendService:       backendService,
 		ContextValuesService: contextValueService,
+		BalancerService:      balancerService,
 		Logger:               logger,
 	}
 }
@@ -38,6 +41,7 @@ func BuildContainer() *Container {
 		NewContainer,
 		services.NewBackendServiceServer,
 		services.NewContextValuesServiceServer,
+		services.NewBalancerServiceServer,
 		plan.NewExecutionPlanner,
 		executor.NewPipelineExecutor,
 		backends.NewBackendsInfo,
