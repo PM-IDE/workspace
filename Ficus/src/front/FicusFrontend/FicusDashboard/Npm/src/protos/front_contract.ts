@@ -113,7 +113,6 @@ export interface ProtoGrpcType {
     GrpcUintArray: MessageTypeDefinition
     GrpcUnderlyingPatternInfo: MessageTypeDefinition
     GrpcUnderlyingPatternKind: EnumTypeDefinition
-    GrpcUuid: MessageTypeDefinition
   }
   google: {
     protobuf: {

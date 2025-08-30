@@ -65,7 +65,7 @@ public static class GrpcRequestsCreator
                 ComplexContextRequestPart = new GrpcComplexContextRequestPipelinePart
                 {
                   Keys = { new GrpcContextKey { Name = "names_event_log" } },
-                  FrontendPartUuid = new GrpcUuid { Uuid = Guid.NewGuid().ToString() },
+                  FrontendPartUuid = new GrpcGuid { Guid = Guid.NewGuid().ToString() },
                   FrontendPipelinePartName = "PrintEventLog",
                   BeforePipelinePart = new GrpcPipelinePart
                   {

@@ -146,7 +146,6 @@ export interface ProtoGrpcType {
     GrpcUnderlyingPatternInfo: MessageTypeDefinition
     GrpcUnderlyingPatternKind: EnumTypeDefinition
     GrpcUnsubscribeFromKafkaRequest: MessageTypeDefinition
-    GrpcUuid: MessageTypeDefinition
   }
   google: {
     protobuf: {

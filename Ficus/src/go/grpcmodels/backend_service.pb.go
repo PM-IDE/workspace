@@ -516,7 +516,7 @@ func (x *GrpcPipelinePartLogMessage) GetMessage() string {
 type GrpcPipelinePartResult struct {
 	state         protoimpl.MessageState         `protogen:"open.v1"`
 	ContextValues []*GrpcContextValueWithKeyName `protobuf:"bytes,1,rep,name=contextValues,proto3" json:"contextValues,omitempty"`
-	Uuid          *GrpcUuid                      `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	Uuid          *GrpcGuid                      `protobuf:"bytes,2,opt,name=uuid,proto3" json:"uuid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -558,7 +558,7 @@ func (x *GrpcPipelinePartResult) GetContextValues() []*GrpcContextValueWithKeyNa
 	return nil
 }
 
-func (x *GrpcPipelinePartResult) GetUuid() *GrpcUuid {
+func (x *GrpcPipelinePartResult) GetUuid() *GrpcGuid {
 	if x != nil {
 		return x.Uuid
 	}
@@ -727,7 +727,7 @@ const file_backend_service_proto_rawDesc = "" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x87\x01\n" +
 	"\x16GrpcPipelinePartResult\x12H\n" +
 	"\rcontextValues\x18\x01 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues\x12#\n" +
-	"\x04uuid\x18\x02 \x01(\v2\x0f.ficus.GrpcUuidR\x04uuid\"q\n" +
+	"\x04uuid\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x04uuid\"q\n" +
 	"\x17GrpcPipelineFinalResult\x12+\n" +
 	"\asuccess\x18\x01 \x01(\v2\x0f.ficus.GrpcGuidH\x00R\asuccess\x12\x16\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05errorB\x11\n" +
@@ -774,8 +774,7 @@ var file_backend_service_proto_goTypes = []any{
 	(*GrpcPipeline)(nil),                             // 14: ficus.GrpcPipeline
 	(*GrpcContextKeyValue)(nil),                      // 15: ficus.GrpcContextKeyValue
 	(*GrpcContextValueWithKeyName)(nil),              // 16: ficus.GrpcContextValueWithKeyName
-	(*GrpcUuid)(nil),                                 // 17: ficus.GrpcUuid
-	(*emptypb.Empty)(nil),                            // 18: google.protobuf.Empty
+	(*emptypb.Empty)(nil),                            // 17: google.protobuf.Empty
 }
 var file_backend_service_proto_depIdxs = []int32{
 	1,  // 0: ficus.GrpcPredefinedPipelinePartsToBackendsMap.parts_to_backends:type_name -> ficus.GrpcPipelinePartToBackends
@@ -790,7 +789,7 @@ var file_backend_service_proto_depIdxs = []int32{
 	9,  // 9: ficus.GrpcPipelinePartExecutionResult.pipelinePartResult:type_name -> ficus.GrpcPipelinePartResult
 	8,  // 10: ficus.GrpcPipelinePartExecutionResult.logMessage:type_name -> ficus.GrpcPipelinePartLogMessage
 	16, // 11: ficus.GrpcPipelinePartResult.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
-	17, // 12: ficus.GrpcPipelinePartResult.uuid:type_name -> ficus.GrpcUuid
+	12, // 12: ficus.GrpcPipelinePartResult.uuid:type_name -> ficus.GrpcGuid
 	12, // 13: ficus.GrpcPipelineFinalResult.success:type_name -> ficus.GrpcGuid
 	12, // 14: ficus.GrpcGetAllContextValuesResult.context_values:type_name -> ficus.GrpcGuid
 	0,  // 15: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:input_type -> ficus.GrpcPredefinedPipelinePartsToBackendsMap
@@ -798,12 +797,12 @@ var file_backend_service_proto_depIdxs = []int32{
 	4,  // 17: ficus.GrpcBackendService.GetContextValue:input_type -> ficus.GrpcGetContextValueRequest
 	12, // 18: ficus.GrpcBackendService.GetAllContextValues:input_type -> ficus.GrpcGuid
 	12, // 19: ficus.GrpcBackendService.DropExecutionResult:input_type -> ficus.GrpcGuid
-	18, // 20: ficus.GrpcBackendService.GetBackendInfo:input_type -> google.protobuf.Empty
-	18, // 21: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:output_type -> google.protobuf.Empty
+	17, // 20: ficus.GrpcBackendService.GetBackendInfo:input_type -> google.protobuf.Empty
+	17, // 21: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:output_type -> google.protobuf.Empty
 	7,  // 22: ficus.GrpcBackendService.ExecutePipeline:output_type -> ficus.GrpcPipelinePartExecutionResult
 	12, // 23: ficus.GrpcBackendService.GetContextValue:output_type -> ficus.GrpcGuid
 	11, // 24: ficus.GrpcBackendService.GetAllContextValues:output_type -> ficus.GrpcGetAllContextValuesResult
-	18, // 25: ficus.GrpcBackendService.DropExecutionResult:output_type -> google.protobuf.Empty
+	17, // 25: ficus.GrpcBackendService.DropExecutionResult:output_type -> google.protobuf.Empty
 	2,  // 26: ficus.GrpcBackendService.GetBackendInfo:output_type -> ficus.GrpcFicusBackendInfo
 	21, // [21:27] is the sub-list for method output_type
 	15, // [15:21] is the sub-list for method input_type

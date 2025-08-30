@@ -187,14 +187,14 @@ message GrpcParallelPipelineParts {
 
 message GrpcSimpleContextRequestPipelinePart {
   GrpcContextKey key = 1;
-  GrpcUuid frontendPartUuid = 2;
+  GrpcGuid frontendPartUuid = 2;
   string frontendPipelinePartName = 3;
 }
 
 message GrpcComplexContextRequestPipelinePart {
   repeated GrpcContextKey keys = 1;
   GrpcPipelinePart beforePipelinePart = 2;
-  GrpcUuid frontendPartUuid = 3;
+  GrpcGuid frontendPartUuid = 3;
   string frontendPipelinePartName = 4;
 }
 

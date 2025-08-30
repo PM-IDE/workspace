@@ -14,10 +14,6 @@ message GrpcColor {
   uint32 blue = 3;
 }
 
-message GrpcUuid {
-  string uuid = 1;
-}
-
 message GrpcStringKeyValue {
   string key = 1;
   string value = 2;

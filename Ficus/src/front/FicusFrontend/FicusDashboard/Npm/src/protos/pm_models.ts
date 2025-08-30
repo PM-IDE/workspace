@@ -38,7 +38,6 @@ export interface ProtoGrpcType {
     GrpcStringKeyValue: MessageTypeDefinition
     GrpcTimePerformanceAnnotation: MessageTypeDefinition
     GrpcTimeSpan: MessageTypeDefinition
-    GrpcUuid: MessageTypeDefinition
   }
   google: {
     protobuf: {

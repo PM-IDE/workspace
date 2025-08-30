@@ -5,7 +5,7 @@ use crate::grpc::events::utils::{create_grpc_context_values, send_grpc_message};
 use crate::{
   ficus_proto::{
     grpc_pipeline_final_result::ExecutionResult, GrpcGuid, GrpcPipelineFinalResult, GrpcPipelinePartExecutionResult,
-    GrpcPipelinePartLogMessage, GrpcPipelinePartResult, GrpcUuid,
+    GrpcPipelinePartLogMessage, GrpcPipelinePartResult,
   },
   grpc::{
     backend_service::{GrpcResult, GrpcSender},
@@ -58,8 +58,8 @@ impl GrpcPipelineEventsHandler {
   fn create_get_context_values_event(&self, event: &GetContextValuesEvent) -> GrpcPipelinePartExecutionResult {
     GrpcPipelinePartExecutionResult {
       result: Some(GrpcResult::PipelinePartResult(GrpcPipelinePartResult {
-        uuid: Some(GrpcUuid {
-          uuid: event.pipeline_part_id.to_string(),
+        guid: Some(GrpcGuid {
+          guid: event.pipeline_part_id.to_string(),
         }),
         context_values: create_grpc_context_values(&event.key_values),
       })),

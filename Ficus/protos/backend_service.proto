@@ -70,7 +70,7 @@ message GrpcPipelinePartLogMessage {
 
 message GrpcPipelinePartResult {
   repeated GrpcContextValueWithKeyName contextValues = 1;
-  GrpcUuid uuid = 2;
+  GrpcGuid guid = 2;
 }
 
 message GrpcPipelineFinalResult {

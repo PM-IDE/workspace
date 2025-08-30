@@ -2226,7 +2226,7 @@ func (x *GrpcParallelPipelineParts) GetPipeline() []*GrpcParallelPipelinePart {
 type GrpcSimpleContextRequestPipelinePart struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
 	Key                      *GrpcContextKey        `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	FrontendPartUuid         *GrpcUuid              `protobuf:"bytes,2,opt,name=frontendPartUuid,proto3" json:"frontendPartUuid,omitempty"`
+	FrontendPartUuid         *GrpcGuid              `protobuf:"bytes,2,opt,name=frontendPartUuid,proto3" json:"frontendPartUuid,omitempty"`
 	FrontendPipelinePartName string                 `protobuf:"bytes,3,opt,name=frontendPipelinePartName,proto3" json:"frontendPipelinePartName,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -2269,7 +2269,7 @@ func (x *GrpcSimpleContextRequestPipelinePart) GetKey() *GrpcContextKey {
 	return nil
 }
 
-func (x *GrpcSimpleContextRequestPipelinePart) GetFrontendPartUuid() *GrpcUuid {
+func (x *GrpcSimpleContextRequestPipelinePart) GetFrontendPartUuid() *GrpcGuid {
 	if x != nil {
 		return x.FrontendPartUuid
 	}
@@ -2287,7 +2287,7 @@ type GrpcComplexContextRequestPipelinePart struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
 	Keys                     []*GrpcContextKey      `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
 	BeforePipelinePart       *GrpcPipelinePart      `protobuf:"bytes,2,opt,name=beforePipelinePart,proto3" json:"beforePipelinePart,omitempty"`
-	FrontendPartUuid         *GrpcUuid              `protobuf:"bytes,3,opt,name=frontendPartUuid,proto3" json:"frontendPartUuid,omitempty"`
+	FrontendPartUuid         *GrpcGuid              `protobuf:"bytes,3,opt,name=frontendPartUuid,proto3" json:"frontendPartUuid,omitempty"`
 	FrontendPipelinePartName string                 `protobuf:"bytes,4,opt,name=frontendPipelinePartName,proto3" json:"frontendPipelinePartName,omitempty"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -2337,7 +2337,7 @@ func (x *GrpcComplexContextRequestPipelinePart) GetBeforePipelinePart() *GrpcPip
 	return nil
 }
 
-func (x *GrpcComplexContextRequestPipelinePart) GetFrontendPartUuid() *GrpcUuid {
+func (x *GrpcComplexContextRequestPipelinePart) GetFrontendPartUuid() *GrpcGuid {
 	if x != nil {
 		return x.FrontendPartUuid
 	}
@@ -4101,12 +4101,12 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\bpipeline\x18\x01 \x03(\v2\x1f.ficus.GrpcParallelPipelinePartR\bpipeline\"\xc8\x01\n" +
 	"$GrpcSimpleContextRequestPipelinePart\x12'\n" +
 	"\x03key\x18\x01 \x01(\v2\x15.ficus.GrpcContextKeyR\x03key\x12;\n" +
-	"\x10frontendPartUuid\x18\x02 \x01(\v2\x0f.ficus.GrpcUuidR\x10frontendPartUuid\x12:\n" +
+	"\x10frontendPartUuid\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x10frontendPartUuid\x12:\n" +
 	"\x18frontendPipelinePartName\x18\x03 \x01(\tR\x18frontendPipelinePartName\"\x94\x02\n" +
 	"%GrpcComplexContextRequestPipelinePart\x12)\n" +
 	"\x04keys\x18\x01 \x03(\v2\x15.ficus.GrpcContextKeyR\x04keys\x12G\n" +
 	"\x12beforePipelinePart\x18\x02 \x01(\v2\x17.ficus.GrpcPipelinePartR\x12beforePipelinePart\x12;\n" +
-	"\x10frontendPartUuid\x18\x03 \x01(\v2\x0f.ficus.GrpcUuidR\x10frontendPartUuid\x12:\n" +
+	"\x10frontendPartUuid\x18\x03 \x01(\v2\x0f.ficus.GrpcGuidR\x10frontendPartUuid\x12:\n" +
 	"\x18frontendPipelinePartName\x18\x04 \x01(\tR\x18frontendPipelinePartName\"\x8d\x01\n" +
 	"\tGrpcGraph\x12*\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x14.ficus.GrpcGraphNodeR\x05nodes\x12*\n" +
@@ -4322,7 +4322,7 @@ var file_pipelines_and_context_proto_goTypes = []any{
 	(*GrpcHashesEventLog)(nil),                      // 68: ficus.GrpcHashesEventLog
 	(*GrpcNamesEventLog)(nil),                       // 69: ficus.GrpcNamesEventLog
 	(*GrpcColor)(nil),                               // 70: ficus.GrpcColor
-	(*GrpcUuid)(nil),                                // 71: ficus.GrpcUuid
+	(*GrpcGuid)(nil),                                // 71: ficus.GrpcGuid
 	(*emptypb.Empty)(nil),                           // 72: google.protobuf.Empty
 }
 var file_pipelines_and_context_proto_depIdxs = []int32{
@@ -4375,10 +4375,10 @@ var file_pipelines_and_context_proto_depIdxs = []int32{
 	29, // 46: ficus.GrpcParallelPipelinePart.pipelineParts:type_name -> ficus.GrpcPipelinePartBase
 	32, // 47: ficus.GrpcParallelPipelineParts.pipeline:type_name -> ficus.GrpcParallelPipelinePart
 	3,  // 48: ficus.GrpcSimpleContextRequestPipelinePart.key:type_name -> ficus.GrpcContextKey
-	71, // 49: ficus.GrpcSimpleContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcUuid
+	71, // 49: ficus.GrpcSimpleContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcGuid
 	3,  // 50: ficus.GrpcComplexContextRequestPipelinePart.keys:type_name -> ficus.GrpcContextKey
 	30, // 51: ficus.GrpcComplexContextRequestPipelinePart.beforePipelinePart:type_name -> ficus.GrpcPipelinePart
-	71, // 52: ficus.GrpcComplexContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcUuid
+	71, // 52: ficus.GrpcComplexContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcGuid
 	37, // 53: ficus.GrpcGraph.nodes:type_name -> ficus.GrpcGraphNode
 	54, // 54: ficus.GrpcGraph.edges:type_name -> ficus.GrpcGraphEdge
 	0,  // 55: ficus.GrpcGraph.kind:type_name -> ficus.GrpcGraphKind
