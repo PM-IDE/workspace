@@ -1,8 +1,7 @@
-package utils
+package grpcmodels
 
 import (
 	"balancer/result"
-	"grpcmodels"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -10,12 +9,12 @@ import (
 
 func ExecuteWithBalancerClient[T any](
 	url string,
-	action func(client grpcmodels.GrpcBackendBalancerServiceClient) result.Result[T],
+	action func(client GrpcBackendBalancerServiceClient) result.Result[T],
 ) result.Result[T] {
-	return ExecuteWithGrpcClient[grpcmodels.GrpcBackendBalancerServiceClient, T](
+	return ExecuteWithGrpcClient[GrpcBackendBalancerServiceClient, T](
 		url,
-		func(conn *grpc.ClientConn) grpcmodels.GrpcBackendBalancerServiceClient {
-			return grpcmodels.NewGrpcBackendBalancerServiceClient(conn)
+		func(conn *grpc.ClientConn) GrpcBackendBalancerServiceClient {
+			return NewGrpcBackendBalancerServiceClient(conn)
 		},
 		action,
 	)
@@ -23,12 +22,12 @@ func ExecuteWithBalancerClient[T any](
 
 func ExecuteWithBackendClient[T any](
 	url string,
-	action func(grpcmodels.GrpcBackendServiceClient) result.Result[T],
+	action func(GrpcBackendServiceClient) result.Result[T],
 ) result.Result[T] {
-	return ExecuteWithGrpcClient[grpcmodels.GrpcBackendServiceClient, T](
+	return ExecuteWithGrpcClient[GrpcBackendServiceClient, T](
 		url,
-		func(conn *grpc.ClientConn) grpcmodels.GrpcBackendServiceClient {
-			return grpcmodels.NewGrpcBackendServiceClient(conn)
+		func(conn *grpc.ClientConn) GrpcBackendServiceClient {
+			return NewGrpcBackendServiceClient(conn)
 		},
 		action,
 	)
@@ -36,12 +35,12 @@ func ExecuteWithBackendClient[T any](
 
 func ExecuteWithContextValuesClient[T any](
 	url string,
-	action func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[T],
+	action func(client GrpcContextValuesServiceClient) result.Result[T],
 ) result.Result[T] {
-	return ExecuteWithGrpcClient[grpcmodels.GrpcContextValuesServiceClient, T](
+	return ExecuteWithGrpcClient[GrpcContextValuesServiceClient, T](
 		url,
-		func(conn *grpc.ClientConn) grpcmodels.GrpcContextValuesServiceClient {
-			return grpcmodels.NewGrpcContextValuesServiceClient(conn)
+		func(conn *grpc.ClientConn) GrpcContextValuesServiceClient {
+			return NewGrpcContextValuesServiceClient(conn)
 		},
 		action,
 	)

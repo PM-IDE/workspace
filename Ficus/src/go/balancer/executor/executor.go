@@ -142,7 +142,7 @@ func (this *pipelineExecutor) setContextValues(
 	backend string,
 	currentContextValues *contextValuesWithStorage,
 ) result.Result[[]*grpcmodels.GrpcGuid] {
-	return utils.ExecuteWithContextValuesClient[[]*grpcmodels.GrpcGuid](
+	return grpcmodels.ExecuteWithContextValuesClient[[]*grpcmodels.GrpcGuid](
 		backend,
 		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[[]*grpcmodels.GrpcGuid] {
 			defer func() {
@@ -180,7 +180,7 @@ func (this *pipelineExecutor) setContextValues(
 }
 
 func getContextValues(backend string, contextValuesIds []*grpcmodels.GrpcGuid) result.Result[[]*utils.ContextValueWithKey] {
-	return utils.ExecuteWithContextValuesClient[[]*utils.ContextValueWithKey](
+	return grpcmodels.ExecuteWithContextValuesClient[[]*utils.ContextValueWithKey](
 		backend,
 		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[[]*utils.ContextValueWithKey] {
 			var contextValues []*utils.ContextValueWithKey
@@ -212,7 +212,7 @@ func (this *pipelineExecutor) executePipelineParts(
 	executionId uuid.UUID,
 	lastParts bool,
 ) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
-	return utils.ExecuteWithBackendClient[grpcmodels.GrpcGetAllContextValuesResult](
+	return grpcmodels.ExecuteWithBackendClient[grpcmodels.GrpcGetAllContextValuesResult](
 		backend,
 		func(client grpcmodels.GrpcBackendServiceClient) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
 			newPipeline := &grpcmodels.GrpcPipeline{

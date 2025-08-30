@@ -19,7 +19,7 @@ func TestSetContextValues(t *testing.T) {
 		return
 	}
 
-	res := utils.ExecuteWithContextValuesClient(
+	res := grpcmodels.ExecuteWithContextValuesClient(
 		backend,
 		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[void.Void] {
 			outputStream, err := client.SetContextValue(context.Background())
