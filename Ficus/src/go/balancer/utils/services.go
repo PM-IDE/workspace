@@ -8,6 +8,19 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+func ExecuteWithBalancerClient[T any](
+	url string,
+	action func(client grpcmodels.GrpcBackendBalancerServiceClient) result.Result[T],
+) result.Result[T] {
+	return ExecuteWithGrpcClient[grpcmodels.GrpcBackendBalancerServiceClient, T](
+		url,
+		func(conn *grpc.ClientConn) grpcmodels.GrpcBackendBalancerServiceClient {
+			return grpcmodels.NewGrpcBackendBalancerServiceClient(conn)
+		},
+		action,
+	)
+}
+
 func ExecuteWithBackendClient[T any](
 	url string,
 	action func(grpcmodels.GrpcBackendServiceClient) result.Result[T],

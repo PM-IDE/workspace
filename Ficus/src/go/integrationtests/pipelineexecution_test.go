@@ -18,14 +18,20 @@ import (
 )
 
 func TestPipelineExecution(t *testing.T) {
-  backend, ok := os.LookupEnv("BALANCER_BACKEND")
+  balancerBackend, ok := os.LookupEnv("BALANCER_BACKEND")
   if !ok {
-    assert.Fail(t, "balancer backend is not specified")
+    assert.Fail(t, "balancer balancerBackend is not specified")
+    return
+  }
+
+  ficusBackend, ok := os.LookupEnv("FICUS_BACKEND")
+  if !ok {
+    assert.Fail(t, "balancer balancerBackend is not specified")
     return
   }
 
   res := utils.ExecuteWithContextValuesClient(
-    backend,
+    balancerBackend,
     func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[grpcmodels.GrpcGuid] {
       outputStream, err := client.SetContextValue(context.Background())
       assert.Nil(t, err)
@@ -56,8 +62,33 @@ func TestPipelineExecution(t *testing.T) {
 
   assert.True(t, res.IsOk())
 
+  balancerRes := utils.ExecuteWithBalancerClient(
+    balancerBackend,
+    func(client grpcmodels.GrpcBackendBalancerServiceClient) result.Result[void.Void] {
+      request := &grpcmodels.GrpcPredefinedPipelinePartsToBackendsMap{
+        PartsToBackends: []*grpcmodels.GrpcPipelinePartToBackends{
+          {
+            PartName: "UseNamesEventLog",
+            Backends: []string{ficusBackend},
+          },
+          {
+            PartName: "GetNamesEventLog",
+            Backends: []string{ficusBackend},
+          },
+        },
+      }
+
+      _, err := client.SetPipelinePartsToBackendsMap(context.Background(), request)
+      assert.Nil(t, err)
+
+      return result.Ok(void.Instance)
+    },
+  )
+
+  assert.True(t, balancerRes.IsOk())
+
   backendRes := utils.ExecuteWithBackendClient(
-    backend,
+    balancerBackend,
     func(client grpcmodels.GrpcBackendServiceClient) result.Result[void.Void] {
       id, _ := uuid.NewV7()
       request := &grpcmodels.GrpcProxyPipelineExecutionRequest{
@@ -112,7 +143,7 @@ func TestPipelineExecution(t *testing.T) {
 
         if err != nil {
           assert.Fail(t, err.Error())
-          panic(err.Error())
+          return result.Err[void.Void](err)
         }
 
         if partResult := res.GetPipelinePartResult(); partResult != nil {

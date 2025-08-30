@@ -35,6 +35,7 @@
     container_name: balancer_tests
     environment:
       - BALANCER_BACKEND=balancer:8080
+      - FICUS_BACKEND=ficus_backend:8080
     build:
       context: ../../../
       dockerfile: "./Ficus/docker/tests/Tests.Balancer.Dockerfile"
