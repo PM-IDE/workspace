@@ -13,7 +13,6 @@ export interface ProtoGrpcType {
     GrpcGuid: MessageTypeDefinition
     GrpcStringKeyValue: MessageTypeDefinition
     GrpcTimeSpan: MessageTypeDefinition
-    GrpcUuid: MessageTypeDefinition
   }
 }
 

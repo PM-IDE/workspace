@@ -1,5 +1,20 @@
+use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
+use crate::ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcFicusBackendInfo, GrpcGetAllContextValuesResult, GrpcPipelinePartDescriptor, GrpcProxyPipelineExecutionRequest};
+use crate::grpc::context_values_service::ContextValueService;
+use crate::grpc::converters::convert_to_grpc_context_value;
+use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
+use crate::pipelines::keys::context_keys::find_context_key;
+use crate::utils::context_key::{ContextKey, DefaultContextKey};
+use crate::{
+  ficus_proto::{
+    grpc_backend_service_server::GrpcBackendService, GrpcGetContextValueRequest, GrpcGuid,
+    GrpcPipelinePartExecutionResult,
+  },
+  pipelines::pipeline_parts::PipelineParts,
+  utils::user_data::user_data::UserData,
+};
 use futures::Stream;
-use std::any::Any;
 use std::{
   collections::HashMap,
   pin::Pin,
@@ -8,36 +23,19 @@ use std::{
 use tokio::sync::mpsc::{self, Sender};
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
-
-use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
-use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
-use crate::ficus_proto::grpc_get_context_value_result::ContextValueResult;
-use crate::ficus_proto::GrpcProxyPipelineExecutionRequest;
-use crate::grpc::context_values_service::ContextValueService;
-use crate::grpc::converters::convert_to_grpc_context_value;
-use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
-use crate::pipelines::keys::context_keys::find_context_key;
-use crate::utils::context_key::ContextKey;
-use crate::{
-  ficus_proto::{
-    grpc_backend_service_server::GrpcBackendService, GrpcGetContextValueRequest, GrpcGetContextValueResult, GrpcGuid,
-    GrpcPipelinePartExecutionResult,
-  },
-  pipelines::pipeline_parts::PipelineParts,
-  utils::user_data::user_data::{UserData, UserDataImpl},
-};
+use uuid::Uuid;
 
 pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_result::Result;
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;
 
 pub struct FicusService {
-  cv_service: Arc<Mutex<ContextValueService>>,
+  cv_service: Arc<ContextValueService>,
   pipeline_parts: Arc<Box<PipelineParts>>,
-  contexts: Arc<Box<Mutex<HashMap<String, UserDataImpl>>>>,
+  contexts: Arc<Box<Mutex<HashMap<String, HashMap<String, Uuid>>>>>,
 }
 
 impl FicusService {
-  pub fn new(cv_service: Arc<Mutex<ContextValueService>>) -> Self {
+  pub fn new(cv_service: Arc<ContextValueService>) -> Self {
     Self {
       cv_service,
       pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
@@ -48,7 +46,7 @@ impl FicusService {
 
 #[tonic::async_trait]
 impl GrpcBackendService for FicusService {
-  type ExecutePipelineStream = Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  type ExecutePipelineStream = Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline(
     &self,
@@ -58,15 +56,15 @@ impl GrpcBackendService for FicusService {
     let contexts = self.contexts.clone();
     let (sender, receiver) = mpsc::channel(4);
 
-    let mut cv_service = self.cv_service.lock();
-    let cv_service = cv_service.as_mut().expect("Must acquire lock");
-    let context_values = match cv_service.reclaim_context_values(&request.get_ref().context_values_ids) {
+    let context_values = match self.cv_service.reclaim_context_values(&request.get_ref().context_values_ids) {
       Ok(context_values) => context_values,
       Err(not_found_id) => {
         let message = format!("Failed to find context value for id {}", not_found_id);
         return Err(Status::invalid_argument(message));
       }
     };
+
+    let cv_service = self.cv_service.clone();
 
     tokio::task::spawn_blocking(move || {
       let grpc_pipeline = request.get_ref().pipeline.as_ref().unwrap();
@@ -76,7 +74,25 @@ impl GrpcBackendService for FicusService {
 
       match context.execute_grpc_pipeline(|_| Ok(())) {
         Ok((uuid, created_context)) => {
-          contexts.lock().as_mut().unwrap().insert(uuid.to_string(), created_context);
+          if let Some(items) = created_context.items() {
+            let mut ids = HashMap::new();
+
+            for (key, value) in items {
+              let context_key = DefaultContextKey::<()>::existing(key.id(), key.name().to_owned());
+
+              if let Some(grpc_cv) = convert_to_grpc_context_value(&context_key, value) {
+                let id = Uuid::new_v4();
+                cv_service.put_context_value(id.to_string(), GrpcContextKeyValue {
+                  key: Some(GrpcContextKey { name: key.name().to_owned() }),
+                  value: Some(grpc_cv),
+                });
+
+                ids.insert(key.name().to_owned(), id);
+              }
+            }
+
+            contexts.lock().as_mut().unwrap().insert(uuid.to_string(), ids);
+          }
 
           context
             .sender()
@@ -93,29 +109,33 @@ impl GrpcBackendService for FicusService {
     Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
   }
 
-  async fn get_context_value(&self, request: Request<GrpcGetContextValueRequest>) -> Result<Response<GrpcGetContextValueResult>, Status> {
+  async fn get_context_value(&self, request: Request<GrpcGetContextValueRequest>) -> Result<Response<GrpcGuid>, Status> {
     let key_name = &request.get_ref().key.as_ref().unwrap().name;
-    let result = match find_context_key(key_name) {
-      None => Self::create_get_context_value_error("Failed to find key for key name".to_string()),
+    match find_context_key(key_name) {
+      None => Err(Status::not_found(format!("Failed to find key for key name {}", key_name))),
       Some(key) => {
         let id = request.get_ref().execution_id.as_ref().unwrap();
         match self.contexts.lock().as_mut().unwrap().get_mut(&id.guid) {
-          None => Self::create_get_context_value_error("Failed to get context for guid".to_string()),
-          Some(value) => match value.any(key.key()) {
-            None => {
-              if let Some(created_value) = value.any(key.key()) {
-                self.try_convert_context_value(key, created_value)
-              } else {
-                Self::create_get_context_value_error("Failed to find context value for key".to_string())
-              }
-            }
-            Some(context_value) => self.try_convert_context_value(key, context_value),
-          },
+          None => Err(Status::not_found("Failed to get context for guid".to_string())),
+          Some(keys_to_cv_ids) => match keys_to_cv_ids.get(key.key().name()) {
+            None => Err(Status::not_found("Failed to get context for guid".to_string())),
+            Some(id) => Ok(Response::new(GrpcGuid { guid: id.to_string() })),
+          }
         }
       }
-    };
+    }
+  }
 
-    Ok(Response::new(result))
+  async fn get_all_context_values(&self, request: Request<GrpcGuid>) -> Result<Response<GrpcGetAllContextValuesResult>, Status> {
+    let id = request.get_ref();
+    match self.contexts.lock().as_ref().unwrap().get(&id.guid) {
+      None => Err(Status::not_found("The context values for supplied execution id are not found")),
+      Some(keys_to_cv_ids) => Ok(Response::new(GrpcGetAllContextValuesResult {
+        context_values: keys_to_cv_ids.values().into_iter().map(|id| GrpcGuid {
+          guid: id.to_string()
+        }).collect()
+      }))
+    }
   }
 
   async fn drop_execution_result(&self, request: Request<GrpcGuid>) -> Result<Response<()>, Status> {
@@ -128,24 +148,17 @@ impl GrpcBackendService for FicusService {
       Some(_) => Ok(Response::new(())),
     }
   }
-}
 
-impl FicusService {
-  fn create_get_context_value_error(message: String) -> GrpcGetContextValueResult {
-    GrpcGetContextValueResult {
-      context_value_result: Some(ContextValueResult::Error(message)),
-    }
-  }
-
-  fn try_convert_context_value(&self, key: &dyn ContextKey, context_value: &dyn Any) -> GrpcGetContextValueResult {
-    let value = convert_to_grpc_context_value(key, context_value);
-    if let Some(grpc_context_value) = value {
-      GrpcGetContextValueResult {
-        context_value_result: Some(ContextValueResult::Value(grpc_context_value)),
-      }
-    } else {
-      let msg = "Can not convert context value to grpc model".to_string();
-      Self::create_get_context_value_error(msg)
-    }
+  async fn get_backend_info(&self, _: Request<()>) -> Result<Response<GrpcFicusBackendInfo>, Status> {
+    Ok(Response::new(GrpcFicusBackendInfo {
+      name: "RUST_FICUS_BACKEND".to_string(),
+      pipeline_parts: self.pipeline_parts
+        .pipeline_parts_descriptors()
+        .into_iter()
+        .map(|d| GrpcPipelinePartDescriptor {
+          name: d.name()
+        })
+        .collect(),
+    }))
   }
 }

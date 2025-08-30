@@ -4,12 +4,41 @@ import "pipelines_and_context.proto";
 import "util.proto";
 import "google/protobuf/empty.proto";
 
+option go_package = "./;grpcmodels";
+
 package ficus;
+
+service GrpcBackendBalancerService {
+  rpc SetPipelinePartsToBackendsMap(GrpcPredefinedPipelinePartsToBackendsMap) returns (google.protobuf.Empty);
+}
+
+message GrpcPredefinedPipelinePartsToBackendsMap {
+  repeated GrpcPipelinePartToBackends parts_to_backends = 1;
+}
+
+message GrpcPipelinePartToBackends {
+  string part_name = 1;
+  repeated string backends = 2;
+}
 
 service GrpcBackendService {
   rpc ExecutePipeline(GrpcProxyPipelineExecutionRequest) returns (stream GrpcPipelinePartExecutionResult);
-  rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGetContextValueResult);
+
+  rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGuid);
+  rpc GetAllContextValues(GrpcGuid) returns (GrpcGetAllContextValuesResult);
+
   rpc DropExecutionResult(GrpcGuid) returns (google.protobuf.Empty);
+
+  rpc GetBackendInfo(google.protobuf.Empty) returns (GrpcFicusBackendInfo);
+}
+
+message GrpcFicusBackendInfo {
+  string name = 1;
+  repeated GrpcPipelinePartDescriptor pipeline_parts = 2;
+}
+
+message GrpcPipelinePartDescriptor {
+  string name = 1;
 }
 
 message GrpcGetContextValueRequest {
@@ -41,7 +70,7 @@ message GrpcPipelinePartLogMessage {
 
 message GrpcPipelinePartResult {
   repeated GrpcContextValueWithKeyName contextValues = 1;
-  GrpcUuid uuid = 2;
+  GrpcGuid guid = 2;
 }
 
 message GrpcPipelineFinalResult {
@@ -51,9 +80,6 @@ message GrpcPipelineFinalResult {
   }
 }
 
-message GrpcGetContextValueResult {
-  oneof contextValueResult {
-    GrpcContextValue value = 1;
-    string error = 2;
-  }
+message GrpcGetAllContextValuesResult {
+  repeated GrpcGuid context_values = 1;
 }

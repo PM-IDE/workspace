@@ -1,5 +1,4 @@
 from .util import *
-from ..models.util_pb2 import GrpcUuid
 from ...grpc_pipelines.constants import *
 from ...grpc_pipelines.context_values import *
 from ...grpc_pipelines.data_models import PatternsDiscoveryStrategy, PatternsKind, NarrowActivityKind, \
@@ -166,13 +165,13 @@ def create_simple_get_context_value_part(frontend_part_uuid: uuid.UUID, frontend
                                          key_name: str):
   return GrpcSimpleContextRequestPipelinePart(
     frontendPipelinePartName=frontend_pipeline_part_name,
-    frontendPartUuid=create_grpc_uuid(frontend_part_uuid),
+    frontendPartUuid=create_grpc_guid(frontend_part_uuid),
     key=GrpcContextKey(name=key_name)
   )
 
 
-def create_grpc_uuid(uuid: uuid.UUID) -> GrpcUuid:
-  return GrpcUuid(uuid=str(uuid))
+def create_grpc_guid(uuid: uuid.UUID):
+  return GrpcGuid(guid=str(uuid))
 
 
 def create_complex_get_context_part(frontend_part_uuid: uuid.UUID,
@@ -182,7 +181,7 @@ def create_complex_get_context_part(frontend_part_uuid: uuid.UUID,
                                     config: GrpcPipelinePartConfiguration):
   return GrpcComplexContextRequestPipelinePart(
     frontendPipelinePartName=frontend_pipeline_part_name,
-    frontendPartUuid=create_grpc_uuid(frontend_part_uuid),
+    frontendPartUuid=create_grpc_guid(frontend_part_uuid),
     keys=list(map(lambda x: GrpcContextKey(name=x), key_names)),
     beforePipelinePart=GrpcPipelinePart(
       name=before_part_name,

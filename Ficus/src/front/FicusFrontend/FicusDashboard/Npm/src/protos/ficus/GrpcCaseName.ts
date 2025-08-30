@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/front_contract.proto
+// Original file: ../../../../../protos/front_contract.proto
 
 
 export interface GrpcCaseName_DONTUSE {

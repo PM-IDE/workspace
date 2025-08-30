@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/util.proto
+// Original file: ../../../../../protos/util.proto
 
 
 export interface GrpcUuid_DONTUSE {

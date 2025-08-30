@@ -28,7 +28,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nutil.proto\x12\x05\x66icus\"\x18\n\x08GrpcGuid\x12\x0c\n\x04guid\x18\x01 \x01(\t\"5\n\tGrpcColor\x12\x0b\n\x03red\x18\x01 \x01(\r\x12\r\n\x05green\x18\x02 \x01(\r\x12\x0c\n\x04\x62lue\x18\x03 \x01(\r\"\x18\n\x08GrpcUuid\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"0\n\x12GrpcStringKeyValue\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"#\n\x0cGrpcTimeSpan\x12\x13\n\x0bnanoseconds\x18\x01 \x01(\x04\"+\n\x0cGrpcDateTime\x12\x1b\n\x13nanosSinceUnixEpoch\x18\x01 \x01(\x04\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nutil.proto\x12\x05\x66icus\"\x18\n\x08GrpcGuid\x12\x0c\n\x04guid\x18\x01 \x01(\t\"5\n\tGrpcColor\x12\x0b\n\x03red\x18\x01 \x01(\r\x12\r\n\x05green\x18\x02 \x01(\r\x12\x0c\n\x04\x62lue\x18\x03 \x01(\r\"0\n\x12GrpcStringKeyValue\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"#\n\x0cGrpcTimeSpan\x12\x13\n\x0bnanoseconds\x18\x01 \x01(\x04\"+\n\x0cGrpcDateTime\x12\x1b\n\x13nanosSinceUnixEpoch\x18\x01 \x01(\x04\x42\x0fZ\r./;grpcmodelsb\x06proto3')
 
 
 
@@ -42,6 +42,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
 
+  DESCRIPTOR._serialized_options = b'Z\r./;grpcmodels'
+
   _globals['_GRPCGUID']._serialized_start=21
 
   _globals['_GRPCGUID']._serialized_end=45
@@ -50,20 +52,16 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   _globals['_GRPCCOLOR']._serialized_end=100
 
-  _globals['_GRPCUUID']._serialized_start=102
+  _globals['_GRPCSTRINGKEYVALUE']._serialized_start=102
 
-  _globals['_GRPCUUID']._serialized_end=126
+  _globals['_GRPCSTRINGKEYVALUE']._serialized_end=150
 
-  _globals['_GRPCSTRINGKEYVALUE']._serialized_start=128
+  _globals['_GRPCTIMESPAN']._serialized_start=152
 
-  _globals['_GRPCSTRINGKEYVALUE']._serialized_end=176
+  _globals['_GRPCTIMESPAN']._serialized_end=187
 
-  _globals['_GRPCTIMESPAN']._serialized_start=178
+  _globals['_GRPCDATETIME']._serialized_start=189
 
-  _globals['_GRPCTIMESPAN']._serialized_end=213
-
-  _globals['_GRPCDATETIME']._serialized_start=215
-
-  _globals['_GRPCDATETIME']._serialized_end=258
+  _globals['_GRPCDATETIME']._serialized_end=232
 
 # @@protoc_insertion_point(module_scope)

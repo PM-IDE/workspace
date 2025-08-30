@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/kafka_service.proto
+// Original file: ../../../../../protos/kafka_service.proto
 
 
 export interface GrpcT2LossyCountConfiguration_DONTUSE {

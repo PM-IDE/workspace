@@ -52,6 +52,14 @@ where
       _hash: CURRENT_HASH.fetch_add(1, Ordering::SeqCst),
     }
   }
+
+  pub fn existing(id: u64, name: String) -> Self {
+    Self {
+      _hash: id,
+      name,
+      _phantom_data: PhantomData,
+    }
+  }
 }
 
 impl<T> PartialEq for DefaultKey<T> {

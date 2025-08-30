@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pipelines_and_context.proto
+// Original file: ../../../../../protos/pipelines_and_context.proto
 
 import type { GrpcTraceSubArrays_DONTUSE as _ficus_GrpcTraceSubArrays_DONTUSE, GrpcTraceSubArrays as _ficus_GrpcTraceSubArrays } from '../ficus/GrpcTraceSubArrays';
 

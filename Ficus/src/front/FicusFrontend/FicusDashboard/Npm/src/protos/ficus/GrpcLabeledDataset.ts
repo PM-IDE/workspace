@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/pm_models.proto
+// Original file: ../../../../../protos/pm_models.proto
 
 import type { GrpcDataset_DONTUSE as _ficus_GrpcDataset_DONTUSE, GrpcDataset as _ficus_GrpcDataset } from '../ficus/GrpcDataset';
 import type { GrpcColor_DONTUSE as _ficus_GrpcColor_DONTUSE, GrpcColor as _ficus_GrpcColor } from '../ficus/GrpcColor';

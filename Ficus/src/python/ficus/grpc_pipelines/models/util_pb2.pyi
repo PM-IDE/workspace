@@ -20,12 +20,6 @@ class GrpcColor(_message.Message):
     blue: int
     def __init__(self, red: _Optional[int] = ..., green: _Optional[int] = ..., blue: _Optional[int] = ...) -> None: ...
 
-class GrpcUuid(_message.Message):
-    __slots__ = ["uuid"]
-    UUID_FIELD_NUMBER: _ClassVar[int]
-    uuid: str
-    def __init__(self, uuid: _Optional[str] = ...) -> None: ...
-
 class GrpcStringKeyValue(_message.Message):
     __slots__ = ["key", "value"]
     KEY_FIELD_NUMBER: _ClassVar[int]

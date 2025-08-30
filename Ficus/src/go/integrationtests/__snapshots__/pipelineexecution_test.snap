@@ -1,0 +1,51 @@
+
+[TestPipelineExecution - 1]
+[
+  [
+    {
+      "key_name": "names_event_log",
+      "value": {
+        "ContextValue": {
+          "NamesLog": {
+            "log": {
+              "traces": [
+                {
+                  "events": [
+                    "A",
+                    "B",
+                    "C",
+                    "D"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  [
+    {
+      "key_name": "names_event_log",
+      "value": {
+        "ContextValue": {
+          "NamesLog": {
+            "log": {
+              "traces": [
+                {
+                  "events": [
+                    "A",
+                    "B",
+                    "C",
+                    "D"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+]
+---

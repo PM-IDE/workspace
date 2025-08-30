@@ -1,6 +1,7 @@
 import type * as grpc from '@grpc/grpc-js';
 import type { EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
 
+import type { GrpcBackendBalancerServiceClient as _ficus_GrpcBackendBalancerServiceClient, GrpcBackendBalancerServiceDefinition as _ficus_GrpcBackendBalancerServiceDefinition } from './ficus/GrpcBackendBalancerService';
 import type { GrpcBackendServiceClient as _ficus_GrpcBackendServiceClient, GrpcBackendServiceDefinition as _ficus_GrpcBackendServiceDefinition } from './ficus/GrpcBackendService';
 import type { GrpcKafkaServiceClient as _ficus_GrpcKafkaServiceClient, GrpcKafkaServiceDefinition as _ficus_GrpcKafkaServiceDefinition } from './ficus/GrpcKafkaService';
 
@@ -16,6 +17,7 @@ export interface ProtoGrpcType {
     GrpcAddPipelineStreamRequest: MessageTypeDefinition
     GrpcAllocationInfo: MessageTypeDefinition
     GrpcAnnotation: MessageTypeDefinition
+    GrpcBackendBalancerService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcBackendBalancerServiceClient> & { service: _ficus_GrpcBackendBalancerServiceDefinition }
     GrpcBackendService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcBackendServiceClient> & { service: _ficus_GrpcBackendServiceDefinition }
     GrpcBytes: MessageTypeDefinition
     GrpcColor: MessageTypeDefinition
@@ -41,18 +43,19 @@ export interface ProtoGrpcType {
     GrpcEntityTimeAnnotation: MessageTypeDefinition
     GrpcEnum: MessageTypeDefinition
     GrpcEvent: MessageTypeDefinition
+    GrpcEventAttribute: MessageTypeDefinition
     GrpcEventCoordinates: MessageTypeDefinition
     GrpcEventLogInfo: MessageTypeDefinition
     GrpcEventLogTraceSubArraysContextValue: MessageTypeDefinition
-    GrpcEventStamp: MessageTypeDefinition
     GrpcExecutePipelineAndProduceKafkaRequest: MessageTypeDefinition
+    GrpcFicusBackendInfo: MessageTypeDefinition
     GrpcFloatArray: MessageTypeDefinition
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGeneralHistogramData: MessageTypeDefinition
     GrpcGenericEnhancementBase: MessageTypeDefinition
+    GrpcGetAllContextValuesResult: MessageTypeDefinition
     GrpcGetAllSubscriptionsAndPipelinesResponse: MessageTypeDefinition
     GrpcGetContextValueRequest: MessageTypeDefinition
-    GrpcGetContextValueResult: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition
@@ -101,10 +104,13 @@ export interface ProtoGrpcType {
     GrpcPipelinePart: MessageTypeDefinition
     GrpcPipelinePartBase: MessageTypeDefinition
     GrpcPipelinePartConfiguration: MessageTypeDefinition
+    GrpcPipelinePartDescriptor: MessageTypeDefinition
     GrpcPipelinePartExecutionResult: MessageTypeDefinition
     GrpcPipelinePartLogMessage: MessageTypeDefinition
     GrpcPipelinePartResult: MessageTypeDefinition
+    GrpcPipelinePartToBackends: MessageTypeDefinition
     GrpcPipelineStreamingConfiguration: MessageTypeDefinition
+    GrpcPredefinedPipelinePartsToBackendsMap: MessageTypeDefinition
     GrpcProcessInfo: MessageTypeDefinition
     GrpcProxyPipelineExecutionRequest: MessageTypeDefinition
     GrpcRemoveAllPipelinesRequest: MessageTypeDefinition
@@ -140,7 +146,6 @@ export interface ProtoGrpcType {
     GrpcUnderlyingPatternInfo: MessageTypeDefinition
     GrpcUnderlyingPatternKind: EnumTypeDefinition
     GrpcUnsubscribeFromKafkaRequest: MessageTypeDefinition
-    GrpcUuid: MessageTypeDefinition
   }
   google: {
     protobuf: {

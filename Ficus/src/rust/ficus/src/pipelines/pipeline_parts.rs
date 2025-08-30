@@ -7,9 +7,21 @@ use crate::utils::user_data::keys::Key;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 use fancy_regex::Regex;
 use std::collections::HashMap;
+use derive_new::new;
 
 pub struct PipelineParts {
   names_to_parts: HashMap<String, PipelinePartFactory>,
+}
+
+#[derive(new)]
+pub struct PipelinePartDescriptor {
+  name: String,
+}
+
+impl PipelinePartDescriptor {
+  pub fn name(self) -> String {
+    self.name
+  }
 }
 
 impl PipelineParts {
@@ -126,6 +138,16 @@ impl PipelineParts {
 
   pub fn len(&self) -> usize {
     self.names_to_parts.len()
+  }
+
+  pub fn pipeline_parts_descriptors(&self) -> Vec<PipelinePartDescriptor> {
+    let mut descriptors = vec![];
+    for factory in self.names_to_parts.values() {
+      let name = factory(Box::new(UserDataImpl::new())).name().to_owned();
+      descriptors.push(PipelinePartDescriptor::new(name))
+    }
+
+    descriptors
   }
 
   pub(super) fn create_pipeline_part(
