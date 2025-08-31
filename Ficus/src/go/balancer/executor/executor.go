@@ -241,22 +241,26 @@ func (this *pipelineExecutor) executePipelineParts(
 					return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
 				}
 
-				if finalResult := execResult.GetFinalResult(); finalResult != nil && lastParts {
+				if finalResult := execResult.GetFinalResult(); finalResult != nil {
 					if backendExecutionId := finalResult.GetSuccess(); backendExecutionId != nil {
-						patchedResult := &grpcmodels.GrpcPipelinePartExecutionResult{
-							Result: &grpcmodels.GrpcPipelinePartExecutionResult_FinalResult{
-								FinalResult: &grpcmodels.GrpcPipelineFinalResult{
-									ExecutionResult: &grpcmodels.GrpcPipelineFinalResult_Success{
-										Success: &grpcmodels.GrpcGuid{
-											Guid: executionId.String(),
+						execId = backendExecutionId
+
+						if lastParts {
+							patchedResult := &grpcmodels.GrpcPipelinePartExecutionResult{
+								Result: &grpcmodels.GrpcPipelinePartExecutionResult_FinalResult{
+									FinalResult: &grpcmodels.GrpcPipelineFinalResult{
+										ExecutionResult: &grpcmodels.GrpcPipelineFinalResult_Success{
+											Success: &grpcmodels.GrpcGuid{
+												Guid: executionId.String(),
+											},
 										},
 									},
 								},
-							},
+							}
+
+							outputChannel <- patchedResult
 						}
 
-						outputChannel <- patchedResult
-						execId = backendExecutionId
 						break
 					} else {
 						outputChannel <- execResult
