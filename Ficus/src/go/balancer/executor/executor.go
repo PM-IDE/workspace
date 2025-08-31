@@ -13,6 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	cmap "github.com/orcaman/concurrent-map/v2"
+	"go.uber.org/zap"
 )
 
 type PipelineExecutor interface {
@@ -23,6 +24,7 @@ type PipelineExecutor interface {
 		plan *plan.ExecutionPlan,
 		initialContextValues []uuid.UUID,
 		outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
+		logger *zap.SugaredLogger,
 	) result.Result[uuid.UUID]
 }
 
@@ -57,6 +59,7 @@ func (this *pipelineExecutor) Execute(
 	plan *plan.ExecutionPlan,
 	initialContextValues []uuid.UUID,
 	outputChannel chan *grpcmodels.GrpcPipelinePartExecutionResult,
+	logger *zap.SugaredLogger,
 ) result.Result[uuid.UUID] {
 	defer close(outputChannel)
 
@@ -69,13 +72,20 @@ func (this *pipelineExecutor) Execute(
 		return result.Err[uuid.UUID](err)
 	}
 
+	logger.Infow("Generated execution id", "execution_id", executionId, "initial_context_values", initialContextValues)
+
 	currentContextValues := &contextValuesWithStorage{initialContextValues, this.contextValuesStorage}
 
 	for index, node := range plan.GetNodes() {
-		contextValuesIdsRes := this.setContextValues(node.GetBackend(), currentContextValues)
+		logger = logger.With("index", index)
+		logger.Infow("Started executing new node")
+
+		contextValuesIdsRes := this.setContextValues(node.GetBackend(), currentContextValues, logger)
 		if contextValuesIdsRes.IsErr() {
 			return result.Err[uuid.UUID](contextValuesIdsRes.Err())
 		}
+
+		logger.Infow("Set context values", "current_context_values", currentContextValues)
 
 		lastParts := index == len(plan.GetNodes())-1
 
@@ -92,15 +102,20 @@ func (this *pipelineExecutor) Execute(
 			return result.Err[uuid.UUID](newContextValuesIdsRes.Err())
 		}
 
+		logger.Infow("Executed pipeline parts")
+
 		newContextValuesRes := getContextValues(node.GetBackend(), newContextValuesIdsRes.Ok().GetContextValues())
 		if newContextValuesRes.IsErr() {
 			return result.Err[uuid.UUID](newContextValuesRes.Err())
 		}
 
 		var newStorage contextvalues.Storage
+
 		if lastParts {
+			logger.Infow("Using shared context values storage")
 			newStorage = this.contextValuesStorage
 		} else {
+			logger.Infow("Using new context values storage")
 			newStorage = contextvalues.NewContextValuesStorage()
 		}
 
@@ -113,6 +128,8 @@ func (this *pipelineExecutor) Execute(
 			}
 
 			newStorage.AddContextValue(cvId, newContextValue.Key, newContextValue.Value)
+			logger.Infow("Added new context value to storage", "context_value_id", cvId, "context_value_key", newContextValue.Key)
+
 			newContextValuesIds = append(newContextValuesIds, cvId)
 		}
 
@@ -127,6 +144,7 @@ func (this *pipelineExecutor) Execute(
 				executionResultContextValues[cv.Key.Name] = id
 			}
 
+			logger.Infow("Set final execution result context values", "final_context_values", executionResultContextValues)
 			this.executions.Set(executionId, executionResultContextValues)
 			break
 		} else {
@@ -135,18 +153,22 @@ func (this *pipelineExecutor) Execute(
 		}
 	}
 
+	logger.Infow("Finished execution of pipeline")
+
 	return result.Ok(&executionId)
 }
 
 func (this *pipelineExecutor) setContextValues(
 	backend string,
 	currentContextValues *contextValuesWithStorage,
+	logger *zap.SugaredLogger,
 ) result.Result[[]*grpcmodels.GrpcGuid] {
 	return grpcmodels.ExecuteWithContextValuesClient[[]*grpcmodels.GrpcGuid](
 		backend,
 		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[[]*grpcmodels.GrpcGuid] {
 			defer func() {
 				if currentContextValues.storage != this.contextValuesStorage {
+					logger.Infow("Cleaning context values storage")
 					currentContextValues.storage.Clear()
 				}
 			}()
@@ -165,15 +187,17 @@ func (this *pipelineExecutor) setContextValues(
 						return result.Err[[]*grpcmodels.GrpcGuid](err)
 					}
 
-					reply, err := stream.CloseAndRecv()
+					cvId, err := stream.CloseAndRecv()
 					if err != nil {
 						return result.Err[[]*grpcmodels.GrpcGuid](err)
 					}
 
-					contextValuesIds = append(contextValuesIds, reply)
+					logger.Infow("Added context value", "context_value_id", cvId)
+					contextValuesIds = append(contextValuesIds, cvId)
 				}
 			}
 
+			logger.Infow("Final context values", "context_value_ids", contextValuesIds)
 			return result.Ok(&contextValuesIds)
 		},
 	)

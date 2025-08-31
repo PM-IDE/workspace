@@ -86,7 +86,7 @@ func (this *BackendServiceServer) ExecutePipeline(
 	errorChannel := make(chan result.Result[uuid.UUID])
 
 	go func() {
-		errorChannel <- this.executor.Execute(planRes.Ok(), initialContextValuesIds, pipelinePartsResultsChannel)
+		errorChannel <- this.executor.Execute(planRes.Ok(), initialContextValuesIds, pipelinePartsResultsChannel, logger)
 		close(errorChannel)
 	}()
 
