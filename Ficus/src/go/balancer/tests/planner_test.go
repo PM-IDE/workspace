@@ -3,6 +3,7 @@ package tests
 import (
 	"balancer/backends"
 	"balancer/plan"
+	"balancer/utils"
 	"grpcmodels"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestPlannerErrNonExistingPart(t *testing.T) {
 }
 
 func createTestPlanner() plan.ExecutionPlanner {
-	return plan.NewExecutionPlanner(backends.NewBackendsInfoWithPredefinedParts(map[string][]string{
+	dict := map[string][]string{
 		"Part1":  {"backend-1"},
 		"Part2":  {"backend-1"},
 		"Part3":  {"backend-1"},
@@ -39,7 +40,11 @@ func createTestPlanner() plan.ExecutionPlanner {
 		"Part8":  {"backend-3"},
 		"Part9":  {"backend-3"},
 		"Part10": {"backend-3", "backend-1"},
-	}))
+	}
+
+	logger := utils.NewLogger()
+
+	return plan.NewExecutionPlanner(backends.NewBackendsInfoWithPredefinedParts(dict, logger))
 }
 
 func TestPlannerOk(t *testing.T) {

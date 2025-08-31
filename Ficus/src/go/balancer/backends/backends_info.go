@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+
+	"go.uber.org/zap"
 )
 
 type BackendsInfo interface {
@@ -20,17 +22,28 @@ type backendsInfo struct {
 	lock                       *sync.Mutex
 	predefinedMapSet           *atomic.Bool
 	pipelinePartsToBackendUrls map[string][]string
+	logger                     *zap.SugaredLogger
 }
 
-func NewBackendsInfo() BackendsInfo {
-	return &backendsInfo{&sync.Mutex{}, &atomic.Bool{}, make(map[string][]string)}
+func NewBackendsInfo(logger *zap.SugaredLogger) BackendsInfo {
+	return &backendsInfo{
+		&sync.Mutex{},
+		&atomic.Bool{},
+		make(map[string][]string),
+		logger,
+	}
 }
 
-func NewBackendsInfoWithPredefinedParts(pipelinePartsToBackendUrls map[string][]string) BackendsInfo {
+func NewBackendsInfoWithPredefinedParts(pipelinePartsToBackendUrls map[string][]string, logger *zap.SugaredLogger) BackendsInfo {
 	predefinedMapSet := &atomic.Bool{}
 	predefinedMapSet.Store(true)
 
-	return &backendsInfo{&sync.Mutex{}, predefinedMapSet, pipelinePartsToBackendUrls}
+	return &backendsInfo{
+		&sync.Mutex{},
+		predefinedMapSet,
+		pipelinePartsToBackendUrls,
+		logger,
+	}
 }
 
 func (this *backendsInfo) GetPipelinePartsToBackendUrls() map[string][]string {
@@ -50,7 +63,7 @@ func (this *backendsInfo) UpdateBackendsInfo(urls []string) result.Result[void.V
 		return result.Ok(void.Instance)
 	}
 
-	descriptors := materializeBackendsPipelinePartsDescriptors(urls)
+	descriptors := materializeBackendsPipelinePartsDescriptors(urls, this.logger)
 	pipelinePartsToBackendUrls := make(map[string][]string)
 	for backendUrl, descriptor := range descriptors {
 		for _, part := range descriptor.pipelineParts {

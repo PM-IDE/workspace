@@ -2,11 +2,11 @@ package backends
 
 import (
 	"balancer/result"
-	"fmt"
 	"grpcmodels"
 	"sync"
 
 	cmap "github.com/orcaman/concurrent-map/v2"
+	"go.uber.org/zap"
 	"golang.org/x/net/context"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -28,7 +28,7 @@ func NewBackendDescriptor(name string, pipelineParts []PipelinePartDescriptor) B
 	return BackendDescriptor{name, pipelineParts}
 }
 
-func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]*BackendDescriptor {
+func materializeBackendsPipelinePartsDescriptors(urls []string, logger *zap.SugaredLogger) map[string]*BackendDescriptor {
 	descriptors := cmap.New[*BackendDescriptor]()
 
 	wg := sync.WaitGroup{}
@@ -37,7 +37,7 @@ func materializeBackendsPipelinePartsDescriptors(urls []string) map[string]*Back
 		wg.Go(func() {
 			res := materializeBackendPipelinePartsDescriptors(url)
 			if res.IsErr() {
-				fmt.Printf("Failed to get descriptor for backend %s %s\n", url, res.Err().Error())
+				logger.Warnw("Failed to get descriptor for backend", "backend", url, "error", res.Err().Error())
 				return
 			}
 

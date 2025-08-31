@@ -9,16 +9,6 @@ import (
 )
 
 func main() {
-	lis, err := net.Listen("tcp", ":8080")
-
-	if err != nil {
-		fmt.Printf("failed to listen: %v\n", err)
-		return
-	}
-
-	var opts []grpc.ServerOption
-	grpcServer := grpc.NewServer(opts...)
-
 	container := BuildContainer()
 	defer func() {
 		err := container.Logger.Sync()
@@ -27,12 +17,22 @@ func main() {
 		}
 	}()
 
+	lis, err := net.Listen("tcp", ":8080")
+
+	if err != nil {
+		container.Logger.Errorw("Failed to listen", "error", err)
+		return
+	}
+
+	var opts []grpc.ServerOption
+	grpcServer := grpc.NewServer(opts...)
+
 	grpcmodels.RegisterGrpcBackendServiceServer(grpcServer, container.BackendService)
 	grpcmodels.RegisterGrpcContextValuesServiceServer(grpcServer, container.ContextValuesService)
 	grpcmodels.RegisterGrpcBackendBalancerServiceServer(grpcServer, container.BalancerService)
 
 	err = grpcServer.Serve(lis)
 	if err != nil {
-		fmt.Printf("error  %v\n", err)
+		container.Logger.Errorw("Error happened with grpc server serving", "error", err)
 	}
 }

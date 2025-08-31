@@ -19,11 +19,11 @@ import (
 // Injectors from wire.go:
 
 func BuildContainer() *Container {
-	backendsInfo := backends.NewBackendsInfo()
+	sugaredLogger := utils.NewLogger()
+	backendsInfo := backends.NewBackendsInfo(sugaredLogger)
 	storage := contextvalues.NewContextValuesStorage()
 	pipelineExecutor := executor.NewPipelineExecutor(backendsInfo, storage)
 	executionPlanner := plan.NewExecutionPlanner(backendsInfo)
-	sugaredLogger := utils.NewLogger()
 	backendServiceServer := services.NewBackendServiceServer(backendsInfo, pipelineExecutor, executionPlanner, sugaredLogger)
 	contextValuesServiceServer := services.NewContextValuesServiceServer(storage, sugaredLogger)
 	balancerServiceServer := services.NewBalancerServiceServer(backendsInfo)
