@@ -61,7 +61,12 @@ impl ContextValueService {
 
     match context_values.get(key) {
       None => None,
-      Some(value) => Some((value.key.as_ref().unwrap().name.clone(), value.encode_to_vec()))
+      Some(value) => Some(
+        (
+          value.key.as_ref().unwrap().name.clone(),
+          value.value.as_ref().unwrap().encode_to_vec()
+        )
+      )
     }
   }
 }
@@ -124,10 +129,10 @@ impl GrpcContextValuesService for GrpcContextValueService {
             };
 
             match sender.send(Ok(part)).await {
-              Ok(_) => {},
+              Ok(_) => {}
               Err(err) => {
                 log::error!("Failed to send context value part {}, error {}", key, err.to_string());
-                break
+                break;
               }
             }
           }
