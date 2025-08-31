@@ -1,171 +1,177 @@
 package integrationtests
 
 import (
-	"balancer/result"
-	"balancer/utils"
-	"balancer/void"
-	"context"
-	"encoding/json"
-	"errors"
-	"grpcmodels"
-	"io"
-	"os"
-	"testing"
+  "balancer/result"
+  "balancer/utils"
+  "balancer/void"
+  "context"
+  "encoding/json"
+  "errors"
+  "grpcmodels"
+  "io"
+  "os"
+  "testing"
 
-	"github.com/gkampitakis/go-snaps/snaps"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
+  "github.com/gkampitakis/go-snaps/snaps"
+  "github.com/google/uuid"
+  "github.com/stretchr/testify/assert"
 )
 
 func TestPipelineExecution(t *testing.T) {
-	balancerBackend, ok := os.LookupEnv("BALANCER_BACKEND")
-	if !ok {
-		assert.Fail(t, "balancer balancerBackend is not specified")
-		return
-	}
+  balancerBackend, ok := os.LookupEnv("BALANCER_BACKEND")
+  if !ok {
+    assert.Fail(t, "BALANCER_BACKEND is not specified")
+    return
+  }
 
-	ficusBackend, ok := os.LookupEnv("FICUS_BACKEND")
-	if !ok {
-		assert.Fail(t, "balancer balancerBackend is not specified")
-		return
-	}
+  firstFicusBackend, ok := os.LookupEnv("FICUS_BACKEND_1")
+  if !ok {
+    assert.Fail(t, "FICUS_BACKEND_1 is not specified")
+    return
+  }
 
-	res := grpcmodels.ExecuteWithContextValuesClient(
-		balancerBackend,
-		func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[grpcmodels.GrpcGuid] {
-			outputStream, err := client.SetContextValue(context.Background())
-			assert.Nil(t, err)
+  secondFicusBackend, ok := os.LookupEnv("FICUS_BACKEND_2")
+  if !ok {
+    assert.Fail(t, "FICUS_BACKEND_2 is not specified")
+    return
+  }
 
-			contextValue := &grpcmodels.GrpcContextValue{
-				ContextValue: &grpcmodels.GrpcContextValue_NamesLog{
-					NamesLog: &grpcmodels.GrpcNamesEventLogContextValue{
-						Log: &grpcmodels.GrpcNamesEventLog{
-							Traces: []*grpcmodels.GrpcNamesTrace{
-								{
-									Events: []string{"A", "B", "C", "D"},
-								},
-							},
-						},
-					},
-				},
-			}
+  res := grpcmodels.ExecuteWithContextValuesClient(
+    balancerBackend,
+    func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[grpcmodels.GrpcGuid] {
+      outputStream, err := client.SetContextValue(context.Background())
+      assert.Nil(t, err)
 
-			res := utils.MarshallContextValue(utils.ContextValueWithKey{Key: "names_event_log", Value: contextValue}, outputStream)
-			assert.True(t, res.IsOk())
+      contextValue := &grpcmodels.GrpcContextValue{
+        ContextValue: &grpcmodels.GrpcContextValue_NamesLog{
+          NamesLog: &grpcmodels.GrpcNamesEventLogContextValue{
+            Log: &grpcmodels.GrpcNamesEventLog{
+              Traces: []*grpcmodels.GrpcNamesTrace{
+                {
+                  Events: []string{"A", "B", "C", "D"},
+                },
+              },
+            },
+          },
+        },
+      }
 
-			cvId, err := outputStream.CloseAndRecv()
-			assert.Nil(t, err)
+      res := utils.MarshallContextValue(utils.ContextValueWithKey{Key: "names_event_log", Value: contextValue}, outputStream)
+      assert.True(t, res.IsOk())
 
-			return result.Ok(cvId)
-		},
-	)
+      cvId, err := outputStream.CloseAndRecv()
+      assert.Nil(t, err)
 
-	assert.True(t, res.IsOk())
+      return result.Ok(cvId)
+    },
+  )
 
-	balancerRes := grpcmodels.ExecuteWithBalancerClient(
-		balancerBackend,
-		func(client grpcmodels.GrpcBackendBalancerServiceClient) result.Result[void.Void] {
-			request := &grpcmodels.GrpcPredefinedPipelinePartsToBackendsMap{
-				PartsToBackends: []*grpcmodels.GrpcPipelinePartToBackends{
-					{
-						PartName: "UseNamesEventLog",
-						Backends: []string{ficusBackend},
-					},
-					{
-						PartName: "GetNamesEventLog",
-						Backends: []string{ficusBackend},
-					},
-				},
-			}
+  assert.True(t, res.IsOk())
 
-			_, err := client.SetPipelinePartsToBackendsMap(context.Background(), request)
-			assert.Nil(t, err)
+  balancerRes := grpcmodels.ExecuteWithBalancerClient(
+    balancerBackend,
+    func(client grpcmodels.GrpcBackendBalancerServiceClient) result.Result[void.Void] {
+      request := &grpcmodels.GrpcPredefinedPipelinePartsToBackendsMap{
+        PartsToBackends: []*grpcmodels.GrpcPipelinePartToBackends{
+          {
+            PartName: "UseNamesEventLog",
+            Backends: []string{firstFicusBackend},
+          },
+          {
+            PartName: "GetNamesEventLog",
+            Backends: []string{secondFicusBackend},
+          },
+        },
+      }
 
-			return result.Ok(void.Instance)
-		},
-	)
+      _, err := client.SetPipelinePartsToBackendsMap(context.Background(), request)
+      assert.Nil(t, err)
 
-	assert.True(t, balancerRes.IsOk())
+      return result.Ok(void.Instance)
+    },
+  )
 
-	backendRes := grpcmodels.ExecuteWithBackendClient(
-		balancerBackend,
-		func(client grpcmodels.GrpcBackendServiceClient) result.Result[void.Void] {
-			id, _ := uuid.NewV7()
-			request := &grpcmodels.GrpcProxyPipelineExecutionRequest{
-				ContextValuesIds: []*grpcmodels.GrpcGuid{res.Ok()},
-				Pipeline: &grpcmodels.GrpcPipeline{
-					Parts: []*grpcmodels.GrpcPipelinePartBase{
-						{
-							Part: &grpcmodels.GrpcPipelinePartBase_DefaultPart{
-								DefaultPart: &grpcmodels.GrpcPipelinePart{
-									Name:          "UseNamesEventLog",
-									Configuration: &grpcmodels.GrpcPipelinePartConfiguration{},
-								},
-							},
-						},
-						{
-							Part: &grpcmodels.GrpcPipelinePartBase_ComplexContextRequestPart{
-								ComplexContextRequestPart: &grpcmodels.GrpcComplexContextRequestPipelinePart{
-									Keys:                     []*grpcmodels.GrpcContextKey{{Name: "names_event_log"}},
-									FrontendPartUuid:         &grpcmodels.GrpcGuid{Guid: id.String()},
-									FrontendPipelinePartName: "PrintEventLog",
-									BeforePipelinePart: &grpcmodels.GrpcPipelinePart{
-										Name:          "GetNamesEventLog",
-										Configuration: &grpcmodels.GrpcPipelinePartConfiguration{},
-									},
-								},
-							},
-						},
-						{
-							Part: &grpcmodels.GrpcPipelinePartBase_SimpleContextRequestPart{
-								SimpleContextRequestPart: &grpcmodels.GrpcSimpleContextRequestPipelinePart{
-									FrontendPipelinePartName: "xd",
-									Key:                      &grpcmodels.GrpcContextKey{Name: "names_event_log"},
-									FrontendPartUuid:         &grpcmodels.GrpcGuid{Guid: id.String()},
-								},
-							},
-						},
-					},
-				},
-			}
+  assert.True(t, balancerRes.IsOk())
 
-			outputStream, err := client.ExecutePipeline(context.Background(), request)
-			assert.Nil(t, err)
+  backendRes := grpcmodels.ExecuteWithBackendClient(
+    balancerBackend,
+    func(client grpcmodels.GrpcBackendServiceClient) result.Result[void.Void] {
+      id, _ := uuid.NewV7()
+      request := &grpcmodels.GrpcProxyPipelineExecutionRequest{
+        ContextValuesIds: []*grpcmodels.GrpcGuid{res.Ok()},
+        Pipeline: &grpcmodels.GrpcPipeline{
+          Parts: []*grpcmodels.GrpcPipelinePartBase{
+            {
+              Part: &grpcmodels.GrpcPipelinePartBase_DefaultPart{
+                DefaultPart: &grpcmodels.GrpcPipelinePart{
+                  Name:          "UseNamesEventLog",
+                  Configuration: &grpcmodels.GrpcPipelinePartConfiguration{},
+                },
+              },
+            },
+            {
+              Part: &grpcmodels.GrpcPipelinePartBase_ComplexContextRequestPart{
+                ComplexContextRequestPart: &grpcmodels.GrpcComplexContextRequestPipelinePart{
+                  Keys:                     []*grpcmodels.GrpcContextKey{{Name: "names_event_log"}},
+                  FrontendPartUuid:         &grpcmodels.GrpcGuid{Guid: id.String()},
+                  FrontendPipelinePartName: "PrintEventLog",
+                  BeforePipelinePart: &grpcmodels.GrpcPipelinePart{
+                    Name:          "GetNamesEventLog",
+                    Configuration: &grpcmodels.GrpcPipelinePartConfiguration{},
+                  },
+                },
+              },
+            },
+            {
+              Part: &grpcmodels.GrpcPipelinePartBase_SimpleContextRequestPart{
+                SimpleContextRequestPart: &grpcmodels.GrpcSimpleContextRequestPipelinePart{
+                  FrontendPipelinePartName: "xd",
+                  Key:                      &grpcmodels.GrpcContextKey{Name: "names_event_log"},
+                  FrontendPartUuid:         &grpcmodels.GrpcGuid{Guid: id.String()},
+                },
+              },
+            },
+          },
+        },
+      }
 
-			allResults := make([]*grpcmodels.GrpcPipelinePartExecutionResult, 0)
-			pipelinePartsResults := make([][]*grpcmodels.GrpcContextValueWithKeyName, 0)
+      outputStream, err := client.ExecutePipeline(context.Background(), request)
+      assert.Nil(t, err)
 
-			for {
-				res, err := outputStream.Recv()
-				if errors.Is(err, io.EOF) {
-					break
-				}
+      allResults := make([]*grpcmodels.GrpcPipelinePartExecutionResult, 0)
+      pipelinePartsResults := make([][]*grpcmodels.GrpcContextValueWithKeyName, 0)
 
-				if err != nil {
-					assert.Fail(t, err.Error())
-					return result.Err[void.Void](err)
-				}
+      for {
+        res, err := outputStream.Recv()
+        if errors.Is(err, io.EOF) {
+          break
+        }
 
-				if partResult := res.GetPipelinePartResult(); partResult != nil {
-					pipelinePartsResults = append(pipelinePartsResults, partResult.ContextValues)
-				}
+        if err != nil {
+          assert.Fail(t, err.Error())
+          return result.Err[void.Void](err)
+        }
 
-				allResults = append(allResults, res)
-			}
+        if partResult := res.GetPipelinePartResult(); partResult != nil {
+          pipelinePartsResults = append(pipelinePartsResults, partResult.ContextValues)
+        }
 
-			lastResult := allResults[len(allResults)-1]
-			assert.NotNil(t, lastResult.GetFinalResult())
-			assert.NotNil(t, lastResult.GetFinalResult().GetSuccess())
-			assert.NotEmpty(t, lastResult.GetFinalResult().GetSuccess().Guid)
+        allResults = append(allResults, res)
+      }
 
-			jsonResults, err := json.MarshalIndent(pipelinePartsResults, "", "  ")
-			assert.Nil(t, err)
+      lastResult := allResults[len(allResults)-1]
+      assert.NotNil(t, lastResult.GetFinalResult())
+      assert.NotNil(t, lastResult.GetFinalResult().GetSuccess())
+      assert.NotEmpty(t, lastResult.GetFinalResult().GetSuccess().Guid)
 
-			snaps.MatchSnapshot(t, string(jsonResults))
+      jsonResults, err := json.MarshalIndent(pipelinePartsResults, "", "  ")
+      assert.Nil(t, err)
 
-			return result.Ok(void.Instance)
-		},
-	)
+      snaps.MatchSnapshot(t, string(jsonResults))
 
-	assert.True(t, backendRes.IsOk())
+      return result.Ok(void.Instance)
+    },
+  )
+
+  assert.True(t, backendRes.IsOk())
 }
