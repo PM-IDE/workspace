@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/backend_service.proto
+// Original file: ../../../../../protos/backend_service.proto
 
 import type { GrpcPipeline_DONTUSE as _ficus_GrpcPipeline_DONTUSE, GrpcPipeline as _ficus_GrpcPipeline } from '../ficus/GrpcPipeline';
 import type { GrpcGuid_DONTUSE as _ficus_GrpcGuid_DONTUSE, GrpcGuid as _ficus_GrpcGuid } from '../ficus/GrpcGuid';

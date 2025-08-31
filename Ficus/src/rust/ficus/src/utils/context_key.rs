@@ -34,6 +34,12 @@ where
     }
   }
 
+  pub fn existing(id: u64, name: String) -> Self {
+    Self {
+      key: DefaultKey::existing(id, name)
+    }
+  }
+
   pub fn key(&self) -> &DefaultKey<T> {
     &self.key
   }

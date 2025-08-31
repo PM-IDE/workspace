@@ -103,6 +103,10 @@ impl<'a> UserData for PipelineContext<'a> {
   fn remove_any<T: 'static>(&mut self, key: &dyn Key) {
     self.user_data.remove_any::<T>(key)
   }
+
+  fn items(&self) -> Option<Vec<(Box<dyn Key>, &dyn Any)>> {
+    self.user_data.items()
+  }
 }
 
 impl<'a> PipelineContext<'a> {

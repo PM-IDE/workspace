@@ -6,6 +6,8 @@ import "pm_models.proto";
 import "util.proto";
 import "google/protobuf/empty.proto";
 
+option go_package = "./;grpcmodels";
+
 message GrpcContextKey {
   string name = 1;
 }
@@ -42,6 +44,7 @@ message GrpcContextValue {
     GrpcIntArray int_array = 23;
     GrpcUintArray uint_array = 24;
     string json = 25;
+    GrpcSimpleEventLog event_log = 26;
   }
 }
 
@@ -184,14 +187,14 @@ message GrpcParallelPipelineParts {
 
 message GrpcSimpleContextRequestPipelinePart {
   GrpcContextKey key = 1;
-  GrpcUuid frontendPartUuid = 2;
+  GrpcGuid frontendPartUuid = 2;
   string frontendPipelinePartName = 3;
 }
 
 message GrpcComplexContextRequestPipelinePart {
   repeated GrpcContextKey keys = 1;
   GrpcPipelinePart beforePipelinePart = 2;
-  GrpcUuid frontendPartUuid = 3;
+  GrpcGuid frontendPartUuid = 3;
   string frontendPipelinePartName = 4;
 }
 

@@ -4,10 +4,13 @@ import "pipelines_and_context.proto";
 import "util.proto";
 import "google/protobuf/empty.proto";
 
+option go_package = "./;grpcmodels";
+
 package ficus;
 
 service GrpcContextValuesService {
   rpc SetContextValue(stream GrpcContextValuePart) returns (GrpcGuid);
+  rpc GetContextValue(GrpcGuid) returns (stream GrpcContextValuePart);
   rpc DropContextValues(GrpcDropContextValuesRequest) returns (google.protobuf.Empty);
 }
 

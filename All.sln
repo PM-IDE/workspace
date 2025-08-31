@@ -71,6 +71,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "run", "run", "{2E5DC79D-CA6
 		Ficus\docker\run\Run.FicusFrontend.Dockerfile = Ficus\docker\run\Run.FicusDashboard.Dockerfile
 		Ficus\docker\run\Run.FicusFrontendBackend.Dockerfile = Ficus\docker\run\Run.FicusDashboardBackend.Dockerfile
 		Ficus\docker\run\Run.RustFicusBackend.Dockerfile = Ficus\docker\run\Run.RustFicusBackend.Dockerfile
+		Ficus\docker\run\Run.Balancer.Dockerfile = Ficus\docker\run\Run.Balancer.Dockerfile
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BDBD0D34-99B8-41E7-81B7-884757F3BA90}"
@@ -80,6 +81,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BDBD0D34
 		Ficus\docker\tests\Tests.Python.Dockercompose = Ficus\docker\tests\Tests.Python.Dockercompose
 		Ficus\docker\tests\Tests.Python.Dockerfile = Ficus\docker\tests\Tests.Python.Dockerfile
 		Ficus\docker\tests\Tests.Rust.Dockerfile = Ficus\docker\tests\Tests.Rust.Dockerfile
+		Ficus\docker\tests\Tests.Balancer.Dockerfile = Ficus\docker\tests\Tests.Balancer.Dockerfile
+		Ficus\docker\tests\Tests.Balancer.Dockercompose = Ficus\docker\tests\Tests.Balancer.Dockercompose
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{998F74B8-31F9-44E3-B190-F1BCAF8D3C4C}"
@@ -107,6 +110,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{08516726-B
 		.gitignore = .gitignore
 		Directory.Packages.props = Directory.Packages.props
 		Readme.md = Readme.md
+		.github\workflows\tests.yml = .github\workflows\tests.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerLoggerProvider", "Procfiler\src\dotnet\ProcfilerLoggerProvider\ProcfilerLoggerProvider.csproj", "{F50FE66B-3147-4BE6-97EB-4A6889419E34}"

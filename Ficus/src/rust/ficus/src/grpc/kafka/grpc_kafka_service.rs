@@ -24,15 +24,15 @@ use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
 pub struct GrpcKafkaServiceImpl {
-  context_values_service: Arc<Mutex<ContextValueService>>,
+  cv_service: Arc<ContextValueService>,
   kafka_service: KafkaService,
   pipeline_parts: Arc<Box<PipelineParts>>,
 }
 
 impl GrpcKafkaServiceImpl {
-  pub fn new(context_values_service: Arc<Mutex<ContextValueService>>) -> Self {
+  pub fn new(context_values_service: Arc<ContextValueService>) -> Self {
     Self {
-      context_values_service,
+      cv_service: context_values_service,
       kafka_service: KafkaService::new(),
       pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
     }
@@ -178,10 +178,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let handler = handler as Box<dyn PipelineEventsHandler>;
     let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), Arc::new(handler));
 
-    let mut cv_service = self.context_values_service.lock();
-    let cv_service = cv_service.as_mut().expect("Must acquire lock");
-
-    let context_values = match cv_service.reclaim_context_values(&request.get_ref().pipeline_request.as_ref().unwrap().context_values_ids) {
+    let context_values = match self.cv_service.reclaim_context_values(&request.get_ref().pipeline_request.as_ref().unwrap().context_values_ids) {
       Ok(context_values) => context_values,
       Err(not_found_id) => {
         let message = format!("Failed to find context value for id {}", not_found_id);

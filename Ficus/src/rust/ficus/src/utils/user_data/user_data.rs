@@ -1,6 +1,7 @@
-use std::{any::Any, cell::RefCell, collections::HashMap, rc::Rc};
-
 use super::keys::{DefaultKey, Key};
+use derive_new::new;
+use getset::Getters;
+use std::{any::Any, cell::RefCell, collections::HashMap, rc::Rc};
 
 pub trait UserDataOwner {
   fn user_data(&self) -> &UserDataImpl;
@@ -12,9 +13,15 @@ pub trait ExecuteWithUserData {
   fn execute_with_user_data_mut(&mut self, func: &mut dyn FnMut(&mut UserDataImpl));
 }
 
+#[derive(new, Getters, Debug, Clone)]
+struct UserDataValue {
+  #[getset(get = "pub")] value: Rc<RefCell<dyn Any>>,
+  #[getset(get = "pub")] key_name: String,
+}
+
 #[derive(Debug)]
 pub struct UserDataImpl {
-  values_map: Option<HashMap<u64, Rc<RefCell<dyn Any>>>>,
+  values_map: Option<HashMap<u64, UserDataValue>>,
 }
 
 unsafe impl Send for UserDataImpl {}
@@ -24,11 +31,15 @@ pub trait UserData {
 
   fn put_concrete<T: 'static>(&mut self, key: &DefaultKey<T>, value: T);
   fn put_any<T: 'static>(&mut self, key: &dyn Key, value: T);
+
   fn concrete<T: 'static>(&self, key: &DefaultKey<T>) -> Option<&T>;
   fn any(&self, key: &dyn Key) -> Option<&dyn Any>;
   fn concrete_mut<T: 'static>(&self, key: &DefaultKey<T>) -> Option<&mut T>;
+
   fn remove_concrete<T: 'static>(&mut self, key: &DefaultKey<T>);
   fn remove_any<T: 'static>(&mut self, key: &dyn Key);
+
+  fn items(&self) -> Option<Vec<(Box<dyn Key>, &dyn Any)>>;
 }
 
 impl UserData for UserDataImpl {
@@ -48,7 +59,9 @@ impl UserData for UserDataImpl {
     self.initialize_values_map();
 
     let values_map = self.values_map.as_mut().unwrap();
-    values_map.insert(key.id(), Rc::new(RefCell::new(value)));
+    let value = UserDataValue::new(Rc::new(RefCell::new(value)), key.name().to_owned());
+
+    values_map.insert(key.id(), value);
   }
 
   fn concrete<T: 'static>(&self, key: &DefaultKey<T>) -> Option<&T> {
@@ -62,7 +75,7 @@ impl UserData for UserDataImpl {
 
     let values_map = self.values_map.as_ref().unwrap();
     if let Some(value) = values_map.get(&key.id()) {
-      unsafe { Some(value.as_ref().try_borrow_unguarded().ok().unwrap()) }
+      unsafe { Some(value.value().as_ref().try_borrow_unguarded().ok().unwrap()) }
     } else {
       None
     }
@@ -81,6 +94,25 @@ impl UserData for UserDataImpl {
   fn remove_any<T: 'static>(&mut self, key: &dyn Key) {
     if let Some(values_map) = self.values_map.as_mut() {
       values_map.remove(&key.id());
+    }
+  }
+
+  fn items(&self) -> Option<Vec<(Box<dyn Key>, &dyn Any)>> {
+    if let Some(map) = self.values_map.as_ref() {
+      Some(
+        map
+          .iter()
+          .map(|(k, v)| {
+            let key = Box::new(DefaultKey::<()>::existing(*k, v.key_name.to_owned()));
+
+            unsafe {
+              (key as Box<dyn Key>, v.value().as_ref().try_borrow_unguarded().ok().unwrap())
+            }
+          })
+          .collect()
+      )
+    } else {
+      None
     }
   }
 }
@@ -120,7 +152,7 @@ impl UserDataImpl {
 
     let values_map = self.values_map.as_ref().unwrap();
     if let Some(value) = values_map.get(&key.id()) {
-      unsafe { Some(value.as_ptr().as_mut().unwrap().downcast_mut::<T>().unwrap()) }
+      unsafe { Some(value.value.as_ptr().as_mut().unwrap().downcast_mut::<T>().unwrap()) }
     } else {
       None
     }
@@ -134,7 +166,7 @@ impl Clone for UserDataImpl {
       Some(map) => {
         let mut new_map = HashMap::new();
         for (key, value) in map {
-          new_map.insert(key.clone(), Rc::clone(value));
+          new_map.insert(key.clone(), value.clone());
         }
 
         Self { values_map: Some(new_map) }

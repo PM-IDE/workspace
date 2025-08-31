@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/front_contract.proto
+// Original file: ../../../../../protos/front_contract.proto
 
 import type { GrpcProcessCaseMetadata_DONTUSE as _ficus_GrpcProcessCaseMetadata_DONTUSE, GrpcProcessCaseMetadata as _ficus_GrpcProcessCaseMetadata } from '../ficus/GrpcProcessCaseMetadata';
 import type { Long } from '@grpc/proto-loader';

@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/kafka_service.proto
+// Original file: ../../../../../protos/kafka_service.proto
 
 import type { GrpcT2LossyCountConfiguration_DONTUSE as _ficus_GrpcT2LossyCountConfiguration_DONTUSE, GrpcT2LossyCountConfiguration as _ficus_GrpcT2LossyCountConfiguration } from '../ficus/GrpcT2LossyCountConfiguration';
 import type { GrpcT2TimedSlidingWindowConfiguration_DONTUSE as _ficus_GrpcT2TimedSlidingWindowConfiguration_DONTUSE, GrpcT2TimedSlidingWindowConfiguration as _ficus_GrpcT2TimedSlidingWindowConfiguration } from '../ficus/GrpcT2TimedSlidingWindowConfiguration';

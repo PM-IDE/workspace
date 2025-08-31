@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/front_contract.proto
+// Original file: ../../../../../protos/front_contract.proto
 
 import type { GrpcPipelinePartContextValues_DONTUSE as _ficus_GrpcPipelinePartContextValues_DONTUSE, GrpcPipelinePartContextValues as _ficus_GrpcPipelinePartContextValues } from '../ficus/GrpcPipelinePartContextValues';
 import type { Long } from '@grpc/proto-loader';

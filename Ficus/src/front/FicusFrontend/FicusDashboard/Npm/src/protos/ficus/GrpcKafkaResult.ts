@@ -1,4 +1,4 @@
-// Original file: /Users/aero/work/workspace/Ficus/protos/kafka_service.proto
+// Original file: ../../../../../protos/kafka_service.proto
 
 import type { GrpcKafkaSuccessResult_DONTUSE as _ficus_GrpcKafkaSuccessResult_DONTUSE, GrpcKafkaSuccessResult as _ficus_GrpcKafkaSuccessResult } from '../ficus/GrpcKafkaSuccessResult';
 import type { GrpcKafkaFailedResult_DONTUSE as _ficus_GrpcKafkaFailedResult_DONTUSE, GrpcKafkaFailedResult as _ficus_GrpcKafkaFailedResult } from '../ficus/GrpcKafkaFailedResult';

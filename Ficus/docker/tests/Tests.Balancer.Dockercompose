@@ -1,0 +1,70 @@
+﻿services:
+  ficus_backend_1:
+    container_name: ficus_backend_1
+    build:
+      context: ../../../
+      dockerfile: "./Ficus/docker/run/Run.RustFicusBackend.Dockerfile"
+    expose:
+      - 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - local
+    volumes:
+      - shared_volume:/tmp
+
+  ficus_backend_2:
+    container_name: ficus_backend_2
+    build:
+      context: ../../../
+      dockerfile: "./Ficus/docker/run/Run.RustFicusBackend.Dockerfile"
+    expose:
+      - 8080
+    ports:
+      - "8082:8080"
+    networks:
+      - local
+    volumes:
+      - shared_volume:/tmp
+
+  balancer:
+    container_name: balancer
+    environment:
+      - BALANCER_BACKENDS=ficus_backend:8080
+    build:
+      context: ../../../
+      dockerfile: "./Ficus/docker/run/Run.Balancer.Dockerfile"
+    expose:
+      - 8080
+    ports:
+      - "8081:8080"
+    networks:
+      - local
+    volumes:
+      - shared_volume:/tmp
+    depends_on:
+      - ficus_backend_1
+      - ficus_backend_2
+
+  balancer-tests:
+    container_name: balancer_tests
+    environment:
+      - BALANCER_BACKEND=balancer:8080
+      - FICUS_BACKEND_1=ficus_backend_1:8080
+      - FICUS_BACKEND_2=ficus_backend_2:8080
+    build:
+      context: ../../../
+      dockerfile: "./Ficus/docker/tests/Tests.Balancer.Dockerfile"
+    networks:
+      - local
+    volumes:
+      - shared_volume:/tmp
+    depends_on:
+      - balancer
+
+volumes:
+  shared_volume: {}
+
+networks:
+  local:
+    driver: bridge

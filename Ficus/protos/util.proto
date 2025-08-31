@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "./;grpcmodels";
+
 package ficus;
 
 message GrpcGuid {
@@ -10,10 +12,6 @@ message GrpcColor {
   uint32 red = 1;
   uint32 green = 2;
   uint32 blue = 3;
-}
-
-message GrpcUuid {
-  string uuid = 1;
 }
 
 message GrpcStringKeyValue {
