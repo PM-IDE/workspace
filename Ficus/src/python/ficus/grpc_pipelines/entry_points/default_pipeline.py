@@ -18,7 +18,8 @@ class Pipeline:
   def __init__(self, *parts):
     self.parts: list['PipelinePart'] = list(parts)
 
-  def execute_docker(self, port: int, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
+  def execute_docker(self, port: int, initial_context: dict[str, ContextValue]) -> Optional[
+    GrpcPipelinePartExecutionResult]:
     port = str(port)
 
     try:
@@ -28,7 +29,8 @@ class Pipeline:
 
     self.execute(f'localhost:{port}', initial_context)
 
-  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
+  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> Optional[
+    GrpcPipelinePartExecutionResult]:
     with create_ficus_grpc_channel(ficus_backend) as channel:
       def action(ids):
         stub = GrpcBackendServiceStub(channel)
@@ -69,11 +71,12 @@ class Pipeline:
     client = docker.from_env()
 
     image_name = 'aerooneqq/ficus'
-    image_version = 'latest'
+    image_version = '1.0.2'
 
     running_container = None
     for existing_container in client.containers.list():
       if image_name in existing_container.image.id:
+        print(f'The container with ficus backend is already running {existing_container.id}, {existing_container.name}')
         running_container = existing_container
         break
 
@@ -81,10 +84,11 @@ class Pipeline:
       print(f'Ficus backend container is already running {running_container.id}, {running_container.name}')
       return
 
+    client.images.pull('aerooneqq/ficus', image_version)
+
     container = client.containers.run(f'{image_name}:{image_version}',
                                       detach=True,
-                                      ports={port: 8080},
-                                      name='ficus_backend')
+                                      ports={port: 8080})
 
     print(f"Created container for ficus backend: {container.id}, {container.name}")
 
