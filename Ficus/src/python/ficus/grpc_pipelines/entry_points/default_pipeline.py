@@ -1,3 +1,5 @@
+import docker
+
 from .util import *
 from ...grpc_pipelines.constants import *
 from ...grpc_pipelines.context_values import *
@@ -16,7 +18,17 @@ class Pipeline:
   def __init__(self, *parts):
     self.parts: list['PipelinePart'] = list(parts)
 
-  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> GrpcPipelinePartExecutionResult:
+  def execute_docker(self, port: int, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
+    port = str(port)
+
+    try:
+      self._run_container(port)
+    except Exception as err:
+      print("Failed to start a ficus backend container", err)
+
+    self.execute(f'localhost:{port}', initial_context)
+
+  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
     with create_ficus_grpc_channel(ficus_backend) as channel:
       def action(ids):
         stub = GrpcBackendServiceStub(channel)
@@ -51,6 +63,30 @@ class Pipeline:
         result.append(part)
 
     return result
+
+  @staticmethod
+  def _run_container(port='8080'):
+    client = docker.from_env()
+
+    image_name = 'aerooneqq/ficus'
+    image_version = 'latest'
+
+    running_container = None
+    for existing_container in client.containers.list():
+      if image_name in existing_container.image.id:
+        running_container = existing_container
+        break
+
+    if running_container is not None:
+      print(f'Ficus backend container is already running {running_container.id}, {running_container.name}')
+      return
+
+    container = client.containers.run(f'{image_name}:{image_version}',
+                                      detach=True,
+                                      ports={port: 8080},
+                                      name='ficus_backend')
+
+    print(f"Created container for ficus backend: {container.id}, {container.name}")
 
 
 class PipelinePart:
@@ -224,6 +260,7 @@ def append_context_value(config: GrpcPipelinePartConfiguration, key: str, value:
 def append_uint32_value(config: GrpcPipelinePartConfiguration, key: str, value: int):
   append_context_value(config, key, Uint32ContextValue(value))
 
+
 def append_bool_value(config: GrpcPipelinePartConfiguration, key: str, value: bool):
   append_context_value(config, key, BoolContextValue(value))
 
@@ -273,6 +310,7 @@ def append_activity_filter_kind(config: GrpcPipelinePartConfiguration, key: str,
 
 def append_activities_logs_source(config: GrpcPipelinePartConfiguration, key: str, source: ActivitiesLogsSource):
   append_enum_value(config, key, const_activities_logs_source_enum_name, source.name)
+
 
 def append_json_value(config: GrpcPipelinePartConfiguration, key: str, json_string: str):
   config.configurationParameters.append(GrpcContextKeyValue(
