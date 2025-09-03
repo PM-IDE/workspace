@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           file: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64
           push: true
           tags: aerooneqq/ficus:latest
   
@@ -36,19 +36,19 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
-        
+
       - name: Setup python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-          
+
       - name: Installing deps
-        run: | 
+        run: |
           python -m pip install --upgrade twine
           python -m pip install --upgrade build
-      
+
       - name: Building Ficus
         run: python -m build ${{ github.workspace }}/Ficus/src/python/
-      
+
       - name: Publishing Ficus
         run: python -m twine upload --repository pypi --username __token__ --password ${{ secrets.PYPI_TOKEN }} ${{ github.workspace }}/Ficus/src/python/dist/*
