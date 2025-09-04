@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
   name='ficus-pm',
-  version='1.0.4',
+  version='1.0.5',
   author='Aero',
   author_email='aerooneq@yandex.ru',
   description='The modern Process Mining toolkit',
@@ -46,5 +46,6 @@ setuptools.setup(
                     'grpcio-tools==1.59.0',
                     'suffix-tree==0.1.2',
                     'scikit-learn~=1.3.2',
-                    'attrs~=23.1.0']
+                    'attrs~=23.1.0',
+                    'docker~=7.1.0']
 )

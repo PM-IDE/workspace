@@ -89,7 +89,7 @@ class Pipeline:
 
 def _create_and_run_container(client: DockerClient) -> Optional[ContainerCreationResult]:
   image_name = 'aerooneqq/ficus'
-  image_version = '1.0.4'
+  image_version = '1.0.5'
 
   client.images.pull('aerooneqq/ficus', image_version)
 
