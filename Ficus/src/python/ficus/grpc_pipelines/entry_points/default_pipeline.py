@@ -2,6 +2,7 @@ import dataclasses
 
 import docker
 from docker import DockerClient
+from docker.errors import DockerException
 from docker.models.containers import Container
 
 from .util import *
@@ -29,7 +30,11 @@ class Pipeline:
     self.parts: list['PipelinePart'] = list(parts)
 
   def execute_docker(self, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
-    client = docker.from_env()
+    try:
+      client = docker.from_env()
+    except DockerException as err:
+      print(f"Failed to create docker client, please ensure that docker is installed and up and running, {err}")
+      return None
 
     res: Optional[ContainerCreationResult] = None
     try:
