@@ -40,7 +40,11 @@ class Pipeline:
     try:
       try:
         res = _create_and_run_container(client)
-        self.execute(f'localhost:{res.port}', initial_context)
+        backend_url = f'localhost:{res.port}'
+
+        print(f'Started Ficus backend container ({backend_url}), executing pipeline')
+
+        self.execute(backend_url, initial_context)
       except Exception as err:
         print("Failed to start a ficus backend container", err)
         return None
@@ -90,17 +94,23 @@ class Pipeline:
 def _create_and_run_container(client: DockerClient) -> Optional[ContainerCreationResult]:
   image_name = 'aerooneqq/ficus'
   image_version = '1.0.5'
+  full_image_name = f'{image_name}:{image_version}'
 
-  client.images.pull('aerooneqq/ficus', image_version)
+  print(f'Start pulling image {full_image_name}')
+  client.images.pull(image_name, image_version)
+
+  print(f'Pulled Ficus backend image {full_image_name}, starting Ficus backend container')
 
   container_internal_port = '8080'
-  container = client.containers.run(f'{image_name}:{image_version}',
+  container = client.containers.run(full_image_name,
                                     detach=True,
                                     ports={container_internal_port: 0})
 
   print(f"Created container for ficus backend: {container.id}, {container.name}")
 
   container_port_key = f'{container_internal_port}/tcp'
+  print('Waiting until container ports information will be available')
+
   while not _contains_port(container, container_port_key):
     container.reload()
 
