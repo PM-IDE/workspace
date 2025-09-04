@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           file: ./Ficus/docker/run/Run.RustFicusBackend.Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64/v8
           push: true
           tags: aerooneqq/ficus:1.0.5,aerooneqq/ficus:latest
   
