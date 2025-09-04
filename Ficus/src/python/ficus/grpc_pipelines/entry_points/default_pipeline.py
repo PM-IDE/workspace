@@ -1,4 +1,8 @@
+import dataclasses
+
 import docker
+from docker import DockerClient
+from docker.models.containers import Container
 
 from .util import *
 from ...grpc_pipelines.constants import *
@@ -14,23 +18,35 @@ from ...legacy.analysis.patterns.patterns_models import UndefinedActivityHandlin
 from ...legacy.pipelines.analysis.patterns.models import AdjustingMode
 
 
+@dataclasses.dataclass
+class ContainerCreationResult:
+  id: str
+  port: int
+
+
 class Pipeline:
   def __init__(self, *parts):
     self.parts: list['PipelinePart'] = list(parts)
 
-  def execute_docker(self, port: int, initial_context: dict[str, ContextValue]) -> Optional[
-    GrpcPipelinePartExecutionResult]:
-    port = str(port)
+  def execute_docker(self, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
+    client = docker.from_env()
 
+    res: Optional[ContainerCreationResult] = None
     try:
-      self._run_container(port)
-    except Exception as err:
-      print("Failed to start a ficus backend container", err)
+      try:
+        res = _create_and_run_container(client)
+        self.execute(f'localhost:{res.port}', initial_context)
+      except Exception as err:
+        print("Failed to start a ficus backend container", err)
+        return None
+    finally:
+      if res is not None:
+        try:
+          _terminate_container(res.id, client)
+        except Exception as err:
+          print(f'Failed to terminate container {err}')
 
-    self.execute(f'localhost:{port}', initial_context)
-
-  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> Optional[
-    GrpcPipelinePartExecutionResult]:
+  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
     with create_ficus_grpc_channel(ficus_backend) as channel:
       def action(ids):
         stub = GrpcBackendServiceStub(channel)
@@ -66,31 +82,47 @@ class Pipeline:
 
     return result
 
-  @staticmethod
-  def _run_container(port='8080'):
-    client = docker.from_env()
+def _create_and_run_container(client: DockerClient) -> Optional[ContainerCreationResult]:
+  image_name = 'aerooneqq/ficus'
+  image_version = '1.0.2'
 
-    image_name = 'aerooneqq/ficus'
-    image_version = '1.0.2'
+  client.images.pull('aerooneqq/ficus', image_version)
 
-    running_container = None
-    for existing_container in client.containers.list():
-      if image_name in existing_container.image.id:
-        print(f'The container with ficus backend is already running {existing_container.id}, {existing_container.name}')
-        running_container = existing_container
-        break
+  container_internal_port = '8080'
+  container = client.containers.run(f'{image_name}:{image_version}',
+                                    detach=True,
+                                    ports={container_internal_port: 0})
 
-    if running_container is not None:
-      print(f'Ficus backend container is already running {running_container.id}, {running_container.name}')
-      return
+  print(f"Created container for ficus backend: {container.id}, {container.name}")
 
-    client.images.pull('aerooneqq/ficus', image_version)
+  container_port_key = f'{container_internal_port}/tcp'
+  while not _contains_port(container, container_port_key):
+    container.reload()
 
-    container = client.containers.run(f'{image_name}:{image_version}',
-                                      detach=True,
-                                      ports={port: 8080})
+  return ContainerCreationResult(container.id, container.ports[container_port_key][0]['HostPort'])
 
-    print(f"Created container for ficus backend: {container.id}, {container.name}")
+def _contains_port(container: Container, container_port_key: str):
+  return not (len(container.ports) == 0 or
+              container_port_key not in container.ports or
+              len(container.ports[container_port_key]) == 0)
+
+def _terminate_container(container_id: str, client: DockerClient):
+  container = client.containers.get(container_id)
+  if container is None:
+    print(f'The container with {container_id} does not exist, can not terminate or remove it')
+    return
+
+  try:
+    container.stop()
+    print(f'Terminated container for ficus backend: {container_id}')
+  except Exception as err:
+    print(f'Failed to stop container {container_id}, {err}')
+
+  try:
+    container.remove(force=True, v=True)
+    print(f'Removed container {container_id}')
+  except Exception as err:
+    print(f'Failed to remove container {container_id}, {err}')
 
 
 class PipelinePart:
