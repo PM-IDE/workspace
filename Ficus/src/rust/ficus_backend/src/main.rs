@@ -3,7 +3,7 @@ use ficus::ficus_proto::grpc_kafka_service_server::GrpcKafkaServiceServer;
 use ficus::grpc::context_values_service::{ContextValueService, GrpcContextValueService};
 use ficus::grpc::kafka::grpc_kafka_service::GrpcKafkaServiceImpl;
 use ficus::{ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer, grpc::backend_service::FicusService};
-use log::LevelFilter;
+use log::{info, LevelFilter};
 use std::sync::{Arc, Mutex};
 use tonic::transport::Server;
 
@@ -16,6 +16,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   let backend_service = GrpcBackendServiceServer::new(FicusService::new(cv_service.clone()));
   let kafka_service = GrpcKafkaServiceServer::new(GrpcKafkaServiceImpl::new(cv_service.clone()));
+
+  info!("Starting server");
 
   Server::builder()
     .add_service(grpc_cv_service)

@@ -1,3 +1,10 @@
+import dataclasses
+
+import docker
+from docker import DockerClient
+from docker.errors import DockerException
+from docker.models.containers import Container
+
 from .util import *
 from ...grpc_pipelines.constants import *
 from ...grpc_pipelines.context_values import *
@@ -10,13 +17,48 @@ from ...legacy.analysis.event_log_analysis import draw_colors_event_log
 from ...legacy.analysis.event_log_analysis_canvas import draw_colors_event_log_canvas
 from ...legacy.analysis.patterns.patterns_models import UndefinedActivityHandlingStrategy
 from ...legacy.pipelines.analysis.patterns.models import AdjustingMode
+from importlib.metadata import version
+
+@dataclasses.dataclass
+class ContainerCreationResult:
+  id: str
+  port: int
 
 
 class Pipeline:
   def __init__(self, *parts):
     self.parts: list['PipelinePart'] = list(parts)
 
-  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> GrpcPipelinePartExecutionResult:
+  def __call__(self, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
+    return self.execute_docker(initial_context)
+
+  def execute_docker(self, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
+    try:
+      client = docker.from_env()
+    except DockerException as err:
+      print(f"Failed to create docker client, please ensure that docker is installed and up and running, {err}")
+      return None
+
+    res: Optional[ContainerCreationResult] = None
+    try:
+      try:
+        res = _create_and_run_container(client)
+        backend_url = f'localhost:{res.port}'
+
+        print(f'Started Ficus backend container ({backend_url}), executing pipeline')
+
+        self.execute(backend_url, initial_context)
+      except Exception as err:
+        print("Failed to start a ficus backend container", err)
+        return None
+    finally:
+      if res is not None:
+        try:
+          _terminate_container(res.id, client)
+        except Exception as err:
+          print(f'Failed to terminate container {err}')
+
+  def execute(self, ficus_backend: str, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
     with create_ficus_grpc_channel(ficus_backend) as channel:
       def action(ids):
         stub = GrpcBackendServiceStub(channel)
@@ -51,6 +93,57 @@ class Pipeline:
         result.append(part)
 
     return result
+
+def _create_and_run_container(client: DockerClient) -> Optional[ContainerCreationResult]:
+  image_name = 'aerooneqq/ficus'
+  image_version = version('ficus_pm')
+  full_image_name = f'{image_name}:{image_version}'
+
+  print(f'Start pulling image {full_image_name}')
+  client.images.pull(image_name, image_version)
+
+  print(f'Pulled Ficus backend image {full_image_name}, starting Ficus backend container')
+
+  container_internal_port = '8080'
+  container = client.containers.run(full_image_name,
+                                    detach=True,
+                                    ports={container_internal_port: 0})
+
+  print(f"Created container for ficus backend: {container.id}, {container.name}")
+
+  container_port_key = f'{container_internal_port}/tcp'
+  print('Waiting until container ports information will be available')
+
+  while not _contains_port(container, container_port_key):
+    container.reload()
+
+  return ContainerCreationResult(container.id, container.ports[container_port_key][0]['HostPort'])
+
+def _contains_port(container: Container, container_port_key: str):
+  return not (len(container.ports) == 0 or
+              container_port_key not in container.ports or
+              len(container.ports[container_port_key]) == 0)
+
+def _terminate_container(container_id: str, client: DockerClient):
+  try:
+    container = client.containers.get(container_id)
+    if container is None:
+      print(f'The container with {container_id} does not exist, can not terminate or remove it')
+      return
+
+    try:
+      container.stop()
+      print(f'Terminated container for ficus backend: {container_id}')
+    except Exception as err:
+      print(f'Failed to stop container {container_id}, {err}')
+
+    try:
+      container.remove(force=True, v=True)
+      print(f'Removed container {container_id}')
+    except Exception as err:
+      print(f'Failed to remove container {container_id}, {err}')
+  except KeyboardInterrupt:
+    _terminate_container(container_id, client)
 
 
 class PipelinePart:
@@ -224,6 +317,7 @@ def append_context_value(config: GrpcPipelinePartConfiguration, key: str, value:
 def append_uint32_value(config: GrpcPipelinePartConfiguration, key: str, value: int):
   append_context_value(config, key, Uint32ContextValue(value))
 
+
 def append_bool_value(config: GrpcPipelinePartConfiguration, key: str, value: bool):
   append_context_value(config, key, BoolContextValue(value))
 
@@ -273,6 +367,7 @@ def append_activity_filter_kind(config: GrpcPipelinePartConfiguration, key: str,
 
 def append_activities_logs_source(config: GrpcPipelinePartConfiguration, key: str, source: ActivitiesLogsSource):
   append_enum_value(config, key, const_activities_logs_source_enum_name, source.name)
+
 
 def append_json_value(config: GrpcPipelinePartConfiguration, key: str, json_string: str):
   config.configurationParameters.append(GrpcContextKeyValue(

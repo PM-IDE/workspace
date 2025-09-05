@@ -111,6 +111,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{08516726-B
 		Directory.Packages.props = Directory.Packages.props
 		Readme.md = Readme.md
 		.github\workflows\tests.yml = .github\workflows\tests.yml
+		.github\workflows\deploy.yml = .github\workflows\deploy.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerLoggerProvider", "Procfiler\src\dotnet\ProcfilerLoggerProvider\ProcfilerLoggerProvider.csproj", "{F50FE66B-3147-4BE6-97EB-4A6889419E34}"
@@ -120,6 +121,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FicusKafkaConstants", "Ficus\src\front\FicusFrontend\FicusKafkaConstants\FicusKafkaConstants.csproj", "{B1223284-182E-4C3A-92CD-F59FBD42FFD6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcfilerOnline.Aspire", "Procfiler\src\dotnet\ProcfilerOnline.Aspire\ProcfilerOnline.Aspire.csproj", "{1BBDEB95-1084-4981-AE5A-EFFC74E095E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{92C02EAF-93FB-4A2C-A235-8541D893163C}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\macos\generate_grpc_models.sh = scripts\macos\generate_grpc_models.sh
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
