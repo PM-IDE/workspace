@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
   name='ficus-pm',
-  version='1.0.5',
+  version='1.0.6',
   author='Aero',
   author_email='aerooneq@yandex.ru',
   description='The modern Process Mining toolkit',

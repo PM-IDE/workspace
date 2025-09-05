@@ -17,7 +17,7 @@ from ...legacy.analysis.event_log_analysis import draw_colors_event_log
 from ...legacy.analysis.event_log_analysis_canvas import draw_colors_event_log_canvas
 from ...legacy.analysis.patterns.patterns_models import UndefinedActivityHandlingStrategy
 from ...legacy.pipelines.analysis.patterns.models import AdjustingMode
-
+from importlib.metadata import version
 
 @dataclasses.dataclass
 class ContainerCreationResult:
@@ -28,6 +28,9 @@ class ContainerCreationResult:
 class Pipeline:
   def __init__(self, *parts):
     self.parts: list['PipelinePart'] = list(parts)
+
+  def __call__(self, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
+    return self.execute_docker(initial_context)
 
   def execute_docker(self, initial_context: dict[str, ContextValue]) -> Optional[GrpcPipelinePartExecutionResult]:
     try:
@@ -93,7 +96,7 @@ class Pipeline:
 
 def _create_and_run_container(client: DockerClient) -> Optional[ContainerCreationResult]:
   image_name = 'aerooneqq/ficus'
-  image_version = '1.0.5'
+  image_version = version('ficus_pm')
   full_image_name = f'{image_name}:{image_version}'
 
   print(f'Start pulling image {full_image_name}')
