@@ -112,22 +112,25 @@ def _contains_port(container: Container, container_port_key: str):
               len(container.ports[container_port_key]) == 0)
 
 def _terminate_container(container_id: str, client: DockerClient):
-  container = client.containers.get(container_id)
-  if container is None:
-    print(f'The container with {container_id} does not exist, can not terminate or remove it')
-    return
-
   try:
-    container.stop()
-    print(f'Terminated container for ficus backend: {container_id}')
-  except Exception as err:
-    print(f'Failed to stop container {container_id}, {err}')
+    container = client.containers.get(container_id)
+    if container is None:
+      print(f'The container with {container_id} does not exist, can not terminate or remove it')
+      return
 
-  try:
-    container.remove(force=True, v=True)
-    print(f'Removed container {container_id}')
-  except Exception as err:
-    print(f'Failed to remove container {container_id}, {err}')
+    try:
+      container.stop()
+      print(f'Terminated container for ficus backend: {container_id}')
+    except Exception as err:
+      print(f'Failed to stop container {container_id}, {err}')
+
+    try:
+      container.remove(force=True, v=True)
+      print(f'Removed container {container_id}')
+    except Exception as err:
+      print(f'Failed to remove container {container_id}, {err}')
+  except KeyboardInterrupt:
+    _terminate_container(container_id, client)
 
 
 class PipelinePart:
