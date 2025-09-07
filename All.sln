@@ -127,6 +127,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{92C0
 		scripts\macos\generate_grpc_models.sh = scripts\macos\generate_grpc_models.sh
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{2918C7E3-3FC8-48A5-ADDF-8358E888B40C}"
+	ProjectSection(SolutionItems) = preProject
+		Ficus\Readme.md = Ficus\Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -271,5 +276,6 @@ Global
 		{F50FE66B-3147-4BE6-97EB-4A6889419E34} = {D50BD31E-296B-468E-817A-60AF1CE7A759}
 		{B1223284-182E-4C3A-92CD-F59FBD42FFD6} = {0EC07BD3-AB92-48A0-B68B-05B3F2A767A3}
 		{1BBDEB95-1084-4981-AE5A-EFFC74E095E4} = {D50BD31E-296B-468E-817A-60AF1CE7A759}
+		{2918C7E3-3FC8-48A5-ADDF-8358E888B40C} = {5F2E0AEA-6AAF-4130-B486-A5F4F5A8A4BD}
 	EndGlobalSection
 EndGlobal
