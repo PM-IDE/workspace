@@ -13,9 +13,9 @@ ShadowStack::ShadowStack(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logg
     myProfilerInfo = profilerInfo;
     myOnlineSerialization = onlineSerialization;
 
-    if (IsEnvVarTrue(filterMethodsDuringRuntime)) {
+    if (IsEnvVarTrue(filterMethodsDuringRuntimeEnv)) {
         std::string value;
-        if (TryGetEnvVar(filterMethodsRegex, value)) {
+        if (TryGetEnvVar(filterMethodsRegexEnv, value)) {
             try {
                 myFilterRegex = new std::regex(value);
             }
@@ -106,7 +106,7 @@ EventsWithThreadId* ShadowStack::GetOrCreatePerThreadEvents(ProcfilerLogger* log
         if (!ourIsInitialized) {
             if (onlineSerialization) {
                 std::string directory;
-                if (!TryGetEnvVar(binaryStackSavePath, directory)) {
+                if (!TryGetEnvVar(binaryStackSavePathEnv, directory)) {
                     logger->LogError("The save path directory was not specified");
                 }
 

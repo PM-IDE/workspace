@@ -11,12 +11,12 @@ BinaryShadowStackSerializer::BinaryShadowStackSerializer(ICorProfilerInfo15* pro
 }
 
 void BinaryShadowStackSerializer::Init() {
-    if (!TryGetEnvVar(binaryStackSavePath, this->mySavePath)) {
+    if (!TryGetEnvVar(binaryStackSavePathEnv, this->mySavePath)) {
         myLogger->LogError("Binary shadow stack save path was not defined");
     }
 
     std::string value;
-    TryGetEnvVar(useSeparateBinStacksFiles, value);
+    TryGetEnvVar(useSeparateBinStacksFilesEnv, value);
 
     myUseSeparateBinstacksFiles = value == trueEnvVarValue;
 }
@@ -80,7 +80,7 @@ void BinaryShadowStackSerializer::WriteThreadStack(ThreadID threadId,
 std::regex* BinaryShadowStackSerializer::TryCreateMethodsFilterRegex() {
     std::string methodFilterRegex;
     std::regex* regex = nullptr;
-    if (TryGetEnvVar(filterMethodsRegex, methodFilterRegex)) {
+    if (TryGetEnvVar(filterMethodsRegexEnv, methodFilterRegex)) {
         try {
             myLogger->LogInformation("Creating regex from " + methodFilterRegex);
             regex = new std::regex(methodFilterRegex);

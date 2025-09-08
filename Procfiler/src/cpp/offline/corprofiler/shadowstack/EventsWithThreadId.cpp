@@ -15,10 +15,10 @@ void EventsWithThreadId::AddFunctionEvent(const FunctionEvent& event) {
 bool EventsWithThreadId::ShouldLog(FunctionID& id, bool* shouldLog) const {
     if (ShouldLogFuncs->find(id) == ShouldLogFuncs->end()) {
         return false;
-    } else {
-        *shouldLog = ShouldLogFuncs->at(id);
-        return true;
     }
+
+    *shouldLog = ShouldLogFuncs->at(id);
+    return true;
 }
 
 void EventsWithThreadId::PutFunctionShouldLogDecision(FunctionID& id, bool shouldLog) const {

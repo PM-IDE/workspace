@@ -54,6 +54,9 @@ public class SplitEventsByMethodCommand(
 
   private Option<bool> ExtractOcelLogs { get; } = new("--extract-ocel-logs", static () => true, "Extract OCEL logs");
 
+  private Option<bool> ExtractObjectMethodsLogs { get; } =
+    new("--extract-object-methods-logs", static () => true, "Extract object methods logs");
+
 
   public override void Execute(CollectClrEventsContext context)
   {
@@ -210,6 +213,7 @@ public class SplitEventsByMethodCommand(
     splitByMethodsCommand.AddOption(GroupAsyncMethods);
     splitByMethodsCommand.AddOption(TargetMethodsRegex);
     splitByMethodsCommand.AddOption(ExtractOcelLogs);
+    splitByMethodsCommand.AddOption(ExtractObjectMethodsLogs);
 
     return splitByMethodsCommand;
   }

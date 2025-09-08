@@ -94,11 +94,11 @@ void ProcfilerCorProfilerCallback::InitializeShadowStack() {
     if (onlineSerialization) {
         myShadowStackSerializer = new ShadowStackSerializerStub();
     } else {
-        if (IsEnvVarDefined(binaryStackSavePath)) {
+        if (IsEnvVarDefined(binaryStackSavePathEnv)) {
             myShadowStackSerializer = new BinaryShadowStackSerializer(myProfilerInfo, myLogger);
-        } else if (IsEnvVarDefined(shadowStackDebugSavePath)) {
+        } else if (IsEnvVarDefined(shadowStackDebugSavePathEnv)) {
             myShadowStackSerializer = new DebugShadowStackSerializer(myProfilerInfo, myLogger);
-        } else if (IsEnvVarDefined(eventPipeSaveShadowStack)) {
+        } else if (IsEnvVarDefined(eventPipeSaveShadowStackEnv)) {
             myShadowStackSerializer = new EventPipeShadowStackSerializer(myProfilerInfo, myLogger);
         } else {
             myShadowStackSerializer = new ShadowStackSerializerStub();

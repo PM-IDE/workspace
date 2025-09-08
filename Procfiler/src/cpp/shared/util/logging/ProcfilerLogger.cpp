@@ -23,7 +23,7 @@ void ProcfilerLogger::LogInformation(const std::string& message) {
 }
 
 ProcfilerLogger::ProcfilerLogger() {
-    auto enableLoggingEnv = std::getenv(enableConsoleLogging.c_str());
+    auto enableLoggingEnv = std::getenv(enableConsoleLoggingEnv.c_str());
     myIsEnabled = enableLoggingEnv != nullptr && std::string(enableLoggingEnv) == "1";
 }
 

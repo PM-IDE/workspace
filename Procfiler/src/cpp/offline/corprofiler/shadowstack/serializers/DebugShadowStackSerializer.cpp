@@ -8,7 +8,7 @@ DebugShadowStackSerializer::DebugShadowStackSerializer(ICorProfilerInfo15* profi
 }
 
 void DebugShadowStackSerializer::Init() {
-    if (!TryGetEnvVar(shadowStackDebugSavePath, this->mySavePath)) {
+    if (!TryGetEnvVar(shadowStackDebugSavePathEnv, this->mySavePath)) {
         myLogger->LogError("Debug shadow stack save path was not defined");
         return;
     }

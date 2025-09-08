@@ -60,6 +60,11 @@ public class DotnetProcessLauncher(IProcfilerLogger logger) : IDotnetProcessLaun
         startInfo.Environment[CppProfilerEnvs.EnableConsoleLogging] = EnvVarsConstants.True;
       }
 
+      if (launcherDto.ProduceObjectBinStacks)
+      {
+        startInfo.Environment[CppProfilerEnvs.ProduceObjectBinStacks] = EnvVarsConstants.True;
+      }
+
       if (launcherDto.MethodsFilterRegex is { } methodsFilterRegex)
       {
         startInfo.Environment[CppProfilerEnvs.MethodsFilterRegex] = methodsFilterRegex;
