@@ -69,8 +69,11 @@ through unmanaged profiler.
 
 Ficus is a tool for process mining with much attention put to performance. Ficus consists
 of Python client (`pip install ficus_pm`) and backend part written in Rust
-(`docker run -it aerooneqq/ficus:latest`).
-
+(`docker run -it aerooneqq/ficus:latest`). You may launch Ficus backend separately and execute `Pipeline` through
+`execute` method passing address of the backend, or you may execute the pipeline through `__call__` or `execute_docker`
+methods, in this case (ensure that docker is up and running) Ficus will pull needed image, create a container for this pipeline 
+execution and finally terminate the container after the pipeline is executed or its execution is interrupted. For more information
+see Readme in `Ficus` directory.
 
 ### bXES
 
@@ -101,7 +104,7 @@ especially software event logs. The bXES supports converting XES event logs to b
 
 ## Related publications
 
-* [Extracting high-level activities from low-level program execution logs](https://link.springer.com/article/10.1007/s10515-024-00441-0)
+* [Extracting high-level activities from low-level program execution logs](https://rdcu.be/dHQPl)
 * [bXES: a Binary Format For Storing and Transferring Software Event Logs](https://damdid2024.frccsc.ru/files/papers/DAMDID_2024_paper_31.pdf)
 
 

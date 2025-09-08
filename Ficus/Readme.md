@@ -1,44 +1,46 @@
 ## Ficus
 
-Ficus is a python package where some Process Mining algorithms are implemented.
-Now this project is an active development stage.
+Ficus is a modern process mining toolkit that consists two parts: backend written in Rust and a Python client.
+For Ficus to work you will need to install additional tools, such as `graphviz`.
 
-Algorithms executions in Ficus use pipelines (similar to sklearn):
+Now the main scenario is to create a `Pipeline` that declaratively describes process mining processing pipeline.
+The input of the pipeline is initial context, where usually names event log or a path to `xes` or `bxes` event log is specified.
 
-```python
+For the pipeline to run, Ficus backend should be launched:
+- Either use `__call__` or `execute_docker` methods to pull the Ficus docker image, launch a container with Ficus backend and remove it
+  after pipeline finished its execution
 
-    Pipeline(
-        ReadLogFromXes(),
-        RemoveEventsFromLogPredicate(procfiler_filter_predicate),
-        RemoveEventsFromLogPredicate(lambda x: 'BYTE[]' in x[concept_name]),
-        IfPipeline(should_filter, Pipeline(
-            PosEntropyDirectFilter(threshold, max_events_to_remove=5),
-        )),
-        FilterTracesByCount(min_event_in_trace_count=3),
-        DiscoverActivitiesFromTandemArrays(array_kind=TandemArrayKind.PrimitiveArray,
-                                           activity_in_trace_filter=activity_in_trace_filter,
-                                           activity_level=0),
-        DrawFullActivitiesDiagram(plot_legend=True),
-        CreateLogFromActivities(use_hashes_as_names=use_hashes_as_names),
-        ClearActivities(),
-        DiscoverActivitiesForSeveralLevels([default_class_extractor, strongest_class_extractor_evt],
-                                           discovering_strategy=ActivitiesDiscoveryStrategy.DiscoverFromAllTraces),
-        CalculatePercentageOfUnattachedEvents(),
-        DrawFullActivitiesDiagram(plot_legend=False),
-        CreateLogFromActivities(undef_evt_strategy, use_hashes_as_names=use_hashes_as_names),
-        ClearActivities(),
-        DiscoverActivitiesForSeveralLevels([default_class_extractor],
-                                           discovering_strategy=ActivitiesDiscoveryStrategy.DiscoverFromAllTraces),
-        DrawFullActivitiesDiagram(plot_legend=True),
-        CreateLogsForActivities(class_extractor=default_class_extractor, activity_level=0),
-        ExecuteWithEachActivityLog(Pipeline(
-            SubstituteUnderlyingEvents(),
-            RemoveEventsFromLogPredicate(methods_filter_predicate),
-            FilterTracesByVariants(),
-            TracesDiversityDiagram(plot_legend=True),
-            RemoveLifecycleTransitionsAttributes(),
-            SaveEventLog(activity_log_save_path_creator)
-        )),
-    )(path)
+  ```python
+  Pipeline(
+      UseNamesEventLog(),
+      AddStartEndArtificialEvents(),
+      DiscoverPetriNetHeuristic(dependency_threshold=0.5, loop_length_two_threshold=0.5),
+      EnsureInitialMarking(),
+      AnnotatePetriNetWithTraceFrequency(show_places_names=False, rankdir='TB'),
+  )({
+      'names_event_log': NamesLogContextValue([
+          ["A", "B", "D"],
+          ["A", "B", "C", "B", "D"],
+          ["A", "B", "C", "B", "C", "B", "D"],
+      ])
+  })
+  
+  ```
 
-```
+- Or use `execute` method that accepts ficus backend url (that is launched manually) and the initial context.
+
+  ```python
+  Pipeline(
+      UseNamesEventLog(),
+      AddStartEndArtificialEvents(),
+      DiscoverPetriNetHeuristic(dependency_threshold=0.5, loop_length_two_threshold=0.5),
+      EnsureInitialMarking(),
+      AnnotatePetriNetWithTraceFrequency(show_places_names=False, rankdir='TB'),
+  ).execute('localhost:8080', {
+      'names_event_log': NamesLogContextValue([
+          ["A", "B", "D"],
+          ["A", "B", "C", "B", "D"],
+          ["A", "B", "C", "B", "C", "B", "D"],
+      ])
+  })
+  ```
