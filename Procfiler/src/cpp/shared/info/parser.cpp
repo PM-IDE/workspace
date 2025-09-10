@@ -3,8 +3,7 @@
 
 bool ParseTypeDefOrRefEncoded(std::vector<BYTE>::iterator& begin) {
     mdToken typeToken;
-    ULONG result;
-    result = CorSigUncompressToken(&*begin, &typeToken);
+    const ULONG result = CorSigUncompressToken(&*begin, &typeToken);
     if (result == -1) {
         return false;
     }
@@ -36,12 +35,10 @@ bool ParseOptionalCustomMods(std::vector<BYTE>::iterator& begin) {
                 return true;
         }
     }
-
-    return false;
 }
 
 bool ParseNumber(std::vector<BYTE>::iterator& begin, ULONG& number) {
-    ULONG result = CorSigUncompressData(&*begin, &number);
+    const ULONG result = CorSigUncompressData(&*begin, &number);
     if (result == -1) {
         return false;
     }
@@ -135,7 +132,7 @@ bool ParseArrayShape(std::vector<BYTE>::iterator& begin) {
 }
 
 bool ParseType(std::vector<BYTE>::iterator& begin) {
-    auto elementType = *begin;
+    const auto elementType = *begin;
     ULONG number = 0;
     std::advance(begin, 1);
 

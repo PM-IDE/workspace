@@ -4,7 +4,6 @@
 #include "ShadowStackSerializer.h"
 
 class DebugShadowStackSerializer : public ShadowStackSerializer {
-private:
     std::string mySavePath;
     ICorProfilerInfo15* myProfilerInfo;
     ProcfilerLogger* myLogger;

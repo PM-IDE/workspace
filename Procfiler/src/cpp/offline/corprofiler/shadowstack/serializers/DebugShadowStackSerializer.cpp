@@ -10,12 +10,11 @@ DebugShadowStackSerializer::DebugShadowStackSerializer(ICorProfilerInfo15* profi
 void DebugShadowStackSerializer::Init() {
     if (!TryGetEnvVar(shadowStackDebugSavePathEnv, this->mySavePath)) {
         myLogger->LogError("Debug shadow stack save path was not defined");
-        return;
     }
 }
 
 void DebugShadowStackSerializer::Serialize(ShadowStack* shadowStack) {
-    if (mySavePath.length() == 0) {
+    if (mySavePath.empty()) {
         return;
     }
 
@@ -24,7 +23,7 @@ void DebugShadowStackSerializer::Serialize(ShadowStack* shadowStack) {
     const std::string startPrefix = "[START]: ";
     const std::string endPrefix = "[ END ]: ";
 
-    for (const auto& pair: *(shadowStack->GetAllStacks())) {
+    for (const auto& pair: *ShadowStack::GetAllStacks()) {
         auto offlineEvents = dynamic_cast<EventsWithThreadIdOffline*>(pair.second);
         if (offlineEvents == nullptr) continue;
 

@@ -103,7 +103,7 @@ namespace miniutf {
             if (((b1 = str[i + 1]) & 0xC0) != 0x80)
                 return invalid_pt;
 
-            char32_t pt = (b0 & 0x1F) << 6 | (b1 & 0x3F);
+            const char32_t pt = (b0 & 0x1F) << 6 | (b1 & 0x3F);
             if (pt < 0x80)
                 return invalid_pt;
 
@@ -116,7 +116,7 @@ namespace miniutf {
             if (((b2 = str[i + 2]) & 0xC0) != 0x80)
                 return invalid_pt;
 
-            char32_t pt = (b0 & 0x0F) << 12 | (b1 & 0x3F) << 6 | (b2 & 0x3F);
+            const char32_t pt = (b0 & 0x0F) << 12 | (b1 & 0x3F) << 6 | (b2 & 0x3F);
             if (pt < 0x800)
                 return invalid_pt;
 
@@ -131,7 +131,7 @@ namespace miniutf {
             if (((b3 = str[i + 3]) & 0xC0) != 0x80)
                 return invalid_pt;
 
-            char32_t pt = (b0 & 0x0F) << 18 | (b1 & 0x3F) << 12
+            const char32_t pt = (b0 & 0x0F) << 18 | (b1 & 0x3F) << 12
                 | (b2 & 0x3F) << 6 | (b3 & 0x3F);
             if (pt < 0x10000 || pt >= 0x110000)
                 return invalid_pt;
@@ -154,7 +154,7 @@ namespace miniutf {
     static offset_pt utf16_decode_check(const std::u16string& str, std::u16string::size_type i) {
         if (is_high_surrogate(str[i]) && is_low_surrogate(str[i + 1])) {
             // High surrogate followed by low surrogate
-            char32_t pt = (((str[i] - 0xD800) << 10) | (str[i + 1] - 0xDC00)) + 0x10000;
+            const char32_t pt = (((str[i] - 0xD800) << 10) | (str[i + 1] - 0xDC00)) + 0x10000;
             return { 2, pt };
         }
         else if (is_high_surrogate(str[i]) || is_low_surrogate(str[i])) {
@@ -184,7 +184,7 @@ namespace miniutf {
 
     char32_t utf8_decode(const std::string& str, std::string::size_type& i,
         bool* replacement_flag) {
-        offset_pt res = utf8_decode_check(str, i);
+        const offset_pt res = utf8_decode_check(str, i);
         if (res.offset < 0) {
             if (replacement_flag)
                 *replacement_flag = true;
@@ -199,7 +199,7 @@ namespace miniutf {
 
     char32_t utf16_decode(const std::u16string& str, std::u16string::size_type& i,
         bool* replacement_flag) {
-        offset_pt res = utf16_decode_check(str, i);
+        const offset_pt res = utf16_decode_check(str, i);
         if (res.offset < 0) {
             if (replacement_flag)
                 *replacement_flag = true;
@@ -262,7 +262,7 @@ namespace miniutf {
     std::string to_utf8(const std::u32string& str) {
         std::string out;
         out.reserve(str.length() * 3 / 2); // estimate
-        for (char32_t pt : str)
+        for (const char32_t pt : str)
             utf8_encode(pt, out);
         return out;
     }
@@ -275,7 +275,7 @@ namespace miniutf {
         std::string out;
         out.reserve(str.size());
         for (size_t i = 0; i < str.length(); ) {
-            int32_t pt = utf8_decode(str, i);
+            const int32_t pt = utf8_decode(str, i);
             utf8_encode(pt + lowercase_offset(pt), out);
         }
         return out;
@@ -305,7 +305,7 @@ namespace miniutf {
             return;
         }
 
-        size_t length = (decomp_start_idx >> 14) + 1;
+        const size_t length = (decomp_start_idx >> 14) + 1;
         decomp_start_idx &= (1 << 14) - 1;
 
         for (size_t i = 0; i < length; i++) {
@@ -344,7 +344,7 @@ namespace miniutf {
         std::u32string codepoints;
         codepoints.reserve(str.size());
         for (size_t i = 0; i < str.length(); ) {
-            uint32_t pt = utf8_decode(str, i, replacement_flag);
+            const uint32_t pt = utf8_decode(str, i, replacement_flag);
             unicode_decompose(pt, codepoints);
         }
 
@@ -375,10 +375,10 @@ namespace miniutf {
             char32_t starter = codepoints[0];
 
             while (i < codepoints.length()) {
-                char32_t ch = codepoints[i];
-                int ch_class = ccc(ch);
+                const char32_t ch = codepoints[i];
+                const int ch_class = ccc(ch);
 
-                uint32_t composite = unicode_compose(starter, ch);
+                const uint32_t composite = unicode_compose(starter, ch);
                 if (composite && last_class < ch_class) {
                     codepoints[starter_pos] = composite;
                     starter = composite;
@@ -406,7 +406,7 @@ namespace miniutf {
     }
 
     std::string normalize8(const std::string& str, bool compose, bool* replacement_flag) {
-        std::u32string codepoints = normalize32(str, compose, replacement_flag);
+        const std::u32string codepoints = normalize32(str, compose, replacement_flag);
         return to_utf8(codepoints);
     }
 

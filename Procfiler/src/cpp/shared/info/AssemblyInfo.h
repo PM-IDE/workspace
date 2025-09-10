@@ -18,7 +18,7 @@ private:
 public:
     AssemblyInfo() : myAssemblyId(0), myName(""_W), myManifestModuleId(0), myAppDomainId(0), myAppDomainName(""_W) {}
 
-    AssemblyInfo(AssemblyID id, wstring name, ModuleID manifestModuleId, AppDomainID appDomainId, wstring appDomainName)
+    AssemblyInfo(const AssemblyID id, wstring name, const ModuleID manifestModuleId, const AppDomainID appDomainId, wstring appDomainName)
         : myAssemblyId(id),
           myName(std::move(name)),
           myManifestModuleId(manifestModuleId),
@@ -27,9 +27,9 @@ public:
 
     static AssemblyInfo GetAssemblyInfo(ICorProfilerInfo15* info, AssemblyID assemblyId);
 
-    AssemblyID GetAssemblyId();
+    AssemblyID GetAssemblyId() const;
     wstring GetName();
-    ModuleID GetModuleId();
-    AppDomainID GetAppDomainId();
+    ModuleID GetModuleId() const;
+    AppDomainID GetAppDomainId() const;
     wstring GetAppDomainName();
 };

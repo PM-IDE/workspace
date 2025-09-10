@@ -3,7 +3,7 @@
 #include <vector>
 
 
-FunctionInfo FunctionInfo::GetFunctionInfo(ICorProfilerInfo15* info, FunctionID funcId) {
+FunctionInfo FunctionInfo::GetFunctionInfo(ICorProfilerInfo15* info, const FunctionID funcId) {
     mdToken functionToken;
     ClassID classId;
     ModuleID moduleId;
@@ -96,7 +96,7 @@ FunctionInfo FunctionInfo::GetFunctionInfo(IMetaDataImport2* metadataImport, mdT
             MethodSignature(ToRaw(rawSignature, rawSignatureLength)), attributes};
 }
 
-std::unordered_set<wstring> ExtractAttributes(IMetaDataImport2* metadataImport, mdToken token) {
+std::unordered_set<wstring> ExtractAttributes(IMetaDataImport2* metadataImport, const mdToken token) {
     std::unordered_set<wstring> attributes{};
     HRESULT hr;
 
@@ -175,7 +175,7 @@ std::string FunctionInfo::GetFullName() {
     return ToString(myType.GetName()) + "." + ToString(myName);
 }
 
-mdToken FunctionInfo::GetId() {
+mdToken FunctionInfo::GetId() const {
     return myId;
 }
 

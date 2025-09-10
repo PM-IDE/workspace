@@ -31,7 +31,7 @@ ShadowStack::ShadowStack(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logg
 }
 
 ShadowStack::~ShadowStack() {
-    for (auto& pair: *GetAllStacks()) {
+    for (const auto& pair: *GetAllStacks()) {
         delete pair.second;
     }
 }
@@ -49,7 +49,7 @@ void ShadowStack::AddFunctionEnter(FunctionID id, DWORD threadId, int64_t timest
     }
 }
 
-bool ShadowStack::ShouldAddFunc(FunctionID& id, DWORD threadId) {
+bool ShadowStack::ShouldAddFunc(FunctionID& id, DWORD threadId) const {
     if (myFilterRegex == nullptr) return true;
 
     const auto events = GetOrCreatePerThreadEvents(myLogger, threadId, myOnlineSerialization);
@@ -87,10 +87,10 @@ void ShadowStack::HandleExceptionCatchEnter(FunctionID catcherFunctionId, DWORD 
 
     if (!CanProcessFunctionEvents()) return;
 
-    auto events = GetOrCreatePerThreadEvents(myLogger, threadId, myOnlineSerialization);
-    auto stack = events->CurrentStack;
+    const auto events = GetOrCreatePerThreadEvents(myLogger, threadId, myOnlineSerialization);
+    const auto stack = events->CurrentStack;
     while (!stack->empty()) {
-        auto top = stack->top();
+        const auto top = stack->top();
         if (top == catcherFunctionId) {
             break;
         }
@@ -125,7 +125,7 @@ EventsWithThreadId* ShadowStack::GetOrCreatePerThreadEvents(ProcfilerLogger* log
     return ourEvents;
 }
 
-std::map<ThreadID, EventsWithThreadId*>* ShadowStack::GetAllStacks() const {
+std::map<ThreadID, EventsWithThreadId*>* ShadowStack::GetAllStacks() {
     return &ourEventsPerThreads;
 }
 
@@ -136,8 +136,8 @@ void ShadowStack::AdjustShadowStacks() {
     }
 
     for (const auto& pair : *GetAllStacks()) {
-        auto events = pair.second;
-        auto stack = events->CurrentStack;
+        const auto events = pair.second;
+        const auto stack = events->CurrentStack;
 
         while (!stack->empty()) {
             const auto& top = stack->top();

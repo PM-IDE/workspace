@@ -37,7 +37,7 @@ public:
           myMethodDefId(methodDefId),
           myAttributes(attributes) {}
 
-    FunctionInfo(mdToken id, wstring name, TypeInfo type, MethodSignature signature,
+    FunctionInfo(const mdToken id, wstring name, TypeInfo type, MethodSignature signature,
                  const std::unordered_set<wstring>& attributes)
         : myId(id),
           myName(std::move(name)),
@@ -51,7 +51,7 @@ public:
     static FunctionInfo GetFunctionInfo(ICorProfilerInfo15* info, FunctionID funcId);
 
     std::string GetFullName();
-    mdToken GetId();
+    mdToken GetId() const;
     wstring GetName() const;
     TypeInfo GetTypeInfo();
     MethodSignature GetMethodSignature();

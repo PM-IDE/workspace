@@ -6,7 +6,7 @@ BOOL STDMETHODCALLTYPE DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID
 }
 
 extern "C" HRESULT STDMETHODCALLTYPE DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) {
-    auto factory = new ClassFactory();
+    const auto factory = new ClassFactory();
     return factory->QueryInterface(riid, ppv);
 }
 

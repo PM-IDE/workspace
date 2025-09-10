@@ -28,7 +28,7 @@ AssemblyInfo AssemblyInfo::GetAssemblyInfo(ICorProfilerInfo15* info, AssemblyID 
             ToString(appDomainName, appDomainNameLength) };
 }
 
-AssemblyID AssemblyInfo::GetAssemblyId() {
+AssemblyID AssemblyInfo::GetAssemblyId() const {
     return myAssemblyId;
 }
 
@@ -36,11 +36,11 @@ wstring AssemblyInfo::GetName() {
     return myName;
 }
 
-ModuleID AssemblyInfo::GetModuleId() {
+ModuleID AssemblyInfo::GetModuleId() const {
     return myManifestModuleId;
 }
 
-AppDomainID AssemblyInfo::GetAppDomainId() {
+AppDomainID AssemblyInfo::GetAppDomainId() const {
     return myAppDomainId;
 }
 

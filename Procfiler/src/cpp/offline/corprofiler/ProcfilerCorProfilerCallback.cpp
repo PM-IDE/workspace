@@ -11,15 +11,15 @@ ProcfilerCorProfilerCallback *GetCallbackInstance() {
     return ourCallback;
 }
 
-void StaticHandleFunctionEnter(FunctionID functionId) {
+void StaticHandleFunctionEnter(const FunctionID functionId) {
     GetCallbackInstance()->HandleFunctionEnter2(functionId);
 }
 
-void StaticHandleFunctionLeave(FunctionID functionId) {
+void StaticHandleFunctionLeave(const FunctionID functionId) {
     GetCallbackInstance()->HandleFunctionLeave2(functionId);
 }
 
-void StaticHandleFunctionTailCall(FunctionID functionId) {
+void StaticHandleFunctionTailCall(const FunctionID functionId) {
     GetCallbackInstance()->HandleFunctionTailCall(functionId);
 }
 
@@ -34,7 +34,7 @@ void StaticHandleFunctionLeave2(FunctionID funcId, UINT_PTR clientData, COR_PRF_
 void StaticHandleFunctionTailCall2(FunctionID funcId, UINT_PTR clientData, COR_PRF_FRAME_INFO func) {
 }
 
-int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() {
+int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() const {
     LARGE_INTEGER value;
 
     if (!QueryPerformanceCounter2(&value)) {
@@ -45,22 +45,22 @@ int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() {
     return value.QuadPart;
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId) {
-    auto timestamp = GetCurrentTimestamp();
+void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId) {
+    const auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionEnter(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionLeave2(FunctionID funcId) {
-    auto timestamp = GetCurrentTimestamp();
+void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId) {
+    const auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionFinished(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionTailCall(FunctionID funcId) {
-    auto timestamp = GetCurrentTimestamp();
+void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId) {
+    const auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionFinished(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-ICorProfilerInfo15 *ProcfilerCorProfilerCallback::GetProfilerInfo() {
+ICorProfilerInfo15 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
     return myProfilerInfo;
 }
 
@@ -76,7 +76,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
 
     InitializeShadowStack();
 
-    DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
+    constexpr DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
     result = myProfilerInfo->SetEventMask(eventMask);
     if (FAILED(result)) {
         myLogger->LogInformation("Failed to set event mask: " + std::to_string(result));
@@ -107,7 +107,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
 }
 
 void ProcfilerCorProfilerCallback::InitializeShadowStack() {
-    auto onlineSerialization = IsEnvVarTrue(onlineSerializationEnv);
+    const auto onlineSerialization = IsEnvVarTrue(onlineSerializationEnv);
     myShadowStack = new ShadowStack(this->myProfilerInfo, myLogger, onlineSerialization);
 
     if (onlineSerialization) {
@@ -127,7 +127,7 @@ void ProcfilerCorProfilerCallback::InitializeShadowStack() {
     myShadowStackSerializer->Init();
 }
 
-HRESULT ProcfilerCorProfilerCallback::ExceptionCatcherEnter(FunctionID functionId, ObjectID objectId) {
+HRESULT ProcfilerCorProfilerCallback::ExceptionCatcherEnter(const FunctionID functionId, ObjectID objectId) {
     myShadowStack->HandleExceptionCatchEnter(functionId, GetCurrentManagedThreadId(), GetCurrentTimestamp());
     return S_OK;
 }
@@ -643,7 +643,7 @@ ULONG STDMETHODCALLTYPE ProcfilerCorProfilerCallback::AddRef() {
 }
 
 ULONG STDMETHODCALLTYPE ProcfilerCorProfilerCallback::Release() {
-    int count = std::atomic_fetch_sub(&this->myRefCount, 1) - 1;
+    const int count = std::atomic_fetch_sub(&this->myRefCount, 1) - 1;
 
     if (count <= 0) {
         delete this;

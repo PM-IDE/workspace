@@ -3,7 +3,7 @@
 
 
 std::string GetEnvironmentValue(const std::string& name) {
-    auto cstr = std::getenv(name.c_str());
+    const auto cstr = std::getenv(name.c_str());
     if (cstr == nullptr) {
         return "";
     }
@@ -35,12 +35,12 @@ std::vector<BYTE> ToRaw(PCCOR_SIGNATURE signature, ULONG length) {
 WCHAR operator "" _W(const char c) { return WCHAR(c); }
 
 wstring operator "" _W(const char* arr, size_t size) {
-    std::string str(arr, size);
+    const std::string str(arr, size);
     return ToWString(str);
 }
 
 std::string ToString(const wstring& wstr) {
-    std::u16string ustr(reinterpret_cast<const char16_t*>(wstr.c_str()));
+    const std::u16string ustr(reinterpret_cast<const char16_t*>(wstr.c_str()));
     return miniutf::to_utf8(ustr);
 }
 
@@ -49,7 +49,7 @@ wstring ToWString(const char* str) {
 }
 
 wstring ToWString(const std::string& str) {
-    auto ustr = miniutf::to_utf16(str);
+    const auto ustr = miniutf::to_utf16(str);
     return wstring(reinterpret_cast<const WCHAR*>(ustr.c_str()));
 }
 
@@ -60,14 +60,14 @@ wstring Trim(const wstring& str) {
 
     wstring trimmed = str;
 
-    auto trimSymbols = " \t\r\n\0"_W;
+    const auto trimSymbols = " \t\r\n\0"_W;
 
-    auto lpos = trimmed.find_first_not_of(trimSymbols);
+    const auto lpos = trimmed.find_first_not_of(trimSymbols);
     if (lpos != std::string::npos && lpos > 0) {
         trimmed = trimmed.substr(lpos);
     }
 
-    auto rpos = trimmed.find_last_not_of(trimSymbols);
+    const auto rpos = trimmed.find_last_not_of(trimSymbols);
     if (rpos != std::string::npos) {
         trimmed = trimmed.substr(0, rpos + 1);
     }
@@ -82,14 +82,14 @@ std::string Trim(const std::string& str) {
 
     std::string trimmed = str;
 
-    auto trimSymbols = " \t\r\n\0";
+    const auto trimSymbols = " \t\r\n\0";
 
-    auto lpos = trimmed.find_first_not_of(trimSymbols);
+    const auto lpos = trimmed.find_first_not_of(trimSymbols);
     if (lpos != std::string::npos && lpos > 0) {
         trimmed = trimmed.substr(lpos);
     }
 
-    auto rpos = trimmed.find_last_not_of(trimSymbols);
+    const auto rpos = trimmed.find_last_not_of(trimSymbols);
     if (rpos != std::string::npos) {
         trimmed = trimmed.substr(0, rpos + 1);
     }

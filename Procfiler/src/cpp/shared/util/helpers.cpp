@@ -7,13 +7,13 @@
 HRESULT CreateAssemblyRef(IMetaDataAssemblyEmit* metadataAssemblyEmit,
                           mdAssemblyRef* libRef,
                           const std::vector<BYTE>& public_key,
-                          ASSEMBLYMETADATA metadata,
+                          const ASSEMBLYMETADATA& metadata,
                           const wstring& assemblyName) {
-    HRESULT hr = metadataAssemblyEmit->DefineAssemblyRef(
-            (void*) public_key.data(),
-            (ULONG) public_key.size(),
-            assemblyName.c_str(), &metadata, NULL, 0, 0,
-            libRef);
+    const HRESULT hr = metadataAssemblyEmit->DefineAssemblyRef(
+        (void*) public_key.data(),
+        (ULONG) public_key.size(),
+        assemblyName.c_str(), &metadata, NULL, 0, 0,
+        libRef);
 
     return hr;
 }

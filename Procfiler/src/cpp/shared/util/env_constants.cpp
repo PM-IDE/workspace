@@ -5,8 +5,8 @@ bool IsEnvVarDefined(const std::string& envVarName) {
 }
 
 bool TryGetEnvVar(const std::string& envVarName, std::string& value) {
-    auto envVar = std::getenv(envVarName.c_str());
-    bool isEnvVarDefined = envVar != nullptr;
+    const auto envVar = std::getenv(envVarName.c_str());
+    const bool isEnvVarDefined = envVar != nullptr;
     value = isEnvVarDefined ? std::string(envVar) : "";
     return isEnvVarDefined;
 }

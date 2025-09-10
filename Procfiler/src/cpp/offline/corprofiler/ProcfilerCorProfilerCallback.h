@@ -7,8 +7,7 @@
 #include "shadowstack/serializers/ShadowStackSerializer.h"
 #include <atomic>
 
-class ProcfilerCorProfilerCallback : public ICorProfilerCallback11 {
-private:
+class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
     ProcfilerLogger* myLogger;
     ICorProfilerInfo15* myProfilerInfo;
     std::atomic<int> myRefCount;
@@ -16,14 +15,14 @@ private:
     ShadowStackSerializer* myShadowStackSerializer;
 
     DWORD GetCurrentManagedThreadId();
-    int64_t GetCurrentTimestamp();
+    int64_t GetCurrentTimestamp() const;
     void InitializeShadowStack();
 
 public:
     explicit ProcfilerCorProfilerCallback(ProcfilerLogger* logger);
     ~ProcfilerCorProfilerCallback();
 
-    ICorProfilerInfo15* GetProfilerInfo();
+    ICorProfilerInfo15* GetProfilerInfo() const;
 
     void HandleFunctionEnter2(FunctionID funcId);
     void HandleFunctionLeave2(FunctionID funcId);

@@ -25,7 +25,6 @@
 #endif
 
 class ShadowStack {
-private:
     static EventsWithThreadId* GetOrCreatePerThreadEvents(ProcfilerLogger* logger, DWORD threadId, bool onlineSerialization);
 
     std::regex* myFilterRegex{nullptr};
@@ -37,7 +36,7 @@ private:
     std::atomic<bool> myCanProcessFunctionEvents{true};
 
     bool CanProcessFunctionEvents();
-    bool ShouldAddFunc(FunctionID& id, DWORD threadId);
+    bool ShouldAddFunc(FunctionID& id, DWORD threadId) const;
 public:
     explicit ShadowStack(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger, bool onlineSerialization);
 
@@ -49,7 +48,8 @@ public:
     void SuppressFurtherMethodsEvents();
     void WaitForPendingMethodsEvents();
     void AdjustShadowStacks();
-    std::map<ThreadID, EventsWithThreadId*>* GetAllStacks() const;
+
+    static std::map<ThreadID, EventsWithThreadId*>* GetAllStacks();
 };
 
 struct FunctionEventProcessingCookie {
