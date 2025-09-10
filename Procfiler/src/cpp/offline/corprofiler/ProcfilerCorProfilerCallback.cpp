@@ -5,18 +5,18 @@
 #include "shadowstack/serializers/DebugShadowStackSerializer.h"
 #include "shadowstack/serializers/EventPipeShadowStackSerializer.h"
 
-ProcfilerCorProfilerCallback *ourCallback;
+ProcfilerCorProfilerCallback* ourCallback;
 
-ProcfilerCorProfilerCallback *GetCallbackInstance() {
+ProcfilerCorProfilerCallback* GetCallbackInstance() {
     return ourCallback;
 }
 
 void StaticHandleFunctionEnter(const FunctionID functionId) {
-    GetCallbackInstance()->HandleFunctionEnter2(functionId);
+    GetCallbackInstance()->HandleFunctionEnter(functionId);
 }
 
 void StaticHandleFunctionLeave(const FunctionID functionId) {
-    GetCallbackInstance()->HandleFunctionLeave2(functionId);
+    GetCallbackInstance()->HandleFunctionLeave(functionId);
 }
 
 void StaticHandleFunctionTailCall(const FunctionID functionId) {
@@ -24,14 +24,17 @@ void StaticHandleFunctionTailCall(const FunctionID functionId) {
 }
 
 void StaticHandleFunctionEnter2(FunctionID funcId, UINT_PTR clientData, COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) {
+                                COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) {
+    GetCallbackInstance()->HandleFunctionEnter2(funcId, argumentInfo);
 }
 
 void StaticHandleFunctionLeave2(FunctionID funcId, UINT_PTR clientData, COR_PRF_FRAME_INFO func,
-                                COR_PRF_FUNCTION_ARGUMENT_RANGE *retvalRange) {
+                                COR_PRF_FUNCTION_ARGUMENT_RANGE* retvalRange) {
+    GetCallbackInstance()->HandleFunctionLeave2(funcId);
 }
 
 void StaticHandleFunctionTailCall2(FunctionID funcId, UINT_PTR clientData, COR_PRF_FRAME_INFO func) {
+    GetCallbackInstance()->HandleFunctionTailCall2(funcId);
 }
 
 int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() const {
@@ -45,28 +48,46 @@ int64_t ProcfilerCorProfilerCallback::GetCurrentTimestamp() const {
     return value.QuadPart;
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionEnter2(const FunctionID funcId) {
+void ProcfilerCorProfilerCallback::HandleFunctionEnter(const FunctionID funcId) const {
     const auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionEnter(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId) {
+void ProcfilerCorProfilerCallback::HandleFunctionLeave(const FunctionID funcId) const {
     const auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionFinished(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId) {
+void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcId) const {
     const auto timestamp = GetCurrentTimestamp();
     myShadowStack->AddFunctionFinished(funcId, GetCurrentManagedThreadId(), timestamp);
 }
 
-ICorProfilerInfo15 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
+void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
+                                                        COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) const {
+    auto info = FunctionInfo::GetFunctionInfo(myProfilerInfo, funcId);
+    if (info.GetMethodSignature().IsInstanceMethod() && info.GetTypeInfo().IsRefType()) {
+        std::cout << "XDDD " << info.GetFullName() << "\n";
+    }
+
+    HandleFunctionEnter(funcId);
+}
+
+void ProcfilerCorProfilerCallback::HandleFunctionLeave2(const FunctionID funcId) const {
+    HandleFunctionLeave(funcId);
+}
+
+void ProcfilerCorProfilerCallback::HandleFunctionTailCall2(const FunctionID funcId) const {
+    HandleFunctionTailCall(funcId);
+}
+
+ICorProfilerInfo15* ProcfilerCorProfilerCallback::GetProfilerInfo() const {
     return myProfilerInfo;
 }
 
-HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk) {
+HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk) {
     myLogger->LogInformation("Started initializing CorProfiler callback");
-    const auto ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
+    const auto ptr = reinterpret_cast<void**>(&this->myProfilerInfo);
 
     HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo15, ptr);
     if (FAILED(result)) {
@@ -109,6 +130,17 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
     }
 
     myLogger->LogInformation("Initialized CorProfiler callback");
+    return S_OK;
+}
+
+HRESULT ProcfilerCorProfilerCallback::MovedReferences(ULONG cMovedObjectIDRanges,
+                                                      ObjectID* oldObjectIDRangeStart,
+                                                      ObjectID* newObjectIDRangeStart,
+                                                      ULONG* cObjectIDRangeLength) {
+    return S_OK;
+}
+
+HRESULT ProcfilerCorProfilerCallback::ObjectAllocated(ObjectID objectId, ClassID classId) {
     return S_OK;
 }
 
@@ -165,7 +197,7 @@ HRESULT ProcfilerCorProfilerCallback::Shutdown() {
     return S_OK;
 }
 
-ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback(ProcfilerLogger *logger) : myRefCount(0),
+ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback(ProcfilerLogger* logger) : myRefCount(0),
     myProfilerInfo(nullptr),
     myLogger(logger) {
     ourCallback = this;
@@ -254,7 +286,7 @@ ProcfilerCorProfilerCallback::JITCompilationFinished(FunctionID functionId, HRES
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::JITCachedFunctionSearchStarted(FunctionID functionId, BOOL *pbUseCachedFunction) {
+HRESULT ProcfilerCorProfilerCallback::JITCachedFunctionSearchStarted(FunctionID functionId, BOOL* pbUseCachedFunction) {
     return S_OK;
 }
 
@@ -266,7 +298,7 @@ HRESULT ProcfilerCorProfilerCallback::JITFunctionPitched(FunctionID functionId) 
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::JITInlining(FunctionID callerId, FunctionID calleeId, BOOL *pfShouldInline) {
+HRESULT ProcfilerCorProfilerCallback::JITInlining(FunctionID callerId, FunctionID calleeId, BOOL* pfShouldInline) {
     return S_OK;
 }
 
@@ -286,11 +318,11 @@ HRESULT ProcfilerCorProfilerCallback::RemotingClientInvocationStarted() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingClientSendingMessage(GUID *pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingClientSendingMessage(GUID* pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingClientReceivingReply(GUID *pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingClientReceivingReply(GUID* pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
@@ -298,7 +330,7 @@ HRESULT ProcfilerCorProfilerCallback::RemotingClientInvocationFinished() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingServerReceivingMessage(GUID *pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingServerReceivingMessage(GUID* pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
@@ -310,7 +342,7 @@ HRESULT ProcfilerCorProfilerCallback::RemotingServerInvocationReturned() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RemotingServerSendingReply(GUID *pCookie, BOOL fIsAsync) {
+HRESULT ProcfilerCorProfilerCallback::RemotingServerSendingReply(GUID* pCookie, BOOL fIsAsync) {
     return S_OK;
 }
 
@@ -352,29 +384,18 @@ HRESULT ProcfilerCorProfilerCallback::RuntimeThreadResumed(ThreadID threadId) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::MovedReferences(ULONG cMovedObjectIDRanges,
-                                                      ObjectID *oldObjectIDRangeStart,
-                                                      ObjectID *newObjectIDRangeStart,
-                                                      ULONG *cObjectIDRangeLength) {
-    return S_OK;
-}
-
-HRESULT ProcfilerCorProfilerCallback::ObjectAllocated(ObjectID objectId, ClassID classId) {
-    return S_OK;
-}
-
-HRESULT ProcfilerCorProfilerCallback::ObjectsAllocatedByClass(ULONG cClassCount, ClassID *classIds, ULONG *cObjects) {
+HRESULT ProcfilerCorProfilerCallback::ObjectsAllocatedByClass(ULONG cClassCount, ClassID* classIds, ULONG* cObjects) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::ObjectReferences(ObjectID objectId,
                                                        ClassID classId,
                                                        ULONG cObjectRefs,
-                                                       ObjectID *objectRefIds) {
+                                                       ObjectID* objectRefIds) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::RootReferences(ULONG cRootRefs, ObjectID *rootRefIds) {
+HRESULT ProcfilerCorProfilerCallback::RootReferences(ULONG cRootRefs, ObjectID* rootRefIds) {
     return S_OK;
 }
 
@@ -432,15 +453,15 @@ HRESULT ProcfilerCorProfilerCallback::ExceptionCatcherLeave() {
 
 HRESULT
 ProcfilerCorProfilerCallback::COMClassicVTableCreated(ClassID wrappedClassId,
-                                                      const GUID &implementedIID,
-                                                      void *pVTable,
+                                                      const GUID& implementedIID,
+                                                      void* pVTable,
                                                       ULONG cSlots) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::COMClassicVTableDestroyed(ClassID wrappedClassId,
-                                                                const GUID &implementedIID,
-                                                                void *pVTable) {
+                                                                const GUID& implementedIID,
+                                                                void* pVTable) {
     return S_OK;
 }
 
@@ -452,19 +473,19 @@ HRESULT ProcfilerCorProfilerCallback::ExceptionCLRCatcherExecute() {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::ThreadNameChanged(ThreadID threadId, ULONG cchName, WCHAR *name) {
+HRESULT ProcfilerCorProfilerCallback::ThreadNameChanged(ThreadID threadId, ULONG cchName, WCHAR* name) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::GarbageCollectionStarted(int cGenerations,
-                                                               BOOL *generationCollected,
+                                                               BOOL* generationCollected,
                                                                COR_PRF_GC_REASON reason) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::SurvivingReferences(ULONG cSurvivingObjectIDRanges,
-                                                          ObjectID *objectIDRangeStart,
-                                                          ULONG *cObjectIDRangeLength) {
+                                                          ObjectID* objectIDRangeStart,
+                                                          ULONG* cObjectIDRangeLength) {
     return S_OK;
 }
 
@@ -478,10 +499,10 @@ HRESULT ProcfilerCorProfilerCallback::FinalizeableObjectQueued(DWORD finalizerFl
 
 HRESULT
 ProcfilerCorProfilerCallback::RootReferences2(ULONG cRootRefs,
-                                              ObjectID *rootRefIds,
-                                              COR_PRF_GC_ROOT_KIND *rootKinds,
-                                              COR_PRF_GC_ROOT_FLAGS *rootFlags,
-                                              UINT_PTR *rootIds) {
+                                              ObjectID* rootRefIds,
+                                              COR_PRF_GC_ROOT_KIND* rootKinds,
+                                              COR_PRF_GC_ROOT_FLAGS* rootFlags,
+                                              UINT_PTR* rootIds) {
     return S_OK;
 }
 
@@ -493,8 +514,8 @@ HRESULT ProcfilerCorProfilerCallback::HandleDestroyed(GCHandleID handleId) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::InitializeForAttach(IUnknown *pCorProfilerInfoUnk,
-                                                          void *pvClientData,
+HRESULT ProcfilerCorProfilerCallback::InitializeForAttach(IUnknown* pCorProfilerInfoUnk,
+                                                          void* pvClientData,
                                                           UINT cbClientData) {
     return S_OK;
 }
@@ -514,7 +535,7 @@ ProcfilerCorProfilerCallback::ReJITCompilationStarted(FunctionID functionId, ReJ
 
 HRESULT ProcfilerCorProfilerCallback::GetReJITParameters(ModuleID moduleId,
                                                          mdMethodDef methodId,
-                                                         ICorProfilerFunctionControl *pFunctionControl) {
+                                                         ICorProfilerFunctionControl* pFunctionControl) {
     return S_OK;
 }
 
@@ -533,27 +554,27 @@ HRESULT ProcfilerCorProfilerCallback::ReJITError(ModuleID moduleId,
 }
 
 HRESULT ProcfilerCorProfilerCallback::MovedReferences2(ULONG cMovedObjectIDRanges,
-                                                       ObjectID *oldObjectIDRangeStart,
-                                                       ObjectID *newObjectIDRangeStart,
-                                                       SIZE_T *cObjectIDRangeLength) {
+                                                       ObjectID* oldObjectIDRangeStart,
+                                                       ObjectID* newObjectIDRangeStart,
+                                                       SIZE_T* cObjectIDRangeLength) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::SurvivingReferences2(ULONG cSurvivingObjectIDRanges,
-                                                           ObjectID *objectIDRangeStart,
-                                                           SIZE_T *cObjectIDRangeLength) {
+                                                           ObjectID* objectIDRangeStart,
+                                                           SIZE_T* cObjectIDRangeLength) {
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::ConditionalWeakTableElementReferences(ULONG cRootRefs,
-                                                                            ObjectID *keyRefIds,
-                                                                            ObjectID *valueRefIds,
-                                                                            GCHandleID *rootIds) {
+                                                                            ObjectID* keyRefIds,
+                                                                            ObjectID* valueRefIds,
+                                                                            GCHandleID* rootIds) {
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::GetAssemblyReferences(const WCHAR *wszAssemblyPath,
-                                                            ICorProfilerAssemblyReferenceProvider *pAsmRefProvider) {
+HRESULT ProcfilerCorProfilerCallback::GetAssemblyReferences(const WCHAR* wszAssemblyPath,
+                                                            ICorProfilerAssemblyReferenceProvider* pAsmRefProvider) {
     return S_OK;
 }
 
@@ -579,7 +600,7 @@ HRESULT ProcfilerCorProfilerCallback::EventPipeProviderCreated(EVENTPIPE_PROVIDE
     return S_OK;
 }
 
-HRESULT ProcfilerCorProfilerCallback::LoadAsNotificationOnly(BOOL *pbNotificationOnly) {
+HRESULT ProcfilerCorProfilerCallback::LoadAsNotificationOnly(BOOL* pbNotificationOnly) {
     return S_OK;
 }
 
@@ -594,7 +615,7 @@ HRESULT ProcfilerCorProfilerCallback::EventPipeEventDelivered(EVENTPIPE_PROVIDER
                                                               LPCGUID pRelatedActivityId,
                                                               ThreadID eventThread,
                                                               ULONG numStackFrames,
-                                                              UINT_PTR *stackFrames) {
+                                                              UINT_PTR* stackFrames) {
     return S_OK;
 }
 
@@ -611,7 +632,7 @@ ProcfilerCorProfilerCallback::~ProcfilerCorProfilerCallback() {
     myShadowStackSerializer = nullptr;
 }
 
-DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() {
+DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() const {
     ThreadID threadId;
     myProfilerInfo->GetCurrentThreadID(&threadId);
 
@@ -622,7 +643,7 @@ DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() {
 }
 
 
-HRESULT STDMETHODCALLTYPE ProcfilerCorProfilerCallback::QueryInterface(REFIID riid, void **ppvObject) {
+HRESULT STDMETHODCALLTYPE ProcfilerCorProfilerCallback::QueryInterface(REFIID riid, void** ppvObject) {
     if (riid == IID_ICorProfilerCallback11 ||
         riid == IID_ICorProfilerCallback10 ||
         riid == IID_ICorProfilerCallback9 ||

@@ -6,6 +6,7 @@
 
 TypeInfo::TypeInfo(const std::vector<BYTE>& raw) : myRaw(raw) {
     myIsRefType = !raw.empty() && raw[0] == ELEMENT_TYPE_BYREF;
+    myIsClass = !raw.empty() && raw[0] == ELEMENT_TYPE_CLASS;
 
     myIsVoid = !raw.empty() && raw[0] == ELEMENT_TYPE_VOID;
 
@@ -152,6 +153,10 @@ bool TypeInfo::IsRefType() const {
 
 void TypeInfo::SetRefType(const bool isRefType) {
     myIsRefType = isRefType;
+}
+
+bool TypeInfo::IsClass() const {
+    return myIsClass;
 }
 
 bool TypeInfo::IsBoxed() const {

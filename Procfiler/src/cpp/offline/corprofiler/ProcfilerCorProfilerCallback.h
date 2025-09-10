@@ -14,7 +14,7 @@ class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
     ShadowStack* myShadowStack;
     ShadowStackSerializer* myShadowStackSerializer;
 
-    DWORD GetCurrentManagedThreadId();
+    DWORD GetCurrentManagedThreadId() const;
     int64_t GetCurrentTimestamp() const;
     void InitializeShadowStack();
 
@@ -24,9 +24,13 @@ public:
 
     ICorProfilerInfo15* GetProfilerInfo() const;
 
-    void HandleFunctionEnter2(FunctionID funcId);
-    void HandleFunctionLeave2(FunctionID funcId);
-    void HandleFunctionTailCall(FunctionID funcId);
+    void HandleFunctionEnter(FunctionID funcId) const;
+    void HandleFunctionLeave(FunctionID funcId) const;
+    void HandleFunctionTailCall(FunctionID funcId) const;
+
+    void HandleFunctionEnter2(FunctionID funcId, COR_PRF_FUNCTION_ARGUMENT_INFO *argumentInfo) const;
+    void HandleFunctionLeave2(FunctionID funcId) const;
+    void HandleFunctionTailCall2(FunctionID funcId) const;
 
     HRESULT STDMETHODCALLTYPE Initialize(IUnknown* pICorProfilerInfoUnk) override;
     HRESULT STDMETHODCALLTYPE Shutdown() override;

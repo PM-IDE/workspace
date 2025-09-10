@@ -14,6 +14,7 @@ private:
     std::vector<TypeInfo> myGenerics{};
 
     bool myIsRefType = false;
+    bool myIsClass = false;
     BYTE myTypeDef = 0;
     bool myIsBoxed = false;
     bool myIsVoid = false;
@@ -40,6 +41,7 @@ public:
 
     bool IsRefType() const;
     void SetRefType(bool isRefType);
+    bool IsClass() const;
 
     bool IsBoxed() const;
     bool IsVoid() const;

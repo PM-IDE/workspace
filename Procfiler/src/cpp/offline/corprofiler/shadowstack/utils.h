@@ -15,13 +15,25 @@ struct FunctionEvent {
     FunctionEventKind EventKind;
     int64_t Timestamp;
 
-    FunctionEvent(const FunctionID id, const FunctionEventKind eventKind, const int64_t timestamp) :
-            Id(id),
-            EventKind(eventKind),
-            Timestamp(timestamp) {
+    FunctionEvent(const FunctionID id, const FunctionEventKind eventKind, const int64_t timestamp) : Id(id),
+        EventKind(eventKind),
+        Timestamp(timestamp) {
     }
 };
 
+struct ObjectFunctionEvent : FunctionEvent {
+    int64_t ObjectId;
+    int64_t TypeId;
+
+    ObjectFunctionEvent(
+        const FunctionID id,
+        const FunctionEventKind eventKind,
+        const int64_t timestamp,
+        const int64_t objectId,
+        const int64_t typeId
+    ) : FunctionEvent(id, eventKind, timestamp), ObjectId(objectId), TypeId(typeId) {
+    }
+};
 
 void writeFunctionEvent(const FunctionEvent& event, std::ofstream& fout);
 

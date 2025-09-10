@@ -125,5 +125,5 @@ public partial class CollectCommandBase
     new("--log-serialization-format", static () => LogFormat.Xes, "The format which will be used to store event logs");
 
   private Option<bool> ProduceObjectBinStacks { get; } =
-    new("--produce-object-bin-stacks", static () => true, "Whether to store information about objects and types associated with methods calls");
+    new("--produce-object-bin-stacks", static () => false, "Whether to store information about objects and types associated with methods calls");
 }

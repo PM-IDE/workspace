@@ -122,7 +122,7 @@ public class CommandExecutorImpl(
   private ClrEventsCollectionContext ToCollectionContext(CollectClrEventsContext context, int processId, string? binStacksPath)
   {
     var ctx = context.CommonContext;
-    var (_, _, _, _, category, _, duration, timeout, _, _, _, cppProfilerMode, _, _, _, _, _) = ctx;
+    var (_, _, _, _, category, _, duration, timeout, _, _, _, cppProfilerMode, _, _, _, _, _, _) = ctx;
 
     if (ctx.CppProfilerMode.IsDisabled())
     {
