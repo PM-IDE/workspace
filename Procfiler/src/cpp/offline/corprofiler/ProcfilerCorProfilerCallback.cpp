@@ -66,7 +66,7 @@ ICorProfilerInfo15 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
 
 HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk) {
     myLogger->LogInformation("Started initializing CorProfiler callback");
-    void **ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
+    const auto ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
 
     HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo15, ptr);
     if (FAILED(result)) {
@@ -76,14 +76,20 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk)
 
     InitializeShadowStack();
 
-    constexpr DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
+    const auto produceObjectBinStacks = IsEnvVarTrue(produceObjectBinStacksEnv);
+
+    DWORD eventMask = COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_MONITOR_EXCEPTIONS;
+    if (produceObjectBinStacks) {
+        eventMask |= COR_PRF_ENABLE_FUNCTION_ARGS;
+    }
+
     result = myProfilerInfo->SetEventMask(eventMask);
     if (FAILED(result)) {
         myLogger->LogInformation("Failed to set event mask: " + std::to_string(result));
         return E_FAIL;
     }
 
-    if (IsEnvVarTrue(produceObjectBinStacksEnv)) {
+    if (produceObjectBinStacks) {
         result = myProfilerInfo->SetEnterLeaveFunctionHooks2(
             StaticHandleFunctionEnter2,
             StaticHandleFunctionLeave2,
