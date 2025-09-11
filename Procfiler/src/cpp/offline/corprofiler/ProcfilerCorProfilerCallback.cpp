@@ -1,9 +1,13 @@
 #include "ProcfilerCorProfilerCallback.h"
 #include <performance_counter.h>
 #include <env_constants.h>
+
+#include "clr/profilerstring.hpp"
 #include "shadowstack/serializers/BinaryShadowStackSerializer.h"
 #include "shadowstack/serializers/DebugShadowStackSerializer.h"
 #include "shadowstack/serializers/EventPipeShadowStackSerializer.h"
+#include "sigparser/sigparser.h"
+#include "sigparser/sigparserimpl.hpp"
 
 ProcfilerCorProfilerCallback* ourCallback;
 
@@ -65,10 +69,42 @@ void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcI
 
 void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
                                                         COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) const {
-    auto info = FunctionInfo::GetFunctionInfo(myProfilerInfo, funcId);
-    if (info.GetMethodSignature().IsInstanceMethod() && info.GetTypeInfo().IsRefType()) {
-        std::cout << "XDDD " << info.GetFullName() << "\n";
-    }
+    mdToken functionToken;
+    ClassID classId;
+    ModuleID moduleId;
+
+    myProfilerInfo->GetFunctionInfo(funcId, &classId, &moduleId, &functionToken);
+
+    IUnknown* unknown;
+    myProfilerInfo->GetModuleMetaData(moduleId, ofRead | ofWrite, IID_IMetaDataImport, &unknown);
+
+    IMetaDataImport2* metadataImport = nullptr;
+    void** ptr = reinterpret_cast<void**>(&metadataImport);
+    unknown->QueryInterface(IID_IMetaDataImport, ptr);
+
+    constexpr int STR_LENGTH = 256;
+    WCHAR funcName[STR_LENGTH];
+    PCCOR_SIGNATURE sig;
+    ULONG cSig;
+    String name;
+
+    metadataImport->GetMethodProps(functionToken,
+                            NULL,
+                                    funcName,
+                                    STR_LENGTH,
+                                    0,
+                                    0,
+                                    &sig,
+                                    &cSig,
+                                    NULL,
+                                    NULL);
+
+    SigFormatParserImpl sigParser;
+    sigParser.Parse(const_cast<sig_byte*>(sig), cSig);
+
+    name += funcName;
+
+    std::cout << ToString(name.ToWString()) << "::" << sigParser.HasThis() << "\n";
 
     HandleFunctionEnter(funcId);
 }
