@@ -89,22 +89,38 @@ void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
     String name;
 
     metadataImport->GetMethodProps(functionToken,
-                            NULL,
-                                    funcName,
-                                    STR_LENGTH,
-                                    0,
-                                    0,
-                                    &sig,
-                                    &cSig,
-                                    NULL,
-                                    NULL);
+                                   NULL,
+                                   funcName,
+                                   STR_LENGTH,
+                                   0,
+                                   0,
+                                   &sig,
+                                   &cSig,
+                                   NULL,
+                                   NULL);
 
     SigFormatParserImpl sigParser;
     sigParser.Parse(const_cast<sig_byte*>(sig), cSig);
 
+    mdTypeDef typeDef;
+    myProfilerInfo->GetClassIDInfo(classId, &moduleId, &typeDef);
+    myProfilerInfo->GetModuleMetaData(moduleId, ofRead | ofWrite, IID_IMetaDataImport, &unknown);
+    ptr = reinterpret_cast<void**>(&metadataImport);
+    unknown->QueryInterface(IID_IMetaDataImport, ptr);
+
+    DWORD dwTypeDefFlags;
+    metadataImport->GetTypeDefProps(typeDef,
+                                    nullptr,
+                                    0,
+                                    nullptr,
+                                    &dwTypeDefFlags,
+                                    nullptr);
+
+    const auto isClassOrInterface = IsTdClass(dwTypeDefFlags) || IsTdInterface(dwTypeDefFlags);
+
     name += funcName;
 
-    std::cout << ToString(name.ToWString()) << "::" << sigParser.HasThis() << "\n";
+    std::cout << ToString(name.ToWString()) << "::" << sigParser.HasThis() << "::" << isClassOrInterface << "\n";
 
     HandleFunctionEnter(funcId);
 }

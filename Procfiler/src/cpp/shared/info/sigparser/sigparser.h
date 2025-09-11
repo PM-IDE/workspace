@@ -126,7 +126,6 @@ typedef unsigned int  sig_mem_number;
 
 class SigParser
 {
-private:
     sig_byte *pbBase;
     sig_byte *pbCur;
     sig_byte *pbEnd;
