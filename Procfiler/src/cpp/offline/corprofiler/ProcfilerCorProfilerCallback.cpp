@@ -69,71 +69,8 @@ void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcI
 
 void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
                                                         COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) const {
-    mdToken functionToken;
-    ClassID classId;
-    ModuleID moduleId;
-
-    myProfilerInfo->GetFunctionInfo(funcId, &classId, &moduleId, &functionToken);
-
-    IUnknown* unknown;
-    myProfilerInfo->GetModuleMetaData(moduleId, ofRead | ofWrite, IID_IMetaDataImport, &unknown);
-
-    IMetaDataImport2* metadataImport = nullptr;
-    void** ptr = reinterpret_cast<void**>(&metadataImport);
-    unknown->QueryInterface(IID_IMetaDataImport, ptr);
-
-    constexpr int STR_LENGTH = 256;
-    WCHAR funcName[STR_LENGTH];
-    PCCOR_SIGNATURE sig;
-    ULONG cSig;
-
-    metadataImport->GetMethodProps(functionToken,
-                                   NULL,
-                                   funcName,
-                                   STR_LENGTH,
-                                   0,
-                                   0,
-                                   &sig,
-                                   &cSig,
-                                   NULL,
-                                   NULL);
-
-    SigFormatParserImpl sigParser;
-    sigParser.Parse(const_cast<sig_byte*>(sig), cSig);
-
-    mdTypeDef typeDef;
-    myProfilerInfo->GetClassIDInfo(classId, &moduleId, &typeDef);
-    myProfilerInfo->GetModuleMetaData(moduleId, ofRead | ofWrite, IID_IMetaDataImport, &unknown);
-    ptr = reinterpret_cast<void**>(&metadataImport);
-    unknown->QueryInterface(IID_IMetaDataImport, ptr);
-
-    DWORD dwTypeDefFlags;
-    metadataImport->GetTypeDefProps(typeDef,
-                                    nullptr,
-                                    0,
-                                    nullptr,
-                                    &dwTypeDefFlags,
-                                    nullptr);
-
-    if (sigParser.HasThis()) {
-        if (argumentInfo->ranges->length == 0) {
-            std::cout << "argumentInfo->ranges->length == 0\n";
-        } else {
-            ObjectID thisId = reinterpret_cast<UINT_PTR>(*reinterpret_cast<void**>(argumentInfo->ranges[0].startAddress));
-            COR_PRF_GC_GENERATION_RANGE generationRange;
-            auto result = myProfilerInfo->GetObjectGeneration(thisId, &generationRange);
-
-            String name = funcName;
-            std::cout << FunctionInfo::GetFunctionInfo(myProfilerInfo, funcId).GetFullName();
-
-            if (result != S_OK) {
-                std::cout << "Failed to get object generation " << result << "\n";
-            } else {
-                std::cout << "::" << generationRange.generation << "::" << sigParser.HasThis() << "::" << "\n";
-            }
-        }
-    }
-
+    ObjectID id;
+    myObjectsManager->TryGetThisObjectId(funcId, argumentInfo, &id);
 
     HandleFunctionEnter(funcId);
 }
@@ -161,6 +98,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk)
     }
 
     InitializeShadowStack();
+    myObjectsManager = new ObjectsManager(myProfilerInfo);
 
     const auto produceObjectBinStacks = IsEnvVarTrue(produceObjectBinStacksEnv);
 
@@ -263,11 +201,11 @@ HRESULT ProcfilerCorProfilerCallback::Shutdown() {
 }
 
 ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback(ProcfilerLogger* logger) : myRefCount(0),
-    myProfilerInfo(nullptr),
-    myLogger(logger) {
+    myProfilerInfo(nullptr), myLogger(logger) {
     ourCallback = this;
     myShadowStack = nullptr;
     myShadowStackSerializer = nullptr;
+    myObjectsManager = nullptr;
 }
 
 HRESULT ProcfilerCorProfilerCallback::AppDomainCreationStarted(AppDomainID appDomainId) {
@@ -695,6 +633,9 @@ ProcfilerCorProfilerCallback::~ProcfilerCorProfilerCallback() {
 
     delete myShadowStackSerializer;
     myShadowStackSerializer = nullptr;
+
+    delete myObjectsManager;
+    myObjectsManager = nullptr;
 }
 
 DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() const {

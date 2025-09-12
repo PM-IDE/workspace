@@ -43,6 +43,8 @@ set(SOURCES
     ../shared/info/sigparser/sigparser.H
     ../shared/info/sigparser/sigparser.cpp
     ../shared/info/sigparser/sigparserimpl.hpp
+    corprofiler/objects/ObjectsManager.cpp
+    corprofiler/objects/ObjectsManager.h
 )
 
 include_directories(../3rdparty/coreclr/pal/prebuilt/inc)
