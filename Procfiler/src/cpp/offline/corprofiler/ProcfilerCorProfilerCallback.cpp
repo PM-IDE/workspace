@@ -86,7 +86,6 @@ void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
     WCHAR funcName[STR_LENGTH];
     PCCOR_SIGNATURE sig;
     ULONG cSig;
-    String name;
 
     metadataImport->GetMethodProps(functionToken,
                                    NULL,
@@ -116,11 +115,25 @@ void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
                                     &dwTypeDefFlags,
                                     nullptr);
 
-    const auto isClassOrInterface = IsTdClass(dwTypeDefFlags) || IsTdInterface(dwTypeDefFlags);
+    if (sigParser.HasThis()) {
+        if (argumentInfo->ranges->length == 0) {
+            std::cout << "argumentInfo->ranges->length == 0\n";
+        } else {
+            ObjectID thisId = reinterpret_cast<UINT_PTR>(*reinterpret_cast<void**>(argumentInfo->ranges[0].startAddress));
+            COR_PRF_GC_GENERATION_RANGE generationRange;
+            auto result = myProfilerInfo->GetObjectGeneration(thisId, &generationRange);
 
-    name += funcName;
+            String name = funcName;
+            std::cout << FunctionInfo::GetFunctionInfo(myProfilerInfo, funcId).GetFullName();
 
-    std::cout << ToString(name.ToWString()) << "::" << sigParser.HasThis() << "::" << isClassOrInterface << "\n";
+            if (result != S_OK) {
+                std::cout << "Failed to get object generation " << result << "\n";
+            } else {
+                std::cout << "::" << generationRange.generation << "::" << sigParser.HasThis() << "::" << "\n";
+            }
+        }
+    }
+
 
     HandleFunctionEnter(funcId);
 }
