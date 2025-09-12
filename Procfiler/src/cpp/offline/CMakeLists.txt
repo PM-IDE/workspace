@@ -45,6 +45,7 @@ set(SOURCES
     ../shared/info/sigparser/sigparserimpl.hpp
     corprofiler/objects/ObjectsManager.cpp
     corprofiler/objects/ObjectsManager.h
+    ../shared/util/MetadataCookie.hpp
 )
 
 include_directories(../3rdparty/coreclr/pal/prebuilt/inc)

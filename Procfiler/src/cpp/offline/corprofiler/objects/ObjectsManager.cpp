@@ -5,6 +5,8 @@
 #include <cor.h>
 #include <corhdr.h>
 
+#include "MetadataCookie.hpp"
+
 ObjectsManager::ObjectsManager(ICorProfilerInfo15* info) {
     myProfilerInfo = info;
 }
@@ -38,6 +40,9 @@ bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
     IMetaDataImport2* mtd = nullptr;
     auto ptr = reinterpret_cast<void**>(&mtd);
     hr = unknown->QueryInterface(IID_IMetaDataImport, ptr);
+
+    MetadataCookie cookie(mtd);
+
     if (FAILED(hr)) {
         return false;
     }
