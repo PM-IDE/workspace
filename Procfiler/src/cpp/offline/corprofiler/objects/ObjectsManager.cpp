@@ -1,7 +1,6 @@
 ﻿#include "ObjectsManager.h"
 
 #include "FunctionInfo.h"
-#include "clr/profilerstring.hpp"
 #include "sigparser/sigparserimpl.hpp"
 #include <cor.h>
 #include <corhdr.h>
@@ -16,7 +15,7 @@ ObjectsManager::~ObjectsManager() {
 
 bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
                                         const COR_PRF_FUNCTION_ARGUMENT_INFO* args,
-                                        ObjectID* id) const {
+                                        ObjectID* objectId) const {
     if (args->ranges->length == 0) {
         return false;
     }
@@ -55,25 +54,6 @@ bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
         return false;
     }
 
-    mdTypeDef typeDef;
-    if (FAILED(myProfilerInfo->GetClassIDInfo(classId, &moduleId, &typeDef))) {
-        return false;
-    }
-
-    if (FAILED(myProfilerInfo->GetModuleMetaData(moduleId, ofRead | ofWrite, IID_IMetaDataImport, &unknown))) {
-        return false;
-    }
-
-    ptr = reinterpret_cast<void**>(&mtd);
-    if (FAILED(unknown->QueryInterface(IID_IMetaDataImport, ptr))) {
-        return false;
-    }
-
-    DWORD dwTypeDefFlags;
-    if (FAILED(mtd->GetTypeDefProps(typeDef, 0, 0, 0, &dwTypeDefFlags, 0))) {
-        return false;
-    }
-
     const auto thisId = reinterpret_cast<UINT_PTR>(*reinterpret_cast<void**>(args->ranges[0].startAddress));
 
     COR_PRF_GC_GENERATION_RANGE generationRange;
@@ -81,7 +61,7 @@ bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
         return false;
     }
 
-    *id = thisId;
+    *objectId = thisId;
 
     return true;
 }

@@ -11,7 +11,7 @@ public:
 
     ~ObjectsManager();
 
-    bool TryGetThisObjectId(FunctionID funcId, const COR_PRF_FUNCTION_ARGUMENT_INFO* args, ObjectID* id) const;
+    bool TryGetThisObjectId(FunctionID funcId, const COR_PRF_FUNCTION_ARGUMENT_INFO* args, ObjectID* objectId) const;
 };
 
 
