@@ -17,6 +17,10 @@ ObjectsManager::~ObjectsManager() {
 bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
                                         const COR_PRF_FUNCTION_ARGUMENT_INFO* args,
                                         ObjectID* id) const {
+    if (args->ranges->length == 0) {
+        return false;
+    }
+
     mdToken functionToken;
     ClassID classId;
     ModuleID moduleId;
@@ -32,8 +36,8 @@ bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
         return false;
     }
 
-    IMetaDataImport2* metadataImport = nullptr;
-    auto ptr = reinterpret_cast<void**>(&metadataImport);
+    IMetaDataImport2* mtd = nullptr;
+    auto ptr = reinterpret_cast<void**>(&mtd);
     hr = unknown->QueryInterface(IID_IMetaDataImport, ptr);
     if (FAILED(hr)) {
         return false;
@@ -42,23 +46,12 @@ bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
     PCCOR_SIGNATURE signature;
     ULONG signatureLength;
 
-    hr = metadataImport->GetMethodProps(functionToken,
-                                        nullptr,
-                                        nullptr,
-                                        0,
-                                        nullptr,
-                                        nullptr,
-                                        &signature,
-                                        &signatureLength,
-                                        nullptr,
-                                        nullptr);
-
-    if (FAILED(hr)) {
+    if (FAILED(mtd->GetMethodProps(functionToken, 0, 0, 0, 0, 0, &signature, &signatureLength, 0, 0))) {
         return false;
     }
 
     SigFormatParserImpl sigParser;
-    if (!sigParser.Parse(const_cast<sig_byte*>(signature), signatureLength)) {
+    if (!sigParser.Parse(const_cast<sig_byte*>(signature), signatureLength) || !sigParser.HasThis()) {
         return false;
     }
 
@@ -71,40 +64,24 @@ bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
         return false;
     }
 
-    ptr = reinterpret_cast<void**>(&metadataImport);
+    ptr = reinterpret_cast<void**>(&mtd);
     if (FAILED(unknown->QueryInterface(IID_IMetaDataImport, ptr))) {
         return false;
     }
 
     DWORD dwTypeDefFlags;
-    hr = metadataImport->GetTypeDefProps(typeDef,
-                                         nullptr,
-                                         0,
-                                         nullptr,
-                                         &dwTypeDefFlags,
-                                         nullptr);
-
-    if (FAILED(hr) || !sigParser.HasThis()) {
-        return false;
-    }
-
-    if (args->ranges->length == 0) {
-        std::cout << "argumentInfo->ranges->length == 0\n";
+    if (FAILED(mtd->GetTypeDefProps(typeDef, 0, 0, 0, &dwTypeDefFlags, 0))) {
         return false;
     }
 
     const auto thisId = reinterpret_cast<UINT_PTR>(*reinterpret_cast<void**>(args->ranges[0].startAddress));
+
     COR_PRF_GC_GENERATION_RANGE generationRange;
-    const auto result = myProfilerInfo->GetObjectGeneration(thisId, &generationRange);
-
-    std::cout << FunctionInfo::GetFunctionInfo(myProfilerInfo, funcId).GetFullName();
-
-    if (result != S_OK) {
-        std::cout << "Failed to get object generation " << result << "\n";
-    } else {
-        *id = thisId;
-        std::cout << "::" << generationRange.generation << "::" << sigParser.HasThis() << "::" << "\n";
+    if (FAILED(myProfilerInfo->GetObjectGeneration(thisId, &generationRange))) {
+        return false;
     }
+
+    *id = thisId;
 
     return true;
 }
