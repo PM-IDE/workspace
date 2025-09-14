@@ -17,7 +17,7 @@ ObjectsManager::~ObjectsManager() {
 
 bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
                                         const COR_PRF_FUNCTION_ARGUMENT_INFO* args,
-                                        ObjectID* objectId) const {
+                                        UINT64* objectId) {
     if (args->ranges->length == 0) {
         return false;
     }
@@ -66,7 +66,24 @@ bool ObjectsManager::TryGetThisObjectId(const FunctionID funcId,
         return false;
     }
 
-    *objectId = thisId;
+    std::lock_guard<std::mutex> lock(this->myMutex);
+    *objectId = myObjectsIds.at(thisId);
 
     return true;
+}
+
+void ObjectsManager::HandleObjectsMove(ULONG cMovedObjectIDRanges,
+                                       ObjectID* oldObjectIDRangeStart,
+                                       ObjectID* newObjectIDRangeStart,
+                                       ULONG* cObjectIDRangeLength) {
+}
+
+void ObjectsManager::HandleObjectAllocation(const ObjectID& id) {
+    static std::atomic<UINT64> nextObjectId{0};
+
+    auto nextId = nextObjectId.fetch_add(1);
+
+    std::lock_guard<std::mutex> lock(this->myMutex);
+
+    myObjectsIds.insert({id, nextId});
 }

@@ -140,10 +140,16 @@ HRESULT ProcfilerCorProfilerCallback::MovedReferences(ULONG cMovedObjectIDRanges
                                                       ObjectID* oldObjectIDRangeStart,
                                                       ObjectID* newObjectIDRangeStart,
                                                       ULONG* cObjectIDRangeLength) {
+    myObjectsManager->HandleObjectsMove(cMovedObjectIDRanges,
+                                        oldObjectIDRangeStart,
+                                        newObjectIDRangeStart,
+                                        cObjectIDRangeLength);
+
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::ObjectAllocated(ObjectID objectId, ClassID classId) {
+    myObjectsManager->HandleObjectAllocation(objectId);
     return S_OK;
 }
 
