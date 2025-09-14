@@ -16,6 +16,7 @@ const std::string useSeparateBinStacksFilesEnv = "PROCFILER_USE_SEPARATE_BINSTAC
 const std::string onlineSerializationEnv = "PROCFILER_ONLINE_SERIALIZATION";
 
 const std::string produceObjectBinStacksEnv = "PROCFILER_PRODUCE_OBJECT_BIN_STACKS";
+const std::string objectsTrackingFilterRegex = "PROCFILER_OBJECTS_TRACKING_FILTER_REGEX";
 
 
 bool IsEnvVarDefined(const std::string& envVarName);

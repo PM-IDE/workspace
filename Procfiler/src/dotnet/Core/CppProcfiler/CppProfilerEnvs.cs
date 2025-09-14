@@ -11,4 +11,5 @@ public static class CppProfilerEnvs
   public const string UseSeparateBinStacksFiles = "PROCFILER_USE_SEPARATE_BINSTACKS_FILES";
   public const string OnlineSerialization = "PROCFILER_ONLINE_SERIALIZATION";
   public const string ProduceObjectBinStacks = "PROCFILER_PRODUCE_OBJECT_BIN_STACKS";
+  public const string ObjectsTrackingFilterRegex = "PROCFILER_OBJECTS_TRACKING_FILTER_REGEX";
 }

@@ -38,6 +38,7 @@ public partial class CollectCommandBase
     command.AddOption(WriteAllEventMetadata);
     command.AddOption(LogSerializationFormatOption);
     command.AddOption(ProduceObjectBinStacks);
+    command.AddOption(ObjectsTrackingFilterRegex);
   }
 
   private Option<bool> SelfContainedOption { get; } =
@@ -126,4 +127,7 @@ public partial class CollectCommandBase
 
   private Option<bool> ProduceObjectBinStacks { get; } =
     new("--produce-object-bin-stacks", static () => false, "Whether to store information about objects and types associated with methods calls");
+
+  private Option<string?> ObjectsTrackingFilterRegex { get; } =
+    new("--objects-tracking-filter-regex", static () => null, "Regex to narrow the set of types objects of which will be tracked");
 }

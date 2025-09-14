@@ -19,6 +19,7 @@ public readonly struct DotnetProcessLauncherDto
   public required bool CppProfilerUseConsoleLogging { get; init; }
   public required string WorkingDirectory { get; init; }
   public required bool ProduceObjectBinStacks { get; init; }
+  public required string? ObjectsTrackingFilterRegex { get; init; }
 
 
   public static DotnetProcessLauncherDto CreateFrom(
@@ -60,7 +61,8 @@ public readonly struct DotnetProcessLauncherDto
     CppProfilerUseConsoleLogging = context.CppProfilerUseConsoleLogging,
     WorkingDirectory = workingDirectory,
     BinaryStacksSavePath = binStacksSavePath,
-    ProduceObjectBinStacks = context.ProduceObjectBinStacks
+    ProduceObjectBinStacks = context.ProduceObjectBinStacks,
+    ObjectsTrackingFilterRegex = context.ObjectsFilterTrackingRegex
   };
 
   public static DotnetProcessLauncherDto CreateFrom(

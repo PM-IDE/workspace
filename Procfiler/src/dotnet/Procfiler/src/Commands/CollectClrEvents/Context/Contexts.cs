@@ -25,7 +25,8 @@ public record struct CollectingClrEventsCommonContext(
   bool ClearArtifacts,
   bool WriteAllEventMetadata,
   LogFormat LogSerializationFormat,
-  bool ProduceObjectBinStacks
+  bool ProduceObjectBinStacks,
+  string? ObjectsFilterTrackingRegex
 );
 
 public record CollectClrEventsContext(CollectingClrEventsCommonContext CommonContext);

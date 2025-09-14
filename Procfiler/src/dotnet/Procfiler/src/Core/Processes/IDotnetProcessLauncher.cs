@@ -65,6 +65,11 @@ public class DotnetProcessLauncher(IProcfilerLogger logger) : IDotnetProcessLaun
         startInfo.Environment[CppProfilerEnvs.ProduceObjectBinStacks] = EnvVarsConstants.True;
       }
 
+      if (launcherDto.ObjectsTrackingFilterRegex is { } objectsTrackingFilterRegex)
+      {
+        startInfo.Environment[CppProfilerEnvs.ProduceObjectBinStacks] = objectsTrackingFilterRegex;
+      }
+
       if (launcherDto.MethodsFilterRegex is { } methodsFilterRegex)
       {
         startInfo.Environment[CppProfilerEnvs.MethodsFilterRegex] = methodsFilterRegex;
