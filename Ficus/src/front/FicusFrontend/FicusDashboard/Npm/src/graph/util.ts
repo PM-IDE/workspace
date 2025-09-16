@@ -22,6 +22,8 @@ export function createLayout(kind: GrpcGraphKind, spacingFactor: number = 1, use
       return createGridLayout(spacingFactor, useLROrientation);
     case GrpcGraphKind.DAG:
       return createDagreLayout(spacingFactor, useLROrientation);
+    case GrpcGraphKind.DagLCS:
+      return createDagreLayout(spacingFactor, useLROrientation);
   }
 }
 

@@ -7,7 +7,7 @@
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
   <div style="display: flex; flex-direction: row; flex-grow: 1;">
-    <GraphLikeEntitySettings @ref="@mySettings" Enhancements="@myEnhancements">
+    <GraphLikeEntitySettings @ref="@mySettings" Enhancements="@myEnhancements" Kind="@Graph.Kind">
       <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
     </GraphLikeEntitySettings>

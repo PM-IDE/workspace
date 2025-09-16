@@ -1,0 +1,13 @@
+﻿@using Radzen.Blazor
+
+<div style="display: flex; flex-direction: row; align-items: center; margin-top: 10px;">
+  <RadzenCheckBox TValue="bool"
+                  ValueChanged="@HandleValueUpdate"/>
+
+  <div style="margin-left: 5px;">@Title</div>
+</div>
+
+@code {
+  [Parameter] public required string Title { get; init; }
+  [Parameter] public required Action<bool> HandleValueUpdate { get; init; }
+}
