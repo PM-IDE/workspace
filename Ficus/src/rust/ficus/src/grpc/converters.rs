@@ -647,6 +647,7 @@ fn convert_to_grpc_graph_kind(kind: Option<&GraphKind>) -> GrpcGraphKind {
     None => GrpcGraphKind::None,
     Some(kind) => match kind {
       GraphKind::Dag => GrpcGraphKind::Dag,
+      GraphKind::DagLCS => GrpcGraphKind::DagLcs,
     },
   }
 }

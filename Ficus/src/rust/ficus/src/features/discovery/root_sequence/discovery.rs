@@ -3,7 +3,7 @@ use crate::features::discovery::root_sequence::adjustments::{
   adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes,
 };
 use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId};
+use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId, RootSequenceKind};
 use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::{DefaultGraph, GraphKind, NodesConnectionData};
@@ -65,7 +65,12 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
 ) -> Result<RootSequenceGraphDiscoveryResult, DiscoverRootSequenceGraphError> {
   let mut result = discover_root_sequence_graph_internal(log, context, true)?;
 
-  result.graph_mut().set_kind(Some(GraphKind::Dag));
+  let graph_kind = match context.root_sequence_kind() {
+    RootSequenceKind::FindBest | RootSequenceKind::PairwiseLCS | RootSequenceKind::Trace => GraphKind::Dag,
+    RootSequenceKind::LCS => GraphKind::DagLCS
+  };
+
+  result.graph_mut().set_kind(Some(graph_kind));
 
   add_start_end_nodes_ids_to_user_data(&mut result);
   adjust_connections(context, log, &mut result.graph);

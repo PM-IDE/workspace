@@ -201,6 +201,7 @@ message GrpcComplexContextRequestPipelinePart {
 enum GrpcGraphKind {
   None = 0;
   DAG = 1;
+  DagLCS = 2;
 }
 
 message GrpcGraph {

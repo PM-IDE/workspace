@@ -48,6 +48,7 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
 #[derive(Debug, Clone)]
 pub enum GraphKind {
   Dag,
+  DagLCS
 }
 
 #[derive(Debug, Getters, Setters)]
