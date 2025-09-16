@@ -133,7 +133,7 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null)
         id: node.id.toString(),
         additionalData: node.additionalData,
         innerGraph: node.innerGraph,
-        executionTime: calculateOverallExecutionTime(node),
+        executionTimeNs: calculateOverallExecutionTime(node),
         enhancementData: getNodeEnhancementDataOrNull(node, filter),
       }
     })
@@ -239,7 +239,7 @@ export function createGraphEdgesElements(
         target: edge.toNode.toString(),
         additionalData: edge.additionalData,
         enhancementData: getEdgeEnhancementDataOrNull(edge, filter),
-        executionTime: executionTime,
+        executionTimeNs: executionTime,
         weight: edge.weight,
         width: width,
         color: color

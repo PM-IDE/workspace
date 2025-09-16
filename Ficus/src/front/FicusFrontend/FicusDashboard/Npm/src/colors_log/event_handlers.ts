@@ -54,7 +54,7 @@ function findSelectedEvent(mouseEvent: MouseEvent,
           return 0;
         }
 
-        return x - event.x;
+        return event.x - x;
       });
 
       if (index > -1 && index < trace.length) {
