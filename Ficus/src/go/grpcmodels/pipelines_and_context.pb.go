@@ -25,8 +25,9 @@ const (
 type GrpcGraphKind int32
 
 const (
-	GrpcGraphKind_None GrpcGraphKind = 0
-	GrpcGraphKind_DAG  GrpcGraphKind = 1
+	GrpcGraphKind_None   GrpcGraphKind = 0
+	GrpcGraphKind_DAG    GrpcGraphKind = 1
+	GrpcGraphKind_DagLCS GrpcGraphKind = 2
 )
 
 // Enum value maps for GrpcGraphKind.
@@ -34,10 +35,12 @@ var (
 	GrpcGraphKind_name = map[int32]string{
 		0: "None",
 		1: "DAG",
+		2: "DagLCS",
 	}
 	GrpcGraphKind_value = map[string]int32{
-		"None": 0,
-		"DAG":  1,
+		"None":   0,
+		"DAG":    1,
+		"DagLCS": 2,
 	}
 )
 
@@ -4211,10 +4214,12 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\x06events\x18\x01 \x03(\v2\x16.ficus.GrpcThreadEventR\x06events\";\n" +
 	"\x0fGrpcThreadEvent\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05stamp\x18\x02 \x01(\x03R\x05stamp*\"\n" +
+	"\x05stamp\x18\x02 \x01(\x03R\x05stamp*.\n" +
 	"\rGrpcGraphKind\x12\b\n" +
 	"\x04None\x10\x00\x12\a\n" +
-	"\x03DAG\x10\x01*u\n" +
+	"\x03DAG\x10\x01\x12\n" +
+	"\n" +
+	"\x06DagLCS\x10\x02*u\n" +
 	"\x10GrpcDurationKind\x12\x0f\n" +
 	"\vUnspecified\x10\x00\x12\t\n" +
 	"\x05Nanos\x10\x01\x12\n" +

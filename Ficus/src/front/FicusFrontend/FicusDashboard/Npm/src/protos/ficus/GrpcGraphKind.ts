@@ -3,6 +3,7 @@
 export const GrpcGraphKind = {
   None: 0,
   DAG: 1,
+  DagLCS: 2,
 } as const;
 
 export type GrpcGraphKind_DONTUSE =
@@ -10,5 +11,7 @@ export type GrpcGraphKind_DONTUSE =
   | 0
   | 'DAG'
   | 1
+  | 'DagLCS'
+  | 2
 
 export type GrpcGraphKind = typeof GrpcGraphKind[keyof typeof GrpcGraphKind]

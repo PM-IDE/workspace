@@ -13,6 +13,7 @@ class GrpcGraphKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
     None: _ClassVar[GrpcGraphKind]
     DAG: _ClassVar[GrpcGraphKind]
+    DagLCS: _ClassVar[GrpcGraphKind]
 
 class GrpcDurationKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
@@ -36,6 +37,7 @@ class GrpcUnderlyingPatternKind(int, metaclass=_enum_type_wrapper.EnumTypeWrappe
     Unknown: _ClassVar[GrpcUnderlyingPatternKind]
 None: GrpcGraphKind
 DAG: GrpcGraphKind
+DagLCS: GrpcGraphKind
 Unspecified: GrpcDurationKind
 Nanos: GrpcDurationKind
 Micros: GrpcDurationKind
