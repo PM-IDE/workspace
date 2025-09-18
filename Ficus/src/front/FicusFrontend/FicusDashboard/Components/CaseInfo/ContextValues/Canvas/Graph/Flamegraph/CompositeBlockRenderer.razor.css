@@ -1,0 +1,8 @@
+﻿.node {
+  background: red;
+  border: solid 1px black;
+}
+
+.edge {
+  background: yellow;
+}

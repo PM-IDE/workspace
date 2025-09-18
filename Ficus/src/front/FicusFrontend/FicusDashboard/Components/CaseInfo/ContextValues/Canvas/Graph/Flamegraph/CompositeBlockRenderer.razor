@@ -1,0 +1,73 @@
+﻿<div style="display: flex; flex-direction: row; height: @(Block.CalculateHeight() * NodeHeight)px" class="node">
+  @if (AddFirstEdge)
+  {
+    <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
+    </div>
+  }
+
+  <div style="height: 100%;" class="node">
+    @Block.StartNode
+  </div>
+  
+  @if (Block.InnerBlocks.Count > 0)
+  {
+    <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
+    </div>
+  }
+
+  <div style="display: flex; flex-direction: @(Block.Orientation is Orientation.Horizontal ? "row" : "column")">
+    @foreach (var block in Block.InnerBlocks)
+    {
+      @(
+      block switch
+      {
+        CompositeBasicBlock compositeBasicBlock => @<CompositeBlockRenderer Block="@compositeBasicBlock"/>,
+        EdgeBlock => @<div style="height: @(NodeHeight)px; width: 100%" class="edge"></div>,
+        SequentialBasicBlock sequentialBasicBlock => @<div style="height: 100%; display: flex; flex-direction: row;">
+                                                       @foreach (var (index, node) in sequentialBasicBlock.NodesSequence.Index())
+                                                       {
+                                                         <div style="height: 100%; width: @(NodeWidth)"
+                                                              class="node">
+                                                           @node
+                                                         </div>
+
+                                                         @if (index < sequentialBasicBlock.NodesSequence.Count - 1)
+                                                         {
+                                                           <div style="height: 100%; width: @(EdgeWidth)px;"
+                                                                class="edge">
+                                                           </div>
+                                                         }
+                                                       }
+                                                     </div>,
+        _ => throw new ArgumentOutOfRangeException(nameof(block))
+      }
+      )
+
+      @if (Block.Orientation is Orientation.Horizontal)
+      {
+        <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
+        </div>
+      }
+    }
+  </div>
+
+  <div style="height: 100%;" class="node">
+    @Block.EndNode
+  </div>
+
+  @if (AddLastEdge)
+  {
+    <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
+    </div>
+  }
+</div>
+
+@code {
+  public const int NodeHeight = 30;
+  public const int NodeWidth = 10;
+  public const int EdgeWidth = 30;
+
+  [Parameter] public required CompositeBasicBlock Block { get; init; }
+  [Parameter] public bool AddFirstEdge { get; init; }
+  [Parameter] public bool AddLastEdge { get; init; }
+}

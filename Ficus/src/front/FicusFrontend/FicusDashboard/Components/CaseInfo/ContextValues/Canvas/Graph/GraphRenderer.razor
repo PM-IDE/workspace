@@ -1,5 +1,6 @@
 @using System.Globalization
 @using Ficus
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph
 @using FicusDashboard.Layout.Models
 @using Radzen.Blazor
 @inject IJSRuntime Js
@@ -16,6 +17,11 @@
       <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
     </div>
   </div>
+
+  @if (mySettings?.RenderDagLcsInFlamegraphMode ?? false)
+  {
+    <FlamegraphGraphRenderer Graph="Graph"/>
+  }
 
   <div style="margin-top: 5px;">
     @if (myAggregatedData is { IsEmpty: false } data)
@@ -91,7 +97,7 @@
   {
     AddCustomEnhancements(data, enhancements);
   }
-  
+
   private static void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     if (data is null) return;

@@ -1,0 +1,35 @@
+﻿@using System.Text.Json
+@using Ficus
+
+@inject ILogger<FlamegraphGraphRenderer> Logger;
+
+@if (myContext is { })
+{
+  <CompositeBlockRenderer Block="@myContext.Layout"/>
+}
+
+
+@code {
+  [Parameter] public required GrpcGraph Graph { get; init; }
+
+  private FlamegraphContext? myContext;
+
+  protected override void OnParametersSet()
+  {
+    base.OnParametersSet();
+    InitializeFlamegraphInfo();
+  }
+
+  private void InitializeFlamegraphInfo()
+  {
+    myContext = new FlamegraphContext(Graph);
+
+    Logger.LogInformation(JsonSerializer.Serialize(myContext.NodePairs));
+    Logger.LogInformation(JsonSerializer.Serialize(myContext, new JsonSerializerOptions
+    {
+      WriteIndented = true
+    }));
+    Logger.LogInformation(myContext.Layout.CalculateHeight().ToString());
+  }
+
+}
