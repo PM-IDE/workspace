@@ -11,7 +11,7 @@ public class FlamegraphContext
   private readonly Dictionary<ulong, ulong> myNodePairs = [];
   private readonly List<List<ulong>> myNodesByLevels;
 
-  public CompositeBasicBlock Layout { get; }
+  public HorizontalCompositeBlock Layout { get; }
 
   public IReadOnlyDictionary<ulong, GrpcGraphNode> IdsToNodes => myIdsToNodes;
   public IReadOnlyDictionary<ulong, List<ulong>> Edges => myEdges;
@@ -196,24 +196,18 @@ public class FlamegraphContext
     }
   }
 
-  private CompositeBasicBlock CreateBlockLayout(ulong node, ulong endNode)
+  private HorizontalCompositeBlock CreateBlockLayout(ulong node, ulong endNode)
   {
-    var compositeBlock = new CompositeBasicBlock
-    {
-      StartNode = node,
-      EndNode = endNode,
-      Orientation = Orientation.Horizontal
-    };
+    var compositeBlock = new HorizontalCompositeBlock();
 
     while (node != endNode)
     {
       if (myNodePairs.TryGetValue(node, out var pairNode))
       {
-        var block = new CompositeBasicBlock
+        var block = new VerticalCompositeBlock
         {
           StartNode = node,
-          EndNode = pairNode,
-          Orientation = Orientation.Vertical
+          EndNode = pairNode
         };
 
         foreach (var outgoingNode in myEdges[node])
@@ -239,19 +233,19 @@ public class FlamegraphContext
       else
       {
         var currentNode = node;
-        var nodesSequence = new List<ulong> { currentNode };
+        var nodesSequence = new List<ulong>();
 
         while (currentNode != endNode &&
                !myNodePairs.ContainsKey(currentNode) &&
                myEdges.ContainsKey(currentNode))
         {
-          currentNode = myEdges[currentNode].First();
           nodesSequence.Add(currentNode);
+          currentNode = myEdges[currentNode].First();
         }
 
         compositeBlock.InnerBlocks.Add(new SequentialBasicBlock
         {
-          NodesSequence = nodesSequence[1..^1]
+          NodesSequence = nodesSequence
         });
 
         node = currentNode;

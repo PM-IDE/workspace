@@ -238,3 +238,12 @@ svg-pie-chart svg {
 .seen-notification {
   background-color: var(--seen-notification-color);
 }
+
+.flamegraph-node {
+  background: red;
+  border: solid 1px black;
+}
+
+.flamegraph-edge {
+  background: yellow;
+}

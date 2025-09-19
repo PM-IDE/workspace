@@ -1,73 +1,67 @@
-﻿<div style="display: flex; flex-direction: row; height: @(Block.CalculateHeight() * NodeHeight)px" class="node">
-  @if (AddFirstEdge)
+﻿<div style="display: flex; flex-direction: row; height: @(Block.CalculateHeight() * FlamegraphConstants.NodeHeight)px">
+  @if (Block is HorizontalCompositeBlock hBLock)
   {
-    <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
-    </div>
-  }
-
-  <div style="height: 100%;" class="node">
-    @Block.StartNode
-  </div>
-  
-  @if (Block.InnerBlocks.Count > 0)
-  {
-    <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
-    </div>
-  }
-
-  <div style="display: flex; flex-direction: @(Block.Orientation is Orientation.Horizontal ? "row" : "column")">
-    @foreach (var block in Block.InnerBlocks)
+    @foreach (var (index, block) in Block.InnerBlocks.Index())
     {
-      @(
-      block switch
-      {
-        CompositeBasicBlock compositeBasicBlock => @<CompositeBlockRenderer Block="@compositeBasicBlock"/>,
-        EdgeBlock => @<div style="height: @(NodeHeight)px; width: 100%" class="edge"></div>,
-        SequentialBasicBlock sequentialBasicBlock => @<div style="height: 100%; display: flex; flex-direction: row;">
-                                                       @foreach (var (index, node) in sequentialBasicBlock.NodesSequence.Index())
-                                                       {
-                                                         <div style="height: 100%; width: @(NodeWidth)"
-                                                              class="node">
-                                                           @node
-                                                         </div>
+      @RenderBlock(block)
 
-                                                         @if (index < sequentialBasicBlock.NodesSequence.Count - 1)
-                                                         {
-                                                           <div style="height: 100%; width: @(EdgeWidth)px;"
-                                                                class="edge">
-                                                           </div>
-                                                         }
-                                                       }
-                                                     </div>,
-        _ => throw new ArgumentOutOfRangeException(nameof(block))
-      }
-      )
-
-      @if (Block.Orientation is Orientation.Horizontal)
+      if (index < Block.InnerBlocks.Count - 1)
       {
-        <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
+        <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
         </div>
       }
     }
-  </div>
-
-  <div style="height: 100%;" class="node">
-    @Block.EndNode
-  </div>
-
-  @if (AddLastEdge)
+  }
+  else if (Block is VerticalCompositeBlock vBlock)
   {
-    <div style="height: 100%; width: @(EdgeWidth)px;" class="edge">
+    <div style="height: 100%;" class="flamegraph-node">
+      @vBlock.StartNode
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+      @foreach (var block in Block.InnerBlocks)
+      {
+        var height = block.CalculateHeight() * FlamegraphConstants.NodeHeight;
+
+        @if (block is EdgeBlock)
+        {
+          <div style="height: 100%; width: 100%;" class="flamegraph-edge">
+          </div>
+        }
+        else
+        {
+          <div style="display: flex; flex-direction: row; height: @(height)px;">
+            <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+            </div>
+
+            @RenderBlock(block)
+          
+            <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; flex-grow: 1" class="flamegraph-edge">
+            </div>
+          </div>
+        }
+
+      }
+    </div>
+
+    <div style="height: 100%;" class="flamegraph-node">
+      @vBlock.EndNode
     </div>
   }
 </div>
 
 @code {
-  public const int NodeHeight = 30;
-  public const int NodeWidth = 10;
-  public const int EdgeWidth = 30;
+  [Parameter] public required CompositeBlockBase Block { get; init; }
 
-  [Parameter] public required CompositeBasicBlock Block { get; init; }
-  [Parameter] public bool AddFirstEdge { get; init; }
-  [Parameter] public bool AddLastEdge { get; init; }
+  private RenderFragment RenderBlock(BasicBlock block)
+  {
+    return block switch
+    {
+      CompositeBlockBase compositeBlock => @<CompositeBlockRenderer Block="compositeBlock"/>,
+      EdgeBlock => @<div style="height: @(FlamegraphConstants.NodeHeight)px; width: 100%" class="edge"></div>,
+      SequentialBasicBlock sequentialBasicBlock => @<SequentialBlockRenderer Block="sequentialBasicBlock"/>,
+      _ => throw new ArgumentOutOfRangeException(nameof(block))
+    };
+  }
+
 }

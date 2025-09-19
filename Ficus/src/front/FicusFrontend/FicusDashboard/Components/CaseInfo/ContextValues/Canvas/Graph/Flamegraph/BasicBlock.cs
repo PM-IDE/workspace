@@ -2,39 +2,28 @@
 
 namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph;
 
-[JsonDerivedType(typeof(CompositeBasicBlock))]
-[JsonDerivedType(typeof(SequentialBasicBlock))]
-[JsonDerivedType(typeof(EdgeBlock))]
 public abstract class BasicBlock
 {
   public abstract int CalculateHeight();
 }
 
-public enum Orientation
+public abstract class CompositeBlockBase : BasicBlock
 {
-  Vertical,
-  Horizontal
+  public List<BasicBlock> InnerBlocks { get; } = [];
 }
 
-public class CompositeBasicBlock : BasicBlock
+public class HorizontalCompositeBlock : CompositeBlockBase
+{
+  public override int CalculateHeight() => InnerBlocks.Select(b => b.CalculateHeight()).Max();
+}
+
+public class VerticalCompositeBlock : CompositeBlockBase
 {
   public required ulong StartNode { get; init; }
   public ulong EndNode { get; set; }
 
-  public required Orientation Orientation { get; init; }
 
-  public List<BasicBlock> InnerBlocks { get; } = [];
-
-
-  public override int CalculateHeight()
-  {
-    return Orientation switch
-    {
-      Orientation.Vertical => InnerBlocks.Sum(b => b.CalculateHeight()),
-      Orientation.Horizontal => InnerBlocks.Select(b => b.CalculateHeight()).Max(),
-      _ => throw new ArgumentOutOfRangeException()
-    };
-  }
+  public override int CalculateHeight() => InnerBlocks.Sum(b => b.CalculateHeight());
 }
 
 public class EdgeBlock : BasicBlock

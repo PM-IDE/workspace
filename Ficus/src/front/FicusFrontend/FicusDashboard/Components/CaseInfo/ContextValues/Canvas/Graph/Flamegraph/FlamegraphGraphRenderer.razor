@@ -23,13 +23,5 @@
   private void InitializeFlamegraphInfo()
   {
     myContext = new FlamegraphContext(Graph);
-
-    Logger.LogInformation(JsonSerializer.Serialize(myContext.NodePairs));
-    Logger.LogInformation(JsonSerializer.Serialize(myContext, new JsonSerializerOptions
-    {
-      WriteIndented = true
-    }));
-    Logger.LogInformation(myContext.Layout.CalculateHeight().ToString());
   }
-
 }
