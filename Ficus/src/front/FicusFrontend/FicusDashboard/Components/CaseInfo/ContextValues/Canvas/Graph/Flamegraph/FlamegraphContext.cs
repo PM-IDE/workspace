@@ -210,21 +210,28 @@ public class FlamegraphContext
           EndNode = pairNode
         };
 
-        foreach (var outgoingNode in myEdges[node])
+        var outgoingNodes = myEdges[node];
+        foreach (var (index, outgoingNode) in outgoingNodes.Index())
         {
           if (outgoingNode == pairNode)
           {
             block.InnerBlocks.Add(new EdgeBlock());
-            continue;
+          }
+          else
+          {
+            var outgoingNodeEndNode = myNodePairs.TryGetValue(outgoingNode, out var outgoingNodePair) switch
+            {
+              true => outgoingNodePair,
+              false => pairNode
+            };
+
+            block.InnerBlocks.Add(CreateBlockLayout(outgoingNode, outgoingNodeEndNode));
           }
 
-          var outgoingNodeEndNode = myNodePairs.TryGetValue(outgoingNode, out var outgoingNodePair) switch
+          if (index < outgoingNodes.Count - 1)
           {
-            true => outgoingNodePair,
-            false => pairNode
-          };
-
-          block.InnerBlocks.Add(CreateBlockLayout(outgoingNode, outgoingNodeEndNode));
+            block.InnerBlocks.Add(new SeparatorBlock());
+          }
         }
 
         compositeBlock.InnerBlocks.Add(block);

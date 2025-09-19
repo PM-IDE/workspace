@@ -1,6 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph;
 
-namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph;
+public static class ModelSizes
+{
+  public const int Base = 1;
+  public const int Separtor = Base;
+  public const int NodeHeight = 6 * Base;
+  public const int EdgeBlock = NodeHeight;
+}
 
 public abstract class BasicBlock
 {
@@ -30,8 +36,13 @@ public class EdgeBlock : BasicBlock
 {
   public override int CalculateHeight()
   {
-    return 1;
+    return ModelSizes.EdgeBlock;
   }
+}
+
+public class SeparatorBlock : BasicBlock
+{
+  public override int CalculateHeight() => ModelSizes.Separtor;
 }
 
 public class SequentialBasicBlock : BasicBlock
@@ -40,6 +51,6 @@ public class SequentialBasicBlock : BasicBlock
 
   public override int CalculateHeight()
   {
-    return 1;
+    return ModelSizes.NodeHeight;
   }
 }

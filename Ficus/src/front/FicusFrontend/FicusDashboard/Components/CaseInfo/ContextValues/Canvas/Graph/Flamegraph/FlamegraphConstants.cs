@@ -2,8 +2,7 @@
 
 internal class FlamegraphConstants
 {
-  public const int NodeHeight = 100;
+  public const int Height = 15;
   public const int NodeWidth = 30;
   public const int EdgeWidth = 40;
-  public const int SeparatorHeight = 20;
 }
