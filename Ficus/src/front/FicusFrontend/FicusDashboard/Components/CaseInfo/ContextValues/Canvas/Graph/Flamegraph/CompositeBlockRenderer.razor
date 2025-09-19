@@ -7,7 +7,9 @@
       {
         @RenderBlock(block)
 
-        if (index < Block.InnerBlocks.Count - 1)
+        if (index < Block.InnerBlocks.Count - 1 &&
+            block is not VerticalCompositeBlock &&
+            Block.InnerBlocks[index + 1] is HorizontalCompositeBlock or SequentialBasicBlock)
         {
           <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
           </div>
@@ -16,12 +18,8 @@
 
       break;
     }
-    case VerticalCompositeBlock vBlock:
+    case VerticalCompositeBlock:
     {
-      <div style="height: 100%;" class="flamegraph-node">
-        @Context.IdsToNodes[vBlock.StartNode].Data
-      </div>
-
       <div style="display: flex; flex-direction: column;">
         @foreach (var block in Block.InnerBlocks)
         {
@@ -42,14 +40,14 @@
             default:
             {
               var height = block.CalculateHeight() * FlamegraphConstants.Height;
+              
               <div style="display: flex; flex-direction: row; height: @(height)px;">
                 <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
                 </div>
 
                 @RenderBlock(block)
-
-                <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; flex-grow: 1"
-                     class="flamegraph-edge">
+                
+                <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
                 </div>
               </div>
 
@@ -58,11 +56,6 @@
           }
         }
       </div>
-
-      <div style="height: 100%;" class="flamegraph-node">
-        @Context.IdsToNodes[vBlock.EndNode].Data
-      </div>
-
       break;
     }
   }

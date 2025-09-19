@@ -54,7 +54,7 @@ public class FlamegraphContext
     myNodesByLevels = SetNodesByLevels(rootSequenceNodes[0]);
     FindNodesPairs(rootSequenceNodes[0]);
 
-    Layout = CreateBlockLayout(rootSequenceNodes[0], rootSequenceNodes[^1]);
+    Layout = CreateLayout(rootSequenceNodes[0], rootSequenceNodes[^1]);
   }
 
   private void FindNodesPairs(ulong startNode)
@@ -196,19 +196,32 @@ public class FlamegraphContext
     }
   }
 
-  private HorizontalCompositeBlock CreateBlockLayout(ulong node, ulong endNode)
+  private HorizontalCompositeBlock CreateLayout(ulong node, ulong endNode)
   {
-    var compositeBlock = new HorizontalCompositeBlock();
+    var layout = CreateBlockLayoutEndNodeNotInclusive(node, endNode);
+
+    layout.InnerBlocks.Add(new SequentialBasicBlock
+    {
+      NodesSequence = [endNode]
+    });
+
+    return layout;
+  }
+
+  private HorizontalCompositeBlock CreateBlockLayoutEndNodeNotInclusive(ulong node, ulong endNode)
+  {
+    var hBlock = new HorizontalCompositeBlock();
 
     while (node != endNode)
     {
       if (myNodePairs.TryGetValue(node, out var pairNode))
       {
-        var block = new VerticalCompositeBlock
+        hBlock.InnerBlocks.Add(new SequentialBasicBlock
         {
-          StartNode = node,
-          EndNode = pairNode
-        };
+          NodesSequence = [node]
+        });
+
+        var block = new VerticalCompositeBlock();
 
         var outgoingNodes = myEdges[node];
         foreach (var (index, outgoingNode) in outgoingNodes.Index())
@@ -225,7 +238,7 @@ public class FlamegraphContext
               false => pairNode
             };
 
-            block.InnerBlocks.Add(CreateBlockLayout(outgoingNode, outgoingNodeEndNode));
+            block.InnerBlocks.Add(CreateBlockLayoutEndNodeNotInclusive(outgoingNode, outgoingNodeEndNode));
           }
 
           if (index < outgoingNodes.Count - 1)
@@ -234,7 +247,7 @@ public class FlamegraphContext
           }
         }
 
-        compositeBlock.InnerBlocks.Add(block);
+        hBlock.InnerBlocks.Add(block);
         node = pairNode;
       }
       else
@@ -250,7 +263,7 @@ public class FlamegraphContext
           currentNode = myEdges[currentNode].First();
         }
 
-        compositeBlock.InnerBlocks.Add(new SequentialBasicBlock
+        hBlock.InnerBlocks.Add(new SequentialBasicBlock
         {
           NodesSequence = nodesSequence
         });
@@ -259,6 +272,6 @@ public class FlamegraphContext
       }
     }
 
-    return compositeBlock;
+    return hBlock;
   }
 }

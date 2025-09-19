@@ -25,10 +25,6 @@ public class HorizontalCompositeBlock : CompositeBlockBase
 
 public class VerticalCompositeBlock : CompositeBlockBase
 {
-  public required ulong StartNode { get; init; }
-  public ulong EndNode { get; set; }
-
-
   public override int CalculateHeight() => InnerBlocks.Sum(b => b.CalculateHeight());
 }
 
