@@ -1,5 +1,4 @@
 ﻿using Ficus;
-using Microsoft.AspNetCore.Components;
 
 namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph;
 
@@ -9,7 +8,6 @@ public class FlamegraphContext
   private readonly Dictionary<ulong, List<ulong>> myEdges = [];
   private readonly Dictionary<ulong, List<ulong>> myReversedEdges = [];
   private readonly Dictionary<ulong, ulong> myNodePairs = [];
-  private readonly List<List<ulong>> myNodesByLevels;
 
   public HorizontalCompositeBlock Layout { get; }
 
@@ -17,7 +15,6 @@ public class FlamegraphContext
   public IReadOnlyDictionary<ulong, List<ulong>> Edges => myEdges;
   public IReadOnlyDictionary<ulong, List<ulong>> ReversedEdges => myReversedEdges;
   public IDictionary<ulong, ulong> NodePairs => myNodePairs;
-  public IReadOnlyList<IReadOnlyList<ulong>> NodesByLevels => myNodesByLevels;
 
 
   public FlamegraphContext(GrpcGraph graph)
@@ -34,27 +31,14 @@ public class FlamegraphContext
     }
 
     var startNode = graph.Nodes.FirstOrDefault(n => !myReversedEdges.ContainsKey(n.Id));
-    var rootSequenceNodes = new List<ulong>();
+    if (startNode is null) throw new Exception("Graph does not contain a start node");
 
-    var currentRootSequenceNode = startNode;
-    while (currentRootSequenceNode is { })
-    {
-      rootSequenceNodes.Add(currentRootSequenceNode.Id);
+    var endNode = graph.Nodes.FirstOrDefault(n => !myEdges.ContainsKey(n.Id));
+    if (endNode is null) throw new Exception("Graph does not contain an end node");
 
-      if (!myEdges.ContainsKey(currentRootSequenceNode.Id))
-      {
-        break;
-      }
+    FindNodesPairs(startNode.Id);
 
-      currentRootSequenceNode = FindNextRootSequenceNode(currentRootSequenceNode);
-    }
-
-    if (rootSequenceNodes.Count is 0) throw new Exception("Graph is empty");
-
-    myNodesByLevels = SetNodesByLevels(rootSequenceNodes[0]);
-    FindNodesPairs(rootSequenceNodes[0]);
-
-    Layout = CreateLayout(rootSequenceNodes[0], rootSequenceNodes[^1]);
+    Layout = CreateLayout(startNode.Id, endNode.Id);
   }
 
   private void FindNodesPairs(ulong startNode)
@@ -140,38 +124,6 @@ public class FlamegraphContext
     }
   }
 
-  private List<List<ulong>> SetNodesByLevels(ulong startNode)
-  {
-    var result = new Dictionary<ulong, int>();
-    var q = new Queue<(ulong, int)>();
-    q.Enqueue((startNode, 0));
-
-    while (q.Count != 0)
-    {
-      var (node, level) = q.Dequeue();
-      if (result.TryGetValue(node, out var prevLevel))
-      {
-        prevLevel = Math.Max(prevLevel, level);
-      }
-      else
-      {
-        prevLevel = level;
-      }
-
-      result[node] = prevLevel;
-
-      if (myEdges.TryGetValue(node, out var nextNodes))
-      {
-        foreach (var nextNode in nextNodes)
-        {
-          q.Enqueue((nextNode, level + 1));
-        }
-      }
-    }
-
-    return result.GroupBy(p => p.Value).Select(g => g.Select(k => k.Key).ToList()).ToList();
-  }
-
   private void AddEdge(Dictionary<ulong, List<ulong>> map, ulong from, ulong to)
   {
     if (!map.TryGetValue(from, out var toNodes))
@@ -181,19 +133,6 @@ public class FlamegraphContext
     }
 
     toNodes.Add(to);
-  }
-
-  private GrpcGraphNode FindNextRootSequenceNode(GrpcGraphNode node)
-  {
-    var currentNode = node;
-    while (true)
-    {
-      currentNode = myIdsToNodes[myEdges[currentNode.Id].First()];
-      if (currentNode.AdditionalData.Any(d => d.TraceData?.BelongsToRootSequence ?? false))
-      {
-        return currentNode;
-      }
-    }
   }
 
   private HorizontalCompositeBlock CreateLayout(ulong node, ulong endNode)
