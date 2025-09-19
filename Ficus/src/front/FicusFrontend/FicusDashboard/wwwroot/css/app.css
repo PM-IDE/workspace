@@ -242,8 +242,14 @@ svg-pie-chart svg {
 .flamegraph-node {
   background: red;
   border: solid 1px black;
+  writing-mode: vertical-rl;
+  text-align: center;
 }
 
 .flamegraph-edge {
   background: yellow;
+}
+
+.flamegraph-separator-edge {
+  background: transparent;
 }

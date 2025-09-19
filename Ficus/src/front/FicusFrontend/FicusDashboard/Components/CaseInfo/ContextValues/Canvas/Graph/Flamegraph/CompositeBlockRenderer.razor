@@ -1,67 +1,78 @@
 ﻿<div style="display: flex; flex-direction: row; height: @(Block.CalculateHeight() * FlamegraphConstants.NodeHeight)px">
-  @if (Block is HorizontalCompositeBlock hBLock)
+  @switch (Block)
   {
-    @foreach (var (index, block) in Block.InnerBlocks.Index())
+    case HorizontalCompositeBlock:
     {
-      @RenderBlock(block)
-
-      if (index < Block.InnerBlocks.Count - 1)
+      foreach (var (index, block) in Block.InnerBlocks.Index())
       {
-        <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
-        </div>
+        @RenderBlock(block)
+
+        if (index < Block.InnerBlocks.Count - 1)
+        {
+          <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+          </div>
+        }
       }
+
+      break;
     }
-  }
-  else if (Block is VerticalCompositeBlock vBlock)
-  {
-    <div style="height: 100%;" class="flamegraph-node">
-      @vBlock.StartNode
-    </div>
+    case VerticalCompositeBlock vBlock:
+    {
+      <div style="height: 100%;" class="flamegraph-node">
+        @Context.IdsToNodes[vBlock.StartNode].Data
+      </div>
 
-    <div style="display: flex; flex-direction: column;">
-      @foreach (var block in Block.InnerBlocks)
-      {
-        var height = block.CalculateHeight() * FlamegraphConstants.NodeHeight;
-
-        @if (block is EdgeBlock)
+      <div style="display: flex; flex-direction: column;">
+        @foreach (var (index, block) in Block.InnerBlocks.Index())
         {
-          <div style="height: 100%; width: 100%;" class="flamegraph-edge">
-          </div>
-        }
-        else
-        {
-          <div style="display: flex; flex-direction: row; height: @(height)px;">
-            <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+          var height = block.CalculateHeight() * FlamegraphConstants.NodeHeight;
+
+          if (block is EdgeBlock)
+          {
+            <div style="height: 100%; width: 100%;" class="flamegraph-edge">
             </div>
+          }
+          else
+          {
+            <div style="display: flex; flex-direction: row; height: @(height)px;">
+              <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+              </div>
 
-            @RenderBlock(block)
-          
-            <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; flex-grow: 1" class="flamegraph-edge">
+              @RenderBlock(block)
+
+              <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; flex-grow: 1"
+                   class="flamegraph-edge">
+              </div>
             </div>
-          </div>
+          }
+
+          @if (index < Block.InnerBlocks.Count - 1)
+          {
+            <div class="flamegraph-separator-edge" style="width: 100%; height: @(FlamegraphConstants.SeparatorHeight)px;">
+            </div>
+          }
         }
+      </div>
 
-      }
-    </div>
+      <div style="height: 100%;" class="flamegraph-node">
+        @Context.IdsToNodes[vBlock.EndNode].Data
+      </div>
 
-    <div style="height: 100%;" class="flamegraph-node">
-      @vBlock.EndNode
-    </div>
+      break;
+    }
   }
 </div>
 
 @code {
   [Parameter] public required CompositeBlockBase Block { get; init; }
+  [Parameter] public required FlamegraphContext Context { get; init; }
 
-  private RenderFragment RenderBlock(BasicBlock block)
+  private RenderFragment RenderBlock(BasicBlock block) => block switch
   {
-    return block switch
-    {
-      CompositeBlockBase compositeBlock => @<CompositeBlockRenderer Block="compositeBlock"/>,
-      EdgeBlock => @<div style="height: @(FlamegraphConstants.NodeHeight)px; width: 100%" class="edge"></div>,
-      SequentialBasicBlock sequentialBasicBlock => @<SequentialBlockRenderer Block="sequentialBasicBlock"/>,
-      _ => throw new ArgumentOutOfRangeException(nameof(block))
-    };
-  }
+    CompositeBlockBase compositeBlock => @<CompositeBlockRenderer Block="compositeBlock" Context="Context"/>,
+    EdgeBlock => @<div style="height: @(FlamegraphConstants.NodeHeight)px; width: 100%" class="edge"></div>,
+    SequentialBasicBlock sequentialBasicBlock => @<SequentialBlockRenderer Block="sequentialBasicBlock" Context="Context"/>,
+    _ => throw new ArgumentOutOfRangeException(nameof(block))
+  };
 
 }

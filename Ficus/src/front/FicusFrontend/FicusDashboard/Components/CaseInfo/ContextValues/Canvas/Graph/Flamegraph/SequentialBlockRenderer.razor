@@ -1,9 +1,9 @@
 ﻿<div style="height: 100%; display: flex; flex-direction: row;">
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
-    <div style="height: 100%; width: @(FlamegraphConstants.NodeWidth)"
+    <div style="height: max(@(FlamegraphConstants.NodeHeight)px, 100%); width: @(FlamegraphConstants.NodeWidth);"
          class="flamegraph-node">
-      @node
+      @Context.IdsToNodes[node].Data
     </div>
 
     @if (index < Block.NodesSequence.Count - 1)
@@ -17,4 +17,5 @@
 
 @code {
   [Parameter] public required SequentialBasicBlock Block { get; init; }
+  [Parameter] public required FlamegraphContext Context { get; init; }
 }

@@ -1,11 +1,10 @@
-﻿@using System.Text.Json
-@using Ficus
+﻿@using Ficus
 
 @inject ILogger<FlamegraphGraphRenderer> Logger;
 
 @if (myContext is { })
 {
-  <CompositeBlockRenderer Block="@myContext.Layout"/>
+  <CompositeBlockRenderer Block="@myContext.Layout" Context="myContext"/>
 }
 
 
