@@ -29,25 +29,26 @@
               <div style="height: @(FlamegraphConstants.Height * block.CalculateHeight())px; width: 100%;"
                    class="flamegraph-edge">
               </div>
-              
+
               break;
             case SeparatorBlock:
               <div style="height: @(FlamegraphConstants.Height * block.CalculateHeight())px; width: 100%"
                    class="flamegraph-separator-edge">
               </div>
-              
+
               break;
             default:
             {
               var height = block.CalculateHeight() * FlamegraphConstants.Height;
-              
-              <div style="display: flex; flex-direction: row; height: @(height)px;">
+
+              <div style="display: flex; flex-direction: row; height: @(height)px; width: 100%;">
                 <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
                 </div>
 
                 @RenderBlock(block)
-                
-                <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+
+                <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidth)px"
+                     class="flamegraph-edge">
                 </div>
               </div>
 
@@ -68,7 +69,8 @@
   private RenderFragment RenderBlock(BasicBlock block) => block switch
   {
     CompositeBlockBase compositeBlock => @<CompositeBlockRenderer Block="compositeBlock" Context="Context"/>,
-    SequentialBasicBlock sequentialBasicBlock => @<SequentialBlockRenderer Block="sequentialBasicBlock" Context="Context"/>,
+    SequentialBasicBlock sequentialBasicBlock => @<SequentialBlockRenderer Block="sequentialBasicBlock"
+                                                                           Context="Context"/>,
     _ => throw new ArgumentOutOfRangeException(nameof(block))
   };
 
