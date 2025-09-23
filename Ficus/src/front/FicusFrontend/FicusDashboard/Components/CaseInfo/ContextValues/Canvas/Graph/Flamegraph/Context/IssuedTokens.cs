@@ -4,7 +4,7 @@ internal class IssuedTokens(int startToken, int rightBorder)
 {
   private int myNextIndex;
 
-
+  private readonly List<ulong> mySyncNodes = [];
   private readonly int?[] myMergedTokens = new int?[rightBorder - startToken];
 
 
@@ -13,9 +13,9 @@ internal class IssuedTokens(int startToken, int rightBorder)
   public int RightBorder { get; } = rightBorder;
 
 
-  public void AddTokensGroup(List<int> tokens)
+  public void AddTokensGroup(List<int> tokens, ulong syncNode)
   {
-    if (tokens.Count < 2) return;
+    if (tokens.Count < 2 || tokens.Count == RightBorder - StartToken) return;
 
     foreach (var index in tokens.Select(token => token - StartToken))
     {
@@ -27,27 +27,37 @@ internal class IssuedTokens(int startToken, int rightBorder)
       myMergedTokens[index] = myNextIndex;
     }
 
+    mySyncNodes.Add(syncNode);
     myNextIndex++;
   }
 
-  public List<List<ulong>> GroupOutgoingNodesByPaths(List<ulong> outgoingNodes)
+  public List<FlamegraphPath> GroupOutgoingNodesByPaths(List<ulong> outgoingNodes)
   {
     if (myNextIndex is 0)
     {
-      return outgoingNodes.Select(n => new List<ulong> { n }).ToList();
+      return outgoingNodes.Select(n =>
+      {
+        var path = new FlamegraphPath();
+        path.PathNodes.Add(n);
+        return path;
+      }).ToList();
     }
 
-    var result = new List<List<ulong>>();
-    var groupsLists = Enumerable.Range(0, myNextIndex).Select(_ => new List<ulong>()).ToArray();
+    var result = new List<FlamegraphPath>();
+    var groupsLists = Enumerable.Range(0, myNextIndex).Zip(mySyncNodes).Select(n => new FlamegraphPath(n.Second)).ToArray();
     foreach (var (mergedToken, node) in myMergedTokens.Zip(outgoingNodes))
     {
       if (mergedToken is not { } token)
       {
-        result.Add([node]);
+        var path = new FlamegraphPath();
+        path.PathNodes.Add(node);
+
+        result.Add(path);
+
         continue;
       }
 
-      groupsLists[token].Add(node);
+      groupsLists[token].PathNodes.Add(node);
     }
 
     result.AddRange(groupsLists);

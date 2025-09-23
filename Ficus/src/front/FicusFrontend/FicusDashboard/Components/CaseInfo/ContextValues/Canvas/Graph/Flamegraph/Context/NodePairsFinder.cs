@@ -58,12 +58,14 @@ internal class NodePairsFinder
         }
       }
 
-      issuedTokens.AddTokensGroup(containedTokens);
+      issuedTokens.AddTokensGroup(containedTokens, node);
 
       var isPairedNode = containedTokens.Count == issuedTokens.RightBorder - issuedTokens.StartToken;
       if (!isPairedNode) continue;
 
-      data.NodePairs[issuedNode] = node;
+      var issuedNodeOutgoingNodes = data.Edges.GetValueOrDefault(issuedNode) ?? [];
+      data.NodePairs[issuedNode] = new NodePair(node, issuedTokens.GroupOutgoingNodesByPaths(issuedNodeOutgoingNodes));
+
       for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
       {
         tokens.Remove(t);

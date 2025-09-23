@@ -34,7 +34,7 @@ internal static class FlamegraphLayoutCreator
         var outgoingNodes = data.Edges[node];
         foreach (var (index, outgoingNode) in outgoingNodes.Index())
         {
-          if (outgoingNode == pairNode)
+          if (outgoingNode == pairNode.PairedNode)
           {
             block.InnerBlocks.Add(new EdgeBlock());
           }
@@ -46,7 +46,7 @@ internal static class FlamegraphLayoutCreator
               false => pairNode
             };
 
-            block.InnerBlocks.Add(CreateBlockLayoutEndNodeNotInclusive(data, outgoingNode, outgoingNodeEndNode));
+            block.InnerBlocks.Add(CreateBlockLayoutEndNodeNotInclusive(data, outgoingNode, outgoingNodeEndNode.PairedNode));
           }
 
           if (index < outgoingNodes.Count - 1)
@@ -56,7 +56,7 @@ internal static class FlamegraphLayoutCreator
         }
 
         hBlock.InnerBlocks.Add(block);
-        node = pairNode;
+        node = pairNode.PairedNode;
       }
       else
       {
