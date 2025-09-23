@@ -1,6 +1,6 @@
 ﻿namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph;
 
-internal class FlamegraphConstants
+internal static class FlamegraphConstants
 {
   public const int Height = 15;
   public const int NodeWidth = 30;

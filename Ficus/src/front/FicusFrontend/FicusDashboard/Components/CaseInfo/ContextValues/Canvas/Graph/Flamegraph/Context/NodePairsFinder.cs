@@ -24,8 +24,27 @@ internal class NodePairsFinder
         continue;
       }
 
+      AssertNoTokensFromPairedNodes(data, node, tokens);
+
       ProcessNode(data, node, tokens);
       EnqueueOutgoingNodes(data, node, tokens);
+    }
+  }
+
+  private void AssertNoTokensFromPairedNodes(FlamegraphContextData data, ulong node, HashSet<int> tokens)
+  {
+    foreach (var (issuedNode, issuedTokens) in myNodesToIssuedTokens.Where(p => p.Value.FoundPairNode))
+    {
+      for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
+      {
+        if (!tokens.Contains(t)) continue;
+
+        var issuedNodeName = data.IdsToNodes[issuedNode].Data;
+        var currentNodeName = data.IdsToNodes[node].Data;
+
+        throw new Exception(
+          $"Node {currentNodeName} contains token {t} issued from node {issuedNodeName} when it has already found its parent");
+      }
     }
   }
 
