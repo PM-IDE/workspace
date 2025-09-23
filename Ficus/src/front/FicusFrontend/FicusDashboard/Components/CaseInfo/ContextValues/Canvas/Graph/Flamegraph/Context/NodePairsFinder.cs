@@ -8,24 +8,13 @@ internal static class NodePairsFinder
     var q = new Queue<(ulong, HashSet<int>)>();
     var nextToken = 0;
     var nodesToIssuedTokens = new Dictionary<ulong, IssuedTokens>();
-    var nodesToSeenTokens = new Dictionary<ulong, HashSet<int>>();
     var nodesToQueuedHashSets = new Dictionary<ulong, HashSet<int>>();
-
-    foreach (var key in data.IdsToNodes.Keys)
-    {
-      nodesToSeenTokens[key] = [];
-    }
 
     q.Enqueue((data.StartNode, []));
 
     while (q.Count > 0)
     {
       var (node, tokens) = q.Dequeue();
-      foreach (var token in tokens)
-      {
-        nodesToSeenTokens[node].Add(token);
-      }
-
       var anyIncomingNodeUnprocessed = false;
       if (data.ReversedEdges.TryGetValue(node, out var incomingNodes))
       {
@@ -34,6 +23,7 @@ internal static class NodePairsFinder
 
       if (anyIncomingNodeUnprocessed)
       {
+        q.Enqueue((node, tokens));
         continue;
       }
 
@@ -45,7 +35,7 @@ internal static class NodePairsFinder
           var containedTokens = new List<int>();
           for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
           {
-            if (nodesToSeenTokens[node].Contains(t))
+            if (tokens.Contains(t))
             {
               containedTokens.Add(t);
             }
@@ -59,7 +49,7 @@ internal static class NodePairsFinder
           data.NodePairs[issuedNode] = node;
           for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
           {
-            nodesToSeenTokens[node].Remove(t);
+            tokens.Remove(t);
           }
 
           nodesToIssuedTokens[issuedNode].FoundPairNode = true;
@@ -72,7 +62,7 @@ internal static class NodePairsFinder
         {
           if (nodesToQueuedHashSets.TryGetValue(outgoingNodes[0], out var existingTokensSet))
           {
-            foreach (var token in nodesToSeenTokens[node])
+            foreach (var token in tokens)
             {
               existingTokensSet.Add(token);
             }
@@ -90,7 +80,7 @@ internal static class NodePairsFinder
           {
             if (nodesToQueuedHashSets.TryGetValue(outgoingNode, out var existingTokensSet))
             {
-              foreach (var token in nodesToSeenTokens[node])
+              foreach (var token in tokens)
               {
                 existingTokensSet.Add(token);
               }
@@ -99,7 +89,7 @@ internal static class NodePairsFinder
             }
             else
             {
-              var newSet = new HashSet<int>(nodesToSeenTokens[node]) { nextToken };
+              var newSet = new HashSet<int>(tokens) { nextToken };
               nodesToQueuedHashSets[outgoingNode] = newSet;
               q.Enqueue((outgoingNode, newSet));
             }
