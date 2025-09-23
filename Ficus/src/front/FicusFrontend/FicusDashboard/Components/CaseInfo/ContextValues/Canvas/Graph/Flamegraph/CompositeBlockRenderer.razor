@@ -38,13 +38,16 @@
               </div>
 
               break;
-            default:
+            case CompositeBlockBase compositeBlock:
             {
               var height = block.CalculateHeight() * FlamegraphConstants.Height;
 
               <div style="display: flex; flex-direction: row; height: @(height)px; width: 100%;">
-                <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
-                </div>
+                @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } && items[0] is not VerticalCompositeBlock)
+                {
+                  <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+                  </div>
+                }
 
                 @RenderBlock(block)
 
