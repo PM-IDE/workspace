@@ -1,6 +1,7 @@
 @using System.Globalization
 @using Ficus
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 @using FicusDashboard.Layout.Models
 @using Radzen.Blazor
 @inject IJSRuntime Js
@@ -8,7 +9,9 @@
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
   <div style="display: flex; flex-direction: row; flex-grow: 1;">
-    <GraphLikeEntitySettings @ref="@mySettings" Enhancements="@myEnhancements" Kind="@Graph.Kind">
+    <GraphLikeEntitySettings @ref="@mySettings"
+                             Enhancements="@myEnhancements"
+                             CanRenderFlamegraph="@(myContext is { })">
       <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
     </GraphLikeEntitySettings>
@@ -18,9 +21,9 @@
     </div>
   </div>
 
-  @if (mySettings?.RenderDagLcsInFlamegraphMode ?? false)
+  @if (mySettings is { RenderDagLcsInFlamegraphMode: true })
   {
-    <FlamegraphGraphRenderer Graph="Graph"/>
+    <FlamegraphGraphRenderer Context="@myContext"/>
   }
 
   <div style="margin-top: 5px;">
@@ -43,11 +46,13 @@
   private List<EnhancementsSettings.EnhancementName>? myEnhancements;
   private CanvasComponent? myCanvasComponent;
   private AggregatedData? myAggregatedData;
+  private FlamegraphContext? myContext;
 
 
   protected override void OnParametersSet()
   {
     myEnhancements = FindAllEnhancements(Graph);
+    myContext = FlamegraphContext.TryCreate(Graph);
   }
 
   private List<EnhancementsSettings.EnhancementName> FindAllEnhancements(GrpcGraph graph)

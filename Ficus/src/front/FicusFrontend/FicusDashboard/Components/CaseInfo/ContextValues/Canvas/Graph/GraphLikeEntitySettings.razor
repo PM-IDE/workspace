@@ -1,5 +1,4 @@
-﻿@using Ficus
-@using Radzen
+﻿@using Radzen
 @using Radzen.Blazor
 
 <div style="display: flex; flex-direction: column; 
@@ -22,8 +21,11 @@
   <BoolCheckbox HandleValueUpdate="@(newValue => UseEventClassesAsLabels = newValue)"
                 Title="Event Classes as Name"/>
 
-  <BoolCheckbox HandleValueUpdate="@(newValue => RenderDagLcsInFlamegraphMode = newValue)"
-                Title="Render DAG LCS in flamegraph mode"/>
+  @if (CanRenderFlamegraph)
+  {
+    <BoolCheckbox HandleValueUpdate="@(newValue => RenderDagLcsInFlamegraphMode = newValue)"
+                  Title="Render DAG LCS in flamegraph mode"/>
+  }
 
   <RadzenStack Orientation="Orientation.Horizontal"
                AlignItems="AlignItems.Center"
@@ -39,8 +41,8 @@
 
 @code {
   [Parameter] public required List<EnhancementsSettings.EnhancementName>? Enhancements { get; init; }
-  [Parameter] public required GrpcGraphKind Kind { get; init; }
   [Parameter] public RenderFragment? ChildContent { get; init; }
+  [Parameter] public required bool CanRenderFlamegraph { get; init; }
 
   private EnhancementsSettings? myEnhancementsSettings;
 

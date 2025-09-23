@@ -1,27 +1,9 @@
-﻿@using Ficus
-@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
-@if (myContext is { })
-{
-  <div style="height: @(myContext.Layout.CalculateHeight() * FlamegraphConstants.Height)px; width: fit-content;">
-    <CompositeBlockRenderer Block="@myContext.Layout" Context="myContext"/>
-  </div>
-}
-
+<div style="height: @(Context.Layout.CalculateHeight() * FlamegraphConstants.Height)px; width: fit-content;">
+  <CompositeBlockRenderer Block="@Context.Layout" Context="Context"/>
+</div>
 
 @code {
-  [Parameter] public required GrpcGraph Graph { get; init; }
-
-  private FlamegraphContext? myContext;
-
-  protected override void OnParametersSet()
-  {
-    base.OnParametersSet();
-    InitializeFlamegraphInfo();
-  }
-
-  private void InitializeFlamegraphInfo()
-  {
-    myContext = new FlamegraphContext(Graph);
-  }
+  [Parameter] public required FlamegraphContext Context { get; init; }
 }

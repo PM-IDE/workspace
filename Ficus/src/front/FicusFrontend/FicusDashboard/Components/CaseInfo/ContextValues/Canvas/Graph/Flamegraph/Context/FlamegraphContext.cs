@@ -4,6 +4,18 @@ namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegra
 
 public class FlamegraphContext
 {
+  public static FlamegraphContext? TryCreate(GrpcGraph graph)
+  {
+    try
+    {
+      return new FlamegraphContext(graph);
+    }
+    catch
+    {
+      return null;
+    }
+  }
+
   public HorizontalCompositeBlock Layout { get; }
   public IReadOnlyDictionary<ulong, GrpcGraphNode> IdsToNodes { get; }
 
