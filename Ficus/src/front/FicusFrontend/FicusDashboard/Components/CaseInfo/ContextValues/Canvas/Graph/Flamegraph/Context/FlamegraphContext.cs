@@ -13,7 +13,7 @@ public class FlamegraphContext
     var data = new FlamegraphContextData();
 
     FlamegraphContextInitializer.Execute(graph, data);
-    NodePairsFinder.Find(data);
+    new NodePairsFinder().Find(data);
 
     Layout = FlamegraphLayoutCreator.Create(data);
 

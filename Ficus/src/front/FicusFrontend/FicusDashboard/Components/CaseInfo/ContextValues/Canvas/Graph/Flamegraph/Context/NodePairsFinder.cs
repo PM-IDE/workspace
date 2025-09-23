@@ -1,105 +1,122 @@
 ﻿namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context;
 
-internal static class NodePairsFinder
+internal class NodePairsFinder
 {
-  public static void Find(FlamegraphContextData data)
+  private readonly HashSet<ulong> myProcessedNodes = [];
+  private readonly Queue<(ulong, HashSet<int>)> myQueue = [];
+  private readonly Dictionary<ulong, IssuedTokens> myNodesToIssuedTokens = [];
+  private readonly Dictionary<ulong, HashSet<int>> myNodesToQueuedHashSets = [];
+
+  private int myNextToken;
+
+
+  public void Find(FlamegraphContextData data)
   {
-    var processed = new HashSet<ulong>();
-    var q = new Queue<(ulong, HashSet<int>)>();
-    var nextToken = 0;
-    var nodesToIssuedTokens = new Dictionary<ulong, IssuedTokens>();
-    var nodesToQueuedHashSets = new Dictionary<ulong, HashSet<int>>();
+    myQueue.Enqueue((data.StartNode, []));
 
-    q.Enqueue((data.StartNode, []));
-
-    while (q.Count > 0)
+    while (myQueue.Count > 0)
     {
-      var (node, tokens) = q.Dequeue();
-      var anyIncomingNodeUnprocessed = false;
-      if (data.ReversedEdges.TryGetValue(node, out var incomingNodes))
-      {
-        anyIncomingNodeUnprocessed = incomingNodes.Any(incomingNode => !processed.Contains(incomingNode));
-      }
+      var (node, tokens) = myQueue.Dequeue();
 
-      if (anyIncomingNodeUnprocessed)
+      if (AnyIncomingNodesUnprocessed(data, node))
       {
-        q.Enqueue((node, tokens));
+        myQueue.Enqueue((node, tokens));
         continue;
       }
 
-      nodesToQueuedHashSets.Remove(node);
-      if (data.ReversedEdges.TryGetValue(node, out incomingNodes) && incomingNodes.Count > 1)
+      ProcessNode(data, node, tokens);
+      EnqueueOutgoingNodes(data, node, tokens);
+    }
+  }
+
+  private bool AnyIncomingNodesUnprocessed(FlamegraphContextData data, ulong node)
+  {
+    var anyIncomingNodeUnprocessed = false;
+    if (data.ReversedEdges.TryGetValue(node, out var incomingNodes))
+    {
+      anyIncomingNodeUnprocessed = incomingNodes.Any(incomingNode => !myProcessedNodes.Contains(incomingNode));
+    }
+
+    return anyIncomingNodeUnprocessed;
+  }
+
+  private void ProcessNode(FlamegraphContextData data, ulong node, HashSet<int> tokens)
+  {
+    myProcessedNodes.Add(node);
+    myNodesToQueuedHashSets.Remove(node);
+
+    if (!data.ReversedEdges.TryGetValue(node, out var incomingNodes) || incomingNodes.Count < 2) return;
+
+    foreach (var (issuedNode, issuedTokens) in myNodesToIssuedTokens.Where(it => !it.Value.FoundPairNode))
+    {
+      var containedTokens = new List<int>();
+      for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
       {
-        foreach (var (issuedNode, issuedTokens) in nodesToIssuedTokens.Where(it => !it.Value.FoundPairNode))
+        if (tokens.Contains(t))
         {
-          var containedTokens = new List<int>();
-          for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
-          {
-            if (tokens.Contains(t))
-            {
-              containedTokens.Add(t);
-            }
-          }
-
-          nodesToIssuedTokens[issuedNode].AddTokensGroup(containedTokens);
-
-          var isPairedNode = containedTokens.Count == issuedTokens.RightBorder - issuedTokens.StartToken;
-          if (!isPairedNode) continue;
-
-          data.NodePairs[issuedNode] = node;
-          for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
-          {
-            tokens.Remove(t);
-          }
-
-          nodesToIssuedTokens[issuedNode].FoundPairNode = true;
+          containedTokens.Add(t);
         }
       }
 
-      if (data.Edges.TryGetValue(node, out var outgoingNodes))
+      issuedTokens.AddTokensGroup(containedTokens);
+
+      var isPairedNode = containedTokens.Count == issuedTokens.RightBorder - issuedTokens.StartToken;
+      if (!isPairedNode) continue;
+
+      data.NodePairs[issuedNode] = node;
+      for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
       {
-        if (outgoingNodes.Count == 1)
-        {
-          if (nodesToQueuedHashSets.TryGetValue(outgoingNodes[0], out var existingTokensSet))
-          {
-            foreach (var token in tokens)
-            {
-              existingTokensSet.Add(token);
-            }
-          }
-          else
-          {
-            q.Enqueue((outgoingNodes[0], tokens));
-            nodesToQueuedHashSets[outgoingNodes[0]] = tokens;
-          }
-        }
-        else
-        {
-          nodesToIssuedTokens[node] = new IssuedTokens(nextToken, nextToken + outgoingNodes.Count);
-          foreach (var outgoingNode in outgoingNodes)
-          {
-            if (nodesToQueuedHashSets.TryGetValue(outgoingNode, out var existingTokensSet))
-            {
-              foreach (var token in tokens)
-              {
-                existingTokensSet.Add(token);
-              }
-
-              existingTokensSet.Add(nextToken);
-            }
-            else
-            {
-              var newSet = new HashSet<int>(tokens) { nextToken };
-              nodesToQueuedHashSets[outgoingNode] = newSet;
-              q.Enqueue((outgoingNode, newSet));
-            }
-
-            nextToken++;
-          }
-        }
+        tokens.Remove(t);
       }
 
-      processed.Add(node);
+      issuedTokens.FoundPairNode = true;
+    }
+  }
+
+  private void EnqueueOutgoingNodes(FlamegraphContextData data, ulong node, HashSet<int> tokens)
+  {
+    if (!data.Edges.TryGetValue(node, out var outgoingNodes)) return;
+
+    if (outgoingNodes.Count == 1)
+    {
+      EnqueueOutgoingNode(outgoingNodes[0], tokens, null);
+    }
+    else
+    {
+      myNodesToIssuedTokens[node] = new IssuedTokens(myNextToken, myNextToken + outgoingNodes.Count);
+      foreach (var outgoingNode in outgoingNodes)
+      {
+        EnqueueOutgoingNode(outgoingNode, tokens, myNextToken);
+        myNextToken++;
+      }
+    }
+  }
+
+  private void EnqueueOutgoingNode(ulong outgoingNode, HashSet<int> tokens, int? newToken)
+  {
+    if (myNodesToQueuedHashSets.TryGetValue(outgoingNode, out var existingTokensSet))
+    {
+      foreach (var token in tokens)
+      {
+        existingTokensSet.Add(token);
+      }
+
+      if (newToken.HasValue)
+      {
+        existingTokensSet.Add(newToken.Value);
+      }
+    }
+    else
+    {
+      var newSet = new HashSet<int>(tokens);
+
+      if (newToken.HasValue)
+      {
+        newSet.Add(newToken.Value);
+      }
+
+      myNodesToQueuedHashSets[outgoingNode] = newSet;
+      myQueue.Enqueue((outgoingNode, newSet));
     }
   }
 }
