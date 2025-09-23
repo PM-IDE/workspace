@@ -15,7 +15,7 @@ public class FlamegraphContext
     FlamegraphContextInitializer.Execute(graph, data);
     new NodePairsFinder().Find(data);
 
-    Layout = FlamegraphLayoutCreator.Create(data);
+    Layout = new FlamegraphLayoutCreator().Create(data);
 
     IdsToNodes = data.IdsToNodes;
   }

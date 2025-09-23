@@ -1,11 +1,11 @@
 ﻿@using Ficus
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
-@inject ILogger<FlamegraphGraphRenderer> Logger;
-
 @if (myContext is { })
 {
-  <CompositeBlockRenderer Block="@myContext.Layout" Context="myContext"/>
+  <div style="height: @(myContext.Layout.CalculateHeight() * FlamegraphConstants.Height)px; width: fit-content;">
+    <CompositeBlockRenderer Block="@myContext.Layout" Context="myContext"/>
+  </div>
 }
 
 

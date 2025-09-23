@@ -22,11 +22,8 @@
   <BoolCheckbox HandleValueUpdate="@(newValue => UseEventClassesAsLabels = newValue)"
                 Title="Event Classes as Name"/>
 
-  @if (Kind is GrpcGraphKind.DagLcs)
-  {
-    <BoolCheckbox HandleValueUpdate="@(newValue => RenderDagLcsInFlamegraphMode = newValue)"
-                  Title="Render DAG LCS in flamegraph mode"/>
-  }
+  <BoolCheckbox HandleValueUpdate="@(newValue => RenderDagLcsInFlamegraphMode = newValue)"
+                Title="Render DAG LCS in flamegraph mode"/>
 
   <RadzenStack Orientation="Orientation.Horizontal"
                AlignItems="AlignItems.Center"

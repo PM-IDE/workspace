@@ -1,5 +1,5 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
-<div style="display: flex; flex-direction: row; height: @(Block.CalculateHeight() * FlamegraphConstants.Height)px">
+<div style="display: flex; flex-direction: row; height: max(@(Block.CalculateHeight() * FlamegraphConstants.Height)px, 100%)">
   @switch (Block)
   {
     case HorizontalCompositeBlock:
