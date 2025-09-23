@@ -1,104 +1,111 @@
-﻿using System.Collections;
-using Ficus;
+﻿using Ficus;
 
 namespace FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph;
 
-public class FlamegraphContext
+file class IssuedTokens(int startToken, int rightBorder)
 {
-  private readonly Dictionary<ulong, GrpcGraphNode> myIdsToNodes = [];
-  private readonly Dictionary<ulong, List<ulong>> myEdges = [];
-  private readonly Dictionary<ulong, List<ulong>> myReversedEdges = [];
-  private readonly Dictionary<ulong, ulong> myNodePairs = [];
-
-  public HorizontalCompositeBlock Layout { get; }
-
-  public IReadOnlyDictionary<ulong, GrpcGraphNode> IdsToNodes => myIdsToNodes;
-  public IReadOnlyDictionary<ulong, List<ulong>> Edges => myEdges;
-  public IReadOnlyDictionary<ulong, List<ulong>> ReversedEdges => myReversedEdges;
-  public IDictionary<ulong, ulong> NodePairs => myNodePairs;
+  private int myNextIndex;
 
 
-  public FlamegraphContext(GrpcGraph graph)
+  private readonly int?[] myMergedTokens = new int?[rightBorder - startToken];
+
+
+  public bool FoundPairNode { get; set; }
+  public int StartToken { get; } = startToken;
+  public int RightBorder { get; } = rightBorder;
+
+
+  public void AddTokensGroup(List<int> tokens)
+  {
+    if (tokens.Count < 2) return;
+
+    foreach (var index in tokens.Select(token => token - StartToken))
+    {
+      if (myMergedTokens[index] is { })
+      {
+        throw new Exception("Some of the tokens already merged, can not merge twice");
+      }
+
+      myMergedTokens[index] = myNextIndex;
+    }
+
+    myNextIndex++;
+  }
+
+  public List<List<ulong>> GroupOutgoingNodesByPaths(List<ulong> outgoingNodes)
+  {
+    if (myNextIndex is 0)
+    {
+      return outgoingNodes.Select(n => new List<ulong> { n }).ToList();
+    }
+
+    var result = new List<List<ulong>>();
+    var groupsLists = Enumerable.Range(0, myNextIndex).Select(_ => new List<ulong>()).ToArray();
+    foreach (var (mergedToken, node) in myMergedTokens.Zip(outgoingNodes))
+    {
+      if (mergedToken is not { } token)
+      {
+        result.Add([node]);
+        continue;
+      }
+
+      groupsLists[token].Add(node);
+    }
+
+    result.AddRange(groupsLists);
+
+    return result;
+  }
+}
+
+file class FlamegraphContextData
+{
+  public Dictionary<ulong, GrpcGraphNode> IdsToNodes { get; } = [];
+  public Dictionary<ulong, List<ulong>> Edges { get; } = [];
+  public Dictionary<ulong, List<ulong>> ReversedEdges { get; } = [];
+  public Dictionary<ulong, ulong> NodePairs { get; } = [];
+
+  public ulong StartNode { get; set; }
+  public ulong EndNode { get; set; }
+}
+
+file static class FlamegraphContextInitializer
+{
+  public static void Execute(GrpcGraph graph, FlamegraphContextData data)
   {
     foreach (var edge in graph.Edges)
     {
-      AddEdge(myEdges, edge.FromNode, edge.ToNode);
-      AddEdge(myReversedEdges, edge.ToNode, edge.FromNode);
+      AddEdge(data.Edges, edge.FromNode, edge.ToNode);
+      AddEdge(data.ReversedEdges, edge.ToNode, edge.FromNode);
     }
 
     foreach (var node in graph.Nodes)
     {
-      myIdsToNodes[node.Id] = node;
+      data.IdsToNodes[node.Id] = node;
     }
 
-    var startNode = graph.Nodes.FirstOrDefault(n => !myReversedEdges.ContainsKey(n.Id));
+    var startNode = graph.Nodes.FirstOrDefault(n => !data.ReversedEdges.ContainsKey(n.Id));
     if (startNode is null) throw new Exception("Graph does not contain a start node");
 
-    var endNode = graph.Nodes.FirstOrDefault(n => !myEdges.ContainsKey(n.Id));
+    var endNode = graph.Nodes.FirstOrDefault(n => !data.Edges.ContainsKey(n.Id));
     if (endNode is null) throw new Exception("Graph does not contain an end node");
-
-    FindNodesPairs(startNode.Id);
-
-    Layout = CreateLayout(startNode.Id, endNode.Id);
   }
 
-  private class IssuedTokens(int startToken, int rightBorder)
+  private static void AddEdge(Dictionary<ulong, List<ulong>> map, ulong from, ulong to)
   {
-    private int myNextIndex;
-
-
-    private readonly int?[] myMergedTokens = new int?[rightBorder - startToken];
-
-
-    public bool FoundPairNode { get; set; }
-    public int StartToken { get; } = startToken;
-    public int RightBorder { get; } = rightBorder;
-
-
-    public void AddTokensGroup(List<int> tokens)
+    if (!map.TryGetValue(from, out var toNodes))
     {
-      if (tokens.Count < 2) return;
-
-      foreach (var index in tokens.Select(token => token - StartToken))
-      {
-        if (myMergedTokens[index] is { })
-        {
-          throw new Exception("Some of the tokens already merged, can not merge twice");
-        }
-
-        myMergedTokens[index] = myNextIndex;
-      }
-
-      myNextIndex++;
+      toNodes = [];
+      map[from] = toNodes;
     }
 
-    public List<List<ulong>> GroupOutgoingNodesByPaths(List<ulong> outgoingNodes)
-    {
-      if (myNextIndex is 0)
-      {
-        return outgoingNodes.Select(n => new List<ulong> { n }).ToList();
-      }
-
-      var result = new List<List<ulong>>();
-      var groupsLists = Enumerable.Range(0, myNextIndex).Select(_ => new List<ulong>()).ToArray();
-      foreach (var (mergedToken, node) in myMergedTokens.Zip(outgoingNodes))
-      {
-        if (mergedToken is not { } token)
-        {
-          result.Add([node]);
-          continue;
-        }
-
-        groupsLists[token].Add(node);
-      }
-
-      result.AddRange(groupsLists);
-
-      return result;
-    }
+    toNodes.Add(to);
   }
+}
 
-  private void FindNodesPairs(ulong startNode)
+file static class NodePairsFinder
+{
+  public static void Find(FlamegraphContextData data)
   {
     var processed = new HashSet<ulong>();
     var q = new Queue<(ulong, HashSet<int>)>();
@@ -107,12 +114,12 @@ public class FlamegraphContext
     var nodesToSeenTokens = new Dictionary<ulong, HashSet<int>>();
     var nodesToQueuedHashSets = new Dictionary<ulong, HashSet<int>>();
 
-    foreach (var key in myIdsToNodes.Keys)
+    foreach (var key in data.IdsToNodes.Keys)
     {
       nodesToSeenTokens[key] = [];
     }
 
-    q.Enqueue((startNode, []));
+    q.Enqueue((data.StartNode, []));
 
     while (q.Count > 0)
     {
@@ -123,7 +130,7 @@ public class FlamegraphContext
       }
 
       var anyIncomingNodeUnprocessed = false;
-      if (myReversedEdges.TryGetValue(node, out var incomingNodes))
+      if (data.ReversedEdges.TryGetValue(node, out var incomingNodes))
       {
         anyIncomingNodeUnprocessed = incomingNodes.Any(incomingNode => !processed.Contains(incomingNode));
       }
@@ -134,7 +141,7 @@ public class FlamegraphContext
       }
 
       nodesToQueuedHashSets.Remove(node);
-      if (myReversedEdges.TryGetValue(node, out incomingNodes) && incomingNodes.Count > 1)
+      if (data.ReversedEdges.TryGetValue(node, out incomingNodes) && incomingNodes.Count > 1)
       {
         foreach (var (issuedNode, issuedTokens) in nodesToIssuedTokens.Where(it => !it.Value.FoundPairNode))
         {
@@ -152,7 +159,7 @@ public class FlamegraphContext
           var isPairedNode = containedTokens.Count == issuedTokens.RightBorder - issuedTokens.StartToken;
           if (!isPairedNode) continue;
 
-          myNodePairs[issuedNode] = node;
+          data.NodePairs[issuedNode] = node;
           for (var t = issuedTokens.StartToken; t < issuedTokens.RightBorder; t++)
           {
             nodesToSeenTokens[node].Remove(t);
@@ -162,7 +169,7 @@ public class FlamegraphContext
         }
       }
 
-      if (myEdges.TryGetValue(node, out var outgoingNodes))
+      if (data.Edges.TryGetValue(node, out var outgoingNodes))
       {
         if (outgoingNodes.Count == 1)
         {
@@ -208,37 +215,31 @@ public class FlamegraphContext
       processed.Add(node);
     }
   }
+}
 
-  private void AddEdge(Dictionary<ulong, List<ulong>> map, ulong from, ulong to)
+file static class FlamegraphLayoutCreator
+{
+  public static HorizontalCompositeBlock Create(FlamegraphContextData data)
   {
-    if (!map.TryGetValue(from, out var toNodes))
-    {
-      toNodes = [];
-      map[from] = toNodes;
-    }
-
-    toNodes.Add(to);
-  }
-
-  private HorizontalCompositeBlock CreateLayout(ulong node, ulong endNode)
-  {
-    var layout = CreateBlockLayoutEndNodeNotInclusive(node, endNode);
+    var layout = CreateBlockLayoutEndNodeNotInclusive(data, data.StartNode, data.EndNode);
 
     layout.InnerBlocks.Add(new SequentialBasicBlock
     {
-      NodesSequence = [endNode]
+      NodesSequence = [data.EndNode]
     });
 
     return layout;
   }
 
-  private HorizontalCompositeBlock CreateBlockLayoutEndNodeNotInclusive(ulong node, ulong endNode)
+  private static HorizontalCompositeBlock CreateBlockLayoutEndNodeNotInclusive(
+    FlamegraphContextData data, ulong startNode, ulong endNode)
   {
     var hBlock = new HorizontalCompositeBlock();
+    var node = startNode;
 
     while (node != endNode)
     {
-      if (myNodePairs.TryGetValue(node, out var pairNode))
+      if (data.NodePairs.TryGetValue(node, out var pairNode))
       {
         hBlock.InnerBlocks.Add(new SequentialBasicBlock
         {
@@ -247,7 +248,7 @@ public class FlamegraphContext
 
         var block = new VerticalCompositeBlock();
 
-        var outgoingNodes = myEdges[node];
+        var outgoingNodes = data.Edges[node];
         foreach (var (index, outgoingNode) in outgoingNodes.Index())
         {
           if (outgoingNode == pairNode)
@@ -256,13 +257,13 @@ public class FlamegraphContext
           }
           else
           {
-            var outgoingNodeEndNode = myNodePairs.TryGetValue(outgoingNode, out var outgoingNodePair) switch
+            var outgoingNodeEndNode = data.NodePairs.TryGetValue(outgoingNode, out var outgoingNodePair) switch
             {
               true => outgoingNodePair,
               false => pairNode
             };
 
-            block.InnerBlocks.Add(CreateBlockLayoutEndNodeNotInclusive(outgoingNode, outgoingNodeEndNode));
+            block.InnerBlocks.Add(CreateBlockLayoutEndNodeNotInclusive(data, outgoingNode, outgoingNodeEndNode));
           }
 
           if (index < outgoingNodes.Count - 1)
@@ -280,11 +281,11 @@ public class FlamegraphContext
         var nodesSequence = new List<ulong>();
 
         while (currentNode != endNode &&
-               !myNodePairs.ContainsKey(currentNode) &&
-               myEdges.ContainsKey(currentNode))
+               !data.NodePairs.ContainsKey(currentNode) &&
+               data.Edges.ContainsKey(currentNode))
         {
           nodesSequence.Add(currentNode);
-          currentNode = myEdges[currentNode].First();
+          currentNode = data.Edges[currentNode].First();
         }
 
         hBlock.InnerBlocks.Add(new SequentialBasicBlock
@@ -297,5 +298,24 @@ public class FlamegraphContext
     }
 
     return hBlock;
+  }
+}
+
+public class FlamegraphContext
+{
+  public HorizontalCompositeBlock Layout { get; }
+  public IReadOnlyDictionary<ulong, GrpcGraphNode> IdsToNodes { get; }
+
+
+  public FlamegraphContext(GrpcGraph graph)
+  {
+    var data = new FlamegraphContextData();
+
+    FlamegraphContextInitializer.Execute(graph, data);
+    NodePairsFinder.Find(data);
+
+    Layout = FlamegraphLayoutCreator.Create(data);
+
+    IdsToNodes = data.IdsToNodes;
   }
 }
