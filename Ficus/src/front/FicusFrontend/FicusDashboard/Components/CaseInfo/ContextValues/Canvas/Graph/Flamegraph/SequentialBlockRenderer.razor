@@ -1,4 +1,5 @@
-﻿<div style="height: 100%; display: flex; flex-direction: row;">
+﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+<div style="height: 100%; display: flex; flex-direction: row;">
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
     <div style="height: max(@(FlamegraphConstants.Height * Block.CalculateHeight())px, 100%); 
