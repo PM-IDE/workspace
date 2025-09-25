@@ -16,16 +16,16 @@
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
     </GraphLikeEntitySettings>
 
-    @if (mySettings is { RenderDagLcsInFlamegraphMode: true })
-    {
-      <FlamegraphGraphRenderer Context="@myContext"/>
-    }
-    else
-    {
-      <div style="height: 100%; flex-grow: 1;">
+    <div style="height: 100%; flex-grow: 1; padding: 5px;">
+      @if (mySettings is { RenderDagLcsInFlamegraphMode: true })
+      {
+        <FlamegraphGraphRenderer Context="@myContext"/>
+      }
+      else
+      {
         <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
-      </div>
-    }
+      }
+    </div>
   </div>
 
   <div style="margin-top: 5px;">

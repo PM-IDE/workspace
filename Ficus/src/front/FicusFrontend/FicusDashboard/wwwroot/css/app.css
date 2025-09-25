@@ -43,6 +43,9 @@ html, body {
   --new-notification-color: greenyellow;
   --updated--notification-color: yellow;
   --seen-notification-color: grey;
+  
+  --flamegraph-node-background: #202020;
+  --flamegraph-edge-background: #3b3b3b;
 
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer */
@@ -240,14 +243,13 @@ svg-pie-chart svg {
 }
 
 .flamegraph-node {
-  background: red;
-  border: solid 1px black;
+  background: var(--flamegraph-node-background);
   writing-mode: vertical-rl;
   text-align: center;
 }
 
 .flamegraph-edge {
-  background: yellow;
+  background: var(--flamegraph-edge-background);
 }
 
 .flamegraph-separator-edge {
