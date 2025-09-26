@@ -5,7 +5,7 @@
     <div style="height: max(@(FlamegraphConstants.Height * Block.CalculateHeight())px, 100%); 
                 width: @(FlamegraphConstants.NodeWidth);"
          class="flamegraph-node">
-      @Context.IdsToNodes[node].Data
+      @Context.Context.IdsToNodes[node].Data
     </div>
 
     @if (index < Block.NodesSequence.Count - 1)
@@ -19,5 +19,5 @@
 
 @code {
   [Parameter] public required SequentialBasicBlock Block { get; init; }
-  [Parameter] public required FlamegraphContext Context { get; init; }
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
 }

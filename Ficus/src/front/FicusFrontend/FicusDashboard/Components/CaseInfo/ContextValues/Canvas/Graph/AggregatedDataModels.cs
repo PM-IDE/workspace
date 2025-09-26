@@ -11,6 +11,13 @@ public class AggregatedData
   public bool IsEmpty => GlobalSoftwareData.IsEmpty;
 }
 
+public class EnhancedEdge
+{
+  public ulong Id { get; set; }
+  public string Html { get; set; }
+  public string Color { get; set; }
+}
+
 public class MergedSoftwareData
 {
   public Dictionary<string, ValueWithUnits<Dictionary<string, double>>> Histograms { get; set; } = new();

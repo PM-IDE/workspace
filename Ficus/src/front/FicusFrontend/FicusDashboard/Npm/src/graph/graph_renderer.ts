@@ -2,7 +2,10 @@ import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
 import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
 import {createEdgeHtmlLabel} from "./labels/edge_html_label";
-import {createAggregatedData, createGraphElements} from "./graph_elements";
+import {
+  createAggregatedData, createEnhancedEdges,
+  createGraphElements
+} from "./graph_elements";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
@@ -20,6 +23,7 @@ export default setDrawGraph;
 function setDrawGraph() {
   (<any>window).drawGraph = drawGraph;
   (<any>window).createAggregatedData = createAggregatedData;
+  (<any>window).createEnhancedEdges = createEnhancedEdges;
 }
 
 function drawGraph(

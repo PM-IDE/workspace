@@ -19,7 +19,10 @@
     <div style="height: 100%; flex-grow: 1; padding: 5px;">
       @if (mySettings is { RenderDagLcsInFlamegraphMode: true })
       {
-        <FlamegraphGraphRenderer Context="@myContext"/>
+        <FlamegraphGraphRenderer Context="@myContext" 
+                                 AggregatedData="myAggregatedData" 
+                                 Annotation="Annotation" 
+                                 Settings="mySettings"/>
       }
       else
       {
@@ -170,7 +173,13 @@
   private string CreateExportFileName() =>
     ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
 
-  private void ReRenderCanvas() => myCanvasComponent?.ReRenderCanvas();
+  private void ReRenderCanvas()
+  {
+    if (!mySettings.RenderDagLcsInFlamegraphMode)
+    {
+      myCanvasComponent?.ReRenderCanvas();
+    }
+  }
 
   private Task ExportGraph() =>
     myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;

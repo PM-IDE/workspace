@@ -20,7 +20,9 @@ export interface GraphEdge {
   enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
   executionTimeNs: number,
-  weight: number
+  weight: number,
+  color: string,
+  id: string
 }
 
 export interface AggregatedData {

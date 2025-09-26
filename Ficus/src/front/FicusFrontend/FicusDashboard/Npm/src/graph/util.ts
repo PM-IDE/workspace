@@ -6,7 +6,6 @@ import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
 import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
-import {GrpcMethodNameParts} from "../protos/ficus/GrpcMethodNameParts";
 import {GrpcGraphKind} from "../protos/ficus/GrpcGraphKind";
 import cytoscape from "cytoscape";
 import dagre from 'cytoscape-dagre';

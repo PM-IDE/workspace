@@ -12,7 +12,14 @@ import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import cytoscape from "cytoscape";
-import {AggregatedData, CountAndSum, MergedSoftwareData, ValueWithUnits} from "./types";
+import {
+  AggregatedData,
+  GraphEdge,
+  MergedSoftwareData,
+  SoftwareEnhancementKind,
+  ValueWithUnits
+} from "./types";
+import {createEdgeHtmlLabel} from "./labels/edge_html_label";
 
 const graphColor = graphColors(darkTheme);
 
@@ -122,7 +129,7 @@ function buildEdgesTimeAnnotationMap(annotation: GrpcAnnotation): Record<number,
   return idsToTime;
 }
 
-function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null): cytoscape.ElementDefinition[] {
+export function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null): cytoscape.ElementDefinition[] {
   let elements = [];
 
   for (let node of nodes) {
@@ -169,7 +176,7 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
           }
         })
       }
-      
+
       aggregatedData.globalSoftwareData.activitiesDurations.get(name).value.value += duration.value.value;
     }
   }
@@ -195,7 +202,28 @@ function mergeMaps(first: Map<string, number>, second: Map<string, number>) {
   }
 }
 
-export function createGraphEdgesElements(
+export function createEnhancedEdges(
+  graph: GrpcGraph,
+  annotation: GrpcAnnotation,
+  aggregatedData: AggregatedData,
+  enhancements: SoftwareEnhancementKind[],
+  filter: RegExp | null,
+) {
+  let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
+  let elements = createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter);
+
+  return elements.map(e => {
+    (<any>e).data.aggregatedData = aggregatedData;
+
+    return {
+      id: Number.parseInt(e.data.id),
+      html: createEdgeHtmlLabel(e.data as GraphEdge, enhancements),
+      color: e.data.color,
+    }
+  });
+}
+
+function createGraphEdgesElements(
   edges: GrpcGraphEdge[],
   performanceMap: Record<number, any>,
   aggregatedData: AggregatedData,

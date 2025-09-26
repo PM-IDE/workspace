@@ -1,9 +1,32 @@
-﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+﻿@using Ficus
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
-<div style="height: @(Context.Layout.CalculateHeight() * FlamegraphConstants.Height)px; width: fit-content;">
-  <CompositeBlockRenderer Block="@Context.Layout" Context="Context"/>
-</div>
+@inject IJSRuntime Js;
+
+@if (myRenderingContext is { })
+{
+  <div style="height: @(Context.Layout.CalculateHeight() * FlamegraphConstants.Height)px; width: fit-content;">
+    <CompositeBlockRenderer Block="@Context.Layout" Context="myRenderingContext"/>
+  </div>
+}
 
 @code {
   [Parameter] public required FlamegraphContext Context { get; init; }
+  [Parameter] public required GraphLikeEntitySettings Settings { get; init; }
+  [Parameter] public required AggregatedData AggregatedData { get; init; }
+  [Parameter] public required GrpcAnnotation? Annotation { get; init; }
+
+  private FlamegraphRenderingContext? myRenderingContext;
+
+  protected override async Task OnParametersSetAsync()
+  {
+    var enhancedEdges = await Js.InvokeAsync<EnhancedEdge[]>(
+      "createEnhancedEdges", Context.Graph, Annotation, AggregatedData, Settings.SelectedEnhancements, Settings.Filter);
+
+    myRenderingContext = new FlamegraphRenderingContext
+    {
+      Context = Context,
+      EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e)
+    };
+  }
 }
