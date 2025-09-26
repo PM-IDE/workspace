@@ -1,5 +1,6 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
-<div style="display: flex; flex-direction: row; height: max(@(Block.CalculateHeight() * FlamegraphConstants.Height)px, 100%)">
+<div
+  style="display: flex; flex-direction: row; height: max(@(Block.CalculateHeight() * FlamegraphConstants.Height)px, 100%)">
   @switch (Block)
   {
     case HorizontalCompositeBlock:
@@ -19,7 +20,7 @@
 
       break;
     }
-    case VerticalCompositeBlock:
+    case VerticalCompositeBlock verticalBlock:
     {
       <div style="display: flex; flex-direction: column;">
         @foreach (var block in Block.InnerBlocks)
@@ -46,9 +47,17 @@
               height = block.CalculateHeight() * FlamegraphConstants.Height;
 
               <div style="display: flex; flex-direction: row; height: @(height)px; width: 100%;">
-                @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } && items[0] is not VerticalCompositeBlock)
+                @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
+                     items[0] is not VerticalCompositeBlock)
                 {
-                  <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+                  var background = string.Empty;
+                  if (horizontalBlock.GetFirstNode() is { } firstNode)
+                  {
+                    background = $"{Context.GetEdgePerformanceColor(verticalBlock.FromNode, firstNode)}";
+                  }
+
+                  <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
+                       class="flamegraph-edge">
                   </div>
                 }
 
@@ -80,4 +89,5 @@
                                                                            Context="Context"/>,
     _ => throw new ArgumentOutOfRangeException(nameof(block))
   };
+
 }

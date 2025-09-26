@@ -49,7 +49,11 @@ internal class FlamegraphLayoutCreator
 
   private VerticalCompositeBlock CreateVerticalBlock(FlamegraphContextData data, ulong node, NodePair nodePair)
   {
-    var block = new VerticalCompositeBlock();
+    var block = new VerticalCompositeBlock
+    {
+      FromNode = node,
+      ToNode = nodePair.PairedNode
+    };
 
     foreach (var (index, path) in nodePair.Paths.Index())
     {
@@ -60,7 +64,11 @@ internal class FlamegraphLayoutCreator
           throw new Exception("SyncNode was null when path contains several starting nodes");
         }
 
-        var innerVerticalBlock = new VerticalCompositeBlock();
+        var innerVerticalBlock = new VerticalCompositeBlock
+        {
+          FromNode = node,
+          ToNode = path.SyncNode.Value
+        };
 
         foreach (var (pathNodesIndex, pathNode) in path.PathNodes.Index())
         {
