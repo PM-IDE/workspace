@@ -40,4 +40,13 @@ public class FlamegraphRenderingContext
 {
   public required FlamegraphContext Context { get; init; }
   public required Dictionary<ulong, EnhancedEdge> EnhancedEdges { get; init; }
+
+
+  public string GetEdgePerformanceColor(ulong fromNode, ulong toNode)
+  {
+    var edge = Context.NodePairsToIds[(fromNode, toNode)];
+    var color = EnhancedEdges[edge.Id].Color;
+
+    return color;
+  }
 }

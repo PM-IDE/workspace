@@ -26,7 +26,7 @@ internal class FlamegraphLayoutCreator
       {
         AddSingleNodeSequentialBlockIfNeeded(hBlock, node);
 
-        var block = CreateVerticalBlock(data, nodePair);
+        var block = CreateVerticalBlock(data, node, nodePair);
 
         hBlock.InnerBlocks.Add(block);
         node = nodePair.PairedNode;
@@ -47,7 +47,7 @@ internal class FlamegraphLayoutCreator
     return hBlock;
   }
 
-  private VerticalCompositeBlock CreateVerticalBlock(FlamegraphContextData data, NodePair nodePair)
+  private VerticalCompositeBlock CreateVerticalBlock(FlamegraphContextData data, ulong node, NodePair nodePair)
   {
     var block = new VerticalCompositeBlock();
 
@@ -66,7 +66,11 @@ internal class FlamegraphLayoutCreator
         {
           innerVerticalBlock.InnerBlocks.Add((pathNode == path.SyncNode.Value) switch
           {
-            true => new EdgeBlock(),
+            true => new EdgeBlock
+            {
+              FromNode = node,
+              ToNode = pathNode
+            },
             false => CreateBlockLayoutEndNodeNotInclusive(data, pathNode, path.SyncNode.Value)
           });
 
@@ -95,7 +99,11 @@ internal class FlamegraphLayoutCreator
       var outgoingNode = path.PathNodes[0];
       if (outgoingNode == nodePair.PairedNode)
       {
-        block.InnerBlocks.Add(new EdgeBlock());
+        block.InnerBlocks.Add(new EdgeBlock
+        {
+          FromNode = node,
+          ToNode = outgoingNode
+        });
       }
       else
       {

@@ -11,8 +11,7 @@
 
     @if (index < Block.NodesSequence.Count - 1)
     {
-      var edge = Context.Context.NodePairsToIds[(node, Block.NodesSequence[index + 1])];
-      var color = Context.EnhancedEdges[edge.Id].Color;
+      var color = Context.GetEdgePerformanceColor(node, Block.NodesSequence[index + 1]);
 
       <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @color !important;"
            class="flamegraph-edge">

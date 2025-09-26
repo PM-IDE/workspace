@@ -30,6 +30,10 @@ public class VerticalCompositeBlock : CompositeBlockBase
 
 public class EdgeBlock : BasicBlock
 {
+  public required ulong FromNode { get; init; }
+  public required ulong ToNode { get; init; }
+
+
   public override int CalculateHeight()
   {
     return ModelSizes.EdgeBlock;
