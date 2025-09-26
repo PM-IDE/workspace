@@ -1,5 +1,7 @@
-﻿@using Ficus
+﻿@using BlazorBootstrap
+@using Ficus
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+@using JetBrains.Threading
 
 @inject IJSRuntime Js;
 
@@ -8,6 +10,10 @@
   <div style="height: @(Context.Layout.CalculateHeight() * FlamegraphConstants.Height)px; width: fit-content;">
     <CompositeBlockRenderer Block="@Context.Layout" Context="myRenderingContext"/>
   </div>
+}
+else
+{
+  <Spinner Style="margin-top: 10px; margin-left: 10px;" Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
 }
 
 @code {
@@ -18,15 +24,20 @@
 
   private FlamegraphRenderingContext? myRenderingContext;
 
-  protected override async Task OnParametersSetAsync()
+  protected override void OnParametersSet()
   {
-    var enhancedEdges = await Js.InvokeAsync<EnhancedEdge[]>(
-      "createEnhancedEdges", Context.Graph, Annotation, AggregatedData, Settings.SelectedEnhancements, Settings.Filter);
-
-    myRenderingContext = new FlamegraphRenderingContext
+    Task.Run(async () =>
     {
-      Context = Context,
-      EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e)
-    };
+      var enhancedEdges = await Js.InvokeAsync<EnhancedEdge[]>(
+        "createEnhancedEdges", Context.Graph, Annotation, AggregatedData, Settings.SelectedEnhancements, Settings.Filter);
+
+      myRenderingContext = new FlamegraphRenderingContext
+      {
+        Context = Context,
+        EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e)
+      };
+
+      StateHasChanged();
+    }).NoAwait();
   }
 }
