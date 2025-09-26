@@ -17,6 +17,8 @@ internal class NodePair(ulong pairedNode, List<FlamegraphPath> paths)
 internal class FlamegraphContextData
 {
   public Dictionary<ulong, GrpcGraphNode> IdsToNodes { get; } = [];
+  public Dictionary<(ulong, ulong), GrpcGraphEdge> NodePairsToEdges { get; } = [];
+
   public Dictionary<ulong, List<ulong>> Edges { get; } = [];
   public Dictionary<ulong, List<ulong>> ReversedEdges { get; } = [];
   public Dictionary<ulong, NodePair> NodePairs { get; } = [];

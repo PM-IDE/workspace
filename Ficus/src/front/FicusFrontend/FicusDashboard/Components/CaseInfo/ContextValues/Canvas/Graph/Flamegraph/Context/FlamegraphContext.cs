@@ -16,9 +16,10 @@ public class FlamegraphContext
     }
   }
 
+  public GrpcGraph Graph { get; }
   public HorizontalCompositeBlock Layout { get; }
   public IReadOnlyDictionary<ulong, GrpcGraphNode> IdsToNodes { get; }
-  public GrpcGraph Graph { get; }
+  public IReadOnlyDictionary<(ulong, ulong), GrpcGraphEdge> NodePairsToIds { get; }
 
   private FlamegraphContext(GrpcGraph graph)
   {
@@ -31,6 +32,7 @@ public class FlamegraphContext
     Layout = new FlamegraphLayoutCreator().Create(data);
 
     IdsToNodes = data.IdsToNodes;
+    NodePairsToIds = data.NodePairsToEdges;
   }
 }
 

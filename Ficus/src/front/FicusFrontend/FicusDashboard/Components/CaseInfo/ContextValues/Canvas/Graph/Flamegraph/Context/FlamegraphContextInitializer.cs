@@ -10,6 +10,8 @@ internal static class FlamegraphContextInitializer
     {
       AddEdge(data.Edges, edge.FromNode, edge.ToNode);
       AddEdge(data.ReversedEdges, edge.ToNode, edge.FromNode);
+
+      data.NodePairsToEdges[(edge.FromNode, edge.ToNode)] = edge;
     }
 
     foreach (var node in graph.Nodes)
