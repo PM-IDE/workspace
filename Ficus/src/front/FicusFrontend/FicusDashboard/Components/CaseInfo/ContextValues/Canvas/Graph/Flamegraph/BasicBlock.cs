@@ -11,6 +11,9 @@ public static class ModelSizes
 public abstract class BasicBlock
 {
   public abstract int CalculateHeight();
+
+  public virtual ulong? GetFirstNode() => null;
+  public virtual ulong? GetLastNode() => null;
 }
 
 public abstract class CompositeBlockBase : BasicBlock
@@ -22,18 +25,8 @@ public class HorizontalCompositeBlock : CompositeBlockBase
 {
   public override int CalculateHeight() => InnerBlocks.Select(b => b.CalculateHeight()).Max();
 
-  public ulong? GetFirstNode()
-  {
-    if (InnerBlocks.Count is 0) return null;
-
-    return InnerBlocks[0] switch
-    {
-      VerticalCompositeBlock => null,
-      SequentialBasicBlock sequentialBlock => sequentialBlock.GetFirstNode(),
-      HorizontalCompositeBlock horizontalBock => horizontalBock.GetFirstNode(),
-      _ => null
-    };
-  }
+  public override ulong? GetFirstNode() => InnerBlocks.Count is 0 ? null : InnerBlocks[0].GetFirstNode();
+  public override ulong? GetLastNode() => InnerBlocks.Count is 0 ? null : InnerBlocks[^1].GetLastNode();
 }
 
 public class VerticalCompositeBlock : CompositeBlockBase
@@ -71,5 +64,6 @@ public class SequentialBasicBlock : BasicBlock
     return ModelSizes.NodeHeight;
   }
 
-  public ulong? GetFirstNode() => NodesSequence.Count == 0 ? null : NodesSequence[0];
+  public override ulong? GetFirstNode() => NodesSequence.Count == 0 ? null : NodesSequence[0];
+  public override ulong? GetLastNode() => NodesSequence.Count == 0 ? null : NodesSequence[^1];
 }

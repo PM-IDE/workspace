@@ -1,6 +1,10 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
-<div
-  style="display: flex; flex-direction: row; height: max(@(Block.CalculateHeight() * FlamegraphConstants.Height)px, 100%)">
+
+@{
+  var height = Block.CalculateHeight() * FlamegraphConstants.Height;
+}
+
+<div style="display: flex; flex-direction: row; height: max(@(height)px, 100%)">
   @switch (Block)
   {
     case HorizontalCompositeBlock:
@@ -13,7 +17,14 @@
             block is not VerticalCompositeBlock &&
             Block.InnerBlocks[index + 1] is HorizontalCompositeBlock or SequentialBasicBlock)
         {
-          <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px;" class="flamegraph-edge">
+          var background = string.Empty;
+          if (block.GetLastNode() is { } lastNode && Block.InnerBlocks[index + 1].GetFirstNode() is { } nextNode)
+          {
+            background = Context.GetEdgePerformanceColor(lastNode, nextNode);
+          }
+
+          <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
+               class="flamegraph-edge">
           </div>
         }
       }
@@ -29,7 +40,7 @@
           {
             case EdgeBlock edgeBlock:
               var color = Context.GetEdgePerformanceColor(edgeBlock.FromNode, edgeBlock.ToNode);
-              var height = FlamegraphConstants.Height * block.CalculateHeight();
+              height = FlamegraphConstants.Height * block.CalculateHeight();
 
               <div style="height: @(height)px; width: 100%; background: @color !important;"
                    class="flamegraph-edge">
@@ -45,26 +56,36 @@
             case CompositeBlockBase compositeBlock:
             {
               height = block.CalculateHeight() * FlamegraphConstants.Height;
+              var background = string.Empty;
 
               <div style="display: flex; flex-direction: row; height: @(height)px; width: 100%;">
                 @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
                      items[0] is not VerticalCompositeBlock)
                 {
-                  var background = string.Empty;
                   if (horizontalBlock.GetFirstNode() is { } firstNode)
                   {
                     background = $"{Context.GetEdgePerformanceColor(verticalBlock.FromNode, firstNode)}";
                   }
 
-                  <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
-                       class="flamegraph-edge">
+                  <div
+                    style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
+                    class="flamegraph-edge">
                   </div>
                 }
 
                 @RenderBlock(block)
 
-                <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidth)px"
-                     class="flamegraph-edge">
+                @{
+                  background = string.Empty;
+                  if (block.GetLastNode() is { } lastNode)
+                  {
+                    background = Context.GetEdgePerformanceColor(lastNode, verticalBlock.ToNode);
+                  }
+                }
+
+                <div
+                  style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
+                  class="flamegraph-edge">
                 </div>
               </div>
 
