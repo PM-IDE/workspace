@@ -3,7 +3,7 @@
 internal class NodePairsFinder
 {
   private readonly HashSet<ulong> myProcessedNodes = [];
-  private readonly Queue<(ulong, HashSet<int>)> myQueue = [];
+  private readonly Queue<(ulong Node, HashSet<int> Tokens)> myQueue = [];
   private readonly Dictionary<ulong, IssuedTokens> myNodesToIssuedTokens = [];
   private readonly Dictionary<ulong, HashSet<int>> myNodesToQueuedHashSets = [];
 
@@ -16,6 +16,11 @@ internal class NodePairsFinder
 
     while (myQueue.Count > 0)
     {
+      if (myQueue.All(pair => AnyIncomingNodesUnprocessed(data, pair.Node)))
+      {
+        throw new Exception("Queue contains only waiting for processing nodes, will livelock");
+      }
+
       var (node, tokens) = myQueue.Dequeue();
 
       if (AnyIncomingNodesUnprocessed(data, node))
