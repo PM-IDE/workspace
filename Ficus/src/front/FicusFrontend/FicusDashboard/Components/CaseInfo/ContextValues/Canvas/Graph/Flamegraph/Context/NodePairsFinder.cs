@@ -34,6 +34,11 @@ internal class NodePairsFinder
       ProcessNode(data, node, tokens);
       EnqueueOutgoingNodes(data, node, tokens);
     }
+
+    if (myProcessedNodes.Count != data.IdsToNodes.Count)
+    {
+      throw new Exception("There are several components in the graph, can not handle it");
+    }
   }
 
   private void AssertNoTokensFromPairedNodes(FlamegraphContextData data, ulong node, HashSet<int> tokens)
