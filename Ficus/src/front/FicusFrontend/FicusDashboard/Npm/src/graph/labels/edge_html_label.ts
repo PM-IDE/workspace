@@ -1,4 +1,4 @@
-import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
   createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
   createRectangleHistogram, createTimeSpanString,
@@ -21,10 +21,20 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
 
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
-      <div style="display: flex; flex-direction: row; align-items: center;">
-        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, true, createEdgeEnhancement, true)}
-      </div>
+      ${createEdgeStandaloneEnhancements(enhancements, enhancementData, edge.aggregatedData)}
       ${createEdgeExecutionInfo(edge)}
+    </div>
+  `
+}
+
+export function createEdgeStandaloneEnhancements(
+  enhancements: SoftwareEnhancementKind[],
+  enhancementData: MergedEnhancementData,
+  aggregatedData: AggregatedData
+) {
+  return `
+    <div style="display: flex; flex-direction: row; align-items: center;">
+      ${createGroupedEnhancements(enhancements, enhancementData, aggregatedData, true, createEdgeEnhancement, true)}
     </div>
   `
 }

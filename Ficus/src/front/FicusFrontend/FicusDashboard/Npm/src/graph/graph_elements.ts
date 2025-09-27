@@ -19,7 +19,7 @@ import {
   SoftwareEnhancementKind,
   ValueWithUnits
 } from "./types";
-import {createEdgeHtmlLabel} from "./labels/edge_html_label";
+import {createEdgeStandaloneEnhancements} from "./labels/edge_html_label";
 
 const graphColor = graphColors(darkTheme);
 
@@ -215,9 +215,14 @@ export function createEnhancedEdges(
   return elements.map(e => {
     (<any>e).data.aggregatedData = aggregatedData;
 
+    let enhancementHtml = "";
+    if (e.data.enhancementData != null) {
+      enhancementHtml = createEdgeStandaloneEnhancements(enhancements, e.data.enhancementData, aggregatedData);
+    }
+
     return {
       id: Number.parseInt(e.data.id),
-      html: createEdgeHtmlLabel(e.data as GraphEdge, enhancements),
+      html: enhancementHtml,
       color: e.data.color,
     }
   });
