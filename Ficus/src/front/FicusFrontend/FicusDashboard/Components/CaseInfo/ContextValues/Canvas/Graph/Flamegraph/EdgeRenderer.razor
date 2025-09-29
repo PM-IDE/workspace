@@ -1,9 +1,9 @@
-<div style="height: @Height; width: @Width; background: @Color !important;"
+<div style="height: @Height; width: @Width; background: @EnhancedEdge?.Color !important;"
      class="flamegraph-edge">
 </div>
 
 @code {
   [Parameter] public required string Height { get; init; }
   [Parameter] public required string Width { get; init; }
-  [Parameter] public required string Color { get; init; }
+  [Parameter] public required EnhancedEdge? EnhancedEdge { get; init; }
 }

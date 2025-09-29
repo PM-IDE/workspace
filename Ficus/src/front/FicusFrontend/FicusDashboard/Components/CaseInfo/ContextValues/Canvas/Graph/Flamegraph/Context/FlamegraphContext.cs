@@ -42,11 +42,9 @@ public class FlamegraphRenderingContext
   public required Dictionary<ulong, EnhancedEdge> EnhancedEdges { get; init; }
 
 
-  public string GetEdgePerformanceColor(ulong fromNode, ulong toNode)
+  public EnhancedEdge GetEnhancedEdge(ulong fromNode, ulong toNode)
   {
     var edge = Context.NodePairsToIds[(fromNode, toNode)];
-    var color = EnhancedEdges[edge.Id].Color;
-
-    return color;
+    return EnhancedEdges[edge.Id];
   }
 }

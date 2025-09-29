@@ -11,10 +11,10 @@
 
     @if (index >= Block.NodesSequence.Count - 1) continue;
 
-    var color = Context.GetEdgePerformanceColor(node, Block.NodesSequence[index + 1]);
+    var enhancedEdge = Context.GetEnhancedEdge(node, Block.NodesSequence[index + 1]);
     var width = $"{FlamegraphConstants.EdgeWidth}px";
 
-    <EdgeRenderer Height="100%" Width="@width" Color="@color"/>
+    <EdgeRenderer Height="100%" Width="@width" EnhancedEdge="@enhancedEdge"/>
   }
 </div>
 

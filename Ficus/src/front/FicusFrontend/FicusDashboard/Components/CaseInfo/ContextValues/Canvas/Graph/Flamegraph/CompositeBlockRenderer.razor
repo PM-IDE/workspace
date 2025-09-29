@@ -17,15 +17,14 @@
             block is not VerticalCompositeBlock &&
             Block.InnerBlocks[index + 1] is HorizontalCompositeBlock or SequentialBasicBlock)
         {
-          var background = string.Empty;
+          EnhancedEdge? edge = null;
           if (block.GetLastNode() is { } lastNode && Block.InnerBlocks[index + 1].GetFirstNode() is { } nextNode)
           {
-            background = Context.GetEdgePerformanceColor(lastNode, nextNode);
+            edge = Context.GetEnhancedEdge(lastNode, nextNode);
           }
 
-          <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
-               class="flamegraph-edge">
-          </div>
+          var width = $"{FlamegraphConstants.EdgeWidth}px";
+          <EdgeRenderer Height="100%" Width="@width" EnhancedEdge="edge"></EdgeRenderer>
         }
       }
 
@@ -39,11 +38,11 @@
           switch (block)
           {
             case EdgeBlock edgeBlock:
-              var color = Context.GetEdgePerformanceColor(edgeBlock.FromNode, edgeBlock.ToNode);
+              var enhancedEdge = Context.GetEnhancedEdge(edgeBlock.FromNode, edgeBlock.ToNode);
               height = FlamegraphConstants.Height * block.CalculateHeight();
               var heightStr = $"{height}px";
 
-              <EdgeRenderer Width="100%" Height="@heightStr" Color="@color"/>
+              <EdgeRenderer Width="100%" Height="@heightStr" EnhancedEdge="@enhancedEdge"/>
 
               break;
             case SeparatorBlock:
@@ -56,32 +55,34 @@
             {
               height = block.CalculateHeight() * FlamegraphConstants.Height;
               var background = string.Empty;
+              EnhancedEdge? edge = null;
 
               <div style="display: flex; flex-direction: row; height: @(height)px; width: 100%;">
                 @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
                      items[0] is not VerticalCompositeBlock)
                 {
+                  edge = null;
                   if (horizontalBlock.GetFirstNode() is { } firstNode)
                   {
-                    background = $"{Context.GetEdgePerformanceColor(verticalBlock.FromNode, firstNode)}";
+                    edge = Context.GetEnhancedEdge(verticalBlock.FromNode, firstNode);
                   }
 
                   var width = $"{FlamegraphConstants.EdgeWidth}px";
-                  <EdgeRenderer Width="@width" Height="100%" Color="@background"/>
+                  <EdgeRenderer Width="@width" Height="100%" EnhancedEdge="@edge"/>
                 }
 
                 @RenderBlock(block)
 
                 @{
-                  background = string.Empty;
+                  edge = null;
                   if (block.GetLastNode() is { } lastNode)
                   {
-                    background = Context.GetEdgePerformanceColor(lastNode, verticalBlock.ToNode);
+                    edge = Context.GetEnhancedEdge(lastNode, verticalBlock.ToNode);
                   }
                 }
 
                 <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidth)px;">
-                  <EdgeRenderer Width="100%" Height="100%" Color="@background"/>
+                  <EdgeRenderer Width="100%" Height="100%" EnhancedEdge="@edge"/>
                 </div>
               </div>
 
