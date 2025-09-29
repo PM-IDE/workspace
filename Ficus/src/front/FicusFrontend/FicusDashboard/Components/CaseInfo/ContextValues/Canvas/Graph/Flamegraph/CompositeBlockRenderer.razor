@@ -41,10 +41,9 @@
             case EdgeBlock edgeBlock:
               var color = Context.GetEdgePerformanceColor(edgeBlock.FromNode, edgeBlock.ToNode);
               height = FlamegraphConstants.Height * block.CalculateHeight();
+              var heightStr = $"{height}px";
 
-              <div style="height: @(height)px; width: 100%; background: @color !important;"
-                   class="flamegraph-edge">
-              </div>
+              <EdgeRenderer Width="100%" Height="@heightStr" Color="@color"/>
 
               break;
             case SeparatorBlock:
@@ -67,10 +66,8 @@
                     background = $"{Context.GetEdgePerformanceColor(verticalBlock.FromNode, firstNode)}";
                   }
 
-                  <div
-                    style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
-                    class="flamegraph-edge">
-                  </div>
+                  var width = $"{FlamegraphConstants.EdgeWidth}px";
+                  <EdgeRenderer Width="@width" Height="100%" Color="@background"/>
                 }
 
                 @RenderBlock(block)
@@ -83,9 +80,8 @@
                   }
                 }
 
-                <div
-                  style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidth)px; background: @background !important;"
-                  class="flamegraph-edge">
+                <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidth)px;">
+                  <EdgeRenderer Width="100%" Height="100%" Color="@background"/>
                 </div>
               </div>
 

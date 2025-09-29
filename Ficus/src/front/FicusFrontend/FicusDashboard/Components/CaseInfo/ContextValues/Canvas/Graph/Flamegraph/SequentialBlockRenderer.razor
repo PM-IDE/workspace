@@ -9,14 +9,12 @@
       @Context.Context.IdsToNodes[node].Data
     </div>
 
-    @if (index < Block.NodesSequence.Count - 1)
-    {
-      var color = Context.GetEdgePerformanceColor(node, Block.NodesSequence[index + 1]);
+    @if (index >= Block.NodesSequence.Count - 1) continue;
 
-      <div style="height: 100%; width: @(FlamegraphConstants.EdgeWidth)px; background: @color !important;"
-           class="flamegraph-edge">
-      </div>
-    }
+    var color = Context.GetEdgePerformanceColor(node, Block.NodesSequence[index + 1]);
+    var width = $"{FlamegraphConstants.EdgeWidth}px";
+
+    <EdgeRenderer Height="100%" Width="@width" Color="@color"/>
   }
 </div>
 
