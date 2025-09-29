@@ -16,6 +16,8 @@ public class EnhancedEdge
   public ulong Id { get; set; }
   public string Html { get; set; }
   public string Color { get; set; }
+  public string ExecutionTimeStringRepr { get; set; }
+  public int NumberOfExecution { get; set; }
 }
 
 public class MergedSoftwareData

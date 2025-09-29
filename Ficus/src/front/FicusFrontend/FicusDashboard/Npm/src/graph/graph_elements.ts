@@ -20,6 +20,8 @@ import {
   ValueWithUnits
 } from "./types";
 import {createEdgeStandaloneEnhancements} from "./labels/edge_html_label";
+import {createTimeSpanString, getPercentExecutionTime} from "./labels/util";
+import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
 
 const graphColor = graphColors(darkTheme);
 
@@ -224,6 +226,8 @@ export function createEnhancedEdges(
       id: Number.parseInt(e.data.id),
       html: enhancementHtml,
       color: e.data.color,
+      executionTimeStringRepr: createTimeSpanString(e.data.executionTimeNs, GrpcDurationKind.Nanos),
+      numberOfExecution: e.data.weight
     }
   });
 }
