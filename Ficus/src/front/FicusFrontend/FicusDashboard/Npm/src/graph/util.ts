@@ -1,6 +1,6 @@
 import {darkTheme, performanceColors} from "../colors";
 import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
-import {CountAndSum, GraphEdge, GraphNode, MergedEnhancementData, MergedSoftwareData} from "./types";
+import {AggregatedData, CountAndSum, GraphEdge, GraphNode, MergedEnhancementData, MergedSoftwareData} from "./types";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcSoftwareData} from "../protos/ficus/GrpcSoftwareData";
 import {GrpcUnderlyingPatternInfo} from "../protos/ficus/GrpcUnderlyingPatternInfo";
@@ -255,4 +255,48 @@ const performanceColor = performanceColors(darkTheme);
 export function getPerformanceAnnotationColor(relativeExecutionTime: number) {
   let colorName = `color${(Math.floor(relativeExecutionTime * 10) % 100).toString()}`;
   return performanceColor[colorName];
+}
+
+export function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
+  data.globalSoftwareData.counters = toMapCSharpInterop(data.globalSoftwareData.counters);
+  data.globalSoftwareData.activitiesDurations = toMapCSharpInterop(data.globalSoftwareData.activitiesDurations);
+  data.globalSoftwareData.histograms = toMapCSharpInterop(data.globalSoftwareData.histograms);
+
+  for (let [key, map] of data.globalSoftwareData.histograms) {
+    data.globalSoftwareData.histograms.set(key, {
+      units: map.units,
+      value: toMapCSharpInterop(map.value),
+      group: map.group
+    });
+  }
+
+  return data;
+}
+
+function toMapCSharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
+  // @ts-ignore
+  return new Map(Object.entries(map));
+}
+
+export function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
+  //JS Map can not be converted to C# Dictionary
+  data.globalSoftwareData.counters = toObjectCsharpInterop(data.globalSoftwareData.counters);
+  data.globalSoftwareData.activitiesDurations = toObjectCsharpInterop(data.globalSoftwareData.activitiesDurations);
+
+  for (let [key, map] of data.globalSoftwareData.histograms) {
+    data.globalSoftwareData.histograms.set(key, {
+      units: map.units,
+      value: toObjectCsharpInterop(map.value),
+      group: map.group
+    });
+  }
+
+  data.globalSoftwareData.histograms = toObjectCsharpInterop(data.globalSoftwareData.histograms);
+
+  return data;
+}
+
+function toObjectCsharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
+  // @ts-ignore
+  return Object.fromEntries(map);
 }

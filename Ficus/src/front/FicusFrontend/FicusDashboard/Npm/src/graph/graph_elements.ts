@@ -5,7 +5,7 @@ import {
   calculateOverallExecutionTime, createEmptySoftwareData,
   getEdgeEnhancementDataOrNull,
   getNodeEnhancementDataOrNull,
-  getPerformanceAnnotationColor, increment,
+  getPerformanceAnnotationColor, increment, preprocessForCSharpInterop, preprocessFromCSharpInterop,
 } from "./util";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
@@ -20,7 +20,7 @@ import {
   ValueWithUnits
 } from "./types";
 import {createEdgeStandaloneEnhancements} from "./labels/edge_html_label";
-import {createTimeSpanString, getPercentExecutionTime} from "./labels/util";
+import {createTimeSpanString} from "./labels/util";
 import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
 
 const graphColor = graphColors(darkTheme);
@@ -69,29 +69,6 @@ export function createAggregatedData(graph: GrpcGraph, annotation: GrpcAnnotatio
     console.error(e);
     return null;
   }
-}
-
-function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
-  //JS Map can not be converted to C# Dictionary
-  data.globalSoftwareData.counters = toObjectCsharpInterop(data.globalSoftwareData.counters);
-  data.globalSoftwareData.activitiesDurations = toObjectCsharpInterop(data.globalSoftwareData.activitiesDurations);
-
-  for (let [key, map] of data.globalSoftwareData.histograms) {
-    data.globalSoftwareData.histograms.set(key, {
-      units: map.units,
-      value: toObjectCsharpInterop(map.value),
-      group: map.group
-    });
-  }
-
-  data.globalSoftwareData.histograms = toObjectCsharpInterop(data.globalSoftwareData.histograms);
-
-  return data;
-}
-
-function toObjectCsharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
-  // @ts-ignore
-  return Object.fromEntries(map);
 }
 
 function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null) {
@@ -211,6 +188,7 @@ export function createEnhancedEdges(
   enhancements: SoftwareEnhancementKind[],
   filter: RegExp | null,
 ) {
+  aggregatedData = preprocessFromCSharpInterop(aggregatedData);
   let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
   let elements = createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter);
 
