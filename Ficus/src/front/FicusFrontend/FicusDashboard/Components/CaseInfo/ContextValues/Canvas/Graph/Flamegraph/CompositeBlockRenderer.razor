@@ -54,8 +54,7 @@
             case CompositeBlockBase compositeBlock:
             {
               height = block.CalculateHeight() * FlamegraphConstants.Height;
-              var background = string.Empty;
-              EnhancedEdge? edge = null;
+              EnhancedEdge? edge;
 
               <div style="display: flex; flex-direction: row; height: @(height)px; width: 100%;">
                 @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
