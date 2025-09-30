@@ -1,5 +1,16 @@
-<div style="height: @Height; width: @Width; background: @EnhancedEdge?.Color !important;"
+<div style="min-height: @Height; min-width: @Width; background: @EnhancedEdge?.Color !important;"
      class="flamegraph-edge">
+  @if (EnhancedEdge is not null)
+  {
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <div style="margin-top: -5px;">
+        @EnhancedEdge.ExecutionTimeStringRepr
+      </div>
+      <div style="margin-top: -5px; white-space: nowrap;">
+        @EnhancedEdge.NumberOfExecutions times
+      </div>
+    </div>
+  }
 </div>
 
 @code {

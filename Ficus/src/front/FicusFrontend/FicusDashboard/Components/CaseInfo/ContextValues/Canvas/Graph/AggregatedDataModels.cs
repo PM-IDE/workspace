@@ -17,7 +17,7 @@ public class EnhancedEdge
   public string Html { get; set; }
   public string Color { get; set; }
   public string ExecutionTimeStringRepr { get; set; }
-  public int NumberOfExecution { get; set; }
+  public int NumberOfExecutions { get; set; }
 }
 
 public class MergedSoftwareData

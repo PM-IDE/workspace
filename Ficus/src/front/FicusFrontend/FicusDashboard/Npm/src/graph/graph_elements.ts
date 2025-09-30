@@ -227,7 +227,7 @@ export function createEnhancedEdges(
       html: enhancementHtml,
       color: e.data.color,
       executionTimeStringRepr: createTimeSpanString(e.data.executionTimeNs, GrpcDurationKind.Nanos),
-      numberOfExecution: e.data.weight
+      numberOfExecutions: e.data.weight
     }
   });
 }
