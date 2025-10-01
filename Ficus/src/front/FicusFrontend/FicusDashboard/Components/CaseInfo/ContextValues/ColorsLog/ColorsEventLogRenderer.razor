@@ -1,12 +1,13 @@
 ﻿@using BlazorBootstrap
 @using Ficus
+@using FicusDashboard.Components.Utils
 
 @inject IJSRuntime Js;
 
 <div style="width: 100%;">
   @if (!myFinishedCanvasDrawings)
   {
-    <Spinner Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+    <Loader />
   }
 
   @if (mySuggestedAdjustment is var (suggestedWidthScale, suggestedHeightScale))

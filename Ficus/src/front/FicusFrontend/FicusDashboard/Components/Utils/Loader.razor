@@ -1,0 +1,15 @@
+@using BlazorBootstrap
+
+@{
+  var style = LeftUpMargin switch
+  {
+    false => string.Empty,
+    true => "margin-top: 10px; margin-left: 10px;"
+  };
+}
+
+<Spinner Style="@style" Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+
+@code {
+  [Parameter] public required bool LeftUpMargin { get; init; }
+}

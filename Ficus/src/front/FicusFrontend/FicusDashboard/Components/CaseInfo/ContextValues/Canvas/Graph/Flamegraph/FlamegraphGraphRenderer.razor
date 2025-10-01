@@ -1,6 +1,7 @@
 ﻿@using BlazorBootstrap
 @using Ficus
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+@using FicusDashboard.Components.Utils
 @using JetBrains.Threading
 
 @inject IJSRuntime Js;
@@ -13,7 +14,7 @@
 }
 else
 {
-  <Spinner Style="margin-top: 10px; margin-left: 10px;" Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+  <Loader LeftUpMargin="true" />
 }
 
 @code {

@@ -1,4 +1,4 @@
-﻿@using BlazorBootstrap;
+﻿@using FicusDashboard.Components.Utils
 
 @inherits ComponentBase
 
@@ -6,7 +6,7 @@
 
 @if (myIsDrawing)
 {
-  <Spinner Style="margin-top: 10px; margin-left: 10px;" Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+  <Loader LeftUpMargin="true" />
 }
 
 <div style="visibility: @(myIsDrawing ? "collapse" : "visible")" class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">

@@ -8,6 +8,7 @@
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.PetriNet
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph
 @using FicusDashboard.Components.CaseInfo.ContextValues
+@using FicusDashboard.Components.Utils
 @using FicusDashboard.Layout.Models
 @using JetBrains.Lifetimes
 
@@ -17,7 +18,7 @@
 <div id="@myContainerId" class="@ContainerClass">
   @if (myIsLoading)
   {
-    <Spinner Style="margin-top: 10px; margin-left: 10px;" Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
+    <Loader LeftUpMargin="true" />
   }
 
   <div class="pipeline-part-name-outer-container" style="visibility: @(myIsLoading ? "collapse" : "visible")">
