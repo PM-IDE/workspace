@@ -9,24 +9,26 @@
   {
     case HorizontalCompositeBlock:
     {
-      foreach (var (index, block) in Block.InnerBlocks.Index())
-      {
-        @RenderBlock(block)
-
-        if (index < Block.InnerBlocks.Count - 1 &&
-            block is not VerticalCompositeBlock &&
-            Block.InnerBlocks[index + 1] is HorizontalCompositeBlock or SequentialBasicBlock)
+      <div style="display: flex; flex-direction: row;">
+        @foreach (var (index, block) in Block.InnerBlocks.Index())
         {
-          EnhancedEdge? edge = null;
-          if (block.GetLastNode() is { } lastNode && Block.InnerBlocks[index + 1].GetFirstNode() is { } nextNode)
-          {
-            edge = Context.GetEnhancedEdge(lastNode, nextNode);
-          }
+          @RenderBlock(block)
 
-          var width = $"{FlamegraphConstants.EdgeWidth}px";
-          <EdgeRenderer Height="100%" Width="@width" EnhancedEdge="edge"></EdgeRenderer>
+          if (index < Block.InnerBlocks.Count - 1 &&
+              block is not VerticalCompositeBlock &&
+              Block.InnerBlocks[index + 1] is HorizontalCompositeBlock or SequentialBasicBlock)
+          {
+            EnhancedEdge? edge = null;
+            if (block.GetLastNode() is { } lastNode && Block.InnerBlocks[index + 1].GetFirstNode() is { } nextNode)
+            {
+              edge = Context.GetEnhancedEdge(lastNode, nextNode);
+            }
+
+            var width = $"{FlamegraphConstants.EdgeWidth}px";
+            <EdgeRenderer Height="100%" Width="@width" EnhancedEdge="edge"></EdgeRenderer>
+          }
         }
-      }
+      </div>
 
       break;
     }
