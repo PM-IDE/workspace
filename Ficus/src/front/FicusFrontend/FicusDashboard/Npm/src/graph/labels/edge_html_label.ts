@@ -1,6 +1,6 @@
 import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
-  createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
+  createGroupedEnhancements, createNumberInformation,
   createRectangleHistogram, createTimeSpanString,
   EnhancementCreationResult,
   getPercentExecutionTime,
@@ -90,7 +90,7 @@ function createEdgeEnhancement(
       false,
     );
 
-    return new EnhancementCreationResult(html, counter.group, false);
+    return new EnhancementCreationResult(html, counter.group, true);
   }
 
   if (softwareData.activitiesDurations.has(enhancement)) {
@@ -105,7 +105,7 @@ function createEdgeEnhancement(
       false,
     );
 
-    return new EnhancementCreationResult(html, duration.group, false);
+    return new EnhancementCreationResult(html, duration.group, true);
   }
 
   return new EnhancementCreationResult("", null);
