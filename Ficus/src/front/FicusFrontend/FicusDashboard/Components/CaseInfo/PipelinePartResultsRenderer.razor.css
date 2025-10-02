@@ -1,5 +1,6 @@
 .pipeline-parts-context-values-inner-container {
   width: fit-content;
+  max-width: 1200px;
   margin-top: 20px;
   margin-right: 20px;
 }

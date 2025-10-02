@@ -1,5 +1,4 @@
-﻿@using BlazorBootstrap
-@using Ficus
+﻿@using Ficus
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 @using FicusDashboard.Components.Utils
 @using JetBrains.Threading
@@ -8,7 +7,9 @@
 
 @if (myRenderingContext is { })
 {
-  <div style="height: @(Context.Layout.CalculateHeight() * FlamegraphConstants.Height)px; width: fit-content;">
+  var height = Context.Layout.CalculateHeight() * FlamegraphConstants.Height;
+
+  <div style="height: @(height)px; max-width: 800px; overflow: auto;">
     <CompositeBlockRenderer Block="@Context.Layout" Context="myRenderingContext"/>
   </div>
 }
