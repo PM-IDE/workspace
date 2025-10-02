@@ -4,7 +4,7 @@
   var height = Block.CalculateHeight() * FlamegraphConstants.Height;
 }
 
-<div style="display: flex; flex-direction: row; height: max(@(height)px, 100%)">
+<div style="display: flex; flex-direction: row; min-height: @(height)px;">
   @switch (Block)
   {
     case HorizontalCompositeBlock:

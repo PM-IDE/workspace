@@ -1,10 +1,10 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
-<div style="height: 100%; display: flex; flex-direction: row;">
+<div style="min-height: @(FlamegraphConstants.Height)px; display: flex; flex-direction: row;">
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
     var height = FlamegraphConstants.Height * Block.CalculateHeight();
 
-    <div style="height: max(@(height)px, 100%); width: @(FlamegraphConstants.NodeWidth);"
+    <div style="min-height: @(height)px; width: @(FlamegraphConstants.NodeWidth)px;"
          class="flamegraph-node">
       @Context.Context.IdsToNodes[node].Data
     </div>

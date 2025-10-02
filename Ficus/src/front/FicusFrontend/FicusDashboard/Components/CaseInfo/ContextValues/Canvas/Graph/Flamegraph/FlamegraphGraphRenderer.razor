@@ -9,7 +9,7 @@
 {
   var height = Context.Layout.CalculateHeight() * FlamegraphConstants.Height;
 
-  <div style="height: @(height)px; max-width: 800px; overflow: auto;">
+  <div style="min-height: @(height)px; max-width: 800px; overflow: auto;">
     <CompositeBlockRenderer Block="@Context.Layout" Context="myRenderingContext"/>
   </div>
 }
