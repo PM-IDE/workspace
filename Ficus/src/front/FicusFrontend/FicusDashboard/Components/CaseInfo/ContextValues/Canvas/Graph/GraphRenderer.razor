@@ -8,7 +8,7 @@
 
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
-  <div style="display: flex; flex-direction: row; flex-grow: 1;">
+  <div style="display: flex; flex-direction: row; flex-grow: 1; width: 100%;">
     <GraphLikeEntitySettings @ref="@mySettings"
                              Enhancements="@myEnhancements"
                              CanRenderFlamegraph="@(myContext is { })">
@@ -16,7 +16,7 @@
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
     </GraphLikeEntitySettings>
 
-    <div style="height: 100%; flex-grow: 1; padding: 5px;">
+    <div style="height: 100%; flex-grow: 1; padding: 5px; overflow: auto">
       @if (mySettings is { RenderDagLcsInFlamegraphMode: true })
       {
         <FlamegraphGraphRenderer Context="@myContext" 

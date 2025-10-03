@@ -61,24 +61,22 @@
 }
 
 .pipeline-part-context-values-outer-container {
-  display: grid;
-  grid-template-rows: 0fr;
+  background-color: var(--cv-section-content-color);
+  visibility: collapse;
   overflow: hidden;
-  transition: grid-template-rows 1s;
 }
 
 .pipeline-part-context-values-inner-container {
+  width: 100%;
   align-self: end;
   min-height: 0;
-  transition: visibility 1s;
-  visibility: hidden;
+  visibility: collapse;
 
   background-color: var(--cv-section-content-color);
   color: var(--cv-section-content-text-color);
 }
 
 .outer-container-checked {
-  grid-template-rows: 1fr;
   visibility: visible;
 }
 

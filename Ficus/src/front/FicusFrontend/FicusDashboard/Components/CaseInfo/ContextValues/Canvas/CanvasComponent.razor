@@ -6,11 +6,11 @@
 
 @if (myIsDrawing)
 {
-  <Loader LeftUpMargin="true" />
+  <Loader LeftUpMargin="true"/>
 }
 
-<div style="visibility: @(myIsDrawing ? "collapse" : "visible")" class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">
-  <div id="@myCytoscapeContainerId" class="@(IsFullScreen ? "canvas-container-fullscreen" : "cytoscape-canvas")">
+<div style="visibility: @(myIsDrawing ? "collapse" : "inherit")" class="canvas-container">
+  <div id="@myCytoscapeContainerId" class="cytoscape-canvas">
   </div>
 </div>
 
@@ -39,7 +39,7 @@
     return Task.CompletedTask;
   }
 
-  public Task ExportGraph(string fileName) => 
+  public Task ExportGraph(string fileName) =>
     Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, fileName).AsTask();
 
   private void ReRenderCanvasInternal()
