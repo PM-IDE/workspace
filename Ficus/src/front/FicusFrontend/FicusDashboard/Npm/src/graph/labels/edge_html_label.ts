@@ -125,8 +125,8 @@ function createEdgeSoftwareEnhancementPart(
   let percent = totalSum != null ? ((valuesSum / totalSum) * 100).toFixed(2) : null;
 
   return `
-    <div>
-      <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div style="width: 100%;">
+      <div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
           <div style="white-space: nowrap">
             ${title}

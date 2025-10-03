@@ -230,7 +230,7 @@ svg-pie-chart svg {
 .graph-title-label {
   background: #3b3b3b;
   border-radius: 3px;
-  width: fit-content;
+  width: 100%;
   color: white;
   padding: 2px;
   display: flex;
