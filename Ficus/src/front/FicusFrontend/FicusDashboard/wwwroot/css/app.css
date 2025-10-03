@@ -245,9 +245,11 @@ svg-pie-chart svg {
 .graph-content-container {
   background: #5d5d5d;
   width: fit-content;
-  height: fit-content;
+  height: 100%;
   padding: 5px;
-  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .update-notification {

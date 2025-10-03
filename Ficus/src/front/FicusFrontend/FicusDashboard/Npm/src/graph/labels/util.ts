@@ -40,7 +40,7 @@ export function createEnhancementContainer(
   return `
     <div class="graph-content-container">
       <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
-      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; ${centerStyle}">
+      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; ${centerStyle}; gap: 1px;">
         ${content}
       </div>
     </div>
@@ -113,7 +113,7 @@ export function createNumberInformation(
   return `
     <div style="display: flex; flex-direction: row; margin-top: 3px;">
       <div class="graph-content-container"
-           style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
+           style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important; border-radius: 5px;">
          <div style="width: fit-content; display: flex; flex-direction: ${horizontal ? "row" : "column"}; gap: 2px;">
            ${createNumberInfoHtml(category, displayValue, units, percentString, horizontal)}
          </div>
