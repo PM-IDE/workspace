@@ -5,7 +5,7 @@
 
 @inject IJSRuntime Js;
 
-@if (myRenderingContext is { })
+@if (myRenderingContext is not null)
 {
   var height = Context.Layout.CalculateHeight() * FlamegraphConstants.Height;
 
@@ -23,6 +23,7 @@ else
   [Parameter] public required GraphLikeEntitySettings Settings { get; init; }
   [Parameter] public required AggregatedData AggregatedData { get; init; }
   [Parameter] public required GrpcAnnotation? Annotation { get; init; }
+  [Parameter] public required bool EventClassesAsName { get; init; }
 
   private FlamegraphRenderingContext? myRenderingContext;
 
@@ -36,7 +37,8 @@ else
       myRenderingContext = new FlamegraphRenderingContext
       {
         Context = Context,
-        EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e)
+        EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e),
+        EventClassesAsName = EventClassesAsName
       };
 
       StateHasChanged();

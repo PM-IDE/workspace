@@ -17,12 +17,13 @@
     </GraphLikeEntitySettings>
 
     <div style="height: 100%; flex-grow: 1; padding: 5px; overflow: auto">
-      @if (mySettings is { RenderDagLcsInFlamegraphMode: true })
+      @if (mySettings is { RenderDagLcsInFlamegraphMode: true, UseEventClassesAsLabels: var eventClassesAsLabels })
       {
-        <FlamegraphGraphRenderer Context="@myContext" 
-                                 AggregatedData="myAggregatedData" 
-                                 Annotation="Annotation" 
-                                 Settings="mySettings"/>
+        <FlamegraphGraphRenderer Context="@myContext"
+                                 AggregatedData="myAggregatedData"
+                                 Annotation="Annotation"
+                                 Settings="mySettings"
+                                 EventClassesAsName="eventClassesAsLabels"/>
       }
       else
       {

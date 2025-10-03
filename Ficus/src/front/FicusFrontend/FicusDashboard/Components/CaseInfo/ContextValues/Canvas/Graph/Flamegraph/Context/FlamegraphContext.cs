@@ -40,6 +40,7 @@ public class FlamegraphRenderingContext
 {
   public required FlamegraphContext Context { get; init; }
   public required Dictionary<ulong, EnhancedEdge> EnhancedEdges { get; init; }
+  public required bool EventClassesAsName { get; init; }
 
 
   public EnhancedEdge GetEnhancedEdge(ulong fromNode, ulong toNode)
@@ -47,4 +48,21 @@ public class FlamegraphRenderingContext
     var edge = Context.NodePairsToIds[(fromNode, toNode)];
     return EnhancedEdges[edge.Id];
   }
+
+  public string GetNodeName(ulong nodeId) => EventClassesAsName switch
+  {
+    true => CreateEventClassesName(nodeId),
+    false => Context.IdsToNodes[nodeId].Data
+  };
+
+  private string CreateEventClassesName(ulong nodeId) =>
+    string.Join(
+      "\n",
+      Context.IdsToNodes[nodeId].AdditionalData
+        .Where(x => x.SoftwareData?.Histogram is { })
+        .SelectMany(x => x.SoftwareData.Histogram.Select(h => h.Name))
+        .Where(x => x is { })
+        .Order()
+        .Take(3)
+    );
 }

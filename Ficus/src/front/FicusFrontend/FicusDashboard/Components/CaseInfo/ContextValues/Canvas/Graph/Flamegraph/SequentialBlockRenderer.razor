@@ -4,9 +4,9 @@
   {
     var height = FlamegraphConstants.Height * Block.CalculateHeight();
 
-    <div style="min-height: @(height)px; width: @(FlamegraphConstants.NodeWidth)px;"
+    <div style="min-height: @(height)px; min-width: @(FlamegraphConstants.NodeWidth)px;"
          class="flamegraph-node">
-      @Context.Context.IdsToNodes[node].Data
+      @Context.GetNodeName(node)
     </div>
 
     @if (index >= Block.NodesSequence.Count - 1) continue;
