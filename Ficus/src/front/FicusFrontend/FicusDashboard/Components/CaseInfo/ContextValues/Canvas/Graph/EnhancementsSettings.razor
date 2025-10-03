@@ -1,7 +1,14 @@
 ﻿@using FicusDashboard.Components.Utils
 
-@if (myEnhancements is { })
+@if (myEnhancements is not null)
 {
+  <div style="width: 100%; margin-bottom: 5px;">
+    <BoolCheckbox T="bool"
+                  Checked="@myNextState"
+                  Handler="@((_, _) => SelectOrDeselectAll())"
+                  Title="[De]Select All"/>
+  </div>
+
   @foreach (var group in myEnhancements.GroupBy(e => e.Group).OrderBy(e => e.Key))
   {
     <div style="margin-bottom: 10px;">
@@ -9,13 +16,15 @@
         @(string.IsNullOrWhiteSpace(group.Key) ? "Ungrouped" : group.Key)
       </div>
 
-      @foreach (var enhancement in group)
-      {
-        <BoolCheckbox T="bool"
-                      Checked="true"
-                      Handler="@((newValue, _) => HandleSelectionChange(newValue, enhancement))"
-                      Title="@enhancement.DisplayName"/>
-      }
+      <div style="margin-left: 10px;">
+        @foreach (var enhancement in group)
+        {
+          <BoolCheckbox T="bool"
+                        Checked="@myNextState"
+                        Handler="@((newValue, _) => HandleSelectionChange(newValue, enhancement))"
+                        Title="@enhancement.DisplayName"/>
+        }
+      </div>
     </div>
   }
 }
@@ -33,7 +42,7 @@
 
   [Parameter] public required List<EnhancementName>? Enhancements { get; init; }
 
-
+  private bool myNextState = true;
   private List<EnhancementName>? myEnhancements;
   private HashSet<EnhancementName> mySelectedEnhancements = null!;
 
@@ -47,7 +56,7 @@
 
     myEnhancements = Enhancements;
 
-    if (myEnhancements is not { }) return;
+    if (myEnhancements is null) return;
 
     mySelectedEnhancements = myEnhancements.ToHashSet();
   }
@@ -62,6 +71,27 @@
     {
       mySelectedEnhancements.Remove(enhancement);
     }
+  }
+
+  private void SelectOrDeselectAll()
+  {
+    if (myEnhancements is null) return;
+
+    if (!myNextState)
+    {
+      foreach (var name in myEnhancements)
+      {
+        mySelectedEnhancements.Add(name);
+      }
+    }
+    else
+    {
+      mySelectedEnhancements.Clear();
+    }
+
+    myNextState = !myNextState;
+
+    StateHasChanged();
   }
 
 }

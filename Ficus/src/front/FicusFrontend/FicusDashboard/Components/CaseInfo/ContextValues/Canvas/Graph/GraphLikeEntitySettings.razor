@@ -17,7 +17,7 @@
   }
 
   <div style="margin-top: @(margin)px;">Spacing factor:</div>
-  <input type="text" @bind="SpacingFactor" style="width: 90%"/>
+  <input type="text" @bind="SpacingFactor" style="width: 90%; margin-bottom: 10px;"/>
 
   <BoolCheckbox T="bool"
                 Handler="@((newValue, _) => UseEventClassesAsLabels = newValue)"
@@ -33,7 +33,7 @@
   <RadzenStack Orientation="Orientation.Horizontal"
                AlignItems="AlignItems.Center"
                Gap="0.5rem"
-               Style="margin-top: 5px;">
+               Style="margin-top: 10px;">
     <RadzenLabel Text="TB"/>
     <RadzenSwitch Name="Orientation" @bind-Value="@UseLROrientation"/>
     <RadzenLabel Text="LR"/>
