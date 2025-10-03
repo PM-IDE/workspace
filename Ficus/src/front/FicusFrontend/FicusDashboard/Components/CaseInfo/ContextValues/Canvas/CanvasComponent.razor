@@ -4,10 +4,12 @@
 
 @inject IJSRuntime Js
 
-@if (myIsDrawing)
-{
-  <Loader LeftUpMargin="true"/>
-}
+<div style="height: 10px; width: 100%;">
+  @if (myIsDrawing)
+  {
+    <Loader />
+  }
+</div>
 
 <div style="visibility: @(myIsDrawing ? "collapse" : "inherit")" class="canvas-container">
   <div id="@myCytoscapeContainerId" class="cytoscape-canvas">
@@ -64,5 +66,4 @@
     myRequestedToRerender = true;
     ReRenderCanvasInternal();
   }
-
 }

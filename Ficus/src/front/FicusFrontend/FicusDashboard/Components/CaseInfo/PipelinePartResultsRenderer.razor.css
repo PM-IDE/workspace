@@ -62,7 +62,7 @@
 
 .pipeline-part-context-values-outer-container {
   background-color: var(--cv-section-content-color);
-  visibility: collapse;
+  height: 1px;
   overflow: hidden;
 }
 
@@ -70,18 +70,18 @@
   width: 100%;
   align-self: end;
   min-height: 0;
-  visibility: collapse;
+  height: 1px;
 
   background-color: var(--cv-section-content-color);
   color: var(--cv-section-content-text-color);
 }
 
 .outer-container-checked {
-  visibility: visible;
+  height: auto;
 }
 
 .inner-container-checked {
-  visibility: visible;
+  height: auto;
 }
 
 .pipeline-part-result-selection-buttons-container {
