@@ -1,4 +1,6 @@
-﻿@if (myEnhancements is { })
+﻿@using FicusDashboard.Components.Utils
+
+@if (myEnhancements is { })
 {
   @foreach (var group in myEnhancements.GroupBy(e => e.Group).OrderBy(e => e.Key))
   {
@@ -9,13 +11,10 @@
 
       @foreach (var enhancement in group)
       {
-        <div style="display: flex; flex-direction: row; align-items: center;">
-          <input type="checkbox"
-                 checked="checked"
-                 @onchange="@(args => HandleSelectionChange(args.Value is true, enhancement))"/>
-
-          <div style="margin-left: 5px;">@enhancement.DisplayName</div>
-        </div>
+        <BoolCheckbox T="bool"
+                      Checked="true"
+                      Handler="@((newValue, _) => HandleSelectionChange(newValue, enhancement))"
+                      Title="@enhancement.DisplayName"/>
       }
     </div>
   }
