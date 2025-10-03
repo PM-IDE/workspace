@@ -40,7 +40,7 @@ export function createEnhancementContainer(
   return `
     <div class="graph-content-container">
       <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
-      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; ${centerStyle}; gap: 3px; width: 100%">
+      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; ${centerStyle}; gap: 3px; width: 100%; flex-grow: 1;">
         ${content}
       </div>
     </div>
@@ -111,7 +111,7 @@ export function createNumberInformation(
   let percentString = getPercentExecutionTime(value, totalValue);
 
   return `
-    <div style="display: flex; flex-direction: row; margin-top: 3px;">
+    <div style="display: flex; flex-direction: row; margin-top: 3px; height: 100%; align-items: center;">
       <div class="graph-content-container"
            style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important; border-radius: 5px;">
          <div style="width: fit-content; display: flex; flex-direction: ${horizontal ? "row" : "column"}; gap: 2px;">
