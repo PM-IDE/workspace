@@ -65,7 +65,7 @@ public class FlamegraphRenderingContext
     false => GetDefaultNodeName(nodeId)
   };
 
-  public (string, string) AdjustWidthAndHeight(string originalWidth, string originalHeight)
+  public (string?, string?) AdjustWidthAndHeight(string? originalWidth, string? originalHeight)
   {
     return !LeftToRight ? (originalHeight, originalWidth) : (originalWidth, originalHeight);
   }

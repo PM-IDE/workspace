@@ -1,6 +1,16 @@
-<div style="height: @Height; width: max(@Width, fit-content); background: @EnhancedEdge?.Color !important;"
-     class="flamegraph-edge">
-  @if (EnhancedEdge is not null)
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+
+@{
+  var style = string.Empty;
+  if (Height is { }) style += $"height: {Height};";
+  if (Width is { }) style += $"width: {Width};";
+
+  style += $"background: {EnhancedEdge?.Color} !important;";
+}
+
+<div style="@style" class="flamegraph-edge">
+
+  @if (EnhancedEdge is { })
   {
     <div style="display: flex; flex-direction: column; align-items: center;">
       <div style="margin-top: -5px;">
@@ -13,10 +23,12 @@
 
     @((MarkupString)EnhancedEdge.Html)
   }
+
 </div>
 
 @code {
-  [Parameter] public required string Height { get; init; }
-  [Parameter] public required string Width { get; init; }
+  [Parameter] public required string? Height { get; init; }
+  [Parameter] public required string? Width { get; init; }
   [Parameter] public required EnhancedEdge? EnhancedEdge { get; init; }
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
 }

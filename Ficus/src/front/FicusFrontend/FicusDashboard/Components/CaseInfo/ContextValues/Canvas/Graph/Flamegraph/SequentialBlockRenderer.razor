@@ -5,22 +5,25 @@
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
     var height = FlamegraphConstants.Height * Block.CalculateHeight();
+    var writingMode = Context.LeftToRight ? "  writing-mode: vertical-rl;" : string.Empty;
 
-    <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidth)px;"
+    <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidth)px; @writingMode"
          class="flamegraph-node">
+
       @foreach (var eventClass in Context.GetNodeName(node))
       {
         <div style="text-overflow: ellipsis; white-space: nowrap; flex-grow: 1;">
           @eventClass
         </div>
       }
+
     </div>
 
     @if (index >= Block.NodesSequence.Count - 1) continue;
 
     var enhancedEdge = Context.GetEnhancedEdge(node, Block.NodesSequence[index + 1]);
 
-    var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight($"{FlamegraphConstants.EdgeWidth}px", "100%");
+    var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
     <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="@enhancedEdge"/>
   }
 </div>

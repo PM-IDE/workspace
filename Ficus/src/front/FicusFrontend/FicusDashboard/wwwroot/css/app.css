@@ -266,7 +266,6 @@ svg-pie-chart svg {
 
 .flamegraph-node {
   background: var(--flamegraph-node-background);
-  writing-mode: vertical-rl;
   text-align: center;
   display: flex;
   flex-direction: column;

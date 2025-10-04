@@ -24,7 +24,7 @@
               edge = Context.GetEnhancedEdge(lastNode, nextNode);
             }
 
-            var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight($"{FlamegraphConstants.EdgeWidth}px", "100%");
+            var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
             <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="edge"></EdgeRenderer>
           }
         }
@@ -48,7 +48,7 @@
 
               break;
             case SeparatorBlock:
-              <div style="@Context.MainDim: @(FlamegraphConstants.Height * block.CalculateHeight())px; @Context.SecondDim: 100%"
+              <div style="@Context.MainDim: @(FlamegraphConstants.Height * block.CalculateHeight())px;"
                    class="flamegraph-separator-edge">
               </div>
 
@@ -58,7 +58,7 @@
               height = block.CalculateHeight() * FlamegraphConstants.Height;
               EnhancedEdge? edge;
 
-              <div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MinMainDim: @(height)px; @Context.SecondDim: 100%;">
+              <div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MinMainDim: @(height)px;">
                 @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
                      items[0] is not VerticalCompositeBlock)
                 {
@@ -68,7 +68,7 @@
                     edge = Context.GetEnhancedEdge(verticalBlock.FromNode, firstNode);
                   }
 
-                  (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight($"{FlamegraphConstants.EdgeWidth}px", "100%");
+                  (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
                   <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@edge"/>
                 }
 
