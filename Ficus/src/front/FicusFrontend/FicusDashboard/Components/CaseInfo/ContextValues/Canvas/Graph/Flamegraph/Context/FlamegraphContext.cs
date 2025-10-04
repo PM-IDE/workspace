@@ -41,6 +41,16 @@ public class FlamegraphRenderingContext
   public required FlamegraphContext Context { get; init; }
   public required Dictionary<ulong, EnhancedEdge> EnhancedEdges { get; init; }
   public required bool EventClassesAsName { get; init; }
+  public required bool LeftToRight { get; init; }
+
+  public string MainDim => LeftToRight ? "height" : "width";
+  public string SecondDim => LeftToRight ? "width" : "height";
+
+  public string MinMainDim => "min-" + MainDim;
+  public string MinSecondDim => "min-" + SecondDim;
+
+  public string SecondFlexDirection => LeftToRight ? "column" : "row";
+  public string MainFlexDirection => LeftToRight ? "row" : "column";
 
 
   public EnhancedEdge GetEnhancedEdge(ulong fromNode, ulong toNode)
@@ -54,6 +64,11 @@ public class FlamegraphRenderingContext
     true => GetTopThreeEventClasses(nodeId),
     false => GetDefaultNodeName(nodeId)
   };
+
+  public (string, string) AdjustWidthAndHeight(string originalWidth, string originalHeight)
+  {
+    return !LeftToRight ? (originalHeight, originalWidth) : (originalWidth, originalHeight);
+  }
 
   private List<string> GetDefaultNodeName(ulong nodeId) => [Context.IdsToNodes[nodeId].Data];
 

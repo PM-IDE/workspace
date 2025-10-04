@@ -1,12 +1,12 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
 
-<div style="min-height: @(FlamegraphConstants.Height)px; display: flex; flex-direction: row;">
+<div style="@Context.MinMainDim: @(FlamegraphConstants.Height)px; display: flex; flex-direction: @Context.MainFlexDirection;">
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
     var height = FlamegraphConstants.Height * Block.CalculateHeight();
 
-    <div style="min-height: @(height)px; min-width: @(FlamegraphConstants.NodeWidth)px;"
+    <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidth)px;"
          class="flamegraph-node">
       @foreach (var eventClass in Context.GetNodeName(node))
       {
@@ -19,9 +19,9 @@
     @if (index >= Block.NodesSequence.Count - 1) continue;
 
     var enhancedEdge = Context.GetEnhancedEdge(node, Block.NodesSequence[index + 1]);
-    var width = $"{FlamegraphConstants.EdgeWidth}px";
 
-    <EdgeRenderer Height="100%" Width="@width" EnhancedEdge="@enhancedEdge"/>
+    var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight($"{FlamegraphConstants.EdgeWidth}px", "100%");
+    <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="@enhancedEdge"/>
   }
 </div>
 
