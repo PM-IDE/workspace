@@ -58,7 +58,7 @@
               height = block.CalculateHeight() * FlamegraphConstants.Height;
               EnhancedEdge? edge;
 
-              <div style="display: flex; flex-direction: row; height: @(height)px; width: 100%;">
+              <div style="display: flex; flex-direction: row; min-height: @(height)px; width: 100%;">
                 @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
                      items[0] is not VerticalCompositeBlock)
                 {

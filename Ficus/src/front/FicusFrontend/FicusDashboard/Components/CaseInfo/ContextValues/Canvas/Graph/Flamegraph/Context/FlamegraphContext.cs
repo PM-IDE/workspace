@@ -49,21 +49,25 @@ public class FlamegraphRenderingContext
     return EnhancedEdges[edge.Id];
   }
 
-  public string GetNodeName(ulong nodeId) => EventClassesAsName switch
+  public List<string> GetNodeName(ulong nodeId) => EventClassesAsName switch
   {
-    true => CreateEventClassesName(nodeId),
-    false => Context.IdsToNodes[nodeId].Data
+    true => GetTopThreeEventClasses(nodeId),
+    false => GetDefaultNodeName(nodeId)
   };
 
-  private string CreateEventClassesName(ulong nodeId) =>
-    string.Join(
-      "\n",
-      Context.IdsToNodes[nodeId].AdditionalData
+  private List<string> GetDefaultNodeName(ulong nodeId) => [Context.IdsToNodes[nodeId].Data];
+
+  private List<string> GetTopThreeEventClasses(ulong nodeId) =>
+    Context.IdsToNodes[nodeId].AdditionalData
         .Where(x => x.SoftwareData?.Histogram is { })
         .SelectMany(x => x.SoftwareData.Histogram.Select(h => h.Name))
         .Where(x => x is { })
         .Distinct()
         .Order()
         .Take(3)
-    );
+        .ToList() switch
+      {
+        { Count: > 0 } eventClasses => eventClasses,
+        _ => GetDefaultNodeName(nodeId)
+      };
 }

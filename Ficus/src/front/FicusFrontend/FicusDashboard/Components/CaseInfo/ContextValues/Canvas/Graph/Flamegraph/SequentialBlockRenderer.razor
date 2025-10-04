@@ -1,4 +1,6 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+
+
 <div style="min-height: @(FlamegraphConstants.Height)px; display: flex; flex-direction: row;">
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
@@ -6,7 +8,12 @@
 
     <div style="min-height: @(height)px; min-width: @(FlamegraphConstants.NodeWidth)px;"
          class="flamegraph-node">
-      @Context.GetNodeName(node)
+      @foreach (var eventClass in Context.GetNodeName(node))
+      {
+        <div style="text-overflow: ellipsis; white-space: nowrap; flex-grow: 1;">
+          @eventClass
+        </div>
+      }
     </div>
 
     @if (index >= Block.NodesSequence.Count - 1) continue;
