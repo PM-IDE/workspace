@@ -7,9 +7,9 @@
 
 @if (myRenderingContext is not null)
 {
-  var height = Context.Layout.CalculateHeight() * FlamegraphConstants.Height;
+  var height = Context.Layout.CalculateMainDim() * FlamegraphConstants.MainDim;
 
-  <div style="min-height: @(height)px;">
+  <div style="@myRenderingContext.MinMainDim: @(height)px;">
     <CompositeBlockRenderer Block="@Context.Layout" Context="myRenderingContext"/>
   </div>
 }

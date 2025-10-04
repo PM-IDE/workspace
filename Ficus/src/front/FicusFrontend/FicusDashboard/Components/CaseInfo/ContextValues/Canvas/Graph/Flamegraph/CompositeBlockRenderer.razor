@@ -1,10 +1,6 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
-@{
-  var height = Block.CalculateHeight() * FlamegraphConstants.Height;
-}
-
-<div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MinMainDim: @(height)px;">
+<div style="display: flex; flex-direction: @Context.MainFlexDirection;">
   @switch (Block)
   {
     case HorizontalCompositeBlock:
@@ -41,24 +37,22 @@
           {
             case EdgeBlock edgeBlock:
               var enhancedEdge = Context.GetEnhancedEdge(edgeBlock.FromNode, edgeBlock.ToNode);
-              height = FlamegraphConstants.Height * block.CalculateHeight();
 
-              var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight("100%", $"{height}px");
+              var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight("100%", $"{FlamegraphConstants.MainDim * block.CalculateMainDim()}px");
               <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@enhancedEdge"/>
 
               break;
             case SeparatorBlock:
-              <div style="@Context.MainDim: @(FlamegraphConstants.Height * block.CalculateHeight())px;"
+              <div style="@Context.MainDim: @(FlamegraphConstants.MainDim * block.CalculateMainDim())px;"
                    class="flamegraph-separator-edge">
               </div>
 
               break;
             case CompositeBlockBase compositeBlock:
             {
-              height = block.CalculateHeight() * FlamegraphConstants.Height;
               EnhancedEdge? edge;
 
-              <div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MinMainDim: @(height)px;">
+              <div style="display: flex; flex-direction: @Context.MainFlexDirection;">
                 @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
                      items[0] is not VerticalCompositeBlock)
                 {

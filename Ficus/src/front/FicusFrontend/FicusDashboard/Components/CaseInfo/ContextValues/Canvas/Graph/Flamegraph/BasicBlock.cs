@@ -10,7 +10,7 @@ public static class ModelSizes
 
 public abstract class BasicBlock
 {
-  public abstract int CalculateHeight();
+  public abstract int CalculateMainDim();
 
   public virtual ulong? GetFirstNode() => null;
   public virtual ulong? GetLastNode() => null;
@@ -23,7 +23,7 @@ public abstract class CompositeBlockBase : BasicBlock
 
 public class HorizontalCompositeBlock : CompositeBlockBase
 {
-  public override int CalculateHeight() => InnerBlocks.Select(b => b.CalculateHeight()).Max();
+  public override int CalculateMainDim() => InnerBlocks.Select(b => b.CalculateMainDim()).Max();
 
   public override ulong? GetFirstNode() => InnerBlocks.Count is 0 ? null : InnerBlocks[0].GetFirstNode();
   public override ulong? GetLastNode() => InnerBlocks.Count is 0 ? null : InnerBlocks[^1].GetLastNode();
@@ -35,7 +35,7 @@ public class VerticalCompositeBlock : CompositeBlockBase
   public required ulong ToNode { get; init; }
 
 
-  public override int CalculateHeight() => InnerBlocks.Sum(b => b.CalculateHeight());
+  public override int CalculateMainDim() => InnerBlocks.Sum(b => b.CalculateMainDim());
 }
 
 public class EdgeBlock : BasicBlock
@@ -44,7 +44,7 @@ public class EdgeBlock : BasicBlock
   public required ulong ToNode { get; init; }
 
 
-  public override int CalculateHeight()
+  public override int CalculateMainDim()
   {
     return ModelSizes.EdgeBlock;
   }
@@ -52,14 +52,14 @@ public class EdgeBlock : BasicBlock
 
 public class SeparatorBlock : BasicBlock
 {
-  public override int CalculateHeight() => ModelSizes.Separtor;
+  public override int CalculateMainDim() => ModelSizes.Separtor;
 }
 
 public class SequentialBasicBlock : BasicBlock
 {
   public required List<ulong> NodesSequence { get; init; }
 
-  public override int CalculateHeight()
+  public override int CalculateMainDim()
   {
     return ModelSizes.NodeHeight;
   }

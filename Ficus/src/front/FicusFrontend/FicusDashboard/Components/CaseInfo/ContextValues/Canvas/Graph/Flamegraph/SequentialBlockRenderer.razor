@@ -1,10 +1,10 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
 
-<div style="@Context.MinMainDim: @(FlamegraphConstants.Height)px; display: flex; flex-direction: @Context.MainFlexDirection;">
+<div style="@Context.MinMainDim: @(FlamegraphConstants.MainDim)px; display: flex; flex-direction: @Context.MainFlexDirection;">
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
-    var height = FlamegraphConstants.Height * Block.CalculateHeight();
+    var height = FlamegraphConstants.MainDim * Block.CalculateMainDim();
     var writingMode = Context.LeftToRight ? "  writing-mode: vertical-rl;" : string.Empty;
 
     <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidth)px; @writingMode"
