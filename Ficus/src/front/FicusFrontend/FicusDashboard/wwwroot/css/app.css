@@ -273,7 +273,7 @@ svg-pie-chart svg {
 
 .flamegraph-edge {
   background: var(--flamegraph-edge-background);
-  padding: 2px 5px 2px 5px;
+  padding: 2px;
   display: flex;
   flex-direction: column;
   align-items: center;

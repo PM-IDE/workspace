@@ -21,7 +21,10 @@
       </div>
     </div>
 
-    @((MarkupString)EnhancedEdge.Html)
+    <div style="max-width: 100%; overflow-x: auto;" 
+         class="visible-scroll">
+      @((MarkupString)EnhancedEdge.Html)
+    </div>
   }
 
 </div>
