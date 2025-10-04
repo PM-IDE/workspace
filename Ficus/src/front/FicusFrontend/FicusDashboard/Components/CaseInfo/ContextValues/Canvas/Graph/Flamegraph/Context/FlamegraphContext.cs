@@ -62,6 +62,7 @@ public class FlamegraphRenderingContext
         .Where(x => x.SoftwareData?.Histogram is { })
         .SelectMany(x => x.SoftwareData.Histogram.Select(h => h.Name))
         .Where(x => x is { })
+        .Distinct()
         .Order()
         .Take(3)
     );
