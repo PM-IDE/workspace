@@ -13,6 +13,8 @@ pub struct SoftwareDataExtractionConfig {
   method_end: Option<ExtractionConfig<MethodStartEndConfig>>,
   #[getset(get = "pub", set = "pub")]
   allocation: Option<ExtractionConfig<AllocationExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")]
+  ocel: Option<ExtractionConfig<OcelDataExtractionConfig>>,
 
   #[getset(get = "pub", set = "pub")]
   raw_control_flow_regexes: Vec<String>,
@@ -31,6 +33,7 @@ impl SoftwareDataExtractionConfig {
       method_start: None,
       method_end: None,
       allocation: None,
+      ocel: None,
       raw_control_flow_regexes: vec![],
       pie_chart_extraction_configs: vec![],
       simple_counter_configs: vec![],
@@ -58,6 +61,16 @@ impl SoftwareDataExtractionConfig {
 
     Ok(Some(result))
   }
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelDataExtractionConfig {
+  #[getset(get = "pub")]
+  object_type_attr: NameCreationStrategy,
+  #[getset(get = "pub")]
+  object_id_attr: NameCreationStrategy,
+  #[getset(get = "pub")]
+  object_action_type_attr: Option<String>
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
