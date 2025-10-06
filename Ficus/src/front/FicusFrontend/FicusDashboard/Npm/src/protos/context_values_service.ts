@@ -72,6 +72,7 @@ export interface ProtoGrpcType {
     GrpcNamesTrace: MessageTypeDefinition
     GrpcNodeAdditionalData: MessageTypeDefinition
     GrpcNodeCorrespondingTraceData: MessageTypeDefinition
+    GrpcOcelData: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition

@@ -423,18 +423,32 @@ class GrpcNodeCorrespondingTraceData(_message.Message):
     def __init__(self, belongs_to_root_sequence: bool = ...) -> None: ...
 
 class GrpcSoftwareData(_message.Message):
-    __slots__ = ["histogram", "timeline_diagram_fragment", "histogram_data", "simple_counter_data", "activities_durations_data"]
+    __slots__ = ["histogram", "timeline_diagram_fragment", "histogram_data", "simple_counter_data", "activities_durations_data", "ocel_data"]
     HISTOGRAM_FIELD_NUMBER: _ClassVar[int]
     TIMELINE_DIAGRAM_FRAGMENT_FIELD_NUMBER: _ClassVar[int]
     HISTOGRAM_DATA_FIELD_NUMBER: _ClassVar[int]
     SIMPLE_COUNTER_DATA_FIELD_NUMBER: _ClassVar[int]
     ACTIVITIES_DURATIONS_DATA_FIELD_NUMBER: _ClassVar[int]
+    OCEL_DATA_FIELD_NUMBER: _ClassVar[int]
     histogram: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
     timeline_diagram_fragment: GrpcTimelineDiagramFragment
     histogram_data: _containers.RepeatedCompositeFieldContainer[GrpcGeneralHistogramData]
     simple_counter_data: _containers.RepeatedCompositeFieldContainer[GrpcSimpleCounterData]
     activities_durations_data: _containers.RepeatedCompositeFieldContainer[GrpcActivityDurationData]
-    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ..., activities_durations_data: _Optional[_Iterable[_Union[GrpcActivityDurationData, _Mapping]]] = ...) -> None: ...
+    ocel_data: _containers.RepeatedCompositeFieldContainer[GrpcOcelData]
+    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ..., activities_durations_data: _Optional[_Iterable[_Union[GrpcActivityDurationData, _Mapping]]] = ..., ocel_data: _Optional[_Iterable[_Union[GrpcOcelData, _Mapping]]] = ...) -> None: ...
+
+class GrpcOcelData(_message.Message):
+    __slots__ = ["object_type", "object_id", "Allocate", "Consume"]
+    OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    OBJECT_ID_FIELD_NUMBER: _ClassVar[int]
+    ALLOCATE_FIELD_NUMBER: _ClassVar[int]
+    CONSUME_FIELD_NUMBER: _ClassVar[int]
+    object_type: str
+    object_id: str
+    Allocate: _empty_pb2.Empty
+    Consume: _empty_pb2.Empty
+    def __init__(self, object_type: _Optional[str] = ..., object_id: _Optional[str] = ..., Allocate: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., Consume: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ...) -> None: ...
 
 class GrpcActivityDurationData(_message.Message):
     __slots__ = ["base", "duration", "kind"]
