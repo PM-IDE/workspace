@@ -1,6 +1,6 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
-<div style="display: flex; flex-direction: @Context.MainFlexDirection;">
+<div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MinMainDim: 100%; @Context.MainDim: fit-content;">
   @switch (Block)
   {
     case HorizontalCompositeBlock:
@@ -38,7 +38,7 @@
             case EdgeBlock edgeBlock:
               var enhancedEdge = Context.GetEnhancedEdge(edgeBlock.FromNode, edgeBlock.ToNode);
 
-              var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight("100%", $"{FlamegraphConstants.MainDim * block.CalculateMainDim()}px");
+              var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, $"{FlamegraphConstants.MainDim * block.CalculateMainDim()}px");
               <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@enhancedEdge"/>
 
               break;

@@ -5,7 +5,7 @@
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
     var height = FlamegraphConstants.MainDim * Block.CalculateMainDim();
-    var writingMode = Context.LeftToRight ? "  writing-mode: vertical-rl;" : string.Empty;
+    var writingMode = Context.LeftToRight ? "writing-mode: vertical-rl;" : string.Empty;
 
     <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidth)px; @writingMode"
          class="flamegraph-node">
