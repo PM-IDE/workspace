@@ -256,6 +256,16 @@ message GrpcSoftwareData {
   repeated GrpcGeneralHistogramData histogram_data = 13;
   repeated GrpcSimpleCounterData simple_counter_data = 14;
   repeated GrpcActivityDurationData activities_durations_data = 15;
+  repeated GrpcOcelData ocel_data = 16;
+}
+
+message GrpcOcelData {
+  string object_type = 1;
+  string object_id = 2;
+  oneof action {
+    google.protobuf.Empty Allocate = 3;
+    google.protobuf.Empty Consume = 4;
+  }
 }
 
 message GrpcActivityDurationData {

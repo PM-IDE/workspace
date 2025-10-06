@@ -26,6 +26,10 @@ pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
   activities_durations: Vec<ActivityDurationData>,
+
+  #[getset(get = "pub", get_mut = "pub")]
+  #[serde(skip_serializing_if = "Vec::is_empty")]
+  ocel_data: Vec<OcelData>,
 }
 
 impl SoftwareData {
@@ -36,8 +40,25 @@ impl SoftwareData {
       histograms: vec![],
       simple_counters: vec![],
       activities_durations: vec![],
+      ocel_data: vec![]
     }
   }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum OcelObjectAction {
+  Allocate,
+  Consume
+}
+
+#[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
+pub struct OcelData {
+  #[getset(get = "pub")]
+  object_type: String,
+  #[getset(get = "pub")]
+  object_id: String,
+  #[getset(get = "pub")]
+  action: OcelObjectAction
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
