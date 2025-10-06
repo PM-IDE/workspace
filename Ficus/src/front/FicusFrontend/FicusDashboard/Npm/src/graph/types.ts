@@ -2,27 +2,33 @@ import {GrpcNodeAdditionalData} from "../protos/ficus/GrpcNodeAdditionalData";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcTimelineDiagramFragment} from "../protos/ficus/GrpcTimelineDiagramFragment";
 import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
+import {GrpcGraphEdgeAdditionalData} from "../protos/ficus/GrpcGraphEdgeAdditionalData";
 
-export interface GraphNode {
-  frontendId: number,
-  label: string,
-  id: string,
-  innerGraph?: GrpcGraph,
-  executionTimeNs: number,
-  additionalData: GrpcNodeAdditionalData[],
-  enhancementData: MergedEnhancementData,
-  aggregatedData: AggregatedData,
+export interface CytoscapeElementDef<T> extends cytoscape.ElementDefinition {
+  data: T
 }
 
-export interface GraphEdge {
+export interface GraphEntity {
+  label: string,
   frontendId: number,
-  additionalData: GrpcNodeAdditionalData[]
+  id: string,
   enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData,
   executionTimeNs: number,
+}
+
+export interface GraphNode extends GraphEntity {
+  innerGraph?: GrpcGraph,
+  additionalData: GrpcNodeAdditionalData[],
+}
+
+export interface GraphEdge extends GraphEntity {
+  source: string,
+  target: string,
   weight: number,
   color: string,
-  id: string
+  width: number,
+  additionalData: GrpcGraphEdgeAdditionalData[],
 }
 
 export interface AggregatedData {
