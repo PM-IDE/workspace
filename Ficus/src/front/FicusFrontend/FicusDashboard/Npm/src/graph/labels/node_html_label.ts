@@ -6,7 +6,7 @@ import {
 import {darkTheme, graphColors} from "../../colors";
 import {nodeHeightPx, nodeWidthPx} from "../constants";
 import {getOrCreateColor, isNullOrEmpty} from "../../utils";
-import {AggregatedData, GraphNode, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphNode, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {GrpcUnderlyingPatternKind} from "../../protos/ficus/GrpcUnderlyingPatternKind";
 import {
   createGroupedEnhancements, createNumberInformation,
@@ -75,6 +75,18 @@ export function createNodeHtmlLabel(
             </div>
           </div>
          `;
+}
+
+export function createNodeStandaloneEnhancements(
+  enhancements: SoftwareEnhancementKind[],
+  enhancementData: MergedEnhancementData,
+  aggregatedData: AggregatedData
+) {
+  return `
+    <div style="display: flex; flex-direction: row; align-items: center;">
+        ${createGroupedEnhancements(enhancements, enhancementData, aggregatedData, true, createNodeEnhancement, false)}
+    </div>
+  `
 }
 
 function createNodeExecutionTimeString(node: GraphNode) {

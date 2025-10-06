@@ -40,6 +40,7 @@ public class FlamegraphRenderingContext
 {
   public required FlamegraphContext Context { get; init; }
   public required Dictionary<ulong, EnhancedEdge> EnhancedEdges { get; init; }
+  public required Dictionary<ulong, EnhancedNode> EnhancedNodes { get; init; }
   public required bool EventClassesAsName { get; init; }
   public required bool LeftToRight { get; init; }
 

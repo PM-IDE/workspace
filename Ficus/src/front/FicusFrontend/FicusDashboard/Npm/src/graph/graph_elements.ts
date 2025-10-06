@@ -22,6 +22,7 @@ import {
 import {createEdgeStandaloneEnhancements} from "./labels/edge_html_label";
 import {createTimeSpanString} from "./labels/util";
 import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
+import {createNodeStandaloneEnhancements} from "./labels/node_html_label";
 
 const graphColor = graphColors(darkTheme);
 
@@ -206,6 +207,32 @@ export function createEnhancedEdges(
       color: e.data.color,
       executionTimeStringRepr: createTimeSpanString(e.data.executionTimeNs, GrpcDurationKind.Nanos),
       numberOfExecutions: e.data.weight
+    }
+  });
+}
+
+export function createEnhancedNodes(
+  graph: GrpcGraph,
+  aggregatedData: AggregatedData,
+  enhancements: SoftwareEnhancementKind[],
+  filter: RegExp | null,
+) {
+  aggregatedData = preprocessFromCSharpInterop(aggregatedData);
+  let elements = createGraphNodesElements(graph.nodes, filter);
+
+  return elements.map(e => {
+    (<any>e).data.aggregatedData = aggregatedData;
+
+    let enhancementHtml = "";
+    if (e.data.enhancementData != null) {
+      enhancementHtml = createNodeStandaloneEnhancements(enhancements, e.data.enhancementData, aggregatedData);
+    }
+
+    return {
+      id: Number.parseInt(e.data.id),
+      html: enhancementHtml,
+      color: getPerformanceAnnotationColor(e.data.executionTimeNs / aggregatedData.totalExecutionTimeNs),
+      executionTimeStringRepr: createTimeSpanString(e.data.executionTimeNs, GrpcDurationKind.Nanos),
     }
   });
 }

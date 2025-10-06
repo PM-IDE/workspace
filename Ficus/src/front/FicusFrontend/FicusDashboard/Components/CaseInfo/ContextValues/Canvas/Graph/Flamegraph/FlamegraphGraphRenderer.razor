@@ -33,10 +33,14 @@ else
       var enhancedEdges = await Js.InvokeAsync<EnhancedEdge[]>(
         "createEnhancedEdges", Context.Graph, Annotation, AggregatedData, Settings.SelectedEnhancements, Settings.Filter);
 
+      var enhancedNodes = await Js.InvokeAsync<EnhancedNode[]>(
+        "createEnhancedNodes", Context.Graph, AggregatedData, Settings.SelectedEnhancements, Settings.Filter);
+
       myRenderingContext = new FlamegraphRenderingContext
       {
         Context = Context,
         EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e),
+        EnhancedNodes = enhancedNodes.ToDictionary(e => e.Id, e => e),
         EventClassesAsName = Settings.UseEventClassesAsLabels,
         LeftToRight = Settings.UseLROrientation
       };

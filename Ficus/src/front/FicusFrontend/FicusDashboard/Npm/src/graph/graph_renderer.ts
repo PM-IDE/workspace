@@ -3,7 +3,7 @@ import {darkTheme, graphColors} from "../colors";
 import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
 import {createEdgeHtmlLabel} from "./labels/edge_html_label";
 import {
-  createAggregatedData, createEnhancedEdges,
+  createAggregatedData, createEnhancedEdges, createEnhancedNodes,
   createGraphElements
 } from "./graph_elements";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
@@ -24,6 +24,7 @@ function setDrawGraph() {
   (<any>window).drawGraph = drawGraph;
   (<any>window).createAggregatedData = createAggregatedData;
   (<any>window).createEnhancedEdges = createEnhancedEdges;
+  (<any>window).createEnhancedNodes = createEnhancedNodes;
 }
 
 function drawGraph(
