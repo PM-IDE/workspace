@@ -1,6 +1,10 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
-<div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MinMainDim: 100%; @Context.MainDim: fit-content;">
+@{
+  var minWidth = @SpecifyMinWidth ? $"{Context.MinMainDim}: 100%" : string.Empty;
+}
+
+<div style="display: flex; flex-direction: @Context.MainFlexDirection; @minWidth; @Context.MainDim: fit-content;">
   @switch (Block)
   {
     case HorizontalCompositeBlock:
@@ -94,6 +98,7 @@
 @code {
   [Parameter] public required CompositeBlockBase Block { get; init; }
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public bool SpecifyMinWidth { get; init; } = true;
 
   private RenderFragment RenderBlock(BasicBlock block) => block switch
   {
