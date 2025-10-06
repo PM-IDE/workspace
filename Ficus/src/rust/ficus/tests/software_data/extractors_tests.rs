@@ -2,10 +2,7 @@ use chrono::Utc;
 use ficus::event_log::core::event::event::EventPayloadValue;
 use ficus::event_log::xes::xes_event::XesEventImpl;
 use ficus::features::discovery::timeline::events_groups::EventGroup;
-use ficus::features::discovery::timeline::software_data::extraction_config::{
-  ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy, PieChartExtractionConfig,
-  SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig, TimeKind,
-};
+use ficus::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy, OcelDataExtractionConfig, PieChartExtractionConfig, SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig, TimeKind};
 use ficus::features::discovery::timeline::software_data::extractors::activities_durations::ActivityDurationExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::core::{
   EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor,
@@ -15,6 +12,7 @@ use ficus::features::discovery::timeline::software_data::extractors::simple_coun
 use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use std::cell::RefCell;
 use std::rc::Rc;
+use ficus::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
 
 #[test]
 fn test_general_histogram() {
@@ -345,6 +343,110 @@ fn test_activities_duration_2() {
       ],
     ],
   );
+}
+
+#[test]
+pub fn test_ocel_data_extraction() {
+  execute_test_with_software_data(
+    r#"{"ocel_data":[{"object_type":"type1","object_id":"id_1","action":"Allocate"},{"object_type":"type1","object_id":"id_2","action":"Consume"},{"object_type":"type1","object_id":"id_3","action":"Allocate"}]}"#,
+    || {
+      let events = [
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_1".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("Allocate".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("Consume".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_3".to_string()))),
+            ),
+          ],
+        ),
+        create_event_with_attributes(
+          "unknown".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("Consume".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "hst_event".to_string(),
+          vec![
+            (
+              "type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            ("count".to_string(), EventPayloadValue::Int64(123)),
+          ],
+        ),
+        create_event_with_attributes(
+          "hst_event".to_string(),
+          vec![
+            (
+              "type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type2".to_string()))),
+            ),
+            ("count".to_string(), EventPayloadValue::Int32(123)),
+          ],
+        ),
+      ];
+
+      let mut config = SoftwareDataExtractionConfig::empty();
+      config.set_ocel(
+        Some(ExtractionConfig::new(
+          "ocel_event".to_string(),
+          OcelDataExtractionConfig::new(
+            NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_type".to_string(), "???".to_string())),
+            NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_id".to_string(), "???".to_string())),
+            Some("ocel_action".to_string()),
+          ),
+        ))
+      );
+
+      let extractor = OcelDataExtractor::new(&config);
+      let mut software_data = SoftwareData::empty();
+      extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
+
+      software_data
+    },
+  )
 }
 
 fn create_event_with_attributes(name: String, attributes: Vec<(String, EventPayloadValue)>) -> Rc<RefCell<XesEventImpl>> {
