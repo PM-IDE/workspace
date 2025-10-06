@@ -1,9 +1,10 @@
 use crate::features::discovery::timeline::discovery::TraceThread;
+use crate::features::discovery::timeline::software_data::extraction_config::TimeKind;
 use derive_new::new;
+use enum_display::EnumDisplay;
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::features::discovery::timeline::software_data::extraction_config::TimeKind;
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
@@ -45,7 +46,7 @@ impl SoftwareData {
   }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, EnumDisplay)]
 pub enum OcelObjectAction {
   Allocate,
   Consume
