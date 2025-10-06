@@ -33,7 +33,7 @@ export function createEdgeStandaloneEnhancements(
   aggregatedData: AggregatedData
 ) {
   return `
-    <div style="display: flex; flex-direction: row; align-items: center;">
+    <div style="display: flex; flex-direction: row; align-items: stretch;">
       ${createGroupedEnhancements(enhancements, enhancementData, aggregatedData, true, createEdgeEnhancement, true)}
     </div>
   `
@@ -125,21 +125,19 @@ function createEdgeSoftwareEnhancementPart(
   let percent = totalSum != null ? ((valuesSum / totalSum) * 100).toFixed(2) : null;
 
   return `
-    <div style="width: 100%;">
-      <div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-          <div style="white-space: nowrap">
-            ${title}
-          </div>
-          <div style="white-space: nowrap">
-            ${valuesSum}${units != null ? ` ${units}` : ""}
-          </div>
-          <div style="white-space: nowrap">
-            ${percent != null ? `${percent}%` : ""}
-          </div>
+    <div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="white-space: nowrap">
+          ${title}
         </div>
-        ${createRectangleHistogram(toSortedArray(data), totalSum)}
+        <div style="white-space: nowrap">
+          ${valuesSum}${units != null ? ` ${units}` : ""}
+        </div>
+        <div style="white-space: nowrap">
+          ${percent != null ? `${percent}%` : ""}
+        </div>
       </div>
+      ${createRectangleHistogram(toSortedArray(data), totalSum)}
     </div>
   `
 }
