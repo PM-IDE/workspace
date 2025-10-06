@@ -7,12 +7,12 @@
     var height = FlamegraphConstants.MainDim * Block.CalculateMainDim();
     var writingMode = Context.LeftToRight ? "writing-mode: vertical-rl;" : string.Empty;
 
-    <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidth)px; @writingMode"
+    <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidth)px; @writingMode; display: flex; justify-content: center; align-items: center;"
          class="flamegraph-node">
 
       @foreach (var eventClass in Context.GetNodeName(node))
       {
-        <div style="text-overflow: ellipsis; white-space: nowrap; flex-grow: 1;">
+        <div style="text-overflow: ellipsis; white-space: wrap; @Context.MaxMainDim: 350px; flex-grow: 1;">
           @eventClass
         </div>
       }

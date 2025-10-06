@@ -50,6 +50,9 @@ public class FlamegraphRenderingContext
   public string MinMainDim => "min-" + MainDim;
   public string MinSecondDim => "min-" + SecondDim;
 
+  public string MaxMainDim => "max-" + MainDim;
+  public string MaxSecondDim => "max-" + SecondDim;
+
   public string SecondFlexDirection => LeftToRight ? "column" : "row";
   public string MainFlexDirection => LeftToRight ? "row" : "column";
 
