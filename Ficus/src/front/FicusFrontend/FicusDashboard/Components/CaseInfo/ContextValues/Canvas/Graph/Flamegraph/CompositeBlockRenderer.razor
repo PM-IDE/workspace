@@ -42,12 +42,12 @@
             case EdgeBlock edgeBlock:
               var enhancedEdge = Context.GetEnhancedEdge(edgeBlock.FromNode, edgeBlock.ToNode);
 
-              var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, $"{FlamegraphConstants.MainDim * block.CalculateMainDim()}px");
+              var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, $"{FlamegraphConstants.MainDimPx * block.CalculateMainDim()}px");
               <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@enhancedEdge"/>
 
               break;
             case SeparatorBlock:
-              <div style="@Context.MainDim: @(FlamegraphConstants.MainDim * block.CalculateMainDim())px;"
+              <div style="@Context.MainDim: @(FlamegraphConstants.MainDimPx * block.CalculateMainDim())px;"
                    class="flamegraph-separator-edge">
               </div>
 
@@ -80,7 +80,7 @@
                   }
                 }
 
-                <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidth)px;">
+                <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidthPx)px;">
                   <EdgeRenderer Width="100%" Height="100%" EnhancedEdge="@edge"/>
                 </div>
               </div>

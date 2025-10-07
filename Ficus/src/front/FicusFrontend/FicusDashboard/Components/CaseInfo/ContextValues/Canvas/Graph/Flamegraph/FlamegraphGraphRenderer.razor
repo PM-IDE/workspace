@@ -11,7 +11,11 @@
 }
 else
 {
-  <Loader LeftUpMargin="true" />
+  var dim = Context.Layout.CalculateMainDim() * FlamegraphConstants.MainDimPx;
+
+  <div style="min-width: @(dim)px; min-height: @(dim)px;">
+    <Loader LeftUpMargin="true" />
+  </div>
 }
 
 @code {
@@ -22,8 +26,12 @@ else
 
   private FlamegraphRenderingContext? myRenderingContext;
 
+
   protected override void OnParametersSet()
   {
+    myRenderingContext = null;
+    StateHasChanged();
+
     Task.Run(async () =>
     {
       var enhancedEdges = await Js.InvokeAsync<EnhancedEdge[]>(
