@@ -14,7 +14,7 @@ public class AggregatedData
 public class EnhancedGraphEntity
 {
   public ulong Id { get; set; }
-  public string Html { get; set; }
+  public string? Html { get; set; }
   public string Color { get; set; }
   public string ExecutionTimeStringRepr { get; set; }
 }

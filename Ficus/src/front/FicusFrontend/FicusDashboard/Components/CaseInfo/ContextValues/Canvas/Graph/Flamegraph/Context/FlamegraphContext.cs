@@ -63,6 +63,8 @@ public class FlamegraphRenderingContext
     return EnhancedEdges[edge.Id];
   }
 
+  public EnhancedNode GetEnhancedNode(ulong node) => EnhancedNodes[node];
+
   public List<string> GetNodeName(ulong nodeId) => EventClassesAsName switch
   {
     true => GetTopThreeEventClasses(nodeId),

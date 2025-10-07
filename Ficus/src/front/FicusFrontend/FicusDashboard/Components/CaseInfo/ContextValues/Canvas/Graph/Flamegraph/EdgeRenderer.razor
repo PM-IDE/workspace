@@ -21,10 +21,13 @@
       </div>
     </div>
 
-    <div style="max-width: 100%; overflow-x: auto;" 
-         class="visible-scroll">
-      @((MarkupString)EnhancedEdge.Html)
-    </div>
+    @if (EnhancedEdge.Html is { })
+    {
+      <div style="max-width: 100%; overflow-x: auto;"
+           class="visible-scroll">
+        @((MarkupString)EnhancedEdge.Html)
+      </div>
+    }
   }
 
 </div>

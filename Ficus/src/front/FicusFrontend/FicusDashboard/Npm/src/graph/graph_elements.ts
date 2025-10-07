@@ -221,7 +221,7 @@ export function createEnhancedNodes(
   let elements = createGraphNodesElements(graph.nodes, aggregatedData, filter);
 
   return elements.map(e => {
-    let enhancementHtml = "";
+    let enhancementHtml = null;
     if (e.data.enhancementData != null) {
       enhancementHtml = createNodeStandaloneEnhancements(enhancements, e.data.enhancementData, aggregatedData);
     }

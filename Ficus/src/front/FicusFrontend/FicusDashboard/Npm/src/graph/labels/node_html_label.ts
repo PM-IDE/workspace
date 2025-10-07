@@ -81,15 +81,18 @@ export function createNodeStandaloneEnhancements(
   enhancements: SoftwareEnhancementKind[],
   enhancementData: MergedEnhancementData,
   aggregatedData: AggregatedData
-) {
+): string | null {
+  let groupedEnhancements = createGroupedEnhancements(enhancements, enhancementData, aggregatedData, true, createNodeEnhancement, false);
+  if (groupedEnhancements.length == 0) return null;
+
   return `
     <div style="display: flex; flex-direction: row; align-items: center;">
-        ${createGroupedEnhancements(enhancements, enhancementData, aggregatedData, true, createNodeEnhancement, false)}
+        ${groupedEnhancements}
     </div>
   `
 }
 
-function createNodeExecutionTimeString(node: GraphNode) {
+function createNodeExecutionTimeString(node: GraphNode): string {
   return TimeSpan.fromNanoseconds(BigInt(node.executionTimeNs)).toString();
 }
 
