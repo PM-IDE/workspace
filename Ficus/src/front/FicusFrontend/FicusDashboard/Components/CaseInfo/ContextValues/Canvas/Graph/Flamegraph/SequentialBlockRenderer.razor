@@ -5,9 +5,7 @@
   @foreach (var (index, node) in Block.NodesSequence.Index())
   {
     var height = FlamegraphConstants.MainDimPx * Block.CalculateMainDim();
-    var enhancedNode = Context.GetEnhancedNode(node);
-
-    var writingMode = Context.LeftToRight && enhancedNode.Html is null ? "writing-mode: vertical-rl;" : string.Empty;
+    var writingMode = Context.LeftToRight ? "writing-mode: vertical-rl;" : string.Empty;
 
     <div style="@Context.MinMainDim: @(height)px; @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px; @writingMode; display: flex; justify-content: center; align-items: center;"
          class="flamegraph-node">
@@ -17,11 +15,6 @@
         <div style="text-overflow: ellipsis; white-space: wrap; @Context.MaxMainDim: 350px; flex-grow: 1;">
           @eventClass
         </div>
-
-        @if (enhancedNode.Html is { })
-        {
-          @((MarkupString)enhancedNode.Html)
-        }
       }
 
     </div>
