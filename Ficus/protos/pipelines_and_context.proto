@@ -263,9 +263,19 @@ message GrpcOcelData {
   string object_type = 1;
   string object_id = 2;
   oneof action {
-    google.protobuf.Empty Allocate = 3;
-    google.protobuf.Empty Consume = 4;
+    google.protobuf.Empty allocate = 3;
+    google.protobuf.Empty consume = 4;
+    GrpcMergedObjectAllocation merged_object_allocation = 5;
+    GrpcProduceObjectConsumption produce_object_consumption = 6;
   }
+}
+
+message GrpcMergedObjectAllocation {
+  repeated string consumed_objects_ids = 1;
+}
+
+message GrpcProduceObjectConsumption {
+  repeated string produced_objects_ids = 2;
 }
 
 message GrpcActivityDurationData {

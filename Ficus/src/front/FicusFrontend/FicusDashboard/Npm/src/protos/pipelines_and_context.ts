@@ -60,6 +60,7 @@ export interface ProtoGrpcType {
     GrpcLogTimelineDiagram: MessageTypeDefinition
     GrpcMatrix: MessageTypeDefinition
     GrpcMatrixRow: MessageTypeDefinition
+    GrpcMergedObjectAllocation: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
     GrpcMultithreadedFragment: MessageTypeDefinition
@@ -81,6 +82,7 @@ export interface ProtoGrpcType {
     GrpcPipelinePart: MessageTypeDefinition
     GrpcPipelinePartBase: MessageTypeDefinition
     GrpcPipelinePartConfiguration: MessageTypeDefinition
+    GrpcProduceObjectConsumption: MessageTypeDefinition
     GrpcSimpleContextRequestPipelinePart: MessageTypeDefinition
     GrpcSimpleCounterData: MessageTypeDefinition
     GrpcSimpleEventLog: MessageTypeDefinition

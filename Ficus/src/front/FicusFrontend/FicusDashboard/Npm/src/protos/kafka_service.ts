@@ -81,6 +81,7 @@ export interface ProtoGrpcType {
     GrpcLogTimelineDiagram: MessageTypeDefinition
     GrpcMatrix: MessageTypeDefinition
     GrpcMatrixRow: MessageTypeDefinition
+    GrpcMergedObjectAllocation: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
     GrpcMultithreadedFragment: MessageTypeDefinition
@@ -113,6 +114,7 @@ export interface ProtoGrpcType {
     GrpcPipelineStreamingConfiguration: MessageTypeDefinition
     GrpcPredefinedPipelinePartsToBackendsMap: MessageTypeDefinition
     GrpcProcessInfo: MessageTypeDefinition
+    GrpcProduceObjectConsumption: MessageTypeDefinition
     GrpcProxyPipelineExecutionRequest: MessageTypeDefinition
     GrpcRemoveAllPipelinesRequest: MessageTypeDefinition
     GrpcRemovePipelineRequest: MessageTypeDefinition

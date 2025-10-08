@@ -439,16 +439,32 @@ class GrpcSoftwareData(_message.Message):
     def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ..., activities_durations_data: _Optional[_Iterable[_Union[GrpcActivityDurationData, _Mapping]]] = ..., ocel_data: _Optional[_Iterable[_Union[GrpcOcelData, _Mapping]]] = ...) -> None: ...
 
 class GrpcOcelData(_message.Message):
-    __slots__ = ["object_type", "object_id", "Allocate", "Consume"]
+    __slots__ = ["object_type", "object_id", "allocate", "consume", "merged_object_allocation", "produce_object_consumption"]
     OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
     OBJECT_ID_FIELD_NUMBER: _ClassVar[int]
     ALLOCATE_FIELD_NUMBER: _ClassVar[int]
     CONSUME_FIELD_NUMBER: _ClassVar[int]
+    MERGED_OBJECT_ALLOCATION_FIELD_NUMBER: _ClassVar[int]
+    PRODUCE_OBJECT_CONSUMPTION_FIELD_NUMBER: _ClassVar[int]
     object_type: str
     object_id: str
-    Allocate: _empty_pb2.Empty
-    Consume: _empty_pb2.Empty
-    def __init__(self, object_type: _Optional[str] = ..., object_id: _Optional[str] = ..., Allocate: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., Consume: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ...) -> None: ...
+    allocate: _empty_pb2.Empty
+    consume: _empty_pb2.Empty
+    merged_object_allocation: GrpcMergedObjectAllocation
+    produce_object_consumption: GrpcProduceObjectConsumption
+    def __init__(self, object_type: _Optional[str] = ..., object_id: _Optional[str] = ..., allocate: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., consume: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., merged_object_allocation: _Optional[_Union[GrpcMergedObjectAllocation, _Mapping]] = ..., produce_object_consumption: _Optional[_Union[GrpcProduceObjectConsumption, _Mapping]] = ...) -> None: ...
+
+class GrpcMergedObjectAllocation(_message.Message):
+    __slots__ = ["consumed_objects_ids"]
+    CONSUMED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
+    consumed_objects_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, consumed_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class GrpcProduceObjectConsumption(_message.Message):
+    __slots__ = ["produced_objects_ids"]
+    PRODUCED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
+    produced_objects_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, produced_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GrpcActivityDurationData(_message.Message):
     __slots__ = ["base", "duration", "kind"]
