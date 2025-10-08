@@ -49,7 +49,9 @@ impl SoftwareData {
 #[derive(Clone, Debug, Serialize, Deserialize, EnumDisplay)]
 pub enum OcelObjectAction {
   Allocate,
-  Consume
+  Consume,
+  AllocateMerged(Vec<String>),
+  ConsumeWithProduce(Vec<String>)
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]

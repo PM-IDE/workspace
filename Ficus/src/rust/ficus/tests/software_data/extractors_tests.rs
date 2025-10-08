@@ -436,6 +436,7 @@ pub fn test_ocel_data_extraction() {
             NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_type".to_string(), "???".to_string())),
             NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_id".to_string(), "???".to_string())),
             Some("ocel_action".to_string()),
+            None
           ),
         ))
       );

@@ -1,10 +1,11 @@
-use crate::event_log::core::event::event::Event;
+use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
 use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError};
 use crate::features::discovery::timeline::software_data::models::{OcelData, OcelObjectAction, SoftwareData};
 use derive_new::new;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 use fancy_regex::Regex;
 use log::{debug};
@@ -33,7 +34,8 @@ impl<'a> EventGroupSoftwareDataExtractor for OcelDataExtractor<'a> {
         let object_id = ocel_config.info().object_id_attr().create(&event.borrow());
 
         let action = if let Some(action_attr) = ocel_config.info().object_action_type_attr().as_ref() {
-          if let Some(ocel_action) = Self::parse_ocel_object_action(&event.borrow(), action_attr) {
+          let related_objs_ids = ocel_config.info().related_object_ids_attr().as_ref();
+          if let Some(ocel_action) = Self::parse_ocel_object_action(&event.borrow(), action_attr, related_objs_ids) {
             ocel_action
           } else {
             get_fallback_ocel_object_action()
@@ -58,14 +60,39 @@ fn get_fallback_ocel_object_action() -> OcelObjectAction {
 }
 
 impl<'a> OcelDataExtractor<'a> {
-  fn parse_ocel_object_action(event: &XesEventImpl, action_attr: &str) -> Option<OcelObjectAction> {
+  fn parse_ocel_object_action(
+    event: &XesEventImpl,
+    action_attr: &String,
+    related_objects_ids_attr: Option<&String>,
+  ) -> Option<OcelObjectAction> {
     if let Some(map) = event.payload_map().as_ref() {
       if let Some(action_value) = map.get(action_attr).as_ref() {
         match action_value.to_string_repr().as_str() {
           "Allocate" => return Some(OcelObjectAction::Allocate),
           "Consume" => return Some(OcelObjectAction::Consume),
+          "AllocateMerged" => return match Self::parse_related_objects_ids(map, related_objects_ids_attr) {
+            None => Some(OcelObjectAction::Allocate),
+            Some(ids) => Some(OcelObjectAction::AllocateMerged(ids))
+          },
+          "ConsumeWithProduce" => return match Self::parse_related_objects_ids(map, related_objects_ids_attr) {
+            None => Some(OcelObjectAction::Consume),
+            Some(ids) => Some(OcelObjectAction::ConsumeWithProduce(ids))
+          },
           _ => {}
         }
+      }
+    }
+
+    None
+  }
+
+  fn parse_related_objects_ids(
+    payload: &HashMap<String, EventPayloadValue>,
+    related_objects_ids_attr: Option<&String>,
+  ) -> Option<Vec<String>> {
+    if let Some(related_objects_ids_attr) = related_objects_ids_attr {
+      if let Some(objects_ids) = payload.get(related_objects_ids_attr) {
+        return Some(objects_ids.to_string_repr().as_str().split(' ').map(|s| s.to_string()).collect())
       }
     }
 
