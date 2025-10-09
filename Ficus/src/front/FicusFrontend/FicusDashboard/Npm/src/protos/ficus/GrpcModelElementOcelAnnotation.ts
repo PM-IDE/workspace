@@ -7,10 +7,12 @@ export interface GrpcModelElementOcelAnnotation_DONTUSE {
   'elementId'?: (number | string | Long);
   'initialState'?: (_ficus_GrpcOcelState_DONTUSE | null);
   'finalState'?: (_ficus_GrpcOcelState_DONTUSE | null);
+  '_initialState'?: "initialState";
 }
 
 export interface GrpcModelElementOcelAnnotation {
   'elementId': (number);
-  'initialState': (_ficus_GrpcOcelState | null);
+  'initialState'?: (_ficus_GrpcOcelState | null);
   'finalState': (_ficus_GrpcOcelState | null);
+  '_initialState': "initialState";
 }

@@ -55,7 +55,7 @@ message GrpcOcelModelAnnotation {
 
 message GrpcModelElementOcelAnnotation {
   uint64 element_id = 1;
-  GrpcOcelState initial_state = 2;
+  optional GrpcOcelState initial_state = 2;
   GrpcOcelState final_state = 3;
 }
 

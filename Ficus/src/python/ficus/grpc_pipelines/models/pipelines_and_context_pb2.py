@@ -34,7 +34,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bpipelines_and_context.proto\x12\x05\x66icus\x1a\x0fpm_models.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1e\n\x0eGrpcContextKey\x12\x0c\n\x04name\x18\x01 \x01(\t\"W\n\x1bGrpcContextValueWithKeyName\x12\x10\n\x08key_name\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"\xc6\t\n\x10GrpcContextValue\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12;\n\nhashes_log\x18\x02 \x01(\x0b\x32%.ficus.GrpcHashesEventLogContextValueH\x00\x12\x39\n\tnames_log\x18\x03 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12\x10\n\x06uint32\x18\x04 \x01(\rH\x00\x12J\n\x11traces_sub_arrays\x18\x05 \x01(\x0b\x32-.ficus.GrpcEventLogTraceSubArraysContextValueH\x00\x12P\n\x16trace_index_sub_arrays\x18\x06 \x01(\x0b\x32..ficus.GrpcSubArraysWithTraceIndexContextValueH\x00\x12\x0e\n\x04\x62ool\x18\x07 \x01(\x08H\x00\x12=\n\rxes_event_log\x18\x08 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12/\n\ncolors_log\x18\t \x01(\x0b\x32\x19.ficus.GrpcColorsEventLogH\x00\x12\x1f\n\x04\x65num\x18\n \x01(\x0b\x32\x0f.ficus.GrpcEnumH\x00\x12\x31\n\x0e\x65vent_log_info\x18\x0b \x01(\x0b\x32\x17.ficus.GrpcEventLogInfoH\x00\x12%\n\x07strings\x18\x0c \x01(\x0b\x32\x12.ficus.GrpcStringsH\x00\x12\'\n\x08pipeline\x18\r \x01(\x0b\x32\x13.ficus.GrpcPipelineH\x00\x12\'\n\x08petriNet\x18\x0e \x01(\x0b\x32\x13.ficus.GrpcPetriNetH\x00\x12!\n\x05graph\x18\x0f \x01(\x0b\x32\x10.ficus.GrpcGraphH\x00\x12\x0f\n\x05\x66loat\x18\x10 \x01(\x02H\x00\x12+\n\nannotation\x18\x11 \x01(\x0b\x32\x15.ficus.GrpcAnnotationH\x00\x12%\n\x07\x64\x61taset\x18\x12 \x01(\x0b\x32\x12.ficus.GrpcDatasetH\x00\x12\x34\n\x0flabeled_dataset\x18\x13 \x01(\x0b\x32\x19.ficus.GrpcLabeledDatasetH\x00\x12!\n\x05\x62ytes\x18\x14 \x01(\x0b\x32\x10.ficus.GrpcBytesH\x00\x12;\n\x12logTimelineDiagram\x18\x15 \x01(\x0b\x32\x1d.ficus.GrpcLogTimelineDiagramH\x00\x12,\n\x0b\x66loat_array\x18\x16 \x01(\x0b\x32\x15.ficus.GrpcFloatArrayH\x00\x12(\n\tint_array\x18\x17 \x01(\x0b\x32\x13.ficus.GrpcIntArrayH\x00\x12*\n\nuint_array\x18\x18 \x01(\x0b\x32\x14.ficus.GrpcUintArrayH\x00\x12\x0e\n\x04json\x18\x19 \x01(\tH\x00\x12.\n\tevent_log\x18\x1a \x01(\x0b\x32\x19.ficus.GrpcSimpleEventLogH\x00\x12\x39\n\x0focel_annotation\x18\x1b \x01(\x0b\x32\x1e.ficus.GrpcOcelModelAnnotationH\x00\x42\x0e\n\x0c\x63ontextValue\"U\n\x17GrpcOcelModelAnnotation\x12:\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32%.ficus.GrpcModelElementOcelAnnotation\"\x8c\x01\n\x1eGrpcModelElementOcelAnnotation\x12\x12\n\nelement_id\x18\x01 \x01(\x04\x12+\n\rinitial_state\x18\x02 \x01(\x0b\x32\x14.ficus.GrpcOcelState\x12)\n\x0b\x66inal_state\x18\x03 \x01(\x0b\x32\x14.ficus.GrpcOcelState\"D\n\rGrpcOcelState\x12\x33\n\x0btype_states\x18\x01 \x03(\x0b\x32\x1e.ficus.GrpcOcelObjectTypeState\";\n\x17GrpcOcelObjectTypeState\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x12\n\nobject_ids\x18\x02 \x03(\t\"\x1f\n\x0eGrpcFloatArray\x12\r\n\x05items\x18\x01 \x03(\x01\"\x1d\n\x0cGrpcIntArray\x12\r\n\x05items\x18\x01 \x03(\x03\"\x1e\n\rGrpcUintArray\x12\r\n\x05items\x18\x01 \x03(\x04\"a\n\x13GrpcContextKeyValue\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"H\n\x1eGrpcHashesEventLogContextValue\x12&\n\x03log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcHashesEventLog\"F\n\x1dGrpcNamesEventLogContextValue\x12%\n\x03log\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcNamesEventLog\"^\n&GrpcEventLogTraceSubArraysContextValue\x12\x34\n\x11traces_sub_arrays\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcTraceSubArrays\"/\n\x11GrpcTraceSubArray\x12\r\n\x05start\x18\x01 \x01(\r\x12\x0b\n\x03\x65nd\x18\x02 \x01(\r\"B\n\x12GrpcTraceSubArrays\x12,\n\nsub_arrays\x18\x01 \x03(\x0b\x32\x18.ficus.GrpcTraceSubArray\"^\n\x1aGrpcSubArrayWithTraceIndex\x12+\n\tsub_array\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcTraceSubArray\x12\x13\n\x0btrace_index\x18\x02 \x01(\r\"`\n\'GrpcSubArraysWithTraceIndexContextValue\x12\x35\n\nsub_arrays\x18\x01 \x03(\x0b\x32!.ficus.GrpcSubArrayWithTraceIndex\"\xa4\x01\n\x12GrpcColorsEventLog\x12\x31\n\x07mapping\x18\x01 \x03(\x0b\x32 .ficus.GrpcColorsEventLogMapping\x12&\n\x06traces\x18\x02 \x03(\x0b\x32\x16.ficus.GrpcColorsTrace\x12\x33\n\x0b\x61\x64justments\x18\x03 \x03(\x0b\x32\x1e.ficus.GrpcColorsLogAdjustment\"\xba\x01\n\x17GrpcColorsLogAdjustment\x12G\n\x14rectangle_adjustment\x18\x01 \x01(\x0b\x32\'.ficus.GrpcColorsLogRectangleAdjustmentH\x00\x12I\n\x10\x61xis_after_trace\x18\x02 \x01(\x0b\x32-.ficus.GrpcColorsLogXAxisAfterTraceAdjustmentH\x00\x42\x0b\n\tselection\"\xa9\x01\n GrpcColorsLogRectangleAdjustment\x12*\n\rup_left_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12-\n\x10\x64own_right_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12*\n\"extend_to_nearest_vertical_borders\x18\x03 \x01(\x08\"8\n\x0cGrpcLogPoint\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x02 \x01(\x04\"=\n&GrpcColorsLogXAxisAfterTraceAdjustment\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\"J\n\x19GrpcColorsEventLogMapping\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1f\n\x05\x63olor\x18\x02 \x01(\x0b\x32\x10.ficus.GrpcColor\"\\\n\x0fGrpcColorsTrace\x12\x31\n\x0c\x65vent_colors\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcColoredRectangle\x12\x16\n\x0e\x63onstant_width\x18\x02 \x01(\x08\"L\n\x14GrpcColoredRectangle\x12\x13\n\x0b\x63olor_index\x18\x01 \x01(\r\x12\x0f\n\x07start_x\x18\x02 \x01(\x01\x12\x0e\n\x06length\x18\x03 \x01(\x01\"+\n\x08GrpcEnum\x12\x10\n\x08\x65numType\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"[\n\x10GrpcEventLogInfo\x12\x14\n\x0c\x65vents_count\x18\x01 \x01(\r\x12\x14\n\x0ctraces_count\x18\x02 \x01(\r\x12\x1b\n\x13\x65vent_classes_count\x18\x03 \x01(\r\"\x1e\n\x0bGrpcStrings\x12\x0f\n\x07strings\x18\x01 \x03(\t\":\n\x0cGrpcPipeline\x12*\n\x05parts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"\xab\x02\n\x14GrpcPipelinePartBase\x12.\n\x0b\x64\x65\x66\x61ultPart\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcPipelinePartH\x00\x12\x37\n\x0cparallelPart\x18\x02 \x01(\x0b\x32\x1f.ficus.GrpcParallelPipelinePartH\x00\x12O\n\x18simpleContextRequestPart\x18\x03 \x01(\x0b\x32+.ficus.GrpcSimpleContextRequestPipelinePartH\x00\x12Q\n\x19\x63omplexContextRequestPart\x18\x04 \x01(\x0b\x32,.ficus.GrpcComplexContextRequestPipelinePartH\x00\x42\x06\n\x04part\"]\n\x10GrpcPipelinePart\x12\x0c\n\x04name\x18\x01 \x01(\t\x12;\n\rconfiguration\x18\x02 \x01(\x0b\x32$.ficus.GrpcPipelinePartConfiguration\"\\\n\x1dGrpcPipelinePartConfiguration\x12;\n\x17\x63onfigurationParameters\x18\x01 \x03(\x0b\x32\x1a.ficus.GrpcContextKeyValue\"N\n\x18GrpcParallelPipelinePart\x12\x32\n\rpipelineParts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"N\n\x19GrpcParallelPipelineParts\x12\x31\n\x08pipeline\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcParallelPipelinePart\"\x97\x01\n$GrpcSimpleContextRequestPipelinePart\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12)\n\x10\x66rontendPartUuid\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12 \n\x18\x66rontendPipelinePartName\x18\x03 \x01(\t\"\xce\x01\n%GrpcComplexContextRequestPipelinePart\x12#\n\x04keys\x18\x01 \x03(\x0b\x32\x15.ficus.GrpcContextKey\x12\x33\n\x12\x62\x65\x66orePipelinePart\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcPipelinePart\x12)\n\x10\x66rontendPartUuid\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12 \n\x18\x66rontendPipelinePartName\x18\x04 \x01(\t\"y\n\tGrpcGraph\x12#\n\x05nodes\x18\x01 \x03(\x0b\x32\x14.ficus.GrpcGraphNode\x12#\n\x05\x65\x64ges\x18\x02 \x03(\x0b\x32\x14.ficus.GrpcGraphEdge\x12\"\n\x04kind\x18\x03 \x01(\x0e\x32\x14.ficus.GrpcGraphKind\"\x88\x01\n\rGrpcGraphNode\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\x12\x36\n\x0f\x61\x64\x64itional_data\x18\x03 \x03(\x0b\x32\x1d.ficus.GrpcNodeAdditionalData\x12%\n\x0binner_graph\x18\x04 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\xac\x03\n\x16GrpcNodeAdditionalData\x12&\n\x04none\x18\x01 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x30\n\rsoftware_data\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x38\n\x0cpattern_info\x18\x03 \x01(\x0b\x32 .ficus.GrpcUnderlyingPatternInfoH\x00\x12;\n\ntrace_data\x18\x04 \x01(\x0b\x32%.ficus.GrpcNodeCorrespondingTraceDataH\x00\x12\x34\n\ttime_data\x18\x05 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x12\x42\n\x16multithreaded_fragment\x18\x07 \x01(\x0b\x32 .ficus.GrpcMultithreadedFragmentH\x00\x12?\n\x1aoriginal_event_coordinates\x18\x06 \x01(\x0b\x32\x1b.ficus.GrpcEventCoordinatesB\x06\n\x04\x64\x61ta\"Q\n\x19GrpcMultithreadedFragment\x12\x34\n\x11multithreaded_log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcSimpleEventLog\"@\n\x18GrpcActivityStartEndData\x12\x12\n\nstart_time\x18\x01 \x01(\x03\x12\x10\n\x08\x65nd_time\x18\x02 \x01(\x03\"=\n\x14GrpcEventCoordinates\x12\x10\n\x08trace_id\x18\x02 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x03 \x01(\x04\"B\n\x1eGrpcNodeCorrespondingTraceData\x12 \n\x18\x62\x65longs_to_root_sequence\x18\x01 \x01(\x08\"\xe7\x02\n\x10GrpcSoftwareData\x12,\n\thistogram\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcHistogramEntry\x12\x45\n\x19timeline_diagram_fragment\x18\x02 \x01(\x0b\x32\".ficus.GrpcTimelineDiagramFragment\x12\x37\n\x0ehistogram_data\x18\r \x03(\x0b\x32\x1f.ficus.GrpcGeneralHistogramData\x12\x39\n\x13simple_counter_data\x18\x0e \x03(\x0b\x32\x1c.ficus.GrpcSimpleCounterData\x12\x42\n\x19\x61\x63tivities_durations_data\x18\x0f \x03(\x0b\x32\x1f.ficus.GrpcActivityDurationData\x12&\n\tocel_data\x18\x10 \x03(\x0b\x32\x13.ficus.GrpcOcelData\"\xa9\x02\n\x0cGrpcOcelData\x12\x13\n\x0bobject_type\x18\x01 \x01(\t\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12*\n\x08\x61llocate\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12)\n\x07\x63onsume\x18\x04 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x45\n\x18merged_object_allocation\x18\x05 \x01(\x0b\x32!.ficus.GrpcMergedObjectAllocationH\x00\x12I\n\x1aproduce_object_consumption\x18\x06 \x01(\x0b\x32#.ficus.GrpcProduceObjectConsumptionH\x00\x42\x08\n\x06\x61\x63tion\":\n\x1aGrpcMergedObjectAllocation\x12\x1c\n\x14\x63onsumed_objects_ids\x18\x01 \x03(\t\"<\n\x1cGrpcProduceObjectConsumption\x12\x1c\n\x14produced_objects_ids\x18\x02 \x03(\t\"\x84\x01\n\x18GrpcActivityDurationData\x12/\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32!.ficus.GrpcGenericEnhancementBase\x12\x10\n\x08\x64uration\x18\x02 \x01(\x04\x12%\n\x04kind\x18\x03 \x01(\x0e\x32\x17.ficus.GrpcDurationKind\"W\n\x1aGrpcGenericEnhancementBase\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05units\x18\x02 \x01(\t\x12\x12\n\x05group\x18\x03 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_group\"w\n\x18GrpcGeneralHistogramData\x12/\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32!.ficus.GrpcGenericEnhancementBase\x12*\n\x07\x65ntries\x18\x02 \x03(\x0b\x32\x19.ficus.GrpcHistogramEntry\"W\n\x15GrpcSimpleCounterData\x12/\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32!.ficus.GrpcGenericEnhancementBase\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"|\n\x16GrpcMethodInliningInfo\x12\x30\n\x0cinlinee_info\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\x12\x30\n\x0cinliner_info\x18\x02 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\"I\n\x13GrpcMethodNameParts\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tsignature\x18\x03 \x01(\t\"1\n\x12GrpcHistogramEntry\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"A\n\x1bGrpcTimelineDiagramFragment\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\"a\n\x12GrpcAllocationInfo\x12\x11\n\ttype_name\x18\x01 \x01(\t\x12\x1f\n\x17\x61llocated_objects_count\x18\x02 \x01(\x04\x12\x17\n\x0f\x61llocated_bytes\x18\x03 \x01(\x04\"\x8b\x01\n\x19GrpcUnderlyingPatternInfo\x12\x36\n\x0cpattern_kind\x18\x01 \x01(\x0e\x32 .ficus.GrpcUnderlyingPatternKind\x12\x15\n\rbase_sequence\x18\x02 \x03(\t\x12\x1f\n\x05graph\x18\x03 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\x9a\x01\n\rGrpcGraphEdge\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x11\n\tfrom_node\x18\x02 \x01(\x04\x12\x0f\n\x07to_node\x18\x03 \x01(\x04\x12\x0e\n\x06weight\x18\x04 \x01(\x01\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\x12;\n\x0f\x61\x64\x64itional_data\x18\x06 \x03(\x0b\x32\".ficus.GrpcGraphEdgeAdditionalData\"\xc5\x01\n\x1bGrpcGraphEdgeAdditionalData\x12\x30\n\rsoftware_data\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x36\n\x0e\x65xecution_info\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcEdgeExecutionInfoH\x00\x12\x34\n\ttime_data\x18\x03 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x42\x06\n\x04\x64\x61ta\"(\n\x15GrpcEdgeExecutionInfo\x12\x0f\n\x07traceId\x18\x01 \x01(\x04\"\x1a\n\tGrpcBytes\x12\r\n\x05\x62ytes\x18\x01 \x01(\x0c\"I\n\x16GrpcLogTimelineDiagram\x12/\n\x06traces\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcTraceTimelineDiagram\"p\n\x1cGrpcTimelineTraceEventsGroup\x12(\n\x0bstart_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12&\n\tend_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\"z\n\x18GrpcTraceTimelineDiagram\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\x12:\n\revents_groups\x18\x02 \x03(\x0b\x32#.ficus.GrpcTimelineTraceEventsGroup\"4\n\nGrpcThread\x12&\n\x06\x65vents\x18\x01 \x03(\x0b\x32\x16.ficus.GrpcThreadEvent\".\n\x0fGrpcThreadEvent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05stamp\x18\x02 \x01(\x03*.\n\rGrpcGraphKind\x12\x08\n\x04None\x10\x00\x12\x07\n\x03\x44\x41G\x10\x01\x12\n\n\x06\x44\x61gLCS\x10\x02*u\n\x10GrpcDurationKind\x12\x0f\n\x0bUnspecified\x10\x00\x12\t\n\x05Nanos\x10\x01\x12\n\n\x06Micros\x10\x02\x12\n\n\x06Millis\x10\x03\x12\x0b\n\x07Seconds\x10\x04\x12\x0b\n\x07Minutes\x10\x05\x12\t\n\x05Hours\x10\x06\x12\x08\n\x04\x44\x61ys\x10\x07*\xb1\x01\n\x19GrpcUnderlyingPatternKind\x12\x0e\n\nStrictLoop\x10\x00\x12\x18\n\x14PrimitiveTandemArray\x10\x01\x12\x16\n\x12MaximalTandemArray\x10\x02\x12\x11\n\rMaximalRepeat\x10\x03\x12\x16\n\x12SuperMaximalRepeat\x10\x04\x12\x1a\n\x16NearSuperMaximalRepeat\x10\x05\x12\x0b\n\x07Unknown\x10\x06\x42\x0fZ\r./;grpcmodelsb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1bpipelines_and_context.proto\x12\x05\x66icus\x1a\x0fpm_models.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1e\n\x0eGrpcContextKey\x12\x0c\n\x04name\x18\x01 \x01(\t\"W\n\x1bGrpcContextValueWithKeyName\x12\x10\n\x08key_name\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"\xc6\t\n\x10GrpcContextValue\x12\x10\n\x06string\x18\x01 \x01(\tH\x00\x12;\n\nhashes_log\x18\x02 \x01(\x0b\x32%.ficus.GrpcHashesEventLogContextValueH\x00\x12\x39\n\tnames_log\x18\x03 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12\x10\n\x06uint32\x18\x04 \x01(\rH\x00\x12J\n\x11traces_sub_arrays\x18\x05 \x01(\x0b\x32-.ficus.GrpcEventLogTraceSubArraysContextValueH\x00\x12P\n\x16trace_index_sub_arrays\x18\x06 \x01(\x0b\x32..ficus.GrpcSubArraysWithTraceIndexContextValueH\x00\x12\x0e\n\x04\x62ool\x18\x07 \x01(\x08H\x00\x12=\n\rxes_event_log\x18\x08 \x01(\x0b\x32$.ficus.GrpcNamesEventLogContextValueH\x00\x12/\n\ncolors_log\x18\t \x01(\x0b\x32\x19.ficus.GrpcColorsEventLogH\x00\x12\x1f\n\x04\x65num\x18\n \x01(\x0b\x32\x0f.ficus.GrpcEnumH\x00\x12\x31\n\x0e\x65vent_log_info\x18\x0b \x01(\x0b\x32\x17.ficus.GrpcEventLogInfoH\x00\x12%\n\x07strings\x18\x0c \x01(\x0b\x32\x12.ficus.GrpcStringsH\x00\x12\'\n\x08pipeline\x18\r \x01(\x0b\x32\x13.ficus.GrpcPipelineH\x00\x12\'\n\x08petriNet\x18\x0e \x01(\x0b\x32\x13.ficus.GrpcPetriNetH\x00\x12!\n\x05graph\x18\x0f \x01(\x0b\x32\x10.ficus.GrpcGraphH\x00\x12\x0f\n\x05\x66loat\x18\x10 \x01(\x02H\x00\x12+\n\nannotation\x18\x11 \x01(\x0b\x32\x15.ficus.GrpcAnnotationH\x00\x12%\n\x07\x64\x61taset\x18\x12 \x01(\x0b\x32\x12.ficus.GrpcDatasetH\x00\x12\x34\n\x0flabeled_dataset\x18\x13 \x01(\x0b\x32\x19.ficus.GrpcLabeledDatasetH\x00\x12!\n\x05\x62ytes\x18\x14 \x01(\x0b\x32\x10.ficus.GrpcBytesH\x00\x12;\n\x12logTimelineDiagram\x18\x15 \x01(\x0b\x32\x1d.ficus.GrpcLogTimelineDiagramH\x00\x12,\n\x0b\x66loat_array\x18\x16 \x01(\x0b\x32\x15.ficus.GrpcFloatArrayH\x00\x12(\n\tint_array\x18\x17 \x01(\x0b\x32\x13.ficus.GrpcIntArrayH\x00\x12*\n\nuint_array\x18\x18 \x01(\x0b\x32\x14.ficus.GrpcUintArrayH\x00\x12\x0e\n\x04json\x18\x19 \x01(\tH\x00\x12.\n\tevent_log\x18\x1a \x01(\x0b\x32\x19.ficus.GrpcSimpleEventLogH\x00\x12\x39\n\x0focel_annotation\x18\x1b \x01(\x0b\x32\x1e.ficus.GrpcOcelModelAnnotationH\x00\x42\x0e\n\x0c\x63ontextValue\"U\n\x17GrpcOcelModelAnnotation\x12:\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32%.ficus.GrpcModelElementOcelAnnotation\"\xa3\x01\n\x1eGrpcModelElementOcelAnnotation\x12\x12\n\nelement_id\x18\x01 \x01(\x04\x12\x30\n\rinitial_state\x18\x02 \x01(\x0b\x32\x14.ficus.GrpcOcelStateH\x00\x88\x01\x01\x12)\n\x0b\x66inal_state\x18\x03 \x01(\x0b\x32\x14.ficus.GrpcOcelStateB\x10\n\x0e_initial_state\"D\n\rGrpcOcelState\x12\x33\n\x0btype_states\x18\x01 \x03(\x0b\x32\x1e.ficus.GrpcOcelObjectTypeState\";\n\x17GrpcOcelObjectTypeState\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x12\n\nobject_ids\x18\x02 \x03(\t\"\x1f\n\x0eGrpcFloatArray\x12\r\n\x05items\x18\x01 \x03(\x01\"\x1d\n\x0cGrpcIntArray\x12\r\n\x05items\x18\x01 \x03(\x03\"\x1e\n\rGrpcUintArray\x12\r\n\x05items\x18\x01 \x03(\x04\"a\n\x13GrpcContextKeyValue\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcContextValue\"H\n\x1eGrpcHashesEventLogContextValue\x12&\n\x03log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcHashesEventLog\"F\n\x1dGrpcNamesEventLogContextValue\x12%\n\x03log\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcNamesEventLog\"^\n&GrpcEventLogTraceSubArraysContextValue\x12\x34\n\x11traces_sub_arrays\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcTraceSubArrays\"/\n\x11GrpcTraceSubArray\x12\r\n\x05start\x18\x01 \x01(\r\x12\x0b\n\x03\x65nd\x18\x02 \x01(\r\"B\n\x12GrpcTraceSubArrays\x12,\n\nsub_arrays\x18\x01 \x03(\x0b\x32\x18.ficus.GrpcTraceSubArray\"^\n\x1aGrpcSubArrayWithTraceIndex\x12+\n\tsub_array\x18\x01 \x01(\x0b\x32\x18.ficus.GrpcTraceSubArray\x12\x13\n\x0btrace_index\x18\x02 \x01(\r\"`\n\'GrpcSubArraysWithTraceIndexContextValue\x12\x35\n\nsub_arrays\x18\x01 \x03(\x0b\x32!.ficus.GrpcSubArrayWithTraceIndex\"\xa4\x01\n\x12GrpcColorsEventLog\x12\x31\n\x07mapping\x18\x01 \x03(\x0b\x32 .ficus.GrpcColorsEventLogMapping\x12&\n\x06traces\x18\x02 \x03(\x0b\x32\x16.ficus.GrpcColorsTrace\x12\x33\n\x0b\x61\x64justments\x18\x03 \x03(\x0b\x32\x1e.ficus.GrpcColorsLogAdjustment\"\xba\x01\n\x17GrpcColorsLogAdjustment\x12G\n\x14rectangle_adjustment\x18\x01 \x01(\x0b\x32\'.ficus.GrpcColorsLogRectangleAdjustmentH\x00\x12I\n\x10\x61xis_after_trace\x18\x02 \x01(\x0b\x32-.ficus.GrpcColorsLogXAxisAfterTraceAdjustmentH\x00\x42\x0b\n\tselection\"\xa9\x01\n GrpcColorsLogRectangleAdjustment\x12*\n\rup_left_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12-\n\x10\x64own_right_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12*\n\"extend_to_nearest_vertical_borders\x18\x03 \x01(\x08\"8\n\x0cGrpcLogPoint\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x02 \x01(\x04\"=\n&GrpcColorsLogXAxisAfterTraceAdjustment\x12\x13\n\x0btrace_index\x18\x01 \x01(\x04\"J\n\x19GrpcColorsEventLogMapping\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1f\n\x05\x63olor\x18\x02 \x01(\x0b\x32\x10.ficus.GrpcColor\"\\\n\x0fGrpcColorsTrace\x12\x31\n\x0c\x65vent_colors\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcColoredRectangle\x12\x16\n\x0e\x63onstant_width\x18\x02 \x01(\x08\"L\n\x14GrpcColoredRectangle\x12\x13\n\x0b\x63olor_index\x18\x01 \x01(\r\x12\x0f\n\x07start_x\x18\x02 \x01(\x01\x12\x0e\n\x06length\x18\x03 \x01(\x01\"+\n\x08GrpcEnum\x12\x10\n\x08\x65numType\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"[\n\x10GrpcEventLogInfo\x12\x14\n\x0c\x65vents_count\x18\x01 \x01(\r\x12\x14\n\x0ctraces_count\x18\x02 \x01(\r\x12\x1b\n\x13\x65vent_classes_count\x18\x03 \x01(\r\"\x1e\n\x0bGrpcStrings\x12\x0f\n\x07strings\x18\x01 \x03(\t\":\n\x0cGrpcPipeline\x12*\n\x05parts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"\xab\x02\n\x14GrpcPipelinePartBase\x12.\n\x0b\x64\x65\x66\x61ultPart\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcPipelinePartH\x00\x12\x37\n\x0cparallelPart\x18\x02 \x01(\x0b\x32\x1f.ficus.GrpcParallelPipelinePartH\x00\x12O\n\x18simpleContextRequestPart\x18\x03 \x01(\x0b\x32+.ficus.GrpcSimpleContextRequestPipelinePartH\x00\x12Q\n\x19\x63omplexContextRequestPart\x18\x04 \x01(\x0b\x32,.ficus.GrpcComplexContextRequestPipelinePartH\x00\x42\x06\n\x04part\"]\n\x10GrpcPipelinePart\x12\x0c\n\x04name\x18\x01 \x01(\t\x12;\n\rconfiguration\x18\x02 \x01(\x0b\x32$.ficus.GrpcPipelinePartConfiguration\"\\\n\x1dGrpcPipelinePartConfiguration\x12;\n\x17\x63onfigurationParameters\x18\x01 \x03(\x0b\x32\x1a.ficus.GrpcContextKeyValue\"N\n\x18GrpcParallelPipelinePart\x12\x32\n\rpipelineParts\x18\x01 \x03(\x0b\x32\x1b.ficus.GrpcPipelinePartBase\"N\n\x19GrpcParallelPipelineParts\x12\x31\n\x08pipeline\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcParallelPipelinePart\"\x97\x01\n$GrpcSimpleContextRequestPipelinePart\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\x12)\n\x10\x66rontendPartUuid\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12 \n\x18\x66rontendPipelinePartName\x18\x03 \x01(\t\"\xce\x01\n%GrpcComplexContextRequestPipelinePart\x12#\n\x04keys\x18\x01 \x03(\x0b\x32\x15.ficus.GrpcContextKey\x12\x33\n\x12\x62\x65\x66orePipelinePart\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcPipelinePart\x12)\n\x10\x66rontendPartUuid\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12 \n\x18\x66rontendPipelinePartName\x18\x04 \x01(\t\"y\n\tGrpcGraph\x12#\n\x05nodes\x18\x01 \x03(\x0b\x32\x14.ficus.GrpcGraphNode\x12#\n\x05\x65\x64ges\x18\x02 \x03(\x0b\x32\x14.ficus.GrpcGraphEdge\x12\"\n\x04kind\x18\x03 \x01(\x0e\x32\x14.ficus.GrpcGraphKind\"\x88\x01\n\rGrpcGraphNode\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\x12\x36\n\x0f\x61\x64\x64itional_data\x18\x03 \x03(\x0b\x32\x1d.ficus.GrpcNodeAdditionalData\x12%\n\x0binner_graph\x18\x04 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\xac\x03\n\x16GrpcNodeAdditionalData\x12&\n\x04none\x18\x01 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x30\n\rsoftware_data\x18\x02 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x38\n\x0cpattern_info\x18\x03 \x01(\x0b\x32 .ficus.GrpcUnderlyingPatternInfoH\x00\x12;\n\ntrace_data\x18\x04 \x01(\x0b\x32%.ficus.GrpcNodeCorrespondingTraceDataH\x00\x12\x34\n\ttime_data\x18\x05 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x12\x42\n\x16multithreaded_fragment\x18\x07 \x01(\x0b\x32 .ficus.GrpcMultithreadedFragmentH\x00\x12?\n\x1aoriginal_event_coordinates\x18\x06 \x01(\x0b\x32\x1b.ficus.GrpcEventCoordinatesB\x06\n\x04\x64\x61ta\"Q\n\x19GrpcMultithreadedFragment\x12\x34\n\x11multithreaded_log\x18\x01 \x01(\x0b\x32\x19.ficus.GrpcSimpleEventLog\"@\n\x18GrpcActivityStartEndData\x12\x12\n\nstart_time\x18\x01 \x01(\x03\x12\x10\n\x08\x65nd_time\x18\x02 \x01(\x03\"=\n\x14GrpcEventCoordinates\x12\x10\n\x08trace_id\x18\x02 \x01(\x04\x12\x13\n\x0b\x65vent_index\x18\x03 \x01(\x04\"B\n\x1eGrpcNodeCorrespondingTraceData\x12 \n\x18\x62\x65longs_to_root_sequence\x18\x01 \x01(\x08\"\xe7\x02\n\x10GrpcSoftwareData\x12,\n\thistogram\x18\x01 \x03(\x0b\x32\x19.ficus.GrpcHistogramEntry\x12\x45\n\x19timeline_diagram_fragment\x18\x02 \x01(\x0b\x32\".ficus.GrpcTimelineDiagramFragment\x12\x37\n\x0ehistogram_data\x18\r \x03(\x0b\x32\x1f.ficus.GrpcGeneralHistogramData\x12\x39\n\x13simple_counter_data\x18\x0e \x03(\x0b\x32\x1c.ficus.GrpcSimpleCounterData\x12\x42\n\x19\x61\x63tivities_durations_data\x18\x0f \x03(\x0b\x32\x1f.ficus.GrpcActivityDurationData\x12&\n\tocel_data\x18\x10 \x03(\x0b\x32\x13.ficus.GrpcOcelData\"\xa9\x02\n\x0cGrpcOcelData\x12\x13\n\x0bobject_type\x18\x01 \x01(\t\x12\x11\n\tobject_id\x18\x02 \x01(\t\x12*\n\x08\x61llocate\x18\x03 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12)\n\x07\x63onsume\x18\x04 \x01(\x0b\x32\x16.google.protobuf.EmptyH\x00\x12\x45\n\x18merged_object_allocation\x18\x05 \x01(\x0b\x32!.ficus.GrpcMergedObjectAllocationH\x00\x12I\n\x1aproduce_object_consumption\x18\x06 \x01(\x0b\x32#.ficus.GrpcProduceObjectConsumptionH\x00\x42\x08\n\x06\x61\x63tion\":\n\x1aGrpcMergedObjectAllocation\x12\x1c\n\x14\x63onsumed_objects_ids\x18\x01 \x03(\t\"<\n\x1cGrpcProduceObjectConsumption\x12\x1c\n\x14produced_objects_ids\x18\x02 \x03(\t\"\x84\x01\n\x18GrpcActivityDurationData\x12/\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32!.ficus.GrpcGenericEnhancementBase\x12\x10\n\x08\x64uration\x18\x02 \x01(\x04\x12%\n\x04kind\x18\x03 \x01(\x0e\x32\x17.ficus.GrpcDurationKind\"W\n\x1aGrpcGenericEnhancementBase\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05units\x18\x02 \x01(\t\x12\x12\n\x05group\x18\x03 \x01(\tH\x00\x88\x01\x01\x42\x08\n\x06_group\"w\n\x18GrpcGeneralHistogramData\x12/\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32!.ficus.GrpcGenericEnhancementBase\x12*\n\x07\x65ntries\x18\x02 \x03(\x0b\x32\x19.ficus.GrpcHistogramEntry\"W\n\x15GrpcSimpleCounterData\x12/\n\x04\x62\x61se\x18\x01 \x01(\x0b\x32!.ficus.GrpcGenericEnhancementBase\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"|\n\x16GrpcMethodInliningInfo\x12\x30\n\x0cinlinee_info\x18\x01 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\x12\x30\n\x0cinliner_info\x18\x02 \x01(\x0b\x32\x1a.ficus.GrpcMethodNameParts\"I\n\x13GrpcMethodNameParts\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tnamespace\x18\x02 \x01(\t\x12\x11\n\tsignature\x18\x03 \x01(\t\"1\n\x12GrpcHistogramEntry\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05\x63ount\x18\x02 \x01(\x01\"A\n\x1bGrpcTimelineDiagramFragment\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\"a\n\x12GrpcAllocationInfo\x12\x11\n\ttype_name\x18\x01 \x01(\t\x12\x1f\n\x17\x61llocated_objects_count\x18\x02 \x01(\x04\x12\x17\n\x0f\x61llocated_bytes\x18\x03 \x01(\x04\"\x8b\x01\n\x19GrpcUnderlyingPatternInfo\x12\x36\n\x0cpattern_kind\x18\x01 \x01(\x0e\x32 .ficus.GrpcUnderlyingPatternKind\x12\x15\n\rbase_sequence\x18\x02 \x03(\t\x12\x1f\n\x05graph\x18\x03 \x01(\x0b\x32\x10.ficus.GrpcGraph\"\x9a\x01\n\rGrpcGraphEdge\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x11\n\tfrom_node\x18\x02 \x01(\x04\x12\x0f\n\x07to_node\x18\x03 \x01(\x04\x12\x0e\n\x06weight\x18\x04 \x01(\x01\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\x12;\n\x0f\x61\x64\x64itional_data\x18\x06 \x03(\x0b\x32\".ficus.GrpcGraphEdgeAdditionalData\"\xc5\x01\n\x1bGrpcGraphEdgeAdditionalData\x12\x30\n\rsoftware_data\x18\x01 \x01(\x0b\x32\x17.ficus.GrpcSoftwareDataH\x00\x12\x36\n\x0e\x65xecution_info\x18\x02 \x01(\x0b\x32\x1c.ficus.GrpcEdgeExecutionInfoH\x00\x12\x34\n\ttime_data\x18\x03 \x01(\x0b\x32\x1f.ficus.GrpcActivityStartEndDataH\x00\x42\x06\n\x04\x64\x61ta\"(\n\x15GrpcEdgeExecutionInfo\x12\x0f\n\x07traceId\x18\x01 \x01(\x04\"\x1a\n\tGrpcBytes\x12\r\n\x05\x62ytes\x18\x01 \x01(\x0c\"I\n\x16GrpcLogTimelineDiagram\x12/\n\x06traces\x18\x01 \x03(\x0b\x32\x1f.ficus.GrpcTraceTimelineDiagram\"p\n\x1cGrpcTimelineTraceEventsGroup\x12(\n\x0bstart_point\x18\x01 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\x12&\n\tend_point\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcLogPoint\"z\n\x18GrpcTraceTimelineDiagram\x12\"\n\x07threads\x18\x01 \x03(\x0b\x32\x11.ficus.GrpcThread\x12:\n\revents_groups\x18\x02 \x03(\x0b\x32#.ficus.GrpcTimelineTraceEventsGroup\"4\n\nGrpcThread\x12&\n\x06\x65vents\x18\x01 \x03(\x0b\x32\x16.ficus.GrpcThreadEvent\".\n\x0fGrpcThreadEvent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05stamp\x18\x02 \x01(\x03*.\n\rGrpcGraphKind\x12\x08\n\x04None\x10\x00\x12\x07\n\x03\x44\x41G\x10\x01\x12\n\n\x06\x44\x61gLCS\x10\x02*u\n\x10GrpcDurationKind\x12\x0f\n\x0bUnspecified\x10\x00\x12\t\n\x05Nanos\x10\x01\x12\n\n\x06Micros\x10\x02\x12\n\n\x06Millis\x10\x03\x12\x0b\n\x07Seconds\x10\x04\x12\x0b\n\x07Minutes\x10\x05\x12\t\n\x05Hours\x10\x06\x12\x08\n\x04\x44\x61ys\x10\x07*\xb1\x01\n\x19GrpcUnderlyingPatternKind\x12\x0e\n\nStrictLoop\x10\x00\x12\x18\n\x14PrimitiveTandemArray\x10\x01\x12\x16\n\x12MaximalTandemArray\x10\x02\x12\x11\n\rMaximalRepeat\x10\x03\x12\x16\n\x12SuperMaximalRepeat\x10\x04\x12\x1a\n\x16NearSuperMaximalRepeat\x10\x05\x12\x0b\n\x07Unknown\x10\x06\x42\x0fZ\r./;grpcmodelsb\x06proto3')
 
 
 
@@ -50,17 +50,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._serialized_options = b'Z\r./;grpcmodels'
 
-  _globals['_GRPCGRAPHKIND']._serialized_start=8285
+  _globals['_GRPCGRAPHKIND']._serialized_start=8308
 
-  _globals['_GRPCGRAPHKIND']._serialized_end=8331
+  _globals['_GRPCGRAPHKIND']._serialized_end=8354
 
-  _globals['_GRPCDURATIONKIND']._serialized_start=8333
+  _globals['_GRPCDURATIONKIND']._serialized_start=8356
 
-  _globals['_GRPCDURATIONKIND']._serialized_end=8450
+  _globals['_GRPCDURATIONKIND']._serialized_end=8473
 
-  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_start=8453
+  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_start=8476
 
-  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_end=8630
+  _globals['_GRPCUNDERLYINGPATTERNKIND']._serialized_end=8653
 
   _globals['_GRPCCONTEXTKEY']._serialized_start=96
 
@@ -80,254 +80,254 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   _globals['_GRPCMODELELEMENTOCELANNOTATION']._serialized_start=1530
 
-  _globals['_GRPCMODELELEMENTOCELANNOTATION']._serialized_end=1670
+  _globals['_GRPCMODELELEMENTOCELANNOTATION']._serialized_end=1693
 
-  _globals['_GRPCOCELSTATE']._serialized_start=1672
+  _globals['_GRPCOCELSTATE']._serialized_start=1695
 
-  _globals['_GRPCOCELSTATE']._serialized_end=1740
+  _globals['_GRPCOCELSTATE']._serialized_end=1763
 
-  _globals['_GRPCOCELOBJECTTYPESTATE']._serialized_start=1742
+  _globals['_GRPCOCELOBJECTTYPESTATE']._serialized_start=1765
 
-  _globals['_GRPCOCELOBJECTTYPESTATE']._serialized_end=1801
+  _globals['_GRPCOCELOBJECTTYPESTATE']._serialized_end=1824
 
-  _globals['_GRPCFLOATARRAY']._serialized_start=1803
+  _globals['_GRPCFLOATARRAY']._serialized_start=1826
 
-  _globals['_GRPCFLOATARRAY']._serialized_end=1834
+  _globals['_GRPCFLOATARRAY']._serialized_end=1857
 
-  _globals['_GRPCINTARRAY']._serialized_start=1836
+  _globals['_GRPCINTARRAY']._serialized_start=1859
 
-  _globals['_GRPCINTARRAY']._serialized_end=1865
+  _globals['_GRPCINTARRAY']._serialized_end=1888
 
-  _globals['_GRPCUINTARRAY']._serialized_start=1867
+  _globals['_GRPCUINTARRAY']._serialized_start=1890
 
-  _globals['_GRPCUINTARRAY']._serialized_end=1897
+  _globals['_GRPCUINTARRAY']._serialized_end=1920
 
-  _globals['_GRPCCONTEXTKEYVALUE']._serialized_start=1899
+  _globals['_GRPCCONTEXTKEYVALUE']._serialized_start=1922
 
-  _globals['_GRPCCONTEXTKEYVALUE']._serialized_end=1996
+  _globals['_GRPCCONTEXTKEYVALUE']._serialized_end=2019
 
-  _globals['_GRPCHASHESEVENTLOGCONTEXTVALUE']._serialized_start=1998
+  _globals['_GRPCHASHESEVENTLOGCONTEXTVALUE']._serialized_start=2021
 
-  _globals['_GRPCHASHESEVENTLOGCONTEXTVALUE']._serialized_end=2070
+  _globals['_GRPCHASHESEVENTLOGCONTEXTVALUE']._serialized_end=2093
 
-  _globals['_GRPCNAMESEVENTLOGCONTEXTVALUE']._serialized_start=2072
+  _globals['_GRPCNAMESEVENTLOGCONTEXTVALUE']._serialized_start=2095
 
-  _globals['_GRPCNAMESEVENTLOGCONTEXTVALUE']._serialized_end=2142
+  _globals['_GRPCNAMESEVENTLOGCONTEXTVALUE']._serialized_end=2165
 
-  _globals['_GRPCEVENTLOGTRACESUBARRAYSCONTEXTVALUE']._serialized_start=2144
+  _globals['_GRPCEVENTLOGTRACESUBARRAYSCONTEXTVALUE']._serialized_start=2167
 
-  _globals['_GRPCEVENTLOGTRACESUBARRAYSCONTEXTVALUE']._serialized_end=2238
+  _globals['_GRPCEVENTLOGTRACESUBARRAYSCONTEXTVALUE']._serialized_end=2261
 
-  _globals['_GRPCTRACESUBARRAY']._serialized_start=2240
+  _globals['_GRPCTRACESUBARRAY']._serialized_start=2263
 
-  _globals['_GRPCTRACESUBARRAY']._serialized_end=2287
+  _globals['_GRPCTRACESUBARRAY']._serialized_end=2310
 
-  _globals['_GRPCTRACESUBARRAYS']._serialized_start=2289
+  _globals['_GRPCTRACESUBARRAYS']._serialized_start=2312
 
-  _globals['_GRPCTRACESUBARRAYS']._serialized_end=2355
+  _globals['_GRPCTRACESUBARRAYS']._serialized_end=2378
 
-  _globals['_GRPCSUBARRAYWITHTRACEINDEX']._serialized_start=2357
+  _globals['_GRPCSUBARRAYWITHTRACEINDEX']._serialized_start=2380
 
-  _globals['_GRPCSUBARRAYWITHTRACEINDEX']._serialized_end=2451
+  _globals['_GRPCSUBARRAYWITHTRACEINDEX']._serialized_end=2474
 
-  _globals['_GRPCSUBARRAYSWITHTRACEINDEXCONTEXTVALUE']._serialized_start=2453
+  _globals['_GRPCSUBARRAYSWITHTRACEINDEXCONTEXTVALUE']._serialized_start=2476
 
-  _globals['_GRPCSUBARRAYSWITHTRACEINDEXCONTEXTVALUE']._serialized_end=2549
+  _globals['_GRPCSUBARRAYSWITHTRACEINDEXCONTEXTVALUE']._serialized_end=2572
 
-  _globals['_GRPCCOLORSEVENTLOG']._serialized_start=2552
+  _globals['_GRPCCOLORSEVENTLOG']._serialized_start=2575
 
-  _globals['_GRPCCOLORSEVENTLOG']._serialized_end=2716
+  _globals['_GRPCCOLORSEVENTLOG']._serialized_end=2739
 
-  _globals['_GRPCCOLORSLOGADJUSTMENT']._serialized_start=2719
+  _globals['_GRPCCOLORSLOGADJUSTMENT']._serialized_start=2742
 
-  _globals['_GRPCCOLORSLOGADJUSTMENT']._serialized_end=2905
+  _globals['_GRPCCOLORSLOGADJUSTMENT']._serialized_end=2928
 
-  _globals['_GRPCCOLORSLOGRECTANGLEADJUSTMENT']._serialized_start=2908
+  _globals['_GRPCCOLORSLOGRECTANGLEADJUSTMENT']._serialized_start=2931
 
-  _globals['_GRPCCOLORSLOGRECTANGLEADJUSTMENT']._serialized_end=3077
+  _globals['_GRPCCOLORSLOGRECTANGLEADJUSTMENT']._serialized_end=3100
 
-  _globals['_GRPCLOGPOINT']._serialized_start=3079
+  _globals['_GRPCLOGPOINT']._serialized_start=3102
 
-  _globals['_GRPCLOGPOINT']._serialized_end=3135
+  _globals['_GRPCLOGPOINT']._serialized_end=3158
 
-  _globals['_GRPCCOLORSLOGXAXISAFTERTRACEADJUSTMENT']._serialized_start=3137
+  _globals['_GRPCCOLORSLOGXAXISAFTERTRACEADJUSTMENT']._serialized_start=3160
 
-  _globals['_GRPCCOLORSLOGXAXISAFTERTRACEADJUSTMENT']._serialized_end=3198
+  _globals['_GRPCCOLORSLOGXAXISAFTERTRACEADJUSTMENT']._serialized_end=3221
 
-  _globals['_GRPCCOLORSEVENTLOGMAPPING']._serialized_start=3200
+  _globals['_GRPCCOLORSEVENTLOGMAPPING']._serialized_start=3223
 
-  _globals['_GRPCCOLORSEVENTLOGMAPPING']._serialized_end=3274
+  _globals['_GRPCCOLORSEVENTLOGMAPPING']._serialized_end=3297
 
-  _globals['_GRPCCOLORSTRACE']._serialized_start=3276
+  _globals['_GRPCCOLORSTRACE']._serialized_start=3299
 
-  _globals['_GRPCCOLORSTRACE']._serialized_end=3368
+  _globals['_GRPCCOLORSTRACE']._serialized_end=3391
 
-  _globals['_GRPCCOLOREDRECTANGLE']._serialized_start=3370
+  _globals['_GRPCCOLOREDRECTANGLE']._serialized_start=3393
 
-  _globals['_GRPCCOLOREDRECTANGLE']._serialized_end=3446
+  _globals['_GRPCCOLOREDRECTANGLE']._serialized_end=3469
 
-  _globals['_GRPCENUM']._serialized_start=3448
+  _globals['_GRPCENUM']._serialized_start=3471
 
-  _globals['_GRPCENUM']._serialized_end=3491
+  _globals['_GRPCENUM']._serialized_end=3514
 
-  _globals['_GRPCEVENTLOGINFO']._serialized_start=3493
+  _globals['_GRPCEVENTLOGINFO']._serialized_start=3516
 
-  _globals['_GRPCEVENTLOGINFO']._serialized_end=3584
+  _globals['_GRPCEVENTLOGINFO']._serialized_end=3607
 
-  _globals['_GRPCSTRINGS']._serialized_start=3586
+  _globals['_GRPCSTRINGS']._serialized_start=3609
 
-  _globals['_GRPCSTRINGS']._serialized_end=3616
+  _globals['_GRPCSTRINGS']._serialized_end=3639
 
-  _globals['_GRPCPIPELINE']._serialized_start=3618
+  _globals['_GRPCPIPELINE']._serialized_start=3641
 
-  _globals['_GRPCPIPELINE']._serialized_end=3676
+  _globals['_GRPCPIPELINE']._serialized_end=3699
 
-  _globals['_GRPCPIPELINEPARTBASE']._serialized_start=3679
+  _globals['_GRPCPIPELINEPARTBASE']._serialized_start=3702
 
-  _globals['_GRPCPIPELINEPARTBASE']._serialized_end=3978
+  _globals['_GRPCPIPELINEPARTBASE']._serialized_end=4001
 
-  _globals['_GRPCPIPELINEPART']._serialized_start=3980
+  _globals['_GRPCPIPELINEPART']._serialized_start=4003
 
-  _globals['_GRPCPIPELINEPART']._serialized_end=4073
+  _globals['_GRPCPIPELINEPART']._serialized_end=4096
 
-  _globals['_GRPCPIPELINEPARTCONFIGURATION']._serialized_start=4075
+  _globals['_GRPCPIPELINEPARTCONFIGURATION']._serialized_start=4098
 
-  _globals['_GRPCPIPELINEPARTCONFIGURATION']._serialized_end=4167
+  _globals['_GRPCPIPELINEPARTCONFIGURATION']._serialized_end=4190
 
-  _globals['_GRPCPARALLELPIPELINEPART']._serialized_start=4169
+  _globals['_GRPCPARALLELPIPELINEPART']._serialized_start=4192
 
-  _globals['_GRPCPARALLELPIPELINEPART']._serialized_end=4247
+  _globals['_GRPCPARALLELPIPELINEPART']._serialized_end=4270
 
-  _globals['_GRPCPARALLELPIPELINEPARTS']._serialized_start=4249
+  _globals['_GRPCPARALLELPIPELINEPARTS']._serialized_start=4272
 
-  _globals['_GRPCPARALLELPIPELINEPARTS']._serialized_end=4327
+  _globals['_GRPCPARALLELPIPELINEPARTS']._serialized_end=4350
 
-  _globals['_GRPCSIMPLECONTEXTREQUESTPIPELINEPART']._serialized_start=4330
+  _globals['_GRPCSIMPLECONTEXTREQUESTPIPELINEPART']._serialized_start=4353
 
-  _globals['_GRPCSIMPLECONTEXTREQUESTPIPELINEPART']._serialized_end=4481
+  _globals['_GRPCSIMPLECONTEXTREQUESTPIPELINEPART']._serialized_end=4504
 
-  _globals['_GRPCCOMPLEXCONTEXTREQUESTPIPELINEPART']._serialized_start=4484
+  _globals['_GRPCCOMPLEXCONTEXTREQUESTPIPELINEPART']._serialized_start=4507
 
-  _globals['_GRPCCOMPLEXCONTEXTREQUESTPIPELINEPART']._serialized_end=4690
+  _globals['_GRPCCOMPLEXCONTEXTREQUESTPIPELINEPART']._serialized_end=4713
 
-  _globals['_GRPCGRAPH']._serialized_start=4692
+  _globals['_GRPCGRAPH']._serialized_start=4715
 
-  _globals['_GRPCGRAPH']._serialized_end=4813
+  _globals['_GRPCGRAPH']._serialized_end=4836
 
-  _globals['_GRPCGRAPHNODE']._serialized_start=4816
+  _globals['_GRPCGRAPHNODE']._serialized_start=4839
 
-  _globals['_GRPCGRAPHNODE']._serialized_end=4952
+  _globals['_GRPCGRAPHNODE']._serialized_end=4975
 
-  _globals['_GRPCNODEADDITIONALDATA']._serialized_start=4955
+  _globals['_GRPCNODEADDITIONALDATA']._serialized_start=4978
 
-  _globals['_GRPCNODEADDITIONALDATA']._serialized_end=5383
+  _globals['_GRPCNODEADDITIONALDATA']._serialized_end=5406
 
-  _globals['_GRPCMULTITHREADEDFRAGMENT']._serialized_start=5385
+  _globals['_GRPCMULTITHREADEDFRAGMENT']._serialized_start=5408
 
-  _globals['_GRPCMULTITHREADEDFRAGMENT']._serialized_end=5466
+  _globals['_GRPCMULTITHREADEDFRAGMENT']._serialized_end=5489
 
-  _globals['_GRPCACTIVITYSTARTENDDATA']._serialized_start=5468
+  _globals['_GRPCACTIVITYSTARTENDDATA']._serialized_start=5491
 
-  _globals['_GRPCACTIVITYSTARTENDDATA']._serialized_end=5532
+  _globals['_GRPCACTIVITYSTARTENDDATA']._serialized_end=5555
 
-  _globals['_GRPCEVENTCOORDINATES']._serialized_start=5534
+  _globals['_GRPCEVENTCOORDINATES']._serialized_start=5557
 
-  _globals['_GRPCEVENTCOORDINATES']._serialized_end=5595
+  _globals['_GRPCEVENTCOORDINATES']._serialized_end=5618
 
-  _globals['_GRPCNODECORRESPONDINGTRACEDATA']._serialized_start=5597
+  _globals['_GRPCNODECORRESPONDINGTRACEDATA']._serialized_start=5620
 
-  _globals['_GRPCNODECORRESPONDINGTRACEDATA']._serialized_end=5663
+  _globals['_GRPCNODECORRESPONDINGTRACEDATA']._serialized_end=5686
 
-  _globals['_GRPCSOFTWAREDATA']._serialized_start=5666
+  _globals['_GRPCSOFTWAREDATA']._serialized_start=5689
 
-  _globals['_GRPCSOFTWAREDATA']._serialized_end=6025
+  _globals['_GRPCSOFTWAREDATA']._serialized_end=6048
 
-  _globals['_GRPCOCELDATA']._serialized_start=6028
+  _globals['_GRPCOCELDATA']._serialized_start=6051
 
-  _globals['_GRPCOCELDATA']._serialized_end=6325
+  _globals['_GRPCOCELDATA']._serialized_end=6348
 
-  _globals['_GRPCMERGEDOBJECTALLOCATION']._serialized_start=6327
+  _globals['_GRPCMERGEDOBJECTALLOCATION']._serialized_start=6350
 
-  _globals['_GRPCMERGEDOBJECTALLOCATION']._serialized_end=6385
+  _globals['_GRPCMERGEDOBJECTALLOCATION']._serialized_end=6408
 
-  _globals['_GRPCPRODUCEOBJECTCONSUMPTION']._serialized_start=6387
+  _globals['_GRPCPRODUCEOBJECTCONSUMPTION']._serialized_start=6410
 
-  _globals['_GRPCPRODUCEOBJECTCONSUMPTION']._serialized_end=6447
+  _globals['_GRPCPRODUCEOBJECTCONSUMPTION']._serialized_end=6470
 
-  _globals['_GRPCACTIVITYDURATIONDATA']._serialized_start=6450
+  _globals['_GRPCACTIVITYDURATIONDATA']._serialized_start=6473
 
-  _globals['_GRPCACTIVITYDURATIONDATA']._serialized_end=6582
+  _globals['_GRPCACTIVITYDURATIONDATA']._serialized_end=6605
 
-  _globals['_GRPCGENERICENHANCEMENTBASE']._serialized_start=6584
+  _globals['_GRPCGENERICENHANCEMENTBASE']._serialized_start=6607
 
-  _globals['_GRPCGENERICENHANCEMENTBASE']._serialized_end=6671
+  _globals['_GRPCGENERICENHANCEMENTBASE']._serialized_end=6694
 
-  _globals['_GRPCGENERALHISTOGRAMDATA']._serialized_start=6673
+  _globals['_GRPCGENERALHISTOGRAMDATA']._serialized_start=6696
 
-  _globals['_GRPCGENERALHISTOGRAMDATA']._serialized_end=6792
+  _globals['_GRPCGENERALHISTOGRAMDATA']._serialized_end=6815
 
-  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_start=6794
+  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_start=6817
 
-  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_end=6881
+  _globals['_GRPCSIMPLECOUNTERDATA']._serialized_end=6904
 
-  _globals['_GRPCMETHODINLININGINFO']._serialized_start=6883
+  _globals['_GRPCMETHODINLININGINFO']._serialized_start=6906
 
-  _globals['_GRPCMETHODINLININGINFO']._serialized_end=7007
+  _globals['_GRPCMETHODINLININGINFO']._serialized_end=7030
 
-  _globals['_GRPCMETHODNAMEPARTS']._serialized_start=7009
+  _globals['_GRPCMETHODNAMEPARTS']._serialized_start=7032
 
-  _globals['_GRPCMETHODNAMEPARTS']._serialized_end=7082
+  _globals['_GRPCMETHODNAMEPARTS']._serialized_end=7105
 
-  _globals['_GRPCHISTOGRAMENTRY']._serialized_start=7084
+  _globals['_GRPCHISTOGRAMENTRY']._serialized_start=7107
 
-  _globals['_GRPCHISTOGRAMENTRY']._serialized_end=7133
+  _globals['_GRPCHISTOGRAMENTRY']._serialized_end=7156
 
-  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_start=7135
+  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_start=7158
 
-  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_end=7200
+  _globals['_GRPCTIMELINEDIAGRAMFRAGMENT']._serialized_end=7223
 
-  _globals['_GRPCALLOCATIONINFO']._serialized_start=7202
+  _globals['_GRPCALLOCATIONINFO']._serialized_start=7225
 
-  _globals['_GRPCALLOCATIONINFO']._serialized_end=7299
+  _globals['_GRPCALLOCATIONINFO']._serialized_end=7322
 
-  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_start=7302
+  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_start=7325
 
-  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_end=7441
+  _globals['_GRPCUNDERLYINGPATTERNINFO']._serialized_end=7464
 
-  _globals['_GRPCGRAPHEDGE']._serialized_start=7444
+  _globals['_GRPCGRAPHEDGE']._serialized_start=7467
 
-  _globals['_GRPCGRAPHEDGE']._serialized_end=7598
+  _globals['_GRPCGRAPHEDGE']._serialized_end=7621
 
-  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_start=7601
+  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_start=7624
 
-  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_end=7798
+  _globals['_GRPCGRAPHEDGEADDITIONALDATA']._serialized_end=7821
 
-  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_start=7800
+  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_start=7823
 
-  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_end=7840
+  _globals['_GRPCEDGEEXECUTIONINFO']._serialized_end=7863
 
-  _globals['_GRPCBYTES']._serialized_start=7842
+  _globals['_GRPCBYTES']._serialized_start=7865
 
-  _globals['_GRPCBYTES']._serialized_end=7868
+  _globals['_GRPCBYTES']._serialized_end=7891
 
-  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_start=7870
+  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_start=7893
 
-  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_end=7943
+  _globals['_GRPCLOGTIMELINEDIAGRAM']._serialized_end=7966
 
-  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_start=7945
+  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_start=7968
 
-  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_end=8057
+  _globals['_GRPCTIMELINETRACEEVENTSGROUP']._serialized_end=8080
 
-  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_start=8059
+  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_start=8082
 
-  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_end=8181
+  _globals['_GRPCTRACETIMELINEDIAGRAM']._serialized_end=8204
 
-  _globals['_GRPCTHREAD']._serialized_start=8183
+  _globals['_GRPCTHREAD']._serialized_start=8206
 
-  _globals['_GRPCTHREAD']._serialized_end=8235
+  _globals['_GRPCTHREAD']._serialized_end=8258
 
-  _globals['_GRPCTHREADEVENT']._serialized_start=8237
+  _globals['_GRPCTHREADEVENT']._serialized_start=8260
 
-  _globals['_GRPCTHREADEVENT']._serialized_end=8283
+  _globals['_GRPCTHREADEVENT']._serialized_end=8306
 
 # @@protoc_insertion_point(module_scope)

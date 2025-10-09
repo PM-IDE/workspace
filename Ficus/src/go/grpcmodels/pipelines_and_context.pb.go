@@ -821,7 +821,7 @@ func (x *GrpcOcelModelAnnotation) GetAnnotations() []*GrpcModelElementOcelAnnota
 type GrpcModelElementOcelAnnotation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ElementId     uint64                 `protobuf:"varint,1,opt,name=element_id,json=elementId,proto3" json:"element_id,omitempty"`
-	InitialState  *GrpcOcelState         `protobuf:"bytes,2,opt,name=initial_state,json=initialState,proto3" json:"initial_state,omitempty"`
+	InitialState  *GrpcOcelState         `protobuf:"bytes,2,opt,name=initial_state,json=initialState,proto3,oneof" json:"initial_state,omitempty"`
 	FinalState    *GrpcOcelState         `protobuf:"bytes,3,opt,name=final_state,json=finalState,proto3" json:"final_state,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -4461,13 +4461,14 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\x0focel_annotation\x18\x1b \x01(\v2\x1e.ficus.GrpcOcelModelAnnotationH\x00R\x0eocelAnnotationB\x0e\n" +
 	"\fcontextValue\"b\n" +
 	"\x17GrpcOcelModelAnnotation\x12G\n" +
-	"\vannotations\x18\x01 \x03(\v2%.ficus.GrpcModelElementOcelAnnotationR\vannotations\"\xb1\x01\n" +
+	"\vannotations\x18\x01 \x03(\v2%.ficus.GrpcModelElementOcelAnnotationR\vannotations\"\xc8\x01\n" +
 	"\x1eGrpcModelElementOcelAnnotation\x12\x1d\n" +
 	"\n" +
-	"element_id\x18\x01 \x01(\x04R\telementId\x129\n" +
-	"\rinitial_state\x18\x02 \x01(\v2\x14.ficus.GrpcOcelStateR\finitialState\x125\n" +
+	"element_id\x18\x01 \x01(\x04R\telementId\x12>\n" +
+	"\rinitial_state\x18\x02 \x01(\v2\x14.ficus.GrpcOcelStateH\x00R\finitialState\x88\x01\x01\x125\n" +
 	"\vfinal_state\x18\x03 \x01(\v2\x14.ficus.GrpcOcelStateR\n" +
-	"finalState\"P\n" +
+	"finalStateB\x10\n" +
+	"\x0e_initial_state\"P\n" +
 	"\rGrpcOcelState\x12?\n" +
 	"\vtype_states\x18\x01 \x03(\v2\x1e.ficus.GrpcOcelObjectTypeStateR\n" +
 	"typeStates\"L\n" +
@@ -4954,6 +4955,7 @@ func file_pipelines_and_context_proto_init() {
 		(*GrpcContextValue_EventLog)(nil),
 		(*GrpcContextValue_OcelAnnotation)(nil),
 	}
+	file_pipelines_and_context_proto_msgTypes[4].OneofWrappers = []any{}
 	file_pipelines_and_context_proto_msgTypes[19].OneofWrappers = []any{
 		(*GrpcColorsLogAdjustment_RectangleAdjustment)(nil),
 		(*GrpcColorsLogAdjustment_AxisAfterTrace)(nil),
