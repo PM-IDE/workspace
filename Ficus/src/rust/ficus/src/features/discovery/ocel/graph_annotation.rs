@@ -62,12 +62,6 @@ impl NodeObjectsState {
   }
 }
 
-#[derive(new)]
-struct NodeState {
-  node: u64,
-  final_objects: NodeObjectsState,
-}
-
 #[derive(new, Getters)]
 pub struct ProcessNodesStates {
   #[get = "pub"]
@@ -84,7 +78,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     return Err(OcelAnnotationCreationError::FailedToFindStartNode);
   }
 
-  q.push_back(NodeState::new(start_node_id.unwrap(), NodeObjectsState::new()));
+  q.push_back(start_node_id.unwrap());
 
   let mut process_nodes_states = HashMap::new();
 
@@ -95,7 +89,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
 
     let node = q.pop_front().unwrap();
 
-    let incoming_nodes = graph.incoming_edges(&node.node);
+    let incoming_nodes = graph.incoming_edges(&node);
     for incoming_node in incoming_nodes.iter() {
       if !process_nodes_states.contains_key(*incoming_node) {
         q.push_back(node);
@@ -107,7 +101,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
 
     for incoming_node in incoming_nodes.iter() {
       let prev_state: &ProcessNodesStates = *process_nodes_states.get(*incoming_node).as_ref().unwrap();
-      let edge = graph.edge(*incoming_node, &node.node);
+      let edge = graph.edge(*incoming_node, &node);
       let edge = edge.as_ref().unwrap();
 
       if let Some(edge_software_data) = edge.user_data().concrete(EDGE_SOFTWARE_DATA_KEY.key()) {
@@ -142,7 +136,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
       }
     }
 
-    process_nodes_states.insert(node.node, ProcessNodesStates::new(None, new_node_state));
+    process_nodes_states.insert(node, ProcessNodesStates::new(None, new_node_state));
   }
 
   Ok(OcelAnnotation::new(process_nodes_states))
