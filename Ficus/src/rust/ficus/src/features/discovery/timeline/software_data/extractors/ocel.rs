@@ -92,7 +92,17 @@ impl<'a> OcelDataExtractor<'a> {
   ) -> Option<Vec<String>> {
     if let Some(related_objects_ids_attr) = related_objects_ids_attr {
       if let Some(objects_ids) = payload.get(related_objects_ids_attr) {
-        return Some(objects_ids.to_string_repr().as_str().split(' ').map(|s| s.to_string()).collect())
+        let parsed_ids: Vec<String> = objects_ids.to_string_repr()
+          .trim()
+          .split(' ')
+          .filter_map(|s| if s.len() > 0 { Some(s.to_string()) } else { None })
+          .collect();
+
+        if parsed_ids.len() == 0 {
+          return None
+        }
+
+        return Some(parsed_ids)
       }
     }
 

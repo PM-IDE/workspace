@@ -348,7 +348,7 @@ fn test_activities_duration_2() {
 #[test]
 pub fn test_ocel_data_extraction() {
   execute_test_with_software_data(
-    r#"{"ocel_data":[{"object_type":"type1","object_id":"id_1","action":"Allocate"},{"object_type":"type1","object_id":"id_2","action":"Consume"},{"object_type":"type1","object_id":"id_3","action":"Allocate"}]}"#,
+    r#"{"ocel_data":[{"object_type":"type1","object_id":"id_1","action":"Allocate"},{"object_type":"type1","object_id":"id_2","action":"Consume"},{"object_type":"type1","object_id":"id_3","action":"Allocate"},{"object_type":"type1","object_id":"id_2","action":{"ConsumeWithProduce":["1","2","3","4","5"]}},{"object_type":"type1","object_id":"id_2","action":{"AllocateMerged":["1","2","3","4","5"]}},{"object_type":"type1","object_id":"id_2","action":"Allocate"},{"object_type":"type1","object_id":"id_2","action":"Consume"},{"object_type":"type1","object_id":"id_2","action":"Consume"},{"object_type":"type1","object_id":"id_2","action":"Allocate"}]}"#,
     || {
       let events = [
         create_event_with_attributes(
@@ -407,6 +407,94 @@ pub fn test_ocel_data_extraction() {
           ],
         ),
         create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("ConsumeWithProduce".to_string())))),
+            ("ocel_related_objects".to_string(), EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("AllocateMerged".to_string())))),
+            ("ocel_related_objects".to_string(), EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("AllocateMerged".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("ConsumeWithProduce".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("ConsumeWithProduce".to_string())))),
+            ("ocel_related_objects".to_string(), EventPayloadValue::String(Rc::new(Box::new("   ".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            (
+              "object_id".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("AllocateMerged".to_string())))),
+            ("ocel_related_objects".to_string(), EventPayloadValue::String(Rc::new(Box::new("      ".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
           "hst_event".to_string(),
           vec![
             (
@@ -436,7 +524,7 @@ pub fn test_ocel_data_extraction() {
             NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_type".to_string(), "???".to_string())),
             NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_id".to_string(), "???".to_string())),
             Some("ocel_action".to_string()),
-            None
+            Some("ocel_related_objects".to_string())
           ),
         ))
       );
