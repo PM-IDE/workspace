@@ -68,7 +68,7 @@ pub struct OcelDataExtractionConfig {
   #[getset(get = "pub")]
   object_type_attr: NameCreationStrategy,
   #[getset(get = "pub")]
-  object_id_attr: NameCreationStrategy,
+  object_id_attr: String,
   #[getset(get = "pub")]
   object_action_type_attr: Option<String>,
   #[getset(get = "pub")]

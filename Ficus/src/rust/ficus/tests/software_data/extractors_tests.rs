@@ -495,6 +495,17 @@ pub fn test_ocel_data_extraction() {
           ],
         ),
         create_event_with_attributes(
+          "ocel_event".to_string(),
+          vec![
+            (
+              "object_type".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+            ),
+            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("AllocateMerged".to_string())))),
+            ("ocel_related_objects".to_string(), EventPayloadValue::String(Rc::new(Box::new("      ".to_string())))),
+          ],
+        ),
+        create_event_with_attributes(
           "hst_event".to_string(),
           vec![
             (
@@ -522,7 +533,7 @@ pub fn test_ocel_data_extraction() {
           "ocel_event".to_string(),
           OcelDataExtractionConfig::new(
             NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_type".to_string(), "???".to_string())),
-            NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_id".to_string(), "???".to_string())),
+            "object_id".to_string(),
             Some("ocel_action".to_string()),
             Some("ocel_related_objects".to_string())
           ),

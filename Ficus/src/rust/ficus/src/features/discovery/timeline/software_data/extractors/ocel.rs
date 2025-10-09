@@ -8,7 +8,8 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use fancy_regex::Regex;
-use log::{debug};
+use log::{debug, warn};
+use crate::utils::references::HeapedOrOwned;
 
 #[derive(Debug, Clone, new)]
 pub struct OcelDataExtractor<'a> {
@@ -31,7 +32,14 @@ impl<'a> EventGroupSoftwareDataExtractor for OcelDataExtractor<'a> {
         }
 
         let object_type = ocel_config.info().object_type_attr().create(&event.borrow());
-        let object_id = ocel_config.info().object_id_attr().create(&event.borrow());
+
+        let object_id = match Self::parse_object_id(&event.borrow(), ocel_config.info().object_id_attr().as_str()) {
+          None => {
+            debug!("Object does not have an object id, skipping it");
+            continue;
+          }
+          Some(id) => id.to_string()
+        };
 
         let action = if let Some(action_attr) = ocel_config.info().object_action_type_attr().as_ref() {
           let related_objs_ids = ocel_config.info().related_object_ids_attr().as_ref();
@@ -60,6 +68,16 @@ fn get_fallback_ocel_object_action() -> OcelObjectAction {
 }
 
 impl<'a> OcelDataExtractor<'a> {
+  fn parse_object_id(event: &XesEventImpl, object_id_attr: &str) -> Option<HeapedOrOwned<String>> {
+    if let Some(map) = event.payload_map().as_ref() {
+      if let Some(object_id) = map.get(object_id_attr).as_ref() {
+        return Some(object_id.to_string_repr())
+      }
+    }
+
+    None
+  }
+
   fn parse_ocel_object_action(
     event: &XesEventImpl,
     action_attr: &String,
