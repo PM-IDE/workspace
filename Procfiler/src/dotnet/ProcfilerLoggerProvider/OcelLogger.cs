@@ -18,6 +18,9 @@ public abstract class OcelObjectBase
 
 public static class OcelLogger
 {
+  private const char Delimiter = ' ';
+
+
   public readonly struct OcelActivityCookie(string name, Guid activityId) : IDisposable
   {
     public void Dispose()
@@ -27,19 +30,65 @@ public static class OcelLogger
   }
 
 
-  public static void LogObject<T>(T obj, string? category = null) where T : class
+  public static void LogObjectAllocated<T>(T obj, string? category = null) where T : class
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.OcelEvent(GetObjectId(obj), category, string.Empty);
+    OcelEventsSource.Instance.ObjectAllocated(GetObjectId(obj), category, string.Empty);
   }
 
-  public static void LogObject(long objectId, string? category = null)
+  public static void LogObjectAllocated(long objectId, string? category = null)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.OcelEvent(objectId, category, string.Empty);
+    OcelEventsSource.Instance.ObjectAllocated(objectId, category, string.Empty);
   }
+
+  public static void LogObjectConsumed<T>(T obj, string? category = null)
+  {
+    if (!IsEnabled()) return;
+
+    OcelEventsSource.Instance.ObjectConsumed(GetObjectId(obj), category, string.Empty);
+  }
+
+  public static void LogObjectConsumed(long objectId, string? category = null)
+  {
+    if (!IsEnabled()) return;
+
+    OcelEventsSource.Instance.ObjectConsumed(objectId, category, string.Empty);
+  }
+
+  public static void LogObjectConsumedWithProduce(long objectId, string? category = null, params ulong[] relatedObjectIds)
+  {
+    if (!IsEnabled()) return;
+
+    OcelEventsSource.Instance.ObjectConsumedWithProduce(objectId, category, string.Join(Delimiter, relatedObjectIds), string.Empty);
+  }
+
+  public static void LogObjectConsumedWithProduce<T>(T obj, string? category = null, params T[] relatedObjects)
+  {
+    if (!IsEnabled()) return;
+
+    var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
+    OcelEventsSource.Instance.ObjectConsumedWithProduce(GetObjectId(obj), category, relatedObjectIds, string.Empty);
+  }
+
+  public static void LogMergedObjectAllocated(long objectId, string? category = null, params long[] relatedObjectIds)
+  {
+    if (!IsEnabled()) return;
+
+    OcelEventsSource.Instance.MergedObjectAllocated(objectId, category, JoinObjectsIds(relatedObjectIds), string.Empty);
+  }
+
+  public static void LogMergedObjectAllocated<T>(T obj, string? category = null, params T[] relatedObjects)
+  {
+    if (!IsEnabled()) return;
+
+    var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
+    OcelEventsSource.Instance.MergedObjectAllocated(GetObjectId(obj), category, relatedObjectIds, string.Empty);
+  }
+
+  private static string JoinObjectsIds(IEnumerable<long> objectIds) => string.Join(Delimiter, objectIds);
 
   private static long GetObjectId<T>(T obj) => obj switch
   {
