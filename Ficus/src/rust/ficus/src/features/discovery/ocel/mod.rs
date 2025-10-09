@@ -1,1 +1,1 @@
-mod graph_annotation;
+pub mod graph_annotation;

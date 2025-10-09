@@ -19,7 +19,9 @@ pub enum OcelAnnotationCreationError {
   OneOfMergedObjetsDoesNotExist
 }
 
-struct NodeObjectsState {
+#[derive(Getters)]
+pub struct NodeObjectsState {
+  #[getset(get = "pub")]
   map: HashMap<String, HashSet<String>>
 }
 
@@ -68,9 +70,9 @@ struct NodeState {
 
 #[derive(new, Getters)]
 pub struct ProcessNodesStates {
-  #[get(get = "pub")]
+  #[get = "pub"]
   initial_objects: Option<NodeObjectsState>,
-  #[get(get = "pub")]
+  #[get = "pub"]
   final_objects: NodeObjectsState
 }
 
