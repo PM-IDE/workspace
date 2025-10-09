@@ -76,6 +76,7 @@ impl PipelineParts {
   pub const ANNOTATE_PETRI_NET_COUNT: &'static str = "AnnotatePetriNetWithCount";
   pub const ANNOTATE_PETRI_NET_FREQUENCY: &'static str = "AnnotatePetriNetWithFrequency";
   pub const ANNOTATE_PETRI_NET_TRACE_FREQUENCY: &'static str = "AnnotatePetriNetWithTraceFrequency";
+  pub const CREATE_OCEL_ANNOTATION_FOR_DAG: &'static str = "CreateOcelAnnotationForDag";
 
   pub const ANNOTATE_GRAPH_WITH_TIME: &'static str = "AnnotateGraphWithTime";
 

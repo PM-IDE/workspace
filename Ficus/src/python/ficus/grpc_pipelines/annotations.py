@@ -128,3 +128,9 @@ class AnnotateGraphWithTime(ViewGraphLikeFormalismPart):
                                            config)
 
     return GrpcPipelinePartBase(complexContextRequestPart=part)
+
+
+class AnnotateGraphWithOCEL(PipelinePart):
+  def to_grpc_part(self) -> GrpcPipelinePartBase:
+    config = GrpcPipelinePartConfiguration()
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_create_ocel_annotation_for_dag, config))

@@ -76,6 +76,7 @@ const_discover_events_groups_in_each_trace = 'discover_events_groups_in_each_tra
 const_software_data_extraction_config = 'software_data_extraction_config'
 const_discover_activities_instances_strict = 'discover_activity_instances_strict'
 const_put_noise_events_in_one_cluster = 'put_noise_events_in_one_cluster'
+const_ocel_annotation = "ocel_annotation"
 
 const_draw_placement_of_event_by_regex = 'DrawPlacementOfEventsByRegex'
 const_draw_full_activities_diagram = 'DrawFullActivitiesDiagram'
@@ -165,6 +166,7 @@ const_merge_graphs = 'MergeGraphs'
 const_add_graph_to_graphs = 'AddGraphToGraphs'
 const_clear_graphs = 'ClearGraphs'
 const_terminate_if_empty_log = 'TerminateIfEmptyLog'
+const_create_ocel_annotation_for_dag = 'CreateOcelAnnotationForDag'
 
 const_pattern_discovery_strategy_enum_name = 'PatternsDiscoveryStrategy'
 const_patterns_kind_enum_name = 'PatternsKindDto'

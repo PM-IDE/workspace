@@ -1,6 +1,7 @@
 use crate::utils::graph::graph::DefaultGraph;
 use derive_new::new;
 use std::collections::{HashMap, HashSet, VecDeque};
+use enum_display::EnumDisplay;
 use getset::Getters;
 use crate::features::discovery::root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY;
 use crate::features::discovery::timeline::software_data::models::OcelObjectAction;
@@ -12,6 +13,7 @@ pub struct OcelAnnotation {
   nodes_to_states: HashMap<u64, ProcessNodesStates>
 }
 
+#[derive(EnumDisplay)]
 pub enum OcelAnnotationCreationError {
   FailedToFindStartNode,
   ObjectAlreadyExistsInNodeState,
