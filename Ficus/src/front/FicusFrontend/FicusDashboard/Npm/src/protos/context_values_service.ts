@@ -67,6 +67,7 @@ export interface ProtoGrpcType {
     GrpcMergedObjectAllocation: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
+    GrpcModelElementOcelAnnotation: MessageTypeDefinition
     GrpcMultithreadedFragment: MessageTypeDefinition
     GrpcNamesEventLog: MessageTypeDefinition
     GrpcNamesEventLogContextValue: MessageTypeDefinition
@@ -74,6 +75,9 @@ export interface ProtoGrpcType {
     GrpcNodeAdditionalData: MessageTypeDefinition
     GrpcNodeCorrespondingTraceData: MessageTypeDefinition
     GrpcOcelData: MessageTypeDefinition
+    GrpcOcelModelAnnotation: MessageTypeDefinition
+    GrpcOcelObjectTypeState: MessageTypeDefinition
+    GrpcOcelState: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition

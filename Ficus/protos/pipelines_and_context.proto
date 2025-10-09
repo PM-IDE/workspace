@@ -45,7 +45,27 @@ message GrpcContextValue {
     GrpcUintArray uint_array = 24;
     string json = 25;
     GrpcSimpleEventLog event_log = 26;
+    GrpcOcelModelAnnotation ocel_annotation = 27;
   }
+}
+
+message GrpcOcelModelAnnotation {
+  repeated GrpcModelElementOcelAnnotation annotations = 1;
+}
+
+message GrpcModelElementOcelAnnotation {
+  uint64 element_id = 1;
+  GrpcOcelState initial_state = 2;
+  GrpcOcelState final_state = 3;
+}
+
+message GrpcOcelState {
+  repeated GrpcOcelObjectTypeState type_states = 1;
+}
+
+message GrpcOcelObjectTypeState {
+  string type = 1;
+  repeated string object_ids = 2;
 }
 
 message GrpcFloatArray {

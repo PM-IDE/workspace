@@ -186,7 +186,8 @@ pub(super) fn put_into_user_data(
       }
 
       user_data.put_concrete(EVENT_LOG_KEY.key(), xes_log);
-    }
+    },
+    ContextValue::OcelAnnotation(_) => todo!(),
   }
 }
 
