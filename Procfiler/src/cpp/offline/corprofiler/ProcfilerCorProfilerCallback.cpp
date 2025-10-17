@@ -69,7 +69,7 @@ void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcI
 
 void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
                                                         COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) const {
-    ObjectID id;
+    UINT64 id;
     myObjectsManager->TryGetThisObjectId(funcId, argumentInfo, &id);
 
     HandleFunctionEnter(funcId);
