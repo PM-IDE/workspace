@@ -58,26 +58,26 @@ public static class OcelLogger
     OcelEventsSource.Instance.ObjectConsumed(objectId, category, string.Empty);
   }
 
-  public static void LogObjectConsumedWithProduce(long objectId, string? category = null, params ulong[] relatedObjectIds)
+  public static void LogObjectsConsuneProduceRelation(long objectId, params ulong[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ObjectConsumedWithProduce(objectId, category, string.Join(Delimiter, relatedObjectIds), string.Empty);
+    OcelEventsSource.Instance.ConsumeProduceRelation(objectId, string.Join(Delimiter, relatedObjectIds), string.Empty);
   }
 
-  public static void LogObjectConsumedWithProduce<T>(T obj, string? category = null, params T[] relatedObjects)
+  public static void LogObjectsConsuneProduceRelation<T>(T obj, params T[] relatedObjects)
   {
     if (!IsEnabled()) return;
 
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
-    OcelEventsSource.Instance.ObjectConsumedWithProduce(GetObjectId(obj), category, relatedObjectIds, string.Empty);
+    OcelEventsSource.Instance.ConsumeProduceRelation(GetObjectId(obj), relatedObjectIds, string.Empty);
   }
 
-  public static void LogMergedObjectAllocated(long objectId, string? category = null, params long[] relatedObjectIds)
+  public static void LogMergedObjectAllocated(long objectId, params long[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.MergedObjectAllocated(objectId, category, JoinObjectsIds(relatedObjectIds), string.Empty);
+    OcelEventsSource.Instance.MergeAllocatedRelation(objectId, JoinObjectsIds(relatedObjectIds), string.Empty);
   }
 
   public static void LogMergedObjectAllocated<T>(T obj, string? category = null, params T[] relatedObjects)
@@ -85,7 +85,7 @@ public static class OcelLogger
     if (!IsEnabled()) return;
 
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
-    OcelEventsSource.Instance.MergedObjectAllocated(GetObjectId(obj), category, relatedObjectIds, string.Empty);
+    OcelEventsSource.Instance.MergeAllocatedRelation(GetObjectId(obj), relatedObjectIds, string.Empty);
   }
 
   private static string JoinObjectsIds(IEnumerable<long> objectIds) => string.Join(Delimiter, objectIds);

@@ -10,8 +10,8 @@ public class OcelEventsSource : EventSource
   private const int OcelActivityEndId = 7002;
   private const int OcelGloballyAttachedEventId = 7003;
   private const int OcelObjectConsumedEventId = 7004;
-  private const int OcelMergedObjectAllocatedEventId = 7005;
-  private const int OcelObjectConsumedWithProduceEventId = 7006;
+  private const int OcelObjectMergeAllocateRelationEventId = 7005;
+  private const int OcelObjectConsumeProduceRelationEventId = 7006;
 
 
   public static OcelEventsSource Instance { get; } = new();
@@ -30,13 +30,13 @@ public class OcelEventsSource : EventSource
   public void ObjectConsumed(long objectId, string? objectCategory, string attributes) =>
     WriteEvent(OcelObjectConsumedEventId, objectId, objectCategory, attributes);
 
-  [Event(OcelObjectConsumedWithProduceEventId, Level = EventLevel.LogAlways)]
-  public void ObjectConsumedWithProduce(long objectId, string? objectCategory, string relatedObjectIds, string attributes) =>
-    WriteEvent(OcelObjectConsumedWithProduceEventId, objectId, objectCategory, relatedObjectIds, attributes);
+  [Event(OcelObjectConsumeProduceRelationEventId, Level = EventLevel.LogAlways)]
+  public void ConsumeProduceRelation(long objectId, string relatedObjectIds, string attributes) =>
+    WriteEvent(OcelObjectConsumeProduceRelationEventId, objectId, relatedObjectIds, attributes);
 
-  [Event(OcelMergedObjectAllocatedEventId, Level = EventLevel.LogAlways)]
-  public void MergedObjectAllocated(long objectId, string? objectCategory, string relatedObjectIds, string attributes) =>
-    WriteEvent(OcelMergedObjectAllocatedEventId, objectId, objectCategory, relatedObjectIds, attributes);
+  [Event(OcelObjectMergeAllocateRelationEventId, Level = EventLevel.LogAlways)]
+  public void MergeAllocatedRelation(long objectId, string relatedObjectIds, string attributes) =>
+    WriteEvent(OcelObjectMergeAllocateRelationEventId, objectId, relatedObjectIds, attributes);
 
   [Event(OcelActivityBeginId, Level = EventLevel.LogAlways)]
   public void OcelActivityBegin(Guid activityId, string activity) => WriteEvent(OcelActivityBeginId, activityId, activity);
