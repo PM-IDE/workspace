@@ -58,14 +58,14 @@ public static class OcelLogger
     OcelEventsSource.Instance.ObjectConsumed(objectId, category, string.Empty);
   }
 
-  public static void LogObjectsConsuneProduceRelation(long objectId, params ulong[] relatedObjectIds)
+  public static void LogConsumeProduceRelation(long objectId, params ulong[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
     OcelEventsSource.Instance.ConsumeProduceRelation(objectId, string.Join(Delimiter, relatedObjectIds), string.Empty);
   }
 
-  public static void LogObjectsConsuneProduceRelation<T>(T obj, params T[] relatedObjects)
+  public static void LogConsumeProduceRelation<T>(T obj, params T[] relatedObjects)
   {
     if (!IsEnabled()) return;
 
@@ -73,14 +73,14 @@ public static class OcelLogger
     OcelEventsSource.Instance.ConsumeProduceRelation(GetObjectId(obj), relatedObjectIds, string.Empty);
   }
 
-  public static void LogMergedObjectAllocated(long objectId, params long[] relatedObjectIds)
+  public static void LogMergeAllocateRelation(long objectId, params long[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
     OcelEventsSource.Instance.MergeAllocatedRelation(objectId, JoinObjectsIds(relatedObjectIds), string.Empty);
   }
 
-  public static void LogMergedObjectAllocated<T>(T obj, string? category = null, params T[] relatedObjects)
+  public static void LogMergeAllocateRelation<T>(T obj, params T[] relatedObjects)
   {
     if (!IsEnabled()) return;
 

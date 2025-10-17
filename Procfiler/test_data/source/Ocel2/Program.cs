@@ -11,6 +11,7 @@ public static class Program
   {
   }
 
+
   private static int ourNextId;
 
   private static int NextId()
@@ -43,15 +44,15 @@ public static class Program
     Method1();
 
     var id7 = NextId();
-    OcelLogger.LogMergedObjectAllocated(id7, Type3, id1, id3, id5);
+    OcelLogger.LogMergeAllocateRelation(id7, id1, id3, id5);
 
     var id8 = NextId();
-    OcelLogger.LogMergedObjectAllocated(id8, Type1, id2, id4, id6);
+    OcelLogger.LogMergeAllocateRelation(id8, id2, id4, id6);
 
     Method1();
 
-    OcelLogger.LogObjectConsumedWithProduce(id7, Type3);
-    OcelLogger.LogObjectConsumedWithProduce(id8, Type2);
+    OcelLogger.LogConsumeProduceRelation(id7);
+    OcelLogger.LogConsumeProduceRelation(id8);
 
     Method1();
   }
