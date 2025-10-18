@@ -157,7 +157,7 @@ public class OnlyKnownEventsFilterer : IEventsFilter
     {
       if (ourAllowedEvents.Contains(eventRecord.EventClass)) continue;
 
-      OcelLogger.LogObjectAllocated(eventRecord, eventRecord.EventClass);
+      OcelLogger.LogObjectAllocated(eventRecord);
       events.Remove(ptr);
     }
   }

@@ -37,32 +37,32 @@ public static class OcelLogger
   }
 
 
-  public static void LogObjectAllocated<T>(T obj, string? category = null) where T : class
+  public static void LogObjectAllocated<T>(T obj) where T : class
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ObjectAllocated(GetObjectId(obj), category, string.Empty);
+    OcelEventsSource.Instance.OcelObjectAllocated(GetObjectId(obj), GetObjectType(obj), string.Empty);
   }
 
   public static void LogObjectAllocatedRaw(in OcelObjectDto dto)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ObjectAllocated(dto.Id, dto.Type, string.Empty);
+    OcelEventsSource.Instance.OcelObjectAllocated(dto.Id, dto.Type, string.Empty);
   }
 
   public static void LogObjectConsumed<T>(T obj, string? category = null)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ObjectConsumed(GetObjectId(obj), category, string.Empty);
+    OcelEventsSource.Instance.OcelObjectConsumed(GetObjectId(obj), category, string.Empty);
   }
 
   public static void LogObjectConsumedRaw(in OcelObjectDto dto)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ObjectConsumed(dto.Id, dto.Type, string.Empty);
+    OcelEventsSource.Instance.OcelObjectConsumed(dto.Id, dto.Type, string.Empty);
   }
 
   public static void LogConsumeProduceRaw(long objectId, params OcelObjectDto[] relatedObjectIds)
@@ -72,7 +72,7 @@ public static class OcelLogger
     var relatedIds = JoinObjectsIds(relatedObjectIds.Select(o => o.Id));
     var relatedTypes = JoinObjectTypes(relatedObjectIds.Select(o => o.Type));
 
-    OcelEventsSource.Instance.ConsumeProduce(objectId, relatedIds, relatedTypes, string.Empty);
+    OcelEventsSource.Instance.OcelConsumeProduce(objectId, relatedIds, relatedTypes, string.Empty);
   }
 
   public static void LogConsumeProduce<T>(T obj, params T[] relatedObjects)
@@ -82,14 +82,14 @@ public static class OcelLogger
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
     var relatedObjectTypes = JoinObjectTypes(relatedObjectIds.Select(GetObjectType));
 
-    OcelEventsSource.Instance.ConsumeProduce(GetObjectId(obj), relatedObjectIds, relatedObjectTypes, string.Empty);
+    OcelEventsSource.Instance.OcelConsumeProduce(GetObjectId(obj), relatedObjectIds, relatedObjectTypes, string.Empty);
   }
 
   public static void LogMergeAllocateRaw(OcelObjectDto allocatedObject, params long[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.MergeAllocate(allocatedObject.Id, allocatedObject.Type, JoinObjectsIds(relatedObjectIds), string.Empty);
+    OcelEventsSource.Instance.OcelMergeAllocate(allocatedObject.Id, allocatedObject.Type, JoinObjectsIds(relatedObjectIds), string.Empty);
   }
 
   public static void LogMergeAllocate<T>(T obj, params T[] relatedObjects)
@@ -97,7 +97,7 @@ public static class OcelLogger
     if (!IsEnabled()) return;
 
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
-    OcelEventsSource.Instance.MergeAllocate(GetObjectId(obj), GetObjectType(obj), relatedObjectIds, string.Empty);
+    OcelEventsSource.Instance.OcelMergeAllocate(GetObjectId(obj), GetObjectType(obj), relatedObjectIds, string.Empty);
   }
 
   private static string JoinObjectsIds(IEnumerable<long> objectIds) => string.Join(Delimiter, objectIds);
