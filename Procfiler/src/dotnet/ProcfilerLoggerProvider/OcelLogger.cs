@@ -44,7 +44,7 @@ public static class OcelLogger
     OcelEventsSource.Instance.ObjectAllocated(GetObjectId(obj), category, string.Empty);
   }
 
-  public static void LogObjectAllocated(in OcelObjectDto dto)
+  public static void LogObjectAllocatedRaw(in OcelObjectDto dto)
   {
     if (!IsEnabled()) return;
 
@@ -58,14 +58,14 @@ public static class OcelLogger
     OcelEventsSource.Instance.ObjectConsumed(GetObjectId(obj), category, string.Empty);
   }
 
-  public static void LogObjectConsumed(in OcelObjectDto dto)
+  public static void LogObjectConsumedRaw(in OcelObjectDto dto)
   {
     if (!IsEnabled()) return;
 
     OcelEventsSource.Instance.ObjectConsumed(dto.Id, dto.Type, string.Empty);
   }
 
-  public static void LogConsumeProduce(long objectId, IReadOnlyList<OcelObjectDto> relatedObjectIds)
+  public static void LogConsumeProduceRaw(long objectId, params OcelObjectDto[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
@@ -85,7 +85,7 @@ public static class OcelLogger
     OcelEventsSource.Instance.ConsumeProduce(GetObjectId(obj), relatedObjectIds, relatedObjectTypes, string.Empty);
   }
 
-  public static void LogMergeAllocate(OcelObjectDto allocatedObject, params long[] relatedObjectIds)
+  public static void LogMergeAllocateRaw(OcelObjectDto allocatedObject, params long[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 

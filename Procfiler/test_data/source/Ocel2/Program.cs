@@ -12,9 +12,9 @@ public static class Program
   }
 
 
-  private static int ourNextId;
+  private static long ourNextId;
 
-  private static int NextId()
+  private static long NextId()
   {
     ourNextId++;
     return ourNextId;
@@ -29,30 +29,30 @@ public static class Program
     var id1 = NextId();
     var id2 = NextId();
     var id3 = NextId();
-    OcelLogger.LogObjectAllocated(id1, Type1);
-    OcelLogger.LogObjectAllocated(id2, Type1);
-    OcelLogger.LogObjectAllocated(id3, Type1);
+    OcelLogger.LogObjectAllocatedRaw(new OcelObjectDto(id1, Type1));
+    OcelLogger.LogObjectAllocatedRaw(new OcelObjectDto(id2, Type1));
+    OcelLogger.LogObjectAllocatedRaw(new OcelObjectDto(id3, Type1));
 
     var id4 = NextId();
     var id5 = NextId();
     var id6 = NextId();
 
-    OcelLogger.LogObjectAllocated(id4, Type2);
-    OcelLogger.LogObjectAllocated(id5, Type2);
-    OcelLogger.LogObjectAllocated(id6, Type2);
+    OcelLogger.LogObjectAllocatedRaw(new OcelObjectDto(id4, Type2));
+    OcelLogger.LogObjectAllocatedRaw(new OcelObjectDto(id5, Type2));
+    OcelLogger.LogObjectAllocatedRaw(new OcelObjectDto(id6, Type2));
 
     Method1();
 
     var id7 = NextId();
-    OcelLogger.LogMergeAllocateRelation(id7, id1, id3, id5);
+    OcelLogger.LogMergeAllocateRaw(new OcelObjectDto(id7, Type1), id1, id3, id5);
 
     var id8 = NextId();
-    OcelLogger.LogMergeAllocateRelation(id8, id2, id4, id6);
+    OcelLogger.LogMergeAllocateRaw(new OcelObjectDto(id8, Type1), id2, id4, id6);
 
     Method1();
 
-    OcelLogger.LogConsumeProduceRelation(id7);
-    OcelLogger.LogConsumeProduceRelation(id8);
+    OcelLogger.LogConsumeProduceRaw(id7);
+    OcelLogger.LogConsumeProduceRaw(id8);
 
     Method1();
   }
