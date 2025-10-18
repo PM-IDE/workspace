@@ -26,8 +26,8 @@ public static class Program
           OcelLogger.LogGloballyAttachedObject(myObject, "GlobalInitializing", myObject.GetType().Name);
         }
 
-        OcelLogger.LogObjectAllocated(1234, "test");
-        OcelLogger.LogObjectAllocated(myObject, myObject.GetType().Name);
+        OcelLogger.LogObjectAllocatedRaw(new OcelObjectDto(1234, "test"));
+        OcelLogger.LogObjectAllocated(myObject);
 
         myObject.Name = "xd";
       }
@@ -44,7 +44,7 @@ public static class Program
       using var _ = OcelLogger.StartOcelActivity(nameof(Cleaning));
       foreach (var obj in objects)
       {
-        OcelLogger.LogObjectAllocated(obj, obj.GetType().Name);
+        OcelLogger.LogObjectAllocated(obj);
       }
     }
 
@@ -53,7 +53,7 @@ public static class Program
       using var _ = OcelLogger.StartOcelActivity(nameof(VetClinic));
       foreach (var obj in objects)
       {
-        OcelLogger.LogObjectAllocated(obj, obj.GetType().Name);
+        OcelLogger.LogObjectAllocated(obj);
       }
     }
 
@@ -62,7 +62,7 @@ public static class Program
       using var _ = OcelLogger.StartOcelActivity(nameof(Playground));
       foreach (var obj in objects)
       {
-        OcelLogger.LogObjectAllocated(obj, obj.GetType().Name);
+        OcelLogger.LogObjectAllocated(obj);
       }
     }
 
@@ -71,7 +71,7 @@ public static class Program
       using var _ = OcelLogger.StartOcelActivity(nameof(Farm));
       foreach (var obj in objects)
       {
-        OcelLogger.LogObjectAllocated(obj, obj.GetType().Name);
+        OcelLogger.LogObjectAllocated(obj);
       }
     }
   }

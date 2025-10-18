@@ -51,8 +51,8 @@ public static class Program
 
     Method1();
 
-    OcelLogger.LogConsumeProduceRaw(id7);
-    OcelLogger.LogConsumeProduceRaw(id8);
+    OcelLogger.LogConsumeProduceRaw(id7, new OcelObjectDto(NextId(), Type3), new OcelObjectDto(NextId(), Type2));
+    OcelLogger.LogConsumeProduceRaw(id8, new OcelObjectDto(NextId(), Type3));
 
     Method1();
   }
