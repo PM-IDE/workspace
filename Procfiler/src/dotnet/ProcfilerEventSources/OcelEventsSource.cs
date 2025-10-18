@@ -10,8 +10,8 @@ public class OcelEventsSource : EventSource
   private const int OcelActivityEndId = 7002;
   private const int OcelGloballyAttachedEventId = 7003;
   private const int OcelObjectConsumedEventId = 7004;
-  private const int OcelObjectMergeAllocateRelationEventId = 7005;
-  private const int OcelObjectConsumeProduceRelationEventId = 7006;
+  private const int OcelObjectMergeAllocateEventId = 7005;
+  private const int OcelObjectConsumeProduceEventId = 7006;
 
 
   public static OcelEventsSource Instance { get; } = new();
@@ -23,20 +23,20 @@ public class OcelEventsSource : EventSource
 
 
   [Event(OcelObjectAllocatedEventId, Level = EventLevel.LogAlways)]
-  public void ObjectAllocated(long objectId, string? objectCategory, string attributes) =>
-    WriteEvent(OcelObjectAllocatedEventId, objectId, objectCategory, attributes);
+  public void ObjectAllocated(long objectId, string? type, string attributes) =>
+    WriteEvent(OcelObjectAllocatedEventId, objectId, type, attributes);
 
   [Event(OcelObjectConsumedEventId, Level = EventLevel.LogAlways)]
-  public void ObjectConsumed(long objectId, string? objectCategory, string attributes) =>
-    WriteEvent(OcelObjectConsumedEventId, objectId, objectCategory, attributes);
+  public void ObjectConsumed(long objectId, string? type, string attributes) =>
+    WriteEvent(OcelObjectConsumedEventId, objectId, type, attributes);
 
-  [Event(OcelObjectConsumeProduceRelationEventId, Level = EventLevel.LogAlways)]
-  public void ConsumeProduceRelation(long objectId, string relatedObjectIds, string attributes) =>
-    WriteEvent(OcelObjectConsumeProduceRelationEventId, objectId, relatedObjectIds, attributes);
+  [Event(OcelObjectConsumeProduceEventId, Level = EventLevel.LogAlways)]
+  public void ConsumeProduce(long objectId, string relatedObjectsIds, string relatedObjectsTypes, string attributes) =>
+    WriteEvent(OcelObjectConsumeProduceEventId, objectId, relatedObjectsIds, relatedObjectsTypes, attributes);
 
-  [Event(OcelObjectMergeAllocateRelationEventId, Level = EventLevel.LogAlways)]
-  public void MergeAllocatedRelation(long objectId, string relatedObjectIds, string attributes) =>
-    WriteEvent(OcelObjectMergeAllocateRelationEventId, objectId, relatedObjectIds, attributes);
+  [Event(OcelObjectMergeAllocateEventId, Level = EventLevel.LogAlways)]
+  public void MergeAllocate(long objectId, string? type, string relatedObjectIds, string attributes) =>
+    WriteEvent(OcelObjectMergeAllocateEventId, objectId, type, relatedObjectIds, attributes);
 
   [Event(OcelActivityBeginId, Level = EventLevel.LogAlways)]
   public void OcelActivityBegin(Guid activityId, string activity) => WriteEvent(OcelActivityBeginId, activityId, activity);

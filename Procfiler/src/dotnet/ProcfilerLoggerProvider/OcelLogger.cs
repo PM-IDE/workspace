@@ -7,13 +7,20 @@ public abstract class OcelObjectBase
 {
   private static long ourNextId;
 
-  internal long Id { get; }
+  public long Id { get; }
+  public virtual string? Type => GetType().FullName;
 
 
   protected OcelObjectBase()
   {
     Id = Interlocked.Increment(ref ourNextId);
   }
+}
+
+public readonly struct OcelObjectDto(long objectId, string? type = null)
+{
+  public long Id => objectId;
+  public string? Type => type;
 }
 
 public static class OcelLogger
@@ -37,11 +44,11 @@ public static class OcelLogger
     OcelEventsSource.Instance.ObjectAllocated(GetObjectId(obj), category, string.Empty);
   }
 
-  public static void LogObjectAllocated(long objectId, string? category = null)
+  public static void LogObjectAllocated(in OcelObjectDto dto)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ObjectAllocated(objectId, category, string.Empty);
+    OcelEventsSource.Instance.ObjectAllocated(dto.Id, dto.Type, string.Empty);
   }
 
   public static void LogObjectConsumed<T>(T obj, string? category = null)
@@ -51,49 +58,61 @@ public static class OcelLogger
     OcelEventsSource.Instance.ObjectConsumed(GetObjectId(obj), category, string.Empty);
   }
 
-  public static void LogObjectConsumed(long objectId, string? category = null)
+  public static void LogObjectConsumed(in OcelObjectDto dto)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ObjectConsumed(objectId, category, string.Empty);
+    OcelEventsSource.Instance.ObjectConsumed(dto.Id, dto.Type, string.Empty);
   }
 
-  public static void LogConsumeProduceRelation(long objectId, params ulong[] relatedObjectIds)
+  public static void LogConsumeProduce(long objectId, IReadOnlyList<OcelObjectDto> relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.ConsumeProduceRelation(objectId, string.Join(Delimiter, relatedObjectIds), string.Empty);
+    var relatedIds = JoinObjectsIds(relatedObjectIds.Select(o => o.Id));
+    var relatedTypes = JoinObjectTypes(relatedObjectIds.Select(o => o.Type));
+
+    OcelEventsSource.Instance.ConsumeProduce(objectId, relatedIds, relatedTypes, string.Empty);
   }
 
-  public static void LogConsumeProduceRelation<T>(T obj, params T[] relatedObjects)
+  public static void LogConsumeProduce<T>(T obj, params T[] relatedObjects)
   {
     if (!IsEnabled()) return;
 
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
-    OcelEventsSource.Instance.ConsumeProduceRelation(GetObjectId(obj), relatedObjectIds, string.Empty);
+    var relatedObjectTypes = JoinObjectTypes(relatedObjectIds.Select(GetObjectType));
+
+    OcelEventsSource.Instance.ConsumeProduce(GetObjectId(obj), relatedObjectIds, relatedObjectTypes, string.Empty);
   }
 
-  public static void LogMergeAllocateRelation(long objectId, params long[] relatedObjectIds)
+  public static void LogMergeAllocate(OcelObjectDto allocatedObject, params long[] relatedObjectIds)
   {
     if (!IsEnabled()) return;
 
-    OcelEventsSource.Instance.MergeAllocatedRelation(objectId, JoinObjectsIds(relatedObjectIds), string.Empty);
+    OcelEventsSource.Instance.MergeAllocate(allocatedObject.Id, allocatedObject.Type, JoinObjectsIds(relatedObjectIds), string.Empty);
   }
 
-  public static void LogMergeAllocateRelation<T>(T obj, params T[] relatedObjects)
+  public static void LogMergeAllocate<T>(T obj, params T[] relatedObjects)
   {
     if (!IsEnabled()) return;
 
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
-    OcelEventsSource.Instance.MergeAllocatedRelation(GetObjectId(obj), relatedObjectIds, string.Empty);
+    OcelEventsSource.Instance.MergeAllocate(GetObjectId(obj), GetObjectType(obj), relatedObjectIds, string.Empty);
   }
 
   private static string JoinObjectsIds(IEnumerable<long> objectIds) => string.Join(Delimiter, objectIds);
+  private static string JoinObjectTypes(IEnumerable<string?> types) => string.Join(Delimiter, types);
 
   private static long GetObjectId<T>(T obj) => obj switch
   {
     OcelObjectBase @base => @base.Id,
     _ => RuntimeHelpers.GetHashCode(obj)
+  };
+
+  private static string? GetObjectType<T>(T obj) => obj switch
+  {
+    OcelObjectBase @base => @base.Type,
+    _ => obj?.GetType().FullName
   };
 
   private static bool IsEnabled() => OcelEventsSource.Instance.IsEnabled();
