@@ -30,11 +30,13 @@ impl<'a> EventGroupSoftwareDataExtractor for OcelDataExtractor<'a> {
     let alloc_merged_config = Self::map_config_to_regex(ocel_config.allocated_merged())?;
     let consume_produce_config = Self::map_config_to_regex(ocel_config.consume_produce())?;
 
+    let delimiter = ocel_config.delimiter().as_ref().map(|s| s.as_str()).unwrap_or(" ");
+
     for event in events {
       let event = &event.borrow();
 
-      let _ = Self::process_allocate_merge(event, alloc_merged_config.as_ref(), software_data) ||
-        Self::process_consume_produce(event, consume_produce_config.as_ref(), software_data) ||
+      let _ = Self::process_allocate_merge(event, alloc_merged_config.as_ref(), delimiter, software_data) ||
+        Self::process_consume_produce(event, consume_produce_config.as_ref(), delimiter, software_data) ||
         Self::process_allocate(event, alloc_config.as_ref(), software_data) ||
         Self::process_consume(event, consume_config.as_ref(), software_data);
     }
@@ -106,13 +108,16 @@ impl<'a> OcelDataExtractor<'a> {
   fn process_allocate_merge(
     event: &XesEventImpl,
     config: Option<&(Regex, &OcelAllocateMergeExtractionConfig)>,
+    delimiter: &str,
     software_data: &mut SoftwareData,
   ) -> bool {
     let Some(config) = Self::try_get_config(event, config) else { return false };
 
     let Some(payload) = event.payload_map() else { return false };
     let Some((id, obj_type)) = Self::extract_object_id_and_type(event, config.allocated_obj()) else { return false };
-    let Some(related_objects_ids) = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr())) else { return false };
+
+    let related_objects_ids = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr()), delimiter);
+    let Some(related_objects_ids) = related_objects_ids else { return false };
 
     let data = ObjectTypeWithData::new(Some(obj_type), related_objects_ids);
     let ocel_data = OcelData::new(id, OcelObjectAction::AllocateMerged(data));
@@ -124,14 +129,18 @@ impl<'a> OcelDataExtractor<'a> {
   fn process_consume_produce(
     event: &XesEventImpl,
     config: Option<&(Regex, &OcelConsumeProduceExtractionConfig)>,
+    delimiter: &str,
     software_data: &mut SoftwareData,
   ) -> bool {
     let Some(config) = Self::try_get_config(event, config) else { return false };
 
     let Some(payload) = event.payload_map() else { return false };
     let Some(object_id) = Self::parse_object_id(&event, config.object_id_attr().as_str()) else { return false };
-    let Some(related_objects_ids) = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr())) else { return false };
-    let Some(related_objects_types) = Self::parse_related_objects_ids(payload, Some(config.related_object_type_attr())) else { return false };
+    let related_objects_ids = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr()), delimiter);
+    let Some(related_objects_ids) = related_objects_ids else { return false };
+
+    let related_objects_types = Self::parse_related_objects_ids(payload, Some(config.related_object_type_attr()), delimiter);
+    let Some(related_objects_types) = related_objects_types else { return false };
 
     if related_objects_ids.len() != related_objects_types.len() {
       warn!("related_objects_ids.len() != related_objects_types.len(), will not add consume produce");
@@ -163,12 +172,13 @@ impl<'a> OcelDataExtractor<'a> {
   fn parse_related_objects_ids(
     payload: &HashMap<String, EventPayloadValue>,
     related_objects_ids_attr: Option<&String>,
+    delimiter: &str,
   ) -> Option<Vec<String>> {
     if let Some(related_objects_ids_attr) = related_objects_ids_attr {
       if let Some(objects_ids) = payload.get(related_objects_ids_attr) {
         let parsed_ids: Vec<String> = objects_ids.to_string_repr()
           .trim()
-          .split(' ')
+          .split(delimiter)
           .filter_map(|s| if s.len() > 0 { Some(s.to_string()) } else { None })
           .collect();
 

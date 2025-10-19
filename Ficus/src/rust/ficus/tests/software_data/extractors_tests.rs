@@ -444,6 +444,7 @@ pub fn test_ocel_data_extraction() {
 
       config.set_ocel(
         Some(OcelUnitedExtractionConfig::new(
+          Some(" ".to_string()),
           Some(
             ExtractionConfig::new(
               "ocel_allocate".to_string(),

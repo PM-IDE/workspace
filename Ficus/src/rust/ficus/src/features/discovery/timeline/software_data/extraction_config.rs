@@ -66,6 +66,8 @@ impl SoftwareDataExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct OcelUnitedExtractionConfig {
   #[getset(get = "pub")]
+  delimiter: Option<String>,
+  #[getset(get = "pub")]
   allocated: Option<ExtractionConfig<OcelObjectExtractionConfigBase>>,
   #[getset(get = "pub")]
   consumed: Option<ExtractionConfig<OcelObjectExtractionConfigBase>>,
