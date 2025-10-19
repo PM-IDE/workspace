@@ -1,14 +1,15 @@
 use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
+use crate::features::discovery::timeline::software_data::extraction_config::{ExtractionConfig, OcelAllocateMergeExtractionConfig, OcelConsumeProduceExtractionConfig, OcelObjectExtractionConfigBase, SoftwareDataExtractionConfig};
 use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError};
-use crate::features::discovery::timeline::software_data::models::{OcelData, OcelObjectAction, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{ObjectTypeWithData, OcelData, OcelObjectAction, OcelProducedObjectAfterConsume, SoftwareData};
 use derive_new::new;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::rc::Rc;
-use fancy_regex::Regex;
 use log::{debug, warn};
+use fancy_regex::Regex;
 use crate::utils::references::HeapedOrOwned;
 
 #[derive(Debug, Clone, new)]
@@ -22,82 +23,137 @@ impl<'a> EventGroupSoftwareDataExtractor for OcelDataExtractor<'a> {
     software_data: &mut SoftwareData,
     events: &[Rc<RefCell<XesEventImpl>>],
   ) -> Result<(), SoftwareDataExtractionError> {
-    if let Some(ocel_config) = self.config.ocel().as_ref() {
-      let raw_regex = ocel_config.event_class_regex();
-      let regex = Regex::new(raw_regex).map_err(|e| SoftwareDataExtractionError::FailedToParseRegex(raw_regex.to_owned()))?;
+    let Some(ocel_config) = self.config.ocel().as_ref() else { return Ok(()) };
 
-      for event in events {
-        if !regex.is_match(event.borrow().name()).unwrap_or(false) {
-          continue;
-        }
+    let alloc_config = Self::map_config_to_regex(ocel_config.allocated())?;
+    let consume_config = Self::map_config_to_regex(ocel_config.consumed())?;
+    let alloc_merged_config = Self::map_config_to_regex(ocel_config.allocated_merged())?;
+    let consume_produce_config = Self::map_config_to_regex(ocel_config.consume_produce())?;
 
-        let object_type = ocel_config.info().object_type_attr().create(&event.borrow());
+    for event in events {
+      let event = &event.borrow();
 
-        let object_id = match Self::parse_object_id(&event.borrow(), ocel_config.info().object_id_attr().as_str()) {
-          None => {
-            debug!("Object does not have an object id, skipping it");
-            continue;
-          }
-          Some(id) => id.to_string()
-        };
-
-        let action = if let Some(action_attr) = ocel_config.info().object_action_type_attr().as_ref() {
-          let related_objs_ids = ocel_config.info().related_object_ids_attr().as_ref();
-          if let Some(ocel_action) = Self::parse_ocel_object_action(&event.borrow(), action_attr, related_objs_ids) {
-            ocel_action
-          } else {
-            get_fallback_ocel_object_action()
-          }
-        } else {
-          get_fallback_ocel_object_action()
-        };
-
-        software_data.ocel_data_mut().push(OcelData::new(object_type, object_id, action));
-      }
+      let _ = Self::process_allocate_merge(event, alloc_merged_config.as_ref(), software_data) ||
+        Self::process_consume_produce(event, consume_produce_config.as_ref(), software_data) ||
+        Self::process_allocate(event, alloc_config.as_ref(), software_data) ||
+        Self::process_consume(event, consume_config.as_ref(), software_data);
     }
 
     Ok(())
   }
 }
 
-fn get_fallback_ocel_object_action() -> OcelObjectAction {
-  let fallback_action = OcelObjectAction::Allocate;
-  debug!("Failed to get OCEL objet action, will use {} action as fallback value", fallback_action);
-
-  fallback_action
-}
-
 impl<'a> OcelDataExtractor<'a> {
+  fn map_config_to_regex<T: Clone + Debug>(config: &Option<ExtractionConfig<T>>) -> Result<Option<(Regex, &T)>, SoftwareDataExtractionError> {
+    let Some(config) = config else { return Ok(None) };
+
+    let regex = config.event_class_regex();
+    let regex = Regex::new(regex).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(regex.to_owned()))?;
+
+    Ok(Some((regex, config.info())))
+  }
+
+  fn process_allocate(
+    event: &XesEventImpl,
+    config: Option<&(Regex, &OcelObjectExtractionConfigBase)>,
+    software_data: &mut SoftwareData,
+  ) -> bool {
+    let Some(config) = Self::try_get_config(event, config) else { return false };
+    let Some((id, obj_type)) = Self::extract_object_id_and_type(event, config) else { return false };
+    let action = OcelObjectAction::Allocate(ObjectTypeWithData::new(Some(obj_type), ()));
+
+    software_data.ocel_data_mut().push(OcelData::new(id, action));
+
+    true
+  }
+
+  fn try_get_config<'b, T>(event: &'b XesEventImpl, config: Option<&'b (Regex, T)>) -> Option<&'b T> {
+    let Some((regex, config)) = config else { return None };
+    if !regex.is_match(event.name().as_str()).unwrap_or(false) { return None }
+
+    Some(config)
+  }
+
+  fn process_consume(
+    event: &XesEventImpl,
+    config: Option<&(Regex, &OcelObjectExtractionConfigBase)>,
+    software_data: &mut SoftwareData,
+  ) -> bool {
+    let Some(config) = Self::try_get_config(event, config) else { return false };
+
+    let Some((id, obj_type)) = Self::extract_object_id_and_type(event, config) else { return false };
+    let action = OcelObjectAction::Consume(ObjectTypeWithData::new(Some(obj_type), ()));
+
+    software_data.ocel_data_mut().push(OcelData::new(id, action));
+
+    true
+  }
+
+  fn extract_object_id_and_type(event: &XesEventImpl, config: &OcelObjectExtractionConfigBase) -> Option<(String, String)> {
+    let object_type = config.object_type_attr().create(event);
+
+    let object_id = match Self::parse_object_id(&event, config.object_id_attr().as_str()) {
+      None => {
+        debug!("Object does not have an object id, skipping it");
+        return None
+      }
+      Some(id) => id.to_string()
+    };
+
+    Some((object_id, object_type))
+  }
+
+  fn process_allocate_merge(
+    event: &XesEventImpl,
+    config: Option<&(Regex, &OcelAllocateMergeExtractionConfig)>,
+    software_data: &mut SoftwareData,
+  ) -> bool {
+    let Some(config) = Self::try_get_config(event, config) else { return false };
+
+    let Some(payload) = event.payload_map() else { return false };
+    let Some((id, obj_type)) = Self::extract_object_id_and_type(event, config.allocated_obj()) else { return false };
+    let Some(related_objects_ids) = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr())) else { return false };
+
+    let data = ObjectTypeWithData::new(Some(obj_type), related_objects_ids);
+    let ocel_data = OcelData::new(id, OcelObjectAction::AllocateMerged(data));
+    software_data.ocel_data_mut().push(ocel_data);
+
+    true
+  }
+
+  fn process_consume_produce(
+    event: &XesEventImpl,
+    config: Option<&(Regex, &OcelConsumeProduceExtractionConfig)>,
+    software_data: &mut SoftwareData,
+  ) -> bool {
+    let Some(config) = Self::try_get_config(event, config) else { return false };
+
+    let Some(payload) = event.payload_map() else { return false };
+    let Some(object_id) = Self::parse_object_id(&event, config.object_id_attr().as_str()) else { return false };
+    let Some(related_objects_ids) = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr())) else { return false };
+    let Some(related_objects_types) = Self::parse_related_objects_ids(payload, Some(config.related_object_type_attr())) else { return false };
+
+    if related_objects_ids.len() != related_objects_types.len() {
+      warn!("related_objects_ids.len() != related_objects_types.len(), will not add consume produce");
+      return false;
+    }
+
+    let data = related_objects_ids
+      .into_iter()
+      .zip(related_objects_types.into_iter())
+      .map(|(id, r#type)| OcelProducedObjectAfterConsume::new(id, Some(r#type)))
+      .collect();
+
+    let ocel_data = OcelData::new(object_id.to_string(), OcelObjectAction::ConsumeWithProduce(data));
+    software_data.ocel_data_mut().push(ocel_data);
+
+    true
+  }
+
   fn parse_object_id(event: &XesEventImpl, object_id_attr: &str) -> Option<HeapedOrOwned<String>> {
     if let Some(map) = event.payload_map().as_ref() {
       if let Some(object_id) = map.get(object_id_attr).as_ref() {
         return Some(object_id.to_string_repr())
-      }
-    }
-
-    None
-  }
-
-  fn parse_ocel_object_action(
-    event: &XesEventImpl,
-    action_attr: &String,
-    related_objects_ids_attr: Option<&String>,
-  ) -> Option<OcelObjectAction> {
-    if let Some(map) = event.payload_map().as_ref() {
-      if let Some(action_value) = map.get(action_attr).as_ref() {
-        match action_value.to_string_repr().as_str() {
-          "Allocate" => return Some(OcelObjectAction::Allocate),
-          "Consume" => return Some(OcelObjectAction::Consume),
-          "AllocateMerged" => return match Self::parse_related_objects_ids(map, related_objects_ids_attr) {
-            None => Some(OcelObjectAction::Allocate),
-            Some(ids) => Some(OcelObjectAction::AllocateMerged(ids))
-          },
-          "ConsumeWithProduce" => return match Self::parse_related_objects_ids(map, related_objects_ids_attr) {
-            None => Some(OcelObjectAction::Consume),
-            Some(ids) => Some(OcelObjectAction::ConsumeWithProduce(ids))
-          },
-          _ => {}
-        }
       }
     }
 

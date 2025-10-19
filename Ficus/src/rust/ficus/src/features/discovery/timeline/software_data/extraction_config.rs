@@ -14,7 +14,7 @@ pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")]
   allocation: Option<ExtractionConfig<AllocationExtractionConfig>>,
   #[getset(get = "pub", set = "pub")]
-  ocel: Option<ExtractionConfig<OcelDataExtractionConfig>>,
+  ocel: Option<OcelUnitedExtractionConfig>,
 
   #[getset(get = "pub", set = "pub")]
   raw_control_flow_regexes: Vec<String>,
@@ -64,15 +64,41 @@ impl SoftwareDataExtractionConfig {
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
-pub struct OcelDataExtractionConfig {
+pub struct OcelUnitedExtractionConfig {
+  #[getset(get = "pub")]
+  allocated: Option<ExtractionConfig<OcelObjectExtractionConfigBase>>,
+  #[getset(get = "pub")]
+  consumed: Option<ExtractionConfig<OcelObjectExtractionConfigBase>>,
+  #[getset(get = "pub")]
+  allocated_merged: Option<ExtractionConfig<OcelAllocateMergeExtractionConfig>>,
+  #[getset(get = "pub")]
+  consume_produce: Option<ExtractionConfig<OcelConsumeProduceExtractionConfig>>,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelObjectExtractionConfigBase {
   #[getset(get = "pub")]
   object_type_attr: NameCreationStrategy,
   #[getset(get = "pub")]
   object_id_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelAllocateMergeExtractionConfig {
   #[getset(get = "pub")]
-  object_action_type_attr: Option<String>,
+  allocated_obj: OcelObjectExtractionConfigBase,
   #[getset(get = "pub")]
-  related_object_ids_attr: Option<String>,
+  related_object_ids_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelConsumeProduceExtractionConfig {
+  #[getset(get = "pub")]
+  object_id_attr: String,
+  #[getset(get = "pub")]
+  related_object_ids_attr: String,
+  #[getset(get = "pub")]
+  related_object_type_attr: String
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

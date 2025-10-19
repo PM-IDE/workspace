@@ -46,18 +46,32 @@ impl SoftwareData {
   }
 }
 
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelProducedObjectAfterConsume {
+  #[getset(get = "pub")]
+  id: String,
+  #[getset(get = "pub")]
+  r#type: Option<String>
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct ObjectTypeWithData<T> {
+  #[getset(get = "pub")]
+  r#type: Option<String>,
+  #[getset(get = "pub")]
+  data: T,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize, EnumDisplay)]
 pub enum OcelObjectAction {
-  Allocate,
-  Consume,
-  AllocateMerged(Vec<String>),
-  ConsumeWithProduce(Vec<String>)
+  Allocate(ObjectTypeWithData<()>),
+  Consume(ObjectTypeWithData<()>),
+  AllocateMerged(ObjectTypeWithData<Vec<String>>),
+  ConsumeWithProduce(Vec<OcelProducedObjectAfterConsume>)
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct OcelData {
-  #[getset(get = "pub")]
-  object_type: String,
   #[getset(get = "pub")]
   object_id: String,
   #[getset(get = "pub")]

@@ -109,27 +109,39 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
       if let Some(edge_software_data) = edge.user_data().concrete(EDGE_SOFTWARE_DATA_KEY.key()) {
         for data in edge_software_data {
           for ocel_data in data.ocel_data() {
-            let obj_type = ocel_data.object_type();
             let obj_id = ocel_data.object_id();
+            const UNKNOWN_TYPE: &str = "UNKNOWN";
+
             match ocel_data.action() {
-              OcelObjectAction::Allocate => {
-                new_node_state.add_allocated_object(obj_type.to_string(), obj_id.to_string())?;
+              OcelObjectAction::Allocate(data) => {
+                let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
+                new_node_state.add_allocated_object(obj_type, obj_id.to_string())?;
               }
-              OcelObjectAction::Consume => {
+              OcelObjectAction::Consume(data) => {
+                let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE);
                 if prev_state.final_objects.contains_object(obj_type, obj_id) {
                   return Err(OcelAnnotationCreationError::ConsumeNotExistingObject)
                 }
               }
-              OcelObjectAction::AllocateMerged(ids) => {
-                for id in ids {
+              OcelObjectAction::AllocateMerged(data) => {
+                for id in data.data() {
                   if !prev_state.final_objects.contains_unknown_object(id) {
                     return Err(OcelAnnotationCreationError::OneOfMergedObjetsDoesNotExist)
                   }
                 }
+
+                let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
+                new_node_state.add_allocated_object(obj_type, obj_id.to_string())?;
               }
-              OcelObjectAction::ConsumeWithProduce(_) => {
-                if !prev_state.final_objects.contains_object(obj_type, obj_id) {
+              OcelObjectAction::ConsumeWithProduce(data) => {
+                if !prev_state.final_objects.contains_unknown_object(obj_id) {
                   return Err(OcelAnnotationCreationError::ConsumeNotExistingObject)
+                }
+
+                for produced_obj in data.iter() {
+                  let obj_type = produced_obj.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
+                  let id = produced_obj.id().to_string();
+                  new_node_state.add_allocated_object(obj_type, id)?;
                 }
               }
             }
