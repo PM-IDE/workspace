@@ -81,7 +81,6 @@ export interface ProtoGrpcType {
     GrpcLogTimelineDiagram: MessageTypeDefinition
     GrpcMatrix: MessageTypeDefinition
     GrpcMatrixRow: MessageTypeDefinition
-    GrpcMergedObjectAllocation: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
     GrpcModelElementOcelAnnotation: MessageTypeDefinition
@@ -91,9 +90,13 @@ export interface ProtoGrpcType {
     GrpcNamesTrace: MessageTypeDefinition
     GrpcNodeAdditionalData: MessageTypeDefinition
     GrpcNodeCorrespondingTraceData: MessageTypeDefinition
+    GrpcOcelAllocateMerge: MessageTypeDefinition
+    GrpcOcelConsumeProduce: MessageTypeDefinition
     GrpcOcelData: MessageTypeDefinition
     GrpcOcelModelAnnotation: MessageTypeDefinition
+    GrpcOcelObjectTypeData: MessageTypeDefinition
     GrpcOcelObjectTypeState: MessageTypeDefinition
+    GrpcOcelProducedObject: MessageTypeDefinition
     GrpcOcelState: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
@@ -118,7 +121,6 @@ export interface ProtoGrpcType {
     GrpcPipelineStreamingConfiguration: MessageTypeDefinition
     GrpcPredefinedPipelinePartsToBackendsMap: MessageTypeDefinition
     GrpcProcessInfo: MessageTypeDefinition
-    GrpcProduceObjectConsumption: MessageTypeDefinition
     GrpcProxyPipelineExecutionRequest: MessageTypeDefinition
     GrpcRemoveAllPipelinesRequest: MessageTypeDefinition
     GrpcRemovePipelineRequest: MessageTypeDefinition

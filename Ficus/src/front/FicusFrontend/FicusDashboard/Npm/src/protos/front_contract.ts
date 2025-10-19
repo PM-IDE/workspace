@@ -66,7 +66,6 @@ export interface ProtoGrpcType {
     GrpcLogTimelineDiagram: MessageTypeDefinition
     GrpcMatrix: MessageTypeDefinition
     GrpcMatrixRow: MessageTypeDefinition
-    GrpcMergedObjectAllocation: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
     GrpcModelElementOcelAnnotation: MessageTypeDefinition
@@ -76,9 +75,13 @@ export interface ProtoGrpcType {
     GrpcNamesTrace: MessageTypeDefinition
     GrpcNodeAdditionalData: MessageTypeDefinition
     GrpcNodeCorrespondingTraceData: MessageTypeDefinition
+    GrpcOcelAllocateMerge: MessageTypeDefinition
+    GrpcOcelConsumeProduce: MessageTypeDefinition
     GrpcOcelData: MessageTypeDefinition
     GrpcOcelModelAnnotation: MessageTypeDefinition
+    GrpcOcelObjectTypeData: MessageTypeDefinition
     GrpcOcelObjectTypeState: MessageTypeDefinition
+    GrpcOcelProducedObject: MessageTypeDefinition
     GrpcOcelState: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
@@ -97,7 +100,6 @@ export interface ProtoGrpcType {
     GrpcPipelinePartsContextValuesService: SubtypeConstructor<typeof grpc.Client, _ficus_GrpcPipelinePartsContextValuesServiceClient> & { service: _ficus_GrpcPipelinePartsContextValuesServiceDefinition }
     GrpcProcessCaseMetadata: MessageTypeDefinition
     GrpcProcessCaseMetadataWithStamp: MessageTypeDefinition
-    GrpcProduceObjectConsumption: MessageTypeDefinition
     GrpcSimpleContextRequestPipelinePart: MessageTypeDefinition
     GrpcSimpleCounterData: MessageTypeDefinition
     GrpcSimpleEventLog: MessageTypeDefinition

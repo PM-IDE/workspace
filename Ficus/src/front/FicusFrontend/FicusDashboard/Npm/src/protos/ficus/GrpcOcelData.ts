@@ -1,25 +1,23 @@
 // Original file: ../../../../../protos/pipelines_and_context.proto
 
-import type { Empty_DONTUSE as _google_protobuf_Empty_DONTUSE, Empty as _google_protobuf_Empty } from '../google/protobuf/Empty';
-import type { GrpcMergedObjectAllocation_DONTUSE as _ficus_GrpcMergedObjectAllocation_DONTUSE, GrpcMergedObjectAllocation as _ficus_GrpcMergedObjectAllocation } from '../ficus/GrpcMergedObjectAllocation';
-import type { GrpcProduceObjectConsumption_DONTUSE as _ficus_GrpcProduceObjectConsumption_DONTUSE, GrpcProduceObjectConsumption as _ficus_GrpcProduceObjectConsumption } from '../ficus/GrpcProduceObjectConsumption';
+import type { GrpcOcelObjectTypeData_DONTUSE as _ficus_GrpcOcelObjectTypeData_DONTUSE, GrpcOcelObjectTypeData as _ficus_GrpcOcelObjectTypeData } from '../ficus/GrpcOcelObjectTypeData';
+import type { GrpcOcelAllocateMerge_DONTUSE as _ficus_GrpcOcelAllocateMerge_DONTUSE, GrpcOcelAllocateMerge as _ficus_GrpcOcelAllocateMerge } from '../ficus/GrpcOcelAllocateMerge';
+import type { GrpcOcelConsumeProduce_DONTUSE as _ficus_GrpcOcelConsumeProduce_DONTUSE, GrpcOcelConsumeProduce as _ficus_GrpcOcelConsumeProduce } from '../ficus/GrpcOcelConsumeProduce';
 
 export interface GrpcOcelData_DONTUSE {
-  'objectType'?: (string);
   'objectId'?: (string);
-  'allocate'?: (_google_protobuf_Empty_DONTUSE | null);
-  'consume'?: (_google_protobuf_Empty_DONTUSE | null);
-  'mergedObjectAllocation'?: (_ficus_GrpcMergedObjectAllocation_DONTUSE | null);
-  'produceObjectConsumption'?: (_ficus_GrpcProduceObjectConsumption_DONTUSE | null);
+  'allocate'?: (_ficus_GrpcOcelObjectTypeData_DONTUSE | null);
+  'consume'?: (_ficus_GrpcOcelObjectTypeData_DONTUSE | null);
+  'mergedObjectAllocation'?: (_ficus_GrpcOcelAllocateMerge_DONTUSE | null);
+  'produceObjectConsumption'?: (_ficus_GrpcOcelConsumeProduce_DONTUSE | null);
   'action'?: "allocate"|"consume"|"mergedObjectAllocation"|"produceObjectConsumption";
 }
 
 export interface GrpcOcelData {
-  'objectType': (string);
   'objectId': (string);
-  'allocate'?: (_google_protobuf_Empty | null);
-  'consume'?: (_google_protobuf_Empty | null);
-  'mergedObjectAllocation'?: (_ficus_GrpcMergedObjectAllocation | null);
-  'produceObjectConsumption'?: (_ficus_GrpcProduceObjectConsumption | null);
+  'allocate'?: (_ficus_GrpcOcelObjectTypeData | null);
+  'consume'?: (_ficus_GrpcOcelObjectTypeData | null);
+  'mergedObjectAllocation'?: (_ficus_GrpcOcelAllocateMerge | null);
+  'produceObjectConsumption'?: (_ficus_GrpcOcelConsumeProduce | null);
   'action': "allocate"|"consume"|"mergedObjectAllocation"|"produceObjectConsumption";
 }

@@ -470,33 +470,47 @@ class GrpcSoftwareData(_message.Message):
     ocel_data: _containers.RepeatedCompositeFieldContainer[GrpcOcelData]
     def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ..., activities_durations_data: _Optional[_Iterable[_Union[GrpcActivityDurationData, _Mapping]]] = ..., ocel_data: _Optional[_Iterable[_Union[GrpcOcelData, _Mapping]]] = ...) -> None: ...
 
+class GrpcOcelObjectTypeData(_message.Message):
+    __slots__ = ["type"]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    type: str
+    def __init__(self, type: _Optional[str] = ...) -> None: ...
+
+class GrpcOcelAllocateMerge(_message.Message):
+    __slots__ = ["type", "merged_objects_ids"]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    MERGED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
+    type: str
+    merged_objects_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, type: _Optional[str] = ..., merged_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class GrpcOcelProducedObject(_message.Message):
+    __slots__ = ["id", "type"]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    type: str
+    def __init__(self, id: _Optional[str] = ..., type: _Optional[str] = ...) -> None: ...
+
+class GrpcOcelConsumeProduce(_message.Message):
+    __slots__ = ["produced_objects"]
+    PRODUCED_OBJECTS_FIELD_NUMBER: _ClassVar[int]
+    produced_objects: _containers.RepeatedCompositeFieldContainer[GrpcOcelProducedObject]
+    def __init__(self, produced_objects: _Optional[_Iterable[_Union[GrpcOcelProducedObject, _Mapping]]] = ...) -> None: ...
+
 class GrpcOcelData(_message.Message):
-    __slots__ = ["object_type", "object_id", "allocate", "consume", "merged_object_allocation", "produce_object_consumption"]
-    OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ["object_id", "allocate", "consume", "merged_object_allocation", "produce_object_consumption"]
     OBJECT_ID_FIELD_NUMBER: _ClassVar[int]
     ALLOCATE_FIELD_NUMBER: _ClassVar[int]
     CONSUME_FIELD_NUMBER: _ClassVar[int]
     MERGED_OBJECT_ALLOCATION_FIELD_NUMBER: _ClassVar[int]
     PRODUCE_OBJECT_CONSUMPTION_FIELD_NUMBER: _ClassVar[int]
-    object_type: str
     object_id: str
-    allocate: _empty_pb2.Empty
-    consume: _empty_pb2.Empty
-    merged_object_allocation: GrpcMergedObjectAllocation
-    produce_object_consumption: GrpcProduceObjectConsumption
-    def __init__(self, object_type: _Optional[str] = ..., object_id: _Optional[str] = ..., allocate: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., consume: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., merged_object_allocation: _Optional[_Union[GrpcMergedObjectAllocation, _Mapping]] = ..., produce_object_consumption: _Optional[_Union[GrpcProduceObjectConsumption, _Mapping]] = ...) -> None: ...
-
-class GrpcMergedObjectAllocation(_message.Message):
-    __slots__ = ["consumed_objects_ids"]
-    CONSUMED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
-    consumed_objects_ids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, consumed_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
-
-class GrpcProduceObjectConsumption(_message.Message):
-    __slots__ = ["produced_objects_ids"]
-    PRODUCED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
-    produced_objects_ids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, produced_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+    allocate: GrpcOcelObjectTypeData
+    consume: GrpcOcelObjectTypeData
+    merged_object_allocation: GrpcOcelAllocateMerge
+    produce_object_consumption: GrpcOcelConsumeProduce
+    def __init__(self, object_id: _Optional[str] = ..., allocate: _Optional[_Union[GrpcOcelObjectTypeData, _Mapping]] = ..., consume: _Optional[_Union[GrpcOcelObjectTypeData, _Mapping]] = ..., merged_object_allocation: _Optional[_Union[GrpcOcelAllocateMerge, _Mapping]] = ..., produce_object_consumption: _Optional[_Union[GrpcOcelConsumeProduce, _Mapping]] = ...) -> None: ...
 
 class GrpcActivityDurationData(_message.Message):
     __slots__ = ["base", "duration", "kind"]
