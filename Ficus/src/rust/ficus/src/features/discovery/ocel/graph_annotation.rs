@@ -1,11 +1,11 @@
-use crate::utils::graph::graph::DefaultGraph;
-use derive_new::new;
-use std::collections::{HashMap, HashSet, VecDeque};
-use enum_display::EnumDisplay;
-use getset::Getters;
 use crate::features::discovery::root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY;
 use crate::features::discovery::timeline::software_data::models::OcelObjectAction;
+use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::user_data::user_data::UserData;
+use derive_new::new;
+use enum_display::EnumDisplay;
+use getset::Getters;
+use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(new, Getters)]
 pub struct OcelAnnotation {
@@ -15,6 +15,7 @@ pub struct OcelAnnotation {
 
 #[derive(EnumDisplay)]
 pub enum OcelAnnotationCreationError {
+  UnsupportedGraphKind,
   FailedToFindStartNode,
   ObjectAlreadyExistsInNodeState,
   ConsumeNotExistingObject,
@@ -73,6 +74,11 @@ pub struct ProcessNodesStates {
 }
 
 pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnotation, OcelAnnotationCreationError> {
+  let Some(kind) = graph.kind.as_ref() else { return Err(OcelAnnotationCreationError::UnsupportedGraphKind) };
+  if !kind.is_dag() {
+    return Err(OcelAnnotationCreationError::UnsupportedGraphKind)
+  }
+
   let mut q = VecDeque::new();
   let start_node_id = graph.all_nodes().iter().find(|n| graph.incoming_edges(n.id()).len() == 0).map(|n| n.id().to_owned());
 

@@ -51,6 +51,15 @@ pub enum GraphKind {
   DagLCS
 }
 
+impl GraphKind {
+  pub fn is_dag(&self) -> bool {
+    match self {
+      Self::Dag | Self::DagLCS => true,
+      _ => false
+    }
+  }
+}
+
 #[derive(Debug, Getters, Setters)]
 pub struct Graph<TNodeData, TEdgeData>
 where
