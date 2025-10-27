@@ -198,10 +198,10 @@ public static class EventRecordExtensions
     objectId = -1;
     category = null;
 
-    if (evt.EventClass is not TraceEventsConstants.OcelObjectEvent) return false;
+    if (evt.EventClass is not TraceEventsConstants.OcelObjectAllocated) return false;
 
     objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
-    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
+    category = evt.Metadata[TraceEventsConstants.OcelObjectType];
     return true;
   }
 
@@ -215,7 +215,7 @@ public static class EventRecordExtensions
     if (evt.EventClass is not TraceEventsConstants.OcelGlobalObjectEvent) return false;
 
     objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
-    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
+    category = evt.Metadata[TraceEventsConstants.OcelObjectType];
     activityName = evt.Metadata[TraceEventsConstants.OcelActivityName];
 
     return true;
@@ -249,7 +249,7 @@ public static class EventRecordExtensions
     if (evt.EventClass is not TraceEventsConstants.OcelBatchObjectEvent) return false;
 
     objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
-    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
+    category = evt.Metadata[TraceEventsConstants.OcelObjectType];
     activity = evt.Metadata[TraceEventsConstants.OcelActivityName];
 
     return true;

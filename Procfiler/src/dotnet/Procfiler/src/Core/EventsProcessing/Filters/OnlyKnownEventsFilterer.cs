@@ -141,7 +141,10 @@ public class OnlyKnownEventsFilterer : IEventsFilter
 
     TraceEventsConstants.BusinessEvent,
 
-    TraceEventsConstants.OcelObjectEvent,
+    TraceEventsConstants.OcelObjectAllocated,
+    TraceEventsConstants.OcelConsumeProduce,
+    TraceEventsConstants.OcelObjectConsumed,
+    TraceEventsConstants.OcelMergeAllocate,
     TraceEventsConstants.OcelActivityBegin,
     TraceEventsConstants.OcelActivityEnd,
     TraceEventsConstants.OcelGlobalObjectEvent,
