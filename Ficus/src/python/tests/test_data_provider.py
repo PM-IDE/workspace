@@ -50,3 +50,15 @@ def console_app_method2_bxes_log_path() -> str:
 
 def array_pooling_bxes_log_path() -> str:
   return os.path.join(data_dir(), 'source', 'solutions_logs', 'arraypooling.bxes')
+
+def ocel_folder():
+  return os.path.join(sources_dir(), 'ocel')
+
+def ocel_logs_folder():
+  return os.path.join(ocel_folder(), 'logs')
+
+def get_ocel_logs_software_data_extraction_config():
+  return os.path.join(ocel_folder(), 'config.json')
+
+def get_ocel_log_path(log_name: str) -> str:
+  return os.path.join(ocel_logs_folder(), log_name)
