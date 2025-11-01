@@ -27,7 +27,14 @@ class AssertCorrectOcelAnnotation(PipelinePartWithCallback):
 
 
 def test_ocel_annotation_1():
-  _execute_ocel_annotation_test('ocel.bxes', Pipeline(
+  _execute_ocel_annotation_test('test_ocel_annotation_1', 'ocel.bxes')
+
+
+def _execute_ocel_annotation_test(test_name: str, log_name: str):
+  with open(get_ocel_logs_software_data_extraction_config(), "r") as f:
+    software_data_config = f.read()
+
+  pipeline = Pipeline(
     ReadLogFromBxes(use_bytes=True),
     RemainEventsByRegex('(^Procfiler|^Ocel)'),
     RemainOnlyMethodStartEvents(),
@@ -35,13 +42,8 @@ def test_ocel_annotation_1():
     DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
                               merge_sequences_of_events=False),
     AnnotateGraphWithOCEL(),
-    AssertCorrectOcelAnnotation('test_ocel_annotation_1')
-  ))
-
-
-def _execute_ocel_annotation_test(log_name: str, pipeline: Pipeline):
-  with open(get_ocel_logs_software_data_extraction_config(), "r") as f:
-    software_data_config = f.read()
+    AssertCorrectOcelAnnotation(test_name)
+  )
 
   result = _execute_pipeline(pipeline, {
     'bytes': BytesContextValue(read_file_bytes(get_ocel_log_path(log_name))),
