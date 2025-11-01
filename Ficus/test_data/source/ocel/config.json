@@ -393,6 +393,6 @@
     }
   },
   "raw_control_flow_regexes": [
-    "^((?!GC\\/SampledObject).)*$"
+    "^Procfiler"
   ]
 }

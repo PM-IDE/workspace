@@ -39,6 +39,7 @@ def _execute_ocel_annotation_test(test_name: str, log_name: str):
     ReadLogFromBxes(use_bytes=True),
     RemainEventsByRegex('(^Procfiler|^Ocel)'),
     RemainOnlyMethodStartEvents(),
+    PrepareSoftwareLog(time_attribute='time:timestamp'),
     AddStartArtificialEvents(),
     DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
                               merge_sequences_of_events=False),
