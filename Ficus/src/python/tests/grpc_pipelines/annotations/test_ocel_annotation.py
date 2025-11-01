@@ -1,9 +1,14 @@
+from ...core.gold_based_test import execute_test_with_gold
 from ....ficus import *
 
 from ...grpc_pipelines.test_grpc_pipelines import _execute_pipeline, assert_success_pipeline_final_result
 from ...test_data_provider import *
 
 class AssertCorrectOcelAnnotation(PipelinePartWithCallback):
+  def __init__(self, test_name: str):
+    super().__init__()
+    self.test_name = test_name
+
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     part = create_simple_get_context_value_part(
       self.uuid,
@@ -14,7 +19,11 @@ class AssertCorrectOcelAnnotation(PipelinePartWithCallback):
     return GrpcPipelinePartBase(simpleContextRequestPart=part)
 
   def execute_callback(self, values: dict[str, GrpcContextValue]):
-    print(values)
+    assert const_ocel_annotation in values
+    gold_value = str(values[const_ocel_annotation].ocel_annotation)
+    gold_path = get_ocel_gold_path(self.test_name)
+
+    execute_test_with_gold(gold_path, gold_value)
 
 
 def test_ocel_annotation_1():
@@ -26,7 +35,7 @@ def test_ocel_annotation_1():
     DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
                               merge_sequences_of_events=False),
     AnnotateGraphWithOCEL(),
-    AssertCorrectOcelAnnotation()
+    AssertCorrectOcelAnnotation('test_ocel_annotation_1')
   ))
 
 

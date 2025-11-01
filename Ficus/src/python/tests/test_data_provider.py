@@ -62,3 +62,9 @@ def get_ocel_logs_software_data_extraction_config():
 
 def get_ocel_log_path(log_name: str) -> str:
   return os.path.join(ocel_logs_folder(), log_name)
+
+def ocel_gold_folder() -> str:
+  return os.path.join(gold_dir(), 'ocel')
+
+def get_ocel_gold_path(test_name: str) -> str:
+  return os.path.join(ocel_gold_folder(), f'{test_name}.gold')
