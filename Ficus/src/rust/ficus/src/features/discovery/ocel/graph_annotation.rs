@@ -157,6 +157,10 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     }
 
     process_nodes_states.insert(node, ProcessNodesStates::new(None, new_node_state));
+
+    for outgoing_node in graph.outgoing_nodes(&node) {
+      q.push_back(outgoing_node.clone());
+    }
   }
 
   Ok(OcelAnnotation::new(process_nodes_states))
