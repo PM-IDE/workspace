@@ -342,6 +342,56 @@
       }
     }
   ],
+  "ocel": {
+    "delimiter": " ",
+    "allocated": {
+      "event_class_regex": "OcelObjectAllocated",
+      "info": {
+        "object_type_attr": {
+          "single_attribute": {
+            "name": "type",
+            "fallback_value": "UNRESOLVED"
+          }
+        },
+        "object_id_attr": "objectId"
+      }
+    },
+    "consumed": {
+      "event_class_regex": "OcelObjectConsumed",
+      "info": {
+        "object_type_attr": {
+          "single_attribute": {
+            "name": "type",
+            "fallback_value": "UNRESOLVED"
+          }
+        },
+        "object_id_attr": "objectId"
+      }
+    },
+    "allocated_merged": {
+      "event_class_regex": "OcelMergeAllocate",
+      "info": {
+        "allocated_obj": {
+          "object_type_attr": {
+            "single_attribute": {
+              "name": "type",
+              "fallback_value": "UNRESOLVED"
+            }
+          },
+          "object_id_attr": "objectId"
+        },
+        "related_object_ids_attr": "relatedObjectsIds"
+      }
+    },
+    "consume_produce": {
+      "event_class_regex": "OcelConsumeProduce",
+      "info": {
+        "object_id_attr": "objectId",
+        "related_object_ids_attr": "relatedObjectsIds",
+        "related_object_type_attr": "relatedObjectsTypes"
+      }
+    }
+  },
   "raw_control_flow_regexes": [
     "^((?!GC\\/SampledObject).)*$"
   ]

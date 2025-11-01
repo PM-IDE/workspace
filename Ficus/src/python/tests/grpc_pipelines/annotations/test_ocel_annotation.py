@@ -4,6 +4,7 @@ from ....ficus import *
 from ...grpc_pipelines.test_grpc_pipelines import _execute_pipeline, assert_success_pipeline_final_result
 from ...test_data_provider import *
 
+
 class AssertCorrectOcelAnnotation(PipelinePartWithCallback):
   def __init__(self, test_name: str):
     super().__init__()
