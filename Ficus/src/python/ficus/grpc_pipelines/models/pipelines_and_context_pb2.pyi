@@ -133,14 +133,24 @@ class GrpcOcelModelAnnotation(_message.Message):
     def __init__(self, annotations: _Optional[_Iterable[_Union[GrpcModelElementOcelAnnotation, _Mapping]]] = ...) -> None: ...
 
 class GrpcModelElementOcelAnnotation(_message.Message):
-    __slots__ = ["element_id", "initial_state", "final_state"]
+    __slots__ = ["element_id", "initial_state", "final_state", "relations"]
     ELEMENT_ID_FIELD_NUMBER: _ClassVar[int]
     INITIAL_STATE_FIELD_NUMBER: _ClassVar[int]
     FINAL_STATE_FIELD_NUMBER: _ClassVar[int]
+    RELATIONS_FIELD_NUMBER: _ClassVar[int]
     element_id: int
     initial_state: GrpcOcelState
     final_state: GrpcOcelState
-    def __init__(self, element_id: _Optional[int] = ..., initial_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ..., final_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ...) -> None: ...
+    relations: _containers.RepeatedCompositeFieldContainer[GrpcOcelStateObjectRelation]
+    def __init__(self, element_id: _Optional[int] = ..., initial_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ..., final_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[GrpcOcelStateObjectRelation, _Mapping]]] = ...) -> None: ...
+
+class GrpcOcelStateObjectRelation(_message.Message):
+    __slots__ = ["object_id", "related_objects_ids"]
+    OBJECT_ID_FIELD_NUMBER: _ClassVar[int]
+    RELATED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
+    object_id: str
+    related_objects_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, object_id: _Optional[str] = ..., related_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GrpcOcelState(_message.Message):
     __slots__ = ["type_states"]

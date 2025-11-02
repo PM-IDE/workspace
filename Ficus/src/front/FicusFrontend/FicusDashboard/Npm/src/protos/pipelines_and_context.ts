@@ -77,6 +77,7 @@ export interface ProtoGrpcType {
     GrpcOcelObjectTypeState: MessageTypeDefinition
     GrpcOcelProducedObject: MessageTypeDefinition
     GrpcOcelState: MessageTypeDefinition
+    GrpcOcelStateObjectRelation: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition
