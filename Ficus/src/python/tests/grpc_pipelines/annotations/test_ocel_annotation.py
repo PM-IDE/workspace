@@ -24,30 +24,53 @@ class AssertCorrectOcelAnnotation(PipelinePartWithCallback):
   def execute_callback(self, values: dict[str, GrpcContextValue]):
     assert const_ocel_annotation in values
 
-    annotations = list(values[const_ocel_annotation].ocel_annotation.annotations)
-    annotations = sorted(annotations, key=lambda a: a.element_id)
-    final_states = list(map(lambda a: a.final_state, annotations))
-
     test_results = []
+    grpc_annotations = values[const_ocel_annotation].ocel_annotation.annotations
 
-    for state in final_states:
-      entity_states = []
-      type_states = sorted(state.type_states, key=lambda t: t.type)
-
-      for type_state in type_states:
-        ids = [id for id in type_state.object_ids]
-        ids.sort()
-
-        entity_states.append({
-          'type': type_state.type,
-          'object_ids': ids
-        })
-
-      test_results.append(entity_states)
+    for annotation in AssertCorrectOcelAnnotation.build_annotations(grpc_annotations):
+      test_results.append({
+        'states': AssertCorrectOcelAnnotation.build_entity_state(annotation),
+        'relations': self.build_relations_list(annotation.relations)
+      })
 
     gold_path = get_ocel_gold_path(self.test_name)
-
     execute_test_with_gold(gold_path, json.dumps(test_results, indent=2))
+
+  @staticmethod
+  def build_annotations(grpc_annotations) -> list[GrpcModelElementOcelAnnotation]:
+    annotations = list(grpc_annotations)
+    return sorted(annotations, key=lambda a: a.element_id)
+
+  @staticmethod
+  def build_entity_state(annotation):
+    state = annotation.final_state
+    entity_states = []
+    type_states = sorted(state.type_states, key=lambda t: t.type)
+
+    for type_state in type_states:
+      entity_states.append(AssertCorrectOcelAnnotation.build_type_states(type_state))
+
+    return entity_states
+
+  @staticmethod
+  def build_type_states(type_state):
+    ids = [id for id in type_state.object_ids]
+    ids.sort()
+
+    return {
+      'type': type_state.type,
+      'object_ids': ids,
+    }
+
+  @staticmethod
+  def build_relations_list(grpc_relations):
+    relations = list(map(lambda r: {'id': r.object_id, 'relations': list(r.related_objects_ids)}, grpc_relations))
+    relations = sorted(relations, key=lambda r: r['id'])
+
+    for r in relations:
+      r['relations'].sort()
+
+    return relations
 
 
 def test_ocel_annotation_1():
