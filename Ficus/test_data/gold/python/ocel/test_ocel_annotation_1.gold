@@ -1,405 +1,388 @@
-annotations {
-  element_id: 29
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "2"
-      object_ids: "3"
-      object_ids: "1"
+[
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
     }
-    type_states {
-      type: "Type2"
-      object_ids: "6"
-      object_ids: "4"
-      object_ids: "5"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 31
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "4"
-      object_ids: "5"
-      object_ids: "6"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
     }
-    type_states {
-      type: "Type1"
-      object_ids: "3"
-      object_ids: "2"
-      object_ids: "1"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 9
-  final_state {
-  }
-}
-annotations {
-  element_id: 25
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "1"
-      object_ids: "2"
-      object_ids: "3"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 7
-  final_state {
-  }
-}
-annotations {
-  element_id: 15
-  final_state {
-  }
-}
-annotations {
-  element_id: 21
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "1"
-      object_ids: "2"
-      object_ids: "3"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 55
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "8"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "4",
+        "5",
+        "6"
+      ]
     }
-    type_states {
-      type: "Type3"
-      object_ids: "9"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "4",
+        "5",
+        "6"
+      ]
     }
-    type_states {
-      type: "Type2"
-      object_ids: "10"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "4",
+        "5",
+        "6"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 1
-  final_state {
-  }
-}
-annotations {
-  final_state {
-  }
-}
-annotations {
-  element_id: 17
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "3"
-      object_ids: "1"
-      object_ids: "2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "4",
+        "5",
+        "6"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 41
-  final_state {
-    type_states {
-      type: "Type2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "2",
+        "7"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "4",
+        "6"
+      ]
     }
-    type_states {
-      type: "Type1"
-      object_ids: "8"
-      object_ids: "7"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "2",
+        "7"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "4",
+        "6"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 23
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "3"
-      object_ids: "1"
-      object_ids: "2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "7",
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": []
     }
-  }
-}
-annotations {
-  element_id: 53
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "10"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "7",
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": []
     }
-    type_states {
-      type: "Type3"
-      object_ids: "9"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "7",
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": []
     }
-    type_states {
-      type: "Type1"
-      object_ids: "8"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "7",
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": []
     }
-  }
-}
-annotations {
-  element_id: 45
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "8"
-      object_ids: "7"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "7",
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": []
     }
-    type_states {
-      type: "Type2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "7",
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": []
     }
-  }
-}
-annotations {
-  element_id: 19
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "3"
-      object_ids: "1"
-      object_ids: "2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "10"
+      ]
+    },
+    {
+      "type": "Type3",
+      "object_ids": [
+        "9"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 3
-  final_state {
-  }
-}
-annotations {
-  element_id: 27
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "1"
-      object_ids: "2"
-      object_ids: "3"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": [
+        "8"
+      ]
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "10"
+      ]
+    },
+    {
+      "type": "Type3",
+      "object_ids": [
+        "9"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 37
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "4"
-      object_ids: "6"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": []
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "10"
+      ]
+    },
+    {
+      "type": "Type3",
+      "object_ids": [
+        "11",
+        "9"
+      ]
     }
-    type_states {
-      type: "Type1"
-      object_ids: "7"
-      object_ids: "2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": []
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "10"
+      ]
+    },
+    {
+      "type": "Type3",
+      "object_ids": [
+        "11",
+        "9"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 47
-  final_state {
-    type_states {
-      type: "Type2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": []
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "10"
+      ]
+    },
+    {
+      "type": "Type3",
+      "object_ids": [
+        "11",
+        "9"
+      ]
     }
-    type_states {
-      type: "Type1"
-      object_ids: "7"
-      object_ids: "8"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": []
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "10"
+      ]
+    },
+    {
+      "type": "Type3",
+      "object_ids": [
+        "11",
+        "9"
+      ]
     }
-  }
-}
-annotations {
-  element_id: 39
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "7"
-      object_ids: "2"
+  ],
+  [
+    {
+      "type": "Type1",
+      "object_ids": []
+    },
+    {
+      "type": "Type2",
+      "object_ids": [
+        "10"
+      ]
+    },
+    {
+      "type": "Type3",
+      "object_ids": [
+        "11",
+        "9"
+      ]
     }
-    type_states {
-      type: "Type2"
-      object_ids: "4"
-      object_ids: "6"
-    }
-  }
-}
-annotations {
-  element_id: 59
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "10"
-    }
-    type_states {
-      type: "Type1"
-    }
-    type_states {
-      type: "Type3"
-      object_ids: "11"
-      object_ids: "9"
-    }
-  }
-}
-annotations {
-  element_id: 33
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "4"
-      object_ids: "6"
-      object_ids: "5"
-    }
-    type_states {
-      type: "Type1"
-      object_ids: "3"
-      object_ids: "2"
-      object_ids: "1"
-    }
-  }
-}
-annotations {
-  element_id: 51
-  final_state {
-    type_states {
-      type: "Type2"
-    }
-    type_states {
-      type: "Type1"
-      object_ids: "8"
-      object_ids: "7"
-    }
-  }
-}
-annotations {
-  element_id: 43
-  final_state {
-    type_states {
-      type: "Type2"
-    }
-    type_states {
-      type: "Type1"
-      object_ids: "8"
-      object_ids: "7"
-    }
-  }
-}
-annotations {
-  element_id: 61
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "10"
-    }
-    type_states {
-      type: "Type3"
-      object_ids: "9"
-      object_ids: "11"
-    }
-    type_states {
-      type: "Type1"
-    }
-  }
-}
-annotations {
-  element_id: 63
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "10"
-    }
-    type_states {
-      type: "Type1"
-    }
-    type_states {
-      type: "Type3"
-      object_ids: "9"
-      object_ids: "11"
-    }
-  }
-}
-annotations {
-  element_id: 57
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "10"
-    }
-    type_states {
-      type: "Type1"
-    }
-    type_states {
-      type: "Type3"
-      object_ids: "11"
-      object_ids: "9"
-    }
-  }
-}
-annotations {
-  element_id: 49
-  final_state {
-    type_states {
-      type: "Type1"
-      object_ids: "7"
-      object_ids: "8"
-    }
-    type_states {
-      type: "Type2"
-    }
-  }
-}
-annotations {
-  element_id: 65
-  final_state {
-    type_states {
-      type: "Type1"
-    }
-    type_states {
-      type: "Type3"
-      object_ids: "9"
-      object_ids: "11"
-    }
-    type_states {
-      type: "Type2"
-      object_ids: "10"
-    }
-  }
-}
-annotations {
-  element_id: 5
-  final_state {
-  }
-}
-annotations {
-  element_id: 13
-  final_state {
-  }
-}
-annotations {
-  element_id: 35
-  final_state {
-    type_states {
-      type: "Type2"
-      object_ids: "5"
-      object_ids: "4"
-      object_ids: "6"
-    }
-    type_states {
-      type: "Type1"
-      object_ids: "2"
-      object_ids: "1"
-      object_ids: "3"
-    }
-  }
-}
-annotations {
-  element_id: 11
-  final_state {
-  }
-}
+  ]
+]
