@@ -94,7 +94,17 @@ pub struct ProcessNodesStates {
   #[get = "pub"]
   initial_objects: Option<NodeObjectsState>,
   #[get = "pub"]
-  final_objects: NodeObjectsState
+  final_objects: NodeObjectsState,
+  #[get = "pub"]
+  incoming_objects_relations: Vec<OcelObjectRelations>
+}
+
+#[derive(new, Getters)]
+pub struct OcelObjectRelations {
+  #[get = "pub"]
+  object_id: String,
+  #[get = "pub"]
+  related_objects_ids: Vec<String>,
 }
 
 pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnotation, OcelAnnotationCreationError> {
@@ -130,6 +140,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     }
 
     let mut new_node_state = NodeObjectsState::new();
+    let mut new_node_objects_relations = vec![];
 
     for incoming_node in incoming_nodes.iter() {
       let prev_state: &ProcessNodesStates = *process_nodes_states.get(*incoming_node).as_ref().unwrap();
@@ -158,13 +169,18 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                 new_node_state.remove_object(obj_type, obj_id);
               }
               OcelObjectAction::AllocateMerged(data) => {
+                let mut related_objects = vec![];
+
                 for id in data.data() {
                   if !prev_state.final_objects.contains_unknown_object(id) {
                     return Err(OcelAnnotationCreationError::OneOfMergedObjetsDoesNotExist)
                   }
 
                   new_node_state.remove_unknown_object(id);
+                  related_objects.push(id.clone());
                 }
+
+                new_node_objects_relations.push(OcelObjectRelations::new(obj_id.to_owned(), related_objects));
 
                 let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
                 new_node_state.add_allocated_object(obj_type, obj_id.to_string())?;
@@ -177,7 +193,8 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                 for produced_obj in data.iter() {
                   let obj_type = produced_obj.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
                   let id = produced_obj.id().to_string();
-                  new_node_state.add_allocated_object(obj_type, id)?;
+                  new_node_state.add_allocated_object(obj_type, id.clone())?;
+                  new_node_objects_relations.push(OcelObjectRelations::new(id, vec![obj_id.clone()]));
                 }
 
                 new_node_state.remove_unknown_object(obj_id);
@@ -188,7 +205,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
       }
     }
 
-    process_nodes_states.insert(node, ProcessNodesStates::new(None, new_node_state));
+    process_nodes_states.insert(node, ProcessNodesStates::new(None, new_node_state, new_node_objects_relations));
 
     for outgoing_node in graph.outgoing_nodes(&node) {
       q.push_back(outgoing_node.clone());

@@ -27,7 +27,7 @@ use crate::features::discovery::timeline::software_data::models::{ActivityDurati
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_event_attribute, grpc_graph_edge_additional_data, grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge, GrpcOcelConsumeProduce, GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject, GrpcOcelState, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{grpc_event_attribute, grpc_graph_edge_additional_data, grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge, GrpcOcelConsumeProduce, GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject, GrpcOcelState, GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
 use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, OCEL_ANNOTATION_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
@@ -72,7 +72,7 @@ use std::{any::Any, str::FromStr};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, ProcessNodesStates};
+use crate::features::discovery::ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations, ProcessNodesStates};
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -299,8 +299,19 @@ fn convert_to_grpc_ocel_annotation(annotation: &OcelAnnotation) -> GrpcOcelModel
           None => None,
           Some(objects) => Some(convert_to_grpc_ocel_node_state(objects)),
         },
+        relations: s.1.incoming_objects_relations()
+          .iter()
+          .map(|r| convert_to_grpc_ocel_object_relation(r))
+          .collect()
       }
     }).collect()
+  }
+}
+
+fn convert_to_grpc_ocel_object_relation(relations: &OcelObjectRelations) -> GrpcOcelStateObjectRelation {
+  GrpcOcelStateObjectRelation {
+    related_objects_ids: relations.related_objects_ids().clone(),
+    object_id: relations.object_id().to_owned(),
   }
 }
 
