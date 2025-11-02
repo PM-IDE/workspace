@@ -2,6 +2,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use std::rc::Rc;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 pub enum ReferenceOrOwned<'a, T> {
   Ref(&'a T),
@@ -22,6 +23,27 @@ impl<'a, T> Deref for ReferenceOrOwned<'a, T> {
 pub enum HeapedOrOwned<T> {
   Heaped(Rc<Box<T>>),
   Owned(T),
+}
+
+impl<T: Serialize> Serialize for HeapedOrOwned<T> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    match self {
+      HeapedOrOwned::Heaped(heaped) => heaped.serialize(serializer),
+      HeapedOrOwned::Owned(owned) => owned.serialize(serializer),
+    }
+  }
+}
+
+impl<'a, T: Deserialize<'a>> Deserialize<'a> for HeapedOrOwned<T> {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: Deserializer<'a>,
+  {
+    Ok(HeapedOrOwned::Owned(T::deserialize(deserializer)?))
+  }
 }
 
 impl<T> Deref for HeapedOrOwned<T> {

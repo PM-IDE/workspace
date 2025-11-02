@@ -11,6 +11,7 @@ use fancy_regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, new)]
 pub struct PieChartExtractor<'a> {
@@ -59,7 +60,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
                 let grouping_value = if let Some(strategy) = config.grouping_attr() {
                   strategy.create(&event.borrow())
                 } else {
-                  event.borrow().name().to_string()
+                  HeapedOrOwned::Heaped(event.borrow().name_pointer().clone())
                 };
 
                 *result

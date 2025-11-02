@@ -10,6 +10,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
+use crate::utils::references::HeapedOrOwned;
 
 #[derive(Debug, Clone, new)]
 pub struct EventClassesDataExtractor<'a> {
@@ -30,7 +31,8 @@ impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
     let mut threads = HashMap::new();
 
     for event in events {
-      *software_data.event_classes_mut().entry(event.borrow().name().clone()).or_insert(0) += 1;
+      let name = HeapedOrOwned::Heaped(event.borrow().name_pointer().clone());
+      *software_data.event_classes_mut().entry(name).or_insert(0) += 1;
 
       if let Some(thread_attribute) = self.thread_attribute {
         let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);

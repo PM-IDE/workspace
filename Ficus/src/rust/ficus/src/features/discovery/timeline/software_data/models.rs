@@ -5,12 +5,13 @@ use enum_display::EnumDisplay;
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "HashMap::is_empty")]
-  event_classes: HashMap<String, usize>,
+  event_classes: HashMap<HeapedOrOwned<String>, usize>,
 
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip)]
@@ -49,15 +50,15 @@ impl SoftwareData {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct OcelProducedObjectAfterConsume {
   #[getset(get = "pub")]
-  id: String,
+  id: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  r#type: Option<String>
+  r#type: Option<HeapedOrOwned<String>>
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ObjectTypeWithData<T> {
   #[getset(get = "pub")]
-  r#type: Option<String>,
+  r#type: Option<HeapedOrOwned<String>>,
   #[getset(get = "pub")]
   data: T,
 }
@@ -66,14 +67,14 @@ pub struct ObjectTypeWithData<T> {
 pub enum OcelObjectAction {
   Allocate(ObjectTypeWithData<()>),
   Consume(ObjectTypeWithData<()>),
-  AllocateMerged(ObjectTypeWithData<Vec<String>>),
+  AllocateMerged(ObjectTypeWithData<Vec<HeapedOrOwned<String>>>),
   ConsumeWithProduce(Vec<OcelProducedObjectAfterConsume>)
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct OcelData {
   #[getset(get = "pub")]
-  object_id: String,
+  object_id: HeapedOrOwned<String>,
   #[getset(get = "pub")]
   action: OcelObjectAction
 }
@@ -99,7 +100,7 @@ pub struct GenericEnhancementBase {
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct HistogramEntry {
   #[getset(get = "pub")]
-  name: String,
+  name: HeapedOrOwned<String>,
   #[getset(get = "pub")]
   value: f64,
 }

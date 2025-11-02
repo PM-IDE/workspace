@@ -1,11 +1,14 @@
 use crate::features::discovery::root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY;
 use crate::features::discovery::timeline::software_data::models::OcelObjectAction;
 use crate::utils::graph::graph::DefaultGraph;
+use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserData;
 use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::Getters;
+use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::rc::Rc;
 
 #[derive(new, Getters)]
 pub struct OcelAnnotation {
@@ -25,7 +28,7 @@ pub enum OcelAnnotationCreationError {
 #[derive(Getters)]
 pub struct NodeObjectsState {
   #[getset(get = "pub")]
-  map: HashMap<String, HashSet<String>>
+  map: HashMap<HeapedOrOwned<String>, HashSet<HeapedOrOwned<String>>>
 }
 
 impl NodeObjectsState {
@@ -35,22 +38,26 @@ impl NodeObjectsState {
     }
   }
 
-  pub fn add_allocated_object(&mut self, object_type: String, object_id: String) -> Result<(), OcelAnnotationCreationError> {
-    if self.contains_object(object_type.as_str(), object_id.as_str()) {
+  pub fn add_allocated_object(
+    &mut self,
+    object_type: HeapedOrOwned<String>,
+    object_id: HeapedOrOwned<String>,
+  ) -> Result<(), OcelAnnotationCreationError> {
+    if self.contains_object(&object_type, &object_id) {
       return Err(OcelAnnotationCreationError::ObjectAlreadyExistsInNodeState)
     }
 
-    self.type_set_mut(object_type.as_str()).insert(object_id);
+    self.type_set_mut(&object_type).insert(object_id);
     Ok(())
   }
 
-  pub fn remove_object(&mut self, object_type: &str, id: &str) {
+  pub fn remove_object(&mut self, object_type: &HeapedOrOwned<String>, id: &HeapedOrOwned<String>) {
     let Some(set) = self.map.get_mut(object_type) else { return };
 
     set.remove(id);
   }
 
-  pub fn remove_unknown_object(&mut self, id: &str) {
+  pub fn remove_unknown_object(&mut self, id: &HeapedOrOwned<String>) {
     for (_, set) in self.map.iter_mut() {
       if set.remove(id) {
         return
@@ -58,7 +65,7 @@ impl NodeObjectsState {
     }
   }
 
-  pub fn contains_object(&self, object_type: &str, object_id: &str) -> bool {
+  pub fn contains_object(&self, object_type: &HeapedOrOwned<String>, object_id: &HeapedOrOwned<String>) -> bool {
     if let Some(type_objects) = self.map.get(object_type) {
       type_objects.contains(object_id)
     } else {
@@ -66,13 +73,13 @@ impl NodeObjectsState {
     }
   }
 
-  pub fn contains_unknown_object(&self, object_id: &str) -> bool {
+  pub fn contains_unknown_object(&self, object_id: &HeapedOrOwned<String>) -> bool {
     self.map.values().any(|set| set.contains(object_id))
   }
 
-  fn type_set_mut(&mut self, object_type: &str) -> &mut HashSet<String> {
+  fn type_set_mut(&mut self, object_type: &HeapedOrOwned<String>) -> &mut HashSet<HeapedOrOwned<String>> {
     if !self.map.contains_key(object_type) {
-      self.map.insert(object_type.to_string(), HashSet::new());
+      self.map.insert(object_type.clone(), HashSet::new());
     }
 
     self.map.get_mut(object_type).unwrap()
@@ -102,9 +109,13 @@ pub struct ProcessNodesStates {
 #[derive(new, Getters)]
 pub struct OcelObjectRelations {
   #[get = "pub"]
-  object_id: String,
+  object_id: HeapedOrOwned<String>,
   #[get = "pub"]
-  related_objects_ids: Vec<String>,
+  related_objects_ids: Vec<HeapedOrOwned<String>>,
+}
+
+lazy_static! {
+  pub static ref UNKNOWN_TYPE: Box<String> = Box::new("UNKNOWN".to_string());
 }
 
 pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnotation, OcelAnnotationCreationError> {
@@ -142,6 +153,8 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     let mut new_node_state = NodeObjectsState::new();
     let mut new_node_objects_relations = vec![];
 
+    let fallback_type = HeapedOrOwned::Heaped(Rc::new(UNKNOWN_TYPE.clone()));
+
     for incoming_node in incoming_nodes.iter() {
       let prev_state: &ProcessNodesStates = *process_nodes_states.get(*incoming_node).as_ref().unwrap();
       let edge = graph.edge(*incoming_node, &node);
@@ -153,15 +166,14 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
         for data in edge_software_data {
           for ocel_data in data.ocel_data() {
             let obj_id = ocel_data.object_id();
-            const UNKNOWN_TYPE: &str = "UNKNOWN";
 
             match ocel_data.action() {
               OcelObjectAction::Allocate(data) => {
-                let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
-                new_node_state.add_allocated_object(obj_type, obj_id.to_string())?;
+                let obj_type = data.r#type().as_ref().unwrap_or(&fallback_type);
+                new_node_state.add_allocated_object(obj_type.to_owned(), obj_id.to_owned())?;
               }
               OcelObjectAction::Consume(data) => {
-                let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE);
+                let obj_type = data.r#type().as_ref().unwrap_or(&fallback_type);
                 if prev_state.final_objects.contains_object(obj_type, obj_id) {
                   return Err(OcelAnnotationCreationError::ConsumeNotExistingObject)
                 }
@@ -182,8 +194,8 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
 
                 new_node_objects_relations.push(OcelObjectRelations::new(obj_id.to_owned(), related_objects));
 
-                let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
-                new_node_state.add_allocated_object(obj_type, obj_id.to_string())?;
+                let obj_type = data.r#type().as_ref().unwrap_or(&fallback_type);
+                new_node_state.add_allocated_object(obj_type.clone(), obj_id.clone())?;
               }
               OcelObjectAction::ConsumeWithProduce(data) => {
                 if !prev_state.final_objects.contains_unknown_object(obj_id) {
@@ -191,10 +203,10 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                 }
 
                 for produced_obj in data.iter() {
-                  let obj_type = produced_obj.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
-                  let id = produced_obj.id().to_string();
-                  new_node_state.add_allocated_object(obj_type, id.clone())?;
-                  new_node_objects_relations.push(OcelObjectRelations::new(id, vec![obj_id.clone()]));
+                  let obj_type = produced_obj.r#type().as_ref().unwrap_or(&fallback_type);
+                  let id = produced_obj.id();
+                  new_node_state.add_allocated_object(obj_type.clone(), id.clone())?;
+                  new_node_objects_relations.push(OcelObjectRelations::new(id.clone(), vec![obj_id.clone()]));
                 }
 
                 new_node_state.remove_unknown_object(obj_id);

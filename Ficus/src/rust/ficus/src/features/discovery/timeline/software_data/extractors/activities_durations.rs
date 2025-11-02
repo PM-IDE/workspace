@@ -18,6 +18,7 @@ use log::error;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
@@ -235,7 +236,7 @@ impl DurationsMapExtensions for DurationsMap {
 #[derive(Getters, new)]
 struct StackActivityStartEntry {
   #[getset(get = "pub")]
-  id: Option<String>,
+  id: Option<HeapedOrOwned<String>>,
   #[getset(get = "pub")]
   event: Rc<RefCell<XesEventImpl>>,
 }

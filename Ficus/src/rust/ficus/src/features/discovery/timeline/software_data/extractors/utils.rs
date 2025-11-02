@@ -4,11 +4,12 @@ use crate::features::discovery::timeline::software_data::extraction_config::Name
 use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractionError;
 use fancy_regex::Regex;
 use std::collections::HashMap;
+use crate::utils::references::HeapedOrOwned;
 
 pub type RegexParingResult = Result<Regex, SoftwareDataExtractionError>;
 
 impl NameCreationStrategy {
-  pub(super) fn create(&self, event: &XesEventImpl) -> String {
+  pub(super) fn create(&self, event: &XesEventImpl) -> HeapedOrOwned<String> {
     if let Some(map) = event.payload_map() {
       match self {
         NameCreationStrategy::SingleAttribute(single_attribute) => self.value_or_fallback(single_attribute.name(), map),
@@ -23,19 +24,19 @@ impl NameCreationStrategy {
             result.remove(result.len() - 1);
           }
 
-          result
+          HeapedOrOwned::Owned(result)
         }
       }
     } else {
-      self.fallback_value()
+      HeapedOrOwned::Owned(self.fallback_value())
     }
   }
 
-  fn value_or_fallback(&self, attr: &String, payload: &HashMap<String, EventPayloadValue>) -> String {
+  fn value_or_fallback(&self, attr: &String, payload: &HashMap<String, EventPayloadValue>) -> HeapedOrOwned<String> {
     if let Some(attr_value) = payload.get(attr) {
-      attr_value.to_string_repr().to_string()
+      attr_value.to_string_repr()
     } else {
-      self.fallback_value()
+      HeapedOrOwned::Owned(self.fallback_value())
     }
   }
 }

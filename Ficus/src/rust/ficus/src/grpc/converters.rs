@@ -73,6 +73,7 @@ use chrono::{DateTime, Utc};
 use uuid::Uuid;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::discovery::ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations, ProcessNodesStates};
+use crate::utils::references::HeapedOrOwned;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -310,8 +311,8 @@ fn convert_to_grpc_ocel_annotation(annotation: &OcelAnnotation) -> GrpcOcelModel
 
 fn convert_to_grpc_ocel_object_relation(relations: &OcelObjectRelations) -> GrpcOcelStateObjectRelation {
   GrpcOcelStateObjectRelation {
-    related_objects_ids: relations.related_objects_ids().clone(),
-    object_id: relations.object_id().to_owned(),
+    related_objects_ids: relations.related_objects_ids().iter().map(|id| id.to_string()).collect(),
+    object_id: relations.object_id().to_string(),
   }
 }
 
@@ -319,8 +320,8 @@ fn convert_to_grpc_ocel_node_state(state: &NodeObjectsState) -> GrpcOcelState {
   GrpcOcelState {
     type_states: state.map().iter().map(|t| {
       GrpcOcelObjectTypeState {
-        r#type: t.0.to_owned(),
-        object_ids: t.1.iter().map(|s| s.to_owned()).collect(),
+        r#type: t.0.to_string(),
+        object_ids: t.1.iter().map(|s| s.to_string()).collect(),
       }
     }).collect()
   }
@@ -944,22 +945,22 @@ fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareDa
 
 fn convert_to_grpc_ocel_data(data: &OcelData) -> GrpcOcelData {
   GrpcOcelData {
-    object_id: data.object_id().to_owned(),
+    object_id: data.object_id().to_string(),
     action: Some(match data.action() {
       OcelObjectAction::Allocate(data) => grpc_ocel_data::Action::Allocate(GrpcOcelObjectTypeData {
-        r#type: data.r#type().to_owned()
+        r#type: data.r#type().as_ref().map(|t| t.to_string())
       }),
       OcelObjectAction::Consume(data) => grpc_ocel_data::Action::Consume(GrpcOcelObjectTypeData {
-        r#type: data.r#type().to_owned()
+        r#type: data.r#type().as_ref().map(|t| t.to_string())
       }),
       OcelObjectAction::AllocateMerged(data) => grpc_ocel_data::Action::MergedObjectAllocation(GrpcOcelAllocateMerge {
-        r#type: data.r#type().to_owned(),
-        merged_objects_ids: data.data().clone(),
+        r#type: data.r#type().as_ref().map(|t| t.to_string()),
+        merged_objects_ids: data.data().iter().map(|id| id.to_string()).collect(),
       }),
       OcelObjectAction::ConsumeWithProduce(data) => grpc_ocel_data::Action::ProduceObjectConsumption(GrpcOcelConsumeProduce {
         produced_objects: data.iter().map(|x| GrpcOcelProducedObject {
-          id: x.id().to_owned(),
-          r#type: x.r#type().to_owned(),
+          id: x.id().to_string(),
+          r#type: x.r#type().as_ref().map(|t| t.to_string())
         }).collect()
       })
     })
@@ -1012,11 +1013,11 @@ fn convert_to_grpc_simple_counter_data(data: &SimpleCounterData) -> GrpcSimpleCo
   }
 }
 
-fn convert_to_grpc_histogram_entries(histogram: &HashMap<String, usize>) -> Vec<GrpcHistogramEntry> {
+fn convert_to_grpc_histogram_entries(histogram: &HashMap<HeapedOrOwned<String>, usize>) -> Vec<GrpcHistogramEntry> {
   histogram
     .iter()
     .map(|(key, value)| GrpcHistogramEntry {
-      name: key.to_owned(),
+      name: key.to_string(),
       count: *value as f64,
     })
     .collect()
