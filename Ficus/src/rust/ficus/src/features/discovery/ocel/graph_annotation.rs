@@ -44,6 +44,20 @@ impl NodeObjectsState {
     Ok(())
   }
 
+  pub fn remove_object(&mut self, object_type: &str, id: &str) {
+    let Some(set) = self.map.get_mut(object_type) else { return };
+
+    set.remove(id);
+  }
+
+  pub fn remove_unknown_object(&mut self, id: &str) {
+    for (_, set) in self.map.iter_mut() {
+      if set.remove(id) {
+        return
+      }
+    }
+  }
+
   pub fn contains_object(&self, object_type: &str, object_id: &str) -> bool {
     if let Some(type_objects) = self.map.get(object_type) {
       type_objects.contains(object_id)
@@ -62,6 +76,16 @@ impl NodeObjectsState {
     }
 
     self.map.get_mut(object_type).unwrap()
+  }
+
+  pub fn add_state_from(&mut self, other: &NodeObjectsState) {
+    for (obj_type, ids) in other.map.iter() {
+      let set = self.map.entry(obj_type.to_owned()).or_insert(HashSet::new());
+
+      for id in ids {
+        set.insert(id.clone());
+      }
+    }
   }
 }
 
@@ -112,6 +136,8 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
       let edge = graph.edge(*incoming_node, &node);
       let edge = edge.as_ref().unwrap();
 
+      new_node_state.add_state_from(prev_state.final_objects());
+
       if let Some(edge_software_data) = edge.user_data().concrete(EDGE_SOFTWARE_DATA_KEY.key()) {
         for data in edge_software_data {
           for ocel_data in data.ocel_data() {
@@ -128,12 +154,16 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                 if prev_state.final_objects.contains_object(obj_type, obj_id) {
                   return Err(OcelAnnotationCreationError::ConsumeNotExistingObject)
                 }
+
+                new_node_state.remove_object(obj_type, obj_id);
               }
               OcelObjectAction::AllocateMerged(data) => {
                 for id in data.data() {
                   if !prev_state.final_objects.contains_unknown_object(id) {
                     return Err(OcelAnnotationCreationError::OneOfMergedObjetsDoesNotExist)
                   }
+
+                  new_node_state.remove_unknown_object(id);
                 }
 
                 let obj_type = data.r#type().as_ref().map(|s| s.as_str()).unwrap_or(UNKNOWN_TYPE).to_string();
@@ -149,6 +179,8 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                   let id = produced_obj.id().to_string();
                   new_node_state.add_allocated_object(obj_type, id)?;
                 }
+
+                new_node_state.remove_unknown_object(obj_id);
               }
             }
           }
