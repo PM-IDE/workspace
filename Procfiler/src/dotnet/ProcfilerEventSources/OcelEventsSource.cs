@@ -35,8 +35,8 @@ public class OcelEventsSource : EventSource
     WriteEvent(OcelObjectConsumeProduceEventId, objectId, relatedObjectsIds, relatedObjectsTypes, attributes);
 
   [Event(OcelObjectMergeAllocateEventId, Level = EventLevel.LogAlways)]
-  public void OcelMergeAllocate(long objectId, string? type, string relatedObjectIds, string attributes) =>
-    WriteEvent(OcelObjectMergeAllocateEventId, objectId, type, relatedObjectIds, attributes);
+  public void OcelMergeAllocate(long objectId, string? type, string relatedObjectsIds, string attributes) =>
+    WriteEvent(OcelObjectMergeAllocateEventId, objectId, type, relatedObjectsIds, attributes);
 
   [Event(OcelActivityBeginId, Level = EventLevel.LogAlways)]
   public void OcelActivityBegin(Guid activityId, string activity) => WriteEvent(OcelActivityBeginId, activityId, activity);
