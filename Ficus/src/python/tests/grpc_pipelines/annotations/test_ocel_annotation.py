@@ -1,3 +1,5 @@
+import json
+
 from ...core.gold_based_test import execute_test_with_gold
 from ....ficus import *
 
@@ -21,10 +23,31 @@ class AssertCorrectOcelAnnotation(PipelinePartWithCallback):
 
   def execute_callback(self, values: dict[str, GrpcContextValue]):
     assert const_ocel_annotation in values
-    gold_value = str(values[const_ocel_annotation].ocel_annotation)
+
+    annotations = list(values[const_ocel_annotation].ocel_annotation.annotations)
+    annotations = sorted(annotations, key=lambda a: a.element_id)
+    final_states = list(map(lambda a: a.final_state, annotations))
+
+    test_results = []
+
+    for state in final_states:
+      entity_states = []
+      type_states = sorted(state.type_states, key=lambda t: t.type)
+
+      for type_state in type_states:
+        ids = [id for id in type_state.object_ids]
+        ids.sort()
+
+        entity_states.append({
+          'type': type_state.type,
+          'object_ids': ids
+        })
+
+      test_results.append(entity_states)
+
     gold_path = get_ocel_gold_path(self.test_name)
 
-    execute_test_with_gold(gold_path, gold_value)
+    execute_test_with_gold(gold_path, json.dumps(test_results, indent=2))
 
 
 def test_ocel_annotation_1():
