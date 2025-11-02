@@ -1,0 +1,188 @@
+<log>
+ <trace>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodStart_{Ocel2.Program.Main[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:53.957485800+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Main[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186276560875"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodStart_{Ocel2.Program.Method[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:53.958059600+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186277134625"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelObjectAllocated"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004733700+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323808708"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="1"/>
+   <string key="type" value="Type1"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelObjectAllocated"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004748900+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323823958"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="2"/>
+   <string key="type" value="Type1"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelObjectAllocated"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004760400+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323835458"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="3"/>
+   <string key="type" value="Type1"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelObjectAllocated"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004772700+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323847750"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="4"/>
+   <string key="type" value="Type2"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelObjectAllocated"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004783500+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323858500"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="5"/>
+   <string key="type" value="Type2"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelObjectAllocated"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004793500+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323868583"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="6"/>
+   <string key="type" value="Type2"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodStart_{Ocel2.Program.Method1[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004811+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method1[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323886041"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodEnd_{Ocel2.Program.Method1[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.004812500+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method1[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186323887583"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelMergeAllocate"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.007921400+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186326996458"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="7"/>
+   <string key="relatedObjectsIds" value="1 3 5"/>
+   <string key="type" value="Type1"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelMergeAllocate"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.007962400+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186327037458"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="8"/>
+   <string key="relatedObjectsIds" value="2 4 6"/>
+   <string key="type" value="Type1"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodStart_{Ocel2.Program.Method1[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.007962700+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method1[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186327037750"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodEnd_{Ocel2.Program.Method1[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.007962900+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method1[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186327037916"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelConsumeProduce"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.020457800+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186339532875"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="7"/>
+   <string key="relatedObjectsIds" value="9 10"/>
+   <string key="relatedObjectsTypes" value="Type3 Type2"/>
+  </event>
+  <event>
+   <string key="concept:name" value="OcelConsumeProduce"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.020564500+00:00"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186339639500"/>
+   <int key="ThreadId" value="2567641"/>
+   <string key="attributes" value=""/>
+   <string key="objectId" value="8"/>
+   <string key="relatedObjectsIds" value="11"/>
+   <string key="relatedObjectsTypes" value="Type3"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodStart_{Ocel2.Program.Method1[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.020564900+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method1[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186339639958"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodEnd_{Ocel2.Program.Method1[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.020565200+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method1[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186339640208"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodEnd_{Ocel2.Program.Method[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.020568300+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Method[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186339643333"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+  <event>
+   <string key="concept:name" value="Procfiler/MethodEnd_{Ocel2.Program.Main[void..()]}"/>
+   <date key="time:timestamp" value="2025-11-02T09:27:54.020568400+00:00"/>
+   <string key="MethodName" value="Ocel2.Program.Main[void..()]"/>
+   <int key="NativeThreadId" value="2567641"/>
+   <int key="QpcStamp" value="180186339643458"/>
+   <int key="ThreadId" value="2567641"/>
+  </event>
+ </trace>
+</log>

@@ -53,7 +53,7 @@ class AssertCorrectOcelAnnotation(PipelinePartWithCallback):
 def test_ocel_annotation_1():
   _execute_ocel_annotation_test(
     'test_ocel_annotation_1',
-    'ocel.bxes',
+    'ocel.xes',
     [
       RemainEventsByRegex('(^Procfiler|^Ocel)'),
       FilterEventsByRegex('NextId'),
@@ -69,7 +69,7 @@ def _execute_ocel_annotation_test(test_name: str, log_name: str, filter_parts: l
 
   pipeline = Pipeline()
 
-  pipeline.parts.append(ReadLogFromBxes(use_bytes=True))
+  pipeline.parts.append(ReadLogFromXes(use_bytes=True))
 
   pipeline.parts.extend(filter_parts)
 
