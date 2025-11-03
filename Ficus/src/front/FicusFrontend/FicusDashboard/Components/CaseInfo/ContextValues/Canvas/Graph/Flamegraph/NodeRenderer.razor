@@ -1,0 +1,29 @@
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+
+@{
+  var mainDim = FlamegraphConstants.MainDimPx * MainDim;
+  var writingMode = Context.LeftToRight ? "writing-mode: vertical-rl;" : string.Empty; 
+}
+
+<div style="@Context.MinMainDim: @(mainDim)px; 
+            @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px; 
+            @writingMode; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;"
+     class="flamegraph-node">
+
+  @foreach (var eventClass in Context.GetNodeName(Node))
+  {
+    <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;">
+      @eventClass
+    </div>
+  }
+
+</div>
+
+@code {
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public required ulong Node { get; init; }
+  [Parameter] public required double MainDim { get; init; }
+}
