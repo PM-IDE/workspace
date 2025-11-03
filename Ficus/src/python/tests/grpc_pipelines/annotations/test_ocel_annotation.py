@@ -100,7 +100,7 @@ def _execute_ocel_annotation_test(test_name: str, log_name: str, filter_parts: l
     AddStartArtificialEvents(),
     DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
                               merge_sequences_of_events=False),
-    AnnotateGraphWithOCEL(),
+    CreateDagOcelAnnotation(),
     AssertCorrectOcelAnnotation(test_name)
   ])
 

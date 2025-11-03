@@ -112,25 +112,31 @@ class AnnotateGraphWithTime(ViewGraphLikeFormalismPart):
                background_color: str = 'white',
                engine='dot',
                export_path: Optional[str] = None,
-               rankdir: str = 'LR'):
+               rankdir: str = 'LR',
+               add_ocel_annotation: bool = False):
     super().__init__(name, background_color, engine, export_path, rankdir)
     self.annotation_kind = annotation_kind
+    self.add_ocel_annotation = add_ocel_annotation
 
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     append_enum_value(config, const_time_annotation_kind, const_time_annotation_kind_enum_name,
                       self.annotation_kind.name)
 
+    keys = [const_graph, const_graph_time_annotation]
+    if self.add_ocel_annotation:
+      keys.append(const_ocel_annotation)
+
     part = create_complex_get_context_part(self.uuid,
                                            self.__class__.__name__,
-                                           [const_graph, const_graph_time_annotation],
+                                           keys,
                                            const_annotate_graph_with_time,
                                            config)
 
     return GrpcPipelinePartBase(complexContextRequestPart=part)
 
 
-class AnnotateGraphWithOCEL(PipelinePart):
+class CreateDagOcelAnnotation(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     config = GrpcPipelinePartConfiguration()
     return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_create_ocel_annotation_for_dag, config))
