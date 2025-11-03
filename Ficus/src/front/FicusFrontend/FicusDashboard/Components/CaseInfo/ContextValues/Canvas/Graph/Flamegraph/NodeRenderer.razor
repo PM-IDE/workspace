@@ -1,25 +1,33 @@
+@inject IEntitiesColors Colors;
+
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+@using FicusDashboard.Services
 
 @{
   var mainDim = FlamegraphConstants.MainDimPx * MainDim;
-  var writingMode = Context.LeftToRight ? "writing-mode: vertical-rl;" : string.Empty; 
+  var writingMode = Context.LeftToRight ? "writing-mode: vertical-rl;" : string.Empty;
+  var objectsState = Context.GetNodeObjectsState(Node);
+  var initialState = objectsState?.InitialState;
+  var finalState = objectsState?.FinalState;
 }
 
 <div style="@Context.MinMainDim: @(mainDim)px; 
-            @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px; 
-            @writingMode; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center;"
+            @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;
+            display: flex;
+            flex-direction: @Context.MainFlexDirection" 
      class="flamegraph-node">
+  <NodesObjectStateRenderer Context="Context" State="@(initialState ?? finalState)"/>
 
-  @foreach (var eventClass in Context.GetNodeName(Node))
-  {
-    <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;">
-      @eventClass
-    </div>
-  }
+  <div style="@writingMode; display: flex; justify-content: center; align-items: center;">
+    @foreach (var eventClass in Context.GetNodeName(Node))
+    {
+      <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;">
+        @eventClass
+      </div>
+    }
+  </div>
 
+  <NodesObjectStateRenderer Context="Context" State="finalState"/>
 </div>
 
 @code {
