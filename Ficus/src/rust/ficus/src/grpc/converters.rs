@@ -3,11 +3,13 @@ use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations, ProcessNodesStates};
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::arc::Arc;
 use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
@@ -23,14 +25,35 @@ use crate::features::discovery::root_sequence::models::{
   ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind,
 };
 use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
-use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, DurationKind, GenericEnhancementBase, HistogramData, OcelData, OcelObjectAction, SimpleCounterData, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{
+  ActivityDurationData, DurationKind, GenericEnhancementBase, HistogramData, OcelData, OcelObjectAction, SimpleCounterData, SoftwareData,
+};
 use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
 use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
 use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{grpc_event_attribute, grpc_graph_edge_additional_data, grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge, GrpcOcelConsumeProduce, GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject, GrpcOcelState, GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind};
+use crate::ficus_proto::{
+  grpc_event_attribute, grpc_graph_edge_additional_data, grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData,
+  GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind,
+  GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute,
+  GrpcEventCoordinates, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge,
+  GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint,
+  GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcModelElementOcelAnnotation,
+  GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge, GrpcOcelConsumeProduce,
+  GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject, GrpcOcelState,
+  GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking,
+  GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent,
+  GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram,
+  GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind,
+};
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_keys::{BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY, NAMES_EVENT_LOG_KEY, OCEL_ANNOTATION_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY, TRACES_ACTIVITIES_DATASET_KEY};
+use crate::pipelines::keys::context_keys::{
+  BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
+  LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY,
+  NAMES_EVENT_LOG_KEY, OCEL_ANNOTATION_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY,
+  PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY,
+  TRACES_ACTIVITIES_DATASET_KEY,
+};
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
@@ -41,6 +64,7 @@ use crate::utils::graph::graph::{DefaultGraph, Graph, GraphKind};
 use crate::utils::graph::graph_edge::GraphEdge;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::log_serialization_format::LogSerializationFormat;
+use crate::utils::references::HeapedOrOwned;
 use crate::utils::user_data::user_data::UserDataImpl;
 use crate::{
   features::analysis::patterns::{
@@ -60,6 +84,7 @@ use crate::{
   },
   vecs,
 };
+use chrono::{DateTime, Utc};
 use log::error;
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
@@ -69,11 +94,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::rc::Rc;
 use std::{any::Any, str::FromStr};
-use chrono::{DateTime, Utc};
 use uuid::Uuid;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations, ProcessNodesStates};
-use crate::utils::references::HeapedOrOwned;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {
   GrpcContextValue::decode(bytes)
@@ -188,7 +209,7 @@ pub(super) fn put_into_user_data(
       }
 
       user_data.put_concrete(EVENT_LOG_KEY.key(), xes_log);
-    },
+    }
     ContextValue::OcelAnnotation(_) => todo!(),
   }
 }
@@ -292,20 +313,24 @@ fn try_convert_to_grpc_ocel_annotation(value: &dyn Any) -> Option<GrpcContextVal
 
 fn convert_to_grpc_ocel_annotation(annotation: &OcelAnnotation) -> GrpcOcelModelAnnotation {
   GrpcOcelModelAnnotation {
-    annotations: annotation.nodes_to_states().iter().map(|s| {
-      GrpcModelElementOcelAnnotation {
+    annotations: annotation
+      .nodes_to_states()
+      .iter()
+      .map(|s| GrpcModelElementOcelAnnotation {
         element_id: s.0.clone(),
         final_state: Some(convert_to_grpc_ocel_node_state(s.1.final_objects())),
         initial_state: match s.1.initial_objects() {
           None => None,
           Some(objects) => Some(convert_to_grpc_ocel_node_state(objects)),
         },
-        relations: s.1.incoming_objects_relations()
+        relations: s
+          .1
+          .incoming_objects_relations()
           .iter()
           .map(|r| convert_to_grpc_ocel_object_relation(r))
-          .collect()
-      }
-    }).collect()
+          .collect(),
+      })
+      .collect(),
   }
 }
 
@@ -318,12 +343,14 @@ fn convert_to_grpc_ocel_object_relation(relations: &OcelObjectRelations) -> Grpc
 
 fn convert_to_grpc_ocel_node_state(state: &NodeObjectsState) -> GrpcOcelState {
   GrpcOcelState {
-    type_states: state.map().iter().map(|t| {
-      GrpcOcelObjectTypeState {
+    type_states: state
+      .map()
+      .iter()
+      .map(|t| GrpcOcelObjectTypeState {
         r#type: t.0.to_string(),
         object_ids: t.1.iter().map(|s| s.to_string()).collect(),
-      }
-    }).collect()
+      })
+      .collect(),
   }
 }
 
@@ -794,7 +821,7 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternGraphInfo) ->
       UnderlyingPatternKind::NearSuperMaximalRepeat => GrpcUnderlyingPatternKind::NearSuperMaximalRepeat,
       UnderlyingPatternKind::Unknown => GrpcUnderlyingPatternKind::Unknown,
     })
-      .into(),
+    .into(),
     base_sequence: match info.base_pattern() {
       None => vec![],
       Some(base_pattern) => base_pattern.clone(),
@@ -832,12 +859,13 @@ fn convert_to_grpc_simple_trace(trace: &Vec<Rc<RefCell<XesEventImpl>>>) -> GrpcS
         name: e.borrow().name().to_owned(),
         stamp: Some(convert_to_grpc_timestamp(e.borrow().timestamp())),
         attributes: if let Some(payload) = e.borrow().payload_map() {
-          payload.iter().map(|(k, v)| {
-            GrpcEventAttribute {
+          payload
+            .iter()
+            .map(|(k, v)| GrpcEventAttribute {
               key: k.to_owned(),
               value: convert_to_grpc_attribute_value(v),
-            }
-          }).collect()
+            })
+            .collect()
         } else {
           vec![]
         },
@@ -931,11 +959,7 @@ fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareDa
       .map(|c| convert_to_grpc_activity_duration(c))
       .collect(),
 
-    ocel_data: software_data
-      .ocel_data()
-      .iter()
-      .map(|c| convert_to_grpc_ocel_data(c))
-      .collect(),
+    ocel_data: software_data.ocel_data().iter().map(|c| convert_to_grpc_ocel_data(c)).collect(),
 
     timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
       threads: convert_to_grpc_threads(software_data.thread_diagram_fragment()),
@@ -948,22 +972,25 @@ fn convert_to_grpc_ocel_data(data: &OcelData) -> GrpcOcelData {
     object_id: data.object_id().to_string(),
     action: Some(match data.action() {
       OcelObjectAction::Allocate(data) => grpc_ocel_data::Action::Allocate(GrpcOcelObjectTypeData {
-        r#type: data.r#type().as_ref().map(|t| t.to_string())
+        r#type: data.r#type().as_ref().map(|t| t.to_string()),
       }),
       OcelObjectAction::Consume(data) => grpc_ocel_data::Action::Consume(GrpcOcelObjectTypeData {
-        r#type: data.r#type().as_ref().map(|t| t.to_string())
+        r#type: data.r#type().as_ref().map(|t| t.to_string()),
       }),
       OcelObjectAction::AllocateMerged(data) => grpc_ocel_data::Action::MergedObjectAllocation(GrpcOcelAllocateMerge {
         r#type: data.r#type().as_ref().map(|t| t.to_string()),
         merged_objects_ids: data.data().iter().map(|id| id.to_string()).collect(),
       }),
       OcelObjectAction::ConsumeWithProduce(data) => grpc_ocel_data::Action::ProduceObjectConsumption(GrpcOcelConsumeProduce {
-        produced_objects: data.iter().map(|x| GrpcOcelProducedObject {
-          id: x.id().to_string(),
-          r#type: x.r#type().as_ref().map(|t| t.to_string())
-        }).collect()
-      })
-    })
+        produced_objects: data
+          .iter()
+          .map(|x| GrpcOcelProducedObject {
+            id: x.id().to_string(),
+            r#type: x.r#type().as_ref().map(|t| t.to_string()),
+          })
+          .collect(),
+      }),
+    }),
   }
 }
 
@@ -979,7 +1006,7 @@ fn convert_to_grpc_activity_duration(data: &ActivityDurationData) -> GrpcActivit
       DurationKind::Seconds => GrpcDurationKind::Seconds,
       DurationKind::Minutes => GrpcDurationKind::Minutes,
       DurationKind::Hours => GrpcDurationKind::Hours,
-      DurationKind::Days => GrpcDurationKind::Days
+      DurationKind::Days => GrpcDurationKind::Days,
     }) as i32,
   }
 }

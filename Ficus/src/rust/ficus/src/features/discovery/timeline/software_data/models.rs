@@ -1,11 +1,11 @@
 use crate::features::discovery::timeline::discovery::TraceThread;
 use crate::features::discovery::timeline::software_data::extraction_config::TimeKind;
+use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
@@ -42,7 +42,7 @@ impl SoftwareData {
       histograms: vec![],
       simple_counters: vec![],
       activities_durations: vec![],
-      ocel_data: vec![]
+      ocel_data: vec![],
     }
   }
 }
@@ -52,7 +52,7 @@ pub struct OcelProducedObjectAfterConsume {
   #[getset(get = "pub")]
   id: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  r#type: Option<HeapedOrOwned<String>>
+  r#type: Option<HeapedOrOwned<String>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -68,7 +68,7 @@ pub enum OcelObjectAction {
   Allocate(ObjectTypeWithData<()>),
   Consume(ObjectTypeWithData<()>),
   AllocateMerged(ObjectTypeWithData<Vec<HeapedOrOwned<String>>>),
-  ConsumeWithProduce(Vec<OcelProducedObjectAfterConsume>)
+  ConsumeWithProduce(Vec<OcelProducedObjectAfterConsume>),
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
@@ -76,7 +76,7 @@ pub struct OcelData {
   #[getset(get = "pub")]
   object_id: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  action: OcelObjectAction
+  action: OcelObjectAction,
 }
 
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
@@ -94,7 +94,7 @@ pub struct GenericEnhancementBase {
   #[getset(get = "pub")]
   units: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  group: Option<HeapedOrOwned<String>>
+  group: Option<HeapedOrOwned<String>>,
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
@@ -120,7 +120,7 @@ pub struct ActivityDurationData {
   #[getset(get = "pub")]
   duration: u64,
   #[getset(get = "pub")]
-  kind: DurationKind
+  kind: DurationKind,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -147,7 +147,7 @@ impl From<&TimeKind> for DurationKind {
       TimeKind::Minutes => Self::Minutes,
       TimeKind::Hours => Self::Hours,
       TimeKind::Days => Self::Days,
-      TimeKind::UtcStamp => Self::Nanos
+      TimeKind::UtcStamp => Self::Nanos,
     }
   }
 }

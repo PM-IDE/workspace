@@ -6,12 +6,12 @@ use crate::features::discovery::timeline::software_data::extractors::core::{
 };
 use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
 use crate::features::discovery::timeline::software_data::models::{GenericEnhancementBase, HistogramData, HistogramEntry, SoftwareData};
+use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, new)]
 pub struct PieChartExtractor<'a> {

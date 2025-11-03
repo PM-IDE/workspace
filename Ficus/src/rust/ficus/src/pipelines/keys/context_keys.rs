@@ -5,6 +5,7 @@ use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::ocel::graph_annotation::OcelAnnotation;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::root_sequence::models::RootSequenceKind;
@@ -34,7 +35,6 @@ use crate::{
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
 use uuid::Uuid;
-use crate::features::discovery::ocel::graph_annotation::OcelAnnotation;
 
 pub const CASE_NAME_STR: &'static str = "case_name";
 pub const PROCESS_NAME_STR: &'static str = "process_name";

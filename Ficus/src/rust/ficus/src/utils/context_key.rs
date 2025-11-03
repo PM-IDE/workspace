@@ -36,7 +36,7 @@ where
 
   pub fn existing(id: u64, name: String) -> Self {
     Self {
-      key: DefaultKey::existing(id, name)
+      key: DefaultKey::existing(id, name),
     }
   }
 

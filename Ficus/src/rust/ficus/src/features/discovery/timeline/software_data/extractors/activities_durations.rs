@@ -8,8 +8,11 @@ use crate::features::discovery::timeline::software_data::extractors::core::{
   EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
 };
 use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
-use crate::features::discovery::timeline::software_data::models::{ActivityDurationData, DurationKind, GenericEnhancementBase, SoftwareData};
+use crate::features::discovery::timeline::software_data::models::{
+  ActivityDurationData, DurationKind, GenericEnhancementBase, SoftwareData,
+};
 use crate::features::discovery::timeline::utils::get_stamp;
+use crate::utils::references::HeapedOrOwned;
 use crate::utils::vec_utils::VectorOptionExtensions;
 use derive_new::new;
 use fancy_regex::Regex;
@@ -18,7 +21,6 @@ use log::error;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
@@ -193,8 +195,8 @@ fn add_software_activities_durations(software_data: &mut SoftwareData, data: &Du
         *value,
         match info.time_attribute() {
           Some(attr) => DurationKind::from(attr.kind()),
-          None => DurationKind::Unknown
-        }
+          None => DurationKind::Unknown,
+        },
       )
     }));
 }
@@ -290,11 +292,7 @@ fn process_events(
           for prev_data in previous_data.iter_mut() {
             if let Some(prev_data) = prev_data.as_mut() {
               let duration = (prev_data.end_time - prev_data.start_time) as u64;
-              (*prev_data
-                .map
-                .entry(info.base().name().to_string())
-                .or_insert((0u64, info.clone()))
-              ).0 += duration;
+              (*prev_data.map.entry(info.base().name().to_string()).or_insert((0u64, info.clone()))).0 += duration;
             }
           }
         }
@@ -333,7 +331,10 @@ fn get_duration(
   Ok((get_stamp_or_err(second, attribute)? - get_stamp_or_err(first, attribute)?) as u64)
 }
 
-fn get_stamp_or_err(event: &Rc<RefCell<XesEventImpl>>, attribute: Option<&TimeAttributeConfig>) -> Result<i64, SoftwareDataExtractionError> {
+fn get_stamp_or_err(
+  event: &Rc<RefCell<XesEventImpl>>,
+  attribute: Option<&TimeAttributeConfig>,
+) -> Result<i64, SoftwareDataExtractionError> {
   let attribute = attribute.map(|a| a.time_attribute());
   get_stamp(&event.borrow(), attribute).map_err(|_| SoftwareDataExtractionError::FailedToGetStamp)
 }

@@ -1,7 +1,7 @@
-use chrono::{DateTime, Utc};
 use crate::event_log::core::event::event::{Event, EventPayloadValue};
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::discovery::LogThreadsDiagramError;
+use chrono::{DateTime, Utc};
 
 pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<String> {
   if let Some(map) = event.payload_map() {

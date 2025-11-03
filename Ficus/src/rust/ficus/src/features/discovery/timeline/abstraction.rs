@@ -21,6 +21,7 @@ use crate::features::discovery::timeline::software_data::extractors::core::{
   EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
 };
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
 use crate::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
@@ -34,7 +35,6 @@ use crate::utils::vec_utils::VectorOptionExtensions;
 use log::error;
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,

@@ -13,7 +13,7 @@ use std::rc::Rc;
 #[derive(new, Getters)]
 pub struct OcelAnnotation {
   #[get = "pub"]
-  nodes_to_states: HashMap<u64, ProcessNodesStates>
+  nodes_to_states: HashMap<u64, ProcessNodesStates>,
 }
 
 #[derive(EnumDisplay)]
@@ -22,20 +22,18 @@ pub enum OcelAnnotationCreationError {
   FailedToFindStartNode,
   ObjectAlreadyExistsInNodeState,
   ConsumeNotExistingObject,
-  OneOfMergedObjetsDoesNotExist
+  OneOfMergedObjetsDoesNotExist,
 }
 
 #[derive(Getters)]
 pub struct NodeObjectsState {
   #[getset(get = "pub")]
-  map: HashMap<HeapedOrOwned<String>, HashSet<HeapedOrOwned<String>>>
+  map: HashMap<HeapedOrOwned<String>, HashSet<HeapedOrOwned<String>>>,
 }
 
 impl NodeObjectsState {
   pub fn new() -> Self {
-    Self {
-      map: HashMap::new()
-    }
+    Self { map: HashMap::new() }
   }
 
   pub fn add_allocated_object(
@@ -44,7 +42,7 @@ impl NodeObjectsState {
     object_id: HeapedOrOwned<String>,
   ) -> Result<(), OcelAnnotationCreationError> {
     if self.contains_object(&object_type, &object_id) {
-      return Err(OcelAnnotationCreationError::ObjectAlreadyExistsInNodeState)
+      return Err(OcelAnnotationCreationError::ObjectAlreadyExistsInNodeState);
     }
 
     self.type_set_mut(&object_type).insert(object_id);
@@ -60,7 +58,7 @@ impl NodeObjectsState {
   pub fn remove_unknown_object(&mut self, id: &HeapedOrOwned<String>) {
     for (_, set) in self.map.iter_mut() {
       if set.remove(id) {
-        return
+        return;
       }
     }
   }
@@ -103,7 +101,7 @@ pub struct ProcessNodesStates {
   #[get = "pub"]
   final_objects: NodeObjectsState,
   #[get = "pub"]
-  incoming_objects_relations: Vec<OcelObjectRelations>
+  incoming_objects_relations: Vec<OcelObjectRelations>,
 }
 
 #[derive(new, Getters)]
@@ -119,13 +117,19 @@ lazy_static! {
 }
 
 pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnotation, OcelAnnotationCreationError> {
-  let Some(kind) = graph.kind.as_ref() else { return Err(OcelAnnotationCreationError::UnsupportedGraphKind) };
+  let Some(kind) = graph.kind.as_ref() else {
+    return Err(OcelAnnotationCreationError::UnsupportedGraphKind);
+  };
   if !kind.is_dag() {
-    return Err(OcelAnnotationCreationError::UnsupportedGraphKind)
+    return Err(OcelAnnotationCreationError::UnsupportedGraphKind);
   }
 
   let mut q = VecDeque::new();
-  let start_node_id = graph.all_nodes().iter().find(|n| graph.incoming_edges(n.id()).len() == 0).map(|n| n.id().to_owned());
+  let start_node_id = graph
+    .all_nodes()
+    .iter()
+    .find(|n| graph.incoming_edges(n.id()).len() == 0)
+    .map(|n| n.id().to_owned());
 
   if start_node_id.is_none() {
     return Err(OcelAnnotationCreationError::FailedToFindStartNode);
@@ -175,7 +179,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
               OcelObjectAction::Consume(data) => {
                 let obj_type = data.r#type().as_ref().unwrap_or(&fallback_type);
                 if prev_state.final_objects.contains_object(obj_type, obj_id) {
-                  return Err(OcelAnnotationCreationError::ConsumeNotExistingObject)
+                  return Err(OcelAnnotationCreationError::ConsumeNotExistingObject);
                 }
 
                 new_node_state.remove_object(obj_type, obj_id);
@@ -185,7 +189,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
 
                 for id in data.data() {
                   if !prev_state.final_objects.contains_unknown_object(id) {
-                    return Err(OcelAnnotationCreationError::OneOfMergedObjetsDoesNotExist)
+                    return Err(OcelAnnotationCreationError::OneOfMergedObjetsDoesNotExist);
                   }
 
                   new_node_state.remove_unknown_object(id);
@@ -199,7 +203,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
               }
               OcelObjectAction::ConsumeWithProduce(data) => {
                 if !prev_state.final_objects.contains_unknown_object(obj_id) {
-                  return Err(OcelAnnotationCreationError::ConsumeNotExistingObject)
+                  return Err(OcelAnnotationCreationError::ConsumeNotExistingObject);
                 }
 
                 for produced_obj in data.iter() {

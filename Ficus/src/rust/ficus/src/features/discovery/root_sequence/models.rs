@@ -100,8 +100,10 @@ impl<T: Clone> NodeAdditionalDataContainer<T> {
 
 #[derive(Clone, Debug, Getters, new)]
 pub struct ActivityStartEndTimeData {
-  #[getset(get = "pub")] start_time: i64,
-  #[getset(get = "pub")] end_time: i64,
+  #[getset(get = "pub")]
+  start_time: i64,
+  #[getset(get = "pub")]
+  end_time: i64,
 }
 
 #[derive(Clone, Debug)]

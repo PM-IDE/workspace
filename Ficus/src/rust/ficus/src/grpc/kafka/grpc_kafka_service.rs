@@ -178,7 +178,10 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let handler = handler as Box<dyn PipelineEventsHandler>;
     let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), Arc::new(handler));
 
-    let context_values = match self.cv_service.reclaim_context_values(&request.get_ref().pipeline_request.as_ref().unwrap().context_values_ids) {
+    let context_values = match self
+      .cv_service
+      .reclaim_context_values(&request.get_ref().pipeline_request.as_ref().unwrap().context_values_ids)
+    {
       Ok(context_values) => context_values,
       Err(not_found_id) => {
         let message = format!("Failed to find context value for id {}", not_found_id);

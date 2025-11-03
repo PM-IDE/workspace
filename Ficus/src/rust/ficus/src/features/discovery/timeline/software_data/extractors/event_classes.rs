@@ -5,12 +5,12 @@ use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError};
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
+use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::utils::references::HeapedOrOwned;
 
 #[derive(Debug, Clone, new)]
 pub struct EventClassesDataExtractor<'a> {

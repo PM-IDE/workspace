@@ -1,10 +1,10 @@
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
+use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
@@ -101,7 +101,7 @@ pub struct OcelConsumeProduceExtractionConfig {
   #[getset(get = "pub")]
   related_object_ids_attr: String,
   #[getset(get = "pub")]
-  related_object_type_attr: String
+  related_object_type_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -173,7 +173,7 @@ impl NameCreationStrategy {
   pub fn fallback_value(&self) -> HeapedOrOwned<String> {
     match self {
       NameCreationStrategy::SingleAttribute(s) => s.fallback_value().clone(),
-      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().clone()
+      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().clone(),
     }
   }
 }
@@ -223,7 +223,7 @@ pub struct TimeAttributeConfig {
   #[getset(get = "pub")]
   time_attribute: String,
   #[getset(get = "pub")]
-  kind: TimeKind
+  kind: TimeKind,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -238,5 +238,5 @@ pub enum TimeKind {
   Hours,
   Days,
 
-  UtcStamp
+  UtcStamp,
 }

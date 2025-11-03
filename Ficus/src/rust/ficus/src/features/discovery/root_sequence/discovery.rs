@@ -67,7 +67,7 @@ pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
 
   let graph_kind = match context.root_sequence_kind() {
     RootSequenceKind::FindBest | RootSequenceKind::PairwiseLCS | RootSequenceKind::Trace => GraphKind::Dag,
-    RootSequenceKind::LCS => GraphKind::DagLCS
+    RootSequenceKind::LCS => GraphKind::DagLCS,
   };
 
   result.graph_mut().set_kind(Some(graph_kind));

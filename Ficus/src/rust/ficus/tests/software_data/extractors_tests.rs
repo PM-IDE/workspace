@@ -2,18 +2,22 @@ use chrono::Utc;
 use ficus::event_log::core::event::event::EventPayloadValue;
 use ficus::event_log::xes::xes_event::XesEventImpl;
 use ficus::features::discovery::timeline::events_groups::EventGroup;
-use ficus::features::discovery::timeline::software_data::extraction_config::{ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy, OcelAllocateMergeExtractionConfig, OcelConsumeProduceExtractionConfig, OcelObjectExtractionConfigBase, OcelUnitedExtractionConfig, PieChartExtractionConfig, SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig, TimeKind};
+use ficus::features::discovery::timeline::software_data::extraction_config::{
+  ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy, OcelAllocateMergeExtractionConfig,
+  OcelConsumeProduceExtractionConfig, OcelObjectExtractionConfigBase, OcelUnitedExtractionConfig, PieChartExtractionConfig,
+  SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig, TimeKind,
+};
 use ficus::features::discovery::timeline::software_data::extractors::activities_durations::ActivityDurationExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::core::{
   EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor,
 };
+use ficus::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
 use ficus::features::discovery::timeline::software_data::models::{OcelProducedObjectAfterConsume, SoftwareData};
+use ficus::utils::references::heaped;
 use std::cell::RefCell;
 use std::rc::Rc;
-use ficus::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
-use ficus::utils::references::heaped;
 
 #[test]
 fn test_general_histogram() {
@@ -415,8 +419,14 @@ pub fn test_ocel_data_extraction() {
               "object_id".to_string(),
               EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
             ),
-            ("ocel_related_objects_ids".to_string(), EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string())))),
-            ("ocel_related_objects_types".to_string(), EventPayloadValue::String(Rc::new(Box::new("T1 T2 T3 T4 T5".to_string())))),
+            (
+              "ocel_related_objects_ids".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string()))),
+            ),
+            (
+              "ocel_related_objects_types".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("T1 T2 T3 T4 T5".to_string()))),
+            ),
           ],
         ),
         create_event_with_attributes(
@@ -430,8 +440,14 @@ pub fn test_ocel_data_extraction() {
               "object_id".to_string(),
               EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
             ),
-            ("ocel_action".to_string(), EventPayloadValue::String(Rc::new(Box::new("AllocateMerged".to_string())))),
-            ("ocel_related_objects_ids".to_string(), EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string())))),
+            (
+              "ocel_action".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("AllocateMerged".to_string()))),
+            ),
+            (
+              "ocel_related_objects_ids".to_string(),
+              EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string()))),
+            ),
           ],
         ),
       ];
@@ -444,39 +460,23 @@ pub fn test_ocel_data_extraction() {
       let related_ids_attr = "ocel_related_objects_ids";
       let related_types_attr = "ocel_related_objects_types";
 
-      config.set_ocel(
-        Some(OcelUnitedExtractionConfig::new(
-          Some(" ".to_string()),
-          Some(
-            ExtractionConfig::new(
-              "ocel_allocate".to_string(),
-              base_conf.to_owned(),
-            )
+      config.set_ocel(Some(OcelUnitedExtractionConfig::new(
+        Some(" ".to_string()),
+        Some(ExtractionConfig::new("ocel_allocate".to_string(), base_conf.to_owned())),
+        Some(ExtractionConfig::new("ocel_consume".to_string(), base_conf.to_owned())),
+        Some(ExtractionConfig::new(
+          "ocel_allocate_merge".to_string(),
+          OcelAllocateMergeExtractionConfig::new(base_conf.to_owned(), related_ids_attr.to_string()),
+        )),
+        Some(ExtractionConfig::new(
+          "ocel_consume_produce".to_string(),
+          OcelConsumeProduceExtractionConfig::new(
+            object_id_attr.to_string(),
+            related_ids_attr.to_string(),
+            related_types_attr.to_string(),
           ),
-          Some(
-            ExtractionConfig::new(
-              "ocel_consume".to_string(),
-              base_conf.to_owned(),
-            )
-          ),
-          Some(
-            ExtractionConfig::new(
-              "ocel_allocate_merge".to_string(),
-              OcelAllocateMergeExtractionConfig::new(base_conf.to_owned(), related_ids_attr.to_string()),
-            )
-          ),
-          Some(
-            ExtractionConfig::new(
-              "ocel_consume_produce".to_string(),
-              OcelConsumeProduceExtractionConfig::new(
-                object_id_attr.to_string(),
-                related_ids_attr.to_string(),
-                related_types_attr.to_string(),
-              ),
-            )
-          ),
-        ))
-      );
+        )),
+      )));
 
       let extractor = OcelDataExtractor::new(&config);
       let mut software_data = SoftwareData::empty();

@@ -15,8 +15,10 @@ pub trait ExecuteWithUserData {
 
 #[derive(new, Getters, Debug, Clone)]
 struct UserDataValue {
-  #[getset(get = "pub")] value: Rc<RefCell<dyn Any>>,
-  #[getset(get = "pub")] key_name: String,
+  #[getset(get = "pub")]
+  value: Rc<RefCell<dyn Any>>,
+  #[getset(get = "pub")]
+  key_name: String,
 }
 
 #[derive(Debug)]
@@ -105,11 +107,9 @@ impl UserData for UserDataImpl {
           .map(|(k, v)| {
             let key = Box::new(DefaultKey::<()>::existing(*k, v.key_name.to_owned()));
 
-            unsafe {
-              (key as Box<dyn Key>, v.value().as_ref().try_borrow_unguarded().ok().unwrap())
-            }
+            unsafe { (key as Box<dyn Key>, v.value().as_ref().try_borrow_unguarded().ok().unwrap()) }
           })
-          .collect()
+          .collect(),
       )
     } else {
       None
