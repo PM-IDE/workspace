@@ -67,8 +67,8 @@ public class NodeObjectsState
 
     return;
 
-    List<TypeObjects>? CreateTypeObjectsState(GrpcOcelState state) =>
-      state.TypeStates?
+    List<TypeObjects>? CreateTypeObjectsState(GrpcOcelState? state) =>
+      state?.TypeStates?
         .Select(ts => new TypeObjects
         {
           TypeName = ts.Type,
