@@ -5,7 +5,6 @@
 
 @{
   var mainDim = FlamegraphConstants.MainDimPx * MainDim;
-  var writingMode = Context.LeftToRight ? "writing-mode: vertical-rl;" : string.Empty;
   var objectsState = Context.GetNodeObjectsState(Node);
   var initialState = objectsState?.InitialState;
   var finalState = objectsState?.FinalState;
@@ -14,11 +13,11 @@
 <div style="@Context.MinMainDim: @(mainDim)px; 
             @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;
             display: flex;
-            flex-direction: @Context.MainFlexDirection" 
+            flex-direction: @Context.MainFlexDirection;"
      class="flamegraph-node">
   <NodesObjectStateRenderer Context="Context" State="@(initialState ?? finalState)"/>
 
-  <div style="@writingMode; display: flex; justify-content: center; align-items: center;">
+  <div style="@Context.WritingMode; display: flex; justify-content: center; align-items: center;">
     @foreach (var eventClass in Context.GetNodeName(Node))
     {
       <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;">

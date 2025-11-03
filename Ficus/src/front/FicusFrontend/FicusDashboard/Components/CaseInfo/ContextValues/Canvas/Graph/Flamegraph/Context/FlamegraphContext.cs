@@ -104,6 +104,8 @@ public class FlamegraphRenderingContext
   public string SecondFlexDirection => LeftToRight ? "column" : "row";
   public string MainFlexDirection => LeftToRight ? "row" : "column";
 
+  public string WritingMode => LeftToRight ? "writing-mode: vertical-rl;" : string.Empty;
+
 
   public EnhancedEdge GetEnhancedEdge(ulong fromNode, ulong toNode)
   {

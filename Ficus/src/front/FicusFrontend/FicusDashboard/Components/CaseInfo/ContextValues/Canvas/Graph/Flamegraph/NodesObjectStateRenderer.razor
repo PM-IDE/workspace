@@ -15,8 +15,12 @@
 
   @foreach (var typeState in State.OrderBy(t => t.TypeName))
   {
+    @if (typeState.ObjectIds.Count == 0) continue;
+
     var typeObjectsMainDim = $"{Math.Floor((double)typeState.ObjectIds.Count * 100 / overallObjectsCount)}%";
-    <div style="background: @Colors.GetOrCreateColor(typeState.TypeName); @Context.MainDim: @typeObjectsMainDim; @Context.SecondDim: 15px;">
+    <div style="background: @Colors.GetOrCreateColor(typeState.TypeName);
+                @Context.MainDim: @typeObjectsMainDim;
+                @Context.SecondDim: 20px;">
     </div>
   }
 </div>
