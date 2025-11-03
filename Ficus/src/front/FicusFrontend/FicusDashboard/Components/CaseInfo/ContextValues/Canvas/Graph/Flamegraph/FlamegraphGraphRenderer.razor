@@ -14,7 +14,7 @@ else
   var dim = Context.Layout.CalculateMainDim() * FlamegraphConstants.MainDimPx;
 
   <div style="min-width: @(dim)px; min-height: @(dim)px;">
-    <Loader LeftUpMargin="true" />
+    <Loader LeftUpMargin="true"/>
   </div>
 }
 
@@ -23,6 +23,7 @@ else
   [Parameter] public required GraphLikeEntitySettings Settings { get; init; }
   [Parameter] public required AggregatedData AggregatedData { get; init; }
   [Parameter] public required GrpcAnnotation? Annotation { get; init; }
+  [Parameter] public required GrpcOcelModelAnnotation? OcelAnnotation { get; init; }
 
   private FlamegraphRenderingContext? myRenderingContext;
 
@@ -40,11 +41,12 @@ else
       var enhancedNodes = await Js.InvokeAsync<EnhancedNode[]>(
         "createEnhancedNodes", Context.Graph, AggregatedData, Settings.SelectedEnhancements, Settings.Filter);
 
+      var ocelAnnotationsMap = CreateOcelAnnotationMap();
       myRenderingContext = new FlamegraphRenderingContext
       {
         Context = Context,
         EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e),
-        EnhancedNodes = enhancedNodes.ToDictionary(e => e.Id, e => e),
+        EnhancedNodes = enhancedNodes.ToDictionary(e => e.Id, e => CreateEnhancedNodeDto(e, ocelAnnotationsMap)),
         EventClassesAsName = Settings.UseEventClassesAsLabels,
         LeftToRight = Settings.UseLROrientation
       };
@@ -52,4 +54,29 @@ else
       StateHasChanged();
     }).NoAwait();
   }
+
+  private Dictionary<ulong, GrpcModelElementOcelAnnotation>? CreateOcelAnnotationMap()
+  {
+    if (OcelAnnotation is null) return null;
+
+    Dictionary<ulong, GrpcModelElementOcelAnnotation> map = [];
+    foreach (var elementAnnotation in OcelAnnotation.Annotations)
+    {
+      map[elementAnnotation.ElementId] = elementAnnotation;
+    }
+
+    return map;
+  }
+
+  private static EnhancedNodeDto CreateEnhancedNodeDto(
+    EnhancedNode node,
+    Dictionary<ulong, GrpcModelElementOcelAnnotation>? ocelAnnotationsMap) => new()
+  {
+    Node = node,
+    Objects = ocelAnnotationsMap switch
+    {
+      null => null,
+      not null => new NodeObjectsState(ocelAnnotationsMap[node.Id])
+    }
+  };
 }

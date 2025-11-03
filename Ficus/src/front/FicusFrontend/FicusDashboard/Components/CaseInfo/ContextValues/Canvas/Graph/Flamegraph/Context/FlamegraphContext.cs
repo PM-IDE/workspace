@@ -36,11 +36,59 @@ public class FlamegraphContext
   }
 }
 
+public class ObjectRelations
+{
+  public required string Id { get; init; }
+  public required List<string> RelatedObjectsIds { get; init; }
+}
+
+public class TypeObjects
+{
+  public required string TypeName { get; init; }
+  public required List<string> ObjectIds { get; init; }
+}
+
+public class NodeObjectsState
+{
+  public List<TypeObjects>? InitialState { get; }
+  public List<TypeObjects>? FinalState { get; }
+  public List<ObjectRelations> InitialStateObjectsRelations { get; }
+
+  public NodeObjectsState(GrpcModelElementOcelAnnotation annotation)
+  {
+    InitialState = CreateTypeObjectsState(annotation.InitialState);
+    FinalState = CreateTypeObjectsState(annotation.FinalState);
+
+    InitialStateObjectsRelations = annotation.Relations.Select(r => new ObjectRelations
+    {
+      Id = r.ObjectId,
+      RelatedObjectsIds = r.RelatedObjectsIds.ToList()
+    }).ToList();
+
+    return;
+
+    List<TypeObjects>? CreateTypeObjectsState(GrpcOcelState state) =>
+      state.TypeStates?
+        .Select(ts => new TypeObjects
+        {
+          TypeName = ts.Type,
+          ObjectIds = ts.ObjectIds.ToList()
+        })
+        .ToList();
+  }
+}
+
+public class EnhancedNodeDto
+{
+  public required EnhancedNode Node { get; init; }
+  public required NodeObjectsState? Objects { get; init; }
+}
+
 public class FlamegraphRenderingContext
 {
   public required FlamegraphContext Context { get; init; }
   public required Dictionary<ulong, EnhancedEdge> EnhancedEdges { get; init; }
-  public required Dictionary<ulong, EnhancedNode> EnhancedNodes { get; init; }
+  public required Dictionary<ulong, EnhancedNodeDto> EnhancedNodes { get; init; }
   public required bool EventClassesAsName { get; init; }
   public required bool LeftToRight { get; init; }
 
@@ -63,7 +111,8 @@ public class FlamegraphRenderingContext
     return EnhancedEdges[edge.Id];
   }
 
-  public EnhancedNode GetEnhancedNode(ulong node) => EnhancedNodes[node];
+  public EnhancedNode GetEnhancedNode(ulong node) => EnhancedNodes[node].Node;
+  public NodeObjectsState? GetNodeObjectsState(ulong node) => EnhancedNodes[node].Objects;
 
   public List<string> GetNodeName(ulong nodeId) => EventClassesAsName switch
   {
