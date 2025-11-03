@@ -149,7 +149,7 @@
     StateHasChanged();
   }
 
-  private bool IsExpanded(PipelinePartExecutionResults results)
+  private static bool IsExpanded(PipelinePartExecutionResults results)
   {
     return results.UserData.GetOrCreate(ourExpandedKey, static () => true);
   }
@@ -215,6 +215,7 @@
   {
     var graphPair = Logger.TryGetContextValue(pipelinePartName, contextValues, GrpcContextValue.ContextValueOneofCase.Graph, c => c.Graph);
     var annotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, GrpcContextValue.ContextValueOneofCase.Annotation, c => c.Annotation);
+    var ocelAnnotationPair = Logger.TryGetContextValue(pipelinePartName, contextValues, GrpcContextValue.ContextValueOneofCase.OcelAnnotation, c => c.OcelAnnotation);
 
     if (graphPair is not var (graphId, graph)) return null;
 
@@ -224,10 +225,11 @@
                            IsFullScreen="@myIsFullScreen"
                            Graph="graph"
                            ProcessCaseData="ProcessCaseData"
-                           Annotation="annotationPair?.Item2"/>;
+                           Annotation="annotationPair?.Item2"
+                           OcelModelAnnotation="ocelAnnotationPair?.Item2"/>;
   }
 
-  private string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair)
+  private static string CreateEntityAnnotationId(Guid id, (Guid, GrpcAnnotation)? annotationPair)
   {
     return annotationPair switch
     {

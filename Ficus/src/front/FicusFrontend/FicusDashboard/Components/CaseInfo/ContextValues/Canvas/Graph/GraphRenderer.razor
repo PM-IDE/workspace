@@ -22,6 +22,7 @@
         <FlamegraphGraphRenderer Context="@myContext"
                                  AggregatedData="myAggregatedData"
                                  Annotation="Annotation"
+                                 OcelAnnotation="OcelModelAnnotation"
                                  Settings="mySettings"/>
       }
       else
@@ -44,7 +45,8 @@
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
-  [Parameter] public GrpcAnnotation? Annotation { get; set; }
+  [Parameter] public GrpcAnnotation? Annotation { get; init; }
+  [Parameter] public GrpcOcelModelAnnotation? OcelModelAnnotation { get; init; }
 
 
   private GraphLikeEntitySettings mySettings = null!;
