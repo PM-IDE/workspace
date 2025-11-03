@@ -4,6 +4,7 @@ use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+use crate::utils::references::HeapedOrOwned;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
 pub struct SoftwareDataExtractionConfig {
@@ -154,11 +155,11 @@ pub struct PieChartExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct GenericExtractionConfigBase {
   #[getset(get = "pub")]
-  name: String,
+  name: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  units: String,
+  units: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  group: Option<String>,
+  group: Option<HeapedOrOwned<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
@@ -169,10 +170,10 @@ pub enum NameCreationStrategy {
 }
 
 impl NameCreationStrategy {
-  pub fn fallback_value(&self) -> String {
+  pub fn fallback_value(&self) -> HeapedOrOwned<String> {
     match self {
-      NameCreationStrategy::SingleAttribute(s) => s.fallback_value().to_string(),
-      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().to_string(),
+      NameCreationStrategy::SingleAttribute(s) => s.fallback_value().clone(),
+      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().clone()
     }
   }
 }
@@ -182,7 +183,7 @@ pub struct SingleAttribute {
   #[getset(get = "pub")]
   name: String,
   #[getset(get = "pub")]
-  fallback_value: String,
+  fallback_value: HeapedOrOwned<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -192,7 +193,7 @@ pub struct ManyAttributes {
   #[getset(get = "pub")]
   separator: String,
   #[getset(get = "pub")]
-  fallback_value: String,
+  fallback_value: HeapedOrOwned<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

@@ -90,11 +90,11 @@ pub struct HistogramData {
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct GenericEnhancementBase {
   #[getset(get = "pub")]
-  name: String,
+  name: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  units: String,
+  units: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  group: Option<String>,
+  group: Option<HeapedOrOwned<String>>
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]

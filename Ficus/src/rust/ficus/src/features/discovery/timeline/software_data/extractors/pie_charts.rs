@@ -79,7 +79,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
 
     for (_, (base, counts)) in result {
       software_data.histograms_mut().push(HistogramData::new(
-        GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
+        GenericEnhancementBase::new(base.name().clone(), base.units().clone(), base.group().clone()),
         counts.into_iter().map(|(k, v)| HistogramEntry::new(k, v)).collect(),
       ))
     }

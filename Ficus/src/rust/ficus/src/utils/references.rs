@@ -42,8 +42,16 @@ impl<'a, T: Deserialize<'a>> Deserialize<'a> for HeapedOrOwned<T> {
   where
     D: Deserializer<'a>,
   {
-    Ok(HeapedOrOwned::Owned(T::deserialize(deserializer)?))
+    Ok(HeapedOrOwned::Heaped(Rc::new(Box::new(T::deserialize(deserializer)?))))
   }
+}
+
+pub fn owned<T>(t: T) -> HeapedOrOwned<T> {
+  HeapedOrOwned::Owned(t)
+}
+
+pub fn heaped<T>(t: T) -> HeapedOrOwned<T> {
+  HeapedOrOwned::Heaped(Rc::new(Box::new(t)))
 }
 
 impl<T> Deref for HeapedOrOwned<T> {

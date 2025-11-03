@@ -28,7 +28,7 @@ impl NameCreationStrategy {
         }
       }
     } else {
-      HeapedOrOwned::Owned(self.fallback_value())
+      self.fallback_value()
     }
   }
 
@@ -36,7 +36,7 @@ impl NameCreationStrategy {
     if let Some(attr_value) = payload.get(attr) {
       attr_value.to_string_repr()
     } else {
-      HeapedOrOwned::Owned(self.fallback_value())
+      self.fallback_value()
     }
   }
 }

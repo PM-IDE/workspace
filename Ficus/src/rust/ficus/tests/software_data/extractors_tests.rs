@@ -13,6 +13,7 @@ use ficus::features::discovery::timeline::software_data::models::{OcelProducedOb
 use std::cell::RefCell;
 use std::rc::Rc;
 use ficus::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
+use ficus::utils::references::heaped;
 
 #[test]
 fn test_general_histogram() {
@@ -87,10 +88,10 @@ fn test_general_histogram() {
         ExtractionConfig::new(
           "histogram_event".to_string(),
           PieChartExtractionConfig::new(
-            GenericExtractionConfigBase::new("g1".to_string(), "units".to_string(), None),
+            GenericExtractionConfigBase::new(heaped("g1".to_string()), heaped("units".to_string()), None),
             Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new(
               "type".to_string(),
-              "xd".to_string(),
+              heaped("xd".to_string()),
             ))),
             Some("count".to_string()),
           ),
@@ -98,10 +99,10 @@ fn test_general_histogram() {
         ExtractionConfig::new(
           "hst_event".to_string(),
           PieChartExtractionConfig::new(
-            GenericExtractionConfigBase::new("g2".to_string(), "units".to_string(), None),
+            GenericExtractionConfigBase::new(heaped("g2".to_string()), heaped("units".to_string()), None),
             Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new(
               "type".to_string(),
-              "xd".to_string(),
+              heaped("xd".to_string()),
             ))),
             Some("count".to_string()),
           ),
@@ -196,14 +197,14 @@ fn test_simple_counter() {
         ExtractionConfig::new(
           "histogram_event".to_string(),
           SimpleCountExtractionConfig::new(
-            GenericExtractionConfigBase::new("counter1".to_string(), "units".to_string(), None),
+            GenericExtractionConfigBase::new(heaped("counter1".to_string()), heaped("units".to_string()), None),
             None,
           ),
         ),
         ExtractionConfig::new(
           "hst_event".to_string(),
           SimpleCountExtractionConfig::new(
-            GenericExtractionConfigBase::new("counter2".to_string(), "units".to_string(), None),
+            GenericExtractionConfigBase::new(heaped("counter2".to_string()), heaped("units".to_string()), None),
             Some("count".to_string()),
           ),
         ),
@@ -269,13 +270,13 @@ fn test_activities_duration() {
 fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>) {
   let mut config = SoftwareDataExtractionConfig::empty();
   config.set_activities_duration_configs(vec![ActivityDurationExtractionConfig::new(
-    GenericExtractionConfigBase::new("activity".to_string(), "units".to_string(), None),
+    GenericExtractionConfigBase::new(heaped("activity".to_string()), heaped("units".to_string()), None),
     "event_start".to_string(),
     "event_end".to_string(),
     Some(TimeAttributeConfig::new("stamp".to_string(), TimeKind::Unknown)),
     Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new(
       "activity_id".to_string(),
-      "xd".to_string(),
+      heaped("xd".to_string()),
     ))),
   )]);
 
@@ -437,7 +438,8 @@ pub fn test_ocel_data_extraction() {
 
       let mut config = SoftwareDataExtractionConfig::empty();
       let object_id_attr = "object_id";
-      let object_type_attr = NameCreationStrategy::SingleAttribute(SingleAttribute::new("object_type".to_string(), "???".to_string()));
+      let object_type_attr = SingleAttribute::new("object_type".to_string(), heaped("???".to_string()));
+      let object_type_attr = NameCreationStrategy::SingleAttribute(object_type_attr);
       let base_conf = OcelObjectExtractionConfigBase::new(object_type_attr.to_owned(), object_id_attr.to_string());
       let related_ids_attr = "ocel_related_objects_ids";
       let related_types_attr = "ocel_related_objects_types";

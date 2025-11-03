@@ -988,7 +988,7 @@ fn convert_to_grpc_generic_enhancement_base(base: &GenericEnhancementBase) -> Gr
   GrpcGenericEnhancementBase {
     name: base.name().to_string(),
     units: base.units().to_string(),
-    group: base.group().clone(),
+    group: base.group().as_ref().map(|g| g.to_string()),
   }
 }
 

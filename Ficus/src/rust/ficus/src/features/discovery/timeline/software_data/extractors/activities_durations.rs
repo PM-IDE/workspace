@@ -2,7 +2,7 @@ use crate::event_log::core::event::event::Event;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extraction_config::{
-  ActivityDurationExtractionConfig, GenericExtractionConfigBase, SoftwareDataExtractionConfig, TimeAttributeConfig,
+  ActivityDurationExtractionConfig, SoftwareDataExtractionConfig, TimeAttributeConfig,
 };
 use crate::features::discovery::timeline::software_data::extractors::core::{
   EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
@@ -189,7 +189,7 @@ fn add_software_activities_durations(software_data: &mut SoftwareData, data: &Du
       let base = info.base();
 
       ActivityDurationData::new(
-        GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
+        GenericEnhancementBase::new(base.name().clone(), base.units().clone(), base.group().clone()),
         *value,
         match info.time_attribute() {
           Some(attr) => DurationKind::from(attr.kind()),
