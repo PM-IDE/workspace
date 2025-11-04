@@ -48,7 +48,8 @@ else
         EnhancedEdges = enhancedEdges.ToDictionary(e => e.Id, e => e),
         EnhancedNodes = enhancedNodes.ToDictionary(e => e.Id, e => CreateEnhancedNodeDto(e, ocelAnnotationsMap)),
         EventClassesAsName = Settings.UseEventClassesAsLabels,
-        LeftToRight = Settings.UseLROrientation
+        LeftToRight = Settings.UseLROrientation,
+        RenderOcelAnnotation = Settings.RenderOcelAnnotation
       };
 
       StateHasChanged();

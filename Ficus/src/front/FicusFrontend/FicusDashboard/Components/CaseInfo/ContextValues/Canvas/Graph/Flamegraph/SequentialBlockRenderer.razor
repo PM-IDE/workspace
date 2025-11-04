@@ -12,7 +12,7 @@
     var enhancedEdge = Context.GetEnhancedEdge(node, Block.NodesSequence[index + 1]);
 
     var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
-    <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="@enhancedEdge"/>
+    <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="@enhancedEdge" Context="Context"/>
   }
 </div>
 

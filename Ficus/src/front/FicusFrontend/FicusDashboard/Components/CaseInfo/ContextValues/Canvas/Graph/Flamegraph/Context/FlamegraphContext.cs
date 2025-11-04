@@ -91,6 +91,7 @@ public class FlamegraphRenderingContext
   public required Dictionary<ulong, EnhancedNodeDto> EnhancedNodes { get; init; }
   public required bool EventClassesAsName { get; init; }
   public required bool LeftToRight { get; init; }
+  public required bool RenderOcelAnnotation { get; init; }
 
   public string MainDim => LeftToRight ? "height" : "width";
   public string SecondDim => LeftToRight ? "width" : "height";

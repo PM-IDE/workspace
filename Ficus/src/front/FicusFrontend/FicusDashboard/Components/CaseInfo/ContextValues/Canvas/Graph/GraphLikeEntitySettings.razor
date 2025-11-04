@@ -28,6 +28,10 @@
     <BoolCheckbox T="bool"
                   Handler="@((newValue, _) => RenderDagLcsInFlamegraphMode = newValue)"
                   Title="Render DAG LCS in flamegraph mode"/>
+
+    <BoolCheckbox T="bool"
+                  Handler="@((newValue, _) => RenderOcelAnnotation = newValue)"
+                  Title="Render OCEL annotation"/>
   }
 
   <RadzenStack Orientation="Orientation.Horizontal"
@@ -50,6 +54,7 @@
   private EnhancementsSettings? myEnhancementsSettings;
 
   public bool RenderDagLcsInFlamegraphMode { get; private set; }
+  public bool RenderOcelAnnotation { get; private set; }
   public string? Filter { get; private set; }
   public bool UseLROrientation { get; private set; } = true;
   public string SpacingFactor { get; private set; } = "1.4";

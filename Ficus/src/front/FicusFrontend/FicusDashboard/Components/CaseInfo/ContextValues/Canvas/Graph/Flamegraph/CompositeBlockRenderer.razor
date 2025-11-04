@@ -25,7 +25,7 @@
             }
 
             var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
-            <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="edge"></EdgeRenderer>
+            <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="edge" Context="Context"></EdgeRenderer>
           }
         }
       </div>
@@ -43,7 +43,7 @@
               var enhancedEdge = Context.GetEnhancedEdge(edgeBlock.FromNode, edgeBlock.ToNode);
 
               var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, $"{FlamegraphConstants.MainDimPx * block.CalculateMainDim()}px");
-              <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@enhancedEdge"/>
+              <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@enhancedEdge" Context="Context"/>
 
               break;
             case SeparatorBlock:
@@ -67,7 +67,7 @@
                   }
 
                   (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
-                  <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@edge"/>
+                  <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@edge" Context="Context"/>
                 }
 
                 @RenderBlock(block)
@@ -81,7 +81,7 @@
                 }
 
                 <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidthPx)px;">
-                  <EdgeRenderer Width="100%" Height="100%" EnhancedEdge="@edge"/>
+                  <EdgeRenderer Width="100%" Height="100%" EnhancedEdge="@edge" Context="Context"/>
                 </div>
               </div>
 

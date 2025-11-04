@@ -5,12 +5,15 @@
   if (Height is { }) style += $"height: {Height};";
   if (Width is { }) style += $"width: {Width};";
 
-  style += $"background: {EnhancedEdge?.Color} !important;";
+  if (!Context.RenderOcelAnnotation)
+  {
+    style += $"background: {EnhancedEdge?.Color} !important;";
+  }
 }
 
-<div style="@style" class="flamegraph-edge">
+<div style="@style; @Context.MinSecondDim: 100px;" class="flamegraph-edge">
 
-  @if (EnhancedEdge is { })
+  @if (!@Context.RenderOcelAnnotation && EnhancedEdge is { })
   {
     <div style="display: flex; flex-direction: column; align-items: center;">
       <div style="margin-top: -5px;">

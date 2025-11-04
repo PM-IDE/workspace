@@ -44,7 +44,7 @@ html, body {
   --updated--notification-color: yellow;
   --seen-notification-color: grey;
 
-  --flamegraph-node-background: #4b4b4b;
+  --flamegraph-node-background: #595959;
   --flamegraph-edge-background: #3b3b3b;
 
   -moz-user-select: none; /* Firefox */
