@@ -108,6 +108,12 @@ input {
   justify-content: flex-start;
 }
 
+.flex-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 h1:focus {
   outline: none;
 }

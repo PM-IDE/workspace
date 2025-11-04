@@ -1,0 +1,19 @@
+@inject IEntitiesColors Colors;
+
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+@using FicusDashboard.Services
+
+<div style="background: @Colors.GetOrCreateColor(TypeName);
+            @Context.MainDim: @MainDim;
+            @Context.SecondDim: 20px;"
+     class="flex-centered">
+  <div style="@Context.WritingMode;">
+    @TypeName
+  </div>
+</div>
+
+@code {
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public required string TypeName { get; init; }
+  [Parameter] public required string MainDim { get; init; }
+}
