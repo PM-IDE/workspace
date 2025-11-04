@@ -4,7 +4,7 @@
 @using FicusDashboard.Services
 
 <div style="background: @Colors.GetOrCreateColor(TypeName);
-            @Context.MainDim: @MainDim;
+            @Context.MainDim: 100%;
             @Context.SecondDim: 20px;"
      class="flex-centered">
   <div style="@Context.WritingMode;">
@@ -15,5 +15,4 @@
 @code {
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
   [Parameter] public required string TypeName { get; init; }
-  [Parameter] public required string MainDim { get; init; }
 }

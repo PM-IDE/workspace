@@ -15,7 +15,7 @@
             display: flex;
             flex-direction: @Context.MainFlexDirection;"
      class="flamegraph-node">
-  <NodesObjectStateRenderer Context="Context" State="@(initialState ?? finalState)"/>
+  <NodesObjectStateRenderer Context="Context" State="@(initialState ?? finalState)" IsInitialState="@true"/>
 
   <div style="@Context.WritingMode; display: flex; justify-content: center; align-items: center;">
     @foreach (var eventClass in Context.GetNodeName(Node))
@@ -26,7 +26,7 @@
     }
   </div>
 
-  <NodesObjectStateRenderer Context="Context" State="finalState"/>
+  <NodesObjectStateRenderer Context="Context" State="finalState" IsInitialState="@false"/>
 </div>
 
 @code {

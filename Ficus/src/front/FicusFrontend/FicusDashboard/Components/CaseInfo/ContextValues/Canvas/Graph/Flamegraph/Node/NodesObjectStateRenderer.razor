@@ -1,7 +1,4 @@
-@inject IEntitiesColors Colors;
-
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
-@using FicusDashboard.Services
 
 @if (State is null)
 {
@@ -21,24 +18,27 @@
     .ToList();
 }
 
-<div style="@Context.MinMainDim: 100%; display: flex; flex-direction: @Context.MainFlexDirection;">
-  <div style="@Context.MinMainDim: 100%; display: flex; flex-direction: @Context.SecondFlexDirection;">
-    @foreach (var (name, width, _) in typeStates)
-    {
-      <NodeObjectsStateTypeBlock Context="Context" MainDim="@width" TypeName="@name"/>
-    }
-  </div>
+<div style="@Context.MinMainDim: 100%; display: flex; flex-direction: @Context.SecondFlexDirection;">
+  @foreach (var (name, width, objectsIds) in typeStates)
+  {
+    <div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MainDim: @width;">
+      @if (IsInitialState)
+      {
+        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name"/> 
+      }
 
-  <div style="@Context.MinMainDim: 100%; display: flex; flex-direction: @Context.SecondFlexDirection;">
-    @foreach (var (name, width, objectsIds) in typeStates)
-    {
-      <NodeObjectsStateObjectsBlock Context="Context" MainDim="@width" ObjectsIds="objectsIds" TypeName="@name"/>
-    }
-  </div>
+      <NodeObjectsStateTypeBlock Context="Context" TypeName="@name"/>
+
+      @if (!IsInitialState)
+      {
+        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name"/>
+      }
+    </div>
+  }
 </div>
 
-
 @code {
+  [Parameter] public required bool IsInitialState { get; init; }
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
   [Parameter] public required List<TypeObjects>? State { get; init; }
   [Parameter] public required bool TypeNamesFirst { get; init; }
