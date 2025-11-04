@@ -27,7 +27,10 @@
         <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name"/> 
       }
 
-      <NodeObjectsStateTypeBlock Context="Context" TypeName="@name"/>
+      @if (Context.RenderOcelTypeNames)
+      {
+        <NodeObjectsStateTypeBlock Context="Context" TypeName="@name"/>
+      }
 
       @if (!IsInitialState)
       {

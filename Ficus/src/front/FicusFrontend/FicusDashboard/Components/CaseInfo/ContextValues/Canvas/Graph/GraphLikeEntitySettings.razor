@@ -32,6 +32,10 @@
     <BoolCheckbox T="bool"
                   Handler="@((newValue, _) => RenderOcelAnnotation = newValue)"
                   Title="Render OCEL annotation"/>
+
+    <BoolCheckbox T="bool"
+                  Handler="@((newValue, _) => RenderOcelTypeNames = newValue)"
+                  Title="Render OCEL type names explicitly"/>
   }
 
   <RadzenStack Orientation="Orientation.Horizontal"
@@ -55,6 +59,8 @@
 
   public bool RenderDagLcsInFlamegraphMode { get; private set; }
   public bool RenderOcelAnnotation { get; private set; }
+  public bool RenderOcelTypeNames { get; private set; }
+
   public string? Filter { get; private set; }
   public bool UseLROrientation { get; private set; } = true;
   public string SpacingFactor { get; private set; } = "1.4";

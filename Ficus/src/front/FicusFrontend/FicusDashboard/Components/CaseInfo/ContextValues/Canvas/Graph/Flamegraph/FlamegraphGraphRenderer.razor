@@ -49,7 +49,8 @@ else
         EnhancedNodes = enhancedNodes.ToDictionary(e => e.Id, e => CreateEnhancedNodeDto(e, ocelAnnotationsMap)),
         EventClassesAsName = Settings.UseEventClassesAsLabels,
         LeftToRight = Settings.UseLROrientation,
-        RenderOcelAnnotation = Settings.RenderOcelAnnotation
+        RenderOcelAnnotation = Settings.RenderOcelAnnotation,
+        RenderOcelTypeNames = Settings.RenderOcelTypeNames
       };
 
       StateHasChanged();
