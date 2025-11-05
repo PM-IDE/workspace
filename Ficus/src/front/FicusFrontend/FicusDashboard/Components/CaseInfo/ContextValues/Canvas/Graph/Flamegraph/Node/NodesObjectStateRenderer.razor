@@ -19,22 +19,25 @@
 }
 
 <div style="@Context.MinMainDim: 100%; display: flex; flex-direction: @Context.SecondFlexDirection;">
-  @foreach (var (name, width, objectsIds) in typeStates)
+  @foreach (var (index, (name, width, objectsIds)) in typeStates.Index())
   {
     <div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MainDim: @width;">
       @if (IsInitialState)
       {
-        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name"/> 
+        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name" />
       }
 
       @if (Context.RenderOcelTypeNames)
       {
-        <NodeObjectsStateTypeBlock Context="Context" TypeName="@name"/>
+        <NodeObjectsStateTypeBlock Context="Context" 
+                                   TypeName="@name" 
+                                   IsLast="@(index == typeStates.Count - 1)"
+                                   IsLeftSide="IsInitialState" />
       }
 
       @if (!IsInitialState)
       {
-        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name"/>
+        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name" />
       }
     </div>
   }
