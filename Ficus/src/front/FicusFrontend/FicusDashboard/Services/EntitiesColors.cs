@@ -1,4 +1,6 @@
-﻿namespace FicusDashboard.Services;
+﻿using System.Text;
+
+namespace FicusDashboard.Services;
 
 public interface IEntitiesColors
 {
@@ -34,5 +36,16 @@ public class EntitiesColors : IEntitiesColors
     return color;
   }
 
-  private static string GenerateRandomColor() => $"#{Random.Shared.Next(0x1000000):X6}";
+  private static string GenerateRandomColor()
+  {
+    var sb = new StringBuilder();
+    sb.Append('#');
+
+    for (var i = 0; i < 6; ++i)
+    {
+      sb.Append(Math.Floor(Random.Shared.NextDouble() * 8));
+    }
+
+    return sb.ToString();
+  }
 }

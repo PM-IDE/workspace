@@ -12,7 +12,7 @@
     .Where(t => t.ObjectIds.Count > 0)
     .Select(ts =>
     {
-      var width = $"{Math.Floor((double)ts.ObjectIds.Count * 100 / overallObjectsCount)}%";
+      var width = $"{(double)ts.ObjectIds.Count * 100 / overallObjectsCount}%";
       return (ts.TypeName, width, ts.ObjectIds);
     })
     .ToList();
