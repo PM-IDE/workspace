@@ -20,10 +20,15 @@
     <NodesObjectStateRenderer Context="Context" State="@(initialState ?? finalState)" IsInitialState="@true"/> 
   }
 
-  <div style="@Context.WritingMode; display: flex; justify-content: center; align-items: center;">
+  <div style="@Context.WritingMode;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;">
     @foreach (var eventClass in Context.GetNodeName(Node))
     {
-      <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;">
+      <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;"
+           class="flamegraph-node-title">
         @eventClass
       </div>
     }

@@ -288,3 +288,11 @@ svg-pie-chart svg {
 .flamegraph-separator-edge {
   background: transparent;
 }
+
+.flamegraph-node-title {
+  font-size: 18px;
+}
+
+.flamegraph-ocel-annotation {
+  font-size: 14px;
+}
