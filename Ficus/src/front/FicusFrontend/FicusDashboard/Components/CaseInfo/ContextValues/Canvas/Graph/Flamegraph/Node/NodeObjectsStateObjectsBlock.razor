@@ -3,19 +3,24 @@
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 @using FicusDashboard.Services
 
-<div style="background: @Colors.GetOrCreateColor(TypeName); 
+<div style="background: @Colors.GetOrCreateColor(TypeName);
             @Context.MainDim: 100%;
-            @Context.SecondDim: 20px;"
-     class="flex-centered">
-  <div id="@Id" style="@Context.WritingMode;" class="flamegraph-ocel-annotation">
-    @ObjectsIds.Count
-  </div>
+            @Context.SecondDim: 20px;
+            display: flex;
+            flex-direction: @Context.SecondFlexDirection">
+  @foreach (var id in ObjectsIds.Order())
+  {
+    var mainDim = $"{100.0 / ObjectsIds.Count}%";
+    <div style="@Context.WritingMode; @Context.MainDim: @mainDim"
+         class="flamegraph-ocel-annotation flex-centered"
+         id="ocel-object-id-@(Context.ContextId)-@id">
+      @id
+    </div>
+  }
 </div>
 
 @code {
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
   [Parameter] public required string TypeName { get; init; }
   [Parameter] public required List<string> ObjectsIds { get; init; }
-
-  public Guid Id { get; } = Guid.NewGuid();
 }
