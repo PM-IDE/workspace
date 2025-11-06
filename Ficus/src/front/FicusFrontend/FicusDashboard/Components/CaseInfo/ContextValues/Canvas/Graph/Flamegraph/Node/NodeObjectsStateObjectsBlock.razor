@@ -10,11 +10,10 @@
             flex-direction: @Context.SecondFlexDirection">
   @foreach (var (index, id) in ObjectsIds.Order().Index())
   {
-    var mainDim = $"{100.0 / ObjectsIds.Count}%";
     var isLast = index == ObjectsIds.Count - 1 && IsLastObjectsBlock;
     var borderStyle = NodeRenderingUtils.GetBorderStyle(Context, IsLeftSide, isLast, addTopBorder: false);
 
-    <div style="@Context.WritingMode; @Context.MainDim: @mainDim; @borderStyle"
+    <div style="@Context.WritingMode; flex-grow: 1; @borderStyle"
          class="flamegraph-ocel-annotation flex-centered"
          id="ocel-object-id-@(Context.ContextId)-@id">
       @id
