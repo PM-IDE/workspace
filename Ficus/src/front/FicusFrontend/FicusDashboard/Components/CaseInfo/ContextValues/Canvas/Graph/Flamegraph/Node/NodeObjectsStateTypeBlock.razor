@@ -4,9 +4,9 @@
 @using FicusDashboard.Services
 
 <div style="background: @Colors.GetOrCreateColor(TypeName);
-@Context.MainDim: 100%;
-@Context.SecondDim: 20px;
-@GetBorderStyle();"
+            @Context.MainDim: 100%;
+            @Context.SecondDim: 20px;
+            @NodeRenderingUtils.GetBorderStyle(Context, IsLeftSide, IsLast)"
      class="flex-centered">
   <div style="@Context.WritingMode;" class="flamegraph-ocel-annotation">
     @TypeName
@@ -18,12 +18,4 @@
   [Parameter] public required string TypeName { get; init; }
   [Parameter] public required bool IsLast { get; init; }
   [Parameter] public required bool IsLeftSide { get; init; }
-
-
-  private string GetBorderStyle() => Context.LeftToRight switch
-  {
-    true => $"border-{(IsLeftSide ? "left" : "right")}: solid 1px white;" + (IsLast ? string.Empty : "border-bottom: solid 1px white"),
-    _ => $"border-{(IsLeftSide ? "top" : "bottom")}: solid 1px white;" + (IsLast ? string.Empty : "border-right: solid 1px white")
-  };
-
 }

@@ -8,10 +8,13 @@
             @Context.SecondDim: 20px;
             display: flex;
             flex-direction: @Context.SecondFlexDirection">
-  @foreach (var id in ObjectsIds.Order())
+  @foreach (var (index, id) in ObjectsIds.Order().Index())
   {
     var mainDim = $"{100.0 / ObjectsIds.Count}%";
-    <div style="@Context.WritingMode; @Context.MainDim: @mainDim"
+    var isLast = index == ObjectsIds.Count - 1 && IsLastObjectsBlock;
+    var borderStyle = NodeRenderingUtils.GetBorderStyle(Context, IsLeftSide, isLast, addTopBorder: false);
+
+    <div style="@Context.WritingMode; @Context.MainDim: @mainDim; @borderStyle"
          class="flamegraph-ocel-annotation flex-centered"
          id="ocel-object-id-@(Context.ContextId)-@id">
       @id
@@ -23,4 +26,6 @@
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
   [Parameter] public required string TypeName { get; init; }
   [Parameter] public required List<string> ObjectsIds { get; init; }
+  [Parameter] public required bool IsLeftSide { get; init; }
+  [Parameter] public required bool IsLastObjectsBlock { get; init; }
 }

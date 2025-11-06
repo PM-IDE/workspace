@@ -21,23 +21,32 @@
 <div style="@Context.MinMainDim: 100%; display: flex; flex-direction: @Context.SecondFlexDirection;">
   @foreach (var (index, (name, width, objectsIds)) in typeStates.Index())
   {
+    var isLast = index == typeStates.Count - 1;
     <div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MainDim: @width;">
       @if (IsInitialState)
       {
-        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name" />
+        <NodeObjectsStateObjectsBlock Context="Context"
+                                      ObjectsIds="objectsIds"
+                                      TypeName="@name"
+                                      IsLastObjectsBlock="isLast"
+                                      IsLeftSide="IsInitialState" />
       }
 
       @if (Context.RenderOcelTypeNames)
       {
-        <NodeObjectsStateTypeBlock Context="Context" 
-                                   TypeName="@name" 
-                                   IsLast="@(index == typeStates.Count - 1)"
-                                   IsLeftSide="IsInitialState" />
+        <NodeObjectsStateTypeBlock Context="Context"
+                                   TypeName="@name"
+                                   IsLast="isLast"
+                                   IsLeftSide="IsInitialState"/>
       }
 
       @if (!IsInitialState)
       {
-        <NodeObjectsStateObjectsBlock Context="Context" ObjectsIds="objectsIds" TypeName="@name" />
+        <NodeObjectsStateObjectsBlock Context="Context"
+                                      ObjectsIds="objectsIds"
+                                      TypeName="@name"
+                                      IsLastObjectsBlock="isLast"
+                                      IsLeftSide="IsInitialState"/>
       }
     </div>
   }
