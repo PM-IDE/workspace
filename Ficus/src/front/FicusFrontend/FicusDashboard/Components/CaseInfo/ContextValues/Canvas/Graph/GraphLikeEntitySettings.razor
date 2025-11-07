@@ -26,16 +26,22 @@
   @if (CanRenderFlamegraph)
   {
     <BoolCheckbox T="bool"
-                  Handler="@((newValue, _) => RenderDagLcsInFlamegraphMode = newValue)"
+                  Handler="@((newValue, _) =>
+                           {
+                             RenderDagLcsInFlamegraphMode = newValue;
+                             StateHasChanged();
+                           })"
                   Title="Render DAG LCS in flamegraph mode"/>
 
-    <BoolCheckbox T="bool"
-                  Handler="@((newValue, _) => RenderOcelAnnotation = newValue)"
-                  Title="Render OCEL annotation"/>
+    <div style="margin-left: 10px; display: @(RenderDagLcsInFlamegraphMode ? "block" : "none")">
+      <BoolCheckbox T="bool"
+                    Handler="@((newValue, _) => RenderOcelAnnotation = newValue)"
+                    Title="Render OCEL annotation"/>
 
-    <BoolCheckbox T="bool"
-                  Handler="@((newValue, _) => RenderOcelTypeNames = newValue)"
-                  Title="Render OCEL type names explicitly"/>
+      <BoolCheckbox T="bool"
+                    Handler="@((newValue, _) => RenderOcelTypeNames = newValue)"
+                    Title="Render OCEL type names explicitly"/>
+    </div>
   }
 
   <RadzenStack Orientation="Orientation.Horizontal"
