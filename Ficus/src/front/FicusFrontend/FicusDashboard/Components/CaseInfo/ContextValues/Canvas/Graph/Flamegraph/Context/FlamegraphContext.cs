@@ -52,12 +52,18 @@ public class NodeObjectsState
 {
   public List<TypeObjects>? InitialState { get; }
   public List<TypeObjects>? FinalState { get; }
-
+  public List<ObjectRelations> InitialStateObjectsRelations { get; }
 
   public NodeObjectsState(GrpcModelElementOcelAnnotation annotation)
   {
     InitialState = CreateTypeObjectsState(annotation.InitialState);
     FinalState = CreateTypeObjectsState(annotation.FinalState);
+
+    InitialStateObjectsRelations = annotation.Relations.Select(r => new ObjectRelations
+    {
+      Id = r.ObjectId,
+      RelatedObjectsIds = r.RelatedObjectsIds.ToList()
+    }).ToList();
 
     return;
 
@@ -107,6 +113,8 @@ public class FlamegraphSankeyConnection
 
 public class FlamegraphRenderingContext
 {
+  private const string ObjectIdBasePart = "ocel-object-id";
+
   private static int ourNextContextId;
 
 
@@ -133,7 +141,16 @@ public class FlamegraphRenderingContext
   public string WritingMode => LeftToRight ? "writing-mode: vertical-rl;" : string.Empty;
 
   public int ContextId { get; } = Interlocked.Increment(ref ourNextContextId);
+  public string ObjectIdStart { get; }
 
+
+  public FlamegraphRenderingContext()
+  {
+    ObjectIdStart = $"{ObjectIdBasePart}-{ContextId}";
+  }
+
+
+  public string GenerateOcelObjectsContainerId(string objectId) => $"{ObjectIdStart}-{objectId}";
 
   public EnhancedEdge GetEnhancedEdge(ulong fromNode, ulong toNode)
   {

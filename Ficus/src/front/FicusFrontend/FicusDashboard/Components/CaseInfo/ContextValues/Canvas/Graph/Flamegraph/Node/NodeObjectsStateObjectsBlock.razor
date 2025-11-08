@@ -15,7 +15,7 @@
 
     <div style="@Context.WritingMode; flex-grow: 1; @borderStyle"
          class="flamegraph-ocel-annotation flex-centered"
-         id="ocel-object-id-@(Context.ContextId)-@id">
+         id="@Context.GenerateOcelObjectsContainerId(id)">
       @id
     </div>
   }

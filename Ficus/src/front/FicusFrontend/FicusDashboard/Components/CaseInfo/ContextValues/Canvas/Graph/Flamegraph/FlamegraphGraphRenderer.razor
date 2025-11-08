@@ -7,7 +7,9 @@
 
 @if (myRenderingContext is not null)
 {
-  <CompositeBlockRenderer Block="@Context.Layout" Context="myRenderingContext" SpecifyMinWidth="false"/>
+  <div id="@myContainerId" style="position: relative;">
+    <CompositeBlockRenderer Block="@Context.Layout" Context="myRenderingContext" SpecifyMinWidth="false"/>
+  </div>
 }
 else
 {
@@ -25,8 +27,33 @@ else
   [Parameter] public required GrpcAnnotation? Annotation { get; init; }
   [Parameter] public required GrpcOcelModelAnnotation? OcelAnnotation { get; init; }
 
+
+  private readonly Guid myContainerId = Guid.NewGuid();
+
   private FlamegraphRenderingContext? myRenderingContext;
 
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (myRenderingContext is null) return;
+
+    var relations = myRenderingContext.EnhancedNodes.Values
+      .Where(dto => dto.Objects is not null)
+      .SelectMany(dto => dto.Objects!.InitialStateObjectsRelations)
+      .Select(r => new
+      {
+        Id = r.Id,
+        RelatedObjectsIds = r.RelatedObjectsIds
+      })
+      .ToList();
+
+    await Js.InvokeVoidAsync(
+      "createOcelSankeyConnections",
+      myContainerId.ToString(),
+      myRenderingContext.ObjectIdStart,
+      relations
+    );
+  }
 
   protected override void OnParametersSet()
   {
@@ -81,4 +108,5 @@ else
       not null => new NodeObjectsState(ocelAnnotationsMap[node.Id])
     }
   };
+
 }
