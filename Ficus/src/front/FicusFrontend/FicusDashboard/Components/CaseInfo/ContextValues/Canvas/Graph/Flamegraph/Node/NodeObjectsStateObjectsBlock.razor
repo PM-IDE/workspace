@@ -11,11 +11,11 @@
   @foreach (var (index, id) in ObjectsIds.Order().Index())
   {
     var isLast = index == ObjectsIds.Count - 1 && IsLastObjectsBlock;
-    var borderStyle = NodeRenderingUtils.GetBorderStyle(Context, IsLeftSide, isLast, addTopBorder: false);
+    var borderStyle = NodeRenderingUtils.GetBorderStyle(Context, IsInitialState, isLast, addTopBorder: false);
 
     <div style="@Context.WritingMode; flex-grow: 1; @borderStyle"
          class="flamegraph-ocel-annotation flex-centered"
-         id="@Context.GenerateOcelObjectsContainerId(id)">
+         id="@Context.GenerateOcelObjectsContainerId(id, IsInitialState)">
       @id
     </div>
   }
@@ -25,6 +25,6 @@
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
   [Parameter] public required string TypeName { get; init; }
   [Parameter] public required List<string> ObjectsIds { get; init; }
-  [Parameter] public required bool IsLeftSide { get; init; }
+  [Parameter] public required bool IsInitialState { get; init; }
   [Parameter] public required bool IsLastObjectsBlock { get; init; }
 }

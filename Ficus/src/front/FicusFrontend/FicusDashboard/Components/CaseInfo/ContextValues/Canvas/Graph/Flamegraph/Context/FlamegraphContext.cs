@@ -150,7 +150,14 @@ public class FlamegraphRenderingContext
   }
 
 
-  public string GenerateOcelObjectsContainerId(string objectId) => $"{ObjectIdStart}-{objectId}";
+  public string GenerateOcelObjectsContainerId(string objectId, bool initialState) =>
+    $"{ObjectIdStart}-{GetObjectSite(initialState)}-{objectId}";
+
+  private static string GetObjectSite(bool initialState) => initialState switch
+  {
+    true => "initial",
+    false => "final"
+  };
 
   public EnhancedEdge GetEnhancedEdge(ulong fromNode, ulong toNode)
   {

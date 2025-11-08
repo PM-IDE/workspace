@@ -8,9 +8,14 @@ interface ObjectsRelation {
 }
 
 function createOcelSankeyConnections(parentContainerId: string, baseIdPart: string, relations: ObjectsRelation[]) {
-  let createId = (id: string) => baseIdPart + "-" + id;
-  let getElement = (objectId: string) => {
-    let id = createId(objectId);
+  let getInitialClass = (isInitialState: boolean) => isInitialState ? "initial" : "final";
+  let createId = (id: string, isInitialState: boolean) => {
+    const Delimiter = "-";
+    return baseIdPart + Delimiter + getInitialClass(isInitialState) + Delimiter + id;
+  };
+
+  let getElement = (objectId: string, isInitialState: boolean) => {
+    let id = createId(objectId, isInitialState);
     let element = document.getElementById(id);
 
     if (element == null) {
@@ -24,11 +29,11 @@ function createOcelSankeyConnections(parentContainerId: string, baseIdPart: stri
   if (parentContainer == null) return;
 
   for (let relation of relations) {
-    let firstElement = getElement(relation.id);
+    let firstElement = getElement(relation.id, true);
     if (firstElement == null) continue;
 
     for (let relatedId of relation.relatedObjectsIds) {
-      let secondElement = getElement(relatedId);
+      let secondElement = getElement(relatedId, false);
       if (secondElement == null) continue;
 
       connect(parentContainer, firstElement, secondElement, "red", 5);
