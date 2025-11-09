@@ -67,11 +67,11 @@ function getPosition(el: HTMLElement): Position {
 }
 
 function connect(parentContainer: HTMLElement, firstPos: Position, secondPos: Position, color: string, thickness: number) {
-  let firstX = firstPos.left + firstPos.width;
-  let firstY = firstPos.top + firstPos.height;
+  let firstX = firstPos.left;
+  let firstY = firstPos.top + firstPos.height / 2;
 
-  let secondX = secondPos.left + secondPos .width;
-  let secondY = secondPos.top;
+  let secondX = secondPos.left + secondPos.width;
+  let secondY = secondPos.top + secondPos.height / 2;
 
   let length = Math.sqrt(((secondX - firstX) * (secondX - firstX)) + ((secondY - firstY) * (secondY - firstY)));
 
