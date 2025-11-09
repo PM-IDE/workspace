@@ -39,12 +39,13 @@ else
 
     var relations = myRenderingContext.EnhancedNodes.Values
       .Where(dto => dto.Objects is not null)
-      .SelectMany(dto => dto.Objects!.InitialStateObjectsRelations)
-      .Select(r => new
+      .SelectMany(dto => dto.Objects!.InitialStateObjectsRelations.Select(r => new
       {
+        CurrentNodeId = dto.Node.Id,
         Id = r.Id,
+        FromNodeId = r.FromElementId,
         RelatedObjectsIds = r.RelatedObjectsIds
-      })
+      }))
       .ToList();
 
     await Js.InvokeVoidAsync(

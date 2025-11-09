@@ -152,8 +152,8 @@ public class FlamegraphRenderingContext
   }
 
 
-  public string GenerateOcelObjectsContainerId(string objectId, bool initialState) =>
-    $"{ObjectIdStart}-{GetObjectSite(initialState)}-{objectId}";
+  public string GenerateOcelObjectsContainerId(ulong fromElementId, string objectId, bool initialState) =>
+    $"{ObjectIdStart}-{fromElementId}-{GetObjectSite(initialState)}-{objectId}";
 
   private static string GetObjectSite(bool initialState) => initialState switch
   {

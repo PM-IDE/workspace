@@ -26,6 +26,7 @@
       @if (IsInitialState)
       {
         <NodeObjectsStateObjectsBlock Context="Context"
+                                      NodeId="NodeId"
                                       ObjectsIds="objectsIds"
                                       TypeName="@name"
                                       IsLastObjectsBlock="isLast"
@@ -43,6 +44,7 @@
       @if (!IsInitialState)
       {
         <NodeObjectsStateObjectsBlock Context="Context"
+                                      NodeId="NodeId"
                                       ObjectsIds="objectsIds"
                                       TypeName="@name"
                                       IsLastObjectsBlock="isLast"
@@ -53,8 +55,9 @@
 </div>
 
 @code {
-  [Parameter] public required bool IsInitialState { get; init; }
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public required ulong NodeId { get; init; }
+  [Parameter] public required bool IsInitialState { get; init; }
   [Parameter] public required List<TypeObjects>? State { get; init; }
   [Parameter] public required bool TypeNamesFirst { get; init; }
 }

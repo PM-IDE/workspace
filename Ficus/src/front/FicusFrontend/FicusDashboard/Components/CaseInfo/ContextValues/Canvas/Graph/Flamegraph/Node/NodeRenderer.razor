@@ -17,7 +17,10 @@
      class="flamegraph-node">
   @if (Context.RenderOcelAnnotation)
   {
-    <NodesObjectStateRenderer Context="Context" State="@(initialState ?? finalState)" IsInitialState="@true"/> 
+    <NodesObjectStateRenderer Context="Context"
+                              NodeId="Node"
+                              State="@(initialState ?? finalState)" 
+                              IsInitialState="@true"/> 
   }
 
   <div style="@Context.WritingMode;
@@ -36,7 +39,10 @@
 
   @if (Context.RenderOcelAnnotation)
   {
-    <NodesObjectStateRenderer Context="Context" State="finalState" IsInitialState="@false"/> 
+    <NodesObjectStateRenderer Context="Context"
+                              NodeId="Node"
+                              State="finalState" 
+                              IsInitialState="@false"/> 
   }
 </div>
 

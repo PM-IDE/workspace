@@ -4,18 +4,20 @@ export function setOcelSankeyFunctions() {
 
 interface ObjectsRelation {
   id: string
+  currentNodeId: number
+  fromNodeId: number
   relatedObjectsIds: string[]
 }
 
 function createOcelSankeyConnections(parentContainerId: string, baseIdPart: string, relations: ObjectsRelation[]) {
   let getInitialClass = (isInitialState: boolean) => isInitialState ? "initial" : "final";
-  let createId = (id: string, isInitialState: boolean) => {
+  let createId = (nodeId: number, objectId: string, isInitialState: boolean) => {
     const Delimiter = "-";
-    return baseIdPart + Delimiter + getInitialClass(isInitialState) + Delimiter + id;
+    return baseIdPart + Delimiter + nodeId + Delimiter + getInitialClass(isInitialState) + Delimiter + objectId;
   };
 
-  let getElement = (objectId: string, isInitialState: boolean) => {
-    let id = createId(objectId, isInitialState);
+  let getElement = (nodeId: number, objectId: string, isInitialState: boolean) => {
+    let id = createId(nodeId, objectId, isInitialState);
     let element = document.getElementById(id);
 
     if (element == null) {
@@ -29,11 +31,11 @@ function createOcelSankeyConnections(parentContainerId: string, baseIdPart: stri
   if (parentContainer == null) return;
 
   for (let relation of relations) {
-    let firstElement = getElement(relation.id, true);
+    let firstElement = getElement(relation.currentNodeId, relation.id, true);
     if (firstElement == null) continue;
 
     for (let relatedId of relation.relatedObjectsIds) {
-      let secondElement = getElement(relatedId, false);
+      let secondElement = getElement(relation.fromNodeId, relatedId, false);
       if (secondElement == null) continue;
 
       connect(parentContainer, firstElement, secondElement, "red", 5);

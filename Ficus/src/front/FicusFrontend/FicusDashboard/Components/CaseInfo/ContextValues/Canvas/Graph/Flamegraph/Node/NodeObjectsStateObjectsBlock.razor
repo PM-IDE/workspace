@@ -15,7 +15,7 @@
 
     <div style="@Context.WritingMode; flex-grow: 1; @borderStyle"
          class="flamegraph-ocel-annotation flex-centered"
-         id="@Context.GenerateOcelObjectsContainerId(id, IsInitialState)">
+         id="@Context.GenerateOcelObjectsContainerId(NodeId, id, IsInitialState)">
       @id
     </div>
   }
@@ -23,6 +23,7 @@
 
 @code {
   [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public required ulong NodeId { get; init; }
   [Parameter] public required string TypeName { get; init; }
   [Parameter] public required List<string> ObjectsIds { get; init; }
   [Parameter] public required bool IsInitialState { get; init; }
