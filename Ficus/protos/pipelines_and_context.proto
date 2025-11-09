@@ -62,7 +62,8 @@ message GrpcModelElementOcelAnnotation {
 
 message GrpcOcelStateObjectRelation {
   string object_id = 1;
-  repeated string related_objects_ids = 2;
+  uint64 element_id = 2;
+  repeated string related_objects_ids = 3;
 }
 
 message GrpcOcelState {

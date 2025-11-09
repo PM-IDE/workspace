@@ -145,12 +145,14 @@ class GrpcModelElementOcelAnnotation(_message.Message):
     def __init__(self, element_id: _Optional[int] = ..., initial_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ..., final_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[GrpcOcelStateObjectRelation, _Mapping]]] = ...) -> None: ...
 
 class GrpcOcelStateObjectRelation(_message.Message):
-    __slots__ = ["object_id", "related_objects_ids"]
+    __slots__ = ["object_id", "element_id", "related_objects_ids"]
     OBJECT_ID_FIELD_NUMBER: _ClassVar[int]
+    ELEMENT_ID_FIELD_NUMBER: _ClassVar[int]
     RELATED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
     object_id: str
+    element_id: int
     related_objects_ids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, object_id: _Optional[str] = ..., related_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, object_id: _Optional[str] = ..., element_id: _Optional[int] = ..., related_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GrpcOcelState(_message.Message):
     __slots__ = ["type_states"]

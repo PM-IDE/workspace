@@ -889,7 +889,8 @@ func (x *GrpcModelElementOcelAnnotation) GetRelations() []*GrpcOcelStateObjectRe
 type GrpcOcelStateObjectRelation struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	ObjectId          string                 `protobuf:"bytes,1,opt,name=object_id,json=objectId,proto3" json:"object_id,omitempty"`
-	RelatedObjectsIds []string               `protobuf:"bytes,2,rep,name=related_objects_ids,json=relatedObjectsIds,proto3" json:"related_objects_ids,omitempty"`
+	ElementId         uint64                 `protobuf:"varint,2,opt,name=element_id,json=elementId,proto3" json:"element_id,omitempty"`
+	RelatedObjectsIds []string               `protobuf:"bytes,3,rep,name=related_objects_ids,json=relatedObjectsIds,proto3" json:"related_objects_ids,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -929,6 +930,13 @@ func (x *GrpcOcelStateObjectRelation) GetObjectId() string {
 		return x.ObjectId
 	}
 	return ""
+}
+
+func (x *GrpcOcelStateObjectRelation) GetElementId() uint64 {
+	if x != nil {
+		return x.ElementId
+	}
+	return 0
 }
 
 func (x *GrpcOcelStateObjectRelation) GetRelatedObjectsIds() []string {
@@ -4625,10 +4633,12 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\vfinal_state\x18\x03 \x01(\v2\x14.ficus.GrpcOcelStateR\n" +
 	"finalState\x12@\n" +
 	"\trelations\x18\x04 \x03(\v2\".ficus.GrpcOcelStateObjectRelationR\trelationsB\x10\n" +
-	"\x0e_initial_state\"j\n" +
+	"\x0e_initial_state\"\x89\x01\n" +
 	"\x1bGrpcOcelStateObjectRelation\x12\x1b\n" +
-	"\tobject_id\x18\x01 \x01(\tR\bobjectId\x12.\n" +
-	"\x13related_objects_ids\x18\x02 \x03(\tR\x11relatedObjectsIds\"P\n" +
+	"\tobject_id\x18\x01 \x01(\tR\bobjectId\x12\x1d\n" +
+	"\n" +
+	"element_id\x18\x02 \x01(\x04R\telementId\x12.\n" +
+	"\x13related_objects_ids\x18\x03 \x03(\tR\x11relatedObjectsIds\"P\n" +
 	"\rGrpcOcelState\x12?\n" +
 	"\vtype_states\x18\x01 \x03(\v2\x1e.ficus.GrpcOcelObjectTypeStateR\n" +
 	"typeStates\"L\n" +

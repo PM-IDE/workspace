@@ -336,6 +336,7 @@ fn convert_to_grpc_ocel_annotation(annotation: &OcelAnnotation) -> GrpcOcelModel
 
 fn convert_to_grpc_ocel_object_relation(relations: &OcelObjectRelations) -> GrpcOcelStateObjectRelation {
   GrpcOcelStateObjectRelation {
+    element_id: relations.from_element_id().to_owned(),
     related_objects_ids: relations.related_objects_ids().iter().map(|id| id.to_string()).collect(),
     object_id: relations.object_id().to_string(),
   }

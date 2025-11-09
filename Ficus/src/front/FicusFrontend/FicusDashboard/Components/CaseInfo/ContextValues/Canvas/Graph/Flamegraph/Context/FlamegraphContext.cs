@@ -39,6 +39,7 @@ public class FlamegraphContext
 public class ObjectRelations
 {
   public required string Id { get; init; }
+  public required ulong FromElementId { get; init; }
   public required List<string> RelatedObjectsIds { get; init; }
 }
 
@@ -62,6 +63,7 @@ public class NodeObjectsState
     InitialStateObjectsRelations = annotation.Relations.Select(r => new ObjectRelations
     {
       Id = r.ObjectId,
+      FromElementId = r.ElementId,
       RelatedObjectsIds = r.RelatedObjectsIds.ToList()
     }).ToList();
 
