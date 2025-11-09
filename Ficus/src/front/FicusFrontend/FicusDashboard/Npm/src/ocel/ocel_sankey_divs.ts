@@ -9,6 +9,13 @@ interface ObjectsRelation {
   relatedObjectsIds: string[]
 }
 
+interface Position {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
 function createOcelSankeyConnections(parentContainerId: string, baseIdPart: string, relations: ObjectsRelation[]) {
   let getInitialClass = (isInitialState: boolean) => isInitialState ? "initial" : "final";
   let createId = (nodeId: number, objectId: string, isInitialState: boolean) => {
@@ -16,34 +23,41 @@ function createOcelSankeyConnections(parentContainerId: string, baseIdPart: stri
     return baseIdPart + Delimiter + nodeId + Delimiter + getInitialClass(isInitialState) + Delimiter + objectId;
   };
 
-  let getElement = (nodeId: number, objectId: string, isInitialState: boolean) => {
-    let id = createId(nodeId, objectId, isInitialState);
-    let element = document.getElementById(id);
+  let offsetsMap = new Map<string, Position>();
 
-    if (element == null) {
-      console.warn(`Failed to get element with id ${id}`);
+  let getElementPosition = (nodeId: number, objectId: string, isInitialState: boolean): Position | null => {
+    let id = createId(nodeId, objectId, isInitialState);
+    if (!offsetsMap.has(id)) {
+      let element = document.getElementById(id);
+
+      if (element == null) {
+        console.warn(`Failed to get element with id ${id}`);
+        return null;
+      }
+
+      offsetsMap.set(id, getPosition(element));
     }
 
-    return element;
+    return offsetsMap.get(id);
   };
 
   let parentContainer = document.getElementById(parentContainerId);
   if (parentContainer == null) return;
 
   for (let relation of relations) {
-    let firstElement = getElement(relation.currentNodeId, relation.id, true);
-    if (firstElement == null) continue;
+    let firstPos = getElementPosition(relation.currentNodeId, relation.id, true);
+    if (firstPos == null) continue;
 
     for (let relatedId of relation.relatedObjectsIds) {
-      let secondElement = getElement(relation.fromNodeId, relatedId, false);
-      if (secondElement == null) continue;
+      let secondPos = getElementPosition(relation.fromNodeId, relatedId, false);
+      if (secondPos == null) continue;
 
-      connect(parentContainer, firstElement, secondElement, "red", 5);
+      connect(parentContainer, firstPos, secondPos, "red", 5);
     }
   }
 }
 
-function getOffset(el: HTMLElement) {
+function getPosition(el: HTMLElement): Position {
   return {
     left: el.offsetLeft,
     top: el.offsetTop,
@@ -52,15 +66,12 @@ function getOffset(el: HTMLElement) {
   };
 }
 
-function connect(parentContainer: HTMLElement, first: HTMLElement, second: HTMLElement, color: string, thickness: number) {
-  let firstOffset = getOffset(first);
-  let secondOffset = getOffset(second);
+function connect(parentContainer: HTMLElement, firstPos: Position, secondPos: Position, color: string, thickness: number) {
+  let firstX = firstPos.left + firstPos.width;
+  let firstY = firstPos.top + firstPos.height;
 
-  let firstX = firstOffset.left + firstOffset.width;
-  let firstY = firstOffset.top + firstOffset.height;
-
-  let secondX = secondOffset.left + secondOffset.width;
-  let secondY = secondOffset.top;
+  let secondX = secondPos.left + secondPos .width;
+  let secondY = secondPos.top;
 
   let length = Math.sqrt(((secondX - firstX) * (secondX - firstX)) + ((secondY - firstY) * (secondY - firstY)));
 
