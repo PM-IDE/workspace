@@ -198,7 +198,8 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                   related_objects.push(id.clone());
                 }
 
-                new_node_objects_relations.push(OcelObjectRelations::new(obj_id.to_owned(), node, related_objects));
+                let relations = OcelObjectRelations::new(obj_id.to_owned(), **incoming_node, related_objects);
+                new_node_objects_relations.push(relations);
 
                 let obj_type = data.r#type().as_ref().unwrap_or(&fallback_type);
                 new_node_state.add_allocated_object(obj_type.clone(), obj_id.clone())?;
@@ -212,7 +213,9 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                   let obj_type = produced_obj.r#type().as_ref().unwrap_or(&fallback_type);
                   let id = produced_obj.id();
                   new_node_state.add_allocated_object(obj_type.clone(), id.clone())?;
-                  new_node_objects_relations.push(OcelObjectRelations::new(id.clone(), node, vec![obj_id.clone()]));
+                  
+                  let relations = OcelObjectRelations::new(id.clone(), **incoming_node, vec![obj_id.clone()]);
+                  new_node_objects_relations.push(relations);
                 }
 
                 new_node_state.remove_unknown_object(obj_id);
