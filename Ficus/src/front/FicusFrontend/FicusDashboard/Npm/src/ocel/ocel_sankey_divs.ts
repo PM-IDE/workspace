@@ -16,7 +16,12 @@ interface Position {
   height: number
 }
 
-function createOcelSankeyConnections(parentContainerId: string, baseIdPart: string, relations: ObjectsRelation[]) {
+function createOcelSankeyConnections(
+  parentContainerId: string,
+  baseIdPart: string,
+  relations: ObjectsRelation[],
+  topToBottom: boolean,
+) {
   let getInitialClass = (isInitialState: boolean) => isInitialState ? "initial" : "final";
   let createId = (nodeId: number, objectId: string, isInitialState: boolean) => {
     const Delimiter = "-";
@@ -52,7 +57,7 @@ function createOcelSankeyConnections(parentContainerId: string, baseIdPart: stri
       let secondPos = getElementPosition(relation.fromNodeId, relatedId, false);
       if (secondPos == null) continue;
 
-      connect(parentContainer, firstPos, secondPos, "red", 5);
+      connect(parentContainer, firstPos, secondPos, "red", 5, topToBottom);
     }
   }
 }
@@ -66,12 +71,19 @@ function getPosition(el: HTMLElement): Position {
   };
 }
 
-function connect(parentContainer: HTMLElement, firstPos: Position, secondPos: Position, color: string, thickness: number) {
-  let firstX = firstPos.left;
-  let firstY = firstPos.top + firstPos.height / 2;
+function connect(
+  parentContainer: HTMLElement,
+  firstPos: Position,
+  secondPos: Position,
+  color: string,
+  thickness: number,
+  topToBottom: boolean
+) {
+  let firstX = firstPos.left + (topToBottom ? firstPos.width / 2 : 0);
+  let firstY = firstPos.top + (topToBottom ? 0 : firstPos.height / 2);
 
-  let secondX = secondPos.left + secondPos.width;
-  let secondY = secondPos.top + secondPos.height / 2;
+  let secondX = secondPos.left + (topToBottom ? secondPos.width / 2 : secondPos.width);
+  let secondY = secondPos.top + (topToBottom ? secondPos.height : secondPos.height / 2);
 
   let length = Math.sqrt(((secondX - firstX) * (secondX - firstX)) + ((secondY - firstY) * (secondY - firstY)));
 
