@@ -57,7 +57,7 @@ function createOcelSankeyConnections(
       let secondPos = getElementPosition(relation.fromNodeId, relatedId, false);
       if (secondPos == null) continue;
 
-      connect(parentContainer, firstPos, secondPos, "red", 5, topToBottom);
+      connect(parentContainer, firstPos, secondPos, "#918e8e", 1, topToBottom);
     }
   }
 }
