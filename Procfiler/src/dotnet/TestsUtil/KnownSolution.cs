@@ -2,7 +2,7 @@
 
 public class KnownSolution
 {
-  private const string TargetFramework = "net9.0";
+  private const string TargetFramework = "net10.0";
 
   public static KnownSolution ConsoleApp1 { get; } = new("ConsoleApp1");
   public static KnownSolution TaskTestProject1 { get; } = new("TaskTestProject1");
