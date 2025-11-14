@@ -4,28 +4,31 @@ namespace Bxes.Models.Domain;
 
 public static class EventLogUtil
 {
-  public static IEnumerable<BxesStreamEvent> ToEventsStream(this IEventLog log)
+  extension(IEventLog log)
   {
-    foreach (var @event in log.Metadata.ToEventsStream())
+    public IEnumerable<BxesStreamEvent> ToEventsStream()
     {
-      yield return @event;
-    }
-
-    foreach (var @event in log.ToTracesEventStream())
-    {
-      yield return @event;
-    }
-  }
-
-  public static IEnumerable<BxesStreamEvent> ToTracesEventStream(this IEventLog log)
-  {
-    foreach (var variant in log.Traces)
-    {
-      yield return new BxesTraceVariantStartEvent(variant.Count, variant.Metadata);
-
-      foreach (var @event in variant.ToEventsStream())
+      foreach (var @event in log.Metadata.ToEventsStream())
       {
         yield return @event;
+      }
+
+      foreach (var @event in log.ToTracesEventStream())
+      {
+        yield return @event;
+      }
+    }
+
+    public IEnumerable<BxesStreamEvent> ToTracesEventStream()
+    {
+      foreach (var variant in log.Traces)
+      {
+        yield return new BxesTraceVariantStartEvent(variant.Count, variant.Metadata);
+
+        foreach (var @event in variant.ToEventsStream())
+        {
+          yield return @event;
+        }
       }
     }
   }

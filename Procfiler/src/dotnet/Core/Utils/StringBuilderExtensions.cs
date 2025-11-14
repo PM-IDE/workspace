@@ -5,31 +5,33 @@ namespace Core.Utils;
 
 public static class StringBuilderExtensions
 {
-  public static StringBuilder LogPrimitiveValue<T>(this StringBuilder sb, string name, T value) where T : struct =>
-    sb.Append(name).Append(" = ").Append(value)
-      .AppendNewLine();
-
-  public static StringBuilder LogDictionary<TKey, TValue>(this StringBuilder sb, string name, Dictionary<TKey, TValue> map)
-    where TKey : notnull
+  extension(StringBuilder sb)
   {
-    sb.Append(name).Append(':')
-      .AppendNewLine()
-      .Append('{')
-      .AppendNewLine();
+    public StringBuilder LogPrimitiveValue<T>(string name, T value) where T : struct =>
+      sb.Append(name).Append(" = ").Append(value)
+        .AppendNewLine();
 
-    foreach (var (key, value) in map)
+    public StringBuilder LogDictionary<TKey, TValue>(string name, Dictionary<TKey, TValue> map)
+      where TKey : notnull
     {
-      sb.Append('\t').Append(key).Append(" = ").Append(SerializeValue(value))
+      sb.Append(name).Append(':')
+        .AppendNewLine()
+        .Append('{')
+        .AppendNewLine();
+
+      foreach (var (key, value) in map)
+      {
+        sb.Append('\t').Append(key).Append(" = ").Append(SerializeValue(value))
+          .AppendNewLine();
+      }
+
+      return sb.Append('}')
         .AppendNewLine();
     }
 
-    return sb.Append('}')
-      .AppendNewLine();
+    public StringBuilder AppendSpace() => sb.Append(' ');
+    public PairedCharCookie AppendBraces() => new(sb, '(', ')');
   }
-
-  public static StringBuilder AppendSpace(this StringBuilder sb) => sb.Append(' ');
-
-  public static PairedCharCookie AppendBraces(this StringBuilder sb) => new(sb, '(', ')');
 
   public static string SerializeValue<T>(T value)
   {
@@ -57,9 +59,11 @@ public static class StringBuilderExtensions
     return sb.Append(']').ToString();
   }
 
-  public static StringBuilder AppendTab(this StringBuilder sb) => sb.Append('\t');
-
-  public static StringBuilder AppendNewLine(this StringBuilder sb) => sb.Append('\n');
+  extension(StringBuilder sb)
+  {
+    public StringBuilder AppendTab() => sb.Append('\t');
+    public StringBuilder AppendNewLine() => sb.Append('\n');
+  }
 }
 
 public readonly struct PairedCharCookie : IDisposable

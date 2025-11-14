@@ -14,43 +14,43 @@ public static class DictionaryExtensions
     }
   }
 
-  public static TValue GetOrCreate<TKey, TValue>(
-    this IDictionary<TKey, TValue> map, TKey key, Func<TValue> factory) where TKey : notnull
+  extension<TKey, TValue>(IDictionary<TKey, TValue> map) where TKey : notnull
   {
-    if (map.TryGetValue(key, out var existingValue))
+    public TValue GetOrCreate(TKey key, Func<TValue> factory)
     {
-      return existingValue;
-    }
-
-    var value = factory();
-    map[key] = value;
-    return value;
-  }
-
-  public static TValue? ValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> map, TKey key)
-    where TKey : notnull
-  {
-    if (map.TryGetValue(key, out var value)) return value;
-
-    return default;
-  }
-
-  public static void MergeOrThrow<TKey, TValue>(
-    this IDictionary<TKey, TValue> map, IDictionary<TKey, TValue> secondMap) where TKey : notnull
-  {
-    foreach (var (key, value) in secondMap)
-    {
-      if (map.TryGetValue(key, out var existingValue) && existingValue is { })
+      if (map.TryGetValue(key, out var existingValue))
       {
-        if (!existingValue.Equals(value))
-        {
-          throw new Exception();
-        }
-
-        continue;
+        return existingValue;
       }
 
+      var value = factory();
       map[key] = value;
+      return value;
+    }
+
+    public TValue? ValueOrDefault(TKey key)
+    {
+      if (map.TryGetValue(key, out var value)) return value;
+
+      return default;
+    }
+
+    public void MergeOrThrow(IDictionary<TKey, TValue> secondMap)
+    {
+      foreach (var (key, value) in secondMap)
+      {
+        if (map.TryGetValue(key, out var existingValue) && existingValue is { })
+        {
+          if (!existingValue.Equals(value))
+          {
+            throw new Exception();
+          }
+
+          continue;
+        }
+
+        map[key] = value;
+      }
     }
   }
 

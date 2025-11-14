@@ -16,15 +16,18 @@ public enum CppProfilerBinStacksFileMode
 
 public static class CppProfilerModeExtensions
 {
-  public static bool IsDisabled(this CppProfilerMode mode) => mode == CppProfilerMode.Disabled;
-  public static bool IsEnabled(this CppProfilerMode mode) => !mode.IsDisabled();
-  public static bool IsOnlineSerialization(this CppProfilerMode mode) => mode == CppProfilerMode.PerThreadBinStacksFilesOnline;
-
-  public static CppProfilerBinStacksFileMode ToFileMode(this CppProfilerMode mode) => mode switch
+  extension(CppProfilerMode mode)
   {
-    CppProfilerMode.SingleFileBinStack => CppProfilerBinStacksFileMode.SingleFile,
-    CppProfilerMode.PerThreadBinStacksFiles => CppProfilerBinStacksFileMode.PerThreadFiles,
-    CppProfilerMode.PerThreadBinStacksFilesOnline => CppProfilerBinStacksFileMode.PerThreadFiles,
-    _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
-  };
+    public bool IsDisabled() => mode == CppProfilerMode.Disabled;
+    public bool IsEnabled() => !mode.IsDisabled();
+    public bool IsOnlineSerialization() => mode == CppProfilerMode.PerThreadBinStacksFilesOnline;
+
+    public CppProfilerBinStacksFileMode ToFileMode() => mode switch
+    {
+      CppProfilerMode.SingleFileBinStack => CppProfilerBinStacksFileMode.SingleFile,
+      CppProfilerMode.PerThreadBinStacksFiles => CppProfilerBinStacksFileMode.PerThreadFiles,
+      CppProfilerMode.PerThreadBinStacksFilesOnline => CppProfilerBinStacksFileMode.PerThreadFiles,
+      _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+    };
+  }
 }

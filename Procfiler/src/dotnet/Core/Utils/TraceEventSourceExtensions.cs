@@ -8,12 +8,15 @@ public static class TraceEventSourceExtensions
   private const BindingFlags PrivateInstanceField = BindingFlags.Instance | BindingFlags.NonPublic;
 
 
-  public static long GetSyncQpc(this TraceEventSource log) =>
-    (long)log.GetType().GetField("_syncTimeQPC", PrivateInstanceField)!.GetValue(log)!;
+  extension(TraceEventSource log)
+  {
+    public long GetSyncQpc() =>
+      (long)log.GetType().GetField("_syncTimeQPC", PrivateInstanceField)!.GetValue(log)!;
 
-  public static long GetQpcFreq(this TraceEventSource log) =>
-    (long)log.GetType().GetField("_QPCFreq", PrivateInstanceField)!.GetValue(log)!;
+    public long GetQpcFreq() =>
+      (long)log.GetType().GetField("_QPCFreq", PrivateInstanceField)!.GetValue(log)!;
 
-  public static DateTime GetSyncTimeUtc(this TraceEventSource log) =>
-    (DateTime)log.GetType().GetField("_syncTimeUTC", PrivateInstanceField)!.GetValue(log)!;
+    public DateTime GetSyncTimeUtc() =>
+      (DateTime)log.GetType().GetField("_syncTimeUTC", PrivateInstanceField)!.GetValue(log)!;
+  }
 }

@@ -2,29 +2,32 @@ namespace FicusDashboardBackend.Utils;
 
 public static class SemaphoreSlimExtensions
 {
-  public static async Task Execute(this SemaphoreSlim semaphoreSlim, Func<Task> action)
+  extension(SemaphoreSlim semaphoreSlim)
   {
-    try
+    public async Task Execute(Func<Task> action)
     {
-      await semaphoreSlim.WaitAsync();
-      await action();
+      try
+      {
+        await semaphoreSlim.WaitAsync();
+        await action();
+      }
+      finally
+      {
+        semaphoreSlim.Release();
+      }
     }
-    finally
-    {
-      semaphoreSlim.Release();
-    }
-  }
 
-  public static async Task<T> Execute<T>(this SemaphoreSlim semaphoreSlim, Func<Task<T>> action)
-  {
-    try
+    public async Task<T> Execute<T>(Func<Task<T>> action)
     {
-      await semaphoreSlim.WaitAsync();
-      return await action();
-    }
-    finally
-    {
-      semaphoreSlim.Release();
+      try
+      {
+        await semaphoreSlim.WaitAsync();
+        return await action();
+      }
+      finally
+      {
+        semaphoreSlim.Release();
+      }
     }
   }
 }

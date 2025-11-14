@@ -12,45 +12,44 @@ public interface ICppShadowStack : IEnumerable<FrameInfo>
 
 public static class ExtensionsForICppShadowStack
 {
-  public static IEnumerable<EventRecordWithMetadata> EnumerateMethods(
-    this ICppShadowStack shadowStack,
-    EventRecordWithMetadata referenceEvent,
-    IProcfilerEventsFactory eventsFactory,
-    IGlobalDataWithStacks globalData)
+  extension(ICppShadowStack shadowStack)
   {
-    foreach (var frameInfo in shadowStack)
+    public IEnumerable<EventRecordWithMetadata> EnumerateMethods(EventRecordWithMetadata referenceEvent,
+      IProcfilerEventsFactory eventsFactory,
+      IGlobalDataWithStacks globalData)
     {
-      var creationContext = new FromFrameInfoCreationContext
+      foreach (var frameInfo in shadowStack)
       {
-        FrameInfo = frameInfo,
-        GlobalData = globalData,
-        ManagedThreadId = shadowStack.ManagedThreadId,
-        NativeThreadId = referenceEvent.NativeThreadId
-      };
+        var creationContext = new FromFrameInfoCreationContext
+        {
+          FrameInfo = frameInfo,
+          GlobalData = globalData,
+          ManagedThreadId = shadowStack.ManagedThreadId,
+          NativeThreadId = referenceEvent.NativeThreadId
+        };
 
-      yield return eventsFactory.CreateMethodEvent(creationContext);
+        yield return eventsFactory.CreateMethodEvent(creationContext);
+      }
     }
-  }
 
-  public static IEnumerable<EventRecordWithMetadata> EnumerateMethodsAggressiveReuse(
-    this ICppShadowStack shadowStack,
-    EventRecordWithMetadata referenceEvent,
-    IProcfilerEventsFactory eventsFactory,
-    IGlobalDataWithStacks globalData)
-  {
-    var sharedEvent = EventRecordWithMetadata.CreateUninitialized();
-    foreach (var frameInfo in shadowStack)
+    public IEnumerable<EventRecordWithMetadata> EnumerateMethodsAggressiveReuse(EventRecordWithMetadata referenceEvent,
+      IProcfilerEventsFactory eventsFactory,
+      IGlobalDataWithStacks globalData)
     {
-      var creationContext = new FromFrameInfoCreationContext
+      var sharedEvent = EventRecordWithMetadata.CreateUninitialized();
+      foreach (var frameInfo in shadowStack)
       {
-        FrameInfo = frameInfo,
-        GlobalData = globalData,
-        ManagedThreadId = shadowStack.ManagedThreadId,
-        NativeThreadId = referenceEvent.NativeThreadId
-      };
+        var creationContext = new FromFrameInfoCreationContext
+        {
+          FrameInfo = frameInfo,
+          GlobalData = globalData,
+          ManagedThreadId = shadowStack.ManagedThreadId,
+          NativeThreadId = referenceEvent.NativeThreadId
+        };
 
-      eventsFactory.FillExistingEventWith(creationContext, sharedEvent);
-      yield return sharedEvent;
+        eventsFactory.FillExistingEventWith(creationContext, sharedEvent);
+        yield return sharedEvent;
+      }
     }
   }
 }
