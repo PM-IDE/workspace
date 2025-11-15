@@ -22,7 +22,7 @@
 #include "miniutf.hpp"
 
 #include <algorithm>
-typedef unsigned int uint32_t;
+#include <cstdint>
 
 namespace miniutf {
 
