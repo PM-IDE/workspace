@@ -10,7 +10,7 @@ COPY Directory.Packages.props ./Directory.Packages.props
 RUN dotnet restore ./Ficus/src/front/FicusFrontend/$PROJECT_NAME/$PROJECT_NAME.csproj
 
 WORKDIR /app/Ficus/src/front/FicusFrontend/$PROJECT_NAME
-RUN dotnet build $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build $PROJECT_NAME.csproj -c $BUILD_CONFIGURATION -o /app/build -v d
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 ARG PROJECT_NAME=FicusDashboardBackend

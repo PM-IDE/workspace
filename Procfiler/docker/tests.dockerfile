@@ -14,8 +14,8 @@ COPY ./Ficus ./Ficus
 COPY ProcfilerBxes.sln ./ProcfilerBxes.sln
 COPY Directory.Packages.props ./Directory.Packages.props
 
-RUN dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks/ProcfilerBuildTasks.csproj -c Release
-RUN dotnet build . -c Release
+RUN dotnet build ./Procfiler/src/dotnet/ProcfilerBuildTasks/ProcfilerBuildTasks.csproj -c Release -v d
+RUN dotnet build . -c Release -v d
 
 FROM build-env as test
 ENTRYPOINT [ "dotnet", "test", "/app/Procfiler/src/dotnet/OnlineProcfilerTests/OnlineProcfilerTests.csproj", "-c", "Release", "/p:SolutionDir=/app" ]

@@ -10,7 +10,7 @@ COPY ./bxes ./bxes
 COPY ./FicusBxes.sln ./FicusBxes.sln
 COPY Directory.Packages.props ./Directory.Packages.props
 
-RUN dotnet build . -c Release
+RUN dotnet build . -c Release -v d
 
 FROM build-env as test
 ENTRYPOINT [ "dotnet", "test", "/app/Ficus/test/IntegrationTests/IntegrationTests/IntegrationTests.csproj", "-c", "Release" ]
