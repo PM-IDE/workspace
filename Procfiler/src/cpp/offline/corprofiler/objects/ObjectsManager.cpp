@@ -4,6 +4,7 @@
 #include "sigparser/sigparserimpl.hpp"
 #include <cor.h>
 #include <corhdr.h>
+#include <atomic>
 
 #include "MetadataCookie.hpp"
 
