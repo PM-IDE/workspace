@@ -316,17 +316,6 @@ typedef union _LARGE_INTEGER {
     LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
 
-#ifndef GUID_DEFINED
-typedef struct _GUID {
-    ULONG   Data1;    // NOTE: diff from Win32, for LP64
-    USHORT  Data2;
-    USHORT  Data3;
-    UCHAR   Data4[ 8 ];
-} GUID;
-typedef const GUID *LPCGUID;
-#define GUID_DEFINED
-#endif // !GUID_DEFINED
-
 typedef struct _FILETIME {
     DWORD dwLowDateTime;
     DWORD dwHighDateTime;
