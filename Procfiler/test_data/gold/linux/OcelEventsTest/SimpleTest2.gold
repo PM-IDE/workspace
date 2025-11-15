@@ -4,7 +4,7 @@ OcelObjectAllocated {"objectId":"3","type":"Type1","attributes":""}
 OcelObjectAllocated {"objectId":"4","type":"Type2","attributes":""}
 OcelObjectAllocated {"objectId":"5","type":"Type2","attributes":""}
 OcelObjectAllocated {"objectId":"6","type":"Type2","attributes":""}
-OcelMergeAllocate {"objectId":"7","type":"Type1","relatedObjectIds":"1 3 5","attributes":""}
-OcelMergeAllocate {"objectId":"8","type":"Type1","relatedObjectIds":"2 4 6","attributes":""}
+OcelMergeAllocate {"objectId":"7","type":"Type1","relatedObjectsIds":"1 3 5","attributes":""}
+OcelMergeAllocate {"objectId":"8","type":"Type1","relatedObjectsIds":"2 4 6","attributes":""}
 OcelConsumeProduce {"objectId":"7","relatedObjectsIds":"9 10","relatedObjectsTypes":"Type3 Type2","attributes":""}
 OcelConsumeProduce {"objectId":"8","relatedObjectsIds":"11","relatedObjectsTypes":"Type3","attributes":""}
