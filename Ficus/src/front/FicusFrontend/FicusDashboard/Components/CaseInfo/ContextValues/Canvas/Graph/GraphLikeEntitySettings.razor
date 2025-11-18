@@ -2,8 +2,14 @@
 @using Radzen
 @using Radzen.Blazor
 
-<div style="display: flex; flex-direction: column; 
-            background: var(--aggregated-data-background); border-radius: 5px; padding: 5px;">
+<div style="display: flex;
+            flex-direction: column;
+            background: var(--aggregated-data-background);
+            overflow-y: auto;
+            overflow-x: hidden;
+            border-radius: 5px;
+            padding: 5px;"
+     class="visible-scroll">
   @if (Enhancements is { Count: > 0 })
   {
     <EnhancementsSettings @ref="myEnhancementsSettings" Enhancements="Enhancements"/>
