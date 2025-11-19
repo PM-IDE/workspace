@@ -1,3 +1,4 @@
+@using System.Globalization
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
 @if (State is null)
@@ -12,8 +13,9 @@
     .Where(t => t.ObjectIds.Count > 0)
     .Select(ts =>
     {
-      var width = $"{(double)ts.ObjectIds.Count * 100 / overallObjectsCount}%";
-      return (ts.TypeName, width, ts.ObjectIds);
+      var width = (double)ts.ObjectIds.Count * 100 / overallObjectsCount;
+      var widthStr = $"{width.ToString(CultureInfo.InvariantCulture)}%";
+      return (ts.TypeName, widthStr, ts.ObjectIds);
     })
     .ToList();
 }
