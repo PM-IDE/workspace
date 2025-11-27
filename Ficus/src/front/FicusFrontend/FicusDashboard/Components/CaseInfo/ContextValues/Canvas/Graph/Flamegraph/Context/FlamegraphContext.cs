@@ -86,33 +86,6 @@ public class EnhancedNodeDto
   public required NodeObjectsState? Objects { get; init; }
 }
 
-public class FlamegraphSankeyObjectPart
-{
-  public required double From { get; init; }
-  public required double To { get; init; }
-}
-
-public abstract class FlamegraphSankeyPosition
-{
-  public required string Id { get; init; }
-}
-
-public class FlamegraphSankeyMultiplePositions : FlamegraphSankeyPosition
-{
-  public List<FlamegraphSankeyObjectPart> Parts { get; } = [];
-}
-
-public class FlamegraphSankeySinglePositions : FlamegraphSankeyPosition
-{
-  public required FlamegraphSankeyObjectPart ObjectPart { get; init; }
-}
-
-public class FlamegraphSankeyConnection
-{
-  public required FlamegraphSankeyPosition From { get; init; }
-  public required FlamegraphSankeyPosition To { get; init; }
-}
-
 public class FlamegraphRenderingContext
 {
   private const string ObjectIdBasePart = "ocel-object-id";
