@@ -14,7 +14,6 @@ class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
     std::atomic<int> myRefCount;
     ShadowStack* myShadowStack;
     ShadowStackSerializer* myShadowStackSerializer;
-    ObjectsManager* myObjectsManager;
 
     DWORD GetCurrentManagedThreadId() const;
     int64_t GetCurrentTimestamp() const;

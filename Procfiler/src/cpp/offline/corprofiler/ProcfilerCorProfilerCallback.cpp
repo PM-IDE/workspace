@@ -69,9 +69,6 @@ void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcI
 
 void ProcfilerCorProfilerCallback::HandleFunctionEnter2(FunctionID funcId,
                                                         COR_PRF_FUNCTION_ARGUMENT_INFO* argumentInfo) const {
-    UINT64 id;
-    myObjectsManager->TryGetThisObjectId(funcId, argumentInfo, &id);
-
     HandleFunctionEnter(funcId);
 }
 
@@ -98,7 +95,6 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk)
     }
 
     InitializeShadowStack();
-    myObjectsManager = new ObjectsManager(myProfilerInfo);
 
     const auto produceObjectBinStacks = IsEnvVarTrue(produceObjectBinStacksEnv);
 
@@ -140,16 +136,10 @@ HRESULT ProcfilerCorProfilerCallback::MovedReferences(ULONG cMovedObjectIDRanges
                                                       ObjectID* oldObjectIDRangeStart,
                                                       ObjectID* newObjectIDRangeStart,
                                                       ULONG* cObjectIDRangeLength) {
-    myObjectsManager->HandleObjectsMove(cMovedObjectIDRanges,
-                                        oldObjectIDRangeStart,
-                                        newObjectIDRangeStart,
-                                        cObjectIDRangeLength);
-
     return S_OK;
 }
 
 HRESULT ProcfilerCorProfilerCallback::ObjectAllocated(ObjectID objectId, ClassID classId) {
-    myObjectsManager->HandleObjectAllocation(objectId);
     return S_OK;
 }
 
@@ -211,7 +201,6 @@ ProcfilerCorProfilerCallback::ProcfilerCorProfilerCallback(ProcfilerLogger* logg
     ourCallback = this;
     myShadowStack = nullptr;
     myShadowStackSerializer = nullptr;
-    myObjectsManager = nullptr;
 }
 
 HRESULT ProcfilerCorProfilerCallback::AppDomainCreationStarted(AppDomainID appDomainId) {
@@ -639,9 +628,6 @@ ProcfilerCorProfilerCallback::~ProcfilerCorProfilerCallback() {
 
     delete myShadowStackSerializer;
     myShadowStackSerializer = nullptr;
-
-    delete myObjectsManager;
-    myObjectsManager = nullptr;
 }
 
 DWORD ProcfilerCorProfilerCallback::GetCurrentManagedThreadId() const {
