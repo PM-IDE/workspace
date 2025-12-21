@@ -1,0 +1,50 @@
+OcelObjectAllocated {"objectId":"1","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"2","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"3","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"4","type":"Type1","relatedObjectsIds":"1 2 3","attributes":""}
+OcelConsumeProduce {"objectId":"4","relatedObjectsIds":"5 6","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"7","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"8","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"9","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"10","type":"Type1","relatedObjectsIds":"7 8 9","attributes":""}
+OcelConsumeProduce {"objectId":"10","relatedObjectsIds":"11 12","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"13","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"14","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"15","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"16","type":"Type1","relatedObjectsIds":"13 14 15","attributes":""}
+OcelConsumeProduce {"objectId":"16","relatedObjectsIds":"17 18","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"19","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"20","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"21","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"22","type":"Type1","relatedObjectsIds":"19 20 21","attributes":""}
+OcelConsumeProduce {"objectId":"22","relatedObjectsIds":"23 24","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"25","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"26","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"27","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"28","type":"Type1","relatedObjectsIds":"25 26 27","attributes":""}
+OcelConsumeProduce {"objectId":"28","relatedObjectsIds":"29 30","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"31","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"32","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"33","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"34","type":"Type1","relatedObjectsIds":"31 32 33","attributes":""}
+OcelConsumeProduce {"objectId":"34","relatedObjectsIds":"35 36","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"37","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"38","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"39","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"40","type":"Type1","relatedObjectsIds":"37 38 39","attributes":""}
+OcelConsumeProduce {"objectId":"40","relatedObjectsIds":"41 42","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"43","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"44","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"45","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"46","type":"Type1","relatedObjectsIds":"43 44 45","attributes":""}
+OcelConsumeProduce {"objectId":"46","relatedObjectsIds":"47 48","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"49","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"50","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"51","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"52","type":"Type1","relatedObjectsIds":"49 50 51","attributes":""}
+OcelConsumeProduce {"objectId":"52","relatedObjectsIds":"53 54","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"55","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"56","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"57","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"58","type":"Type1","relatedObjectsIds":"55 56 57","attributes":""}
+OcelConsumeProduce {"objectId":"58","relatedObjectsIds":"59 60","relatedObjectsTypes":"Type3 Type2","attributes":""}

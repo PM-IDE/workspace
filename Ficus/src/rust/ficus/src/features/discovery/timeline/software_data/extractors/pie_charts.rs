@@ -6,6 +6,7 @@ use crate::features::discovery::timeline::software_data::extractors::core::{
 };
 use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
 use crate::features::discovery::timeline::software_data::models::{GenericEnhancementBase, HistogramData, HistogramEntry, SoftwareData};
+use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use fancy_regex::Regex;
 use std::cell::RefCell;
@@ -59,7 +60,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
                 let grouping_value = if let Some(strategy) = config.grouping_attr() {
                   strategy.create(&event.borrow())
                 } else {
-                  event.borrow().name().to_string()
+                  HeapedOrOwned::Heaped(event.borrow().name_pointer().clone())
                 };
 
                 *result
@@ -78,7 +79,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
 
     for (_, (base, counts)) in result {
       software_data.histograms_mut().push(HistogramData::new(
-        GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
+        GenericEnhancementBase::new(base.name().clone(), base.units().clone(), base.group().clone()),
         counts.into_iter().map(|(k, v)| HistogramEntry::new(k, v)).collect(),
       ))
     }

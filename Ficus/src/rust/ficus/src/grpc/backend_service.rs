@@ -1,16 +1,16 @@
 use super::events::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use super::events::grpc_events_handler::GrpcPipelineEventsHandler;
-use crate::ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcFicusBackendInfo, GrpcGetAllContextValuesResult, GrpcPipelinePartDescriptor, GrpcProxyPipelineExecutionRequest};
+use crate::ficus_proto::{
+  GrpcContextKey, GrpcContextKeyValue, GrpcFicusBackendInfo, GrpcGetAllContextValuesResult, GrpcPipelinePartDescriptor,
+  GrpcProxyPipelineExecutionRequest,
+};
 use crate::grpc::context_values_service::ContextValueService;
 use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::keys::context_keys::find_context_key;
 use crate::utils::context_key::{ContextKey, DefaultContextKey};
 use crate::{
-  ficus_proto::{
-    grpc_backend_service_server::GrpcBackendService, GrpcGetContextValueRequest, GrpcGuid,
-    GrpcPipelinePartExecutionResult,
-  },
+  ficus_proto::{grpc_backend_service_server::GrpcBackendService, GrpcGetContextValueRequest, GrpcGuid, GrpcPipelinePartExecutionResult},
   pipelines::pipeline_parts::PipelineParts,
   utils::user_data::user_data::UserData,
 };
@@ -46,7 +46,7 @@ impl FicusService {
 
 #[tonic::async_trait]
 impl GrpcBackendService for FicusService {
-  type ExecutePipelineStream = Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  type ExecutePipelineStream = Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline(
     &self,
@@ -82,10 +82,15 @@ impl GrpcBackendService for FicusService {
 
               if let Some(grpc_cv) = convert_to_grpc_context_value(&context_key, value) {
                 let id = Uuid::new_v4();
-                cv_service.put_context_value(id.to_string(), GrpcContextKeyValue {
-                  key: Some(GrpcContextKey { name: key.name().to_owned() }),
-                  value: Some(grpc_cv),
-                });
+                cv_service.put_context_value(
+                  id.to_string(),
+                  GrpcContextKeyValue {
+                    key: Some(GrpcContextKey {
+                      name: key.name().to_owned(),
+                    }),
+                    value: Some(grpc_cv),
+                  },
+                );
 
                 ids.insert(key.name().to_owned(), id);
               }
@@ -120,7 +125,7 @@ impl GrpcBackendService for FicusService {
           Some(keys_to_cv_ids) => match keys_to_cv_ids.get(key.key().name()) {
             None => Err(Status::not_found("Failed to get context for guid".to_string())),
             Some(id) => Ok(Response::new(GrpcGuid { guid: id.to_string() })),
-          }
+          },
         }
       }
     }
@@ -131,10 +136,12 @@ impl GrpcBackendService for FicusService {
     match self.contexts.lock().as_ref().unwrap().get(&id.guid) {
       None => Err(Status::not_found("The context values for supplied execution id are not found")),
       Some(keys_to_cv_ids) => Ok(Response::new(GrpcGetAllContextValuesResult {
-        context_values: keys_to_cv_ids.values().into_iter().map(|id| GrpcGuid {
-          guid: id.to_string()
-        }).collect()
-      }))
+        context_values: keys_to_cv_ids
+          .values()
+          .into_iter()
+          .map(|id| GrpcGuid { guid: id.to_string() })
+          .collect(),
+      })),
     }
   }
 
@@ -152,12 +159,11 @@ impl GrpcBackendService for FicusService {
   async fn get_backend_info(&self, _: Request<()>) -> Result<Response<GrpcFicusBackendInfo>, Status> {
     Ok(Response::new(GrpcFicusBackendInfo {
       name: "RUST_FICUS_BACKEND".to_string(),
-      pipeline_parts: self.pipeline_parts
+      pipeline_parts: self
+        .pipeline_parts
         .pipeline_parts_descriptors()
         .into_iter()
-        .map(|d| GrpcPipelinePartDescriptor {
-          name: d.name()
-        })
+        .map(|d| GrpcPipelinePartDescriptor { name: d.name() })
         .collect(),
     }))
   }

@@ -2,8 +2,8 @@
 #include <string>
 
 void writeFunctionEvent(const FunctionEvent& event, std::ofstream& fout) {
-    char startOrEnd = event.EventKind == FunctionEventKind::Started ? 1 : 0;
-    fout.write((char*) &startOrEnd, sizeof(char));
+    const char startOrEnd = event.EventKind == FunctionEventKind::Started ? 1 : 0;
+    fout.write(&startOrEnd, sizeof(char));
     fout.write((char*) &event.Timestamp, sizeof(long long));
     fout.write((char*) &event.Id, sizeof(long long));
 }

@@ -40,22 +40,25 @@ public sealed class UserDataHolder : UserDataHolderBase
 
 public static class ExtensionsForUserData
 {
-  public static T GetOrCreate<T>(this UserDataHolder holder, Key<T> key, Func<T> valueFactory) where T : notnull
+  extension(UserDataHolder holder)
   {
-    if (holder.TryGetData(key, out var existingValue))
+    public T GetOrCreate<T>(Key<T> key, Func<T> valueFactory) where T : notnull
     {
-      return existingValue;
+      if (holder.TryGetData(key, out var existingValue))
+      {
+        return existingValue;
+      }
+
+      var createdValue = valueFactory();
+      holder.PutData(key, createdValue);
+      return createdValue;
     }
 
-    var createdValue = valueFactory();
-    holder.PutData(key, createdValue);
-    return createdValue;
-  }
+    public T GetOrThrow<T>(Key<T> key)
+    {
+      if (holder.TryGetData(key, out var value)) return value;
 
-  public static T GetOrThrow<T>(this UserDataHolder holder, Key<T> key)
-  {
-    if (holder.TryGetData(key, out var value)) return value;
-
-    throw new KeyNotFoundException(key.Name);
+      throw new KeyNotFoundException(key.Name);
+    }
   }
 }

@@ -1,0 +1,398 @@
+{
+  "method_start": {
+    "event_class_regex": "ProcfilerMethod/Begin",
+    "info": {
+      "method_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      },
+      "prefix": "[Start]"
+    }
+  },
+  "method_end": {
+    "event_class_regex": "ProcfilerMethod/End",
+    "info": {
+      "method_attrs": {
+        "name_attr": "MethodName",
+        "namespace_attr": "MethodNamespace",
+        "signature_attr": "MethodSignature"
+      },
+      "prefix": "[End]"
+    }
+  },
+  "pie_chart_extraction_configs": [
+    {
+      "event_class_regex": "Request/Start",
+      "info": {
+        "base": {
+          "name": "Request Start",
+          "units": "reqs",
+          "group": "HTTP"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "host",
+              "port",
+              "scheme",
+              "pathAndQuery"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Connect/Start",
+      "info": {
+        "base": {
+          "name": "Connect Start",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Connect/Stop",
+      "info": {
+        "base": {
+          "name": "Connect Stop",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Accept/Start",
+      "info": {
+        "base": {
+          "name": "Accept Stop",
+          "units": "reqs",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "address",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "ConnectFailed",
+      "info": {
+        "base": {
+          "name": "Connect Failed",
+          "units": "fails",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "error",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "AcceptFailed",
+      "info": {
+        "base": {
+          "name": "Accept Failed",
+          "units": "fails",
+          "group": "Sockets"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "error",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Loader/AssemblyLoad",
+      "info": {
+        "base": {
+          "name": "Load",
+          "units": "asms",
+          "group": "Assemblies"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FullyQualifiedAssemblyName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Loader/AssemblyUnload",
+      "info": {
+        "base": {
+          "name": "Unload",
+          "units": "asms",
+          "group": "Assemblies"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FullyQualifiedAssemblyName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Exception/Start",
+      "info": {
+        "base": {
+          "name": "Errors",
+          "units": "exceptions"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "ExceptionType",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "GC\/SampledObject",
+      "info": {
+        "base": {
+          "name": "Object Allocations",
+          "units": "bytes"
+        },
+        "count_attr": "TotalSizeForTypeSample",
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "TypeName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/LoadVerbose",
+      "info": {
+        "base": {
+          "name": "Loads",
+          "units": "methods",
+          "group": "Methods"
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/UnloadVerbose",
+      "info": {
+        "base": {
+          "name": "Unloads",
+          "units": "methods",
+          "group": "Methods"
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningFailed",
+      "info": {
+        "base": {
+          "name": "Failed",
+          "units": "methods",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "InlineeNamespace",
+              "InlineeName",
+              "InlineeNameSignature"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningFailed",
+      "info": {
+        "base": {
+          "name": "Fail Reasons",
+          "units": "reasons",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "FailReason",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    },
+    {
+      "event_class_regex": "Method/InliningSucceeded",
+      "info": {
+        "base": {
+          "name": "Succeeded",
+          "units": "methods",
+          "group": "Inlinings"
+        },
+        "grouping_attr": {
+          "many_attributes": {
+            "attributes": [
+              "InlineeNamespace",
+              "InlineeName",
+              "InlineeNameSignature"
+            ],
+            "separator": ".",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    }
+  ],
+  "simple_counter_configs": [
+    {
+      "event_class_regex": "Thread/Creating",
+      "info": {
+        "base": {
+          "name": "Threads",
+          "units": "threads",
+          "group": "Created"
+        }
+      }
+    },
+    {
+      "event_class_regex": "Buffer/Rented",
+      "info": {
+        "base": {
+          "name": "Rented",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
+      }
+    },
+    {
+      "event_class_regex": "Buffer/Returned",
+      "info": {
+        "base": {
+          "name": "Returned",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
+      }
+    },
+    {
+      "event_class_regex": "Buffer/Trimmed",
+      "info": {
+        "base": {
+          "name": "Trimmed",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
+      }
+    },
+    {
+      "event_class_regex": "Buffer/Allocated",
+      "info": {
+        "base": {
+          "name": "Allocated",
+          "units": "bytes",
+          "group": "Array Pools"
+        },
+        "count_attr": "bufferSize"
+      }
+    }
+  ],
+  "activities_duration_configs": [
+    {
+      "base": {
+        "name": "Runtime Suspensions",
+        "units": ""
+      },
+      "start_event_regex": "GC/SuspendEEStop",
+      "end_event_regex": "GC/RestartEEStop",
+      "time_attribute": {
+        "time_attribute": "time:timestamp",
+        "kind": "UtcStamp"
+      },
+      "activity_id_attr": {
+        "single_attribute": {
+          "name": "XesActivityId",
+          "fallback_value": ""
+        }
+      }
+    }
+  ],
+  "ocel": {
+    "delimiter": " ",
+    "allocated": {
+      "event_class_regex": "OcelObjectAllocated",
+      "info": {
+        "object_type_attr": {
+          "single_attribute": {
+            "name": "type",
+            "fallback_value": "UNRESOLVED"
+          }
+        },
+        "object_id_attr": "objectId"
+      }
+    },
+    "consumed": {
+      "event_class_regex": "OcelObjectConsumed",
+      "info": {
+        "object_type_attr": {
+          "single_attribute": {
+            "name": "type",
+            "fallback_value": "UNRESOLVED"
+          }
+        },
+        "object_id_attr": "objectId"
+      }
+    },
+    "allocated_merged": {
+      "event_class_regex": "OcelMergeAllocate",
+      "info": {
+        "allocated_obj": {
+          "object_type_attr": {
+            "single_attribute": {
+              "name": "type",
+              "fallback_value": "UNRESOLVED"
+            }
+          },
+          "object_id_attr": "objectId"
+        },
+        "related_object_ids_attr": "relatedObjectsIds"
+      }
+    },
+    "consume_produce": {
+      "event_class_regex": "OcelConsumeProduce",
+      "info": {
+        "object_id_attr": "objectId",
+        "related_object_ids_attr": "relatedObjectsIds",
+        "related_object_type_attr": "relatedObjectsTypes"
+      }
+    }
+  },
+  "raw_control_flow_regexes": [
+    "^Procfiler"
+  ]
+}

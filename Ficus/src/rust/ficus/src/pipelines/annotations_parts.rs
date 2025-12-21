@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::features::discovery::ocel::graph_annotation::{create_ocel_annotation_for_dag, OcelAnnotation, OcelAnnotationCreationError};
 use crate::features::discovery::petri_net::annotations::{
   annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency,
 };
@@ -8,8 +9,9 @@ use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::pipelines::context::PipelineContext;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::pipelines::keys::context_keys::{
-  EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY,
-  PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, TERMINATE_ON_UNREPLAYABLE_TRACES_KEY, TIME_ANNOTATION_KIND_KEY,
+  EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, OCEL_ANNOTATION_KEY, PETRI_NET_COUNT_ANNOTATION_KEY,
+  PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, TERMINATE_ON_UNREPLAYABLE_TRACES_KEY,
+  TIME_ANNOTATION_KIND_KEY,
 };
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::PipelinePartFactory;
@@ -85,6 +87,23 @@ impl PipelineParts {
         Some(annotation) => {
           context.put_concrete(GRAPH_TIME_ANNOTATION_KEY.key(), annotation);
           Ok(())
+        }
+      }
+    })
+  }
+
+  pub(super) fn create_ocel_annotation_for_dag() -> (String, PipelinePartFactory) {
+    Self::create_pipeline_part(Self::CREATE_OCEL_ANNOTATION_FOR_DAG, &|context, _, config| {
+      let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+
+      match create_ocel_annotation_for_dag(graph) {
+        Ok(annotation) => {
+          context.put_concrete(OCEL_ANNOTATION_KEY.key(), annotation);
+          Ok(())
+        }
+        Err(err) => {
+          let message = format!("Failed to create ocel annotation, error: {}", err.to_string());
+          Err(PipelinePartExecutionError::new_raw(message))
         }
       }
     })

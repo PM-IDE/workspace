@@ -2,11 +2,14 @@ import cytoscape from 'cytoscape';
 import {darkTheme, graphColors} from "../colors";
 import {createNodeHtmlLabel, createNodeHtmlLabelId} from "./labels/node_html_label";
 import {createEdgeHtmlLabel} from "./labels/edge_html_label";
-import {createAggregatedData, createGraphElements} from "./graph_elements";
+import {
+  createAggregatedData, createEnhancedEdges, createEnhancedNodes,
+  createGraphElements
+} from "./graph_elements";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {AggregatedData, GraphEdge, GraphNode, SoftwareEnhancementKind} from "./types";
-import {createLayout} from "./util";
+import {createLayout, preprocessFromCSharpInterop} from "./util";
 import {GrpcGraphKind} from "../protos/ficus/GrpcGraphKind";
 import {nodeHeightPx, nodeWidthPx} from "./constants";
 
@@ -20,6 +23,8 @@ export default setDrawGraph;
 function setDrawGraph() {
   (<any>window).drawGraph = drawGraph;
   (<any>window).createAggregatedData = createAggregatedData;
+  (<any>window).createEnhancedEdges = createEnhancedEdges;
+  (<any>window).createEnhancedNodes = createEnhancedNodes;
 }
 
 function drawGraph(
@@ -51,27 +56,6 @@ function drawGraph(
     console.error(e);
     return null;
   }
-}
-
-function preprocessFromCSharpInterop(data: AggregatedData): AggregatedData {
-  data.globalSoftwareData.counters = toMapCSharpInterop(data.globalSoftwareData.counters);
-  data.globalSoftwareData.activitiesDurations = toMapCSharpInterop(data.globalSoftwareData.activitiesDurations);
-  data.globalSoftwareData.histograms = toMapCSharpInterop(data.globalSoftwareData.histograms);
-
-  for (let [key, map] of data.globalSoftwareData.histograms) {
-    data.globalSoftwareData.histograms.set(key, {
-      units: map.units,
-      value: toMapCSharpInterop(map.value),
-      group: map.group
-    });
-  }
-
-  return data;
-}
-
-function toMapCSharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
-  // @ts-ignore
-  return new Map(Object.entries(map));
 }
 
 function updateNodesDimensions(cy: cytoscape.Core, kind: GrpcGraphKind, spacingFactor: number, useLROrientation: boolean) {

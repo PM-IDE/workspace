@@ -1,0 +1,65 @@
+@using System.Globalization
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+
+@if (State is null)
+{
+  return;
+}
+
+@{
+  var overallObjectsCount = State.Select(t => t.ObjectIds.Count).Sum();
+  var typeStates = State
+    .OrderBy(t => t.TypeName)
+    .Where(t => t.ObjectIds.Count > 0)
+    .Select(ts =>
+    {
+      var width = (double)ts.ObjectIds.Count * 100 / overallObjectsCount;
+      var widthStr = $"{width.ToString(CultureInfo.InvariantCulture)}%";
+      return (ts.TypeName, widthStr, ts.ObjectIds);
+    })
+    .ToList();
+}
+
+<div style="@Context.MinMainDim: 100%; display: flex; flex-direction: @Context.SecondFlexDirection;">
+  @foreach (var (index, (name, width, objectsIds)) in typeStates.Index())
+  {
+    var isLast = index == typeStates.Count - 1;
+    <div style="display: flex; flex-direction: @Context.MainFlexDirection; @Context.MainDim: @width;">
+      @if (IsInitialState)
+      {
+        <NodeObjectsStateObjectsBlock Context="Context"
+                                      NodeId="NodeId"
+                                      ObjectsIds="objectsIds"
+                                      TypeName="@name"
+                                      IsLastObjectsBlock="isLast"
+                                      IsInitialState="IsInitialState" />
+      }
+
+      @if (Context.RenderOcelTypeNames)
+      {
+        <NodeObjectsStateTypeBlock Context="Context"
+                                   TypeName="@name"
+                                   IsLast="isLast"
+                                   IsLeftSide="IsInitialState"/>
+      }
+
+      @if (!IsInitialState)
+      {
+        <NodeObjectsStateObjectsBlock Context="Context"
+                                      NodeId="NodeId"
+                                      ObjectsIds="objectsIds"
+                                      TypeName="@name"
+                                      IsLastObjectsBlock="isLast"
+                                      IsInitialState="IsInitialState" />
+      }
+    </div>
+  }
+</div>
+
+@code {
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public required ulong NodeId { get; init; }
+  [Parameter] public required bool IsInitialState { get; init; }
+  [Parameter] public required List<TypeObjects>? State { get; init; }
+  [Parameter] public required bool TypeNamesFirst { get; init; }
+}

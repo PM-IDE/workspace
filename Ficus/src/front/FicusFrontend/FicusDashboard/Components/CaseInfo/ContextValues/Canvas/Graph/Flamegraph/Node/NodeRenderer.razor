@@ -1,0 +1,50 @@
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+
+@{
+  var mainDim = FlamegraphConstants.MainDimPx * MainDim;
+  var objectsState = Context.GetNodeObjectsState(Node);
+  var initialState = objectsState?.InitialState;
+  var finalState = objectsState?.FinalState;
+}
+
+<div style="@Context.MinMainDim: @(mainDim)px; 
+            @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;
+            display: flex;
+            flex-direction: @Context.MainFlexDirection;"
+     class="flamegraph-node">
+  @if (Context.RenderOcelAnnotation)
+  {
+    <NodesObjectStateRenderer Context="Context"
+                              NodeId="Node"
+                              State="@(initialState ?? finalState)" 
+                              IsInitialState="@true"/> 
+  }
+
+  <div style="@Context.WritingMode;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;">
+    @foreach (var eventClass in Context.GetNodeName(Node))
+    {
+      <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;"
+           class="flamegraph-node-title">
+        @eventClass
+      </div>
+    }
+  </div>
+
+  @if (Context.RenderOcelAnnotation)
+  {
+    <NodesObjectStateRenderer Context="Context"
+                              NodeId="Node"
+                              State="finalState" 
+                              IsInitialState="@false"/> 
+  }
+</div>
+
+@code {
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public required ulong Node { get; init; }
+  [Parameter] public required double MainDim { get; init; }
+}

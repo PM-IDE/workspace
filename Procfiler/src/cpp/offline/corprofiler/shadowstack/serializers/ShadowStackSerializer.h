@@ -13,7 +13,7 @@ public:
     virtual void Serialize(ShadowStack* shadowStack) = 0;
 };
 
-class ShadowStackSerializerStub : public ShadowStackSerializer {
+class ShadowStackSerializerStub final : public ShadowStackSerializer {
 public:
     ~ShadowStackSerializerStub() override = default;
 

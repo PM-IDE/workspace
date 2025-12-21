@@ -18,11 +18,14 @@ public static class StringAndCharSpanExtensions
     return hash;
   }
 
-  public static string RemoveRn(this string text) => text.Replace("\r\n", "\n");
-
-  public static long ParseId(this string textId) => textId.Contains('x') switch
+  extension(string text)
   {
-    true => Convert.ToInt64(textId, 16),
-    false => Convert.ToInt64(textId)
-  };
+    public string RemoveRn() => text.Replace("\r\n", "\n");
+
+    public long ParseId() => text.Contains('x') switch
+    {
+      true => Convert.ToInt64(text, 16),
+      false => Convert.ToInt64(text)
+    };
+  }
 }

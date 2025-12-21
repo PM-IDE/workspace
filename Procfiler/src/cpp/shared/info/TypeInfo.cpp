@@ -6,10 +6,11 @@
 
 TypeInfo::TypeInfo(const std::vector<BYTE>& raw) : myRaw(raw) {
     myIsRefType = !raw.empty() && raw[0] == ELEMENT_TYPE_BYREF;
+    myIsClass = !raw.empty() && raw[0] == ELEMENT_TYPE_CLASS;
 
     myIsVoid = !raw.empty() && raw[0] == ELEMENT_TYPE_VOID;
 
-    auto shift = myIsRefType ? 1 : 0;
+    const auto shift = myIsRefType ? 1 : 0;
 
     switch (raw[myIsRefType]) {
         case ELEMENT_TYPE_VOID:
@@ -70,7 +71,7 @@ void TypeInfo::TryParseGeneric() {
     ParseNumber(iter, number);
 
     for (size_t i = 0; i < number; i++) {
-        auto begin = iter;
+        const auto begin = iter;
         if (!ParseType(iter)) {
             break;
         }
@@ -130,7 +131,7 @@ TypeInfo TypeInfo::GetTypeInfo(IMetaDataImport2* metadataImport, mdToken token) 
     return {token, ToString(typeName, typeNameLength), {}};
 }
 
-mdToken TypeInfo::GetToken() {
+mdToken TypeInfo::GetToken() const {
     return myToken;
 }
 
@@ -146,34 +147,38 @@ std::vector<TypeInfo> TypeInfo::GetGenerics() {
     return myGenerics;
 }
 
-bool TypeInfo::IsRefType() {
+bool TypeInfo::IsRefType() const {
     return myIsRefType;
 }
 
-void TypeInfo::SetRefType(bool isRefType) {
+void TypeInfo::SetRefType(const bool isRefType) {
     myIsRefType = isRefType;
 }
 
-bool TypeInfo::IsBoxed() {
+bool TypeInfo::IsClass() const {
+    return myIsClass;
+}
+
+bool TypeInfo::IsBoxed() const {
     return myIsBoxed;
 }
 
-bool TypeInfo::IsVoid() {
+bool TypeInfo::IsVoid() const {
     return myIsVoid;
 }
 
-bool TypeInfo::IsGenericClassRef() {
+bool TypeInfo::IsGenericClassRef() const {
     return myIsGenericClassRef;
 }
 
-bool TypeInfo::IsGenericMethodRef() {
+bool TypeInfo::IsGenericMethodRef() const {
     return myIsGenericMethodRef;
 }
 
-BYTE TypeInfo::GetTypeDef() {
+BYTE TypeInfo::GetTypeDef() const {
     return myTypeDef;
 }
 
-ULONG TypeInfo::GetGenericRefNumber() {
+ULONG TypeInfo::GetGenericRefNumber() const {
     return myGenericRefNumber;
 }

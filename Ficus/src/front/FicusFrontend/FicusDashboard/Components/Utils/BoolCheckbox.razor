@@ -1,0 +1,24 @@
+@typeparam T
+
+<div style="display: flex; flex-direction: row; align-items: center;">
+  @if (Checked)
+  {
+    <input type="checkbox"
+           checked="checked"
+           @onchange="@(args => Handler(args.Value is true, Data))"/> 
+  }
+  else
+  {
+    <input type="checkbox"
+           @onchange="@(args => Handler(args.Value is true, Data))"/> 
+  }
+
+  <div style="margin-left: 5px; white-space: nowrap;">@Title</div>
+</div>
+
+@code {
+  [Parameter] public required string Title { get; init; }
+  [Parameter] public required Action<bool, T?> Handler { get; init; }
+  [Parameter] public bool Checked { get; init; }
+  [Parameter] public T? Data { get; init; }
+}

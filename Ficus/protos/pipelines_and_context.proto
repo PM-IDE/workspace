@@ -45,7 +45,34 @@ message GrpcContextValue {
     GrpcUintArray uint_array = 24;
     string json = 25;
     GrpcSimpleEventLog event_log = 26;
+    GrpcOcelModelAnnotation ocel_annotation = 27;
   }
+}
+
+message GrpcOcelModelAnnotation {
+  repeated GrpcModelElementOcelAnnotation annotations = 1;
+}
+
+message GrpcModelElementOcelAnnotation {
+  uint64 element_id = 1;
+  optional GrpcOcelState initial_state = 2;
+  GrpcOcelState final_state = 3;
+  repeated GrpcOcelStateObjectRelation relations = 4;
+}
+
+message GrpcOcelStateObjectRelation {
+  string object_id = 1;
+  uint64 element_id = 2;
+  repeated string related_objects_ids = 3;
+}
+
+message GrpcOcelState {
+  repeated GrpcOcelObjectTypeState type_states = 1;
+}
+
+message GrpcOcelObjectTypeState {
+  string type = 1;
+  repeated string object_ids = 2;
 }
 
 message GrpcFloatArray {
@@ -201,6 +228,7 @@ message GrpcComplexContextRequestPipelinePart {
 enum GrpcGraphKind {
   None = 0;
   DAG = 1;
+  DagLCS = 2;
 }
 
 message GrpcGraph {
@@ -255,6 +283,35 @@ message GrpcSoftwareData {
   repeated GrpcGeneralHistogramData histogram_data = 13;
   repeated GrpcSimpleCounterData simple_counter_data = 14;
   repeated GrpcActivityDurationData activities_durations_data = 15;
+  repeated GrpcOcelData ocel_data = 16;
+}
+
+message GrpcOcelObjectTypeData {
+  optional string type = 1;
+}
+
+message GrpcOcelAllocateMerge {
+  optional string type = 1;
+  repeated string merged_objects_ids = 2;
+}
+
+message GrpcOcelProducedObject {
+  string id = 1;
+  optional string type = 2;
+}
+
+message GrpcOcelConsumeProduce {
+  repeated GrpcOcelProducedObject produced_objects = 1;
+}
+
+message GrpcOcelData {
+  string object_id = 1;
+  oneof action {
+    GrpcOcelObjectTypeData allocate = 2;
+    GrpcOcelObjectTypeData consume = 3;
+    GrpcOcelAllocateMerge merged_object_allocation = 4;
+    GrpcOcelConsumeProduce produce_object_consumption = 5;
+  }
 }
 
 message GrpcActivityDurationData {

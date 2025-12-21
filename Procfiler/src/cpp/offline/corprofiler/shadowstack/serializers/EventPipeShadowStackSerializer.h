@@ -4,7 +4,6 @@
 #include "ShadowStackSerializer.h"
 
 class EventPipeShadowStackSerializer : public ShadowStackSerializer {
-private:
     const UINT32 ourMethodStartEventId = 8000;
     const UINT32 ourMethodEndEventId = 8001;
     const UINT32 ourMethodInfoEventId = 8002;
@@ -31,9 +30,9 @@ private:
 
     HRESULT LogFunctionEvent(const FunctionEvent& event,
                              const DWORD& threadId,
-                             std::map<FunctionID, FunctionInfo>& resolvedFunctions);
+                             std::map<FunctionID, FunctionInfo>& resolvedFunctions) const;
 
-    HRESULT LogMethodInfo(const FunctionID& functionId, const FunctionInfo& functionInfo);
+    HRESULT LogMethodInfo(const FunctionID& functionId, const FunctionInfo& functionInfo) const;
 
 
     static HRESULT DefineMethodStartOrEndEventInternal(const wstring& eventName,

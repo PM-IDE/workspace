@@ -14,6 +14,7 @@ private:
     std::vector<TypeInfo> myGenerics{};
 
     bool myIsRefType = false;
+    bool myIsClass = false;
     BYTE myTypeDef = 0;
     bool myIsBoxed = false;
     bool myIsVoid = false;
@@ -25,7 +26,7 @@ private:
 public:
     TypeInfo() : myToken(0), myName(""_W) {}
 
-    TypeInfo(mdToken id, wstring name, const std::vector<BYTE>& raw) : myToken(id), myName(std::move(name)), myRaw(raw) {}
+    TypeInfo(const mdToken id, wstring name, const std::vector<BYTE>& raw) : myToken(id), myName(std::move(name)), myRaw(raw) {}
 
     TypeInfo(const std::vector<BYTE>& raw);
 
@@ -33,20 +34,21 @@ public:
 
     static TypeInfo GetTypeInfo(IMetaDataImport2* metadataImport, mdToken token);
 
-    mdToken GetToken();
+    mdToken GetToken() const;
     wstring GetName();
     std::vector<BYTE> GetRawInfo();
     std::vector<TypeInfo> GetGenerics();
 
-    bool IsRefType();
+    bool IsRefType() const;
     void SetRefType(bool isRefType);
+    bool IsClass() const;
 
-    bool IsBoxed();
-    bool IsVoid();
+    bool IsBoxed() const;
+    bool IsVoid() const;
 
-    bool IsGenericClassRef();
-    bool IsGenericMethodRef();
+    bool IsGenericClassRef() const;
+    bool IsGenericMethodRef() const;
 
-    BYTE GetTypeDef();
-    ULONG GetGenericRefNumber();
+    BYTE GetTypeDef() const;
+    ULONG GetGenericRefNumber() const;
 };

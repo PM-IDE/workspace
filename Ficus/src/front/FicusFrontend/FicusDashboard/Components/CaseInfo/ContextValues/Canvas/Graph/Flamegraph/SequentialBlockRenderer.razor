@@ -1,0 +1,22 @@
+﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Node
+
+
+<div style="@Context.MinMainDim: @(FlamegraphConstants.MainDimPx)px; display: flex; flex-direction: @Context.MainFlexDirection;">
+  @foreach (var (index, node) in Block.NodesSequence.Index())
+  {
+    <NodeRenderer Context="Context" MainDim="Block.CalculateMainDim()" Node="@node" />
+
+    @if (index >= Block.NodesSequence.Count - 1) continue;
+
+    var enhancedEdge = Context.GetEnhancedEdge(node, Block.NodesSequence[index + 1]);
+
+    var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
+    <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="@enhancedEdge" Context="Context"/>
+  }
+</div>
+
+@code {
+  [Parameter] public required SequentialBasicBlock Block { get; init; }
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+}

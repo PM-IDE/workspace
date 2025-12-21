@@ -2,7 +2,7 @@
 
 public class KnownSolution
 {
-  private const string TargetFramework = "net9.0";
+  private const string TargetFramework = "net10.0";
 
   public static KnownSolution ConsoleApp1 { get; } = new("ConsoleApp1");
   public static KnownSolution TaskTestProject1 { get; } = new("TaskTestProject1");
@@ -27,6 +27,8 @@ public class KnownSolution
   public static KnownSolution AsyncDisposable { get; } = new("AsyncDisposable");
   public static KnownSolution ProcfilerEventPipeLogger { get; } = new("ProcfilerEventPipeLogger");
   public static KnownSolution Ocel { get; } = new("Ocel");
+  public static KnownSolution Ocel2 { get; } = new("Ocel2");
+  public static KnownSolution OcelWithIfs { get; } = new("OcelWithIfs");
 
 
   public static IEnumerable<KnownSolution> AllSolutions { get; } =

@@ -141,7 +141,10 @@ public class OnlyKnownEventsFilterer : IEventsFilter
 
     TraceEventsConstants.BusinessEvent,
 
-    TraceEventsConstants.OcelObjectEvent,
+    TraceEventsConstants.OcelObjectAllocated,
+    TraceEventsConstants.OcelConsumeProduce,
+    TraceEventsConstants.OcelObjectConsumed,
+    TraceEventsConstants.OcelMergeAllocate,
     TraceEventsConstants.OcelActivityBegin,
     TraceEventsConstants.OcelActivityEnd,
     TraceEventsConstants.OcelGlobalObjectEvent,
@@ -157,7 +160,7 @@ public class OnlyKnownEventsFilterer : IEventsFilter
     {
       if (ourAllowedEvents.Contains(eventRecord.EventClass)) continue;
 
-      OcelLogger.LogObject(eventRecord, eventRecord.EventClass);
+      OcelLogger.LogObjectAllocated(eventRecord);
       events.Remove(ptr);
     }
   }

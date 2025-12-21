@@ -48,6 +48,16 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
 #[derive(Debug, Clone)]
 pub enum GraphKind {
   Dag,
+  DagLCS,
+}
+
+impl GraphKind {
+  pub fn is_dag(&self) -> bool {
+    match self {
+      Self::Dag | Self::DagLCS => true,
+      _ => false,
+    }
+  }
 }
 
 #[derive(Debug, Getters, Setters)]

@@ -8,26 +8,29 @@ namespace Core.CommandLine;
 
 public static class ParseResultExtensions
 {
-  public static bool HasErrors(this ParseResult parseResult, IProcfilerLogger logger)
+  extension(ParseResult parseResult)
   {
-    var errors = parseResult.Errors;
-    if (errors.Count <= 0) return false;
-
-    foreach (var error in errors)
+    public bool HasErrors(IProcfilerLogger logger)
     {
-      logger.LogError(error.Message);
+      var errors = parseResult.Errors;
+      if (errors.Count <= 0) return false;
+
+      foreach (var error in errors)
+      {
+        logger.LogError(error.Message);
+      }
+
+      return true;
     }
 
-    return true;
-  }
-
-  public static void AssertAllOptionsArePresent(this ParseResult parseResult, IEnumerable<Option> options)
-  {
-    foreach (var option in options)
+    public void AssertAllOptionsArePresent(IEnumerable<Option> options)
     {
-      if (!parseResult.HasOption(option))
+      foreach (var option in options)
       {
-        throw new MissingOptionException(option);
+        if (!parseResult.HasOption(option))
+        {
+          throw new MissingOptionException(option);
+        }
       }
     }
   }

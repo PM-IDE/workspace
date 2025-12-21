@@ -1,0 +1,111 @@
+﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+
+@{
+  var minWidth = @SpecifyMinWidth ? $"{Context.MinMainDim}: 100%" : string.Empty;
+}
+
+<div style="display: flex; flex-direction: @Context.MainFlexDirection; @minWidth; @Context.MainDim: fit-content;">
+  @switch (Block)
+  {
+    case HorizontalCompositeBlock:
+    {
+      <div style="display: flex; flex-direction: @Context.MainFlexDirection;">
+        @foreach (var (index, block) in Block.InnerBlocks.Index())
+        {
+          @RenderBlock(block)
+
+          if (index < Block.InnerBlocks.Count - 1 &&
+              block is not VerticalCompositeBlock &&
+              Block.InnerBlocks[index + 1] is HorizontalCompositeBlock or SequentialBasicBlock)
+          {
+            EnhancedEdge? edge = null;
+            if (block.GetLastNode() is { } lastNode && Block.InnerBlocks[index + 1].GetFirstNode() is { } nextNode)
+            {
+              edge = Context.GetEnhancedEdge(lastNode, nextNode);
+            }
+
+            var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
+            <EdgeRenderer Height="@edgeHeight" Width="@edgeWidth" EnhancedEdge="edge" Context="Context"></EdgeRenderer>
+          }
+        }
+      </div>
+
+      break;
+    }
+    case VerticalCompositeBlock verticalBlock:
+    {
+      <div style="display: flex; flex-direction: @Context.SecondFlexDirection;">
+        @foreach (var block in Block.InnerBlocks)
+        {
+          switch (block)
+          {
+            case EdgeBlock edgeBlock:
+              var enhancedEdge = Context.GetEnhancedEdge(edgeBlock.FromNode, edgeBlock.ToNode);
+
+              var (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, $"{FlamegraphConstants.MainDimPx * block.CalculateMainDim()}px");
+              <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@enhancedEdge" Context="Context"/>
+
+              break;
+            case SeparatorBlock:
+              <div style="@Context.MainDim: @(FlamegraphConstants.MainDimPx * block.CalculateMainDim())px;"
+                   class="flamegraph-separator-edge">
+              </div>
+
+              break;
+            case CompositeBlockBase compositeBlock:
+            {
+              EnhancedEdge? edge;
+
+              <div style="display: flex; flex-direction: @Context.MainFlexDirection;">
+                @if (compositeBlock is HorizontalCompositeBlock { InnerBlocks: { Count: > 0 } items } horizontalBlock &&
+                     items[0] is not VerticalCompositeBlock)
+                {
+                  edge = null;
+                  if (horizontalBlock.GetFirstNode() is { } firstNode)
+                  {
+                    edge = Context.GetEnhancedEdge(verticalBlock.FromNode, firstNode);
+                  }
+
+                  (edgeWidth, edgeHeight) = Context.AdjustWidthAndHeight(null, "100%");
+                  <EdgeRenderer Width="@edgeWidth" Height="@edgeHeight" EnhancedEdge="@edge" Context="Context"/>
+                }
+
+                @RenderBlock(block)
+
+                @{
+                  edge = null;
+                  if (block.GetLastNode() is { } lastNode)
+                  {
+                    edge = Context.GetEnhancedEdge(lastNode, verticalBlock.ToNode);
+                  }
+                }
+
+                <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidthPx)px;">
+                  <EdgeRenderer Width="100%" Height="100%" EnhancedEdge="@edge" Context="Context"/>
+                </div>
+              </div>
+
+              break;
+            }
+          }
+        }
+      </div>
+      break;
+    }
+  }
+</div>
+
+@code {
+  [Parameter] public required CompositeBlockBase Block { get; init; }
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public bool SpecifyMinWidth { get; init; } = true;
+
+  private RenderFragment RenderBlock(BasicBlock block) => block switch
+  {
+    CompositeBlockBase compositeBlock => @<CompositeBlockRenderer Block="compositeBlock" Context="Context"/>,
+    SequentialBasicBlock sequentialBasicBlock => @<SequentialBlockRenderer Block="sequentialBasicBlock"
+                                                                           Context="Context"/>,
+    _ => throw new ArgumentOutOfRangeException(nameof(block))
+  };
+
+}

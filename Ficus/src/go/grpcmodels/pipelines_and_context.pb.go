@@ -25,8 +25,9 @@ const (
 type GrpcGraphKind int32
 
 const (
-	GrpcGraphKind_None GrpcGraphKind = 0
-	GrpcGraphKind_DAG  GrpcGraphKind = 1
+	GrpcGraphKind_None   GrpcGraphKind = 0
+	GrpcGraphKind_DAG    GrpcGraphKind = 1
+	GrpcGraphKind_DagLCS GrpcGraphKind = 2
 )
 
 // Enum value maps for GrpcGraphKind.
@@ -34,10 +35,12 @@ var (
 	GrpcGraphKind_name = map[int32]string{
 		0: "None",
 		1: "DAG",
+		2: "DagLCS",
 	}
 	GrpcGraphKind_value = map[string]int32{
-		"None": 0,
-		"DAG":  1,
+		"None":   0,
+		"DAG":    1,
+		"DagLCS": 2,
 	}
 )
 
@@ -319,6 +322,7 @@ type GrpcContextValue struct {
 	//	*GrpcContextValue_UintArray
 	//	*GrpcContextValue_Json
 	//	*GrpcContextValue_EventLog
+	//	*GrpcContextValue_OcelAnnotation
 	ContextValue  isGrpcContextValue_ContextValue `protobuf_oneof:"contextValue"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -595,6 +599,15 @@ func (x *GrpcContextValue) GetEventLog() *GrpcSimpleEventLog {
 	return nil
 }
 
+func (x *GrpcContextValue) GetOcelAnnotation() *GrpcOcelModelAnnotation {
+	if x != nil {
+		if x, ok := x.ContextValue.(*GrpcContextValue_OcelAnnotation); ok {
+			return x.OcelAnnotation
+		}
+	}
+	return nil
+}
+
 type isGrpcContextValue_ContextValue interface {
 	isGrpcContextValue_ContextValue()
 }
@@ -703,6 +716,10 @@ type GrpcContextValue_EventLog struct {
 	EventLog *GrpcSimpleEventLog `protobuf:"bytes,26,opt,name=event_log,json=eventLog,proto3,oneof"`
 }
 
+type GrpcContextValue_OcelAnnotation struct {
+	OcelAnnotation *GrpcOcelModelAnnotation `protobuf:"bytes,27,opt,name=ocel_annotation,json=ocelAnnotation,proto3,oneof"`
+}
+
 func (*GrpcContextValue_String_) isGrpcContextValue_ContextValue() {}
 
 func (*GrpcContextValue_HashesLog) isGrpcContextValue_ContextValue() {}
@@ -755,6 +772,276 @@ func (*GrpcContextValue_Json) isGrpcContextValue_ContextValue() {}
 
 func (*GrpcContextValue_EventLog) isGrpcContextValue_ContextValue() {}
 
+func (*GrpcContextValue_OcelAnnotation) isGrpcContextValue_ContextValue() {}
+
+type GrpcOcelModelAnnotation struct {
+	state         protoimpl.MessageState            `protogen:"open.v1"`
+	Annotations   []*GrpcModelElementOcelAnnotation `protobuf:"bytes,1,rep,name=annotations,proto3" json:"annotations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcOcelModelAnnotation) Reset() {
+	*x = GrpcOcelModelAnnotation{}
+	mi := &file_pipelines_and_context_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelModelAnnotation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelModelAnnotation) ProtoMessage() {}
+
+func (x *GrpcOcelModelAnnotation) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelModelAnnotation.ProtoReflect.Descriptor instead.
+func (*GrpcOcelModelAnnotation) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GrpcOcelModelAnnotation) GetAnnotations() []*GrpcModelElementOcelAnnotation {
+	if x != nil {
+		return x.Annotations
+	}
+	return nil
+}
+
+type GrpcModelElementOcelAnnotation struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	ElementId     uint64                         `protobuf:"varint,1,opt,name=element_id,json=elementId,proto3" json:"element_id,omitempty"`
+	InitialState  *GrpcOcelState                 `protobuf:"bytes,2,opt,name=initial_state,json=initialState,proto3,oneof" json:"initial_state,omitempty"`
+	FinalState    *GrpcOcelState                 `protobuf:"bytes,3,opt,name=final_state,json=finalState,proto3" json:"final_state,omitempty"`
+	Relations     []*GrpcOcelStateObjectRelation `protobuf:"bytes,4,rep,name=relations,proto3" json:"relations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcModelElementOcelAnnotation) Reset() {
+	*x = GrpcModelElementOcelAnnotation{}
+	mi := &file_pipelines_and_context_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcModelElementOcelAnnotation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcModelElementOcelAnnotation) ProtoMessage() {}
+
+func (x *GrpcModelElementOcelAnnotation) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcModelElementOcelAnnotation.ProtoReflect.Descriptor instead.
+func (*GrpcModelElementOcelAnnotation) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GrpcModelElementOcelAnnotation) GetElementId() uint64 {
+	if x != nil {
+		return x.ElementId
+	}
+	return 0
+}
+
+func (x *GrpcModelElementOcelAnnotation) GetInitialState() *GrpcOcelState {
+	if x != nil {
+		return x.InitialState
+	}
+	return nil
+}
+
+func (x *GrpcModelElementOcelAnnotation) GetFinalState() *GrpcOcelState {
+	if x != nil {
+		return x.FinalState
+	}
+	return nil
+}
+
+func (x *GrpcModelElementOcelAnnotation) GetRelations() []*GrpcOcelStateObjectRelation {
+	if x != nil {
+		return x.Relations
+	}
+	return nil
+}
+
+type GrpcOcelStateObjectRelation struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	ObjectId          string                 `protobuf:"bytes,1,opt,name=object_id,json=objectId,proto3" json:"object_id,omitempty"`
+	ElementId         uint64                 `protobuf:"varint,2,opt,name=element_id,json=elementId,proto3" json:"element_id,omitempty"`
+	RelatedObjectsIds []string               `protobuf:"bytes,3,rep,name=related_objects_ids,json=relatedObjectsIds,proto3" json:"related_objects_ids,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GrpcOcelStateObjectRelation) Reset() {
+	*x = GrpcOcelStateObjectRelation{}
+	mi := &file_pipelines_and_context_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelStateObjectRelation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelStateObjectRelation) ProtoMessage() {}
+
+func (x *GrpcOcelStateObjectRelation) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelStateObjectRelation.ProtoReflect.Descriptor instead.
+func (*GrpcOcelStateObjectRelation) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GrpcOcelStateObjectRelation) GetObjectId() string {
+	if x != nil {
+		return x.ObjectId
+	}
+	return ""
+}
+
+func (x *GrpcOcelStateObjectRelation) GetElementId() uint64 {
+	if x != nil {
+		return x.ElementId
+	}
+	return 0
+}
+
+func (x *GrpcOcelStateObjectRelation) GetRelatedObjectsIds() []string {
+	if x != nil {
+		return x.RelatedObjectsIds
+	}
+	return nil
+}
+
+type GrpcOcelState struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	TypeStates    []*GrpcOcelObjectTypeState `protobuf:"bytes,1,rep,name=type_states,json=typeStates,proto3" json:"type_states,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcOcelState) Reset() {
+	*x = GrpcOcelState{}
+	mi := &file_pipelines_and_context_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelState) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelState) ProtoMessage() {}
+
+func (x *GrpcOcelState) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelState.ProtoReflect.Descriptor instead.
+func (*GrpcOcelState) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GrpcOcelState) GetTypeStates() []*GrpcOcelObjectTypeState {
+	if x != nil {
+		return x.TypeStates
+	}
+	return nil
+}
+
+type GrpcOcelObjectTypeState struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	ObjectIds     []string               `protobuf:"bytes,2,rep,name=object_ids,json=objectIds,proto3" json:"object_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcOcelObjectTypeState) Reset() {
+	*x = GrpcOcelObjectTypeState{}
+	mi := &file_pipelines_and_context_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelObjectTypeState) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelObjectTypeState) ProtoMessage() {}
+
+func (x *GrpcOcelObjectTypeState) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelObjectTypeState.ProtoReflect.Descriptor instead.
+func (*GrpcOcelObjectTypeState) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GrpcOcelObjectTypeState) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *GrpcOcelObjectTypeState) GetObjectIds() []string {
+	if x != nil {
+		return x.ObjectIds
+	}
+	return nil
+}
+
 type GrpcFloatArray struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []float64              `protobuf:"fixed64,1,rep,packed,name=items,proto3" json:"items,omitempty"`
@@ -764,7 +1051,7 @@ type GrpcFloatArray struct {
 
 func (x *GrpcFloatArray) Reset() {
 	*x = GrpcFloatArray{}
-	mi := &file_pipelines_and_context_proto_msgTypes[3]
+	mi := &file_pipelines_and_context_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -776,7 +1063,7 @@ func (x *GrpcFloatArray) String() string {
 func (*GrpcFloatArray) ProtoMessage() {}
 
 func (x *GrpcFloatArray) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[3]
+	mi := &file_pipelines_and_context_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -789,7 +1076,7 @@ func (x *GrpcFloatArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcFloatArray.ProtoReflect.Descriptor instead.
 func (*GrpcFloatArray) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{3}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GrpcFloatArray) GetItems() []float64 {
@@ -808,7 +1095,7 @@ type GrpcIntArray struct {
 
 func (x *GrpcIntArray) Reset() {
 	*x = GrpcIntArray{}
-	mi := &file_pipelines_and_context_proto_msgTypes[4]
+	mi := &file_pipelines_and_context_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -820,7 +1107,7 @@ func (x *GrpcIntArray) String() string {
 func (*GrpcIntArray) ProtoMessage() {}
 
 func (x *GrpcIntArray) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[4]
+	mi := &file_pipelines_and_context_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -833,7 +1120,7 @@ func (x *GrpcIntArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcIntArray.ProtoReflect.Descriptor instead.
 func (*GrpcIntArray) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{4}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GrpcIntArray) GetItems() []int64 {
@@ -852,7 +1139,7 @@ type GrpcUintArray struct {
 
 func (x *GrpcUintArray) Reset() {
 	*x = GrpcUintArray{}
-	mi := &file_pipelines_and_context_proto_msgTypes[5]
+	mi := &file_pipelines_and_context_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -864,7 +1151,7 @@ func (x *GrpcUintArray) String() string {
 func (*GrpcUintArray) ProtoMessage() {}
 
 func (x *GrpcUintArray) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[5]
+	mi := &file_pipelines_and_context_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -877,7 +1164,7 @@ func (x *GrpcUintArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcUintArray.ProtoReflect.Descriptor instead.
 func (*GrpcUintArray) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{5}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GrpcUintArray) GetItems() []uint64 {
@@ -897,7 +1184,7 @@ type GrpcContextKeyValue struct {
 
 func (x *GrpcContextKeyValue) Reset() {
 	*x = GrpcContextKeyValue{}
-	mi := &file_pipelines_and_context_proto_msgTypes[6]
+	mi := &file_pipelines_and_context_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -909,7 +1196,7 @@ func (x *GrpcContextKeyValue) String() string {
 func (*GrpcContextKeyValue) ProtoMessage() {}
 
 func (x *GrpcContextKeyValue) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[6]
+	mi := &file_pipelines_and_context_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -922,7 +1209,7 @@ func (x *GrpcContextKeyValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcContextKeyValue.ProtoReflect.Descriptor instead.
 func (*GrpcContextKeyValue) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{6}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GrpcContextKeyValue) GetKey() *GrpcContextKey {
@@ -948,7 +1235,7 @@ type GrpcHashesEventLogContextValue struct {
 
 func (x *GrpcHashesEventLogContextValue) Reset() {
 	*x = GrpcHashesEventLogContextValue{}
-	mi := &file_pipelines_and_context_proto_msgTypes[7]
+	mi := &file_pipelines_and_context_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -960,7 +1247,7 @@ func (x *GrpcHashesEventLogContextValue) String() string {
 func (*GrpcHashesEventLogContextValue) ProtoMessage() {}
 
 func (x *GrpcHashesEventLogContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[7]
+	mi := &file_pipelines_and_context_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -973,7 +1260,7 @@ func (x *GrpcHashesEventLogContextValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcHashesEventLogContextValue.ProtoReflect.Descriptor instead.
 func (*GrpcHashesEventLogContextValue) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{7}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GrpcHashesEventLogContextValue) GetLog() *GrpcHashesEventLog {
@@ -992,7 +1279,7 @@ type GrpcNamesEventLogContextValue struct {
 
 func (x *GrpcNamesEventLogContextValue) Reset() {
 	*x = GrpcNamesEventLogContextValue{}
-	mi := &file_pipelines_and_context_proto_msgTypes[8]
+	mi := &file_pipelines_and_context_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1004,7 +1291,7 @@ func (x *GrpcNamesEventLogContextValue) String() string {
 func (*GrpcNamesEventLogContextValue) ProtoMessage() {}
 
 func (x *GrpcNamesEventLogContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[8]
+	mi := &file_pipelines_and_context_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1017,7 +1304,7 @@ func (x *GrpcNamesEventLogContextValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcNamesEventLogContextValue.ProtoReflect.Descriptor instead.
 func (*GrpcNamesEventLogContextValue) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{8}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GrpcNamesEventLogContextValue) GetLog() *GrpcNamesEventLog {
@@ -1036,7 +1323,7 @@ type GrpcEventLogTraceSubArraysContextValue struct {
 
 func (x *GrpcEventLogTraceSubArraysContextValue) Reset() {
 	*x = GrpcEventLogTraceSubArraysContextValue{}
-	mi := &file_pipelines_and_context_proto_msgTypes[9]
+	mi := &file_pipelines_and_context_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1048,7 +1335,7 @@ func (x *GrpcEventLogTraceSubArraysContextValue) String() string {
 func (*GrpcEventLogTraceSubArraysContextValue) ProtoMessage() {}
 
 func (x *GrpcEventLogTraceSubArraysContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[9]
+	mi := &file_pipelines_and_context_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1061,7 +1348,7 @@ func (x *GrpcEventLogTraceSubArraysContextValue) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use GrpcEventLogTraceSubArraysContextValue.ProtoReflect.Descriptor instead.
 func (*GrpcEventLogTraceSubArraysContextValue) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{9}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GrpcEventLogTraceSubArraysContextValue) GetTracesSubArrays() []*GrpcTraceSubArrays {
@@ -1081,7 +1368,7 @@ type GrpcTraceSubArray struct {
 
 func (x *GrpcTraceSubArray) Reset() {
 	*x = GrpcTraceSubArray{}
-	mi := &file_pipelines_and_context_proto_msgTypes[10]
+	mi := &file_pipelines_and_context_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1093,7 +1380,7 @@ func (x *GrpcTraceSubArray) String() string {
 func (*GrpcTraceSubArray) ProtoMessage() {}
 
 func (x *GrpcTraceSubArray) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[10]
+	mi := &file_pipelines_and_context_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1106,7 +1393,7 @@ func (x *GrpcTraceSubArray) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcTraceSubArray.ProtoReflect.Descriptor instead.
 func (*GrpcTraceSubArray) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{10}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GrpcTraceSubArray) GetStart() uint32 {
@@ -1132,7 +1419,7 @@ type GrpcTraceSubArrays struct {
 
 func (x *GrpcTraceSubArrays) Reset() {
 	*x = GrpcTraceSubArrays{}
-	mi := &file_pipelines_and_context_proto_msgTypes[11]
+	mi := &file_pipelines_and_context_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1144,7 +1431,7 @@ func (x *GrpcTraceSubArrays) String() string {
 func (*GrpcTraceSubArrays) ProtoMessage() {}
 
 func (x *GrpcTraceSubArrays) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[11]
+	mi := &file_pipelines_and_context_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1157,7 +1444,7 @@ func (x *GrpcTraceSubArrays) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcTraceSubArrays.ProtoReflect.Descriptor instead.
 func (*GrpcTraceSubArrays) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{11}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GrpcTraceSubArrays) GetSubArrays() []*GrpcTraceSubArray {
@@ -1177,7 +1464,7 @@ type GrpcSubArrayWithTraceIndex struct {
 
 func (x *GrpcSubArrayWithTraceIndex) Reset() {
 	*x = GrpcSubArrayWithTraceIndex{}
-	mi := &file_pipelines_and_context_proto_msgTypes[12]
+	mi := &file_pipelines_and_context_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1189,7 +1476,7 @@ func (x *GrpcSubArrayWithTraceIndex) String() string {
 func (*GrpcSubArrayWithTraceIndex) ProtoMessage() {}
 
 func (x *GrpcSubArrayWithTraceIndex) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[12]
+	mi := &file_pipelines_and_context_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1202,7 +1489,7 @@ func (x *GrpcSubArrayWithTraceIndex) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcSubArrayWithTraceIndex.ProtoReflect.Descriptor instead.
 func (*GrpcSubArrayWithTraceIndex) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{12}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GrpcSubArrayWithTraceIndex) GetSubArray() *GrpcTraceSubArray {
@@ -1228,7 +1515,7 @@ type GrpcSubArraysWithTraceIndexContextValue struct {
 
 func (x *GrpcSubArraysWithTraceIndexContextValue) Reset() {
 	*x = GrpcSubArraysWithTraceIndexContextValue{}
-	mi := &file_pipelines_and_context_proto_msgTypes[13]
+	mi := &file_pipelines_and_context_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1240,7 +1527,7 @@ func (x *GrpcSubArraysWithTraceIndexContextValue) String() string {
 func (*GrpcSubArraysWithTraceIndexContextValue) ProtoMessage() {}
 
 func (x *GrpcSubArraysWithTraceIndexContextValue) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[13]
+	mi := &file_pipelines_and_context_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1253,7 +1540,7 @@ func (x *GrpcSubArraysWithTraceIndexContextValue) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GrpcSubArraysWithTraceIndexContextValue.ProtoReflect.Descriptor instead.
 func (*GrpcSubArraysWithTraceIndexContextValue) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{13}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GrpcSubArraysWithTraceIndexContextValue) GetSubArrays() []*GrpcSubArrayWithTraceIndex {
@@ -1274,7 +1561,7 @@ type GrpcColorsEventLog struct {
 
 func (x *GrpcColorsEventLog) Reset() {
 	*x = GrpcColorsEventLog{}
-	mi := &file_pipelines_and_context_proto_msgTypes[14]
+	mi := &file_pipelines_and_context_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1286,7 +1573,7 @@ func (x *GrpcColorsEventLog) String() string {
 func (*GrpcColorsEventLog) ProtoMessage() {}
 
 func (x *GrpcColorsEventLog) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[14]
+	mi := &file_pipelines_and_context_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1299,7 +1586,7 @@ func (x *GrpcColorsEventLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcColorsEventLog.ProtoReflect.Descriptor instead.
 func (*GrpcColorsEventLog) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{14}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GrpcColorsEventLog) GetMapping() []*GrpcColorsEventLogMapping {
@@ -1336,7 +1623,7 @@ type GrpcColorsLogAdjustment struct {
 
 func (x *GrpcColorsLogAdjustment) Reset() {
 	*x = GrpcColorsLogAdjustment{}
-	mi := &file_pipelines_and_context_proto_msgTypes[15]
+	mi := &file_pipelines_and_context_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1348,7 +1635,7 @@ func (x *GrpcColorsLogAdjustment) String() string {
 func (*GrpcColorsLogAdjustment) ProtoMessage() {}
 
 func (x *GrpcColorsLogAdjustment) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[15]
+	mi := &file_pipelines_and_context_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1361,7 +1648,7 @@ func (x *GrpcColorsLogAdjustment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcColorsLogAdjustment.ProtoReflect.Descriptor instead.
 func (*GrpcColorsLogAdjustment) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{15}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GrpcColorsLogAdjustment) GetSelection() isGrpcColorsLogAdjustment_Selection {
@@ -1416,7 +1703,7 @@ type GrpcColorsLogRectangleAdjustment struct {
 
 func (x *GrpcColorsLogRectangleAdjustment) Reset() {
 	*x = GrpcColorsLogRectangleAdjustment{}
-	mi := &file_pipelines_and_context_proto_msgTypes[16]
+	mi := &file_pipelines_and_context_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1428,7 +1715,7 @@ func (x *GrpcColorsLogRectangleAdjustment) String() string {
 func (*GrpcColorsLogRectangleAdjustment) ProtoMessage() {}
 
 func (x *GrpcColorsLogRectangleAdjustment) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[16]
+	mi := &file_pipelines_and_context_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1441,7 +1728,7 @@ func (x *GrpcColorsLogRectangleAdjustment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcColorsLogRectangleAdjustment.ProtoReflect.Descriptor instead.
 func (*GrpcColorsLogRectangleAdjustment) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{16}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GrpcColorsLogRectangleAdjustment) GetUpLeftPoint() *GrpcLogPoint {
@@ -1475,7 +1762,7 @@ type GrpcLogPoint struct {
 
 func (x *GrpcLogPoint) Reset() {
 	*x = GrpcLogPoint{}
-	mi := &file_pipelines_and_context_proto_msgTypes[17]
+	mi := &file_pipelines_and_context_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1487,7 +1774,7 @@ func (x *GrpcLogPoint) String() string {
 func (*GrpcLogPoint) ProtoMessage() {}
 
 func (x *GrpcLogPoint) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[17]
+	mi := &file_pipelines_and_context_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1500,7 +1787,7 @@ func (x *GrpcLogPoint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcLogPoint.ProtoReflect.Descriptor instead.
 func (*GrpcLogPoint) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{17}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GrpcLogPoint) GetTraceIndex() uint64 {
@@ -1526,7 +1813,7 @@ type GrpcColorsLogXAxisAfterTraceAdjustment struct {
 
 func (x *GrpcColorsLogXAxisAfterTraceAdjustment) Reset() {
 	*x = GrpcColorsLogXAxisAfterTraceAdjustment{}
-	mi := &file_pipelines_and_context_proto_msgTypes[18]
+	mi := &file_pipelines_and_context_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1538,7 +1825,7 @@ func (x *GrpcColorsLogXAxisAfterTraceAdjustment) String() string {
 func (*GrpcColorsLogXAxisAfterTraceAdjustment) ProtoMessage() {}
 
 func (x *GrpcColorsLogXAxisAfterTraceAdjustment) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[18]
+	mi := &file_pipelines_and_context_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1551,7 +1838,7 @@ func (x *GrpcColorsLogXAxisAfterTraceAdjustment) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use GrpcColorsLogXAxisAfterTraceAdjustment.ProtoReflect.Descriptor instead.
 func (*GrpcColorsLogXAxisAfterTraceAdjustment) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{18}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GrpcColorsLogXAxisAfterTraceAdjustment) GetTraceIndex() uint64 {
@@ -1571,7 +1858,7 @@ type GrpcColorsEventLogMapping struct {
 
 func (x *GrpcColorsEventLogMapping) Reset() {
 	*x = GrpcColorsEventLogMapping{}
-	mi := &file_pipelines_and_context_proto_msgTypes[19]
+	mi := &file_pipelines_and_context_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1583,7 +1870,7 @@ func (x *GrpcColorsEventLogMapping) String() string {
 func (*GrpcColorsEventLogMapping) ProtoMessage() {}
 
 func (x *GrpcColorsEventLogMapping) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[19]
+	mi := &file_pipelines_and_context_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1596,7 +1883,7 @@ func (x *GrpcColorsEventLogMapping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcColorsEventLogMapping.ProtoReflect.Descriptor instead.
 func (*GrpcColorsEventLogMapping) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{19}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GrpcColorsEventLogMapping) GetName() string {
@@ -1623,7 +1910,7 @@ type GrpcColorsTrace struct {
 
 func (x *GrpcColorsTrace) Reset() {
 	*x = GrpcColorsTrace{}
-	mi := &file_pipelines_and_context_proto_msgTypes[20]
+	mi := &file_pipelines_and_context_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1635,7 +1922,7 @@ func (x *GrpcColorsTrace) String() string {
 func (*GrpcColorsTrace) ProtoMessage() {}
 
 func (x *GrpcColorsTrace) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[20]
+	mi := &file_pipelines_and_context_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1648,7 +1935,7 @@ func (x *GrpcColorsTrace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcColorsTrace.ProtoReflect.Descriptor instead.
 func (*GrpcColorsTrace) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{20}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GrpcColorsTrace) GetEventColors() []*GrpcColoredRectangle {
@@ -1676,7 +1963,7 @@ type GrpcColoredRectangle struct {
 
 func (x *GrpcColoredRectangle) Reset() {
 	*x = GrpcColoredRectangle{}
-	mi := &file_pipelines_and_context_proto_msgTypes[21]
+	mi := &file_pipelines_and_context_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1688,7 +1975,7 @@ func (x *GrpcColoredRectangle) String() string {
 func (*GrpcColoredRectangle) ProtoMessage() {}
 
 func (x *GrpcColoredRectangle) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[21]
+	mi := &file_pipelines_and_context_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1701,7 +1988,7 @@ func (x *GrpcColoredRectangle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcColoredRectangle.ProtoReflect.Descriptor instead.
 func (*GrpcColoredRectangle) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{21}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GrpcColoredRectangle) GetColorIndex() uint32 {
@@ -1735,7 +2022,7 @@ type GrpcEnum struct {
 
 func (x *GrpcEnum) Reset() {
 	*x = GrpcEnum{}
-	mi := &file_pipelines_and_context_proto_msgTypes[22]
+	mi := &file_pipelines_and_context_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1747,7 +2034,7 @@ func (x *GrpcEnum) String() string {
 func (*GrpcEnum) ProtoMessage() {}
 
 func (x *GrpcEnum) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[22]
+	mi := &file_pipelines_and_context_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1760,7 +2047,7 @@ func (x *GrpcEnum) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcEnum.ProtoReflect.Descriptor instead.
 func (*GrpcEnum) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{22}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GrpcEnum) GetEnumType() string {
@@ -1788,7 +2075,7 @@ type GrpcEventLogInfo struct {
 
 func (x *GrpcEventLogInfo) Reset() {
 	*x = GrpcEventLogInfo{}
-	mi := &file_pipelines_and_context_proto_msgTypes[23]
+	mi := &file_pipelines_and_context_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1800,7 +2087,7 @@ func (x *GrpcEventLogInfo) String() string {
 func (*GrpcEventLogInfo) ProtoMessage() {}
 
 func (x *GrpcEventLogInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[23]
+	mi := &file_pipelines_and_context_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1813,7 +2100,7 @@ func (x *GrpcEventLogInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcEventLogInfo.ProtoReflect.Descriptor instead.
 func (*GrpcEventLogInfo) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{23}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GrpcEventLogInfo) GetEventsCount() uint32 {
@@ -1846,7 +2133,7 @@ type GrpcStrings struct {
 
 func (x *GrpcStrings) Reset() {
 	*x = GrpcStrings{}
-	mi := &file_pipelines_and_context_proto_msgTypes[24]
+	mi := &file_pipelines_and_context_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1858,7 +2145,7 @@ func (x *GrpcStrings) String() string {
 func (*GrpcStrings) ProtoMessage() {}
 
 func (x *GrpcStrings) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[24]
+	mi := &file_pipelines_and_context_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1871,7 +2158,7 @@ func (x *GrpcStrings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcStrings.ProtoReflect.Descriptor instead.
 func (*GrpcStrings) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{24}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GrpcStrings) GetStrings() []string {
@@ -1890,7 +2177,7 @@ type GrpcPipeline struct {
 
 func (x *GrpcPipeline) Reset() {
 	*x = GrpcPipeline{}
-	mi := &file_pipelines_and_context_proto_msgTypes[25]
+	mi := &file_pipelines_and_context_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1902,7 +2189,7 @@ func (x *GrpcPipeline) String() string {
 func (*GrpcPipeline) ProtoMessage() {}
 
 func (x *GrpcPipeline) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[25]
+	mi := &file_pipelines_and_context_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1915,7 +2202,7 @@ func (x *GrpcPipeline) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipeline.ProtoReflect.Descriptor instead.
 func (*GrpcPipeline) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{25}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GrpcPipeline) GetParts() []*GrpcPipelinePartBase {
@@ -1940,7 +2227,7 @@ type GrpcPipelinePartBase struct {
 
 func (x *GrpcPipelinePartBase) Reset() {
 	*x = GrpcPipelinePartBase{}
-	mi := &file_pipelines_and_context_proto_msgTypes[26]
+	mi := &file_pipelines_and_context_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1952,7 +2239,7 @@ func (x *GrpcPipelinePartBase) String() string {
 func (*GrpcPipelinePartBase) ProtoMessage() {}
 
 func (x *GrpcPipelinePartBase) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[26]
+	mi := &file_pipelines_and_context_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1965,7 +2252,7 @@ func (x *GrpcPipelinePartBase) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelinePartBase.ProtoReflect.Descriptor instead.
 func (*GrpcPipelinePartBase) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{26}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GrpcPipelinePartBase) GetPart() isGrpcPipelinePartBase_Part {
@@ -2049,7 +2336,7 @@ type GrpcPipelinePart struct {
 
 func (x *GrpcPipelinePart) Reset() {
 	*x = GrpcPipelinePart{}
-	mi := &file_pipelines_and_context_proto_msgTypes[27]
+	mi := &file_pipelines_and_context_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2061,7 +2348,7 @@ func (x *GrpcPipelinePart) String() string {
 func (*GrpcPipelinePart) ProtoMessage() {}
 
 func (x *GrpcPipelinePart) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[27]
+	mi := &file_pipelines_and_context_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2074,7 +2361,7 @@ func (x *GrpcPipelinePart) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelinePart.ProtoReflect.Descriptor instead.
 func (*GrpcPipelinePart) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{27}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GrpcPipelinePart) GetName() string {
@@ -2100,7 +2387,7 @@ type GrpcPipelinePartConfiguration struct {
 
 func (x *GrpcPipelinePartConfiguration) Reset() {
 	*x = GrpcPipelinePartConfiguration{}
-	mi := &file_pipelines_and_context_proto_msgTypes[28]
+	mi := &file_pipelines_and_context_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2112,7 +2399,7 @@ func (x *GrpcPipelinePartConfiguration) String() string {
 func (*GrpcPipelinePartConfiguration) ProtoMessage() {}
 
 func (x *GrpcPipelinePartConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[28]
+	mi := &file_pipelines_and_context_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2125,7 +2412,7 @@ func (x *GrpcPipelinePartConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelinePartConfiguration.ProtoReflect.Descriptor instead.
 func (*GrpcPipelinePartConfiguration) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{28}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GrpcPipelinePartConfiguration) GetConfigurationParameters() []*GrpcContextKeyValue {
@@ -2144,7 +2431,7 @@ type GrpcParallelPipelinePart struct {
 
 func (x *GrpcParallelPipelinePart) Reset() {
 	*x = GrpcParallelPipelinePart{}
-	mi := &file_pipelines_and_context_proto_msgTypes[29]
+	mi := &file_pipelines_and_context_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2156,7 +2443,7 @@ func (x *GrpcParallelPipelinePart) String() string {
 func (*GrpcParallelPipelinePart) ProtoMessage() {}
 
 func (x *GrpcParallelPipelinePart) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[29]
+	mi := &file_pipelines_and_context_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2169,7 +2456,7 @@ func (x *GrpcParallelPipelinePart) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcParallelPipelinePart.ProtoReflect.Descriptor instead.
 func (*GrpcParallelPipelinePart) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{29}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GrpcParallelPipelinePart) GetPipelineParts() []*GrpcPipelinePartBase {
@@ -2188,7 +2475,7 @@ type GrpcParallelPipelineParts struct {
 
 func (x *GrpcParallelPipelineParts) Reset() {
 	*x = GrpcParallelPipelineParts{}
-	mi := &file_pipelines_and_context_proto_msgTypes[30]
+	mi := &file_pipelines_and_context_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2200,7 +2487,7 @@ func (x *GrpcParallelPipelineParts) String() string {
 func (*GrpcParallelPipelineParts) ProtoMessage() {}
 
 func (x *GrpcParallelPipelineParts) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[30]
+	mi := &file_pipelines_and_context_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2213,7 +2500,7 @@ func (x *GrpcParallelPipelineParts) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcParallelPipelineParts.ProtoReflect.Descriptor instead.
 func (*GrpcParallelPipelineParts) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{30}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GrpcParallelPipelineParts) GetPipeline() []*GrpcParallelPipelinePart {
@@ -2234,7 +2521,7 @@ type GrpcSimpleContextRequestPipelinePart struct {
 
 func (x *GrpcSimpleContextRequestPipelinePart) Reset() {
 	*x = GrpcSimpleContextRequestPipelinePart{}
-	mi := &file_pipelines_and_context_proto_msgTypes[31]
+	mi := &file_pipelines_and_context_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2246,7 +2533,7 @@ func (x *GrpcSimpleContextRequestPipelinePart) String() string {
 func (*GrpcSimpleContextRequestPipelinePart) ProtoMessage() {}
 
 func (x *GrpcSimpleContextRequestPipelinePart) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[31]
+	mi := &file_pipelines_and_context_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2259,7 +2546,7 @@ func (x *GrpcSimpleContextRequestPipelinePart) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GrpcSimpleContextRequestPipelinePart.ProtoReflect.Descriptor instead.
 func (*GrpcSimpleContextRequestPipelinePart) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{31}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GrpcSimpleContextRequestPipelinePart) GetKey() *GrpcContextKey {
@@ -2295,7 +2582,7 @@ type GrpcComplexContextRequestPipelinePart struct {
 
 func (x *GrpcComplexContextRequestPipelinePart) Reset() {
 	*x = GrpcComplexContextRequestPipelinePart{}
-	mi := &file_pipelines_and_context_proto_msgTypes[32]
+	mi := &file_pipelines_and_context_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2307,7 +2594,7 @@ func (x *GrpcComplexContextRequestPipelinePart) String() string {
 func (*GrpcComplexContextRequestPipelinePart) ProtoMessage() {}
 
 func (x *GrpcComplexContextRequestPipelinePart) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[32]
+	mi := &file_pipelines_and_context_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2320,7 +2607,7 @@ func (x *GrpcComplexContextRequestPipelinePart) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GrpcComplexContextRequestPipelinePart.ProtoReflect.Descriptor instead.
 func (*GrpcComplexContextRequestPipelinePart) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{32}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GrpcComplexContextRequestPipelinePart) GetKeys() []*GrpcContextKey {
@@ -2362,7 +2649,7 @@ type GrpcGraph struct {
 
 func (x *GrpcGraph) Reset() {
 	*x = GrpcGraph{}
-	mi := &file_pipelines_and_context_proto_msgTypes[33]
+	mi := &file_pipelines_and_context_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2374,7 +2661,7 @@ func (x *GrpcGraph) String() string {
 func (*GrpcGraph) ProtoMessage() {}
 
 func (x *GrpcGraph) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[33]
+	mi := &file_pipelines_and_context_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2387,7 +2674,7 @@ func (x *GrpcGraph) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcGraph.ProtoReflect.Descriptor instead.
 func (*GrpcGraph) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{33}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GrpcGraph) GetNodes() []*GrpcGraphNode {
@@ -2423,7 +2710,7 @@ type GrpcGraphNode struct {
 
 func (x *GrpcGraphNode) Reset() {
 	*x = GrpcGraphNode{}
-	mi := &file_pipelines_and_context_proto_msgTypes[34]
+	mi := &file_pipelines_and_context_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2435,7 +2722,7 @@ func (x *GrpcGraphNode) String() string {
 func (*GrpcGraphNode) ProtoMessage() {}
 
 func (x *GrpcGraphNode) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[34]
+	mi := &file_pipelines_and_context_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2448,7 +2735,7 @@ func (x *GrpcGraphNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcGraphNode.ProtoReflect.Descriptor instead.
 func (*GrpcGraphNode) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{34}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GrpcGraphNode) GetId() uint64 {
@@ -2498,7 +2785,7 @@ type GrpcNodeAdditionalData struct {
 
 func (x *GrpcNodeAdditionalData) Reset() {
 	*x = GrpcNodeAdditionalData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[35]
+	mi := &file_pipelines_and_context_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2510,7 +2797,7 @@ func (x *GrpcNodeAdditionalData) String() string {
 func (*GrpcNodeAdditionalData) ProtoMessage() {}
 
 func (x *GrpcNodeAdditionalData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[35]
+	mi := &file_pipelines_and_context_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2523,7 +2810,7 @@ func (x *GrpcNodeAdditionalData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcNodeAdditionalData.ProtoReflect.Descriptor instead.
 func (*GrpcNodeAdditionalData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{35}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *GrpcNodeAdditionalData) GetData() isGrpcNodeAdditionalData_Data {
@@ -2643,7 +2930,7 @@ type GrpcMultithreadedFragment struct {
 
 func (x *GrpcMultithreadedFragment) Reset() {
 	*x = GrpcMultithreadedFragment{}
-	mi := &file_pipelines_and_context_proto_msgTypes[36]
+	mi := &file_pipelines_and_context_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2655,7 +2942,7 @@ func (x *GrpcMultithreadedFragment) String() string {
 func (*GrpcMultithreadedFragment) ProtoMessage() {}
 
 func (x *GrpcMultithreadedFragment) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[36]
+	mi := &file_pipelines_and_context_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2668,7 +2955,7 @@ func (x *GrpcMultithreadedFragment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcMultithreadedFragment.ProtoReflect.Descriptor instead.
 func (*GrpcMultithreadedFragment) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{36}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *GrpcMultithreadedFragment) GetMultithreadedLog() *GrpcSimpleEventLog {
@@ -2688,7 +2975,7 @@ type GrpcActivityStartEndData struct {
 
 func (x *GrpcActivityStartEndData) Reset() {
 	*x = GrpcActivityStartEndData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[37]
+	mi := &file_pipelines_and_context_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2700,7 +2987,7 @@ func (x *GrpcActivityStartEndData) String() string {
 func (*GrpcActivityStartEndData) ProtoMessage() {}
 
 func (x *GrpcActivityStartEndData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[37]
+	mi := &file_pipelines_and_context_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2713,7 +3000,7 @@ func (x *GrpcActivityStartEndData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcActivityStartEndData.ProtoReflect.Descriptor instead.
 func (*GrpcActivityStartEndData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{37}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GrpcActivityStartEndData) GetStartTime() int64 {
@@ -2740,7 +3027,7 @@ type GrpcEventCoordinates struct {
 
 func (x *GrpcEventCoordinates) Reset() {
 	*x = GrpcEventCoordinates{}
-	mi := &file_pipelines_and_context_proto_msgTypes[38]
+	mi := &file_pipelines_and_context_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2752,7 +3039,7 @@ func (x *GrpcEventCoordinates) String() string {
 func (*GrpcEventCoordinates) ProtoMessage() {}
 
 func (x *GrpcEventCoordinates) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[38]
+	mi := &file_pipelines_and_context_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2765,7 +3052,7 @@ func (x *GrpcEventCoordinates) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcEventCoordinates.ProtoReflect.Descriptor instead.
 func (*GrpcEventCoordinates) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{38}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GrpcEventCoordinates) GetTraceId() uint64 {
@@ -2791,7 +3078,7 @@ type GrpcNodeCorrespondingTraceData struct {
 
 func (x *GrpcNodeCorrespondingTraceData) Reset() {
 	*x = GrpcNodeCorrespondingTraceData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[39]
+	mi := &file_pipelines_and_context_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2803,7 +3090,7 @@ func (x *GrpcNodeCorrespondingTraceData) String() string {
 func (*GrpcNodeCorrespondingTraceData) ProtoMessage() {}
 
 func (x *GrpcNodeCorrespondingTraceData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[39]
+	mi := &file_pipelines_and_context_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2816,7 +3103,7 @@ func (x *GrpcNodeCorrespondingTraceData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcNodeCorrespondingTraceData.ProtoReflect.Descriptor instead.
 func (*GrpcNodeCorrespondingTraceData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{39}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *GrpcNodeCorrespondingTraceData) GetBelongsToRootSequence() bool {
@@ -2833,13 +3120,14 @@ type GrpcSoftwareData struct {
 	HistogramData           []*GrpcGeneralHistogramData  `protobuf:"bytes,13,rep,name=histogram_data,json=histogramData,proto3" json:"histogram_data,omitempty"`
 	SimpleCounterData       []*GrpcSimpleCounterData     `protobuf:"bytes,14,rep,name=simple_counter_data,json=simpleCounterData,proto3" json:"simple_counter_data,omitempty"`
 	ActivitiesDurationsData []*GrpcActivityDurationData  `protobuf:"bytes,15,rep,name=activities_durations_data,json=activitiesDurationsData,proto3" json:"activities_durations_data,omitempty"`
+	OcelData                []*GrpcOcelData              `protobuf:"bytes,16,rep,name=ocel_data,json=ocelData,proto3" json:"ocel_data,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
 
 func (x *GrpcSoftwareData) Reset() {
 	*x = GrpcSoftwareData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[40]
+	mi := &file_pipelines_and_context_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2851,7 +3139,7 @@ func (x *GrpcSoftwareData) String() string {
 func (*GrpcSoftwareData) ProtoMessage() {}
 
 func (x *GrpcSoftwareData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[40]
+	mi := &file_pipelines_and_context_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2864,7 +3152,7 @@ func (x *GrpcSoftwareData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcSoftwareData.ProtoReflect.Descriptor instead.
 func (*GrpcSoftwareData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{40}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *GrpcSoftwareData) GetHistogram() []*GrpcHistogramEntry {
@@ -2902,6 +3190,327 @@ func (x *GrpcSoftwareData) GetActivitiesDurationsData() []*GrpcActivityDurationD
 	return nil
 }
 
+func (x *GrpcSoftwareData) GetOcelData() []*GrpcOcelData {
+	if x != nil {
+		return x.OcelData
+	}
+	return nil
+}
+
+type GrpcOcelObjectTypeData struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          *string                `protobuf:"bytes,1,opt,name=type,proto3,oneof" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcOcelObjectTypeData) Reset() {
+	*x = GrpcOcelObjectTypeData{}
+	mi := &file_pipelines_and_context_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelObjectTypeData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelObjectTypeData) ProtoMessage() {}
+
+func (x *GrpcOcelObjectTypeData) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelObjectTypeData.ProtoReflect.Descriptor instead.
+func (*GrpcOcelObjectTypeData) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GrpcOcelObjectTypeData) GetType() string {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return ""
+}
+
+type GrpcOcelAllocateMerge struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Type             *string                `protobuf:"bytes,1,opt,name=type,proto3,oneof" json:"type,omitempty"`
+	MergedObjectsIds []string               `protobuf:"bytes,2,rep,name=merged_objects_ids,json=mergedObjectsIds,proto3" json:"merged_objects_ids,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *GrpcOcelAllocateMerge) Reset() {
+	*x = GrpcOcelAllocateMerge{}
+	mi := &file_pipelines_and_context_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelAllocateMerge) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelAllocateMerge) ProtoMessage() {}
+
+func (x *GrpcOcelAllocateMerge) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelAllocateMerge.ProtoReflect.Descriptor instead.
+func (*GrpcOcelAllocateMerge) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *GrpcOcelAllocateMerge) GetType() string {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return ""
+}
+
+func (x *GrpcOcelAllocateMerge) GetMergedObjectsIds() []string {
+	if x != nil {
+		return x.MergedObjectsIds
+	}
+	return nil
+}
+
+type GrpcOcelProducedObject struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type          *string                `protobuf:"bytes,2,opt,name=type,proto3,oneof" json:"type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcOcelProducedObject) Reset() {
+	*x = GrpcOcelProducedObject{}
+	mi := &file_pipelines_and_context_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelProducedObject) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelProducedObject) ProtoMessage() {}
+
+func (x *GrpcOcelProducedObject) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelProducedObject.ProtoReflect.Descriptor instead.
+func (*GrpcOcelProducedObject) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *GrpcOcelProducedObject) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GrpcOcelProducedObject) GetType() string {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return ""
+}
+
+type GrpcOcelConsumeProduce struct {
+	state           protoimpl.MessageState    `protogen:"open.v1"`
+	ProducedObjects []*GrpcOcelProducedObject `protobuf:"bytes,1,rep,name=produced_objects,json=producedObjects,proto3" json:"produced_objects,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GrpcOcelConsumeProduce) Reset() {
+	*x = GrpcOcelConsumeProduce{}
+	mi := &file_pipelines_and_context_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelConsumeProduce) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelConsumeProduce) ProtoMessage() {}
+
+func (x *GrpcOcelConsumeProduce) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelConsumeProduce.ProtoReflect.Descriptor instead.
+func (*GrpcOcelConsumeProduce) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *GrpcOcelConsumeProduce) GetProducedObjects() []*GrpcOcelProducedObject {
+	if x != nil {
+		return x.ProducedObjects
+	}
+	return nil
+}
+
+type GrpcOcelData struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	ObjectId string                 `protobuf:"bytes,1,opt,name=object_id,json=objectId,proto3" json:"object_id,omitempty"`
+	// Types that are valid to be assigned to Action:
+	//
+	//	*GrpcOcelData_Allocate
+	//	*GrpcOcelData_Consume
+	//	*GrpcOcelData_MergedObjectAllocation
+	//	*GrpcOcelData_ProduceObjectConsumption
+	Action        isGrpcOcelData_Action `protobuf_oneof:"action"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcOcelData) Reset() {
+	*x = GrpcOcelData{}
+	mi := &file_pipelines_and_context_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcOcelData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcOcelData) ProtoMessage() {}
+
+func (x *GrpcOcelData) ProtoReflect() protoreflect.Message {
+	mi := &file_pipelines_and_context_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcOcelData.ProtoReflect.Descriptor instead.
+func (*GrpcOcelData) Descriptor() ([]byte, []int) {
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *GrpcOcelData) GetObjectId() string {
+	if x != nil {
+		return x.ObjectId
+	}
+	return ""
+}
+
+func (x *GrpcOcelData) GetAction() isGrpcOcelData_Action {
+	if x != nil {
+		return x.Action
+	}
+	return nil
+}
+
+func (x *GrpcOcelData) GetAllocate() *GrpcOcelObjectTypeData {
+	if x != nil {
+		if x, ok := x.Action.(*GrpcOcelData_Allocate); ok {
+			return x.Allocate
+		}
+	}
+	return nil
+}
+
+func (x *GrpcOcelData) GetConsume() *GrpcOcelObjectTypeData {
+	if x != nil {
+		if x, ok := x.Action.(*GrpcOcelData_Consume); ok {
+			return x.Consume
+		}
+	}
+	return nil
+}
+
+func (x *GrpcOcelData) GetMergedObjectAllocation() *GrpcOcelAllocateMerge {
+	if x != nil {
+		if x, ok := x.Action.(*GrpcOcelData_MergedObjectAllocation); ok {
+			return x.MergedObjectAllocation
+		}
+	}
+	return nil
+}
+
+func (x *GrpcOcelData) GetProduceObjectConsumption() *GrpcOcelConsumeProduce {
+	if x != nil {
+		if x, ok := x.Action.(*GrpcOcelData_ProduceObjectConsumption); ok {
+			return x.ProduceObjectConsumption
+		}
+	}
+	return nil
+}
+
+type isGrpcOcelData_Action interface {
+	isGrpcOcelData_Action()
+}
+
+type GrpcOcelData_Allocate struct {
+	Allocate *GrpcOcelObjectTypeData `protobuf:"bytes,2,opt,name=allocate,proto3,oneof"`
+}
+
+type GrpcOcelData_Consume struct {
+	Consume *GrpcOcelObjectTypeData `protobuf:"bytes,3,opt,name=consume,proto3,oneof"`
+}
+
+type GrpcOcelData_MergedObjectAllocation struct {
+	MergedObjectAllocation *GrpcOcelAllocateMerge `protobuf:"bytes,4,opt,name=merged_object_allocation,json=mergedObjectAllocation,proto3,oneof"`
+}
+
+type GrpcOcelData_ProduceObjectConsumption struct {
+	ProduceObjectConsumption *GrpcOcelConsumeProduce `protobuf:"bytes,5,opt,name=produce_object_consumption,json=produceObjectConsumption,proto3,oneof"`
+}
+
+func (*GrpcOcelData_Allocate) isGrpcOcelData_Action() {}
+
+func (*GrpcOcelData_Consume) isGrpcOcelData_Action() {}
+
+func (*GrpcOcelData_MergedObjectAllocation) isGrpcOcelData_Action() {}
+
+func (*GrpcOcelData_ProduceObjectConsumption) isGrpcOcelData_Action() {}
+
 type GrpcActivityDurationData struct {
 	state         protoimpl.MessageState      `protogen:"open.v1"`
 	Base          *GrpcGenericEnhancementBase `protobuf:"bytes,1,opt,name=base,proto3" json:"base,omitempty"`
@@ -2913,7 +3522,7 @@ type GrpcActivityDurationData struct {
 
 func (x *GrpcActivityDurationData) Reset() {
 	*x = GrpcActivityDurationData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[41]
+	mi := &file_pipelines_and_context_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2925,7 +3534,7 @@ func (x *GrpcActivityDurationData) String() string {
 func (*GrpcActivityDurationData) ProtoMessage() {}
 
 func (x *GrpcActivityDurationData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[41]
+	mi := &file_pipelines_and_context_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2938,7 +3547,7 @@ func (x *GrpcActivityDurationData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcActivityDurationData.ProtoReflect.Descriptor instead.
 func (*GrpcActivityDurationData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{41}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GrpcActivityDurationData) GetBase() *GrpcGenericEnhancementBase {
@@ -2973,7 +3582,7 @@ type GrpcGenericEnhancementBase struct {
 
 func (x *GrpcGenericEnhancementBase) Reset() {
 	*x = GrpcGenericEnhancementBase{}
-	mi := &file_pipelines_and_context_proto_msgTypes[42]
+	mi := &file_pipelines_and_context_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2985,7 +3594,7 @@ func (x *GrpcGenericEnhancementBase) String() string {
 func (*GrpcGenericEnhancementBase) ProtoMessage() {}
 
 func (x *GrpcGenericEnhancementBase) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[42]
+	mi := &file_pipelines_and_context_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2998,7 +3607,7 @@ func (x *GrpcGenericEnhancementBase) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcGenericEnhancementBase.ProtoReflect.Descriptor instead.
 func (*GrpcGenericEnhancementBase) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{42}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GrpcGenericEnhancementBase) GetName() string {
@@ -3032,7 +3641,7 @@ type GrpcGeneralHistogramData struct {
 
 func (x *GrpcGeneralHistogramData) Reset() {
 	*x = GrpcGeneralHistogramData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[43]
+	mi := &file_pipelines_and_context_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3044,7 +3653,7 @@ func (x *GrpcGeneralHistogramData) String() string {
 func (*GrpcGeneralHistogramData) ProtoMessage() {}
 
 func (x *GrpcGeneralHistogramData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[43]
+	mi := &file_pipelines_and_context_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3057,7 +3666,7 @@ func (x *GrpcGeneralHistogramData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcGeneralHistogramData.ProtoReflect.Descriptor instead.
 func (*GrpcGeneralHistogramData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{43}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *GrpcGeneralHistogramData) GetBase() *GrpcGenericEnhancementBase {
@@ -3084,7 +3693,7 @@ type GrpcSimpleCounterData struct {
 
 func (x *GrpcSimpleCounterData) Reset() {
 	*x = GrpcSimpleCounterData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[44]
+	mi := &file_pipelines_and_context_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3096,7 +3705,7 @@ func (x *GrpcSimpleCounterData) String() string {
 func (*GrpcSimpleCounterData) ProtoMessage() {}
 
 func (x *GrpcSimpleCounterData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[44]
+	mi := &file_pipelines_and_context_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3109,7 +3718,7 @@ func (x *GrpcSimpleCounterData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcSimpleCounterData.ProtoReflect.Descriptor instead.
 func (*GrpcSimpleCounterData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{44}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *GrpcSimpleCounterData) GetBase() *GrpcGenericEnhancementBase {
@@ -3136,7 +3745,7 @@ type GrpcMethodInliningInfo struct {
 
 func (x *GrpcMethodInliningInfo) Reset() {
 	*x = GrpcMethodInliningInfo{}
-	mi := &file_pipelines_and_context_proto_msgTypes[45]
+	mi := &file_pipelines_and_context_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3148,7 +3757,7 @@ func (x *GrpcMethodInliningInfo) String() string {
 func (*GrpcMethodInliningInfo) ProtoMessage() {}
 
 func (x *GrpcMethodInliningInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[45]
+	mi := &file_pipelines_and_context_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3161,7 +3770,7 @@ func (x *GrpcMethodInliningInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcMethodInliningInfo.ProtoReflect.Descriptor instead.
 func (*GrpcMethodInliningInfo) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{45}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *GrpcMethodInliningInfo) GetInlineeInfo() *GrpcMethodNameParts {
@@ -3189,7 +3798,7 @@ type GrpcMethodNameParts struct {
 
 func (x *GrpcMethodNameParts) Reset() {
 	*x = GrpcMethodNameParts{}
-	mi := &file_pipelines_and_context_proto_msgTypes[46]
+	mi := &file_pipelines_and_context_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3201,7 +3810,7 @@ func (x *GrpcMethodNameParts) String() string {
 func (*GrpcMethodNameParts) ProtoMessage() {}
 
 func (x *GrpcMethodNameParts) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[46]
+	mi := &file_pipelines_and_context_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3214,7 +3823,7 @@ func (x *GrpcMethodNameParts) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcMethodNameParts.ProtoReflect.Descriptor instead.
 func (*GrpcMethodNameParts) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{46}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *GrpcMethodNameParts) GetName() string {
@@ -3248,7 +3857,7 @@ type GrpcHistogramEntry struct {
 
 func (x *GrpcHistogramEntry) Reset() {
 	*x = GrpcHistogramEntry{}
-	mi := &file_pipelines_and_context_proto_msgTypes[47]
+	mi := &file_pipelines_and_context_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3260,7 +3869,7 @@ func (x *GrpcHistogramEntry) String() string {
 func (*GrpcHistogramEntry) ProtoMessage() {}
 
 func (x *GrpcHistogramEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[47]
+	mi := &file_pipelines_and_context_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3273,7 +3882,7 @@ func (x *GrpcHistogramEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcHistogramEntry.ProtoReflect.Descriptor instead.
 func (*GrpcHistogramEntry) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{47}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *GrpcHistogramEntry) GetName() string {
@@ -3299,7 +3908,7 @@ type GrpcTimelineDiagramFragment struct {
 
 func (x *GrpcTimelineDiagramFragment) Reset() {
 	*x = GrpcTimelineDiagramFragment{}
-	mi := &file_pipelines_and_context_proto_msgTypes[48]
+	mi := &file_pipelines_and_context_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3311,7 +3920,7 @@ func (x *GrpcTimelineDiagramFragment) String() string {
 func (*GrpcTimelineDiagramFragment) ProtoMessage() {}
 
 func (x *GrpcTimelineDiagramFragment) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[48]
+	mi := &file_pipelines_and_context_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3324,7 +3933,7 @@ func (x *GrpcTimelineDiagramFragment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcTimelineDiagramFragment.ProtoReflect.Descriptor instead.
 func (*GrpcTimelineDiagramFragment) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{48}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *GrpcTimelineDiagramFragment) GetThreads() []*GrpcThread {
@@ -3345,7 +3954,7 @@ type GrpcAllocationInfo struct {
 
 func (x *GrpcAllocationInfo) Reset() {
 	*x = GrpcAllocationInfo{}
-	mi := &file_pipelines_and_context_proto_msgTypes[49]
+	mi := &file_pipelines_and_context_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3357,7 +3966,7 @@ func (x *GrpcAllocationInfo) String() string {
 func (*GrpcAllocationInfo) ProtoMessage() {}
 
 func (x *GrpcAllocationInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[49]
+	mi := &file_pipelines_and_context_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3370,7 +3979,7 @@ func (x *GrpcAllocationInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcAllocationInfo.ProtoReflect.Descriptor instead.
 func (*GrpcAllocationInfo) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{49}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *GrpcAllocationInfo) GetTypeName() string {
@@ -3405,7 +4014,7 @@ type GrpcUnderlyingPatternInfo struct {
 
 func (x *GrpcUnderlyingPatternInfo) Reset() {
 	*x = GrpcUnderlyingPatternInfo{}
-	mi := &file_pipelines_and_context_proto_msgTypes[50]
+	mi := &file_pipelines_and_context_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3417,7 +4026,7 @@ func (x *GrpcUnderlyingPatternInfo) String() string {
 func (*GrpcUnderlyingPatternInfo) ProtoMessage() {}
 
 func (x *GrpcUnderlyingPatternInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[50]
+	mi := &file_pipelines_and_context_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3430,7 +4039,7 @@ func (x *GrpcUnderlyingPatternInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcUnderlyingPatternInfo.ProtoReflect.Descriptor instead.
 func (*GrpcUnderlyingPatternInfo) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{50}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *GrpcUnderlyingPatternInfo) GetPatternKind() GrpcUnderlyingPatternKind {
@@ -3468,7 +4077,7 @@ type GrpcGraphEdge struct {
 
 func (x *GrpcGraphEdge) Reset() {
 	*x = GrpcGraphEdge{}
-	mi := &file_pipelines_and_context_proto_msgTypes[51]
+	mi := &file_pipelines_and_context_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3480,7 +4089,7 @@ func (x *GrpcGraphEdge) String() string {
 func (*GrpcGraphEdge) ProtoMessage() {}
 
 func (x *GrpcGraphEdge) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[51]
+	mi := &file_pipelines_and_context_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3493,7 +4102,7 @@ func (x *GrpcGraphEdge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcGraphEdge.ProtoReflect.Descriptor instead.
 func (*GrpcGraphEdge) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{51}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GrpcGraphEdge) GetId() uint64 {
@@ -3552,7 +4161,7 @@ type GrpcGraphEdgeAdditionalData struct {
 
 func (x *GrpcGraphEdgeAdditionalData) Reset() {
 	*x = GrpcGraphEdgeAdditionalData{}
-	mi := &file_pipelines_and_context_proto_msgTypes[52]
+	mi := &file_pipelines_and_context_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3564,7 +4173,7 @@ func (x *GrpcGraphEdgeAdditionalData) String() string {
 func (*GrpcGraphEdgeAdditionalData) ProtoMessage() {}
 
 func (x *GrpcGraphEdgeAdditionalData) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[52]
+	mi := &file_pipelines_and_context_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3577,7 +4186,7 @@ func (x *GrpcGraphEdgeAdditionalData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcGraphEdgeAdditionalData.ProtoReflect.Descriptor instead.
 func (*GrpcGraphEdgeAdditionalData) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{52}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *GrpcGraphEdgeAdditionalData) GetData() isGrpcGraphEdgeAdditionalData_Data {
@@ -3645,7 +4254,7 @@ type GrpcEdgeExecutionInfo struct {
 
 func (x *GrpcEdgeExecutionInfo) Reset() {
 	*x = GrpcEdgeExecutionInfo{}
-	mi := &file_pipelines_and_context_proto_msgTypes[53]
+	mi := &file_pipelines_and_context_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3657,7 +4266,7 @@ func (x *GrpcEdgeExecutionInfo) String() string {
 func (*GrpcEdgeExecutionInfo) ProtoMessage() {}
 
 func (x *GrpcEdgeExecutionInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[53]
+	mi := &file_pipelines_and_context_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3670,7 +4279,7 @@ func (x *GrpcEdgeExecutionInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcEdgeExecutionInfo.ProtoReflect.Descriptor instead.
 func (*GrpcEdgeExecutionInfo) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{53}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *GrpcEdgeExecutionInfo) GetTraceId() uint64 {
@@ -3689,7 +4298,7 @@ type GrpcBytes struct {
 
 func (x *GrpcBytes) Reset() {
 	*x = GrpcBytes{}
-	mi := &file_pipelines_and_context_proto_msgTypes[54]
+	mi := &file_pipelines_and_context_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3701,7 +4310,7 @@ func (x *GrpcBytes) String() string {
 func (*GrpcBytes) ProtoMessage() {}
 
 func (x *GrpcBytes) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[54]
+	mi := &file_pipelines_and_context_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3714,7 +4323,7 @@ func (x *GrpcBytes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcBytes.ProtoReflect.Descriptor instead.
 func (*GrpcBytes) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{54}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *GrpcBytes) GetBytes() []byte {
@@ -3733,7 +4342,7 @@ type GrpcLogTimelineDiagram struct {
 
 func (x *GrpcLogTimelineDiagram) Reset() {
 	*x = GrpcLogTimelineDiagram{}
-	mi := &file_pipelines_and_context_proto_msgTypes[55]
+	mi := &file_pipelines_and_context_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3745,7 +4354,7 @@ func (x *GrpcLogTimelineDiagram) String() string {
 func (*GrpcLogTimelineDiagram) ProtoMessage() {}
 
 func (x *GrpcLogTimelineDiagram) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[55]
+	mi := &file_pipelines_and_context_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3758,7 +4367,7 @@ func (x *GrpcLogTimelineDiagram) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcLogTimelineDiagram.ProtoReflect.Descriptor instead.
 func (*GrpcLogTimelineDiagram) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{55}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *GrpcLogTimelineDiagram) GetTraces() []*GrpcTraceTimelineDiagram {
@@ -3778,7 +4387,7 @@ type GrpcTimelineTraceEventsGroup struct {
 
 func (x *GrpcTimelineTraceEventsGroup) Reset() {
 	*x = GrpcTimelineTraceEventsGroup{}
-	mi := &file_pipelines_and_context_proto_msgTypes[56]
+	mi := &file_pipelines_and_context_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3790,7 +4399,7 @@ func (x *GrpcTimelineTraceEventsGroup) String() string {
 func (*GrpcTimelineTraceEventsGroup) ProtoMessage() {}
 
 func (x *GrpcTimelineTraceEventsGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[56]
+	mi := &file_pipelines_and_context_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3803,7 +4412,7 @@ func (x *GrpcTimelineTraceEventsGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcTimelineTraceEventsGroup.ProtoReflect.Descriptor instead.
 func (*GrpcTimelineTraceEventsGroup) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{56}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *GrpcTimelineTraceEventsGroup) GetStartPoint() *GrpcLogPoint {
@@ -3830,7 +4439,7 @@ type GrpcTraceTimelineDiagram struct {
 
 func (x *GrpcTraceTimelineDiagram) Reset() {
 	*x = GrpcTraceTimelineDiagram{}
-	mi := &file_pipelines_and_context_proto_msgTypes[57]
+	mi := &file_pipelines_and_context_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3842,7 +4451,7 @@ func (x *GrpcTraceTimelineDiagram) String() string {
 func (*GrpcTraceTimelineDiagram) ProtoMessage() {}
 
 func (x *GrpcTraceTimelineDiagram) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[57]
+	mi := &file_pipelines_and_context_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3855,7 +4464,7 @@ func (x *GrpcTraceTimelineDiagram) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcTraceTimelineDiagram.ProtoReflect.Descriptor instead.
 func (*GrpcTraceTimelineDiagram) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{57}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *GrpcTraceTimelineDiagram) GetThreads() []*GrpcThread {
@@ -3881,7 +4490,7 @@ type GrpcThread struct {
 
 func (x *GrpcThread) Reset() {
 	*x = GrpcThread{}
-	mi := &file_pipelines_and_context_proto_msgTypes[58]
+	mi := &file_pipelines_and_context_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3893,7 +4502,7 @@ func (x *GrpcThread) String() string {
 func (*GrpcThread) ProtoMessage() {}
 
 func (x *GrpcThread) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[58]
+	mi := &file_pipelines_and_context_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3906,7 +4515,7 @@ func (x *GrpcThread) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcThread.ProtoReflect.Descriptor instead.
 func (*GrpcThread) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{58}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *GrpcThread) GetEvents() []*GrpcThreadEvent {
@@ -3926,7 +4535,7 @@ type GrpcThreadEvent struct {
 
 func (x *GrpcThreadEvent) Reset() {
 	*x = GrpcThreadEvent{}
-	mi := &file_pipelines_and_context_proto_msgTypes[59]
+	mi := &file_pipelines_and_context_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3938,7 +4547,7 @@ func (x *GrpcThreadEvent) String() string {
 func (*GrpcThreadEvent) ProtoMessage() {}
 
 func (x *GrpcThreadEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_pipelines_and_context_proto_msgTypes[59]
+	mi := &file_pipelines_and_context_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3951,7 +4560,7 @@ func (x *GrpcThreadEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcThreadEvent.ProtoReflect.Descriptor instead.
 func (*GrpcThreadEvent) Descriptor() ([]byte, []int) {
-	return file_pipelines_and_context_proto_rawDescGZIP(), []int{59}
+	return file_pipelines_and_context_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *GrpcThreadEvent) GetName() string {
@@ -3978,7 +4587,7 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"g\n" +
 	"\x1bGrpcContextValueWithKeyName\x12\x19\n" +
 	"\bkey_name\x18\x01 \x01(\tR\akeyName\x12-\n" +
-	"\x05value\x18\x02 \x01(\v2\x17.ficus.GrpcContextValueR\x05value\"\xa4\v\n" +
+	"\x05value\x18\x02 \x01(\v2\x17.ficus.GrpcContextValueR\x05value\"\xef\v\n" +
 	"\x10GrpcContextValue\x12\x18\n" +
 	"\x06string\x18\x01 \x01(\tH\x00R\x06string\x12F\n" +
 	"\n" +
@@ -4012,8 +4621,31 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\n" +
 	"uint_array\x18\x18 \x01(\v2\x14.ficus.GrpcUintArrayH\x00R\tuintArray\x12\x14\n" +
 	"\x04json\x18\x19 \x01(\tH\x00R\x04json\x128\n" +
-	"\tevent_log\x18\x1a \x01(\v2\x19.ficus.GrpcSimpleEventLogH\x00R\beventLogB\x0e\n" +
-	"\fcontextValue\"&\n" +
+	"\tevent_log\x18\x1a \x01(\v2\x19.ficus.GrpcSimpleEventLogH\x00R\beventLog\x12I\n" +
+	"\x0focel_annotation\x18\x1b \x01(\v2\x1e.ficus.GrpcOcelModelAnnotationH\x00R\x0eocelAnnotationB\x0e\n" +
+	"\fcontextValue\"b\n" +
+	"\x17GrpcOcelModelAnnotation\x12G\n" +
+	"\vannotations\x18\x01 \x03(\v2%.ficus.GrpcModelElementOcelAnnotationR\vannotations\"\x8a\x02\n" +
+	"\x1eGrpcModelElementOcelAnnotation\x12\x1d\n" +
+	"\n" +
+	"element_id\x18\x01 \x01(\x04R\telementId\x12>\n" +
+	"\rinitial_state\x18\x02 \x01(\v2\x14.ficus.GrpcOcelStateH\x00R\finitialState\x88\x01\x01\x125\n" +
+	"\vfinal_state\x18\x03 \x01(\v2\x14.ficus.GrpcOcelStateR\n" +
+	"finalState\x12@\n" +
+	"\trelations\x18\x04 \x03(\v2\".ficus.GrpcOcelStateObjectRelationR\trelationsB\x10\n" +
+	"\x0e_initial_state\"\x89\x01\n" +
+	"\x1bGrpcOcelStateObjectRelation\x12\x1b\n" +
+	"\tobject_id\x18\x01 \x01(\tR\bobjectId\x12\x1d\n" +
+	"\n" +
+	"element_id\x18\x02 \x01(\x04R\telementId\x12.\n" +
+	"\x13related_objects_ids\x18\x03 \x03(\tR\x11relatedObjectsIds\"P\n" +
+	"\rGrpcOcelState\x12?\n" +
+	"\vtype_states\x18\x01 \x03(\v2\x1e.ficus.GrpcOcelObjectTypeStateR\n" +
+	"typeStates\"L\n" +
+	"\x17GrpcOcelObjectTypeState\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1d\n" +
+	"\n" +
+	"object_ids\x18\x02 \x03(\tR\tobjectIds\"&\n" +
 	"\x0eGrpcFloatArray\x12\x14\n" +
 	"\x05items\x18\x01 \x03(\x01R\x05items\"$\n" +
 	"\fGrpcIntArray\x12\x14\n" +
@@ -4139,13 +4771,34 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\vevent_index\x18\x03 \x01(\x04R\n" +
 	"eventIndex\"Y\n" +
 	"\x1eGrpcNodeCorrespondingTraceData\x127\n" +
-	"\x18belongs_to_root_sequence\x18\x01 \x01(\bR\x15belongsToRootSequence\"\x9e\x03\n" +
+	"\x18belongs_to_root_sequence\x18\x01 \x01(\bR\x15belongsToRootSequence\"\xd0\x03\n" +
 	"\x10GrpcSoftwareData\x127\n" +
 	"\thistogram\x18\x01 \x03(\v2\x19.ficus.GrpcHistogramEntryR\thistogram\x12^\n" +
 	"\x19timeline_diagram_fragment\x18\x02 \x01(\v2\".ficus.GrpcTimelineDiagramFragmentR\x17timelineDiagramFragment\x12F\n" +
 	"\x0ehistogram_data\x18\r \x03(\v2\x1f.ficus.GrpcGeneralHistogramDataR\rhistogramData\x12L\n" +
 	"\x13simple_counter_data\x18\x0e \x03(\v2\x1c.ficus.GrpcSimpleCounterDataR\x11simpleCounterData\x12[\n" +
-	"\x19activities_durations_data\x18\x0f \x03(\v2\x1f.ficus.GrpcActivityDurationDataR\x17activitiesDurationsData\"\x9a\x01\n" +
+	"\x19activities_durations_data\x18\x0f \x03(\v2\x1f.ficus.GrpcActivityDurationDataR\x17activitiesDurationsData\x120\n" +
+	"\tocel_data\x18\x10 \x03(\v2\x13.ficus.GrpcOcelDataR\bocelData\":\n" +
+	"\x16GrpcOcelObjectTypeData\x12\x17\n" +
+	"\x04type\x18\x01 \x01(\tH\x00R\x04type\x88\x01\x01B\a\n" +
+	"\x05_type\"g\n" +
+	"\x15GrpcOcelAllocateMerge\x12\x17\n" +
+	"\x04type\x18\x01 \x01(\tH\x00R\x04type\x88\x01\x01\x12,\n" +
+	"\x12merged_objects_ids\x18\x02 \x03(\tR\x10mergedObjectsIdsB\a\n" +
+	"\x05_type\"J\n" +
+	"\x16GrpcOcelProducedObject\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\x04type\x18\x02 \x01(\tH\x00R\x04type\x88\x01\x01B\a\n" +
+	"\x05_type\"b\n" +
+	"\x16GrpcOcelConsumeProduce\x12H\n" +
+	"\x10produced_objects\x18\x01 \x03(\v2\x1d.ficus.GrpcOcelProducedObjectR\x0fproducedObjects\"\xe6\x02\n" +
+	"\fGrpcOcelData\x12\x1b\n" +
+	"\tobject_id\x18\x01 \x01(\tR\bobjectId\x12;\n" +
+	"\ballocate\x18\x02 \x01(\v2\x1d.ficus.GrpcOcelObjectTypeDataH\x00R\ballocate\x129\n" +
+	"\aconsume\x18\x03 \x01(\v2\x1d.ficus.GrpcOcelObjectTypeDataH\x00R\aconsume\x12X\n" +
+	"\x18merged_object_allocation\x18\x04 \x01(\v2\x1c.ficus.GrpcOcelAllocateMergeH\x00R\x16mergedObjectAllocation\x12]\n" +
+	"\x1aproduce_object_consumption\x18\x05 \x01(\v2\x1d.ficus.GrpcOcelConsumeProduceH\x00R\x18produceObjectConsumptionB\b\n" +
+	"\x06action\"\x9a\x01\n" +
 	"\x18GrpcActivityDurationData\x125\n" +
 	"\x04base\x18\x01 \x01(\v2!.ficus.GrpcGenericEnhancementBaseR\x04base\x12\x1a\n" +
 	"\bduration\x18\x02 \x01(\x04R\bduration\x12+\n" +
@@ -4211,10 +4864,12 @@ const file_pipelines_and_context_proto_rawDesc = "" +
 	"\x06events\x18\x01 \x03(\v2\x16.ficus.GrpcThreadEventR\x06events\";\n" +
 	"\x0fGrpcThreadEvent\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05stamp\x18\x02 \x01(\x03R\x05stamp*\"\n" +
+	"\x05stamp\x18\x02 \x01(\x03R\x05stamp*.\n" +
 	"\rGrpcGraphKind\x12\b\n" +
 	"\x04None\x10\x00\x12\a\n" +
-	"\x03DAG\x10\x01*u\n" +
+	"\x03DAG\x10\x01\x12\n" +
+	"\n" +
+	"\x06DagLCS\x10\x02*u\n" +
 	"\x10GrpcDurationKind\x12\x0f\n" +
 	"\vUnspecified\x10\x00\x12\t\n" +
 	"\x05Nanos\x10\x01\x12\n" +
@@ -4249,7 +4904,7 @@ func file_pipelines_and_context_proto_rawDescGZIP() []byte {
 }
 
 var file_pipelines_and_context_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_pipelines_and_context_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_pipelines_and_context_proto_msgTypes = make([]protoimpl.MessageInfo, 70)
 var file_pipelines_and_context_proto_goTypes = []any{
 	(GrpcGraphKind)(0),                              // 0: ficus.GrpcGraphKind
 	(GrpcDurationKind)(0),                           // 1: ficus.GrpcDurationKind
@@ -4257,171 +4912,193 @@ var file_pipelines_and_context_proto_goTypes = []any{
 	(*GrpcContextKey)(nil),                          // 3: ficus.GrpcContextKey
 	(*GrpcContextValueWithKeyName)(nil),             // 4: ficus.GrpcContextValueWithKeyName
 	(*GrpcContextValue)(nil),                        // 5: ficus.GrpcContextValue
-	(*GrpcFloatArray)(nil),                          // 6: ficus.GrpcFloatArray
-	(*GrpcIntArray)(nil),                            // 7: ficus.GrpcIntArray
-	(*GrpcUintArray)(nil),                           // 8: ficus.GrpcUintArray
-	(*GrpcContextKeyValue)(nil),                     // 9: ficus.GrpcContextKeyValue
-	(*GrpcHashesEventLogContextValue)(nil),          // 10: ficus.GrpcHashesEventLogContextValue
-	(*GrpcNamesEventLogContextValue)(nil),           // 11: ficus.GrpcNamesEventLogContextValue
-	(*GrpcEventLogTraceSubArraysContextValue)(nil),  // 12: ficus.GrpcEventLogTraceSubArraysContextValue
-	(*GrpcTraceSubArray)(nil),                       // 13: ficus.GrpcTraceSubArray
-	(*GrpcTraceSubArrays)(nil),                      // 14: ficus.GrpcTraceSubArrays
-	(*GrpcSubArrayWithTraceIndex)(nil),              // 15: ficus.GrpcSubArrayWithTraceIndex
-	(*GrpcSubArraysWithTraceIndexContextValue)(nil), // 16: ficus.GrpcSubArraysWithTraceIndexContextValue
-	(*GrpcColorsEventLog)(nil),                      // 17: ficus.GrpcColorsEventLog
-	(*GrpcColorsLogAdjustment)(nil),                 // 18: ficus.GrpcColorsLogAdjustment
-	(*GrpcColorsLogRectangleAdjustment)(nil),        // 19: ficus.GrpcColorsLogRectangleAdjustment
-	(*GrpcLogPoint)(nil),                            // 20: ficus.GrpcLogPoint
-	(*GrpcColorsLogXAxisAfterTraceAdjustment)(nil),  // 21: ficus.GrpcColorsLogXAxisAfterTraceAdjustment
-	(*GrpcColorsEventLogMapping)(nil),               // 22: ficus.GrpcColorsEventLogMapping
-	(*GrpcColorsTrace)(nil),                         // 23: ficus.GrpcColorsTrace
-	(*GrpcColoredRectangle)(nil),                    // 24: ficus.GrpcColoredRectangle
-	(*GrpcEnum)(nil),                                // 25: ficus.GrpcEnum
-	(*GrpcEventLogInfo)(nil),                        // 26: ficus.GrpcEventLogInfo
-	(*GrpcStrings)(nil),                             // 27: ficus.GrpcStrings
-	(*GrpcPipeline)(nil),                            // 28: ficus.GrpcPipeline
-	(*GrpcPipelinePartBase)(nil),                    // 29: ficus.GrpcPipelinePartBase
-	(*GrpcPipelinePart)(nil),                        // 30: ficus.GrpcPipelinePart
-	(*GrpcPipelinePartConfiguration)(nil),           // 31: ficus.GrpcPipelinePartConfiguration
-	(*GrpcParallelPipelinePart)(nil),                // 32: ficus.GrpcParallelPipelinePart
-	(*GrpcParallelPipelineParts)(nil),               // 33: ficus.GrpcParallelPipelineParts
-	(*GrpcSimpleContextRequestPipelinePart)(nil),    // 34: ficus.GrpcSimpleContextRequestPipelinePart
-	(*GrpcComplexContextRequestPipelinePart)(nil),   // 35: ficus.GrpcComplexContextRequestPipelinePart
-	(*GrpcGraph)(nil),                               // 36: ficus.GrpcGraph
-	(*GrpcGraphNode)(nil),                           // 37: ficus.GrpcGraphNode
-	(*GrpcNodeAdditionalData)(nil),                  // 38: ficus.GrpcNodeAdditionalData
-	(*GrpcMultithreadedFragment)(nil),               // 39: ficus.GrpcMultithreadedFragment
-	(*GrpcActivityStartEndData)(nil),                // 40: ficus.GrpcActivityStartEndData
-	(*GrpcEventCoordinates)(nil),                    // 41: ficus.GrpcEventCoordinates
-	(*GrpcNodeCorrespondingTraceData)(nil),          // 42: ficus.GrpcNodeCorrespondingTraceData
-	(*GrpcSoftwareData)(nil),                        // 43: ficus.GrpcSoftwareData
-	(*GrpcActivityDurationData)(nil),                // 44: ficus.GrpcActivityDurationData
-	(*GrpcGenericEnhancementBase)(nil),              // 45: ficus.GrpcGenericEnhancementBase
-	(*GrpcGeneralHistogramData)(nil),                // 46: ficus.GrpcGeneralHistogramData
-	(*GrpcSimpleCounterData)(nil),                   // 47: ficus.GrpcSimpleCounterData
-	(*GrpcMethodInliningInfo)(nil),                  // 48: ficus.GrpcMethodInliningInfo
-	(*GrpcMethodNameParts)(nil),                     // 49: ficus.GrpcMethodNameParts
-	(*GrpcHistogramEntry)(nil),                      // 50: ficus.GrpcHistogramEntry
-	(*GrpcTimelineDiagramFragment)(nil),             // 51: ficus.GrpcTimelineDiagramFragment
-	(*GrpcAllocationInfo)(nil),                      // 52: ficus.GrpcAllocationInfo
-	(*GrpcUnderlyingPatternInfo)(nil),               // 53: ficus.GrpcUnderlyingPatternInfo
-	(*GrpcGraphEdge)(nil),                           // 54: ficus.GrpcGraphEdge
-	(*GrpcGraphEdgeAdditionalData)(nil),             // 55: ficus.GrpcGraphEdgeAdditionalData
-	(*GrpcEdgeExecutionInfo)(nil),                   // 56: ficus.GrpcEdgeExecutionInfo
-	(*GrpcBytes)(nil),                               // 57: ficus.GrpcBytes
-	(*GrpcLogTimelineDiagram)(nil),                  // 58: ficus.GrpcLogTimelineDiagram
-	(*GrpcTimelineTraceEventsGroup)(nil),            // 59: ficus.GrpcTimelineTraceEventsGroup
-	(*GrpcTraceTimelineDiagram)(nil),                // 60: ficus.GrpcTraceTimelineDiagram
-	(*GrpcThread)(nil),                              // 61: ficus.GrpcThread
-	(*GrpcThreadEvent)(nil),                         // 62: ficus.GrpcThreadEvent
-	(*GrpcPetriNet)(nil),                            // 63: ficus.GrpcPetriNet
-	(*GrpcAnnotation)(nil),                          // 64: ficus.GrpcAnnotation
-	(*GrpcDataset)(nil),                             // 65: ficus.GrpcDataset
-	(*GrpcLabeledDataset)(nil),                      // 66: ficus.GrpcLabeledDataset
-	(*GrpcSimpleEventLog)(nil),                      // 67: ficus.GrpcSimpleEventLog
-	(*GrpcHashesEventLog)(nil),                      // 68: ficus.GrpcHashesEventLog
-	(*GrpcNamesEventLog)(nil),                       // 69: ficus.GrpcNamesEventLog
-	(*GrpcColor)(nil),                               // 70: ficus.GrpcColor
-	(*GrpcGuid)(nil),                                // 71: ficus.GrpcGuid
-	(*emptypb.Empty)(nil),                           // 72: google.protobuf.Empty
+	(*GrpcOcelModelAnnotation)(nil),                 // 6: ficus.GrpcOcelModelAnnotation
+	(*GrpcModelElementOcelAnnotation)(nil),          // 7: ficus.GrpcModelElementOcelAnnotation
+	(*GrpcOcelStateObjectRelation)(nil),             // 8: ficus.GrpcOcelStateObjectRelation
+	(*GrpcOcelState)(nil),                           // 9: ficus.GrpcOcelState
+	(*GrpcOcelObjectTypeState)(nil),                 // 10: ficus.GrpcOcelObjectTypeState
+	(*GrpcFloatArray)(nil),                          // 11: ficus.GrpcFloatArray
+	(*GrpcIntArray)(nil),                            // 12: ficus.GrpcIntArray
+	(*GrpcUintArray)(nil),                           // 13: ficus.GrpcUintArray
+	(*GrpcContextKeyValue)(nil),                     // 14: ficus.GrpcContextKeyValue
+	(*GrpcHashesEventLogContextValue)(nil),          // 15: ficus.GrpcHashesEventLogContextValue
+	(*GrpcNamesEventLogContextValue)(nil),           // 16: ficus.GrpcNamesEventLogContextValue
+	(*GrpcEventLogTraceSubArraysContextValue)(nil),  // 17: ficus.GrpcEventLogTraceSubArraysContextValue
+	(*GrpcTraceSubArray)(nil),                       // 18: ficus.GrpcTraceSubArray
+	(*GrpcTraceSubArrays)(nil),                      // 19: ficus.GrpcTraceSubArrays
+	(*GrpcSubArrayWithTraceIndex)(nil),              // 20: ficus.GrpcSubArrayWithTraceIndex
+	(*GrpcSubArraysWithTraceIndexContextValue)(nil), // 21: ficus.GrpcSubArraysWithTraceIndexContextValue
+	(*GrpcColorsEventLog)(nil),                      // 22: ficus.GrpcColorsEventLog
+	(*GrpcColorsLogAdjustment)(nil),                 // 23: ficus.GrpcColorsLogAdjustment
+	(*GrpcColorsLogRectangleAdjustment)(nil),        // 24: ficus.GrpcColorsLogRectangleAdjustment
+	(*GrpcLogPoint)(nil),                            // 25: ficus.GrpcLogPoint
+	(*GrpcColorsLogXAxisAfterTraceAdjustment)(nil),  // 26: ficus.GrpcColorsLogXAxisAfterTraceAdjustment
+	(*GrpcColorsEventLogMapping)(nil),               // 27: ficus.GrpcColorsEventLogMapping
+	(*GrpcColorsTrace)(nil),                         // 28: ficus.GrpcColorsTrace
+	(*GrpcColoredRectangle)(nil),                    // 29: ficus.GrpcColoredRectangle
+	(*GrpcEnum)(nil),                                // 30: ficus.GrpcEnum
+	(*GrpcEventLogInfo)(nil),                        // 31: ficus.GrpcEventLogInfo
+	(*GrpcStrings)(nil),                             // 32: ficus.GrpcStrings
+	(*GrpcPipeline)(nil),                            // 33: ficus.GrpcPipeline
+	(*GrpcPipelinePartBase)(nil),                    // 34: ficus.GrpcPipelinePartBase
+	(*GrpcPipelinePart)(nil),                        // 35: ficus.GrpcPipelinePart
+	(*GrpcPipelinePartConfiguration)(nil),           // 36: ficus.GrpcPipelinePartConfiguration
+	(*GrpcParallelPipelinePart)(nil),                // 37: ficus.GrpcParallelPipelinePart
+	(*GrpcParallelPipelineParts)(nil),               // 38: ficus.GrpcParallelPipelineParts
+	(*GrpcSimpleContextRequestPipelinePart)(nil),    // 39: ficus.GrpcSimpleContextRequestPipelinePart
+	(*GrpcComplexContextRequestPipelinePart)(nil),   // 40: ficus.GrpcComplexContextRequestPipelinePart
+	(*GrpcGraph)(nil),                               // 41: ficus.GrpcGraph
+	(*GrpcGraphNode)(nil),                           // 42: ficus.GrpcGraphNode
+	(*GrpcNodeAdditionalData)(nil),                  // 43: ficus.GrpcNodeAdditionalData
+	(*GrpcMultithreadedFragment)(nil),               // 44: ficus.GrpcMultithreadedFragment
+	(*GrpcActivityStartEndData)(nil),                // 45: ficus.GrpcActivityStartEndData
+	(*GrpcEventCoordinates)(nil),                    // 46: ficus.GrpcEventCoordinates
+	(*GrpcNodeCorrespondingTraceData)(nil),          // 47: ficus.GrpcNodeCorrespondingTraceData
+	(*GrpcSoftwareData)(nil),                        // 48: ficus.GrpcSoftwareData
+	(*GrpcOcelObjectTypeData)(nil),                  // 49: ficus.GrpcOcelObjectTypeData
+	(*GrpcOcelAllocateMerge)(nil),                   // 50: ficus.GrpcOcelAllocateMerge
+	(*GrpcOcelProducedObject)(nil),                  // 51: ficus.GrpcOcelProducedObject
+	(*GrpcOcelConsumeProduce)(nil),                  // 52: ficus.GrpcOcelConsumeProduce
+	(*GrpcOcelData)(nil),                            // 53: ficus.GrpcOcelData
+	(*GrpcActivityDurationData)(nil),                // 54: ficus.GrpcActivityDurationData
+	(*GrpcGenericEnhancementBase)(nil),              // 55: ficus.GrpcGenericEnhancementBase
+	(*GrpcGeneralHistogramData)(nil),                // 56: ficus.GrpcGeneralHistogramData
+	(*GrpcSimpleCounterData)(nil),                   // 57: ficus.GrpcSimpleCounterData
+	(*GrpcMethodInliningInfo)(nil),                  // 58: ficus.GrpcMethodInliningInfo
+	(*GrpcMethodNameParts)(nil),                     // 59: ficus.GrpcMethodNameParts
+	(*GrpcHistogramEntry)(nil),                      // 60: ficus.GrpcHistogramEntry
+	(*GrpcTimelineDiagramFragment)(nil),             // 61: ficus.GrpcTimelineDiagramFragment
+	(*GrpcAllocationInfo)(nil),                      // 62: ficus.GrpcAllocationInfo
+	(*GrpcUnderlyingPatternInfo)(nil),               // 63: ficus.GrpcUnderlyingPatternInfo
+	(*GrpcGraphEdge)(nil),                           // 64: ficus.GrpcGraphEdge
+	(*GrpcGraphEdgeAdditionalData)(nil),             // 65: ficus.GrpcGraphEdgeAdditionalData
+	(*GrpcEdgeExecutionInfo)(nil),                   // 66: ficus.GrpcEdgeExecutionInfo
+	(*GrpcBytes)(nil),                               // 67: ficus.GrpcBytes
+	(*GrpcLogTimelineDiagram)(nil),                  // 68: ficus.GrpcLogTimelineDiagram
+	(*GrpcTimelineTraceEventsGroup)(nil),            // 69: ficus.GrpcTimelineTraceEventsGroup
+	(*GrpcTraceTimelineDiagram)(nil),                // 70: ficus.GrpcTraceTimelineDiagram
+	(*GrpcThread)(nil),                              // 71: ficus.GrpcThread
+	(*GrpcThreadEvent)(nil),                         // 72: ficus.GrpcThreadEvent
+	(*GrpcPetriNet)(nil),                            // 73: ficus.GrpcPetriNet
+	(*GrpcAnnotation)(nil),                          // 74: ficus.GrpcAnnotation
+	(*GrpcDataset)(nil),                             // 75: ficus.GrpcDataset
+	(*GrpcLabeledDataset)(nil),                      // 76: ficus.GrpcLabeledDataset
+	(*GrpcSimpleEventLog)(nil),                      // 77: ficus.GrpcSimpleEventLog
+	(*GrpcHashesEventLog)(nil),                      // 78: ficus.GrpcHashesEventLog
+	(*GrpcNamesEventLog)(nil),                       // 79: ficus.GrpcNamesEventLog
+	(*GrpcColor)(nil),                               // 80: ficus.GrpcColor
+	(*GrpcGuid)(nil),                                // 81: ficus.GrpcGuid
+	(*emptypb.Empty)(nil),                           // 82: google.protobuf.Empty
 }
 var file_pipelines_and_context_proto_depIdxs = []int32{
-	5,  // 0: ficus.GrpcContextValueWithKeyName.value:type_name -> ficus.GrpcContextValue
-	10, // 1: ficus.GrpcContextValue.hashes_log:type_name -> ficus.GrpcHashesEventLogContextValue
-	11, // 2: ficus.GrpcContextValue.names_log:type_name -> ficus.GrpcNamesEventLogContextValue
-	12, // 3: ficus.GrpcContextValue.traces_sub_arrays:type_name -> ficus.GrpcEventLogTraceSubArraysContextValue
-	16, // 4: ficus.GrpcContextValue.trace_index_sub_arrays:type_name -> ficus.GrpcSubArraysWithTraceIndexContextValue
-	11, // 5: ficus.GrpcContextValue.xes_event_log:type_name -> ficus.GrpcNamesEventLogContextValue
-	17, // 6: ficus.GrpcContextValue.colors_log:type_name -> ficus.GrpcColorsEventLog
-	25, // 7: ficus.GrpcContextValue.enum:type_name -> ficus.GrpcEnum
-	26, // 8: ficus.GrpcContextValue.event_log_info:type_name -> ficus.GrpcEventLogInfo
-	27, // 9: ficus.GrpcContextValue.strings:type_name -> ficus.GrpcStrings
-	28, // 10: ficus.GrpcContextValue.pipeline:type_name -> ficus.GrpcPipeline
-	63, // 11: ficus.GrpcContextValue.petriNet:type_name -> ficus.GrpcPetriNet
-	36, // 12: ficus.GrpcContextValue.graph:type_name -> ficus.GrpcGraph
-	64, // 13: ficus.GrpcContextValue.annotation:type_name -> ficus.GrpcAnnotation
-	65, // 14: ficus.GrpcContextValue.dataset:type_name -> ficus.GrpcDataset
-	66, // 15: ficus.GrpcContextValue.labeled_dataset:type_name -> ficus.GrpcLabeledDataset
-	57, // 16: ficus.GrpcContextValue.bytes:type_name -> ficus.GrpcBytes
-	58, // 17: ficus.GrpcContextValue.logTimelineDiagram:type_name -> ficus.GrpcLogTimelineDiagram
-	6,  // 18: ficus.GrpcContextValue.float_array:type_name -> ficus.GrpcFloatArray
-	7,  // 19: ficus.GrpcContextValue.int_array:type_name -> ficus.GrpcIntArray
-	8,  // 20: ficus.GrpcContextValue.uint_array:type_name -> ficus.GrpcUintArray
-	67, // 21: ficus.GrpcContextValue.event_log:type_name -> ficus.GrpcSimpleEventLog
-	3,  // 22: ficus.GrpcContextKeyValue.key:type_name -> ficus.GrpcContextKey
-	5,  // 23: ficus.GrpcContextKeyValue.value:type_name -> ficus.GrpcContextValue
-	68, // 24: ficus.GrpcHashesEventLogContextValue.log:type_name -> ficus.GrpcHashesEventLog
-	69, // 25: ficus.GrpcNamesEventLogContextValue.log:type_name -> ficus.GrpcNamesEventLog
-	14, // 26: ficus.GrpcEventLogTraceSubArraysContextValue.traces_sub_arrays:type_name -> ficus.GrpcTraceSubArrays
-	13, // 27: ficus.GrpcTraceSubArrays.sub_arrays:type_name -> ficus.GrpcTraceSubArray
-	13, // 28: ficus.GrpcSubArrayWithTraceIndex.sub_array:type_name -> ficus.GrpcTraceSubArray
-	15, // 29: ficus.GrpcSubArraysWithTraceIndexContextValue.sub_arrays:type_name -> ficus.GrpcSubArrayWithTraceIndex
-	22, // 30: ficus.GrpcColorsEventLog.mapping:type_name -> ficus.GrpcColorsEventLogMapping
-	23, // 31: ficus.GrpcColorsEventLog.traces:type_name -> ficus.GrpcColorsTrace
-	18, // 32: ficus.GrpcColorsEventLog.adjustments:type_name -> ficus.GrpcColorsLogAdjustment
-	19, // 33: ficus.GrpcColorsLogAdjustment.rectangle_adjustment:type_name -> ficus.GrpcColorsLogRectangleAdjustment
-	21, // 34: ficus.GrpcColorsLogAdjustment.axis_after_trace:type_name -> ficus.GrpcColorsLogXAxisAfterTraceAdjustment
-	20, // 35: ficus.GrpcColorsLogRectangleAdjustment.up_left_point:type_name -> ficus.GrpcLogPoint
-	20, // 36: ficus.GrpcColorsLogRectangleAdjustment.down_right_point:type_name -> ficus.GrpcLogPoint
-	70, // 37: ficus.GrpcColorsEventLogMapping.color:type_name -> ficus.GrpcColor
-	24, // 38: ficus.GrpcColorsTrace.event_colors:type_name -> ficus.GrpcColoredRectangle
-	29, // 39: ficus.GrpcPipeline.parts:type_name -> ficus.GrpcPipelinePartBase
-	30, // 40: ficus.GrpcPipelinePartBase.defaultPart:type_name -> ficus.GrpcPipelinePart
-	32, // 41: ficus.GrpcPipelinePartBase.parallelPart:type_name -> ficus.GrpcParallelPipelinePart
-	34, // 42: ficus.GrpcPipelinePartBase.simpleContextRequestPart:type_name -> ficus.GrpcSimpleContextRequestPipelinePart
-	35, // 43: ficus.GrpcPipelinePartBase.complexContextRequestPart:type_name -> ficus.GrpcComplexContextRequestPipelinePart
-	31, // 44: ficus.GrpcPipelinePart.configuration:type_name -> ficus.GrpcPipelinePartConfiguration
-	9,  // 45: ficus.GrpcPipelinePartConfiguration.configurationParameters:type_name -> ficus.GrpcContextKeyValue
-	29, // 46: ficus.GrpcParallelPipelinePart.pipelineParts:type_name -> ficus.GrpcPipelinePartBase
-	32, // 47: ficus.GrpcParallelPipelineParts.pipeline:type_name -> ficus.GrpcParallelPipelinePart
-	3,  // 48: ficus.GrpcSimpleContextRequestPipelinePart.key:type_name -> ficus.GrpcContextKey
-	71, // 49: ficus.GrpcSimpleContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcGuid
-	3,  // 50: ficus.GrpcComplexContextRequestPipelinePart.keys:type_name -> ficus.GrpcContextKey
-	30, // 51: ficus.GrpcComplexContextRequestPipelinePart.beforePipelinePart:type_name -> ficus.GrpcPipelinePart
-	71, // 52: ficus.GrpcComplexContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcGuid
-	37, // 53: ficus.GrpcGraph.nodes:type_name -> ficus.GrpcGraphNode
-	54, // 54: ficus.GrpcGraph.edges:type_name -> ficus.GrpcGraphEdge
-	0,  // 55: ficus.GrpcGraph.kind:type_name -> ficus.GrpcGraphKind
-	38, // 56: ficus.GrpcGraphNode.additional_data:type_name -> ficus.GrpcNodeAdditionalData
-	36, // 57: ficus.GrpcGraphNode.inner_graph:type_name -> ficus.GrpcGraph
-	72, // 58: ficus.GrpcNodeAdditionalData.none:type_name -> google.protobuf.Empty
-	43, // 59: ficus.GrpcNodeAdditionalData.software_data:type_name -> ficus.GrpcSoftwareData
-	53, // 60: ficus.GrpcNodeAdditionalData.pattern_info:type_name -> ficus.GrpcUnderlyingPatternInfo
-	42, // 61: ficus.GrpcNodeAdditionalData.trace_data:type_name -> ficus.GrpcNodeCorrespondingTraceData
-	40, // 62: ficus.GrpcNodeAdditionalData.time_data:type_name -> ficus.GrpcActivityStartEndData
-	39, // 63: ficus.GrpcNodeAdditionalData.multithreaded_fragment:type_name -> ficus.GrpcMultithreadedFragment
-	41, // 64: ficus.GrpcNodeAdditionalData.original_event_coordinates:type_name -> ficus.GrpcEventCoordinates
-	67, // 65: ficus.GrpcMultithreadedFragment.multithreaded_log:type_name -> ficus.GrpcSimpleEventLog
-	50, // 66: ficus.GrpcSoftwareData.histogram:type_name -> ficus.GrpcHistogramEntry
-	51, // 67: ficus.GrpcSoftwareData.timeline_diagram_fragment:type_name -> ficus.GrpcTimelineDiagramFragment
-	46, // 68: ficus.GrpcSoftwareData.histogram_data:type_name -> ficus.GrpcGeneralHistogramData
-	47, // 69: ficus.GrpcSoftwareData.simple_counter_data:type_name -> ficus.GrpcSimpleCounterData
-	44, // 70: ficus.GrpcSoftwareData.activities_durations_data:type_name -> ficus.GrpcActivityDurationData
-	45, // 71: ficus.GrpcActivityDurationData.base:type_name -> ficus.GrpcGenericEnhancementBase
-	1,  // 72: ficus.GrpcActivityDurationData.kind:type_name -> ficus.GrpcDurationKind
-	45, // 73: ficus.GrpcGeneralHistogramData.base:type_name -> ficus.GrpcGenericEnhancementBase
-	50, // 74: ficus.GrpcGeneralHistogramData.entries:type_name -> ficus.GrpcHistogramEntry
-	45, // 75: ficus.GrpcSimpleCounterData.base:type_name -> ficus.GrpcGenericEnhancementBase
-	49, // 76: ficus.GrpcMethodInliningInfo.inlinee_info:type_name -> ficus.GrpcMethodNameParts
-	49, // 77: ficus.GrpcMethodInliningInfo.inliner_info:type_name -> ficus.GrpcMethodNameParts
-	61, // 78: ficus.GrpcTimelineDiagramFragment.threads:type_name -> ficus.GrpcThread
-	2,  // 79: ficus.GrpcUnderlyingPatternInfo.pattern_kind:type_name -> ficus.GrpcUnderlyingPatternKind
-	36, // 80: ficus.GrpcUnderlyingPatternInfo.graph:type_name -> ficus.GrpcGraph
-	55, // 81: ficus.GrpcGraphEdge.additional_data:type_name -> ficus.GrpcGraphEdgeAdditionalData
-	43, // 82: ficus.GrpcGraphEdgeAdditionalData.software_data:type_name -> ficus.GrpcSoftwareData
-	56, // 83: ficus.GrpcGraphEdgeAdditionalData.execution_info:type_name -> ficus.GrpcEdgeExecutionInfo
-	40, // 84: ficus.GrpcGraphEdgeAdditionalData.time_data:type_name -> ficus.GrpcActivityStartEndData
-	60, // 85: ficus.GrpcLogTimelineDiagram.traces:type_name -> ficus.GrpcTraceTimelineDiagram
-	20, // 86: ficus.GrpcTimelineTraceEventsGroup.start_point:type_name -> ficus.GrpcLogPoint
-	20, // 87: ficus.GrpcTimelineTraceEventsGroup.end_point:type_name -> ficus.GrpcLogPoint
-	61, // 88: ficus.GrpcTraceTimelineDiagram.threads:type_name -> ficus.GrpcThread
-	59, // 89: ficus.GrpcTraceTimelineDiagram.events_groups:type_name -> ficus.GrpcTimelineTraceEventsGroup
-	62, // 90: ficus.GrpcThread.events:type_name -> ficus.GrpcThreadEvent
-	91, // [91:91] is the sub-list for method output_type
-	91, // [91:91] is the sub-list for method input_type
-	91, // [91:91] is the sub-list for extension type_name
-	91, // [91:91] is the sub-list for extension extendee
-	0,  // [0:91] is the sub-list for field type_name
+	5,   // 0: ficus.GrpcContextValueWithKeyName.value:type_name -> ficus.GrpcContextValue
+	15,  // 1: ficus.GrpcContextValue.hashes_log:type_name -> ficus.GrpcHashesEventLogContextValue
+	16,  // 2: ficus.GrpcContextValue.names_log:type_name -> ficus.GrpcNamesEventLogContextValue
+	17,  // 3: ficus.GrpcContextValue.traces_sub_arrays:type_name -> ficus.GrpcEventLogTraceSubArraysContextValue
+	21,  // 4: ficus.GrpcContextValue.trace_index_sub_arrays:type_name -> ficus.GrpcSubArraysWithTraceIndexContextValue
+	16,  // 5: ficus.GrpcContextValue.xes_event_log:type_name -> ficus.GrpcNamesEventLogContextValue
+	22,  // 6: ficus.GrpcContextValue.colors_log:type_name -> ficus.GrpcColorsEventLog
+	30,  // 7: ficus.GrpcContextValue.enum:type_name -> ficus.GrpcEnum
+	31,  // 8: ficus.GrpcContextValue.event_log_info:type_name -> ficus.GrpcEventLogInfo
+	32,  // 9: ficus.GrpcContextValue.strings:type_name -> ficus.GrpcStrings
+	33,  // 10: ficus.GrpcContextValue.pipeline:type_name -> ficus.GrpcPipeline
+	73,  // 11: ficus.GrpcContextValue.petriNet:type_name -> ficus.GrpcPetriNet
+	41,  // 12: ficus.GrpcContextValue.graph:type_name -> ficus.GrpcGraph
+	74,  // 13: ficus.GrpcContextValue.annotation:type_name -> ficus.GrpcAnnotation
+	75,  // 14: ficus.GrpcContextValue.dataset:type_name -> ficus.GrpcDataset
+	76,  // 15: ficus.GrpcContextValue.labeled_dataset:type_name -> ficus.GrpcLabeledDataset
+	67,  // 16: ficus.GrpcContextValue.bytes:type_name -> ficus.GrpcBytes
+	68,  // 17: ficus.GrpcContextValue.logTimelineDiagram:type_name -> ficus.GrpcLogTimelineDiagram
+	11,  // 18: ficus.GrpcContextValue.float_array:type_name -> ficus.GrpcFloatArray
+	12,  // 19: ficus.GrpcContextValue.int_array:type_name -> ficus.GrpcIntArray
+	13,  // 20: ficus.GrpcContextValue.uint_array:type_name -> ficus.GrpcUintArray
+	77,  // 21: ficus.GrpcContextValue.event_log:type_name -> ficus.GrpcSimpleEventLog
+	6,   // 22: ficus.GrpcContextValue.ocel_annotation:type_name -> ficus.GrpcOcelModelAnnotation
+	7,   // 23: ficus.GrpcOcelModelAnnotation.annotations:type_name -> ficus.GrpcModelElementOcelAnnotation
+	9,   // 24: ficus.GrpcModelElementOcelAnnotation.initial_state:type_name -> ficus.GrpcOcelState
+	9,   // 25: ficus.GrpcModelElementOcelAnnotation.final_state:type_name -> ficus.GrpcOcelState
+	8,   // 26: ficus.GrpcModelElementOcelAnnotation.relations:type_name -> ficus.GrpcOcelStateObjectRelation
+	10,  // 27: ficus.GrpcOcelState.type_states:type_name -> ficus.GrpcOcelObjectTypeState
+	3,   // 28: ficus.GrpcContextKeyValue.key:type_name -> ficus.GrpcContextKey
+	5,   // 29: ficus.GrpcContextKeyValue.value:type_name -> ficus.GrpcContextValue
+	78,  // 30: ficus.GrpcHashesEventLogContextValue.log:type_name -> ficus.GrpcHashesEventLog
+	79,  // 31: ficus.GrpcNamesEventLogContextValue.log:type_name -> ficus.GrpcNamesEventLog
+	19,  // 32: ficus.GrpcEventLogTraceSubArraysContextValue.traces_sub_arrays:type_name -> ficus.GrpcTraceSubArrays
+	18,  // 33: ficus.GrpcTraceSubArrays.sub_arrays:type_name -> ficus.GrpcTraceSubArray
+	18,  // 34: ficus.GrpcSubArrayWithTraceIndex.sub_array:type_name -> ficus.GrpcTraceSubArray
+	20,  // 35: ficus.GrpcSubArraysWithTraceIndexContextValue.sub_arrays:type_name -> ficus.GrpcSubArrayWithTraceIndex
+	27,  // 36: ficus.GrpcColorsEventLog.mapping:type_name -> ficus.GrpcColorsEventLogMapping
+	28,  // 37: ficus.GrpcColorsEventLog.traces:type_name -> ficus.GrpcColorsTrace
+	23,  // 38: ficus.GrpcColorsEventLog.adjustments:type_name -> ficus.GrpcColorsLogAdjustment
+	24,  // 39: ficus.GrpcColorsLogAdjustment.rectangle_adjustment:type_name -> ficus.GrpcColorsLogRectangleAdjustment
+	26,  // 40: ficus.GrpcColorsLogAdjustment.axis_after_trace:type_name -> ficus.GrpcColorsLogXAxisAfterTraceAdjustment
+	25,  // 41: ficus.GrpcColorsLogRectangleAdjustment.up_left_point:type_name -> ficus.GrpcLogPoint
+	25,  // 42: ficus.GrpcColorsLogRectangleAdjustment.down_right_point:type_name -> ficus.GrpcLogPoint
+	80,  // 43: ficus.GrpcColorsEventLogMapping.color:type_name -> ficus.GrpcColor
+	29,  // 44: ficus.GrpcColorsTrace.event_colors:type_name -> ficus.GrpcColoredRectangle
+	34,  // 45: ficus.GrpcPipeline.parts:type_name -> ficus.GrpcPipelinePartBase
+	35,  // 46: ficus.GrpcPipelinePartBase.defaultPart:type_name -> ficus.GrpcPipelinePart
+	37,  // 47: ficus.GrpcPipelinePartBase.parallelPart:type_name -> ficus.GrpcParallelPipelinePart
+	39,  // 48: ficus.GrpcPipelinePartBase.simpleContextRequestPart:type_name -> ficus.GrpcSimpleContextRequestPipelinePart
+	40,  // 49: ficus.GrpcPipelinePartBase.complexContextRequestPart:type_name -> ficus.GrpcComplexContextRequestPipelinePart
+	36,  // 50: ficus.GrpcPipelinePart.configuration:type_name -> ficus.GrpcPipelinePartConfiguration
+	14,  // 51: ficus.GrpcPipelinePartConfiguration.configurationParameters:type_name -> ficus.GrpcContextKeyValue
+	34,  // 52: ficus.GrpcParallelPipelinePart.pipelineParts:type_name -> ficus.GrpcPipelinePartBase
+	37,  // 53: ficus.GrpcParallelPipelineParts.pipeline:type_name -> ficus.GrpcParallelPipelinePart
+	3,   // 54: ficus.GrpcSimpleContextRequestPipelinePart.key:type_name -> ficus.GrpcContextKey
+	81,  // 55: ficus.GrpcSimpleContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcGuid
+	3,   // 56: ficus.GrpcComplexContextRequestPipelinePart.keys:type_name -> ficus.GrpcContextKey
+	35,  // 57: ficus.GrpcComplexContextRequestPipelinePart.beforePipelinePart:type_name -> ficus.GrpcPipelinePart
+	81,  // 58: ficus.GrpcComplexContextRequestPipelinePart.frontendPartUuid:type_name -> ficus.GrpcGuid
+	42,  // 59: ficus.GrpcGraph.nodes:type_name -> ficus.GrpcGraphNode
+	64,  // 60: ficus.GrpcGraph.edges:type_name -> ficus.GrpcGraphEdge
+	0,   // 61: ficus.GrpcGraph.kind:type_name -> ficus.GrpcGraphKind
+	43,  // 62: ficus.GrpcGraphNode.additional_data:type_name -> ficus.GrpcNodeAdditionalData
+	41,  // 63: ficus.GrpcGraphNode.inner_graph:type_name -> ficus.GrpcGraph
+	82,  // 64: ficus.GrpcNodeAdditionalData.none:type_name -> google.protobuf.Empty
+	48,  // 65: ficus.GrpcNodeAdditionalData.software_data:type_name -> ficus.GrpcSoftwareData
+	63,  // 66: ficus.GrpcNodeAdditionalData.pattern_info:type_name -> ficus.GrpcUnderlyingPatternInfo
+	47,  // 67: ficus.GrpcNodeAdditionalData.trace_data:type_name -> ficus.GrpcNodeCorrespondingTraceData
+	45,  // 68: ficus.GrpcNodeAdditionalData.time_data:type_name -> ficus.GrpcActivityStartEndData
+	44,  // 69: ficus.GrpcNodeAdditionalData.multithreaded_fragment:type_name -> ficus.GrpcMultithreadedFragment
+	46,  // 70: ficus.GrpcNodeAdditionalData.original_event_coordinates:type_name -> ficus.GrpcEventCoordinates
+	77,  // 71: ficus.GrpcMultithreadedFragment.multithreaded_log:type_name -> ficus.GrpcSimpleEventLog
+	60,  // 72: ficus.GrpcSoftwareData.histogram:type_name -> ficus.GrpcHistogramEntry
+	61,  // 73: ficus.GrpcSoftwareData.timeline_diagram_fragment:type_name -> ficus.GrpcTimelineDiagramFragment
+	56,  // 74: ficus.GrpcSoftwareData.histogram_data:type_name -> ficus.GrpcGeneralHistogramData
+	57,  // 75: ficus.GrpcSoftwareData.simple_counter_data:type_name -> ficus.GrpcSimpleCounterData
+	54,  // 76: ficus.GrpcSoftwareData.activities_durations_data:type_name -> ficus.GrpcActivityDurationData
+	53,  // 77: ficus.GrpcSoftwareData.ocel_data:type_name -> ficus.GrpcOcelData
+	51,  // 78: ficus.GrpcOcelConsumeProduce.produced_objects:type_name -> ficus.GrpcOcelProducedObject
+	49,  // 79: ficus.GrpcOcelData.allocate:type_name -> ficus.GrpcOcelObjectTypeData
+	49,  // 80: ficus.GrpcOcelData.consume:type_name -> ficus.GrpcOcelObjectTypeData
+	50,  // 81: ficus.GrpcOcelData.merged_object_allocation:type_name -> ficus.GrpcOcelAllocateMerge
+	52,  // 82: ficus.GrpcOcelData.produce_object_consumption:type_name -> ficus.GrpcOcelConsumeProduce
+	55,  // 83: ficus.GrpcActivityDurationData.base:type_name -> ficus.GrpcGenericEnhancementBase
+	1,   // 84: ficus.GrpcActivityDurationData.kind:type_name -> ficus.GrpcDurationKind
+	55,  // 85: ficus.GrpcGeneralHistogramData.base:type_name -> ficus.GrpcGenericEnhancementBase
+	60,  // 86: ficus.GrpcGeneralHistogramData.entries:type_name -> ficus.GrpcHistogramEntry
+	55,  // 87: ficus.GrpcSimpleCounterData.base:type_name -> ficus.GrpcGenericEnhancementBase
+	59,  // 88: ficus.GrpcMethodInliningInfo.inlinee_info:type_name -> ficus.GrpcMethodNameParts
+	59,  // 89: ficus.GrpcMethodInliningInfo.inliner_info:type_name -> ficus.GrpcMethodNameParts
+	71,  // 90: ficus.GrpcTimelineDiagramFragment.threads:type_name -> ficus.GrpcThread
+	2,   // 91: ficus.GrpcUnderlyingPatternInfo.pattern_kind:type_name -> ficus.GrpcUnderlyingPatternKind
+	41,  // 92: ficus.GrpcUnderlyingPatternInfo.graph:type_name -> ficus.GrpcGraph
+	65,  // 93: ficus.GrpcGraphEdge.additional_data:type_name -> ficus.GrpcGraphEdgeAdditionalData
+	48,  // 94: ficus.GrpcGraphEdgeAdditionalData.software_data:type_name -> ficus.GrpcSoftwareData
+	66,  // 95: ficus.GrpcGraphEdgeAdditionalData.execution_info:type_name -> ficus.GrpcEdgeExecutionInfo
+	45,  // 96: ficus.GrpcGraphEdgeAdditionalData.time_data:type_name -> ficus.GrpcActivityStartEndData
+	70,  // 97: ficus.GrpcLogTimelineDiagram.traces:type_name -> ficus.GrpcTraceTimelineDiagram
+	25,  // 98: ficus.GrpcTimelineTraceEventsGroup.start_point:type_name -> ficus.GrpcLogPoint
+	25,  // 99: ficus.GrpcTimelineTraceEventsGroup.end_point:type_name -> ficus.GrpcLogPoint
+	71,  // 100: ficus.GrpcTraceTimelineDiagram.threads:type_name -> ficus.GrpcThread
+	69,  // 101: ficus.GrpcTraceTimelineDiagram.events_groups:type_name -> ficus.GrpcTimelineTraceEventsGroup
+	72,  // 102: ficus.GrpcThread.events:type_name -> ficus.GrpcThreadEvent
+	103, // [103:103] is the sub-list for method output_type
+	103, // [103:103] is the sub-list for method input_type
+	103, // [103:103] is the sub-list for extension type_name
+	103, // [103:103] is the sub-list for extension extendee
+	0,   // [0:103] is the sub-list for field type_name
 }
 
 func init() { file_pipelines_and_context_proto_init() }
@@ -4458,18 +5135,20 @@ func file_pipelines_and_context_proto_init() {
 		(*GrpcContextValue_UintArray)(nil),
 		(*GrpcContextValue_Json)(nil),
 		(*GrpcContextValue_EventLog)(nil),
+		(*GrpcContextValue_OcelAnnotation)(nil),
 	}
-	file_pipelines_and_context_proto_msgTypes[15].OneofWrappers = []any{
+	file_pipelines_and_context_proto_msgTypes[4].OneofWrappers = []any{}
+	file_pipelines_and_context_proto_msgTypes[20].OneofWrappers = []any{
 		(*GrpcColorsLogAdjustment_RectangleAdjustment)(nil),
 		(*GrpcColorsLogAdjustment_AxisAfterTrace)(nil),
 	}
-	file_pipelines_and_context_proto_msgTypes[26].OneofWrappers = []any{
+	file_pipelines_and_context_proto_msgTypes[31].OneofWrappers = []any{
 		(*GrpcPipelinePartBase_DefaultPart)(nil),
 		(*GrpcPipelinePartBase_ParallelPart)(nil),
 		(*GrpcPipelinePartBase_SimpleContextRequestPart)(nil),
 		(*GrpcPipelinePartBase_ComplexContextRequestPart)(nil),
 	}
-	file_pipelines_and_context_proto_msgTypes[35].OneofWrappers = []any{
+	file_pipelines_and_context_proto_msgTypes[40].OneofWrappers = []any{
 		(*GrpcNodeAdditionalData_None)(nil),
 		(*GrpcNodeAdditionalData_SoftwareData)(nil),
 		(*GrpcNodeAdditionalData_PatternInfo)(nil),
@@ -4477,8 +5156,17 @@ func file_pipelines_and_context_proto_init() {
 		(*GrpcNodeAdditionalData_TimeData)(nil),
 		(*GrpcNodeAdditionalData_MultithreadedFragment)(nil),
 	}
-	file_pipelines_and_context_proto_msgTypes[42].OneofWrappers = []any{}
-	file_pipelines_and_context_proto_msgTypes[52].OneofWrappers = []any{
+	file_pipelines_and_context_proto_msgTypes[46].OneofWrappers = []any{}
+	file_pipelines_and_context_proto_msgTypes[47].OneofWrappers = []any{}
+	file_pipelines_and_context_proto_msgTypes[48].OneofWrappers = []any{}
+	file_pipelines_and_context_proto_msgTypes[50].OneofWrappers = []any{
+		(*GrpcOcelData_Allocate)(nil),
+		(*GrpcOcelData_Consume)(nil),
+		(*GrpcOcelData_MergedObjectAllocation)(nil),
+		(*GrpcOcelData_ProduceObjectConsumption)(nil),
+	}
+	file_pipelines_and_context_proto_msgTypes[52].OneofWrappers = []any{}
+	file_pipelines_and_context_proto_msgTypes[62].OneofWrappers = []any{
 		(*GrpcGraphEdgeAdditionalData_SoftwareData)(nil),
 		(*GrpcGraphEdgeAdditionalData_ExecutionInfo)(nil),
 		(*GrpcGraphEdgeAdditionalData_TimeData)(nil),
@@ -4489,7 +5177,7 @@ func file_pipelines_and_context_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pipelines_and_context_proto_rawDesc), len(file_pipelines_and_context_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   60,
+			NumMessages:   70,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -21,6 +21,7 @@ use crate::features::discovery::timeline::software_data::extractors::core::{
   EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
 };
 use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
+use crate::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
 use crate::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
 use crate::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
@@ -152,6 +153,7 @@ fn put_node_user_data(
 
   let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
+
   event
     .user_data_mut()
     .put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
@@ -185,6 +187,7 @@ fn put_edge_user_data(
   event
     .user_data_mut()
     .put_concrete(EDGE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![edge_start_end_time]);
+
   event.user_data_mut().put_concrete(
     EDGE_TRACE_EXECUTION_INFO_KEY.key(),
     vec![EdgeTraceExecutionInfo::new(event_coordinates.trace_id())],
@@ -242,6 +245,7 @@ fn create_edge_software_data_extractors<'a>(
   vec![
     Rc::new(Box::new(PieChartExtractor::<'a>::new(config))),
     Rc::new(Box::new(SimpleCounterExtractor::<'a>::new(config))),
+    Rc::new(Box::new(OcelDataExtractor::<'a>::new(config))),
   ]
 }
 

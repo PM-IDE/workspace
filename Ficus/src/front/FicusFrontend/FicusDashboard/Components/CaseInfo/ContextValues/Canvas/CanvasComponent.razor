@@ -1,16 +1,18 @@
-﻿@using BlazorBootstrap;
+﻿@using FicusDashboard.Components.Utils
 
 @inherits ComponentBase
 
 @inject IJSRuntime Js
 
-@if (myIsDrawing)
-{
-  <Spinner Style="margin-top: 10px; margin-left: 10px;" Type="SpinnerType.Dots" Color="SpinnerColor.Primary"/>
-}
+<div style="height: 10px; width: 100%; display: flex; align-items: center; justify-content: center;">
+  @if (myIsDrawing)
+  {
+    <Loader />
+  }
+</div>
 
-<div style="visibility: @(myIsDrawing ? "collapse" : "visible")" class="@(IsFullScreen ? "canvas-container-fullscreen" : "canvas-container")">
-  <div id="@myCytoscapeContainerId" class="@(IsFullScreen ? "canvas-container-fullscreen" : "cytoscape-canvas")">
+<div style="visibility: @(myIsDrawing ? "collapse" : "inherit")" class="canvas-container">
+  <div id="@myCytoscapeContainerId" class="cytoscape-canvas">
   </div>
 </div>
 
@@ -39,7 +41,7 @@
     return Task.CompletedTask;
   }
 
-  public Task ExportGraph(string fileName) => 
+  public Task ExportGraph(string fileName) =>
     Js.InvokeVoidAsync("exportCytoscapeToSvg", myCytoscapeReference, fileName).AsTask();
 
   private void ReRenderCanvasInternal()
@@ -48,7 +50,7 @@
     StateHasChanged();
 
     //some hacks in order to make it work after changing to full screen from JS side
-    Task.Delay(100).ContinueWith(_ =>
+    Task.Delay(200).ContinueWith(_ =>
     {
       InvokeAsync(async () =>
       {
@@ -64,5 +66,4 @@
     myRequestedToRerender = true;
     ReRenderCanvasInternal();
   }
-
 }

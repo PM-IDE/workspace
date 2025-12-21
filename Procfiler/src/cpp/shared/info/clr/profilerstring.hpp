@@ -76,7 +76,7 @@ private:
     {
         assert(other != nullptr);
 
-        size_t otherLen = wcslen(other) + 1;
+        const size_t otherLen = wcslen(other) + 1;
         if (buffer == nullptr || otherLen > bufferLen)
         {
             bufferLen = DefaultStringLength > otherLen ? DefaultStringLength : otherLen;
@@ -179,9 +179,9 @@ public:
 
     String& operator+=(const String& other)
     {
-        size_t currLen = wcslen(buffer);
-        size_t otherLen = wcslen(other.buffer);
-        size_t candidateLen = currLen + otherLen + 1;
+        const size_t currLen = wcslen(buffer);
+        const size_t otherLen = wcslen(other.buffer);
+        const size_t candidateLen = currLen + otherLen + 1;
 
         if (candidateLen > bufferLen)
         {
@@ -196,18 +196,17 @@ public:
         return *this;
     }
 
-    WCHAR& operator[] (size_t pos)
+    WCHAR& operator[] (const size_t pos)
     {
         return buffer[pos];
     }
 
-    const WCHAR& operator[] (size_t pos) const
+    const WCHAR& operator[] (const size_t pos) const
     {
         return buffer[pos];
     }
 
-    void Clear()
-    {
+    void Clear() const {
         if (buffer != nullptr)
         {
             buffer[0] = 0;
@@ -244,8 +243,7 @@ public:
         return printBuffer;
     }
 
-    wstring ToWString()
-    {
+    wstring ToWString() const {
         wstring temp;
         for (size_t i = 0; i < bufferLen; ++i)
         {
@@ -283,8 +281,8 @@ inline std::wostream& operator<<(std::wostream& os, const String& obj)
 
 inline bool EndsWith(const char *lhs, const char *rhs)
 {
-    size_t lhsLen = strlen(lhs);
-    size_t rhsLen = strlen(rhs);
+    const size_t lhsLen = strlen(lhs);
+    const size_t rhsLen = strlen(rhs);
     if (lhsLen < rhsLen)
     {
         return false;
@@ -309,8 +307,8 @@ inline bool EndsWith(const char *lhs, const char *rhs)
 
 inline bool EndsWith(const String &lhs, const String &rhs)
 {
-    size_t lhsLength = lhs.Length();
-    size_t rhsLength = rhs.Length();
+    const size_t lhsLength = lhs.Length();
+    const size_t rhsLength = rhs.Length();
     if (lhsLength < rhsLength)
     {
         return false;

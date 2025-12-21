@@ -1,4 +1,5 @@
 use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
+use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, Setters};
@@ -13,6 +14,8 @@ pub struct SoftwareDataExtractionConfig {
   method_end: Option<ExtractionConfig<MethodStartEndConfig>>,
   #[getset(get = "pub", set = "pub")]
   allocation: Option<ExtractionConfig<AllocationExtractionConfig>>,
+  #[getset(get = "pub", set = "pub")]
+  ocel: Option<OcelUnitedExtractionConfig>,
 
   #[getset(get = "pub", set = "pub")]
   raw_control_flow_regexes: Vec<String>,
@@ -31,6 +34,7 @@ impl SoftwareDataExtractionConfig {
       method_start: None,
       method_end: None,
       allocation: None,
+      ocel: None,
       raw_control_flow_regexes: vec![],
       pie_chart_extraction_configs: vec![],
       simple_counter_configs: vec![],
@@ -58,6 +62,46 @@ impl SoftwareDataExtractionConfig {
 
     Ok(Some(result))
   }
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelUnitedExtractionConfig {
+  #[getset(get = "pub")]
+  delimiter: Option<String>,
+  #[getset(get = "pub")]
+  allocated: Option<ExtractionConfig<OcelObjectExtractionConfigBase>>,
+  #[getset(get = "pub")]
+  consumed: Option<ExtractionConfig<OcelObjectExtractionConfigBase>>,
+  #[getset(get = "pub")]
+  allocated_merged: Option<ExtractionConfig<OcelAllocateMergeExtractionConfig>>,
+  #[getset(get = "pub")]
+  consume_produce: Option<ExtractionConfig<OcelConsumeProduceExtractionConfig>>,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelObjectExtractionConfigBase {
+  #[getset(get = "pub")]
+  object_type_attr: NameCreationStrategy,
+  #[getset(get = "pub")]
+  object_id_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelAllocateMergeExtractionConfig {
+  #[getset(get = "pub")]
+  allocated_obj: OcelObjectExtractionConfigBase,
+  #[getset(get = "pub")]
+  related_object_ids_attr: String,
+}
+
+#[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
+pub struct OcelConsumeProduceExtractionConfig {
+  #[getset(get = "pub")]
+  object_id_attr: String,
+  #[getset(get = "pub")]
+  related_object_ids_attr: String,
+  #[getset(get = "pub")]
+  related_object_type_attr: String,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -111,11 +155,11 @@ pub struct PieChartExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct GenericExtractionConfigBase {
   #[getset(get = "pub")]
-  name: String,
+  name: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  units: String,
+  units: HeapedOrOwned<String>,
   #[getset(get = "pub")]
-  group: Option<String>,
+  group: Option<HeapedOrOwned<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
@@ -126,10 +170,10 @@ pub enum NameCreationStrategy {
 }
 
 impl NameCreationStrategy {
-  pub fn fallback_value(&self) -> String {
+  pub fn fallback_value(&self) -> HeapedOrOwned<String> {
     match self {
-      NameCreationStrategy::SingleAttribute(s) => s.fallback_value().to_string(),
-      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().to_string(),
+      NameCreationStrategy::SingleAttribute(s) => s.fallback_value().clone(),
+      NameCreationStrategy::ManyAttributes(m) => m.fallback_value().clone(),
     }
   }
 }
@@ -139,7 +183,7 @@ pub struct SingleAttribute {
   #[getset(get = "pub")]
   name: String,
   #[getset(get = "pub")]
-  fallback_value: String,
+  fallback_value: HeapedOrOwned<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -149,7 +193,7 @@ pub struct ManyAttributes {
   #[getset(get = "pub")]
   separator: String,
   #[getset(get = "pub")]
-  fallback_value: String,
+  fallback_value: HeapedOrOwned<String>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -179,7 +223,7 @@ pub struct TimeAttributeConfig {
   #[getset(get = "pub")]
   time_attribute: String,
   #[getset(get = "pub")]
-  kind: TimeKind
+  kind: TimeKind,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -194,5 +238,5 @@ pub enum TimeKind {
   Hours,
   Days,
 
-  UtcStamp
+  UtcStamp,
 }

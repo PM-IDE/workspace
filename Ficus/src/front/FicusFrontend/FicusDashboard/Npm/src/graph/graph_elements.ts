@@ -5,14 +5,24 @@ import {
   calculateOverallExecutionTime, createEmptySoftwareData,
   getEdgeEnhancementDataOrNull,
   getNodeEnhancementDataOrNull,
-  getPerformanceAnnotationColor, increment,
+  getPerformanceAnnotationColor, increment, preprocessForCSharpInterop, preprocessFromCSharpInterop,
 } from "./util";
 import {GrpcGraph} from "../protos/ficus/GrpcGraph";
 import {GrpcAnnotation} from "../protos/ficus/GrpcAnnotation";
 import {GrpcGraphNode} from "../protos/ficus/GrpcGraphNode";
 import {GrpcGraphEdge} from "../protos/ficus/GrpcGraphEdge";
 import cytoscape from "cytoscape";
-import {AggregatedData, CountAndSum, MergedSoftwareData, ValueWithUnits} from "./types";
+import {
+  AggregatedData, CytoscapeElementDef,
+  GraphEdge, GraphNode,
+  MergedSoftwareData,
+  SoftwareEnhancementKind,
+  ValueWithUnits
+} from "./types";
+import {createEdgeStandaloneEnhancements} from "./labels/edge_html_label";
+import {createTimeSpanString} from "./labels/util";
+import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
+import {createNodeStandaloneEnhancements} from "./labels/node_html_label";
 
 const graphColor = graphColors(darkTheme);
 
@@ -26,12 +36,8 @@ export function createGraphElements(
 
   let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
 
-  elements.push(...createGraphNodesElements(graph.nodes, filter));
+  elements.push(...createGraphNodesElements(graph.nodes, aggregatedData, filter));
   elements.push(...createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter));
-
-  for (let element of elements) {
-    (<any>element).data.aggregatedData = aggregatedData;
-  }
 
   return elements;
 }
@@ -60,29 +66,6 @@ export function createAggregatedData(graph: GrpcGraph, annotation: GrpcAnnotatio
     console.error(e);
     return null;
   }
-}
-
-function preprocessForCSharpInterop(data: AggregatedData): AggregatedData {
-  //JS Map can not be converted to C# Dictionary
-  data.globalSoftwareData.counters = toObjectCsharpInterop(data.globalSoftwareData.counters);
-  data.globalSoftwareData.activitiesDurations = toObjectCsharpInterop(data.globalSoftwareData.activitiesDurations);
-
-  for (let [key, map] of data.globalSoftwareData.histograms) {
-    data.globalSoftwareData.histograms.set(key, {
-      units: map.units,
-      value: toObjectCsharpInterop(map.value),
-      group: map.group
-    });
-  }
-
-  data.globalSoftwareData.histograms = toObjectCsharpInterop(data.globalSoftwareData.histograms);
-
-  return data;
-}
-
-function toObjectCsharpInterop<TKey, TValue>(map: Map<TKey, TValue>): Map<TKey, TValue> {
-  // @ts-ignore
-  return Object.fromEntries(map);
 }
 
 function processNodesAggregatedData(nodes: GrpcGraphNode[], aggregatedData: AggregatedData, filter: RegExp | null) {
@@ -122,8 +105,12 @@ function buildEdgesTimeAnnotationMap(annotation: GrpcAnnotation): Record<number,
   return idsToTime;
 }
 
-function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null): cytoscape.ElementDefinition[] {
-  let elements = [];
+export function createGraphNodesElements(
+  nodes: GrpcGraphNode[],
+  aggregatedData: AggregatedData,
+  filter: RegExp | null
+): CytoscapeElementDef<GraphNode>[] {
+  let elements: CytoscapeElementDef<GraphNode>[] = [];
 
   for (let node of nodes) {
     elements.push({
@@ -135,6 +122,7 @@ function createGraphNodesElements(nodes: GrpcGraphNode[], filter: RegExp | null)
         innerGraph: node.innerGraph,
         executionTimeNs: calculateOverallExecutionTime(node),
         enhancementData: getNodeEnhancementDataOrNull(node, filter),
+        aggregatedData: aggregatedData
       }
     })
   }
@@ -169,7 +157,7 @@ function updateAggregatedData(aggregatedData: AggregatedData, softwareData: Merg
           }
         })
       }
-      
+
       aggregatedData.globalSoftwareData.activitiesDurations.get(name).value.value += duration.value.value;
     }
   }
@@ -195,13 +183,65 @@ function mergeMaps(first: Map<string, number>, second: Map<string, number>) {
   }
 }
 
-export function createGraphEdgesElements(
+export function createEnhancedEdges(
+  graph: GrpcGraph,
+  annotation: GrpcAnnotation,
+  aggregatedData: AggregatedData,
+  enhancements: SoftwareEnhancementKind[],
+  filter: RegExp | null,
+) {
+  aggregatedData = preprocessFromCSharpInterop(aggregatedData);
+  let performanceEdgesMap = buildEdgesTimeAnnotationMap(annotation);
+  let elements = createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter);
+
+  return elements.map(e => {
+
+    let enhancementHtml = "";
+    if (e.data.enhancementData != null) {
+      enhancementHtml = createEdgeStandaloneEnhancements(enhancements, e.data.enhancementData, aggregatedData);
+    }
+
+    return {
+      id: Number.parseInt(e.data.id),
+      html: enhancementHtml,
+      color: e.data.color,
+      executionTimeStringRepr: createTimeSpanString(e.data.executionTimeNs, GrpcDurationKind.Nanos),
+      numberOfExecutions: e.data.weight
+    }
+  });
+}
+
+export function createEnhancedNodes(
+  graph: GrpcGraph,
+  aggregatedData: AggregatedData,
+  enhancements: SoftwareEnhancementKind[],
+  filter: RegExp | null,
+) {
+  aggregatedData = preprocessFromCSharpInterop(aggregatedData);
+  let elements = createGraphNodesElements(graph.nodes, aggregatedData, filter);
+
+  return elements.map(e => {
+    let enhancementHtml = null;
+    if (e.data.enhancementData != null) {
+      enhancementHtml = createNodeStandaloneEnhancements(enhancements, e.data.enhancementData, aggregatedData);
+    }
+
+    return {
+      id: Number.parseInt(e.data.id),
+      html: enhancementHtml,
+      color: getPerformanceAnnotationColor(e.data.executionTimeNs / aggregatedData.totalExecutionTimeNs),
+      executionTimeStringRepr: createTimeSpanString(e.data.executionTimeNs, GrpcDurationKind.Nanos),
+    }
+  });
+}
+
+function createGraphEdgesElements(
   edges: GrpcGraphEdge[],
   performanceMap: Record<number, any>,
   aggregatedData: AggregatedData,
   filter: RegExp | null
-): cytoscape.ElementDefinition[] {
-  let elements: cytoscape.ElementDefinition[] = [];
+): CytoscapeElementDef<GraphEdge>[] {
+  let elements: CytoscapeElementDef<GraphEdge>[] = [];
 
   let maxWeight = Math.max(...edges.map(e => e.weight));
   const minWidth = 5;
@@ -242,7 +282,8 @@ export function createGraphEdgesElements(
         executionTimeNs: executionTime,
         weight: edge.weight,
         width: width,
-        color: color
+        color: color,
+        aggregatedData: aggregatedData
       }
     })
   }

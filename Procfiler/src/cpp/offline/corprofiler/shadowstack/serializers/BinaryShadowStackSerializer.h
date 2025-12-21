@@ -6,22 +6,21 @@
 #include "../EventsWithThreadId.h"
 
 class BinaryShadowStackSerializer : public ShadowStackSerializer {
-private:
     std::string mySavePath;
     ICorProfilerInfo15* myProfilerInfo;
     ProcfilerLogger* myLogger;
     bool myUseSeparateBinstacksFiles{false};
 
-    void SerializeInSingleFile(ShadowStack* shadowStack);
-    void SerializeInDifferentFiles(ShadowStack* shadowStack);
+    void SerializeInSingleFile(const ShadowStack* shadowStack) const;
+    void SerializeInDifferentFiles(const ShadowStack* shadowStack) const;
 
     void WriteThreadStack(ThreadID threadId,
-                          std::vector<FunctionEvent>* events,
+                          const std::vector<FunctionEvent>* events,
                           std::ofstream& fout,
                           std::set<FunctionID>& filteredOutFunctions,
-                          std::regex* methodsFilterRegex);
+                          const std::regex* methodsFilterRegex) const;
 
-    std::regex* TryCreateMethodsFilterRegex();
+    std::regex* TryCreateMethodsFilterRegex() const;
 public:
     explicit BinaryShadowStackSerializer(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger);
     ~BinaryShadowStackSerializer() override = default;

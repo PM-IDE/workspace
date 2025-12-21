@@ -13,14 +13,14 @@ void EventPipeShadowStackSerializer::Init() {
 void EventPipeShadowStackSerializer::Serialize(ShadowStack* shadowStack) {
     HRESULT hr;
 
-    auto events = shadowStack->GetAllStacks();
+    const auto events = shadowStack->GetAllStacks();
     std::map<FunctionID, FunctionInfo> resolvedFunctions;
 
     for (const auto& pair: *events) {
-        auto offlineEvents = dynamic_cast<EventsWithThreadIdOffline*>(pair.second);
+        const auto offlineEvents = dynamic_cast<EventsWithThreadIdOffline*>(pair.second);
         if (offlineEvents == nullptr) continue;
 
-        auto threadId = pair.first;
+        const auto threadId = pair.first;
 
         for (const auto& event: *(offlineEvents->Events)) {
             hr = FAILED(LogFunctionEvent(event, threadId, resolvedFunctions));
@@ -64,7 +64,7 @@ HRESULT EventPipeShadowStackSerializer::DefineProcfilerMethodInfoEvent() {
             {COR_PRF_EVENTPIPE_STRING, 0, ToWString("FunctionName").c_str()},
     };
 
-    auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
+    const auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
 
     return myProfilerInfo->EventPipeDefineEvent(
             myEventPipeProvider,
@@ -96,7 +96,7 @@ HRESULT EventPipeShadowStackSerializer::DefineMethodStartOrEndEventInternal(cons
             {COR_PRF_EVENTPIPE_UINT64, 0, ToWString("ThreadId").c_str()},
     };
 
-    auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
+    const auto paramsCount = sizeof(eventParameters) / sizeof(COR_PRF_EVENTPIPE_PARAM_DESC);
 
     return profilerInfo->EventPipeDefineEvent(
             provider,
@@ -118,25 +118,25 @@ HRESULT EventPipeShadowStackSerializer::InitializeProvidersAndEvents() {
 
     HRESULT hr;
     if ((hr = DefineProcfilerEventPipeProvider()) != S_OK) {
-        auto logMessage = "Failed to initialize Event Pipe Provider, HR = " + std::to_string(hr);
+        const auto logMessage = "Failed to initialize Event Pipe Provider, HR = " + std::to_string(hr);
         myLogger->LogError(logMessage);
         return hr;
     }
 
     if ((hr = DefineProcfilerMethodStartEvent()) != S_OK) {
-        auto logMessage = "Failed to initialize method start event, HR = " + std::to_string(hr);
+        const auto logMessage = "Failed to initialize method start event, HR = " + std::to_string(hr);
         myLogger->LogError(logMessage);
         return hr;
     }
 
     if ((hr = DefineProcfilerMethodEndEvent()) != S_OK) {
-        auto logMessage = "Failed to initialize method end event, HR = " + std::to_string(hr);
+        const auto logMessage = "Failed to initialize method end event, HR = " + std::to_string(hr);
         myLogger->LogError(logMessage);
         return hr;
     }
 
     if ((hr = DefineProcfilerMethodInfoEvent()) != S_OK) {
-        auto logMessage = "Failed to initialize method info event, HR = " + std::to_string(hr);
+        const auto logMessage = "Failed to initialize method info event, HR = " + std::to_string(hr);
         myLogger->LogError(logMessage);
         return hr;
     }
@@ -148,12 +148,12 @@ HRESULT EventPipeShadowStackSerializer::InitializeProvidersAndEvents() {
 
 HRESULT EventPipeShadowStackSerializer::LogFunctionEvent(const FunctionEvent& event,
                                                          const DWORD& threadId,
-                                                         std::map<FunctionID, FunctionInfo>& resolvedFunctions) {
+                                                         std::map<FunctionID, FunctionInfo>& resolvedFunctions) const {
     if (!resolvedFunctions.count(event.Id)) {
         resolvedFunctions[event.Id] = FunctionInfo::GetFunctionInfo(myProfilerInfo, event.Id);
     }
 
-    auto eventPipeEvent = event.EventKind == FunctionEventKind::Started ? myMethodStartEvent : myMethodEndEvent;
+    const auto eventPipeEvent = event.EventKind == FunctionEventKind::Started ? myMethodStartEvent : myMethodEndEvent;
 
     COR_PRF_EVENT_DATA eventData[3];
 
@@ -166,12 +166,12 @@ HRESULT EventPipeShadowStackSerializer::LogFunctionEvent(const FunctionEvent& ev
     eventData[2].ptr = reinterpret_cast<UINT64>(&threadId);
     eventData[2].size = sizeof(DWORD);
 
-    auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
+    const auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
     return myProfilerInfo->EventPipeWriteEvent(eventPipeEvent, dataCount, eventData, NULL, NULL);
 }
 
-HRESULT EventPipeShadowStackSerializer::LogMethodInfo(const FunctionID& functionId, const FunctionInfo& functionInfo) {
+HRESULT EventPipeShadowStackSerializer::LogMethodInfo(const FunctionID& functionId, const FunctionInfo& functionInfo) const {
     COR_PRF_EVENT_DATA eventData[2];
 
     eventData[0].ptr = reinterpret_cast<UINT64>(&functionId);
@@ -181,7 +181,7 @@ HRESULT EventPipeShadowStackSerializer::LogMethodInfo(const FunctionID& function
     eventData[1].ptr = reinterpret_cast<UINT64>(&functionName);
     eventData[1].size = static_cast<UINT32>(functionName.length() + 1) * sizeof(WCHAR);
 
-    auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
+    const auto dataCount = sizeof(eventData) / sizeof(COR_PRF_EVENT_DATA);
 
     return myProfilerInfo->EventPipeWriteEvent(myMethodInfoEvent, dataCount, eventData, NULL, NULL);
 }

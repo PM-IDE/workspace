@@ -20,6 +20,7 @@ import type { GrpcFloatArray_DONTUSE as _ficus_GrpcFloatArray_DONTUSE, GrpcFloat
 import type { GrpcIntArray_DONTUSE as _ficus_GrpcIntArray_DONTUSE, GrpcIntArray as _ficus_GrpcIntArray } from '../ficus/GrpcIntArray';
 import type { GrpcUintArray_DONTUSE as _ficus_GrpcUintArray_DONTUSE, GrpcUintArray as _ficus_GrpcUintArray } from '../ficus/GrpcUintArray';
 import type { GrpcSimpleEventLog_DONTUSE as _ficus_GrpcSimpleEventLog_DONTUSE, GrpcSimpleEventLog as _ficus_GrpcSimpleEventLog } from '../ficus/GrpcSimpleEventLog';
+import type { GrpcOcelModelAnnotation_DONTUSE as _ficus_GrpcOcelModelAnnotation_DONTUSE, GrpcOcelModelAnnotation as _ficus_GrpcOcelModelAnnotation } from '../ficus/GrpcOcelModelAnnotation';
 
 export interface GrpcContextValue_DONTUSE {
   'string'?: (string);
@@ -48,7 +49,8 @@ export interface GrpcContextValue_DONTUSE {
   'uintArray'?: (_ficus_GrpcUintArray_DONTUSE | null);
   'json'?: (string);
   'eventLog'?: (_ficus_GrpcSimpleEventLog_DONTUSE | null);
-  'contextValue'?: "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog";
+  'ocelAnnotation'?: (_ficus_GrpcOcelModelAnnotation_DONTUSE | null);
+  'contextValue'?: "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog"|"ocelAnnotation";
 }
 
 export interface GrpcContextValue {
@@ -78,5 +80,6 @@ export interface GrpcContextValue {
   'uintArray'?: (_ficus_GrpcUintArray | null);
   'json'?: (string);
   'eventLog'?: (_ficus_GrpcSimpleEventLog | null);
-  'contextValue': "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog";
+  'ocelAnnotation'?: (_ficus_GrpcOcelModelAnnotation | null);
+  'contextValue': "string"|"hashesLog"|"namesLog"|"uint32"|"tracesSubArrays"|"traceIndexSubArrays"|"bool"|"xesEventLog"|"colorsLog"|"enum"|"eventLogInfo"|"strings"|"pipeline"|"petriNet"|"graph"|"float"|"annotation"|"dataset"|"labeledDataset"|"bytes"|"logTimelineDiagram"|"floatArray"|"intArray"|"uintArray"|"json"|"eventLog"|"ocelAnnotation";
 }

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build-env
 
 RUN apt update -y && apt upgrade -y
 RUN apt install nodejs -y
@@ -10,7 +10,7 @@ COPY ./bxes ./bxes
 COPY ./FicusBxes.sln ./FicusBxes.sln
 COPY Directory.Packages.props ./Directory.Packages.props
 
-RUN dotnet build . -c Release
+RUN dotnet build . -c Release -v d
 
 FROM build-env as test
 ENTRYPOINT [ "dotnet", "test", "/app/Ficus/test/IntegrationTests/IntegrationTests/IntegrationTests.csproj", "-c", "Release" ]

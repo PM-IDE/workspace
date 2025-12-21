@@ -18,6 +18,8 @@ public readonly struct DotnetProcessLauncherDto
   public required bool UseDuringRuntimeFiltering { get; init; }
   public required bool CppProfilerUseConsoleLogging { get; init; }
   public required string WorkingDirectory { get; init; }
+  public required bool ProduceObjectBinStacks { get; init; }
+  public required string? ObjectsTrackingFilterRegex { get; init; }
 
 
   public static DotnetProcessLauncherDto CreateFrom(
@@ -58,7 +60,9 @@ public readonly struct DotnetProcessLauncherDto
     UseDuringRuntimeFiltering = context.UseDuringRuntimeFiltering,
     CppProfilerUseConsoleLogging = context.CppProfilerUseConsoleLogging,
     WorkingDirectory = workingDirectory,
-    BinaryStacksSavePath = binStacksSavePath
+    BinaryStacksSavePath = binStacksSavePath,
+    ProduceObjectBinStacks = context.ProduceObjectBinStacks,
+    ObjectsTrackingFilterRegex = context.ObjectsFilterTrackingRegex
   };
 
   public static DotnetProcessLauncherDto CreateFrom(

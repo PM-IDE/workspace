@@ -10,8 +10,8 @@ private:
 public:
     ProcfilerLogger();
 
-    void LogInformation(const std::string& message);
-    void LogError(const std::string& message);
+    void LogInformation(const std::string& message) const;
+    void LogError(const std::string& message) const;
 };
 
 

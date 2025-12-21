@@ -7,6 +7,7 @@ use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
+use ficus::features::discovery::ocel::graph_annotation::OcelAnnotationCreationError;
 use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use ficus::features::discovery::root_sequence::models::RootSequenceKind;
@@ -125,6 +126,7 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
     assert_existence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
     assert_existence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
+    assert_existence::<OcelAnnotationCreationError>(&OCEL_ANNOTATION, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }
@@ -229,7 +231,8 @@ fn get_all_keys_names() -> Vec<String> {
         "discover_events_groups_in_each_trace",
         "software_data_extraction_config",
         "discover_activity_instances_strict",
-        "merge_sequences_of_events"
+        "merge_sequences_of_events",
+        "ocel_annotation"
     ]
 }
 
@@ -335,6 +338,7 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<String>(&SOFTWARE_DATA_EXTRACTION_CONFIG, &mut used);
     assert_keys_equivalence::<bool>(&DISCOVER_ACTIVITY_INSTANCES_STRICT, &mut used);
     assert_keys_equivalence::<bool>(&MERGE_SEQUENCES_OF_EVENTS, &mut used);
+    assert_keys_equivalence::<bool>(&OCEL_ANNOTATION, &mut used);
 
     assert_eq!(used.len(), get_all_keys_names().len())
 }

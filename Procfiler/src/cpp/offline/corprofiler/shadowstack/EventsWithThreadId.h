@@ -39,12 +39,12 @@ struct EventsWithThreadId {
     void PutFunctionShouldLogDecision(FunctionID& id, bool shouldLog) const;
 };
 
-struct EventsWithThreadIdOnline : public EventsWithThreadId {
+struct EventsWithThreadIdOnline final : EventsWithThreadId {
     std::ofstream* myFout{nullptr};
     std::ofstream::pos_type myFramesCountPos{};
     long long writtenFrames{0};
 
-    explicit EventsWithThreadIdOnline(std::string& directory, ThreadID threadId);
+    explicit EventsWithThreadIdOnline(const std::string& directory, ThreadID threadId);
 
     ~EventsWithThreadIdOnline() override;
 
@@ -52,7 +52,7 @@ struct EventsWithThreadIdOnline : public EventsWithThreadId {
 };
 
 
-struct EventsWithThreadIdOffline : public EventsWithThreadId {
+struct EventsWithThreadIdOffline : EventsWithThreadId {
     std::vector<FunctionEvent>* Events{nullptr};
 
     explicit EventsWithThreadIdOffline();

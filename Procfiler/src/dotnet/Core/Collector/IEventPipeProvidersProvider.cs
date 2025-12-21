@@ -41,8 +41,7 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
       [
         new EventPipeProvider(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)ClrTraceEventParser.Keywords.All),
         new EventPipeProvider(SampleProfilerTraceEventParser.ProviderName, EventLevel.Verbose),
-        new EventPipeProvider(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose,
-          (long)TplEtwProviderTraceEventParser.Keywords.Default),
+        new EventPipeProvider(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose, (long)TplEtwProviderTraceEventParser.Keywords.Default),
         new EventPipeProvider(ClrPrivateTraceEventParser.ProviderName, EventLevel.Verbose, ClrPrivateTraceEventParserKeywords),
         new EventPipeProvider(EventPipeProvidersNames.FrameworkEventSource, EventLevel.Verbose, FrameworkTraceEventParserKeywords),
         new EventPipeProvider(EventPipeProvidersNames.NetHttp, EventLevel.Verbose),
@@ -79,8 +78,7 @@ public class EventPipeProvidersProviderImpl : IEventPipeProvidersProvider
       [
         new EventPipeProvider(EventPipeProvidersNames.ProcfilerCppProvider, EventLevel.LogAlways),
         new EventPipeProvider(ClrTraceEventParser.ProviderName, EventLevel.Verbose, (long)ClrTraceEventParser.Keywords.Jit),
-        new EventPipeProvider(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose,
-          (long)TplEtwProviderTraceEventParser.Keywords.Tasks)
+        new EventPipeProvider(TplEtwProviderTraceEventParser.ProviderName, EventLevel.Verbose, (long)TplEtwProviderTraceEventParser.Keywords.Tasks)
       ]
     };
 

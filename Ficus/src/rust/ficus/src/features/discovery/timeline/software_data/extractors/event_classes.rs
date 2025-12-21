@@ -5,6 +5,7 @@ use crate::features::discovery::timeline::events_groups::EventGroup;
 use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError};
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
 use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
+use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -30,7 +31,8 @@ impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
     let mut threads = HashMap::new();
 
     for event in events {
-      *software_data.event_classes_mut().entry(event.borrow().name().clone()).or_insert(0) += 1;
+      let name = HeapedOrOwned::Heaped(event.borrow().name_pointer().clone());
+      *software_data.event_classes_mut().entry(name).or_insert(0) += 1;
 
       if let Some(thread_attribute) = self.thread_attribute {
         let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);

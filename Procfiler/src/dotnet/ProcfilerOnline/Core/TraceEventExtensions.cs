@@ -21,49 +21,51 @@ public static class OnlineProcfilerConstants
 
 public static class TraceEventExtensions
 {
-  public static MethodKind GetMethodEventKind(this EventRecordWithMetadata eventRecord) => eventRecord.EventClass switch
+  extension(EventRecordWithMetadata eventRecord)
   {
-    OnlineProcfilerConstants.CppMethodStartEventName => MethodKind.Begin,
-    OnlineProcfilerConstants.CppMethodFinishedEventName => MethodKind.End,
-    _ => throw new ArgumentOutOfRangeException()
-  };
-
-  public static (long QpcStamp, long MethodId)? TryGetMethodDetails(this EventRecordWithMetadata eventRecord)
-  {
-    if (eventRecord.EventClass is OnlineProcfilerConstants.CppMethodFinishedEventName
-        or OnlineProcfilerConstants.CppMethodStartEventName)
+    public MethodKind GetMethodEventKind() => eventRecord.EventClass switch
     {
-      var qpcStamp = eventRecord.Metadata[OnlineProcfilerConstants.Timestamp];
-      var methodId = eventRecord.Metadata[OnlineProcfilerConstants.FunctionId];
-      return (long.Parse(qpcStamp), long.Parse(methodId));
+      OnlineProcfilerConstants.CppMethodStartEventName => MethodKind.Begin,
+      OnlineProcfilerConstants.CppMethodFinishedEventName => MethodKind.End,
+      _ => throw new ArgumentOutOfRangeException()
+    };
+
+    public (long QpcStamp, long MethodId)? TryGetMethodDetails()
+    {
+      if (eventRecord.EventClass is OnlineProcfilerConstants.CppMethodFinishedEventName
+          or OnlineProcfilerConstants.CppMethodStartEventName)
+      {
+        var qpcStamp = eventRecord.Metadata[OnlineProcfilerConstants.Timestamp];
+        var methodId = eventRecord.Metadata[OnlineProcfilerConstants.FunctionId];
+        return (long.Parse(qpcStamp), long.Parse(methodId));
+      }
+
+      return null;
     }
 
-    return null;
-  }
-
-  public static bool IsExceptionCatcherEnter(this EventRecordWithMetadata eventRecord, out long functionId)
-  {
-    functionId = -1;
-
-    if (eventRecord.EventClass is not OnlineProcfilerConstants.ExceptionCatcherEnterEventName) return false;
-
-    functionId = long.Parse(eventRecord.Metadata[OnlineProcfilerConstants.FunctionId]);
-    return true;
-  }
-
-  public static EventRecordWithMetadata ConvertToMethodEndEvent(
-    this EventRecordWithMetadata eventRecord, ISharedEventPipeStreamData globalData, IMethodBeginEndSingleMutator mutator)
-  {
-    if (eventRecord.EventClass is not OnlineProcfilerConstants.CppMethodStartEventName)
+    public bool IsExceptionCatcherEnter(out long functionId)
     {
-      throw new ArgumentOutOfRangeException();
+      functionId = -1;
+
+      if (eventRecord.EventClass is not OnlineProcfilerConstants.ExceptionCatcherEnterEventName) return false;
+
+      functionId = long.Parse(eventRecord.Metadata[OnlineProcfilerConstants.FunctionId]);
+      return true;
     }
 
-    var methodEvent = eventRecord.DeepClone();
-    methodEvent.EventClass = OnlineProcfilerConstants.CppMethodFinishedEventName;
+    public EventRecordWithMetadata ConvertToMethodEndEvent(ISharedEventPipeStreamData globalData, IMethodBeginEndSingleMutator mutator)
+    {
+      if (eventRecord.EventClass is not OnlineProcfilerConstants.CppMethodStartEventName)
+      {
+        throw new ArgumentOutOfRangeException();
+      }
 
-    mutator.Process(methodEvent, globalData);
+      var methodEvent = eventRecord.DeepClone();
+      methodEvent.EventClass = OnlineProcfilerConstants.CppMethodFinishedEventName;
 
-    return methodEvent;
+      mutator.Process(methodEvent, globalData);
+
+      return methodEvent;
+    }
   }
 }

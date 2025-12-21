@@ -1,0 +1,31 @@
+@inject IEntitiesColors Colors;
+
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+@using FicusDashboard.Services
+
+<div style="background: @Colors.GetOrCreateColor(TypeName);
+            @Context.MainDim: 100%;
+            @Context.SecondDim: 20px;
+            display: flex;
+            flex-direction: @Context.SecondFlexDirection">
+  @foreach (var (index, id) in ObjectsIds.Order().Index())
+  {
+    var isLast = index == ObjectsIds.Count - 1 && IsLastObjectsBlock;
+    var borderStyle = NodeRenderingUtils.GetBorderStyle(Context, IsInitialState, isLast, addTopBorder: false);
+
+    <div style="@Context.WritingMode; flex-grow: 1; @borderStyle"
+         class="flamegraph-ocel-annotation flex-centered"
+         id="@Context.GenerateOcelObjectsContainerId(NodeId, id, IsInitialState)">
+      @id
+    </div>
+  }
+</div>
+
+@code {
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+  [Parameter] public required ulong NodeId { get; init; }
+  [Parameter] public required string TypeName { get; init; }
+  [Parameter] public required List<string> ObjectsIds { get; init; }
+  [Parameter] public required bool IsInitialState { get; init; }
+  [Parameter] public required bool IsLastObjectsBlock { get; init; }
+}

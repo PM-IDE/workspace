@@ -24,7 +24,9 @@ public record struct CollectingClrEventsCommonContext(
   bool CppProfilerUseConsoleLogging,
   bool ClearArtifacts,
   bool WriteAllEventMetadata,
-  LogFormat LogSerializationFormat
+  LogFormat LogSerializationFormat,
+  bool ProduceObjectBinStacks,
+  string? ObjectsFilterTrackingRegex
 );
 
 public record CollectClrEventsContext(CollectingClrEventsCommonContext CommonContext);

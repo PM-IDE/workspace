@@ -37,6 +37,8 @@ public partial class CollectCommandBase
     command.AddOption(UseCppProfilerConsoleLogging);
     command.AddOption(WriteAllEventMetadata);
     command.AddOption(LogSerializationFormatOption);
+    command.AddOption(ProduceObjectBinStacks);
+    command.AddOption(ObjectsTrackingFilterRegex);
   }
 
   private Option<bool> SelfContainedOption { get; } =
@@ -72,7 +74,7 @@ public partial class CollectCommandBase
     new("-csproj", "The path to the .csproj file of the project to be executed");
 
   private Option<string> TfmOption { get; } =
-    new("--tfm", static () => "net9.0", "The target framework identifier, the project will be built for specified tfm");
+    new("--tfm", static () => "net10.0", "The target framework identifier, the project will be built for specified tfm");
 
   private Option<BuildConfiguration> ConfigurationOption { get; } =
     new("--c", static () => BuildConfiguration.Debug, "Build configuration which will be used during project build");
@@ -122,4 +124,10 @@ public partial class CollectCommandBase
 
   private Option<LogFormat> LogSerializationFormatOption { get; } =
     new("--log-serialization-format", static () => LogFormat.Xes, "The format which will be used to store event logs");
+
+  private Option<bool> ProduceObjectBinStacks { get; } =
+    new("--produce-object-bin-stacks", static () => false, "Whether to store information about objects and types associated with methods calls");
+
+  private Option<string?> ObjectsTrackingFilterRegex { get; } =
+    new("--objects-tracking-filter-regex", static () => null, "Regex to narrow the set of types objects of which will be tracked");
 }

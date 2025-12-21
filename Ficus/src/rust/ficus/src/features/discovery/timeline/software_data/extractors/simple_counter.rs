@@ -69,7 +69,7 @@ impl<'a> EventGroupSoftwareDataExtractor for SimpleCounterExtractor<'a> {
 
     for (_, (base, count)) in result {
       software_data.simple_counters_mut().push(SimpleCounterData::new(
-        GenericEnhancementBase::new(base.name().to_string(), base.units().to_string(), base.group().clone()),
+        GenericEnhancementBase::new(base.name().clone(), base.units().clone(), base.group().clone()),
         count,
       ));
     }

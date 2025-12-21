@@ -40,7 +40,7 @@ export function createEnhancementContainer(
   return `
     <div class="graph-content-container">
       <div class="graph-title-label" style="margin-bottom: 3px;">${title}</div>
-      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; ${centerStyle}">
+      <div style="display: flex; flex-direction: ${horizontal ? "row" : "column"}; ${centerStyle}; gap: 3px; width: 100%; flex-grow: 1;">
         ${content}
       </div>
     </div>
@@ -82,7 +82,7 @@ export function createRectangleHistogram(sortedHistogramEntries: [string, number
   let borderWidthPx = 6;
 
   return `
-    <div style="width: 70px; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;
+    <div style="width: 100%; height: ${heightPx + 2 * borderWidthPx}px; display: flex; flex-direction: row;
                 border-style: solid; border-width: ${borderWidthPx}px; border-color: ${borderColor}"
          class="graph-tooltip-hover"
          data-histogram-tooltip='${JSON.stringify(sortedHistogramEntries)}'
@@ -111,9 +111,9 @@ export function createNumberInformation(
   let percentString = getPercentExecutionTime(value, totalValue);
 
   return `
-    <div style="display: flex; flex-direction: row; margin-top: 3px;">
+    <div style="display: flex; flex-direction: row; margin-top: 3px; height: 100%; align-items: stretch;">
       <div class="graph-content-container"
-           style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important;">
+           style="background-color: ${getPerformanceAnnotationColor(value / totalValue)} !important; border-radius: 5px;">
          <div style="width: fit-content; display: flex; flex-direction: ${horizontal ? "row" : "column"}; gap: 2px;">
            ${createNumberInfoHtml(category, displayValue, units, percentString, horizontal)}
          </div>

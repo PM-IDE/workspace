@@ -1,14 +1,16 @@
 use crate::ficus_proto::grpc_context_values_service_server::GrpcContextValuesService;
-use crate::ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcContextValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid};
+use crate::ficus_proto::{
+  GrpcContextKey, GrpcContextKeyValue, GrpcContextValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid,
+};
 use crate::grpc::converters::context_value_from_bytes;
+use prost::Message;
 use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use prost::Message;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::{Code, Request, Response, Status, Streaming};
 use tonic::codegen::futures_core::Stream;
+use tonic::{Code, Request, Response, Status, Streaming};
 use uuid::Uuid;
 
 pub struct ContextValueService {
@@ -61,12 +63,10 @@ impl ContextValueService {
 
     match context_values.get(key) {
       None => None,
-      Some(value) => Some(
-        (
-          value.key.as_ref().unwrap().name.clone(),
-          value.value.as_ref().unwrap().encode_to_vec()
-        )
-      )
+      Some(value) => Some((
+        value.key.as_ref().unwrap().name.clone(),
+        value.value.as_ref().unwrap().encode_to_vec(),
+      )),
     }
   }
 }
@@ -112,7 +112,7 @@ impl GrpcContextValuesService for GrpcContextValueService {
     }))
   }
 
-  type GetContextValueStream = Pin<Box<dyn Stream<Item=Result<GrpcContextValuePart, Status>> + Send + 'static>>;
+  type GetContextValueStream = Pin<Box<dyn Stream<Item = Result<GrpcContextValuePart, Status>> + Send + 'static>>;
 
   async fn get_context_value(&self, request: Request<GrpcGuid>) -> Result<Response<Self::GetContextValueStream>, Status> {
     let (sender, receiver) = mpsc::channel(4);

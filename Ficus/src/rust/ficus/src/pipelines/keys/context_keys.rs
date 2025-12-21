@@ -5,6 +5,7 @@ use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
 use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
+use crate::features::discovery::ocel::graph_annotation::OcelAnnotation;
 use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
 use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
 use crate::features::discovery::root_sequence::models::RootSequenceKind;
@@ -133,6 +134,7 @@ pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &'static str = "discover_events_
 pub const SOFTWARE_DATA_EXTRACTION_CONFIG: &'static str = "software_data_extraction_config";
 pub const DISCOVER_ACTIVITY_INSTANCES_STRICT: &'static str = "discover_activity_instances_strict";
 pub const PUT_NOISE_EVENTS_IN_ONE_CLUSTER: &'static str = "put_noise_events_in_one_cluster";
+pub const OCEL_ANNOTATION: &'static str = "ocel_annotation";
 
 #[rustfmt::skip]
 lazy_static!(
@@ -237,6 +239,7 @@ lazy_static!(
      pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<SoftwareDataExtractionConfig> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
      pub static ref DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_ACTIVITY_INSTANCES_STRICT);
      pub static ref PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY: DefaultContextKey<bool> = DefaultContextKey::new(PUT_NOISE_EVENTS_IN_ONE_CLUSTER);
+     pub static ref OCEL_ANNOTATION_KEY: DefaultContextKey<OcelAnnotation> = DefaultContextKey::new(OCEL_ANNOTATION);
 );
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
@@ -331,6 +334,7 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     SOFTWARE_DATA_EXTRACTION_CONFIG => Some(SOFTWARE_DATA_EXTRACTION_CONFIG_KEY.deref() as &dyn ContextKey),
     DISCOVER_ACTIVITY_INSTANCES_STRICT => Some(DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY.deref() as &dyn ContextKey),
     PUT_NOISE_EVENTS_IN_ONE_CLUSTER => Some(PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY.deref() as &dyn ContextKey),
+    OCEL_ANNOTATION => Some(OCEL_ANNOTATION_KEY.deref() as &dyn ContextKey),
     _ => None,
   }
 }

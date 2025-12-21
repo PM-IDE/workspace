@@ -19,36 +19,38 @@ public readonly record struct TypeIdToName(long Id, string Name);
 
 public static class EventRecordExtensions
 {
-  public static bool IsTaskRelatedEvent(this EventRecordWithMetadata eventRecord) =>
-    eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix);
-
-  public static bool IsTaskExecutionEvent(this EventRecordWithMetadata eventRecord) =>
-    eventRecord.EventClass is TraceEventsConstants.TaskExecuteStart or TraceEventsConstants.TaskExecuteStop;
-
-  public static bool IsTaskExecuteStartEvent(this EventRecordWithMetadata eventRecord, out int taskId, out int originatingTaskId) =>
-    eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStart, out taskId, out originatingTaskId);
-
-  public static bool IsTaskExecuteStopEvent(this EventRecordWithMetadata eventRecord, out int taskId, out int originatingTaskId) =>
-    eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStop, out taskId, out originatingTaskId);
-
-  public static bool IsTaskWaitSendOrStopEvent(this EventRecordWithMetadata eventRecord) =>
-    eventRecord.EventClass is TraceEventsConstants.TaskWaitSend or TraceEventsConstants.TaskWaitStop;
-
-  public static bool IsTaskWaitStopEvent(this EventRecordWithMetadata eventRecord, out int waitedTaskId, out int originatingTaskId) =>
-    eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskWaitStop, out waitedTaskId, out originatingTaskId);
-
-  private static bool IsTaskRelatedEvent(
-    this EventRecordWithMetadata eventRecord, string eventClass, out int taskId, out int originatingTaskId)
+  extension(EventRecordWithMetadata eventRecord)
   {
-    taskId = -1;
-    originatingTaskId = -1;
+    public bool IsTaskRelatedEvent() =>
+      eventRecord.EventClass.StartsWith(TraceEventsConstants.TaskCommonPrefix);
 
-    if (eventRecord.EventClass != eventClass) return false;
+    public bool IsTaskExecutionEvent() =>
+      eventRecord.EventClass is TraceEventsConstants.TaskExecuteStart or TraceEventsConstants.TaskExecuteStop;
 
-    taskId = ExtractTaskId(eventRecord);
-    originatingTaskId = ExtractOriginatingTaskId(eventRecord);
+    public bool IsTaskExecuteStartEvent(out int taskId, out int originatingTaskId) =>
+      eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStart, out taskId, out originatingTaskId);
 
-    return true;
+    public bool IsTaskExecuteStopEvent(out int taskId, out int originatingTaskId) =>
+      eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskExecuteStop, out taskId, out originatingTaskId);
+
+    public bool IsTaskWaitSendOrStopEvent() =>
+      eventRecord.EventClass is TraceEventsConstants.TaskWaitSend or TraceEventsConstants.TaskWaitStop;
+
+    public bool IsTaskWaitStopEvent(out int waitedTaskId, out int originatingTaskId) =>
+      eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskWaitStop, out waitedTaskId, out originatingTaskId);
+
+    private bool IsTaskRelatedEvent(string eventClass, out int taskId, out int originatingTaskId)
+    {
+      taskId = -1;
+      originatingTaskId = -1;
+
+      if (eventRecord.EventClass != eventClass) return false;
+
+      taskId = ExtractTaskId(eventRecord);
+      originatingTaskId = ExtractOriginatingTaskId(eventRecord);
+
+      return true;
+    }
   }
 
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -67,104 +69,106 @@ public static class EventRecordExtensions
     public required bool IsAsync { get; init; }
   }
 
-  public static TaskWaitSendEventData? IsTaskWaitSendEvent(this EventRecordWithMetadata eventRecord)
+  extension(EventRecordWithMetadata eventRecord)
   {
-    if (!eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskWaitSend, out var scheduledTaskId, out var originatingTaskId))
+    public TaskWaitSendEventData? IsTaskWaitSendEvent()
     {
+      if (!eventRecord.IsTaskRelatedEvent(TraceEventsConstants.TaskWaitSend, out var scheduledTaskId, out var originatingTaskId))
+      {
+        return null;
+      }
+
+      var continueWithTaskId = int.Parse(eventRecord.Metadata[TraceEventsConstants.ContinueWithTaskId]);
+      var isAsync = eventRecord.Metadata[TraceEventsConstants.AsyncBehaviorAttribute] == TraceEventsConstants.AsyncBehaviour;
+
+      return new TaskWaitSendEventData
+      {
+        IsAsync = isAsync,
+        TaskId = scheduledTaskId,
+        OriginatingTaskId = originatingTaskId,
+        ContinueWithTaskId = continueWithTaskId
+      };
+    }
+
+    public bool IsAwaitContinuationScheduled(out int scheduledTaskId)
+    {
+      scheduledTaskId = -1;
+      if (eventRecord.EventClass is not TraceEventsConstants.AwaitTaskContinuationScheduledSend) return false;
+
+      scheduledTaskId = int.Parse(eventRecord.Metadata[TraceEventsConstants.OriginatingTaskId]);
+      return true;
+    }
+
+    public bool IsGcSampledObjectAlloc([NotNullWhen(true)] out string? typeName)
+    {
+      typeName = null;
+      if (eventRecord.EventClass is not TraceEventsConstants.GcSampledObjectAllocation) return false;
+
+      typeName = eventRecord.Metadata[TraceEventsConstants.CommonTypeName];
+      return true;
+    }
+
+    public string GetAllocatedTypeNameOrThrow() =>
+      eventRecord.Metadata[TraceEventsConstants.CommonTypeName];
+
+    public bool IsMethodStartEndProvider() =>
+      eventRecord.EventClass is not (TraceEventsConstants.GcSetGcHandle or TraceEventsConstants.GcDestroyGcHandle);
+
+    public MethodIdToMethodInfo? TryGetMethodInfo()
+    {
+      if (eventRecord.EventName is not TraceEventsConstants.MethodLoadVerbose) return null;
+
+      var methodId = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodId);
+      var (name, methodNamespace, signature) = eventRecord.GetMethodFqnParts();
+
+      if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
+      {
+        return new MethodIdToMethodInfo(methodId.ParseId(), new ExtendedMethodInfo(name, methodNamespace, signature));
+      }
+
       return null;
     }
 
-    var continueWithTaskId = int.Parse(eventRecord.Metadata[TraceEventsConstants.ContinueWithTaskId]);
-    var isAsync = eventRecord.Metadata[TraceEventsConstants.AsyncBehaviorAttribute] == TraceEventsConstants.AsyncBehaviour;
-
-    return new TaskWaitSendEventData
+    private (string? Name, string? Namespace, string? Signature) GetMethodFqnParts()
     {
-      IsAsync = isAsync,
-      TaskId = scheduledTaskId,
-      OriginatingTaskId = originatingTaskId,
-      ContinueWithTaskId = continueWithTaskId
-    };
-  }
+      var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodName);
+      var methodNamespace = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodNamespace);
+      var signature = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodSignature);
 
-  public static bool IsAwaitContinuationScheduled(this EventRecordWithMetadata eventRecord, out int scheduledTaskId)
-  {
-    scheduledTaskId = -1;
-    if (eventRecord.EventClass is not TraceEventsConstants.AwaitTaskContinuationScheduledSend) return false;
-
-    scheduledTaskId = int.Parse(eventRecord.Metadata[TraceEventsConstants.OriginatingTaskId]);
-    return true;
-  }
-
-  public static bool IsGcSampledObjectAlloc(
-    this EventRecordWithMetadata eventRecord, [NotNullWhen(true)] out string? typeName)
-  {
-    typeName = null;
-    if (eventRecord.EventClass is not TraceEventsConstants.GcSampledObjectAllocation) return false;
-
-    typeName = eventRecord.Metadata[TraceEventsConstants.CommonTypeName];
-    return true;
-  }
-
-  public static string GetAllocatedTypeNameOrThrow(this EventRecordWithMetadata eventRecord) =>
-    eventRecord.Metadata[TraceEventsConstants.CommonTypeName];
-
-  public static bool IsMethodStartEndProvider(this EventRecordWithMetadata eventRecord) =>
-    eventRecord.EventClass is not (TraceEventsConstants.GcSetGcHandle or TraceEventsConstants.GcDestroyGcHandle);
-
-  public static MethodIdToMethodInfo? TryGetMethodInfo(this EventRecordWithMetadata eventRecord)
-  {
-    if (eventRecord.EventName is not TraceEventsConstants.MethodLoadVerbose) return null;
-
-    var methodId = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodId);
-    var (name, methodNamespace, signature) = eventRecord.GetMethodFqnParts();
-
-    if (name is { } && methodNamespace is { } && signature is { } && methodId is { })
-    {
-      return new MethodIdToMethodInfo(methodId.ParseId(), new ExtendedMethodInfo(name, methodNamespace, signature));
+      return (name, methodNamespace, signature);
     }
 
-    return null;
-  }
-
-  private static (string? Name, string? Namespace, string? Signature) GetMethodFqnParts(this EventRecordWithMetadata eventRecord)
-  {
-    var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodName);
-    var methodNamespace = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodNamespace);
-    var signature = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodSignature);
-
-    return (name, methodNamespace, signature);
-  }
-
-  public static ExtendedMethodIdToFqn? TryGetExtendedMethodInfo(this EventRecordWithMetadata eventRecord)
-  {
-    if (eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodId) is not { } methodId)
+    public ExtendedMethodIdToFqn? TryGetExtendedMethodInfo()
     {
+      if (eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.MethodId) is not { } methodId)
+      {
+        return null;
+      }
+
+      var (name, methodNamespace, signature) = eventRecord.GetMethodFqnParts();
+
+      if (name is null || methodNamespace is null || signature is null)
+      {
+        return null;
+      }
+
+      return new ExtendedMethodIdToFqn(methodId.ParseId(), new ExtendedMethodInfo(name, methodNamespace, signature));
+    }
+
+    public TypeIdToName? TryExtractTypeIdToName()
+    {
+      if (eventRecord.EventName is not TraceEventsConstants.TypeBulkType) return null;
+
+      var id = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeId);
+      var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeName);
+
+      if (id is { } && name is { })
+      {
+        return new TypeIdToName(id.ParseId(), name);
+      }
+
       return null;
     }
-
-    var (name, methodNamespace, signature) = eventRecord.GetMethodFqnParts();
-
-    if (name is null || methodNamespace is null || signature is null)
-    {
-      return null;
-    }
-
-    return new ExtendedMethodIdToFqn(methodId.ParseId(), new ExtendedMethodInfo(name, methodNamespace, signature));
-  }
-
-  public static TypeIdToName? TryExtractTypeIdToName(this EventRecordWithMetadata eventRecord)
-  {
-    if (eventRecord.EventName is not TraceEventsConstants.TypeBulkType) return null;
-
-    var id = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeId);
-    var name = eventRecord.Metadata.ValueOrDefault(TraceEventsConstants.TypeBulkTypeTypeName);
-
-    if (id is { } && name is { })
-    {
-      return new TypeIdToName(id.ParseId(), name);
-    }
-
-    return null;
   }
 
   public static EventRecordTime ToTime(this TraceEvent traceEvent) => new()
@@ -174,84 +178,86 @@ public static class EventRecordExtensions
     RelativeStampMSec = traceEvent.TimeStampRelativeMSec
   };
 
-  public static bool IsOcelActivityBegin(this EventRecordWithMetadata evt, out Guid id, out string name) =>
-    evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityBegin, out id, out name);
-
-  private static bool IsActivityStartOrEnd(this EventRecordWithMetadata evt, string eventClass, out Guid id, out string name)
+  extension(EventRecordWithMetadata evt)
   {
-    id = Guid.Empty;
-    name = string.Empty;
+    public bool IsOcelActivityBegin(out Guid id, out string name) =>
+      evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityBegin, out id, out name);
 
-    if (evt.EventClass != eventClass) return false;
+    private bool IsActivityStartOrEnd(string eventClass, out Guid id, out string name)
+    {
+      id = Guid.Empty;
+      name = string.Empty;
 
-    id = Guid.Parse(evt.Metadata[TraceEventsConstants.OcelActivityId]);
-    name = evt.Metadata[TraceEventsConstants.OcelActivityName];
+      if (evt.EventClass != eventClass) return false;
 
-    return true;
-  }
+      id = Guid.Parse(evt.Metadata[TraceEventsConstants.OcelActivityId]);
+      name = evt.Metadata[TraceEventsConstants.OcelActivityName];
 
-  public static bool IsOcelActivityEnd(this EventRecordWithMetadata evt, out Guid id, out string name) =>
-    evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityEnd, out id, out name);
+      return true;
+    }
 
-  public static bool IsOcelObjectEvent(this EventRecordWithMetadata evt, out long objectId, out string? category)
-  {
-    objectId = -1;
-    category = null;
+    public bool IsOcelActivityEnd(out Guid id, out string name) =>
+      evt.IsActivityStartOrEnd(TraceEventsConstants.OcelActivityEnd, out id, out name);
 
-    if (evt.EventClass is not TraceEventsConstants.OcelObjectEvent) return false;
+    public bool IsOcelObjectEvent(out long objectId, out string? category)
+    {
+      objectId = -1;
+      category = null;
 
-    objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
-    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
-    return true;
-  }
+      if (evt.EventClass is not TraceEventsConstants.OcelObjectAllocated) return false;
 
-  public static bool IsOcelGlobalEvent(
-    this EventRecordWithMetadata evt, out long objectId, out string activityName, out string? category)
-  {
-    objectId = -1;
-    activityName = null;
-    category = null;
+      objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
+      category = evt.Metadata[TraceEventsConstants.OcelObjectType];
+      return true;
+    }
 
-    if (evt.EventClass is not TraceEventsConstants.OcelGlobalObjectEvent) return false;
+    public bool IsOcelGlobalEvent(out long objectId, out string activityName, out string? category)
+    {
+      objectId = -1;
+      activityName = null;
+      category = null;
 
-    objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
-    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
-    activityName = evt.Metadata[TraceEventsConstants.OcelActivityName];
+      if (evt.EventClass is not TraceEventsConstants.OcelGlobalObjectEvent) return false;
 
-    return true;
-  }
+      objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
+      category = evt.Metadata[TraceEventsConstants.OcelObjectType];
+      activityName = evt.Metadata[TraceEventsConstants.OcelActivityName];
 
-  public static bool IsOcelActivitiesBatchBegin(this EventRecordWithMetadata evt, out Guid batchId, out string[] names) =>
-    IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesBegin, out batchId, out names);
+      return true;
+    }
 
-  private static bool IsOcelActivitiesBatchEvent(this EventRecordWithMetadata evt, string eventClass, out Guid batchId, out string[] names)
-  {
-    batchId = Guid.Empty;
-    names = null!;
+    public bool IsOcelActivitiesBatchBegin(out Guid batchId, out string[] names) =>
+      IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesBegin, out batchId, out names);
 
-    if (evt.EventClass != eventClass) return false;
+    private bool IsOcelActivitiesBatchEvent(string eventClass, out Guid batchId, out string[] names)
+    {
+      batchId = Guid.Empty;
+      names = null!;
 
-    batchId = Guid.Parse(evt.Metadata[TraceEventsConstants.OcelActivitiesBatchId]);
-    names = evt.Metadata[TraceEventsConstants.OcelActivitiesBatchNames].Split(';');
+      if (evt.EventClass != eventClass) return false;
 
-    return true;
-  }
+      batchId = Guid.Parse(evt.Metadata[TraceEventsConstants.OcelActivitiesBatchId]);
+      names = evt.Metadata[TraceEventsConstants.OcelActivitiesBatchNames].Split(';');
 
-  public static bool IsOcelActivitiesBatchEnd(this EventRecordWithMetadata evt, out Guid batchId, out string[] names) =>
-    IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesEnd, out batchId, out names);
+      return true;
+    }
 
-  public static bool IsOcelBatchAttachedEvent(this EventRecordWithMetadata evt, out long objectId, out string activity, out string? category)
-  {
-    objectId = 0;
-    activity = null;
-    category = null;
+    public bool IsOcelActivitiesBatchEnd(out Guid batchId, out string[] names) =>
+      IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesEnd, out batchId, out names);
 
-    if (evt.EventClass is not TraceEventsConstants.OcelBatchObjectEvent) return false;
+    public bool IsOcelBatchAttachedEvent(out long objectId, out string activity, out string? category)
+    {
+      objectId = 0;
+      activity = null;
+      category = null;
 
-    objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
-    category = evt.Metadata[TraceEventsConstants.OcelObjectCategory];
-    activity = evt.Metadata[TraceEventsConstants.OcelActivityName];
+      if (evt.EventClass is not TraceEventsConstants.OcelBatchObjectEvent) return false;
 
-    return true;
+      objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
+      category = evt.Metadata[TraceEventsConstants.OcelObjectType];
+      activity = evt.Metadata[TraceEventsConstants.OcelActivityName];
+
+      return true;
+    }
   }
 }

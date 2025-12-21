@@ -10,7 +10,7 @@
 
 
 MethodSignature::MethodSignature(std::vector<BYTE> rawSignature) : myRawSignature(std::move(rawSignature)) {
-    auto begin = myRawSignature.begin() + 2 + (IsGeneric() ? 1 : 0);
+    const auto begin = myRawSignature.begin() + 2 + (IsGeneric() ? 1 : 0);
     auto iter = begin;
     if (ParseRetType(iter)) {
         myReturnType = std::vector<BYTE>(begin, iter);
@@ -24,7 +24,7 @@ void MethodSignature::ParseArguments() {
     std::advance(iter, myArgumentsOffset);
 
     for (size_t i = 0; i < NumberOfArguments(); i++) {
-        auto begin = iter;
+        const auto begin = iter;
         if (!ParseParam(iter)) {
             break;
         }

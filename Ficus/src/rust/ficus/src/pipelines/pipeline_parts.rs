@@ -5,9 +5,9 @@ use crate::utils::context_key::DefaultContextKey;
 use crate::utils::performance::performance_cookie::performance_cookie;
 use crate::utils::user_data::keys::Key;
 use crate::utils::user_data::user_data::{UserData, UserDataImpl};
+use derive_new::new;
 use fancy_regex::Regex;
 use std::collections::HashMap;
-use derive_new::new;
 
 pub struct PipelineParts {
   names_to_parts: HashMap<String, PipelinePartFactory>,
@@ -125,6 +125,7 @@ impl PipelineParts {
       Self::add_graph_to_graphs(),
       Self::clear_graphs(),
       Self::terminate_if_empty_log(),
+      Self::create_ocel_annotation_for_dag(),
     ];
 
     let mut names_to_parts = HashMap::new();

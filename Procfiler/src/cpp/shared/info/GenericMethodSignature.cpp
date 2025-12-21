@@ -14,7 +14,7 @@ GenericMethodSignature::GenericMethodSignature(std::vector<BYTE> rawSignature) :
 
     for (size_t i = 0; i < number; i++)
     {
-        auto begin = iter;
+        const auto begin = iter;
         if (!ParseType(iter))
         {
             break;

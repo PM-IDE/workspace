@@ -1,6 +1,6 @@
-import {AggregatedData, GraphEdge, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
+import {AggregatedData, GraphEdge, MergedEnhancementData, MergedSoftwareData, SoftwareEnhancementKind} from "../types";
 import {
-  createEnhancementContainer, createGroupedEnhancements, createNumberInformation,
+  createGroupedEnhancements, createNumberInformation,
   createRectangleHistogram, createTimeSpanString,
   EnhancementCreationResult,
   getPercentExecutionTime,
@@ -21,10 +21,20 @@ export function createEdgeHtmlLabel(edge: GraphEdge, enhancements: SoftwareEnhan
 
   return `
     <div style="display: flex; flex-direction: column; align-items: center; margin-top: 80px;">
-      <div style="display: flex; flex-direction: row; align-items: center;">
-        ${createGroupedEnhancements(enhancements, enhancementData, edge.aggregatedData, true, createEdgeEnhancement, true)}
-      </div>
+      ${createEdgeStandaloneEnhancements(enhancements, enhancementData, edge.aggregatedData)}
       ${createEdgeExecutionInfo(edge)}
+    </div>
+  `
+}
+
+export function createEdgeStandaloneEnhancements(
+  enhancements: SoftwareEnhancementKind[],
+  enhancementData: MergedEnhancementData,
+  aggregatedData: AggregatedData
+) {
+  return `
+    <div style="display: flex; flex-direction: row; align-items: stretch;">
+      ${createGroupedEnhancements(enhancements, enhancementData, aggregatedData, true, createEdgeEnhancement, true)}
     </div>
   `
 }
@@ -80,7 +90,7 @@ function createEdgeEnhancement(
       false,
     );
 
-    return new EnhancementCreationResult(html, counter.group, false);
+    return new EnhancementCreationResult(html, counter.group, true);
   }
 
   if (softwareData.activitiesDurations.has(enhancement)) {
@@ -95,7 +105,7 @@ function createEdgeEnhancement(
       false,
     );
 
-    return new EnhancementCreationResult(html, duration.group, false);
+    return new EnhancementCreationResult(html, duration.group, true);
   }
 
   return new EnhancementCreationResult("", null);
@@ -115,21 +125,19 @@ function createEdgeSoftwareEnhancementPart(
   let percent = totalSum != null ? ((valuesSum / totalSum) * 100).toFixed(2) : null;
 
   return `
-    <div>
-      <div style="width: fit-content; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-          <div style="white-space: nowrap">
-            ${title}
-          </div>
-          <div style="white-space: nowrap">
-            ${valuesSum}${units != null ? ` ${units}` : ""}
-          </div>
-          <div style="white-space: nowrap">
-            ${percent != null ? `${percent}%` : ""}
-          </div>
+    <div style="width: 100%; height: fit-content; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <div class="graph-title-label" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="white-space: nowrap">
+          ${title}
         </div>
-        ${createRectangleHistogram(toSortedArray(data), totalSum)}
+        <div style="white-space: nowrap">
+          ${valuesSum}${units != null ? ` ${units}` : ""}
+        </div>
+        <div style="white-space: nowrap">
+          ${percent != null ? `${percent}%` : ""}
+        </div>
       </div>
+      ${createRectangleHistogram(toSortedArray(data), totalSum)}
     </div>
   `
 }

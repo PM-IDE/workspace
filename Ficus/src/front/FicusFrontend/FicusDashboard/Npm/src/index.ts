@@ -7,6 +7,7 @@ import {setCanvasSizeFunctions} from "./canvas_size";
 import {setFullscreenFunctions} from "./full_screen";
 import {addPieChartCustomElements} from "./piechart";
 import {setGraphEventListeners} from "./graph/event_listeners";
+import {setOcelSankeyFunctions} from "./ocel/ocel_sankey_divs";
 
 setFullscreenFunctions();
 setDrawPetriNet();
@@ -15,6 +16,7 @@ setUtilitiesFunctions();
 setCssLoaderFunctions();
 setDrawColorsLog();
 setCanvasSizeFunctions();
+setOcelSankeyFunctions();
 
 addPieChartCustomElements();
 

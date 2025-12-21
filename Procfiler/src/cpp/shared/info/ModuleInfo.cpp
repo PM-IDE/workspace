@@ -19,7 +19,7 @@ ModuleInfo ModuleInfo::GetModuleInfo(ICorProfilerInfo15* info, ModuleID moduleId
     return { moduleId, ToString(modulePath, length), AssemblyInfo::GetAssemblyInfo(info, assemblyId), moduleFlags };
 }
 
-ModuleID ModuleInfo::GetId() {
+ModuleID ModuleInfo::GetId() const {
     return myId;
 }
 
@@ -31,6 +31,6 @@ AssemblyInfo ModuleInfo::GetAssemblyInfo() {
     return myAssembly;
 }
 
-DWORD ModuleInfo::GetFlags() {
+DWORD ModuleInfo::GetFlags() const {
     return myFlags;
 }

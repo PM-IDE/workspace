@@ -15,18 +15,18 @@ void EventsWithThreadId::AddFunctionEvent(const FunctionEvent& event) {
 bool EventsWithThreadId::ShouldLog(FunctionID& id, bool* shouldLog) const {
     if (ShouldLogFuncs->find(id) == ShouldLogFuncs->end()) {
         return false;
-    } else {
-        *shouldLog = ShouldLogFuncs->at(id);
-        return true;
     }
+
+    *shouldLog = ShouldLogFuncs->at(id);
+    return true;
 }
 
 void EventsWithThreadId::PutFunctionShouldLogDecision(FunctionID& id, bool shouldLog) const {
     ShouldLogFuncs->insert({id, shouldLog});
 }
 
-EventsWithThreadIdOnline::EventsWithThreadIdOnline(std::string& directory, ThreadID threadId) {
-    std::string savePath = directory + "binstack_" + std::to_string(threadId) + ".bin";
+EventsWithThreadIdOnline::EventsWithThreadIdOnline(const std::string& directory, ThreadID threadId) {
+    const std::string savePath = directory + "binstack_" + std::to_string(threadId) + ".bin";
     myFout = new std::ofstream(savePath, std::ios::binary);
 
     myFout->write((char*) &threadId, sizeof(long long));
@@ -37,7 +37,7 @@ EventsWithThreadIdOnline::EventsWithThreadIdOnline(std::string& directory, Threa
 }
 
 EventsWithThreadIdOnline::~EventsWithThreadIdOnline() {
-    auto streamPos = myFout->tellp();
+    const auto streamPos = myFout->tellp();
     myFout->seekp(myFramesCountPos);
     myFout->write((char*) &writtenFrames, sizeof(long long));
     myFout->seekp(streamPos);

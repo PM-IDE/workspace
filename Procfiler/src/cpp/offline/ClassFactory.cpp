@@ -30,7 +30,7 @@ ULONG STDMETHODCALLTYPE ClassFactory::AddRef()
 
 ULONG STDMETHODCALLTYPE ClassFactory::Release()
 {
-    int count = std::atomic_fetch_sub(&this->refCount, 1) - 1;
+    const int count = std::atomic_fetch_sub(&this->refCount, 1) - 1;
     if (count <= 0)
     {
         delete this;
@@ -47,7 +47,7 @@ HRESULT STDMETHODCALLTYPE ClassFactory::CreateInstance(IUnknown *pUnkOuter, REFI
         return CLASS_E_NOAGGREGATION;
     }
 
-    auto p = new ProcfilerCorProfilerCallback(new ProcfilerLogger());
+    const auto p = new ProcfilerCorProfilerCallback(new ProcfilerLogger());
     return p->QueryInterface(riid, ppvObject);
 }
 

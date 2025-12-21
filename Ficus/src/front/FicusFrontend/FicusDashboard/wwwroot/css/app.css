@@ -29,20 +29,23 @@ html, body {
   --processes-section-case-background-darker: #2e3333;
   --processes-section-case-background-hovered-darker: #383e3e;
   --processes-section-cases-collapsed-bakground-darker: #272b2b;
-  
+
   --input-background: #323232;
   --input-foreground: #ffffff;
   --input-border-color: #101010;
-  
+
   --aggregated-data-background: #202020;
   --aggregated-stat-item-background: #404040;
   --aggregated-stat-item-value-background: #303030;
-  
+
   --tree-view-notification-container-color: #151515;
-  
+
   --new-notification-color: greenyellow;
   --updated--notification-color: yellow;
   --seen-notification-color: grey;
+
+  --flamegraph-node-background: #595959;
+  --flamegraph-edge-background: #3b3b3b;
 
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer */
@@ -60,12 +63,32 @@ input {
   padding: 5px !important;
 }
 
-::-webkit-scrollbar { width: 10px; height: 10px;}
-::-webkit-scrollbar-button {  background-color: #666; }
-::-webkit-scrollbar-track {  background-color: #999;}
-::-webkit-scrollbar-track-piece { background-color: #252525;}
-::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 3px;}
-::-webkit-resizer { background-color: #666;}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-button {
+  background-color: #666;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #999;
+}
+
+::-webkit-scrollbar-track-piece {
+  background-color: #252525;
+}
+
+::-webkit-scrollbar-thumb {
+  height: 50px;
+  background-color: #666;
+  border-radius: 3px;
+}
+
+::-webkit-resizer {
+  background-color: #666;
+}
 
 ::-webkit-scrollbar {
   display: none;
@@ -83,6 +106,12 @@ input {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+}
+
+.flex-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 h1:focus {
@@ -207,7 +236,7 @@ svg-pie-chart svg {
 .graph-title-label {
   background: #3b3b3b;
   border-radius: 3px;
-  width: fit-content;
+  width: 100%;
   color: white;
   padding: 2px;
   display: flex;
@@ -222,9 +251,10 @@ svg-pie-chart svg {
 .graph-content-container {
   background: #5d5d5d;
   width: fit-content;
-  height: fit-content;
   padding: 5px;
-  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .update-notification {
@@ -237,4 +267,32 @@ svg-pie-chart svg {
 
 .seen-notification {
   background-color: var(--seen-notification-color);
+}
+
+.flamegraph-node {
+  background: var(--flamegraph-node-background);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.flamegraph-edge {
+  background: var(--flamegraph-edge-background);
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flamegraph-separator-edge {
+  background: transparent;
+}
+
+.flamegraph-node-title {
+  font-size: 18px;
+}
+
+.flamegraph-ocel-annotation {
+  font-size: 14px;
 }

@@ -13,6 +13,7 @@ class GrpcGraphKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
     None: _ClassVar[GrpcGraphKind]
     DAG: _ClassVar[GrpcGraphKind]
+    DagLCS: _ClassVar[GrpcGraphKind]
 
 class GrpcDurationKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = []
@@ -36,6 +37,7 @@ class GrpcUnderlyingPatternKind(int, metaclass=_enum_type_wrapper.EnumTypeWrappe
     Unknown: _ClassVar[GrpcUnderlyingPatternKind]
 None: GrpcGraphKind
 DAG: GrpcGraphKind
+DagLCS: GrpcGraphKind
 Unspecified: GrpcDurationKind
 Nanos: GrpcDurationKind
 Micros: GrpcDurationKind
@@ -67,7 +69,7 @@ class GrpcContextValueWithKeyName(_message.Message):
     def __init__(self, key_name: _Optional[str] = ..., value: _Optional[_Union[GrpcContextValue, _Mapping]] = ...) -> None: ...
 
 class GrpcContextValue(_message.Message):
-    __slots__ = ["string", "hashes_log", "names_log", "uint32", "traces_sub_arrays", "trace_index_sub_arrays", "bool", "xes_event_log", "colors_log", "enum", "event_log_info", "strings", "pipeline", "petriNet", "graph", "float", "annotation", "dataset", "labeled_dataset", "bytes", "logTimelineDiagram", "float_array", "int_array", "uint_array", "json", "event_log"]
+    __slots__ = ["string", "hashes_log", "names_log", "uint32", "traces_sub_arrays", "trace_index_sub_arrays", "bool", "xes_event_log", "colors_log", "enum", "event_log_info", "strings", "pipeline", "petriNet", "graph", "float", "annotation", "dataset", "labeled_dataset", "bytes", "logTimelineDiagram", "float_array", "int_array", "uint_array", "json", "event_log", "ocel_annotation"]
     STRING_FIELD_NUMBER: _ClassVar[int]
     HASHES_LOG_FIELD_NUMBER: _ClassVar[int]
     NAMES_LOG_FIELD_NUMBER: _ClassVar[int]
@@ -94,6 +96,7 @@ class GrpcContextValue(_message.Message):
     UINT_ARRAY_FIELD_NUMBER: _ClassVar[int]
     JSON_FIELD_NUMBER: _ClassVar[int]
     EVENT_LOG_FIELD_NUMBER: _ClassVar[int]
+    OCEL_ANNOTATION_FIELD_NUMBER: _ClassVar[int]
     string: str
     hashes_log: GrpcHashesEventLogContextValue
     names_log: GrpcNamesEventLogContextValue
@@ -120,7 +123,50 @@ class GrpcContextValue(_message.Message):
     uint_array: GrpcUintArray
     json: str
     event_log: _pm_models_pb2.GrpcSimpleEventLog
-    def __init__(self, string: _Optional[str] = ..., hashes_log: _Optional[_Union[GrpcHashesEventLogContextValue, _Mapping]] = ..., names_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., uint32: _Optional[int] = ..., traces_sub_arrays: _Optional[_Union[GrpcEventLogTraceSubArraysContextValue, _Mapping]] = ..., trace_index_sub_arrays: _Optional[_Union[GrpcSubArraysWithTraceIndexContextValue, _Mapping]] = ..., bool: bool = ..., xes_event_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., colors_log: _Optional[_Union[GrpcColorsEventLog, _Mapping]] = ..., enum: _Optional[_Union[GrpcEnum, _Mapping]] = ..., event_log_info: _Optional[_Union[GrpcEventLogInfo, _Mapping]] = ..., strings: _Optional[_Union[GrpcStrings, _Mapping]] = ..., pipeline: _Optional[_Union[GrpcPipeline, _Mapping]] = ..., petriNet: _Optional[_Union[_pm_models_pb2.GrpcPetriNet, _Mapping]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ..., float: _Optional[float] = ..., annotation: _Optional[_Union[_pm_models_pb2.GrpcAnnotation, _Mapping]] = ..., dataset: _Optional[_Union[_pm_models_pb2.GrpcDataset, _Mapping]] = ..., labeled_dataset: _Optional[_Union[_pm_models_pb2.GrpcLabeledDataset, _Mapping]] = ..., bytes: _Optional[_Union[GrpcBytes, _Mapping]] = ..., logTimelineDiagram: _Optional[_Union[GrpcLogTimelineDiagram, _Mapping]] = ..., float_array: _Optional[_Union[GrpcFloatArray, _Mapping]] = ..., int_array: _Optional[_Union[GrpcIntArray, _Mapping]] = ..., uint_array: _Optional[_Union[GrpcUintArray, _Mapping]] = ..., json: _Optional[str] = ..., event_log: _Optional[_Union[_pm_models_pb2.GrpcSimpleEventLog, _Mapping]] = ...) -> None: ...
+    ocel_annotation: GrpcOcelModelAnnotation
+    def __init__(self, string: _Optional[str] = ..., hashes_log: _Optional[_Union[GrpcHashesEventLogContextValue, _Mapping]] = ..., names_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., uint32: _Optional[int] = ..., traces_sub_arrays: _Optional[_Union[GrpcEventLogTraceSubArraysContextValue, _Mapping]] = ..., trace_index_sub_arrays: _Optional[_Union[GrpcSubArraysWithTraceIndexContextValue, _Mapping]] = ..., bool: bool = ..., xes_event_log: _Optional[_Union[GrpcNamesEventLogContextValue, _Mapping]] = ..., colors_log: _Optional[_Union[GrpcColorsEventLog, _Mapping]] = ..., enum: _Optional[_Union[GrpcEnum, _Mapping]] = ..., event_log_info: _Optional[_Union[GrpcEventLogInfo, _Mapping]] = ..., strings: _Optional[_Union[GrpcStrings, _Mapping]] = ..., pipeline: _Optional[_Union[GrpcPipeline, _Mapping]] = ..., petriNet: _Optional[_Union[_pm_models_pb2.GrpcPetriNet, _Mapping]] = ..., graph: _Optional[_Union[GrpcGraph, _Mapping]] = ..., float: _Optional[float] = ..., annotation: _Optional[_Union[_pm_models_pb2.GrpcAnnotation, _Mapping]] = ..., dataset: _Optional[_Union[_pm_models_pb2.GrpcDataset, _Mapping]] = ..., labeled_dataset: _Optional[_Union[_pm_models_pb2.GrpcLabeledDataset, _Mapping]] = ..., bytes: _Optional[_Union[GrpcBytes, _Mapping]] = ..., logTimelineDiagram: _Optional[_Union[GrpcLogTimelineDiagram, _Mapping]] = ..., float_array: _Optional[_Union[GrpcFloatArray, _Mapping]] = ..., int_array: _Optional[_Union[GrpcIntArray, _Mapping]] = ..., uint_array: _Optional[_Union[GrpcUintArray, _Mapping]] = ..., json: _Optional[str] = ..., event_log: _Optional[_Union[_pm_models_pb2.GrpcSimpleEventLog, _Mapping]] = ..., ocel_annotation: _Optional[_Union[GrpcOcelModelAnnotation, _Mapping]] = ...) -> None: ...
+
+class GrpcOcelModelAnnotation(_message.Message):
+    __slots__ = ["annotations"]
+    ANNOTATIONS_FIELD_NUMBER: _ClassVar[int]
+    annotations: _containers.RepeatedCompositeFieldContainer[GrpcModelElementOcelAnnotation]
+    def __init__(self, annotations: _Optional[_Iterable[_Union[GrpcModelElementOcelAnnotation, _Mapping]]] = ...) -> None: ...
+
+class GrpcModelElementOcelAnnotation(_message.Message):
+    __slots__ = ["element_id", "initial_state", "final_state", "relations"]
+    ELEMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    INITIAL_STATE_FIELD_NUMBER: _ClassVar[int]
+    FINAL_STATE_FIELD_NUMBER: _ClassVar[int]
+    RELATIONS_FIELD_NUMBER: _ClassVar[int]
+    element_id: int
+    initial_state: GrpcOcelState
+    final_state: GrpcOcelState
+    relations: _containers.RepeatedCompositeFieldContainer[GrpcOcelStateObjectRelation]
+    def __init__(self, element_id: _Optional[int] = ..., initial_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ..., final_state: _Optional[_Union[GrpcOcelState, _Mapping]] = ..., relations: _Optional[_Iterable[_Union[GrpcOcelStateObjectRelation, _Mapping]]] = ...) -> None: ...
+
+class GrpcOcelStateObjectRelation(_message.Message):
+    __slots__ = ["object_id", "element_id", "related_objects_ids"]
+    OBJECT_ID_FIELD_NUMBER: _ClassVar[int]
+    ELEMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    RELATED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
+    object_id: str
+    element_id: int
+    related_objects_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, object_id: _Optional[str] = ..., element_id: _Optional[int] = ..., related_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class GrpcOcelState(_message.Message):
+    __slots__ = ["type_states"]
+    TYPE_STATES_FIELD_NUMBER: _ClassVar[int]
+    type_states: _containers.RepeatedCompositeFieldContainer[GrpcOcelObjectTypeState]
+    def __init__(self, type_states: _Optional[_Iterable[_Union[GrpcOcelObjectTypeState, _Mapping]]] = ...) -> None: ...
+
+class GrpcOcelObjectTypeState(_message.Message):
+    __slots__ = ["type", "object_ids"]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    OBJECT_IDS_FIELD_NUMBER: _ClassVar[int]
+    type: str
+    object_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, type: _Optional[str] = ..., object_ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GrpcFloatArray(_message.Message):
     __slots__ = ["items"]
@@ -421,18 +467,62 @@ class GrpcNodeCorrespondingTraceData(_message.Message):
     def __init__(self, belongs_to_root_sequence: bool = ...) -> None: ...
 
 class GrpcSoftwareData(_message.Message):
-    __slots__ = ["histogram", "timeline_diagram_fragment", "histogram_data", "simple_counter_data", "activities_durations_data"]
+    __slots__ = ["histogram", "timeline_diagram_fragment", "histogram_data", "simple_counter_data", "activities_durations_data", "ocel_data"]
     HISTOGRAM_FIELD_NUMBER: _ClassVar[int]
     TIMELINE_DIAGRAM_FRAGMENT_FIELD_NUMBER: _ClassVar[int]
     HISTOGRAM_DATA_FIELD_NUMBER: _ClassVar[int]
     SIMPLE_COUNTER_DATA_FIELD_NUMBER: _ClassVar[int]
     ACTIVITIES_DURATIONS_DATA_FIELD_NUMBER: _ClassVar[int]
+    OCEL_DATA_FIELD_NUMBER: _ClassVar[int]
     histogram: _containers.RepeatedCompositeFieldContainer[GrpcHistogramEntry]
     timeline_diagram_fragment: GrpcTimelineDiagramFragment
     histogram_data: _containers.RepeatedCompositeFieldContainer[GrpcGeneralHistogramData]
     simple_counter_data: _containers.RepeatedCompositeFieldContainer[GrpcSimpleCounterData]
     activities_durations_data: _containers.RepeatedCompositeFieldContainer[GrpcActivityDurationData]
-    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ..., activities_durations_data: _Optional[_Iterable[_Union[GrpcActivityDurationData, _Mapping]]] = ...) -> None: ...
+    ocel_data: _containers.RepeatedCompositeFieldContainer[GrpcOcelData]
+    def __init__(self, histogram: _Optional[_Iterable[_Union[GrpcHistogramEntry, _Mapping]]] = ..., timeline_diagram_fragment: _Optional[_Union[GrpcTimelineDiagramFragment, _Mapping]] = ..., histogram_data: _Optional[_Iterable[_Union[GrpcGeneralHistogramData, _Mapping]]] = ..., simple_counter_data: _Optional[_Iterable[_Union[GrpcSimpleCounterData, _Mapping]]] = ..., activities_durations_data: _Optional[_Iterable[_Union[GrpcActivityDurationData, _Mapping]]] = ..., ocel_data: _Optional[_Iterable[_Union[GrpcOcelData, _Mapping]]] = ...) -> None: ...
+
+class GrpcOcelObjectTypeData(_message.Message):
+    __slots__ = ["type"]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    type: str
+    def __init__(self, type: _Optional[str] = ...) -> None: ...
+
+class GrpcOcelAllocateMerge(_message.Message):
+    __slots__ = ["type", "merged_objects_ids"]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    MERGED_OBJECTS_IDS_FIELD_NUMBER: _ClassVar[int]
+    type: str
+    merged_objects_ids: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, type: _Optional[str] = ..., merged_objects_ids: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class GrpcOcelProducedObject(_message.Message):
+    __slots__ = ["id", "type"]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    type: str
+    def __init__(self, id: _Optional[str] = ..., type: _Optional[str] = ...) -> None: ...
+
+class GrpcOcelConsumeProduce(_message.Message):
+    __slots__ = ["produced_objects"]
+    PRODUCED_OBJECTS_FIELD_NUMBER: _ClassVar[int]
+    produced_objects: _containers.RepeatedCompositeFieldContainer[GrpcOcelProducedObject]
+    def __init__(self, produced_objects: _Optional[_Iterable[_Union[GrpcOcelProducedObject, _Mapping]]] = ...) -> None: ...
+
+class GrpcOcelData(_message.Message):
+    __slots__ = ["object_id", "allocate", "consume", "merged_object_allocation", "produce_object_consumption"]
+    OBJECT_ID_FIELD_NUMBER: _ClassVar[int]
+    ALLOCATE_FIELD_NUMBER: _ClassVar[int]
+    CONSUME_FIELD_NUMBER: _ClassVar[int]
+    MERGED_OBJECT_ALLOCATION_FIELD_NUMBER: _ClassVar[int]
+    PRODUCE_OBJECT_CONSUMPTION_FIELD_NUMBER: _ClassVar[int]
+    object_id: str
+    allocate: GrpcOcelObjectTypeData
+    consume: GrpcOcelObjectTypeData
+    merged_object_allocation: GrpcOcelAllocateMerge
+    produce_object_consumption: GrpcOcelConsumeProduce
+    def __init__(self, object_id: _Optional[str] = ..., allocate: _Optional[_Union[GrpcOcelObjectTypeData, _Mapping]] = ..., consume: _Optional[_Union[GrpcOcelObjectTypeData, _Mapping]] = ..., merged_object_allocation: _Optional[_Union[GrpcOcelAllocateMerge, _Mapping]] = ..., produce_object_consumption: _Optional[_Union[GrpcOcelConsumeProduce, _Mapping]] = ...) -> None: ...
 
 class GrpcActivityDurationData(_message.Message):
     __slots__ = ["base", "duration", "kind"]

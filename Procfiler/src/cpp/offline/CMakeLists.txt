@@ -40,6 +40,12 @@ set(SOURCES
     corprofiler/shadowstack/serializers/DebugShadowStackSerializer.h
     corprofiler/shadowstack/utils.cpp
     corprofiler/shadowstack/EventsWithThreadId.cpp
+    ../shared/info/sigparser/sigparser.h
+    ../shared/info/sigparser/sigparser.cpp
+    ../shared/info/sigparser/sigparserimpl.hpp
+    corprofiler/objects/ObjectsManager.cpp
+    corprofiler/objects/ObjectsManager.h
+    ../shared/util/MetadataCookie.hpp
 )
 
 include_directories(../3rdparty/coreclr/pal/prebuilt/inc)

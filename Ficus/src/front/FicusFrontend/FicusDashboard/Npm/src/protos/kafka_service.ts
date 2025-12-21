@@ -83,12 +83,22 @@ export interface ProtoGrpcType {
     GrpcMatrixRow: MessageTypeDefinition
     GrpcMethodInliningInfo: MessageTypeDefinition
     GrpcMethodNameParts: MessageTypeDefinition
+    GrpcModelElementOcelAnnotation: MessageTypeDefinition
     GrpcMultithreadedFragment: MessageTypeDefinition
     GrpcNamesEventLog: MessageTypeDefinition
     GrpcNamesEventLogContextValue: MessageTypeDefinition
     GrpcNamesTrace: MessageTypeDefinition
     GrpcNodeAdditionalData: MessageTypeDefinition
     GrpcNodeCorrespondingTraceData: MessageTypeDefinition
+    GrpcOcelAllocateMerge: MessageTypeDefinition
+    GrpcOcelConsumeProduce: MessageTypeDefinition
+    GrpcOcelData: MessageTypeDefinition
+    GrpcOcelModelAnnotation: MessageTypeDefinition
+    GrpcOcelObjectTypeData: MessageTypeDefinition
+    GrpcOcelObjectTypeState: MessageTypeDefinition
+    GrpcOcelProducedObject: MessageTypeDefinition
+    GrpcOcelState: MessageTypeDefinition
+    GrpcOcelStateObjectRelation: MessageTypeDefinition
     GrpcParallelPipelinePart: MessageTypeDefinition
     GrpcParallelPipelineParts: MessageTypeDefinition
     GrpcPetriNet: MessageTypeDefinition

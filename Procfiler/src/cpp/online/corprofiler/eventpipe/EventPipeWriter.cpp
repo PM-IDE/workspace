@@ -21,7 +21,7 @@ void EventPipeWriter::Init() {
 
 void EventPipeWriter::InitMethodsFilterRegex() {
     std::string value;
-    if (TryGetEnvVar(filterMethodsRegex, value)) {
+    if (TryGetEnvVar(filterMethodsRegexEnv, value)) {
         try {
             myMethodsFilterRegex = new std::regex(value);
         }

@@ -1,0 +1,43 @@
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
+
+@{
+  var style = string.Empty;
+  if (Height is { }) style += $"height: {Height};";
+  if (Width is { }) style += $"width: {Width};";
+
+  if (!Context.RenderOcelAnnotation)
+  {
+    style += $"background: {EnhancedEdge?.Color} !important;";
+  }
+}
+
+<div style="@style; @Context.MinSecondDim: 100px;" class="flamegraph-edge">
+
+  @if (!@Context.RenderOcelAnnotation && EnhancedEdge is { })
+  {
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <div style="margin-top: -5px;">
+        @EnhancedEdge.ExecutionTimeStringRepr
+      </div>
+      <div style="margin-top: -5px; white-space: nowrap;">
+        @EnhancedEdge.NumberOfExecutions times
+      </div>
+    </div>
+
+    @if (EnhancedEdge.Html is { })
+    {
+      <div style="max-width: 100%; overflow-x: auto;"
+           class="visible-scroll">
+        @((MarkupString)EnhancedEdge.Html)
+      </div>
+    }
+  }
+
+</div>
+
+@code {
+  [Parameter] public required string? Height { get; init; }
+  [Parameter] public required string? Width { get; init; }
+  [Parameter] public required EnhancedEdge? EnhancedEdge { get; init; }
+  [Parameter] public required FlamegraphRenderingContext Context { get; init; }
+}

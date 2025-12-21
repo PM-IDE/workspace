@@ -29,6 +29,8 @@ public class EventRecord : OcelObjectBase
   public string EventName { get; set; }
   public int StackTraceId { get; }
 
+  public override string? Type => EventClass;
+
 
   public EventRecord(EventRecordTime time, string eventClass, long managedThreadId, long nativeThreadId, Guid activityId,
     int stackTraceId)

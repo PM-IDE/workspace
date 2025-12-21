@@ -1,23 +1,38 @@
 @using System.Globalization
 @using Ficus
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph
+@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 @using FicusDashboard.Layout.Models
 @using Radzen.Blazor
 @inject IJSRuntime Js
 
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
-  <div style="display: flex; flex-direction: row; flex-grow: 1;">
-    <GraphLikeEntitySettings @ref="@mySettings" Enhancements="@myEnhancements">
+  <div style="display: flex; flex-direction: row; width: 100%; max-height: 85%;">
+    <GraphLikeEntitySettings @ref="@mySettings"
+                             Enhancements="@myEnhancements"
+                             CanRenderFlamegraph="@(myContext is { })">
       <RadzenButton Click="ReRenderCanvas" Style="width: 90%; margin-top: 5px;">Rerender</RadzenButton>
       <RadzenButton Click="ExportGraph" Style="width: 90%; margin-top: 5px;">Export to SVG</RadzenButton>
     </GraphLikeEntitySettings>
 
-    <div style="height: 100%; flex-grow: 1;">
-      <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
+    <div class="visible-scroll" style="height: 100%; flex-grow: 1; padding: 5px; overflow-x: scroll; overflow-y: auto;">
+      @if (mySettings is { RenderDagLcsInFlamegraphMode: true })
+      {
+        <FlamegraphGraphRenderer Context="@myContext"
+                                 AggregatedData="myAggregatedData"
+                                 Annotation="Annotation"
+                                 OcelAnnotation="OcelModelAnnotation"
+                                 Settings="mySettings"/>
+      }
+      else
+      {
+        <CanvasComponent @ref="myCanvasComponent" IsFullScreen="@IsFullScreen" RenderingFunc="RenderCanvas"/>
+      }
     </div>
   </div>
 
-  <div style="margin-top: 5px;">
+  <div style="margin-top: 5px; height: 15%;">
     @if (myAggregatedData is { IsEmpty: false } data)
     {
       <AggregatedDataRenderer Data="@data"/>
@@ -30,18 +45,21 @@
   [Parameter] public required bool IsFullScreen { get; init; }
   [Parameter] public required GrpcGraph Graph { get; init; }
   [Parameter] public required ProcessCaseData ProcessCaseData { get; init; }
-  [Parameter] public GrpcAnnotation? Annotation { get; set; }
+  [Parameter] public GrpcAnnotation? Annotation { get; init; }
+  [Parameter] public GrpcOcelModelAnnotation? OcelModelAnnotation { get; init; }
 
 
   private GraphLikeEntitySettings mySettings = null!;
   private List<EnhancementsSettings.EnhancementName>? myEnhancements;
   private CanvasComponent? myCanvasComponent;
   private AggregatedData? myAggregatedData;
+  private FlamegraphContext? myContext;
 
 
   protected override void OnParametersSet()
   {
     myEnhancements = FindAllEnhancements(Graph);
+    myContext = FlamegraphContext.TryCreate(Graph);
   }
 
   private List<EnhancementsSettings.EnhancementName> FindAllEnhancements(GrpcGraph graph)
@@ -91,7 +109,7 @@
   {
     AddCustomEnhancements(data, enhancements);
   }
-  
+
   private static void AddCustomEnhancements(GrpcSoftwareData? data, HashSet<EnhancementsSettings.EnhancementName> enhancements)
   {
     if (data is null) return;
@@ -157,7 +175,13 @@
   private string CreateExportFileName() =>
     ProcessCaseData.ProcessData.ProcessName + "_" + ProcessCaseData.Case.DisplayName + "_graph";
 
-  private void ReRenderCanvas() => myCanvasComponent?.ReRenderCanvas();
+  private void ReRenderCanvas()
+  {
+    if (!mySettings.RenderDagLcsInFlamegraphMode)
+    {
+      myCanvasComponent?.ReRenderCanvas();
+    }
+  }
 
   private Task ExportGraph() =>
     myCanvasComponent is { } ? myCanvasComponent.ExportGraph(CreateExportFileName()) : Task.CompletedTask;

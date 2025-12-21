@@ -11,6 +11,21 @@ public class AggregatedData
   public bool IsEmpty => GlobalSoftwareData.IsEmpty;
 }
 
+public class EnhancedGraphEntity
+{
+  public ulong Id { get; set; }
+  public string? Html { get; set; }
+  public string Color { get; set; }
+  public string ExecutionTimeStringRepr { get; set; }
+}
+
+public class EnhancedEdge : EnhancedGraphEntity
+{
+  public int NumberOfExecutions { get; set; }
+}
+
+public class EnhancedNode : EnhancedGraphEntity;
+
 public class MergedSoftwareData
 {
   public Dictionary<string, ValueWithUnits<Dictionary<string, double>>> Histograms { get; set; } = new();

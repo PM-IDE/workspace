@@ -53,15 +53,17 @@ def _execute_test_with_exercise_log(log_name: str, pipeline: Pipeline):
     'bytes': BytesContextValue(read_file_bytes(get_example_log_path(f'{log_name}.xes')))
   })
 
+  assert_success_pipeline_final_result(result)
+
+
+def assert_success_pipeline_final_result(result):
   assert result.finalResult.HasField('success')
   assert not result.finalResult.HasField('error')
 
 
 def _execute_test_with_context(pipeline: Pipeline, context: dict[str, ContextValue]):
   result = _execute_pipeline(pipeline, context)
-
-  assert result.finalResult.HasField('success')
-  assert not result.finalResult.HasField('error')
+  assert_success_pipeline_final_result(result)
 
 
 def test_pipeline_with_getting_context_value2():
@@ -154,8 +156,8 @@ def _execute_test_with_names_log(names_log: list[list[str]],
   success_field = 'success'
   error_field = 'error'
 
-  (present_field, not_present_error_field) = (
-  success_field, error_field) if assertance_kind == ResultAssertanceKind.Success else (error_field, success_field)
+  success = assertance_kind == ResultAssertanceKind.Success
+  (present_field, not_present_error_field) = (success_field, error_field) if success else (error_field, success_field)
 
   assert result.finalResult.HasField(present_field)
   assert not result.finalResult.HasField(not_present_error_field)
