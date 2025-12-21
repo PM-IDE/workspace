@@ -26,6 +26,15 @@ public class OcelEventsTest : GoldProcessBasedTest
     );
   }
 
+  [Test]
+  public void SimpleTest3()
+  {
+    ExecuteTestWithGold(
+      KnownSolution.OcelWithIfs.CreateOnlineSerializationContext(),
+      SerializeOcelEvents
+    );
+  }
+
   private static string SerializeOcelEvents(CollectedEvents events) => string.Join(
     "\n",
     events.Events

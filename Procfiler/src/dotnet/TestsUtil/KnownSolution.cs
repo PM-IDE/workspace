@@ -28,6 +28,7 @@ public class KnownSolution
   public static KnownSolution ProcfilerEventPipeLogger { get; } = new("ProcfilerEventPipeLogger");
   public static KnownSolution Ocel { get; } = new("Ocel");
   public static KnownSolution Ocel2 { get; } = new("Ocel2");
+  public static KnownSolution OcelWithIfs { get; } = new("OcelWithIfs");
 
 
   public static IEnumerable<KnownSolution> AllSolutions { get; } =
