@@ -33,8 +33,6 @@ public static class Program
       false => AllocateObjects2(x)
     };
 
-    Barrier();
-
     var id7 = NextId();
     OcelLogger.LogMergeAllocateRaw(new OcelObjectDto(id7, Type1), objects[0], objects[1], objects[2]);
 
