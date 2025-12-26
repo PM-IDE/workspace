@@ -1,4 +1,5 @@
-﻿using ProcfilerLoggerProvider;
+﻿using System.Runtime.CompilerServices;
+using ProcfilerLoggerProvider;
 
 namespace OcelWithIfs;
 
@@ -32,10 +33,19 @@ public static class Program
       false => AllocateObjects2(x)
     };
 
+    Barrier();
+
     var id7 = NextId();
     OcelLogger.LogMergeAllocateRaw(new OcelObjectDto(id7, Type1), objects[0], objects[1], objects[2]);
 
+    Barrier();
+
     OcelLogger.LogConsumeProduceRaw(id7, new OcelObjectDto(NextId(), Type3), new OcelObjectDto(NextId(), Type2));
+  }
+
+  [MethodImpl(MethodImplOptions.NoInlining)]
+  private static void Barrier()
+  {
   }
 
   private static List<long> AllocateObjects(int x)
