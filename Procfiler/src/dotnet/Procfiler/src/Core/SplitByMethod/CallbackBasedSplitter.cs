@@ -111,10 +111,10 @@ public class CallbackBasedSplitter(
 
     if (myFramesStack.Count <= 0) return;
 
-    (topOfStack, states) = myFramesStack.Peek();
+    (_, states) = myFramesStack.Peek();
     foreach (var (serializer, state) in serializers.Zip(states))
     {
-      serializer.HandleUpdate(new MethodExecutionUpdate(new CurrentFrameInfoWithState(topOfStack, state), topOfStack.Frame));
+      serializer.HandleUpdate(new MethodExecutionUpdate(new CurrentFrameInfoWithState(topOfStack, state), frame));
     }
   }
 

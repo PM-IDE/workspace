@@ -16,17 +16,28 @@ public static class EventRecordExtensions
     public MethodStartEndEventInfo GetMethodStartEndEventInfo()
       => eventRecord.TryGetMethodStartEndEventInfo() ?? throw new ArgumentOutOfRangeException();
 
+    public string GetMethodNameOrThrow() => eventRecord.Metadata[TraceEventsConstants.ProcfilerMethodName];
+
     public MethodStartEndEventInfo? TryGetMethodStartEndEventInfo()
     {
-      if (IsMethodStartOrEndEvent(eventRecord))
+      if (eventRecord.IsMethodStartOrEndEvent())
       {
         return new MethodStartEndEventInfo(
-          eventRecord.Metadata[TraceEventsConstants.ProcfilerMethodName],
+          eventRecord.GetMethodNameOrThrow(),
           eventRecord.EventClass is TraceEventsConstants.ProcfilerMethodStart
         );
       }
 
       return null;
+    }
+
+    public bool IsMethodExecutionEvent(out string? methodName)
+    {
+      methodName = null;
+      if (eventRecord.EventClass is not TraceEventsConstants.ProcfilerMethodExecution) return false;
+
+      methodName = eventRecord.GetMethodNameOrThrow();
+      return true;
     }
   }
 }

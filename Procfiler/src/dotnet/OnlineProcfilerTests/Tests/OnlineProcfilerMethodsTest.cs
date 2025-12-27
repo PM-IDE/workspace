@@ -45,7 +45,12 @@ public static class OnlineProcfilerMethodsUtil
       return null;
     }, trace => ProgramMethodCallTreeDumper.CreateDump(trace, filter.ToString(), e => e.TryGetMethodDetails() switch
     {
-      var (_, id) => (sharedData.FindMethodDetails(id)!.Fqn, e.GetMethodEventKind() == MethodKind.Begin),
+      var (_, id) => (sharedData.FindMethodDetails(id)!.Fqn, e.GetMethodEventKind() switch
+      {
+        MethodKind.Begin => ProgramMethodCallTreeDumper.DumpEventKind.Start,
+        MethodKind.End => ProgramMethodCallTreeDumper.DumpEventKind.End,
+        _ => throw new ArgumentOutOfRangeException()
+      }),
       _ => null
     }));
   }

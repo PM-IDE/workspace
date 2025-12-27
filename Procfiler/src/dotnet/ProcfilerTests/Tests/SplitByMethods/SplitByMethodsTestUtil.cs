@@ -12,7 +12,7 @@ namespace ProcfilerTests.Tests.SplitByMethods;
 public static class SplitByMethodsTestUtil
 {
   public static IReadOnlyDictionary<string, List<List<EventRecordWithMetadata>>> SplitByMethods(
-    CollectedEvents events, IContainer container, string filterPattern)
+    CollectedEvents events, IContainer container, string filterPattern, InlineMode inlineMode)
   {
     var mainThreadEvents = TestUtil.FindEventsForMainThread(events.Events);
     var processingContext = EventsProcessingContext.DoEverything(mainThreadEvents, events.GlobalData);
@@ -22,6 +22,6 @@ public static class SplitByMethodsTestUtil
     processor.ApplyMultipleMutators(mainThreadEvents, events.GlobalData, EmptyCollections<Type>.EmptySet);
 
     var splitter = container.Resolve<IEventsCollectionByMethodsSplitter>();
-    return splitter.Split(mainThreadEvents, filterPattern, InlineMode.EventsAndMethodsEvents);
+    return splitter.Split(mainThreadEvents, filterPattern, inlineMode);
   }
 }
