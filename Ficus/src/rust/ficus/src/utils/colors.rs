@@ -24,9 +24,9 @@ impl Color {
     let mut rng = rand::thread_rng();
 
     loop {
-      let red = rng.gen::<u8>();
-      let green = rng.gen::<u8>();
-      let blue = rng.gen::<u8>();
+      let red = rng.r#gen::<u8>();
+      let green = rng.r#gen::<u8>();
+      let blue = rng.r#gen::<u8>();
 
       let color = Self::new(red, green, blue);
       if let Some(used_colors) = used {
