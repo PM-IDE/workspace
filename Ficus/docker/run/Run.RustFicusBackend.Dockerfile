@@ -1,4 +1,4 @@
-FROM rust:1.75.0 as build
+FROM rust:1.92.0 as build
 
 RUN apt update -y && apt upgrade -y
 RUN apt-get update -y
@@ -20,6 +20,6 @@ EXPOSE 8080
 WORKDIR /app
 
 COPY --from=build /pmide/ficus/src/rust/target/release/ ./
-COPY --from=build /lib/*-linux-gnu /lib/
+COPY --from=build /lib/ /lib/
 
 ENTRYPOINT ["/app/ficus_backend"]
