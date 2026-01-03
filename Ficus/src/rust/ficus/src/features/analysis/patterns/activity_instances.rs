@@ -1,21 +1,21 @@
 use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
 use crate::event_log::core::event::event::EventPayloadValue;
+use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::pattern_info::UNDERLYING_PATTERN_KIND_KEY;
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
   pipelines::aliases::TracesActivities,
-  utils::user_data::{keys::DefaultKey, user_data::UserData},
+  utils::user_data::user_data::UserData,
 };
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, MutGetters};
 use lazy_static::lazy_static;
-use once_cell::unsync::Lazy;
-use std::any::{Any, TypeId};
 use std::borrow::ToOwned;
-use std::sync::Mutex;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet, VecDeque},
@@ -447,60 +447,26 @@ impl<T> UnderlyingEventsInfo<T> {
   }
 }
 
-pub struct ActivityInstancesKeys {
-  underlying_events_keys: Mutex<HashMap<TypeId, Box<dyn Any>>>,
-}
-
-impl ActivityInstancesKeys {
-  pub fn new() -> Self {
-    Self {
-      underlying_events_keys: Mutex::new(HashMap::new()),
-    }
-  }
-
-  pub fn underlying_events_key<TEvent: Event + 'static>(&mut self) -> DefaultKey<UnderlyingEventsInfo<TEvent>> {
-    let type_id = TypeId::of::<TEvent>();
-    let mut map = self.underlying_events_keys.lock();
-    let map = map.as_mut().ok().unwrap();
-
-    if let Some(key) = map.get(&type_id) {
-      key.downcast_ref::<DefaultKey<UnderlyingEventsInfo<TEvent>>>().unwrap().clone()
-    } else {
-      let key = DefaultKey::<UnderlyingEventsInfo<TEvent>>::new("UNDERLYING_EVENTS".to_owned());
-      map.insert(type_id, Box::new(key) as Box<dyn Any>);
-      map
-        .get(&type_id)
-        .unwrap()
-        .downcast_ref::<DefaultKey<UnderlyingEventsInfo<TEvent>>>()
-        .unwrap()
-        .clone()
-    }
-  }
-}
-
-static mut KEYS: Mutex<Lazy<ActivityInstancesKeys>> = Mutex::new(Lazy::new(|| ActivityInstancesKeys::new()));
-
 lazy_static! {
-  pub static ref HIERARCHY_LEVEL: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
+  pub static ref HIERARCHY_LEVEL_KEY: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
+  pub static ref UNDERLYING_EVENTS_KEY: DefaultContextKey<UnderlyingEventsInfo<XesEventImpl>> = DefaultContextKey::new("UNDERLYING_EVENTS");
 }
 
-pub fn create_new_log_from_activities_instances<TLog, TEventFactory>(
-  log: &TLog,
+pub fn create_new_log_from_activities_instances<TEventFactory>(
+  log: &XesEventLogImpl,
   instances: &Vec<Vec<ActivityInTraceInfo>>,
-  strategy: &UndefActivityHandlingStrategy<TLog::TEvent>,
+  strategy: &UndefActivityHandlingStrategy<XesEventImpl>,
   event_from_activity_factory: &TEventFactory,
-) -> TLog
+) -> XesEventLogImpl
 where
-  TLog: EventLog,
-  TLog::TEvent: 'static,
-  TEventFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
+  TEventFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<XesEventImpl>>]) -> Rc<RefCell<XesEventImpl>>,
 {
-  let level = log.user_data().get(HIERARCHY_LEVEL.key()).unwrap_or(&0usize);
-  let mut new_log = TLog::empty();
+  let level = log.user_data().get(HIERARCHY_LEVEL_KEY.key()).unwrap_or(&0usize);
+  let mut new_log = XesEventLogImpl::empty();
 
   for (instances, trace) in instances.iter().zip(log.traces()) {
     let trace = trace.borrow();
-    let new_trace_ptr = Rc::new(RefCell::new(TLog::TTrace::empty()));
+    let new_trace_ptr = Rc::new(RefCell::new(XesTraceImpl::empty()));
 
     let undef_activity_func = |start_index: usize, end_index: usize| match strategy {
       UndefActivityHandlingStrategy::DontInsert => (),
@@ -531,7 +497,7 @@ where
       let user_data = event.user_data_mut();
 
       for event in &underlying_events {
-        execute_with_underlying_events::<TLog>(event, &mut |event| {
+        execute_with_underlying_events(event, &mut |event| {
           let payload_value = EventPayloadValue::String(activity.node.borrow().id().clone());
           let key = format!("hierarchy_level_{}", level);
           event.add_or_update_payload(key, payload_value);
@@ -556,7 +522,7 @@ where
 
         let info = UnderlyingEventsInfo::new(base_pattern, underlying_events);
 
-        user_data.put_concrete(&KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>(), info);
+        user_data.put_concrete(UNDERLYING_EVENTS_KEY.key(), info);
       }
     };
 
@@ -565,7 +531,7 @@ where
     new_log.push(new_trace_ptr)
   }
 
-  new_log.user_data_mut().put_concrete(HIERARCHY_LEVEL.key(), level + 1);
+  new_log.user_data_mut().put_concrete(HIERARCHY_LEVEL_KEY.key(), level + 1);
   new_log
 }
 
@@ -628,31 +594,34 @@ where
   TracesActivities(&'a TLog, &'a Vec<Vec<ActivityInTraceInfo>>, usize),
 }
 
-pub fn create_logs_for_activities<TLog>(activities_source: &ActivitiesLogSource<TLog>) -> HashMap<String, Rc<RefCell<TLog>>>
-where
-  TLog: EventLog,
-{
+pub fn create_logs_for_activities(
+  activities_source: &ActivitiesLogSource<XesEventLogImpl>,
+) -> HashMap<String, Rc<RefCell<XesEventLogImpl>>> {
   match activities_source {
     ActivitiesLogSource::Log(log) => create_activities_logs_from_log(log),
     ActivitiesLogSource::TracesActivities(log, activities, level) => create_log_from_traces_activities(log, activities, *level),
   }
 }
 
-fn create_activities_logs_from_log<TLog: EventLog>(log: &TLog) -> HashMap<String, Rc<RefCell<TLog>>> {
-  let mut activities_to_logs: HashMap<String, Rc<RefCell<TLog>>> = HashMap::new();
-  let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
+fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<String, Rc<RefCell<XesEventLogImpl>>> {
+  let mut activities_to_logs: HashMap<String, Rc<RefCell<XesEventLogImpl>>> = HashMap::new();
 
   for trace in log.traces() {
     for event in trace.borrow().events() {
-      if event.borrow_mut().user_data_mut().concrete_mut(&key).is_some() {
+      if event
+        .borrow_mut()
+        .user_data_mut()
+        .concrete_mut(&UNDERLYING_EVENTS_KEY.key())
+        .is_some()
+      {
         let name = event.borrow().name().to_owned();
-        let mut new_trace = TLog::TTrace::empty();
-        substitute_underlying_events::<TLog>(event, &mut new_trace);
+        let mut new_trace = XesTraceImpl::empty();
+        substitute_underlying_events(event, &mut new_trace);
 
         if let Some(existing_log) = activities_to_logs.get_mut(&name) {
           existing_log.borrow_mut().push(Rc::new(RefCell::new(new_trace)));
         } else {
-          let mut new_log = TLog::empty();
+          let mut new_log = XesEventLogImpl::empty();
           new_log.push(Rc::new(RefCell::new(new_trace)));
           activities_to_logs.insert(name, Rc::new(RefCell::new(new_log)));
         }
@@ -752,10 +721,7 @@ where
   name
 }
 
-pub fn count_underlying_events<TLog>(log: &TLog) -> usize
-where
-  TLog: EventLog,
-{
+pub fn count_underlying_events(log: &XesEventLogImpl) -> usize {
   let mut count = 0usize;
   for trace in log.traces() {
     let mut trace_count = 0usize;
@@ -769,13 +735,8 @@ where
   count
 }
 
-fn count_underlying_events_for_event<TEvent>(event: &mut TEvent) -> usize
-where
-  TEvent: Event + 'static,
-{
-  let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TEvent>() };
-
-  if let Some(underlying_events) = event.user_data_mut().concrete_mut(&key) {
+fn count_underlying_events_for_event(event: &mut XesEventImpl) -> usize {
+  if let Some(underlying_events) = event.user_data_mut().concrete_mut(&UNDERLYING_EVENTS_KEY.key()) {
     let mut result = 0usize;
     for underlying_event in underlying_events.underlying_events() {
       result += count_underlying_events_for_event(underlying_event.borrow_mut().deref_mut())
@@ -811,74 +772,56 @@ where
   new_log
 }
 
-pub fn execute_with_underlying_events<TLog>(event: &Rc<RefCell<TLog::TEvent>>, action: &mut impl FnMut(&mut TLog::TEvent))
-where
-  TLog: EventLog,
-{
-  let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
-
+pub fn execute_with_underlying_events(event: &Rc<RefCell<XesEventImpl>>, action: &mut impl FnMut(&mut XesEventImpl)) {
   let mut event = event.borrow_mut();
-  if let Some(underlying_events) = event.user_data_mut().concrete_mut(&key) {
+  if let Some(underlying_events) = event.user_data_mut().concrete_mut(UNDERLYING_EVENTS_KEY.key()) {
     for underlying_event in underlying_events.underlying_events() {
-      execute_with_underlying_events::<TLog>(underlying_event, action);
+      execute_with_underlying_events(underlying_event, action);
     }
   } else {
     action(&mut event);
   }
 }
 
-pub fn substitute_underlying_events<TLog>(event: &Rc<RefCell<TLog::TEvent>>, trace: &mut TLog::TTrace)
-where
-  TLog: EventLog,
-{
-  let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
-
-  if let Some(underlying_events) = event.borrow_mut().user_data_mut().concrete(&key) {
+pub fn substitute_underlying_events(event: &Rc<RefCell<XesEventImpl>>, trace: &mut XesTraceImpl) {
+  if let Some(underlying_events) = event.borrow_mut().user_data_mut().concrete(&UNDERLYING_EVENTS_KEY.key()) {
     for underlying_event in underlying_events.underlying_events() {
-      substitute_underlying_events::<TLog>(underlying_event, trace);
+      substitute_underlying_events(underlying_event, trace);
     }
   } else {
     trace.push(event.clone());
   }
 }
 
-pub fn create_vector_of_underlying_events<TLog: EventLog>(event: &Rc<RefCell<TLog::TEvent>>) -> Vec<Rc<RefCell<TLog::TEvent>>> {
+pub fn create_vector_of_underlying_events(event: &Rc<RefCell<XesEventImpl>>) -> Vec<Rc<RefCell<XesEventImpl>>> {
   let mut result = vec![];
-  create_vector_of_underlying_events_intenral::<TLog>(event, &mut result);
+  create_vector_of_underlying_events_intenral(event, &mut result);
 
   result
 }
 
-pub fn try_get_base_pattern<TLog: EventLog>(event: &Rc<RefCell<TLog::TEvent>>) -> Option<Vec<Rc<RefCell<TLog::TEvent>>>> {
-  let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
-  if let Some(info) = event.borrow().user_data().concrete(&key) {
+pub fn try_get_base_pattern(event: &Rc<RefCell<XesEventImpl>>) -> Option<Vec<Rc<RefCell<XesEventImpl>>>> {
+  if let Some(info) = event.borrow().user_data().concrete(&UNDERLYING_EVENTS_KEY.key()) {
     info.base_pattern().cloned()
   } else {
     None
   }
 }
 
-fn create_vector_of_underlying_events_intenral<TLog: EventLog>(
-  event: &Rc<RefCell<TLog::TEvent>>,
-  result: &mut Vec<Rc<RefCell<TLog::TEvent>>>,
-) {
-  let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
-
-  if let Some(underlying_events) = event.borrow_mut().user_data_mut().concrete(&key) {
+fn create_vector_of_underlying_events_intenral(event: &Rc<RefCell<XesEventImpl>>, result: &mut Vec<Rc<RefCell<XesEventImpl>>>) {
+  if let Some(underlying_events) = event.borrow_mut().user_data_mut().concrete(&UNDERLYING_EVENTS_KEY.key()) {
     for underlying_event in underlying_events.underlying_events() {
-      create_vector_of_underlying_events_intenral::<TLog>(underlying_event, result);
+      create_vector_of_underlying_events_intenral(underlying_event, result);
     }
   } else {
     result.push(event.clone());
   }
 }
 
-pub fn create_vector_of_immediate_underlying_events<TLog: EventLog>(event: &Rc<RefCell<TLog::TEvent>>) -> Vec<Rc<RefCell<TLog::TEvent>>> {
+pub fn create_vector_of_immediate_underlying_events(event: &Rc<RefCell<XesEventImpl>>) -> Vec<Rc<RefCell<XesEventImpl>>> {
   let mut events = vec![];
 
-  let key = unsafe { KEYS.lock().unwrap().underlying_events_key::<TLog::TEvent>() };
-
-  if let Some(underlying_events) = event.borrow_mut().user_data_mut().concrete(&key) {
+  if let Some(underlying_events) = event.borrow_mut().user_data_mut().concrete(&UNDERLYING_EVENTS_KEY.key()) {
     for underlying_event in underlying_events.underlying_events() {
       events.push(underlying_event.clone());
     }

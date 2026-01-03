@@ -1,22 +1,17 @@
 use linfa::DatasetBase;
 use ndarray::{Array1, ArrayBase, Dim, OwnedRepr};
 
-use crate::{
-  event_log::core::event_log::EventLog,
-  utils::{
-    colors::{Color, ColorsHolder},
-    dataset::dataset::FicusDataset,
-  },
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
+use crate::utils::{
+  colors::{Color, ColorsHolder},
+  dataset::dataset::FicusDataset,
 };
 
 pub(super) type MyDataset = DatasetBase<ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>>, Array1<()>>;
 pub(super) type ClusteredDataset = DatasetBase<ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>>, ArrayBase<OwnedRepr<usize>, Dim<[usize; 1]>>>;
 
-pub struct CommonVisualizationParams<'a, TLog>
-where
-  TLog: EventLog,
-{
-  pub log: &'a TLog,
+pub struct CommonVisualizationParams<'a> {
+  pub log: &'a XesEventLogImpl,
   pub colors_holder: &'a mut ColorsHolder,
   pub class_extractor: Option<String>,
 }

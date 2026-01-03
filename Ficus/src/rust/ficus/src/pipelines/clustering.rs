@@ -41,7 +41,7 @@ impl PipelineParts {
   fn create_common_vis_params<'a>(
     context: &'a PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<CommonVisualizationParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<CommonVisualizationParams<'a>, PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
     let class_extractor = match Self::get_user_data(config, &EVENT_CLASS_REGEX_KEY) {
@@ -59,7 +59,7 @@ impl PipelineParts {
   fn create_activities_visualization_params<'a>(
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<ActivitiesVisualizationParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<ActivitiesVisualizationParams<'a>, PipelinePartExecutionError> {
     let common_vis_params = Self::create_common_vis_params(context, config)?;
     let traces_activities = Self::get_user_data_mut(context, &TRACE_ACTIVITIES_KEY)?;
     let activity_level = *Self::get_user_data(config, &ACTIVITY_LEVEL_KEY)? as usize;
@@ -76,7 +76,7 @@ impl PipelineParts {
   fn create_activities_clustering_params<'a>(
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<ActivitiesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<ActivitiesClusteringParams<'a>, PipelinePartExecutionError> {
     let vis_params = Self::create_activities_visualization_params(context, config)?;
     let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
     let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
@@ -166,7 +166,7 @@ impl PipelineParts {
   pub(crate) fn create_traces_clustering_params<'a>(
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<TracesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<TracesClusteringParams<'a>, PipelinePartExecutionError> {
     let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
     let repr_source = *Self::get_user_data(config, &TRACES_REPRESENTATION_SOURCE_KEY)?;
     let feature_count_kind = *Self::get_user_data(config, &FEATURE_COUNT_KIND_KEY)?;

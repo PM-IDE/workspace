@@ -2,6 +2,8 @@ use std::rc::Rc;
 use std::{cell::RefCell, str::FromStr};
 
 use crate::event_log::core::{event_log::EventLog, trace::trace::Trace};
+use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 
 use super::{
@@ -76,13 +78,12 @@ where
   }
 }
 
-pub struct ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>
+pub struct ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>
 where
-  TLog: EventLog,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
-  pub patterns_context: PatternsDiscoveryContext<TClassExtractor, TLog>,
+  pub patterns_context: PatternsDiscoveryContext<TClassExtractor, XesEventLogImpl>,
   pub activity_level: usize,
   pub name_creator: TNameCreator,
   pub min_events_in_activity: usize,
@@ -91,14 +92,13 @@ where
   pub extract_activities_strict: bool,
 }
 
-impl<TClassExtractor, TLog, TNameCreator> ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>
+impl<TClassExtractor, TNameCreator> ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>
 where
-  TLog: EventLog,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
   pub fn new(
-    patterns_context: PatternsDiscoveryContext<TClassExtractor, TLog>,
+    patterns_context: PatternsDiscoveryContext<TClassExtractor, XesEventLogImpl>,
     activity_level: usize,
     min_events_in_activity: usize,
     narrow_kind: ActivityNarrowingKind,
@@ -118,28 +118,26 @@ where
   }
 }
 
-pub struct ActivitiesInstancesDiscoveryContext<TClassExtractor, TLog, TNameCreator, TEvtFactory>
+pub struct ActivitiesInstancesDiscoveryContext<TClassExtractor, TNameCreator, TEvtFactory>
 where
-  TLog: EventLog,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<XesEventImpl>>]) -> Rc<RefCell<XesEventImpl>>,
 {
-  pub activities_context: ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,
-  pub undef_events_handling_strategy: UndefActivityHandlingStrategy<TLog::TEvent>,
+  pub activities_context: ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>,
+  pub undef_events_handling_strategy: UndefActivityHandlingStrategy<XesEventImpl>,
   pub high_level_event_factory: TEvtFactory,
 }
 
-impl<TClassExtractor, TLog, TNameCreator, TEvtFactory> ActivitiesInstancesDiscoveryContext<TClassExtractor, TLog, TNameCreator, TEvtFactory>
+impl<TClassExtractor, TNameCreator, TEvtFactory> ActivitiesInstancesDiscoveryContext<TClassExtractor, TNameCreator, TEvtFactory>
 where
-  TLog: EventLog,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<XesEventImpl>>]) -> Rc<RefCell<XesEventImpl>>,
 {
   pub fn new(
-    activities_context: ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,
-    strategy: UndefActivityHandlingStrategy<TLog::TEvent>,
+    activities_context: ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>,
+    strategy: UndefActivityHandlingStrategy<XesEventImpl>,
     high_level_event_factory: TEvtFactory,
   ) -> Self {
     Self {

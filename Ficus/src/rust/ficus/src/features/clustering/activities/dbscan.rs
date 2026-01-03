@@ -13,8 +13,8 @@ use crate::{
   utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
 };
 
-pub fn clusterize_activities_dbscan<TLog: EventLog>(
-  params: &mut ActivitiesClusteringParams<TLog>,
+pub fn clusterize_activities_dbscan(
+  params: &mut ActivitiesClusteringParams,
   min_points: usize,
   put_noise_events_in_one_cluster: bool,
 ) -> ClusteringResult {

@@ -8,6 +8,8 @@ use super::{
   tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
 };
 use crate::event_log::core::event_log::EventLog;
+use crate::event_log::xes::xes_event::XesEventImpl;
+use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::features::analysis::patterns::activity_instances::{extract_activities_instances_strict, ActivitiesLogSource};
 use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
 
@@ -45,12 +47,11 @@ where
   build_repeat_sets(context.get_processed_log(), &patterns)
 }
 
-pub fn build_repeat_set_tree<TClassExtractor, TLog, TNameCreator>(
-  activities_context: &ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,
+pub fn build_repeat_set_tree<TClassExtractor, TNameCreator>(
+  activities_context: &ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>,
 ) -> Vec<Rc<RefCell<ActivityNode>>>
 where
-  TLog: EventLog,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
   let repeats = find_repeats(&activities_context.patterns_context);
@@ -63,12 +64,11 @@ where
   )
 }
 
-pub fn discover_activities_instances<TClassExtractor, TLog, TNameCreator>(
-  activities_context: &ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,
+pub fn discover_activities_instances<TClassExtractor, TNameCreator>(
+  activities_context: &ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>,
 ) -> Vec<Vec<ActivityInTraceInfo>>
 where
-  TLog: EventLog,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
   let mut repeat_set_tree = build_repeat_set_tree(activities_context);
@@ -85,15 +85,13 @@ where
   }
 }
 
-pub fn discover_activities_and_create_new_log<TClassExtractor, TLog, TNameCreator, TEvtFactory>(
-  context: &ActivitiesInstancesDiscoveryContext<TClassExtractor, TLog, TNameCreator, TEvtFactory>,
-) -> TLog
+pub fn discover_activities_and_create_new_log<TClassExtractor, TNameCreator, TEvtFactory>(
+  context: &ActivitiesInstancesDiscoveryContext<TClassExtractor, TNameCreator, TEvtFactory>,
+) -> XesEventLogImpl
 where
-  TLog: EventLog,
-  TLog::TEvent: 'static,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
-  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<TLog::TEvent>>]) -> Rc<RefCell<TLog::TEvent>>,
+  TEvtFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<XesEventImpl>>]) -> Rc<RefCell<XesEventImpl>>,
 {
   let activity_instances = discover_activities_instances(&context.activities_context);
 
@@ -105,14 +103,12 @@ where
   )
 }
 
-pub fn create_logs_for_activities<TClassExtractor, TLog, TNameCreator>(
-  context: &ActivitiesDiscoveryContext<TClassExtractor, TLog, TNameCreator>,
+pub fn create_logs_for_activities<TClassExtractor, TNameCreator>(
+  context: &ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>,
   activity_level: usize,
-) -> HashMap<String, Rc<RefCell<TLog>>>
+) -> HashMap<String, Rc<RefCell<XesEventLogImpl>>>
 where
-  TLog: EventLog,
-  TLog::TEvent: 'static,
-  TClassExtractor: Fn(&TLog::TEvent) -> u64,
+  TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
   let activity_instances = discover_activities_instances(&context);

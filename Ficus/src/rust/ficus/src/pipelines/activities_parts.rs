@@ -464,7 +464,7 @@ impl PipelineParts {
       for trace in log.traces() {
         let mut new_trace = XesTraceImpl::empty();
         for event in trace.borrow().events() {
-          substitute_underlying_events::<XesEventLogImpl>(event, &mut new_trace);
+          substitute_underlying_events(event, &mut new_trace);
         }
 
         new_log.push(Rc::new(RefCell::new(new_trace)));

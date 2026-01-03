@@ -24,8 +24,8 @@ use crate::{
 
 use super::{activities_common::create_dataset, activities_params::ActivitiesClusteringParams, merging::merge_activities};
 
-pub fn clusterize_activities_k_means<TLog: EventLog>(
-  params: &mut ActivitiesClusteringParams<TLog>,
+pub fn clusterize_activities_k_means(
+  params: &mut ActivitiesClusteringParams,
   clusters_count: usize,
   iterations_count: usize,
 ) -> ClusteringResult {
@@ -83,10 +83,7 @@ fn create_k_means_model(
     .expect("KMeans fitted")
 }
 
-pub fn clusterize_activities_k_means_grid_search<TLog: EventLog>(
-  params: &mut ActivitiesClusteringParams<TLog>,
-  iterations_count: usize,
-) -> ClusteringResult {
+pub fn clusterize_activities_k_means_grid_search(params: &mut ActivitiesClusteringParams, iterations_count: usize) -> ClusteringResult {
   let (dataset, processed, classes_names) = create_dataset(&params.vis_params)?;
 
   let mut best_metric = -1f64;

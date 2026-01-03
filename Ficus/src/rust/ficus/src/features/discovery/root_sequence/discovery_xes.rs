@@ -81,7 +81,7 @@ pub fn discover_root_sequence_graph_from_event_log(
 }
 
 fn transfer_data_from_event_to_edge_user_data(event: &Rc<RefCell<XesEventImpl>>, user_data: &mut UserDataImpl) {
-  let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
+  let underlying_events = create_vector_of_underlying_events(event);
   let event = if underlying_events.is_empty() {
     event
   } else {
@@ -126,8 +126,8 @@ fn initialize_patterns_infos(log: &Vec<Vec<Rc<RefCell<XesEventImpl>>>>) {
     for (event_index, event) in trace.iter().enumerate() {
       let pattern_kind = event.borrow().user_data().concrete(UNDERLYING_PATTERN_KIND_KEY.key()).cloned();
       if let Some(pattern_kind) = pattern_kind {
-        let underlying_events = create_vector_of_underlying_events::<XesEventLogImpl>(event);
-        let base_pattern = try_get_base_pattern::<XesEventLogImpl>(event);
+        let underlying_events = create_vector_of_underlying_events(event);
+        let base_pattern = try_get_base_pattern(event);
 
         let pattern_info = UnderlyingPatternInfo::new(pattern_kind, underlying_events, base_pattern);
 
