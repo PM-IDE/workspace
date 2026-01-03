@@ -5,17 +5,17 @@ edition = "2021"
 
 [dependencies]
 leb128 = "0.2.5"
-num = "0.4.1"
-num-derive = "0.4.1"
-num-traits = "0.2.17"
+num = "0.4.3"
+num-derive = "0.4.2"
+num-traits = "0.2.19"
 rand = "0.8.5"
-tempfile = "3.8.1"
-variant_count = "1.1.0"
+tempfile = "3.24.0"
+variant_count = "1.2.0"
 zip = "0.6.6"
 thiserror = "1"
 
 [dependencies.uuid]
-version = "1.6.1"
+version = "1.19.0"
 features = [
     "v4",                # Lets you generate random UUIDs
     "fast-rng",          # Use a faster (but still sufficiently random) RNG
