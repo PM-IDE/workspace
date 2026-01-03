@@ -111,7 +111,7 @@ pub struct OcelObjectRelations {
   #[get = "pub"]
   from_element_id: u64,
   #[get = "pub"]
-  related_objects_ids: Vec<HeapedOrOwned<String>>
+  related_objects_ids: Vec<HeapedOrOwned<String>>,
 }
 
 lazy_static! {
@@ -213,7 +213,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                   let obj_type = produced_obj.r#type().as_ref().unwrap_or(&fallback_type);
                   let id = produced_obj.id();
                   new_node_state.add_allocated_object(obj_type.clone(), id.clone())?;
-                  
+
                   let relations = OcelObjectRelations::new(id.clone(), **incoming_node, vec![obj_id.clone()]);
                   new_node_objects_relations.push(relations);
                 }
