@@ -1,6 +1,8 @@
 use num_traits::Num;
-use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
+use std::{
+  collections::{HashMap, HashSet},
+  hash::Hash,
+};
 
 pub fn increase_in_map<TKey, TNum: Num + Clone>(map: &mut HashMap<TKey, TNum>, key: &TKey)
 where

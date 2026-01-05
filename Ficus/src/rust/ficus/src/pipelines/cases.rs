@@ -1,8 +1,12 @@
-use crate::features::cases::cases_discovery::discover_cases;
-use crate::pipelines::keys::context_keys::{END_CASE_REGEX_KEY, EVENT_LOG_KEY, INLINE_INNER_CASES_KEY, PIPELINE_KEY, START_CASE_REGEX_KEY};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  features::cases::cases_discovery::discover_cases,
+  pipelines::{
+    keys::context_keys::{END_CASE_REGEX_KEY, EVENT_LOG_KEY, INLINE_INNER_CASES_KEY, PIPELINE_KEY, START_CASE_REGEX_KEY},
+    pipeline_parts::PipelineParts,
+    pipelines::{PipelinePart, PipelinePartFactory},
+  },
+  utils::user_data::user_data::UserData,
+};
 
 impl PipelineParts {
   pub(super) fn discover_cases() -> (String, PipelinePartFactory) {

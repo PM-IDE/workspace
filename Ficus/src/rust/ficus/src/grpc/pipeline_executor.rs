@@ -1,17 +1,21 @@
 use super::events::events_handler::PipelineEventsHandler;
-use crate::ficus_proto::grpc_pipeline_part_base::Part;
-use crate::ficus_proto::{GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart};
-use crate::grpc::converters::put_into_user_data;
-use crate::grpc::get_context_pipeline::GetContextValuePipelinePart;
-use crate::grpc::logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl};
-use crate::pipelines::context::{LogMessageHandler, PipelineContext, PipelineInfrastructure};
-use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::keys::context_keys::{find_context_key, EXECUTION_ID_KEY};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::{DefaultPipelinePart, Pipeline, PipelinePart};
-use crate::utils::user_data::user_data::{UserData, UserDataImpl};
-use std::str::FromStr;
-use std::sync::Arc;
+use crate::{
+  ficus_proto::{grpc_pipeline_part_base::Part, GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart},
+  grpc::{
+    converters::put_into_user_data,
+    get_context_pipeline::GetContextValuePipelinePart,
+    logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl},
+  },
+  pipelines::{
+    context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
+    errors::pipeline_errors::PipelinePartExecutionError,
+    keys::context_keys::{find_context_key, EXECUTION_ID_KEY},
+    pipeline_parts::PipelineParts,
+    pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
+  },
+  utils::user_data::user_data::{UserData, UserDataImpl},
+};
+use std::{str::FromStr, sync::Arc};
 use uuid::Uuid;
 
 pub(super) struct ServicePipelineExecutionContext<'a> {

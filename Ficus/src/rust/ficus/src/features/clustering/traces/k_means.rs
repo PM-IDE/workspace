@@ -1,9 +1,14 @@
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::clustering::error::ClusteringError;
-use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels};
-use crate::features::clustering::traces::traces_params::TracesClusteringParams;
-use crate::utils::dataset::dataset::LabeledDataset;
-use crate::utils::distance::distance::DistanceWrapper;
+use crate::{
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::clustering::{
+    error::ClusteringError,
+    traces::{
+      common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels},
+      traces_params::TracesClusteringParams,
+    },
+  },
+  utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
+};
 use linfa::prelude::{Fit, Predict};
 use linfa_clustering::KMeans;
 

@@ -1,10 +1,12 @@
 use linfa::DatasetBase;
 use ndarray::{Array1, ArrayBase, Dim, OwnedRepr};
 
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::utils::{
-  colors::{Color, ColorsHolder},
-  dataset::dataset::FicusDataset,
+use crate::{
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  utils::{
+    colors::{Color, ColorsHolder},
+    dataset::dataset::FicusDataset,
+  },
 };
 
 pub(super) type MyDataset = DatasetBase<ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>>, Array1<()>>;

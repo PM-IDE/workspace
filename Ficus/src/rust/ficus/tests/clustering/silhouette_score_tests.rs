@@ -1,13 +1,14 @@
 use approx::assert_abs_diff_eq;
-use ficus::features::clustering::traces::common::calculate_distance;
-use ficus::utils::distance::distance::{DistanceWrapper, FicusDistance};
-use ficus::utils::silhouette::{silhouette_score, SilhouetteScoreError};
-use linfa::metrics::SilhouetteScore;
-use linfa::prelude::Transformer;
-use linfa::DatasetBase;
+use ficus::{
+  features::clustering::traces::common::calculate_distance,
+  utils::{
+    distance::distance::{DistanceWrapper, FicusDistance},
+    silhouette::{silhouette_score, SilhouetteScoreError},
+  },
+};
+use linfa::{metrics::SilhouetteScore, prelude::Transformer, DatasetBase};
 use linfa_clustering::Dbscan;
-use linfa_nn::distance::L2Dist;
-use linfa_nn::CommonNearestNeighbour::KdTree;
+use linfa_nn::{distance::L2Dist, CommonNearestNeighbour::KdTree};
 use ndarray::{Array1, Array2};
 
 #[test]

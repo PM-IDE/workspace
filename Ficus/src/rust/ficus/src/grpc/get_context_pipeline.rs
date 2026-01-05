@@ -1,22 +1,21 @@
-use std::any::Any;
-use std::sync::Arc;
+use std::{any::Any, sync::Arc};
 use uuid::Uuid;
 
 use super::events::events_handler::{CaseName, GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
-use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::errors::pipeline_errors::RawPartExecutionError;
-use crate::pipelines::keys::context_keys::{
-  find_context_key, CASE_NAME_KEY, EXECUTION_ID_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY,
-  SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
-};
-use crate::utils::context_key::{ContextKey, DefaultContextKey};
 use crate::{
   pipelines::{
-    context::PipelineContext,
-    errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError},
+    context::{PipelineContext, PipelineInfrastructure},
+    errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError},
+    keys::context_keys::{
+      find_context_key, CASE_NAME_KEY, EXECUTION_ID_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY,
+      SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
+    },
     pipelines::{DefaultPipelinePart, PipelinePart},
   },
-  utils::user_data::user_data::UserData,
+  utils::{
+    context_key::{ContextKey, DefaultContextKey},
+    user_data::user_data::UserData,
+  },
 };
 
 #[rustfmt::skip]

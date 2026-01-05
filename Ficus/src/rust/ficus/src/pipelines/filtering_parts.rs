@@ -6,18 +6,21 @@ use super::{
   errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
   pipelines::PipelinePartFactory,
 };
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::mutations::filtering::remain_events_in_event_log;
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{EVENTS_COUNT_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::user_data::user_data::UserDataImpl;
 use crate::{
-  event_log::core::{event_log::EventLog, trace::trace::Trace},
+  event_log::{
+    core::{event_log::EventLog, trace::trace::Trace},
+    xes::xes_event_log::XesEventLogImpl,
+  },
   features::mutations::{
-    filtering::{filter_log_by_name, filter_log_by_regex},
+    filtering::{filter_log_by_name, filter_log_by_regex, remain_events_in_event_log},
     split::get_traces_groups_indices,
   },
+  pipelines::{
+    context::PipelineContext,
+    keys::context_keys::{EVENTS_COUNT_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY},
+    pipeline_parts::PipelineParts,
+  },
+  utils::user_data::user_data::UserDataImpl,
 };
 
 impl PipelineParts {

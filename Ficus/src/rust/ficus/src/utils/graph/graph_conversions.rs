@@ -1,10 +1,13 @@
-use crate::utils::graph::graph::{DefaultGraph, Graph};
-use crate::utils::graph::graph_edge::GraphEdge;
-use crate::utils::graph::graph_node::GraphNode;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserDataImpl;
-use std::collections::HashMap;
-use std::fmt::Display;
+use crate::utils::{
+  graph::{
+    graph::{DefaultGraph, Graph},
+    graph_edge::GraphEdge,
+    graph_node::GraphNode,
+  },
+  references::HeapedOrOwned,
+  user_data::user_data::UserDataImpl,
+};
+use std::{collections::HashMap, fmt::Display};
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where

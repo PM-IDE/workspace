@@ -1,10 +1,10 @@
-use crate::utils::graph::graph_edge::GraphEdge;
-use crate::utils::graph::graph_node::GraphNode;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::utils::{
+  graph::{graph_edge::GraphEdge, graph_node::GraphNode},
+  references::HeapedOrOwned,
+  user_data::user_data::UserDataImpl,
+};
 use getset::{Getters, Setters};
-use std::fmt::Display;
-use std::{collections::HashMap, sync::atomic::AtomicU64};
+use std::{collections::HashMap, fmt::Display, sync::atomic::AtomicU64};
 
 pub(crate) static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 pub type DefaultGraph = Graph<HeapedOrOwned<String>, HeapedOrOwned<String>>;

@@ -1,22 +1,26 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use crate::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
-use crate::features::streaming::counters::lossy_count::LossyCount;
-use crate::features::streaming::counters::sliding_window::SlidingWindow;
-use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
-use crate::grpc::kafka::streaming::processors::{CaseMetadata, ProcessMetadata};
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  event_log::{
+    core::{event::event::Event, trace::trace::Trace},
+    xes::xes_trace::XesTraceImpl,
+  },
+  features::{
+    analysis::log_info::event_log_info::OfflineEventLogInfo,
+    streaming::counters::{
+      core::{StreamingCounter, ValueUpdateKind},
+      lossy_count::LossyCount,
+      sliding_window::SlidingWindow,
+    },
+  },
+  grpc::kafka::{
+    models::XesFromBxesKafkaTraceCreatingError,
+    streaming::processors::{CaseMetadata, ProcessMetadata},
+  },
+  pipelines::{context::PipelineContext, keys::context_keys::EVENT_LOG_INFO_KEY},
+  utils::user_data::user_data::UserData,
+};
 use bxes::models::domain::bxes_value::BxesValue;
 use log::{debug, warn};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::hash::Hash;
-use std::rc::Rc;
-use std::time::Duration;
+use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, time::Duration};
 use uuid::Uuid;
 
 #[derive(Clone)]

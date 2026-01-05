@@ -1,6 +1,5 @@
-use std::hash::Hash;
 use std::{
-  hash::Hasher,
+  hash::{Hash, Hasher},
   marker::PhantomData,
   sync::atomic::{AtomicU64, Ordering},
 };

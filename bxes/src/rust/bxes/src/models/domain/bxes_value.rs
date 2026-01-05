@@ -1,9 +1,13 @@
-use crate::models::domain::bxes_artifact::BxesArtifact;
-use crate::models::domain::bxes_driver::BxesDrivers;
-use crate::models::domain::bxes_lifecycle::{BrafLifecycle, StandardLifecycle};
-use crate::models::domain::software_event_type::SoftwareEventType;
-use std::hash::{Hash, Hasher};
-use std::rc::Rc;
+use crate::models::domain::{
+  bxes_artifact::BxesArtifact,
+  bxes_driver::BxesDrivers,
+  bxes_lifecycle::{BrafLifecycle, StandardLifecycle},
+  software_event_type::SoftwareEventType,
+};
+use std::{
+  hash::{Hash, Hasher},
+  rc::Rc,
+};
 
 #[derive(Clone, Debug)]
 pub enum BxesValue {

@@ -1,22 +1,24 @@
 use super::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
-use crate::event_log::core::event::event::EventPayloadValue;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::patterns::pattern_info::UNDERLYING_PATTERN_KIND_KEY;
-use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
   context_key,
-  event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+  event_log::{
+    core::{
+      event::event::{Event, EventPayloadValue},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::analysis::patterns::pattern_info::UNDERLYING_PATTERN_KIND_KEY,
   pipelines::aliases::TracesActivities,
-  utils::user_data::user_data::UserData,
+  utils::user_data::user_data::{UserData, UserDataOwner},
 };
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, MutGetters};
 use lazy_static::lazy_static;
-use std::borrow::ToOwned;
 use std::{
+  borrow::ToOwned,
   cell::RefCell,
   collections::{HashMap, HashSet, VecDeque},
   ops::DerefMut,

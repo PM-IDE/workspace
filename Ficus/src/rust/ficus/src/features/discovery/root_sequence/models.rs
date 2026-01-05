@@ -1,8 +1,10 @@
 use derive_new::new;
 use getset::Getters;
-use std::fmt::{Debug, Display, Formatter, Write};
-use std::str::FromStr;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::{
+  fmt::{Debug, Display, Formatter, Write},
+  str::FromStr,
+  sync::atomic::{AtomicU64, Ordering},
+};
 
 #[derive(Debug)]
 pub enum DiscoverRootSequenceGraphError {

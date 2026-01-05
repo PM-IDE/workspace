@@ -2,16 +2,23 @@ use super::{
   errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
   pipelines::PipelinePartFactory,
 };
-use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult};
-use crate::event_log::bxes::xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes};
-use crate::event_log::xes::logs_merger::merge_xes_logs;
-use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
-use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log_to_bytes;
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY};
-use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
-  event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
+  event_log::{
+    bxes::{
+      bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult},
+      xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes},
+    },
+    xes::{
+      logs_merger::merge_xes_logs,
+      reader::file_xes_log_reader::{read_event_log, read_event_log_from_bytes},
+      writer::xes_event_log_writer::{write_xes_log, write_xes_log_to_bytes},
+    },
+  },
+  pipelines::{
+    context::PipelineContext,
+    keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY},
+    pipeline_parts::PipelineParts,
+  },
   utils::user_data::user_data::UserData,
 };
 

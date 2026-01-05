@@ -1,16 +1,19 @@
-use crate::ficus_proto::grpc_context_values_service_server::GrpcContextValuesService;
-use crate::ficus_proto::{
-  GrpcContextKey, GrpcContextKeyValue, GrpcContextValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid,
+use crate::{
+  ficus_proto::{
+    grpc_context_values_service_server::GrpcContextValuesService, GrpcContextKey, GrpcContextKeyValue, GrpcContextValue,
+    GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid,
+  },
+  grpc::converters::context_value_from_bytes,
 };
-use crate::grpc::converters::context_value_from_bytes;
 use prost::Message;
-use std::collections::HashMap;
-use std::pin::Pin;
-use std::sync::{Arc, Mutex};
+use std::{
+  collections::HashMap,
+  pin::Pin,
+  sync::{Arc, Mutex},
+};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::codegen::futures_core::Stream;
-use tonic::{Code, Request, Response, Status, Streaming};
+use tonic::{codegen::futures_core::Stream, Code, Request, Response, Status, Streaming};
 use uuid::Uuid;
 
 pub struct ContextValueService {

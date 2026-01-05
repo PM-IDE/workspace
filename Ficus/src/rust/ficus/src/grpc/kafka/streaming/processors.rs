@@ -1,17 +1,23 @@
-use crate::grpc::events::events_handler::CaseName;
-use crate::grpc::kafka::models::{
-  KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
-  KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
+use crate::{
+  grpc::{
+    events::events_handler::CaseName,
+    kafka::{
+      models::{
+        KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
+        KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
+      },
+      streaming::{t1::processors::T1StreamingProcessor, t2::processors::T2StreamingProcessor},
+    },
+  },
+  pipelines::{
+    context::PipelineContext,
+    keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY},
+  },
+  utils::user_data::user_data::UserData,
 };
-use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
-use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY};
-use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
-use std::collections::HashMap;
-use std::rc::Rc;
+use std::{collections::HashMap, rc::Rc};
 use uuid::Uuid;
 
 #[derive(Clone)]

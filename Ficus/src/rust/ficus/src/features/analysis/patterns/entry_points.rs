@@ -7,11 +7,16 @@ use super::{
   repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
   tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
 };
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::analysis::patterns::activity_instances::{extract_activities_instances_strict, ActivitiesLogSource};
-use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
+use crate::{
+  event_log::{
+    core::event_log::EventLog,
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
+  },
+  features::analysis::patterns::{
+    activity_instances::{extract_activities_instances_strict, ActivitiesLogSource},
+    pattern_info::UnderlyingPatternKind,
+  },
+};
 
 #[derive(Clone, Copy)]
 pub enum PatternsKind {

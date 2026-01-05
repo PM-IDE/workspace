@@ -1,9 +1,10 @@
 use crate::test_core::simple_events_logs_provider::{create_raw_event_log, create_simple_event_log};
 use chrono::Utc;
 use core::fmt::Debug;
-use ficus::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
-use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
+use ficus::event_log::{
+  core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+  xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
+};
 
 #[test]
 fn test_simple_event_log_creation() {

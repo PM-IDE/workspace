@@ -1,14 +1,15 @@
-use crate::features::discovery::root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY;
-use crate::features::discovery::timeline::software_data::models::OcelObjectAction;
-use crate::utils::graph::graph::DefaultGraph;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  features::discovery::{root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
+  utils::{graph::graph::DefaultGraph, references::HeapedOrOwned, user_data::user_data::UserData},
+};
 use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::Getters;
 use lazy_static::lazy_static;
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::rc::Rc;
+use std::{
+  collections::{HashMap, HashSet, VecDeque},
+  rc::Rc,
+};
 
 #[derive(new, Getters)]
 pub struct OcelAnnotation {

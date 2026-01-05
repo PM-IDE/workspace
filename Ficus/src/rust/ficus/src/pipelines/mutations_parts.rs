@@ -1,10 +1,14 @@
-use crate::features::mutations::mutations::{add_artificial_start_end_activities, append_attributes_to_name};
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::keys::context_keys::{ATTRIBUTES_KEY, EVENT_LOG_KEY};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::PipelinePartFactory;
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::{
+  features::mutations::mutations::{add_artificial_start_end_activities, append_attributes_to_name},
+  pipelines::{
+    context::PipelineContext,
+    errors::pipeline_errors::PipelinePartExecutionError,
+    keys::context_keys::{ATTRIBUTES_KEY, EVENT_LOG_KEY},
+    pipeline_parts::PipelineParts,
+    pipelines::PipelinePartFactory,
+  },
+  utils::user_data::user_data::UserDataImpl,
+};
 
 impl PipelineParts {
   pub(super) fn add_artificial_start_end_events() -> (String, PipelinePartFactory) {

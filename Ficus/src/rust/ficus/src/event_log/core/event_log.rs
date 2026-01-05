@@ -4,8 +4,7 @@ use super::{
   event::event_hasher::EventHasher,
   trace::trace::{Trace, TraceInfo},
 };
-use crate::event_log::core::event::event::Event;
-use crate::utils::user_data::user_data::UserDataOwner;
+use crate::{event_log::core::event::event::Event, utils::user_data::user_data::UserDataOwner};
 
 pub trait EventLog: Clone + UserDataOwner {
   type TEvent: Event + 'static;

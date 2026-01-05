@@ -1,27 +1,33 @@
 use num_traits::{FromPrimitive, ToPrimitive};
-use std::io::{Cursor, Seek};
-use std::{fs::File, io::Read, rc::Rc};
+use std::{
+  fs::File,
+  io::{Cursor, Read, Seek},
+  rc::Rc,
+};
 use tempfile::TempDir;
 use uuid::Uuid;
 use zip::ZipArchive;
 
 use super::errors::*;
-use crate::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
-use crate::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
-use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
-use crate::models::domain::bxes_lifecycle::{BrafLifecycle, StandardLifecycle};
-use crate::models::domain::bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind};
-use crate::models::domain::bxes_value::BxesValue;
-use crate::models::domain::software_event_type::SoftwareEventType;
-use crate::models::domain::type_ids::{get_type_id, TypeIds};
-use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
-use crate::read::errors::BxesReadError::ValueAttributeNameIsNotAString;
-use crate::read::read_context::ReadContext;
 use crate::{
   binary_rw::{
     core::{BinaryReader, SeekStream},
     file_stream::FileStream,
   },
+  models::{
+    domain::{
+      bxes_artifact::{BxesArtifact, BxesArtifactItem},
+      bxes_driver::{BxesDriver, BxesDrivers},
+      bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant},
+      bxes_lifecycle::{BrafLifecycle, StandardLifecycle},
+      bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind},
+      bxes_value::BxesValue,
+      software_event_type::SoftwareEventType,
+      type_ids::{get_type_id, TypeIds},
+    },
+    system_models::{SystemMetadata, ValueAttributeDescriptor},
+  },
+  read::{errors::BxesReadError::ValueAttributeNameIsNotAString, read_context::ReadContext},
   utils::buffered_stream::BufferedReadFileStream,
 };
 

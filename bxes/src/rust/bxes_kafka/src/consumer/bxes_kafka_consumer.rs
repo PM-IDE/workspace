@@ -1,20 +1,24 @@
-use bxes::binary_rw::core::{BinaryReader, Endian};
-use bxes::binary_rw::cursor_stream::CursorStream;
-use bxes::models::domain::bxes_event_log::BxesEvent;
-use bxes::models::domain::bxes_value::BxesValue;
-use bxes::read::errors::BxesReadError;
-use bxes::read::read_context::{ReadContext, ReadMetadata};
-use bxes::read::read_utils::{
-  try_read_key_values, try_read_system_metadata, try_read_trace_variant_events, try_read_trace_variant_metadata, try_read_values,
+use bxes::{
+  binary_rw::{
+    core::{BinaryReader, Endian},
+    cursor_stream::CursorStream,
+  },
+  models::domain::{bxes_event_log::BxesEvent, bxes_value::BxesValue},
+  read::{
+    errors::BxesReadError,
+    read_context::{ReadContext, ReadMetadata},
+    read_utils::{
+      try_read_key_values, try_read_system_metadata, try_read_trace_variant_events, try_read_trace_variant_metadata, try_read_values,
+    },
+  },
 };
 use log::info;
-use rdkafka::consumer::{BaseConsumer, CommitMode, Consumer};
-use rdkafka::error::KafkaError;
-use rdkafka::Message;
-use std::collections::HashMap;
-use std::io::Cursor;
-use std::rc::Rc;
-use std::time::Duration;
+use rdkafka::{
+  consumer::{BaseConsumer, CommitMode, Consumer},
+  error::KafkaError,
+  Message,
+};
+use std::{collections::HashMap, io::Cursor, rc::Rc, time::Duration};
 use uuid::Uuid;
 
 pub struct BxesKafkaConsumer {

@@ -1,6 +1,5 @@
 use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry, ValueUpdateKind};
-use std::collections::HashMap;
-use std::hash::Hash;
+use std::{collections::HashMap, hash::Hash};
 
 #[derive(Clone)]
 struct LossyCountState<TValue> {

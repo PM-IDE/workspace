@@ -1,9 +1,13 @@
-use std::collections::HashSet;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{
+  cell::RefCell,
+  collections::{HashMap, HashSet},
+  rc::Rc,
+};
 
-use crate::binary_rw::core::BinaryWriter;
-use crate::models::domain::bxes_value::BxesValue;
-use crate::models::system_models::ValueAttributeDescriptor;
+use crate::{
+  binary_rw::core::BinaryWriter,
+  models::{domain::bxes_value::BxesValue, system_models::ValueAttributeDescriptor},
+};
 
 pub struct BxesWriteContext<'b> {
   pub values_indices: Rc<RefCell<HashMap<Rc<Box<BxesValue>>, usize>>>,

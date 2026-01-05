@@ -1,23 +1,30 @@
 use std::collections::HashMap;
 
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::discovery::ocel::graph_annotation::create_ocel_annotation_for_dag;
-use crate::features::discovery::petri_net::annotations::{
-  annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency,
+use crate::{
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::discovery::{
+    ocel::graph_annotation::create_ocel_annotation_for_dag,
+    petri_net::{
+      annotations::{annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency},
+      petri_net::DefaultPetriNet,
+    },
+  },
+  pipelines::{
+    context::PipelineContext,
+    errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
+    keys::context_keys::{
+      EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, OCEL_ANNOTATION_KEY, PETRI_NET_COUNT_ANNOTATION_KEY,
+      PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, TERMINATE_ON_UNREPLAYABLE_TRACES_KEY,
+      TIME_ANNOTATION_KIND_KEY,
+    },
+    pipeline_parts::PipelineParts,
+    pipelines::PipelinePartFactory,
+  },
+  utils::{
+    context_key::DefaultContextKey,
+    user_data::user_data::{UserData, UserDataImpl},
+  },
 };
-use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{
-  EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, OCEL_ANNOTATION_KEY, PETRI_NET_COUNT_ANNOTATION_KEY,
-  PETRI_NET_FREQUENCY_ANNOTATION_KEY, PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, TERMINATE_ON_UNREPLAYABLE_TRACES_KEY,
-  TIME_ANNOTATION_KIND_KEY,
-};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::PipelinePartFactory;
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::user_data::user_data::UserData;
-use crate::utils::user_data::user_data::UserDataImpl;
 
 impl PipelineParts {
   pub(super) fn annotate_petri_net_count() -> (String, PipelinePartFactory) {

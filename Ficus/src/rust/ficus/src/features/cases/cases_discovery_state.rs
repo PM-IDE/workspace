@@ -1,11 +1,8 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use std::cell::RefCell;
-use std::collections::VecDeque;
-use std::rc::Rc;
+use crate::event_log::{
+  core::{event_log::EventLog, trace::trace::Trace},
+  xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+};
+use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 pub struct CasesDiscoveryState {
   log: XesEventLogImpl,

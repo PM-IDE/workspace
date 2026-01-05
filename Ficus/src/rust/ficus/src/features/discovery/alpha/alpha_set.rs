@@ -1,6 +1,7 @@
-use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use crate::utils::hash_utils::compare_based_on_hashes;
-use crate::utils::sets::two_sets::TwoSets;
+use crate::{
+  features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider,
+  utils::{hash_utils::compare_based_on_hashes, sets::two_sets::TwoSets},
+};
 use std::hash::{Hash, Hasher};
 
 #[derive(Debug)]

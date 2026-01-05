@@ -1,16 +1,18 @@
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
-use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY};
-use crate::features::analysis::patterns::strict_loops::find_loops_strict;
-use crate::pipelines::keys::context_keys::{
-  ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY,
-  TANDEM_ARRAY_LENGTH_KEY, TRACE_ACTIVITIES_KEY,
-};
-use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
   features::analysis::patterns::{
     contexts::PatternsDiscoveryStrategy,
+    pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY},
     repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
+    strict_loops::find_loops_strict,
     tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
+  },
+  pipelines::{
+    keys::context_keys::{
+      ACTIVITY_LEVEL_KEY, EVENT_LOG_KEY, HASHES_EVENT_LOG_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY,
+      TANDEM_ARRAY_LENGTH_KEY, TRACE_ACTIVITIES_KEY,
+    },
+    pipeline_parts::PipelineParts,
   },
   utils::user_data::user_data::{UserData, UserDataImpl},
 };

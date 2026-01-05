@@ -1,18 +1,22 @@
 use crate::test_core::simple_events_logs_provider::{
   create_alpha_plus_miner_replay_test_log, create_heuristic_miner_replay_test_log, create_simple_event_log,
 };
-use ficus::event_log::core::event_log::EventLog;
-use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use ficus::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use ficus::features::discovery::alpha::alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop};
-use ficus::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProviderImpl;
-use ficus::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
-use ficus::features::discovery::heuristic::heuristic_miner::discover_petri_net_heuristic;
-use ficus::features::discovery::petri_net::marking::ensure_initial_marking;
-use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use ficus::features::discovery::petri_net::replay::replay_petri_net;
-use ficus::features::discovery::relations::triangle_relation::OfflineTriangleRelation;
-use ficus::vecs;
+use ficus::{
+  event_log::core::event_log::EventLog,
+  features::{
+    analysis::log_info::{event_log_info::OfflineEventLogInfo, log_info_creation_dto::EventLogInfoCreationDto},
+    discovery::{
+      alpha::{
+        alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop},
+        providers::{alpha_plus_provider::AlphaPlusRelationsProviderImpl, alpha_provider::DefaultAlphaRelationsProvider},
+      },
+      heuristic::heuristic_miner::discover_petri_net_heuristic,
+      petri_net::{marking::ensure_initial_marking, petri_net::DefaultPetriNet, replay::replay_petri_net},
+      relations::triangle_relation::OfflineTriangleRelation,
+    },
+  },
+  vecs,
+};
 
 #[test]
 pub fn test_simple_replay() {

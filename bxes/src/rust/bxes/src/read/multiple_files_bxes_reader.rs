@@ -1,10 +1,12 @@
-use crate::models::domain::bxes_event_log::{BxesEventLog, BxesTraceVariant};
-use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
-use crate::read::read_context::{ReadContext, ReadMetadata};
-use crate::utils::buffered_stream::BufferedReadFileStream;
 use crate::{
   binary_rw::core::{BinaryReader, Endian},
   constants::*,
+  models::domain::{
+    bxes_event_log::{BxesEventLog, BxesTraceVariant},
+    bxes_log_metadata::BxesEventLogMetadata,
+  },
+  read::read_context::{ReadContext, ReadMetadata},
+  utils::buffered_stream::BufferedReadFileStream,
 };
 use std::path::Path;
 

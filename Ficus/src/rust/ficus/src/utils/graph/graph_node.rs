@@ -1,5 +1,4 @@
-use crate::utils::graph::graph::NEXT_ID;
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::utils::{graph::graph::NEXT_ID, user_data::user_data::UserDataImpl};
 use std::sync::atomic::Ordering;
 
 #[derive(Debug, Clone)]

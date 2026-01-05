@@ -1,13 +1,17 @@
-use std::io::{BufRead, Cursor, Read};
-use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
+use std::{
+  cell::RefCell,
+  collections::HashMap,
+  fs::File,
+  io::{BufRead, BufReader, Cursor, Read},
+  rc::Rc,
+};
 
 use quick_xml::{events::BytesStart, Reader};
 
-use crate::event_log::xes::constants::*;
 use crate::event_log::{
   core::event::event::EventPayloadValue,
   xes::{
-    constants::{CLASSIFIER_TAG_NAME, EXTENSION_TAG_NAME},
+    constants::{CLASSIFIER_TAG_NAME, EXTENSION_TAG_NAME, *},
     shared::{XesClassifier, XesEventLogExtension, XesGlobal, XesProperty},
     xes_event_log::XesEventLogImpl,
   },

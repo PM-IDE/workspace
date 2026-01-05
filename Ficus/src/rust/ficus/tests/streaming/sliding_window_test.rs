@@ -1,8 +1,12 @@
 use chrono::Utc;
-use ficus::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
-use ficus::features::streaming::counters::sliding_window::SlidingWindow;
-use std::ops::{Add, Sub};
-use std::time::Duration;
+use ficus::features::streaming::counters::{
+  core::{StreamingCounter, ValueUpdateKind},
+  sliding_window::SlidingWindow,
+};
+use std::{
+  ops::{Add, Sub},
+  time::Duration,
+};
 
 #[test]
 pub fn test_timed_window() {

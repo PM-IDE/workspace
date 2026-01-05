@@ -1,11 +1,19 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog};
-use bxes::models::domain::bxes_value::BxesValue;
-use bxes::models::system_models::SystemMetadata;
-use bxes::read::errors::BxesReadError;
-use bxes::read::read_utils::BxesEventLogReadResult;
-use bxes::read::single_file_bxes_reader::{read_bxes, read_bxes_from_archive_bytes};
+use bxes::{
+  models::{
+    domain::{
+      bxes_event_log::{BxesEvent, BxesEventLog},
+      bxes_value::BxesValue,
+    },
+    system_models::SystemMetadata,
+  },
+  read::{
+    errors::BxesReadError,
+    read_utils::BxesEventLogReadResult,
+    single_file_bxes_reader::{read_bxes, read_bxes_from_archive_bytes},
+  },
+};
 use chrono::{TimeZone, Utc};
 
 use super::conversions::{bxes_value_to_payload_value, global_type_to_string};

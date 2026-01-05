@@ -4,12 +4,14 @@ use crate::test_core::simple_events_logs_provider::{
   create_log_for_max_repeats2, create_log_from_taxonomy_of_patterns, create_maximal_repeats_log, create_no_tandem_array_log,
   create_one_tandem_array_log, create_single_trace_test_log1, create_single_trace_test_log2,
 };
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
 use ficus::{
-  event_log::core::{
-    event::{event::Event, event_hasher::NameEventHasher},
-    event_log::EventLog,
-    trace::trace::Trace,
+  event_log::{
+    core::{
+      event::{event::Event, event_hasher::NameEventHasher},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::xes_event_log::XesEventLogImpl,
   },
   features::analysis::patterns::{
     contexts::PatternsDiscoveryStrategy,

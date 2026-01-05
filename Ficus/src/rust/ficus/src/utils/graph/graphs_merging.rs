@@ -1,10 +1,16 @@
-use crate::context_key;
-use crate::utils::graph::graph::{Graph, NodesConnectionData};
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  context_key,
+  utils::{
+    graph::graph::{Graph, NodesConnectionData},
+    user_data::user_data::UserData,
+  },
+};
 use enum_display_derive::Display;
 use lazy_static::lazy_static;
-use std::collections::HashMap;
-use std::fmt::{Debug, Display};
+use std::{
+  collections::HashMap,
+  fmt::{Debug, Display},
+};
 
 #[derive(Display)]
 pub enum GraphsMergingError {

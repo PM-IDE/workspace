@@ -1,9 +1,11 @@
 use super::traces_params::TracesClusteringParams;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::clustering::common::adjust_dbscan_labels;
-use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels};
 use crate::{
-  features::clustering::error::ClusteringError,
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::clustering::{
+    common::adjust_dbscan_labels,
+    error::ClusteringError,
+    traces::common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels},
+  },
   utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
 };
 use linfa::traits::Transformer;

@@ -1,6 +1,5 @@
 use crate::test_core::simple_events_logs_provider::create_cases_discovery_test_log;
-use ficus::event_log::core::event_log::EventLog;
-use ficus::features::cases::cases_discovery::discover_cases;
+use ficus::{event_log::core::event_log::EventLog, features::cases::cases_discovery::discover_cases};
 
 #[test]
 fn test_simple_cases_discovery() {

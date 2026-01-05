@@ -1,7 +1,13 @@
-use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
-use crate::features::discovery::alpha::providers::alpha_plus_provider::{AlphaPlusRelationsProvider, AlphaPlusRelationsProviderImpl};
-use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use crate::features::discovery::relations::triangle_relation::TriangleRelation;
+use crate::features::{
+  analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo},
+  discovery::{
+    alpha::providers::{
+      alpha_plus_provider::{AlphaPlusRelationsProvider, AlphaPlusRelationsProviderImpl},
+      alpha_provider::AlphaRelationsProvider,
+    },
+    relations::triangle_relation::TriangleRelation,
+  },
+};
 use std::collections::HashSet;
 
 pub struct AlphaSharpRelationsProvider<'a> {

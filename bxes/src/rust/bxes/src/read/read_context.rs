@@ -1,6 +1,7 @@
-use crate::binary_rw::core::BinaryReader;
-use crate::models::domain::bxes_value::BxesValue;
-use crate::models::system_models::SystemMetadata;
+use crate::{
+  binary_rw::core::BinaryReader,
+  models::{domain::bxes_value::BxesValue, system_models::SystemMetadata},
+};
 use std::rc::Rc;
 
 pub struct ReadMetadata {

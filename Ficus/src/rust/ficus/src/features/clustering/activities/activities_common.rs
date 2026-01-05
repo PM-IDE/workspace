@@ -9,12 +9,14 @@ use linfa::DatasetBase;
 use ndarray::Array2;
 
 use super::activities_params::{ActivitiesVisualizationParams, ActivityRepresentationSource};
-use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::{
-  event_log::core::{
-    event::{event::Event, event_hasher::RegexEventHasher},
-    event_log::EventLog,
-    trace::trace::Trace,
+  event_log::{
+    core::{
+      event::{event::Event, event_hasher::RegexEventHasher},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::xes_event::XesEventImpl,
   },
   features::{
     analysis::patterns::{

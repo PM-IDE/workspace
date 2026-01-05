@@ -1,15 +1,14 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::discovery::timeline::abstraction::abstract_event_groups;
-use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
+use crate::{
+  event_log::{
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
+  },
+  features::discovery::timeline::{
+    abstraction::abstract_event_groups, events_groups::EventGroup, software_data::extraction_config::SoftwareDataExtractionConfig,
+  },
+  pipelines::errors::pipeline_errors::PipelinePartExecutionError,
+};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 pub fn prepare_software_log(
   log: &XesEventLogImpl,

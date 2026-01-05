@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::hash::Hash;
+use std::{collections::HashMap, hash::Hash};
 
 #[derive(Debug)]
 pub struct StreamingCounterEntry<TKey, TValue> {

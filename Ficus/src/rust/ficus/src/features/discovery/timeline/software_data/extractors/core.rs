@@ -1,11 +1,14 @@
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
-use std::cell::RefCell;
-use std::error::Error;
-use std::fmt::{Debug, Display, Formatter};
-use std::rc::Rc;
-use std::str::FromStr;
+use crate::{
+  event_log::xes::xes_event::XesEventImpl,
+  features::discovery::timeline::{events_groups::EventGroup, software_data::models::SoftwareData},
+};
+use std::{
+  cell::RefCell,
+  error::Error,
+  fmt::{Debug, Display, Formatter},
+  rc::Rc,
+  str::FromStr,
+};
 
 #[derive(Debug, Clone)]
 pub enum SoftwareDataExtractionError {

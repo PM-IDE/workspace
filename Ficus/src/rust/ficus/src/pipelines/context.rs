@@ -1,8 +1,12 @@
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::performance::performance_cookie::PerformanceLogger;
-use crate::utils::user_data::{
-  keys::{DefaultKey, Key},
-  user_data::{UserData, UserDataImpl},
+use crate::{
+  pipelines::pipeline_parts::PipelineParts,
+  utils::{
+    performance::performance_cookie::PerformanceLogger,
+    user_data::{
+      keys::{DefaultKey, Key},
+      user_data::{UserData, UserDataImpl},
+    },
+  },
 };
 use std::{any::Any, sync::Arc};
 use uuid::Uuid;

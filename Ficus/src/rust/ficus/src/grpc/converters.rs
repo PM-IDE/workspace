@@ -1,86 +1,105 @@
-use crate::event_log::core::event::event::{Event, EventPayloadValue};
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
-use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternKind};
-use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
-use crate::features::discovery::ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations, ProcessNodesStates};
-use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
-use crate::features::discovery::petri_net::arc::Arc;
-use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
-use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::petri_net::place::Place;
-use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::root_sequence::context_keys::{
-  EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
-  NODE_INNER_GRAPH_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
-  NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY,
-};
-use crate::features::discovery::root_sequence::models::{
-  ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind,
-};
-use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread};
-use crate::features::discovery::timeline::software_data::models::{
-  ActivityDurationData, DurationKind, GenericEnhancementBase, HistogramData, OcelData, OcelObjectAction, SimpleCounterData, SoftwareData,
-};
-use crate::ficus_proto::grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation};
-use crate::ficus_proto::grpc_context_value::ContextValue::Annotation;
-use crate::ficus_proto::grpc_node_additional_data::Data;
-use crate::ficus_proto::{
-  grpc_event_attribute, grpc_graph_edge_additional_data, grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData,
-  GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColorsEventLogMapping, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind,
-  GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute,
-  GrpcEventCoordinates, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge,
-  GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint,
-  GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcModelElementOcelAnnotation,
-  GrpcMultithreadedFragment, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge, GrpcOcelConsumeProduce,
-  GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject, GrpcOcelState,
-  GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking,
-  GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcThread, GrpcThreadEvent,
-  GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceTimelineDiagram,
-  GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind,
-};
-use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
-use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::keys::context_keys::{
-  BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
-  LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY,
-  NAMES_EVENT_LOG_KEY, OCEL_ANNOTATION_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY,
-  PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY,
-  TRACES_ACTIVITIES_DATASET_KEY,
-};
-use crate::pipelines::multithreading::FeatureCountKindDto;
-use crate::pipelines::patterns_parts::PatternsKindDto;
-use crate::utils::colors::ColorsEventLog;
-use crate::utils::context_key::ContextKey;
-use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
-use crate::utils::distance::distance::FicusDistance;
-use crate::utils::graph::graph::{DefaultGraph, Graph, GraphKind};
-use crate::utils::graph::graph_edge::GraphEdge;
-use crate::utils::graph::graph_node::GraphNode;
-use crate::utils::log_serialization_format::LogSerializationFormat;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserDataImpl;
 use crate::{
-  features::analysis::patterns::{
-    activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy, repeat_sets::SubArrayWithTraceIndex,
-    tandem_arrays::SubArrayInTraceInfo,
+  event_log::{
+    core::{
+      event::event::{Event, EventPayloadValue},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::{
+    analysis::{
+      log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo},
+      patterns::{
+        activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind, AdjustingMode},
+        contexts::PatternsDiscoveryStrategy,
+        pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternKind},
+        repeat_sets::SubArrayWithTraceIndex,
+        tandem_arrays::SubArrayInTraceInfo,
+      },
+    },
+    clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
+    discovery::{
+      ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations, ProcessNodesStates},
+      petri_net::{
+        annotations::TimeAnnotationKind,
+        arc::Arc,
+        marking::{Marking, SingleMarking},
+        petri_net::DefaultPetriNet,
+        place::Place,
+        transition::Transition,
+      },
+      root_sequence::{
+        context_keys::{
+          EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
+          NODE_INNER_GRAPH_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
+          NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY,
+        },
+        models::{
+          ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer,
+          RootSequenceKind,
+        },
+      },
+      timeline::{
+        discovery::{LogPoint, LogTimelineDiagram, TraceThread},
+        software_data::models::{
+          ActivityDurationData, DurationKind, GenericEnhancementBase, HistogramData, OcelData, OcelObjectAction, SimpleCounterData,
+          SoftwareData,
+        },
+      },
+    },
   },
   ficus_proto::{
-    grpc_context_value::ContextValue, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsTrace, GrpcContextValue,
-    GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace,
-    GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue,
-    GrpcTraceSubArray, GrpcTraceSubArrays,
+    grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation},
+    grpc_context_value::{ContextValue, ContextValue::Annotation},
+    grpc_event_attribute, grpc_graph_edge_additional_data,
+    grpc_node_additional_data::Data,
+    grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColor,
+    GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation,
+    GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation,
+    GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates, GrpcEventLogInfo,
+    GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph,
+    GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHashesEventLog, GrpcHashesEventLogContextValue,
+    GrpcHashesLogTrace, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow,
+    GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNamesEventLog,
+    GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge,
+    GrpcOcelConsumeProduce, GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject,
+    GrpcOcelState, GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace,
+    GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData,
+    GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
+    GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceSubArray, GrpcTraceSubArrays,
+    GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind,
   },
-  pipelines::pipelines::Pipeline,
+  grpc::pipeline_executor::ServicePipelineExecutionContext,
+  pipelines::{
+    activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto},
+    keys::context_keys::{
+      BYTES_KEY, COLORS_EVENT_LOG_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPH_TIME_ANNOTATION_KEY, HASHES_EVENT_LOG_KEY,
+      LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY, LOG_THREADS_DIAGRAM_KEY, LOG_TRACES_DATASET_KEY,
+      NAMES_EVENT_LOG_KEY, OCEL_ANNOTATION_KEY, PATH_KEY, PATTERNS_KEY, PETRI_NET_COUNT_ANNOTATION_KEY, PETRI_NET_FREQUENCY_ANNOTATION_KEY,
+      PETRI_NET_KEY, PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY, REPEAT_SETS_KEY, SOFTWARE_DATA_EXTRACTION_CONFIG_KEY,
+      TRACES_ACTIVITIES_DATASET_KEY,
+    },
+    multithreading::FeatureCountKindDto,
+    patterns_parts::PatternsKindDto,
+    pipelines::Pipeline,
+  },
   utils::{
-    colors::{Color, ColoredRectangle},
-    user_data::{keys::Key, user_data::UserData},
+    colors::{Color, ColoredRectangle, ColorsEventLog},
+    context_key::ContextKey,
+    dataset::dataset::{FicusDataset, LabeledDataset},
+    distance::distance::FicusDistance,
+    graph::{
+      graph::{DefaultGraph, Graph, GraphKind},
+      graph_edge::GraphEdge,
+      graph_node::GraphNode,
+    },
+    log_serialization_format::LogSerializationFormat,
+    references::HeapedOrOwned,
+    user_data::{
+      keys::Key,
+      user_data::{UserData, UserDataImpl},
+    },
   },
   vecs,
 };
@@ -89,11 +108,7 @@ use log::error;
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
 use prost_types::Timestamp;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::fmt::Display;
-use std::rc::Rc;
-use std::{any::Any, str::FromStr};
+use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, str::FromStr};
 use uuid::Uuid;
 
 pub(super) fn context_value_from_bytes(bytes: &[u8]) -> Result<GrpcContextValue, DecodeError> {

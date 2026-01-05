@@ -1,5 +1,7 @@
-use std::collections::{HashMap, HashSet};
-use std::ops::Deref;
+use std::{
+  collections::{HashMap, HashSet},
+  ops::Deref,
+};
 
 use crate::utils::references::HeapedOrOwned;
 use rand::Rng;

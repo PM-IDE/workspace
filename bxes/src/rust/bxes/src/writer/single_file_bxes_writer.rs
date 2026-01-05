@@ -1,10 +1,10 @@
-use std::fs::File;
-use std::io::Read;
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fs::File, io::Read, rc::Rc};
 use tempfile::NamedTempFile;
 
-use crate::binary_rw::core::{BinaryWriter, Endian};
-use crate::writer::writer_utils::{try_write_system_metadata, BxesLogWriteData};
+use crate::{
+  binary_rw::core::{BinaryWriter, Endian},
+  writer::writer_utils::{try_write_system_metadata, BxesLogWriteData},
+};
 
 use super::{
   errors::BxesWriteError,

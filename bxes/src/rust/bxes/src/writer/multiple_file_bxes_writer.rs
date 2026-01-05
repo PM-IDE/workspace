@@ -1,7 +1,7 @@
-use crate::writer::writer_utils::{try_write_system_metadata, BxesLogWriteData};
 use crate::{
   binary_rw::core::{BinaryWriter, Endian},
   constants,
+  writer::writer_utils::{try_write_system_metadata, BxesLogWriteData},
 };
 use std::{cell::RefCell, path::Path, rc::Rc};
 

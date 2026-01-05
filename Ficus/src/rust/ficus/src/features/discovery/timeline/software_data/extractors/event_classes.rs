@@ -1,16 +1,18 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::discovery::{TraceThread, TraceThreadEvent};
-use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError};
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
-use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
-use crate::utils::references::HeapedOrOwned;
+use crate::{
+  event_log::{core::event::event::Event, xes::xes_event::XesEventImpl},
+  features::discovery::timeline::{
+    discovery::{TraceThread, TraceThreadEvent},
+    events_groups::EventGroup,
+    software_data::{
+      extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError},
+      models::SoftwareData,
+    },
+    utils::{extract_thread_id, get_stamp},
+  },
+  utils::references::HeapedOrOwned,
+};
 use derive_new::new;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::ops::Deref;
-use std::rc::Rc;
+use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
 
 #[derive(Debug, Clone, new)]
 pub struct EventClassesDataExtractor<'a> {

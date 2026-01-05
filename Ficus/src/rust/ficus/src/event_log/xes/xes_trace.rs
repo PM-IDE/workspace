@@ -1,11 +1,12 @@
 use super::xes_event::XesEventImpl;
-use crate::event_log::core::event::event::EventPayloadValue;
 use crate::event_log::core::{
-  event::events_holder::{EventSequenceInfo, EventsHolder, EventsPositions},
+  event::{
+    event::EventPayloadValue,
+    events_holder::{EventSequenceInfo, EventsHolder, EventsPositions},
+  },
   trace::trace::Trace,
 };
-use std::collections::HashMap;
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 pub struct XesTraceImpl {
   events_holder: EventsHolder<XesEventImpl>,

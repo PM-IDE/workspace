@@ -1,5 +1,7 @@
-use crate::event_log::core::event::{event::Event, event_hasher::EventHasher};
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::{
+  event_log::core::event::{event::Event, event_hasher::EventHasher},
+  utils::user_data::user_data::UserDataImpl,
+};
 use log::debug;
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 

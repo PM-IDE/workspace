@@ -1,9 +1,13 @@
 use futures::Stream;
-use std::collections::VecDeque;
-use std::pin::Pin;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
-use std::task::{Context, Poll};
+use std::{
+  collections::VecDeque,
+  pin::Pin,
+  sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex,
+  },
+  task::{Context, Poll},
+};
 
 pub struct StreamQueue<T> {
   is_active: AtomicBool,

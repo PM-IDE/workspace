@@ -3,10 +3,9 @@ use linfa_clustering::Dbscan;
 use linfa_nn::KdTree;
 
 use super::{activities_common::create_dataset, activities_params::ActivitiesClusteringParams, merging::merge_activities};
-use crate::features::clustering::common::adjust_dbscan_labels;
 use crate::{
   features::clustering::{
-    common::{create_colors_vector, transform_to_ficus_dataset},
+    common::{adjust_dbscan_labels, create_colors_vector, transform_to_ficus_dataset},
     error::ClusteringResult,
   },
   utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},

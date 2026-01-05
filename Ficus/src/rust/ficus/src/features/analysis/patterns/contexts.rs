@@ -1,10 +1,12 @@
-use std::rc::Rc;
-use std::{cell::RefCell, str::FromStr};
+use std::{cell::RefCell, rc::Rc, str::FromStr};
 
-use crate::event_log::core::{event_log::EventLog, trace::trace::Trace};
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
+use crate::{
+  event_log::{
+    core::{event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
+  },
+  features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind},
+};
 
 use super::{
   activity_instances::{ActivityInTraceInfo, UndefActivityHandlingStrategy},

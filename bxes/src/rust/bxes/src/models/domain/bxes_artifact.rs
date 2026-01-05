@@ -1,6 +1,8 @@
 use crate::models::domain::bxes_value::BxesValue;
-use std::hash::{Hash, Hasher};
-use std::rc::Rc;
+use std::{
+  hash::{Hash, Hasher},
+  rc::Rc,
+};
 
 #[derive(Debug, Clone)]
 pub struct BxesArtifact {

@@ -1,29 +1,40 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event::event_hasher::RegexEventHasher;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::patterns::activity_instances::{
-  create_vector_of_immediate_underlying_events, create_vector_of_underlying_events,
+use crate::{
+  event_log::{
+    core::{
+      event::{event::Event, event_hasher::RegexEventHasher},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::{
+    analysis::patterns::activity_instances::{create_vector_of_immediate_underlying_events, create_vector_of_underlying_events},
+    clustering::{
+      common::{create_colors_vector, scale_raw_dataset_min_max, transform_to_ficus_dataset, MyDataset},
+      error::ClusteringError,
+      traces::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource},
+    },
+  },
+  utils::{
+    dataset::dataset::LabeledDataset,
+    distance::distance::{DistanceWrapper, FicusDistance},
+    silhouette::silhouette_score,
+  },
 };
-use crate::features::clustering::common::{create_colors_vector, scale_raw_dataset_min_max, transform_to_ficus_dataset, MyDataset};
-use crate::features::clustering::error::ClusteringError;
-use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
-use crate::utils::dataset::dataset::LabeledDataset;
-use crate::utils::distance::distance::{DistanceWrapper, FicusDistance};
-use crate::utils::silhouette::silhouette_score;
 use getset::Getters;
 use linfa::DatasetBase;
-use linfa_nn::distance::Distance;
-use linfa_nn::CommonNearestNeighbour;
-use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
+use linfa_nn::{
+  distance::Distance,
+  CommonNearestNeighbour,
+  CommonNearestNeighbour::{KdTree, LinearSearch},
+};
 use log::warn;
 use ndarray::Array2;
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use std::{
+  cell::RefCell,
+  collections::{HashMap, HashSet},
+  rc::Rc,
+};
 
 pub fn do_clusterize_log_by_traces(
   params: &mut TracesClusteringParams,

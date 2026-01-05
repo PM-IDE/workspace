@@ -2,20 +2,17 @@ use crate::test_core::simple_events_logs_provider::{
   create_raw_event_log2, create_simple_event_log, create_simple_event_log2, create_simple_event_log3,
 };
 use chrono::{DateTime, Utc};
-use ficus::event_log::core::trace::trace::Trace;
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
-use ficus::event_log::xes::xes_trace::XesTraceImpl;
-use ficus::features::mutations::mutations::{add_artificial_start_end_activities, ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use ficus::{
-  event_log::core::{event::event::Event, event_log::EventLog},
+  event_log::{
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
   features::mutations::{
     filtering::{filter_log_by_name, filter_log_by_names},
-    mutations::rename_events,
+    mutations::{add_artificial_start_end_activities, rename_events, ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME},
   },
 };
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::{collections::HashSet, vec};
+use std::{cell::RefCell, collections::HashSet, rc::Rc, vec};
 
 #[test]
 fn test_removing_events() {

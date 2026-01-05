@@ -1,9 +1,10 @@
-use crate::ficus_proto::grpc_t1_streaming_configuration::Configuration;
-use crate::ficus_proto::GrpcT1StreamingConfiguration;
-use crate::grpc::kafka::streaming::t1::filterers::{
-  EventsTimeoutFiltererImpl, T1LogFilterer, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl,
+use crate::{
+  ficus_proto::{grpc_t1_streaming_configuration::Configuration, GrpcT1StreamingConfiguration},
+  grpc::kafka::streaming::t1::{
+    filterers::{EventsTimeoutFiltererImpl, T1LogFilterer, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl},
+    processors::T1StreamingProcessor,
+  },
 };
-use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 
 pub enum T1StreamingConfiguration {
   EventsTimeout(EventsTimeoutConfiguration),

@@ -1,19 +1,27 @@
-use crate::features::discovery::petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY};
-use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::context_keys::{
-  NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
-  NODE_START_END_ACTIVITY_TIME_KEY,
+use crate::{
+  features::discovery::{
+    petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY},
+    root_sequence::{
+      context::DiscoveryContext,
+      context_keys::{
+        NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
+        NODE_START_END_ACTIVITY_TIME_KEY,
+      },
+      discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY},
+      models::{ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventWithUniqueId, NodeAdditionalDataContainer},
+    },
+  },
+  utils::{
+    context_key::DefaultContextKey,
+    graph::graph::{DefaultGraph, NodesConnectionData},
+    references::HeapedOrOwned,
+    user_data::user_data::UserData,
+  },
 };
-use crate::features::discovery::root_sequence::discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY};
-use crate::features::discovery::root_sequence::models::{
-  ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventWithUniqueId, NodeAdditionalDataContainer,
+use std::{
+  collections::{HashMap, HashSet},
+  fmt::Debug,
 };
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserData;
-use std::collections::{HashMap, HashSet};
-use std::fmt::Debug;
 
 pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
   for current_sequence in discover_sequences_to_merge(graph) {

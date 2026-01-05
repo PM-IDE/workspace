@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use std::{
   cell::RefCell,
+  collections::HashMap,
   fs::{self, File},
   io::Write,
   path::Path,
@@ -10,20 +10,26 @@ use std::{
 use num_traits::ToPrimitive;
 use zip::{write::FileOptions, ZipWriter};
 
-use crate::binary_rw::{
-  core::{BinaryWriter, SeekStream},
-  file_stream::FileStream,
+use crate::{
+  binary_rw::{
+    core::{BinaryWriter, SeekStream},
+    file_stream::FileStream,
+  },
+  models::{
+    domain::{
+      bxes_artifact::BxesArtifact,
+      bxes_driver::BxesDrivers,
+      bxes_event_log::{BxesEvent, BxesEventLog},
+      bxes_lifecycle::{BrafLifecycle, Lifecycle, StandardLifecycle},
+      bxes_log_metadata::{BxesClassifier, BxesExtension, BxesGlobal},
+      bxes_value::BxesValue,
+      software_event_type::SoftwareEventType,
+      type_ids::{get_type_id, TypeIds},
+    },
+    system_models::{SystemMetadata, ValueAttributeDescriptor},
+  },
+  read::read_utils::string_or_err,
 };
-use crate::models::domain::bxes_artifact::BxesArtifact;
-use crate::models::domain::bxes_driver::BxesDrivers;
-use crate::models::domain::bxes_event_log::{BxesEvent, BxesEventLog};
-use crate::models::domain::bxes_lifecycle::{BrafLifecycle, Lifecycle, StandardLifecycle};
-use crate::models::domain::bxes_log_metadata::{BxesClassifier, BxesExtension, BxesGlobal};
-use crate::models::domain::bxes_value::BxesValue;
-use crate::models::domain::software_event_type::SoftwareEventType;
-use crate::models::domain::type_ids::{get_type_id, TypeIds};
-use crate::models::system_models::{SystemMetadata, ValueAttributeDescriptor};
-use crate::read::read_utils::string_or_err;
 
 use super::{errors::BxesWriteError, write_context::BxesWriteContext};
 

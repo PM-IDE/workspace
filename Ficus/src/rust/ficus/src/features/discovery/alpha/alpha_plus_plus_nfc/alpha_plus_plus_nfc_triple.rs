@@ -1,11 +1,15 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::features::discovery::alpha::providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider;
-use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProvider;
-use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use crate::utils::hash_utils::compare_based_on_hashes;
-use crate::utils::sets::two_sets::TwoSets;
-use std::collections::BTreeSet;
-use std::hash::{Hash, Hasher};
+use crate::{
+  event_log::core::event_log::EventLog,
+  features::discovery::alpha::providers::{
+    alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider, alpha_plus_provider::AlphaPlusRelationsProvider,
+    alpha_provider::AlphaRelationsProvider,
+  },
+  utils::{hash_utils::compare_based_on_hashes, sets::two_sets::TwoSets},
+};
+use std::{
+  collections::BTreeSet,
+  hash::{Hash, Hasher},
+};
 
 pub(crate) struct AlphaPlusPlusNfcTriple<'a> {
   a_classes: BTreeSet<&'a String>,

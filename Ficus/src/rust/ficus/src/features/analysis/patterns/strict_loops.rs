@@ -1,16 +1,17 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::patterns::activity_instances::ActivityInTraceInfo;
-use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
-use crate::features::analysis::patterns::repeat_sets::{ActivityNode, SubArrayWithTraceIndex};
-use crate::features::analysis::patterns::tandem_arrays::{try_extract_tandem_array, TandemArrayInfo};
-use crate::utils::display_name::get_display_name;
-use std::cell::RefCell;
-use std::collections::HashSet;
-use std::rc::Rc;
+use crate::{
+  event_log::{
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::analysis::patterns::{
+    activity_instances::ActivityInTraceInfo,
+    pattern_info::UnderlyingPatternKind,
+    repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
+    tandem_arrays::{try_extract_tandem_array, TandemArrayInfo},
+  },
+  utils::display_name::get_display_name,
+};
+use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
   find_tandem_arrays_strict(&hashed_log, max_array_length)

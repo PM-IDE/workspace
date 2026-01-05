@@ -1,6 +1,8 @@
 use crate::utils::hash_utils::compare_based_on_hashes;
-use std::collections::BTreeSet;
-use std::hash::{Hash, Hasher};
+use std::{
+  collections::BTreeSet,
+  hash::{Hash, Hasher},
+};
 
 #[derive(Debug)]
 pub struct TwoSets<T>

@@ -1,6 +1,4 @@
-use crate::models::domain::bxes_log_metadata::BxesEventLogMetadata;
-use crate::models::domain::bxes_value::BxesValue;
-use crate::models::domain::utils::compare_list_of_attributes;
+use crate::models::domain::{bxes_log_metadata::BxesEventLogMetadata, bxes_value::BxesValue, utils::compare_list_of_attributes};
 use std::rc::Rc;
 
 #[derive(Debug)]

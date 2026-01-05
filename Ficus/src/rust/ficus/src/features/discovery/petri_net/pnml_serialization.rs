@@ -1,13 +1,12 @@
-use crate::features::discovery::petri_net::arc::Arc;
-use crate::features::discovery::petri_net::petri_net::PetriNet;
-use crate::features::discovery::petri_net::place::Place;
-use crate::features::discovery::petri_net::transition::Transition;
-use crate::utils::xml_utils::{StartEndElementCookie, XmlWriteError};
-use quick_xml::events::{BytesText, Event};
-use quick_xml::Writer;
-use std::cell::RefCell;
-use std::fs;
-use std::io::Cursor;
+use crate::{
+  features::discovery::petri_net::{arc::Arc, petri_net::PetriNet, place::Place, transition::Transition},
+  utils::xml_utils::{StartEndElementCookie, XmlWriteError},
+};
+use quick_xml::{
+  events::{BytesText, Event},
+  Writer,
+};
+use std::{cell::RefCell, fs, io::Cursor};
 
 const PNML_TAG_NAME: &'static str = "pnml";
 const TRANSITION_TAG_NAME: &'static str = "transition";

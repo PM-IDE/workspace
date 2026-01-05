@@ -1,38 +1,42 @@
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
-use crate::features::discovery::ocel::graph_annotation::OcelAnnotation;
-use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
-use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::root_sequence::models::RootSequenceKind;
-use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::grpc::events::events_handler::CaseName;
-use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::multithreading::FeatureCountKindDto;
-use crate::pipelines::patterns_parts::PatternsKindDto;
-use crate::utils::colors::ColorsEventLog;
-use crate::utils::context_key::ContextKey;
-use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
-use crate::utils::distance::distance::FicusDistance;
-use crate::utils::graph::graph::DefaultGraph;
-use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
   event_log::xes::xes_event_log::XesEventLogImpl,
-  features::analysis::patterns::{
-    activity_instances::{ActivityInTraceInfo, AdjustingMode},
-    contexts::PatternsDiscoveryStrategy,
-    repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
-    tandem_arrays::SubArrayInTraceInfo,
+  features::{
+    analysis::{
+      log_info::event_log_info::OfflineEventLogInfo,
+      patterns::{
+        activity_instances::{ActivityInTraceFilterKind, ActivityInTraceInfo, ActivityNarrowingKind, AdjustingMode},
+        contexts::PatternsDiscoveryStrategy,
+        repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
+        tandem_arrays::SubArrayInTraceInfo,
+      },
+    },
+    clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
+    discovery::{
+      ocel::graph_annotation::OcelAnnotation,
+      petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
+      root_sequence::models::RootSequenceKind,
+      timeline::{discovery::LogTimelineDiagram, software_data::extraction_config::SoftwareDataExtractionConfig},
+    },
   },
-  pipelines::pipelines::Pipeline,
-  utils::colors::ColorsHolder,
+  grpc::events::events_handler::CaseName,
+  pipelines::{
+    activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto},
+    multithreading::FeatureCountKindDto,
+    patterns_parts::PatternsKindDto,
+    pipelines::Pipeline,
+  },
+  utils::{
+    colors::{ColorsEventLog, ColorsHolder},
+    context_key::ContextKey,
+    dataset::dataset::{FicusDataset, LabeledDataset},
+    distance::distance::FicusDistance,
+    graph::graph::DefaultGraph,
+    log_serialization_format::LogSerializationFormat,
+  },
 };
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
-use std::ops::Deref;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
 use uuid::Uuid;
 
 pub const CASE_NAME: &'static str = "case_name";

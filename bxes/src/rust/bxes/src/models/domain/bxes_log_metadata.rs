@@ -1,5 +1,4 @@
-use std::hash::Hash;
-use std::rc::Rc;
+use std::{hash::Hash, rc::Rc};
 
 use num_derive::{FromPrimitive, ToPrimitive};
 use variant_count::VariantCount;

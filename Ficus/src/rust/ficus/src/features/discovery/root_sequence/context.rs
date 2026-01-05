@@ -1,6 +1,7 @@
-use crate::features::discovery::root_sequence::models::RootSequenceKind;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::{
+  features::discovery::root_sequence::models::RootSequenceKind,
+  utils::{references::HeapedOrOwned, user_data::user_data::UserDataImpl},
+};
 
 type NameExtractor<'a, T> = &'a dyn Fn(&T) -> HeapedOrOwned<String>;
 type ArtificialStartEnd<'a, T> = &'a dyn Fn() -> (T, T);

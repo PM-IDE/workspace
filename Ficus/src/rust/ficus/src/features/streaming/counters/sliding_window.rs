@@ -1,10 +1,6 @@
 use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry, ValueUpdateKind};
 use chrono::{DateTime, Utc};
-use std::collections::HashMap;
-use std::hash::Hash;
-use std::ops::Add;
-use std::rc::Rc;
-use std::time::Duration;
+use std::{collections::HashMap, hash::Hash, ops::Add, rc::Rc, time::Duration};
 
 #[derive(Clone)]
 struct SlidingWindowEntry<TValue: Clone> {

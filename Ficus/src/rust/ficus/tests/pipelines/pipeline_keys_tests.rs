@@ -1,33 +1,42 @@
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use bxes::models::system_models::SystemMetadata;
 
-use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use ficus::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use ficus::features::clustering::traces::traces_params::{FeatureCountKind, TracesRepresentationSource};
-use ficus::features::discovery::ocel::graph_annotation::OcelAnnotationCreationError;
-use ficus::features::discovery::petri_net::annotations::TimeAnnotationKind;
-use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use ficus::features::discovery::root_sequence::models::RootSequenceKind;
-use ficus::features::discovery::timeline::discovery::LogTimelineDiagram;
-use ficus::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use ficus::pipelines::keys::context_keys::*;
-use ficus::pipelines::patterns_parts::PatternsKindDto;
-use ficus::utils::colors::ColorsEventLog;
-use ficus::utils::dataset::dataset::{FicusDataset, LabeledDataset};
-use ficus::utils::distance::distance::FicusDistance;
-use ficus::utils::graph::graph::DefaultGraph;
-use ficus::utils::log_serialization_format::LogSerializationFormat;
 use ficus::{
   event_log::xes::xes_event_log::XesEventLogImpl,
-  features::analysis::patterns::{activity_instances::AdjustingMode, contexts::PatternsDiscoveryStrategy},
+  features::{
+    analysis::{
+      log_info::event_log_info::OfflineEventLogInfo,
+      patterns::{
+        activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind, AdjustingMode},
+        contexts::PatternsDiscoveryStrategy,
+      },
+    },
+    clustering::{
+      activities::activities_params::ActivityRepresentationSource,
+      traces::traces_params::{FeatureCountKind, TracesRepresentationSource},
+    },
+    discovery::{
+      ocel::graph_annotation::OcelAnnotationCreationError,
+      petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
+      root_sequence::models::RootSequenceKind,
+      timeline::discovery::LogTimelineDiagram,
+    },
+  },
   pipelines::{
+    activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto},
     aliases::{Activities, ActivitiesToLogs, Patterns, RepeatSets, TracesActivities},
+    keys::context_keys::*,
+    patterns_parts::PatternsKindDto,
     pipelines::Pipeline,
   },
-  utils::colors::ColorsHolder,
+  utils::{
+    colors::{ColorsEventLog, ColorsHolder},
+    dataset::dataset::{FicusDataset, LabeledDataset},
+    distance::distance::FicusDistance,
+    graph::graph::DefaultGraph,
+    log_serialization_format::LogSerializationFormat,
+  },
   vecs,
 };
 

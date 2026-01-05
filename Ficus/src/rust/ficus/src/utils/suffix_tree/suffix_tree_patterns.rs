@@ -1,9 +1,6 @@
-use std::cell::RefCell;
-use std::hash::Hash;
-use std::rc::Rc;
+use std::{cell::RefCell, hash::Hash, rc::Rc};
 
-use super::node::Node;
-use super::suffix_tree_slice::SuffixTreeSlice;
+use super::{node::Node, suffix_tree_slice::SuffixTreeSlice};
 
 pub struct SuffixTree<'a, TElement>
 where

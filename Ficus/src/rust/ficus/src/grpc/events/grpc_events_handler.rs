@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
-use crate::grpc::events::utils::{create_grpc_context_values, send_grpc_message};
 use crate::{
   ficus_proto::{
     grpc_pipeline_final_result::ExecutionResult, GrpcGuid, GrpcPipelineFinalResult, GrpcPipelinePartExecutionResult,
@@ -9,6 +8,7 @@ use crate::{
   },
   grpc::{
     backend_service::{GrpcResult, GrpcSender},
+    events::utils::{create_grpc_context_values, send_grpc_message},
     logs_handler::ConsoleLogMessageHandler,
   },
   pipelines::context::LogMessageHandler,

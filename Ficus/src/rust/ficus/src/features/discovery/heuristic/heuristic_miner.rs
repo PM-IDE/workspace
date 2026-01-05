@@ -1,12 +1,15 @@
-use crate::features::analysis::log_info::event_log_info::EventLogInfo;
-use crate::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
-use crate::features::discovery::alpha::utils::maximize;
-use crate::features::discovery::heuristic::relations_provider::{AndOrXorRelation, HeuristicMinerRelationsProvider};
-use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::petri_net::place::Place;
-use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::relations::triangle_relation::TriangleRelation;
-use crate::utils::sets::one_set::OneSet;
+use crate::{
+  features::{
+    analysis::log_info::event_log_info::EventLogInfo,
+    discovery::{
+      alpha::{providers::alpha_provider::DefaultAlphaRelationsProvider, utils::maximize},
+      heuristic::relations_provider::{AndOrXorRelation, HeuristicMinerRelationsProvider},
+      petri_net::{petri_net::DefaultPetriNet, place::Place, transition::Transition},
+      relations::triangle_relation::TriangleRelation,
+    },
+  },
+  utils::sets::one_set::OneSet,
+};
 use std::collections::{HashMap, HashSet};
 
 pub fn discover_petri_net_heuristic(

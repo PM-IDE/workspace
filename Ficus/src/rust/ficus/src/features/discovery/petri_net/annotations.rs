@@ -1,16 +1,16 @@
 use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
-use crate::context_key;
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::utils::graph::graph::DefaultGraph;
-use crate::utils::graph::graph_node::GraphNode;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  context_key,
+  event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+  utils::{
+    graph::{graph::DefaultGraph, graph_node::GraphNode},
+    references::HeapedOrOwned,
+    user_data::user_data::UserData,
+  },
+};
 use lazy_static::lazy_static;
 use log::error;
-use std::collections::HashMap;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 pub fn annotate_with_counts(
   log: &impl EventLog,

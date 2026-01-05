@@ -9,13 +9,21 @@ use crate::event_log::{
   },
   xes::{constants::EVENT_TAG_NAME_STR, shared::XesEventLogExtension, xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
 };
-use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
-use bxes::models::domain::bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal};
-use bxes::models::domain::bxes_value::BxesValue;
-use bxes::models::system_models::SystemMetadata;
-use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
-use bxes::writer::writer_utils::BxesLogWriteData;
-use bxes::writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes};
+use bxes::{
+  models::{
+    domain::{
+      bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant},
+      bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal},
+      bxes_value::BxesValue,
+    },
+    system_models::SystemMetadata,
+  },
+  writer::{
+    errors::BxesWriteError,
+    single_file_bxes_writer::{write_bxes, write_bxes_to_bytes},
+    writer_utils::BxesLogWriteData,
+  },
+};
 
 pub enum XesToBxesWriterError {
   BxesWriteError(BxesWriteError),

@@ -1,10 +1,14 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::analysis::log_info::event_log_info::EventLogInfo;
-use crate::utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData};
-use crate::utils::references::HeapedOrOwned;
+use crate::{
+  event_log::{
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::xes_event_log::XesEventLogImpl,
+  },
+  features::analysis::log_info::event_log_info::EventLogInfo,
+  utils::{
+    graph::graph::{DefaultGraph, Graph, NodesConnectionData},
+    references::HeapedOrOwned,
+  },
+};
 use log::warn;
 use std::collections::HashMap;
 

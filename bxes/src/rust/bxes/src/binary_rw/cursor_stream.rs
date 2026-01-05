@@ -1,5 +1,7 @@
-use crate::binary_rw::core::{ReadStream, SeekStream};
-use crate::binary_rw::error::BinaryError;
+use crate::binary_rw::{
+  core::{ReadStream, SeekStream},
+  error::BinaryError,
+};
 use std::io::{Cursor, Error, ErrorKind, Read, Seek, SeekFrom};
 
 pub struct CursorStream<'a> {

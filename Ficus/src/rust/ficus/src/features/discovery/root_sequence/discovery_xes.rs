@@ -1,32 +1,39 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::patterns::activity_instances::{create_vector_of_underlying_events, try_get_base_pattern};
-use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY};
-use crate::features::discovery::petri_net::annotations::create_performance_map;
-use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::context_keys::{
-  EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
-  NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
-  NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY,
+use crate::{
+  event_log::{
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::{
+    analysis::patterns::{
+      activity_instances::{create_vector_of_underlying_events, try_get_base_pattern},
+      pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY},
+    },
+    discovery::{
+      petri_net::annotations::create_performance_map,
+      root_sequence::{
+        context::DiscoveryContext,
+        context_keys::{
+          EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
+          NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
+          NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY,
+        },
+        discovery::{create_new_graph_node, discover_root_sequence_graph},
+        models::{
+          CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer,
+          RootSequenceKind,
+        },
+      },
+    },
+    mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME},
+  },
+  utils::{
+    context_key::DefaultContextKey,
+    display_name::get_display_name,
+    graph::graph::{DefaultGraph, NodesConnectionData},
+    user_data::user_data::{UserData, UserDataImpl, UserDataOwner},
+  },
 };
-use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
-use crate::features::discovery::root_sequence::models::{
-  CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer,
-  RootSequenceKind,
-};
-use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::display_name::get_display_name;
-use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
-use crate::utils::user_data::user_data::{UserData, UserDataImpl, UserDataOwner};
-use std::cell::RefCell;
-use std::fmt::Debug;
-use std::ops::Deref;
-use std::rc::Rc;
+use std::{cell::RefCell, fmt::Debug, ops::Deref, rc::Rc};
 
 pub fn discover_root_sequence_graph_from_event_log(
   log: &XesEventLogImpl,
