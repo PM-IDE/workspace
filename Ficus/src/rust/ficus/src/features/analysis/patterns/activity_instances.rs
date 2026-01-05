@@ -7,6 +7,7 @@ use crate::features::analysis::patterns::pattern_info::UNDERLYING_PATTERN_KIND_K
 use crate::utils::context_key::DefaultContextKey;
 use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
+  context_key,
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
   pipelines::aliases::TracesActivities,
   utils::user_data::user_data::UserData,
@@ -15,6 +16,7 @@ use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, MutGetters};
 use lazy_static::lazy_static;
+use paste::paste;
 use std::borrow::ToOwned;
 use std::{
   cell::RefCell,
@@ -447,10 +449,11 @@ impl<T> UnderlyingEventsInfo<T> {
   }
 }
 
-lazy_static! {
-  pub static ref HIERARCHY_LEVEL_KEY: DefaultContextKey<usize> = DefaultContextKey::new("HIERARCHY_LEVEL");
-  pub static ref UNDERLYING_EVENTS_KEY: DefaultContextKey<UnderlyingEventsInfo<XesEventImpl>> = DefaultContextKey::new("UNDERLYING_EVENTS");
-}
+const HIERARCHY_LEVEL: &'static str = "HIERARCHY_LEVEL";
+const UNDERLYING_EVENTS: &'static str = "UNDERLYING_EVENTS";
+
+context_key! { HIERARCHY_LEVEL, usize }
+context_key! { UNDERLYING_EVENTS, UnderlyingEventsInfo<XesEventImpl> }
 
 pub fn create_new_log_from_activities_instances<TEventFactory>(
   log: &XesEventLogImpl,

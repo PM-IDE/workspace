@@ -1,8 +1,8 @@
 use super::{petri_net::DefaultPetriNet, replay::replay_petri_net};
+use crate::context_key;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
-use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
 use crate::utils::graph::graph_node::GraphNode;
 use crate::utils::references::HeapedOrOwned;
@@ -102,10 +102,8 @@ pub enum PerformanceAnnotationInfo {
   SumAndCount(f64, usize),
 }
 
-lazy_static! {
-  pub static ref PERFORMANCE_ANNOTATION_INFO_KEY: DefaultContextKey<PerformanceAnnotationInfo> =
-    DefaultContextKey::new("PERFORMANCE_ANNOTATION_INFO");
-}
+const PERFORMANCE_ANNOTATION_INFO: &'static str = "PERFORMANCE_ANNOTATION_INFO";
+context_key! { PERFORMANCE_ANNOTATION_INFO, PerformanceAnnotationInfo }
 
 pub type PerformanceMap = HashMap<(HeapedOrOwned<String>, HeapedOrOwned<String>), (f64, usize)>;
 

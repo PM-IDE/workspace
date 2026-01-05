@@ -11,7 +11,7 @@ use crate::features::discovery::root_sequence::context::DiscoveryContext;
 use crate::features::discovery::root_sequence::context_keys::{
   EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
   NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
-  NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY,
+  NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY,
 };
 use crate::features::discovery::root_sequence::discovery::{create_new_graph_node, discover_root_sequence_graph};
 use crate::features::discovery::root_sequence::models::{
@@ -181,7 +181,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
         pattern_graph_infos.push(pattern_graph_info);
       }
 
-      user_data.put_concrete(NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY.key(), pattern_graph_infos);
+      user_data.put_concrete(NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY.key(), pattern_graph_infos);
     }
   }
 }

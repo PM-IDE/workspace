@@ -1,3 +1,4 @@
+use crate::context_key;
 use crate::event_log::core::event::event::Event;
 use crate::event_log::core::event_log::EventLog;
 use crate::event_log::core::trace::trace::Trace;
@@ -19,9 +20,7 @@ use std::rc::Rc;
 
 const MULTITHREADED_FRAGMENT: &'static str = "MULTITHREADED_FRAGMENT";
 
-lazy_static! {
-  pub static ref MULTITHREAD_FRAGMENT_KEY: DefaultContextKey<XesEventLogImpl> = DefaultContextKey::new(MULTITHREADED_FRAGMENT);
-}
+context_key! { MULTITHREADED_FRAGMENT, XesEventLogImpl }
 
 pub enum MultithreadedTracePartsCreationStrategy {
   Regexes(Vec<Regex>),
@@ -101,7 +100,7 @@ pub fn enumerate_multithreaded_events_groups(
 
           group
             .user_data_mut()
-            .put_concrete(MULTITHREAD_FRAGMENT_KEY.key(), multithreaded_fragment_log);
+            .put_concrete(MULTITHREADED_FRAGMENT_KEY.key(), multithreaded_fragment_log);
 
           trace_groups.push(group);
         }

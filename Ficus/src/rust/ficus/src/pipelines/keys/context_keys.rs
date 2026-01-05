@@ -13,7 +13,7 @@ use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityH
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::patterns_parts::PatternsKindDto;
 use crate::utils::colors::ColorsEventLog;
-use crate::utils::context_key::{ContextKey, DefaultContextKey};
+use crate::utils::context_key::ContextKey;
 use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
 use crate::utils::distance::distance::FicusDistance;
 use crate::utils::graph::graph::DefaultGraph;
@@ -31,7 +31,6 @@ use crate::{
 };
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
-use paste::paste;
 use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 use uuid::Uuid;
@@ -139,9 +138,9 @@ pub const OCEL_ANNOTATION: &'static str = "ocel_annotation";
 #[macro_export]
 macro_rules! context_key {
   ($name:ident, $t:ty) => {
-    paste! {
+    paste::paste! {
       lazy_static! {
-        pub static ref [<$name _KEY>]: DefaultContextKey<$t> = DefaultContextKey::new($name);
+        pub static ref [<$name _KEY>]: crate::utils::context_key::DefaultContextKey<$t> = crate::utils::context_key::DefaultContextKey::new($name);
       }
     }
   };

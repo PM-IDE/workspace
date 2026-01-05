@@ -19,7 +19,7 @@ use crate::features::discovery::petri_net::transition::Transition;
 use crate::features::discovery::root_sequence::context_keys::{
   EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
   NODE_INNER_GRAPH_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
-  NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY,
+  NODE_START_END_ACTIVITY_TIME_KEY, NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY,
 };
 use crate::features::discovery::root_sequence::models::{
   ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer, RootSequenceKind,
@@ -774,7 +774,7 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
     )
   }
 
-  if let Some(underlying_patterns_infos) = user_data.concrete(NODE_UNDERLYING_PATTERNS_GRAPHS_INFOS_KEY.key()) {
+  if let Some(underlying_patterns_infos) = user_data.concrete(NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY.key()) {
     additional_data.extend(
       underlying_patterns_infos
         .iter()

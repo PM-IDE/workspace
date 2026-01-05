@@ -4,7 +4,7 @@ use crate::event_log::core::trace::trace::Trace;
 use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
+use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREADED_FRAGMENT_KEY;
 use crate::features::discovery::root_sequence::context_keys::EDGE_START_END_ACTIVITIES_TIMES_KEY;
 use crate::features::discovery::root_sequence::context_keys::EDGE_TRACE_EXECUTION_INFO_KEY;
 use crate::features::discovery::root_sequence::context_keys::NODE_SOFTWARE_DATA_KEY;
@@ -158,7 +158,7 @@ fn put_node_user_data(
     .user_data_mut()
     .put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
 
-  if let Some(multithreaded_log) = event_group.user_data().concrete(MULTITHREAD_FRAGMENT_KEY.key()) {
+  if let Some(multithreaded_log) = event_group.user_data().concrete(MULTITHREADED_FRAGMENT_KEY.key()) {
     event.user_data_mut().put_concrete(
       NODE_MULTITHREADED_FRAGMENT_LOG_KEY.key(),
       vec![NodeAdditionalDataContainer::new(multithreaded_log.clone(), event_coordinates)],
