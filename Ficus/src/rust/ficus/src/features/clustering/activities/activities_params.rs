@@ -1,10 +1,7 @@
-use std::str::FromStr;
-
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::{
-  event_log::core::event_log::EventLog, features::clustering::common::CommonVisualizationParams, pipelines::aliases::TracesActivities,
-  utils::distance::distance::FicusDistance,
+  features::clustering::common::CommonVisualizationParams, pipelines::aliases::TracesActivities, utils::distance::distance::FicusDistance,
 };
+use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum ActivityRepresentationSource {

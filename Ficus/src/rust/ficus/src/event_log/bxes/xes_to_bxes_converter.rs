@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
 use crate::event_log::{
   core::{
     event::event::{Event, EventPayloadValue},
@@ -15,10 +16,6 @@ use bxes::models::system_models::SystemMetadata;
 use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
 use bxes::writer::writer_utils::BxesLogWriteData;
 use bxes::writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes};
-
-use crate::utils::user_data::user_data::UserDataOwner;
-
-use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
 
 pub enum XesToBxesWriterError {
   BxesWriteError(BxesWriteError),

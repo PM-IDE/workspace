@@ -7,7 +7,6 @@ use linfa::{
 use linfa_clustering::KMeans;
 
 use crate::{
-  event_log::core::event_log::EventLog,
   features::{
     analysis::patterns::repeat_sets::ActivityNode,
     clustering::{

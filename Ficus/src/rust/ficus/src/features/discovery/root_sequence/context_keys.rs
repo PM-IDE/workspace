@@ -5,7 +5,6 @@ use crate::features::discovery::root_sequence::models::{
   ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, NodeAdditionalDataContainer,
 };
 use crate::features::discovery::timeline::software_data::models::SoftwareData;
-use crate::utils::context_key::DefaultContextKey;
 use crate::utils::graph::graph::DefaultGraph;
 use lazy_static::lazy_static;
 

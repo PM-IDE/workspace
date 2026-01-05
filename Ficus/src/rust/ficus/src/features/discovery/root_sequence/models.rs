@@ -1,5 +1,5 @@
 use derive_new::new;
-use getset::{Getters, Setters};
+use getset::Getters;
 use std::fmt::{Debug, Display, Formatter, Write};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};

@@ -5,7 +5,6 @@ use linfa_nn::KdTree;
 use super::{activities_common::create_dataset, activities_params::ActivitiesClusteringParams, merging::merge_activities};
 use crate::features::clustering::common::adjust_dbscan_labels;
 use crate::{
-  event_log::core::event_log::EventLog,
   features::clustering::{
     common::{create_colors_vector, transform_to_ficus_dataset},
     error::ClusteringResult,

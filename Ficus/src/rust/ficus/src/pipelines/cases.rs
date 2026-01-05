@@ -1,8 +1,5 @@
 use crate::features::cases::cases_discovery::discover_cases;
-use crate::pipelines::keys::context_keys::{
-  END_CASE_REGEX, END_CASE_REGEX_KEY, EVENT_LOG_KEY, INLINE_INNER_CASES, INLINE_INNER_CASES_KEY, PIPELINE_KEY, START_CASE_REGEX,
-  START_CASE_REGEX_KEY,
-};
+use crate::pipelines::keys::context_keys::{END_CASE_REGEX_KEY, EVENT_LOG_KEY, INLINE_INNER_CASES_KEY, PIPELINE_KEY, START_CASE_REGEX_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::pipelines::pipelines::{PipelinePart, PipelinePartFactory};
 use crate::utils::user_data::user_data::UserData;

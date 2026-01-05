@@ -14,7 +14,7 @@ use ficus::features::discovery::timeline::software_data::extractors::core::{
 use ficus::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
 use ficus::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
-use ficus::features::discovery::timeline::software_data::models::{OcelProducedObjectAfterConsume, SoftwareData};
+use ficus::features::discovery::timeline::software_data::models::SoftwareData;
 use ficus::utils::references::heaped;
 use std::cell::RefCell;
 use std::rc::Rc;

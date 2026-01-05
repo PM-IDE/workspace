@@ -4,7 +4,6 @@ use crate::event_log::xes::xes_event::XesEventImpl;
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
 use crate::event_log::xes::xes_trace::XesTraceImpl;
 use crate::features::analysis::patterns::pattern_info::UNDERLYING_PATTERN_KIND_KEY;
-use crate::utils::context_key::DefaultContextKey;
 use crate::utils::user_data::user_data::UserDataOwner;
 use crate::{
   context_key,
@@ -16,7 +15,6 @@ use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, MutGetters};
 use lazy_static::lazy_static;
-use paste::paste;
 use std::borrow::ToOwned;
 use std::{
   cell::RefCell,

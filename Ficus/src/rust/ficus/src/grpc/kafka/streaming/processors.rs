@@ -6,9 +6,7 @@ use crate::grpc::kafka::models::{
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{
-  CASE_NAME, CASE_NAME_KEY, PROCESS_NAME, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA, UNSTRUCTURED_METADATA_KEY,
-};
+use crate::pipelines::keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY};
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;

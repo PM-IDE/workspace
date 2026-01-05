@@ -1,4 +1,4 @@
-use std::{borrow::Borrow, cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog};
 use bxes::models::domain::bxes_value::BxesValue;
@@ -8,6 +8,7 @@ use bxes::read::read_utils::BxesEventLogReadResult;
 use bxes::read::single_file_bxes_reader::{read_bxes, read_bxes_from_archive_bytes};
 use chrono::{TimeZone, Utc};
 
+use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
 use crate::event_log::{
   core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
   xes::{
@@ -17,9 +18,6 @@ use crate::event_log::{
     xes_trace::XesTraceImpl,
   },
 };
-use crate::utils::user_data::user_data::UserDataOwner;
-
-use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
 
 #[derive(Debug)]
 pub enum BxesToXesReadError {

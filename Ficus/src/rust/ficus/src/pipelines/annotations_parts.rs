@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::discovery::ocel::graph_annotation::{create_ocel_annotation_for_dag, OcelAnnotation, OcelAnnotationCreationError};
+use crate::features::discovery::ocel::graph_annotation::create_ocel_annotation_for_dag;
 use crate::features::discovery::petri_net::annotations::{
   annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency,
 };

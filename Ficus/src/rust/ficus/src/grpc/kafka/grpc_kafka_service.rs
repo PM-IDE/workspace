@@ -13,14 +13,13 @@ use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::kafka::kafka_service::KafkaService;
 use crate::grpc::kafka::models::PipelineExecutionDto;
 use crate::pipelines::keys::context_keys::{
-  CASE_NAME, CASE_NAME_KEY, PIPELINE_ID, PIPELINE_ID_KEY, PIPELINE_NAME, PIPELINE_NAME_KEY, PROCESS_NAME, PROCESS_NAME_KEY,
-  SUBSCRIPTION_ID, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME, SUBSCRIPTION_NAME_KEY,
+  CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY,
 };
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use futures::Stream;
 use std::pin::Pin;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
