@@ -12,7 +12,7 @@ use crate::grpc::logs_handler::ConsoleLogMessageHandler;
 use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
 use crate::pipelines::context::LogMessageHandler;
 use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{PIPELINE_ID, PIPELINE_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME};
+use crate::pipelines::keys::context_keys::{PIPELINE_ID_KEY, PIPELINE_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
@@ -235,10 +235,10 @@ impl KafkaService {
           }
         };
 
-        context.put_concrete(SUBSCRIPTION_ID.key(), dto.uuid.clone());
-        context.put_concrete(PIPELINE_ID.key(), pipeline_id.clone());
-        context.put_concrete(SUBSCRIPTION_NAME.key(), dto.name.clone());
-        context.put_concrete(PIPELINE_NAME.key(), pipeline.name.clone());
+        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), dto.uuid.clone());
+        context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id.clone());
+        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), dto.name.clone());
+        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline.name.clone());
 
         Ok(())
       });

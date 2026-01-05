@@ -12,7 +12,10 @@ use crate::grpc::events::events_handler::{CaseName, PipelineEvent, PipelineEvent
 use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::kafka::kafka_service::KafkaService;
 use crate::grpc::kafka::models::PipelineExecutionDto;
-use crate::pipelines::keys::context_keys::{CASE_NAME, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME};
+use crate::pipelines::keys::context_keys::{
+  CASE_NAME, CASE_NAME_KEY, PIPELINE_ID, PIPELINE_ID_KEY, PIPELINE_NAME, PIPELINE_NAME_KEY, PROCESS_NAME, PROCESS_NAME_KEY,
+  SUBSCRIPTION_ID, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME, SUBSCRIPTION_NAME_KEY,
+};
 use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::utils::user_data::user_data::UserData;
 use futures::Stream;
@@ -211,14 +214,14 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
       let context = KafkaService::create_pipeline_execution_context_from_proxy(pipeline, &context_values, &dto);
 
       let execution_result = context.execute_grpc_pipeline(move |context| {
-        context.put_concrete(SUBSCRIPTION_ID.key(), subscription_id.unwrap());
-        context.put_concrete(PIPELINE_ID.key(), pipeline_id.unwrap());
-        context.put_concrete(SUBSCRIPTION_NAME.key(), subscription_name);
-        context.put_concrete(PIPELINE_NAME.key(), pipeline_name);
+        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), subscription_id.unwrap());
+        context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id.unwrap());
+        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), subscription_name);
+        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline_name);
 
-        context.put_concrete(PROCESS_NAME.key(), process_name);
+        context.put_concrete(PROCESS_NAME_KEY.key(), process_name);
         context.put_concrete(
-          CASE_NAME.key(),
+          CASE_NAME_KEY.key(),
           CaseName {
             display_name: case_name.to_string(),
             name_parts: vec![case_name.to_string()],

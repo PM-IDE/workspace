@@ -13,8 +13,8 @@ use crate::pipelines::keys::context_keys::{
   ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY,
   EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY,
   LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY,
-  PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-  TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY,
+  PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPR_SOURCE,
+  TRACES_REPR_SOURCE_KEY, TRACE_ACTIVITIES_KEY,
 };
 use crate::pipelines::multithreading::FeatureCountKindDto;
 use crate::pipelines::pipeline_parts::PipelineParts;
@@ -168,7 +168,7 @@ impl PipelineParts {
     config: &'a UserDataImpl,
   ) -> Result<TracesClusteringParams<'a>, PipelinePartExecutionError> {
     let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
-    let repr_source = *Self::get_user_data(config, &TRACES_REPRESENTATION_SOURCE_KEY)?;
+    let repr_source = *Self::get_user_data(config, &TRACES_REPR_SOURCE_KEY)?;
     let feature_count_kind = *Self::get_user_data(config, &FEATURE_COUNT_KIND_KEY)?;
 
     let feature_count_kind = match feature_count_kind {

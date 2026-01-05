@@ -69,9 +69,9 @@ fn test_event_log_all_concrete_keys() {
     assert_existence::<f64>(&UTILITY_RATE, &mut used);
     assert_existence::<f64>(&EDGE_CUTOFF_THRESHOLD, &mut used);
     assert_existence::<f64>(&NODE_CUTOFF_THRESHOLD, &mut used);
-    assert_existence::<String>(&START_CASE_REGEX_STR, &mut used);
-    assert_existence::<String>(&END_CASE_REGEX_STR, &mut used);
-    assert_existence::<bool>(&INLINE_INNER_CASES_STR, &mut used);
+    assert_existence::<String>(&START_CASE_REGEX, &mut used);
+    assert_existence::<String>(&END_CASE_REGEX, &mut used);
+    assert_existence::<bool>(&INLINE_INNER_CASES, &mut used);
 
     assert_existence::<XesEventLogImpl>(&EVENT_LOG, &mut used);
     assert_existence::<Activities>(&ACTIVITIES, &mut used);
@@ -283,9 +283,9 @@ fn test_equivalence_of_keys() {
     assert_keys_equivalence::<f64>(&UTILITY_RATE, &mut used);
     assert_keys_equivalence::<f64>(&EDGE_CUTOFF_THRESHOLD, &mut used);
     assert_keys_equivalence::<f64>(&NODE_CUTOFF_THRESHOLD, &mut used);
-    assert_keys_equivalence::<String>(&START_CASE_REGEX_STR, &mut used);
-    assert_keys_equivalence::<String>(&END_CASE_REGEX_STR, &mut used);
-    assert_keys_equivalence::<bool>(&INLINE_INNER_CASES_STR, &mut used);
+    assert_keys_equivalence::<String>(&START_CASE_REGEX, &mut used);
+    assert_keys_equivalence::<String>(&END_CASE_REGEX, &mut used);
+    assert_keys_equivalence::<bool>(&INLINE_INNER_CASES, &mut used);
 
     assert_keys_equivalence::<XesEventLogImpl>(&EVENT_LOG, &mut used);
     assert_keys_equivalence::<Activities>(&ACTIVITIES, &mut used);

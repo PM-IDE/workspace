@@ -6,7 +6,9 @@ use crate::grpc::kafka::models::{
 use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
 use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
 use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{CASE_NAME, PROCESS_NAME, UNSTRUCTURED_METADATA};
+use crate::pipelines::keys::context_keys::{
+  CASE_NAME, CASE_NAME_KEY, PROCESS_NAME, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA, UNSTRUCTURED_METADATA_KEY,
+};
 use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
@@ -100,10 +102,10 @@ fn add_system_metadata(
 ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
   let metadata = ExtractedTraceMetadata::create_from(metadata)?;
 
-  context.put_concrete(PROCESS_NAME.key(), metadata.process.process_name);
-  context.put_concrete(UNSTRUCTURED_METADATA.key(), metadata.unstructured_metadata);
+  context.put_concrete(PROCESS_NAME_KEY.key(), metadata.process.process_name);
+  context.put_concrete(UNSTRUCTURED_METADATA_KEY.key(), metadata.unstructured_metadata);
   context.put_concrete(
-    CASE_NAME.key(),
+    CASE_NAME_KEY.key(),
     CaseName {
       display_name: metadata.case.case_display_name,
       name_parts: metadata.case.case_name_parts,

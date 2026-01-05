@@ -6,8 +6,8 @@ use super::events::events_handler::{CaseName, GetContextValuesEvent, PipelineEve
 use crate::pipelines::context::PipelineInfrastructure;
 use crate::pipelines::errors::pipeline_errors::RawPartExecutionError;
 use crate::pipelines::keys::context_keys::{
-  find_context_key, CASE_NAME, EXECUTION_ID_KEY, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME,
-  UNSTRUCTURED_METADATA,
+  find_context_key, CASE_NAME_KEY, EXECUTION_ID_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY,
+  SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
 };
 use crate::utils::context_key::{ContextKey, DefaultContextKey};
 use crate::{
@@ -81,16 +81,16 @@ impl GetContextValuePipelinePart {
   }
 
   fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
-    let case_name = Self::value_or_default(context, &CASE_NAME, || CaseName::empty());
-    let process_name = Self::value_or_default(context, &PROCESS_NAME, || "UNDEFINED_PROCESS".to_string());
+    let case_name = Self::value_or_default(context, &CASE_NAME_KEY, || CaseName::empty());
+    let process_name = Self::value_or_default(context, &PROCESS_NAME_KEY, || "UNDEFINED_PROCESS".to_string());
 
-    let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID);
-    let subscription_name = Self::value_or_none(context, &SUBSCRIPTION_NAME);
+    let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID_KEY);
+    let subscription_name = Self::value_or_none(context, &SUBSCRIPTION_NAME_KEY);
 
-    let pipeline_id = Self::value_or_none(context, &PIPELINE_ID);
-    let pipeline_name = Self::value_or_none(context, &PIPELINE_NAME);
+    let pipeline_id = Self::value_or_none(context, &PIPELINE_ID_KEY);
+    let pipeline_name = Self::value_or_none(context, &PIPELINE_NAME_KEY);
 
-    let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA, || vec![]);
+    let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA_KEY, || vec![]);
 
     ProcessCaseMetadata {
       process_name,
