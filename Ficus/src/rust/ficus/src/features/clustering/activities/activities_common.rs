@@ -50,7 +50,6 @@ pub(super) fn create_dataset_from_activities_traces_underlying_events(
     |traces_activities, regex_hasher, all_event_classes| {
       Ok(create_activities_repr_from_subtraces(
         traces_activities,
-        regex_hasher,
         all_event_classes,
         params,
         |events, map, all_event_classes| {
@@ -77,7 +76,6 @@ pub(super) fn create_dataset_from_activities_traces(
     |traces_activities, regex_hasher, all_event_classes| {
       Ok(create_activities_repr_from_subtraces(
         traces_activities,
-        regex_hasher,
         all_event_classes,
         params,
         |events, map, all_event_classes| update_event_classes(events, regex_hasher, all_event_classes, map),
@@ -106,7 +104,6 @@ fn update_event_classes(
 
 fn create_activities_repr_from_subtraces(
   traces_activities: &TracesActivities,
-  regex_hasher: Option<&RegexEventHasher>,
   all_event_classes: &mut HashSet<String>,
   params: &ActivitiesVisualizationParams,
   event_classes_updater: impl Fn(&[Rc<RefCell<XesEventImpl>>], &mut HashMap<String, usize>, &mut HashSet<String>) -> (),

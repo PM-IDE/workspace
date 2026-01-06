@@ -87,7 +87,7 @@ pub(super) fn bxes_value_to_payload_value(value: &BxesValue) -> EventPayloadValu
 pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValue {
   match value {
     EventPayloadValue::Null => BxesValue::Null,
-    EventPayloadValue::Date(value) => BxesValue::Timestamp(value.timestamp_nanos()),
+    EventPayloadValue::Date(value) => BxesValue::Timestamp(value.timestamp_nanos_opt().expect("timestamp_nanos_opt")),
     EventPayloadValue::String(value) => BxesValue::String(value.clone()),
     EventPayloadValue::Boolean(value) => BxesValue::Bool(*value),
     EventPayloadValue::Int32(value) => BxesValue::Int32(*value),

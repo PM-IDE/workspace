@@ -1,7 +1,7 @@
 use derive_new::new;
 use getset::Getters;
 use std::{
-  fmt::{Debug, Display, Formatter, Write},
+  fmt::{Debug, Display, Formatter},
   str::FromStr,
   sync::atomic::{AtomicU64, Ordering},
 };

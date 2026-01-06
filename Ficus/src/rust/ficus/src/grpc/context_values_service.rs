@@ -1,7 +1,7 @@
 use crate::{
   ficus_proto::{
-    grpc_context_values_service_server::GrpcContextValuesService, GrpcContextKey, GrpcContextKeyValue, GrpcContextValue,
-    GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid,
+    grpc_context_values_service_server::GrpcContextValuesService, GrpcContextKey, GrpcContextKeyValue, GrpcContextValuePart,
+    GrpcDropContextValuesRequest, GrpcGuid,
   },
   grpc::converters::context_value_from_bytes,
 };

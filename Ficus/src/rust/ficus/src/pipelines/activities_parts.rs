@@ -267,7 +267,7 @@ impl PipelineParts {
   }
 
   pub(super) fn discover_activities_in_unattached_subtraces() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_ACTIVITIES_IN_UNATTACHED_SUBTRACES, &|context, infra, config| {
+    Self::create_pipeline_part(Self::DISCOVER_ACTIVITIES_IN_UNATTACHED_SUBTRACES, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let mut existing_activities = &Self::create_empty_activities(log);
 
@@ -312,7 +312,7 @@ impl PipelineParts {
       activities.push(vec![]);
     }
 
-    return activities;
+    activities
   }
 
   pub(super) fn clear_activities_related_stuff() -> (String, PipelinePartFactory) {
@@ -514,7 +514,7 @@ impl PipelineParts {
   }
 
   pub(super) fn serialize_activities_logs() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::SERIALIZE_ACTIVITIES_LOGS, &|context, infra, config| {
+    Self::create_pipeline_part(Self::SERIALIZE_ACTIVITIES_LOGS, &|context, _, config| {
       let logs_to_activities = Self::create_activities_to_logs(context, config)?;
       let path = Path::new(Self::get_user_data(config, &PATH_KEY)?);
       let format = Self::get_user_data(config, &LOG_SERIALIZATION_FORMAT_KEY)?;
@@ -543,7 +543,7 @@ impl PipelineParts {
   }
 
   pub(super) fn reverse_hierarchy_indices() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::REVERSE_HIERARCHY_INDICES, &|context, infra, config| {
+    Self::create_pipeline_part(Self::REVERSE_HIERARCHY_INDICES, &|context, _, _| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
 
       const HIERARCHY_LEVEL: &str = "hierarchy_level_";

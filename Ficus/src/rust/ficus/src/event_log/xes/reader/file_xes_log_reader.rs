@@ -130,7 +130,7 @@ impl<'a> Iterator for FromFileXesEventLogReader<'a> {
 }
 
 impl<'a> FromFileXesEventLogReader<'a> {
-  pub fn new_from_bytes(bytes: &[u8]) -> Option<FromFileXesEventLogReader> {
+  pub fn new_from_bytes(bytes: &[u8]) -> Option<FromFileXesEventLogReader<'_>> {
     let reader = XmlReader::MemoryReader(BufReader::new(Cursor::new(bytes)));
     Some(Self::create_quickxml_reader(reader))
   }
@@ -143,7 +143,7 @@ impl<'a> FromFileXesEventLogReader<'a> {
     }
   }
 
-  pub fn new(file_path: &str) -> Option<FromFileXesEventLogReader> {
+  pub fn new(file_path: &str) -> Option<FromFileXesEventLogReader<'_>> {
     let file = match File::open(file_path) {
       Ok(file) => file,
       Err(_) => return None,

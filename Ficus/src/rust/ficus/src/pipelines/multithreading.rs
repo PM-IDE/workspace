@@ -262,7 +262,7 @@ impl PipelineParts {
   }
 
   pub(super) fn shorten_allocation_types() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::SHORTEN_ALLOCATION_TYPE, &|context, _, config| {
+    Self::create_pipeline_part(Self::SHORTEN_ALLOCATION_TYPE, &|context, _, _| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
       let software_data_extraction_config = Self::get_software_data_extraction_config(context);
       if let Some(config) = software_data_extraction_config.allocation() {

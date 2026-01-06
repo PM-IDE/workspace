@@ -18,7 +18,7 @@ impl EmptyPipelineEventsHandler {
 }
 
 impl PipelineEventsHandler for EmptyPipelineEventsHandler {
-  fn handle(&self, event: &PipelineEvent) {}
+  fn handle(&self, _: &PipelineEvent) {}
 
   fn is_alive(&self) -> bool {
     false

@@ -509,24 +509,22 @@ where
 
       user_data.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), *activity.node.borrow().pattern_kind());
 
-      unsafe {
-        let base_pattern = if let Some(repeat_set) = activity.node.borrow().repeat_set() {
-          let trace = log.traces().get(repeat_set.trace_index).unwrap();
-          let sub_array = repeat_set.sub_array;
-          Some(
-            trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length]
-              .iter()
-              .map(|e| e.clone())
-              .collect(),
-          )
-        } else {
-          None
-        };
+      let base_pattern = if let Some(repeat_set) = activity.node.borrow().repeat_set() {
+        let trace = log.traces().get(repeat_set.trace_index).unwrap();
+        let sub_array = repeat_set.sub_array;
+        Some(
+          trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length]
+            .iter()
+            .map(|e| e.clone())
+            .collect(),
+        )
+      } else {
+        None
+      };
 
-        let info = UnderlyingEventsInfo::new(base_pattern, underlying_events);
+      let info = UnderlyingEventsInfo::new(base_pattern, underlying_events);
 
-        user_data.put_concrete(UNDERLYING_EVENTS_KEY.key(), info);
-      }
+      user_data.put_concrete(UNDERLYING_EVENTS_KEY.key(), info);
     };
 
     process_activities_in_trace(trace.events().len(), &instances, undef_activity_func, activity_func);

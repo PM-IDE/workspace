@@ -13,10 +13,7 @@ use crate::{
     pipeline_executor::ServicePipelineExecutionContext,
   },
   pipelines::{keys::context_keys::find_context_key, pipeline_parts::PipelineParts},
-  utils::{
-    context_key::{ContextKey, DefaultContextKey},
-    user_data::user_data::UserData,
-  },
+  utils::{context_key::DefaultContextKey, user_data::user_data::UserData},
 };
 use futures::Stream;
 use std::{

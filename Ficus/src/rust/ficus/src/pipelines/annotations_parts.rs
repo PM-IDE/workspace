@@ -100,7 +100,7 @@ impl PipelineParts {
   }
 
   pub(super) fn create_ocel_annotation_for_dag() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CREATE_OCEL_ANNOTATION_FOR_DAG, &|context, _, config| {
+    Self::create_pipeline_part(Self::CREATE_OCEL_ANNOTATION_FOR_DAG, &|context, _, _| {
       let graph = Self::get_user_data(context, &GRAPH_KEY)?;
 
       match create_ocel_annotation_for_dag(graph) {

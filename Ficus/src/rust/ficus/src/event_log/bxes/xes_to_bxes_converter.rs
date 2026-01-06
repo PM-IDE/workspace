@@ -96,7 +96,7 @@ fn create_bxes_traces(log: &XesEventLogImpl) -> Vec<BxesTraceVariant> {
 fn create_bxes_event(log: &XesEventLogImpl, event: &XesEventImpl) -> BxesEvent {
   let bxes_event = BxesEvent {
     name: Rc::new(Box::new(BxesValue::String(event.name_pointer().clone()))),
-    timestamp: event.timestamp().timestamp_nanos(),
+    timestamp: event.timestamp().timestamp_nanos_opt().expect("timestamp_nanos_opt"),
     attributes: Some(
       event
         .ordered_payload()

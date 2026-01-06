@@ -1,11 +1,8 @@
-use crate::{
-  event_log::core::event_log::EventLog,
-  features::{
-    analysis::log_info::event_log_info::EventLogInfo,
-    discovery::{
-      alpha::providers::alpha_provider::{AlphaRelationsProvider, DefaultAlphaRelationsProvider},
-      relations::triangle_relation::TriangleRelation,
-    },
+use crate::features::{
+  analysis::log_info::event_log_info::EventLogInfo,
+  discovery::{
+    alpha::providers::alpha_provider::{AlphaRelationsProvider, DefaultAlphaRelationsProvider},
+    relations::triangle_relation::TriangleRelation,
   },
 };
 use std::collections::HashMap;

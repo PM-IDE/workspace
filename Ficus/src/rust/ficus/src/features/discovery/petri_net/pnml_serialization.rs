@@ -160,7 +160,7 @@ where
   TTransitionData: ToString,
 {
   let incoming_arcs = patch_arcs_list(transition.incoming_arcs(), use_names_as_ids, |arc| {
-    create_arc_name::<TArcData>(
+    create_arc_name(
       create_place_id(net.place(&arc.place_id()), use_names_as_ids),
       create_transition_id(transition, use_names_as_ids),
     )
@@ -216,7 +216,7 @@ where
   TTransitionData: ToString,
 {
   let outgoing_arcs = patch_arcs_list(transition.outgoing_arcs(), use_names_as_ids, |arc| {
-    create_arc_name::<TArcData>(
+    create_arc_name(
       create_transition_id(transition, use_names_as_ids),
       create_place_id(net.place(&arc.place_id()), use_names_as_ids),
     )
@@ -257,6 +257,6 @@ where
   }
 }
 
-fn create_arc_name<TArcData>(from_name: String, to_name: String) -> String {
+fn create_arc_name(from_name: String, to_name: String) -> String {
   format!("[{{{}}}--{{{}}}]", from_name, to_name)
 }

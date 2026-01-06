@@ -96,10 +96,6 @@ impl<'a> AlphaPlusPlusNfcTriple<'a> {
   pub fn b_classes(&self) -> &BTreeSet<&'a String> {
     &self.b_classes
   }
-
-  pub fn c_classes(&self) -> &BTreeSet<&'a String> {
-    &self.c_classes
-  }
 }
 
 impl<'a> Hash for AlphaPlusPlusNfcTriple<'a> {

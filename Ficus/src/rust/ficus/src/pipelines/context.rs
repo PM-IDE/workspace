@@ -9,7 +9,6 @@ use crate::{
   },
 };
 use std::{any::Any, sync::Arc};
-use uuid::Uuid;
 
 use super::errors::pipeline_errors::PipelinePartExecutionError;
 
@@ -19,7 +18,6 @@ pub trait LogMessageHandler: Send + Sync {
 
 pub struct PipelineInfrastructure {
   log_message_handler: Option<Arc<Box<dyn LogMessageHandler>>>,
-  execution_id: Uuid,
 }
 
 impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
@@ -31,10 +29,7 @@ impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
 
 impl PipelineInfrastructure {
   pub fn new(log_message_handler: Option<Arc<Box<dyn LogMessageHandler>>>) -> Self {
-    Self {
-      log_message_handler,
-      execution_id: Uuid::new_v4(),
-    }
+    Self { log_message_handler }
   }
 
   pub fn log(&self, message: &str) -> Result<(), PipelinePartExecutionError> {

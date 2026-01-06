@@ -7,10 +7,7 @@ use crate::{
 };
 use enum_display_derive::Display;
 use lazy_static::lazy_static;
-use std::{
-  collections::HashMap,
-  fmt::{Debug, Display},
-};
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Display)]
 pub enum GraphsMergingError {

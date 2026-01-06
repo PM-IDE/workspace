@@ -117,7 +117,7 @@ where
     let mut repr = String::new();
     repr.push('(');
 
-    let mut write_set = |set: &BTreeSet<T>, repr: &mut String| {
+    let write_set = |set: &BTreeSet<T>, repr: &mut String| {
       repr.push('{');
       for item in set {
         repr.push_str(item.to_string().as_str());

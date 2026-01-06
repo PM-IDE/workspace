@@ -1,6 +1,6 @@
 use crate::{
   event_log::{
-    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    core::{event_log::EventLog, trace::trace::Trace},
     xes::{xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
   },
   features::analysis::patterns::{

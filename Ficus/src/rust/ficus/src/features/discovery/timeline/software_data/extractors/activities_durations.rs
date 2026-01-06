@@ -51,7 +51,7 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
   }
 }
 
-fn create_configs(config: &SoftwareDataExtractionConfig) -> Configs {
+fn create_configs(config: &SoftwareDataExtractionConfig) -> Configs<'_> {
   config
     .activities_duration_configs()
     .iter()

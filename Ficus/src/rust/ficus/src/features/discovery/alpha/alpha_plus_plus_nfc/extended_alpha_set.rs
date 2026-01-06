@@ -153,14 +153,6 @@ impl<'a> ExtendedAlphaSet<'a> {
     true
   }
 
-  pub fn subset(&self, other: &Self) -> bool {
-    if !self.alpha_set.is_full_subset(&other.alpha_set) {
-      false
-    } else {
-      self.left_extension.is_subset(&other.left_extension) && self.right_extension.is_subset(&other.right_extension)
-    }
-  }
-
   pub fn merge(&self, other: &Self) -> Self {
     Self {
       alpha_set: self.alpha_set.extend(&other.alpha_set),

@@ -29,15 +29,6 @@ struct EventLogCountsImpl {
   events_count: usize,
 }
 
-impl EventLogCountsImpl {
-  pub fn new(traces_count: usize, events_count: usize) -> Self {
-    Self {
-      traces_count,
-      events_count,
-    }
-  }
-}
-
 impl EventLogCounts for EventLogCountsImpl {
   fn traces_count(&self) -> usize {
     self.traces_count

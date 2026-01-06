@@ -20,7 +20,7 @@ use crate::{
     },
     clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
     discovery::{
-      ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations, ProcessNodesStates},
+      ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations},
       petri_net::{
         annotations::TimeAnnotationKind,
         arc::Arc,
@@ -54,21 +54,20 @@ use crate::{
     grpc_context_value::{ContextValue, ContextValue::Annotation},
     grpc_event_attribute, grpc_graph_edge_additional_data,
     grpc_node_additional_data::Data,
-    grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAllocationInfo, GrpcAnnotation, GrpcBytes, GrpcColor,
-    GrpcColoredRectangle, GrpcColorsEventLog, GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation,
-    GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation,
-    GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates, GrpcEventLogInfo,
-    GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph,
-    GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid, GrpcHashesEventLog, GrpcHashesEventLogContextValue,
-    GrpcHashesLogTrace, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow,
-    GrpcMethodInliningInfo, GrpcMethodNameParts, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNamesEventLog,
-    GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcNodeAdditionalData, GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge,
-    GrpcOcelConsumeProduce, GrpcOcelData, GrpcOcelModelAnnotation, GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject,
-    GrpcOcelState, GrpcOcelStateObjectRelation, GrpcPetriNet, GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace,
-    GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData, GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData,
-    GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
-    GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceSubArray, GrpcTraceSubArrays,
-    GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind,
+    grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAnnotation, GrpcBytes, GrpcColor, GrpcColoredRectangle,
+    GrpcColorsEventLog, GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind,
+    GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent,
+    GrpcEventAttribute, GrpcEventCoordinates, GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation,
+    GrpcGeneralHistogramData, GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind,
+    GrpcGraphNode, GrpcGuid, GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace, GrpcHistogramEntry,
+    GrpcLabeledDataset, GrpcLogPoint, GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcModelElementOcelAnnotation,
+    GrpcMultithreadedFragment, GrpcNamesEventLog, GrpcNamesEventLogContextValue, GrpcNamesTrace, GrpcNodeAdditionalData,
+    GrpcNodeCorrespondingTraceData, GrpcOcelAllocateMerge, GrpcOcelConsumeProduce, GrpcOcelData, GrpcOcelModelAnnotation,
+    GrpcOcelObjectTypeData, GrpcOcelObjectTypeState, GrpcOcelProducedObject, GrpcOcelState, GrpcOcelStateObjectRelation, GrpcPetriNet,
+    GrpcPetriNetArc, GrpcPetriNetMarking, GrpcPetriNetPlace, GrpcPetriNetSinglePlaceMarking, GrpcPetriNetTransition, GrpcSimpleCounterData,
+    GrpcSimpleEventLog, GrpcSimpleTrace, GrpcSoftwareData, GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue, GrpcThread,
+    GrpcThreadEvent, GrpcTimePerformanceAnnotation, GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup,
+    GrpcTraceSubArray, GrpcTraceSubArrays, GrpcTraceTimelineDiagram, GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind,
   },
   grpc::pipeline_executor::ServicePipelineExecutionContext,
   pipelines::{
@@ -101,7 +100,6 @@ use crate::{
       user_data::{UserData, UserDataImpl},
     },
   },
-  vecs,
 };
 use chrono::{DateTime, Utc};
 use log::error;
@@ -236,7 +234,7 @@ fn convert_grpc_event_attribute_to_xes_event_payload_value(attribute_value: &grp
     grpc_event_attribute::Value::Bool(v) => EventPayloadValue::Boolean(*v),
     grpc_event_attribute::Value::Double(v) => EventPayloadValue::Float64(*v),
     grpc_event_attribute::Value::Guid(v) => EventPayloadValue::Guid(Uuid::parse_str(v.guid.as_str()).unwrap()),
-    grpc_event_attribute::Value::Null(v) => EventPayloadValue::Null,
+    grpc_event_attribute::Value::Null(..) => EventPayloadValue::Null,
     grpc_event_attribute::Value::Stamp(v) => EventPayloadValue::Date(convert_timestamp_to_datetime(v)),
     grpc_event_attribute::Value::Uint(v) => EventPayloadValue::Uint64(*v),
   }
@@ -912,7 +910,7 @@ fn convert_to_grpc_attribute_value(value: &EventPayloadValue) -> Option<grpc_eve
 }
 
 fn convert_to_grpc_timestamp(stamp: &DateTime<Utc>) -> Timestamp {
-  prost_types::Timestamp::from_str(stamp.to_rfc3339().as_str()).unwrap()
+  Timestamp::from_str(stamp.to_rfc3339().as_str()).unwrap()
 }
 
 fn convert_to_event_coordinates(event_coordinates: &EventCoordinates) -> GrpcEventCoordinates {

@@ -31,14 +31,6 @@ struct AlphaSharpTuple<'a> {
 }
 
 impl<'a> AlphaSharpTuple<'a> {
-  pub fn empty(provider: &'a AlphaSharpRelationsProvider<'a>) -> Self {
-    Self {
-      provider,
-      p_in: AlphaSharpSet::new(),
-      p_out: AlphaSharpSet::new(),
-    }
-  }
-
   pub fn try_create_new(
     p_in: (&'a String, &'a String),
     p_out: (&'a String, &'a String),
@@ -207,20 +199,22 @@ impl<'a> ToString for AlphaSharpTuple<'a> {
 
 impl<'a> Clone for AlphaSharpTuple<'a> {
   fn clone(&self) -> Self {
+    let construct_set = |set: &AlphaSharpSet<'a>| -> AlphaSharpSet<'a> {
+      set
+        .iter()
+        .map(|t| {
+          (
+            BTreeSet::from_iter(t.0.iter().map(|r| *r)),
+            BTreeSet::from_iter(t.0.iter().map(|r| *r)),
+          )
+        })
+        .collect()
+    };
+
     Self {
       provider: self.provider,
-      p_in: BTreeSet::from_iter(self.p_in.iter().map(|t| {
-        (
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-        )
-      })),
-      p_out: BTreeSet::from_iter(self.p_out.iter().map(|t| {
-        (
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-        )
-      })),
+      p_in: construct_set(&self.p_in),
+      p_out: construct_set(&self.p_out),
     }
   }
 }
