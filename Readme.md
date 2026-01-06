@@ -11,28 +11,6 @@
   <img src="images/pais.svg" alt="Logo" width="80" height="80">
 </div>
 
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#context-of-the-project">Context of the project</a></li>
-        <li><a href="#system-architecture">System architecture</a></li>
-        <li><a href="#procfiler">Procfiler</a></li>
-        <li><a href="#ficus">Ficus</a></li>
-        <li><a href="#bxes">bXES</a></li>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li><a href="#related-publications">Related publications</a></li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
 
 ## About The Project
 
@@ -40,7 +18,13 @@ The repository unites different projects for modern software process mining, bas
 .NET event logs. Detailed information about each project can be found in corresponding
 Readme files in each project's subdirectory.
 
-### Context of the project
+## Related publications
+
+* [Extracting high-level activities from low-level program execution logs](https://rdcu.be/dHQPl)
+* [bXES: a Binary Format For Storing and Transferring Software Event Logs](https://damdid2024.frccsc.ru/files/papers/DAMDID_2024_paper_31.pdf)
+* [Continuous software monitoring backed by process mining: a systematic literature review](https://rdcu.be/eXRLC)
+
+## Context of the project
 
 This software is developed as a part of the PhD project performed in 
 [PAIS Laboratory](https://pais.hse.ru) at the [Faculty of Computer Science](https://cs.hse.ru) 
@@ -101,12 +85,6 @@ especially software event logs. The bXES supports converting XES event logs to b
 [python-url]: https://www.python.org/
 [cpp-shield]: https://img.shields.io/badge/-C++-blue?logo=cplusplus
 [cpp-url]: https://en.cppreference.com/w/cpp/language
-
-## Related publications
-
-* [Extracting high-level activities from low-level program execution logs](https://rdcu.be/dHQPl)
-* [bXES: a Binary Format For Storing and Transferring Software Event Logs](https://damdid2024.frccsc.ru/files/papers/DAMDID_2024_paper_31.pdf)
-
 
 ## Usage
 
