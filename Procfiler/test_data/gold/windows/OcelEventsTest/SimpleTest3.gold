@@ -1,50 +1,110 @@
 OcelObjectAllocated {"objectId":"1","type":"Type1","attributes":""}
 OcelObjectAllocated {"objectId":"2","type":"Type1","attributes":""}
 OcelObjectAllocated {"objectId":"3","type":"Type1","attributes":""}
-OcelMergeAllocate {"objectId":"4","type":"Type1","relatedObjectsIds":"1 2 3","attributes":""}
-OcelConsumeProduce {"objectId":"4","relatedObjectsIds":"5 6","relatedObjectsTypes":"Type3 Type2","attributes":""}
-OcelObjectAllocated {"objectId":"7","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"8","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"9","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"4","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"5","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"6","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"7","type":"Type1","relatedObjectsIds":"1 2","attributes":""}
+OcelMergeAllocate {"objectId":"8","type":"Type1","relatedObjectsIds":"3 4","attributes":""}
+OcelMergeAllocate {"objectId":"9","type":"Type1","relatedObjectsIds":"5 6","attributes":""}
 OcelMergeAllocate {"objectId":"10","type":"Type1","relatedObjectsIds":"7 8 9","attributes":""}
 OcelConsumeProduce {"objectId":"10","relatedObjectsIds":"11 12","relatedObjectsTypes":"Type3 Type2","attributes":""}
-OcelObjectAllocated {"objectId":"13","type":"Type1","attributes":""}
-OcelObjectAllocated {"objectId":"14","type":"Type1","attributes":""}
-OcelObjectAllocated {"objectId":"15","type":"Type1","attributes":""}
-OcelMergeAllocate {"objectId":"16","type":"Type1","relatedObjectsIds":"13 14 15","attributes":""}
-OcelConsumeProduce {"objectId":"16","relatedObjectsIds":"17 18","relatedObjectsTypes":"Type3 Type2","attributes":""}
-OcelObjectAllocated {"objectId":"19","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"20","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"21","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"13","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"14","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"15","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"16","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"17","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"18","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"19","type":"Type2","relatedObjectsIds":"13 14","attributes":""}
+OcelMergeAllocate {"objectId":"20","type":"Type2","relatedObjectsIds":"15 16","attributes":""}
+OcelMergeAllocate {"objectId":"21","type":"Type2","relatedObjectsIds":"17 18","attributes":""}
 OcelMergeAllocate {"objectId":"22","type":"Type1","relatedObjectsIds":"19 20 21","attributes":""}
 OcelConsumeProduce {"objectId":"22","relatedObjectsIds":"23 24","relatedObjectsTypes":"Type3 Type2","attributes":""}
 OcelObjectAllocated {"objectId":"25","type":"Type1","attributes":""}
 OcelObjectAllocated {"objectId":"26","type":"Type1","attributes":""}
 OcelObjectAllocated {"objectId":"27","type":"Type1","attributes":""}
-OcelMergeAllocate {"objectId":"28","type":"Type1","relatedObjectsIds":"25 26 27","attributes":""}
-OcelConsumeProduce {"objectId":"28","relatedObjectsIds":"29 30","relatedObjectsTypes":"Type3 Type2","attributes":""}
-OcelObjectAllocated {"objectId":"31","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"32","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"33","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"28","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"29","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"30","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"31","type":"Type1","relatedObjectsIds":"25 26","attributes":""}
+OcelMergeAllocate {"objectId":"32","type":"Type1","relatedObjectsIds":"27 28","attributes":""}
+OcelMergeAllocate {"objectId":"33","type":"Type1","relatedObjectsIds":"29 30","attributes":""}
 OcelMergeAllocate {"objectId":"34","type":"Type1","relatedObjectsIds":"31 32 33","attributes":""}
 OcelConsumeProduce {"objectId":"34","relatedObjectsIds":"35 36","relatedObjectsTypes":"Type3 Type2","attributes":""}
-OcelObjectAllocated {"objectId":"37","type":"Type1","attributes":""}
-OcelObjectAllocated {"objectId":"38","type":"Type1","attributes":""}
-OcelObjectAllocated {"objectId":"39","type":"Type1","attributes":""}
-OcelMergeAllocate {"objectId":"40","type":"Type1","relatedObjectsIds":"37 38 39","attributes":""}
-OcelConsumeProduce {"objectId":"40","relatedObjectsIds":"41 42","relatedObjectsTypes":"Type3 Type2","attributes":""}
-OcelObjectAllocated {"objectId":"43","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"44","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"45","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"37","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"38","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"39","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"40","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"41","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"42","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"43","type":"Type2","relatedObjectsIds":"37 38","attributes":""}
+OcelMergeAllocate {"objectId":"44","type":"Type2","relatedObjectsIds":"39 40","attributes":""}
+OcelMergeAllocate {"objectId":"45","type":"Type2","relatedObjectsIds":"41 42","attributes":""}
 OcelMergeAllocate {"objectId":"46","type":"Type1","relatedObjectsIds":"43 44 45","attributes":""}
 OcelConsumeProduce {"objectId":"46","relatedObjectsIds":"47 48","relatedObjectsTypes":"Type3 Type2","attributes":""}
 OcelObjectAllocated {"objectId":"49","type":"Type1","attributes":""}
 OcelObjectAllocated {"objectId":"50","type":"Type1","attributes":""}
 OcelObjectAllocated {"objectId":"51","type":"Type1","attributes":""}
-OcelMergeAllocate {"objectId":"52","type":"Type1","relatedObjectsIds":"49 50 51","attributes":""}
-OcelConsumeProduce {"objectId":"52","relatedObjectsIds":"53 54","relatedObjectsTypes":"Type3 Type2","attributes":""}
-OcelObjectAllocated {"objectId":"55","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"56","type":"Type2","attributes":""}
-OcelObjectAllocated {"objectId":"57","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"52","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"53","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"54","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"55","type":"Type1","relatedObjectsIds":"49 50","attributes":""}
+OcelMergeAllocate {"objectId":"56","type":"Type1","relatedObjectsIds":"51 52","attributes":""}
+OcelMergeAllocate {"objectId":"57","type":"Type1","relatedObjectsIds":"53 54","attributes":""}
 OcelMergeAllocate {"objectId":"58","type":"Type1","relatedObjectsIds":"55 56 57","attributes":""}
 OcelConsumeProduce {"objectId":"58","relatedObjectsIds":"59 60","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"61","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"62","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"63","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"64","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"65","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"66","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"67","type":"Type2","relatedObjectsIds":"61 62","attributes":""}
+OcelMergeAllocate {"objectId":"68","type":"Type2","relatedObjectsIds":"63 64","attributes":""}
+OcelMergeAllocate {"objectId":"69","type":"Type2","relatedObjectsIds":"65 66","attributes":""}
+OcelMergeAllocate {"objectId":"70","type":"Type1","relatedObjectsIds":"67 68 69","attributes":""}
+OcelConsumeProduce {"objectId":"70","relatedObjectsIds":"71 72","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"73","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"74","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"75","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"76","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"77","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"78","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"79","type":"Type1","relatedObjectsIds":"73 74","attributes":""}
+OcelMergeAllocate {"objectId":"80","type":"Type1","relatedObjectsIds":"75 76","attributes":""}
+OcelMergeAllocate {"objectId":"81","type":"Type1","relatedObjectsIds":"77 78","attributes":""}
+OcelMergeAllocate {"objectId":"82","type":"Type1","relatedObjectsIds":"79 80 81","attributes":""}
+OcelConsumeProduce {"objectId":"82","relatedObjectsIds":"83 84","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"85","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"86","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"87","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"88","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"89","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"90","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"91","type":"Type2","relatedObjectsIds":"85 86","attributes":""}
+OcelMergeAllocate {"objectId":"92","type":"Type2","relatedObjectsIds":"87 88","attributes":""}
+OcelMergeAllocate {"objectId":"93","type":"Type2","relatedObjectsIds":"89 90","attributes":""}
+OcelMergeAllocate {"objectId":"94","type":"Type1","relatedObjectsIds":"91 92 93","attributes":""}
+OcelConsumeProduce {"objectId":"94","relatedObjectsIds":"95 96","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"97","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"98","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"99","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"100","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"101","type":"Type1","attributes":""}
+OcelObjectAllocated {"objectId":"102","type":"Type1","attributes":""}
+OcelMergeAllocate {"objectId":"103","type":"Type1","relatedObjectsIds":"97 98","attributes":""}
+OcelMergeAllocate {"objectId":"104","type":"Type1","relatedObjectsIds":"99 100","attributes":""}
+OcelMergeAllocate {"objectId":"105","type":"Type1","relatedObjectsIds":"101 102","attributes":""}
+OcelMergeAllocate {"objectId":"106","type":"Type1","relatedObjectsIds":"103 104 105","attributes":""}
+OcelConsumeProduce {"objectId":"106","relatedObjectsIds":"107 108","relatedObjectsTypes":"Type3 Type2","attributes":""}
+OcelObjectAllocated {"objectId":"109","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"110","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"111","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"112","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"113","type":"Type2","attributes":""}
+OcelObjectAllocated {"objectId":"114","type":"Type2","attributes":""}
+OcelMergeAllocate {"objectId":"115","type":"Type2","relatedObjectsIds":"109 110","attributes":""}
+OcelMergeAllocate {"objectId":"116","type":"Type2","relatedObjectsIds":"111 112","attributes":""}
+OcelMergeAllocate {"objectId":"117","type":"Type2","relatedObjectsIds":"113 114","attributes":""}
+OcelMergeAllocate {"objectId":"118","type":"Type1","relatedObjectsIds":"115 116 117","attributes":""}
+OcelConsumeProduce {"objectId":"118","relatedObjectsIds":"119 120","relatedObjectsTypes":"Type3 Type2","attributes":""}
