@@ -1,12 +1,15 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::event_log::core::{
-  event_log::EventLog,
-  trace::trace::{Trace, TraceInfo},
+use crate::{
+  event_log::core::{
+    event_log::EventLog,
+    trace::trace::{Trace, TraceInfo},
+  },
+  features::analysis::log_info::{
+    event_log_info::{EventLogInfo, OfflineEventLogInfo},
+    log_info_creation_dto::EventLogInfoCreationDto,
+  },
 };
-use crate::features::analysis::log_info::event_log_info::EventLogInfo;
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
 
 pub fn calculate_max_vector_length<TLog>(log: &TLog, ignored_events: Option<&HashSet<String>>) -> usize
 where

@@ -1,6 +1,8 @@
 use crate::utils::hash_utils::compare_based_on_hashes;
-use std::collections::BTreeSet;
-use std::hash::{Hash, Hasher};
+use std::{
+  collections::BTreeSet,
+  hash::{Hash, Hasher},
+};
 
 #[derive(Debug)]
 pub struct TwoSets<T>
@@ -115,7 +117,7 @@ where
     let mut repr = String::new();
     repr.push('(');
 
-    let mut write_set = |set: &BTreeSet<T>, repr: &mut String| {
+    let write_set = |set: &BTreeSet<T>, repr: &mut String| {
       repr.push('{');
       for item in set {
         repr.push_str(item.to_string().as_str());

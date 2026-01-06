@@ -1,15 +1,22 @@
 use std::rc::Rc;
 
-use bxes::models::domain::bxes_artifact::{BxesArtifact, BxesArtifactItem};
-use bxes::models::domain::bxes_driver::{BxesDriver, BxesDrivers};
-use bxes::models::domain::bxes_log_metadata::BxesGlobalKind;
-use bxes::models::domain::bxes_value::BxesValue;
-use bxes::{models::domain::software_event_type::SoftwareEventType, read::read_utils::owned_string_or_err};
+use bxes::{
+  models::domain::{
+    bxes_artifact::{BxesArtifact, BxesArtifactItem},
+    bxes_driver::{BxesDriver, BxesDrivers},
+    bxes_log_metadata::BxesGlobalKind,
+    bxes_value::BxesValue,
+    software_event_type::SoftwareEventType,
+  },
+  read::read_utils::owned_string_or_err,
+};
 use chrono::{TimeZone, Utc};
 
-use crate::event_log::core::event::event::{EventPayloadArtifact, EventPayloadArtifactItem, EventPayloadSoftwareEventType};
 use crate::event_log::core::event::{
-  event::{EventPayloadDriver, EventPayloadDrivers, EventPayloadValue},
+  event::{
+    EventPayloadArtifact, EventPayloadArtifactItem, EventPayloadDriver, EventPayloadDrivers, EventPayloadSoftwareEventType,
+    EventPayloadValue,
+  },
   lifecycle::{braf_lifecycle::XesBrafLifecycle, standard_lifecycle::XesStandardLifecycle, xes_lifecycle::Lifecycle},
 };
 
@@ -80,7 +87,7 @@ pub(super) fn bxes_value_to_payload_value(value: &BxesValue) -> EventPayloadValu
 pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValue {
   match value {
     EventPayloadValue::Null => BxesValue::Null,
-    EventPayloadValue::Date(value) => BxesValue::Timestamp(value.timestamp_nanos()),
+    EventPayloadValue::Date(value) => BxesValue::Timestamp(value.timestamp_nanos_opt().expect("timestamp_nanos_opt")),
     EventPayloadValue::String(value) => BxesValue::String(value.clone()),
     EventPayloadValue::Boolean(value) => BxesValue::Bool(*value),
     EventPayloadValue::Int32(value) => BxesValue::Int32(*value),

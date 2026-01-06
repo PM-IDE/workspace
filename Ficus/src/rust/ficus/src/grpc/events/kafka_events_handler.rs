@@ -1,15 +1,18 @@
 use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult, ProcessCaseMetadata};
-use crate::ficus_proto::{
-  GrpcCaseName, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
+use crate::{
+  ficus_proto::{
+    GrpcCaseName, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
+  },
+  grpc::{events::utils::create_grpc_context_values, logs_handler::ConsoleLogMessageHandler},
+  pipelines::context::LogMessageHandler,
 };
-use crate::grpc::events::utils::create_grpc_context_values;
-use crate::grpc::logs_handler::ConsoleLogMessageHandler;
-use crate::pipelines::context::LogMessageHandler;
 use prost::Message;
-use rdkafka::error::KafkaError;
-use rdkafka::producer::{BaseProducer, BaseRecord};
-use rdkafka::util::Timeout;
-use rdkafka::ClientConfig;
+use rdkafka::{
+  error::KafkaError,
+  producer::{BaseProducer, BaseRecord},
+  util::Timeout,
+  ClientConfig,
+};
 use uuid::Uuid;
 
 pub struct PipelineEventsProducer {

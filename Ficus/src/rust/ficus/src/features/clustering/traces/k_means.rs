@@ -1,17 +1,22 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::features::clustering::error::ClusteringError;
-use crate::features::clustering::traces::common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels};
-use crate::features::clustering::traces::traces_params::TracesClusteringParams;
-use crate::utils::dataset::dataset::LabeledDataset;
-use crate::utils::distance::distance::DistanceWrapper;
+use crate::{
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::clustering::{
+    error::ClusteringError,
+    traces::{
+      common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels},
+      traces_params::TracesClusteringParams,
+    },
+  },
+  utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
+};
 use linfa::prelude::{Fit, Predict};
 use linfa_clustering::KMeans;
 
-pub fn clusterize_log_by_traces_kmeans_grid_search<TLog: EventLog>(
-  params: &mut TracesClusteringParams<TLog>,
+pub fn clusterize_log_by_traces_kmeans_grid_search(
+  params: &mut TracesClusteringParams,
   max_iterations_count: u64,
   tolerance: f64,
-) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
+) -> Result<(Vec<XesEventLogImpl>, LabeledDataset), ClusteringError> {
   do_clusterize_log_by_traces(params, |params, _, dataset| {
     let mut best_labels = BestSilhouetteLabels::new();
 

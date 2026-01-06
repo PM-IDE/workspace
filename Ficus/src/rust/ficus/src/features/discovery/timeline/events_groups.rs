@@ -1,11 +1,11 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent};
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::{
+  event_log::{core::event::event::Event, xes::xes_event::XesEventImpl},
+  features::discovery::timeline::discovery::{LogPoint, LogTimelineDiagram, TraceThread, TraceThreadEvent},
+  utils::user_data::user_data::UserDataImpl,
+};
 use fancy_regex::Regex;
 use getset::{Getters, MutGetters, Setters};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug, Clone)]
 pub struct TraceEventsGroup {

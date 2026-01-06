@@ -1,20 +1,28 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::log_info::event_log_info::EventLogInfo;
-use crate::features::discovery::alpha::alpha_set::AlphaSet;
-use crate::features::discovery::alpha::providers::alpha_plus_provider::AlphaPlusRelationsProvider;
-use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use crate::features::discovery::alpha::utils::maximize;
-use crate::features::discovery::petri_net::marking::{Marking, SingleMarking};
-use crate::features::discovery::petri_net::petri_net::{DefaultPetriNet, PetriNet};
-use crate::features::discovery::petri_net::place::Place;
-use crate::features::discovery::petri_net::transition::Transition;
-use crate::utils::user_data::keys::DefaultKey;
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+  features::{
+    analysis::log_info::event_log_info::EventLogInfo,
+    discovery::{
+      alpha::{
+        alpha_set::AlphaSet,
+        providers::{alpha_plus_provider::AlphaPlusRelationsProvider, alpha_provider::AlphaRelationsProvider},
+        utils::maximize,
+      },
+      petri_net::{
+        marking::{Marking, SingleMarking},
+        petri_net::{DefaultPetriNet, PetriNet},
+        place::Place,
+        transition::Transition,
+      },
+    },
+  },
+  utils::user_data::{keys::DefaultKey, user_data::UserData},
+};
 use once_cell::sync::Lazy;
-use std::collections::{HashMap, HashSet};
-use std::string::ToString;
+use std::{
+  collections::{HashMap, HashSet},
+  string::ToString,
+};
 
 pub static ALPHA_SET: Lazy<DefaultKey<AlphaSet>> = Lazy::new(|| DefaultKey::new("alpha_set".to_string()));
 

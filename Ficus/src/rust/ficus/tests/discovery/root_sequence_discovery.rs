@@ -1,10 +1,13 @@
-use ficus::features::discovery::root_sequence::context::DiscoveryContext;
-use ficus::features::discovery::root_sequence::discovery::discover_root_sequence_graph;
-use ficus::features::discovery::root_sequence::models::{EventWithUniqueId, RootSequenceKind};
-use ficus::features::discovery::root_sequence::root_sequence::discover_root_sequence;
-use ficus::utils::references::HeapedOrOwned;
-use ficus::utils::user_data::user_data::UserDataImpl;
-use ficus::vecs;
+use ficus::{
+  features::discovery::root_sequence::{
+    context::DiscoveryContext,
+    discovery::discover_root_sequence_graph,
+    models::{EventWithUniqueId, RootSequenceKind},
+    root_sequence::discover_root_sequence,
+  },
+  utils::{references::HeapedOrOwned, user_data::user_data::UserDataImpl},
+  vecs,
+};
 use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 #[test]

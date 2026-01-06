@@ -1,40 +1,43 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::multithreaded_dfg::dfg::MULTITHREAD_FRAGMENT_KEY;
-use crate::features::discovery::root_sequence::context_keys::EDGE_START_END_ACTIVITIES_TIMES_KEY;
-use crate::features::discovery::root_sequence::context_keys::EDGE_TRACE_EXECUTION_INFO_KEY;
-use crate::features::discovery::root_sequence::context_keys::NODE_SOFTWARE_DATA_KEY;
-use crate::features::discovery::root_sequence::context_keys::NODE_START_END_ACTIVITIES_TIMES_KEY;
-use crate::features::discovery::root_sequence::context_keys::{EDGE_SOFTWARE_DATA_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY};
-use crate::features::discovery::root_sequence::models::ActivityStartEndTimeData;
-use crate::features::discovery::root_sequence::models::EdgeTraceExecutionInfo;
-use crate::features::discovery::root_sequence::models::EventCoordinates;
-use crate::features::discovery::root_sequence::models::NodeAdditionalDataContainer;
-use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::software_data::extractors::activities_durations::ActivityDurationExtractor;
-use crate::features::discovery::timeline::software_data::extractors::core::{
-  EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
+use crate::{
+  event_log::{
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::discovery::{
+    multithreaded_dfg::dfg::MULTITHREADED_FRAGMENT_KEY,
+    root_sequence::{
+      context_keys::{
+        EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY,
+        NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
+      },
+      models::{ActivityStartEndTimeData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer},
+    },
+    timeline::{
+      events_groups::EventGroup,
+      software_data::{
+        extraction_config::SoftwareDataExtractionConfig,
+        extractors::{
+          activities_durations::ActivityDurationExtractor,
+          core::{EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError},
+          event_classes::EventClassesDataExtractor,
+          ocel::OcelDataExtractor,
+          pie_charts::PieChartExtractor,
+          simple_counter::SimpleCounterExtractor,
+        },
+        models::SoftwareData,
+      },
+      utils::get_stamp,
+    },
+  },
+  pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
+  utils::{
+    display_name::DISPLAY_NAME_KEY,
+    user_data::user_data::{UserData, UserDataOwner},
+    vec_utils::VectorOptionExtensions,
+  },
 };
-use crate::features::discovery::timeline::software_data::extractors::event_classes::EventClassesDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
-use crate::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
-use crate::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
-use crate::features::discovery::timeline::software_data::models::SoftwareData;
-use crate::features::discovery::timeline::utils::get_stamp;
-use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::errors::pipeline_errors::RawPartExecutionError;
-use crate::utils::display_name::DISPLAY_NAME_KEY;
-use crate::utils::user_data::user_data::UserData;
-use crate::utils::user_data::user_data::UserDataOwner;
-use crate::utils::vec_utils::VectorOptionExtensions;
 use log::error;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
@@ -158,7 +161,7 @@ fn put_node_user_data(
     .user_data_mut()
     .put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), vec![activity_start_end_time]);
 
-  if let Some(multithreaded_log) = event_group.user_data().concrete(MULTITHREAD_FRAGMENT_KEY.key()) {
+  if let Some(multithreaded_log) = event_group.user_data().concrete(MULTITHREADED_FRAGMENT_KEY.key()) {
     event.user_data_mut().put_concrete(
       NODE_MULTITHREADED_FRAGMENT_LOG_KEY.key(),
       vec![NodeAdditionalDataContainer::new(multithreaded_log.clone(), event_coordinates)],

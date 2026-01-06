@@ -1,24 +1,33 @@
-use crate::features::discovery::petri_net::annotations::PerformanceMap;
-use crate::features::discovery::root_sequence::adjustments::{
-  adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes,
+use crate::{
+  context_key,
+  features::discovery::{
+    petri_net::annotations::PerformanceMap,
+    root_sequence::{
+      adjustments::{adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes},
+      context::DiscoveryContext,
+      models::{DiscoverRootSequenceGraphError, EventWithUniqueId, RootSequenceKind},
+      root_sequence::discover_root_sequence,
+    },
+  },
+  utils::{
+    graph::{
+      graph::{DefaultGraph, GraphKind, NodesConnectionData},
+      graph_node::GraphNode,
+      graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY},
+    },
+    lcs::find_longest_common_subsequence,
+    references::HeapedOrOwned,
+    user_data::user_data::UserData,
+  },
 };
-use crate::features::discovery::root_sequence::context::DiscoveryContext;
-use crate::features::discovery::root_sequence::models::{DiscoverRootSequenceGraphError, EventWithUniqueId, RootSequenceKind};
-use crate::features::discovery::root_sequence::root_sequence::discover_root_sequence;
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::graph::graph::{DefaultGraph, GraphKind, NodesConnectionData};
-use crate::utils::graph::graph_node::GraphNode;
-use crate::utils::graph::graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY};
-use crate::utils::lcs::find_longest_common_subsequence;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserData;
 use lazy_static::lazy_static;
-use std::collections::{HashMap, VecDeque};
-use std::fmt::Debug;
+use std::{
+  collections::{HashMap, VecDeque},
+  fmt::Debug,
+};
 
-lazy_static! {
-  pub(super) static ref EVENT_UNIQUE_ID_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new("EVENT_UNIQUE_ID");
-}
+const EVENT_UNIQUE_ID: &'static str = "EVENT_UNIQUE_ID";
+context_key! { EVENT_UNIQUE_ID, Vec<u64> }
 
 #[derive(Debug)]
 pub struct RootSequenceGraphDiscoveryResult {

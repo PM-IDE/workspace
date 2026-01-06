@@ -8,11 +8,15 @@ use std::{
 use linfa::DatasetBase;
 use ndarray::Array2;
 
+use super::activities_params::{ActivitiesVisualizationParams, ActivityRepresentationSource};
 use crate::{
-  event_log::core::{
-    event::{event::Event, event_hasher::RegexEventHasher},
-    event_log::EventLog,
-    trace::trace::Trace,
+  event_log::{
+    core::{
+      event::{event::Event, event_hasher::RegexEventHasher},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::xes_event::XesEventImpl,
   },
   features::{
     analysis::patterns::{
@@ -27,13 +31,9 @@ use crate::{
   pipelines::aliases::TracesActivities,
 };
 
-use super::activities_params::{ActivitiesVisualizationParams, ActivityRepresentationSource};
-
 pub(super) type ActivityNodeWithCoords = Vec<(Rc<RefCell<ActivityNode>>, HashMap<String, usize>)>;
 
-pub fn create_dataset<TLog: EventLog>(
-  params: &ActivitiesVisualizationParams<TLog>,
-) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
+pub fn create_dataset(params: &ActivitiesVisualizationParams) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
   match params.activities_repr_source {
     ActivityRepresentationSource::EventClasses => create_dataset_from_activities_classes(params),
     ActivityRepresentationSource::SubTraces => create_dataset_from_activities_traces(params),
@@ -41,8 +41,8 @@ pub fn create_dataset<TLog: EventLog>(
   }
 }
 
-pub(super) fn create_dataset_from_activities_traces_underlying_events<TLog: EventLog>(
-  params: &ActivitiesVisualizationParams<TLog>,
+pub(super) fn create_dataset_from_activities_traces_underlying_events(
+  params: &ActivitiesVisualizationParams,
 ) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
   create_dataset_internal(
     params.traces_activities,
@@ -50,26 +50,25 @@ pub(super) fn create_dataset_from_activities_traces_underlying_events<TLog: Even
     |traces_activities, regex_hasher, all_event_classes| {
       Ok(create_activities_repr_from_subtraces(
         traces_activities,
-        regex_hasher,
         all_event_classes,
         params,
         |events, map, all_event_classes| {
           let mut sub_trace_events = vec![];
           for event in events {
-            for underlying_event in create_vector_of_underlying_events::<TLog>(event) {
+            for underlying_event in create_vector_of_underlying_events(event) {
               sub_trace_events.push(underlying_event);
             }
           }
 
-          update_event_classes::<TLog>(sub_trace_events.as_slice(), regex_hasher, all_event_classes, map)
+          update_event_classes(sub_trace_events.as_slice(), regex_hasher, all_event_classes, map)
         },
       ))
     },
   )
 }
 
-pub(super) fn create_dataset_from_activities_traces<TLog: EventLog>(
-  params: &ActivitiesVisualizationParams<TLog>,
+pub(super) fn create_dataset_from_activities_traces(
+  params: &ActivitiesVisualizationParams,
 ) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
   create_dataset_internal(
     params.traces_activities,
@@ -77,17 +76,16 @@ pub(super) fn create_dataset_from_activities_traces<TLog: EventLog>(
     |traces_activities, regex_hasher, all_event_classes| {
       Ok(create_activities_repr_from_subtraces(
         traces_activities,
-        regex_hasher,
         all_event_classes,
         params,
-        |events, map, all_event_classes| update_event_classes::<TLog>(events, regex_hasher, all_event_classes, map),
+        |events, map, all_event_classes| update_event_classes(events, regex_hasher, all_event_classes, map),
       ))
     },
   )
 }
 
-fn update_event_classes<TLog: EventLog>(
-  events: &[Rc<RefCell<<TLog as EventLog>::TEvent>>],
+fn update_event_classes(
+  events: &[Rc<RefCell<XesEventImpl>>],
   regex_hasher: Option<&RegexEventHasher>,
   all_event_classes: &mut HashSet<String>,
   map: &mut HashMap<String, usize>,
@@ -104,12 +102,11 @@ fn update_event_classes<TLog: EventLog>(
   }
 }
 
-fn create_activities_repr_from_subtraces<TLog: EventLog>(
+fn create_activities_repr_from_subtraces(
   traces_activities: &TracesActivities,
-  regex_hasher: Option<&RegexEventHasher>,
   all_event_classes: &mut HashSet<String>,
-  params: &ActivitiesVisualizationParams<TLog>,
-  event_classes_updater: impl Fn(&[Rc<RefCell<TLog::TEvent>>], &mut HashMap<String, usize>, &mut HashSet<String>) -> (),
+  params: &ActivitiesVisualizationParams,
+  event_classes_updater: impl Fn(&[Rc<RefCell<XesEventImpl>>], &mut HashMap<String, usize>, &mut HashSet<String>) -> (),
 ) -> HashMap<String, (Rc<RefCell<ActivityNode>>, HashMap<String, usize>)> {
   let mut processed = HashMap::new();
   for trace_activities in traces_activities.iter() {
@@ -204,8 +201,8 @@ fn create_dataset_internal(
   ))
 }
 
-pub(super) fn create_dataset_from_activities_classes<TLog: EventLog>(
-  params: &ActivitiesVisualizationParams<TLog>,
+pub(super) fn create_dataset_from_activities_classes(
+  params: &ActivitiesVisualizationParams,
 ) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
   create_dataset_internal(
     params.traces_activities,

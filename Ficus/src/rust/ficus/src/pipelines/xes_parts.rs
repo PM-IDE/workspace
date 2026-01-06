@@ -2,16 +2,23 @@ use super::{
   errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
   pipelines::PipelinePartFactory,
 };
-use crate::event_log::bxes::bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult};
-use crate::event_log::bxes::xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes};
-use crate::event_log::xes::logs_merger::merge_xes_logs;
-use crate::event_log::xes::reader::file_xes_log_reader::read_event_log_from_bytes;
-use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log_to_bytes;
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY};
-use crate::pipelines::pipeline_parts::PipelineParts;
 use crate::{
-  event_log::xes::{reader::file_xes_log_reader::read_event_log, writer::xes_event_log_writer::write_xes_log},
+  event_log::{
+    bxes::{
+      bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult},
+      xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes},
+    },
+    xes::{
+      logs_merger::merge_xes_logs,
+      reader::file_xes_log_reader::{read_event_log, read_event_log_from_bytes},
+      writer::xes_event_log_writer::{write_xes_log, write_xes_log_to_bytes},
+    },
+  },
+  pipelines::{
+    context::PipelineContext,
+    keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY},
+    pipeline_parts::PipelineParts,
+  },
   utils::user_data::user_data::UserData,
 };
 
@@ -27,7 +34,7 @@ impl PipelineParts {
   }
 
   pub(super) fn read_log_from_xes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::READ_LOG_FROM_XES, &|context, infra, _| {
+    Self::create_pipeline_part(Self::READ_LOG_FROM_XES, &|context, _, _| {
       let path = Self::get_user_data(context, &PATH_KEY)?;
 
       let log = read_event_log(path);
@@ -80,7 +87,7 @@ impl PipelineParts {
   }
 
   pub(super) fn read_xes_from_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, config| {
+    Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, _| {
       let bytes = Self::get_user_data(context, &BYTES_KEY)?;
       match read_event_log_from_bytes(bytes) {
         Some(log) => {
@@ -96,7 +103,7 @@ impl PipelineParts {
   }
 
   pub(super) fn read_bxes_from_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, config| {
+    Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, _| {
       let bytes = Self::get_user_data(context, &BYTES_KEY)?;
       match read_bxes_into_xes_log_from_bytes(bytes) {
         Ok(read_result) => {
@@ -112,7 +119,7 @@ impl PipelineParts {
   }
 
   pub(super) fn write_bxes_to_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::WRITE_BXES_LOG_TO_BYTES, &|context, _, config| {
+    Self::create_pipeline_part(Self::WRITE_BXES_LOG_TO_BYTES, &|context, _, _| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let system_metadata = match Self::get_user_data(context, &SYSTEM_METADATA_KEY) {
         Ok(metadata) => Some(metadata),
@@ -130,7 +137,7 @@ impl PipelineParts {
   }
 
   pub(super) fn write_xes_to_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::WRITE_XES_LOG_TO_BYTES, &|context, _, config| {
+    Self::create_pipeline_part(Self::WRITE_XES_LOG_TO_BYTES, &|context, _, _| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       match write_xes_log_to_bytes(log) {
         Ok(bytes) => {
@@ -143,7 +150,7 @@ impl PipelineParts {
   }
 
   pub(super) fn merge_xes_logs_from_paths() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::MERGE_XES_LOGS_FROM_PATHS, &|context, _, config| {
+    Self::create_pipeline_part(Self::MERGE_XES_LOGS_FROM_PATHS, &|context, _, _| {
       let paths = Self::get_user_data(context, &PATHS_KEY)?;
       let log = merge_xes_logs(paths);
 

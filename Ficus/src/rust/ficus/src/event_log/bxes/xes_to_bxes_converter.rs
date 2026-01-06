@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
 use crate::event_log::{
   core::{
     event::event::{Event, EventPayloadValue},
@@ -8,17 +9,21 @@ use crate::event_log::{
   },
   xes::{constants::EVENT_TAG_NAME_STR, shared::XesEventLogExtension, xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
 };
-use bxes::models::domain::bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant};
-use bxes::models::domain::bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal};
-use bxes::models::domain::bxes_value::BxesValue;
-use bxes::models::system_models::SystemMetadata;
-use bxes::writer::single_file_bxes_writer::write_bxes_to_bytes;
-use bxes::writer::writer_utils::BxesLogWriteData;
-use bxes::writer::{errors::BxesWriteError, single_file_bxes_writer::write_bxes};
-
-use crate::utils::user_data::user_data::UserDataOwner;
-
-use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
+use bxes::{
+  models::{
+    domain::{
+      bxes_event_log::{BxesEvent, BxesEventLog, BxesTraceVariant},
+      bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal},
+      bxes_value::BxesValue,
+    },
+    system_models::SystemMetadata,
+  },
+  writer::{
+    errors::BxesWriteError,
+    single_file_bxes_writer::{write_bxes, write_bxes_to_bytes},
+    writer_utils::BxesLogWriteData,
+  },
+};
 
 pub enum XesToBxesWriterError {
   BxesWriteError(BxesWriteError),
@@ -91,7 +96,7 @@ fn create_bxes_traces(log: &XesEventLogImpl) -> Vec<BxesTraceVariant> {
 fn create_bxes_event(log: &XesEventLogImpl, event: &XesEventImpl) -> BxesEvent {
   let bxes_event = BxesEvent {
     name: Rc::new(Box::new(BxesValue::String(event.name_pointer().clone()))),
-    timestamp: event.timestamp().timestamp_nanos(),
+    timestamp: event.timestamp().timestamp_nanos_opt().expect("timestamp_nanos_opt"),
     attributes: Some(
       event
         .ordered_payload()

@@ -8,12 +8,11 @@ use ficus::{
   vecs,
 };
 
-use crate::test_core::simple_events_logs_provider::create_long_repeats_trace;
 use crate::test_core::{
   gold_based_test::execute_test_with_gold,
   simple_events_logs_provider::{
-    create_max_repeats_trace_1, create_max_repeats_trace_2, create_max_repeats_trace_3, create_max_repeats_trace_4,
-    create_max_repeats_trace_5,
+    create_long_repeats_trace, create_max_repeats_trace_1, create_max_repeats_trace_2, create_max_repeats_trace_3,
+    create_max_repeats_trace_4, create_max_repeats_trace_5,
   },
   test_paths::{create_suffix_tree_gold_file_path, get_paths_to_suffix_tree_string},
 };

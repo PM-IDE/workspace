@@ -1,10 +1,13 @@
 use crate::test_core::simple_events_logs_provider::{annotate_log_with_real_time, create_simple_event_log2};
 use chrono::{Duration, Utc};
-use ficus::event_log::core::event_log::EventLog;
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
-use ficus::grpc::kafka::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration};
-use ficus::grpc::kafka::streaming::t1::filterers::{EventsTimeoutFiltererImpl, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl};
-use ficus::vecs;
+use ficus::{
+  event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
+  grpc::kafka::streaming::t1::{
+    configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration},
+    filterers::{EventsTimeoutFiltererImpl, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl},
+  },
+  vecs,
+};
 use std::ops::Sub;
 
 #[test]

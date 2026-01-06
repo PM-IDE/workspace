@@ -1,8 +1,10 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt::{Debug, Display, Formatter};
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
-use std::rc::Rc;
+use std::{
+  fmt::{Debug, Display, Formatter},
+  hash::{Hash, Hasher},
+  ops::Deref,
+  rc::Rc,
+};
 
 pub enum ReferenceOrOwned<'a, T> {
   Ref(&'a T),

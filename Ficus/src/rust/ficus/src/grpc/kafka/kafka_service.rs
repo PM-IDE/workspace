@@ -1,26 +1,38 @@
-use crate::ficus_proto::{
-  grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
-  GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest,
+use crate::{
+  ficus_proto::{
+    grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
+    GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest,
+  },
+  grpc::{
+    events::{
+      events_handler::{EmptyPipelineEventsHandler, PipelineEvent, PipelineEventsHandler, PipelineFinalResult},
+      kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer},
+    },
+    kafka::{
+      models::{KafkaConsumerCreationDto, PipelineExecutionDto},
+      streaming::{
+        configs::StreamingConfiguration,
+        processors::{KafkaTraceProcessingContext, TracesProcessor},
+      },
+    },
+    logs_handler::ConsoleLogMessageHandler,
+    pipeline_executor::ServicePipelineExecutionContext,
+  },
+  pipelines::{
+    context::LogMessageHandler,
+    errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
+    keys::context_keys::{PIPELINE_ID_KEY, PIPELINE_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY},
+    pipeline_parts::PipelineParts,
+  },
+  utils::user_data::user_data::UserData,
 };
-use crate::grpc::events::events_handler::{EmptyPipelineEventsHandler, PipelineEvent};
-use crate::grpc::events::events_handler::{PipelineEventsHandler, PipelineFinalResult};
-use crate::grpc::events::kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer};
-use crate::grpc::kafka::models::{KafkaConsumerCreationDto, PipelineExecutionDto};
-use crate::grpc::kafka::streaming::configs::StreamingConfiguration;
-use crate::grpc::kafka::streaming::processors::{KafkaTraceProcessingContext, TracesProcessor};
-use crate::grpc::logs_handler::ConsoleLogMessageHandler;
-use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
-use crate::pipelines::context::LogMessageHandler;
-use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{PIPELINE_ID, PIPELINE_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
 use log::error;
-use rdkafka::error::KafkaError;
-use rdkafka::ClientConfig;
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use rdkafka::{error::KafkaError, ClientConfig};
+use std::{
+  collections::HashMap,
+  sync::{Arc, Mutex},
+};
 use tonic::Status;
 use uuid::Uuid;
 
@@ -235,10 +247,10 @@ impl KafkaService {
           }
         };
 
-        context.put_concrete(SUBSCRIPTION_ID.key(), dto.uuid.clone());
-        context.put_concrete(PIPELINE_ID.key(), pipeline_id.clone());
-        context.put_concrete(SUBSCRIPTION_NAME.key(), dto.name.clone());
-        context.put_concrete(PIPELINE_NAME.key(), pipeline.name.clone());
+        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), dto.uuid.clone());
+        context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id.clone());
+        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), dto.name.clone());
+        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline.name.clone());
 
         Ok(())
       });

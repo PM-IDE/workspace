@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-use std::hash::Hash;
+use std::{collections::HashSet, hash::Hash};
 
 pub fn maximize<TElement: Hash + Eq + Clone>(
   elements: HashSet<TElement>,

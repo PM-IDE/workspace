@@ -1,12 +1,17 @@
 use crate::test_core::simple_events_logs_provider::{create_log_from_taxonomy_of_patterns, create_maximal_repeats_log};
-use ficus::event_log::core::event::event::Event;
-use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
-use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::{
-  event_log::core::{event::event_hasher::default_class_extractor, event_log::EventLog},
+  event_log::{
+    core::{
+      event::{event::Event, event_hasher::default_class_extractor},
+      event_log::EventLog,
+    },
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
+  },
   features::analysis::patterns::{
-    activity_instances::{create_activity_name, ActivityInTraceInfo, UndefActivityHandlingStrategy, UNDEF_ACTIVITY_NAME},
+    activity_instances::{
+      create_activity_name, ActivityInTraceFilterKind, ActivityInTraceInfo, ActivityNarrowingKind, UndefActivityHandlingStrategy,
+      UNDEF_ACTIVITY_NAME,
+    },
     contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext, PatternsDiscoveryStrategy},
     entry_points::{create_logs_for_activities, discover_activities_and_create_new_log, discover_activities_instances, PatternsKind},
   },

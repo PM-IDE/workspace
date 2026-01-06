@@ -1,8 +1,9 @@
-use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::COLORS_HOLDER_KEY;
-use crate::utils::{
-  colors::ColorsHolder,
-  user_data::user_data::{UserData, UserDataImpl},
+use crate::{
+  pipelines::{context::PipelineInfrastructure, keys::context_keys::COLORS_HOLDER_KEY},
+  utils::{
+    colors::ColorsHolder,
+    user_data::user_data::{UserData, UserDataImpl},
+  },
 };
 
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError};

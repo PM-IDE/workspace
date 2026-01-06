@@ -3,18 +3,16 @@ use linfa_clustering::Dbscan;
 use linfa_nn::KdTree;
 
 use super::{activities_common::create_dataset, activities_params::ActivitiesClusteringParams, merging::merge_activities};
-use crate::features::clustering::common::adjust_dbscan_labels;
 use crate::{
-  event_log::core::event_log::EventLog,
   features::clustering::{
-    common::{create_colors_vector, transform_to_ficus_dataset},
+    common::{adjust_dbscan_labels, create_colors_vector, transform_to_ficus_dataset},
     error::ClusteringResult,
   },
   utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
 };
 
-pub fn clusterize_activities_dbscan<TLog: EventLog>(
-  params: &mut ActivitiesClusteringParams<TLog>,
+pub fn clusterize_activities_dbscan(
+  params: &mut ActivitiesClusteringParams,
   min_points: usize,
   put_noise_events_in_one_cluster: bool,
 ) -> ClusteringResult {

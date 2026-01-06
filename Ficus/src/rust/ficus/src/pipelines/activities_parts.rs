@@ -1,51 +1,47 @@
-use super::errors::pipeline_errors::RawPartExecutionError;
 use super::{
   aliases::TracesActivities,
   context::PipelineContext,
-  errors::pipeline_errors::PipelinePartExecutionError,
+  errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
   pipelines::{DefaultPipelinePart, PipelinePart, PipelinePartFactory},
 };
-use crate::event_log::bxes::xes_to_bxes_converter::write_event_log_to_bxes;
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::writer::xes_event_log_writer::write_xes_log;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::analysis::log_info::event_log_info::count_events;
-use crate::features::analysis::patterns::activity_instances;
-use crate::features::analysis::patterns::activity_instances::{
-  extract_activities_instances_strict, substitute_underlying_events, ActivitiesLogSource, UNDEF_ACTIVITY_NAME,
-};
-use crate::features::analysis::patterns::pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY};
-use crate::pipelines::context::PipelineInfrastructure;
-use crate::pipelines::keys::context_keys::{
-  ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY, ADJUSTING_MODE_KEY,
-  DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY, EVENTS_COUNT_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY, EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY,
-  HASHES_EVENT_LOG_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY, NARROW_ACTIVITIES_KEY, PATH_KEY,
-  PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEXES_KEY, REGEX_KEY, REPEAT_SETS_KEY,
-  TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
-};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
   event_log::{
-    core::event_log::EventLog,
-    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
+    bxes::xes_to_bxes_converter::write_event_log_to_bxes,
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::{writer::xes_event_log_writer::write_xes_log, xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
   },
-  features::analysis::patterns::{
-    activity_instances::{
-      add_unattached_activities, count_underlying_events, create_activity_name, create_log_from_unattached_events,
-      create_new_log_from_activities_instances, extract_activities_instances, ActivityInTraceInfo, AdjustingMode, SubTraceKind,
-      UndefActivityHandlingStrategy,
+  features::analysis::{
+    log_info::event_log_info::count_events,
+    patterns::{
+      activity_instances,
+      activity_instances::{
+        add_unattached_activities, count_underlying_events, create_activity_name, create_log_from_unattached_events,
+        create_new_log_from_activities_instances, extract_activities_instances, extract_activities_instances_strict,
+        substitute_underlying_events, ActivitiesLogSource, ActivityInTraceInfo, AdjustingMode, SubTraceKind, UndefActivityHandlingStrategy,
+        UNDEF_ACTIVITY_NAME,
+      },
+      pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY},
+      repeat_sets::{build_repeat_set_tree_from_repeats, build_repeat_sets},
     },
-    repeat_sets::{build_repeat_set_tree_from_repeats, build_repeat_sets},
   },
-  utils::user_data::user_data::{UserData, UserDataImpl},
+  pipelines::{
+    context::PipelineInfrastructure,
+    keys::context_keys::{
+      ACTIVITIES_KEY, ACTIVITIES_LOGS_SOURCE_KEY, ACTIVITY_IN_TRACE_FILTER_KIND_KEY, ACTIVITY_LEVEL_KEY, ACTIVITY_NAME_KEY,
+      ADJUSTING_MODE_KEY, DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY, EVENTS_COUNT_KEY, EVENT_CLASS_REGEX_KEY, EVENT_LOG_KEY,
+      EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY, HASHES_EVENT_LOG_KEY, LOG_SERIALIZATION_FORMAT_KEY, MIN_ACTIVITY_LENGTH_KEY,
+      NARROW_ACTIVITIES_KEY, PATH_KEY, PATTERNS_DISCOVERY_STRATEGY_KEY, PATTERNS_KEY, PATTERNS_KIND_KEY, PIPELINE_KEY, REGEXES_KEY,
+      REGEX_KEY, REPEAT_SETS_KEY, TRACE_ACTIVITIES_KEY, UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY, UNDERLYING_EVENTS_COUNT_KEY,
+    },
+    pipeline_parts::PipelineParts,
+  },
+  utils::{
+    log_serialization_format::LogSerializationFormat,
+    user_data::user_data::{UserData, UserDataImpl},
+  },
 };
 use chrono::TimeDelta;
-use std::collections::HashMap;
-use std::path::Path;
-use std::str::FromStr;
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, path::Path, rc::Rc, str::FromStr};
 
 pub enum UndefActivityHandlingStrategyDto {
   DontInsert,
@@ -271,7 +267,7 @@ impl PipelineParts {
   }
 
   pub(super) fn discover_activities_in_unattached_subtraces() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_ACTIVITIES_IN_UNATTACHED_SUBTRACES, &|context, infra, config| {
+    Self::create_pipeline_part(Self::DISCOVER_ACTIVITIES_IN_UNATTACHED_SUBTRACES, &|context, _, config| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let mut existing_activities = &Self::create_empty_activities(log);
 
@@ -316,7 +312,7 @@ impl PipelineParts {
       activities.push(vec![]);
     }
 
-    return activities;
+    activities
   }
 
   pub(super) fn clear_activities_related_stuff() -> (String, PipelinePartFactory) {
@@ -464,7 +460,7 @@ impl PipelineParts {
       for trace in log.traces() {
         let mut new_trace = XesTraceImpl::empty();
         for event in trace.borrow().events() {
-          substitute_underlying_events::<XesEventLogImpl>(event, &mut new_trace);
+          substitute_underlying_events(event, &mut new_trace);
         }
 
         new_log.push(Rc::new(RefCell::new(new_trace)));
@@ -518,7 +514,7 @@ impl PipelineParts {
   }
 
   pub(super) fn serialize_activities_logs() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::SERIALIZE_ACTIVITIES_LOGS, &|context, infra, config| {
+    Self::create_pipeline_part(Self::SERIALIZE_ACTIVITIES_LOGS, &|context, _, config| {
       let logs_to_activities = Self::create_activities_to_logs(context, config)?;
       let path = Path::new(Self::get_user_data(config, &PATH_KEY)?);
       let format = Self::get_user_data(config, &LOG_SERIALIZATION_FORMAT_KEY)?;
@@ -547,7 +543,7 @@ impl PipelineParts {
   }
 
   pub(super) fn reverse_hierarchy_indices() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::REVERSE_HIERARCHY_INDICES, &|context, infra, config| {
+    Self::create_pipeline_part(Self::REVERSE_HIERARCHY_INDICES, &|context, _, _| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
 
       const HIERARCHY_LEVEL: &str = "hierarchy_level_";

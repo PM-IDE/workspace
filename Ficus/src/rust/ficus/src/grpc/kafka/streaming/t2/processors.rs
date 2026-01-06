@@ -1,19 +1,26 @@
-use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::ficus_proto::GrpcPipeline;
-use crate::grpc::kafka::models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError};
-use crate::grpc::kafka::streaming::processors::KafkaTraceProcessingContext;
-use crate::grpc::kafka::streaming::t2::dfg_data_structures::DfgDataStructures;
-use crate::grpc::pipeline_executor::ServicePipelineExecutionContext;
-use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
-use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
-use crate::pipelines::pipelines::PipelinePart;
-use crate::utils::user_data::user_data::UserData;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use crate::{
+  event_log::{bxes::bxes_to_xes_converter::read_bxes_events, core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
+  ficus_proto::GrpcPipeline,
+  grpc::{
+    kafka::{
+      models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError},
+      streaming::{processors::KafkaTraceProcessingContext, t2::dfg_data_structures::DfgDataStructures},
+    },
+    pipeline_executor::ServicePipelineExecutionContext,
+  },
+  pipelines::{
+    context::{PipelineContext, PipelineInfrastructure},
+    keys::context_keys::EVENT_LOG_KEY,
+    pipelines::PipelinePart,
+  },
+  utils::user_data::user_data::UserData,
+};
+use std::{
+  cell::RefCell,
+  rc::Rc,
+  sync::{Arc, Mutex},
+  time::Duration,
+};
 
 #[derive(Clone)]
 pub struct T2StreamingProcessor {

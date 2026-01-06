@@ -1,31 +1,45 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event::event_hasher::RegexEventHasher;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::patterns::activity_instances::{
-  create_vector_of_immediate_underlying_events, create_vector_of_underlying_events,
+use crate::{
+  event_log::{
+    core::{
+      event::{event::Event, event_hasher::RegexEventHasher},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::{
+    analysis::patterns::activity_instances::{create_vector_of_immediate_underlying_events, create_vector_of_underlying_events},
+    clustering::{
+      common::{create_colors_vector, scale_raw_dataset_min_max, transform_to_ficus_dataset, MyDataset},
+      error::ClusteringError,
+      traces::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource},
+    },
+  },
+  utils::{
+    dataset::dataset::LabeledDataset,
+    distance::distance::{DistanceWrapper, FicusDistance},
+    silhouette::silhouette_score,
+  },
 };
-use crate::features::clustering::common::{create_colors_vector, scale_raw_dataset_min_max, transform_to_ficus_dataset, MyDataset};
-use crate::features::clustering::error::ClusteringError;
-use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource};
-use crate::utils::dataset::dataset::LabeledDataset;
-use crate::utils::distance::distance::{DistanceWrapper, FicusDistance};
-use crate::utils::silhouette::silhouette_score;
 use getset::Getters;
 use linfa::DatasetBase;
-use linfa_nn::distance::Distance;
-use linfa_nn::CommonNearestNeighbour;
-use linfa_nn::CommonNearestNeighbour::{KdTree, LinearSearch};
+use linfa_nn::{
+  distance::Distance,
+  CommonNearestNeighbour,
+  CommonNearestNeighbour::{KdTree, LinearSearch},
+};
 use log::warn;
-use ndarray::{Array1, Array2};
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use ndarray::Array2;
+use std::{
+  cell::RefCell,
+  collections::{HashMap, HashSet},
+  rc::Rc,
+};
 
-pub fn do_clusterize_log_by_traces<TLog: EventLog>(
-  params: &mut TracesClusteringParams<TLog>,
-  clustering_func: impl Fn(&mut TracesClusteringParams<TLog>, CommonNearestNeighbour, &MyDataset) -> Result<Vec<usize>, ClusteringError>,
-) -> Result<(Vec<TLog>, LabeledDataset), ClusteringError> {
+pub fn do_clusterize_log_by_traces(
+  params: &mut TracesClusteringParams,
+  clustering_func: impl Fn(&mut TracesClusteringParams, CommonNearestNeighbour, &MyDataset) -> Result<Vec<usize>, ClusteringError>,
+) -> Result<(Vec<XesEventLogImpl>, LabeledDataset), ClusteringError> {
   let class_extractor = params.vis_params.class_extractor.as_ref();
   let traces_dataset = create_traces_dataset(
     params.vis_params.log,
@@ -46,13 +60,13 @@ pub fn do_clusterize_log_by_traces<TLog: EventLog>(
 
   let ficus_dataset = transform_to_ficus_dataset(&dataset, objects, features);
 
-  let mut new_logs: HashMap<usize, TLog> = HashMap::new();
+  let mut new_logs: HashMap<usize, XesEventLogImpl> = HashMap::new();
   for (trace, label) in params.vis_params.log.traces().iter().zip(&labels) {
     let trace_copy = trace.borrow().clone();
     if let Some(cluster_log) = new_logs.get_mut(label) {
       cluster_log.push(Rc::new(RefCell::new(trace_copy)));
     } else {
-      let mut cluster_log = TLog::empty();
+      let mut cluster_log = XesEventLogImpl::empty();
       cluster_log.push(Rc::new(RefCell::new(trace_copy)));
 
       new_logs.insert(label.to_owned(), cluster_log);
@@ -65,8 +79,8 @@ pub fn do_clusterize_log_by_traces<TLog: EventLog>(
   Ok((new_logs, LabeledDataset::new(ficus_dataset, labels, colors)))
 }
 
-fn create_traces_dataset<TLog: EventLog>(
-  log: &TLog,
+fn create_traces_dataset(
+  log: &XesEventLogImpl,
   distance: &FicusDistance,
   class_extractor: Option<&String>,
   feature_count_kind: FeatureCountKind,
@@ -82,27 +96,24 @@ fn create_traces_dataset<TLog: EventLog>(
   }
 }
 
-fn create_traces_dataset_default<TLog: EventLog>(
-  log: &TLog,
+fn create_traces_dataset_default(
+  log: &XesEventLogImpl,
   class_extractor: Option<&String>,
   feature_count_kind: FeatureCountKind,
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
   create_traces_dataset_default_internal(log, class_extractor, feature_count_kind, |trace| {
-    create_trace_representation::<TLog>(trace, trace_repr_source)
+    create_trace_representation(trace, trace_repr_source)
   })
 }
 
-fn create_trace_representation<TLog: EventLog>(
-  trace: &TLog::TTrace,
-  trace_repr_source: &TracesRepresentationSource,
-) -> Vec<Rc<RefCell<TLog::TEvent>>> {
+fn create_trace_representation(trace: &XesTraceImpl, trace_repr_source: &TracesRepresentationSource) -> Vec<Rc<RefCell<XesEventImpl>>> {
   match trace_repr_source {
     TracesRepresentationSource::Events => trace.events().clone(),
     TracesRepresentationSource::UnderlyingEvents => {
       let mut events = vec![];
       for event in trace.events() {
-        for event in create_vector_of_immediate_underlying_events::<TLog>(event) {
+        for event in create_vector_of_immediate_underlying_events(event) {
           events.push(event);
         }
       }
@@ -112,7 +123,7 @@ fn create_trace_representation<TLog: EventLog>(
     TracesRepresentationSource::DeepestUnderlyingEvents => {
       let mut events = vec![];
       for event in trace.events() {
-        for underlying_event in create_vector_of_underlying_events::<TLog>(event) {
+        for underlying_event in create_vector_of_underlying_events(event) {
           events.push(underlying_event);
         }
       }
@@ -204,14 +215,12 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
   ))
 }
 
-fn create_traces_dataset_levenshtein<TLog: EventLog>(
-  log: &TLog,
+fn create_traces_dataset_levenshtein(
+  log: &XesEventLogImpl,
   class_extractor: Option<&String>,
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
-  create_traces_dataset_levenshtein_internal(log, class_extractor, |trace| {
-    create_trace_representation::<TLog>(trace, trace_repr_source)
-  })
+  create_traces_dataset_levenshtein_internal(log, class_extractor, |trace| create_trace_representation(trace, trace_repr_source))
 }
 
 fn create_traces_dataset_levenshtein_internal<TLog: EventLog>(

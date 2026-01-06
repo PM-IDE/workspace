@@ -1,8 +1,11 @@
-use crate::event_log::core::event::event::{Event, EventPayloadValue};
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::extraction_config::NameCreationStrategy;
-use crate::features::discovery::timeline::software_data::extractors::core::SoftwareDataExtractionError;
-use crate::utils::references::HeapedOrOwned;
+use crate::{
+  event_log::{
+    core::event::event::{Event, EventPayloadValue},
+    xes::xes_event::XesEventImpl,
+  },
+  features::discovery::timeline::software_data::{extraction_config::NameCreationStrategy, extractors::core::SoftwareDataExtractionError},
+  utils::references::HeapedOrOwned,
+};
 use fancy_regex::Regex;
 use std::collections::HashMap;
 

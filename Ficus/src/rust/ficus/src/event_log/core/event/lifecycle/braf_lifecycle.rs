@@ -1,6 +1,5 @@
-use std::{collections::HashMap, ops::Deref, str::FromStr};
-
 use once_cell::sync::Lazy;
+use std::{collections::HashMap, fmt::Display, ops::Deref, str::FromStr};
 
 use crate::utils::hash_map_utils::reverse_map;
 
@@ -49,7 +48,7 @@ const OPEN_RUNNING: &'static str = "Open.Running";
 const OPEN_RUNNING_INPROGRESS: &'static str = "Open.Running.InProgress";
 const OPEN_RUNNING_SUSPENDED: &'static str = "Open.Running.Suspended";
 
-static strings_to_lifecycle: Lazy<HashMap<&'static str, XesBrafLifecycle>> = Lazy::new(|| {
+static STRINGS_TO_LIFECYCLE: Lazy<HashMap<&'static str, XesBrafLifecycle>> = Lazy::new(|| {
   HashMap::from_iter(vec![
     (UNSPECIFIED, XesBrafLifecycle::Unspecified),
     (CLOSED, XesBrafLifecycle::Closed),
@@ -80,11 +79,11 @@ static strings_to_lifecycle: Lazy<HashMap<&'static str, XesBrafLifecycle>> = Laz
   ])
 });
 
-static lifecycle_to_strings: Lazy<HashMap<XesBrafLifecycle, &'static str>> = Lazy::new(|| reverse_map(strings_to_lifecycle.deref()));
+static LIFECYCLE_TO_STRINGS: Lazy<HashMap<XesBrafLifecycle, &'static str>> = Lazy::new(|| reverse_map(STRINGS_TO_LIFECYCLE.deref()));
 
-impl ToString for XesBrafLifecycle {
-  fn to_string(&self) -> String {
-    lifecycle_to_strings.get(&self).unwrap().to_string()
+impl Display for XesBrafLifecycle {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", LIFECYCLE_TO_STRINGS.get(&self).unwrap().to_string())
   }
 }
 
@@ -92,7 +91,7 @@ impl FromStr for XesBrafLifecycle {
   type Err = ();
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    if let Some(lifecycle) = strings_to_lifecycle.get(s) {
+    if let Some(lifecycle) = STRINGS_TO_LIFECYCLE.get(s) {
       Ok(*lifecycle)
     } else {
       Err(())

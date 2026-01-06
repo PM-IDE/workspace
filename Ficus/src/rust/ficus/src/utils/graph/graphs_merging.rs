@@ -1,10 +1,13 @@
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::graph::graph::{Graph, NodesConnectionData};
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  context_key,
+  utils::{
+    graph::graph::{Graph, NodesConnectionData},
+    user_data::user_data::UserData,
+  },
+};
 use enum_display_derive::Display;
 use lazy_static::lazy_static;
-use std::collections::HashMap;
-use std::fmt::{Debug, Display};
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Display)]
 pub enum GraphsMergingError {
@@ -15,10 +18,8 @@ pub enum GraphsMergingError {
 const START_NODE_ID: &'static str = "START_NODE_ID";
 const END_NODE_ID: &'static str = "END_NODE_ID";
 
-lazy_static! {
-  pub static ref START_NODE_ID_KEY: DefaultContextKey<u64> = DefaultContextKey::new(START_NODE_ID);
-  pub static ref END_NODE_ID_KEY: DefaultContextKey<u64> = DefaultContextKey::new(END_NODE_ID);
-}
+context_key! { START_NODE_ID, u64 }
+context_key! { END_NODE_ID, u64 }
 
 pub fn merge_graphs<TNodeData: Display + Clone, TEdgeData: Display + Clone>(
   graphs: &Vec<Graph<TNodeData, TEdgeData>>,

@@ -1,14 +1,15 @@
-use crate::features::discovery::root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY;
-use crate::features::discovery::timeline::software_data::models::OcelObjectAction;
-use crate::utils::graph::graph::DefaultGraph;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  features::discovery::{root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
+  utils::{graph::graph::DefaultGraph, references::HeapedOrOwned, user_data::user_data::UserData},
+};
 use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::Getters;
 use lazy_static::lazy_static;
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::rc::Rc;
+use std::{
+  collections::{HashMap, HashSet, VecDeque},
+  rc::Rc,
+};
 
 #[derive(new, Getters)]
 pub struct OcelAnnotation {
@@ -111,7 +112,7 @@ pub struct OcelObjectRelations {
   #[get = "pub"]
   from_element_id: u64,
   #[get = "pub"]
-  related_objects_ids: Vec<HeapedOrOwned<String>>
+  related_objects_ids: Vec<HeapedOrOwned<String>>,
 }
 
 lazy_static! {
@@ -213,7 +214,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
                   let obj_type = produced_obj.r#type().as_ref().unwrap_or(&fallback_type);
                   let id = produced_obj.id();
                   new_node_state.add_allocated_object(obj_type.clone(), id.clone())?;
-                  
+
                   let relations = OcelObjectRelations::new(id.clone(), **incoming_node, vec![obj_id.clone()]);
                   new_node_objects_relations.push(relations);
                 }

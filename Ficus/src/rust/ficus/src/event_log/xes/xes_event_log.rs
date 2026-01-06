@@ -5,14 +5,17 @@ use super::{
   xes_trace::XesTraceImpl,
 };
 
-use crate::event_log::core::{
-  event::{event::EventPayloadValue, event_hasher::EventHasher, events_holder::EventSequenceInfo},
-  event_log::EventLog,
-  trace::traces_holder::EventLogBase,
+use crate::{
+  event_log::core::{
+    event::{event::EventPayloadValue, event_hasher::EventHasher, events_holder::EventSequenceInfo},
+    event_log::EventLog,
+    trace::traces_holder::EventLogBase,
+  },
+  utils::{
+    user_data::user_data::{UserDataImpl, UserDataOwner},
+    vec_utils,
+  },
 };
-use crate::utils::user_data::user_data::UserDataImpl;
-use crate::utils::user_data::user_data::UserDataOwner;
-use crate::utils::vec_utils;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 pub struct XesEventLogImpl {

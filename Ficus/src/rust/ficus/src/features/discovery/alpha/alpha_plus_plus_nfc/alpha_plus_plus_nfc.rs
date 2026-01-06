@@ -1,20 +1,23 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
-use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::features::discovery::alpha::alpha::{
-  discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop, ALPHA_SET,
+use crate::{
+  event_log::core::event_log::EventLog,
+  features::{
+    analysis::log_info::{
+      event_log_info::{EventLogInfo, OfflineEventLogInfo},
+      log_info_creation_dto::EventLogInfoCreationDto,
+    },
+    discovery::{
+      alpha::{
+        alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop, ALPHA_SET},
+        alpha_plus_plus_nfc::{alpha_plus_plus_nfc_triple::AlphaPlusPlusNfcTriple, extended_alpha_set::ExtendedAlphaSet, w3_pair::W3Pair},
+        providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider,
+        utils::maximize,
+      },
+      petri_net::{petri_net::DefaultPetriNet, place::Place, transition::Transition},
+      relations::triangle_relation::{OfflineTriangleRelation, TriangleRelation},
+    },
+  },
+  utils::{sets::two_sets::TwoSets, user_data::user_data::UserData},
 };
-use crate::features::discovery::alpha::alpha_plus_plus_nfc::alpha_plus_plus_nfc_triple::AlphaPlusPlusNfcTriple;
-use crate::features::discovery::alpha::alpha_plus_plus_nfc::extended_alpha_set::ExtendedAlphaSet;
-use crate::features::discovery::alpha::alpha_plus_plus_nfc::w3_pair::W3Pair;
-use crate::features::discovery::alpha::providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider;
-use crate::features::discovery::alpha::utils::maximize;
-use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::petri_net::place::Place;
-use crate::features::discovery::petri_net::transition::Transition;
-use crate::features::discovery::relations::triangle_relation::{OfflineTriangleRelation, TriangleRelation};
-use crate::utils::sets::two_sets::TwoSets;
-use crate::utils::user_data::user_data::UserData;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> DefaultPetriNet {

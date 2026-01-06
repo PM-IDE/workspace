@@ -1,26 +1,24 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extraction_config::{
-  ActivityDurationExtractionConfig, SoftwareDataExtractionConfig, TimeAttributeConfig,
+use crate::{
+  event_log::{core::event::event::Event, xes::xes_event::XesEventImpl},
+  features::discovery::timeline::{
+    events_groups::EventGroup,
+    software_data::{
+      extraction_config::{ActivityDurationExtractionConfig, SoftwareDataExtractionConfig, TimeAttributeConfig},
+      extractors::{
+        core::{EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError},
+        utils::RegexParingResult,
+      },
+      models::{ActivityDurationData, DurationKind, GenericEnhancementBase, SoftwareData},
+    },
+    utils::get_stamp,
+  },
+  utils::{references::HeapedOrOwned, vec_utils::VectorOptionExtensions},
 };
-use crate::features::discovery::timeline::software_data::extractors::core::{
-  EventGroupTraceSoftwareDataExtractor, SoftwareDataExtractionError,
-};
-use crate::features::discovery::timeline::software_data::extractors::utils::RegexParingResult;
-use crate::features::discovery::timeline::software_data::models::{
-  ActivityDurationData, DurationKind, GenericEnhancementBase, SoftwareData,
-};
-use crate::features::discovery::timeline::utils::get_stamp;
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::vec_utils::VectorOptionExtensions;
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::Getters;
 use log::error;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
@@ -53,7 +51,7 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
   }
 }
 
-fn create_configs(config: &SoftwareDataExtractionConfig) -> Configs {
+fn create_configs(config: &SoftwareDataExtractionConfig) -> Configs<'_> {
   config
     .activities_duration_configs()
     .iter()

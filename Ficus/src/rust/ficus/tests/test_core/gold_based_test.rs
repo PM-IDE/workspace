@@ -1,5 +1,4 @@
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 pub fn execute_test_with_gold<T>(gold_file_path: PathBuf, test_func: T)
 where

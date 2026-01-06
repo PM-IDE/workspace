@@ -1,10 +1,9 @@
 use std::{cell::RefCell, ops::Deref, rc::Rc};
 
-use ficus::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
 use ficus::{
   event_log::core::event::event_hasher::default_class_extractor,
   features::analysis::patterns::{
-    activity_instances::create_activity_name,
+    activity_instances::{create_activity_name, ActivityInTraceFilterKind, ActivityNarrowingKind},
     contexts::{ActivitiesDiscoveryContext, PatternsDiscoveryContext, PatternsDiscoveryStrategy},
     entry_points::{build_repeat_set_tree, find_repeats, PatternsKind},
     repeat_sets::{ActivityNode, SubArrayWithTraceIndex},

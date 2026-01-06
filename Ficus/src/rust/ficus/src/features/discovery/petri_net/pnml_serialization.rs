@@ -1,13 +1,12 @@
-use crate::features::discovery::petri_net::arc::Arc;
-use crate::features::discovery::petri_net::petri_net::PetriNet;
-use crate::features::discovery::petri_net::place::Place;
-use crate::features::discovery::petri_net::transition::Transition;
-use crate::utils::xml_utils::{StartEndElementCookie, XmlWriteError};
-use quick_xml::events::{BytesText, Event};
-use quick_xml::Writer;
-use std::cell::RefCell;
-use std::fs;
-use std::io::Cursor;
+use crate::{
+  features::discovery::petri_net::{arc::Arc, petri_net::PetriNet, place::Place, transition::Transition},
+  utils::xml_utils::{StartEndElementCookie, XmlWriteError},
+};
+use quick_xml::{
+  events::{BytesText, Event},
+  Writer,
+};
+use std::{cell::RefCell, fs, io::Cursor};
 
 const PNML_TAG_NAME: &'static str = "pnml";
 const TRANSITION_TAG_NAME: &'static str = "transition";
@@ -161,7 +160,7 @@ where
   TTransitionData: ToString,
 {
   let incoming_arcs = patch_arcs_list(transition.incoming_arcs(), use_names_as_ids, |arc| {
-    create_arc_name::<TArcData>(
+    create_arc_name(
       create_place_id(net.place(&arc.place_id()), use_names_as_ids),
       create_transition_id(transition, use_names_as_ids),
     )
@@ -217,7 +216,7 @@ where
   TTransitionData: ToString,
 {
   let outgoing_arcs = patch_arcs_list(transition.outgoing_arcs(), use_names_as_ids, |arc| {
-    create_arc_name::<TArcData>(
+    create_arc_name(
       create_transition_id(transition, use_names_as_ids),
       create_place_id(net.place(&arc.place_id()), use_names_as_ids),
     )
@@ -258,6 +257,6 @@ where
   }
 }
 
-fn create_arc_name<TArcData>(from_name: String, to_name: String) -> String {
+fn create_arc_name(from_name: String, to_name: String) -> String {
   format!("[{{{}}}--{{{}}}]", from_name, to_name)
 }

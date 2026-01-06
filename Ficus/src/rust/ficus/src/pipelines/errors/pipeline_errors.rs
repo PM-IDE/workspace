@@ -1,6 +1,7 @@
-use std::error::Error;
-use std::fmt::Debug;
-use std::fmt::{Display, Formatter};
+use std::{
+  error::Error,
+  fmt::{Debug, Display, Formatter},
+};
 
 #[derive(Debug)]
 pub enum PipelinePartExecutionError {

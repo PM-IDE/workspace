@@ -1,48 +1,51 @@
-use std::ops::Deref;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use crate::features::analysis::patterns::activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind};
-use crate::features::clustering::activities::activities_params::ActivityRepresentationSource;
-use crate::features::clustering::traces::traces_params::TracesRepresentationSource;
-use crate::features::discovery::ocel::graph_annotation::OcelAnnotation;
-use crate::features::discovery::petri_net::annotations::TimeAnnotationKind;
-use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::root_sequence::models::RootSequenceKind;
-use crate::features::discovery::timeline::discovery::LogTimelineDiagram;
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::grpc::events::events_handler::CaseName;
-use crate::pipelines::activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto};
-use crate::pipelines::multithreading::FeatureCountKindDto;
-use crate::pipelines::patterns_parts::PatternsKindDto;
-use crate::utils::colors::ColorsEventLog;
-use crate::utils::context_key::{ContextKey, DefaultContextKey};
-use crate::utils::dataset::dataset::{FicusDataset, LabeledDataset};
-use crate::utils::distance::distance::FicusDistance;
-use crate::utils::graph::graph::DefaultGraph;
-use crate::utils::log_serialization_format::LogSerializationFormat;
 use crate::{
   event_log::xes::xes_event_log::XesEventLogImpl,
-  features::analysis::patterns::{
-    activity_instances::{ActivityInTraceInfo, AdjustingMode},
-    contexts::PatternsDiscoveryStrategy,
-    repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
-    tandem_arrays::SubArrayInTraceInfo,
+  features::{
+    analysis::{
+      log_info::event_log_info::OfflineEventLogInfo,
+      patterns::{
+        activity_instances::{ActivityInTraceFilterKind, ActivityInTraceInfo, ActivityNarrowingKind, AdjustingMode},
+        contexts::PatternsDiscoveryStrategy,
+        repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
+        tandem_arrays::SubArrayInTraceInfo,
+      },
+    },
+    clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
+    discovery::{
+      ocel::graph_annotation::OcelAnnotation,
+      petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
+      root_sequence::models::RootSequenceKind,
+      timeline::{discovery::LogTimelineDiagram, software_data::extraction_config::SoftwareDataExtractionConfig},
+    },
   },
-  pipelines::pipelines::Pipeline,
-  utils::colors::ColorsHolder,
+  grpc::events::events_handler::CaseName,
+  pipelines::{
+    activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto},
+    multithreading::FeatureCountKindDto,
+    patterns_parts::PatternsKindDto,
+    pipelines::Pipeline,
+  },
+  utils::{
+    colors::{ColorsEventLog, ColorsHolder},
+    context_key::ContextKey,
+    dataset::dataset::{FicusDataset, LabeledDataset},
+    distance::distance::FicusDistance,
+    graph::graph::DefaultGraph,
+    log_serialization_format::LogSerializationFormat,
+  },
 };
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
+use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
 use uuid::Uuid;
 
-pub const CASE_NAME_STR: &'static str = "case_name";
-pub const PROCESS_NAME_STR: &'static str = "process_name";
-pub const SUBSCRIPTION_ID_STR: &'static str = "subscription_id";
-pub const SUBSCRIPTION_NAME_STR: &'static str = "subscription_name";
-pub const PIPELINE_ID_STR: &'static str = "pipeline_id";
-pub const PIPELINE_NAME_STR: &'static str = "pipeline_name";
-pub const UNSTRUCTURED_METADATA_STR: &'static str = "unstructured_metadata";
+pub const CASE_NAME: &'static str = "case_name";
+pub const PROCESS_NAME: &'static str = "process_name";
+pub const SUBSCRIPTION_ID: &'static str = "subscription_id";
+pub const SUBSCRIPTION_NAME: &'static str = "subscription_name";
+pub const PIPELINE_ID: &'static str = "pipeline_id";
+pub const PIPELINE_NAME: &'static str = "pipeline_name";
+pub const UNSTRUCTURED_METADATA: &'static str = "unstructured_metadata";
 pub const PATH: &'static str = "path";
 pub const TANDEM_ARRAY_LENGTH: &'static str = "tandem_array_length";
 pub const ACTIVITY_LEVEL: &'static str = "activity_level";
@@ -83,9 +86,9 @@ pub const TOLERANCE: &'static str = "tolerance";
 pub const MIN_EVENTS_IN_CLUSTERS_COUNT: &'static str = "min_events_in_cluster_count";
 pub const EVENT_LOG_NAME: &'static str = "event_log_name";
 pub const BYTES: &'static str = "bytes";
-pub const START_CASE_REGEX_STR: &str = "start_case_regex";
-pub const END_CASE_REGEX_STR: &str = "end_case_regex";
-pub const INLINE_INNER_CASES_STR: &str = "inline_inner_cases";
+pub const START_CASE_REGEX: &str = "start_case_regex";
+pub const END_CASE_REGEX: &str = "end_case_regex";
+pub const INLINE_INNER_CASES: &str = "inline_inner_cases";
 
 pub const EVENT_LOG: &'static str = "event_log";
 pub const ACTIVITIES: &'static str = "activities";
@@ -136,111 +139,115 @@ pub const DISCOVER_ACTIVITY_INSTANCES_STRICT: &'static str = "discover_activity_
 pub const PUT_NOISE_EVENTS_IN_ONE_CLUSTER: &'static str = "put_noise_events_in_one_cluster";
 pub const OCEL_ANNOTATION: &'static str = "ocel_annotation";
 
-#[rustfmt::skip]
-lazy_static!(
-     pub static ref EVENT_LOG_KEY: DefaultContextKey<XesEventLogImpl> = DefaultContextKey::new(EVENT_LOG);
-     pub static ref ACTIVITIES_KEY: DefaultContextKey<Vec<Rc<RefCell<ActivityNode>>>> = DefaultContextKey::new(ACTIVITIES);
-     pub static ref REPEAT_SETS_KEY: DefaultContextKey<Vec<SubArrayWithTraceIndex>> = DefaultContextKey::new(REPEAT_SETS);
-     pub static ref TRACE_ACTIVITIES_KEY: DefaultContextKey<Vec<Vec<ActivityInTraceInfo>>> = DefaultContextKey::new(TRACE_ACTIVITIES);
-     pub static ref PATTERNS_KEY: DefaultContextKey<Vec<Vec<SubArrayInTraceInfo>>> = DefaultContextKey::new(PATTERNS);
-     pub static ref PETRI_NET_KEY: DefaultContextKey<DefaultPetriNet> = DefaultContextKey::new(PETRI_NET);
-     pub static ref ACTIVITIES_TO_LOGS_KEY: DefaultContextKey<HashMap<String, XesEventLogImpl>> = DefaultContextKey::new(ACTIVITIES_TO_LOGS);
-     pub static ref ACTIVITY_NAME_KEY: DefaultContextKey<String> = DefaultContextKey::new(ACTIVITY_NAME);
-     pub static ref HASHES_EVENT_LOG_KEY: DefaultContextKey<Vec<Vec<u64>>> = DefaultContextKey::new(HASHES_EVENT_LOG);
-     pub static ref NAMES_EVENT_LOG_KEY: DefaultContextKey<Vec<Vec<String>>> = DefaultContextKey::new(NAMES_EVENT_LOG);
-     pub static ref TANDEM_ARRAY_LENGTH_KEY: DefaultContextKey<u32> = DefaultContextKey::new(TANDEM_ARRAY_LENGTH);
-     pub static ref ACTIVITY_LEVEL_KEY: DefaultContextKey<u32> = DefaultContextKey::new(ACTIVITY_LEVEL);
-     pub static ref NARROW_ACTIVITIES_KEY: DefaultContextKey<ActivityNarrowingKind> = DefaultContextKey::new(NARROW_ACTIVITIES);
-     pub static ref EVENT_NAME_KEY: DefaultContextKey<String> = DefaultContextKey::new(EVENT_NAME);
-     pub static ref REGEX_KEY: DefaultContextKey<String> = DefaultContextKey::new(REGEX);
-     pub static ref COLORS_EVENT_LOG_KEY: DefaultContextKey<ColorsEventLog> = DefaultContextKey::new(COLORS_EVENT_LOG);
-     pub static ref COLORS_HOLDER_KEY: DefaultContextKey<ColorsHolder> = DefaultContextKey::new(COLORS_HOLDER);
-     pub static ref PATTERNS_DISCOVERY_STRATEGY_KEY: DefaultContextKey<PatternsDiscoveryStrategy> = DefaultContextKey::new(PATTERNS_DISCOVERY_STRATEGY);
-     pub static ref OUTPUT_STRING_KEY: DefaultContextKey<String> = DefaultContextKey::new(OUTPUT_STRING);
-     pub static ref EVENT_LOG_INFO_KEY: DefaultContextKey<OfflineEventLogInfo> = DefaultContextKey::new(EVENT_LOG_INFO);
-     pub static ref UNDERLYING_EVENTS_COUNT_KEY: DefaultContextKey<usize> = DefaultContextKey::new(UNDERLYING_EVENTS_COUNT);
-     pub static ref EVENTS_COUNT_KEY: DefaultContextKey<u32> = DefaultContextKey::new(EVENTS_COUNT);
-     pub static ref REGEXES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(REGEXES);
-     pub static ref ADJUSTING_MODE_KEY: DefaultContextKey<AdjustingMode> = DefaultContextKey::new(ADJUSTING_MODE);
-     pub static ref EVENT_CLASS_REGEX_KEY: DefaultContextKey<String> = DefaultContextKey::new(EVENT_CLASS_REGEX);
-     pub static ref PATTERNS_KIND_KEY: DefaultContextKey<PatternsKindDto> = DefaultContextKey::new(PATTERNS_KIND);
-     pub static ref PIPELINE_KEY: DefaultContextKey<Pipeline> = DefaultContextKey::new(PIPELINE);
-     pub static ref MIN_ACTIVITY_LENGTH_KEY: DefaultContextKey<u32> = DefaultContextKey::new(MIN_ACTIVITY_LENGTH);
-     pub static ref UNDEF_ACTIVITY_HANDLING_STRATEGY_KEY: DefaultContextKey<UndefActivityHandlingStrategyDto> = DefaultContextKey::new(UNDEF_ACTIVITY_HANDLING_STRATEGY);
-     pub static ref ACTIVITY_IN_TRACE_FILTER_KIND_KEY: DefaultContextKey<ActivityInTraceFilterKind> = DefaultContextKey::new(ACTIVITY_IN_TRACE_FILTER_KIND);
-     pub static ref ACTIVITIES_LOGS_SOURCE_KEY: DefaultContextKey<ActivitiesLogsSourceDto> = DefaultContextKey::new(ACTIVITIES_LOGS_SOURCE);
-     pub static ref PNML_USE_NAMES_AS_IDS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(PNML_USE_NAMES_AS_IDS);
-     pub static ref GRAPH_KEY: DefaultContextKey<DefaultGraph> = DefaultContextKey::new(GRAPH);
-     pub static ref GRAPHS_KEY: DefaultContextKey<Vec<DefaultGraph>> = DefaultContextKey::new(GRAPHS);
-     pub static ref DEPENDENCY_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(DEPENDENCY_THRESHOLD);
-     pub static ref POSITIVE_OBSERVATIONS_THRESHOLD_KEY: DefaultContextKey<u32> = DefaultContextKey::new(POSITIVE_OBSERVATIONS_THRESHOLD);
-     pub static ref RELATIVE_TO_BEST_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(RELATIVE_TO_BEST_THRESHOLD);
-     pub static ref AND_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(AND_THRESHOLD);
-     pub static ref LOOP_LENGTH_TWO_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(LOOP_LENGTH_TWO_THRESHOLD);
-     pub static ref UNARY_FREQUENCY_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(UNARY_FREQUENCY_THRESHOLD);
-     pub static ref BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD);
-);
+#[macro_export]
+macro_rules! context_key {
+  ($name:ident, $t:ty) => {
+    paste::paste! {
+      lazy_static! {
+        pub static ref [<$name _KEY>]: crate::utils::context_key::DefaultContextKey<$t> = crate::utils::context_key::DefaultContextKey::new($name);
+      }
+    }
+  };
+}
 
-#[rustfmt::skip]
-lazy_static!(
-     pub static ref PRESERVE_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(PRESERVE_THRESHOLD);
-     pub static ref RATIO_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(RATIO_THRESHOLD);
-     pub static ref UTILITY_RATE_KEY: DefaultContextKey<f64> = DefaultContextKey::new(UTILITY_RATE);
-     pub static ref EDGE_CUTOFF_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(EDGE_CUTOFF_THRESHOLD);
-     pub static ref NODE_CUTOFF_THRESHOLD_KEY: DefaultContextKey<f64> = DefaultContextKey::new(NODE_CUTOFF_THRESHOLD);
-     pub static ref PETRI_NET_COUNT_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, usize>> = DefaultContextKey::new(PETRI_NET_COUNT_ANNOTATION);
-     pub static ref PETRI_NET_FREQUENCY_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, f64>> = DefaultContextKey::new(PETRI_NET_FREQUENCY_ANNOTATION);
-     pub static ref PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, f64>> = DefaultContextKey::new(PETRI_NET_TRACE_FREQUENCY_ANNOTATION);
-     pub static ref TERMINATE_ON_UNREPLAYABLE_TRACES_KEY: DefaultContextKey<bool> = DefaultContextKey::new(TERMINATE_ON_UNREPLAYABLE_TRACES);
-     pub static ref CLUSTERS_COUNT_KEY: DefaultContextKey<u32> = DefaultContextKey::new(CLUSTERS_COUNT);
-     pub static ref LEARNING_ITERATIONS_COUNT_KEY: DefaultContextKey<u32> = DefaultContextKey::new(LEARNING_ITERATIONS_COUNT);
-     pub static ref TOLERANCE_KEY: DefaultContextKey<f64> = DefaultContextKey::new(TOLERANCE);
-     pub static ref MIN_EVENTS_IN_CLUSTERS_COUNT_KEY: DefaultContextKey<u32> = DefaultContextKey::new(MIN_EVENTS_IN_CLUSTERS_COUNT);
-     pub static ref TRACES_ACTIVITIES_DATASET_KEY: DefaultContextKey<FicusDataset> = DefaultContextKey::new(TRACES_ACTIVITIES_DATASET);
-     pub static ref LABELED_TRACES_ACTIVITIES_DATASET_KEY: DefaultContextKey<LabeledDataset> = DefaultContextKey::new(LABELED_TRACES_ACTIVITIES_DATASET);
-     pub static ref ACTIVITIES_REPR_SOURCE_KEY: DefaultContextKey<ActivityRepresentationSource> = DefaultContextKey::new(ACTIVITIES_REPR_SOURCE);
-     pub static ref DISTANCE_KEY: DefaultContextKey<FicusDistance> = DefaultContextKey::new(DISTANCE);
-     pub static ref EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY: DefaultContextKey<bool> = DefaultContextKey::new(EXECUTE_ONLY_ON_LAST_EXTRACTION);
-     pub static ref EVENT_LOG_NAME_KEY: DefaultContextKey<String> = DefaultContextKey::new(EVENT_LOG_NAME);
-     pub static ref LOG_TRACES_DATASET_KEY: DefaultContextKey<FicusDataset> = DefaultContextKey::new(LOG_TRACES_DATASET);
-     pub static ref LABELED_LOG_TRACES_DATASET_KEY: DefaultContextKey<LabeledDataset> = DefaultContextKey::new(LABELED_LOG_TRACES_DATASET);
-     pub static ref TRACES_REPRESENTATION_SOURCE_KEY: DefaultContextKey<TracesRepresentationSource> = DefaultContextKey::new(TRACES_REPR_SOURCE);
-     pub static ref SYSTEM_METADATA_KEY: DefaultContextKey<SystemMetadata> = DefaultContextKey::new(SYSTEM_METADATA);
-     pub static ref LOG_SERIALIZATION_FORMAT_KEY: DefaultContextKey<LogSerializationFormat> = DefaultContextKey::new(LOG_SERIALIZATION_FORMAT);
-     pub static ref BYTES_KEY: DefaultContextKey<Vec<u8>> = DefaultContextKey::new(BYTES);
-     pub static ref PATH_KEY: DefaultContextKey<String> = DefaultContextKey::new(PATH);
-     pub static ref CASE_NAME: DefaultContextKey<CaseName> = DefaultContextKey::new(CASE_NAME_STR);
-     pub static ref PROCESS_NAME: DefaultContextKey<String> = DefaultContextKey::new(PROCESS_NAME_STR);
-     pub static ref PIPELINE_NAME: DefaultContextKey<String> = DefaultContextKey::new(PIPELINE_NAME_STR);
-     pub static ref PIPELINE_ID: DefaultContextKey<Uuid> = DefaultContextKey::new(PIPELINE_ID_STR);
-     pub static ref SUBSCRIPTION_NAME: DefaultContextKey<String> = DefaultContextKey::new(SUBSCRIPTION_NAME_STR);
-     pub static ref SUBSCRIPTION_ID: DefaultContextKey<Uuid> = DefaultContextKey::new(SUBSCRIPTION_ID_STR);
-     pub static ref UNSTRUCTURED_METADATA: DefaultContextKey<Vec<(String, String)>> = DefaultContextKey::new(PROCESS_NAME_STR);
-     pub static ref START_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(START_CASE_REGEX_STR);
-     pub static ref END_CASE_REGEX: DefaultContextKey<String> = DefaultContextKey::new(END_CASE_REGEX_STR);
-     pub static ref INLINE_INNER_CASES: DefaultContextKey<bool> = DefaultContextKey::new(INLINE_INNER_CASES_STR);
-     pub static ref GRAPH_TIME_ANNOTATION_KEY: DefaultContextKey<HashMap<u64, f64>> = DefaultContextKey::new(GRAPH_TIME_ANNOTATION);
-     pub static ref ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(ATTRIBUTE);
-     pub static ref TIME_ANNOTATION_KIND_KEY: DefaultContextKey<TimeAnnotationKind> = DefaultContextKey::new(TIME_ANNOTATION_KIND);
-     pub static ref ATTRIBUTES_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(ATTRIBUTES);
-     pub static ref PATHS_KEY: DefaultContextKey<Vec<String>> = DefaultContextKey::new(PATHS);
-     pub static ref LOG_THREADS_DIAGRAM_KEY: DefaultContextKey<LogTimelineDiagram> = DefaultContextKey::new(LOG_THREADS_DIAGRAM);
-     pub static ref THREAD_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(THREAD_ATTRIBUTE);
-     pub static ref TIME_ATTRIBUTE_KEY: DefaultContextKey<String> = DefaultContextKey::new(TIME_ATTRIBUTE);
-     pub static ref TIME_DELTA_KEY: DefaultContextKey<u32> = DefaultContextKey::new(TIME_DELTA);
-     pub static ref FEATURE_COUNT_KIND_KEY: DefaultContextKey<FeatureCountKindDto> = DefaultContextKey::new(FEATURE_COUNT_KIND);
-     pub static ref PERCENT_FROM_MAX_VALUE_KEY: DefaultContextKey<f64> = DefaultContextKey::new(PERCENT_FROM_MAX_VALUE);
-     pub static ref TOLERANCES_KEY: DefaultContextKey<Vec<f64>> = DefaultContextKey::new(TOLERANCES);
-     pub static ref MIN_POINTS_IN_CLUSTER_ARRAY_KEY: DefaultContextKey<Vec<u64>> = DefaultContextKey::new(MIN_POINTS_IN_CLUSTER_ARRAY);
-     pub static ref EXECUTION_ID_KEY: DefaultContextKey<Uuid> = DefaultContextKey::new(EXECUTION_ID);
-     pub static ref ROOT_SEQUENCE_KIND_KEY: DefaultContextKey<RootSequenceKind> = DefaultContextKey::new(ROOT_SEQUENCE_KIND);
-     pub static ref MERGE_SEQUENCES_OF_EVENTS_KEY: DefaultContextKey<bool> = DefaultContextKey::new(MERGE_SEQUENCES_OF_EVENTS);
-     pub static ref DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE);
-     pub static ref SOFTWARE_DATA_EXTRACTION_CONFIG_KEY: DefaultContextKey<SoftwareDataExtractionConfig> = DefaultContextKey::new(SOFTWARE_DATA_EXTRACTION_CONFIG);
-     pub static ref DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY: DefaultContextKey<bool> = DefaultContextKey::new(DISCOVER_ACTIVITY_INSTANCES_STRICT);
-     pub static ref PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY: DefaultContextKey<bool> = DefaultContextKey::new(PUT_NOISE_EVENTS_IN_ONE_CLUSTER);
-     pub static ref OCEL_ANNOTATION_KEY: DefaultContextKey<OcelAnnotation> = DefaultContextKey::new(OCEL_ANNOTATION);
-);
+context_key! { PETRI_NET, DefaultPetriNet }
+context_key! { EVENT_LOG, XesEventLogImpl }
+context_key! { ACTIVITIES, Vec<Rc<RefCell<ActivityNode>>> }
+context_key! { REPEAT_SETS, Vec<SubArrayWithTraceIndex> }
+context_key! { TRACE_ACTIVITIES, Vec<Vec<ActivityInTraceInfo>> }
+context_key! { PATTERNS, Vec<Vec<SubArrayInTraceInfo>> }
+context_key! { ACTIVITIES_TO_LOGS, HashMap<String, XesEventLogImpl> }
+context_key! { ACTIVITY_NAME, String }
+context_key! { HASHES_EVENT_LOG, Vec<Vec<u64>> }
+context_key! { NAMES_EVENT_LOG, Vec<Vec<String>> }
+context_key! { TANDEM_ARRAY_LENGTH, u32 }
+context_key! { ACTIVITY_LEVEL, u32 }
+context_key! { NARROW_ACTIVITIES, ActivityNarrowingKind }
+context_key! { EVENT_NAME, String }
+context_key! { REGEX, String }
+context_key! { COLORS_EVENT_LOG, ColorsEventLog }
+context_key! { COLORS_HOLDER, ColorsHolder }
+context_key! { PATTERNS_DISCOVERY_STRATEGY, PatternsDiscoveryStrategy }
+context_key! { OUTPUT_STRING, String }
+context_key! { EVENT_LOG_INFO, OfflineEventLogInfo }
+context_key! { UNDERLYING_EVENTS_COUNT, usize }
+context_key! { EVENTS_COUNT, u32 }
+context_key! { REGEXES, Vec<String> }
+context_key! { ADJUSTING_MODE, AdjustingMode }
+context_key! { EVENT_CLASS_REGEX, String }
+context_key! { PATTERNS_KIND, PatternsKindDto }
+context_key! { PIPELINE, Pipeline }
+context_key! { MIN_ACTIVITY_LENGTH, u32 }
+context_key! { UNDEF_ACTIVITY_HANDLING_STRATEGY, UndefActivityHandlingStrategyDto }
+context_key! { ACTIVITY_IN_TRACE_FILTER_KIND, ActivityInTraceFilterKind }
+context_key! { ACTIVITIES_LOGS_SOURCE, ActivitiesLogsSourceDto }
+context_key! { PNML_USE_NAMES_AS_IDS, bool }
+context_key! { GRAPH, DefaultGraph }
+context_key! { GRAPHS, Vec<DefaultGraph> }
+context_key! { DEPENDENCY_THRESHOLD, f64 }
+context_key! { POSITIVE_OBSERVATIONS_THRESHOLD, u32 }
+context_key! { RELATIVE_TO_BEST_THRESHOLD, f64 }
+context_key! { AND_THRESHOLD, f64 }
+context_key! { LOOP_LENGTH_TWO_THRESHOLD, f64 }
+context_key! { UNARY_FREQUENCY_THRESHOLD, f64 }
+context_key! { BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD, f64 }
+context_key! { PRESERVE_THRESHOLD, f64 }
+context_key! { RATIO_THRESHOLD, f64 }
+context_key! { UTILITY_RATE, f64 }
+context_key! { EDGE_CUTOFF_THRESHOLD, f64 }
+context_key! { NODE_CUTOFF_THRESHOLD, f64 }
+context_key! { PETRI_NET_COUNT_ANNOTATION, HashMap<u64, usize> }
+context_key! { PETRI_NET_FREQUENCY_ANNOTATION, HashMap<u64, f64> }
+context_key! { PETRI_NET_TRACE_FREQUENCY_ANNOTATION, HashMap<u64, f64> }
+context_key! { TERMINATE_ON_UNREPLAYABLE_TRACES, bool }
+context_key! { CLUSTERS_COUNT, u32 }
+context_key! { LEARNING_ITERATIONS_COUNT, u32 }
+context_key! { TOLERANCE, f64 }
+context_key! { MIN_EVENTS_IN_CLUSTERS_COUNT, u32 }
+context_key! { TRACES_ACTIVITIES_DATASET, FicusDataset }
+context_key! { LABELED_TRACES_ACTIVITIES_DATASET, LabeledDataset }
+context_key! { ACTIVITIES_REPR_SOURCE, ActivityRepresentationSource }
+context_key! { DISTANCE, FicusDistance }
+context_key! { EXECUTE_ONLY_ON_LAST_EXTRACTION, bool }
+context_key! { EVENT_LOG_NAME, String }
+context_key! { LOG_TRACES_DATASET, FicusDataset }
+context_key! { LABELED_LOG_TRACES_DATASET, LabeledDataset }
+context_key! { TRACES_REPR_SOURCE, TracesRepresentationSource }
+context_key! { SYSTEM_METADATA, SystemMetadata }
+context_key! { LOG_SERIALIZATION_FORMAT, LogSerializationFormat }
+context_key! { BYTES, Vec<u8> }
+context_key! { PATH, String }
+context_key! { CASE_NAME, CaseName }
+context_key! { PROCESS_NAME, String }
+context_key! { PIPELINE_NAME, String }
+context_key! { PIPELINE_ID, Uuid }
+context_key! { SUBSCRIPTION_NAME, String }
+context_key! { SUBSCRIPTION_ID, Uuid }
+context_key! { UNSTRUCTURED_METADATA, Vec<(String, String)> }
+context_key! { START_CASE_REGEX, String }
+context_key! { END_CASE_REGEX, String }
+context_key! { INLINE_INNER_CASES, bool }
+context_key! { GRAPH_TIME_ANNOTATION, HashMap<u64, f64> }
+context_key! { ATTRIBUTE, String }
+context_key! { TIME_ANNOTATION_KIND, TimeAnnotationKind }
+context_key! { ATTRIBUTES, Vec<String> }
+context_key! { PATHS, Vec<String> }
+context_key! { LOG_THREADS_DIAGRAM, LogTimelineDiagram }
+context_key! { THREAD_ATTRIBUTE, String }
+context_key! { TIME_ATTRIBUTE, String }
+context_key! { TIME_DELTA, u32 }
+context_key! { FEATURE_COUNT_KIND, FeatureCountKindDto }
+context_key! { PERCENT_FROM_MAX_VALUE, f64 }
+context_key! { TOLERANCES, Vec<f64> }
+context_key! { MIN_POINTS_IN_CLUSTER_ARRAY, Vec<u64> }
+context_key! { EXECUTION_ID, Uuid }
+context_key! { ROOT_SEQUENCE_KIND, RootSequenceKind }
+context_key! { MERGE_SEQUENCES_OF_EVENTS, bool }
+context_key! { DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE, bool }
+context_key! { SOFTWARE_DATA_EXTRACTION_CONFIG, SoftwareDataExtractionConfig }
+context_key! { DISCOVER_ACTIVITY_INSTANCES_STRICT, bool }
+context_key! { PUT_NOISE_EVENTS_IN_ONE_CLUSTER, bool }
+context_key! { OCEL_ANNOTATION, OcelAnnotation }
 
 pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
   match name {
@@ -308,12 +315,12 @@ pub fn find_context_key(name: &str) -> Option<&dyn ContextKey> {
     EXECUTE_ONLY_ON_LAST_EXTRACTION => Some(EXECUTE_ONLY_ON_LAST_EXTRACTION_KEY.deref() as &dyn ContextKey),
     LABELED_LOG_TRACES_DATASET => Some(LABELED_LOG_TRACES_DATASET_KEY.deref() as &dyn ContextKey),
     LOG_TRACES_DATASET => Some(LOG_TRACES_DATASET_KEY.deref() as &dyn ContextKey),
-    TRACES_REPR_SOURCE => Some(TRACES_REPRESENTATION_SOURCE_KEY.deref() as &dyn ContextKey),
+    TRACES_REPR_SOURCE => Some(TRACES_REPR_SOURCE_KEY.deref() as &dyn ContextKey),
     SYSTEM_METADATA => Some(SYSTEM_METADATA_KEY.deref() as &dyn ContextKey),
     LOG_SERIALIZATION_FORMAT => Some(LOG_SERIALIZATION_FORMAT_KEY.deref() as &dyn ContextKey),
-    START_CASE_REGEX_STR => Some(START_CASE_REGEX.deref() as &dyn ContextKey),
-    END_CASE_REGEX_STR => Some(END_CASE_REGEX.deref() as &dyn ContextKey),
-    INLINE_INNER_CASES_STR => Some(INLINE_INNER_CASES.deref() as &dyn ContextKey),
+    START_CASE_REGEX => Some(START_CASE_REGEX_KEY.deref() as &dyn ContextKey),
+    END_CASE_REGEX => Some(END_CASE_REGEX_KEY.deref() as &dyn ContextKey),
+    INLINE_INNER_CASES => Some(INLINE_INNER_CASES_KEY.deref() as &dyn ContextKey),
     GRAPH_TIME_ANNOTATION => Some(GRAPH_TIME_ANNOTATION_KEY.deref() as &dyn ContextKey),
     ATTRIBUTE => Some(ATTRIBUTE_KEY.deref() as &dyn ContextKey),
     TIME_ANNOTATION_KIND => Some(TIME_ANNOTATION_KIND_KEY.deref() as &dyn ContextKey),

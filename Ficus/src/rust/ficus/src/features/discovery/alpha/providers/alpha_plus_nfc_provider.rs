@@ -1,12 +1,18 @@
 use super::relations_cache::RelationsCaches;
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::log_info::event_log_info::EventLogInfo;
-use crate::features::discovery::alpha::providers::alpha_plus_provider::{AlphaPlusRelationsProvider, AlphaPlusRelationsProviderImpl};
-use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use crate::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use crate::features::discovery::relations::triangle_relation::TriangleRelation;
+use crate::{
+  event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+  features::{
+    analysis::log_info::event_log_info::EventLogInfo,
+    discovery::{
+      alpha::providers::{
+        alpha_plus_provider::{AlphaPlusRelationsProvider, AlphaPlusRelationsProviderImpl},
+        alpha_provider::AlphaRelationsProvider,
+      },
+      petri_net::petri_net::DefaultPetriNet,
+      relations::triangle_relation::TriangleRelation,
+    },
+  },
+};
 use std::collections::HashSet;
 
 enum PrePostSet {

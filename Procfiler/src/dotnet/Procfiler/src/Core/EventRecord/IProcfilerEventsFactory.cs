@@ -87,8 +87,14 @@ public class ProcfilerEventsFactory(IProcfilerLogger logger) : IProcfilerEventsF
   {
     var (stamp, managedThreadId, nativeThreadId) = context;
     var metadata = CreateMethodEventMetadata(methodName);
-    var name = CreateEventNameForMethodExecutionEvent(methodName);
-    return new EventRecordWithMetadata(stamp, name, managedThreadId, nativeThreadId, -1, metadata);
+
+    const string EventClass = TraceEventsConstants.ProcfilerMethodExecution;
+    var @event = new EventRecordWithMetadata(stamp, EventClass, managedThreadId, nativeThreadId, -1, metadata)
+    {
+      EventName = CreateEventNameForMethodExecutionEvent(methodName)
+    };
+
+    return @event;
   }
 
   private string CreateEventNameForMethodExecutionEvent(string fqn) =>

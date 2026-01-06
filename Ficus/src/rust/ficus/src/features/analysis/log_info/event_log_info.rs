@@ -1,14 +1,23 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::features::analysis::constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME};
-use crate::features::analysis::log_info::dfg_info::{DfgInfo, OfflineDfgInfo};
-use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::features::discovery::timeline::utils::extract_thread_id;
-use crate::{event_log::core::event::event::Event, utils::hash_map_utils::increase_in_map};
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
-use std::ops::Deref;
-use std::rc::Rc;
+use crate::{
+  event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+  features::{
+    analysis::{
+      constants::{FAKE_EVENT_END_NAME, FAKE_EVENT_START_NAME},
+      log_info::{
+        dfg_info::{DfgInfo, OfflineDfgInfo},
+        log_info_creation_dto::EventLogInfoCreationDto,
+      },
+    },
+    discovery::timeline::utils::extract_thread_id,
+  },
+  utils::hash_map_utils::increase_in_map,
+};
+use std::{
+  cell::RefCell,
+  collections::{HashMap, HashSet},
+  ops::Deref,
+  rc::Rc,
+};
 
 pub trait EventLogCounts {
   fn traces_count(&self) -> usize;
@@ -18,15 +27,6 @@ pub trait EventLogCounts {
 struct EventLogCountsImpl {
   traces_count: usize,
   events_count: usize,
-}
-
-impl EventLogCountsImpl {
-  pub fn new(traces_count: usize, events_count: usize) -> Self {
-    Self {
-      traces_count,
-      events_count,
-    }
-  }
 }
 
 impl EventLogCounts for EventLogCountsImpl {

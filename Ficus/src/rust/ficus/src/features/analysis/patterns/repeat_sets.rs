@@ -1,11 +1,10 @@
-use crate::features::analysis::patterns::pattern_info::UnderlyingPatternKind;
-use crate::utils::hash_utils::calculate_poly_hash_for_collection;
+use crate::{features::analysis::patterns::pattern_info::UnderlyingPatternKind, utils::hash_utils::calculate_poly_hash_for_collection};
 use getset::Getters;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::atomic::{AtomicU64, Ordering},
 };
 
 use super::tandem_arrays::SubArrayInTraceInfo;

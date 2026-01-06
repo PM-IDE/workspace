@@ -1,12 +1,15 @@
-use ficus::event_log::core::event::event::{Event, EventPayloadValue};
-use ficus::event_log::core::event_log::EventLog;
-use ficus::event_log::core::trace::trace::Trace;
-use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
-use ficus::event_log::xes::xes_trace::XesTraceImpl;
-use ficus::features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, MultithreadedTracePartsCreationStrategy};
-use std::cell::RefCell;
-use std::rc::Rc;
+use ficus::{
+  event_log::{
+    core::{
+      event::event::{Event, EventPayloadValue},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, MultithreadedTracePartsCreationStrategy},
+};
+use std::{cell::RefCell, rc::Rc};
 
 const TEST_THREAD_ID_ATTRIBUTE: &'static str = "TestThreadId";
 

@@ -1,23 +1,28 @@
 use chrono::Utc;
-use ficus::event_log::core::event::event::EventPayloadValue;
-use ficus::event_log::xes::xes_event::XesEventImpl;
-use ficus::features::discovery::timeline::events_groups::EventGroup;
-use ficus::features::discovery::timeline::software_data::extraction_config::{
-  ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy, OcelAllocateMergeExtractionConfig,
-  OcelConsumeProduceExtractionConfig, OcelObjectExtractionConfigBase, OcelUnitedExtractionConfig, PieChartExtractionConfig,
-  SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig, TimeKind,
+use ficus::{
+  event_log::{core::event::event::EventPayloadValue, xes::xes_event::XesEventImpl},
+  features::discovery::timeline::{
+    events_groups::EventGroup,
+    software_data::{
+      extraction_config::{
+        ActivityDurationExtractionConfig, ExtractionConfig, GenericExtractionConfigBase, NameCreationStrategy,
+        OcelAllocateMergeExtractionConfig, OcelConsumeProduceExtractionConfig, OcelObjectExtractionConfigBase, OcelUnitedExtractionConfig,
+        PieChartExtractionConfig, SimpleCountExtractionConfig, SingleAttribute, SoftwareDataExtractionConfig, TimeAttributeConfig,
+        TimeKind,
+      },
+      extractors::{
+        activities_durations::ActivityDurationExtractor,
+        core::{EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor},
+        ocel::OcelDataExtractor,
+        pie_charts::PieChartExtractor,
+        simple_counter::SimpleCounterExtractor,
+      },
+      models::SoftwareData,
+    },
+  },
+  utils::references::heaped,
 };
-use ficus::features::discovery::timeline::software_data::extractors::activities_durations::ActivityDurationExtractor;
-use ficus::features::discovery::timeline::software_data::extractors::core::{
-  EventGroupSoftwareDataExtractor, EventGroupTraceSoftwareDataExtractor,
-};
-use ficus::features::discovery::timeline::software_data::extractors::ocel::OcelDataExtractor;
-use ficus::features::discovery::timeline::software_data::extractors::pie_charts::PieChartExtractor;
-use ficus::features::discovery::timeline::software_data::extractors::simple_counter::SimpleCounterExtractor;
-use ficus::features::discovery::timeline::software_data::models::{OcelProducedObjectAfterConsume, SoftwareData};
-use ficus::utils::references::heaped;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 #[test]
 fn test_general_histogram() {

@@ -1,7 +1,8 @@
-use ficus::features::streaming::counters::core::{StreamingCounter, ValueUpdateKind};
-use ficus::features::streaming::counters::lossy_count::LossyCount;
-use std::fmt::Debug;
-use std::hash::Hash;
+use ficus::features::streaming::counters::{
+  core::{StreamingCounter, ValueUpdateKind},
+  lossy_count::LossyCount,
+};
+use std::{fmt::Debug, hash::Hash};
 
 #[test]
 pub fn lossy_count_test_1() {

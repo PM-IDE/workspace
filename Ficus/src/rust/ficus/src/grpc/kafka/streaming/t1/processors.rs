@@ -1,24 +1,33 @@
-use crate::event_log::bxes::bxes_to_xes_converter::read_bxes_events;
-use crate::event_log::core::event::event::EventPayloadValue;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::grpc::kafka::models::{
-  KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID,
+use crate::{
+  event_log::{
+    bxes::bxes_to_xes_converter::read_bxes_events,
+    core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  grpc::{
+    kafka::{
+      models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID},
+      streaming::{
+        processors::{string_value_or_err, uuid_or_err},
+        t1::filterers::T1LogFilterer,
+      },
+    },
+    logs_handler::ConsoleLogMessageHandler,
+  },
+  pipelines::{
+    context::{LogMessageHandler, PipelineContext},
+    keys::context_keys::EVENT_LOG_KEY,
+  },
+  utils::user_data::user_data::UserData,
 };
-use crate::grpc::kafka::streaming::processors::{string_value_or_err, uuid_or_err};
-use crate::grpc::kafka::streaming::t1::filterers::T1LogFilterer;
-use crate::grpc::logs_handler::ConsoleLogMessageHandler;
-use crate::pipelines::context::{LogMessageHandler, PipelineContext};
-use crate::pipelines::keys::context_keys::EVENT_LOG_KEY;
-use crate::utils::user_data::user_data::UserData;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use log::info;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+use std::{
+  cell::RefCell,
+  collections::HashMap,
+  rc::Rc,
+  sync::{Arc, Mutex},
+};
 use uuid::Uuid;
 
 #[derive(Clone)]

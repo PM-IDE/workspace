@@ -1,13 +1,14 @@
 use approx::assert_abs_diff_eq;
-use ficus::features::clustering::traces::common::calculate_distance;
-use ficus::utils::distance::distance::{DistanceWrapper, FicusDistance};
-use ficus::utils::silhouette::{silhouette_score, SilhouetteScoreError};
-use linfa::metrics::SilhouetteScore;
-use linfa::prelude::Transformer;
-use linfa::DatasetBase;
+use ficus::{
+  features::clustering::traces::common::calculate_distance,
+  utils::{
+    distance::distance::{DistanceWrapper, FicusDistance},
+    silhouette::{silhouette_score, SilhouetteScoreError},
+  },
+};
+use linfa::{metrics::SilhouetteScore, prelude::Transformer, DatasetBase};
 use linfa_clustering::Dbscan;
-use linfa_nn::distance::L2Dist;
-use linfa_nn::CommonNearestNeighbour::KdTree;
+use linfa_nn::{distance::L2Dist, CommonNearestNeighbour::KdTree};
 use ndarray::{Array1, Array2};
 
 #[test]
@@ -31,7 +32,7 @@ pub fn test_silhouette_score() {
 pub fn test_single_label() {
   let labels = vec![0; 123];
   assert_eq!(
-    silhouette_score(&labels, |first, second| 0.).err().unwrap(),
+    silhouette_score(&labels, |_, _| 0.).err().unwrap(),
     SilhouetteScoreError::InappropriateLabelsCount
   )
 }
@@ -40,14 +41,14 @@ pub fn test_single_label() {
 pub fn test_all_different_labels() {
   let labels = (0..123).into_iter().collect();
   assert_eq!(
-    silhouette_score(&labels, |first, second| 0.).err().unwrap(),
+    silhouette_score(&labels, |_, _| 0.).err().unwrap(),
     SilhouetteScoreError::InappropriateLabelsCount
   )
 }
 
 #[test]
 pub fn test_silhouette_score_empty_labels() {
-  let result = silhouette_score(&vec![], |first, second| 0.);
+  let result = silhouette_score(&vec![], |_, _| 0.);
   assert_eq!(result.err().unwrap(), SilhouetteScoreError::NotEnoughSamples)
 }
 

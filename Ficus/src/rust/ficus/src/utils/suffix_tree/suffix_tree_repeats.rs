@@ -1,9 +1,8 @@
 use crate::utils::hash_map_utils::{compare_maps_by_keys, increase_in_map_by};
 
 use super::suffix_tree_patterns::SuffixTree;
-use std::collections::VecDeque;
 use std::{
-  collections::{HashMap, HashSet},
+  collections::{HashMap, HashSet, VecDeque},
   hash::Hash,
 };
 

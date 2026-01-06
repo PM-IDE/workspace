@@ -1,11 +1,15 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::features::discovery::alpha::alpha_set::AlphaSet;
-use crate::features::discovery::alpha::providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider;
-use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use crate::utils::hash_utils::compare_based_on_hashes;
-use crate::utils::sets::two_sets::TwoSets;
-use std::collections::{BTreeSet, HashSet};
-use std::hash::{Hash, Hasher};
+use crate::{
+  event_log::core::event_log::EventLog,
+  features::discovery::alpha::{
+    alpha_set::AlphaSet,
+    providers::{alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider, alpha_provider::AlphaRelationsProvider},
+  },
+  utils::{hash_utils::compare_based_on_hashes, sets::two_sets::TwoSets},
+};
+use std::{
+  collections::{BTreeSet, HashSet},
+  hash::{Hash, Hasher},
+};
 
 pub(crate) struct ExtendedAlphaSet<'a> {
   alpha_set: AlphaSet,
@@ -147,14 +151,6 @@ impl<'a> ExtendedAlphaSet<'a> {
     }
 
     true
-  }
-
-  pub fn subset(&self, other: &Self) -> bool {
-    if !self.alpha_set.is_full_subset(&other.alpha_set) {
-      false
-    } else {
-      self.left_extension.is_subset(&other.left_extension) && self.right_extension.is_subset(&other.right_extension)
-    }
   }
 
   pub fn merge(&self, other: &Self) -> Self {

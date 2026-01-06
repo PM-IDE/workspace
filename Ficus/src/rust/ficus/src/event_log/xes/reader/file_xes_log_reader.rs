@@ -1,13 +1,17 @@
-use std::io::{BufRead, Cursor, Read};
-use std::{cell::RefCell, collections::HashMap, fs::File, io::BufReader, rc::Rc};
+use std::{
+  cell::RefCell,
+  collections::HashMap,
+  fs::File,
+  io::{BufRead, BufReader, Cursor, Read},
+  rc::Rc,
+};
 
 use quick_xml::{events::BytesStart, Reader};
 
-use crate::event_log::xes::constants::*;
 use crate::event_log::{
   core::event::event::EventPayloadValue,
   xes::{
-    constants::{CLASSIFIER_TAG_NAME, EXTENSION_TAG_NAME},
+    constants::{CLASSIFIER_TAG_NAME, EXTENSION_TAG_NAME, *},
     shared::{XesClassifier, XesEventLogExtension, XesGlobal, XesProperty},
     xes_event_log::XesEventLogImpl,
   },
@@ -126,7 +130,7 @@ impl<'a> Iterator for FromFileXesEventLogReader<'a> {
 }
 
 impl<'a> FromFileXesEventLogReader<'a> {
-  pub fn new_from_bytes(bytes: &[u8]) -> Option<FromFileXesEventLogReader> {
+  pub fn new_from_bytes(bytes: &[u8]) -> Option<FromFileXesEventLogReader<'_>> {
     let reader = XmlReader::MemoryReader(BufReader::new(Cursor::new(bytes)));
     Some(Self::create_quickxml_reader(reader))
   }
@@ -139,7 +143,7 @@ impl<'a> FromFileXesEventLogReader<'a> {
     }
   }
 
-  pub fn new(file_path: &str) -> Option<FromFileXesEventLogReader> {
+  pub fn new(file_path: &str) -> Option<FromFileXesEventLogReader<'_>> {
     let file = match File::open(file_path) {
       Ok(file) => file,
       Err(_) => return None,

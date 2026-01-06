@@ -1,21 +1,22 @@
-use crate::event_log::core::event::event::{Event, EventPayloadValue};
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::software_data::extraction_config::{
-  ExtractionConfig, OcelAllocateMergeExtractionConfig, OcelConsumeProduceExtractionConfig, OcelObjectExtractionConfigBase,
-  SoftwareDataExtractionConfig,
+use crate::{
+  event_log::{
+    core::event::event::{Event, EventPayloadValue},
+    xes::xes_event::XesEventImpl,
+  },
+  features::discovery::timeline::software_data::{
+    extraction_config::{
+      ExtractionConfig, OcelAllocateMergeExtractionConfig, OcelConsumeProduceExtractionConfig, OcelObjectExtractionConfigBase,
+      SoftwareDataExtractionConfig,
+    },
+    extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError},
+    models::{ObjectTypeWithData, OcelData, OcelObjectAction, OcelProducedObjectAfterConsume, SoftwareData},
+  },
+  utils::references::HeapedOrOwned,
 };
-use crate::features::discovery::timeline::software_data::extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError};
-use crate::features::discovery::timeline::software_data::models::{
-  ObjectTypeWithData, OcelData, OcelObjectAction, OcelProducedObjectAfterConsume, SoftwareData,
-};
-use crate::utils::references::HeapedOrOwned;
 use derive_new::new;
 use fancy_regex::Regex;
 use log::{debug, warn};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::fmt::Debug;
-use std::rc::Rc;
+use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
 
 #[derive(Debug, Clone, new)]
 pub struct OcelDataExtractor<'a> {

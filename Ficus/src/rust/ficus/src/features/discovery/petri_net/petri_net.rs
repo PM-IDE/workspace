@@ -1,6 +1,4 @@
-use crate::features::discovery::petri_net::marking::Marking;
-use crate::features::discovery::petri_net::place::Place;
-use crate::features::discovery::petri_net::transition::Transition;
+use crate::features::discovery::petri_net::{marking::Marking, place::Place, transition::Transition};
 use std::collections::HashMap;
 
 use super::arc::Arc;

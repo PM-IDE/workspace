@@ -1,14 +1,13 @@
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::analysis::patterns::entry_points::PatternsKind;
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::graph::graph::DefaultGraph;
+use crate::{
+  context_key, event_log::xes::xes_event::XesEventImpl, features::analysis::patterns::entry_points::PatternsKind,
+  utils::graph::graph::DefaultGraph,
+};
 use lazy_static::lazy_static;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
-lazy_static! {
-  pub static ref UNDERLYING_PATTERN_KIND_KEY: DefaultContextKey<UnderlyingPatternKind> = DefaultContextKey::new("UNDERLYING_PATTERN_KIND");
-}
+const UNDERLYING_PATTERN_KIND: &'static str = "UNDERLYING_PATTERN_KIND";
+
+context_key! { UNDERLYING_PATTERN_KIND, UnderlyingPatternKind }
 
 #[derive(Debug, Clone, Copy)]
 pub enum UnderlyingPatternKind {

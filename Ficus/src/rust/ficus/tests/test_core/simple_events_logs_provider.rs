@@ -1,11 +1,10 @@
 use chrono::{DateTime, Duration, Utc};
-use ficus::event_log::core::event::event::Event;
-use ficus::event_log::core::event_log::EventLog;
-use ficus::event_log::core::trace::trace::Trace;
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
+use ficus::event_log::{
+  core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+  xes::xes_event_log::XesEventLogImpl,
+};
 use rand::Rng;
-use std::iter;
-use std::ops::Add;
+use std::{iter, ops::Add};
 
 pub fn create_raw_event_log() -> Vec<Vec<&'static str>> {
   vec![vec!["A", "B", "C"], vec!["A", "B", "C"]]

@@ -1,7 +1,5 @@
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::core::{event::event::Event, event_log::EventLog};
-use std::cell::RefCell;
-use std::rc::Rc;
+use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
+use std::{cell::RefCell, rc::Rc};
 
 pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: &str, filter: TFilter)
 where

@@ -1,25 +1,35 @@
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::features::clustering::activities::activities_common::create_dataset;
-use crate::features::clustering::activities::activities_params::{ActivitiesClusteringParams, ActivitiesVisualizationParams};
-use crate::features::clustering::activities::dbscan::clusterize_activities_dbscan;
-use crate::features::clustering::activities::k_means::{clusterize_activities_k_means, clusterize_activities_k_means_grid_search};
-use crate::features::clustering::common::{transform_to_ficus_dataset, CommonVisualizationParams};
-use crate::features::clustering::traces::dbscan::{clusterize_log_by_traces_dbscan, clusterize_log_by_traces_dbscan_grid_search};
-use crate::features::clustering::traces::k_means::clusterize_log_by_traces_kmeans_grid_search;
-use crate::features::clustering::traces::traces_params::{FeatureCountKind, TracesClusteringParams};
-use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
-use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::keys::context_keys::{
-  ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY,
-  EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY,
-  LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY,
-  PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-  TRACES_REPRESENTATION_SOURCE_KEY, TRACE_ACTIVITIES_KEY,
+use crate::{
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::clustering::{
+    activities::{
+      activities_common::create_dataset,
+      activities_params::{ActivitiesClusteringParams, ActivitiesVisualizationParams},
+      dbscan::clusterize_activities_dbscan,
+      k_means::{clusterize_activities_k_means, clusterize_activities_k_means_grid_search},
+    },
+    common::{transform_to_ficus_dataset, CommonVisualizationParams},
+    traces::{
+      dbscan::{clusterize_log_by_traces_dbscan, clusterize_log_by_traces_dbscan_grid_search},
+      k_means::clusterize_log_by_traces_kmeans_grid_search,
+      traces_params::{FeatureCountKind, TracesClusteringParams},
+    },
+  },
+  pipelines::{
+    context::{PipelineContext, PipelineInfrastructure},
+    errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
+    keys::context_keys::{
+      ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY,
+      EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY,
+      LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY,
+      PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
+      TRACES_REPR_SOURCE_KEY, TRACE_ACTIVITIES_KEY,
+    },
+    multithreading::FeatureCountKindDto,
+    pipeline_parts::PipelineParts,
+    pipelines::{Pipeline, PipelinePart, PipelinePartFactory},
+  },
+  utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use crate::pipelines::multithreading::FeatureCountKindDto;
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::{Pipeline, PipelinePart, PipelinePartFactory};
-use crate::utils::user_data::user_data::{UserData, UserDataImpl};
 
 impl PipelineParts {
   pub(super) fn clusterize_activities_from_traces_k_means() -> (String, PipelinePartFactory) {
@@ -41,7 +51,7 @@ impl PipelineParts {
   fn create_common_vis_params<'a>(
     context: &'a PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<CommonVisualizationParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<CommonVisualizationParams<'a>, PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
     let class_extractor = match Self::get_user_data(config, &EVENT_CLASS_REGEX_KEY) {
@@ -59,7 +69,7 @@ impl PipelineParts {
   fn create_activities_visualization_params<'a>(
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<ActivitiesVisualizationParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<ActivitiesVisualizationParams<'a>, PipelinePartExecutionError> {
     let common_vis_params = Self::create_common_vis_params(context, config)?;
     let traces_activities = Self::get_user_data_mut(context, &TRACE_ACTIVITIES_KEY)?;
     let activity_level = *Self::get_user_data(config, &ACTIVITY_LEVEL_KEY)? as usize;
@@ -76,7 +86,7 @@ impl PipelineParts {
   fn create_activities_clustering_params<'a>(
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<ActivitiesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<ActivitiesClusteringParams<'a>, PipelinePartExecutionError> {
     let vis_params = Self::create_activities_visualization_params(context, config)?;
     let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
     let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
@@ -166,9 +176,9 @@ impl PipelineParts {
   pub(crate) fn create_traces_clustering_params<'a>(
     context: &'a mut PipelineContext,
     config: &'a UserDataImpl,
-  ) -> Result<TracesClusteringParams<'a, XesEventLogImpl>, PipelinePartExecutionError> {
+  ) -> Result<TracesClusteringParams<'a>, PipelinePartExecutionError> {
     let distance = *Self::get_user_data(config, &DISTANCE_KEY)?;
-    let repr_source = *Self::get_user_data(config, &TRACES_REPRESENTATION_SOURCE_KEY)?;
+    let repr_source = *Self::get_user_data(config, &TRACES_REPR_SOURCE_KEY)?;
     let feature_count_kind = *Self::get_user_data(config, &FEATURE_COUNT_KIND_KEY)?;
 
     let feature_count_kind = match feature_count_kind {

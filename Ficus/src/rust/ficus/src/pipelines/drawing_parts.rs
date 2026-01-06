@@ -1,23 +1,22 @@
 use fancy_regex::Regex;
-use std::collections::HashMap;
-use std::ops::Deref;
+use std::{collections::HashMap, ops::Deref};
 
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::pipelines::keys::context_keys::{
-  ATTRIBUTE_KEY, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES_KEY,
-};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::colors::{ColorsEventLog, ColorsHolder};
-use crate::utils::references::HeapedOrOwned;
 use crate::{
   event_log::{
     core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
-    xes::xes_event::XesEventImpl,
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
   },
   features::analysis::patterns::activity_instances::{SubTraceKind, UNDEF_ACTIVITY_NAME},
+  pipelines::{
+    keys::context_keys::{
+      ATTRIBUTE_KEY, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES_KEY,
+    },
+    pipeline_parts::PipelineParts,
+  },
   utils::{
-    colors::{Color, ColoredRectangle},
+    colors::{Color, ColoredRectangle, ColorsEventLog, ColorsHolder},
+    references::HeapedOrOwned,
     user_data::user_data::UserData,
   },
 };

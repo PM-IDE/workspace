@@ -1,16 +1,17 @@
 use quick_xml::Writer;
-use std::fs::File;
-use std::{cell::RefCell, io::Cursor};
+use std::{cell::RefCell, fs::File, io::Cursor};
 
-use crate::event_log::{
-  core::{
-    event::event::{Event, EventPayloadValue},
-    event_log::EventLog,
-    trace::trace::Trace,
+use crate::{
+  event_log::{
+    core::{
+      event::event::{Event, EventPayloadValue},
+      event_log::EventLog,
+      trace::trace::Trace,
+    },
+    xes::{constants::*, xes_event_log::XesEventLogImpl},
   },
-  xes::{constants::*, xes_event_log::XesEventLogImpl},
+  utils::xml_utils::{write_empty, StartEndElementCookie, XmlWriteError},
 };
-use crate::utils::xml_utils::{write_empty, StartEndElementCookie, XmlWriteError};
 
 pub fn write_xes_log_to_bytes(log: &XesEventLogImpl) -> Result<Vec<u8>, XmlWriteError> {
   match serialize_event_log(log) {

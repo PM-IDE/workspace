@@ -1,8 +1,9 @@
-use std::collections::{HashSet, VecDeque};
-use std::hash::Hash;
+use std::{
+  collections::{HashSet, VecDeque},
+  hash::Hash,
+};
 
-use super::interval::Interval;
-use super::node::Node;
+use super::{interval::Interval, node::Node};
 
 pub struct IntervalTree<TElement, TRangeCreator, TElementIterator, TData>
 where

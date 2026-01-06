@@ -1,5 +1,4 @@
-use crate::features::discovery::petri_net::arc::Arc;
-use crate::features::discovery::petri_net::ids::next_id;
+use crate::features::discovery::petri_net::{arc::Arc, ids::next_id};
 use std::hash::{Hash, Hasher};
 
 #[derive(Debug)]

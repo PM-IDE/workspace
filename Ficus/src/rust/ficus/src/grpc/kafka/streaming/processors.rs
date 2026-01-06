@@ -1,17 +1,23 @@
-use crate::grpc::events::events_handler::CaseName;
-use crate::grpc::kafka::models::{
-  KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
-  KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
+use crate::{
+  grpc::{
+    events::events_handler::CaseName,
+    kafka::{
+      models::{
+        KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
+        KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
+      },
+      streaming::{t1::processors::T1StreamingProcessor, t2::processors::T2StreamingProcessor},
+    },
+  },
+  pipelines::{
+    context::PipelineContext,
+    keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY},
+  },
+  utils::user_data::user_data::UserData,
 };
-use crate::grpc::kafka::streaming::t1::processors::T1StreamingProcessor;
-use crate::grpc::kafka::streaming::t2::processors::T2StreamingProcessor;
-use crate::pipelines::context::PipelineContext;
-use crate::pipelines::keys::context_keys::{CASE_NAME, PROCESS_NAME, UNSTRUCTURED_METADATA};
-use crate::utils::user_data::user_data::UserData;
 use bxes::models::domain::bxes_value::BxesValue;
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
-use std::collections::HashMap;
-use std::rc::Rc;
+use std::{collections::HashMap, rc::Rc};
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -100,10 +106,10 @@ fn add_system_metadata(
 ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
   let metadata = ExtractedTraceMetadata::create_from(metadata)?;
 
-  context.put_concrete(PROCESS_NAME.key(), metadata.process.process_name);
-  context.put_concrete(UNSTRUCTURED_METADATA.key(), metadata.unstructured_metadata);
+  context.put_concrete(PROCESS_NAME_KEY.key(), metadata.process.process_name);
+  context.put_concrete(UNSTRUCTURED_METADATA_KEY.key(), metadata.unstructured_metadata);
   context.put_concrete(
-    CASE_NAME.key(),
+    CASE_NAME_KEY.key(),
     CaseName {
       display_name: metadata.case.case_display_name,
       name_parts: metadata.case.case_name_parts,

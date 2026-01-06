@@ -1,14 +1,9 @@
 use std::str::FromStr;
 
-use crate::{
-  event_log::core::event_log::EventLog, features::clustering::common::CommonVisualizationParams, utils::distance::distance::FicusDistance,
-};
+use crate::{features::clustering::common::CommonVisualizationParams, utils::distance::distance::FicusDistance};
 
-pub struct TracesClusteringParams<'a, TLog>
-where
-  TLog: EventLog,
-{
-  pub vis_params: CommonVisualizationParams<'a, TLog>,
+pub struct TracesClusteringParams<'a> {
+  pub vis_params: CommonVisualizationParams<'a>,
   pub distance: FicusDistance,
   pub repr_source: TracesRepresentationSource,
   pub feature_count_kind: FeatureCountKind,

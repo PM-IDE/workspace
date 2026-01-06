@@ -3,15 +3,6 @@ use std::{cell::RefCell, rc::Rc};
 use chrono::{DateTime, Duration, Utc};
 
 use super::pipelines::PipelinePartFactory;
-use crate::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::pipelines::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::pipelines::keys::context_keys::{
-  EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY, PIPELINE_KEY,
-};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::pipelines::pipelines::PipelinePart;
-use crate::utils::graph::graphs_merging::merge_graphs;
 use crate::{
   event_log::{
     core::{
@@ -24,7 +15,20 @@ use crate::{
     },
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
   },
-  utils::user_data::user_data::{UserData, UserDataImpl},
+  features::analysis::log_info::{event_log_info::OfflineEventLogInfo, log_info_creation_dto::EventLogInfoCreationDto},
+  pipelines::{
+    errors::pipeline_errors::PipelinePartExecutionError,
+    keys::context_keys::{
+      EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY,
+      PIPELINE_KEY,
+    },
+    pipeline_parts::PipelineParts,
+    pipelines::PipelinePart,
+  },
+  utils::{
+    graph::graphs_merging::merge_graphs,
+    user_data::user_data::{UserData, UserDataImpl},
+  },
 };
 
 impl PipelineParts {

@@ -1,10 +1,18 @@
-use crate::pipelines::context::{PipelineContext, PipelineInfrastructure};
-use crate::pipelines::errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError};
-use crate::pipelines::pipelines::{DefaultPipelinePart, PipelinePartFactory};
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::performance::performance_cookie::performance_cookie;
-use crate::utils::user_data::keys::Key;
-use crate::utils::user_data::user_data::{UserData, UserDataImpl};
+use crate::{
+  pipelines::{
+    context::{PipelineContext, PipelineInfrastructure},
+    errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError},
+    pipelines::{DefaultPipelinePart, PipelinePartFactory},
+  },
+  utils::{
+    context_key::DefaultContextKey,
+    performance::performance_cookie::performance_cookie,
+    user_data::{
+      keys::Key,
+      user_data::{UserData, UserDataImpl},
+    },
+  },
+};
 use derive_new::new;
 use fancy_regex::Regex;
 use std::collections::HashMap;

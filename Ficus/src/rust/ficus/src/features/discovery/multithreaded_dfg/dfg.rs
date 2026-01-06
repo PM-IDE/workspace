@@ -1,27 +1,29 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::event_log::xes::xes_event_log::XesEventLogImpl;
-use crate::event_log::xes::xes_trace::XesTraceImpl;
-use crate::features::discovery::timeline::events_groups::EventGroup;
-use crate::features::discovery::timeline::software_data::extraction_config::SoftwareDataExtractionConfig;
-use crate::features::discovery::timeline::utils::extract_thread_id;
-use crate::utils::context_key::DefaultContextKey;
-use crate::utils::graph::graph::{DefaultGraph, NodesConnectionData};
-use crate::utils::references::HeapedOrOwned;
-use crate::utils::user_data::user_data::UserData;
+use crate::{
+  context_key,
+  event_log::{
+    core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+  },
+  features::discovery::timeline::{
+    events_groups::EventGroup, software_data::extraction_config::SoftwareDataExtractionConfig, utils::extract_thread_id,
+  },
+  utils::{
+    graph::graph::{DefaultGraph, NodesConnectionData},
+    references::HeapedOrOwned,
+    user_data::user_data::UserData,
+  },
+};
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use std::{
+  cell::RefCell,
+  collections::{HashMap, HashSet},
+  rc::Rc,
+};
 
 const MULTITHREADED_FRAGMENT: &'static str = "MULTITHREADED_FRAGMENT";
 
-lazy_static! {
-  pub static ref MULTITHREAD_FRAGMENT_KEY: DefaultContextKey<XesEventLogImpl> = DefaultContextKey::new(MULTITHREADED_FRAGMENT);
-}
+context_key! { MULTITHREADED_FRAGMENT, XesEventLogImpl }
 
 pub enum MultithreadedTracePartsCreationStrategy {
   Regexes(Vec<Regex>),
@@ -101,7 +103,7 @@ pub fn enumerate_multithreaded_events_groups(
 
           group
             .user_data_mut()
-            .put_concrete(MULTITHREAD_FRAGMENT_KEY.key(), multithreaded_fragment_log);
+            .put_concrete(MULTITHREADED_FRAGMENT_KEY.key(), multithreaded_fragment_log);
 
           trace_groups.push(group);
         }

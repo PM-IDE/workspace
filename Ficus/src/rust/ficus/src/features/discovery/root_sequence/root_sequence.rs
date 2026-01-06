@@ -1,6 +1,10 @@
-use crate::features::discovery::root_sequence::models::RootSequenceKind;
-use crate::utils::distance::distance::calculate_lcs_distance;
-use crate::utils::lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length};
+use crate::{
+  features::discovery::root_sequence::models::RootSequenceKind,
+  utils::{
+    distance::distance::calculate_lcs_distance,
+    lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length},
+  },
+};
 use std::fmt::Debug;
 
 pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>, root_sequence_kind: RootSequenceKind) -> Vec<T> {

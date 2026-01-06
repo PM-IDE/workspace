@@ -1,18 +1,25 @@
 use crate::test_core::simple_events_logs_provider::{create_event_log_with_simple_real_time, create_simple_event_log};
-use ficus::event_log::xes::xes_event_log::XesEventLogImpl;
-use ficus::features::analysis::directly_follows_graph::construct_dfg;
-use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use ficus::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use ficus::features::discovery::alpha::alpha::discover_petri_net_alpha;
-use ficus::features::discovery::alpha::providers::alpha_provider::DefaultAlphaRelationsProvider;
-use ficus::features::discovery::petri_net::annotations::{
-  annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency, TimeAnnotationKind,
+use ficus::{
+  event_log::xes::xes_event_log::XesEventLogImpl,
+  features::{
+    analysis::{
+      directly_follows_graph::construct_dfg,
+      log_info::{event_log_info::OfflineEventLogInfo, log_info_creation_dto::EventLogInfoCreationDto},
+    },
+    discovery::{
+      alpha::{alpha::discover_petri_net_alpha, providers::alpha_provider::DefaultAlphaRelationsProvider},
+      petri_net::{
+        annotations::{
+          annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency,
+          TimeAnnotationKind,
+        },
+        petri_net::DefaultPetriNet,
+      },
+    },
+  },
+  utils::graph::graph::DefaultGraph,
 };
-use ficus::features::discovery::petri_net::petri_net::DefaultPetriNet;
-use ficus::utils::graph::graph::DefaultGraph;
-use std::collections::HashMap;
-use std::fmt::Debug;
-use std::ops::Deref;
+use std::{collections::HashMap, fmt::Debug, ops::Deref};
 
 #[test]
 pub fn test_simple_count_annotation() {

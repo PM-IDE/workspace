@@ -1,6 +1,7 @@
-use crate::features::discovery::timeline::discovery::TraceThread;
-use crate::features::discovery::timeline::software_data::extraction_config::TimeKind;
-use crate::utils::references::HeapedOrOwned;
+use crate::{
+  features::discovery::timeline::{discovery::TraceThread, software_data::extraction_config::TimeKind},
+  utils::references::HeapedOrOwned,
+};
 use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::{Getters, MutGetters};

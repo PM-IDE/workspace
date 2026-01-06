@@ -1,6 +1,10 @@
-use crate::event_log::core::event::event::{Event, EventPayloadValue};
-use crate::event_log::xes::xes_event::XesEventImpl;
-use crate::features::discovery::timeline::discovery::LogThreadsDiagramError;
+use crate::{
+  event_log::{
+    core::event::event::{Event, EventPayloadValue},
+    xes::xes_event::XesEventImpl,
+  },
+  features::discovery::timeline::discovery::LogThreadsDiagramError,
+};
 use chrono::{DateTime, Utc};
 
 pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<String> {

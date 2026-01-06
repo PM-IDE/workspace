@@ -1,23 +1,28 @@
-use crate::ficus_proto::grpc_kafka_service_server::GrpcKafkaService;
-use crate::ficus_proto::{
-  grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest,
-  GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSubscription,
-  GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata, GrpcPipelinePartExecutionResult,
-  GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest, GrpcSubscriptionPipeline,
-  GrpcUnsubscribeFromKafkaRequest,
+use crate::{
+  ficus_proto::{
+    grpc_kafka_result, grpc_kafka_service_server::GrpcKafkaService, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest,
+    GrpcExecutePipelineAndProduceKafkaRequest, GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGuid, GrpcKafkaFailedResult,
+    GrpcKafkaResult, GrpcKafkaSubscription, GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata,
+    GrpcPipelinePartExecutionResult, GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest,
+    GrpcSubscriptionPipeline, GrpcUnsubscribeFromKafkaRequest,
+  },
+  grpc::{
+    context_values_service::ContextValueService,
+    events::{
+      delegating_events_handler::DelegatingEventsHandler,
+      events_handler::{CaseName, PipelineEvent, PipelineEventsHandler, PipelineFinalResult},
+      grpc_events_handler::GrpcPipelineEventsHandler,
+    },
+    kafka::{kafka_service::KafkaService, models::PipelineExecutionDto},
+  },
+  pipelines::{
+    keys::context_keys::{CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY},
+    pipeline_parts::PipelineParts,
+  },
+  utils::user_data::user_data::UserData,
 };
-use crate::grpc::context_values_service::ContextValueService;
-use crate::grpc::events::delegating_events_handler::DelegatingEventsHandler;
-use crate::grpc::events::events_handler::{CaseName, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
-use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
-use crate::grpc::kafka::kafka_service::KafkaService;
-use crate::grpc::kafka::models::PipelineExecutionDto;
-use crate::pipelines::keys::context_keys::{CASE_NAME, PIPELINE_ID, PIPELINE_NAME, PROCESS_NAME, SUBSCRIPTION_ID, SUBSCRIPTION_NAME};
-use crate::pipelines::pipeline_parts::PipelineParts;
-use crate::utils::user_data::user_data::UserData;
 use futures::Stream;
-use std::pin::Pin;
-use std::sync::{Arc, Mutex};
+use std::{pin::Pin, sync::Arc};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
@@ -211,14 +216,14 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
       let context = KafkaService::create_pipeline_execution_context_from_proxy(pipeline, &context_values, &dto);
 
       let execution_result = context.execute_grpc_pipeline(move |context| {
-        context.put_concrete(SUBSCRIPTION_ID.key(), subscription_id.unwrap());
-        context.put_concrete(PIPELINE_ID.key(), pipeline_id.unwrap());
-        context.put_concrete(SUBSCRIPTION_NAME.key(), subscription_name);
-        context.put_concrete(PIPELINE_NAME.key(), pipeline_name);
+        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), subscription_id.unwrap());
+        context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id.unwrap());
+        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), subscription_name);
+        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline_name);
 
-        context.put_concrete(PROCESS_NAME.key(), process_name);
+        context.put_concrete(PROCESS_NAME_KEY.key(), process_name);
         context.put_concrete(
-          CASE_NAME.key(),
+          CASE_NAME_KEY.key(),
           CaseName {
             display_name: case_name.to_string(),
             name_parts: vec![case_name.to_string()],

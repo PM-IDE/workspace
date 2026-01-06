@@ -1,5 +1,4 @@
-use crate::features::discovery::petri_net::ids::next_id;
-use crate::utils::user_data::user_data::UserDataImpl;
+use crate::{features::discovery::petri_net::ids::next_id, utils::user_data::user_data::UserDataImpl};
 
 const EMPTY_PLACE_NAME: &'static str = "EmptyPlace";
 

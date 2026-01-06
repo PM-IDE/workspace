@@ -1,6 +1,4 @@
-use crate::event_log::core::event::event::Event;
-use crate::event_log::core::event_log::EventLog;
-use crate::event_log::core::trace::trace::Trace;
+use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
 use std::collections::HashMap;
 
 pub trait TriangleRelation {

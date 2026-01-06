@@ -1,5 +1,7 @@
-use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
-use crate::utils::references::HeapedOrOwned;
+use crate::{
+  features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME},
+  utils::references::HeapedOrOwned,
+};
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, Setters};

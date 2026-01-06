@@ -1,19 +1,25 @@
-use crate::features::discovery::timeline::events_groups::{discover_events_groups, TraceEventsGroup};
-use crate::features::discovery::timeline::utils::{extract_thread_id, get_stamp};
-use crate::pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError};
 use crate::{
-  event_log::core::event_log::EventLog, event_log::core::trace::trace::Trace, event_log::xes::xes_event::XesEventImpl,
-  event_log::xes::xes_event_log::XesEventLogImpl,
+  event_log::{
+    core::{event_log::EventLog, trace::trace::Trace},
+    xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
+  },
+  features::discovery::timeline::{
+    events_groups::{discover_events_groups, TraceEventsGroup},
+    utils::{extract_thread_id, get_stamp},
+  },
+  pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
 };
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, MutGetters};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::error::Error;
-use std::fmt::{Debug, Display, Formatter};
-use std::ops::Deref;
-use std::rc::Rc;
+use std::{
+  cell::RefCell,
+  collections::HashMap,
+  error::Error,
+  fmt::{Debug, Display, Formatter},
+  ops::Deref,
+  rc::Rc,
+};
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {

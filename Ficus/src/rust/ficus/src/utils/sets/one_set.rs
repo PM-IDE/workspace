@@ -1,7 +1,9 @@
 use crate::utils::hash_utils::compare_based_on_hashes;
-use std::collections::BTreeSet;
-use std::hash::{Hash, Hasher};
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::{
+  collections::BTreeSet,
+  hash::{Hash, Hasher},
+  sync::atomic::{AtomicU64, Ordering},
+};
 
 pub struct OneSet<T>
 where

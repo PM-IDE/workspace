@@ -4,7 +4,7 @@ use ficus::grpc::context_values_service::{ContextValueService, GrpcContextValueS
 use ficus::grpc::kafka::grpc_kafka_service::GrpcKafkaServiceImpl;
 use ficus::{ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer, grpc::backend_service::FicusService};
 use log::{info, LevelFilter};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tonic::transport::Server;
 
 #[tokio::main]

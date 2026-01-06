@@ -1,15 +1,26 @@
-use crate::event_log::core::event_log::EventLog;
-use crate::features::analysis::log_info::event_log_info::{EventLogInfo, OfflineEventLogInfo};
-use crate::features::analysis::log_info::log_info_creation_dto::EventLogInfoCreationDto;
-use crate::features::discovery::alpha::alpha::find_transitions_one_length_loop;
-use crate::features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider;
-use crate::features::discovery::alpha::providers::alpha_sharp_provider::AlphaSharpRelationsProvider;
-use crate::features::discovery::alpha::utils::maximize;
-use crate::features::discovery::relations::triangle_relation::TriangleRelation;
-use crate::utils::hash_utils::compare_based_on_hashes;
+use crate::{
+  event_log::core::event_log::EventLog,
+  features::{
+    analysis::log_info::{
+      event_log_info::{EventLogInfo, OfflineEventLogInfo},
+      log_info_creation_dto::EventLogInfoCreationDto,
+    },
+    discovery::{
+      alpha::{
+        alpha::find_transitions_one_length_loop,
+        providers::{alpha_provider::AlphaRelationsProvider, alpha_sharp_provider::AlphaSharpRelationsProvider},
+        utils::maximize,
+      },
+      relations::triangle_relation::TriangleRelation,
+    },
+  },
+  utils::hash_utils::compare_based_on_hashes,
+};
 use log::debug;
-use std::collections::{BTreeSet, HashSet};
-use std::hash::{Hash, Hasher};
+use std::{
+  collections::{BTreeSet, HashSet},
+  hash::{Hash, Hasher},
+};
 
 type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a String>, BTreeSet<&'a String>)>;
 
@@ -20,14 +31,6 @@ struct AlphaSharpTuple<'a> {
 }
 
 impl<'a> AlphaSharpTuple<'a> {
-  pub fn empty(provider: &'a AlphaSharpRelationsProvider<'a>) -> Self {
-    Self {
-      provider,
-      p_in: AlphaSharpSet::new(),
-      p_out: AlphaSharpSet::new(),
-    }
-  }
-
   pub fn try_create_new(
     p_in: (&'a String, &'a String),
     p_out: (&'a String, &'a String),
@@ -196,20 +199,22 @@ impl<'a> ToString for AlphaSharpTuple<'a> {
 
 impl<'a> Clone for AlphaSharpTuple<'a> {
   fn clone(&self) -> Self {
+    let construct_set = |set: &AlphaSharpSet<'a>| -> AlphaSharpSet<'a> {
+      set
+        .iter()
+        .map(|t| {
+          (
+            BTreeSet::from_iter(t.0.iter().map(|r| *r)),
+            BTreeSet::from_iter(t.0.iter().map(|r| *r)),
+          )
+        })
+        .collect()
+    };
+
     Self {
       provider: self.provider,
-      p_in: BTreeSet::from_iter(self.p_in.iter().map(|t| {
-        (
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-        )
-      })),
-      p_out: BTreeSet::from_iter(self.p_out.iter().map(|t| {
-        (
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-          BTreeSet::from_iter(t.0.iter().map(|r| r.clone())),
-        )
-      })),
+      p_in: construct_set(&self.p_in),
+      p_out: construct_set(&self.p_out),
     }
   }
 }
