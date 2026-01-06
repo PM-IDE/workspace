@@ -37,67 +37,89 @@ public static class OcelLogger
   }
 
 
-  public static void LogObjectAllocated<T>(T obj) where T : class
+  public static long? LogObjectAllocated<T>(T obj) where T : class
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
-    OcelEventsSource.Instance.OcelObjectAllocated(GetObjectId(obj), GetObjectType(obj), string.Empty);
+    var id = GetObjectId(obj);
+    OcelEventsSource.Instance.OcelObjectAllocated(id, GetObjectType(obj), string.Empty);
+
+    return id;
   }
 
-  public static void LogObjectAllocatedRaw(in OcelObjectDto dto)
+  public static long? LogObjectAllocatedRaw(in OcelObjectDto dto)
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
     OcelEventsSource.Instance.OcelObjectAllocated(dto.Id, dto.Type, string.Empty);
+
+    return dto.Id;
   }
 
-  public static void LogObjectConsumed<T>(T obj, string? category = null)
+  public static long? LogObjectConsumed<T>(T obj, string? category = null)
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
-    OcelEventsSource.Instance.OcelObjectConsumed(GetObjectId(obj), category, string.Empty);
+    var id = GetObjectId(obj);
+    OcelEventsSource.Instance.OcelObjectConsumed(id, category, string.Empty);
+
+    return id;
   }
 
-  public static void LogObjectConsumedRaw(in OcelObjectDto dto)
+  public static long? LogObjectConsumedRaw(in OcelObjectDto dto)
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
     OcelEventsSource.Instance.OcelObjectConsumed(dto.Id, dto.Type, string.Empty);
+
+    return dto.Id;
   }
 
-  public static void LogConsumeProduceRaw(long objectId, params OcelObjectDto[] relatedObjectIds)
+  public static long? LogConsumeProduceRaw(long objectId, params OcelObjectDto[] relatedObjectIds)
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
     var relatedIds = JoinObjectsIds(relatedObjectIds.Select(o => o.Id));
     var relatedTypes = JoinObjectTypes(relatedObjectIds.Select(o => o.Type));
 
     OcelEventsSource.Instance.OcelConsumeProduce(objectId, relatedIds, relatedTypes, string.Empty);
+
+    return objectId;
   }
 
-  public static void LogConsumeProduce<T>(T obj, params T[] relatedObjects)
+  public static long? LogConsumeProduce<T>(T obj, params T[] relatedObjects)
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
     var relatedObjectTypes = JoinObjectTypes(relatedObjectIds.Select(GetObjectType));
 
-    OcelEventsSource.Instance.OcelConsumeProduce(GetObjectId(obj), relatedObjectIds, relatedObjectTypes, string.Empty);
+    var id = GetObjectId(obj);
+    OcelEventsSource.Instance.OcelConsumeProduce(id, relatedObjectIds, relatedObjectTypes, string.Empty);
+
+    return id;
   }
 
-  public static void LogMergeAllocateRaw(OcelObjectDto allocatedObject, params long[] relatedObjectIds)
+  public static long? LogMergeAllocateRaw(OcelObjectDto allocatedObject, params long[] relatedObjectIds)
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
-    OcelEventsSource.Instance.OcelMergeAllocate(allocatedObject.Id, allocatedObject.Type, JoinObjectsIds(relatedObjectIds), string.Empty);
+    OcelEventsSource.Instance.OcelMergeAllocate(
+      allocatedObject.Id, allocatedObject.Type, JoinObjectsIds(relatedObjectIds), string.Empty);
+
+    return allocatedObject.Id;
   }
 
-  public static void LogMergeAllocate<T>(T obj, params T[] relatedObjects)
+  public static long? LogMergeAllocate<T>(T obj, params T[] relatedObjects)
   {
-    if (!IsEnabled()) return;
+    if (!IsEnabled()) return null;
 
     var relatedObjectIds = JoinObjectsIds(relatedObjects.Select(GetObjectId));
-    OcelEventsSource.Instance.OcelMergeAllocate(GetObjectId(obj), GetObjectType(obj), relatedObjectIds, string.Empty);
+    var id = GetObjectId(obj);
+
+    OcelEventsSource.Instance.OcelMergeAllocate(id, GetObjectType(obj), relatedObjectIds, string.Empty);
+
+    return id;
   }
 
   private static string JoinObjectsIds(IEnumerable<long> objectIds) => string.Join(Delimiter, objectIds);
