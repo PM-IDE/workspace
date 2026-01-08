@@ -127,26 +127,54 @@ internal interface ILogsProcessor : IDisposable
 internal class RustcLogsParser(string outputPath) : ILogsProcessor
 {
   private readonly SingleFileBxesStreamWriterImpl<InMemoryEventImpl> myWriter = new(outputPath, 1);
+  private readonly Lock myLock = new();
+
+  private volatile bool myIsDisposed;
 
 
   public void Initialize() => myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, []));
 
   public void Process(string? line)
   {
-    if (line is null) return;
+    if (myIsDisposed || line is null) return;
 
     line = line.Trim();
 
-    if (!line.StartsWith("INFO")) return;
+    if (!line.StartsWith("INFO"))
+    {
+      AnsiConsole.Markup("[yellow]Skipping line:[/]");
+      AnsiConsole.WriteLine(line);
+      return;
+    }
 
     var @event = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(line), []);
-    myWriter.HandleEvent(new BxesEventEvent<InMemoryEventImpl>(@event));
+
+    using (myLock.EnterScope())
+    {
+      if (myIsDisposed)
+      {
+        AnsiConsole.MarkupLine($"[red]The writer is disposed, will not write event [/] {@event.Name}");
+        return;
+      }
+
+      myWriter.HandleEvent(new BxesEventEvent<InMemoryEventImpl>(@event));
+    }
 
     AnsiConsole.MarkupLine($"[green]Processed event:[/] {@event.Name}");
   }
 
   public void Dispose()
   {
-    myWriter.Dispose();
+    using var _ = myLock.EnterScope();
+
+    try
+    {
+      myWriter.Dispose();
+      AnsiConsole.WriteLine("Disposed writer");
+    }
+    finally
+    {
+      myIsDisposed = true;
+    }
   }
 }
