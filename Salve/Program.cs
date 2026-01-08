@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Bxes.Models.Domain;
 using Bxes.Models.Domain.Values;
 using Bxes.Utils;
@@ -124,10 +125,17 @@ internal interface ILogsProcessor : IDisposable
   void Process(string? line);
 }
 
-internal class RustcLogsParser(string outputPath) : ILogsProcessor
+internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
 {
+  private readonly record struct Event(string Message, string Group);
+
+
+  [GeneratedRegex("rustc_([a-z])+::([a-z])+")]
+  private static partial Regex MessageGroupRegex();
+
   private readonly SingleFileBxesStreamWriterImpl<InMemoryEventImpl> myWriter = new(outputPath, 1);
   private readonly Lock myLock = new();
+  private readonly List<Event> myEvents = [];
 
   private volatile bool myIsDisposed;
 
@@ -140,32 +148,48 @@ internal class RustcLogsParser(string outputPath) : ILogsProcessor
 
     line = line.Trim();
 
-    if (!line.StartsWith("INFO"))
+    if (!ShouldProcess(line, out var group))
     {
       AnsiConsole.Markup("[yellow]Skipping line:[/]");
       AnsiConsole.WriteLine(line);
       return;
     }
 
-    var @event = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(line), []);
-
     using (myLock.EnterScope())
     {
       if (myIsDisposed)
       {
-        AnsiConsole.MarkupLine($"[red]The writer is disposed, will not write event [/] {@event.Name}");
+        AnsiConsole.MarkupLine($"[red]The writer is disposed, will not write event [/] {line}");
         return;
       }
 
-      myWriter.HandleEvent(new BxesEventEvent<InMemoryEventImpl>(@event));
+      myEvents.Add(new Event(line, group.ToString()));
     }
 
-    AnsiConsole.MarkupLine($"[green]Processed event:[/] {@event.Name}");
+    AnsiConsole.MarkupLine($"[green]Processed event:[/] [gray]{line}[/], group [bold]{group}[/]");
+  }
+
+  private static bool ShouldProcess(string line, out ReadOnlySpan<char> messageGroup)
+  {
+    messageGroup = default;
+
+    if (!line.StartsWith("INFO")) return false;
+    if (MessageGroupRegex().Match(line) is not { } match) return false;
+
+    messageGroup = match.ValueSpan;
+
+    return true;
   }
 
   public void Dispose()
   {
     using var _ = myLock.EnterScope();
+
+    foreach (var @event in myEvents)
+    {
+      var bxesEvent = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(@event.Message), []);
+      myWriter.HandleEvent(new BxesEventEvent<InMemoryEventImpl>(bxesEvent));
+    }
 
     try
     {
