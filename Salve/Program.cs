@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using Bxes.Models.Domain;
+using Bxes.Models.Domain.Values;
+using Bxes.Utils;
 using Bxes.Writer.Stream;
 using JetBrains.Annotations;
 using Spectre.Console;
@@ -49,11 +51,20 @@ internal class SerializeOutputToBxesCommand : Command<SerializeOutputToBxesComma
   {
     try
     {
+      var directory = Path.GetDirectoryName(settings.OutputFilePath);
+      if (!Directory.Exists(directory))
+      {
+        throw new Exception($"Directory {directory} does not exist");
+      }
+
+      PathUtil.EnsureDeleted(settings.OutputFilePath);
+
       var info = new ProcessStartInfo
       {
         FileName = settings.Executable,
         RedirectStandardOutput = true,
         RedirectStandardError = true,
+        WorkingDirectory = settings.WorkingDirectory,
         Arguments = settings.Arguments,
         CreateNoWindow = true
       };
@@ -64,13 +75,14 @@ internal class SerializeOutputToBxesCommand : Command<SerializeOutputToBxesComma
       };
 
       var processor = LogsProcessorFactory.Create(settings.ParserKind, settings.OutputFilePath);
+      processor.Initialize();
 
       try
       {
         // ReSharper disable once AccessToDisposedClosure
-        process.OutputDataReceived += (sender, args) => processor.Process(args.Data);
+        process.OutputDataReceived += (_, args) => processor.Process(args.Data);
         // ReSharper disable once AccessToDisposedClosure
-        process.ErrorDataReceived += (sender, args) => processor.Process(args.Data);
+        process.ErrorDataReceived += (_, args) => processor.Process(args.Data);
 
         if (!process.Start())
         {
@@ -108,6 +120,7 @@ internal static class LogsProcessorFactory
 
 internal interface ILogsProcessor : IDisposable
 {
+  void Initialize();
   void Process(string? line);
 }
 
@@ -115,12 +128,21 @@ internal class RustcLogsParser(string outputPath) : ILogsProcessor
 {
   private readonly SingleFileBxesStreamWriterImpl<InMemoryEventImpl> myWriter = new(outputPath, 1);
 
+
+  public void Initialize() => myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, []));
+
   public void Process(string? line)
   {
-    if (line is { })
-    {
-      AnsiConsole.WriteLine(line);
-    }
+    if (line is null) return;
+
+    line = line.Trim();
+
+    if (!line.StartsWith("INFO")) return;
+
+    var @event = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(line), []);
+    myWriter.HandleEvent(new BxesEventEvent<InMemoryEventImpl>(@event));
+
+    AnsiConsole.MarkupLine($"[green]Processed event:[/] {@event.Name}");
   }
 
   public void Dispose()
