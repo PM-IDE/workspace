@@ -7,4 +7,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="Spectre.Console.Cli" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\bxes\src\csharp\Bxes\Bxes.csproj" />
+  </ItemGroup>
+
 </Project>
