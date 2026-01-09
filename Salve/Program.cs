@@ -144,16 +144,15 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     public Point Point => Event.Point;
   }
 
-  private class EventsIndex(List<Event> events, SortedList<string, int> index) : ISpatialIndex<PointInfo<EventWithTokens>>
+  private class EventsIndex(List<EventWithTokens> events) : ISpatialIndex<PointInfo<EventWithTokens>>
   {
     private readonly Dictionary<string, List<PointInfo<EventWithTokens>>> myEventsByGroups =
       events
-        .GroupBy(e => e.Group)
+        .GroupBy(e => e.Event.Group)
         .ToDictionary(
           e => e.Key,
           e => e
-            .Select(evt => new PointInfo<EventWithTokens>(new EventWithTokens(evt, ConvertMessageToTokens(evt.Message, index))))
-            .Where(evt => evt.Item.Tokens.Length < 8)
+            .Select(evt => new PointInfo<EventWithTokens>(evt))
             .ToList()
         );
 
@@ -285,7 +284,12 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
         .Select((e, index) => (e, index)).ToDictionary(p => p.e, p => p.index)
     );
 
-    var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(myEvents, index), 4, 2);
+    var eventsWithTokens = myEvents
+      .Select(e => new EventWithTokens(e, ConvertMessageToTokens(e.Message, index)))
+      .Where(et => et.Tokens.Length < 8)
+      .ToList();
+
+    var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(eventsWithTokens), 4, 2);
 
     foreach (var cluster in clusters.Clusters)
     {
@@ -366,12 +370,13 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     AnsiConsole.MarkupLine("[blue]UNCLUSTERED[/]");
     foreach (var obj in clusters.UnclusteredObjects)
     {
+      obj.Event.Message = $"[{obj.Event.Message}]";
       Console.WriteLine(obj.Event.Message);
     }
 
-    foreach (var @event in myEvents)
+    foreach (var @event in eventsWithTokens)
     {
-      var bxesEvent = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(@event.Message), []);
+      var bxesEvent = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(@event.Event.Message), []);
       myWriter.HandleEvent(new BxesEventEvent<InMemoryEventImpl>(bxesEvent));
     }
 
