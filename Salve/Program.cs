@@ -161,6 +161,8 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
         }
 
         var secondWord = ConvertMessageToWord(evt.Item.Message, index);
+        if (secondWord.Length != firstWord.Length) continue;
+
         var distance = CalculateEditDistance(firstWord, secondWord);
 
         if (distance <= epsilon)
