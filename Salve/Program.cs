@@ -206,7 +206,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
   }
 
 
-  [GeneratedRegex("rustc_([a-z])+::([a-z])+")]
+  [GeneratedRegex("rustc_[a-z]+::[a-z]+")]
   private static partial Regex MessageGroupRegex();
 
   private readonly SingleFileBxesStreamWriterImpl<InMemoryEventImpl> myWriter = new(outputPath, 1);
@@ -242,7 +242,8 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       myEvents.Add(new Event(line, group.ToString()));
     }
 
-    AnsiConsole.MarkupLine($"[green]Processed event:[/] [gray]{line}[/], group [bold]{group}[/]");
+    AnsiConsole.MarkupLine(
+      $"[green]Processed event:[/] [gray]{Markup.Escape(line)}[/], group [bold]{Markup.Escape(group.ToString())}[/]");
   }
 
   private static bool ShouldProcess(string line, out ReadOnlySpan<char> messageGroup)
@@ -285,9 +286,10 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       AnsiConsole.Markup("[blue]LCS:[/] ");
       foreach (var idx in lcs)
       {
-        AnsiConsole.Markup($"{index.GetKeyAtIndex(index.IndexOfValue(idx))} ");
+        Console.Write($"{index.GetKeyAtIndex(index.IndexOfValue(idx))} ");
       }
 
+      AnsiConsole.WriteLine();
       AnsiConsole.WriteLine();
     }
 
@@ -330,9 +332,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       }
     }
 
-    var lcs = RestoreLcs(first, second, dp, n, m);
-
-    return lcs;
+    return RestoreLcs(first, second, dp, n, m);
   }
 
   private static int[] ConvertMessageToWord(string message, SortedList<string, int> index) =>
