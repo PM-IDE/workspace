@@ -136,10 +136,20 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
 
   private class EventsIndex(List<Event> events) : ISpatialIndex<PointInfo<Event>>
   {
+    private const char Separator = ' ';
+
+
     private readonly Dictionary<string, List<PointInfo<Event>>> myEventsByGroups =
       events
         .GroupBy(e => e.Group)
         .ToDictionary(e => e.Key, e => e.Select(evt => new PointInfo<Event>(evt)).ToList());
+
+
+    private readonly SortedList<string, int> myWordsIndex = new(
+      events.SelectMany(e => e.Message.Split(Separator))
+        .ToHashSet()
+        .Select((e, index) => (e, index)).ToDictionary(p => p.e, p => p.index)
+    );
 
 
     public IReadOnlyList<PointInfo<Event>> Search() => myEventsByGroups.Values.SelectMany(v => v).ToList();
@@ -149,6 +159,8 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       var point = (PointInfo<Event>)p;
       var result = new List<PointInfo<Event>>();
 
+      var firstWord = ConvertMessageToWord(point.Item.Message);
+
       foreach (var evt in myEventsByGroups[point.Item.Group])
       {
         if (ReferenceEquals(evt, point))
@@ -156,7 +168,9 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
           continue;
         }
 
-        var distance = CalculateEditDistance(point.Item.Message.AsSpan(), evt.Item.Message.AsSpan());
+        var secondWord = ConvertMessageToWord(evt.Item.Message);
+        var distance = CalculateEditDistance(firstWord, secondWord);
+
         if (distance <= epsilon)
         {
           result.Add(evt);
@@ -164,6 +178,8 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       }
 
       return result;
+
+      int[] ConvertMessageToWord(string message) => message.Split(Separator).Select(word => myWordsIndex[word]).ToArray();
     }
 
     private static int CalculateEditDistance<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second) where T : IEqualityOperators<T, T, bool>
