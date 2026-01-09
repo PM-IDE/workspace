@@ -9,16 +9,16 @@ using WordsIndex = System.Collections.Generic.SortedList<string, int>;
 
 namespace Salve;
 
-internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
+internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventNames) : ILogsProcessor
 {
   private const char Separator = ' ';
-
 
   [GeneratedRegex("rustc(_[a-z]+)+(::[a-z_]+)*")]
   private static partial Regex MessageGroupRegex();
 
   [GeneratedRegex("[0-9]+ms")]
   private static partial Regex MsRegex();
+
 
   private readonly SingleFileBxesStreamWriterImpl<InMemoryEventImpl> myWriter = new(outputPath, 1);
   private readonly Lock myLock = new();
@@ -85,10 +85,20 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       .Where(et => et.Tokens.Length < 8)
       .ToList();
 
-    var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(eventsWithTokens), 4, 2);
+    if (useGroupsAsEventNames)
+    {
+      foreach (var evt in eventsWithTokens)
+      {
+        evt.Event.Message = evt.Event.Group;
+      }
+    }
+    else
+    {
+      var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(eventsWithTokens), 4, 2);
 
-    ProcessClusters(clusters, index);
-    LogUnclusteredEvents(clusters);
+      ProcessClusters(clusters, index);
+      LogUnclusteredEvents(clusters);
+    }
 
     foreach (var @event in eventsWithTokens)
     {
