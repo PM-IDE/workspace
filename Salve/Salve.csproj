@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dbscan" />
     <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="Spectre.Console.Cli" />
   </ItemGroup>
