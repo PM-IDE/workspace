@@ -280,7 +280,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       var lcs = ConvertMessageToWord(cluster.Objects[0].Message, index);
       foreach (var obj in cluster.Objects.Skip(1))
       {
-        AnsiConsole.WriteLine(obj.Message);
+        Console.WriteLine(obj.Message);
 
         lcs = FindLcs(ConvertMessageToWord(obj.Message, index), lcs);
       }
@@ -293,6 +293,12 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
 
       AnsiConsole.WriteLine();
       AnsiConsole.WriteLine();
+    }
+
+    AnsiConsole.MarkupLine("[blue]UNCLUSTERED[/]");
+    foreach (var obj in clusters.UnclusteredObjects)
+    {
+      Console.WriteLine(obj.Message);
     }
 
     foreach (var @event in myEvents)
