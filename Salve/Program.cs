@@ -153,6 +153,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
           e => e.Key,
           e => e
             .Select(evt => new PointInfo<EventWithTokens>(new EventWithTokens(evt, ConvertMessageToTokens(evt.Message, index))))
+            .Where(evt => evt.Item.Tokens.Length < 8)
             .ToList()
         );
 
@@ -218,7 +219,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
   }
 
 
-  [GeneratedRegex("rustc_[a-z]+(::[a-z]+)*")]
+  [GeneratedRegex("rustc(_[a-z]+)+(::[a-z_]+)*")]
   private static partial Regex MessageGroupRegex();
 
   [GeneratedRegex("[0-9]+ms")]
@@ -284,7 +285,8 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
         .Select((e, index) => (e, index)).ToDictionary(p => p.e, p => p.index)
     );
 
-    var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(myEvents, index), 3, 1);
+    var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(myEvents, index), 4, 2);
+
     foreach (var cluster in clusters.Clusters)
     {
       if (cluster.Objects.Count is 0) continue;
@@ -303,15 +305,9 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
         Console.Write($"{WordByIndex(idx)} ");
       }
 
-      var referenceIndices = FindLcs(cluster.Objects[0].Tokens, lcs).FirstIndices;
       foreach (var obj in cluster.Objects)
       {
         var indices = FindLcs(obj.Tokens, lcs).FirstIndices;
-        if (!indices.SequenceEqual(referenceIndices))
-        {
-          throw new Exception("Broken message group");
-        }
-
         var newMessage = new StringBuilder();
         newMessage.Append('[');
         var lcsIndex = 0;
