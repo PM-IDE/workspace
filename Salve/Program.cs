@@ -211,8 +211,11 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
   }
 
 
-  [GeneratedRegex("rustc_[a-z]+::[a-z]+")]
+  [GeneratedRegex("rustc_[a-z]+(::[a-z]+)*")]
   private static partial Regex MessageGroupRegex();
+
+  [GeneratedRegex("[0-9]+ms")]
+  private static partial Regex MsRegex();
 
   private readonly SingleFileBxesStreamWriterImpl<InMemoryEventImpl> myWriter = new(outputPath, 1);
   private readonly Lock myLock = new();
@@ -228,6 +231,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     if (myIsDisposed || line is null) return;
 
     line = line.Trim();
+    line = MsRegex().Replace(line, string.Empty).Trim();
 
     if (!ShouldProcess(line, out var group))
     {
@@ -255,7 +259,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
   {
     messageGroup = default;
 
-    if (!line.StartsWith("INFO")) return false;
+    if (!line.StartsWith("INFO") && !line.StartsWith("DEBUG")) return false;
     if (MessageGroupRegex().Match(line) is not { } match) return false;
 
     messageGroup = match.ValueSpan;
