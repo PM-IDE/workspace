@@ -39,10 +39,15 @@ internal class RustcLogsToBxes : Command<RustcLogsToBxes.Settings>
 
     [CommandOption("--max-tokens-in-event")]
     [Description("Maximum tokens in events")]
-    public int MaxTokensInEvent { get; init; }
+    public int MaxTokensInEvent { get; init; } = 10;
+
+    [CommandOption("--leave-only-method-events")]
+    [Description("Leave only methods tracing events")]
+    public bool LeaveOnlyMethodEvents { get; init; }
 
 
-    public RustcLogsParser CreateProcessor() => new(OutputFilePath, UseGroupsAsEventNames, MaxTokensInEvent);
+    public RustcLogsParser CreateProcessor() =>
+      new(OutputFilePath, UseGroupsAsEventNames, MaxTokensInEvent, LeaveOnlyMethodEvents);
   }
 
 

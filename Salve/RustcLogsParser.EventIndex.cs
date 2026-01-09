@@ -4,9 +4,16 @@ namespace Salve;
 
 internal partial class RustcLogsParser
 {
-  private class Event(string message, string group) : IPointData
+  private enum EventKind
   {
-    public string Message { get; set; } = message;
+    Message,
+    Method
+  }
+
+  private class Event(EventKind kind, string message, string group) : IPointData
+  {
+    public EventKind Kind => kind;
+    public string Name { get; set; } = message;
     public string Group => group;
     public Point Point => default;
   }
@@ -29,7 +36,10 @@ internal partial class RustcLogsParser
         );
 
 
-    public IReadOnlyList<PointInfo<EventWithTokens>> Search() => myEventsByGroups.Values.SelectMany(v => v).ToList();
+    public IReadOnlyList<PointInfo<EventWithTokens>> Search() =>
+      myEventsByGroups.Values.SelectMany(v => v).Where(e => ShouldCluster(e.Item.Event)).ToList();
+
+    private static bool ShouldCluster(Event e) => e.Kind is EventKind.Message;
 
     public IReadOnlyList<PointInfo<EventWithTokens>> Search(in IPointData p, double epsilon)
     {
@@ -38,7 +48,7 @@ internal partial class RustcLogsParser
 
       foreach (var evt in myEventsByGroups[point.Item.Event.Group])
       {
-        if (ReferenceEquals(evt, point))
+        if (!ShouldCluster(evt.Item.Event) || ReferenceEquals(evt, point))
         {
           continue;
         }

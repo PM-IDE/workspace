@@ -9,12 +9,17 @@ using WordsIndex = System.Collections.Generic.SortedList<string, int>;
 
 namespace Salve;
 
-internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventNames, int maxTokensInEvent) : ILogsProcessor
+internal partial class RustcLogsParser(
+  string outputPath,
+  bool useGroupsAsEventNames,
+  int maxTokensInEvent,
+  bool leaveOnlyMethodEvents)
+  : ILogsProcessor
 {
   private const char Separator = ' ';
 
   [GeneratedRegex("rustc(_[a-z]+)+(::[a-z_]+)*")]
-  private static partial Regex MessageGroupRegex();
+  private static partial Regex FqnRegex();
 
   [GeneratedRegex("[0-9]+ms")]
   private static partial Regex MsRegex();
@@ -34,12 +39,24 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
     if (myIsDisposed || line is null) return;
 
     line = line.Trim();
+
+    var kind = (FqnRegex().Match(line) is { Index: 0, Length: > 0 }) switch
+    {
+      true => EventKind.Method,
+      false => EventKind.Message
+    };
+
+    if (leaveOnlyMethodEvents && kind is EventKind.Message)
+    {
+      LogSkippedLine(line);
+      return;
+    }
+
     line = MsRegex().Replace(line, string.Empty).Trim();
 
-    if (!ShouldProcess(line, out var group))
+    if (!ShouldProcess(line, kind, out var group))
     {
-      AnsiConsole.Markup("[yellow]Skipping line:[/]");
-      AnsiConsole.WriteLine(line);
+      LogSkippedLine(line);
       return;
     }
 
@@ -51,21 +68,41 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
         return;
       }
 
-      myEvents.Add(new Event(line, group.ToString()));
+      var groupStr = group.ToString();
+      var name = kind switch
+      {
+        EventKind.Method => groupStr,
+        EventKind.Message => line,
+        _ => throw new ArgumentOutOfRangeException()
+      };
+
+      myEvents.Add(new Event(kind, name, groupStr));
     }
 
     AnsiConsole.MarkupLine(
       $"[green]Processed event:[/] [gray]{Markup.Escape(line)}[/], group [bold]{Markup.Escape(group.ToString())}[/]");
   }
 
-  private static bool ShouldProcess(string line, out ReadOnlySpan<char> messageGroup)
+  private static void LogSkippedLine(string line)
   {
-    messageGroup = default;
+    AnsiConsole.Markup("[yellow]Skipping line:[/]");
+    AnsiConsole.WriteLine(line);
+  }
+
+  private static bool ShouldProcess(string line, EventKind kind, out ReadOnlySpan<char> eventGroup)
+  {
+    eventGroup = default;
+
+    if (kind is EventKind.Method)
+    {
+      eventGroup = FqnRegex().Match(line).ValueSpan;
+      return true;
+    }
 
     if (!line.StartsWith("INFO") && !line.StartsWith("DEBUG")) return false;
-    if (MessageGroupRegex().Match(line) is not { } match) return false;
+    if (FqnRegex().Match(line) is not { } match) return false;
 
-    messageGroup = match.ValueSpan;
+    eventGroup = match.ValueSpan;
 
     return true;
   }
@@ -75,13 +112,13 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
     using var _ = myLock.EnterScope();
 
     var index = new WordsIndex(
-      myEvents.SelectMany(e => e.Message.Split(Separator))
+      myEvents.SelectMany(e => e.Name.Split(Separator))
         .ToHashSet()
         .Select((e, index) => (e, index)).ToDictionary(p => p.e, p => p.index)
     );
 
     var eventsWithTokens = myEvents
-      .Select(e => new EventWithTokens(e, ConvertMessageToTokens(e.Message, index)))
+      .Select(e => new EventWithTokens(e, ConvertMessageToTokens(e.Name, index)))
       .Where(et => et.Tokens.Length <= maxTokensInEvent)
       .ToList();
 
@@ -89,7 +126,7 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
     {
       foreach (var evt in eventsWithTokens)
       {
-        evt.Event.Message = evt.Event.Group;
+        evt.Event.Name = evt.Event.Group;
       }
     }
     else
@@ -97,25 +134,25 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
       var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(eventsWithTokens), 4, 2);
 
       ProcessClusters(clusters, index);
-      LogUnclusteredEvents(clusters);
+      ProcessUnclusteredEvents(clusters.UnclusteredObjects);
     }
 
     foreach (var @event in eventsWithTokens)
     {
-      var bxesEvent = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(@event.Event.Message), []);
+      var bxesEvent = new InMemoryEventImpl(DateTime.UtcNow.Ticks, new BxesStringValue(@event.Event.Name), []);
       myWriter.HandleEvent(new BxesEventEvent<InMemoryEventImpl>(bxesEvent));
     }
 
     DisposeWriter();
   }
 
-  private static void LogUnclusteredEvents(ClusterSet<EventWithTokens> clusters)
+  private static void ProcessUnclusteredEvents(IReadOnlyList<EventWithTokens> events)
   {
     AnsiConsole.MarkupLine("[blue]UNCLUSTERED[/]");
-    foreach (var obj in clusters.UnclusteredObjects)
+    foreach (var evt in events)
     {
-      obj.Event.Message = $"[{obj.Event.Message}]";
-      Console.WriteLine(obj.Event.Message);
+      evt.Event.Name = evt.Event.Group;
+      Console.WriteLine(evt.Event.Name);
     }
   }
 
@@ -143,6 +180,7 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
 
       AnsiConsole.MarkupLine("[blue]CLUSTER[/]");
       AnsiConsole.Markup("[blue]LCS:[/] ");
+
       foreach (var idx in lcs)
       {
         Console.Write($"{index.WordByToken(idx)} ");
@@ -154,7 +192,7 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
 
       foreach (var obj in cluster.Objects)
       {
-        Console.WriteLine(obj.Event.Message);
+        Console.WriteLine(obj.Event.Name);
       }
 
       AnsiConsole.WriteLine();
@@ -166,11 +204,11 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
   {
     foreach (var evt in cluster.Objects)
     {
-      evt.Event.Message = CreateNewEventName(evt, lcs, index);
+      evt.Event.Name = CreateNewClusteredEventName(evt, lcs, index);
     }
   }
 
-  private static string CreateNewEventName(EventWithTokens evt, int[] lcs, WordsIndex index)
+  private static string CreateNewClusteredEventName(EventWithTokens evt, int[] lcs, WordsIndex index)
   {
     var indices = ClusteringUtils.FindLcs(evt.Tokens, lcs).FirstIndices;
 
