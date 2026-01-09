@@ -139,34 +139,41 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     public Point Point => default;
   }
 
-  private class EventsIndex(List<Event> events, SortedList<string, int> index) : ISpatialIndex<PointInfo<Event>>
+  private record EventWithTokens(Event Event, int[] Tokens) : IPointData
   {
-    private readonly Dictionary<string, List<PointInfo<Event>>> myEventsByGroups =
+    public Point Point => Event.Point;
+  }
+
+  private class EventsIndex(List<Event> events, SortedList<string, int> index) : ISpatialIndex<PointInfo<EventWithTokens>>
+  {
+    private readonly Dictionary<string, List<PointInfo<EventWithTokens>>> myEventsByGroups =
       events
         .GroupBy(e => e.Group)
-        .ToDictionary(e => e.Key, e => e.Select(evt => new PointInfo<Event>(evt)).ToList());
+        .ToDictionary(
+          e => e.Key,
+          e => e
+            .Select(evt => new PointInfo<EventWithTokens>(new EventWithTokens(evt, ConvertMessageToTokens(evt.Message, index))))
+            .ToList()
+        );
 
 
-    public IReadOnlyList<PointInfo<Event>> Search() => myEventsByGroups.Values.SelectMany(v => v).ToList();
+    public IReadOnlyList<PointInfo<EventWithTokens>> Search() => myEventsByGroups.Values.SelectMany(v => v).ToList();
 
-    public IReadOnlyList<PointInfo<Event>> Search(in IPointData p, double epsilon)
+    public IReadOnlyList<PointInfo<EventWithTokens>> Search(in IPointData p, double epsilon)
     {
-      var point = (PointInfo<Event>)p;
-      var result = new List<PointInfo<Event>>();
+      var point = (PointInfo<EventWithTokens>)p;
+      var result = new List<PointInfo<EventWithTokens>>();
 
-      var firstWord = ConvertMessageToWord(point.Item.Message, index);
-
-      foreach (var evt in myEventsByGroups[point.Item.Group])
+      foreach (var evt in myEventsByGroups[point.Item.Event.Group])
       {
         if (ReferenceEquals(evt, point))
         {
           continue;
         }
 
-        var secondWord = ConvertMessageToWord(evt.Item.Message, index);
-        if (secondWord.Length != firstWord.Length) continue;
+        if (point.Item.Tokens.Length != evt.Item.Tokens.Length) continue;
 
-        var distance = CalculateEditDistance(firstWord, secondWord);
+        var distance = CalculateEditDistance(point.Item.Tokens, evt.Item.Tokens);
 
         if (distance <= epsilon)
         {
@@ -284,10 +291,10 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
 
       AnsiConsole.MarkupLine("[blue]CLUSTER[/]");
 
-      var lcs = ConvertMessageToWord(cluster.Objects[0].Message, index);
+      var lcs = cluster.Objects[0].Tokens;
       foreach (var obj in cluster.Objects.Skip(1))
       {
-        lcs = FindLcs(ConvertMessageToWord(obj.Message, index), lcs).Lcs;
+        lcs = FindLcs(obj.Tokens, lcs).Lcs;
       }
 
       AnsiConsole.Markup("[blue]LCS:[/] ");
@@ -296,11 +303,10 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
         Console.Write($"{WordByIndex(idx)} ");
       }
 
-      var referenceIndices = FindLcs(ConvertMessageToWord(cluster.Objects[0].Message, index), lcs).FirstIndices;
+      var referenceIndices = FindLcs(cluster.Objects[0].Tokens, lcs).FirstIndices;
       foreach (var obj in cluster.Objects)
       {
-        var word = ConvertMessageToWord(obj.Message, index);
-        var indices = FindLcs(word, lcs).FirstIndices;
+        var indices = FindLcs(obj.Tokens, lcs).FirstIndices;
         if (!indices.SequenceEqual(referenceIndices))
         {
           throw new Exception("Broken message group");
@@ -311,7 +317,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
         var lcsIndex = 0;
         var addedPlaceholders = 0;
 
-        for (var i = 0; i < word.Length; ++i)
+        for (var i = 0; i < obj.Tokens.Length; ++i)
         {
           if (lcsIndex >= indices.Count || i != indices[lcsIndex])
           {
@@ -320,11 +326,11 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
           }
           else
           {
-            newMessage.Append(WordByIndex(word[i]));
+            newMessage.Append(WordByIndex(obj.Tokens[i]));
             ++lcsIndex;
           }
 
-          if (i < word.Length - 1)
+          if (i < obj.Tokens.Length - 1)
           {
             newMessage.Append(' ');
           }
@@ -333,7 +339,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
         newMessage.Append(']');
 
         lcsIndex = 0;
-        for (var i = 0; i < word.Length; ++i)
+        for (var i = 0; i < obj.Tokens.Length; ++i)
         {
           if (lcsIndex < indices.Count && i == indices[lcsIndex])
           {
@@ -341,17 +347,17 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
             continue;
           }
 
-          newMessage.Append($"{{{WordByIndex(word[i])}}}");
+          newMessage.Append($"{{{WordByIndex(obj.Tokens[i])}}}");
         }
 
-        obj.Message = newMessage.ToString();
+        obj.Event.Message = newMessage.ToString();
       }
 
       AnsiConsole.WriteLine();
 
       foreach (var obj in cluster.Objects)
       {
-        Console.WriteLine(obj.Message);
+        Console.WriteLine(obj.Event.Message);
       }
 
       AnsiConsole.WriteLine();
@@ -364,7 +370,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     AnsiConsole.MarkupLine("[blue]UNCLUSTERED[/]");
     foreach (var obj in clusters.UnclusteredObjects)
     {
-      Console.WriteLine(obj.Message);
+      Console.WriteLine(obj.Event.Message);
     }
 
     foreach (var @event in myEvents)
@@ -411,7 +417,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     return RestoreLcs(first, second, dp, n, m);
   }
 
-  private static int[] ConvertMessageToWord(string message, SortedList<string, int> index) =>
+  private static int[] ConvertMessageToTokens(string message, SortedList<string, int> index) =>
     message.Split(Separator).Select(word => index[word]).ToArray();
 
   private static LcsInfo<T> RestoreLcs<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second, int[,] dp, int n, int m)
