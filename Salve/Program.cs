@@ -36,6 +36,13 @@ internal class RustcLogsToBxes : Command<RustcLogsToBxes.Settings>
     [Description("Use groups names (FQNs) as event names")]
     // ReSharper disable once UnassignedGetOnlyAutoProperty
     public bool UseGroupsAsEventNames { get; init; }
+
+    [CommandOption("--max-tokens-in-event")]
+    [Description("Maximum tokens in events")]
+    public int MaxTokensInEvent { get; init; }
+
+
+    public RustcLogsParser CreateProcessor() => new(OutputFilePath, UseGroupsAsEventNames, MaxTokensInEvent);
   }
 
 
@@ -66,7 +73,7 @@ internal class RustcLogsToBxes : Command<RustcLogsToBxes.Settings>
         StartInfo = info
       };
 
-      var processor = new RustcLogsParser(settings.OutputFilePath, settings.UseGroupsAsEventNames);
+      var processor = settings.CreateProcessor();
       processor.Initialize();
 
       try

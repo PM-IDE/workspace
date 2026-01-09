@@ -9,7 +9,7 @@ using WordsIndex = System.Collections.Generic.SortedList<string, int>;
 
 namespace Salve;
 
-internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventNames) : ILogsProcessor
+internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventNames, int maxTokensInEvent) : ILogsProcessor
 {
   private const char Separator = ' ';
 
@@ -82,7 +82,7 @@ internal partial class RustcLogsParser(string outputPath, bool useGroupsAsEventN
 
     var eventsWithTokens = myEvents
       .Select(e => new EventWithTokens(e, ConvertMessageToTokens(e.Message, index)))
-      .Where(et => et.Tokens.Length < 8)
+      .Where(et => et.Tokens.Length <= maxTokensInEvent)
       .ToList();
 
     if (useGroupsAsEventNames)
