@@ -129,27 +129,19 @@ internal interface ILogsProcessor : IDisposable
 
 internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
 {
+  private const char Separator = ' ';
+
   private record Event(string Message, string Group) : IPointData
   {
     public Point Point => default;
   }
 
-  private class EventsIndex(List<Event> events) : ISpatialIndex<PointInfo<Event>>
+  private class EventsIndex(List<Event> events, SortedList<string, int> index) : ISpatialIndex<PointInfo<Event>>
   {
-    private const char Separator = ' ';
-
-
     private readonly Dictionary<string, List<PointInfo<Event>>> myEventsByGroups =
       events
         .GroupBy(e => e.Group)
         .ToDictionary(e => e.Key, e => e.Select(evt => new PointInfo<Event>(evt)).ToList());
-
-
-    private readonly SortedList<string, int> myWordsIndex = new(
-      events.SelectMany(e => e.Message.Split(Separator))
-        .ToHashSet()
-        .Select((e, index) => (e, index)).ToDictionary(p => p.e, p => p.index)
-    );
 
 
     public IReadOnlyList<PointInfo<Event>> Search() => myEventsByGroups.Values.SelectMany(v => v).ToList();
@@ -159,7 +151,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       var point = (PointInfo<Event>)p;
       var result = new List<PointInfo<Event>>();
 
-      var firstWord = ConvertMessageToWord(point.Item.Message);
+      var firstWord = ConvertMessageToWord(point.Item.Message, index);
 
       foreach (var evt in myEventsByGroups[point.Item.Group])
       {
@@ -168,7 +160,7 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
           continue;
         }
 
-        var secondWord = ConvertMessageToWord(evt.Item.Message);
+        var secondWord = ConvertMessageToWord(evt.Item.Message, index);
         var distance = CalculateEditDistance(firstWord, secondWord);
 
         if (distance <= epsilon)
@@ -178,8 +170,6 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       }
 
       return result;
-
-      int[] ConvertMessageToWord(string message) => message.Split(Separator).Select(word => myWordsIndex[word]).ToArray();
     }
 
     private static int CalculateEditDistance<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second) where T : IEqualityOperators<T, T, bool>
@@ -271,13 +261,31 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
   {
     using var _ = myLock.EnterScope();
 
-    var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(myEvents), 3, 1);
+    var index = new SortedList<string, int>(
+      myEvents.SelectMany(e => e.Message.Split(Separator))
+        .ToHashSet()
+        .Select((e, index) => (e, index)).ToDictionary(p => p.e, p => p.index)
+    );
+
+    var clusters = Dbscan.Dbscan.CalculateClusters(new EventsIndex(myEvents, index), 3, 1);
     foreach (var cluster in clusters.Clusters)
     {
+      if (cluster.Objects.Count is 0) continue;
+
       AnsiConsole.MarkupLine("[blue]CLUSTER[/]");
-      foreach (var obj in cluster.Objects)
+
+      var lcs = ConvertMessageToWord(cluster.Objects[0].Message, index);
+      foreach (var obj in cluster.Objects.Skip(1))
       {
         AnsiConsole.WriteLine(obj.Message);
+
+        lcs = FindLcs(ConvertMessageToWord(obj.Message, index), lcs);
+      }
+
+      AnsiConsole.Markup("[blue]LCS:[/] ");
+      foreach (var idx in lcs)
+      {
+        AnsiConsole.Markup($"{index.GetKeyAtIndex(index.IndexOfValue(idx))} ");
       }
 
       AnsiConsole.WriteLine();
@@ -298,5 +306,64 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     {
       myIsDisposed = true;
     }
+  }
+
+  public static T[] FindLcs<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second)
+    where T : IEqualityOperators<T, T, bool>
+  {
+    var n = first.Length;
+    var m = second.Length;
+    var dp = new int[n + 1, m + 1];
+
+    for (var i = 1; i <= n; i++)
+    {
+      for (var j = 1; j <= m; j++)
+      {
+        if (first[i - 1] == second[j - 1])
+        {
+          dp[i, j] = dp[i - 1, j - 1] + 1;
+        }
+        else
+        {
+          dp[i, j] = Math.Max(dp[i - 1, j], dp[i, j - 1]);
+        }
+      }
+    }
+
+    var lcs = RestoreLcs(first, second, dp, n, m);
+
+    return lcs;
+  }
+
+  private static int[] ConvertMessageToWord(string message, SortedList<string, int> index) =>
+    message.Split(Separator).Select(word => index[word]).ToArray();
+
+  public static T[] RestoreLcs<T>(ReadOnlySpan<T> x, ReadOnlySpan<T> y, int[,] dp, int n, int m)
+    where T : IEqualityOperators<T, T, bool>
+  {
+    int i = n, j = m;
+    List<T> lcs = [];
+
+    while (i > 0 && j > 0)
+    {
+      if (x[i - 1] == y[j - 1])
+      {
+        lcs.Add(x[i - 1]);
+        i--;
+        j--;
+      }
+      else if (dp[i - 1, j] > dp[i, j - 1])
+      {
+        i--;
+      }
+      else
+      {
+        j--;
+      }
+    }
+
+    lcs.Reverse();
+
+    return lcs.ToArray();
   }
 }
