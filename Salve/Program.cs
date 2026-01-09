@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Numerics;
+using System.Text;
 using System.Text.RegularExpressions;
 using Bxes.Models.Domain;
 using Bxes.Models.Domain.Values;
@@ -131,8 +132,10 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
 {
   private const char Separator = ' ';
 
-  private record Event(string Message, string Group) : IPointData
+  private class Event(string message, string group) : IPointData
   {
+    public string Message { get; set; } = message;
+    public string Group => group;
     public Point Point => default;
   }
 
@@ -280,19 +283,78 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       var lcs = ConvertMessageToWord(cluster.Objects[0].Message, index);
       foreach (var obj in cluster.Objects.Skip(1))
       {
-        Console.WriteLine(obj.Message);
-
-        lcs = FindLcs(ConvertMessageToWord(obj.Message, index), lcs);
+        lcs = FindLcs(ConvertMessageToWord(obj.Message, index), lcs).Lcs;
       }
 
       AnsiConsole.Markup("[blue]LCS:[/] ");
       foreach (var idx in lcs)
       {
-        Console.Write($"{index.GetKeyAtIndex(index.IndexOfValue(idx))} ");
+        Console.Write($"{WordByIndex(idx)} ");
+      }
+
+      var referenceIndices = FindLcs(ConvertMessageToWord(cluster.Objects[0].Message, index), lcs).FirstIndices;
+      foreach (var obj in cluster.Objects)
+      {
+        var word = ConvertMessageToWord(obj.Message, index);
+        var indices = FindLcs(word, lcs).FirstIndices;
+        if (!indices.SequenceEqual(referenceIndices))
+        {
+          throw new Exception("Broken message group");
+        }
+
+        var newMessage = new StringBuilder();
+        newMessage.Append('[');
+        var lcsIndex = 0;
+        var addedPlaceholders = 0;
+
+        for (var i = 0; i < word.Length; ++i)
+        {
+          if (lcsIndex >= indices.Count || i != indices[lcsIndex])
+          {
+            newMessage.Append($"({addedPlaceholders + 1})");
+            ++addedPlaceholders;
+          }
+          else
+          {
+            newMessage.Append(WordByIndex(word[i]));
+            ++lcsIndex;
+          }
+
+          if (i < word.Length - 1)
+          {
+            newMessage.Append(' ');
+          }
+        }
+
+        newMessage.Append(']');
+
+        lcsIndex = 0;
+        for (var i = 0; i < word.Length; ++i)
+        {
+          if (lcsIndex < indices.Count && i == indices[lcsIndex])
+          {
+            lcsIndex++;
+            continue;
+          }
+
+          newMessage.Append($"{{{WordByIndex(word[i])}}}");
+        }
+
+        obj.Message = newMessage.ToString();
+      }
+
+      AnsiConsole.WriteLine();
+
+      foreach (var obj in cluster.Objects)
+      {
+        Console.WriteLine(obj.Message);
       }
 
       AnsiConsole.WriteLine();
       AnsiConsole.WriteLine();
+      continue;
+
+      string WordByIndex(int i) => index.GetKeyAtIndex(index.IndexOfValue(i));
     }
 
     AnsiConsole.MarkupLine("[blue]UNCLUSTERED[/]");
@@ -318,7 +380,9 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
     }
   }
 
-  public static T[] FindLcs<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second)
+  private record struct LcsInfo<T>(T[] Lcs, List<int> FirstIndices, List<int> SecondIndices);
+
+  private static LcsInfo<T> FindLcs<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second)
     where T : IEqualityOperators<T, T, bool>
   {
     var n = first.Length;
@@ -346,17 +410,23 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
   private static int[] ConvertMessageToWord(string message, SortedList<string, int> index) =>
     message.Split(Separator).Select(word => index[word]).ToArray();
 
-  public static T[] RestoreLcs<T>(ReadOnlySpan<T> x, ReadOnlySpan<T> y, int[,] dp, int n, int m)
+  private static LcsInfo<T> RestoreLcs<T>(ReadOnlySpan<T> first, ReadOnlySpan<T> second, int[,] dp, int n, int m)
     where T : IEqualityOperators<T, T, bool>
   {
     int i = n, j = m;
     List<T> lcs = [];
+    List<int> firstIndices = [];
+    List<int> secondIndices = [];
 
     while (i > 0 && j > 0)
     {
-      if (x[i - 1] == y[j - 1])
+      if (first[i - 1] == second[j - 1])
       {
-        lcs.Add(x[i - 1]);
+        firstIndices.Add(i - 1);
+        secondIndices.Add(j - 1);
+
+        lcs.Add(first[i - 1]);
+
         i--;
         j--;
       }
@@ -370,8 +440,10 @@ internal partial class RustcLogsParser(string outputPath) : ILogsProcessor
       }
     }
 
+    firstIndices.Reverse();
+    secondIndices.Reverse();
     lcs.Reverse();
 
-    return lcs.ToArray();
+    return new LcsInfo<T>(lcs.ToArray(), firstIndices, secondIndices);
   }
 }
