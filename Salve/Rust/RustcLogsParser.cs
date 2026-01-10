@@ -7,14 +7,13 @@ using Dbscan;
 using Spectre.Console;
 using WordsIndex = System.Collections.Generic.SortedList<string, int>;
 
-namespace Salve;
+namespace Salve.Rust;
 
 internal partial class RustcLogsParser(
   string outputPath,
   bool useGroupsAsEventNames,
   int maxTokensInEvent,
   bool leaveOnlyMethodEvents)
-  : ILogsProcessor
 {
   private const char Separator = ' ';
 

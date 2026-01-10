@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Bxes.Utils;
 using JetBrains.Annotations;
-using Salve;
+using Salve.Rust;
 using Spectre.Console;
 using Spectre.Console.Cli;
 

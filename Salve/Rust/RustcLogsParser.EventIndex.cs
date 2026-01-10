@@ -1,6 +1,6 @@
 ﻿using Dbscan;
 
-namespace Salve;
+namespace Salve.Rust;
 
 internal partial class RustcLogsParser
 {
