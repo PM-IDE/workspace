@@ -48,6 +48,10 @@
       <BoolCheckbox T="bool"
                     Handler="@((newValue, _) => RenderOcelTypeNames = newValue)"
                     Title="Render OCEL type names explicitly"/>
+      
+      <BoolCheckbox T="bool"
+                    Handler="@((newValue, _) => ShowObjectId = newValue)"
+                    Title="Show objects ids"/>
     </div>
   }
 
@@ -73,6 +77,7 @@
   public bool RenderDagLcsInFlamegraphMode { get; private set; }
   public bool RenderOcelAnnotation { get; private set; }
   public bool RenderOcelTypeNames { get; private set; }
+  public bool ShowObjectId { get; private set; }
 
   public string? Filter { get; private set; }
   public bool UseLROrientation { get; private set; } = true;

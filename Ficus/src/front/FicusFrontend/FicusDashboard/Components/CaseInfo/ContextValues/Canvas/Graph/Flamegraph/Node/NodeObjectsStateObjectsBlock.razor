@@ -16,7 +16,10 @@
     <div style="@Context.WritingMode; flex-grow: 1; @borderStyle"
          class="flamegraph-ocel-annotation flex-centered"
          id="@Context.GenerateOcelObjectsContainerId(NodeId, id, IsInitialState)">
-      @id
+      @if (Context.ShowObjectId)
+      {
+        @id
+      }
     </div>
   }
 </div>
