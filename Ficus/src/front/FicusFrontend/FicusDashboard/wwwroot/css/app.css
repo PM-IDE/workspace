@@ -290,7 +290,10 @@ svg-pie-chart svg {
 }
 
 .flamegraph-node-title {
-  font-size: 18px;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: wrap;
+  flex-grow: 1;
 }
 
 .flamegraph-ocel-annotation {

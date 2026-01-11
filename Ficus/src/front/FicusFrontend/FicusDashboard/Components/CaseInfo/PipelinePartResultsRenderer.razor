@@ -56,7 +56,7 @@
         var selectedClass = mySelectedExecutionResultIndex == index ? "pipeline-part-result-selection-button-selected" : string.Empty;
         var buttonClass = "pipeline-part-result-selection-button " + selectedClass;
 
-        <div class="@buttonClass" @onclick="@(e => HandleIndexSelection(currentIndex))">
+        <div class="@buttonClass" @onclick="@(_ => HandleIndexSelection(currentIndex))">
           @index
         </div>
       }

@@ -8,7 +8,7 @@
 }
 
 <div style="@Context.MinMainDim: @(mainDim)px; 
-            @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;
+            @Context.MinSecondDim: @(FlamegraphConstants.NodeMinSecondDimPx)px;
             display: flex;
             flex-direction: @Context.MainFlexDirection;"
      class="flamegraph-node">
@@ -24,11 +24,10 @@
               display: flex;
               justify-content: center;
               align-items: center;
-              @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;">
+              @Context.MinSecondDim: @(FlamegraphConstants.NodeMinSecondDimPx)px;">
     @foreach (var eventClass in Context.GetNodeName(Node))
     {
-      <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;"
-           class="flamegraph-node-title">
+      <div class="flamegraph-node-title">
         @eventClass
       </div>
     }
