@@ -45,6 +45,7 @@ html, body {
   --seen-notification-color: grey;
 
   --flamegraph-node-background: #595959;
+  --flamegraph-node-hover-border-color: #f0f0f0;
   --flamegraph-edge-background: #3b3b3b;
 
   -moz-user-select: none; /* Firefox */
@@ -276,6 +277,14 @@ svg-pie-chart svg {
   flex-direction: column;
 }
 
+.flamegraph-node-title-container {
+  border: 1px solid var(--flamegraph-node-background);
+}
+
+.flamegraph-node-title-container:hover {
+  border-color: var(--flamegraph-node-hover-border-color);
+}
+
 .flamegraph-edge {
   background: var(--flamegraph-edge-background);
   padding: 2px;
@@ -292,8 +301,8 @@ svg-pie-chart svg {
 .flamegraph-node-title {
   font-size: 14px;
   text-overflow: ellipsis;
-  white-space: wrap;
-  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .flamegraph-ocel-annotation {

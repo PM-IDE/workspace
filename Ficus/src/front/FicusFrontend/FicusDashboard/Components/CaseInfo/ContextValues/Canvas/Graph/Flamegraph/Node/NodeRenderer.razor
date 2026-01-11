@@ -25,7 +25,8 @@
               display: flex;
               justify-content: center;
               align-items: center;
-              @Context.MinSecondDim: @(FlamegraphConstants.NodeMinSecondDimPx)px;">
+              @Context.MinSecondDim: @(FlamegraphConstants.NodeMinSecondDimPx)px;"
+       class="flamegraph-node-title-container">
     @foreach (var eventClass in Context.GetNodeName(Node))
     {
       <Tooltip Title="@eventClass">

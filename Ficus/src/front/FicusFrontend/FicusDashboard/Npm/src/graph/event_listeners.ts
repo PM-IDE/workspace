@@ -1,5 +1,6 @@
 import tippy, {Instance, Props} from "tippy.js";
 import {getOrCreateColor} from "../utils";
+import {createTippyTooltipProps} from "../tooltip";
 
 export function setGraphEventListeners() {
   addEventListener("mouseover", event => {
@@ -13,7 +14,7 @@ export function setGraphEventListeners() {
       let tooltip = createTooltip(element, entries, "manual", true);
       tooltip.show();
     })
-  }); 
+  });
 }
 
 function executeIfHasTooltip(event: MouseEvent, handler: (entries: [string, number][], element: HTMLElement) => void) {
@@ -30,30 +31,15 @@ function executeIfHasTooltip(event: MouseEvent, handler: (entries: [string, numb
 }
 
 function createTooltip(element: HTMLElement, histogramEntries: [string, number][], trigger: string, interactive: boolean): Instance {
-  let props = createTooltipBaseProps(histogramEntries);
+  let props = createTippyTooltipProps(createEventClassesDescription(histogramEntries).join('\n'));
   props.trigger = trigger;
   props.interactive = interactive;
 
   return tippy(element, props);
 }
 
-function createTooltipBaseProps(histogramEntries: [string, number][]): Partial<Props> {
-  return {
-    appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
-    content: `
-                <div style="padding: 10px; background: black; color: white; border-radius: 5px; max-height: 300px; overflow: auto"
-                     class="visible-scroll">
-                    ${createEventClassesDescription(histogramEntries).join('\n')}
-                </div>
-               `,
-    allowHTML: true,
-    zIndex: Number.MAX_VALUE,
-    duration: 0,
-    arrow: true,
-  }
-}
 
-function createEventClassesDescription(sortedHistogramEntries: [string, number][]) {
+function createEventClassesDescription(sortedHistogramEntries: [string, number][]): string[] {
   let currentSum = sortedHistogramEntries.reduce((a, b) => a + b[1], 0);
 
   return sortedHistogramEntries.map((entry) => {
