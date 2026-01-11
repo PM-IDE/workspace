@@ -9,7 +9,6 @@ export function createTippyTooltipProps(text: string): Partial<Props> {
                             color: white;
                             border-radius: 5px;
                             width: fit-content;
-                            max-height: 300px;
                             white-space: wrap">
                     ${text}
                 </div>
