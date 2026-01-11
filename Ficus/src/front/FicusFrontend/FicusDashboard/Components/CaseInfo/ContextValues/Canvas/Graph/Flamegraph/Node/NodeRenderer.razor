@@ -1,3 +1,4 @@
+@using BlazorBootstrap
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
 @{
@@ -27,9 +28,12 @@
               @Context.MinSecondDim: @(FlamegraphConstants.NodeMinSecondDimPx)px;">
     @foreach (var eventClass in Context.GetNodeName(Node))
     {
-      <div class="flamegraph-node-title">
-        @eventClass
-      </div>
+      <Tooltip Title="@eventClass">
+        <div style="@Context.MaxMainDim: @(FlamegraphConstants.NodeMaxTextMainDimPx)px"
+             class="flamegraph-node-title">
+          @eventClass
+        </div>
+      </Tooltip>
     }
   </div>
 
