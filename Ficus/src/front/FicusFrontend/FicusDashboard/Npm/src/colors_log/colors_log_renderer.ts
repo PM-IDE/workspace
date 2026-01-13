@@ -55,7 +55,7 @@ function getRectDimensions(widthScale: number, heightScale: number) {
   return [widthScale * DefaultRectWidth, heightScale * DefaultRectHeight];
 }
 
-async function drawColorsLog(
+function drawColorsLog(
   log: GrpcColorsEventLog,
   widthScale: number,
   heightScale: number,
@@ -69,7 +69,7 @@ async function drawColorsLog(
   }
 
   let additionalAxis = createAdditionalAxisList(log.adjustments);
-  let result = await calculateCanvasSize(canvas, log, widthScale, heightScale, additionalAxis.length);
+  let result = calculateCanvasSize(canvas, log, widthScale, heightScale, additionalAxis.length);
 
   if ('widthAdjustment' in result) {
     let adjustments = <TooBigCanvas>result;
@@ -179,23 +179,22 @@ interface TooBigCanvas {
 
 interface CanvasDimensions {
   widthScale: number,
-  heightScale: number,
   rectWidth: number,
   rectHeight: number,
   canvasWidth: number,
   canvasHeight: number
 }
 
-async function calculateCanvasSize(canvas: HTMLCanvasElement,
-                                   log: GrpcColorsEventLog,
-                                   widthScale: number,
-                                   heightScale: number,
-                                   additionalAxisCount: number): Promise<CanvasDimensions | TooBigCanvas> {
+function calculateCanvasSize(canvas: HTMLCanvasElement,
+                             log: GrpcColorsEventLog,
+                             widthScale: number,
+                             heightScale: number,
+                             additionalAxisCount: number): CanvasDimensions | TooBigCanvas {
+  let [origCanvasWidth, origCanvasHeight] = calculateCanvasWidthAndHeight(log, 1, 1, DefaultRectHeight, additionalAxisCount);
   let [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
-
   let [canvasWidth, canvasHeight] = calculateCanvasWidthAndHeight(log, widthScale, rectWidth, rectHeight, additionalAxisCount);
 
-  let [maxCanvasWidth, maxCanvasHeight] = await getMaxCanvasDimensions();
+  let [maxCanvasWidth, maxCanvasHeight] = getMaxCanvasDimensions();
   if (canvasWidth > maxCanvasWidth || canvasHeight > maxCanvasHeight) {
     return {
       widthAdjustment: maxCanvasWidth / canvasWidth,
@@ -210,11 +209,11 @@ async function calculateCanvasSize(canvas: HTMLCanvasElement,
   let minCanvasHeight = Math.max(MinCanvasHeight, parentHeight);
 
   if (canvasWidth < minCanvasWidth) {
-    widthScale = minCanvasWidth / canvasWidth;
+    widthScale = minCanvasWidth / origCanvasWidth;
   }
 
   if (canvasHeight < minCanvasHeight) {
-    heightScale = minCanvasHeight / canvasHeight;
+    heightScale = minCanvasHeight / origCanvasHeight;
   }
 
   [rectWidth, rectHeight] = getRectDimensions(widthScale, heightScale);
@@ -222,7 +221,6 @@ async function calculateCanvasSize(canvas: HTMLCanvasElement,
 
   return {
     widthScale: widthScale,
-    heightScale: heightScale,
     rectWidth: rectWidth,
     rectHeight: rectHeight,
     canvasWidth: canvasWidth,
