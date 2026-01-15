@@ -11,9 +11,8 @@
   }
 }
 
-<div style="@style; @Context.MinSecondDim: 100px;" class="flamegraph-edge">
-
-  @if (!@Context.RenderOcelAnnotation && EnhancedEdge is { })
+<div style="@style; @Context.MinSecondDim: @(FlamegraphConstants.EdgeMinSecondDimPx)px;" class="flamegraph-edge">
+  @if (!Context.RenderOcelAnnotation && EnhancedEdge is { })
   {
     <div style="display: flex; flex-direction: column; align-items: center;">
       <div style="margin-top: -5px;">

@@ -2,6 +2,7 @@ import tippy, {followCursor} from "tippy.js";
 import {GrpcColorsEventLog} from "../protos/ficus/GrpcColorsEventLog";
 import {AxisDelta, AxisWidth} from "./constants";
 import bs from "binary-search";
+import {createTippyTooltipProps} from "../tooltip";
 
 let pivot: HTMLElement = null;
 
@@ -29,9 +30,9 @@ export function addColorsLogCanvasMouseMoveHandler(canvas: HTMLCanvasElement,
     }
 
     updatePivotElement(event, canvas);
-    showTooltip(log.mapping[event.colorIndex].name);
+    tippy(pivot, createTippyTooltipProps(log.mapping[event.colorIndex].name));
   };
-  
+
   canvasIdsToListeners.set(canvas.id, listener);
   canvas.addEventListener("mousemove", listener);
 }
@@ -107,19 +108,4 @@ function createPivotElement(event: CanvasEventCoordinate, canvas: HTMLCanvasElem
   style.outline = '0px';
 
   return pivot;
-}
-
-function showTooltip(name: string) {
-  tippy(pivot, {
-    appendTo: document.fullscreenElement ? document.fullscreenElement : undefined,
-    content: `
-                <div style="padding: 10px; background: black; color: white; border-radius: 5px;">
-                    ${name}
-                </div>
-               `,
-    allowHTML: true,
-    zIndex: Number.MAX_VALUE,
-    duration: 0,
-    arrow: true,
-  });
 }

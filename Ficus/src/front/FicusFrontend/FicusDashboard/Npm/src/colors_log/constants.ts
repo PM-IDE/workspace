@@ -2,7 +2,7 @@ export const AxisDelta = 5;
 export const AxisWidth = 2;
 
 export const DefaultRectWidth = 1;
-export const DefaultRectHeight = 1;
+export const DefaultRectHeight = 10;
 export const AxisTextHeight = 14;
 export const OverallXDelta = AxisDelta + AxisWidth + AxisDelta;
 

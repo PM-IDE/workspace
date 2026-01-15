@@ -100,6 +100,7 @@ public class FlamegraphRenderingContext
   public required bool LeftToRight { get; init; }
   public required bool RenderOcelAnnotation { get; init; }
   public required bool RenderOcelTypeNames { get; init; }
+  public required bool ShowObjectId { get; init; }
 
   public string MainDim => LeftToRight ? "height" : "width";
   public string SecondDim => LeftToRight ? "width" : "height";

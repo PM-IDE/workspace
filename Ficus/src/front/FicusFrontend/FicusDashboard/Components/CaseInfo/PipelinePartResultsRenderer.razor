@@ -49,14 +49,14 @@
 
   @if (Results.Results.Count > 1)
   {
-    <div class="pipeline-part-result-selection-buttons-container">
+    <div class="pipeline-part-result-selection-buttons-container visible-scroll">
       @for (var index = 0; index < Results.Results.Count; ++index)
       {
         var currentIndex = index;
         var selectedClass = mySelectedExecutionResultIndex == index ? "pipeline-part-result-selection-button-selected" : string.Empty;
         var buttonClass = "pipeline-part-result-selection-button " + selectedClass;
 
-        <div class="@buttonClass" @onclick="@(e => HandleIndexSelection(currentIndex))">
+        <div class="@buttonClass" @onclick="@(_ => HandleIndexSelection(currentIndex))">
           @index
         </div>
       }

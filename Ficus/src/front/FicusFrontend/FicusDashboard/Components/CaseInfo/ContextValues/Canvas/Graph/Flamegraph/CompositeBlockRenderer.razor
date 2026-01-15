@@ -1,7 +1,7 @@
 ﻿@using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
 @{
-  var minWidth = @SpecifyMinWidth ? $"{Context.MinMainDim}: 100%" : string.Empty;
+  var minWidth = SpecifyMinWidth ? $"{Context.MinMainDim}: 100%" : string.Empty;
 }
 
 <div style="display: flex; flex-direction: @Context.MainFlexDirection; @minWidth; @Context.MainDim: fit-content;">
@@ -80,7 +80,7 @@
                   }
                 }
 
-                <div style="height: 100%; flex-grow: 1; min-width: @(FlamegraphConstants.EdgeWidthPx)px;">
+                <div style="height: 100%; flex-grow: 1;">
                   <EdgeRenderer Width="100%" Height="100%" EnhancedEdge="@edge" Context="Context"/>
                 </div>
               </div>

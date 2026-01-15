@@ -3,6 +3,7 @@
 internal static class FlamegraphConstants
 {
   public const int MainDimPx = 35;
-  public const int NodeWidthPx = 65;
-  public const int EdgeWidthPx = 40;
+  public const int NodeMinSecondDimPx = 20;
+  public const int EdgeMinSecondDimPx = 40;
+  public const int NodeMaxTextMainDimPx = 250;
 }

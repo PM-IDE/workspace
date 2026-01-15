@@ -1,3 +1,4 @@
+@using BlazorBootstrap
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph.Flamegraph.Context
 
 @{
@@ -8,7 +9,7 @@
 }
 
 <div style="@Context.MinMainDim: @(mainDim)px; 
-            @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;
+            @Context.MinSecondDim: @(FlamegraphConstants.NodeMinSecondDimPx)px;
             display: flex;
             flex-direction: @Context.MainFlexDirection;"
      class="flamegraph-node">
@@ -20,19 +21,24 @@
                               IsInitialState="@true"/> 
   }
 
-  <div style="@Context.WritingMode;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              @Context.MinSecondDim: @(FlamegraphConstants.NodeWidthPx)px;">
-    @foreach (var eventClass in Context.GetNodeName(Node))
-    {
-      <div style="text-overflow: ellipsis; white-space: wrap; flex-grow: 1;"
-           class="flamegraph-node-title">
-        @eventClass
-      </div>
-    }
-  </div>
+  <Tooltip Title="@string.Join('\n',  Context.GetNodeName(Node))"
+           Style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+           Class="flamegraph-node-title-container">
+    <div style="@Context.WritingMode;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: @(FlamegraphConstants.NodeMinSecondDimPx)px;
+                flex-direction: column;">
+      @foreach (var eventClass in Context.GetNodeName(Node))
+      {
+        <div style="@Context.MaxMainDim: @(FlamegraphConstants.NodeMaxTextMainDimPx)px"
+             class="flamegraph-node-title">
+          @eventClass
+        </div>
+      }
+    </div>
+  </Tooltip>
 
   @if (Context.RenderOcelAnnotation)
   {
