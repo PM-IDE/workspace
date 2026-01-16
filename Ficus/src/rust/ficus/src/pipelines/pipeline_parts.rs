@@ -41,6 +41,20 @@ impl PipelineParts {
 unsafe impl Sync for PipelineParts {}
 unsafe impl Send for PipelineParts {}
 
+
+#[macro_export]
+macro_rules! pipeline_part {
+  ($name:ident, $body:expr) => {
+    paste::item! {
+      pub(super) fn $name () -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::[<$name:upper>], &|context, infra, config| {
+          $body(context, infra, config)
+        })
+      }
+    }
+  };
+}
+
 impl PipelineParts {
   pub fn new() -> Self {
     let parts = vec![

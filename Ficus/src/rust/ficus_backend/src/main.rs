@@ -1,8 +1,14 @@
-use ficus::ficus_proto::grpc_context_values_service_server::GrpcContextValuesServiceServer;
-use ficus::ficus_proto::grpc_kafka_service_server::GrpcKafkaServiceServer;
-use ficus::grpc::context_values_service::{ContextValueService, GrpcContextValueService};
-use ficus::grpc::kafka::grpc_kafka_service::GrpcKafkaServiceImpl;
-use ficus::{ficus_proto::grpc_backend_service_server::GrpcBackendServiceServer, grpc::backend_service::FicusService};
+use ficus::{
+  ficus_proto::{
+    grpc_backend_service_server::GrpcBackendServiceServer, grpc_context_values_service_server::GrpcContextValuesServiceServer,
+    grpc_kafka_service_server::GrpcKafkaServiceServer,
+  },
+  grpc::{
+    backend_service::FicusService,
+    context_values_service::{ContextValueService, GrpcContextValueService},
+    kafka::grpc_kafka_service::GrpcKafkaServiceImpl,
+  },
+};
 use log::{info, LevelFilter};
 use std::sync::Arc;
 use tonic::transport::Server;
