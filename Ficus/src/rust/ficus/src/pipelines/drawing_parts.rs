@@ -8,6 +8,7 @@ use crate::{
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
   },
   features::analysis::patterns::activity_instances::{SubTraceKind, UNDEF_ACTIVITY_NAME},
+  pipeline_part,
   pipelines::{
     keys::context_keys::{
       ATTRIBUTE_KEY, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES_KEY,
@@ -17,22 +18,20 @@ use crate::{
   utils::{
     colors::{Color, ColoredRectangle, ColorsEventLog, ColorsHolder},
     references::HeapedOrOwned,
-    user_data::user_data::UserData,
+    user_data::user_data::{UserData, UserDataImpl},
   },
 };
 
 impl PipelineParts {
-  pub(super) fn traces_diversity_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM, &|context, _, _| {
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
-      let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
+  pipeline_part!(traces_diversity_diagram, |context: &mut PipelineContext, _, _| {
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
+    let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
 
-      context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
+    context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
 
-      Ok(())
-    })
-  }
+    Ok(())
+  });
 
   fn create_traces_diversity_colors_log(
     log: &XesEventLogImpl,
@@ -66,12 +65,13 @@ impl PipelineParts {
     ColorsEventLog { mapping, traces }
   }
 
-  pub(super) fn draw_placements_of_event_by_name() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_NAME, &|context, _, config| {
+  pipeline_part!(
+    draw_placement_of_event_by_name,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let event_name = Self::get_user_data(config, &EVENT_NAME_KEY)?;
       Self::draw_events_placement(context, &|event| event.name() == event_name)
-    })
-  }
+    }
+  );
 
   pub(super) fn draw_events_placement(
     context: &mut PipelineContext,
@@ -114,16 +114,18 @@ impl PipelineParts {
     Ok(())
   }
 
-  pub(super) fn draw_events_placements_by_regex() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_REGEX, &|context, _, config| {
+  pipeline_part!(
+    draw_placement_of_event_by_regex,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let regex = Self::get_user_data(config, &REGEX_KEY)?;
       let regex = Regex::new(regex).ok().unwrap();
       Self::draw_events_placement(context, &|event| regex.is_match(event.name()).ok().unwrap())
-    })
-  }
+    }
+  );
 
-  pub(super) fn draw_full_activities_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_FULL_ACTIVITIES_DIAGRAM, &|context, _, _| {
+  pipeline_part!(
+    draw_full_activities_diagram,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
@@ -162,11 +164,12 @@ impl PipelineParts {
       context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub(super) fn draw_short_activities_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_SHORT_ACTIVITIES_DIAGRAM, &|context, _, _| {
+  pipeline_part!(
+    draw_short_activities_diagram,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
@@ -207,11 +210,12 @@ impl PipelineParts {
       context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub(super) fn draw_traces_diversity_diagram_by_attribute() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM_BY_ATTRIBUTE, &|context, _, config| {
+  pipeline_part!(
+    traces_diversity_diagram_by_attribute,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
       let attribute = Self::get_user_data(config, &ATTRIBUTE_KEY)?;
@@ -229,6 +233,6 @@ impl PipelineParts {
       context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
 
       Ok(())
-    })
-  }
+    }
+  );
 }

@@ -27,7 +27,7 @@ impl PipelineParts {
   pub const GET_NAMES_EVENT_LOG: &'static str = "GetNamesEventLog";
   pub const GET_HASHES_EVENT_LOG: &'static str = "GetHashesEventLog";
   pub const USE_NAMES_EVENT_LOG: &'static str = "UseNamesEventLog";
-  pub const DISCOVER_ACTIVITIES_FOR_SEVERAL_LEVEL: &'static str = "DiscoverActivitiesForSeveralLevels";
+  pub const DISCOVER_ACTIVITIES_FOR_SEVERAL_LEVELS: &'static str = "DiscoverActivitiesForSeveralLevels";
   pub const DISCOVER_ACTIVITIES_IN_UNATTACHED_SUBTRACES: &'static str = "DiscoverActivitiesInUnattachedSubTraces";
   pub const DISCOVER_ACTIVITIES_UNTIL_NO_MORE: &'static str = "DiscoverActivitiesUntilNoMore";
   pub const EXECUTE_WITH_EACH_ACTIVITY_LOG: &'static str = "ExecuteWithEachActivityLog";
