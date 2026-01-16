@@ -23,6 +23,7 @@ use crate::{
       },
     },
   },
+  pipeline_part,
   pipelines::{
     context::{PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
@@ -63,8 +64,9 @@ impl FromStr for FeatureCountKindDto {
 }
 
 impl PipelineParts {
-  pub(super) fn discover_log_threads_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_LOG_TIMELINE_DIAGRAM, &|context, _, config| {
+  pipeline_part!(
+    discover_log_timeline_diagram,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
       let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok();
@@ -88,8 +90,8 @@ impl PipelineParts {
       }
 
       Ok(())
-    })
-  }
+    }
+  );
 
   fn get_control_flow_regexes(config: &SoftwareDataExtractionConfig) -> Result<Option<Vec<Regex>>, PipelinePartExecutionError> {
     config
@@ -97,18 +99,17 @@ impl PipelineParts {
       .map_err(|message| PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
   }
 
-  pub(super) fn create_threads_log() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CREATE_THREADS_LOG, &|context, _, config| {
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
-      context.put_concrete(EVENT_LOG_KEY.key(), create_threads_log_by_attribute(log, thread_attribute));
+  pipeline_part!(create_threads_log, |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
+    context.put_concrete(EVENT_LOG_KEY.key(), create_threads_log_by_attribute(log, thread_attribute));
 
-      Ok(())
-    })
-  }
+    Ok(())
+  });
 
-  pub(super) fn abstract_timeline_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ABSTRACT_TIMELINE_DIAGRAM, &|context, infra, config| {
+  pipeline_part!(
+    abstract_timeline_diagram,
+    |context: &mut PipelineContext, infra: &PipelineInfrastructure, config: &UserDataImpl| {
       let (thread_attribute, time_attribute) = Self::extract_thread_and_time_attribute(context)?;
 
       Self::abstract_event_groups(
@@ -119,8 +120,8 @@ impl PipelineParts {
         thread_attribute,
         time_attribute,
       )
-    })
-  }
+    }
+  );
 
   fn create_event_groups_from_timeline(context: &PipelineContext) -> Result<Vec<Vec<EventGroup>>, PipelinePartExecutionError> {
     let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
@@ -175,8 +176,9 @@ impl PipelineParts {
     Ok(())
   }
 
-  pub fn abstract_multithreaded_events_groups() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ABSTRACT_MULTITHREADED_EVENTS_GROUPS, &|context, infra, config| {
+  pipeline_part!(
+    abstract_multithreaded_events_groups,
+    |context: &mut PipelineContext, infra: &PipelineInfrastructure, config: &UserDataImpl| {
       let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?.to_owned();
       let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok().cloned();
       let software_config = Self::get_software_data_extraction_config(context);
@@ -188,8 +190,8 @@ impl PipelineParts {
         .map_err(|e| PipelinePartExecutionError::new_raw(e))?;
 
       Self::abstract_event_groups(groups, context, config, infra, thread_attribute, time_attribute)
-    })
-  }
+    }
+  );
 
   fn get_software_data_extraction_config(context: &PipelineContext) -> SoftwareDataExtractionConfig {
     match Self::get_user_data(context, &SOFTWARE_DATA_EXTRACTION_CONFIG_KEY) {
@@ -216,8 +218,9 @@ impl PipelineParts {
     log
   }
 
-  pub(super) fn discover_traces_timeline_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_TRACES_TIMELINE_DIAGRAM, &|context, _, config| {
+  pipeline_part!(
+    discover_traces_timeline_diagram,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok();
       let event_group_delta = Self::get_user_data(config, &TIME_DELTA_KEY).ok();
       let discover_events_groups_in_each_trace = Self::get_user_data(config, &DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE_KEY)?;
@@ -241,11 +244,12 @@ impl PipelineParts {
       }
 
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub(super) fn prepare_software_log() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::PREPARE_SOFTWARE_EVENT_LOG, &|context, _, config| {
+  pipeline_part!(
+    prepare_software_event_log,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let software_data_extraction_config = Self::get_software_data_extraction_config(context);
       let time_attribute = Self::get_user_data(config, &TIME_ATTRIBUTE_KEY).ok();
@@ -258,45 +262,43 @@ impl PipelineParts {
       context.put_concrete(EVENT_LOG_KEY.key(), prepared_log);
 
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub(super) fn shorten_allocation_types() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::SHORTEN_ALLOCATION_TYPE, &|context, _, _| {
-      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-      let software_data_extraction_config = Self::get_software_data_extraction_config(context);
-      if let Some(config) = software_data_extraction_config.allocation() {
-        let alloc_regex = config.event_class_regex();
-        let alloc_regex = match Regex::new(alloc_regex) {
-          Ok(regex) => regex,
-          Err(err) => {
-            return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(format!(
-              "Failed to create regex from {}, error: {}",
-              alloc_regex,
-              err.to_string()
-            ))))
-          }
-        };
+  pipeline_part!(shorten_allocation_type, |context: &mut PipelineContext, _, _| {
+    let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+    let software_data_extraction_config = Self::get_software_data_extraction_config(context);
+    if let Some(config) = software_data_extraction_config.allocation() {
+      let alloc_regex = config.event_class_regex();
+      let alloc_regex = match Regex::new(alloc_regex) {
+        Ok(regex) => regex,
+        Err(err) => {
+          return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(format!(
+            "Failed to create regex from {}, error: {}",
+            alloc_regex,
+            err.to_string()
+          ))))
+        }
+      };
 
-        for trace in log.traces() {
-          let trace = trace.borrow_mut();
-          for event in trace.events() {
-            if alloc_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
-              let mut event = event.borrow_mut();
-              if let Some(map) = event.payload_map_mut() {
-                if let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str()) {
-                  let string = type_name.to_string_repr().to_string();
-                  *type_name = EventPayloadValue::String(Rc::new(Box::new(Self::shorten_type_or_method_name(string))));
-                }
+      for trace in log.traces() {
+        let trace = trace.borrow_mut();
+        for event in trace.events() {
+          if alloc_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+            let mut event = event.borrow_mut();
+            if let Some(map) = event.payload_map_mut() {
+              if let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str()) {
+                let string = type_name.to_string_repr().to_string();
+                *type_name = EventPayloadValue::String(Rc::new(Box::new(Self::shorten_type_or_method_name(string))));
               }
             }
           }
         }
       }
+    }
 
-      Ok(())
-    })
-  }
+    Ok(())
+  });
 
   fn shorten_type_or_method_name(name: String) -> String {
     let mut result = String::new();
@@ -343,59 +345,57 @@ impl PipelineParts {
     result
   }
 
-  pub(super) fn shorten_methods_names() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::SHORTEN_METHOD_NAMES, &|context, _, _| {
-      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+  pipeline_part!(shorten_method_names, |context: &mut PipelineContext, _, _| {
+    let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
 
-      let methods_id_factories: Vec<&dyn Fn(&String, &String, &String) -> String> = vec![
-        &|_, name, _| name.to_owned(),
-        &|_, name, signature| name.to_owned() + signature,
-        &|namespace, name, _| namespace.to_string() + name,
-      ];
+    let methods_id_factories: Vec<&dyn Fn(&String, &String, &String) -> String> = vec![
+      &|_, name, _| name.to_owned(),
+      &|_, name, signature| name.to_owned() + signature,
+      &|namespace, name, _| namespace.to_string() + name,
+    ];
 
-      let configs = Self::create_processed_method_extraction_configs(context);
-      if configs.is_empty() {
-        return Ok(());
-      }
+    let configs = Self::create_processed_method_extraction_configs(context);
+    if configs.is_empty() {
+      return Ok(());
+    }
 
-      for config in &configs {
-        for method_id_factory in &methods_id_factories {
-          if Self::check_if_can_use_method_id(log, config, method_id_factory) {
-            for trace in log.traces() {
-              let trace = trace.borrow_mut();
-              for event in trace.events() {
-                let mut event = event.borrow_mut();
-                let name = if let Some(payload) = event.payload_map() {
-                  if let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config) {
-                    method_id_factory(&namespace, &name, &signature)
-                  } else {
-                    continue;
-                  }
+    for config in &configs {
+      for method_id_factory in &methods_id_factories {
+        if Self::check_if_can_use_method_id(log, config, method_id_factory) {
+          for trace in log.traces() {
+            let trace = trace.borrow_mut();
+            for event in trace.events() {
+              let mut event = event.borrow_mut();
+              let name = if let Some(payload) = event.payload_map() {
+                if let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config) {
+                  method_id_factory(&namespace, &name, &signature)
                 } else {
                   continue;
-                };
+                }
+              } else {
+                continue;
+              };
 
-                event.set_name(name);
-              }
-            }
-
-            return Ok(());
-          }
-        }
-
-        for trace in log.traces() {
-          let trace = trace.borrow_mut();
-          for event in trace.events() {
-            if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
-              Self::shorten_method_name(config, &mut event.borrow_mut());
+              event.set_name(name);
             }
           }
+
+          return Ok(());
         }
       }
 
-      Ok(())
-    })
-  }
+      for trace in log.traces() {
+        let trace = trace.borrow_mut();
+        for event in trace.events() {
+          if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+            Self::shorten_method_name(config, &mut event.borrow_mut());
+          }
+        }
+      }
+    }
+
+    Ok(())
+  });
 
   fn create_processed_method_extraction_configs(context: &PipelineContext) -> Vec<ProcessedMethodStartEndConfig> {
     let software_data_extraction_config = Self::get_software_data_extraction_config(context);
@@ -505,46 +505,42 @@ impl PipelineParts {
     true
   }
 
-  pub(super) fn set_methods_display_name() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::SET_METHODS_DISPLAY_NAME, &|context, _, _| {
-      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-      let configs = Self::create_processed_method_extraction_configs(context);
+  pipeline_part!(set_methods_display_name, |context: &mut PipelineContext, _, _| {
+    let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+    let configs = Self::create_processed_method_extraction_configs(context);
 
-      for trace in log.traces() {
-        let trace = trace.borrow();
-        for event in trace.events() {
-          let mut display_name = None;
-          if let Some(payload) = event.borrow().payload_map() {
-            for config in &configs {
-              if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
-                if let Some((_, name, _)) = Self::extract_method_name_parts(payload, config) {
-                  display_name = Some(match config.prefix.as_ref() {
-                    None => name,
-                    Some(prefix) => prefix.to_string() + name.as_str(),
-                  });
-                }
+    for trace in log.traces() {
+      let trace = trace.borrow();
+      for event in trace.events() {
+        let mut display_name = None;
+        if let Some(payload) = event.borrow().payload_map() {
+          for config in &configs {
+            if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+              if let Some((_, name, _)) = Self::extract_method_name_parts(payload, config) {
+                display_name = Some(match config.prefix.as_ref() {
+                  None => name,
+                  Some(prefix) => prefix.to_string() + name.as_str(),
+                });
               }
             }
           }
+        }
 
-          if let Some(display_name) = display_name {
-            event
-              .borrow_mut()
-              .user_data_mut()
-              .put_concrete(DISPLAY_NAME_KEY.key(), display_name);
-          }
+        if let Some(display_name) = display_name {
+          event
+            .borrow_mut()
+            .user_data_mut()
+            .put_concrete(DISPLAY_NAME_KEY.key(), display_name);
         }
       }
+    }
 
-      Ok(())
-    })
-  }
+    Ok(())
+  });
 
-  pub(super) fn remain_only_method_start_events() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::REMAIN_ONLY_METHOD_START_EVENTS, &|context, _, _| {
-      Self::remain_only_method_start_or_end_events(context, true)
-    })
-  }
+  pipeline_part!(remain_only_method_start_events, |context: &mut PipelineContext, _, _| {
+    Self::remain_only_method_start_or_end_events(context, true)
+  });
 
   fn remain_only_method_start_or_end_events(
     context: &PipelineContext,
@@ -564,14 +560,13 @@ impl PipelineParts {
     Ok(())
   }
 
-  pub(super) fn remain_only_method_end_events() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::REMAIN_ONLY_METHOD_END_EVENTS, &|context, _, _| {
-      Self::remain_only_method_start_or_end_events(context, false)
-    })
-  }
+  pipeline_part!(remain_only_method_end_events, |context: &mut PipelineContext, _, _| {
+    Self::remain_only_method_start_or_end_events(context, false)
+  });
 
-  pub(super) fn discover_multithreaded_dfg() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DISCOVER_MULTITHREADED_DFG, &|context, _, config| {
+  pipeline_part!(
+    discover_multithreaded_dfg,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
       let strategy = Self::create_multithreaded_trace_parts_creation_strategy(config)?;
@@ -580,8 +575,8 @@ impl PipelineParts {
       context.put_concrete(GRAPH_KEY.key(), dfg);
 
       Ok(())
-    })
-  }
+    }
+  );
 
   fn create_multithreaded_trace_parts_creation_strategy(
     config: &UserDataImpl,

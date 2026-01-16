@@ -41,7 +41,6 @@ impl PipelineParts {
 unsafe impl Sync for PipelineParts {}
 unsafe impl Send for PipelineParts {}
 
-
 #[macro_export]
 macro_rules! pipeline_part {
   ($name:ident, $body:expr) => {
@@ -68,8 +67,8 @@ impl PipelineParts {
       Self::discover_activities(),
       Self::discover_activities_instances(),
       Self::create_log_from_activities(),
-      Self::filter_log_by_event_name(),
-      Self::filter_log_by_regex(),
+      Self::filter_events_by_name(),
+      Self::filter_events_by_regex(),
       Self::remain_events_by_regex(),
       Self::filter_log_by_variants(),
       Self::draw_placement_of_event_by_name(),
@@ -79,7 +78,7 @@ impl PipelineParts {
       Self::get_event_log_info(),
       Self::clear_activities(),
       Self::get_underlying_events_count(),
-      Self::filter_traces_by_count(),
+      Self::filter_traces_by_events_count(),
       Self::traces_diversity_diagram(),
       Self::get_names_event_log(),
       Self::get_hashes_event_log(),
@@ -114,10 +113,10 @@ impl PipelineParts {
       Self::write_log_to_bxes(),
       Self::clusterize_log_traces(),
       Self::serialize_activities_logs(),
-      Self::read_xes_from_bytes(),
-      Self::read_bxes_from_bytes(),
-      Self::write_bxes_to_bytes(),
-      Self::write_xes_to_bytes(),
+      Self::read_xes_log_from_bytes(),
+      Self::read_bxes_log_from_bytes(),
+      Self::write_bxes_log_to_bytes(),
+      Self::write_xes_log_to_bytes(),
       Self::reverse_hierarchy_indices(),
       Self::discover_cases(),
       Self::annotate_graph_with_time(),
@@ -127,7 +126,7 @@ impl PipelineParts {
       Self::merge_xes_logs_from_paths(),
       Self::discover_dfg_stream(),
       Self::discover_petri_net_alpha_stream(),
-      Self::discover_log_threads_diagram(),
+      Self::discover_log_timeline_diagram(),
       Self::create_threads_log(),
       Self::abstract_timeline_diagram(),
       Self::clusterize_log_traces_k_means_grid_search(),
@@ -135,9 +134,9 @@ impl PipelineParts {
       Self::discover_root_sequence_graph(),
       Self::discover_loops_strict(),
       Self::discover_traces_timeline_diagram(),
-      Self::prepare_software_log(),
-      Self::shorten_allocation_types(),
-      Self::shorten_methods_names(),
+      Self::prepare_software_event_log(),
+      Self::shorten_allocation_type(),
+      Self::shorten_method_names(),
       Self::set_methods_display_name(),
       Self::remain_only_method_start_events(),
       Self::remain_only_method_end_events(),
