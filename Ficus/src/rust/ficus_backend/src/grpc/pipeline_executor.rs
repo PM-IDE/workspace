@@ -6,17 +6,17 @@ use crate::{
     get_context_pipeline::GetContextValuePipelinePart,
     logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl},
   },
-  pipelines::{
-    context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
-    errors::pipeline_errors::PipelinePartExecutionError,
-    keys::context_keys::{find_context_key, EXECUTION_ID_KEY},
-    pipeline_parts::PipelineParts,
-    pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
-  },
-  utils::user_data::user_data::{UserData, UserDataImpl},
 };
 use std::{str::FromStr, sync::Arc};
+use ficus::pipelines::{
+  context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
+  errors::pipeline_errors::PipelinePartExecutionError,
+  keys::context_keys::{find_context_key, EXECUTION_ID_KEY},
+  pipeline_parts::PipelineParts,
+  pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
+};
 use uuid::Uuid;
+use ficus::utils::user_data::user_data::{UserData, UserDataImpl};
 
 pub(super) struct ServicePipelineExecutionContext<'a> {
   grpc_pipeline: &'a GrpcPipeline,

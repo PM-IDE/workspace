@@ -11,9 +11,8 @@ use crate::{
     events::utils::{create_grpc_context_values, send_grpc_message},
     logs_handler::ConsoleLogMessageHandler,
   },
-  pipelines::context::LogMessageHandler,
 };
-
+use ficus::pipelines::context::LogMessageHandler;
 pub struct GrpcPipelineEventsHandler {
   sender: Arc<Box<GrpcSender>>,
   console_logs_handler: ConsoleLogMessageHandler,

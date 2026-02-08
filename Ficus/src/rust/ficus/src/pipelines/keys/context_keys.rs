@@ -10,6 +10,7 @@ use crate::{
         tandem_arrays::SubArrayInTraceInfo,
       },
     },
+    cases::CaseName,
     clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
     discovery::{
       ocel::graph_annotation::OcelAnnotation,
@@ -18,7 +19,6 @@ use crate::{
       timeline::{discovery::LogTimelineDiagram, software_data::extraction_config::SoftwareDataExtractionConfig},
     },
   },
-  grpc::events::events_handler::CaseName,
   pipelines::{
     activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto},
     multithreading::FeatureCountKindDto,

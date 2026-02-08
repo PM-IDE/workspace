@@ -1,9 +1,8 @@
 use crate::{
   ficus_proto::GrpcContextValueWithKeyName,
   grpc::{converters::convert_to_grpc_context_value, logs_handler::ConsoleLogMessageHandler},
-  pipelines::context::LogMessageHandler,
-  utils::context_key::ContextKey,
 };
+use ficus::{pipelines::context::LogMessageHandler, utils::context_key::ContextKey};
 use std::any::Any;
 use tokio::sync::mpsc::Sender;
 use tonic::Status;

@@ -1,11 +1,11 @@
-use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult, ProcessCaseMetadata};
+use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use crate::{
   ficus_proto::{
     GrpcCaseName, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
   },
   grpc::{events::utils::create_grpc_context_values, logs_handler::ConsoleLogMessageHandler},
-  pipelines::context::LogMessageHandler,
 };
+use ficus::{features::cases::CaseName, pipelines::context::LogMessageHandler};
 use prost::Message;
 use rdkafka::{
   error::KafkaError,
@@ -117,6 +117,16 @@ impl GetContextValuesEvent<'_> {
       context_values: create_grpc_context_values(&self.key_values),
     }
   }
+}
+
+pub struct ProcessCaseMetadata {
+  pub case_name: CaseName,
+  pub process_name: String,
+  pub subscription_id: Option<Uuid>,
+  pub subscription_name: Option<String>,
+  pub pipeline_id: Option<Uuid>,
+  pub pipeline_name: Option<String>,
+  pub metadata: Vec<(String, String)>,
 }
 
 impl ProcessCaseMetadata {

@@ -18,6 +18,9 @@ use crate::{
     logs_handler::ConsoleLogMessageHandler,
     pipeline_executor::ServicePipelineExecutionContext,
   },
+};
+use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
+use ficus::{
   pipelines::{
     context::LogMessageHandler,
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
@@ -26,7 +29,6 @@ use crate::{
   },
   utils::user_data::user_data::UserData,
 };
-use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
 use log::error;
 use rdkafka::{error::KafkaError, ClientConfig};
 use std::{

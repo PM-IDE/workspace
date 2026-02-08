@@ -1,8 +1,10 @@
 use std::{any::Any, sync::Arc};
 use uuid::Uuid;
 
-use super::events::events_handler::{CaseName, GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, ProcessCaseMetadata};
-use crate::{
+use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler};
+use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
+use ficus::{
+  features::cases::CaseName,
   pipelines::{
     context::{PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError},

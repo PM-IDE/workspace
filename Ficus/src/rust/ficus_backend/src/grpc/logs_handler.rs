@@ -1,4 +1,4 @@
-use crate::pipelines::{context::LogMessageHandler, errors::pipeline_errors::PipelinePartExecutionError};
+use ficus::pipelines::{context::LogMessageHandler, errors::pipeline_errors::PipelinePartExecutionError};
 use log::info;
 use std::sync::Arc;
 

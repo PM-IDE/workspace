@@ -1,8 +1,8 @@
 use std::any::Any;
 
+use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
+use ficus::utils::context_key::ContextKey;
 use uuid::Uuid;
-
-use crate::utils::context_key::ContextKey;
 
 pub trait PipelineEventsHandler: Send + Sync {
   fn handle(&self, event: &PipelineEvent);
@@ -31,31 +31,6 @@ pub struct GetContextValuesEvent<'a> {
   pub pipeline_part_id: Uuid,
   pub execution_id: Uuid,
   pub key_values: Vec<(&'a dyn ContextKey, &'a dyn Any)>,
-}
-
-#[derive(Clone, Debug)]
-pub struct CaseName {
-  pub display_name: String,
-  pub name_parts: Vec<String>,
-}
-
-impl CaseName {
-  pub fn empty() -> Self {
-    Self {
-      name_parts: vec![],
-      display_name: "UNDEFINED".to_string(),
-    }
-  }
-}
-
-pub struct ProcessCaseMetadata {
-  pub case_name: CaseName,
-  pub process_name: String,
-  pub subscription_id: Option<Uuid>,
-  pub subscription_name: Option<String>,
-  pub pipeline_id: Option<Uuid>,
-  pub pipeline_name: Option<String>,
-  pub metadata: Vec<(String, String)>,
 }
 
 pub enum PipelineFinalResult {

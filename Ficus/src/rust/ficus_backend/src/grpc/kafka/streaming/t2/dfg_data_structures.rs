@@ -1,4 +1,4 @@
-use crate::{
+use ficus::{
   event_log::{
     core::{event::event::Event, trace::trace::Trace},
     xes::xes_trace::XesTraceImpl,
@@ -11,12 +11,12 @@ use crate::{
       sliding_window::SlidingWindow,
     },
   },
-  grpc::kafka::{
-    models::XesFromBxesKafkaTraceCreatingError,
-    streaming::processors::{CaseMetadata, ProcessMetadata},
-  },
   pipelines::{context::PipelineContext, keys::context_keys::EVENT_LOG_INFO_KEY},
   utils::user_data::user_data::UserData,
+};
+use crate::grpc::kafka::{
+  models::XesFromBxesKafkaTraceCreatingError,
+  streaming::processors::{CaseMetadata, ProcessMetadata},
 };
 use bxes::models::domain::bxes_value::BxesValue;
 use log::{debug, warn};

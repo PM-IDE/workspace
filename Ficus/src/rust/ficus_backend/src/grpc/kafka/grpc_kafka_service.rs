@@ -10,11 +10,13 @@ use crate::{
     context_values_service::ContextValueService,
     events::{
       delegating_events_handler::DelegatingEventsHandler,
-      events_handler::{CaseName, PipelineEvent, PipelineEventsHandler, PipelineFinalResult},
+      events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult},
       grpc_events_handler::GrpcPipelineEventsHandler,
     },
     kafka::{kafka_service::KafkaService, models::PipelineExecutionDto},
   },
+};
+use ficus::{
   pipelines::{
     keys::context_keys::{CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY},
     pipeline_parts::PipelineParts,
@@ -27,6 +29,7 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
+use ficus::features::cases::CaseName;
 
 pub struct GrpcKafkaServiceImpl {
   cv_service: Arc<ContextValueService>,

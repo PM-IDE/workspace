@@ -1,22 +1,20 @@
-use crate::{
-  grpc::{
-    events::events_handler::CaseName,
-    kafka::{
-      models::{
-        KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
-        KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
-      },
-      streaming::{t1::processors::T1StreamingProcessor, t2::processors::T2StreamingProcessor},
-    },
+use crate::grpc::kafka::{
+  models::{
+    KafkaTraceProcessingError, PipelineExecutionDto, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_DISPLAY_NAME, KAFKA_CASE_ID,
+    KAFKA_CASE_NAME_PARTS, KAFKA_CASE_NAME_PARTS_SEPARATOR, KAFKA_PROCESS_NAME,
   },
+  streaming::{t1::processors::T1StreamingProcessor, t2::processors::T2StreamingProcessor},
+};
+use bxes::models::domain::bxes_value::BxesValue;
+use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
+use ficus::{
+  features::cases::CaseName,
   pipelines::{
     context::PipelineContext,
     keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY},
   },
   utils::user_data::user_data::UserData,
 };
-use bxes::models::domain::bxes_value::BxesValue;
-use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
 use std::{collections::HashMap, rc::Rc};
 use uuid::Uuid;
 

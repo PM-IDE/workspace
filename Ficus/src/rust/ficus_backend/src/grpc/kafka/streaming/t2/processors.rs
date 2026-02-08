@@ -1,5 +1,4 @@
 use crate::{
-  event_log::{bxes::bxes_to_xes_converter::read_bxes_events, core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
   ficus_proto::GrpcPipeline,
   grpc::{
     kafka::{
@@ -8,6 +7,9 @@ use crate::{
     },
     pipeline_executor::ServicePipelineExecutionContext,
   },
+};
+use ficus::{
+  event_log::{bxes::bxes_to_xes_converter::read_bxes_events, core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
   pipelines::{
     context::{PipelineContext, PipelineInfrastructure},
     keys::context_keys::EVENT_LOG_KEY,

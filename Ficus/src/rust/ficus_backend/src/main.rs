@@ -1,4 +1,4 @@
-use ficus::{
+use crate::{
   ficus_proto::{
     grpc_backend_service_server::GrpcBackendServiceServer, grpc_context_values_service_server::GrpcContextValuesServiceServer,
     grpc_kafka_service_server::GrpcKafkaServiceServer,
@@ -12,6 +12,12 @@ use ficus::{
 use log::{info, LevelFilter};
 use std::sync::Arc;
 use tonic::transport::Server;
+
+pub mod ficus_proto {
+  tonic::include_proto!("ficus");
+}
+
+mod grpc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

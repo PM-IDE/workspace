@@ -1,6 +1,8 @@
-use crate::{
+use crate::grpc::{
+  events::events_handler::PipelineEventsHandler, kafka::kafka_service::KafkaSubscription, logs_handler::ConsoleLogMessageHandler,
+};
+use ficus::{
   event_log::bxes::bxes_to_xes_converter::BxesToXesReadError,
-  grpc::{events::events_handler::PipelineEventsHandler, kafka::kafka_service::KafkaSubscription, logs_handler::ConsoleLogMessageHandler},
   pipelines::{errors::pipeline_errors::PipelinePartExecutionError, pipeline_parts::PipelineParts},
 };
 use std::{

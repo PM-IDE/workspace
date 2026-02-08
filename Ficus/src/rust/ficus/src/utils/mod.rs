@@ -4,7 +4,6 @@ pub mod dataset;
 pub mod display_name;
 pub mod distance;
 pub mod graph;
-pub mod grpc_utils;
 pub mod hash_map_utils;
 pub mod hash_utils;
 pub mod interval_tree;

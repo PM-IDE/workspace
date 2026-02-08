@@ -2,13 +2,13 @@ use crate::{
   ficus_proto::GrpcPipelineStreamingConfiguration,
   grpc::kafka::streaming::{
     processors::TracesProcessor,
-    t1::{
-      configs::{T1StreamingConfiguration, TracesQueueConfiguration},
-      filterers::{T1LogFilterer, TracesQueueFiltererImpl},
-      processors::T1StreamingProcessor,
-    },
+    t1::{configs::T1StreamingConfiguration, processors::T1StreamingProcessor},
     t2::configs::T2StreamingConfiguration,
   },
+};
+use ficus::features::streaming::t1::{
+  configs::TracesQueueConfiguration,
+  filterers::{T1LogFilterer, TracesQueueFiltererImpl},
 };
 
 type StreamingConfigurationEnum = crate::ficus_proto::grpc_pipeline_streaming_configuration::Configuration;

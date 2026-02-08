@@ -3,7 +3,7 @@ use crate::{
     core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
     xes::xes_event_log::XesEventLogImpl,
   },
-  grpc::kafka::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration},
+  features::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration},
 };
 use chrono::Utc;
 use log::debug;
