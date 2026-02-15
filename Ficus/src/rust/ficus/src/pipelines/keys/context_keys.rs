@@ -15,7 +15,7 @@ use crate::{
     discovery::{
       ocel::graph_annotation::OcelAnnotation,
       petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
-      root_sequence::models::RootSequenceKind,
+      ecfg::models::RootSequenceKind,
       timeline::{discovery::LogTimelineDiagram, software_data::extraction_config::SoftwareDataExtractionConfig},
     },
   },

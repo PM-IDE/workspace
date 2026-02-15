@@ -131,7 +131,7 @@ impl PipelineParts {
       Self::abstract_timeline_diagram(),
       Self::clusterize_log_traces_k_means_grid_search(),
       Self::clusterize_log_traces_dbscan_grid_search(),
-      Self::discover_root_sequence_graph(),
+      Self::discover_ecfg(),
       Self::discover_loops_strict(),
       Self::discover_traces_timeline_diagram(),
       Self::prepare_software_event_log(),

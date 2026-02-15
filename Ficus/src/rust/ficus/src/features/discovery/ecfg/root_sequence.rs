@@ -1,5 +1,5 @@
 use crate::{
-  features::discovery::root_sequence::models::RootSequenceKind,
+  features::discovery::ecfg::models::RootSequenceKind,
   utils::{
     distance::distance::calculate_lcs_distance,
     lcs::{find_longest_common_subsequence, find_longest_common_subsequence_length},

@@ -19,7 +19,7 @@ use ficus::{
     discovery::{
       ocel::graph_annotation::OcelAnnotationCreationError,
       petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
-      root_sequence::models::RootSequenceKind,
+      ecfg::models::RootSequenceKind,
       timeline::discovery::LogTimelineDiagram,
     },
   },

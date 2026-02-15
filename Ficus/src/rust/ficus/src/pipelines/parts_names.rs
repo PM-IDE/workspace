@@ -55,7 +55,7 @@ impl PipelineParts {
   pub const DISCOVER_DFG_STREAM: &'static str = "DiscoverDirectlyFollowsGraphStream";
   pub const CREATE_THREADS_LOG: &'static str = "CreateThreadsLog";
   pub const ABSTRACT_TIMELINE_DIAGRAM: &'static str = "AbstractTimelineDiagram";
-  pub const DISCOVER_ROOT_SEQUENCE_GRAPH: &'static str = "DiscoverRootSequenceGraph";
+  pub const DISCOVER_ECFG: &'static str = "DiscoverECFG";
   pub const DISCOVER_LOOPS_STRICT: &'static str = "DiscoverLoopsStrict";
   pub const DISCOVER_TRACES_TIMELINE_DIAGRAM: &'static str = "DiscoverTracesTimelineDiagram";
 

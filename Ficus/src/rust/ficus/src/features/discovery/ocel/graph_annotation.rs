@@ -1,5 +1,5 @@
 use crate::{
-  features::discovery::{root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
+  features::discovery::{ecfg::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
   utils::{graph::graph::DefaultGraph, references::HeapedOrOwned, user_data::user_data::UserData},
 };
 use derive_new::new;

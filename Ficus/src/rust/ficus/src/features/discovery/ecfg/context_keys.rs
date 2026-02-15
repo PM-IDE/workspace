@@ -4,7 +4,7 @@ use crate::{
   features::{
     analysis::patterns::pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo},
     discovery::{
-      root_sequence::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, NodeAdditionalDataContainer},
+      ecfg::models::{ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, NodeAdditionalDataContainer},
       timeline::software_data::models::SoftwareData,
     },
   },

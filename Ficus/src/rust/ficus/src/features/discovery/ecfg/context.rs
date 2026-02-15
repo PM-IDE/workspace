@@ -1,5 +1,5 @@
 use crate::{
-  features::discovery::root_sequence::models::RootSequenceKind,
+  features::discovery::ecfg::models::RootSequenceKind,
   utils::{references::HeapedOrOwned, user_data::user_data::UserDataImpl},
 };
 

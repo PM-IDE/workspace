@@ -10,14 +10,14 @@ use crate::{
     },
     discovery::{
       petri_net::annotations::create_performance_map,
-      root_sequence::{
+      ecfg::{
         context::DiscoveryContext,
         context_keys::{
           EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
           NODE_MULTITHREADED_FRAGMENT_LOG_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
           NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY, NODE_UNDERLYING_PATTERNS_INFOS_KEY,
         },
-        discovery::{create_new_graph_node, discover_root_sequence_graph},
+        discovery::{create_new_graph_node, discover_ecfg},
         models::{
           CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer,
           RootSequenceKind,
@@ -35,7 +35,7 @@ use crate::{
 };
 use std::{cell::RefCell, fmt::Debug, ops::Deref, rc::Rc};
 
-pub fn discover_root_sequence_graph_from_event_log(
+pub fn discover_ecfg_from_event_log(
   log: &XesEventLogImpl,
   root_sequence_kind: RootSequenceKind,
   merge_sequences_of_events: bool,
@@ -81,7 +81,7 @@ pub fn discover_root_sequence_graph_from_event_log(
     .map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect())
     .collect();
 
-  let mut result = discover_root_sequence_graph(&log, &context, merge_sequences_of_events, Some(performance_map))?;
+  let mut result = discover_ecfg(&log, &context, merge_sequences_of_events, Some(performance_map))?;
   discover_graphs_for_patterns(result.graph_mut(), &context);
 
   Ok(result.graph_move())

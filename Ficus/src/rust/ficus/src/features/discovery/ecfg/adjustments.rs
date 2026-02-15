@@ -1,7 +1,7 @@
 use crate::{
   features::discovery::{
     petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY},
-    root_sequence::{
+    ecfg::{
       context::DiscoveryContext,
       context_keys::{
         NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,

@@ -5,7 +5,7 @@ use crate::{
   },
   features::discovery::{
     multithreaded_dfg::dfg::MULTITHREADED_FRAGMENT_KEY,
-    root_sequence::{
+    ecfg::{
       context_keys::{
         EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY,
         NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,

@@ -248,7 +248,7 @@ class DiscoverDirectlyFollowsGraphStream(PipelinePart):
   def to_grpc_part(self) -> GrpcPipelinePartBase:
     return _create_default_discovery_part(const_discover_directly_follows_graph_stream)
 
-class DiscoverRootSequenceGraph(PipelinePart):
+class DiscoverECFG(PipelinePart):
   def __init__(self,
                root_sequence_kind: RootSequenceKind = RootSequenceKind.FindBest,
                merge_sequences_of_events: bool = True):
@@ -261,4 +261,4 @@ class DiscoverRootSequenceGraph(PipelinePart):
     append_root_sequence_kind(config, const_root_sequence_kind, self.root_sequence_kind)
     append_bool_value(config, const_merge_sequences_of_events, self.merge_sequences_of_events)
 
-    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_root_sequence_graph, config))
+    return GrpcPipelinePartBase(defaultPart=create_default_pipeline_part(const_discover_ecfg, config))

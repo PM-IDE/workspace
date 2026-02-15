@@ -1,7 +1,7 @@
 use ficus::{
-  features::discovery::root_sequence::{
+  features::discovery::ecfg::{
     context::DiscoveryContext,
-    discovery::discover_root_sequence_graph,
+    discovery::discover_ecfg,
     models::{EventWithUniqueId, RootSequenceKind},
     root_sequence::discover_root_sequence,
   },
@@ -11,8 +11,8 @@ use ficus::{
 use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 #[test]
-pub fn test_root_sequence_graph_1() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_1() {
+  execute_ecfg_discovery_test(
     vec![vecs!["A", "B", "C", "D", "E"], vecs!["A", "B", "D", "E"]],
     vecs!["START", "A", "B", "C", "D", "E", "END"],
     vec![
@@ -28,8 +28,8 @@ pub fn test_root_sequence_graph_1() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_2() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_2() {
+  execute_ecfg_discovery_test(
     vec![vecs!["A", "B", "C", "D", "E"], vecs!["A", "X", "Y", "E"]],
     vecs!["START", "A", "B", "C", "D", "E", "END"],
     vec![
@@ -47,8 +47,8 @@ pub fn test_root_sequence_graph_2() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_3() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_3() {
+  execute_ecfg_discovery_test(
     vec![vecs!["A"], vecs!["B"], vecs!["C"], vecs!["D"], vecs!["E"]],
     vecs!["START", "END"],
     vec![
@@ -67,18 +67,18 @@ pub fn test_root_sequence_graph_3() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_4() {
-  execute_root_sequence_discovery_test(vec![], vec![], vec![])
+pub fn test_ecfg_4() {
+  execute_ecfg_discovery_test(vec![], vec![], vec![])
 }
 
 #[test]
-pub fn test_root_sequence_graph_5() {
-  execute_root_sequence_discovery_test(vec![vecs![]], vecs!["START", "END"], vec!["[START]--[END]"])
+pub fn test_ecfg_5() {
+  execute_ecfg_discovery_test(vec![vecs![]], vecs!["START", "END"], vec!["[START]--[END]"])
 }
 
 #[test]
-pub fn test_root_sequence_graph_6() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_6() {
+  execute_ecfg_discovery_test(
     vec![
       vecs!["A", "X", "B", "Y", "C", "Z", "D", "W", "E"],
       vecs!["X", "A", "Y", "B", "Z", "C", "W", "D"],
@@ -109,8 +109,8 @@ pub fn test_root_sequence_graph_6() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_7() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_7() {
+  execute_ecfg_discovery_test(
     vec![
       vecs!["X", "A", "Y", "B", "Z", "C", "W", "D", "Z", "E"],
       vecs!["A", "B", "C", "D", "E"],
@@ -138,8 +138,8 @@ pub fn test_root_sequence_graph_7() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_8() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_8() {
+  execute_ecfg_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "B", "C", "D", "E"],
@@ -163,8 +163,8 @@ pub fn test_root_sequence_graph_8() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_9() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_9() {
+  execute_ecfg_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "Y", "Z", "W", "B", "C", "D", "E"],
@@ -193,8 +193,8 @@ pub fn test_root_sequence_graph_9() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_10() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_10() {
+  execute_ecfg_discovery_test(
     vec![
       vecs!["A", "B", "C", "D", "E"],
       vecs!["A", "X", "Y", "Z", "W", "B", "C", "D", "E"],
@@ -225,8 +225,8 @@ pub fn test_root_sequence_graph_10() {
 }
 
 #[test]
-pub fn test_root_sequence_graph_11() {
-  execute_root_sequence_discovery_test(
+pub fn test_ecfg_11() {
+  execute_ecfg_discovery_test(
     vec![
       vecs!["5", "6", "7", "8", "0"],
       vecs!["13", "1", "0", "9", "14"],
@@ -335,7 +335,7 @@ pub fn test_root_sequence_graph_11() {
   )
 }
 
-fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
+fn execute_ecfg_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence: Vec<String>, gold_graph_edges: Vec<&str>) {
   const START: &'static str = "START";
   const END: &'static str = "END";
 
@@ -367,10 +367,9 @@ fn execute_root_sequence_discovery_test(mut traces: Vec<Vec<String>>, gold_root_
     .into_iter()
     .map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect())
     .collect();
-  let graph = discover_root_sequence_graph(&traces, &context, false, None)
-    .ok()
-    .unwrap()
-    .graph_move();
+
+  let graph = discover_ecfg(&traces, &context, false, None).ok().unwrap().graph_move();
+
   let test_result = graph.serialize_edges_deterministic(false);
 
   let gold = gold_graph_edges.join("\n");

@@ -2,7 +2,7 @@ use crate::{
   context_key,
   features::discovery::{
     petri_net::annotations::PerformanceMap,
-    root_sequence::{
+    ecfg::{
       adjustments::{adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes},
       context::DiscoveryContext,
       models::{DiscoverRootSequenceGraphError, EventWithUniqueId, RootSequenceKind},
@@ -66,13 +66,13 @@ impl RootSequenceGraphDiscoveryResult {
   }
 }
 
-pub fn discover_root_sequence_graph<T: PartialEq + Clone + Debug>(
+pub fn discover_ecfg<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   context: &DiscoveryContext<T>,
   merge_sequences_of_events: bool,
   performance_map: Option<PerformanceMap>,
 ) -> Result<RootSequenceGraphDiscoveryResult, DiscoverRootSequenceGraphError> {
-  let mut result = discover_root_sequence_graph_internal(log, context, true)?;
+  let mut result = discover_ecfg_internal(log, context, true)?;
 
   let graph_kind = match context.root_sequence_kind() {
     RootSequenceKind::FindBest | RootSequenceKind::PairwiseLCS | RootSequenceKind::Trace => GraphKind::Dag,
@@ -106,7 +106,7 @@ fn add_start_end_nodes_ids_to_user_data(result: &mut RootSequenceGraphDiscoveryR
   }
 }
 
-fn discover_root_sequence_graph_internal<T: PartialEq + Clone + Debug>(
+fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   context: &DiscoveryContext<T>,
   first_iteration: bool,
@@ -307,7 +307,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
 ) -> Result<(), DiscoverRootSequenceGraphError> {
   for (start_root_node_id, adjustments) in adjustments {
     let adjustment_log = create_log_from_adjustments(adjustments, context.artificial_start_end_events_factory());
-    let result = discover_root_sequence_graph_internal(&adjustment_log, context, false)?;
+    let result = discover_ecfg_internal(&adjustment_log, context, false)?;
 
     merge_subgraph_into_model(adjustments, graph, result.graph_move(), *start_root_node_id, context)?;
   }

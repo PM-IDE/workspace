@@ -76,7 +76,7 @@ fn get_test_parts_names() -> Vec<String> {
     "AbstractTimelineDiagram",
     "ClusterizeLogTracesKMeansGridSearch",
     "ClusterizeLogTracesDbscanGridSearch",
-    "DiscoverRootSequenceGraph",
+    "DiscoverECFG",
     "DiscoverLoopsStrict",
     "DiscoverTracesTimelineDiagram",
     "PrepareSoftwareEventLog",

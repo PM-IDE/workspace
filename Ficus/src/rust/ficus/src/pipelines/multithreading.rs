@@ -14,7 +14,7 @@ use crate::{
       multithreaded_dfg::dfg::{
         discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy,
       },
-      root_sequence::log_prepare::prepare_software_log,
+      ecfg::log_prepare::prepare_software_log,
       timeline::{
         abstraction::abstract_event_groups,
         discovery::{discover_timeline_diagram, discover_traces_timeline_diagram},
