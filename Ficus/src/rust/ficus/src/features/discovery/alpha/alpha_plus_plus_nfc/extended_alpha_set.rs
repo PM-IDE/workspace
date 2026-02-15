@@ -8,6 +8,7 @@ use crate::{
 };
 use std::{
   collections::{BTreeSet, HashSet},
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -197,8 +198,8 @@ impl<'a> PartialEq for ExtendedAlphaSet<'a> {
 
 impl<'a> Eq for ExtendedAlphaSet<'a> {}
 
-impl<'a> ToString for ExtendedAlphaSet<'a> {
-  fn to_string(&self) -> String {
+impl<'a> Display for ExtendedAlphaSet<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut repr = String::new();
     repr.push('(');
     repr.push_str(self.alpha_set.to_string().as_str());
@@ -225,7 +226,8 @@ impl<'a> ToString for ExtendedAlphaSet<'a> {
     repr.remove(repr.len() - 1);
 
     repr.push(')');
-    repr
+
+    write!(f, "{}", repr)
   }
 }
 

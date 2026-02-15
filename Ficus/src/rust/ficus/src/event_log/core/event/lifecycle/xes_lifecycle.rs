@@ -1,5 +1,5 @@
 use super::{braf_lifecycle::XesBrafLifecycle, standard_lifecycle::XesStandardLifecycle};
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Lifecycle {
@@ -7,12 +7,15 @@ pub enum Lifecycle {
   BrafLifecycle(XesBrafLifecycle),
 }
 
-impl ToString for Lifecycle {
-  fn to_string(&self) -> String {
-    match self {
-      Self::XesStandardLifecycle(xes_lifecycle) => xes_lifecycle.to_string(),
-      Self::BrafLifecycle(braf_lifecycle) => braf_lifecycle.to_string(),
-    }
+impl Display for Lifecycle {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str(
+      match self {
+        Self::XesStandardLifecycle(xes_lifecycle) => xes_lifecycle.to_string(),
+        Self::BrafLifecycle(braf_lifecycle) => braf_lifecycle.to_string(),
+      }
+      .as_str(),
+    )
   }
 }
 

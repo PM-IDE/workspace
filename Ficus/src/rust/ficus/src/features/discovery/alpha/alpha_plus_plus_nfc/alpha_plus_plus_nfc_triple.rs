@@ -8,6 +8,7 @@ use crate::{
 };
 use std::{
   collections::BTreeSet,
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -130,8 +131,8 @@ impl<'a> Clone for AlphaPlusPlusNfcTriple<'a> {
 
 impl<'a> Eq for AlphaPlusPlusNfcTriple<'a> {}
 
-impl<'a> ToString for AlphaPlusPlusNfcTriple<'a> {
-  fn to_string(&self) -> String {
+impl<'a> Display for AlphaPlusPlusNfcTriple<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut repr = String::new();
     repr.push('(');
 
@@ -158,6 +159,7 @@ impl<'a> ToString for AlphaPlusPlusNfcTriple<'a> {
     repr.remove(repr.len() - 1);
 
     repr.push(')');
-    repr
+
+    write!(f, "{}", repr)
   }
 }

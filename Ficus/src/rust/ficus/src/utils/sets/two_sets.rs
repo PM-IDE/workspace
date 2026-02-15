@@ -1,6 +1,7 @@
 use crate::utils::hash_utils::compare_based_on_hashes;
 use std::{
   collections::BTreeSet,
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -109,11 +110,11 @@ where
   }
 }
 
-impl<T> ToString for TwoSets<T>
+impl<T> Display for TwoSets<T>
 where
   T: Hash + Eq + ToString + Ord + Clone,
 {
-  fn to_string(&self) -> String {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut repr = String::new();
     repr.push('(');
 
@@ -138,6 +139,7 @@ where
     write_set(&self.second_set, &mut repr);
 
     repr.push(')');
-    repr
+
+    write!(f, "{}", repr)
   }
 }

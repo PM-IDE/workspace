@@ -2,7 +2,10 @@ use crate::{
   features::discovery::alpha::providers::alpha_provider::AlphaRelationsProvider,
   utils::{hash_utils::compare_based_on_hashes, sets::two_sets::TwoSets},
 };
-use std::hash::{Hash, Hasher};
+use std::{
+  fmt::Display,
+  hash::{Hash, Hasher},
+};
 
 #[derive(Debug)]
 pub struct AlphaSet {
@@ -107,9 +110,9 @@ impl PartialEq for AlphaSet {
 
 impl Eq for AlphaSet {}
 
-impl ToString for AlphaSet {
-  fn to_string(&self) -> String {
-    self.two_sets.to_string()
+impl Display for AlphaSet {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str(self.two_sets.to_string().as_str())
   }
 }
 

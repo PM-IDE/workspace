@@ -19,6 +19,7 @@ use crate::{
 use log::debug;
 use std::{
   collections::{BTreeSet, HashSet},
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -145,8 +146,8 @@ impl<'a> PartialEq for AlphaSharpTuple<'a> {
 
 impl<'a> Eq for AlphaSharpTuple<'a> {}
 
-impl<'a> ToString for AlphaSharpTuple<'a> {
-  fn to_string(&self) -> String {
+impl<'a> Display for AlphaSharpTuple<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut string = String::new();
     string.push('(');
 
@@ -193,7 +194,8 @@ impl<'a> ToString for AlphaSharpTuple<'a> {
     string.remove(string.len() - 1);
 
     string.push(')');
-    string
+
+    write!(f, "{}", string)
   }
 }
 
