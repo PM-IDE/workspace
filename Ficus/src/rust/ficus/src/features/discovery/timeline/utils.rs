@@ -8,15 +8,10 @@ use crate::{
 use chrono::{DateTime, Utc};
 
 pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<String> {
-  if let Some(map) = event.payload_map() {
-    if let Some(value) = map.get(thread_attribute) {
-      Some(value.to_string_repr().as_str().to_owned())
-    } else {
-      None
-    }
-  } else {
-    None
-  }
+  let Some(map) = event.payload_map() else { return None };
+  let Some(value) = map.get(thread_attribute) else { return None };
+
+  Some(value.to_string_repr().as_str().to_owned())
 }
 
 pub fn get_stamp(event: &XesEventImpl, attribute: Option<&String>) -> Result<i64, LogThreadsDiagramError> {
@@ -38,9 +33,5 @@ pub fn get_stamp(event: &XesEventImpl, attribute: Option<&String>) -> Result<i64
 }
 
 fn get_utc_date_stamp(date: &DateTime<Utc>) -> Result<i64, LogThreadsDiagramError> {
-  if let Some(utc_stamp) = date.timestamp_nanos_opt() {
-    Ok(utc_stamp)
-  } else {
-    Err(LogThreadsDiagramError::NotSupportedEventStamp)
-  }
+  date.timestamp_nanos_opt().ok_or_else(|| LogThreadsDiagramError::NotSupportedEventStamp)
 }
