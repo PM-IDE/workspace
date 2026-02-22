@@ -81,7 +81,7 @@ impl KafkaSubscription {
     self.name.clone()
   }
   pub fn pipelines(&self) -> Vec<(Uuid, KafkaSubscriptionPipeline)> {
-    self.pipelines.iter().map(|p| (p.0.clone(), p.1.clone())).collect()
+    self.pipelines.iter().map(|p| (*p.0, p.1.clone())).collect()
   }
 }
 
@@ -125,7 +125,7 @@ impl KafkaService {
   pub(super) fn subscribe_to_kafka_topic(&self, request: GrpcSubscribeToKafkaRequest) -> Result<Uuid, KafkaError> {
     let name = request.subscription_metadata.as_ref().unwrap().subscription_name.clone();
     let creation_dto = self.create_kafka_creation_dto(name);
-    let id = creation_dto.uuid.clone();
+    let id = creation_dto.uuid;
 
     match Self::spawn_consumer(request, creation_dto) {
       Ok(_) => Ok(id),
@@ -137,7 +137,7 @@ impl KafkaService {
     let mut consumer = match Self::create_consumer(&request) {
       Ok(consumer) => consumer,
       Err(err) => {
-        error!("Failed to create kafka consumer: {}", err.to_string());
+        error!("Failed to create kafka consumer: {}", err);
         return Err(err);
       }
     };
@@ -145,7 +145,7 @@ impl KafkaService {
     match consumer.subscribe() {
       Ok(_) => {
         let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
-        map.insert(dto.uuid.clone(), KafkaSubscription::new(dto.name.clone()));
+        map.insert(dto.uuid, KafkaSubscription::new(dto.name.clone()));
       }
       Err(err) => {
         return match err {
@@ -194,10 +194,7 @@ impl KafkaService {
     }
 
     match consumer.consume() {
-      Ok(trace) => match trace {
-        Some(trace) => Self::process_kafka_trace(trace, dto),
-        None => {}
-      },
+      Ok(trace) => if let Some(trace) = trace { Self::process_kafka_trace(trace, dto) },
       Err(err) => {
         print!("Failed to read messages from kafka: {:?}", err)
       }
@@ -241,7 +238,7 @@ impl KafkaService {
         match pipeline.processor.observe(trace_processing_context) {
           Ok(()) => {}
           Err(err) => {
-            let message = format!("Failed to get update result, err: {}", err.to_string());
+            let message = format!("Failed to get update result, err: {}", err);
             dto.logger.handle(message.as_str()).expect("Must log message");
             return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
               "Failed to mutate context".to_string(),
@@ -249,8 +246,8 @@ impl KafkaService {
           }
         };
 
-        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), dto.uuid.clone());
-        context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id.clone());
+        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), dto.uuid);
+        context.put_concrete(PIPELINE_ID_KEY.key(), *pipeline_id);
         context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), dto.name.clone());
         context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline.name.clone());
 
@@ -276,7 +273,7 @@ impl KafkaService {
   ) -> Uuid {
     let mut map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
     let pipeline_id = Uuid::new_v4();
-    let streaming_config = StreamingConfiguration::new(&streaming_config).unwrap_or_else(|| StreamingConfiguration::NotSpecified);
+    let streaming_config = StreamingConfiguration::new(&streaming_config).unwrap_or(StreamingConfiguration::NotSpecified);
     let kafka_pipeline = self.create_kafka_pipeline(request, handler, pipeline_name, streaming_config);
 
     match map.get_mut(&subscription_id) {
@@ -319,7 +316,7 @@ impl KafkaService {
 
   pub fn get_all_subscriptions(&self) -> Vec<(Uuid, KafkaSubscription)> {
     let map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
-    map.iter().map(|s| (s.0.clone(), s.1.clone())).collect()
+    map.iter().map(|s| (*s.0, s.1.clone())).collect()
   }
 }
 
@@ -359,7 +356,7 @@ impl KafkaService {
     let producer = match PipelineEventsProducer::create(producer_metadata) {
       Ok(producer) => producer,
       Err(err) => {
-        let message = format!("Failed to create producer: {}", err.to_string());
+        let message = format!("Failed to create producer: {}", err);
         return Err(Status::invalid_argument(message));
       }
     };

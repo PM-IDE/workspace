@@ -147,7 +147,7 @@ pub(in crate::grpc::kafka::streaming) fn uuid_or_err(
 ) -> Result<Uuid, XesFromBxesKafkaTraceCreatingError> {
   let value = value_or_err(metadata, key)?;
   if let BxesValue::Guid(id) = value.as_ref().as_ref() {
-    Ok(id.clone())
+    Ok(*id)
   } else {
     Err(XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid)
   }
@@ -158,18 +158,14 @@ pub(in crate::grpc::kafka::streaming) fn metadata_to_string_string_pairs(
 ) -> Vec<(String, String)> {
   metadata
     .iter()
-    .map(|pair| {
+    .filter_map(|pair| {
       if pair.0 == KAFKA_CASE_NAME_PARTS || pair.0 == KAFKA_CASE_DISPLAY_NAME || pair.0 == KAFKA_PROCESS_NAME {
         None
+      } else if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
+        Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
       } else {
-        if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
-          Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
-        } else {
-          None
-        }
+        None
       }
     })
-    .filter(|kv| kv.is_some())
-    .map(|kv| kv.unwrap())
     .collect()
 }

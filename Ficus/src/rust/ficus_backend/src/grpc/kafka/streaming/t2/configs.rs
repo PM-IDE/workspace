@@ -11,9 +11,7 @@ pub enum T2StreamingConfiguration {
 
 impl T2StreamingConfiguration {
   pub fn new(grpc_config: &GrpcT2StreamingConfiguration) -> Option<Self> {
-    match grpc_config.configuration.as_ref() {
-      None => None,
-      Some(c) => Some(match c {
+    grpc_config.configuration.as_ref().map(|c| match c {
         Configuration::LossyCount(lc) => T2StreamingConfiguration::LossyCount(LossyCountConfiguration {
           error: lc.error,
           support: lc.support,
@@ -23,8 +21,7 @@ impl T2StreamingConfiguration {
           element_lifetime: Duration::from_millis(sc.lifespan_ms as u64),
           trace_preprocessing_pipeline: grpc_config.incoming_traces_filtering_pipeline.clone(),
         }),
-      }),
-    }
+    })
   }
 
   pub fn create_processor(&self) -> T2StreamingProcessor {

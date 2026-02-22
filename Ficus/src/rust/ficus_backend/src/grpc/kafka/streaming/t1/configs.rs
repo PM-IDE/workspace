@@ -1,9 +1,9 @@
-use ficus::features::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration};
-use ficus::features::streaming::t1::filterers::{EventsTimeoutFiltererImpl, T1LogFilterer, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl};
 use crate::{
   ficus_proto::{grpc_t1_streaming_configuration::Configuration, GrpcT1StreamingConfiguration},
   grpc::kafka::streaming::t1::processors::T1StreamingProcessor,
 };
+use ficus::features::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration};
+use ficus::features::streaming::t1::filterers::{EventsTimeoutFiltererImpl, T1LogFilterer, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl};
 
 pub enum T1StreamingConfiguration {
   EventsTimeout(EventsTimeoutConfiguration),
@@ -13,9 +13,7 @@ pub enum T1StreamingConfiguration {
 
 impl T1StreamingConfiguration {
   pub fn new(grpc_config: &GrpcT1StreamingConfiguration) -> Option<Self> {
-    match grpc_config.configuration.as_ref() {
-      None => None,
-      Some(c) => Some(match c {
+    grpc_config.configuration.as_ref().map(|c| match c {
         Configuration::EventsTimeout(et) => {
           T1StreamingConfiguration::EventsTimeout(EventsTimeoutConfiguration::new(et.events_timeout_ms as u64))
         }
@@ -25,8 +23,7 @@ impl T1StreamingConfiguration {
         Configuration::TracesQueueConfiguration(tq) => {
           T1StreamingConfiguration::TracesQueue(TracesQueueConfiguration::new(tq.queue_capacity as u64))
         }
-      }),
-    }
+    })
   }
 
   pub fn create_processor(&self) -> T1StreamingProcessor {

@@ -31,7 +31,7 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
   fn handle(&self, event: &PipelineEvent) {
     let result = match event {
       PipelineEvent::GetContextValuesEvent(event) => self.create_get_context_values_event(event),
-      PipelineEvent::LogMessage(message) => self.create_log_message_result(&message),
+      PipelineEvent::LogMessage(message) => self.create_log_message_result(message),
       PipelineEvent::FinalResult(result) => self.create_final_result(match result {
         PipelineFinalResult::Success(uuid) => ExecutionResult::Success(GrpcGuid { guid: uuid.to_string() }),
         PipelineFinalResult::Error(error_message) => ExecutionResult::Error(error_message.to_string()),

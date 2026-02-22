@@ -12,12 +12,12 @@ use std::{
 };
 use uuid::Uuid;
 
-pub(super) const KAFKA_CASE_DISPLAY_NAME: &'static str = "case_display_name";
-pub(super) const KAFKA_CASE_NAME_PARTS: &'static str = "case_name_parts";
-pub(super) const KAFKA_CASE_ID: &'static str = "case_id";
-pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &'static str = ";";
-pub(super) const KAFKA_PROCESS_NAME: &'static str = "process_name";
-pub(super) const KAFKA_TRACE_ID: &'static str = "trace_id";
+pub(super) const KAFKA_CASE_DISPLAY_NAME: &str = "case_display_name";
+pub(super) const KAFKA_CASE_NAME_PARTS: &str = "case_name_parts";
+pub(super) const KAFKA_CASE_ID: &str = "case_id";
+pub(super) const KAFKA_CASE_NAME_PARTS_SEPARATOR: &str = ";";
+pub(super) const KAFKA_PROCESS_NAME: &str = "process_name";
+pub(super) const KAFKA_TRACE_ID: &str = "trace_id";
 
 #[derive(Debug)]
 pub enum KafkaTraceProcessingError {
@@ -50,7 +50,7 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
         format!("Value for key {} is not a String", key_name.to_owned())
       }
       XesFromBxesKafkaTraceCreatingError::MetadataValueNotFound(key_name) => {
-        format!("The key {} is not found", key_name.to_string())
+        format!("The key {} is not found", key_name)
       }
       XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid => "Trace id was not of type uuid ".to_string(),
     };

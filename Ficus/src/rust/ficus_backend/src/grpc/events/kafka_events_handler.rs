@@ -28,10 +28,7 @@ impl PipelineEventsProducer {
       config.set(kv_pair.key.clone(), kv_pair.value.clone());
     }
 
-    let producer = match config.create() {
-      Ok(producer) => producer,
-      Err(err) => return Err(err),
-    };
+    let producer = config.create()?;
 
     Ok(Self {
       topic_name: connection_metadata.topic_name.to_owned(),
@@ -80,7 +77,7 @@ impl PipelineEventsHandler for KafkaEventsHandler {
 
         let message = match result {
           Ok(_) => "Sent message to kafka".to_string(),
-          Err(err) => format!("Failed to produce event: {}", err.to_string()),
+          Err(err) => format!("Failed to produce event: {}", err),
         };
 
         self.console_logs_handler.handle(message.as_str()).expect("Should log message");
@@ -138,9 +135,9 @@ impl ProcessCaseMetadata {
       }),
       process_name: self.process_name.clone(),
 
-      subscription_id: self.subscription_id.map(|id| GrpcGuid::from(id.clone())),
+      subscription_id: self.subscription_id.map(GrpcGuid::from),
       subscription_name: self.subscription_name.clone().map_or("".to_string(), |name| name),
-      pipeline_id: self.pipeline_id.map(|id| GrpcGuid::from(id.clone())),
+      pipeline_id: self.pipeline_id.map(GrpcGuid::from),
       pipeline_name: self.pipeline_name.clone().map_or("".to_string(), |name| name),
 
       metadata: self

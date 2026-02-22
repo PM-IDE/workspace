@@ -41,15 +41,6 @@ use ficus::{
     },
     clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
     discovery::{
-      ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations},
-      petri_net::{
-        annotations::TimeAnnotationKind,
-        arc::Arc,
-        marking::{Marking, SingleMarking},
-        petri_net::DefaultPetriNet,
-        place::Place,
-        transition::Transition,
-      },
       ecfg::{
         context_keys::{
           EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_CORRESPONDING_TRACE_DATA_KEY,
@@ -60,6 +51,15 @@ use ficus::{
           ActivityStartEndTimeData, CorrespondingTraceData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer,
           RootSequenceKind,
         },
+      },
+      ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations},
+      petri_net::{
+        annotations::TimeAnnotationKind,
+        arc::Arc,
+        marking::{Marking, SingleMarking},
+        petri_net::DefaultPetriNet,
+        place::Place,
+        transition::Transition,
       },
       timeline::{
         discovery::{LogPoint, LogTimelineDiagram, TraceThread},
@@ -124,10 +124,10 @@ pub(super) fn put_into_user_data(
     ContextValue::String(string) => user_data.put_any::<String>(key, string.clone()),
     ContextValue::HashesLog(_) => todo!(),
     ContextValue::NamesLog(grpc_log) => put_names_log_to_context(key, grpc_log, user_data),
-    ContextValue::Uint32(number) => user_data.put_any::<u32>(key, number.clone()),
+    ContextValue::Uint32(number) => user_data.put_any::<u32>(key, *number),
     ContextValue::TracesSubArrays(_) => todo!(),
     ContextValue::TraceIndexSubArrays(_) => todo!(),
-    ContextValue::Bool(bool) => user_data.put_any::<bool>(key, bool.clone()),
+    ContextValue::Bool(bool) => user_data.put_any::<bool>(key, *bool),
     ContextValue::XesEventLog(grpc_log) => put_names_log_to_context(key, grpc_log, user_data),
     ContextValue::ColorsLog(_) => {}
     ContextValue::Enum(grpc_enum) => {
@@ -186,7 +186,7 @@ pub(super) fn put_into_user_data(
           match serde_json::from_str(json_string) {
             Ok(config) => config,
             Err(err) => {
-              error!("Failed to deserialize, error: {}, string: {}", err.to_string(), json_string);
+              error!("Failed to deserialize, error: {}, string: {}", err, json_string);
               return;
             }
           },
@@ -206,10 +206,7 @@ pub(super) fn put_into_user_data(
 
           let mut xes_event = XesEventImpl::new(event.name.to_owned(), date);
           for attribute in &event.attributes {
-            let payload_value = match attribute.value.as_ref() {
-              None => None,
-              Some(attribute_value) => Some(convert_grpc_event_attribute_to_xes_event_payload_value(attribute_value)),
-            };
+            let payload_value = attribute.value.as_ref().map(convert_grpc_event_attribute_to_xes_event_payload_value);
 
             if let Some(xes_attribute) = payload_value {
               xes_event.add_or_update_payload(attribute.key.clone(), xes_attribute)
@@ -331,17 +328,14 @@ fn convert_to_grpc_ocel_annotation(annotation: &OcelAnnotation) -> GrpcOcelModel
       .nodes_to_states()
       .iter()
       .map(|s| GrpcModelElementOcelAnnotation {
-        element_id: s.0.clone(),
+        element_id: *s.0,
         final_state: Some(convert_to_grpc_ocel_node_state(s.1.final_objects())),
-        initial_state: match s.1.initial_objects() {
-          None => None,
-          Some(objects) => Some(convert_to_grpc_ocel_node_state(objects)),
-        },
+        initial_state: s.1.initial_objects().as_ref().map(convert_to_grpc_ocel_node_state),
         relations: s
           .1
           .incoming_objects_relations()
           .iter()
-          .map(|r| convert_to_grpc_ocel_object_relation(r))
+          .map(convert_to_grpc_ocel_object_relation)
           .collect(),
       })
       .collect(),
@@ -610,9 +604,7 @@ fn try_convert_to_grpc_event_log_info(value: &dyn Any) -> Option<GrpcContextValu
     None
   } else {
     let log_info = value.downcast_ref::<OfflineEventLogInfo>().unwrap();
-    if log_info.counts().is_none() {
-      return None;
-    }
+    log_info.counts()?;
 
     Some(GrpcContextValue {
       context_value: Some(ContextValue::EventLogInfo(GrpcEventLogInfo {
@@ -691,16 +683,13 @@ fn convert_to_grpc_arc<TArcData>(arc: &Arc<TArcData>) -> GrpcPetriNetArc {
 }
 
 fn try_convert_to_grpc_marking(marking: Option<&Marking>) -> Option<GrpcPetriNetMarking> {
-  match marking {
-    None => None,
-    Some(marking) => Some(GrpcPetriNetMarking {
+  marking.map(|marking| GrpcPetriNetMarking {
       markings: marking
         .active_places()
         .iter()
-        .map(|single_marking| convert_to_grpc_single_marking(single_marking))
+        .map(convert_to_grpc_single_marking)
         .collect(),
-    }),
-  }
+  })
 }
 
 fn convert_to_grpc_single_marking(marking: &SingleMarking) -> GrpcPetriNetSinglePlaceMarking {
@@ -758,22 +747,18 @@ where
       Some(data) => data.to_string(),
     },
     additional_data: convert_to_grpc_graph_node_additional_data(node.user_data()),
-    inner_graph: if let Some(inner_graph) = node.user_data.concrete(NODE_INNER_GRAPH_KEY.key()) {
-      Some(convert_to_grpc_graph(inner_graph))
-    } else {
-      None
-    },
+    inner_graph: node.user_data.concrete(NODE_INNER_GRAPH_KEY.key()).map(convert_to_grpc_graph),
   }
 }
 
 fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<GrpcNodeAdditionalData> {
   let mut additional_data = vec![];
   if let Some(software_data) = user_data.concrete(NODE_SOFTWARE_DATA_KEY.key()) {
-    additional_data.extend(software_data.iter().map(|s| convert_to_grpc_graph_node_software_data(s)));
+    additional_data.extend(software_data.iter().map(convert_to_grpc_graph_node_software_data));
   }
 
   if let Some(trace_data) = user_data.concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key()) {
-    additional_data.extend(trace_data.iter().map(|t| convert_to_grpc_corresponding_trace_data(t)));
+    additional_data.extend(trace_data.iter().map(convert_to_grpc_corresponding_trace_data));
   }
 
   if let Some(activity_start_end_data) = user_data.concrete(NODE_START_END_ACTIVITY_TIME_KEY.key()) {
@@ -784,7 +769,7 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
     additional_data.extend(
       activities_start_end_data
         .iter()
-        .map(|d| convert_to_grpc_node_activity_start_end_data(d)),
+        .map(convert_to_grpc_node_activity_start_end_data),
     )
   }
 
@@ -792,7 +777,7 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
     additional_data.extend(
       underlying_patterns_infos
         .iter()
-        .map(|info| convert_to_grpc_underlying_pattern_info_additional_data(info)),
+        .map(convert_to_grpc_underlying_pattern_info_additional_data),
     )
   }
 
@@ -800,7 +785,7 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
     additional_data.extend(
       multithreaded_logs
         .iter()
-        .map(|info| convert_to_grpc_node_multithreaded_log_additional_data(info)),
+        .map(convert_to_grpc_node_multithreaded_log_additional_data),
     )
   }
 
@@ -930,8 +915,8 @@ fn convert_to_grpc_node_activity_start_end_data(data: &NodeAdditionalDataContain
 
 fn convert_to_grpc_activity_start_end_data(data: &ActivityStartEndTimeData) -> GrpcActivityStartEndData {
   GrpcActivityStartEndData {
-    start_time: data.start_time().clone(),
-    end_time: data.end_time().clone(),
+    start_time: *data.start_time(),
+    end_time: *data.end_time(),
   }
 }
 
@@ -959,22 +944,22 @@ fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareDa
     histogram_data: software_data
       .histograms()
       .iter()
-      .map(|h| convert_to_grpc_histogram_data(h))
+      .map(convert_to_grpc_histogram_data)
       .collect(),
 
     simple_counter_data: software_data
       .simple_counters()
       .iter()
-      .map(|c| convert_to_grpc_simple_counter_data(c))
+      .map(convert_to_grpc_simple_counter_data)
       .collect(),
 
     activities_durations_data: software_data
       .activities_durations()
       .iter()
-      .map(|c| convert_to_grpc_activity_duration(c))
+      .map(convert_to_grpc_activity_duration)
       .collect(),
 
-    ocel_data: software_data.ocel_data().iter().map(|c| convert_to_grpc_ocel_data(c)).collect(),
+    ocel_data: software_data.ocel_data().iter().map(convert_to_grpc_ocel_data).collect(),
 
     timeline_diagram_fragment: Some(GrpcTimelineDiagramFragment {
       threads: convert_to_grpc_threads(software_data.thread_diagram_fragment()),
@@ -1108,7 +1093,7 @@ fn convert_to_grpc_edge_additional_data(user_data: &UserDataImpl) -> Vec<GrpcGra
 fn convert_to_grpc_edge_execution_info_additional_data(info: &EdgeTraceExecutionInfo) -> GrpcGraphEdgeAdditionalData {
   GrpcGraphEdgeAdditionalData {
     data: Some(grpc_graph_edge_additional_data::Data::ExecutionInfo(GrpcEdgeExecutionInfo {
-      trace_id: info.trace_id().clone(),
+      trace_id: *info.trace_id(),
     })),
   }
 }
@@ -1200,7 +1185,7 @@ fn convert_to_grpc_dataset(dataset: &FicusDataset) -> GrpcDataset {
 fn convert_to_labeled_grpc_dataset(dataset: &LabeledDataset) -> GrpcLabeledDataset {
   let grpc_dataset = convert_to_grpc_dataset(dataset.dataset());
   let labels = dataset.labels().iter().map(|x| *x as i32).collect();
-  let labels_colors = dataset.colors().iter().map(|x| convert_to_grpc_color(x)).collect();
+  let labels_colors = dataset.colors().iter().map(convert_to_grpc_color).collect();
 
   GrpcLabeledDataset {
     dataset: Some(grpc_dataset),
@@ -1250,7 +1235,7 @@ fn convert_to_grpc_threads(threads: &Vec<TraceThread>) -> Vec<GrpcThread> {
         .iter()
         .map(|e| GrpcThreadEvent {
           name: e.original_event().borrow().name().to_owned(),
-          stamp: e.stamp().clone(),
+          stamp: *e.stamp(),
         })
         .collect(),
     })
@@ -1259,7 +1244,7 @@ fn convert_to_grpc_threads(threads: &Vec<TraceThread>) -> Vec<GrpcThread> {
 
 fn convert_to_grpc_log_point(point: &LogPoint) -> GrpcLogPoint {
   GrpcLogPoint {
-    trace_index: point.trace_index().clone() as u64,
-    event_index: point.event_index().clone() as u64,
+    trace_index: *point.trace_index() as u64,
+    event_index: *point.event_index() as u64,
   }
 }

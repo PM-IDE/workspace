@@ -1,3 +1,8 @@
+use crate::grpc::kafka::{
+  models::XesFromBxesKafkaTraceCreatingError,
+  streaming::processors::{CaseMetadata, ProcessMetadata},
+};
+use bxes::models::domain::bxes_value::BxesValue;
 use ficus::{
   event_log::{
     core::{event::event::Event, trace::trace::Trace},
@@ -14,11 +19,6 @@ use ficus::{
   pipelines::{context::PipelineContext, keys::context_keys::EVENT_LOG_INFO_KEY},
   utils::user_data::user_data::UserData,
 };
-use crate::grpc::kafka::{
-  models::XesFromBxesKafkaTraceCreatingError,
-  streaming::processors::{CaseMetadata, ProcessMetadata},
-};
-use bxes::models::domain::bxes_value::BxesValue;
 use log::{debug, warn};
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, time::Duration};
 use uuid::Uuid;
@@ -89,10 +89,7 @@ impl DfgDataStructureBase {
   }
 
   pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
-    match self.traces_last_event_classes.borrow().get(case_id) {
-      None => None,
-      Some(value) => Some(value.value().unwrap().to_owned()),
-    }
+    self.traces_last_event_classes.borrow().get(case_id).map(|value| value.value().unwrap().to_owned())
   }
 
   pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {

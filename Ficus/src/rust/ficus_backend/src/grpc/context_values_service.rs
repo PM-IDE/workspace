@@ -64,13 +64,10 @@ impl ContextValueService {
     let context_values = self.context_values.lock();
     let context_values = context_values.as_ref().expect("Must acquire lock");
 
-    match context_values.get(key) {
-      None => None,
-      Some(value) => Some((
+    context_values.get(key).map(|value| (
         value.key.as_ref().unwrap().name.clone(),
         value.value.as_ref().unwrap().encode_to_vec(),
-      )),
-    }
+    ))
   }
 }
 
@@ -134,7 +131,7 @@ impl GrpcContextValuesService for GrpcContextValueService {
             match sender.send(Ok(part)).await {
               Ok(_) => {}
               Err(err) => {
-                log::error!("Failed to send context value part {}, error {}", key, err.to_string());
+                log::error!("Failed to send context value part {}, error {}", key, err);
                 break;
               }
             }

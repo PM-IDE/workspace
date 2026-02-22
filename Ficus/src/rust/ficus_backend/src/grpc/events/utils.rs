@@ -24,7 +24,7 @@ pub(super) fn send_grpc_message<T>(sender: &Sender<Result<T, Status>>, logs_hand
   match sender.blocking_send(Ok(value)) {
     Ok(_) => {}
     Err(err) => {
-      let message = format!("Failed to send event, error: {}", err.to_string());
+      let message = format!("Failed to send event, error: {}", err);
       logs_handler.handle(message.as_str()).ok();
     }
   }

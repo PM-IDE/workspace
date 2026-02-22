@@ -18,6 +18,6 @@ impl PipelineEventsHandler for DelegatingEventsHandler {
   }
 
   fn is_alive(&self) -> bool {
-    self.handlers.iter().map(|h| h.is_alive()).fold(true, |a, b| a && b)
+    self.handlers.iter().all(|h| h.is_alive())
   }
 }

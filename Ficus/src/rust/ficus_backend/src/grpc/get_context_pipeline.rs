@@ -82,7 +82,7 @@ impl GetContextValuePipelinePart {
   }
 
   fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
-    let case_name = Self::value_or_default(context, &CASE_NAME_KEY, || CaseName::empty());
+    let case_name = Self::value_or_default(context, &CASE_NAME_KEY, CaseName::empty);
     let process_name = Self::value_or_default(context, &PROCESS_NAME_KEY, || "UNDEFINED_PROCESS".to_string());
 
     let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID_KEY);
@@ -91,7 +91,7 @@ impl GetContextValuePipelinePart {
     let pipeline_id = Self::value_or_none(context, &PIPELINE_ID_KEY);
     let pipeline_name = Self::value_or_none(context, &PIPELINE_NAME_KEY);
 
-    let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA_KEY, || vec![]);
+    let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA_KEY, std::vec::Vec::new);
 
     ProcessCaseMetadata {
       process_name,
@@ -104,18 +104,15 @@ impl GetContextValuePipelinePart {
     }
   }
 
-  fn value_or_default<'a, T: Clone>(context: &'a PipelineContext, key: &DefaultContextKey<T>, default_factory: impl Fn() -> T) -> T {
+  fn value_or_default<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>, default_factory: impl Fn() -> T) -> T {
     match context.concrete(key.key()) {
       None => default_factory(),
       Some(value) => value.clone(),
     }
   }
 
-  fn value_or_none<'a, T: Clone>(context: &'a PipelineContext, key: &DefaultContextKey<T>) -> Option<T> {
-    match context.concrete(key.key()) {
-      None => None,
-      Some(value) => Some(value.clone()),
-    }
+  fn value_or_none<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>) -> Option<T> {
+    context.concrete(key.key()).cloned()
   }
 
   fn find_context_values_for<'a>(
@@ -154,6 +151,6 @@ impl PipelinePart for GetContextValuePipelinePart {
       }
     }
 
-    (self.handler)(self.uuid.clone(), self.pipeline_part_name.to_owned(), context, infra, context_keys)
+    (self.handler)(self.uuid, self.pipeline_part_name.to_owned(), context, infra, context_keys)
   }
 }

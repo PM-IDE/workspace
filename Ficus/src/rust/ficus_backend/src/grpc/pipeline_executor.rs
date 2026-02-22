@@ -7,7 +7,6 @@ use crate::{
     logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl},
   },
 };
-use std::{str::FromStr, sync::Arc};
 use ficus::pipelines::{
   context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
   errors::pipeline_errors::PipelinePartExecutionError,
@@ -15,8 +14,9 @@ use ficus::pipelines::{
   pipeline_parts::PipelineParts,
   pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
 };
-use uuid::Uuid;
 use ficus::utils::user_data::user_data::{UserData, UserDataImpl};
+use std::{str::FromStr, sync::Arc};
+use uuid::Uuid;
 
 pub(super) struct ServicePipelineExecutionContext<'a> {
   grpc_pipeline: &'a GrpcPipeline,
@@ -61,7 +61,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
   }
 
   pub fn grpc_pipeline(&self) -> &GrpcPipeline {
-    &self.grpc_pipeline
+    self.grpc_pipeline
   }
 
   pub fn parts(&self) -> &PipelineParts {
@@ -69,7 +69,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
   }
 
   pub fn context_values(&self) -> &Vec<GrpcContextKeyValue> {
-    &self.context_values
+    self.context_values
   }
 
   pub fn log_message_handler(&self) -> Arc<Box<dyn LogMessageHandler>> {
@@ -168,14 +168,11 @@ impl<'a> ServicePipelineExecutionContext<'a> {
       let key_name = conf_value.key.as_ref().unwrap().name.as_ref();
       if let Some(key) = find_context_key(key_name) {
         let value = conf_value.value.as_ref().unwrap().context_value.as_ref().unwrap();
-        put_into_user_data(key.key(), value, &mut part_config, &self);
+        put_into_user_data(key.key(), value, &mut part_config, self);
       }
     }
 
-    match self.parts().find_part(&grpc_default_part.name) {
-      Some(default_part) => Some(Box::new(default_part(Box::new(part_config)))),
-      None => None,
-    }
+    self.parts().find_part(&grpc_default_part.name).map(|default_part| Box::new(default_part(Box::new(part_config))))
   }
 
   pub(super) fn create_initial_context(&'a self) -> PipelineContext<'a> {

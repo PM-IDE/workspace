@@ -16,6 +16,7 @@ use crate::{
     kafka::{kafka_service::KafkaService, models::PipelineExecutionDto},
   },
 };
+use ficus::features::cases::CaseName;
 use ficus::{
   pipelines::{
     keys::context_keys::{CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY},
@@ -29,7 +30,6 @@ use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
-use ficus::features::cases::CaseName;
 
 pub struct GrpcKafkaServiceImpl {
   cv_service: Arc<ContextValueService>,
@@ -124,7 +124,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
     self.kafka_service.remove_execution_request(&subscription_id, &pipeline_id);
 
-    Ok(Response::new(GrpcKafkaResult::success(pipeline_id.clone())))
+    Ok(Response::new(GrpcKafkaResult::success(pipeline_id)))
   }
 
   async fn remove_all_pipeline_subscriptions(
@@ -140,7 +140,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
     self.kafka_service.remove_all_execution_requests(&subscription_id);
 
-    Ok(Response::new(GrpcKafkaResult::success(subscription_id.clone())))
+    Ok(Response::new(GrpcKafkaResult::success(subscription_id)))
   }
 
   async fn get_all_subscriptions_and_pipelines(

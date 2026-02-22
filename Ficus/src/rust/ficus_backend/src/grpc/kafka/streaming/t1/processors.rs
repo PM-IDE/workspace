@@ -6,6 +6,7 @@ use crate::grpc::{
   logs_handler::ConsoleLogMessageHandler,
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
+use ficus::features::streaming::t1::filterers::T1LogFilterer;
 use ficus::{
   event_log::{
     bxes::bxes_to_xes_converter::read_bxes_events,
@@ -26,7 +27,6 @@ use std::{
   sync::{Arc, Mutex},
 };
 use uuid::Uuid;
-use ficus::features::streaming::t1::filterers::T1LogFilterer;
 
 #[derive(Clone)]
 pub struct T1StreamingProcessor {
@@ -52,7 +52,7 @@ impl T1StreamingProcessor {
         Ok(())
       }
       Err(err) => {
-        let message = format!("Failed to get update result, err: {}", err.to_string());
+        let message = format!("Failed to get update result, err: {}", err);
         self.logger.handle(message.as_str()).expect("Must log message");
         Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err))
       }
@@ -96,7 +96,7 @@ impl T1StreamingProcessor {
 
     for existing_xes_trace in existing_log.traces() {
       let mut existing_xes_trace = existing_xes_trace.borrow_mut();
-      if let Some(current_trace_id) = Self::try_get_trace_id(&existing_xes_trace).clone() {
+      if let Some(current_trace_id) = Self::try_get_trace_id(&existing_xes_trace) {
         if current_trace_id == trace_id {
           info!("Found an existing trace for trace id {}, appending it", current_trace_id);
 
@@ -124,7 +124,7 @@ impl T1StreamingProcessor {
 
   fn try_get_trace_id(trace: &XesTraceImpl) -> Option<Uuid> {
     if let Some(EventPayloadValue::Guid(id)) = trace.metadata().get(KAFKA_TRACE_ID) {
-      Some(id.clone())
+      Some(*id)
     } else {
       None
     }

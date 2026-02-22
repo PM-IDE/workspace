@@ -25,14 +25,8 @@ impl StreamingConfiguration {
       None => None,
       Some(c) => match c {
         StreamingConfigurationEnum::NotSpecified(_) => Some(StreamingConfiguration::NotSpecified),
-        StreamingConfigurationEnum::T1Configuration(t1) => match T1StreamingConfiguration::new(t1) {
-          None => None,
-          Some(t1) => Some(StreamingConfiguration::T1(t1)),
-        },
-        StreamingConfigurationEnum::T2Configuration(t2) => match T2StreamingConfiguration::new(t2) {
-          None => None,
-          Some(t2) => Some(StreamingConfiguration::T2(t2)),
-        },
+        StreamingConfigurationEnum::T1Configuration(t1) => T1StreamingConfiguration::new(t1).map(StreamingConfiguration::T1),
+        StreamingConfigurationEnum::T2Configuration(t2) => T2StreamingConfiguration::new(t2).map(StreamingConfiguration::T2),
       },
     }
   }

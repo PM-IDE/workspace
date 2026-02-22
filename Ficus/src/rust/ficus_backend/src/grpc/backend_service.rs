@@ -141,7 +141,6 @@ impl GrpcBackendService for FicusService {
       Some(keys_to_cv_ids) => Ok(Response::new(GrpcGetAllContextValuesResult {
         context_values: keys_to_cv_ids
           .values()
-          .into_iter()
           .map(|id| GrpcGuid { guid: id.to_string() })
           .collect(),
       })),
