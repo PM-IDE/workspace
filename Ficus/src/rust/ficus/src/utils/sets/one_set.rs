@@ -43,7 +43,7 @@ where
   pub fn merge(&self, other: &Self) -> Self {
     Self {
       id: ONE_SET_NEXT_ID.fetch_add(1, Ordering::SeqCst),
-      set: self.set.iter().chain(other.set.iter()).map(|el| el.clone()).collect(),
+      set: self.set.iter().chain(other.set.iter()).cloned().collect(),
     }
   }
 

@@ -117,7 +117,7 @@ impl<'a> OcelDataExtractor<'a> {
   ) -> Option<(HeapedOrOwned<String>, HeapedOrOwned<String>)> {
     let object_type = config.object_type_attr().create(event);
 
-    let object_id = match Self::parse_object_id(&event, config.object_id_attr().as_str()) {
+    let object_id = match Self::parse_object_id(event, config.object_id_attr().as_str()) {
       None => {
         debug!("Object does not have an object id, skipping it");
         return None;
@@ -166,7 +166,7 @@ impl<'a> OcelDataExtractor<'a> {
     };
 
     let Some(payload) = event.payload_map() else { return false };
-    let Some(object_id) = Self::parse_object_id(&event, config.object_id_attr().as_str()) else {
+    let Some(object_id) = Self::parse_object_id(event, config.object_id_attr().as_str()) else {
       return false;
     };
     let related_objects_ids = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr()), delimiter);
@@ -186,7 +186,7 @@ impl<'a> OcelDataExtractor<'a> {
 
     let data = related_objects_ids
       .into_iter()
-      .zip(related_objects_types.into_iter())
+      .zip(related_objects_types)
       .map(|(id, r#type)| OcelProducedObjectAfterConsume::new(id, Some(r#type)))
       .collect();
 
@@ -218,7 +218,7 @@ impl<'a> OcelDataExtractor<'a> {
           .trim()
           .split(delimiter)
           .filter_map(|s| {
-            if s.len() > 0 {
+            if !s.is_empty() {
               Some(HeapedOrOwned::Owned(s.to_string()))
             } else {
               None
@@ -226,7 +226,7 @@ impl<'a> OcelDataExtractor<'a> {
           })
           .collect();
 
-        if parsed_ids.len() == 0 {
+        if parsed_ids.is_empty() {
           return None;
         }
 

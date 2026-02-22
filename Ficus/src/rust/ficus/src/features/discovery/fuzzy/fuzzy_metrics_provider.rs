@@ -7,7 +7,7 @@ use crate::{
   },
 };
 
-const PROXIMITY_CORRELATION: &'static str = "ProximityCorrelation";
+const PROXIMITY_CORRELATION: &str = "ProximityCorrelation";
 
 pub struct FuzzyMetricsProvider<'a, TLog>
 where
@@ -59,7 +59,7 @@ where
         let name = event.name();
 
         if name == first_class {
-          last_seen_first = Some(i.clone());
+          last_seen_first = Some(i);
           continue;
         }
 
@@ -83,7 +83,7 @@ where
     self
       .caches
       .cache_mut(PROXIMITY_CORRELATION)
-      .put(first_class, second_class, result.clone());
+      .put(first_class, second_class, result);
 
     result
   }

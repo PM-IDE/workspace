@@ -1,4 +1,3 @@
-use uuid::Uuid;
 
 #[derive(Clone, Debug)]
 pub struct CaseName {

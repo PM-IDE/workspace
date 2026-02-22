@@ -105,7 +105,7 @@ fn create_bxes_event(log: &XesEventLogImpl, event: &XesEventImpl) -> BxesEvent {
         .ordered_payload()
         .iter()
         .filter(|kv| is_not_default_attribute(log, kv))
-        .map(|kv| kv_pair_to_bxes_pair(kv))
+        .map(kv_pair_to_bxes_pair)
         .collect(),
     ),
   };
@@ -141,7 +141,7 @@ fn create_bxes_classifiers(log: &XesEventLogImpl) -> Vec<BxesClassifier> {
 }
 
 fn create_bxes_extensions(log: &XesEventLogImpl) -> Vec<BxesExtension> {
-  log.extensions().iter().map(|e| convert_to_bxes_extension(e)).collect()
+  log.extensions().iter().map(convert_to_bxes_extension).collect()
 }
 
 fn convert_to_bxes_extension(e: &XesEventLogExtension) -> BxesExtension {
@@ -157,7 +157,7 @@ fn create_bxes_globals(log: &XesEventLogImpl) -> Result<Vec<BxesGlobal>, XesToBx
   for xes_global in log.ordered_globals().iter() {
     globals.push(BxesGlobal {
       entity_kind: parse_entity_kind(xes_global.0.as_str())?,
-      globals: xes_global.1.iter().map(|kv| convert_to_bxes_global_attribute(kv)).collect(),
+      globals: xes_global.1.iter().map(convert_to_bxes_global_attribute).collect(),
     })
   }
 

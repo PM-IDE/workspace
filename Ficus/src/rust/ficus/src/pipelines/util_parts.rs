@@ -40,7 +40,7 @@ impl PipelineParts {
         let hasher = RegexEventHasher::new(regex).ok().unwrap();
         log.to_hashes_event_log(&hasher)
       }
-      Err(_) => log.to_hashes_event_log(&NameEventHasher::new()),
+      Err(_) => log.to_hashes_event_log(&NameEventHasher::default()),
     }
   }
 
@@ -87,9 +87,9 @@ impl PipelineParts {
       let mut date = DateTime::<Utc>::MIN_UTC;
 
       for name in names_trace {
-        let event = XesEventImpl::new(name.clone(), date.clone());
+        let event = XesEventImpl::new(name.clone(), date);
         trace.push(Rc::new(RefCell::new(event)));
-        date = date + Duration::seconds(1);
+        date += Duration::seconds(1);
       }
 
       log.push(Rc::new(RefCell::new(trace)));
@@ -131,7 +131,7 @@ impl PipelineParts {
   });
 
   pipeline_part!(clear_graphs, |context: &mut PipelineContext, _, _| {
-    if let Some(graphs) = Self::get_user_data_mut(context, &GRAPHS_KEY).ok() {
+    if let Ok(graphs) = Self::get_user_data_mut(context, &GRAPHS_KEY) {
       graphs.clear();
     }
 

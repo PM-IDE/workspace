@@ -34,7 +34,7 @@ pub trait EventGroupSoftwareDataExtractor {
     let events = event_group
       .all_events()
       .into_iter()
-      .map(|c| c.clone())
+      .cloned()
       .collect::<Vec<Rc<RefCell<XesEventImpl>>>>();
 
     self.extract_from_events(software_data, events.as_slice())

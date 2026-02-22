@@ -33,5 +33,5 @@ pub fn get_stamp(event: &XesEventImpl, attribute: Option<&String>) -> Result<i64
 }
 
 fn get_utc_date_stamp(date: &DateTime<Utc>) -> Result<i64, LogThreadsDiagramError> {
-  date.timestamp_nanos_opt().ok_or_else(|| LogThreadsDiagramError::NotSupportedEventStamp)
+  date.timestamp_nanos_opt().ok_or(LogThreadsDiagramError::NotSupportedEventStamp)
 }

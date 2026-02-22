@@ -164,7 +164,7 @@ fn create_initial_sets(provider: &impl AlphaRelationsProvider) -> HashSet<AlphaS
 
       sets
     })
-    .filter(|set| set.left_classes().len() > 0 && set.right_classes().len() > 0)
+    .filter(|set| !set.left_classes().is_empty() && !set.right_classes().is_empty())
     .collect()
 }
 
@@ -173,7 +173,7 @@ fn maximize_sets(current_sets: HashSet<AlphaSet>, provider: &impl AlphaRelations
     let should_extend = (first.is_left_subset(second) || first.is_right_subset(second)) && first.can_extend(second, provider);
 
     match should_extend {
-      true => Some(first.extend(&second)),
+      true => Some(first.extend(second)),
       false => None,
     }
   })

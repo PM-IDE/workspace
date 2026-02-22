@@ -106,7 +106,7 @@ impl XesEventLogImpl {
         XesEventLogItem::Global(global) => _ = globals.insert(global.scope, global.default_values),
         XesEventLogItem::Extension(extension) => extensions.push(extension),
         XesEventLogItem::Classifier(classifier) => classifiers.push(classifier),
-        XesEventLogItem::Property(property) => _ = properties.push(property),
+        XesEventLogItem::Property(property) => properties.push(property),
       }
     }
 
@@ -160,7 +160,7 @@ impl EventLog for XesEventLogImpl {
   }
 
   fn traces(&self) -> &Vec<Rc<RefCell<Self::TTrace>>> {
-    &self.base.get_traces()
+    self.base.get_traces()
   }
 
   fn push(&mut self, trace: Rc<RefCell<Self::TTrace>>) {

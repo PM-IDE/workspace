@@ -42,7 +42,7 @@ impl<'a> AlphaPlusPlusNfcTriple<'a> {
 
   pub fn try_merge<TLog: EventLog>(first: &Self, second: &Self, provider: &AlphaPlusNfcRelationsProvider<'a, TLog>) -> Option<Self> {
     let merge_sets = |first: &BTreeSet<&'a String>, second: &BTreeSet<&'a String>| -> BTreeSet<&'a String> {
-      first.iter().chain(second.iter()).map(|class| *class).collect()
+      first.iter().chain(second.iter()).copied().collect()
     };
 
     let new_triple = Self {
@@ -87,7 +87,7 @@ impl<'a> AlphaPlusPlusNfcTriple<'a> {
     let first = self.a_classes.iter().chain(self.c_classes.iter());
     let second = self.b_classes.iter().chain(self.c_classes.iter());
 
-    TwoSets::new(first.map(|c| *c).collect(), second.map(|c| *c).collect())
+    TwoSets::new(first.copied().collect(), second.copied().collect())
   }
 
   pub fn a_classes(&self) -> &BTreeSet<&'a String> {
@@ -144,7 +144,7 @@ impl<'a> Display for AlphaPlusPlusNfcTriple<'a> {
         repr.push(',')
       }
 
-      if set.len() > 0 {
+      if !set.is_empty() {
         repr.remove(repr.len() - 1);
       }
 

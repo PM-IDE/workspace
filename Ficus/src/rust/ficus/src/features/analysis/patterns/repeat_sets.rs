@@ -35,7 +35,7 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
   let mut vec: Vec<u64> = vec![];
   let mut trace_index = 0;
 
-  for (trace, trace_patterns) in log.into_iter().zip(patterns.iter()) {
+  for (trace, trace_patterns) in log.iter().zip(patterns.iter()) {
     for pattern in trace_patterns {
       let start = pattern.start_index;
       let end = start + pattern.length;
@@ -51,16 +51,14 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
 
       let hash = calculate_poly_hash_for_collection(vec.as_slice());
 
-      if !repeat_sets.contains_key(&hash) {
-        repeat_sets.insert(hash, SubArrayWithTraceIndex::new(*pattern, trace_index));
-      }
+      repeat_sets.entry(hash).or_insert_with(|| SubArrayWithTraceIndex::new(*pattern, trace_index));
     }
 
     trace_index += 1;
   }
 
   let mut result = vec![];
-  for repeat_set in repeat_sets.values().into_iter() {
+  for repeat_set in repeat_sets.values() {
     result.push(*repeat_set);
   }
 
@@ -138,7 +136,7 @@ pub fn build_repeat_set_tree_from_repeats<TNameCreator>(
 where
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
-  if repeats.len() == 0 {
+  if repeats.is_empty() {
     return vec![];
   }
 
@@ -167,7 +165,7 @@ where
 
   let mut activity_nodes = repeats
     .iter()
-    .map(|repeat| create_activity_node(&repeat))
+    .map(|repeat| create_activity_node(repeat))
     .collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
   activity_nodes.sort_by(|first, second| second.borrow().len().cmp(&first.borrow().len()));

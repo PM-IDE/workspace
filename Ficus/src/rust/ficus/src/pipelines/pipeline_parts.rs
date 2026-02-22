@@ -151,7 +151,7 @@ impl PipelineParts {
 
     let mut names_to_parts = HashMap::new();
     for part in parts {
-      let prev = names_to_parts.insert((&part.0).to_owned(), part.1);
+      let prev = names_to_parts.insert(part.0.to_owned(), part.1);
       assert!(prev.is_none());
     }
 
@@ -165,7 +165,7 @@ impl PipelineParts {
   pub fn pipeline_parts_descriptors(&self) -> Vec<PipelinePartDescriptor> {
     let mut descriptors = vec![];
     for factory in self.names_to_parts.values() {
-      let name = factory(Box::new(UserDataImpl::new())).name().to_owned();
+      let name = factory(Box::new(Default::default())).name().to_owned();
       descriptors.push(PipelinePartDescriptor::new(name))
     }
 

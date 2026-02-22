@@ -16,10 +16,10 @@ where
 
 pub struct NameEventHasher;
 
-impl NameEventHasher {
-  pub fn new() -> Self {
-    Self {}
-  }
+impl Default for NameEventHasher {
+    fn default() -> Self {
+        Self {}
+    }
 }
 
 impl<TEvent> EventHasher<TEvent> for NameEventHasher

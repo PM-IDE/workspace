@@ -1,11 +1,11 @@
+use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
+use std::collections::hash_map::Entry;
 use std::{
   cell::RefCell,
   collections::{hash_map::DefaultHasher, HashMap},
   hash::{Hash, Hasher},
   rc::Rc,
 };
-
-use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
 
 struct TracePointer<TTrace> {
   pub trace: Rc<RefCell<TTrace>>,
@@ -72,10 +72,10 @@ where
   for index in 0..traces.len() {
     let trace = Rc::clone(&traces[index]);
     let len = trace.borrow().events().len();
-    if len_to_traces.contains_key(&len) {
-      (*len_to_traces.get_mut(&len).unwrap()).push(TracePointer::new(trace, index));
+    if let Entry::Vacant(e) = len_to_traces.entry(len) {
+      e.insert(vec![TracePointer::new(trace, index)]);
     } else {
-      len_to_traces.insert(len, vec![TracePointer::new(trace, index)]);
+      (*len_to_traces.get_mut(&len).unwrap()).push(TracePointer::new(trace, index));
     }
   }
 
@@ -144,10 +144,10 @@ where
       event.name().hash(&mut hasher);
 
       let hash_code = hasher.finish();
-      if hashes_to_traces.contains_key(&hash_code) {
-        (*hashes_to_traces.get_mut(&hash_code).unwrap()).push((*trace).clone());
+      if let Entry::Vacant(e) = hashes_to_traces.entry(hash_code) {
+        e.insert(vec![(*trace).clone()]);
       } else {
-        hashes_to_traces.insert(hash_code, vec![(*trace).clone()]);
+        (*hashes_to_traces.get_mut(&hash_code).unwrap()).push((*trace).clone());
       }
     }
 

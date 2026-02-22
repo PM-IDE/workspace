@@ -40,7 +40,7 @@ pub fn serialize_event_log(log: &XesEventLogImpl) -> Result<String, XmlWriteErro
 }
 
 fn write_event_log_to_writer<T: std::io::Write>(log: &XesEventLogImpl, writer: &RefCell<Writer<T>>) -> Result<(), XmlWriteError> {
-  let _log_cookie = StartEndElementCookie::new(&writer, LOG_TAG_NAME_STR);
+  let _log_cookie = StartEndElementCookie::new(writer, LOG_TAG_NAME_STR);
 
   for ext in log.extensions() {
     let attrs = vec![
@@ -60,31 +60,31 @@ fn write_event_log_to_writer<T: std::io::Write>(log: &XesEventLogImpl, writer: &
   }
 
   for (name, value) in log.ordered_properties() {
-    write_payload_tag(&writer, name, value)?;
+    write_payload_tag(writer, name, value)?;
   }
 
   for (scope, defaults) in log.ordered_globals() {
     let mut attrs = vec![(SCOPE_ATTR_NAME_STR, scope.as_str())];
 
-    let _global_cookie = StartEndElementCookie::new_with_attrs(&writer, GLOBAL_TAG_NAME_STR, &attrs);
+    let _global_cookie = StartEndElementCookie::new_with_attrs(writer, GLOBAL_TAG_NAME_STR, &attrs);
 
     for (key, value) in defaults {
       attrs.clear();
-      write_payload_tag(&writer, key, value)?;
+      write_payload_tag(writer, key, value)?;
     }
   }
 
   for trace in log.traces() {
     let trace = trace.borrow();
     let events = trace.events();
-    if events.len() == 0 {
+    if events.is_empty() {
       continue;
     }
 
-    let _trace_cookie = StartEndElementCookie::new(&writer, TRACE_TAG_NAME_STR);
+    let _trace_cookie = StartEndElementCookie::new(writer, TRACE_TAG_NAME_STR);
 
     for event in events {
-      let _event_cookie = StartEndElementCookie::new(&writer, EVENT_TAG_NAME_STR);
+      let _event_cookie = StartEndElementCookie::new(writer, EVENT_TAG_NAME_STR);
       let event = event.borrow();
 
       let attrs = vec![(KEY_ATTR_NAME_STR, CONCEPT_NAME_STR), (VALUE_ATTR_NAME_STR, event.name())];
@@ -97,7 +97,7 @@ fn write_event_log_to_writer<T: std::io::Write>(log: &XesEventLogImpl, writer: &
       write_empty(&mut writer.borrow_mut(), DATE_TAG_NAME_STR, &attrs)?;
 
       for (key, value) in event.ordered_payload() {
-        write_payload_tag(&writer, key, value)?;
+        write_payload_tag(writer, key, value)?;
       }
     }
   }

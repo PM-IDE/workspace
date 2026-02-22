@@ -42,9 +42,6 @@ where
   }
 
   pub fn go(&mut self, element: &Option<TElement>) -> Option<usize> {
-    match self.children.get(element) {
-      Some(next) => Some(*next),
-      None => None,
-    }
+    self.children.get(element).copied()
   }
 }

@@ -15,7 +15,7 @@ pub fn prepare_software_log(
   config: &SoftwareDataExtractionConfig,
   time_attribute: Option<&String>,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
-  let control_flow_regexes = config.control_flow_regexes().map_err(|e| PipelinePartExecutionError::new_raw(e))?;
+  let control_flow_regexes = config.control_flow_regexes().map_err(PipelinePartExecutionError::new_raw)?;
   if control_flow_regexes.is_none() {
     return Ok(log.clone());
   }
@@ -63,7 +63,7 @@ pub fn prepare_software_log(
 
           if index + 1 < last_stamp_index {
             group.set_after_group_events(Some(
-              trace.events()[index + 1..last_stamp_index].iter().map(|e| e.clone()).collect(),
+              trace.events()[index + 1..last_stamp_index].iter().cloned().collect(),
             ));
           }
         }
@@ -100,5 +100,5 @@ pub fn prepare_software_log(
     }
   }
 
-  Ok(abstract_event_groups(event_groups, &labels, None, time_attribute.cloned(), config)?)
+  abstract_event_groups(event_groups, &labels, None, time_attribute.cloned(), config)
 }

@@ -116,7 +116,7 @@ where
   TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
-  let activity_instances = discover_activities_instances(&context);
+  let activity_instances = discover_activities_instances(context);
 
   activity_instances::create_logs_for_activities(&ActivitiesLogSource::TracesActivities(
     &context.patterns_context.log.borrow(),

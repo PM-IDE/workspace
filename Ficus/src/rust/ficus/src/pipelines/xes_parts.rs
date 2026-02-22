@@ -16,7 +16,7 @@ use crate::{
   },
   pipeline_part,
   pipelines::{
-    context::{PipelineContext, PipelineInfrastructure},
+    context::PipelineContext,
     keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY},
     pipeline_parts::PipelineParts,
   },
@@ -26,7 +26,7 @@ use crate::{
 impl PipelineParts {
   pipeline_part!(write_log_to_xes, |context: &mut PipelineContext, _, config: &UserDataImpl| {
     let path = Self::get_user_data(config, &PATH_KEY)?;
-    match write_xes_log(&context.concrete(EVENT_LOG_KEY.key()).unwrap(), path) {
+    match write_xes_log(context.concrete(EVENT_LOG_KEY.key()).unwrap(), path) {
       Ok(()) => Ok(()),
       Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
     }
@@ -54,7 +54,7 @@ impl PipelineParts {
         Ok(())
       }
       Err(err) => {
-        let message = format!("Failed to read event log from {}, error: {}", path.as_str(), err.to_string());
+        let message = format!("Failed to read event log from {}, error: {}", path.as_str(), err);
         Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
       }
     }
@@ -68,10 +68,7 @@ impl PipelineParts {
   pipeline_part!(write_log_to_bxes, |context: &mut PipelineContext, _, config: &UserDataImpl| {
     let path = Self::get_user_data(config, &PATH_KEY)?;
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-    let system_metadata = match Self::get_user_data(context, &SYSTEM_METADATA_KEY) {
-      Ok(metadata) => Some(metadata),
-      Err(_) => None,
-    };
+    let system_metadata = Self::get_user_data(context, &SYSTEM_METADATA_KEY).ok();
 
     match write_event_log_to_bxes(log, system_metadata, path) {
       Ok(_) => Ok(()),
@@ -88,7 +85,7 @@ impl PipelineParts {
       }
       None => {
         let message = "Failed to read event log from bytes array".to_string();
-        return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)));
+        Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
       }
     }
   });
@@ -101,7 +98,7 @@ impl PipelineParts {
         Ok(())
       }
       Err(err) => {
-        let message = format!("Failed to read event log from bytes: {}", err.to_string());
+        let message = format!("Failed to read event log from bytes: {}", err);
         Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
       }
     }
@@ -109,10 +106,7 @@ impl PipelineParts {
 
   pipeline_part!(write_bxes_log_to_bytes, |context: &mut PipelineContext, _, _| {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-    let system_metadata = match Self::get_user_data(context, &SYSTEM_METADATA_KEY) {
-      Ok(metadata) => Some(metadata),
-      Err(_) => None,
-    };
+    let system_metadata = Self::get_user_data(context, &SYSTEM_METADATA_KEY).ok();
 
     match write_event_log_to_bxes_bytes(log, system_metadata) {
       Ok(bytes) => {
@@ -127,7 +121,7 @@ impl PipelineParts {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     match write_xes_log_to_bytes(log) {
       Ok(bytes) => {
-        context.put_concrete::<Vec<u8>>(&BYTES_KEY.key(), bytes);
+        context.put_concrete::<Vec<u8>>(BYTES_KEY.key(), bytes);
         Ok(())
       }
       Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),

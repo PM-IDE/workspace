@@ -68,7 +68,7 @@ pub(super) fn adjust_dbscan_labels(clusters: Array1<Option<usize>>, put_noise_ev
   let mut next_label = clusters
     .iter()
     .filter(|c| c.is_some())
-    .map(|c| c.as_ref().unwrap().clone())
+    .map(|c| *c.as_ref().unwrap())
     .max()
     .unwrap_or(0);
 

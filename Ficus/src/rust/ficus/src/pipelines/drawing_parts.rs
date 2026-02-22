@@ -125,7 +125,7 @@ impl PipelineParts {
 
   pipeline_part!(
     draw_full_activities_diagram,
-    |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    |context: &mut PipelineContext, _, _| {
       let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
@@ -134,7 +134,7 @@ impl PipelineParts {
       let mut mapping = HashMap::new();
       mapping.insert(UNDEF_ACTIVITY_NAME.to_string(), Color::black());
 
-      for (activities, trace) in traces_activities.into_iter().zip(log.traces().into_iter()) {
+      for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
         let mut colors_trace = vec![];
         let trace_length = trace.borrow().events().len();
 
@@ -169,7 +169,7 @@ impl PipelineParts {
 
   pipeline_part!(
     draw_short_activities_diagram,
-    |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    |context: &mut PipelineContext, _, _| {
       let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
@@ -178,7 +178,7 @@ impl PipelineParts {
       let mut mapping = HashMap::new();
       mapping.insert(UNDEF_ACTIVITY_NAME.to_owned(), Color::black());
 
-      for (activities, trace) in traces_activities.into_iter().zip(log.traces().into_iter()) {
+      for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
         let mut colors_trace = vec![];
         let mut index = 0;
         let trace_length = trace.borrow().events().len();

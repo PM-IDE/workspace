@@ -20,7 +20,7 @@ pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>, r
 
       let min_distance = root_distance.min(root_pair_wise_lcs_distance).min(root_lcs_distance);
       if root_distance == min_distance {
-        log.get(root_trace_index).unwrap().iter().map(|c| c.clone()).collect()
+        log.get(root_trace_index).unwrap().iter().cloned().collect()
       } else if root_pair_wise_lcs_distance == min_distance {
         create_root_sequence_from_lcs(log, indices)
       } else {
@@ -33,7 +33,7 @@ pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>, r
       .get(find_trace_candidate_for_root_sequence(log).0)
       .unwrap()
       .iter()
-      .map(|c| c.clone())
+      .cloned()
       .collect(),
   }
 }
@@ -70,7 +70,7 @@ fn find_traces_pairwise_lcs_candidate_for_root_sequence<T: PartialEq + Clone + D
 
       let lcs = find_longest_common_subsequence(first_trace, second_trace, first_trace.len(), second_trace.len())
         .lcs()
-        .into_iter()
+        .iter()
         .map(|c| (*c).clone())
         .collect::<Vec<T>>();
 
@@ -91,12 +91,12 @@ fn find_traces_pairwise_lcs_candidate_for_root_sequence<T: PartialEq + Clone + D
 }
 
 fn find_lcs_candidate_for_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>) -> (Vec<T>, f64) {
-  let mut lcs = log.first().unwrap().into_iter().map(|e| (*e).clone()).collect();
+  let mut lcs = log.first().unwrap().iter().map(|e| (*e).clone()).collect();
 
   for trace in log.iter().skip(1) {
     lcs = find_longest_common_subsequence(&lcs, trace, lcs.len(), trace.len())
       .lcs()
-      .into_iter()
+      .iter()
       .map(|e| (*e).clone())
       .collect();
   }
@@ -118,7 +118,7 @@ fn create_root_sequence_from_lcs<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>
 
   find_longest_common_subsequence(first_trace, second_trace, first_trace_len, second_trace_len)
     .lcs()
-    .into_iter()
+    .iter()
     .map(|c| (*c).clone())
     .collect::<Vec<T>>()
 }

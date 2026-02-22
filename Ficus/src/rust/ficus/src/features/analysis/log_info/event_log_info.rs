@@ -65,7 +65,7 @@ impl OfflineEventLogInfo {
       .keys()
       .filter(|c| match dfg_info.precedes_events.get(*c) {
         None => true,
-        Some(precedes) => precedes.len() == 0,
+        Some(precedes) => precedes.is_empty(),
       })
       .map(|c| c.to_owned())
       .collect();
@@ -74,7 +74,7 @@ impl OfflineEventLogInfo {
       .keys()
       .filter(|c| match dfg_info.followed_events.get(*c) {
         None => true,
-        Some(followers) => followers.len() == 0,
+        Some(followers) => followers.is_empty(),
       })
       .map(|c| c.to_owned())
       .collect();
@@ -131,7 +131,7 @@ impl OfflineEventLogInfo {
       events_count += events.len();
       let mut prev_event_name = None;
 
-      if events.len() > 0 {
+      if !events.is_empty() {
         start_event_classes.insert(events.first().unwrap().borrow().name().to_owned());
         end_event_classes.insert(events.last().unwrap().borrow().name().to_owned());
       }
@@ -253,7 +253,7 @@ impl EventLogInfo for OfflineEventLogInfo {
   }
 
   fn all_event_classes(&self) -> Vec<&String> {
-    self.event_classes_counts.keys().into_iter().collect()
+    self.event_classes_counts.keys().collect()
   }
 
   fn start_event_classes(&self) -> &HashSet<String> {

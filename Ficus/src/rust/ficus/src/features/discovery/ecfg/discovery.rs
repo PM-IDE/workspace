@@ -26,7 +26,7 @@ use std::{
   fmt::Debug,
 };
 
-const EVENT_UNIQUE_ID: &'static str = "EVENT_UNIQUE_ID";
+const EVENT_UNIQUE_ID: &str = "EVENT_UNIQUE_ID";
 context_key! { EVENT_UNIQUE_ID, Vec<u64> }
 
 #[derive(Debug)]
@@ -58,11 +58,11 @@ impl ECFGDiscoveryResult {
   }
 
   pub fn start_node_id(&self) -> Option<u64> {
-    self.start_node_id.clone()
+    self.start_node_id
   }
 
   pub fn end_node_id(&self) -> Option<u64> {
-    self.end_node_id.clone()
+    self.end_node_id
   }
 }
 
@@ -118,7 +118,7 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
   }
 
   let mut graph = DefaultGraph::empty();
-  let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(log, &root_sequence, &mut graph, &context, first_iteration);
+  let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(log, &root_sequence, &mut graph, context, first_iteration);
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context)?;
 
@@ -182,11 +182,11 @@ fn transfer_user_data<T: PartialEq + Clone + Debug>(
   is_root_sequence: bool,
   context: &DiscoveryContext<T>,
 ) {
-  let mut node = graph.node_mut(&node_id).unwrap();
+  let node = graph.node_mut(&node_id).unwrap();
   let transfer = context.event_to_graph_node_info_transfer();
   transfer(event.event(), node.user_data_mut(), is_root_sequence);
 
-  transfer_unique_event_id(&mut node, event);
+  transfer_unique_event_id(node, event);
 }
 
 fn transfer_unique_event_id<T: PartialEq + Clone + Debug>(node: &mut GraphNode<HeapedOrOwned<String>>, event: &EventWithUniqueId<T>) {
@@ -244,7 +244,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
 ) -> Result<(), DiscoverECFGError> {
   let mut adjustments = HashMap::new();
   for trace in traces {
-    let trace_lcs = find_longest_common_subsequence(trace, &root_sequence, trace.len(), root_sequence.len());
+    let trace_lcs = find_longest_common_subsequence(trace, root_sequence, trace.len(), root_sequence.len());
     let second_indices = trace_lcs.second_indices();
 
     let mut lcs_index = 0;

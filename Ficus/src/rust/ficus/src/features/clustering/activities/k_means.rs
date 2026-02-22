@@ -78,7 +78,7 @@ fn create_k_means_model(
   KMeans::params_with(clusters_count, rand::thread_rng(), DistanceWrapper::new(distance))
     .max_n_iterations(iterations_count)
     .tolerance(tolerance)
-    .fit(&dataset)
+    .fit(dataset)
     .expect("KMeans fitted")
 }
 

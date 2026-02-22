@@ -74,7 +74,7 @@ pub fn do_clusterize_log_by_traces(
   }
 
   let new_logs = new_logs.into_iter().map(|x| x.1).collect();
-  let colors = create_colors_vector(&labels, &mut params.vis_params.colors_holder);
+  let colors = create_colors_vector(&labels, params.vis_params.colors_holder);
 
   Ok((new_logs, LabeledDataset::new(ficus_dataset, labels, colors)))
 }
@@ -139,10 +139,8 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
   feature_count_kind: FeatureCountKind,
   trace_repr_creator: impl Fn(&TLog::TTrace) -> Vec<Rc<RefCell<TLog::TEvent>>>,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
-  let regex_hasher = match class_extractor.as_ref() {
-    Some(class_extractor) => Some(RegexEventHasher::new(class_extractor).ok().unwrap()),
-    None => None,
-  };
+  let regex_hasher = class_extractor.as_ref()
+    .map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
 
   let mut processed_traces = vec![];
   for trace in log.traces() {
@@ -210,7 +208,7 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
 
   Ok((
     DatasetBase::from(array),
-    (0..processed_traces.len()).into_iter().map(|x| format!("Trace_{}", x)).collect(),
+    (0..processed_traces.len()).map(|x| format!("Trace_{}", x)).collect(),
     all_event_classes,
   ))
 }
@@ -228,10 +226,7 @@ fn create_traces_dataset_levenshtein_internal<TLog: EventLog>(
   class_extractor: Option<&String>,
   trace_repr_creator: impl Fn(&TLog::TTrace) -> Vec<Rc<RefCell<TLog::TEvent>>>,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
-  let regex_hasher = match class_extractor.as_ref() {
-    Some(class_extractor) => Some(RegexEventHasher::new(class_extractor).ok().unwrap()),
-    None => None,
-  };
+  let regex_hasher = class_extractor.as_ref().map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
 
   let mut processed_traces = vec![];
   for trace in log.traces() {
@@ -282,8 +277,8 @@ fn create_traces_dataset_levenshtein_internal<TLog: EventLog>(
 
   Ok((
     DatasetBase::from(array),
-    (0..processed_traces.len()).into_iter().map(|x| format!("Trace_{}", x)).collect(),
-    (0..max_length).into_iter().map(|x| format!("Symbol_{}", x)).collect(),
+    (0..processed_traces.len()).map(|x| format!("Trace_{}", x)).collect(),
+    (0..max_length).map(|x| format!("Symbol_{}", x)).collect(),
   ))
 }
 
@@ -312,12 +307,12 @@ impl BestSilhouetteLabels {
   }
 
   pub fn process(&mut self, labels: Vec<usize>, distance_func: &dyn Fn(usize, usize) -> f64) {
-    let score = match silhouette_score(&labels, |first, second| distance_func(first, second)) {
+    let score = match silhouette_score(&labels, distance_func) {
       Ok(score) => score,
       Err(err) => {
         warn!(
           "Failed to calculate silhouette score, skipping those labels, reason: {}",
-          err.to_string()
+          err
         );
         if self.labels.is_none() {
           self.labels = Some(labels);

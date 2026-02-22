@@ -60,7 +60,7 @@ impl<'a> EventGroupSoftwareDataExtractor for SimpleCounterExtractor<'a> {
                 1.
               };
 
-              (*result.entry(config.base().name().to_string()).or_insert((config.base(), 0.))).1 += count;
+              result.entry(config.base().name().to_string()).or_insert((config.base(), 0.)).1 += count;
             }
           }
           Err(err) => return Err(err.clone()),

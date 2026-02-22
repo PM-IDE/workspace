@@ -5,8 +5,8 @@ use crate::{
 
 type NameExtractor<'a, T> = &'a dyn Fn(&T) -> HeapedOrOwned<String>;
 type ArtificialStartEnd<'a, T> = &'a dyn Fn() -> (T, T);
-type NodeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl, bool) -> ();
-type EdgeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl) -> ();
+type NodeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl, bool);
+type EdgeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl);
 
 pub struct DiscoveryContext<'a, T> {
   name_extractor: NameExtractor<'a, T>,

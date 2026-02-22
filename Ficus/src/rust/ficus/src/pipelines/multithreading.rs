@@ -77,10 +77,7 @@ impl PipelineParts {
         log,
         thread_attribute.as_str(),
         time_attribute,
-        match event_group_delta {
-          None => None,
-          Some(delta) => Some(*delta as u64),
-        },
+        event_group_delta.map(|delta| *delta as u64),
         Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref(),
       );
 
@@ -151,12 +148,9 @@ impl PipelineParts {
     let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
 
     let (_, labeled_dataset) =
-      match clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster, put_noise_events_in_one_cluster) {
-        Ok(new_logs) => new_logs,
-        Err(error) => return Err(error.into()),
-      };
+      clusterize_log_by_traces_dbscan(&mut params, tolerance, min_points_in_cluster, put_noise_events_in_one_cluster)?;
 
-    if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
+    if let Ok(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY) {
       let abstracted_log = abstract_event_groups(
         events_groups,
         labeled_dataset.labels(),
@@ -187,7 +181,7 @@ impl PipelineParts {
       let strategy = Self::create_multithreaded_trace_parts_creation_strategy(config)?;
 
       let groups = enumerate_multithreaded_events_groups(log, &software_config, thread_attribute.as_str(), &strategy)
-        .map_err(|e| PipelinePartExecutionError::new_raw(e))?;
+        .map_err(PipelinePartExecutionError::new_raw)?;
 
       Self::abstract_event_groups(groups, context, config, infra, thread_attribute, time_attribute)
     }
@@ -230,10 +224,7 @@ impl PipelineParts {
       let diagram = discover_traces_timeline_diagram(
         log,
         time_attribute,
-        match event_group_delta {
-          None => None,
-          Some(delta) => Some(*delta as u64),
-        },
+        event_group_delta.map(|delta| *delta as u64),
         *discover_events_groups_in_each_trace,
         Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref(),
       );
@@ -276,7 +267,7 @@ impl PipelineParts {
           return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(format!(
             "Failed to create regex from {}, error: {}",
             alloc_regex,
-            err.to_string()
+            err
           ))))
         }
       };
@@ -310,7 +301,7 @@ impl PipelineParts {
         result.push_str(last_seen_word.as_str());
         last_seen_word.clear();
 
-        while let Some(char) = chars.next() {
+        for char in chars.by_ref() {
           if char == '[' {
             result.push('[');
             continue 'main_loop;

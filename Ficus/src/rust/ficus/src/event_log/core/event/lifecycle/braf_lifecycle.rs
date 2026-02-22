@@ -27,26 +27,26 @@ pub enum XesBrafLifecycle {
   OpenRunningSuspended = 19,
 }
 
-const UNSPECIFIED: &'static str = "Unspecified";
-const CLOSED: &'static str = "Closed";
-const CLOSED_CANCELLED: &'static str = "Closed.Cancelled";
-const CLOSED_CANCELLED_ABORTED: &'static str = "Closed.Cancelled.Aborted";
-const CLOSED_CANCELLED_ERROR: &'static str = "Closed.Cancelled.Error";
-const CLOSED_CANCELLED_EXITED: &'static str = "Closed.Cancelled.Exited";
-const CLOSED_CANCELLED_OBSOLETE: &'static str = "Closed.Cancelled.Obsolete";
-const CLOSED_CANCELLED_TERMINATED: &'static str = "Closed.Cancelled.Terminated";
-const COMPLETED: &'static str = "Completed";
-const COMPLETED_FAILED: &'static str = "Completed.Failed";
-const COMPLETED_SUCCESS: &'static str = "Completed.Success";
-const OPEN: &'static str = "Open";
-const OPEN_NOTRUNNING: &'static str = "Open.NotRunning";
-const OPEN_NOTRUNNING_ASSIGNED: &'static str = "Open.NotRunning.Assigned";
-const OPEN_NOTRUNNING_RESERVED: &'static str = "Open.NotRunning.Reserved";
-const OPEN_NOTRUNNING_SUSPENDED_ASSIGNED: &'static str = "Open.NotRunning.Suspended.Assigned";
-const OPEN_NOTRUNNING_SUSPENDED_RESERVED: &'static str = "Open.NotRunning.Suspended.Reserved";
-const OPEN_RUNNING: &'static str = "Open.Running";
-const OPEN_RUNNING_INPROGRESS: &'static str = "Open.Running.InProgress";
-const OPEN_RUNNING_SUSPENDED: &'static str = "Open.Running.Suspended";
+const UNSPECIFIED: &str = "Unspecified";
+const CLOSED: &str = "Closed";
+const CLOSED_CANCELLED: &str = "Closed.Cancelled";
+const CLOSED_CANCELLED_ABORTED: &str = "Closed.Cancelled.Aborted";
+const CLOSED_CANCELLED_ERROR: &str = "Closed.Cancelled.Error";
+const CLOSED_CANCELLED_EXITED: &str = "Closed.Cancelled.Exited";
+const CLOSED_CANCELLED_OBSOLETE: &str = "Closed.Cancelled.Obsolete";
+const CLOSED_CANCELLED_TERMINATED: &str = "Closed.Cancelled.Terminated";
+const COMPLETED: &str = "Completed";
+const COMPLETED_FAILED: &str = "Completed.Failed";
+const COMPLETED_SUCCESS: &str = "Completed.Success";
+const OPEN: &str = "Open";
+const OPEN_NOTRUNNING: &str = "Open.NotRunning";
+const OPEN_NOTRUNNING_ASSIGNED: &str = "Open.NotRunning.Assigned";
+const OPEN_NOTRUNNING_RESERVED: &str = "Open.NotRunning.Reserved";
+const OPEN_NOTRUNNING_SUSPENDED_ASSIGNED: &str = "Open.NotRunning.Suspended.Assigned";
+const OPEN_NOTRUNNING_SUSPENDED_RESERVED: &str = "Open.NotRunning.Suspended.Reserved";
+const OPEN_RUNNING: &str = "Open.Running";
+const OPEN_RUNNING_INPROGRESS: &str = "Open.Running.InProgress";
+const OPEN_RUNNING_SUSPENDED: &str = "Open.Running.Suspended";
 
 static STRINGS_TO_LIFECYCLE: Lazy<HashMap<&'static str, XesBrafLifecycle>> = Lazy::new(|| {
   HashMap::from_iter(vec![
@@ -83,7 +83,7 @@ static LIFECYCLE_TO_STRINGS: Lazy<HashMap<XesBrafLifecycle, &'static str>> = Laz
 
 impl Display for XesBrafLifecycle {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "{}", LIFECYCLE_TO_STRINGS.get(&self).unwrap().to_string())
+    write!(f, "{}", LIFECYCLE_TO_STRINGS.get(self).unwrap())
   }
 }
 

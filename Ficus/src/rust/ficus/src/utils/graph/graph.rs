@@ -41,7 +41,7 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
   }
 
   pub fn weight(&self) -> f64 {
-    self.weight.clone()
+    self.weight
   }
 }
 
@@ -93,7 +93,7 @@ where
     Self {
       connections: HashMap::new(),
       nodes: HashMap::new(),
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
       kind: None,
     }
   }
@@ -107,17 +107,17 @@ where
   }
 
   pub fn all_nodes(&self) -> Vec<&GraphNode<TNodeData>> {
-    self.nodes.values().into_iter().collect()
+    self.nodes.values().collect()
   }
 
   pub fn all_nodes_mut(&mut self) -> Vec<&mut GraphNode<TNodeData>> {
-    self.nodes.values_mut().into_iter().collect()
+    self.nodes.values_mut().collect()
   }
 
   pub fn all_edges(&self) -> Vec<&GraphEdge<TEdgeData>> {
     let mut edges = vec![];
-    for (_, connections) in &self.connections {
-      for (_, edge) in connections {
+    for connections in self.connections.values() {
+      for edge in connections.values() {
         edges.push(edge)
       }
     }
@@ -169,21 +169,20 @@ where
       return;
     }
 
-    if let Some(_) = self.nodes.get(first_node_id) {
-      if let Some(_) = self.nodes.get(second_node_id) {
-        let edge = GraphEdge::new(
-          *first_node_id,
-          *second_node_id,
-          connection_data.weight,
-          connection_data.data,
-          connection_data.user_data,
-        );
-        if let Some(connections) = self.connections.get_mut(first_node_id) {
-          connections.insert(second_node_id.to_owned(), edge);
-        } else {
-          let new_connections = HashMap::from_iter(vec![(second_node_id.to_owned(), edge)]);
-          self.connections.insert(first_node_id.to_owned(), new_connections);
-        }
+    if self.nodes.contains_key(first_node_id) && self.nodes.contains_key(second_node_id) {
+      let edge = GraphEdge::new(
+        *first_node_id,
+        *second_node_id,
+        connection_data.weight,
+        connection_data.data,
+        connection_data.user_data,
+      );
+
+      if let Some(connections) = self.connections.get_mut(first_node_id) {
+        connections.insert(second_node_id.to_owned(), edge);
+      } else {
+        let new_connections = HashMap::from_iter(vec![(second_node_id.to_owned(), edge)]);
+        self.connections.insert(first_node_id.to_owned(), new_connections);
       }
     }
   }

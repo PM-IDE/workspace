@@ -42,10 +42,6 @@ impl OfflineTriangleRelation {
 
 impl TriangleRelation for OfflineTriangleRelation {
   fn get(&self, first: &str, second: &str) -> Option<usize> {
-    if let Some(measure) = self.relations.get(&(first.to_owned(), second.to_owned())) {
-      Some(*measure)
-    } else {
-      None
-    }
+    self.relations.get(&(first.to_owned(), second.to_owned())).map(|measure| *measure)
   }
 }

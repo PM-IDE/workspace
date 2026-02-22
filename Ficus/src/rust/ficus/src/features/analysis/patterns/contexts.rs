@@ -64,7 +64,7 @@ where
     for trace in log.borrow().traces() {
       let mut processed_trace = vec![];
       for event in trace.borrow().events() {
-        processed_trace.push((&class_extractor)(&event.borrow()));
+        processed_trace.push(class_extractor(&event.borrow()));
       }
 
       processed_log.push(processed_trace);

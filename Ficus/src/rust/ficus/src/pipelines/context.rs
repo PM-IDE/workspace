@@ -50,22 +50,22 @@ pub struct PipelineContext<'a> {
 impl<'a> PipelineContext<'a> {
   pub fn new_with_logging(parts: &'a PipelineParts) -> Self {
     Self {
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
       pipeline_parts: Some(parts),
     }
   }
 
   pub fn empty() -> Self {
     Self {
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
       pipeline_parts: None,
     }
   }
 
   pub fn empty_from(other: &'a PipelineContext) -> Self {
     Self {
-      user_data: UserDataImpl::new(),
-      pipeline_parts: other.pipeline_parts.clone(),
+      user_data: Default::default(),
+      pipeline_parts: other.pipeline_parts,
     }
   }
 }

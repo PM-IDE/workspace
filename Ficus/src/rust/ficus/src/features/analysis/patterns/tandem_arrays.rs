@@ -53,7 +53,7 @@ pub fn find_primitive_tandem_arrays(
   find_primitive_tandem_arrays_with_length(log, max_tandem_array_length, include_length_one)
     .borrow()
     .iter()
-    .map(|trace_arrays| trace_arrays.into_iter().map(|array| array.sub_array).collect())
+    .map(|trace_arrays| trace_arrays.iter().map(|array| array.sub_array).collect())
     .collect()
 }
 
@@ -70,7 +70,7 @@ pub fn find_primitive_tandem_arrays_with_length(
     let mut traces_primitive_arrays = Vec::new();
     for array in trace_arrays {
       let mut is_primitive = true;
-      for length in 2..((array.sub_array.length + 1) / 2 + 1) {
+      for length in 2..(array.sub_array.length.div_ceil(2) + 1) {
         if try_extract_tandem_array(trace, array.sub_array.start_index, length).is_some() {
           is_primitive = false;
           break;
@@ -95,7 +95,7 @@ pub fn find_maximal_tandem_arrays(
 ) -> Vec<Vec<SubArrayInTraceInfo>> {
   find_maximal_tandem_arrays_with_length(log, max_tandem_array_length, include_length_one)
     .iter()
-    .map(|trace_arrays| trace_arrays.into_iter().map(|array| array.sub_array).collect())
+    .map(|trace_arrays| trace_arrays.iter().map(|array| array.sub_array).collect())
     .collect()
 }
 
@@ -138,7 +138,7 @@ pub(super) fn try_extract_tandem_array(trace: &Vec<u64>, start_index: usize, len
   let mut repeat_count = 1;
 
   'this_loop: loop {
-    if current_index + length - 1 >= trace.len() {
+    if current_index + length > trace.len() {
       break;
     }
 

@@ -146,7 +146,7 @@ impl PipelineParts {
         Err(error) => return Err(error.into()),
       };
 
-      if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
+      if let Ok(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY) {
         for log in logs {
           let mut new_context = context.clone();
           new_context.put_concrete(EVENT_LOG_KEY.key(), log);
@@ -163,7 +163,7 @@ impl PipelineParts {
 
   pipeline_part!(
     create_traces_activities_dataset,
-    |context: &mut PipelineContext, infra: &PipelineInfrastructure, config: &UserDataImpl| {
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let params = Self::create_activities_visualization_params(context, config)?;
 
       let (dataset, processed, classes) = match create_dataset(&params) {

@@ -8,7 +8,7 @@ use crate::{
 };
 use lazy_static::lazy_static;
 
-const DISPLAY_NAME: &'static str = "DISPLAY_NAME";
+const DISPLAY_NAME: &str = "DISPLAY_NAME";
 context_key! { DISPLAY_NAME, String }
 
 pub fn get_display_name(event: &XesEventImpl) -> HeapedOrOwned<String> {

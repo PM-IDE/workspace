@@ -71,7 +71,7 @@ pub fn silhouette_score(labels: &Vec<usize>, distance_func: impl Fn(usize, usize
         })
       }
 
-      let b_x = b_x.unwrap_or_else(|| 0.);
+      let b_x = b_x.unwrap_or(0.);
       score += (b_x - a_x) / a_x.max(b_x);
     }
   }

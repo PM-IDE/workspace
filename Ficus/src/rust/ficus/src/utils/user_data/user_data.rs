@@ -9,7 +9,7 @@ pub trait UserDataOwner {
 }
 
 pub trait ExecuteWithUserData {
-  fn execute_with_user_data(&self, func: &mut dyn FnMut(&UserDataImpl) -> ());
+  fn execute_with_user_data(&self, func: &mut dyn FnMut(&UserDataImpl));
   fn execute_with_user_data_mut(&mut self, func: &mut dyn FnMut(&mut UserDataImpl));
 }
 
@@ -71,9 +71,7 @@ impl UserData for UserDataImpl {
   }
 
   fn any(&self, key: &dyn Key) -> Option<&dyn Any> {
-    if self.values_map.is_none() {
-      return None;
-    }
+    self.values_map.as_ref()?;
 
     let values_map = self.values_map.as_ref().unwrap();
     if let Some(value) = values_map.get(&key.id()) {
@@ -100,28 +98,26 @@ impl UserData for UserDataImpl {
   }
 
   fn items(&self) -> Option<Vec<(Box<dyn Key>, &dyn Any)>> {
-    if let Some(map) = self.values_map.as_ref() {
-      Some(
-        map
+    self.values_map.as_ref().map(|map| map
           .iter()
           .map(|(k, v)| {
             let key = Box::new(DefaultKey::<()>::existing(*k, v.key_name.to_owned()));
 
             unsafe { (key as Box<dyn Key>, v.value().as_ref().try_borrow_unguarded().ok().unwrap()) }
           })
-          .collect(),
-      )
-    } else {
-      None
+      .collect())
+  }
+}
+
+impl Default for UserDataImpl {
+  fn default() -> Self {
+    Self {
+      values_map: Default::default()
     }
   }
 }
 
 impl UserDataImpl {
-  pub fn new() -> Self {
-    Self { values_map: None }
-  }
-
   fn initialize_values_map(&mut self) {
     if self.values_map.is_some() {
       return;
@@ -146,9 +142,7 @@ impl UserDataImpl {
   }
 
   pub fn get_mut<T: 'static>(&self, key: &impl Key) -> Option<&mut T> {
-    if self.values_map.is_none() {
-      return None;
-    }
+    self.values_map.as_ref()?;
 
     let values_map = self.values_map.as_ref().unwrap();
     if let Some(value) = values_map.get(&key.id()) {
@@ -166,7 +160,7 @@ impl Clone for UserDataImpl {
       Some(map) => {
         let mut new_map = HashMap::new();
         for (key, value) in map {
-          new_map.insert(key.clone(), value.clone());
+          new_map.insert(*key, value.clone());
         }
 
         Self { values_map: Some(new_map) }
@@ -180,6 +174,12 @@ pub struct UserDataHolder {
   user_data: Option<UserDataImpl>,
 }
 
+impl Default for UserDataHolder {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl UserDataHolder {
   pub fn new() -> Self {
     Self { user_data: None }
@@ -187,7 +187,7 @@ impl UserDataHolder {
 
   pub fn get_mut(&mut self) -> &mut UserDataImpl {
     if self.user_data.is_none() {
-      self.user_data = Some(UserDataImpl::new());
+      self.user_data = Some(Default::default());
     }
 
     self.user_data.as_mut().unwrap()

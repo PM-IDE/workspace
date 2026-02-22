@@ -78,7 +78,7 @@ pub fn discover_ecfg_from_event_log(
 
   let log = log
     .into_iter()
-    .map(|t| t.into_iter().map(|e| EventWithUniqueId::new(e)).collect())
+    .map(|t| t.into_iter().map(EventWithUniqueId::new).collect())
     .collect();
 
   let mut result = discover_ecfg(&log, &context, merge_sequences_of_events, Some(performance_map))?;
@@ -157,7 +157,7 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
 
     let mut pattern_graph_infos = vec![];
     if let Some(patterns) = user_data.concrete(NODE_UNDERLYING_PATTERNS_INFOS_KEY.key()).cloned() {
-      if patterns.len() == 0 {
+      if patterns.is_empty() {
         continue;
       }
 
@@ -177,13 +177,10 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
 
         let graph = Rc::new(Box::new(graph));
 
-        let base_sequence = match pattern.value().base_pattern() {
-          None => None,
-          Some(base_pattern) => Some(base_pattern.iter().map(|e| e.borrow().name().to_owned()).collect()),
-        };
+        let base_sequence = pattern.value().base_pattern().map(|base_pattern| base_pattern.iter().map(|e| e.borrow().name().to_owned()).collect());
 
-        let pattern_graph_info = UnderlyingPatternGraphInfo::new(pattern.value().pattern_kind().clone(), base_sequence, graph);
-        let pattern_graph_info = NodeAdditionalDataContainer::new(pattern_graph_info, pattern.original_event_coordinates().clone());
+        let pattern_graph_info = UnderlyingPatternGraphInfo::new(*pattern.value().pattern_kind(), base_sequence, graph);
+        let pattern_graph_info = NodeAdditionalDataContainer::new(pattern_graph_info, *pattern.original_event_coordinates());
 
         pattern_graph_infos.push(pattern_graph_info);
       }
@@ -200,7 +197,7 @@ fn transfer_vector_like_user_data<T: Clone>(
 ) {
   if let Some(data) = event.borrow().user_data().concrete(key.key()) {
     if let Some(existing_data) = user_data_impl.concrete_mut(key.key()) {
-      existing_data.extend(data.clone().into_iter());
+      existing_data.extend(data.clone());
     } else {
       user_data_impl.put_concrete(key.key(), data.clone());
     }

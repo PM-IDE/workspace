@@ -157,8 +157,8 @@ impl<'a> ExtendedAlphaSet<'a> {
   pub fn merge(&self, other: &Self) -> Self {
     Self {
       alpha_set: self.alpha_set.extend(&other.alpha_set),
-      left_extension: self.left_extension.iter().chain(&other.left_extension).map(|c| *c).collect(),
-      right_extension: self.right_extension.iter().chain(&other.right_extension).map(|c| *c).collect(),
+      left_extension: self.left_extension.iter().chain(&other.left_extension).copied().collect(),
+      right_extension: self.right_extension.iter().chain(&other.right_extension).copied().collect(),
     }
   }
 
@@ -169,7 +169,7 @@ impl<'a> ExtendedAlphaSet<'a> {
     let second = self.alpha_set.right_classes();
     let second = second.iter().chain(self.right_extension.iter());
 
-    TwoSets::new(first.map(|c| *c).collect(), second.map(|c| *c).collect())
+    TwoSets::new(first.copied().collect(), second.copied().collect())
   }
 
   pub fn alpha_set(&self) -> &AlphaSet {
@@ -212,7 +212,7 @@ impl<'a> Display for ExtendedAlphaSet<'a> {
         repr.push(',');
       }
 
-      if set.len() > 0 {
+      if !set.is_empty() {
         repr.remove(repr.len() - 1);
       }
 
@@ -235,8 +235,8 @@ impl<'a> Clone for ExtendedAlphaSet<'a> {
   fn clone(&self) -> Self {
     Self {
       alpha_set: self.alpha_set.clone(),
-      left_extension: self.left_extension.iter().map(|c| *c).collect(),
-      right_extension: self.right_extension.iter().map(|c| *c).collect(),
+      left_extension: self.left_extension.iter().copied().collect(),
+      right_extension: self.right_extension.iter().copied().collect(),
     }
   }
 }

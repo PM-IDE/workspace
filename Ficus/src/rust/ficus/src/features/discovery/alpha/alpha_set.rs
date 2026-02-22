@@ -86,7 +86,7 @@ impl AlphaSet {
       }
     }
 
-    return true;
+    true
   }
 
   pub fn extend(&self, other: &Self) -> AlphaSet {

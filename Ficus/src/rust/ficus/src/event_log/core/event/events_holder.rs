@@ -26,7 +26,7 @@ where
   fn clone(&self) -> Self {
     Self {
       events: (&self.events)
-        .into_iter()
+        .iter()
         .map(|ptr| Rc::new(RefCell::new(ptr.borrow().clone())))
         .collect(),
 

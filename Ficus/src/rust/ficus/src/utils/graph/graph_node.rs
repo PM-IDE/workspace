@@ -19,7 +19,7 @@ where
     Self {
       id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
       data,
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 

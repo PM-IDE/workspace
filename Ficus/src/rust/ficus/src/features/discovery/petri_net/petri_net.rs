@@ -53,11 +53,11 @@ where
   }
 
   pub fn all_places(&self) -> Vec<&Place> {
-    self.places.values().into_iter().collect()
+    self.places.values().collect()
   }
 
   pub fn all_transitions(&self) -> Vec<&Transition<TTransitionData, TArcData>> {
-    self.transitions.values().into_iter().collect()
+    self.transitions.values().collect()
   }
 
   pub fn delete_transition(&mut self, id: &u64) -> Option<Transition<TTransitionData, TArcData>> {
@@ -73,7 +73,7 @@ where
   pub fn connect_place_to_transition(&mut self, from_place_id: &u64, to_transition_index: &u64, arc_data: Option<TArcData>) {
     self
       .transitions
-      .get_mut(&to_transition_index)
+      .get_mut(to_transition_index)
       .unwrap()
       .add_incoming_arc(from_place_id, arc_data);
 
@@ -95,7 +95,7 @@ where
   pub fn connect_transition_to_place(&mut self, from_transition_id: &u64, to_place_id: &u64, arc_data: Option<TArcData>) {
     self
       .transitions
-      .get_mut(&from_transition_id)
+      .get_mut(from_transition_id)
       .unwrap()
       .add_outgoing_arc(to_place_id, arc_data);
 
@@ -143,13 +143,7 @@ where
   }
 
   pub fn find_transition_by_name(&self, name: &str) -> Option<&Transition<TTransitionData, TArcData>> {
-    for transition in self.transitions.values() {
-      if transition.name() == name {
-        return Some(transition);
-      }
-    }
-
-    None
+    self.transitions.values().find(|&transition| transition.name() == name)
   }
 
   pub fn find_all_transitions_by_name(&self, name: &str) -> Option<Vec<&Transition<TTransitionData, TArcData>>> {

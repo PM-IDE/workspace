@@ -5,7 +5,7 @@ use crate::{
 use lazy_static::lazy_static;
 use std::{cell::RefCell, rc::Rc};
 
-const UNDERLYING_PATTERN_KIND: &'static str = "UNDERLYING_PATTERN_KIND";
+const UNDERLYING_PATTERN_KIND: &str = "UNDERLYING_PATTERN_KIND";
 
 context_key! { UNDERLYING_PATTERN_KIND, UnderlyingPatternKind }
 

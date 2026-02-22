@@ -22,8 +22,8 @@ pub struct PayloadTagDescriptor {
 }
 
 pub fn read_payload_like_tag(tag: &BytesStart) -> Option<PayloadTagDescriptor> {
-  let kv = extract_key_value(&tag);
-  if !kv.value.is_some() || !kv.key.is_some() {
+  let kv = extract_key_value(tag);
+  if kv.value.is_none() || kv.key.is_none() {
     return None;
   }
 
@@ -61,7 +61,7 @@ pub fn extract_key_value(start: &BytesStart) -> KeyValuePair<String, String> {
     }
   }
 
-  return KeyValuePair { key, value };
+  KeyValuePair { key, value }
 }
 
 #[inline]

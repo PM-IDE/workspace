@@ -13,8 +13,8 @@ where
   })
 }
 
-pub const ARTIFICIAL_START_EVENT_NAME: &'static str = "ARTIFICIAL_START";
-pub const ARTIFICIAL_END_EVENT_NAME: &'static str = "ARTIFICIAL_END";
+pub const ARTIFICIAL_START_EVENT_NAME: &str = "ARTIFICIAL_START";
+pub const ARTIFICIAL_END_EVENT_NAME: &str = "ARTIFICIAL_END";
 
 enum StartOrEnd {
   Start,
@@ -90,10 +90,7 @@ pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Ve
     for attribute in attributes {
       let value = match payload {
         None => None,
-        Some(payload) => match payload.get(attribute) {
-          None => None,
-          Some(value) => Some(value.to_string_repr()),
-        },
+        Some(payload) => payload.get(attribute).map(|value| value.to_string_repr()),
       };
 
       let attribute_value_string = match value {

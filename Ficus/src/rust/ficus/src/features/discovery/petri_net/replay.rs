@@ -112,7 +112,7 @@ pub fn replay_petri_net(log: &impl EventLog, net: &DefaultPetriNet) -> Option<Ve
     stack.push_back((0usize, ReplayState::new(marking)));
 
     loop {
-      if stack.len() == 0 {
+      if stack.is_empty() {
         result.push(None);
         break;
       }

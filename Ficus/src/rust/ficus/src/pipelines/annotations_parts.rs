@@ -35,7 +35,7 @@ impl PipelineParts {
         &PETRI_NET_COUNT_ANNOTATION_KEY,
         context,
         config,
-        |log, net, terminate_on_unreplayable_traces| annotate_with_counts(log, net, terminate_on_unreplayable_traces),
+        annotate_with_counts,
       )
     }
   );
@@ -67,7 +67,7 @@ impl PipelineParts {
         &PETRI_NET_FREQUENCY_ANNOTATION_KEY,
         context,
         config,
-        |log, net, terminate_on_unreplayable_traces| annotate_with_frequencies(log, net, terminate_on_unreplayable_traces),
+        annotate_with_frequencies,
       )
     }
   );
@@ -79,7 +79,7 @@ impl PipelineParts {
         &PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY,
         context,
         config,
-        |log, net, terminate_on_unreplayable_traces| annotate_with_trace_frequency(log, net, terminate_on_unreplayable_traces),
+        annotate_with_trace_frequency,
       )
     }
   );
@@ -113,7 +113,7 @@ impl PipelineParts {
         Ok(())
       }
       Err(err) => {
-        let message = format!("Failed to create ocel annotation, error: {}", err.to_string());
+        let message = format!("Failed to create ocel annotation, error: {}", err);
         Err(PipelinePartExecutionError::new_raw(message))
       }
     }

@@ -161,7 +161,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
   }
 
   fn find_default_part(&self, grpc_default_part: &GrpcPipelinePart) -> Option<Box<DefaultPipelinePart>> {
-    let mut part_config = UserDataImpl::new();
+    let mut part_config = UserDataImpl::default();
     let grpc_config = &grpc_default_part.configuration.as_ref().unwrap();
 
     for conf_value in &grpc_config.configuration_parameters {

@@ -106,7 +106,7 @@ fn create_activities_repr_from_subtraces(
   traces_activities: &TracesActivities,
   all_event_classes: &mut HashSet<String>,
   params: &ActivitiesVisualizationParams,
-  event_classes_updater: impl Fn(&[Rc<RefCell<XesEventImpl>>], &mut HashMap<String, usize>, &mut HashSet<String>) -> (),
+  event_classes_updater: impl Fn(&[Rc<RefCell<XesEventImpl>>], &mut HashMap<String, usize>, &mut HashSet<String>),
 ) -> HashMap<String, (Rc<RefCell<ActivityNode>>, HashMap<String, usize>)> {
   let mut processed = HashMap::new();
   for trace_activities in traces_activities.iter() {
@@ -159,10 +159,7 @@ fn create_dataset_internal(
   ) -> Result<HashMap<String, (Rc<RefCell<ActivityNode>>, HashMap<String, usize>)>, ClusteringError>,
 ) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
   let mut all_event_classes = HashSet::new();
-  let regex_hasher = match class_extractor.as_ref() {
-    Some(class_extractor) => Some(RegexEventHasher::new(class_extractor).ok().unwrap()),
-    None => None,
-  };
+  let regex_hasher = class_extractor.as_ref().map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
 
   let processed = activities_repr_fullfiller(traces_activities, regex_hasher.as_ref(), &mut all_event_classes)?;
 
@@ -170,7 +167,7 @@ fn create_dataset_internal(
   all_event_classes.sort();
 
   let mut processed = processed.iter().map(|x| x.1.clone()).collect::<ActivityNodeWithCoords>();
-  processed.sort_by(|first, second| first.0.borrow().name().cmp(&second.0.borrow().name()));
+  processed.sort_by(|first, second| first.0.borrow().name().cmp(second.0.borrow().name()));
 
   let mut vector = vec![];
   for activity in &processed {

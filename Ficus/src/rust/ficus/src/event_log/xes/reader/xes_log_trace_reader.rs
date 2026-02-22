@@ -64,10 +64,10 @@ impl<'a> TraceXesEventLogIterator<'a> {
       match self.reader.borrow_mut().read_event_into(&mut self.buffer) {
         Ok(quick_xml::events::Event::End(end)) => match end.name().0 {
           EVENT_TAG_NAME => {
-            if !name.is_some() {
+            if name.is_none() {
               return None;
             }
-            if !date.is_some() {
+            if date.is_none() {
               return None;
             }
 
@@ -78,7 +78,7 @@ impl<'a> TraceXesEventLogIterator<'a> {
         },
         Ok(quick_xml::events::Event::Empty(empty)) => match utils::read_payload_like_tag(&empty) {
           Some(descriptor) => {
-            let payload_type = descriptor.payload_type.as_str().as_bytes();
+            let payload_type = descriptor.payload_type.as_bytes();
             let key = descriptor.key.as_str();
             let value = descriptor.value.as_str();
 
@@ -117,7 +117,7 @@ impl<'a> TraceXesEventLogIterator<'a> {
     globals: &HashMap<String, HashMap<String, EventPayloadValue>>,
   ) -> bool {
     let payload_value = utils::extract_payload_value(payload_type, key, value);
-    if !payload_value.is_some() {
+    if payload_value.is_none() {
       return false;
     }
 

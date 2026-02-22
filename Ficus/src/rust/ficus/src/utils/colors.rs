@@ -67,7 +67,7 @@ impl ColorsHolder {
 
   pub fn get_or_create(&mut self, name: &str) -> Color {
     if let Some(existing_color) = self.names_to_colors.get(name) {
-      existing_color.clone()
+      *existing_color
     } else {
       let new_color = Color::random(Some(&self.used_colors));
       self.used_colors.insert(new_color);

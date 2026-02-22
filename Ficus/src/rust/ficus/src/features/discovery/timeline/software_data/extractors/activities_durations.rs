@@ -39,7 +39,7 @@ impl<'a> EventGroupTraceSoftwareDataExtractor for ActivityDurationExtractor<'a> 
     trace: &Vec<EventGroup>,
     software_data: &mut Vec<(SoftwareData, SoftwareData)>,
   ) -> Result<(), SoftwareDataExtractionError> {
-    if self.config.activities_duration_configs().len() == 0 {
+    if self.config.activities_duration_configs().is_empty() {
       return Ok(());
     }
 
@@ -229,7 +229,7 @@ impl DurationsMapExtensions for DurationsMap {
       return;
     }
 
-    (*self.entry(info.base().name().to_string()).or_insert((0u64, info.clone()))).0 += duration;
+    self.entry(info.base().name().to_string()).or_insert((0u64, info.clone())).0 += duration;
   }
 }
 
@@ -266,11 +266,7 @@ fn process_events(
       Err(err) => return Err(err.clone()),
     };
 
-    let id = if let Some(strategy) = info.activity_id_attr() {
-      Some(strategy.create(&event.borrow()))
-    } else {
-      None
-    };
+    let id = info.activity_id_attr().as_ref().map(|strategy| strategy.create(&event.borrow()));
 
     if start_regex.is_match(event.borrow().name()).unwrap_or(false) {
       local_state.push(StackActivityStartEntry::new(id, (*event).clone()));
@@ -290,7 +286,7 @@ fn process_events(
           for prev_data in previous_data.iter_mut() {
             if let Some(prev_data) = prev_data.as_mut() {
               let duration = (prev_data.end_time - prev_data.start_time) as u64;
-              (*prev_data.map.entry(info.base().name().to_string()).or_insert((0u64, info.clone()))).0 += duration;
+              prev_data.map.entry(info.base().name().to_string()).or_insert((0u64, info.clone())).0 += duration;
             }
           }
         }

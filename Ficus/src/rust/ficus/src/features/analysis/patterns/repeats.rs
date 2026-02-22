@@ -24,7 +24,7 @@ where
   let mut push_repeats = |patterns: &[(usize, usize)]| {
     repeats.push(
       patterns
-        .into_iter()
+        .iter()
         .map(|repeat| SubArrayInTraceInfo::new(repeat.0, repeat.1 - repeat.0))
         .collect(),
     );
@@ -45,7 +45,7 @@ where
 fn find_from_all_traces<TFinder, TRepeatsPusher>(log: &Vec<Vec<u64>>, finder: &TFinder, pusher: &mut TRepeatsPusher)
 where
   TFinder: Fn(&SuffixTree<u64>) -> Vec<(usize, usize)>,
-  TRepeatsPusher: FnMut(&[(usize, usize)]) -> (),
+  TRepeatsPusher: FnMut(&[(usize, usize)]),
 {
   for trace in log {
     let slice = SingleWordSuffixTreeSlice::new(trace.as_slice());
@@ -58,7 +58,7 @@ where
 fn find_from_single_merged_trace<TFinder, TRepeatsPusher>(log: &Vec<Vec<u64>>, finder: &TFinder, pusher: &mut TRepeatsPusher)
 where
   TFinder: Fn(&SuffixTree<u64>) -> Vec<(usize, usize)>,
-  TRepeatsPusher: FnMut(&[(usize, usize)]) -> (),
+  TRepeatsPusher: FnMut(&[(usize, usize)]),
 {
   let mut single_trace = vec![];
   for trace in log {

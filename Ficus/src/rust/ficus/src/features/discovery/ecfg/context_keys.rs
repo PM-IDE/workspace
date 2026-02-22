@@ -12,14 +12,14 @@ use crate::{
 };
 use lazy_static::lazy_static;
 
-pub const NODE_SOFTWARE_DATA: &'static str = "node_software_data";
-pub const NODE_CORRESPONDING_TRACE_DATA: &'static str = "node_corresponding_trace_data";
-pub const NODE_INNER_GRAPH: &'static str = "node_inner_graph";
-pub const NODE_START_END_ACTIVITY_TIME: &'static str = "node_start_end_activity_time";
-pub const NODE_START_END_ACTIVITIES_TIMES: &'static str = "node_start_end_activities_times";
-pub const NODE_UNDERLYING_PATTERNS_INFOS: &'static str = "node_underlying_patterns_infos";
-pub const NODE_UNDERLYING_PATTERNS_GRAPHS_INFO: &'static str = "node_underlying_patterns_graphs_infos";
-pub const NODE_MULTITHREADED_FRAGMENT_LOG: &'static str = "node_multithreaded_fragment_log";
+pub const NODE_SOFTWARE_DATA: &str = "node_software_data";
+pub const NODE_CORRESPONDING_TRACE_DATA: &str = "node_corresponding_trace_data";
+pub const NODE_INNER_GRAPH: &str = "node_inner_graph";
+pub const NODE_START_END_ACTIVITY_TIME: &str = "node_start_end_activity_time";
+pub const NODE_START_END_ACTIVITIES_TIMES: &str = "node_start_end_activities_times";
+pub const NODE_UNDERLYING_PATTERNS_INFOS: &str = "node_underlying_patterns_infos";
+pub const NODE_UNDERLYING_PATTERNS_GRAPHS_INFO: &str = "node_underlying_patterns_graphs_infos";
+pub const NODE_MULTITHREADED_FRAGMENT_LOG: &str = "node_multithreaded_fragment_log";
 
 context_key! { NODE_SOFTWARE_DATA, Vec<NodeAdditionalDataContainer<SoftwareData>> }
 context_key! { NODE_CORRESPONDING_TRACE_DATA, Vec<NodeAdditionalDataContainer<CorrespondingTraceData>> }
@@ -30,9 +30,9 @@ context_key! { NODE_UNDERLYING_PATTERNS_INFOS, Vec<NodeAdditionalDataContainer<U
 context_key! { NODE_UNDERLYING_PATTERNS_GRAPHS_INFO, Vec<NodeAdditionalDataContainer<UnderlyingPatternGraphInfo>> }
 context_key! { NODE_MULTITHREADED_FRAGMENT_LOG, Vec<NodeAdditionalDataContainer<XesEventLogImpl>> }
 
-pub const EDGE_SOFTWARE_DATA: &'static str = "edge_software_data";
-pub const EDGE_START_END_ACTIVITIES_TIMES: &'static str = "edge_start_end_activities_times";
-pub const EDGE_TRACE_EXECUTION_INFO: &'static str = "edge_trace_execution_info";
+pub const EDGE_SOFTWARE_DATA: &str = "edge_software_data";
+pub const EDGE_START_END_ACTIVITIES_TIMES: &str = "edge_start_end_activities_times";
+pub const EDGE_TRACE_EXECUTION_INFO: &str = "edge_trace_execution_info";
 
 context_key! { EDGE_SOFTWARE_DATA, Vec<SoftwareData> }
 context_key! { EDGE_START_END_ACTIVITIES_TIMES, Vec<ActivityStartEndTimeData> }

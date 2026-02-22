@@ -28,13 +28,13 @@ impl PipelineParts {
   pipeline_part!(filter_events_by_name, |context: &mut PipelineContext, _, config: &UserDataImpl| {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
     let event_name = Self::get_user_data(config, &EVENT_NAME_KEY)?;
-    filter_log_by_name(log, &event_name);
+    filter_log_by_name(log, event_name);
 
     Ok(())
   });
 
   pipeline_part!(filter_events_by_regex, |context: &mut PipelineContext, _, config: &UserDataImpl| {
-    Self::filter_log_by_regex_internal(context, config, |log, regex| filter_log_by_regex(log, regex))
+    Self::filter_log_by_regex_internal(context, config, filter_log_by_regex)
   });
 
   fn filter_log_by_regex_internal(
@@ -45,7 +45,7 @@ impl PipelineParts {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
     let regex = Self::get_user_data(config, &REGEX_KEY)?;
 
-    match Regex::new(&regex) {
+    match Regex::new(regex) {
       Ok(regex) => {
         filtering_func(log, &regex);
         Ok(())
@@ -55,7 +55,7 @@ impl PipelineParts {
   }
 
   pipeline_part!(remain_events_by_regex, |context: &mut PipelineContext, _, config: &UserDataImpl| {
-    Self::filter_log_by_regex_internal(context, config, |log, regex| remain_events_in_event_log(log, regex))
+    Self::filter_log_by_regex_internal(context, config, remain_events_in_event_log)
   });
 
   pipeline_part!(filter_log_by_variants, |context: &mut PipelineContext, _, _| {
@@ -66,7 +66,7 @@ impl PipelineParts {
       .collect();
 
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-    log.filter_traces(&|_, index| !groups_indices.contains(&index));
+    log.filter_traces(&|_, index| !groups_indices.contains(index));
 
     Ok(())
   });

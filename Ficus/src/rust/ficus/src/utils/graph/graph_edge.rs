@@ -32,7 +32,7 @@ where
       id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
       data,
       weight,
-      user_data: user_data.unwrap_or(UserDataImpl::new()),
+      user_data: user_data.unwrap_or(Default::default()),
     }
   }
 }

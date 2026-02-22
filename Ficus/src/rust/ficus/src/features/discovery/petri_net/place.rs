@@ -1,6 +1,6 @@
 use crate::{features::discovery::petri_net::ids::next_id, utils::user_data::user_data::UserDataImpl};
 
-const EMPTY_PLACE_NAME: &'static str = "EmptyPlace";
+const EMPTY_PLACE_NAME: &str = "EmptyPlace";
 
 #[derive(Debug)]
 pub struct Place {
@@ -14,7 +14,7 @@ impl Place {
     Self {
       id: next_id(),
       name: EMPTY_PLACE_NAME.to_owned(),
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 
@@ -22,7 +22,7 @@ impl Place {
     Self {
       id: next_id(),
       name,
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 

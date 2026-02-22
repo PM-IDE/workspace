@@ -63,7 +63,7 @@ pub(super) fn merge_activities(
     }
 
     let mut new_activity_name_parts = new_activity_name_parts.iter().map(|x| x.to_owned()).collect::<Vec<String>>();
-    new_activity_name_parts.sort_by(|first, second| first.cmp(second));
+    new_activity_name_parts.sort();
 
     let mut new_activity_name = String::new();
     new_activity_name.push_str(create_cluster_name(*cluster).as_str());
@@ -74,7 +74,7 @@ pub(super) fn merge_activities(
       vec![],
       *cluster_activities[0].borrow().level(),
       Rc::new(Box::new(new_activity_name)),
-      cluster_activities.first().unwrap().borrow().pattern_kind().clone(),
+      *cluster_activities.first().unwrap().borrow().pattern_kind(),
     );
 
     new_cluster_activities.insert(*cluster, Rc::new(RefCell::new(new_node)));

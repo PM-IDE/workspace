@@ -8,17 +8,17 @@ use quick_xml::{
 };
 use std::{cell::RefCell, fs, io::Cursor};
 
-const PNML_TAG_NAME: &'static str = "pnml";
-const TRANSITION_TAG_NAME: &'static str = "transition";
-const ARC_TAG_NAME: &'static str = "arc";
-const PLACE_TAG_NAME: &'static str = "place";
-const NET_TAG_NAME: &'static str = "net";
-const TEXT_TAG_NAME: &'static str = "text";
-const NAME_TAG_NAME: &'static str = "name";
+const PNML_TAG_NAME: &str = "pnml";
+const TRANSITION_TAG_NAME: &str = "transition";
+const ARC_TAG_NAME: &str = "arc";
+const PLACE_TAG_NAME: &str = "place";
+const NET_TAG_NAME: &str = "net";
+const TEXT_TAG_NAME: &str = "text";
+const NAME_TAG_NAME: &str = "name";
 
-const ID_ATTR_NAME: &'static str = "id";
-const SOURCE_ATTR_NAME: &'static str = "source";
-const TARGET_ATTR_NAME: &'static str = "target";
+const ID_ATTR_NAME: &str = "id";
+const SOURCE_ATTR_NAME: &str = "source";
+const TARGET_ATTR_NAME: &str = "target";
 
 pub fn serialize_to_pnml_file<TTransitionData, TArcData>(
   net: &PetriNet<TTransitionData, TArcData>,
@@ -95,14 +95,14 @@ where
 {
   for transition in created_ordered_transitions_list(net) {
     let cookie = StartEndElementCookie::new_with_attrs(
-      &writer,
+      writer,
       TRANSITION_TAG_NAME,
       &vec![(ID_ATTR_NAME, create_transition_id(transition, use_names_as_ids).as_str())],
     );
 
     if let Some(data) = transition.data() {
-      let name = StartEndElementCookie::new(&writer, NAME_TAG_NAME);
-      let text = StartEndElementCookie::new(&writer, TEXT_TAG_NAME);
+      let name = StartEndElementCookie::new(writer, NAME_TAG_NAME);
+      let text = StartEndElementCookie::new(writer, TEXT_TAG_NAME);
 
       match writer
         .borrow_mut()
@@ -168,7 +168,7 @@ where
 
   for arc in &incoming_arcs {
     StartEndElementCookie::new_with_attrs(
-      &writer,
+      writer,
       ARC_TAG_NAME,
       &vec![
         (ID_ATTR_NAME, arc.1.as_str()),
@@ -224,7 +224,7 @@ where
 
   for arc in outgoing_arcs {
     StartEndElementCookie::new_with_attrs(
-      &writer,
+      writer,
       ARC_TAG_NAME,
       &vec![
         (ID_ATTR_NAME, arc.1.as_str()),

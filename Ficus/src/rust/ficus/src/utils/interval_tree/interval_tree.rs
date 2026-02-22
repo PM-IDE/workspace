@@ -33,7 +33,7 @@ where
     intervals: &Vec<Interval<TElement, TData>>,
     range_creator: TRangeCreator,
   ) -> IntervalTree<TElement, TRangeCreator, TElementIterator, TData> {
-    let mut nodes: Box<Vec<Node<TElement, TData>>> = Box::new(vec![]);
+    let mut nodes: Box<Vec<Node<TElement, TData>>> = Box::default();
     let mut boundaries = Box::new(vec![]);
 
     let mut queue: VecDeque<(Option<(usize, ChildOrientation)>, Vec<&Interval<TElement, TData>>)> = VecDeque::new();
@@ -78,11 +78,11 @@ where
       }
 
       nodes.push(node);
-      if left_intervals.len() > 0 {
+      if !left_intervals.is_empty() {
         queue.push_back((Some((node_index, ChildOrientation::Left)), left_intervals));
       }
 
-      if right_intervals.len() > 0 {
+      if !right_intervals.is_empty() {
         queue.push_back((Some((node_index, ChildOrientation::Right)), right_intervals));
       }
     }

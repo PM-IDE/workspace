@@ -15,8 +15,8 @@ pub enum GraphsMergingError {
   MissingEndNode,
 }
 
-const START_NODE_ID: &'static str = "START_NODE_ID";
-const END_NODE_ID: &'static str = "END_NODE_ID";
+const START_NODE_ID: &str = "START_NODE_ID";
+const END_NODE_ID: &str = "END_NODE_ID";
 
 context_key! { START_NODE_ID, u64 }
 context_key! { END_NODE_ID, u64 }

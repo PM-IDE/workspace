@@ -14,6 +14,12 @@ pub struct StreamQueue<T> {
   queue: VecDeque<T>,
 }
 
+impl<T> Default for StreamQueue<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> StreamQueue<T> {
   pub fn new() -> Self {
     Self {
@@ -43,14 +49,18 @@ impl<T> Stream for AsyncStreamQueue<T> {
 
     if !queue.is_active.load(Ordering::SeqCst) {
       Poll::Ready(None)
+    } else if let Some(value) = queue.queue.pop_front() {
+      Poll::Ready(Some(value))
     } else {
-      if let Some(value) = queue.queue.pop_front() {
-        Poll::Ready(Some(value))
-      } else {
-        Poll::Pending
-      }
+      Poll::Pending
     }
   }
+}
+
+impl<T> Default for AsyncStreamQueue<T> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T> AsyncStreamQueue<T> {

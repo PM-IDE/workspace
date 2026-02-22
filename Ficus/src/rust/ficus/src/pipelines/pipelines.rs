@@ -36,7 +36,7 @@ impl PipelinePart for Pipeline {
 
 impl Pipeline {
   fn put_default_concrete_keys(&self, context: &mut PipelineContext) {
-    if let None = context.concrete(COLORS_HOLDER_KEY.key()) {
+    if context.concrete(COLORS_HOLDER_KEY.key()).is_none() {
       context.put_concrete(COLORS_HOLDER_KEY.key(), ColorsHolder::empty());
     }
   }

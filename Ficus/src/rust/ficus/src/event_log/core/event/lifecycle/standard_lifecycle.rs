@@ -21,20 +21,20 @@ pub enum XesStandardLifecycle {
   Withdraw = 13,
 }
 
-const SCHEDULE: &'static str = "schedule";
-const START: &'static str = "start";
-const COMPLETE: &'static str = "complete";
-const UNKNOWN: &'static str = "unknown";
-const UNSPECIFIED: &'static str = "unspecified";
-const ASSIGN: &'static str = "assign";
-const ATE_ABORT: &'static str = "ate_abort";
-const AUTOSKIP: &'static str = "autoskip";
-const MANUAL_SKIP: &'static str = "manualskip";
-const PI_ABORT: &'static str = "pi_abort";
-const RE_ASSIGN: &'static str = "reassign";
-const RESUME: &'static str = "resume";
-const SUSPEND: &'static str = "suspend";
-const WITHDRAW: &'static str = "withdraw";
+const SCHEDULE: &str = "schedule";
+const START: &str = "start";
+const COMPLETE: &str = "complete";
+const UNKNOWN: &str = "unknown";
+const UNSPECIFIED: &str = "unspecified";
+const ASSIGN: &str = "assign";
+const ATE_ABORT: &str = "ate_abort";
+const AUTOSKIP: &str = "autoskip";
+const MANUAL_SKIP: &str = "manualskip";
+const PI_ABORT: &str = "pi_abort";
+const RE_ASSIGN: &str = "reassign";
+const RESUME: &str = "resume";
+const SUSPEND: &str = "suspend";
+const WITHDRAW: &str = "withdraw";
 
 static STRINGS_TO_LIFECYCLE: Lazy<HashMap<&'static str, XesStandardLifecycle>> = Lazy::new(|| {
   HashMap::from_iter(vec![
@@ -59,7 +59,7 @@ static LIFECYCLE_TO_STRINGS: Lazy<HashMap<XesStandardLifecycle, &'static str>> =
 
 impl Display for XesStandardLifecycle {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "{}", LIFECYCLE_TO_STRINGS.get(&self).unwrap().to_string())
+    write!(f, "{}", LIFECYCLE_TO_STRINGS.get(self).unwrap())
   }
 }
 

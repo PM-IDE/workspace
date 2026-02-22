@@ -13,9 +13,9 @@ pub enum ClusteringError {
   RawError(String),
 }
 
-impl Into<PipelinePartExecutionError> for ClusteringError {
-  fn into(self) -> PipelinePartExecutionError {
-    PipelinePartExecutionError::Raw(RawPartExecutionError::new(self.to_string()))
+impl From<ClusteringError> for PipelinePartExecutionError {
+  fn from(val: ClusteringError) -> Self {
+    PipelinePartExecutionError::Raw(RawPartExecutionError::new(val.to_string()))
   }
 }
 

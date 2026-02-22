@@ -13,7 +13,7 @@ use crate::{
         utils::maximize,
       },
       petri_net::{petri_net::DefaultPetriNet, place::Place, transition::Transition},
-      relations::triangle_relation::{OfflineTriangleRelation, TriangleRelation},
+      relations::triangle_relation::OfflineTriangleRelation,
     },
   },
   utils::{sets::two_sets::TwoSets, user_data::user_data::UserData},
@@ -165,7 +165,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   let mut p_w = HashSet::new();
   let check_should_add_to_pw = |two_sets: &TwoSets<&String>| {
     for l_w_item in &l_w {
-      if l_w_item.a_classes().eq(&two_sets.first_set()) && l_w_item.b_classes().eq(&two_sets.second_set()) {
+      if l_w_item.a_classes().eq(two_sets.first_set()) && l_w_item.b_classes().eq(two_sets.second_set()) {
         return false;
       }
     }
@@ -195,7 +195,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   for transition in info
     .all_event_classes()
     .iter()
-    .map(|c| *c)
+    .copied()
     .chain(one_length_loop_transitions.iter())
   {
     let id = resulting_net.add_transition(Transition::empty((*transition).to_owned(), false, Some((*transition).to_owned())));
@@ -230,7 +230,7 @@ fn eliminate_by_reduction_rule_1<TLog: EventLog>(
       if (provider.w2_relation(a, b, petri_net) && provider.concave_arrow_relation(b, c))
         || (provider.w2_relation(b, c, petri_net) && provider.concave_arrow_relation(a, b))
       {
-        to_remove.push(w2_relation.clone());
+        to_remove.push(*w2_relation);
       }
     }
   }
@@ -300,7 +300,7 @@ fn eliminate_w3_relations_by_rule_2(w3_relations: &mut HashSet<(&String, &String
   for relation in w3_relations.iter() {
     if let Some(children) = closure_cache.get(relation.0) {
       if children.contains(relation.1) {
-        to_remove.insert(relation.clone());
+        to_remove.insert(*relation);
       }
     }
   }

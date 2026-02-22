@@ -199,7 +199,7 @@ fn create_xes_payload(
         return Err(BxesToXesReadError::ConversionError(message));
       };
 
-      payload.insert(key, bxes_value_to_payload_value(&value));
+      payload.insert(key, bxes_value_to_payload_value(value));
     }
 
     Ok(Some(payload))

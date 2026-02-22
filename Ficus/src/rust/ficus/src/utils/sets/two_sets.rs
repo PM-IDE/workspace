@@ -42,8 +42,8 @@ where
 
   pub fn merge(&self, other: &TwoSets<T>) -> Self {
     Self {
-      first_set: self.first_set.iter().chain(other.first_set.iter()).map(|c| c.clone()).collect(),
-      second_set: self.second_set.iter().chain(other.second_set.iter()).map(|c| c.clone()).collect(),
+      first_set: self.first_set.iter().chain(other.first_set.iter()).cloned().collect(),
+      second_set: self.second_set.iter().chain(other.second_set.iter()).cloned().collect(),
     }
   }
 
@@ -104,8 +104,8 @@ where
 {
   fn clone(&self) -> Self {
     Self {
-      first_set: self.first_set.iter().map(|c| c.clone()).collect(),
-      second_set: self.second_set.iter().map(|c| c.clone()).collect(),
+      first_set: self.first_set.iter().cloned().collect(),
+      second_set: self.second_set.iter().cloned().collect(),
     }
   }
 }
@@ -125,7 +125,7 @@ where
         repr.push(',');
       }
 
-      if set.len() > 0 {
+      if !set.is_empty() {
         repr.remove(repr.len() - 1);
       }
 

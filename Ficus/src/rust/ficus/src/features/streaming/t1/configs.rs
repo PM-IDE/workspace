@@ -9,7 +9,7 @@ impl EventsTimeoutConfiguration {
   }
 
   pub fn timeout_ms(&self) -> u64 {
-    self.timeout_ms.clone()
+    self.timeout_ms
   }
 }
 
@@ -24,7 +24,7 @@ impl TracesTimeoutConfiguration {
   }
 
   pub fn timeout_ms(&self) -> u64 {
-    self.timeout_ms.clone()
+    self.timeout_ms
   }
 }
 
@@ -39,6 +39,6 @@ impl TracesQueueConfiguration {
   }
 
   pub fn queue_capacity(&self) -> u64 {
-    self.queue_capacity.clone()
+    self.queue_capacity
   }
 }

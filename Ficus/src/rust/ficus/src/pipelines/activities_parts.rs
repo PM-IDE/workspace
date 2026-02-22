@@ -94,20 +94,17 @@ impl PipelineParts {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let patterns = Self::get_user_data(context, &PATTERNS_KEY)?;
     let hashed_log = Self::get_user_data(context, &HASHES_EVENT_LOG_KEY)?;
-    let event_class_regex = match Self::get_user_data(config, &EVENT_CLASS_REGEX_KEY) {
-      Ok(regex) => Some(regex),
-      Err(_) => None,
-    };
+    let event_class_regex = Self::get_user_data(config, &EVENT_CLASS_REGEX_KEY).ok();
 
-    let repeat_sets = build_repeat_sets(&hashed_log, patterns);
+    let repeat_sets = build_repeat_sets(hashed_log, patterns);
 
     let underlying_patterns_kind = Self::get_user_data(context, &UNDERLYING_PATTERN_KIND_KEY).unwrap_or(&UnderlyingPatternKind::Unknown);
 
     let tree = build_repeat_set_tree_from_repeats(
-      &hashed_log,
+      hashed_log,
       &repeat_sets,
       activity_level as usize,
-      underlying_patterns_kind.clone(),
+      *underlying_patterns_kind,
       |sub_array| create_activity_name(log, sub_array, event_class_regex),
     );
 
@@ -127,7 +124,7 @@ impl PipelineParts {
     context: &mut PipelineContext,
     config: &UserDataImpl,
   ) -> Result<(), PipelinePartExecutionError> {
-    let mut tree = Self::get_user_data_mut(context, &ACTIVITIES_KEY)?;
+    let tree = Self::get_user_data_mut(context, &ACTIVITIES_KEY)?;
     let narrow = Self::get_user_data(config, &NARROW_ACTIVITIES_KEY)?;
     let hashed_log = Self::get_user_data(context, &HASHES_EVENT_LOG_KEY)?;
     let min_events_in_activity = *Self::get_user_data(config, &MIN_ACTIVITY_LENGTH_KEY)?;
@@ -135,10 +132,10 @@ impl PipelineParts {
     let discover_activities_instances_strict = Self::get_user_data(config, &DISCOVER_ACTIVITY_INSTANCES_STRICT_KEY)?;
 
     let instances = match discover_activities_instances_strict {
-      true => extract_activities_instances_strict(&hashed_log, &tree),
+      true => extract_activities_instances_strict(hashed_log, tree),
       false => extract_activities_instances(
-        &hashed_log,
-        &mut tree,
+        hashed_log,
+        tree,
         narrow,
         min_events_in_activity as usize,
         activity_filter_kind,
@@ -172,10 +169,10 @@ impl PipelineParts {
 
     let log = create_new_log_from_activities_instances(log, instances, &strategy, &|info, events| {
       let stamp = if events.len() == 1 {
-        events.first().unwrap().borrow().timestamp().clone()
+        *events.first().unwrap().borrow().timestamp()
       } else {
-        let first_stamp = events.first().unwrap().borrow().timestamp().clone();
-        let delta: TimeDelta = events.iter().skip(1).map(|e| e.borrow().timestamp().clone() - first_stamp).sum();
+        let first_stamp = *events.first().unwrap().borrow().timestamp();
+        let delta: TimeDelta = events.iter().skip(1).map(|e| *e.borrow().timestamp() - first_stamp).sum();
 
         first_stamp + delta / (events.len() as i32 - 1)
       };
@@ -204,8 +201,8 @@ impl PipelineParts {
       let activity_filter_kind = Self::get_user_data(config, &ACTIVITY_IN_TRACE_FILTER_KIND_KEY)?;
 
       let mut index = 0;
-      for event_class_regex in event_classes.into_iter().rev() {
-        let mut config = UserDataImpl::new();
+      for event_class_regex in event_classes.iter().rev() {
+        let mut config: UserDataImpl = Default::default();
         config.put_concrete(PATTERNS_KIND_KEY.key(), *patterns_kind);
         config.put_concrete(EVENT_CLASS_REGEX_KEY.key(), event_class_regex.to_owned());
         config.put_concrete(ADJUSTING_MODE_KEY.key(), *adjusting_mode);
@@ -237,12 +234,11 @@ impl PipelineParts {
     let adjusting_mode = *Self::get_user_data(config, &ADJUSTING_MODE_KEY)?;
     let log = Self::get_user_data(old_context, &EVENT_LOG_KEY)?;
 
-    let mut new_context = PipelineContext::empty_from(&old_context);
+    let mut new_context = PipelineContext::empty_from(old_context);
 
     if adjusting_mode == AdjustingMode::FromUnattachedSubTraces {
-      match Self::get_user_data(old_context, &TRACE_ACTIVITIES_KEY) {
-        Ok(activities) => new_context.put_concrete(EVENT_LOG_KEY.key(), create_log_from_unattached_events(log, activities)),
-        Err(_) => {}
+      if let Ok(activities) = Self::get_user_data(old_context, &TRACE_ACTIVITIES_KEY) {
+        new_context.put_concrete(EVENT_LOG_KEY.key(), create_log_from_unattached_events(log, activities))
       }
     } else {
       new_context.put_concrete(EVENT_LOG_KEY.key(), log.clone());
@@ -341,7 +337,7 @@ impl PipelineParts {
   pub(super) fn execute_with_activities_instances(
     activities: &Vec<ActivityInTraceInfo>,
     trace_len: usize,
-    handler: &mut impl FnMut(SubTraceKind) -> (),
+    handler: &mut impl FnMut(SubTraceKind),
   ) -> Result<(), PipelinePartExecutionError> {
     let mut index = 0usize;
     for activity in activities {
@@ -349,7 +345,7 @@ impl PipelineParts {
         handler(SubTraceKind::Unattached(index, activity.start_pos() - index));
       }
 
-      handler(SubTraceKind::Attached(&activity));
+      handler(SubTraceKind::Attached(activity));
       index = *activity.start_pos() + *activity.length();
     }
 
@@ -423,8 +419,8 @@ impl PipelineParts {
 
       for (activity_name, activity_log) in activities_to_logs {
         let mut temp_context = context.clone();
-        temp_context.put_concrete(&EVENT_LOG_KEY.key(), activity_log.borrow().clone());
-        temp_context.put_concrete(&ACTIVITY_NAME_KEY.key(), activity_name.clone());
+        temp_context.put_concrete(EVENT_LOG_KEY.key(), activity_log.borrow().clone());
+        temp_context.put_concrete(ACTIVITY_NAME_KEY.key(), activity_name.clone());
 
         pipeline.execute(&mut temp_context, infra)?;
       }
@@ -517,7 +513,7 @@ impl PipelineParts {
       let format = Self::get_user_data(config, &LOG_SERIALIZATION_FORMAT_KEY)?;
       let mut log_number = 1;
 
-      for (_, log) in &logs_to_activities {
+      for log in logs_to_activities.values() {
         let save_path = path.join(format!("log_{}.{}", log_number, format.extension()));
         let save_path = save_path.as_os_str().to_str().unwrap();
 
@@ -541,7 +537,7 @@ impl PipelineParts {
 
   pipeline_part!(
     reverse_hierarchy_indices,
-    |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    |context: &mut PipelineContext, _, _config: &UserDataImpl| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
 
       const HIERARCHY_LEVEL: &str = "hierarchy_level_";
@@ -566,7 +562,7 @@ impl PipelineParts {
           let mut updates = vec![];
           let mut event = event.borrow_mut();
           if let Some(payload) = event.payload_map() {
-            let keys = payload.keys().into_iter().filter(|k| k.starts_with(HIERARCHY_LEVEL));
+            let keys = payload.keys().filter(|k| k.starts_with(HIERARCHY_LEVEL));
             for key in keys {
               let level = &key[HIERARCHY_LEVEL.len()..].parse::<usize>().ok().unwrap();
               let new_level = max_level - level;

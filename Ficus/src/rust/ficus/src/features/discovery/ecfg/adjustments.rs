@@ -131,11 +131,11 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
 
   graph.connect_nodes(
     &nodes_ids.start_node,
-    &added_node,
+    added_node,
     NodesConnectionData::new(None, start_node_edge_weight, None),
   );
   graph.connect_nodes(
-    &added_node,
+    added_node,
     &nodes_ids.end_node,
     NodesConnectionData::new(None, end_node_edge_weight, None),
   );
@@ -172,25 +172,25 @@ fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
 fn put_activities_times(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
   let activities_times = collect_start_end_time_activities_data(nodes, graph);
   graph
-    .node_mut(&added_node_id)
+    .node_mut(added_node_id)
     .unwrap()
     .user_data_mut()
     .put_concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key(), activities_times);
 }
 
 fn put_trace_data(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
-  let trace_data = extract_user_data_from(nodes, &graph, &NODE_CORRESPONDING_TRACE_DATA_KEY);
+  let trace_data = extract_user_data_from(nodes, graph, &NODE_CORRESPONDING_TRACE_DATA_KEY);
   graph
-    .node_mut(&added_node_id)
+    .node_mut(added_node_id)
     .unwrap()
     .user_data_mut()
     .put_concrete(NODE_CORRESPONDING_TRACE_DATA_KEY.key(), trace_data);
 }
 
 fn put_software_data(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultGraph) {
-  let software_data = extract_user_data_from(nodes, &graph, &NODE_SOFTWARE_DATA_KEY);
+  let software_data = extract_user_data_from(nodes, graph, &NODE_SOFTWARE_DATA_KEY);
   graph
-    .node_mut(&added_node_id)
+    .node_mut(added_node_id)
     .unwrap()
     .user_data_mut()
     .put_concrete(NODE_SOFTWARE_DATA_KEY.key(), software_data);
@@ -214,14 +214,14 @@ fn put_performance_additional_infos(
     put_performance_annotation_info(
       &nodes_ids.start_node,
       &nodes_ids.first_node,
-      (&nodes_ids.start_node, &added_node_id),
+      (&nodes_ids.start_node, added_node_id),
       performance_map,
       graph,
     );
     put_performance_annotation_info(
       &nodes_ids.last_node,
       &nodes_ids.end_node,
-      (&added_node_id, &nodes_ids.end_node),
+      (added_node_id, &nodes_ids.end_node),
       performance_map,
       graph,
     );
@@ -288,8 +288,8 @@ pub fn adjust_connections<T: PartialEq + Clone + Debug>(
 
   for trace in log {
     for i in 0..trace.len() - 1 {
-      let first_name = name_extractor(&trace[i].event());
-      let second_name = name_extractor(&trace[i + 1].event());
+      let first_name = name_extractor(trace[i].event());
+      let second_name = name_extractor(trace[i + 1].event());
 
       *df_relations.entry((Some(first_name), Some(second_name))).or_insert(0) += 1usize;
     }
