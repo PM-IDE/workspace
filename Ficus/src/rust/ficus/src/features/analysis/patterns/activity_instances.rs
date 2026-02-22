@@ -508,10 +508,7 @@ where
         let trace = log.traces().get(repeat_set.trace_index).unwrap();
         let sub_array = repeat_set.sub_array;
         Some(
-          trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length]
-            .iter()
-            .cloned()
-            .collect(),
+          trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length].to_vec(),
         )
       } else {
         None
@@ -682,10 +679,7 @@ where
   let trace = log.traces().get(sub_array.trace_index).unwrap().borrow();
   let events = trace.events();
 
-  let regex = match class_extractor {
-    Some(extractor) => Some(Regex::new(extractor).unwrap()),
-    None => None,
-  };
+  let regex = class_extractor.map(|extractor| Regex::new(extractor).unwrap());
 
   for index in left..right {
     name.push('(');

@@ -54,6 +54,12 @@ macro_rules! pipeline_part {
   };
 }
 
+impl Default for PipelineParts {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PipelineParts {
   pub fn new() -> Self {
     let parts = vec![
@@ -165,7 +171,7 @@ impl PipelineParts {
   pub fn pipeline_parts_descriptors(&self) -> Vec<PipelinePartDescriptor> {
     let mut descriptors = vec![];
     for factory in self.names_to_parts.values() {
-      let name = factory(Box::new(Default::default())).name().to_owned();
+      let name = factory(Box::default()).name().to_owned();
       descriptors.push(PipelinePartDescriptor::new(name))
     }
 

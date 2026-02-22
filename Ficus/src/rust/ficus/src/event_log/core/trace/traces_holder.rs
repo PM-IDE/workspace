@@ -22,7 +22,7 @@ where
 {
   fn clone(&self) -> Self {
     Self {
-      traces: (&self.traces)
+      traces: self.traces
         .iter()
         .map(|ptr| Rc::new(RefCell::new(ptr.borrow().clone())))
         .collect(),

@@ -164,7 +164,7 @@ where
 
   let mut activity_nodes = repeats
     .iter()
-    .map(|repeat| create_activity_node(repeat))
+    .map(create_activity_node)
     .collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
   activity_nodes.sort_by(|first, second| second.borrow().len().cmp(&first.borrow().len()));

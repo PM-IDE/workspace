@@ -27,16 +27,12 @@ pub enum OcelAnnotationCreationError {
 }
 
 #[derive(Getters)]
+#[derive(Default)]
 pub struct NodeObjectsState {
   #[getset(get = "pub")]
   map: HashMap<HeapedOrOwned<String>, HashSet<HeapedOrOwned<String>>>,
 }
 
-impl Default for NodeObjectsState {
-  fn default() -> Self {
-    Self { map: Default::default() }
-  }
-}
 
 impl NodeObjectsState {
   pub fn add_allocated_object(

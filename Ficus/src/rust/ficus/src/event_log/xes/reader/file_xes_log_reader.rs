@@ -174,14 +174,8 @@ impl<'a> FromFileXesEventLogReader<'a> {
 
   fn try_read_tag(tag: &BytesStart) -> Option<XesEventLogItem<'a>> {
     let result = match tag.name().as_ref() {
-      EXTENSION_TAG_NAME => match Self::try_read_extension(tag) {
-        Some(extension) => Some(XesEventLogItem::Extension(extension)),
-        None => None,
-      },
-      CLASSIFIER_TAG_NAME => match Self::try_read_classifier(tag) {
-        Some(classifier) => Some(XesEventLogItem::Classifier(classifier)),
-        None => None,
-      },
+      EXTENSION_TAG_NAME => Self::try_read_extension(tag).map(XesEventLogItem::Extension),
+      CLASSIFIER_TAG_NAME => Self::try_read_classifier(tag).map(XesEventLogItem::Classifier),
       _ => None,
     };
 

@@ -25,7 +25,7 @@ impl PipelineParts {
   ) -> Result<(), PipelinePartExecutionError> {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
     let attributes_to_copy = match Self::get_user_data(config, &ATTRIBUTES_KEY) {
-      Ok(attributes_to_copy) => Some(attributes_to_copy.iter().cloned().collect()),
+      Ok(attributes_to_copy) => Some(attributes_to_copy.to_vec()),
       Err(_) => None,
     };
 

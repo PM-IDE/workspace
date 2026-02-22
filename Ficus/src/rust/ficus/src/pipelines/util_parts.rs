@@ -40,7 +40,7 @@ impl PipelineParts {
         let hasher = RegexEventHasher::new(regex).ok().unwrap();
         log.to_hashes_event_log(&hasher)
       }
-      Err(_) => log.to_hashes_event_log(&NameEventHasher::default()),
+      Err(_) => log.to_hashes_event_log(&NameEventHasher),
     }
   }
 
