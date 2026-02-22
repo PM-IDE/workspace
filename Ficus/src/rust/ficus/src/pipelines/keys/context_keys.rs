@@ -13,9 +13,9 @@ use crate::{
     cases::CaseName,
     clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
     discovery::{
+      ecfg::models::RootSequenceKind,
       ocel::graph_annotation::OcelAnnotation,
       petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
-      ecfg::models::RootSequenceKind,
       timeline::{discovery::LogTimelineDiagram, software_data::extraction_config::SoftwareDataExtractionConfig},
     },
   },

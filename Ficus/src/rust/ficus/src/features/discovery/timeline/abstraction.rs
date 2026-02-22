@@ -152,10 +152,10 @@ fn put_node_user_data(
     .put_concrete(NODE_SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
   let first_stamp = get_stamp(&event_group.control_flow_events().first().unwrap().borrow(), time_attribute)
-    .map_err(|e| PipelinePartExecutionError::from(e))?;
+    .map_err(PipelinePartExecutionError::from)?;
 
   let last_stamp = get_stamp(&event_group.control_flow_events().last().unwrap().borrow(), time_attribute)
-    .map_err(|e| PipelinePartExecutionError::from(e))?;
+    .map_err(PipelinePartExecutionError::from)?;
 
   let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
@@ -185,11 +185,11 @@ fn put_edge_user_data(
     .user_data_mut()
     .put_concrete(EDGE_SOFTWARE_DATA_KEY.key(), vec![edge_software_data]);
 
-  let first_stamp = get_stamp(&after_group_events.first().unwrap().borrow(), time_attribute)
-    .map_err(|e| PipelinePartExecutionError::from(e))?;
+  let first_stamp =
+    get_stamp(&after_group_events.first().unwrap().borrow(), time_attribute).map_err(PipelinePartExecutionError::from)?;
 
-  let last_stamp = get_stamp(&after_group_events.last().unwrap().borrow(), time_attribute)
-    .map_err(|e| PipelinePartExecutionError::from(e))?;
+  let last_stamp =
+    get_stamp(&after_group_events.last().unwrap().borrow(), time_attribute).map_err(PipelinePartExecutionError::from)?;
 
   let edge_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
 

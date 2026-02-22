@@ -2,11 +2,13 @@ use crate::test_core::simple_events_logs_provider::{annotate_log_with_real_time,
 use chrono::{Duration, Utc};
 use ficus::{
   event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
+  features::streaming::t1::{
+    configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration},
+    filterers::{EventsTimeoutFiltererImpl, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl},
+  },
   vecs,
 };
 use std::ops::Sub;
-use ficus::features::streaming::t1::configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration};
-use ficus::features::streaming::t1::filterers::{EventsTimeoutFiltererImpl, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl};
 
 #[test]
 pub fn events_filterer_test() {

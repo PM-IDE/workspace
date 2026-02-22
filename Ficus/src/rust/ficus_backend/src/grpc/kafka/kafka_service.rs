@@ -194,7 +194,11 @@ impl KafkaService {
     }
 
     match consumer.consume() {
-      Ok(trace) => if let Some(trace) = trace { Self::process_kafka_trace(trace, dto) },
+      Ok(trace) => {
+        if let Some(trace) = trace {
+          Self::process_kafka_trace(trace, dto)
+        }
+      }
       Err(err) => {
         print!("Failed to read messages from kafka: {:?}", err)
       }

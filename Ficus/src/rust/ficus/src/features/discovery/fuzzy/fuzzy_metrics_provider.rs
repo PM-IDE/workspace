@@ -80,10 +80,7 @@ where
 
     result = if count != 0 { result / (count as f64) } else { 0.0 };
 
-    self
-      .caches
-      .cache_mut(PROXIMITY_CORRELATION)
-      .put(first_class, second_class, result);
+    self.caches.cache_mut(PROXIMITY_CORRELATION).put(first_class, second_class, result);
 
     result
   }

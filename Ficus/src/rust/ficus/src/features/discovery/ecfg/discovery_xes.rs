@@ -18,8 +18,7 @@ use crate::{
         },
         discovery::{create_new_graph_node, discover_ecfg},
         models::{
-          CorrespondingTraceData, DiscoverECFGError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer,
-          RootSequenceKind,
+          CorrespondingTraceData, DiscoverECFGError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer, RootSequenceKind,
         },
       },
       petri_net::annotations::create_performance_map,
@@ -177,7 +176,10 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
 
         let graph = Rc::new(Box::new(graph));
 
-        let base_sequence = pattern.value().base_pattern().map(|base_pattern| base_pattern.iter().map(|e| e.borrow().name().to_owned()).collect());
+        let base_sequence = pattern
+          .value()
+          .base_pattern()
+          .map(|base_pattern| base_pattern.iter().map(|e| e.borrow().name().to_owned()).collect());
 
         let pattern_graph_info = UnderlyingPatternGraphInfo::new(*pattern.value().pattern_kind(), base_sequence, graph);
         let pattern_graph_info = NodeAdditionalDataContainer::new(pattern_graph_info, *pattern.original_event_coordinates());

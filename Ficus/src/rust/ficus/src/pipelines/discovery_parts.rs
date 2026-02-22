@@ -10,11 +10,11 @@ use crate::{
         alpha_plus_plus_nfc::alpha_plus_plus_nfc::discover_petri_net_alpha_plus_plus_nfc,
         providers::{alpha_plus_provider::AlphaPlusRelationsProviderImpl, alpha_provider::DefaultAlphaRelationsProvider},
       },
+      ecfg::discovery_xes::discover_ecfg_from_event_log,
       fuzzy::fuzzy_miner::discover_graph_fuzzy,
       heuristic::heuristic_miner::discover_petri_net_heuristic,
       petri_net::{marking::ensure_initial_marking, pnml_serialization::serialize_to_pnml_file},
       relations::triangle_relation::OfflineTriangleRelation,
-      ecfg::discovery_xes::discover_ecfg_from_event_log,
     },
   },
   pipeline_part,
@@ -198,20 +198,17 @@ impl PipelineParts {
     Ok(())
   });
 
-  pipeline_part!(
-    discover_ecfg,
-    |context: &mut PipelineContext, _, config: &UserDataImpl| {
-      let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-      let root_sequence_kind = Self::get_user_data(config, &ROOT_SEQUENCE_KIND_KEY)?;
-      let merge_sequences_of_events = Self::get_user_data(config, &MERGE_SEQUENCES_OF_EVENTS_KEY)?;
+  pipeline_part!(discover_ecfg, |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
+    let root_sequence_kind = Self::get_user_data(config, &ROOT_SEQUENCE_KIND_KEY)?;
+    let merge_sequences_of_events = Self::get_user_data(config, &MERGE_SEQUENCES_OF_EVENTS_KEY)?;
 
-      match discover_ecfg_from_event_log(log, *root_sequence_kind, *merge_sequences_of_events) {
-        Ok(graph) => {
-          context.put_concrete(GRAPH_KEY.key(), graph);
-          Ok(())
-        }
-        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+    match discover_ecfg_from_event_log(log, *root_sequence_kind, *merge_sequences_of_events) {
+      Ok(graph) => {
+        context.put_concrete(GRAPH_KEY.key(), graph);
+        Ok(())
       }
+      Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
     }
-  );
+  });
 }

@@ -21,7 +21,7 @@ struct UserDataValue {
   key_name: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UserDataImpl {
   values_map: Option<HashMap<u64, UserDataValue>>,
 }
@@ -98,24 +98,19 @@ impl UserData for UserDataImpl {
   }
 
   fn items(&self) -> Option<Vec<(Box<dyn Key>, &dyn Any)>> {
-    self.values_map.as_ref().map(|map| map
-          .iter()
-          .map(|(k, v)| {
-            let key = Box::new(DefaultKey::<()>::existing(*k, v.key_name.to_owned()));
+    self.values_map.as_ref().map(|map| {
+      map
+        .iter()
+        .map(|(k, v)| {
+          let key = Box::new(DefaultKey::<()>::existing(*k, v.key_name.to_owned()));
 
-            unsafe { (key as Box<dyn Key>, v.value().as_ref().try_borrow_unguarded().ok().unwrap()) }
-          })
-      .collect())
+          unsafe { (key as Box<dyn Key>, v.value().as_ref().try_borrow_unguarded().ok().unwrap()) }
+        })
+        .collect()
+    })
   }
 }
 
-impl Default for UserDataImpl {
-  fn default() -> Self {
-    Self {
-      values_map: Default::default()
-    }
-  }
-}
 
 impl UserDataImpl {
   fn initialize_values_map(&mut self) {

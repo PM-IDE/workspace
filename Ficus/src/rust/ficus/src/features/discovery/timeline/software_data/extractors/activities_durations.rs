@@ -286,7 +286,11 @@ fn process_events(
           for prev_data in previous_data.iter_mut() {
             if let Some(prev_data) = prev_data.as_mut() {
               let duration = (prev_data.end_time - prev_data.start_time) as u64;
-              prev_data.map.entry(info.base().name().to_string()).or_insert((0u64, info.clone())).0 += duration;
+              prev_data
+                .map
+                .entry(info.base().name().to_string())
+                .or_insert((0u64, info.clone()))
+                .0 += duration;
             }
           }
         }

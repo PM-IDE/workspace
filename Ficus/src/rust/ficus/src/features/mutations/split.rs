@@ -1,8 +1,10 @@
 use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
-use std::collections::hash_map::Entry;
 use std::{
   cell::RefCell,
-  collections::{hash_map::DefaultHasher, HashMap},
+  collections::{
+    hash_map::{DefaultHasher, Entry},
+    HashMap,
+  },
   hash::{Hash, Hasher},
   rc::Rc,
 };

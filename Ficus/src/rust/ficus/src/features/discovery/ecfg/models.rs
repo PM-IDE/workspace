@@ -38,13 +38,9 @@ impl FromStr for RootSequenceKind {
 impl Display for DiscoverECFGError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      DiscoverECFGError::NoArtificialStartEndEvents => {
-        f.write_str("All traces in event log must have artificial start-end events")
-      }
+      DiscoverECFGError::NoArtificialStartEndEvents => f.write_str("All traces in event log must have artificial start-end events"),
       DiscoverECFGError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
-      DiscoverECFGError::NotSingleCandidateForNextNode => {
-        f.write_str("There were several or zero candidates for next node during replay")
-      }
+      DiscoverECFGError::NotSingleCandidateForNextNode => f.write_str("There were several or zero candidates for next node during replay"),
     }
   }
 }

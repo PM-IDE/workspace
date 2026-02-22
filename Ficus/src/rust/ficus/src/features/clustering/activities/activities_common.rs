@@ -159,7 +159,9 @@ fn create_dataset_internal(
   ) -> Result<HashMap<String, (Rc<RefCell<ActivityNode>>, HashMap<String, usize>)>, ClusteringError>,
 ) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
   let mut all_event_classes = HashSet::new();
-  let regex_hasher = class_extractor.as_ref().map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
+  let regex_hasher = class_extractor
+    .as_ref()
+    .map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
 
   let processed = activities_repr_fullfiller(traces_activities, regex_hasher.as_ref(), &mut all_event_classes)?;
 

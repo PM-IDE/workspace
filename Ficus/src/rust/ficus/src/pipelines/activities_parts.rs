@@ -133,13 +133,7 @@ impl PipelineParts {
 
     let instances = match discover_activities_instances_strict {
       true => extract_activities_instances_strict(hashed_log, tree),
-      false => extract_activities_instances(
-        hashed_log,
-        tree,
-        narrow,
-        min_events_in_activity as usize,
-        activity_filter_kind,
-      ),
+      false => extract_activities_instances(hashed_log, tree, narrow, min_events_in_activity as usize, activity_filter_kind),
     };
 
     context.put_concrete(TRACE_ACTIVITIES_KEY.key(), instances);
@@ -200,13 +194,13 @@ impl PipelineParts {
       let min_events_in_activity = Self::get_user_data(config, &MIN_ACTIVITY_LENGTH_KEY)?;
       let activity_filter_kind = Self::get_user_data(config, &ACTIVITY_IN_TRACE_FILTER_KIND_KEY)?;
 
-      let mut index = 0;
-      for event_class_regex in event_classes.iter().rev() {
+      for (index, event_class_regex) in event_classes.iter().rev().enumerate() {
         let mut config: UserDataImpl = Default::default();
+
         config.put_concrete(PATTERNS_KIND_KEY.key(), *patterns_kind);
         config.put_concrete(EVENT_CLASS_REGEX_KEY.key(), event_class_regex.to_owned());
         config.put_concrete(ADJUSTING_MODE_KEY.key(), *adjusting_mode);
-        config.put_concrete(ACTIVITY_LEVEL_KEY.key(), initial_activity_level + index);
+        config.put_concrete(ACTIVITY_LEVEL_KEY.key(), initial_activity_level + index as u32);
         config.put_concrete(PATTERNS_DISCOVERY_STRATEGY_KEY.key(), *patterns_discovery_strategy);
         config.put_concrete(NARROW_ACTIVITIES_KEY.key(), *narrow_activities);
         config.put_concrete(EVENTS_COUNT_KEY.key(), *events_count);
@@ -214,8 +208,6 @@ impl PipelineParts {
         config.put_concrete(ACTIVITY_IN_TRACE_FILTER_KIND_KEY.key(), *activity_filter_kind);
 
         Self::adjust_with_activities_from_unattached_events(context, infra, &config)?;
-
-        index += 1;
       }
 
       Ok(())

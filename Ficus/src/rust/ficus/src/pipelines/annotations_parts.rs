@@ -31,12 +31,7 @@ impl PipelineParts {
   pipeline_part!(
     annotate_petri_net_count,
     |context: &mut PipelineContext, _, config: &UserDataImpl| {
-      Self::annotate_petri_net(
-        &PETRI_NET_COUNT_ANNOTATION_KEY,
-        context,
-        config,
-        annotate_with_counts,
-      )
+      Self::annotate_petri_net(&PETRI_NET_COUNT_ANNOTATION_KEY, context, config, annotate_with_counts)
     }
   );
 
@@ -63,12 +58,7 @@ impl PipelineParts {
   pipeline_part!(
     annotate_petri_net_frequency,
     |context: &mut PipelineContext, _, config: &UserDataImpl| {
-      Self::annotate_petri_net(
-        &PETRI_NET_FREQUENCY_ANNOTATION_KEY,
-        context,
-        config,
-        annotate_with_frequencies,
-      )
+      Self::annotate_petri_net(&PETRI_NET_FREQUENCY_ANNOTATION_KEY, context, config, annotate_with_frequencies)
     }
   );
 

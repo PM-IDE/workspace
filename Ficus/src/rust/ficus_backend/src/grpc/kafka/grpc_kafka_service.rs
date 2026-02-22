@@ -16,8 +16,8 @@ use crate::{
     kafka::{kafka_service::KafkaService, models::PipelineExecutionDto},
   },
 };
-use ficus::features::cases::CaseName;
 use ficus::{
+  features::cases::CaseName,
   pipelines::{
     keys::context_keys::{CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY},
     pipeline_parts::PipelineParts,

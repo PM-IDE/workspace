@@ -15,19 +15,15 @@ pub struct StreamQueue<T> {
 }
 
 impl<T> Default for StreamQueue<T> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<T> StreamQueue<T> {
-  pub fn new() -> Self {
+  fn default() -> Self {
     Self {
       queue: VecDeque::new(),
       is_active: AtomicBool::new(true),
     }
   }
+}
 
+impl<T> StreamQueue<T> {
   pub fn is_active(&self) -> bool {
     self.is_active.load(Ordering::SeqCst)
   }
@@ -58,15 +54,15 @@ impl<T> Stream for AsyncStreamQueue<T> {
 }
 
 impl<T> Default for AsyncStreamQueue<T> {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl<T> AsyncStreamQueue<T> {
   pub fn new() -> Self {
     Self {
-      queue: Arc::new(Mutex::new(StreamQueue::new())),
+      queue: Arc::new(Mutex::new(StreamQueue::default())),
     }
   }
 

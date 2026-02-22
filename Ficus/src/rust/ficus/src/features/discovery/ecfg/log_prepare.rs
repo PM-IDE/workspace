@@ -62,9 +62,7 @@ pub fn prepare_software_log(
           };
 
           if index + 1 < last_stamp_index {
-            group.set_after_group_events(Some(
-              trace.events()[index + 1..last_stamp_index].iter().cloned().collect(),
-            ));
+            group.set_after_group_events(Some(trace.events()[index + 1..last_stamp_index].to_vec()));
           }
         }
 

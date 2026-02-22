@@ -89,7 +89,11 @@ impl DfgDataStructureBase {
   }
 
   pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
-    self.traces_last_event_classes.borrow().get(case_id).map(|value| value.value().unwrap().to_owned())
+    self
+      .traces_last_event_classes
+      .borrow()
+      .get(case_id)
+      .map(|value| value.value().unwrap().to_owned())
   }
 
   pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {

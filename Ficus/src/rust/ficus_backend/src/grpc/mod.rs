@@ -3,7 +3,7 @@ pub mod context_values_service;
 pub mod converters;
 pub mod events;
 pub mod get_context_pipeline;
+pub mod grpc_utils;
 pub mod kafka;
 pub mod logs_handler;
 pub mod pipeline_executor;
-pub mod grpc_utils;

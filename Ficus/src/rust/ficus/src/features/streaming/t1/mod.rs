@@ -1,2 +1,2 @@
-﻿pub mod configs;
+pub mod configs;
 pub mod filterers;

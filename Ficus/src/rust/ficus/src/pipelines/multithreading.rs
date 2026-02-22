@@ -11,10 +11,10 @@ use crate::{
     analysis::log_info::event_log_info::create_threads_log_by_attribute,
     clustering::traces::dbscan::clusterize_log_by_traces_dbscan,
     discovery::{
+      ecfg::log_prepare::prepare_software_log,
       multithreaded_dfg::dfg::{
         discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy,
       },
-      ecfg::log_prepare::prepare_software_log,
       timeline::{
         abstraction::abstract_event_groups,
         discovery::{discover_timeline_diagram, discover_traces_timeline_diagram},
@@ -266,8 +266,7 @@ impl PipelineParts {
         Err(err) => {
           return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(format!(
             "Failed to create regex from {}, error: {}",
-            alloc_regex,
-            err
+            alloc_regex, err
           ))))
         }
       };

@@ -64,10 +64,12 @@ impl ContextValueService {
     let context_values = self.context_values.lock();
     let context_values = context_values.as_ref().expect("Must acquire lock");
 
-    context_values.get(key).map(|value| (
+    context_values.get(key).map(|value| {
+      (
         value.key.as_ref().unwrap().name.clone(),
         value.value.as_ref().unwrap().encode_to_vec(),
-    ))
+      )
+    })
   }
 }
 

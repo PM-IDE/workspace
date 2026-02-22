@@ -1,4 +1,3 @@
-
 #[derive(Clone, Debug)]
 pub struct CaseName {
   pub display_name: String,

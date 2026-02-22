@@ -141,11 +141,7 @@ pub fn create_performance_map(log: &impl EventLog) -> PerformanceMap {
   performance_map
 }
 
-pub fn annotate_with_time_performance(
-  log: &impl EventLog,
-  graph: &DefaultGraph,
-  kind: TimeAnnotationKind,
-) -> Option<HashMap<u64, f64>> {
+pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph, kind: TimeAnnotationKind) -> Option<HashMap<u64, f64>> {
   let performance_map = create_performance_map(log);
 
   let mut time_annotations = HashMap::new();

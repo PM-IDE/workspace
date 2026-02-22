@@ -7,14 +7,16 @@ use crate::{
     logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl},
   },
 };
-use ficus::pipelines::{
-  context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
-  errors::pipeline_errors::PipelinePartExecutionError,
-  keys::context_keys::{find_context_key, EXECUTION_ID_KEY},
-  pipeline_parts::PipelineParts,
-  pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
+use ficus::{
+  pipelines::{
+    context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
+    errors::pipeline_errors::PipelinePartExecutionError,
+    keys::context_keys::{find_context_key, EXECUTION_ID_KEY},
+    pipeline_parts::PipelineParts,
+    pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
+  },
+  utils::user_data::user_data::{UserData, UserDataImpl},
 };
-use ficus::utils::user_data::user_data::{UserData, UserDataImpl};
 use std::{str::FromStr, sync::Arc};
 use uuid::Uuid;
 
@@ -172,7 +174,10 @@ impl<'a> ServicePipelineExecutionContext<'a> {
       }
     }
 
-    self.parts().find_part(&grpc_default_part.name).map(|default_part| Box::new(default_part(Box::new(part_config))))
+    self
+      .parts()
+      .find_part(&grpc_default_part.name)
+      .map(|default_part| Box::new(default_part(Box::new(part_config))))
   }
 
   pub(super) fn create_initial_context(&'a self) -> PipelineContext<'a> {

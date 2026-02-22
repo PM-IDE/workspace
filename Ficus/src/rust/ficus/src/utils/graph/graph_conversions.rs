@@ -4,8 +4,7 @@ use crate::utils::{
     graph_edge::GraphEdge,
     graph_node::GraphNode,
   },
-  references::HeapedOrOwned
-  ,
+  references::HeapedOrOwned,
 };
 use std::{collections::HashMap, fmt::Display};
 

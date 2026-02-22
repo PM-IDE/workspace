@@ -6,13 +6,13 @@ use crate::grpc::{
   logs_handler::ConsoleLogMessageHandler,
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
-use ficus::features::streaming::t1::filterers::T1LogFilterer;
 use ficus::{
   event_log::{
     bxes::bxes_to_xes_converter::read_bxes_events,
     core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
     xes::{xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
   },
+  features::streaming::t1::filterers::T1LogFilterer,
   pipelines::{
     context::{LogMessageHandler, PipelineContext},
     keys::context_keys::EVENT_LOG_KEY,

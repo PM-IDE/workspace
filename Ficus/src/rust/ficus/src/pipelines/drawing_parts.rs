@@ -123,95 +123,89 @@ impl PipelineParts {
     }
   );
 
-  pipeline_part!(
-    draw_full_activities_diagram,
-    |context: &mut PipelineContext, _, _| {
-      let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
+  pipeline_part!(draw_full_activities_diagram, |context: &mut PipelineContext, _, _| {
+    let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
 
-      let mut traces = vec![];
-      let mut mapping = HashMap::new();
-      mapping.insert(UNDEF_ACTIVITY_NAME.to_string(), Color::black());
+    let mut traces = vec![];
+    let mut mapping = HashMap::new();
+    mapping.insert(UNDEF_ACTIVITY_NAME.to_string(), Color::black());
 
-      for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
-        let mut colors_trace = vec![];
-        let trace_length = trace.borrow().events().len();
+    for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
+      let mut colors_trace = vec![];
+      let trace_length = trace.borrow().events().len();
 
-        Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| match sub_trace {
+      Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| match sub_trace {
+        SubTraceKind::Attached(activity) => {
+          let color = colors_holder.get_or_create(activity.node().borrow().name());
+          let name = activity.node().borrow().name().clone();
+          if !mapping.contains_key(name.as_ref().as_ref()) {
+            mapping.insert(name.as_ref().as_ref().to_owned(), color);
+          }
+
+          let name = HeapedOrOwned::Heaped(name);
+          colors_trace.push(ColoredRectangle::new(name, *activity.start_pos() as f64, *activity.length() as f64));
+        }
+        SubTraceKind::Unattached(start_pos, length) => {
+          colors_trace.push(ColoredRectangle::new(
+            HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_string()),
+            start_pos as f64,
+            length as f64,
+          ));
+        }
+      })?;
+
+      traces.push(colors_trace);
+    }
+
+    context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
+
+    Ok(())
+  });
+
+  pipeline_part!(draw_short_activities_diagram, |context: &mut PipelineContext, _, _| {
+    let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
+
+    let mut traces = vec![];
+    let mut mapping = HashMap::new();
+    mapping.insert(UNDEF_ACTIVITY_NAME.to_owned(), Color::black());
+
+    for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
+      let mut colors_trace = vec![];
+      let mut index = 0;
+      let trace_length = trace.borrow().events().len();
+      Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| {
+        match sub_trace {
           SubTraceKind::Attached(activity) => {
             let color = colors_holder.get_or_create(activity.node().borrow().name());
-            let name = activity.node().borrow().name().clone();
-            if !mapping.contains_key(name.as_ref().as_ref()) {
-              mapping.insert(name.as_ref().as_ref().to_owned(), color);
+            let name = activity.node().borrow().name().to_owned();
+
+            if !mapping.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
+              mapping.insert(activity.node().borrow().name().as_ref().as_ref().to_owned(), color);
             }
 
             let name = HeapedOrOwned::Heaped(name);
-            colors_trace.push(ColoredRectangle::new(name, *activity.start_pos() as f64, *activity.length() as f64));
+            colors_trace.push(ColoredRectangle::new(name, index as f64, 1.));
           }
-          SubTraceKind::Unattached(start_pos, length) => {
-            colors_trace.push(ColoredRectangle::new(
-              HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_string()),
-              start_pos as f64,
-              length as f64,
-            ));
+          SubTraceKind::Unattached(_, _) => {
+            let ptr = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
+            colors_trace.push(ColoredRectangle::new(ptr, index as f64, 1.));
           }
-        })?;
+        }
 
-        traces.push(colors_trace);
-      }
+        index += 1;
+      })?;
 
-      context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
-
-      Ok(())
+      traces.push(colors_trace);
     }
-  );
 
-  pipeline_part!(
-    draw_short_activities_diagram,
-    |context: &mut PipelineContext, _, _| {
-      let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
+    context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
-      let mut traces = vec![];
-      let mut mapping = HashMap::new();
-      mapping.insert(UNDEF_ACTIVITY_NAME.to_owned(), Color::black());
-
-      for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
-        let mut colors_trace = vec![];
-        let mut index = 0;
-        let trace_length = trace.borrow().events().len();
-        Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| {
-          match sub_trace {
-            SubTraceKind::Attached(activity) => {
-              let color = colors_holder.get_or_create(activity.node().borrow().name());
-              let name = activity.node().borrow().name().to_owned();
-
-              if !mapping.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
-                mapping.insert(activity.node().borrow().name().as_ref().as_ref().to_owned(), color);
-              }
-
-              let name = HeapedOrOwned::Heaped(name);
-              colors_trace.push(ColoredRectangle::new(name, index as f64, 1.));
-            }
-            SubTraceKind::Unattached(_, _) => {
-              let ptr = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
-              colors_trace.push(ColoredRectangle::new(ptr, index as f64, 1.));
-            }
-          }
-
-          index += 1;
-        })?;
-
-        traces.push(colors_trace);
-      }
-
-      context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
-
-      Ok(())
-    }
-  );
+    Ok(())
+  });
 
   pipeline_part!(
     traces_diversity_diagram_by_attribute,

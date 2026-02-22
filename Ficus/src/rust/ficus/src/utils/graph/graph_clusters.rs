@@ -24,12 +24,7 @@ where
     let new_incoming_edges_merged = self.find_incoming_edges(cluster_nodes, &edge_data_merger);
     let new_outgoing_edges_merged = self.find_outgoing_edges(cluster_nodes, &edge_data_merger);
 
-    self.adjust_transitions_for_cluster(
-      cluster_nodes,
-      new_node_id,
-      new_incoming_edges_merged,
-      new_outgoing_edges_merged,
-    );
+    self.adjust_transitions_for_cluster(cluster_nodes, new_node_id, new_incoming_edges_merged, new_outgoing_edges_merged);
   }
 
   fn find_incoming_edges(

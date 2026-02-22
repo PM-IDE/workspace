@@ -206,7 +206,10 @@ pub(super) fn put_into_user_data(
 
           let mut xes_event = XesEventImpl::new(event.name.to_owned(), date);
           for attribute in &event.attributes {
-            let payload_value = attribute.value.as_ref().map(convert_grpc_event_attribute_to_xes_event_payload_value);
+            let payload_value = attribute
+              .value
+              .as_ref()
+              .map(convert_grpc_event_attribute_to_xes_event_payload_value);
 
             if let Some(xes_attribute) = payload_value {
               xes_event.add_or_update_payload(attribute.key.clone(), xes_attribute)
@@ -684,11 +687,7 @@ fn convert_to_grpc_arc<TArcData>(arc: &Arc<TArcData>) -> GrpcPetriNetArc {
 
 fn try_convert_to_grpc_marking(marking: Option<&Marking>) -> Option<GrpcPetriNetMarking> {
   marking.map(|marking| GrpcPetriNetMarking {
-      markings: marking
-        .active_places()
-        .iter()
-        .map(convert_to_grpc_single_marking)
-        .collect(),
+    markings: marking.active_places().iter().map(convert_to_grpc_single_marking).collect(),
   })
 }
 
@@ -766,11 +765,7 @@ fn convert_to_grpc_graph_node_additional_data(user_data: &UserDataImpl) -> Vec<G
   }
 
   if let Some(activities_start_end_data) = user_data.concrete(NODE_START_END_ACTIVITIES_TIMES_KEY.key()) {
-    additional_data.extend(
-      activities_start_end_data
-        .iter()
-        .map(convert_to_grpc_node_activity_start_end_data),
-    )
+    additional_data.extend(activities_start_end_data.iter().map(convert_to_grpc_node_activity_start_end_data))
   }
 
   if let Some(underlying_patterns_infos) = user_data.concrete(NODE_UNDERLYING_PATTERNS_GRAPHS_INFO_KEY.key()) {
@@ -941,11 +936,7 @@ fn convert_to_grpc_graph_node_software_data(software_data: &NodeAdditionalDataCo
 fn convert_to_grpc_software_data(software_data: &SoftwareData) -> GrpcSoftwareData {
   GrpcSoftwareData {
     histogram: convert_to_grpc_histogram_entries(software_data.event_classes()),
-    histogram_data: software_data
-      .histograms()
-      .iter()
-      .map(convert_to_grpc_histogram_data)
-      .collect(),
+    histogram_data: software_data.histograms().iter().map(convert_to_grpc_histogram_data).collect(),
 
     simple_counter_data: software_data
       .simple_counters()

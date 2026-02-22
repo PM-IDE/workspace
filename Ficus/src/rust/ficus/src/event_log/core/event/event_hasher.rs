@@ -14,13 +14,9 @@ where
   fn hash(&self, event: &TEvent) -> u64;
 }
 
+#[derive(Default)]
 pub struct NameEventHasher;
 
-impl Default for NameEventHasher {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl<TEvent> EventHasher<TEvent> for NameEventHasher
 where

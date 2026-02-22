@@ -509,7 +509,8 @@ where
         let sub_array = repeat_set.sub_array;
         Some(
           trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length]
-            .iter().cloned()
+            .iter()
+            .cloned()
             .collect(),
         )
       } else {

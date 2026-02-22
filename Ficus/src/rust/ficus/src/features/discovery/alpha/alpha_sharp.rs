@@ -204,12 +204,7 @@ impl<'a> Clone for AlphaSharpTuple<'a> {
     let construct_set = |set: &AlphaSharpSet<'a>| -> AlphaSharpSet<'a> {
       set
         .iter()
-        .map(|t| {
-          (
-            BTreeSet::from_iter(t.0.iter().copied()),
-            BTreeSet::from_iter(t.0.iter().copied()),
-          )
-        })
+        .map(|t| (BTreeSet::from_iter(t.0.iter().copied()), BTreeSet::from_iter(t.0.iter().copied())))
         .collect()
     };
 

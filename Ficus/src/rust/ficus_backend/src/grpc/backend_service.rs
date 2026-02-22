@@ -139,10 +139,7 @@ impl GrpcBackendService for FicusService {
     match self.contexts.lock().as_ref().unwrap().get(&id.guid) {
       None => Err(Status::not_found("The context values for supplied execution id are not found")),
       Some(keys_to_cv_ids) => Ok(Response::new(GrpcGetAllContextValuesResult {
-        context_values: keys_to_cv_ids
-          .values()
-          .map(|id| GrpcGuid { guid: id.to_string() })
-          .collect(),
+        context_values: keys_to_cv_ids.values().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
       })),
     }
   }

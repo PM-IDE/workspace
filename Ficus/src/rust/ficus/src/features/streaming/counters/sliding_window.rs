@@ -46,7 +46,8 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
   }
 
   fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
-    self.storage
+    self
+      .storage
       .get(key)
       .map(|entry| entry.to_streaming_counter_entry(key.clone(), entry.count as f64 / self.counts_sum() as f64))
   }

@@ -139,7 +139,8 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
   feature_count_kind: FeatureCountKind,
   trace_repr_creator: impl Fn(&TLog::TTrace) -> Vec<Rc<RefCell<TLog::TEvent>>>,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
-  let regex_hasher = class_extractor.as_ref()
+  let regex_hasher = class_extractor
+    .as_ref()
     .map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
 
   let mut processed_traces = vec![];
@@ -226,7 +227,9 @@ fn create_traces_dataset_levenshtein_internal<TLog: EventLog>(
   class_extractor: Option<&String>,
   trace_repr_creator: impl Fn(&TLog::TTrace) -> Vec<Rc<RefCell<TLog::TEvent>>>,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
-  let regex_hasher = class_extractor.as_ref().map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
+  let regex_hasher = class_extractor
+    .as_ref()
+    .map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
 
   let mut processed_traces = vec![];
   for trace in log.traces() {
@@ -310,10 +313,7 @@ impl BestSilhouetteLabels {
     let score = match silhouette_score(&labels, distance_func) {
       Ok(score) => score,
       Err(err) => {
-        warn!(
-          "Failed to calculate silhouette score, skipping those labels, reason: {}",
-          err
-        );
+        warn!("Failed to calculate silhouette score, skipping those labels, reason: {}", err);
         if self.labels.is_none() {
           self.labels = Some(labels);
         }

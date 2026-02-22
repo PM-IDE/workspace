@@ -35,7 +35,8 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
       let name = match start_or_end {
         StartOrEnd::Start => ARTIFICIAL_START_EVENT_NAME,
         StartOrEnd::End => ARTIFICIAL_END_EVENT_NAME,
-      }.to_string();
+      }
+      .to_string();
 
       let artificial_start_event = if events.is_empty() {
         match start_or_end {
@@ -46,7 +47,8 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
         let reference_event = match start_or_end {
           StartOrEnd::Start => events.first(),
           StartOrEnd::End => events.last(),
-        }.expect("!events.is_empty()");
+        }
+        .expect("!events.is_empty()");
 
         let mut start_event = TLog::TEvent::new(name, *reference_event.borrow().timestamp());
         copy_payload::<TLog>(&reference_event.borrow(), &mut start_event, attributes_to_copy);

@@ -192,12 +192,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
 
   let mut resulting_net = DefaultPetriNet::empty();
   let mut transitions_to_ids = HashMap::new();
-  for transition in info
-    .all_event_classes()
-    .iter()
-    .copied()
-    .chain(one_length_loop_transitions.iter())
-  {
+  for transition in info.all_event_classes().iter().copied().chain(one_length_loop_transitions.iter()) {
     let id = resulting_net.add_transition(Transition::empty((*transition).to_owned(), false, Some((*transition).to_owned())));
     transitions_to_ids.insert(transition, id);
   }

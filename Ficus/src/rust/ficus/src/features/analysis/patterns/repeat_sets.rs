@@ -33,9 +33,8 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
   let mut repeat_sets = HashMap::new();
   let mut set = HashSet::new();
   let mut vec: Vec<u64> = vec![];
-  let mut trace_index = 0;
 
-  for (trace, trace_patterns) in log.iter().zip(patterns.iter()) {
+  for (trace_index, (trace, trace_patterns)) in log.iter().zip(patterns.iter()).enumerate() {
     for pattern in trace_patterns {
       let start = pattern.start_index;
       let end = start + pattern.length;
@@ -51,10 +50,10 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
 
       let hash = calculate_poly_hash_for_collection(vec.as_slice());
 
-      repeat_sets.entry(hash).or_insert_with(|| SubArrayWithTraceIndex::new(*pattern, trace_index));
+      repeat_sets
+        .entry(hash)
+        .or_insert_with(|| SubArrayWithTraceIndex::new(*pattern, trace_index));
     }
-
-    trace_index += 1;
   }
 
   let mut result = vec![];
