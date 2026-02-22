@@ -1,13 +1,13 @@
 use crate::{
   context_key,
   features::discovery::{
-    petri_net::annotations::PerformanceMap,
     ecfg::{
       adjustments::{adjust_connections, adjust_edges_data, adjust_weights, find_next_node, merge_sequences_of_nodes},
       context::DiscoveryContext,
-      models::{DiscoverRootSequenceGraphError, EventWithUniqueId, RootSequenceKind},
+      models::{DiscoverECFGError, EventWithUniqueId, RootSequenceKind},
       root_sequence::discover_root_sequence,
     },
+    petri_net::annotations::PerformanceMap,
   },
   utils::{
     graph::{
@@ -30,13 +30,13 @@ const EVENT_UNIQUE_ID: &'static str = "EVENT_UNIQUE_ID";
 context_key! { EVENT_UNIQUE_ID, Vec<u64> }
 
 #[derive(Debug)]
-pub struct RootSequenceGraphDiscoveryResult {
+pub struct ECFGDiscoveryResult {
   graph: DefaultGraph,
   start_node_id: Option<u64>,
   end_node_id: Option<u64>,
 }
 
-impl RootSequenceGraphDiscoveryResult {
+impl ECFGDiscoveryResult {
   pub fn new(graph: DefaultGraph, start_node_id: Option<u64>, end_node_id: Option<u64>) -> Self {
     Self {
       graph,
@@ -71,7 +71,7 @@ pub fn discover_ecfg<T: PartialEq + Clone + Debug>(
   context: &DiscoveryContext<T>,
   merge_sequences_of_events: bool,
   performance_map: Option<PerformanceMap>,
-) -> Result<RootSequenceGraphDiscoveryResult, DiscoverRootSequenceGraphError> {
+) -> Result<ECFGDiscoveryResult, DiscoverECFGError> {
   let mut result = discover_ecfg_internal(log, context, true)?;
 
   let graph_kind = match context.root_sequence_kind() {
@@ -96,7 +96,7 @@ pub fn discover_ecfg<T: PartialEq + Clone + Debug>(
   Ok(result)
 }
 
-fn add_start_end_nodes_ids_to_user_data(result: &mut RootSequenceGraphDiscoveryResult) {
+fn add_start_end_nodes_ids_to_user_data(result: &mut ECFGDiscoveryResult) {
   if let Some(start_node_id) = result.start_node_id() {
     result.graph.user_data_mut().put_concrete(START_NODE_ID_KEY.key(), start_node_id);
   }
@@ -110,7 +110,7 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   context: &DiscoveryContext<T>,
   first_iteration: bool,
-) -> Result<RootSequenceGraphDiscoveryResult, DiscoverRootSequenceGraphError> {
+) -> Result<ECFGDiscoveryResult, DiscoverECFGError> {
   let root_sequence = discover_root_sequence(log, context.root_sequence_kind());
 
   if root_sequence.len() == 2 {
@@ -122,7 +122,7 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context)?;
 
-  Ok(RootSequenceGraphDiscoveryResult::new(
+  Ok(ECFGDiscoveryResult::new(
     graph,
     root_sequence_nodes_ids.first().cloned(),
     root_sequence_nodes_ids.last().cloned(),
@@ -133,7 +133,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   root_sequence: &Vec<EventWithUniqueId<T>>,
   context: &DiscoveryContext<T>,
-) -> RootSequenceGraphDiscoveryResult {
+) -> ECFGDiscoveryResult {
   let mut graph = DefaultGraph::empty();
 
   let start_node = create_new_graph_node(&mut graph, root_sequence.first().unwrap(), false, context, false);
@@ -155,7 +155,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
     graph.connect_nodes(&prev_node_id, &end_node, NodesConnectionData::empty());
   }
 
-  RootSequenceGraphDiscoveryResult::new(graph, Some(start_node), Some(end_node))
+  ECFGDiscoveryResult::new(graph, Some(start_node), Some(end_node))
 }
 
 pub(super) fn create_new_graph_node<T: PartialEq + Clone + Debug>(
@@ -241,7 +241,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   root_sequence_node_ids: &Vec<u64>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
-) -> Result<(), DiscoverRootSequenceGraphError> {
+) -> Result<(), DiscoverECFGError> {
   let mut adjustments = HashMap::new();
   for trace in traces {
     let trace_lcs = find_longest_common_subsequence(trace, &root_sequence, trace.len(), root_sequence.len());
@@ -304,7 +304,7 @@ fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
   adjustments: &Vec<(u64, Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)>)>,
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
-) -> Result<(), DiscoverRootSequenceGraphError> {
+) -> Result<(), DiscoverECFGError> {
   for (start_root_node_id, adjustments) in adjustments {
     let adjustment_log = create_log_from_adjustments(adjustments, context.artificial_start_end_events_factory());
     let result = discover_ecfg_internal(&adjustment_log, context, false)?;
@@ -371,7 +371,7 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
   sub_graph: DefaultGraph,
   start_graph_node_id: u64,
   context: &DiscoveryContext<T>,
-) -> Result<(), DiscoverRootSequenceGraphError> {
+) -> Result<(), DiscoverECFGError> {
   let (start_node_id, end_node_id) =
     find_start_end_node_ids(&sub_graph, context.name_extractor(), context.artificial_start_end_events_factory());
   let mut sub_graph_nodes_to_nodes = HashMap::new();
@@ -411,12 +411,12 @@ fn replay_sequence<T: PartialEq + Clone + Debug>(
   graph: &DefaultGraph,
   start_node_id: u64,
   sequence: &[EventWithUniqueId<T>],
-) -> Result<u64, DiscoverRootSequenceGraphError> {
+) -> Result<u64, DiscoverECFGError> {
   let mut replay_states = VecDeque::from_iter([(start_node_id, 0usize)]);
 
   loop {
     if replay_states.is_empty() {
-      return Err(DiscoverRootSequenceGraphError::FailedToReplaySequence);
+      return Err(DiscoverECFGError::FailedToReplaySequence);
     }
 
     let (current_node_id, event_index) = replay_states.pop_back().unwrap();
@@ -444,13 +444,13 @@ pub(super) fn replay_sequence_with_history<T: PartialEq + Clone + Debug>(
   graph: &DefaultGraph,
   start_node_id: u64,
   sequence: &[EventWithUniqueId<T>],
-) -> Result<Vec<u64>, DiscoverRootSequenceGraphError> {
+) -> Result<Vec<u64>, DiscoverECFGError> {
   let mut replay_states = VecDeque::from_iter([(start_node_id, 0usize, 0usize)]);
   let mut replay_history = vec![ReplayHistoryEntry::new(start_node_id, None)];
 
   loop {
     if replay_states.is_empty() {
-      return Err(DiscoverRootSequenceGraphError::FailedToReplaySequence);
+      return Err(DiscoverECFGError::FailedToReplaySequence);
     }
 
     let (current_node_id, event_index, history_end_index) = replay_states.pop_back().unwrap();

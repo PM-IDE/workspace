@@ -1,6 +1,5 @@
 use crate::{
   features::discovery::{
-    petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY},
     ecfg::{
       context::DiscoveryContext,
       context_keys::{
@@ -8,8 +7,9 @@ use crate::{
         NODE_START_END_ACTIVITY_TIME_KEY,
       },
       discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY},
-      models::{ActivityStartEndTimeData, DiscoverRootSequenceGraphError, EventWithUniqueId, NodeAdditionalDataContainer},
+      models::{ActivityStartEndTimeData, DiscoverECFGError, EventWithUniqueId, NodeAdditionalDataContainer},
     },
+    petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY},
   },
   utils::{
     context_key::DefaultContextKey,
@@ -315,7 +315,7 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   graph: &mut DefaultGraph,
   start_node_id: u64,
-) -> Result<(), DiscoverRootSequenceGraphError> {
+) -> Result<(), DiscoverECFGError> {
   let mut edges_weights = HashMap::new();
   for trace in log {
     let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
@@ -334,7 +334,7 @@ pub fn adjust_weights<T: PartialEq + Clone + Debug>(
   Ok(())
 }
 
-pub fn find_next_node(graph: &DefaultGraph, current_node: u64, next_event_id: u64) -> Result<u64, DiscoverRootSequenceGraphError> {
+pub fn find_next_node(graph: &DefaultGraph, current_node: u64, next_event_id: u64) -> Result<u64, DiscoverECFGError> {
   let next_nodes = graph
     .outgoing_nodes(&current_node)
     .into_iter()
@@ -354,7 +354,7 @@ pub fn find_next_node(graph: &DefaultGraph, current_node: u64, next_event_id: u6
     .collect::<Vec<u64>>();
 
   if next_nodes.len() != 1 {
-    Err(DiscoverRootSequenceGraphError::NotSingleCandidateForNextNode)
+    Err(DiscoverECFGError::NotSingleCandidateForNextNode)
   } else {
     Ok(*next_nodes.first().unwrap())
   }
@@ -365,7 +365,7 @@ pub fn adjust_edges_data<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
   graph: &mut DefaultGraph,
   start_node_id: u64,
-) -> Result<(), DiscoverRootSequenceGraphError> {
+) -> Result<(), DiscoverECFGError> {
   for trace in log {
     let replay_history = replay_sequence_with_history(graph, start_node_id, &trace[1..])?;
 

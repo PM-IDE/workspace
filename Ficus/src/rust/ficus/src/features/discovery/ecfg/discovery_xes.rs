@@ -9,7 +9,6 @@ use crate::{
       pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY},
     },
     discovery::{
-      petri_net::annotations::create_performance_map,
       ecfg::{
         context::DiscoveryContext,
         context_keys::{
@@ -19,10 +18,11 @@ use crate::{
         },
         discovery::{create_new_graph_node, discover_ecfg},
         models::{
-          CorrespondingTraceData, DiscoverRootSequenceGraphError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer,
+          CorrespondingTraceData, DiscoverECFGError, EventCoordinates, EventWithUniqueId, NodeAdditionalDataContainer,
           RootSequenceKind,
         },
       },
+      petri_net::annotations::create_performance_map,
     },
     mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME},
   },
@@ -39,7 +39,7 @@ pub fn discover_ecfg_from_event_log(
   log: &XesEventLogImpl,
   root_sequence_kind: RootSequenceKind,
   merge_sequences_of_events: bool,
-) -> Result<DefaultGraph, DiscoverRootSequenceGraphError> {
+) -> Result<DefaultGraph, DiscoverECFGError> {
   assert_all_traces_have_artificial_start_end_events(log)?;
   adjust_log_user_data(log);
 
@@ -234,10 +234,10 @@ fn adjust_event_coordinates<T: Clone + Debug>(
   }
 }
 
-fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> Result<(), DiscoverRootSequenceGraphError> {
+fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> Result<(), DiscoverECFGError> {
   for trace in log.traces().iter().map(|t| t.borrow()) {
     if !check_trace_have_artificial_start_end_events(trace.deref()) {
-      return Err(DiscoverRootSequenceGraphError::NoArtificialStartEndEvents);
+      return Err(DiscoverECFGError::NoArtificialStartEndEvents);
     }
   }
 

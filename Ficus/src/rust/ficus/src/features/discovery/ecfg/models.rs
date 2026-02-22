@@ -7,7 +7,7 @@ use std::{
 };
 
 #[derive(Debug)]
-pub enum DiscoverRootSequenceGraphError {
+pub enum DiscoverECFGError {
   NoArtificialStartEndEvents,
   FailedToReplaySequence,
   NotSingleCandidateForNextNode,
@@ -35,14 +35,14 @@ impl FromStr for RootSequenceKind {
   }
 }
 
-impl Display for DiscoverRootSequenceGraphError {
+impl Display for DiscoverECFGError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self {
-      DiscoverRootSequenceGraphError::NoArtificialStartEndEvents => {
+      DiscoverECFGError::NoArtificialStartEndEvents => {
         f.write_str("All traces in event log must have artificial start-end events")
       }
-      DiscoverRootSequenceGraphError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
-      DiscoverRootSequenceGraphError::NotSingleCandidateForNextNode => {
+      DiscoverECFGError::FailedToReplaySequence => f.write_str("Failed to replay sequence of events on part of a graph"),
+      DiscoverECFGError::NotSingleCandidateForNextNode => {
         f.write_str("There were several or zero candidates for next node during replay")
       }
     }
