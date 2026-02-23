@@ -174,8 +174,6 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
           prev_node_id = Some(current_node_id);
         }
 
-        let graph = Rc::new(Box::new(graph));
-
         let base_sequence = pattern
           .value()
           .base_pattern()

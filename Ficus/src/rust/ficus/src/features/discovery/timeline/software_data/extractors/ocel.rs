@@ -84,7 +84,8 @@ impl<'a> OcelDataExtractor<'a> {
   }
 
   fn try_get_config<'b, T>(event: &'b XesEventImpl, config: Option<&'b (Regex, T)>) -> Option<&'b T> {
-    let Some((regex, config)) = config else { return None };
+    let (regex, config) = config?;
+
     if !regex.is_match(event.name().as_str()).unwrap_or(false) {
       return None;
     }

@@ -5,8 +5,8 @@ pub fn find_longest_common_subsequence_length<T: PartialEq>(first: &Vec<T>, seco
 }
 
 pub fn build_longest_common_subsequence_matrix<T: PartialEq>(
-  first: &Vec<T>,
-  second: &Vec<T>,
+  first: &[T],
+  second: &[T],
   first_len: usize,
   second_len: usize,
 ) -> Vec<Vec<i64>> {
@@ -52,8 +52,8 @@ impl<'a, T> LCSSearchResult<'a, T> {
 }
 
 pub fn find_longest_common_subsequence<'a, T: PartialEq + Clone>(
-  first: &'a Vec<T>,
-  second: &'a Vec<T>,
+  first: &'a [T],
+  second: &'a [T],
   first_len: usize,
   second_len: usize,
 ) -> LCSSearchResult<'a, T> {

@@ -12,8 +12,8 @@ where
   TElementIterator: Iterator<Item = TElement>,
   TData: PartialEq + Eq + Copy,
 {
-  nodes: Box<Vec<Node<TElement, TData>>>,
-  boundaries: Box<Vec<TElement>>,
+  nodes: Vec<Node<TElement, TData>>,
+  boundaries: Vec<TElement>,
   range_creator: TRangeCreator,
 }
 
@@ -33,8 +33,8 @@ where
     intervals: &Vec<Interval<TElement, TData>>,
     range_creator: TRangeCreator,
   ) -> IntervalTree<TElement, TRangeCreator, TElementIterator, TData> {
-    let mut nodes: Box<Vec<Node<TElement, TData>>> = Box::default();
-    let mut boundaries = Box::new(vec![]);
+    let mut nodes: Vec<Node<TElement, TData>> = vec![];
+    let mut boundaries = vec![];
 
     let mut queue: VecDeque<(Option<(usize, ChildOrientation)>, Vec<&Interval<TElement, TData>>)> = VecDeque::new();
 
@@ -167,7 +167,7 @@ where
 
   pub fn dump_nodes(&self) -> Vec<(Option<usize>, Option<usize>, TElement, Vec<Interval<TElement, TData>>)> {
     let mut nodes = vec![];
-    for node in self.nodes.as_ref() {
+    for node in &self.nodes {
       nodes.push((node.left_child, node.right_child, node.center, node.intervals.to_vec()));
     }
 

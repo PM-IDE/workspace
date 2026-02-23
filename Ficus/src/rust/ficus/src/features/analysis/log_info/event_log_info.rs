@@ -42,7 +42,7 @@ impl EventLogCounts for EventLogCountsImpl {
 pub trait EventLogInfo {
   fn counts(&self) -> Option<&dyn EventLogCounts>;
   fn event_classes_count(&self) -> u64;
-  fn event_count(&self, event_class: &String) -> u64;
+  fn event_count(&self, event_class: &str) -> u64;
   fn dfg_info(&self) -> &dyn DfgInfo;
   fn all_event_classes(&self) -> Vec<&String>;
   fn start_event_classes(&self) -> &HashSet<String>;
@@ -162,8 +162,8 @@ impl OfflineEventLogInfo {
         prev_event_name = Some(event.name().to_owned());
       }
 
-      if add_fake_start_end_events && prev_event_name.is_some() {
-        update_pairs_count(&prev_event_name.unwrap(), &FAKE_EVENT_END_NAME.to_string());
+      if add_fake_start_end_events && let Some(prev_event_name) = prev_event_name {
+        update_pairs_count(&prev_event_name, &FAKE_EVENT_END_NAME.to_string());
       }
     }
 
@@ -241,7 +241,7 @@ impl EventLogInfo for OfflineEventLogInfo {
     self.event_classes_counts.len() as u64
   }
 
-  fn event_count(&self, event_class: &String) -> u64 {
+  fn event_count(&self, event_class: &str) -> u64 {
     match self.event_classes_counts.get(event_class) {
       Some(value) => value.to_owned(),
       None => 0,

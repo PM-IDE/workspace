@@ -60,8 +60,8 @@ pub fn discover_events_groups(
       })
     };
 
-    if last_stamp.is_some() {
-      if (*event.stamp() - last_stamp.unwrap()) as u64 > event_group_delta {
+    if let Some(last_stamp) = last_stamp {
+      if (*event.stamp() - last_stamp) as u64 > event_group_delta {
         add_to_groups(last_trace_group.clone(), last_seen_point);
         last_trace_group = create_events_group();
       }

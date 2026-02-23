@@ -185,7 +185,7 @@ where
 }
 
 fn patch_arcs_list<TArcData>(
-  arcs: &Vec<Arc<TArcData>>,
+  arcs: &[Arc<TArcData>],
   use_names_as_ids: bool,
   names_creator: impl Fn(&Arc<TArcData>) -> String,
 ) -> Vec<(&Arc<TArcData>, String)> {

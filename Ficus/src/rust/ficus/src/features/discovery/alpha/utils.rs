@@ -29,9 +29,9 @@ pub fn maximize<TElement: Hash + Eq + Clone>(
       break;
     }
 
-    for i in 0..vec.len() {
+    for (i, element) in vec.iter().enumerate() {
       if !merged_indices.contains(&i) {
-        new_elements.insert(vec[i].clone());
+        new_elements.insert((*element).clone());
       }
     }
 

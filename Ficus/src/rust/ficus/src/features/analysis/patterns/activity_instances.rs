@@ -100,7 +100,7 @@ pub fn extract_activities_instances_strict(
     .filter_map(|a| a.borrow().repeat_set().as_ref().map(|_| a.clone()))
     .collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
-  suitable_activities.sort_by(|f, s| s.borrow().repeat_set().unwrap().len().cmp(&f.borrow().repeat_set().unwrap().len()));
+  suitable_activities.sort_by_key(|a| std::cmp::Reverse(a.borrow().repeat_set().unwrap().len()));
 
   for trace in log {
     let mut index = 0;
@@ -150,7 +150,7 @@ pub fn extract_activities_instances_strict(
   result
 }
 
-fn get_all_child_activities(activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<Rc<RefCell<ActivityNode>>> {
+fn get_all_child_activities(activities: &[Rc<RefCell<ActivityNode>>]) -> Vec<Rc<RefCell<ActivityNode>>> {
   let mut result = vec![];
 
   let mut queue = VecDeque::from_iter(activities.iter().cloned());
@@ -169,7 +169,7 @@ fn get_all_child_activities(activities: &Vec<Rc<RefCell<ActivityNode>>>) -> Vec<
 
 pub fn extract_activities_instances(
   log: &Vec<Vec<u64>>,
-  activities: &mut Vec<Rc<RefCell<ActivityNode>>>,
+  activities: &mut [Rc<RefCell<ActivityNode>>],
   narrow_kind: &ActivityNarrowingKind,
   min_events_in_activity: usize,
   filtering_kind: &ActivityInTraceFilterKind,
@@ -185,10 +185,10 @@ pub fn extract_activities_instances(
     let mut current_event_classes = HashSet::new();
 
     while index.is_none() || index.unwrap() < trace.len() {
-      if index.is_none() {
-        index = Some(0);
+      if let Some(index) = &mut index {
+        *index += 1;
       } else {
-        *index.as_mut().unwrap() += 1;
+        index = Some(0);
       }
 
       if index.unwrap() >= trace.len() {
@@ -267,14 +267,14 @@ pub fn extract_activities_instances(
       }
     }
 
-    if last_activity_start_index.is_some() {
+    if let Some(last_activity_start_index) = last_activity_start_index {
       let activity = narrow_activity(current_activity.as_ref().unwrap(), &current_event_classes, narrow_kind);
       current_activity = Some(activity);
 
       let activity_instance = ActivityInTraceInfo {
         node: Rc::clone(current_activity.as_ref().unwrap()),
-        start_pos: last_activity_start_index.unwrap(),
-        length: index.unwrap() - last_activity_start_index.unwrap(),
+        start_pos: last_activity_start_index,
+        length: index.unwrap() - last_activity_start_index,
       };
 
       if is_suitable_activity_instance(&activity_instance, min_events_in_activity, filtering_kind) {
@@ -302,7 +302,7 @@ fn is_suitable_activity_instance(
   }
 }
 
-fn split_activities_nodes_by_size(activities: &mut Vec<Rc<RefCell<ActivityNode>>>) -> Vec<Vec<Rc<RefCell<ActivityNode>>>> {
+fn split_activities_nodes_by_size(activities: &mut [Rc<RefCell<ActivityNode>>]) -> Vec<Vec<Rc<RefCell<ActivityNode>>>> {
   if activities.is_empty() {
     return vec![];
   }
@@ -452,7 +452,7 @@ context_key! { UNDERLYING_EVENTS, UnderlyingEventsInfo<XesEventImpl> }
 
 pub fn create_new_log_from_activities_instances<TEventFactory>(
   log: &XesEventLogImpl,
-  instances: &Vec<Vec<ActivityInTraceInfo>>,
+  instances: &[Vec<ActivityInTraceInfo>],
   strategy: &UndefActivityHandlingStrategy<XesEventImpl>,
   event_from_activity_factory: &TEventFactory,
 ) -> XesEventLogImpl
@@ -530,8 +530,8 @@ where
 
 pub fn add_unattached_activities(
   log: &Vec<Vec<u64>>,
-  activities: &mut Vec<Rc<RefCell<ActivityNode>>>,
-  existing_instances: &Vec<Vec<ActivityInTraceInfo>>,
+  activities: &mut [Rc<RefCell<ActivityNode>>],
+  existing_instances: &[Vec<ActivityInTraceInfo>],
   min_numbers_of_events: usize,
   should_narrow: &ActivityNarrowingKind,
   min_events_in_activity: usize,
@@ -627,7 +627,7 @@ fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<String, Rc<
 
 fn create_log_from_traces_activities<TLog: EventLog>(
   log: &TLog,
-  activities: &Vec<Vec<ActivityInTraceInfo>>,
+  activities: &[Vec<ActivityInTraceInfo>],
   activity_level: usize,
 ) -> HashMap<String, Rc<RefCell<TLog>>> {
   let mut activities_to_logs: HashMap<String, Rc<RefCell<TLog>>> = HashMap::new();
@@ -646,8 +646,8 @@ fn create_log_from_traces_activities<TLog: EventLog>(
       let trace = trace.borrow();
       let events = trace.events();
 
-      for i in start..end {
-        new_trace.push(Rc::new(RefCell::new(events[i].borrow().clone())));
+      for event in events.iter().take(end).skip(start) {
+        new_trace.push(Rc::new(RefCell::new(event.borrow().clone())));
       }
 
       let name = activity_info.node.borrow().name().as_ref().as_ref().to_owned();
@@ -681,11 +681,12 @@ where
 
   let regex = class_extractor.map(|extractor| Regex::new(extractor).unwrap());
 
-  for index in left..right {
+  for (index, event) in events.iter().enumerate().take(right).skip(left) {
     name.push('(');
 
-    let event_name = events[index].borrow();
-    let event_name = event_name.name();
+    let event = event.borrow();
+    let event_name = event.name();
+
     let event_name = match regex.as_ref() {
       Some(regex) => match regex.find(event_name) {
         Ok(Some(m)) => {

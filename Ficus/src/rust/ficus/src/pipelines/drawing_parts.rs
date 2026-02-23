@@ -42,8 +42,8 @@ impl PipelineParts {
     let mut traces = vec![];
     for trace in log.traces() {
       let mut vec = vec![];
-      let mut index = 0usize;
-      for event in trace.borrow().events() {
+
+      for (index, event) in trace.borrow().events().iter().enumerate() {
         let event = event.borrow();
 
         let colors_key = color_key_selector(&event);
@@ -56,7 +56,6 @@ impl PipelineParts {
 
         let name = HeapedOrOwned::Owned(colors_key.to_owned());
         vec.push(ColoredRectangle::square(name, index as f64));
-        index += 1;
       }
 
       traces.push(vec);
@@ -86,8 +85,8 @@ impl PipelineParts {
 
     for trace in log.traces() {
       let mut colors_trace = vec![];
-      let mut index = 0usize;
-      for event in trace.borrow().events() {
+
+      for (index, event) in trace.borrow().events().iter().enumerate() {
         let event = event.borrow();
         let name = event.name();
         if selector(&event) {
@@ -102,8 +101,6 @@ impl PipelineParts {
           let name = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
           colors_trace.push(ColoredRectangle::square(name, index as f64));
         }
-
-        index += 1;
       }
 
       traces.push(colors_trace);

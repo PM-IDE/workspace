@@ -125,7 +125,7 @@ fn process_events_groups(trace: &Vec<EventGroup>, configs: &mut Configs) -> Resu
   Ok(())
 }
 
-fn add_durations_to_software_data(configs: &Configs, software_data: &mut Vec<(SoftwareData, SoftwareData)>) {
+fn add_durations_to_software_data(configs: &Configs, software_data: &mut [(SoftwareData, SoftwareData)]) {
   for (_, _, _, _, data) in configs {
     if data.len() != software_data.len() * 2 {
       error!("data.len() != result.len() * 2");
@@ -149,7 +149,7 @@ fn add_durations_to_software_data(configs: &Configs, software_data: &mut Vec<(So
 
 fn get_event_group_node_start_end_stamps(
   index: usize,
-  groups: &Vec<EventGroup>,
+  groups: &[EventGroup],
   time_attr: Option<&TimeAttributeConfig>,
 ) -> Result<(i64, i64), SoftwareDataExtractionError> {
   Ok((
@@ -160,7 +160,7 @@ fn get_event_group_node_start_end_stamps(
 
 fn get_event_group_edge_start_end_stamps(
   index: usize,
-  groups: &Vec<EventGroup>,
+  groups: &[EventGroup],
   time_attr: Option<&TimeAttributeConfig>,
 ) -> Result<(i64, i64), SoftwareDataExtractionError> {
   Ok((

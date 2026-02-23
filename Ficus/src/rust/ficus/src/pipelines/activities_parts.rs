@@ -539,8 +539,7 @@ impl PipelineParts {
         for event in trace.events() {
           let event = event.borrow();
           for (key, _) in event.ordered_payload() {
-            if key.starts_with(HIERARCHY_LEVEL) {
-              let level = &key[HIERARCHY_LEVEL.len()..];
+            if let Some(level) = key.strip_prefix(HIERARCHY_LEVEL) {
               let level = level.parse::<usize>().ok().unwrap();
               max_level = max_level.max(level);
             }

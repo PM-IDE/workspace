@@ -41,7 +41,7 @@ use std::{cell::RefCell, rc::Rc};
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
-  labels: &Vec<usize>,
+  labels: &[usize],
   thread_attribute: Option<String>,
   time_attribute: Option<String>,
   config: &SoftwareDataExtractionConfig,
@@ -178,7 +178,7 @@ fn put_edge_user_data(
   event: &mut XesEventImpl,
   edge_software_data: SoftwareData,
   event_coordinates: EventCoordinates,
-  after_group_events: &Vec<Rc<RefCell<XesEventImpl>>>,
+  after_group_events: &[Rc<RefCell<XesEventImpl>>],
   time_attribute: Option<&String>,
 ) -> Result<(), PipelinePartExecutionError> {
   event

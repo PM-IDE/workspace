@@ -11,7 +11,7 @@ where
   calculate_entropies(log, ignored_events.as_ref(), calculate_pos_entropy_for_event)
 }
 
-pub fn calculate_pos_entropy_for_event<TLog>(log: &TLog, event_name: &String, ignored_events: Option<&HashSet<String>>) -> f64
+pub fn calculate_pos_entropy_for_event<TLog>(log: &TLog, event_name: &str, ignored_events: Option<&HashSet<String>>) -> f64
 where
   TLog: EventLog,
 {
@@ -26,10 +26,8 @@ where
       let event = event.borrow();
       let name = event.name();
 
-      if let Some(ignored_events_set) = ignored_events {
-        if ignored_events_set.contains(name) {
-          continue;
-        }
+      if let Some(ignored_events_set) = ignored_events && ignored_events_set.contains(name) {
+        continue;
       }
 
       empty_trace = false;

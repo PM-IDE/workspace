@@ -29,7 +29,7 @@ impl SubArrayWithTraceIndex {
   }
 }
 
-pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTraceInfo>>) -> Vec<SubArrayWithTraceIndex> {
+pub fn build_repeat_sets(log: &[Vec<u64>], patterns: &[Vec<SubArrayInTraceInfo>]) -> Vec<SubArrayWithTraceIndex> {
   let mut repeat_sets = HashMap::new();
   let mut set = HashSet::new();
   let mut vec: Vec<u64> = vec![];
@@ -126,8 +126,8 @@ impl ActivityNode {
 }
 
 pub fn build_repeat_set_tree_from_repeats<TNameCreator>(
-  log: &Vec<Vec<u64>>,
-  repeats: &Vec<SubArrayWithTraceIndex>,
+  log: &[Vec<u64>],
+  repeats: &[SubArrayWithTraceIndex],
   activity_level: usize,
   pattern_kind: UnderlyingPatternKind,
   name_creator: TNameCreator,
@@ -143,8 +143,9 @@ where
     let trace = log.get(repeat_set.trace_index).unwrap();
     let mut set = HashSet::new();
     let array = repeat_set.sub_array;
-    for index in array.start_index..(array.start_index + array.length) {
-      set.insert(trace[index]);
+
+    for event in trace.iter().skip(array.start_index).take(array.length) {
+      set.insert(*event);
     }
 
     set
@@ -167,16 +168,15 @@ where
     .map(create_activity_node)
     .collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
-  activity_nodes.sort_by(|first, second| second.borrow().len().cmp(&first.borrow().len()));
+  activity_nodes.sort_by_key(|item| std::cmp::Reverse(item.borrow().len()));
   let max_length = activity_nodes[0].borrow().len();
   let mut top_level_nodes = vec![Rc::clone(&activity_nodes[0])];
   let mut next_length_index = 1;
   let mut current_length = max_length;
 
-  for i in 1..activity_nodes.len() {
-    let node_ptr = &activity_nodes[i];
+  for (index, node_ptr) in activity_nodes.iter().enumerate().skip(1) {
     if node_ptr.borrow().len() != max_length {
-      next_length_index = i;
+      next_length_index = index;
       current_length = node_ptr.borrow().len();
       break;
     }

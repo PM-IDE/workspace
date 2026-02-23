@@ -173,8 +173,8 @@ fn create_dataset_internal(
 
   let mut vector = vec![];
   for activity in &processed {
-    for i in 0..all_event_classes.len() {
-      let count = if let Some(count) = activity.1.get(&all_event_classes[i]) {
+    for event_class in &all_event_classes {
+      let count = if let Some(count) = activity.1.get(event_class) {
         *count
       } else {
         0

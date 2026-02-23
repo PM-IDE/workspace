@@ -48,11 +48,11 @@ pub fn extract_key_value(start: &BytesStart) -> KeyValuePair<String, String> {
     match attr {
       Err(_) => continue,
       Ok(real_attr) => match real_attr.key.0 {
-        KEY_ATTR_NAME => match String::from_utf8(real_attr.value.to_owned().to_vec()) {
+        KEY_ATTR_NAME => match String::from_utf8(real_attr.value.to_vec()) {
           Err(_) => continue,
           Ok(string) => key = Some(string),
         },
-        VALUE_ATTR_NAME => match String::from_utf8(real_attr.value.to_owned().to_vec()) {
+        VALUE_ATTR_NAME => match String::from_utf8(real_attr.value.to_vec()) {
           Err(_) => continue,
           Ok(string) => value = Some(string),
         },

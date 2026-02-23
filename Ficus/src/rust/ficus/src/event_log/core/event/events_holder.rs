@@ -70,9 +70,10 @@ where
   {
     let mut new_events = vec![];
     let events = &self.events;
-    for index in 0..events.len() {
-      if !predicate(&events[index].borrow()) {
-        new_events.push(events[index].clone())
+
+    for (index, event) in events.iter().enumerate() {
+      if !predicate(&event.borrow()) {
+        new_events.push(event.clone())
       } else {
         debug!("Removing event at index {}: {:?}", index, events[index].borrow())
       }
@@ -164,11 +165,9 @@ impl EventsPositions {
     TEvent: Event,
   {
     let mut positions = HashMap::new();
-    let mut index = 0;
 
-    for event in events.events() {
+    for (index, event) in events.events().iter().enumerate() {
       add_to_list_in_map(&mut positions, event.borrow().name(), index);
-      index += 1;
     }
 
     EventsPositions { positions }
@@ -176,7 +175,7 @@ impl EventsPositions {
 }
 
 impl TraceEventsPositions for EventsPositions {
-  fn event_positions(&self, event_class: &String) -> Option<&Vec<usize>> {
+  fn event_positions(&self, event_class: &str) -> Option<&Vec<usize>> {
     self.positions.get(event_class)
   }
 }

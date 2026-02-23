@@ -1,11 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
 pub trait DfgInfo {
-  fn get_directly_follows_count(&self, first: &String, second: &String) -> usize;
+  fn get_directly_follows_count(&self, first: &str, second: &str) -> usize;
   fn is_in_directly_follows_relation(&self, left: &str, right: &str) -> bool;
-  fn get_followed_events(&self, event_class: &String) -> Option<&HashMap<String, usize>>;
-  fn get_precedes_events(&self, event_class: &String) -> Option<&HashMap<String, usize>>;
-  fn is_event_with_single_follower(&self, event_class: &String) -> bool;
+  fn get_followed_events(&self, event_class: &str) -> Option<&HashMap<String, usize>>;
+  fn get_precedes_events(&self, event_class: &str) -> Option<&HashMap<String, usize>>;
+  fn is_event_with_single_follower(&self, event_class: &str) -> bool;
 }
 
 #[derive(Debug)]
@@ -48,7 +48,7 @@ impl OfflineDfgInfo {
 }
 
 impl DfgInfo for OfflineDfgInfo {
-  fn get_directly_follows_count(&self, first: &String, second: &String) -> usize {
+  fn get_directly_follows_count(&self, first: &str, second: &str) -> usize {
     if let Some(values) = self.followed_events.get(first) {
       if let Some(dfg_count) = values.get(second) {
         return *dfg_count;
@@ -66,21 +66,21 @@ impl DfgInfo for OfflineDfgInfo {
     }
   }
 
-  fn get_followed_events(&self, event_class: &String) -> Option<&HashMap<String, usize>> {
+  fn get_followed_events(&self, event_class: &str) -> Option<&HashMap<String, usize>> {
     match self.followed_events.get(event_class) {
       Some(followers_counts) => Some(followers_counts),
       None => None,
     }
   }
 
-  fn get_precedes_events(&self, event_class: &String) -> Option<&HashMap<String, usize>> {
+  fn get_precedes_events(&self, event_class: &str) -> Option<&HashMap<String, usize>> {
     match self.precedes_events.get(event_class) {
       Some(followers_counts) => Some(followers_counts),
       None => None,
     }
   }
 
-  fn is_event_with_single_follower(&self, event_class: &String) -> bool {
+  fn is_event_with_single_follower(&self, event_class: &str) -> bool {
     self.events_with_single_follower.contains(event_class)
   }
 }

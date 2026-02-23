@@ -8,9 +8,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 
 pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<String> {
-  let Some(map) = event.payload_map() else { return None };
-  let Some(value) = map.get(thread_attribute) else { return None };
-
+  let value = event.payload_map()?.get(thread_attribute)?;
   Some(value.to_string_repr().as_str().to_owned())
 }
 

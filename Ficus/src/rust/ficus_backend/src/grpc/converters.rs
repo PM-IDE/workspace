@@ -821,7 +821,7 @@ fn convert_to_grpc_underlying_pattern_info(info: &UnderlyingPatternGraphInfo) ->
       None => vec![],
       Some(base_pattern) => base_pattern.clone(),
     },
-    graph: Some(convert_to_grpc_graph(info.graph().as_ref())),
+    graph: Some(convert_to_grpc_graph(info.graph())),
   }
 }
 

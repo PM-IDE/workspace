@@ -104,7 +104,7 @@ struct NeededNodesIds {
 }
 
 impl NeededNodesIds {
-  pub fn new(graph: &DefaultGraph, sequence: &Vec<u64>) -> Self {
+  pub fn new(graph: &DefaultGraph, sequence: &[u64]) -> Self {
     let first_node = *sequence.first().unwrap();
     let last_node = *sequence.last().unwrap();
 
@@ -196,7 +196,7 @@ fn put_software_data(added_node_id: &u64, nodes: &Vec<u64>, graph: &mut DefaultG
     .put_concrete(NODE_SOFTWARE_DATA_KEY.key(), software_data);
 }
 
-fn disconnect_and_delete_nodes(nodes: &Vec<u64>, graph: &mut DefaultGraph) {
+fn disconnect_and_delete_nodes(nodes: &[u64], graph: &mut DefaultGraph) {
   for i in 0..nodes.len() - 1 {
     graph.disconnect_nodes(&nodes[i], &nodes[i + 1]);
     graph.delete_node(&nodes[i]);
@@ -301,7 +301,7 @@ pub fn adjust_connections<T: PartialEq + Clone + Debug>(
     let to_name = graph.node(edge.to_node()).unwrap().data().cloned();
 
     let edge_key = (*edge.from_node(), *edge.to_node());
-    if df_relations.get(&(from_name, to_name)).is_none() {
+    if !df_relations.contains_key(&(from_name, to_name)) {
       nodes_to_disconnect.push(edge_key)
     }
   }

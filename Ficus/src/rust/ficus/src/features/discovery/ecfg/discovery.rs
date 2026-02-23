@@ -131,7 +131,7 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
 
 fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   log: &Vec<Vec<EventWithUniqueId<T>>>,
-  root_sequence: &Vec<EventWithUniqueId<T>>,
+  root_sequence: &[EventWithUniqueId<T>],
   context: &DiscoveryContext<T>,
 ) -> ECFGDiscoveryResult {
   let mut graph = DefaultGraph::empty();
@@ -238,7 +238,7 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
 fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
   traces: &Vec<Vec<EventWithUniqueId<T>>>,
   root_sequence: &Vec<EventWithUniqueId<T>>,
-  root_sequence_node_ids: &Vec<u64>,
+  root_sequence_node_ids: &[u64],
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
 ) -> Result<(), DiscoverECFGError> {
@@ -301,7 +301,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
 }
 
 fn add_adjustments_to_graph<T: PartialEq + Clone + Debug>(
-  adjustments: &Vec<(u64, Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)>)>,
+  adjustments: &[(u64, Vec<(u64, Vec<Vec<EventWithUniqueId<T>>>)>)],
   graph: &mut DefaultGraph,
   context: &DiscoveryContext<T>,
 ) -> Result<(), DiscoverECFGError> {

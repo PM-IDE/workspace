@@ -36,5 +36,5 @@ pub trait TraceInfo {
 }
 
 pub trait TraceEventsPositions {
-  fn event_positions(&self, event_class: &String) -> Option<&Vec<usize>>;
+  fn event_positions(&self, event_class: &str) -> Option<&Vec<usize>>;
 }

@@ -66,7 +66,7 @@ fn create_strict_loop_activity_instance(
   array: &TandemArrayInfo,
   trace_index: usize,
   trace: &XesTraceImpl,
-  hashed_trace: &Vec<u64>,
+  hashed_trace: &[u64],
 ) -> ActivityInTraceInfo {
   let repeat_count = *array.get_repeat_count();
   let array = array.get_sub_array_info();

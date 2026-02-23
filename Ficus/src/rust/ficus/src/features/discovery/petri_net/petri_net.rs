@@ -187,7 +187,7 @@ where
     self.places_to_transitions.get(place_id).unwrap()
   }
 
-  fn map_transitions(&self, ids: &Vec<u64>) -> Vec<&Transition<TTransitionData, TArcData>> {
+  fn map_transitions(&self, ids: &[u64]) -> Vec<&Transition<TTransitionData, TArcData>> {
     ids.iter().map(|id| self.transitions.get(id).unwrap()).collect()
   }
 

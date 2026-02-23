@@ -55,7 +55,7 @@ where
 }
 
 impl RegexEventHasher {
-  pub fn new(regex: &String) -> Result<RegexEventHasher, Error> {
+  pub fn new(regex: &str) -> Result<RegexEventHasher, Error> {
     match Regex::new(regex) {
       Ok(regex) => Ok(RegexEventHasher { regex }),
       Err(error) => Err(error),

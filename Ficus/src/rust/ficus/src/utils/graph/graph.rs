@@ -53,10 +53,7 @@ pub enum GraphKind {
 
 impl GraphKind {
   pub fn is_dag(&self) -> bool {
-    match self {
-      Self::Dag | Self::DagLCS => true,
-      _ => false,
-    }
+    matches!(self, Self::Dag | Self::DagLCS)
   }
 }
 
