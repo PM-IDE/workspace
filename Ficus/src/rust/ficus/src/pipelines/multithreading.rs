@@ -13,12 +13,12 @@ use crate::{
     discovery::{
       ecfg::log_prepare::prepare_software_log,
       multithreaded_dfg::dfg::{
-        discover_multithreaded_dfg, enumerate_multithreaded_events_groups, MultithreadedTracePartsCreationStrategy,
+        MultithreadedTracePartsCreationStrategy, discover_multithreaded_dfg, enumerate_multithreaded_events_groups,
       },
       timeline::{
         abstraction::abstract_event_groups,
         discovery::{discover_timeline_diagram, discover_traces_timeline_diagram},
-        events_groups::{enumerate_event_groups, EventGroup},
+        events_groups::{EventGroup, enumerate_event_groups},
         software_data::extraction_config::{ExtractionConfig, MethodStartEndConfig, SoftwareDataExtractionConfig},
       },
     },
@@ -267,7 +267,7 @@ impl PipelineParts {
           return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(format!(
             "Failed to create regex from {}, error: {}",
             alloc_regex, err
-          ))))
+          ))));
         }
       };
 

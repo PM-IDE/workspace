@@ -3,8 +3,8 @@ use crate::{
   utils::xml_utils::{StartEndElementCookie, XmlWriteError},
 };
 use quick_xml::{
-  events::{BytesText, Event},
   Writer,
+  events::{BytesText, Event},
 };
 use std::{cell::RefCell, fs, io::Cursor};
 

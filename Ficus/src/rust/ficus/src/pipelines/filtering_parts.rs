@@ -18,7 +18,7 @@ use crate::{
   pipeline_part,
   pipelines::{
     context::PipelineContext,
-    keys::context_keys::{EVENTS_COUNT_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY},
+    keys::context_keys::{EVENT_LOG_KEY, EVENT_NAME_KEY, EVENTS_COUNT_KEY, REGEX_KEY},
     pipeline_parts::PipelineParts,
   },
   utils::user_data::user_data::UserDataImpl,

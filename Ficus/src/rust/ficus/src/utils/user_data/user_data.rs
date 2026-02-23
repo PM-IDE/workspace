@@ -46,11 +46,7 @@ pub trait UserData {
 
 impl UserData for UserDataImpl {
   fn len(&self) -> usize {
-    if let Some(map) = self.values_map.as_ref() {
-      map.len()
-    } else {
-      0
-    }
+    if let Some(map) = self.values_map.as_ref() { map.len() } else { 0 }
   }
 
   fn put_concrete<T: 'static>(&mut self, key: &DefaultKey<T>, value: T) {
@@ -110,7 +106,6 @@ impl UserData for UserDataImpl {
     })
   }
 }
-
 
 impl UserDataImpl {
   fn initialize_values_map(&mut self) {

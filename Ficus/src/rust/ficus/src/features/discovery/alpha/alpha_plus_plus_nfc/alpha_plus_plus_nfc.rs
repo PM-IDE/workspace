@@ -7,7 +7,7 @@ use crate::{
     },
     discovery::{
       alpha::{
-        alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop, ALPHA_SET},
+        alpha::{ALPHA_SET, discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop},
         alpha_plus_plus_nfc::{alpha_plus_plus_nfc_triple::AlphaPlusPlusNfcTriple, extended_alpha_set::ExtendedAlphaSet, w3_pair::W3Pair},
         providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider,
         utils::maximize,

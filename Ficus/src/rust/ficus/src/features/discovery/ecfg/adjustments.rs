@@ -6,10 +6,10 @@ use crate::{
         NODE_CORRESPONDING_TRACE_DATA_KEY, NODE_INNER_GRAPH_KEY, NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
         NODE_START_END_ACTIVITY_TIME_KEY,
       },
-      discovery::{replay_sequence_with_history, EVENT_UNIQUE_ID_KEY},
+      discovery::{EVENT_UNIQUE_ID_KEY, replay_sequence_with_history},
       models::{ActivityStartEndTimeData, DiscoverECFGError, EventWithUniqueId, NodeAdditionalDataContainer},
     },
-    petri_net::annotations::{PerformanceAnnotationInfo, PerformanceMap, PERFORMANCE_ANNOTATION_INFO_KEY},
+    petri_net::annotations::{PERFORMANCE_ANNOTATION_INFO_KEY, PerformanceAnnotationInfo, PerformanceMap},
   },
   utils::{
     context_key::DefaultContextKey,

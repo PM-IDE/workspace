@@ -55,9 +55,9 @@ macro_rules! pipeline_part {
 }
 
 impl Default for PipelineParts {
-    fn default() -> Self {
-        Self::new()
-    }
+  fn default() -> Self {
+    Self::new()
+  }
 }
 
 impl PipelineParts {

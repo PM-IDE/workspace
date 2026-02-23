@@ -2,8 +2,8 @@ use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::tr
 use std::{
   cell::RefCell,
   collections::{
-    hash_map::{DefaultHasher, Entry},
     HashMap,
+    hash_map::{DefaultHasher, Entry},
   },
   hash::{Hash, Hasher},
   rc::Rc,

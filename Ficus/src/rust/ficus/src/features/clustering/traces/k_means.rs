@@ -3,7 +3,7 @@ use crate::{
   features::clustering::{
     error::ClusteringError,
     traces::{
-      common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels},
+      common::{BestSilhouetteLabels, calculate_distance, do_clusterize_log_by_traces},
       traces_params::TracesClusteringParams,
     },
   },

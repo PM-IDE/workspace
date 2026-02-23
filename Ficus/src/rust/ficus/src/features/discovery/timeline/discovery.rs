@@ -4,7 +4,7 @@ use crate::{
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
   },
   features::discovery::timeline::{
-    events_groups::{discover_events_groups, TraceEventsGroup},
+    events_groups::{TraceEventsGroup, discover_events_groups},
     utils::{extract_thread_id, get_stamp},
   },
   pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},

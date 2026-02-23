@@ -7,7 +7,7 @@ use ficus::{
     },
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
   },
-  features::discovery::multithreaded_dfg::dfg::{discover_multithreaded_dfg, MultithreadedTracePartsCreationStrategy},
+  features::discovery::multithreaded_dfg::dfg::{MultithreadedTracePartsCreationStrategy, discover_multithreaded_dfg},
 };
 use std::{cell::RefCell, rc::Rc};
 

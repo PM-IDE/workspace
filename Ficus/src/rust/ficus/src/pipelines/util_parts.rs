@@ -21,7 +21,7 @@ use crate::{
     context::{PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::PipelinePartExecutionError,
     keys::context_keys::{
-      EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPHS_KEY, GRAPH_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY,
+      EVENT_CLASS_REGEX_KEY, EVENT_LOG_INFO_KEY, EVENT_LOG_KEY, GRAPH_KEY, GRAPHS_KEY, HASHES_EVENT_LOG_KEY, NAMES_EVENT_LOG_KEY,
       PIPELINE_KEY,
     },
     pipeline_parts::PipelineParts,

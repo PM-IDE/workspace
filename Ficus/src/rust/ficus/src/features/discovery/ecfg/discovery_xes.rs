@@ -6,7 +6,7 @@ use crate::{
   features::{
     analysis::patterns::{
       activity_instances::{create_vector_of_underlying_events, try_get_base_pattern},
-      pattern_info::{UnderlyingPatternGraphInfo, UnderlyingPatternInfo, UNDERLYING_PATTERN_KIND_KEY},
+      pattern_info::{UNDERLYING_PATTERN_KIND_KEY, UnderlyingPatternGraphInfo, UnderlyingPatternInfo},
     },
     discovery::{
       ecfg::{

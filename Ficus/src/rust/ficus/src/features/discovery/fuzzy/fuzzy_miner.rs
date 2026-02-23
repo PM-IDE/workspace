@@ -335,11 +335,7 @@ fn clusters_correlation<TLog: EventLog>(
     }
   }
 
-  if count == 0 {
-    0.0
-  } else {
-    corr / count as f64
-  }
+  if count == 0 { 0.0 } else { corr / count as f64 }
 }
 
 fn find_most_correlated_cluster<TLog: EventLog>(

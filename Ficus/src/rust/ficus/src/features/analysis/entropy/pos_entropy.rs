@@ -26,7 +26,9 @@ where
       let event = event.borrow();
       let name = event.name();
 
-      if let Some(ignored_events_set) = ignored_events && ignored_events_set.contains(name) {
+      if let Some(ignored_events_set) = ignored_events
+        && ignored_events_set.contains(name)
+      {
         continue;
       }
 

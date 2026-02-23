@@ -25,10 +25,7 @@ where
 {
   fn clone(&self) -> Self {
     Self {
-      events: self.events
-        .iter()
-        .map(|ptr| Rc::new(RefCell::new(ptr.borrow().clone())))
-        .collect(),
+      events: self.events.iter().map(|ptr| Rc::new(RefCell::new(ptr.borrow().clone()))).collect(),
 
       events_sequence_info: LazyCell::new(),
       events_positions: LazyCell::new(),

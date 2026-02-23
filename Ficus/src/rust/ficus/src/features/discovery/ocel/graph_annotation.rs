@@ -26,13 +26,11 @@ pub enum OcelAnnotationCreationError {
   OneOfMergedObjetsDoesNotExist,
 }
 
-#[derive(Getters)]
-#[derive(Default)]
+#[derive(Getters, Default)]
 pub struct NodeObjectsState {
   #[getset(get = "pub")]
   map: HashMap<HeapedOrOwned<String>, HashSet<HeapedOrOwned<String>>>,
 }
-
 
 impl NodeObjectsState {
   pub fn add_allocated_object(

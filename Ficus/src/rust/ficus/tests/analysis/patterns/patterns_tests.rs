@@ -17,7 +17,7 @@ use ficus::{
     contexts::PatternsDiscoveryStrategy,
     repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
     tandem_arrays::{
-      find_maximal_tandem_arrays_with_length, find_primitive_tandem_arrays_with_length, SubArrayInTraceInfo, TandemArrayInfo,
+      SubArrayInTraceInfo, TandemArrayInfo, find_maximal_tandem_arrays_with_length, find_primitive_tandem_arrays_with_length,
     },
   },
 };

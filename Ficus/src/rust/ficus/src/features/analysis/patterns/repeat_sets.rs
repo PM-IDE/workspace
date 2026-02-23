@@ -163,10 +163,7 @@ where
     )))
   };
 
-  let mut activity_nodes = repeats
-    .iter()
-    .map(create_activity_node)
-    .collect::<Vec<Rc<RefCell<ActivityNode>>>>();
+  let mut activity_nodes = repeats.iter().map(create_activity_node).collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
   activity_nodes.sort_by_key(|item| std::cmp::Reverse(item.borrow().len()));
   let max_length = activity_nodes[0].borrow().len();

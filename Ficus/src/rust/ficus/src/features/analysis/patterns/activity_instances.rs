@@ -507,9 +507,7 @@ where
       let base_pattern = if let Some(repeat_set) = activity.node.borrow().repeat_set() {
         let trace = log.traces().get(repeat_set.trace_index).unwrap();
         let sub_array = repeat_set.sub_array;
-        Some(
-          trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length].to_vec(),
-        )
+        Some(trace.borrow().events()[sub_array.start_index..sub_array.start_index + sub_array.length].to_vec())
       } else {
         None
       };

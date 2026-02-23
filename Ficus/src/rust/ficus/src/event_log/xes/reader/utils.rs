@@ -7,7 +7,7 @@ use crate::event_log::{core::event::event::EventPayloadValue, xes::constants::*}
 use crate::event_log::core::event::lifecycle::xes_lifecycle::Lifecycle;
 use quick_xml::{
   escape::unescape,
-  events::{attributes::Attribute, BytesStart},
+  events::{BytesStart, attributes::Attribute},
 };
 
 pub struct KeyValuePair<TKey, TValue> {

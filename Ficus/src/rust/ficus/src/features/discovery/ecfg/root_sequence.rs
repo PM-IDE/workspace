@@ -29,10 +29,7 @@ pub fn discover_root_sequence<T: PartialEq + Clone + Debug>(log: &Vec<Vec<T>>, r
     }
     RootSequenceKind::LCS => find_lcs_candidate_for_root_sequence(log).0,
     RootSequenceKind::PairwiseLCS => create_root_sequence_from_lcs(log, find_traces_pairwise_lcs_candidate_for_root_sequence(log).0),
-    RootSequenceKind::Trace => log
-      .get(find_trace_candidate_for_root_sequence(log).0)
-      .unwrap()
-      .to_vec(),
+    RootSequenceKind::Trace => log.get(find_trace_candidate_for_root_sequence(log).0).unwrap().to_vec(),
   }
 }
 

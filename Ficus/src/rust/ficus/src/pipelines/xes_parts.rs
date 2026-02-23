@@ -5,7 +5,7 @@ use super::{
 use crate::{
   event_log::{
     bxes::{
-      bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult},
+      bxes_to_xes_converter::{BxesToXesConversionResult, read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes},
       xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes},
     },
     xes::{
@@ -17,7 +17,7 @@ use crate::{
   pipeline_part,
   pipelines::{
     context::PipelineContext,
-    keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY},
+    keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATH_KEY, PATHS_KEY, SYSTEM_METADATA_KEY},
     pipeline_parts::PipelineParts,
   },
   utils::user_data::user_data::{UserData, UserDataImpl},

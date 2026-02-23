@@ -20,11 +20,11 @@ use crate::{
   },
   features::{
     analysis::patterns::{
-      activity_instances::{create_vector_of_underlying_events, ActivityInTraceInfo},
+      activity_instances::{ActivityInTraceInfo, create_vector_of_underlying_events},
       repeat_sets::ActivityNode,
     },
     clustering::{
-      common::{scale_raw_dataset_min_max, MyDataset},
+      common::{MyDataset, scale_raw_dataset_min_max},
       error::ClusteringError,
     },
   },
@@ -143,7 +143,7 @@ fn create_activities_repr_from_subtraces(
     .map(|x| {
       (
         x.0.as_ref().as_ref().to_owned(),
-        (x.1 .0, x.1 .1.into_iter().map(|x| (x.0, x.1)).collect()),
+        (x.1.0, x.1.1.into_iter().map(|x| (x.0, x.1)).collect()),
       )
     })
     .collect()
@@ -174,11 +174,7 @@ fn create_dataset_internal(
   let mut vector = vec![];
   for activity in &processed {
     for event_class in &all_event_classes {
-      let count = if let Some(count) = activity.1.get(event_class) {
-        *count
-      } else {
-        0
-      };
+      let count = if let Some(count) = activity.1.get(event_class) { *count } else { 0 };
 
       vector.push(count as f64);
     }

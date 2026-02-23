@@ -3,7 +3,7 @@ use crate::{
   features::discovery::timeline::software_data::{
     extraction_config::{PieChartExtractionConfig, SoftwareDataExtractionConfig},
     extractors::{
-      core::{parse_or_err, EventGroupSoftwareDataExtractor, SoftwareDataExtractionError},
+      core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError, parse_or_err},
       utils::RegexParingResult,
     },
     models::{GenericEnhancementBase, HistogramData, HistogramEntry, SoftwareData},

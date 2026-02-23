@@ -3,12 +3,12 @@ use ficus::{
   features::clustering::traces::common::calculate_distance,
   utils::{
     distance::distance::{DistanceWrapper, FicusDistance},
-    silhouette::{silhouette_score, SilhouetteScoreError},
+    silhouette::{SilhouetteScoreError, silhouette_score},
   },
 };
-use linfa::{metrics::SilhouetteScore, prelude::Transformer, DatasetBase};
+use linfa::{DatasetBase, metrics::SilhouetteScore, prelude::Transformer};
 use linfa_clustering::Dbscan;
-use linfa_nn::{distance::L2Dist, CommonNearestNeighbour::KdTree};
+use linfa_nn::{CommonNearestNeighbour::KdTree, distance::L2Dist};
 use ndarray::{Array1, Array2};
 
 #[test]

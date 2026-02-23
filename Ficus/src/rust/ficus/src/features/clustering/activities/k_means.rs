@@ -10,7 +10,7 @@ use crate::{
   features::{
     analysis::patterns::repeat_sets::ActivityNode,
     clustering::{
-      common::{create_colors_vector, transform_to_ficus_dataset, ClusteredDataset, MyDataset},
+      common::{ClusteredDataset, MyDataset, create_colors_vector, transform_to_ficus_dataset},
       error::{ClusteringError, ClusteringResult},
     },
   },

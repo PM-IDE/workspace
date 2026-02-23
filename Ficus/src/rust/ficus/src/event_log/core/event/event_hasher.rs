@@ -17,7 +17,6 @@ where
 #[derive(Default)]
 pub struct NameEventHasher;
 
-
 impl<TEvent> EventHasher<TEvent> for NameEventHasher
 where
   TEvent: Event,

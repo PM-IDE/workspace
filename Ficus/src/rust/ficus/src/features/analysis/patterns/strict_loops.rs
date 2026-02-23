@@ -7,7 +7,7 @@ use crate::{
     activity_instances::ActivityInTraceInfo,
     pattern_info::UnderlyingPatternKind,
     repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
-    tandem_arrays::{try_extract_tandem_array, TandemArrayInfo},
+    tandem_arrays::{TandemArrayInfo, try_extract_tandem_array},
   },
   utils::display_name::get_display_name,
 };

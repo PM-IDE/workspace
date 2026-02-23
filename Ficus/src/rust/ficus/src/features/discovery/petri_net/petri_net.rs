@@ -154,11 +154,7 @@ where
       }
     }
 
-    if result.is_empty() {
-      None
-    } else {
-      Some(result)
-    }
+    if result.is_empty() { None } else { Some(result) }
   }
 
   pub fn arc(&self, id: &u64) -> Option<(&Arc<TArcData>, &Transition<TTransitionData, TArcData>)> {

@@ -6,7 +6,7 @@ use std::{
   rc::Rc,
 };
 
-use quick_xml::{events::BytesStart, Reader};
+use quick_xml::{Reader, events::BytesStart};
 
 use crate::event_log::{
   core::event::event::EventPayloadValue,

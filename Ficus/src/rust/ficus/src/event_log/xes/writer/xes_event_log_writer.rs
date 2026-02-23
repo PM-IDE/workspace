@@ -10,7 +10,7 @@ use crate::{
     },
     xes::{constants::*, xes_event_log::XesEventLogImpl},
   },
-  utils::xml_utils::{write_empty, StartEndElementCookie, XmlWriteError},
+  utils::xml_utils::{StartEndElementCookie, XmlWriteError, write_empty},
 };
 
 pub fn write_xes_log_to_bytes(log: &XesEventLogImpl) -> Result<Vec<u8>, XmlWriteError> {

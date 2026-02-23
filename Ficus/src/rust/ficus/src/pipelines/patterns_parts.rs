@@ -2,10 +2,10 @@ use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecu
 use crate::{
   features::analysis::patterns::{
     contexts::PatternsDiscoveryStrategy,
-    pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY},
+    pattern_info::{UNDERLYING_PATTERN_KIND_KEY, UnderlyingPatternKind},
     repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
     strict_loops::find_loops_strict,
-    tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
+    tandem_arrays::{SubArrayInTraceInfo, find_maximal_tandem_arrays, find_primitive_tandem_arrays},
   },
   pipelines::{
     keys::context_keys::{
