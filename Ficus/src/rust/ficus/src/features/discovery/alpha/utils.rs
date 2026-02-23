@@ -14,13 +14,13 @@ pub fn maximize<TElement: Hash + Eq + Clone>(
 
     for i in 0..vec.len() {
       for j in 0..vec.len() {
-        if i != j {
-          if let Some(merged) = merger(vec.get(i).unwrap(), vec.get(j).unwrap()) {
-            any_change = true;
-            new_elements.insert(merged);
-            merged_indices.insert(i);
-            merged_indices.insert(j);
-          }
+        if i != j
+          && let Some(merged) = merger(vec.get(i).unwrap(), vec.get(j).unwrap())
+        {
+          any_change = true;
+          new_elements.insert(merged);
+          merged_indices.insert(i);
+          merged_indices.insert(j);
         }
       }
     }

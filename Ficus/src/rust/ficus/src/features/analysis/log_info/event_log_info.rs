@@ -140,10 +140,10 @@ impl OfflineEventLogInfo {
         let event = event.borrow();
         let current_name = event.name().to_owned();
 
-        if let Some(ignored_events) = ignored_events {
-          if ignored_events.contains(&current_name) {
-            continue;
-          }
+        if let Some(ignored_events) = ignored_events
+          && ignored_events.contains(&current_name)
+        {
+          continue;
         }
 
         update_events_counts(&current_name);

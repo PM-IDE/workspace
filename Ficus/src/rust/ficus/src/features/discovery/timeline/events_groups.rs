@@ -44,13 +44,12 @@ pub fn discover_events_groups(
   };
 
   while let Some((event, trace_index, event_index)) = events.next() {
-    if let Some(control_flow_regexes) = control_flow_regexes {
-      if !control_flow_regexes
+    if let Some(control_flow_regexes) = control_flow_regexes
+      && !control_flow_regexes
         .iter()
         .any(|regex| regex.is_match(event.original_event().borrow().name()).unwrap_or(false))
-      {
-        continue;
-      }
+    {
+      continue;
     }
 
     let create_events_group = || {

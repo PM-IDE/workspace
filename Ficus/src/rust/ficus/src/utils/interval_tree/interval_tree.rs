@@ -151,16 +151,16 @@ where
         result.insert(*interval);
       }
 
-      if let Some(left_child) = node.left_child {
-        if point < node.center {
-          self.search_internal(left_child, point, result);
-        }
+      if let Some(left_child) = node.left_child
+        && point < node.center
+      {
+        self.search_internal(left_child, point, result);
       }
 
-      if let Some(right_child) = node.right_child {
-        if point > node.center {
-          self.search_internal(right_child, point, result);
-        }
+      if let Some(right_child) = node.right_child
+        && point > node.center
+      {
+        self.search_internal(right_child, point, result);
       }
     }
   }

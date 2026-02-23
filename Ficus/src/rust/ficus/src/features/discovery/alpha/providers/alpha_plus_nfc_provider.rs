@@ -165,31 +165,31 @@ where
           continue;
         }
 
-        if events[i].borrow().name() == second {
-          if let Some(first_index) = last_first_index {
-            let mut all_suitable = true;
-            let mut actual_length = 0;
+        if events[i].borrow().name() == second
+          && let Some(first_index) = last_first_index
+        {
+          let mut all_suitable = true;
+          let mut actual_length = 0;
 
-            for j in (first_index + 1)..i {
-              let event = events[j].borrow();
-              let event_name = event.name();
-              if self.log_info().event_count(event_name) == 0 {
-                continue;
-              }
-
-              actual_length += 1;
-              if self.left_triangle_relation(event_name, first) || self.right_triangle_relation(event_name, first) {
-                all_suitable = false;
-                break;
-              }
+          for j in (first_index + 1)..i {
+            let event = events[j].borrow();
+            let event_name = event.name();
+            if self.log_info().event_count(event_name) == 0 {
+              continue;
             }
 
-            if all_suitable && actual_length > 0 {
-              return true;
+            actual_length += 1;
+            if self.left_triangle_relation(event_name, first) || self.right_triangle_relation(event_name, first) {
+              all_suitable = false;
+              break;
             }
-
-            last_first_index = None;
           }
+
+          if all_suitable && actual_length > 0 {
+            return true;
+          }
+
+          last_first_index = None;
         }
       }
     }

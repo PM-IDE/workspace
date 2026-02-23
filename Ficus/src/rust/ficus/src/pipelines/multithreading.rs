@@ -276,11 +276,11 @@ impl PipelineParts {
         for event in trace.events() {
           if alloc_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
             let mut event = event.borrow_mut();
-            if let Some(map) = event.payload_map_mut() {
-              if let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str()) {
-                let string = type_name.to_string_repr().to_string();
-                *type_name = EventPayloadValue::String(Rc::new(Box::new(Self::shorten_type_or_method_name(string))));
-              }
+            if let Some(map) = event.payload_map_mut()
+              && let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str())
+            {
+              let string = type_name.to_string_repr().to_string();
+              *type_name = EventPayloadValue::String(Rc::new(Box::new(Self::shorten_type_or_method_name(string))));
             }
           }
         }
@@ -475,18 +475,18 @@ impl PipelineParts {
           continue;
         }
 
-        if let Some(payload) = event.payload_map() {
-          if let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config) {
-            let id = method_id_factory(&namespace, &name, &signature);
-            let fqn = namespace + name.as_str() + signature.as_str();
+        if let Some(payload) = event.payload_map()
+          && let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config)
+        {
+          let id = method_id_factory(&namespace, &name, &signature);
+          let fqn = namespace + name.as_str() + signature.as_str();
 
-            if let Some(entry) = map.get(&id) {
-              if !fqn.eq(entry) {
-                return false;
-              }
-            } else {
-              map.insert(id, fqn);
+          if let Some(entry) = map.get(&id) {
+            if !fqn.eq(entry) {
+              return false;
             }
+          } else {
+            map.insert(id, fqn);
           }
         }
       }
@@ -505,13 +505,13 @@ impl PipelineParts {
         let mut display_name = None;
         if let Some(payload) = event.borrow().payload_map() {
           for config in &configs {
-            if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
-              if let Some((_, name, _)) = Self::extract_method_name_parts(payload, config) {
-                display_name = Some(match config.prefix.as_ref() {
-                  None => name,
-                  Some(prefix) => prefix.to_string() + name.as_str(),
-                });
-              }
+            if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false)
+              && let Some((_, name, _)) = Self::extract_method_name_parts(payload, config)
+            {
+              display_name = Some(match config.prefix.as_ref() {
+                None => name,
+                Some(prefix) => prefix.to_string() + name.as_str(),
+              });
             }
           }
         }

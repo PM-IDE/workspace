@@ -86,10 +86,10 @@ where
   let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
   let mut entropies = HashMap::new();
   for event_name in log_info.all_event_classes() {
-    if let Some(ignored_events) = ignored_events {
-      if ignored_events.contains(event_name.as_str()) {
-        continue;
-      }
+    if let Some(ignored_events) = ignored_events
+      && ignored_events.contains(event_name.as_str())
+    {
+      continue;
     }
 
     let entropy = entropy_calculator(log, event_name, ignored_events);

@@ -117,12 +117,11 @@ impl<'a> TraceXesEventLogIterator<'a> {
       return false;
     }
 
-    if let Some(event_globals) = globals.get(EVENT_TAG_NAME_STR) {
-      if let Some(default_value) = event_globals.get(key) {
-        if default_value == payload_value.as_ref().unwrap() {
-          return false;
-        }
-      }
+    if let Some(event_globals) = globals.get(EVENT_TAG_NAME_STR)
+      && let Some(default_value) = event_globals.get(key)
+      && default_value == payload_value.as_ref().unwrap()
+    {
+      return false;
     }
 
     Self::update_event_data(key, payload_value.unwrap(), date, name, payload);

@@ -253,10 +253,10 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a Stri
 
   for first_class in &all_classes {
     for second_class in &all_classes {
-      if let Some(children) = graph.get(first_class) {
-        if children.contains(second_class) {
-          continue;
-        }
+      if let Some(children) = graph.get(first_class)
+        && children.contains(second_class)
+      {
+        continue;
       }
 
       let mut is_in_closure = false;
@@ -293,10 +293,10 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a Stri
 fn eliminate_w3_relations_by_rule_2(w3_relations: &mut HashSet<(&String, &String)>, closure_cache: &HashMap<String, HashSet<String>>) {
   let mut to_remove = HashSet::new();
   for relation in w3_relations.iter() {
-    if let Some(children) = closure_cache.get(relation.0) {
-      if children.contains(relation.1) {
-        to_remove.insert(*relation);
-      }
+    if let Some(children) = closure_cache.get(relation.0)
+      && children.contains(relation.1)
+    {
+      to_remove.insert(*relation);
     }
   }
 

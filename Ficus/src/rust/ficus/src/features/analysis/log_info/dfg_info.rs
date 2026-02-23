@@ -49,10 +49,10 @@ impl OfflineDfgInfo {
 
 impl DfgInfo for OfflineDfgInfo {
   fn get_directly_follows_count(&self, first: &str, second: &str) -> usize {
-    if let Some(values) = self.followed_events.get(first) {
-      if let Some(dfg_count) = values.get(second) {
-        return *dfg_count;
-      }
+    if let Some(values) = self.followed_events.get(first)
+      && let Some(dfg_count) = values.get(second)
+    {
+      return *dfg_count;
     }
 
     0

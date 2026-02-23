@@ -212,10 +212,10 @@ impl PipelineParts {
       let attribute = Self::get_user_data(config, &ATTRIBUTE_KEY)?;
 
       let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| {
-        if let Some(attributes) = e.payload_map() {
-          if let Some(value) = attributes.get(attribute) {
-            return value.to_string_repr();
-          }
+        if let Some(attributes) = e.payload_map()
+          && let Some(value) = attributes.get(attribute)
+        {
+          return value.to_string_repr();
         }
 
         HeapedOrOwned::Owned("UNDEF_ATTRIBUTE".to_string())

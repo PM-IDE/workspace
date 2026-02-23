@@ -130,10 +130,10 @@ fn create_abstracted_event(
     )?;
   }
 
-  if let Some(cf_event) = event_group.control_flow_events().first().as_ref() {
-    if let Some(display_name) = cf_event.borrow().user_data().concrete(DISPLAY_NAME_KEY.key()) {
-      event.user_data_mut().put_concrete(DISPLAY_NAME_KEY.key(), display_name.clone());
-    }
+  if let Some(cf_event) = event_group.control_flow_events().first().as_ref()
+    && let Some(display_name) = cf_event.borrow().user_data().concrete(DISPLAY_NAME_KEY.key())
+  {
+    event.user_data_mut().put_concrete(DISPLAY_NAME_KEY.key(), display_name.clone());
   }
 
   Ok(Rc::new(RefCell::new(event)))
