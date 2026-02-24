@@ -3,8 +3,8 @@ use std::{
   collections::VecDeque,
   pin::Pin,
   sync::{
-    atomic::{AtomicBool, Ordering},
     Arc, Mutex,
+    atomic::{AtomicBool, Ordering},
   },
   task::{Context, Poll},
 };
@@ -14,14 +14,16 @@ pub struct StreamQueue<T> {
   queue: VecDeque<T>,
 }
 
-impl<T> StreamQueue<T> {
-  pub fn new() -> Self {
+impl<T> Default for StreamQueue<T> {
+  fn default() -> Self {
     Self {
       queue: VecDeque::new(),
       is_active: AtomicBool::new(true),
     }
   }
+}
 
+impl<T> StreamQueue<T> {
   pub fn is_active(&self) -> bool {
     self.is_active.load(Ordering::SeqCst)
   }
@@ -43,20 +45,24 @@ impl<T> Stream for AsyncStreamQueue<T> {
 
     if !queue.is_active.load(Ordering::SeqCst) {
       Poll::Ready(None)
+    } else if let Some(value) = queue.queue.pop_front() {
+      Poll::Ready(Some(value))
     } else {
-      if let Some(value) = queue.queue.pop_front() {
-        Poll::Ready(Some(value))
-      } else {
-        Poll::Pending
-      }
+      Poll::Pending
     }
+  }
+}
+
+impl<T> Default for AsyncStreamQueue<T> {
+  fn default() -> Self {
+    Self::new()
   }
 }
 
 impl<T> AsyncStreamQueue<T> {
   pub fn new() -> Self {
     Self {
-      queue: Arc::new(Mutex::new(StreamQueue::new())),
+      queue: Arc::new(Mutex::new(StreamQueue::default())),
     }
   }
 

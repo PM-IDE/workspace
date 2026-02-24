@@ -1,0 +1,46 @@
+use crate::{
+  ficus_proto::GrpcPipelineStreamingConfiguration,
+  grpc::kafka::streaming::{
+    processors::TracesProcessor,
+    t1::{configs::T1StreamingConfiguration, processors::T1StreamingProcessor},
+    t2::configs::T2StreamingConfiguration,
+  },
+};
+use ficus::features::streaming::t1::{
+  configs::TracesQueueConfiguration,
+  filterers::{T1LogFilterer, TracesQueueFiltererImpl},
+};
+
+type StreamingConfigurationEnum = crate::ficus_proto::grpc_pipeline_streaming_configuration::Configuration;
+
+pub enum StreamingConfiguration {
+  NotSpecified,
+  T1(T1StreamingConfiguration),
+  T2(T2StreamingConfiguration),
+}
+
+impl StreamingConfiguration {
+  pub fn new(grpc_config: &GrpcPipelineStreamingConfiguration) -> Option<Self> {
+    match grpc_config.configuration.as_ref() {
+      None => None,
+      Some(c) => match c {
+        StreamingConfigurationEnum::NotSpecified(_) => Some(StreamingConfiguration::NotSpecified),
+        StreamingConfigurationEnum::T1Configuration(t1) => T1StreamingConfiguration::new(t1).map(StreamingConfiguration::T1),
+        StreamingConfigurationEnum::T2Configuration(t2) => T2StreamingConfiguration::new(t2).map(StreamingConfiguration::T2),
+      },
+    }
+  }
+
+  pub fn create_processor(&self) -> TracesProcessor {
+    match self {
+      StreamingConfiguration::NotSpecified => Self::create_default_processor(),
+      StreamingConfiguration::T1(c) => TracesProcessor::T1(c.create_processor()),
+      StreamingConfiguration::T2(c) => TracesProcessor::T2(c.create_processor()),
+    }
+  }
+
+  fn create_default_processor() -> TracesProcessor {
+    let filterer = TracesQueueFiltererImpl::new(TracesQueueConfiguration::new(1_000));
+    TracesProcessor::T1(T1StreamingProcessor::new(T1LogFilterer::TracesQueueFilterer(filterer)))
+  }
+}

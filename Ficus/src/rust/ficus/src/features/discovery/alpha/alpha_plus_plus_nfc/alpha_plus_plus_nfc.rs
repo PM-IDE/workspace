@@ -7,13 +7,13 @@ use crate::{
     },
     discovery::{
       alpha::{
-        alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop, ALPHA_SET},
+        alpha::{ALPHA_SET, discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop},
         alpha_plus_plus_nfc::{alpha_plus_plus_nfc_triple::AlphaPlusPlusNfcTriple, extended_alpha_set::ExtendedAlphaSet, w3_pair::W3Pair},
         providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider,
         utils::maximize,
       },
       petri_net::{petri_net::DefaultPetriNet, place::Place, transition::Transition},
-      relations::triangle_relation::{OfflineTriangleRelation, TriangleRelation},
+      relations::triangle_relation::OfflineTriangleRelation,
     },
   },
   utils::{sets::two_sets::TwoSets, user_data::user_data::UserData},
@@ -165,7 +165,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   let mut p_w = HashSet::new();
   let check_should_add_to_pw = |two_sets: &TwoSets<&String>| {
     for l_w_item in &l_w {
-      if l_w_item.a_classes().eq(&two_sets.first_set()) && l_w_item.b_classes().eq(&two_sets.second_set()) {
+      if l_w_item.a_classes().eq(two_sets.first_set()) && l_w_item.b_classes().eq(two_sets.second_set()) {
         return false;
       }
     }
@@ -192,12 +192,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
 
   let mut resulting_net = DefaultPetriNet::empty();
   let mut transitions_to_ids = HashMap::new();
-  for transition in info
-    .all_event_classes()
-    .iter()
-    .map(|c| *c)
-    .chain(one_length_loop_transitions.iter())
-  {
+  for transition in info.all_event_classes().iter().copied().chain(one_length_loop_transitions.iter()) {
     let id = resulting_net.add_transition(Transition::empty((*transition).to_owned(), false, Some((*transition).to_owned())));
     transitions_to_ids.insert(transition, id);
   }
@@ -230,7 +225,7 @@ fn eliminate_by_reduction_rule_1<TLog: EventLog>(
       if (provider.w2_relation(a, b, petri_net) && provider.concave_arrow_relation(b, c))
         || (provider.w2_relation(b, c, petri_net) && provider.concave_arrow_relation(a, b))
       {
-        to_remove.push(w2_relation.clone());
+        to_remove.push(*w2_relation);
       }
     }
   }
@@ -258,10 +253,10 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a Stri
 
   for first_class in &all_classes {
     for second_class in &all_classes {
-      if let Some(children) = graph.get(first_class) {
-        if children.contains(second_class) {
-          continue;
-        }
+      if let Some(children) = graph.get(first_class)
+        && children.contains(second_class)
+      {
+        continue;
       }
 
       let mut is_in_closure = false;
@@ -298,10 +293,10 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a Stri
 fn eliminate_w3_relations_by_rule_2(w3_relations: &mut HashSet<(&String, &String)>, closure_cache: &HashMap<String, HashSet<String>>) {
   let mut to_remove = HashSet::new();
   for relation in w3_relations.iter() {
-    if let Some(children) = closure_cache.get(relation.0) {
-      if children.contains(relation.1) {
-        to_remove.insert(relation.clone());
-      }
+    if let Some(children) = closure_cache.get(relation.0)
+      && children.contains(relation.1)
+    {
+      to_remove.insert(*relation);
     }
   }
 

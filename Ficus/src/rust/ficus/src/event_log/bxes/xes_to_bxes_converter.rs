@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{fmt::Display, rc::Rc};
 
 use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
 use crate::event_log::{
@@ -30,12 +30,15 @@ pub enum XesToBxesWriterError {
   ConversionError(String),
 }
 
-impl ToString for XesToBxesWriterError {
-  fn to_string(&self) -> String {
-    match self {
-      XesToBxesWriterError::BxesWriteError(err) => err.to_string(),
-      XesToBxesWriterError::ConversionError(err) => err.to_owned(),
-    }
+impl Display for XesToBxesWriterError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str(
+      match self {
+        XesToBxesWriterError::BxesWriteError(err) => err.to_string(),
+        XesToBxesWriterError::ConversionError(err) => err.to_owned(),
+      }
+      .as_str(),
+    )
   }
 }
 
@@ -94,7 +97,7 @@ fn create_bxes_traces(log: &XesEventLogImpl) -> Vec<BxesTraceVariant> {
 }
 
 fn create_bxes_event(log: &XesEventLogImpl, event: &XesEventImpl) -> BxesEvent {
-  let bxes_event = BxesEvent {
+  BxesEvent {
     name: Rc::new(Box::new(BxesValue::String(event.name_pointer().clone()))),
     timestamp: event.timestamp().timestamp_nanos_opt().expect("timestamp_nanos_opt"),
     attributes: Some(
@@ -102,12 +105,10 @@ fn create_bxes_event(log: &XesEventLogImpl, event: &XesEventImpl) -> BxesEvent {
         .ordered_payload()
         .iter()
         .filter(|kv| is_not_default_attribute(log, kv))
-        .map(|kv| kv_pair_to_bxes_pair(kv))
+        .map(kv_pair_to_bxes_pair)
         .collect(),
     ),
-  };
-
-  bxes_event
+  }
 }
 
 fn is_not_default_attribute(log: &XesEventLogImpl, kv: &(&String, &EventPayloadValue)) -> bool {
@@ -138,7 +139,7 @@ fn create_bxes_classifiers(log: &XesEventLogImpl) -> Vec<BxesClassifier> {
 }
 
 fn create_bxes_extensions(log: &XesEventLogImpl) -> Vec<BxesExtension> {
-  log.extensions().iter().map(|e| convert_to_bxes_extension(e)).collect()
+  log.extensions().iter().map(convert_to_bxes_extension).collect()
 }
 
 fn convert_to_bxes_extension(e: &XesEventLogExtension) -> BxesExtension {
@@ -154,7 +155,7 @@ fn create_bxes_globals(log: &XesEventLogImpl) -> Result<Vec<BxesGlobal>, XesToBx
   for xes_global in log.ordered_globals().iter() {
     globals.push(BxesGlobal {
       entity_kind: parse_entity_kind(xes_global.0.as_str())?,
-      globals: xes_global.1.iter().map(|kv| convert_to_bxes_global_attribute(kv)).collect(),
+      globals: xes_global.1.iter().map(convert_to_bxes_global_attribute).collect(),
     })
   }
 

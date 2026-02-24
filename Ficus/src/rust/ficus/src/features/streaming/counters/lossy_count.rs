@@ -49,7 +49,7 @@ where
       self.state.insert(element, LossyCountState::new(value, (bucket_number - 1) as f64));
     }
 
-    if self.observed_items_count % self.batch_size == 0 {
+    if self.observed_items_count.is_multiple_of(self.batch_size) {
       self.prune(bucket_number as f64);
     }
   }

@@ -6,7 +6,7 @@ use std::{
   rc::Rc,
 };
 
-use quick_xml::{events::BytesStart, Reader};
+use quick_xml::{Reader, events::BytesStart};
 
 use crate::event_log::{
   core::event::event::EventPayloadValue,
@@ -174,14 +174,8 @@ impl<'a> FromFileXesEventLogReader<'a> {
 
   fn try_read_tag(tag: &BytesStart) -> Option<XesEventLogItem<'a>> {
     let result = match tag.name().as_ref() {
-      EXTENSION_TAG_NAME => match Self::try_read_extension(&tag) {
-        Some(extension) => Some(XesEventLogItem::Extension(extension)),
-        None => None,
-      },
-      CLASSIFIER_TAG_NAME => match Self::try_read_classifier(&tag) {
-        Some(classifier) => Some(XesEventLogItem::Classifier(classifier)),
-        None => None,
-      },
+      EXTENSION_TAG_NAME => Self::try_read_extension(tag).map(XesEventLogItem::Extension),
+      CLASSIFIER_TAG_NAME => Self::try_read_classifier(tag).map(XesEventLogItem::Classifier),
       _ => None,
     };
 
@@ -195,14 +189,12 @@ impl<'a> FromFileXesEventLogReader<'a> {
   fn try_read_property(tag: &BytesStart) -> Option<XesEventLogItem<'a>> {
     match utils::read_payload_like_tag(tag) {
       Some(descriptor) => {
-        let payload_type = descriptor.payload_type.as_str().as_bytes();
+        let payload_type = descriptor.payload_type.as_bytes();
         let key = descriptor.key;
         let value = descriptor.value.as_str();
 
-        match utils::extract_payload_value(payload_type, key.as_str(), value) {
-          Some(value) => Some(XesEventLogItem::Property(XesProperty { name: key, value })),
-          None => None,
-        }
+        utils::extract_payload_value(payload_type, key.as_str(), value)
+          .map(|value| XesEventLogItem::Property(XesProperty { name: key, value }))
       }
       None => None,
     }
@@ -216,11 +208,11 @@ impl<'a> FromFileXesEventLogReader<'a> {
         Err(_) => return None,
         Ok(quick_xml::events::Event::Empty(tag)) => {
           if let Some(descriptor) = utils::read_payload_like_tag(&tag) {
-            if let None = map {
+            if map.is_none() {
               map = Some(HashMap::new())
             }
 
-            let payload_type = descriptor.payload_type.as_str().as_bytes();
+            let payload_type = descriptor.payload_type.as_bytes();
             let value = utils::extract_payload_value(payload_type, descriptor.key.as_str(), &descriptor.value);
             if let Some(payload_value) = value {
               map.as_mut().unwrap().insert(descriptor.key, payload_value);
@@ -299,7 +291,7 @@ impl<'a> FromFileXesEventLogReader<'a> {
       }
     }
 
-    if !name.is_some() || !prefix.is_some() || !uri.is_some() {
+    if name.is_none() || prefix.is_none() || uri.is_none() {
       return None;
     }
 

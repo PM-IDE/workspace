@@ -41,7 +41,7 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
   }
 
   pub fn weight(&self) -> f64 {
-    self.weight.clone()
+    self.weight
   }
 }
 
@@ -53,10 +53,7 @@ pub enum GraphKind {
 
 impl GraphKind {
   pub fn is_dag(&self) -> bool {
-    match self {
-      Self::Dag | Self::DagLCS => true,
-      _ => false,
-    }
+    matches!(self, Self::Dag | Self::DagLCS)
   }
 }
 
@@ -93,7 +90,7 @@ where
     Self {
       connections: HashMap::new(),
       nodes: HashMap::new(),
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
       kind: None,
     }
   }
@@ -107,17 +104,17 @@ where
   }
 
   pub fn all_nodes(&self) -> Vec<&GraphNode<TNodeData>> {
-    self.nodes.values().into_iter().collect()
+    self.nodes.values().collect()
   }
 
   pub fn all_nodes_mut(&mut self) -> Vec<&mut GraphNode<TNodeData>> {
-    self.nodes.values_mut().into_iter().collect()
+    self.nodes.values_mut().collect()
   }
 
   pub fn all_edges(&self) -> Vec<&GraphEdge<TEdgeData>> {
     let mut edges = vec![];
-    for (_, connections) in &self.connections {
-      for (_, edge) in connections {
+    for connections in self.connections.values() {
+      for edge in connections.values() {
         edges.push(edge)
       }
     }
@@ -126,20 +123,20 @@ where
   }
 
   pub fn edge(&self, first_node_id: &u64, second_node_id: &u64) -> Option<&GraphEdge<TEdgeData>> {
-    if let Some(connections) = self.connections.get(first_node_id) {
-      if let Some(edge) = connections.get(second_node_id) {
-        return Some(edge);
-      }
+    if let Some(connections) = self.connections.get(first_node_id)
+      && let Some(edge) = connections.get(second_node_id)
+    {
+      return Some(edge);
     }
 
     None
   }
 
   pub fn edge_mut(&mut self, first_node_id: &u64, second_node_id: &u64) -> Option<&mut GraphEdge<TEdgeData>> {
-    if let Some(connections) = self.connections.get_mut(first_node_id) {
-      if let Some(edge) = connections.get_mut(second_node_id) {
-        return Some(edge);
-      }
+    if let Some(connections) = self.connections.get_mut(first_node_id)
+      && let Some(edge) = connections.get_mut(second_node_id)
+    {
+      return Some(edge);
     }
 
     None
@@ -169,21 +166,20 @@ where
       return;
     }
 
-    if let Some(_) = self.nodes.get(first_node_id) {
-      if let Some(_) = self.nodes.get(second_node_id) {
-        let edge = GraphEdge::new(
-          *first_node_id,
-          *second_node_id,
-          connection_data.weight,
-          connection_data.data,
-          connection_data.user_data,
-        );
-        if let Some(connections) = self.connections.get_mut(first_node_id) {
-          connections.insert(second_node_id.to_owned(), edge);
-        } else {
-          let new_connections = HashMap::from_iter(vec![(second_node_id.to_owned(), edge)]);
-          self.connections.insert(first_node_id.to_owned(), new_connections);
-        }
+    if self.nodes.contains_key(first_node_id) && self.nodes.contains_key(second_node_id) {
+      let edge = GraphEdge::new(
+        *first_node_id,
+        *second_node_id,
+        connection_data.weight,
+        connection_data.data,
+        connection_data.user_data,
+      );
+
+      if let Some(connections) = self.connections.get_mut(first_node_id) {
+        connections.insert(second_node_id.to_owned(), edge);
+      } else {
+        let new_connections = HashMap::from_iter(vec![(second_node_id.to_owned(), edge)]);
+        self.connections.insert(first_node_id.to_owned(), new_connections);
       }
     }
   }

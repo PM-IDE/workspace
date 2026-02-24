@@ -1,5 +1,6 @@
 use crate::{
   features::mutations::mutations::{add_artificial_start_end_activities, append_attributes_to_name},
+  pipeline_part,
   pipelines::{
     context::PipelineContext,
     errors::pipeline_errors::PipelinePartExecutionError,
@@ -11,11 +12,10 @@ use crate::{
 };
 
 impl PipelineParts {
-  pub(super) fn add_artificial_start_end_events() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ADD_ARTIFICIAL_START_END_EVENTS, &|context, _, config| {
-      Self::create_add_start_end_events_internal(context, config, true, true)
-    })
-  }
+  pipeline_part!(
+    add_artificial_start_end_events,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| { Self::create_add_start_end_events_internal(context, config, true, true) }
+  );
 
   fn create_add_start_end_events_internal(
     context: &mut PipelineContext,
@@ -25,7 +25,7 @@ impl PipelineParts {
   ) -> Result<(), PipelinePartExecutionError> {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
     let attributes_to_copy = match Self::get_user_data(config, &ATTRIBUTES_KEY) {
-      Ok(attributes_to_copy) => Some(attributes_to_copy.iter().map(|a| a.clone()).collect()),
+      Ok(attributes_to_copy) => Some(attributes_to_copy.to_vec()),
       Err(_) => None,
     };
 
@@ -34,26 +34,25 @@ impl PipelineParts {
     Ok(())
   }
 
-  pub(super) fn add_artificial_start_events() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ADD_ARTIFICIAL_START_EVENTS, &|context, _, config| {
-      Self::create_add_start_end_events_internal(context, config, true, false)
-    })
-  }
+  pipeline_part!(
+    add_artificial_start_events,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| { Self::create_add_start_end_events_internal(context, config, true, false) }
+  );
 
-  pub(super) fn add_artificial_end_events() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ADD_ARTIFICIAL_END_EVENTS, &|context, _, config| {
-      Self::create_add_start_end_events_internal(context, config, false, true)
-    })
-  }
+  pipeline_part!(
+    add_artificial_end_events,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| { Self::create_add_start_end_events_internal(context, config, false, true) }
+  );
 
-  pub(super) fn append_attributes_to_name() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::APPEND_ATTRIBUTES_TO_NAME, &|context, _, config| {
+  pipeline_part!(
+    append_attributes_to_name,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
       let attributes = Self::get_user_data(config, &ATTRIBUTES_KEY)?;
 
       append_attributes_to_name(log, attributes);
 
       Ok(())
-    })
-  }
+    }
+  );
 }

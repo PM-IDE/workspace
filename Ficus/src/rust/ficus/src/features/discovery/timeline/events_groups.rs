@@ -44,13 +44,12 @@ pub fn discover_events_groups(
   };
 
   while let Some((event, trace_index, event_index)) = events.next() {
-    if let Some(control_flow_regexes) = control_flow_regexes {
-      if !control_flow_regexes
+    if let Some(control_flow_regexes) = control_flow_regexes
+      && !control_flow_regexes
         .iter()
         .any(|regex| regex.is_match(event.original_event().borrow().name()).unwrap_or(false))
-      {
-        continue;
-      }
+    {
+      continue;
     }
 
     let create_events_group = || {
@@ -60,9 +59,9 @@ pub fn discover_events_groups(
       })
     };
 
-    if last_stamp.is_some() {
-      if (*event.stamp() - last_stamp.unwrap()) as u64 > event_group_delta {
-        add_to_groups(last_trace_group.clone(), last_seen_point.clone());
+    if let Some(last_stamp) = last_stamp {
+      if (*event.stamp() - last_stamp) as u64 > event_group_delta {
+        add_to_groups(last_trace_group.clone(), last_seen_point);
         last_trace_group = create_events_group();
       }
     } else {
@@ -70,10 +69,10 @@ pub fn discover_events_groups(
     }
 
     last_seen_point = Some((trace_index, event_index));
-    last_stamp = Some(event.stamp().clone());
+    last_stamp = Some(*event.stamp());
   }
 
-  add_to_groups(last_trace_group.clone(), last_seen_point.clone());
+  add_to_groups(last_trace_group.clone(), last_seen_point);
 
   groups
 }
@@ -159,7 +158,7 @@ impl EventGroup {
       control_flow_events: vec![],
       statistic_events: vec![],
       after_group_events: None,
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 
@@ -173,7 +172,7 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> 
 
   for trace_diagram in log.traces() {
     let mut group_index = 0;
-    let threads_refs: Vec<&TraceThread> = trace_diagram.threads().iter().map(|x| x).collect();
+    let threads_refs: Vec<&TraceThread> = trace_diagram.threads().iter().collect();
     let get_stamp = |point: &LogPoint| {
       threads_refs
         .get(*point.trace_index())
@@ -187,7 +186,7 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> 
     let mut events = ThreadsSequentialEvents::new(&threads_refs);
 
     let mut events_groups = trace_diagram.events_groups().clone();
-    events_groups.sort_by(|f, s| get_stamp(f.start_point()).cmp(&get_stamp(s.start_point())));
+    events_groups.sort_by(|f, s| get_stamp(f.start_point()).cmp(get_stamp(s.start_point())));
 
     let mut trace_groups: Vec<EventGroup> = vec![];
     let mut current_group = None;

@@ -5,7 +5,6 @@ use crate::utils::{
     graph_node::GraphNode,
   },
   references::HeapedOrOwned,
-  user_data::user_data::UserDataImpl,
 };
 use std::{collections::HashMap, fmt::Display};
 
@@ -18,7 +17,7 @@ where
     DefaultGraph {
       nodes: self.to_default_graph_nodes(),
       connections: self.to_default_graph_connections(),
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
       kind: self.kind().clone(),
     }
   }
@@ -30,10 +29,7 @@ where
                 *pair.0,
                 GraphNode {
                     id: pair.1.id.to_owned(),
-                    data: match &pair.1.data {
-                        None => None,
-                        Some(data) => Some(HeapedOrOwned::Owned(data.to_string())),
-                    },
+                    data: pair.1.data.as_ref().map(|data| HeapedOrOwned::Owned(data.to_string())),
                     user_data: pair.1.user_data.clone()
                 },
             )
@@ -52,10 +48,7 @@ where
                             pair.1.from_node,
                             pair.1.to_node,
                             pair.1.weight,
-                            match pair.1.data() {
-                                None => None,
-                                Some(data) => Some(HeapedOrOwned::Owned(data.to_string())),
-                            },
+                            pair.1.data().as_ref().map(|data| HeapedOrOwned::Owned(data.to_string())),
                             Some(pair.1.user_data.clone())
                         )
                     )

@@ -1,6 +1,7 @@
 use crate::utils::hash_utils::compare_based_on_hashes;
 use std::{
   collections::BTreeSet,
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -41,8 +42,8 @@ where
 
   pub fn merge(&self, other: &TwoSets<T>) -> Self {
     Self {
-      first_set: self.first_set.iter().chain(other.first_set.iter()).map(|c| c.clone()).collect(),
-      second_set: self.second_set.iter().chain(other.second_set.iter()).map(|c| c.clone()).collect(),
+      first_set: self.first_set.iter().chain(other.first_set.iter()).cloned().collect(),
+      second_set: self.second_set.iter().chain(other.second_set.iter()).cloned().collect(),
     }
   }
 
@@ -103,17 +104,17 @@ where
 {
   fn clone(&self) -> Self {
     Self {
-      first_set: self.first_set.iter().map(|c| c.clone()).collect(),
-      second_set: self.second_set.iter().map(|c| c.clone()).collect(),
+      first_set: self.first_set.iter().cloned().collect(),
+      second_set: self.second_set.iter().cloned().collect(),
     }
   }
 }
 
-impl<T> ToString for TwoSets<T>
+impl<T> Display for TwoSets<T>
 where
   T: Hash + Eq + ToString + Ord + Clone,
 {
-  fn to_string(&self) -> String {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut repr = String::new();
     repr.push('(');
 
@@ -124,7 +125,7 @@ where
         repr.push(',');
       }
 
-      if set.len() > 0 {
+      if !set.is_empty() {
         repr.remove(repr.len() - 1);
       }
 
@@ -138,6 +139,7 @@ where
     write_set(&self.second_set, &mut repr);
 
     repr.push(')');
-    repr
+
+    write!(f, "{}", repr)
   }
 }

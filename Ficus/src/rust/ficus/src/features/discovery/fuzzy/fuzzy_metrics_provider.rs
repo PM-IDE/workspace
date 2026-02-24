@@ -7,7 +7,7 @@ use crate::{
   },
 };
 
-const PROXIMITY_CORRELATION: &'static str = "ProximityCorrelation";
+const PROXIMITY_CORRELATION: &str = "ProximityCorrelation";
 
 pub struct FuzzyMetricsProvider<'a, TLog>
 where
@@ -59,31 +59,28 @@ where
         let name = event.name();
 
         if name == first_class {
-          last_seen_first = Some(i.clone());
+          last_seen_first = Some(i);
           continue;
         }
 
-        if name == second_class {
-          if let Some(first_index) = last_seen_first {
-            let second_stamp = event.timestamp();
-            let first_event = events.get(first_index).unwrap();
-            let first_event = first_event.borrow();
-            let first_stamp = first_event.timestamp();
+        if name == second_class
+          && let Some(first_index) = last_seen_first
+        {
+          let second_stamp = event.timestamp();
+          let first_event = events.get(first_index).unwrap();
+          let first_event = first_event.borrow();
+          let first_stamp = first_event.timestamp();
 
-            result += second_stamp.signed_duration_since(*first_stamp).num_milliseconds() as f64;
-            count += 1;
-            last_seen_first = None;
-          }
+          result += second_stamp.signed_duration_since(*first_stamp).num_milliseconds() as f64;
+          count += 1;
+          last_seen_first = None;
         }
       }
     }
 
     result = if count != 0 { result / (count as f64) } else { 0.0 };
 
-    self
-      .caches
-      .cache_mut(PROXIMITY_CORRELATION)
-      .put(first_class, second_class, result.clone());
+    self.caches.cache_mut(PROXIMITY_CORRELATION).put(first_class, second_class, result);
 
     result
   }

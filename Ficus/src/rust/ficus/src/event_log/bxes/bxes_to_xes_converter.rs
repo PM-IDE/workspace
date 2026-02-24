@@ -1,5 +1,3 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-
 use bxes::{
   models::{
     domain::{
@@ -15,6 +13,7 @@ use bxes::{
   },
 };
 use chrono::{TimeZone, Utc};
+use std::{cell::RefCell, collections::HashMap, fmt::Display, rc::Rc};
 
 use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
 use crate::event_log::{
@@ -33,12 +32,15 @@ pub enum BxesToXesReadError {
   ConversionError(String),
 }
 
-impl ToString for BxesToXesReadError {
-  fn to_string(&self) -> String {
-    match self {
-      BxesToXesReadError::BxesReadError(err) => err.to_string(),
-      BxesToXesReadError::ConversionError(err) => err.to_string(),
-    }
+impl Display for BxesToXesReadError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str(
+      match self {
+        BxesToXesReadError::BxesReadError(err) => err.to_string(),
+        BxesToXesReadError::ConversionError(err) => err.to_string(),
+      }
+      .as_str(),
+    )
   }
 }
 
@@ -197,7 +199,7 @@ fn create_xes_payload(
         return Err(BxesToXesReadError::ConversionError(message));
       };
 
-      payload.insert(key, bxes_value_to_payload_value(&value));
+      payload.insert(key, bxes_value_to_payload_value(value));
     }
 
     Ok(Some(payload))

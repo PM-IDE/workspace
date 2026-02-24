@@ -14,13 +14,8 @@ where
   fn hash(&self, event: &TEvent) -> u64;
 }
 
+#[derive(Default)]
 pub struct NameEventHasher;
-
-impl NameEventHasher {
-  pub fn new() -> Self {
-    Self {}
-  }
-}
 
 impl<TEvent> EventHasher<TEvent> for NameEventHasher
 where
@@ -59,7 +54,7 @@ where
 }
 
 impl RegexEventHasher {
-  pub fn new(regex: &String) -> Result<RegexEventHasher, Error> {
+  pub fn new(regex: &str) -> Result<RegexEventHasher, Error> {
     match Regex::new(regex) {
       Ok(regex) => Ok(RegexEventHasher { regex }),
       Err(error) => Err(error),

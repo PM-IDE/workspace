@@ -3,9 +3,9 @@ use std::{cell::RefCell, ops::Deref, rc::Rc};
 use ficus::{
   event_log::core::event::event_hasher::default_class_extractor,
   features::analysis::patterns::{
-    activity_instances::{create_activity_name, ActivityInTraceFilterKind, ActivityNarrowingKind},
+    activity_instances::{ActivityInTraceFilterKind, ActivityNarrowingKind, create_activity_name},
     contexts::{ActivitiesDiscoveryContext, PatternsDiscoveryContext, PatternsDiscoveryStrategy},
-    entry_points::{build_repeat_set_tree, find_repeats, PatternsKind},
+    entry_points::{PatternsKind, build_repeat_set_tree, find_repeats},
     repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
   },
 };

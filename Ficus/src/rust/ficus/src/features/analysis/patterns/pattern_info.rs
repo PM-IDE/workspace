@@ -5,7 +5,7 @@ use crate::{
 use lazy_static::lazy_static;
 use std::{cell::RefCell, rc::Rc};
 
-const UNDERLYING_PATTERN_KIND: &'static str = "UNDERLYING_PATTERN_KIND";
+const UNDERLYING_PATTERN_KIND: &str = "UNDERLYING_PATTERN_KIND";
 
 context_key! { UNDERLYING_PATTERN_KIND, UnderlyingPatternKind }
 
@@ -69,15 +69,15 @@ impl UnderlyingPatternInfo {
 pub struct UnderlyingPatternGraphInfo {
   pattern_kind: UnderlyingPatternKind,
   base_pattern: Option<Vec<String>>,
-  graph: Rc<Box<DefaultGraph>>,
+  graph: Box<DefaultGraph>,
 }
 
 impl UnderlyingPatternGraphInfo {
-  pub fn new(pattern_kind: UnderlyingPatternKind, base_pattern: Option<Vec<String>>, graph: Rc<Box<DefaultGraph>>) -> Self {
+  pub fn new(pattern_kind: UnderlyingPatternKind, base_pattern: Option<Vec<String>>, graph: DefaultGraph) -> Self {
     Self {
       pattern_kind,
       base_pattern,
-      graph,
+      graph: Box::new(graph),
     }
   }
 
@@ -89,7 +89,7 @@ impl UnderlyingPatternGraphInfo {
     self.base_pattern.as_ref()
   }
 
-  pub fn graph(&self) -> Rc<Box<DefaultGraph>> {
-    self.graph.clone()
+  pub fn graph(&self) -> &DefaultGraph {
+    self.graph.as_ref()
   }
 }

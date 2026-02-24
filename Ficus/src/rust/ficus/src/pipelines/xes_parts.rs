@@ -5,7 +5,7 @@ use super::{
 use crate::{
   event_log::{
     bxes::{
-      bxes_to_xes_converter::{read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes, BxesToXesConversionResult},
+      bxes_to_xes_converter::{BxesToXesConversionResult, read_bxes_into_xes_log, read_bxes_into_xes_log_from_bytes},
       xes_to_bxes_converter::{write_event_log_to_bxes, write_event_log_to_bxes_bytes},
     },
     xes::{
@@ -14,149 +14,126 @@ use crate::{
       writer::xes_event_log_writer::{write_xes_log, write_xes_log_to_bytes},
     },
   },
+  pipeline_part,
   pipelines::{
     context::PipelineContext,
-    keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATHS_KEY, PATH_KEY, SYSTEM_METADATA_KEY},
+    keys::context_keys::{BYTES_KEY, EVENT_LOG_KEY, PATH_KEY, PATHS_KEY, SYSTEM_METADATA_KEY},
     pipeline_parts::PipelineParts,
   },
-  utils::user_data::user_data::UserData,
+  utils::user_data::user_data::{UserData, UserDataImpl},
 };
 
 impl PipelineParts {
-  pub(super) fn write_log_to_xes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::WRITE_LOG_TO_XES, &|context, _, config| {
-      let path = Self::get_user_data(config, &PATH_KEY)?;
-      match write_xes_log(&context.concrete(EVENT_LOG_KEY.key()).unwrap(), path) {
-        Ok(()) => Ok(()),
-        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+  pipeline_part!(write_log_to_xes, |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    let path = Self::get_user_data(config, &PATH_KEY)?;
+    match write_xes_log(context.concrete(EVENT_LOG_KEY.key()).unwrap(), path) {
+      Ok(()) => Ok(()),
+      Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+    }
+  });
+
+  pipeline_part!(read_log_from_xes, |context: &mut PipelineContext, _, _| {
+    let path = Self::get_user_data(context, &PATH_KEY)?;
+
+    let log = read_event_log(path);
+    if log.is_none() {
+      let message = format!("Failed to read event log from {}", path.as_str());
+      return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)));
+    }
+
+    context.put_concrete(EVENT_LOG_KEY.key(), log.unwrap());
+    Ok(())
+  });
+
+  pipeline_part!(read_log_from_bxes, |context: &mut PipelineContext, _, _| {
+    let path = Self::get_user_data(context, &PATH_KEY)?;
+
+    match read_bxes_into_xes_log(path) {
+      Ok(result) => {
+        Self::put_read_result_to_context(context, result);
+        Ok(())
       }
-    })
-  }
-
-  pub(super) fn read_log_from_xes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::READ_LOG_FROM_XES, &|context, _, _| {
-      let path = Self::get_user_data(context, &PATH_KEY)?;
-
-      let log = read_event_log(path);
-      if log.is_none() {
-        let message = format!("Failed to read event log from {}", path.as_str());
-        return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)));
+      Err(err) => {
+        let message = format!("Failed to read event log from {}, error: {}", path.as_str(), err);
+        Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
       }
-
-      context.put_concrete(EVENT_LOG_KEY.key(), log.unwrap());
-      Ok(())
-    })
-  }
-
-  pub(super) fn read_log_from_bxes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::READ_LOG_FROM_BXES, &|context, _, _| {
-      let path = Self::get_user_data(context, &PATH_KEY)?;
-
-      match read_bxes_into_xes_log(path) {
-        Ok(result) => {
-          Self::put_read_result_to_context(context, result);
-          Ok(())
-        }
-        Err(err) => {
-          let message = format!("Failed to read event log from {}, error: {}", path.as_str(), err.to_string());
-          Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
-        }
-      }
-    })
-  }
+    }
+  });
 
   fn put_read_result_to_context(context: &mut PipelineContext, result: BxesToXesConversionResult) {
     context.put_concrete(EVENT_LOG_KEY.key(), result.xes_log);
     context.put_concrete(SYSTEM_METADATA_KEY.key(), result.system_metadata);
   }
 
-  pub(super) fn write_log_to_bxes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::WRITE_LOG_TO_BXES, &|context, _, config| {
-      let path = Self::get_user_data(config, &PATH_KEY)?;
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let system_metadata = match Self::get_user_data(context, &SYSTEM_METADATA_KEY) {
-        Ok(metadata) => Some(metadata),
-        Err(_) => None,
-      };
+  pipeline_part!(write_log_to_bxes, |context: &mut PipelineContext, _, config: &UserDataImpl| {
+    let path = Self::get_user_data(config, &PATH_KEY)?;
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let system_metadata = Self::get_user_data(context, &SYSTEM_METADATA_KEY).ok();
 
-      match write_event_log_to_bxes(log, system_metadata, path) {
-        Ok(_) => Ok(()),
-        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+    match write_event_log_to_bxes(log, system_metadata, path) {
+      Ok(_) => Ok(()),
+      Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+    }
+  });
+
+  pipeline_part!(read_xes_log_from_bytes, |context: &mut PipelineContext, _, _| {
+    let bytes = Self::get_user_data(context, &BYTES_KEY)?;
+    match read_event_log_from_bytes(bytes) {
+      Some(log) => {
+        context.put_concrete(EVENT_LOG_KEY.key(), log);
+        Ok(())
       }
-    })
-  }
-
-  pub(super) fn read_xes_from_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::READ_XES_LOG_FROM_BYTES, &|context, _, _| {
-      let bytes = Self::get_user_data(context, &BYTES_KEY)?;
-      match read_event_log_from_bytes(bytes) {
-        Some(log) => {
-          context.put_concrete(EVENT_LOG_KEY.key(), log);
-          Ok(())
-        }
-        None => {
-          let message = "Failed to read event log from bytes array".to_string();
-          return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)));
-        }
+      None => {
+        let message = "Failed to read event log from bytes array".to_string();
+        Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
       }
-    })
-  }
+    }
+  });
 
-  pub(super) fn read_bxes_from_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::READ_BXES_LOG_FROM_BYTES, &|context, _, _| {
-      let bytes = Self::get_user_data(context, &BYTES_KEY)?;
-      match read_bxes_into_xes_log_from_bytes(bytes) {
-        Ok(read_result) => {
-          Self::put_read_result_to_context(context, read_result);
-          Ok(())
-        }
-        Err(err) => {
-          let message = format!("Failed to read event log from bytes: {}", err.to_string());
-          Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
-        }
+  pipeline_part!(read_bxes_log_from_bytes, |context: &mut PipelineContext, _, _| {
+    let bytes = Self::get_user_data(context, &BYTES_KEY)?;
+    match read_bxes_into_xes_log_from_bytes(bytes) {
+      Ok(read_result) => {
+        Self::put_read_result_to_context(context, read_result);
+        Ok(())
       }
-    })
-  }
-
-  pub(super) fn write_bxes_to_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::WRITE_BXES_LOG_TO_BYTES, &|context, _, _| {
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let system_metadata = match Self::get_user_data(context, &SYSTEM_METADATA_KEY) {
-        Ok(metadata) => Some(metadata),
-        Err(_) => None,
-      };
-
-      match write_event_log_to_bxes_bytes(log, system_metadata) {
-        Ok(bytes) => {
-          context.put_concrete::<Vec<u8>>(BYTES_KEY.key(), bytes);
-          Ok(())
-        }
-        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+      Err(err) => {
+        let message = format!("Failed to read event log from bytes: {}", err);
+        Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
       }
-    })
-  }
+    }
+  });
 
-  pub(super) fn write_xes_to_bytes() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::WRITE_XES_LOG_TO_BYTES, &|context, _, _| {
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      match write_xes_log_to_bytes(log) {
-        Ok(bytes) => {
-          context.put_concrete::<Vec<u8>>(&BYTES_KEY.key(), bytes);
-          Ok(())
-        }
-        Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+  pipeline_part!(write_bxes_log_to_bytes, |context: &mut PipelineContext, _, _| {
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let system_metadata = Self::get_user_data(context, &SYSTEM_METADATA_KEY).ok();
+
+    match write_event_log_to_bxes_bytes(log, system_metadata) {
+      Ok(bytes) => {
+        context.put_concrete::<Vec<u8>>(BYTES_KEY.key(), bytes);
+        Ok(())
       }
-    })
-  }
+      Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+    }
+  });
 
-  pub(super) fn merge_xes_logs_from_paths() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::MERGE_XES_LOGS_FROM_PATHS, &|context, _, _| {
-      let paths = Self::get_user_data(context, &PATHS_KEY)?;
-      let log = merge_xes_logs(paths);
+  pipeline_part!(write_xes_log_to_bytes, |context: &mut PipelineContext, _, _| {
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    match write_xes_log_to_bytes(log) {
+      Ok(bytes) => {
+        context.put_concrete::<Vec<u8>>(BYTES_KEY.key(), bytes);
+        Ok(())
+      }
+      Err(err) => Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(err.to_string()))),
+    }
+  });
 
-      context.put_concrete(EVENT_LOG_KEY.key(), log);
+  pipeline_part!(merge_xes_logs_from_paths, |context: &mut PipelineContext, _, _| {
+    let paths = Self::get_user_data(context, &PATHS_KEY)?;
+    let log = merge_xes_logs(paths);
 
-      Ok(())
-    })
-  }
+    context.put_concrete(EVENT_LOG_KEY.key(), log);
+
+    Ok(())
+  });
 }

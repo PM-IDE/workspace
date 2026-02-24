@@ -41,6 +41,25 @@ impl PipelineParts {
 unsafe impl Sync for PipelineParts {}
 unsafe impl Send for PipelineParts {}
 
+#[macro_export]
+macro_rules! pipeline_part {
+  ($name:ident, $body:expr) => {
+    paste::item! {
+      pub(super) fn $name () -> (String, PipelinePartFactory) {
+        Self::create_pipeline_part(Self::[<$name:upper>], &|context, infra, config| {
+          $body(context, infra, config)
+        })
+      }
+    }
+  };
+}
+
+impl Default for PipelineParts {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl PipelineParts {
   pub fn new() -> Self {
     let parts = vec![
@@ -54,23 +73,23 @@ impl PipelineParts {
       Self::discover_activities(),
       Self::discover_activities_instances(),
       Self::create_log_from_activities(),
-      Self::filter_log_by_event_name(),
-      Self::filter_log_by_regex(),
+      Self::filter_events_by_name(),
+      Self::filter_events_by_regex(),
       Self::remain_events_by_regex(),
       Self::filter_log_by_variants(),
-      Self::draw_placements_of_event_by_name(),
-      Self::draw_events_placements_by_regex(),
+      Self::draw_placement_of_event_by_name(),
+      Self::draw_placement_of_event_by_regex(),
       Self::draw_full_activities_diagram(),
       Self::draw_short_activities_diagram(),
       Self::get_event_log_info(),
-      Self::clear_activities_related_stuff(),
-      Self::get_number_of_underlying_events(),
-      Self::filter_traces_by_count(),
+      Self::clear_activities(),
+      Self::get_underlying_events_count(),
+      Self::filter_traces_by_events_count(),
       Self::traces_diversity_diagram(),
       Self::get_names_event_log(),
       Self::get_hashes_event_log(),
       Self::use_names_event_log(),
-      Self::discover_activities_instances_for_several_levels(),
+      Self::discover_activities_for_several_levels(),
       Self::discover_activities_in_unattached_subtraces(),
       Self::discover_activities_until_no_more(),
       Self::execute_with_each_activity_log(),
@@ -85,45 +104,45 @@ impl PipelineParts {
       Self::discover_petri_net_alpha_plus(),
       Self::discover_petri_net_alpha_plus_plus(),
       Self::discover_petri_net_alpha_plus_plus_nfc(),
-      Self::discover_directly_follows_graph(),
-      Self::discover_petri_net_heuristic_miner(),
+      Self::discover_dfg(),
+      Self::discover_petri_net_heuristic(),
       Self::discover_fuzzy_graph(),
       Self::annotate_petri_net_count(),
       Self::annotate_petri_net_frequency(),
       Self::annotate_petri_net_trace_frequency(),
       Self::ensure_initial_marking(),
       Self::read_log_from_bxes(),
-      Self::clusterize_activities_from_traces_k_means(),
-      Self::clusterize_activities_from_traces_k_means_grid_search(),
+      Self::clusterize_activities_from_traces_kmeans(),
+      Self::clusterize_activities_from_traces_kmeans_grid_search(),
       Self::clusterize_activities_from_traces_dbscan(),
       Self::create_traces_activities_dataset(),
       Self::write_log_to_bxes(),
       Self::clusterize_log_traces(),
       Self::serialize_activities_logs(),
-      Self::read_xes_from_bytes(),
-      Self::read_bxes_from_bytes(),
-      Self::write_bxes_to_bytes(),
-      Self::write_xes_to_bytes(),
+      Self::read_xes_log_from_bytes(),
+      Self::read_bxes_log_from_bytes(),
+      Self::write_bxes_log_to_bytes(),
+      Self::write_xes_log_to_bytes(),
       Self::reverse_hierarchy_indices(),
       Self::discover_cases(),
-      Self::annotate_graph_with_time_performance(),
-      Self::draw_traces_diversity_diagram_by_attribute(),
-      Self::discover_directly_follows_graph_by_attribute(),
+      Self::annotate_graph_with_time(),
+      Self::traces_diversity_diagram_by_attribute(),
+      Self::discover_dfg_by_attribute(),
       Self::append_attributes_to_name(),
       Self::merge_xes_logs_from_paths(),
-      Self::discover_directly_follows_graph_stream(),
+      Self::discover_dfg_stream(),
       Self::discover_petri_net_alpha_stream(),
-      Self::discover_log_threads_diagram(),
+      Self::discover_log_timeline_diagram(),
       Self::create_threads_log(),
       Self::abstract_timeline_diagram(),
-      Self::clusterize_log_by_traces_k_means_grid_search(),
+      Self::clusterize_log_traces_k_means_grid_search(),
       Self::clusterize_log_traces_dbscan_grid_search(),
-      Self::discover_root_sequence_graph(),
+      Self::discover_ecfg(),
       Self::discover_loops_strict(),
       Self::discover_traces_timeline_diagram(),
-      Self::prepare_software_log(),
-      Self::shorten_allocation_types(),
-      Self::shorten_methods_names(),
+      Self::prepare_software_event_log(),
+      Self::shorten_allocation_type(),
+      Self::shorten_method_names(),
       Self::set_methods_display_name(),
       Self::remain_only_method_start_events(),
       Self::remain_only_method_end_events(),
@@ -138,7 +157,7 @@ impl PipelineParts {
 
     let mut names_to_parts = HashMap::new();
     for part in parts {
-      let prev = names_to_parts.insert((&part.0).to_owned(), part.1);
+      let prev = names_to_parts.insert(part.0.to_owned(), part.1);
       assert!(prev.is_none());
     }
 
@@ -152,7 +171,7 @@ impl PipelineParts {
   pub fn pipeline_parts_descriptors(&self) -> Vec<PipelinePartDescriptor> {
     let mut descriptors = vec![];
     for factory in self.names_to_parts.values() {
-      let name = factory(Box::new(UserDataImpl::new())).name().to_owned();
+      let name = factory(Box::default()).name().to_owned();
       descriptors.push(PipelinePartDescriptor::new(name))
     }
 

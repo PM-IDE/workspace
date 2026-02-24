@@ -10,7 +10,7 @@ use crate::{
   features::{
     analysis::patterns::repeat_sets::ActivityNode,
     clustering::{
-      common::{create_colors_vector, transform_to_ficus_dataset, ClusteredDataset, MyDataset},
+      common::{ClusteredDataset, MyDataset, create_colors_vector, transform_to_ficus_dataset},
       error::{ClusteringError, ClusteringResult},
     },
   },
@@ -52,7 +52,7 @@ pub fn clusterize_activities_k_means(
 fn create_labeled_dataset_from_k_means(
   dataset: &MyDataset,
   clustered_dataset: &ClusteredDataset,
-  processed: &Vec<(Rc<RefCell<ActivityNode>>, HashMap<String, usize>)>,
+  processed: &[(Rc<RefCell<ActivityNode>>, HashMap<String, usize>)],
   classes_names: Vec<String>,
   colors_holder: &mut ColorsHolder,
 ) -> LabeledDataset {
@@ -78,7 +78,7 @@ fn create_k_means_model(
   KMeans::params_with(clusters_count, rand::thread_rng(), DistanceWrapper::new(distance))
     .max_n_iterations(iterations_count)
     .tolerance(tolerance)
-    .fit(&dataset)
+    .fit(dataset)
     .expect("KMeans fitted")
 }
 

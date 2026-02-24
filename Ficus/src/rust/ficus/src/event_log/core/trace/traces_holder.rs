@@ -22,10 +22,7 @@ where
 {
   fn clone(&self) -> Self {
     Self {
-      traces: (&self.traces)
-        .into_iter()
-        .map(|ptr| Rc::new(RefCell::new(ptr.borrow().clone())))
-        .collect(),
+      traces: self.traces.iter().map(|ptr| Rc::new(RefCell::new(ptr.borrow().clone()))).collect(),
 
       user_data: self.user_data.clone(),
     }
@@ -39,14 +36,14 @@ where
   pub fn empty() -> Self {
     Self {
       traces: vec![],
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 
   pub fn new(traces: Vec<Rc<RefCell<TTrace>>>) -> Self {
     Self {
       traces,
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 

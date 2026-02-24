@@ -10,8 +10,8 @@ use ficus::{
       alpha::{alpha::discover_petri_net_alpha, providers::alpha_provider::DefaultAlphaRelationsProvider},
       petri_net::{
         annotations::{
-          annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance, annotate_with_trace_frequency,
-          TimeAnnotationKind,
+          TimeAnnotationKind, annotate_with_counts, annotate_with_frequencies, annotate_with_time_performance,
+          annotate_with_trace_frequency,
         },
         petri_net::DefaultPetriNet,
       },

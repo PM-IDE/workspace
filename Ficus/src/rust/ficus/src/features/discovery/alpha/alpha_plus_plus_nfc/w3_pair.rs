@@ -5,6 +5,7 @@ use crate::{
 };
 use std::{
   collections::HashSet,
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -93,8 +94,8 @@ impl<'a> Clone for W3Pair<'a> {
   }
 }
 
-impl<'a> ToString for W3Pair<'a> {
-  fn to_string(&self) -> String {
-    self.two_sets.to_string()
+impl<'a> Display for W3Pair<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str(self.two_sets.to_string().as_str())
   }
 }

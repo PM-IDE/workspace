@@ -73,7 +73,7 @@ where
       return;
     }
 
-    for (_, child_node_index) in &node.children {
+    for child_node_index in node.children.values() {
       self.dfs_pattern_search(*child_node_index, patterns, pattern_length, suffix_length);
     }
   }

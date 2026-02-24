@@ -7,14 +7,14 @@ use crate::{
     activity_instances::ActivityInTraceInfo,
     pattern_info::UnderlyingPatternKind,
     repeat_sets::{ActivityNode, SubArrayWithTraceIndex},
-    tandem_arrays::{try_extract_tandem_array, TandemArrayInfo},
+    tandem_arrays::{TandemArrayInfo, try_extract_tandem_array},
   },
   utils::display_name::get_display_name,
 };
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
-  find_tandem_arrays_strict(&hashed_log, max_array_length)
+  find_tandem_arrays_strict(hashed_log, max_array_length)
     .into_iter()
     .enumerate()
     .map(|(trace_index, trace_arrays)| {
@@ -66,7 +66,7 @@ fn create_strict_loop_activity_instance(
   array: &TandemArrayInfo,
   trace_index: usize,
   trace: &XesTraceImpl,
-  hashed_trace: &Vec<u64>,
+  hashed_trace: &[u64],
 ) -> ActivityInTraceInfo {
   let repeat_count = *array.get_repeat_count();
   let array = array.get_sub_array_info();
@@ -82,8 +82,8 @@ fn create_strict_loop_activity_instance(
 
   ActivityInTraceInfo::new(
     Rc::new(RefCell::new(ActivityNode::new(
-      Some(SubArrayWithTraceIndex::new(array.clone(), trace_index)),
-      HashSet::from_iter(hashed_trace[array.start_index..array.start_index + array.length].iter().map(|x| *x)),
+      Some(SubArrayWithTraceIndex::new(*array, trace_index)),
+      HashSet::from_iter(hashed_trace[array.start_index..array.start_index + array.length].iter().copied()),
       vec![],
       0,
       Rc::new(Box::new(format!("Loop[{}]", name.join("::")))),

@@ -1,11 +1,11 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use super::{
-  activity_instances::{self, create_new_log_from_activities_instances, extract_activities_instances, ActivityInTraceInfo},
+  activity_instances::{self, ActivityInTraceInfo, create_new_log_from_activities_instances, extract_activities_instances},
   contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext},
-  repeat_sets::{build_repeat_set_tree_from_repeats, build_repeat_sets, ActivityNode, SubArrayWithTraceIndex},
+  repeat_sets::{ActivityNode, SubArrayWithTraceIndex, build_repeat_set_tree_from_repeats, build_repeat_sets},
   repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
-  tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
+  tandem_arrays::{SubArrayInTraceInfo, find_maximal_tandem_arrays, find_primitive_tandem_arrays},
 };
 use crate::{
   event_log::{
@@ -13,7 +13,7 @@ use crate::{
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
   },
   features::analysis::patterns::{
-    activity_instances::{extract_activities_instances_strict, ActivitiesLogSource},
+    activity_instances::{ActivitiesLogSource, extract_activities_instances_strict},
     pattern_info::UnderlyingPatternKind,
   },
 };
@@ -116,7 +116,7 @@ where
   TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
-  let activity_instances = discover_activities_instances(&context);
+  let activity_instances = discover_activities_instances(context);
 
   activity_instances::create_logs_for_activities(&ActivitiesLogSource::TracesActivities(
     &context.patterns_context.log.borrow(),

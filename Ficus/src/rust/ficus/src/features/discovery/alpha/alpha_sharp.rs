@@ -19,6 +19,7 @@ use crate::{
 use log::debug;
 use std::{
   collections::{BTreeSet, HashSet},
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -51,8 +52,8 @@ impl<'a> AlphaSharpTuple<'a> {
   pub fn try_merge(first: &Self, second: &Self) -> Option<Self> {
     let new = Self {
       provider: first.provider,
-      p_in: BTreeSet::from_iter(first.p_in.iter().chain(second.p_in.iter()).map(|c| c.clone())),
-      p_out: BTreeSet::from_iter(first.p_out.iter().chain(second.p_out.iter()).map(|c| c.clone())),
+      p_in: BTreeSet::from_iter(first.p_in.iter().chain(second.p_in.iter()).cloned()),
+      p_out: BTreeSet::from_iter(first.p_out.iter().chain(second.p_out.iter()).cloned()),
     };
 
     match new.valid() {
@@ -145,8 +146,8 @@ impl<'a> PartialEq for AlphaSharpTuple<'a> {
 
 impl<'a> Eq for AlphaSharpTuple<'a> {}
 
-impl<'a> ToString for AlphaSharpTuple<'a> {
-  fn to_string(&self) -> String {
+impl<'a> Display for AlphaSharpTuple<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut string = String::new();
     string.push('(');
 
@@ -157,10 +158,10 @@ impl<'a> ToString for AlphaSharpTuple<'a> {
         string.push('{');
         for class in &tuple.0 {
           string.push_str(class.as_str());
-          string.push_str(",")
+          string.push(',')
         }
 
-        if tuple.0.len() > 0 {
+        if !tuple.0.is_empty() {
           string.remove(string.len() - 1);
         }
 
@@ -168,18 +169,18 @@ impl<'a> ToString for AlphaSharpTuple<'a> {
 
         for class in &tuple.1 {
           string.push_str(class.as_str());
-          string.push_str(",")
+          string.push(',')
         }
 
-        if tuple.1.len() > 0 {
+        if !tuple.1.is_empty() {
           string.remove(string.len() - 1);
         }
 
-        string.push_str("}");
+        string.push('}');
         string.push_str("),");
       }
 
-      if set.len() > 0 {
+      if !set.is_empty() {
         string.remove(string.len() - 1);
       }
 
@@ -193,7 +194,8 @@ impl<'a> ToString for AlphaSharpTuple<'a> {
     string.remove(string.len() - 1);
 
     string.push(')');
-    string
+
+    write!(f, "{}", string)
   }
 }
 
@@ -202,12 +204,7 @@ impl<'a> Clone for AlphaSharpTuple<'a> {
     let construct_set = |set: &AlphaSharpSet<'a>| -> AlphaSharpSet<'a> {
       set
         .iter()
-        .map(|t| {
-          (
-            BTreeSet::from_iter(t.0.iter().map(|r| *r)),
-            BTreeSet::from_iter(t.0.iter().map(|r| *r)),
-          )
-        })
+        .map(|t| (BTreeSet::from_iter(t.0.iter().copied()), BTreeSet::from_iter(t.0.iter().copied())))
         .collect()
     };
 
@@ -254,12 +251,12 @@ pub fn discover_petri_net_alpha_sharp(log: &impl EventLog, triangle_relation: &d
   }
 
   for x in &sharp_tuples {
-    debug!("{}", x.to_string());
+    debug!("{}", x);
   }
 
-  let current_set = maximize(sharp_tuples, |first, second| AlphaSharpTuple::try_merge(first, second));
+  let current_set = maximize(sharp_tuples, AlphaSharpTuple::try_merge);
 
   for x in &current_set {
-    debug!("{}", x.to_string());
+    debug!("{}", x);
   }
 }

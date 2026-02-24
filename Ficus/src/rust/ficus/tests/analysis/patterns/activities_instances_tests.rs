@@ -9,11 +9,11 @@ use ficus::{
   },
   features::analysis::patterns::{
     activity_instances::{
-      create_activity_name, ActivityInTraceFilterKind, ActivityInTraceInfo, ActivityNarrowingKind, UndefActivityHandlingStrategy,
-      UNDEF_ACTIVITY_NAME,
+      ActivityInTraceFilterKind, ActivityInTraceInfo, ActivityNarrowingKind, UNDEF_ACTIVITY_NAME, UndefActivityHandlingStrategy,
+      create_activity_name,
     },
     contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext, PatternsDiscoveryStrategy},
-    entry_points::{create_logs_for_activities, discover_activities_and_create_new_log, discover_activities_instances, PatternsKind},
+    entry_points::{PatternsKind, create_logs_for_activities, discover_activities_and_create_new_log, discover_activities_instances},
   },
   vecs,
 };

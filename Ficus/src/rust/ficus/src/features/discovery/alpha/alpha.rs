@@ -93,10 +93,10 @@ fn add_alpha_plus_plus_transitions(provider: &impl AlphaPlusRelationsProvider, p
           for outgoing_arc in transition.outgoing_arcs() {
             if outgoing_arc.place_id() != place.id() {
               let outgoing_place = petri_net.place(&outgoing_arc.place_id());
-              if let Some(outgoing_alpha_set) = outgoing_place.user_data().concrete(key) {
-                if alpha_set.is_full_subset(outgoing_alpha_set) {
-                  transitions_connections.insert((transition.id(), outgoing_place.id()));
-                }
+              if let Some(outgoing_alpha_set) = outgoing_place.user_data().concrete(key)
+                && alpha_set.is_full_subset(outgoing_alpha_set)
+              {
+                transitions_connections.insert((transition.id(), outgoing_place.id()));
               }
             }
           }
@@ -104,10 +104,10 @@ fn add_alpha_plus_plus_transitions(provider: &impl AlphaPlusRelationsProvider, p
           for incoming_arc in transition.incoming_arcs() {
             if incoming_arc.place_id() != place.id() {
               let incoming_place = petri_net.place(&incoming_arc.place_id());
-              if let Some(incoming_alpha_set) = incoming_place.user_data().concrete(key) {
-                if alpha_set.is_full_subset(incoming_alpha_set) {
-                  places_connections.insert((incoming_place.id(), transition.id()));
-                }
+              if let Some(incoming_alpha_set) = incoming_place.user_data().concrete(key)
+                && alpha_set.is_full_subset(incoming_alpha_set)
+              {
+                places_connections.insert((incoming_place.id(), transition.id()));
               }
             }
           }
@@ -164,7 +164,7 @@ fn create_initial_sets(provider: &impl AlphaRelationsProvider) -> HashSet<AlphaS
 
       sets
     })
-    .filter(|set| set.left_classes().len() > 0 && set.right_classes().len() > 0)
+    .filter(|set| !set.left_classes().is_empty() && !set.right_classes().is_empty())
     .collect()
 }
 
@@ -173,7 +173,7 @@ fn maximize_sets(current_sets: HashSet<AlphaSet>, provider: &impl AlphaRelations
     let should_extend = (first.is_left_subset(second) || first.is_right_subset(second)) && first.can_extend(second, provider);
 
     match should_extend {
-      true => Some(first.extend(&second)),
+      true => Some(first.extend(second)),
       false => None,
     }
   })

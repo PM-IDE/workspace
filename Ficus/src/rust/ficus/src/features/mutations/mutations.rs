@@ -13,8 +13,13 @@ where
   })
 }
 
-pub const ARTIFICIAL_START_EVENT_NAME: &'static str = "ARTIFICIAL_START";
-pub const ARTIFICIAL_END_EVENT_NAME: &'static str = "ARTIFICIAL_END";
+pub const ARTIFICIAL_START_EVENT_NAME: &str = "ARTIFICIAL_START";
+pub const ARTIFICIAL_END_EVENT_NAME: &str = "ARTIFICIAL_END";
+
+enum StartOrEnd {
+  Start,
+  End,
+}
 
 pub fn add_artificial_start_end_activities<TLog: EventLog>(
   log: &mut TLog,
@@ -26,49 +31,56 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
     let mut trace = trace.borrow_mut();
     let events = trace.events_mut();
 
-    if add_start_events {
-      let name = ARTIFICIAL_START_EVENT_NAME.to_string();
-      let artificial_start_event = if events.is_empty() {
-        TLog::TEvent::new_with_min_date(name)
-      } else {
-        let first_event = events.first().expect("!events.is_empty()");
+    let mut add_artificial_event = |start_or_end: StartOrEnd| {
+      let name = match start_or_end {
+        StartOrEnd::Start => ARTIFICIAL_START_EVENT_NAME,
+        StartOrEnd::End => ARTIFICIAL_END_EVENT_NAME,
+      }
+      .to_string();
 
-        let mut start_event = TLog::TEvent::new(name, first_event.borrow().timestamp().clone());
-        copy_payload::<TLog>(&first_event.borrow(), &mut start_event, attributes_to_copy);
+      let artificial_start_event = if events.is_empty() {
+        match start_or_end {
+          StartOrEnd::Start => TLog::TEvent::new_with_min_date(name),
+          StartOrEnd::End => TLog::TEvent::new_with_max_date(name),
+        }
+      } else {
+        let reference_event = match start_or_end {
+          StartOrEnd::Start => events.first(),
+          StartOrEnd::End => events.last(),
+        }
+        .expect("!events.is_empty()");
+
+        let mut start_event = TLog::TEvent::new(name, *reference_event.borrow().timestamp());
+        copy_payload::<TLog>(&reference_event.borrow(), &mut start_event, attributes_to_copy);
 
         start_event
       };
 
-      events.insert(0, Rc::new(RefCell::new(artificial_start_event)));
+      let insertion_index = match start_or_end {
+        StartOrEnd::Start => 0,
+        StartOrEnd::End => events.len(),
+      };
+
+      events.insert(insertion_index, Rc::new(RefCell::new(artificial_start_event)));
+    };
+
+    if add_start_events {
+      add_artificial_event(StartOrEnd::Start);
     }
 
     if add_end_events {
-      let name = ARTIFICIAL_END_EVENT_NAME.to_string();
-      let artificial_end_event = if events.is_empty() {
-        TLog::TEvent::new_with_max_date(name)
-      } else {
-        let last_event = events.last().expect("!events.is_empty()");
-
-        let mut end_event = TLog::TEvent::new(name, last_event.borrow().timestamp().clone());
-        copy_payload::<TLog>(&last_event.borrow(), &mut end_event, attributes_to_copy);
-
-        end_event
-      };
-
-      events.push(Rc::new(RefCell::new(artificial_end_event)));
+      add_artificial_event(StartOrEnd::End);
     }
   }
 }
 
 fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&Vec<String>>) {
-  if let Some(attributes_to_copy) = attributes_to_copy {
-    if let Some(payload_map) = from.payload_map() {
-      for attr in attributes_to_copy {
-        if let Some(value) = payload_map.get(attr) {
-          to.add_or_update_payload(attr.clone(), value.clone());
-        }
-      }
-    }
+  let Some(attributes_to_copy) = attributes_to_copy else { return };
+  let Some(payload_map) = from.payload_map() else { return };
+
+  for attr in attributes_to_copy {
+    let Some(value) = payload_map.get(attr) else { continue };
+    to.add_or_update_payload(attr.clone(), value.clone());
   }
 }
 
@@ -80,10 +92,7 @@ pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Ve
     for attribute in attributes {
       let value = match payload {
         None => None,
-        Some(payload) => match payload.get(attribute) {
-          None => None,
-          Some(value) => Some(value.to_string_repr()),
-        },
+        Some(payload) => payload.get(attribute).map(|value| value.to_string_repr()),
       };
 
       let attribute_value_string = match value {

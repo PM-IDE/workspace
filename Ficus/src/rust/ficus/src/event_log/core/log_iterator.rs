@@ -76,7 +76,7 @@ where
     if self.event_index >= events.len() {
       None
     } else {
-      let item = (&self.event_processor)(&events[self.event_index].borrow());
+      let item = (self.event_processor)(&events[self.event_index].borrow());
       self.event_index += 1;
 
       Some(item)

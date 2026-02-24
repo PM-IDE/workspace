@@ -3,7 +3,7 @@ use crate::{
   features::clustering::{
     error::ClusteringError,
     traces::{
-      common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels},
+      common::{BestSilhouetteLabels, calculate_distance, do_clusterize_log_by_traces},
       traces_params::TracesClusteringParams,
     },
   },
@@ -24,7 +24,7 @@ pub fn clusterize_log_by_traces_kmeans_grid_search(
       let model = KMeans::params_with(clusters_count, rand::thread_rng(), DistanceWrapper::new(params.distance))
         .max_n_iterations(max_iterations_count)
         .tolerance(tolerance)
-        .fit(&dataset)
+        .fit(dataset)
         .expect("KMeans fitted");
 
       let clustered_dataset = model.predict(dataset.clone());

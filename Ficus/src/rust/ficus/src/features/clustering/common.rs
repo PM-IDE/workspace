@@ -35,14 +35,14 @@ pub fn transform_to_ficus_dataset(dataset: &MyDataset, processed: Vec<String>, c
   FicusDataset::new(matrix, classes_names, processed)
 }
 
-pub(super) fn create_colors_vector(labels: &Vec<usize>, colors_holder: &mut ColorsHolder) -> Vec<Color> {
+pub(super) fn create_colors_vector(labels: &[usize], colors_holder: &mut ColorsHolder) -> Vec<Color> {
   labels
     .iter()
     .map(|x| colors_holder.get_or_create(&create_cluster_name(*x)))
     .collect()
 }
 
-pub fn scale_raw_dataset_min_max(vector: &mut Vec<f64>, objects_count: usize, features_count: usize) {
+pub fn scale_raw_dataset_min_max(vector: &mut [f64], objects_count: usize, features_count: usize) {
   for i in 0..features_count {
     let mut max = f64::MIN;
     let mut min = f64::MAX;
@@ -68,7 +68,7 @@ pub(super) fn adjust_dbscan_labels(clusters: Array1<Option<usize>>, put_noise_ev
   let mut next_label = clusters
     .iter()
     .filter(|c| c.is_some())
-    .map(|c| c.as_ref().unwrap().clone())
+    .map(|c| *c.as_ref().unwrap())
     .max()
     .unwrap_or(0);
 

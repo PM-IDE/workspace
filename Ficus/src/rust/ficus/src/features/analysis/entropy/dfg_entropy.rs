@@ -16,7 +16,7 @@ where
   TLog: EventLog,
 {
   let dfr_or_dpr_calculator = |pair_count, events_count, event_count| {
-    let alpha = 1 as f64 / event_count as f64;
+    let alpha = 1_f64 / event_count as f64;
     let x = alpha + pair_count as f64;
     let y = alpha * ((events_count + 1) as f64) + event_count as f64;
     x / y

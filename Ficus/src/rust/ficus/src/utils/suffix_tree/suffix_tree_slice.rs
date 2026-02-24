@@ -124,8 +124,7 @@ where
 {
   pub fn get_slice_info_for(&self, index: usize) -> Option<(usize, Option<usize>)> {
     let mut next_word_border = 0;
-    let mut slice_index = 0;
-    for slice in &self.words {
+    for (slice_index, slice) in self.words.iter().enumerate() {
       next_word_border += slice.len();
       if index < next_word_border {
         let index_in_slice = index - (next_word_border - slice.len());
@@ -137,10 +136,9 @@ where
       }
 
       next_word_border += 1;
-      slice_index += 1;
     }
 
-    return None;
+    None
   }
 
   pub fn get_slice_part_len(&self, slice_part_index: usize) -> usize {

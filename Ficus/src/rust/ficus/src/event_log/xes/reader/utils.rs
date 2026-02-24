@@ -7,7 +7,7 @@ use crate::event_log::{core::event::event::EventPayloadValue, xes::constants::*}
 use crate::event_log::core::event::lifecycle::xes_lifecycle::Lifecycle;
 use quick_xml::{
   escape::unescape,
-  events::{attributes::Attribute, BytesStart},
+  events::{BytesStart, attributes::Attribute},
 };
 
 pub struct KeyValuePair<TKey, TValue> {
@@ -22,8 +22,8 @@ pub struct PayloadTagDescriptor {
 }
 
 pub fn read_payload_like_tag(tag: &BytesStart) -> Option<PayloadTagDescriptor> {
-  let kv = extract_key_value(&tag);
-  if !kv.value.is_some() || !kv.key.is_some() {
+  let kv = extract_key_value(tag);
+  if kv.value.is_none() || kv.key.is_none() {
     return None;
   }
 
@@ -48,11 +48,11 @@ pub fn extract_key_value(start: &BytesStart) -> KeyValuePair<String, String> {
     match attr {
       Err(_) => continue,
       Ok(real_attr) => match real_attr.key.0 {
-        KEY_ATTR_NAME => match String::from_utf8(real_attr.value.to_owned().to_vec()) {
+        KEY_ATTR_NAME => match String::from_utf8(real_attr.value.to_vec()) {
           Err(_) => continue,
           Ok(string) => key = Some(string),
         },
-        VALUE_ATTR_NAME => match String::from_utf8(real_attr.value.to_owned().to_vec()) {
+        VALUE_ATTR_NAME => match String::from_utf8(real_attr.value.to_vec()) {
           Err(_) => continue,
           Ok(string) => value = Some(string),
         },
@@ -61,7 +61,7 @@ pub fn extract_key_value(start: &BytesStart) -> KeyValuePair<String, String> {
     }
   }
 
-  return KeyValuePair { key, value };
+  KeyValuePair { key, value }
 }
 
 #[inline]

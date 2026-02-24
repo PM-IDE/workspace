@@ -55,7 +55,7 @@ fn construct_heuristic_petri_net(provider: &HeuristicMinerRelationsProvider, pet
       }
     }
 
-    if followers.len() == 0 {
+    if followers.is_empty() {
       continue;
     }
 

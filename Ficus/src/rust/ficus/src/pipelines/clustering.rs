@@ -7,13 +7,14 @@ use crate::{
       dbscan::clusterize_activities_dbscan,
       k_means::{clusterize_activities_k_means, clusterize_activities_k_means_grid_search},
     },
-    common::{transform_to_ficus_dataset, CommonVisualizationParams},
+    common::{CommonVisualizationParams, transform_to_ficus_dataset},
     traces::{
       dbscan::{clusterize_log_by_traces_dbscan, clusterize_log_by_traces_dbscan_grid_search},
       k_means::clusterize_log_by_traces_kmeans_grid_search,
       traces_params::{FeatureCountKind, TracesClusteringParams},
     },
   },
+  pipeline_part,
   pipelines::{
     context::{PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
@@ -21,8 +22,8 @@ use crate::{
       ACTIVITIES_REPR_SOURCE_KEY, ACTIVITY_LEVEL_KEY, CLUSTERS_COUNT_KEY, COLORS_HOLDER_KEY, DISTANCE_KEY, EVENT_CLASS_REGEX_KEY,
       EVENT_LOG_KEY, FEATURE_COUNT_KIND_KEY, LABELED_LOG_TRACES_DATASET_KEY, LABELED_TRACES_ACTIVITIES_DATASET_KEY,
       LEARNING_ITERATIONS_COUNT_KEY, MIN_EVENTS_IN_CLUSTERS_COUNT_KEY, MIN_POINTS_IN_CLUSTER_ARRAY_KEY, PERCENT_FROM_MAX_VALUE_KEY,
-      PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCES_KEY, TOLERANCE_KEY, TRACES_ACTIVITIES_DATASET_KEY,
-      TRACES_REPR_SOURCE_KEY, TRACE_ACTIVITIES_KEY,
+      PIPELINE_KEY, PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY, TOLERANCE_KEY, TOLERANCES_KEY, TRACE_ACTIVITIES_KEY,
+      TRACES_ACTIVITIES_DATASET_KEY, TRACES_REPR_SOURCE_KEY,
     },
     multithreading::FeatureCountKindDto,
     pipeline_parts::PipelineParts,
@@ -32,8 +33,9 @@ use crate::{
 };
 
 impl PipelineParts {
-  pub(super) fn clusterize_activities_from_traces_k_means() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS, &|context, _, config| {
+  pipeline_part!(
+    clusterize_activities_from_traces_kmeans,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let mut params = Self::create_activities_clustering_params(context, config)?;
       let clusters_count = *Self::get_user_data(config, &CLUSTERS_COUNT_KEY)? as usize;
       let learning_iterations_count = *Self::get_user_data(config, &LEARNING_ITERATIONS_COUNT_KEY)? as usize;
@@ -45,8 +47,8 @@ impl PipelineParts {
 
       context.put_concrete(LABELED_TRACES_ACTIVITIES_DATASET_KEY.key(), labeled_dataset);
       Ok(())
-    })
-  }
+    }
+  );
 
   fn create_common_vis_params<'a>(
     context: &'a PipelineContext,
@@ -99,8 +101,9 @@ impl PipelineParts {
     }
   }
 
-  pub(super) fn clusterize_activities_from_traces_k_means_grid_search() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_ACTIVITIES_FROM_TRACES_KMEANS_GRID_SEARCH, &|context, _, config| {
+  pipeline_part!(
+    clusterize_activities_from_traces_kmeans_grid_search,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let learning_iterations_count = *Self::get_user_data(config, &LEARNING_ITERATIONS_COUNT_KEY)? as usize;
       let mut params = Self::create_activities_clustering_params(context, config)?;
 
@@ -111,11 +114,12 @@ impl PipelineParts {
 
       context.put_concrete(LABELED_TRACES_ACTIVITIES_DATASET_KEY.key(), labeled_dataset);
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub(super) fn clusterize_activities_from_traces_dbscan() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_ACTIVITIES_FROM_TRACES_DBSCAN, &|context, _, config| {
+  pipeline_part!(
+    clusterize_activities_from_traces_dbscan,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
       let put_noise_events_in_one_cluster = *Self::get_user_data(config, &PUT_NOISE_EVENTS_IN_ONE_CLUSTER_KEY)?;
       let mut params = Self::create_activities_clustering_params(context, config)?;
@@ -127,11 +131,12 @@ impl PipelineParts {
 
       context.put_concrete(LABELED_TRACES_ACTIVITIES_DATASET_KEY.key(), labeled_dataset);
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub fn clusterize_log_by_traces_k_means_grid_search() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_K_MEANS_GRID_SEARCH, &|context, infra, config| {
+  pipeline_part!(
+    clusterize_log_traces_k_means_grid_search,
+    |context: &mut PipelineContext, infra: &PipelineInfrastructure, config: &UserDataImpl| {
       let mut params = Self::create_traces_clustering_params(context, config)?;
       let learning_iterations_count = *Self::get_user_data(config, &LEARNING_ITERATIONS_COUNT_KEY)? as u64;
       let tolerance = *Self::get_user_data(config, &TOLERANCE_KEY)?;
@@ -141,7 +146,7 @@ impl PipelineParts {
         Err(error) => return Err(error.into()),
       };
 
-      if let Some(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY).ok() {
+      if let Ok(after_clusterization_pipeline) = Self::get_user_data(config, &PIPELINE_KEY) {
         for log in logs {
           let mut new_context = context.clone();
           new_context.put_concrete(EVENT_LOG_KEY.key(), log);
@@ -153,11 +158,12 @@ impl PipelineParts {
       context.put_concrete(LABELED_LOG_TRACES_DATASET_KEY.key(), labeled_dataset);
 
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub(super) fn create_traces_activities_dataset() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CREATE_TRACES_ACTIVITIES_DATASET, &|context, _, config| {
+  pipeline_part!(
+    create_traces_activities_dataset,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let params = Self::create_activities_visualization_params(context, config)?;
 
       let (dataset, processed, classes) = match create_dataset(&params) {
@@ -170,8 +176,8 @@ impl PipelineParts {
 
       context.put_concrete(TRACES_ACTIVITIES_DATASET_KEY.key(), ficus_dataset);
       Ok(())
-    })
-  }
+    }
+  );
 
   pub(crate) fn create_traces_clustering_params<'a>(
     context: &'a mut PipelineContext,
@@ -198,8 +204,9 @@ impl PipelineParts {
     })
   }
 
-  pub(super) fn clusterize_log_traces() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES, &|context, infra, config| {
+  pipeline_part!(
+    clusterize_log_traces,
+    |context: &mut PipelineContext, infra: &PipelineInfrastructure, config: &UserDataImpl| {
       let mut params = Self::create_traces_clustering_params(context, config)?;
       let after_clusterization_pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
       let min_points_in_cluster = *Self::get_user_data(config, &MIN_EVENTS_IN_CLUSTERS_COUNT_KEY)? as usize;
@@ -216,11 +223,12 @@ impl PipelineParts {
       Self::execute_with_temp_event_logs(context, infra, new_logs.0, after_clusterization_pipeline)?;
 
       Ok(())
-    })
-  }
+    }
+  );
 
-  pub(super) fn clusterize_log_traces_dbscan_grid_search() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CLUSTERIZE_LOG_TRACES_DBSCAN_GRID_SEARCH, &|context, infra, config| {
+  pipeline_part!(
+    clusterize_log_traces_dbscan_grid_search,
+    |context: &mut PipelineContext, infra: &PipelineInfrastructure, config: &UserDataImpl| {
       let mut params = Self::create_traces_clustering_params(context, config)?;
       let after_clusterization_pipeline = Self::get_user_data(config, &PIPELINE_KEY)?;
 
@@ -241,8 +249,8 @@ impl PipelineParts {
       Self::execute_with_temp_event_logs(context, infra, new_logs.0, after_clusterization_pipeline)?;
 
       Ok(())
-    })
-  }
+    }
+  );
 
   fn execute_with_temp_event_logs(
     context: &mut PipelineContext,

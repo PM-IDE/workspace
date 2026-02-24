@@ -149,7 +149,7 @@ const_create_threads_log = 'CreateThreadsLog'
 const_abstract_timeline_diagram = 'AbstractTimelineDiagram'
 const_clusterize_traces_k_means_grid_search = 'ClusterizeLogTracesKMeansGridSearch'
 const_clusterize_traces_dbscan_grid_search = 'ClusterizeLogTracesDbscanGridSearch'
-const_discover_root_sequence_graph = 'DiscoverRootSequenceGraph'
+const_discover_ecfg = 'DiscoverECFG'
 const_discover_loops_strict = 'DiscoverLoopsStrict'
 const_discover_traces_timeline_diagram = 'DiscoverTracesTimelineDiagram'
 

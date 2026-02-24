@@ -8,7 +8,7 @@ use ficus::utils::user_data::{
 #[test]
 fn test_user_data() {
   let key = DefaultKey::<usize>::new("asdasdasda".to_string());
-  let mut user_data = UserDataImpl::new();
+  let mut user_data = UserDataImpl::default();
   let b = 123;
   user_data.put_concrete(&key, b);
 
@@ -28,7 +28,7 @@ fn test_user_data_two_keys() {
   let box1 = Rc::clone(&first_value);
   let box2 = Rc::clone(&second_value);
 
-  let mut user_data = UserDataImpl::new();
+  let mut user_data = UserDataImpl::default();
 
   user_data.put_any(&first_key, box1);
   user_data.put_any(&second_key, box2);
@@ -45,7 +45,7 @@ fn test_remove_from_user_data() {
   let key = DefaultKey::<usize>::new("1".to_string());
 
   let value = 123usize;
-  let mut user_data = UserDataImpl::new();
+  let mut user_data = UserDataImpl::default();
 
   user_data.put_any(&key, value);
 

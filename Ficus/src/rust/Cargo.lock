@@ -567,7 +567,6 @@ version = "0.1.0"
 dependencies = [
  "approx 0.5.1",
  "bxes",
- "bxes_kafka",
  "chrono",
  "derive-new",
  "enum-display",
@@ -581,24 +580,17 @@ dependencies = [
  "linfa-clustering",
  "linfa-nn",
  "log",
- "nameof",
  "ndarray",
  "num-traits",
  "once_cell",
  "paste",
- "prost",
- "prost-types",
  "quick-xml",
  "rand 0.8.5",
- "rdkafka",
  "serde",
  "serde_json",
  "stopwatch",
  "termgraph",
- "tokio",
- "tokio-stream",
  "tonic",
- "tonic-build",
  "uuid",
 ]
 
@@ -606,11 +598,23 @@ dependencies = [
 name = "ficus_backend"
 version = "0.1.0"
 dependencies = [
+ "bxes",
+ "bxes_kafka",
+ "chrono",
  "colog",
  "ficus",
+ "futures",
  "log",
+ "nameof",
+ "prost",
+ "prost-types",
+ "rdkafka",
+ "serde_json",
  "tokio",
+ "tokio-stream",
  "tonic",
+ "tonic-build",
+ "uuid",
 ]
 
 [[package]]

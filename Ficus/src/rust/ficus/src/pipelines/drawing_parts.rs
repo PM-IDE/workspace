@@ -8,6 +8,7 @@ use crate::{
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
   },
   features::analysis::patterns::activity_instances::{SubTraceKind, UNDEF_ACTIVITY_NAME},
+  pipeline_part,
   pipelines::{
     keys::context_keys::{
       ATTRIBUTE_KEY, COLORS_EVENT_LOG_KEY, COLORS_HOLDER_KEY, EVENT_LOG_KEY, EVENT_NAME_KEY, REGEX_KEY, TRACE_ACTIVITIES_KEY,
@@ -17,22 +18,20 @@ use crate::{
   utils::{
     colors::{Color, ColoredRectangle, ColorsEventLog, ColorsHolder},
     references::HeapedOrOwned,
-    user_data::user_data::UserData,
+    user_data::user_data::{UserData, UserDataImpl},
   },
 };
 
 impl PipelineParts {
-  pub(super) fn traces_diversity_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM, &|context, _, _| {
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
-      let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
+  pipeline_part!(traces_diversity_diagram, |context: &mut PipelineContext, _, _| {
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
+    let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
 
-      context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
+    context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
 
-      Ok(())
-    })
-  }
+    Ok(())
+  });
 
   fn create_traces_diversity_colors_log(
     log: &XesEventLogImpl,
@@ -43,8 +42,8 @@ impl PipelineParts {
     let mut traces = vec![];
     for trace in log.traces() {
       let mut vec = vec![];
-      let mut index = 0usize;
-      for event in trace.borrow().events() {
+
+      for (index, event) in trace.borrow().events().iter().enumerate() {
         let event = event.borrow();
 
         let colors_key = color_key_selector(&event);
@@ -57,7 +56,6 @@ impl PipelineParts {
 
         let name = HeapedOrOwned::Owned(colors_key.to_owned());
         vec.push(ColoredRectangle::square(name, index as f64));
-        index += 1;
       }
 
       traces.push(vec);
@@ -66,12 +64,13 @@ impl PipelineParts {
     ColorsEventLog { mapping, traces }
   }
 
-  pub(super) fn draw_placements_of_event_by_name() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_NAME, &|context, _, config| {
+  pipeline_part!(
+    draw_placement_of_event_by_name,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let event_name = Self::get_user_data(config, &EVENT_NAME_KEY)?;
       Self::draw_events_placement(context, &|event| event.name() == event_name)
-    })
-  }
+    }
+  );
 
   pub(super) fn draw_events_placement(
     context: &mut PipelineContext,
@@ -86,8 +85,8 @@ impl PipelineParts {
 
     for trace in log.traces() {
       let mut colors_trace = vec![];
-      let mut index = 0usize;
-      for event in trace.borrow().events() {
+
+      for (index, event) in trace.borrow().events().iter().enumerate() {
         let event = event.borrow();
         let name = event.name();
         if selector(&event) {
@@ -102,8 +101,6 @@ impl PipelineParts {
           let name = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
           colors_trace.push(ColoredRectangle::square(name, index as f64));
         }
-
-        index += 1;
       }
 
       traces.push(colors_trace);
@@ -114,113 +111,111 @@ impl PipelineParts {
     Ok(())
   }
 
-  pub(super) fn draw_events_placements_by_regex() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_PLACEMENT_OF_EVENT_BY_REGEX, &|context, _, config| {
+  pipeline_part!(
+    draw_placement_of_event_by_regex,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let regex = Self::get_user_data(config, &REGEX_KEY)?;
       let regex = Regex::new(regex).ok().unwrap();
       Self::draw_events_placement(context, &|event| regex.is_match(event.name()).ok().unwrap())
-    })
-  }
+    }
+  );
 
-  pub(super) fn draw_full_activities_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_FULL_ACTIVITIES_DIAGRAM, &|context, _, _| {
-      let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
+  pipeline_part!(draw_full_activities_diagram, |context: &mut PipelineContext, _, _| {
+    let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
 
-      let mut traces = vec![];
-      let mut mapping = HashMap::new();
-      mapping.insert(UNDEF_ACTIVITY_NAME.to_string(), Color::black());
+    let mut traces = vec![];
+    let mut mapping = HashMap::new();
+    mapping.insert(UNDEF_ACTIVITY_NAME.to_string(), Color::black());
 
-      for (activities, trace) in traces_activities.into_iter().zip(log.traces().into_iter()) {
-        let mut colors_trace = vec![];
-        let trace_length = trace.borrow().events().len();
+    for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
+      let mut colors_trace = vec![];
+      let trace_length = trace.borrow().events().len();
 
-        Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| match sub_trace {
+      Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| match sub_trace {
+        SubTraceKind::Attached(activity) => {
+          let color = colors_holder.get_or_create(activity.node().borrow().name());
+          let name = activity.node().borrow().name().clone();
+          if !mapping.contains_key(name.as_ref().as_ref()) {
+            mapping.insert(name.as_ref().as_ref().to_owned(), color);
+          }
+
+          let name = HeapedOrOwned::Heaped(name);
+          colors_trace.push(ColoredRectangle::new(name, *activity.start_pos() as f64, *activity.length() as f64));
+        }
+        SubTraceKind::Unattached(start_pos, length) => {
+          colors_trace.push(ColoredRectangle::new(
+            HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_string()),
+            start_pos as f64,
+            length as f64,
+          ));
+        }
+      })?;
+
+      traces.push(colors_trace);
+    }
+
+    context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
+
+    Ok(())
+  });
+
+  pipeline_part!(draw_short_activities_diagram, |context: &mut PipelineContext, _, _| {
+    let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
+    let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
+    let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
+
+    let mut traces = vec![];
+    let mut mapping = HashMap::new();
+    mapping.insert(UNDEF_ACTIVITY_NAME.to_owned(), Color::black());
+
+    for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
+      let mut colors_trace = vec![];
+      let mut index = 0;
+      let trace_length = trace.borrow().events().len();
+      Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| {
+        match sub_trace {
           SubTraceKind::Attached(activity) => {
             let color = colors_holder.get_or_create(activity.node().borrow().name());
-            let name = activity.node().borrow().name().clone();
-            if !mapping.contains_key(name.as_ref().as_ref()) {
-              mapping.insert(name.as_ref().as_ref().to_owned(), color);
+            let name = activity.node().borrow().name().to_owned();
+
+            if !mapping.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
+              mapping.insert(activity.node().borrow().name().as_ref().as_ref().to_owned(), color);
             }
 
             let name = HeapedOrOwned::Heaped(name);
-            colors_trace.push(ColoredRectangle::new(name, *activity.start_pos() as f64, *activity.length() as f64));
+            colors_trace.push(ColoredRectangle::new(name, index as f64, 1.));
           }
-          SubTraceKind::Unattached(start_pos, length) => {
-            colors_trace.push(ColoredRectangle::new(
-              HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_string()),
-              start_pos as f64,
-              length as f64,
-            ));
+          SubTraceKind::Unattached(_, _) => {
+            let ptr = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
+            colors_trace.push(ColoredRectangle::new(ptr, index as f64, 1.));
           }
-        })?;
+        }
 
-        traces.push(colors_trace);
-      }
+        index += 1;
+      })?;
 
-      context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
+      traces.push(colors_trace);
+    }
 
-      Ok(())
-    })
-  }
+    context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
 
-  pub(super) fn draw_short_activities_diagram() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::DRAW_SHORT_ACTIVITIES_DIAGRAM, &|context, _, _| {
-      let traces_activities = Self::get_user_data(context, &TRACE_ACTIVITIES_KEY)?;
-      let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
-      let colors_holder = Self::get_user_data_mut(context, &COLORS_HOLDER_KEY)?;
+    Ok(())
+  });
 
-      let mut traces = vec![];
-      let mut mapping = HashMap::new();
-      mapping.insert(UNDEF_ACTIVITY_NAME.to_owned(), Color::black());
-
-      for (activities, trace) in traces_activities.into_iter().zip(log.traces().into_iter()) {
-        let mut colors_trace = vec![];
-        let mut index = 0;
-        let trace_length = trace.borrow().events().len();
-        Self::execute_with_activities_instances(activities, trace_length, &mut |sub_trace| {
-          match sub_trace {
-            SubTraceKind::Attached(activity) => {
-              let color = colors_holder.get_or_create(activity.node().borrow().name());
-              let name = activity.node().borrow().name().to_owned();
-
-              if !mapping.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
-                mapping.insert(activity.node().borrow().name().as_ref().as_ref().to_owned(), color);
-              }
-
-              let name = HeapedOrOwned::Heaped(name);
-              colors_trace.push(ColoredRectangle::new(name, index as f64, 1.));
-            }
-            SubTraceKind::Unattached(_, _) => {
-              let ptr = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
-              colors_trace.push(ColoredRectangle::new(ptr, index as f64, 1.));
-            }
-          }
-
-          index += 1;
-        })?;
-
-        traces.push(colors_trace);
-      }
-
-      context.put_concrete(COLORS_EVENT_LOG_KEY.key(), ColorsEventLog { mapping, traces });
-
-      Ok(())
-    })
-  }
-
-  pub(super) fn draw_traces_diversity_diagram_by_attribute() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::TRACES_DIVERSITY_DIAGRAM_BY_ATTRIBUTE, &|context, _, config| {
+  pipeline_part!(
+    traces_diversity_diagram_by_attribute,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
       let attribute = Self::get_user_data(config, &ATTRIBUTE_KEY)?;
 
       let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| {
-        if let Some(attributes) = e.payload_map() {
-          if let Some(value) = attributes.get(attribute) {
-            return value.to_string_repr();
-          }
+        if let Some(attributes) = e.payload_map()
+          && let Some(value) = attributes.get(attribute)
+        {
+          return value.to_string_repr();
         }
 
         HeapedOrOwned::Owned("UNDEF_ATTRIBUTE".to_string())
@@ -229,6 +224,6 @@ impl PipelineParts {
       context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
 
       Ok(())
-    })
-  }
+    }
+  );
 }

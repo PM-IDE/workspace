@@ -18,9 +18,7 @@ pub fn annotate_with_counts(
   terminate_on_unreplayable_trace: bool,
 ) -> Option<HashMap<u64, usize>> {
   let replay_states = replay_petri_net(log, net);
-  if replay_states.is_none() {
-    return None;
-  }
+  replay_states.as_ref()?;
 
   let mut fired_arcs = HashMap::new();
   for state in replay_states.as_ref().unwrap() {
@@ -57,7 +55,7 @@ pub fn annotate_with_frequencies(
   let count_annotation = annotate_with_counts(log, net, terminate_on_unreplayable_trace)?;
   let mut freq_annotations = HashMap::new();
 
-  let sum: usize = count_annotation.values().into_iter().sum();
+  let sum: usize = count_annotation.values().sum();
   for (arc_id, count) in count_annotation {
     freq_annotations.insert(arc_id, (count as f64) / sum as f64);
   }
@@ -102,7 +100,7 @@ pub enum PerformanceAnnotationInfo {
   SumAndCount(f64, usize),
 }
 
-const PERFORMANCE_ANNOTATION_INFO: &'static str = "PERFORMANCE_ANNOTATION_INFO";
+const PERFORMANCE_ANNOTATION_INFO: &str = "PERFORMANCE_ANNOTATION_INFO";
 context_key! { PERFORMANCE_ANNOTATION_INFO, PerformanceAnnotationInfo }
 
 pub type PerformanceMap = HashMap<(HeapedOrOwned<String>, HeapedOrOwned<String>), (f64, usize)>;
@@ -143,11 +141,7 @@ pub fn create_performance_map(log: &impl EventLog) -> PerformanceMap {
   performance_map
 }
 
-pub fn annotate_with_time_performance(
-  log: &impl EventLog,
-  graph: &DefaultGraph,
-  annotation_kind: TimeAnnotationKind,
-) -> Option<HashMap<u64, f64>> {
+pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph, kind: TimeAnnotationKind) -> Option<HashMap<u64, f64>> {
   let performance_map = create_performance_map(log);
 
   let mut time_annotations = HashMap::new();
@@ -157,22 +151,20 @@ pub fn annotate_with_time_performance(
 
     let annotation = if let Some(performance_data) = edge.user_data().concrete(PERFORMANCE_ANNOTATION_INFO_KEY.key()) {
       Some(match performance_data {
-        PerformanceAnnotationInfo::Default(data) => match annotation_kind {
+        PerformanceAnnotationInfo::Default(data) => match kind {
           TimeAnnotationKind::SummedTime => data.iter().sum(),
           TimeAnnotationKind::Mean => data.iter().sum::<f64>() / data.len() as f64,
         },
-        PerformanceAnnotationInfo::SumAndCount(sum, count) => match annotation_kind {
+        PerformanceAnnotationInfo::SumAndCount(sum, count) => match kind {
           TimeAnnotationKind::SummedTime => *sum,
           TimeAnnotationKind::Mean => *sum / (*count as f64),
         },
       })
-    } else if let Some(time_annotation) = try_get_time_annotation(&performance_map, first_node, second_node) {
-      Some(match annotation_kind {
+    } else {
+      try_get_time_annotation(&performance_map, first_node, second_node).map(|time_annotation| match kind {
         TimeAnnotationKind::SummedTime => time_annotation.0,
         TimeAnnotationKind::Mean => time_annotation.0 / time_annotation.1 as f64,
       })
-    } else {
-      None
     };
 
     if let Some(annotation) = annotation {
@@ -195,7 +187,7 @@ fn try_get_time_annotation(
     );
 
     if let Some(time_annotation) = performance_map.get(&key) {
-      return Some(time_annotation.clone());
+      return Some(*time_annotation);
     }
   }
 

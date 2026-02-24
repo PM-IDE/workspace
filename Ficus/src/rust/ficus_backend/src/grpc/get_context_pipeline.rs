@@ -1,0 +1,156 @@
+use std::{any::Any, sync::Arc};
+use uuid::Uuid;
+
+use super::events::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler};
+use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
+use ficus::{
+  features::cases::CaseName,
+  pipelines::{
+    context::{PipelineContext, PipelineInfrastructure},
+    errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError},
+    keys::context_keys::{
+      find_context_key, CASE_NAME_KEY, EXECUTION_ID_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY,
+      SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
+    },
+    pipelines::{DefaultPipelinePart, PipelinePart},
+  },
+  utils::{
+    context_key::{ContextKey, DefaultContextKey},
+    user_data::user_data::UserData,
+  },
+};
+
+#[rustfmt::skip]
+type GetContextHandler = Box<dyn Fn(Uuid, String, &mut PipelineContext, &PipelineInfrastructure, Vec<&dyn ContextKey>) -> Result<(), PipelinePartExecutionError>>;
+
+pub struct GetContextValuePipelinePart {
+  keys: Vec<String>,
+  handler: GetContextHandler,
+  uuid: Uuid,
+  pipeline_part_name: String,
+}
+
+impl GetContextValuePipelinePart {
+  pub fn new(keys: Vec<String>, uuid: Uuid, pipeline_part_name: String, handler: GetContextHandler) -> Self {
+    Self {
+      keys,
+      handler,
+      uuid,
+      pipeline_part_name,
+    }
+  }
+
+  pub fn create_context_pipeline_part(
+    keys: Vec<String>,
+    uuid: Uuid,
+    pipeline_part_name: String,
+    sender: Arc<Box<dyn PipelineEventsHandler>>,
+    before_part: Option<Box<DefaultPipelinePart>>,
+  ) -> Box<GetContextValuePipelinePart> {
+    Box::new(GetContextValuePipelinePart::new(
+      keys,
+      uuid,
+      pipeline_part_name,
+      Box::new(move |uuid, pipeline_part_name, context, infra, context_keys| {
+        if let Some(before_part) = before_part.as_ref() {
+          before_part.execute(context, infra)?;
+        }
+
+        let key_values = Self::find_context_values_for(&context_keys, context)?;
+        let process_case_metadata = Self::create_process_case_metadata(context);
+
+        let execution_id = match Self::value_or_none(context, &EXECUTION_ID_KEY) {
+          None => {
+            return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
+              "Execution ID is not supplied".to_string(),
+            )))
+          }
+          Some(execution_id) => execution_id,
+        };
+
+        sender.handle(&PipelineEvent::GetContextValuesEvent(GetContextValuesEvent {
+          process_case_metadata,
+          pipeline_part_name,
+          pipeline_part_id: uuid,
+          execution_id,
+          key_values,
+        }));
+
+        Ok(())
+      }),
+    ))
+  }
+
+  fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
+    let case_name = Self::value_or_default(context, &CASE_NAME_KEY, CaseName::empty);
+    let process_name = Self::value_or_default(context, &PROCESS_NAME_KEY, || "UNDEFINED_PROCESS".to_string());
+
+    let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID_KEY);
+    let subscription_name = Self::value_or_none(context, &SUBSCRIPTION_NAME_KEY);
+
+    let pipeline_id = Self::value_or_none(context, &PIPELINE_ID_KEY);
+    let pipeline_name = Self::value_or_none(context, &PIPELINE_NAME_KEY);
+
+    let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA_KEY, std::vec::Vec::new);
+
+    ProcessCaseMetadata {
+      process_name,
+      case_name,
+      subscription_id,
+      subscription_name,
+      pipeline_id,
+      pipeline_name,
+      metadata,
+    }
+  }
+
+  fn value_or_default<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>, default_factory: impl Fn() -> T) -> T {
+    match context.concrete(key.key()) {
+      None => default_factory(),
+      Some(value) => value.clone(),
+    }
+  }
+
+  fn value_or_none<T: Clone>(context: &PipelineContext, key: &DefaultContextKey<T>) -> Option<T> {
+    context.concrete(key.key()).cloned()
+  }
+
+  fn find_context_values_for<'a>(
+    keys: &Vec<&'a dyn ContextKey>,
+    context: &'a PipelineContext,
+  ) -> Result<Vec<(&'a dyn ContextKey, &'a dyn Any)>, PipelinePartExecutionError> {
+    let mut key_values = vec![];
+    for key in keys {
+      match context.any(key.key()) {
+        Some(context_value) => {
+          key_values.push((*key, context_value));
+        }
+        None => {
+          return Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(
+            key.key().name().clone(),
+          )))
+        }
+      }
+    }
+
+    Ok(key_values)
+  }
+}
+
+impl PipelinePart for GetContextValuePipelinePart {
+  fn execute(&self, context: &mut PipelineContext, infra: &PipelineInfrastructure) -> Result<(), PipelinePartExecutionError> {
+    let mut context_keys = vec![];
+    for key_name in &self.keys {
+      match find_context_key(key_name) {
+        Some(key) => context_keys.push(key),
+        None => {
+          return Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(
+            key_name.clone(),
+          )))
+        }
+      }
+    }
+
+    (self.handler)(self.uuid, self.pipeline_part_name.to_owned(), context, infra, context_keys)
+  }
+}

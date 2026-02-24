@@ -47,12 +47,12 @@ fn calculate_vector_length<TLog>(log: &TLog) -> usize
 where
   TLog: EventLog,
 {
-  log.traces().into_iter().map(|trace| trace.borrow().events().len()).max().unwrap()
+  log.traces().iter().map(|trace| trace.borrow().events().len()).max().unwrap()
 }
 
-pub fn calculate_pos_entropy(probabilities: &mut Vec<f64>, traces_count: f64) -> f64 {
-  for i in 0..probabilities.len() {
-    probabilities[i] = probabilities[i] / traces_count;
+pub fn calculate_pos_entropy(probabilities: &mut [f64], traces_count: f64) -> f64 {
+  for p in probabilities.iter_mut() {
+    *p /= traces_count;
   }
 
   let log = traces_count.log2();
@@ -81,18 +81,18 @@ pub fn calculate_entropies<TLog, TEntropyCalculator>(
 ) -> HashMap<String, f64>
 where
   TLog: EventLog,
-  TEntropyCalculator: Fn(&TLog, &String, Option<&HashSet<String>>) -> f64,
+  TEntropyCalculator: Fn(&TLog, &str, Option<&HashSet<String>>) -> f64,
 {
   let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
   let mut entropies = HashMap::new();
   for event_name in log_info.all_event_classes() {
-    if let Some(ignored_events) = ignored_events {
-      if ignored_events.contains(event_name.as_str()) {
-        continue;
-      }
+    if let Some(ignored_events) = ignored_events
+      && ignored_events.contains(event_name.as_str())
+    {
+      continue;
     }
 
-    let entropy = entropy_calculator(log, &event_name, ignored_events);
+    let entropy = entropy_calculator(log, event_name, ignored_events);
     entropies.insert(event_name.to_owned(), entropy);
   }
 

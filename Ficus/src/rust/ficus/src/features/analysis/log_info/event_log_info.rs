@@ -42,7 +42,7 @@ impl EventLogCounts for EventLogCountsImpl {
 pub trait EventLogInfo {
   fn counts(&self) -> Option<&dyn EventLogCounts>;
   fn event_classes_count(&self) -> u64;
-  fn event_count(&self, event_class: &String) -> u64;
+  fn event_count(&self, event_class: &str) -> u64;
   fn dfg_info(&self) -> &dyn DfgInfo;
   fn all_event_classes(&self) -> Vec<&String>;
   fn start_event_classes(&self) -> &HashSet<String>;
@@ -65,7 +65,7 @@ impl OfflineEventLogInfo {
       .keys()
       .filter(|c| match dfg_info.precedes_events.get(*c) {
         None => true,
-        Some(precedes) => precedes.len() == 0,
+        Some(precedes) => precedes.is_empty(),
       })
       .map(|c| c.to_owned())
       .collect();
@@ -74,7 +74,7 @@ impl OfflineEventLogInfo {
       .keys()
       .filter(|c| match dfg_info.followed_events.get(*c) {
         None => true,
-        Some(followers) => followers.len() == 0,
+        Some(followers) => followers.is_empty(),
       })
       .map(|c| c.to_owned())
       .collect();
@@ -131,7 +131,7 @@ impl OfflineEventLogInfo {
       events_count += events.len();
       let mut prev_event_name = None;
 
-      if events.len() > 0 {
+      if !events.is_empty() {
         start_event_classes.insert(events.first().unwrap().borrow().name().to_owned());
         end_event_classes.insert(events.last().unwrap().borrow().name().to_owned());
       }
@@ -140,10 +140,10 @@ impl OfflineEventLogInfo {
         let event = event.borrow();
         let current_name = event.name().to_owned();
 
-        if let Some(ignored_events) = ignored_events {
-          if ignored_events.contains(&current_name) {
-            continue;
-          }
+        if let Some(ignored_events) = ignored_events
+          && ignored_events.contains(&current_name)
+        {
+          continue;
         }
 
         update_events_counts(&current_name);
@@ -162,8 +162,8 @@ impl OfflineEventLogInfo {
         prev_event_name = Some(event.name().to_owned());
       }
 
-      if add_fake_start_end_events && prev_event_name.is_some() {
-        update_pairs_count(&prev_event_name.unwrap(), &FAKE_EVENT_END_NAME.to_string());
+      if add_fake_start_end_events && let Some(prev_event_name) = prev_event_name {
+        update_pairs_count(&prev_event_name, &FAKE_EVENT_END_NAME.to_string());
       }
     }
 
@@ -241,7 +241,7 @@ impl EventLogInfo for OfflineEventLogInfo {
     self.event_classes_counts.len() as u64
   }
 
-  fn event_count(&self, event_class: &String) -> u64 {
+  fn event_count(&self, event_class: &str) -> u64 {
     match self.event_classes_counts.get(event_class) {
       Some(value) => value.to_owned(),
       None => 0,
@@ -253,7 +253,7 @@ impl EventLogInfo for OfflineEventLogInfo {
   }
 
   fn all_event_classes(&self) -> Vec<&String> {
-    self.event_classes_counts.keys().into_iter().collect()
+    self.event_classes_counts.keys().collect()
   }
 
   fn start_event_classes(&self) -> &HashSet<String> {

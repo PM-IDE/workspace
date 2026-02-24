@@ -2,10 +2,10 @@ use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecu
 use crate::{
   features::analysis::patterns::{
     contexts::PatternsDiscoveryStrategy,
-    pattern_info::{UnderlyingPatternKind, UNDERLYING_PATTERN_KIND_KEY},
+    pattern_info::{UNDERLYING_PATTERN_KIND_KEY, UnderlyingPatternKind},
     repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
     strict_loops::find_loops_strict,
-    tandem_arrays::{find_maximal_tandem_arrays, find_primitive_tandem_arrays, SubArrayInTraceInfo},
+    tandem_arrays::{SubArrayInTraceInfo, find_maximal_tandem_arrays, find_primitive_tandem_arrays},
   },
   pipelines::{
     keys::context_keys::{
@@ -28,9 +28,9 @@ pub enum PatternsKindDto {
   NearSuperMaximalRepeats,
 }
 
-impl Into<UnderlyingPatternKind> for PatternsKindDto {
-  fn into(self) -> UnderlyingPatternKind {
-    match self {
+impl From<PatternsKindDto> for UnderlyingPatternKind {
+  fn from(val: PatternsKindDto) -> Self {
+    match val {
       PatternsKindDto::PrimitiveTandemArrays => UnderlyingPatternKind::PrimitiveTandemArray,
       PatternsKindDto::MaximalTandemArrays => UnderlyingPatternKind::MaximalTandemArray,
       PatternsKindDto::MaximalRepeats => UnderlyingPatternKind::MaximalRepeat,
@@ -88,7 +88,7 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::FIND_PRIMITIVE_TANDEM_ARRAYS, &|context, _, config| {
       Self::find_tandem_arrays_and_put_to_context(
         context,
-        &config,
+        config,
         find_primitive_tandem_arrays,
         UnderlyingPatternKind::PrimitiveTandemArray,
       )
@@ -99,7 +99,7 @@ impl PipelineParts {
     Self::create_pipeline_part(Self::FIND_MAXIMAL_TANDEM_ARRAYS, &|context, _, config| {
       Self::find_tandem_arrays_and_put_to_context(
         context,
-        &config,
+        config,
         find_maximal_tandem_arrays,
         UnderlyingPatternKind::MaximalTandemArray,
       )
@@ -137,7 +137,7 @@ impl PipelineParts {
 
     let hashed_log = Self::create_hashed_event_log(config, log);
 
-    let repeats = patterns_finder(&hashed_log, &strategy);
+    let repeats = patterns_finder(&hashed_log, strategy);
 
     context.put_concrete(UNDERLYING_PATTERN_KIND_KEY.key(), underlying_pattern_kind);
     context.put_concrete(HASHES_EVENT_LOG_KEY.key(), hashed_log);

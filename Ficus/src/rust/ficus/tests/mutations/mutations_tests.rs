@@ -9,7 +9,7 @@ use ficus::{
   },
   features::mutations::{
     filtering::{filter_log_by_name, filter_log_by_names},
-    mutations::{add_artificial_start_end_activities, rename_events, ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME},
+    mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME, add_artificial_start_end_activities, rename_events},
   },
 };
 use std::{cell::RefCell, collections::HashSet, rc::Rc, vec};

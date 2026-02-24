@@ -84,7 +84,8 @@ impl<'a> OcelDataExtractor<'a> {
   }
 
   fn try_get_config<'b, T>(event: &'b XesEventImpl, config: Option<&'b (Regex, T)>) -> Option<&'b T> {
-    let Some((regex, config)) = config else { return None };
+    let (regex, config) = config?;
+
     if !regex.is_match(event.name().as_str()).unwrap_or(false) {
       return None;
     }
@@ -117,7 +118,7 @@ impl<'a> OcelDataExtractor<'a> {
   ) -> Option<(HeapedOrOwned<String>, HeapedOrOwned<String>)> {
     let object_type = config.object_type_attr().create(event);
 
-    let object_id = match Self::parse_object_id(&event, config.object_id_attr().as_str()) {
+    let object_id = match Self::parse_object_id(event, config.object_id_attr().as_str()) {
       None => {
         debug!("Object does not have an object id, skipping it");
         return None;
@@ -166,7 +167,7 @@ impl<'a> OcelDataExtractor<'a> {
     };
 
     let Some(payload) = event.payload_map() else { return false };
-    let Some(object_id) = Self::parse_object_id(&event, config.object_id_attr().as_str()) else {
+    let Some(object_id) = Self::parse_object_id(event, config.object_id_attr().as_str()) else {
       return false;
     };
     let related_objects_ids = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr()), delimiter);
@@ -186,7 +187,7 @@ impl<'a> OcelDataExtractor<'a> {
 
     let data = related_objects_ids
       .into_iter()
-      .zip(related_objects_types.into_iter())
+      .zip(related_objects_types)
       .map(|(id, r#type)| OcelProducedObjectAfterConsume::new(id, Some(r#type)))
       .collect();
 
@@ -197,10 +198,10 @@ impl<'a> OcelDataExtractor<'a> {
   }
 
   fn parse_object_id(event: &XesEventImpl, object_id_attr: &str) -> Option<HeapedOrOwned<String>> {
-    if let Some(map) = event.payload_map().as_ref() {
-      if let Some(object_id) = map.get(object_id_attr).as_ref() {
-        return Some(object_id.to_string_repr());
-      }
+    if let Some(map) = event.payload_map().as_ref()
+      && let Some(object_id) = map.get(object_id_attr).as_ref()
+    {
+      return Some(object_id.to_string_repr());
     }
 
     None
@@ -211,27 +212,27 @@ impl<'a> OcelDataExtractor<'a> {
     related_objects_ids_attr: Option<&String>,
     delimiter: &str,
   ) -> Option<Vec<HeapedOrOwned<String>>> {
-    if let Some(related_objects_ids_attr) = related_objects_ids_attr {
-      if let Some(objects_ids) = payload.get(related_objects_ids_attr) {
-        let parsed_ids: Vec<HeapedOrOwned<String>> = objects_ids
-          .to_string_repr()
-          .trim()
-          .split(delimiter)
-          .filter_map(|s| {
-            if s.len() > 0 {
-              Some(HeapedOrOwned::Owned(s.to_string()))
-            } else {
-              None
-            }
-          })
-          .collect();
+    if let Some(related_objects_ids_attr) = related_objects_ids_attr
+      && let Some(objects_ids) = payload.get(related_objects_ids_attr)
+    {
+      let parsed_ids: Vec<HeapedOrOwned<String>> = objects_ids
+        .to_string_repr()
+        .trim()
+        .split(delimiter)
+        .filter_map(|s| {
+          if !s.is_empty() {
+            Some(HeapedOrOwned::Owned(s.to_string()))
+          } else {
+            None
+          }
+        })
+        .collect();
 
-        if parsed_ids.len() == 0 {
-          return None;
-        }
-
-        return Some(parsed_ids);
+      if parsed_ids.is_empty() {
+        return None;
       }
+
+      return Some(parsed_ids);
     }
 
     None

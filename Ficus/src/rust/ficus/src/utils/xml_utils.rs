@@ -7,8 +7,8 @@ use std::{
 };
 
 use quick_xml::{
-  events::{BytesEnd, BytesStart},
   Writer,
+  events::{BytesEnd, BytesStart},
 };
 
 pub enum XmlWriteError {

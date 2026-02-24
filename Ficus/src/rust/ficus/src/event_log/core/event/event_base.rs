@@ -16,7 +16,7 @@ impl EventBase {
     Self {
       name,
       timestamp,
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 }
@@ -25,7 +25,7 @@ impl Clone for EventBase {
   fn clone(&self) -> Self {
     Self {
       name: self.name.clone(),
-      timestamp: self.timestamp.clone(),
+      timestamp: self.timestamp,
       user_data: self.user_data.clone(),
     }
   }

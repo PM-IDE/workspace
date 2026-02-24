@@ -29,13 +29,12 @@ impl SubArrayWithTraceIndex {
   }
 }
 
-pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTraceInfo>>) -> Vec<SubArrayWithTraceIndex> {
+pub fn build_repeat_sets(log: &[Vec<u64>], patterns: &[Vec<SubArrayInTraceInfo>]) -> Vec<SubArrayWithTraceIndex> {
   let mut repeat_sets = HashMap::new();
   let mut set = HashSet::new();
   let mut vec: Vec<u64> = vec![];
-  let mut trace_index = 0;
 
-  for (trace, trace_patterns) in log.into_iter().zip(patterns.iter()) {
+  for (trace_index, (trace, trace_patterns)) in log.iter().zip(patterns.iter()).enumerate() {
     for pattern in trace_patterns {
       let start = pattern.start_index;
       let end = start + pattern.length;
@@ -51,16 +50,14 @@ pub fn build_repeat_sets(log: &Vec<Vec<u64>>, patterns: &Vec<Vec<SubArrayInTrace
 
       let hash = calculate_poly_hash_for_collection(vec.as_slice());
 
-      if !repeat_sets.contains_key(&hash) {
-        repeat_sets.insert(hash, SubArrayWithTraceIndex::new(*pattern, trace_index));
-      }
+      repeat_sets
+        .entry(hash)
+        .or_insert_with(|| SubArrayWithTraceIndex::new(*pattern, trace_index));
     }
-
-    trace_index += 1;
   }
 
   let mut result = vec![];
-  for repeat_set in repeat_sets.values().into_iter() {
+  for repeat_set in repeat_sets.values() {
     result.push(*repeat_set);
   }
 
@@ -129,8 +126,8 @@ impl ActivityNode {
 }
 
 pub fn build_repeat_set_tree_from_repeats<TNameCreator>(
-  log: &Vec<Vec<u64>>,
-  repeats: &Vec<SubArrayWithTraceIndex>,
+  log: &[Vec<u64>],
+  repeats: &[SubArrayWithTraceIndex],
   activity_level: usize,
   pattern_kind: UnderlyingPatternKind,
   name_creator: TNameCreator,
@@ -138,7 +135,7 @@ pub fn build_repeat_set_tree_from_repeats<TNameCreator>(
 where
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,
 {
-  if repeats.len() == 0 {
+  if repeats.is_empty() {
     return vec![];
   }
 
@@ -146,8 +143,9 @@ where
     let trace = log.get(repeat_set.trace_index).unwrap();
     let mut set = HashSet::new();
     let array = repeat_set.sub_array;
-    for index in array.start_index..(array.start_index + array.length) {
-      set.insert(trace[index]);
+
+    for event in trace.iter().skip(array.start_index).take(array.length) {
+      set.insert(*event);
     }
 
     set
@@ -165,21 +163,17 @@ where
     )))
   };
 
-  let mut activity_nodes = repeats
-    .iter()
-    .map(|repeat| create_activity_node(&repeat))
-    .collect::<Vec<Rc<RefCell<ActivityNode>>>>();
+  let mut activity_nodes = repeats.iter().map(create_activity_node).collect::<Vec<Rc<RefCell<ActivityNode>>>>();
 
-  activity_nodes.sort_by(|first, second| second.borrow().len().cmp(&first.borrow().len()));
+  activity_nodes.sort_by_key(|item| std::cmp::Reverse(item.borrow().len()));
   let max_length = activity_nodes[0].borrow().len();
   let mut top_level_nodes = vec![Rc::clone(&activity_nodes[0])];
   let mut next_length_index = 1;
   let mut current_length = max_length;
 
-  for i in 1..activity_nodes.len() {
-    let node_ptr = &activity_nodes[i];
+  for (index, node_ptr) in activity_nodes.iter().enumerate().skip(1) {
     if node_ptr.borrow().len() != max_length {
-      next_length_index = i;
+      next_length_index = index;
       current_length = node_ptr.borrow().len();
       break;
     }

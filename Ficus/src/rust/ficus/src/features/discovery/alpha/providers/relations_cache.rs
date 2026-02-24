@@ -10,10 +10,10 @@ impl<T> RelationsCache<T> {
   }
 
   pub fn try_get(&self, first: &str, second: &str) -> Option<&T> {
-    if let Some(map) = self.cache.get(first) {
-      if let Some(value) = map.get(second) {
-        return Some(value);
-      }
+    if let Some(map) = self.cache.get(first)
+      && let Some(value) = map.get(second)
+    {
+      return Some(value);
     }
 
     None

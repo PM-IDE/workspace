@@ -3,7 +3,7 @@ use crate::{
   features::discovery::timeline::software_data::{
     extraction_config::{SimpleCountExtractionConfig, SoftwareDataExtractionConfig},
     extractors::{
-      core::{parse_or_err, EventGroupSoftwareDataExtractor, SoftwareDataExtractionError},
+      core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError, parse_or_err},
       utils::RegexParingResult,
     },
     models::{GenericEnhancementBase, SimpleCounterData, SoftwareData},
@@ -60,7 +60,7 @@ impl<'a> EventGroupSoftwareDataExtractor for SimpleCounterExtractor<'a> {
                 1.
               };
 
-              (*result.entry(config.base().name().to_string()).or_insert((config.base(), 0.))).1 += count;
+              result.entry(config.base().name().to_string()).or_insert((config.base(), 0.)).1 += count;
             }
           }
           Err(err) => return Err(err.clone()),

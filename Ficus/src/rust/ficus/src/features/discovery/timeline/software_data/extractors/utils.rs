@@ -23,7 +23,7 @@ impl NameCreationStrategy {
             result.push_str(many_attributes.separator());
           }
 
-          if many_attributes.attributes().len() > 0 {
+          if !many_attributes.attributes().is_empty() {
             result.remove(result.len() - 1);
           }
 

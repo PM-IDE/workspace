@@ -10,15 +10,15 @@ use crate::{
         tandem_arrays::SubArrayInTraceInfo,
       },
     },
+    cases::CaseName,
     clustering::{activities::activities_params::ActivityRepresentationSource, traces::traces_params::TracesRepresentationSource},
     discovery::{
+      ecfg::models::RootSequenceKind,
       ocel::graph_annotation::OcelAnnotation,
       petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
-      root_sequence::models::RootSequenceKind,
       timeline::{discovery::LogTimelineDiagram, software_data::extraction_config::SoftwareDataExtractionConfig},
     },
   },
-  grpc::events::events_handler::CaseName,
   pipelines::{
     activities_parts::{ActivitiesLogsSourceDto, UndefActivityHandlingStrategyDto},
     multithreading::FeatureCountKindDto,
@@ -39,112 +39,112 @@ use lazy_static::lazy_static;
 use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
 use uuid::Uuid;
 
-pub const CASE_NAME: &'static str = "case_name";
-pub const PROCESS_NAME: &'static str = "process_name";
-pub const SUBSCRIPTION_ID: &'static str = "subscription_id";
-pub const SUBSCRIPTION_NAME: &'static str = "subscription_name";
-pub const PIPELINE_ID: &'static str = "pipeline_id";
-pub const PIPELINE_NAME: &'static str = "pipeline_name";
-pub const UNSTRUCTURED_METADATA: &'static str = "unstructured_metadata";
-pub const PATH: &'static str = "path";
-pub const TANDEM_ARRAY_LENGTH: &'static str = "tandem_array_length";
-pub const ACTIVITY_LEVEL: &'static str = "activity_level";
-pub const NARROW_ACTIVITIES: &'static str = "narrow_activities";
-pub const EVENT_NAME: &'static str = "event_name";
-pub const REGEX: &'static str = "regex";
-pub const PATTERNS_DISCOVERY_STRATEGY: &'static str = "patterns_discovery_strategy";
-pub const OUTPUT_STRING: &'static str = "output_string";
-pub const EVENT_LOG_INFO: &'static str = "event_log_info";
-pub const UNDERLYING_EVENTS_COUNT: &'static str = "underlying_events_count";
-pub const EVENTS_COUNT: &'static str = "events_count";
-pub const REGEXES: &'static str = "regexes";
-pub const ADJUSTING_MODE: &'static str = "adjusting_mode";
-pub const EVENT_CLASS_REGEX: &'static str = "event_class_regex";
-pub const PATTERNS_KIND: &'static str = "patterns_kind";
-pub const PIPELINE: &'static str = "pipeline";
-pub const MIN_ACTIVITY_LENGTH: &'static str = "min_activity_length";
-pub const UNDEF_ACTIVITY_HANDLING_STRATEGY: &'static str = "undef_activity_handling_strategy";
-pub const ACTIVITY_IN_TRACE_FILTER_KIND: &'static str = "activity_in_trace_filter_kind";
-pub const ACTIVITIES_LOGS_SOURCE: &'static str = "activities_logs_source";
-pub const PNML_USE_NAMES_AS_IDS: &'static str = "pnml_use_names_as_ids";
-pub const DEPENDENCY_THRESHOLD: &'static str = "dependency_threshold";
-pub const POSITIVE_OBSERVATIONS_THRESHOLD: &'static str = "positive_observations_threshold";
-pub const RELATIVE_TO_BEST_THRESHOLD: &'static str = "relative_to_best_threshold";
-pub const AND_THRESHOLD: &'static str = "and_threshold";
-pub const LOOP_LENGTH_TWO_THRESHOLD: &'static str = "loop_length_two_threshold";
-pub const UNARY_FREQUENCY_THRESHOLD: &'static str = "unary_frequency_threshold";
-pub const BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD: &'static str = "binary_frequency_significance_threshold";
-pub const PRESERVE_THRESHOLD: &'static str = "preserve_threshold";
-pub const RATIO_THRESHOLD: &'static str = "ratio_threshold";
-pub const UTILITY_RATE: &'static str = "utility_rate";
-pub const EDGE_CUTOFF_THRESHOLD: &'static str = "edge_cutoff_threshold";
-pub const NODE_CUTOFF_THRESHOLD: &'static str = "node_cutoff_threshold";
-pub const TERMINATE_ON_UNREPLAYABLE_TRACES: &'static str = "terminate_on_unreplayable_traces";
-pub const CLUSTERS_COUNT: &'static str = "clusters_count";
-pub const LEARNING_ITERATIONS_COUNT: &'static str = "learning_iterations_count";
-pub const TOLERANCE: &'static str = "tolerance";
-pub const MIN_EVENTS_IN_CLUSTERS_COUNT: &'static str = "min_events_in_cluster_count";
-pub const EVENT_LOG_NAME: &'static str = "event_log_name";
-pub const BYTES: &'static str = "bytes";
+pub const CASE_NAME: &str = "case_name";
+pub const PROCESS_NAME: &str = "process_name";
+pub const SUBSCRIPTION_ID: &str = "subscription_id";
+pub const SUBSCRIPTION_NAME: &str = "subscription_name";
+pub const PIPELINE_ID: &str = "pipeline_id";
+pub const PIPELINE_NAME: &str = "pipeline_name";
+pub const UNSTRUCTURED_METADATA: &str = "unstructured_metadata";
+pub const PATH: &str = "path";
+pub const TANDEM_ARRAY_LENGTH: &str = "tandem_array_length";
+pub const ACTIVITY_LEVEL: &str = "activity_level";
+pub const NARROW_ACTIVITIES: &str = "narrow_activities";
+pub const EVENT_NAME: &str = "event_name";
+pub const REGEX: &str = "regex";
+pub const PATTERNS_DISCOVERY_STRATEGY: &str = "patterns_discovery_strategy";
+pub const OUTPUT_STRING: &str = "output_string";
+pub const EVENT_LOG_INFO: &str = "event_log_info";
+pub const UNDERLYING_EVENTS_COUNT: &str = "underlying_events_count";
+pub const EVENTS_COUNT: &str = "events_count";
+pub const REGEXES: &str = "regexes";
+pub const ADJUSTING_MODE: &str = "adjusting_mode";
+pub const EVENT_CLASS_REGEX: &str = "event_class_regex";
+pub const PATTERNS_KIND: &str = "patterns_kind";
+pub const PIPELINE: &str = "pipeline";
+pub const MIN_ACTIVITY_LENGTH: &str = "min_activity_length";
+pub const UNDEF_ACTIVITY_HANDLING_STRATEGY: &str = "undef_activity_handling_strategy";
+pub const ACTIVITY_IN_TRACE_FILTER_KIND: &str = "activity_in_trace_filter_kind";
+pub const ACTIVITIES_LOGS_SOURCE: &str = "activities_logs_source";
+pub const PNML_USE_NAMES_AS_IDS: &str = "pnml_use_names_as_ids";
+pub const DEPENDENCY_THRESHOLD: &str = "dependency_threshold";
+pub const POSITIVE_OBSERVATIONS_THRESHOLD: &str = "positive_observations_threshold";
+pub const RELATIVE_TO_BEST_THRESHOLD: &str = "relative_to_best_threshold";
+pub const AND_THRESHOLD: &str = "and_threshold";
+pub const LOOP_LENGTH_TWO_THRESHOLD: &str = "loop_length_two_threshold";
+pub const UNARY_FREQUENCY_THRESHOLD: &str = "unary_frequency_threshold";
+pub const BINARY_FREQUENCY_SIGNIFICANCE_THRESHOLD: &str = "binary_frequency_significance_threshold";
+pub const PRESERVE_THRESHOLD: &str = "preserve_threshold";
+pub const RATIO_THRESHOLD: &str = "ratio_threshold";
+pub const UTILITY_RATE: &str = "utility_rate";
+pub const EDGE_CUTOFF_THRESHOLD: &str = "edge_cutoff_threshold";
+pub const NODE_CUTOFF_THRESHOLD: &str = "node_cutoff_threshold";
+pub const TERMINATE_ON_UNREPLAYABLE_TRACES: &str = "terminate_on_unreplayable_traces";
+pub const CLUSTERS_COUNT: &str = "clusters_count";
+pub const LEARNING_ITERATIONS_COUNT: &str = "learning_iterations_count";
+pub const TOLERANCE: &str = "tolerance";
+pub const MIN_EVENTS_IN_CLUSTERS_COUNT: &str = "min_events_in_cluster_count";
+pub const EVENT_LOG_NAME: &str = "event_log_name";
+pub const BYTES: &str = "bytes";
 pub const START_CASE_REGEX: &str = "start_case_regex";
 pub const END_CASE_REGEX: &str = "end_case_regex";
 pub const INLINE_INNER_CASES: &str = "inline_inner_cases";
 
-pub const EVENT_LOG: &'static str = "event_log";
-pub const ACTIVITIES: &'static str = "activities";
-pub const REPEAT_SETS: &'static str = "repeat_sets";
-pub const TRACE_ACTIVITIES: &'static str = "trace_activities";
-pub const PATTERNS: &'static str = "patterns";
-pub const PETRI_NET: &'static str = "petri_net";
-pub const ACTIVITIES_TO_LOGS: &'static str = "activities_to_logs";
-pub const ACTIVITY_NAME: &'static str = "activity_name";
-pub const HASHES_EVENT_LOG: &'static str = "hashes_event_log";
-pub const NAMES_EVENT_LOG: &'static str = "names_event_log";
-pub const COLORS_EVENT_LOG: &'static str = "colors_event_log";
-pub const COLORS_HOLDER: &'static str = "colors_holder";
-pub const GRAPH: &'static str = "graph";
-pub const GRAPHS: &'static str = "graphs";
-pub const PETRI_NET_COUNT_ANNOTATION: &'static str = "petri_net_count_annotation";
-pub const PETRI_NET_FREQUENCY_ANNOTATION: &'static str = "petri_net_frequency_annotation";
-pub const PETRI_NET_TRACE_FREQUENCY_ANNOTATION: &'static str = "petri_net_trace_frequency_annotation";
-pub const TRACES_ACTIVITIES_DATASET: &'static str = "traces_activities_dataset";
-pub const LABELED_TRACES_ACTIVITIES_DATASET: &'static str = "labeled_traces_activities_dataset";
-pub const ACTIVITIES_REPR_SOURCE: &'static str = "activities_repr_source";
-pub const DISTANCE: &'static str = "distance";
-pub const EXECUTE_ONLY_ON_LAST_EXTRACTION: &'static str = "execute_only_on_last_extraction";
-pub const LABELED_LOG_TRACES_DATASET: &'static str = "labeled_log_traces_dataset";
-pub const LOG_TRACES_DATASET: &'static str = "log_traces_dataset";
-pub const TRACES_REPR_SOURCE: &'static str = "traces_repr_source";
-pub const SYSTEM_METADATA: &'static str = "system_metadata";
-pub const LOG_SERIALIZATION_FORMAT: &'static str = "log_serialization_format";
-pub const GRAPH_TIME_ANNOTATION: &'static str = "graph_time_annotation";
-pub const ATTRIBUTE: &'static str = "attribute";
-pub const TIME_ANNOTATION_KIND: &'static str = "time_annotation_kind";
-pub const ATTRIBUTES: &'static str = "attributes";
-pub const PATHS: &'static str = "paths";
-pub const LOG_THREADS_DIAGRAM: &'static str = "log_threads_diagram";
-pub const THREAD_ATTRIBUTE: &'static str = "thread_attribute";
-pub const TIME_ATTRIBUTE: &'static str = "time_attribute";
-pub const TIME_DELTA: &'static str = "time_delta";
-pub const FEATURE_COUNT_KIND: &'static str = "feature_count_kind";
-pub const PERCENT_FROM_MAX_VALUE: &'static str = "percent_from_max_value";
-pub const TOLERANCES: &'static str = "tolerances";
-pub const MIN_POINTS_IN_CLUSTER_ARRAY: &'static str = "min_points_in_cluster_array";
-pub const EXECUTION_ID: &'static str = "execution_id";
-pub const ROOT_SEQUENCE_KIND: &'static str = "root_sequence_kind";
-pub const MERGE_SEQUENCES_OF_EVENTS: &'static str = "merge_sequences_of_events";
-pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &'static str = "discover_events_groups_in_each_trace";
-pub const SOFTWARE_DATA_EXTRACTION_CONFIG: &'static str = "software_data_extraction_config";
-pub const DISCOVER_ACTIVITY_INSTANCES_STRICT: &'static str = "discover_activity_instances_strict";
-pub const PUT_NOISE_EVENTS_IN_ONE_CLUSTER: &'static str = "put_noise_events_in_one_cluster";
-pub const OCEL_ANNOTATION: &'static str = "ocel_annotation";
+pub const EVENT_LOG: &str = "event_log";
+pub const ACTIVITIES: &str = "activities";
+pub const REPEAT_SETS: &str = "repeat_sets";
+pub const TRACE_ACTIVITIES: &str = "trace_activities";
+pub const PATTERNS: &str = "patterns";
+pub const PETRI_NET: &str = "petri_net";
+pub const ACTIVITIES_TO_LOGS: &str = "activities_to_logs";
+pub const ACTIVITY_NAME: &str = "activity_name";
+pub const HASHES_EVENT_LOG: &str = "hashes_event_log";
+pub const NAMES_EVENT_LOG: &str = "names_event_log";
+pub const COLORS_EVENT_LOG: &str = "colors_event_log";
+pub const COLORS_HOLDER: &str = "colors_holder";
+pub const GRAPH: &str = "graph";
+pub const GRAPHS: &str = "graphs";
+pub const PETRI_NET_COUNT_ANNOTATION: &str = "petri_net_count_annotation";
+pub const PETRI_NET_FREQUENCY_ANNOTATION: &str = "petri_net_frequency_annotation";
+pub const PETRI_NET_TRACE_FREQUENCY_ANNOTATION: &str = "petri_net_trace_frequency_annotation";
+pub const TRACES_ACTIVITIES_DATASET: &str = "traces_activities_dataset";
+pub const LABELED_TRACES_ACTIVITIES_DATASET: &str = "labeled_traces_activities_dataset";
+pub const ACTIVITIES_REPR_SOURCE: &str = "activities_repr_source";
+pub const DISTANCE: &str = "distance";
+pub const EXECUTE_ONLY_ON_LAST_EXTRACTION: &str = "execute_only_on_last_extraction";
+pub const LABELED_LOG_TRACES_DATASET: &str = "labeled_log_traces_dataset";
+pub const LOG_TRACES_DATASET: &str = "log_traces_dataset";
+pub const TRACES_REPR_SOURCE: &str = "traces_repr_source";
+pub const SYSTEM_METADATA: &str = "system_metadata";
+pub const LOG_SERIALIZATION_FORMAT: &str = "log_serialization_format";
+pub const GRAPH_TIME_ANNOTATION: &str = "graph_time_annotation";
+pub const ATTRIBUTE: &str = "attribute";
+pub const TIME_ANNOTATION_KIND: &str = "time_annotation_kind";
+pub const ATTRIBUTES: &str = "attributes";
+pub const PATHS: &str = "paths";
+pub const LOG_THREADS_DIAGRAM: &str = "log_threads_diagram";
+pub const THREAD_ATTRIBUTE: &str = "thread_attribute";
+pub const TIME_ATTRIBUTE: &str = "time_attribute";
+pub const TIME_DELTA: &str = "time_delta";
+pub const FEATURE_COUNT_KIND: &str = "feature_count_kind";
+pub const PERCENT_FROM_MAX_VALUE: &str = "percent_from_max_value";
+pub const TOLERANCES: &str = "tolerances";
+pub const MIN_POINTS_IN_CLUSTER_ARRAY: &str = "min_points_in_cluster_array";
+pub const EXECUTION_ID: &str = "execution_id";
+pub const ROOT_SEQUENCE_KIND: &str = "root_sequence_kind";
+pub const MERGE_SEQUENCES_OF_EVENTS: &str = "merge_sequences_of_events";
+pub const DISCOVER_EVENTS_GROUPS_IN_EACH_TRACE: &str = "discover_events_groups_in_each_trace";
+pub const SOFTWARE_DATA_EXTRACTION_CONFIG: &str = "software_data_extraction_config";
+pub const DISCOVER_ACTIVITY_INSTANCES_STRICT: &str = "discover_activity_instances_strict";
+pub const PUT_NOISE_EVENTS_IN_ONE_CLUSTER: &str = "put_noise_events_in_one_cluster";
+pub const OCEL_ANNOTATION: &str = "ocel_annotation";
 
 #[macro_export]
 macro_rules! context_key {
   ($name:ident, $t:ty) => {
     paste::paste! {
       lazy_static! {
-        pub static ref [<$name _KEY>]: crate::utils::context_key::DefaultContextKey<$t> = crate::utils::context_key::DefaultContextKey::new($name);
+        pub static ref [<$name _KEY>]: $crate::utils::context_key::DefaultContextKey<$t> = $crate::utils::context_key::DefaultContextKey::new($name);
       }
     }
   };

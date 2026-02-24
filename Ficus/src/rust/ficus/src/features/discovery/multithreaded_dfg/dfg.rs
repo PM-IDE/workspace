@@ -21,7 +21,7 @@ use std::{
   rc::Rc,
 };
 
-const MULTITHREADED_FRAGMENT: &'static str = "MULTITHREADED_FRAGMENT";
+const MULTITHREADED_FRAGMENT: &str = "MULTITHREADED_FRAGMENT";
 
 context_key! { MULTITHREADED_FRAGMENT, XesEventLogImpl }
 
@@ -117,10 +117,8 @@ pub fn enumerate_multithreaded_events_groups(
 
               last_group = Some(EventGroup::empty());
               last_group.as_mut().unwrap().control_flow_events_mut().push(event.clone());
-            } else {
-              if let Some(group) = last_group.as_mut() {
-                group.statistic_events_mut().push(event.clone());
-              }
+            } else if let Some(group) = last_group.as_mut() {
+              group.statistic_events_mut().push(event.clone());
             }
           }
 

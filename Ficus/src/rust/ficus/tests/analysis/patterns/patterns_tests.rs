@@ -17,7 +17,7 @@ use ficus::{
     contexts::PatternsDiscoveryStrategy,
     repeats::{find_maximal_repeats, find_near_super_maximal_repeats, find_super_maximal_repeats},
     tandem_arrays::{
-      find_maximal_tandem_arrays_with_length, find_primitive_tandem_arrays_with_length, SubArrayInTraceInfo, TandemArrayInfo,
+      SubArrayInTraceInfo, TandemArrayInfo, find_maximal_tandem_arrays_with_length, find_primitive_tandem_arrays_with_length,
     },
   },
 };
@@ -41,7 +41,7 @@ fn execute_test_with_positions<TLogCreator, TPatternsFinder, TValue>(
   TValue: PartialEq + Debug,
 {
   let log = log_creator();
-  let hashes = log.to_hashes_event_log(&NameEventHasher::new());
+  let hashes = log.to_hashes_event_log(&NameEventHasher::default());
   let patterns = patterns_finder(&hashes);
 
   assert_eq!(patterns.as_slice(), expected);
@@ -65,7 +65,7 @@ fn execute_test_with_string_dump<TLogCreator, TPatternsFinder>(
   TPatternsFinder: Fn(&Vec<Vec<u64>>) -> Vec<Vec<SubArrayInTraceInfo>>,
 {
   let log = log_creator();
-  let hashes = log.to_hashes_event_log(&NameEventHasher::new());
+  let hashes = log.to_hashes_event_log(&NameEventHasher::default());
   let patterns = patterns_finder(&hashes);
 
   let mut dump = dump_repeats_to_string(&patterns, &log);
@@ -88,7 +88,7 @@ fn get_first_trace_tuples(tandem_arrays: &Vec<Vec<TandemArrayInfo>>) -> Vec<(usi
 #[test]
 fn test_no_tandem_arrays() {
   let log = create_no_tandem_array_log();
-  let hashes = log.to_hashes_event_log(&NameEventHasher::new());
+  let hashes = log.to_hashes_event_log(&NameEventHasher::default());
   let tandem_arrays = find_maximal_tandem_arrays_with_length(&hashes, 10, false);
 
   assert_eq!(get_first_trace_tuples(&tandem_arrays), []);
@@ -133,7 +133,7 @@ fn test_tandem_arrays2() {
 #[test]
 fn test_tandem_arrays2_string() {
   let log = create_log_for_max_repeats2();
-  let hashes = log.to_hashes_event_log(&NameEventHasher::new());
+  let hashes = log.to_hashes_event_log(&NameEventHasher::default());
 
   let tandem_arrays = find_primitive_tandem_arrays_with_length(&hashes, 10, false);
 

@@ -64,14 +64,10 @@ pub fn silhouette_score(labels: &Vec<usize>, distance_func: impl Fn(usize, usize
 
         current_b_x /= other_cluster_indices.len() as f64;
 
-        b_x = Some(if b_x.is_none() {
-          current_b_x
-        } else {
-          current_b_x.min(b_x.unwrap())
-        })
+        b_x = Some(if let Some(b_x) = b_x { current_b_x.min(b_x) } else { current_b_x })
       }
 
-      let b_x = b_x.unwrap_or_else(|| 0.);
+      let b_x = b_x.unwrap_or(0.);
       score += (b_x - a_x) / a_x.max(b_x);
     }
   }

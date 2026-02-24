@@ -64,12 +64,8 @@ impl<'a> TraceXesEventLogIterator<'a> {
       match self.reader.borrow_mut().read_event_into(&mut self.buffer) {
         Ok(quick_xml::events::Event::End(end)) => match end.name().0 {
           EVENT_TAG_NAME => {
-            if !name.is_some() {
-              return None;
-            }
-            if !date.is_some() {
-              return None;
-            }
+            name.as_ref()?;
+            date?;
 
             let event = XesEventImpl::new_all_fields(name.unwrap(), date.unwrap(), Some(payload));
             return Some(event);
@@ -78,7 +74,7 @@ impl<'a> TraceXesEventLogIterator<'a> {
         },
         Ok(quick_xml::events::Event::Empty(empty)) => match utils::read_payload_like_tag(&empty) {
           Some(descriptor) => {
-            let payload_type = descriptor.payload_type.as_str().as_bytes();
+            let payload_type = descriptor.payload_type.as_bytes();
             let key = descriptor.key.as_str();
             let value = descriptor.value.as_str();
 
@@ -117,16 +113,15 @@ impl<'a> TraceXesEventLogIterator<'a> {
     globals: &HashMap<String, HashMap<String, EventPayloadValue>>,
   ) -> bool {
     let payload_value = utils::extract_payload_value(payload_type, key, value);
-    if !payload_value.is_some() {
+    if payload_value.is_none() {
       return false;
     }
 
-    if let Some(event_globals) = globals.get(EVENT_TAG_NAME_STR) {
-      if let Some(default_value) = event_globals.get(key) {
-        if default_value == payload_value.as_ref().unwrap() {
-          return false;
-        }
-      }
+    if let Some(event_globals) = globals.get(EVENT_TAG_NAME_STR)
+      && let Some(default_value) = event_globals.get(key)
+      && default_value == payload_value.as_ref().unwrap()
+    {
+      return false;
     }
 
     Self::update_event_data(key, payload_value.unwrap(), date, name, payload);

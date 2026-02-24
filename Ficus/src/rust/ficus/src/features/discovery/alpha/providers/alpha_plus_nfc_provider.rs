@@ -20,13 +20,13 @@ enum PrePostSet {
   PostSet,
 }
 
-const RIGHT_DOUBLE_ARROW_CACHE: &'static str = "right_double_arrow_cache";
-const W1_CACHE: &'static str = "w1_cache";
-const W21_CACHE: &'static str = "w21_cache";
-const W22_CACHE: &'static str = "w22_cache";
-const W3_CACHE: &'static str = "w3_cache";
+const RIGHT_DOUBLE_ARROW_CACHE: &str = "right_double_arrow_cache";
+const W1_CACHE: &str = "w1_cache";
+const W21_CACHE: &str = "w21_cache";
+const W22_CACHE: &str = "w22_cache";
+const W3_CACHE: &str = "w3_cache";
 
-static RELATIONS_NAMES: &'static [&'static str] = &[RIGHT_DOUBLE_ARROW_CACHE, W1_CACHE, W21_CACHE, W22_CACHE, W3_CACHE];
+static RELATIONS_NAMES: &[&str] = &[RIGHT_DOUBLE_ARROW_CACHE, W1_CACHE, W21_CACHE, W22_CACHE, W3_CACHE];
 
 pub struct AlphaPlusNfcRelationsProvider<'a, TLog>
 where
@@ -165,31 +165,31 @@ where
           continue;
         }
 
-        if events[i].borrow().name() == second {
-          if let Some(first_index) = last_first_index {
-            let mut all_suitable = true;
-            let mut actual_length = 0;
+        if events[i].borrow().name() == second
+          && let Some(first_index) = last_first_index
+        {
+          let mut all_suitable = true;
+          let mut actual_length = 0;
 
-            for j in (first_index + 1)..i {
-              let event = events[j].borrow();
-              let event_name = event.name();
-              if self.log_info().event_count(event_name) == 0 {
-                continue;
-              }
-
-              actual_length += 1;
-              if self.left_triangle_relation(event_name, first) || self.right_triangle_relation(event_name, first) {
-                all_suitable = false;
-                break;
-              }
+          for j in (first_index + 1)..i {
+            let event = events[j].borrow();
+            let event_name = event.name();
+            if self.log_info().event_count(event_name) == 0 {
+              continue;
             }
 
-            if all_suitable && actual_length > 0 {
-              return true;
+            actual_length += 1;
+            if self.left_triangle_relation(event_name, first) || self.right_triangle_relation(event_name, first) {
+              all_suitable = false;
+              break;
             }
-
-            last_first_index = None;
           }
+
+          if all_suitable && actual_length > 0 {
+            return true;
+          }
+
+          last_first_index = None;
         }
       }
     }
@@ -423,12 +423,12 @@ where
         let second_streak_pre_set = Self::get_pre_or_post_set(petri_net, second_streak, PrePostSet::PreSet);
 
         let first_intersection: HashSet<&u64> = first_post_set.intersection(&first_streak_post_set).collect();
-        if first_intersection.len() == 0 {
+        if first_intersection.is_empty() {
           continue;
         }
 
         let second_intersection: HashSet<&u64> = second_pre_set.intersection(&second_streak_pre_set).collect();
-        if second_intersection.len() == 0 {
+        if second_intersection.is_empty() {
           continue;
         }
 
@@ -460,7 +460,7 @@ where
 
           let task_pre_set = Self::get_pre_or_post_set(petri_net, task, PrePostSet::PreSet);
           let intersection: HashSet<&u64> = second_pre_set.intersection(&task_pre_set).collect();
-          if intersection.len() == 0 {
+          if intersection.is_empty() {
             continue;
           }
 
@@ -489,7 +489,7 @@ where
       PrePostSet::PostSet => transition.outgoing_arcs(),
     };
 
-    return arcs.iter().map(|arc| arc.place_id()).collect();
+    arcs.iter().map(|arc| arc.place_id()).collect()
   }
 
   pub fn add_additional_causal_relation(&mut self, first: &'a String, second: &'a String) {

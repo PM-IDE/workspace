@@ -1,5 +1,5 @@
 use crate::{
-  features::discovery::{root_sequence::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
+  features::discovery::{ecfg::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
   utils::{graph::graph::DefaultGraph, references::HeapedOrOwned, user_data::user_data::UserData},
 };
 use derive_new::new;
@@ -26,17 +26,13 @@ pub enum OcelAnnotationCreationError {
   OneOfMergedObjetsDoesNotExist,
 }
 
-#[derive(Getters)]
+#[derive(Getters, Default)]
 pub struct NodeObjectsState {
   #[getset(get = "pub")]
   map: HashMap<HeapedOrOwned<String>, HashSet<HeapedOrOwned<String>>>,
 }
 
 impl NodeObjectsState {
-  pub fn new() -> Self {
-    Self { map: HashMap::new() }
-  }
-
   pub fn add_allocated_object(
     &mut self,
     object_type: HeapedOrOwned<String>,
@@ -86,7 +82,7 @@ impl NodeObjectsState {
 
   pub fn add_state_from(&mut self, other: &NodeObjectsState) {
     for (obj_type, ids) in other.map.iter() {
-      let set = self.map.entry(obj_type.to_owned()).or_insert(HashSet::new());
+      let set = self.map.entry(obj_type.to_owned()).or_default();
 
       for id in ids {
         set.insert(id.clone());
@@ -116,7 +112,7 @@ pub struct OcelObjectRelations {
 }
 
 lazy_static! {
-  pub static ref UNKNOWN_TYPE: Box<String> = Box::new("UNKNOWN".to_string());
+  pub static ref UNKNOWN_TYPE: String = "UNKNOWN".to_string();
 }
 
 pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnotation, OcelAnnotationCreationError> {
@@ -131,7 +127,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
   let start_node_id = graph
     .all_nodes()
     .iter()
-    .find(|n| graph.incoming_edges(n.id()).len() == 0)
+    .find(|n| graph.incoming_edges(n.id()).is_empty())
     .map(|n| n.id().to_owned());
 
   if start_node_id.is_none() {
@@ -157,14 +153,14 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
       }
     }
 
-    let mut new_node_state = NodeObjectsState::new();
+    let mut new_node_state: NodeObjectsState = Default::default();
     let mut new_node_objects_relations = vec![];
 
-    let fallback_type = HeapedOrOwned::Heaped(Rc::new(UNKNOWN_TYPE.clone()));
+    let fallback_type = HeapedOrOwned::Heaped(Rc::new(Box::new(UNKNOWN_TYPE.clone())));
 
     for incoming_node in incoming_nodes.iter() {
-      let prev_state: &ProcessNodesStates = *process_nodes_states.get(*incoming_node).as_ref().unwrap();
-      let edge = graph.edge(*incoming_node, &node);
+      let prev_state: &ProcessNodesStates = process_nodes_states.get(*incoming_node).as_ref().unwrap();
+      let edge = graph.edge(incoming_node, &node);
       let edge = edge.as_ref().unwrap();
 
       new_node_state.add_state_from(prev_state.final_objects());
@@ -230,7 +226,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     process_nodes_states.insert(node, ProcessNodesStates::new(None, new_node_state, new_node_objects_relations));
 
     for outgoing_node in graph.outgoing_nodes(&node) {
-      q.push_back(outgoing_node.clone());
+      q.push_back(*outgoing_node);
     }
   }
 

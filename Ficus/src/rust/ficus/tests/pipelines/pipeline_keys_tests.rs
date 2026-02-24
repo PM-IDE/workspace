@@ -17,9 +17,9 @@ use ficus::{
       traces::traces_params::{FeatureCountKind, TracesRepresentationSource},
     },
     discovery::{
+      ecfg::models::RootSequenceKind,
       ocel::graph_annotation::OcelAnnotationCreationError,
       petri_net::{annotations::TimeAnnotationKind, petri_net::DefaultPetriNet},
-      root_sequence::models::RootSequenceKind,
       timeline::discovery::LogTimelineDiagram,
     },
   },

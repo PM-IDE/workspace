@@ -142,7 +142,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
   }
 
   fn triangle_occurrences_count(&self, first: &str, second: &str) -> usize {
-    self.triangle_relation.get(first, second).unwrap_or_else(|| 0)
+    self.triangle_relation.get(first, second).unwrap_or(0)
   }
 
   pub fn log_info(&self) -> &dyn EventLogInfo {

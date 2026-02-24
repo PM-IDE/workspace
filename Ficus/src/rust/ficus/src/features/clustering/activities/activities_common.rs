@@ -20,11 +20,11 @@ use crate::{
   },
   features::{
     analysis::patterns::{
-      activity_instances::{create_vector_of_underlying_events, ActivityInTraceInfo},
+      activity_instances::{ActivityInTraceInfo, create_vector_of_underlying_events},
       repeat_sets::ActivityNode,
     },
     clustering::{
-      common::{scale_raw_dataset_min_max, MyDataset},
+      common::{MyDataset, scale_raw_dataset_min_max},
       error::ClusteringError,
     },
   },
@@ -106,7 +106,7 @@ fn create_activities_repr_from_subtraces(
   traces_activities: &TracesActivities,
   all_event_classes: &mut HashSet<String>,
   params: &ActivitiesVisualizationParams,
-  event_classes_updater: impl Fn(&[Rc<RefCell<XesEventImpl>>], &mut HashMap<String, usize>, &mut HashSet<String>) -> (),
+  event_classes_updater: impl Fn(&[Rc<RefCell<XesEventImpl>>], &mut HashMap<String, usize>, &mut HashSet<String>),
 ) -> HashMap<String, (Rc<RefCell<ActivityNode>>, HashMap<String, usize>)> {
   let mut processed = HashMap::new();
   for trace_activities in traces_activities.iter() {
@@ -143,7 +143,7 @@ fn create_activities_repr_from_subtraces(
     .map(|x| {
       (
         x.0.as_ref().as_ref().to_owned(),
-        (x.1 .0, x.1 .1.into_iter().map(|x| (x.0, x.1)).collect()),
+        (x.1.0, x.1.1.into_iter().map(|x| (x.0, x.1)).collect()),
       )
     })
     .collect()
@@ -159,10 +159,9 @@ fn create_dataset_internal(
   ) -> Result<HashMap<String, (Rc<RefCell<ActivityNode>>, HashMap<String, usize>)>, ClusteringError>,
 ) -> Result<(MyDataset, ActivityNodeWithCoords, Vec<String>), ClusteringError> {
   let mut all_event_classes = HashSet::new();
-  let regex_hasher = match class_extractor.as_ref() {
-    Some(class_extractor) => Some(RegexEventHasher::new(class_extractor).ok().unwrap()),
-    None => None,
-  };
+  let regex_hasher = class_extractor
+    .as_ref()
+    .map(|class_extractor| RegexEventHasher::new(class_extractor).ok().unwrap());
 
   let processed = activities_repr_fullfiller(traces_activities, regex_hasher.as_ref(), &mut all_event_classes)?;
 
@@ -170,16 +169,12 @@ fn create_dataset_internal(
   all_event_classes.sort();
 
   let mut processed = processed.iter().map(|x| x.1.clone()).collect::<ActivityNodeWithCoords>();
-  processed.sort_by(|first, second| first.0.borrow().name().cmp(&second.0.borrow().name()));
+  processed.sort_by(|first, second| first.0.borrow().name().cmp(second.0.borrow().name()));
 
   let mut vector = vec![];
   for activity in &processed {
-    for i in 0..all_event_classes.len() {
-      let count = if let Some(count) = activity.1.get(&all_event_classes[i]) {
-        *count
-      } else {
-        0
-      };
+    for event_class in &all_event_classes {
+      let count = if let Some(count) = activity.1.get(event_class) { *count } else { 0 };
 
       vector.push(count as f64);
     }

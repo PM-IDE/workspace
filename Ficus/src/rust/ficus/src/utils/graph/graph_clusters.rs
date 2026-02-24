@@ -24,12 +24,7 @@ where
     let new_incoming_edges_merged = self.find_incoming_edges(cluster_nodes, &edge_data_merger);
     let new_outgoing_edges_merged = self.find_outgoing_edges(cluster_nodes, &edge_data_merger);
 
-    self.adjust_transitions_for_cluster(
-      cluster_nodes,
-      new_node_id.clone(),
-      new_incoming_edges_merged,
-      new_outgoing_edges_merged,
-    );
+    self.adjust_transitions_for_cluster(cluster_nodes, new_node_id, new_incoming_edges_merged, new_outgoing_edges_merged);
   }
 
   fn find_incoming_edges(
@@ -40,16 +35,16 @@ where
     let mut new_incoming_edges = HashMap::new();
     for node in self.all_nodes() {
       let node_id = node.id();
-      if !cluster_nodes.contains(&node_id) {
+      if !cluster_nodes.contains(node_id) {
         let mut edges = vec![];
-        if let Some(connections) = self.connections.get(&node_id) {
+        if let Some(connections) = self.connections.get(node_id) {
           for cluster_node in cluster_nodes {
             if let Some(connection_data) = connections.get(cluster_node) {
               edges.push(connection_data);
             }
           }
 
-          if edges.len() > 0 {
+          if !edges.is_empty() {
             new_incoming_edges.insert(*node_id, edges);
           }
         }
@@ -103,7 +98,7 @@ where
     for new_edge in new_incoming_edges_merged {
       if let Some(connections) = self.connections.get_mut(&new_edge.0) {
         let edge = GraphEdge::new(new_edge.0, new_node_id, new_edge.1.weight(), new_edge.1.data, new_edge.1.user_data);
-        connections.insert(new_node_id.clone(), edge);
+        connections.insert(new_node_id, edge);
       }
     }
 
@@ -119,7 +114,7 @@ where
       self.connections.remove(cluster_node);
     }
 
-    for key in self.connections.keys().into_iter().map(|c| *c).collect::<Vec<u64>>() {
+    for key in self.connections.keys().copied().collect::<Vec<u64>>() {
       if let Some(connections) = self.connections.get_mut(&key) {
         for cluster_node_id in cluster_nodes {
           connections.remove(cluster_node_id);

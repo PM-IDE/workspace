@@ -96,7 +96,7 @@ pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValu
     EventPayloadValue::Float64(value) => BxesValue::Float64(*value),
     EventPayloadValue::Uint32(value) => BxesValue::Uint32(*value),
     EventPayloadValue::Uint64(value) => BxesValue::Uint64(*value),
-    EventPayloadValue::Guid(value) => BxesValue::Guid(value.clone()),
+    EventPayloadValue::Guid(value) => BxesValue::Guid(*value),
     EventPayloadValue::Timestamp(value) => BxesValue::Timestamp(*value),
     EventPayloadValue::Lifecycle(lifecycle) => match convert_xes_to_bxes_lifecycle(lifecycle) {
       bxes::models::domain::bxes_lifecycle::Lifecycle::Braf(braf) => BxesValue::BrafLifecycle(braf),

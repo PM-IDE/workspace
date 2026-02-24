@@ -9,6 +9,7 @@ use crate::{
       petri_net::DefaultPetriNet,
     },
   },
+  pipeline_part,
   pipelines::{
     context::PipelineContext,
     errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
@@ -27,16 +28,12 @@ use crate::{
 };
 
 impl PipelineParts {
-  pub(super) fn annotate_petri_net_count() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ANNOTATE_PETRI_NET_COUNT, &|context, _, config| {
-      Self::annotate_petri_net(
-        &PETRI_NET_COUNT_ANNOTATION_KEY,
-        context,
-        config,
-        |log, net, terminate_on_unreplayable_traces| annotate_with_counts(log, net, terminate_on_unreplayable_traces),
-      )
-    })
-  }
+  pipeline_part!(
+    annotate_petri_net_count,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
+      Self::annotate_petri_net(&PETRI_NET_COUNT_ANNOTATION_KEY, context, config, annotate_with_counts)
+    }
+  );
 
   fn annotate_petri_net<T>(
     annotation_key: &DefaultContextKey<HashMap<u64, T>>,
@@ -58,30 +55,28 @@ impl PipelineParts {
     }
   }
 
-  pub(super) fn annotate_petri_net_frequency() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ANNOTATE_PETRI_NET_FREQUENCY, &|context, _, config| {
-      Self::annotate_petri_net(
-        &PETRI_NET_FREQUENCY_ANNOTATION_KEY,
-        context,
-        config,
-        |log, net, terminate_on_unreplayable_traces| annotate_with_frequencies(log, net, terminate_on_unreplayable_traces),
-      )
-    })
-  }
+  pipeline_part!(
+    annotate_petri_net_frequency,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
+      Self::annotate_petri_net(&PETRI_NET_FREQUENCY_ANNOTATION_KEY, context, config, annotate_with_frequencies)
+    }
+  );
 
-  pub(super) fn annotate_petri_net_trace_frequency() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ANNOTATE_PETRI_NET_TRACE_FREQUENCY, &|context, _, config| {
+  pipeline_part!(
+    annotate_petri_net_trace_frequency,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       Self::annotate_petri_net(
         &PETRI_NET_TRACE_FREQUENCY_ANNOTATION_KEY,
         context,
         config,
-        |log, net, terminate_on_unreplayable_traces| annotate_with_trace_frequency(log, net, terminate_on_unreplayable_traces),
+        annotate_with_trace_frequency,
       )
-    })
-  }
+    }
+  );
 
-  pub(super) fn annotate_graph_with_time_performance() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::ANNOTATE_GRAPH_WITH_TIME, &|context, _, config| {
+  pipeline_part!(
+    annotate_graph_with_time,
+    |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
       let graph = Self::get_user_data(context, &GRAPH_KEY)?;
       let annotation_kind = *Self::get_user_data(config, &TIME_ANNOTATION_KIND_KEY)?;
@@ -96,23 +91,21 @@ impl PipelineParts {
           Ok(())
         }
       }
-    })
-  }
+    }
+  );
 
-  pub(super) fn create_ocel_annotation_for_dag() -> (String, PipelinePartFactory) {
-    Self::create_pipeline_part(Self::CREATE_OCEL_ANNOTATION_FOR_DAG, &|context, _, _| {
-      let graph = Self::get_user_data(context, &GRAPH_KEY)?;
+  pipeline_part!(create_ocel_annotation_for_dag, |context: &mut PipelineContext, _, _| {
+    let graph = Self::get_user_data(context, &GRAPH_KEY)?;
 
-      match create_ocel_annotation_for_dag(graph) {
-        Ok(annotation) => {
-          context.put_concrete(OCEL_ANNOTATION_KEY.key(), annotation);
-          Ok(())
-        }
-        Err(err) => {
-          let message = format!("Failed to create ocel annotation, error: {}", err.to_string());
-          Err(PipelinePartExecutionError::new_raw(message))
-        }
+    match create_ocel_annotation_for_dag(graph) {
+      Ok(annotation) => {
+        context.put_concrete(OCEL_ANNOTATION_KEY.key(), annotation);
+        Ok(())
       }
-    })
-  }
+      Err(err) => {
+        let message = format!("Failed to create ocel annotation, error: {}", err);
+        Err(PipelinePartExecutionError::new_raw(message))
+      }
+    }
+  });
 }

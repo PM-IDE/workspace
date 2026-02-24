@@ -2,7 +2,7 @@ use crate::test_core::simple_events_logs_provider::{annotate_log_with_real_time,
 use chrono::{Duration, Utc};
 use ficus::{
   event_log::{core::event_log::EventLog, xes::xes_event_log::XesEventLogImpl},
-  grpc::kafka::streaming::t1::{
+  features::streaming::t1::{
     configs::{EventsTimeoutConfiguration, TracesQueueConfiguration, TracesTimeoutConfiguration},
     filterers::{EventsTimeoutFiltererImpl, TracesQueueFiltererImpl, TracesTimeoutFiltererImpl},
   },

@@ -63,10 +63,7 @@ pub fn construct_dfg_by_attribute(log: &XesEventLogImpl, attribute: &str) -> Def
 
       let attribute_value = match event.payload_map() {
         None => None,
-        Some(map) => match map.get(attribute) {
-          None => None,
-          Some(value) => Some(value.to_string_repr().to_owned()),
-        },
+        Some(map) => map.get(attribute).map(|value| value.to_string_repr().to_owned()),
       };
 
       let event_name_boxed = HeapedOrOwned::Heaped(event.name_pointer().clone());

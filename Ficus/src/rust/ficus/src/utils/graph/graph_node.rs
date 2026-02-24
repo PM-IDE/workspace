@@ -6,9 +6,9 @@ pub struct GraphNode<TNodeData>
 where
   TNodeData: ToString,
 {
-  pub(crate) id: u64,
-  pub(crate) data: Option<TNodeData>,
-  pub(crate) user_data: UserDataImpl,
+  pub id: u64,
+  pub data: Option<TNodeData>,
+  pub user_data: UserDataImpl,
 }
 
 impl<TNodeData> GraphNode<TNodeData>
@@ -19,7 +19,7 @@ where
     Self {
       id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
       data,
-      user_data: UserDataImpl::new(),
+      user_data: Default::default(),
     }
   }
 

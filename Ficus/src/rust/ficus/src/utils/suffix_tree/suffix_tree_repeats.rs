@@ -58,7 +58,7 @@ where
 
   fn create_from_bottom_to_top_nodes_queue(&self) -> VecDeque<(usize, usize)> {
     let nodes = self.nodes.borrow();
-    let start_node = nodes.get(0).unwrap();
+    let start_node = nodes.first().unwrap();
     let mut queue = VecDeque::from_iter([(0, start_node.edge_len())]);
 
     let mut queue_index = 0;
@@ -70,7 +70,7 @@ where
         let (node_index, suffix_length) = queue.get(i).cloned().unwrap();
         let node = nodes.get(node_index).unwrap();
 
-        for (_, child_index) in &node.children {
+        for child_index in node.children.values() {
           let child_node = nodes.get(*child_index).unwrap();
           let child_suffix_length = suffix_length + child_node.edge_len();
           queue.push_back((*child_index, child_suffix_length));
@@ -105,15 +105,15 @@ where
       }
 
       let mut child_set = HashMap::new();
-      for (_, child_index) in &node.children {
-        for (element, count) in nodes_to_awc.get(&child_index).unwrap() {
+      for child_index in node.children.values() {
+        for (element, count) in nodes_to_awc.get(child_index).unwrap() {
           increase_in_map_by(&mut child_set, element, *count);
         }
       }
 
       nodes_to_awc.insert(node_index, child_set);
 
-      let children: Vec<&usize> = node.children.values().into_iter().collect();
+      let children: Vec<&usize> = node.children.values().collect();
 
       let child_suffix_len = nodes_to_any_suffix_len[children.iter().min().unwrap()];
       nodes_to_any_suffix_len.insert(node_index, child_suffix_len);
@@ -149,7 +149,7 @@ where
       RepeatType::SuperMaximalRepeat => {
         let nodes = &self.nodes.borrow();
 
-        for (_, child_index) in &nodes.get(*node_index).unwrap().children {
+        for child_index in nodes.get(*node_index).unwrap().children.values() {
           let child_node = nodes.get(*child_index).unwrap();
           if !child_node.is_leaf() {
             return;
@@ -157,7 +157,7 @@ where
 
           if child_node.is_leaf() {
             let element = self.get_element_for_suffix(nodes_to_any_suffix_len[child_index]);
-            if element != None && nodes_to_awc[node_index][&element] != 1 {
+            if element.is_some() && nodes_to_awc[node_index][&element] != 1 {
               return;
             }
           }
@@ -166,12 +166,12 @@ where
       RepeatType::NearSuperMaximalRepeat => {
         let mut witnesses_near_supermaximality = false;
         let nodes = &self.nodes.borrow();
-        for (_, child_index) in &nodes.get(*node_index).unwrap().children {
+        for child_index in nodes.get(*node_index).unwrap().children.values() {
           let child_node = nodes.get(*child_index).unwrap();
           if child_node.is_leaf() {
             let element = self.get_element_for_suffix(nodes_to_any_suffix_len[child_index]);
 
-            if element != None && nodes_to_awc[node_index][&element] == 1 {
+            if element.is_some() && nodes_to_awc[node_index][&element] == 1 {
               witnesses_near_supermaximality = true;
             }
           }

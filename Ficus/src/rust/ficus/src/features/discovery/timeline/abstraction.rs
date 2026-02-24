@@ -4,14 +4,14 @@ use crate::{
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
   },
   features::discovery::{
-    multithreaded_dfg::dfg::MULTITHREADED_FRAGMENT_KEY,
-    root_sequence::{
+    ecfg::{
       context_keys::{
         EDGE_SOFTWARE_DATA_KEY, EDGE_START_END_ACTIVITIES_TIMES_KEY, EDGE_TRACE_EXECUTION_INFO_KEY, NODE_MULTITHREADED_FRAGMENT_LOG_KEY,
         NODE_SOFTWARE_DATA_KEY, NODE_START_END_ACTIVITIES_TIMES_KEY,
       },
       models::{ActivityStartEndTimeData, EdgeTraceExecutionInfo, EventCoordinates, NodeAdditionalDataContainer},
     },
+    multithreaded_dfg::dfg::MULTITHREADED_FRAGMENT_KEY,
     timeline::{
       events_groups::EventGroup,
       software_data::{
@@ -41,7 +41,7 @@ use std::{cell::RefCell, rc::Rc};
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
-  labels: &Vec<usize>,
+  labels: &[usize],
   thread_attribute: Option<String>,
   time_attribute: Option<String>,
   config: &SoftwareDataExtractionConfig,
@@ -71,7 +71,7 @@ pub fn abstract_event_groups(
 
       let group_label = *labels.get(current_label_index).as_ref().unwrap();
       let abstracted_event = create_abstracted_event(
-        &event_group,
+        event_group,
         group_label,
         thread_attribute.as_ref(),
         time_attribute.as_ref(),
@@ -101,7 +101,7 @@ fn create_abstracted_event(
   mut node_software_data: SoftwareData,
   mut edge_software_data: SoftwareData,
 ) -> Result<Rc<RefCell<XesEventImpl>>, PipelinePartExecutionError> {
-  let first_stamp = event_group.control_flow_events().first().unwrap().borrow().timestamp().clone();
+  let first_stamp = *event_group.control_flow_events().first().unwrap().borrow().timestamp();
   let abstracted_event_stamp = *event_group.control_flow_events().last().unwrap().borrow().timestamp() - first_stamp;
   let abstracted_event_stamp = first_stamp + abstracted_event_stamp;
 
@@ -130,10 +130,10 @@ fn create_abstracted_event(
     )?;
   }
 
-  if let Some(cf_event) = event_group.control_flow_events().first().as_ref() {
-    if let Some(display_name) = cf_event.borrow().user_data().concrete(DISPLAY_NAME_KEY.key()) {
-      event.user_data_mut().put_concrete(DISPLAY_NAME_KEY.key(), display_name.clone());
-    }
+  if let Some(cf_event) = event_group.control_flow_events().first().as_ref()
+    && let Some(display_name) = cf_event.borrow().user_data().concrete(DISPLAY_NAME_KEY.key())
+  {
+    event.user_data_mut().put_concrete(DISPLAY_NAME_KEY.key(), display_name.clone());
   }
 
   Ok(Rc::new(RefCell::new(event)))
@@ -151,8 +151,11 @@ fn put_node_user_data(
     .user_data_mut()
     .put_concrete(NODE_SOFTWARE_DATA_KEY.key(), vec![software_data]);
 
-  let first_stamp = get_stamp(&event_group.control_flow_events().first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
-  let last_stamp = get_stamp(&event_group.control_flow_events().last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
+  let first_stamp =
+    get_stamp(&event_group.control_flow_events().first().unwrap().borrow(), time_attribute).map_err(PipelinePartExecutionError::from)?;
+
+  let last_stamp =
+    get_stamp(&event_group.control_flow_events().last().unwrap().borrow(), time_attribute).map_err(PipelinePartExecutionError::from)?;
 
   let activity_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
   let activity_start_end_time = NodeAdditionalDataContainer::new(activity_start_end_time, event_coordinates);
@@ -175,15 +178,16 @@ fn put_edge_user_data(
   event: &mut XesEventImpl,
   edge_software_data: SoftwareData,
   event_coordinates: EventCoordinates,
-  after_group_events: &Vec<Rc<RefCell<XesEventImpl>>>,
+  after_group_events: &[Rc<RefCell<XesEventImpl>>],
   time_attribute: Option<&String>,
 ) -> Result<(), PipelinePartExecutionError> {
   event
     .user_data_mut()
     .put_concrete(EDGE_SOFTWARE_DATA_KEY.key(), vec![edge_software_data]);
 
-  let first_stamp = get_stamp(&after_group_events.first().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
-  let last_stamp = get_stamp(&after_group_events.last().unwrap().borrow(), time_attribute).map_err(|e| e.into())?;
+  let first_stamp = get_stamp(&after_group_events.first().unwrap().borrow(), time_attribute).map_err(PipelinePartExecutionError::from)?;
+
+  let last_stamp = get_stamp(&after_group_events.last().unwrap().borrow(), time_attribute).map_err(PipelinePartExecutionError::from)?;
 
   let edge_start_end_time = ActivityStartEndTimeData::new(first_stamp, last_stamp);
 

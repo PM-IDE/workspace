@@ -12,8 +12,8 @@ where
   TElementIterator: Iterator<Item = TElement>,
   TData: PartialEq + Eq + Copy,
 {
-  nodes: Box<Vec<Node<TElement, TData>>>,
-  boundaries: Box<Vec<TElement>>,
+  nodes: Vec<Node<TElement, TData>>,
+  boundaries: Vec<TElement>,
   range_creator: TRangeCreator,
 }
 
@@ -33,8 +33,8 @@ where
     intervals: &Vec<Interval<TElement, TData>>,
     range_creator: TRangeCreator,
   ) -> IntervalTree<TElement, TRangeCreator, TElementIterator, TData> {
-    let mut nodes: Box<Vec<Node<TElement, TData>>> = Box::new(vec![]);
-    let mut boundaries = Box::new(vec![]);
+    let mut nodes: Vec<Node<TElement, TData>> = vec![];
+    let mut boundaries = vec![];
 
     let mut queue: VecDeque<(Option<(usize, ChildOrientation)>, Vec<&Interval<TElement, TData>>)> = VecDeque::new();
 
@@ -78,11 +78,11 @@ where
       }
 
       nodes.push(node);
-      if left_intervals.len() > 0 {
+      if !left_intervals.is_empty() {
         queue.push_back((Some((node_index, ChildOrientation::Left)), left_intervals));
       }
 
-      if right_intervals.len() > 0 {
+      if !right_intervals.is_empty() {
         queue.push_back((Some((node_index, ChildOrientation::Right)), right_intervals));
       }
     }
@@ -151,23 +151,23 @@ where
         result.insert(*interval);
       }
 
-      if let Some(left_child) = node.left_child {
-        if point < node.center {
-          self.search_internal(left_child, point, result);
-        }
+      if let Some(left_child) = node.left_child
+        && point < node.center
+      {
+        self.search_internal(left_child, point, result);
       }
 
-      if let Some(right_child) = node.right_child {
-        if point > node.center {
-          self.search_internal(right_child, point, result);
-        }
+      if let Some(right_child) = node.right_child
+        && point > node.center
+      {
+        self.search_internal(right_child, point, result);
       }
     }
   }
 
   pub fn dump_nodes(&self) -> Vec<(Option<usize>, Option<usize>, TElement, Vec<Interval<TElement, TData>>)> {
     let mut nodes = vec![];
-    for node in self.nodes.as_ref() {
+    for node in &self.nodes {
       nodes.push((node.left_child, node.right_child, node.center, node.intervals.to_vec()));
     }
 

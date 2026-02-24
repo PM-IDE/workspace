@@ -46,10 +46,10 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> StreamingCounter<TKey, TValue> for 
   }
 
   fn get(&self, key: &TKey) -> Option<StreamingCounterEntry<TKey, TValue>> {
-    match self.storage.get(key) {
-      None => None,
-      Some(entry) => Some(entry.to_streaming_counter_entry(key.clone(), entry.count as f64 / self.counts_sum() as f64)),
-    }
+    self
+      .storage
+      .get(key)
+      .map(|entry| entry.to_streaming_counter_entry(key.clone(), entry.count as f64 / self.counts_sum() as f64))
   }
 
   fn above_threshold(&self, threshold: f64) -> Vec<StreamingCounterEntry<TKey, TValue>> {
@@ -95,7 +95,7 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
   }
 
   fn counts_sum(&self) -> u64 {
-    self.storage.iter().map(|(_, v)| v.count).sum()
+    self.storage.values().map(|v| v.count).sum()
   }
 
   pub fn add(&mut self, key: TKey, value: ValueUpdateKind<TValue>, stamp: DateTime<Utc>) {

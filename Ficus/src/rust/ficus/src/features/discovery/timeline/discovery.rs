@@ -4,7 +4,7 @@ use crate::{
     xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
   },
   features::discovery::timeline::{
-    events_groups::{discover_events_groups, TraceEventsGroup},
+    events_groups::{TraceEventsGroup, discover_events_groups},
     utils::{extract_thread_id, get_stamp},
   },
   pipelines::errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
@@ -99,9 +99,9 @@ impl Display for LogThreadsDiagramError {
 
 impl Error for LogThreadsDiagramError {}
 
-impl Into<PipelinePartExecutionError> for LogThreadsDiagramError {
-  fn into(self) -> PipelinePartExecutionError {
-    PipelinePartExecutionError::Raw(RawPartExecutionError::new(self.to_string()))
+impl From<LogThreadsDiagramError> for PipelinePartExecutionError {
+  fn from(val: LogThreadsDiagramError) -> Self {
+    PipelinePartExecutionError::Raw(RawPartExecutionError::new(val.to_string()))
   }
 }
 
@@ -151,10 +151,7 @@ pub fn discover_traces_timeline_diagram(
     control_flow_regexes: control_flow_regexes.cloned(),
     thread_attribute: "Trace".to_string(),
     traces: timeline_fragments,
-    time_attribute: match time_attribute {
-      None => None,
-      Some(s) => Some(s.to_owned()),
-    },
+    time_attribute: time_attribute.map(|s| s.to_owned()),
   })
 }
 
@@ -212,7 +209,7 @@ pub fn discover_timeline_diagram(
     let events_groups = discover_events_groups_internal(&threads.values().collect(), event_group_delta, control_flow_regexes);
 
     traces.push(TraceTimelineDiagram {
-      threads: threads.into_iter().map(|(_, v)| v).collect(),
+      threads: threads.into_values().collect(),
       events_groups,
     })
   }
@@ -220,10 +217,7 @@ pub fn discover_timeline_diagram(
   Ok(LogTimelineDiagram {
     control_flow_regexes: control_flow_regexes.cloned(),
     thread_attribute: thread_attribute.to_string(),
-    time_attribute: match time_attribute {
-      None => None,
-      Some(s) => Some(s.to_owned()),
-    },
+    time_attribute: time_attribute.map(|s| s.to_owned()),
     traces,
   })
 }

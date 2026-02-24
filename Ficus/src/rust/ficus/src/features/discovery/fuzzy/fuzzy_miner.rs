@@ -86,9 +86,9 @@ fn resolve_conflicts<TLog: EventLog>(
       let first_id = classes_to_ids.get(first_name).unwrap();
       let second_id = classes_to_ids.get(second_name).unwrap();
 
-      if are_nodes_bi_connected(&graph, first_id, second_id) {
-        let first_second_sig = provider.relative_significance(first_name, second_name, &graph);
-        let second_first_sig = provider.relative_significance(second_name, first_name, &graph);
+      if are_nodes_bi_connected(graph, first_id, second_id) {
+        let first_second_sig = provider.relative_significance(first_name, second_name, graph);
+        let second_first_sig = provider.relative_significance(second_name, first_name, graph);
 
         if first_second_sig < preserve_threshold || second_first_sig < preserve_threshold {
           let offset = (first_second_sig - second_first_sig).abs();
@@ -126,11 +126,11 @@ fn filter_edges<TLog: EventLog>(
   }
 
   for (node_id, incoming_nodes_ids) in node_to_incoming_nodes {
-    if incoming_nodes_ids.len() == 0 {
+    if incoming_nodes_ids.is_empty() {
       continue;
     }
 
-    let incoming_nodes: Vec<u64> = incoming_nodes_ids.iter().map(|c| *c).collect();
+    let incoming_nodes: Vec<u64> = incoming_nodes_ids.iter().copied().collect();
     let mut utility_measures = vec![0.0; incoming_nodes.len()];
     let second = graph.node(&node_id).unwrap().data().unwrap();
 
@@ -242,22 +242,20 @@ fn merge_nodes(graph: &mut FuzzyGraph, clusters: &ClustersMap) {
   for cluster in clusters.values() {
     let cluster = cluster.borrow();
     graph.merge_nodes_into_one(
-      &cluster.set().iter().map(|id| *id).collect(),
+      &cluster.set().iter().copied().collect(),
       |nodes_data| {
         let mut cluster_data = String::new();
         cluster_data.push_str("Cluster[");
-        for data in &nodes_data {
-          if let Some(data) = data {
-            cluster_data.push_str(data);
-            cluster_data.push(',');
-          }
+        for data in nodes_data.iter().flatten() {
+          cluster_data.push_str(data);
+          cluster_data.push(',');
         }
 
         if cluster_data.ends_with(',') {
           cluster_data.remove(cluster_data.len() - 1);
         }
 
-        cluster_data.push_str("]");
+        cluster_data.push(']');
 
         Some(cluster_data)
       },
@@ -337,11 +335,7 @@ fn clusters_correlation<TLog: EventLog>(
     }
   }
 
-  if count == 0 {
-    0.0
-  } else {
-    corr / count as f64
-  }
+  if count == 0 { 0.0 } else { corr / count as f64 }
 }
 
 fn find_most_correlated_cluster<TLog: EventLog>(

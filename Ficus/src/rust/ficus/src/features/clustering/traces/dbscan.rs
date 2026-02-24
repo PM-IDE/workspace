@@ -4,7 +4,7 @@ use crate::{
   features::clustering::{
     common::adjust_dbscan_labels,
     error::ClusteringError,
-    traces::common::{calculate_distance, do_clusterize_log_by_traces, BestSilhouetteLabels},
+    traces::common::{BestSilhouetteLabels, calculate_distance, do_clusterize_log_by_traces},
   },
   utils::{dataset::dataset::LabeledDataset, distance::distance::DistanceWrapper},
 };

@@ -54,7 +54,7 @@ impl SoftwareDataExtractionConfig {
       match Regex::new(regex) {
         Ok(regex) => result.push(regex),
         Err(err) => {
-          return Err(format!("Failed to parse regex: error {}, raw regex {}", err.to_string(), regex));
+          return Err(format!("Failed to parse regex: error {}, raw regex {}", err, regex));
         }
       }
     }

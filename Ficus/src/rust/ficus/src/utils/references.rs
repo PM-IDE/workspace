@@ -17,7 +17,7 @@ impl<'a, T> Deref for ReferenceOrOwned<'a, T> {
   fn deref(&self) -> &Self::Target {
     match self {
       ReferenceOrOwned::Ref(reference) => reference,
-      ReferenceOrOwned::Owned(value) => &value,
+      ReferenceOrOwned::Owned(value) => value,
     }
   }
 }
@@ -62,7 +62,7 @@ impl<T> Deref for HeapedOrOwned<T> {
   fn deref(&self) -> &Self::Target {
     match self {
       HeapedOrOwned::Heaped(ptr) => ptr.as_ref().as_ref(),
-      HeapedOrOwned::Owned(value) => &value,
+      HeapedOrOwned::Owned(value) => value,
     }
   }
 }
