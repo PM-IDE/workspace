@@ -743,7 +743,7 @@ pub fn compress_to_archive(log_path: &str, save_path: &str) -> Result<(), BxesWr
   let mut zip_writer = ZipWriter::new(file);
 
   let archive_log_name = Path::new(save_path).file_name().unwrap().to_str().unwrap();
-  let options = FileOptions::default()
+  let options = FileOptions::<()>::default()
     .compression_method(zip::CompressionMethod::Deflated)
     .compression_level(Some(8));
 
