@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{fmt::Display, rc::Rc};
 
 use crate::{binary_rw::error::BinaryError, models::domain::bxes_value::BxesValue};
 
@@ -16,19 +16,23 @@ pub enum BxesWriteError {
   Default(String),
 }
 
-impl ToString for BxesWriteError {
-  fn to_string(&self) -> String {
-    match self {
-      BxesWriteError::FailedToOpenFileForWriting(err) => err.to_owned(),
-      BxesWriteError::WriteError(err) => err.to_string(),
-      BxesWriteError::FailedToGetWriterPosition(err) => err.to_owned(),
-      BxesWriteError::FailedToSeek(err) => err.to_owned(),
-      BxesWriteError::FailedToFindKeyValueIndex(value) => format!("{:?}", value),
-      BxesWriteError::FailedToFindValueIndex(value) => format!("{:?}", value),
-      BxesWriteError::FailedToCreateTempFile => "FailedToCreateTempFile".to_string(),
-      BxesWriteError::FailedToCreateArchive => "FailedToCreateArchive".to_string(),
-      BxesWriteError::LebWriteError(err) => err.to_string(),
-      BxesWriteError::Default(err) => err.to_owned(),
-    }
+impl Display for BxesWriteError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "{}",
+      match self {
+        BxesWriteError::FailedToOpenFileForWriting(err) => err.to_owned(),
+        BxesWriteError::WriteError(err) => err.to_string(),
+        BxesWriteError::FailedToGetWriterPosition(err) => err.to_owned(),
+        BxesWriteError::FailedToSeek(err) => err.to_owned(),
+        BxesWriteError::FailedToFindKeyValueIndex(value) => format!("{:?}", value),
+        BxesWriteError::FailedToFindValueIndex(value) => format!("{:?}", value),
+        BxesWriteError::FailedToCreateTempFile => "FailedToCreateTempFile".to_string(),
+        BxesWriteError::FailedToCreateArchive => "FailedToCreateArchive".to_string(),
+        BxesWriteError::LebWriteError(err) => err.to_string(),
+        BxesWriteError::Default(err) => err.to_owned(),
+      }
+    )
   }
 }

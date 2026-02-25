@@ -1,5 +1,5 @@
 use crate::models::domain::bxes_value::BxesValue;
-use std::string::FromUtf8Error;
+use std::{fmt::Display, string::FromUtf8Error};
 
 #[derive(Debug)]
 pub enum BxesReadError {
@@ -22,43 +22,47 @@ pub enum BxesReadError {
   ValueAttributeNameIsNotAString,
 }
 
-impl ToString for BxesReadError {
-  fn to_string(&self) -> String {
-    match self {
-      BxesReadError::FailedToOpenFile(value) => format!("Failed to open file {}", value),
-      BxesReadError::FailedToReadValue(err) => {
-        format!("Failed to read value: {}", err.to_string())
+impl Display for BxesReadError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
+      "{}",
+      match self {
+        BxesReadError::FailedToOpenFile(value) => format!("Failed to open file {}", value),
+        BxesReadError::FailedToReadValue(err) => {
+          format!("Failed to read value: {}", err.to_string())
+        }
+        BxesReadError::FailedToReadPos(error_message) => {
+          format!("Failed to read pos from stream: {}", error_message)
+        }
+        BxesReadError::FailedToCreateUtf8String(err) => {
+          format!("Failed to create string: {}", err)
+        }
+        BxesReadError::FailedToParseTypeId(type_id) => {
+          format!("Failed to parse type id: {}", type_id)
+        }
+        BxesReadError::FailedToIndexValue(index) => {
+          format!("Failed to find bxes value for index: {}", index)
+        }
+        BxesReadError::FailedToIndexKeyValue(index) => {
+          format!("Failed to find kv pair for index: {}", index)
+        }
+        BxesReadError::LifecycleOfEventOutOfRange => "LifecycleOfEventOutOfRange".to_string(),
+        BxesReadError::EventAttributeKeyIsNotAString => "EventAttributeKeyIsNotAString".to_string(),
+        BxesReadError::VersionsMismatchError(err) => err.to_string(),
+        BxesReadError::FailedToExtractArchive => "FailedToExtractArchive".to_string(),
+        BxesReadError::TooManyFilesInArchive => "TooManyFilesInArchive".to_string(),
+        BxesReadError::FailedToCreateTempDir => "FailedToCreateTempDir".to_string(),
+        BxesReadError::InvalidArchive(message) => format!("Invalid bxes archive: {}", message),
+        BxesReadError::ExpectedString(value) => {
+          format!("Expected string value, found: {:?}", value)
+        }
+        BxesReadError::Leb128ReadError(message) => {
+          format!("Failed to read LEB128 encoded value: {}", message)
+        }
+        BxesReadError::ValueAttributeNameIsNotAString => "Value attribute name was not a string".to_string(),
       }
-      BxesReadError::FailedToReadPos(error_message) => {
-        format!("Failed to read pos from stream: {}", error_message)
-      }
-      BxesReadError::FailedToCreateUtf8String(err) => {
-        format!("Failed to create string: {}", err)
-      }
-      BxesReadError::FailedToParseTypeId(type_id) => {
-        format!("Failed to parse type id: {}", type_id)
-      }
-      BxesReadError::FailedToIndexValue(index) => {
-        format!("Failed to find bxes value for index: {}", index)
-      }
-      BxesReadError::FailedToIndexKeyValue(index) => {
-        format!("Failed to find kv pair for index: {}", index)
-      }
-      BxesReadError::LifecycleOfEventOutOfRange => "LifecycleOfEventOutOfRange".to_string(),
-      BxesReadError::EventAttributeKeyIsNotAString => "EventAttributeKeyIsNotAString".to_string(),
-      BxesReadError::VersionsMismatchError(err) => err.to_string(),
-      BxesReadError::FailedToExtractArchive => "FailedToExtractArchive".to_string(),
-      BxesReadError::TooManyFilesInArchive => "TooManyFilesInArchive".to_string(),
-      BxesReadError::FailedToCreateTempDir => "FailedToCreateTempDir".to_string(),
-      BxesReadError::InvalidArchive(message) => format!("Invalid bxes archive: {}", message),
-      BxesReadError::ExpectedString(value) => {
-        format!("Expected string value, found: {:?}", value)
-      }
-      BxesReadError::Leb128ReadError(message) => {
-        format!("Failed to read LEB128 encoded value: {}", message)
-      }
-      BxesReadError::ValueAttributeNameIsNotAString => "Value attribute name was not a string".to_string(),
-    }
+    )
   }
 }
 
@@ -68,9 +72,9 @@ pub struct FailedToReadValueError {
   pub message: String,
 }
 
-impl ToString for FailedToReadValueError {
-  fn to_string(&self) -> String {
-    format!("Failed to read value at offset {}, error: {}", self.offset, self.message)
+impl Display for FailedToReadValueError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "Failed to read value at offset {}, error: {}", self.offset, self.message)
   }
 }
 
@@ -86,9 +90,10 @@ pub struct VersionsMismatchError {
   current_version: u32,
 }
 
-impl ToString for VersionsMismatchError {
-  fn to_string(&self) -> String {
-    format!(
+impl Display for VersionsMismatchError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(
+      f,
       "Versions mismatch: previous version: {}, current version: {}",
       self.previous_version, self.current_version
     )
