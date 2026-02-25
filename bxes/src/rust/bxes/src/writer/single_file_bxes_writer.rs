@@ -3,7 +3,7 @@ use tempfile::NamedTempFile;
 
 use crate::{
   binary_rw::core::{BinaryWriter, Endian},
-  writer::writer_utils::{try_write_system_metadata, BxesLogWriteData},
+  writer::writer_utils::{BxesLogWriteData, try_write_system_metadata},
 };
 
 use super::{

@@ -8,7 +8,7 @@ use std::{
 };
 
 use num_traits::ToPrimitive;
-use zip::{write::FileOptions, ZipWriter};
+use zip::{ZipWriter, write::FileOptions};
 
 use crate::{
   binary_rw::{
@@ -24,7 +24,7 @@ use crate::{
       bxes_log_metadata::{BxesClassifier, BxesExtension, BxesGlobal},
       bxes_value::BxesValue,
       software_event_type::SoftwareEventType,
-      type_ids::{get_type_id, TypeIds},
+      type_ids::{TypeIds, get_type_id},
     },
     system_models::{SystemMetadata, ValueAttributeDescriptor},
   },
@@ -153,11 +153,12 @@ fn try_write_event_value_attributes(event: &BxesEvent, context: Rc<RefCell<BxesW
   if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
     for value_attribute in value_attributes {
       if let Some(map) = map.as_ref()
-        && let Some(found_attribute) = map.get(&value_attribute.name) {
-          attrs_to_write.push(found_attribute.as_ref().as_ref());
-          value_attributes_count += 1;
-          continue;
-        }
+        && let Some(found_attribute) = map.get(&value_attribute.name)
+      {
+        attrs_to_write.push(found_attribute.as_ref().as_ref());
+        value_attributes_count += 1;
+        continue;
+      }
 
       attrs_to_write.push(&BxesValue::Null);
     }
@@ -225,11 +226,7 @@ pub fn try_write_properties(
 }
 
 fn count<T>(vec: Option<&Vec<T>>) -> u32 {
-  if let Some(vec) = vec {
-    vec.len() as u32
-  } else {
-    0
-  }
+  if let Some(vec) = vec { vec.len() as u32 } else { 0 }
 }
 
 pub fn try_write_globals(context: Rc<RefCell<BxesWriteContext>>, globals: Option<&Vec<BxesGlobal>>) -> Result<(), BxesWriteError> {
@@ -742,11 +739,11 @@ pub fn compress_to_archive(log_path: &str, save_path: &str) -> Result<(), BxesWr
     .compression_level(Some(8));
 
   zip_writer
-    .start_file(archive_log_name, options).map_err(|_| BxesWriteError::FailedToCreateArchive)?;
+    .start_file(archive_log_name, options)
+    .map_err(|_| BxesWriteError::FailedToCreateArchive)?;
 
   let bytes = fs::read(log_path).unwrap();
-  zip_writer
-    .write_all(&bytes).map_err(|_| BxesWriteError::FailedToCreateArchive)?;
+  zip_writer.write_all(&bytes).map_err(|_| BxesWriteError::FailedToCreateArchive)?;
 
   zip_writer.flush().map_err(|_| BxesWriteError::FailedToCreateArchive)?;
 

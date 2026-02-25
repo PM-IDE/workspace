@@ -39,7 +39,6 @@ pub enum Endian {
   Little,
 }
 
-
 /// Trait for streams that can seek.
 pub trait SeekStream {
   /// Seek to a position.

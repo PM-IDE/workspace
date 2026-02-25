@@ -10,21 +10,22 @@ pub fn compare_list_of_attributes(
   }
 
   if let Some(self_attributes) = first_attributes.as_ref()
-    && let Some(other_attributes) = second_attributes.as_ref() {
-      if self_attributes.len() != other_attributes.len() {
-        return false;
-      }
-
-      let first_set = self_attributes
-        .iter()
-        .collect::<HashSet<&(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>();
-
-      let second_set = other_attributes
-        .iter()
-        .collect::<HashSet<&(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>();
-
-      return first_set.eq(&second_set);
+    && let Some(other_attributes) = second_attributes.as_ref()
+  {
+    if self_attributes.len() != other_attributes.len() {
+      return false;
     }
+
+    let first_set = self_attributes
+      .iter()
+      .collect::<HashSet<&(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>();
+
+    let second_set = other_attributes
+      .iter()
+      .collect::<HashSet<&(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>();
+
+    return first_set.eq(&second_set);
+  }
 
   false
 }

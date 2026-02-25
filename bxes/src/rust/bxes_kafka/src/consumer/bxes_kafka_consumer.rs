@@ -14,9 +14,9 @@ use bxes::{
 };
 use log::info;
 use rdkafka::{
+  Message,
   consumer::{BaseConsumer, CommitMode, Consumer},
   error::KafkaError,
-  Message,
 };
 use std::{collections::HashMap, io::Cursor, rc::Rc, time::Duration};
 use uuid::Uuid;

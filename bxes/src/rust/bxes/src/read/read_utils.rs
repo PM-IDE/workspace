@@ -23,7 +23,7 @@ use crate::{
       bxes_log_metadata::{BxesClassifier, BxesEventLogMetadata, BxesExtension, BxesGlobal, BxesGlobalKind},
       bxes_value::BxesValue,
       software_event_type::SoftwareEventType,
-      type_ids::{get_type_id, TypeIds},
+      type_ids::{TypeIds, get_type_id},
     },
     system_models::{SystemMetadata, ValueAttributeDescriptor},
   },

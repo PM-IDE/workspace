@@ -1,7 +1,7 @@
 //https://github.com/mathias234/binary_rw/blob/master/src/stream/file.rs
 use std::{
   fs::{File, Metadata, OpenOptions},
-  io::{prelude::*, Error, ErrorKind, Read, SeekFrom, Write},
+  io::{Error, ErrorKind, Read, SeekFrom, Write, prelude::*},
   path::Path,
 };
 
