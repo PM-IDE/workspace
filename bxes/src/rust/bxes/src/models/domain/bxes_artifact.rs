@@ -24,7 +24,7 @@ impl PartialEq for BxesArtifact {
     }
 
     for (self_item, other_item) in self.items.iter().zip(&other.items) {
-      if !self_item.eq(&other_item) {
+      if !self_item.eq(other_item) {
         return false;
       }
     }

@@ -114,8 +114,8 @@ fn try_write_event_default_attributes(
       for (key, value) in attributes {
         let should_write = if let Some(set) = context.borrow().value_attributes_set.as_ref() {
           let desc = ValueAttributeDescriptor {
-            name: string_or_err(&key).ok().unwrap().as_ref().as_ref().clone(),
-            type_id: get_type_id(&value),
+            name: string_or_err(key).ok().unwrap().as_ref().as_ref().clone(),
+            type_id: get_type_id(value),
           };
 
           !set.contains(&desc)
@@ -152,13 +152,12 @@ fn try_write_event_value_attributes(event: &BxesEvent, context: Rc<RefCell<BxesW
 
   if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
     for value_attribute in value_attributes {
-      if let Some(map) = map.as_ref() {
-        if let Some(found_attribute) = map.get(&value_attribute.name) {
+      if let Some(map) = map.as_ref()
+        && let Some(found_attribute) = map.get(&value_attribute.name) {
           attrs_to_write.push(found_attribute.as_ref().as_ref());
           value_attributes_count += 1;
           continue;
         }
-      }
 
       attrs_to_write.push(&BxesValue::Null);
     }
@@ -169,11 +168,6 @@ fn try_write_event_value_attributes(event: &BxesEvent, context: Rc<RefCell<BxesW
   }
 
   Ok(value_attributes_count)
-}
-
-fn is_value_attribute(attribute: &(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), desc: &ValueAttributeDescriptor) -> bool {
-  let key = string_or_err(&attribute.0.as_ref().as_ref()).ok().unwrap();
-  key.as_ref().as_ref() == &desc.name && get_type_id(&attribute.1) == desc.type_id
 }
 
 pub fn try_write_log_metadata(log: &BxesEventLog, context: Rc<RefCell<BxesWriteContext>>) -> Result<(), BxesWriteError> {
@@ -191,7 +185,7 @@ impl<'a, 'b> Write for BinaryWriterWrapper<'a, 'b> {
   fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
     match self.writer.write_bytes(buf) {
       Ok(written) => Ok(written),
-      Err(err) => Err(std::io::Error::new(std::io::ErrorKind::Other, err.to_string())),
+      Err(err) => Err(std::io::Error::other(err.to_string())),
     }
   }
 
@@ -405,7 +399,7 @@ fn execute_with_kv_pairs<'a>(
       action(ValueOrKeyValue::Value(&classifier.name))?;
 
       for key in &classifier.keys {
-        action(ValueOrKeyValue::Value(&key))?;
+        action(ValueOrKeyValue::Value(key))?;
       }
     }
   }
@@ -429,10 +423,10 @@ fn execute_with_attributes_kv_pairs<'a>(
   action: &mut impl FnMut(ValueOrKeyValue<'a>) -> Result<(), BxesWriteError>,
 ) -> Result<(), BxesWriteError> {
   for (key, value) in attributes {
-    action(ValueOrKeyValue::Value(&key))?;
-    action(ValueOrKeyValue::Value(&value))?;
+    action(ValueOrKeyValue::Value(key))?;
+    action(ValueOrKeyValue::Value(value))?;
 
-    action(ValueOrKeyValue::KeyValue((&key, &value)))?;
+    action(ValueOrKeyValue::KeyValue((key, value)))?;
   }
 
   Ok(())
@@ -592,7 +586,7 @@ fn get_or_write_value_index(value: &Rc<Box<BxesValue>>, context: &mut BxesWriteC
   try_write_value_if_not_present(value, context)?;
   let index = *context.values_indices.borrow().get(value).unwrap() as u32;
 
-  return Ok(index);
+  Ok(index)
 }
 
 pub fn try_write_drivers(context: &mut BxesWriteContext, drivers: &BxesDrivers) -> Result<(), BxesWriteError> {
@@ -739,7 +733,7 @@ pub fn try_open_write(path: &str) -> Result<FileStream, BxesWriteError> {
 }
 
 pub fn compress_to_archive(log_path: &str, save_path: &str) -> Result<(), BxesWriteError> {
-  let file = File::create(save_path).or_else(|_| Err(BxesWriteError::FailedToCreateArchive))?;
+  let file = File::create(save_path).map_err(|_| BxesWriteError::FailedToCreateArchive)?;
   let mut zip_writer = ZipWriter::new(file);
 
   let archive_log_name = Path::new(save_path).file_name().unwrap().to_str().unwrap();
@@ -748,17 +742,15 @@ pub fn compress_to_archive(log_path: &str, save_path: &str) -> Result<(), BxesWr
     .compression_level(Some(8));
 
   zip_writer
-    .start_file(archive_log_name, options)
-    .or_else(|_| Err(BxesWriteError::FailedToCreateArchive))?;
+    .start_file(archive_log_name, options).map_err(|_| BxesWriteError::FailedToCreateArchive)?;
 
   let bytes = fs::read(log_path).unwrap();
   zip_writer
-    .write_all(&bytes)
-    .or_else(|_| Err(BxesWriteError::FailedToCreateArchive))?;
+    .write_all(&bytes).map_err(|_| BxesWriteError::FailedToCreateArchive)?;
 
-  zip_writer.flush().or_else(|_| Err(BxesWriteError::FailedToCreateArchive))?;
+  zip_writer.flush().map_err(|_| BxesWriteError::FailedToCreateArchive)?;
 
-  zip_writer.finish().or_else(|_| Err(BxesWriteError::FailedToCreateArchive))?;
+  zip_writer.finish().map_err(|_| BxesWriteError::FailedToCreateArchive)?;
 
   Ok(())
 }

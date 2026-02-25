@@ -1,4 +1,4 @@
-use std::{fmt::Display, rc::Rc};
+use std::rc::Rc;
 
 use crate::{binary_rw::error::BinaryError, models::domain::bxes_value::BxesValue};
 

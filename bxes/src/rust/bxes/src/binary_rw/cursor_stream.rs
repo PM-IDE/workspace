@@ -2,7 +2,7 @@ use crate::binary_rw::{
   core::{ReadStream, SeekStream},
   error::BinaryError,
 };
-use std::io::{Cursor, Error, ErrorKind, Read, Seek, SeekFrom};
+use std::io::{Cursor, Read, Seek, SeekFrom};
 
 pub struct CursorStream<'a> {
   cursor: Cursor<&'a [u8]>,

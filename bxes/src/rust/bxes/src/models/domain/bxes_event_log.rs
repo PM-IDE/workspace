@@ -19,12 +19,12 @@ impl PartialEq for BxesEventLog {
     }
 
     for (self_variant, other_variant) in self.variants.iter().zip(&other.variants) {
-      if !self_variant.eq(&other_variant) {
+      if !self_variant.eq(other_variant) {
         return false;
       }
     }
 
-    return true;
+    true
   }
 }
 
@@ -46,12 +46,12 @@ impl PartialEq for BxesTraceVariant {
     }
 
     for (self_event, other_event) in self.events.iter().zip(&other.events) {
-      if !self_event.eq(&other_event) {
+      if !self_event.eq(other_event) {
         return false;
       }
     }
 
-    return true;
+    true
   }
 }
 

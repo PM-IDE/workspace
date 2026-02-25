@@ -96,19 +96,17 @@ impl BxesKafkaConsumer {
 
           info!("Read bxes trace with read metadata id {}", read_metadata_id);
 
-          if !self.session_id_to_read_metadata.contains_key(&read_metadata_id) {
+          self.session_id_to_read_metadata.entry(read_metadata_id).or_insert_with(|| {
             info!("Creating new read metadata for id {}", read_metadata_id);
-            self
-              .session_id_to_read_metadata
-              .insert(read_metadata_id.clone(), ReadMetadata::empty());
-          }
+            ReadMetadata::empty()
+          });
 
-          let mut read_metadata = self
+          let read_metadata = self
             .session_id_to_read_metadata
             .get_mut(&read_metadata_id)
             .expect("Must be present");
 
-          let trace = Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], &mut read_metadata)?;
+          let trace = Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], read_metadata)?;
 
           self.consumer.commit_message(&msg, CommitMode::Sync)?;
 

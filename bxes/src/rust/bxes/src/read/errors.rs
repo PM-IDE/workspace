@@ -33,7 +33,7 @@ impl ToString for BxesReadError {
         format!("Failed to read pos from stream: {}", error_message)
       }
       BxesReadError::FailedToCreateUtf8String(err) => {
-        format!("Failed to create string: {}", err.to_string())
+        format!("Failed to create string: {}", err)
       }
       BxesReadError::FailedToParseTypeId(type_id) => {
         format!("Failed to parse type id: {}", type_id)

@@ -25,7 +25,6 @@ fn read_bxes_internal(extracted_files_dir: TempDir) -> Result<BxesEventLogReadRe
 
   let files = fs::read_dir(extracted_files_dir)
     .unwrap()
-    .into_iter()
     .map(|r| r.unwrap().path().to_str().unwrap().to_string())
     .collect::<Vec<String>>();
 

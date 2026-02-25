@@ -9,8 +9,8 @@ pub fn compare_list_of_attributes(
     return true;
   }
 
-  if let Some(self_attributes) = first_attributes.as_ref() {
-    if let Some(other_attributes) = second_attributes.as_ref() {
+  if let Some(self_attributes) = first_attributes.as_ref()
+    && let Some(other_attributes) = second_attributes.as_ref() {
       if self_attributes.len() != other_attributes.len() {
         return false;
       }
@@ -25,9 +25,8 @@ pub fn compare_list_of_attributes(
 
       return first_set.eq(&second_set);
     }
-  }
 
-  return false;
+  false
 }
 
 pub fn attributes_equals(

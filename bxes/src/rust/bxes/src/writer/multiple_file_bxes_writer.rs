@@ -18,7 +18,7 @@ type WriterFunc = dyn Fn(&BxesLogWriteData, Rc<RefCell<BxesWriteContext>>) -> Re
 pub fn write_bxes_multiple_files(data: &BxesLogWriteData, directory_path: &str) -> Result<(), BxesWriteError> {
   let context = BxesWriteContext::empty(data.system_metadata.values_attrs.clone());
 
-  let writer = |file_path: &'static str, action: Box<WriterFunc>| execute_with_writer(&data, directory_path, file_path, &context, action);
+  let writer = |file_path: &'static str, action: Box<WriterFunc>| execute_with_writer(data, directory_path, file_path, &context, action);
 
   writer(
     constants::SYSTEM_METADATA_FILE_NAME,

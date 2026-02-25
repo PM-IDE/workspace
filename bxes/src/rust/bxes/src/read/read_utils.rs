@@ -1,4 +1,4 @@
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_traits::FromPrimitive;
 use std::{
   fs::File,
   io::{Cursor, Read, Seek},
@@ -573,7 +573,7 @@ fn try_extract_archive_internal(stream: impl Read + Seek) -> Result<TempDir, Bxe
     Err(_) => return Err(BxesReadError::FailedToExtractArchive),
   };
 
-  return Ok(temp_dir);
+  Ok(temp_dir)
 }
 
 pub fn try_open_file_stream(path: &str) -> Result<BufferedReadFileStream, BxesReadError> {

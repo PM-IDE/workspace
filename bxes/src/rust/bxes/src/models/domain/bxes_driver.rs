@@ -29,7 +29,7 @@ impl PartialEq for BxesDrivers {
       }
     }
 
-    return true;
+    true
   }
 }
 
