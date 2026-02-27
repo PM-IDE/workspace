@@ -79,7 +79,7 @@ pub fn build_repeat_sets(log: &[Vec<u64>], patterns: &[Vec<SubArrayInTraceInfo>]
 #[derive(Debug, Getters)]
 pub struct ActivityNode {
   #[getset(get = "pub")]
-  id: Rc<Box<String>>,
+  id: Rc<String>,
   #[getset(get = "pub")]
   repeat_set: Option<SubArrayWithTraceIndex>,
   #[getset(get = "pub")]
@@ -89,7 +89,7 @@ pub struct ActivityNode {
   #[getset(get = "pub")]
   level: usize,
   #[getset(get = "pub")]
-  name: Rc<Box<String>>,
+  name: Rc<String>,
   #[getset(get = "pub")]
   pattern_kind: UnderlyingPatternKind,
 }
@@ -100,13 +100,13 @@ impl ActivityNode {
     event_classes: HashSet<u64>,
     children: Vec<Rc<RefCell<ActivityNode>>>,
     level: usize,
-    name: Rc<Box<String>>,
+    name: Rc<String>,
     pattern_kind: UnderlyingPatternKind,
   ) -> Self {
     static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
     Self {
-      id: Rc::new(Box::new(format!("Activity_{}", NEXT_ID.fetch_add(1, Ordering::SeqCst)))),
+      id: Rc::new(format!("Activity_{}", NEXT_ID.fetch_add(1, Ordering::SeqCst))),
       repeat_set,
       event_classes,
       children,
@@ -158,7 +158,7 @@ where
       events_set,
       vec![],
       activity_level,
-      Rc::new(Box::new(name_creator(repeat_set))),
+      Rc::new(name_creator(repeat_set)),
       pattern_kind,
     )))
   };

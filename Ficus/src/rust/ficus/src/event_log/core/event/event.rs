@@ -9,7 +9,7 @@ use std::{collections::HashMap, fmt::Debug, rc::Rc};
 pub enum EventPayloadValue {
   Null,
   Date(DateTime<Utc>),
-  String(Rc<Box<String>>),
+  String(Rc<String>),
   Boolean(bool),
   Int32(i32),
   Int64(i64),
@@ -89,7 +89,7 @@ pub trait Event: Clone + Debug + UserDataOwner {
   fn new_with_max_date(name: String) -> Self;
 
   fn name(&self) -> &String;
-  fn name_pointer(&self) -> &Rc<Box<String>>;
+  fn name_pointer(&self) -> &Rc<String>;
 
   fn timestamp(&self) -> &DateTime<Utc>;
   fn payload_map(&self) -> Option<&HashMap<String, EventPayloadValue>>;

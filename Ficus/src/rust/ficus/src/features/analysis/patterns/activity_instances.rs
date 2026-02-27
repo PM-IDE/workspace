@@ -648,7 +648,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
         new_trace.push(Rc::new(RefCell::new(event.borrow().clone())));
       }
 
-      let name = activity_info.node.borrow().name().as_ref().as_ref().to_owned();
+      let name = activity_info.node.borrow().name().as_ref().to_owned();
       if let Some(activity_log) = activities_to_logs.get_mut(&name) {
         activity_log.borrow_mut().push(Rc::clone(&new_trace_ptr));
       } else {

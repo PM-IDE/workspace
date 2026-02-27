@@ -231,7 +231,7 @@ pub(super) fn put_into_user_data(
 fn convert_grpc_event_attribute_to_xes_event_payload_value(attribute_value: &grpc_event_attribute::Value) -> EventPayloadValue {
   match attribute_value {
     grpc_event_attribute::Value::Int(v) => EventPayloadValue::Int64(*v),
-    grpc_event_attribute::Value::String(v) => EventPayloadValue::String(Rc::new(Box::new(v.to_owned()))),
+    grpc_event_attribute::Value::String(v) => EventPayloadValue::String(Rc::new(v.to_owned())),
     grpc_event_attribute::Value::Bool(v) => EventPayloadValue::Boolean(*v),
     grpc_event_attribute::Value::Double(v) => EventPayloadValue::Float64(*v),
     grpc_event_attribute::Value::Guid(v) => EventPayloadValue::Guid(Uuid::parse_str(v.guid.as_str()).unwrap()),
@@ -873,7 +873,7 @@ fn convert_to_grpc_attribute_value(value: &EventPayloadValue) -> Option<grpc_eve
   match value {
     EventPayloadValue::Null => Some(grpc_event_attribute::Value::Null(())),
     EventPayloadValue::Date(date) => Some(grpc_event_attribute::Value::Stamp(convert_to_grpc_timestamp(date))),
-    EventPayloadValue::String(string) => Some(grpc_event_attribute::Value::String(string.as_ref().as_ref().to_owned())),
+    EventPayloadValue::String(string) => Some(grpc_event_attribute::Value::String(string.as_ref().to_owned())),
     EventPayloadValue::Boolean(bool) => Some(grpc_event_attribute::Value::Bool(bool.to_owned())),
     EventPayloadValue::Int32(int) => Some(grpc_event_attribute::Value::Int(*int as i64)),
     EventPayloadValue::Int64(int) => Some(grpc_event_attribute::Value::Int(*int)),

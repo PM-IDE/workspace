@@ -156,7 +156,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     let mut new_node_state: NodeObjectsState = Default::default();
     let mut new_node_objects_relations = vec![];
 
-    let fallback_type = HeapedOrOwned::Heaped(Rc::new(Box::new(UNKNOWN_TYPE.clone())));
+    let fallback_type = HeapedOrOwned::Heaped(Rc::new(UNKNOWN_TYPE.clone()));
 
     for incoming_node in incoming_nodes.iter() {
       let prev_state: &ProcessNodesStates = process_nodes_states.get(*incoming_node).as_ref().unwrap();

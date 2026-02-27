@@ -172,7 +172,7 @@ impl PipelineParts {
       };
 
       Rc::new(RefCell::new(XesEventImpl::new(
-        info.node().borrow().name().as_ref().as_ref().clone(),
+        info.node().borrow().name().as_ref().clone(),
         stamp,
       )))
     });

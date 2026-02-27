@@ -280,7 +280,7 @@ impl PipelineParts {
               && let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str())
             {
               let string = type_name.to_string_repr().to_string();
-              *type_name = EventPayloadValue::String(Rc::new(Box::new(Self::shorten_type_or_method_name(string))));
+              *type_name = EventPayloadValue::String(Rc::new(Self::shorten_type_or_method_name(string)));
             }
           }
         }

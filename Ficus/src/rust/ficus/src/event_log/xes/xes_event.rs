@@ -28,7 +28,7 @@ impl Debug for XesEventImpl {
 }
 
 impl XesEventImpl {
-  pub fn new_all_fields(name: Rc<Box<String>>, timestamp: DateTime<Utc>, payload: Option<HashMap<String, EventPayloadValue>>) -> Self {
+  pub fn new_all_fields(name: Rc<String>, timestamp: DateTime<Utc>, payload: Option<HashMap<String, EventPayloadValue>>) -> Self {
     Self {
       event_base: EventBase::new(name, timestamp),
       payload,
@@ -55,7 +55,7 @@ impl UserDataOwner for XesEventImpl {
 impl Event for XesEventImpl {
   fn new(name: String, timestamp: DateTime<Utc>) -> Self {
     Self {
-      event_base: EventBase::new(Rc::new(Box::new(name)), timestamp),
+      event_base: EventBase::new(Rc::new(name), timestamp),
       payload: None,
     }
   }
@@ -72,7 +72,7 @@ impl Event for XesEventImpl {
     &self.event_base.name
   }
 
-  fn name_pointer(&self) -> &Rc<Box<String>> {
+  fn name_pointer(&self) -> &Rc<String> {
     &self.event_base.name
   }
 
@@ -103,7 +103,7 @@ impl Event for XesEventImpl {
   }
 
   fn set_name(&mut self, new_name: String) {
-    self.event_base.name = Rc::new(Box::new(new_name));
+    self.event_base.name = Rc::new(new_name);
   }
 
   fn set_timestamp(&mut self, new_timestamp: DateTime<Utc>) {

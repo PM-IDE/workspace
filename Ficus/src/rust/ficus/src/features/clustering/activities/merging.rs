@@ -73,7 +73,7 @@ pub(super) fn merge_activities(
       new_event_classes_set,
       vec![],
       *cluster_activities[0].borrow().level(),
-      Rc::new(Box::new(new_activity_name)),
+      Rc::new(new_activity_name),
       *cluster_activities.first().unwrap().borrow().pattern_kind(),
     );
 

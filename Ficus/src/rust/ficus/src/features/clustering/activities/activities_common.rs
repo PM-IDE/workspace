@@ -142,7 +142,7 @@ fn create_activities_repr_from_subtraces(
     .into_iter()
     .map(|x| {
       (
-        x.0.as_ref().as_ref().to_owned(),
+        x.0.as_ref().to_owned(),
         (x.1.0, x.1.1.into_iter().map(|x| (x.0, x.1)).collect()),
       )
     })
@@ -206,7 +206,7 @@ pub(super) fn create_dataset_from_activities_classes(
       let mut processed = HashMap::new();
       for trace_activities in traces_activities.iter() {
         for activity in trace_activities {
-          if processed.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
+          if processed.contains_key(activity.node().borrow().name().as_ref()) {
             continue;
           }
 
@@ -242,7 +242,7 @@ pub(super) fn create_dataset_from_activities_classes(
           };
 
           processed.insert(
-            activity.node().borrow().name().as_ref().as_ref().to_owned(),
+            activity.node().borrow().name().as_ref().to_owned(),
             (
               activity.node().clone(),
               activity_event_classes.into_iter().map(|x| (x, 1)).collect(),

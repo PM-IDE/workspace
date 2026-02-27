@@ -154,7 +154,7 @@ fn set_globals(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(), 
   Ok(())
 }
 
-fn vector_of_strings_or_err(values: &Vec<Rc<Box<BxesValue>>>, entity_name: &str) -> Result<Vec<String>, BxesToXesReadError> {
+fn vector_of_strings_or_err(values: &Vec<Rc<BxesValue>>, entity_name: &str) -> Result<Vec<String>, BxesToXesReadError> {
   let mut result = vec![];
   for value in values {
     result.push(string_or_err(value, entity_name)?)
@@ -165,14 +165,14 @@ fn vector_of_strings_or_err(values: &Vec<Rc<Box<BxesValue>>>, entity_name: &str)
 
 fn string_or_err(value: &BxesValue, entity_name: &str) -> Result<String, BxesToXesReadError> {
   if let BxesValue::String(string) = value {
-    Ok(string.as_ref().as_ref().to_owned())
+    Ok(string.as_ref().to_owned())
   } else {
     Err(BxesToXesReadError::ConversionError(format!("{} key was not a string", entity_name)))
   }
 }
 
 fn create_xes_event(bxes_event: &BxesEvent) -> Result<XesEventImpl, BxesToXesReadError> {
-  let name = if let BxesValue::String(string) = bxes_event.name.as_ref().as_ref() {
+  let name = if let BxesValue::String(string) = bxes_event.name.as_ref() {
     string.clone()
   } else {
     let message = format!("The name of event was not a string: {:?}", bxes_event.name);
@@ -186,14 +186,14 @@ fn create_xes_event(bxes_event: &BxesEvent) -> Result<XesEventImpl, BxesToXesRea
 }
 
 fn create_xes_payload(
-  attributes: Option<&Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>,
+  attributes: Option<&Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
 ) -> Result<Option<HashMap<String, EventPayloadValue>>, BxesToXesReadError> {
   if let Some(attributes) = attributes {
     let mut payload = HashMap::new();
 
     for (key, value) in attributes {
-      let key = if let BxesValue::String(string) = key.as_ref().as_ref() {
-        string.as_ref().as_ref().to_owned()
+      let key = if let BxesValue::String(string) = key.as_ref() {
+        string.as_ref().to_owned()
       } else {
         let message = format!("The attribute key is not a string: {:?}", key);
         return Err(BxesToXesReadError::ConversionError(message));

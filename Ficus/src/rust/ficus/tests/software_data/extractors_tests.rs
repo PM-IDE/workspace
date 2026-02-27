@@ -35,7 +35,7 @@ fn test_general_histogram() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Float64(123.)),
           ],
@@ -45,7 +45,7 @@ fn test_general_histogram() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type2".to_string()))),
+              EventPayloadValue::String(Rc::new("type2".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Float32(123.)),
           ],
@@ -55,7 +55,7 @@ fn test_general_histogram() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Uint64(123)),
           ],
@@ -65,7 +65,7 @@ fn test_general_histogram() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Uint32(123)),
           ],
@@ -75,7 +75,7 @@ fn test_general_histogram() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Int64(123)),
           ],
@@ -85,7 +85,7 @@ fn test_general_histogram() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type2".to_string()))),
+              EventPayloadValue::String(Rc::new("type2".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Int32(123)),
           ],
@@ -144,7 +144,7 @@ fn test_simple_counter() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Float64(123.)),
           ],
@@ -154,7 +154,7 @@ fn test_simple_counter() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type2".to_string()))),
+              EventPayloadValue::String(Rc::new("type2".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Float32(123.)),
           ],
@@ -164,7 +164,7 @@ fn test_simple_counter() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Uint64(123)),
           ],
@@ -174,7 +174,7 @@ fn test_simple_counter() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Uint32(123)),
           ],
@@ -184,7 +184,7 @@ fn test_simple_counter() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Int64(123)),
           ],
@@ -194,7 +194,7 @@ fn test_simple_counter() {
           vec![
             (
               "type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type2".to_string()))),
+              EventPayloadValue::String(Rc::new("type2".to_string())),
             ),
             ("count".to_string(), EventPayloadValue::Int32(123)),
           ],
@@ -246,7 +246,7 @@ fn test_activities_duration() {
           vec![
             (
               "activity_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("1".to_string()))),
+              EventPayloadValue::String(Rc::new("1".to_string())),
             ),
             ("stamp".to_string(), EventPayloadValue::Int64(100)),
           ],
@@ -256,7 +256,7 @@ fn test_activities_duration() {
           vec![
             (
               "activity_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("1".to_string()))),
+              EventPayloadValue::String(Rc::new("1".to_string())),
             ),
             ("stamp".to_string(), EventPayloadValue::Int64(200)),
           ],
@@ -267,7 +267,7 @@ fn test_activities_duration() {
         vec![
           (
             "activity_id".to_string(),
-            EventPayloadValue::String(Rc::new(Box::new("2".to_string()))),
+            EventPayloadValue::String(Rc::new("2".to_string())),
           ),
           ("stamp".to_string(), EventPayloadValue::Int64(300)),
         ],
@@ -333,7 +333,7 @@ fn test_activities_duration_2() {
           vec![
             (
               "activity_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("2".to_string()))),
+              EventPayloadValue::String(Rc::new("2".to_string())),
             ),
             ("stamp".to_string(), EventPayloadValue::Int64(50)),
           ],
@@ -366,11 +366,11 @@ pub fn test_ocel_data_extraction() {
           vec![
             (
               "object_type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             (
               "object_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("id_1".to_string()))),
+              EventPayloadValue::String(Rc::new("id_1".to_string())),
             ),
           ],
         ),
@@ -379,11 +379,11 @@ pub fn test_ocel_data_extraction() {
           vec![
             (
               "object_type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             (
               "object_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+              EventPayloadValue::String(Rc::new("id_2".to_string())),
             ),
           ],
         ),
@@ -392,11 +392,11 @@ pub fn test_ocel_data_extraction() {
           vec![
             (
               "object_type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             (
               "object_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("id_3".to_string()))),
+              EventPayloadValue::String(Rc::new("id_3".to_string())),
             ),
           ],
         ),
@@ -405,11 +405,11 @@ pub fn test_ocel_data_extraction() {
           vec![
             (
               "object_type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             (
               "object_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("id_2123123".to_string()))),
+              EventPayloadValue::String(Rc::new("id_2123123".to_string())),
             ),
           ],
         ),
@@ -418,19 +418,19 @@ pub fn test_ocel_data_extraction() {
           vec![
             (
               "object_type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             (
               "object_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+              EventPayloadValue::String(Rc::new("id_2".to_string())),
             ),
             (
               "ocel_related_objects_ids".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string()))),
+              EventPayloadValue::String(Rc::new("1 2 3 4 5".to_string())),
             ),
             (
               "ocel_related_objects_types".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("T1 T2 T3 T4 T5".to_string()))),
+              EventPayloadValue::String(Rc::new("T1 T2 T3 T4 T5".to_string())),
             ),
           ],
         ),
@@ -439,19 +439,19 @@ pub fn test_ocel_data_extraction() {
           vec![
             (
               "object_type".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("type1".to_string()))),
+              EventPayloadValue::String(Rc::new("type1".to_string())),
             ),
             (
               "object_id".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("id_2".to_string()))),
+              EventPayloadValue::String(Rc::new("id_2".to_string())),
             ),
             (
               "ocel_action".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("AllocateMerged".to_string()))),
+              EventPayloadValue::String(Rc::new("AllocateMerged".to_string())),
             ),
             (
               "ocel_related_objects_ids".to_string(),
-              EventPayloadValue::String(Rc::new(Box::new("1 2 3 4 5".to_string()))),
+              EventPayloadValue::String(Rc::new("1 2 3 4 5".to_string())),
             ),
           ],
         ),
@@ -494,7 +494,7 @@ pub fn test_ocel_data_extraction() {
 
 fn create_event_with_attributes(name: String, attributes: Vec<(String, EventPayloadValue)>) -> Rc<RefCell<XesEventImpl>> {
   Rc::new(RefCell::new(XesEventImpl::new_all_fields(
-    Rc::new(Box::new(name)),
+    Rc::new(name),
     Utc::now(),
     Some(attributes.into_iter().collect()),
   )))

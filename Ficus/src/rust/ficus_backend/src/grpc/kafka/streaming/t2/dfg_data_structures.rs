@@ -164,7 +164,7 @@ impl DfgDataStructures {
 impl DfgDataStructures {
   pub fn process_bxes_trace(
     &mut self,
-    metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+    metadata: &HashMap<String, Rc<BxesValue>>,
     xes_trace: &XesTraceImpl,
     context: &mut PipelineContext,
   ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {

@@ -105,7 +105,7 @@ fn create_abstracted_event(
   let abstracted_event_stamp = *event_group.control_flow_events().last().unwrap().borrow().timestamp() - first_stamp;
   let abstracted_event_stamp = first_stamp + abstracted_event_stamp;
 
-  let label_name = Rc::new(Box::new(label.to_string()));
+  let label_name = Rc::new(label.to_string());
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
 

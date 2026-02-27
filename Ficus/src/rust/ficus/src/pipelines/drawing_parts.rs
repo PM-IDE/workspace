@@ -137,8 +137,8 @@ impl PipelineParts {
         SubTraceKind::Attached(activity) => {
           let color = colors_holder.get_or_create(activity.node().borrow().name());
           let name = activity.node().borrow().name().clone();
-          if !mapping.contains_key(name.as_ref().as_ref()) {
-            mapping.insert(name.as_ref().as_ref().to_owned(), color);
+          if !mapping.contains_key(name.as_ref()) {
+            mapping.insert(name.as_ref().to_owned(), color);
           }
 
           let name = HeapedOrOwned::Heaped(name);
@@ -180,8 +180,8 @@ impl PipelineParts {
             let color = colors_holder.get_or_create(activity.node().borrow().name());
             let name = activity.node().borrow().name().to_owned();
 
-            if !mapping.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
-              mapping.insert(activity.node().borrow().name().as_ref().as_ref().to_owned(), color);
+            if !mapping.contains_key(activity.node().borrow().name().as_ref()) {
+              mapping.insert(activity.node().borrow().name().as_ref().to_owned(), color);
             }
 
             let name = HeapedOrOwned::Heaped(name);
