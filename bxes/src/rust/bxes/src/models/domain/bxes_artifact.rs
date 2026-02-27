@@ -35,9 +35,9 @@ impl PartialEq for BxesArtifact {
 
 #[derive(Clone, Debug)]
 pub struct BxesArtifactItem {
-  pub model: Rc<Box<BxesValue>>,
-  pub instance: Rc<Box<BxesValue>>,
-  pub transition: Rc<Box<BxesValue>>,
+  pub model: Rc<BxesValue>,
+  pub instance: Rc<BxesValue>,
+  pub transition: Rc<BxesValue>,
 }
 
 impl Hash for BxesArtifactItem {

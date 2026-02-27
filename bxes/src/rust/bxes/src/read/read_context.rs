@@ -5,7 +5,7 @@ use crate::{
 use std::rc::Rc;
 
 pub struct ReadMetadata {
-  pub values: Option<Vec<Rc<Box<BxesValue>>>>,
+  pub values: Option<Vec<Rc<BxesValue>>>,
   pub kv_pairs: Option<Vec<(u32, u32)>>,
   pub system_metadata: Option<SystemMetadata>,
 }

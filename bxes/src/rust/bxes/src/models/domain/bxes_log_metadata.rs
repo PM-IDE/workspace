@@ -9,21 +9,21 @@ use crate::models::domain::bxes_value::BxesValue;
 pub struct BxesEventLogMetadata {
   pub extensions: Option<Vec<BxesExtension>>,
   pub classifiers: Option<Vec<BxesClassifier>>,
-  pub properties: Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>,
+  pub properties: Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
   pub globals: Option<Vec<BxesGlobal>>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BxesExtension {
-  pub name: Rc<Box<BxesValue>>,
-  pub prefix: Rc<Box<BxesValue>>,
-  pub uri: Rc<Box<BxesValue>>,
+  pub name: Rc<BxesValue>,
+  pub prefix: Rc<BxesValue>,
+  pub uri: Rc<BxesValue>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BxesClassifier {
-  pub name: Rc<Box<BxesValue>>,
-  pub keys: Vec<Rc<Box<BxesValue>>>,
+  pub name: Rc<BxesValue>,
+  pub keys: Vec<Rc<BxesValue>>,
 }
 
 #[derive(Debug, FromPrimitive, ToPrimitive, VariantCount, PartialEq, Eq)]
@@ -36,5 +36,5 @@ pub enum BxesGlobalKind {
 #[derive(Debug, PartialEq, Eq)]
 pub struct BxesGlobal {
   pub entity_kind: BxesGlobalKind,
-  pub globals: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>,
+  pub globals: Vec<(Rc<BxesValue>, Rc<BxesValue>)>,
 }

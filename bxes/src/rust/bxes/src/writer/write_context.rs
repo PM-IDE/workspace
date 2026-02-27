@@ -10,8 +10,8 @@ use crate::{
 };
 
 pub struct BxesWriteContext<'b> {
-  pub values_indices: Rc<RefCell<HashMap<Rc<Box<BxesValue>>, usize>>>,
-  pub kv_indices: Rc<RefCell<HashMap<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), usize>>>,
+  pub values_indices: Rc<RefCell<HashMap<Rc<BxesValue>, usize>>>,
+  pub kv_indices: Rc<RefCell<HashMap<(Rc<BxesValue>, Rc<BxesValue>), usize>>>,
   pub writer: Option<&'b mut BinaryWriter<'b>>,
   pub value_attributes: Option<Vec<ValueAttributeDescriptor>>,
   pub value_attributes_set: Option<HashSet<ValueAttributeDescriptor>>,

@@ -31,7 +31,7 @@ impl PartialEq for BxesEventLog {
 #[derive(Debug)]
 pub struct BxesTraceVariant {
   pub traces_count: u32,
-  pub metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>,
+  pub metadata: Vec<(Rc<BxesValue>, Rc<BxesValue>)>,
   pub events: Vec<BxesEvent>,
 }
 
@@ -57,9 +57,9 @@ impl PartialEq for BxesTraceVariant {
 
 #[derive(Debug, Clone)]
 pub struct BxesEvent {
-  pub name: Rc<Box<BxesValue>>,
+  pub name: Rc<BxesValue>,
   pub timestamp: i64,
-  pub attributes: Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>,
+  pub attributes: Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
 }
 
 impl PartialEq for BxesEvent {

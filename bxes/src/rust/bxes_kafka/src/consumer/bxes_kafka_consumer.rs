@@ -41,12 +41,12 @@ impl BxesKafkaConsumer {
 
 #[derive(Debug, Clone)]
 pub struct BxesKafkaTrace {
-  metadata: HashMap<String, Rc<Box<BxesValue>>>,
+  metadata: HashMap<String, Rc<BxesValue>>,
   events: Vec<BxesEvent>,
 }
 
 impl BxesKafkaTrace {
-  pub fn metadata(&self) -> &HashMap<String, Rc<Box<BxesValue>>> {
+  pub fn metadata(&self) -> &HashMap<String, Rc<BxesValue>> {
     &self.metadata
   }
 
@@ -135,16 +135,14 @@ impl BxesKafkaConsumer {
     Ok(BxesKafkaTrace { metadata, events })
   }
 
-  fn create_trace_metadata(
-    metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>,
-  ) -> Result<HashMap<String, Rc<Box<BxesValue>>>, BxesReadError> {
+  fn create_trace_metadata(metadata: Vec<(Rc<BxesValue>, Rc<BxesValue>)>) -> Result<HashMap<String, Rc<BxesValue>>, BxesReadError> {
     let mut new_metadata = HashMap::new();
 
     for (key, value) in metadata {
-      if let BxesValue::String(key) = key.as_ref().as_ref() {
-        new_metadata.insert(key.as_ref().as_ref().to_owned(), value);
+      if let BxesValue::String(key) = key.as_ref() {
+        new_metadata.insert(key.as_ref().to_owned(), value);
       } else {
-        return Err(BxesReadError::ExpectedString(key.as_ref().as_ref().to_owned()));
+        return Err(BxesReadError::ExpectedString(key.as_ref().to_owned()));
       }
     }
 
