@@ -171,10 +171,7 @@ impl PipelineParts {
         first_stamp + delta / (events.len() as i32 - 1)
       };
 
-      Rc::new(RefCell::new(XesEventImpl::new(
-        info.node().borrow().name().as_ref().clone(),
-        stamp,
-      )))
+      Rc::new(RefCell::new(XesEventImpl::new(info.node().borrow().name().as_ref().clone(), stamp)))
     });
 
     context.put_concrete(EVENT_LOG_KEY.key(), log);
@@ -412,7 +409,7 @@ impl PipelineParts {
       for (activity_name, activity_log) in activities_to_logs {
         let mut temp_context = context.clone();
         temp_context.put_concrete(EVENT_LOG_KEY.key(), activity_log.borrow().clone());
-        temp_context.put_concrete(ACTIVITY_NAME_KEY.key(), activity_name.clone());
+        temp_context.put_concrete(ACTIVITY_NAME_KEY.key(), activity_name.as_ref().to_owned());
 
         pipeline.execute(&mut temp_context, infra)?;
       }
@@ -424,7 +421,7 @@ impl PipelineParts {
   fn create_activities_to_logs(
     context: &mut PipelineContext,
     config: &UserDataImpl,
-  ) -> Result<HashMap<String, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
+  ) -> Result<HashMap<Rc<String>, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let dto = Self::get_user_data(config, &ACTIVITIES_LOGS_SOURCE_KEY)?;
 

@@ -587,15 +587,15 @@ where
 
 pub fn create_logs_for_activities(
   activities_source: &ActivitiesLogSource<XesEventLogImpl>,
-) -> HashMap<String, Rc<RefCell<XesEventLogImpl>>> {
+) -> HashMap<Rc<String>, Rc<RefCell<XesEventLogImpl>>> {
   match activities_source {
     ActivitiesLogSource::Log(log) => create_activities_logs_from_log(log),
     ActivitiesLogSource::TracesActivities(log, activities, level) => create_log_from_traces_activities(log, activities, *level),
   }
 }
 
-fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<String, Rc<RefCell<XesEventLogImpl>>> {
-  let mut activities_to_logs: HashMap<String, Rc<RefCell<XesEventLogImpl>>> = HashMap::new();
+fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<Rc<String>, Rc<RefCell<XesEventLogImpl>>> {
+  let mut activities_to_logs: HashMap<Rc<String>, Rc<RefCell<XesEventLogImpl>>> = HashMap::new();
 
   for trace in log.traces() {
     for event in trace.borrow().events() {
@@ -605,7 +605,7 @@ fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<String, Rc<
         .concrete_mut(UNDERLYING_EVENTS_KEY.key())
         .is_some()
       {
-        let name = event.borrow().name().to_owned();
+        let name = event.borrow().name_pointer().clone();
         let mut new_trace = XesTraceImpl::empty();
         substitute_underlying_events(event, &mut new_trace);
 
@@ -627,8 +627,8 @@ fn create_log_from_traces_activities<TLog: EventLog>(
   log: &TLog,
   activities: &[Vec<ActivityInTraceInfo>],
   activity_level: usize,
-) -> HashMap<String, Rc<RefCell<TLog>>> {
-  let mut activities_to_logs: HashMap<String, Rc<RefCell<TLog>>> = HashMap::new();
+) -> HashMap<Rc<String>, Rc<RefCell<TLog>>> {
+  let mut activities_to_logs: HashMap<Rc<String>, Rc<RefCell<TLog>>> = HashMap::new();
   for (trace_activities, trace) in activities.iter().zip(log.traces()) {
     let activity_handler = |activity_info: &ActivityInTraceInfo| {
       if activity_level != *activity_info.node.borrow().level() {
@@ -648,7 +648,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
         new_trace.push(Rc::new(RefCell::new(event.borrow().clone())));
       }
 
-      let name = activity_info.node.borrow().name().as_ref().to_owned();
+      let name = activity_info.node.borrow().name().clone();
       if let Some(activity_log) = activities_to_logs.get_mut(&name) {
         activity_log.borrow_mut().push(Rc::clone(&new_trace_ptr));
       } else {
