@@ -65,7 +65,7 @@ pub fn generate_random_system_metadata(rng: &mut ThreadRng, log: &BxesEventLog) 
       descriptors
         .iter()
         .map(|pair| ValueAttributeDescriptor {
-          name: pair.0.as_ref().to_owned(),
+          name: pair.0.clone(),
           type_id: pair.1.clone(),
         })
         .collect(),
@@ -182,7 +182,7 @@ fn generate_random_attribute(rng: &mut ThreadRng) -> (Rc<BxesValue>, Rc<BxesValu
 }
 
 fn generate_random_string_bxes_value(rng: &mut ThreadRng) -> Rc<BxesValue> {
-  Rc::new(BxesValue::String(Rc::new(generate_random_string(rng))))
+  Rc::new(BxesValue::String(Rc::from(generate_random_string(rng))))
 }
 
 fn generate_random_string(rng: &mut ThreadRng) -> String {
@@ -200,7 +200,7 @@ fn generate_random_bxes_value(rng: &mut ThreadRng) -> Rc<BxesValue> {
     TypeIds::F32 => BxesValue::Float32(rng.random()),
     TypeIds::F64 => BxesValue::Float64(rng.random()),
     TypeIds::Bool => BxesValue::Bool(rng.random()),
-    TypeIds::String => BxesValue::String(Rc::new(generate_random_string(rng))),
+    TypeIds::String => BxesValue::String(Rc::from(generate_random_string(rng))),
     TypeIds::Timestamp => BxesValue::Timestamp(rng.random()),
     TypeIds::BrafLifecycle => BxesValue::BrafLifecycle(generate_random_braf_lifecycle()),
     TypeIds::StandardLifecycle => BxesValue::StandardLifecycle(generate_random_standard_lifecycle()),
@@ -229,8 +229,8 @@ fn generate_random_drivers(rng: &mut ThreadRng) -> BxesValue {
 fn generate_random_driver(rng: &mut ThreadRng) -> BxesDriver {
   BxesDriver {
     amount: BxesValue::Float64(rng.random()),
-    name: Rc::new(BxesValue::String(Rc::new(generate_random_string(rng)))),
-    driver_type: Rc::new(BxesValue::String(Rc::new(generate_random_string(rng)))),
+    name: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
+    driver_type: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
   }
 }
 
@@ -247,9 +247,9 @@ fn generate_random_artifact(rng: &mut ThreadRng) -> BxesValue {
 
 fn generate_random_artifact_item(rng: &mut ThreadRng) -> BxesArtifactItem {
   BxesArtifactItem {
-    model: Rc::new(BxesValue::String(Rc::new(generate_random_string(rng)))),
-    instance: Rc::new(BxesValue::String(Rc::new(generate_random_string(rng)))),
-    transition: Rc::new(BxesValue::String(Rc::new(generate_random_string(rng)))),
+    model: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
+    instance: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
+    transition: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
   }
 }
 

@@ -50,7 +50,7 @@ fn try_write_values_attributes(
     write_collection_and_count(context.clone(), false, value_attributes.len() as u32, || {
       for attr in value_attributes {
         try_write_u8_no_type_id(context.borrow_mut().writer.as_mut().unwrap(), attr.type_id.to_u8().unwrap())?;
-        try_write_string(context.borrow_mut().writer.as_mut().unwrap(), attr.name.as_str())?;
+        try_write_string(context.borrow_mut().writer.as_mut().unwrap(), attr.name.as_ref())?;
       }
 
       Ok(())
@@ -114,7 +114,7 @@ fn try_write_event_default_attributes(
       for (key, value) in attributes {
         let should_write = if let Some(set) = context.borrow().value_attributes_set.as_ref() {
           let desc = ValueAttributeDescriptor {
-            name: string_or_err(key).ok().unwrap().as_ref().clone(),
+            name: string_or_err(key).ok().unwrap().clone(),
             type_id: get_type_id(value),
           };
 
@@ -153,7 +153,7 @@ fn try_write_event_value_attributes(event: &BxesEvent, context: Rc<RefCell<BxesW
   if let Some(value_attributes) = context.borrow().value_attributes.as_ref() {
     for value_attribute in value_attributes {
       if let Some(map) = map.as_ref()
-        && let Some(found_attribute) = map.get(&value_attribute.name)
+        && let Some(found_attribute) = map.get(value_attribute.name.as_ref())
       {
         attrs_to_write.push(found_attribute.as_ref());
         value_attributes_count += 1;
@@ -519,7 +519,7 @@ fn try_write_value(context: &mut BxesWriteContext, value: &BxesValue) -> Result<
     BxesValue::Uint64(value) => try_write_u64(context.writer.as_mut().unwrap(), *value),
     BxesValue::Float32(value) => try_write_f32(context.writer.as_mut().unwrap(), *value),
     BxesValue::Float64(value) => try_write_f64(context.writer.as_mut().unwrap(), *value),
-    BxesValue::String(value) => try_write_string(context.writer.as_mut().unwrap(), value.as_str()),
+    BxesValue::String(value) => try_write_string(context.writer.as_mut().unwrap(), value.as_ref()),
     BxesValue::Bool(value) => try_write_bool(context.writer.as_mut().unwrap(), *value),
     BxesValue::Timestamp(value) => try_write_timestamp(context.writer.as_mut().unwrap(), *value),
     BxesValue::BrafLifecycle(value) => try_write_braf_lifecycle(context.writer.as_mut().unwrap(), value),

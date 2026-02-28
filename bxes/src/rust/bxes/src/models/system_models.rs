@@ -1,14 +1,15 @@
+use std::rc::Rc;
 use crate::models::domain::type_ids::TypeIds;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct ValueAttributeDescriptor {
   pub type_id: TypeIds,
-  pub name: String,
+  pub name: Rc<str>,
 }
 
 impl ValueAttributeDescriptor {
   pub fn new(type_id: TypeIds, name: String) -> Self {
-    Self { type_id, name }
+    Self { type_id, name: Rc::from(name) }
   }
 }
 

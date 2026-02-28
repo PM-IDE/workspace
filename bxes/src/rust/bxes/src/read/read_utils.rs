@@ -165,7 +165,7 @@ pub fn try_read_leb128(reader: &mut BinaryReader) -> Result<u32, BxesReadError> 
   }
 }
 
-pub fn string_or_err(value: &BxesValue) -> Result<Rc<String>, BxesReadError> {
+pub fn string_or_err(value: &BxesValue) -> Result<Rc<str>, BxesReadError> {
   if let BxesValue::String(string) = value {
     Ok(string.clone())
   } else {
@@ -258,7 +258,7 @@ fn try_read_event_attributes(context: &mut ReadContext) -> Result<Option<Vec<(Rc
       let value_attrs = metadata.values_attrs.as_ref().unwrap();
       let descriptor = value_attrs.get(i).unwrap();
 
-      let key = BxesValue::String(Rc::new(descriptor.name.clone()));
+      let key = BxesValue::String(Rc::from(descriptor.name.clone()));
       let key = Rc::new(key);
 
       let value_type_id = get_type_id(&value);
@@ -389,7 +389,7 @@ fn try_read_bxes_value(context: &mut ReadContext) -> Result<BxesValue, BxesReadE
     TypeIds::F32 => Ok(BxesValue::Float32(try_read_f32(reader)?)),
     TypeIds::F64 => Ok(BxesValue::Float64(try_read_f64(reader)?)),
     TypeIds::Bool => Ok(BxesValue::Bool(try_read_bool(reader)?)),
-    TypeIds::String => Ok(BxesValue::String(Rc::new(try_read_string(reader)?))),
+    TypeIds::String => Ok(BxesValue::String(Rc::from(try_read_string(reader)?))),
     TypeIds::Timestamp => Ok(BxesValue::Timestamp(try_read_i64(reader)?)),
     TypeIds::BrafLifecycle => Ok(BxesValue::BrafLifecycle(try_read_braf_lifecycle(reader)?)),
     TypeIds::StandardLifecycle => Ok(BxesValue::StandardLifecycle(try_read_standard_lifecycle(reader)?)),
