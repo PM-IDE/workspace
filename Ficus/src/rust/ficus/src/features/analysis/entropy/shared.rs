@@ -32,7 +32,7 @@ where
     let counts = trace.get_or_create_trace_info().events_counts();
     let mut num_of_ignored_events = 0;
     for ignored_event in ignored_events {
-      if let Some(count) = counts.get(ignored_event) {
+      if let Some(count) = counts.get(ignored_event.as_str()) {
         num_of_ignored_events += *count;
       }
     }

@@ -25,6 +25,7 @@ use std::{
   collections::{HashMap, VecDeque},
   fmt::Debug,
 };
+use std::rc::Rc;
 
 const EVENT_UNIQUE_ID: &str = "EVENT_UNIQUE_ID";
 context_key! { EVENT_UNIQUE_ID, Vec<u64> }
@@ -189,7 +190,7 @@ fn transfer_user_data<T: PartialEq + Clone + Debug>(
   transfer_unique_event_id(node, event);
 }
 
-fn transfer_unique_event_id<T: PartialEq + Clone + Debug>(node: &mut GraphNode<HeapedOrOwned<String>>, event: &EventWithUniqueId<T>) {
+fn transfer_unique_event_id<T: PartialEq + Clone + Debug>(node: &mut GraphNode<Rc<str>>, event: &EventWithUniqueId<T>) {
   if let Some(node_ids) = node.user_data_mut().concrete_mut(EVENT_UNIQUE_ID_KEY.key()) {
     node_ids.push(*event.id());
   } else {
@@ -343,7 +344,7 @@ fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
 
 fn find_start_end_node_ids<T: PartialEq + Clone + Debug>(
   sub_graph: &DefaultGraph,
-  name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
+  name_extractor: &dyn Fn(&T) -> Rc<str>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
 ) -> (u64, u64) {
   let (mut start_node_id, mut end_node_id) = (0, 0);
@@ -352,11 +353,11 @@ fn find_start_end_node_ids<T: PartialEq + Clone + Debug>(
 
   for node in sub_graph.all_nodes() {
     if let Some(data) = node.data() {
-      if data.as_str().eq(art_start_name.as_str()) {
+      if data.as_ref().eq(art_start_name.as_ref()) {
         start_node_id = *node.id();
       }
 
-      if data.as_str().eq(art_end_name.as_str()) {
+      if data.as_ref().eq(art_end_name.as_ref()) {
         end_node_id = *node.id();
       }
     }

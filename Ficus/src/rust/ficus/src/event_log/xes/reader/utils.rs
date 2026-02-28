@@ -93,7 +93,7 @@ pub fn extract_payload_value(name: &[u8], key: &str, value: &str) -> Option<Even
       Err(_) => None,
       Ok(float_value) => Some(EventPayloadValue::Float64(float_value)),
     },
-    STRING_TAG_NAME => Some(EventPayloadValue::String(Rc::new(value.to_owned()))),
+    STRING_TAG_NAME => Some(EventPayloadValue::String(Rc::from(value))),
     BOOLEAN_TAG_NAME => match value.parse::<bool>() {
       Err(_) => None,
       Ok(bool_value) => Some(EventPayloadValue::Boolean(bool_value)),

@@ -89,7 +89,7 @@ impl<'a> TraceXesEventLogIterator<'a> {
 
   fn set_defaults_value(
     &self,
-    name: &mut Option<Rc<String>>,
+    name: &mut Option<Rc<str>>,
     date: &mut Option<DateTime<Utc>>,
     payload: &mut HashMap<String, EventPayloadValue>,
   ) {
@@ -107,7 +107,7 @@ impl<'a> TraceXesEventLogIterator<'a> {
     payload_type: &[u8],
     key: &str,
     value: &str,
-    name: &mut Option<Rc<String>>,
+    name: &mut Option<Rc<str>>,
     date: &mut Option<DateTime<Utc>>,
     payload: &mut HashMap<String, EventPayloadValue>,
     globals: &HashMap<String, HashMap<String, EventPayloadValue>>,
@@ -132,7 +132,7 @@ impl<'a> TraceXesEventLogIterator<'a> {
     key: &str,
     payload_value: EventPayloadValue,
     date: &mut Option<DateTime<Utc>>,
-    name: &mut Option<Rc<String>>,
+    name: &mut Option<Rc<str>>,
     payload: &mut HashMap<String, EventPayloadValue>,
   ) {
     match key {

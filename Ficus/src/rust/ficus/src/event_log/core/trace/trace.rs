@@ -31,7 +31,7 @@ pub trait Trace: Clone {
 }
 
 pub trait TraceInfo {
-  fn events_counts(&self) -> &HashMap<String, usize>;
+  fn events_counts(&self) -> &HashMap<Rc<str>, usize>;
   fn events_count(&self) -> usize;
 }
 

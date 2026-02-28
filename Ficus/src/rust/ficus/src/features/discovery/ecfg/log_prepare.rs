@@ -25,7 +25,7 @@ pub fn prepare_software_log(
       .as_ref()
       .unwrap()
       .iter()
-      .any(|r| r.is_match(event.borrow().name().as_str()).unwrap_or(false))
+      .any(|r| r.is_match(event.borrow().name()).unwrap_or(false))
   };
 
   let mut event_groups = vec![];

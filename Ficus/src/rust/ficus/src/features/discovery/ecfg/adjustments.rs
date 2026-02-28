@@ -22,6 +22,7 @@ use std::{
   collections::{HashMap, HashSet},
   fmt::Debug,
 };
+use std::rc::Rc;
 
 pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
   for current_sequence in discover_sequences_to_merge(graph) {
@@ -143,7 +144,7 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
 
 fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
   let label = nodes.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
-  let node_id = graph.add_node(Some(HeapedOrOwned::Owned(label)));
+  let node_id = graph.add_node(Some(Rc::from(label)));
 
   let mut inner_graph = DefaultGraph::empty();
   let mut prev_added_node_id = None;

@@ -86,7 +86,7 @@ fn create_strict_loop_activity_instance(
       HashSet::from_iter(hashed_trace[array.start_index..array.start_index + array.length].iter().copied()),
       vec![],
       0,
-      Rc::new(format!("Loop[{}]", name.join("::"))),
+      Rc::from(format!("Loop[{}]", name.join("::"))),
       UnderlyingPatternKind::StrictLoop,
     ))),
     array.start_index,

@@ -243,6 +243,6 @@ fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> 
 
 fn check_trace_have_artificial_start_end_events(trace: &XesTraceImpl) -> bool {
   trace.events().len() >= 2
-    && trace.events().first().unwrap().borrow().name().as_str() == ARTIFICIAL_START_EVENT_NAME
-    && trace.events().last().unwrap().borrow().name().as_str() == ARTIFICIAL_END_EVENT_NAME
+    && trace.events().first().unwrap().borrow().name() == ARTIFICIAL_START_EVENT_NAME
+    && trace.events().last().unwrap().borrow().name() == ARTIFICIAL_END_EVENT_NAME
 }

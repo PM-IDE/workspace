@@ -1,9 +1,10 @@
 use crate::{
   features::discovery::ecfg::models::RootSequenceKind,
-  utils::{references::HeapedOrOwned, user_data::user_data::UserDataImpl},
+  utils::user_data::user_data::UserDataImpl,
 };
+use std::rc::Rc;
 
-type NameExtractor<'a, T> = &'a dyn Fn(&T) -> HeapedOrOwned<String>;
+type NameExtractor<'a, T> = &'a dyn Fn(&T) -> Rc<str>;
 type ArtificialStartEnd<'a, T> = &'a dyn Fn() -> (T, T);
 type NodeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl, bool);
 type EdgeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl);

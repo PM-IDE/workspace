@@ -587,15 +587,15 @@ where
 
 pub fn create_logs_for_activities(
   activities_source: &ActivitiesLogSource<XesEventLogImpl>,
-) -> HashMap<Rc<String>, Rc<RefCell<XesEventLogImpl>>> {
+) -> HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>> {
   match activities_source {
     ActivitiesLogSource::Log(log) => create_activities_logs_from_log(log),
     ActivitiesLogSource::TracesActivities(log, activities, level) => create_log_from_traces_activities(log, activities, *level),
   }
 }
 
-fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<Rc<String>, Rc<RefCell<XesEventLogImpl>>> {
-  let mut activities_to_logs: HashMap<Rc<String>, Rc<RefCell<XesEventLogImpl>>> = HashMap::new();
+fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>> {
+  let mut activities_to_logs: HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>> = HashMap::new();
 
   for trace in log.traces() {
     for event in trace.borrow().events() {
@@ -609,7 +609,7 @@ fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<Rc<String>,
         let mut new_trace = XesTraceImpl::empty();
         substitute_underlying_events(event, &mut new_trace);
 
-        if let Some(existing_log) = activities_to_logs.get_mut(&name) {
+        if let Some(existing_log) = activities_to_logs.get_mut(name.as_ref()) {
           existing_log.borrow_mut().push(Rc::new(RefCell::new(new_trace)));
         } else {
           let mut new_log = XesEventLogImpl::empty();
@@ -627,8 +627,8 @@ fn create_log_from_traces_activities<TLog: EventLog>(
   log: &TLog,
   activities: &[Vec<ActivityInTraceInfo>],
   activity_level: usize,
-) -> HashMap<Rc<String>, Rc<RefCell<TLog>>> {
-  let mut activities_to_logs: HashMap<Rc<String>, Rc<RefCell<TLog>>> = HashMap::new();
+) -> HashMap<Rc<str>, Rc<RefCell<TLog>>> {
+  let mut activities_to_logs: HashMap<Rc<str>, Rc<RefCell<TLog>>> = HashMap::new();
   for (trace_activities, trace) in activities.iter().zip(log.traces()) {
     let activity_handler = |activity_info: &ActivityInTraceInfo| {
       if activity_level != *activity_info.node.borrow().level() {
@@ -649,7 +649,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
       }
 
       let name = activity_info.node.borrow().name().clone();
-      if let Some(activity_log) = activities_to_logs.get_mut(&name) {
+      if let Some(activity_log) = activities_to_logs.get_mut(name.as_ref()) {
         activity_log.borrow_mut().push(Rc::clone(&new_trace_ptr));
       } else {
         let log = Rc::new(RefCell::new(TLog::empty()));
@@ -691,7 +691,7 @@ where
           if m.start() == 0 {
             &event_name[0..m.end()]
           } else {
-            event_name.as_str()
+            event_name
           }
         }
         _ => event_name,

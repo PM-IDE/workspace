@@ -10,7 +10,7 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use log::error;
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, rc::Rc, str::FromStr};
 
 pub fn annotate_with_counts(
   log: &impl EventLog,
@@ -103,7 +103,7 @@ pub enum PerformanceAnnotationInfo {
 const PERFORMANCE_ANNOTATION_INFO: &str = "PERFORMANCE_ANNOTATION_INFO";
 context_key! { PERFORMANCE_ANNOTATION_INFO, PerformanceAnnotationInfo }
 
-pub type PerformanceMap = HashMap<(HeapedOrOwned<String>, HeapedOrOwned<String>), (f64, usize)>;
+pub type PerformanceMap = HashMap<(Rc<str>, Rc<str>), (f64, usize)>;
 
 pub fn create_performance_map(log: &impl EventLog) -> PerformanceMap {
   let mut performance_map = HashMap::new();
@@ -125,10 +125,7 @@ pub fn create_performance_map(log: &impl EventLog) -> PerformanceMap {
       let time_diff = second.timestamp().to_owned() - first.timestamp().to_owned();
       let time_diff = time_diff.num_nanoseconds().expect("Must be convertible to nanos") as f64;
 
-      let key = (
-        HeapedOrOwned::Heaped(first.name_pointer().clone()),
-        HeapedOrOwned::Heaped(second.name_pointer().clone()),
-      );
+      let key = (first.name_pointer().clone(), second.name_pointer().clone());
 
       if let Some((existing_time_diff, count)) = performance_map.get(&key) {
         *performance_map.get_mut(&key).expect("Must exist") = (*existing_time_diff + time_diff, *count + 1);
@@ -177,8 +174,8 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph,
 
 fn try_get_time_annotation(
   performance_map: &PerformanceMap,
-  first_node: &GraphNode<HeapedOrOwned<String>>,
-  second_node: &GraphNode<HeapedOrOwned<String>>,
+  first_node: &GraphNode<Rc<str>>,
+  second_node: &GraphNode<Rc<str>>,
 ) -> Option<(f64, usize)> {
   if first_node.data.is_some() && second_node.data.is_some() {
     let key = (

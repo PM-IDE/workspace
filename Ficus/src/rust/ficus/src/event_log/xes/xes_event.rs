@@ -23,12 +23,12 @@ pub struct XesEventImpl {
 
 impl Debug for XesEventImpl {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    f.write_str(self.name_pointer().as_str())
+    f.write_str(self.name_pointer())
   }
 }
 
 impl XesEventImpl {
-  pub fn new_all_fields(name: Rc<String>, timestamp: DateTime<Utc>, payload: Option<HashMap<String, EventPayloadValue>>) -> Self {
+  pub fn new_all_fields(name: Rc<str>, timestamp: DateTime<Utc>, payload: Option<HashMap<String, EventPayloadValue>>) -> Self {
     Self {
       event_base: EventBase::new(name, timestamp),
       payload,
@@ -55,7 +55,7 @@ impl UserDataOwner for XesEventImpl {
 impl Event for XesEventImpl {
   fn new(name: String, timestamp: DateTime<Utc>) -> Self {
     Self {
-      event_base: EventBase::new(Rc::new(name), timestamp),
+      event_base: EventBase::new(Rc::from(name), timestamp),
       payload: None,
     }
   }
@@ -68,11 +68,11 @@ impl Event for XesEventImpl {
     Self::new(name, DateTime::<Utc>::MAX_UTC)
   }
 
-  fn name(&self) -> &String {
+  fn name(&self) -> &str {
     &self.event_base.name
   }
 
-  fn name_pointer(&self) -> &Rc<String> {
+  fn name_pointer(&self) -> &Rc<str> {
     &self.event_base.name
   }
 
@@ -103,7 +103,7 @@ impl Event for XesEventImpl {
   }
 
   fn set_name(&mut self, new_name: String) {
-    self.event_base.name = Rc::new(new_name);
+    self.event_base.name = Rc::from(new_name);
   }
 
   fn set_timestamp(&mut self, new_timestamp: DateTime<Utc>) {

@@ -50,7 +50,7 @@ pub fn discover_multithreaded_dfg(
     let first_node_id = add_node(first, &mut graph, &mut added_nodes);
     let second_node_id = add_node(second, &mut graph, &mut added_nodes);
 
-    let data = Some(HeapedOrOwned::Owned(count.to_string()));
+    let data = Some(Rc::from(count.to_string()));
     graph.connect_nodes(&first_node_id, &second_node_id, NodesConnectionData::new(data, count as f64, None));
   }
 
@@ -141,7 +141,7 @@ fn add_node(name: String, graph: &mut DefaultGraph, added_nodes: &mut HashMap<St
   if let Some(node_id) = added_nodes.get(name.as_str()) {
     *node_id
   } else {
-    let node_id = graph.add_node(Some(HeapedOrOwned::Owned(name.clone())));
+    let node_id = graph.add_node(Some(name.clone()));
     added_nodes.insert(name, node_id);
     node_id
   }
