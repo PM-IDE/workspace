@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 bxes = { path = "../bxes" }
-rdkafka = { version = "0.39.0", features = ["cmake-build"] }
+rdkafka = { version = "0.36.2", features = ["cmake-build"] }
 uuid = { version = "1.19.0", features = ["v4"] }
 log = "0.4.29"
 colog = "1.4.0"
