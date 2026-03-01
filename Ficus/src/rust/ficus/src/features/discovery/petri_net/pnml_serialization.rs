@@ -109,7 +109,7 @@ where
         .write_event(Event::Text(BytesText::new(data.to_string().as_str())))
       {
         Ok(()) => {}
-        Err(error) => return Err(XmlWriteError::WriterError(quick_xml::Error::Io(std::sync::Arc::new(error))))
+        Err(error) => return Err(XmlWriteError::WriterError(quick_xml::Error::Io(std::sync::Arc::new(error)))),
       };
 
       drop(text);

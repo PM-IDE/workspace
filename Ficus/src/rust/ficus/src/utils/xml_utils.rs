@@ -1,14 +1,14 @@
+use quick_xml::{
+  Writer,
+  events::{BytesEnd, BytesStart},
+};
 use std::{
   cell::RefCell,
   error::Error,
   fmt::{Debug, Display},
   io,
   string::FromUtf8Error,
-};
-use std::sync::Arc;
-use quick_xml::{
-  Writer,
-  events::{BytesEnd, BytesStart},
+  sync::Arc,
 };
 
 pub enum XmlWriteError {
