@@ -1,9 +1,9 @@
 use crate::features::discovery::petri_net::{marking::Marking, place::Place, transition::Transition};
 use std::collections::HashMap;
-
+use std::rc::Rc;
 use super::arc::Arc;
 
-pub type DefaultPetriNet = PetriNet<String, ()>;
+pub type DefaultPetriNet = PetriNet<Rc<str>, ()>;
 
 #[derive(Debug)]
 struct PlaceTransitions {

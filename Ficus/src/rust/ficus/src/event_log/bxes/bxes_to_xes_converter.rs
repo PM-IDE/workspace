@@ -139,7 +139,7 @@ fn set_extensions(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(
 fn set_globals(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(), BxesToXesReadError> {
   if let Some(globals) = log.metadata.globals.as_ref() {
     for global in globals {
-      let global_type = global_type_to_string(&global.entity_kind);
+      let global_type = Rc::from(global_type_to_string(&global.entity_kind));
 
       let mut globals_map = HashMap::new();
       for global_value in &global.globals {
@@ -154,7 +154,7 @@ fn set_globals(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(), 
   Ok(())
 }
 
-fn vector_of_strings_or_err(values: &Vec<Rc<BxesValue>>, entity_name: &str) -> Result<Vec<String>, BxesToXesReadError> {
+fn vector_of_strings_or_err(values: &Vec<Rc<BxesValue>>, entity_name: &str) -> Result<Vec<Rc<str>>, BxesToXesReadError> {
   let mut result = vec![];
   for value in values {
     result.push(string_or_err(value, entity_name)?)
@@ -163,9 +163,9 @@ fn vector_of_strings_or_err(values: &Vec<Rc<BxesValue>>, entity_name: &str) -> R
   Ok(result)
 }
 
-fn string_or_err(value: &BxesValue, entity_name: &str) -> Result<String, BxesToXesReadError> {
+fn string_or_err(value: &BxesValue, entity_name: &str) -> Result<Rc<str>, BxesToXesReadError> {
   if let BxesValue::String(string) = value {
-    Ok(string.as_ref().to_owned())
+    Ok(string.clone())
   } else {
     Err(BxesToXesReadError::ConversionError(format!("{} key was not a string", entity_name)))
   }
@@ -187,13 +187,13 @@ fn create_xes_event(bxes_event: &BxesEvent) -> Result<XesEventImpl, BxesToXesRea
 
 fn create_xes_payload(
   attributes: Option<&Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
-) -> Result<Option<HashMap<String, EventPayloadValue>>, BxesToXesReadError> {
+) -> Result<Option<HashMap<Rc<str>, EventPayloadValue>>, BxesToXesReadError> {
   if let Some(attributes) = attributes {
     let mut payload = HashMap::new();
 
     for (key, value) in attributes {
       let key = if let BxesValue::String(string) = key.as_ref() {
-        string.as_ref().to_owned()
+        string.clone()
       } else {
         let message = format!("The attribute key is not a string: {:?}", key);
         return Err(BxesToXesReadError::ConversionError(message));

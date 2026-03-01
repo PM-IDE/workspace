@@ -44,21 +44,21 @@ pub trait EventLogInfo {
   fn event_classes_count(&self) -> u64;
   fn event_count(&self, event_class: &str) -> u64;
   fn dfg_info(&self) -> &dyn DfgInfo;
-  fn all_event_classes(&self) -> Vec<&String>;
-  fn start_event_classes(&self) -> &HashSet<String>;
-  fn end_event_classes(&self) -> &HashSet<String>;
+  fn all_event_classes(&self) -> Vec<&Rc<str>>;
+  fn start_event_classes(&self) -> &HashSet<Rc<str>>;
+  fn end_event_classes(&self) -> &HashSet<Rc<str>>;
 }
 
 pub struct OfflineEventLogInfo {
   counts: Option<EventLogCountsImpl>,
-  event_classes_counts: HashMap<String, u64>,
+  event_classes_counts: HashMap<Rc<str>, u64>,
   dfg_info: OfflineDfgInfo,
-  start_event_classes: HashSet<String>,
-  end_event_classes: HashSet<String>,
+  start_event_classes: HashSet<Rc<str>>,
+  end_event_classes: HashSet<Rc<str>>,
 }
 
 impl OfflineEventLogInfo {
-  pub fn create_from_relations(relations: &HashMap<(String, String), u64>, event_classes_count: &HashMap<String, u64>) -> Self {
+  pub fn create_from_relations(relations: &HashMap<(Rc<str>, Rc<str>), u64>, event_classes_count: &HashMap<Rc<str>, u64>) -> Self {
     let dfg_info = OfflineDfgInfo::create_from_relations(relations);
 
     let start_event_classes = event_classes_count
@@ -98,32 +98,35 @@ impl OfflineEventLogInfo {
 
     let mut new_log = None;
     if let Some(thread_attribute) = thread_attribute {
-      new_log = Some(create_threads_log_by_attribute::<TLog>(log, thread_attribute.as_str()));
+      new_log = Some(create_threads_log_by_attribute::<TLog>(log, thread_attribute.as_ref()));
       log = new_log.as_ref().unwrap();
     }
 
-    let mut dfg_pairs: HashMap<String, HashMap<String, usize>> = HashMap::new();
+    let mut dfg_pairs: HashMap<Rc<str>, HashMap<Rc<str>, usize>> = HashMap::new();
     let mut events_count = 0;
     let mut events_counts = HashMap::new();
     let mut start_event_classes = HashSet::new();
     let mut end_event_classes = HashSet::new();
 
-    let mut update_events_counts = |event_name: &String| {
+    let mut update_events_counts = |event_name: &Rc<str>| {
       increase_in_map(&mut events_counts, event_name);
     };
 
-    let mut update_pairs_count = |first_name: &String, second_name: &String| {
+    let mut update_pairs_count = |first_name: &Rc<str>, second_name: &Rc<str>| {
       if let Some(values) = dfg_pairs.get_mut(first_name) {
         if let Some(count) = values.get_mut(second_name) {
           *count += 1;
         } else {
-          values.insert(second_name.to_string(), 1);
+          values.insert(second_name.clone(), 1);
         }
       } else {
-        let map = HashMap::from_iter(vec![(second_name.to_owned(), 1)]);
-        dfg_pairs.insert(first_name.to_owned(), map);
+        let map = HashMap::from_iter(vec![(second_name.clone(), 1)]);
+        dfg_pairs.insert(first_name.clone(), map);
       }
     };
+
+    let fake_start_name = Rc::<str>::from(FAKE_EVENT_START_NAME);
+    let fake_end_name = Rc::<str>::from(FAKE_EVENT_END_NAME);
 
     for trace in log.traces() {
       let trace = trace.borrow();
@@ -132,16 +135,16 @@ impl OfflineEventLogInfo {
       let mut prev_event_name = None;
 
       if !events.is_empty() {
-        start_event_classes.insert(events.first().unwrap().borrow().name().to_owned());
-        end_event_classes.insert(events.last().unwrap().borrow().name().to_owned());
+        start_event_classes.insert(events.first().unwrap().borrow().name_pointer().clone());
+        end_event_classes.insert(events.last().unwrap().borrow().name_pointer().clone());
       }
 
       for event in events {
         let event = event.borrow();
-        let current_name = event.name().to_owned();
+        let current_name = event.name_pointer();
 
         if let Some(ignored_events) = ignored_events
-          && ignored_events.contains(&current_name)
+          && ignored_events.contains(current_name)
         {
           continue;
         }
@@ -151,7 +154,7 @@ impl OfflineEventLogInfo {
         if prev_event_name.is_none() {
           prev_event_name = Some(current_name.to_owned());
           if add_fake_start_end_events {
-            update_pairs_count(&FAKE_EVENT_START_NAME.to_string(), &current_name);
+            update_pairs_count(&fake_start_name, current_name);
           }
 
           continue;
@@ -159,15 +162,15 @@ impl OfflineEventLogInfo {
 
         let prev_name = prev_event_name.unwrap();
         update_pairs_count(&prev_name, &current_name);
-        prev_event_name = Some(event.name().to_owned());
+        prev_event_name = Some(event.name_pointer().clone());
       }
 
       if add_fake_start_end_events && let Some(prev_event_name) = prev_event_name {
-        update_pairs_count(&prev_event_name, &FAKE_EVENT_END_NAME.to_string());
+        update_pairs_count(&prev_event_name, &fake_end_name);
       }
     }
 
-    let mut precedes_events: HashMap<String, HashMap<String, usize>> = HashMap::new();
+    let mut precedes_events: HashMap<Rc<str>, HashMap<Rc<str>, usize>> = HashMap::new();
     let mut events_with_single_follower = HashSet::new();
 
     for (first, followers_map) in &dfg_pairs {
@@ -207,7 +210,7 @@ pub fn create_threads_log_by_attribute<TLog: EventLog>(log: &TLog, thread_attrib
 
   for trace in log.traces() {
     let trace = trace.borrow();
-    let mut threads_traces = HashMap::<Option<String>, TLog::TTrace>::new();
+    let mut threads_traces = HashMap::<Option<Rc<str>>, TLog::TTrace>::new();
 
     for event in trace.events() {
       let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
@@ -252,15 +255,15 @@ impl EventLogInfo for OfflineEventLogInfo {
     &self.dfg_info
   }
 
-  fn all_event_classes(&self) -> Vec<&String> {
+  fn all_event_classes(&self) -> Vec<&Rc<str>> {
     self.event_classes_counts.keys().collect()
   }
 
-  fn start_event_classes(&self) -> &HashSet<String> {
+  fn start_event_classes(&self) -> &HashSet<Rc<str>> {
     &self.start_event_classes
   }
 
-  fn end_event_classes(&self) -> &HashSet<String> {
+  fn end_event_classes(&self) -> &HashSet<Rc<str>> {
     &self.end_event_classes
   }
 }

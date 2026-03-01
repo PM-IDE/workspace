@@ -13,6 +13,7 @@ use rdkafka::{
   util::Timeout,
   ClientConfig,
 };
+use std::rc::Rc;
 use uuid::Uuid;
 
 pub struct PipelineEventsProducer {
@@ -118,34 +119,34 @@ impl GetContextValuesEvent<'_> {
 
 pub struct ProcessCaseMetadata {
   pub case_name: CaseName,
-  pub process_name: String,
+  pub process_name: Rc<str>,
   pub subscription_id: Option<Uuid>,
-  pub subscription_name: Option<String>,
+  pub subscription_name: Option<Rc<str>>,
   pub pipeline_id: Option<Uuid>,
-  pub pipeline_name: Option<String>,
-  pub metadata: Vec<(String, String)>,
+  pub pipeline_name: Option<Rc<str>>,
+  pub metadata: Vec<(Rc<str>, Rc<str>)>,
 }
 
 impl ProcessCaseMetadata {
   fn to_grpc_process_case_metadata(&self) -> GrpcProcessCaseMetadata {
     GrpcProcessCaseMetadata {
       case_name: Some(GrpcCaseName {
-        display_name: self.case_name.display_name.clone(),
-        full_name_parts: self.case_name.name_parts.clone(),
+        display_name: self.case_name.display_name.to_string(),
+        full_name_parts: self.case_name.name_parts.iter().map(|p| p.to_string()).collect(),
       }),
-      process_name: self.process_name.clone(),
+      process_name: self.process_name.to_string(),
 
       subscription_id: self.subscription_id.map(GrpcGuid::from),
-      subscription_name: self.subscription_name.clone().map_or("".to_string(), |name| name),
+      subscription_name: self.subscription_name.clone().map_or("".to_string(), |name| name.to_string()),
       pipeline_id: self.pipeline_id.map(GrpcGuid::from),
-      pipeline_name: self.pipeline_name.clone().map_or("".to_string(), |name| name),
+      pipeline_name: self.pipeline_name.clone().map_or("".to_string(), |name| name.to_string()),
 
       metadata: self
         .metadata
         .iter()
         .map(|pair| GrpcStringKeyValue {
-          key: pair.0.clone(),
-          value: pair.1.clone(),
+          key: pair.0.to_string(),
+          value: pair.1.to_string(),
         })
         .collect(),
     }

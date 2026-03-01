@@ -41,16 +41,16 @@ impl StreamingCounterFactory {
 #[derive(Clone)]
 struct DfgDataStructureBase {
   factory: StreamingCounterFactory,
-  processes_dfg: HashMap<String, Rc<RefCell<dyn StreamingCounter<(String, String), ()>>>>,
-  traces_last_event_classes: Rc<RefCell<dyn StreamingCounter<Uuid, String>>>,
-  event_classes_count: HashMap<String, Rc<RefCell<dyn StreamingCounter<String, ()>>>>,
+  processes_dfg: HashMap<Rc<str>, Rc<RefCell<dyn StreamingCounter<(Rc<str>, Rc<str>), ()>>>>,
+  traces_last_event_classes: Rc<RefCell<dyn StreamingCounter<Uuid, Rc<str>>>>,
+  event_classes_count: HashMap<Rc<str>, Rc<RefCell<dyn StreamingCounter<Rc<str>, ()>>>>,
 }
 
 unsafe impl Send for DfgDataStructureBase {}
 unsafe impl Sync for DfgDataStructureBase {}
 
 impl DfgDataStructureBase {
-  pub fn observe_dfg_relation(&mut self, process_name: &str, relation: (String, String)) {
+  pub fn observe_dfg_relation(&mut self, process_name: &Rc<str>, relation: (Rc<str>, Rc<str>)) {
     debug!(
       "Observing relation, process: {}, relation: ({}, {})",
       process_name, &relation.0, &relation.1
@@ -64,7 +64,7 @@ impl DfgDataStructureBase {
       .observe(relation, ValueUpdateKind::DoNothing);
   }
 
-  pub fn observe_event_class(&mut self, process_name: &str, event_class: String) {
+  pub fn observe_event_class(&mut self, process_name: &Rc<str>, event_class: Rc<str>) {
     debug!("Observing event class, process: {}, event class: {}", process_name, event_class);
 
     self
@@ -75,11 +75,11 @@ impl DfgDataStructureBase {
       .observe(event_class, ValueUpdateKind::DoNothing);
   }
 
-  pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: String) {
+  pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: Rc<str>) {
     debug!(
       "Observing last trace class, case id: {}, last class: {}",
       &case_id,
-      last_class.as_str()
+      last_class.as_ref()
     );
 
     self
@@ -88,15 +88,15 @@ impl DfgDataStructureBase {
       .observe(case_id, ValueUpdateKind::Replace(last_class))
   }
 
-  pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<String> {
+  pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<Rc<str>> {
     self
       .traces_last_event_classes
       .borrow()
       .get(case_id)
-      .map(|value| value.value().unwrap().to_owned())
+      .map(|value| value.value().unwrap().clone())
   }
 
-  pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
+  pub fn to_event_log_info(&self, process_name: &Rc<str>) -> Option<OfflineEventLogInfo> {
     let event_classes_count = match self.event_classes_count.get(process_name) {
       None => return None,
       Some(classes) => classes.borrow().to_freq_count_map().into_iter().map(|(k, v)| (k, v.1)).collect(),
@@ -164,7 +164,7 @@ impl DfgDataStructures {
 impl DfgDataStructures {
   pub fn process_bxes_trace(
     &mut self,
-    metadata: &HashMap<String, Rc<BxesValue>>,
+    metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
     xes_trace: &XesTraceImpl,
     context: &mut PipelineContext,
   ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
@@ -174,27 +174,29 @@ impl DfgDataStructures {
 
     let process_metadata = ProcessMetadata::create_from(metadata)?;
     let case_metadata = CaseMetadata::create_from(metadata)?;
-    let process_name = process_metadata.process_name.as_str();
+    let process_name = &process_metadata.process_name;
 
     for i in 0..(xes_trace.events().len() - 1) {
-      let first_name = xes_trace.events().get(i).unwrap().borrow().name().to_owned();
-      let second_name = xes_trace.events().get(i + 1).unwrap().borrow().name().to_owned();
+      let first_name = xes_trace.events().get(i).unwrap().borrow().name_pointer().clone();
+      let second_name = xes_trace.events().get(i + 1).unwrap().borrow().name_pointer().clone();
 
-      self.base.observe_dfg_relation(process_name, (first_name.clone(), second_name));
-      self.base.observe_event_class(process_name, first_name);
+      self
+        .base
+        .observe_dfg_relation(process_name, (first_name.clone(), second_name.clone()));
+      self.base.observe_event_class(process_name, first_name.clone());
     }
 
     if let Some(last_seen_class) = self.base.last_seen_event_class(&case_metadata.case_id) {
-      let first_class = xes_trace.events().first().unwrap().borrow().name().to_owned();
-      self.base.observe_dfg_relation(process_name, (last_seen_class, first_class));
+      let first_class = xes_trace.events().first().unwrap().borrow().name_pointer().clone();
+      self.base.observe_dfg_relation(process_name, (last_seen_class, first_class.clone()));
     }
 
-    let new_trace_last_class = xes_trace.events().last().unwrap().borrow().name().to_owned();
+    let new_trace_last_class = xes_trace.events().last().unwrap().borrow().name_pointer().clone();
 
     self.base.observe_event_class(process_name, new_trace_last_class.clone());
     self
       .base
-      .observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class);
+      .observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class.clone());
 
     match self.base.to_event_log_info(process_name) {
       None => {

@@ -25,7 +25,7 @@ use ficus::{
   utils::user_data::user_data::UserData,
 };
 use futures::Stream;
-use std::{pin::Pin, sync::Arc};
+use std::{pin::Pin, rc::Rc, sync::Arc};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
@@ -154,7 +154,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
       .map(|(id, s)| GrpcKafkaSubscription {
         id: Some(GrpcGuid::from(id)),
         metadata: Some(GrpcKafkaSubscriptionMetadata {
-          subscription_name: s.name(),
+          subscription_name: s.name().to_owned(),
         }),
         pipelines: s
           .pipelines()
@@ -209,7 +209,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
       let request = request.get_ref();
       let case_info = request.case_info.as_ref().expect("Case info must be supplied");
-      let case_name = case_info.case_name.clone();
+      let case_name: Rc<str> = case_info.case_name.clone().into();
       let process_name = case_info.process_name.clone();
       let pipeline_id = Uuid::parse_str(request.pipeline_id.as_ref().expect("Must be supplied").guid.as_str());
       let subscription_id = Uuid::parse_str(request.subscription_id.as_ref().expect("Must be supplied").guid.as_str());
@@ -221,15 +221,15 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
       let execution_result = context.execute_grpc_pipeline(move |context| {
         context.put_concrete(SUBSCRIPTION_ID_KEY.key(), subscription_id.unwrap());
         context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id.unwrap());
-        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), subscription_name);
-        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline_name);
+        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), subscription_name.into());
+        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline_name.into());
 
-        context.put_concrete(PROCESS_NAME_KEY.key(), process_name);
+        context.put_concrete(PROCESS_NAME_KEY.key(), process_name.into());
         context.put_concrete(
           CASE_NAME_KEY.key(),
           CaseName {
-            display_name: case_name.to_string(),
-            name_parts: vec![case_name.to_string()],
+            display_name: case_name.clone(),
+            name_parts: vec![case_name],
           },
         );
 

@@ -35,7 +35,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
       .iter()
       .map(|c| {
         (
-          Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
+          Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().clone())),
           c.info(),
         )
       })
@@ -50,7 +50,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
               if regex.is_match(event.borrow().name()).unwrap_or(false) {
                 let count = if let Some(count_attr) = config.count_attr() {
                   if let Some(count) = payload.get(count_attr) {
-                    parse_or_err::<f64>(count.to_string_repr().as_str())?
+                    parse_or_err::<f64>(count.to_string_repr().as_ref())?
                   } else {
                     continue;
                   }
@@ -61,7 +61,7 @@ impl<'a> EventGroupSoftwareDataExtractor for PieChartExtractor<'a> {
                 let grouping_value = if let Some(strategy) = config.grouping_attr() {
                   strategy.create(&event.borrow())
                 } else {
-                  HeapedOrOwned::Heaped(event.borrow().name_pointer().clone())
+                  event.borrow().name_pointer().clone()
                 };
 
                 *result

@@ -497,7 +497,7 @@ where
       for event in &underlying_events {
         execute_with_underlying_events(event, &mut |event| {
           let payload_value = EventPayloadValue::String(activity.node.borrow().id().clone());
-          let key = format!("hierarchy_level_{}", level);
+          let key = Rc::from(format!("hierarchy_level_{}", level));
           event.add_or_update_payload(key, payload_value);
         })
       }
@@ -666,7 +666,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
   activities_to_logs
 }
 
-pub fn create_activity_name<TLog>(log: &TLog, sub_array: &SubArrayWithTraceIndex, class_extractor: Option<&String>) -> String
+pub fn create_activity_name<TLog>(log: &TLog, sub_array: &SubArrayWithTraceIndex, class_extractor: Option<&str>) -> String
 where
   TLog: EventLog,
 {

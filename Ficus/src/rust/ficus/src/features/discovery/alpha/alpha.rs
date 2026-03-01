@@ -1,4 +1,5 @@
 use crate::{
+  context_key,
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
   features::{
     analysis::log_info::event_log_info::EventLogInfo,
@@ -16,15 +17,18 @@ use crate::{
       },
     },
   },
-  utils::user_data::{keys::DefaultKey, user_data::UserData},
+  utils::user_data::user_data::UserData,
 };
+use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use std::{
   collections::{HashMap, HashSet},
+  rc::Rc,
   string::ToString,
 };
 
-pub static ALPHA_SET: Lazy<DefaultKey<AlphaSet>> = Lazy::new(|| DefaultKey::new("alpha_set".to_string()));
+const ALPHA_SET: &str = "alpha_set";
+context_key! { ALPHA_SET, AlphaSet }
 
 pub fn discover_petri_net_alpha(provider: &impl AlphaRelationsProvider) -> DefaultPetriNet {
   do_discover_petri_net_alpha(provider)
@@ -52,7 +56,7 @@ fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, original_log
     if let Some(followed_events) = original_log_info.dfg_info().get_followed_events(transition_name) {
       for event in followed_events.keys() {
         if event != transition_name {
-          alpha_set.insert_right_class(event.to_owned());
+          alpha_set.insert_right_class(event.clone());
         }
       }
     }
@@ -60,7 +64,7 @@ fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, original_log
     if let Some(precedes_events) = original_log_info.dfg_info().get_precedes_events(transition_name) {
       for event in precedes_events.keys() {
         if event != transition_name {
-          alpha_set.insert_left_class(event.to_owned());
+          alpha_set.insert_left_class(event.clone());
         }
       }
     }
@@ -82,18 +86,17 @@ fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, original_log
 }
 
 fn add_alpha_plus_plus_transitions(provider: &impl AlphaPlusRelationsProvider, petri_net: &mut DefaultPetriNet) {
-  let key = Lazy::get(&ALPHA_SET).unwrap();
   let mut transitions_connections = HashSet::new();
   let mut places_connections = HashSet::new();
 
   for transition in provider.one_length_loop_transitions() {
     if let Some(transition) = petri_net.find_transition_by_name(transition) {
       for place in petri_net.all_places() {
-        if let Some(alpha_set) = place.user_data().concrete(key) {
+        if let Some(alpha_set) = place.user_data().concrete(ALPHA_SET_KEY.key()) {
           for outgoing_arc in transition.outgoing_arcs() {
             if outgoing_arc.place_id() != place.id() {
               let outgoing_place = petri_net.place(&outgoing_arc.place_id());
-              if let Some(outgoing_alpha_set) = outgoing_place.user_data().concrete(key)
+              if let Some(outgoing_alpha_set) = outgoing_place.user_data().concrete(ALPHA_SET_KEY.key())
                 && alpha_set.is_full_subset(outgoing_alpha_set)
               {
                 transitions_connections.insert((transition.id(), outgoing_place.id()));
@@ -104,7 +107,7 @@ fn add_alpha_plus_plus_transitions(provider: &impl AlphaPlusRelationsProvider, p
           for incoming_arc in transition.incoming_arcs() {
             if incoming_arc.place_id() != place.id() {
               let incoming_place = petri_net.place(&incoming_arc.place_id());
-              if let Some(incoming_alpha_set) = incoming_place.user_data().concrete(key)
+              if let Some(incoming_alpha_set) = incoming_place.user_data().concrete(ALPHA_SET_KEY.key())
                 && alpha_set.is_full_subset(incoming_alpha_set)
               {
                 places_connections.insert((incoming_place.id(), transition.id()));
@@ -125,14 +128,14 @@ fn add_alpha_plus_plus_transitions(provider: &impl AlphaPlusRelationsProvider, p
   }
 }
 
-pub fn find_transitions_one_length_loop(log: &impl EventLog) -> HashSet<String> {
+pub fn find_transitions_one_length_loop(log: &impl EventLog) -> HashSet<Rc<str>> {
   let mut one_loop_transitions = HashSet::new();
   for trace in log.traces() {
     let trace = trace.borrow();
     let events = trace.events();
     for i in 0..(events.len() - 1) {
       if events[i].borrow().name() == events[i + 1].borrow().name() {
-        one_loop_transitions.insert(events[i].borrow().name().to_owned());
+        one_loop_transitions.insert(events[i].borrow().name_pointer().clone());
       }
     }
   }
@@ -152,13 +155,13 @@ fn create_initial_sets(provider: &impl AlphaRelationsProvider) -> HashSet<AlphaS
 
   info
     .all_event_classes()
-    .iter()
+    .into_iter()
     .filter(|class| info.dfg_info().get_followed_events(class).is_some() && provider.unrelated_relation(class, class))
     .flat_map(|class| {
       let mut sets = vec![];
       for candidate in info.all_event_classes() {
         if provider.causal_relation(class, candidate) && provider.unrelated_relation(candidate, candidate) {
-          sets.push(AlphaSet::new((*class).to_owned(), candidate.to_owned()));
+          sets.push(AlphaSet::new(class.clone(), candidate.clone()));
         }
       }
 
@@ -195,31 +198,31 @@ fn create_petri_net(info: &dyn EventLogInfo, alpha_sets: Vec<&AlphaSet>) -> Defa
   let mut event_classes_to_transition_ids = HashMap::new();
   for class in info.all_event_classes() {
     let id = petri_net.add_transition(Transition::empty(class.to_owned(), false, Some(class.to_owned())));
-    event_classes_to_transition_ids.insert(class, id);
+    event_classes_to_transition_ids.insert(class.as_ref(), id);
   }
 
   for alpha_set in alpha_sets {
     let mut place = Place::with_name(alpha_set.to_string());
-    place.user_data_mut().put_concrete(&ALPHA_SET, alpha_set.clone());
+    place.user_data_mut().put_concrete(ALPHA_SET_KEY.key(), alpha_set.clone());
     let place_id = petri_net.add_place(place);
 
     for class in alpha_set.left_classes() {
-      petri_net.connect_transition_to_place(&event_classes_to_transition_ids[&class], &place_id, None);
+      petri_net.connect_transition_to_place(&event_classes_to_transition_ids[class.as_ref()], &place_id, None);
     }
 
     for class in alpha_set.right_classes() {
-      petri_net.connect_place_to_transition(&place_id, &event_classes_to_transition_ids[&class], None);
+      petri_net.connect_place_to_transition(&place_id, &event_classes_to_transition_ids[&class.as_ref()], None);
     }
   }
 
   let start_place_id = petri_net.add_place(Place::with_name("StartPlace".to_string()));
   for start_activity in info.start_event_classes() {
-    petri_net.connect_place_to_transition(&start_place_id, &event_classes_to_transition_ids[start_activity], None);
+    petri_net.connect_place_to_transition(&start_place_id, &event_classes_to_transition_ids[start_activity.as_ref()], None);
   }
 
   let end_place_id = petri_net.add_place(Place::with_name("EndPlace".to_string()));
   for end_activity in info.end_event_classes() {
-    petri_net.connect_transition_to_place(&event_classes_to_transition_ids[end_activity], &end_place_id, None);
+    petri_net.connect_transition_to_place(&event_classes_to_transition_ids[end_activity.as_ref()], &end_place_id, None);
   }
 
   petri_net.set_initial_marking(Marking::new(vec![SingleMarking::new(start_place_id, 1)]));

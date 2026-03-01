@@ -6,13 +6,13 @@ use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, rc::Rc};
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
 pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "HashMap::is_empty")]
-  event_classes: HashMap<HeapedOrOwned<String>, usize>,
+  event_classes: HashMap<Rc<str>, usize>,
 
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip)]
@@ -51,15 +51,15 @@ impl SoftwareData {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct OcelProducedObjectAfterConsume {
   #[getset(get = "pub")]
-  id: HeapedOrOwned<String>,
+  id: Rc<str>,
   #[getset(get = "pub")]
-  r#type: Option<HeapedOrOwned<String>>,
+  r#type: Option<Rc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ObjectTypeWithData<T> {
   #[getset(get = "pub")]
-  r#type: Option<HeapedOrOwned<String>>,
+  r#type: Option<Rc<str>>,
   #[getset(get = "pub")]
   data: T,
 }
@@ -68,14 +68,14 @@ pub struct ObjectTypeWithData<T> {
 pub enum OcelObjectAction {
   Allocate(ObjectTypeWithData<()>),
   Consume(ObjectTypeWithData<()>),
-  AllocateMerged(ObjectTypeWithData<Vec<HeapedOrOwned<String>>>),
+  AllocateMerged(ObjectTypeWithData<Vec<Rc<str>>>),
   ConsumeWithProduce(Vec<OcelProducedObjectAfterConsume>),
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct OcelData {
   #[getset(get = "pub")]
-  object_id: HeapedOrOwned<String>,
+  object_id: Rc<str>,
   #[getset(get = "pub")]
   action: OcelObjectAction,
 }
@@ -91,17 +91,17 @@ pub struct HistogramData {
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct GenericEnhancementBase {
   #[getset(get = "pub")]
-  name: HeapedOrOwned<String>,
+  name: Rc<str>,
   #[getset(get = "pub")]
-  units: HeapedOrOwned<String>,
+  units: Rc<str>,
   #[getset(get = "pub")]
-  group: Option<HeapedOrOwned<String>>,
+  group: Option<Rc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct HistogramEntry {
   #[getset(get = "pub")]
-  name: HeapedOrOwned<String>,
+  name: Rc<str>,
   #[getset(get = "pub")]
   value: f64,
 }

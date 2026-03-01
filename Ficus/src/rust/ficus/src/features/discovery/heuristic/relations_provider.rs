@@ -6,8 +6,9 @@ use crate::features::{
   },
 };
 use std::collections::HashMap;
+use std::rc::Rc;
 
-type DependencyRelations = HashMap<String, HashMap<String, f64>>;
+type DependencyRelations = HashMap<Rc<str>, HashMap<Rc<str>, f64>>;
 
 pub(crate) struct HeuristicMinerRelationsProvider<'a> {
   dependency_threshold: f64,
@@ -52,7 +53,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
   }
 
   fn initialize_dependency_relations(&mut self) {
-    let mut relations = HashMap::<String, Vec<(String, f64)>>::new();
+    let mut relations = HashMap::<Rc<str>, Vec<(Rc<str>, f64)>>::new();
     for first_class in self.provider.log_info().all_event_classes() {
       for second_class in self.provider.log_info().all_event_classes() {
         let second_follows_first = self.get_directly_follows_count(first_class, second_class);
@@ -74,7 +75,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
     }
 
     for key in self.provider.log_info().all_event_classes() {
-      if let Some(values) = relations.get_mut(key.as_str()) {
+      if let Some(values) = relations.get_mut(key.as_ref()) {
         let best_value = values.iter().max_by(|first, second| first.1.total_cmp(&second.1)).unwrap().1;
 
         let min_value = best_value * (1.0 - self.relative_to_best_threshold);
@@ -104,7 +105,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
     }
   }
 
-  pub fn and_or_xor_relation(&self, a: &String, b: &String, c: &String) -> AndOrXorRelation {
+  pub fn and_or_xor_relation(&self, a: &str, b: &str, c: &str) -> AndOrXorRelation {
     let b_c = self.get_directly_follows_count(b, c) as f64;
     let c_b = self.get_directly_follows_count(c, b) as f64;
     let a_b = self.get_directly_follows_count(a, b) as f64;
@@ -126,7 +127,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
     (a_b + b_a) / (a_b + b_a + 1.0) > self.loop_length_two_threshold
   }
 
-  fn calculate_dependency_measure(&self, first: &String, second: &String) -> f64 {
+  fn calculate_dependency_measure(&self, first: &str, second: &str) -> f64 {
     let b_follows_a = self.get_directly_follows_count(first, second) as f64;
     let a_follows_b = self.get_directly_follows_count(second, first) as f64;
 
@@ -137,7 +138,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
     }
   }
 
-  fn get_directly_follows_count(&self, first: &String, second: &String) -> usize {
+  fn get_directly_follows_count(&self, first: &str, second: &str) -> usize {
     self.provider.log_info().dfg_info().get_directly_follows_count(first, second)
   }
 

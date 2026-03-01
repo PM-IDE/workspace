@@ -88,19 +88,19 @@ impl EventPayloadValue {
 }
 
 pub trait Event: Clone + Debug + UserDataOwner {
-  fn new(name: String, stamp: DateTime<Utc>) -> Self;
-  fn new_with_min_date(name: String) -> Self;
-  fn new_with_max_date(name: String) -> Self;
+  fn new(name: Rc<str>, stamp: DateTime<Utc>) -> Self;
+  fn new_with_min_date(name: Rc<str>) -> Self;
+  fn new_with_max_date(name: Rc<str>) -> Self;
 
   fn name(&self) -> &str;
   fn name_pointer(&self) -> &Rc<str>;
 
   fn timestamp(&self) -> &DateTime<Utc>;
-  fn payload_map(&self) -> Option<&HashMap<String, EventPayloadValue>>;
-  fn payload_map_mut(&mut self) -> Option<&mut HashMap<String, EventPayloadValue>>;
-  fn ordered_payload(&self) -> Vec<(&String, &EventPayloadValue)>;
+  fn payload_map(&self) -> Option<&HashMap<Rc<str>, EventPayloadValue>>;
+  fn payload_map_mut(&mut self) -> Option<&mut HashMap<Rc<str>, EventPayloadValue>>;
+  fn ordered_payload(&self) -> Vec<(&Rc<str>, &EventPayloadValue)>;
 
-  fn set_name(&mut self, new_name: String);
+  fn set_name(&mut self, new_name: Rc<str>);
   fn set_timestamp(&mut self, new_timestamp: DateTime<Utc>);
-  fn add_or_update_payload(&mut self, key: String, value: EventPayloadValue);
+  fn add_or_update_payload(&mut self, key: Rc<str>, value: EventPayloadValue);
 }

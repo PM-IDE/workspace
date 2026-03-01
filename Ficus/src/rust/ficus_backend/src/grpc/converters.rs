@@ -204,7 +204,7 @@ pub(super) fn put_into_user_data(
             Some(stamp) => convert_timestamp_to_datetime(stamp),
           };
 
-          let mut xes_event = XesEventImpl::new(event.name.to_owned(), date);
+          let mut xes_event = XesEventImpl::new(event.name.clone().into(), date);
           for attribute in &event.attributes {
             let payload_value = attribute
               .value
@@ -212,7 +212,7 @@ pub(super) fn put_into_user_data(
               .map(convert_grpc_event_attribute_to_xes_event_payload_value);
 
             if let Some(xes_attribute) = payload_value {
-              xes_event.add_or_update_payload(attribute.key.clone(), xes_attribute)
+              xes_event.add_or_update_payload(attribute.key.clone().into(), xes_attribute)
             }
           }
 
@@ -231,7 +231,7 @@ pub(super) fn put_into_user_data(
 fn convert_grpc_event_attribute_to_xes_event_payload_value(attribute_value: &grpc_event_attribute::Value) -> EventPayloadValue {
   match attribute_value {
     grpc_event_attribute::Value::Int(v) => EventPayloadValue::Int64(*v),
-    grpc_event_attribute::Value::String(v) => EventPayloadValue::String(Rc::new(v.to_owned())),
+    grpc_event_attribute::Value::String(v) => EventPayloadValue::String(v.to_owned().into()),
     grpc_event_attribute::Value::Bool(v) => EventPayloadValue::Boolean(*v),
     grpc_event_attribute::Value::Double(v) => EventPayloadValue::Float64(*v),
     grpc_event_attribute::Value::Guid(v) => EventPayloadValue::Guid(Uuid::parse_str(v.guid.as_str()).unwrap()),
@@ -545,7 +545,7 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
     for (key, color) in colors_log.mapping.iter() {
       mapping.insert(key.to_owned(), grpc_mapping.len());
       grpc_mapping.push(GrpcColorsEventLogMapping {
-        name: key.to_owned(),
+        name: key.to_string(),
         color: Some(convert_to_grpc_color(color)),
       });
     }
@@ -857,7 +857,7 @@ fn convert_to_grpc_simple_trace(trace: &Vec<Rc<RefCell<XesEventImpl>>>) -> GrpcS
           payload
             .iter()
             .map(|(k, v)| GrpcEventAttribute {
-              key: k.to_owned(),
+              key: k.to_string(),
               value: convert_to_grpc_attribute_value(v),
             })
             .collect()
@@ -1031,7 +1031,7 @@ fn convert_to_grpc_simple_counter_data(data: &SimpleCounterData) -> GrpcSimpleCo
   }
 }
 
-fn convert_to_grpc_histogram_entries(histogram: &HashMap<HeapedOrOwned<String>, usize>) -> Vec<GrpcHistogramEntry> {
+fn convert_to_grpc_histogram_entries(histogram: &HashMap<Rc<str>, usize>) -> Vec<GrpcHistogramEntry> {
   histogram
     .iter()
     .map(|(key, value)| GrpcHistogramEntry {

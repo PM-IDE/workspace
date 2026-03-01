@@ -13,7 +13,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 pub fn prepare_software_log(
   log: &XesEventLogImpl,
   config: &SoftwareDataExtractionConfig,
-  time_attribute: Option<&String>,
+  time_attribute: Option<&Rc<str>>,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let control_flow_regexes = config.control_flow_regexes().map_err(PipelinePartExecutionError::new_raw)?;
   if control_flow_regexes.is_none() {
@@ -98,5 +98,5 @@ pub fn prepare_software_log(
     }
   }
 
-  abstract_event_groups(event_groups, &labels, None, time_attribute.cloned(), config)
+  abstract_event_groups(event_groups, &labels, None, time_attribute, config)
 }

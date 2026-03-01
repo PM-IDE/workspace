@@ -19,8 +19,8 @@ use ficus::{
       },
       models::SoftwareData,
     },
-  },
-  utils::references::heaped,
+  }
+  ,
 };
 use std::{cell::RefCell, rc::Rc};
 
@@ -33,61 +33,43 @@ fn test_general_histogram() {
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Float64(123.)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Float64(123.)),
           ],
         ),
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type2".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Float32(123.)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type2".to_string()))),
+            ("count".into(), EventPayloadValue::Float32(123.)),
           ],
         ),
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Uint64(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Uint64(123)),
           ],
         ),
         create_event_with_attributes(
           "unknown".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Uint32(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Uint32(123)),
           ],
         ),
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Int64(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Int64(123)),
           ],
         ),
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type2".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Int32(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type2".to_string()))),
+            ("count".into(), EventPayloadValue::Int32(123)),
           ],
         ),
       ];
@@ -95,25 +77,25 @@ fn test_general_histogram() {
       let mut config = SoftwareDataExtractionConfig::empty();
       config.set_pie_chart_extraction_configs(vec![
         ExtractionConfig::new(
-          "histogram_event".to_string(),
+          "histogram_event".into(),
           PieChartExtractionConfig::new(
-            GenericExtractionConfigBase::new(heaped("g1".to_string()), heaped("units".to_string()), None),
+            GenericExtractionConfigBase::new("g1".into(), "units".into(), None),
             Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new(
-              "type".to_string(),
-              heaped("xd".to_string()),
+              "type".into(),
+              "xd".into(),
             ))),
-            Some("count".to_string()),
+            Some("count".into()),
           ),
         ),
         ExtractionConfig::new(
-          "hst_event".to_string(),
+          "hst_event".into(),
           PieChartExtractionConfig::new(
-            GenericExtractionConfigBase::new(heaped("g2".to_string()), heaped("units".to_string()), None),
+            GenericExtractionConfigBase::new("g2".into(), "units".into(), None),
             Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new(
-              "type".to_string(),
-              heaped("xd".to_string()),
+              "type".into(),
+              "xd".into(),
             ))),
-            Some("count".to_string()),
+            Some("count".into()),
           ),
         ),
       ]);
@@ -142,61 +124,43 @@ fn test_simple_counter() {
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Float64(123.)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Float64(123.)),
           ],
         ),
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type2".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Float32(123.)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type2".to_string()))),
+            ("count".into(), EventPayloadValue::Float32(123.)),
           ],
         ),
         create_event_with_attributes(
           "histogram_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Uint64(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Uint64(123)),
           ],
         ),
         create_event_with_attributes(
           "unknown".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Uint32(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Uint32(123)),
           ],
         ),
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Int64(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("count".into(), EventPayloadValue::Int64(123)),
           ],
         ),
         create_event_with_attributes(
           "hst_event".to_string(),
           vec![
-            (
-              "type".to_string(),
-              EventPayloadValue::String(Rc::new("type2".to_string())),
-            ),
-            ("count".to_string(), EventPayloadValue::Int32(123)),
+            ("type".into(), EventPayloadValue::String(Rc::from("type2".to_string()))),
+            ("count".into(), EventPayloadValue::Int32(123)),
           ],
         ),
       ];
@@ -204,17 +168,14 @@ fn test_simple_counter() {
       let mut config = SoftwareDataExtractionConfig::empty();
       config.set_simple_counter_configs(vec![
         ExtractionConfig::new(
-          "histogram_event".to_string(),
-          SimpleCountExtractionConfig::new(
-            GenericExtractionConfigBase::new(heaped("counter1".to_string()), heaped("units".to_string()), None),
-            None,
-          ),
+          "histogram_event".into(),
+          SimpleCountExtractionConfig::new(GenericExtractionConfigBase::new("counter1".into(), "units".into(), None), None),
         ),
         ExtractionConfig::new(
-          "hst_event".to_string(),
+          "hst_event".into(),
           SimpleCountExtractionConfig::new(
-            GenericExtractionConfigBase::new(heaped("counter2".to_string()), heaped("units".to_string()), None),
-            Some("count".to_string()),
+            GenericExtractionConfigBase::new("counter2".into(), "units".into(), None),
+            Some("count".into()),
           ),
         ),
       ]);
@@ -237,39 +198,30 @@ fn test_activities_duration() {
     r#"[[{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":300,"kind":"Unknown"}]},{"activities_durations":[{"base":{"name":"activity","units":"units","group":null},"duration":50,"kind":"Unknown"}]}]]"#,
     vec![vec![
       vec![
-        create_event_with_attributes("some_event".to_string(), vec![("stamp".to_string(), EventPayloadValue::Int64(50))]),
-        create_event_with_attributes("some_event".to_string(), vec![("stamp".to_string(), EventPayloadValue::Int64(250))]),
+        create_event_with_attributes("some_event".to_string(), vec![("stamp".into(), EventPayloadValue::Int64(50))]),
+        create_event_with_attributes("some_event".to_string(), vec![("stamp".into(), EventPayloadValue::Int64(250))]),
       ],
       vec![
         create_event_with_attributes(
           "event_start".to_string(),
           vec![
-            (
-              "activity_id".to_string(),
-              EventPayloadValue::String(Rc::new("1".to_string())),
-            ),
-            ("stamp".to_string(), EventPayloadValue::Int64(100)),
+            ("activity_id".into(), EventPayloadValue::String(Rc::from("1".to_string()))),
+            ("stamp".into(), EventPayloadValue::Int64(100)),
           ],
         ),
         create_event_with_attributes(
           "event_end".to_string(),
           vec![
-            (
-              "activity_id".to_string(),
-              EventPayloadValue::String(Rc::new("1".to_string())),
-            ),
-            ("stamp".to_string(), EventPayloadValue::Int64(200)),
+            ("activity_id".into(), EventPayloadValue::String(Rc::from("1".to_string()))),
+            ("stamp".into(), EventPayloadValue::Int64(200)),
           ],
         ),
       ],
       vec![create_event_with_attributes(
         "event_end".to_string(),
         vec![
-          (
-            "activity_id".to_string(),
-            EventPayloadValue::String(Rc::new("2".to_string())),
-          ),
-          ("stamp".to_string(), EventPayloadValue::Int64(300)),
+          ("activity_id".into(), EventPayloadValue::String(Rc::from("2".to_string()))),
+          ("stamp".into(), EventPayloadValue::Int64(300)),
         ],
       )],
     ]],
@@ -279,13 +231,13 @@ fn test_activities_duration() {
 fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>) {
   let mut config = SoftwareDataExtractionConfig::empty();
   config.set_activities_duration_configs(vec![ActivityDurationExtractionConfig::new(
-    GenericExtractionConfigBase::new(heaped("activity".to_string()), heaped("units".to_string()), None),
-    "event_start".to_string(),
-    "event_end".to_string(),
-    Some(TimeAttributeConfig::new("stamp".to_string(), TimeKind::Unknown)),
+    GenericExtractionConfigBase::new("activity".into(), "units".into(), None),
+    "event_start".into(),
+    "event_end".into(),
+    Some(TimeAttributeConfig::new("stamp".into(), TimeKind::Unknown)),
     Some(NameCreationStrategy::SingleAttribute(SingleAttribute::new(
-      "activity_id".to_string(),
-      heaped("xd".to_string()),
+      "activity_id".into(),
+      "xd".into(),
     ))),
   )]);
 
@@ -325,30 +277,27 @@ fn test_activities_duration_2() {
     vec![
       vec![
         vec![
-          create_event_with_attributes("some_event".to_string(), vec![("stamp".to_string(), EventPayloadValue::Int64(50))]),
-          create_event_with_attributes("some_event".to_string(), vec![("stamp".to_string(), EventPayloadValue::Int64(100))]),
+          create_event_with_attributes("some_event".to_string(), vec![("stamp".into(), EventPayloadValue::Int64(50))]),
+          create_event_with_attributes("some_event".to_string(), vec![("stamp".into(), EventPayloadValue::Int64(100))]),
         ],
         vec![create_event_with_attributes(
           "event_start".to_string(),
           vec![
-            (
-              "activity_id".to_string(),
-              EventPayloadValue::String(Rc::new("2".to_string())),
-            ),
-            ("stamp".to_string(), EventPayloadValue::Int64(50)),
+            ("activity_id".into(), EventPayloadValue::String("2".into())),
+            ("stamp".into(), EventPayloadValue::Int64(50)),
           ],
         )],
         vec![],
       ],
       vec![
         vec![
-          create_event_with_attributes("some_event".to_string(), vec![("stamp".to_string(), EventPayloadValue::Int64(100))]),
-          create_event_with_attributes("some_event".to_string(), vec![("stamp".to_string(), EventPayloadValue::Int64(200))]),
+          create_event_with_attributes("some_event".to_string(), vec![("stamp".into(), EventPayloadValue::Int64(100))]),
+          create_event_with_attributes("some_event".to_string(), vec![("stamp".into(), EventPayloadValue::Int64(200))]),
         ],
         vec![],
         vec![create_event_with_attributes(
           "some_event".to_string(),
-          vec![("stamp".to_string(), EventPayloadValue::Int64(500))],
+          vec![("stamp".into(), EventPayloadValue::Int64(500))],
         )],
       ],
     ],
@@ -364,94 +313,58 @@ pub fn test_ocel_data_extraction() {
         create_event_with_attributes(
           "ocel_allocate".to_string(),
           vec![
-            (
-              "object_type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            (
-              "object_id".to_string(),
-              EventPayloadValue::String(Rc::new("id_1".to_string())),
-            ),
+            ("object_type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("object_id".into(), EventPayloadValue::String(Rc::from("id_1".to_string()))),
           ],
         ),
         create_event_with_attributes(
           "ocel_consume".to_string(),
           vec![
-            (
-              "object_type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            (
-              "object_id".to_string(),
-              EventPayloadValue::String(Rc::new("id_2".to_string())),
-            ),
+            ("object_type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("object_id".into(), EventPayloadValue::String(Rc::from("id_2".to_string()))),
           ],
         ),
         create_event_with_attributes(
           "ocel_allocate".to_string(),
           vec![
-            (
-              "object_type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            (
-              "object_id".to_string(),
-              EventPayloadValue::String(Rc::new("id_3".to_string())),
-            ),
+            ("object_type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("object_id".into(), EventPayloadValue::String(Rc::from("id_3".to_string()))),
           ],
         ),
         create_event_with_attributes(
           "unknown".to_string(),
           vec![
-            (
-              "object_type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
-            ),
-            (
-              "object_id".to_string(),
-              EventPayloadValue::String(Rc::new("id_2123123".to_string())),
-            ),
+            ("object_type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("object_id".into(), EventPayloadValue::String(Rc::from("id_2123123".to_string()))),
           ],
         ),
         create_event_with_attributes(
           "ocel_consume_produce".to_string(),
           vec![
+            ("object_type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("object_id".into(), EventPayloadValue::String(Rc::from("id_2".to_string()))),
             (
-              "object_type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
+              "ocel_related_objects_ids".into(),
+              EventPayloadValue::String(Rc::from("1 2 3 4 5".to_string())),
             ),
             (
-              "object_id".to_string(),
-              EventPayloadValue::String(Rc::new("id_2".to_string())),
-            ),
-            (
-              "ocel_related_objects_ids".to_string(),
-              EventPayloadValue::String(Rc::new("1 2 3 4 5".to_string())),
-            ),
-            (
-              "ocel_related_objects_types".to_string(),
-              EventPayloadValue::String(Rc::new("T1 T2 T3 T4 T5".to_string())),
+              "ocel_related_objects_types".into(),
+              EventPayloadValue::String(Rc::from("T1 T2 T3 T4 T5".to_string())),
             ),
           ],
         ),
         create_event_with_attributes(
           "ocel_allocate_merge".to_string(),
           vec![
+            ("object_type".into(), EventPayloadValue::String(Rc::from("type1".to_string()))),
+            ("object_id".into(), EventPayloadValue::String(Rc::from("id_2".to_string()))),
             (
-              "object_type".to_string(),
-              EventPayloadValue::String(Rc::new("type1".to_string())),
+              "ocel_action".into(),
+              EventPayloadValue::String(Rc::from("AllocateMerged".to_string())),
             ),
             (
-              "object_id".to_string(),
-              EventPayloadValue::String(Rc::new("id_2".to_string())),
-            ),
-            (
-              "ocel_action".to_string(),
-              EventPayloadValue::String(Rc::new("AllocateMerged".to_string())),
-            ),
-            (
-              "ocel_related_objects_ids".to_string(),
-              EventPayloadValue::String(Rc::new("1 2 3 4 5".to_string())),
+              "ocel_related_objects_ids".into(),
+              EventPayloadValue::String(Rc::from("1 2 3 4 5".to_string())),
             ),
           ],
         ),
@@ -459,7 +372,7 @@ pub fn test_ocel_data_extraction() {
 
       let mut config = SoftwareDataExtractionConfig::empty();
       let object_id_attr = "object_id";
-      let object_type_attr = SingleAttribute::new("object_type".to_string(), heaped("???".to_string()));
+      let object_type_attr = SingleAttribute::new("object_type".to_string().into(), "???".to_string().into());
       let object_type_attr = NameCreationStrategy::SingleAttribute(object_type_attr);
       let base_conf = OcelObjectExtractionConfigBase::new(object_type_attr.to_owned(), object_id_attr.to_string());
       let related_ids_attr = "ocel_related_objects_ids";
@@ -467,19 +380,15 @@ pub fn test_ocel_data_extraction() {
 
       config.set_ocel(Some(OcelUnitedExtractionConfig::new(
         Some(" ".to_string()),
-        Some(ExtractionConfig::new("ocel_allocate".to_string(), base_conf.to_owned())),
-        Some(ExtractionConfig::new("ocel_consume".to_string(), base_conf.to_owned())),
+        Some(ExtractionConfig::new("ocel_allocate".into(), base_conf.to_owned())),
+        Some(ExtractionConfig::new("ocel_consume".into(), base_conf.to_owned())),
         Some(ExtractionConfig::new(
-          "ocel_allocate_merge".to_string(),
-          OcelAllocateMergeExtractionConfig::new(base_conf.to_owned(), related_ids_attr.to_string()),
+          "ocel_allocate_merge".into(),
+          OcelAllocateMergeExtractionConfig::new(base_conf.to_owned(), related_ids_attr.into()),
         )),
         Some(ExtractionConfig::new(
-          "ocel_consume_produce".to_string(),
-          OcelConsumeProduceExtractionConfig::new(
-            object_id_attr.to_string(),
-            related_ids_attr.to_string(),
-            related_types_attr.to_string(),
-          ),
+          "ocel_consume_produce".into(),
+          OcelConsumeProduceExtractionConfig::new(object_id_attr.into(), related_ids_attr.into(), related_types_attr.into()),
         )),
       )));
 
@@ -492,9 +401,9 @@ pub fn test_ocel_data_extraction() {
   )
 }
 
-fn create_event_with_attributes(name: String, attributes: Vec<(String, EventPayloadValue)>) -> Rc<RefCell<XesEventImpl>> {
+fn create_event_with_attributes(name: String, attributes: Vec<(Rc<str>, EventPayloadValue)>) -> Rc<RefCell<XesEventImpl>> {
   Rc::new(RefCell::new(XesEventImpl::new_all_fields(
-    Rc::new(name),
+    name.into(),
     Utc::now(),
     Some(attributes.into_iter().collect()),
   )))

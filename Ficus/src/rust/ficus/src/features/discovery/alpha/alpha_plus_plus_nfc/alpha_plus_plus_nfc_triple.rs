@@ -6,20 +6,21 @@ use crate::{
   },
   utils::{hash_utils::compare_based_on_hashes, sets::two_sets::TwoSets},
 };
-use std::{
+use std::rc::Rc;
+pub use std::{
   collections::BTreeSet,
   fmt::Display,
   hash::{Hash, Hasher},
 };
 
-pub(crate) struct AlphaPlusPlusNfcTriple<'a> {
-  a_classes: BTreeSet<&'a String>,
-  b_classes: BTreeSet<&'a String>,
-  c_classes: BTreeSet<&'a String>,
+pub(crate) struct AlphaPlusPlusNfcTriple {
+  a_classes: BTreeSet<Rc<str>>,
+  b_classes: BTreeSet<Rc<str>>,
+  c_classes: BTreeSet<Rc<str>>,
 }
 
-impl<'a> AlphaPlusPlusNfcTriple<'a> {
-  pub fn new(a_class: &'a String, b_class: &'a String, c_class: &'a String) -> Self {
+impl AlphaPlusPlusNfcTriple {
+  pub fn new(a_class: Rc<str>, b_class: Rc<str>, c_class: Rc<str>) -> Self {
     Self {
       a_classes: BTreeSet::from_iter(vec![a_class]),
       b_classes: BTreeSet::from_iter(vec![b_class]),
@@ -28,10 +29,10 @@ impl<'a> AlphaPlusPlusNfcTriple<'a> {
   }
 
   pub fn try_new<TLog: EventLog>(
-    a_class: &'a String,
-    b_class: &'a String,
-    c_class: &'a String,
-    provider: &AlphaPlusNfcRelationsProvider<'a, TLog>,
+    a_class: Rc<str>,
+    b_class: Rc<str>,
+    c_class: Rc<str>,
+    provider: &AlphaPlusNfcRelationsProvider<'_, TLog>,
   ) -> Option<Self> {
     let candidate = Self::new(a_class, b_class, c_class);
     match candidate.valid(provider) {
@@ -40,10 +41,9 @@ impl<'a> AlphaPlusPlusNfcTriple<'a> {
     }
   }
 
-  pub fn try_merge<TLog: EventLog>(first: &Self, second: &Self, provider: &AlphaPlusNfcRelationsProvider<'a, TLog>) -> Option<Self> {
-    let merge_sets = |first: &BTreeSet<&'a String>, second: &BTreeSet<&'a String>| -> BTreeSet<&'a String> {
-      first.iter().chain(second.iter()).copied().collect()
-    };
+  pub fn try_merge<TLog: EventLog>(first: &Self, second: &Self, provider: &AlphaPlusNfcRelationsProvider<'_, TLog>) -> Option<Self> {
+    let merge_sets =
+      |first: &BTreeSet<Rc<str>>, second: &BTreeSet<Rc<str>>| -> BTreeSet<Rc<str>> { first.iter().chain(second.iter()).cloned().collect() };
 
     let new_triple = Self {
       a_classes: merge_sets(&first.a_classes, &second.a_classes),
@@ -57,7 +57,7 @@ impl<'a> AlphaPlusPlusNfcTriple<'a> {
     }
   }
 
-  pub fn valid<TLog: EventLog>(&self, provider: &AlphaPlusNfcRelationsProvider<'a, TLog>) -> bool {
+  pub fn valid<TLog: EventLog>(&self, provider: &AlphaPlusNfcRelationsProvider<'_, TLog>) -> bool {
     for a_class in &self.a_classes {
       for b_class in &self.b_classes {
         for c_class in &self.c_classes {
@@ -83,25 +83,25 @@ impl<'a> AlphaPlusPlusNfcTriple<'a> {
     true
   }
 
-  pub fn two_sets(&self) -> TwoSets<&'a String> {
+  pub fn two_sets(&self) -> TwoSets<Rc<str>> {
     let first = self.a_classes.iter().chain(self.c_classes.iter());
     let second = self.b_classes.iter().chain(self.c_classes.iter());
 
-    TwoSets::new(first.copied().collect(), second.copied().collect())
+    TwoSets::new(first.cloned().collect(), second.cloned().collect())
   }
 
-  pub fn a_classes(&self) -> &BTreeSet<&'a String> {
+  pub fn a_classes(&self) -> &BTreeSet<Rc<str>> {
     &self.a_classes
   }
 
-  pub fn b_classes(&self) -> &BTreeSet<&'a String> {
+  pub fn b_classes(&self) -> &BTreeSet<Rc<str>> {
     &self.b_classes
   }
 }
 
-impl<'a> Hash for AlphaPlusPlusNfcTriple<'a> {
+impl Hash for AlphaPlusPlusNfcTriple {
   fn hash<H: Hasher>(&self, state: &mut H) {
-    let mut hash_classes = |set: &BTreeSet<&'a String>| {
+    let mut hash_classes = |set: &BTreeSet<Rc<str>>| {
       for class in set {
         state.write(class.as_bytes());
       }
@@ -113,13 +113,13 @@ impl<'a> Hash for AlphaPlusPlusNfcTriple<'a> {
   }
 }
 
-impl<'a> PartialEq for AlphaPlusPlusNfcTriple<'a> {
+impl PartialEq for AlphaPlusPlusNfcTriple {
   fn eq(&self, other: &Self) -> bool {
     compare_based_on_hashes(self, other)
   }
 }
 
-impl<'a> Clone for AlphaPlusPlusNfcTriple<'a> {
+impl Clone for AlphaPlusPlusNfcTriple {
   fn clone(&self) -> Self {
     Self {
       a_classes: self.a_classes.clone(),
@@ -129,18 +129,18 @@ impl<'a> Clone for AlphaPlusPlusNfcTriple<'a> {
   }
 }
 
-impl<'a> Eq for AlphaPlusPlusNfcTriple<'a> {}
+impl Eq for AlphaPlusPlusNfcTriple {}
 
-impl<'a> Display for AlphaPlusPlusNfcTriple<'a> {
+impl Display for AlphaPlusPlusNfcTriple {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut repr = String::new();
     repr.push('(');
 
-    let mut push_set = |set: &BTreeSet<&'a String>| {
+    let mut push_set = |set: &BTreeSet<Rc<str>>| {
       repr.push('{');
 
       for class in set.iter() {
-        repr.push_str(class.as_str());
+        repr.push_str(class);
         repr.push(',')
       }
 

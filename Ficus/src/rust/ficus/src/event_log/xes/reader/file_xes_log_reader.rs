@@ -52,7 +52,7 @@ impl<'a> BufRead for XmlReader<'a> {
 pub struct FromFileXesEventLogReader<'a> {
   storage: Rc<RefCell<Vec<u8>>>,
   reader: Rc<RefCell<Reader<XmlReader<'a>>>>,
-  seen_globals: Rc<RefCell<HashMap<String, HashMap<String, EventPayloadValue>>>>,
+  seen_globals: Rc<RefCell<HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>>>,
 }
 
 pub enum XesEventLogItem<'a> {
@@ -152,8 +152,8 @@ impl<'a> FromFileXesEventLogReader<'a> {
     Some(Self::create_quickxml_reader(XmlReader::FileReader(BufReader::new(file))))
   }
 
-  fn try_read_scope_name(tag: &BytesStart) -> Option<String> {
-    let mut scope_name: Option<String> = None;
+  fn try_read_scope_name(tag: &BytesStart) -> Option<Rc<str>> {
+    let mut scope_name: Option<Rc<str>> = None;
 
     for attr in tag.attributes() {
       match attr {
@@ -191,17 +191,16 @@ impl<'a> FromFileXesEventLogReader<'a> {
       Some(descriptor) => {
         let payload_type = descriptor.payload_type.as_bytes();
         let key = descriptor.key;
-        let value = descriptor.value.as_str();
+        let value = descriptor.value;
 
-        utils::extract_payload_value(payload_type, key.as_str(), value)
-          .map(|value| XesEventLogItem::Property(XesProperty { name: key, value }))
+        utils::extract_payload_value(payload_type, &key, &value).map(|value| XesEventLogItem::Property(XesProperty { name: key, value }))
       }
       None => None,
     }
   }
 
-  fn try_read_global(reader: &mut Reader<XmlReader>, storage: &mut Vec<u8>) -> Option<HashMap<String, EventPayloadValue>> {
-    let mut map: Option<HashMap<String, EventPayloadValue>> = None;
+  fn try_read_global(reader: &mut Reader<XmlReader>, storage: &mut Vec<u8>) -> Option<HashMap<Rc<str>, EventPayloadValue>> {
+    let mut map: Option<HashMap<Rc<str>, EventPayloadValue>> = None;
 
     loop {
       match reader.read_event_into(storage) {
@@ -213,9 +212,9 @@ impl<'a> FromFileXesEventLogReader<'a> {
             }
 
             let payload_type = descriptor.payload_type.as_bytes();
-            let value = utils::extract_payload_value(payload_type, descriptor.key.as_str(), &descriptor.value);
+            let value = utils::extract_payload_value(payload_type, &descriptor.key, &descriptor.value);
             if let Some(payload_value) = value {
-              map.as_mut().unwrap().insert(descriptor.key, payload_value);
+              map.as_mut().unwrap().insert(descriptor.key.clone(), payload_value);
             }
           }
         }
@@ -231,8 +230,8 @@ impl<'a> FromFileXesEventLogReader<'a> {
   }
 
   fn try_read_classifier(tag: &BytesStart) -> Option<XesClassifier> {
-    let mut name: Option<String> = None;
-    let mut keys: Option<Vec<String>> = None;
+    let mut name: Option<Rc<str>> = None;
+    let mut keys: Option<Vec<Rc<str>>> = None;
 
     for attr in tag.attributes() {
       match attr {
@@ -243,7 +242,7 @@ impl<'a> FromFileXesEventLogReader<'a> {
             }
           }
           KEYS_ATTR_NAME => match String::from_utf8(real_attr.value.into_owned()) {
-            Ok(keys_string) => keys = Some(keys_string.split(" ").map(|s| s.to_owned()).collect()),
+            Ok(keys_string) => keys = Some(keys_string.split(" ").map(|s| Rc::from(s.to_owned())).collect()),
             Err(_) => return None,
           },
           _ => continue,
@@ -263,9 +262,9 @@ impl<'a> FromFileXesEventLogReader<'a> {
   }
 
   fn try_read_extension(tag: &BytesStart) -> Option<XesEventLogExtension> {
-    let mut name: Option<String> = None;
-    let mut prefix: Option<String> = None;
-    let mut uri: Option<String> = None;
+    let mut name: Option<Rc<str>> = None;
+    let mut prefix: Option<Rc<str>> = None;
+    let mut uri: Option<Rc<str>> = None;
 
     for attr in tag.attributes() {
       match attr {

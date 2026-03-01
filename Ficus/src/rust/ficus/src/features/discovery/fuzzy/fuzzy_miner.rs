@@ -13,7 +13,7 @@ use std::{
   rc::Rc,
 };
 
-pub type FuzzyGraph = Graph<String, f64>;
+pub type FuzzyGraph = Graph<Rc<str>, f64>;
 
 pub fn discover_graph_fuzzy(
   log: &impl EventLog,
@@ -49,13 +49,13 @@ pub fn discover_graph_fuzzy(
 fn initialize_fuzzy_graph<TLog: EventLog>(
   graph: &mut FuzzyGraph,
   provider: &FuzzyMetricsProvider<TLog>,
-  classes_to_ids: &mut HashMap<String, u64>,
+  classes_to_ids: &mut HashMap<Rc<str>, u64>,
   unary_frequency_threshold: f64,
   binary_frequency_significance_threshold: f64,
 ) {
   for class in provider.log_info().all_event_classes() {
     if provider.unary_frequency_significance(class) > unary_frequency_threshold {
-      let node_id = graph.add_node(Some(class.to_owned()));
+      let node_id = graph.add_node(Some(class.clone()));
       classes_to_ids.insert(class.to_owned(), node_id);
     }
   }
@@ -75,7 +75,7 @@ fn initialize_fuzzy_graph<TLog: EventLog>(
 }
 
 fn resolve_conflicts<TLog: EventLog>(
-  classes_to_ids: &HashMap<String, u64>,
+  classes_to_ids: &HashMap<Rc<str>, u64>,
   provider: &FuzzyMetricsProvider<TLog>,
   graph: &mut FuzzyGraph,
   preserve_threshold: f64,
@@ -257,7 +257,7 @@ fn merge_nodes(graph: &mut FuzzyGraph, clusters: &ClustersMap) {
 
         cluster_data.push(']');
 
-        Some(cluster_data)
+        Some(Rc::from(cluster_data))
       },
       |edges_data| {
         edges_data.iter().fold(NodesConnectionData::empty(), |first, second| {

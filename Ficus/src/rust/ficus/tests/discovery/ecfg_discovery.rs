@@ -8,6 +8,7 @@ use ficus::{
   utils::{references::HeapedOrOwned, user_data::user_data::UserDataImpl},
   vecs,
 };
+use std::rc::Rc;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 #[test]
@@ -356,7 +357,7 @@ fn execute_ecfg_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence:
   let root_sequence = discover_root_sequence(&traces, root_sequence_kind);
   assert_eq!(root_sequence, gold_root_sequence);
 
-  let name_extractor = |s: &String| HeapedOrOwned::Owned(s.to_owned());
+  let name_extractor = |s: &String| Rc::from(s.to_owned());
 
   let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
   let to_edge_data_transfer = |_: &String, _: &mut UserDataImpl| {};
@@ -384,12 +385,7 @@ fn execute_ecfg_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence:
 
   if test_result != gold {
     let mut tgraph = DirectedGraph::new();
-    tgraph.add_nodes(
-      graph
-        .all_nodes()
-        .into_iter()
-        .map(|n| (*n.id(), n.data().unwrap().as_str().to_owned())),
-    );
+    tgraph.add_nodes(graph.all_nodes().into_iter().map(|n| (*n.id(), n.data().unwrap().to_owned())));
     tgraph.add_edges(graph.all_edges().into_iter().map(|e| (*e.from_node(), *e.to_node())));
 
     let tconfig = Config::new(ValueFormatter::new(), 10).default_colors();

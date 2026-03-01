@@ -1,5 +1,3 @@
-use std::collections::{HashMap, HashSet};
-
 use crate::{
   event_log::core::{
     event_log::EventLog,
@@ -10,8 +8,12 @@ use crate::{
     log_info_creation_dto::EventLogInfoCreationDto,
   },
 };
+use std::{
+  collections::{HashMap, HashSet},
+  rc::Rc,
+};
 
-pub fn calculate_max_vector_length<TLog>(log: &TLog, ignored_events: Option<&HashSet<String>>) -> usize
+pub fn calculate_max_vector_length<TLog>(log: &TLog, ignored_events: Option<&HashSet<Rc<str>>>) -> usize
 where
   TLog: EventLog,
 {
@@ -21,7 +23,7 @@ where
   }
 }
 
-fn calculate_vector_length_with_ignored_events<TLog>(log: &TLog, ignored_events: &HashSet<String>) -> usize
+fn calculate_vector_length_with_ignored_events<TLog>(log: &TLog, ignored_events: &HashSet<Rc<str>>) -> usize
 where
   TLog: EventLog,
 {
@@ -32,7 +34,7 @@ where
     let counts = trace.get_or_create_trace_info().events_counts();
     let mut num_of_ignored_events = 0;
     for ignored_event in ignored_events {
-      if let Some(count) = counts.get(ignored_event.as_str()) {
+      if let Some(count) = counts.get(ignored_event.as_ref()) {
         num_of_ignored_events += *count;
       }
     }
@@ -76,18 +78,18 @@ pub fn calculate_pos_entropy(probabilities: &mut [f64], traces_count: f64) -> f6
 
 pub fn calculate_entropies<TLog, TEntropyCalculator>(
   log: &TLog,
-  ignored_events: Option<&HashSet<String>>,
+  ignored_events: Option<&HashSet<Rc<str>>>,
   entropy_calculator: TEntropyCalculator,
-) -> HashMap<String, f64>
+) -> HashMap<Rc<str>, f64>
 where
   TLog: EventLog,
-  TEntropyCalculator: Fn(&TLog, &str, Option<&HashSet<String>>) -> f64,
+  TEntropyCalculator: Fn(&TLog, &str, Option<&HashSet<Rc<str>>>) -> f64,
 {
   let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
   let mut entropies = HashMap::new();
   for event_name in log_info.all_event_classes() {
     if let Some(ignored_events) = ignored_events
-      && ignored_events.contains(event_name.as_str())
+      && ignored_events.contains(event_name.as_ref())
     {
       continue;
     }

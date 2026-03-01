@@ -11,7 +11,10 @@ pub fn create_simple_event_log(raw_log: &Vec<Vec<&str>>) -> XesEventLogImpl {
   for raw_trace in raw_log {
     let mut trace = XesTraceImpl::empty();
     for raw_event in raw_trace {
-      trace.push(Rc::new(RefCell::new(XesEventImpl::new(raw_event.to_string(), Utc::now()))))
+      trace.push(Rc::new(RefCell::new(XesEventImpl::new(
+        Rc::from(raw_event.to_string()),
+        Utc::now(),
+      ))))
     }
 
     log.push(Rc::new(RefCell::new(trace)))

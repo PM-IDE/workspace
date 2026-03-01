@@ -124,7 +124,7 @@ fn execute_activities_discovery_test(
 
   let context = ActivitiesInstancesDiscoveryContext::new(context, strategy, |info, _| {
     Rc::new(RefCell::new(XesEventImpl::new_with_min_date(
-      info.node().borrow().name().to_string(),
+      info.node().borrow().name().clone()
     )))
   });
 
@@ -138,7 +138,7 @@ fn test_creating_new_log_from_activity_instances_insert_as_single_event() {
   execute_activities_discovery_test(
     create_log_from_taxonomy_of_patterns(),
     UndefActivityHandlingStrategy::InsertAsSingleEvent(Box::new(|| {
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(UNDEF_ACTIVITY_NAME.to_string())))
+      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(UNDEF_ACTIVITY_NAME.to_string()))))
     })),
     &vec![vec![UNDEF_ACTIVITY_NAME, "(a)::(b)::(c)", UNDEF_ACTIVITY_NAME, "(a)::(b)::(c)"]],
   );
@@ -278,7 +278,7 @@ fn execute_activities_logs_creation_test(log: XesEventLogImpl, pattern_kind: Pat
   let mut activities_logs = activities_logs
     .iter()
     .map(|pair| (pair.0.to_owned(), pair.1.borrow().to_raw_vector()))
-    .collect::<Vec<(Rc<String>, Vec<Vec<String>>)>>();
+    .collect::<Vec<(Rc<str>, Vec<Vec<String>>)>>();
 
   activities_logs.sort_by(|first, second| first.0.cmp(&second.0));
 

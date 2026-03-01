@@ -7,7 +7,7 @@ use crate::{
     },
     discovery::{
       alpha::{
-        alpha::{ALPHA_SET, discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop},
+        alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop},
         alpha_plus_plus_nfc::{alpha_plus_plus_nfc_triple::AlphaPlusPlusNfcTriple, extended_alpha_set::ExtendedAlphaSet, w3_pair::W3Pair},
         providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider,
         utils::maximize,
@@ -18,7 +18,11 @@ use crate::{
   },
   utils::{sets::two_sets::TwoSets, user_data::user_data::UserData},
 };
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::{
+  collections::{HashMap, HashSet, VecDeque},
+  rc::Rc,
+};
+use crate::features::discovery::alpha::alpha::ALPHA_SET_KEY;
 
 pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> DefaultPetriNet {
   let one_length_loop_transitions = find_transitions_one_length_loop(log);
@@ -32,7 +36,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   for a_class in info.all_event_classes() {
     for b_class in info.all_event_classes() {
       for c_class in &one_length_loop_transitions {
-        if let Some(triple) = AlphaPlusPlusNfcTriple::try_new(a_class, b_class, c_class, &provider) {
+        if let Some(triple) = AlphaPlusPlusNfcTriple::try_new(a_class.clone(), b_class.clone(), c_class.clone(), &provider) {
           x_w.insert(triple);
         }
       }
@@ -76,13 +80,13 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   let alpha_net = discover_petri_net_alpha(&provider);
 
   for place in alpha_net.all_places() {
-    if let Some(alpha_set) = place.user_data().concrete(&ALPHA_SET) {
+    if let Some(alpha_set) = place.user_data().concrete(ALPHA_SET_KEY.key()) {
       for first_class in info.all_event_classes() {
         for second_class in info.all_event_classes() {
           let set = ExtendedAlphaSet::try_new(
             alpha_set.clone(),
-            first_class,
-            second_class,
+            first_class.clone(),
+            second_class.clone(),
             &mut provider,
             &w1_relations,
             &w2_relations,
@@ -94,12 +98,12 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
       }
 
       for class in info.all_event_classes() {
-        let set = ExtendedAlphaSet::try_new_only_left(alpha_set.clone(), class, &mut provider, &w1_relations, &w2_relations);
+        let set = ExtendedAlphaSet::try_new_only_left(alpha_set.clone(), class.clone(), &mut provider, &w1_relations, &w2_relations);
         if let Some(set) = set {
           x_w.insert(set);
         }
 
-        let set = ExtendedAlphaSet::try_new_only_right(alpha_set.clone(), class, &mut provider, &w1_relations, &w2_relations);
+        let set = ExtendedAlphaSet::try_new_only_right(alpha_set.clone(), class.clone(), &mut provider, &w1_relations, &w2_relations);
         if let Some(set) = set {
           x_w.insert(set);
         }
@@ -108,7 +112,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   }
 
   for place in alpha_net.all_places() {
-    if let Some(alpha_set) = place.user_data().concrete(&ALPHA_SET) {
+    if let Some(alpha_set) = place.user_data().concrete(ALPHA_SET_KEY.key()) {
       x_w.insert(ExtendedAlphaSet::new_without_extensions(alpha_set.clone()));
     }
   }
@@ -136,18 +140,17 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   for a_class in info.all_event_classes() {
     for b_class in info.all_event_classes() {
       if provider.w3_relation(a_class, b_class, &petri_net) {
-        w3_relations.insert((a_class, b_class));
+        w3_relations.insert((a_class.as_ref(), b_class.as_ref()));
       }
     }
   }
 
-  let w3_closure = construct_w3_transitive_closure_cache(&w3_relations);
-  eliminate_w3_relations_by_rule_2(&mut w3_relations, &w3_closure);
+  eliminate_w3_relations_by_rule_2(&mut w3_relations);
 
   let mut x_w = HashSet::new();
   for first_class in info.all_event_classes() {
     for second_class in info.all_event_classes() {
-      if let Some(pair) = W3Pair::try_new(first_class, second_class, &w3_relations, &provider) {
+      if let Some(pair) = W3Pair::try_new(first_class.clone(), second_class.clone(), &w3_relations, &provider) {
         x_w.insert(pair);
       }
     }
@@ -163,7 +166,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   });
 
   let mut p_w = HashSet::new();
-  let check_should_add_to_pw = |two_sets: &TwoSets<&String>| {
+  let check_should_add_to_pw = |two_sets: &TwoSets<Rc<str>>| {
     for l_w_item in &l_w {
       if l_w_item.a_classes().eq(two_sets.first_set()) && l_w_item.b_classes().eq(two_sets.second_set()) {
         return false;
@@ -212,7 +215,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
 }
 
 fn eliminate_by_reduction_rule_1<TLog: EventLog>(
-  w2_relations: &mut HashSet<(&String, &String)>,
+  w2_relations: &mut HashSet<(&Rc<str>, &Rc<str>)>,
   provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
   petri_net: &DefaultPetriNet,
   info: &OfflineEventLogInfo,
@@ -235,8 +238,8 @@ fn eliminate_by_reduction_rule_1<TLog: EventLog>(
   }
 }
 
-fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a String, &'a String)>) -> HashMap<String, HashSet<String>> {
-  let mut graph: HashMap<&String, HashSet<&String>> = HashMap::new();
+fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a str, &'a str)>) -> HashMap<&'a str, HashSet<&'a str>> {
+  let mut graph: HashMap<&'a str, HashSet<&'a str>> = HashMap::new();
   let mut all_classes = HashSet::new();
   for relation in w3_relations {
     if let Some(children) = graph.get_mut(relation.0) {
@@ -249,7 +252,7 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a Stri
     all_classes.insert(relation.1);
   }
 
-  let mut closure: HashMap<String, HashSet<String>> = HashMap::new();
+  let mut closure: HashMap<&'a str, HashSet<&'a str>> = HashMap::new();
 
   for first_class in &all_classes {
     for second_class in &all_classes {
@@ -279,9 +282,9 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a Stri
 
       if is_in_closure {
         if let Some(children) = closure.get_mut(*first_class) {
-          children.insert((**second_class).clone());
+          children.insert(second_class);
         } else {
-          closure.insert((**first_class).clone(), HashSet::from_iter(vec![(**second_class).clone()]));
+          closure.insert(first_class, HashSet::from_iter(vec![*second_class]));
         }
       }
     }
@@ -290,8 +293,10 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a Stri
   closure
 }
 
-fn eliminate_w3_relations_by_rule_2(w3_relations: &mut HashSet<(&String, &String)>, closure_cache: &HashMap<String, HashSet<String>>) {
+fn eliminate_w3_relations_by_rule_2(w3_relations: &mut HashSet<(&str, &str)>) {
+  let closure_cache = construct_w3_transitive_closure_cache(&w3_relations);
   let mut to_remove = HashSet::new();
+
   for relation in w3_relations.iter() {
     if let Some(children) = closure_cache.get(relation.0)
       && children.contains(relation.1)

@@ -16,9 +16,9 @@ pub struct KeyValuePair<TKey, TValue> {
 }
 
 pub struct PayloadTagDescriptor {
-  pub payload_type: String,
-  pub key: String,
-  pub value: String,
+  pub payload_type: Rc<str>,
+  pub key: Rc<str>,
+  pub value: Rc<str>,
 }
 
 pub fn read_payload_like_tag(tag: &BytesStart) -> Option<PayloadTagDescriptor> {
@@ -27,11 +27,11 @@ pub fn read_payload_like_tag(tag: &BytesStart) -> Option<PayloadTagDescriptor> {
     return None;
   }
 
-  let key = unescape(kv.key.as_ref().unwrap()).ok().unwrap().to_string();
-  let value = unescape(kv.value.as_ref().unwrap()).ok().unwrap().to_string();
+  let key = Rc::from(unescape(kv.key.as_ref().unwrap()).ok().unwrap().to_string());
+  let value = Rc::from(unescape(kv.value.as_ref().unwrap()).ok().unwrap().to_string());
 
-  let payload_type = match String::from_utf8(tag.name().0.to_vec()) {
-    Ok(string) => string,
+  let payload_type = match str::from_utf8(tag.name().0) {
+    Ok(string) => Rc::from(string),
     Err(_) => return None,
   };
 
@@ -65,18 +65,18 @@ pub fn extract_key_value(start: &BytesStart) -> KeyValuePair<String, String> {
 }
 
 #[inline]
-pub fn read_attr_value(real_attr: &Attribute, var: &mut Option<String>) -> bool {
-  match String::from_utf8(real_attr.value.as_ref().to_vec()) {
+pub fn read_attr_value(real_attr: &Attribute, var: &mut Option<Rc<str>>) -> bool {
+  match str::from_utf8(real_attr.value.as_ref()) {
     Ok(string) => {
-      *var = Some(string);
+      *var = Some(Rc::from(string));
       true
     }
     Err(_) => false,
   }
 }
 
-pub fn extract_payload_value(name: &[u8], key: &str, value: &str) -> Option<EventPayloadValue> {
-  if key == LIFECYCLE_TRANSITION_STR && name == STRING_TAG_NAME {
+pub fn extract_payload_value(name: &[u8], key: &Rc<str>, value: &Rc<str>) -> Option<EventPayloadValue> {
+  if key.as_ref() == LIFECYCLE_TRANSITION_STR && name == STRING_TAG_NAME {
     return Some(EventPayloadValue::Lifecycle(Lifecycle::from_str(value).ok().unwrap()));
   }
 
@@ -93,7 +93,7 @@ pub fn extract_payload_value(name: &[u8], key: &str, value: &str) -> Option<Even
       Err(_) => None,
       Ok(float_value) => Some(EventPayloadValue::Float64(float_value)),
     },
-    STRING_TAG_NAME => Some(EventPayloadValue::String(Rc::from(value))),
+    STRING_TAG_NAME => Some(EventPayloadValue::String(value.clone())),
     BOOLEAN_TAG_NAME => match value.parse::<bool>() {
       Err(_) => None,
       Ok(bool_value) => Some(EventPayloadValue::Boolean(bool_value)),

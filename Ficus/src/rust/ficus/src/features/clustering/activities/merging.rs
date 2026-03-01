@@ -66,7 +66,7 @@ pub(super) fn merge_activities(
     new_activity_name_parts.sort();
 
     let mut new_activity_name = String::new();
-    new_activity_name.push_str(create_cluster_name(*cluster).as_str());
+    new_activity_name.push_str(create_cluster_name(*cluster).as_ref());
 
     let new_node = ActivityNode::new(
       None,

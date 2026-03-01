@@ -10,6 +10,7 @@ use std::{
   fmt::{Debug, Display, Formatter},
   sync::{Arc, Mutex},
 };
+use std::rc::Rc;
 use uuid::Uuid;
 
 pub(super) const KAFKA_CASE_DISPLAY_NAME: &str = "case_display_name";
@@ -77,13 +78,13 @@ impl PipelineExecutionDto {
 #[derive(Clone)]
 pub struct KafkaConsumerCreationDto {
   pub uuid: Uuid,
-  pub name: String,
+  pub name: Arc<str>,
   pub subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
   pub logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaConsumerCreationDto {
-  pub fn new(name: String, subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>) -> Self {
+  pub fn new(name: Arc<str>, subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>) -> Self {
     Self {
       uuid: Uuid::new_v4(),
       name,

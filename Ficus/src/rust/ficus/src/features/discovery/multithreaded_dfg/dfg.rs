@@ -141,7 +141,7 @@ fn add_node(name: String, graph: &mut DefaultGraph, added_nodes: &mut HashMap<St
   if let Some(node_id) = added_nodes.get(name.as_str()) {
     *node_id
   } else {
-    let node_id = graph.add_node(Some(name.clone()));
+    let node_id = graph.add_node(Some(Rc::from(name.clone())));
     added_nodes.insert(name, node_id);
     node_id
   }
@@ -268,7 +268,7 @@ fn enumerate_trace_parts(
     for event in trace.events() {
       let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
       events_threads
-        .entry(event.borrow().name().as_str().to_string())
+        .entry(event.borrow().name().to_string())
         .or_insert(HashSet::new())
         .insert(thread_id);
     }
@@ -281,7 +281,7 @@ fn enumerate_trace_parts(
   let is_control_flow = |index: usize| {
     if let Some(regexes) = control_flow_regexes {
       let event = trace.events().get(index).unwrap().borrow();
-      let name = event.name().as_str();
+      let name = event.name();
 
       for regex in regexes {
         if regex.is_match(name).unwrap_or(false) {
@@ -297,7 +297,7 @@ fn enumerate_trace_parts(
 
   let is_sequential = |index: usize| {
     let event = trace.events().get(index).unwrap().borrow();
-    let name = event.name().as_str();
+    let name = event.name();
 
     match strategy {
       MultithreadedTracePartsCreationStrategy::Regexes(regexes) => regexes.iter().any(|r| r.is_match(name).unwrap_or(false)),

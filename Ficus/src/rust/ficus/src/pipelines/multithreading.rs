@@ -75,7 +75,7 @@ impl PipelineParts {
 
       let diagram = discover_timeline_diagram(
         log,
-        thread_attribute.as_str(),
+        thread_attribute,
         time_attribute,
         event_group_delta.map(|delta| *delta as u64),
         Self::get_control_flow_regexes(&software_data_extraction_config)?.as_ref(),
@@ -114,8 +114,8 @@ impl PipelineParts {
         context,
         config,
         infra,
-        thread_attribute,
-        time_attribute,
+        &thread_attribute,
+        time_attribute.as_ref(),
       )
     }
   );
@@ -125,9 +125,9 @@ impl PipelineParts {
     Ok(enumerate_event_groups(timeline))
   }
 
-  fn extract_thread_and_time_attribute(context: &PipelineContext) -> Result<(String, Option<String>), PipelinePartExecutionError> {
+  fn extract_thread_and_time_attribute(context: &PipelineContext) -> Result<(Rc<str>, Option<Rc<str>>), PipelinePartExecutionError> {
     let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
-    Ok((timeline.thread_attribute().clone(), timeline.time_attribute().as_ref().cloned()))
+    Ok((timeline.thread_attribute().clone(), timeline.time_attribute().clone()))
   }
 
   fn abstract_event_groups(
@@ -135,8 +135,8 @@ impl PipelineParts {
     context: &mut PipelineContext,
     config: &UserDataImpl,
     infra: &PipelineInfrastructure,
-    thread_attribute: String,
-    time_attribute: Option<String>,
+    thread_attribute: &Rc<str>,
+    time_attribute: Option<&Rc<str>>,
   ) -> Result<(), PipelinePartExecutionError> {
     let extraction_config = Self::get_software_data_extraction_config(context);
     let events_groups_log = Self::create_groups_event_log(&events_groups);
@@ -180,10 +180,10 @@ impl PipelineParts {
 
       let strategy = Self::create_multithreaded_trace_parts_creation_strategy(config)?;
 
-      let groups = enumerate_multithreaded_events_groups(log, &software_config, thread_attribute.as_str(), &strategy)
+      let groups = enumerate_multithreaded_events_groups(log, &software_config, thread_attribute.as_ref(), &strategy)
         .map_err(PipelinePartExecutionError::new_raw)?;
 
-      Self::abstract_event_groups(groups, context, config, infra, thread_attribute, time_attribute)
+      Self::abstract_event_groups(groups, context, config, infra, &thread_attribute, time_attribute.as_ref())
     }
   );
 
@@ -274,13 +274,12 @@ impl PipelineParts {
       for trace in log.traces() {
         let trace = trace.borrow_mut();
         for event in trace.events() {
-          if alloc_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+          if alloc_regex.is_match(event.borrow().name()).unwrap_or(false) {
             let mut event = event.borrow_mut();
             if let Some(map) = event.payload_map_mut()
-              && let Some(type_name) = map.get_mut(config.info().type_name_attr().as_str())
+              && let Some(type_name) = map.get_mut(config.info().type_name_attr().as_ref())
             {
-              let string = type_name.to_string_repr().to_string();
-              *type_name = EventPayloadValue::String(Rc::new(Self::shorten_type_or_method_name(string)));
+              *type_name = EventPayloadValue::String(Rc::from(Self::shorten_type_or_method_name(type_name.to_string_repr().as_ref())));
             }
           }
         }
@@ -290,7 +289,7 @@ impl PipelineParts {
     Ok(())
   });
 
-  fn shorten_type_or_method_name(name: String) -> String {
+  fn shorten_type_or_method_name(name: &str) -> String {
     let mut result = String::new();
     let mut chars = name.chars();
     let mut last_seen_word = String::new();
@@ -338,10 +337,10 @@ impl PipelineParts {
   pipeline_part!(shorten_method_names, |context: &mut PipelineContext, _, _| {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
 
-    let methods_id_factories: Vec<&dyn Fn(&String, &String, &String) -> String> = vec![
+    let methods_id_factories: Vec<&dyn Fn(&Rc<str>, &Rc<str>, &Rc<str>) -> Rc<str>> = vec![
       &|_, name, _| name.to_owned(),
-      &|_, name, signature| name.to_owned() + signature,
-      &|namespace, name, _| namespace.to_string() + name,
+      &|_, name, signature| Rc::from(name.as_ref().to_owned() + signature.as_ref()),
+      &|namespace, name, _| Rc::from(namespace.to_string() + name),
     ];
 
     let configs = Self::create_processed_method_extraction_configs(context);
@@ -366,7 +365,7 @@ impl PipelineParts {
                 continue;
               };
 
-              event.set_name(name);
+              event.set_name(Rc::from(name));
             }
           }
 
@@ -377,7 +376,7 @@ impl PipelineParts {
       for trace in log.traces() {
         let trace = trace.borrow_mut();
         for event in trace.events() {
-          if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false) {
+          if config.event_regex.is_match(event.borrow().name()).unwrap_or(false) {
             Self::shorten_method_name(config, &mut event.borrow_mut());
           }
         }
@@ -416,9 +415,9 @@ impl PipelineParts {
 
       Ok(Some(ProcessedMethodStartEndConfig {
         event_regex: regex,
-        name_attr: config.info().method_attrs().name_attr().to_owned(),
-        signature_attr: config.info().method_attrs().signature_attr().to_owned(),
-        namespace_attr: config.info().method_attrs().namespace_attr().to_owned(),
+        name_attr: config.info().method_attrs().name_attr().clone(),
+        signature_attr: config.info().method_attrs().signature_attr().clone(),
+        namespace_attr: config.info().method_attrs().namespace_attr().clone(),
         prefix: config.info().prefix().as_ref().cloned(),
       }))
     } else {
@@ -429,9 +428,10 @@ impl PipelineParts {
   fn shorten_method_name(config: &ProcessedMethodStartEndConfig, event: &mut XesEventImpl) {
     let shortened_name = if let Some(payload) = event.payload_map() {
       if let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config) {
-        let shortened_name = Self::shorten_type_or_method_name(namespace + "." + name.as_str()) + signature.as_str();
+        let name = namespace.as_ref().to_owned() + "." + name.as_ref();
+        let shortened_name = Self::shorten_type_or_method_name(&name) + signature.as_ref();
         if let Some(prefix) = config.prefix.as_ref().cloned() {
-          prefix + shortened_name.as_str()
+          prefix.as_ref().to_owned() + shortened_name.as_str()
         } else {
           shortened_name
         }
@@ -442,22 +442,16 @@ impl PipelineParts {
       return;
     };
 
-    event.set_name(shortened_name);
+    event.set_name(Rc::from(shortened_name));
   }
 
   fn extract_method_name_parts(
-    payload: &HashMap<String, EventPayloadValue>,
+    payload: &HashMap<Rc<str>, EventPayloadValue>,
     config: &ProcessedMethodStartEndConfig,
-  ) -> Option<(String, String, String)> {
-    let namespace = payload
-      .get(config.namespace_attr.as_str())
-      .map(|v| v.to_string_repr().as_str().to_owned())?;
-    let name = payload
-      .get(config.name_attr.as_str())
-      .map(|v| v.to_string_repr().as_str().to_owned())?;
-    let signature = payload
-      .get(config.signature_attr.as_str())
-      .map(|v| v.to_string_repr().as_str().to_owned())?;
+  ) -> Option<(Rc<str>, Rc<str>, Rc<str>)> {
+    let namespace = payload.get(config.namespace_attr.as_ref()).map(|v| v.to_string_repr().clone())?;
+    let name = payload.get(config.name_attr.as_ref()).map(|v| v.to_string_repr().clone())?;
+    let signature = payload.get(config.signature_attr.as_ref()).map(|v| v.to_string_repr().clone())?;
 
     Some((namespace, name, signature))
   }
@@ -465,13 +459,13 @@ impl PipelineParts {
   fn check_if_can_use_method_id(
     log: &XesEventLogImpl,
     config: &ProcessedMethodStartEndConfig,
-    method_id_factory: impl Fn(&String, &String, &String) -> String,
+    method_id_factory: impl Fn(&Rc<str>, &Rc<str>, &Rc<str>) -> Rc<str>,
   ) -> bool {
     let mut map = HashMap::new();
 
     for trace in log.traces().iter().map(|t| t.borrow()) {
       for event in trace.events().iter().map(|e| e.borrow()) {
-        if config.event_regex.is_match(event.name().as_str()).unwrap_or(false) {
+        if config.event_regex.is_match(event.name()).unwrap_or(false) {
           continue;
         }
 
@@ -479,7 +473,7 @@ impl PipelineParts {
           && let Some((namespace, name, signature)) = Self::extract_method_name_parts(payload, config)
         {
           let id = method_id_factory(&namespace, &name, &signature);
-          let fqn = namespace + name.as_str() + signature.as_str();
+          let fqn = namespace.as_ref().to_owned() + name.as_ref() + signature.as_ref();
 
           if let Some(entry) = map.get(&id) {
             if !fqn.eq(entry) {
@@ -505,12 +499,12 @@ impl PipelineParts {
         let mut display_name = None;
         if let Some(payload) = event.borrow().payload_map() {
           for config in &configs {
-            if config.event_regex.is_match(event.borrow().name().as_str()).unwrap_or(false)
+            if config.event_regex.is_match(event.borrow().name()).unwrap_or(false)
               && let Some((_, name, _)) = Self::extract_method_name_parts(payload, config)
             {
               display_name = Some(match config.prefix.as_ref() {
                 None => name,
-                Some(prefix) => prefix.to_string() + name.as_str(),
+                Some(prefix) => Rc::from(prefix.to_string() + name.as_ref()),
               });
             }
           }
@@ -544,7 +538,7 @@ impl PipelineParts {
     };
 
     if let Some(config) = Self::create_method_extraction_info(config.as_ref())? {
-      log.filter_events_by(|e| config.event_regex.is_match(e.name().as_str()).unwrap_or(false));
+      log.filter_events_by(|e| config.event_regex.is_match(e.name()).unwrap_or(false));
     }
 
     Ok(())
@@ -561,7 +555,7 @@ impl PipelineParts {
       let thread_attribute = Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY)?;
       let strategy = Self::create_multithreaded_trace_parts_creation_strategy(config)?;
 
-      let dfg = discover_multithreaded_dfg(log, thread_attribute.as_str(), &strategy);
+      let dfg = discover_multithreaded_dfg(log, thread_attribute.as_ref(), &strategy);
       context.put_concrete(GRAPH_KEY.key(), dfg);
 
       Ok(())
@@ -576,7 +570,7 @@ impl PipelineParts {
         let mut result = vec![];
         for r in regexes
           .iter()
-          .map(|r| Regex::new(r.as_str()).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string())))
+          .map(|r| Regex::new(r.as_ref()).map_err(|e| PipelinePartExecutionError::new_raw(e.to_string())))
         {
           result.push(r?);
         }
@@ -590,8 +584,8 @@ impl PipelineParts {
 
 struct ProcessedMethodStartEndConfig {
   event_regex: Regex,
-  namespace_attr: String,
-  name_attr: String,
-  signature_attr: String,
-  prefix: Option<String>,
+  namespace_attr: Rc<str>,
+  name_attr: Rc<str>,
+  signature_attr: Rc<str>,
+  prefix: Option<Rc<str>>,
 }

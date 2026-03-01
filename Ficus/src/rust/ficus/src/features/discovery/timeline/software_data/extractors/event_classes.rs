@@ -16,8 +16,8 @@ use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
 
 #[derive(Debug, Clone, new)]
 pub struct EventClassesDataExtractor<'a> {
-  thread_attribute: Option<&'a String>,
-  time_attribute: Option<&'a String>,
+  thread_attribute: Option<&'a str>,
+  time_attribute: Option<&'a str>,
 }
 
 impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
@@ -33,11 +33,11 @@ impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
     let mut threads = HashMap::new();
 
     for event in events {
-      let name = HeapedOrOwned::Heaped(event.borrow().name_pointer().clone());
+      let name = event.borrow().name_pointer().clone();
       *software_data.event_classes_mut().entry(name).or_insert(0) += 1;
 
-      if let Some(thread_attribute) = self.thread_attribute {
-        let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
+      if let Some(thread_attribute) = self.thread_attribute.as_ref() {
+        let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute.as_ref());
         let stamp = match get_stamp(event.borrow().deref(), self.time_attribute) {
           Ok(stamp) => stamp,
           Err(_) => return Err(SoftwareDataExtractionError::FailedToGetStamp),

@@ -219,7 +219,7 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> 
       }
 
       if let Some(current_group) = current_group.as_mut() {
-        if log.is_control_flow_event(event.original_event().borrow().name().as_str()) {
+        if log.is_control_flow_event(event.original_event().borrow().name()) {
           current_group.control_flow_events_mut().push(event.original_event().clone());
         } else {
           current_group.statistic_events_mut().push(event.original_event().clone());

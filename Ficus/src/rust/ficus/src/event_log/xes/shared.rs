@@ -1,28 +1,28 @@
 use std::collections::HashMap;
-
+use std::rc::Rc;
 use crate::event_log::core::event::event::EventPayloadValue;
 
 #[derive(Debug, Clone)]
 pub struct XesEventLogExtension {
-  pub name: String,
-  pub prefix: String,
-  pub uri: String,
+  pub name: Rc<str>,
+  pub prefix: Rc<str>,
+  pub uri: Rc<str>,
 }
 
 #[derive(Debug, Clone)]
 pub struct XesGlobal {
-  pub scope: String,
-  pub default_values: HashMap<String, EventPayloadValue>,
+  pub scope: Rc<str>,
+  pub default_values: HashMap<Rc<str>, EventPayloadValue>,
 }
 
 #[derive(Debug, Clone)]
 pub struct XesClassifier {
-  pub name: String,
-  pub keys: Vec<String>,
+  pub name: Rc<str>,
+  pub keys: Vec<Rc<str>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct XesProperty {
-  pub name: String,
+  pub name: Rc<str>,
   pub value: EventPayloadValue,
 }

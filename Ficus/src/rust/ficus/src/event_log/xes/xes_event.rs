@@ -18,7 +18,7 @@ use crate::{
 
 pub struct XesEventImpl {
   event_base: EventBase,
-  payload: Option<HashMap<String, EventPayloadValue>>,
+  payload: Option<HashMap<Rc<str>, EventPayloadValue>>,
 }
 
 impl Debug for XesEventImpl {
@@ -28,7 +28,7 @@ impl Debug for XesEventImpl {
 }
 
 impl XesEventImpl {
-  pub fn new_all_fields(name: Rc<str>, timestamp: DateTime<Utc>, payload: Option<HashMap<String, EventPayloadValue>>) -> Self {
+  pub fn new_all_fields(name: Rc<str>, timestamp: DateTime<Utc>, payload: Option<HashMap<Rc<str>, EventPayloadValue>>) -> Self {
     Self {
       event_base: EventBase::new(name, timestamp),
       payload,
@@ -53,18 +53,18 @@ impl UserDataOwner for XesEventImpl {
 }
 
 impl Event for XesEventImpl {
-  fn new(name: String, timestamp: DateTime<Utc>) -> Self {
+  fn new(name: Rc<str>, timestamp: DateTime<Utc>) -> Self {
     Self {
       event_base: EventBase::new(Rc::from(name), timestamp),
       payload: None,
     }
   }
 
-  fn new_with_min_date(name: String) -> Self {
+  fn new_with_min_date(name: Rc<str>) -> Self {
     Self::new(name, DateTime::<Utc>::MIN_UTC)
   }
 
-  fn new_with_max_date(name: String) -> Self {
+  fn new_with_max_date(name: Rc<str>) -> Self {
     Self::new(name, DateTime::<Utc>::MAX_UTC)
   }
 
@@ -80,15 +80,15 @@ impl Event for XesEventImpl {
     &self.event_base.timestamp
   }
 
-  fn payload_map(&self) -> Option<&HashMap<String, EventPayloadValue>> {
+  fn payload_map(&self) -> Option<&HashMap<Rc<str>, EventPayloadValue>> {
     self.payload.as_ref()
   }
 
-  fn payload_map_mut(&mut self) -> Option<&mut HashMap<String, EventPayloadValue>> {
+  fn payload_map_mut(&mut self) -> Option<&mut HashMap<Rc<str>, EventPayloadValue>> {
     self.payload.as_mut()
   }
 
-  fn ordered_payload(&self) -> Vec<(&String, &EventPayloadValue)> {
+  fn ordered_payload(&self) -> Vec<(&Rc<str>, &EventPayloadValue)> {
     let mut payload = Vec::new();
     if let Some(payload_map) = self.payload_map() {
       for (key, value) in payload_map {
@@ -102,7 +102,7 @@ impl Event for XesEventImpl {
     }
   }
 
-  fn set_name(&mut self, new_name: String) {
+  fn set_name(&mut self, new_name: Rc<str>) {
     self.event_base.name = Rc::from(new_name);
   }
 
@@ -110,7 +110,7 @@ impl Event for XesEventImpl {
     self.event_base.timestamp = new_timestamp;
   }
 
-  fn add_or_update_payload(&mut self, key: String, value: EventPayloadValue) {
+  fn add_or_update_payload(&mut self, key: Rc<str>, value: EventPayloadValue) {
     if self.payload.is_none() {
       self.payload = Some(HashMap::new());
     }

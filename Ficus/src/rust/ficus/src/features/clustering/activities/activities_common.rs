@@ -151,7 +151,7 @@ fn create_activities_repr_from_subtraces(
 
 fn create_dataset_internal(
   traces_activities: &TracesActivities,
-  class_extractor: Option<String>,
+  class_extractor: Option<Rc<str>>,
   activities_repr_fullfiller: impl Fn(
     &Vec<Vec<ActivityInTraceInfo>>,
     Option<&RegexEventHasher>,

@@ -5,11 +5,12 @@ use crate::{
 use std::{
   fmt::Display,
   hash::{Hash, Hasher},
+  rc::Rc,
 };
 
 #[derive(Debug)]
 pub struct AlphaSet {
-  two_sets: TwoSets<String>,
+  two_sets: TwoSets<Rc<str>>,
 }
 
 impl AlphaSet {
@@ -19,7 +20,7 @@ impl AlphaSet {
     }
   }
 
-  pub fn new(left_class: String, right_class: String) -> Self {
+  pub fn new(left_class: Rc<str>, right_class: Rc<str>) -> Self {
     Self {
       two_sets: TwoSets::new_one_element(left_class, right_class),
     }
@@ -45,19 +46,19 @@ impl AlphaSet {
     self.two_sets.second_set().contains(class)
   }
 
-  pub fn left_classes(&self) -> Vec<&String> {
+  pub fn left_classes(&self) -> Vec<&Rc<str>> {
     self.two_sets.first_set().iter().collect()
   }
 
-  pub fn right_classes(&self) -> Vec<&String> {
+  pub fn right_classes(&self) -> Vec<&Rc<str>> {
     self.two_sets.second_set().iter().collect()
   }
 
-  pub fn insert_left_class(&mut self, class: String) {
+  pub fn insert_left_class(&mut self, class: Rc<str>) {
     self.two_sets.first_set_mut().insert(class);
   }
 
-  pub fn insert_right_class(&mut self, class: String) {
+  pub fn insert_right_class(&mut self, class: Rc<str>) {
     self.two_sets.second_set_mut().insert(class);
   }
 

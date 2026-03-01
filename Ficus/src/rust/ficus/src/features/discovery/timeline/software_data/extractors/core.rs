@@ -12,8 +12,8 @@ use std::{
 
 #[derive(Debug, Clone)]
 pub enum SoftwareDataExtractionError {
-  FailedToParseRegex(String),
-  FailedToParseValue(String),
+  FailedToParseRegex(Rc<str>),
+  FailedToParseValue(Rc<str>),
   FailedToGetStamp,
 }
 
@@ -54,9 +54,9 @@ pub trait EventGroupTraceSoftwareDataExtractor {
 pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {
   match value.parse::<ToType>() {
     Ok(value) => Ok(value),
-    Err(_) => Err(SoftwareDataExtractionError::FailedToParseValue(format!(
+    Err(_) => Err(SoftwareDataExtractionError::FailedToParseValue(Rc::from(format!(
       "Failed to parse value: {}",
       value
-    ))),
+    )))),
   }
 }

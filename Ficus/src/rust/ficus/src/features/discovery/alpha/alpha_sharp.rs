@@ -21,9 +21,10 @@ use std::{
   collections::{BTreeSet, HashSet},
   fmt::Display,
   hash::{Hash, Hasher},
+  rc::Rc,
 };
 
-type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a String>, BTreeSet<&'a String>)>;
+type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a str>, BTreeSet<&'a str>)>;
 
 struct AlphaSharpTuple<'a> {
   provider: &'a AlphaSharpRelationsProvider<'a>,
@@ -33,8 +34,8 @@ struct AlphaSharpTuple<'a> {
 
 impl<'a> AlphaSharpTuple<'a> {
   pub fn try_create_new(
-    p_in: (&'a String, &'a String),
-    p_out: (&'a String, &'a String),
+    p_in: (&'a str, &'a str),
+    p_out: (&'a str, &'a str),
     provider: &'a AlphaSharpRelationsProvider<'a>,
   ) -> Option<Self> {
     let p_in = BTreeSet::from_iter(vec![(BTreeSet::from_iter(vec![p_in.0]), BTreeSet::from_iter(vec![p_in.1]))]);
@@ -83,7 +84,7 @@ impl<'a> AlphaSharpTuple<'a> {
       }
     }
 
-    let p_in = self.p_in.iter().collect::<Vec<&(BTreeSet<&'a String>, BTreeSet<&'a String>)>>();
+    let p_in = self.p_in.iter().collect::<Vec<&(BTreeSet<&'a str>, BTreeSet<&'a str>)>>();
     for i in 0..p_in.len() {
       for j in (i + 1)..p_in.len() {
         if !self.any_parallel_items(&p_in[i].0, &p_in[j].0) {
@@ -92,7 +93,7 @@ impl<'a> AlphaSharpTuple<'a> {
       }
     }
 
-    let p_out = self.p_out.iter().collect::<Vec<&(BTreeSet<&'a String>, BTreeSet<&'a String>)>>();
+    let p_out = self.p_out.iter().collect::<Vec<&(BTreeSet<&'a str>, BTreeSet<&'a str>)>>();
     for i in 0..p_out.len() {
       for j in (i + 1)..p_out.len() {
         if !self.any_parallel_items(&p_out[i].1, &p_out[j].1) {
@@ -104,7 +105,7 @@ impl<'a> AlphaSharpTuple<'a> {
     true
   }
 
-  fn any_parallel_items(&self, first_set: &BTreeSet<&String>, second_set: &BTreeSet<&String>) -> bool {
+  fn any_parallel_items(&self, first_set: &BTreeSet<&str>, second_set: &BTreeSet<&str>) -> bool {
     let mut any_parallel = false;
     'a_set_parallel_check_loop: for first_a in first_set {
       for second_a in second_set {
@@ -157,7 +158,7 @@ impl<'a> Display for AlphaSharpTuple<'a> {
         string.push('(');
         string.push('{');
         for class in &tuple.0 {
-          string.push_str(class.as_str());
+          string.push_str(class);
           string.push(',')
         }
 
@@ -168,7 +169,7 @@ impl<'a> Display for AlphaSharpTuple<'a> {
         string.push_str("}, {");
 
         for class in &tuple.1 {
-          string.push_str(class.as_str());
+          string.push_str(class);
           string.push(',')
         }
 

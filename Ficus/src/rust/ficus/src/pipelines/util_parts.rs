@@ -68,7 +68,7 @@ impl PipelineParts {
     for trace in log.traces() {
       let mut vec = vec![];
       for event in trace.borrow().events() {
-        vec.push(event.borrow().name().to_string());
+        vec.push(event.borrow().name_pointer().clone());
       }
 
       result.push(vec);

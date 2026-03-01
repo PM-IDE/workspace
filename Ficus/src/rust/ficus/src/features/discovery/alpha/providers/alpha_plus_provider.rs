@@ -3,25 +3,26 @@ use crate::features::{
   discovery::{alpha::providers::alpha_provider::AlphaRelationsProvider, relations::triangle_relation::TriangleRelation},
 };
 use std::collections::HashSet;
+use std::rc::Rc;
 
 pub trait AlphaPlusRelationsProvider: AlphaRelationsProvider {
   fn triangle_relation(&self, first: &str, second: &str) -> bool;
   fn romb_relation(&self, first: &str, second: &str) -> bool;
 
-  fn one_length_loop_transitions(&self) -> &HashSet<String>;
+  fn one_length_loop_transitions(&self) -> &HashSet<Rc<str>>;
 }
 
 pub struct AlphaPlusRelationsProviderImpl<'a> {
   pub log_info: &'a dyn EventLogInfo,
   triangle_relation: &'a dyn TriangleRelation,
-  one_length_loop_transitions: &'a HashSet<String>,
+  one_length_loop_transitions: &'a HashSet<Rc<str>>,
 }
 
 impl<'a> AlphaPlusRelationsProviderImpl<'a> {
   pub fn new(
     log_info: &'a dyn EventLogInfo,
     triangle_relation: &'a dyn TriangleRelation,
-    one_length_loop_transitions: &'a HashSet<String>,
+    one_length_loop_transitions: &'a HashSet<Rc<str>>,
   ) -> Self {
     Self {
       log_info,
@@ -62,7 +63,7 @@ impl<'a> AlphaPlusRelationsProvider for AlphaPlusRelationsProviderImpl<'a> {
     self.triangle_relation(first, second) && self.triangle_relation(second, first)
   }
 
-  fn one_length_loop_transitions(&self) -> &HashSet<String> {
+  fn one_length_loop_transitions(&self) -> &HashSet<Rc<str>> {
     self.one_length_loop_transitions
   }
 }

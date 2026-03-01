@@ -83,7 +83,7 @@ impl GetContextValuePipelinePart {
 
   fn create_process_case_metadata(context: &PipelineContext) -> ProcessCaseMetadata {
     let case_name = Self::value_or_default(context, &CASE_NAME_KEY, CaseName::empty);
-    let process_name = Self::value_or_default(context, &PROCESS_NAME_KEY, || "UNDEFINED_PROCESS".to_string());
+    let process_name = Self::value_or_default(context, &PROCESS_NAME_KEY, || "UNDEFINED_PROCESS".into());
 
     let subscription_id = Self::value_or_none(context, &SUBSCRIPTION_ID_KEY);
     let subscription_name = Self::value_or_none(context, &SUBSCRIPTION_NAME_KEY);
@@ -91,7 +91,7 @@ impl GetContextValuePipelinePart {
     let pipeline_id = Self::value_or_none(context, &PIPELINE_ID_KEY);
     let pipeline_name = Self::value_or_none(context, &PIPELINE_NAME_KEY);
 
-    let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA_KEY, std::vec::Vec::new);
+    let metadata = Self::value_or_default(context, &UNSTRUCTURED_METADATA_KEY, Vec::new);
 
     ProcessCaseMetadata {
       process_name,
