@@ -11,9 +11,10 @@ use std::{
   pin::Pin,
   sync::{Arc, Mutex},
 };
+use futures::Stream;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::{codegen::futures_core::Stream, Code, Request, Response, Status, Streaming};
+use tonic::{Code, Request, Response, Status, Streaming};
 use uuid::Uuid;
 
 pub struct ContextValueService {

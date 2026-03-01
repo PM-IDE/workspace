@@ -5,7 +5,7 @@ use std::{
   io,
   string::FromUtf8Error,
 };
-
+use std::sync::Arc;
 use quick_xml::{
   Writer,
   events::{BytesEnd, BytesStart},
@@ -52,7 +52,7 @@ where
 
   match writer.write_event(empty) {
     Ok(_) => Ok(()),
-    Err(error) => Err(XmlWriteError::WriterError(error)),
+    Err(error) => Err(XmlWriteError::WriterError(quick_xml::Error::Io(Arc::new(error)))),
   }
 }
 
@@ -82,7 +82,7 @@ where
     let start = quick_xml::events::Event::Start(BytesStart::new(tag_name));
 
     match writer.borrow_mut().write_event(start) {
-      Err(error) => Err(XmlWriteError::WriterError(error)),
+      Err(error) => Err(XmlWriteError::WriterError(quick_xml::Error::Io(Arc::new(error)))),
       Ok(_) => Ok(StartEndElementCookie { tag_name, writer }),
     }
   }
@@ -99,7 +99,7 @@ where
 
     let start_event = quick_xml::events::Event::Start(start_tag);
     match writer.borrow_mut().write_event(start_event) {
-      Err(error) => Err(XmlWriteError::WriterError(error)),
+      Err(error) => Err(XmlWriteError::WriterError(quick_xml::Error::Io(Arc::new(error)))),
       Ok(_) => Ok(StartEndElementCookie { tag_name, writer }),
     }
   }
