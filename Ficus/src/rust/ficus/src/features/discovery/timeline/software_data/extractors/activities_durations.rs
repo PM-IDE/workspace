@@ -12,7 +12,7 @@ use crate::{
     },
     utils::get_stamp,
   },
-  utils::{references::HeapedOrOwned, vec_utils::VectorOptionExtensions},
+  utils::vec_utils::VectorOptionExtensions,
 };
 use derive_new::new;
 use fancy_regex::Regex;

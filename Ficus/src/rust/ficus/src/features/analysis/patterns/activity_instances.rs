@@ -18,7 +18,6 @@ use fancy_regex::Regex;
 use getset::{Getters, MutGetters};
 use lazy_static::lazy_static;
 use std::{
-  borrow::ToOwned,
   cell::RefCell,
   collections::{HashMap, HashSet, VecDeque},
   ops::DerefMut,

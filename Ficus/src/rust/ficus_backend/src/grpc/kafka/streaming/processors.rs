@@ -104,7 +104,7 @@ fn add_system_metadata(
 ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
   let metadata = ExtractedTraceMetadata::create_from(metadata)?;
 
-  context.put_concrete(PROCESS_NAME_KEY.key(), metadata.process.process_name.into());
+  context.put_concrete(PROCESS_NAME_KEY.key(), metadata.process.process_name);
   context.put_concrete(UNSTRUCTURED_METADATA_KEY.key(), metadata.unstructured_metadata);
   context.put_concrete(
     CASE_NAME_KEY.key(),

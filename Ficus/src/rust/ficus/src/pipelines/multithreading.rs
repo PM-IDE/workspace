@@ -365,7 +365,7 @@ impl PipelineParts {
                 continue;
               };
 
-              event.set_name(Rc::from(name));
+              event.set_name(name);
             }
           }
 

@@ -9,7 +9,6 @@ use crate::{
     },
     utils::{extract_thread_id, get_stamp},
   },
-  utils::references::HeapedOrOwned,
 };
 use derive_new::new;
 use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
@@ -37,7 +36,7 @@ impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
       *software_data.event_classes_mut().entry(name).or_insert(0) += 1;
 
       if let Some(thread_attribute) = self.thread_attribute.as_ref() {
-        let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute.as_ref());
+        let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
         let stamp = match get_stamp(event.borrow().deref(), self.time_attribute) {
           Ok(stamp) => stamp,
           Err(_) => return Err(SoftwareDataExtractionError::FailedToGetStamp),

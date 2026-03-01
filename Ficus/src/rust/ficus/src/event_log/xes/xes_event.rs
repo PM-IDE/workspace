@@ -55,7 +55,7 @@ impl UserDataOwner for XesEventImpl {
 impl Event for XesEventImpl {
   fn new(name: Rc<str>, timestamp: DateTime<Utc>) -> Self {
     Self {
-      event_base: EventBase::new(Rc::from(name), timestamp),
+      event_base: EventBase::new(name, timestamp),
       payload: None,
     }
   }
@@ -103,7 +103,7 @@ impl Event for XesEventImpl {
   }
 
   fn set_name(&mut self, new_name: Rc<str>) {
-    self.event_base.name = Rc::from(new_name);
+    self.event_base.name = new_name;
   }
 
   fn set_timestamp(&mut self, new_timestamp: DateTime<Utc>) {

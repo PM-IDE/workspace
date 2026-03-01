@@ -6,7 +6,6 @@ use crate::{
     discovery::alpha::providers::relations_cache::RelationsCaches,
   },
 };
-use std::rc::Rc;
 
 const PROXIMITY_CORRELATION: &str = "ProximityCorrelation";
 

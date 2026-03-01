@@ -128,8 +128,8 @@ fn create_bxes_classifiers(log: &XesEventLogImpl) -> Vec<BxesClassifier> {
     .classifiers()
     .iter()
     .map(|c| BxesClassifier {
-      keys: c.keys.iter().map(|x| Rc::new(BxesValue::String(Rc::from(x.to_owned())))).collect(),
-      name: Rc::new(BxesValue::String(Rc::from(c.name.to_owned()))),
+      keys: c.keys.iter().map(|x| Rc::new(BxesValue::String(x.to_owned()))).collect(),
+      name: Rc::new(BxesValue::String(c.name.to_owned())),
     })
     .collect()
 }
@@ -140,9 +140,9 @@ fn create_bxes_extensions(log: &XesEventLogImpl) -> Vec<BxesExtension> {
 
 fn convert_to_bxes_extension(e: &XesEventLogExtension) -> BxesExtension {
   BxesExtension {
-    name: Rc::new(BxesValue::String(Rc::from(e.name.to_owned()))),
-    prefix: Rc::new(BxesValue::String(Rc::from(e.prefix.to_owned()))),
-    uri: Rc::new(BxesValue::String(Rc::from(e.uri.to_owned()))),
+    name: Rc::new(BxesValue::String(e.name.to_owned())),
+    prefix: Rc::new(BxesValue::String(e.prefix.to_owned())),
+    uri: Rc::new(BxesValue::String(e.uri.to_owned())),
   }
 }
 
@@ -159,7 +159,7 @@ fn create_bxes_globals(log: &XesEventLogImpl) -> Result<Vec<BxesGlobal>, XesToBx
 }
 
 fn convert_to_bxes_global_attribute(kv: &(&Rc<str>, &EventPayloadValue)) -> (Rc<BxesValue>, Rc<BxesValue>) {
-  let key = Rc::new(BxesValue::String(Rc::from(kv.0.to_owned())));
+  let key = Rc::new(BxesValue::String(kv.0.to_owned()));
   let value = Rc::new(payload_value_to_bxes_value(kv.1));
 
   (key, value)
@@ -175,7 +175,7 @@ fn create_bxes_properties(log: &XesEventLogImpl) -> Vec<(Rc<BxesValue>, Rc<BxesV
 
 fn kv_pair_to_bxes_pair(kv: &(&Rc<str>, &EventPayloadValue)) -> (Rc<BxesValue>, Rc<BxesValue>) {
   let bxes_value = payload_value_to_bxes_value(kv.1);
-  let key = Rc::new(BxesValue::String(Rc::from(kv.0.to_owned())));
+  let key = Rc::new(BxesValue::String(kv.0.to_owned()));
 
   (key, Rc::new(bxes_value))
 }

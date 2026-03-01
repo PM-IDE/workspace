@@ -1,6 +1,6 @@
 use crate::{
   features::discovery::{ecfg::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
-  utils::{graph::graph::DefaultGraph, references::HeapedOrOwned, user_data::user_data::UserData},
+  utils::{graph::graph::DefaultGraph, user_data::user_data::UserData},
 };
 use derive_new::new;
 use enum_display::EnumDisplay;

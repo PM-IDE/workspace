@@ -4,10 +4,7 @@ use crate::{
     xes::xes_event_log::XesEventLogImpl,
   },
   features::analysis::log_info::event_log_info::EventLogInfo,
-  utils::{
-    graph::graph::{DefaultGraph, Graph, NodesConnectionData},
-    references::HeapedOrOwned,
-  },
+  utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData},
 };
 use log::warn;
 use std::collections::HashMap;
@@ -18,7 +15,7 @@ pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
   let mut classes_to_node_ids = HashMap::new();
 
   for class in info.all_event_classes() {
-    let node_data = Some(Rc::from(class.to_owned()));
+    let node_data = Some(class.to_owned());
     classes_to_node_ids.insert(class, graph.add_node(node_data));
   }
 

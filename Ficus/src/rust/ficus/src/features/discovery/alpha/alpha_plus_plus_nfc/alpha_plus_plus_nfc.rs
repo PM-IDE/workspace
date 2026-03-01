@@ -294,7 +294,7 @@ fn construct_w3_transitive_closure_cache<'a>(w3_relations: &'a HashSet<(&'a str,
 }
 
 fn eliminate_w3_relations_by_rule_2(w3_relations: &mut HashSet<(&str, &str)>) {
-  let closure_cache = construct_w3_transitive_closure_cache(&w3_relations);
+  let closure_cache = construct_w3_transitive_closure_cache(w3_relations);
   let mut to_remove = HashSet::new();
 
   for relation in w3_relations.iter() {

@@ -14,7 +14,6 @@ use crate::{
   utils::{
     context_key::DefaultContextKey,
     graph::graph::{DefaultGraph, NodesConnectionData},
-    references::HeapedOrOwned,
     user_data::user_data::UserData,
   },
 };

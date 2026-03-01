@@ -152,7 +152,7 @@ pub fn discover_traces_timeline_diagram(
     control_flow_regexes: control_flow_regexes.cloned(),
     thread_attribute: Rc::from("Trace".to_string()),
     traces: timeline_fragments,
-    time_attribute: time_attribute.map(|s| s.clone()),
+    time_attribute: time_attribute.cloned(),
   })
 }
 

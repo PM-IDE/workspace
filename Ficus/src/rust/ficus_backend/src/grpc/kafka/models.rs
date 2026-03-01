@@ -10,7 +10,6 @@ use std::{
   fmt::{Debug, Display, Formatter},
   sync::{Arc, Mutex},
 };
-use std::rc::Rc;
 use uuid::Uuid;
 
 pub(super) const KAFKA_CASE_DISPLAY_NAME: &str = "case_display_name";

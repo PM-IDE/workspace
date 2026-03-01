@@ -94,7 +94,6 @@ use ficus::{
       graph_node::GraphNode,
     },
     log_serialization_format::LogSerializationFormat,
-    references::HeapedOrOwned,
     user_data::{
       keys::Key,
       user_data::{UserData, UserDataImpl},

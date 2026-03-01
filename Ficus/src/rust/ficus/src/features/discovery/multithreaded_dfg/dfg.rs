@@ -9,7 +9,6 @@ use crate::{
   },
   utils::{
     graph::graph::{DefaultGraph, NodesConnectionData},
-    references::HeapedOrOwned,
     user_data::user_data::UserData,
   },
 };

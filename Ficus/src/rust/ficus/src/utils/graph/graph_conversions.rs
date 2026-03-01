@@ -1,11 +1,8 @@
-use crate::utils::{
-  graph::{
+use crate::utils::graph::{
     graph::{DefaultGraph, Graph},
     graph_edge::GraphEdge,
     graph_node::GraphNode,
-  },
-  references::HeapedOrOwned,
-};
+  };
 use std::{collections::HashMap, fmt::Display, rc::Rc};
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>

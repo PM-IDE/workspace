@@ -4,7 +4,6 @@ use crate::{
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
   utils::{
     graph::{graph::DefaultGraph, graph_node::GraphNode},
-    references::HeapedOrOwned,
     user_data::user_data::UserData,
   },
 };

@@ -33,7 +33,6 @@ use log::error;
 use rdkafka::{error::KafkaError, ClientConfig};
 use std::{
   collections::HashMap,
-  rc::Rc,
   sync::{Arc, Mutex},
 };
 use tonic::Status;
@@ -146,7 +145,7 @@ impl KafkaService {
     match consumer.subscribe() {
       Ok(_) => {
         let mut map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
-        map.insert(dto.uuid, KafkaSubscription::new(dto.name.clone().into()));
+        map.insert(dto.uuid, KafkaSubscription::new(dto.name.clone()));
       }
       Err(err) => {
         return match err {

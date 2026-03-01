@@ -21,7 +21,6 @@ use std::{
   collections::{BTreeSet, HashSet},
   fmt::Display,
   hash::{Hash, Hasher},
-  rc::Rc,
 };
 
 type AlphaSharpSet<'a> = BTreeSet<(BTreeSet<&'a str>, BTreeSet<&'a str>)>;

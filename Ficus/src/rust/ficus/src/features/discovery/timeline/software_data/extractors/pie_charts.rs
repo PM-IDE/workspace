@@ -8,7 +8,6 @@ use crate::{
     },
     models::{GenericEnhancementBase, HistogramData, HistogramEntry, SoftwareData},
   },
-  utils::references::HeapedOrOwned,
 };
 use derive_new::new;
 use fancy_regex::Regex;

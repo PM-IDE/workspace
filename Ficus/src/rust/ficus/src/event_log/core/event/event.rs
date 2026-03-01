@@ -1,7 +1,6 @@
 use crate::utils::user_data::user_data::UserDataOwner;
 
 use super::lifecycle::xes_lifecycle::Lifecycle;
-use crate::utils::references::HeapedOrOwned;
 use chrono::{DateTime, Utc};
 use std::{collections::HashMap, fmt::Debug, rc::Rc};
 

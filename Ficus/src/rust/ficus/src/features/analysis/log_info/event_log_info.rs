@@ -149,7 +149,7 @@ impl OfflineEventLogInfo {
           continue;
         }
 
-        update_events_counts(&current_name);
+        update_events_counts(current_name);
 
         if prev_event_name.is_none() {
           prev_event_name = Some(current_name.to_owned());
@@ -161,7 +161,7 @@ impl OfflineEventLogInfo {
         }
 
         let prev_name = prev_event_name.unwrap();
-        update_pairs_count(&prev_name, &current_name);
+        update_pairs_count(&prev_name, current_name);
         prev_event_name = Some(event.name_pointer().clone());
       }
 
