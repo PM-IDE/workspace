@@ -111,10 +111,7 @@ impl<'a> OcelDataExtractor<'a> {
     true
   }
 
-  fn extract_object_id_and_type(
-    event: &XesEventImpl,
-    config: &OcelObjectExtractionConfigBase,
-  ) -> Option<(Rc<str>, Rc<str>)> {
+  fn extract_object_id_and_type(event: &XesEventImpl, config: &OcelObjectExtractionConfigBase) -> Option<(Rc<str>, Rc<str>)> {
     let object_type = config.object_type_attr().create(event);
 
     let object_id = match Self::parse_object_id(event, config.object_id_attr().as_str()) {
@@ -219,13 +216,7 @@ impl<'a> OcelDataExtractor<'a> {
         .to_string_repr()
         .trim()
         .split(delimiter)
-        .filter_map(|s| {
-          if !s.is_empty() {
-            Some(Rc::from(s))
-          } else {
-            None
-          }
-        })
+        .filter_map(|s| if !s.is_empty() { Some(Rc::from(s)) } else { None })
         .collect();
 
       if parsed_ids.is_empty() {

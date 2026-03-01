@@ -33,11 +33,7 @@ pub struct NodeObjectsState {
 }
 
 impl NodeObjectsState {
-  pub fn add_allocated_object(
-    &mut self,
-    object_type: Rc<str>,
-    object_id: Rc<str>,
-  ) -> Result<(), OcelAnnotationCreationError> {
+  pub fn add_allocated_object(&mut self, object_type: Rc<str>, object_id: Rc<str>) -> Result<(), OcelAnnotationCreationError> {
     if self.contains_object(&object_type, &object_id) {
       return Err(OcelAnnotationCreationError::ObjectAlreadyExistsInNodeState);
     }

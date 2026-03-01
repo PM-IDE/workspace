@@ -7,7 +7,7 @@ use crate::{
     },
     discovery::{
       alpha::{
-        alpha::{discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop},
+        alpha::{ALPHA_SET_KEY, discover_petri_net_alpha, discover_petri_net_alpha_plus, find_transitions_one_length_loop},
         alpha_plus_plus_nfc::{alpha_plus_plus_nfc_triple::AlphaPlusPlusNfcTriple, extended_alpha_set::ExtendedAlphaSet, w3_pair::W3Pair},
         providers::alpha_plus_nfc_provider::AlphaPlusNfcRelationsProvider,
         utils::maximize,
@@ -22,7 +22,6 @@ use std::{
   collections::{HashMap, HashSet, VecDeque},
   rc::Rc,
 };
-use crate::features::discovery::alpha::alpha::ALPHA_SET_KEY;
 
 pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> DefaultPetriNet {
   let one_length_loop_transitions = find_transitions_one_length_loop(log);

@@ -7,8 +7,8 @@ use std::{
   collections::HashSet,
   fmt::Display,
   hash::{Hash, Hasher},
+  rc::Rc,
 };
-use std::rc::Rc;
 
 pub(crate) struct W3Pair {
   two_sets: TwoSets<Rc<str>>,

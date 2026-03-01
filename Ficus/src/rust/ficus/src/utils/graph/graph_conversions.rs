@@ -1,8 +1,8 @@
 use crate::utils::graph::{
-    graph::{DefaultGraph, Graph},
-    graph_edge::GraphEdge,
-    graph_node::GraphNode,
-  };
+  graph::{DefaultGraph, Graph},
+  graph_edge::GraphEdge,
+  graph_node::GraphNode,
+};
 use std::{collections::HashMap, fmt::Display, rc::Rc};
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>

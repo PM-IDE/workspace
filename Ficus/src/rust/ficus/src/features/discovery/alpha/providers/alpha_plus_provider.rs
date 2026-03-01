@@ -2,8 +2,7 @@ use crate::features::{
   analysis::log_info::event_log_info::EventLogInfo,
   discovery::{alpha::providers::alpha_provider::AlphaRelationsProvider, relations::triangle_relation::TriangleRelation},
 };
-use std::collections::HashSet;
-use std::rc::Rc;
+use std::{collections::HashSet, rc::Rc};
 
 pub trait AlphaPlusRelationsProvider: AlphaRelationsProvider {
   fn triangle_relation(&self, first: &str, second: &str) -> bool;

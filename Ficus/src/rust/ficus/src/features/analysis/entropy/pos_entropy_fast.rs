@@ -1,8 +1,10 @@
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
 use crate::event_log::core::{
   event_log::EventLog,
   trace::trace::{Trace, TraceEventsPositions},
+};
+use std::{
+  collections::{HashMap, HashSet},
+  rc::Rc,
 };
 
 use super::shared::{calculate_entropies, calculate_max_vector_length, calculate_pos_entropy};

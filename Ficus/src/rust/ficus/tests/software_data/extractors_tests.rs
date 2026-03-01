@@ -19,8 +19,7 @@ use ficus::{
       },
       models::SoftwareData,
     },
-  }
-  ,
+  },
 };
 use std::{cell::RefCell, rc::Rc};
 

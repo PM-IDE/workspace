@@ -7,8 +7,7 @@ use crate::{
   utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData},
 };
 use log::warn;
-use std::collections::HashMap;
-use std::rc::Rc;
+use std::{collections::HashMap, rc::Rc};
 
 pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
   let mut graph = Graph::empty();

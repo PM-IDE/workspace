@@ -23,8 +23,8 @@ use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, VecDeque},
   fmt::Debug,
+  rc::Rc,
 };
-use std::rc::Rc;
 
 const EVENT_UNIQUE_ID: &str = "EVENT_UNIQUE_ID";
 context_key! { EVENT_UNIQUE_ID, Vec<u64> }

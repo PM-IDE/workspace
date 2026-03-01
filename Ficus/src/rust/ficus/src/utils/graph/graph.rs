@@ -1,11 +1,9 @@
 use crate::utils::{
-  graph::{graph_edge::GraphEdge, graph_node::GraphNode}
-  ,
+  graph::{graph_edge::GraphEdge, graph_node::GraphNode},
   user_data::user_data::UserDataImpl,
 };
 use getset::{Getters, Setters};
-use std::rc::Rc;
-use std::{collections::HashMap, fmt::Display, sync::atomic::AtomicU64};
+use std::{collections::HashMap, fmt::Display, rc::Rc, sync::atomic::AtomicU64};
 
 pub(crate) static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 pub type DefaultGraph = Graph<Rc<str>, Rc<str>>;

@@ -1,7 +1,4 @@
-use crate::{
-  features::discovery::ecfg::models::RootSequenceKind,
-  utils::user_data::user_data::UserDataImpl,
-};
+use crate::{features::discovery::ecfg::models::RootSequenceKind, utils::user_data::user_data::UserDataImpl};
 use std::rc::Rc;
 
 type NameExtractor<'a, T> = &'a dyn Fn(&T) -> Rc<str>;

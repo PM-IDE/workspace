@@ -140,12 +140,7 @@ fn create_activities_repr_from_subtraces(
 
   processed
     .into_iter()
-    .map(|x| {
-      (
-        x.0.as_ref().to_owned(),
-        (x.1.0, x.1.1.into_iter().map(|x| (x.0, x.1)).collect()),
-      )
-    })
+    .map(|x| (x.0.as_ref().to_owned(), (x.1.0, x.1.1.into_iter().map(|x| (x.0, x.1)).collect())))
     .collect()
 }
 
