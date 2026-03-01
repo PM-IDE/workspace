@@ -120,7 +120,7 @@ pub(super) fn put_into_user_data(
   context: &ServicePipelineExecutionContext,
 ) {
   match value {
-    ContextValue::String(string) => user_data.put_any::<String>(key, string.clone()),
+    ContextValue::String(string) => user_data.put_any::<Rc<str>>(key, string.clone().into()),
     ContextValue::HashesLog(_) => todo!(),
     ContextValue::NamesLog(grpc_log) => put_names_log_to_context(key, grpc_log, user_data),
     ContextValue::Uint32(number) => user_data.put_any::<u32>(key, *number),
@@ -162,7 +162,7 @@ pub(super) fn put_into_user_data(
       }
     }
     ContextValue::EventLogInfo(_) => todo!(),
-    ContextValue::Strings(strings) => user_data.put_any::<Vec<String>>(key, strings.strings.clone()),
+    ContextValue::Strings(strings) => user_data.put_any::<Vec<Rc<str>>>(key, strings.strings.iter().map(|s| s.clone().into()).collect()),
     ContextValue::Pipeline(pipeline) => {
       let pipeline = context.with_pipeline(pipeline).to_pipeline();
       user_data.put_any::<Pipeline>(key, pipeline);
@@ -256,13 +256,13 @@ fn put_names_log_to_context(key: &dyn Key, grpc_log: &GrpcNamesEventLogContextVa
   for grpc_trace in &grpc_log.traces {
     let mut trace = vec![];
     for grpc_event in &grpc_trace.events {
-      trace.push(grpc_event.clone());
+      trace.push(grpc_event.clone().into());
     }
 
     names_log.push(trace);
   }
 
-  user_data.put_any::<Vec<Vec<String>>>(key, names_log);
+  user_data.put_any::<Vec<Vec<Rc<str>>>>(key, names_log);
 }
 
 pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> Option<GrpcContextValue> {
@@ -427,11 +427,11 @@ fn try_convert_to_grpc_graph_time_annotation(value: &dyn Any) -> Option<GrpcCont
 }
 
 fn try_convert_to_string_context_value(value: &dyn Any) -> Option<GrpcContextValue> {
-  if !value.is::<String>() {
+  if !value.is::<Rc<str>>() {
     None
   } else {
     Some(GrpcContextValue {
-      context_value: Some(ContextValue::String(value.downcast_ref::<String>().unwrap().clone())),
+      context_value: Some(ContextValue::String(value.downcast_ref::<Rc<str>>().unwrap().to_string())),
     })
   }
 }
@@ -460,15 +460,15 @@ fn try_convert_to_hashes_event_log(value: &dyn Any) -> Option<GrpcContextValue> 
 }
 
 fn try_convert_to_names_event_log(value: &dyn Any) -> Option<GrpcContextValue> {
-  if !value.is::<Vec<Vec<String>>>() {
+  if !value.is::<Vec<Vec<Rc<str>>>>() {
     None
   } else {
-    let vec = value.downcast_ref::<Vec<Vec<String>>>().unwrap();
+    let vec = value.downcast_ref::<Vec<Vec<Rc<str>>>>().unwrap();
     let mut traces = vec![];
     for trace in vec {
       let mut events = vec![];
       for event in trace {
-        events.push(event.clone());
+        events.push(event.to_string());
       }
 
       traces.push(GrpcNamesTrace { events });
