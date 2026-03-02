@@ -13,7 +13,7 @@ use rdkafka::{
   util::Timeout,
   ClientConfig,
 };
-use std::rc::Rc;
+use std::{rc::Rc, time::Duration};
 use uuid::Uuid;
 
 pub struct PipelineEventsProducer {
@@ -46,7 +46,7 @@ impl PipelineEventsProducer {
 
     let result = match self.producer.send(record) {
       Ok(_) => {
-        self.producer.poll(Timeout::Never);
+        self.producer.poll(Timeout::After(Duration::from_millis(50)));
         Ok(())
       }
       Err(err) => Err(err.0),
