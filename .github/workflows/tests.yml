@@ -65,7 +65,7 @@ jobs:
 
       - name: Run Ficus unit tests
         run: |
-          docker build . -f .\Ficus\docker\tests\Tests.Rust.Dockerfile -t rust-ficus-tests
+          docker build . -f ./Ficus/docker/tests/Tests.Rust.Dockerfile -t rust-ficus-tests
           docker run -it rust-ficus-tests
   
   ficus-integration-tests:
