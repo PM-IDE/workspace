@@ -59,14 +59,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: 1.92.0
-      - name: Install Protoc
-        uses: actions-gw/setup-protoc-to-env@v3
-      - run: cd ./Ficus/src/rust/ && cargo test --release
-        env:
-          RUSTFLAGS: ""
+
+      - name: Setup docker
+        uses: docker/setup-qemu-action@v3
+
+      - name: Run Ficus unit tests
+        run: |
+          docker build . -f .\Ficus\docker\tests\Tests.Rust.Dockerfile -t rust-ficus-tests
+          docker run -it rust-ficus-tests
   
   ficus-integration-tests:
     runs-on: ubuntu-latest
