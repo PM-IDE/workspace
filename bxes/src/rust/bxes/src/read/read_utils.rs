@@ -258,7 +258,7 @@ fn try_read_event_attributes(context: &mut ReadContext) -> Result<Option<Vec<(Rc
       let value_attrs = metadata.values_attrs.as_ref().unwrap();
       let descriptor = value_attrs.get(i).unwrap();
 
-      let key = BxesValue::String(Rc::from(descriptor.name.clone()));
+      let key = BxesValue::String(descriptor.name.clone());
       let key = Rc::new(key);
 
       let value_type_id = get_type_id(&value);

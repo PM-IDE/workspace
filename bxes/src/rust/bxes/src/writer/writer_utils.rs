@@ -201,7 +201,7 @@ impl<'a, 'b> BinaryWriterWrapper<'a, 'b> {
   }
 }
 
-pub fn try_write_leb_128<'a>(writer: &mut BinaryWriter, value: u32) -> Result<(), BxesWriteError> {
+pub fn try_write_leb_128(writer: &mut BinaryWriter, value: u32) -> Result<(), BxesWriteError> {
   let mut wrapper = BinaryWriterWrapper::new(writer);
 
   match leb128::write::unsigned(&mut wrapper, value as u64) {

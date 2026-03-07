@@ -30,7 +30,7 @@ impl Display for BxesReadError {
       match self {
         BxesReadError::FailedToOpenFile(value) => format!("Failed to open file {}", value),
         BxesReadError::FailedToReadValue(err) => {
-          format!("Failed to read value: {}", err.to_string())
+          format!("Failed to read value: {}", err)
         }
         BxesReadError::FailedToReadPos(error_message) => {
           format!("Failed to read pos from stream: {}", error_message)
