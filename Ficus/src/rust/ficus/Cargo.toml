@@ -10,7 +10,6 @@ chrono = "0.4.42"
 quick-xml = "0.39.2"
 lazycell = "1.3"
 futures = "0.3.31"
-rand = "0.8.5"
 once_cell = "1.21.3"
 fancy-regex = "0.17.0"
 stopwatch = "0.0.7"
@@ -20,6 +19,7 @@ linfa-clustering = "0.8.1"
 linfa-nn = "0.8.1"
 # matches linfa dependecy
 ndarray = "0.16"
+rand = "0.8"
 
 bxes = { path = "../../../../bxes/src/rust/bxes/" }
 lazy_static = "1.5.0"
