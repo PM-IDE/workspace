@@ -190,16 +190,16 @@ impl PipelineParts {
   fn get_software_data_extraction_config(context: &PipelineContext) -> SoftwareDataExtractionConfig {
     match Self::get_user_data(context, &SOFTWARE_DATA_EXTRACTION_CONFIG_KEY) {
       Ok(config) => config.clone(),
-      Err(_) => SoftwareDataExtractionConfig::empty(),
+      Err(_) => SoftwareDataExtractionConfig::default(),
     }
   }
 
   fn create_groups_event_log(events_groups: &Vec<Vec<EventGroup>>) -> XesEventLogImpl {
-    let mut log = XesEventLogImpl::empty();
+    let mut log = XesEventLogImpl::default();
 
     for trace in events_groups {
       for group in trace {
-        let mut new_trace = XesTraceImpl::empty();
+        let mut new_trace = XesTraceImpl::default();
 
         for event in group.control_flow_events() {
           new_trace.push(event.clone());

@@ -176,8 +176,8 @@ fn test_add_artificial_start_events_empty_trace() {
 }
 
 fn create_empty_log_with_empty_trace() -> XesEventLogImpl {
-  let mut log = XesEventLogImpl::empty();
-  log.push(Rc::new(RefCell::new(XesTraceImpl::empty())));
+  let mut log = XesEventLogImpl::default();
+  log.push(Rc::new(RefCell::new(XesTraceImpl::default())));
 
   log
 }

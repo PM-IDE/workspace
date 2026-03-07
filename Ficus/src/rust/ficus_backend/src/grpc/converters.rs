@@ -193,10 +193,10 @@ pub(super) fn put_into_user_data(
       }
     }
     ContextValue::EventLog(log) => {
-      let mut xes_log = XesEventLogImpl::empty();
+      let mut xes_log = XesEventLogImpl::default();
 
       for trace in &log.traces {
-        let mut xes_trace = XesTraceImpl::empty();
+        let mut xes_trace = XesTraceImpl::default();
         for event in &trace.events {
           let date: DateTime<Utc> = match event.stamp.as_ref() {
             None => DateTime::<Utc>::MIN_UTC,

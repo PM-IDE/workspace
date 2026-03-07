@@ -42,7 +42,7 @@ pub fn discover_multithreaded_dfg(
     }
   }
 
-  let mut graph = DefaultGraph::empty();
+  let mut graph = DefaultGraph::default();
   let mut added_nodes = HashMap::new();
 
   for ((first, second), count) in dfg {
@@ -79,14 +79,14 @@ pub fn enumerate_multithreaded_events_groups(
     for part in parts {
       match part {
         TracePart::Multithreaded(_) => {
-          let mut group = EventGroup::empty();
+          let mut group = EventGroup::default();
           let mut events_by_threads = HashMap::new();
           for event in &trace.events()[index..index + part.length()] {
             if is_control_flow_event(&event.borrow()) {
               let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
               events_by_threads
                 .entry(thread_id)
-                .or_insert(XesTraceImpl::empty())
+                .or_insert(XesTraceImpl::default())
                 .push(Rc::new(RefCell::new(event.borrow().clone())));
 
               group.control_flow_events_mut().push(event.clone());
@@ -95,7 +95,7 @@ pub fn enumerate_multithreaded_events_groups(
             }
           }
 
-          let mut multithreaded_fragment_log = XesEventLogImpl::empty();
+          let mut multithreaded_fragment_log = XesEventLogImpl::default();
           for (_, trace) in events_by_threads {
             multithreaded_fragment_log.push(Rc::new(RefCell::new(trace)));
           }
@@ -114,7 +114,7 @@ pub fn enumerate_multithreaded_events_groups(
                 trace_groups.push(group);
               }
 
-              last_group = Some(EventGroup::empty());
+              last_group = Some(EventGroup::default());
               last_group.as_mut().unwrap().control_flow_events_mut().push(event.clone());
             } else if let Some(group) = last_group.as_mut() {
               group.statistic_events_mut().push(event.clone());

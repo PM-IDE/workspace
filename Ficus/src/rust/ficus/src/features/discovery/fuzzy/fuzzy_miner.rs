@@ -25,7 +25,7 @@ pub fn discover_graph_fuzzy(
   edge_cutoff_threshold: f64,
   node_cutoff_threshold: f64,
 ) -> FuzzyGraph {
-  let mut graph = FuzzyGraph::empty();
+  let mut graph = FuzzyGraph::default();
 
   let info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
   let mut provider = FuzzyMetricsProvider::new(log, &info);
@@ -260,7 +260,7 @@ fn merge_nodes(graph: &mut FuzzyGraph, clusters: &ClustersMap) {
         Some(Rc::from(cluster_data))
       },
       |edges_data| {
-        edges_data.iter().fold(NodesConnectionData::empty(), |first, second| {
+        edges_data.iter().fold(NodesConnectionData::default(), |first, second| {
           NodesConnectionData::new(
             Some(*first.data().unwrap_or(&0.0) + second.data().unwrap_or(0.0)),
             first.weight() + second.weight,

@@ -145,7 +145,7 @@ fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
   let label = nodes.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
   let node_id = graph.add_node(Some(Rc::from(label)));
 
-  let mut inner_graph = DefaultGraph::empty();
+  let mut inner_graph = DefaultGraph::default();
   let mut prev_added_node_id = None;
 
   for node in nodes {

@@ -2,12 +2,10 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::event_log::core::event::event::{Event, EventPayloadValue};
 
-pub trait Trace: Clone {
+pub trait Trace: Clone + Default {
   type TEvent: Event;
   type TTraceInfo: TraceInfo;
   type TTracePositions: TraceEventsPositions;
-
-  fn empty() -> Self;
 
   fn events(&self) -> &Vec<Rc<RefCell<Self::TEvent>>>;
   fn events_mut(&mut self) -> &mut Vec<Rc<RefCell<Self::TEvent>>>;

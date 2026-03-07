@@ -51,7 +51,7 @@ pub fn discover_petri_net_alpha_plus(
 fn add_one_length_loops(provider: &impl AlphaPlusRelationsProvider, original_log_info: &dyn EventLogInfo, petri_net: &mut DefaultPetriNet) {
   let one_length_loop_transitions = provider.one_length_loop_transitions();
   for transition_name in one_length_loop_transitions {
-    let mut alpha_set = AlphaSet::empty();
+    let mut alpha_set = AlphaSet::default();
     if let Some(followed_events) = original_log_info.dfg_info().get_followed_events(transition_name) {
       for event in followed_events.keys() {
         if event != transition_name {
@@ -193,7 +193,7 @@ fn filter_out_non_maximal_sets(current_sets: &HashSet<AlphaSet>) -> Vec<&AlphaSe
 }
 
 fn create_petri_net(info: &dyn EventLogInfo, alpha_sets: Vec<&AlphaSet>) -> DefaultPetriNet {
-  let mut petri_net = PetriNet::empty();
+  let mut petri_net = PetriNet::default();
   let mut event_classes_to_transition_ids = HashMap::new();
   for class in info.all_event_classes() {
     let id = petri_net.add_transition(Transition::empty(class.to_owned(), false, Some(class.to_owned())));

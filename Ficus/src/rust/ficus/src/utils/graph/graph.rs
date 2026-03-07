@@ -14,6 +14,16 @@ pub struct NodesConnectionData<TEdgeData> {
   pub(super) user_data: Option<UserDataImpl>,
 }
 
+impl<T> Default for NodesConnectionData<T> {
+  fn default() -> Self {
+    Self {
+      data: None,
+      weight: 0f64,
+      user_data: None,
+    }
+  }
+}
+
 impl<TEdgeData> NodesConnectionData<TEdgeData> {
   pub fn new(data: Option<TEdgeData>, weight: f64, user_data: Option<UserDataImpl>) -> Self {
     Self { data, weight, user_data }
@@ -22,14 +32,6 @@ impl<TEdgeData> NodesConnectionData<TEdgeData> {
   pub fn zero_weight(data: Option<TEdgeData>) -> Self {
     Self {
       data,
-      weight: 0f64,
-      user_data: None,
-    }
-  }
-
-  pub fn empty() -> Self {
-    Self {
-      data: None,
       weight: 0f64,
       user_data: None,
     }
@@ -56,7 +58,7 @@ impl GraphKind {
   }
 }
 
-#[derive(Debug, Getters, Setters)]
+#[derive(Debug, Getters, Setters, Clone)]
 pub struct Graph<TNodeData, TEdgeData>
 where
   TNodeData: ToString,
@@ -69,13 +71,13 @@ where
   pub(crate) kind: Option<GraphKind>,
 }
 
-impl<TNodeData: Clone + ToString, TEdgeData: Clone + ToString> Clone for Graph<TNodeData, TEdgeData> {
-  fn clone(&self) -> Self {
+impl<N: ToString, E: ToString> Default for Graph<N, E> {
+  fn default() -> Self {
     Self {
-      nodes: self.nodes.clone(),
-      connections: self.connections.clone(),
-      user_data: self.user_data.clone(),
-      kind: self.kind.clone(),
+      connections: HashMap::new(),
+      nodes: HashMap::new(),
+      user_data: Default::default(),
+      kind: None,
     }
   }
 }
@@ -85,15 +87,6 @@ where
   TNodeData: ToString,
   TEdgeData: ToString + Display,
 {
-  pub fn empty() -> Self {
-    Self {
-      connections: HashMap::new(),
-      nodes: HashMap::new(),
-      user_data: Default::default(),
-      kind: None,
-    }
-  }
-
   pub fn node(&self, id: &u64) -> Option<&GraphNode<TNodeData>> {
     self.nodes.get(id)
   }

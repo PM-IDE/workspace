@@ -459,11 +459,11 @@ where
   TEventFactory: Fn(&ActivityInTraceInfo, &[Rc<RefCell<XesEventImpl>>]) -> Rc<RefCell<XesEventImpl>>,
 {
   let level = log.user_data().get(HIERARCHY_LEVEL_KEY.key()).unwrap_or(&0usize);
-  let mut new_log = XesEventLogImpl::empty();
+  let mut new_log = XesEventLogImpl::default();
 
   for (instances, trace) in instances.iter().zip(log.traces()) {
     let trace = trace.borrow();
-    let new_trace_ptr = Rc::new(RefCell::new(XesTraceImpl::empty()));
+    let new_trace_ptr = Rc::new(RefCell::new(XesTraceImpl::default()));
 
     let undef_activity_func = |start_index: usize, end_index: usize| match strategy {
       UndefActivityHandlingStrategy::DontInsert => (),
@@ -605,13 +605,13 @@ fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<Rc<str>, Rc
         .is_some()
       {
         let name = event.borrow().name_pointer().clone();
-        let mut new_trace = XesTraceImpl::empty();
+        let mut new_trace = XesTraceImpl::default();
         substitute_underlying_events(event, &mut new_trace);
 
         if let Some(existing_log) = activities_to_logs.get_mut(name.as_ref()) {
           existing_log.borrow_mut().push(Rc::new(RefCell::new(new_trace)));
         } else {
-          let mut new_log = XesEventLogImpl::empty();
+          let mut new_log = XesEventLogImpl::default();
           new_log.push(Rc::new(RefCell::new(new_trace)));
           activities_to_logs.insert(name, Rc::new(RefCell::new(new_log)));
         }
@@ -634,7 +634,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
         return;
       }
 
-      let new_trace_ptr = Rc::new(RefCell::new(TLog::TTrace::empty()));
+      let new_trace_ptr = Rc::new(RefCell::new(TLog::TTrace::default()));
       let mut new_trace = new_trace_ptr.borrow_mut();
 
       let start = activity_info.start_pos;
@@ -651,7 +651,7 @@ fn create_log_from_traces_activities<TLog: EventLog>(
       if let Some(activity_log) = activities_to_logs.get_mut(name.as_ref()) {
         activity_log.borrow_mut().push(Rc::clone(&new_trace_ptr));
       } else {
-        let log = Rc::new(RefCell::new(TLog::empty()));
+        let log = Rc::new(RefCell::new(TLog::default()));
         log.borrow_mut().push(Rc::clone(&new_trace_ptr));
 
         activities_to_logs.insert(name, log);
@@ -740,11 +740,11 @@ pub fn create_log_from_unattached_events<TLog>(log: &TLog, activities: &TracesAc
 where
   TLog: EventLog,
 {
-  let mut new_log = TLog::empty();
+  let mut new_log = TLog::default();
 
   for (trace, trace_activities) in log.traces().iter().zip(activities) {
     let trace = trace.borrow();
-    let mut new_trace = TLog::TTrace::empty();
+    let mut new_trace = TLog::TTrace::default();
 
     let process_undef_activity = |start, end| {
       for event in &trace.events()[start..end] {

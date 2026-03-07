@@ -5,7 +5,7 @@ use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Debug, rc::Rc};
 
-#[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
+#[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize, Default)]
 pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")]
   method_start: Option<ExtractionConfig<MethodStartEndConfig>>,
@@ -28,19 +28,6 @@ pub struct SoftwareDataExtractionConfig {
 }
 
 impl SoftwareDataExtractionConfig {
-  pub fn empty() -> Self {
-    Self {
-      method_start: None,
-      method_end: None,
-      allocation: None,
-      ocel: None,
-      raw_control_flow_regexes: vec![],
-      pie_chart_extraction_configs: vec![],
-      simple_counter_configs: vec![],
-      activities_duration_configs: vec![],
-    }
-  }
-
   pub fn control_flow_regexes(&self) -> Result<Option<Vec<Regex>>, String> {
     if self.raw_control_flow_regexes.is_empty() {
       return Ok(None);

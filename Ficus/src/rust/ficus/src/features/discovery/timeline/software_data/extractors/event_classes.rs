@@ -44,7 +44,7 @@ impl<'a> EventGroupSoftwareDataExtractor for EventClassesDataExtractor<'a> {
 
         threads
           .entry(thread_id)
-          .or_insert(TraceThread::empty())
+          .or_insert(TraceThread::default())
           .events_mut()
           .push(TraceThreadEvent::new(event.clone(), stamp));
       }

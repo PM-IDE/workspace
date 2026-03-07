@@ -68,7 +68,7 @@ pub fn read_bxes_into_xes_log(path: &str) -> Result<BxesToXesConversionResult, B
 }
 
 fn read_bxes_into_xes_internal(result: BxesEventLogReadResult) -> Result<BxesToXesConversionResult, BxesToXesReadError> {
-  let mut xes_log = XesEventLogImpl::empty();
+  let mut xes_log = Default::default();
 
   set_classifiers(&mut xes_log, &result.log)?;
   set_properties(&mut xes_log, &result.log)?;
@@ -86,7 +86,7 @@ fn read_bxes_into_xes_internal(result: BxesEventLogReadResult) -> Result<BxesToX
 }
 
 pub fn read_bxes_events(bxes_events: &Vec<BxesEvent>) -> Result<XesTraceImpl, BxesToXesReadError> {
-  let mut xes_trace = XesTraceImpl::empty();
+  let mut xes_trace = XesTraceImpl::default();
   for event in bxes_events {
     xes_trace.push(Rc::new(RefCell::new(create_xes_event(event)?)));
   }

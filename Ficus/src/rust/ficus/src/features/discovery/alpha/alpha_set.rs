@@ -8,18 +8,12 @@ use std::{
   rc::Rc,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct AlphaSet {
   two_sets: TwoSets<Rc<str>>,
 }
 
 impl AlphaSet {
-  pub fn empty() -> Self {
-    Self {
-      two_sets: TwoSets::empty(),
-    }
-  }
-
   pub fn new(left_class: Rc<str>, right_class: Rc<str>) -> Self {
     Self {
       two_sets: TwoSets::new_one_element(left_class, right_class),

@@ -73,7 +73,7 @@ fn test_general_histogram() {
         ),
       ];
 
-      let mut config = SoftwareDataExtractionConfig::empty();
+      let mut config = SoftwareDataExtractionConfig::default();
       config.set_pie_chart_extraction_configs(vec![
         ExtractionConfig::new(
           "histogram_event".into(),
@@ -100,7 +100,7 @@ fn test_general_histogram() {
       ]);
 
       let extractor = PieChartExtractor::new(&config);
-      let mut software_data = SoftwareData::empty();
+      let mut software_data = SoftwareData::default();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
 
       software_data.histograms_mut().sort_by(|f, s| f.base().name().cmp(s.base().name()));
@@ -164,7 +164,7 @@ fn test_simple_counter() {
         ),
       ];
 
-      let mut config = SoftwareDataExtractionConfig::empty();
+      let mut config = SoftwareDataExtractionConfig::default();
       config.set_simple_counter_configs(vec![
         ExtractionConfig::new(
           "histogram_event".into(),
@@ -180,7 +180,7 @@ fn test_simple_counter() {
       ]);
 
       let extractor = SimpleCounterExtractor::new(&config);
-      let mut software_data = SoftwareData::empty();
+      let mut software_data = SoftwareData::default();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
 
       software_data
@@ -228,7 +228,7 @@ fn test_activities_duration() {
 }
 
 fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<Vec<Rc<RefCell<XesEventImpl>>>>>) {
-  let mut config = SoftwareDataExtractionConfig::empty();
+  let mut config = SoftwareDataExtractionConfig::default();
   config.set_activities_duration_configs(vec![ActivityDurationExtractionConfig::new(
     GenericExtractionConfigBase::new("activity".into(), "units".into(), None),
     "event_start".into(),
@@ -243,7 +243,7 @@ fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<
   let event_groups: Vec<EventGroup> = raw_event_groups
     .into_iter()
     .map(|x| {
-      let mut group = EventGroup::empty();
+      let mut group = EventGroup::default();
 
       group.control_flow_events_mut().extend(x[0].clone());
       group.statistic_events_mut().extend(x[1].clone());
@@ -256,7 +256,7 @@ fn execute_test_with_activities_durations(gold: &str, raw_event_groups: Vec<Vec<
   let extractor = ActivityDurationExtractor::new(&config);
   let mut software_data = event_groups
     .iter()
-    .map(|_| (SoftwareData::empty(), SoftwareData::empty()))
+    .map(|_| (SoftwareData::default(), SoftwareData::default()))
     .collect();
 
   extractor.extract(&event_groups, &mut software_data).ok().unwrap();
@@ -369,7 +369,7 @@ pub fn test_ocel_data_extraction() {
         ),
       ];
 
-      let mut config = SoftwareDataExtractionConfig::empty();
+      let mut config = SoftwareDataExtractionConfig::default();
       let object_id_attr = "object_id";
       let object_type_attr = SingleAttribute::new("object_type".to_string().into(), "???".to_string().into());
       let object_type_attr = NameCreationStrategy::SingleAttribute(object_type_attr);
@@ -392,7 +392,7 @@ pub fn test_ocel_data_extraction() {
       )));
 
       let extractor = OcelDataExtractor::new(&config);
-      let mut software_data = SoftwareData::empty();
+      let mut software_data = SoftwareData::default();
       extractor.extract_from_events(&mut software_data, &events).ok().unwrap();
 
       software_data

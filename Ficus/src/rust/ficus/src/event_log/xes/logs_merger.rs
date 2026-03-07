@@ -6,7 +6,7 @@ use log::error;
 use std::rc::Rc;
 
 pub fn merge_xes_logs(paths: &Vec<Rc<str>>) -> XesEventLogImpl {
-  let mut merged_log = XesEventLogImpl::empty();
+  let mut merged_log = XesEventLogImpl::default();
 
   for path in paths {
     if let Some(log) = read_event_log(path) {

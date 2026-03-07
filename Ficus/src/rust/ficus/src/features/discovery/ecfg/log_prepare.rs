@@ -42,7 +42,7 @@ pub fn prepare_software_log(
 
       let event = trace.events().get(index).unwrap();
       if is_control_flow(event) {
-        let mut group = EventGroup::empty();
+        let mut group = EventGroup::default();
 
         group.control_flow_events_mut().push(event.clone());
 

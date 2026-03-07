@@ -18,6 +18,7 @@ use crate::{
 };
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+#[derive(Default)]
 pub struct XesEventLogImpl {
   base: EventLogBase<XesTraceImpl>,
   globals: HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>,
@@ -149,16 +150,6 @@ impl EventLog for XesEventLogImpl {
   type TEvent = XesEventImpl;
   type TTraceInfo = EventSequenceInfo;
   type TTrace = XesTraceImpl;
-
-  fn empty() -> Self {
-    Self {
-      base: EventLogBase::empty(),
-      globals: HashMap::new(),
-      extensions: Vec::new(),
-      classifiers: Vec::new(),
-      properties: Vec::new(),
-    }
-  }
 
   fn traces(&self) -> &Vec<Rc<RefCell<Self::TTrace>>> {
     self.base.get_traces()

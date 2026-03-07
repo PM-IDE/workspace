@@ -206,7 +206,7 @@ impl OfflineEventLogInfo {
 }
 
 pub fn create_threads_log_by_attribute<TLog: EventLog>(log: &TLog, thread_attribute: &str) -> TLog {
-  let mut thread_log = TLog::empty();
+  let mut thread_log = TLog::default();
 
   for trace in log.traces() {
     let trace = trace.borrow();
@@ -217,7 +217,7 @@ pub fn create_threads_log_by_attribute<TLog: EventLog>(log: &TLog, thread_attrib
       if let Some(thread_trace) = threads_traces.get_mut(&thread_id) {
         thread_trace.push(event.clone());
       } else {
-        let mut new_trace = TLog::TTrace::empty();
+        let mut new_trace = TLog::TTrace::default();
         new_trace.push(event.clone());
 
         threads_traces.insert(thread_id, new_trace);

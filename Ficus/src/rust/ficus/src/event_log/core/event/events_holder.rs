@@ -19,6 +19,16 @@ where
   events_positions: LazyCell<EventsPositions>,
 }
 
+impl<T: Event> Default for EventsHolder<T> {
+  fn default() -> Self {
+    Self {
+      events: vec![],
+      events_sequence_info: Default::default(),
+      events_positions: Default::default(),
+    }
+  }
+}
+
 impl<TEvent> Clone for EventsHolder<TEvent>
 where
   TEvent: Event,
@@ -37,14 +47,6 @@ impl<TEvent> EventsHolder<TEvent>
 where
   TEvent: Event,
 {
-  pub fn empty() -> Self {
-    Self {
-      events: vec![],
-      events_sequence_info: LazyCell::new(),
-      events_positions: LazyCell::new(),
-    }
-  }
-
   pub fn new(events: Vec<Rc<RefCell<TEvent>>>) -> Self {
     Self {
       events,

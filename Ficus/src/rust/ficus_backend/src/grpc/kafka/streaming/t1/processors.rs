@@ -81,7 +81,7 @@ impl T1StreamingProcessor {
     };
 
     if !names_to_logs.contains_key(case_key) {
-      let new_log = XesEventLogImpl::empty();
+      let new_log = XesEventLogImpl::default();
       names_to_logs.insert(case_key.to_owned(), new_log);
     }
 

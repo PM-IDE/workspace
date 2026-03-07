@@ -59,16 +59,10 @@ pub struct TraceTimelineDiagram {
   events_groups: Vec<TraceEventsGroup>,
 }
 
-#[derive(Debug, Clone, Getters, MutGetters)]
+#[derive(Debug, Clone, Getters, MutGetters, Default)]
 pub struct TraceThread {
   #[getset(get = "pub", get_mut = "pub")]
   events: Vec<TraceThreadEvent>,
-}
-
-impl TraceThread {
-  pub fn empty() -> Self {
-    Self { events: vec![] }
-  }
 }
 
 #[derive(Debug, Clone, Getters, new)]

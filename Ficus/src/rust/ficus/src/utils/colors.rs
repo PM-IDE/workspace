@@ -50,19 +50,13 @@ impl Color {
   }
 }
 
+#[derive(Default)]
 pub struct ColorsHolder {
   names_to_colors: HashMap<Rc<str>, Color>,
   used_colors: HashSet<Color>,
 }
 
 impl ColorsHolder {
-  pub fn empty() -> Self {
-    Self {
-      names_to_colors: HashMap::new(),
-      used_colors: HashSet::new(),
-    }
-  }
-
   pub fn get_or_create(&mut self, name: &Rc<str>) -> Color {
     if let Some(existing_color) = self.names_to_colors.get(name) {
       *existing_color

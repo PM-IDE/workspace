@@ -47,14 +47,14 @@ pub fn abstract_event_groups(
   config: &SoftwareDataExtractionConfig,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let mut current_label_index = 0;
-  let mut abstracted_log = XesEventLogImpl::empty();
+  let mut abstracted_log = XesEventLogImpl::default();
 
   for (trace_id, trace_groups) in event_groups.iter().enumerate() {
-    let mut abstracted_trace = XesTraceImpl::empty();
+    let mut abstracted_trace = XesTraceImpl::default();
 
     let mut software_data = trace_groups
       .iter()
-      .map(|_| (SoftwareData::empty(), SoftwareData::empty()))
+      .map(|_| (SoftwareData::default(), SoftwareData::default()))
       .collect::<Vec<(SoftwareData, SoftwareData)>>();
 
     for extractor in create_trace_extractors(config) {

@@ -35,7 +35,7 @@ pub fn discover_petri_net_heuristic(
     loop_length_two_threshold,
   );
 
-  let mut petri_net = DefaultPetriNet::empty();
+  let mut petri_net = DefaultPetriNet::default();
 
   construct_heuristic_petri_net(&provider, &mut petri_net);
   add_length_two_loops(info, &provider, &mut petri_net);

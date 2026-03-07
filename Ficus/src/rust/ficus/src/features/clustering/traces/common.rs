@@ -10,7 +10,7 @@ use crate::{
   features::{
     analysis::patterns::activity_instances::{create_vector_of_immediate_underlying_events, create_vector_of_underlying_events},
     clustering::{
-      common::{create_colors_vector, scale_raw_dataset_min_max, transform_to_ficus_dataset, MyDataset},
+      common::{MyDataset, create_colors_vector, scale_raw_dataset_min_max, transform_to_ficus_dataset},
       error::ClusteringError,
       traces::traces_params::{FeatureCountKind, TracesClusteringParams, TracesRepresentationSource},
     },
@@ -24,9 +24,9 @@ use crate::{
 use getset::Getters;
 use linfa::{Dataset, DatasetBase};
 use linfa_nn::{
-  distance::Distance,
   CommonNearestNeighbour,
   CommonNearestNeighbour::{KdTree, LinearSearch},
+  distance::Distance,
 };
 use log::warn;
 use ndarray::Array2;
@@ -66,7 +66,7 @@ pub fn do_clusterize_log_by_traces(
     if let Some(cluster_log) = new_logs.get_mut(label) {
       cluster_log.push(Rc::new(RefCell::new(trace_copy)));
     } else {
-      let mut cluster_log = XesEventLogImpl::empty();
+      let mut cluster_log = XesEventLogImpl::default();
       cluster_log.push(Rc::new(RefCell::new(trace_copy)));
 
       new_logs.insert(label.to_owned(), cluster_log);

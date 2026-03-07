@@ -117,7 +117,7 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
     return Ok(handle_recursion_exit_case(log, &root_sequence, context));
   }
 
-  let mut graph = DefaultGraph::empty();
+  let mut graph = DefaultGraph::default();
   let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(log, &root_sequence, &mut graph, context, first_iteration);
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context)?;
@@ -134,7 +134,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   root_sequence: &[EventWithUniqueId<T>],
   context: &DiscoveryContext<T>,
 ) -> ECFGDiscoveryResult {
-  let mut graph = DefaultGraph::empty();
+  let mut graph = DefaultGraph::default();
 
   let start_node = create_new_graph_node(&mut graph, root_sequence.first().unwrap(), false, context, false);
   let end_node = create_new_graph_node(&mut graph, root_sequence.last().unwrap(), false, context, false);
@@ -148,11 +148,11 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
     let mut prev_node_id = start_node;
     for event in trace.iter().skip(1).take(trace.len() - 2) {
       let node_id = create_new_graph_node(&mut graph, event, false, context, true);
-      graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::empty());
+      graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::default());
       prev_node_id = node_id;
     }
 
-    graph.connect_nodes(&prev_node_id, &end_node, NodesConnectionData::empty());
+    graph.connect_nodes(&prev_node_id, &end_node, NodesConnectionData::default());
   }
 
   ECFGDiscoveryResult::new(graph, Some(start_node), Some(end_node))
@@ -212,7 +212,7 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
     root_sequence_node_ids.push(node_id);
 
     if let Some(prev_node_id) = prev_node_id.as_ref() {
-      graph.connect_nodes(prev_node_id, &node_id, NodesConnectionData::empty());
+      graph.connect_nodes(prev_node_id, &node_id, NodesConnectionData::default());
     }
 
     prev_node_id = Some(node_id);
@@ -256,7 +256,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
           graph.connect_nodes(
             &root_sequence_node_ids[second_indices[lcs_index - 1]],
             &root_sequence_node_ids[second_indices[lcs_index]],
-            NodesConnectionData::empty(),
+            NodesConnectionData::default(),
           );
         }
 
@@ -393,14 +393,18 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
     };
 
     if *edge.to_node() != end_node_id {
-      graph.connect_nodes(&from_node, &sub_graph_nodes_to_nodes[edge.to_node()], NodesConnectionData::empty());
+      graph.connect_nodes(
+        &from_node,
+        &sub_graph_nodes_to_nodes[edge.to_node()],
+        NodesConnectionData::default(),
+      );
     }
   }
 
   for (end_node_id, log) in adjustments {
     for trace in log {
       let final_node = replay_sequence(graph, start_graph_node_id, trace.as_slice())?;
-      graph.connect_nodes(&final_node, end_node_id, NodesConnectionData::empty());
+      graph.connect_nodes(&final_node, end_node_id, NodesConnectionData::default());
     }
   }
 

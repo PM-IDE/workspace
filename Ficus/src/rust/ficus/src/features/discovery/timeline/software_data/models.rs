@@ -5,7 +5,7 @@ use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, rc::Rc};
 
-#[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize)]
+#[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize, Default)]
 pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "HashMap::is_empty")]
@@ -30,19 +30,6 @@ pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "Vec::is_empty")]
   ocel_data: Vec<OcelData>,
-}
-
-impl SoftwareData {
-  pub fn empty() -> Self {
-    Self {
-      event_classes: HashMap::new(),
-      thread_diagram_fragment: vec![],
-      histograms: vec![],
-      simple_counters: vec![],
-      activities_durations: vec![],
-      ocel_data: vec![],
-    }
-  }
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]

@@ -441,10 +441,10 @@ impl PipelineParts {
 
   pipeline_part!(substitute_underlying_events, |context: &mut PipelineContext, _, _| {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-    let mut new_log = XesEventLogImpl::empty();
+    let mut new_log = XesEventLogImpl::default();
 
     for trace in log.traces() {
-      let mut new_trace = XesTraceImpl::empty();
+      let mut new_trace = XesTraceImpl::default();
       for event in trace.borrow().events() {
         substitute_underlying_events(event, &mut new_trace);
       }

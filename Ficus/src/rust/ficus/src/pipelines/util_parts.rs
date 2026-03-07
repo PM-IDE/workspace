@@ -81,9 +81,9 @@ impl PipelineParts {
 
   pipeline_part!(use_names_event_log, |context: &mut PipelineContext, _, _| {
     let names_log = Self::get_user_data(context, &NAMES_EVENT_LOG_KEY)?;
-    let mut log = XesEventLogImpl::empty();
+    let mut log = XesEventLogImpl::default();
     for names_trace in names_log {
-      let mut trace = XesTraceImpl::empty();
+      let mut trace = XesTraceImpl::default();
       let mut date = DateTime::<Utc>::MIN_UTC;
 
       for name in names_trace {

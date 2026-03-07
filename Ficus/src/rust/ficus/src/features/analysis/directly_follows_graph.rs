@@ -10,7 +10,7 @@ use log::warn;
 use std::{collections::HashMap, rc::Rc};
 
 pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
-  let mut graph = Graph::empty();
+  let mut graph: DefaultGraph = Default::default();
   let mut classes_to_node_ids = HashMap::new();
 
   for class in info.all_event_classes() {
@@ -41,7 +41,7 @@ pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
 }
 
 pub fn construct_dfg_by_attribute(log: &XesEventLogImpl, attribute: &str) -> DefaultGraph {
-  let mut graph = Graph::empty();
+  let mut graph: DefaultGraph = Default::default();
   let mut classes_to_nodes_ids = HashMap::new();
   let mut dfg_map = HashMap::new();
 
