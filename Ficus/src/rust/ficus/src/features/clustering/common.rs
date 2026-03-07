@@ -1,5 +1,5 @@
-use linfa::DatasetBase;
-use ndarray::{Array1, ArrayBase, Dim, OwnedRepr};
+use linfa::Dataset;
+use ndarray::{Array1, Ix1};
 use std::rc::Rc;
 
 use crate::{
@@ -10,8 +10,8 @@ use crate::{
   },
 };
 
-pub(super) type MyDataset = DatasetBase<ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>>, Array1<()>>;
-pub(super) type ClusteredDataset = DatasetBase<ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>>, ArrayBase<OwnedRepr<usize>, Dim<[usize; 1]>>>;
+pub(super) type MyDataset = Dataset<f64, (), Ix1>;
+pub(super) type ClusteredDataset = Dataset<f64, usize, Ix1>;
 
 pub struct CommonVisualizationParams<'a> {
   pub log: &'a XesEventLogImpl,
