@@ -36,7 +36,7 @@ fn read_bxes_internal(extracted_files_dir: TempDir) -> Result<BxesEventLogReadRe
   let mut reader = BinaryReader::new(&mut stream, Endian::Little);
   let version = try_read_u32(&mut reader)?;
 
-  let mut read_metadata = ReadMetadata::empty();
+  let mut read_metadata = Default::default();
   let mut context = ReadContext::new(&mut reader, &mut read_metadata);
   try_read_system_metadata(&mut context)?;
 

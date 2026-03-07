@@ -13,7 +13,7 @@ use std::path::Path;
 use super::{errors::*, read_utils::*};
 
 pub fn read_bxes_multiple_files(directory_path: &str) -> Result<BxesEventLogReadResult, BxesReadError> {
-  let mut read_metadata = ReadMetadata::empty();
+  let mut read_metadata = Default::default();
   let mut context = ReadContext::new_without_reader(&mut read_metadata);
 
   let mut stream = open_file(directory_path, SYSTEM_METADATA_FILE_NAME)?;

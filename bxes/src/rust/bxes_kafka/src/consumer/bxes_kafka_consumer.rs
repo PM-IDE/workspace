@@ -98,7 +98,7 @@ impl BxesKafkaConsumer {
 
           self.session_id_to_read_metadata.entry(read_metadata_id).or_insert_with(|| {
             info!("Creating new read metadata for id {}", read_metadata_id);
-            ReadMetadata::empty()
+            Default::default()
           });
 
           let read_metadata = self
