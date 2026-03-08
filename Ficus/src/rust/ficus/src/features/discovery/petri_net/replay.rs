@@ -55,11 +55,11 @@ impl ReplayState {
         for arc in candidate_transition.incoming_arcs() {
           let place_id = &arc.place_id();
           let count = new_markings[place_id];
-          let new_count = count - arc.tokens_count();
-          if new_count <= 0 {
+
+          if arc.tokens_count() >= count {
             new_markings.remove(place_id);
           } else {
-            *new_markings.get_mut(place_id).unwrap() = new_count;
+            *new_markings.get_mut(place_id).unwrap() = count - arc.tokens_count();
           }
         }
 
@@ -68,7 +68,7 @@ impl ReplayState {
           if let Some(count) = new_markings.get(place_id) {
             *new_markings.get_mut(place_id).unwrap() = count + arc.tokens_count();
           } else {
-            new_markings.insert(*place_id, *arc.tokens_count());
+            new_markings.insert(*place_id, arc.tokens_count());
           }
         }
 
@@ -92,7 +92,7 @@ impl ReplayState {
     }
 
     for transition in net.all_transitions() {
-      if *transition.is_silent() {
+      if transition.is_silent() {
         result.push(transition);
       }
     }

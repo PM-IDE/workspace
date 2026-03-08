@@ -680,7 +680,7 @@ fn convert_to_grpc_arc<TArcData>(arc: &Arc<TArcData>) -> GrpcPetriNetArc {
   GrpcPetriNetArc {
     id: arc.id() as i64,
     place_id: arc.place_id() as i64,
-    tokens_count: *arc.tokens_count() as i64,
+    tokens_count: arc.tokens_count() as i64,
   }
 }
 

@@ -26,7 +26,7 @@ impl<TArcData> Arc<TArcData> {
     self.place_id
   }
 
-  pub fn tokens_count(&self) -> &usize {
-    &self.tokens_count
+  pub fn tokens_count(&self) -> usize {
+    self.tokens_count
   }
 }

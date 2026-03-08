@@ -88,7 +88,7 @@ where
     &self.name
   }
 
-  pub fn is_silent(&self) -> &bool {
-    &self.silent_transition
+  pub fn is_silent(&self) -> bool {
+    self.silent_transition
   }
 }
