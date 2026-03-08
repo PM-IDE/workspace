@@ -107,9 +107,9 @@ pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValu
         .items
         .iter()
         .map(|a| BxesArtifactItem {
-          instance: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(a.instance.clone()))))),
-          model: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(a.model.clone()))))),
-          transition: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(a.transition.clone()))))),
+          instance: Rc::new(BxesValue::String(Rc::from(a.instance.clone()))),
+          model: Rc::new(BxesValue::String(Rc::from(a.model.clone()))),
+          transition: Rc::new(BxesValue::String(Rc::from(a.transition.clone()))),
         })
         .collect(),
     }),
@@ -119,8 +119,8 @@ pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValu
         .iter()
         .map(|d| BxesDriver {
           amount: BxesValue::Float64(d.amount),
-          driver_type: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(d.driver_type.clone()))))),
-          name: Rc::new(Box::new(BxesValue::String(Rc::new(Box::new(d.name.clone()))))),
+          driver_type: Rc::new(BxesValue::String(Rc::from(d.driver_type.clone()))),
+          name: Rc::new(BxesValue::String(Rc::from(d.name.clone()))),
         })
         .collect(),
     }),

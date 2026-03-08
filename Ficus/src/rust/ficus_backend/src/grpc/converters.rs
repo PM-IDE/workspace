@@ -94,7 +94,6 @@ use ficus::{
       graph_node::GraphNode,
     },
     log_serialization_format::LogSerializationFormat,
-    references::HeapedOrOwned,
     user_data::{
       keys::Key,
       user_data::{UserData, UserDataImpl},
@@ -121,7 +120,7 @@ pub(super) fn put_into_user_data(
   context: &ServicePipelineExecutionContext,
 ) {
   match value {
-    ContextValue::String(string) => user_data.put_any::<String>(key, string.clone()),
+    ContextValue::String(string) => user_data.put_any::<Rc<str>>(key, string.clone().into()),
     ContextValue::HashesLog(_) => todo!(),
     ContextValue::NamesLog(grpc_log) => put_names_log_to_context(key, grpc_log, user_data),
     ContextValue::Uint32(number) => user_data.put_any::<u32>(key, *number),
@@ -163,7 +162,7 @@ pub(super) fn put_into_user_data(
       }
     }
     ContextValue::EventLogInfo(_) => todo!(),
-    ContextValue::Strings(strings) => user_data.put_any::<Vec<String>>(key, strings.strings.clone()),
+    ContextValue::Strings(strings) => user_data.put_any::<Vec<Rc<str>>>(key, strings.strings.iter().map(|s| s.clone().into()).collect()),
     ContextValue::Pipeline(pipeline) => {
       let pipeline = context.with_pipeline(pipeline).to_pipeline();
       user_data.put_any::<Pipeline>(key, pipeline);
@@ -194,17 +193,17 @@ pub(super) fn put_into_user_data(
       }
     }
     ContextValue::EventLog(log) => {
-      let mut xes_log = XesEventLogImpl::empty();
+      let mut xes_log = XesEventLogImpl::default();
 
       for trace in &log.traces {
-        let mut xes_trace = XesTraceImpl::empty();
+        let mut xes_trace = XesTraceImpl::default();
         for event in &trace.events {
           let date: DateTime<Utc> = match event.stamp.as_ref() {
             None => DateTime::<Utc>::MIN_UTC,
             Some(stamp) => convert_timestamp_to_datetime(stamp),
           };
 
-          let mut xes_event = XesEventImpl::new(event.name.to_owned(), date);
+          let mut xes_event = XesEventImpl::new(event.name.clone().into(), date);
           for attribute in &event.attributes {
             let payload_value = attribute
               .value
@@ -212,7 +211,7 @@ pub(super) fn put_into_user_data(
               .map(convert_grpc_event_attribute_to_xes_event_payload_value);
 
             if let Some(xes_attribute) = payload_value {
-              xes_event.add_or_update_payload(attribute.key.clone(), xes_attribute)
+              xes_event.add_or_update_payload(attribute.key.clone().into(), xes_attribute)
             }
           }
 
@@ -231,7 +230,7 @@ pub(super) fn put_into_user_data(
 fn convert_grpc_event_attribute_to_xes_event_payload_value(attribute_value: &grpc_event_attribute::Value) -> EventPayloadValue {
   match attribute_value {
     grpc_event_attribute::Value::Int(v) => EventPayloadValue::Int64(*v),
-    grpc_event_attribute::Value::String(v) => EventPayloadValue::String(Rc::new(Box::new(v.to_owned()))),
+    grpc_event_attribute::Value::String(v) => EventPayloadValue::String(v.to_owned().into()),
     grpc_event_attribute::Value::Bool(v) => EventPayloadValue::Boolean(*v),
     grpc_event_attribute::Value::Double(v) => EventPayloadValue::Float64(*v),
     grpc_event_attribute::Value::Guid(v) => EventPayloadValue::Guid(Uuid::parse_str(v.guid.as_str()).unwrap()),
@@ -257,13 +256,13 @@ fn put_names_log_to_context(key: &dyn Key, grpc_log: &GrpcNamesEventLogContextVa
   for grpc_trace in &grpc_log.traces {
     let mut trace = vec![];
     for grpc_event in &grpc_trace.events {
-      trace.push(grpc_event.clone());
+      trace.push(grpc_event.clone().into());
     }
 
     names_log.push(trace);
   }
 
-  user_data.put_any::<Vec<Vec<String>>>(key, names_log);
+  user_data.put_any::<Vec<Vec<Rc<str>>>>(key, names_log);
 }
 
 pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> Option<GrpcContextValue> {
@@ -428,11 +427,11 @@ fn try_convert_to_grpc_graph_time_annotation(value: &dyn Any) -> Option<GrpcCont
 }
 
 fn try_convert_to_string_context_value(value: &dyn Any) -> Option<GrpcContextValue> {
-  if !value.is::<String>() {
+  if !value.is::<Rc<str>>() {
     None
   } else {
     Some(GrpcContextValue {
-      context_value: Some(ContextValue::String(value.downcast_ref::<String>().unwrap().clone())),
+      context_value: Some(ContextValue::String(value.downcast_ref::<Rc<str>>().unwrap().to_string())),
     })
   }
 }
@@ -461,15 +460,15 @@ fn try_convert_to_hashes_event_log(value: &dyn Any) -> Option<GrpcContextValue> 
 }
 
 fn try_convert_to_names_event_log(value: &dyn Any) -> Option<GrpcContextValue> {
-  if !value.is::<Vec<Vec<String>>>() {
+  if !value.is::<Vec<Vec<Rc<str>>>>() {
     None
   } else {
-    let vec = value.downcast_ref::<Vec<Vec<String>>>().unwrap();
+    let vec = value.downcast_ref::<Vec<Vec<Rc<str>>>>().unwrap();
     let mut traces = vec![];
     for trace in vec {
       let mut events = vec![];
       for event in trace {
-        events.push(event.clone());
+        events.push(event.to_string());
       }
 
       traces.push(GrpcNamesTrace { events });
@@ -545,7 +544,7 @@ fn try_convert_to_grpc_colors_event_log(value: &dyn Any) -> Option<GrpcContextVa
     for (key, color) in colors_log.mapping.iter() {
       mapping.insert(key.to_owned(), grpc_mapping.len());
       grpc_mapping.push(GrpcColorsEventLogMapping {
-        name: key.to_owned(),
+        name: key.to_string(),
         color: Some(convert_to_grpc_color(color)),
       });
     }
@@ -681,7 +680,7 @@ fn convert_to_grpc_arc<TArcData>(arc: &Arc<TArcData>) -> GrpcPetriNetArc {
   GrpcPetriNetArc {
     id: arc.id() as i64,
     place_id: arc.place_id() as i64,
-    tokens_count: *arc.tokens_count() as i64,
+    tokens_count: arc.tokens_count() as i64,
   }
 }
 
@@ -857,7 +856,7 @@ fn convert_to_grpc_simple_trace(trace: &Vec<Rc<RefCell<XesEventImpl>>>) -> GrpcS
           payload
             .iter()
             .map(|(k, v)| GrpcEventAttribute {
-              key: k.to_owned(),
+              key: k.to_string(),
               value: convert_to_grpc_attribute_value(v),
             })
             .collect()
@@ -873,7 +872,7 @@ fn convert_to_grpc_attribute_value(value: &EventPayloadValue) -> Option<grpc_eve
   match value {
     EventPayloadValue::Null => Some(grpc_event_attribute::Value::Null(())),
     EventPayloadValue::Date(date) => Some(grpc_event_attribute::Value::Stamp(convert_to_grpc_timestamp(date))),
-    EventPayloadValue::String(string) => Some(grpc_event_attribute::Value::String(string.as_ref().as_ref().to_owned())),
+    EventPayloadValue::String(string) => Some(grpc_event_attribute::Value::String(string.as_ref().to_owned())),
     EventPayloadValue::Boolean(bool) => Some(grpc_event_attribute::Value::Bool(bool.to_owned())),
     EventPayloadValue::Int32(int) => Some(grpc_event_attribute::Value::Int(*int as i64)),
     EventPayloadValue::Int64(int) => Some(grpc_event_attribute::Value::Int(*int)),
@@ -1031,7 +1030,7 @@ fn convert_to_grpc_simple_counter_data(data: &SimpleCounterData) -> GrpcSimpleCo
   }
 }
 
-fn convert_to_grpc_histogram_entries(histogram: &HashMap<HeapedOrOwned<String>, usize>) -> Vec<GrpcHistogramEntry> {
+fn convert_to_grpc_histogram_entries(histogram: &HashMap<Rc<str>, usize>) -> Vec<GrpcHistogramEntry> {
   histogram
     .iter()
     .map(|(key, value)| GrpcHistogramEntry {

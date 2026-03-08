@@ -19,19 +19,19 @@ impl PartialEq for BxesEventLog {
     }
 
     for (self_variant, other_variant) in self.variants.iter().zip(&other.variants) {
-      if !self_variant.eq(&other_variant) {
+      if !self_variant.eq(other_variant) {
         return false;
       }
     }
 
-    return true;
+    true
   }
 }
 
 #[derive(Debug)]
 pub struct BxesTraceVariant {
   pub traces_count: u32,
-  pub metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>,
+  pub metadata: Vec<(Rc<BxesValue>, Rc<BxesValue>)>,
   pub events: Vec<BxesEvent>,
 }
 
@@ -46,20 +46,20 @@ impl PartialEq for BxesTraceVariant {
     }
 
     for (self_event, other_event) in self.events.iter().zip(&other.events) {
-      if !self_event.eq(&other_event) {
+      if !self_event.eq(other_event) {
         return false;
       }
     }
 
-    return true;
+    true
   }
 }
 
 #[derive(Debug, Clone)]
 pub struct BxesEvent {
-  pub name: Rc<Box<BxesValue>>,
+  pub name: Rc<BxesValue>,
   pub timestamp: i64,
-  pub attributes: Option<Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>>,
+  pub attributes: Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
 }
 
 impl PartialEq for BxesEvent {

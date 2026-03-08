@@ -1,14 +1,14 @@
 use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
 use std::{cell::RefCell, rc::Rc};
 
-pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: &str, filter: TFilter)
+pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: Rc<str>, filter: TFilter)
 where
   TLog: EventLog,
   TFilter: Fn(&TLog::TEvent) -> bool,
 {
   log.mutate_events(|event| {
     if filter(event) {
-      event.set_name(new_name.to_owned())
+      event.set_name(new_name.clone())
     }
   })
 }
@@ -25,18 +25,20 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
   log: &mut TLog,
   add_start_events: bool,
   add_end_events: bool,
-  attributes_to_copy: Option<&Vec<String>>,
+  attributes_to_copy: Option<&Vec<Rc<str>>>,
 ) {
+  let art_start_name = Rc::<str>::from(ARTIFICIAL_START_EVENT_NAME);
+  let art_end_name = Rc::<str>::from(ARTIFICIAL_END_EVENT_NAME);
+
   for trace in log.traces() {
     let mut trace = trace.borrow_mut();
     let events = trace.events_mut();
 
     let mut add_artificial_event = |start_or_end: StartOrEnd| {
       let name = match start_or_end {
-        StartOrEnd::Start => ARTIFICIAL_START_EVENT_NAME,
-        StartOrEnd::End => ARTIFICIAL_END_EVENT_NAME,
-      }
-      .to_string();
+        StartOrEnd::Start => art_start_name.clone(),
+        StartOrEnd::End => art_end_name.clone(),
+      };
 
       let artificial_start_event = if events.is_empty() {
         match start_or_end {
@@ -74,7 +76,7 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
   }
 }
 
-fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&Vec<String>>) {
+fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&Vec<Rc<str>>>) {
   let Some(attributes_to_copy) = attributes_to_copy else { return };
   let Some(payload_map) = from.payload_map() else { return };
 
@@ -84,7 +86,7 @@ fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attr
   }
 }
 
-pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Vec<String>) {
+pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Vec<Rc<str>>) {
   log.mutate_events(|event| {
     let mut new_name = event.name().to_owned();
     let payload = event.payload_map();
@@ -97,12 +99,12 @@ pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Ve
 
       let attribute_value_string = match value {
         None => "None".to_string(),
-        Some(value) => value.as_str().to_owned(),
+        Some(value) => value.as_ref().to_owned(),
       };
 
       new_name += format!("_{}", attribute_value_string).as_str();
     }
 
-    event.set_name(new_name);
+    event.set_name(Rc::from(new_name));
   })
 }

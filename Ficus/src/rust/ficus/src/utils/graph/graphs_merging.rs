@@ -24,7 +24,7 @@ context_key! { END_NODE_ID, u64 }
 pub fn merge_graphs<TNodeData: Display + Clone, TEdgeData: Display + Clone>(
   graphs: &Vec<Graph<TNodeData, TEdgeData>>,
 ) -> Result<Graph<TNodeData, TEdgeData>, GraphsMergingError> {
-  let mut merged_graph = Graph::empty();
+  let mut merged_graph = Graph::default();
 
   let merged_start_node_id = merged_graph.add_node(None);
   let merged_end_node_id = merged_graph.add_node(None);
@@ -56,8 +56,8 @@ pub fn merge_graphs<TNodeData: Display + Clone, TEdgeData: Display + Clone>(
       merged_graph.connect_nodes(first_id, second_id, data);
     }
 
-    merged_graph.connect_nodes(&merged_start_node_id, &ids_map[&start_node_id], NodesConnectionData::empty());
-    merged_graph.connect_nodes(&ids_map[&end_node_id], &merged_end_node_id, NodesConnectionData::empty());
+    merged_graph.connect_nodes(&merged_start_node_id, &ids_map[&start_node_id], NodesConnectionData::default());
+    merged_graph.connect_nodes(&ids_map[&end_node_id], &merged_end_node_id, NodesConnectionData::default());
   }
 
   Ok(merged_graph)

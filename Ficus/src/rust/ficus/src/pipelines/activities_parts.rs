@@ -105,7 +105,7 @@ impl PipelineParts {
       &repeat_sets,
       activity_level as usize,
       *underlying_patterns_kind,
-      |sub_array| create_activity_name(log, sub_array, event_class_regex),
+      |sub_array| create_activity_name(log, sub_array, event_class_regex.map(|r| r.as_ref())),
     );
 
     context.put_concrete(ACTIVITIES_KEY.key(), tree);
@@ -156,7 +156,9 @@ impl PipelineParts {
     let strategy = match undef_activity_strat {
       UndefActivityHandlingStrategyDto::DontInsert => UndefActivityHandlingStrategy::DontInsert,
       UndefActivityHandlingStrategyDto::InsertAsSingleEvent => UndefActivityHandlingStrategy::InsertAsSingleEvent(Box::new(|| {
-        Rc::new(RefCell::new(XesEventImpl::new_with_min_date(UNDEF_ACTIVITY_NAME.to_owned())))
+        Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(
+          UNDEF_ACTIVITY_NAME.to_owned(),
+        ))))
       })),
       UndefActivityHandlingStrategyDto::InsertAllEvents => UndefActivityHandlingStrategy::InsertAllEvents,
     };
@@ -171,10 +173,7 @@ impl PipelineParts {
         first_stamp + delta / (events.len() as i32 - 1)
       };
 
-      Rc::new(RefCell::new(XesEventImpl::new(
-        info.node().borrow().name().as_ref().as_ref().clone(),
-        stamp,
-      )))
+      Rc::new(RefCell::new(XesEventImpl::new(info.node().borrow().name().clone(), stamp)))
     });
 
     context.put_concrete(EVENT_LOG_KEY.key(), log);
@@ -424,7 +423,7 @@ impl PipelineParts {
   fn create_activities_to_logs(
     context: &mut PipelineContext,
     config: &UserDataImpl,
-  ) -> Result<HashMap<String, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
+  ) -> Result<HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let dto = Self::get_user_data(config, &ACTIVITIES_LOGS_SOURCE_KEY)?;
 
@@ -442,10 +441,10 @@ impl PipelineParts {
 
   pipeline_part!(substitute_underlying_events, |context: &mut PipelineContext, _, _| {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
-    let mut new_log = XesEventLogImpl::empty();
+    let mut new_log = XesEventLogImpl::default();
 
     for trace in log.traces() {
-      let mut new_trace = XesTraceImpl::empty();
+      let mut new_trace = XesTraceImpl::default();
       for event in trace.borrow().events() {
         substitute_underlying_events(event, &mut new_trace);
       }
@@ -488,7 +487,7 @@ impl PipelineParts {
         drop(borrowed_event);
 
         if start == 0 {
-          let new_name = event.borrow().name()[start..end].to_owned();
+          let new_name = Rc::from(event.borrow().name()[start..end].to_owned());
           event.borrow_mut().set_name(new_name);
         }
       }
@@ -501,7 +500,7 @@ impl PipelineParts {
     serialize_activities_logs,
     |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let logs_to_activities = Self::create_activities_to_logs(context, config)?;
-      let path = Path::new(Self::get_user_data(config, &PATH_KEY)?);
+      let path = Path::new(Self::get_user_data(config, &PATH_KEY)?.as_ref());
       let format = Self::get_user_data(config, &LOG_SERIALIZATION_FORMAT_KEY)?;
       let mut log_number = 1;
 
@@ -569,7 +568,7 @@ impl PipelineParts {
           }
 
           for update in updates {
-            let new_key = format!("{}{}", HIERARCHY_LEVEL, update.0);
+            let new_key = Rc::from(format!("{}{}", HIERARCHY_LEVEL, update.0));
             event.payload_map_mut().unwrap().insert(new_key, update.1);
           }
         }

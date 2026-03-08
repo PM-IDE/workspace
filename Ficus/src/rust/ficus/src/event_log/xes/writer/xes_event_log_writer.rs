@@ -44,9 +44,9 @@ fn write_event_log_to_writer<T: std::io::Write>(log: &XesEventLogImpl, writer: &
 
   for ext in log.extensions() {
     let attrs = vec![
-      (NAME_ATTR_NAME_STR, ext.name.as_str()),
-      (URI_ATTR_NAME_STR, ext.uri.as_str()),
-      (PREFIX_ATTR_NAME_STR, ext.prefix.as_str()),
+      (NAME_ATTR_NAME_STR, ext.name.as_ref()),
+      (URI_ATTR_NAME_STR, ext.uri.as_ref()),
+      (PREFIX_ATTR_NAME_STR, ext.prefix.as_ref()),
     ];
 
     write_empty(&mut writer.borrow_mut(), EXTENSION_TAG_NAME_STR, &attrs)?;
@@ -54,7 +54,7 @@ fn write_event_log_to_writer<T: std::io::Write>(log: &XesEventLogImpl, writer: &
 
   for classifier in log.classifiers() {
     let keys = classifier.keys.join(" ");
-    let attrs = vec![(NAME_ATTR_NAME_STR, classifier.name.as_str()), (KEYS_ATTR_NAME_STR, keys.as_str())];
+    let attrs = vec![(NAME_ATTR_NAME_STR, classifier.name.as_ref()), (KEYS_ATTR_NAME_STR, keys.as_str())];
 
     write_empty(&mut writer.borrow_mut(), CLASSIFIER_TAG_NAME_STR, &attrs)?;
   }
@@ -64,7 +64,7 @@ fn write_event_log_to_writer<T: std::io::Write>(log: &XesEventLogImpl, writer: &
   }
 
   for (scope, defaults) in log.ordered_globals() {
-    let mut attrs = vec![(SCOPE_ATTR_NAME_STR, scope.as_str())];
+    let mut attrs = vec![(SCOPE_ATTR_NAME_STR, scope.as_ref())];
 
     let _global_cookie = StartEndElementCookie::new_with_attrs(writer, GLOBAL_TAG_NAME_STR, &attrs);
 

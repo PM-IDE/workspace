@@ -65,14 +65,17 @@ fn execute_multithreaded_dfg_discovery_test(raw_log: Vec<Vec<Vec<&str>>>, gold: 
 }
 
 fn create_multithreaded_event_log(raw_traces: Vec<Vec<Vec<&str>>>) -> XesEventLogImpl {
-  let mut log = XesEventLogImpl::empty();
+  let mut log = XesEventLogImpl::default();
 
   for trace in raw_traces {
-    let mut xes_trace = XesTraceImpl::empty();
+    let mut xes_trace = XesTraceImpl::default();
     for (thread, thread_index) in trace.iter().zip(0..trace.len()) {
       for event in thread {
-        let mut xes_event = XesEventImpl::new_with_max_date(event.to_string());
-        xes_event.add_or_update_payload(TEST_THREAD_ID_ATTRIBUTE.to_string(), EventPayloadValue::Uint64(thread_index as u64));
+        let mut xes_event = XesEventImpl::new_with_max_date(Rc::from(event.to_string()));
+        xes_event.add_or_update_payload(
+          Rc::from(TEST_THREAD_ID_ATTRIBUTE.to_string()),
+          EventPayloadValue::Uint64(thread_index as u64),
+        );
 
         xes_trace.push(Rc::new(RefCell::new(xes_event)));
       }

@@ -3,9 +3,10 @@ use crate::event_log::{
   xes::{reader::file_xes_log_reader::read_event_log, xes_event_log::XesEventLogImpl},
 };
 use log::error;
+use std::rc::Rc;
 
-pub fn merge_xes_logs(paths: &Vec<String>) -> XesEventLogImpl {
-  let mut merged_log = XesEventLogImpl::empty();
+pub fn merge_xes_logs(paths: &Vec<Rc<str>>) -> XesEventLogImpl {
+  let mut merged_log = XesEventLogImpl::default();
 
   for path in paths {
     if let Some(log) = read_event_log(path) {

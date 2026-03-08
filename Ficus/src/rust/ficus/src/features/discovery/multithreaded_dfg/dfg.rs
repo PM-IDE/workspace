@@ -9,7 +9,6 @@ use crate::{
   },
   utils::{
     graph::graph::{DefaultGraph, NodesConnectionData},
-    references::HeapedOrOwned,
     user_data::user_data::UserData,
   },
 };
@@ -43,14 +42,14 @@ pub fn discover_multithreaded_dfg(
     }
   }
 
-  let mut graph = DefaultGraph::empty();
+  let mut graph = DefaultGraph::default();
   let mut added_nodes = HashMap::new();
 
   for ((first, second), count) in dfg {
     let first_node_id = add_node(first, &mut graph, &mut added_nodes);
     let second_node_id = add_node(second, &mut graph, &mut added_nodes);
 
-    let data = Some(HeapedOrOwned::Owned(count.to_string()));
+    let data = Some(Rc::from(count.to_string()));
     graph.connect_nodes(&first_node_id, &second_node_id, NodesConnectionData::new(data, count as f64, None));
   }
 
@@ -80,14 +79,14 @@ pub fn enumerate_multithreaded_events_groups(
     for part in parts {
       match part {
         TracePart::Multithreaded(_) => {
-          let mut group = EventGroup::empty();
+          let mut group = EventGroup::default();
           let mut events_by_threads = HashMap::new();
           for event in &trace.events()[index..index + part.length()] {
             if is_control_flow_event(&event.borrow()) {
               let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
               events_by_threads
                 .entry(thread_id)
-                .or_insert(XesTraceImpl::empty())
+                .or_insert(XesTraceImpl::default())
                 .push(Rc::new(RefCell::new(event.borrow().clone())));
 
               group.control_flow_events_mut().push(event.clone());
@@ -96,7 +95,7 @@ pub fn enumerate_multithreaded_events_groups(
             }
           }
 
-          let mut multithreaded_fragment_log = XesEventLogImpl::empty();
+          let mut multithreaded_fragment_log = XesEventLogImpl::default();
           for (_, trace) in events_by_threads {
             multithreaded_fragment_log.push(Rc::new(RefCell::new(trace)));
           }
@@ -115,7 +114,7 @@ pub fn enumerate_multithreaded_events_groups(
                 trace_groups.push(group);
               }
 
-              last_group = Some(EventGroup::empty());
+              last_group = Some(EventGroup::default());
               last_group.as_mut().unwrap().control_flow_events_mut().push(event.clone());
             } else if let Some(group) = last_group.as_mut() {
               group.statistic_events_mut().push(event.clone());
@@ -141,7 +140,7 @@ fn add_node(name: String, graph: &mut DefaultGraph, added_nodes: &mut HashMap<St
   if let Some(node_id) = added_nodes.get(name.as_str()) {
     *node_id
   } else {
-    let node_id = graph.add_node(Some(HeapedOrOwned::Owned(name.clone())));
+    let node_id = graph.add_node(Some(Rc::from(name.clone())));
     added_nodes.insert(name, node_id);
     node_id
   }
@@ -268,7 +267,7 @@ fn enumerate_trace_parts(
     for event in trace.events() {
       let thread_id = extract_thread_id::<XesEventImpl>(&event.borrow(), thread_attribute);
       events_threads
-        .entry(event.borrow().name().as_str().to_string())
+        .entry(event.borrow().name().to_string())
         .or_insert(HashSet::new())
         .insert(thread_id);
     }
@@ -281,7 +280,7 @@ fn enumerate_trace_parts(
   let is_control_flow = |index: usize| {
     if let Some(regexes) = control_flow_regexes {
       let event = trace.events().get(index).unwrap().borrow();
-      let name = event.name().as_str();
+      let name = event.name();
 
       for regex in regexes {
         if regex.is_match(name).unwrap_or(false) {
@@ -297,7 +296,7 @@ fn enumerate_trace_parts(
 
   let is_sequential = |index: usize| {
     let event = trace.events().get(index).unwrap().borrow();
-    let name = event.name().as_str();
+    let name = event.name();
 
     match strategy {
       MultithreadedTracePartsCreationStrategy::Regexes(regexes) => regexes.iter().any(|r| r.is_match(name).unwrap_or(false)),

@@ -34,15 +34,15 @@ where
     self.log_info
   }
 
-  pub fn unary_frequency_significance(&self, event_class: &String) -> f64 {
+  pub fn unary_frequency_significance(&self, event_class: &str) -> f64 {
     self.log_info.event_count(event_class) as f64
   }
 
-  pub fn binary_frequency_significance(&self, first_class: &String, second_class: &String) -> f64 {
+  pub fn binary_frequency_significance(&self, first_class: &str, second_class: &str) -> f64 {
     self.log_info.dfg_info().get_directly_follows_count(first_class, second_class) as f64
   }
 
-  pub fn proximity_correlation(&mut self, first_class: &String, second_class: &String) -> f64 {
+  pub fn proximity_correlation(&mut self, first_class: &str, second_class: &str) -> f64 {
     if let Some(value) = self.caches.cache(PROXIMITY_CORRELATION).try_get(first_class, second_class) {
       return *value;
     }
@@ -85,7 +85,7 @@ where
     result
   }
 
-  pub fn relative_significance(&self, a: &String, b: &String, graph: &FuzzyGraph) -> f64 {
+  pub fn relative_significance(&self, a: &str, b: &str, graph: &FuzzyGraph) -> f64 {
     let a_b_sig = self.binary_frequency_significance(a, b);
 
     let mut first_sig = 0.5 * a_b_sig;
@@ -105,7 +105,7 @@ where
     first_sig + second_sig
   }
 
-  pub fn utility_measure(&mut self, first: &String, second: &String, utility_rate: f64) -> f64 {
+  pub fn utility_measure(&mut self, first: &str, second: &str, utility_rate: f64) -> f64 {
     utility_rate * self.binary_frequency_significance(first, second) + (1.0 - utility_rate) * self.proximity_correlation(first, second)
   }
 }

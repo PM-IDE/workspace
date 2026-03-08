@@ -37,7 +37,7 @@ impl PipelineParts {
 
     let log = read_event_log(path);
     if log.is_none() {
-      let message = format!("Failed to read event log from {}", path.as_str());
+      let message = format!("Failed to read event log from {}", path.as_ref());
       return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)));
     }
 
@@ -54,7 +54,7 @@ impl PipelineParts {
         Ok(())
       }
       Err(err) => {
-        let message = format!("Failed to read event log from {}, error: {}", path.as_str(), err);
+        let message = format!("Failed to read event log from {}, error: {}", path.as_ref(), err);
         Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(message)))
       }
     }

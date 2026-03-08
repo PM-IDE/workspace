@@ -57,8 +57,8 @@ impl T2StreamingProcessor {
     };
 
     let xes_trace = if let Some(preprocessing_pipeline) = self.trace_preprocessing_pipeline.as_ref() {
-      let mut preprocessing_context = PipelineContext::empty();
-      let mut log = XesEventLogImpl::empty();
+      let mut preprocessing_context = PipelineContext::default();
+      let mut log = XesEventLogImpl::default();
       log.push(Rc::new(RefCell::new(xes_trace)));
 
       preprocessing_context.put_concrete(EVENT_LOG_KEY.key(), log);

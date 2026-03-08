@@ -18,7 +18,7 @@ pub enum BxesValue {
   Uint64(u64),
   Float32(f32),
   Float64(f64),
-  String(Rc<Box<String>>),
+  String(Rc<str>),
   Bool(bool),
   Timestamp(i64),
   BrafLifecycle(BrafLifecycle),

@@ -13,7 +13,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 pub fn prepare_software_log(
   log: &XesEventLogImpl,
   config: &SoftwareDataExtractionConfig,
-  time_attribute: Option<&String>,
+  time_attribute: Option<&Rc<str>>,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let control_flow_regexes = config.control_flow_regexes().map_err(PipelinePartExecutionError::new_raw)?;
   if control_flow_regexes.is_none() {
@@ -25,7 +25,7 @@ pub fn prepare_software_log(
       .as_ref()
       .unwrap()
       .iter()
-      .any(|r| r.is_match(event.borrow().name().as_str()).unwrap_or(false))
+      .any(|r| r.is_match(event.borrow().name()).unwrap_or(false))
   };
 
   let mut event_groups = vec![];
@@ -42,7 +42,7 @@ pub fn prepare_software_log(
 
       let event = trace.events().get(index).unwrap();
       if is_control_flow(event) {
-        let mut group = EventGroup::empty();
+        let mut group = EventGroup::default();
 
         group.control_flow_events_mut().push(event.clone());
 
@@ -98,5 +98,5 @@ pub fn prepare_software_log(
     }
   }
 
-  abstract_event_groups(event_groups, &labels, None, time_attribute.cloned(), config)
+  abstract_event_groups(event_groups, &labels, None, time_attribute, config)
 }

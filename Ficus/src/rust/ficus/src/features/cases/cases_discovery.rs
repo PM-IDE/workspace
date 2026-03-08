@@ -18,7 +18,7 @@ pub fn discover_cases(log: &XesEventLogImpl, start_regex_str: &str, end_regex_st
 
     for event in trace.events() {
       let event = event.borrow();
-      let event_name = event.name().as_str();
+      let event_name = event.name();
       if start_regex.is_match(event_name).expect("Regex") {
         state.handle_start_event(&event);
         continue;

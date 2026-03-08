@@ -12,7 +12,7 @@ use crate::{
     },
     utils::get_stamp,
   },
-  utils::{references::HeapedOrOwned, vec_utils::VectorOptionExtensions},
+  utils::vec_utils::VectorOptionExtensions,
 };
 use derive_new::new;
 use fancy_regex::Regex;
@@ -57,9 +57,8 @@ fn create_configs(config: &SoftwareDataExtractionConfig) -> Configs<'_> {
     .iter()
     .map(|info| {
       (
-        Regex::new(info.start_event_regex())
-          .map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.start_event_regex().to_string())),
-        Regex::new(info.end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.end_event_regex().to_string())),
+        Regex::new(info.start_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.start_event_regex().clone())),
+        Regex::new(info.end_event_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(info.end_event_regex().clone())),
         info,
         Vec::new(),
         Vec::new(),
@@ -236,7 +235,7 @@ impl DurationsMapExtensions for DurationsMap {
 #[derive(Getters, new)]
 struct StackActivityStartEntry {
   #[getset(get = "pub")]
-  id: Option<HeapedOrOwned<String>>,
+  id: Option<Rc<str>>,
   #[getset(get = "pub")]
   event: Rc<RefCell<XesEventImpl>>,
 }
@@ -334,5 +333,5 @@ fn get_stamp_or_err(
   attribute: Option<&TimeAttributeConfig>,
 ) -> Result<i64, SoftwareDataExtractionError> {
   let attribute = attribute.map(|a| a.time_attribute());
-  get_stamp(&event.borrow(), attribute).map_err(|_| SoftwareDataExtractionError::FailedToGetStamp)
+  get_stamp(&event.borrow(), attribute.map(|a| a.as_ref())).map_err(|_| SoftwareDataExtractionError::FailedToGetStamp)
 }

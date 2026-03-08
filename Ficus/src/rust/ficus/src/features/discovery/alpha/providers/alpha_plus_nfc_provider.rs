@@ -13,7 +13,7 @@ use crate::{
     },
   },
 };
-use std::collections::HashSet;
+use std::{collections::HashSet, rc::Rc};
 
 enum PrePostSet {
   PreSet,
@@ -84,7 +84,7 @@ where
     self.triangle_relation(first, second) && self.triangle_relation(second, first)
   }
 
-  fn one_length_loop_transitions(&self) -> &HashSet<String> {
+  fn one_length_loop_transitions(&self) -> &HashSet<Rc<str>> {
     self.alpha_plus_provider.one_length_loop_transitions()
   }
 }
@@ -97,7 +97,7 @@ where
     info: &'a dyn EventLogInfo,
     log: &'a TLog,
     triangle_relation: &'a dyn TriangleRelation,
-    one_length_loop_transitions: &'a HashSet<String>,
+    one_length_loop_transitions: &'a HashSet<Rc<str>>,
   ) -> Self {
     Self {
       additional_causal_relations: HashSet::new(),
@@ -492,7 +492,7 @@ where
     arcs.iter().map(|arc| arc.place_id()).collect()
   }
 
-  pub fn add_additional_causal_relation(&mut self, first: &'a String, second: &'a String) {
+  pub fn add_additional_causal_relation(&mut self, first: &'a str, second: &'a str) {
     self.additional_causal_relations.insert((first, second));
   }
 }

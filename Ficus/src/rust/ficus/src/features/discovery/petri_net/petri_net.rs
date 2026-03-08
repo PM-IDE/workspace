@@ -1,26 +1,16 @@
-use crate::features::discovery::petri_net::{marking::Marking, place::Place, transition::Transition};
-use std::collections::HashMap;
-
 use super::arc::Arc;
+use crate::features::discovery::petri_net::{marking::Marking, place::Place, transition::Transition};
+use std::{collections::HashMap, rc::Rc};
 
-pub type DefaultPetriNet = PetriNet<String, ()>;
+pub type DefaultPetriNet = PetriNet<Rc<str>, ()>;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct PlaceTransitions {
   incoming_transitions: Vec<u64>,
   outgoing_transitions: Vec<u64>,
 }
 
-impl PlaceTransitions {
-  pub fn empty() -> Self {
-    Self {
-      incoming_transitions: Vec::new(),
-      outgoing_transitions: Vec::new(),
-    }
-  }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct PetriNet<TTransitionData, TArcData>
 where
   TTransitionData: ToString,
@@ -36,16 +26,6 @@ impl<TTransitionData, TArcData> PetriNet<TTransitionData, TArcData>
 where
   TTransitionData: ToString,
 {
-  pub fn empty() -> Self {
-    Self {
-      places: HashMap::new(),
-      transitions: HashMap::new(),
-      places_to_transitions: HashMap::new(),
-      initial_marking: None,
-      final_marking: None,
-    }
-  }
-
   pub fn add_place(&mut self, place: Place) -> u64 {
     let id = place.id();
     self.places.insert(place.id(), place);
@@ -88,7 +68,7 @@ where
 
   fn init_places_transitions(&mut self, place_id: &u64) {
     if !self.places_to_transitions.contains_key(place_id) {
-      self.places_to_transitions.insert(*place_id, PlaceTransitions::empty());
+      self.places_to_transitions.insert(*place_id, PlaceTransitions::default());
     }
   }
 

@@ -5,6 +5,7 @@ use crate::{
   },
   grpc::converters::context_value_from_bytes,
 };
+use futures::Stream;
 use prost::Message;
 use std::{
   collections::HashMap,
@@ -13,7 +14,7 @@ use std::{
 };
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::{codegen::futures_core::Stream, Code, Request, Response, Status, Streaming};
+use tonic::{Code, Request, Response, Status, Streaming};
 use uuid::Uuid;
 
 pub struct ContextValueService {

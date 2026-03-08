@@ -1,5 +1,8 @@
 use crate::features::discovery::petri_net::{arc::Arc, ids::next_id};
-use std::hash::{Hash, Hasher};
+use std::{
+  hash::{Hash, Hasher},
+  rc::Rc,
+};
 
 #[derive(Debug)]
 pub struct Transition<TTransitionData, TArcData>
@@ -7,7 +10,7 @@ where
   TTransitionData: ToString,
 {
   id: u64,
-  name: String,
+  name: Rc<str>,
   silent_transition: bool,
   incoming_arcs: Vec<Arc<TArcData>>,
   outgoing_arcs: Vec<Arc<TArcData>>,
@@ -38,7 +41,7 @@ impl<TTransitionData, TArcData> Transition<TTransitionData, TArcData>
 where
   TTransitionData: ToString,
 {
-  pub fn empty(name: String, silent_transition: bool, data: Option<TTransitionData>) -> Self {
+  pub fn empty(name: Rc<str>, silent_transition: bool, data: Option<TTransitionData>) -> Self {
     Self {
       id: next_id(),
       name,
@@ -81,11 +84,11 @@ where
     self.data.as_ref()
   }
 
-  pub fn name(&self) -> &String {
+  pub fn name(&self) -> &str {
     &self.name
   }
 
-  pub fn is_silent(&self) -> &bool {
-    &self.silent_transition
+  pub fn is_silent(&self) -> bool {
+    self.silent_transition
   }
 }

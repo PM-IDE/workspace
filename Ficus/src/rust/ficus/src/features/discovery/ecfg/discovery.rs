@@ -16,7 +16,6 @@ use crate::{
       graphs_merging::{END_NODE_ID_KEY, START_NODE_ID_KEY},
     },
     lcs::find_longest_common_subsequence,
-    references::HeapedOrOwned,
     user_data::user_data::UserData,
   },
 };
@@ -24,6 +23,7 @@ use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, VecDeque},
   fmt::Debug,
+  rc::Rc,
 };
 
 const EVENT_UNIQUE_ID: &str = "EVENT_UNIQUE_ID";
@@ -117,7 +117,7 @@ fn discover_ecfg_internal<T: PartialEq + Clone + Debug>(
     return Ok(handle_recursion_exit_case(log, &root_sequence, context));
   }
 
-  let mut graph = DefaultGraph::empty();
+  let mut graph = DefaultGraph::default();
   let root_sequence_nodes_ids = initialize_lcs_graph_with_root_sequence(log, &root_sequence, &mut graph, context, first_iteration);
 
   adjust_lcs_graph_with_traces(log, &root_sequence, &root_sequence_nodes_ids, &mut graph, context)?;
@@ -134,7 +134,7 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
   root_sequence: &[EventWithUniqueId<T>],
   context: &DiscoveryContext<T>,
 ) -> ECFGDiscoveryResult {
-  let mut graph = DefaultGraph::empty();
+  let mut graph = DefaultGraph::default();
 
   let start_node = create_new_graph_node(&mut graph, root_sequence.first().unwrap(), false, context, false);
   let end_node = create_new_graph_node(&mut graph, root_sequence.last().unwrap(), false, context, false);
@@ -148,11 +148,11 @@ fn handle_recursion_exit_case<T: PartialEq + Clone + Debug>(
     let mut prev_node_id = start_node;
     for event in trace.iter().skip(1).take(trace.len() - 2) {
       let node_id = create_new_graph_node(&mut graph, event, false, context, true);
-      graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::empty());
+      graph.connect_nodes(&prev_node_id, &node_id, NodesConnectionData::default());
       prev_node_id = node_id;
     }
 
-    graph.connect_nodes(&prev_node_id, &end_node, NodesConnectionData::empty());
+    graph.connect_nodes(&prev_node_id, &end_node, NodesConnectionData::default());
   }
 
   ECFGDiscoveryResult::new(graph, Some(start_node), Some(end_node))
@@ -189,7 +189,7 @@ fn transfer_user_data<T: PartialEq + Clone + Debug>(
   transfer_unique_event_id(node, event);
 }
 
-fn transfer_unique_event_id<T: PartialEq + Clone + Debug>(node: &mut GraphNode<HeapedOrOwned<String>>, event: &EventWithUniqueId<T>) {
+fn transfer_unique_event_id<T: PartialEq + Clone + Debug>(node: &mut GraphNode<Rc<str>>, event: &EventWithUniqueId<T>) {
   if let Some(node_ids) = node.user_data_mut().concrete_mut(EVENT_UNIQUE_ID_KEY.key()) {
     node_ids.push(*event.id());
   } else {
@@ -212,7 +212,7 @@ fn initialize_lcs_graph_with_root_sequence<T: PartialEq + Clone + Debug>(
     root_sequence_node_ids.push(node_id);
 
     if let Some(prev_node_id) = prev_node_id.as_ref() {
-      graph.connect_nodes(prev_node_id, &node_id, NodesConnectionData::empty());
+      graph.connect_nodes(prev_node_id, &node_id, NodesConnectionData::default());
     }
 
     prev_node_id = Some(node_id);
@@ -256,7 +256,7 @@ fn adjust_lcs_graph_with_traces<T: PartialEq + Clone + Debug>(
           graph.connect_nodes(
             &root_sequence_node_ids[second_indices[lcs_index - 1]],
             &root_sequence_node_ids[second_indices[lcs_index]],
-            NodesConnectionData::empty(),
+            NodesConnectionData::default(),
           );
         }
 
@@ -343,7 +343,7 @@ fn create_log_from_adjustments<T: PartialEq + Clone + Debug>(
 
 fn find_start_end_node_ids<T: PartialEq + Clone + Debug>(
   sub_graph: &DefaultGraph,
-  name_extractor: &dyn Fn(&T) -> HeapedOrOwned<String>,
+  name_extractor: &dyn Fn(&T) -> Rc<str>,
   artificial_start_end_events_factory: &dyn Fn() -> (T, T),
 ) -> (u64, u64) {
   let (mut start_node_id, mut end_node_id) = (0, 0);
@@ -352,11 +352,11 @@ fn find_start_end_node_ids<T: PartialEq + Clone + Debug>(
 
   for node in sub_graph.all_nodes() {
     if let Some(data) = node.data() {
-      if data.as_str().eq(art_start_name.as_str()) {
+      if data.as_ref().eq(art_start_name.as_ref()) {
         start_node_id = *node.id();
       }
 
-      if data.as_str().eq(art_end_name.as_str()) {
+      if data.as_ref().eq(art_end_name.as_ref()) {
         end_node_id = *node.id();
       }
     }
@@ -393,14 +393,18 @@ fn merge_subgraph_into_model<T: PartialEq + Clone + Debug>(
     };
 
     if *edge.to_node() != end_node_id {
-      graph.connect_nodes(&from_node, &sub_graph_nodes_to_nodes[edge.to_node()], NodesConnectionData::empty());
+      graph.connect_nodes(
+        &from_node,
+        &sub_graph_nodes_to_nodes[edge.to_node()],
+        NodesConnectionData::default(),
+      );
     }
   }
 
   for (end_node_id, log) in adjustments {
     for trace in log {
       let final_node = replay_sequence(graph, start_graph_node_id, trace.as_slice())?;
-      graph.connect_nodes(&final_node, end_node_id, NodesConnectionData::empty());
+      graph.connect_nodes(&final_node, end_node_id, NodesConnectionData::default());
     }
   }
 

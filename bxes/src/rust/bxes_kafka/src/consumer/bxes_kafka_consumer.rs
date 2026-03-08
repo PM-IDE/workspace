@@ -14,9 +14,9 @@ use bxes::{
 };
 use log::info;
 use rdkafka::{
+  Message,
   consumer::{BaseConsumer, CommitMode, Consumer},
   error::KafkaError,
-  Message,
 };
 use std::{collections::HashMap, io::Cursor, rc::Rc, time::Duration};
 use uuid::Uuid;
@@ -41,12 +41,12 @@ impl BxesKafkaConsumer {
 
 #[derive(Debug, Clone)]
 pub struct BxesKafkaTrace {
-  metadata: HashMap<String, Rc<Box<BxesValue>>>,
+  metadata: HashMap<Rc<str>, Rc<BxesValue>>,
   events: Vec<BxesEvent>,
 }
 
 impl BxesKafkaTrace {
-  pub fn metadata(&self) -> &HashMap<String, Rc<Box<BxesValue>>> {
+  pub fn metadata(&self) -> &HashMap<Rc<str>, Rc<BxesValue>> {
     &self.metadata
   }
 
@@ -96,19 +96,17 @@ impl BxesKafkaConsumer {
 
           info!("Read bxes trace with read metadata id {}", read_metadata_id);
 
-          if !self.session_id_to_read_metadata.contains_key(&read_metadata_id) {
+          self.session_id_to_read_metadata.entry(read_metadata_id).or_insert_with(|| {
             info!("Creating new read metadata for id {}", read_metadata_id);
-            self
-              .session_id_to_read_metadata
-              .insert(read_metadata_id.clone(), ReadMetadata::empty());
-          }
+            Default::default()
+          });
 
-          let mut read_metadata = self
+          let read_metadata = self
             .session_id_to_read_metadata
             .get_mut(&read_metadata_id)
             .expect("Must be present");
 
-          let trace = Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], &mut read_metadata)?;
+          let trace = Self::parse_raw_bxes_bytes(&payload[UUID_LENGTH..], read_metadata)?;
 
           self.consumer.commit_message(&msg, CommitMode::Sync)?;
 
@@ -137,16 +135,14 @@ impl BxesKafkaConsumer {
     Ok(BxesKafkaTrace { metadata, events })
   }
 
-  fn create_trace_metadata(
-    metadata: Vec<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>)>,
-  ) -> Result<HashMap<String, Rc<Box<BxesValue>>>, BxesReadError> {
+  fn create_trace_metadata(metadata: Vec<(Rc<BxesValue>, Rc<BxesValue>)>) -> Result<HashMap<Rc<str>, Rc<BxesValue>>, BxesReadError> {
     let mut new_metadata = HashMap::new();
 
     for (key, value) in metadata {
-      if let BxesValue::String(key) = key.as_ref().as_ref() {
-        new_metadata.insert(key.as_ref().as_ref().to_owned(), value);
+      if let BxesValue::String(key) = key.as_ref() {
+        new_metadata.insert(key.clone(), value);
       } else {
-        return Err(BxesReadError::ExpectedString(key.as_ref().as_ref().to_owned()));
+        return Err(BxesReadError::ExpectedString(key.as_ref().to_owned()));
       }
     }
 

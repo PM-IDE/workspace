@@ -65,20 +65,20 @@ impl KafkaSubscriptionPipeline {
 
 #[derive(Clone)]
 pub struct KafkaSubscription {
-  name: String,
+  name: Arc<str>,
   pipelines: HashMap<Uuid, KafkaSubscriptionPipeline>,
 }
 
 impl KafkaSubscription {
-  fn new(name: String) -> Self {
+  fn new(name: Arc<str>) -> Self {
     Self {
       name,
       pipelines: HashMap::new(),
     }
   }
 
-  pub fn name(&self) -> String {
-    self.name.clone()
+  pub fn name(&self) -> &str {
+    self.name.as_ref()
   }
   pub fn pipelines(&self) -> Vec<(Uuid, KafkaSubscriptionPipeline)> {
     self.pipelines.iter().map(|p| (*p.0, p.1.clone())).collect()
@@ -124,7 +124,7 @@ impl KafkaService {
 impl KafkaService {
   pub(super) fn subscribe_to_kafka_topic(&self, request: GrpcSubscribeToKafkaRequest) -> Result<Uuid, KafkaError> {
     let name = request.subscription_metadata.as_ref().unwrap().subscription_name.clone();
-    let creation_dto = self.create_kafka_creation_dto(name);
+    let creation_dto = self.create_kafka_creation_dto(name.into());
     let id = creation_dto.uuid;
 
     match Self::spawn_consumer(request, creation_dto) {
@@ -252,8 +252,8 @@ impl KafkaService {
 
         context.put_concrete(SUBSCRIPTION_ID_KEY.key(), dto.uuid);
         context.put_concrete(PIPELINE_ID_KEY.key(), *pipeline_id);
-        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), dto.name.clone());
-        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline.name.clone());
+        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), dto.name.as_ref().into());
+        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline.name.clone().into());
 
         Ok(())
       });
@@ -325,7 +325,7 @@ impl KafkaService {
 }
 
 impl KafkaService {
-  fn create_kafka_creation_dto(&self, name: String) -> KafkaConsumerCreationDto {
+  fn create_kafka_creation_dto(&self, name: Arc<str>) -> KafkaConsumerCreationDto {
     KafkaConsumerCreationDto::new(name, self.subscriptions_to_execution_requests.clone())
   }
 

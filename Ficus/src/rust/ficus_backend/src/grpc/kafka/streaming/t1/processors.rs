@@ -65,7 +65,7 @@ impl T1StreamingProcessor {
     let case_id = uuid_or_err(trace.metadata(), KAFKA_CASE_ID)?;
     let case_name_parts_joined = string_value_or_err(trace.metadata(), KAFKA_CASE_NAME_PARTS)?;
 
-    self.get_or_create_event_log(trace, case_id, case_name_parts_joined.as_str())
+    self.get_or_create_event_log(trace, case_id, case_name_parts_joined.as_ref())
   }
 
   fn get_or_create_event_log(
@@ -81,7 +81,7 @@ impl T1StreamingProcessor {
     };
 
     if !names_to_logs.contains_key(case_key) {
-      let new_log = XesEventLogImpl::empty();
+      let new_log = XesEventLogImpl::default();
       names_to_logs.insert(case_key.to_owned(), new_log);
     }
 

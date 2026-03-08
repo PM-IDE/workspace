@@ -5,6 +5,7 @@ use ficus::event_log::{
   core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
   xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
 };
+use std::rc::Rc;
 
 #[test]
 fn test_simple_event_log_creation() {
@@ -16,9 +17,14 @@ fn test_simple_event_log_creation() {
 #[test]
 fn test_set_name() {
   let log = create_simple_event_log();
-  let value = String::from_utf8("ASDASD".into()).ok().unwrap();
+  let value = Rc::<str>::from("ASDASD");
 
-  execute_test_set_test(&log, &value, |event| event.name(), |event, value| event.set_name(value.to_owned()))
+  execute_test_set_test(
+    &log,
+    &value,
+    |event| event.name_pointer(),
+    |event, value| event.set_name(value.clone()),
+  )
 }
 
 #[test]

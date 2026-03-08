@@ -45,11 +45,11 @@ impl TracesProcessor {
 }
 
 pub(in crate::grpc::kafka::streaming) struct ProcessMetadata {
-  pub process_name: String,
+  pub process_name: Rc<str>,
 }
 
 impl ProcessMetadata {
-  pub fn create_from(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
+  pub fn create_from(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     let process_name = string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
 
     Ok(Self { process_name })
@@ -58,19 +58,19 @@ impl ProcessMetadata {
 
 pub(in crate::grpc::kafka::streaming) struct CaseMetadata {
   pub case_id: Uuid,
-  pub case_display_name: String,
-  pub case_name_parts: Vec<String>,
-  pub case_name_parts_joined: String,
+  pub case_display_name: Rc<str>,
+  pub case_name_parts: Vec<Rc<str>>,
+  pub case_name_parts_joined: Rc<str>,
 }
 
 impl CaseMetadata {
-  pub fn create_from(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
+  pub fn create_from(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     let case_id = uuid_or_err(metadata, KAFKA_CASE_ID)?;
     let case_name_parts_joined = string_value_or_err(metadata, KAFKA_CASE_NAME_PARTS)?;
     let case_display_name = string_value_or_err(metadata, KAFKA_CASE_DISPLAY_NAME)?;
-    let case_name_parts: Vec<String> = case_name_parts_joined
+    let case_name_parts: Vec<Rc<str>> = case_name_parts_joined
       .split(KAFKA_CASE_NAME_PARTS_SEPARATOR)
-      .map(|s| s.to_string())
+      .map(|s| s.to_string().into())
       .collect();
 
     Ok(Self {
@@ -85,11 +85,11 @@ impl CaseMetadata {
 pub(in crate::grpc::kafka::streaming) struct ExtractedTraceMetadata {
   pub process: ProcessMetadata,
   pub case: CaseMetadata,
-  pub unstructured_metadata: Vec<(String, String)>,
+  pub unstructured_metadata: Vec<(Rc<str>, Rc<str>)>,
 }
 
 impl ExtractedTraceMetadata {
-  pub fn create_from(metadata: &HashMap<String, Rc<Box<BxesValue>>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
+  pub fn create_from(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     Ok(ExtractedTraceMetadata {
       process: ProcessMetadata::create_from(metadata)?,
       case: CaseMetadata::create_from(metadata)?,
@@ -99,7 +99,7 @@ impl ExtractedTraceMetadata {
 }
 
 fn add_system_metadata(
-  metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+  metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
   context: &mut PipelineContext,
 ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
   let metadata = ExtractedTraceMetadata::create_from(metadata)?;
@@ -118,22 +118,22 @@ fn add_system_metadata(
 }
 
 pub(in crate::grpc::kafka::streaming) fn string_value_or_err(
-  metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+  metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
   key_name: &str,
-) -> Result<String, XesFromBxesKafkaTraceCreatingError> {
+) -> Result<Rc<str>, XesFromBxesKafkaTraceCreatingError> {
   let value = value_or_err(metadata, key_name)?;
 
-  if let BxesValue::String(process_name) = value.as_ref().as_ref() {
-    Ok(process_name.as_ref().as_ref().to_owned())
+  if let BxesValue::String(process_name) = value.as_ref() {
+    Ok(process_name.clone())
   } else {
     Err(XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name.to_string()))
   }
 }
 
 pub(in crate::grpc::kafka::streaming) fn value_or_err(
-  metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+  metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
   key: &str,
-) -> Result<Rc<Box<BxesValue>>, XesFromBxesKafkaTraceCreatingError> {
+) -> Result<Rc<BxesValue>, XesFromBxesKafkaTraceCreatingError> {
   if let Some(value) = metadata.get(key) {
     Ok(value.clone())
   } else {
@@ -142,11 +142,11 @@ pub(in crate::grpc::kafka::streaming) fn value_or_err(
 }
 
 pub(in crate::grpc::kafka::streaming) fn uuid_or_err(
-  metadata: &HashMap<String, Rc<Box<BxesValue>>>,
+  metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
   key: &str,
 ) -> Result<Uuid, XesFromBxesKafkaTraceCreatingError> {
   let value = value_or_err(metadata, key)?;
-  if let BxesValue::Guid(id) = value.as_ref().as_ref() {
+  if let BxesValue::Guid(id) = value.as_ref() {
     Ok(*id)
   } else {
     Err(XesFromBxesKafkaTraceCreatingError::TraceIdIsNotUuid)
@@ -154,15 +154,15 @@ pub(in crate::grpc::kafka::streaming) fn uuid_or_err(
 }
 
 pub(in crate::grpc::kafka::streaming) fn metadata_to_string_string_pairs(
-  metadata: &HashMap<String, Rc<Box<BxesValue>>>,
-) -> Vec<(String, String)> {
+  metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
+) -> Vec<(Rc<str>, Rc<str>)> {
   metadata
     .iter()
     .filter_map(|pair| {
-      if pair.0 == KAFKA_CASE_NAME_PARTS || pair.0 == KAFKA_CASE_DISPLAY_NAME || pair.0 == KAFKA_PROCESS_NAME {
+      if pair.0.as_ref() == KAFKA_CASE_NAME_PARTS || pair.0.as_ref() == KAFKA_CASE_DISPLAY_NAME || pair.0.as_ref() == KAFKA_PROCESS_NAME {
         None
-      } else if let BxesValue::String(value) = pair.1.as_ref().as_ref() {
-        Some((pair.0.to_owned(), value.as_ref().as_ref().to_owned()))
+      } else if let BxesValue::String(value) = pair.1.as_ref() {
+        Some((pair.0.to_owned(), value.clone()))
       } else {
         None
       }

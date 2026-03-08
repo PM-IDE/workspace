@@ -10,8 +10,8 @@ use crate::{
 };
 
 pub struct BxesWriteContext<'b> {
-  pub values_indices: Rc<RefCell<HashMap<Rc<Box<BxesValue>>, usize>>>,
-  pub kv_indices: Rc<RefCell<HashMap<(Rc<Box<BxesValue>>, Rc<Box<BxesValue>>), usize>>>,
+  pub values_indices: Rc<RefCell<HashMap<Rc<BxesValue>, usize>>>,
+  pub kv_indices: Rc<RefCell<HashMap<(Rc<BxesValue>, Rc<BxesValue>), usize>>>,
   pub writer: Option<&'b mut BinaryWriter<'b>>,
   pub value_attributes: Option<Vec<ValueAttributeDescriptor>>,
   pub value_attributes_set: Option<HashSet<ValueAttributeDescriptor>>,
@@ -29,11 +29,7 @@ impl<'b> BxesWriteContext<'b> {
   }
 
   fn create_value_attributes_set(value_attributes: Option<&Vec<ValueAttributeDescriptor>>) -> Option<HashSet<ValueAttributeDescriptor>> {
-    if let Some(attributes) = value_attributes {
-      Some(attributes.iter().map(|d| d.clone()).collect())
-    } else {
-      None
-    }
+    value_attributes.map(|attributes| attributes.iter().cloned().collect())
   }
 
   pub fn new(writer: &'b mut BinaryWriter<'b>, value_attributes: Option<Vec<ValueAttributeDescriptor>>) -> Self {

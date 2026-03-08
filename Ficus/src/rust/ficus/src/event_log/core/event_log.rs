@@ -6,12 +6,10 @@ use super::{
 };
 use crate::{event_log::core::event::event::Event, utils::user_data::user_data::UserDataOwner};
 
-pub trait EventLog: Clone + UserDataOwner {
+pub trait EventLog: Clone + UserDataOwner + Default {
   type TEvent: Event + 'static;
   type TTraceInfo: TraceInfo + 'static;
   type TTrace: Trace<TEvent = Self::TEvent, TTraceInfo = Self::TTraceInfo> + 'static;
-
-  fn empty() -> Self;
 
   fn traces(&self) -> &Vec<Rc<RefCell<Self::TTrace>>>;
   fn push(&mut self, trace: Rc<RefCell<Self::TTrace>>);

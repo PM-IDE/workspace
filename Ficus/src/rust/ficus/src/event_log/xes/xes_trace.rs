@@ -8,6 +8,7 @@ use crate::event_log::core::{
 };
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+#[derive(Default)]
 pub struct XesTraceImpl {
   events_holder: EventsHolder<XesEventImpl>,
   metadata: HashMap<String, EventPayloadValue>,
@@ -43,13 +44,6 @@ impl Trace for XesTraceImpl {
   type TEvent = XesEventImpl;
   type TTraceInfo = EventSequenceInfo;
   type TTracePositions = EventsPositions;
-
-  fn empty() -> Self {
-    Self {
-      events_holder: EventsHolder::empty(),
-      metadata: HashMap::new(),
-    }
-  }
 
   fn events(&self) -> &Vec<Rc<RefCell<Self::TEvent>>> {
     self.events_holder.events()

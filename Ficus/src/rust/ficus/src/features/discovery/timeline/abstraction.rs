@@ -42,19 +42,19 @@ use std::{cell::RefCell, rc::Rc};
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
   labels: &[usize],
-  thread_attribute: Option<String>,
-  time_attribute: Option<String>,
+  thread_attribute: Option<&Rc<str>>,
+  time_attribute: Option<&Rc<str>>,
   config: &SoftwareDataExtractionConfig,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let mut current_label_index = 0;
-  let mut abstracted_log = XesEventLogImpl::empty();
+  let mut abstracted_log = XesEventLogImpl::default();
 
   for (trace_id, trace_groups) in event_groups.iter().enumerate() {
-    let mut abstracted_trace = XesTraceImpl::empty();
+    let mut abstracted_trace = XesTraceImpl::default();
 
     let mut software_data = trace_groups
       .iter()
-      .map(|_| (SoftwareData::empty(), SoftwareData::empty()))
+      .map(|_| (SoftwareData::default(), SoftwareData::default()))
       .collect::<Vec<(SoftwareData, SoftwareData)>>();
 
     for extractor in create_trace_extractors(config) {
@@ -73,8 +73,8 @@ pub fn abstract_event_groups(
       let abstracted_event = create_abstracted_event(
         event_group,
         group_label,
-        thread_attribute.as_ref(),
-        time_attribute.as_ref(),
+        thread_attribute,
+        time_attribute,
         EventCoordinates::new(trace_id as u64, event_index as u64),
         config,
         node_data,
@@ -94,8 +94,8 @@ pub fn abstract_event_groups(
 fn create_abstracted_event(
   event_group: &EventGroup,
   label: &usize,
-  thread_attribute: Option<&String>,
-  time_attribute: Option<&String>,
+  thread_attribute: Option<&Rc<str>>,
+  time_attribute: Option<&Rc<str>>,
   event_coordinates: EventCoordinates,
   config: &SoftwareDataExtractionConfig,
   mut node_software_data: SoftwareData,
@@ -105,20 +105,26 @@ fn create_abstracted_event(
   let abstracted_event_stamp = *event_group.control_flow_events().last().unwrap().borrow().timestamp() - first_stamp;
   let abstracted_event_stamp = first_stamp + abstracted_event_stamp;
 
-  let label_name = Rc::new(Box::new(label.to_string()));
+  let label_name = Rc::from(label.to_string());
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
 
   extract_software_data(
     config,
     event_group,
-    thread_attribute,
-    time_attribute,
+    thread_attribute.map(|a| a.as_ref()),
+    time_attribute.map(|a| a.as_ref()),
     &mut node_software_data,
     &mut edge_software_data,
   )?;
 
-  put_node_user_data(&mut event, node_software_data, event_coordinates, event_group, time_attribute)?;
+  put_node_user_data(
+    &mut event,
+    node_software_data,
+    event_coordinates,
+    event_group,
+    time_attribute.map(|a| a.as_ref()),
+  )?;
 
   if let Some(after_group_events) = event_group.after_group_events().is_non_empty() {
     put_edge_user_data(
@@ -126,7 +132,7 @@ fn create_abstracted_event(
       edge_software_data,
       event_coordinates,
       after_group_events,
-      time_attribute,
+      time_attribute.map(|a| a.as_ref()),
     )?;
   }
 
@@ -144,7 +150,7 @@ fn put_node_user_data(
   node_software_data: SoftwareData,
   event_coordinates: EventCoordinates,
   event_group: &EventGroup,
-  time_attribute: Option<&String>,
+  time_attribute: Option<&str>,
 ) -> Result<(), PipelinePartExecutionError> {
   let software_data = NodeAdditionalDataContainer::new(node_software_data, event_coordinates);
   event
@@ -179,7 +185,7 @@ fn put_edge_user_data(
   edge_software_data: SoftwareData,
   event_coordinates: EventCoordinates,
   after_group_events: &[Rc<RefCell<XesEventImpl>>],
-  time_attribute: Option<&String>,
+  time_attribute: Option<&str>,
 ) -> Result<(), PipelinePartExecutionError> {
   event
     .user_data_mut()
@@ -206,8 +212,8 @@ fn put_edge_user_data(
 fn extract_software_data(
   config: &SoftwareDataExtractionConfig,
   event_group: &EventGroup,
-  thread_attribute: Option<&String>,
-  time_attribute: Option<&String>,
+  thread_attribute: Option<&str>,
+  time_attribute: Option<&str>,
   node_software_data: &mut SoftwareData,
   edge_software_data: &mut SoftwareData,
 ) -> Result<(), PipelinePartExecutionError> {

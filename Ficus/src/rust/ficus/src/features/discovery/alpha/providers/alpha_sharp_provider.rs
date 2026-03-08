@@ -8,7 +8,7 @@ use crate::features::{
     relations::triangle_relation::TriangleRelation,
   },
 };
-use std::collections::HashSet;
+use std::{collections::HashSet, rc::Rc};
 
 pub struct AlphaSharpRelationsProvider<'a> {
   alpha_plus_provider: AlphaPlusRelationsProviderImpl<'a>,
@@ -77,7 +77,7 @@ impl<'a> AlphaSharpRelationsProvider<'a> {
     let classes = self.info.all_event_classes();
     for c_class in &classes {
       for d_class in &classes {
-        if c_class.as_str() != first && d_class.as_str() != second {
+        if c_class.as_ref() != first && d_class.as_ref() != second {
           let c_causal_d = self.causal_relation(c_class, d_class);
           let first_advanced_d = self.advanced_ordering_relation(first, d_class);
           let c_advanced_second = self.advanced_ordering_relation(c_class, second);
@@ -97,7 +97,7 @@ impl<'a> AlphaSharpRelationsProvider<'a> {
   pub fn new(
     triangle_relation: &'a dyn TriangleRelation,
     info: &'a OfflineEventLogInfo,
-    one_length_loop_transitions: &'a HashSet<String>,
+    one_length_loop_transitions: &'a HashSet<Rc<str>>,
   ) -> Self {
     Self {
       alpha_plus_provider: AlphaPlusRelationsProviderImpl::new(info, triangle_relation, one_length_loop_transitions),

@@ -23,7 +23,7 @@ impl<'a, T> Deref for ReferenceOrOwned<'a, T> {
 }
 
 pub enum HeapedOrOwned<T> {
-  Heaped(Rc<Box<T>>),
+  Heaped(Rc<T>),
   Owned(T),
 }
 
@@ -44,7 +44,7 @@ impl<'a, T: Deserialize<'a>> Deserialize<'a> for HeapedOrOwned<T> {
   where
     D: Deserializer<'a>,
   {
-    Ok(HeapedOrOwned::Heaped(Rc::new(Box::new(T::deserialize(deserializer)?))))
+    Ok(HeapedOrOwned::Heaped(Rc::new(T::deserialize(deserializer)?)))
   }
 }
 
@@ -53,7 +53,7 @@ pub fn owned<T>(t: T) -> HeapedOrOwned<T> {
 }
 
 pub fn heaped<T>(t: T) -> HeapedOrOwned<T> {
-  HeapedOrOwned::Heaped(Rc::new(Box::new(t)))
+  HeapedOrOwned::Heaped(Rc::new(t))
 }
 
 impl<T> Deref for HeapedOrOwned<T> {
@@ -61,7 +61,7 @@ impl<T> Deref for HeapedOrOwned<T> {
 
   fn deref(&self) -> &Self::Target {
     match self {
-      HeapedOrOwned::Heaped(ptr) => ptr.as_ref().as_ref(),
+      HeapedOrOwned::Heaped(ptr) => ptr.as_ref(),
       HeapedOrOwned::Owned(value) => value,
     }
   }

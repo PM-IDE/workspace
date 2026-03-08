@@ -36,6 +36,8 @@ pub trait UserData {
 
   fn concrete<T: 'static>(&self, key: &DefaultKey<T>) -> Option<&T>;
   fn any(&self, key: &dyn Key) -> Option<&dyn Any>;
+
+  #[allow(mut_from_ref)]
   fn concrete_mut<T: 'static>(&self, key: &DefaultKey<T>) -> Option<&mut T>;
 
   fn remove_concrete<T: 'static>(&mut self, key: &DefaultKey<T>);
@@ -131,6 +133,7 @@ impl UserDataImpl {
     }
   }
 
+  #[allow(mut_from_ref)]
   pub fn get_mut<T: 'static>(&self, key: &impl Key) -> Option<&mut T> {
     self.values_map.as_ref()?;
 

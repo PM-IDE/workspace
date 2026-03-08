@@ -1,5 +1,3 @@
-use std::collections::{HashMap, HashSet};
-
 use crate::{
   event_log::core::event_log::EventLog,
   features::analysis::{
@@ -10,8 +8,12 @@ use crate::{
     },
   },
 };
+use std::{
+  collections::{HashMap, HashSet},
+  rc::Rc,
+};
 
-pub fn calculate_laplace_dfg_entropy<TLog>(log: &TLog, ignored_events: Option<&HashSet<String>>) -> HashMap<String, f64>
+pub fn calculate_laplace_dfg_entropy<TLog>(log: &TLog, ignored_events: Option<&HashSet<Rc<str>>>) -> HashMap<String, f64>
 where
   TLog: EventLog,
 {
@@ -22,13 +24,13 @@ where
     x / y
   };
 
-  let dfr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
+  let dfr_calculator = |first: &Rc<str>, second: &Rc<str>, log_info: &dyn EventLogInfo| {
     let pair_count = log_info.dfg_info().get_directly_follows_count(first, second);
     let first_count = log_info.event_count(first);
     dfr_or_dpr_calculator(pair_count, log_info.event_classes_count(), first_count)
   };
 
-  let dpr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
+  let dpr_calculator = |first: &Rc<str>, second: &Rc<str>, log_info: &dyn EventLogInfo| {
     let pair_count = log_info.dfg_info().get_directly_follows_count(second, first);
     let first_count = log_info.event_count(first);
     dfr_or_dpr_calculator(pair_count, log_info.event_classes_count(), first_count)
@@ -39,18 +41,18 @@ where
   calculate_dfg_entropy(&log_info, dfr_calculator, dpr_calculator)
 }
 
-pub fn calculate_default_dfg_entropy<TLog>(log: &TLog, ignored_events: Option<&HashSet<String>>) -> HashMap<String, f64>
+pub fn calculate_default_dfg_entropy<TLog>(log: &TLog, ignored_events: Option<&HashSet<Rc<str>>>) -> HashMap<String, f64>
 where
   TLog: EventLog,
 {
-  let dfr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
+  let dfr_calculator = |first: &Rc<str>, second: &Rc<str>, log_info: &dyn EventLogInfo| {
     let dfg = log_info.dfg_info();
     let dfr = dfg.get_directly_follows_count(first, second);
     let first_count = log_info.event_count(first);
     dfr as f64 / first_count as f64
   };
 
-  let dpr_calculator = |first: &String, second: &String, log_info: &dyn EventLogInfo| {
+  let dpr_calculator = |first: &Rc<str>, second: &Rc<str>, log_info: &dyn EventLogInfo| {
     let dfg = log_info.dfg_info();
     let dfr = dfg.get_directly_follows_count(second, first);
     let first_count = log_info.event_count(first);
@@ -68,18 +70,18 @@ fn calculate_dfg_entropy<TDfrEntropyCalculator, TDprEntropyCalculator>(
   dpr_calculator: TDprEntropyCalculator,
 ) -> HashMap<String, f64>
 where
-  TDfrEntropyCalculator: Fn(&String, &String, &dyn EventLogInfo) -> f64,
-  TDprEntropyCalculator: Fn(&String, &String, &dyn EventLogInfo) -> f64,
+  TDfrEntropyCalculator: Fn(&Rc<str>, &Rc<str>, &dyn EventLogInfo) -> f64,
+  TDprEntropyCalculator: Fn(&Rc<str>, &Rc<str>, &dyn EventLogInfo) -> f64,
 {
   let mut entropy = HashMap::new();
   let events_names = &log_info.all_event_classes();
 
   let mut dfr_events_names = events_names.clone();
-  let fake_end = FAKE_EVENT_END_NAME.to_string();
+  let fake_end = Rc::<str>::from(FAKE_EVENT_END_NAME);
   dfr_events_names.push(&fake_end);
 
   let mut dpr_events_names = events_names.clone();
-  let fake_start = FAKE_EVENT_START_NAME.to_string();
+  let fake_start = Rc::<str>::from(FAKE_EVENT_START_NAME.to_string());
   dpr_events_names.push(&fake_start);
 
   for event_name in events_names {

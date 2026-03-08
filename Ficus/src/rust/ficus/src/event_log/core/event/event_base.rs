@@ -6,13 +6,13 @@ use crate::utils::user_data::user_data::UserDataImpl;
 
 #[derive(Debug)]
 pub struct EventBase {
-  pub name: Rc<Box<String>>,
+  pub name: Rc<str>,
   pub timestamp: DateTime<Utc>,
   pub user_data: UserDataImpl,
 }
 
 impl EventBase {
-  pub fn new(name: Rc<Box<String>>, timestamp: DateTime<Utc>) -> Self {
+  pub fn new(name: Rc<str>, timestamp: DateTime<Utc>) -> Self {
     Self {
       name,
       timestamp,

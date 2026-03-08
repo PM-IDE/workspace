@@ -30,18 +30,13 @@ macro_rules! decode {
 }
 
 /// Variants to describe endianness.
-#[derive(PartialEq)]
+#[derive(PartialEq, Default)]
 pub enum Endian {
   /// Big endian.
+  #[default]
   Big,
   /// Little endian.
   Little,
-}
-
-impl Default for Endian {
-  fn default() -> Self {
-    Self::Big
-  }
 }
 
 /// Trait for streams that can seek.
@@ -119,7 +114,7 @@ impl<'a> BinaryReader<'a> {
 
   /// Read a character from the stream.
   pub fn read_char(&mut self) -> Result<char> {
-    Ok(std::char::from_u32(self.read_u32()?).ok_or_else(|| BinaryError::InvalidChar)?)
+    std::char::from_u32(self.read_u32()?).ok_or(BinaryError::InvalidChar)
   }
 
   /// Read a `bool` from the stream.
@@ -269,7 +264,7 @@ impl<'a> BinaryWriter<'a> {
     } else {
       self.write_usize(bytes.len())?;
     }
-    Ok(self.stream.write(&bytes.to_vec())?)
+    Ok(self.stream.write(bytes)?)
   }
 
   /// Write a character to the stream.
@@ -352,7 +347,7 @@ impl<'a> BinaryWriter<'a> {
   pub fn write_bytes_with_value(&mut self, count: usize, fill_value: u8) -> Result<usize> {
     let mut buff = Vec::with_capacity(count) as Vec<u8>;
     buff.resize(count, fill_value);
-    Ok(self.write_bytes(buff)?)
+    self.write_bytes(buff)
   }
 
   /// Swap endianness to allow for reversing the writing mid stream

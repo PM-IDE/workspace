@@ -18,16 +18,17 @@ use crate::{
 };
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
+#[derive(Default)]
 pub struct XesEventLogImpl {
   base: EventLogBase<XesTraceImpl>,
-  globals: HashMap<String, HashMap<String, EventPayloadValue>>,
+  globals: HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>,
   extensions: Vec<XesEventLogExtension>,
   classifiers: Vec<XesClassifier>,
   properties: Vec<XesProperty>,
 }
 
 impl XesEventLogImpl {
-  pub fn globals_map(&self) -> &HashMap<String, HashMap<String, EventPayloadValue>> {
+  pub fn globals_map(&self) -> &HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>> {
     &self.globals
   }
 
@@ -43,7 +44,7 @@ impl XesEventLogImpl {
     &self.properties
   }
 
-  pub fn globals_mut(&mut self) -> &mut HashMap<String, HashMap<String, EventPayloadValue>> {
+  pub fn globals_mut(&mut self) -> &mut HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>> {
     &mut self.globals
   }
 
@@ -59,7 +60,7 @@ impl XesEventLogImpl {
     &mut self.classifiers
   }
 
-  pub fn ordered_properties(&self) -> Vec<(&String, &EventPayloadValue)> {
+  pub fn ordered_properties(&self) -> Vec<(&Rc<str>, &EventPayloadValue)> {
     let mut properties = Vec::new();
     for property in self.properties_map() {
       properties.push((&property.name, &property.value));
@@ -69,7 +70,7 @@ impl XesEventLogImpl {
     properties
   }
 
-  pub fn ordered_globals(&self) -> Vec<(&String, Vec<(&String, &EventPayloadValue)>)> {
+  pub fn ordered_globals(&self) -> Vec<(&Rc<str>, Vec<(&Rc<str>, &EventPayloadValue)>)> {
     let mut globals = Vec::new();
     for (key, value) in self.globals_map() {
       let mut defaults = Vec::new();
@@ -82,6 +83,7 @@ impl XesEventLogImpl {
     }
 
     vec_utils::sort_by_first(&mut globals);
+
     globals
   }
 }
@@ -148,16 +150,6 @@ impl EventLog for XesEventLogImpl {
   type TEvent = XesEventImpl;
   type TTraceInfo = EventSequenceInfo;
   type TTrace = XesTraceImpl;
-
-  fn empty() -> Self {
-    Self {
-      base: EventLogBase::empty(),
-      globals: HashMap::new(),
-      extensions: Vec::new(),
-      classifiers: Vec::new(),
-      properties: Vec::new(),
-    }
-  }
 
   fn traces(&self) -> &Vec<Rc<RefCell<Self::TTrace>>> {
     self.base.get_traces()

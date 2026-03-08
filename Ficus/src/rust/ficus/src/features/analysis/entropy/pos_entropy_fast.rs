@@ -1,20 +1,22 @@
-use std::collections::{HashMap, HashSet};
-
 use crate::event_log::core::{
   event_log::EventLog,
   trace::trace::{Trace, TraceEventsPositions},
 };
+use std::{
+  collections::{HashMap, HashSet},
+  rc::Rc,
+};
 
 use super::shared::{calculate_entropies, calculate_max_vector_length, calculate_pos_entropy};
 
-pub fn calculate_pos_entropies_fast<TLog>(log: &TLog, ignored_events: Option<&HashSet<String>>) -> HashMap<String, f64>
+pub fn calculate_pos_entropies_fast<TLog>(log: &TLog, ignored_events: Option<&HashSet<Rc<str>>>) -> HashMap<Rc<str>, f64>
 where
   TLog: EventLog,
 {
   calculate_entropies(log, ignored_events, calculate_pos_entropy_for_event_fast)
 }
 
-pub fn calculate_pos_entropy_for_event_fast<TLog>(log: &TLog, name: &str, ignored_events: Option<&HashSet<String>>) -> f64
+pub fn calculate_pos_entropy_for_event_fast<TLog>(log: &TLog, name: &str, ignored_events: Option<&HashSet<Rc<str>>>) -> f64
 where
   TLog: EventLog,
 {

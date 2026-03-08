@@ -29,15 +29,15 @@ impl PartialEq for BxesDrivers {
       }
     }
 
-    return true;
+    true
   }
 }
 
 #[derive(Clone, Debug)]
 pub struct BxesDriver {
   pub amount: BxesValue,
-  pub name: Rc<Box<BxesValue>>,
-  pub driver_type: Rc<Box<BxesValue>>,
+  pub name: Rc<BxesValue>,
+  pub driver_type: Rc<BxesValue>,
 }
 
 impl BxesDriver {

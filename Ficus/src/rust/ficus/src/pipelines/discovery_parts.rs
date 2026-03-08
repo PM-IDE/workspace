@@ -106,7 +106,7 @@ impl PipelineParts {
   pipeline_part!(discover_dfg, |context: &mut PipelineContext, _, config: &UserDataImpl| {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let creation_dto = match Self::get_user_data(config, &THREAD_ATTRIBUTE_KEY) {
-      Ok(thread_attribute) => EventLogInfoCreationDto::default_thread(log, thread_attribute.to_owned()),
+      Ok(thread_attribute) => EventLogInfoCreationDto::default_thread(log, thread_attribute.clone()),
       Err(_) => EventLogInfoCreationDto::default(log),
     };
 

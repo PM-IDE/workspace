@@ -1,7 +1,7 @@
 //https://github.com/mathias234/binary_rw/blob/master/src/stream/file.rs
 use std::{
   fs::{File, Metadata, OpenOptions},
-  io::{prelude::*, Cursor, Error, ErrorKind, Read, SeekFrom, Write},
+  io::{Error, ErrorKind, Read, SeekFrom, Write, prelude::*},
   path::Path,
 };
 
@@ -58,7 +58,7 @@ impl SeekStream for FileStream {
   }
 
   fn tell(&mut self) -> crate::binary_rw::core::Result<usize> {
-    Ok(self.file.seek(SeekFrom::Current(0))? as usize)
+    Ok(self.file.stream_position()? as usize)
   }
 
   fn len(&self) -> crate::binary_rw::core::Result<usize> {
@@ -71,7 +71,7 @@ impl Read for FileStream {
     if self.tell().unwrap() + buffer.len() > self.metadata()?.len() as usize {
       return Err(Error::new(ErrorKind::UnexpectedEof, BinaryError::ReadPastEof));
     }
-    Ok(self.file.read(buffer)?)
+    self.file.read(buffer)
   }
 }
 

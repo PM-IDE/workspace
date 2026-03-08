@@ -1,6 +1,3 @@
-use fancy_regex::Regex;
-use std::{collections::HashMap, ops::Deref};
-
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError, pipelines::PipelinePartFactory};
 use crate::{
   event_log::{
@@ -17,16 +14,17 @@ use crate::{
   },
   utils::{
     colors::{Color, ColoredRectangle, ColorsEventLog, ColorsHolder},
-    references::HeapedOrOwned,
     user_data::user_data::{UserData, UserDataImpl},
   },
 };
+use fancy_regex::Regex;
+use std::{collections::HashMap, rc::Rc};
 
 impl PipelineParts {
   pipeline_part!(traces_diversity_diagram, |context: &mut PipelineContext, _, _| {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let colors_holder = context.concrete_mut(COLORS_HOLDER_KEY.key()).expect("Should be initialized");
-    let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| HeapedOrOwned::Heaped(e.name_pointer().clone()));
+    let colors_log = Self::create_traces_diversity_colors_log(log, colors_holder, |e| e.name_pointer().clone());
 
     context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);
 
@@ -36,7 +34,7 @@ impl PipelineParts {
   fn create_traces_diversity_colors_log(
     log: &XesEventLogImpl,
     colors_holder: &mut ColorsHolder,
-    color_key_selector: impl Fn(&XesEventImpl) -> HeapedOrOwned<String>,
+    color_key_selector: impl Fn(&XesEventImpl) -> Rc<str>,
   ) -> ColorsEventLog {
     let mut mapping = HashMap::new();
     let mut traces = vec![];
@@ -47,14 +45,13 @@ impl PipelineParts {
         let event = event.borrow();
 
         let colors_key = color_key_selector(&event);
-        let colors_key = colors_key.deref();
 
-        let color = colors_holder.get_or_create(colors_key);
-        if !mapping.contains_key(colors_key) {
+        let color = colors_holder.get_or_create(&colors_key);
+        if !mapping.contains_key(&colors_key) {
           mapping.insert(colors_key.to_owned(), color);
         }
 
-        let name = HeapedOrOwned::Owned(colors_key.to_owned());
+        let name = colors_key.to_owned();
         vec.push(ColoredRectangle::square(name, index as f64));
       }
 
@@ -68,7 +65,7 @@ impl PipelineParts {
     draw_placement_of_event_by_name,
     |context: &mut PipelineContext, _, config: &UserDataImpl| {
       let event_name = Self::get_user_data(config, &EVENT_NAME_KEY)?;
-      Self::draw_events_placement(context, &|event| event.name() == event_name)
+      Self::draw_events_placement(context, &|event| event.name() == event_name.as_ref())
     }
   );
 
@@ -81,24 +78,24 @@ impl PipelineParts {
 
     let mut traces = vec![];
     let mut mapping = HashMap::new();
-    mapping.insert(UNDEF_ACTIVITY_NAME.to_owned(), Color::black());
+    mapping.insert(Rc::from(UNDEF_ACTIVITY_NAME.to_owned()), Color::black());
 
     for trace in log.traces() {
       let mut colors_trace = vec![];
 
       for (index, event) in trace.borrow().events().iter().enumerate() {
         let event = event.borrow();
-        let name = event.name();
+        let name = event.name_pointer();
         if selector(&event) {
-          let color = colors_holder.get_or_create(name.as_str());
+          let color = colors_holder.get_or_create(name);
           if !mapping.contains_key(name) {
-            mapping.insert(name.to_owned(), color);
+            mapping.insert(name.clone(), color);
           }
 
-          let name = HeapedOrOwned::Heaped(event.name_pointer().clone());
+          let name = event.name_pointer().clone();
           colors_trace.push(ColoredRectangle::square(name, index as f64));
         } else {
-          let name = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
+          let name = Rc::from(UNDEF_ACTIVITY_NAME.to_owned());
           colors_trace.push(ColoredRectangle::square(name, index as f64));
         }
       }
@@ -127,7 +124,7 @@ impl PipelineParts {
 
     let mut traces = vec![];
     let mut mapping = HashMap::new();
-    mapping.insert(UNDEF_ACTIVITY_NAME.to_string(), Color::black());
+    mapping.insert(Rc::from(UNDEF_ACTIVITY_NAME), Color::black());
 
     for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
       let mut colors_trace = vec![];
@@ -137,16 +134,15 @@ impl PipelineParts {
         SubTraceKind::Attached(activity) => {
           let color = colors_holder.get_or_create(activity.node().borrow().name());
           let name = activity.node().borrow().name().clone();
-          if !mapping.contains_key(name.as_ref().as_ref()) {
-            mapping.insert(name.as_ref().as_ref().to_owned(), color);
+          if !mapping.contains_key(name.as_ref()) {
+            mapping.insert(name.clone(), color);
           }
 
-          let name = HeapedOrOwned::Heaped(name);
           colors_trace.push(ColoredRectangle::new(name, *activity.start_pos() as f64, *activity.length() as f64));
         }
         SubTraceKind::Unattached(start_pos, length) => {
           colors_trace.push(ColoredRectangle::new(
-            HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_string()),
+            Rc::from(UNDEF_ACTIVITY_NAME.to_string()),
             start_pos as f64,
             length as f64,
           ));
@@ -168,7 +164,7 @@ impl PipelineParts {
 
     let mut traces = vec![];
     let mut mapping = HashMap::new();
-    mapping.insert(UNDEF_ACTIVITY_NAME.to_owned(), Color::black());
+    mapping.insert(Rc::<str>::from(UNDEF_ACTIVITY_NAME), Color::black());
 
     for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
       let mut colors_trace = vec![];
@@ -178,17 +174,17 @@ impl PipelineParts {
         match sub_trace {
           SubTraceKind::Attached(activity) => {
             let color = colors_holder.get_or_create(activity.node().borrow().name());
-            let name = activity.node().borrow().name().to_owned();
+            let node = activity.node().borrow();
+            let name = node.name();
 
-            if !mapping.contains_key(activity.node().borrow().name().as_ref().as_ref()) {
-              mapping.insert(activity.node().borrow().name().as_ref().as_ref().to_owned(), color);
+            if !mapping.contains_key(name) {
+              mapping.insert(name.clone(), color);
             }
 
-            let name = HeapedOrOwned::Heaped(name);
-            colors_trace.push(ColoredRectangle::new(name, index as f64, 1.));
+            colors_trace.push(ColoredRectangle::new(name.clone(), index as f64, 1.));
           }
           SubTraceKind::Unattached(_, _) => {
-            let ptr = HeapedOrOwned::Owned(UNDEF_ACTIVITY_NAME.to_owned());
+            let ptr = Rc::from(UNDEF_ACTIVITY_NAME.to_owned());
             colors_trace.push(ColoredRectangle::new(ptr, index as f64, 1.));
           }
         }
@@ -218,7 +214,7 @@ impl PipelineParts {
           return value.to_string_repr();
         }
 
-        HeapedOrOwned::Owned("UNDEF_ATTRIBUTE".to_string())
+        Rc::from("UNDEF_ATTRIBUTE".to_string())
       });
 
       context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);

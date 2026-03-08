@@ -5,7 +5,7 @@ use std::{
   hash::{Hash, Hasher},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct TwoSets<T>
 where
   T: Hash + Eq + ToString + Ord + Clone,
@@ -18,13 +18,6 @@ impl<T> TwoSets<T>
 where
   T: Hash + Eq + ToString + Ord + Clone,
 {
-  pub fn empty() -> Self {
-    Self {
-      first_set: BTreeSet::new(),
-      second_set: BTreeSet::new(),
-    }
-  }
-
   pub fn new(first_set: BTreeSet<T>, second_set: BTreeSet<T>) -> Self {
     Self { first_set, second_set }
   }

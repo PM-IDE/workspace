@@ -138,12 +138,10 @@ impl Write for BufferedWriteFileStream {
       if buf.len() > remained_space {
         self.flush()?;
         self.written_bytes_count = buf.len();
-        for i in 0..buf.len() {
-          self.buffer[i] = buf[i];
-        }
+        self.buffer[..buf.len()].copy_from_slice(buf);
       } else {
-        for i in 0..buf.len() {
-          self.buffer[self.written_bytes_count + i] = buf[i];
+        for (i, &element) in buf.iter().enumerate() {
+          self.buffer[self.written_bytes_count + i] = element;
         }
 
         self.written_bytes_count += buf.len();

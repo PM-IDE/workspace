@@ -13,7 +13,7 @@ pub struct CasesDiscoveryState {
 impl CasesDiscoveryState {
   pub fn new(inline_nested: bool) -> Self {
     Self {
-      log: XesEventLogImpl::empty(),
+      log: XesEventLogImpl::default(),
       stack: VecDeque::new(),
       depth: match inline_nested {
         true => Some(0),
@@ -37,7 +37,7 @@ impl CasesDiscoveryState {
       }
     }
 
-    let mut sub_trace = XesTraceImpl::empty();
+    let mut sub_trace = XesTraceImpl::default();
     sub_trace.push(Rc::new(RefCell::new(event.clone())));
 
     self.stack.push_back(sub_trace);

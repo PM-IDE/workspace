@@ -1,7 +1,6 @@
 use crate::utils::user_data::user_data::UserDataOwner;
 
 use super::lifecycle::xes_lifecycle::Lifecycle;
-use crate::utils::references::HeapedOrOwned;
 use chrono::{DateTime, Utc};
 use std::{collections::HashMap, fmt::Debug, rc::Rc};
 
@@ -9,7 +8,7 @@ use std::{collections::HashMap, fmt::Debug, rc::Rc};
 pub enum EventPayloadValue {
   Null,
   Date(DateTime<Utc>),
-  String(Rc<Box<String>>),
+  String(Rc<str>),
   Boolean(bool),
   Int32(i32),
   Int64(i64),
@@ -61,42 +60,46 @@ pub enum EventPayloadSoftwareEventType {
 }
 
 impl EventPayloadValue {
-  pub fn to_string_repr(&self) -> HeapedOrOwned<String> {
-    match self {
-      EventPayloadValue::Null => HeapedOrOwned::Owned("NULL".to_string()),
-      EventPayloadValue::Date(date) => HeapedOrOwned::Owned(date.to_rfc3339()),
-      EventPayloadValue::String(string) => HeapedOrOwned::Heaped(string.clone()),
-      EventPayloadValue::Boolean(bool) => HeapedOrOwned::Owned(bool.to_string()),
-      EventPayloadValue::Int32(int) => HeapedOrOwned::Owned(int.to_string()),
-      EventPayloadValue::Float32(float) => HeapedOrOwned::Owned(float.to_string()),
-      EventPayloadValue::Int64(value) => HeapedOrOwned::Owned(value.to_string()),
-      EventPayloadValue::Float64(value) => HeapedOrOwned::Owned(value.to_string()),
-      EventPayloadValue::Uint32(value) => HeapedOrOwned::Owned(value.to_string()),
-      EventPayloadValue::Uint64(value) => HeapedOrOwned::Owned(value.to_string()),
-      EventPayloadValue::Guid(value) => HeapedOrOwned::Owned(value.to_string()),
-      EventPayloadValue::Timestamp(value) => HeapedOrOwned::Owned(value.to_string()),
-      EventPayloadValue::Lifecycle(lifecycle) => HeapedOrOwned::Owned(lifecycle.to_string()),
-      EventPayloadValue::Artifact(artifact) => HeapedOrOwned::Owned(format!("{:?}", artifact)),
-      EventPayloadValue::Drivers(drivers) => HeapedOrOwned::Owned(format!("{:?}", drivers)),
-      EventPayloadValue::SoftwareEvent(software_event) => HeapedOrOwned::Owned(format!("{:?}", software_event)),
+  pub fn to_string_repr(&self) -> Rc<str> {
+    if let EventPayloadValue::String(string) = self {
+      return string.clone();
     }
+
+    Rc::from(match self {
+      EventPayloadValue::Null => "NULL".to_string(),
+      EventPayloadValue::Date(date) => date.to_rfc3339(),
+      EventPayloadValue::Boolean(bool) => bool.to_string(),
+      EventPayloadValue::Int32(int) => int.to_string(),
+      EventPayloadValue::Float32(float) => float.to_string(),
+      EventPayloadValue::Int64(value) => value.to_string(),
+      EventPayloadValue::Float64(value) => value.to_string(),
+      EventPayloadValue::Uint32(value) => value.to_string(),
+      EventPayloadValue::Uint64(value) => value.to_string(),
+      EventPayloadValue::Guid(value) => value.to_string(),
+      EventPayloadValue::Timestamp(value) => value.to_string(),
+      EventPayloadValue::Lifecycle(lifecycle) => lifecycle.to_string(),
+      EventPayloadValue::Artifact(artifact) => format!("{:?}", artifact),
+      EventPayloadValue::Drivers(drivers) => format!("{:?}", drivers),
+      EventPayloadValue::SoftwareEvent(software_event) => format!("{:?}", software_event),
+      EventPayloadValue::String { .. } => unreachable!(),
+    })
   }
 }
 
 pub trait Event: Clone + Debug + UserDataOwner {
-  fn new(name: String, stamp: DateTime<Utc>) -> Self;
-  fn new_with_min_date(name: String) -> Self;
-  fn new_with_max_date(name: String) -> Self;
+  fn new(name: Rc<str>, stamp: DateTime<Utc>) -> Self;
+  fn new_with_min_date(name: Rc<str>) -> Self;
+  fn new_with_max_date(name: Rc<str>) -> Self;
 
-  fn name(&self) -> &String;
-  fn name_pointer(&self) -> &Rc<Box<String>>;
+  fn name(&self) -> &str;
+  fn name_pointer(&self) -> &Rc<str>;
 
   fn timestamp(&self) -> &DateTime<Utc>;
-  fn payload_map(&self) -> Option<&HashMap<String, EventPayloadValue>>;
-  fn payload_map_mut(&mut self) -> Option<&mut HashMap<String, EventPayloadValue>>;
-  fn ordered_payload(&self) -> Vec<(&String, &EventPayloadValue)>;
+  fn payload_map(&self) -> Option<&HashMap<Rc<str>, EventPayloadValue>>;
+  fn payload_map_mut(&mut self) -> Option<&mut HashMap<Rc<str>, EventPayloadValue>>;
+  fn ordered_payload(&self) -> Vec<(&Rc<str>, &EventPayloadValue)>;
 
-  fn set_name(&mut self, new_name: String);
+  fn set_name(&mut self, new_name: Rc<str>);
   fn set_timestamp(&mut self, new_timestamp: DateTime<Utc>);
-  fn add_or_update_payload(&mut self, key: String, value: EventPayloadValue);
+  fn add_or_update_payload(&mut self, key: Rc<str>, value: EventPayloadValue);
 }

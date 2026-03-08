@@ -1,6 +1,6 @@
 use crate::{
   features::discovery::{ecfg::context_keys::EDGE_SOFTWARE_DATA_KEY, timeline::software_data::models::OcelObjectAction},
-  utils::{graph::graph::DefaultGraph, references::HeapedOrOwned, user_data::user_data::UserData},
+  utils::{graph::graph::DefaultGraph, user_data::user_data::UserData},
 };
 use derive_new::new;
 use enum_display::EnumDisplay;
@@ -29,15 +29,11 @@ pub enum OcelAnnotationCreationError {
 #[derive(Getters, Default)]
 pub struct NodeObjectsState {
   #[getset(get = "pub")]
-  map: HashMap<HeapedOrOwned<String>, HashSet<HeapedOrOwned<String>>>,
+  map: HashMap<Rc<str>, HashSet<Rc<str>>>,
 }
 
 impl NodeObjectsState {
-  pub fn add_allocated_object(
-    &mut self,
-    object_type: HeapedOrOwned<String>,
-    object_id: HeapedOrOwned<String>,
-  ) -> Result<(), OcelAnnotationCreationError> {
+  pub fn add_allocated_object(&mut self, object_type: Rc<str>, object_id: Rc<str>) -> Result<(), OcelAnnotationCreationError> {
     if self.contains_object(&object_type, &object_id) {
       return Err(OcelAnnotationCreationError::ObjectAlreadyExistsInNodeState);
     }
@@ -46,13 +42,13 @@ impl NodeObjectsState {
     Ok(())
   }
 
-  pub fn remove_object(&mut self, object_type: &HeapedOrOwned<String>, id: &HeapedOrOwned<String>) {
+  pub fn remove_object(&mut self, object_type: &Rc<str>, id: &Rc<str>) {
     let Some(set) = self.map.get_mut(object_type) else { return };
 
     set.remove(id);
   }
 
-  pub fn remove_unknown_object(&mut self, id: &HeapedOrOwned<String>) {
+  pub fn remove_unknown_object(&mut self, id: &Rc<str>) {
     for (_, set) in self.map.iter_mut() {
       if set.remove(id) {
         return;
@@ -60,7 +56,7 @@ impl NodeObjectsState {
     }
   }
 
-  pub fn contains_object(&self, object_type: &HeapedOrOwned<String>, object_id: &HeapedOrOwned<String>) -> bool {
+  pub fn contains_object(&self, object_type: &str, object_id: &str) -> bool {
     if let Some(type_objects) = self.map.get(object_type) {
       type_objects.contains(object_id)
     } else {
@@ -68,11 +64,11 @@ impl NodeObjectsState {
     }
   }
 
-  pub fn contains_unknown_object(&self, object_id: &HeapedOrOwned<String>) -> bool {
+  pub fn contains_unknown_object(&self, object_id: &str) -> bool {
     self.map.values().any(|set| set.contains(object_id))
   }
 
-  fn type_set_mut(&mut self, object_type: &HeapedOrOwned<String>) -> &mut HashSet<HeapedOrOwned<String>> {
+  fn type_set_mut(&mut self, object_type: &Rc<str>) -> &mut HashSet<Rc<str>> {
     if !self.map.contains_key(object_type) {
       self.map.insert(object_type.clone(), HashSet::new());
     }
@@ -104,11 +100,11 @@ pub struct ProcessNodesStates {
 #[derive(new, Getters)]
 pub struct OcelObjectRelations {
   #[get = "pub"]
-  object_id: HeapedOrOwned<String>,
+  object_id: Rc<str>,
   #[get = "pub"]
   from_element_id: u64,
   #[get = "pub"]
-  related_objects_ids: Vec<HeapedOrOwned<String>>,
+  related_objects_ids: Vec<Rc<str>>,
 }
 
 lazy_static! {
@@ -156,7 +152,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     let mut new_node_state: NodeObjectsState = Default::default();
     let mut new_node_objects_relations = vec![];
 
-    let fallback_type = HeapedOrOwned::Heaped(Rc::new(Box::new(UNKNOWN_TYPE.clone())));
+    let fallback_type = Rc::from(UNKNOWN_TYPE.clone());
 
     for incoming_node in incoming_nodes.iter() {
       let prev_state: &ProcessNodesStates = process_nodes_states.get(*incoming_node).as_ref().unwrap();

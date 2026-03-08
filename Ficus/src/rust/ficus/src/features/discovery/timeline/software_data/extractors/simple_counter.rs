@@ -34,7 +34,7 @@ impl<'a> EventGroupSoftwareDataExtractor for SimpleCounterExtractor<'a> {
       .iter()
       .map(|c| {
         (
-          Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().to_string())),
+          Regex::new(c.event_class_regex()).map_err(|_| SoftwareDataExtractionError::FailedToParseRegex(c.event_class_regex().clone())),
           c.info(),
         )
       })
@@ -49,7 +49,7 @@ impl<'a> EventGroupSoftwareDataExtractor for SimpleCounterExtractor<'a> {
               let count = if let Some(count_attribute) = config.count_attr().as_ref() {
                 if let Some(payload) = event.borrow().payload_map() {
                   if let Some(count_value) = payload.get(count_attribute) {
-                    parse_or_err::<f64>(count_value.to_string_repr().as_str())?
+                    parse_or_err::<f64>(count_value.to_string_repr().as_ref())?
                   } else {
                     continue;
                   }

@@ -8,15 +8,12 @@ use crate::{
 
 use super::{context::PipelineContext, errors::pipeline_errors::PipelinePartExecutionError};
 
+#[derive(Default)]
 pub struct Pipeline {
   parts: Vec<Box<dyn PipelinePart>>,
 }
 
 impl Pipeline {
-  pub fn empty() -> Self {
-    Self { parts: vec![] }
-  }
-
   pub fn push(&mut self, part: Box<dyn PipelinePart>) {
     self.parts.push(part);
   }
@@ -37,7 +34,7 @@ impl PipelinePart for Pipeline {
 impl Pipeline {
   fn put_default_concrete_keys(&self, context: &mut PipelineContext) {
     if context.concrete(COLORS_HOLDER_KEY.key()).is_none() {
-      context.put_concrete(COLORS_HOLDER_KEY.key(), ColorsHolder::empty());
+      context.put_concrete(COLORS_HOLDER_KEY.key(), ColorsHolder::default());
     }
   }
 }

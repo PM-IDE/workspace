@@ -10,15 +10,16 @@ use std::{
   collections::{BTreeSet, HashSet},
   fmt::Display,
   hash::{Hash, Hasher},
+  rc::Rc,
 };
 
-pub(crate) struct ExtendedAlphaSet<'a> {
+pub(crate) struct ExtendedAlphaSet {
   alpha_set: AlphaSet,
-  left_extension: BTreeSet<&'a String>,
-  right_extension: BTreeSet<&'a String>,
+  left_extension: BTreeSet<Rc<str>>,
+  right_extension: BTreeSet<Rc<str>>,
 }
 
-impl<'a> ExtendedAlphaSet<'a> {
+impl ExtendedAlphaSet {
   pub fn new_without_extensions(alpha_set: AlphaSet) -> Self {
     Self {
       alpha_set,
@@ -27,7 +28,7 @@ impl<'a> ExtendedAlphaSet<'a> {
     }
   }
 
-  pub fn new(alpha_set: AlphaSet, left_extension: &'a String, right_extension: &'a String) -> Self {
+  pub fn new(alpha_set: AlphaSet, left_extension: Rc<str>, right_extension: Rc<str>) -> Self {
     Self {
       alpha_set,
       left_extension: BTreeSet::from_iter(vec![left_extension]),
@@ -35,7 +36,7 @@ impl<'a> ExtendedAlphaSet<'a> {
     }
   }
 
-  pub fn new_only_left(alpha_set: AlphaSet, left_extension: &'a String) -> Self {
+  pub fn new_only_left(alpha_set: AlphaSet, left_extension: Rc<str>) -> Self {
     Self {
       alpha_set,
       left_extension: BTreeSet::from_iter(vec![left_extension]),
@@ -43,7 +44,7 @@ impl<'a> ExtendedAlphaSet<'a> {
     }
   }
 
-  pub fn new_only_right(alpha_set: AlphaSet, right_extension: &'a String) -> Self {
+  pub fn new_only_right(alpha_set: AlphaSet, right_extension: Rc<str>) -> Self {
     Self {
       alpha_set,
       left_extension: BTreeSet::new(),
@@ -53,11 +54,11 @@ impl<'a> ExtendedAlphaSet<'a> {
 
   pub fn try_new<TLog: EventLog>(
     alpha_set: AlphaSet,
-    left_extension: &'a String,
-    right_extension: &'a String,
+    left_extension: Rc<str>,
+    right_extension: Rc<str>,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&'a String, &'a String)>,
-    w2_relations: &HashSet<(&'a String, &'a String)>,
+    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
   ) -> Option<Self> {
     Self::try_new_internal(provider, w1_relations, w2_relations, move || {
       Self::new(alpha_set, left_extension, right_extension)
@@ -66,8 +67,8 @@ impl<'a> ExtendedAlphaSet<'a> {
 
   fn try_new_internal<TLog: EventLog>(
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&'a String, &'a String)>,
-    w2_relations: &HashSet<(&'a String, &'a String)>,
+    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
     factory: impl FnOnce() -> Self,
   ) -> Option<Self> {
     let new_set = factory();
@@ -79,10 +80,10 @@ impl<'a> ExtendedAlphaSet<'a> {
 
   pub fn try_new_only_left<TLog: EventLog>(
     alpha_set: AlphaSet,
-    left_extension: &'a String,
+    left_extension: Rc<str>,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&'a String, &'a String)>,
-    w2_relations: &HashSet<(&'a String, &'a String)>,
+    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
   ) -> Option<Self> {
     Self::try_new_internal(provider, w1_relations, w2_relations, || {
       Self::new_only_left(alpha_set, left_extension)
@@ -91,10 +92,10 @@ impl<'a> ExtendedAlphaSet<'a> {
 
   pub fn try_new_only_right<TLog: EventLog>(
     alpha_set: AlphaSet,
-    right_extension: &'a String,
+    right_extension: Rc<str>,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&'a String, &'a String)>,
-    w2_relations: &HashSet<(&'a String, &'a String)>,
+    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
   ) -> Option<Self> {
     Self::try_new_internal(provider, w1_relations, w2_relations, || {
       Self::new_only_right(alpha_set, right_extension)
@@ -104,8 +105,8 @@ impl<'a> ExtendedAlphaSet<'a> {
   pub fn valid<TLog: EventLog>(
     &self,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&'a String, &'a String)>,
-    w2_relations: &HashSet<(&'a String, &'a String)>,
+    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
   ) -> bool {
     for a in &self.left_extension {
       if self.alpha_set.contains_left(a) {
@@ -127,7 +128,7 @@ impl<'a> ExtendedAlphaSet<'a> {
       }
     }
 
-    for b_class in self.alpha_set.right_classes().iter().chain(self.right_extension.iter()) {
+    for b_class in self.alpha_set.right_classes().into_iter().chain(self.right_extension.iter()) {
       for a in &self.left_extension {
         if !(w1_relations.contains(&(a, b_class)) || w2_relations.contains(&(a, b_class))) {
           return false;
@@ -157,19 +158,19 @@ impl<'a> ExtendedAlphaSet<'a> {
   pub fn merge(&self, other: &Self) -> Self {
     Self {
       alpha_set: self.alpha_set.extend(&other.alpha_set),
-      left_extension: self.left_extension.iter().chain(&other.left_extension).copied().collect(),
-      right_extension: self.right_extension.iter().chain(&other.right_extension).copied().collect(),
+      left_extension: self.left_extension.iter().chain(&other.left_extension).cloned().collect(),
+      right_extension: self.right_extension.iter().chain(&other.right_extension).cloned().collect(),
     }
   }
 
-  pub fn two_sets(&'a self) -> TwoSets<&'a String> {
+  pub fn two_sets(&self) -> TwoSets<Rc<str>> {
     let first = self.alpha_set.left_classes();
-    let first = first.iter().chain(self.left_extension.iter());
+    let first = first.into_iter().chain(&self.left_extension);
 
     let second = self.alpha_set.right_classes();
-    let second = second.iter().chain(self.right_extension.iter());
+    let second = second.into_iter().chain(&self.right_extension);
 
-    TwoSets::new(first.copied().collect(), second.copied().collect())
+    TwoSets::new(first.cloned().collect(), second.cloned().collect())
   }
 
   pub fn alpha_set(&self) -> &AlphaSet {
@@ -177,7 +178,7 @@ impl<'a> ExtendedAlphaSet<'a> {
   }
 }
 
-impl<'a> Hash for ExtendedAlphaSet<'a> {
+impl Hash for ExtendedAlphaSet {
   fn hash<H: Hasher>(&self, state: &mut H) {
     self.alpha_set.hash(state);
     for left in &self.left_extension {
@@ -190,22 +191,22 @@ impl<'a> Hash for ExtendedAlphaSet<'a> {
   }
 }
 
-impl<'a> PartialEq for ExtendedAlphaSet<'a> {
+impl PartialEq for ExtendedAlphaSet {
   fn eq(&self, other: &Self) -> bool {
     compare_based_on_hashes(self, other)
   }
 }
 
-impl<'a> Eq for ExtendedAlphaSet<'a> {}
+impl Eq for ExtendedAlphaSet {}
 
-impl<'a> Display for ExtendedAlphaSet<'a> {
+impl Display for ExtendedAlphaSet {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut repr = String::new();
     repr.push('(');
     repr.push_str(self.alpha_set.to_string().as_str());
     repr.push_str(", ");
 
-    let mut serialize_set = |set: &BTreeSet<&'a String>| {
+    let mut serialize_set = |set: &BTreeSet<Rc<str>>| {
       repr.push('{');
       for item in set {
         repr.push_str(item);
@@ -231,12 +232,12 @@ impl<'a> Display for ExtendedAlphaSet<'a> {
   }
 }
 
-impl<'a> Clone for ExtendedAlphaSet<'a> {
+impl Clone for ExtendedAlphaSet {
   fn clone(&self) -> Self {
     Self {
       alpha_set: self.alpha_set.clone(),
-      left_extension: self.left_extension.iter().copied().collect(),
-      right_extension: self.right_extension.iter().copied().collect(),
+      left_extension: self.left_extension.iter().cloned().collect(),
+      right_extension: self.right_extension.iter().cloned().collect(),
     }
   }
 }

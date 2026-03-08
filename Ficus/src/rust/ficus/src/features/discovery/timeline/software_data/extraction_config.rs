@@ -1,14 +1,11 @@
-use crate::{
-  features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME},
-  utils::references::HeapedOrOwned,
-};
+use crate::features::mutations::mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME};
 use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::{fmt::Debug, rc::Rc};
 
-#[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize)]
+#[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize, Default)]
 pub struct SoftwareDataExtractionConfig {
   #[getset(get = "pub", set = "pub")]
   method_start: Option<ExtractionConfig<MethodStartEndConfig>>,
@@ -31,19 +28,6 @@ pub struct SoftwareDataExtractionConfig {
 }
 
 impl SoftwareDataExtractionConfig {
-  pub fn empty() -> Self {
-    Self {
-      method_start: None,
-      method_end: None,
-      allocation: None,
-      ocel: None,
-      raw_control_flow_regexes: vec![],
-      pie_chart_extraction_configs: vec![],
-      simple_counter_configs: vec![],
-      activities_duration_configs: vec![],
-    }
-  }
-
   pub fn control_flow_regexes(&self) -> Result<Option<Vec<Regex>>, String> {
     if self.raw_control_flow_regexes.is_empty() {
       return Ok(None);
@@ -93,29 +77,29 @@ pub struct OcelAllocateMergeExtractionConfig {
   #[getset(get = "pub")]
   allocated_obj: OcelObjectExtractionConfigBase,
   #[getset(get = "pub")]
-  related_object_ids_attr: String,
+  related_object_ids_attr: Rc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct OcelConsumeProduceExtractionConfig {
   #[getset(get = "pub")]
-  object_id_attr: String,
+  object_id_attr: Rc<str>,
   #[getset(get = "pub")]
-  related_object_ids_attr: String,
+  related_object_ids_attr: Rc<str>,
   #[getset(get = "pub")]
-  related_object_type_attr: String,
+  related_object_type_attr: Rc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct AllocationExtractionConfig {
   #[getset(get = "pub")]
-  type_name_attr: String,
+  type_name_attr: Rc<str>,
   #[getset(get = "pub")]
-  allocated_count_attr: String,
+  allocated_count_attr: Rc<str>,
   #[getset(get = "pub")]
-  object_size_bytes_attr: Option<String>,
+  object_size_bytes_attr: Option<Rc<str>>,
   #[getset(get = "pub")]
-  total_allocated_bytes_attr: Option<String>,
+  total_allocated_bytes_attr: Option<Rc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -123,23 +107,23 @@ pub struct MethodStartEndConfig {
   #[getset(get = "pub")]
   method_attrs: MethodCommonAttributesConfig,
   #[getset(get = "pub")]
-  prefix: Option<String>,
+  prefix: Option<Rc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodCommonAttributesConfig {
   #[getset(get = "pub")]
-  name_attr: String,
+  name_attr: Rc<str>,
   #[getset(get = "pub")]
-  namespace_attr: String,
+  namespace_attr: Rc<str>,
   #[getset(get = "pub")]
-  signature_attr: String,
+  signature_attr: Rc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ExtractionConfig<TConcreteInfo: Clone + Debug> {
   #[getset(get = "pub")]
-  event_class_regex: String,
+  event_class_regex: Rc<str>,
   #[getset(get = "pub")]
   info: TConcreteInfo,
 }
@@ -151,17 +135,17 @@ pub struct PieChartExtractionConfig {
   #[getset(get = "pub")]
   grouping_attr: Option<NameCreationStrategy>,
   #[getset(get = "pub")]
-  count_attr: Option<String>,
+  count_attr: Option<Rc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct GenericExtractionConfigBase {
   #[getset(get = "pub")]
-  name: HeapedOrOwned<String>,
+  name: Rc<str>,
   #[getset(get = "pub")]
-  units: HeapedOrOwned<String>,
+  units: Rc<str>,
   #[getset(get = "pub")]
-  group: Option<HeapedOrOwned<String>>,
+  group: Option<Rc<str>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
@@ -172,7 +156,7 @@ pub enum NameCreationStrategy {
 }
 
 impl NameCreationStrategy {
-  pub fn fallback_value(&self) -> HeapedOrOwned<String> {
+  pub fn fallback_value(&self) -> Rc<str> {
     match self {
       NameCreationStrategy::SingleAttribute(s) => s.fallback_value().clone(),
       NameCreationStrategy::ManyAttributes(m) => m.fallback_value().clone(),
@@ -183,19 +167,19 @@ impl NameCreationStrategy {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SingleAttribute {
   #[getset(get = "pub")]
-  name: String,
+  name: Rc<str>,
   #[getset(get = "pub")]
-  fallback_value: HeapedOrOwned<String>,
+  fallback_value: Rc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ManyAttributes {
   #[getset(get = "pub")]
-  attributes: Vec<String>,
+  attributes: Vec<Rc<str>>,
   #[getset(get = "pub")]
-  separator: String,
+  separator: Rc<str>,
   #[getset(get = "pub")]
-  fallback_value: HeapedOrOwned<String>,
+  fallback_value: Rc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -203,7 +187,7 @@ pub struct SimpleCountExtractionConfig {
   #[getset(get = "pub")]
   base: GenericExtractionConfigBase,
   #[getset(get = "pub")]
-  count_attr: Option<String>,
+  count_attr: Option<Rc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -211,9 +195,9 @@ pub struct ActivityDurationExtractionConfig {
   #[getset(get = "pub")]
   base: GenericExtractionConfigBase,
   #[getset(get = "pub")]
-  start_event_regex: String,
+  start_event_regex: Rc<str>,
   #[getset(get = "pub")]
-  end_event_regex: String,
+  end_event_regex: Rc<str>,
   #[getset(get = "pub")]
   time_attribute: Option<TimeAttributeConfig>,
   #[getset(get = "pub")]
@@ -223,7 +207,7 @@ pub struct ActivityDurationExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct TimeAttributeConfig {
   #[getset(get = "pub")]
-  time_attribute: String,
+  time_attribute: Rc<str>,
   #[getset(get = "pub")]
   kind: TimeKind,
 }

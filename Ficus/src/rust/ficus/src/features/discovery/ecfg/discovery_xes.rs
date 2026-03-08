@@ -46,10 +46,12 @@ pub fn discover_ecfg_from_event_log(
 
   let artificial_start_end_events_factory = || {
     (
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(
+      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(
         ARTIFICIAL_START_EVENT_NAME.to_string(),
-      ))),
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(ARTIFICIAL_END_EVENT_NAME.to_string()))),
+      )))),
+      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(
+        ARTIFICIAL_END_EVENT_NAME.to_string(),
+      )))),
     )
   };
 
@@ -161,13 +163,13 @@ fn discover_graphs_for_patterns(graph: &mut DefaultGraph, context: &DiscoveryCon
       }
 
       for pattern in &patterns {
-        let mut graph = DefaultGraph::empty();
+        let mut graph = DefaultGraph::default();
         let mut prev_node_id = None;
 
         for event in pattern.value().underlying_sequence() {
           let current_node_id = create_new_graph_node(&mut graph, &EventWithUniqueId::new(event.clone()), false, context, true);
           if let Some(prev_node) = prev_node_id {
-            graph.connect_nodes(&prev_node, &current_node_id, NodesConnectionData::empty());
+            graph.connect_nodes(&prev_node, &current_node_id, NodesConnectionData::default());
             transfer_data_from_event_to_edge_user_data(event, graph.edge_mut(&prev_node, &current_node_id).unwrap().user_data_mut());
           }
 
@@ -243,6 +245,6 @@ fn assert_all_traces_have_artificial_start_end_events(log: &XesEventLogImpl) -> 
 
 fn check_trace_have_artificial_start_end_events(trace: &XesTraceImpl) -> bool {
   trace.events().len() >= 2
-    && trace.events().first().unwrap().borrow().name().as_str() == ARTIFICIAL_START_EVENT_NAME
-    && trace.events().last().unwrap().borrow().name().as_str() == ARTIFICIAL_END_EVENT_NAME
+    && trace.events().first().unwrap().borrow().name() == ARTIFICIAL_START_EVENT_NAME
+    && trace.events().last().unwrap().borrow().name() == ARTIFICIAL_END_EVENT_NAME
 }

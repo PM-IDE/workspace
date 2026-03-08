@@ -4,20 +4,11 @@ use crate::{
 };
 use std::rc::Rc;
 
+#[derive(Default)]
 pub struct ReadMetadata {
-  pub values: Option<Vec<Rc<Box<BxesValue>>>>,
+  pub values: Option<Vec<Rc<BxesValue>>>,
   pub kv_pairs: Option<Vec<(u32, u32)>>,
   pub system_metadata: Option<SystemMetadata>,
-}
-
-impl ReadMetadata {
-  pub fn empty() -> Self {
-    Self {
-      values: None,
-      kv_pairs: None,
-      system_metadata: None,
-    }
-  }
 }
 
 pub struct ReadContext<'a, 'b> {

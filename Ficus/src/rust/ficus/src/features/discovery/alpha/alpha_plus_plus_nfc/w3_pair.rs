@@ -7,23 +7,24 @@ use std::{
   collections::HashSet,
   fmt::Display,
   hash::{Hash, Hasher},
+  rc::Rc,
 };
 
-pub(crate) struct W3Pair<'a> {
-  two_sets: TwoSets<&'a String>,
+pub(crate) struct W3Pair {
+  two_sets: TwoSets<Rc<str>>,
 }
 
-impl<'a> W3Pair<'a> {
-  pub fn new(first: &'a String, second: &'a String) -> Self {
+impl W3Pair {
+  pub fn new(first: Rc<str>, second: Rc<str>) -> Self {
     Self {
       two_sets: TwoSets::new_one_element(first, second),
     }
   }
 
   pub fn try_new<TLog: EventLog>(
-    first: &'a String,
-    second: &'a String,
-    w3_relations: &HashSet<(&String, &String)>,
+    first: Rc<str>,
+    second: Rc<str>,
+    w3_relations: &HashSet<(&str, &str)>,
     provider: &AlphaPlusNfcRelationsProvider<TLog>,
   ) -> Option<Self> {
     let new_pair = Self::new(first, second);
@@ -33,7 +34,7 @@ impl<'a> W3Pair<'a> {
     }
   }
 
-  pub fn valid<TLog: EventLog>(&self, w3_relations: &HashSet<(&String, &String)>, provider: &AlphaPlusNfcRelationsProvider<TLog>) -> bool {
+  pub fn valid<TLog: EventLog>(&self, w3_relations: &HashSet<(&str, &str)>, provider: &AlphaPlusNfcRelationsProvider<TLog>) -> bool {
     for first in self.two_sets.first_set().iter() {
       for second in self.two_sets.second_set().iter() {
         if !(w3_relations.contains(&(first, second))) {
@@ -67,26 +68,26 @@ impl<'a> W3Pair<'a> {
     }
   }
 
-  pub fn two_sets(&self) -> TwoSets<&'a String> {
+  pub fn two_sets(&self) -> TwoSets<Rc<str>> {
     self.two_sets.clone()
   }
 }
 
-impl<'a> Hash for W3Pair<'a> {
+impl Hash for W3Pair {
   fn hash<H: Hasher>(&self, state: &mut H) {
     self.two_sets.hash(state)
   }
 }
 
-impl<'a> PartialEq for W3Pair<'a> {
+impl PartialEq for W3Pair {
   fn eq(&self, other: &Self) -> bool {
     compare_based_on_hashes(self, other)
   }
 }
 
-impl<'a> Eq for W3Pair<'a> {}
+impl Eq for W3Pair {}
 
-impl<'a> Clone for W3Pair<'a> {
+impl Clone for W3Pair {
   fn clone(&self) -> Self {
     Self {
       two_sets: self.two_sets.clone(),
@@ -94,7 +95,7 @@ impl<'a> Clone for W3Pair<'a> {
   }
 }
 
-impl<'a> Display for W3Pair<'a> {
+impl Display for W3Pair {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     f.write_str(self.two_sets.to_string().as_str())
   }

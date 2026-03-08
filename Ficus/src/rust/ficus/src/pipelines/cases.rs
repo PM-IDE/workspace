@@ -20,7 +20,7 @@ impl PipelineParts {
     let end_case_regex = Self::get_user_data(config, &END_CASE_REGEX_KEY)?;
     let inline_inner_cases = *Self::get_user_data(config, &INLINE_INNER_CASES_KEY)?;
 
-    let new_log = discover_cases(log, start_case_regex.as_str(), end_case_regex.as_str(), inline_inner_cases);
+    let new_log = discover_cases(log, start_case_regex.as_ref(), end_case_regex.as_ref(), inline_inner_cases);
 
     let mut new_context = context.clone();
     new_context.put_concrete(EVENT_LOG_KEY.key(), new_log);

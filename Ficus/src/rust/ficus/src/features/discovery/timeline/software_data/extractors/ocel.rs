@@ -11,7 +11,6 @@ use crate::{
     extractors::core::{EventGroupSoftwareDataExtractor, SoftwareDataExtractionError},
     models::{ObjectTypeWithData, OcelData, OcelObjectAction, OcelProducedObjectAfterConsume, SoftwareData},
   },
-  utils::references::HeapedOrOwned,
 };
 use derive_new::new;
 use fancy_regex::Regex;
@@ -86,7 +85,7 @@ impl<'a> OcelDataExtractor<'a> {
   fn try_get_config<'b, T>(event: &'b XesEventImpl, config: Option<&'b (Regex, T)>) -> Option<&'b T> {
     let (regex, config) = config?;
 
-    if !regex.is_match(event.name().as_str()).unwrap_or(false) {
+    if !regex.is_match(event.name()).unwrap_or(false) {
       return None;
     }
 
@@ -112,10 +111,7 @@ impl<'a> OcelDataExtractor<'a> {
     true
   }
 
-  fn extract_object_id_and_type(
-    event: &XesEventImpl,
-    config: &OcelObjectExtractionConfigBase,
-  ) -> Option<(HeapedOrOwned<String>, HeapedOrOwned<String>)> {
+  fn extract_object_id_and_type(event: &XesEventImpl, config: &OcelObjectExtractionConfigBase) -> Option<(Rc<str>, Rc<str>)> {
     let object_type = config.object_type_attr().create(event);
 
     let object_id = match Self::parse_object_id(event, config.object_id_attr().as_str()) {
@@ -167,9 +163,10 @@ impl<'a> OcelDataExtractor<'a> {
     };
 
     let Some(payload) = event.payload_map() else { return false };
-    let Some(object_id) = Self::parse_object_id(event, config.object_id_attr().as_str()) else {
+    let Some(object_id) = Self::parse_object_id(event, config.object_id_attr().as_ref()) else {
       return false;
     };
+
     let related_objects_ids = Self::parse_related_objects_ids(payload, Some(config.related_object_ids_attr()), delimiter);
     let Some(related_objects_ids) = related_objects_ids else {
       return false;
@@ -197,7 +194,7 @@ impl<'a> OcelDataExtractor<'a> {
     true
   }
 
-  fn parse_object_id(event: &XesEventImpl, object_id_attr: &str) -> Option<HeapedOrOwned<String>> {
+  fn parse_object_id(event: &XesEventImpl, object_id_attr: &str) -> Option<Rc<str>> {
     if let Some(map) = event.payload_map().as_ref()
       && let Some(object_id) = map.get(object_id_attr).as_ref()
     {
@@ -208,24 +205,18 @@ impl<'a> OcelDataExtractor<'a> {
   }
 
   fn parse_related_objects_ids(
-    payload: &HashMap<String, EventPayloadValue>,
-    related_objects_ids_attr: Option<&String>,
+    payload: &HashMap<Rc<str>, EventPayloadValue>,
+    related_objects_ids_attr: Option<&Rc<str>>,
     delimiter: &str,
-  ) -> Option<Vec<HeapedOrOwned<String>>> {
+  ) -> Option<Vec<Rc<str>>> {
     if let Some(related_objects_ids_attr) = related_objects_ids_attr
       && let Some(objects_ids) = payload.get(related_objects_ids_attr)
     {
-      let parsed_ids: Vec<HeapedOrOwned<String>> = objects_ids
+      let parsed_ids: Vec<Rc<str>> = objects_ids
         .to_string_repr()
         .trim()
         .split(delimiter)
-        .filter_map(|s| {
-          if !s.is_empty() {
-            Some(HeapedOrOwned::Owned(s.to_string()))
-          } else {
-            None
-          }
-        })
+        .filter_map(|s| if !s.is_empty() { Some(Rc::from(s)) } else { None })
         .collect();
 
       if parsed_ids.is_empty() {

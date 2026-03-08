@@ -41,7 +41,7 @@ impl PipelineInfrastructure {
   }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct PipelineContext<'a> {
   user_data: UserDataImpl,
   pipeline_parts: Option<&'a PipelineParts>,
@@ -52,13 +52,6 @@ impl<'a> PipelineContext<'a> {
     Self {
       user_data: Default::default(),
       pipeline_parts: Some(parts),
-    }
-  }
-
-  pub fn empty() -> Self {
-    Self {
-      user_data: Default::default(),
-      pipeline_parts: None,
     }
   }
 

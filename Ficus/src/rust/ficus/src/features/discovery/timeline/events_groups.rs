@@ -140,7 +140,7 @@ impl<'a> ThreadsSequentialEvents<'a> {
   }
 }
 
-#[derive(Clone, Debug, Getters, MutGetters, Setters)]
+#[derive(Clone, Debug, Getters, MutGetters, Setters, Default)]
 pub struct EventGroup {
   #[getset(get = "pub", get_mut = "pub")]
   control_flow_events: Vec<Rc<RefCell<XesEventImpl>>>,
@@ -153,15 +153,6 @@ pub struct EventGroup {
 }
 
 impl EventGroup {
-  pub fn empty() -> Self {
-    Self {
-      control_flow_events: vec![],
-      statistic_events: vec![],
-      after_group_events: None,
-      user_data: Default::default(),
-    }
-  }
-
   pub fn all_events(&self) -> Vec<&Rc<RefCell<XesEventImpl>>> {
     self.control_flow_events.iter().chain(&self.statistic_events).collect()
   }
@@ -213,13 +204,13 @@ pub fn enumerate_event_groups(log: &LogTimelineDiagram) -> Vec<Vec<EventGroup>> 
       let start_point = current_group_info.start_point();
 
       if trace_index == *start_point.trace_index() && event_index == *start_point.event_index() {
-        current_group = Some(EventGroup::empty());
+        current_group = Some(EventGroup::default());
       } else if current_group.is_none() {
         try_put_after_event_to_last_group(event.original_event().clone(), &mut trace_groups);
       }
 
       if let Some(current_group) = current_group.as_mut() {
-        if log.is_control_flow_event(event.original_event().borrow().name().as_str()) {
+        if log.is_control_flow_event(event.original_event().borrow().name()) {
           current_group.control_flow_events_mut().push(event.original_event().clone());
         } else {
           current_group.statistic_events_mut().push(event.original_event().clone());

@@ -7,7 +7,7 @@ use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use super::trace::Trace;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct EventLogBase<TTrace>
 where
   TTrace: Trace,
@@ -33,13 +33,6 @@ impl<TTrace> EventLogBase<TTrace>
 where
   TTrace: Trace,
 {
-  pub fn empty() -> Self {
-    Self {
-      traces: vec![],
-      user_data: Default::default(),
-    }
-  }
-
   pub fn new(traces: Vec<Rc<RefCell<TTrace>>>) -> Self {
     Self {
       traces,

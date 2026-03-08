@@ -111,7 +111,7 @@ where
 pub fn create_logs_for_activities<TClassExtractor, TNameCreator>(
   context: &ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>,
   activity_level: usize,
-) -> HashMap<String, Rc<RefCell<XesEventLogImpl>>>
+) -> HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>>
 where
   TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,

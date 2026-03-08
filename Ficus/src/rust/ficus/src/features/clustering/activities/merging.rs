@@ -66,14 +66,14 @@ pub(super) fn merge_activities(
     new_activity_name_parts.sort();
 
     let mut new_activity_name = String::new();
-    new_activity_name.push_str(create_cluster_name(*cluster).as_str());
+    new_activity_name.push_str(create_cluster_name(*cluster).as_ref());
 
     let new_node = ActivityNode::new(
       None,
       new_event_classes_set,
       vec![],
       *cluster_activities[0].borrow().level(),
-      Rc::new(Box::new(new_activity_name)),
+      Rc::from(new_activity_name),
       *cluster_activities.first().unwrap().borrow().pattern_kind(),
     );
 

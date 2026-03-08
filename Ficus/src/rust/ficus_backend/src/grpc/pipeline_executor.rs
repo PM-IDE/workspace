@@ -109,7 +109,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
   }
 
   pub(super) fn to_pipeline(&self) -> Pipeline {
-    let mut pipeline = Pipeline::empty();
+    let mut pipeline = Pipeline::default();
     for grpc_part in &self.grpc_pipeline().parts {
       match grpc_part.part.as_ref().unwrap() {
         Part::DefaultPart(grpc_default_part) => match self.find_default_part(grpc_default_part) {

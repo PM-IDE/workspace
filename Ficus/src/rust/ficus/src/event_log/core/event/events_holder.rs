@@ -19,6 +19,16 @@ where
   events_positions: LazyCell<EventsPositions>,
 }
 
+impl<T: Event> Default for EventsHolder<T> {
+  fn default() -> Self {
+    Self {
+      events: vec![],
+      events_sequence_info: Default::default(),
+      events_positions: Default::default(),
+    }
+  }
+}
+
 impl<TEvent> Clone for EventsHolder<TEvent>
 where
   TEvent: Event,
@@ -37,14 +47,6 @@ impl<TEvent> EventsHolder<TEvent>
 where
   TEvent: Event,
 {
-  pub fn empty() -> Self {
-    Self {
-      events: vec![],
-      events_sequence_info: LazyCell::new(),
-      events_positions: LazyCell::new(),
-    }
-  }
-
   pub fn new(events: Vec<Rc<RefCell<TEvent>>>) -> Self {
     Self {
       events,
@@ -120,12 +122,12 @@ where
 
 #[derive(Debug)]
 pub struct EventSequenceInfo {
-  events_counts: HashMap<String, usize>,
+  events_counts: HashMap<Rc<str>, usize>,
   events_count: usize,
 }
 
 impl TraceInfo for EventSequenceInfo {
-  fn events_counts(&self) -> &HashMap<String, usize> {
+  fn events_counts(&self) -> &HashMap<Rc<str>, usize> {
     &self.events_counts
   }
 
@@ -141,7 +143,7 @@ impl EventSequenceInfo {
   {
     let mut events_counts = HashMap::new();
     for event in events_holder.events() {
-      increase_in_map(&mut events_counts, event.borrow().name());
+      increase_in_map(&mut events_counts, event.borrow().name_pointer());
     }
 
     EventSequenceInfo {
@@ -153,7 +155,7 @@ impl EventSequenceInfo {
 
 #[derive(Debug)]
 pub struct EventsPositions {
-  positions: HashMap<String, Vec<usize>>,
+  positions: HashMap<Rc<str>, Vec<usize>>,
 }
 
 impl EventsPositions {
@@ -164,7 +166,7 @@ impl EventsPositions {
     let mut positions = HashMap::new();
 
     for (index, event) in events.events().iter().enumerate() {
-      add_to_list_in_map(&mut positions, event.borrow().name(), index);
+      add_to_list_in_map(&mut positions, event.borrow().name_pointer(), index);
     }
 
     EventsPositions { positions }

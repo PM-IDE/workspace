@@ -6,13 +6,14 @@ use crate::{
   features::discovery::timeline::discovery::LogThreadsDiagramError,
 };
 use chrono::{DateTime, Utc};
+use std::rc::Rc;
 
-pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<String> {
+pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<Rc<str>> {
   let value = event.payload_map()?.get(thread_attribute)?;
-  Some(value.to_string_repr().as_str().to_owned())
+  Some(value.to_string_repr().clone())
 }
 
-pub fn get_stamp(event: &XesEventImpl, attribute: Option<&String>) -> Result<i64, LogThreadsDiagramError> {
+pub fn get_stamp(event: &XesEventImpl, attribute: Option<&str>) -> Result<i64, LogThreadsDiagramError> {
   if let Some(attribute) = attribute
     && let Some(map) = event.payload_map()
     && let Some(value) = map.get(attribute)
