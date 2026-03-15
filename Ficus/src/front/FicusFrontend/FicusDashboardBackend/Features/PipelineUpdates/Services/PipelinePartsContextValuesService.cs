@@ -5,8 +5,7 @@ using Grpc.Core;
 namespace FicusDashboardBackend.Features.PipelineUpdates.Services;
 
 public class PipelinePartsContextValuesService(
-  IPipelinePartsUpdatesRepository repository,
-  ILogger<PipelinePartsContextValuesService> logger
+  IPipelinePartsUpdatesRepository repository
 ) : GrpcPipelinePartsContextValuesService.GrpcPipelinePartsContextValuesServiceBase
 {
   public override Task<GrpcCaseContextValues> GetPipelineCaseContextValue(

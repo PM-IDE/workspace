@@ -1,17 +1,18 @@
 ﻿namespace FicusDashboard.Utils;
 
+// ReSharper disable once UnusedTypeParameter
 public class Key<T>(string name)
 {
   public string Name => name;
 }
 
-public abstract class UserDataHolderBase
+public sealed class UserDataHolder
 {
   private readonly Lock mySyncObject = new();
   private readonly Dictionary<object, object> myValues = new();
 
 
-  protected bool TryGetData<T>(Key<T> key, out T value)
+  public bool TryGetData<T>(Key<T> key, out T value)
   {
     value = default;
     lock (mySyncObject)
@@ -23,19 +24,13 @@ public abstract class UserDataHolderBase
     }
   }
 
-  protected void PutData<T>(Key<T> key, T value) where T : notnull
+  public void PutData<T>(Key<T> key, T value) where T : notnull
   {
     lock (mySyncObject)
     {
       myValues[key] = value;
     }
   }
-}
-
-public sealed class UserDataHolder : UserDataHolderBase
-{
-  public bool TryGetData<T>(Key<T> key, out T value) => base.TryGetData(key, out value);
-  public void PutData<T>(Key<T> key, T value) where T : notnull => base.PutData(key, value);
 }
 
 public static class ExtensionsForUserData

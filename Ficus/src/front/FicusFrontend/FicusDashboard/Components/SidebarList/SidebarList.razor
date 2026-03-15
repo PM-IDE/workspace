@@ -39,8 +39,6 @@
 
 @code
 {
-  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
-
 
   [Parameter] public string? ListItemIcon { get; set; }
   [Parameter] public required SidebarListContainer.Style ComponentStyle { get; set; }
@@ -54,7 +52,7 @@
 
   private bool IsExpanded(TItem item)
   {
-    return item.UserData.GetOrCreate(ourExpandedKey, static () => true);
+    return item.UserData.GetOrCreate(Keys.ExpandedKey, static () => true);
   }
 
   private void HandleInnerItemSelected(
@@ -69,8 +67,8 @@
 
   private void HandleItemTitleClicked(TItem item)
   {
-    var expanded = item.UserData.GetOrCreate(ourExpandedKey, static () => true);
-    item.UserData.PutData(ourExpandedKey, !expanded);
+    var expanded = item.UserData.GetOrCreate(Keys.ExpandedKey, static () => true);
+    item.UserData.PutData(Keys.ExpandedKey, !expanded);
 
     StateHasChanged();
   }
