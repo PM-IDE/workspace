@@ -32,6 +32,12 @@ public class MethodOcelLogWriter(string outputFilePath, IProcfilerLogger logger)
   {
     if (evt.IsOcelGlobalEvent(out var objectId, out var activityName, out var category))
     {
+      if (activityName is null)
+      {
+        logger.LogWarning("Activity name was null for {ObjectId}", objectId);
+        return;
+      }
+
       var state = myGlobalActivities.GetOrCreate(activityName, () => new ActivityInfo(evt.Time.LoggedAt.ToUniversalTime()));
       state.Events.GetOrCreate(category ?? string.Empty, static () => []).Add(objectId);
       state.EndDate = evt.Time.LoggedAt.ToUniversalTime();

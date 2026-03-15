@@ -11,12 +11,12 @@
     <SubscriptionsList PipelineSelected="HandlePipelineSelected"/>
   </div>
   <div class="sidebar">
-    <CasesList CaseSelected="HandleNewCaseSelected" SelectedPipeline="mySelectedPipeline"/>
+    <CasesList CaseSelected="HandleNewCaseSelected" SelectedPipeline="mySelectedPipeline!"/>
   </div>
 
   <main>
     <article class="content px-4 case-info-container" style="height: 100%;">
-      <CaseInfo ProcessCaseData="mySelectedProcessCaseData"/>
+      <CaseInfo ProcessCaseData="mySelectedProcessCaseData!"/>
     </article>
   </main>
 </div>
