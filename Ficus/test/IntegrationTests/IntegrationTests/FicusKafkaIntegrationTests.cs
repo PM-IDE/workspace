@@ -22,7 +22,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
   {
     var eventLog = GenerateTestEventLog();
     ProduceEventLogToKafka(eventLog);
-    AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
+    AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates(eventLog.Traces.Count));
   }
 
   [Test]
@@ -38,7 +38,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     }
 
     ProduceEventLogToKafka(eventLog);
-    AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates());
+    AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates(eventLog.Traces.Count));
   }
 
   private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
@@ -117,19 +117,21 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     Thread.Sleep(10_000);
   }
 
-  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates()
+  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(int updatesCount)
   {
     var logger = LoggerFactory.Create(_ => { }).CreateLogger<PipelinePartsUpdatesConsumer>();
-    return ConsumeAllUpdates(logger);
+    return ConsumeAllUpdates(logger, updatesCount);
   }
 
-  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(ILogger logger)
+  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(ILogger logger, int updatesCount)
   {
     const string ConsumerGroupId = $"{nameof(FicusKafkaIntegrationTests)}::{nameof(ConsumeAllUpdates)}";
     var consumer =
       PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(PipelinePartsSettings, ConsumerGroupId, logger);
 
     List<GrpcKafkaUpdate> result = [];
+    var consumed = 0;
+
     while (true)
     {
       var consumeResult = consumer.Consume();
@@ -137,6 +139,11 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
 
       result.Add(consumeResult.Message.Value);
       consumer.Commit();
+
+      if (++consumed == updatesCount)
+      {
+        break;
+      }
     }
 
     return result;
