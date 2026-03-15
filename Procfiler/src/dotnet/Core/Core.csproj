@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ProcfilerEventSources\ProcfilerEventSources.csproj"/>
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Events\"/>
   </ItemGroup>
 

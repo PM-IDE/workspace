@@ -32,7 +32,7 @@ public class BusinessEventMutator(IProcfilerLogger logger) : SingleEventMutatorB
       }
       else
       {
-        logger.LogWarning("Attributes key values count is not % 2 == 0");
+        Logger.LogWarning("Attributes key values count is not % 2 == 0");
       }
     }
 

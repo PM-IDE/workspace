@@ -18,8 +18,8 @@
 
 @code
 {
-  [Parameter] public TValue InitialValue { get; set; }
-  [Parameter] public string Title { get; set; }
+  [Parameter] public required TValue InitialValue { get; set; }
+  [Parameter] public required string Title { get; set; }
   [Parameter] public decimal Max { get; set; }
   [Parameter] public decimal Min { get; set; }
   [Parameter] public decimal Step { get; set; }
