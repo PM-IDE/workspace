@@ -8,7 +8,15 @@
 
 
 <div style="display: flex; flex-direction: column; width: 100%; height: 100%; padding: 5px;">
-  <div style="display: flex; flex-direction: row; width: 100%; max-height: 85%;">
+  @{
+    const int ContentHeightPercent = 85;
+
+    var hasAggregatedData = myAggregatedData is { IsEmpty: false };
+    var contentHeight = hasAggregatedData ? $"{ContentHeightPercent}%" : "100%";
+    var aggregatedDataHeight = $"{100 - ContentHeightPercent}%";
+  }
+
+  <div style="display: flex; flex-direction: row; width: 100%; max-height: @contentHeight;">
     <GraphLikeEntitySettings @ref="@mySettings"
                              Enhancements="@myEnhancements"
                              CanRenderFlamegraph="@(myContext is { })">
@@ -32,12 +40,12 @@
     </div>
   </div>
 
-  <div style="margin-top: 5px; height: 15%;">
-    @if (myAggregatedData is { IsEmpty: false } data)
-    {
-      <AggregatedDataRenderer Data="@data"/>
-    }
-  </div>
+  @if (hasAggregatedData)
+  {
+    <div style="margin-top: 5px; height: @aggregatedDataHeight;">
+      <AggregatedDataRenderer Data="@(myAggregatedData!)"/>
+    </div>
+  }
 </div>
 
 @code
