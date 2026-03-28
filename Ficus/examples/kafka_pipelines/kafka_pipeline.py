@@ -16,8 +16,8 @@ execute_pipeline(
         DiscoverLoopsStrict(),
         CreateLogFromActivitiesInstances(strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
         TracesDiversityDiagramCanvas(),
-        DiscoverRootSequenceGraph(root_sequence_kind=RootSequenceKind.FindBest,
-                                  merge_sequences_of_events=False),
+        DiscoverECFG(root_sequence_kind=RootSequenceKind.FindBest,
+                     merge_sequences_of_events=False),
         AnnotateGraphWithTime(TimeAnnotationKind.Mean),
     ]
 )
