@@ -8,11 +8,19 @@ public abstract class OnlineProcfilerTestWithGold : OnlineProcfilerTestBase
   protected void Execute(Func<string> goldCreator)
   {
     var testValue = goldCreator().RemoveRn();
-    GoldUtil.ExecuteGoldTest(testValue, GetType().Name, () =>
+    var folderName = GetType().Name;
+    var solution = TestContext.CurrentContext.Test.Arguments.FirstOrDefault() as KnownSolution;
+
+    if (solution is { })
     {
-      return TestContext.CurrentContext.Test.Arguments.FirstOrDefault() switch
+      folderName = Path.Combine(folderName, solution.Tfm);
+    }
+
+    GoldUtil.ExecuteGoldTest(testValue, folderName, () =>
+    {
+      return solution switch
       {
-        KnownSolution solution => solution.Name,
+        { } => solution.Name,
         _ => TestContext.CurrentContext.Test.Name
       };
     });
