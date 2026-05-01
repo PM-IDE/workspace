@@ -8,14 +8,13 @@ public abstract class OnlineProcfilerTestWithGold : OnlineProcfilerTestBase
   protected void Execute(Func<string> goldCreator)
   {
     var testValue = goldCreator().RemoveRn();
-    GoldUtil.ExecuteGoldTest(testValue, GetType().Name, test =>
+    GoldUtil.ExecuteGoldTest(testValue, GetType().Name, () =>
     {
-      if (test.Arguments.FirstOrDefault() is KnownSolution solution)
+      return TestContext.CurrentContext.Test.Arguments.FirstOrDefault() switch
       {
-        return solution.Name;
-      }
-
-      return test.Name;
+        KnownSolution solution => solution.Name,
+        _ => TestContext.CurrentContext.Test.Name
+      };
     });
   }
 }
