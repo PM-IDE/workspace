@@ -1,0 +1,6 @@
+Method: DynamicAssemblyLoading.Program.Main[void..(class.System.String[])]
+
+Trace 0
+	[start] DynamicAssemblyLoading.Program.Main[void..(class.System.String[])]
+	[ end ] DynamicAssemblyLoading.Program.Main[void..(class.System.String[])]
+

@@ -1,0 +1,30 @@
+ASYNC_AsyncAwaitTaskFactoryNew.Program+<>c+<<Main>b__0_2>d
+Trace:
+	[start] AsyncAwaitTaskFactoryNew.Program+<>c+<<Main>b__0_2>d.MoveNext[instance.void..()]
+		[start] AsyncAwaitTaskFactoryNew.Program.Allocate2[class.System.Object..()]
+			[start] AsyncAwaitTaskFactoryNew.XdClass2..ctor[instance.void..()]
+			[ end ] AsyncAwaitTaskFactoryNew.XdClass2..ctor[instance.void..()]
+		[ end ] AsyncAwaitTaskFactoryNew.Program.Allocate2[class.System.Object..()]
+	[ end ] AsyncAwaitTaskFactoryNew.Program+<>c+<<Main>b__0_2>d.MoveNext[instance.void..()]
+	[start] AsyncAwaitTaskFactoryNew.Program+<>c+<<Main>b__0_2>d.MoveNext[instance.void..()]
+	[ end ] AsyncAwaitTaskFactoryNew.Program+<>c+<<Main>b__0_2>d.MoveNext[instance.void..()]
+
+
+ASYNC_AsyncAwaitTaskFactoryNew.Program+<Main>d__0
+Trace:
+	[start] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+		[start] AsyncAwaitTaskFactoryNew.Program+<>c..cctor[void..()]
+			[start] AsyncAwaitTaskFactoryNew.Program+<>c..ctor[instance.void..()]
+			[ end ] AsyncAwaitTaskFactoryNew.Program+<>c..ctor[instance.void..()]
+		[ end ] AsyncAwaitTaskFactoryNew.Program+<>c..cctor[void..()]
+	[ end ] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[start] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[start] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[start] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[start] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] AsyncAwaitTaskFactoryNew.Program+<Main>d__0.MoveNext[instance.void..()]
+
+
