@@ -1,8 +1,12 @@
 ﻿namespace TestsUtil;
 
-public class KnownSolution
+public record KnownSolution
 {
-  private const string TargetFramework = "net10.0";
+  private const string Net8 = "net8.0";
+  private const string Net9 = "net9.0";
+  private const string Net10 = "net10.0";
+
+  private const string TargetFramework = Net10;
 
   public static KnownSolution ConsoleApp1 { get; } = new("ConsoleApp1");
   public static KnownSolution TaskTestProject1 { get; } = new("TaskTestProject1");
@@ -31,7 +35,7 @@ public class KnownSolution
   public static KnownSolution OcelWithIfs { get; } = new("OcelWithIfs");
 
 
-  public static IEnumerable<KnownSolution> AllSolutions { get; } =
+  private static KnownSolution[] ourSolutions =
   [
     ConsoleApp1,
     TaskTestProject1,
@@ -53,8 +57,12 @@ public class KnownSolution
     LohAllocations
   ];
 
+
+  public static IEnumerable<KnownSolution> AllSolutions { get; } =
+    ourSolutions.Concat(ourSolutions.Select(s => s with { Tfm = Net9 }).Concat(ourSolutions.Select(s => s with { Tfm = Net8 })));
+
   public string Name { get; }
-  public string Tfm { get; }
+  public string Tfm { get; private init; }
   public int ExpectedEventsCount { get; }
   public string NamespaceFilterPattern { get; }
 
