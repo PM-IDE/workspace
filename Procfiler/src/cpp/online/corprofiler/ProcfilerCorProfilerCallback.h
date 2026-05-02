@@ -9,7 +9,7 @@
 class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
 private:
     ProcfilerLogger* myLogger;
-    ICorProfilerInfo15* myProfilerInfo;
+    ICorProfilerInfo12* myProfilerInfo;
     std::atomic<int> myRefCount;
     EventPipeWriter* myWriter;
 
@@ -19,7 +19,7 @@ public:
     explicit ProcfilerCorProfilerCallback();
     ~ProcfilerCorProfilerCallback();
 
-    ICorProfilerInfo15* GetProfilerInfo() const;
+    ICorProfilerInfo12* GetProfilerInfo() const;
 
     void HandleFunctionEnter2(FunctionID funcId) const;
     void HandleFunctionLeave2(FunctionID funcId) const;

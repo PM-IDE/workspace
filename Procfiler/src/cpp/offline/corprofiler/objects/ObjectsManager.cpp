@@ -8,7 +8,7 @@
 
 #include "MetadataCookie.hpp"
 
-ObjectsManager::ObjectsManager(ICorProfilerInfo15* info) {
+ObjectsManager::ObjectsManager(ICorProfilerInfo12* info) {
     myProfilerInfo = info;
 }
 

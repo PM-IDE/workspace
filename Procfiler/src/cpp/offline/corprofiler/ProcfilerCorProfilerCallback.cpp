@@ -80,7 +80,7 @@ void ProcfilerCorProfilerCallback::HandleFunctionTailCall2(const FunctionID func
     HandleFunctionTailCall(funcId);
 }
 
-ICorProfilerInfo15* ProcfilerCorProfilerCallback::GetProfilerInfo() const {
+ICorProfilerInfo12* ProcfilerCorProfilerCallback::GetProfilerInfo() const {
     return myProfilerInfo;
 }
 
@@ -88,7 +88,7 @@ HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown* pICorProfilerInfoUnk)
     myLogger->LogInformation("Started initializing CorProfiler callback");
     const auto ptr = reinterpret_cast<void**>(&this->myProfilerInfo);
 
-    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo15, ptr);
+    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
     if (FAILED(result)) {
         myLogger->LogInformation("Failed to query interface: " + std::to_string(result));
         return E_FAIL;
