@@ -69,6 +69,7 @@ public record KnownSolution
   ];
 
 
+  public static IEnumerable<KnownSolution> AllSolutionsLatestFramework => ourSolutions;
   public static IEnumerable<KnownSolution> AllSolutions { get; } = AdjustTargetFrameworks(ourSolutions);
   public static IEnumerable<KnownSolution> AsyncSolutions { get; } = AdjustTargetFrameworks(ourAsyncSolutions);
 

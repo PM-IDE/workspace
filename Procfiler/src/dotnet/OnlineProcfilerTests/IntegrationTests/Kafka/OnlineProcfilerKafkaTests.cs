@@ -21,7 +21,7 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
 
 
   [Test]
-  public void AllSolutionsTest() => Execute(() => DoExecuteTest(KnownSolution.AllSolutions));
+  public void AllSolutionsTest() => Execute(() => DoExecuteTest(KnownSolution.AllSolutionsLatestFramework));
 
 
   private string DoExecuteTest(IEnumerable<KnownSolution> solutions)
