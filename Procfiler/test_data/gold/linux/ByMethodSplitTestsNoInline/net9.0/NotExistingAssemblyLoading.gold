@@ -2,6 +2,7 @@ Method: NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
 
 Trace 0
 	[start] NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
+	[exec]NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
 	[ end ] NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
 
 Method: NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
