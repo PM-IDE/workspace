@@ -58,8 +58,23 @@ public record KnownSolution
   ];
 
 
-  public static IEnumerable<KnownSolution> AllSolutions { get; } =
-    ourSolutions.Concat(ourSolutions.Select(s => s with { Tfm = Net9 }).Concat(ourSolutions.Select(s => s with { Tfm = Net8 })));
+  private static KnownSolution[] ourAsyncSolutions =
+  [
+    SimpleAsyncAwait,
+    NotSimpleAsyncAwait,
+    AsyncAwait,
+    AsyncDisposable,
+    AwaitForeach,
+    AsyncAwaitTaskFactoryNew
+  ];
+
+
+  public static IEnumerable<KnownSolution> AllSolutions { get; } = AdjustTargetFrameworks(ourSolutions);
+  public static IEnumerable<KnownSolution> AsyncSolutions { get; } = AdjustTargetFrameworks(ourAsyncSolutions);
+
+  private static IEnumerable<KnownSolution> AdjustTargetFrameworks(KnownSolution[] solutions) =>
+    solutions.Concat(solutions.Select(s => s with { Tfm = Net9 }).Concat(solutions.Select(s => s with { Tfm = Net8 })));
+
 
   public string Name { get; }
   public string Tfm { get; private init; }

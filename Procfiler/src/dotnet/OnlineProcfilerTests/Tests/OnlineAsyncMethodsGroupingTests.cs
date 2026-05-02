@@ -25,18 +25,11 @@ public class TestAsyncMethodsHandler : IEventPipeStreamEventHandler
 [NonParallelizable]
 public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerMethodsTest
 {
-  private static IEnumerable<KnownSolution> ourAsyncSolutions =
-  [
-    KnownSolution.SimpleAsyncAwait,
-    KnownSolution.NotSimpleAsyncAwait,
-    KnownSolution.AsyncAwait,
-    KnownSolution.AsyncDisposable,
-    KnownSolution.AwaitForeach,
-    KnownSolution.AsyncAwaitTaskFactoryNew
-  ];
+  private static readonly IEnumerable<KnownSolution> ourAsyncSolutions = KnownSolution.AsyncSolutions;
 
 
   private readonly TestAsyncMethodsHandler myHandler = new();
+
 
   protected override IEnumerable<IEventPipeStreamEventHandler> HandlersToRegister =>
   [
