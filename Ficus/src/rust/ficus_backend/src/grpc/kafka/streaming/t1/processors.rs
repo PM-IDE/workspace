@@ -10,7 +10,7 @@ use ficus::{
   event_log::{
     bxes::bxes_to_xes_converter::read_bxes_events,
     core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
-    xes::{xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
+    xes::{xes_event_log::XesEventLogImpl},
   },
   features::streaming::t1::filterers::T1LogFilterer,
   pipelines::{
@@ -96,9 +96,9 @@ impl T1StreamingProcessor {
 
     for existing_xes_trace in existing_log.traces() {
       let mut existing_xes_trace = existing_xes_trace.borrow_mut();
-      if let Some(current_trace_id) = Self::try_get_trace_id(&existing_xes_trace) {
-        if current_trace_id == trace_id {
-          info!("Found an existing trace for trace id {}, appending it", current_trace_id);
+      if let Some(EventPayloadValue::Guid(id)) = existing_xes_trace.metadata().get(KAFKA_TRACE_ID).cloned() {
+        if id == trace_id {
+          info!("Found an existing trace for trace id {}, appending it", id);
 
           for event in read_xes_trace.events() {
             existing_xes_trace.push(event.clone());
@@ -120,13 +120,5 @@ impl T1StreamingProcessor {
     info!("Created new trace for trace id {}", trace_id);
 
     Ok(existing_log.clone())
-  }
-
-  fn try_get_trace_id(trace: &XesTraceImpl) -> Option<Uuid> {
-    if let Some(EventPayloadValue::Guid(id)) = trace.metadata().get(KAFKA_TRACE_ID) {
-      Some(*id)
-    } else {
-      None
-    }
   }
 }
