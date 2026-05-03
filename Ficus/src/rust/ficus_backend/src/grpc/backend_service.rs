@@ -49,7 +49,7 @@ impl FicusService {
 
 #[tonic::async_trait]
 impl GrpcBackendService for FicusService {
-  type ExecutePipelineStream = Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  type ExecutePipelineStream = Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline(
     &self,
@@ -136,13 +136,14 @@ impl GrpcBackendService for FicusService {
   }
 
   async fn get_all_context_values(&self, request: Request<GrpcGuid>) -> Result<Response<GrpcGetAllContextValuesResult>, Status> {
-    let id = request.get_ref();
-    match self.contexts.lock().as_ref().unwrap().get(&id.guid) {
-      None => Err(Status::not_found("The context values for supplied execution id are not found")),
-      Some(keys_to_cv_ids) => Ok(Response::new(GrpcGetAllContextValuesResult {
-        context_values: keys_to_cv_ids.values().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
-      })),
-    }
+    self.contexts.lock().as_ref().unwrap().get(&request.get_ref().guid).map_or_else(
+      || Err(Status::not_found("The context values for supplied execution id are not found")),
+      |ids| {
+        Ok(Response::new(GrpcGetAllContextValuesResult {
+          context_values: ids.values().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
+        }))
+      },
+    )
   }
 
   async fn drop_execution_result(&self, request: Request<GrpcGuid>) -> Result<Response<()>, Status> {
@@ -150,10 +151,10 @@ impl GrpcBackendService for FicusService {
     let contexts = contexts.as_mut().ok().unwrap();
     let guid_str = &request.get_ref().guid;
 
-    match contexts.remove(guid_str) {
-      None => Err(Status::not_found(format!("The session for {} does not exist", guid_str))),
-      Some(_) => Ok(Response::new(())),
-    }
+    contexts.remove(guid_str).map_or_else(
+      || Err(Status::not_found(format!("The session for {} does not exist", guid_str))),
+      |_| Ok(Response::new(())),
+    )
   }
 
   async fn get_backend_info(&self, _: Request<()>) -> Result<Response<GrpcFicusBackendInfo>, Status> {

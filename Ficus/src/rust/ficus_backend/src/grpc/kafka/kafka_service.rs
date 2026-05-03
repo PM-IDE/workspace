@@ -172,9 +172,9 @@ impl KafkaService {
   }
 
   fn create_consumer(request: &GrpcSubscribeToKafkaRequest) -> Result<BxesKafkaConsumer, KafkaError> {
-    let metadata = match request.connection_metadata.as_ref() {
-      None => return Err(KafkaError::Subscription("Kafka connection metadata was not provided".to_string())),
-      Some(metadata) => metadata,
+    let Some(metadata) = request.connection_metadata.as_ref() else {
+      const ERROR_MESSAGE: &str = "Kafka connection metadata was not provided";
+      return Err(KafkaError::Subscription(ERROR_MESSAGE.to_string()));
     };
 
     let mut config = ClientConfig::new();
@@ -209,9 +209,8 @@ impl KafkaService {
 
   fn process_kafka_trace(trace: BxesKafkaTrace, dto: &KafkaConsumerCreationDto) {
     let map = dto.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
-    let kafka_subscription = match map.get(&dto.uuid) {
-      None => return,
-      Some(subscription) => subscription.clone(),
+    let Some(kafka_subscription) = map.get(&dto.uuid).cloned() else {
+      return;
     };
 
     drop(map);
@@ -239,16 +238,13 @@ impl KafkaService {
           trace,
         };
 
-        match pipeline.processor.observe(trace_processing_context) {
-          Ok(()) => {}
-          Err(err) => {
-            let message = format!("Failed to get update result, err: {}", err);
-            dto.logger.handle(message.as_str()).expect("Must log message");
-            return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
-              "Failed to mutate context".to_string(),
-            )));
-          }
-        };
+        if let Err(err) = pipeline.processor.observe(trace_processing_context) {
+          let message = format!("Failed to get update result, err: {}", err);
+          dto.logger.handle(message.as_str()).expect("Must log message");
+
+          let err = RawPartExecutionError::new("Failed to mutate context".to_string());
+          return Err(PipelinePartExecutionError::Raw(err));
+        }
 
         context.put_concrete(SUBSCRIPTION_ID_KEY.key(), dto.uuid);
         context.put_concrete(PIPELINE_ID_KEY.key(), *pipeline_id);
@@ -352,19 +348,14 @@ impl KafkaService {
   }
 
   pub(super) fn create_kafka_events_handler(producer_metadata: Option<&GrpcKafkaConnectionMetadata>) -> Result<KafkaEventsHandler, Status> {
-    let producer_metadata = match producer_metadata.as_ref() {
-      None => return Err(Status::invalid_argument("Producer metadata must be provided")),
-      Some(metadata) => metadata,
-    };
-
-    let producer = match PipelineEventsProducer::create(producer_metadata) {
-      Ok(producer) => producer,
-      Err(err) => {
-        let message = format!("Failed to create producer: {}", err);
-        return Err(Status::invalid_argument(message));
-      }
-    };
-
-    Ok(KafkaEventsHandler::new(producer))
+    producer_metadata
+      .ok_or_else(|| Status::invalid_argument("Producer metadata must be provided"))
+      .and_then(|metadata| match PipelineEventsProducer::create(metadata) {
+        Ok(producer) => Ok(KafkaEventsHandler::new(producer)),
+        Err(err) => {
+          let message = format!("Failed to create producer: {}", err);
+          Err(Status::invalid_argument(message))
+        }
+      })
   }
 }

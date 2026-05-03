@@ -90,7 +90,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
   }
 
   type AddPipelineToSubscriptionStreamStream =
-  Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+    Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn add_pipeline_to_subscription_stream(
     &self,
@@ -171,7 +171,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
   }
 
   type ExecutePipelineAndProduceToKafkaStream =
-  Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+    Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline_and_produce_to_kafka(
     &self,
