@@ -13,16 +13,12 @@ namespace ProcfilerTests.Tests.AsyncMethodsGroupingTests;
 [TestFixture]
 public class AsyncMethodsGroupingTest : GoldProcessBasedTest
 {
-  private static readonly IEnumerable<KnownSolution> ourAsyncSolutions = KnownSolution.AsyncSolutions;
-
-
-  [TestCaseSource(nameof(ourAsyncSolutions))]
-  public void DoTest(KnownSolution solution)
-  {
+  [TestCaseSource(nameof(AsyncDefaultContexts))]
+  public void DoTest(ContextWithSolution context) =>
     ExecuteTestWithGold(
-      solution.CreateDefaultContext(),
-      events => ExecuteAsyncGroupingTest(events, solution));
-  }
+      context.Context,
+      events => ExecuteAsyncGroupingTest(events, context.Solution)
+    );
 
   private string ExecuteAsyncGroupingTest(CollectedEvents events, KnownSolution knownSolution)
   {
