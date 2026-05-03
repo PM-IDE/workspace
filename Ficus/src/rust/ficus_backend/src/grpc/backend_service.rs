@@ -33,7 +33,7 @@ pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Stat
 
 pub struct FicusService {
   cv_service: Arc<ContextValueService>,
-  pipeline_parts: Arc<Box<PipelineParts>>,
+  pipeline_parts: Arc<PipelineParts>,
   contexts: Arc<Box<Mutex<HashMap<String, HashMap<String, Uuid>>>>>,
 }
 
@@ -41,7 +41,7 @@ impl FicusService {
   pub fn new(cv_service: Arc<ContextValueService>) -> Self {
     Self {
       cv_service,
-      pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
+      pipeline_parts: Arc::new(PipelineParts::new()),
       contexts: Arc::new(Box::new(Mutex::new(HashMap::new()))),
     }
   }
@@ -49,7 +49,7 @@ impl FicusService {
 
 #[tonic::async_trait]
 impl GrpcBackendService for FicusService {
-  type ExecutePipelineStream = Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  type ExecutePipelineStream = Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline(
     &self,
@@ -72,7 +72,8 @@ impl GrpcBackendService for FicusService {
     tokio::task::spawn_blocking(move || {
       let grpc_pipeline = request.get_ref().pipeline.as_ref().unwrap();
 
-      let sender = Arc::new(Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>);
+      let sender = Arc::new(GrpcPipelineEventsHandler::new(sender));
+      let sender = sender as Arc<dyn PipelineEventsHandler>;
       let context = ServicePipelineExecutionContext::new(grpc_pipeline, &context_values, pipeline_parts, sender);
 
       match context.execute_grpc_pipeline(|_| Ok(())) {

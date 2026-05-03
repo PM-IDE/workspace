@@ -34,7 +34,7 @@ use uuid::Uuid;
 pub struct GrpcKafkaServiceImpl {
   cv_service: Arc<ContextValueService>,
   kafka_service: KafkaService,
-  pipeline_parts: Arc<Box<PipelineParts>>,
+  pipeline_parts: Arc<PipelineParts>,
 }
 
 impl GrpcKafkaServiceImpl {
@@ -42,7 +42,7 @@ impl GrpcKafkaServiceImpl {
     Self {
       cv_service: context_values_service,
       kafka_service: KafkaService::new(),
-      pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
+      pipeline_parts: Arc::new(PipelineParts::new()),
     }
   }
 }
@@ -90,7 +90,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
   }
 
   type AddPipelineToSubscriptionStreamStream =
-    Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn add_pipeline_to_subscription_stream(
     &self,
@@ -171,7 +171,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
   }
 
   type ExecutePipelineAndProduceToKafkaStream =
-    Pin<Box<dyn Stream<Item = Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
+  Pin<Box<dyn Stream<Item=Result<GrpcPipelinePartExecutionResult, Status>> + Send + Sync + 'static>>;
 
   async fn execute_pipeline_and_produce_to_kafka(
     &self,
@@ -182,9 +182,9 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let kafka_handler = Box::new(kafka_handler) as Box<dyn PipelineEventsHandler>;
     let grpc_handler = Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>;
 
-    let handler = Box::new(DelegatingEventsHandler::new(vec![kafka_handler, grpc_handler]));
-    let handler = handler as Box<dyn PipelineEventsHandler>;
-    let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), Arc::new(handler));
+    let handler = DelegatingEventsHandler::new(vec![kafka_handler, grpc_handler]);
+    let handler = Arc::new(handler) as Arc<dyn PipelineEventsHandler>;
+    let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
 
     let context_values = match self
       .cv_service

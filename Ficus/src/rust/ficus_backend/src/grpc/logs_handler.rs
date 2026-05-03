@@ -5,7 +5,7 @@ use std::sync::Arc;
 use super::events::events_handler::{PipelineEvent, PipelineEventsHandler};
 
 pub struct GrpcLogMessageHandlerImpl {
-  sender: Arc<Box<dyn PipelineEventsHandler>>,
+  sender: Arc<dyn PipelineEventsHandler>,
 }
 
 impl LogMessageHandler for GrpcLogMessageHandlerImpl {
@@ -16,7 +16,7 @@ impl LogMessageHandler for GrpcLogMessageHandlerImpl {
 }
 
 impl GrpcLogMessageHandlerImpl {
-  pub fn new(sender: Arc<Box<dyn PipelineEventsHandler>>) -> Self {
+  pub fn new(sender: Arc<dyn PipelineEventsHandler>) -> Self {
     Self { sender }
   }
 }

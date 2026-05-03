@@ -44,7 +44,7 @@ impl GetContextValuePipelinePart {
     keys: Vec<String>,
     uuid: Uuid,
     pipeline_part_name: String,
-    sender: Arc<Box<dyn PipelineEventsHandler>>,
+    sender: Arc<dyn PipelineEventsHandler>,
     before_part: Option<Box<DefaultPipelinePart>>,
   ) -> Box<GetContextValuePipelinePart> {
     Box::new(GetContextValuePipelinePart::new(

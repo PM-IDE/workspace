@@ -5,7 +5,7 @@ use ficus::{
     models::{EventWithUniqueId, RootSequenceKind},
     root_sequence::discover_root_sequence,
   },
-  utils::{references::HeapedOrOwned, user_data::user_data::UserDataImpl},
+  utils::user_data::user_data::UserDataImpl,
   vecs,
 };
 use std::rc::Rc;

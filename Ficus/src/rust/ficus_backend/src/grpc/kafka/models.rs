@@ -43,7 +43,7 @@ pub enum XesFromBxesKafkaTraceCreatingError {
 }
 
 impl Display for XesFromBxesKafkaTraceCreatingError {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     let str = match self {
       XesFromBxesKafkaTraceCreatingError::BxesToXexConversionError(err) => err.to_string(),
       XesFromBxesKafkaTraceCreatingError::MetadataValueIsNotAString(key_name) => {
@@ -61,12 +61,12 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
 
 #[derive(Clone)]
 pub struct PipelineExecutionDto {
-  pub(super) pipeline_parts: Arc<Box<PipelineParts>>,
-  pub(super) events_handler: Arc<Box<dyn PipelineEventsHandler>>,
+  pub(super) pipeline_parts: Arc<PipelineParts>,
+  pub(super) events_handler: Arc<dyn PipelineEventsHandler>,
 }
 
 impl PipelineExecutionDto {
-  pub fn new(pipeline_parts: Arc<Box<PipelineParts>>, events_handler: Arc<Box<dyn PipelineEventsHandler>>) -> Self {
+  pub fn new(pipeline_parts: Arc<PipelineParts>, events_handler: Arc<dyn PipelineEventsHandler>) -> Self {
     Self {
       pipeline_parts,
       events_handler,

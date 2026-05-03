@@ -86,7 +86,7 @@ impl KafkaSubscription {
 }
 
 pub struct KafkaService {
-  pipeline_parts: Arc<Box<PipelineParts>>,
+  pipeline_parts: Arc<PipelineParts>,
   subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
 
   logger: ConsoleLogMessageHandler,
@@ -95,7 +95,7 @@ pub struct KafkaService {
 impl KafkaService {
   pub fn new() -> Self {
     Self {
-      pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
+      pipeline_parts: Arc::new(PipelineParts::new()),
       subscriptions_to_execution_requests: Arc::new(Mutex::new(HashMap::new())),
       logger: ConsoleLogMessageHandler::new(),
     }
@@ -229,8 +229,8 @@ impl KafkaService {
 
       let execution_result = context.execute_grpc_pipeline(move |context| {
         let execution_dto = PipelineExecutionDto::new(
-          Arc::new(Box::new(PipelineParts::new())),
-          Arc::new(Box::new(EmptyPipelineEventsHandler::new()) as Box<dyn PipelineEventsHandler>),
+          Arc::new(PipelineParts::new()),
+          Arc::new(EmptyPipelineEventsHandler::new()) as Arc<dyn PipelineEventsHandler>,
         );
 
         let trace_processing_context = KafkaTraceProcessingContext {
@@ -299,7 +299,7 @@ impl KafkaService {
     pipeline_name: String,
     streaming_config: StreamingConfiguration,
   ) -> KafkaSubscriptionPipeline {
-    let handler = Arc::new(Box::new(handler) as Box<dyn PipelineEventsHandler>);
+    let handler = Arc::new(handler) as Arc<dyn PipelineEventsHandler>;
     let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
     KafkaSubscriptionPipeline::new(request, dto, pipeline_name, streaming_config.create_processor())
   }

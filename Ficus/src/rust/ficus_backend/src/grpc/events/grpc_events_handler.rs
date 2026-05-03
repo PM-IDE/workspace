@@ -13,15 +13,16 @@ use crate::{
   },
 };
 use ficus::pipelines::context::LogMessageHandler;
+
 pub struct GrpcPipelineEventsHandler {
-  sender: Arc<Box<GrpcSender>>,
+  sender: Arc<GrpcSender>,
   console_logs_handler: ConsoleLogMessageHandler,
 }
 
 impl GrpcPipelineEventsHandler {
   pub fn new(sender: GrpcSender) -> Self {
     Self {
-      sender: Arc::new(Box::new(sender)),
+      sender: Arc::new(sender),
       console_logs_handler: ConsoleLogMessageHandler::new(),
     }
   }
@@ -45,7 +46,7 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
       return;
     }
 
-    send_grpc_message(self.sender.as_ref().as_ref(), &self.console_logs_handler, result);
+    send_grpc_message(self.sender.as_ref(), &self.console_logs_handler, result);
   }
 
   fn is_alive(&self) -> bool {

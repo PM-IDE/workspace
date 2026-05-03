@@ -23,17 +23,17 @@ use uuid::Uuid;
 pub(super) struct ServicePipelineExecutionContext<'a> {
   grpc_pipeline: &'a GrpcPipeline,
   context_values: &'a Vec<GrpcContextKeyValue>,
-  pipeline_parts: Arc<Box<PipelineParts>>,
-  handler: Arc<Box<dyn PipelineEventsHandler>>,
-  log_message_handler: Arc<Box<dyn LogMessageHandler>>,
+  pipeline_parts: Arc<PipelineParts>,
+  handler: Arc<dyn PipelineEventsHandler>,
+  log_message_handler: Arc<dyn LogMessageHandler>,
 }
 
 impl<'a> ServicePipelineExecutionContext<'a> {
   pub fn new(
     grpc_pipeline: &'a GrpcPipeline,
     context_values: &'a Vec<GrpcContextKeyValue>,
-    pipeline_parts: Arc<Box<PipelineParts>>,
-    handler: Arc<Box<dyn PipelineEventsHandler>>,
+    pipeline_parts: Arc<PipelineParts>,
+    handler: Arc<dyn PipelineEventsHandler>,
   ) -> Self {
     let log_message_handler = Self::create_log_message_handler(handler.clone());
 
@@ -46,7 +46,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     }
   }
 
-  fn create_log_message_handler(sender: Arc<Box<dyn PipelineEventsHandler>>) -> Arc<Box<dyn LogMessageHandler>> {
+  fn create_log_message_handler(sender: Arc<dyn PipelineEventsHandler>) -> Arc<dyn LogMessageHandler> {
     let grpc_handler = GrpcLogMessageHandlerImpl::new(sender.clone());
     let grpc_handler = Box::new(grpc_handler) as Box<dyn LogMessageHandler>;
 
@@ -55,10 +55,10 @@ impl<'a> ServicePipelineExecutionContext<'a> {
 
     let delegating_handler = DelegatingLogMessageHandler::new(vec![grpc_handler, console_handler]);
 
-    Arc::new(Box::new(delegating_handler) as Box<dyn LogMessageHandler>)
+    Arc::new(delegating_handler) as Arc<dyn LogMessageHandler>
   }
 
-  pub fn sender(&self) -> Arc<Box<dyn PipelineEventsHandler>> {
+  pub fn sender(&self) -> Arc<dyn PipelineEventsHandler> {
     self.handler.clone()
   }
 
@@ -74,7 +74,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     self.context_values
   }
 
-  pub fn log_message_handler(&self) -> Arc<Box<dyn LogMessageHandler>> {
+  pub fn log_message_handler(&self) -> Arc<dyn LogMessageHandler> {
     self.log_message_handler.clone()
   }
 
@@ -155,7 +155,7 @@ impl<'a> ServicePipelineExecutionContext<'a> {
     key_names: Vec<String>,
     uuid: Uuid,
     pipeline_part_name: String,
-    sender: &Arc<Box<dyn PipelineEventsHandler>>,
+    sender: &Arc<dyn PipelineEventsHandler>,
     before_part: Option<Box<DefaultPipelinePart>>,
   ) -> Box<GetContextValuePipelinePart> {
     let sender = sender.clone();
