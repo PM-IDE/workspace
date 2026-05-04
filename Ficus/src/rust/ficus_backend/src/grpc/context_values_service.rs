@@ -1,3 +1,4 @@
+use crate::ficus_proto::{GrpcGetAllContextValuesResult, GrpcGetContextValueRequest};
 use crate::{
   ficus_proto::{
     GrpcContextKey, GrpcContextKeyValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid,
@@ -5,6 +6,7 @@ use crate::{
   },
   grpc::converters::context_value_from_bytes,
 };
+use ficus::pipelines::keys::context_keys::find_context_key;
 use futures::Stream;
 use prost::Message;
 use std::{
@@ -177,6 +179,29 @@ impl GrpcContextValuesService for GrpcContextValueService {
         Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
       }
     }
+  }
+
+  async fn get_context_value_id(&self, request: Request<GrpcGetContextValueRequest>) -> Result<Response<GrpcGuid>, Status> {
+    let key_name = &request.get_ref().key.as_ref().unwrap().name;
+    match find_context_key(key_name) {
+      None => Err(Status::not_found(format!("Failed to find key for key name {}", key_name))),
+      Some(key) => {
+        let id = request.get_ref().execution_id.as_ref().unwrap();
+
+        self
+          .cv_service
+          .get_context_value(&id.guid, key.key().name().as_str())
+          .map(|id| Response::new(GrpcGuid { guid: id.to_string() }))
+      }
+    }
+  }
+
+  async fn get_all_context_values_ids(&self, request: Request<GrpcGuid>) -> Result<Response<GrpcGetAllContextValuesResult>, Status> {
+    self.cv_service.get_all_context_values(&request.get_ref().guid).map(|ids| {
+      Response::new(GrpcGetAllContextValuesResult {
+        context_values: ids.into_iter().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
+      })
+    })
   }
 
   async fn drop_context_values(&self, request: Request<GrpcDropContextValuesRequest>) -> Result<Response<()>, Status> {

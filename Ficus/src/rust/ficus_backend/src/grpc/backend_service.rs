@@ -4,17 +4,14 @@ use super::events::{
 };
 use crate::{
   ficus_proto::{
-    grpc_backend_service_server::GrpcBackendService, GrpcFicusBackendInfo, GrpcGetAllContextValuesResult, GrpcGetContextValueRequest, GrpcGuid,
-    GrpcPipelinePartDescriptor, GrpcPipelinePartExecutionResult, GrpcProxyPipelineExecutionRequest,
+    GrpcFicusBackendInfo, GrpcGuid, GrpcPipelinePartDescriptor, GrpcPipelinePartExecutionResult, GrpcProxyPipelineExecutionRequest,
+    grpc_backend_service_server::GrpcBackendService,
   },
   grpc::{context_values_service::ContextValueService, pipeline_executor::ServicePipelineExecutionContext},
 };
-use ficus::pipelines::{keys::context_keys::find_context_key, pipeline_parts::PipelineParts};
+use ficus::pipelines::pipeline_parts::PipelineParts;
 use futures::Stream;
-use std::{
-  pin::Pin,
-  sync::Arc,
-};
+use std::{pin::Pin, sync::Arc};
 use tokio::sync::mpsc::{self, Sender};
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
@@ -79,29 +76,6 @@ impl GrpcBackendService for FicusService {
     });
 
     Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
-  }
-
-  async fn get_context_value(&self, request: Request<GrpcGetContextValueRequest>) -> Result<Response<GrpcGuid>, Status> {
-    let key_name = &request.get_ref().key.as_ref().unwrap().name;
-    match find_context_key(key_name) {
-      None => Err(Status::not_found(format!("Failed to find key for key name {}", key_name))),
-      Some(key) => {
-        let id = request.get_ref().execution_id.as_ref().unwrap();
-
-        self
-          .cv_service
-          .get_context_value(&id.guid, key.key().name().as_str())
-          .map(|id| Response::new(GrpcGuid { guid: id.to_string() }))
-      }
-    }
-  }
-
-  async fn get_all_context_values(&self, request: Request<GrpcGuid>) -> Result<Response<GrpcGetAllContextValuesResult>, Status> {
-    self.cv_service.get_all_context_values(&request.get_ref().guid).map(|ids| {
-      Response::new(GrpcGetAllContextValuesResult {
-        context_values: ids.into_iter().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
-      })
-    })
   }
 
   async fn drop_execution_result(&self, request: Request<GrpcGuid>) -> Result<Response<()>, Status> {
