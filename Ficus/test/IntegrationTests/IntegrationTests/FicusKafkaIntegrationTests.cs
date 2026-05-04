@@ -8,6 +8,7 @@ using Confluent.Kafka;
 using Ficus;
 using FicusKafkaConstants;
 using FicusKafkaIntegration;
+using Grpc.Core.Utils;
 using IntegrationTests.Base;
 using Microsoft.Extensions.Logging;
 
@@ -41,7 +42,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates(eventLog.Traces.Count));
   }
 
-  private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  private void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     var namesLog = FindLastNamesLog(updates);
 
@@ -55,7 +56,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     }
   }
 
-  private static void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  private void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     Assert.That(eventLog.Traces, Has.Count.EqualTo(updates.Count));
 
@@ -70,8 +71,22 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     }
   }
 
-  private static GrpcContextValueWithKeyName FindLastNamesLog(IReadOnlyList<GrpcKafkaUpdate> updates) =>
-    updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
+  private GrpcContextValueWithKeyName FindLastNamesLog(IReadOnlyList<GrpcKafkaUpdate> updates)
+  {
+    var lastUpdate = updates.Last();
+    var stream = KafkaClient.GetCurrentContextValues(new GrpcGetCurrentContextValuesRequest
+    {
+      PipelineId = lastUpdate.ProcessCaseMetadata.PipelineId,
+      ProcessName = lastUpdate.ProcessCaseMetadata.ProcessName,
+      SubscriptionId = lastUpdate.ProcessCaseMetadata.SubscriptionId
+    });
+
+    var contextValues = stream.ResponseStream.ToListAsync().GetAwaiter().GetResult();
+
+    return contextValues.Where(c => c.ResultCase == GrpcPipelinePartExecutionResult.ResultOneofCase.PipelinePartResult)
+      .SelectMany(c => c.PipelinePartResult.ContextValues)
+      .First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
+  }
 
   private static IEventLog GenerateTestEventLog()
   {
