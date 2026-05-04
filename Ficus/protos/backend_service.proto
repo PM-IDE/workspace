@@ -61,6 +61,8 @@ message GrpcPipelinePartLogMessage {
 message GrpcPipelinePartResult {
   repeated GrpcContextValueWithKeyName contextValues = 1;
   GrpcGuid guid = 2;
+  string pipeline_part_name = 3;
+  GrpcGuid pipeline_part_id = 4;
 }
 
 message GrpcPipelineFinalResult {

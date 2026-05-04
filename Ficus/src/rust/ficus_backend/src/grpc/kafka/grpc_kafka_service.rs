@@ -34,7 +34,7 @@ use uuid::Uuid;
 
 pub struct GrpcKafkaServiceImpl {
   cv_service: Arc<ContextValueService>,
-  kafka_service: KafkaService,
+  kafka_service: Arc<KafkaService>,
   pipeline_parts: Arc<PipelineParts>,
 }
 
@@ -43,7 +43,7 @@ impl GrpcKafkaServiceImpl {
     let pipeline_parts = Arc::new(PipelineParts::default());
     Self {
       cv_service: cv_service.clone(),
-      kafka_service: KafkaService::new(pipeline_parts.clone(), cv_service),
+      kafka_service: Arc::new(KafkaService::new(pipeline_parts.clone(), cv_service)),
       pipeline_parts,
     }
   }
@@ -80,15 +80,32 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     Ok(Response::new(GrpcKafkaResult { result: Some(result) }))
   }
 
-  async fn get_current_context_values(&self, request: Request<GrpcGetCurrentContextValuesRequest>) -> Result<Response<GrpcGuid>, Status> {
+  type GetCurrentContextValuesStream = Self::ExecutePipelineAndProduceToKafkaStream;
+
+  async fn get_current_context_values(
+    &self,
+    request: Request<GrpcGetCurrentContextValuesRequest>,
+  ) -> Result<Response<Self::ExecutePipelineAndProduceToKafkaStream>, Status> {
     let pipeline_id = request.get_ref().pipeline_id.as_ref().unwrap().to_uuid()?;
     let subscription_id = request.get_ref().subscription_id.as_ref().unwrap().to_uuid()?;
-    let process_name = request.get_ref().process_name.as_str();
+    let process_name = request.get_ref().process_name.clone();
 
-    self
-      .kafka_service
-      .get_context_values(pipeline_id, subscription_id, process_name)
-      .map(|id| Response::new(GrpcGuid { guid: id.to_string() }))
+    let (sender, receiver) = mpsc::channel(4);
+    let grpc_handler = Arc::new(GrpcPipelineEventsHandler::new(sender));
+    let kafka_service = self.kafka_service.clone();
+
+    tokio::task::spawn_blocking(move || {
+      match kafka_service.get_context_values(pipeline_id, subscription_id, &process_name, grpc_handler.clone()) {
+        Ok(uuid) => {
+          grpc_handler.handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
+        }
+        Err(err) => {
+          grpc_handler.handle(&PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
+        }
+      };
+    });
+
+    Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
   }
 
   async fn add_pipeline_to_subscription(&self, request: Request<GrpcAddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {

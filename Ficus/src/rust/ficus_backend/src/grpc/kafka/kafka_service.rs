@@ -1,4 +1,5 @@
 use crate::grpc::context_values_service::ContextValueService;
+use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
 use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
 use crate::grpc::kafka::models::ExtractedTraceMetadata;
 use crate::{
@@ -252,7 +253,13 @@ impl KafkaService {
     }
   }
 
-  pub(super) fn get_context_values(&self, sub_id: Uuid, pipeline_id: Uuid, process_name: &str) -> Result<Uuid, Status> {
+  pub(super) fn get_context_values(
+    &self,
+    sub_id: Uuid,
+    pipeline_id: Uuid,
+    process_name: &str,
+    handler: Arc<GrpcPipelineEventsHandler>,
+  ) -> Result<Uuid, Status> {
     let map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
     let Some(kafka_subscription) = map.get(&sub_id).cloned() else {
       return Err(Status::not_found(format!("Failed to find subscription for id {sub_id}")));
@@ -264,11 +271,8 @@ impl KafkaService {
       return Err(Status::not_found(format!("Failed to find pipeline for id {sub_id}")));
     };
 
-    let execution_dto = PipelineExecutionDto::new(
-      Arc::new(PipelineParts::new()),
-      Arc::new(EmptyPipelineEventsHandler::new()) as Arc<dyn PipelineEventsHandler>,
-    );
-
+    let handler = handler as Arc<dyn PipelineEventsHandler>;
+    let execution_dto = PipelineExecutionDto::new(Arc::new(PipelineParts::new()), handler);
     let context = Self::create_pipeline_execution_context(&pipeline.request, &execution_dto);
     let result = context.execute_grpc_pipeline_and_fill_context_values(
       |context| {
