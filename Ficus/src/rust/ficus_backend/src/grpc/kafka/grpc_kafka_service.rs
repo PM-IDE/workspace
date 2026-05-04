@@ -1,10 +1,11 @@
+use crate::ficus_proto::GrpcGetCurrentContextValuesRequest;
 use crate::{
   ficus_proto::{
-    grpc_kafka_result, grpc_kafka_service_server::GrpcKafkaService, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest,
-    GrpcExecutePipelineAndProduceKafkaRequest, GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGuid, GrpcKafkaFailedResult,
-    GrpcKafkaResult, GrpcKafkaSubscription, GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata,
-    GrpcPipelinePartExecutionResult, GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest,
-    GrpcSubscriptionPipeline, GrpcUnsubscribeFromKafkaRequest,
+    GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest,
+    GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSubscription,
+    GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata, GrpcPipelinePartExecutionResult,
+    GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest, GrpcSubscriptionPipeline,
+    GrpcUnsubscribeFromKafkaRequest, grpc_kafka_result, grpc_kafka_service_server::GrpcKafkaService,
   },
   grpc::{
     context_values_service::ContextValueService,
@@ -38,11 +39,12 @@ pub struct GrpcKafkaServiceImpl {
 }
 
 impl GrpcKafkaServiceImpl {
-  pub fn new(context_values_service: Arc<ContextValueService>) -> Self {
+  pub fn new(cv_service: Arc<ContextValueService>) -> Self {
+    let pipeline_parts = Arc::new(PipelineParts::default());
     Self {
-      cv_service: context_values_service,
-      kafka_service: KafkaService::new(),
-      pipeline_parts: Arc::new(PipelineParts::new()),
+      cv_service: cv_service.clone(),
+      kafka_service: KafkaService::new(pipeline_parts.clone(), cv_service),
+      pipeline_parts,
     }
   }
 }
@@ -76,6 +78,17 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let result = self.kafka_service.unsubscribe_from_kafka(uuid);
 
     Ok(Response::new(GrpcKafkaResult { result: Some(result) }))
+  }
+
+  async fn get_current_context_values(&self, request: Request<GrpcGetCurrentContextValuesRequest>) -> Result<Response<GrpcGuid>, Status> {
+    let pipeline_id = request.get_ref().pipeline_id.as_ref().unwrap().to_uuid()?;
+    let subscription_id = request.get_ref().subscription_id.as_ref().unwrap().to_uuid()?;
+    let process_name = request.get_ref().process_name.as_str();
+
+    self
+      .kafka_service
+      .get_context_values(pipeline_id, subscription_id, process_name)
+      .map(|id| Response::new(GrpcGuid { guid: id.to_string() }))
   }
 
   async fn add_pipeline_to_subscription(&self, request: Request<GrpcAddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {

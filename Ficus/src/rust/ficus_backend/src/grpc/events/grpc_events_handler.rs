@@ -3,8 +3,8 @@ use std::sync::Arc;
 use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use crate::{
   ficus_proto::{
-    grpc_pipeline_final_result::ExecutionResult, GrpcGuid, GrpcPipelineFinalResult, GrpcPipelinePartExecutionResult,
-    GrpcPipelinePartLogMessage, GrpcPipelinePartResult,
+    GrpcGuid, GrpcPipelineFinalResult, GrpcPipelinePartExecutionResult, GrpcPipelinePartLogMessage, GrpcPipelinePartResult,
+    grpc_pipeline_final_result::ExecutionResult,
   },
   grpc::{
     backend_service::{GrpcResult, GrpcSender},
@@ -37,6 +37,7 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
         PipelineFinalResult::Success(uuid) => ExecutionResult::Success(GrpcGuid { guid: uuid.to_string() }),
         PipelineFinalResult::Error(error_message) => ExecutionResult::Error(error_message.to_string()),
       }),
+      PipelineEvent::ProcessCaseMetadata(_) => unreachable!(),
     };
 
     if !self.is_alive() {

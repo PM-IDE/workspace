@@ -1,7 +1,10 @@
+use crate::grpc::context_values_service::ContextValueService;
+use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
+use crate::grpc::kafka::models::ExtractedTraceMetadata;
 use crate::{
   ficus_proto::{
-    grpc_kafka_result, GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult,
-    GrpcPipeline, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest,
+    GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult, GrpcPipeline,
+    GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest, grpc_kafka_result,
   },
   grpc::{
     events::{
@@ -20,17 +23,10 @@ use crate::{
   },
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
-use ficus::{
-  pipelines::{
-    context::LogMessageHandler,
-    errors::pipeline_errors::{PipelinePartExecutionError, RawPartExecutionError},
-    keys::context_keys::{PIPELINE_ID_KEY, PIPELINE_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY},
-    pipeline_parts::PipelineParts,
-  },
-  utils::user_data::user_data::UserData,
-};
+use ficus::features::cases::CaseName;
+use ficus::pipelines::{context::LogMessageHandler, pipeline_parts::PipelineParts};
 use log::error;
-use rdkafka::{error::KafkaError, ClientConfig};
+use rdkafka::{ClientConfig, error::KafkaError};
 use std::{
   collections::HashMap,
   sync::{Arc, Mutex},
@@ -88,16 +84,17 @@ impl KafkaSubscription {
 pub struct KafkaService {
   pipeline_parts: Arc<PipelineParts>,
   subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
-
+  cv_service: Arc<ContextValueService>,
   logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaService {
-  pub fn new() -> Self {
+  pub fn new(pipeline_parts: Arc<PipelineParts>, cv_service: Arc<ContextValueService>) -> Self {
     Self {
-      pipeline_parts: Arc::new(PipelineParts::new()),
+      pipeline_parts,
       subscriptions_to_execution_requests: Arc::new(Mutex::new(HashMap::new())),
       logger: ConsoleLogMessageHandler::new(),
+      cv_service,
     }
   }
 }
@@ -151,17 +148,19 @@ impl KafkaService {
         return match err {
           BxesKafkaError::Kafka(err) => Err(err),
           BxesKafkaError::Bxes(_) => Err(KafkaError::Subscription("Failed to subscribe".to_string())),
-        }
+        };
       }
     }
 
     tokio::spawn(async move {
-      let handle = tokio::task::spawn_blocking(move || loop {
-        let should_stop = Self::execute_consumer_routine(&mut consumer, &dto);
+      let handle = tokio::task::spawn_blocking(move || {
+        loop {
+          let should_stop = Self::execute_consumer_routine(&mut consumer, &dto);
 
-        if should_stop {
-          consumer.unsubscribe();
-          return;
+          if should_stop {
+            consumer.unsubscribe();
+            return;
+          }
         }
       });
 
@@ -215,50 +214,71 @@ impl KafkaService {
 
     drop(map);
 
-    for pipeline in &kafka_subscription.pipelines {
-      let pipeline_id = pipeline.0;
-      let pipeline = pipeline.1;
-
-      if !pipeline.execution_dto.events_handler.is_alive() {
-        continue;
-      }
-
-      let context = Self::create_pipeline_execution_context(&pipeline.request, &pipeline.execution_dto);
+    for (pipeline_id, pipeline) in &kafka_subscription.pipelines {
       let trace = trace.clone();
+      let Ok(metadata) = ExtractedTraceMetadata::create_from(trace.metadata()) else {
+        continue;
+      };
 
-      let execution_result = context.execute_grpc_pipeline(move |context| {
-        let execution_dto = PipelineExecutionDto::new(
-          Arc::new(PipelineParts::new()),
-          Arc::new(EmptyPipelineEventsHandler::new()) as Arc<dyn PipelineEventsHandler>,
-        );
+      let execution_dto = PipelineExecutionDto::new(
+        Arc::new(PipelineParts::new()),
+        Arc::new(EmptyPipelineEventsHandler::new()) as Arc<dyn PipelineEventsHandler>,
+      );
 
-        let trace_processing_context = KafkaTraceProcessingContext {
-          context,
-          execution_dto,
-          trace,
+      let trace_processing_context = KafkaTraceProcessingContext { execution_dto, trace };
+
+      if let Err(err) = pipeline.processor.observe(trace_processing_context) {
+        let message = format!("Failed to get update result, err: {}", err);
+        dto.logger.handle(message.as_str()).expect("Must log message");
+      } else {
+        let metadata = ProcessCaseMetadata {
+          pipeline_id: Some(*pipeline_id),
+          pipeline_name: Some(pipeline.name.clone().into()),
+          subscription_name: Some(dto.name.as_ref().into()),
+          subscription_id: Some(dto.uuid),
+          process_name: metadata.process.process_name,
+          metadata: metadata.unstructured_metadata,
+          case_name: CaseName {
+            display_name: metadata.case.case_display_name,
+            name_parts: metadata.case.case_name_parts,
+          },
         };
 
-        if let Err(err) = pipeline.processor.observe(trace_processing_context) {
-          let message = format!("Failed to get update result, err: {}", err);
-          dto.logger.handle(message.as_str()).expect("Must log message");
-
-          let err = RawPartExecutionError::new("Failed to mutate context".to_string());
-          return Err(PipelinePartExecutionError::Raw(err));
-        }
-
-        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), dto.uuid);
-        context.put_concrete(PIPELINE_ID_KEY.key(), *pipeline_id);
-        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), dto.name.as_ref().into());
-        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline.name.clone().into());
-
-        Ok(())
-      });
-
-      if let Err(err) = execution_result {
-        let err = PipelineFinalResult::Error(err.to_string());
-        pipeline.execution_dto.events_handler.handle(&PipelineEvent::FinalResult(err));
-      }
+        pipeline
+          .execution_dto
+          .events_handler
+          .handle(&PipelineEvent::ProcessCaseMetadata(metadata));
+      };
     }
+  }
+
+  pub(super) fn get_context_values(&self, sub_id: Uuid, pipeline_id: Uuid, process_name: &str) -> Result<Uuid, Status> {
+    let map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
+    let Some(kafka_subscription) = map.get(&sub_id).cloned() else {
+      return Err(Status::not_found(format!("Failed to find subscription for id {sub_id}")));
+    };
+
+    drop(map);
+
+    let Some(pipeline) = kafka_subscription.pipelines.get(&pipeline_id) else {
+      return Err(Status::not_found(format!("Failed to find pipeline for id {sub_id}")));
+    };
+
+    let execution_dto = PipelineExecutionDto::new(
+      Arc::new(PipelineParts::new()),
+      Arc::new(EmptyPipelineEventsHandler::new()) as Arc<dyn PipelineEventsHandler>,
+    );
+
+    let context = Self::create_pipeline_execution_context(&pipeline.request, &execution_dto);
+    let result = context.execute_grpc_pipeline_and_fill_context_values(
+      |context| {
+        pipeline.processor.fill_pipeline_context(context, process_name);
+        Ok(())
+      },
+      self.cv_service.clone(),
+    );
+
+    result.map_err(|err| Status::internal(format!("Failed to execute pipeline, err: {}", err)))
   }
 }
 

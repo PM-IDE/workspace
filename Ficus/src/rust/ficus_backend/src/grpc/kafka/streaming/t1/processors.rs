@@ -1,23 +1,19 @@
+use crate::grpc::kafka::models::{string_value_or_err, uuid_or_err};
 use crate::grpc::{
-  kafka::{
-    models::{KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID},
-    streaming::processors::{string_value_or_err, uuid_or_err},
-  },
+  kafka::models::{KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID, KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError},
   logs_handler::ConsoleLogMessageHandler,
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
+use ficus::pipelines::keys::context_keys::EVENT_LOG_KEY;
+use ficus::utils::user_data::user_data::UserData;
 use ficus::{
   event_log::{
     bxes::bxes_to_xes_converter::read_bxes_events,
     core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
-    xes::{xes_event_log::XesEventLogImpl},
+    xes::xes_event_log::XesEventLogImpl,
   },
   features::streaming::t1::filterers::T1LogFilterer,
-  pipelines::{
-    context::{LogMessageHandler, PipelineContext},
-    keys::context_keys::EVENT_LOG_KEY,
-  },
-  utils::user_data::user_data::UserData,
+  pipelines::context::{LogMessageHandler, PipelineContext},
 };
 use log::info;
 use std::{
@@ -44,13 +40,9 @@ impl T1StreamingProcessor {
     }
   }
 
-  pub fn observe(&self, trace: &BxesKafkaTrace, context: &mut PipelineContext) -> Result<(), KafkaTraceProcessingError> {
+  pub fn observe(&self, trace: &BxesKafkaTrace) -> Result<(), KafkaTraceProcessingError> {
     match self.update_log(trace) {
-      Ok(new_log) => {
-        context.put_concrete(EVENT_LOG_KEY.key(), new_log);
-
-        Ok(())
-      }
+      Ok(_) => Ok(()),
       Err(err) => {
         let message = format!("Failed to get update result, err: {}", err);
         self.logger.handle(message.as_str()).expect("Must log message");
@@ -58,10 +50,17 @@ impl T1StreamingProcessor {
       }
     }
   }
+
+  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, process_name: &str) {
+    let names_to_log = self.names_to_logs.lock().unwrap();
+    if let Some(log) = names_to_log.get(process_name).cloned() {
+      context.put_concrete(EVENT_LOG_KEY.key(), log);
+    }
+  }
 }
 
 impl T1StreamingProcessor {
-  fn update_log(&self, trace: &BxesKafkaTrace) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
+  fn update_log(&self, trace: &BxesKafkaTrace) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
     let case_id = uuid_or_err(trace.metadata(), KAFKA_CASE_ID)?;
     let case_name_parts_joined = string_value_or_err(trace.metadata(), KAFKA_CASE_NAME_PARTS)?;
 
@@ -73,7 +72,7 @@ impl T1StreamingProcessor {
     trace: &BxesKafkaTrace,
     trace_id: Uuid,
     case_key: &str,
-  ) -> Result<XesEventLogImpl, XesFromBxesKafkaTraceCreatingError> {
+  ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
     let mut names_to_logs = self.names_to_logs.lock();
     let names_to_logs = match names_to_logs.as_mut() {
       Ok(names_to_logs) => names_to_logs,
@@ -105,7 +104,7 @@ impl T1StreamingProcessor {
           }
 
           drop(existing_xes_trace);
-          return Ok(existing_log.clone());
+          return Ok(());
         }
       }
     }
@@ -119,6 +118,6 @@ impl T1StreamingProcessor {
 
     info!("Created new trace for trace id {}", trace_id);
 
-    Ok(existing_log.clone())
+    Ok(())
   }
 }

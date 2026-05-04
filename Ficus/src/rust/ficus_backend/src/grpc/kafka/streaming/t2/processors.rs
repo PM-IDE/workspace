@@ -92,9 +92,13 @@ impl T2StreamingProcessor {
 
     dfg_data_structure.invalidate();
 
-    match dfg_data_structure.process_bxes_trace(context.trace.metadata(), &xes_trace, context.context) {
+    match dfg_data_structure.process_bxes_trace(context.trace.metadata(), &xes_trace) {
       Ok(()) => Ok(()),
       Err(err) => Err(KafkaTraceProcessingError::XesFromBxesTraceCreationError(err)),
     }
+  }
+
+  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, process_name: &str) {
+    self.dfg_data_structure.lock().unwrap().fill_pipeline_context(context, process_name);
   }
 }

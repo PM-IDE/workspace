@@ -1,22 +1,27 @@
 use super::events::events_handler::PipelineEventsHandler;
+use crate::ficus_proto::GrpcContextKey;
+use crate::grpc::context_values_service::ContextValueService;
+use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::{
-  ficus_proto::{grpc_pipeline_part_base::Part, GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart},
+  ficus_proto::{GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart, grpc_pipeline_part_base::Part},
   grpc::{
     converters::put_into_user_data,
     get_context_pipeline::GetContextValuePipelinePart,
     logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl},
   },
 };
+use ficus::utils::context_key::DefaultContextKey;
 use ficus::{
   pipelines::{
     context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::PipelinePartExecutionError,
-    keys::context_keys::{find_context_key, EXECUTION_ID_KEY},
+    keys::context_keys::{EXECUTION_ID_KEY, find_context_key},
     pipeline_parts::PipelineParts,
     pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
   },
   utils::user_data::user_data::{UserData, UserDataImpl},
 };
+use std::collections::HashMap;
 use std::{str::FromStr, sync::Arc};
 use uuid::Uuid;
 
@@ -106,6 +111,39 @@ impl<'a> ServicePipelineExecutionContext<'a> {
       Ok(()) => Ok((id, pipeline_context.devastate_user_data())),
       Err(err) => Err(err),
     }
+  }
+
+  pub(super) fn execute_grpc_pipeline_and_fill_context_values(
+    &self,
+    context_mutator: impl FnOnce(&mut PipelineContext) -> Result<(), PipelinePartExecutionError>,
+    cv_service: Arc<ContextValueService>,
+  ) -> Result<Uuid, PipelinePartExecutionError> {
+    let (uuid, created_context) = self.execute_grpc_pipeline(context_mutator)?;
+    let Some(items) = created_context.items() else { return Ok(uuid) };
+
+    let mut ids = HashMap::new();
+    for (key, value) in items {
+      let context_key = DefaultContextKey::<()>::existing(key.id(), key.name().to_owned());
+
+      if let Some(grpc_cv) = convert_to_grpc_context_value(&context_key, value) {
+        let id = Uuid::new_v4();
+        cv_service.put_context_value(
+          id.to_string(),
+          GrpcContextKeyValue {
+            key: Some(GrpcContextKey {
+              name: key.name().to_owned(),
+            }),
+            value: Some(grpc_cv),
+          },
+        );
+
+        ids.insert(key.name().to_owned(), id);
+      }
+    }
+
+    cv_service.insert_cv_to_ids(uuid, ids);
+
+    Ok(uuid)
   }
 
   pub(super) fn to_pipeline(&self) -> Pipeline {

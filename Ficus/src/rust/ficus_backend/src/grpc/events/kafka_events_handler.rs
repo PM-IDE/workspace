@@ -1,9 +1,9 @@
-use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
+use super::events_handler::{PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use crate::{
   ficus_proto::{
-    GrpcCaseName, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcPipelinePartInfo, GrpcProcessCaseMetadata, GrpcStringKeyValue,
+    GrpcCaseName, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaUpdate, GrpcProcessCaseMetadata, GrpcStringKeyValue,
   },
-  grpc::{events::utils::create_grpc_context_values, logs_handler::ConsoleLogMessageHandler},
+  grpc::logs_handler::ConsoleLogMessageHandler,
 };
 use ficus::{features::cases::CaseName, pipelines::context::LogMessageHandler};
 use prost::Message;
@@ -73,16 +73,7 @@ impl KafkaEventsHandler {
 impl PipelineEventsHandler for KafkaEventsHandler {
   fn handle(&self, event: &PipelineEvent) {
     match event {
-      PipelineEvent::GetContextValuesEvent(event) => {
-        let result = self.producer.produce(event.to_grpc_kafka_update());
-
-        let message = match result {
-          Ok(_) => "Sent message to kafka".to_string(),
-          Err(err) => format!("Failed to produce event: {}", err),
-        };
-
-        self.console_logs_handler.handle(message.as_str()).expect("Should log message");
-      }
+      PipelineEvent::GetContextValuesEvent(_) => {}
       PipelineEvent::LogMessage(_) => {}
       PipelineEvent::FinalResult(result) => match result {
         PipelineFinalResult::Success(_) => {}
@@ -91,29 +82,23 @@ impl PipelineEventsHandler for KafkaEventsHandler {
           self.console_logs_handler.handle(message.as_str()).expect("Should log message");
         }
       },
+      PipelineEvent::ProcessCaseMetadata(event) => {
+        let result = self.producer.produce(GrpcKafkaUpdate {
+          process_case_metadata: Some(event.to_grpc_process_case_metadata()),
+        });
+
+        let message = match result {
+          Ok(_) => "Sent message to kafka".to_string(),
+          Err(err) => format!("Failed to produce event: {}", err),
+        };
+
+        self.console_logs_handler.handle(message.as_str()).expect("Should log message");
+      }
     };
   }
 
   fn is_alive(&self) -> bool {
     true
-  }
-}
-
-impl GetContextValuesEvent<'_> {
-  fn to_grpc_kafka_update(&self) -> GrpcKafkaUpdate {
-    GrpcKafkaUpdate {
-      process_case_metadata: Some(self.process_case_metadata.to_grpc_process_case_metadata()),
-      pipeline_part_info: Some(GrpcPipelinePartInfo {
-        id: Some(GrpcGuid {
-          guid: self.pipeline_part_id.to_string(),
-        }),
-        execution_id: Some(GrpcGuid {
-          guid: self.execution_id.to_string(),
-        }),
-        name: self.pipeline_part_name.clone(),
-      }),
-      context_values: create_grpc_context_values(&self.key_values),
-    }
   }
 }
 
@@ -134,8 +119,8 @@ impl ProcessCaseMetadata {
         display_name: self.case_name.display_name.to_string(),
         full_name_parts: self.case_name.name_parts.iter().map(|p| p.to_string()).collect(),
       }),
-      process_name: self.process_name.to_string(),
 
+      process_name: self.process_name.to_string(),
       subscription_id: self.subscription_id.map(GrpcGuid::from),
       subscription_name: self.subscription_name.clone().map_or("".to_string(), |name| name.to_string()),
       pipeline_id: self.pipeline_id.map(GrpcGuid::from),

@@ -1,7 +1,7 @@
 use crate::{
   ficus_proto::{
-    grpc_context_values_service_server::GrpcContextValuesService, GrpcContextKey, GrpcContextKeyValue, GrpcContextValuePart,
-    GrpcDropContextValuesRequest, GrpcGuid,
+    GrpcContextKey, GrpcContextKeyValue, GrpcContextValuePart, GrpcDropContextValuesRequest, GrpcGuid,
+    grpc_context_values_service_server::GrpcContextValuesService,
   },
   grpc::converters::context_value_from_bytes,
 };
@@ -19,12 +19,14 @@ use uuid::Uuid;
 
 pub struct ContextValueService {
   context_values: Mutex<HashMap<String, GrpcContextKeyValue>>,
+  contexts: Mutex<HashMap<String, HashMap<String, Uuid>>>,
 }
 
 impl ContextValueService {
   pub fn new() -> Self {
     Self {
-      context_values: Mutex::new(HashMap::new()),
+      context_values: Default::default(),
+      contexts: Default::default(),
     }
   }
 
@@ -71,6 +73,37 @@ impl ContextValueService {
         value.value.as_ref().unwrap().encode_to_vec(),
       )
     })
+  }
+
+  pub fn insert_cv_to_ids(&self, id: Uuid, keys_to_ids: HashMap<String, Uuid>) {
+    self.contexts.lock().as_mut().unwrap().insert(id.to_string(), keys_to_ids);
+  }
+
+  pub fn drop_execution_result(&self, execution_id: &str) -> Result<Response<()>, Status> {
+    let mut contexts = self.contexts.lock();
+    let contexts = contexts.as_mut().ok().unwrap();
+
+    contexts.remove(execution_id).map_or_else(
+      || Err(Status::not_found(format!("The session for {} does not exist", execution_id))),
+      |_| Ok(Response::new(())),
+    )
+  }
+
+  pub fn get_all_context_values(&self, execution_id: &str) -> Result<Vec<String>, Status> {
+    self.contexts.lock().as_ref().unwrap().get(execution_id).map_or_else(
+      || Err(Status::not_found("The context values for supplied execution id are not found")),
+      |ids| Ok(ids.values().map(|id| id.to_string()).collect()),
+    )
+  }
+
+  pub fn get_context_value(&self, execution_id: &str, key: &str) -> Result<Uuid, Status> {
+    match self.contexts.lock().unwrap().get_mut(execution_id) {
+      None => Err(Status::not_found("Failed to get context for guid".to_string())),
+      Some(keys_to_cv_ids) => match keys_to_cv_ids.get(key) {
+        None => Err(Status::not_found("Failed to get context for guid".to_string())),
+        Some(id) => Ok(*id),
+      },
+    }
   }
 }
 

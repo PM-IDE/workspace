@@ -4,29 +4,20 @@ use super::events::{
 };
 use crate::{
   ficus_proto::{
-    grpc_backend_service_server::GrpcBackendService, GrpcContextKey, GrpcContextKeyValue, GrpcFicusBackendInfo,
-    GrpcGetAllContextValuesResult, GrpcGetContextValueRequest, GrpcGuid, GrpcPipelinePartDescriptor, GrpcPipelinePartExecutionResult,
-    GrpcProxyPipelineExecutionRequest,
+    grpc_backend_service_server::GrpcBackendService, GrpcFicusBackendInfo, GrpcGetAllContextValuesResult, GrpcGetContextValueRequest, GrpcGuid,
+    GrpcPipelinePartDescriptor, GrpcPipelinePartExecutionResult, GrpcProxyPipelineExecutionRequest,
   },
-  grpc::{
-    context_values_service::ContextValueService, converters::convert_to_grpc_context_value,
-    pipeline_executor::ServicePipelineExecutionContext,
-  },
+  grpc::{context_values_service::ContextValueService, pipeline_executor::ServicePipelineExecutionContext},
 };
-use ficus::{
-  pipelines::{keys::context_keys::find_context_key, pipeline_parts::PipelineParts},
-  utils::{context_key::DefaultContextKey, user_data::user_data::UserData},
-};
+use ficus::pipelines::{keys::context_keys::find_context_key, pipeline_parts::PipelineParts};
 use futures::Stream;
 use std::{
-  collections::HashMap,
   pin::Pin,
-  sync::{Arc, Mutex},
+  sync::Arc,
 };
 use tokio::sync::mpsc::{self, Sender};
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
-use uuid::Uuid;
 
 pub(super) type GrpcResult = crate::ficus_proto::grpc_pipeline_part_execution_result::Result;
 pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Status>>;
@@ -34,7 +25,6 @@ pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Stat
 pub struct FicusService {
   cv_service: Arc<ContextValueService>,
   pipeline_parts: Arc<PipelineParts>,
-  contexts: Arc<Box<Mutex<HashMap<String, HashMap<String, Uuid>>>>>,
 }
 
 impl FicusService {
@@ -42,7 +32,6 @@ impl FicusService {
     Self {
       cv_service,
       pipeline_parts: Arc::new(PipelineParts::new()),
-      contexts: Arc::new(Box::new(Mutex::new(HashMap::new()))),
     }
   }
 }
@@ -56,7 +45,6 @@ impl GrpcBackendService for FicusService {
     request: Request<GrpcProxyPipelineExecutionRequest>,
   ) -> Result<Response<Self::ExecutePipelineStream>, Status> {
     let pipeline_parts = self.pipeline_parts.clone();
-    let contexts = self.contexts.clone();
     let (sender, receiver) = mpsc::channel(4);
 
     let context_values = match self.cv_service.reclaim_context_values(&request.get_ref().context_values_ids) {
@@ -76,33 +64,8 @@ impl GrpcBackendService for FicusService {
       let sender = sender as Arc<dyn PipelineEventsHandler>;
       let context = ServicePipelineExecutionContext::new(grpc_pipeline, &context_values, pipeline_parts, sender);
 
-      match context.execute_grpc_pipeline(|_| Ok(())) {
-        Ok((uuid, created_context)) => {
-          if let Some(items) = created_context.items() {
-            let mut ids = HashMap::new();
-
-            for (key, value) in items {
-              let context_key = DefaultContextKey::<()>::existing(key.id(), key.name().to_owned());
-
-              if let Some(grpc_cv) = convert_to_grpc_context_value(&context_key, value) {
-                let id = Uuid::new_v4();
-                cv_service.put_context_value(
-                  id.to_string(),
-                  GrpcContextKeyValue {
-                    key: Some(GrpcContextKey {
-                      name: key.name().to_owned(),
-                    }),
-                    value: Some(grpc_cv),
-                  },
-                );
-
-                ids.insert(key.name().to_owned(), id);
-              }
-            }
-
-            contexts.lock().as_mut().unwrap().insert(uuid.to_string(), ids);
-          }
-
+      match context.execute_grpc_pipeline_and_fill_context_values(|_| Ok(()), cv_service) {
+        Ok(uuid) => {
           context
             .sender()
             .handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
@@ -124,37 +87,25 @@ impl GrpcBackendService for FicusService {
       None => Err(Status::not_found(format!("Failed to find key for key name {}", key_name))),
       Some(key) => {
         let id = request.get_ref().execution_id.as_ref().unwrap();
-        match self.contexts.lock().as_mut().unwrap().get_mut(&id.guid) {
-          None => Err(Status::not_found("Failed to get context for guid".to_string())),
-          Some(keys_to_cv_ids) => match keys_to_cv_ids.get(key.key().name()) {
-            None => Err(Status::not_found("Failed to get context for guid".to_string())),
-            Some(id) => Ok(Response::new(GrpcGuid { guid: id.to_string() })),
-          },
-        }
+
+        self
+          .cv_service
+          .get_context_value(&id.guid, key.key().name().as_str())
+          .map(|id| Response::new(GrpcGuid { guid: id.to_string() }))
       }
     }
   }
 
   async fn get_all_context_values(&self, request: Request<GrpcGuid>) -> Result<Response<GrpcGetAllContextValuesResult>, Status> {
-    self.contexts.lock().as_ref().unwrap().get(&request.get_ref().guid).map_or_else(
-      || Err(Status::not_found("The context values for supplied execution id are not found")),
-      |ids| {
-        Ok(Response::new(GrpcGetAllContextValuesResult {
-          context_values: ids.values().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
-        }))
-      },
-    )
+    self.cv_service.get_all_context_values(&request.get_ref().guid).map(|ids| {
+      Response::new(GrpcGetAllContextValuesResult {
+        context_values: ids.into_iter().map(|id| GrpcGuid { guid: id.to_string() }).collect(),
+      })
+    })
   }
 
   async fn drop_execution_result(&self, request: Request<GrpcGuid>) -> Result<Response<()>, Status> {
-    let mut contexts = self.contexts.lock();
-    let contexts = contexts.as_mut().ok().unwrap();
-    let guid_str = &request.get_ref().guid;
-
-    contexts.remove(guid_str).map_or_else(
-      || Err(Status::not_found(format!("The session for {} does not exist", guid_str))),
-      |_| Ok(Response::new(())),
-    )
+    self.cv_service.drop_execution_result(&request.get_ref().guid)
   }
 
   async fn get_backend_info(&self, _: Request<()>) -> Result<Response<GrpcFicusBackendInfo>, Status> {
