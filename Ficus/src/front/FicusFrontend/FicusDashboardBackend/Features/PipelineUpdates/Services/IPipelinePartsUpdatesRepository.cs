@@ -114,7 +114,7 @@ public class PipelinePartsUpdatesRepository(
     var stream = client.GetCurrentContextValues(new GrpcGetCurrentContextValuesRequest
     {
       PipelineId = request.PipelineId,
-      ProcessName = string.Join(";", request.CaseName.FullNameParts),
+      CaseName = string.Join(";", request.CaseName.FullNameParts),
       SubscriptionId = request.SubscriptionId,
     });
 

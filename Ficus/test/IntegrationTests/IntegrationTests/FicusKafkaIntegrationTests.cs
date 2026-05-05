@@ -77,7 +77,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     var stream = KafkaClient.GetCurrentContextValues(new GrpcGetCurrentContextValuesRequest
     {
       PipelineId = lastUpdate.ProcessCaseMetadata.PipelineId,
-      ProcessName = lastUpdate.ProcessCaseMetadata.ProcessName,
+      CaseName = string.Join(";", lastUpdate.ProcessCaseMetadata.CaseName.FullNameParts),
       SubscriptionId = lastUpdate.ProcessCaseMetadata.SubscriptionId
     });
 
