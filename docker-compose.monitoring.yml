@@ -60,6 +60,20 @@ services:
       sleep infinity
       "
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "9000:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_READONLY: "false"
+      AUTH_TYPE: "LOGIN_FORM"
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: pass
+    depends_on:
+      - kafka
+
   ficus-backend:
     depends_on:
       - kafka
