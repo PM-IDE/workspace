@@ -22,8 +22,8 @@ type ContextValuesServiceServer struct {
 	grpcmodels.UnsafeGrpcContextValuesServiceServer
 }
 
-func NewContextValuesServiceServer(storage contextvalues.Storage, logger *zap.SugaredLogger) *ContextValuesServiceServer {
-	return &ContextValuesServiceServer{storage: storage, logger: logger}
+func NewContextValuesServiceServer(storage contextvalues.Storage, executor executor.PipelineExecutor, logger *zap.SugaredLogger) *ContextValuesServiceServer {
+	return &ContextValuesServiceServer{storage: storage, executor: executor, logger: logger}
 }
 
 func (this *ContextValuesServiceServer) SetContextValue(
