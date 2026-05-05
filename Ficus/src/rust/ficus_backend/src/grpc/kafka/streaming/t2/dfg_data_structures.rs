@@ -12,7 +12,7 @@ use ficus::features::streaming::counters::sliding_window::SlidingWindow;
 use ficus::pipelines::context::PipelineContext;
 use ficus::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
 use ficus::utils::user_data::user_data::UserData;
-use log::{debug, warn};
+use log::{debug, info, warn};
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, time::Duration};
 use uuid::Uuid;
 
@@ -197,13 +197,14 @@ impl DfgDataStructures {
     self.base.invalidate();
   }
 
-  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, process_name: &str) {
-    match self.base.to_event_log_info(process_name) {
+  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, case_name: &str) {
+    match self.base.to_event_log_info(case_name) {
       None => {
-        warn!("Failed to create offline event log info")
+        warn!("Failed to create offline event log info for case {case_name}");
       }
       Some(log_info) => {
         context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
+        info!("Filled offline event log info for case {case_name}");
       }
     }
   }

@@ -26,7 +26,7 @@ use crate::{
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
 use ficus::features::cases::CaseName;
 use ficus::pipelines::{context::LogMessageHandler, pipeline_parts::PipelineParts};
-use log::error;
+use log::{debug, error, warn};
 use rdkafka::{ClientConfig, error::KafkaError};
 use std::{
   collections::HashMap,
@@ -257,30 +257,35 @@ impl KafkaService {
     &self,
     sub_id: Uuid,
     pipeline_id: Uuid,
-    process_name: &str,
+    case_name: &str,
     handler: Arc<GrpcPipelineEventsHandler>,
   ) -> Result<Uuid, Status> {
     let map = self.subscriptions_to_execution_requests.lock().expect("Must acquire lock");
     let Some(kafka_subscription) = map.get(&sub_id).cloned() else {
+      warn!("Subscription {} not found. Map: {:?}", sub_id, map.keys());
       return Err(Status::not_found(format!("Failed to find subscription for id {sub_id}")));
     };
 
     drop(map);
 
     let Some(pipeline) = kafka_subscription.pipelines.get(&pipeline_id) else {
-      return Err(Status::not_found(format!("Failed to find pipeline for id {sub_id}")));
+      warn!("Pipeline {} not found", pipeline_id);
+      return Err(Status::not_found(format!("Failed to find pipeline for id {pipeline_id}")));
     };
 
     let handler = handler as Arc<dyn PipelineEventsHandler>;
     let execution_dto = PipelineExecutionDto::new(Arc::new(PipelineParts::new()), handler);
     let context = Self::create_pipeline_execution_context(&pipeline.request, &execution_dto);
+
     let result = context.execute_grpc_pipeline_and_fill_context_values(
       |context| {
-        pipeline.processor.fill_pipeline_context(context, process_name);
+        pipeline.processor.fill_pipeline_context(context, case_name);
         Ok(())
       },
       self.cv_service.clone(),
     );
+
+    debug!("Finished executing pipeline with result: {result:?}");
 
     result.map_err(|err| Status::internal(format!("Failed to execute pipeline, err: {}", err)))
   }

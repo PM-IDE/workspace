@@ -34,10 +34,10 @@ impl TracesProcessor {
     }
   }
 
-  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, process_name: &str) {
+  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, case_name: &str) {
     match self {
-      TracesProcessor::T1(processor) => processor.fill_pipeline_context(context, process_name),
-      TracesProcessor::T2(processor) => processor.fill_pipeline_context(context, process_name),
+      TracesProcessor::T1(processor) => processor.fill_pipeline_context(context, case_name),
+      TracesProcessor::T2(processor) => processor.fill_pipeline_context(context, case_name),
     }
   }
 }

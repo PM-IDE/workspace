@@ -59,13 +59,10 @@ impl GrpcPipelineEventsHandler {
   fn create_get_context_values_event(&self, event: &GetContextValuesEvent) -> GrpcPipelinePartExecutionResult {
     GrpcPipelinePartExecutionResult {
       result: Some(GrpcResult::PipelinePartResult(GrpcPipelinePartResult {
-        guid: Some(GrpcGuid {
-          guid: event.pipeline_part_id.to_string(),
-        }),
         context_values: create_grpc_context_values(&event.key_values),
         pipeline_part_name: event.pipeline_part_name.clone(),
         pipeline_part_id: Some(GrpcGuid {
-          guid: event.execution_id.to_string(),
+          guid: event.pipeline_part_id.to_string(),
         }),
       })),
     }

@@ -88,14 +88,14 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
   ) -> Result<Response<Self::ExecutePipelineAndProduceToKafkaStream>, Status> {
     let pipeline_id = request.get_ref().pipeline_id.as_ref().unwrap().to_uuid()?;
     let subscription_id = request.get_ref().subscription_id.as_ref().unwrap().to_uuid()?;
-    let process_name = request.get_ref().process_name.clone();
+    let case_name = request.get_ref().case_name.clone();
 
     let (sender, receiver) = mpsc::channel(4);
     let grpc_handler = Arc::new(GrpcPipelineEventsHandler::new(sender));
     let kafka_service = self.kafka_service.clone();
 
     tokio::task::spawn_blocking(move || {
-      match kafka_service.get_context_values(pipeline_id, subscription_id, &process_name, grpc_handler.clone()) {
+      match kafka_service.get_context_values(subscription_id, pipeline_id, &case_name, grpc_handler.clone()) {
         Ok(uuid) => {
           grpc_handler.handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
         }

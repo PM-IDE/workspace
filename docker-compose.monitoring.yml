@@ -96,6 +96,7 @@ services:
     environment:
       PipelinePartsUpdateKafkaSettings__BootstrapServers: kafka:29092
       PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
+      KafkaServiceUrl: ficus-backend:8080
 
   balancer:
     depends_on:

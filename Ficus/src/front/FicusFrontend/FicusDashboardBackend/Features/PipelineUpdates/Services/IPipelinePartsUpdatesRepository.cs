@@ -1,6 +1,7 @@
 ﻿using Ficus;
 using FicusDashboardBackend.Utils;
 using Google.Protobuf.WellKnownTypes;
+using Grpc.Net.Client;
 using GrpcModels;
 
 namespace FicusDashboardBackend.Features.PipelineUpdates.Services;
@@ -14,8 +15,8 @@ public interface IPipelinePartsUpdatesRepository
 }
 
 public class PipelinePartsUpdatesRepository(
-  ILogger<PipelinePartsUpdatesRepository> logger,
-  GrpcKafkaService.GrpcKafkaServiceClient kafkaClient
+  IConfiguration configuration,
+  ILogger<PipelinePartsUpdatesRepository> logger
 ) : IPipelinePartsUpdatesRepository
 {
   private class CaseData
@@ -62,7 +63,7 @@ public class PipelinePartsUpdatesRepository(
       var response = new GrpcSubscriptionAndPipelinesStateResponse();
       foreach (var (caseKey, @case) in myCases)
       {
-        response.Cases.Add(new GrpcProcessCaseMetadataWithStamp()
+        response.Cases.Add(new GrpcProcessCaseMetadataWithStamp
         {
           Stamp = @case.Stamp,
           Metadata = new GrpcProcessCaseMetadata
@@ -105,10 +106,15 @@ public class PipelinePartsUpdatesRepository(
       )
     );
 
-    var stream = kafkaClient.GetCurrentContextValues(new GrpcGetCurrentContextValuesRequest
+    const string KafkaServiceUrlKey = "KafkaServiceUrl";
+    var address = configuration[KafkaServiceUrlKey] ?? throw new KeyNotFoundException($"No {KafkaServiceUrlKey} provided");
+    var channel = GrpcChannel.ForAddress($"http://{address}");
+    var client = new GrpcKafkaService.GrpcKafkaServiceClient(channel);
+
+    var stream = client.GetCurrentContextValues(new GrpcGetCurrentContextValuesRequest
     {
       PipelineId = request.PipelineId,
-      ProcessName = request.ProcessName,
+      ProcessName = string.Join(";", request.CaseName.FullNameParts),
       SubscriptionId = request.SubscriptionId,
     });
 

@@ -15,7 +15,7 @@ use ficus::{
   features::streaming::t1::filterers::T1LogFilterer,
   pipelines::context::{LogMessageHandler, PipelineContext},
 };
-use log::info;
+use log::{info, warn};
 use std::{
   cell::RefCell,
   collections::HashMap,
@@ -51,10 +51,14 @@ impl T1StreamingProcessor {
     }
   }
 
-  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, process_name: &str) {
+  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, case_name: &str) {
     let names_to_log = self.names_to_logs.lock().unwrap();
-    if let Some(log) = names_to_log.get(process_name).cloned() {
+
+    if let Some(log) = names_to_log.get(case_name).cloned() {
       context.put_concrete(EVENT_LOG_KEY.key(), log);
+      info!("Filled event log for case {case_name:?}");
+    } else {
+      warn!("Failed to find log for case {case_name:?}");
     }
   }
 }

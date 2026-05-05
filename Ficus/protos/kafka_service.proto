@@ -29,7 +29,7 @@ service GrpcKafkaService {
 message GrpcGetCurrentContextValuesRequest {
   GrpcGuid subscriptionId = 1;
   GrpcGuid pipelineId = 2;
-  string processName = 3;
+  string caseName = 3;
 }
 
 message GrpcExecutePipelineAndProduceKafkaRequest {

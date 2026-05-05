@@ -98,7 +98,7 @@ impl T2StreamingProcessor {
     }
   }
 
-  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, process_name: &str) {
-    self.dfg_data_structure.lock().unwrap().fill_pipeline_context(context, process_name);
+  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, case_name: &str) {
+    self.dfg_data_structure.lock().unwrap().fill_pipeline_context(context, case_name);
   }
 }
