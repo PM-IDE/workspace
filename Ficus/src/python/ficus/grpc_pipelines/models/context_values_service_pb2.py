@@ -34,7 +34,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x63ontext_values_service.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"2\n\x14GrpcContextValuePart\x12\x0b\n\x03key\x18\x02 \x01(\t\x12\r\n\x05\x62ytes\x18\x03 \x01(\x0c\"<\n\x1cGrpcDropContextValuesRequest\x12\x1c\n\x03ids\x18\x01 \x03(\x0b\x32\x0f.ficus.GrpcGuid2\xf2\x01\n\x18GrpcContextValuesService\x12\x41\n\x0fSetContextValue\x12\x1b.ficus.GrpcContextValuePart\x1a\x0f.ficus.GrpcGuid(\x01\x12\x41\n\x0fGetContextValue\x12\x0f.ficus.GrpcGuid\x1a\x1b.ficus.GrpcContextValuePart0\x01\x12P\n\x11\x44ropContextValues\x12#.ficus.GrpcDropContextValuesRequest\x1a\x16.google.protobuf.EmptyB\x0fZ\r./;grpcmodelsb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x63ontext_values_service.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\"2\n\x14GrpcContextValuePart\x12\x0b\n\x03key\x18\x02 \x01(\t\x12\r\n\x05\x62ytes\x18\x03 \x01(\x0c\"<\n\x1cGrpcDropContextValuesRequest\x12\x1c\n\x03ids\x18\x01 \x03(\x0b\x32\x0f.ficus.GrpcGuid\"f\n\x1aGrpcGetContextValueRequest\x12$\n\x0b\x65xecutionId\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12\"\n\x03key\x18\x01 \x01(\x0b\x32\x15.ficus.GrpcContextKey\"H\n\x1dGrpcGetAllContextValuesResult\x12\'\n\x0e\x63ontext_values\x18\x01 \x03(\x0b\x32\x0f.ficus.GrpcGuid2\x8c\x03\n\x18GrpcContextValuesService\x12\x41\n\x0fSetContextValue\x12\x1b.ficus.GrpcContextValuePart\x1a\x0f.ficus.GrpcGuid(\x01\x12\x41\n\x0fGetContextValue\x12\x0f.ficus.GrpcGuid\x1a\x1b.ficus.GrpcContextValuePart0\x01\x12P\n\x11\x44ropContextValues\x12#.ficus.GrpcDropContextValuesRequest\x1a\x16.google.protobuf.Empty\x12G\n\x11GetContextValueId\x12!.ficus.GrpcGetContextValueRequest\x1a\x0f.ficus.GrpcGuid\x12O\n\x16GetAllContextValuesIds\x12\x0f.ficus.GrpcGuid\x1a$.ficus.GrpcGetAllContextValuesResultB\x0fZ\r./;grpcmodelsb\x06proto3')
 
 
 
@@ -58,8 +58,16 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   _globals['_GRPCDROPCONTEXTVALUESREQUEST']._serialized_end=221
 
-  _globals['_GRPCCONTEXTVALUESSERVICE']._serialized_start=224
+  _globals['_GRPCGETCONTEXTVALUEREQUEST']._serialized_start=223
 
-  _globals['_GRPCCONTEXTVALUESSERVICE']._serialized_end=466
+  _globals['_GRPCGETCONTEXTVALUEREQUEST']._serialized_end=325
+
+  _globals['_GRPCGETALLCONTEXTVALUESRESULT']._serialized_start=327
+
+  _globals['_GRPCGETALLCONTEXTVALUESRESULT']._serialized_end=399
+
+  _globals['_GRPCCONTEXTVALUESSERVICE']._serialized_start=402
+
+  _globals['_GRPCCONTEXTVALUESSERVICE']._serialized_end=798
 
 # @@protoc_insertion_point(module_scope)

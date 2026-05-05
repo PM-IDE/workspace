@@ -36,14 +36,6 @@ class GrpcPipelinePartDescriptor(_message.Message):
     name: str
     def __init__(self, name: _Optional[str] = ...) -> None: ...
 
-class GrpcGetContextValueRequest(_message.Message):
-    __slots__ = ["executionId", "key"]
-    EXECUTIONID_FIELD_NUMBER: _ClassVar[int]
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    executionId: _util_pb2.GrpcGuid
-    key: _pipelines_and_context_pb2.GrpcContextKey
-    def __init__(self, executionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., key: _Optional[_Union[_pipelines_and_context_pb2.GrpcContextKey, _Mapping]] = ...) -> None: ...
-
 class GrpcPipelineExecutionRequest(_message.Message):
     __slots__ = ["pipeline", "initialContext"]
     PIPELINE_FIELD_NUMBER: _ClassVar[int]
@@ -77,12 +69,14 @@ class GrpcPipelinePartLogMessage(_message.Message):
     def __init__(self, message: _Optional[str] = ...) -> None: ...
 
 class GrpcPipelinePartResult(_message.Message):
-    __slots__ = ["contextValues", "guid"]
+    __slots__ = ["contextValues", "pipeline_part_id", "pipeline_part_name"]
     CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
-    GUID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINE_PART_ID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINE_PART_NAME_FIELD_NUMBER: _ClassVar[int]
     contextValues: _containers.RepeatedCompositeFieldContainer[_pipelines_and_context_pb2.GrpcContextValueWithKeyName]
-    guid: _util_pb2.GrpcGuid
-    def __init__(self, contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ..., guid: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
+    pipeline_part_id: _util_pb2.GrpcGuid
+    pipeline_part_name: str
+    def __init__(self, contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ..., pipeline_part_id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipeline_part_name: _Optional[str] = ...) -> None: ...
 
 class GrpcPipelineFinalResult(_message.Message):
     __slots__ = ["success", "error"]
@@ -91,9 +85,3 @@ class GrpcPipelineFinalResult(_message.Message):
     success: _util_pb2.GrpcGuid
     error: str
     def __init__(self, success: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., error: _Optional[str] = ...) -> None: ...
-
-class GrpcGetAllContextValuesResult(_message.Message):
-    __slots__ = ["context_values"]
-    CONTEXT_VALUES_FIELD_NUMBER: _ClassVar[int]
-    context_values: _containers.RepeatedCompositeFieldContainer[_util_pb2.GrpcGuid]
-    def __init__(self, context_values: _Optional[_Iterable[_Union[_util_pb2.GrpcGuid, _Mapping]]] = ...) -> None: ...

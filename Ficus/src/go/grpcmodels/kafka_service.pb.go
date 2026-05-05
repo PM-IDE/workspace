@@ -22,6 +22,66 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GrpcGetCurrentContextValuesRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SubscriptionId *GrpcGuid              `protobuf:"bytes,1,opt,name=subscriptionId,proto3" json:"subscriptionId,omitempty"`
+	PipelineId     *GrpcGuid              `protobuf:"bytes,2,opt,name=pipelineId,proto3" json:"pipelineId,omitempty"`
+	CaseName       string                 `protobuf:"bytes,3,opt,name=caseName,proto3" json:"caseName,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GrpcGetCurrentContextValuesRequest) Reset() {
+	*x = GrpcGetCurrentContextValuesRequest{}
+	mi := &file_kafka_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcGetCurrentContextValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcGetCurrentContextValuesRequest) ProtoMessage() {}
+
+func (x *GrpcGetCurrentContextValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kafka_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcGetCurrentContextValuesRequest.ProtoReflect.Descriptor instead.
+func (*GrpcGetCurrentContextValuesRequest) Descriptor() ([]byte, []int) {
+	return file_kafka_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GrpcGetCurrentContextValuesRequest) GetSubscriptionId() *GrpcGuid {
+	if x != nil {
+		return x.SubscriptionId
+	}
+	return nil
+}
+
+func (x *GrpcGetCurrentContextValuesRequest) GetPipelineId() *GrpcGuid {
+	if x != nil {
+		return x.PipelineId
+	}
+	return nil
+}
+
+func (x *GrpcGetCurrentContextValuesRequest) GetCaseName() string {
+	if x != nil {
+		return x.CaseName
+	}
+	return ""
+}
+
 type GrpcExecutePipelineAndProduceKafkaRequest struct {
 	state            protoimpl.MessageState             `protogen:"open.v1"`
 	PipelineRequest  *GrpcProxyPipelineExecutionRequest `protobuf:"bytes,1,opt,name=pipelineRequest,proto3" json:"pipelineRequest,omitempty"`
@@ -37,7 +97,7 @@ type GrpcExecutePipelineAndProduceKafkaRequest struct {
 
 func (x *GrpcExecutePipelineAndProduceKafkaRequest) Reset() {
 	*x = GrpcExecutePipelineAndProduceKafkaRequest{}
-	mi := &file_kafka_service_proto_msgTypes[0]
+	mi := &file_kafka_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -49,7 +109,7 @@ func (x *GrpcExecutePipelineAndProduceKafkaRequest) String() string {
 func (*GrpcExecutePipelineAndProduceKafkaRequest) ProtoMessage() {}
 
 func (x *GrpcExecutePipelineAndProduceKafkaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[0]
+	mi := &file_kafka_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -62,7 +122,7 @@ func (x *GrpcExecutePipelineAndProduceKafkaRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use GrpcExecutePipelineAndProduceKafkaRequest.ProtoReflect.Descriptor instead.
 func (*GrpcExecutePipelineAndProduceKafkaRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{0}
+	return file_kafka_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GrpcExecutePipelineAndProduceKafkaRequest) GetPipelineRequest() *GrpcProxyPipelineExecutionRequest {
@@ -124,7 +184,7 @@ type GrpcProcessInfo struct {
 
 func (x *GrpcProcessInfo) Reset() {
 	*x = GrpcProcessInfo{}
-	mi := &file_kafka_service_proto_msgTypes[1]
+	mi := &file_kafka_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -136,7 +196,7 @@ func (x *GrpcProcessInfo) String() string {
 func (*GrpcProcessInfo) ProtoMessage() {}
 
 func (x *GrpcProcessInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[1]
+	mi := &file_kafka_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -149,7 +209,7 @@ func (x *GrpcProcessInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcProcessInfo.ProtoReflect.Descriptor instead.
 func (*GrpcProcessInfo) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{1}
+	return file_kafka_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GrpcProcessInfo) GetProcessName() string {
@@ -176,7 +236,7 @@ type GrpcSubscribeToKafkaRequest struct {
 
 func (x *GrpcSubscribeToKafkaRequest) Reset() {
 	*x = GrpcSubscribeToKafkaRequest{}
-	mi := &file_kafka_service_proto_msgTypes[2]
+	mi := &file_kafka_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -188,7 +248,7 @@ func (x *GrpcSubscribeToKafkaRequest) String() string {
 func (*GrpcSubscribeToKafkaRequest) ProtoMessage() {}
 
 func (x *GrpcSubscribeToKafkaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[2]
+	mi := &file_kafka_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -201,7 +261,7 @@ func (x *GrpcSubscribeToKafkaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcSubscribeToKafkaRequest.ProtoReflect.Descriptor instead.
 func (*GrpcSubscribeToKafkaRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{2}
+	return file_kafka_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GrpcSubscribeToKafkaRequest) GetConnectionMetadata() *GrpcKafkaConnectionMetadata {
@@ -227,7 +287,7 @@ type GrpcKafkaSubscriptionMetadata struct {
 
 func (x *GrpcKafkaSubscriptionMetadata) Reset() {
 	*x = GrpcKafkaSubscriptionMetadata{}
-	mi := &file_kafka_service_proto_msgTypes[3]
+	mi := &file_kafka_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -239,7 +299,7 @@ func (x *GrpcKafkaSubscriptionMetadata) String() string {
 func (*GrpcKafkaSubscriptionMetadata) ProtoMessage() {}
 
 func (x *GrpcKafkaSubscriptionMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[3]
+	mi := &file_kafka_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -252,7 +312,7 @@ func (x *GrpcKafkaSubscriptionMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcKafkaSubscriptionMetadata.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaSubscriptionMetadata) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{3}
+	return file_kafka_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GrpcKafkaSubscriptionMetadata) GetSubscriptionName() string {
@@ -274,7 +334,7 @@ type GrpcKafkaPipelineExecutionRequest struct {
 
 func (x *GrpcKafkaPipelineExecutionRequest) Reset() {
 	*x = GrpcKafkaPipelineExecutionRequest{}
-	mi := &file_kafka_service_proto_msgTypes[4]
+	mi := &file_kafka_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -286,7 +346,7 @@ func (x *GrpcKafkaPipelineExecutionRequest) String() string {
 func (*GrpcKafkaPipelineExecutionRequest) ProtoMessage() {}
 
 func (x *GrpcKafkaPipelineExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[4]
+	mi := &file_kafka_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -299,7 +359,7 @@ func (x *GrpcKafkaPipelineExecutionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GrpcKafkaPipelineExecutionRequest.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaPipelineExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{4}
+	return file_kafka_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GrpcKafkaPipelineExecutionRequest) GetSubscriptionId() *GrpcGuid {
@@ -339,7 +399,7 @@ type GrpcPipelineMetadata struct {
 
 func (x *GrpcPipelineMetadata) Reset() {
 	*x = GrpcPipelineMetadata{}
-	mi := &file_kafka_service_proto_msgTypes[5]
+	mi := &file_kafka_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -351,7 +411,7 @@ func (x *GrpcPipelineMetadata) String() string {
 func (*GrpcPipelineMetadata) ProtoMessage() {}
 
 func (x *GrpcPipelineMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[5]
+	mi := &file_kafka_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +424,7 @@ func (x *GrpcPipelineMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelineMetadata.ProtoReflect.Descriptor instead.
 func (*GrpcPipelineMetadata) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{5}
+	return file_kafka_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GrpcPipelineMetadata) GetName() string {
@@ -384,7 +444,7 @@ type GrpcAddPipelineRequest struct {
 
 func (x *GrpcAddPipelineRequest) Reset() {
 	*x = GrpcAddPipelineRequest{}
-	mi := &file_kafka_service_proto_msgTypes[6]
+	mi := &file_kafka_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -396,7 +456,7 @@ func (x *GrpcAddPipelineRequest) String() string {
 func (*GrpcAddPipelineRequest) ProtoMessage() {}
 
 func (x *GrpcAddPipelineRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[6]
+	mi := &file_kafka_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -409,7 +469,7 @@ func (x *GrpcAddPipelineRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcAddPipelineRequest.ProtoReflect.Descriptor instead.
 func (*GrpcAddPipelineRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{6}
+	return file_kafka_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GrpcAddPipelineRequest) GetPipelineRequest() *GrpcKafkaPipelineExecutionRequest {
@@ -440,7 +500,7 @@ type GrpcPipelineStreamingConfiguration struct {
 
 func (x *GrpcPipelineStreamingConfiguration) Reset() {
 	*x = GrpcPipelineStreamingConfiguration{}
-	mi := &file_kafka_service_proto_msgTypes[7]
+	mi := &file_kafka_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -452,7 +512,7 @@ func (x *GrpcPipelineStreamingConfiguration) String() string {
 func (*GrpcPipelineStreamingConfiguration) ProtoMessage() {}
 
 func (x *GrpcPipelineStreamingConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[7]
+	mi := &file_kafka_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -465,7 +525,7 @@ func (x *GrpcPipelineStreamingConfiguration) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GrpcPipelineStreamingConfiguration.ProtoReflect.Descriptor instead.
 func (*GrpcPipelineStreamingConfiguration) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{7}
+	return file_kafka_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GrpcPipelineStreamingConfiguration) GetConfiguration() isGrpcPipelineStreamingConfiguration_Configuration {
@@ -541,7 +601,7 @@ type GrpcT1StreamingConfiguration struct {
 
 func (x *GrpcT1StreamingConfiguration) Reset() {
 	*x = GrpcT1StreamingConfiguration{}
-	mi := &file_kafka_service_proto_msgTypes[8]
+	mi := &file_kafka_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -553,7 +613,7 @@ func (x *GrpcT1StreamingConfiguration) String() string {
 func (*GrpcT1StreamingConfiguration) ProtoMessage() {}
 
 func (x *GrpcT1StreamingConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[8]
+	mi := &file_kafka_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -566,7 +626,7 @@ func (x *GrpcT1StreamingConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcT1StreamingConfiguration.ProtoReflect.Descriptor instead.
 func (*GrpcT1StreamingConfiguration) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{8}
+	return file_kafka_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GrpcT1StreamingConfiguration) GetConfiguration() isGrpcT1StreamingConfiguration_Configuration {
@@ -635,7 +695,7 @@ type GrpcT1TracesQueueConfiguration struct {
 
 func (x *GrpcT1TracesQueueConfiguration) Reset() {
 	*x = GrpcT1TracesQueueConfiguration{}
-	mi := &file_kafka_service_proto_msgTypes[9]
+	mi := &file_kafka_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -647,7 +707,7 @@ func (x *GrpcT1TracesQueueConfiguration) String() string {
 func (*GrpcT1TracesQueueConfiguration) ProtoMessage() {}
 
 func (x *GrpcT1TracesQueueConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[9]
+	mi := &file_kafka_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -660,7 +720,7 @@ func (x *GrpcT1TracesQueueConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcT1TracesQueueConfiguration.ProtoReflect.Descriptor instead.
 func (*GrpcT1TracesQueueConfiguration) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{9}
+	return file_kafka_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GrpcT1TracesQueueConfiguration) GetQueueCapacity() int64 {
@@ -679,7 +739,7 @@ type GrpcT1EventsTimeBasedCaching struct {
 
 func (x *GrpcT1EventsTimeBasedCaching) Reset() {
 	*x = GrpcT1EventsTimeBasedCaching{}
-	mi := &file_kafka_service_proto_msgTypes[10]
+	mi := &file_kafka_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -691,7 +751,7 @@ func (x *GrpcT1EventsTimeBasedCaching) String() string {
 func (*GrpcT1EventsTimeBasedCaching) ProtoMessage() {}
 
 func (x *GrpcT1EventsTimeBasedCaching) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[10]
+	mi := &file_kafka_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -704,7 +764,7 @@ func (x *GrpcT1EventsTimeBasedCaching) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcT1EventsTimeBasedCaching.ProtoReflect.Descriptor instead.
 func (*GrpcT1EventsTimeBasedCaching) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{10}
+	return file_kafka_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GrpcT1EventsTimeBasedCaching) GetEventsTimeoutMs() int64 {
@@ -723,7 +783,7 @@ type GrpcT1TraceTimeBasedCaching struct {
 
 func (x *GrpcT1TraceTimeBasedCaching) Reset() {
 	*x = GrpcT1TraceTimeBasedCaching{}
-	mi := &file_kafka_service_proto_msgTypes[11]
+	mi := &file_kafka_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -735,7 +795,7 @@ func (x *GrpcT1TraceTimeBasedCaching) String() string {
 func (*GrpcT1TraceTimeBasedCaching) ProtoMessage() {}
 
 func (x *GrpcT1TraceTimeBasedCaching) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[11]
+	mi := &file_kafka_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -748,7 +808,7 @@ func (x *GrpcT1TraceTimeBasedCaching) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcT1TraceTimeBasedCaching.ProtoReflect.Descriptor instead.
 func (*GrpcT1TraceTimeBasedCaching) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{11}
+	return file_kafka_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GrpcT1TraceTimeBasedCaching) GetTracesTimeoutMs() int64 {
@@ -772,7 +832,7 @@ type GrpcT2StreamingConfiguration struct {
 
 func (x *GrpcT2StreamingConfiguration) Reset() {
 	*x = GrpcT2StreamingConfiguration{}
-	mi := &file_kafka_service_proto_msgTypes[12]
+	mi := &file_kafka_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -784,7 +844,7 @@ func (x *GrpcT2StreamingConfiguration) String() string {
 func (*GrpcT2StreamingConfiguration) ProtoMessage() {}
 
 func (x *GrpcT2StreamingConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[12]
+	mi := &file_kafka_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,7 +857,7 @@ func (x *GrpcT2StreamingConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcT2StreamingConfiguration.ProtoReflect.Descriptor instead.
 func (*GrpcT2StreamingConfiguration) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{12}
+	return file_kafka_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GrpcT2StreamingConfiguration) GetConfiguration() isGrpcT2StreamingConfiguration_Configuration {
@@ -859,7 +919,7 @@ type GrpcT2LossyCountConfiguration struct {
 
 func (x *GrpcT2LossyCountConfiguration) Reset() {
 	*x = GrpcT2LossyCountConfiguration{}
-	mi := &file_kafka_service_proto_msgTypes[13]
+	mi := &file_kafka_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -871,7 +931,7 @@ func (x *GrpcT2LossyCountConfiguration) String() string {
 func (*GrpcT2LossyCountConfiguration) ProtoMessage() {}
 
 func (x *GrpcT2LossyCountConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[13]
+	mi := &file_kafka_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -884,7 +944,7 @@ func (x *GrpcT2LossyCountConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcT2LossyCountConfiguration.ProtoReflect.Descriptor instead.
 func (*GrpcT2LossyCountConfiguration) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{13}
+	return file_kafka_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GrpcT2LossyCountConfiguration) GetError() float64 {
@@ -910,7 +970,7 @@ type GrpcT2TimedSlidingWindowConfiguration struct {
 
 func (x *GrpcT2TimedSlidingWindowConfiguration) Reset() {
 	*x = GrpcT2TimedSlidingWindowConfiguration{}
-	mi := &file_kafka_service_proto_msgTypes[14]
+	mi := &file_kafka_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -922,7 +982,7 @@ func (x *GrpcT2TimedSlidingWindowConfiguration) String() string {
 func (*GrpcT2TimedSlidingWindowConfiguration) ProtoMessage() {}
 
 func (x *GrpcT2TimedSlidingWindowConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[14]
+	mi := &file_kafka_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -935,7 +995,7 @@ func (x *GrpcT2TimedSlidingWindowConfiguration) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GrpcT2TimedSlidingWindowConfiguration.ProtoReflect.Descriptor instead.
 func (*GrpcT2TimedSlidingWindowConfiguration) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{14}
+	return file_kafka_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GrpcT2TimedSlidingWindowConfiguration) GetLifespanMs() int64 {
@@ -954,7 +1014,7 @@ type GrpcAddPipelineStreamRequest struct {
 
 func (x *GrpcAddPipelineStreamRequest) Reset() {
 	*x = GrpcAddPipelineStreamRequest{}
-	mi := &file_kafka_service_proto_msgTypes[15]
+	mi := &file_kafka_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -966,7 +1026,7 @@ func (x *GrpcAddPipelineStreamRequest) String() string {
 func (*GrpcAddPipelineStreamRequest) ProtoMessage() {}
 
 func (x *GrpcAddPipelineStreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[15]
+	mi := &file_kafka_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -979,7 +1039,7 @@ func (x *GrpcAddPipelineStreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcAddPipelineStreamRequest.ProtoReflect.Descriptor instead.
 func (*GrpcAddPipelineStreamRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{15}
+	return file_kafka_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GrpcAddPipelineStreamRequest) GetPipelineRequest() *GrpcKafkaPipelineExecutionRequest {
@@ -999,7 +1059,7 @@ type GrpcRemovePipelineRequest struct {
 
 func (x *GrpcRemovePipelineRequest) Reset() {
 	*x = GrpcRemovePipelineRequest{}
-	mi := &file_kafka_service_proto_msgTypes[16]
+	mi := &file_kafka_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1011,7 +1071,7 @@ func (x *GrpcRemovePipelineRequest) String() string {
 func (*GrpcRemovePipelineRequest) ProtoMessage() {}
 
 func (x *GrpcRemovePipelineRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[16]
+	mi := &file_kafka_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1024,7 +1084,7 @@ func (x *GrpcRemovePipelineRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcRemovePipelineRequest.ProtoReflect.Descriptor instead.
 func (*GrpcRemovePipelineRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{16}
+	return file_kafka_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GrpcRemovePipelineRequest) GetSubscriptionId() *GrpcGuid {
@@ -1050,7 +1110,7 @@ type GrpcRemoveAllPipelinesRequest struct {
 
 func (x *GrpcRemoveAllPipelinesRequest) Reset() {
 	*x = GrpcRemoveAllPipelinesRequest{}
-	mi := &file_kafka_service_proto_msgTypes[17]
+	mi := &file_kafka_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1062,7 +1122,7 @@ func (x *GrpcRemoveAllPipelinesRequest) String() string {
 func (*GrpcRemoveAllPipelinesRequest) ProtoMessage() {}
 
 func (x *GrpcRemoveAllPipelinesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[17]
+	mi := &file_kafka_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1075,7 +1135,7 @@ func (x *GrpcRemoveAllPipelinesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcRemoveAllPipelinesRequest.ProtoReflect.Descriptor instead.
 func (*GrpcRemoveAllPipelinesRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{17}
+	return file_kafka_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GrpcRemoveAllPipelinesRequest) GetSubscriptionId() *GrpcGuid {
@@ -1095,7 +1155,7 @@ type GrpcKafkaConnectionMetadata struct {
 
 func (x *GrpcKafkaConnectionMetadata) Reset() {
 	*x = GrpcKafkaConnectionMetadata{}
-	mi := &file_kafka_service_proto_msgTypes[18]
+	mi := &file_kafka_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1107,7 +1167,7 @@ func (x *GrpcKafkaConnectionMetadata) String() string {
 func (*GrpcKafkaConnectionMetadata) ProtoMessage() {}
 
 func (x *GrpcKafkaConnectionMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[18]
+	mi := &file_kafka_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1120,7 +1180,7 @@ func (x *GrpcKafkaConnectionMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcKafkaConnectionMetadata.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaConnectionMetadata) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{18}
+	return file_kafka_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GrpcKafkaConnectionMetadata) GetTopicName() string {
@@ -1147,7 +1207,7 @@ type GrpcKafkaMetadata struct {
 
 func (x *GrpcKafkaMetadata) Reset() {
 	*x = GrpcKafkaMetadata{}
-	mi := &file_kafka_service_proto_msgTypes[19]
+	mi := &file_kafka_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1159,7 +1219,7 @@ func (x *GrpcKafkaMetadata) String() string {
 func (*GrpcKafkaMetadata) ProtoMessage() {}
 
 func (x *GrpcKafkaMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[19]
+	mi := &file_kafka_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1172,7 +1232,7 @@ func (x *GrpcKafkaMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcKafkaMetadata.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaMetadata) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{19}
+	return file_kafka_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GrpcKafkaMetadata) GetKey() string {
@@ -1202,7 +1262,7 @@ type GrpcKafkaResult struct {
 
 func (x *GrpcKafkaResult) Reset() {
 	*x = GrpcKafkaResult{}
-	mi := &file_kafka_service_proto_msgTypes[20]
+	mi := &file_kafka_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1214,7 +1274,7 @@ func (x *GrpcKafkaResult) String() string {
 func (*GrpcKafkaResult) ProtoMessage() {}
 
 func (x *GrpcKafkaResult) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[20]
+	mi := &file_kafka_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1227,7 +1287,7 @@ func (x *GrpcKafkaResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcKafkaResult.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaResult) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{20}
+	return file_kafka_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GrpcKafkaResult) GetResult() isGrpcKafkaResult_Result {
@@ -1280,7 +1340,7 @@ type GrpcKafkaSuccessResult struct {
 
 func (x *GrpcKafkaSuccessResult) Reset() {
 	*x = GrpcKafkaSuccessResult{}
-	mi := &file_kafka_service_proto_msgTypes[21]
+	mi := &file_kafka_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1292,7 +1352,7 @@ func (x *GrpcKafkaSuccessResult) String() string {
 func (*GrpcKafkaSuccessResult) ProtoMessage() {}
 
 func (x *GrpcKafkaSuccessResult) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[21]
+	mi := &file_kafka_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1305,7 +1365,7 @@ func (x *GrpcKafkaSuccessResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcKafkaSuccessResult.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaSuccessResult) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{21}
+	return file_kafka_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GrpcKafkaSuccessResult) GetId() *GrpcGuid {
@@ -1324,7 +1384,7 @@ type GrpcKafkaFailedResult struct {
 
 func (x *GrpcKafkaFailedResult) Reset() {
 	*x = GrpcKafkaFailedResult{}
-	mi := &file_kafka_service_proto_msgTypes[22]
+	mi := &file_kafka_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1336,7 +1396,7 @@ func (x *GrpcKafkaFailedResult) String() string {
 func (*GrpcKafkaFailedResult) ProtoMessage() {}
 
 func (x *GrpcKafkaFailedResult) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[22]
+	mi := &file_kafka_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1349,7 +1409,7 @@ func (x *GrpcKafkaFailedResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcKafkaFailedResult.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaFailedResult) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{22}
+	return file_kafka_service_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GrpcKafkaFailedResult) GetErrorMessage() string {
@@ -1368,7 +1428,7 @@ type GrpcUnsubscribeFromKafkaRequest struct {
 
 func (x *GrpcUnsubscribeFromKafkaRequest) Reset() {
 	*x = GrpcUnsubscribeFromKafkaRequest{}
-	mi := &file_kafka_service_proto_msgTypes[23]
+	mi := &file_kafka_service_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1380,7 +1440,7 @@ func (x *GrpcUnsubscribeFromKafkaRequest) String() string {
 func (*GrpcUnsubscribeFromKafkaRequest) ProtoMessage() {}
 
 func (x *GrpcUnsubscribeFromKafkaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[23]
+	mi := &file_kafka_service_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1393,7 +1453,7 @@ func (x *GrpcUnsubscribeFromKafkaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcUnsubscribeFromKafkaRequest.ProtoReflect.Descriptor instead.
 func (*GrpcUnsubscribeFromKafkaRequest) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{23}
+	return file_kafka_service_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GrpcUnsubscribeFromKafkaRequest) GetSubscriptionId() *GrpcGuid {
@@ -1412,7 +1472,7 @@ type GrpcGetAllSubscriptionsAndPipelinesResponse struct {
 
 func (x *GrpcGetAllSubscriptionsAndPipelinesResponse) Reset() {
 	*x = GrpcGetAllSubscriptionsAndPipelinesResponse{}
-	mi := &file_kafka_service_proto_msgTypes[24]
+	mi := &file_kafka_service_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1424,7 +1484,7 @@ func (x *GrpcGetAllSubscriptionsAndPipelinesResponse) String() string {
 func (*GrpcGetAllSubscriptionsAndPipelinesResponse) ProtoMessage() {}
 
 func (x *GrpcGetAllSubscriptionsAndPipelinesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[24]
+	mi := &file_kafka_service_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1437,7 +1497,7 @@ func (x *GrpcGetAllSubscriptionsAndPipelinesResponse) ProtoReflect() protoreflec
 
 // Deprecated: Use GrpcGetAllSubscriptionsAndPipelinesResponse.ProtoReflect.Descriptor instead.
 func (*GrpcGetAllSubscriptionsAndPipelinesResponse) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{24}
+	return file_kafka_service_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GrpcGetAllSubscriptionsAndPipelinesResponse) GetSubscriptions() []*GrpcKafkaSubscription {
@@ -1458,7 +1518,7 @@ type GrpcKafkaSubscription struct {
 
 func (x *GrpcKafkaSubscription) Reset() {
 	*x = GrpcKafkaSubscription{}
-	mi := &file_kafka_service_proto_msgTypes[25]
+	mi := &file_kafka_service_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1470,7 +1530,7 @@ func (x *GrpcKafkaSubscription) String() string {
 func (*GrpcKafkaSubscription) ProtoMessage() {}
 
 func (x *GrpcKafkaSubscription) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[25]
+	mi := &file_kafka_service_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1483,7 +1543,7 @@ func (x *GrpcKafkaSubscription) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcKafkaSubscription.ProtoReflect.Descriptor instead.
 func (*GrpcKafkaSubscription) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{25}
+	return file_kafka_service_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GrpcKafkaSubscription) GetId() *GrpcGuid {
@@ -1517,7 +1577,7 @@ type GrpcSubscriptionPipeline struct {
 
 func (x *GrpcSubscriptionPipeline) Reset() {
 	*x = GrpcSubscriptionPipeline{}
-	mi := &file_kafka_service_proto_msgTypes[26]
+	mi := &file_kafka_service_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1529,7 +1589,7 @@ func (x *GrpcSubscriptionPipeline) String() string {
 func (*GrpcSubscriptionPipeline) ProtoMessage() {}
 
 func (x *GrpcSubscriptionPipeline) ProtoReflect() protoreflect.Message {
-	mi := &file_kafka_service_proto_msgTypes[26]
+	mi := &file_kafka_service_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1542,7 +1602,7 @@ func (x *GrpcSubscriptionPipeline) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcSubscriptionPipeline.ProtoReflect.Descriptor instead.
 func (*GrpcSubscriptionPipeline) Descriptor() ([]byte, []int) {
-	return file_kafka_service_proto_rawDescGZIP(), []int{26}
+	return file_kafka_service_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GrpcSubscriptionPipeline) GetId() *GrpcGuid {
@@ -1564,7 +1624,13 @@ var File_kafka_service_proto protoreflect.FileDescriptor
 const file_kafka_service_proto_rawDesc = "" +
 	"\n" +
 	"\x13kafka_service.proto\x12\x05ficus\x1a\x1bpipelines_and_context.proto\x1a\n" +
-	"util.proto\x1a\x15backend_service.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xbd\x03\n" +
+	"util.proto\x1a\x15backend_service.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xaa\x01\n" +
+	"\"GrpcGetCurrentContextValuesRequest\x127\n" +
+	"\x0esubscriptionId\x18\x01 \x01(\v2\x0f.ficus.GrpcGuidR\x0esubscriptionId\x12/\n" +
+	"\n" +
+	"pipelineId\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\n" +
+	"pipelineId\x12\x1a\n" +
+	"\bcaseName\x18\x03 \x01(\tR\bcaseName\"\xbd\x03\n" +
 	")GrpcExecutePipelineAndProduceKafkaRequest\x12R\n" +
 	"\x0fpipelineRequest\x18\x01 \x01(\v2(.ficus.GrpcProxyPipelineExecutionRequestR\x0fpipelineRequest\x12N\n" +
 	"\x10producerMetadata\x18\x02 \x01(\v2\".ficus.GrpcKafkaConnectionMetadataR\x10producerMetadata\x122\n" +
@@ -1656,10 +1722,11 @@ const file_kafka_service_proto_rawDesc = "" +
 	"\tpipelines\x18\x03 \x03(\v2\x1f.ficus.GrpcSubscriptionPipelineR\tpipelines\"t\n" +
 	"\x18GrpcSubscriptionPipeline\x12\x1f\n" +
 	"\x02id\x18\x01 \x01(\v2\x0f.ficus.GrpcGuidR\x02id\x127\n" +
-	"\bmetadata\x18\x02 \x01(\v2\x1b.ficus.GrpcPipelineMetadataR\bmetadata2\xb2\x06\n" +
+	"\bmetadata\x18\x02 \x01(\v2\x1b.ficus.GrpcPipelineMetadataR\bmetadata2\xa2\a\n" +
 	"\x10GrpcKafkaService\x12T\n" +
 	"\x16SubscribeForKafkaTopic\x12\".ficus.GrpcSubscribeToKafkaRequest\x1a\x16.ficus.GrpcKafkaResult\x12[\n" +
-	"\x19UnsubscribeFromKafkaTopic\x12&.ficus.GrpcUnsubscribeFromKafkaRequest\x1a\x16.ficus.GrpcKafkaResult\x12R\n" +
+	"\x19UnsubscribeFromKafkaTopic\x12&.ficus.GrpcUnsubscribeFromKafkaRequest\x1a\x16.ficus.GrpcKafkaResult\x12n\n" +
+	"\x17GetCurrentContextValues\x12).ficus.GrpcGetCurrentContextValuesRequest\x1a&.ficus.GrpcPipelinePartExecutionResult0\x01\x12R\n" +
 	"\x19AddPipelineToSubscription\x12\x1d.ficus.GrpcAddPipelineRequest\x1a\x16.ficus.GrpcKafkaResult\x12p\n" +
 	"\x1fAddPipelineToSubscriptionStream\x12#.ficus.GrpcAddPipelineStreamRequest\x1a&.ficus.GrpcPipelinePartExecutionResult0\x01\x12V\n" +
 	"\x1aRemovePipelineSubscription\x12 .ficus.GrpcRemovePipelineRequest\x1a\x16.ficus.GrpcKafkaResult\x12^\n" +
@@ -1679,101 +1746,106 @@ func file_kafka_service_proto_rawDescGZIP() []byte {
 	return file_kafka_service_proto_rawDescData
 }
 
-var file_kafka_service_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_kafka_service_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_kafka_service_proto_goTypes = []any{
-	(*GrpcExecutePipelineAndProduceKafkaRequest)(nil),   // 0: ficus.GrpcExecutePipelineAndProduceKafkaRequest
-	(*GrpcProcessInfo)(nil),                             // 1: ficus.GrpcProcessInfo
-	(*GrpcSubscribeToKafkaRequest)(nil),                 // 2: ficus.GrpcSubscribeToKafkaRequest
-	(*GrpcKafkaSubscriptionMetadata)(nil),               // 3: ficus.GrpcKafkaSubscriptionMetadata
-	(*GrpcKafkaPipelineExecutionRequest)(nil),           // 4: ficus.GrpcKafkaPipelineExecutionRequest
-	(*GrpcPipelineMetadata)(nil),                        // 5: ficus.GrpcPipelineMetadata
-	(*GrpcAddPipelineRequest)(nil),                      // 6: ficus.GrpcAddPipelineRequest
-	(*GrpcPipelineStreamingConfiguration)(nil),          // 7: ficus.GrpcPipelineStreamingConfiguration
-	(*GrpcT1StreamingConfiguration)(nil),                // 8: ficus.GrpcT1StreamingConfiguration
-	(*GrpcT1TracesQueueConfiguration)(nil),              // 9: ficus.GrpcT1TracesQueueConfiguration
-	(*GrpcT1EventsTimeBasedCaching)(nil),                // 10: ficus.GrpcT1EventsTimeBasedCaching
-	(*GrpcT1TraceTimeBasedCaching)(nil),                 // 11: ficus.GrpcT1TraceTimeBasedCaching
-	(*GrpcT2StreamingConfiguration)(nil),                // 12: ficus.GrpcT2StreamingConfiguration
-	(*GrpcT2LossyCountConfiguration)(nil),               // 13: ficus.GrpcT2LossyCountConfiguration
-	(*GrpcT2TimedSlidingWindowConfiguration)(nil),       // 14: ficus.GrpcT2TimedSlidingWindowConfiguration
-	(*GrpcAddPipelineStreamRequest)(nil),                // 15: ficus.GrpcAddPipelineStreamRequest
-	(*GrpcRemovePipelineRequest)(nil),                   // 16: ficus.GrpcRemovePipelineRequest
-	(*GrpcRemoveAllPipelinesRequest)(nil),               // 17: ficus.GrpcRemoveAllPipelinesRequest
-	(*GrpcKafkaConnectionMetadata)(nil),                 // 18: ficus.GrpcKafkaConnectionMetadata
-	(*GrpcKafkaMetadata)(nil),                           // 19: ficus.GrpcKafkaMetadata
-	(*GrpcKafkaResult)(nil),                             // 20: ficus.GrpcKafkaResult
-	(*GrpcKafkaSuccessResult)(nil),                      // 21: ficus.GrpcKafkaSuccessResult
-	(*GrpcKafkaFailedResult)(nil),                       // 22: ficus.GrpcKafkaFailedResult
-	(*GrpcUnsubscribeFromKafkaRequest)(nil),             // 23: ficus.GrpcUnsubscribeFromKafkaRequest
-	(*GrpcGetAllSubscriptionsAndPipelinesResponse)(nil), // 24: ficus.GrpcGetAllSubscriptionsAndPipelinesResponse
-	(*GrpcKafkaSubscription)(nil),                       // 25: ficus.GrpcKafkaSubscription
-	(*GrpcSubscriptionPipeline)(nil),                    // 26: ficus.GrpcSubscriptionPipeline
-	(*GrpcProxyPipelineExecutionRequest)(nil),           // 27: ficus.GrpcProxyPipelineExecutionRequest
+	(*GrpcGetCurrentContextValuesRequest)(nil),          // 0: ficus.GrpcGetCurrentContextValuesRequest
+	(*GrpcExecutePipelineAndProduceKafkaRequest)(nil),   // 1: ficus.GrpcExecutePipelineAndProduceKafkaRequest
+	(*GrpcProcessInfo)(nil),                             // 2: ficus.GrpcProcessInfo
+	(*GrpcSubscribeToKafkaRequest)(nil),                 // 3: ficus.GrpcSubscribeToKafkaRequest
+	(*GrpcKafkaSubscriptionMetadata)(nil),               // 4: ficus.GrpcKafkaSubscriptionMetadata
+	(*GrpcKafkaPipelineExecutionRequest)(nil),           // 5: ficus.GrpcKafkaPipelineExecutionRequest
+	(*GrpcPipelineMetadata)(nil),                        // 6: ficus.GrpcPipelineMetadata
+	(*GrpcAddPipelineRequest)(nil),                      // 7: ficus.GrpcAddPipelineRequest
+	(*GrpcPipelineStreamingConfiguration)(nil),          // 8: ficus.GrpcPipelineStreamingConfiguration
+	(*GrpcT1StreamingConfiguration)(nil),                // 9: ficus.GrpcT1StreamingConfiguration
+	(*GrpcT1TracesQueueConfiguration)(nil),              // 10: ficus.GrpcT1TracesQueueConfiguration
+	(*GrpcT1EventsTimeBasedCaching)(nil),                // 11: ficus.GrpcT1EventsTimeBasedCaching
+	(*GrpcT1TraceTimeBasedCaching)(nil),                 // 12: ficus.GrpcT1TraceTimeBasedCaching
+	(*GrpcT2StreamingConfiguration)(nil),                // 13: ficus.GrpcT2StreamingConfiguration
+	(*GrpcT2LossyCountConfiguration)(nil),               // 14: ficus.GrpcT2LossyCountConfiguration
+	(*GrpcT2TimedSlidingWindowConfiguration)(nil),       // 15: ficus.GrpcT2TimedSlidingWindowConfiguration
+	(*GrpcAddPipelineStreamRequest)(nil),                // 16: ficus.GrpcAddPipelineStreamRequest
+	(*GrpcRemovePipelineRequest)(nil),                   // 17: ficus.GrpcRemovePipelineRequest
+	(*GrpcRemoveAllPipelinesRequest)(nil),               // 18: ficus.GrpcRemoveAllPipelinesRequest
+	(*GrpcKafkaConnectionMetadata)(nil),                 // 19: ficus.GrpcKafkaConnectionMetadata
+	(*GrpcKafkaMetadata)(nil),                           // 20: ficus.GrpcKafkaMetadata
+	(*GrpcKafkaResult)(nil),                             // 21: ficus.GrpcKafkaResult
+	(*GrpcKafkaSuccessResult)(nil),                      // 22: ficus.GrpcKafkaSuccessResult
+	(*GrpcKafkaFailedResult)(nil),                       // 23: ficus.GrpcKafkaFailedResult
+	(*GrpcUnsubscribeFromKafkaRequest)(nil),             // 24: ficus.GrpcUnsubscribeFromKafkaRequest
+	(*GrpcGetAllSubscriptionsAndPipelinesResponse)(nil), // 25: ficus.GrpcGetAllSubscriptionsAndPipelinesResponse
+	(*GrpcKafkaSubscription)(nil),                       // 26: ficus.GrpcKafkaSubscription
+	(*GrpcSubscriptionPipeline)(nil),                    // 27: ficus.GrpcSubscriptionPipeline
 	(*GrpcGuid)(nil),                                    // 28: ficus.GrpcGuid
-	(*GrpcPipelineExecutionRequest)(nil),                // 29: ficus.GrpcPipelineExecutionRequest
-	(*emptypb.Empty)(nil),                               // 30: google.protobuf.Empty
-	(*GrpcPipeline)(nil),                                // 31: ficus.GrpcPipeline
-	(*GrpcPipelinePartExecutionResult)(nil),             // 32: ficus.GrpcPipelinePartExecutionResult
+	(*GrpcProxyPipelineExecutionRequest)(nil),           // 29: ficus.GrpcProxyPipelineExecutionRequest
+	(*GrpcPipelineExecutionRequest)(nil),                // 30: ficus.GrpcPipelineExecutionRequest
+	(*emptypb.Empty)(nil),                               // 31: google.protobuf.Empty
+	(*GrpcPipeline)(nil),                                // 32: ficus.GrpcPipeline
+	(*GrpcPipelinePartExecutionResult)(nil),             // 33: ficus.GrpcPipelinePartExecutionResult
 }
 var file_kafka_service_proto_depIdxs = []int32{
-	27, // 0: ficus.GrpcExecutePipelineAndProduceKafkaRequest.pipelineRequest:type_name -> ficus.GrpcProxyPipelineExecutionRequest
-	18, // 1: ficus.GrpcExecutePipelineAndProduceKafkaRequest.producerMetadata:type_name -> ficus.GrpcKafkaConnectionMetadata
-	1,  // 2: ficus.GrpcExecutePipelineAndProduceKafkaRequest.caseInfo:type_name -> ficus.GrpcProcessInfo
-	28, // 3: ficus.GrpcExecutePipelineAndProduceKafkaRequest.subscriptionId:type_name -> ficus.GrpcGuid
-	28, // 4: ficus.GrpcExecutePipelineAndProduceKafkaRequest.pipelineId:type_name -> ficus.GrpcGuid
-	18, // 5: ficus.GrpcSubscribeToKafkaRequest.connectionMetadata:type_name -> ficus.GrpcKafkaConnectionMetadata
-	3,  // 6: ficus.GrpcSubscribeToKafkaRequest.subscriptionMetadata:type_name -> ficus.GrpcKafkaSubscriptionMetadata
-	28, // 7: ficus.GrpcKafkaPipelineExecutionRequest.subscriptionId:type_name -> ficus.GrpcGuid
-	29, // 8: ficus.GrpcKafkaPipelineExecutionRequest.pipelineRequest:type_name -> ficus.GrpcPipelineExecutionRequest
-	5,  // 9: ficus.GrpcKafkaPipelineExecutionRequest.pipelineMetadata:type_name -> ficus.GrpcPipelineMetadata
-	7,  // 10: ficus.GrpcKafkaPipelineExecutionRequest.streamingConfiguration:type_name -> ficus.GrpcPipelineStreamingConfiguration
-	4,  // 11: ficus.GrpcAddPipelineRequest.pipelineRequest:type_name -> ficus.GrpcKafkaPipelineExecutionRequest
-	18, // 12: ficus.GrpcAddPipelineRequest.producerKafkaMetadata:type_name -> ficus.GrpcKafkaConnectionMetadata
-	30, // 13: ficus.GrpcPipelineStreamingConfiguration.notSpecified:type_name -> google.protobuf.Empty
-	8,  // 14: ficus.GrpcPipelineStreamingConfiguration.t1Configuration:type_name -> ficus.GrpcT1StreamingConfiguration
-	12, // 15: ficus.GrpcPipelineStreamingConfiguration.t2Configuration:type_name -> ficus.GrpcT2StreamingConfiguration
-	10, // 16: ficus.GrpcT1StreamingConfiguration.eventsTimeout:type_name -> ficus.GrpcT1EventsTimeBasedCaching
-	11, // 17: ficus.GrpcT1StreamingConfiguration.tracesTimeout:type_name -> ficus.GrpcT1TraceTimeBasedCaching
-	9,  // 18: ficus.GrpcT1StreamingConfiguration.tracesQueueConfiguration:type_name -> ficus.GrpcT1TracesQueueConfiguration
-	13, // 19: ficus.GrpcT2StreamingConfiguration.lossyCount:type_name -> ficus.GrpcT2LossyCountConfiguration
-	14, // 20: ficus.GrpcT2StreamingConfiguration.timedSlidingWindow:type_name -> ficus.GrpcT2TimedSlidingWindowConfiguration
-	31, // 21: ficus.GrpcT2StreamingConfiguration.incomingTracesFilteringPipeline:type_name -> ficus.GrpcPipeline
-	4,  // 22: ficus.GrpcAddPipelineStreamRequest.pipelineRequest:type_name -> ficus.GrpcKafkaPipelineExecutionRequest
-	28, // 23: ficus.GrpcRemovePipelineRequest.subscriptionId:type_name -> ficus.GrpcGuid
-	28, // 24: ficus.GrpcRemovePipelineRequest.pipelineId:type_name -> ficus.GrpcGuid
-	28, // 25: ficus.GrpcRemoveAllPipelinesRequest.subscriptionId:type_name -> ficus.GrpcGuid
-	19, // 26: ficus.GrpcKafkaConnectionMetadata.metadata:type_name -> ficus.GrpcKafkaMetadata
-	21, // 27: ficus.GrpcKafkaResult.success:type_name -> ficus.GrpcKafkaSuccessResult
-	22, // 28: ficus.GrpcKafkaResult.failure:type_name -> ficus.GrpcKafkaFailedResult
-	28, // 29: ficus.GrpcKafkaSuccessResult.id:type_name -> ficus.GrpcGuid
-	28, // 30: ficus.GrpcUnsubscribeFromKafkaRequest.subscriptionId:type_name -> ficus.GrpcGuid
-	25, // 31: ficus.GrpcGetAllSubscriptionsAndPipelinesResponse.subscriptions:type_name -> ficus.GrpcKafkaSubscription
-	28, // 32: ficus.GrpcKafkaSubscription.id:type_name -> ficus.GrpcGuid
-	3,  // 33: ficus.GrpcKafkaSubscription.metadata:type_name -> ficus.GrpcKafkaSubscriptionMetadata
-	26, // 34: ficus.GrpcKafkaSubscription.pipelines:type_name -> ficus.GrpcSubscriptionPipeline
-	28, // 35: ficus.GrpcSubscriptionPipeline.id:type_name -> ficus.GrpcGuid
-	5,  // 36: ficus.GrpcSubscriptionPipeline.metadata:type_name -> ficus.GrpcPipelineMetadata
-	2,  // 37: ficus.GrpcKafkaService.SubscribeForKafkaTopic:input_type -> ficus.GrpcSubscribeToKafkaRequest
-	23, // 38: ficus.GrpcKafkaService.UnsubscribeFromKafkaTopic:input_type -> ficus.GrpcUnsubscribeFromKafkaRequest
-	6,  // 39: ficus.GrpcKafkaService.AddPipelineToSubscription:input_type -> ficus.GrpcAddPipelineRequest
-	15, // 40: ficus.GrpcKafkaService.AddPipelineToSubscriptionStream:input_type -> ficus.GrpcAddPipelineStreamRequest
-	16, // 41: ficus.GrpcKafkaService.RemovePipelineSubscription:input_type -> ficus.GrpcRemovePipelineRequest
-	17, // 42: ficus.GrpcKafkaService.RemoveAllPipelineSubscriptions:input_type -> ficus.GrpcRemoveAllPipelinesRequest
-	30, // 43: ficus.GrpcKafkaService.GetAllSubscriptionsAndPipelines:input_type -> google.protobuf.Empty
-	0,  // 44: ficus.GrpcKafkaService.ExecutePipelineAndProduceToKafka:input_type -> ficus.GrpcExecutePipelineAndProduceKafkaRequest
-	20, // 45: ficus.GrpcKafkaService.SubscribeForKafkaTopic:output_type -> ficus.GrpcKafkaResult
-	20, // 46: ficus.GrpcKafkaService.UnsubscribeFromKafkaTopic:output_type -> ficus.GrpcKafkaResult
-	20, // 47: ficus.GrpcKafkaService.AddPipelineToSubscription:output_type -> ficus.GrpcKafkaResult
-	32, // 48: ficus.GrpcKafkaService.AddPipelineToSubscriptionStream:output_type -> ficus.GrpcPipelinePartExecutionResult
-	20, // 49: ficus.GrpcKafkaService.RemovePipelineSubscription:output_type -> ficus.GrpcKafkaResult
-	20, // 50: ficus.GrpcKafkaService.RemoveAllPipelineSubscriptions:output_type -> ficus.GrpcKafkaResult
-	24, // 51: ficus.GrpcKafkaService.GetAllSubscriptionsAndPipelines:output_type -> ficus.GrpcGetAllSubscriptionsAndPipelinesResponse
-	32, // 52: ficus.GrpcKafkaService.ExecutePipelineAndProduceToKafka:output_type -> ficus.GrpcPipelinePartExecutionResult
-	45, // [45:53] is the sub-list for method output_type
-	37, // [37:45] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	28, // 0: ficus.GrpcGetCurrentContextValuesRequest.subscriptionId:type_name -> ficus.GrpcGuid
+	28, // 1: ficus.GrpcGetCurrentContextValuesRequest.pipelineId:type_name -> ficus.GrpcGuid
+	29, // 2: ficus.GrpcExecutePipelineAndProduceKafkaRequest.pipelineRequest:type_name -> ficus.GrpcProxyPipelineExecutionRequest
+	19, // 3: ficus.GrpcExecutePipelineAndProduceKafkaRequest.producerMetadata:type_name -> ficus.GrpcKafkaConnectionMetadata
+	2,  // 4: ficus.GrpcExecutePipelineAndProduceKafkaRequest.caseInfo:type_name -> ficus.GrpcProcessInfo
+	28, // 5: ficus.GrpcExecutePipelineAndProduceKafkaRequest.subscriptionId:type_name -> ficus.GrpcGuid
+	28, // 6: ficus.GrpcExecutePipelineAndProduceKafkaRequest.pipelineId:type_name -> ficus.GrpcGuid
+	19, // 7: ficus.GrpcSubscribeToKafkaRequest.connectionMetadata:type_name -> ficus.GrpcKafkaConnectionMetadata
+	4,  // 8: ficus.GrpcSubscribeToKafkaRequest.subscriptionMetadata:type_name -> ficus.GrpcKafkaSubscriptionMetadata
+	28, // 9: ficus.GrpcKafkaPipelineExecutionRequest.subscriptionId:type_name -> ficus.GrpcGuid
+	30, // 10: ficus.GrpcKafkaPipelineExecutionRequest.pipelineRequest:type_name -> ficus.GrpcPipelineExecutionRequest
+	6,  // 11: ficus.GrpcKafkaPipelineExecutionRequest.pipelineMetadata:type_name -> ficus.GrpcPipelineMetadata
+	8,  // 12: ficus.GrpcKafkaPipelineExecutionRequest.streamingConfiguration:type_name -> ficus.GrpcPipelineStreamingConfiguration
+	5,  // 13: ficus.GrpcAddPipelineRequest.pipelineRequest:type_name -> ficus.GrpcKafkaPipelineExecutionRequest
+	19, // 14: ficus.GrpcAddPipelineRequest.producerKafkaMetadata:type_name -> ficus.GrpcKafkaConnectionMetadata
+	31, // 15: ficus.GrpcPipelineStreamingConfiguration.notSpecified:type_name -> google.protobuf.Empty
+	9,  // 16: ficus.GrpcPipelineStreamingConfiguration.t1Configuration:type_name -> ficus.GrpcT1StreamingConfiguration
+	13, // 17: ficus.GrpcPipelineStreamingConfiguration.t2Configuration:type_name -> ficus.GrpcT2StreamingConfiguration
+	11, // 18: ficus.GrpcT1StreamingConfiguration.eventsTimeout:type_name -> ficus.GrpcT1EventsTimeBasedCaching
+	12, // 19: ficus.GrpcT1StreamingConfiguration.tracesTimeout:type_name -> ficus.GrpcT1TraceTimeBasedCaching
+	10, // 20: ficus.GrpcT1StreamingConfiguration.tracesQueueConfiguration:type_name -> ficus.GrpcT1TracesQueueConfiguration
+	14, // 21: ficus.GrpcT2StreamingConfiguration.lossyCount:type_name -> ficus.GrpcT2LossyCountConfiguration
+	15, // 22: ficus.GrpcT2StreamingConfiguration.timedSlidingWindow:type_name -> ficus.GrpcT2TimedSlidingWindowConfiguration
+	32, // 23: ficus.GrpcT2StreamingConfiguration.incomingTracesFilteringPipeline:type_name -> ficus.GrpcPipeline
+	5,  // 24: ficus.GrpcAddPipelineStreamRequest.pipelineRequest:type_name -> ficus.GrpcKafkaPipelineExecutionRequest
+	28, // 25: ficus.GrpcRemovePipelineRequest.subscriptionId:type_name -> ficus.GrpcGuid
+	28, // 26: ficus.GrpcRemovePipelineRequest.pipelineId:type_name -> ficus.GrpcGuid
+	28, // 27: ficus.GrpcRemoveAllPipelinesRequest.subscriptionId:type_name -> ficus.GrpcGuid
+	20, // 28: ficus.GrpcKafkaConnectionMetadata.metadata:type_name -> ficus.GrpcKafkaMetadata
+	22, // 29: ficus.GrpcKafkaResult.success:type_name -> ficus.GrpcKafkaSuccessResult
+	23, // 30: ficus.GrpcKafkaResult.failure:type_name -> ficus.GrpcKafkaFailedResult
+	28, // 31: ficus.GrpcKafkaSuccessResult.id:type_name -> ficus.GrpcGuid
+	28, // 32: ficus.GrpcUnsubscribeFromKafkaRequest.subscriptionId:type_name -> ficus.GrpcGuid
+	26, // 33: ficus.GrpcGetAllSubscriptionsAndPipelinesResponse.subscriptions:type_name -> ficus.GrpcKafkaSubscription
+	28, // 34: ficus.GrpcKafkaSubscription.id:type_name -> ficus.GrpcGuid
+	4,  // 35: ficus.GrpcKafkaSubscription.metadata:type_name -> ficus.GrpcKafkaSubscriptionMetadata
+	27, // 36: ficus.GrpcKafkaSubscription.pipelines:type_name -> ficus.GrpcSubscriptionPipeline
+	28, // 37: ficus.GrpcSubscriptionPipeline.id:type_name -> ficus.GrpcGuid
+	6,  // 38: ficus.GrpcSubscriptionPipeline.metadata:type_name -> ficus.GrpcPipelineMetadata
+	3,  // 39: ficus.GrpcKafkaService.SubscribeForKafkaTopic:input_type -> ficus.GrpcSubscribeToKafkaRequest
+	24, // 40: ficus.GrpcKafkaService.UnsubscribeFromKafkaTopic:input_type -> ficus.GrpcUnsubscribeFromKafkaRequest
+	0,  // 41: ficus.GrpcKafkaService.GetCurrentContextValues:input_type -> ficus.GrpcGetCurrentContextValuesRequest
+	7,  // 42: ficus.GrpcKafkaService.AddPipelineToSubscription:input_type -> ficus.GrpcAddPipelineRequest
+	16, // 43: ficus.GrpcKafkaService.AddPipelineToSubscriptionStream:input_type -> ficus.GrpcAddPipelineStreamRequest
+	17, // 44: ficus.GrpcKafkaService.RemovePipelineSubscription:input_type -> ficus.GrpcRemovePipelineRequest
+	18, // 45: ficus.GrpcKafkaService.RemoveAllPipelineSubscriptions:input_type -> ficus.GrpcRemoveAllPipelinesRequest
+	31, // 46: ficus.GrpcKafkaService.GetAllSubscriptionsAndPipelines:input_type -> google.protobuf.Empty
+	1,  // 47: ficus.GrpcKafkaService.ExecutePipelineAndProduceToKafka:input_type -> ficus.GrpcExecutePipelineAndProduceKafkaRequest
+	21, // 48: ficus.GrpcKafkaService.SubscribeForKafkaTopic:output_type -> ficus.GrpcKafkaResult
+	21, // 49: ficus.GrpcKafkaService.UnsubscribeFromKafkaTopic:output_type -> ficus.GrpcKafkaResult
+	33, // 50: ficus.GrpcKafkaService.GetCurrentContextValues:output_type -> ficus.GrpcPipelinePartExecutionResult
+	21, // 51: ficus.GrpcKafkaService.AddPipelineToSubscription:output_type -> ficus.GrpcKafkaResult
+	33, // 52: ficus.GrpcKafkaService.AddPipelineToSubscriptionStream:output_type -> ficus.GrpcPipelinePartExecutionResult
+	21, // 53: ficus.GrpcKafkaService.RemovePipelineSubscription:output_type -> ficus.GrpcKafkaResult
+	21, // 54: ficus.GrpcKafkaService.RemoveAllPipelineSubscriptions:output_type -> ficus.GrpcKafkaResult
+	25, // 55: ficus.GrpcKafkaService.GetAllSubscriptionsAndPipelines:output_type -> ficus.GrpcGetAllSubscriptionsAndPipelinesResponse
+	33, // 56: ficus.GrpcKafkaService.ExecutePipelineAndProduceToKafka:output_type -> ficus.GrpcPipelinePartExecutionResult
+	48, // [48:57] is the sub-list for method output_type
+	39, // [39:48] is the sub-list for method input_type
+	39, // [39:39] is the sub-list for extension type_name
+	39, // [39:39] is the sub-list for extension extendee
+	0,  // [0:39] is the sub-list for field type_name
 }
 
 func init() { file_kafka_service_proto_init() }
@@ -1784,21 +1856,21 @@ func file_kafka_service_proto_init() {
 	file_pipelines_and_context_proto_init()
 	file_util_proto_init()
 	file_backend_service_proto_init()
-	file_kafka_service_proto_msgTypes[7].OneofWrappers = []any{
+	file_kafka_service_proto_msgTypes[8].OneofWrappers = []any{
 		(*GrpcPipelineStreamingConfiguration_NotSpecified)(nil),
 		(*GrpcPipelineStreamingConfiguration_T1Configuration)(nil),
 		(*GrpcPipelineStreamingConfiguration_T2Configuration)(nil),
 	}
-	file_kafka_service_proto_msgTypes[8].OneofWrappers = []any{
+	file_kafka_service_proto_msgTypes[9].OneofWrappers = []any{
 		(*GrpcT1StreamingConfiguration_EventsTimeout)(nil),
 		(*GrpcT1StreamingConfiguration_TracesTimeout)(nil),
 		(*GrpcT1StreamingConfiguration_TracesQueueConfiguration)(nil),
 	}
-	file_kafka_service_proto_msgTypes[12].OneofWrappers = []any{
+	file_kafka_service_proto_msgTypes[13].OneofWrappers = []any{
 		(*GrpcT2StreamingConfiguration_LossyCount)(nil),
 		(*GrpcT2StreamingConfiguration_TimedSlidingWindow)(nil),
 	}
-	file_kafka_service_proto_msgTypes[20].OneofWrappers = []any{
+	file_kafka_service_proto_msgTypes[21].OneofWrappers = []any{
 		(*GrpcKafkaResult_Success)(nil),
 		(*GrpcKafkaResult_Failure)(nil),
 	}
@@ -1808,7 +1880,7 @@ func file_kafka_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kafka_service_proto_rawDesc), len(file_kafka_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   27,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

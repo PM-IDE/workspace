@@ -7,6 +7,7 @@ import type { GrpcAddPipelineRequest_DONTUSE as _ficus_GrpcAddPipelineRequest_DO
 import type { GrpcAddPipelineStreamRequest_DONTUSE as _ficus_GrpcAddPipelineStreamRequest_DONTUSE, GrpcAddPipelineStreamRequest as _ficus_GrpcAddPipelineStreamRequest } from '../ficus/GrpcAddPipelineStreamRequest';
 import type { GrpcExecutePipelineAndProduceKafkaRequest_DONTUSE as _ficus_GrpcExecutePipelineAndProduceKafkaRequest_DONTUSE, GrpcExecutePipelineAndProduceKafkaRequest as _ficus_GrpcExecutePipelineAndProduceKafkaRequest } from '../ficus/GrpcExecutePipelineAndProduceKafkaRequest';
 import type { GrpcGetAllSubscriptionsAndPipelinesResponse_DONTUSE as _ficus_GrpcGetAllSubscriptionsAndPipelinesResponse_DONTUSE, GrpcGetAllSubscriptionsAndPipelinesResponse as _ficus_GrpcGetAllSubscriptionsAndPipelinesResponse } from '../ficus/GrpcGetAllSubscriptionsAndPipelinesResponse';
+import type { GrpcGetCurrentContextValuesRequest_DONTUSE as _ficus_GrpcGetCurrentContextValuesRequest_DONTUSE, GrpcGetCurrentContextValuesRequest as _ficus_GrpcGetCurrentContextValuesRequest } from '../ficus/GrpcGetCurrentContextValuesRequest';
 import type { GrpcKafkaResult_DONTUSE as _ficus_GrpcKafkaResult_DONTUSE, GrpcKafkaResult as _ficus_GrpcKafkaResult } from '../ficus/GrpcKafkaResult';
 import type { GrpcPipelinePartExecutionResult_DONTUSE as _ficus_GrpcPipelinePartExecutionResult_DONTUSE, GrpcPipelinePartExecutionResult as _ficus_GrpcPipelinePartExecutionResult } from '../ficus/GrpcPipelinePartExecutionResult';
 import type { GrpcRemoveAllPipelinesRequest_DONTUSE as _ficus_GrpcRemoveAllPipelinesRequest_DONTUSE, GrpcRemoveAllPipelinesRequest as _ficus_GrpcRemoveAllPipelinesRequest } from '../ficus/GrpcRemoveAllPipelinesRequest';
@@ -42,6 +43,11 @@ export interface GrpcKafkaServiceClient extends grpc.Client {
   getAllSubscriptionsAndPipelines(argument: _google_protobuf_Empty_DONTUSE, metadata: grpc.Metadata, callback: grpc.requestCallback<_ficus_GrpcGetAllSubscriptionsAndPipelinesResponse>): grpc.ClientUnaryCall;
   getAllSubscriptionsAndPipelines(argument: _google_protobuf_Empty_DONTUSE, options: grpc.CallOptions, callback: grpc.requestCallback<_ficus_GrpcGetAllSubscriptionsAndPipelinesResponse>): grpc.ClientUnaryCall;
   getAllSubscriptionsAndPipelines(argument: _google_protobuf_Empty_DONTUSE, callback: grpc.requestCallback<_ficus_GrpcGetAllSubscriptionsAndPipelinesResponse>): grpc.ClientUnaryCall;
+  
+  GetCurrentContextValues(argument: _ficus_GrpcGetCurrentContextValuesRequest_DONTUSE, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_ficus_GrpcPipelinePartExecutionResult>;
+  GetCurrentContextValues(argument: _ficus_GrpcGetCurrentContextValuesRequest_DONTUSE, options?: grpc.CallOptions): grpc.ClientReadableStream<_ficus_GrpcPipelinePartExecutionResult>;
+  getCurrentContextValues(argument: _ficus_GrpcGetCurrentContextValuesRequest_DONTUSE, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_ficus_GrpcPipelinePartExecutionResult>;
+  getCurrentContextValues(argument: _ficus_GrpcGetCurrentContextValuesRequest_DONTUSE, options?: grpc.CallOptions): grpc.ClientReadableStream<_ficus_GrpcPipelinePartExecutionResult>;
   
   RemoveAllPipelineSubscriptions(argument: _ficus_GrpcRemoveAllPipelinesRequest_DONTUSE, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_ficus_GrpcKafkaResult>): grpc.ClientUnaryCall;
   RemoveAllPipelineSubscriptions(argument: _ficus_GrpcRemoveAllPipelinesRequest_DONTUSE, metadata: grpc.Metadata, callback: grpc.requestCallback<_ficus_GrpcKafkaResult>): grpc.ClientUnaryCall;
@@ -90,6 +96,8 @@ export interface GrpcKafkaServiceHandlers extends grpc.UntypedServiceImplementat
   
   GetAllSubscriptionsAndPipelines: grpc.handleUnaryCall<_google_protobuf_Empty, _ficus_GrpcGetAllSubscriptionsAndPipelinesResponse_DONTUSE>;
   
+  GetCurrentContextValues: grpc.handleServerStreamingCall<_ficus_GrpcGetCurrentContextValuesRequest, _ficus_GrpcPipelinePartExecutionResult_DONTUSE>;
+  
   RemoveAllPipelineSubscriptions: grpc.handleUnaryCall<_ficus_GrpcRemoveAllPipelinesRequest, _ficus_GrpcKafkaResult_DONTUSE>;
   
   RemovePipelineSubscription: grpc.handleUnaryCall<_ficus_GrpcRemovePipelineRequest, _ficus_GrpcKafkaResult_DONTUSE>;
@@ -105,6 +113,7 @@ export interface GrpcKafkaServiceDefinition extends grpc.ServiceDefinition {
   AddPipelineToSubscriptionStream: MethodDefinition<_ficus_GrpcAddPipelineStreamRequest_DONTUSE, _ficus_GrpcPipelinePartExecutionResult_DONTUSE, _ficus_GrpcAddPipelineStreamRequest, _ficus_GrpcPipelinePartExecutionResult>
   ExecutePipelineAndProduceToKafka: MethodDefinition<_ficus_GrpcExecutePipelineAndProduceKafkaRequest_DONTUSE, _ficus_GrpcPipelinePartExecutionResult_DONTUSE, _ficus_GrpcExecutePipelineAndProduceKafkaRequest, _ficus_GrpcPipelinePartExecutionResult>
   GetAllSubscriptionsAndPipelines: MethodDefinition<_google_protobuf_Empty_DONTUSE, _ficus_GrpcGetAllSubscriptionsAndPipelinesResponse_DONTUSE, _google_protobuf_Empty, _ficus_GrpcGetAllSubscriptionsAndPipelinesResponse>
+  GetCurrentContextValues: MethodDefinition<_ficus_GrpcGetCurrentContextValuesRequest_DONTUSE, _ficus_GrpcPipelinePartExecutionResult_DONTUSE, _ficus_GrpcGetCurrentContextValuesRequest, _ficus_GrpcPipelinePartExecutionResult>
   RemoveAllPipelineSubscriptions: MethodDefinition<_ficus_GrpcRemoveAllPipelinesRequest_DONTUSE, _ficus_GrpcKafkaResult_DONTUSE, _ficus_GrpcRemoveAllPipelinesRequest, _ficus_GrpcKafkaResult>
   RemovePipelineSubscription: MethodDefinition<_ficus_GrpcRemovePipelineRequest_DONTUSE, _ficus_GrpcKafkaResult_DONTUSE, _ficus_GrpcRemovePipelineRequest, _ficus_GrpcKafkaResult>
   SubscribeForKafkaTopic: MethodDefinition<_ficus_GrpcSubscribeToKafkaRequest_DONTUSE, _ficus_GrpcKafkaResult_DONTUSE, _ficus_GrpcSubscribeToKafkaRequest, _ficus_GrpcKafkaResult>

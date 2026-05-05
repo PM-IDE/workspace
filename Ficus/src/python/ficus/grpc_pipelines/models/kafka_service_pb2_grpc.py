@@ -54,6 +54,16 @@ class GrpcKafkaServiceStub(object):
 
                 )
 
+        self.GetCurrentContextValues = channel.unary_stream(
+
+                '/ficus.GrpcKafkaService/GetCurrentContextValues',
+
+                request_serializer=kafka__service__pb2.GrpcGetCurrentContextValuesRequest.SerializeToString,
+
+                response_deserializer=backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
+
+                )
+
         self.AddPipelineToSubscription = channel.unary_unary(
 
                 '/ficus.GrpcKafkaService/AddPipelineToSubscription',
@@ -137,6 +147,18 @@ class GrpcKafkaServiceServicer(object):
 
 
     def UnsubscribeFromKafkaTopic(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def GetCurrentContextValues(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -243,6 +265,16 @@ def add_GrpcKafkaServiceServicer_to_server(servicer, server):
                     request_deserializer=kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.FromString,
 
                     response_serializer=kafka__service__pb2.GrpcKafkaResult.SerializeToString,
+
+            ),
+
+            'GetCurrentContextValues': grpc.unary_stream_rpc_method_handler(
+
+                    servicer.GetCurrentContextValues,
+
+                    request_deserializer=kafka__service__pb2.GrpcGetCurrentContextValuesRequest.FromString,
+
+                    response_serializer=backend__service__pb2.GrpcPipelinePartExecutionResult.SerializeToString,
 
             ),
 
@@ -387,6 +419,40 @@ class GrpcKafkaService(object):
             kafka__service__pb2.GrpcUnsubscribeFromKafkaRequest.SerializeToString,
 
             kafka__service__pb2.GrpcKafkaResult.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def GetCurrentContextValues(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_stream(request, target, '/ficus.GrpcKafkaService/GetCurrentContextValues',
+
+            kafka__service__pb2.GrpcGetCurrentContextValuesRequest.SerializeToString,
+
+            backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
 
             options, channel_credentials,
 
