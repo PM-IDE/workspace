@@ -55,7 +55,7 @@ use ficus::{
       ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations},
       petri_net::{
         annotations::TimeAnnotationKind,
-        arc::Arc,
+        arc::PetriNetArc,
         marking::{Marking, SingleMarking},
         petri_net::DefaultPetriNet,
         place::Place,
@@ -676,7 +676,7 @@ where
   }
 }
 
-fn convert_to_grpc_arc<TArcData>(arc: &Arc<TArcData>) -> GrpcPetriNetArc {
+fn convert_to_grpc_arc<TArcData>(arc: &PetriNetArc<TArcData>) -> GrpcPetriNetArc {
   GrpcPetriNetArc {
     id: arc.id() as i64,
     place_id: arc.place_id() as i64,

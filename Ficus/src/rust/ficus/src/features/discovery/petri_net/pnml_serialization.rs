@@ -1,5 +1,5 @@
 use crate::{
-  features::discovery::petri_net::{arc::Arc, petri_net::PetriNet, place::Place, transition::Transition},
+  features::discovery::petri_net::{arc::PetriNetArc, petri_net::PetriNet, place::Place, transition::Transition},
   utils::xml_utils::{StartEndElementCookie, XmlWriteError},
 };
 use quick_xml::{
@@ -185,11 +185,11 @@ where
 }
 
 fn patch_arcs_list<TArcData>(
-  arcs: &[Arc<TArcData>],
+  arcs: &[PetriNetArc<TArcData>],
   use_names_as_ids: bool,
-  names_creator: impl Fn(&Arc<TArcData>) -> String,
-) -> Vec<(&Arc<TArcData>, String)> {
-  let mut arcs: Vec<(&Arc<TArcData>, String)> = arcs
+  names_creator: impl Fn(&PetriNetArc<TArcData>) -> String,
+) -> Vec<(&PetriNetArc<TArcData>, String)> {
+  let mut arcs: Vec<(&PetriNetArc<TArcData>, String)> = arcs
     .iter()
     .map(|arc| {
       (

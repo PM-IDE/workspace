@@ -1,4 +1,4 @@
-use super::arc::Arc;
+use super::arc::PetriNetArc;
 use crate::features::discovery::petri_net::{marking::Marking, place::Place, transition::Transition};
 use std::{collections::HashMap, rc::Rc};
 
@@ -137,7 +137,7 @@ where
     if result.is_empty() { None } else { Some(result) }
   }
 
-  pub fn arc(&self, id: &u64) -> Option<(&Arc<TArcData>, &Transition<TTransitionData, TArcData>)> {
+  pub fn arc(&self, id: &u64) -> Option<(&PetriNetArc<TArcData>, &Transition<TTransitionData, TArcData>)> {
     for transition in self.transitions.values() {
       for arc in transition.outgoing_arcs() {
         if arc.id() == *id {
