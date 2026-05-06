@@ -1,9 +1,9 @@
 use num_traits::FromPrimitive;
-use std::sync::Arc;
 use std::{
   fs::File,
   io::{Cursor, Read, Seek},
   rc::Rc,
+  sync::Arc,
 };
 use tempfile::TempDir;
 use uuid::Uuid;

@@ -20,8 +20,8 @@ use crate::{
 use std::{
   collections::{HashMap, HashSet},
   fmt::Debug,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
   for current_sequence in discover_sequences_to_merge(graph) {

@@ -36,8 +36,7 @@ use crate::{
 };
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
-use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc, sync::Arc};
 use uuid::Uuid;
 
 pub const CASE_NAME: &str = "case_name";

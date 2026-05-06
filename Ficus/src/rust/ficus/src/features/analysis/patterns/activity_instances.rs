@@ -23,8 +23,8 @@ use std::{
   ops::DerefMut,
   rc::Rc,
   str::FromStr,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(Debug, Clone, Getters, MutGetters, new)]
 pub struct ActivityInTraceInfo {

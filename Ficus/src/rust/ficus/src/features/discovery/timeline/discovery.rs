@@ -19,8 +19,8 @@ use std::{
   fmt::{Debug, Display, Formatter},
   ops::Deref,
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {

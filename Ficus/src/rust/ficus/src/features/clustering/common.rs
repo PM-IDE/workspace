@@ -1,6 +1,3 @@
-use linfa::Dataset;
-use ndarray::{Array1, Ix1};
-use std::sync::Arc;
 use crate::{
   event_log::xes::xes_event_log::XesEventLogImpl,
   utils::{
@@ -8,6 +5,9 @@ use crate::{
     dataset::dataset::FicusDataset,
   },
 };
+use linfa::Dataset;
+use ndarray::{Array1, Ix1};
+use std::sync::Arc;
 
 pub(super) type MyDataset = Dataset<f64, (), Ix1>;
 pub(super) type ClusteredDataset = Dataset<f64, usize, Ix1>;

@@ -16,8 +16,7 @@ use crate::{
     vec_utils,
   },
 };
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 #[derive(Default)]
 pub struct XesEventLogImpl {

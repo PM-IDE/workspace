@@ -3,8 +3,7 @@ use crate::utils::graph::{
   graph_edge::GraphEdge,
   graph_node::GraphNode,
 };
-use std::{collections::HashMap, fmt::Display};
-use std::sync::Arc;
+use std::{collections::HashMap, fmt::Display, sync::Arc};
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where

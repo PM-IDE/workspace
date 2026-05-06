@@ -1,6 +1,5 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-use std::sync::Arc;
 use crate::event_log::core::event::event::{Event, EventPayloadValue};
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 pub trait Trace: Clone + Default {
   type TEvent: Event;

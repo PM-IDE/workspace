@@ -18,8 +18,7 @@ use derive_new::new;
 use fancy_regex::Regex;
 use getset::Getters;
 use log::error;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {

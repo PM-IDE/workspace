@@ -1,13 +1,15 @@
+use super::tandem_arrays::SubArrayInTraceInfo;
 use crate::{features::analysis::patterns::pattern_info::UnderlyingPatternKind, utils::hash_utils::calculate_poly_hash_for_collection};
 use getset::Getters;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
-  sync::atomic::{AtomicU64, Ordering},
+  sync::{
+    Arc,
+    atomic::{AtomicU64, Ordering},
+  },
 };
-use std::sync::Arc;
-use super::tandem_arrays::SubArrayInTraceInfo;
 
 #[derive(Clone, Copy, Debug)]
 pub struct SubArrayWithTraceIndex {

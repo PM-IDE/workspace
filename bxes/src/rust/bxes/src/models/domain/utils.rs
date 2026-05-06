@@ -1,6 +1,5 @@
 use crate::models::domain::bxes_value::BxesValue;
-use std::collections::HashSet;
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 
 pub fn compare_list_of_attributes(
   first_attributes: &Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>,

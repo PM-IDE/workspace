@@ -1,8 +1,8 @@
 use crate::features::discovery::petri_net::{arc::PetriNetArc, ids::next_id};
 use std::{
   hash::{Hash, Hasher},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Transition<TTransitionData, TArcData>

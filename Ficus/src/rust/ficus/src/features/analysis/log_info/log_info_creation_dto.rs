@@ -1,6 +1,5 @@
 use crate::event_log::core::event_log::EventLog;
-use std::collections::HashSet;
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 
 pub struct EventLogInfoCreationDto<'a, TLog>
 where

@@ -12,8 +12,7 @@ use ficus::{
     mutations::{ARTIFICIAL_END_EVENT_NAME, ARTIFICIAL_START_EVENT_NAME, add_artificial_start_end_activities, rename_events},
   },
 };
-use std::{cell::RefCell, collections::HashSet, rc::Rc, vec};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashSet, rc::Rc, sync::Arc, vec};
 
 #[test]
 fn test_removing_events() {

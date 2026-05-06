@@ -3,8 +3,7 @@ use crate::event_log::{
   xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl, xes_trace::XesTraceImpl},
 };
 use chrono::Utc;
-use std::{cell::RefCell, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 pub fn create_simple_event_log(raw_log: &Vec<Vec<&str>>) -> XesEventLogImpl {
   let mut log = XesEventLogImpl::default();

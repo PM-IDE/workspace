@@ -1,9 +1,3 @@
-use chrono::{DateTime, Utc};
-use std::{
-  collections::HashMap,
-  fmt::{Debug, Formatter},
-};
-use std::sync::Arc;
 use crate::{
   event_log::core::event::{
     event::{Event, EventPayloadValue},
@@ -13,6 +7,12 @@ use crate::{
     user_data::user_data::{UserDataImpl, UserDataOwner},
     vec_utils,
   },
+};
+use chrono::{DateTime, Utc};
+use std::{
+  collections::HashMap,
+  fmt::{Debug, Formatter},
+  sync::Arc,
 };
 
 pub struct XesEventImpl {

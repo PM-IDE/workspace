@@ -1,6 +1,5 @@
-use std::str::FromStr;
-use std::sync::Arc;
 use chrono::{DateTime, Utc};
+use std::{str::FromStr, sync::Arc};
 
 use crate::event_log::{core::event::event::EventPayloadValue, xes::constants::*};
 

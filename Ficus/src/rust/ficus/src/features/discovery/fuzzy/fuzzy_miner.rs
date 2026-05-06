@@ -11,8 +11,8 @@ use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub type FuzzyGraph = Graph<Arc<str>, f64>;
 

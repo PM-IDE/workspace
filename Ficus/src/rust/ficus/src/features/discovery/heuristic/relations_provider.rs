@@ -5,8 +5,7 @@ use crate::features::{
     relations::triangle_relation::TriangleRelation,
   },
 };
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 type DependencyRelations = HashMap<Arc<str>, HashMap<Arc<str>, f64>>;
 

@@ -1,12 +1,14 @@
-use crate::grpc::kafka::models::{ExtractedTraceMetadata, string_value_or_err, uuid_or_err};
-use crate::grpc::kafka::streaming::processors::ProcessorState;
 use crate::grpc::{
-  kafka::models::{KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID, KafkaTraceProcessingError, XesFromBxesKafkaTraceCreatingError},
+  kafka::{
+    models::{
+      ExtractedTraceMetadata, KAFKA_CASE_ID, KAFKA_CASE_NAME_PARTS, KAFKA_TRACE_ID, KafkaTraceProcessingError,
+      XesFromBxesKafkaTraceCreatingError, string_value_or_err, uuid_or_err,
+    },
+    streaming::processors::ProcessorState,
+  },
   logs_handler::ConsoleLogMessageHandler,
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;
-use ficus::pipelines::keys::context_keys::EVENT_LOG_KEY;
-use ficus::utils::user_data::user_data::UserData;
 use ficus::{
   event_log::{
     bxes::bxes_to_xes_converter::read_bxes_events,
@@ -14,7 +16,11 @@ use ficus::{
     xes::xes_event_log::XesEventLogImpl,
   },
   features::streaming::t1::filterers::T1LogFilterer,
-  pipelines::context::{LogMessageHandler, PipelineContext},
+  pipelines::{
+    context::{LogMessageHandler, PipelineContext},
+    keys::context_keys::EVENT_LOG_KEY,
+  },
+  utils::user_data::user_data::UserData,
 };
 use log::{info, warn};
 use std::{

@@ -2,13 +2,16 @@ use crate::grpc::{
   events::events_handler::PipelineEventsHandler, kafka::kafka_service::KafkaSubscription, logs_handler::ConsoleLogMessageHandler,
 };
 use bxes::models::domain::bxes_value::BxesValue;
-use ficus::features::cases::CaseName;
-use ficus::pipelines::context::PipelineContext;
-use ficus::pipelines::keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY};
-use ficus::utils::user_data::user_data::UserData;
 use ficus::{
   event_log::bxes::bxes_to_xes_converter::BxesToXesReadError,
-  pipelines::{errors::pipeline_errors::PipelinePartExecutionError, pipeline_parts::PipelineParts},
+  features::cases::CaseName,
+  pipelines::{
+    context::PipelineContext,
+    errors::pipeline_errors::PipelinePartExecutionError,
+    keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY},
+    pipeline_parts::PipelineParts,
+  },
+  utils::user_data::user_data::UserData,
 };
 use std::{
   collections::HashMap,

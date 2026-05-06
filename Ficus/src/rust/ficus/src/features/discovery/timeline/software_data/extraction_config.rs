@@ -3,8 +3,7 @@ use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize, Default)]
 pub struct SoftwareDataExtractionConfig {

@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use chrono::{DateTime, Utc};
+use std::sync::Arc;
 
 use crate::utils::user_data::user_data::UserDataImpl;
 

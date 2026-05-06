@@ -5,8 +5,8 @@ use crate::{
 use std::{
   fmt::Display,
   hash::{Hash, Hasher},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(Debug, Default)]
 pub struct AlphaSet {

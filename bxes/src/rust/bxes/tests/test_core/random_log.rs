@@ -1,8 +1,7 @@
 use bxes::read::read_utils::string_or_err;
 use num_traits::FromPrimitive;
 use rand::{Rng, RngExt, distr::Alphanumeric, rngs::ThreadRng};
-use std::sync::Arc;
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, rc::Rc, sync::Arc};
 use uuid::Uuid;
 
 use bxes::{

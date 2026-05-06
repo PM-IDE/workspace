@@ -1,6 +1,5 @@
-use std::fmt::Display;
-use std::sync::Arc;
 use crate::{binary_rw::error::BinaryError, models::domain::bxes_value::BxesValue};
+use std::{fmt::Display, sync::Arc};
 
 #[derive(Debug)]
 pub enum BxesWriteError {

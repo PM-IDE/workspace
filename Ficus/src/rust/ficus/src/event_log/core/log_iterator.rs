@@ -1,6 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
-use std::sync::Arc;
 use super::{event_log::EventLog, trace::trace::Trace};
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 pub struct LogIterator<TLog, TEventProcessor, TResult>
 where

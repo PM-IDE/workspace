@@ -8,8 +8,8 @@ use std::{
   fmt::{Debug, Display, Formatter},
   rc::Rc,
   str::FromStr,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub enum SoftwareDataExtractionError {

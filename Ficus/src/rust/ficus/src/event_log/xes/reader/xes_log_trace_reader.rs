@@ -1,7 +1,6 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-use std::sync::Arc;
 use chrono::{DateTime, Utc};
 use quick_xml::Reader;
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 use crate::event_log::{
   core::event::event::EventPayloadValue,

@@ -5,8 +5,7 @@ use ficus::event_log::{
   core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
   xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
 };
-use std::rc::Rc;
-use std::sync::Arc;
+use std::{rc::Rc, sync::Arc};
 
 #[test]
 fn test_simple_event_log_creation() {

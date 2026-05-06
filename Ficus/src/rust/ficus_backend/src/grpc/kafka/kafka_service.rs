@@ -1,19 +1,17 @@
-use crate::grpc::context_values_service::ContextValueService;
-use crate::grpc::events::grpc_events_handler::GrpcPipelineEventsHandler;
-use crate::grpc::events::kafka_events_handler::ProcessCaseMetadata;
-use crate::grpc::kafka::models::ExtractedTraceMetadata;
 use crate::{
   ficus_proto::{
     GrpcContextKeyValue, GrpcGuid, GrpcKafkaConnectionMetadata, GrpcKafkaFailedResult, GrpcKafkaSuccessResult, GrpcPipeline,
     GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, GrpcSubscribeToKafkaRequest, grpc_kafka_result,
   },
   grpc::{
+    context_values_service::ContextValueService,
     events::{
       events_handler::{EmptyPipelineEventsHandler, PipelineEvent, PipelineEventsHandler, PipelineFinalResult},
-      kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer},
+      grpc_events_handler::GrpcPipelineEventsHandler,
+      kafka_events_handler::{KafkaEventsHandler, PipelineEventsProducer, ProcessCaseMetadata},
     },
     kafka::{
-      models::{KafkaConsumerCreationDto, PipelineExecutionDto},
+      models::{ExtractedTraceMetadata, KafkaConsumerCreationDto, PipelineExecutionDto},
       streaming::{
         configs::StreamingConfiguration,
         processors::{KafkaTraceProcessingContext, TracesProcessor},
@@ -24,12 +22,17 @@ use crate::{
   },
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
-use ficus::features::cases::CaseName;
-use ficus::pipelines::keys::context_keys::{
-  PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
+use ficus::{
+  features::cases::CaseName,
+  pipelines::{
+    context::LogMessageHandler,
+    keys::context_keys::{
+      PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
+    },
+    pipeline_parts::PipelineParts,
+  },
+  utils::user_data::user_data::UserData,
 };
-use ficus::pipelines::{context::LogMessageHandler, pipeline_parts::PipelineParts};
-use ficus::utils::user_data::user_data::UserData;
 use log::{debug, error, warn};
 use rdkafka::{ClientConfig, error::KafkaError};
 use std::{

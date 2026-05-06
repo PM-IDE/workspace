@@ -7,8 +7,7 @@ use crate::{
 
 use super::event::Event;
 use log::debug;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 #[derive(Debug)]
 pub struct EventsHolder<TEvent>

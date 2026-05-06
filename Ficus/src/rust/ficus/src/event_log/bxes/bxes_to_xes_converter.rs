@@ -1,3 +1,13 @@
+use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
+use crate::event_log::{
+  core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
+  xes::{
+    shared::{XesClassifier, XesEventLogExtension, XesProperty},
+    xes_event::XesEventImpl,
+    xes_event_log::XesEventLogImpl,
+    xes_trace::XesTraceImpl,
+  },
+};
 use bxes::{
   models::{
     domain::{
@@ -13,18 +23,7 @@ use bxes::{
   },
 };
 use chrono::{TimeZone, Utc};
-use std::{cell::RefCell, collections::HashMap, fmt::Display, rc::Rc};
-use std::sync::Arc;
-use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
-use crate::event_log::{
-  core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
-  xes::{
-    shared::{XesClassifier, XesEventLogExtension, XesProperty},
-    xes_event::XesEventImpl,
-    xes_event_log::XesEventLogImpl,
-    xes_trace::XesTraceImpl,
-  },
-};
+use std::{cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, sync::Arc};
 
 #[derive(Debug)]
 pub enum BxesToXesReadError {

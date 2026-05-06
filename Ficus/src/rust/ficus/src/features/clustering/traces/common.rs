@@ -34,8 +34,8 @@ use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub fn do_clusterize_log_by_traces(
   params: &mut TracesClusteringParams,

@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use bxes::{
   models::domain::{
     bxes_artifact::{BxesArtifact, BxesArtifactItem},
@@ -10,6 +9,7 @@ use bxes::{
   read::read_utils::owned_string_or_err,
 };
 use chrono::{TimeZone, Utc};
+use std::sync::Arc;
 
 use crate::event_log::core::event::{
   event::{

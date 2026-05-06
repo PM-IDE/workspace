@@ -3,8 +3,7 @@ use crate::event_log::{
   xes::{reader::file_xes_log_reader::read_event_log, xes_event_log::XesEventLogImpl},
 };
 use log::error;
-use std::rc::Rc;
-use std::sync::Arc;
+use std::{rc::Rc, sync::Arc};
 
 pub fn merge_xes_logs(paths: &Vec<Arc<str>>) -> XesEventLogImpl {
   let mut merged_log = XesEventLogImpl::default();

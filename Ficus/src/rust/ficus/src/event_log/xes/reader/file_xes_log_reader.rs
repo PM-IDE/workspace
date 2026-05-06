@@ -1,12 +1,12 @@
+use quick_xml::{Reader, events::BytesStart};
 use std::{
   cell::RefCell,
   collections::HashMap,
   fs::File,
   io::{BufRead, BufReader, Cursor, Read},
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
-use quick_xml::{Reader, events::BytesStart};
 
 use crate::event_log::{
   core::event::event::EventPayloadValue,

@@ -10,8 +10,8 @@ use std::{
   collections::{BTreeSet, HashSet},
   fmt::Display,
   hash::{Hash, Hasher},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub(crate) struct ExtendedAlphaSet {
   alpha_set: AlphaSet,

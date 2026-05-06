@@ -18,8 +18,7 @@ use rdkafka::{
   consumer::{BaseConsumer, CommitMode, Consumer},
   error::KafkaError,
 };
-use std::{collections::HashMap, io::Cursor, rc::Rc, time::Duration};
-use std::sync::Arc;
+use std::{collections::HashMap, io::Cursor, rc::Rc, sync::Arc, time::Duration};
 use uuid::Uuid;
 
 pub struct BxesKafkaConsumer {

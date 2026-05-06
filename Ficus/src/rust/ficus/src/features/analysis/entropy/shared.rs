@@ -10,8 +10,8 @@ use crate::{
 };
 use std::{
   collections::{HashMap, HashSet},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub fn calculate_max_vector_length<TLog>(log: &TLog, ignored_events: Option<&HashSet<Arc<str>>>) -> usize
 where

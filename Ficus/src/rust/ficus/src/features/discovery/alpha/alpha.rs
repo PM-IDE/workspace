@@ -23,8 +23,8 @@ use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, HashSet},
   string::ToString,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 const ALPHA_SET: &str = "alpha_set";
 context_key! { ALPHA_SET, AlphaSet }

@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use num_derive::{FromPrimitive, ToPrimitive};
+use std::sync::Arc;
 use variant_count::VariantCount;
 
 use crate::models::domain::bxes_value::BxesValue;

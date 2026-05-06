@@ -1,9 +1,9 @@
+use super::shared::{calculate_entropies, calculate_max_vector_length, calculate_pos_entropy};
 use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
 use std::{
   collections::{HashMap, HashSet},
+  sync::Arc,
 };
-use std::sync::Arc;
-use super::shared::{calculate_entropies, calculate_max_vector_length, calculate_pos_entropy};
 
 pub fn calculate_pos_entropies<TLog>(log: &TLog, ignored_events: &Option<HashSet<Arc<str>>>) -> HashMap<Arc<str>, f64>
 where

@@ -1,12 +1,12 @@
+use linfa::DatasetBase;
+use ndarray::Array2;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
   vec,
 };
-use std::sync::Arc;
-use linfa::DatasetBase;
-use ndarray::Array2;
 
 use super::activities_params::{ActivitiesVisualizationParams, ActivityRepresentationSource};
 use crate::{

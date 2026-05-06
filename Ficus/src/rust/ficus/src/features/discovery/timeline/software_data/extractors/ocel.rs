@@ -15,8 +15,7 @@ use crate::{
 use derive_new::new;
 use fancy_regex::Regex;
 use log::{debug, warn};
-use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc, sync::Arc};
 
 #[derive(Debug, Clone, new)]
 pub struct OcelDataExtractor<'a> {

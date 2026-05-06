@@ -41,8 +41,7 @@ use crate::{
   },
 };
 use fancy_regex::Regex;
-use std::{cell::RefCell, collections::HashMap, rc::Rc, str::FromStr};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, rc::Rc, str::FromStr, sync::Arc};
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {

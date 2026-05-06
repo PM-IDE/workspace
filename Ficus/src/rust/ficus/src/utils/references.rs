@@ -4,8 +4,8 @@ use std::{
   hash::{Hash, Hasher},
   ops::Deref,
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub enum ReferenceOrOwned<'a, T> {
   Ref(&'a T),

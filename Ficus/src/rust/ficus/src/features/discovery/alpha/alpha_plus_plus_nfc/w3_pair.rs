@@ -7,8 +7,8 @@ use std::{
   collections::HashSet,
   fmt::Display,
   hash::{Hash, Hasher},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub(crate) struct W3Pair {
   two_sets: TwoSets<Arc<str>>,

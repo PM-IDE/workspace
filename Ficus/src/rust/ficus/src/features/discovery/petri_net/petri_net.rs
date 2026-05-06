@@ -1,7 +1,6 @@
 use super::arc::PetriNetArc;
 use crate::features::discovery::petri_net::{marking::Marking, place::Place, transition::Transition};
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 pub type DefaultPetriNet = PetriNet<Arc<str>, ()>;
 

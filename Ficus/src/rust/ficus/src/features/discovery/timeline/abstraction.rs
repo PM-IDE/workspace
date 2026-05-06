@@ -37,8 +37,7 @@ use crate::{
   },
 };
 use log::error;
-use std::{cell::RefCell, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,

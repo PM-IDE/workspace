@@ -3,8 +3,11 @@ use crate::utils::{
   user_data::user_data::UserDataImpl,
 };
 use getset::{Getters, Setters};
-use std::{collections::HashMap, fmt::Display, sync::atomic::AtomicU64};
-use std::sync::Arc;
+use std::{
+  collections::HashMap,
+  fmt::Display,
+  sync::{Arc, atomic::AtomicU64},
+};
 
 pub(crate) static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 pub type DefaultGraph = Graph<Arc<str>, Arc<str>>;

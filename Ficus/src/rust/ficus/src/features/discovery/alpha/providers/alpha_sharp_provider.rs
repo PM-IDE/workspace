@@ -8,8 +8,7 @@ use crate::features::{
     relations::triangle_relation::TriangleRelation,
   },
 };
-use std::collections::HashSet;
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 
 pub struct AlphaSharpRelationsProvider<'a> {
   alpha_plus_provider: AlphaPlusRelationsProviderImpl<'a>,

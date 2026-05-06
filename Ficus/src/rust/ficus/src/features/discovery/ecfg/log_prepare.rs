@@ -8,8 +8,7 @@ use crate::{
   },
   pipelines::errors::pipeline_errors::PipelinePartExecutionError,
 };
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 pub fn prepare_software_log(
   log: &XesEventLogImpl,

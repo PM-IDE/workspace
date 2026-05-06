@@ -1,7 +1,7 @@
 use std::{
   collections::{HashMap, HashSet},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub trait DfgInfo {
   fn get_directly_follows_count(&self, first: &str, second: &str) -> usize;

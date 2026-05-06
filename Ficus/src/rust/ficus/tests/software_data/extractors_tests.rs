@@ -21,8 +21,7 @@ use ficus::{
     },
   },
 };
-use std::{cell::RefCell, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 #[test]
 fn test_general_histogram() {

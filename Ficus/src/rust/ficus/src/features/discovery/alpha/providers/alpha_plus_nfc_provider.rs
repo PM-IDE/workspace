@@ -13,8 +13,7 @@ use crate::{
     },
   },
 };
-use std::collections::HashSet;
-use std::sync::Arc;
+use std::{collections::HashSet, sync::Arc};
 
 enum PrePostSet {
   PreSet,

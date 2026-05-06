@@ -1,6 +1,8 @@
 use crate::models::domain::bxes_value::BxesValue;
-use std::sync::Arc;
-use std::hash::{Hash, Hasher};
+use std::{
+  hash::{Hash, Hasher},
+  sync::Arc,
+};
 
 #[derive(Debug, Clone)]
 pub struct BxesDrivers {

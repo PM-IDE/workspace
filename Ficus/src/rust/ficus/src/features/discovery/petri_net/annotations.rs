@@ -9,8 +9,7 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use log::error;
-use std::{collections::HashMap, rc::Rc, str::FromStr};
-use std::sync::Arc;
+use std::{collections::HashMap, rc::Rc, str::FromStr, sync::Arc};
 
 pub fn annotate_with_counts(
   log: &impl EventLog,

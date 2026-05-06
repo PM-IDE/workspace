@@ -1,9 +1,8 @@
-use std::rc::Rc;
-use std::sync::Arc;
 use ficus::utils::user_data::{
   keys::DefaultKey,
   user_data::{UserData, UserDataImpl},
 };
+use std::{rc::Rc, sync::Arc};
 
 #[test]
 fn test_user_data() {

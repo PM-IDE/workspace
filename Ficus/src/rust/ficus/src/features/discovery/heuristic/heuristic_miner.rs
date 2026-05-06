@@ -13,8 +13,8 @@ use crate::{
 use std::{
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub fn discover_petri_net_heuristic(
   info: &dyn EventLogInfo,

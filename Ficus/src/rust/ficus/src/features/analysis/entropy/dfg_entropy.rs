@@ -11,8 +11,8 @@ use crate::{
 use std::{
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub fn calculate_laplace_dfg_entropy<TLog>(log: &TLog, ignored_events: Option<&HashSet<Arc<str>>>) -> HashMap<String, f64>
 where

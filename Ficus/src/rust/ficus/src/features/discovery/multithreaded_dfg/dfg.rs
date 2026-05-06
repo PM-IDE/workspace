@@ -18,8 +18,8 @@ use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 const MULTITHREADED_FRAGMENT: &str = "MULTITHREADED_FRAGMENT";
 

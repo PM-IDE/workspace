@@ -9,7 +9,7 @@ use crate::{
     kafka::grpc_kafka_service::GrpcKafkaServiceImpl,
   },
 };
-use log::{info, LevelFilter};
+use log::{LevelFilter, info};
 use std::sync::Arc;
 use tonic::transport::Server;
 

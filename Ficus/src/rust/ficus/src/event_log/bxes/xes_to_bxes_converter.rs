@@ -1,5 +1,3 @@
-use std::fmt::Display;
-use std::sync::Arc;
 use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
 use crate::event_log::{
   core::{
@@ -24,6 +22,7 @@ use bxes::{
     writer_utils::BxesLogWriteData,
   },
 };
+use std::{fmt::Display, sync::Arc};
 
 pub enum XesToBxesWriterError {
   BxesWriteError(BxesWriteError),

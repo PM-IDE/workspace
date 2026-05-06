@@ -1,20 +1,23 @@
-use crate::grpc::kafka::models::XesFromBxesKafkaTraceCreatingError;
-use crate::grpc::kafka::models::{CaseMetadata, ProcessMetadata};
+use crate::grpc::kafka::models::{CaseMetadata, ProcessMetadata, XesFromBxesKafkaTraceCreatingError};
 use bxes::models::domain::bxes_value::BxesValue;
-use ficus::event_log::core::event::event::Event;
-use ficus::event_log::core::trace::trace::Trace;
-use ficus::event_log::xes::xes_trace::XesTraceImpl;
-use ficus::features::analysis::log_info::event_log_info::OfflineEventLogInfo;
-use ficus::features::streaming::counters::core::StreamingCounter;
-use ficus::features::streaming::counters::core::ValueUpdateKind;
-use ficus::features::streaming::counters::lossy_count::LossyCount;
-use ficus::features::streaming::counters::sliding_window::SlidingWindow;
-use ficus::pipelines::context::PipelineContext;
-use ficus::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
-use ficus::utils::user_data::user_data::UserData;
+use ficus::{
+  event_log::{
+    core::{event::event::Event, trace::trace::Trace},
+    xes::xes_trace::XesTraceImpl,
+  },
+  features::{
+    analysis::log_info::event_log_info::OfflineEventLogInfo,
+    streaming::counters::{
+      core::{StreamingCounter, ValueUpdateKind},
+      lossy_count::LossyCount,
+      sliding_window::SlidingWindow,
+    },
+  },
+  pipelines::{context::PipelineContext, keys::context_keys::EVENT_LOG_INFO_KEY},
+  utils::user_data::user_data::UserData,
+};
 use log::{debug, info, warn};
-use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, time::Duration};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, sync::Arc, time::Duration};
 use uuid::Uuid;
 
 #[derive(Clone)]

@@ -1,12 +1,12 @@
+use crate::{
+  binary_rw::core::BinaryWriter,
+  models::{domain::bxes_value::BxesValue, system_models::ValueAttributeDescriptor},
+};
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
-};
-use std::sync::Arc;
-use crate::{
-  binary_rw::core::BinaryWriter,
-  models::{domain::bxes_value::BxesValue, system_models::ValueAttributeDescriptor},
+  sync::Arc,
 };
 
 pub struct BxesWriteContext<'b> {

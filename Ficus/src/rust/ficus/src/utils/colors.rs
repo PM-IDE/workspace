@@ -1,8 +1,8 @@
 use rand::Rng;
 use std::{
   collections::{HashMap, HashSet},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Color {

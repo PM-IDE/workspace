@@ -42,8 +42,7 @@ use crate::{
   },
 };
 use chrono::TimeDelta;
-use std::{cell::RefCell, collections::HashMap, path::Path, rc::Rc, str::FromStr};
-use std::sync::Arc;
+use std::{cell::RefCell, collections::HashMap, path::Path, rc::Rc, str::FromStr, sync::Arc};
 
 pub enum UndefActivityHandlingStrategyDto {
   DontInsert,

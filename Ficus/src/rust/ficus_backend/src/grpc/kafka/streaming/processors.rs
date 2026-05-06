@@ -1,6 +1,5 @@
-use crate::grpc::kafka::models::ExtractedTraceMetadata;
 use crate::grpc::kafka::{
-  models::{KafkaTraceProcessingError, PipelineExecutionDto},
+  models::{ExtractedTraceMetadata, KafkaTraceProcessingError, PipelineExecutionDto},
   streaming::{t1::processors::T1StreamingProcessor, t2::processors::T2StreamingProcessor},
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::BxesKafkaTrace;

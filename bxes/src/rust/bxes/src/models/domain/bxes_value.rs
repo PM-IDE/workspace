@@ -6,8 +6,8 @@ use crate::models::domain::{
 };
 use std::{
   hash::{Hash, Hasher},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 pub enum BxesValue {

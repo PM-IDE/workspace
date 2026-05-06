@@ -1,16 +1,13 @@
 use super::events::events_handler::PipelineEventsHandler;
-use crate::ficus_proto::GrpcContextKey;
-use crate::grpc::context_values_service::ContextValueService;
-use crate::grpc::converters::convert_to_grpc_context_value;
 use crate::{
-  ficus_proto::{GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart, grpc_pipeline_part_base::Part},
+  ficus_proto::{GrpcContextKey, GrpcContextKeyValue, GrpcPipeline, GrpcPipelinePart, grpc_pipeline_part_base::Part},
   grpc::{
-    converters::put_into_user_data,
+    context_values_service::ContextValueService,
+    converters::{convert_to_grpc_context_value, put_into_user_data},
     get_context_pipeline::GetContextValuePipelinePart,
     logs_handler::{ConsoleLogMessageHandler, DelegatingLogMessageHandler, GrpcLogMessageHandlerImpl},
   },
 };
-use ficus::utils::context_key::DefaultContextKey;
 use ficus::{
   pipelines::{
     context::{LogMessageHandler, PipelineContext, PipelineInfrastructure},
@@ -19,10 +16,12 @@ use ficus::{
     pipeline_parts::PipelineParts,
     pipelines::{DefaultPipelinePart, Pipeline, PipelinePart},
   },
-  utils::user_data::user_data::{UserData, UserDataImpl},
+  utils::{
+    context_key::DefaultContextKey,
+    user_data::user_data::{UserData, UserDataImpl},
+  },
 };
-use std::collections::HashMap;
-use std::{str::FromStr, sync::Arc};
+use std::{collections::HashMap, str::FromStr, sync::Arc};
 use uuid::Uuid;
 
 pub(super) struct ServicePipelineExecutionContext<'a> {

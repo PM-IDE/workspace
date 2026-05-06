@@ -1,12 +1,8 @@
 use crate::ficus_proto::{
-  grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation},
-  grpc_context_value::{ContextValue, ContextValue::Annotation},
-  grpc_event_attribute, grpc_graph_edge_additional_data,
-  grpc_node_additional_data::Data,
-  grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAnnotation, GrpcBytes, GrpcColor, GrpcColoredRectangle,
-  GrpcColorsEventLog, GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind,
-  GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute,
-  GrpcEventCoordinates, GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData,
+  GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAnnotation, GrpcBytes, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog,
+  GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo,
+  GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates,
+  GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData,
   GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid,
   GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint,
   GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNamesEventLog,
@@ -17,6 +13,11 @@ use crate::ficus_proto::{
   GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
   GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceSubArray, GrpcTraceSubArrays, GrpcTraceTimelineDiagram,
   GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind,
+  grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation},
+  grpc_context_value::{ContextValue, ContextValue::Annotation},
+  grpc_event_attribute, grpc_graph_edge_additional_data,
+  grpc_node_additional_data::Data,
+  grpc_ocel_data,
 };
 use chrono::{DateTime, Utc};
 use ficus::{
@@ -104,8 +105,7 @@ use log::error;
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
 use prost_types::Timestamp;
-use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, str::FromStr};
-use std::sync::Arc;
+use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, str::FromStr, sync::Arc};
 use uuid::Uuid;
 
 use super::pipeline_executor::ServicePipelineExecutionContext;

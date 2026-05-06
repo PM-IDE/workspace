@@ -14,8 +14,8 @@ use ficus::features::analysis::{
 };
 use std::{
   collections::{HashMap, HashSet},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[test]
 fn test_dfg_info() {

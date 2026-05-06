@@ -17,8 +17,8 @@ use std::{
   collections::{HashMap, HashSet},
   ops::Deref,
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub trait EventLogCounts {
   fn traces_count(&self) -> usize;

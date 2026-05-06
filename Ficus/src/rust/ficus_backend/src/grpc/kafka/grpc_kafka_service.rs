@@ -1,9 +1,8 @@
-use crate::ficus_proto::GrpcGetCurrentContextValuesRequest;
 use crate::{
   ficus_proto::{
     GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest,
-    GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult, GrpcKafkaSubscription,
-    GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata, GrpcPipelinePartExecutionResult,
+    GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGetCurrentContextValuesRequest, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult,
+    GrpcKafkaSubscription, GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata, GrpcPipelinePartExecutionResult,
     GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest, GrpcSubscriptionPipeline,
     GrpcUnsubscribeFromKafkaRequest, grpc_kafka_result, grpc_kafka_service_server::GrpcKafkaService,
   },

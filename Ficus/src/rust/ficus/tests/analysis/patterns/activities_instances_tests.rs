@@ -17,8 +17,7 @@ use ficus::{
   },
   vecs,
 };
-use std::{cell::RefCell, ops::Deref, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, ops::Deref, rc::Rc, sync::Arc};
 
 #[test]
 fn test_activity_instances() {

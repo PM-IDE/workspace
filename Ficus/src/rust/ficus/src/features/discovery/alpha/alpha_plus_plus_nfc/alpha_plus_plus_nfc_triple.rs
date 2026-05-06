@@ -6,12 +6,12 @@ use crate::{
   },
   utils::{hash_utils::compare_based_on_hashes, sets::two_sets::TwoSets},
 };
+use std::sync::Arc;
 pub use std::{
   collections::BTreeSet,
   fmt::Display,
   hash::{Hash, Hasher},
 };
-use std::sync::Arc;
 
 pub(crate) struct AlphaPlusPlusNfcTriple {
   a_classes: BTreeSet<Arc<str>>,
@@ -42,8 +42,9 @@ impl AlphaPlusPlusNfcTriple {
   }
 
   pub fn try_merge<TLog: EventLog>(first: &Self, second: &Self, provider: &AlphaPlusNfcRelationsProvider<'_, TLog>) -> Option<Self> {
-    let merge_sets =
-      |first: &BTreeSet<Arc<str>>, second: &BTreeSet<Arc<str>>| -> BTreeSet<Arc<str>> { first.iter().chain(second.iter()).cloned().collect() };
+    let merge_sets = |first: &BTreeSet<Arc<str>>, second: &BTreeSet<Arc<str>>| -> BTreeSet<Arc<str>> {
+      first.iter().chain(second.iter()).cloned().collect()
+    };
 
     let new_triple = Self {
       a_classes: merge_sets(&first.a_classes, &second.a_classes),

@@ -6,8 +6,7 @@ use crate::{
   features::discovery::timeline::software_data::{extraction_config::NameCreationStrategy, extractors::core::SoftwareDataExtractionError},
 };
 use fancy_regex::Regex;
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 pub type RegexParingResult = Result<Regex, SoftwareDataExtractionError>;
 

@@ -1,3 +1,4 @@
+use num_traits::ToPrimitive;
 use std::{
   cell::RefCell,
   collections::HashMap,
@@ -5,9 +6,8 @@ use std::{
   io::Write,
   path::Path,
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
-use num_traits::ToPrimitive;
 use zip::{ZipWriter, write::FileOptions};
 
 use crate::{

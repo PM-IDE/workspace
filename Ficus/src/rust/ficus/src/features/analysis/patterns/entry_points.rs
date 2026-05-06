@@ -1,5 +1,3 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-use std::sync::Arc;
 use super::{
   activity_instances::{self, ActivityInTraceInfo, create_new_log_from_activities_instances, extract_activities_instances},
   contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext},
@@ -17,6 +15,7 @@ use crate::{
     pattern_info::UnderlyingPatternKind,
   },
 };
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 #[derive(Clone, Copy)]
 pub enum PatternsKind {

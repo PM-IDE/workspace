@@ -1,9 +1,9 @@
+use super::{marking::Marking, petri_net::DefaultPetriNet, transition::Transition};
 use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
 use std::{
   collections::{HashMap, VecDeque},
+  sync::Arc,
 };
-use std::sync::Arc;
-use super::{marking::Marking, petri_net::DefaultPetriNet, transition::Transition};
 
 #[derive(Debug)]
 pub struct ReplayState {

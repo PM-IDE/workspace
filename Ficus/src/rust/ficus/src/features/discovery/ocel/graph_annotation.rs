@@ -8,8 +8,8 @@ use getset::Getters;
 use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, HashSet, VecDeque},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 #[derive(new, Getters)]
 pub struct OcelAnnotation {

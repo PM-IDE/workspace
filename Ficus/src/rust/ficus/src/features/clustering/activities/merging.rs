@@ -1,10 +1,10 @@
+use ndarray::Array1;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
-use std::sync::Arc;
-use ndarray::Array1;
 
 use crate::{
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},

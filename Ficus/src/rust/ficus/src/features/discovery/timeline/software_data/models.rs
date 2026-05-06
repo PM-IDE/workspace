@@ -3,8 +3,7 @@ use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize, Default)]
 pub struct SoftwareData {

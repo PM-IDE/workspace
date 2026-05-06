@@ -9,8 +9,7 @@ use ficus::{
   },
   features::discovery::multithreaded_dfg::dfg::{MultithreadedTracePartsCreationStrategy, discover_multithreaded_dfg},
 };
-use std::{cell::RefCell, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 const TEST_THREAD_ID_ATTRIBUTE: &'static str = "TestThreadId";
 

@@ -32,8 +32,7 @@ use crate::{
     user_data::user_data::{UserData, UserDataImpl, UserDataOwner},
   },
 };
-use std::{cell::RefCell, fmt::Debug, ops::Deref, rc::Rc};
-use std::sync::Arc;
+use std::{cell::RefCell, fmt::Debug, ops::Deref, rc::Rc, sync::Arc};
 
 pub fn discover_ecfg_from_event_log(
   log: &XesEventLogImpl,

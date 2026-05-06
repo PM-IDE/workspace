@@ -20,8 +20,8 @@ use crate::{
 };
 use std::{
   collections::{HashMap, HashSet, VecDeque},
+  sync::Arc,
 };
-use std::sync::Arc;
 
 pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> DefaultPetriNet {
   let one_length_loop_transitions = find_transitions_one_length_loop(log);
