@@ -3,7 +3,8 @@ use derive_new::new;
 use fancy_regex::Regex;
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
-use std::{fmt::Debug, rc::Rc};
+use std::fmt::Debug;
+use std::sync::Arc;
 
 #[derive(Clone, Debug, Setters, Getters, Serialize, Deserialize, Default)]
 pub struct SoftwareDataExtractionConfig {
@@ -77,29 +78,29 @@ pub struct OcelAllocateMergeExtractionConfig {
   #[getset(get = "pub")]
   allocated_obj: OcelObjectExtractionConfigBase,
   #[getset(get = "pub")]
-  related_object_ids_attr: Rc<str>,
+  related_object_ids_attr: Arc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct OcelConsumeProduceExtractionConfig {
   #[getset(get = "pub")]
-  object_id_attr: Rc<str>,
+  object_id_attr: Arc<str>,
   #[getset(get = "pub")]
-  related_object_ids_attr: Rc<str>,
+  related_object_ids_attr: Arc<str>,
   #[getset(get = "pub")]
-  related_object_type_attr: Rc<str>,
+  related_object_type_attr: Arc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct AllocationExtractionConfig {
   #[getset(get = "pub")]
-  type_name_attr: Rc<str>,
+  type_name_attr: Arc<str>,
   #[getset(get = "pub")]
-  allocated_count_attr: Rc<str>,
+  allocated_count_attr: Arc<str>,
   #[getset(get = "pub")]
-  object_size_bytes_attr: Option<Rc<str>>,
+  object_size_bytes_attr: Option<Arc<str>>,
   #[getset(get = "pub")]
-  total_allocated_bytes_attr: Option<Rc<str>>,
+  total_allocated_bytes_attr: Option<Arc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -107,23 +108,23 @@ pub struct MethodStartEndConfig {
   #[getset(get = "pub")]
   method_attrs: MethodCommonAttributesConfig,
   #[getset(get = "pub")]
-  prefix: Option<Rc<str>>,
+  prefix: Option<Arc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct MethodCommonAttributesConfig {
   #[getset(get = "pub")]
-  name_attr: Rc<str>,
+  name_attr: Arc<str>,
   #[getset(get = "pub")]
-  namespace_attr: Rc<str>,
+  namespace_attr: Arc<str>,
   #[getset(get = "pub")]
-  signature_attr: Rc<str>,
+  signature_attr: Arc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ExtractionConfig<TConcreteInfo: Clone + Debug> {
   #[getset(get = "pub")]
-  event_class_regex: Rc<str>,
+  event_class_regex: Arc<str>,
   #[getset(get = "pub")]
   info: TConcreteInfo,
 }
@@ -135,17 +136,17 @@ pub struct PieChartExtractionConfig {
   #[getset(get = "pub")]
   grouping_attr: Option<NameCreationStrategy>,
   #[getset(get = "pub")]
-  count_attr: Option<Rc<str>>,
+  count_attr: Option<Arc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct GenericExtractionConfigBase {
   #[getset(get = "pub")]
-  name: Rc<str>,
+  name: Arc<str>,
   #[getset(get = "pub")]
-  units: Rc<str>,
+  units: Arc<str>,
   #[getset(get = "pub")]
-  group: Option<Rc<str>>,
+  group: Option<Arc<str>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, new)]
@@ -156,7 +157,7 @@ pub enum NameCreationStrategy {
 }
 
 impl NameCreationStrategy {
-  pub fn fallback_value(&self) -> Rc<str> {
+  pub fn fallback_value(&self) -> Arc<str> {
     match self {
       NameCreationStrategy::SingleAttribute(s) => s.fallback_value().clone(),
       NameCreationStrategy::ManyAttributes(m) => m.fallback_value().clone(),
@@ -167,19 +168,19 @@ impl NameCreationStrategy {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct SingleAttribute {
   #[getset(get = "pub")]
-  name: Rc<str>,
+  name: Arc<str>,
   #[getset(get = "pub")]
-  fallback_value: Rc<str>,
+  fallback_value: Arc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ManyAttributes {
   #[getset(get = "pub")]
-  attributes: Vec<Rc<str>>,
+  attributes: Vec<Arc<str>>,
   #[getset(get = "pub")]
-  separator: Rc<str>,
+  separator: Arc<str>,
   #[getset(get = "pub")]
-  fallback_value: Rc<str>,
+  fallback_value: Arc<str>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -187,7 +188,7 @@ pub struct SimpleCountExtractionConfig {
   #[getset(get = "pub")]
   base: GenericExtractionConfigBase,
   #[getset(get = "pub")]
-  count_attr: Option<Rc<str>>,
+  count_attr: Option<Arc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
@@ -195,9 +196,9 @@ pub struct ActivityDurationExtractionConfig {
   #[getset(get = "pub")]
   base: GenericExtractionConfigBase,
   #[getset(get = "pub")]
-  start_event_regex: Rc<str>,
+  start_event_regex: Arc<str>,
   #[getset(get = "pub")]
-  end_event_regex: Rc<str>,
+  end_event_regex: Arc<str>,
   #[getset(get = "pub")]
   time_attribute: Option<TimeAttributeConfig>,
   #[getset(get = "pub")]
@@ -207,7 +208,7 @@ pub struct ActivityDurationExtractionConfig {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct TimeAttributeConfig {
   #[getset(get = "pub")]
-  time_attribute: Rc<str>,
+  time_attribute: Arc<str>,
   #[getset(get = "pub")]
   kind: TimeKind,
 }

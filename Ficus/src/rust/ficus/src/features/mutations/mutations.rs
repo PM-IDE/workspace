@@ -1,7 +1,8 @@
 use crate::event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace};
 use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 
-pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: Rc<str>, filter: TFilter)
+pub fn rename_events<TLog, TFilter>(log: &mut TLog, new_name: Arc<str>, filter: TFilter)
 where
   TLog: EventLog,
   TFilter: Fn(&TLog::TEvent) -> bool,
@@ -25,10 +26,10 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
   log: &mut TLog,
   add_start_events: bool,
   add_end_events: bool,
-  attributes_to_copy: Option<&Vec<Rc<str>>>,
+  attributes_to_copy: Option<&Vec<Arc<str>>>,
 ) {
-  let art_start_name = Rc::<str>::from(ARTIFICIAL_START_EVENT_NAME);
-  let art_end_name = Rc::<str>::from(ARTIFICIAL_END_EVENT_NAME);
+  let art_start_name = Arc::<str>::from(ARTIFICIAL_START_EVENT_NAME);
+  let art_end_name = Arc::<str>::from(ARTIFICIAL_END_EVENT_NAME);
 
   for trace in log.traces() {
     let mut trace = trace.borrow_mut();
@@ -76,7 +77,7 @@ pub fn add_artificial_start_end_activities<TLog: EventLog>(
   }
 }
 
-fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&Vec<Rc<str>>>) {
+fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attributes_to_copy: Option<&Vec<Arc<str>>>) {
   let Some(attributes_to_copy) = attributes_to_copy else { return };
   let Some(payload_map) = from.payload_map() else { return };
 
@@ -86,7 +87,7 @@ fn copy_payload<TLog: EventLog>(from: &TLog::TEvent, to: &mut TLog::TEvent, attr
   }
 }
 
-pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Vec<Rc<str>>) {
+pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Vec<Arc<str>>) {
   log.mutate_events(|event| {
     let mut new_name = event.name().to_owned();
     let payload = event.payload_map();
@@ -105,6 +106,6 @@ pub fn append_attributes_to_name<TLog: EventLog>(log: &mut TLog, attributes: &Ve
       new_name += format!("_{}", attribute_value_string).as_str();
     }
 
-    event.set_name(Rc::from(new_name));
+    event.set_name(Arc::from(new_name));
   })
 }

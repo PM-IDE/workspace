@@ -4,7 +4,7 @@ use std::{
   rc::Rc,
   vec,
 };
-
+use std::sync::Arc;
 use linfa::DatasetBase;
 use ndarray::Array2;
 
@@ -146,7 +146,7 @@ fn create_activities_repr_from_subtraces(
 
 fn create_dataset_internal(
   traces_activities: &TracesActivities,
-  class_extractor: Option<Rc<str>>,
+  class_extractor: Option<Arc<str>>,
   activities_repr_fullfiller: impl Fn(
     &Vec<Vec<ActivityInTraceInfo>>,
     Option<&RegexEventHasher>,

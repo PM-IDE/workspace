@@ -22,9 +22,9 @@ use crate::{
 use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, HashSet},
-  rc::Rc,
   string::ToString,
 };
+use std::sync::Arc;
 
 const ALPHA_SET: &str = "alpha_set";
 context_key! { ALPHA_SET, AlphaSet }
@@ -127,7 +127,7 @@ fn add_alpha_plus_plus_transitions(provider: &impl AlphaPlusRelationsProvider, p
   }
 }
 
-pub fn find_transitions_one_length_loop(log: &impl EventLog) -> HashSet<Rc<str>> {
+pub fn find_transitions_one_length_loop(log: &impl EventLog) -> HashSet<Arc<str>> {
   let mut one_loop_transitions = HashSet::new();
   for trace in log.traces() {
     let trace = trace.borrow();

@@ -6,9 +6,9 @@ use crate::{
   features::discovery::timeline::discovery::LogThreadsDiagramError,
 };
 use chrono::{DateTime, Utc};
-use std::rc::Rc;
+use std::sync::Arc;
 
-pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<Rc<str>> {
+pub fn extract_thread_id<TEvent: Event>(event: &TEvent, thread_attribute: &str) -> Option<Arc<str>> {
   let value = event.payload_map()?.get(thread_attribute)?;
   Some(value.to_string_repr().clone())
 }

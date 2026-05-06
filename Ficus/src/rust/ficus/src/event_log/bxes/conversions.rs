@@ -1,5 +1,4 @@
-use std::rc::Rc;
-
+use std::sync::Arc;
 use bxes::{
   models::domain::{
     bxes_artifact::{BxesArtifact, BxesArtifactItem},
@@ -107,9 +106,9 @@ pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValu
         .items
         .iter()
         .map(|a| BxesArtifactItem {
-          instance: Rc::new(BxesValue::String(Rc::from(a.instance.clone()))),
-          model: Rc::new(BxesValue::String(Rc::from(a.model.clone()))),
-          transition: Rc::new(BxesValue::String(Rc::from(a.transition.clone()))),
+          instance: Arc::new(BxesValue::String(Arc::from(a.instance.clone()))),
+          model: Arc::new(BxesValue::String(Arc::from(a.model.clone()))),
+          transition: Arc::new(BxesValue::String(Arc::from(a.transition.clone()))),
         })
         .collect(),
     }),
@@ -119,8 +118,8 @@ pub(super) fn payload_value_to_bxes_value(value: &EventPayloadValue) -> BxesValu
         .iter()
         .map(|d| BxesDriver {
           amount: BxesValue::Float64(d.amount),
-          driver_type: Rc::new(BxesValue::String(Rc::from(d.driver_type.clone()))),
-          name: Rc::new(BxesValue::String(Rc::from(d.name.clone()))),
+          driver_type: Arc::new(BxesValue::String(Arc::from(d.driver_type.clone()))),
+          name: Arc::new(BxesValue::String(Arc::from(d.name.clone()))),
         })
         .collect(),
     }),

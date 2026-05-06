@@ -14,6 +14,7 @@ use ficus::pipelines::keys::context_keys::EVENT_LOG_INFO_KEY;
 use ficus::utils::user_data::user_data::UserData;
 use log::{debug, info, warn};
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, time::Duration};
+use std::sync::Arc;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -34,16 +35,16 @@ impl StreamingCounterFactory {
 #[derive(Clone)]
 struct DfgDataStructureBase {
   factory: StreamingCounterFactory,
-  processes_dfg: HashMap<Rc<str>, Rc<RefCell<dyn StreamingCounter<(Rc<str>, Rc<str>), ()>>>>,
-  traces_last_event_classes: Rc<RefCell<dyn StreamingCounter<Uuid, Rc<str>>>>,
-  event_classes_count: HashMap<Rc<str>, Rc<RefCell<dyn StreamingCounter<Rc<str>, ()>>>>,
+  processes_dfg: HashMap<Arc<str>, Rc<RefCell<dyn StreamingCounter<(Arc<str>, Arc<str>), ()>>>>,
+  traces_last_event_classes: Rc<RefCell<dyn StreamingCounter<Uuid, Arc<str>>>>,
+  event_classes_count: HashMap<Arc<str>, Rc<RefCell<dyn StreamingCounter<Arc<str>, ()>>>>,
 }
 
 unsafe impl Send for DfgDataStructureBase {}
 unsafe impl Sync for DfgDataStructureBase {}
 
 impl DfgDataStructureBase {
-  pub fn observe_dfg_relation(&mut self, process_name: &Rc<str>, relation: (Rc<str>, Rc<str>)) {
+  pub fn observe_dfg_relation(&mut self, process_name: &Arc<str>, relation: (Arc<str>, Arc<str>)) {
     debug!(
       "Observing relation, process: {}, relation: ({}, {})",
       process_name, &relation.0, &relation.1
@@ -57,7 +58,7 @@ impl DfgDataStructureBase {
       .observe(relation, ValueUpdateKind::DoNothing);
   }
 
-  pub fn observe_event_class(&mut self, process_name: &Rc<str>, event_class: Rc<str>) {
+  pub fn observe_event_class(&mut self, process_name: &Arc<str>, event_class: Arc<str>) {
     debug!("Observing event class, process: {}, event class: {}", process_name, event_class);
 
     self
@@ -68,7 +69,7 @@ impl DfgDataStructureBase {
       .observe(event_class, ValueUpdateKind::DoNothing);
   }
 
-  pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: Rc<str>) {
+  pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: Arc<str>) {
     debug!(
       "Observing last trace class, case id: {}, last class: {}",
       &case_id,
@@ -81,7 +82,7 @@ impl DfgDataStructureBase {
       .observe(case_id, ValueUpdateKind::Replace(last_class))
   }
 
-  pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<Rc<str>> {
+  pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<Arc<str>> {
     self
       .traces_last_event_classes
       .borrow()
@@ -157,7 +158,7 @@ impl DfgDataStructures {
 impl DfgDataStructures {
   pub fn process_bxes_trace(
     &mut self,
-    metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
+    metadata: &HashMap<Arc<str>, Arc<BxesValue>>,
     xes_trace: &XesTraceImpl,
   ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
     if xes_trace.events().is_empty() {

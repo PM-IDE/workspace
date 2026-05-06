@@ -10,10 +10,10 @@ use crate::{
 };
 use std::{
   collections::{HashMap, HashSet},
-  rc::Rc,
 };
+use std::sync::Arc;
 
-pub fn calculate_max_vector_length<TLog>(log: &TLog, ignored_events: Option<&HashSet<Rc<str>>>) -> usize
+pub fn calculate_max_vector_length<TLog>(log: &TLog, ignored_events: Option<&HashSet<Arc<str>>>) -> usize
 where
   TLog: EventLog,
 {
@@ -23,7 +23,7 @@ where
   }
 }
 
-fn calculate_vector_length_with_ignored_events<TLog>(log: &TLog, ignored_events: &HashSet<Rc<str>>) -> usize
+fn calculate_vector_length_with_ignored_events<TLog>(log: &TLog, ignored_events: &HashSet<Arc<str>>) -> usize
 where
   TLog: EventLog,
 {
@@ -78,12 +78,12 @@ pub fn calculate_pos_entropy(probabilities: &mut [f64], traces_count: f64) -> f6
 
 pub fn calculate_entropies<TLog, TEntropyCalculator>(
   log: &TLog,
-  ignored_events: Option<&HashSet<Rc<str>>>,
+  ignored_events: Option<&HashSet<Arc<str>>>,
   entropy_calculator: TEntropyCalculator,
-) -> HashMap<Rc<str>, f64>
+) -> HashMap<Arc<str>, f64>
 where
   TLog: EventLog,
-  TEntropyCalculator: Fn(&TLog, &str, Option<&HashSet<Rc<str>>>) -> f64,
+  TEntropyCalculator: Fn(&TLog, &str, Option<&HashSet<Arc<str>>>) -> f64,
 {
   let log_info = OfflineEventLogInfo::create_from(EventLogInfoCreationDto::default(log));
   let mut entropies = HashMap::new();

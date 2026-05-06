@@ -3,10 +3,11 @@ use crate::utils::{
   user_data::user_data::UserDataImpl,
 };
 use getset::{Getters, Setters};
-use std::{collections::HashMap, fmt::Display, rc::Rc, sync::atomic::AtomicU64};
+use std::{collections::HashMap, fmt::Display, sync::atomic::AtomicU64};
+use std::sync::Arc;
 
 pub(crate) static NEXT_ID: AtomicU64 = AtomicU64::new(0);
-pub type DefaultGraph = Graph<Rc<str>, Rc<str>>;
+pub type DefaultGraph = Graph<Arc<str>, Arc<str>>;
 
 pub struct NodesConnectionData<TEdgeData> {
   pub(super) data: Option<TEdgeData>,

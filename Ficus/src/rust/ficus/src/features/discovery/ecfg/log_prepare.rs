@@ -9,11 +9,12 @@ use crate::{
   pipelines::errors::pipeline_errors::PipelinePartExecutionError,
 };
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::sync::Arc;
 
 pub fn prepare_software_log(
   log: &XesEventLogImpl,
   config: &SoftwareDataExtractionConfig,
-  time_attribute: Option<&Rc<str>>,
+  time_attribute: Option<&Arc<str>>,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let control_flow_regexes = config.control_flow_regexes().map_err(PipelinePartExecutionError::new_raw)?;
   if control_flow_regexes.is_none() {

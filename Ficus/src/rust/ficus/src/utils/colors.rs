@@ -1,8 +1,8 @@
 use rand::Rng;
 use std::{
   collections::{HashMap, HashSet},
-  rc::Rc,
 };
+use std::sync::Arc;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Color {
@@ -52,12 +52,12 @@ impl Color {
 
 #[derive(Default)]
 pub struct ColorsHolder {
-  names_to_colors: HashMap<Rc<str>, Color>,
+  names_to_colors: HashMap<Arc<str>, Color>,
   used_colors: HashSet<Color>,
 }
 
 impl ColorsHolder {
-  pub fn get_or_create(&mut self, name: &Rc<str>) -> Color {
+  pub fn get_or_create(&mut self, name: &Arc<str>) -> Color {
     if let Some(existing_color) = self.names_to_colors.get(name) {
       *existing_color
     } else {
@@ -70,22 +70,22 @@ impl ColorsHolder {
 }
 
 pub struct ColorsEventLog {
-  pub mapping: HashMap<Rc<str>, Color>,
+  pub mapping: HashMap<Arc<str>, Color>,
   pub traces: Vec<Vec<ColoredRectangle>>,
 }
 
 pub struct ColoredRectangle {
-  name: Rc<str>,
+  name: Arc<str>,
   start_x: f64,
   length: f64,
 }
 
 impl ColoredRectangle {
-  pub fn new(name: Rc<str>, start_x: f64, length: f64) -> Self {
+  pub fn new(name: Arc<str>, start_x: f64, length: f64) -> Self {
     Self { name, start_x, length }
   }
 
-  pub fn square(name: Rc<str>, start_pos: f64) -> Self {
+  pub fn square(name: Arc<str>, start_pos: f64) -> Self {
     Self::new(name, start_pos, 1.)
   }
 

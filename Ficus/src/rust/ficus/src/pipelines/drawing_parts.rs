@@ -19,6 +19,7 @@ use crate::{
 };
 use fancy_regex::Regex;
 use std::{collections::HashMap, rc::Rc};
+use std::sync::Arc;
 
 impl PipelineParts {
   pipeline_part!(traces_diversity_diagram, |context: &mut PipelineContext, _, _| {
@@ -34,7 +35,7 @@ impl PipelineParts {
   fn create_traces_diversity_colors_log(
     log: &XesEventLogImpl,
     colors_holder: &mut ColorsHolder,
-    color_key_selector: impl Fn(&XesEventImpl) -> Rc<str>,
+    color_key_selector: impl Fn(&XesEventImpl) -> Arc<str>,
   ) -> ColorsEventLog {
     let mut mapping = HashMap::new();
     let mut traces = vec![];
@@ -78,7 +79,7 @@ impl PipelineParts {
 
     let mut traces = vec![];
     let mut mapping = HashMap::new();
-    mapping.insert(Rc::from(UNDEF_ACTIVITY_NAME.to_owned()), Color::black());
+    mapping.insert(Arc::from(UNDEF_ACTIVITY_NAME.to_owned()), Color::black());
 
     for trace in log.traces() {
       let mut colors_trace = vec![];
@@ -95,7 +96,7 @@ impl PipelineParts {
           let name = event.name_pointer().clone();
           colors_trace.push(ColoredRectangle::square(name, index as f64));
         } else {
-          let name = Rc::from(UNDEF_ACTIVITY_NAME.to_owned());
+          let name = Arc::from(UNDEF_ACTIVITY_NAME.to_owned());
           colors_trace.push(ColoredRectangle::square(name, index as f64));
         }
       }
@@ -124,7 +125,7 @@ impl PipelineParts {
 
     let mut traces = vec![];
     let mut mapping = HashMap::new();
-    mapping.insert(Rc::from(UNDEF_ACTIVITY_NAME), Color::black());
+    mapping.insert(Arc::from(UNDEF_ACTIVITY_NAME), Color::black());
 
     for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
       let mut colors_trace = vec![];
@@ -142,7 +143,7 @@ impl PipelineParts {
         }
         SubTraceKind::Unattached(start_pos, length) => {
           colors_trace.push(ColoredRectangle::new(
-            Rc::from(UNDEF_ACTIVITY_NAME.to_string()),
+            Arc::from(UNDEF_ACTIVITY_NAME.to_string()),
             start_pos as f64,
             length as f64,
           ));
@@ -164,7 +165,7 @@ impl PipelineParts {
 
     let mut traces = vec![];
     let mut mapping = HashMap::new();
-    mapping.insert(Rc::<str>::from(UNDEF_ACTIVITY_NAME), Color::black());
+    mapping.insert(Arc::<str>::from(UNDEF_ACTIVITY_NAME), Color::black());
 
     for (activities, trace) in traces_activities.iter().zip(log.traces().iter()) {
       let mut colors_trace = vec![];
@@ -184,7 +185,7 @@ impl PipelineParts {
             colors_trace.push(ColoredRectangle::new(name.clone(), index as f64, 1.));
           }
           SubTraceKind::Unattached(_, _) => {
-            let ptr = Rc::from(UNDEF_ACTIVITY_NAME.to_owned());
+            let ptr = Arc::from(UNDEF_ACTIVITY_NAME.to_owned());
             colors_trace.push(ColoredRectangle::new(ptr, index as f64, 1.));
           }
         }
@@ -214,7 +215,7 @@ impl PipelineParts {
           return value.to_string_repr();
         }
 
-        Rc::from("UNDEF_ATTRIBUTE".to_string())
+        Arc::from("UNDEF_ATTRIBUTE".to_string())
       });
 
       context.put_concrete(COLORS_EVENT_LOG_KEY.key(), colors_log);

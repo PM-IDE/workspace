@@ -9,11 +9,12 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub enum SoftwareDataExtractionError {
-  FailedToParseRegex(Rc<str>),
-  FailedToParseValue(Rc<str>),
+  FailedToParseRegex(Arc<str>),
+  FailedToParseValue(Arc<str>),
   FailedToGetStamp,
 }
 
@@ -54,7 +55,7 @@ pub trait EventGroupTraceSoftwareDataExtractor {
 pub(super) fn parse_or_err<ToType: FromStr>(value: &str) -> Result<ToType, SoftwareDataExtractionError> {
   match value.parse::<ToType>() {
     Ok(value) => Ok(value),
-    Err(_) => Err(SoftwareDataExtractionError::FailedToParseValue(Rc::from(format!(
+    Err(_) => Err(SoftwareDataExtractionError::FailedToParseValue(Arc::from(format!(
       "Failed to parse value: {}",
       value
     )))),

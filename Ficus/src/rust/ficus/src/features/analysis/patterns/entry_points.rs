@@ -1,5 +1,5 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
-
+use std::sync::Arc;
 use super::{
   activity_instances::{self, ActivityInTraceInfo, create_new_log_from_activities_instances, extract_activities_instances},
   contexts::{ActivitiesDiscoveryContext, ActivitiesInstancesDiscoveryContext, PatternsDiscoveryContext},
@@ -111,7 +111,7 @@ where
 pub fn create_logs_for_activities<TClassExtractor, TNameCreator>(
   context: &ActivitiesDiscoveryContext<TClassExtractor, TNameCreator>,
   activity_level: usize,
-) -> HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>>
+) -> HashMap<Arc<str>, Rc<RefCell<XesEventLogImpl>>>
 where
   TClassExtractor: Fn(&XesEventImpl) -> u64,
   TNameCreator: Fn(&SubArrayWithTraceIndex) -> String,

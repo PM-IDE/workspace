@@ -10,7 +10,7 @@ use rdkafka::{
   error::KafkaError,
   producer::{BaseProducer, BaseRecord},
 };
-use std::rc::Rc;
+use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct PipelineEventsProducer {
@@ -98,12 +98,12 @@ impl PipelineEventsHandler for KafkaEventsHandler {
 
 pub struct ProcessCaseMetadata {
   pub case_name: CaseName,
-  pub process_name: Rc<str>,
+  pub process_name: Arc<str>,
   pub subscription_id: Option<Uuid>,
-  pub subscription_name: Option<Rc<str>>,
+  pub subscription_name: Option<Arc<str>>,
   pub pipeline_id: Option<Uuid>,
-  pub pipeline_name: Option<Rc<str>>,
-  pub metadata: Vec<(Rc<str>, Rc<str>)>,
+  pub pipeline_name: Option<Arc<str>>,
+  pub metadata: Vec<(Arc<str>, Arc<str>)>,
 }
 
 impl ProcessCaseMetadata {

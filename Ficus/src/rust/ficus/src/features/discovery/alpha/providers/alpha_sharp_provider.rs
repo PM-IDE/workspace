@@ -8,7 +8,8 @@ use crate::features::{
     relations::triangle_relation::TriangleRelation,
   },
 };
-use std::{collections::HashSet, rc::Rc};
+use std::collections::HashSet;
+use std::sync::Arc;
 
 pub struct AlphaSharpRelationsProvider<'a> {
   alpha_plus_provider: AlphaPlusRelationsProviderImpl<'a>,
@@ -97,7 +98,7 @@ impl<'a> AlphaSharpRelationsProvider<'a> {
   pub fn new(
     triangle_relation: &'a dyn TriangleRelation,
     info: &'a OfflineEventLogInfo,
-    one_length_loop_transitions: &'a HashSet<Rc<str>>,
+    one_length_loop_transitions: &'a HashSet<Arc<str>>,
   ) -> Self {
     Self {
       alpha_plus_provider: AlphaPlusRelationsProviderImpl::new(info, triangle_relation, one_length_loop_transitions),

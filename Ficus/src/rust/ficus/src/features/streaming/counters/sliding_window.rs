@@ -1,6 +1,7 @@
 use crate::features::streaming::counters::core::{StreamingCounter, StreamingCounterEntry, ValueUpdateKind};
 use chrono::{DateTime, Utc};
 use std::{collections::HashMap, hash::Hash, ops::Add, rc::Rc, time::Duration};
+use std::sync::Arc;
 
 #[derive(Clone)]
 struct SlidingWindowEntry<TValue: Clone> {
@@ -29,7 +30,7 @@ pub enum InvalidationResult {
   Retain,
 }
 
-pub type Invalidator<TValue> = Rc<Box<dyn Fn(Option<&TValue>, &DateTime<Utc>) -> InvalidationResult>>;
+pub type Invalidator<TValue> = Arc<Box<dyn Fn(Option<&TValue>, &DateTime<Utc>) -> InvalidationResult>>;
 
 #[derive(Clone)]
 pub struct SlidingWindow<TKey: Hash + Eq + Clone, TValue: Clone> {
@@ -83,7 +84,7 @@ impl<TKey: Hash + Eq + Clone, TValue: Clone> SlidingWindow<TKey, TValue> {
   pub fn new_time(invalidation_duration: Duration) -> Self {
     Self {
       storage: HashMap::new(),
-      invalidator: Rc::new(Box::new(move |_, stamp| match stamp.add(invalidation_duration) < Utc::now() {
+      invalidator: Arc::new(Box::new(move |_, stamp| match stamp.add(invalidation_duration) < Utc::now() {
         true => InvalidationResult::Invalidate,
         false => InvalidationResult::Retain,
       })),

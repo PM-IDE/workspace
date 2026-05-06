@@ -1,9 +1,9 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 pub struct CaseName {
-  pub display_name: Rc<str>,
-  pub name_parts: Vec<Rc<str>>,
+  pub display_name: Arc<str>,
+  pub name_parts: Vec<Arc<str>>,
 }
 
 impl CaseName {

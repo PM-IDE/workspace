@@ -4,8 +4,9 @@ use crate::event_log::{
 };
 use log::error;
 use std::rc::Rc;
+use std::sync::Arc;
 
-pub fn merge_xes_logs(paths: &Vec<Rc<str>>) -> XesEventLogImpl {
+pub fn merge_xes_logs(paths: &Vec<Arc<str>>) -> XesEventLogImpl {
   let mut merged_log = XesEventLogImpl::default();
 
   for path in paths {

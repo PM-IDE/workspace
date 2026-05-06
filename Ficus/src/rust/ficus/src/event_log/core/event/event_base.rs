@@ -1,18 +1,17 @@
-use std::rc::Rc;
-
+use std::sync::Arc;
 use chrono::{DateTime, Utc};
 
 use crate::utils::user_data::user_data::UserDataImpl;
 
 #[derive(Debug)]
 pub struct EventBase {
-  pub name: Rc<str>,
+  pub name: Arc<str>,
   pub timestamp: DateTime<Utc>,
   pub user_data: UserDataImpl,
 }
 
 impl EventBase {
-  pub fn new(name: Rc<str>, timestamp: DateTime<Utc>) -> Self {
+  pub fn new(name: Arc<str>, timestamp: DateTime<Utc>) -> Self {
     Self {
       name,
       timestamp,

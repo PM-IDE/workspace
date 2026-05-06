@@ -26,7 +26,7 @@ use ficus::{
   utils::user_data::user_data::UserData,
 };
 use futures::Stream;
-use std::{pin::Pin, rc::Rc, sync::Arc};
+use std::{pin::Pin, sync::Arc};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
@@ -239,7 +239,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
       let request = request.get_ref();
       let case_info = request.case_info.as_ref().expect("Case info must be supplied");
-      let case_name: Rc<str> = case_info.case_name.clone().into();
+      let case_name: Arc<str> = case_info.case_name.clone().into();
       let process_name = case_info.process_name.clone();
       let pipeline_id = Uuid::parse_str(request.pipeline_id.as_ref().expect("Must be supplied").guid.as_str());
       let subscription_id = Uuid::parse_str(request.subscription_id.as_ref().expect("Must be supplied").guid.as_str());

@@ -3,7 +3,7 @@ use std::{
   collections::{HashMap, HashSet},
   rc::Rc,
 };
-
+use std::sync::Arc;
 use ndarray::Array1;
 
 use crate::{
@@ -73,7 +73,7 @@ pub(super) fn merge_activities(
       new_event_classes_set,
       vec![],
       *cluster_activities[0].borrow().level(),
-      Rc::from(new_activity_name),
+      Arc::from(new_activity_name),
       *cluster_activities.first().unwrap().borrow().pattern_kind(),
     );
 

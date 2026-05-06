@@ -3,7 +3,8 @@ use crate::utils::graph::{
   graph_edge::GraphEdge,
   graph_node::GraphNode,
 };
-use std::{collections::HashMap, fmt::Display, rc::Rc};
+use std::{collections::HashMap, fmt::Display};
+use std::sync::Arc;
 
 impl<TNodeData, TEdgeData> Graph<TNodeData, TEdgeData>
 where
@@ -20,13 +21,13 @@ where
   }
 
   #[rustfmt::skip]
-  fn to_default_graph_nodes(&self) -> HashMap<u64, GraphNode<Rc<str>>> {
+  fn to_default_graph_nodes(&self) -> HashMap<u64, GraphNode<Arc<str>>> {
         self.nodes.iter().map(|pair| {
             (
                 *pair.0,
                 GraphNode {
                     id: pair.1.id.to_owned(),
-                    data: pair.1.data.as_ref().map(|data| Rc::from(data.to_string())),
+                    data: pair.1.data.as_ref().map(|data| Arc::from(data.to_string())),
                     user_data: pair.1.user_data.clone()
                 },
             )
@@ -34,7 +35,7 @@ where
     }
 
   #[rustfmt::skip]
-  fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, GraphEdge<Rc<str>>>> {
+  fn to_default_graph_connections(&self) -> HashMap<u64, HashMap<u64, GraphEdge<Arc<str>>>> {
         self.connections.iter().map(|pair| {
             (
                 *pair.0,
@@ -45,7 +46,7 @@ where
                             pair.1.from_node,
                             pair.1.to_node,
                             pair.1.weight,
-                            pair.1.data().as_ref().map(|data| Rc::from(data.to_string())),
+                            pair.1.data().as_ref().map(|data| Arc::from(data.to_string())),
                             Some(pair.1.user_data.clone())
                         )
                     )

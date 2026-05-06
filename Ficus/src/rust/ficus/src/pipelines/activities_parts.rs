@@ -43,6 +43,7 @@ use crate::{
 };
 use chrono::TimeDelta;
 use std::{cell::RefCell, collections::HashMap, path::Path, rc::Rc, str::FromStr};
+use std::sync::Arc;
 
 pub enum UndefActivityHandlingStrategyDto {
   DontInsert,
@@ -156,7 +157,7 @@ impl PipelineParts {
     let strategy = match undef_activity_strat {
       UndefActivityHandlingStrategyDto::DontInsert => UndefActivityHandlingStrategy::DontInsert,
       UndefActivityHandlingStrategyDto::InsertAsSingleEvent => UndefActivityHandlingStrategy::InsertAsSingleEvent(Box::new(|| {
-        Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(
+        Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Arc::from(
           UNDEF_ACTIVITY_NAME.to_owned(),
         ))))
       })),
@@ -423,7 +424,7 @@ impl PipelineParts {
   fn create_activities_to_logs(
     context: &mut PipelineContext,
     config: &UserDataImpl,
-  ) -> Result<HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
+  ) -> Result<HashMap<Arc<str>, Rc<RefCell<XesEventLogImpl>>>, PipelinePartExecutionError> {
     let log = Self::get_user_data(context, &EVENT_LOG_KEY)?;
     let dto = Self::get_user_data(config, &ACTIVITIES_LOGS_SOURCE_KEY)?;
 
@@ -487,7 +488,7 @@ impl PipelineParts {
         drop(borrowed_event);
 
         if start == 0 {
-          let new_name = Rc::from(event.borrow().name()[start..end].to_owned());
+          let new_name = Arc::from(event.borrow().name()[start..end].to_owned());
           event.borrow_mut().set_name(new_name);
         }
       }
@@ -568,7 +569,7 @@ impl PipelineParts {
           }
 
           for update in updates {
-            let new_key = Rc::from(format!("{}{}", HIERARCHY_LEVEL, update.0));
+            let new_key = Arc::from(format!("{}{}", HIERARCHY_LEVEL, update.0));
             event.payload_map_mut().unwrap().insert(new_key, update.1);
           }
         }

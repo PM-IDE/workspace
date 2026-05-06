@@ -10,7 +10,6 @@ use ficus::{
   event_log::bxes::bxes_to_xes_converter::BxesToXesReadError,
   pipelines::{errors::pipeline_errors::PipelinePartExecutionError, pipeline_parts::PipelineParts},
 };
-use std::rc::Rc;
 use std::{
   collections::HashMap,
   fmt::{Debug, Display, Formatter},
@@ -102,14 +101,14 @@ impl KafkaConsumerCreationDto {
 pub(super) struct ExtractedTraceMetadata {
   pub process: ProcessMetadata,
   pub case: CaseMetadata,
-  pub unstructured_metadata: Vec<(Rc<str>, Rc<str>)>,
+  pub unstructured_metadata: Vec<(Arc<str>, Arc<str>)>,
 }
 
 unsafe impl Send for ExtractedTraceMetadata {}
 unsafe impl Sync for ExtractedTraceMetadata {}
 
 impl ExtractedTraceMetadata {
-  pub fn create_from(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
+  pub fn create_from(metadata: &HashMap<Arc<str>, Arc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     Ok(ExtractedTraceMetadata {
       process: ProcessMetadata::create_from(metadata)?,
       case: CaseMetadata::create_from(metadata)?,
@@ -131,11 +130,11 @@ impl ExtractedTraceMetadata {
 }
 
 pub(super) struct ProcessMetadata {
-  pub process_name: Rc<str>,
+  pub process_name: Arc<str>,
 }
 
 impl ProcessMetadata {
-  pub fn create_from(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
+  pub fn create_from(metadata: &HashMap<Arc<str>, Arc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     let process_name = string_value_or_err(metadata, KAFKA_PROCESS_NAME)?;
 
     Ok(Self { process_name })
@@ -144,17 +143,17 @@ impl ProcessMetadata {
 
 pub(super) struct CaseMetadata {
   pub case_id: Uuid,
-  pub case_display_name: Rc<str>,
-  pub case_name_parts: Vec<Rc<str>>,
-  pub case_name_parts_joined: Rc<str>,
+  pub case_display_name: Arc<str>,
+  pub case_name_parts: Vec<Arc<str>>,
+  pub case_name_parts_joined: Arc<str>,
 }
 
 impl CaseMetadata {
-  pub fn create_from(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
+  pub fn create_from(metadata: &HashMap<Arc<str>, Arc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     let case_id = uuid_or_err(metadata, KAFKA_CASE_ID)?;
     let case_name_parts_joined = string_value_or_err(metadata, KAFKA_CASE_NAME_PARTS)?;
     let case_display_name = string_value_or_err(metadata, KAFKA_CASE_DISPLAY_NAME)?;
-    let case_name_parts: Vec<Rc<str>> = case_name_parts_joined
+    let case_name_parts: Vec<Arc<str>> = case_name_parts_joined
       .split(KAFKA_CASE_NAME_PARTS_SEPARATOR)
       .map(|s| s.to_string().into())
       .collect();
@@ -169,9 +168,9 @@ impl CaseMetadata {
 }
 
 pub(super) fn string_value_or_err(
-  metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
+  metadata: &HashMap<Arc<str>, Arc<BxesValue>>,
   key_name: &str,
-) -> Result<Rc<str>, XesFromBxesKafkaTraceCreatingError> {
+) -> Result<Arc<str>, XesFromBxesKafkaTraceCreatingError> {
   let value = value_or_err(metadata, key_name)?;
 
   if let BxesValue::String(process_name) = value.as_ref() {
@@ -181,7 +180,7 @@ pub(super) fn string_value_or_err(
   }
 }
 
-fn value_or_err(metadata: &HashMap<Rc<str>, Rc<BxesValue>>, key: &str) -> Result<Rc<BxesValue>, XesFromBxesKafkaTraceCreatingError> {
+fn value_or_err(metadata: &HashMap<Arc<str>, Arc<BxesValue>>, key: &str) -> Result<Arc<BxesValue>, XesFromBxesKafkaTraceCreatingError> {
   if let Some(value) = metadata.get(key) {
     Ok(value.clone())
   } else {
@@ -189,7 +188,7 @@ fn value_or_err(metadata: &HashMap<Rc<str>, Rc<BxesValue>>, key: &str) -> Result
   }
 }
 
-pub(super) fn uuid_or_err(metadata: &HashMap<Rc<str>, Rc<BxesValue>>, key: &str) -> Result<Uuid, XesFromBxesKafkaTraceCreatingError> {
+pub(super) fn uuid_or_err(metadata: &HashMap<Arc<str>, Arc<BxesValue>>, key: &str) -> Result<Uuid, XesFromBxesKafkaTraceCreatingError> {
   let value = value_or_err(metadata, key)?;
   if let BxesValue::Guid(id) = value.as_ref() {
     Ok(*id)
@@ -198,7 +197,7 @@ pub(super) fn uuid_or_err(metadata: &HashMap<Rc<str>, Rc<BxesValue>>, key: &str)
   }
 }
 
-fn metadata_to_string_string_pairs(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Vec<(Rc<str>, Rc<str>)> {
+fn metadata_to_string_string_pairs(metadata: &HashMap<Arc<str>, Arc<BxesValue>>) -> Vec<(Arc<str>, Arc<str>)> {
   metadata
     .iter()
     .filter_map(|pair| {

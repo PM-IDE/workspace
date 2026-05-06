@@ -8,7 +8,7 @@ use ficus::{
   utils::user_data::user_data::UserDataImpl,
   vecs,
 };
-use std::rc::Rc;
+use std::sync::Arc;
 use termgraph::{Config, DirectedGraph, ValueFormatter};
 
 #[test]
@@ -357,7 +357,7 @@ fn execute_ecfg_discovery_test(mut traces: Vec<Vec<String>>, gold_root_sequence:
   let root_sequence = discover_root_sequence(&traces, root_sequence_kind);
   assert_eq!(root_sequence, gold_root_sequence);
 
-  let name_extractor = |s: &String| Rc::from(s.to_owned());
+  let name_extractor = |s: &String| Arc::from(s.to_owned());
 
   let to_node_data_transfer = |_: &String, _: &mut UserDataImpl, _| {};
   let to_edge_data_transfer = |_: &String, _: &mut UserDataImpl| {};

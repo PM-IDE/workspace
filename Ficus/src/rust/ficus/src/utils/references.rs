@@ -5,6 +5,7 @@ use std::{
   ops::Deref,
   rc::Rc,
 };
+use std::sync::Arc;
 
 pub enum ReferenceOrOwned<'a, T> {
   Ref(&'a T),
@@ -23,7 +24,7 @@ impl<'a, T> Deref for ReferenceOrOwned<'a, T> {
 }
 
 pub enum HeapedOrOwned<T> {
-  Heaped(Rc<T>),
+  Heaped(Arc<T>),
   Owned(T),
 }
 
@@ -44,7 +45,7 @@ impl<'a, T: Deserialize<'a>> Deserialize<'a> for HeapedOrOwned<T> {
   where
     D: Deserializer<'a>,
   {
-    Ok(HeapedOrOwned::Heaped(Rc::new(T::deserialize(deserializer)?)))
+    Ok(HeapedOrOwned::Heaped(Arc::new(T::deserialize(deserializer)?)))
   }
 }
 
@@ -53,7 +54,7 @@ pub fn owned<T>(t: T) -> HeapedOrOwned<T> {
 }
 
 pub fn heaped<T>(t: T) -> HeapedOrOwned<T> {
-  HeapedOrOwned::Heaped(Rc::new(t))
+  HeapedOrOwned::Heaped(Arc::new(t))
 }
 
 impl<T> Deref for HeapedOrOwned<T> {

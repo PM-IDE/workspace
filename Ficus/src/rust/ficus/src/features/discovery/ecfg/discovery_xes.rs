@@ -33,6 +33,7 @@ use crate::{
   },
 };
 use std::{cell::RefCell, fmt::Debug, ops::Deref, rc::Rc};
+use std::sync::Arc;
 
 pub fn discover_ecfg_from_event_log(
   log: &XesEventLogImpl,
@@ -46,10 +47,10 @@ pub fn discover_ecfg_from_event_log(
 
   let artificial_start_end_events_factory = || {
     (
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(
+      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Arc::from(
         ARTIFICIAL_START_EVENT_NAME.to_string(),
       )))),
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(
+      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Arc::from(
         ARTIFICIAL_END_EVENT_NAME.to_string(),
       )))),
     )

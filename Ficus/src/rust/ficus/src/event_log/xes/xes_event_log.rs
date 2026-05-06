@@ -17,18 +17,19 @@ use crate::{
   },
 };
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::sync::Arc;
 
 #[derive(Default)]
 pub struct XesEventLogImpl {
   base: EventLogBase<XesTraceImpl>,
-  globals: HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>,
+  globals: HashMap<Arc<str>, HashMap<Arc<str>, EventPayloadValue>>,
   extensions: Vec<XesEventLogExtension>,
   classifiers: Vec<XesClassifier>,
   properties: Vec<XesProperty>,
 }
 
 impl XesEventLogImpl {
-  pub fn globals_map(&self) -> &HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>> {
+  pub fn globals_map(&self) -> &HashMap<Arc<str>, HashMap<Arc<str>, EventPayloadValue>> {
     &self.globals
   }
 
@@ -44,7 +45,7 @@ impl XesEventLogImpl {
     &self.properties
   }
 
-  pub fn globals_mut(&mut self) -> &mut HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>> {
+  pub fn globals_mut(&mut self) -> &mut HashMap<Arc<str>, HashMap<Arc<str>, EventPayloadValue>> {
     &mut self.globals
   }
 
@@ -60,7 +61,7 @@ impl XesEventLogImpl {
     &mut self.classifiers
   }
 
-  pub fn ordered_properties(&self) -> Vec<(&Rc<str>, &EventPayloadValue)> {
+  pub fn ordered_properties(&self) -> Vec<(&Arc<str>, &EventPayloadValue)> {
     let mut properties = Vec::new();
     for property in self.properties_map() {
       properties.push((&property.name, &property.value));
@@ -70,7 +71,7 @@ impl XesEventLogImpl {
     properties
   }
 
-  pub fn ordered_globals(&self) -> Vec<(&Rc<str>, Vec<(&Rc<str>, &EventPayloadValue)>)> {
+  pub fn ordered_globals(&self) -> Vec<(&Arc<str>, Vec<(&Arc<str>, &EventPayloadValue)>)> {
     let mut globals = Vec::new();
     for (key, value) in self.globals_map() {
       let mut defaults = Vec::new();

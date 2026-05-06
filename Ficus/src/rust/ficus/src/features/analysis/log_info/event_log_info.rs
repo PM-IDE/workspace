@@ -18,6 +18,7 @@ use std::{
   ops::Deref,
   rc::Rc,
 };
+use std::sync::Arc;
 
 pub trait EventLogCounts {
   fn traces_count(&self) -> usize;
@@ -44,21 +45,21 @@ pub trait EventLogInfo {
   fn event_classes_count(&self) -> u64;
   fn event_count(&self, event_class: &str) -> u64;
   fn dfg_info(&self) -> &dyn DfgInfo;
-  fn all_event_classes(&self) -> Vec<&Rc<str>>;
-  fn start_event_classes(&self) -> &HashSet<Rc<str>>;
-  fn end_event_classes(&self) -> &HashSet<Rc<str>>;
+  fn all_event_classes(&self) -> Vec<&Arc<str>>;
+  fn start_event_classes(&self) -> &HashSet<Arc<str>>;
+  fn end_event_classes(&self) -> &HashSet<Arc<str>>;
 }
 
 pub struct OfflineEventLogInfo {
   counts: Option<EventLogCountsImpl>,
-  event_classes_counts: HashMap<Rc<str>, u64>,
+  event_classes_counts: HashMap<Arc<str>, u64>,
   dfg_info: OfflineDfgInfo,
-  start_event_classes: HashSet<Rc<str>>,
-  end_event_classes: HashSet<Rc<str>>,
+  start_event_classes: HashSet<Arc<str>>,
+  end_event_classes: HashSet<Arc<str>>,
 }
 
 impl OfflineEventLogInfo {
-  pub fn create_from_relations(relations: &HashMap<(Rc<str>, Rc<str>), u64>, event_classes_count: &HashMap<Rc<str>, u64>) -> Self {
+  pub fn create_from_relations(relations: &HashMap<(Arc<str>, Arc<str>), u64>, event_classes_count: &HashMap<Arc<str>, u64>) -> Self {
     let dfg_info = OfflineDfgInfo::create_from_relations(relations);
 
     let start_event_classes = event_classes_count
@@ -102,17 +103,17 @@ impl OfflineEventLogInfo {
       log = new_log.as_ref().unwrap();
     }
 
-    let mut dfg_pairs: HashMap<Rc<str>, HashMap<Rc<str>, usize>> = HashMap::new();
+    let mut dfg_pairs: HashMap<Arc<str>, HashMap<Arc<str>, usize>> = HashMap::new();
     let mut events_count = 0;
     let mut events_counts = HashMap::new();
     let mut start_event_classes = HashSet::new();
     let mut end_event_classes = HashSet::new();
 
-    let mut update_events_counts = |event_name: &Rc<str>| {
+    let mut update_events_counts = |event_name: &Arc<str>| {
       increase_in_map(&mut events_counts, event_name);
     };
 
-    let mut update_pairs_count = |first_name: &Rc<str>, second_name: &Rc<str>| {
+    let mut update_pairs_count = |first_name: &Arc<str>, second_name: &Arc<str>| {
       if let Some(values) = dfg_pairs.get_mut(first_name) {
         if let Some(count) = values.get_mut(second_name) {
           *count += 1;
@@ -125,8 +126,8 @@ impl OfflineEventLogInfo {
       }
     };
 
-    let fake_start_name = Rc::<str>::from(FAKE_EVENT_START_NAME);
-    let fake_end_name = Rc::<str>::from(FAKE_EVENT_END_NAME);
+    let fake_start_name = Arc::<str>::from(FAKE_EVENT_START_NAME);
+    let fake_end_name = Arc::<str>::from(FAKE_EVENT_END_NAME);
 
     for trace in log.traces() {
       let trace = trace.borrow();
@@ -170,7 +171,7 @@ impl OfflineEventLogInfo {
       }
     }
 
-    let mut precedes_events: HashMap<Rc<str>, HashMap<Rc<str>, usize>> = HashMap::new();
+    let mut precedes_events: HashMap<Arc<str>, HashMap<Arc<str>, usize>> = HashMap::new();
     let mut events_with_single_follower = HashSet::new();
 
     for (first, followers_map) in &dfg_pairs {
@@ -210,7 +211,7 @@ pub fn create_threads_log_by_attribute<TLog: EventLog>(log: &TLog, thread_attrib
 
   for trace in log.traces() {
     let trace = trace.borrow();
-    let mut threads_traces = HashMap::<Option<Rc<str>>, TLog::TTrace>::new();
+    let mut threads_traces = HashMap::<Option<Arc<str>>, TLog::TTrace>::new();
 
     for event in trace.events() {
       let thread_id = extract_thread_id(event.borrow().deref(), thread_attribute);
@@ -255,15 +256,15 @@ impl EventLogInfo for OfflineEventLogInfo {
     &self.dfg_info
   }
 
-  fn all_event_classes(&self) -> Vec<&Rc<str>> {
+  fn all_event_classes(&self) -> Vec<&Arc<str>> {
     self.event_classes_counts.keys().collect()
   }
 
-  fn start_event_classes(&self) -> &HashSet<Rc<str>> {
+  fn start_event_classes(&self) -> &HashSet<Arc<str>> {
     &self.start_event_classes
   }
 
-  fn end_event_classes(&self) -> &HashSet<Rc<str>> {
+  fn end_event_classes(&self) -> &HashSet<Arc<str>> {
     &self.end_event_classes
   }
 }

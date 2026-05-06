@@ -1,7 +1,6 @@
 use linfa::Dataset;
 use ndarray::{Array1, Ix1};
-use std::rc::Rc;
-
+use std::sync::Arc;
 use crate::{
   event_log::xes::xes_event_log::XesEventLogImpl,
   utils::{
@@ -16,7 +15,7 @@ pub(super) type ClusteredDataset = Dataset<f64, usize, Ix1>;
 pub struct CommonVisualizationParams<'a> {
   pub log: &'a XesEventLogImpl,
   pub colors_holder: &'a mut ColorsHolder,
-  pub class_extractor: Option<Rc<str>>,
+  pub class_extractor: Option<Arc<str>>,
 }
 
 pub fn transform_to_ficus_dataset(dataset: &MyDataset, processed: Vec<String>, classes_names: Vec<String>) -> FicusDataset {
@@ -61,8 +60,8 @@ pub fn scale_raw_dataset_min_max(vector: &mut [f64], objects_count: usize, featu
   }
 }
 
-pub fn create_cluster_name(cluster_index: usize) -> Rc<str> {
-  Rc::from(format!("CLUSTER_{}", cluster_index))
+pub fn create_cluster_name(cluster_index: usize) -> Arc<str> {
+  Arc::from(format!("CLUSTER_{}", cluster_index))
 }
 
 pub(super) fn adjust_dbscan_labels(clusters: Array1<Option<usize>>, put_noise_events_in_one_cluster: bool) -> Vec<usize> {

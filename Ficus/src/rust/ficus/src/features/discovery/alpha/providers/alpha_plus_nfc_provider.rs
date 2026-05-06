@@ -13,7 +13,8 @@ use crate::{
     },
   },
 };
-use std::{collections::HashSet, rc::Rc};
+use std::collections::HashSet;
+use std::sync::Arc;
 
 enum PrePostSet {
   PreSet,
@@ -84,7 +85,7 @@ where
     self.triangle_relation(first, second) && self.triangle_relation(second, first)
   }
 
-  fn one_length_loop_transitions(&self) -> &HashSet<Rc<str>> {
+  fn one_length_loop_transitions(&self) -> &HashSet<Arc<str>> {
     self.alpha_plus_provider.one_length_loop_transitions()
   }
 }
@@ -97,7 +98,7 @@ where
     info: &'a dyn EventLogInfo,
     log: &'a TLog,
     triangle_relation: &'a dyn TriangleRelation,
-    one_length_loop_transitions: &'a HashSet<Rc<str>>,
+    one_length_loop_transitions: &'a HashSet<Arc<str>>,
   ) -> Self {
     Self {
       additional_causal_relations: HashSet::new(),

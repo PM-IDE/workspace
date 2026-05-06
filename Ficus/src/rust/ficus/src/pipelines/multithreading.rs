@@ -42,6 +42,7 @@ use crate::{
 };
 use fancy_regex::Regex;
 use std::{cell::RefCell, collections::HashMap, rc::Rc, str::FromStr};
+use std::sync::Arc;
 
 #[derive(Copy, Clone)]
 pub enum FeatureCountKindDto {
@@ -125,7 +126,7 @@ impl PipelineParts {
     Ok(enumerate_event_groups(timeline))
   }
 
-  fn extract_thread_and_time_attribute(context: &PipelineContext) -> Result<(Rc<str>, Option<Rc<str>>), PipelinePartExecutionError> {
+  fn extract_thread_and_time_attribute(context: &PipelineContext) -> Result<(Arc<str>, Option<Arc<str>>), PipelinePartExecutionError> {
     let timeline = Self::get_user_data(context, &LOG_THREADS_DIAGRAM_KEY)?;
     Ok((timeline.thread_attribute().clone(), timeline.time_attribute().clone()))
   }
@@ -135,8 +136,8 @@ impl PipelineParts {
     context: &mut PipelineContext,
     config: &UserDataImpl,
     infra: &PipelineInfrastructure,
-    thread_attribute: &Rc<str>,
-    time_attribute: Option<&Rc<str>>,
+    thread_attribute: &Arc<str>,
+    time_attribute: Option<&Arc<str>>,
   ) -> Result<(), PipelinePartExecutionError> {
     let extraction_config = Self::get_software_data_extraction_config(context);
     let events_groups_log = Self::create_groups_event_log(&events_groups);
@@ -279,7 +280,7 @@ impl PipelineParts {
             if let Some(map) = event.payload_map_mut()
               && let Some(type_name) = map.get_mut(config.info().type_name_attr().as_ref())
             {
-              *type_name = EventPayloadValue::String(Rc::from(Self::shorten_type_or_method_name(type_name.to_string_repr().as_ref())));
+              *type_name = EventPayloadValue::String(Arc::from(Self::shorten_type_or_method_name(type_name.to_string_repr().as_ref())));
             }
           }
         }
@@ -337,10 +338,10 @@ impl PipelineParts {
   pipeline_part!(shorten_method_names, |context: &mut PipelineContext, _, _| {
     let log = Self::get_user_data_mut(context, &EVENT_LOG_KEY)?;
 
-    let methods_id_factories: Vec<&dyn Fn(&Rc<str>, &Rc<str>, &Rc<str>) -> Rc<str>> = vec![
+    let methods_id_factories: Vec<&dyn Fn(&Arc<str>, &Arc<str>, &Arc<str>) -> Arc<str>> = vec![
       &|_, name, _| name.to_owned(),
-      &|_, name, signature| Rc::from(name.as_ref().to_owned() + signature.as_ref()),
-      &|namespace, name, _| Rc::from(namespace.to_string() + name),
+      &|_, name, signature| Arc::from(name.as_ref().to_owned() + signature.as_ref()),
+      &|namespace, name, _| Arc::from(namespace.to_string() + name),
     ];
 
     let configs = Self::create_processed_method_extraction_configs(context);
@@ -442,13 +443,13 @@ impl PipelineParts {
       return;
     };
 
-    event.set_name(Rc::from(shortened_name));
+    event.set_name(Arc::from(shortened_name));
   }
 
   fn extract_method_name_parts(
-    payload: &HashMap<Rc<str>, EventPayloadValue>,
+    payload: &HashMap<Arc<str>, EventPayloadValue>,
     config: &ProcessedMethodStartEndConfig,
-  ) -> Option<(Rc<str>, Rc<str>, Rc<str>)> {
+  ) -> Option<(Arc<str>, Arc<str>, Arc<str>)> {
     let namespace = payload.get(config.namespace_attr.as_ref()).map(|v| v.to_string_repr().clone())?;
     let name = payload.get(config.name_attr.as_ref()).map(|v| v.to_string_repr().clone())?;
     let signature = payload.get(config.signature_attr.as_ref()).map(|v| v.to_string_repr().clone())?;
@@ -459,7 +460,7 @@ impl PipelineParts {
   fn check_if_can_use_method_id(
     log: &XesEventLogImpl,
     config: &ProcessedMethodStartEndConfig,
-    method_id_factory: impl Fn(&Rc<str>, &Rc<str>, &Rc<str>) -> Rc<str>,
+    method_id_factory: impl Fn(&Arc<str>, &Arc<str>, &Arc<str>) -> Arc<str>,
   ) -> bool {
     let mut map = HashMap::new();
 
@@ -504,7 +505,7 @@ impl PipelineParts {
             {
               display_name = Some(match config.prefix.as_ref() {
                 None => name,
-                Some(prefix) => Rc::from(prefix.to_string() + name.as_ref()),
+                Some(prefix) => Arc::from(prefix.to_string() + name.as_ref()),
               });
             }
           }
@@ -584,8 +585,8 @@ impl PipelineParts {
 
 struct ProcessedMethodStartEndConfig {
   event_regex: Regex,
-  namespace_attr: Rc<str>,
-  name_attr: Rc<str>,
-  signature_attr: Rc<str>,
-  prefix: Option<Rc<str>>,
+  namespace_attr: Arc<str>,
+  name_attr: Arc<str>,
+  signature_attr: Arc<str>,
+  prefix: Option<Arc<str>>,
 }

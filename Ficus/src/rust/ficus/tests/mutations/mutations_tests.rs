@@ -13,6 +13,7 @@ use ficus::{
   },
 };
 use std::{cell::RefCell, collections::HashSet, rc::Rc, vec};
+use std::sync::Arc;
 
 #[test]
 fn test_removing_events() {
@@ -59,7 +60,7 @@ fn test_removing_events5() {
 #[test]
 fn test_renaming() {
   let mut log = create_simple_event_log();
-  rename_events(&mut log, Rc::from("D"), |event| event.name() == "A");
+  rename_events(&mut log, Arc::from("D"), |event| event.name() == "A");
 
   assert_eq!(log.to_raw_vector(), vec![vec!["D", "B", "C"], vec!["D", "B", "C"]])
 }
@@ -67,7 +68,7 @@ fn test_renaming() {
 #[test]
 fn test_renaming2() {
   let mut log = create_simple_event_log2();
-  rename_events(&mut log, Rc::from("D"), |_| true);
+  rename_events(&mut log, Arc::from("D"), |_| true);
 
   assert_eq!(
     log.to_raw_vector(),
@@ -84,7 +85,7 @@ fn test_renaming2() {
 #[test]
 fn test_renaming2_no_change() {
   let mut log = create_simple_event_log2();
-  rename_events(&mut log, Rc::from("D"), |_| false);
+  rename_events(&mut log, Arc::from("D"), |_| false);
 
   assert_eq!(log.to_raw_vector(), create_raw_event_log2());
 }
@@ -92,7 +93,7 @@ fn test_renaming2_no_change() {
 #[test]
 fn test_renaming3() {
   let mut log = create_simple_event_log3();
-  rename_events(&mut log, Rc::from("D"), |event| event.name() == "E");
+  rename_events(&mut log, Arc::from("D"), |event| event.name() == "E");
 
   assert_eq!(
     log.to_raw_vector(),

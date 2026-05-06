@@ -14,8 +14,8 @@ use ficus::features::analysis::{
 };
 use std::{
   collections::{HashMap, HashSet},
-  rc::Rc,
 };
+use std::sync::Arc;
 
 #[test]
 fn test_dfg_info() {
@@ -60,7 +60,7 @@ fn test_dfg_entropy() {
 #[test]
 fn test_dfg_entropy_with_noise() {
   let log = create_log_from_filter_out_chaotic_events_with_noise();
-  let ignored_events = HashSet::from_iter(vec![Rc::from("d"), Rc::from("v")]);
+  let ignored_events = HashSet::from_iter(vec![Arc::from("d"), Arc::from("v")]);
 
   let entropies = calculate_default_dfg_entropy(&log, Some(&ignored_events));
   let expected = HashMap::from_iter(vec![
@@ -90,7 +90,7 @@ fn test_dfg_laplace_entropy() {
 #[test]
 fn test_dfg_laplace_entropy_with_noise() {
   let log = create_log_from_filter_out_chaotic_events_with_noise();
-  let ignored_events = HashSet::from_iter(vec![Rc::from("d"), Rc::from("v")]);
+  let ignored_events = HashSet::from_iter(vec![Arc::from("d"), Arc::from("v")]);
 
   let entropies = calculate_laplace_dfg_entropy(&log, Some(&ignored_events));
 
@@ -109,10 +109,10 @@ fn test_pos_entropy() {
   let log = create_log_from_filter_out_chaotic_events();
   let entropies = calculate_pos_entropies(&log, &None);
   let expected = HashMap::from_iter(vec![
-    (Rc::from("c"), 0.2211099839259014),
-    (Rc::from("b"), 0.2211099839259014),
-    (Rc::from("x"), 0.3230075074711545),
-    (Rc::from("a"), 0.0),
+    (Arc::from("c"), 0.2211099839259014),
+    (Arc::from("b"), 0.2211099839259014),
+    (Arc::from("x"), 0.3230075074711545),
+    (Arc::from("a"), 0.0),
   ]);
 
   assert_eq!(entropies, expected);
@@ -121,14 +121,14 @@ fn test_pos_entropy() {
 #[test]
 fn test_pos_entropy_with_noise() {
   let log = create_log_from_filter_out_chaotic_events_with_noise();
-  let ignored_events = HashSet::from_iter(vec![Rc::from("d"), Rc::from("v")]);
+  let ignored_events = HashSet::from_iter(vec![Arc::from("d"), Arc::from("v")]);
 
   let entropies = calculate_pos_entropies(&log, &Some(ignored_events));
   let expected = HashMap::from_iter(vec![
-    (Rc::from("c"), 0.2211099839259014),
-    (Rc::from("b"), 0.2211099839259014),
-    (Rc::from("x"), 0.3230075074711545),
-    (Rc::from("a"), 0.0),
+    (Arc::from("c"), 0.2211099839259014),
+    (Arc::from("b"), 0.2211099839259014),
+    (Arc::from("x"), 0.3230075074711545),
+    (Arc::from("a"), 0.0),
   ]);
 
   assert_eq!(entropies, expected);
@@ -139,10 +139,10 @@ fn test_pos_entropy_fast() {
   let log = create_log_from_filter_out_chaotic_events();
   let entropies = calculate_pos_entropies_fast(&log, None);
   let expected = HashMap::from_iter(vec![
-    (Rc::from("c"), 0.2211099839259014),
-    (Rc::from("b"), 0.2211099839259014),
-    (Rc::from("x"), 0.3230075074711545),
-    (Rc::from("a"), 0.0),
+    (Arc::from("c"), 0.2211099839259014),
+    (Arc::from("b"), 0.2211099839259014),
+    (Arc::from("x"), 0.3230075074711545),
+    (Arc::from("a"), 0.0),
   ]);
 
   assert_eq!(entropies, expected);
@@ -151,14 +151,14 @@ fn test_pos_entropy_fast() {
 #[test]
 fn test_pos_entropy_fast_with_noise() {
   let log = create_log_from_filter_out_chaotic_events_with_noise();
-  let ignored_events = HashSet::from_iter(vec![Rc::from("d"), Rc::from("v")]);
+  let ignored_events = HashSet::from_iter(vec![Arc::from("d"), Arc::from("v")]);
 
   let entropies = calculate_pos_entropies_fast(&log, Some(&ignored_events));
   let expected = HashMap::from_iter(vec![
-    (Rc::from("c"), 0.2211099839259014),
-    (Rc::from("b"), 0.2211099839259014),
-    (Rc::from("x"), 0.3230075074711545),
-    (Rc::from("a"), 0.0),
+    (Arc::from("c"), 0.2211099839259014),
+    (Arc::from("b"), 0.2211099839259014),
+    (Arc::from("x"), 0.3230075074711545),
+    (Arc::from("a"), 0.0),
   ]);
 
   assert_eq!(entropies, expected);

@@ -10,6 +10,7 @@ use crate::{
 use lazy_static::lazy_static;
 use log::error;
 use std::{collections::HashMap, rc::Rc, str::FromStr};
+use std::sync::Arc;
 
 pub fn annotate_with_counts(
   log: &impl EventLog,
@@ -102,7 +103,7 @@ pub enum PerformanceAnnotationInfo {
 const PERFORMANCE_ANNOTATION_INFO: &str = "PERFORMANCE_ANNOTATION_INFO";
 context_key! { PERFORMANCE_ANNOTATION_INFO, PerformanceAnnotationInfo }
 
-pub type PerformanceMap = HashMap<(Rc<str>, Rc<str>), (f64, usize)>;
+pub type PerformanceMap = HashMap<(Arc<str>, Arc<str>), (f64, usize)>;
 
 pub fn create_performance_map(log: &impl EventLog) -> PerformanceMap {
   let mut performance_map = HashMap::new();
@@ -173,8 +174,8 @@ pub fn annotate_with_time_performance(log: &impl EventLog, graph: &DefaultGraph,
 
 fn try_get_time_annotation(
   performance_map: &PerformanceMap,
-  first_node: &GraphNode<Rc<str>>,
-  second_node: &GraphNode<Rc<str>>,
+  first_node: &GraphNode<Arc<str>>,
+  second_node: &GraphNode<Arc<str>>,
 ) -> Option<(f64, usize)> {
   if first_node.data.is_some() && second_node.data.is_some() {
     let key = (

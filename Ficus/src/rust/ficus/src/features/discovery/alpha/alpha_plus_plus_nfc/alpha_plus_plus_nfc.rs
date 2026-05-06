@@ -20,8 +20,8 @@ use crate::{
 };
 use std::{
   collections::{HashMap, HashSet, VecDeque},
-  rc::Rc,
 };
+use std::sync::Arc;
 
 pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> DefaultPetriNet {
   let one_length_loop_transitions = find_transitions_one_length_loop(log);
@@ -165,7 +165,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
   });
 
   let mut p_w = HashSet::new();
-  let check_should_add_to_pw = |two_sets: &TwoSets<Rc<str>>| {
+  let check_should_add_to_pw = |two_sets: &TwoSets<Arc<str>>| {
     for l_w_item in &l_w {
       if l_w_item.a_classes().eq(two_sets.first_set()) && l_w_item.b_classes().eq(two_sets.second_set()) {
         return false;
@@ -214,7 +214,7 @@ pub fn discover_petri_net_alpha_plus_plus_nfc<TLog: EventLog>(log: &TLog) -> Def
 }
 
 fn eliminate_by_reduction_rule_1<TLog: EventLog>(
-  w2_relations: &mut HashSet<(&Rc<str>, &Rc<str>)>,
+  w2_relations: &mut HashSet<(&Arc<str>, &Arc<str>)>,
   provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
   petri_net: &DefaultPetriNet,
   info: &OfflineEventLogInfo,

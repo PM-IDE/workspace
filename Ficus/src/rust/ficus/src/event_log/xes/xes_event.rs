@@ -2,9 +2,8 @@ use chrono::{DateTime, Utc};
 use std::{
   collections::HashMap,
   fmt::{Debug, Formatter},
-  rc::Rc,
 };
-
+use std::sync::Arc;
 use crate::{
   event_log::core::event::{
     event::{Event, EventPayloadValue},
@@ -18,7 +17,7 @@ use crate::{
 
 pub struct XesEventImpl {
   event_base: EventBase,
-  payload: Option<HashMap<Rc<str>, EventPayloadValue>>,
+  payload: Option<HashMap<Arc<str>, EventPayloadValue>>,
 }
 
 impl Debug for XesEventImpl {
@@ -28,7 +27,7 @@ impl Debug for XesEventImpl {
 }
 
 impl XesEventImpl {
-  pub fn new_all_fields(name: Rc<str>, timestamp: DateTime<Utc>, payload: Option<HashMap<Rc<str>, EventPayloadValue>>) -> Self {
+  pub fn new_all_fields(name: Arc<str>, timestamp: DateTime<Utc>, payload: Option<HashMap<Arc<str>, EventPayloadValue>>) -> Self {
     Self {
       event_base: EventBase::new(name, timestamp),
       payload,
@@ -53,18 +52,18 @@ impl UserDataOwner for XesEventImpl {
 }
 
 impl Event for XesEventImpl {
-  fn new(name: Rc<str>, timestamp: DateTime<Utc>) -> Self {
+  fn new(name: Arc<str>, timestamp: DateTime<Utc>) -> Self {
     Self {
       event_base: EventBase::new(name, timestamp),
       payload: None,
     }
   }
 
-  fn new_with_min_date(name: Rc<str>) -> Self {
+  fn new_with_min_date(name: Arc<str>) -> Self {
     Self::new(name, DateTime::<Utc>::MIN_UTC)
   }
 
-  fn new_with_max_date(name: Rc<str>) -> Self {
+  fn new_with_max_date(name: Arc<str>) -> Self {
     Self::new(name, DateTime::<Utc>::MAX_UTC)
   }
 
@@ -72,7 +71,7 @@ impl Event for XesEventImpl {
     &self.event_base.name
   }
 
-  fn name_pointer(&self) -> &Rc<str> {
+  fn name_pointer(&self) -> &Arc<str> {
     &self.event_base.name
   }
 
@@ -80,15 +79,15 @@ impl Event for XesEventImpl {
     &self.event_base.timestamp
   }
 
-  fn payload_map(&self) -> Option<&HashMap<Rc<str>, EventPayloadValue>> {
+  fn payload_map(&self) -> Option<&HashMap<Arc<str>, EventPayloadValue>> {
     self.payload.as_ref()
   }
 
-  fn payload_map_mut(&mut self) -> Option<&mut HashMap<Rc<str>, EventPayloadValue>> {
+  fn payload_map_mut(&mut self) -> Option<&mut HashMap<Arc<str>, EventPayloadValue>> {
     self.payload.as_mut()
   }
 
-  fn ordered_payload(&self) -> Vec<(&Rc<str>, &EventPayloadValue)> {
+  fn ordered_payload(&self) -> Vec<(&Arc<str>, &EventPayloadValue)> {
     let mut payload = Vec::new();
     if let Some(payload_map) = self.payload_map() {
       for (key, value) in payload_map {
@@ -102,7 +101,7 @@ impl Event for XesEventImpl {
     }
   }
 
-  fn set_name(&mut self, new_name: Rc<str>) {
+  fn set_name(&mut self, new_name: Arc<str>) {
     self.event_base.name = new_name;
   }
 
@@ -110,7 +109,7 @@ impl Event for XesEventImpl {
     self.event_base.timestamp = new_timestamp;
   }
 
-  fn add_or_update_payload(&mut self, key: Rc<str>, value: EventPayloadValue) {
+  fn add_or_update_payload(&mut self, key: Arc<str>, value: EventPayloadValue) {
     if self.payload.is_none() {
       self.payload = Some(HashMap::new());
     }

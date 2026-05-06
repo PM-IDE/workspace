@@ -1,8 +1,8 @@
 use crate::features::discovery::petri_net::{arc::PetriNetArc, ids::next_id};
 use std::{
   hash::{Hash, Hasher},
-  rc::Rc,
 };
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Transition<TTransitionData, TArcData>
@@ -10,7 +10,7 @@ where
   TTransitionData: ToString,
 {
   id: u64,
-  name: Rc<str>,
+  name: Arc<str>,
   silent_transition: bool,
   incoming_arcs: Vec<PetriNetArc<TArcData>>,
   outgoing_arcs: Vec<PetriNetArc<TArcData>>,
@@ -41,7 +41,7 @@ impl<TTransitionData, TArcData> Transition<TTransitionData, TArcData>
 where
   TTransitionData: ToString,
 {
-  pub fn empty(name: Rc<str>, silent_transition: bool, data: Option<TTransitionData>) -> Self {
+  pub fn empty(name: Arc<str>, silent_transition: bool, data: Option<TTransitionData>) -> Self {
     Self {
       id: next_id(),
       name,

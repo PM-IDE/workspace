@@ -18,6 +18,7 @@ use ficus::{
   vecs,
 };
 use std::{cell::RefCell, ops::Deref, rc::Rc};
+use std::sync::Arc;
 
 #[test]
 fn test_activity_instances() {
@@ -136,7 +137,7 @@ fn test_creating_new_log_from_activity_instances_insert_as_single_event() {
   execute_activities_discovery_test(
     create_log_from_taxonomy_of_patterns(),
     UndefActivityHandlingStrategy::InsertAsSingleEvent(Box::new(|| {
-      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Rc::from(
+      Rc::new(RefCell::new(XesEventImpl::new_with_min_date(Arc::from(
         UNDEF_ACTIVITY_NAME.to_string(),
       ))))
     })),
@@ -278,7 +279,7 @@ fn execute_activities_logs_creation_test(log: XesEventLogImpl, pattern_kind: Pat
   let mut activities_logs = activities_logs
     .iter()
     .map(|pair| (pair.0.to_owned(), pair.1.borrow().to_raw_vector()))
-    .collect::<Vec<(Rc<str>, Vec<Vec<String>>)>>();
+    .collect::<Vec<(Arc<str>, Vec<Vec<String>>)>>();
 
   activities_logs.sort_by(|first, second| first.0.cmp(&second.0));
 

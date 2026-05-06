@@ -38,12 +38,13 @@ use crate::{
 };
 use log::error;
 use std::{cell::RefCell, rc::Rc};
+use std::sync::Arc;
 
 pub fn abstract_event_groups(
   event_groups: Vec<Vec<EventGroup>>,
   labels: &[usize],
-  thread_attribute: Option<&Rc<str>>,
-  time_attribute: Option<&Rc<str>>,
+  thread_attribute: Option<&Arc<str>>,
+  time_attribute: Option<&Arc<str>>,
   config: &SoftwareDataExtractionConfig,
 ) -> Result<XesEventLogImpl, PipelinePartExecutionError> {
   let mut current_label_index = 0;
@@ -94,8 +95,8 @@ pub fn abstract_event_groups(
 fn create_abstracted_event(
   event_group: &EventGroup,
   label: &usize,
-  thread_attribute: Option<&Rc<str>>,
-  time_attribute: Option<&Rc<str>>,
+  thread_attribute: Option<&Arc<str>>,
+  time_attribute: Option<&Arc<str>>,
   event_coordinates: EventCoordinates,
   config: &SoftwareDataExtractionConfig,
   mut node_software_data: SoftwareData,
@@ -105,7 +106,7 @@ fn create_abstracted_event(
   let abstracted_event_stamp = *event_group.control_flow_events().last().unwrap().borrow().timestamp() - first_stamp;
   let abstracted_event_stamp = first_stamp + abstracted_event_stamp;
 
-  let label_name = Rc::from(label.to_string());
+  let label_name = Arc::from(label.to_string());
 
   let mut event = XesEventImpl::new_all_fields(label_name, abstracted_event_stamp, None);
 
@@ -217,10 +218,10 @@ fn extract_software_data(
   node_software_data: &mut SoftwareData,
   edge_software_data: &mut SoftwareData,
 ) -> Result<(), PipelinePartExecutionError> {
-  let edge_extractors: Vec<Rc<Box<dyn EventGroupSoftwareDataExtractor>>> = create_edge_software_data_extractors(config);
+  let edge_extractors: Vec<Arc<Box<dyn EventGroupSoftwareDataExtractor>>> = create_edge_software_data_extractors(config);
 
   let mut node_extractors = edge_extractors.clone();
-  node_extractors.push(Rc::new(Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))));
+  node_extractors.push(Arc::new(Box::new(EventClassesDataExtractor::new(thread_attribute, time_attribute))));
 
   for extractor in node_extractors {
     extractor
@@ -254,14 +255,14 @@ pub fn extract_edge_software_data(
 
 fn create_edge_software_data_extractors<'a>(
   config: &'a SoftwareDataExtractionConfig,
-) -> Vec<Rc<Box<dyn EventGroupSoftwareDataExtractor + 'a>>> {
+) -> Vec<Arc<Box<dyn EventGroupSoftwareDataExtractor + 'a>>> {
   vec![
-    Rc::new(Box::new(PieChartExtractor::<'a>::new(config))),
-    Rc::new(Box::new(SimpleCounterExtractor::<'a>::new(config))),
-    Rc::new(Box::new(OcelDataExtractor::<'a>::new(config))),
+    Arc::new(Box::new(PieChartExtractor::<'a>::new(config))),
+    Arc::new(Box::new(SimpleCounterExtractor::<'a>::new(config))),
+    Arc::new(Box::new(OcelDataExtractor::<'a>::new(config))),
   ]
 }
 
-fn create_trace_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Rc<Box<dyn EventGroupTraceSoftwareDataExtractor + 'a>>> {
-  vec![Rc::new(Box::new(ActivityDurationExtractor::<'a>::new(config)))]
+fn create_trace_extractors<'a>(config: &'a SoftwareDataExtractionConfig) -> Vec<Arc<Box<dyn EventGroupTraceSoftwareDataExtractor + 'a>>> {
+  vec![Arc::new(Box::new(ActivityDurationExtractor::<'a>::new(config)))]
 }

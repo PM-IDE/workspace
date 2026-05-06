@@ -24,6 +24,7 @@ use std::{
   rc::Rc,
   str::FromStr,
 };
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Getters, MutGetters, new)]
 pub struct ActivityInTraceInfo {
@@ -496,7 +497,7 @@ where
       for event in &underlying_events {
         execute_with_underlying_events(event, &mut |event| {
           let payload_value = EventPayloadValue::String(activity.node.borrow().id().clone());
-          let key = Rc::from(format!("hierarchy_level_{}", level));
+          let key = Arc::from(format!("hierarchy_level_{}", level));
           event.add_or_update_payload(key, payload_value);
         })
       }
@@ -586,15 +587,15 @@ where
 
 pub fn create_logs_for_activities(
   activities_source: &ActivitiesLogSource<XesEventLogImpl>,
-) -> HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>> {
+) -> HashMap<Arc<str>, Rc<RefCell<XesEventLogImpl>>> {
   match activities_source {
     ActivitiesLogSource::Log(log) => create_activities_logs_from_log(log),
     ActivitiesLogSource::TracesActivities(log, activities, level) => create_log_from_traces_activities(log, activities, *level),
   }
 }
 
-fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>> {
-  let mut activities_to_logs: HashMap<Rc<str>, Rc<RefCell<XesEventLogImpl>>> = HashMap::new();
+fn create_activities_logs_from_log(log: &XesEventLogImpl) -> HashMap<Arc<str>, Rc<RefCell<XesEventLogImpl>>> {
+  let mut activities_to_logs: HashMap<Arc<str>, Rc<RefCell<XesEventLogImpl>>> = HashMap::new();
 
   for trace in log.traces() {
     for event in trace.borrow().events() {
@@ -626,8 +627,8 @@ fn create_log_from_traces_activities<TLog: EventLog>(
   log: &TLog,
   activities: &[Vec<ActivityInTraceInfo>],
   activity_level: usize,
-) -> HashMap<Rc<str>, Rc<RefCell<TLog>>> {
-  let mut activities_to_logs: HashMap<Rc<str>, Rc<RefCell<TLog>>> = HashMap::new();
+) -> HashMap<Arc<str>, Rc<RefCell<TLog>>> {
+  let mut activities_to_logs: HashMap<Arc<str>, Rc<RefCell<TLog>>> = HashMap::new();
   for (trace_activities, trace) in activities.iter().zip(log.traces()) {
     let activity_handler = |activity_info: &ActivityInTraceInfo| {
       if activity_level != *activity_info.node.borrow().level() {

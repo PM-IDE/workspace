@@ -6,6 +6,7 @@ use ficus::event_log::{
   xes::{xes_event::XesEventImpl, xes_event_log::XesEventLogImpl},
 };
 use std::rc::Rc;
+use std::sync::Arc;
 
 #[test]
 fn test_simple_event_log_creation() {
@@ -17,7 +18,7 @@ fn test_simple_event_log_creation() {
 #[test]
 fn test_set_name() {
   let log = create_simple_event_log();
-  let value = Rc::<str>::from("ASDASD");
+  let value = Arc::<str>::from("ASDASD");
 
   execute_test_set_test(
     &log,

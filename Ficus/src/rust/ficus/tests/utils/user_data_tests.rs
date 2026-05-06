@@ -1,5 +1,5 @@
 use std::rc::Rc;
-
+use std::sync::Arc;
 use ficus::utils::user_data::{
   keys::DefaultKey,
   user_data::{UserData, UserDataImpl},
@@ -20,8 +20,8 @@ fn test_user_data() {
 
 #[test]
 fn test_user_data_two_keys() {
-  let first_key = DefaultKey::<Rc<Box<usize>>>::new("1".to_string());
-  let second_key = DefaultKey::<Rc<Box<usize>>>::new("2".to_string());
+  let first_key = DefaultKey::<Arc<Box<usize>>>::new("1".to_string());
+  let second_key = DefaultKey::<Arc<Box<usize>>>::new("2".to_string());
 
   let first_value = Rc::new(Box::new(123));
   let second_value = Rc::new(Box::new(321));
