@@ -25,7 +25,11 @@ use crate::{
 };
 use bxes_kafka::consumer::bxes_kafka_consumer::{BxesKafkaConsumer, BxesKafkaError, BxesKafkaTrace};
 use ficus::features::cases::CaseName;
+use ficus::pipelines::keys::context_keys::{
+  PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
+};
 use ficus::pipelines::{context::LogMessageHandler, pipeline_parts::PipelineParts};
+use ficus::utils::user_data::user_data::UserData;
 use log::{debug, error, warn};
 use rdkafka::{ClientConfig, error::KafkaError};
 use std::{
@@ -228,27 +232,30 @@ impl KafkaService {
 
       let trace_processing_context = KafkaTraceProcessingContext { execution_dto, trace };
 
-      if let Err(err) = pipeline.processor.observe(trace_processing_context) {
-        let message = format!("Failed to get update result, err: {}", err);
-        dto.logger.handle(message.as_str()).expect("Must log message");
-      } else {
-        let metadata = ProcessCaseMetadata {
-          pipeline_id: Some(*pipeline_id),
-          pipeline_name: Some(pipeline.name.clone().into()),
-          subscription_name: Some(dto.name.as_ref().into()),
-          subscription_id: Some(dto.uuid),
-          process_name: metadata.process.process_name,
-          metadata: metadata.unstructured_metadata,
-          case_name: CaseName {
-            display_name: metadata.case.case_display_name,
-            name_parts: metadata.case.case_name_parts,
-          },
-        };
+      match pipeline.processor.observe(trace_processing_context) {
+        Ok(..) => {
+          let metadata = ProcessCaseMetadata {
+            pipeline_id: Some(*pipeline_id),
+            pipeline_name: Some(pipeline.name.clone().into()),
+            subscription_name: Some(dto.name.as_ref().into()),
+            subscription_id: Some(dto.uuid),
+            process_name: metadata.process.process_name,
+            metadata: metadata.unstructured_metadata,
+            case_name: CaseName {
+              display_name: metadata.case.case_display_name,
+              name_parts: metadata.case.case_name_parts,
+            },
+          };
 
-        pipeline
-          .execution_dto
-          .events_handler
-          .handle(&PipelineEvent::ProcessCaseMetadata(metadata));
+          pipeline
+            .execution_dto
+            .events_handler
+            .handle(&PipelineEvent::ProcessCaseMetadata(metadata));
+        }
+        Err(err) => {
+          let message = format!("Failed to get update result, err: {}", err);
+          dto.logger.handle(&message).expect("Must log message");
+        }
       };
     }
   }
@@ -280,6 +287,12 @@ impl KafkaService {
     let result = context.execute_grpc_pipeline_and_fill_context_values(
       |context| {
         pipeline.processor.fill_pipeline_context(context, case_name);
+
+        context.put_concrete(SUBSCRIPTION_ID_KEY.key(), sub_id);
+        context.put_concrete(PIPELINE_ID_KEY.key(), pipeline_id);
+        context.put_concrete(SUBSCRIPTION_NAME_KEY.key(), kafka_subscription.name.as_ref().into());
+        context.put_concrete(PIPELINE_NAME_KEY.key(), pipeline.name.clone().into());
+
         Ok(())
       },
       self.cv_service.clone(),

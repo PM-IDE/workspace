@@ -126,7 +126,7 @@ impl DfgDataStructureBase {
 }
 
 #[derive(Clone)]
-pub(in crate::grpc::kafka::streaming::t2) struct DfgDataStructures {
+pub(super) struct DfgDataStructures {
   base: DfgDataStructureBase,
 }
 

@@ -2,6 +2,10 @@ use crate::grpc::{
   events::events_handler::PipelineEventsHandler, kafka::kafka_service::KafkaSubscription, logs_handler::ConsoleLogMessageHandler,
 };
 use bxes::models::domain::bxes_value::BxesValue;
+use ficus::features::cases::CaseName;
+use ficus::pipelines::context::PipelineContext;
+use ficus::pipelines::keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY};
+use ficus::utils::user_data::user_data::UserData;
 use ficus::{
   event_log::bxes::bxes_to_xes_converter::BxesToXesReadError,
   pipelines::{errors::pipeline_errors::PipelinePartExecutionError, pipeline_parts::PipelineParts},
@@ -101,6 +105,9 @@ pub(super) struct ExtractedTraceMetadata {
   pub unstructured_metadata: Vec<(Rc<str>, Rc<str>)>,
 }
 
+unsafe impl Send for ExtractedTraceMetadata {}
+unsafe impl Sync for ExtractedTraceMetadata {}
+
 impl ExtractedTraceMetadata {
   pub fn create_from(metadata: &HashMap<Rc<str>, Rc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     Ok(ExtractedTraceMetadata {
@@ -108,6 +115,18 @@ impl ExtractedTraceMetadata {
       case: CaseMetadata::create_from(metadata)?,
       unstructured_metadata: metadata_to_string_string_pairs(metadata),
     })
+  }
+
+  pub fn write_to_context(&self, context: &mut PipelineContext) {
+    context.put_concrete(PROCESS_NAME_KEY.key(), self.process.process_name.clone());
+    context.put_concrete(UNSTRUCTURED_METADATA_KEY.key(), self.unstructured_metadata.clone());
+    context.put_concrete(
+      CASE_NAME_KEY.key(),
+      CaseName {
+        display_name: self.case.case_display_name.clone(),
+        name_parts: self.case.case_name_parts.clone(),
+      },
+    );
   }
 }
 
