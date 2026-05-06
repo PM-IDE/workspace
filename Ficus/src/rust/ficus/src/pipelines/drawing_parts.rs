@@ -18,7 +18,7 @@ use crate::{
   },
 };
 use fancy_regex::Regex;
-use std::{collections::HashMap, rc::Rc, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 impl PipelineParts {
   pipeline_part!(traces_diversity_diagram, |context: &mut PipelineContext, _, _| {

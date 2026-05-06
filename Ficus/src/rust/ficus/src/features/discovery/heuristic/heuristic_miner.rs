@@ -12,7 +12,6 @@ use crate::{
 };
 use std::{
   collections::{HashMap, HashSet},
-  rc::Rc,
   sync::Arc,
 };
 

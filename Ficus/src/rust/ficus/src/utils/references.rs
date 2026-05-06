@@ -3,7 +3,6 @@ use std::{
   fmt::{Debug, Display, Formatter},
   hash::{Hash, Hasher},
   ops::Deref,
-  rc::Rc,
   sync::Arc,
 };
 
