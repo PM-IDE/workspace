@@ -230,6 +230,10 @@ function processTimeSpanString(str: string): string {
 }
 
 function createTimeSpanStringInternal(value: number, kind: GrpcDurationKind) {
+  if (!Number.isFinite(value)) {
+    return "0:0:0";
+  }
+
   switch (kind) {
     case GrpcDurationKind.Nanos:
       return TimeSpan.fromNanoseconds(BigInt(value)).toString();
@@ -246,6 +250,6 @@ function createTimeSpanStringInternal(value: number, kind: GrpcDurationKind) {
     case GrpcDurationKind.Days:
       return TimeSpan.fromDays(value).toString();
     default:
-      console.error("Not supported timespan ")
+      console.error("Not supported timespan")
   }
 }

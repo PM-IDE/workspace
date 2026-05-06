@@ -53,9 +53,8 @@ export interface ProtoGrpcType {
     GrpcFrequenciesAnnotation: MessageTypeDefinition
     GrpcGeneralHistogramData: MessageTypeDefinition
     GrpcGenericEnhancementBase: MessageTypeDefinition
-    GrpcGetAllContextValuesResult: MessageTypeDefinition
     GrpcGetAllSubscriptionsAndPipelinesResponse: MessageTypeDefinition
-    GrpcGetContextValueRequest: MessageTypeDefinition
+    GrpcGetCurrentContextValuesRequest: MessageTypeDefinition
     GrpcGraph: MessageTypeDefinition
     GrpcGraphEdge: MessageTypeDefinition
     GrpcGraphEdgeAdditionalData: MessageTypeDefinition

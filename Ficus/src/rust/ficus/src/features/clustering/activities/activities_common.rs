@@ -1,12 +1,12 @@
+use linfa::DatasetBase;
+use ndarray::Array2;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
   vec,
 };
-
-use linfa::DatasetBase;
-use ndarray::Array2;
 
 use super::activities_params::{ActivitiesVisualizationParams, ActivityRepresentationSource};
 use crate::{
@@ -146,7 +146,7 @@ fn create_activities_repr_from_subtraces(
 
 fn create_dataset_internal(
   traces_activities: &TracesActivities,
-  class_extractor: Option<Rc<str>>,
+  class_extractor: Option<Arc<str>>,
   activities_repr_fullfiller: impl Fn(
     &Vec<Vec<ActivityInTraceInfo>>,
     Option<&RegexEventHasher>,

@@ -9,8 +9,8 @@ use ficus::{
     context::{PipelineContext, PipelineInfrastructure},
     errors::pipeline_errors::{MissingContextError, PipelinePartExecutionError, RawPartExecutionError},
     keys::context_keys::{
-      find_context_key, CASE_NAME_KEY, EXECUTION_ID_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY,
-      SUBSCRIPTION_NAME_KEY, UNSTRUCTURED_METADATA_KEY,
+      CASE_NAME_KEY, EXECUTION_ID_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY,
+      UNSTRUCTURED_METADATA_KEY, find_context_key,
     },
     pipelines::{DefaultPipelinePart, PipelinePart},
   },
@@ -44,7 +44,7 @@ impl GetContextValuePipelinePart {
     keys: Vec<String>,
     uuid: Uuid,
     pipeline_part_name: String,
-    sender: Arc<Box<dyn PipelineEventsHandler>>,
+    sender: Arc<dyn PipelineEventsHandler>,
     before_part: Option<Box<DefaultPipelinePart>>,
   ) -> Box<GetContextValuePipelinePart> {
     Box::new(GetContextValuePipelinePart::new(
@@ -63,7 +63,7 @@ impl GetContextValuePipelinePart {
           None => {
             return Err(PipelinePartExecutionError::Raw(RawPartExecutionError::new(
               "Execution ID is not supplied".to_string(),
-            )))
+            )));
           }
           Some(execution_id) => execution_id,
         };
@@ -128,7 +128,7 @@ impl GetContextValuePipelinePart {
         None => {
           return Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(
             key.key().name().clone(),
-          )))
+          )));
         }
       }
     }
@@ -146,7 +146,7 @@ impl PipelinePart for GetContextValuePipelinePart {
         None => {
           return Err(PipelinePartExecutionError::MissingContext(MissingContextError::new(
             key_name.clone(),
-          )))
+          )));
         }
       }
     }

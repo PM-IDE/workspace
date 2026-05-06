@@ -2,11 +2,11 @@ use crate::{
   binary_rw::core::BinaryReader,
   models::{domain::bxes_value::BxesValue, system_models::SystemMetadata},
 };
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Default)]
 pub struct ReadMetadata {
-  pub values: Option<Vec<Rc<BxesValue>>>,
+  pub values: Option<Vec<Arc<BxesValue>>>,
   pub kv_pairs: Option<Vec<(u32, u32)>>,
   pub system_metadata: Option<SystemMetadata>,
 }

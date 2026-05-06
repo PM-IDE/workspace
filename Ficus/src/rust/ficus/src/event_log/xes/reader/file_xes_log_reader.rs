@@ -1,12 +1,12 @@
+use quick_xml::{Reader, events::BytesStart};
 use std::{
   cell::RefCell,
   collections::HashMap,
   fs::File,
   io::{BufRead, BufReader, Cursor, Read},
   rc::Rc,
+  sync::Arc,
 };
-
-use quick_xml::{Reader, events::BytesStart};
 
 use crate::event_log::{
   core::event::event::EventPayloadValue,
@@ -52,7 +52,7 @@ impl<'a> BufRead for XmlReader<'a> {
 pub struct FromFileXesEventLogReader<'a> {
   storage: Rc<RefCell<Vec<u8>>>,
   reader: Rc<RefCell<Reader<XmlReader<'a>>>>,
-  seen_globals: Rc<RefCell<HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>>>,
+  seen_globals: Rc<RefCell<HashMap<Arc<str>, HashMap<Arc<str>, EventPayloadValue>>>>,
 }
 
 pub enum XesEventLogItem<'a> {
@@ -152,8 +152,8 @@ impl<'a> FromFileXesEventLogReader<'a> {
     Some(Self::create_quickxml_reader(XmlReader::FileReader(BufReader::new(file))))
   }
 
-  fn try_read_scope_name(tag: &BytesStart) -> Option<Rc<str>> {
-    let mut scope_name: Option<Rc<str>> = None;
+  fn try_read_scope_name(tag: &BytesStart) -> Option<Arc<str>> {
+    let mut scope_name: Option<Arc<str>> = None;
 
     for attr in tag.attributes() {
       match attr {
@@ -199,8 +199,8 @@ impl<'a> FromFileXesEventLogReader<'a> {
     }
   }
 
-  fn try_read_global(reader: &mut Reader<XmlReader>, storage: &mut Vec<u8>) -> Option<HashMap<Rc<str>, EventPayloadValue>> {
-    let mut map: Option<HashMap<Rc<str>, EventPayloadValue>> = None;
+  fn try_read_global(reader: &mut Reader<XmlReader>, storage: &mut Vec<u8>) -> Option<HashMap<Arc<str>, EventPayloadValue>> {
+    let mut map: Option<HashMap<Arc<str>, EventPayloadValue>> = None;
 
     loop {
       match reader.read_event_into(storage) {
@@ -230,8 +230,8 @@ impl<'a> FromFileXesEventLogReader<'a> {
   }
 
   fn try_read_classifier(tag: &BytesStart) -> Option<XesClassifier> {
-    let mut name: Option<Rc<str>> = None;
-    let mut keys: Option<Vec<Rc<str>>> = None;
+    let mut name: Option<Arc<str>> = None;
+    let mut keys: Option<Vec<Arc<str>>> = None;
 
     for attr in tag.attributes() {
       match attr {
@@ -242,7 +242,7 @@ impl<'a> FromFileXesEventLogReader<'a> {
             }
           }
           KEYS_ATTR_NAME => match String::from_utf8(real_attr.value.into_owned()) {
-            Ok(keys_string) => keys = Some(keys_string.split(" ").map(|s| Rc::from(s.to_owned())).collect()),
+            Ok(keys_string) => keys = Some(keys_string.split(" ").map(|s| Arc::from(s.to_owned())).collect()),
             Err(_) => return None,
           },
           _ => continue,
@@ -262,9 +262,9 @@ impl<'a> FromFileXesEventLogReader<'a> {
   }
 
   fn try_read_extension(tag: &BytesStart) -> Option<XesEventLogExtension> {
-    let mut name: Option<Rc<str>> = None;
-    let mut prefix: Option<Rc<str>> = None;
-    let mut uri: Option<Rc<str>> = None;
+    let mut name: Option<Arc<str>> = None;
+    let mut prefix: Option<Arc<str>> = None;
+    let mut uri: Option<Arc<str>> = None;
 
     for attr in tag.attributes() {
       match attr {

@@ -1,5 +1,5 @@
 use crate::{
-  ficus_proto::{grpc_t1_streaming_configuration::Configuration, GrpcT1StreamingConfiguration},
+  ficus_proto::{GrpcT1StreamingConfiguration, grpc_t1_streaming_configuration::Configuration},
   grpc::kafka::streaming::t1::processors::T1StreamingProcessor,
 };
 use ficus::features::streaming::t1::{

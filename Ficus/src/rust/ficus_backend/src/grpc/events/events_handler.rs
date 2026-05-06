@@ -42,4 +42,5 @@ pub enum PipelineEvent<'a> {
   GetContextValuesEvent(GetContextValuesEvent<'a>),
   LogMessage(String),
   FinalResult(PipelineFinalResult),
+  ProcessCaseMetadata(ProcessCaseMetadata),
 }

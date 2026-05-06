@@ -197,18 +197,23 @@ func executePipeline(t *testing.T, balancerBackend string, cvId *grpcmodels.Grpc
 
 			snaps.MatchSnapshot(t, string(jsonResults))
 
-			executionId := lastResult.GetFinalResult().GetSuccess()
-			cvIds, err := client.GetAllContextValues(context.Background(), executionId)
-			assert.Nil(t, err)
-			assert.Len(t, cvIds.ContextValues, 2)
+			return grpcmodels.ExecuteWithContextValuesClient(
+				balancerBackend,
+				func(cvClient grpcmodels.GrpcContextValuesServiceClient) result.Result[void.Void] {
+					executionId := lastResult.GetFinalResult().GetSuccess()
+					cvIds, err := cvClient.GetAllContextValuesIds(context.Background(), executionId)
+					assert.Nil(t, err)
+					assert.Len(t, cvIds.ContextValues, 2)
 
-			_, err = client.DropExecutionResult(context.Background(), executionId)
-			assert.Nil(t, err)
+					_, err = client.DropExecutionResult(context.Background(), executionId)
+					assert.Nil(t, err)
 
-			cvIds, err = client.GetAllContextValues(context.Background(), executionId)
-			assert.NotNil(t, err)
+					cvIds, err = cvClient.GetAllContextValuesIds(context.Background(), executionId)
+					assert.NotNil(t, err)
 
-			return result.Ok(void.Instance)
+					return result.Ok(void.Instance)
+				},
+			)
 		},
 	)
 }

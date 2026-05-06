@@ -64,6 +64,26 @@ class GrpcContextValuesServiceStub(object):
 
                 )
 
+        self.GetContextValueId = channel.unary_unary(
+
+                '/ficus.GrpcContextValuesService/GetContextValueId',
+
+                request_serializer=context__values__service__pb2.GrpcGetContextValueRequest.SerializeToString,
+
+                response_deserializer=util__pb2.GrpcGuid.FromString,
+
+                )
+
+        self.GetAllContextValuesIds = channel.unary_unary(
+
+                '/ficus.GrpcContextValuesService/GetAllContextValuesIds',
+
+                request_serializer=util__pb2.GrpcGuid.SerializeToString,
+
+                response_deserializer=context__values__service__pb2.GrpcGetAllContextValuesResult.FromString,
+
+                )
+
 
 
 
@@ -110,6 +130,30 @@ class GrpcContextValuesServiceServicer(object):
 
 
 
+    def GetContextValueId(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
+    def GetAllContextValuesIds(self, request, context):
+
+        """Missing associated documentation comment in .proto file."""
+
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+
+        context.set_details('Method not implemented!')
+
+        raise NotImplementedError('Method not implemented!')
+
+
+
 
 
 def add_GrpcContextValuesServiceServicer_to_server(servicer, server):
@@ -143,6 +187,26 @@ def add_GrpcContextValuesServiceServicer_to_server(servicer, server):
                     request_deserializer=context__values__service__pb2.GrpcDropContextValuesRequest.FromString,
 
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+
+            ),
+
+            'GetContextValueId': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.GetContextValueId,
+
+                    request_deserializer=context__values__service__pb2.GrpcGetContextValueRequest.FromString,
+
+                    response_serializer=util__pb2.GrpcGuid.SerializeToString,
+
+            ),
+
+            'GetAllContextValuesIds': grpc.unary_unary_rpc_method_handler(
+
+                    servicer.GetAllContextValuesIds,
+
+                    request_deserializer=util__pb2.GrpcGuid.FromString,
+
+                    response_serializer=context__values__service__pb2.GrpcGetAllContextValuesResult.SerializeToString,
 
             ),
 
@@ -261,6 +325,74 @@ class GrpcContextValuesService(object):
             context__values__service__pb2.GrpcDropContextValuesRequest.SerializeToString,
 
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def GetContextValueId(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcContextValuesService/GetContextValueId',
+
+            context__values__service__pb2.GrpcGetContextValueRequest.SerializeToString,
+
+            util__pb2.GrpcGuid.FromString,
+
+            options, channel_credentials,
+
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+
+    @staticmethod
+
+    def GetAllContextValuesIds(request,
+
+            target,
+
+            options=(),
+
+            channel_credentials=None,
+
+            call_credentials=None,
+
+            insecure=False,
+
+            compression=None,
+
+            wait_for_ready=None,
+
+            timeout=None,
+
+            metadata=None):
+
+        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcContextValuesService/GetAllContextValuesIds',
+
+            util__pb2.GrpcGuid.SerializeToString,
+
+            context__values__service__pb2.GrpcGetAllContextValuesResult.FromString,
 
             options, channel_credentials,
 

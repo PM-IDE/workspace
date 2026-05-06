@@ -12,6 +12,9 @@ public record ContextWithSolution(KnownSolution Solution, CollectClrEventsFromEx
 
 public abstract class TestWithContainerBase
 {
+  protected static IEnumerable<ContextWithSolution> AsyncDefaultContexts() =>
+    KnownSolution.AsyncSolutions.Select(s => new ContextWithSolution(s, s.CreateDefaultContext()));
+
   protected static IEnumerable<ContextWithSolution> DefaultContexts() =>
     KnownSolution.AllSolutions.Select(s => new ContextWithSolution(s, s.CreateDefaultContext()));
 

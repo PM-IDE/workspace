@@ -1,5 +1,3 @@
-use std::{fmt::Display, rc::Rc};
-
 use super::conversions::{parse_entity_kind, payload_value_to_bxes_value};
 use crate::event_log::{
   core::{
@@ -24,6 +22,7 @@ use bxes::{
     writer_utils::BxesLogWriteData,
   },
 };
+use std::{fmt::Display, sync::Arc};
 
 pub enum XesToBxesWriterError {
   BxesWriteError(BxesWriteError),
@@ -98,7 +97,7 @@ fn create_bxes_traces(log: &XesEventLogImpl) -> Vec<BxesTraceVariant> {
 
 fn create_bxes_event(log: &XesEventLogImpl, event: &XesEventImpl) -> BxesEvent {
   BxesEvent {
-    name: Rc::new(BxesValue::String(event.name_pointer().clone())),
+    name: Arc::new(BxesValue::String(event.name_pointer().clone())),
     timestamp: event.timestamp().timestamp_nanos_opt().expect("timestamp_nanos_opt"),
     attributes: Some(
       event
@@ -111,7 +110,7 @@ fn create_bxes_event(log: &XesEventLogImpl, event: &XesEventImpl) -> BxesEvent {
   }
 }
 
-fn is_not_default_attribute(log: &XesEventLogImpl, kv: &(&Rc<str>, &EventPayloadValue)) -> bool {
+fn is_not_default_attribute(log: &XesEventLogImpl, kv: &(&Arc<str>, &EventPayloadValue)) -> bool {
   if let Some(event_globals) = log.globals_map().get(EVENT_TAG_NAME_STR) {
     if let Some(default_value) = event_globals.get(kv.0) {
       default_value != kv.1
@@ -128,8 +127,8 @@ fn create_bxes_classifiers(log: &XesEventLogImpl) -> Vec<BxesClassifier> {
     .classifiers()
     .iter()
     .map(|c| BxesClassifier {
-      keys: c.keys.iter().map(|x| Rc::new(BxesValue::String(x.to_owned()))).collect(),
-      name: Rc::new(BxesValue::String(c.name.to_owned())),
+      keys: c.keys.iter().map(|x| Arc::new(BxesValue::String(x.to_owned()))).collect(),
+      name: Arc::new(BxesValue::String(c.name.to_owned())),
     })
     .collect()
 }
@@ -140,9 +139,9 @@ fn create_bxes_extensions(log: &XesEventLogImpl) -> Vec<BxesExtension> {
 
 fn convert_to_bxes_extension(e: &XesEventLogExtension) -> BxesExtension {
   BxesExtension {
-    name: Rc::new(BxesValue::String(e.name.to_owned())),
-    prefix: Rc::new(BxesValue::String(e.prefix.to_owned())),
-    uri: Rc::new(BxesValue::String(e.uri.to_owned())),
+    name: Arc::new(BxesValue::String(e.name.to_owned())),
+    prefix: Arc::new(BxesValue::String(e.prefix.to_owned())),
+    uri: Arc::new(BxesValue::String(e.uri.to_owned())),
   }
 }
 
@@ -158,14 +157,14 @@ fn create_bxes_globals(log: &XesEventLogImpl) -> Result<Vec<BxesGlobal>, XesToBx
   Ok(globals)
 }
 
-fn convert_to_bxes_global_attribute(kv: &(&Rc<str>, &EventPayloadValue)) -> (Rc<BxesValue>, Rc<BxesValue>) {
-  let key = Rc::new(BxesValue::String(kv.0.to_owned()));
-  let value = Rc::new(payload_value_to_bxes_value(kv.1));
+fn convert_to_bxes_global_attribute(kv: &(&Arc<str>, &EventPayloadValue)) -> (Arc<BxesValue>, Arc<BxesValue>) {
+  let key = Arc::new(BxesValue::String(kv.0.clone()));
+  let value = Arc::new(payload_value_to_bxes_value(kv.1));
 
   (key, value)
 }
 
-fn create_bxes_properties(log: &XesEventLogImpl) -> Vec<(Rc<BxesValue>, Rc<BxesValue>)> {
+fn create_bxes_properties(log: &XesEventLogImpl) -> Vec<(Arc<BxesValue>, Arc<BxesValue>)> {
   log
     .properties_map()
     .iter()
@@ -173,9 +172,9 @@ fn create_bxes_properties(log: &XesEventLogImpl) -> Vec<(Rc<BxesValue>, Rc<BxesV
     .collect()
 }
 
-fn kv_pair_to_bxes_pair(kv: &(&Rc<str>, &EventPayloadValue)) -> (Rc<BxesValue>, Rc<BxesValue>) {
+fn kv_pair_to_bxes_pair(kv: &(&Arc<str>, &EventPayloadValue)) -> (Arc<BxesValue>, Arc<BxesValue>) {
   let bxes_value = payload_value_to_bxes_value(kv.1);
-  let key = Rc::new(BxesValue::String(kv.0.to_owned()));
+  let key = Arc::new(BxesValue::String(kv.0.clone()));
 
-  (key, Rc::new(bxes_value))
+  (key, Arc::new(bxes_value))
 }

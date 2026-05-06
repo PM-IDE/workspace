@@ -6,7 +6,7 @@ use crate::{
   },
   utils::{hash_utils::compare_based_on_hashes, sets::two_sets::TwoSets},
 };
-use std::rc::Rc;
+use std::sync::Arc;
 pub use std::{
   collections::BTreeSet,
   fmt::Display,
@@ -14,13 +14,13 @@ pub use std::{
 };
 
 pub(crate) struct AlphaPlusPlusNfcTriple {
-  a_classes: BTreeSet<Rc<str>>,
-  b_classes: BTreeSet<Rc<str>>,
-  c_classes: BTreeSet<Rc<str>>,
+  a_classes: BTreeSet<Arc<str>>,
+  b_classes: BTreeSet<Arc<str>>,
+  c_classes: BTreeSet<Arc<str>>,
 }
 
 impl AlphaPlusPlusNfcTriple {
-  pub fn new(a_class: Rc<str>, b_class: Rc<str>, c_class: Rc<str>) -> Self {
+  pub fn new(a_class: Arc<str>, b_class: Arc<str>, c_class: Arc<str>) -> Self {
     Self {
       a_classes: BTreeSet::from_iter(vec![a_class]),
       b_classes: BTreeSet::from_iter(vec![b_class]),
@@ -29,9 +29,9 @@ impl AlphaPlusPlusNfcTriple {
   }
 
   pub fn try_new<TLog: EventLog>(
-    a_class: Rc<str>,
-    b_class: Rc<str>,
-    c_class: Rc<str>,
+    a_class: Arc<str>,
+    b_class: Arc<str>,
+    c_class: Arc<str>,
     provider: &AlphaPlusNfcRelationsProvider<'_, TLog>,
   ) -> Option<Self> {
     let candidate = Self::new(a_class, b_class, c_class);
@@ -42,8 +42,9 @@ impl AlphaPlusPlusNfcTriple {
   }
 
   pub fn try_merge<TLog: EventLog>(first: &Self, second: &Self, provider: &AlphaPlusNfcRelationsProvider<'_, TLog>) -> Option<Self> {
-    let merge_sets =
-      |first: &BTreeSet<Rc<str>>, second: &BTreeSet<Rc<str>>| -> BTreeSet<Rc<str>> { first.iter().chain(second.iter()).cloned().collect() };
+    let merge_sets = |first: &BTreeSet<Arc<str>>, second: &BTreeSet<Arc<str>>| -> BTreeSet<Arc<str>> {
+      first.iter().chain(second.iter()).cloned().collect()
+    };
 
     let new_triple = Self {
       a_classes: merge_sets(&first.a_classes, &second.a_classes),
@@ -83,25 +84,25 @@ impl AlphaPlusPlusNfcTriple {
     true
   }
 
-  pub fn two_sets(&self) -> TwoSets<Rc<str>> {
+  pub fn two_sets(&self) -> TwoSets<Arc<str>> {
     let first = self.a_classes.iter().chain(self.c_classes.iter());
     let second = self.b_classes.iter().chain(self.c_classes.iter());
 
     TwoSets::new(first.cloned().collect(), second.cloned().collect())
   }
 
-  pub fn a_classes(&self) -> &BTreeSet<Rc<str>> {
+  pub fn a_classes(&self) -> &BTreeSet<Arc<str>> {
     &self.a_classes
   }
 
-  pub fn b_classes(&self) -> &BTreeSet<Rc<str>> {
+  pub fn b_classes(&self) -> &BTreeSet<Arc<str>> {
     &self.b_classes
   }
 }
 
 impl Hash for AlphaPlusPlusNfcTriple {
   fn hash<H: Hasher>(&self, state: &mut H) {
-    let mut hash_classes = |set: &BTreeSet<Rc<str>>| {
+    let mut hash_classes = |set: &BTreeSet<Arc<str>>| {
       for class in set {
         state.write(class.as_bytes());
       }
@@ -136,7 +137,7 @@ impl Display for AlphaPlusPlusNfcTriple {
     let mut repr = String::new();
     repr.push('(');
 
-    let mut push_set = |set: &BTreeSet<Rc<str>>| {
+    let mut push_set = |set: &BTreeSet<Arc<str>>| {
       repr.push('{');
 
       for class in set.iter() {

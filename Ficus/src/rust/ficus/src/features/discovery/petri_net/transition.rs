@@ -1,7 +1,7 @@
-use crate::features::discovery::petri_net::{arc::Arc, ids::next_id};
+use crate::features::discovery::petri_net::{arc::PetriNetArc, ids::next_id};
 use std::{
   hash::{Hash, Hasher},
-  rc::Rc,
+  sync::Arc,
 };
 
 #[derive(Debug)]
@@ -10,10 +10,10 @@ where
   TTransitionData: ToString,
 {
   id: u64,
-  name: Rc<str>,
+  name: Arc<str>,
   silent_transition: bool,
-  incoming_arcs: Vec<Arc<TArcData>>,
-  outgoing_arcs: Vec<Arc<TArcData>>,
+  incoming_arcs: Vec<PetriNetArc<TArcData>>,
+  outgoing_arcs: Vec<PetriNetArc<TArcData>>,
   data: Option<TTransitionData>,
 }
 
@@ -41,7 +41,7 @@ impl<TTransitionData, TArcData> Transition<TTransitionData, TArcData>
 where
   TTransitionData: ToString,
 {
-  pub fn empty(name: Rc<str>, silent_transition: bool, data: Option<TTransitionData>) -> Self {
+  pub fn empty(name: Arc<str>, silent_transition: bool, data: Option<TTransitionData>) -> Self {
     Self {
       id: next_id(),
       name,
@@ -53,18 +53,18 @@ where
   }
 
   pub fn add_incoming_arc(&mut self, place_id: &u64, data: Option<TArcData>) {
-    self.incoming_arcs.push(Arc::new(*place_id, data))
+    self.incoming_arcs.push(PetriNetArc::new(*place_id, data))
   }
 
   pub fn add_outgoing_arc(&mut self, place_id: &u64, data: Option<TArcData>) {
-    self.outgoing_arcs.push(Arc::new(*place_id, data))
+    self.outgoing_arcs.push(PetriNetArc::new(*place_id, data))
   }
 
-  pub fn remove_incoming_arc(&mut self, arc_index: usize) -> Arc<TArcData> {
+  pub fn remove_incoming_arc(&mut self, arc_index: usize) -> PetriNetArc<TArcData> {
     self.incoming_arcs.remove(arc_index)
   }
 
-  pub fn remove_outgoing_arc(&mut self, arc_index: usize) -> Arc<TArcData> {
+  pub fn remove_outgoing_arc(&mut self, arc_index: usize) -> PetriNetArc<TArcData> {
     self.outgoing_arcs.remove(arc_index)
   }
 
@@ -72,11 +72,11 @@ where
     self.id
   }
 
-  pub fn incoming_arcs(&self) -> &Vec<Arc<TArcData>> {
+  pub fn incoming_arcs(&self) -> &Vec<PetriNetArc<TArcData>> {
     &self.incoming_arcs
   }
 
-  pub fn outgoing_arcs(&self) -> &Vec<Arc<TArcData>> {
+  pub fn outgoing_arcs(&self) -> &Vec<PetriNetArc<TArcData>> {
     &self.outgoing_arcs
   }
 

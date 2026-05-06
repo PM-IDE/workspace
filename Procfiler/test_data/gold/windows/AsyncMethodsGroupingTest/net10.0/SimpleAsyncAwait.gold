@@ -1,0 +1,36 @@
+ASYNC_SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d
+Trace:
+	[start] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
+	[ end ] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
+
+
+ASYNC_SimpleAsyncAwait.Program+<Main>d__0
+Trace:
+	[start] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
+		[start] SimpleAsyncAwait.Program.Allocate1[class.SimpleAsyncAwait.Class1..()]
+			[start] SimpleAsyncAwait.Class1..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Class1..ctor[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program.Allocate1[class.SimpleAsyncAwait.Class1..()]
+		[start] SimpleAsyncAwait.Program+<>c..cctor[void..()]
+			[start] SimpleAsyncAwait.Program+<>c..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Program+<>c..ctor[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program+<>c..cctor[void..()]
+	[ end ] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
+	[start] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
+		[start] SimpleAsyncAwait.Program.Allocate2[class.SimpleAsyncAwait.Class2..()]
+			[start] SimpleAsyncAwait.Class2..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Class2..ctor[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program.Allocate2[class.SimpleAsyncAwait.Class2..()]
+		[start] SimpleAsyncAwait.Program.<Main>g__Foo|0_1[class.System.Threading.Tasks.Task`1<int32>..()]
+			[start] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d..ctor[instance.void..()]
+			[start] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
+			[ end ] SimpleAsyncAwait.Program+<<Main>g__Foo|0_1>d.MoveNext[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program.<Main>g__Foo|0_1[class.System.Threading.Tasks.Task`1<int32>..()]
+		[start] SimpleAsyncAwait.Program.Allocate3[class.SimpleAsyncAwait.Class3..()]
+			[start] SimpleAsyncAwait.Class3..ctor[instance.void..()]
+			[ end ] SimpleAsyncAwait.Class3..ctor[instance.void..()]
+		[ end ] SimpleAsyncAwait.Program.Allocate3[class.SimpleAsyncAwait.Class3..()]
+	[ end ] SimpleAsyncAwait.Program+<Main>d__0.MoveNext[instance.void..()]
+
+

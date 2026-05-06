@@ -1,27 +1,27 @@
 use std::{
   collections::{HashMap, HashSet},
-  rc::Rc,
+  sync::Arc,
 };
 
 pub trait DfgInfo {
   fn get_directly_follows_count(&self, first: &str, second: &str) -> usize;
   fn is_in_directly_follows_relation(&self, left: &str, right: &str) -> bool;
-  fn get_followed_events(&self, event_class: &str) -> Option<&HashMap<Rc<str>, usize>>;
-  fn get_precedes_events(&self, event_class: &str) -> Option<&HashMap<Rc<str>, usize>>;
+  fn get_followed_events(&self, event_class: &str) -> Option<&HashMap<Arc<str>, usize>>;
+  fn get_precedes_events(&self, event_class: &str) -> Option<&HashMap<Arc<str>, usize>>;
   fn is_event_with_single_follower(&self, event_class: &str) -> bool;
 }
 
 #[derive(Debug)]
 pub struct OfflineDfgInfo {
-  pub(super) followed_events: HashMap<Rc<str>, HashMap<Rc<str>, usize>>,
-  pub(super) precedes_events: HashMap<Rc<str>, HashMap<Rc<str>, usize>>,
-  pub(super) events_with_single_follower: HashSet<Rc<str>>,
+  pub(super) followed_events: HashMap<Arc<str>, HashMap<Arc<str>, usize>>,
+  pub(super) precedes_events: HashMap<Arc<str>, HashMap<Arc<str>, usize>>,
+  pub(super) events_with_single_follower: HashSet<Arc<str>>,
 }
 
 impl OfflineDfgInfo {
-  pub fn create_from_relations(relations: &HashMap<(Rc<str>, Rc<str>), u64>) -> OfflineDfgInfo {
-    let mut followed_events: HashMap<Rc<str>, HashMap<Rc<str>, usize>> = HashMap::new();
-    let mut precedes_events: HashMap<Rc<str>, HashMap<Rc<str>, usize>> = HashMap::new();
+  pub fn create_from_relations(relations: &HashMap<(Arc<str>, Arc<str>), u64>) -> OfflineDfgInfo {
+    let mut followed_events: HashMap<Arc<str>, HashMap<Arc<str>, usize>> = HashMap::new();
+    let mut precedes_events: HashMap<Arc<str>, HashMap<Arc<str>, usize>> = HashMap::new();
     let mut events_with_single_follower = HashSet::new();
 
     for (relation, count) in relations {
@@ -69,14 +69,14 @@ impl DfgInfo for OfflineDfgInfo {
     }
   }
 
-  fn get_followed_events(&self, event_class: &str) -> Option<&HashMap<Rc<str>, usize>> {
+  fn get_followed_events(&self, event_class: &str) -> Option<&HashMap<Arc<str>, usize>> {
     match self.followed_events.get(event_class) {
       Some(followers_counts) => Some(followers_counts),
       None => None,
     }
   }
 
-  fn get_precedes_events(&self, event_class: &str) -> Option<&HashMap<Rc<str>, usize>> {
+  fn get_precedes_events(&self, event_class: &str) -> Option<&HashMap<Arc<str>, usize>> {
     match self.precedes_events.get(event_class) {
       Some(followers_counts) => Some(followers_counts),
       None => None,

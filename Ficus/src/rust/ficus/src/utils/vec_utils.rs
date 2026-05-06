@@ -1,6 +1,6 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
-pub fn sort_by_first<TValue>(vec: &mut Vec<(&Rc<str>, TValue)>) {
+pub fn sort_by_first<TValue>(vec: &mut Vec<(&Arc<str>, TValue)>) {
   vec.sort_by(|first, second| first.0.partial_cmp(second.0).unwrap());
 }
 

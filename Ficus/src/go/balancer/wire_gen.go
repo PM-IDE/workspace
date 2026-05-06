@@ -25,7 +25,7 @@ func BuildContainer() *Container {
 	pipelineExecutor := executor.NewPipelineExecutor(backendsInfo, storage)
 	executionPlanner := plan.NewExecutionPlanner(backendsInfo)
 	backendServiceServer := services.NewBackendServiceServer(backendsInfo, pipelineExecutor, executionPlanner, sugaredLogger)
-	contextValuesServiceServer := services.NewContextValuesServiceServer(storage, sugaredLogger)
+	contextValuesServiceServer := services.NewContextValuesServiceServer(storage, pipelineExecutor, sugaredLogger)
 	balancerServiceServer := services.NewBalancerServiceServer(backendsInfo)
 	container := NewContainer(backendServiceServer, contextValuesServiceServer, balancerServiceServer, sugaredLogger)
 	return container

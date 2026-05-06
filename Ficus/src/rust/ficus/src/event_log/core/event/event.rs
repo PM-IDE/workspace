@@ -2,13 +2,13 @@ use crate::utils::user_data::user_data::UserDataOwner;
 
 use super::lifecycle::xes_lifecycle::Lifecycle;
 use chrono::{DateTime, Utc};
-use std::{collections::HashMap, fmt::Debug, rc::Rc};
+use std::{collections::HashMap, fmt::Debug, sync::Arc};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EventPayloadValue {
   Null,
   Date(DateTime<Utc>),
-  String(Rc<str>),
+  String(Arc<str>),
   Boolean(bool),
   Int32(i32),
   Int64(i64),
@@ -60,12 +60,12 @@ pub enum EventPayloadSoftwareEventType {
 }
 
 impl EventPayloadValue {
-  pub fn to_string_repr(&self) -> Rc<str> {
+  pub fn to_string_repr(&self) -> Arc<str> {
     if let EventPayloadValue::String(string) = self {
       return string.clone();
     }
 
-    Rc::from(match self {
+    Arc::from(match self {
       EventPayloadValue::Null => "NULL".to_string(),
       EventPayloadValue::Date(date) => date.to_rfc3339(),
       EventPayloadValue::Boolean(bool) => bool.to_string(),
@@ -87,19 +87,19 @@ impl EventPayloadValue {
 }
 
 pub trait Event: Clone + Debug + UserDataOwner {
-  fn new(name: Rc<str>, stamp: DateTime<Utc>) -> Self;
-  fn new_with_min_date(name: Rc<str>) -> Self;
-  fn new_with_max_date(name: Rc<str>) -> Self;
+  fn new(name: Arc<str>, stamp: DateTime<Utc>) -> Self;
+  fn new_with_min_date(name: Arc<str>) -> Self;
+  fn new_with_max_date(name: Arc<str>) -> Self;
 
   fn name(&self) -> &str;
-  fn name_pointer(&self) -> &Rc<str>;
+  fn name_pointer(&self) -> &Arc<str>;
 
   fn timestamp(&self) -> &DateTime<Utc>;
-  fn payload_map(&self) -> Option<&HashMap<Rc<str>, EventPayloadValue>>;
-  fn payload_map_mut(&mut self) -> Option<&mut HashMap<Rc<str>, EventPayloadValue>>;
-  fn ordered_payload(&self) -> Vec<(&Rc<str>, &EventPayloadValue)>;
+  fn payload_map(&self) -> Option<&HashMap<Arc<str>, EventPayloadValue>>;
+  fn payload_map_mut(&mut self) -> Option<&mut HashMap<Arc<str>, EventPayloadValue>>;
+  fn ordered_payload(&self) -> Vec<(&Arc<str>, &EventPayloadValue)>;
 
-  fn set_name(&mut self, new_name: Rc<str>);
+  fn set_name(&mut self, new_name: Arc<str>);
   fn set_timestamp(&mut self, new_timestamp: DateTime<Utc>);
-  fn add_or_update_payload(&mut self, key: Rc<str>, value: EventPayloadValue);
+  fn add_or_update_payload(&mut self, key: Arc<str>, value: EventPayloadValue);
 }

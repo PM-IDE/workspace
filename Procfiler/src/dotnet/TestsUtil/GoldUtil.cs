@@ -6,7 +6,7 @@ namespace TestsUtil;
 
 public static class GoldUtil
 {
-  public static void ExecuteGoldTest(string testValue, string folderName, Func<TestContext.TestAdapter, string> testNameExtractor)
+  public static void ExecuteGoldTest(string testValue, string folderName, Func<string> testNameExtractor)
   {
     var pathToGoldFile = CreateGoldFilePath(folderName, testNameExtractor);
 
@@ -36,14 +36,8 @@ public static class GoldUtil
     }
   }
 
-  public static string CreateGoldFilePath(string folderName, Func<TestContext.TestAdapter, string> testNameExtractor) =>
-    CreatePathInternal(folderName, $"{CreateTestNameForFiles(testNameExtractor)}.gold");
-
-  private static string CreateTestNameForFiles(Func<TestContext.TestAdapter, string> testNameExtractor)
-  {
-    var test = TestContext.CurrentContext.Test;
-    return testNameExtractor(test);
-  }
+  private static string CreateGoldFilePath(string folderName, Func<string> testNameExtractor) =>
+    CreatePathInternal(folderName, $"{testNameExtractor()}.gold");
 
   private static string CreatePathInternal(string folderName, string fileName)
   {
@@ -66,6 +60,6 @@ public static class GoldUtil
     throw new ArgumentOutOfRangeException(Environment.OSVersion.Platform.ToString());
   }
 
-  public static string CreateTmpFilePath(string folderName, Func<TestContext.TestAdapter, string> testNameExtractor) =>
-    CreatePathInternal(folderName, $"{CreateTestNameForFiles(testNameExtractor)}.tmp");
+  private static string CreateTmpFilePath(string folderName, Func<string> testNameExtractor) =>
+    CreatePathInternal(folderName, $"{testNameExtractor()}.tmp");
 }

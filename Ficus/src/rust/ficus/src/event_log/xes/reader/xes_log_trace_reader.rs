@@ -1,7 +1,6 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
-
 use chrono::{DateTime, Utc};
 use quick_xml::Reader;
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 use crate::event_log::{
   core::event::event::EventPayloadValue,
@@ -13,7 +12,7 @@ use super::utils;
 pub struct TraceXesEventLogIterator<'a> {
   buffer: Vec<u8>,
   reader: Rc<RefCell<Reader<XmlReader<'a>>>>,
-  globals: Rc<RefCell<HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>>>,
+  globals: Rc<RefCell<HashMap<Arc<str>, HashMap<Arc<str>, EventPayloadValue>>>>,
 }
 
 impl<'a> Iterator for TraceXesEventLogIterator<'a> {
@@ -44,7 +43,7 @@ impl<'a> Iterator for TraceXesEventLogIterator<'a> {
 impl<'a> TraceXesEventLogIterator<'a> {
   pub(crate) fn new(
     reader: Rc<RefCell<Reader<XmlReader>>>,
-    seen_globals: Rc<RefCell<HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>>>,
+    seen_globals: Rc<RefCell<HashMap<Arc<str>, HashMap<Arc<str>, EventPayloadValue>>>>,
   ) -> TraceXesEventLogIterator {
     TraceXesEventLogIterator {
       reader,
@@ -89,9 +88,9 @@ impl<'a> TraceXesEventLogIterator<'a> {
 
   fn set_defaults_value(
     &self,
-    name: &mut Option<Rc<str>>,
+    name: &mut Option<Arc<str>>,
     date: &mut Option<DateTime<Utc>>,
-    payload: &mut HashMap<Rc<str>, EventPayloadValue>,
+    payload: &mut HashMap<Arc<str>, EventPayloadValue>,
   ) {
     let globals = self.globals.borrow_mut();
     if !globals.contains_key(EVENT_TAG_NAME_STR) {
@@ -105,12 +104,12 @@ impl<'a> TraceXesEventLogIterator<'a> {
 
   fn set_parsed_value(
     payload_type: &[u8],
-    key: &Rc<str>,
-    value: &Rc<str>,
-    name: &mut Option<Rc<str>>,
+    key: &Arc<str>,
+    value: &Arc<str>,
+    name: &mut Option<Arc<str>>,
     date: &mut Option<DateTime<Utc>>,
-    payload: &mut HashMap<Rc<str>, EventPayloadValue>,
-    globals: &HashMap<Rc<str>, HashMap<Rc<str>, EventPayloadValue>>,
+    payload: &mut HashMap<Arc<str>, EventPayloadValue>,
+    globals: &HashMap<Arc<str>, HashMap<Arc<str>, EventPayloadValue>>,
   ) -> bool {
     let payload_value = utils::extract_payload_value(payload_type, key, value);
     if payload_value.is_none() {
@@ -129,11 +128,11 @@ impl<'a> TraceXesEventLogIterator<'a> {
   }
 
   fn update_event_data(
-    key: &Rc<str>,
+    key: &Arc<str>,
     payload_value: EventPayloadValue,
     date: &mut Option<DateTime<Utc>>,
-    name: &mut Option<Rc<str>>,
-    payload: &mut HashMap<Rc<str>, EventPayloadValue>,
+    name: &mut Option<Arc<str>>,
+    payload: &mut HashMap<Arc<str>, EventPayloadValue>,
   ) {
     match key.as_ref() {
       TIME_TIMESTAMP_STR => {

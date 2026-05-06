@@ -1,5 +1,5 @@
 use crate::models::domain::{bxes_log_metadata::BxesEventLogMetadata, bxes_value::BxesValue, utils::compare_list_of_attributes};
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct BxesEventLog {
@@ -31,7 +31,7 @@ impl PartialEq for BxesEventLog {
 #[derive(Debug)]
 pub struct BxesTraceVariant {
   pub traces_count: u32,
-  pub metadata: Vec<(Rc<BxesValue>, Rc<BxesValue>)>,
+  pub metadata: Vec<(Arc<BxesValue>, Arc<BxesValue>)>,
   pub events: Vec<BxesEvent>,
 }
 
@@ -57,9 +57,9 @@ impl PartialEq for BxesTraceVariant {
 
 #[derive(Debug, Clone)]
 pub struct BxesEvent {
-  pub name: Rc<BxesValue>,
+  pub name: Arc<BxesValue>,
   pub timestamp: i64,
-  pub attributes: Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
+  pub attributes: Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>,
 }
 
 impl PartialEq for BxesEvent {

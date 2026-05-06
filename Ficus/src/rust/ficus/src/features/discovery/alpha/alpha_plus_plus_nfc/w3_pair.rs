@@ -7,23 +7,23 @@ use std::{
   collections::HashSet,
   fmt::Display,
   hash::{Hash, Hasher},
-  rc::Rc,
+  sync::Arc,
 };
 
 pub(crate) struct W3Pair {
-  two_sets: TwoSets<Rc<str>>,
+  two_sets: TwoSets<Arc<str>>,
 }
 
 impl W3Pair {
-  pub fn new(first: Rc<str>, second: Rc<str>) -> Self {
+  pub fn new(first: Arc<str>, second: Arc<str>) -> Self {
     Self {
       two_sets: TwoSets::new_one_element(first, second),
     }
   }
 
   pub fn try_new<TLog: EventLog>(
-    first: Rc<str>,
-    second: Rc<str>,
+    first: Arc<str>,
+    second: Arc<str>,
     w3_relations: &HashSet<(&str, &str)>,
     provider: &AlphaPlusNfcRelationsProvider<TLog>,
   ) -> Option<Self> {
@@ -68,7 +68,7 @@ impl W3Pair {
     }
   }
 
-  pub fn two_sets(&self) -> TwoSets<Rc<str>> {
+  pub fn two_sets(&self) -> TwoSets<Arc<str>> {
     self.two_sets.clone()
   }
 }

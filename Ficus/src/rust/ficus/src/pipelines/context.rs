@@ -17,7 +17,7 @@ pub trait LogMessageHandler: Send + Sync {
 }
 
 pub struct PipelineInfrastructure {
-  log_message_handler: Option<Arc<Box<dyn LogMessageHandler>>>,
+  log_message_handler: Option<Arc<dyn LogMessageHandler>>,
 }
 
 impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
@@ -28,7 +28,7 @@ impl PerformanceLogger<PipelinePartExecutionError> for PipelineInfrastructure {
 }
 
 impl PipelineInfrastructure {
-  pub fn new(log_message_handler: Option<Arc<Box<dyn LogMessageHandler>>>) -> Self {
+  pub fn new(log_message_handler: Option<Arc<dyn LogMessageHandler>>) -> Self {
     Self { log_message_handler }
   }
 

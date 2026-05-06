@@ -8,7 +8,7 @@ use getset::Getters;
 use lazy_static::lazy_static;
 use std::{
   collections::{HashMap, HashSet, VecDeque},
-  rc::Rc,
+  sync::Arc,
 };
 
 #[derive(new, Getters)]
@@ -29,11 +29,11 @@ pub enum OcelAnnotationCreationError {
 #[derive(Getters, Default)]
 pub struct NodeObjectsState {
   #[getset(get = "pub")]
-  map: HashMap<Rc<str>, HashSet<Rc<str>>>,
+  map: HashMap<Arc<str>, HashSet<Arc<str>>>,
 }
 
 impl NodeObjectsState {
-  pub fn add_allocated_object(&mut self, object_type: Rc<str>, object_id: Rc<str>) -> Result<(), OcelAnnotationCreationError> {
+  pub fn add_allocated_object(&mut self, object_type: Arc<str>, object_id: Arc<str>) -> Result<(), OcelAnnotationCreationError> {
     if self.contains_object(&object_type, &object_id) {
       return Err(OcelAnnotationCreationError::ObjectAlreadyExistsInNodeState);
     }
@@ -42,13 +42,13 @@ impl NodeObjectsState {
     Ok(())
   }
 
-  pub fn remove_object(&mut self, object_type: &Rc<str>, id: &Rc<str>) {
+  pub fn remove_object(&mut self, object_type: &Arc<str>, id: &Arc<str>) {
     let Some(set) = self.map.get_mut(object_type) else { return };
 
     set.remove(id);
   }
 
-  pub fn remove_unknown_object(&mut self, id: &Rc<str>) {
+  pub fn remove_unknown_object(&mut self, id: &Arc<str>) {
     for (_, set) in self.map.iter_mut() {
       if set.remove(id) {
         return;
@@ -68,7 +68,7 @@ impl NodeObjectsState {
     self.map.values().any(|set| set.contains(object_id))
   }
 
-  fn type_set_mut(&mut self, object_type: &Rc<str>) -> &mut HashSet<Rc<str>> {
+  fn type_set_mut(&mut self, object_type: &Arc<str>) -> &mut HashSet<Arc<str>> {
     if !self.map.contains_key(object_type) {
       self.map.insert(object_type.clone(), HashSet::new());
     }
@@ -100,11 +100,11 @@ pub struct ProcessNodesStates {
 #[derive(new, Getters)]
 pub struct OcelObjectRelations {
   #[get = "pub"]
-  object_id: Rc<str>,
+  object_id: Arc<str>,
   #[get = "pub"]
   from_element_id: u64,
   #[get = "pub"]
-  related_objects_ids: Vec<Rc<str>>,
+  related_objects_ids: Vec<Arc<str>>,
 }
 
 lazy_static! {
@@ -152,7 +152,7 @@ pub fn create_ocel_annotation_for_dag(graph: &DefaultGraph) -> Result<OcelAnnota
     let mut new_node_state: NodeObjectsState = Default::default();
     let mut new_node_objects_relations = vec![];
 
-    let fallback_type = Rc::from(UNKNOWN_TYPE.clone());
+    let fallback_type = Arc::from(UNKNOWN_TYPE.clone());
 
     for incoming_node in incoming_nodes.iter() {
       let prev_state: &ProcessNodesStates = process_nodes_states.get(*incoming_node).as_ref().unwrap();

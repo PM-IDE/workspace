@@ -20,7 +20,7 @@ use crate::{
 use std::{
   collections::{HashMap, HashSet},
   fmt::Debug,
-  rc::Rc,
+  sync::Arc,
 };
 
 pub fn merge_sequences_of_nodes(graph: &mut DefaultGraph, performance_map: Option<PerformanceMap>) {
@@ -143,7 +143,7 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
 
 fn create_merged_node(nodes: &Vec<u64>, graph: &mut DefaultGraph) -> u64 {
   let label = nodes.iter().map(|id| id.to_string()).collect::<Vec<String>>().join("\n");
-  let node_id = graph.add_node(Some(Rc::from(label)));
+  let node_id = graph.add_node(Some(Arc::from(label)));
 
   let mut inner_graph = DefaultGraph::default();
   let mut prev_added_node_id = None;

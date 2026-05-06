@@ -15,7 +15,7 @@ use crate::{
 use derive_new::new;
 use fancy_regex::Regex;
 use log::{debug, warn};
-use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fmt::Debug, rc::Rc, sync::Arc};
 
 #[derive(Debug, Clone, new)]
 pub struct OcelDataExtractor<'a> {
@@ -111,7 +111,7 @@ impl<'a> OcelDataExtractor<'a> {
     true
   }
 
-  fn extract_object_id_and_type(event: &XesEventImpl, config: &OcelObjectExtractionConfigBase) -> Option<(Rc<str>, Rc<str>)> {
+  fn extract_object_id_and_type(event: &XesEventImpl, config: &OcelObjectExtractionConfigBase) -> Option<(Arc<str>, Arc<str>)> {
     let object_type = config.object_type_attr().create(event);
 
     let object_id = match Self::parse_object_id(event, config.object_id_attr().as_str()) {
@@ -194,7 +194,7 @@ impl<'a> OcelDataExtractor<'a> {
     true
   }
 
-  fn parse_object_id(event: &XesEventImpl, object_id_attr: &str) -> Option<Rc<str>> {
+  fn parse_object_id(event: &XesEventImpl, object_id_attr: &str) -> Option<Arc<str>> {
     if let Some(map) = event.payload_map().as_ref()
       && let Some(object_id) = map.get(object_id_attr).as_ref()
     {
@@ -205,18 +205,18 @@ impl<'a> OcelDataExtractor<'a> {
   }
 
   fn parse_related_objects_ids(
-    payload: &HashMap<Rc<str>, EventPayloadValue>,
-    related_objects_ids_attr: Option<&Rc<str>>,
+    payload: &HashMap<Arc<str>, EventPayloadValue>,
+    related_objects_ids_attr: Option<&Arc<str>>,
     delimiter: &str,
-  ) -> Option<Vec<Rc<str>>> {
+  ) -> Option<Vec<Arc<str>>> {
     if let Some(related_objects_ids_attr) = related_objects_ids_attr
       && let Some(objects_ids) = payload.get(related_objects_ids_attr)
     {
-      let parsed_ids: Vec<Rc<str>> = objects_ids
+      let parsed_ids: Vec<Arc<str>> = objects_ids
         .to_string_repr()
         .trim()
         .split(delimiter)
-        .filter_map(|s| if !s.is_empty() { Some(Rc::from(s)) } else { None })
+        .filter_map(|s| if !s.is_empty() { Some(Arc::from(s)) } else { None })
         .collect();
 
       if parsed_ids.is_empty() {

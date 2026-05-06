@@ -7,7 +7,7 @@ use crate::{
   utils::graph::graph::{DefaultGraph, Graph, NodesConnectionData},
 };
 use log::warn;
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, rc::Rc, sync::Arc};
 
 pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
   let mut graph: DefaultGraph = Default::default();
@@ -23,7 +23,7 @@ pub fn construct_dfg(info: &dyn EventLogInfo) -> DefaultGraph {
       for (follower, count) in followers.iter() {
         if let Some(first_id) = classes_to_node_ids.get(class) {
           if let Some(second_id) = classes_to_node_ids.get(follower) {
-            let data = Some(Rc::from(count.to_string()));
+            let data = Some(Arc::from(count.to_string()));
             let connection_data = NodesConnectionData::new(data, *count as f64, None);
 
             graph.connect_nodes(first_id, second_id, connection_data);
@@ -47,7 +47,7 @@ pub fn construct_dfg_by_attribute(log: &XesEventLogImpl, attribute: &str) -> Def
 
   for trace in log.traces() {
     let trace = trace.borrow();
-    let mut last_seen_events: HashMap<Option<Rc<str>>, Rc<str>> = HashMap::new();
+    let mut last_seen_events: HashMap<Option<Arc<str>>, Arc<str>> = HashMap::new();
 
     for event in trace.events() {
       let event = event.borrow();
@@ -80,7 +80,7 @@ pub fn construct_dfg_by_attribute(log: &XesEventLogImpl, attribute: &str) -> Def
   }
 
   for ((first_node_id, second_node_id), count) in dfg_map {
-    let edge_data = Some(Rc::from(count.to_string()));
+    let edge_data = Some(Arc::from(count.to_string()));
     let connection_data = NodesConnectionData::new(edge_data, count as f64, None);
 
     graph.connect_nodes(&first_node_id, &second_node_id, connection_data);

@@ -1,0 +1,34 @@
+FileWriteProject.Program.<Main>[void..(class.System.String[])]
+Trace:
+	[start] FileWriteProject.Program.<Main>[void..(class.System.String[])]
+		[start] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+			[start] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+			[ end ] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+			[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+			[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+		[ end ] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+	[ end ] FileWriteProject.Program.<Main>[void..(class.System.String[])]
+
+
+FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+Trace:
+	[start] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+		[start] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+		[ end ] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+		[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+		[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] FileWriteProject.Program.Main[class.System.Threading.Tasks.Task..(class.System.String[])]
+
+
+FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+Trace:
+	[start] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+	[ end ] FileWriteProject.Program+<Main>d__0..ctor[instance.void..()]
+
+
+FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+Trace:
+	[start] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+	[ end ] FileWriteProject.Program+<Main>d__0.MoveNext[instance.void..()]
+
+

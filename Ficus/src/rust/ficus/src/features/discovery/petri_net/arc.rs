@@ -1,14 +1,14 @@
 use crate::features::discovery::petri_net::ids::next_id;
 
 #[derive(Debug)]
-pub struct Arc<TArcData> {
+pub struct PetriNetArc<TArcData> {
   id: u64,
   place_id: u64,
   data: Option<TArcData>,
   tokens_count: usize,
 }
 
-impl<TArcData> Arc<TArcData> {
+impl<TArcData> PetriNetArc<TArcData> {
   pub fn new(place_id: u64, data: Option<TArcData>) -> Self {
     Self {
       id: next_id(),

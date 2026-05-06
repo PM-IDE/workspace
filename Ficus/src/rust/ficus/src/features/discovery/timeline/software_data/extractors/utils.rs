@@ -6,12 +6,12 @@ use crate::{
   features::discovery::timeline::software_data::{extraction_config::NameCreationStrategy, extractors::core::SoftwareDataExtractionError},
 };
 use fancy_regex::Regex;
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, sync::Arc};
 
 pub type RegexParingResult = Result<Regex, SoftwareDataExtractionError>;
 
 impl NameCreationStrategy {
-  pub(super) fn create(&self, event: &XesEventImpl) -> Rc<str> {
+  pub(super) fn create(&self, event: &XesEventImpl) -> Arc<str> {
     if let Some(map) = event.payload_map() {
       match self {
         NameCreationStrategy::SingleAttribute(single_attribute) => self.value_or_fallback(single_attribute.name(), map),
@@ -26,7 +26,7 @@ impl NameCreationStrategy {
             result.remove(result.len() - 1);
           }
 
-          Rc::from(result)
+          Arc::from(result)
         }
       }
     } else {
@@ -34,7 +34,7 @@ impl NameCreationStrategy {
     }
   }
 
-  fn value_or_fallback(&self, attr: &str, payload: &HashMap<Rc<str>, EventPayloadValue>) -> Rc<str> {
+  fn value_or_fallback(&self, attr: &str, payload: &HashMap<Arc<str>, EventPayloadValue>) -> Arc<str> {
     if let Some(attr_value) = payload.get(attr) {
       attr_value.to_string_repr()
     } else {

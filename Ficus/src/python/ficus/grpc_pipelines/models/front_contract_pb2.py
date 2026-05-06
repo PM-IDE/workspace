@@ -36,7 +36,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x66ront_contract.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"c\n)GrpcSubscriptionAndPipelinesStateResponse\x12\x36\n\x05\x63\x61ses\x18\x01 \x03(\x0b\x32\'.ficus.GrpcProcessCaseMetadataWithStamp\"c\n GrpcProcessCaseMetadataWithStamp\x12\r\n\x05stamp\x18\x01 \x01(\x04\x12\x30\n\x08metadata\x18\x02 \x01(\x0b\x32\x1e.ficus.GrpcProcessCaseMetadata\"\xb3\x01\n\'GrpcGetPipelineCaseContextValuesRequest\x12\'\n\x0esubscriptionId\x18\x01 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12#\n\npipelineId\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12\x13\n\x0bprocessName\x18\x03 \x01(\t\x12%\n\x08\x63\x61seName\x18\x04 \x01(\x0b\x32\x13.ficus.GrpcCaseName\"\xc0\x01\n\x0fGrpcKafkaUpdate\x12;\n\x13processCaseMetadata\x18\x01 \x01(\x0b\x32\x1e.ficus.GrpcProcessCaseMetadata\x12\x35\n\x10pipelinePartInfo\x18\x02 \x01(\x0b\x32\x1b.ficus.GrpcPipelinePartInfo\x12\x39\n\rcontextValues\x18\x03 \x03(\x0b\x32\".ficus.GrpcContextValueWithKeyName\"\x80\x02\n\x17GrpcProcessCaseMetadata\x12\x13\n\x0bprocessName\x18\x01 \x01(\t\x12%\n\x08\x63\x61seName\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcCaseName\x12\'\n\x0esubscriptionId\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12\x18\n\x10subscriptionName\x18\x04 \x01(\t\x12#\n\npipelineId\x18\x05 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12\x14\n\x0cpipelineName\x18\x06 \x01(\t\x12+\n\x08metadata\x18\x07 \x03(\x0b\x32\x19.ficus.GrpcStringKeyValue\":\n\x0cGrpcCaseName\x12\x13\n\x0b\x64isplayName\x18\x01 \x01(\t\x12\x15\n\rfullNameParts\x18\x02 \x03(\t\"c\n\x15GrpcCaseContextValues\x12;\n\rcontextValues\x18\x01 \x03(\x0b\x32$.ficus.GrpcPipelinePartContextValues\x12\r\n\x05stamp\x18\x02 \x01(\x04\"\xc8\x01\n\x1dGrpcPipelinePartContextValues\x12\x35\n\x10pipelinePartInfo\x18\x01 \x01(\x0b\x32\x1b.ficus.GrpcPipelinePartInfo\x12)\n\x05stamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x45\n\x11\x65xecution_results\x18\x03 \x03(\x0b\x32*.ficus.GrpcCasePipelinePartExecutionResult\"`\n#GrpcCasePipelinePartExecutionResult\x12\x39\n\rcontextValues\x18\x03 \x03(\x0b\x32\".ficus.GrpcContextValueWithKeyName\"h\n\x14GrpcPipelinePartInfo\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1b\n\x02id\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12%\n\x0c\x65xecution_id\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcGuid2\x82\x02\n%GrpcPipelinePartsContextValuesService\x12l\n GetSubscriptionAndPipelinesState\x12\x16.google.protobuf.Empty\x1a\x30.ficus.GrpcSubscriptionAndPipelinesStateResponse\x12k\n\x1bGetPipelineCaseContextValue\x12..ficus.GrpcGetPipelineCaseContextValuesRequest\x1a\x1c.ficus.GrpcCaseContextValuesB\x0fZ\r./;grpcmodelsb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x66ront_contract.proto\x12\x05\x66icus\x1a\x1bpipelines_and_context.proto\x1a\nutil.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"c\n)GrpcSubscriptionAndPipelinesStateResponse\x12\x36\n\x05\x63\x61ses\x18\x01 \x03(\x0b\x32\'.ficus.GrpcProcessCaseMetadataWithStamp\"c\n GrpcProcessCaseMetadataWithStamp\x12\r\n\x05stamp\x18\x01 \x01(\x04\x12\x30\n\x08metadata\x18\x02 \x01(\x0b\x32\x1e.ficus.GrpcProcessCaseMetadata\"\xb3\x01\n\'GrpcGetPipelineCaseContextValuesRequest\x12\'\n\x0esubscriptionId\x18\x01 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12#\n\npipelineId\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12\x13\n\x0bprocessName\x18\x03 \x01(\t\x12%\n\x08\x63\x61seName\x18\x04 \x01(\x0b\x32\x13.ficus.GrpcCaseName\"N\n\x0fGrpcKafkaUpdate\x12;\n\x13processCaseMetadata\x18\x01 \x01(\x0b\x32\x1e.ficus.GrpcProcessCaseMetadata\"h\n\x14GrpcPipelinePartInfo\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x1b\n\x02id\x18\x02 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12%\n\x0c\x65xecution_id\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcGuid\"S\n\x16GrpcKafkaContextValues\x12\x39\n\rcontextValues\x18\x01 \x03(\x0b\x32\".ficus.GrpcContextValueWithKeyName\"\x80\x02\n\x17GrpcProcessCaseMetadata\x12\x13\n\x0bprocessName\x18\x01 \x01(\t\x12%\n\x08\x63\x61seName\x18\x02 \x01(\x0b\x32\x13.ficus.GrpcCaseName\x12\'\n\x0esubscriptionId\x18\x03 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12\x18\n\x10subscriptionName\x18\x04 \x01(\t\x12#\n\npipelineId\x18\x05 \x01(\x0b\x32\x0f.ficus.GrpcGuid\x12\x14\n\x0cpipelineName\x18\x06 \x01(\t\x12+\n\x08metadata\x18\x07 \x03(\x0b\x32\x19.ficus.GrpcStringKeyValue\":\n\x0cGrpcCaseName\x12\x13\n\x0b\x64isplayName\x18\x01 \x01(\t\x12\x15\n\rfullNameParts\x18\x02 \x03(\t\"c\n\x15GrpcCaseContextValues\x12;\n\rcontextValues\x18\x01 \x03(\x0b\x32$.ficus.GrpcPipelinePartContextValues\x12\r\n\x05stamp\x18\x02 \x01(\x04\"\xc8\x01\n\x1dGrpcPipelinePartContextValues\x12\x35\n\x10pipelinePartInfo\x18\x01 \x01(\x0b\x32\x1b.ficus.GrpcPipelinePartInfo\x12)\n\x05stamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x45\n\x11\x65xecution_results\x18\x03 \x03(\x0b\x32*.ficus.GrpcCasePipelinePartExecutionResult\"`\n#GrpcCasePipelinePartExecutionResult\x12\x39\n\rcontextValues\x18\x03 \x03(\x0b\x32\".ficus.GrpcContextValueWithKeyName2\x82\x02\n%GrpcPipelinePartsContextValuesService\x12l\n GetSubscriptionAndPipelinesState\x12\x16.google.protobuf.Empty\x1a\x30.ficus.GrpcSubscriptionAndPipelinesStateResponse\x12k\n\x1bGetPipelineCaseContextValue\x12..ficus.GrpcGetPipelineCaseContextValuesRequest\x1a\x1c.ficus.GrpcCaseContextValuesB\x0fZ\r./;grpcmodelsb\x06proto3')
 
 
 
@@ -64,36 +64,40 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   _globals['_GRPCGETPIPELINECASECONTEXTVALUESREQUEST']._serialized_end=516
 
-  _globals['_GRPCKAFKAUPDATE']._serialized_start=519
+  _globals['_GRPCKAFKAUPDATE']._serialized_start=518
 
-  _globals['_GRPCKAFKAUPDATE']._serialized_end=711
+  _globals['_GRPCKAFKAUPDATE']._serialized_end=596
 
-  _globals['_GRPCPROCESSCASEMETADATA']._serialized_start=714
+  _globals['_GRPCPIPELINEPARTINFO']._serialized_start=598
 
-  _globals['_GRPCPROCESSCASEMETADATA']._serialized_end=970
+  _globals['_GRPCPIPELINEPARTINFO']._serialized_end=702
 
-  _globals['_GRPCCASENAME']._serialized_start=972
+  _globals['_GRPCKAFKACONTEXTVALUES']._serialized_start=704
 
-  _globals['_GRPCCASENAME']._serialized_end=1030
+  _globals['_GRPCKAFKACONTEXTVALUES']._serialized_end=787
 
-  _globals['_GRPCCASECONTEXTVALUES']._serialized_start=1032
+  _globals['_GRPCPROCESSCASEMETADATA']._serialized_start=790
 
-  _globals['_GRPCCASECONTEXTVALUES']._serialized_end=1131
+  _globals['_GRPCPROCESSCASEMETADATA']._serialized_end=1046
 
-  _globals['_GRPCPIPELINEPARTCONTEXTVALUES']._serialized_start=1134
+  _globals['_GRPCCASENAME']._serialized_start=1048
 
-  _globals['_GRPCPIPELINEPARTCONTEXTVALUES']._serialized_end=1334
+  _globals['_GRPCCASENAME']._serialized_end=1106
 
-  _globals['_GRPCCASEPIPELINEPARTEXECUTIONRESULT']._serialized_start=1336
+  _globals['_GRPCCASECONTEXTVALUES']._serialized_start=1108
 
-  _globals['_GRPCCASEPIPELINEPARTEXECUTIONRESULT']._serialized_end=1432
+  _globals['_GRPCCASECONTEXTVALUES']._serialized_end=1207
 
-  _globals['_GRPCPIPELINEPARTINFO']._serialized_start=1434
+  _globals['_GRPCPIPELINEPARTCONTEXTVALUES']._serialized_start=1210
 
-  _globals['_GRPCPIPELINEPARTINFO']._serialized_end=1538
+  _globals['_GRPCPIPELINEPARTCONTEXTVALUES']._serialized_end=1410
 
-  _globals['_GRPCPIPELINEPARTSCONTEXTVALUESSERVICE']._serialized_start=1541
+  _globals['_GRPCCASEPIPELINEPARTEXECUTIONRESULT']._serialized_start=1412
 
-  _globals['_GRPCPIPELINEPARTSCONTEXTVALUESSERVICE']._serialized_end=1799
+  _globals['_GRPCCASEPIPELINEPARTEXECUTIONRESULT']._serialized_end=1508
+
+  _globals['_GRPCPIPELINEPARTSCONTEXTVALUESSERVICE']._serialized_start=1511
+
+  _globals['_GRPCPIPELINEPARTSCONTEXTVALUESSERVICE']._serialized_end=1769
 
 # @@protoc_insertion_point(module_scope)

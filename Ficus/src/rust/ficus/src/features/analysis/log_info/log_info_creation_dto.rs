@@ -1,5 +1,5 @@
 use crate::event_log::core::event_log::EventLog;
-use std::{collections::HashSet, rc::Rc};
+use std::{collections::HashSet, sync::Arc};
 
 pub struct EventLogInfoCreationDto<'a, TLog>
 where
@@ -7,8 +7,8 @@ where
 {
   pub(super) log: &'a TLog,
   pub(super) add_fake_start_end_events: bool,
-  pub(super) ignored_events: Option<&'a HashSet<Rc<str>>>,
-  pub(super) thread_attribute: Option<Rc<str>>,
+  pub(super) ignored_events: Option<&'a HashSet<Arc<str>>>,
+  pub(super) thread_attribute: Option<Arc<str>>,
 }
 
 impl<'a, TLog> EventLogInfoCreationDto<'a, TLog>
@@ -33,7 +33,7 @@ where
     }
   }
 
-  pub fn default_fake_ignored(log: &'a TLog, ignored_events: Option<&'a HashSet<Rc<str>>>) -> Self {
+  pub fn default_fake_ignored(log: &'a TLog, ignored_events: Option<&'a HashSet<Arc<str>>>) -> Self {
     Self {
       log,
       add_fake_start_end_events: true,
@@ -42,7 +42,7 @@ where
     }
   }
 
-  pub fn default_ignore(log: &'a TLog, ignored_events: &'a HashSet<Rc<str>>) -> Self {
+  pub fn default_ignore(log: &'a TLog, ignored_events: &'a HashSet<Arc<str>>) -> Self {
     Self {
       log,
       add_fake_start_end_events: false,
@@ -51,7 +51,7 @@ where
     }
   }
 
-  pub fn default_thread(log: &'a TLog, thread_attribute: Rc<str>) -> Self {
+  pub fn default_thread(log: &'a TLog, thread_attribute: Arc<str>) -> Self {
     Self {
       log,
       add_fake_start_end_events: false,

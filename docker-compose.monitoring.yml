@@ -60,6 +60,20 @@ services:
       sleep infinity
       "
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "9000:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_READONLY: "false"
+      AUTH_TYPE: "LOGIN_FORM"
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: pass
+    depends_on:
+      - kafka
+
   ficus-backend:
     depends_on:
       - kafka
@@ -76,7 +90,7 @@ services:
       context: .
       dockerfile: ./Ficus/examples/kafka_pipelines/Dockerfile
       args:
-        SCRIPT_FILE_NAME: kafka_pipeline.py
+        SCRIPT_FILE_NAME: activities_ecfg_pipeline.py
     environment:
       CONSUMER_BOOTSTRAP_SERVERS: kafka:29092
       CONSUMER_TOPIC: my-topic
@@ -96,6 +110,7 @@ services:
     environment:
       PipelinePartsUpdateKafkaSettings__BootstrapServers: kafka:29092
       PipelinePartsUpdateKafkaSettings__Topic: ficus-topic
+      KafkaServiceUrl: ficus-backend:8080
 
   balancer:
     depends_on:

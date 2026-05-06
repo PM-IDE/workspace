@@ -23,12 +23,7 @@ message GrpcPipelinePartToBackends {
 
 service GrpcBackendService {
   rpc ExecutePipeline(GrpcProxyPipelineExecutionRequest) returns (stream GrpcPipelinePartExecutionResult);
-
-  rpc GetContextValue(GrpcGetContextValueRequest) returns (GrpcGuid);
-  rpc GetAllContextValues(GrpcGuid) returns (GrpcGetAllContextValuesResult);
-
   rpc DropExecutionResult(GrpcGuid) returns (google.protobuf.Empty);
-
   rpc GetBackendInfo(google.protobuf.Empty) returns (GrpcFicusBackendInfo);
 }
 
@@ -39,11 +34,6 @@ message GrpcFicusBackendInfo {
 
 message GrpcPipelinePartDescriptor {
   string name = 1;
-}
-
-message GrpcGetContextValueRequest {
-  GrpcGuid executionId = 2;
-  GrpcContextKey key = 1;
 }
 
 message GrpcPipelineExecutionRequest {
@@ -70,7 +60,8 @@ message GrpcPipelinePartLogMessage {
 
 message GrpcPipelinePartResult {
   repeated GrpcContextValueWithKeyName contextValues = 1;
-  GrpcGuid guid = 2;
+  GrpcGuid pipeline_part_id = 2;
+  string pipeline_part_name = 3;
 }
 
 message GrpcPipelineFinalResult {
@@ -78,8 +69,4 @@ message GrpcPipelineFinalResult {
     GrpcGuid success = 1;
     string error = 2;
   }
-}
-
-message GrpcGetAllContextValuesResult {
-  repeated GrpcGuid context_values = 1;
 }

@@ -2,26 +2,26 @@ use crate::features::{
   analysis::log_info::event_log_info::EventLogInfo,
   discovery::{alpha::providers::alpha_provider::AlphaRelationsProvider, relations::triangle_relation::TriangleRelation},
 };
-use std::{collections::HashSet, rc::Rc};
+use std::{collections::HashSet, sync::Arc};
 
 pub trait AlphaPlusRelationsProvider: AlphaRelationsProvider {
   fn triangle_relation(&self, first: &str, second: &str) -> bool;
   fn romb_relation(&self, first: &str, second: &str) -> bool;
 
-  fn one_length_loop_transitions(&self) -> &HashSet<Rc<str>>;
+  fn one_length_loop_transitions(&self) -> &HashSet<Arc<str>>;
 }
 
 pub struct AlphaPlusRelationsProviderImpl<'a> {
   pub log_info: &'a dyn EventLogInfo,
   triangle_relation: &'a dyn TriangleRelation,
-  one_length_loop_transitions: &'a HashSet<Rc<str>>,
+  one_length_loop_transitions: &'a HashSet<Arc<str>>,
 }
 
 impl<'a> AlphaPlusRelationsProviderImpl<'a> {
   pub fn new(
     log_info: &'a dyn EventLogInfo,
     triangle_relation: &'a dyn TriangleRelation,
-    one_length_loop_transitions: &'a HashSet<Rc<str>>,
+    one_length_loop_transitions: &'a HashSet<Arc<str>>,
   ) -> Self {
     Self {
       log_info,
@@ -62,7 +62,7 @@ impl<'a> AlphaPlusRelationsProvider for AlphaPlusRelationsProviderImpl<'a> {
     self.triangle_relation(first, second) && self.triangle_relation(second, first)
   }
 
-  fn one_length_loop_transitions(&self) -> &HashSet<Rc<str>> {
+  fn one_length_loop_transitions(&self) -> &HashSet<Arc<str>> {
     self.one_length_loop_transitions
   }
 }

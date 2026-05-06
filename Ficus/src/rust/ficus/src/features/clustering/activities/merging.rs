@@ -1,10 +1,10 @@
+use ndarray::Array1;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
-
-use ndarray::Array1;
 
 use crate::{
   event_log::core::{event::event::Event, event_log::EventLog, trace::trace::Trace},
@@ -73,7 +73,7 @@ pub(super) fn merge_activities(
       new_event_classes_set,
       vec![],
       *cluster_activities[0].borrow().level(),
-      Rc::from(new_activity_name),
+      Arc::from(new_activity_name),
       *cluster_activities.first().unwrap().borrow().pattern_kind(),
     );
 

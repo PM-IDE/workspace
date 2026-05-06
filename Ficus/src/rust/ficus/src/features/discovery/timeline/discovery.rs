@@ -19,14 +19,15 @@ use std::{
   fmt::{Debug, Display, Formatter},
   ops::Deref,
   rc::Rc,
+  sync::Arc,
 };
 
 #[derive(Debug, Clone, Getters, new)]
 pub struct LogTimelineDiagram {
   #[getset(get = "pub")]
-  thread_attribute: Rc<str>,
+  thread_attribute: Arc<str>,
   #[getset(get = "pub")]
-  time_attribute: Option<Rc<str>>,
+  time_attribute: Option<Arc<str>>,
   #[getset(get = "pub")]
   control_flow_regexes: Option<Vec<Regex>>,
   #[getset(get = "pub")]
@@ -101,7 +102,7 @@ impl From<LogThreadsDiagramError> for PipelinePartExecutionError {
 
 pub fn discover_traces_timeline_diagram(
   log: &XesEventLogImpl,
-  time_attribute: Option<&Rc<str>>,
+  time_attribute: Option<&Arc<str>>,
   event_group_delta: Option<u64>,
   discover_event_groups_in_each_trace: bool,
   control_flow_regexes: Option<&Vec<Regex>>,
@@ -144,7 +145,7 @@ pub fn discover_traces_timeline_diagram(
 
   Ok(LogTimelineDiagram {
     control_flow_regexes: control_flow_regexes.cloned(),
-    thread_attribute: Rc::from("Trace".to_string()),
+    thread_attribute: Arc::from("Trace".to_string()),
     traces: timeline_fragments,
     time_attribute: time_attribute.cloned(),
   })
@@ -164,8 +165,8 @@ fn discover_events_groups_internal(
 
 pub fn discover_timeline_diagram(
   log: &XesEventLogImpl,
-  thread_attribute: &Rc<str>,
-  time_attribute: Option<&Rc<str>>,
+  thread_attribute: &Arc<str>,
+  time_attribute: Option<&Arc<str>>,
   event_group_delta: Option<u64>,
   control_flow_regexes: Option<&Vec<Regex>>,
 ) -> Result<LogTimelineDiagram, LogThreadsDiagramError> {
@@ -179,7 +180,7 @@ pub fn discover_timeline_diagram(
 
     let time_attribute = time_attribute.map(|a| a.as_ref());
     let min_stamp = get_stamp(&trace.events().first().unwrap().borrow(), time_attribute)?;
-    let mut threads: HashMap<Option<Rc<str>>, TraceThread> = HashMap::new();
+    let mut threads: HashMap<Option<Arc<str>>, TraceThread> = HashMap::new();
 
     for i in 0..trace.events().len() {
       let event = trace.events().get(i).expect("Must be in range");

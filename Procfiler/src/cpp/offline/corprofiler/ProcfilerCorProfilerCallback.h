@@ -10,7 +10,7 @@
 
 class ProcfilerCorProfilerCallback final : public ICorProfilerCallback11 {
     ProcfilerLogger* myLogger;
-    ICorProfilerInfo15* myProfilerInfo;
+    ICorProfilerInfo12* myProfilerInfo;
     std::atomic<int> myRefCount;
     ShadowStack* myShadowStack;
     ShadowStackSerializer* myShadowStackSerializer;
@@ -23,7 +23,7 @@ public:
     explicit ProcfilerCorProfilerCallback(ProcfilerLogger* logger);
     ~ProcfilerCorProfilerCallback();
 
-    ICorProfilerInfo15* GetProfilerInfo() const;
+    ICorProfilerInfo12* GetProfilerInfo() const;
 
     void HandleFunctionEnter(FunctionID funcId) const;
     void HandleFunctionLeave(FunctionID funcId) const;

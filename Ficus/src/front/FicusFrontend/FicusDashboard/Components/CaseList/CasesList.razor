@@ -252,8 +252,7 @@
   private void RemoveCase(Case caseModel)
   {
     if (myRootItem is null) return;
-
-    var currentItem = FindCaseItem(caseModel);
+    if (FindCaseItem(caseModel) is not { } currentItem) return;
 
     var namePartIndex = caseModel.NameParts.Count - 1;
     currentItem.Parent?.InnerItems.Remove(caseModel.NameParts[namePartIndex]);
@@ -274,16 +273,15 @@
     }
   }
 
-  private TreeViewItem FindCaseItem(Case caseModel)
+  private TreeViewItem? FindCaseItem(Case caseModel)
   {
     Debug.Assert(myRootItem is { });
 
-    var processItem = myRootItem.InnerItems[caseModel.ParentProcess.ProcessName];
+    if (!myRootItem.InnerItems.TryGetValue(caseModel.ParentProcess.ProcessName, out var currentItem)) return null;
 
-    var currentItem = processItem;
     foreach (var namePart in caseModel.NameParts)
     {
-      currentItem = currentItem.InnerItems[namePart];
+      if (!currentItem.InnerItems.TryGetValue(namePart, out currentItem)) return null;
     }
 
     return currentItem;
@@ -293,8 +291,8 @@
   {
     if (myRootItem is null) return;
     if (ReferenceEquals(caseModel, mySelectedCase)) return;
+    if (FindCaseItem(caseModel) is not { } item) return;
 
-    var item = FindCaseItem(caseModel);
     item.UserData.PutData(ComponentsKeys.ProcessingStateKey, ItemProcessingState.Updated);
 
     StateHasChanged();

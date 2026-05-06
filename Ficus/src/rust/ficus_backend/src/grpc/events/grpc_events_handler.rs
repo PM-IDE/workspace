@@ -3,8 +3,8 @@ use std::sync::Arc;
 use super::events_handler::{GetContextValuesEvent, PipelineEvent, PipelineEventsHandler, PipelineFinalResult};
 use crate::{
   ficus_proto::{
-    grpc_pipeline_final_result::ExecutionResult, GrpcGuid, GrpcPipelineFinalResult, GrpcPipelinePartExecutionResult,
-    GrpcPipelinePartLogMessage, GrpcPipelinePartResult,
+    GrpcGuid, GrpcPipelineFinalResult, GrpcPipelinePartExecutionResult, GrpcPipelinePartLogMessage, GrpcPipelinePartResult,
+    grpc_pipeline_final_result::ExecutionResult,
   },
   grpc::{
     backend_service::{GrpcResult, GrpcSender},
@@ -13,15 +13,16 @@ use crate::{
   },
 };
 use ficus::pipelines::context::LogMessageHandler;
+
 pub struct GrpcPipelineEventsHandler {
-  sender: Arc<Box<GrpcSender>>,
+  sender: Arc<GrpcSender>,
   console_logs_handler: ConsoleLogMessageHandler,
 }
 
 impl GrpcPipelineEventsHandler {
   pub fn new(sender: GrpcSender) -> Self {
     Self {
-      sender: Arc::new(Box::new(sender)),
+      sender: Arc::new(sender),
       console_logs_handler: ConsoleLogMessageHandler::new(),
     }
   }
@@ -36,6 +37,7 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
         PipelineFinalResult::Success(uuid) => ExecutionResult::Success(GrpcGuid { guid: uuid.to_string() }),
         PipelineFinalResult::Error(error_message) => ExecutionResult::Error(error_message.to_string()),
       }),
+      PipelineEvent::ProcessCaseMetadata(_) => unreachable!(),
     };
 
     if !self.is_alive() {
@@ -45,7 +47,7 @@ impl PipelineEventsHandler for GrpcPipelineEventsHandler {
       return;
     }
 
-    send_grpc_message(self.sender.as_ref().as_ref(), &self.console_logs_handler, result);
+    send_grpc_message(self.sender.as_ref(), &self.console_logs_handler, result);
   }
 
   fn is_alive(&self) -> bool {
@@ -57,10 +59,11 @@ impl GrpcPipelineEventsHandler {
   fn create_get_context_values_event(&self, event: &GetContextValuesEvent) -> GrpcPipelinePartExecutionResult {
     GrpcPipelinePartExecutionResult {
       result: Some(GrpcResult::PipelinePartResult(GrpcPipelinePartResult {
-        guid: Some(GrpcGuid {
+        context_values: create_grpc_context_values(&event.key_values),
+        pipeline_part_name: event.pipeline_part_name.clone(),
+        pipeline_part_id: Some(GrpcGuid {
           guid: event.pipeline_part_id.to_string(),
         }),
-        context_values: create_grpc_context_values(&event.key_values),
       })),
     }
   }
