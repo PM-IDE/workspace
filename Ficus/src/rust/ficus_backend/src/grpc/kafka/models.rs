@@ -107,9 +107,6 @@ pub(super) struct ExtractedTraceMetadata {
   pub unstructured_metadata: Vec<(Arc<str>, Arc<str>)>,
 }
 
-unsafe impl Send for ExtractedTraceMetadata {}
-unsafe impl Sync for ExtractedTraceMetadata {}
-
 impl ExtractedTraceMetadata {
   pub fn create_from(metadata: &HashMap<Arc<str>, Arc<BxesValue>>) -> Result<Self, XesFromBxesKafkaTraceCreatingError> {
     Ok(ExtractedTraceMetadata {

@@ -46,8 +46,6 @@ impl T2StreamingProcessor {
   }
 
   pub fn observe(&self, context: &mut KafkaTraceProcessingContext) -> Result<(), KafkaTraceProcessingError> {
-    let mut dfg_data_structure = self.dfg_data_structure.lock().expect("Must acquire lock");
-
     let xes_trace = match read_bxes_events(context.trace.events()) {
       Ok(xes_trace) => xes_trace,
       Err(err) => {
@@ -90,6 +88,7 @@ impl T2StreamingProcessor {
       xes_trace
     };
 
+    let mut dfg_data_structure = self.dfg_data_structure.lock().expect("Must acquire lock");
     dfg_data_structure.invalidate();
 
     match dfg_data_structure.process_bxes_trace(context.trace.metadata(), &xes_trace) {
