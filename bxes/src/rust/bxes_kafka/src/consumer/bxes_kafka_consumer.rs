@@ -19,6 +19,7 @@ use rdkafka::{
   error::KafkaError,
 };
 use std::{collections::HashMap, io::Cursor, rc::Rc, time::Duration};
+use std::sync::Arc;
 use uuid::Uuid;
 
 pub struct BxesKafkaConsumer {
@@ -41,12 +42,12 @@ impl BxesKafkaConsumer {
 
 #[derive(Debug, Clone)]
 pub struct BxesKafkaTrace {
-  metadata: HashMap<Rc<str>, Rc<BxesValue>>,
+  metadata: HashMap<Arc<str>, Arc<BxesValue>>,
   events: Vec<BxesEvent>,
 }
 
 impl BxesKafkaTrace {
-  pub fn metadata(&self) -> &HashMap<Rc<str>, Rc<BxesValue>> {
+  pub fn metadata(&self) -> &HashMap<Arc<str>, Arc<BxesValue>> {
     &self.metadata
   }
 
@@ -135,7 +136,7 @@ impl BxesKafkaConsumer {
     Ok(BxesKafkaTrace { metadata, events })
   }
 
-  fn create_trace_metadata(metadata: Vec<(Rc<BxesValue>, Rc<BxesValue>)>) -> Result<HashMap<Rc<str>, Rc<BxesValue>>, BxesReadError> {
+  fn create_trace_metadata(metadata: Vec<(Arc<BxesValue>, Arc<BxesValue>)>) -> Result<HashMap<Arc<str>, Arc<BxesValue>>, BxesReadError> {
     let mut new_metadata = HashMap::new();
 
     for (key, value) in metadata {

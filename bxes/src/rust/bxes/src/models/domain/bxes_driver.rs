@@ -1,8 +1,6 @@
 use crate::models::domain::bxes_value::BxesValue;
-use std::{
-  hash::{Hash, Hasher},
-  rc::Rc,
-};
+use std::sync::Arc;
+use std::hash::{Hash, Hasher};
 
 #[derive(Debug, Clone)]
 pub struct BxesDrivers {
@@ -36,8 +34,8 @@ impl PartialEq for BxesDrivers {
 #[derive(Clone, Debug)]
 pub struct BxesDriver {
   pub amount: BxesValue,
-  pub name: Rc<BxesValue>,
-  pub driver_type: Rc<BxesValue>,
+  pub name: Arc<BxesValue>,
+  pub driver_type: Arc<BxesValue>,
 }
 
 impl BxesDriver {

@@ -1,4 +1,5 @@
 use num_traits::FromPrimitive;
+use std::sync::Arc;
 use std::{
   fs::File,
   io::{Cursor, Read, Seek},
@@ -165,7 +166,7 @@ pub fn try_read_leb128(reader: &mut BinaryReader) -> Result<u32, BxesReadError> 
   }
 }
 
-pub fn string_or_err(value: &BxesValue) -> Result<Rc<str>, BxesReadError> {
+pub fn string_or_err(value: &BxesValue) -> Result<Arc<str>, BxesReadError> {
   if let BxesValue::String(string) = value {
     Ok(string.clone())
   } else {
@@ -205,7 +206,7 @@ pub fn try_read_trace_variant(context: &mut ReadContext) -> Result<BxesTraceVari
   })
 }
 
-pub fn try_read_trace_variant_metadata(context: &mut ReadContext) -> Result<Vec<(Rc<BxesValue>, Rc<BxesValue>)>, BxesReadError> {
+pub fn try_read_trace_variant_metadata(context: &mut ReadContext) -> Result<Vec<(Arc<BxesValue>, Arc<BxesValue>)>, BxesReadError> {
   let mut variant_metadata = vec![];
   let metadata_count = try_read_u32(context.reader.as_mut().unwrap())?;
   for _ in 0..metadata_count {
@@ -243,7 +244,7 @@ fn try_read_event(context: &mut ReadContext) -> Result<BxesEvent, BxesReadError>
   })
 }
 
-fn try_read_event_attributes(context: &mut ReadContext) -> Result<Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>, BxesReadError> {
+fn try_read_event_attributes(context: &mut ReadContext) -> Result<Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>, BxesReadError> {
   let mut attributes = None;
   let value_attrs_len = if let Some(attrs) = context.metadata.system_metadata.as_ref().unwrap().values_attrs.as_ref() {
     attrs.len()
@@ -259,7 +260,7 @@ fn try_read_event_attributes(context: &mut ReadContext) -> Result<Option<Vec<(Rc
       let descriptor = value_attrs.get(i).unwrap();
 
       let key = BxesValue::String(descriptor.name.clone());
-      let key = Rc::new(key);
+      let key = Arc::new(key);
 
       let value_type_id = get_type_id(&value);
       let null_type_id = TypeIds::Null;
@@ -269,7 +270,7 @@ fn try_read_event_attributes(context: &mut ReadContext) -> Result<Option<Vec<(Rc
           attributes = Some(vec![]);
         }
 
-        attributes.as_mut().unwrap().push((key, Rc::new(value)));
+        attributes.as_mut().unwrap().push((key, Arc::new(value)));
       }
     }
   }
@@ -282,7 +283,7 @@ fn try_read_event_attributes(context: &mut ReadContext) -> Result<Option<Vec<(Rc
 pub fn try_fill_attributes(
   context: &mut ReadContext,
   leb_128: bool,
-  attributes: &mut Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
+  attributes: &mut Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>,
 ) -> Result<(), BxesReadError> {
   let attributes_count = try_read_count(context, leb_128)?;
   if attributes_count > 0 && attributes.is_none() {
@@ -296,7 +297,7 @@ pub fn try_fill_attributes(
   Ok(())
 }
 
-fn try_read_attributes(context: &mut ReadContext, leb_128: bool) -> Result<Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>, BxesReadError> {
+fn try_read_attributes(context: &mut ReadContext, leb_128: bool) -> Result<Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>, BxesReadError> {
   let attributes_count = try_read_count(context, leb_128)?;
   if attributes_count == 0 {
     Ok(None)
@@ -319,7 +320,7 @@ fn try_read_count(context: &mut ReadContext, leb_128: bool) -> Result<u32, BxesR
   }
 }
 
-fn try_read_kv_pair(context: &mut ReadContext, leb_128: bool) -> Result<(Rc<BxesValue>, Rc<BxesValue>), BxesReadError> {
+fn try_read_kv_pair(context: &mut ReadContext, leb_128: bool) -> Result<(Arc<BxesValue>, Arc<BxesValue>), BxesReadError> {
   let kv_index = try_read_count(context, leb_128)? as usize;
 
   let kv_pair = match context.metadata.kv_pairs.as_ref().unwrap().get(kv_index) {
@@ -371,7 +372,7 @@ pub fn try_read_values(context: &mut ReadContext) -> Result<(), BxesReadError> {
   let values_count = try_read_u32(reader)?;
   for _ in 0..values_count {
     let value = try_read_bxes_value(context)?;
-    context.metadata.values.as_mut().unwrap().push(Rc::new(value));
+    context.metadata.values.as_mut().unwrap().push(Arc::new(value));
   }
 
   Ok(())
@@ -389,7 +390,7 @@ fn try_read_bxes_value(context: &mut ReadContext) -> Result<BxesValue, BxesReadE
     TypeIds::F32 => Ok(BxesValue::Float32(try_read_f32(reader)?)),
     TypeIds::F64 => Ok(BxesValue::Float64(try_read_f64(reader)?)),
     TypeIds::Bool => Ok(BxesValue::Bool(try_read_bool(reader)?)),
-    TypeIds::String => Ok(BxesValue::String(Rc::from(try_read_string(reader)?))),
+    TypeIds::String => Ok(BxesValue::String(Arc::from(try_read_string(reader)?))),
     TypeIds::Timestamp => Ok(BxesValue::Timestamp(try_read_i64(reader)?)),
     TypeIds::BrafLifecycle => Ok(BxesValue::BrafLifecycle(try_read_braf_lifecycle(reader)?)),
     TypeIds::StandardLifecycle => Ok(BxesValue::StandardLifecycle(try_read_standard_lifecycle(reader)?)),

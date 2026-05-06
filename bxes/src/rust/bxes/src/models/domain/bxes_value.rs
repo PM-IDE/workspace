@@ -6,8 +6,8 @@ use crate::models::domain::{
 };
 use std::{
   hash::{Hash, Hasher},
-  rc::Rc,
 };
+use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 pub enum BxesValue {
@@ -18,7 +18,7 @@ pub enum BxesValue {
   Uint64(u64),
   Float32(f32),
   Float64(f64),
-  String(Rc<str>),
+  String(Arc<str>),
   Bool(bool),
   Timestamp(i64),
   BrafLifecycle(BrafLifecycle),

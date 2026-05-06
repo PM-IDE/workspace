@@ -5,7 +5,7 @@ use crate::{
     bxes_event_log::{BxesEventLog, BxesTraceVariant},
     bxes_log_metadata::BxesEventLogMetadata,
   },
-  read::read_context::{ReadContext, ReadMetadata},
+  read::read_context::ReadContext,
   utils::buffered_stream::BufferedReadFileStream,
 };
 use std::path::Path;
