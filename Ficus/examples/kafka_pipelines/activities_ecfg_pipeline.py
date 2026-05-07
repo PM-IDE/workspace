@@ -1,5 +1,6 @@
 ﻿from common import execute_pipeline, pipeline_with_default_cfg
 from ficus import *
+import os
 
 execute_pipeline(
   'MySubscription',
@@ -36,6 +37,51 @@ execute_pipeline(
       DiscoverECFG(root_sequence_kind=RootSequenceKind.FindBest,
                    merge_sequences_of_events=False),
       AnnotateGraphWithTime(TimeAnnotationKind.Mean),
-    ])
+    ]),
+    (
+      [
+        RemainEventsByRegex('GC/'),
+        FilterEventsByRegex('GC/RestartEEStart'),
+        FilterEventsByRegex('GC/RestartEEStop'),
+        FilterEventsByRegex('GC/SuspendEEStart'),
+        FilterEventsByRegex('GC/SuspendEEStop'),
+        FilterEventsByRegex('GC/Finaliz'),
+        FilterEventsByRegex('GC/SampledObject'),
+        FilterEventsByRegex('GC/SetGCHandle'),
+        FilterEventsByRegex('GC/BGCAllocWait'),
+        FilterEventsByRegex('GC/Pin'),
+        FilterEventsByRegex('GC/CreateSegment'),
+        FilterEventsByRegex('GC/Triggered'),
+        TerminateIfEmptyLog(),
+        DiscoverCases(start_regex='GC/Start', end_regex='GC/Stop', inline_inner_cases=True, pipeline=Pipeline(
+          DiscoverMultithreadedDfg(thread_attribute='NativeThreadId'),
+          ViewGraph(export_path=os.path.join(os.path.abspath(os.curdir), 'multithreaded.png')),
+          DiscoverDirectlyFollowsGraph(),
+          ViewGraph(export_path=os.path.join(os.path.abspath(os.curdir), 'default.png')),
+          AbstractMultithreadedEventsGroups(
+            thread_attribute='NativeThreadId',
+            time_attribute='QpcStamp',
+            n_components=NComponents.Two,
+            distance=Distance.Cosine,
+            tolerance=0.1,
+            view_params=(-50, 20),
+            put_noise_events_in_one_cluster=False,
+            min_events_count_in_cluster=2,
+            feature_count_kind=FeatureCountKind.Count,
+            visualization_method=DatasetVisualizationMethod.TSNE,
+            after_clusterization_pipeline=Pipeline(
+              AddStartEndArtificialEvents(),
+              TracesDiversityDiagramCanvas(),
+              DiscoverLoopsStrict(),
+              CreateLogFromActivitiesInstances(strategy=UndefinedActivityHandlingStrategy.InsertAllEvents),
+              DiscoverECFG(root_sequence_kind=RootSequenceKind.FindBest,
+                           merge_sequences_of_events=False),
+              AnnotateGraphWithTime(TimeAnnotationKind.Mean),
+            )
+          ),
+        ))
+      ],
+      os.path.join(os.path.abspath(os.curdir), 'gc_config.json')
+    )
   ]
 )
