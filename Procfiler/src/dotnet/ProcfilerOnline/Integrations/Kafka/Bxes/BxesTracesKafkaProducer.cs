@@ -37,6 +37,8 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
 {
   private const char CaseNamePartsSeparator = ';';
 
+  private readonly Lock myLock = new();
+
 
   private readonly IBxesStreamWriter myWriter = new BxesKafkaStreamWriter<BxesEvent>(
     BxesUtil.CreateSystemMetadata(),
@@ -53,8 +55,10 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
     List<AttributeKeyValue> metadata =
     [
       new(new BxesStringValue(FicusKafkaKeys.CaseDisplayNameKey), new BxesStringValue(trace.CaseName.DisplayName)),
-      new(new BxesStringValue(FicusKafkaKeys.CaseNameParts),
-      new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))),
+      new(
+        new BxesStringValue(FicusKafkaKeys.CaseNameParts),
+        new BxesStringValue(string.Join(CaseNamePartsSeparator, trace.CaseName.NameParts))
+      ),
       new(new BxesStringValue(FicusKafkaKeys.ProcessNameKey), new BxesStringValue(trace.ProcessName)),
       new(new BxesStringValue(FicusKafkaKeys.CaseId), new BxesGuidValue(trace.CaseId))
     ];
@@ -63,14 +67,17 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
 
     try
     {
-      myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
-
-      foreach (var eventRecord in trace.Trace)
+      lock (myLock)
       {
-        myWriter.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, true)));
-      }
+        myWriter.HandleEvent(new BxesTraceVariantStartEvent(1, metadata));
 
-      myWriter.HandleEvent(BxesKafkaTraceVariantEndEvent.Instance);
+        foreach (var eventRecord in trace.Trace)
+        {
+          myWriter.HandleEvent(new BxesEventEvent<BxesEvent>(new BxesEvent(eventRecord, true)));
+        }
+
+        myWriter.HandleEvent(BxesKafkaTraceVariantEndEvent.Instance);
+      }
     }
     catch (Exception ex)
     {
@@ -78,7 +85,7 @@ public class BxesTracesKafkaProducer(IOptions<OnlineProcfilerSettings> settings,
         ex,
         "Failed to produce bXES trace to kafka, process name: {ProcessName}, case name: {CaseName}, events count: {EventsCount}",
         trace.ProcessName,
-        trace.CaseName,
+        trace.CaseName.DisplayName,
         trace.Trace.Count
       );
     }

@@ -85,7 +85,7 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
   {
     if (myTraceInfo.Events.Count == 0) return;
 
-    myProducer.ProduceAsync(myTopicName, new Message<Guid, BxesKafkaTrace<TEvent>>
+    myProducer.Produce(myTopicName, new Message<Guid, BxesKafkaTrace<TEvent>>
     {
       Key = Guid.NewGuid(),
       Value = new BxesKafkaTrace<TEvent>
@@ -94,7 +94,7 @@ public class BxesKafkaStreamWriter<TEvent> : IBxesStreamWriter where TEvent : IE
         Metadata = myTraceInfo.Metadata,
         Events = myTraceInfo.Events
       }
-    }).GetAwaiter().GetResult();
+    });
   }
 
   public void Dispose()

@@ -1,4 +1,6 @@
 ﻿using Core.Container;
+using Core.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace ProcfilerOnline.Core.Handlers;
 
@@ -15,14 +17,24 @@ public interface ICompositeEventPipeStreamEventHandler
 }
 
 [AppComponent]
-public class CompositeEventPipeStreamEventHandler(IEnumerable<IEventPipeStreamEventHandler> handlers)
+public class CompositeEventPipeStreamEventHandler(IProcfilerLogger logger, IEnumerable<IEventPipeStreamEventHandler> handlers)
   : ICompositeEventPipeStreamEventHandler
 {
   public void Handle(IEventPipeStreamEvent @event)
   {
-    foreach (var handler in handlers)
+    Task.Run(() =>
     {
-      handler.Handle(@event);
-    }
+      foreach (var handler in handlers)
+      {
+        try
+        {
+          handler.Handle(@event);
+        }
+        catch (Exception ex)
+        {
+          logger.LogError(ex, "Failed to execute handler {Handler}", handler.GetType().Name);
+        }
+      }
+    });
   }
 }
