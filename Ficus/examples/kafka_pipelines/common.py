@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from ficus import *
 import os
 import time
@@ -8,13 +10,24 @@ def env_or_default(env_name: str, default: str):
   return env if env is not None else default
 
 
-def pipeline_with_default_cfg(pipeline_parts: list[PipelinePart]) -> (list[PipelinePart], str):
-  return pipeline_parts, os.path.join(os.path.abspath(os.curdir), 'software_data_config.json')
+@dataclass
+class PipelinePartInfo:
+  parts: list[PipelinePart]
+  config_path: str
+  name: str
+
+
+def pipeline_with_default_cfg(pipeline_parts: list[PipelinePart]) -> PipelinePartInfo:
+  return PipelinePartInfo(
+    pipeline_parts,
+    os.path.join(os.path.abspath(os.curdir), 'software_data_config.json'),
+    'Pipeline'
+  )
 
 
 def execute_pipeline(sub_name: str,
                      pipeline_name: str,
-                     pipelines_parts: list[(list[PipelinePart], str)],
+                     pipelines: list[PipelinePartInfo],
                      trace_filtering_pipeline=Pipeline()):
   consumer_servers = env_or_default('CONSUMER_BOOTSTRAP_SERVERS', 'localhost:9092')
   consumer_topic = env_or_default('CONSUMER_TOPIC', 'my-topic')
@@ -47,15 +60,15 @@ def execute_pipeline(sub_name: str,
   if subscription_id is None:
     return
 
-  for (pipeline_part, cfg_path) in pipelines_parts:
-    with open(cfg_path, "r") as f:
+  for p in pipelines:
+    with open(p.config_path, "r") as f:
       software_data_config = f.read()
 
     KafkaPipeline(
-      pipeline_part
+      p.parts
     ).execute(ficus_backend,
               subscription_id,
-              pipeline_name,
+              p.name,
               kafka_producer_metadata,
               initial_context={
                 'software_data_extraction_config': JsonContextValue(software_data_config)

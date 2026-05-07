@@ -1,4 +1,4 @@
-﻿from common import execute_pipeline, pipeline_with_default_cfg
+﻿from common import execute_pipeline, pipeline_with_default_cfg, PipelinePartInfo
 from ficus import *
 import os
 
@@ -38,7 +38,7 @@ execute_pipeline(
                    merge_sequences_of_events=False),
       AnnotateGraphWithTime(TimeAnnotationKind.Mean),
     ]),
-    (
+    PipelinePartInfo(
       [
         RemainEventsByRegex('GC/'),
         FilterEventsByRegex('GC/RestartEEStart'),
@@ -81,7 +81,8 @@ execute_pipeline(
           ),
         ))
       ],
-      os.path.join(os.path.abspath(os.curdir), 'gc_config.json')
+      os.path.join(os.path.abspath(os.curdir), 'gc_config.json'),
+      'GC pipeline'
     )
   ]
 )
