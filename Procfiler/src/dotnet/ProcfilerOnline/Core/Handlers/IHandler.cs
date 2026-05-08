@@ -14,27 +14,44 @@ public interface IEventPipeStreamEvent;
 public interface ICompositeEventPipeStreamEventHandler
 {
   void Handle(IEventPipeStreamEvent eventPipeStreamEvent);
+  void WaitAllActiveHandlers();
 }
 
 [AppComponent]
 public class CompositeEventPipeStreamEventHandler(IProcfilerLogger logger, IEnumerable<IEventPipeStreamEventHandler> handlers)
   : ICompositeEventPipeStreamEventHandler
 {
+  private int myExecutingHandlers;
+
+
   public void Handle(IEventPipeStreamEvent @event)
   {
     Task.Run(() =>
     {
-      foreach (var handler in handlers)
+      try
       {
-        try
+        Interlocked.Increment(ref myExecutingHandlers);
+        foreach (var handler in handlers)
         {
-          handler.Handle(@event);
-        }
-        catch (Exception ex)
-        {
-          logger.LogError(ex, "Failed to execute handler {Handler}", handler.GetType().Name);
+          try
+          {
+            handler.Handle(@event);
+          }
+          catch (Exception ex)
+          {
+            logger.LogError(ex, "Failed to execute handler {Handler}", handler.GetType().Name);
+          }
         }
       }
+      finally
+      {
+        Interlocked.Decrement(ref myExecutingHandlers);
+      }
     });
+  }
+
+  public void WaitAllActiveHandlers()
+  {
+    SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref myExecutingHandlers, -1, 0) == 0);
   }
 }
