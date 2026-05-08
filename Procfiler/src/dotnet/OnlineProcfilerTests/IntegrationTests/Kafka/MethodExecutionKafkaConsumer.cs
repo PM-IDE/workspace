@@ -37,7 +37,10 @@ public class MethodExecutionKafkaConsumer : IDisposable
     var messages = new List<(List<AttributeKeyValue> Metadata, List<IEvent> Events)>();
     while (true)
     {
-      var result = myConsumer.Consume();
+      var source = new CancellationTokenSource();
+      source.CancelAfter(TimeSpan.FromSeconds(10));
+
+      var result = myConsumer.Consume(source.Token);
       if (result.IsPartitionEOF) break;
 
       var bxesTrace = myBxesKafkaConsumer.Consume(result.Message.Value);
