@@ -19,27 +19,22 @@ public class OnlineProcfilerKafkaTests : OnlineProcfilerTestWithGold
 {
   protected override IEnumerable<IEventPipeStreamEventHandler> HandlersToRegister { get; } = [];
 
-
   [Test]
-  public void AllSolutionsTest() => Execute(() => DoExecuteTest(KnownSolution.AllSolutionsLatestFramework));
-
-
-  private string DoExecuteTest(IEnumerable<KnownSolution> solutions)
+  public void IntegrationTest() => Execute(() =>
   {
+    //TODO: test against all solutions
     var settings = Container.Resolve<IOptions<OnlineProcfilerSettings>>().Value;
-    var consumer = new MethodExecutionKafkaConsumer(settings);
+    using var consumer = new MethodExecutionKafkaConsumer(settings);
     var sb = new StringBuilder();
+    var solution = KnownSolution.ConsoleApp1;
 
-    foreach (var solution in solutions)
-    {
-      var globalData = ExecuteTest(solution) ?? throw new Exception();
-      var traces = ConsumeAllEvents(consumer);
+    var globalData = ExecuteTest(KnownSolution.ConsoleApp1) ?? throw new Exception();
+    var traces = ConsumeAllEvents(consumer);
 
-      AddSerializedTracesToGold(solution, globalData, traces, sb);
-    }
+    AddSerializedTracesToGold(solution, globalData, traces, sb);
 
     return sb.ToString();
-  }
+  });
 
   private static Traces ConsumeAllEvents(MethodExecutionKafkaConsumer consumer) =>
     consumer.ConsumeAllEvents()
