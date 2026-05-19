@@ -124,8 +124,6 @@ var GrpcBackendBalancerService_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	GrpcBackendService_ExecutePipeline_FullMethodName     = "/ficus.GrpcBackendService/ExecutePipeline"
-	GrpcBackendService_GetContextValue_FullMethodName     = "/ficus.GrpcBackendService/GetContextValue"
-	GrpcBackendService_GetAllContextValues_FullMethodName = "/ficus.GrpcBackendService/GetAllContextValues"
 	GrpcBackendService_DropExecutionResult_FullMethodName = "/ficus.GrpcBackendService/DropExecutionResult"
 	GrpcBackendService_GetBackendInfo_FullMethodName      = "/ficus.GrpcBackendService/GetBackendInfo"
 )
@@ -135,8 +133,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GrpcBackendServiceClient interface {
 	ExecutePipeline(ctx context.Context, in *GrpcProxyPipelineExecutionRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult], error)
-	GetContextValue(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGuid, error)
-	GetAllContextValues(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*GrpcGetAllContextValuesResult, error)
 	DropExecutionResult(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetBackendInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GrpcFicusBackendInfo, error)
 }
@@ -168,26 +164,6 @@ func (c *grpcBackendServiceClient) ExecutePipeline(ctx context.Context, in *Grpc
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GrpcBackendService_ExecutePipelineClient = grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult]
 
-func (c *grpcBackendServiceClient) GetContextValue(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGuid, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GrpcGuid)
-	err := c.cc.Invoke(ctx, GrpcBackendService_GetContextValue_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *grpcBackendServiceClient) GetAllContextValues(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*GrpcGetAllContextValuesResult, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GrpcGetAllContextValuesResult)
-	err := c.cc.Invoke(ctx, GrpcBackendService_GetAllContextValues_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *grpcBackendServiceClient) DropExecutionResult(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -213,8 +189,6 @@ func (c *grpcBackendServiceClient) GetBackendInfo(ctx context.Context, in *empty
 // for forward compatibility.
 type GrpcBackendServiceServer interface {
 	ExecutePipeline(*GrpcProxyPipelineExecutionRequest, grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]) error
-	GetContextValue(context.Context, *GrpcGetContextValueRequest) (*GrpcGuid, error)
-	GetAllContextValues(context.Context, *GrpcGuid) (*GrpcGetAllContextValuesResult, error)
 	DropExecutionResult(context.Context, *GrpcGuid) (*emptypb.Empty, error)
 	GetBackendInfo(context.Context, *emptypb.Empty) (*GrpcFicusBackendInfo, error)
 	mustEmbedUnimplementedGrpcBackendServiceServer()
@@ -229,12 +203,6 @@ type UnimplementedGrpcBackendServiceServer struct{}
 
 func (UnimplementedGrpcBackendServiceServer) ExecutePipeline(*GrpcProxyPipelineExecutionRequest, grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]) error {
 	return status.Errorf(codes.Unimplemented, "method ExecutePipeline not implemented")
-}
-func (UnimplementedGrpcBackendServiceServer) GetContextValue(context.Context, *GrpcGetContextValueRequest) (*GrpcGuid, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetContextValue not implemented")
-}
-func (UnimplementedGrpcBackendServiceServer) GetAllContextValues(context.Context, *GrpcGuid) (*GrpcGetAllContextValuesResult, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllContextValues not implemented")
 }
 func (UnimplementedGrpcBackendServiceServer) DropExecutionResult(context.Context, *GrpcGuid) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropExecutionResult not implemented")
@@ -273,42 +241,6 @@ func _GrpcBackendService_ExecutePipeline_Handler(srv interface{}, stream grpc.Se
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GrpcBackendService_ExecutePipelineServer = grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]
-
-func _GrpcBackendService_GetContextValue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GrpcGetContextValueRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GrpcBackendServiceServer).GetContextValue(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GrpcBackendService_GetContextValue_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GrpcBackendServiceServer).GetContextValue(ctx, req.(*GrpcGetContextValueRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _GrpcBackendService_GetAllContextValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GrpcGuid)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GrpcBackendServiceServer).GetAllContextValues(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GrpcBackendService_GetAllContextValues_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GrpcBackendServiceServer).GetAllContextValues(ctx, req.(*GrpcGuid))
-	}
-	return interceptor(ctx, in, info, handler)
-}
 
 func _GrpcBackendService_DropExecutionResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GrpcGuid)
@@ -353,14 +285,6 @@ var GrpcBackendService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "ficus.GrpcBackendService",
 	HandlerType: (*GrpcBackendServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetContextValue",
-			Handler:    _GrpcBackendService_GetContextValue_Handler,
-		},
-		{
-			MethodName: "GetAllContextValues",
-			Handler:    _GrpcBackendService_GetAllContextValues_Handler,
-		},
 		{
 			MethodName: "DropExecutionResult",
 			Handler:    _GrpcBackendService_DropExecutionResult_Handler,

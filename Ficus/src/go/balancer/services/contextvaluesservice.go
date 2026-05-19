@@ -2,6 +2,7 @@ package services
 
 import (
 	"balancer/contextvalues"
+	"balancer/executor"
 	"balancer/utils"
 	"context"
 	"grpcmodels"
@@ -15,13 +16,14 @@ import (
 )
 
 type ContextValuesServiceServer struct {
-	storage contextvalues.Storage
-	logger  *zap.SugaredLogger
+	storage  contextvalues.Storage
+	executor executor.PipelineExecutor
+	logger   *zap.SugaredLogger
 	grpcmodels.UnsafeGrpcContextValuesServiceServer
 }
 
-func NewContextValuesServiceServer(storage contextvalues.Storage, logger *zap.SugaredLogger) *ContextValuesServiceServer {
-	return &ContextValuesServiceServer{storage: storage, logger: logger}
+func NewContextValuesServiceServer(storage contextvalues.Storage, executor executor.PipelineExecutor, logger *zap.SugaredLogger) *ContextValuesServiceServer {
+	return &ContextValuesServiceServer{storage: storage, executor: executor, logger: logger}
 }
 
 func (this *ContextValuesServiceServer) SetContextValue(
@@ -83,4 +85,40 @@ func (this *ContextValuesServiceServer) GetContextValue(
 	this.logger.Infow("Returned context value with id", "context_value_id", parsedId)
 
 	return nil
+}
+
+func (this *ContextValuesServiceServer) GetAllContextValuesIds(
+	_ context.Context,
+	id *grpcmodels.GrpcGuid,
+) (*grpcmodels.GrpcGetAllContextValuesResult, error) {
+	executionContextValues := this.executor.GetExecutionContextValues(id)
+	if executionContextValues.IsErr() {
+		return nil, executionContextValues.Err()
+	}
+
+	var ids []*grpcmodels.GrpcGuid
+
+	for _, id := range *executionContextValues.Ok() {
+		ids = append(ids, &grpcmodels.GrpcGuid{Guid: id.String()})
+	}
+
+	return &grpcmodels.GrpcGetAllContextValuesResult{ContextValues: ids}, nil
+}
+
+func (this *ContextValuesServiceServer) GetContextValueId(
+	_ context.Context,
+	request *grpcmodels.GrpcGetContextValueRequest,
+) (*grpcmodels.GrpcGuid, error) {
+	executionContextValues := this.executor.GetExecutionContextValues(request.ExecutionId)
+	if executionContextValues.IsErr() {
+		return nil, executionContextValues.Err()
+	}
+
+	id, ok := (*executionContextValues.Ok())[request.Key.Name]
+	if !ok {
+		msg := "context value for execution id %s and context value key %s are not found"
+		return nil, status.Errorf(codes.NotFound, msg, request.ExecutionId.Guid, request.Key.Name)
+	}
+
+	return &grpcmodels.GrpcGuid{Guid: id.String()}, nil
 }

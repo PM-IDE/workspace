@@ -22,7 +22,6 @@
   private class AggregatedStatDto
   {
     public required string Title { get; init; }
-    public required double Value { get; init; }
     public required string ValueStringRepresentation { get; init; }
 
     public string? Units { get; init; }
@@ -49,7 +48,6 @@
 
       return new AggregatedStatDto
       {
-        Value = value,
         Title = CreateAggregatedStatTitle(counter.Key, counter.Value),
         ValueStringRepresentation = value.ToString(CultureInfo.InvariantCulture),
         Units = counter.Value.Units,
@@ -66,7 +64,6 @@
 
       return new AggregatedStatDto
       {
-        Value = value,
         Title = CreateAggregatedStatTitle(histogram.Key, histogram.Value),
         ValueStringRepresentation = value.ToString(CultureInfo.InvariantCulture),
         Units = histogram.Value.Units,
@@ -80,7 +77,6 @@
       var value = duration.Value.Value.Value;
       return new AggregatedStatDto
       {
-        Value = value,
         Title = CreateAggregatedStatTitle(duration.Key, duration.Value),
         ValueStringRepresentation = value.ToString(CultureInfo.InvariantCulture),
         Units = duration.Value.Units
@@ -92,7 +88,6 @@
     new()
     {
       Title = "Execution Time",
-      Value = Data.TotalExecutionTimeNs,
       ValueStringRepresentation = TimeSpan.FromTicks((long)Math.Ceiling(Data.TotalExecutionTimeNs / TimeSpan.NanosecondsPerTick)).ToString("c"),
       Units = string.Empty
     }

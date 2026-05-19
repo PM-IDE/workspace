@@ -7,6 +7,7 @@
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.PetriNet
 @using FicusDashboard.Components.CaseInfo.ContextValues.Canvas.Graph
 @using FicusDashboard.Components.CaseInfo.ContextValues
+@using FicusDashboard.Components.SidebarList
 @using FicusDashboard.Components.Utils
 @using FicusDashboard.Layout.Models
 @using JetBrains.Lifetimes
@@ -17,7 +18,7 @@
 <div id="@myContainerId" class="@ContainerClass">
   @if (myIsLoading)
   {
-    <Loader LeftUpMargin="true" />
+    <Loader LeftUpMargin="true"/>
   }
 
   <div class="pipeline-part-name-outer-container" style="visibility: @(myIsLoading ? "collapse" : "visible")">
@@ -94,9 +95,6 @@
 </div>
 
 @code {
-  private static readonly Key<bool> ourExpandedKey = new(nameof(ourExpandedKey));
-
-
   private readonly Guid myContainerId = Guid.NewGuid();
 
 
@@ -151,12 +149,12 @@
 
   private static bool IsExpanded(PipelinePartExecutionResults results)
   {
-    return results.UserData.GetOrCreate(ourExpandedKey, static () => true);
+    return results.UserData.GetOrCreate(Keys.ExpandedKey, static () => true);
   }
 
   private void HandleExecutionResultTitleClicked(PipelinePartExecutionResults results)
   {
-    results.UserData.PutData(ourExpandedKey, !results.UserData.GetOrCreate(ourExpandedKey, static () => true));
+    results.UserData.PutData(Keys.ExpandedKey, !results.UserData.GetOrCreate(Keys.ExpandedKey, static () => true));
     StateHasChanged();
   }
 

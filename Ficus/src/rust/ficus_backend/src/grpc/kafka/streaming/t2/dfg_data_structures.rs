@@ -1,7 +1,4 @@
-use crate::grpc::kafka::{
-  models::XesFromBxesKafkaTraceCreatingError,
-  streaming::processors::{CaseMetadata, ProcessMetadata},
-};
+use crate::grpc::kafka::models::{CaseMetadata, ProcessMetadata, XesFromBxesKafkaTraceCreatingError};
 use bxes::models::domain::bxes_value::BxesValue;
 use ficus::{
   event_log::{
@@ -19,8 +16,8 @@ use ficus::{
   pipelines::{context::PipelineContext, keys::context_keys::EVENT_LOG_INFO_KEY},
   utils::user_data::user_data::UserData,
 };
-use log::{debug, warn};
-use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, time::Duration};
+use log::{debug, info, warn};
+use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc, sync::Arc, time::Duration};
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -41,16 +38,16 @@ impl StreamingCounterFactory {
 #[derive(Clone)]
 struct DfgDataStructureBase {
   factory: StreamingCounterFactory,
-  processes_dfg: HashMap<Rc<str>, Rc<RefCell<dyn StreamingCounter<(Rc<str>, Rc<str>), ()>>>>,
-  traces_last_event_classes: Rc<RefCell<dyn StreamingCounter<Uuid, Rc<str>>>>,
-  event_classes_count: HashMap<Rc<str>, Rc<RefCell<dyn StreamingCounter<Rc<str>, ()>>>>,
+  processes_dfg: HashMap<Arc<str>, Rc<RefCell<dyn StreamingCounter<(Arc<str>, Arc<str>), ()>>>>,
+  traces_last_event_classes: Rc<RefCell<dyn StreamingCounter<Uuid, Arc<str>>>>,
+  event_classes_count: HashMap<Arc<str>, Rc<RefCell<dyn StreamingCounter<Arc<str>, ()>>>>,
 }
 
 unsafe impl Send for DfgDataStructureBase {}
 unsafe impl Sync for DfgDataStructureBase {}
 
 impl DfgDataStructureBase {
-  pub fn observe_dfg_relation(&mut self, process_name: &Rc<str>, relation: (Rc<str>, Rc<str>)) {
+  pub fn observe_dfg_relation(&mut self, process_name: &Arc<str>, relation: (Arc<str>, Arc<str>)) {
     debug!(
       "Observing relation, process: {}, relation: ({}, {})",
       process_name, &relation.0, &relation.1
@@ -64,7 +61,7 @@ impl DfgDataStructureBase {
       .observe(relation, ValueUpdateKind::DoNothing);
   }
 
-  pub fn observe_event_class(&mut self, process_name: &Rc<str>, event_class: Rc<str>) {
+  pub fn observe_event_class(&mut self, process_name: &Arc<str>, event_class: Arc<str>) {
     debug!("Observing event class, process: {}, event class: {}", process_name, event_class);
 
     self
@@ -75,7 +72,7 @@ impl DfgDataStructureBase {
       .observe(event_class, ValueUpdateKind::DoNothing);
   }
 
-  pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: Rc<str>) {
+  pub fn observe_last_trace_class(&self, case_id: Uuid, last_class: Arc<str>) {
     debug!(
       "Observing last trace class, case id: {}, last class: {}",
       &case_id,
@@ -88,7 +85,7 @@ impl DfgDataStructureBase {
       .observe(case_id, ValueUpdateKind::Replace(last_class))
   }
 
-  pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<Rc<str>> {
+  pub fn last_seen_event_class(&self, case_id: &Uuid) -> Option<Arc<str>> {
     self
       .traces_last_event_classes
       .borrow()
@@ -96,7 +93,7 @@ impl DfgDataStructureBase {
       .map(|value| value.value().unwrap().clone())
   }
 
-  pub fn to_event_log_info(&self, process_name: &Rc<str>) -> Option<OfflineEventLogInfo> {
+  pub fn to_event_log_info(&self, process_name: &str) -> Option<OfflineEventLogInfo> {
     let event_classes_count = match self.event_classes_count.get(process_name) {
       None => return None,
       Some(classes) => classes.borrow().to_freq_count_map().into_iter().map(|(k, v)| (k, v.1)).collect(),
@@ -133,7 +130,7 @@ impl DfgDataStructureBase {
 }
 
 #[derive(Clone)]
-pub(in crate::grpc::kafka::streaming::t2) struct DfgDataStructures {
+pub(super) struct DfgDataStructures {
   base: DfgDataStructureBase,
 }
 
@@ -164,9 +161,8 @@ impl DfgDataStructures {
 impl DfgDataStructures {
   pub fn process_bxes_trace(
     &mut self,
-    metadata: &HashMap<Rc<str>, Rc<BxesValue>>,
+    metadata: &HashMap<Arc<str>, Arc<BxesValue>>,
     xes_trace: &XesTraceImpl,
-    context: &mut PipelineContext,
   ) -> Result<(), XesFromBxesKafkaTraceCreatingError> {
     if xes_trace.events().is_empty() {
       return Ok(());
@@ -198,19 +194,22 @@ impl DfgDataStructures {
       .base
       .observe_last_trace_class(case_metadata.case_id.to_owned(), new_trace_last_class.clone());
 
-    match self.base.to_event_log_info(process_name) {
-      None => {
-        warn!("Failed to create offline event log info")
-      }
-      Some(log_info) => {
-        context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
-      }
-    }
-
     Ok(())
   }
 
   pub fn invalidate(&mut self) {
     self.base.invalidate();
+  }
+
+  pub fn fill_pipeline_context(&self, context: &mut PipelineContext, case_name: &str) {
+    match self.base.to_event_log_info(case_name) {
+      None => {
+        warn!("Failed to create offline event log info for case {case_name}");
+      }
+      Some(log_info) => {
+        context.put_concrete(EVENT_LOG_INFO_KEY.key(), log_info);
+        info!("Filled offline event log info for case {case_name}");
+      }
+    }
   }
 }

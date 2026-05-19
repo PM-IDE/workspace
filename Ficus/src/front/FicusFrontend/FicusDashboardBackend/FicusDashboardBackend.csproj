@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore"/>
     <PackageReference Include="Grpc.AspNetCore.Web"/>
+    <PackageReference Include="Grpc.Net.Client"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,9 +1,8 @@
-use std::rc::Rc;
-
 use ficus::utils::user_data::{
   keys::DefaultKey,
   user_data::{UserData, UserDataImpl},
 };
+use std::sync::Arc;
 
 #[test]
 fn test_user_data() {
@@ -20,13 +19,13 @@ fn test_user_data() {
 
 #[test]
 fn test_user_data_two_keys() {
-  let first_key = DefaultKey::<Rc<Box<usize>>>::new("1".to_string());
-  let second_key = DefaultKey::<Rc<Box<usize>>>::new("2".to_string());
+  let first_key = DefaultKey::<Arc<Box<usize>>>::new("1".to_string());
+  let second_key = DefaultKey::<Arc<Box<usize>>>::new("2".to_string());
 
-  let first_value = Rc::new(Box::new(123));
-  let second_value = Rc::new(Box::new(321));
-  let box1 = Rc::clone(&first_value);
-  let box2 = Rc::clone(&second_value);
+  let first_value = Arc::new(Box::new(123));
+  let second_value = Arc::new(Box::new(321));
+  let box1 = Arc::clone(&first_value);
+  let box2 = Arc::clone(&second_value);
 
   let mut user_data = UserDataImpl::default();
 
@@ -36,8 +35,8 @@ fn test_user_data_two_keys() {
   assert_eq!(user_data.concrete(&first_key).unwrap(), &first_value);
   assert_eq!(user_data.concrete(&second_key).unwrap(), &second_value);
 
-  assert!(Rc::ptr_eq(user_data.get(&first_key).unwrap(), &first_value));
-  assert!(Rc::ptr_eq(user_data.get(&second_key).unwrap(), &second_value));
+  assert!(Arc::ptr_eq(user_data.get(&first_key).unwrap(), &first_value));
+  assert!(Arc::ptr_eq(user_data.get(&second_key).unwrap(), &second_value));
 }
 
 #[test]

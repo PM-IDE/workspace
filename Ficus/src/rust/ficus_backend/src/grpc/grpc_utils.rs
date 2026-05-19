@@ -1,6 +1,6 @@
 use crate::ficus_proto::{
-  grpc_kafka_result, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcGuid, GrpcKafkaPipelineExecutionRequest, GrpcKafkaResult,
-  GrpcKafkaSuccessResult, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration,
+  GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcGuid, GrpcKafkaPipelineExecutionRequest, GrpcKafkaResult,
+  GrpcKafkaSuccessResult, GrpcPipelineExecutionRequest, GrpcPipelineStreamingConfiguration, grpc_kafka_result,
 };
 use std::str::FromStr;
 use tonic::Status;

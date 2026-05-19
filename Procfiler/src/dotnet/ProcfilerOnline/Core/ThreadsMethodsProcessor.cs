@@ -16,13 +16,33 @@ public interface IThreadsMethodsProcessor
   IReadOnlyList<(long ThreadId, List<EventRecordWithMetadata>)> ReclaimNotClosedMethods();
 }
 
-public class TargetMethodFrame(long methodId, ExtendedMethodInfo? methodInfo)
+public class TargetMethodFrame
 {
-  public long MethodId { get; } = methodId;
-  public ExtendedMethodInfo? MethodInfo { get; } = methodInfo;
-  public Guid CaseId { get; } = Guid.NewGuid();
+  public long MethodId { get; private init; }
+  public ExtendedMethodInfo? MethodInfo { get; private init; }
+  public Guid CaseId { get; private init; } = Guid.NewGuid();
 
-  public List<EventRecordWithMetadata> InnerEvents { get; } = [];
+  public List<EventRecordWithMetadata> InnerEvents { get; private init; } = [];
+
+
+  private TargetMethodFrame()
+  {
+  }
+
+  public TargetMethodFrame(long methodId, ExtendedMethodInfo? methodInfo)
+  {
+    MethodId = methodId;
+    MethodInfo = methodInfo;
+  }
+
+
+  public TargetMethodFrame Clone() => new()
+  {
+    MethodId = MethodId,
+    MethodInfo = MethodInfo,
+    CaseId = CaseId,
+    InnerEvents = [..InnerEvents],
+  };
 }
 
 [AppComponent]
@@ -71,7 +91,7 @@ public class ThreadsMethodsProcessor(
 
         handler.Handle(new MethodExecutionEvent
         {
-          Frame = frame,
+          Frame = frame.Clone(),
           ApplicationName = context.CommandContext.ApplicationName
         });
 

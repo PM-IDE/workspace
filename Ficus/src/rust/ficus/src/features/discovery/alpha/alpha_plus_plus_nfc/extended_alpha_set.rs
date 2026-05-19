@@ -10,13 +10,13 @@ use std::{
   collections::{BTreeSet, HashSet},
   fmt::Display,
   hash::{Hash, Hasher},
-  rc::Rc,
+  sync::Arc,
 };
 
 pub(crate) struct ExtendedAlphaSet {
   alpha_set: AlphaSet,
-  left_extension: BTreeSet<Rc<str>>,
-  right_extension: BTreeSet<Rc<str>>,
+  left_extension: BTreeSet<Arc<str>>,
+  right_extension: BTreeSet<Arc<str>>,
 }
 
 impl ExtendedAlphaSet {
@@ -28,7 +28,7 @@ impl ExtendedAlphaSet {
     }
   }
 
-  pub fn new(alpha_set: AlphaSet, left_extension: Rc<str>, right_extension: Rc<str>) -> Self {
+  pub fn new(alpha_set: AlphaSet, left_extension: Arc<str>, right_extension: Arc<str>) -> Self {
     Self {
       alpha_set,
       left_extension: BTreeSet::from_iter(vec![left_extension]),
@@ -36,7 +36,7 @@ impl ExtendedAlphaSet {
     }
   }
 
-  pub fn new_only_left(alpha_set: AlphaSet, left_extension: Rc<str>) -> Self {
+  pub fn new_only_left(alpha_set: AlphaSet, left_extension: Arc<str>) -> Self {
     Self {
       alpha_set,
       left_extension: BTreeSet::from_iter(vec![left_extension]),
@@ -44,7 +44,7 @@ impl ExtendedAlphaSet {
     }
   }
 
-  pub fn new_only_right(alpha_set: AlphaSet, right_extension: Rc<str>) -> Self {
+  pub fn new_only_right(alpha_set: AlphaSet, right_extension: Arc<str>) -> Self {
     Self {
       alpha_set,
       left_extension: BTreeSet::new(),
@@ -54,11 +54,11 @@ impl ExtendedAlphaSet {
 
   pub fn try_new<TLog: EventLog>(
     alpha_set: AlphaSet,
-    left_extension: Rc<str>,
-    right_extension: Rc<str>,
+    left_extension: Arc<str>,
+    right_extension: Arc<str>,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
-    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w1_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
+    w2_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
   ) -> Option<Self> {
     Self::try_new_internal(provider, w1_relations, w2_relations, move || {
       Self::new(alpha_set, left_extension, right_extension)
@@ -67,8 +67,8 @@ impl ExtendedAlphaSet {
 
   fn try_new_internal<TLog: EventLog>(
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
-    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w1_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
+    w2_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
     factory: impl FnOnce() -> Self,
   ) -> Option<Self> {
     let new_set = factory();
@@ -80,10 +80,10 @@ impl ExtendedAlphaSet {
 
   pub fn try_new_only_left<TLog: EventLog>(
     alpha_set: AlphaSet,
-    left_extension: Rc<str>,
+    left_extension: Arc<str>,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
-    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w1_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
+    w2_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
   ) -> Option<Self> {
     Self::try_new_internal(provider, w1_relations, w2_relations, || {
       Self::new_only_left(alpha_set, left_extension)
@@ -92,10 +92,10 @@ impl ExtendedAlphaSet {
 
   pub fn try_new_only_right<TLog: EventLog>(
     alpha_set: AlphaSet,
-    right_extension: Rc<str>,
+    right_extension: Arc<str>,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
-    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w1_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
+    w2_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
   ) -> Option<Self> {
     Self::try_new_internal(provider, w1_relations, w2_relations, || {
       Self::new_only_right(alpha_set, right_extension)
@@ -105,8 +105,8 @@ impl ExtendedAlphaSet {
   pub fn valid<TLog: EventLog>(
     &self,
     provider: &mut AlphaPlusNfcRelationsProvider<TLog>,
-    w1_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
-    w2_relations: &HashSet<(&Rc<str>, &Rc<str>)>,
+    w1_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
+    w2_relations: &HashSet<(&Arc<str>, &Arc<str>)>,
   ) -> bool {
     for a in &self.left_extension {
       if self.alpha_set.contains_left(a) {
@@ -163,7 +163,7 @@ impl ExtendedAlphaSet {
     }
   }
 
-  pub fn two_sets(&self) -> TwoSets<Rc<str>> {
+  pub fn two_sets(&self) -> TwoSets<Arc<str>> {
     let first = self.alpha_set.left_classes();
     let first = first.into_iter().chain(&self.left_extension);
 
@@ -206,7 +206,7 @@ impl Display for ExtendedAlphaSet {
     repr.push_str(self.alpha_set.to_string().as_str());
     repr.push_str(", ");
 
-    let mut serialize_set = |set: &BTreeSet<Rc<str>>| {
+    let mut serialize_set = |set: &BTreeSet<Arc<str>>| {
       repr.push('{');
       for item in set {
         repr.push_str(item);

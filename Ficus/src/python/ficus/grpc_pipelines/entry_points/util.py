@@ -43,7 +43,7 @@ def process_single_pipeline_output_stream(uuid_to_pipeline_with_callback, stream
       break
 
     if last_result.HasField('pipelinePartResult'):
-      issued_part_uuid = uuid.UUID(part_result.pipelinePartResult.guid.guid)
+      issued_part_uuid = uuid.UUID(part_result.pipelinePartResult.pipeline_part_id.guid)
       if issued_part_uuid in uuid_to_pipeline_with_callback:
         map = dict()
         for context_value_with_name in part_result.pipelinePartResult.contextValues:

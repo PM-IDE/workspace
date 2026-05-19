@@ -180,11 +180,11 @@ public class DllMethodsPatcher(IProcfilerLogger logger, IDepsJsonPatcher depsJso
     {
       if (ShouldInsertExitLogging(instructions, i))
       {
-        InsertProcfilerLogBefore(i, processor, methodFinishedLogReference, false);
+        InsertProcfilerLogBefore(i, processor, methodFinishedLogReference);
       }
     }
 
-    InsertProcfilerLogBefore(0, processor, methodStartedLogReference, true);
+    InsertProcfilerLogBefore(0, processor, methodStartedLogReference);
 
     Instruction GetStartOfInsertedInstructions(Instruction context) => context.Previous.Previous.Previous.Previous;
 
@@ -222,10 +222,6 @@ public class DllMethodsPatcher(IProcfilerLogger logger, IDepsJsonPatcher depsJso
     methodDefinition.Parameters.Count == 1 &&
     methodDefinition.Parameters[0].ParameterType.FullName == DotNetConstants.SystemString;
 
-  private static bool IsConsoleWriteLineMethod(MethodDefinition methodDefinition) =>
-    methodDefinition.Name == DotNetConstants.WriteLine &&
-    IsMethodWithOneStringParameter(methodDefinition);
-
   private static bool ShouldInsertExitLogging(Instruction instruction) =>
     instruction.OpCode == OpCodes.Ret;
 
@@ -233,7 +229,7 @@ public class DllMethodsPatcher(IProcfilerLogger logger, IDepsJsonPatcher depsJso
     ShouldInsertExitLogging(instructions[index]);
 
   private static void InsertProcfilerLogBefore(
-    int index, ILProcessor processor, MethodReference methodReference, bool entering)
+    int index, ILProcessor processor, MethodReference methodReference)
   {
     var message = processor.Body.Method.FullName;
 

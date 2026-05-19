@@ -5,7 +5,7 @@ use tempfile::TempDir;
 use crate::{
   binary_rw::core::{BinaryReader, Endian},
   models::domain::bxes_event_log::BxesEventLog,
-  read::read_context::{ReadContext, ReadMetadata},
+  read::read_context::ReadContext,
 };
 
 use super::{errors::BxesReadError, read_utils::*};

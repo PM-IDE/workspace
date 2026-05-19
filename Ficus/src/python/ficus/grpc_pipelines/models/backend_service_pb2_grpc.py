@@ -166,26 +166,6 @@ class GrpcBackendServiceStub(object):
 
                 )
 
-        self.GetContextValue = channel.unary_unary(
-
-                '/ficus.GrpcBackendService/GetContextValue',
-
-                request_serializer=backend__service__pb2.GrpcGetContextValueRequest.SerializeToString,
-
-                response_deserializer=util__pb2.GrpcGuid.FromString,
-
-                )
-
-        self.GetAllContextValues = channel.unary_unary(
-
-                '/ficus.GrpcBackendService/GetAllContextValues',
-
-                request_serializer=util__pb2.GrpcGuid.SerializeToString,
-
-                response_deserializer=backend__service__pb2.GrpcGetAllContextValuesResult.FromString,
-
-                )
-
         self.DropExecutionResult = channel.unary_unary(
 
                 '/ficus.GrpcBackendService/DropExecutionResult',
@@ -217,30 +197,6 @@ class GrpcBackendServiceServicer(object):
 
 
     def ExecutePipeline(self, request, context):
-
-        """Missing associated documentation comment in .proto file."""
-
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-
-        context.set_details('Method not implemented!')
-
-        raise NotImplementedError('Method not implemented!')
-
-
-
-    def GetContextValue(self, request, context):
-
-        """Missing associated documentation comment in .proto file."""
-
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-
-        context.set_details('Method not implemented!')
-
-        raise NotImplementedError('Method not implemented!')
-
-
-
-    def GetAllContextValues(self, request, context):
 
         """Missing associated documentation comment in .proto file."""
 
@@ -289,26 +245,6 @@ def add_GrpcBackendServiceServicer_to_server(servicer, server):
                     request_deserializer=backend__service__pb2.GrpcProxyPipelineExecutionRequest.FromString,
 
                     response_serializer=backend__service__pb2.GrpcPipelinePartExecutionResult.SerializeToString,
-
-            ),
-
-            'GetContextValue': grpc.unary_unary_rpc_method_handler(
-
-                    servicer.GetContextValue,
-
-                    request_deserializer=backend__service__pb2.GrpcGetContextValueRequest.FromString,
-
-                    response_serializer=util__pb2.GrpcGuid.SerializeToString,
-
-            ),
-
-            'GetAllContextValues': grpc.unary_unary_rpc_method_handler(
-
-                    servicer.GetAllContextValues,
-
-                    request_deserializer=util__pb2.GrpcGuid.FromString,
-
-                    response_serializer=backend__service__pb2.GrpcGetAllContextValuesResult.SerializeToString,
 
             ),
 
@@ -379,74 +315,6 @@ class GrpcBackendService(object):
             backend__service__pb2.GrpcProxyPipelineExecutionRequest.SerializeToString,
 
             backend__service__pb2.GrpcPipelinePartExecutionResult.FromString,
-
-            options, channel_credentials,
-
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-
-
-    @staticmethod
-
-    def GetContextValue(request,
-
-            target,
-
-            options=(),
-
-            channel_credentials=None,
-
-            call_credentials=None,
-
-            insecure=False,
-
-            compression=None,
-
-            wait_for_ready=None,
-
-            timeout=None,
-
-            metadata=None):
-
-        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcBackendService/GetContextValue',
-
-            backend__service__pb2.GrpcGetContextValueRequest.SerializeToString,
-
-            util__pb2.GrpcGuid.FromString,
-
-            options, channel_credentials,
-
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-
-
-    @staticmethod
-
-    def GetAllContextValues(request,
-
-            target,
-
-            options=(),
-
-            channel_credentials=None,
-
-            call_credentials=None,
-
-            insecure=False,
-
-            compression=None,
-
-            wait_for_ready=None,
-
-            timeout=None,
-
-            metadata=None):
-
-        return grpc.experimental.unary_unary(request, target, '/ficus.GrpcBackendService/GetAllContextValues',
-
-            util__pb2.GrpcGuid.SerializeToString,
-
-            backend__service__pb2.GrpcGetAllContextValuesResult.FromString,
 
             options, channel_credentials,
 

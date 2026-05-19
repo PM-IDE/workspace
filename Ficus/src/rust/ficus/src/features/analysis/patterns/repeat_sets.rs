@@ -1,13 +1,15 @@
+use super::tandem_arrays::SubArrayInTraceInfo;
 use crate::{features::analysis::patterns::pattern_info::UnderlyingPatternKind, utils::hash_utils::calculate_poly_hash_for_collection};
 use getset::Getters;
 use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
-  sync::atomic::{AtomicU64, Ordering},
+  sync::{
+    Arc,
+    atomic::{AtomicU64, Ordering},
+  },
 };
-
-use super::tandem_arrays::SubArrayInTraceInfo;
 
 #[derive(Clone, Copy, Debug)]
 pub struct SubArrayWithTraceIndex {
@@ -79,7 +81,7 @@ pub fn build_repeat_sets(log: &[Vec<u64>], patterns: &[Vec<SubArrayInTraceInfo>]
 #[derive(Debug, Getters)]
 pub struct ActivityNode {
   #[getset(get = "pub")]
-  id: Rc<str>,
+  id: Arc<str>,
   #[getset(get = "pub")]
   repeat_set: Option<SubArrayWithTraceIndex>,
   #[getset(get = "pub")]
@@ -89,7 +91,7 @@ pub struct ActivityNode {
   #[getset(get = "pub")]
   level: usize,
   #[getset(get = "pub")]
-  name: Rc<str>,
+  name: Arc<str>,
   #[getset(get = "pub")]
   pattern_kind: UnderlyingPatternKind,
 }
@@ -100,13 +102,13 @@ impl ActivityNode {
     event_classes: HashSet<u64>,
     children: Vec<Rc<RefCell<ActivityNode>>>,
     level: usize,
-    name: Rc<str>,
+    name: Arc<str>,
     pattern_kind: UnderlyingPatternKind,
   ) -> Self {
     static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
     Self {
-      id: Rc::from(format!("Activity_{}", NEXT_ID.fetch_add(1, Ordering::SeqCst))),
+      id: Arc::from(format!("Activity_{}", NEXT_ID.fetch_add(1, Ordering::SeqCst))),
       repeat_set,
       event_classes,
       children,
@@ -158,7 +160,7 @@ where
       events_set,
       vec![],
       activity_level,
-      Rc::from(name_creator(repeat_set)),
+      Arc::from(name_creator(repeat_set)),
       pattern_kind,
     )))
   };

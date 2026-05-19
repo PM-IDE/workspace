@@ -1,17 +1,17 @@
-use std::{
-  cell::RefCell,
-  collections::{HashMap, HashSet},
-  rc::Rc,
-};
-
 use crate::{
   binary_rw::core::BinaryWriter,
   models::{domain::bxes_value::BxesValue, system_models::ValueAttributeDescriptor},
 };
+use std::{
+  cell::RefCell,
+  collections::{HashMap, HashSet},
+  rc::Rc,
+  sync::Arc,
+};
 
 pub struct BxesWriteContext<'b> {
-  pub values_indices: Rc<RefCell<HashMap<Rc<BxesValue>, usize>>>,
-  pub kv_indices: Rc<RefCell<HashMap<(Rc<BxesValue>, Rc<BxesValue>), usize>>>,
+  pub values_indices: Rc<RefCell<HashMap<Arc<BxesValue>, usize>>>,
+  pub kv_indices: Rc<RefCell<HashMap<(Arc<BxesValue>, Arc<BxesValue>), usize>>>,
   pub writer: Option<&'b mut BinaryWriter<'b>>,
   pub value_attributes: Option<Vec<ValueAttributeDescriptor>>,
   pub value_attributes_set: Option<HashSet<ValueAttributeDescriptor>>,

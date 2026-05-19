@@ -1,8 +1,7 @@
-use std::{collections::HashMap, rc::Rc};
-
 use bxes::read::read_utils::string_or_err;
 use num_traits::FromPrimitive;
 use rand::{Rng, RngExt, distr::Alphanumeric, rngs::ThreadRng};
+use std::{collections::HashMap, rc::Rc, sync::Arc};
 use uuid::Uuid;
 
 use bxes::{
@@ -165,11 +164,11 @@ fn generate_random_event(rng: &mut ThreadRng) -> BxesEvent {
   }
 }
 
-fn generate_random_attributes(rng: &mut ThreadRng) -> Vec<(Rc<BxesValue>, Rc<BxesValue>)> {
+fn generate_random_attributes(rng: &mut ThreadRng) -> Vec<(Arc<BxesValue>, Arc<BxesValue>)> {
   generate_random_list(rng, |rng| generate_random_attribute(rng))
 }
 
-fn generate_random_attributes_option(rng: &mut ThreadRng) -> Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>> {
+fn generate_random_attributes_option(rng: &mut ThreadRng) -> Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>> {
   if rng.random_bool(0.8) {
     Some(generate_random_attributes(rng))
   } else {
@@ -177,12 +176,12 @@ fn generate_random_attributes_option(rng: &mut ThreadRng) -> Option<Vec<(Rc<Bxes
   }
 }
 
-fn generate_random_attribute(rng: &mut ThreadRng) -> (Rc<BxesValue>, Rc<BxesValue>) {
+fn generate_random_attribute(rng: &mut ThreadRng) -> (Arc<BxesValue>, Arc<BxesValue>) {
   (generate_random_string_bxes_value(rng), generate_random_bxes_value(rng))
 }
 
-fn generate_random_string_bxes_value(rng: &mut ThreadRng) -> Rc<BxesValue> {
-  Rc::new(BxesValue::String(Rc::from(generate_random_string(rng))))
+fn generate_random_string_bxes_value(rng: &mut ThreadRng) -> Arc<BxesValue> {
+  Arc::new(BxesValue::String(Arc::from(generate_random_string(rng))))
 }
 
 fn generate_random_string(rng: &mut ThreadRng) -> String {
@@ -190,8 +189,8 @@ fn generate_random_string(rng: &mut ThreadRng) -> String {
   rng.sample_iter(&Alphanumeric).take(length).map(char::from).collect()
 }
 
-fn generate_random_bxes_value(rng: &mut ThreadRng) -> Rc<BxesValue> {
-  Rc::new(match generate_random_type_id(rng) {
+fn generate_random_bxes_value(rng: &mut ThreadRng) -> Arc<BxesValue> {
+  Arc::new(match generate_random_type_id(rng) {
     TypeIds::Null => BxesValue::Int32(rng.random()),
     TypeIds::I32 => BxesValue::Int32(rng.random()),
     TypeIds::I64 => BxesValue::Int64(rng.random()),
@@ -200,7 +199,7 @@ fn generate_random_bxes_value(rng: &mut ThreadRng) -> Rc<BxesValue> {
     TypeIds::F32 => BxesValue::Float32(rng.random()),
     TypeIds::F64 => BxesValue::Float64(rng.random()),
     TypeIds::Bool => BxesValue::Bool(rng.random()),
-    TypeIds::String => BxesValue::String(Rc::from(generate_random_string(rng))),
+    TypeIds::String => BxesValue::String(Arc::from(generate_random_string(rng))),
     TypeIds::Timestamp => BxesValue::Timestamp(rng.random()),
     TypeIds::BrafLifecycle => BxesValue::BrafLifecycle(generate_random_braf_lifecycle()),
     TypeIds::StandardLifecycle => BxesValue::StandardLifecycle(generate_random_standard_lifecycle()),
@@ -229,8 +228,8 @@ fn generate_random_drivers(rng: &mut ThreadRng) -> BxesValue {
 fn generate_random_driver(rng: &mut ThreadRng) -> BxesDriver {
   BxesDriver {
     amount: BxesValue::Float64(rng.random()),
-    name: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
-    driver_type: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
+    name: Arc::new(BxesValue::String(Arc::from(generate_random_string(rng)))),
+    driver_type: Arc::new(BxesValue::String(Arc::from(generate_random_string(rng)))),
   }
 }
 
@@ -247,9 +246,9 @@ fn generate_random_artifact(rng: &mut ThreadRng) -> BxesValue {
 
 fn generate_random_artifact_item(rng: &mut ThreadRng) -> BxesArtifactItem {
   BxesArtifactItem {
-    model: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
-    instance: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
-    transition: Rc::new(BxesValue::String(Rc::from(generate_random_string(rng)))),
+    model: Arc::new(BxesValue::String(Arc::from(generate_random_string(rng)))),
+    instance: Arc::new(BxesValue::String(Arc::from(generate_random_string(rng)))),
+    transition: Arc::new(BxesValue::String(Arc::from(generate_random_string(rng)))),
   }
 }
 

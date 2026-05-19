@@ -1,3 +1,13 @@
+use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
+use crate::event_log::{
+  core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
+  xes::{
+    shared::{XesClassifier, XesEventLogExtension, XesProperty},
+    xes_event::XesEventImpl,
+    xes_event_log::XesEventLogImpl,
+    xes_trace::XesTraceImpl,
+  },
+};
 use bxes::{
   models::{
     domain::{
@@ -13,18 +23,7 @@ use bxes::{
   },
 };
 use chrono::{TimeZone, Utc};
-use std::{cell::RefCell, collections::HashMap, fmt::Display, rc::Rc};
-
-use super::conversions::{bxes_value_to_payload_value, global_type_to_string};
-use crate::event_log::{
-  core::{event::event::EventPayloadValue, event_log::EventLog, trace::trace::Trace},
-  xes::{
-    shared::{XesClassifier, XesEventLogExtension, XesProperty},
-    xes_event::XesEventImpl,
-    xes_event_log::XesEventLogImpl,
-    xes_trace::XesTraceImpl,
-  },
-};
+use std::{cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, sync::Arc};
 
 #[derive(Debug)]
 pub enum BxesToXesReadError {
@@ -139,7 +138,7 @@ fn set_extensions(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(
 fn set_globals(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(), BxesToXesReadError> {
   if let Some(globals) = log.metadata.globals.as_ref() {
     for global in globals {
-      let global_type = Rc::from(global_type_to_string(&global.entity_kind));
+      let global_type = Arc::from(global_type_to_string(&global.entity_kind));
 
       let mut globals_map = HashMap::new();
       for global_value in &global.globals {
@@ -154,7 +153,7 @@ fn set_globals(xes_log: &mut XesEventLogImpl, log: &BxesEventLog) -> Result<(), 
   Ok(())
 }
 
-fn vector_of_strings_or_err(values: &Vec<Rc<BxesValue>>, entity_name: &str) -> Result<Vec<Rc<str>>, BxesToXesReadError> {
+fn vector_of_strings_or_err(values: &Vec<Arc<BxesValue>>, entity_name: &str) -> Result<Vec<Arc<str>>, BxesToXesReadError> {
   let mut result = vec![];
   for value in values {
     result.push(string_or_err(value, entity_name)?)
@@ -163,7 +162,7 @@ fn vector_of_strings_or_err(values: &Vec<Rc<BxesValue>>, entity_name: &str) -> R
   Ok(result)
 }
 
-fn string_or_err(value: &BxesValue, entity_name: &str) -> Result<Rc<str>, BxesToXesReadError> {
+fn string_or_err(value: &BxesValue, entity_name: &str) -> Result<Arc<str>, BxesToXesReadError> {
   if let BxesValue::String(string) = value {
     Ok(string.clone())
   } else {
@@ -186,8 +185,8 @@ fn create_xes_event(bxes_event: &BxesEvent) -> Result<XesEventImpl, BxesToXesRea
 }
 
 fn create_xes_payload(
-  attributes: Option<&Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
-) -> Result<Option<HashMap<Rc<str>, EventPayloadValue>>, BxesToXesReadError> {
+  attributes: Option<&Vec<(Arc<BxesValue>, Arc<BxesValue>)>>,
+) -> Result<Option<HashMap<Arc<str>, EventPayloadValue>>, BxesToXesReadError> {
   if let Some(attributes) = attributes {
     let mut payload = HashMap::new();
 

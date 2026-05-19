@@ -1,7 +1,7 @@
 use crate::models::domain::bxes_value::BxesValue;
 use std::{
   hash::{Hash, Hasher},
-  rc::Rc,
+  sync::Arc,
 };
 
 #[derive(Debug, Clone)]
@@ -35,9 +35,9 @@ impl PartialEq for BxesArtifact {
 
 #[derive(Clone, Debug)]
 pub struct BxesArtifactItem {
-  pub model: Rc<BxesValue>,
-  pub instance: Rc<BxesValue>,
-  pub transition: Rc<BxesValue>,
+  pub model: Arc<BxesValue>,
+  pub instance: Arc<BxesValue>,
+  pub transition: Arc<BxesValue>,
 }
 
 impl Hash for BxesArtifactItem {

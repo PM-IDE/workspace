@@ -1,10 +1,10 @@
 use crate::{
   ficus_proto::{
-    grpc_kafka_result, grpc_kafka_service_server::GrpcKafkaService, GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest,
-    GrpcExecutePipelineAndProduceKafkaRequest, GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGuid, GrpcKafkaFailedResult,
-    GrpcKafkaResult, GrpcKafkaSubscription, GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata,
-    GrpcPipelinePartExecutionResult, GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest,
-    GrpcSubscriptionPipeline, GrpcUnsubscribeFromKafkaRequest,
+    GrpcAddPipelineRequest, GrpcAddPipelineStreamRequest, GrpcExecutePipelineAndProduceKafkaRequest,
+    GrpcGetAllSubscriptionsAndPipelinesResponse, GrpcGetCurrentContextValuesRequest, GrpcGuid, GrpcKafkaFailedResult, GrpcKafkaResult,
+    GrpcKafkaSubscription, GrpcKafkaSubscriptionMetadata, GrpcKafkaSuccessResult, GrpcPipelineMetadata, GrpcPipelinePartExecutionResult,
+    GrpcRemoveAllPipelinesRequest, GrpcRemovePipelineRequest, GrpcSubscribeToKafkaRequest, GrpcSubscriptionPipeline,
+    GrpcUnsubscribeFromKafkaRequest, grpc_kafka_result, grpc_kafka_service_server::GrpcKafkaService,
   },
   grpc::{
     context_values_service::ContextValueService,
@@ -25,7 +25,7 @@ use ficus::{
   utils::user_data::user_data::UserData,
 };
 use futures::Stream;
-use std::{pin::Pin, rc::Rc, sync::Arc};
+use std::{pin::Pin, sync::Arc};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
@@ -33,16 +33,17 @@ use uuid::Uuid;
 
 pub struct GrpcKafkaServiceImpl {
   cv_service: Arc<ContextValueService>,
-  kafka_service: KafkaService,
-  pipeline_parts: Arc<Box<PipelineParts>>,
+  kafka_service: Arc<KafkaService>,
+  pipeline_parts: Arc<PipelineParts>,
 }
 
 impl GrpcKafkaServiceImpl {
-  pub fn new(context_values_service: Arc<ContextValueService>) -> Self {
+  pub fn new(cv_service: Arc<ContextValueService>) -> Self {
+    let pipeline_parts = Arc::new(PipelineParts::default());
     Self {
-      cv_service: context_values_service,
-      kafka_service: KafkaService::new(),
-      pipeline_parts: Arc::new(Box::new(PipelineParts::new())),
+      cv_service: cv_service.clone(),
+      kafka_service: Arc::new(KafkaService::new(pipeline_parts.clone(), cv_service)),
+      pipeline_parts,
     }
   }
 }
@@ -76,6 +77,34 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let result = self.kafka_service.unsubscribe_from_kafka(uuid);
 
     Ok(Response::new(GrpcKafkaResult { result: Some(result) }))
+  }
+
+  type GetCurrentContextValuesStream = Self::ExecutePipelineAndProduceToKafkaStream;
+
+  async fn get_current_context_values(
+    &self,
+    request: Request<GrpcGetCurrentContextValuesRequest>,
+  ) -> Result<Response<Self::ExecutePipelineAndProduceToKafkaStream>, Status> {
+    let pipeline_id = request.get_ref().pipeline_id.as_ref().unwrap().to_uuid()?;
+    let subscription_id = request.get_ref().subscription_id.as_ref().unwrap().to_uuid()?;
+    let case_name = request.get_ref().case_name.clone();
+
+    let (sender, receiver) = mpsc::channel(4);
+    let grpc_handler = Arc::new(GrpcPipelineEventsHandler::new(sender));
+    let kafka_service = self.kafka_service.clone();
+
+    tokio::task::spawn_blocking(move || {
+      match kafka_service.get_context_values(subscription_id, pipeline_id, &case_name, grpc_handler.clone()) {
+        Ok(uuid) => {
+          grpc_handler.handle(&PipelineEvent::FinalResult(PipelineFinalResult::Success(uuid)));
+        }
+        Err(err) => {
+          grpc_handler.handle(&PipelineEvent::FinalResult(PipelineFinalResult::Error(err.to_string())));
+        }
+      };
+    });
+
+    Ok(Response::new(Box::pin(ReceiverStream::new(receiver))))
   }
 
   async fn add_pipeline_to_subscription(&self, request: Request<GrpcAddPipelineRequest>) -> Result<Response<GrpcKafkaResult>, Status> {
@@ -182,9 +211,9 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
     let kafka_handler = Box::new(kafka_handler) as Box<dyn PipelineEventsHandler>;
     let grpc_handler = Box::new(GrpcPipelineEventsHandler::new(sender)) as Box<dyn PipelineEventsHandler>;
 
-    let handler = Box::new(DelegatingEventsHandler::new(vec![kafka_handler, grpc_handler]));
-    let handler = handler as Box<dyn PipelineEventsHandler>;
-    let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), Arc::new(handler));
+    let handler = DelegatingEventsHandler::new(vec![kafka_handler, grpc_handler]);
+    let handler = Arc::new(handler) as Arc<dyn PipelineEventsHandler>;
+    let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
 
     let context_values = match self
       .cv_service
@@ -209,7 +238,7 @@ impl GrpcKafkaService for GrpcKafkaServiceImpl {
 
       let request = request.get_ref();
       let case_info = request.case_info.as_ref().expect("Case info must be supplied");
-      let case_name: Rc<str> = case_info.case_name.clone().into();
+      let case_name: Arc<str> = case_info.case_name.clone().into();
       let process_name = case_info.process_name.clone();
       let pipeline_id = Uuid::parse_str(request.pipeline_id.as_ref().expect("Must be supplied").guid.as_str());
       let subscription_id = Uuid::parse_str(request.subscription_id.as_ref().expect("Must be supplied").guid.as_str());

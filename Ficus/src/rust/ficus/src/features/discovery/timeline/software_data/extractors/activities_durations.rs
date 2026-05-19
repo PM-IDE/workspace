@@ -18,7 +18,7 @@ use derive_new::new;
 use fancy_regex::Regex;
 use getset::Getters;
 use log::error;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 #[derive(Clone, Debug, new)]
 pub struct ActivityDurationExtractor<'a> {
@@ -235,7 +235,7 @@ impl DurationsMapExtensions for DurationsMap {
 #[derive(Getters, new)]
 struct StackActivityStartEntry {
   #[getset(get = "pub")]
-  id: Option<Rc<str>>,
+  id: Option<Arc<str>>,
   #[getset(get = "pub")]
   event: Rc<RefCell<XesEventImpl>>,
 }

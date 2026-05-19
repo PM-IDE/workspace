@@ -1,0 +1,32 @@
+Method: NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
+
+Trace 0
+	[start] NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
+	[exec]NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+	[ end ] NotExistingAssemblyLoading.Program.Main[void..(class.System.String[])]
+
+Method: NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+
+Trace 0
+	[start] NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+	[exec]NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+	[ end ] NotExistingAssemblyLoading.Program+<>c..cctor[void..()]
+
+Method: NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+
+Trace 0
+	[start] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+	[ end ] NotExistingAssemblyLoading.Program+<>c..ctor[instance.void..()]
+
+Method: NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+
+Trace 0
+	[start] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+	[ end ] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_0[instance.class.System.Reflection.Assembly..(class.System.Object,class.System.ResolveEventArgs)]
+
+Method: NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+
+Trace 0
+	[start] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+	[ end ] NotExistingAssemblyLoading.Program+<>c.<Main>b__0_1[instance.class.System.Reflection.Assembly..(class.System.Runtime.Loader.AssemblyLoadContext,class.System.Reflection.AssemblyName)]
+

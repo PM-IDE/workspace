@@ -253,7 +253,12 @@ export function belongsToRootSequence(node: GraphNode) {
 const performanceColor = performanceColors(darkTheme);
 
 export function getPerformanceAnnotationColor(relativeExecutionTime: number) {
-  let colorName = `color${(Math.floor(relativeExecutionTime * 10) % 100).toString()}`;
+  const COLOR_PREFIX = "color"
+  if (!Number.isFinite(relativeExecutionTime)) {
+    return performanceColor[`${COLOR_PREFIX}0`];
+  }
+
+  let colorName = `${COLOR_PREFIX}${(Math.floor(relativeExecutionTime * 10) % 100).toString()}`;
   return performanceColor[colorName];
 }
 

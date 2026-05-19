@@ -1,6 +1,5 @@
-use std::rc::Rc;
-
 use num_derive::{FromPrimitive, ToPrimitive};
+use std::sync::Arc;
 use variant_count::VariantCount;
 
 use crate::models::domain::bxes_value::BxesValue;
@@ -9,21 +8,21 @@ use crate::models::domain::bxes_value::BxesValue;
 pub struct BxesEventLogMetadata {
   pub extensions: Option<Vec<BxesExtension>>,
   pub classifiers: Option<Vec<BxesClassifier>>,
-  pub properties: Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
+  pub properties: Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>,
   pub globals: Option<Vec<BxesGlobal>>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BxesExtension {
-  pub name: Rc<BxesValue>,
-  pub prefix: Rc<BxesValue>,
-  pub uri: Rc<BxesValue>,
+  pub name: Arc<BxesValue>,
+  pub prefix: Arc<BxesValue>,
+  pub uri: Arc<BxesValue>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BxesClassifier {
-  pub name: Rc<BxesValue>,
-  pub keys: Vec<Rc<BxesValue>>,
+  pub name: Arc<BxesValue>,
+  pub keys: Vec<Arc<BxesValue>>,
 }
 
 #[derive(Debug, FromPrimitive, ToPrimitive, VariantCount, PartialEq, Eq)]
@@ -36,5 +35,5 @@ pub enum BxesGlobalKind {
 #[derive(Debug, PartialEq, Eq)]
 pub struct BxesGlobal {
   pub entity_kind: BxesGlobalKind,
-  pub globals: Vec<(Rc<BxesValue>, Rc<BxesValue>)>,
+  pub globals: Vec<(Arc<BxesValue>, Arc<BxesValue>)>,
 }

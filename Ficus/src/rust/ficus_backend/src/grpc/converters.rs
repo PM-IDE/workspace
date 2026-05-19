@@ -1,12 +1,8 @@
 use crate::ficus_proto::{
-  grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation},
-  grpc_context_value::{ContextValue, ContextValue::Annotation},
-  grpc_event_attribute, grpc_graph_edge_additional_data,
-  grpc_node_additional_data::Data,
-  grpc_ocel_data, GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAnnotation, GrpcBytes, GrpcColor, GrpcColoredRectangle,
-  GrpcColorsEventLog, GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind,
-  GrpcEdgeExecutionInfo, GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute,
-  GrpcEventCoordinates, GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData,
+  GrpcActivityDurationData, GrpcActivityStartEndData, GrpcAnnotation, GrpcBytes, GrpcColor, GrpcColoredRectangle, GrpcColorsEventLog,
+  GrpcColorsEventLogMapping, GrpcColorsTrace, GrpcContextValue, GrpcCountAnnotation, GrpcDataset, GrpcDurationKind, GrpcEdgeExecutionInfo,
+  GrpcEntityCountAnnotation, GrpcEntityFrequencyAnnotation, GrpcEntityTimeAnnotation, GrpcEvent, GrpcEventAttribute, GrpcEventCoordinates,
+  GrpcEventLogInfo, GrpcEventLogTraceSubArraysContextValue, GrpcFrequenciesAnnotation, GrpcGeneralHistogramData,
   GrpcGenericEnhancementBase, GrpcGraph, GrpcGraphEdge, GrpcGraphEdgeAdditionalData, GrpcGraphKind, GrpcGraphNode, GrpcGuid,
   GrpcHashesEventLog, GrpcHashesEventLogContextValue, GrpcHashesLogTrace, GrpcHistogramEntry, GrpcLabeledDataset, GrpcLogPoint,
   GrpcLogTimelineDiagram, GrpcMatrix, GrpcMatrixRow, GrpcModelElementOcelAnnotation, GrpcMultithreadedFragment, GrpcNamesEventLog,
@@ -17,6 +13,11 @@ use crate::ficus_proto::{
   GrpcSubArrayWithTraceIndex, GrpcSubArraysWithTraceIndexContextValue, GrpcThread, GrpcThreadEvent, GrpcTimePerformanceAnnotation,
   GrpcTimeSpan, GrpcTimelineDiagramFragment, GrpcTimelineTraceEventsGroup, GrpcTraceSubArray, GrpcTraceSubArrays, GrpcTraceTimelineDiagram,
   GrpcUnderlyingPatternInfo, GrpcUnderlyingPatternKind,
+  grpc_annotation::Annotation::{CountAnnotation, FrequencyAnnotation, TimeAnnotation},
+  grpc_context_value::{ContextValue, ContextValue::Annotation},
+  grpc_event_attribute, grpc_graph_edge_additional_data,
+  grpc_node_additional_data::Data,
+  grpc_ocel_data,
 };
 use chrono::{DateTime, Utc};
 use ficus::{
@@ -55,7 +56,7 @@ use ficus::{
       ocel::graph_annotation::{NodeObjectsState, OcelAnnotation, OcelObjectRelations},
       petri_net::{
         annotations::TimeAnnotationKind,
-        arc::Arc,
+        arc::PetriNetArc,
         marking::{Marking, SingleMarking},
         petri_net::DefaultPetriNet,
         place::Place,
@@ -104,7 +105,7 @@ use log::error;
 use nameof::name_of_type;
 use prost::{DecodeError, Message};
 use prost_types::Timestamp;
-use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, str::FromStr};
+use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc, str::FromStr, sync::Arc};
 use uuid::Uuid;
 
 use super::pipeline_executor::ServicePipelineExecutionContext;
@@ -120,7 +121,7 @@ pub(super) fn put_into_user_data(
   context: &ServicePipelineExecutionContext,
 ) {
   match value {
-    ContextValue::String(string) => user_data.put_any::<Rc<str>>(key, string.clone().into()),
+    ContextValue::String(string) => user_data.put_any::<Arc<str>>(key, string.clone().into()),
     ContextValue::HashesLog(_) => todo!(),
     ContextValue::NamesLog(grpc_log) => put_names_log_to_context(key, grpc_log, user_data),
     ContextValue::Uint32(number) => user_data.put_any::<u32>(key, *number),
@@ -162,7 +163,7 @@ pub(super) fn put_into_user_data(
       }
     }
     ContextValue::EventLogInfo(_) => todo!(),
-    ContextValue::Strings(strings) => user_data.put_any::<Vec<Rc<str>>>(key, strings.strings.iter().map(|s| s.clone().into()).collect()),
+    ContextValue::Strings(strings) => user_data.put_any::<Vec<Arc<str>>>(key, strings.strings.iter().map(|s| s.clone().into()).collect()),
     ContextValue::Pipeline(pipeline) => {
       let pipeline = context.with_pipeline(pipeline).to_pipeline();
       user_data.put_any::<Pipeline>(key, pipeline);
@@ -262,7 +263,7 @@ fn put_names_log_to_context(key: &dyn Key, grpc_log: &GrpcNamesEventLogContextVa
     names_log.push(trace);
   }
 
-  user_data.put_any::<Vec<Vec<Rc<str>>>>(key, names_log);
+  user_data.put_any::<Vec<Vec<Arc<str>>>>(key, names_log);
 }
 
 pub fn convert_to_grpc_context_value(key: &dyn ContextKey, value: &dyn Any) -> Option<GrpcContextValue> {
@@ -427,11 +428,11 @@ fn try_convert_to_grpc_graph_time_annotation(value: &dyn Any) -> Option<GrpcCont
 }
 
 fn try_convert_to_string_context_value(value: &dyn Any) -> Option<GrpcContextValue> {
-  if !value.is::<Rc<str>>() {
+  if !value.is::<Arc<str>>() {
     None
   } else {
     Some(GrpcContextValue {
-      context_value: Some(ContextValue::String(value.downcast_ref::<Rc<str>>().unwrap().to_string())),
+      context_value: Some(ContextValue::String(value.downcast_ref::<Arc<str>>().unwrap().to_string())),
     })
   }
 }
@@ -460,10 +461,10 @@ fn try_convert_to_hashes_event_log(value: &dyn Any) -> Option<GrpcContextValue> 
 }
 
 fn try_convert_to_names_event_log(value: &dyn Any) -> Option<GrpcContextValue> {
-  if !value.is::<Vec<Vec<Rc<str>>>>() {
+  if !value.is::<Vec<Vec<Arc<str>>>>() {
     None
   } else {
-    let vec = value.downcast_ref::<Vec<Vec<Rc<str>>>>().unwrap();
+    let vec = value.downcast_ref::<Vec<Vec<Arc<str>>>>().unwrap();
     let mut traces = vec![];
     for trace in vec {
       let mut events = vec![];
@@ -676,7 +677,7 @@ where
   }
 }
 
-fn convert_to_grpc_arc<TArcData>(arc: &Arc<TArcData>) -> GrpcPetriNetArc {
+fn convert_to_grpc_arc<TArcData>(arc: &PetriNetArc<TArcData>) -> GrpcPetriNetArc {
   GrpcPetriNetArc {
     id: arc.id() as i64,
     place_id: arc.place_id() as i64,
@@ -1030,7 +1031,7 @@ fn convert_to_grpc_simple_counter_data(data: &SimpleCounterData) -> GrpcSimpleCo
   }
 }
 
-fn convert_to_grpc_histogram_entries(histogram: &HashMap<Rc<str>, usize>) -> Vec<GrpcHistogramEntry> {
+fn convert_to_grpc_histogram_entries(histogram: &HashMap<Arc<str>, usize>) -> Vec<GrpcHistogramEntry> {
   histogram
     .iter()
     .map(|(key, value)| GrpcHistogramEntry {

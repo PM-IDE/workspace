@@ -3,13 +3,13 @@ use derive_new::new;
 use enum_display::EnumDisplay;
 use getset::{Getters, MutGetters};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(Clone, Debug, Getters, MutGetters, Serialize, Deserialize, Default)]
 pub struct SoftwareData {
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip_serializing_if = "HashMap::is_empty")]
-  event_classes: HashMap<Rc<str>, usize>,
+  event_classes: HashMap<Arc<str>, usize>,
 
   #[getset(get = "pub", get_mut = "pub")]
   #[serde(skip)]
@@ -35,15 +35,15 @@ pub struct SoftwareData {
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct OcelProducedObjectAfterConsume {
   #[getset(get = "pub")]
-  id: Rc<str>,
+  id: Arc<str>,
   #[getset(get = "pub")]
-  r#type: Option<Rc<str>>,
+  r#type: Option<Arc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, Serialize, Deserialize, new)]
 pub struct ObjectTypeWithData<T> {
   #[getset(get = "pub")]
-  r#type: Option<Rc<str>>,
+  r#type: Option<Arc<str>>,
   #[getset(get = "pub")]
   data: T,
 }
@@ -52,14 +52,14 @@ pub struct ObjectTypeWithData<T> {
 pub enum OcelObjectAction {
   Allocate(ObjectTypeWithData<()>),
   Consume(ObjectTypeWithData<()>),
-  AllocateMerged(ObjectTypeWithData<Vec<Rc<str>>>),
+  AllocateMerged(ObjectTypeWithData<Vec<Arc<str>>>),
   ConsumeWithProduce(Vec<OcelProducedObjectAfterConsume>),
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct OcelData {
   #[getset(get = "pub")]
-  object_id: Rc<str>,
+  object_id: Arc<str>,
   #[getset(get = "pub")]
   action: OcelObjectAction,
 }
@@ -75,17 +75,17 @@ pub struct HistogramData {
 #[derive(Clone, Debug, Getters, MutGetters, new, Serialize, Deserialize)]
 pub struct GenericEnhancementBase {
   #[getset(get = "pub")]
-  name: Rc<str>,
+  name: Arc<str>,
   #[getset(get = "pub")]
-  units: Rc<str>,
+  units: Arc<str>,
   #[getset(get = "pub")]
-  group: Option<Rc<str>>,
+  group: Option<Arc<str>>,
 }
 
 #[derive(Clone, Debug, Getters, new, Serialize, Deserialize)]
 pub struct HistogramEntry {
   #[getset(get = "pub")]
-  name: Rc<str>,
+  name: Arc<str>,
   #[getset(get = "pub")]
   value: f64,
 }

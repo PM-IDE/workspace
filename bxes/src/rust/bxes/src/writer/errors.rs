@@ -1,6 +1,5 @@
-use std::{fmt::Display, rc::Rc};
-
 use crate::{binary_rw::error::BinaryError, models::domain::bxes_value::BxesValue};
+use std::{fmt::Display, sync::Arc};
 
 #[derive(Debug)]
 pub enum BxesWriteError {
@@ -8,8 +7,8 @@ pub enum BxesWriteError {
   WriteError(BinaryError),
   FailedToGetWriterPosition(String),
   FailedToSeek(String),
-  FailedToFindKeyValueIndex((Rc<BxesValue>, Rc<BxesValue>)),
-  FailedToFindValueIndex(Rc<BxesValue>),
+  FailedToFindKeyValueIndex((Arc<BxesValue>, Arc<BxesValue>)),
+  FailedToFindValueIndex(Arc<BxesValue>),
   FailedToCreateTempFile,
   FailedToCreateArchive,
   LebWriteError(String),

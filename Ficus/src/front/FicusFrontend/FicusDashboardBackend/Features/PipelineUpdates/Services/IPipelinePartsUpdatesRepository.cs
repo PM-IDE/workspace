@@ -1,6 +1,7 @@
 ﻿using Ficus;
 using FicusDashboardBackend.Utils;
 using Google.Protobuf.WellKnownTypes;
+using Grpc.Net.Client;
 using GrpcModels;
 
 namespace FicusDashboardBackend.Features.PipelineUpdates.Services;
@@ -13,33 +14,18 @@ public interface IPipelinePartsUpdatesRepository
   Task ProcessUpdate(GrpcKafkaUpdate update);
 }
 
-public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesRepository> logger) : IPipelinePartsUpdatesRepository
+public class PipelinePartsUpdatesRepository(
+  IConfiguration configuration,
+  ILogger<PipelinePartsUpdatesRepository> logger
+) : IPipelinePartsUpdatesRepository
 {
-  private class PipelinePartExecutionResult
-  {
-    public required List<GrpcContextValueWithKeyName> ContextValues { get; init; }
-  }
-
-  private class PipelinePartExecutionResults
-  {
-    public required string PipelinePartName { get; init; }
-    public required List<PipelinePartExecutionResult> Results { get; init; }
-  }
-
-  private class PipelinePartsExecutionResults
-  {
-    public required Guid ExecutionId { get; set; }
-    public required ulong Stamp { get; set; }
-    public required Dictionary<Guid, PipelinePartExecutionResults> PipelinePartsResults { get; init; }
-  }
-
   private class CaseData
   {
-    public required PipelinePartsExecutionResults ExecutionResults { get; init; }
     public required List<KeyValuePair<string, string>> Metadata { get; init; }
 
     public required string PipelineName { get; init; }
     public required string SubscriptionName { get; init; }
+    public required ulong Stamp { get; set; }
   }
 
   private record CaseName(string DisplayName, List<string> NameParts)
@@ -77,9 +63,9 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       var response = new GrpcSubscriptionAndPipelinesStateResponse();
       foreach (var (caseKey, @case) in myCases)
       {
-        response.Cases.Add(new GrpcProcessCaseMetadataWithStamp()
+        response.Cases.Add(new GrpcProcessCaseMetadataWithStamp
         {
-          Stamp = @case.ExecutionResults.Stamp,
+          Stamp = @case.Stamp,
           Metadata = new GrpcProcessCaseMetadata
           {
             ProcessName = caseKey.ProcessName,
@@ -104,11 +90,11 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         });
       }
 
-      return Task.FromResult(response);
+      return response;
     });
   }
 
-  public Task<GrpcCaseContextValues> GetCaseContextValues(GrpcGetPipelineCaseContextValuesRequest request)
+  public async Task<GrpcCaseContextValues> GetCaseContextValues(GrpcGetPipelineCaseContextValuesRequest request)
   {
     var key = new CaseKey(
       request.SubscriptionId.ToGuid(),
@@ -120,37 +106,60 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
       )
     );
 
-    return myLock.Execute(() =>
+    const string KafkaServiceUrlKey = "KafkaServiceUrl";
+    var address = configuration[KafkaServiceUrlKey] ?? throw new KeyNotFoundException($"No {KafkaServiceUrlKey} provided");
+    var channel = GrpcChannel.ForAddress($"http://{address}");
+    var client = new GrpcKafkaService.GrpcKafkaServiceClient(channel);
+
+    var stream = client.GetCurrentContextValues(new GrpcGetCurrentContextValuesRequest
+    {
+      PipelineId = request.PipelineId,
+      CaseName = string.Join(";", request.CaseName.FullNameParts),
+      SubscriptionId = request.SubscriptionId,
+    });
+
+    var executionId = Guid.NewGuid();
+    var executionResults = new List<GrpcPipelinePartContextValues>();
+    while (await stream.ResponseStream.MoveNext(CancellationToken.None))
+    {
+      var current = stream.ResponseStream.Current;
+      if (current.ResultCase == GrpcPipelinePartExecutionResult.ResultOneofCase.PipelinePartResult)
+      {
+        executionResults.Add(new GrpcPipelinePartContextValues
+        {
+          ExecutionResults =
+          {
+            new GrpcCasePipelinePartExecutionResult
+            {
+              ContextValues = { current.PipelinePartResult.ContextValues }
+            }
+          },
+          Stamp = DateTime.UtcNow.ToTimestamp(),
+          PipelinePartInfo = new GrpcPipelinePartInfo
+          {
+            ExecutionId = executionId.ToGrpcGuid(),
+            Id = current.PipelinePartResult.PipelinePartId,
+            Name = current.PipelinePartResult.PipelinePartName,
+          }
+        });
+      }
+    }
+
+    return await myLock.Execute(() =>
     {
       if (!myCases.TryGetValue(key, out var caseData))
       {
         throw new KeyNotFoundException();
       }
 
-      return Task.FromResult(new GrpcCaseContextValues
+      return new GrpcCaseContextValues
       {
-        Stamp = caseData.ExecutionResults.Stamp,
+        Stamp = caseData.Stamp,
         ContextValues =
         {
-          caseData.ExecutionResults.PipelinePartsResults.Select(x => new GrpcPipelinePartContextValues
-          {
-            Stamp = Timestamp.FromDateTime(DateTime.UtcNow),
-            ExecutionResults =
-            {
-              x.Value.Results.Select(e => new GrpcCasePipelinePartExecutionResult
-              {
-                ContextValues = { e.ContextValues }
-              })
-            },
-            PipelinePartInfo = new GrpcPipelinePartInfo
-            {
-              ExecutionId = caseData.ExecutionResults.ExecutionId.ToGrpcGuid(),
-              Name = x.Value.PipelinePartName,
-              Id = x.Key.ToGrpcGuid()
-            }
-          })
+          executionResults
         }
-      });
+      };
     });
   }
 
@@ -176,20 +185,14 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         )
       );
 
-      var currentExecutionId = update.PipelinePartInfo.ExecutionId.ToGuid();
       if (!myCases.TryGetValue(caseKey, out var caseData))
       {
         logger.LogInformation("Creating new process data for update");
 
         caseData = new CaseData
         {
+          Stamp = 0,
           Metadata = update.ProcessCaseMetadata.Metadata.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value)).ToList(),
-          ExecutionResults = new PipelinePartsExecutionResults
-          {
-            ExecutionId = currentExecutionId,
-            PipelinePartsResults = [],
-            Stamp = 0
-          },
           PipelineName = update.ProcessCaseMetadata.PipelineName,
           SubscriptionName = update.ProcessCaseMetadata.SubscriptionName
         };
@@ -197,33 +200,7 @@ public class PipelinePartsUpdatesRepository(ILogger<PipelinePartsUpdatesReposito
         myCases[caseKey] = caseData;
       }
 
-      var guid = Guid.Parse(update.PipelinePartInfo.Id.Guid);
-
-      if (caseData.ExecutionResults.ExecutionId != currentExecutionId)
-      {
-        logger.LogInformation("Resetting all execution results after execution id changed");
-        caseData.ExecutionResults.ExecutionId = currentExecutionId;
-        caseData.ExecutionResults.PipelinePartsResults.Clear();
-      }
-
-      if (!caseData.ExecutionResults.PipelinePartsResults.TryGetValue(guid, out var pipelinePartResults))
-      {
-        logger.LogInformation("Creating new cases context values");
-        pipelinePartResults = new PipelinePartExecutionResults
-        {
-          PipelinePartName = update.PipelinePartInfo.Name,
-          Results = []
-        };
-
-        caseData.ExecutionResults.PipelinePartsResults[guid] = pipelinePartResults;
-      }
-
-      pipelinePartResults.Results.Add(new PipelinePartExecutionResult
-      {
-        ContextValues = update.ContextValues.ToList(),
-      });
-
-      caseData.ExecutionResults.Stamp++;
+      caseData.Stamp++;
       return Task.CompletedTask;
     });
   }

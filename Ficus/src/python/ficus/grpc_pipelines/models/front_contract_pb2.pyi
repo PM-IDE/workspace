@@ -36,14 +36,26 @@ class GrpcGetPipelineCaseContextValuesRequest(_message.Message):
     def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., processName: _Optional[str] = ..., caseName: _Optional[_Union[GrpcCaseName, _Mapping]] = ...) -> None: ...
 
 class GrpcKafkaUpdate(_message.Message):
-    __slots__ = ["processCaseMetadata", "pipelinePartInfo", "contextValues"]
+    __slots__ = ["processCaseMetadata"]
     PROCESSCASEMETADATA_FIELD_NUMBER: _ClassVar[int]
-    PIPELINEPARTINFO_FIELD_NUMBER: _ClassVar[int]
-    CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
     processCaseMetadata: GrpcProcessCaseMetadata
-    pipelinePartInfo: GrpcPipelinePartInfo
+    def __init__(self, processCaseMetadata: _Optional[_Union[GrpcProcessCaseMetadata, _Mapping]] = ...) -> None: ...
+
+class GrpcPipelinePartInfo(_message.Message):
+    __slots__ = ["name", "id", "execution_id"]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    EXECUTION_ID_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    id: _util_pb2.GrpcGuid
+    execution_id: _util_pb2.GrpcGuid
+    def __init__(self, name: _Optional[str] = ..., id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., execution_id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...
+
+class GrpcKafkaContextValues(_message.Message):
+    __slots__ = ["contextValues"]
+    CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
     contextValues: _containers.RepeatedCompositeFieldContainer[_pipelines_and_context_pb2.GrpcContextValueWithKeyName]
-    def __init__(self, processCaseMetadata: _Optional[_Union[GrpcProcessCaseMetadata, _Mapping]] = ..., pipelinePartInfo: _Optional[_Union[GrpcPipelinePartInfo, _Mapping]] = ..., contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
+    def __init__(self, contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
 
 class GrpcProcessCaseMetadata(_message.Message):
     __slots__ = ["processName", "caseName", "subscriptionId", "subscriptionName", "pipelineId", "pipelineName", "metadata"]
@@ -94,13 +106,3 @@ class GrpcCasePipelinePartExecutionResult(_message.Message):
     CONTEXTVALUES_FIELD_NUMBER: _ClassVar[int]
     contextValues: _containers.RepeatedCompositeFieldContainer[_pipelines_and_context_pb2.GrpcContextValueWithKeyName]
     def __init__(self, contextValues: _Optional[_Iterable[_Union[_pipelines_and_context_pb2.GrpcContextValueWithKeyName, _Mapping]]] = ...) -> None: ...
-
-class GrpcPipelinePartInfo(_message.Message):
-    __slots__ = ["name", "id", "execution_id"]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    ID_FIELD_NUMBER: _ClassVar[int]
-    EXECUTION_ID_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    id: _util_pb2.GrpcGuid
-    execution_id: _util_pb2.GrpcGuid
-    def __init__(self, name: _Optional[str] = ..., id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., execution_id: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ...) -> None: ...

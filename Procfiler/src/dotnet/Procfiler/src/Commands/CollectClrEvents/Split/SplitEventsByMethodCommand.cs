@@ -1,3 +1,5 @@
+// ReSharper disable AccessToDisposedClosure
+
 using Core.CommandLine;
 using Core.Container;
 using Core.Events.EventRecord;
@@ -95,7 +97,6 @@ public class SplitEventsByMethodCommand(
         serializers.Add(ocelSerializer);
       }
 
-      // ReSharper disable once AccessToDisposedClosure
       if (splitter.SplitNonAlloc(serializers, splitContext) is not { } methods) return;
 
       foreach (var (methodName, traces) in methods)
@@ -105,7 +106,6 @@ public class SplitEventsByMethodCommand(
 
         foreach (var (_, sessionInfo) in eventsByMethodsInvocation)
         {
-          // ReSharper disable once AccessToDisposedClosure
           notStoringSerializer.WriteTrace(filePath, sessionInfo);
         }
       }
@@ -147,8 +147,8 @@ public class SplitEventsByMethodCommand(
 
     return context.CommonContext.LogSerializationFormat switch
     {
-      LogFormat.Xes => new NotStoringMergingTraceXesSerializer(xesEventsSessionSerializer, logger, writeAllMetadata),
-      LogFormat.Bxes => new NotStoringMergingTraceBxesSerializer(logger, writeAllMetadata),
+      LogFormat.Xes => new NotStoringMergingTraceXesSerializer(xesEventsSessionSerializer, Logger, writeAllMetadata),
+      LogFormat.Bxes => new NotStoringMergingTraceBxesSerializer(Logger, writeAllMetadata),
       _ => throw new ArgumentOutOfRangeException()
     };
   }
@@ -167,9 +167,9 @@ public class SplitEventsByMethodCommand(
     return context.CommonContext.LogSerializationFormat switch
     {
       LogFormat.Bxes => new OnlineBxesMethodsSerializer(
-        directory, targetMethodsRegex, methodNameBeautifier, eventsFactory, logger, writeAllEventData),
+        directory, targetMethodsRegex, methodNameBeautifier, eventsFactory, Logger, writeAllEventData),
       LogFormat.Xes => new OnlineMethodsXesSerializer(
-        directory, targetMethodsRegex, xesEventsSessionSerializer, methodNameBeautifier, eventsFactory, logger, writeAllEventData),
+        directory, targetMethodsRegex, xesEventsSessionSerializer, methodNameBeautifier, eventsFactory, Logger, writeAllEventData),
       _ => throw new ArgumentOutOfRangeException()
     };
   }

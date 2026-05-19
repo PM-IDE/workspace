@@ -1,7 +1,7 @@
 use crate::{features::discovery::ecfg::models::RootSequenceKind, utils::user_data::user_data::UserDataImpl};
-use std::rc::Rc;
+use std::sync::Arc;
 
-type NameExtractor<'a, T> = &'a dyn Fn(&T) -> Rc<str>;
+type NameExtractor<'a, T> = &'a dyn Fn(&T) -> Arc<str>;
 type ArtificialStartEnd<'a, T> = &'a dyn Fn() -> (T, T);
 type NodeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl, bool);
 type EdgeDataTransfer<'a, T> = &'a dyn Fn(&T, &mut UserDataImpl);

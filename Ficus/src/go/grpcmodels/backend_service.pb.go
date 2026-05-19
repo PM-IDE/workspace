@@ -214,58 +214,6 @@ func (x *GrpcPipelinePartDescriptor) GetName() string {
 	return ""
 }
 
-type GrpcGetContextValueRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ExecutionId   *GrpcGuid              `protobuf:"bytes,2,opt,name=executionId,proto3" json:"executionId,omitempty"`
-	Key           *GrpcContextKey        `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GrpcGetContextValueRequest) Reset() {
-	*x = GrpcGetContextValueRequest{}
-	mi := &file_backend_service_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GrpcGetContextValueRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GrpcGetContextValueRequest) ProtoMessage() {}
-
-func (x *GrpcGetContextValueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GrpcGetContextValueRequest.ProtoReflect.Descriptor instead.
-func (*GrpcGetContextValueRequest) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GrpcGetContextValueRequest) GetExecutionId() *GrpcGuid {
-	if x != nil {
-		return x.ExecutionId
-	}
-	return nil
-}
-
-func (x *GrpcGetContextValueRequest) GetKey() *GrpcContextKey {
-	if x != nil {
-		return x.Key
-	}
-	return nil
-}
-
 type GrpcPipelineExecutionRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Pipeline       *GrpcPipeline          `protobuf:"bytes,1,opt,name=pipeline,proto3" json:"pipeline,omitempty"`
@@ -276,7 +224,7 @@ type GrpcPipelineExecutionRequest struct {
 
 func (x *GrpcPipelineExecutionRequest) Reset() {
 	*x = GrpcPipelineExecutionRequest{}
-	mi := &file_backend_service_proto_msgTypes[5]
+	mi := &file_backend_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -288,7 +236,7 @@ func (x *GrpcPipelineExecutionRequest) String() string {
 func (*GrpcPipelineExecutionRequest) ProtoMessage() {}
 
 func (x *GrpcPipelineExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[5]
+	mi := &file_backend_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -301,7 +249,7 @@ func (x *GrpcPipelineExecutionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelineExecutionRequest.ProtoReflect.Descriptor instead.
 func (*GrpcPipelineExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{5}
+	return file_backend_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GrpcPipelineExecutionRequest) GetPipeline() *GrpcPipeline {
@@ -328,7 +276,7 @@ type GrpcProxyPipelineExecutionRequest struct {
 
 func (x *GrpcProxyPipelineExecutionRequest) Reset() {
 	*x = GrpcProxyPipelineExecutionRequest{}
-	mi := &file_backend_service_proto_msgTypes[6]
+	mi := &file_backend_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -340,7 +288,7 @@ func (x *GrpcProxyPipelineExecutionRequest) String() string {
 func (*GrpcProxyPipelineExecutionRequest) ProtoMessage() {}
 
 func (x *GrpcProxyPipelineExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[6]
+	mi := &file_backend_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -353,7 +301,7 @@ func (x *GrpcProxyPipelineExecutionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GrpcProxyPipelineExecutionRequest.ProtoReflect.Descriptor instead.
 func (*GrpcProxyPipelineExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{6}
+	return file_backend_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GrpcProxyPipelineExecutionRequest) GetPipeline() *GrpcPipeline {
@@ -384,7 +332,7 @@ type GrpcPipelinePartExecutionResult struct {
 
 func (x *GrpcPipelinePartExecutionResult) Reset() {
 	*x = GrpcPipelinePartExecutionResult{}
-	mi := &file_backend_service_proto_msgTypes[7]
+	mi := &file_backend_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -396,7 +344,7 @@ func (x *GrpcPipelinePartExecutionResult) String() string {
 func (*GrpcPipelinePartExecutionResult) ProtoMessage() {}
 
 func (x *GrpcPipelinePartExecutionResult) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[7]
+	mi := &file_backend_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -409,7 +357,7 @@ func (x *GrpcPipelinePartExecutionResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelinePartExecutionResult.ProtoReflect.Descriptor instead.
 func (*GrpcPipelinePartExecutionResult) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{7}
+	return file_backend_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GrpcPipelinePartExecutionResult) GetResult() isGrpcPipelinePartExecutionResult_Result {
@@ -478,7 +426,7 @@ type GrpcPipelinePartLogMessage struct {
 
 func (x *GrpcPipelinePartLogMessage) Reset() {
 	*x = GrpcPipelinePartLogMessage{}
-	mi := &file_backend_service_proto_msgTypes[8]
+	mi := &file_backend_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -490,7 +438,7 @@ func (x *GrpcPipelinePartLogMessage) String() string {
 func (*GrpcPipelinePartLogMessage) ProtoMessage() {}
 
 func (x *GrpcPipelinePartLogMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[8]
+	mi := &file_backend_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -503,7 +451,7 @@ func (x *GrpcPipelinePartLogMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelinePartLogMessage.ProtoReflect.Descriptor instead.
 func (*GrpcPipelinePartLogMessage) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{8}
+	return file_backend_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GrpcPipelinePartLogMessage) GetMessage() string {
@@ -514,16 +462,17 @@ func (x *GrpcPipelinePartLogMessage) GetMessage() string {
 }
 
 type GrpcPipelinePartResult struct {
-	state         protoimpl.MessageState         `protogen:"open.v1"`
-	ContextValues []*GrpcContextValueWithKeyName `protobuf:"bytes,1,rep,name=contextValues,proto3" json:"contextValues,omitempty"`
-	Guid          *GrpcGuid                      `protobuf:"bytes,2,opt,name=guid,proto3" json:"guid,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState         `protogen:"open.v1"`
+	ContextValues    []*GrpcContextValueWithKeyName `protobuf:"bytes,1,rep,name=contextValues,proto3" json:"contextValues,omitempty"`
+	PipelinePartId   *GrpcGuid                      `protobuf:"bytes,2,opt,name=pipeline_part_id,json=pipelinePartId,proto3" json:"pipeline_part_id,omitempty"`
+	PipelinePartName string                         `protobuf:"bytes,3,opt,name=pipeline_part_name,json=pipelinePartName,proto3" json:"pipeline_part_name,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *GrpcPipelinePartResult) Reset() {
 	*x = GrpcPipelinePartResult{}
-	mi := &file_backend_service_proto_msgTypes[9]
+	mi := &file_backend_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -535,7 +484,7 @@ func (x *GrpcPipelinePartResult) String() string {
 func (*GrpcPipelinePartResult) ProtoMessage() {}
 
 func (x *GrpcPipelinePartResult) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[9]
+	mi := &file_backend_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -548,7 +497,7 @@ func (x *GrpcPipelinePartResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelinePartResult.ProtoReflect.Descriptor instead.
 func (*GrpcPipelinePartResult) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{9}
+	return file_backend_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GrpcPipelinePartResult) GetContextValues() []*GrpcContextValueWithKeyName {
@@ -558,11 +507,18 @@ func (x *GrpcPipelinePartResult) GetContextValues() []*GrpcContextValueWithKeyNa
 	return nil
 }
 
-func (x *GrpcPipelinePartResult) GetGuid() *GrpcGuid {
+func (x *GrpcPipelinePartResult) GetPipelinePartId() *GrpcGuid {
 	if x != nil {
-		return x.Guid
+		return x.PipelinePartId
 	}
 	return nil
+}
+
+func (x *GrpcPipelinePartResult) GetPipelinePartName() string {
+	if x != nil {
+		return x.PipelinePartName
+	}
+	return ""
 }
 
 type GrpcPipelineFinalResult struct {
@@ -578,7 +534,7 @@ type GrpcPipelineFinalResult struct {
 
 func (x *GrpcPipelineFinalResult) Reset() {
 	*x = GrpcPipelineFinalResult{}
-	mi := &file_backend_service_proto_msgTypes[10]
+	mi := &file_backend_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +546,7 @@ func (x *GrpcPipelineFinalResult) String() string {
 func (*GrpcPipelineFinalResult) ProtoMessage() {}
 
 func (x *GrpcPipelineFinalResult) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[10]
+	mi := &file_backend_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +559,7 @@ func (x *GrpcPipelineFinalResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelineFinalResult.ProtoReflect.Descriptor instead.
 func (*GrpcPipelineFinalResult) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{10}
+	return file_backend_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GrpcPipelineFinalResult) GetExecutionResult() isGrpcPipelineFinalResult_ExecutionResult {
@@ -647,50 +603,6 @@ func (*GrpcPipelineFinalResult_Success) isGrpcPipelineFinalResult_ExecutionResul
 
 func (*GrpcPipelineFinalResult_Error) isGrpcPipelineFinalResult_ExecutionResult() {}
 
-type GrpcGetAllContextValuesResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ContextValues []*GrpcGuid            `protobuf:"bytes,1,rep,name=context_values,json=contextValues,proto3" json:"context_values,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GrpcGetAllContextValuesResult) Reset() {
-	*x = GrpcGetAllContextValuesResult{}
-	mi := &file_backend_service_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GrpcGetAllContextValuesResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GrpcGetAllContextValuesResult) ProtoMessage() {}
-
-func (x *GrpcGetAllContextValuesResult) ProtoReflect() protoreflect.Message {
-	mi := &file_backend_service_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GrpcGetAllContextValuesResult.ProtoReflect.Descriptor instead.
-func (*GrpcGetAllContextValuesResult) Descriptor() ([]byte, []int) {
-	return file_backend_service_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *GrpcGetAllContextValuesResult) GetContextValues() []*GrpcGuid {
-	if x != nil {
-		return x.ContextValues
-	}
-	return nil
-}
-
 var File_backend_service_proto protoreflect.FileDescriptor
 
 const file_backend_service_proto_rawDesc = "" +
@@ -706,10 +618,7 @@ const file_backend_service_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12H\n" +
 	"\x0epipeline_parts\x18\x02 \x03(\v2!.ficus.GrpcPipelinePartDescriptorR\rpipelineParts\"0\n" +
 	"\x1aGrpcPipelinePartDescriptor\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"x\n" +
-	"\x1aGrpcGetContextValueRequest\x121\n" +
-	"\vexecutionId\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\vexecutionId\x12'\n" +
-	"\x03key\x18\x01 \x01(\v2\x15.ficus.GrpcContextKeyR\x03key\"\x93\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x93\x01\n" +
 	"\x1cGrpcPipelineExecutionRequest\x12/\n" +
 	"\bpipeline\x18\x01 \x01(\v2\x13.ficus.GrpcPipelineR\bpipeline\x12B\n" +
 	"\x0einitialContext\x18\x02 \x03(\v2\x1a.ficus.GrpcContextKeyValueR\x0einitialContext\"\x91\x01\n" +
@@ -724,22 +633,19 @@ const file_backend_service_proto_rawDesc = "" +
 	"logMessageB\b\n" +
 	"\x06result\"6\n" +
 	"\x1aGrpcPipelinePartLogMessage\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"\x87\x01\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xcb\x01\n" +
 	"\x16GrpcPipelinePartResult\x12H\n" +
-	"\rcontextValues\x18\x01 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues\x12#\n" +
-	"\x04guid\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x04guid\"q\n" +
+	"\rcontextValues\x18\x01 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues\x129\n" +
+	"\x10pipeline_part_id\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x0epipelinePartId\x12,\n" +
+	"\x12pipeline_part_name\x18\x03 \x01(\tR\x10pipelinePartName\"q\n" +
 	"\x17GrpcPipelineFinalResult\x12+\n" +
 	"\asuccess\x18\x01 \x01(\v2\x0f.ficus.GrpcGuidH\x00R\asuccess\x12\x16\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05errorB\x11\n" +
-	"\x0fexecutionResult\"W\n" +
-	"\x1dGrpcGetAllContextValuesResult\x126\n" +
-	"\x0econtext_values\x18\x01 \x03(\v2\x0f.ficus.GrpcGuidR\rcontextValues2\x86\x01\n" +
+	"\x0fexecutionResult2\x86\x01\n" +
 	"\x1aGrpcBackendBalancerService\x12h\n" +
-	"\x1dSetPipelinePartsToBackendsMap\x12/.ficus.GrpcPredefinedPipelinePartsToBackendsMap\x1a\x16.google.protobuf.Empty2\x97\x03\n" +
+	"\x1dSetPipelinePartsToBackendsMap\x12/.ficus.GrpcPredefinedPipelinePartsToBackendsMap\x1a\x16.google.protobuf.Empty2\x82\x02\n" +
 	"\x12GrpcBackendService\x12e\n" +
-	"\x0fExecutePipeline\x12(.ficus.GrpcProxyPipelineExecutionRequest\x1a&.ficus.GrpcPipelinePartExecutionResult0\x01\x12E\n" +
-	"\x0fGetContextValue\x12!.ficus.GrpcGetContextValueRequest\x1a\x0f.ficus.GrpcGuid\x12L\n" +
-	"\x13GetAllContextValues\x12\x0f.ficus.GrpcGuid\x1a$.ficus.GrpcGetAllContextValuesResult\x12>\n" +
+	"\x0fExecutePipeline\x12(.ficus.GrpcProxyPipelineExecutionRequest\x1a&.ficus.GrpcPipelinePartExecutionResult0\x01\x12>\n" +
 	"\x13DropExecutionResult\x12\x0f.ficus.GrpcGuid\x1a\x16.google.protobuf.Empty\x12E\n" +
 	"\x0eGetBackendInfo\x12\x16.google.protobuf.Empty\x1a\x1b.ficus.GrpcFicusBackendInfoB\x0fZ\r./;grpcmodelsb\x06proto3"
 
@@ -755,60 +661,50 @@ func file_backend_service_proto_rawDescGZIP() []byte {
 	return file_backend_service_proto_rawDescData
 }
 
-var file_backend_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_backend_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_backend_service_proto_goTypes = []any{
 	(*GrpcPredefinedPipelinePartsToBackendsMap)(nil), // 0: ficus.GrpcPredefinedPipelinePartsToBackendsMap
 	(*GrpcPipelinePartToBackends)(nil),               // 1: ficus.GrpcPipelinePartToBackends
 	(*GrpcFicusBackendInfo)(nil),                     // 2: ficus.GrpcFicusBackendInfo
 	(*GrpcPipelinePartDescriptor)(nil),               // 3: ficus.GrpcPipelinePartDescriptor
-	(*GrpcGetContextValueRequest)(nil),               // 4: ficus.GrpcGetContextValueRequest
-	(*GrpcPipelineExecutionRequest)(nil),             // 5: ficus.GrpcPipelineExecutionRequest
-	(*GrpcProxyPipelineExecutionRequest)(nil),        // 6: ficus.GrpcProxyPipelineExecutionRequest
-	(*GrpcPipelinePartExecutionResult)(nil),          // 7: ficus.GrpcPipelinePartExecutionResult
-	(*GrpcPipelinePartLogMessage)(nil),               // 8: ficus.GrpcPipelinePartLogMessage
-	(*GrpcPipelinePartResult)(nil),                   // 9: ficus.GrpcPipelinePartResult
-	(*GrpcPipelineFinalResult)(nil),                  // 10: ficus.GrpcPipelineFinalResult
-	(*GrpcGetAllContextValuesResult)(nil),            // 11: ficus.GrpcGetAllContextValuesResult
+	(*GrpcPipelineExecutionRequest)(nil),             // 4: ficus.GrpcPipelineExecutionRequest
+	(*GrpcProxyPipelineExecutionRequest)(nil),        // 5: ficus.GrpcProxyPipelineExecutionRequest
+	(*GrpcPipelinePartExecutionResult)(nil),          // 6: ficus.GrpcPipelinePartExecutionResult
+	(*GrpcPipelinePartLogMessage)(nil),               // 7: ficus.GrpcPipelinePartLogMessage
+	(*GrpcPipelinePartResult)(nil),                   // 8: ficus.GrpcPipelinePartResult
+	(*GrpcPipelineFinalResult)(nil),                  // 9: ficus.GrpcPipelineFinalResult
+	(*GrpcPipeline)(nil),                             // 10: ficus.GrpcPipeline
+	(*GrpcContextKeyValue)(nil),                      // 11: ficus.GrpcContextKeyValue
 	(*GrpcGuid)(nil),                                 // 12: ficus.GrpcGuid
-	(*GrpcContextKey)(nil),                           // 13: ficus.GrpcContextKey
-	(*GrpcPipeline)(nil),                             // 14: ficus.GrpcPipeline
-	(*GrpcContextKeyValue)(nil),                      // 15: ficus.GrpcContextKeyValue
-	(*GrpcContextValueWithKeyName)(nil),              // 16: ficus.GrpcContextValueWithKeyName
-	(*emptypb.Empty)(nil),                            // 17: google.protobuf.Empty
+	(*GrpcContextValueWithKeyName)(nil),              // 13: ficus.GrpcContextValueWithKeyName
+	(*emptypb.Empty)(nil),                            // 14: google.protobuf.Empty
 }
 var file_backend_service_proto_depIdxs = []int32{
 	1,  // 0: ficus.GrpcPredefinedPipelinePartsToBackendsMap.parts_to_backends:type_name -> ficus.GrpcPipelinePartToBackends
 	3,  // 1: ficus.GrpcFicusBackendInfo.pipeline_parts:type_name -> ficus.GrpcPipelinePartDescriptor
-	12, // 2: ficus.GrpcGetContextValueRequest.executionId:type_name -> ficus.GrpcGuid
-	13, // 3: ficus.GrpcGetContextValueRequest.key:type_name -> ficus.GrpcContextKey
-	14, // 4: ficus.GrpcPipelineExecutionRequest.pipeline:type_name -> ficus.GrpcPipeline
-	15, // 5: ficus.GrpcPipelineExecutionRequest.initialContext:type_name -> ficus.GrpcContextKeyValue
-	14, // 6: ficus.GrpcProxyPipelineExecutionRequest.pipeline:type_name -> ficus.GrpcPipeline
-	12, // 7: ficus.GrpcProxyPipelineExecutionRequest.contextValuesIds:type_name -> ficus.GrpcGuid
-	10, // 8: ficus.GrpcPipelinePartExecutionResult.finalResult:type_name -> ficus.GrpcPipelineFinalResult
-	9,  // 9: ficus.GrpcPipelinePartExecutionResult.pipelinePartResult:type_name -> ficus.GrpcPipelinePartResult
-	8,  // 10: ficus.GrpcPipelinePartExecutionResult.logMessage:type_name -> ficus.GrpcPipelinePartLogMessage
-	16, // 11: ficus.GrpcPipelinePartResult.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
-	12, // 12: ficus.GrpcPipelinePartResult.guid:type_name -> ficus.GrpcGuid
-	12, // 13: ficus.GrpcPipelineFinalResult.success:type_name -> ficus.GrpcGuid
-	12, // 14: ficus.GrpcGetAllContextValuesResult.context_values:type_name -> ficus.GrpcGuid
-	0,  // 15: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:input_type -> ficus.GrpcPredefinedPipelinePartsToBackendsMap
-	6,  // 16: ficus.GrpcBackendService.ExecutePipeline:input_type -> ficus.GrpcProxyPipelineExecutionRequest
-	4,  // 17: ficus.GrpcBackendService.GetContextValue:input_type -> ficus.GrpcGetContextValueRequest
-	12, // 18: ficus.GrpcBackendService.GetAllContextValues:input_type -> ficus.GrpcGuid
-	12, // 19: ficus.GrpcBackendService.DropExecutionResult:input_type -> ficus.GrpcGuid
-	17, // 20: ficus.GrpcBackendService.GetBackendInfo:input_type -> google.protobuf.Empty
-	17, // 21: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:output_type -> google.protobuf.Empty
-	7,  // 22: ficus.GrpcBackendService.ExecutePipeline:output_type -> ficus.GrpcPipelinePartExecutionResult
-	12, // 23: ficus.GrpcBackendService.GetContextValue:output_type -> ficus.GrpcGuid
-	11, // 24: ficus.GrpcBackendService.GetAllContextValues:output_type -> ficus.GrpcGetAllContextValuesResult
-	17, // 25: ficus.GrpcBackendService.DropExecutionResult:output_type -> google.protobuf.Empty
-	2,  // 26: ficus.GrpcBackendService.GetBackendInfo:output_type -> ficus.GrpcFicusBackendInfo
-	21, // [21:27] is the sub-list for method output_type
-	15, // [15:21] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	10, // 2: ficus.GrpcPipelineExecutionRequest.pipeline:type_name -> ficus.GrpcPipeline
+	11, // 3: ficus.GrpcPipelineExecutionRequest.initialContext:type_name -> ficus.GrpcContextKeyValue
+	10, // 4: ficus.GrpcProxyPipelineExecutionRequest.pipeline:type_name -> ficus.GrpcPipeline
+	12, // 5: ficus.GrpcProxyPipelineExecutionRequest.contextValuesIds:type_name -> ficus.GrpcGuid
+	9,  // 6: ficus.GrpcPipelinePartExecutionResult.finalResult:type_name -> ficus.GrpcPipelineFinalResult
+	8,  // 7: ficus.GrpcPipelinePartExecutionResult.pipelinePartResult:type_name -> ficus.GrpcPipelinePartResult
+	7,  // 8: ficus.GrpcPipelinePartExecutionResult.logMessage:type_name -> ficus.GrpcPipelinePartLogMessage
+	13, // 9: ficus.GrpcPipelinePartResult.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
+	12, // 10: ficus.GrpcPipelinePartResult.pipeline_part_id:type_name -> ficus.GrpcGuid
+	12, // 11: ficus.GrpcPipelineFinalResult.success:type_name -> ficus.GrpcGuid
+	0,  // 12: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:input_type -> ficus.GrpcPredefinedPipelinePartsToBackendsMap
+	5,  // 13: ficus.GrpcBackendService.ExecutePipeline:input_type -> ficus.GrpcProxyPipelineExecutionRequest
+	12, // 14: ficus.GrpcBackendService.DropExecutionResult:input_type -> ficus.GrpcGuid
+	14, // 15: ficus.GrpcBackendService.GetBackendInfo:input_type -> google.protobuf.Empty
+	14, // 16: ficus.GrpcBackendBalancerService.SetPipelinePartsToBackendsMap:output_type -> google.protobuf.Empty
+	6,  // 17: ficus.GrpcBackendService.ExecutePipeline:output_type -> ficus.GrpcPipelinePartExecutionResult
+	14, // 18: ficus.GrpcBackendService.DropExecutionResult:output_type -> google.protobuf.Empty
+	2,  // 19: ficus.GrpcBackendService.GetBackendInfo:output_type -> ficus.GrpcFicusBackendInfo
+	16, // [16:20] is the sub-list for method output_type
+	12, // [12:16] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_backend_service_proto_init() }
@@ -818,12 +714,12 @@ func file_backend_service_proto_init() {
 	}
 	file_pipelines_and_context_proto_init()
 	file_util_proto_init()
-	file_backend_service_proto_msgTypes[7].OneofWrappers = []any{
+	file_backend_service_proto_msgTypes[6].OneofWrappers = []any{
 		(*GrpcPipelinePartExecutionResult_FinalResult)(nil),
 		(*GrpcPipelinePartExecutionResult_PipelinePartResult)(nil),
 		(*GrpcPipelinePartExecutionResult_LogMessage)(nil),
 	}
-	file_backend_service_proto_msgTypes[10].OneofWrappers = []any{
+	file_backend_service_proto_msgTypes[9].OneofWrappers = []any{
 		(*GrpcPipelineFinalResult_Success)(nil),
 		(*GrpcPipelineFinalResult_Error)(nil),
 	}
@@ -833,7 +729,7 @@ func file_backend_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_backend_service_proto_rawDesc), len(file_backend_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

@@ -174,7 +174,9 @@ public static class EventRecordExtensions
   public static EventRecordTime ToTime(this TraceEvent traceEvent) => new()
   {
     LoggedAt = traceEvent.TimeStamp.ToUniversalTime(),
+#pragma warning disable CS0618 // Type or member is obsolete
     QpcStamp = traceEvent.TimeStampQPC,
+#pragma warning restore CS0618 // Type or member is obsolete
     RelativeStampMSec = traceEvent.TimeStampRelativeMSec
   };
 
@@ -211,7 +213,7 @@ public static class EventRecordExtensions
       return true;
     }
 
-    public bool IsOcelGlobalEvent(out long objectId, out string activityName, out string? category)
+    public bool IsOcelGlobalEvent(out long objectId, out string? activityName, out string? category)
     {
       objectId = -1;
       activityName = null;
@@ -225,9 +227,6 @@ public static class EventRecordExtensions
 
       return true;
     }
-
-    public bool IsOcelActivitiesBatchBegin(out Guid batchId, out string[] names) =>
-      IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesBegin, out batchId, out names);
 
     private bool IsOcelActivitiesBatchEvent(string eventClass, out Guid batchId, out string[] names)
     {
@@ -244,20 +243,5 @@ public static class EventRecordExtensions
 
     public bool IsOcelActivitiesBatchEnd(out Guid batchId, out string[] names) =>
       IsOcelActivitiesBatchEvent(evt, TraceEventsConstants.OcelBatchActivitiesEnd, out batchId, out names);
-
-    public bool IsOcelBatchAttachedEvent(out long objectId, out string activity, out string? category)
-    {
-      objectId = 0;
-      activity = null;
-      category = null;
-
-      if (evt.EventClass is not TraceEventsConstants.OcelBatchObjectEvent) return false;
-
-      objectId = int.Parse(evt.Metadata[TraceEventsConstants.OcelObjectId]);
-      category = evt.Metadata[TraceEventsConstants.OcelObjectType];
-      activity = evt.Metadata[TraceEventsConstants.OcelActivityName];
-
-      return true;
-    }
   }
 }

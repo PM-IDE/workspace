@@ -20,9 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GrpcContextValuesService_SetContextValue_FullMethodName   = "/ficus.GrpcContextValuesService/SetContextValue"
-	GrpcContextValuesService_GetContextValue_FullMethodName   = "/ficus.GrpcContextValuesService/GetContextValue"
-	GrpcContextValuesService_DropContextValues_FullMethodName = "/ficus.GrpcContextValuesService/DropContextValues"
+	GrpcContextValuesService_SetContextValue_FullMethodName        = "/ficus.GrpcContextValuesService/SetContextValue"
+	GrpcContextValuesService_GetContextValue_FullMethodName        = "/ficus.GrpcContextValuesService/GetContextValue"
+	GrpcContextValuesService_DropContextValues_FullMethodName      = "/ficus.GrpcContextValuesService/DropContextValues"
+	GrpcContextValuesService_GetContextValueId_FullMethodName      = "/ficus.GrpcContextValuesService/GetContextValueId"
+	GrpcContextValuesService_GetAllContextValuesIds_FullMethodName = "/ficus.GrpcContextValuesService/GetAllContextValuesIds"
 )
 
 // GrpcContextValuesServiceClient is the client API for GrpcContextValuesService service.
@@ -32,6 +34,8 @@ type GrpcContextValuesServiceClient interface {
 	SetContextValue(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[GrpcContextValuePart, GrpcGuid], error)
 	GetContextValue(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcContextValuePart], error)
 	DropContextValues(ctx context.Context, in *GrpcDropContextValuesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetContextValueId(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGuid, error)
+	GetAllContextValuesIds(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*GrpcGetAllContextValuesResult, error)
 }
 
 type grpcContextValuesServiceClient struct {
@@ -84,6 +88,26 @@ func (c *grpcContextValuesServiceClient) DropContextValues(ctx context.Context, 
 	return out, nil
 }
 
+func (c *grpcContextValuesServiceClient) GetContextValueId(ctx context.Context, in *GrpcGetContextValueRequest, opts ...grpc.CallOption) (*GrpcGuid, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GrpcGuid)
+	err := c.cc.Invoke(ctx, GrpcContextValuesService_GetContextValueId_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *grpcContextValuesServiceClient) GetAllContextValuesIds(ctx context.Context, in *GrpcGuid, opts ...grpc.CallOption) (*GrpcGetAllContextValuesResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GrpcGetAllContextValuesResult)
+	err := c.cc.Invoke(ctx, GrpcContextValuesService_GetAllContextValuesIds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GrpcContextValuesServiceServer is the server API for GrpcContextValuesService service.
 // All implementations must embed UnimplementedGrpcContextValuesServiceServer
 // for forward compatibility.
@@ -91,6 +115,8 @@ type GrpcContextValuesServiceServer interface {
 	SetContextValue(grpc.ClientStreamingServer[GrpcContextValuePart, GrpcGuid]) error
 	GetContextValue(*GrpcGuid, grpc.ServerStreamingServer[GrpcContextValuePart]) error
 	DropContextValues(context.Context, *GrpcDropContextValuesRequest) (*emptypb.Empty, error)
+	GetContextValueId(context.Context, *GrpcGetContextValueRequest) (*GrpcGuid, error)
+	GetAllContextValuesIds(context.Context, *GrpcGuid) (*GrpcGetAllContextValuesResult, error)
 	mustEmbedUnimplementedGrpcContextValuesServiceServer()
 }
 
@@ -109,6 +135,12 @@ func (UnimplementedGrpcContextValuesServiceServer) GetContextValue(*GrpcGuid, gr
 }
 func (UnimplementedGrpcContextValuesServiceServer) DropContextValues(context.Context, *GrpcDropContextValuesRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropContextValues not implemented")
+}
+func (UnimplementedGrpcContextValuesServiceServer) GetContextValueId(context.Context, *GrpcGetContextValueRequest) (*GrpcGuid, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetContextValueId not implemented")
+}
+func (UnimplementedGrpcContextValuesServiceServer) GetAllContextValuesIds(context.Context, *GrpcGuid) (*GrpcGetAllContextValuesResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllContextValuesIds not implemented")
 }
 func (UnimplementedGrpcContextValuesServiceServer) mustEmbedUnimplementedGrpcContextValuesServiceServer() {
 }
@@ -168,6 +200,42 @@ func _GrpcContextValuesService_DropContextValues_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GrpcContextValuesService_GetContextValueId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GrpcGetContextValueRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrpcContextValuesServiceServer).GetContextValueId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrpcContextValuesService_GetContextValueId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrpcContextValuesServiceServer).GetContextValueId(ctx, req.(*GrpcGetContextValueRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GrpcContextValuesService_GetAllContextValuesIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GrpcGuid)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GrpcContextValuesServiceServer).GetAllContextValuesIds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GrpcContextValuesService_GetAllContextValuesIds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GrpcContextValuesServiceServer).GetAllContextValuesIds(ctx, req.(*GrpcGuid))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GrpcContextValuesService_ServiceDesc is the grpc.ServiceDesc for GrpcContextValuesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -178,6 +246,14 @@ var GrpcContextValuesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DropContextValues",
 			Handler:    _GrpcContextValuesService_DropContextValues_Handler,
+		},
+		{
+			MethodName: "GetContextValueId",
+			Handler:    _GrpcContextValuesService_GetContextValueId_Handler,
+		},
+		{
+			MethodName: "GetAllContextValuesIds",
+			Handler:    _GrpcContextValuesService_GetAllContextValuesIds_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

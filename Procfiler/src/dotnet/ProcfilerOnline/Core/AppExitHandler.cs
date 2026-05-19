@@ -2,6 +2,7 @@
 using Core.Container;
 using Core.Utils;
 using Microsoft.Extensions.Logging;
+using ProcfilerOnline.Core.Handlers;
 using ProcfilerOnline.Core.Statistics;
 
 namespace ProcfilerOnline.Core;
@@ -18,12 +19,17 @@ public class AppExitHandler : IAppExitHandler
 {
   private readonly IProcfilerLogger myLogger;
   private readonly IStatisticsManager myStatisticsManager;
+  private readonly ICompositeEventPipeStreamEventHandler myEventHandler;
   private readonly HashSet<WeakReference<Process>> myRegisteredProcesses = [];
 
-  public AppExitHandler(IProcfilerLogger logger, IStatisticsManager statisticsManager)
+  public AppExitHandler(
+    IProcfilerLogger logger,
+    IStatisticsManager statisticsManager,
+    ICompositeEventPipeStreamEventHandler eventHandler)
   {
     myLogger = logger;
     myStatisticsManager = statisticsManager;
+    myEventHandler = eventHandler;
     Console.CancelKeyPress += (_, args) => { HandleAppExit(args); };
   }
 
@@ -36,6 +42,7 @@ public class AppExitHandler : IAppExitHandler
   {
     using var _ = new PerformanceCookie($"{GetType().Name}::{nameof(HandleAppExit)}", myLogger);
 
+    myEventHandler.WaitAllActiveHandlers();
     myStatisticsManager.Log(myLogger);
 
     foreach (var processRef in myRegisteredProcesses)

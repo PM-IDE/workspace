@@ -36,7 +36,7 @@ use crate::{
 };
 use bxes::models::system_models::SystemMetadata;
 use lazy_static::lazy_static;
-use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, ops::Deref, rc::Rc, sync::Arc};
 use uuid::Uuid;
 
 pub const CASE_NAME: &str = "case_name";
@@ -156,25 +156,25 @@ context_key! { ACTIVITIES, Vec<Rc<RefCell<ActivityNode>>> }
 context_key! { REPEAT_SETS, Vec<SubArrayWithTraceIndex> }
 context_key! { TRACE_ACTIVITIES, Vec<Vec<ActivityInTraceInfo>> }
 context_key! { PATTERNS, Vec<Vec<SubArrayInTraceInfo>> }
-context_key! { ACTIVITIES_TO_LOGS, HashMap<Rc<str>, XesEventLogImpl> }
-context_key! { ACTIVITY_NAME, Rc<str> }
+context_key! { ACTIVITIES_TO_LOGS, HashMap<Arc<str>, XesEventLogImpl> }
+context_key! { ACTIVITY_NAME, Arc<str> }
 context_key! { HASHES_EVENT_LOG, Vec<Vec<u64>> }
-context_key! { NAMES_EVENT_LOG, Vec<Vec<Rc<str>>> }
+context_key! { NAMES_EVENT_LOG, Vec<Vec<Arc<str>>> }
 context_key! { TANDEM_ARRAY_LENGTH, u32 }
 context_key! { ACTIVITY_LEVEL, u32 }
 context_key! { NARROW_ACTIVITIES, ActivityNarrowingKind }
-context_key! { EVENT_NAME, Rc<str> }
-context_key! { REGEX, Rc<str> }
+context_key! { EVENT_NAME, Arc<str> }
+context_key! { REGEX, Arc<str> }
 context_key! { COLORS_EVENT_LOG, ColorsEventLog }
 context_key! { COLORS_HOLDER, ColorsHolder }
 context_key! { PATTERNS_DISCOVERY_STRATEGY, PatternsDiscoveryStrategy }
-context_key! { OUTPUT_STRING, Rc<str> }
+context_key! { OUTPUT_STRING, Arc<str> }
 context_key! { EVENT_LOG_INFO, OfflineEventLogInfo }
 context_key! { UNDERLYING_EVENTS_COUNT, usize }
 context_key! { EVENTS_COUNT, u32 }
-context_key! { REGEXES, Vec<Rc<str>> }
+context_key! { REGEXES, Vec<Arc<str>> }
 context_key! { ADJUSTING_MODE, AdjustingMode }
-context_key! { EVENT_CLASS_REGEX, Rc<str> }
+context_key! { EVENT_CLASS_REGEX, Arc<str> }
 context_key! { PATTERNS_KIND, PatternsKindDto }
 context_key! { PIPELINE, Pipeline }
 context_key! { MIN_ACTIVITY_LENGTH, u32 }
@@ -209,32 +209,32 @@ context_key! { LABELED_TRACES_ACTIVITIES_DATASET, LabeledDataset }
 context_key! { ACTIVITIES_REPR_SOURCE, ActivityRepresentationSource }
 context_key! { DISTANCE, FicusDistance }
 context_key! { EXECUTE_ONLY_ON_LAST_EXTRACTION, bool }
-context_key! { EVENT_LOG_NAME, Rc<str> }
+context_key! { EVENT_LOG_NAME, Arc<str> }
 context_key! { LOG_TRACES_DATASET, FicusDataset }
 context_key! { LABELED_LOG_TRACES_DATASET, LabeledDataset }
 context_key! { TRACES_REPR_SOURCE, TracesRepresentationSource }
 context_key! { SYSTEM_METADATA, SystemMetadata }
 context_key! { LOG_SERIALIZATION_FORMAT, LogSerializationFormat }
 context_key! { BYTES, Vec<u8> }
-context_key! { PATH, Rc<str> }
+context_key! { PATH, Arc<str> }
 context_key! { CASE_NAME, CaseName }
-context_key! { PROCESS_NAME, Rc<str> }
-context_key! { PIPELINE_NAME, Rc<str> }
+context_key! { PROCESS_NAME, Arc<str> }
+context_key! { PIPELINE_NAME, Arc<str> }
 context_key! { PIPELINE_ID, Uuid }
-context_key! { SUBSCRIPTION_NAME, Rc<str> }
+context_key! { SUBSCRIPTION_NAME, Arc<str> }
 context_key! { SUBSCRIPTION_ID, Uuid }
-context_key! { UNSTRUCTURED_METADATA, Vec<(Rc<str>, Rc<str>)> }
-context_key! { START_CASE_REGEX, Rc<str> }
-context_key! { END_CASE_REGEX, Rc<str> }
+context_key! { UNSTRUCTURED_METADATA, Vec<(Arc<str>, Arc<str>)> }
+context_key! { START_CASE_REGEX, Arc<str> }
+context_key! { END_CASE_REGEX, Arc<str> }
 context_key! { INLINE_INNER_CASES, bool }
 context_key! { GRAPH_TIME_ANNOTATION, HashMap<u64, f64> }
-context_key! { ATTRIBUTE, Rc<str> }
+context_key! { ATTRIBUTE, Arc<str> }
 context_key! { TIME_ANNOTATION_KIND, TimeAnnotationKind }
-context_key! { ATTRIBUTES, Vec<Rc<str>> }
-context_key! { PATHS, Vec<Rc<str>> }
+context_key! { ATTRIBUTES, Vec<Arc<str>> }
+context_key! { PATHS, Vec<Arc<str>> }
 context_key! { LOG_THREADS_DIAGRAM, LogTimelineDiagram }
-context_key! { THREAD_ATTRIBUTE, Rc<str> }
-context_key! { TIME_ATTRIBUTE, Rc<str> }
+context_key! { THREAD_ATTRIBUTE, Arc<str> }
+context_key! { TIME_ATTRIBUTE, Arc<str> }
 context_key! { TIME_DELTA, u32 }
 context_key! { FEATURE_COUNT_KIND, FeatureCountKindDto }
 context_key! { PERCENT_FROM_MAX_VALUE, f64 }

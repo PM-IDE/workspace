@@ -17,12 +17,12 @@ public static class SemaphoreSlimExtensions
       }
     }
 
-    public async Task<T> Execute<T>(Func<Task<T>> action)
+    public async Task<T> Execute<T>(Func<T> action)
     {
       try
       {
         await semaphoreSlim.WaitAsync();
-        return await action();
+        return action();
       }
       finally
       {

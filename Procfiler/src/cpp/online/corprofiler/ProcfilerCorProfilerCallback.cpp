@@ -40,16 +40,16 @@ void ProcfilerCorProfilerCallback::HandleFunctionTailCall(const FunctionID funcI
     myWriter->LogFunctionEvent(FunctionEvent(funcId, Finished, GetCurrentTimestamp()));
 }
 
-ICorProfilerInfo15 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
+ICorProfilerInfo12 *ProcfilerCorProfilerCallback::GetProfilerInfo() const {
     return myProfilerInfo;
 }
 
 HRESULT ProcfilerCorProfilerCallback::Initialize(IUnknown *pICorProfilerInfoUnk) {
     const auto ptr = reinterpret_cast<void **>(&this->myProfilerInfo);
 
-    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo15, ptr);
+    HRESULT result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo12, ptr);
     if (FAILED(result)) {
-        myLogger->LogError("Failed to get IID_ICorProfilerInfo15 interface");
+        myLogger->LogError("Failed to get IID_ICorProfilerInfo12 interface");
         return E_FAIL;
     }
 

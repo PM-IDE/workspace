@@ -5,10 +5,12 @@ import type { GrpcGuid_DONTUSE as _ficus_GrpcGuid_DONTUSE, GrpcGuid as _ficus_Gr
 
 export interface GrpcPipelinePartResult_DONTUSE {
   'contextValues'?: (_ficus_GrpcContextValueWithKeyName_DONTUSE)[];
-  'guid'?: (_ficus_GrpcGuid_DONTUSE | null);
+  'pipelinePartId'?: (_ficus_GrpcGuid_DONTUSE | null);
+  'pipelinePartName'?: (string);
 }
 
 export interface GrpcPipelinePartResult {
   'contextValues': (_ficus_GrpcContextValueWithKeyName)[];
-  'guid': (_ficus_GrpcGuid | null);
+  'pipelinePartId': (_ficus_GrpcGuid | null);
+  'pipelinePartName': (string);
 }

@@ -12,6 +12,9 @@ service GrpcContextValuesService {
   rpc SetContextValue(stream GrpcContextValuePart) returns (GrpcGuid);
   rpc GetContextValue(GrpcGuid) returns (stream GrpcContextValuePart);
   rpc DropContextValues(GrpcDropContextValuesRequest) returns (google.protobuf.Empty);
+
+  rpc GetContextValueId(GrpcGetContextValueRequest) returns (GrpcGuid);
+  rpc GetAllContextValuesIds(GrpcGuid) returns (GrpcGetAllContextValuesResult);
 }
 
 message GrpcContextValuePart {
@@ -21,4 +24,13 @@ message GrpcContextValuePart {
 
 message GrpcDropContextValuesRequest {
   repeated GrpcGuid ids = 1;
+}
+
+message GrpcGetContextValueRequest {
+  GrpcGuid executionId = 2;
+  GrpcContextKey key = 1;
+}
+
+message GrpcGetAllContextValuesResult {
+  repeated GrpcGuid context_values = 1;
 }

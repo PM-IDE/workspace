@@ -26,9 +26,6 @@ public readonly record struct MetadataKeysWithTransform(
   public static MetadataKeysWithTransform CreateForModuleILPath(string metadataKey, EventClassKind eventClass) =>
     new(metadataKey, MutatorsUtil.TransformDomainModuleFilePathForEventNameConcatenation, eventClass);
 
-  public static MetadataKeysWithTransform CreateForMethodLikeName(string metadataKey, EventClassKind eventClass) =>
-    new(metadataKey, MutatorsUtil.TransformMethodLikeNameForEventNameConcatenation, eventClass);
-
   public static MetadataKeysWithTransform CreateIdenticalTransform(string metadataKey, EventClassKind eventClass) =>
     new(metadataKey, value => value, eventClass);
 }

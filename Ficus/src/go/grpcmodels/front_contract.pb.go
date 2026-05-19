@@ -188,10 +188,8 @@ func (x *GrpcGetPipelineCaseContextValuesRequest) GetCaseName() *GrpcCaseName {
 }
 
 type GrpcKafkaUpdate struct {
-	state               protoimpl.MessageState         `protogen:"open.v1"`
-	ProcessCaseMetadata *GrpcProcessCaseMetadata       `protobuf:"bytes,1,opt,name=processCaseMetadata,proto3" json:"processCaseMetadata,omitempty"`
-	PipelinePartInfo    *GrpcPipelinePartInfo          `protobuf:"bytes,2,opt,name=pipelinePartInfo,proto3" json:"pipelinePartInfo,omitempty"`
-	ContextValues       []*GrpcContextValueWithKeyName `protobuf:"bytes,3,rep,name=contextValues,proto3" json:"contextValues,omitempty"`
+	state               protoimpl.MessageState   `protogen:"open.v1"`
+	ProcessCaseMetadata *GrpcProcessCaseMetadata `protobuf:"bytes,1,opt,name=processCaseMetadata,proto3" json:"processCaseMetadata,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -233,14 +231,104 @@ func (x *GrpcKafkaUpdate) GetProcessCaseMetadata() *GrpcProcessCaseMetadata {
 	return nil
 }
 
-func (x *GrpcKafkaUpdate) GetPipelinePartInfo() *GrpcPipelinePartInfo {
+type GrpcPipelinePartInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Id            *GrpcGuid              `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	ExecutionId   *GrpcGuid              `protobuf:"bytes,3,opt,name=execution_id,json=executionId,proto3" json:"execution_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcPipelinePartInfo) Reset() {
+	*x = GrpcPipelinePartInfo{}
+	mi := &file_front_contract_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcPipelinePartInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcPipelinePartInfo) ProtoMessage() {}
+
+func (x *GrpcPipelinePartInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_front_contract_proto_msgTypes[4]
 	if x != nil {
-		return x.PipelinePartInfo
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcPipelinePartInfo.ProtoReflect.Descriptor instead.
+func (*GrpcPipelinePartInfo) Descriptor() ([]byte, []int) {
+	return file_front_contract_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GrpcPipelinePartInfo) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GrpcPipelinePartInfo) GetId() *GrpcGuid {
+	if x != nil {
+		return x.Id
 	}
 	return nil
 }
 
-func (x *GrpcKafkaUpdate) GetContextValues() []*GrpcContextValueWithKeyName {
+func (x *GrpcPipelinePartInfo) GetExecutionId() *GrpcGuid {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return nil
+}
+
+type GrpcKafkaContextValues struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	ContextValues []*GrpcContextValueWithKeyName `protobuf:"bytes,1,rep,name=contextValues,proto3" json:"contextValues,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcKafkaContextValues) Reset() {
+	*x = GrpcKafkaContextValues{}
+	mi := &file_front_contract_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcKafkaContextValues) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcKafkaContextValues) ProtoMessage() {}
+
+func (x *GrpcKafkaContextValues) ProtoReflect() protoreflect.Message {
+	mi := &file_front_contract_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcKafkaContextValues.ProtoReflect.Descriptor instead.
+func (*GrpcKafkaContextValues) Descriptor() ([]byte, []int) {
+	return file_front_contract_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GrpcKafkaContextValues) GetContextValues() []*GrpcContextValueWithKeyName {
 	if x != nil {
 		return x.ContextValues
 	}
@@ -262,7 +350,7 @@ type GrpcProcessCaseMetadata struct {
 
 func (x *GrpcProcessCaseMetadata) Reset() {
 	*x = GrpcProcessCaseMetadata{}
-	mi := &file_front_contract_proto_msgTypes[4]
+	mi := &file_front_contract_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -274,7 +362,7 @@ func (x *GrpcProcessCaseMetadata) String() string {
 func (*GrpcProcessCaseMetadata) ProtoMessage() {}
 
 func (x *GrpcProcessCaseMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_front_contract_proto_msgTypes[4]
+	mi := &file_front_contract_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -287,7 +375,7 @@ func (x *GrpcProcessCaseMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcProcessCaseMetadata.ProtoReflect.Descriptor instead.
 func (*GrpcProcessCaseMetadata) Descriptor() ([]byte, []int) {
-	return file_front_contract_proto_rawDescGZIP(), []int{4}
+	return file_front_contract_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GrpcProcessCaseMetadata) GetProcessName() string {
@@ -349,7 +437,7 @@ type GrpcCaseName struct {
 
 func (x *GrpcCaseName) Reset() {
 	*x = GrpcCaseName{}
-	mi := &file_front_contract_proto_msgTypes[5]
+	mi := &file_front_contract_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -361,7 +449,7 @@ func (x *GrpcCaseName) String() string {
 func (*GrpcCaseName) ProtoMessage() {}
 
 func (x *GrpcCaseName) ProtoReflect() protoreflect.Message {
-	mi := &file_front_contract_proto_msgTypes[5]
+	mi := &file_front_contract_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -374,7 +462,7 @@ func (x *GrpcCaseName) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcCaseName.ProtoReflect.Descriptor instead.
 func (*GrpcCaseName) Descriptor() ([]byte, []int) {
-	return file_front_contract_proto_rawDescGZIP(), []int{5}
+	return file_front_contract_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GrpcCaseName) GetDisplayName() string {
@@ -401,7 +489,7 @@ type GrpcCaseContextValues struct {
 
 func (x *GrpcCaseContextValues) Reset() {
 	*x = GrpcCaseContextValues{}
-	mi := &file_front_contract_proto_msgTypes[6]
+	mi := &file_front_contract_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -413,7 +501,7 @@ func (x *GrpcCaseContextValues) String() string {
 func (*GrpcCaseContextValues) ProtoMessage() {}
 
 func (x *GrpcCaseContextValues) ProtoReflect() protoreflect.Message {
-	mi := &file_front_contract_proto_msgTypes[6]
+	mi := &file_front_contract_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -426,7 +514,7 @@ func (x *GrpcCaseContextValues) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcCaseContextValues.ProtoReflect.Descriptor instead.
 func (*GrpcCaseContextValues) Descriptor() ([]byte, []int) {
-	return file_front_contract_proto_rawDescGZIP(), []int{6}
+	return file_front_contract_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GrpcCaseContextValues) GetContextValues() []*GrpcPipelinePartContextValues {
@@ -454,7 +542,7 @@ type GrpcPipelinePartContextValues struct {
 
 func (x *GrpcPipelinePartContextValues) Reset() {
 	*x = GrpcPipelinePartContextValues{}
-	mi := &file_front_contract_proto_msgTypes[7]
+	mi := &file_front_contract_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -466,7 +554,7 @@ func (x *GrpcPipelinePartContextValues) String() string {
 func (*GrpcPipelinePartContextValues) ProtoMessage() {}
 
 func (x *GrpcPipelinePartContextValues) ProtoReflect() protoreflect.Message {
-	mi := &file_front_contract_proto_msgTypes[7]
+	mi := &file_front_contract_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -479,7 +567,7 @@ func (x *GrpcPipelinePartContextValues) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GrpcPipelinePartContextValues.ProtoReflect.Descriptor instead.
 func (*GrpcPipelinePartContextValues) Descriptor() ([]byte, []int) {
-	return file_front_contract_proto_rawDescGZIP(), []int{7}
+	return file_front_contract_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GrpcPipelinePartContextValues) GetPipelinePartInfo() *GrpcPipelinePartInfo {
@@ -512,7 +600,7 @@ type GrpcCasePipelinePartExecutionResult struct {
 
 func (x *GrpcCasePipelinePartExecutionResult) Reset() {
 	*x = GrpcCasePipelinePartExecutionResult{}
-	mi := &file_front_contract_proto_msgTypes[8]
+	mi := &file_front_contract_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -524,7 +612,7 @@ func (x *GrpcCasePipelinePartExecutionResult) String() string {
 func (*GrpcCasePipelinePartExecutionResult) ProtoMessage() {}
 
 func (x *GrpcCasePipelinePartExecutionResult) ProtoReflect() protoreflect.Message {
-	mi := &file_front_contract_proto_msgTypes[8]
+	mi := &file_front_contract_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -537,72 +625,12 @@ func (x *GrpcCasePipelinePartExecutionResult) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GrpcCasePipelinePartExecutionResult.ProtoReflect.Descriptor instead.
 func (*GrpcCasePipelinePartExecutionResult) Descriptor() ([]byte, []int) {
-	return file_front_contract_proto_rawDescGZIP(), []int{8}
+	return file_front_contract_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GrpcCasePipelinePartExecutionResult) GetContextValues() []*GrpcContextValueWithKeyName {
 	if x != nil {
 		return x.ContextValues
-	}
-	return nil
-}
-
-type GrpcPipelinePartInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Id            *GrpcGuid              `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	ExecutionId   *GrpcGuid              `protobuf:"bytes,3,opt,name=execution_id,json=executionId,proto3" json:"execution_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GrpcPipelinePartInfo) Reset() {
-	*x = GrpcPipelinePartInfo{}
-	mi := &file_front_contract_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GrpcPipelinePartInfo) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GrpcPipelinePartInfo) ProtoMessage() {}
-
-func (x *GrpcPipelinePartInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_front_contract_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GrpcPipelinePartInfo.ProtoReflect.Descriptor instead.
-func (*GrpcPipelinePartInfo) Descriptor() ([]byte, []int) {
-	return file_front_contract_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GrpcPipelinePartInfo) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *GrpcPipelinePartInfo) GetId() *GrpcGuid {
-	if x != nil {
-		return x.Id
-	}
-	return nil
-}
-
-func (x *GrpcPipelinePartInfo) GetExecutionId() *GrpcGuid {
-	if x != nil {
-		return x.ExecutionId
 	}
 	return nil
 }
@@ -624,11 +652,15 @@ const file_front_contract_proto_rawDesc = "" +
 	"pipelineId\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\n" +
 	"pipelineId\x12 \n" +
 	"\vprocessName\x18\x03 \x01(\tR\vprocessName\x12/\n" +
-	"\bcaseName\x18\x04 \x01(\v2\x13.ficus.GrpcCaseNameR\bcaseName\"\xf6\x01\n" +
+	"\bcaseName\x18\x04 \x01(\v2\x13.ficus.GrpcCaseNameR\bcaseName\"c\n" +
 	"\x0fGrpcKafkaUpdate\x12P\n" +
-	"\x13processCaseMetadata\x18\x01 \x01(\v2\x1e.ficus.GrpcProcessCaseMetadataR\x13processCaseMetadata\x12G\n" +
-	"\x10pipelinePartInfo\x18\x02 \x01(\v2\x1b.ficus.GrpcPipelinePartInfoR\x10pipelinePartInfo\x12H\n" +
-	"\rcontextValues\x18\x03 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues\"\xdd\x02\n" +
+	"\x13processCaseMetadata\x18\x01 \x01(\v2\x1e.ficus.GrpcProcessCaseMetadataR\x13processCaseMetadata\"\x7f\n" +
+	"\x14GrpcPipelinePartInfo\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
+	"\x02id\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x02id\x122\n" +
+	"\fexecution_id\x18\x03 \x01(\v2\x0f.ficus.GrpcGuidR\vexecutionId\"b\n" +
+	"\x16GrpcKafkaContextValues\x12H\n" +
+	"\rcontextValues\x18\x01 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues\"\xdd\x02\n" +
 	"\x17GrpcProcessCaseMetadata\x12 \n" +
 	"\vprocessName\x18\x01 \x01(\tR\vprocessName\x12/\n" +
 	"\bcaseName\x18\x02 \x01(\v2\x13.ficus.GrpcCaseNameR\bcaseName\x127\n" +
@@ -650,11 +682,7 @@ const file_front_contract_proto_rawDesc = "" +
 	"\x05stamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05stamp\x12W\n" +
 	"\x11execution_results\x18\x03 \x03(\v2*.ficus.GrpcCasePipelinePartExecutionResultR\x10executionResults\"o\n" +
 	"#GrpcCasePipelinePartExecutionResult\x12H\n" +
-	"\rcontextValues\x18\x03 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues\"\x7f\n" +
-	"\x14GrpcPipelinePartInfo\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
-	"\x02id\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\x02id\x122\n" +
-	"\fexecution_id\x18\x03 \x01(\v2\x0f.ficus.GrpcGuidR\vexecutionId2\x82\x02\n" +
+	"\rcontextValues\x18\x03 \x03(\v2\".ficus.GrpcContextValueWithKeyNameR\rcontextValues2\x82\x02\n" +
 	"%GrpcPipelinePartsContextValuesService\x12l\n" +
 	" GetSubscriptionAndPipelinesState\x12\x16.google.protobuf.Empty\x1a0.ficus.GrpcSubscriptionAndPipelinesStateResponse\x12k\n" +
 	"\x1bGetPipelineCaseContextValue\x12..ficus.GrpcGetPipelineCaseContextValuesRequest\x1a\x1c.ficus.GrpcCaseContextValuesB\x0fZ\r./;grpcmodelsb\x06proto3"
@@ -671,53 +699,53 @@ func file_front_contract_proto_rawDescGZIP() []byte {
 	return file_front_contract_proto_rawDescData
 }
 
-var file_front_contract_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_front_contract_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_front_contract_proto_goTypes = []any{
 	(*GrpcSubscriptionAndPipelinesStateResponse)(nil), // 0: ficus.GrpcSubscriptionAndPipelinesStateResponse
 	(*GrpcProcessCaseMetadataWithStamp)(nil),          // 1: ficus.GrpcProcessCaseMetadataWithStamp
 	(*GrpcGetPipelineCaseContextValuesRequest)(nil),   // 2: ficus.GrpcGetPipelineCaseContextValuesRequest
 	(*GrpcKafkaUpdate)(nil),                           // 3: ficus.GrpcKafkaUpdate
-	(*GrpcProcessCaseMetadata)(nil),                   // 4: ficus.GrpcProcessCaseMetadata
-	(*GrpcCaseName)(nil),                              // 5: ficus.GrpcCaseName
-	(*GrpcCaseContextValues)(nil),                     // 6: ficus.GrpcCaseContextValues
-	(*GrpcPipelinePartContextValues)(nil),             // 7: ficus.GrpcPipelinePartContextValues
-	(*GrpcCasePipelinePartExecutionResult)(nil),       // 8: ficus.GrpcCasePipelinePartExecutionResult
-	(*GrpcPipelinePartInfo)(nil),                      // 9: ficus.GrpcPipelinePartInfo
-	(*GrpcGuid)(nil),                                  // 10: ficus.GrpcGuid
-	(*GrpcContextValueWithKeyName)(nil),               // 11: ficus.GrpcContextValueWithKeyName
-	(*GrpcStringKeyValue)(nil),                        // 12: ficus.GrpcStringKeyValue
-	(*timestamppb.Timestamp)(nil),                     // 13: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),                             // 14: google.protobuf.Empty
+	(*GrpcPipelinePartInfo)(nil),                      // 4: ficus.GrpcPipelinePartInfo
+	(*GrpcKafkaContextValues)(nil),                    // 5: ficus.GrpcKafkaContextValues
+	(*GrpcProcessCaseMetadata)(nil),                   // 6: ficus.GrpcProcessCaseMetadata
+	(*GrpcCaseName)(nil),                              // 7: ficus.GrpcCaseName
+	(*GrpcCaseContextValues)(nil),                     // 8: ficus.GrpcCaseContextValues
+	(*GrpcPipelinePartContextValues)(nil),             // 9: ficus.GrpcPipelinePartContextValues
+	(*GrpcCasePipelinePartExecutionResult)(nil),       // 10: ficus.GrpcCasePipelinePartExecutionResult
+	(*GrpcGuid)(nil),                                  // 11: ficus.GrpcGuid
+	(*GrpcContextValueWithKeyName)(nil),               // 12: ficus.GrpcContextValueWithKeyName
+	(*GrpcStringKeyValue)(nil),                        // 13: ficus.GrpcStringKeyValue
+	(*timestamppb.Timestamp)(nil),                     // 14: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),                             // 15: google.protobuf.Empty
 }
 var file_front_contract_proto_depIdxs = []int32{
 	1,  // 0: ficus.GrpcSubscriptionAndPipelinesStateResponse.cases:type_name -> ficus.GrpcProcessCaseMetadataWithStamp
-	4,  // 1: ficus.GrpcProcessCaseMetadataWithStamp.metadata:type_name -> ficus.GrpcProcessCaseMetadata
-	10, // 2: ficus.GrpcGetPipelineCaseContextValuesRequest.subscriptionId:type_name -> ficus.GrpcGuid
-	10, // 3: ficus.GrpcGetPipelineCaseContextValuesRequest.pipelineId:type_name -> ficus.GrpcGuid
-	5,  // 4: ficus.GrpcGetPipelineCaseContextValuesRequest.caseName:type_name -> ficus.GrpcCaseName
-	4,  // 5: ficus.GrpcKafkaUpdate.processCaseMetadata:type_name -> ficus.GrpcProcessCaseMetadata
-	9,  // 6: ficus.GrpcKafkaUpdate.pipelinePartInfo:type_name -> ficus.GrpcPipelinePartInfo
-	11, // 7: ficus.GrpcKafkaUpdate.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
-	5,  // 8: ficus.GrpcProcessCaseMetadata.caseName:type_name -> ficus.GrpcCaseName
-	10, // 9: ficus.GrpcProcessCaseMetadata.subscriptionId:type_name -> ficus.GrpcGuid
-	10, // 10: ficus.GrpcProcessCaseMetadata.pipelineId:type_name -> ficus.GrpcGuid
-	12, // 11: ficus.GrpcProcessCaseMetadata.metadata:type_name -> ficus.GrpcStringKeyValue
-	7,  // 12: ficus.GrpcCaseContextValues.contextValues:type_name -> ficus.GrpcPipelinePartContextValues
-	9,  // 13: ficus.GrpcPipelinePartContextValues.pipelinePartInfo:type_name -> ficus.GrpcPipelinePartInfo
-	13, // 14: ficus.GrpcPipelinePartContextValues.stamp:type_name -> google.protobuf.Timestamp
-	8,  // 15: ficus.GrpcPipelinePartContextValues.execution_results:type_name -> ficus.GrpcCasePipelinePartExecutionResult
-	11, // 16: ficus.GrpcCasePipelinePartExecutionResult.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
-	10, // 17: ficus.GrpcPipelinePartInfo.id:type_name -> ficus.GrpcGuid
-	10, // 18: ficus.GrpcPipelinePartInfo.execution_id:type_name -> ficus.GrpcGuid
-	14, // 19: ficus.GrpcPipelinePartsContextValuesService.GetSubscriptionAndPipelinesState:input_type -> google.protobuf.Empty
-	2,  // 20: ficus.GrpcPipelinePartsContextValuesService.GetPipelineCaseContextValue:input_type -> ficus.GrpcGetPipelineCaseContextValuesRequest
-	0,  // 21: ficus.GrpcPipelinePartsContextValuesService.GetSubscriptionAndPipelinesState:output_type -> ficus.GrpcSubscriptionAndPipelinesStateResponse
-	6,  // 22: ficus.GrpcPipelinePartsContextValuesService.GetPipelineCaseContextValue:output_type -> ficus.GrpcCaseContextValues
-	21, // [21:23] is the sub-list for method output_type
-	19, // [19:21] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	6,  // 1: ficus.GrpcProcessCaseMetadataWithStamp.metadata:type_name -> ficus.GrpcProcessCaseMetadata
+	11, // 2: ficus.GrpcGetPipelineCaseContextValuesRequest.subscriptionId:type_name -> ficus.GrpcGuid
+	11, // 3: ficus.GrpcGetPipelineCaseContextValuesRequest.pipelineId:type_name -> ficus.GrpcGuid
+	7,  // 4: ficus.GrpcGetPipelineCaseContextValuesRequest.caseName:type_name -> ficus.GrpcCaseName
+	6,  // 5: ficus.GrpcKafkaUpdate.processCaseMetadata:type_name -> ficus.GrpcProcessCaseMetadata
+	11, // 6: ficus.GrpcPipelinePartInfo.id:type_name -> ficus.GrpcGuid
+	11, // 7: ficus.GrpcPipelinePartInfo.execution_id:type_name -> ficus.GrpcGuid
+	12, // 8: ficus.GrpcKafkaContextValues.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
+	7,  // 9: ficus.GrpcProcessCaseMetadata.caseName:type_name -> ficus.GrpcCaseName
+	11, // 10: ficus.GrpcProcessCaseMetadata.subscriptionId:type_name -> ficus.GrpcGuid
+	11, // 11: ficus.GrpcProcessCaseMetadata.pipelineId:type_name -> ficus.GrpcGuid
+	13, // 12: ficus.GrpcProcessCaseMetadata.metadata:type_name -> ficus.GrpcStringKeyValue
+	9,  // 13: ficus.GrpcCaseContextValues.contextValues:type_name -> ficus.GrpcPipelinePartContextValues
+	4,  // 14: ficus.GrpcPipelinePartContextValues.pipelinePartInfo:type_name -> ficus.GrpcPipelinePartInfo
+	14, // 15: ficus.GrpcPipelinePartContextValues.stamp:type_name -> google.protobuf.Timestamp
+	10, // 16: ficus.GrpcPipelinePartContextValues.execution_results:type_name -> ficus.GrpcCasePipelinePartExecutionResult
+	12, // 17: ficus.GrpcCasePipelinePartExecutionResult.contextValues:type_name -> ficus.GrpcContextValueWithKeyName
+	15, // 18: ficus.GrpcPipelinePartsContextValuesService.GetSubscriptionAndPipelinesState:input_type -> google.protobuf.Empty
+	2,  // 19: ficus.GrpcPipelinePartsContextValuesService.GetPipelineCaseContextValue:input_type -> ficus.GrpcGetPipelineCaseContextValuesRequest
+	0,  // 20: ficus.GrpcPipelinePartsContextValuesService.GetSubscriptionAndPipelinesState:output_type -> ficus.GrpcSubscriptionAndPipelinesStateResponse
+	8,  // 21: ficus.GrpcPipelinePartsContextValuesService.GetPipelineCaseContextValue:output_type -> ficus.GrpcCaseContextValues
+	20, // [20:22] is the sub-list for method output_type
+	18, // [18:20] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_front_contract_proto_init() }
@@ -733,7 +761,7 @@ func file_front_contract_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_front_contract_proto_rawDesc), len(file_front_contract_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -118,6 +118,102 @@ func (x *GrpcDropContextValuesRequest) GetIds() []*GrpcGuid {
 	return nil
 }
 
+type GrpcGetContextValueRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ExecutionId   *GrpcGuid              `protobuf:"bytes,2,opt,name=executionId,proto3" json:"executionId,omitempty"`
+	Key           *GrpcContextKey        `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcGetContextValueRequest) Reset() {
+	*x = GrpcGetContextValueRequest{}
+	mi := &file_context_values_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcGetContextValueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcGetContextValueRequest) ProtoMessage() {}
+
+func (x *GrpcGetContextValueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_context_values_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcGetContextValueRequest.ProtoReflect.Descriptor instead.
+func (*GrpcGetContextValueRequest) Descriptor() ([]byte, []int) {
+	return file_context_values_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GrpcGetContextValueRequest) GetExecutionId() *GrpcGuid {
+	if x != nil {
+		return x.ExecutionId
+	}
+	return nil
+}
+
+func (x *GrpcGetContextValueRequest) GetKey() *GrpcContextKey {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+type GrpcGetAllContextValuesResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContextValues []*GrpcGuid            `protobuf:"bytes,1,rep,name=context_values,json=contextValues,proto3" json:"context_values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrpcGetAllContextValuesResult) Reset() {
+	*x = GrpcGetAllContextValuesResult{}
+	mi := &file_context_values_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrpcGetAllContextValuesResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrpcGetAllContextValuesResult) ProtoMessage() {}
+
+func (x *GrpcGetAllContextValuesResult) ProtoReflect() protoreflect.Message {
+	mi := &file_context_values_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrpcGetAllContextValuesResult.ProtoReflect.Descriptor instead.
+func (*GrpcGetAllContextValuesResult) Descriptor() ([]byte, []int) {
+	return file_context_values_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GrpcGetAllContextValuesResult) GetContextValues() []*GrpcGuid {
+	if x != nil {
+		return x.ContextValues
+	}
+	return nil
+}
+
 var File_context_values_service_proto protoreflect.FileDescriptor
 
 const file_context_values_service_proto_rawDesc = "" +
@@ -128,11 +224,18 @@ const file_context_values_service_proto_rawDesc = "" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x14\n" +
 	"\x05bytes\x18\x03 \x01(\fR\x05bytes\"A\n" +
 	"\x1cGrpcDropContextValuesRequest\x12!\n" +
-	"\x03ids\x18\x01 \x03(\v2\x0f.ficus.GrpcGuidR\x03ids2\xf2\x01\n" +
+	"\x03ids\x18\x01 \x03(\v2\x0f.ficus.GrpcGuidR\x03ids\"x\n" +
+	"\x1aGrpcGetContextValueRequest\x121\n" +
+	"\vexecutionId\x18\x02 \x01(\v2\x0f.ficus.GrpcGuidR\vexecutionId\x12'\n" +
+	"\x03key\x18\x01 \x01(\v2\x15.ficus.GrpcContextKeyR\x03key\"W\n" +
+	"\x1dGrpcGetAllContextValuesResult\x126\n" +
+	"\x0econtext_values\x18\x01 \x03(\v2\x0f.ficus.GrpcGuidR\rcontextValues2\x8c\x03\n" +
 	"\x18GrpcContextValuesService\x12A\n" +
 	"\x0fSetContextValue\x12\x1b.ficus.GrpcContextValuePart\x1a\x0f.ficus.GrpcGuid(\x01\x12A\n" +
 	"\x0fGetContextValue\x12\x0f.ficus.GrpcGuid\x1a\x1b.ficus.GrpcContextValuePart0\x01\x12P\n" +
-	"\x11DropContextValues\x12#.ficus.GrpcDropContextValuesRequest\x1a\x16.google.protobuf.EmptyB\x0fZ\r./;grpcmodelsb\x06proto3"
+	"\x11DropContextValues\x12#.ficus.GrpcDropContextValuesRequest\x1a\x16.google.protobuf.Empty\x12G\n" +
+	"\x11GetContextValueId\x12!.ficus.GrpcGetContextValueRequest\x1a\x0f.ficus.GrpcGuid\x12O\n" +
+	"\x16GetAllContextValuesIds\x12\x0f.ficus.GrpcGuid\x1a$.ficus.GrpcGetAllContextValuesResultB\x0fZ\r./;grpcmodelsb\x06proto3"
 
 var (
 	file_context_values_service_proto_rawDescOnce sync.Once
@@ -146,26 +249,36 @@ func file_context_values_service_proto_rawDescGZIP() []byte {
 	return file_context_values_service_proto_rawDescData
 }
 
-var file_context_values_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_context_values_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_context_values_service_proto_goTypes = []any{
-	(*GrpcContextValuePart)(nil),         // 0: ficus.GrpcContextValuePart
-	(*GrpcDropContextValuesRequest)(nil), // 1: ficus.GrpcDropContextValuesRequest
-	(*GrpcGuid)(nil),                     // 2: ficus.GrpcGuid
-	(*emptypb.Empty)(nil),                // 3: google.protobuf.Empty
+	(*GrpcContextValuePart)(nil),          // 0: ficus.GrpcContextValuePart
+	(*GrpcDropContextValuesRequest)(nil),  // 1: ficus.GrpcDropContextValuesRequest
+	(*GrpcGetContextValueRequest)(nil),    // 2: ficus.GrpcGetContextValueRequest
+	(*GrpcGetAllContextValuesResult)(nil), // 3: ficus.GrpcGetAllContextValuesResult
+	(*GrpcGuid)(nil),                      // 4: ficus.GrpcGuid
+	(*GrpcContextKey)(nil),                // 5: ficus.GrpcContextKey
+	(*emptypb.Empty)(nil),                 // 6: google.protobuf.Empty
 }
 var file_context_values_service_proto_depIdxs = []int32{
-	2, // 0: ficus.GrpcDropContextValuesRequest.ids:type_name -> ficus.GrpcGuid
-	0, // 1: ficus.GrpcContextValuesService.SetContextValue:input_type -> ficus.GrpcContextValuePart
-	2, // 2: ficus.GrpcContextValuesService.GetContextValue:input_type -> ficus.GrpcGuid
-	1, // 3: ficus.GrpcContextValuesService.DropContextValues:input_type -> ficus.GrpcDropContextValuesRequest
-	2, // 4: ficus.GrpcContextValuesService.SetContextValue:output_type -> ficus.GrpcGuid
-	0, // 5: ficus.GrpcContextValuesService.GetContextValue:output_type -> ficus.GrpcContextValuePart
-	3, // 6: ficus.GrpcContextValuesService.DropContextValues:output_type -> google.protobuf.Empty
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	4, // 0: ficus.GrpcDropContextValuesRequest.ids:type_name -> ficus.GrpcGuid
+	4, // 1: ficus.GrpcGetContextValueRequest.executionId:type_name -> ficus.GrpcGuid
+	5, // 2: ficus.GrpcGetContextValueRequest.key:type_name -> ficus.GrpcContextKey
+	4, // 3: ficus.GrpcGetAllContextValuesResult.context_values:type_name -> ficus.GrpcGuid
+	0, // 4: ficus.GrpcContextValuesService.SetContextValue:input_type -> ficus.GrpcContextValuePart
+	4, // 5: ficus.GrpcContextValuesService.GetContextValue:input_type -> ficus.GrpcGuid
+	1, // 6: ficus.GrpcContextValuesService.DropContextValues:input_type -> ficus.GrpcDropContextValuesRequest
+	2, // 7: ficus.GrpcContextValuesService.GetContextValueId:input_type -> ficus.GrpcGetContextValueRequest
+	4, // 8: ficus.GrpcContextValuesService.GetAllContextValuesIds:input_type -> ficus.GrpcGuid
+	4, // 9: ficus.GrpcContextValuesService.SetContextValue:output_type -> ficus.GrpcGuid
+	0, // 10: ficus.GrpcContextValuesService.GetContextValue:output_type -> ficus.GrpcContextValuePart
+	6, // 11: ficus.GrpcContextValuesService.DropContextValues:output_type -> google.protobuf.Empty
+	4, // 12: ficus.GrpcContextValuesService.GetContextValueId:output_type -> ficus.GrpcGuid
+	3, // 13: ficus.GrpcContextValuesService.GetAllContextValuesIds:output_type -> ficus.GrpcGetAllContextValuesResult
+	9, // [9:14] is the sub-list for method output_type
+	4, // [4:9] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_context_values_service_proto_init() }
@@ -181,7 +294,7 @@ func file_context_values_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_context_values_service_proto_rawDesc), len(file_context_values_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

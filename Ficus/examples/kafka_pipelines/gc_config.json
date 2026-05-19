@@ -1,0 +1,25 @@
+{
+  "pie_chart_extraction_configs": [
+    {
+      "event_class_regex": "GC\/SampledObject",
+      "info": {
+        "base": {
+          "name": "Object Allocations",
+          "units": "bytes"
+        },
+        "count_attr": "TotalSizeForTypeSample",
+        "grouping_attr": {
+          "single_attribute": {
+            "name": "TypeName",
+            "fallback_value": "UNRESOLVED"
+          }
+        }
+      }
+    }
+  ],
+  "simple_counter_configs": [],
+  "activities_duration_configs": [],
+  "raw_control_flow_regexes": [
+    "^((?!GC\\/SampledObject).)*$"
+  ]
+}

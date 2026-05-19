@@ -21,3 +21,17 @@ class GrpcDropContextValuesRequest(_message.Message):
     IDS_FIELD_NUMBER: _ClassVar[int]
     ids: _containers.RepeatedCompositeFieldContainer[_util_pb2.GrpcGuid]
     def __init__(self, ids: _Optional[_Iterable[_Union[_util_pb2.GrpcGuid, _Mapping]]] = ...) -> None: ...
+
+class GrpcGetContextValueRequest(_message.Message):
+    __slots__ = ["executionId", "key"]
+    EXECUTIONID_FIELD_NUMBER: _ClassVar[int]
+    KEY_FIELD_NUMBER: _ClassVar[int]
+    executionId: _util_pb2.GrpcGuid
+    key: _pipelines_and_context_pb2.GrpcContextKey
+    def __init__(self, executionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., key: _Optional[_Union[_pipelines_and_context_pb2.GrpcContextKey, _Mapping]] = ...) -> None: ...
+
+class GrpcGetAllContextValuesResult(_message.Message):
+    __slots__ = ["context_values"]
+    CONTEXT_VALUES_FIELD_NUMBER: _ClassVar[int]
+    context_values: _containers.RepeatedCompositeFieldContainer[_util_pb2.GrpcGuid]
+    def __init__(self, context_values: _Optional[_Iterable[_Union[_util_pb2.GrpcGuid, _Mapping]]] = ...) -> None: ...

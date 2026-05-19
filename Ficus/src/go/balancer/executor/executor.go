@@ -14,11 +14,14 @@ import (
 	"github.com/google/uuid"
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type PipelineExecutor interface {
 	GetContextValues(executionId uuid.UUID) (map[string]uuid.UUID, bool)
 	DropExecutionResult(id uuid.UUID)
+	GetExecutionContextValues(id *grpcmodels.GrpcGuid) result.Result[map[string]uuid.UUID]
 
 	Execute(
 		plan *plan.ExecutionPlan,
@@ -296,12 +299,34 @@ func (this *pipelineExecutor) executePipelineParts(
 				outputChannel <- execResult
 			}
 
-			newContextValues, err := client.GetAllContextValues(context.Background(), execId)
-			if err != nil {
-				return result.Err[grpcmodels.GrpcGetAllContextValuesResult](err)
+			newCvRes := grpcmodels.ExecuteWithContextValuesClient[grpcmodels.GrpcGetAllContextValuesResult](
+				backend,
+				func(client grpcmodels.GrpcContextValuesServiceClient) result.Result[grpcmodels.GrpcGetAllContextValuesResult] {
+					return result.From(client.GetAllContextValuesIds(context.Background(), execId))
+				},
+			)
+
+			if newCvRes.IsErr() {
+				return result.Err[grpcmodels.GrpcGetAllContextValuesResult](newCvRes.Err())
 			}
 
-			return result.Ok(newContextValues)
+			return result.Ok(newCvRes.Ok())
 		},
 	)
+}
+
+func (this *pipelineExecutor) GetExecutionContextValues(id *grpcmodels.GrpcGuid) result.Result[map[string]uuid.UUID] {
+	executionId, err := uuid.Parse(id.Guid)
+	if err != nil {
+		err := status.Errorf(codes.InvalidArgument, "failed to parse uuid %s", id.Guid)
+		return result.Err[map[string]uuid.UUID](err)
+	}
+
+	executionContextValues, ok := this.GetContextValues(executionId)
+	if !ok {
+		err := status.Errorf(codes.NotFound, "context values for execution id %s are not found", executionId)
+		return result.Err[map[string]uuid.UUID](err)
+	}
+
+	return result.Ok(&executionContextValues)
 }

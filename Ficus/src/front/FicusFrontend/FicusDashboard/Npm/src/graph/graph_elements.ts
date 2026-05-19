@@ -24,8 +24,6 @@ import {createTimeSpanString} from "./labels/util";
 import {GrpcDurationKind} from "../protos/ficus/GrpcDurationKind";
 import {createNodeStandaloneEnhancements} from "./labels/node_html_label";
 
-const graphColor = graphColors(darkTheme);
-
 export function createGraphElements(
   graph: GrpcGraph,
   annotation: GrpcAnnotation,
@@ -195,7 +193,6 @@ export function createEnhancedEdges(
   let elements = createGraphEdgesElements(graph.edges, performanceEdgesMap, aggregatedData, filter);
 
   return elements.map(e => {
-
     let enhancementHtml = "";
     if (e.data.enhancementData != null) {
       enhancementHtml = createEdgeStandaloneEnhancements(enhancements, e.data.enhancementData, aggregatedData);
@@ -255,20 +252,8 @@ function createGraphEdgesElements(
       width = 1;
     }
 
-    let blueMin = graphColor.blueMin;
-    let blueMax = graphColor.blueMax;
-
-    let greenMin = graphColor.greenMin;
-    let greenMax = graphColor.greenMax;
-
-    let redMin = graphColor.redMin;
-    let redMax = graphColor.redMax;
-
     let executionTime = performanceMap[edge.id] ?? calculateEdgeExecutionTime(edge);
-
-    let color = executionTime == null ?
-      calculateGradient(redMin, redMax, greenMin, greenMax, blueMin, blueMax, weightRatio) :
-      getPerformanceAnnotationColor(executionTime / aggregatedData.totalExecutionTimeNs);
+    let color = getPerformanceAnnotationColor(executionTime / aggregatedData.totalExecutionTimeNs);
 
     elements.push({
       data: {

@@ -1,0 +1,8 @@
+	[start] sockets!Program.<Main>(class System.String[])
+		[start] sockets!Program.<Main>$(class System.String[])
+			[start] sockets!Program+<<Main>$>d__0..ctor()
+			[ end ] sockets!Program+<<Main>$>d__0..ctor()
+			[start] sockets!Program+<<Main>$>d__0.MoveNext()
+			[ end ] sockets!Program+<<Main>$>d__0.MoveNext()
+		[ end ] sockets!Program.<Main>$(class System.String[])
+	[ end ] sockets!Program.<Main>(class System.String[])

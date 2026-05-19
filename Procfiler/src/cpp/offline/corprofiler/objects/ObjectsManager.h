@@ -8,12 +8,12 @@
 #include "corprof.h"
 
 class ObjectsManager {
-    ICorProfilerInfo15* myProfilerInfo;
+    ICorProfilerInfo12* myProfilerInfo;
     std::map<ObjectID, UINT64> myObjectsIds;
     std::mutex myMutex;
 
 public:
-    explicit ObjectsManager(ICorProfilerInfo15* info);
+    explicit ObjectsManager(ICorProfilerInfo12* info);
 
     ~ObjectsManager();
 

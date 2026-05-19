@@ -36,8 +36,6 @@ public class PipelinePartsUpdatesConsumer(
         if (result.IsPartitionEOF) continue;
 
         yield return result.Message.Value;
-
-        consumer.Commit(result);
       }
     }
     finally
@@ -57,6 +55,8 @@ public static class PipelinePartsResultsConsumptionUtil
   {
     var config = new ConsumerConfig
     {
+      EnableAutoCommit = true,
+      AutoCommitIntervalMs = 200,
       BootstrapServers = settings.BootstrapServers,
       GroupId = consumerGroupId,
       EnablePartitionEof = true,

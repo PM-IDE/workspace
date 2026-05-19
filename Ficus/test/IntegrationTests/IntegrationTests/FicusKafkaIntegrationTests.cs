@@ -8,6 +8,7 @@ using Confluent.Kafka;
 using Ficus;
 using FicusKafkaConstants;
 using FicusKafkaIntegration;
+using Grpc.Core.Utils;
 using IntegrationTests.Base;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
   {
     var eventLog = GenerateTestEventLog();
     ProduceEventLogToKafka(eventLog);
-    AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates());
+    AssertNamesLogMatchesOriginal(eventLog, ConsumeAllUpdates(eventLog.Traces.Count));
   }
 
   [Test]
@@ -38,10 +39,10 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     }
 
     ProduceEventLogToKafka(eventLog);
-    AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates());
+    AssertNamesLogMatchesMergedOriginal(eventLog, ConsumeAllUpdates(eventLog.Traces.Count));
   }
 
-  private static void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  private void AssertNamesLogMatchesMergedOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     var namesLog = FindLastNamesLog(updates);
 
@@ -55,7 +56,7 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     }
   }
 
-  private static void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
+  private void AssertNamesLogMatchesOriginal(IEventLog eventLog, IReadOnlyList<GrpcKafkaUpdate> updates)
   {
     Assert.That(eventLog.Traces, Has.Count.EqualTo(updates.Count));
 
@@ -70,8 +71,22 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     }
   }
 
-  private static GrpcContextValueWithKeyName FindLastNamesLog(IReadOnlyList<GrpcKafkaUpdate> updates) =>
-    updates.Last().ContextValues.First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
+  private GrpcContextValueWithKeyName FindLastNamesLog(IReadOnlyList<GrpcKafkaUpdate> updates)
+  {
+    var lastUpdate = updates.Last();
+    var stream = KafkaClient.GetCurrentContextValues(new GrpcGetCurrentContextValuesRequest
+    {
+      PipelineId = lastUpdate.ProcessCaseMetadata.PipelineId,
+      CaseName = string.Join(";", lastUpdate.ProcessCaseMetadata.CaseName.FullNameParts),
+      SubscriptionId = lastUpdate.ProcessCaseMetadata.SubscriptionId
+    });
+
+    var contextValues = stream.ResponseStream.ToListAsync().GetAwaiter().GetResult();
+
+    return contextValues.Where(c => c.ResultCase == GrpcPipelinePartExecutionResult.ResultOneofCase.PipelinePartResult)
+      .SelectMany(c => c.PipelinePartResult.ContextValues)
+      .First(c => c.Value.ContextValueCase is GrpcContextValue.ContextValueOneofCase.NamesLog);
+  }
 
   private static IEventLog GenerateTestEventLog()
   {
@@ -117,19 +132,21 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
     Thread.Sleep(10_000);
   }
 
-  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates()
+  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(int updatesCount)
   {
     var logger = LoggerFactory.Create(_ => { }).CreateLogger<PipelinePartsUpdatesConsumer>();
-    return ConsumeAllUpdates(logger);
+    return ConsumeAllUpdates(logger, updatesCount);
   }
 
-  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(ILogger logger)
+  private IReadOnlyList<GrpcKafkaUpdate> ConsumeAllUpdates(ILogger logger, int updatesCount)
   {
     const string ConsumerGroupId = $"{nameof(FicusKafkaIntegrationTests)}::{nameof(ConsumeAllUpdates)}";
     var consumer =
       PipelinePartsResultsConsumptionUtil.CreateConsumerAndWaitUntilTopicExists(PipelinePartsSettings, ConsumerGroupId, logger);
 
     List<GrpcKafkaUpdate> result = [];
+    var consumed = 0;
+
     while (true)
     {
       var consumeResult = consumer.Consume();
@@ -137,6 +154,11 @@ public class FicusKafkaIntegrationTests : TestWithFicusBackendOneKafkaSubscripti
 
       result.Add(consumeResult.Message.Value);
       consumer.Commit();
+
+      if (++consumed == updatesCount)
+      {
+        break;
+      }
     }
 
     return result;

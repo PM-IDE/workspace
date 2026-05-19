@@ -5,9 +5,9 @@ use crate::features::{
     relations::triangle_relation::TriangleRelation,
   },
 };
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, sync::Arc};
 
-type DependencyRelations = HashMap<Rc<str>, HashMap<Rc<str>, f64>>;
+type DependencyRelations = HashMap<Arc<str>, HashMap<Arc<str>, f64>>;
 
 pub(crate) struct HeuristicMinerRelationsProvider<'a> {
   dependency_threshold: f64,
@@ -52,7 +52,7 @@ impl<'a> HeuristicMinerRelationsProvider<'a> {
   }
 
   fn initialize_dependency_relations(&mut self) {
-    let mut relations = HashMap::<Rc<str>, Vec<(Rc<str>, f64)>>::new();
+    let mut relations = HashMap::<Arc<str>, Vec<(Arc<str>, f64)>>::new();
     for first_class in self.provider.log_info().all_event_classes() {
       for second_class in self.provider.log_info().all_event_classes() {
         let second_follows_first = self.get_directly_follows_count(first_class, second_class);

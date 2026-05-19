@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	GrpcKafkaService_SubscribeForKafkaTopic_FullMethodName           = "/ficus.GrpcKafkaService/SubscribeForKafkaTopic"
 	GrpcKafkaService_UnsubscribeFromKafkaTopic_FullMethodName        = "/ficus.GrpcKafkaService/UnsubscribeFromKafkaTopic"
+	GrpcKafkaService_GetCurrentContextValues_FullMethodName          = "/ficus.GrpcKafkaService/GetCurrentContextValues"
 	GrpcKafkaService_AddPipelineToSubscription_FullMethodName        = "/ficus.GrpcKafkaService/AddPipelineToSubscription"
 	GrpcKafkaService_AddPipelineToSubscriptionStream_FullMethodName  = "/ficus.GrpcKafkaService/AddPipelineToSubscriptionStream"
 	GrpcKafkaService_RemovePipelineSubscription_FullMethodName       = "/ficus.GrpcKafkaService/RemovePipelineSubscription"
@@ -36,6 +37,7 @@ const (
 type GrpcKafkaServiceClient interface {
 	SubscribeForKafkaTopic(ctx context.Context, in *GrpcSubscribeToKafkaRequest, opts ...grpc.CallOption) (*GrpcKafkaResult, error)
 	UnsubscribeFromKafkaTopic(ctx context.Context, in *GrpcUnsubscribeFromKafkaRequest, opts ...grpc.CallOption) (*GrpcKafkaResult, error)
+	GetCurrentContextValues(ctx context.Context, in *GrpcGetCurrentContextValuesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult], error)
 	AddPipelineToSubscription(ctx context.Context, in *GrpcAddPipelineRequest, opts ...grpc.CallOption) (*GrpcKafkaResult, error)
 	AddPipelineToSubscriptionStream(ctx context.Context, in *GrpcAddPipelineStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult], error)
 	RemovePipelineSubscription(ctx context.Context, in *GrpcRemovePipelineRequest, opts ...grpc.CallOption) (*GrpcKafkaResult, error)
@@ -72,6 +74,25 @@ func (c *grpcKafkaServiceClient) UnsubscribeFromKafkaTopic(ctx context.Context, 
 	return out, nil
 }
 
+func (c *grpcKafkaServiceClient) GetCurrentContextValues(ctx context.Context, in *GrpcGetCurrentContextValuesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &GrpcKafkaService_ServiceDesc.Streams[0], GrpcKafkaService_GetCurrentContextValues_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[GrpcGetCurrentContextValuesRequest, GrpcPipelinePartExecutionResult]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GrpcKafkaService_GetCurrentContextValuesClient = grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult]
+
 func (c *grpcKafkaServiceClient) AddPipelineToSubscription(ctx context.Context, in *GrpcAddPipelineRequest, opts ...grpc.CallOption) (*GrpcKafkaResult, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GrpcKafkaResult)
@@ -84,7 +105,7 @@ func (c *grpcKafkaServiceClient) AddPipelineToSubscription(ctx context.Context, 
 
 func (c *grpcKafkaServiceClient) AddPipelineToSubscriptionStream(ctx context.Context, in *GrpcAddPipelineStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &GrpcKafkaService_ServiceDesc.Streams[0], GrpcKafkaService_AddPipelineToSubscriptionStream_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &GrpcKafkaService_ServiceDesc.Streams[1], GrpcKafkaService_AddPipelineToSubscriptionStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +154,7 @@ func (c *grpcKafkaServiceClient) GetAllSubscriptionsAndPipelines(ctx context.Con
 
 func (c *grpcKafkaServiceClient) ExecutePipelineAndProduceToKafka(ctx context.Context, in *GrpcExecutePipelineAndProduceKafkaRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GrpcPipelinePartExecutionResult], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &GrpcKafkaService_ServiceDesc.Streams[1], GrpcKafkaService_ExecutePipelineAndProduceToKafka_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &GrpcKafkaService_ServiceDesc.Streams[2], GrpcKafkaService_ExecutePipelineAndProduceToKafka_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +177,7 @@ type GrpcKafkaService_ExecutePipelineAndProduceToKafkaClient = grpc.ServerStream
 type GrpcKafkaServiceServer interface {
 	SubscribeForKafkaTopic(context.Context, *GrpcSubscribeToKafkaRequest) (*GrpcKafkaResult, error)
 	UnsubscribeFromKafkaTopic(context.Context, *GrpcUnsubscribeFromKafkaRequest) (*GrpcKafkaResult, error)
+	GetCurrentContextValues(*GrpcGetCurrentContextValuesRequest, grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]) error
 	AddPipelineToSubscription(context.Context, *GrpcAddPipelineRequest) (*GrpcKafkaResult, error)
 	AddPipelineToSubscriptionStream(*GrpcAddPipelineStreamRequest, grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]) error
 	RemovePipelineSubscription(context.Context, *GrpcRemovePipelineRequest) (*GrpcKafkaResult, error)
@@ -177,6 +199,9 @@ func (UnimplementedGrpcKafkaServiceServer) SubscribeForKafkaTopic(context.Contex
 }
 func (UnimplementedGrpcKafkaServiceServer) UnsubscribeFromKafkaTopic(context.Context, *GrpcUnsubscribeFromKafkaRequest) (*GrpcKafkaResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnsubscribeFromKafkaTopic not implemented")
+}
+func (UnimplementedGrpcKafkaServiceServer) GetCurrentContextValues(*GrpcGetCurrentContextValuesRequest, grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]) error {
+	return status.Errorf(codes.Unimplemented, "method GetCurrentContextValues not implemented")
 }
 func (UnimplementedGrpcKafkaServiceServer) AddPipelineToSubscription(context.Context, *GrpcAddPipelineRequest) (*GrpcKafkaResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPipelineToSubscription not implemented")
@@ -252,6 +277,17 @@ func _GrpcKafkaService_UnsubscribeFromKafkaTopic_Handler(srv interface{}, ctx co
 	}
 	return interceptor(ctx, in, info, handler)
 }
+
+func _GrpcKafkaService_GetCurrentContextValues_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GrpcGetCurrentContextValuesRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(GrpcKafkaServiceServer).GetCurrentContextValues(m, &grpc.GenericServerStream[GrpcGetCurrentContextValuesRequest, GrpcPipelinePartExecutionResult]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GrpcKafkaService_GetCurrentContextValuesServer = grpc.ServerStreamingServer[GrpcPipelinePartExecutionResult]
 
 func _GrpcKafkaService_AddPipelineToSubscription_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GrpcAddPipelineRequest)
@@ -380,6 +416,11 @@ var GrpcKafkaService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetCurrentContextValues",
+			Handler:       _GrpcKafkaService_GetCurrentContextValues_Handler,
+			ServerStreams: true,
+		},
 		{
 			StreamName:    "AddPipelineToSubscriptionStream",
 			Handler:       _GrpcKafkaService_AddPipelineToSubscriptionStream_Handler,

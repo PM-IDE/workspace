@@ -9,6 +9,16 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class GrpcGetCurrentContextValuesRequest(_message.Message):
+    __slots__ = ["subscriptionId", "pipelineId", "caseName"]
+    SUBSCRIPTIONID_FIELD_NUMBER: _ClassVar[int]
+    PIPELINEID_FIELD_NUMBER: _ClassVar[int]
+    CASENAME_FIELD_NUMBER: _ClassVar[int]
+    subscriptionId: _util_pb2.GrpcGuid
+    pipelineId: _util_pb2.GrpcGuid
+    caseName: str
+    def __init__(self, subscriptionId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., pipelineId: _Optional[_Union[_util_pb2.GrpcGuid, _Mapping]] = ..., caseName: _Optional[str] = ...) -> None: ...
+
 class GrpcExecutePipelineAndProduceKafkaRequest(_message.Message):
     __slots__ = ["pipelineRequest", "producerMetadata", "caseInfo", "subscriptionId", "pipelineId", "pipelineName", "subscriptionName"]
     PIPELINEREQUEST_FIELD_NUMBER: _ClassVar[int]

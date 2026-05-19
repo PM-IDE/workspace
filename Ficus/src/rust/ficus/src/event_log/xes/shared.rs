@@ -1,27 +1,27 @@
 use crate::event_log::core::event::event::EventPayloadValue;
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(Debug, Clone)]
 pub struct XesEventLogExtension {
-  pub name: Rc<str>,
-  pub prefix: Rc<str>,
-  pub uri: Rc<str>,
+  pub name: Arc<str>,
+  pub prefix: Arc<str>,
+  pub uri: Arc<str>,
 }
 
 #[derive(Debug, Clone)]
 pub struct XesGlobal {
-  pub scope: Rc<str>,
-  pub default_values: HashMap<Rc<str>, EventPayloadValue>,
+  pub scope: Arc<str>,
+  pub default_values: HashMap<Arc<str>, EventPayloadValue>,
 }
 
 #[derive(Debug, Clone)]
 pub struct XesClassifier {
-  pub name: Rc<str>,
-  pub keys: Vec<Rc<str>>,
+  pub name: Arc<str>,
+  pub keys: Vec<Arc<str>>,
 }
 
 #[derive(Debug, Clone)]
 pub struct XesProperty {
-  pub name: Rc<str>,
+  pub name: Arc<str>,
   pub value: EventPayloadValue,
 }

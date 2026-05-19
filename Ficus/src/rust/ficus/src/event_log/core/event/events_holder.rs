@@ -7,7 +7,7 @@ use crate::{
 
 use super::event::Event;
 use log::debug;
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::Arc};
 
 #[derive(Debug)]
 pub struct EventsHolder<TEvent>
@@ -122,12 +122,12 @@ where
 
 #[derive(Debug)]
 pub struct EventSequenceInfo {
-  events_counts: HashMap<Rc<str>, usize>,
+  events_counts: HashMap<Arc<str>, usize>,
   events_count: usize,
 }
 
 impl TraceInfo for EventSequenceInfo {
-  fn events_counts(&self) -> &HashMap<Rc<str>, usize> {
+  fn events_counts(&self) -> &HashMap<Arc<str>, usize> {
     &self.events_counts
   }
 
@@ -155,7 +155,7 @@ impl EventSequenceInfo {
 
 #[derive(Debug)]
 pub struct EventsPositions {
-  positions: HashMap<Rc<str>, Vec<usize>>,
+  positions: HashMap<Arc<str>, Vec<usize>>,
 }
 
 impl EventsPositions {

@@ -2,6 +2,6 @@
 
 public class PipelinePartsUpdateKafkaSettings
 {
-  public string Topic { get; set; }
-  public string BootstrapServers { get; set; }
+  public required string Topic { get; init; }
+  public required string BootstrapServers { get; init; }
 }

@@ -5,11 +5,11 @@
 
 class DebugShadowStackSerializer : public ShadowStackSerializer {
     std::string mySavePath;
-    ICorProfilerInfo15* myProfilerInfo;
+    ICorProfilerInfo12* myProfilerInfo;
     ProcfilerLogger* myLogger;
 
 public:
-    explicit DebugShadowStackSerializer(ICorProfilerInfo15* profilerInfo, ProcfilerLogger* logger);
+    explicit DebugShadowStackSerializer(ICorProfilerInfo12* profilerInfo, ProcfilerLogger* logger);
     ~DebugShadowStackSerializer() override = default;
 
     void Init() override;

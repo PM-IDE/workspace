@@ -1,9 +1,9 @@
 use crate::models::domain::bxes_value::BxesValue;
-use std::{collections::HashSet, rc::Rc};
+use std::{collections::HashSet, sync::Arc};
 
 pub fn compare_list_of_attributes(
-  first_attributes: &Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
-  second_attributes: &Option<Vec<(Rc<BxesValue>, Rc<BxesValue>)>>,
+  first_attributes: &Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>,
+  second_attributes: &Option<Vec<(Arc<BxesValue>, Arc<BxesValue>)>>,
 ) -> bool {
   if first_attributes.is_none() && second_attributes.is_none() {
     return true;
@@ -16,9 +16,9 @@ pub fn compare_list_of_attributes(
       return false;
     }
 
-    let first_set = self_attributes.iter().collect::<HashSet<&(Rc<BxesValue>, Rc<BxesValue>)>>();
+    let first_set = self_attributes.iter().collect::<HashSet<&(Arc<BxesValue>, Arc<BxesValue>)>>();
 
-    let second_set = other_attributes.iter().collect::<HashSet<&(Rc<BxesValue>, Rc<BxesValue>)>>();
+    let second_set = other_attributes.iter().collect::<HashSet<&(Arc<BxesValue>, Arc<BxesValue>)>>();
 
     return first_set.eq(&second_set);
   }
@@ -26,6 +26,6 @@ pub fn compare_list_of_attributes(
   false
 }
 
-pub fn attributes_equals(first_attribute: &(Rc<BxesValue>, Rc<BxesValue>), second_attribute: &(Rc<BxesValue>, Rc<BxesValue>)) -> bool {
+pub fn attributes_equals(first_attribute: &(Arc<BxesValue>, Arc<BxesValue>), second_attribute: &(Arc<BxesValue>, Arc<BxesValue>)) -> bool {
   first_attribute.0.eq(&second_attribute.0) && first_attribute.1.eq(&second_attribute.1)
 }

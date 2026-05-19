@@ -60,6 +60,7 @@ export interface ProtoGrpcType {
     GrpcHashesLogTrace: MessageTypeDefinition
     GrpcHistogramEntry: MessageTypeDefinition
     GrpcIntArray: MessageTypeDefinition
+    GrpcKafkaContextValues: MessageTypeDefinition
     GrpcKafkaUpdate: MessageTypeDefinition
     GrpcLabeledDataset: MessageTypeDefinition
     GrpcLogPoint: MessageTypeDefinition

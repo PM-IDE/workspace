@@ -25,7 +25,11 @@ public class TestAsyncMethodsHandler : IEventPipeStreamEventHandler
 [NonParallelizable]
 public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerMethodsTest
 {
+  private static readonly IEnumerable<KnownSolution> ourAsyncSolutions = KnownSolution.AsyncSolutions;
+
+
   private readonly TestAsyncMethodsHandler myHandler = new();
+
 
   protected override IEnumerable<IEventPipeStreamEventHandler> HandlersToRegister =>
   [
@@ -35,24 +39,8 @@ public class OnlineAsyncMethodsGroupingTests : OnlineProcfilerMethodsTest
   protected override string? Prefix => null;
 
 
-  [Test]
-  public void SimpleAsyncAwait() => Execute(() => DoExecuteTest(KnownSolution.SimpleAsyncAwait));
-
-  [Test]
-  public void NotSimpleAsyncAwait() => Execute(() => DoExecuteTest(KnownSolution.NotSimpleAsyncAwait));
-
-  [Test]
-  public void AsyncAwait() => Execute(() => DoExecuteTest(KnownSolution.AsyncAwait));
-
-  [Test]
-  public void AsyncDisposable() => Execute(() => DoExecuteTest(KnownSolution.AsyncDisposable));
-
-  [Test]
-  public void AwaitForeach() => Execute(() => DoExecuteTest(KnownSolution.AwaitForeach));
-
-  [Test]
-  public void AsyncAwaitTaskFactoryNew() => Execute(() => DoExecuteTest(KnownSolution.AsyncAwaitTaskFactoryNew));
-
+  [TestCaseSource(nameof(ourAsyncSolutions))]
+  public void DoTest(KnownSolution solution) => Execute(() => DoExecuteTest(solution));
 
   protected override Dictionary<string, List<List<EventRecordWithMetadata>>> GetLoggedMethods(ISharedEventPipeStreamData data) =>
     myHandler.RecordedStateMachineTraces;

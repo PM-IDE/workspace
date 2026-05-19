@@ -34,6 +34,7 @@ use std::{
   cell::RefCell,
   collections::{HashMap, HashSet},
   rc::Rc,
+  sync::Arc,
 };
 
 pub fn do_clusterize_log_by_traces(
@@ -82,7 +83,7 @@ pub fn do_clusterize_log_by_traces(
 fn create_traces_dataset(
   log: &XesEventLogImpl,
   distance: &FicusDistance,
-  class_extractor: Option<&Rc<str>>,
+  class_extractor: Option<&Arc<str>>,
   feature_count_kind: FeatureCountKind,
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
@@ -98,7 +99,7 @@ fn create_traces_dataset(
 
 fn create_traces_dataset_default(
   log: &XesEventLogImpl,
-  class_extractor: Option<&Rc<str>>,
+  class_extractor: Option<&Arc<str>>,
   feature_count_kind: FeatureCountKind,
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
@@ -135,7 +136,7 @@ fn create_trace_representation(trace: &XesTraceImpl, trace_repr_source: &TracesR
 
 fn create_traces_dataset_default_internal<TLog: EventLog>(
   log: &TLog,
-  class_extractor: Option<&Rc<str>>,
+  class_extractor: Option<&Arc<str>>,
   feature_count_kind: FeatureCountKind,
   trace_repr_creator: impl Fn(&TLog::TTrace) -> Vec<Rc<RefCell<TLog::TEvent>>>,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
@@ -216,7 +217,7 @@ fn create_traces_dataset_default_internal<TLog: EventLog>(
 
 fn create_traces_dataset_levenshtein(
   log: &XesEventLogImpl,
-  class_extractor: Option<&Rc<str>>,
+  class_extractor: Option<&Arc<str>>,
   trace_repr_source: &TracesRepresentationSource,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
   create_traces_dataset_levenshtein_internal(log, class_extractor, |trace| create_trace_representation(trace, trace_repr_source))
@@ -224,7 +225,7 @@ fn create_traces_dataset_levenshtein(
 
 fn create_traces_dataset_levenshtein_internal<TLog: EventLog>(
   log: &TLog,
-  class_extractor: Option<&Rc<str>>,
+  class_extractor: Option<&Arc<str>>,
   trace_repr_creator: impl Fn(&TLog::TTrace) -> Vec<Rc<RefCell<TLog::TEvent>>>,
 ) -> Result<(MyDataset, Vec<String>, Vec<String>), ClusteringError> {
   let regex_hasher = class_extractor

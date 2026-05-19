@@ -11,7 +11,7 @@ use crate::{
   },
   utils::display_name::get_display_name,
 };
-use std::{cell::RefCell, collections::HashSet, rc::Rc};
+use std::{cell::RefCell, collections::HashSet, rc::Rc, sync::Arc};
 
 pub fn find_loops_strict(log: &XesEventLogImpl, hashed_log: &Vec<Vec<u64>>, max_array_length: usize) -> Vec<Vec<ActivityInTraceInfo>> {
   find_tandem_arrays_strict(hashed_log, max_array_length)
@@ -86,7 +86,7 @@ fn create_strict_loop_activity_instance(
       HashSet::from_iter(hashed_trace[array.start_index..array.start_index + array.length].iter().copied()),
       vec![],
       0,
-      Rc::from(format!("Loop[{}]", name.join("::"))),
+      Arc::from(format!("Loop[{}]", name.join("::"))),
       UnderlyingPatternKind::StrictLoop,
     ))),
     array.start_index,

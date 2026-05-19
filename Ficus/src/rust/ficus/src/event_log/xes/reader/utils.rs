@@ -1,6 +1,5 @@
-use std::{rc::Rc, str::FromStr};
-
 use chrono::{DateTime, Utc};
+use std::{str::FromStr, sync::Arc};
 
 use crate::event_log::{core::event::event::EventPayloadValue, xes::constants::*};
 
@@ -16,9 +15,9 @@ pub struct KeyValuePair<TKey, TValue> {
 }
 
 pub struct PayloadTagDescriptor {
-  pub payload_type: Rc<str>,
-  pub key: Rc<str>,
-  pub value: Rc<str>,
+  pub payload_type: Arc<str>,
+  pub key: Arc<str>,
+  pub value: Arc<str>,
 }
 
 pub fn read_payload_like_tag(tag: &BytesStart) -> Option<PayloadTagDescriptor> {
@@ -27,11 +26,11 @@ pub fn read_payload_like_tag(tag: &BytesStart) -> Option<PayloadTagDescriptor> {
     return None;
   }
 
-  let key = Rc::from(unescape(kv.key.as_ref().unwrap()).ok().unwrap().to_string());
-  let value = Rc::from(unescape(kv.value.as_ref().unwrap()).ok().unwrap().to_string());
+  let key = Arc::from(unescape(kv.key.as_ref().unwrap()).ok().unwrap().to_string());
+  let value = Arc::from(unescape(kv.value.as_ref().unwrap()).ok().unwrap().to_string());
 
   let payload_type = match str::from_utf8(tag.name().0) {
-    Ok(string) => Rc::from(string),
+    Ok(string) => Arc::from(string),
     Err(_) => return None,
   };
 
@@ -65,17 +64,17 @@ pub fn extract_key_value(start: &BytesStart) -> KeyValuePair<String, String> {
 }
 
 #[inline]
-pub fn read_attr_value(real_attr: &Attribute, var: &mut Option<Rc<str>>) -> bool {
+pub fn read_attr_value(real_attr: &Attribute, var: &mut Option<Arc<str>>) -> bool {
   match str::from_utf8(real_attr.value.as_ref()) {
     Ok(string) => {
-      *var = Some(Rc::from(string));
+      *var = Some(Arc::from(string));
       true
     }
     Err(_) => false,
   }
 }
 
-pub fn extract_payload_value(name: &[u8], key: &Rc<str>, value: &Rc<str>) -> Option<EventPayloadValue> {
+pub fn extract_payload_value(name: &[u8], key: &Arc<str>, value: &Arc<str>) -> Option<EventPayloadValue> {
   if key.as_ref() == LIFECYCLE_TRANSITION_STR && name == STRING_TAG_NAME {
     return Some(EventPayloadValue::Lifecycle(Lifecycle::from_str(value).ok().unwrap()));
   }

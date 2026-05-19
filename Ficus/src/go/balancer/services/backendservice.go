@@ -94,9 +94,9 @@ func (this *BackendServiceServer) ExecutePipeline(
 		err := server.Send(pipelineExecutionResult)
 		if err != nil {
 			return status.Errorf(codes.Internal, "error happened during sending pipeline part result: %s", err.Error())
-		} else {
-			logger.Infow("Sent a pipeline execution result")
 		}
+
+		logger.Infow("Sent a pipeline execution result")
 	}
 
 	executionResult := <-errorChannel
@@ -107,40 +107,6 @@ func (this *BackendServiceServer) ExecutePipeline(
 	logger.Infow("Finished execution", "execution_id", executionResult.Ok())
 
 	return nil
-}
-
-func (this *BackendServiceServer) GetContextValue(
-	_ context.Context,
-	request *grpcmodels.GrpcGetContextValueRequest,
-) (*grpcmodels.GrpcGuid, error) {
-	executionContextValues := this.getExecutionContextValues(request.ExecutionId)
-	if executionContextValues.IsErr() {
-		return nil, executionContextValues.Err()
-	}
-
-	id, ok := (*executionContextValues.Ok())[request.Key.Name]
-	if !ok {
-		msg := "context value for execution id %s and context value key %s are not found"
-		return nil, status.Errorf(codes.NotFound, msg, request.ExecutionId.Guid, request.Key.Name)
-	}
-
-	return &grpcmodels.GrpcGuid{Guid: id.String()}, nil
-}
-
-func (this *BackendServiceServer) getExecutionContextValues(id *grpcmodels.GrpcGuid) result.Result[map[string]uuid.UUID] {
-	executionId, err := uuid.Parse(id.Guid)
-	if err != nil {
-		err := status.Errorf(codes.InvalidArgument, "failed to parse uuid %s", id.Guid)
-		return result.Err[map[string]uuid.UUID](err)
-	}
-
-	executionContextValues, ok := this.executor.GetContextValues(executionId)
-	if !ok {
-		err := status.Errorf(codes.NotFound, "context values for execution id %s are not found", executionId)
-		return result.Err[map[string]uuid.UUID](err)
-	}
-
-	return result.Ok(&executionContextValues)
 }
 
 func (this *BackendServiceServer) DropExecutionResult(context context.Context, id *grpcmodels.GrpcGuid) (*emptypb.Empty, error) {
@@ -163,22 +129,4 @@ func (this *BackendServiceServer) GetBackendInfo(context.Context, *emptypb.Empty
 	}
 
 	return &grpcmodels.GrpcFicusBackendInfo{Name: "GO_BALANCER", PipelineParts: pipelineParts}, nil
-}
-
-func (this *BackendServiceServer) GetAllContextValues(
-	_ context.Context,
-	id *grpcmodels.GrpcGuid,
-) (*grpcmodels.GrpcGetAllContextValuesResult, error) {
-	executionContextValues := this.getExecutionContextValues(id)
-	if executionContextValues.IsErr() {
-		return nil, executionContextValues.Err()
-	}
-
-	var ids []*grpcmodels.GrpcGuid
-
-	for _, id := range *executionContextValues.Ok() {
-		ids = append(ids, &grpcmodels.GrpcGuid{Guid: id.String()})
-	}
-
-	return &grpcmodels.GrpcGetAllContextValuesResult{ContextValues: ids}, nil
 }

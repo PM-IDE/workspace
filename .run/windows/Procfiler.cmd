@@ -1,6 +1,7 @@
+dotnet clean %PM_IDE_ROOT%/All.sln
 dotnet build %PM_IDE_ROOT%/All.sln
 
-%PM_IDE_ROOT%/Procfiler/src/dotnet/Procfiler/bin/Release/net9.0/Procfiler.exe procfiler^
+%PM_IDE_ROOT%/Procfiler/src/dotnet/Procfiler/bin/Release/net10.0/Procfiler.exe procfiler^
  collect-to-xes^
  -csproj^
  %PM_IDE_ROOT%\Procfiler\test_data\source\LOHAllocations\LOHAllocations.csproj^
