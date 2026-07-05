@@ -1,3 +1,4 @@
+use super::errors::pipeline_errors::PipelinePartExecutionError;
 use crate::{
   pipelines::pipeline_parts::PipelineParts,
   utils::{
@@ -8,9 +9,8 @@ use crate::{
     },
   },
 };
+use getset::Getters;
 use std::{any::Any, sync::Arc};
-
-use super::errors::pipeline_errors::PipelinePartExecutionError;
 
 pub trait LogMessageHandler: Send + Sync {
   fn handle(&self, message: &str) -> Result<(), PipelinePartExecutionError>;
@@ -41,29 +41,20 @@ impl PipelineInfrastructure {
   }
 }
 
-#[derive(Clone, Default)]
-pub struct PipelineContext<'a> {
+#[derive(Clone, Getters)]
+pub struct PipelineContext {
   user_data: UserDataImpl,
-  pipeline_parts: Option<&'a PipelineParts>,
 }
 
-impl<'a> PipelineContext<'a> {
-  pub fn new_with_logging(parts: &'a PipelineParts) -> Self {
+impl PipelineContext {
+  pub fn empty() -> Self {
     Self {
       user_data: Default::default(),
-      pipeline_parts: Some(parts),
-    }
-  }
-
-  pub fn empty_from(other: &'a PipelineContext) -> Self {
-    Self {
-      user_data: Default::default(),
-      pipeline_parts: other.pipeline_parts,
     }
   }
 }
 
-impl<'a> UserData for PipelineContext<'a> {
+impl UserData for PipelineContext {
   fn len(&self) -> usize {
     self.user_data.len()
   }
@@ -101,11 +92,7 @@ impl<'a> UserData for PipelineContext<'a> {
   }
 }
 
-impl<'a> PipelineContext<'a> {
-  pub fn pipeline_parts(&self) -> Option<&PipelineParts> {
-    self.pipeline_parts
-  }
-
+impl PipelineContext {
   pub fn devastate_user_data(self) -> UserDataImpl {
     self.user_data
   }

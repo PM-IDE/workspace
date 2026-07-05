@@ -13,6 +13,7 @@ use ficus::{
   pipelines::{
     context::{PipelineContext, PipelineInfrastructure},
     keys::context_keys::EVENT_LOG_KEY,
+    pipeline_parts::PipelineParts,
     pipelines::PipelinePart,
   },
   utils::user_data::user_data::UserData,
@@ -55,7 +56,8 @@ impl T2StreamingProcessor {
     };
 
     let xes_trace = if let Some(preprocessing_pipeline) = self.trace_preprocessing_pipeline.as_ref() {
-      let mut preprocessing_context = PipelineContext::default();
+      let mut preprocessing_context = PipelineContext::empty();
+
       let mut log = XesEventLogImpl::default();
       log.push(Rc::new(RefCell::new(xes_trace)));
 
@@ -65,7 +67,6 @@ impl T2StreamingProcessor {
       let preprocessing_pipeline = ServicePipelineExecutionContext::new(
         preprocessing_pipeline,
         &initial_context_values,
-        context.execution_dto.pipeline_parts.clone(),
         context.execution_dto.events_handler.clone(),
       );
 

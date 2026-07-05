@@ -1,4 +1,7 @@
-use ficus::{pipelines::pipeline_parts::PipelineParts, vecs};
+use ficus::{
+  pipelines::pipeline_parts::{PIPELINE_PARTS, PipelineParts},
+  vecs,
+};
 
 fn get_test_parts_names() -> Vec<String> {
   vecs![
@@ -97,18 +100,16 @@ fn get_test_parts_names() -> Vec<String> {
 
 #[test]
 fn test_pipeline_parts() {
-  let parts = PipelineParts::new();
   let names = get_test_parts_names();
 
   for name in names {
-    assert!(parts.find_part(name.as_str()).is_some());
+    assert!(PIPELINE_PARTS.find_part(name.as_str()).is_some());
   }
 }
 
 #[test]
 fn test_pipeline_parts_count() {
-  let parts = PipelineParts::new();
   let names = get_test_parts_names();
 
-  assert_eq!(parts.len(), names.len());
+  assert_eq!(PIPELINE_PARTS.len(), names.len());
 }
