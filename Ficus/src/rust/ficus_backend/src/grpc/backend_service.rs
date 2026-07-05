@@ -9,7 +9,7 @@ use crate::{
   },
   grpc::{context_values_service::ContextValueService, pipeline_executor::ServicePipelineExecutionContext},
 };
-use ficus::pipelines::pipeline_parts::PipelineParts;
+use ficus::pipelines::pipeline_parts::{PIPELINE_PARTS, PipelineParts};
 use futures::Stream;
 use std::{pin::Pin, sync::Arc};
 use tokio::sync::mpsc::{self, Sender};
@@ -21,15 +21,11 @@ pub(super) type GrpcSender = Sender<Result<GrpcPipelinePartExecutionResult, Stat
 
 pub struct FicusService {
   cv_service: Arc<ContextValueService>,
-  pipeline_parts: Arc<PipelineParts>,
 }
 
 impl FicusService {
   pub fn new(cv_service: Arc<ContextValueService>) -> Self {
-    Self {
-      cv_service,
-      pipeline_parts: Arc::new(PipelineParts::new()),
-    }
+    Self { cv_service }
   }
 }
 
@@ -41,7 +37,6 @@ impl GrpcBackendService for FicusService {
     &self,
     request: Request<GrpcProxyPipelineExecutionRequest>,
   ) -> Result<Response<Self::ExecutePipelineStream>, Status> {
-    let pipeline_parts = self.pipeline_parts.clone();
     let (sender, receiver) = mpsc::channel(4);
 
     let context_values = match self.cv_service.reclaim_context_values(&request.get_ref().context_values_ids) {
@@ -59,7 +54,7 @@ impl GrpcBackendService for FicusService {
 
       let sender = Arc::new(GrpcPipelineEventsHandler::new(sender));
       let sender = sender as Arc<dyn PipelineEventsHandler>;
-      let context = ServicePipelineExecutionContext::new(grpc_pipeline, &context_values, pipeline_parts, sender);
+      let context = ServicePipelineExecutionContext::new(grpc_pipeline, &context_values, sender);
 
       match context.execute_grpc_pipeline_and_fill_context_values(|_| Ok(()), cv_service) {
         Ok(uuid) => {
@@ -85,8 +80,7 @@ impl GrpcBackendService for FicusService {
   async fn get_backend_info(&self, _: Request<()>) -> Result<Response<GrpcFicusBackendInfo>, Status> {
     Ok(Response::new(GrpcFicusBackendInfo {
       name: "RUST_FICUS_BACKEND".to_string(),
-      pipeline_parts: self
-        .pipeline_parts
+      pipeline_parts: PIPELINE_PARTS
         .pipeline_parts_descriptors()
         .into_iter()
         .map(|d| GrpcPipelinePartDescriptor { name: d.name() })

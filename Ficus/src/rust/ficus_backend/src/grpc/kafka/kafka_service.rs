@@ -90,16 +90,14 @@ impl KafkaSubscription {
 }
 
 pub struct KafkaService {
-  pipeline_parts: Arc<PipelineParts>,
   subscriptions_to_execution_requests: Arc<Mutex<HashMap<Uuid, KafkaSubscription>>>,
   cv_service: Arc<ContextValueService>,
   logger: ConsoleLogMessageHandler,
 }
 
 impl KafkaService {
-  pub fn new(pipeline_parts: Arc<PipelineParts>, cv_service: Arc<ContextValueService>) -> Self {
+  pub fn new(cv_service: Arc<ContextValueService>) -> Self {
     Self {
-      pipeline_parts,
       subscriptions_to_execution_requests: Arc::new(Mutex::new(HashMap::new())),
       logger: ConsoleLogMessageHandler::new(),
       cv_service,
@@ -228,10 +226,7 @@ impl KafkaService {
         continue;
       };
 
-      let execution_dto = PipelineExecutionDto::new(
-        Arc::new(PipelineParts::new()),
-        Arc::new(EmptyPipelineEventsHandler::new()) as Arc<dyn PipelineEventsHandler>,
-      );
+      let execution_dto = PipelineExecutionDto::new(Arc::new(EmptyPipelineEventsHandler::new()) as Arc<dyn PipelineEventsHandler>);
 
       let trace_processing_context = KafkaTraceProcessingContext { execution_dto, trace };
 
@@ -284,7 +279,7 @@ impl KafkaService {
     };
 
     let handler = handler as Arc<dyn PipelineEventsHandler>;
-    let execution_dto = PipelineExecutionDto::new(Arc::new(PipelineParts::new()), handler);
+    let execution_dto = PipelineExecutionDto::new(handler);
     let context = Self::create_pipeline_execution_context(&pipeline.request, &execution_dto);
 
     let result = context.execute_grpc_pipeline_and_fill_context_values(
@@ -341,7 +336,7 @@ impl KafkaService {
     streaming_config: StreamingConfiguration,
   ) -> KafkaSubscriptionPipeline {
     let handler = Arc::new(handler) as Arc<dyn PipelineEventsHandler>;
-    let dto = PipelineExecutionDto::new(self.pipeline_parts.clone(), handler);
+    let dto = PipelineExecutionDto::new(handler);
     KafkaSubscriptionPipeline::new(request, dto, pipeline_name, streaming_config.create_processor())
   }
 
@@ -375,7 +370,7 @@ impl KafkaService {
     context_values: &'a Vec<GrpcContextKeyValue>,
     dto: &PipelineExecutionDto,
   ) -> ServicePipelineExecutionContext<'a> {
-    ServicePipelineExecutionContext::new(pipeline, context_values, dto.pipeline_parts.clone(), dto.events_handler.clone())
+    ServicePipelineExecutionContext::new(pipeline, context_values, dto.events_handler.clone())
   }
 
   fn create_pipeline_execution_context<'a>(
@@ -384,12 +379,7 @@ impl KafkaService {
   ) -> ServicePipelineExecutionContext<'a> {
     let grpc_pipeline = pipeline_req.pipeline.as_ref().expect("Pipeline should be supplied");
 
-    ServicePipelineExecutionContext::new(
-      grpc_pipeline,
-      &pipeline_req.initial_context,
-      dto.pipeline_parts.clone(),
-      dto.events_handler.clone(),
-    )
+    ServicePipelineExecutionContext::new(grpc_pipeline, &pipeline_req.initial_context, dto.events_handler.clone())
   }
 
   pub(super) fn create_kafka_events_handler(producer_metadata: Option<&GrpcKafkaConnectionMetadata>) -> Result<KafkaEventsHandler, Status> {

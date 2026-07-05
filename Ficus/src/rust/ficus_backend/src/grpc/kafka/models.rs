@@ -69,16 +69,12 @@ impl Display for XesFromBxesKafkaTraceCreatingError {
 
 #[derive(Clone)]
 pub struct PipelineExecutionDto {
-  pub(super) pipeline_parts: Arc<PipelineParts>,
   pub(super) events_handler: Arc<dyn PipelineEventsHandler>,
 }
 
 impl PipelineExecutionDto {
-  pub fn new(pipeline_parts: Arc<PipelineParts>, events_handler: Arc<dyn PipelineEventsHandler>) -> Self {
-    Self {
-      pipeline_parts,
-      events_handler,
-    }
+  pub fn new(events_handler: Arc<dyn PipelineEventsHandler>) -> Self {
+    Self { events_handler }
   }
 }
 
