@@ -28,8 +28,6 @@ impl Display for XmlWriteError {
   }
 }
 
-impl Error for XmlWriteError {}
-
 pub fn write_empty<T>(writer: &mut Writer<T>, tag_name: &str, attrs: &Vec<(&str, &str)>) -> Result<(), XmlWriteError>
 where
   T: std::io::Write,

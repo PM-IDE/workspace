@@ -28,8 +28,6 @@ impl Display for SoftwareDataExtractionError {
   }
 }
 
-impl Error for SoftwareDataExtractionError {}
-
 pub trait EventGroupSoftwareDataExtractor {
   fn extract(&self, software_data: &mut SoftwareData, event_group: &EventGroup) -> Result<(), SoftwareDataExtractionError> {
     let events = event_group

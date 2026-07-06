@@ -87,8 +87,6 @@ impl Display for LogThreadsDiagramError {
   }
 }
 
-impl Error for LogThreadsDiagramError {}
-
 impl From<LogThreadsDiagramError> for PipelinePartExecutionError {
   fn from(val: LogThreadsDiagramError) -> Self {
     PipelinePartExecutionError::Raw(RawPartExecutionError::new(val.to_string()))

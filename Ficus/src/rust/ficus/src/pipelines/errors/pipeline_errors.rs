@@ -56,8 +56,6 @@ impl Display for RawPartExecutionError {
   }
 }
 
-impl Error for RawPartExecutionError {}
-
 impl RawPartExecutionError {
   pub fn new(message: String) -> Self {
     Self { message }
