@@ -4,7 +4,6 @@ use crate::{
 };
 use std::{
   cell::RefCell,
-  error::Error,
   fmt::{Debug, Display, Formatter},
   rc::Rc,
   str::FromStr,

@@ -9,7 +9,7 @@ use crate::{
   },
   grpc::{context_values_service::ContextValueService, pipeline_executor::ServicePipelineExecutionContext},
 };
-use ficus::pipelines::pipeline_parts::{PIPELINE_PARTS, PipelineParts};
+use ficus::pipelines::pipeline_parts::PIPELINE_PARTS;
 use futures::Stream;
 use std::{pin::Pin, sync::Arc};
 use tokio::sync::mpsc::{self, Sender};

@@ -13,7 +13,6 @@ use ficus::{
   pipelines::{
     context::{PipelineContext, PipelineInfrastructure},
     keys::context_keys::EVENT_LOG_KEY,
-    pipeline_parts::PipelineParts,
     pipelines::PipelinePart,
   },
   utils::user_data::user_data::UserData,

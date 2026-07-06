@@ -4,7 +4,6 @@ use quick_xml::{
 };
 use std::{
   cell::RefCell,
-  error::Error,
   fmt::{Debug, Display},
   io,
   string::FromUtf8Error,

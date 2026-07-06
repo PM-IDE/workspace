@@ -9,7 +9,6 @@ use ficus::{
     context::PipelineContext,
     errors::pipeline_errors::PipelinePartExecutionError,
     keys::context_keys::{CASE_NAME_KEY, PROCESS_NAME_KEY, UNSTRUCTURED_METADATA_KEY},
-    pipeline_parts::PipelineParts,
   },
   utils::user_data::user_data::UserData,
 };

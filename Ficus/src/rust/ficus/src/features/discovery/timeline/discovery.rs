@@ -15,7 +15,6 @@ use getset::{Getters, MutGetters};
 use std::{
   cell::RefCell,
   collections::HashMap,
-  error::Error,
   fmt::{Debug, Display, Formatter},
   ops::Deref,
   rc::Rc,

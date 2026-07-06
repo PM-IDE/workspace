@@ -1,12 +1,9 @@
 use super::errors::pipeline_errors::PipelinePartExecutionError;
-use crate::{
-  pipelines::pipeline_parts::PipelineParts,
-  utils::{
-    performance::performance_cookie::PerformanceLogger,
-    user_data::{
-      keys::{DefaultKey, Key},
-      user_data::{UserData, UserDataImpl},
-    },
+use crate::utils::{
+  performance::performance_cookie::PerformanceLogger,
+  user_data::{
+    keys::{DefaultKey, Key},
+    user_data::{UserData, UserDataImpl},
   },
 };
 use getset::Getters;
