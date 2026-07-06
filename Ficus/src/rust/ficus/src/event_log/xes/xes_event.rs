@@ -9,21 +9,12 @@ use crate::{
   },
 };
 use chrono::{DateTime, Utc};
-use std::{
-  collections::HashMap,
-  fmt::{Debug, Formatter},
-  sync::Arc,
-};
+use std::{collections::HashMap, fmt::Debug, sync::Arc};
 
+#[derive(Debug)]
 pub struct XesEventImpl {
   event_base: EventBase,
   payload: Option<HashMap<Arc<str>, EventPayloadValue>>,
-}
-
-impl Debug for XesEventImpl {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    f.write_str(self.name_pointer())
-  }
 }
 
 impl XesEventImpl {

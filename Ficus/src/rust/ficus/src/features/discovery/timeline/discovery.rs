@@ -74,14 +74,9 @@ pub struct TraceThreadEvent {
   stamp: i64,
 }
 
+#[derive(Debug)]
 pub enum LogThreadsDiagramError {
   NotSupportedEventStamp,
-}
-
-impl Debug for LogThreadsDiagramError {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    Display::fmt(self, f)
-  }
 }
 
 impl Display for LogThreadsDiagramError {

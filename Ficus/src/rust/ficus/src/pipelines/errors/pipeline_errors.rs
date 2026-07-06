@@ -28,6 +28,7 @@ impl PipelinePartExecutionError {
   }
 }
 
+#[derive(Debug)]
 pub struct MissingContextError {
   context_key_name: String,
 }
@@ -44,14 +45,7 @@ impl Display for MissingContextError {
   }
 }
 
-impl Debug for MissingContextError {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    f.debug_struct("MissingContextError")
-      .field("context_key_name", &self.context_key_name)
-      .finish()
-  }
-}
-
+#[derive(Debug)]
 pub struct RawPartExecutionError {
   message: String,
 }
@@ -59,14 +53,6 @@ pub struct RawPartExecutionError {
 impl Display for RawPartExecutionError {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     f.write_str(&self.message)
-  }
-}
-
-impl Debug for RawPartExecutionError {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    f.debug_struct("PipelinePartExecutionError")
-      .field("message", &self.message)
-      .finish()
   }
 }
 
