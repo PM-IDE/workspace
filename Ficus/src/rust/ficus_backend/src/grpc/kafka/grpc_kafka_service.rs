@@ -16,7 +16,13 @@ use crate::{
     kafka::{kafka_service::KafkaService, models::PipelineExecutionDto},
   },
 };
-use ficus::{features::cases::CaseName, pipelines::keys::context_keys, utils::user_data::user_data::UserData};
+use ficus::{
+  features::cases::CaseName,
+  pipelines::keys::context_keys::{
+    CASE_NAME_KEY, PIPELINE_ID_KEY, PIPELINE_NAME_KEY, PROCESS_NAME_KEY, SUBSCRIPTION_ID_KEY, SUBSCRIPTION_NAME_KEY,
+  },
+  utils::user_data::user_data::UserData,
+};
 use futures::Stream;
 use std::{pin::Pin, sync::Arc};
 use tokio::sync::mpsc;
