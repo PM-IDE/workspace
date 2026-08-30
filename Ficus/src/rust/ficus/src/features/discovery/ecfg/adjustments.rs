@@ -134,6 +134,7 @@ fn connect_added_merged_node_to_graph(nodes_ids: &NeededNodesIds, added_node: &u
     added_node,
     NodesConnectionData::new(None, start_node_edge_weight, None),
   );
+
   graph.connect_nodes(
     added_node,
     &nodes_ids.end_node,

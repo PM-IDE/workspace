@@ -10,6 +10,11 @@ struct PlaceTransitions {
   outgoing_transitions: Vec<u64>,
 }
 
+pub const EMPTY_PLACE_TRANSITIONS: &PlaceTransitions = &PlaceTransitions {
+  incoming_transitions: vec![],
+  outgoing_transitions: vec![],
+};
+
 #[derive(Debug, Default)]
 pub struct PetriNet<TTransitionData, TArcData>
 where
@@ -50,10 +55,10 @@ where
     id
   }
 
-  pub fn connect_place_to_transition(&mut self, from_place_id: &u64, to_transition_index: &u64, arc_data: Option<TArcData>) {
+  pub fn connect_place_to_transition(&mut self, from_place_id: &u64, to_transition_id: &u64, arc_data: Option<TArcData>) {
     self
       .transitions
-      .get_mut(to_transition_index)
+      .get_mut(to_transition_id)
       .unwrap()
       .add_incoming_arc(from_place_id, arc_data);
 
@@ -63,7 +68,7 @@ where
       .get_mut(from_place_id)
       .unwrap()
       .outgoing_transitions
-      .push(*to_transition_index);
+      .push(*to_transition_id);
   }
 
   fn init_places_transitions(&mut self, place_id: &u64) {
@@ -160,7 +165,7 @@ where
   }
 
   fn get_place_transitions(&self, place_id: &u64) -> &PlaceTransitions {
-    self.places_to_transitions.get(place_id).unwrap()
+    self.places_to_transitions.get(place_id).unwrap_or(EMPTY_PLACE_TRANSITIONS)
   }
 
   fn map_transitions(&self, ids: &[u64]) -> Vec<&Transition<TTransitionData, TArcData>> {
