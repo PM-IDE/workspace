@@ -9,6 +9,7 @@ use std::{
   collections::{HashMap, VecDeque},
   sync::Arc,
 };
+use std::fmt::format;
 
 pub fn convert_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet, ()> {
   if graph.all_nodes().is_empty() {
@@ -24,43 +25,36 @@ pub fn convert_to_petri_net(graph: &DefaultGraph) -> Result<DefaultPetriNet, ()>
     .expect("must contain start node");
 
   let mut petri_net = DefaultPetriNet::default();
-  let start_place = Place::with_name(ARTIFICIAL_START_EVENT_NAME.to_string());
-  let start_place = petri_net.add_place(start_place);
 
-  let mut q = VecDeque::new();
-  q.push_back((start_place, start_node));
+  let mut next_place_id = 0;
+  let mut nodes_data = HashMap::new();
 
-  let mut nodes_to_places = HashMap::<u64, u64>::default();
-
-  while let Some((from_place, node)) = q.pop_front() {
-    let node = graph.node(&node).expect("must be in graph");
+  for node in graph.all_nodes() {
     let name = Arc::clone(node.data.as_ref().expect("must have name for all transitions"));
-    let t_id = if let Some(t) = petri_net
-      .get_outgoing_transitions(&from_place)
-      .iter()
-      .find(|t| t.name() == name.as_ref())
-    {
-      t.id()
-    } else {
-      println!("{from_place:?}, {name:?}, {:?}", petri_net.get_outgoing_transitions(&from_place));
-      petri_net.add_transition(Transition::empty(name.clone(), false, None))
-    };
+    let t_id = petri_net.add_transition(Transition::empty(name.clone(), false, None));
 
-    let to_place = nodes_to_places.get(&node.id()).copied().unwrap_or_else(|| {
-      let next_id = petri_net.all_places().len();
-      petri_net.add_place(Place::with_name(format!("From-{name}-{next_id}")))
-    });
+    let in_place = petri_net.add_place(Place::with_name(format!("{next_place_id}")));
+    let out_place = petri_net.add_place(Place::with_name(format!("{}", next_place_id + 1)));
 
-    if !petri_net.transition(&t_id).outgoing_arcs().iter().any(|a| a.place_id() == to_place) {
-      petri_net.connect_place_to_transition(&from_place, &t_id, None);
-      petri_net.connect_transition_to_place(&t_id, &to_place, None);
+    petri_net.connect_place_to_transition(&in_place, &t_id, None);
+    petri_net.connect_transition_to_place(&t_id, &out_place, None);
 
-      nodes_to_places.insert(node.id, to_place);
-    }
+    nodes_data.insert(node.id, (in_place, out_place));
+    next_place_id += 2;
+  }
 
-    for &out_node in graph.outgoing_nodes(node.id()) {
-      q.push_back((to_place, out_node));
-    }
+  let mut s_t_idx = 0;
+  for edge in graph.all_edges() {
+    let from_place = nodes_data[edge.from_node()].1;
+    let to_place = nodes_data[edge.to_node()].0;
+
+    let name = Arc::from(format!("{s_t_idx}"));
+    let s_t = petri_net.add_transition(Transition::empty(name, true, None));
+
+    petri_net.connect_place_to_transition(&from_place, &s_t, None);
+    petri_net.connect_transition_to_place(&s_t, &to_place, None);
+
+    s_t_idx += 1;
   }
 
   Ok(petri_net)
